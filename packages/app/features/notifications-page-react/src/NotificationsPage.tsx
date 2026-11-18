@@ -1,8 +1,9 @@
 import type React from 'react'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import { type FeedItem, NotificationFeed } from '@molecule/app-notification-feed-react'
 import { useHttpClient, useTranslation } from '@molecule/app-react'
+import { useValueAtKeyChange } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 
 import { resolveTypeIcon } from './typeIcons.js'
@@ -90,63 +91,77 @@ export function NotificationsPage({
 
   const [filter, setFilter] = useState<NotificationsPageFilter>('all')
   const [offset, setOffset] = useState(0)
+  const [reloadCount, setReloadCount] = useState(0)
   const [state, setState] = useState<PageState>(INITIAL_STATE)
 
   const limit = pageSize
 
-  const load = useCallback(
-    async (nextFilter: NotificationsPageFilter, nextOffset: number) => {
-      setState((prev) => ({ ...prev, loading: true, error: null }))
-      try {
-        const url = `${endpoint}${buildQuery(nextFilter, nextOffset, limit)}`
-        const res = await http.get<NotificationsPageResult>(url)
-        setState({
-          items: res.data.items,
-          total: res.data.total,
-          loading: false,
-          error: null,
-        })
-      } catch (err) {
+  // The list request follows the filter, the page and a reload asked for after
+  // mark-all-read. The effect writes no state of its own: the loading flag is
+  // raised by the interaction that changed the query (see `beginLoad`), and the
+  // response settles the page. A response for a superseded query is dropped, so
+  // a slow earlier page cannot replace the page now on screen.
+  useEffect(() => {
+    let ignore = false
+    void http.get<NotificationsPageResult>(`${endpoint}${buildQuery(filter, offset, limit)}`).then(
+      (res) => {
+        if (ignore) return
+        setState({ items: res.data.items, total: res.data.total, loading: false, error: null })
+      },
+      (err: unknown) => {
+        if (ignore) return
         const error = err instanceof Error ? err : new Error(String(err))
         setState({ items: [], total: 0, loading: false, error })
-      }
-    },
-    [endpoint, http, limit],
-  )
+      },
+    )
+    return () => {
+      ignore = true
+    }
+  }, [endpoint, filter, http, limit, offset, reloadCount])
 
-  useEffect(() => {
-    void load(filter, offset)
-  }, [load, filter, offset])
+  /**
+   * Marks the page as loading and clears the previous failure, for the
+   * interactions that are about to change the query.
+   */
+  const beginLoad = (): void => {
+    setState((prev) => ({ ...prev, loading: true, error: null }))
+  }
 
-  const onChangeFilter = useCallback((next: NotificationsPageFilter) => {
+  const onChangeFilter = (next: NotificationsPageFilter): void => {
+    // Re-selecting the active filter on its first page changes nothing; on a
+    // later page it keeps its own contract of returning to page one.
+    if (next === filter && offset === 0) return
+    beginLoad()
     setFilter(next)
     setOffset(0)
-  }, [])
+  }
 
-  const onMarkAllRead = useCallback(async () => {
+  const onMarkAllRead = async (): Promise<void> => {
     try {
       await http.post(markAllReadEndpoint, undefined)
     } catch (_error) {
       // Swallow — mark-all-read is best-effort. The reload below
-      // will surface any persistent error via the normal load() path.
+      // will surface any persistent error via the normal request path.
     }
-    await load(filter, offset)
-  }, [http, markAllReadEndpoint, load, filter, offset])
+    beginLoad()
+    setReloadCount((count) => count + 1)
+  }
 
-  const feedItems: FeedItem[] = useMemo(
-    () =>
-      state.items.map((n) => {
-        const href = typeof n.data?.href === 'string' && n.data.href.length > 0 ? n.data.href : null
-        return {
-          id: n.id,
-          icon: resolveTypeIcon(n.type, typeIcons),
-          title: n.title,
-          body: n.body,
-          createdAt: n.createdAt,
-          href,
-          unread: !n.read,
-        }
-      }),
+  // The mapped rows keep one identity until the items or the icon overrides
+  // change, so the feed's own memo does not see a new array every render.
+  const feedItems: FeedItem[] = useValueAtKeyChange<FeedItem[]>(
+    state.items.map((n) => {
+      const href = typeof n.data?.href === 'string' && n.data.href.length > 0 ? n.data.href : null
+      return {
+        id: n.id,
+        icon: resolveTypeIcon(n.type, typeIcons),
+        title: n.title,
+        body: n.body,
+        createdAt: n.createdAt,
+        href,
+        unread: !n.read,
+      }
+    }),
     [state.items, typeIcons],
   )
 
@@ -288,7 +303,10 @@ export function NotificationsPage({
           <button
             type="button"
             disabled={!hasPrev}
-            onClick={() => setOffset(Math.max(0, offset - limit))}
+            onClick={() => {
+              beginLoad()
+              setOffset(Math.max(0, offset - limit))
+            }}
             data-mol-id="notifications-page-prev"
             className={cm.cn(
               cm.textSize('sm'),
@@ -308,7 +326,10 @@ export function NotificationsPage({
           <button
             type="button"
             disabled={!hasNext}
-            onClick={() => setOffset(offset + limit)}
+            onClick={() => {
+              beginLoad()
+              setOffset(offset + limit)
+            }}
             data-mol-id="notifications-page-next"
             className={cm.cn(
               cm.textSize('sm'),

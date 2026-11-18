@@ -32,10 +32,11 @@
  * ```
  *
  * @remarks
- * Built-in labels (`botPickerLabel` default "Test bot", `inputPlaceholder`
- * default "Type a message…", `sendLabel` default "Send") are hardcoded
- * English — there is no companion locale bond. For localized apps, pass all
- * three props with `t('key', {}, { defaultValue: '…' })` values.
+ * Built-in labels (`botPickerLabel` "Test bot", `inputPlaceholder`
+ * "Type a message…", `sendLabel` "Send") go through `t()` with the
+ * `chatbotTester.*` keys of the companion locale bond
+ * `@molecule/app-locales-chatbot-tester`; an explicit prop still overrides
+ * them.
  * Enter sends; Shift+Enter inserts a newline. The bot picker renders only
  * when `bots` has 2+ entries. Styling includes Tailwind classes with
  * Material-3 tokens (`bg-surface-container-high`, `border-outline-variant`,

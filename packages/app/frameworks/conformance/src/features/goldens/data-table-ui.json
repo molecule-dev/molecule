@@ -1,0 +1,352 @@
+{
+ "exports": [
+  "DataTableCard",
+  "RowWithActions",
+  "TableEmpty",
+  "TableFooter",
+  "TableToolbar"
+ ],
+ "values": {},
+ "cases": {
+  "DataTableCard": {
+   "defaults, two rows": {
+    "snapshots": [
+     "<section class=\"c1723ea4b c2bf204c1 c2cbb8333 c5494c1c8 c8f19053a c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"cff4495c2\">\n<table class=\"c2d7a5b64 cbf033fe8 cf630af81\">\n<thead>\n<tr class=\"c82d97ef1 ce2ca5664 cf2199df4\">\n<th class=\"c052585d2 c20f5df36 c267fcecb c833cc350 ca46eac0b cdf83deeb cf912fafe\">\nName\n</th>\n<th class=\"c052585d2 c20f5df36 c267fcecb c8f3cd634 ca46eac0b cdf83deeb cf912fafe\">\nRole\n</th>\n</tr>\n</thead>\n<tbody class=\"c56268a30 c7764373a\">\n<tr class=\"c7d370ab9 ce2316621\">\n<td class=\"c833cc350 ca36eaa78\">\n<span data-name>\nalpha\n</span>\n</td>\n<td class=\"c8f3cd634 ca36eaa78\">\n<em data-role>\nadmin\n</em>\n</td>\n</tr>\n<tr class=\"c7d370ab9 ce2316621\">\n<td class=\"c833cc350 ca36eaa78\">\n<span data-name>\nbeta\n</span>\n</td>\n<td class=\"c8f3cd634 ca36eaa78\">\n<em data-role>\nmember\n</em>\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n</section>\n@route /"
+    ],
+    "calls": []
+   },
+   "a string title": {
+    "snapshots": [
+     "<section class=\"c1723ea4b c2bf204c1 c2cbb8333 c5494c1c8 c8f19053a c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c3f8a1734 c42740ba6 c833cc350 c937ba156 ccae02ff2 cd9b20003\">\n<h3 class=\"c0d99ed10 c4547f4fd ce6c94376\">\nTeam members\n</h3>\n</div>\n<div class=\"cff4495c2\">\n<table class=\"c2d7a5b64 cbf033fe8 cf630af81\">\n<thead>\n<tr class=\"c82d97ef1 ce2ca5664 cf2199df4\">\n<th class=\"c052585d2 c20f5df36 c267fcecb c833cc350 ca46eac0b cdf83deeb cf912fafe\">\nName\n</th>\n<th class=\"c052585d2 c20f5df36 c267fcecb c8f3cd634 ca46eac0b cdf83deeb cf912fafe\">\nRole\n</th>\n</tr>\n</thead>\n<tbody class=\"c56268a30 c7764373a\">\n<tr class=\"c7d370ab9 ce2316621\">\n<td class=\"c833cc350 ca36eaa78\">\n<span data-name>\nalpha\n</span>\n</td>\n<td class=\"c8f3cd634 ca36eaa78\">\n<em data-role>\nadmin\n</em>\n</td>\n</tr>\n<tr class=\"c7d370ab9 ce2316621\">\n<td class=\"c833cc350 ca36eaa78\">\n<span data-name>\nbeta\n</span>\n</td>\n<td class=\"c8f3cd634 ca36eaa78\">\n<em data-role>\nmember\n</em>\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n</section>\n@route /"
+    ],
+    "calls": []
+   },
+   "a node title and a title action": {
+    "snapshots": [
+     "<section class=\"c1723ea4b c2bf204c1 c2cbb8333 c5494c1c8 c8f19053a c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c3f8a1734 c42740ba6 c833cc350 c937ba156 ccae02ff2 cd9b20003\">\n<h3 class=\"c0d99ed10 c4547f4fd ce6c94376\">\n<strong data-title>\nTeam members\n</strong>\n</h3>\n<a data-action href=\"/members\">\nView all\n</a>\n</div>\n<div class=\"cff4495c2\">\n<table class=\"c2d7a5b64 cbf033fe8 cf630af81\">\n<thead>\n<tr class=\"c82d97ef1 ce2ca5664 cf2199df4\">\n<th class=\"c052585d2 c20f5df36 c267fcecb c833cc350 ca46eac0b cdf83deeb cf912fafe\">\nName\n</th>\n<th class=\"c052585d2 c20f5df36 c267fcecb c8f3cd634 ca46eac0b cdf83deeb cf912fafe\">\nRole\n</th>\n</tr>\n</thead>\n<tbody class=\"c56268a30 c7764373a\">\n<tr class=\"c7d370ab9 ce2316621\">\n<td class=\"c833cc350 ca36eaa78\">\n<span data-name>\nalpha\n</span>\n</td>\n<td class=\"c8f3cd634 ca36eaa78\">\n<em data-role>\nadmin\n</em>\n</td>\n</tr>\n<tr class=\"c7d370ab9 ce2316621\">\n<td class=\"c833cc350 ca36eaa78\">\n<span data-name>\nbeta\n</span>\n</td>\n<td class=\"c8f3cd634 ca36eaa78\">\n<em data-role>\nmember\n</em>\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n</section>\n@route /"
+    ],
+    "calls": []
+   },
+   "a title action without a title": {
+    "snapshots": [
+     "<section class=\"c1723ea4b c2bf204c1 c2cbb8333 c5494c1c8 c8f19053a c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c3f8a1734 c42740ba6 c833cc350 c937ba156 ccae02ff2 cd9b20003\">\n<a data-action href=\"/members\">\nView all\n</a>\n</div>\n<div class=\"cff4495c2\">\n<table class=\"c2d7a5b64 cbf033fe8 cf630af81\">\n<thead>\n<tr class=\"c82d97ef1 ce2ca5664 cf2199df4\">\n<th class=\"c052585d2 c20f5df36 c267fcecb c833cc350 ca46eac0b cdf83deeb cf912fafe\">\nName\n</th>\n<th class=\"c052585d2 c20f5df36 c267fcecb c8f3cd634 ca46eac0b cdf83deeb cf912fafe\">\nRole\n</th>\n</tr>\n</thead>\n<tbody class=\"c56268a30 c7764373a\">\n<tr class=\"c7d370ab9 ce2316621\">\n<td class=\"c833cc350 ca36eaa78\">\n<span data-name>\nalpha\n</span>\n</td>\n<td class=\"c8f3cd634 ca36eaa78\">\n<em data-role>\nadmin\n</em>\n</td>\n</tr>\n<tr class=\"c7d370ab9 ce2316621\">\n<td class=\"c833cc350 ca36eaa78\">\n<span data-name>\nbeta\n</span>\n</td>\n<td class=\"c8f3cd634 ca36eaa78\">\n<em data-role>\nmember\n</em>\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n</section>\n@route /"
+    ],
+    "calls": []
+   },
+   "an empty title still renders the title row": {
+    "snapshots": [
+     "<section class=\"c1723ea4b c2bf204c1 c2cbb8333 c5494c1c8 c8f19053a c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c3f8a1734 c42740ba6 c833cc350 c937ba156 ccae02ff2 cd9b20003\">\n<h3 class=\"c0d99ed10 c4547f4fd ce6c94376\">\n</h3>\n</div>\n<div class=\"cff4495c2\">\n<table class=\"c2d7a5b64 cbf033fe8 cf630af81\">\n<thead>\n<tr class=\"c82d97ef1 ce2ca5664 cf2199df4\">\n<th class=\"c052585d2 c20f5df36 c267fcecb c833cc350 ca46eac0b cdf83deeb cf912fafe\">\nName\n</th>\n<th class=\"c052585d2 c20f5df36 c267fcecb c8f3cd634 ca46eac0b cdf83deeb cf912fafe\">\nRole\n</th>\n</tr>\n</thead>\n<tbody class=\"c56268a30 c7764373a\">\n<tr class=\"c7d370ab9 ce2316621\">\n<td class=\"c833cc350 ca36eaa78\">\n<span data-name>\nalpha\n</span>\n</td>\n<td class=\"c8f3cd634 ca36eaa78\">\n<em data-role>\nadmin\n</em>\n</td>\n</tr>\n<tr class=\"c7d370ab9 ce2316621\">\n<td class=\"c833cc350 ca36eaa78\">\n<span data-name>\nbeta\n</span>\n</td>\n<td class=\"c8f3cd634 ca36eaa78\">\n<em data-role>\nmember\n</em>\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n</section>\n@route /"
+    ],
+    "calls": []
+   },
+   "loading": {
+    "snapshots": [
+     "<section class=\"c1723ea4b c2bf204c1 c2cbb8333 c5494c1c8 c8f19053a c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"cff4495c2\">\n<table class=\"c2d7a5b64 cbf033fe8 cf630af81\">\n<thead>\n<tr class=\"c82d97ef1 ce2ca5664 cf2199df4\">\n<th class=\"c052585d2 c20f5df36 c267fcecb c833cc350 ca46eac0b cdf83deeb cf912fafe\">\nName\n</th>\n<th class=\"c052585d2 c20f5df36 c267fcecb c8f3cd634 ca46eac0b cdf83deeb cf912fafe\">\nRole\n</th>\n</tr>\n</thead>\n<tbody class=\"c56268a30 c7764373a\">\n<tr aria-hidden=\"true\">\n<td class=\"c833cc350 ca36eaa78\" colspan=\"2\">\n<div class=\"c727c13ba c82d97ef1 cc3672a4e cded75210\">\n</div>\n</td>\n</tr>\n<tr aria-hidden=\"true\">\n<td class=\"c833cc350 ca36eaa78\" colspan=\"2\">\n<div class=\"c727c13ba c82d97ef1 cc3672a4e cded75210\">\n</div>\n</td>\n</tr>\n<tr aria-hidden=\"true\">\n<td class=\"c833cc350 ca36eaa78\" colspan=\"2\">\n<div class=\"c727c13ba c82d97ef1 cc3672a4e cded75210\">\n</div>\n</td>\n</tr>\n<tr aria-hidden=\"true\">\n<td class=\"c833cc350 ca36eaa78\" colspan=\"2\">\n<div class=\"c727c13ba c82d97ef1 cc3672a4e cded75210\">\n</div>\n</td>\n</tr>\n<tr aria-hidden=\"true\">\n<td class=\"c833cc350 ca36eaa78\" colspan=\"2\">\n<div class=\"c727c13ba c82d97ef1 cc3672a4e cded75210\">\n</div>\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n</section>\n@route /"
+    ],
+    "calls": []
+   },
+   "loading wins over rows": {
+    "snapshots": [
+     "<section class=\"c1723ea4b c2bf204c1 c2cbb8333 c5494c1c8 c8f19053a c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"cff4495c2\">\n<table class=\"c2d7a5b64 cbf033fe8 cf630af81\">\n<thead>\n<tr class=\"c82d97ef1 ce2ca5664 cf2199df4\">\n<th class=\"c052585d2 c20f5df36 c267fcecb c833cc350 ca46eac0b cdf83deeb cf912fafe\">\nName\n</th>\n<th class=\"c052585d2 c20f5df36 c267fcecb c8f3cd634 ca46eac0b cdf83deeb cf912fafe\">\nRole\n</th>\n</tr>\n</thead>\n<tbody class=\"c56268a30 c7764373a\">\n<tr aria-hidden=\"true\">\n<td class=\"c833cc350 ca36eaa78\" colspan=\"2\">\n<div class=\"c727c13ba c82d97ef1 cc3672a4e cded75210\">\n</div>\n</td>\n</tr>\n<tr aria-hidden=\"true\">\n<td class=\"c833cc350 ca36eaa78\" colspan=\"2\">\n<div class=\"c727c13ba c82d97ef1 cc3672a4e cded75210\">\n</div>\n</td>\n</tr>\n<tr aria-hidden=\"true\">\n<td class=\"c833cc350 ca36eaa78\" colspan=\"2\">\n<div class=\"c727c13ba c82d97ef1 cc3672a4e cded75210\">\n</div>\n</td>\n</tr>\n<tr aria-hidden=\"true\">\n<td class=\"c833cc350 ca36eaa78\" colspan=\"2\">\n<div class=\"c727c13ba c82d97ef1 cc3672a4e cded75210\">\n</div>\n</td>\n</tr>\n<tr aria-hidden=\"true\">\n<td class=\"c833cc350 ca36eaa78\" colspan=\"2\">\n<div class=\"c727c13ba c82d97ef1 cc3672a4e cded75210\">\n</div>\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n</section>\n@route /"
+    ],
+    "calls": []
+   },
+   "empty rows with an empty message": {
+    "snapshots": [
+     "<section class=\"c1723ea4b c2bf204c1 c2cbb8333 c5494c1c8 c8f19053a c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"cff4495c2\">\n<table class=\"c2d7a5b64 cbf033fe8 cf630af81\">\n<thead>\n<tr class=\"c82d97ef1 ce2ca5664 cf2199df4\">\n<th class=\"c052585d2 c20f5df36 c267fcecb c833cc350 ca46eac0b cdf83deeb cf912fafe\">\nName\n</th>\n<th class=\"c052585d2 c20f5df36 c267fcecb c8f3cd634 ca46eac0b cdf83deeb cf912fafe\">\nRole\n</th>\n</tr>\n</thead>\n<tbody class=\"c56268a30 c7764373a\">\n<tr>\n<td class=\"c052585d2 c16e96f28 c833cc350 c89409342\" colspan=\"2\">\n<p data-empty>\nNo members yet.\n</p>\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n</section>\n@route /"
+    ],
+    "calls": []
+   },
+   "empty rows without an empty message": {
+    "snapshots": [
+     "<section class=\"c1723ea4b c2bf204c1 c2cbb8333 c5494c1c8 c8f19053a c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"cff4495c2\">\n<table class=\"c2d7a5b64 cbf033fe8 cf630af81\">\n<thead>\n<tr class=\"c82d97ef1 ce2ca5664 cf2199df4\">\n<th class=\"c052585d2 c20f5df36 c267fcecb c833cc350 ca46eac0b cdf83deeb cf912fafe\">\nName\n</th>\n<th class=\"c052585d2 c20f5df36 c267fcecb c8f3cd634 ca46eac0b cdf83deeb cf912fafe\">\nRole\n</th>\n</tr>\n</thead>\n<tbody class=\"c56268a30 c7764373a\">\n<tr>\n<td class=\"c052585d2 c16e96f28 c833cc350 c89409342\" colspan=\"2\">\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n</section>\n@route /"
+    ],
+    "calls": []
+   },
+   "loading wins over the empty message": {
+    "snapshots": [
+     "<section class=\"c1723ea4b c2bf204c1 c2cbb8333 c5494c1c8 c8f19053a c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"cff4495c2\">\n<table class=\"c2d7a5b64 cbf033fe8 cf630af81\">\n<thead>\n<tr class=\"c82d97ef1 ce2ca5664 cf2199df4\">\n<th class=\"c052585d2 c20f5df36 c267fcecb c833cc350 ca46eac0b cdf83deeb cf912fafe\">\nName\n</th>\n<th class=\"c052585d2 c20f5df36 c267fcecb c8f3cd634 ca46eac0b cdf83deeb cf912fafe\">\nRole\n</th>\n</tr>\n</thead>\n<tbody class=\"c56268a30 c7764373a\">\n<tr aria-hidden=\"true\">\n<td class=\"c833cc350 ca36eaa78\" colspan=\"2\">\n<div class=\"c727c13ba c82d97ef1 cc3672a4e cded75210\">\n</div>\n</td>\n</tr>\n<tr aria-hidden=\"true\">\n<td class=\"c833cc350 ca36eaa78\" colspan=\"2\">\n<div class=\"c727c13ba c82d97ef1 cc3672a4e cded75210\">\n</div>\n</td>\n</tr>\n<tr aria-hidden=\"true\">\n<td class=\"c833cc350 ca36eaa78\" colspan=\"2\">\n<div class=\"c727c13ba c82d97ef1 cc3672a4e cded75210\">\n</div>\n</td>\n</tr>\n<tr aria-hidden=\"true\">\n<td class=\"c833cc350 ca36eaa78\" colspan=\"2\">\n<div class=\"c727c13ba c82d97ef1 cc3672a4e cded75210\">\n</div>\n</td>\n</tr>\n<tr aria-hidden=\"true\">\n<td class=\"c833cc350 ca36eaa78\" colspan=\"2\">\n<div class=\"c727c13ba c82d97ef1 cc3672a4e cded75210\">\n</div>\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n</section>\n@route /"
+    ],
+    "calls": []
+   },
+   "clickable rows call onRowClick": {
+    "snapshots": [
+     "<section class=\"c1723ea4b c2bf204c1 c2cbb8333 c5494c1c8 c8f19053a c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"cff4495c2\">\n<table class=\"c2d7a5b64 cbf033fe8 cf630af81\">\n<thead>\n<tr class=\"c82d97ef1 ce2ca5664 cf2199df4\">\n<th class=\"c052585d2 c20f5df36 c267fcecb c833cc350 ca46eac0b cdf83deeb cf912fafe\">\nName\n</th>\n<th class=\"c052585d2 c20f5df36 c267fcecb c8f3cd634 ca46eac0b cdf83deeb cf912fafe\">\nRole\n</th>\n</tr>\n</thead>\n<tbody class=\"c56268a30 c7764373a\">\n<tr class=\"c13d4ff0f c7d370ab9 ce2316621\">\n<td class=\"c833cc350 ca36eaa78\">\n<span data-name>\nalpha\n</span>\n</td>\n<td class=\"c8f3cd634 ca36eaa78\">\n<em data-role>\nadmin\n</em>\n</td>\n</tr>\n<tr class=\"c13d4ff0f c7d370ab9 ce2316621\">\n<td class=\"c833cc350 ca36eaa78\">\n<span data-name>\nbeta\n</span>\n</td>\n<td class=\"c8f3cd634 ca36eaa78\">\n<em data-role>\nmember\n</em>\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n</section>\n@route /",
+     "<section class=\"c1723ea4b c2bf204c1 c2cbb8333 c5494c1c8 c8f19053a c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"cff4495c2\">\n<table class=\"c2d7a5b64 cbf033fe8 cf630af81\">\n<thead>\n<tr class=\"c82d97ef1 ce2ca5664 cf2199df4\">\n<th class=\"c052585d2 c20f5df36 c267fcecb c833cc350 ca46eac0b cdf83deeb cf912fafe\">\nName\n</th>\n<th class=\"c052585d2 c20f5df36 c267fcecb c8f3cd634 ca46eac0b cdf83deeb cf912fafe\">\nRole\n</th>\n</tr>\n</thead>\n<tbody class=\"c56268a30 c7764373a\">\n<tr class=\"c13d4ff0f c7d370ab9 ce2316621\">\n<td class=\"c833cc350 ca36eaa78\">\n<span data-name>\nalpha\n</span>\n</td>\n<td class=\"c8f3cd634 ca36eaa78\">\n<em data-role>\nadmin\n</em>\n</td>\n</tr>\n<tr class=\"c13d4ff0f c7d370ab9 ce2316621\">\n<td class=\"c833cc350 ca36eaa78\">\n<span data-name>\nbeta\n</span>\n</td>\n<td class=\"c8f3cd634 ca36eaa78\">\n<em data-role>\nmember\n</em>\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n</section>\n@route /",
+     "<section class=\"c1723ea4b c2bf204c1 c2cbb8333 c5494c1c8 c8f19053a c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"cff4495c2\">\n<table class=\"c2d7a5b64 cbf033fe8 cf630af81\">\n<thead>\n<tr class=\"c82d97ef1 ce2ca5664 cf2199df4\">\n<th class=\"c052585d2 c20f5df36 c267fcecb c833cc350 ca46eac0b cdf83deeb cf912fafe\">\nName\n</th>\n<th class=\"c052585d2 c20f5df36 c267fcecb c8f3cd634 ca46eac0b cdf83deeb cf912fafe\">\nRole\n</th>\n</tr>\n</thead>\n<tbody class=\"c56268a30 c7764373a\">\n<tr class=\"c13d4ff0f c7d370ab9 ce2316621\">\n<td class=\"c833cc350 ca36eaa78\">\n<span data-name>\nalpha\n</span>\n</td>\n<td class=\"c8f3cd634 ca36eaa78\">\n<em data-role>\nadmin\n</em>\n</td>\n</tr>\n<tr class=\"c13d4ff0f c7d370ab9 ce2316621\">\n<td class=\"c833cc350 ca36eaa78\">\n<span data-name>\nbeta\n</span>\n</td>\n<td class=\"c8f3cd634 ca36eaa78\">\n<em data-role>\nmember\n</em>\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n</section>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onRowClick",
+      "args": [
+       {
+        "id": "1",
+        "name": "alpha",
+        "role": "admin"
+       }
+      ]
+     },
+     {
+      "name": "onRowClick",
+      "args": [
+       {
+        "id": "2",
+        "name": "beta",
+        "role": "member"
+       }
+      ]
+     }
+    ]
+   },
+   "a click without a handler calls nothing": {
+    "snapshots": [
+     "<section class=\"c1723ea4b c2bf204c1 c2cbb8333 c5494c1c8 c8f19053a c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"cff4495c2\">\n<table class=\"c2d7a5b64 cbf033fe8 cf630af81\">\n<thead>\n<tr class=\"c82d97ef1 ce2ca5664 cf2199df4\">\n<th class=\"c052585d2 c20f5df36 c267fcecb c833cc350 ca46eac0b cdf83deeb cf912fafe\">\nName\n</th>\n<th class=\"c052585d2 c20f5df36 c267fcecb c8f3cd634 ca46eac0b cdf83deeb cf912fafe\">\nRole\n</th>\n</tr>\n</thead>\n<tbody class=\"c56268a30 c7764373a\">\n<tr class=\"c7d370ab9 ce2316621\">\n<td class=\"c833cc350 ca36eaa78\">\n<span data-name>\nalpha\n</span>\n</td>\n<td class=\"c8f3cd634 ca36eaa78\">\n<em data-role>\nadmin\n</em>\n</td>\n</tr>\n<tr class=\"c7d370ab9 ce2316621\">\n<td class=\"c833cc350 ca36eaa78\">\n<span data-name>\nbeta\n</span>\n</td>\n<td class=\"c8f3cd634 ca36eaa78\">\n<em data-role>\nmember\n</em>\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n</section>\n@route /",
+     "<section class=\"c1723ea4b c2bf204c1 c2cbb8333 c5494c1c8 c8f19053a c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"cff4495c2\">\n<table class=\"c2d7a5b64 cbf033fe8 cf630af81\">\n<thead>\n<tr class=\"c82d97ef1 ce2ca5664 cf2199df4\">\n<th class=\"c052585d2 c20f5df36 c267fcecb c833cc350 ca46eac0b cdf83deeb cf912fafe\">\nName\n</th>\n<th class=\"c052585d2 c20f5df36 c267fcecb c8f3cd634 ca46eac0b cdf83deeb cf912fafe\">\nRole\n</th>\n</tr>\n</thead>\n<tbody class=\"c56268a30 c7764373a\">\n<tr class=\"c7d370ab9 ce2316621\">\n<td class=\"c833cc350 ca36eaa78\">\n<span data-name>\nalpha\n</span>\n</td>\n<td class=\"c8f3cd634 ca36eaa78\">\n<em data-role>\nadmin\n</em>\n</td>\n</tr>\n<tr class=\"c7d370ab9 ce2316621\">\n<td class=\"c833cc350 ca36eaa78\">\n<span data-name>\nbeta\n</span>\n</td>\n<td class=\"c8f3cd634 ca36eaa78\">\n<em data-role>\nmember\n</em>\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n</section>\n@route /"
+    ],
+    "calls": []
+   },
+   "classes and an agent id": {
+    "snapshots": [
+     "<section class=\"c1723ea4b c2bf204c1 c2cbb8333 c5494c1c8 c8f19053a c9366def6 cbaac6b89 ccae02ff2 cd75bbd18\" data-mol-id=\"members\">\n<div class=\"cff4495c2\">\n<table class=\"c2d7a5b64 cbf033fe8 cf630af81\">\n<thead>\n<tr class=\"c82d97ef1 ce2ca5664 cf2199df4\">\n<th class=\"c052585d2 c20f5df36 c267fcecb c833cc350 ca46eac0b cdf83deeb cf912fafe\">\nName\n</th>\n<th class=\"c052585d2 c20f5df36 c267fcecb c8f3cd634 ca46eac0b cdf83deeb cf912fafe\">\nRole\n</th>\n</tr>\n</thead>\n<tbody class=\"c56268a30 c7764373a\">\n<tr class=\"c7d370ab9 ce2316621\">\n<td class=\"c833cc350 ca36eaa78\">\n<span data-name>\nalpha\n</span>\n</td>\n<td class=\"c8f3cd634 ca36eaa78\">\n<em data-role>\nadmin\n</em>\n</td>\n</tr>\n<tr class=\"c7d370ab9 ce2316621\">\n<td class=\"c833cc350 ca36eaa78\">\n<span data-name>\nbeta\n</span>\n</td>\n<td class=\"c8f3cd634 ca36eaa78\">\n<em data-role>\nmember\n</em>\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n</section>\n@route /"
+    ],
+    "calls": []
+   },
+   "column class names": {
+    "snapshots": [
+     "<section class=\"c1723ea4b c2bf204c1 c2cbb8333 c5494c1c8 c8f19053a c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"cff4495c2\">\n<table class=\"c2d7a5b64 cbf033fe8 cf630af81\">\n<thead>\n<tr class=\"c82d97ef1 ce2ca5664 cf2199df4\">\n<th class=\"c052585d2 c20f5df36 c267fcecb c569eee61 c833cc350 ca46eac0b cdf83deeb cf912fafe\">\nName\n</th>\n<th class=\"c052585d2 c20f5df36 c267fcecb c8f3cd634 ca46eac0b cdf83deeb cf912fafe\">\nRole\n</th>\n</tr>\n</thead>\n<tbody class=\"c56268a30 c7764373a\">\n<tr class=\"c7d370ab9 ce2316621\">\n<td class=\"c833cc350 ca36eaa78 ce19c20f7\">\n<span data-name>\nalpha\n</span>\n</td>\n<td class=\"c8f3cd634 ca36eaa78\">\n<em data-role>\nadmin\n</em>\n</td>\n</tr>\n<tr class=\"c7d370ab9 ce2316621\">\n<td class=\"c833cc350 ca36eaa78 ce19c20f7\">\n<span data-name>\nbeta\n</span>\n</td>\n<td class=\"c8f3cd634 ca36eaa78\">\n<em data-role>\nmember\n</em>\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n</section>\n@route /"
+    ],
+    "calls": []
+   },
+   "a single column spans its cells": {
+    "snapshots": [
+     "<section class=\"c1723ea4b c2bf204c1 c2cbb8333 c5494c1c8 c8f19053a c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"cff4495c2\">\n<table class=\"c2d7a5b64 cbf033fe8 cf630af81\">\n<thead>\n<tr class=\"c82d97ef1 ce2ca5664 cf2199df4\">\n<th class=\"c052585d2 c20f5df36 c267fcecb c833cc350 ca46eac0b cdf83deeb cf912fafe\">\nName\n</th>\n</tr>\n</thead>\n<tbody class=\"c56268a30 c7764373a\">\n<tr class=\"c7d370ab9 ce2316621\">\n<td class=\"c833cc350 ca36eaa78\">\n<span data-name>\nalpha\n</span>\n</td>\n</tr>\n<tr class=\"c7d370ab9 ce2316621\">\n<td class=\"c833cc350 ca36eaa78\">\n<span data-name>\nbeta\n</span>\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n</section>\n@route /"
+    ],
+    "calls": []
+   },
+   "a title arrives on a props change": {
+    "snapshots": [
+     "<section class=\"c1723ea4b c2bf204c1 c2cbb8333 c5494c1c8 c8f19053a c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"cff4495c2\">\n<table class=\"c2d7a5b64 cbf033fe8 cf630af81\">\n<thead>\n<tr class=\"c82d97ef1 ce2ca5664 cf2199df4\">\n<th class=\"c052585d2 c20f5df36 c267fcecb c833cc350 ca46eac0b cdf83deeb cf912fafe\">\nName\n</th>\n<th class=\"c052585d2 c20f5df36 c267fcecb c8f3cd634 ca46eac0b cdf83deeb cf912fafe\">\nRole\n</th>\n</tr>\n</thead>\n<tbody class=\"c56268a30 c7764373a\">\n<tr class=\"c7d370ab9 ce2316621\">\n<td class=\"c833cc350 ca36eaa78\">\n<span data-name>\nalpha\n</span>\n</td>\n<td class=\"c8f3cd634 ca36eaa78\">\n<em data-role>\nadmin\n</em>\n</td>\n</tr>\n<tr class=\"c7d370ab9 ce2316621\">\n<td class=\"c833cc350 ca36eaa78\">\n<span data-name>\nbeta\n</span>\n</td>\n<td class=\"c8f3cd634 ca36eaa78\">\n<em data-role>\nmember\n</em>\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n</section>\n@route /",
+     "<section class=\"c1723ea4b c2bf204c1 c2cbb8333 c5494c1c8 c8f19053a c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c3f8a1734 c42740ba6 c833cc350 c937ba156 ccae02ff2 cd9b20003\">\n<h3 class=\"c0d99ed10 c4547f4fd ce6c94376\">\nTeam members\n</h3>\n</div>\n<div class=\"cff4495c2\">\n<table class=\"c2d7a5b64 cbf033fe8 cf630af81\">\n<thead>\n<tr class=\"c82d97ef1 ce2ca5664 cf2199df4\">\n<th class=\"c052585d2 c20f5df36 c267fcecb c833cc350 ca46eac0b cdf83deeb cf912fafe\">\nName\n</th>\n<th class=\"c052585d2 c20f5df36 c267fcecb c8f3cd634 ca46eac0b cdf83deeb cf912fafe\">\nRole\n</th>\n</tr>\n</thead>\n<tbody class=\"c56268a30 c7764373a\">\n<tr class=\"c7d370ab9 ce2316621\">\n<td class=\"c833cc350 ca36eaa78\">\n<span data-name>\nalpha\n</span>\n</td>\n<td class=\"c8f3cd634 ca36eaa78\">\n<em data-role>\nadmin\n</em>\n</td>\n</tr>\n<tr class=\"c7d370ab9 ce2316621\">\n<td class=\"c833cc350 ca36eaa78\">\n<span data-name>\nbeta\n</span>\n</td>\n<td class=\"c8f3cd634 ca36eaa78\">\n<em data-role>\nmember\n</em>\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n</section>\n@route /"
+    ],
+    "calls": []
+   },
+   "the title changes on a props change": {
+    "snapshots": [
+     "<section class=\"c1723ea4b c2bf204c1 c2cbb8333 c5494c1c8 c8f19053a c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c3f8a1734 c42740ba6 c833cc350 c937ba156 ccae02ff2 cd9b20003\">\n<h3 class=\"c0d99ed10 c4547f4fd ce6c94376\">\nTeam members\n</h3>\n</div>\n<div class=\"cff4495c2\">\n<table class=\"c2d7a5b64 cbf033fe8 cf630af81\">\n<thead>\n<tr class=\"c82d97ef1 ce2ca5664 cf2199df4\">\n<th class=\"c052585d2 c20f5df36 c267fcecb c833cc350 ca46eac0b cdf83deeb cf912fafe\">\nName\n</th>\n<th class=\"c052585d2 c20f5df36 c267fcecb c8f3cd634 ca46eac0b cdf83deeb cf912fafe\">\nRole\n</th>\n</tr>\n</thead>\n<tbody class=\"c56268a30 c7764373a\">\n<tr class=\"c7d370ab9 ce2316621\">\n<td class=\"c833cc350 ca36eaa78\">\n<span data-name>\nalpha\n</span>\n</td>\n<td class=\"c8f3cd634 ca36eaa78\">\n<em data-role>\nadmin\n</em>\n</td>\n</tr>\n<tr class=\"c7d370ab9 ce2316621\">\n<td class=\"c833cc350 ca36eaa78\">\n<span data-name>\nbeta\n</span>\n</td>\n<td class=\"c8f3cd634 ca36eaa78\">\n<em data-role>\nmember\n</em>\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n</section>\n@route /",
+     "<section class=\"c1723ea4b c2bf204c1 c2cbb8333 c5494c1c8 c8f19053a c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c3f8a1734 c42740ba6 c833cc350 c937ba156 ccae02ff2 cd9b20003\">\n<h3 class=\"c0d99ed10 c4547f4fd ce6c94376\">\nPeople\n</h3>\n</div>\n<div class=\"cff4495c2\">\n<table class=\"c2d7a5b64 cbf033fe8 cf630af81\">\n<thead>\n<tr class=\"c82d97ef1 ce2ca5664 cf2199df4\">\n<th class=\"c052585d2 c20f5df36 c267fcecb c833cc350 ca46eac0b cdf83deeb cf912fafe\">\nName\n</th>\n<th class=\"c052585d2 c20f5df36 c267fcecb c8f3cd634 ca46eac0b cdf83deeb cf912fafe\">\nRole\n</th>\n</tr>\n</thead>\n<tbody class=\"c56268a30 c7764373a\">\n<tr class=\"c7d370ab9 ce2316621\">\n<td class=\"c833cc350 ca36eaa78\">\n<span data-name>\nalpha\n</span>\n</td>\n<td class=\"c8f3cd634 ca36eaa78\">\n<em data-role>\nadmin\n</em>\n</td>\n</tr>\n<tr class=\"c7d370ab9 ce2316621\">\n<td class=\"c833cc350 ca36eaa78\">\n<span data-name>\nbeta\n</span>\n</td>\n<td class=\"c8f3cd634 ca36eaa78\">\n<em data-role>\nmember\n</em>\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n</section>\n@route /"
+    ],
+    "calls": []
+   },
+   "loading switches on and off": {
+    "snapshots": [
+     "<section class=\"c1723ea4b c2bf204c1 c2cbb8333 c5494c1c8 c8f19053a c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"cff4495c2\">\n<table class=\"c2d7a5b64 cbf033fe8 cf630af81\">\n<thead>\n<tr class=\"c82d97ef1 ce2ca5664 cf2199df4\">\n<th class=\"c052585d2 c20f5df36 c267fcecb c833cc350 ca46eac0b cdf83deeb cf912fafe\">\nName\n</th>\n<th class=\"c052585d2 c20f5df36 c267fcecb c8f3cd634 ca46eac0b cdf83deeb cf912fafe\">\nRole\n</th>\n</tr>\n</thead>\n<tbody class=\"c56268a30 c7764373a\">\n<tr class=\"c7d370ab9 ce2316621\">\n<td class=\"c833cc350 ca36eaa78\">\n<span data-name>\nalpha\n</span>\n</td>\n<td class=\"c8f3cd634 ca36eaa78\">\n<em data-role>\nadmin\n</em>\n</td>\n</tr>\n<tr class=\"c7d370ab9 ce2316621\">\n<td class=\"c833cc350 ca36eaa78\">\n<span data-name>\nbeta\n</span>\n</td>\n<td class=\"c8f3cd634 ca36eaa78\">\n<em data-role>\nmember\n</em>\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n</section>\n@route /",
+     "<section class=\"c1723ea4b c2bf204c1 c2cbb8333 c5494c1c8 c8f19053a c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"cff4495c2\">\n<table class=\"c2d7a5b64 cbf033fe8 cf630af81\">\n<thead>\n<tr class=\"c82d97ef1 ce2ca5664 cf2199df4\">\n<th class=\"c052585d2 c20f5df36 c267fcecb c833cc350 ca46eac0b cdf83deeb cf912fafe\">\nName\n</th>\n<th class=\"c052585d2 c20f5df36 c267fcecb c8f3cd634 ca46eac0b cdf83deeb cf912fafe\">\nRole\n</th>\n</tr>\n</thead>\n<tbody class=\"c56268a30 c7764373a\">\n<tr aria-hidden=\"true\">\n<td class=\"c833cc350 ca36eaa78\" colspan=\"2\">\n<div class=\"c727c13ba c82d97ef1 cc3672a4e cded75210\">\n</div>\n</td>\n</tr>\n<tr aria-hidden=\"true\">\n<td class=\"c833cc350 ca36eaa78\" colspan=\"2\">\n<div class=\"c727c13ba c82d97ef1 cc3672a4e cded75210\">\n</div>\n</td>\n</tr>\n<tr aria-hidden=\"true\">\n<td class=\"c833cc350 ca36eaa78\" colspan=\"2\">\n<div class=\"c727c13ba c82d97ef1 cc3672a4e cded75210\">\n</div>\n</td>\n</tr>\n<tr aria-hidden=\"true\">\n<td class=\"c833cc350 ca36eaa78\" colspan=\"2\">\n<div class=\"c727c13ba c82d97ef1 cc3672a4e cded75210\">\n</div>\n</td>\n</tr>\n<tr aria-hidden=\"true\">\n<td class=\"c833cc350 ca36eaa78\" colspan=\"2\">\n<div class=\"c727c13ba c82d97ef1 cc3672a4e cded75210\">\n</div>\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n</section>\n@route /",
+     "<section class=\"c1723ea4b c2bf204c1 c2cbb8333 c5494c1c8 c8f19053a c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"cff4495c2\">\n<table class=\"c2d7a5b64 cbf033fe8 cf630af81\">\n<thead>\n<tr class=\"c82d97ef1 ce2ca5664 cf2199df4\">\n<th class=\"c052585d2 c20f5df36 c267fcecb c833cc350 ca46eac0b cdf83deeb cf912fafe\">\nName\n</th>\n<th class=\"c052585d2 c20f5df36 c267fcecb c8f3cd634 ca46eac0b cdf83deeb cf912fafe\">\nRole\n</th>\n</tr>\n</thead>\n<tbody class=\"c56268a30 c7764373a\">\n<tr class=\"c7d370ab9 ce2316621\">\n<td class=\"c833cc350 ca36eaa78\">\n<span data-name>\nalpha\n</span>\n</td>\n<td class=\"c8f3cd634 ca36eaa78\">\n<em data-role>\nadmin\n</em>\n</td>\n</tr>\n<tr class=\"c7d370ab9 ce2316621\">\n<td class=\"c833cc350 ca36eaa78\">\n<span data-name>\nbeta\n</span>\n</td>\n<td class=\"c8f3cd634 ca36eaa78\">\n<em data-role>\nmember\n</em>\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n</section>\n@route /"
+    ],
+    "calls": []
+   },
+   "a props change replaces the rows": {
+    "snapshots": [
+     "<section class=\"c1723ea4b c2bf204c1 c2cbb8333 c5494c1c8 c8f19053a c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"cff4495c2\">\n<table class=\"c2d7a5b64 cbf033fe8 cf630af81\">\n<thead>\n<tr class=\"c82d97ef1 ce2ca5664 cf2199df4\">\n<th class=\"c052585d2 c20f5df36 c267fcecb c833cc350 ca46eac0b cdf83deeb cf912fafe\">\nName\n</th>\n<th class=\"c052585d2 c20f5df36 c267fcecb c8f3cd634 ca46eac0b cdf83deeb cf912fafe\">\nRole\n</th>\n</tr>\n</thead>\n<tbody class=\"c56268a30 c7764373a\">\n<tr class=\"c7d370ab9 ce2316621\">\n<td class=\"c833cc350 ca36eaa78\">\n<span data-name>\nalpha\n</span>\n</td>\n<td class=\"c8f3cd634 ca36eaa78\">\n<em data-role>\nadmin\n</em>\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n</section>\n@route /",
+     "<section class=\"c1723ea4b c2bf204c1 c2cbb8333 c5494c1c8 c8f19053a c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"cff4495c2\">\n<table class=\"c2d7a5b64 cbf033fe8 cf630af81\">\n<thead>\n<tr class=\"c82d97ef1 ce2ca5664 cf2199df4\">\n<th class=\"c052585d2 c20f5df36 c267fcecb c833cc350 ca46eac0b cdf83deeb cf912fafe\">\nName\n</th>\n<th class=\"c052585d2 c20f5df36 c267fcecb c8f3cd634 ca46eac0b cdf83deeb cf912fafe\">\nRole\n</th>\n</tr>\n</thead>\n<tbody class=\"c56268a30 c7764373a\">\n<tr class=\"c7d370ab9 ce2316621\">\n<td class=\"c833cc350 ca36eaa78\">\n<span data-name>\ngamma\n</span>\n</td>\n<td class=\"c8f3cd634 ca36eaa78\">\n<em data-role>\nguest\n</em>\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n</section>\n@route /"
+    ],
+    "calls": []
+   },
+   "a props change empties the rows and shows the empty message": {
+    "snapshots": [
+     "<section class=\"c1723ea4b c2bf204c1 c2cbb8333 c5494c1c8 c8f19053a c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"cff4495c2\">\n<table class=\"c2d7a5b64 cbf033fe8 cf630af81\">\n<thead>\n<tr class=\"c82d97ef1 ce2ca5664 cf2199df4\">\n<th class=\"c052585d2 c20f5df36 c267fcecb c833cc350 ca46eac0b cdf83deeb cf912fafe\">\nName\n</th>\n<th class=\"c052585d2 c20f5df36 c267fcecb c8f3cd634 ca46eac0b cdf83deeb cf912fafe\">\nRole\n</th>\n</tr>\n</thead>\n<tbody class=\"c56268a30 c7764373a\">\n<tr class=\"c7d370ab9 ce2316621\">\n<td class=\"c833cc350 ca36eaa78\">\n<span data-name>\nalpha\n</span>\n</td>\n<td class=\"c8f3cd634 ca36eaa78\">\n<em data-role>\nadmin\n</em>\n</td>\n</tr>\n<tr class=\"c7d370ab9 ce2316621\">\n<td class=\"c833cc350 ca36eaa78\">\n<span data-name>\nbeta\n</span>\n</td>\n<td class=\"c8f3cd634 ca36eaa78\">\n<em data-role>\nmember\n</em>\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n</section>\n@route /",
+     "<section class=\"c1723ea4b c2bf204c1 c2cbb8333 c5494c1c8 c8f19053a c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"cff4495c2\">\n<table class=\"c2d7a5b64 cbf033fe8 cf630af81\">\n<thead>\n<tr class=\"c82d97ef1 ce2ca5664 cf2199df4\">\n<th class=\"c052585d2 c20f5df36 c267fcecb c833cc350 ca46eac0b cdf83deeb cf912fafe\">\nName\n</th>\n<th class=\"c052585d2 c20f5df36 c267fcecb c8f3cd634 ca46eac0b cdf83deeb cf912fafe\">\nRole\n</th>\n</tr>\n</thead>\n<tbody class=\"c56268a30 c7764373a\">\n<tr>\n<td class=\"c052585d2 c16e96f28 c833cc350 c89409342\" colspan=\"2\">\n<p data-empty>\nNo members yet.\n</p>\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n</section>\n@route /"
+    ],
+    "calls": []
+   },
+   "a click after a props change calls onRowClick for the new row": {
+    "snapshots": [
+     "<section class=\"c1723ea4b c2bf204c1 c2cbb8333 c5494c1c8 c8f19053a c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"cff4495c2\">\n<table class=\"c2d7a5b64 cbf033fe8 cf630af81\">\n<thead>\n<tr class=\"c82d97ef1 ce2ca5664 cf2199df4\">\n<th class=\"c052585d2 c20f5df36 c267fcecb c833cc350 ca46eac0b cdf83deeb cf912fafe\">\nName\n</th>\n<th class=\"c052585d2 c20f5df36 c267fcecb c8f3cd634 ca46eac0b cdf83deeb cf912fafe\">\nRole\n</th>\n</tr>\n</thead>\n<tbody class=\"c56268a30 c7764373a\">\n<tr class=\"c13d4ff0f c7d370ab9 ce2316621\">\n<td class=\"c833cc350 ca36eaa78\">\n<span data-name>\nalpha\n</span>\n</td>\n<td class=\"c8f3cd634 ca36eaa78\">\n<em data-role>\nadmin\n</em>\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n</section>\n@route /",
+     "<section class=\"c1723ea4b c2bf204c1 c2cbb8333 c5494c1c8 c8f19053a c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"cff4495c2\">\n<table class=\"c2d7a5b64 cbf033fe8 cf630af81\">\n<thead>\n<tr class=\"c82d97ef1 ce2ca5664 cf2199df4\">\n<th class=\"c052585d2 c20f5df36 c267fcecb c833cc350 ca46eac0b cdf83deeb cf912fafe\">\nName\n</th>\n<th class=\"c052585d2 c20f5df36 c267fcecb c8f3cd634 ca46eac0b cdf83deeb cf912fafe\">\nRole\n</th>\n</tr>\n</thead>\n<tbody class=\"c56268a30 c7764373a\">\n<tr class=\"c13d4ff0f c7d370ab9 ce2316621\">\n<td class=\"c833cc350 ca36eaa78\">\n<span data-name>\nbeta\n</span>\n</td>\n<td class=\"c8f3cd634 ca36eaa78\">\n<em data-role>\nmember\n</em>\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n</section>\n@route /",
+     "<section class=\"c1723ea4b c2bf204c1 c2cbb8333 c5494c1c8 c8f19053a c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"cff4495c2\">\n<table class=\"c2d7a5b64 cbf033fe8 cf630af81\">\n<thead>\n<tr class=\"c82d97ef1 ce2ca5664 cf2199df4\">\n<th class=\"c052585d2 c20f5df36 c267fcecb c833cc350 ca46eac0b cdf83deeb cf912fafe\">\nName\n</th>\n<th class=\"c052585d2 c20f5df36 c267fcecb c8f3cd634 ca46eac0b cdf83deeb cf912fafe\">\nRole\n</th>\n</tr>\n</thead>\n<tbody class=\"c56268a30 c7764373a\">\n<tr class=\"c13d4ff0f c7d370ab9 ce2316621\">\n<td class=\"c833cc350 ca36eaa78\">\n<span data-name>\nbeta\n</span>\n</td>\n<td class=\"c8f3cd634 ca36eaa78\">\n<em data-role>\nmember\n</em>\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n</section>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onRowClick",
+      "args": [
+       {
+        "id": "2",
+        "name": "beta",
+        "role": "member"
+       }
+      ]
+     }
+    ]
+   },
+   "a nested row with an actions cell": {
+    "snapshots": [
+     "<section class=\"c1723ea4b c2bf204c1 c2cbb8333 c5494c1c8 c8f19053a c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"cff4495c2\">\n<table class=\"c2d7a5b64 cbf033fe8 cf630af81\">\n<thead>\n<tr class=\"c82d97ef1 ce2ca5664 cf2199df4\">\n<th class=\"c052585d2 c20f5df36 c267fcecb c833cc350 ca46eac0b cdf83deeb cf912fafe\">\nName\n</th>\n</tr>\n</thead>\n<tbody class=\"c56268a30 c7764373a\">\n<tr class=\"c7d370ab9 ce2316621\">\n<td class=\"c833cc350 ca36eaa78\">\n<table data-nested>\n<tbody>\n<tr>\n<td data-first>\nalpha\n</td>\n<td data-second>\nadmin\n</td>\n<td class=\"c16e96f28\">\n<button data-act type=\"button\">\nEdit\n</button>\n</td>\n</tr>\n</tbody>\n</table>\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n</section>\n@route /"
+    ],
+    "calls": []
+   },
+   "a nested row without actions or selection": {
+    "snapshots": [
+     "<section class=\"c1723ea4b c2bf204c1 c2cbb8333 c5494c1c8 c8f19053a c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"cff4495c2\">\n<table class=\"c2d7a5b64 cbf033fe8 cf630af81\">\n<thead>\n<tr class=\"c82d97ef1 ce2ca5664 cf2199df4\">\n<th class=\"c052585d2 c20f5df36 c267fcecb c833cc350 ca46eac0b cdf83deeb cf912fafe\">\nName\n</th>\n</tr>\n</thead>\n<tbody class=\"c56268a30 c7764373a\">\n<tr class=\"c7d370ab9 ce2316621\">\n<td class=\"c833cc350 ca36eaa78\">\n<table data-nested>\n<tbody>\n<tr>\n<td data-first>\nalpha\n</td>\n<td data-second>\nadmin\n</td>\n</tr>\n</tbody>\n</table>\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n</section>\n@route /"
+    ],
+    "calls": []
+   },
+   "a nested selected row keeps its actions cell from clicking the row": {
+    "snapshots": [
+     "<section class=\"c1723ea4b c2bf204c1 c2cbb8333 c5494c1c8 c8f19053a c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"cff4495c2\">\n<table class=\"c2d7a5b64 cbf033fe8 cf630af81\">\n<thead>\n<tr class=\"c82d97ef1 ce2ca5664 cf2199df4\">\n<th class=\"c052585d2 c20f5df36 c267fcecb c833cc350 ca46eac0b cdf83deeb cf912fafe\">\nName\n</th>\n</tr>\n</thead>\n<tbody class=\"c56268a30 c7764373a\">\n<tr class=\"c7d370ab9 ce2316621\">\n<td class=\"c833cc350 ca36eaa78\">\n<table data-nested>\n<tbody>\n<tr aria-selected=\"true\" class=\"c13d4ff0f cd75bbd18\">\n<td data-cell>\nx\n</td>\n<td class=\"c16e96f28\">\n<button data-act type=\"button\">\nEdit\n</button>\n</td>\n</tr>\n</tbody>\n</table>\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n</section>\n@route /",
+     "<section class=\"c1723ea4b c2bf204c1 c2cbb8333 c5494c1c8 c8f19053a c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"cff4495c2\">\n<table class=\"c2d7a5b64 cbf033fe8 cf630af81\">\n<thead>\n<tr class=\"c82d97ef1 ce2ca5664 cf2199df4\">\n<th class=\"c052585d2 c20f5df36 c267fcecb c833cc350 ca46eac0b cdf83deeb cf912fafe\">\nName\n</th>\n</tr>\n</thead>\n<tbody class=\"c56268a30 c7764373a\">\n<tr class=\"c7d370ab9 ce2316621\">\n<td class=\"c833cc350 ca36eaa78\">\n<table data-nested>\n<tbody>\n<tr aria-selected=\"true\" class=\"c13d4ff0f cd75bbd18\">\n<td data-cell>\nx\n</td>\n<td class=\"c16e96f28\">\n<button data-act type=\"button\">\nEdit\n</button>\n</td>\n</tr>\n</tbody>\n</table>\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n</section>\n@route /",
+     "<section class=\"c1723ea4b c2bf204c1 c2cbb8333 c5494c1c8 c8f19053a c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"cff4495c2\">\n<table class=\"c2d7a5b64 cbf033fe8 cf630af81\">\n<thead>\n<tr class=\"c82d97ef1 ce2ca5664 cf2199df4\">\n<th class=\"c052585d2 c20f5df36 c267fcecb c833cc350 ca46eac0b cdf83deeb cf912fafe\">\nName\n</th>\n</tr>\n</thead>\n<tbody class=\"c56268a30 c7764373a\">\n<tr class=\"c7d370ab9 ce2316621\">\n<td class=\"c833cc350 ca36eaa78\">\n<table data-nested>\n<tbody>\n<tr aria-selected=\"true\" class=\"c13d4ff0f cd75bbd18\">\n<td data-cell>\nx\n</td>\n<td class=\"c16e96f28\">\n<button data-act type=\"button\">\nEdit\n</button>\n</td>\n</tr>\n</tbody>\n</table>\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n</section>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onClick",
+      "args": [
+       {
+        "event": "click",
+        "target": "td"
+       }
+      ]
+     }
+    ]
+   },
+   "a nested row that is not selected": {
+    "snapshots": [
+     "<section class=\"c1723ea4b c2bf204c1 c2cbb8333 c5494c1c8 c8f19053a c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"cff4495c2\">\n<table class=\"c2d7a5b64 cbf033fe8 cf630af81\">\n<thead>\n<tr class=\"c82d97ef1 ce2ca5664 cf2199df4\">\n<th class=\"c052585d2 c20f5df36 c267fcecb c833cc350 ca46eac0b cdf83deeb cf912fafe\">\nName\n</th>\n</tr>\n</thead>\n<tbody class=\"c56268a30 c7764373a\">\n<tr class=\"c7d370ab9 ce2316621\">\n<td class=\"c833cc350 ca36eaa78\">\n<table data-nested>\n<tbody>\n<tr aria-selected=\"false\">\n<td data-first>\nalpha\n</td>\n<td data-second>\nadmin\n</td>\n</tr>\n</tbody>\n</table>\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n</section>\n@route /"
+    ],
+    "calls": []
+   },
+   "a nested empty row": {
+    "snapshots": [
+     "<section class=\"c1723ea4b c2bf204c1 c2cbb8333 c5494c1c8 c8f19053a c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"cff4495c2\">\n<table class=\"c2d7a5b64 cbf033fe8 cf630af81\">\n<thead>\n<tr class=\"c82d97ef1 ce2ca5664 cf2199df4\">\n<th class=\"c052585d2 c20f5df36 c267fcecb c833cc350 ca46eac0b cdf83deeb cf912fafe\">\nName\n</th>\n</tr>\n</thead>\n<tbody class=\"c56268a30 c7764373a\">\n<tr class=\"c7d370ab9 ce2316621\">\n<td class=\"c833cc350 ca36eaa78\">\n<table data-nested>\n<tbody>\n<tr>\n<td class=\"c16e96f28 c8740901c cd75bbd18\" colspan=\"2\">\n<span data-e>\nempty\n</span>\n</td>\n</tr>\n</tbody>\n</table>\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n</section>\n@route /"
+    ],
+    "calls": []
+   },
+   "a nested empty row without content": {
+    "snapshots": [
+     "<section class=\"c1723ea4b c2bf204c1 c2cbb8333 c5494c1c8 c8f19053a c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"cff4495c2\">\n<table class=\"c2d7a5b64 cbf033fe8 cf630af81\">\n<thead>\n<tr class=\"c82d97ef1 ce2ca5664 cf2199df4\">\n<th class=\"c052585d2 c20f5df36 c267fcecb c833cc350 ca46eac0b cdf83deeb cf912fafe\">\nName\n</th>\n</tr>\n</thead>\n<tbody class=\"c56268a30 c7764373a\">\n<tr class=\"c7d370ab9 ce2316621\">\n<td class=\"c833cc350 ca36eaa78\">\n<table data-nested>\n<tbody>\n<tr>\n<td class=\"c16e96f28 c8740901c\" colspan=\"3\">\n</td>\n</tr>\n</tbody>\n</table>\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n</section>\n@route /"
+    ],
+    "calls": []
+   },
+   "defaults, two rows, then a locale switch": {
+    "snapshots": [
+     "<section class=\"c1723ea4b c2bf204c1 c2cbb8333 c5494c1c8 c8f19053a c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"cff4495c2\">\n<table class=\"c2d7a5b64 cbf033fe8 cf630af81\">\n<thead>\n<tr class=\"c82d97ef1 ce2ca5664 cf2199df4\">\n<th class=\"c052585d2 c20f5df36 c267fcecb c833cc350 ca46eac0b cdf83deeb cf912fafe\">\nName\n</th>\n<th class=\"c052585d2 c20f5df36 c267fcecb c8f3cd634 ca46eac0b cdf83deeb cf912fafe\">\nRole\n</th>\n</tr>\n</thead>\n<tbody class=\"c56268a30 c7764373a\">\n<tr class=\"c7d370ab9 ce2316621\">\n<td class=\"c833cc350 ca36eaa78\">\n<span data-name>\nalpha\n</span>\n</td>\n<td class=\"c8f3cd634 ca36eaa78\">\n<em data-role>\nadmin\n</em>\n</td>\n</tr>\n<tr class=\"c7d370ab9 ce2316621\">\n<td class=\"c833cc350 ca36eaa78\">\n<span data-name>\nbeta\n</span>\n</td>\n<td class=\"c8f3cd634 ca36eaa78\">\n<em data-role>\nmember\n</em>\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n</section>\n@route /",
+     "<section class=\"c1723ea4b c2bf204c1 c2cbb8333 c5494c1c8 c8f19053a c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"cff4495c2\">\n<table class=\"c2d7a5b64 cbf033fe8 cf630af81\">\n<thead>\n<tr class=\"c82d97ef1 ce2ca5664 cf2199df4\">\n<th class=\"c052585d2 c20f5df36 c267fcecb c833cc350 ca46eac0b cdf83deeb cf912fafe\">\nName\n</th>\n<th class=\"c052585d2 c20f5df36 c267fcecb c8f3cd634 ca46eac0b cdf83deeb cf912fafe\">\nRole\n</th>\n</tr>\n</thead>\n<tbody class=\"c56268a30 c7764373a\">\n<tr class=\"c7d370ab9 ce2316621\">\n<td class=\"c833cc350 ca36eaa78\">\n<span data-name>\nalpha\n</span>\n</td>\n<td class=\"c8f3cd634 ca36eaa78\">\n<em data-role>\nadmin\n</em>\n</td>\n</tr>\n<tr class=\"c7d370ab9 ce2316621\">\n<td class=\"c833cc350 ca36eaa78\">\n<span data-name>\nbeta\n</span>\n</td>\n<td class=\"c8f3cd634 ca36eaa78\">\n<em data-role>\nmember\n</em>\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n</section>\n@route /"
+    ],
+    "calls": []
+   },
+   "defaults, two rows, then rows again as equal new objects": {
+    "snapshots": [
+     "<section class=\"c1723ea4b c2bf204c1 c2cbb8333 c5494c1c8 c8f19053a c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"cff4495c2\">\n<table class=\"c2d7a5b64 cbf033fe8 cf630af81\">\n<thead>\n<tr class=\"c82d97ef1 ce2ca5664 cf2199df4\">\n<th class=\"c052585d2 c20f5df36 c267fcecb c833cc350 ca46eac0b cdf83deeb cf912fafe\">\nName\n</th>\n<th class=\"c052585d2 c20f5df36 c267fcecb c8f3cd634 ca46eac0b cdf83deeb cf912fafe\">\nRole\n</th>\n</tr>\n</thead>\n<tbody class=\"c56268a30 c7764373a\">\n<tr class=\"c7d370ab9 ce2316621\">\n<td class=\"c833cc350 ca36eaa78\">\n<span data-name>\nalpha\n</span>\n</td>\n<td class=\"c8f3cd634 ca36eaa78\">\n<em data-role>\nadmin\n</em>\n</td>\n</tr>\n<tr class=\"c7d370ab9 ce2316621\">\n<td class=\"c833cc350 ca36eaa78\">\n<span data-name>\nbeta\n</span>\n</td>\n<td class=\"c8f3cd634 ca36eaa78\">\n<em data-role>\nmember\n</em>\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n</section>\n@route /",
+     "<section class=\"c1723ea4b c2bf204c1 c2cbb8333 c5494c1c8 c8f19053a c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"cff4495c2\">\n<table class=\"c2d7a5b64 cbf033fe8 cf630af81\">\n<thead>\n<tr class=\"c82d97ef1 ce2ca5664 cf2199df4\">\n<th class=\"c052585d2 c20f5df36 c267fcecb c833cc350 ca46eac0b cdf83deeb cf912fafe\">\nName\n</th>\n<th class=\"c052585d2 c20f5df36 c267fcecb c8f3cd634 ca46eac0b cdf83deeb cf912fafe\">\nRole\n</th>\n</tr>\n</thead>\n<tbody class=\"c56268a30 c7764373a\">\n<tr class=\"c7d370ab9 ce2316621\" data-conformance-mark=\"0\">\n<td class=\"c833cc350 ca36eaa78\">\n<span data-name>\nalpha\n</span>\n</td>\n<td class=\"c8f3cd634 ca36eaa78\">\n<em data-role>\nadmin\n</em>\n</td>\n</tr>\n<tr class=\"c7d370ab9 ce2316621\" data-conformance-mark=\"1\">\n<td class=\"c833cc350 ca36eaa78\">\n<span data-name>\nbeta\n</span>\n</td>\n<td class=\"c8f3cd634 ca36eaa78\">\n<em data-role>\nmember\n</em>\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n</section>\n@route /",
+     "<section class=\"c1723ea4b c2bf204c1 c2cbb8333 c5494c1c8 c8f19053a c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"cff4495c2\">\n<table class=\"c2d7a5b64 cbf033fe8 cf630af81\">\n<thead>\n<tr class=\"c82d97ef1 ce2ca5664 cf2199df4\">\n<th class=\"c052585d2 c20f5df36 c267fcecb c833cc350 ca46eac0b cdf83deeb cf912fafe\">\nName\n</th>\n<th class=\"c052585d2 c20f5df36 c267fcecb c8f3cd634 ca46eac0b cdf83deeb cf912fafe\">\nRole\n</th>\n</tr>\n</thead>\n<tbody class=\"c56268a30 c7764373a\">\n<tr class=\"c7d370ab9 ce2316621\" data-conformance-mark=\"0\">\n<td class=\"c833cc350 ca36eaa78\">\n<span data-name>\nalpha\n</span>\n</td>\n<td class=\"c8f3cd634 ca36eaa78\">\n<em data-role>\nadmin\n</em>\n</td>\n</tr>\n<tr class=\"c7d370ab9 ce2316621\" data-conformance-mark=\"1\">\n<td class=\"c833cc350 ca36eaa78\">\n<span data-name>\nbeta\n</span>\n</td>\n<td class=\"c8f3cd634 ca36eaa78\">\n<em data-role>\nmember\n</em>\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n</section>\n@route /"
+    ],
+    "calls": []
+   },
+   "defaults, two rows, then rows reversed": {
+    "snapshots": [
+     "<section class=\"c1723ea4b c2bf204c1 c2cbb8333 c5494c1c8 c8f19053a c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"cff4495c2\">\n<table class=\"c2d7a5b64 cbf033fe8 cf630af81\">\n<thead>\n<tr class=\"c82d97ef1 ce2ca5664 cf2199df4\">\n<th class=\"c052585d2 c20f5df36 c267fcecb c833cc350 ca46eac0b cdf83deeb cf912fafe\">\nName\n</th>\n<th class=\"c052585d2 c20f5df36 c267fcecb c8f3cd634 ca46eac0b cdf83deeb cf912fafe\">\nRole\n</th>\n</tr>\n</thead>\n<tbody class=\"c56268a30 c7764373a\">\n<tr class=\"c7d370ab9 ce2316621\">\n<td class=\"c833cc350 ca36eaa78\">\n<span data-name>\nalpha\n</span>\n</td>\n<td class=\"c8f3cd634 ca36eaa78\">\n<em data-role>\nadmin\n</em>\n</td>\n</tr>\n<tr class=\"c7d370ab9 ce2316621\">\n<td class=\"c833cc350 ca36eaa78\">\n<span data-name>\nbeta\n</span>\n</td>\n<td class=\"c8f3cd634 ca36eaa78\">\n<em data-role>\nmember\n</em>\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n</section>\n@route /",
+     "<section class=\"c1723ea4b c2bf204c1 c2cbb8333 c5494c1c8 c8f19053a c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"cff4495c2\">\n<table class=\"c2d7a5b64 cbf033fe8 cf630af81\">\n<thead>\n<tr class=\"c82d97ef1 ce2ca5664 cf2199df4\">\n<th class=\"c052585d2 c20f5df36 c267fcecb c833cc350 ca46eac0b cdf83deeb cf912fafe\">\nName\n</th>\n<th class=\"c052585d2 c20f5df36 c267fcecb c8f3cd634 ca46eac0b cdf83deeb cf912fafe\">\nRole\n</th>\n</tr>\n</thead>\n<tbody class=\"c56268a30 c7764373a\">\n<tr class=\"c7d370ab9 ce2316621\" data-conformance-mark=\"0\">\n<td class=\"c833cc350 ca36eaa78\">\n<span data-name>\nalpha\n</span>\n</td>\n<td class=\"c8f3cd634 ca36eaa78\">\n<em data-role>\nadmin\n</em>\n</td>\n</tr>\n<tr class=\"c7d370ab9 ce2316621\" data-conformance-mark=\"1\">\n<td class=\"c833cc350 ca36eaa78\">\n<span data-name>\nbeta\n</span>\n</td>\n<td class=\"c8f3cd634 ca36eaa78\">\n<em data-role>\nmember\n</em>\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n</section>\n@route /",
+     "<section class=\"c1723ea4b c2bf204c1 c2cbb8333 c5494c1c8 c8f19053a c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"cff4495c2\">\n<table class=\"c2d7a5b64 cbf033fe8 cf630af81\">\n<thead>\n<tr class=\"c82d97ef1 ce2ca5664 cf2199df4\">\n<th class=\"c052585d2 c20f5df36 c267fcecb c833cc350 ca46eac0b cdf83deeb cf912fafe\">\nName\n</th>\n<th class=\"c052585d2 c20f5df36 c267fcecb c8f3cd634 ca46eac0b cdf83deeb cf912fafe\">\nRole\n</th>\n</tr>\n</thead>\n<tbody class=\"c56268a30 c7764373a\">\n<tr class=\"c7d370ab9 ce2316621\" data-conformance-mark=\"1\">\n<td class=\"c833cc350 ca36eaa78\">\n<span data-name>\nbeta\n</span>\n</td>\n<td class=\"c8f3cd634 ca36eaa78\">\n<em data-role>\nmember\n</em>\n</td>\n</tr>\n<tr class=\"c7d370ab9 ce2316621\" data-conformance-mark=\"0\">\n<td class=\"c833cc350 ca36eaa78\">\n<span data-name>\nalpha\n</span>\n</td>\n<td class=\"c8f3cd634 ca36eaa78\">\n<em data-role>\nadmin\n</em>\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n</section>\n@route /"
+    ],
+    "calls": []
+   }
+  },
+  "TableFooter": {
+   "left and right slots": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c3a8a0f55 c937ba156 c9566e21c ccae02ff2 cd9b20003 ceacde2ad\">\n<div>\n<span data-left>\n5 selected\n</span>\n</div>\n<div>\n<span data-right>\nPage 1\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "only a left slot": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c3a8a0f55 c937ba156 c9566e21c ccae02ff2 cd9b20003 ceacde2ad\">\n<div>\n<span data-left>\n5 selected\n</span>\n</div>\n<div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "only a right slot": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c3a8a0f55 c937ba156 c9566e21c ccae02ff2 cd9b20003 ceacde2ad\">\n<div>\n</div>\n<div>\n<span data-right>\nPage 1\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "neither slot": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c3a8a0f55 c937ba156 c9566e21c ccae02ff2 cd9b20003 ceacde2ad\">\n<div>\n</div>\n<div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "text slots": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c3a8a0f55 c937ba156 c9566e21c ccae02ff2 cd9b20003 ceacde2ad\">\n<div>\n5 selected\n</div>\n<div>\nPage 1\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "forwards className": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c3a8a0f55 c937ba156 c9566e21c ccae02ff2 cd75bbd18 cd9b20003 ceacde2ad\">\n<div>\n</div>\n<div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "the slots arrive on a props change": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c3a8a0f55 c937ba156 c9566e21c ccae02ff2 cd9b20003 ceacde2ad\">\n<div>\n5 selected\n</div>\n<div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c3a8a0f55 c937ba156 c9566e21c ccae02ff2 cd9b20003 ceacde2ad\">\n<div>\n5 selected\n</div>\n<div>\nPage 2\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "left and right slots, then a locale switch": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c3a8a0f55 c937ba156 c9566e21c ccae02ff2 cd9b20003 ceacde2ad\">\n<div>\n<span data-left>\n5 selected\n</span>\n</div>\n<div>\n<span data-right>\nPage 1\n</span>\n</div>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c3a8a0f55 c937ba156 c9566e21c ccae02ff2 cd9b20003 ceacde2ad\">\n<div>\n<span data-left>\n5 selected\n</span>\n</div>\n<div>\n<span data-right>\nPage 1\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   }
+  },
+  "TableToolbar": {
+   "left and right slots": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c937ba156 c9566e21c ccae02ff2 cd9b20003 ceacde2ad\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<h2 data-left>\nMembers\n</h2>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<button data-right type=\"button\">\nAdd\n</button>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a below row": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c937ba156 c9566e21c ccae02ff2 cd9b20003 ceacde2ad\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<h2 data-left>\nMembers\n</h2>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n</div>\n</div>\n<div data-below>\nFilters\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "neither slot": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c937ba156 c9566e21c ccae02ff2 cd9b20003 ceacde2ad\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "text slots": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c937ba156 c9566e21c ccae02ff2 cd9b20003 ceacde2ad\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\nMembers\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\nAdd\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "forwards className": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2 cd75bbd18\">\n<div class=\"c1e8176ab c937ba156 c9566e21c ccae02ff2 cd9b20003 ceacde2ad\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "the right slot arrives on a props change": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c937ba156 c9566e21c ccae02ff2 cd9b20003 ceacde2ad\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\nMembers\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c937ba156 c9566e21c ccae02ff2 cd9b20003 ceacde2ad\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\nMembers\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\nAdd\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "left and right slots, then a locale switch": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c937ba156 c9566e21c ccae02ff2 cd9b20003 ceacde2ad\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<h2 data-left>\nMembers\n</h2>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<button data-right type=\"button\">\nAdd\n</button>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c937ba156 c9566e21c ccae02ff2 cd9b20003 ceacde2ad\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<h2 data-left>\nMembers\n</h2>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<button data-right type=\"button\">\nAdd\n</button>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   }
+  }
+ }
+}

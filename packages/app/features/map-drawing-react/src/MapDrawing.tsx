@@ -4,7 +4,7 @@ import type {
   ReactElement,
   ReactNode,
 } from 'react'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
@@ -316,14 +316,19 @@ export function MapDrawing(props: MapDrawingProps): ReactElement {
     commitShapes(next)
   }, [commitShapes, selection, shapes])
 
-  // Keep internal active tool in sync if the controlled prop changes.
-  useEffect(() => {
+  // A controlled tool change discards any in-progress draft. Adjusted during
+  // render (React's pattern for state derived from a previous prop) so the
+  // switch and the discarded draft land in the same commit instead of an
+  // effect-triggered second render.
+  const [prevActiveToolProp, setPrevActiveToolProp] = useState(activeToolProp)
+  if (prevActiveToolProp !== activeToolProp) {
+    setPrevActiveToolProp(activeToolProp)
     if (activeToolProp !== undefined) {
       setDraftPath(null)
       setDraftCircle(null)
       setDraftSelection(null)
     }
-  }, [activeToolProp])
+  }
 
   // Render shape geometry as SVG paths/markers in the overlay.
   const overlayElements = useMemo(

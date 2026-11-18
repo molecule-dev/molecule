@@ -1,8 +1,10 @@
 // @vitest-environment jsdom
 
 import { act, cleanup, fireEvent, render, renderHook, screen, within } from '@testing-library/react'
-import { useEffect, useRef, useState } from 'react'
+import { type KeyboardEvent as ReactKeyboardEvent, useEffect, useRef, useState } from 'react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+
+import type { TagInputFieldProps } from '../useTagInput.js'
 
 const { useTagInput } = await import('../useTagInput.js')
 
@@ -96,6 +98,34 @@ function fillAndEnter(input: HTMLInputElement, text: string): boolean {
   return fireEvent.keyDown(input, { key: 'Enter' })
 }
 
+/**
+ * Captures a REAL React synthetic Enter keydown of the shape
+ * `inputProps.onKeyDown` accepts: a probe input spreads those props and React
+ * itself dispatches the event. The capture dispatch happens while the draft is
+ * still empty, so the delegated call only cancels the default and the capture
+ * changes nothing. Callers then invoke the handler directly with the returned
+ * event — the genuine object, prototype methods intact, no cast.
+ *
+ * @param props - The hook's own `inputProps`.
+ */
+function captureRealEnterKeyDown(props: TagInputFieldProps): ReactKeyboardEvent<HTMLInputElement> {
+  let captured: ReactKeyboardEvent<HTMLInputElement> | null = null
+  render(
+    <input
+      aria-label="probe"
+      {...props}
+      onKeyDown={(event) => {
+        props.onKeyDown(event)
+        captured = event
+      }}
+    />,
+  )
+  fireEvent.keyDown(screen.getByLabelText('probe'), { key: 'Enter' })
+  const event = captured
+  if (!event) throw new Error('the probe input never received the keydown')
+  return event
+}
+
 afterEach(cleanup)
 
 describe('useTagInput with app-owned markup', () => {
@@ -140,13 +170,13 @@ describe('useTagInput with app-owned markup', () => {
     const onChange = vi.fn()
     const normalize = vi.fn((raw: string) => raw)
     const { result } = renderHook(() => useTagInput({ value: [], onChange, normalize }))
+    // Captured while the draft is empty, so the probe's own dispatch commits
+    // nothing. The two consumption paths below then race over one draft
+    // ('one'), both running before React renders, as in a real field.
+    const enterEvent = captureRealEnterKeyDown(result.current.inputProps)
     act(() => result.current.setDraft('one'))
     act(() => {
-      result.current.inputProps.onKeyDown({
-        key: 'Enter',
-        nativeEvent: { isComposing: false },
-        preventDefault: vi.fn(),
-      } as Parameters<typeof result.current.inputProps.onKeyDown>[0])
+      result.current.inputProps.onKeyDown(enterEvent)
       result.current.inputProps.onBlur()
     })
     expect(onChange).toHaveBeenCalledTimes(1)

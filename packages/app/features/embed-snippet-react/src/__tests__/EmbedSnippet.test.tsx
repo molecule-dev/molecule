@@ -1,16 +1,19 @@
 // @vitest-environment jsdom
 
-import { fireEvent, render } from '@testing-library/react'
+import { fireEvent, render, waitFor } from '@testing-library/react'
 import type { ReactNode } from 'react'
 import React, { useState } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { copyTextWithFallback } from '@molecule/app-clipboard'
 import { createSimpleI18nProvider } from '@molecule/app-i18n'
 import { I18nProvider } from '@molecule/app-react'
 import { setClassMap, type UIClassMap } from '@molecule/app-ui'
 
 import { EmbedSnippet } from '../EmbedSnippet.js'
 import type { EmbedSnippetValues } from '../types.js'
+
+vi.mock('@molecule/app-clipboard', () => ({ copyTextWithFallback: vi.fn(async () => true) }))
 
 /**
  * Build a UIClassMap stub via Proxy: `cn(...)` joins truthy strings,
@@ -257,12 +260,8 @@ describe('<EmbedSnippet>', () => {
     expect(optionLabels).toEqual(['Sunrise', 'Midnight'])
   })
 
-  it('calls navigator.clipboard.writeText with the rendered snippet on copy', async () => {
-    const writeText = vi.fn().mockResolvedValue(undefined)
-    Object.defineProperty(globalThis.navigator, 'clipboard', {
-      value: { writeText },
-      configurable: true,
-    })
+  it('calls copyTextWithFallback with the rendered snippet on copy', async () => {
+    vi.mocked(copyTextWithFallback).mockClear()
     const onCopy = vi.fn()
     const { container } = render(
       <Wrap>
@@ -277,10 +276,9 @@ describe('<EmbedSnippet>', () => {
       '[data-mol-id="embed-snippet-copy-button"]',
     ) as HTMLButtonElement
     fireEvent.click(button)
-    await Promise.resolve()
-    await Promise.resolve()
-    expect(writeText).toHaveBeenCalledTimes(1)
-    expect(writeText.mock.calls[0][0]).toBe(
+    await waitFor(() => expect(button.textContent).toBe('Copied!'))
+    expect(copyTextWithFallback).toHaveBeenCalledTimes(1)
+    expect(vi.mocked(copyTextWithFallback).mock.calls[0][0]).toBe(
       '<iframe src="https://example.com/embed" width="640px" height="480px" data-theme="dark" />',
     )
     expect(onCopy).toHaveBeenCalledTimes(1)
@@ -289,20 +287,27 @@ describe('<EmbedSnippet>', () => {
     )
   })
 
-  it('does not throw when navigator.clipboard is unavailable', () => {
-    Object.defineProperty(globalThis.navigator, 'clipboard', {
-      value: undefined,
-      configurable: true,
-    })
+  it('shows no copied feedback when copyTextWithFallback resolves false', async () => {
+    const copyMock = vi.mocked(copyTextWithFallback)
+    copyMock.mockClear()
+    copyMock.mockResolvedValueOnce(false)
+    const onCopy = vi.fn()
     const { container } = render(
       <Wrap>
-        <EmbedSnippet template={TEMPLATE} values={{ width: 640 }} />
+        <EmbedSnippet
+          template={TEMPLATE}
+          values={{ width: 640, height: 480, theme: 'dark' }}
+          onCopy={onCopy}
+        />
       </Wrap>,
     )
     const button = container.querySelector(
       '[data-mol-id="embed-snippet-copy-button"]',
     ) as HTMLButtonElement
-    expect(() => fireEvent.click(button)).not.toThrow()
+    fireEvent.click(button)
+    await waitFor(() => expect(copyTextWithFallback).toHaveBeenCalledTimes(1))
+    expect(onCopy).not.toHaveBeenCalled()
+    expect(button.textContent).toBe('Copy')
   })
 
   it('honours a custom mol-id prefix', () => {

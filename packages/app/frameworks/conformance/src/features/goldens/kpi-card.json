@@ -1,0 +1,302 @@
+{
+ "exports": [
+  "KpiCard",
+  "KpiCardGrid",
+  "KpiCardTrend"
+ ],
+ "values": {},
+ "cases": {
+  "KpiCard": {
+   "title and value": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nRevenue\n</span>\n</div>\n</div>\n<div class=\"c0d99ed10 c91a3f70a\">\n$48,200\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "an empty card renders both rows empty": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\n</span>\n</div>\n</div>\n<div class=\"c0d99ed10 c91a3f70a\">\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "subtitle below the value": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nRevenue\n</span>\n</div>\n</div>\n<div class=\"c0d99ed10 c91a3f70a\">\n$48,200\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\nvs. last week\n</span>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a trend indicator": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nRevenue\n</span>\n</div>\n</div>\n<div class=\"c0d99ed10 c91a3f70a\">\n$48,200\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span data-trend>\n+12.4%\n</span>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a trend indicator and a subtitle": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nRevenue\n</span>\n</div>\n</div>\n<div class=\"c0d99ed10 c91a3f70a\">\n$48,200\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span data-trend>\n▲ 12.4%\n</span>\n<span class=\"c445db9b9\">\nvs. last week\n</span>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "icon and action slots": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<i data-icon>\n</i>\n<span class=\"c445db9b9 c80b1c428\">\nRevenue\n</span>\n</div>\n<button data-action>\nMore\n</button>\n</div>\n<div class=\"c0d99ed10 c91a3f70a\">\n$48,200\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "title and value as elements": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\n<strong>\nMonthly \n<em>\nrevenue\n</em>\n</strong>\n</span>\n</div>\n</div>\n<div class=\"c0d99ed10 c91a3f70a\">\n<span data-value>\n$48,200\n</span>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "accent on the left": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c93ab4c7f c99d61f16 cb33f6c80 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nRevenue\n</span>\n</div>\n</div>\n<div class=\"c0d99ed10 c91a3f70a\">\n$48,200\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "accent on the top": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cb33f6c80 cc26cbf54 cd9241037 cdccefb20\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nRevenue\n</span>\n</div>\n</div>\n<div class=\"c0d99ed10 c91a3f70a\">\n$48,200\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "no accent side": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nRevenue\n</span>\n</div>\n</div>\n<div class=\"c0d99ed10 c91a3f70a\">\n$48,200\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a custom accent colour": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c59329069 c5e7000ad c93ab4c7f c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nRevenue\n</span>\n</div>\n</div>\n<div class=\"c0d99ed10 c91a3f70a\">\n$48,200\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a custom accent colour with no accent drawn": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nRevenue\n</span>\n</div>\n</div>\n<div class=\"c0d99ed10 c91a3f70a\">\n$48,200\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "an uppercase label": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c052585d2 c0d99ed10 c267fcecb c4647f690 cdf83deeb\">\nRevenue\n</span>\n</div>\n</div>\n<div class=\"c0d99ed10 c91a3f70a\">\n$48,200\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "an emphasised value": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nRevenue\n</span>\n</div>\n</div>\n<div class=\"c91a3f70a c9a4d1a6c\">\n$48,200\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a hover lift": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c7e9e3f93 c8e6a772c c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nRevenue\n</span>\n</div>\n</div>\n<div class=\"c0d99ed10 c91a3f70a\">\n$48,200\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "className and data-mol-id": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cd75bbd18 cdccefb20\" data-mol-id=\"kpi-revenue\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nRevenue\n</span>\n</div>\n</div>\n<div class=\"c0d99ed10 c91a3f70a\">\n$48,200\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "the accent side changes": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c93ab4c7f c99d61f16 cb33f6c80 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nRevenue\n</span>\n</div>\n</div>\n<div class=\"c0d99ed10 c91a3f70a\">\n$48,200\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cb33f6c80 cc26cbf54 cd9241037 cdccefb20\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nRevenue\n</span>\n</div>\n</div>\n<div class=\"c0d99ed10 c91a3f70a\">\n$48,200\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nRevenue\n</span>\n</div>\n</div>\n<div class=\"c0d99ed10 c91a3f70a\">\n$48,200\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c93ab4c7f c99d61f16 cb33f6c80 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nRevenue\n</span>\n</div>\n</div>\n<div class=\"c0d99ed10 c91a3f70a\">\n$48,200\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "the label and value styling changes": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c7e9e3f93 c8e6a772c c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c052585d2 c0d99ed10 c267fcecb c4647f690 cdf83deeb\">\nRevenue\n</span>\n</div>\n</div>\n<div class=\"c91a3f70a c9a4d1a6c\">\n$48,200\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nRevenue\n</span>\n</div>\n</div>\n<div class=\"c0d99ed10 c91a3f70a\">\n$48,200\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "className and data-mol-id change": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cd75bbd18 cdccefb20\" data-mol-id=\"first-id\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nRevenue\n</span>\n</div>\n</div>\n<div class=\"c0d99ed10 c91a3f70a\">\n$48,200\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 ccaded727 cdccefb20\" data-mol-id=\"second-id\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nRevenue\n</span>\n</div>\n</div>\n<div class=\"c0d99ed10 c91a3f70a\">\n$48,200\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 ccaded727 cdccefb20\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nRevenue\n</span>\n</div>\n</div>\n<div class=\"c0d99ed10 c91a3f70a\">\n$48,200\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "title and value, then a locale switch": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nRevenue\n</span>\n</div>\n</div>\n<div class=\"c0d99ed10 c91a3f70a\">\n$48,200\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nRevenue\n</span>\n</div>\n</div>\n<div class=\"c0d99ed10 c91a3f70a\">\n$48,200\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   }
+  },
+  "KpiCardGrid": {
+   "its children": {
+    "snapshots": [
+     "<div class=\"c49bc009c c8c947ea7 c9366def6 ca216a595 caf871a91\">\n<span data-card>\ncard-a\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "two columns": {
+    "snapshots": [
+     "<div class=\"c49bc009c c9366def6 ca216a595 caf871a91\">\n<span data-card>\na\n</span>\n<span data-card>\nb\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "three columns": {
+    "snapshots": [
+     "<div class=\"c49bc009c c899479ee c9366def6 ca216a595 caf871a91\">\nx\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "four columns": {
+    "snapshots": [
+     "<div class=\"c49bc009c c8c947ea7 c9366def6 ca216a595 caf871a91\">\nx\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "five columns": {
+    "snapshots": [
+     "<div class=\"c49bc009c c899479ee c9142a835 c9366def6 ca216a595 caf871a91\">\nx\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "six columns": {
+    "snapshots": [
+     "<div class=\"c49bc009c c899479ee c8e42a37c c9366def6 ca216a595 caf871a91\">\nx\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a small gap": {
+    "snapshots": [
+     "<div class=\"c49bc009c c8c947ea7 c9866e6d5 ca216a595 caf871a91\">\nx\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a large gap": {
+    "snapshots": [
+     "<div class=\"c49bc009c c8c947ea7 c9166dbd0 ca216a595 caf871a91\">\nx\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "className": {
+    "snapshots": [
+     "<div class=\"c49bc009c c8c947ea7 c9366def6 ca216a595 caf871a91 cd75bbd18\">\nx\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "no children": {
+    "snapshots": [
+     "<div class=\"c49bc009c c8c947ea7 c9366def6 ca216a595 caf871a91\">\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "columns and gap change": {
+    "snapshots": [
+     "<div class=\"c49bc009c c9866e6d5 ca216a595 caf871a91\">\nx\n</div>\n@route /",
+     "<div class=\"c49bc009c c899479ee c9142a835 c9166dbd0 ca216a595 caf871a91\">\nx\n</div>\n@route /",
+     "<div class=\"c49bc009c c8c947ea7 c9366def6 ca216a595 caf871a91\">\nx\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "its children, then a locale switch": {
+    "snapshots": [
+     "<div class=\"c49bc009c c8c947ea7 c9366def6 ca216a595 caf871a91\">\n<span data-card>\ncard-a\n</span>\n</div>\n@route /",
+     "<div class=\"c49bc009c c8c947ea7 c9366def6 ca216a595 caf871a91\">\n<span data-card>\ncard-a\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   }
+  },
+  "KpiCardTrend": {
+   "a positive delta": {
+    "snapshots": [
+     "<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\">\n▲\n</span>\n<span>\n12.3%\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "a negative delta": {
+    "snapshots": [
+     "<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\">\n▼\n</span>\n<span>\n4%\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "a zero delta": {
+    "snapshots": [
+     "<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\">\n–\n</span>\n<span>\n0%\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "an explicit up direction over a negative delta": {
+    "snapshots": [
+     "<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\">\n▲\n</span>\n<span>\n4%\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "an explicit down direction over a positive delta": {
+    "snapshots": [
+     "<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\">\n▼\n</span>\n<span>\n9%\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "an explicit flat direction over a positive delta": {
+    "snapshots": [
+     "<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\">\n–\n</span>\n<span>\n9%\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "a custom suffix": {
+    "snapshots": [
+     "<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\">\n▲\n</span>\n<span>\n3pts\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "an empty suffix": {
+    "snapshots": [
+     "<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\">\n▲\n</span>\n<span>\n3\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "className": {
+    "snapshots": [
+     "<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd75bbd18 cd9b20003\">\n<span aria-hidden=\"true\">\n▲\n</span>\n<span>\n1%\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "the delta changes sign": {
+    "snapshots": [
+     "<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\">\n▲\n</span>\n<span>\n12%\n</span>\n</span>\n@route /",
+     "<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\">\n▼\n</span>\n<span>\n3%\n</span>\n</span>\n@route /",
+     "<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\">\n–\n</span>\n<span>\n0%\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "direction and suffix change": {
+    "snapshots": [
+     "<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\">\n▲\n</span>\n<span>\n5%\n</span>\n</span>\n@route /",
+     "<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\">\n▼\n</span>\n<span>\n5%\n</span>\n</span>\n@route /",
+     "<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\">\n▼\n</span>\n<span>\n5pts\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "className changes": {
+    "snapshots": [
+     "<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd75bbd18 cd9b20003\">\n<span aria-hidden=\"true\">\n▲\n</span>\n<span>\n1%\n</span>\n</span>\n@route /",
+     "<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c9866e6d5 cc2d72006 ccaded727 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\">\n▲\n</span>\n<span>\n1%\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "a positive delta, then a locale switch": {
+    "snapshots": [
+     "<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\">\n▲\n</span>\n<span>\n12.3%\n</span>\n</span>\n@route /",
+     "<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\">\n▲\n</span>\n<span>\n12.3%\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   }
+  }
+ }
+}

@@ -8,6 +8,7 @@
 
 import { type JSX, type ReactNode, useState } from 'react'
 
+import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 import { AdminTableRowActions } from './AdminTableRowActions.js'
@@ -33,6 +34,11 @@ export interface AdminTableProps<T> {
   onSelectedIdsChange?: (ids: string[]) => void
   /** Kebab menu items. When set, a trailing right-aligned actions column is rendered. */
   rowActions?: AdminTableRowAction<T>[]
+  /**
+   * Per-row accessible label for the actions menu. When not given, the trigger
+   * falls back to the translated default (`adminTable.aria.rowActions`,
+   * English `'Row actions'`).
+   */
   rowActionsAriaLabel?: (row: T) => string
   /** Slot rendered below the table (typically a `<Pagination>` row). */
   footer?: ReactNode
@@ -59,6 +65,7 @@ export function AdminTable<T>({
   tbodyDataMolId,
 }: AdminTableProps<T>): JSX.Element {
   const cm = getClassMap()
+  const { t } = useTranslation()
   const [internalSelected, setInternalSelected] = useState<string[]>([])
   const selected = onSelectedIdsChange ? selectedIds : internalSelected
   const setSelected = (next: string[]): void => {
@@ -77,7 +84,14 @@ export function AdminTable<T>({
       <table className={cm.cn(cm.w('full'))} style={{ borderCollapse: 'collapse' }}>
         <thead>
           <tr className={cm.cn(cm.surfaceSecondary, cm.textMuted, cm.borderB)}>
-            {bulkSelect ? <th className={cm.cn(cm.sp('py', 3), cm.sp('px', 6), cm.w(8))} /> : null}
+            {bulkSelect ? (
+              <th className={cm.cn(cm.sp('py', 3), cm.sp('px', 6), cm.w(8))}>
+                {/* The checkbox column has no visible header text; this names it. */}
+                <span className={cm.cn(cm.srOnly)}>
+                  {t('adminTable.aria.selectColumn', undefined, { defaultValue: 'Select' })}
+                </span>
+              </th>
+            ) : null}
             {columns.map((col) => (
               <th
                 key={col.id}
@@ -100,7 +114,12 @@ export function AdminTable<T>({
               </th>
             ))}
             {rowActions && rowActions.length > 0 ? (
-              <th className={cm.cn(cm.sp('py', 3), cm.sp('px', 6), cm.w(12), cm.textRight)} />
+              <th className={cm.cn(cm.sp('py', 3), cm.sp('px', 6), cm.w(12), cm.textRight)}>
+                {/* The actions column has no visible header text; this names it. */}
+                <span className={cm.cn(cm.srOnly)}>
+                  {t('adminTable.aria.actionsColumn', undefined, { defaultValue: 'Actions' })}
+                </span>
+              </th>
             ) : null}
           </tr>
         </thead>
@@ -123,12 +142,15 @@ export function AdminTable<T>({
                   <tr
                     key={id}
                     data-mol-id={`admin-table-row-${id}`}
-                    role={onRowClick ? 'link' : undefined}
                     tabIndex={onRowClick ? 0 : undefined}
                     onClick={onRowClick ? () => onRowClick(row) : undefined}
                     onKeyDown={
                       onRowClick
                         ? (e) => {
+                            // A key pressed inside a row control (the checkbox,
+                            // the actions trigger) belongs to that control and
+                            // bubbles here; activate the row only for its own keys.
+                            if (e.target !== e.currentTarget) return
                             if (e.key === 'Enter' || e.key === ' ') {
                               e.preventDefault()
                               onRowClick(row)
@@ -144,6 +166,9 @@ export function AdminTable<T>({
                         <input
                           type="checkbox"
                           checked={isSelected}
+                          aria-label={t('adminTable.aria.selectRow', undefined, {
+                            defaultValue: 'Select row',
+                          })}
                           data-mol-id={`admin-table-select-${id}`}
                           onChange={(e) => {
                             e.stopPropagation()
@@ -181,7 +206,7 @@ export function AdminTable<T>({
                         <AdminTableRowActions
                           row={row}
                           actions={rowActions}
-                          ariaLabel={rowActionsAriaLabel?.(row) ?? 'Row actions'}
+                          ariaLabel={rowActionsAriaLabel?.(row)}
                         />
                       </td>
                     ) : null}

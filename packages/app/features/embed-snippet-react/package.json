@@ -36,6 +36,7 @@
     "directory": "packages/app/features/embed-snippet-react"
   },
   "peerDependencies": {
+    "@molecule/app-clipboard": "^1.0.1",
     "@molecule/app-i18n": "^1.0.1",
     "@molecule/app-react": "^4.0.0",
     "@molecule/app-ui": "^1.0.1",
@@ -43,6 +44,7 @@
     "react": "^18.0.0 || ^19.0.0"
   },
   "devDependencies": {
+    "@molecule/app-clipboard": "1.0.5",
     "@molecule/app-i18n": "1.2.2",
     "@molecule/app-react": "4.8.0",
     "@molecule/app-ui": "1.4.0",

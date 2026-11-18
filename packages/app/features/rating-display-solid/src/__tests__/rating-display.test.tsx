@@ -85,4 +85,20 @@ describe('RatingDisplay', () => {
     const container = mount(() => <RatingDisplay value={3} className="rd-cls" />)
     expect(container.innerHTML).toContain('rd-cls')
   })
+
+  it('keeps the rating label and role on the inner stars span, not the root', () => {
+    const container = mount(() => <RatingDisplay value={3.5} max={5} />)
+    expect(container.innerHTML.match(/role="img"/g) ?? []).toHaveLength(1)
+    expect(container.innerHTML).toContain('aria-label="Rating: 3.5 of 5"')
+  })
+
+  it('groups the interactive stars under the rating label with pressed states', () => {
+    const container = mount(() => <RatingDisplay value={2.4} max={5} onChange={() => {}} />)
+    expect(container.innerHTML.match(/role="group"/g) ?? []).toHaveLength(1)
+    expect(container.innerHTML.match(/role="img"/g) ?? []).toHaveLength(0)
+    expect(container.innerHTML).toContain('aria-label="Rating: 2.4 of 5"')
+    // Math.round(2.4) = 2: the first two stars pressed, the other three not.
+    expect(container.innerHTML.match(/aria-pressed="true"/g) ?? []).toHaveLength(2)
+    expect(container.innerHTML.match(/aria-pressed="false"/g) ?? []).toHaveLength(3)
+  })
 })

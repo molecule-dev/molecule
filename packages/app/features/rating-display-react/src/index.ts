@@ -27,10 +27,11 @@
  * @remarks
  * Stars are inline SVG filled with `currentColor` — set a text color on the
  * wrapper (e.g. a warning/amber token) to tint them; unfilled portions render
- * at 25% opacity of the same color. Accessibility labels are English defaults:
- * the container label is overridable via `ariaLabel`, but the per-star "Rate N
- * of M" button labels in interactive mode are not — this package has no locale
- * bond. Requires a wired ClassMap bond.
+ * at 25% opacity of the same color. Accessible labels are translated through
+ * `useTranslation()` and follow a locale switch: the container label
+ * (`ratingDisplay.aria.rating`, overridable via `ariaLabel`) and the per-star
+ * "Rate N of M" button labels in interactive mode
+ * (`ratingDisplay.aria.rate`). Requires a wired ClassMap bond.
  *
  * @module
  */

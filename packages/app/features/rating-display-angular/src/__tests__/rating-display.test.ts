@@ -12,6 +12,7 @@
 
 import '@angular/compiler'
 import {
+  type ApplicationRef,
   ChangeDetectionStrategy,
   Component,
   type ComponentRef,
@@ -19,7 +20,7 @@ import {
   provideZonelessChangeDetection,
   type Type,
 } from '@angular/core'
-import { type ApplicationRef, createApplication } from '@angular/platform-browser'
+import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 // Proxy ClassMap echoing each accessed member back as its token (e.g. `flex`),
@@ -162,5 +163,21 @@ describe('RatingDisplay', () => {
   it('forwards className', async () => {
     const m = await render({ value: 3, className: 'rd-cls' })
     expect(m.host.innerHTML).toContain('rd-cls')
+  })
+
+  it('keeps the rating label and role on the inner stars span, not the root', async () => {
+    const m = await render({ value: 3.5, max: 5 })
+    expect(m.host.innerHTML.match(/role="img"/g) ?? []).toHaveLength(1)
+    expect(m.host.innerHTML).toContain('aria-label="Rating: 3.5 of 5"')
+  })
+
+  it('groups the interactive stars under the rating label with pressed states', async () => {
+    const m = await render({ value: 2.4, max: 5, onChange: () => {} })
+    expect(m.host.innerHTML.match(/role="group"/g) ?? []).toHaveLength(1)
+    expect(m.host.innerHTML.match(/role="img"/g) ?? []).toHaveLength(0)
+    expect(m.host.innerHTML).toContain('aria-label="Rating: 2.4 of 5"')
+    // Math.round(2.4) = 2: the first two stars pressed, the other three not.
+    expect(m.host.innerHTML.match(/aria-pressed="true"/g) ?? []).toHaveLength(2)
+    expect(m.host.innerHTML.match(/aria-pressed="false"/g) ?? []).toHaveLength(3)
   })
 })

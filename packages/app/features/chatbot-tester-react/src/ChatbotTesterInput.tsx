@@ -7,6 +7,7 @@
 
 import type { JSX } from 'react'
 
+import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 /** Props for {@link ChatbotTesterInput}. */
@@ -15,7 +16,9 @@ export interface ChatbotTesterInputProps {
   onChange: (next: string) => void
   onSend: () => void
   loading?: boolean
+  /** Composer placeholder — an explicit value overrides `t('chatbotTester.placeholder.message')`. */
   placeholder?: string
+  /** Send button label — an explicit value overrides `t('chatbotTester.label.send')`. */
   sendLabel?: string
 }
 
@@ -25,10 +28,19 @@ export function ChatbotTesterInput({
   onChange,
   onSend,
   loading,
-  placeholder = 'Type a message…',
-  sendLabel = 'Send',
+  placeholder,
+  sendLabel,
 }: ChatbotTesterInputProps): JSX.Element {
   const cm = getClassMap()
+  const { t } = useTranslation()
+  const placeholderText =
+    placeholder === undefined
+      ? t('chatbotTester.placeholder.message', undefined, { defaultValue: 'Type a message…' })
+      : placeholder
+  const sendText =
+    sendLabel === undefined
+      ? t('chatbotTester.label.send', undefined, { defaultValue: 'Send' })
+      : sendLabel
   return (
     <div
       className={cm.cn(
@@ -48,7 +60,7 @@ export function ChatbotTesterInput({
           }
         }}
         rows={1}
-        placeholder={placeholder}
+        placeholder={placeholderText}
         disabled={loading}
         className={cm.cn(
           cm.flex1,
@@ -69,7 +81,7 @@ export function ChatbotTesterInput({
           cm.touchTargetCompact,
         )}
       >
-        {sendLabel}
+        {sendText}
       </button>
     </div>
   )

@@ -1,7 +1,7 @@
 /**
  * Unit tests for `<PasswordGenerator>` — the configurable secure
  * password generator UI. Mocks `@molecule/app-ui` + `@molecule/app-react`
- * so tests don't need a fully-bonded app, and stubs `navigator.clipboard`
+ * so tests don't need a fully-bonded app, and mocks `@molecule/app-clipboard`
  * so we can assert copy semantics deterministically.
  *
  * @module
@@ -9,7 +9,7 @@
 
 // @vitest-environment jsdom
 
-import { cleanup, fireEvent, render } from '@testing-library/react'
+import { act, cleanup, fireEvent, render, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('@molecule/app-ui', () => ({
@@ -55,27 +55,27 @@ vi.mock('@molecule/app-react', () => ({
   }),
 }))
 
+vi.mock('@molecule/app-clipboard', () => ({
+  copyTextWithFallback: vi.fn(async () => true),
+}))
+
 import React from 'react'
 
+import { copyTextWithFallback } from '@molecule/app-clipboard'
+
 import { PasswordGenerator } from '../PasswordGenerator.js'
+
+const copyTextWithFallbackMock = vi.mocked(copyTextWithFallback)
 
 afterEach(() => {
   cleanup()
   vi.restoreAllMocks()
 })
 
-/**
- * Wires a stub clipboard with a tracked `writeText` so tests can assert
- * exactly what gets copied.
- */
-function installClipboardStub(): ReturnType<typeof vi.fn> {
-  const writeText = vi.fn().mockResolvedValue(undefined)
-  Object.defineProperty(navigator, 'clipboard', {
-    configurable: true,
-    value: { writeText },
-  })
-  return writeText
-}
+beforeEach(() => {
+  copyTextWithFallbackMock.mockReset()
+  copyTextWithFallbackMock.mockResolvedValue(true)
+})
 
 /** Helper — the read-only password readout. */
 function readout(): HTMLInputElement {
@@ -109,10 +109,6 @@ function toggle(key: string): HTMLInputElement {
 }
 
 describe('<PasswordGenerator>', () => {
-  beforeEach(() => {
-    installClipboardStub()
-  })
-
   describe('rendering', () => {
     it('mounts with a generated password of defaultLength', () => {
       render(<PasswordGenerator defaultLength={20} />)
@@ -201,32 +197,41 @@ describe('<PasswordGenerator>', () => {
 
   describe('clipboard', () => {
     it('copies the displayed password when the copy button is clicked', async () => {
-      const writeText = installClipboardStub()
       render(<PasswordGenerator defaultLength={20} />)
       const value = readout().value
       fireEvent.click(copyBtn())
-      // `writeText` is async but called synchronously inside the handler.
-      expect(writeText).toHaveBeenCalledTimes(1)
-      expect(writeText).toHaveBeenCalledWith(value)
+      expect(copyTextWithFallbackMock).toHaveBeenCalledTimes(1)
+      expect(copyTextWithFallbackMock).toHaveBeenCalledWith(value)
+      await waitFor(() => expect(copyBtn().textContent).toBe('Copied!'))
     })
 
-    it('autoCopy fires writeText on every regenerate', async () => {
-      const writeText = installClipboardStub()
+    it('autoCopy fires the copy on every regenerate', () => {
       render(<PasswordGenerator defaultLength={20} autoCopy />)
       // Mount triggers the initial regenerate effect — that hit shouldn't be
       // double-counted, so capture and reset before user-driven regenerate.
-      writeText.mockClear()
+      copyTextWithFallbackMock.mockClear()
       fireEvent.click(regenerateBtn())
-      expect(writeText).toHaveBeenCalledTimes(1)
-      expect(writeText).toHaveBeenCalledWith(readout().value)
+      expect(copyTextWithFallbackMock).toHaveBeenCalledTimes(1)
+      expect(copyTextWithFallbackMock).toHaveBeenCalledWith(readout().value)
     })
 
     it('does NOT autoCopy when the prop is omitted', () => {
-      const writeText = installClipboardStub()
       render(<PasswordGenerator defaultLength={20} />)
-      writeText.mockClear()
+      copyTextWithFallbackMock.mockClear()
       fireEvent.click(regenerateBtn())
-      expect(writeText).not.toHaveBeenCalled()
+      expect(copyTextWithFallbackMock).not.toHaveBeenCalled()
+    })
+
+    it('leaves the copied state off when the copy reports failure', async () => {
+      copyTextWithFallbackMock.mockResolvedValue(false)
+      render(<PasswordGenerator defaultLength={20} />)
+      const value = readout().value
+      fireEvent.click(copyBtn())
+      expect(copyTextWithFallbackMock).toHaveBeenCalledWith(value)
+      await act(async () => {
+        await Promise.resolve()
+      })
+      expect(copyBtn().textContent).toBe('Copy')
     })
   })
 

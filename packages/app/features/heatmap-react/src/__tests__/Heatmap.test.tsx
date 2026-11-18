@@ -99,7 +99,7 @@ describe('<Heatmap>', () => {
     end: new Date(2025, 0, 31),
   }
 
-  it('renders an svg with role=img', () => {
+  it('renders the svg as a labelled group', () => {
     const { container } = render(
       <Wrap>
         <Heatmap data={[]} range={range} />
@@ -107,7 +107,8 @@ describe('<Heatmap>', () => {
     )
     const svg = container.querySelector('svg')
     expect(svg).not.toBeNull()
-    expect(svg?.getAttribute('role')).toBe('img')
+    expect(svg?.getAttribute('role')).toBe('group')
+    expect(svg?.getAttribute('aria-label')).toBe('Activity heatmap')
     expect(svg?.getAttribute('data-mol-id')).toBe('heatmap')
   })
 
@@ -132,6 +133,80 @@ describe('<Heatmap>', () => {
     expect(cell).not.toBeNull()
     expect(cell?.getAttribute('aria-label')).toContain('2025-01-15')
     expect(cell?.getAttribute('data-value')).toBe('7')
+  })
+
+  it('renders a non-clickable cell as an image without a tabindex', () => {
+    const { container } = render(
+      <Wrap>
+        <Heatmap data={[{ date: '2025-01-15', value: 7 }]} range={range} />
+      </Wrap>,
+    )
+    const cell = container.querySelector('[data-mol-id="heatmap-cell-2025-01-15"]')!
+    expect(cell.getAttribute('role')).toBe('img')
+    expect(cell.hasAttribute('tabindex')).toBe(false)
+    expect(cell.getAttribute('aria-label')).toContain('2025-01-15')
+  })
+
+  it('renders a clickable cell as a button with a tabindex', () => {
+    const { container } = render(
+      <Wrap>
+        <Heatmap
+          data={[{ date: '2025-01-15', value: 7 }]}
+          range={range}
+          onCellClick={() => undefined}
+        />
+      </Wrap>,
+    )
+    const cell = container.querySelector('[data-mol-id="heatmap-cell-2025-01-15"]')!
+    expect(cell.getAttribute('role')).toBe('button')
+    expect(cell.getAttribute('tabindex')).toBe('0')
+    expect(cell.getAttribute('aria-label')).toContain('2025-01-15')
+  })
+
+  it('activates a clickable cell on Enter', () => {
+    const onCellClick = vi.fn()
+    const { container } = render(
+      <Wrap>
+        <Heatmap
+          data={[{ date: '2025-01-10', value: 3 }]}
+          range={range}
+          onCellClick={onCellClick}
+        />
+      </Wrap>,
+    )
+    const cell = container.querySelector('[data-mol-id="heatmap-cell-2025-01-10"]')!
+    fireEvent.keyDown(cell, { key: 'Enter' })
+    expect(onCellClick).toHaveBeenCalledTimes(1)
+    expect(onCellClick.mock.calls[0][0]).toMatchObject({ date: '2025-01-10', value: 3 })
+  })
+
+  it('activates a clickable cell on Space', () => {
+    const onCellClick = vi.fn()
+    const { container } = render(
+      <Wrap>
+        <Heatmap
+          data={[{ date: '2025-01-10', value: 3 }]}
+          range={range}
+          onCellClick={onCellClick}
+        />
+      </Wrap>,
+    )
+    const cell = container.querySelector('[data-mol-id="heatmap-cell-2025-01-10"]')!
+    fireEvent.keyDown(cell, { key: ' ' })
+    expect(onCellClick).toHaveBeenCalledTimes(1)
+    expect(onCellClick.mock.calls[0][0]).toMatchObject({ date: '2025-01-10', value: 3 })
+  })
+
+  it('hides the axis labels from assistive technology', () => {
+    const { container } = render(
+      <Wrap>
+        <Heatmap data={[]} range={range} showWeekdayLabels />
+      </Wrap>,
+    )
+    const month = container.querySelector('[data-mol-id="heatmap-month-0"]')
+    const weekday = container.querySelector('[data-mol-id="heatmap-weekday-1"]')
+    expect(month?.getAttribute('aria-hidden')).toBe('true')
+    expect(weekday?.getAttribute('aria-hidden')).toBe('true')
   })
 
   it('fires onCellClick with the cell descriptor', () => {

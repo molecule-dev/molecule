@@ -69,6 +69,27 @@ export interface FlowCanvasProps {
 const DEFAULT_VIEWPORT: FlowViewport = { x: 0, y: 0, zoom: 1 }
 
 /**
+ * Id for a newly drawn edge, `e-<source>-<target>-<stamp>` (the format every
+ * framework's flow canvas mints). The stamp is the epoch ms, moved past the
+ * canvas's previous stamp so two edges drawn in one millisecond still differ.
+ * Module-level because only the connect handler calls it: reading the clock
+ * while rendering would make a render unrepeatable.
+ *
+ * @param sourceId - Source node id.
+ * @param targetId - Target node id.
+ * @param lastStamp - The stamp of this canvas's previous edge (0 for none).
+ * @returns The new edge's id and its stamp.
+ */
+function makeEdgeId(
+  sourceId: string,
+  targetId: string,
+  lastStamp: number,
+): { id: string; stamp: number } {
+  const stamp = Math.max(Date.now(), lastStamp + 1)
+  return { id: `e-${sourceId}-${targetId}-${stamp}`, stamp }
+}
+
+/**
  * Visual flow / DAG editor.
  *
  * Renders nodes as absolutely-positioned `<div>` slots and edges as a
@@ -138,6 +159,8 @@ export function FlowCanvas(props: FlowCanvasProps): React.JSX.Element {
   const [selection, setSelection] = useState<FlowSelection>({ nodeIds: [], edgeIds: [] })
   const [viewport, setViewport] = useState<FlowViewport>(initialViewport ?? DEFAULT_VIEWPORT)
   const rootRef = useRef<HTMLDivElement | null>(null)
+  // The stamp of the last edge this canvas drew, written only by the connect handler.
+  const lastEdgeStampRef = useRef(0)
 
   // Pending-connection drag (drawing an edge from a source handle).
   const [pendingConnection, setPendingConnection] = useState<{
@@ -418,8 +441,10 @@ export function FlowCanvas(props: FlowCanvasProps): React.JSX.Element {
       setPendingConnection(null)
       return
     }
+    const { id, stamp } = makeEdgeId(pendingConnection.sourceId, node.id, lastEdgeStampRef.current)
+    lastEdgeStampRef.current = stamp
     const newEdge: FlowEdge = {
-      id: `e-${pendingConnection.sourceId}-${node.id}-${Date.now()}`,
+      id,
       source: pendingConnection.sourceId,
       sourceHandle: pendingConnection.sourceHandle,
       target: node.id,
@@ -560,6 +585,20 @@ export function FlowCanvas(props: FlowCanvasProps): React.JSX.Element {
           const renderer = nodeRenderers?.[node.type]
           // Index-based: a node id may hold spaces, which aria-labelledby would split.
           const contentId = `${idBase}-node-${index}`
+          // The select button's name: the node's own `ariaLabel` when it has
+          // one, else the translated numbered label when neither a renderer
+          // nor children fills the node (a nameless button is unoperable for a
+          // screen reader), else the node's content as before.
+          const buttonName =
+            node.ariaLabel ??
+            (!renderer && children == null
+              ? t(
+                  'flowCanvas.aria.node',
+                  { number: index + 1 },
+                  { defaultValue: 'Node {{number}}' },
+                )
+              : undefined)
+          const buttonLabelledBy = buttonName == null ? contentId : undefined
           return (
             <div
               key={node.id}
@@ -589,13 +628,15 @@ export function FlowCanvas(props: FlowCanvasProps): React.JSX.Element {
               }}
             >
               {/* The keyboard path to selection: a select button covering the node,
-                  beneath its content and named by it. A sibling, not a wrapper, so a
-                  renderer may hold its own inputs and buttons (nothing interactive may
-                  nest in a button). */}
+                  beneath its content and named by the node's `ariaLabel`, the content
+                  it wraps, or the canvas's numbered node label. A sibling, not a
+                  wrapper, so a renderer may hold its own inputs and buttons (nothing
+                  interactive may nest in a button). */}
               <button
                 type="button"
                 data-mol-id={`flow-canvas-node-select-${node.id}`}
-                aria-labelledby={contentId}
+                aria-label={buttonName}
+                aria-labelledby={buttonLabelledBy}
                 onClick={(e) => {
                   // Only keyboard activation (Enter / Space on the
                   // focused button) — a browser synthesizes those clicks

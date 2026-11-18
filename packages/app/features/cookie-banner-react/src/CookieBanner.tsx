@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react'
-import { useState } from 'react'
+import { useId, useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
@@ -62,6 +62,12 @@ export function CookieBanner({
 }: CookieBannerProps): ReactElement | null {
   const cm = getClassMap()
   const { t } = useTranslation()
+  // Generated ids (never derived from data): the details list's id, wired to
+  // the Customize/Hide details button's `aria-controls`, and the base of each
+  // category row's label/description ids, which name and describe that row's
+  // switch so every `role="switch"` has an accessible name.
+  const detailsId = useId()
+  const nameId = useId()
   const [showDetails, setShowDetails] = useState(false)
   const [enabled, setEnabled] = useState<Record<string, boolean>>(() => {
     const init: Record<string, boolean> = {}
@@ -77,6 +83,11 @@ export function CookieBanner({
     fn?.()
     onDismiss?.()
   }
+  // The button's `aria-controls` names the list only while the list renders
+  // (the same `showDetails && categories` branch that renders it). Passed as a
+  // spread so the shared Button forwards the attribute it does not declare.
+  const detailsToggleAria: { 'aria-controls'?: string } =
+    showDetails && categories ? { 'aria-controls': detailsId } : {}
   return (
     <div
       role="dialog"
@@ -120,18 +131,27 @@ export function CookieBanner({
         </p>
       </header>
       {showDetails && categories && (
-        <div className={cm.stack(2)}>
-          {categories.map((c) => (
+        <div id={detailsId} className={cm.stack(2)}>
+          {categories.map((c, index) => (
             <div key={c.id} className={cm.flex({ align: 'center', justify: 'between', gap: 'sm' })}>
               <div className={cm.cn(cm.flex1, cm.stack(0 as const))}>
-                <span className={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>
+                <span
+                  id={`${nameId}-${index}`}
+                  className={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}
+                >
                   {c.label}
                 </span>
-                {c.description && <span className={cm.textSize('xs')}>{c.description}</span>}
+                {c.description && (
+                  <span id={`${nameId}-${index}-description`} className={cm.textSize('xs')}>
+                    {c.description}
+                  </span>
+                )}
               </div>
               <Switch
                 checked={!!enabled[c.id] || !!c.required}
                 disabled={c.required}
+                aria-labelledby={`${nameId}-${index}`}
+                aria-describedby={c.description ? `${nameId}-${index}-description` : undefined}
                 onChange={(e) =>
                   setEnabled((p) => ({ ...p, [c.id]: (e.target as HTMLInputElement).checked }))
                 }
@@ -142,7 +162,13 @@ export function CookieBanner({
       )}
       <footer className={cm.flex({ align: 'center', justify: 'end', gap: 'sm', wrap: 'wrap' })}>
         {categories && (
-          <Button variant="ghost" size="sm" onClick={() => setShowDetails((x) => !x)}>
+          <Button
+            variant="ghost"
+            size="sm"
+            aria-expanded={showDetails}
+            {...detailsToggleAria}
+            onClick={() => setShowDetails((x) => !x)}
+          >
             {showDetails
               ? t('cookieBanner.hideDetails', {}, { defaultValue: 'Hide details' })
               : t('cookieBanner.customize', {}, { defaultValue: 'Customize' })}

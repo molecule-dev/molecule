@@ -3,5 +3,6 @@ import type { FlowCanvasTranslations } from './types.js'
 /** Flow-canvas translations for Norwegian Bokmål. */
 export const nb: FlowCanvasTranslations = {
   'flowCanvas.aria.canvas': 'Flow canvas',
+  'flowCanvas.aria.node': 'Node {{number}}',
   'flowCanvas.aria.sourceHandle': 'Dra for å koble til',
 }

@@ -57,7 +57,9 @@
  * `AuthShell` renders a react-router `<Link>` ("Back to home") by default,
  * so it MUST be rendered inside a `<Router>`; pass `showBackLink={false}`
  * in router-less setups. The back link's arrow uses the Material Symbols
- * icon font — load it, or the glyph renders as text. The default glass
+ * icon font — load it, or the glyph renders as text; the glyph span is
+ * `aria-hidden="true"`, so the link's accessible name is its `t()` label
+ * alone. The default glass
  * card treatment (`rounded-3xl`, translucent surface, backdrop blur) and
  * the panel's `hidden lg:flex` collapse are Tailwind classes resolved by
  * the wired ClassMap bond's theme tokens — on a non-Tailwind ClassMap,

@@ -117,6 +117,42 @@ describe('<FlowCanvas>', () => {
     expect(onNodeClick).toHaveBeenCalledTimes(1)
   })
 
+  it('names a node with an ariaLabel by it', () => {
+    const { container } = render(
+      <Wrap>
+        <FlowCanvas
+          nodes={[{ ...node('a', 0, 0), ariaLabel: 'Start step' }]}
+          edges={[]}
+          nodeRenderers={{
+            task: (n) => <span>{(n.data as { label: string }).label}</span>,
+          }}
+        />
+      </Wrap>,
+    )
+    const selectButton = container.querySelector(
+      'button[data-mol-id="flow-canvas-node-select-a"]',
+    ) as HTMLButtonElement
+    // The node's own name wins over naming the button by its content.
+    expect(selectButton.getAttribute('aria-label')).toBe('Start step')
+    expect(selectButton.getAttribute('aria-labelledby')).toBeNull()
+  })
+
+  it('names a node with no renderer and no children by its number', () => {
+    const { container } = render(
+      <Wrap>
+        <FlowCanvas nodes={[node('a', 0, 0), node('b', 200, 0)]} edges={[]} />
+      </Wrap>,
+    )
+    // An empty node still needs an operable select button: the canvas names
+    // it after the node's position, one-based.
+    const a = container.querySelector('button[data-mol-id="flow-canvas-node-select-a"]')!
+    const b = container.querySelector('button[data-mol-id="flow-canvas-node-select-b"]')!
+    expect(a.getAttribute('aria-label')).toBe('Node 1')
+    expect(b.getAttribute('aria-label')).toBe('Node 2')
+    expect(a.getAttribute('aria-labelledby')).toBeNull()
+    expect(b.getAttribute('aria-labelledby')).toBeNull()
+  })
+
   it('keeps the controls a renderer draws outside the select button', () => {
     const { container } = render(
       <Wrap>

@@ -23,7 +23,7 @@ export interface RatingDisplayProps {
   size?: 'sm' | 'md' | 'lg'
   /** Interactive mode — star clicks call `onChange(starIndex + 1)`. */
   onChange?: (value: number) => void
-  /** Accessible label override. */
+  /** Accessible label override; defaults to the translated `Rating: {value} of {max}`. */
   ariaLabel?: string
   /** Extra classes. */
   className?: string

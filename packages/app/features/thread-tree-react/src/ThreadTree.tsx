@@ -1,5 +1,5 @@
 import type React from 'react'
-import { useCallback, useState } from 'react'
+import { useCallback, useId, useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
@@ -85,6 +85,10 @@ function ThreadTreeNode({
   const cm = getClassMap()
   const { t } = useTranslation()
 
+  // The replies list's id, wired to the toggle's `aria-controls`. Generated
+  // per rendered node (`useId()`), never derived from the comment's data.
+  const repliesId = useId()
+
   const hasChildren = !!(comment.children && comment.children.length > 0)
   const collapsed = collapsedIds.has(comment.id)
   const hiddenCount = collapsed ? countDescendants(comment.children) : 0
@@ -129,6 +133,7 @@ function ThreadTreeNode({
             onClick={onToggle}
             data-mol-id={`thread-tree-toggle-${comment.id}`}
             aria-expanded={!collapsed}
+            aria-controls={hasChildren && !collapsed ? repliesId : undefined}
             aria-label={
               collapsed
                 ? t(
@@ -209,7 +214,11 @@ function ThreadTreeNode({
       </article>
 
       {hasChildren && !collapsed && (
-        <ul role="group" className={cm.cn(cm.stack(1 as const))}>
+        // A comment thread is nested lists, not an ARIA tree widget: plain
+        // `ul`/`li` semantics (with the toggle's `aria-expanded` +
+        // `aria-controls` carrying the state), so every `li` keeps its
+        // `listitem` role and no tree keyboard model is implied.
+        <ul id={repliesId} className={cm.cn(cm.stack(1 as const))}>
           {comment.children!.map((child) => (
             <ThreadTreeNode
               key={child.id}
@@ -279,11 +288,7 @@ export function ThreadTree({
   )
 
   return (
-    <ul
-      className={cm.cn(cm.stack(2 as const), className)}
-      data-mol-id={dataMolId ?? 'thread-tree'}
-      role="tree"
-    >
+    <ul className={cm.cn(cm.stack(2 as const), className)} data-mol-id={dataMolId ?? 'thread-tree'}>
       {comments.map((c) => (
         <ThreadTreeNode
           key={c.id}

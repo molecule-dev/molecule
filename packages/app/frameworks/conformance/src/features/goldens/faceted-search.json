@@ -1,0 +1,385 @@
+{
+ "exports": [
+  "FacetedSearchBar",
+  "FilterPill",
+  "SegmentedControl"
+ ],
+ "values": {},
+ "cases": {
+  "FacetedSearchBar": {
+   "defaults: a 64px offset": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c247fed04 c42740ba6 c4b92e3a8 c61baf7be c64210d2f c913cd95a c9366def6 ca96eb3ea cb3f55bf9 cbf033fe8 cc2d72006 ccae02ff2 cd9b20003 ce2ca5664 cff4495c2\" data-mol-id=\"filter-bar\" style=\"top: 64px\">\n<span data-item=\"one\">\nFilters\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "no children": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c247fed04 c42740ba6 c4b92e3a8 c61baf7be c64210d2f c913cd95a c9366def6 ca96eb3ea cb3f55bf9 cbf033fe8 cc2d72006 ccae02ff2 cd9b20003 ce2ca5664 cff4495c2\" data-mol-id=\"filter-bar\" style=\"top: 64px\">\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "zero offset": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c247fed04 c42740ba6 c4b92e3a8 c61baf7be c64210d2f c913cd95a c9366def6 ca96eb3ea cb3f55bf9 cbf033fe8 cc2d72006 ccae02ff2 cd9b20003 ce2ca5664 cff4495c2\" data-mol-id=\"filter-bar\" style=\"top: 0px\">\n<span data-item=\"one\">\nFilters\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a larger offset": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c247fed04 c42740ba6 c4b92e3a8 c61baf7be c64210d2f c913cd95a c9366def6 ca96eb3ea cb3f55bf9 cbf033fe8 cc2d72006 ccae02ff2 cd9b20003 ce2ca5664 cff4495c2\" data-mol-id=\"filter-bar\" style=\"top: 128px\">\n<span data-item=\"one\">\nFilters\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "several children": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c247fed04 c42740ba6 c4b92e3a8 c61baf7be c64210d2f c913cd95a c9366def6 ca96eb3ea cb3f55bf9 cbf033fe8 cc2d72006 ccae02ff2 cd9b20003 ce2ca5664 cff4495c2\" data-mol-id=\"filter-bar\" style=\"top: 64px\">\n<span data-item=\"one\">\nBuy\n</span>\n<span data-item=\"two\">\nRent\n</span>\nPrices\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "className passthrough": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c247fed04 c42740ba6 c4b92e3a8 c61baf7be c64210d2f c913cd95a c9366def6 ca96eb3ea cb3f55bf9 cbf033fe8 cc2d72006 ccae02ff2 cd75bbd18 cd9b20003 ce2ca5664 cff4495c2\" data-mol-id=\"filter-bar\" style=\"top: 64px\">\n<span data-item=\"one\">\nFilters\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "the offset changes": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c247fed04 c42740ba6 c4b92e3a8 c61baf7be c64210d2f c913cd95a c9366def6 ca96eb3ea cb3f55bf9 cbf033fe8 cc2d72006 ccae02ff2 cd9b20003 ce2ca5664 cff4495c2\" data-mol-id=\"filter-bar\" style=\"top: 64px\">\n<span data-item=\"one\">\nFilters\n</span>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c247fed04 c42740ba6 c4b92e3a8 c61baf7be c64210d2f c913cd95a c9366def6 ca96eb3ea cb3f55bf9 cbf033fe8 cc2d72006 ccae02ff2 cd9b20003 ce2ca5664 cff4495c2\" data-mol-id=\"filter-bar\" style=\"top: 32px\">\n<span data-item=\"one\">\nFilters\n</span>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c247fed04 c42740ba6 c4b92e3a8 c61baf7be c64210d2f c913cd95a c9366def6 ca96eb3ea cb3f55bf9 cbf033fe8 cc2d72006 ccae02ff2 cd9b20003 ce2ca5664 cff4495c2\" data-mol-id=\"filter-bar\" style=\"top: 64px\">\n<span data-item=\"one\">\nFilters\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "the className changes": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c247fed04 c42740ba6 c4b92e3a8 c61baf7be c64210d2f c913cd95a c9366def6 ca96eb3ea cb3f55bf9 cbf033fe8 cc2d72006 ccae02ff2 cd75bbd18 cd9b20003 ce2ca5664 cff4495c2\" data-mol-id=\"filter-bar\" style=\"top: 64px\">\n<span data-item=\"one\">\nFilters\n</span>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c247fed04 c42740ba6 c4b92e3a8 c61baf7be c64210d2f c913cd95a c9366def6 ca96eb3ea cb3f55bf9 cbf033fe8 cc2d72006 ccaded727 ccae02ff2 cd9b20003 ce2ca5664 cff4495c2\" data-mol-id=\"filter-bar\" style=\"top: 64px\">\n<span data-item=\"one\">\nFilters\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "defaults: a 64px offset, then a locale switch": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c247fed04 c42740ba6 c4b92e3a8 c61baf7be c64210d2f c913cd95a c9366def6 ca96eb3ea cb3f55bf9 cbf033fe8 cc2d72006 ccae02ff2 cd9b20003 ce2ca5664 cff4495c2\" data-mol-id=\"filter-bar\" style=\"top: 64px\">\n<span data-item=\"one\">\nFilters\n</span>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c247fed04 c42740ba6 c4b92e3a8 c61baf7be c64210d2f c913cd95a c9366def6 ca96eb3ea cb3f55bf9 cbf033fe8 cc2d72006 ccae02ff2 cd9b20003 ce2ca5664 cff4495c2\" data-mol-id=\"filter-bar\" style=\"top: 64px\">\n<span data-item=\"one\">\nFilters\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   }
+  },
+  "FilterPill": {
+   "a text label, closed": {
+    "snapshots": [
+     "<div class=\"cfc82911d\">\n<button aria-expanded=\"false\" aria-haspopup=\"true\" class=\"c04c34dac c1e8176ab c39177fb4 c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7fa4cf55 c80b1c428 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cc06b624c cca586305 cced1c97c cea37ef4c cee061da5 cfe89757b\" data-state=\"inactive\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\nPrice\n<span aria-hidden=\"true\" class=\"c445db9b9 caeede141\">\nexpand_more\n</span>\n</span>\n</button>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a node label, closed": {
+    "snapshots": [
+     "<div class=\"cfc82911d\">\n<button aria-expanded=\"false\" aria-haspopup=\"true\" class=\"c04c34dac c1e8176ab c39177fb4 c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7fa4cf55 c80b1c428 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cc06b624c cca586305 cced1c97c cea37ef4c cee061da5 cfe89757b\" data-state=\"inactive\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<strong data-testid=\"rich-label\">\nPrice\n</strong>\n<span aria-hidden=\"true\" class=\"c445db9b9 caeede141\">\nexpand_more\n</span>\n</span>\n</button>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "the panel opens on click": {
+    "snapshots": [
+     "<div class=\"cfc82911d\">\n<button aria-expanded=\"false\" aria-haspopup=\"true\" class=\"c04c34dac c1e8176ab c39177fb4 c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7fa4cf55 c80b1c428 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cc06b624c cca586305 cced1c97c cea37ef4c cee061da5 cfe89757b\" data-state=\"inactive\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\nPrice\n<span aria-hidden=\"true\" class=\"c445db9b9 caeede141\">\nexpand_more\n</span>\n</span>\n</button>\n</div>\n@route /",
+     "<div class=\"cfc82911d\">\n<button aria-expanded=\"true\" aria-haspopup=\"true\" class=\"c04c34dac c1e8176ab c39177fb4 c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7fa4cf55 c80b1c428 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cc06b624c cca586305 cced1c97c cea37ef4c cee061da5 cfe89757b\" data-state=\"active\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\nPrice\n<span aria-hidden=\"true\" class=\"c445db9b9 caeede141\">\nexpand_more\n</span>\n</span>\n</button>\n<div class=\"c0dd268bc c2a82350d c2bf204c1 c4da5d7ce c5e7000ad c9455f2fe c98fc271b c99d61f16 ccc192af5 cd1dd5b6d\">\n<span data-panel=\"body\">\nBody\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a second click closes the panel": {
+    "snapshots": [
+     "<div class=\"cfc82911d\">\n<button aria-expanded=\"false\" aria-haspopup=\"true\" class=\"c04c34dac c1e8176ab c39177fb4 c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7fa4cf55 c80b1c428 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cc06b624c cca586305 cced1c97c cea37ef4c cee061da5 cfe89757b\" data-state=\"inactive\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\nPrice\n<span aria-hidden=\"true\" class=\"c445db9b9 caeede141\">\nexpand_more\n</span>\n</span>\n</button>\n</div>\n@route /",
+     "<div class=\"cfc82911d\">\n<button aria-expanded=\"true\" aria-haspopup=\"true\" class=\"c04c34dac c1e8176ab c39177fb4 c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7fa4cf55 c80b1c428 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cc06b624c cca586305 cced1c97c cea37ef4c cee061da5 cfe89757b\" data-state=\"active\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\nPrice\n<span aria-hidden=\"true\" class=\"c445db9b9 caeede141\">\nexpand_more\n</span>\n</span>\n</button>\n<div class=\"c0dd268bc c2a82350d c2bf204c1 c4da5d7ce c5e7000ad c9455f2fe c98fc271b c99d61f16 ccc192af5 cd1dd5b6d\">\n<span data-panel=\"body\">\nBody\n</span>\n</div>\n</div>\n@route /",
+     "<div class=\"cfc82911d\">\n<button aria-expanded=\"false\" aria-haspopup=\"true\" class=\"c04c34dac c1e8176ab c39177fb4 c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7fa4cf55 c80b1c428 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cc06b624c cca586305 cced1c97c cea37ef4c cee061da5 cfe89757b\" data-state=\"inactive\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\nPrice\n<span aria-hidden=\"true\" class=\"c445db9b9 caeede141\">\nexpand_more\n</span>\n</span>\n</button>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a node label with the panel open": {
+    "snapshots": [
+     "<div class=\"cfc82911d\">\n<button aria-expanded=\"false\" aria-haspopup=\"true\" class=\"c04c34dac c1e8176ab c39177fb4 c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7fa4cf55 c80b1c428 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cc06b624c cca586305 cced1c97c cea37ef4c cee061da5 cfe89757b\" data-state=\"inactive\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<strong data-testid=\"rich-label\">\nPrice\n</strong>\n<span aria-hidden=\"true\" class=\"c445db9b9 caeede141\">\nexpand_more\n</span>\n</span>\n</button>\n</div>\n@route /",
+     "<div class=\"cfc82911d\">\n<button aria-expanded=\"true\" aria-haspopup=\"true\" class=\"c04c34dac c1e8176ab c39177fb4 c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7fa4cf55 c80b1c428 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cc06b624c cca586305 cced1c97c cea37ef4c cee061da5 cfe89757b\" data-state=\"active\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<strong data-testid=\"rich-label\">\nPrice\n</strong>\n<span aria-hidden=\"true\" class=\"c445db9b9 caeede141\">\nexpand_more\n</span>\n</span>\n</button>\n<div class=\"c0dd268bc c2a82350d c2bf204c1 c4da5d7ce c5e7000ad c9455f2fe c98fc271b c99d61f16 ccc192af5 cd1dd5b6d\">\n<span data-panel=\"body\">\nBody\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "panel content with several nodes": {
+    "snapshots": [
+     "<div class=\"cfc82911d\">\n<button aria-expanded=\"false\" aria-haspopup=\"true\" class=\"c04c34dac c1e8176ab c39177fb4 c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7fa4cf55 c80b1c428 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cc06b624c cca586305 cced1c97c cea37ef4c cee061da5 cfe89757b\" data-state=\"inactive\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\nPrice\n<span aria-hidden=\"true\" class=\"c445db9b9 caeede141\">\nexpand_more\n</span>\n</span>\n</button>\n</div>\n@route /",
+     "<div class=\"cfc82911d\">\n<button aria-expanded=\"true\" aria-haspopup=\"true\" class=\"c04c34dac c1e8176ab c39177fb4 c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7fa4cf55 c80b1c428 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cc06b624c cca586305 cced1c97c cea37ef4c cee061da5 cfe89757b\" data-state=\"active\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\nPrice\n<span aria-hidden=\"true\" class=\"c445db9b9 caeede141\">\nexpand_more\n</span>\n</span>\n</button>\n<div class=\"c0dd268bc c2a82350d c2bf204c1 c4da5d7ce c5e7000ad c9455f2fe c98fc271b c99d61f16 ccc192af5 cd1dd5b6d\">\n<label data-panel=\"min\">\nMin\n</label>\n<input data-panel=\"range\" type=\"range\" {value=\"50\"}>\n</input>\n<span data-panel=\"max\">\nMax\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "active and closed": {
+    "snapshots": [
+     "<div class=\"cfc82911d\">\n<button aria-expanded=\"false\" aria-haspopup=\"true\" class=\"c04c34dac c1e8176ab c39177fb4 c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7fa4cf55 c80b1c428 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cc06b624c cca586305 cced1c97c cea37ef4c cee061da5 cfe89757b\" data-state=\"active\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\nPrice\n<span aria-hidden=\"true\" class=\"c445db9b9 caeede141\">\nexpand_more\n</span>\n</span>\n</button>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "active and open": {
+    "snapshots": [
+     "<div class=\"cfc82911d\">\n<button aria-expanded=\"false\" aria-haspopup=\"true\" class=\"c04c34dac c1e8176ab c39177fb4 c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7fa4cf55 c80b1c428 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cc06b624c cca586305 cced1c97c cea37ef4c cee061da5 cfe89757b\" data-state=\"active\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\nPrice\n<span aria-hidden=\"true\" class=\"c445db9b9 caeede141\">\nexpand_more\n</span>\n</span>\n</button>\n</div>\n@route /",
+     "<div class=\"cfc82911d\">\n<button aria-expanded=\"true\" aria-haspopup=\"true\" class=\"c04c34dac c1e8176ab c39177fb4 c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7fa4cf55 c80b1c428 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cc06b624c cca586305 cced1c97c cea37ef4c cee061da5 cfe89757b\" data-state=\"active\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\nPrice\n<span aria-hidden=\"true\" class=\"c445db9b9 caeede141\">\nexpand_more\n</span>\n</span>\n</button>\n<div class=\"c0dd268bc c2a82350d c2bf204c1 c4da5d7ce c5e7000ad c9455f2fe c98fc271b c99d61f16 ccc192af5 cd1dd5b6d\">\n<span data-panel=\"body\">\nBody\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "active on a later render": {
+    "snapshots": [
+     "<div class=\"cfc82911d\">\n<button aria-expanded=\"false\" aria-haspopup=\"true\" class=\"c04c34dac c1e8176ab c39177fb4 c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7fa4cf55 c80b1c428 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cc06b624c cca586305 cced1c97c cea37ef4c cee061da5 cfe89757b\" data-state=\"inactive\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\nPrice\n<span aria-hidden=\"true\" class=\"c445db9b9 caeede141\">\nexpand_more\n</span>\n</span>\n</button>\n</div>\n@route /",
+     "<div class=\"cfc82911d\">\n<button aria-expanded=\"false\" aria-haspopup=\"true\" class=\"c04c34dac c1e8176ab c39177fb4 c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7fa4cf55 c80b1c428 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cc06b624c cca586305 cced1c97c cea37ef4c cee061da5 cfe89757b\" data-state=\"active\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\nPrice\n<span aria-hidden=\"true\" class=\"c445db9b9 caeede141\">\nexpand_more\n</span>\n</span>\n</button>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a hidden chevron": {
+    "snapshots": [
+     "<div class=\"cfc82911d\">\n<button aria-expanded=\"false\" aria-haspopup=\"true\" class=\"c04c34dac c1e8176ab c39177fb4 c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7fa4cf55 c80b1c428 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cc06b624c cca586305 cced1c97c cea37ef4c cee061da5 cfe89757b\" data-state=\"inactive\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\nFilters\n</span>\n</button>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a leading icon": {
+    "snapshots": [
+     "<div class=\"cfc82911d\">\n<button aria-expanded=\"false\" aria-haspopup=\"true\" class=\"c04c34dac c1e8176ab c39177fb4 c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7fa4cf55 c80b1c428 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cc06b624c cca586305 cced1c97c cea37ef4c cee061da5 cfe89757b\" data-state=\"inactive\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c445db9b9 caeede141\">\ntune\n</span>\nFilters\n<span aria-hidden=\"true\" class=\"c445db9b9 caeede141\">\nexpand_more\n</span>\n</span>\n</button>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a leading icon and a hidden chevron": {
+    "snapshots": [
+     "<div class=\"cfc82911d\">\n<button aria-expanded=\"false\" aria-haspopup=\"true\" class=\"c04c34dac c1e8176ab c39177fb4 c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7fa4cf55 c80b1c428 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cc06b624c cca586305 cced1c97c cea37ef4c cee061da5 cfe89757b\" data-state=\"inactive\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c445db9b9 caeede141\">\ntune\n</span>\nFilters\n</span>\n</button>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "the leading icon appears on a later render": {
+    "snapshots": [
+     "<div class=\"cfc82911d\">\n<button aria-expanded=\"false\" aria-haspopup=\"true\" class=\"c04c34dac c1e8176ab c39177fb4 c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7fa4cf55 c80b1c428 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cc06b624c cca586305 cced1c97c cea37ef4c cee061da5 cfe89757b\" data-state=\"inactive\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\nFilters\n<span aria-hidden=\"true\" class=\"c445db9b9 caeede141\">\nexpand_more\n</span>\n</span>\n</button>\n</div>\n@route /",
+     "<div class=\"cfc82911d\">\n<button aria-expanded=\"false\" aria-haspopup=\"true\" class=\"c04c34dac c1e8176ab c39177fb4 c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7fa4cf55 c80b1c428 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cc06b624c cca586305 cced1c97c cea37ef4c cee061da5 cfe89757b\" data-state=\"inactive\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c445db9b9 caeede141\">\ntune\n</span>\nFilters\n<span aria-hidden=\"true\" class=\"c445db9b9 caeede141\">\nexpand_more\n</span>\n</span>\n</button>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "the chevron toggles on later renders": {
+    "snapshots": [
+     "<div class=\"cfc82911d\">\n<button aria-expanded=\"false\" aria-haspopup=\"true\" class=\"c04c34dac c1e8176ab c39177fb4 c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7fa4cf55 c80b1c428 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cc06b624c cca586305 cced1c97c cea37ef4c cee061da5 cfe89757b\" data-state=\"inactive\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\nFilters\n<span aria-hidden=\"true\" class=\"c445db9b9 caeede141\">\nexpand_more\n</span>\n</span>\n</button>\n</div>\n@route /",
+     "<div class=\"cfc82911d\">\n<button aria-expanded=\"false\" aria-haspopup=\"true\" class=\"c04c34dac c1e8176ab c39177fb4 c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7fa4cf55 c80b1c428 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cc06b624c cca586305 cced1c97c cea37ef4c cee061da5 cfe89757b\" data-state=\"inactive\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\nFilters\n</span>\n</button>\n</div>\n@route /",
+     "<div class=\"cfc82911d\">\n<button aria-expanded=\"false\" aria-haspopup=\"true\" class=\"c04c34dac c1e8176ab c39177fb4 c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7fa4cf55 c80b1c428 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cc06b624c cca586305 cced1c97c cea37ef4c cee061da5 cfe89757b\" data-state=\"inactive\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\nFilters\n<span aria-hidden=\"true\" class=\"c445db9b9 caeede141\">\nexpand_more\n</span>\n</span>\n</button>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "the panel is right-aligned": {
+    "snapshots": [
+     "<div class=\"cfc82911d\">\n<button aria-expanded=\"false\" aria-haspopup=\"true\" class=\"c04c34dac c1e8176ab c39177fb4 c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7fa4cf55 c80b1c428 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cc06b624c cca586305 cced1c97c cea37ef4c cee061da5 cfe89757b\" data-state=\"inactive\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\nFilters\n<span aria-hidden=\"true\" class=\"c445db9b9 caeede141\">\nexpand_more\n</span>\n</span>\n</button>\n</div>\n@route /",
+     "<div class=\"cfc82911d\">\n<button aria-expanded=\"true\" aria-haspopup=\"true\" class=\"c04c34dac c1e8176ab c39177fb4 c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7fa4cf55 c80b1c428 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cc06b624c cca586305 cced1c97c cea37ef4c cee061da5 cfe89757b\" data-state=\"active\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\nFilters\n<span aria-hidden=\"true\" class=\"c445db9b9 caeede141\">\nexpand_more\n</span>\n</span>\n</button>\n<div class=\"c0dd268bc c2a82350d c2bf204c1 c4da5d7ce c5e7000ad c9455f2fe c98fc271b c99d61f16 cd1dd5b6d cf48f3038\">\n<span data-panel=\"body\">\nBody\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "the panel is left-aligned explicitly": {
+    "snapshots": [
+     "<div class=\"cfc82911d\">\n<button aria-expanded=\"false\" aria-haspopup=\"true\" class=\"c04c34dac c1e8176ab c39177fb4 c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7fa4cf55 c80b1c428 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cc06b624c cca586305 cced1c97c cea37ef4c cee061da5 cfe89757b\" data-state=\"inactive\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\nFilters\n<span aria-hidden=\"true\" class=\"c445db9b9 caeede141\">\nexpand_more\n</span>\n</span>\n</button>\n</div>\n@route /",
+     "<div class=\"cfc82911d\">\n<button aria-expanded=\"true\" aria-haspopup=\"true\" class=\"c04c34dac c1e8176ab c39177fb4 c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7fa4cf55 c80b1c428 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cc06b624c cca586305 cced1c97c cea37ef4c cee061da5 cfe89757b\" data-state=\"active\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\nFilters\n<span aria-hidden=\"true\" class=\"c445db9b9 caeede141\">\nexpand_more\n</span>\n</span>\n</button>\n<div class=\"c0dd268bc c2a82350d c2bf204c1 c4da5d7ce c5e7000ad c9455f2fe c98fc271b c99d61f16 ccc192af5 cd1dd5b6d\">\n<span data-panel=\"body\">\nBody\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "the alignment changes while open": {
+    "snapshots": [
+     "<div class=\"cfc82911d\">\n<button aria-expanded=\"false\" aria-haspopup=\"true\" class=\"c04c34dac c1e8176ab c39177fb4 c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7fa4cf55 c80b1c428 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cc06b624c cca586305 cced1c97c cea37ef4c cee061da5 cfe89757b\" data-state=\"inactive\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\nFilters\n<span aria-hidden=\"true\" class=\"c445db9b9 caeede141\">\nexpand_more\n</span>\n</span>\n</button>\n</div>\n@route /",
+     "<div class=\"cfc82911d\">\n<button aria-expanded=\"true\" aria-haspopup=\"true\" class=\"c04c34dac c1e8176ab c39177fb4 c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7fa4cf55 c80b1c428 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cc06b624c cca586305 cced1c97c cea37ef4c cee061da5 cfe89757b\" data-state=\"active\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\nFilters\n<span aria-hidden=\"true\" class=\"c445db9b9 caeede141\">\nexpand_more\n</span>\n</span>\n</button>\n<div class=\"c0dd268bc c2a82350d c2bf204c1 c4da5d7ce c5e7000ad c9455f2fe c98fc271b c99d61f16 ccc192af5 cd1dd5b6d\">\n<span data-panel=\"body\">\nBody\n</span>\n</div>\n</div>\n@route /",
+     "<div class=\"cfc82911d\">\n<button aria-expanded=\"true\" aria-haspopup=\"true\" class=\"c04c34dac c1e8176ab c39177fb4 c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7fa4cf55 c80b1c428 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cc06b624c cca586305 cced1c97c cea37ef4c cee061da5 cfe89757b\" data-state=\"active\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\nFilters\n<span aria-hidden=\"true\" class=\"c445db9b9 caeede141\">\nexpand_more\n</span>\n</span>\n</button>\n<div class=\"c0dd268bc c2a82350d c2bf204c1 c4da5d7ce c5e7000ad c9455f2fe c98fc271b c99d61f16 cd1dd5b6d cf48f3038\">\n<span data-panel=\"body\">\nBody\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a dataMolId on the trigger": {
+    "snapshots": [
+     "<div class=\"cfc82911d\">\n<button aria-expanded=\"false\" aria-haspopup=\"true\" class=\"c04c34dac c1e8176ab c39177fb4 c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7fa4cf55 c80b1c428 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cc06b624c cca586305 cced1c97c cea37ef4c cee061da5 cfe89757b\" data-mol-id=\"price-pill\" data-state=\"inactive\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\nPrice\n<span aria-hidden=\"true\" class=\"c445db9b9 caeede141\">\nexpand_more\n</span>\n</span>\n</button>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "the dataMolId changes": {
+    "snapshots": [
+     "<div class=\"cfc82911d\">\n<button aria-expanded=\"false\" aria-haspopup=\"true\" class=\"c04c34dac c1e8176ab c39177fb4 c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7fa4cf55 c80b1c428 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cc06b624c cca586305 cced1c97c cea37ef4c cee061da5 cfe89757b\" data-mol-id=\"price-pill\" data-state=\"inactive\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\nPrice\n<span aria-hidden=\"true\" class=\"c445db9b9 caeede141\">\nexpand_more\n</span>\n</span>\n</button>\n</div>\n@route /",
+     "<div class=\"cfc82911d\">\n<button aria-expanded=\"false\" aria-haspopup=\"true\" class=\"c04c34dac c1e8176ab c39177fb4 c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7fa4cf55 c80b1c428 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cc06b624c cca586305 cced1c97c cea37ef4c cee061da5 cfe89757b\" data-mol-id=\"cost-pill\" data-state=\"inactive\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\nPrice\n<span aria-hidden=\"true\" class=\"c445db9b9 caeede141\">\nexpand_more\n</span>\n</span>\n</button>\n</div>\n@route /",
+     "<div class=\"cfc82911d\">\n<button aria-expanded=\"false\" aria-haspopup=\"true\" class=\"c04c34dac c1e8176ab c39177fb4 c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7fa4cf55 c80b1c428 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cc06b624c cca586305 cced1c97c cea37ef4c cee061da5 cfe89757b\" data-state=\"inactive\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\nPrice\n<span aria-hidden=\"true\" class=\"c445db9b9 caeede141\">\nexpand_more\n</span>\n</span>\n</button>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "no children: opening renders no panel": {
+    "snapshots": [
+     "<div class=\"cfc82911d\">\n<button aria-expanded=\"false\" aria-haspopup=\"true\" class=\"c04c34dac c1e8176ab c39177fb4 c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7fa4cf55 c80b1c428 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cc06b624c cca586305 cced1c97c cea37ef4c cee061da5 cfe89757b\" data-state=\"inactive\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\nPrice\n<span aria-hidden=\"true\" class=\"c445db9b9 caeede141\">\nexpand_more\n</span>\n</span>\n</button>\n</div>\n@route /",
+     "<div class=\"cfc82911d\">\n<button aria-expanded=\"true\" aria-haspopup=\"true\" class=\"c04c34dac c1e8176ab c39177fb4 c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7fa4cf55 c80b1c428 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cc06b624c cca586305 cced1c97c cea37ef4c cee061da5 cfe89757b\" data-state=\"active\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\nPrice\n<span aria-hidden=\"true\" class=\"c445db9b9 caeede141\">\nexpand_more\n</span>\n</span>\n</button>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a mousedown outside closes the panel": {
+    "snapshots": [
+     "<div class=\"cfc82911d\">\n<button aria-expanded=\"false\" aria-haspopup=\"true\" class=\"c04c34dac c1e8176ab c39177fb4 c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7fa4cf55 c80b1c428 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cc06b624c cca586305 cced1c97c cea37ef4c cee061da5 cfe89757b\" data-state=\"inactive\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\nPrice\n<span aria-hidden=\"true\" class=\"c445db9b9 caeede141\">\nexpand_more\n</span>\n</span>\n</button>\n</div>\n@route /",
+     "<div class=\"cfc82911d\">\n<button aria-expanded=\"true\" aria-haspopup=\"true\" class=\"c04c34dac c1e8176ab c39177fb4 c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7fa4cf55 c80b1c428 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cc06b624c cca586305 cced1c97c cea37ef4c cee061da5 cfe89757b\" data-state=\"active\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\nPrice\n<span aria-hidden=\"true\" class=\"c445db9b9 caeede141\">\nexpand_more\n</span>\n</span>\n</button>\n<div class=\"c0dd268bc c2a82350d c2bf204c1 c4da5d7ce c5e7000ad c9455f2fe c98fc271b c99d61f16 ccc192af5 cd1dd5b6d\">\n<span data-panel=\"body\">\nBody\n</span>\n</div>\n</div>\n@route /",
+     "<div class=\"cfc82911d\">\n<button aria-expanded=\"false\" aria-haspopup=\"true\" class=\"c04c34dac c1e8176ab c39177fb4 c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7fa4cf55 c80b1c428 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cc06b624c cca586305 cced1c97c cea37ef4c cee061da5 cfe89757b\" data-state=\"inactive\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\nPrice\n<span aria-hidden=\"true\" class=\"c445db9b9 caeede141\">\nexpand_more\n</span>\n</span>\n</button>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a mousedown inside the panel keeps it open": {
+    "snapshots": [
+     "<div class=\"cfc82911d\">\n<button aria-expanded=\"false\" aria-haspopup=\"true\" class=\"c04c34dac c1e8176ab c39177fb4 c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7fa4cf55 c80b1c428 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cc06b624c cca586305 cced1c97c cea37ef4c cee061da5 cfe89757b\" data-state=\"inactive\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\nPrice\n<span aria-hidden=\"true\" class=\"c445db9b9 caeede141\">\nexpand_more\n</span>\n</span>\n</button>\n</div>\n@route /",
+     "<div class=\"cfc82911d\">\n<button aria-expanded=\"true\" aria-haspopup=\"true\" class=\"c04c34dac c1e8176ab c39177fb4 c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7fa4cf55 c80b1c428 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cc06b624c cca586305 cced1c97c cea37ef4c cee061da5 cfe89757b\" data-state=\"active\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\nPrice\n<span aria-hidden=\"true\" class=\"c445db9b9 caeede141\">\nexpand_more\n</span>\n</span>\n</button>\n<div class=\"c0dd268bc c2a82350d c2bf204c1 c4da5d7ce c5e7000ad c9455f2fe c98fc271b c99d61f16 ccc192af5 cd1dd5b6d\">\n<label data-panel=\"min\">\nMin\n</label>\n<input data-panel=\"range\" type=\"range\" {value=\"50\"}>\n</input>\n<span data-panel=\"max\">\nMax\n</span>\n</div>\n</div>\n@route /",
+     "<div class=\"cfc82911d\">\n<button aria-expanded=\"true\" aria-haspopup=\"true\" class=\"c04c34dac c1e8176ab c39177fb4 c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7fa4cf55 c80b1c428 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cc06b624c cca586305 cced1c97c cea37ef4c cee061da5 cfe89757b\" data-state=\"active\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\nPrice\n<span aria-hidden=\"true\" class=\"c445db9b9 caeede141\">\nexpand_more\n</span>\n</span>\n</button>\n<div class=\"c0dd268bc c2a82350d c2bf204c1 c4da5d7ce c5e7000ad c9455f2fe c98fc271b c99d61f16 ccc192af5 cd1dd5b6d\">\n<label data-panel=\"min\">\nMin\n</label>\n<input data-panel=\"range\" type=\"range\" {value=\"50\"}>\n</input>\n<span data-panel=\"max\">\nMax\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a mousedown on the trigger toggles only once": {
+    "snapshots": [
+     "<div class=\"cfc82911d\">\n<button aria-expanded=\"false\" aria-haspopup=\"true\" class=\"c04c34dac c1e8176ab c39177fb4 c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7fa4cf55 c80b1c428 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cc06b624c cca586305 cced1c97c cea37ef4c cee061da5 cfe89757b\" data-state=\"inactive\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\nPrice\n<span aria-hidden=\"true\" class=\"c445db9b9 caeede141\">\nexpand_more\n</span>\n</span>\n</button>\n</div>\n@route /",
+     "<div class=\"cfc82911d\">\n<button aria-expanded=\"true\" aria-haspopup=\"true\" class=\"c04c34dac c1e8176ab c39177fb4 c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7fa4cf55 c80b1c428 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cc06b624c cca586305 cced1c97c cea37ef4c cee061da5 cfe89757b\" data-state=\"active\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\nPrice\n<span aria-hidden=\"true\" class=\"c445db9b9 caeede141\">\nexpand_more\n</span>\n</span>\n</button>\n<div class=\"c0dd268bc c2a82350d c2bf204c1 c4da5d7ce c5e7000ad c9455f2fe c98fc271b c99d61f16 ccc192af5 cd1dd5b6d\">\n<span data-panel=\"body\">\nBody\n</span>\n</div>\n</div>\n@route /",
+     "<div class=\"cfc82911d\">\n<button aria-expanded=\"true\" aria-haspopup=\"true\" class=\"c04c34dac c1e8176ab c39177fb4 c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7fa4cf55 c80b1c428 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cc06b624c cca586305 cced1c97c cea37ef4c cee061da5 cfe89757b\" data-state=\"active\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\nPrice\n<span aria-hidden=\"true\" class=\"c445db9b9 caeede141\">\nexpand_more\n</span>\n</span>\n</button>\n<div class=\"c0dd268bc c2a82350d c2bf204c1 c4da5d7ce c5e7000ad c9455f2fe c98fc271b c99d61f16 ccc192af5 cd1dd5b6d\">\n<span data-panel=\"body\">\nBody\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a text label, closed, then a locale switch": {
+    "snapshots": [
+     "<div class=\"cfc82911d\">\n<button aria-expanded=\"false\" aria-haspopup=\"true\" class=\"c04c34dac c1e8176ab c39177fb4 c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7fa4cf55 c80b1c428 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cc06b624c cca586305 cced1c97c cea37ef4c cee061da5 cfe89757b\" data-state=\"inactive\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\nPrice\n<span aria-hidden=\"true\" class=\"c445db9b9 caeede141\">\nexpand_more\n</span>\n</span>\n</button>\n</div>\n@route /",
+     "<div class=\"cfc82911d\">\n<button aria-expanded=\"false\" aria-haspopup=\"true\" class=\"c04c34dac c1e8176ab c39177fb4 c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7fa4cf55 c80b1c428 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cc06b624c cca586305 cced1c97c cea37ef4c cee061da5 cfe89757b\" data-state=\"inactive\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\nPrice\n<span aria-hidden=\"true\" class=\"c445db9b9 caeede141\">\nexpand_more\n</span>\n</span>\n</button>\n</div>\n@route /"
+    ],
+    "calls": []
+   }
+  },
+  "SegmentedControl": {
+   "two options, the first selected": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c9052b18c c9866e6d5 c9ed626f5 cbf672402 cc06b624c ce823b5bf cf74bfc1b\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c04c34dac c1e8176ab c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7f74399a c7fa4cf55 c80b1c428 c834903b8 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cb1187a8c cc06b624c cca586305 cced1c97c cee061da5 cfe89757b\" data-state=\"active\" role=\"tab\" type=\"button\">\nBuy\n</button>\n<button aria-selected=\"false\" class=\"c04c34dac c1e8176ab c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7f74399a c7fa4cf55 c80b1c428 c834903b8 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cb1187a8c cc06b624c cca586305 cced1c97c cee061da5 cfe89757b\" data-mol-id=\"rent-tab\" data-state=\"inactive\" role=\"tab\" type=\"button\">\nRent\n</button>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "the second option selected": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c9052b18c c9866e6d5 c9ed626f5 cbf672402 cc06b624c ce823b5bf cf74bfc1b\" role=\"tablist\">\n<button aria-selected=\"false\" class=\"c04c34dac c1e8176ab c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7f74399a c7fa4cf55 c80b1c428 c834903b8 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cb1187a8c cc06b624c cca586305 cced1c97c cee061da5 cfe89757b\" data-state=\"inactive\" role=\"tab\" type=\"button\">\nBuy\n</button>\n<button aria-selected=\"true\" class=\"c04c34dac c1e8176ab c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7f74399a c7fa4cf55 c80b1c428 c834903b8 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cb1187a8c cc06b624c cca586305 cced1c97c cee061da5 cfe89757b\" data-mol-id=\"rent-tab\" data-state=\"active\" role=\"tab\" type=\"button\">\nRent\n</button>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "three options": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c9052b18c c9866e6d5 c9ed626f5 cbf672402 cc06b624c ce823b5bf cf74bfc1b\" role=\"tablist\">\n<button aria-selected=\"false\" class=\"c04c34dac c1e8176ab c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7f74399a c7fa4cf55 c80b1c428 c834903b8 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cb1187a8c cc06b624c cca586305 cced1c97c cee061da5 cfe89757b\" data-state=\"inactive\" role=\"tab\" type=\"button\">\nAll\n</button>\n<button aria-selected=\"true\" class=\"c04c34dac c1e8176ab c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7f74399a c7fa4cf55 c80b1c428 c834903b8 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cb1187a8c cc06b624c cca586305 cced1c97c cee061da5 cfe89757b\" data-state=\"active\" role=\"tab\" type=\"button\">\nFor sale\n</button>\n<button aria-selected=\"false\" class=\"c04c34dac c1e8176ab c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7f74399a c7fa4cf55 c80b1c428 c834903b8 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cb1187a8c cc06b624c cca586305 cced1c97c cee061da5 cfe89757b\" data-state=\"inactive\" role=\"tab\" type=\"button\">\nTo rent\n</button>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a value no option carries": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c9052b18c c9866e6d5 c9ed626f5 cbf672402 cc06b624c ce823b5bf cf74bfc1b\" role=\"tablist\">\n<button aria-selected=\"false\" class=\"c04c34dac c1e8176ab c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7f74399a c7fa4cf55 c80b1c428 c834903b8 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cb1187a8c cc06b624c cca586305 cced1c97c cee061da5 cfe89757b\" data-state=\"inactive\" role=\"tab\" type=\"button\">\nBuy\n</button>\n<button aria-selected=\"false\" class=\"c04c34dac c1e8176ab c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7f74399a c7fa4cf55 c80b1c428 c834903b8 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cb1187a8c cc06b624c cca586305 cced1c97c cee061da5 cfe89757b\" data-mol-id=\"rent-tab\" data-state=\"inactive\" role=\"tab\" type=\"button\">\nRent\n</button>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "no options": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c9052b18c c9866e6d5 c9ed626f5 cbf672402 cc06b624c ce823b5bf cf74bfc1b\" role=\"tablist\">\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "node labels": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c9052b18c c9866e6d5 c9ed626f5 cbf672402 cc06b624c ce823b5bf cf74bfc1b\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c04c34dac c1e8176ab c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7f74399a c7fa4cf55 c80b1c428 c834903b8 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cb1187a8c cc06b624c cca586305 cced1c97c cee061da5 cfe89757b\" data-state=\"active\" role=\"tab\" type=\"button\">\n<strong data-label=\"alpha\">\nAlpha\n</strong>\n</button>\n<button aria-selected=\"false\" class=\"c04c34dac c1e8176ab c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7f74399a c7fa4cf55 c80b1c428 c834903b8 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cb1187a8c cc06b624c cca586305 cced1c97c cee061da5 cfe89757b\" data-state=\"inactive\" role=\"tab\" type=\"button\">\n<em data-label=\"beta\">\nBeta\n</em>\n</button>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "className passthrough": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c9052b18c c9866e6d5 c9ed626f5 cbf672402 cc06b624c cd75bbd18 ce823b5bf cf74bfc1b\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c04c34dac c1e8176ab c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7f74399a c7fa4cf55 c80b1c428 c834903b8 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cb1187a8c cc06b624c cca586305 cced1c97c cee061da5 cfe89757b\" data-state=\"active\" role=\"tab\" type=\"button\">\nBuy\n</button>\n<button aria-selected=\"false\" class=\"c04c34dac c1e8176ab c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7f74399a c7fa4cf55 c80b1c428 c834903b8 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cb1187a8c cc06b624c cca586305 cced1c97c cee061da5 cfe89757b\" data-mol-id=\"rent-tab\" data-state=\"inactive\" role=\"tab\" type=\"button\">\nRent\n</button>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "clicking a segment calls onChange": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c9052b18c c9866e6d5 c9ed626f5 cbf672402 cc06b624c ce823b5bf cf74bfc1b\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c04c34dac c1e8176ab c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7f74399a c7fa4cf55 c80b1c428 c834903b8 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cb1187a8c cc06b624c cca586305 cced1c97c cee061da5 cfe89757b\" data-state=\"active\" role=\"tab\" type=\"button\">\nBuy\n</button>\n<button aria-selected=\"false\" class=\"c04c34dac c1e8176ab c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7f74399a c7fa4cf55 c80b1c428 c834903b8 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cb1187a8c cc06b624c cca586305 cced1c97c cee061da5 cfe89757b\" data-mol-id=\"rent-tab\" data-state=\"inactive\" role=\"tab\" type=\"button\">\nRent\n</button>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c9052b18c c9866e6d5 c9ed626f5 cbf672402 cc06b624c ce823b5bf cf74bfc1b\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c04c34dac c1e8176ab c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7f74399a c7fa4cf55 c80b1c428 c834903b8 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cb1187a8c cc06b624c cca586305 cced1c97c cee061da5 cfe89757b\" data-state=\"active\" role=\"tab\" type=\"button\">\nBuy\n</button>\n<button aria-selected=\"false\" class=\"c04c34dac c1e8176ab c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7f74399a c7fa4cf55 c80b1c428 c834903b8 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cb1187a8c cc06b624c cca586305 cced1c97c cee061da5 cfe89757b\" data-mol-id=\"rent-tab\" data-state=\"inactive\" role=\"tab\" type=\"button\">\nRent\n</button>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onChange",
+      "args": [
+       "rent"
+      ]
+     }
+    ]
+   },
+   "clicking the selected segment still calls onChange": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c9052b18c c9866e6d5 c9ed626f5 cbf672402 cc06b624c ce823b5bf cf74bfc1b\" role=\"tablist\">\n<button aria-selected=\"false\" class=\"c04c34dac c1e8176ab c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7f74399a c7fa4cf55 c80b1c428 c834903b8 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cb1187a8c cc06b624c cca586305 cced1c97c cee061da5 cfe89757b\" data-state=\"inactive\" role=\"tab\" type=\"button\">\nBuy\n</button>\n<button aria-selected=\"true\" class=\"c04c34dac c1e8176ab c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7f74399a c7fa4cf55 c80b1c428 c834903b8 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cb1187a8c cc06b624c cca586305 cced1c97c cee061da5 cfe89757b\" data-mol-id=\"rent-tab\" data-state=\"active\" role=\"tab\" type=\"button\">\nRent\n</button>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c9052b18c c9866e6d5 c9ed626f5 cbf672402 cc06b624c ce823b5bf cf74bfc1b\" role=\"tablist\">\n<button aria-selected=\"false\" class=\"c04c34dac c1e8176ab c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7f74399a c7fa4cf55 c80b1c428 c834903b8 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cb1187a8c cc06b624c cca586305 cced1c97c cee061da5 cfe89757b\" data-state=\"inactive\" role=\"tab\" type=\"button\">\nBuy\n</button>\n<button aria-selected=\"true\" class=\"c04c34dac c1e8176ab c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7f74399a c7fa4cf55 c80b1c428 c834903b8 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cb1187a8c cc06b624c cca586305 cced1c97c cee061da5 cfe89757b\" data-mol-id=\"rent-tab\" data-state=\"active\" role=\"tab\" type=\"button\">\nRent\n</button>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onChange",
+      "args": [
+       "rent"
+      ]
+     }
+    ]
+   },
+   "each segment calls with its own value": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c9052b18c c9866e6d5 c9ed626f5 cbf672402 cc06b624c ce823b5bf cf74bfc1b\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c04c34dac c1e8176ab c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7f74399a c7fa4cf55 c80b1c428 c834903b8 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cb1187a8c cc06b624c cca586305 cced1c97c cee061da5 cfe89757b\" data-state=\"active\" role=\"tab\" type=\"button\">\nAll\n</button>\n<button aria-selected=\"false\" class=\"c04c34dac c1e8176ab c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7f74399a c7fa4cf55 c80b1c428 c834903b8 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cb1187a8c cc06b624c cca586305 cced1c97c cee061da5 cfe89757b\" data-state=\"inactive\" role=\"tab\" type=\"button\">\nFor sale\n</button>\n<button aria-selected=\"false\" class=\"c04c34dac c1e8176ab c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7f74399a c7fa4cf55 c80b1c428 c834903b8 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cb1187a8c cc06b624c cca586305 cced1c97c cee061da5 cfe89757b\" data-state=\"inactive\" role=\"tab\" type=\"button\">\nTo rent\n</button>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c9052b18c c9866e6d5 c9ed626f5 cbf672402 cc06b624c ce823b5bf cf74bfc1b\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c04c34dac c1e8176ab c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7f74399a c7fa4cf55 c80b1c428 c834903b8 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cb1187a8c cc06b624c cca586305 cced1c97c cee061da5 cfe89757b\" data-state=\"active\" role=\"tab\" type=\"button\">\nAll\n</button>\n<button aria-selected=\"false\" class=\"c04c34dac c1e8176ab c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7f74399a c7fa4cf55 c80b1c428 c834903b8 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cb1187a8c cc06b624c cca586305 cced1c97c cee061da5 cfe89757b\" data-state=\"inactive\" role=\"tab\" type=\"button\">\nFor sale\n</button>\n<button aria-selected=\"false\" class=\"c04c34dac c1e8176ab c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7f74399a c7fa4cf55 c80b1c428 c834903b8 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cb1187a8c cc06b624c cca586305 cced1c97c cee061da5 cfe89757b\" data-state=\"inactive\" role=\"tab\" type=\"button\">\nTo rent\n</button>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c9052b18c c9866e6d5 c9ed626f5 cbf672402 cc06b624c ce823b5bf cf74bfc1b\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c04c34dac c1e8176ab c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7f74399a c7fa4cf55 c80b1c428 c834903b8 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cb1187a8c cc06b624c cca586305 cced1c97c cee061da5 cfe89757b\" data-state=\"active\" role=\"tab\" type=\"button\">\nAll\n</button>\n<button aria-selected=\"false\" class=\"c04c34dac c1e8176ab c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7f74399a c7fa4cf55 c80b1c428 c834903b8 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cb1187a8c cc06b624c cca586305 cced1c97c cee061da5 cfe89757b\" data-state=\"inactive\" role=\"tab\" type=\"button\">\nFor sale\n</button>\n<button aria-selected=\"false\" class=\"c04c34dac c1e8176ab c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7f74399a c7fa4cf55 c80b1c428 c834903b8 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cb1187a8c cc06b624c cca586305 cced1c97c cee061da5 cfe89757b\" data-state=\"inactive\" role=\"tab\" type=\"button\">\nTo rent\n</button>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onChange",
+      "args": [
+       "sale"
+      ]
+     },
+     {
+      "name": "onChange",
+      "args": [
+       "rent"
+      ]
+     }
+    ]
+   },
+   "the value prop changes": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c9052b18c c9866e6d5 c9ed626f5 cbf672402 cc06b624c ce823b5bf cf74bfc1b\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c04c34dac c1e8176ab c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7f74399a c7fa4cf55 c80b1c428 c834903b8 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cb1187a8c cc06b624c cca586305 cced1c97c cee061da5 cfe89757b\" data-state=\"active\" role=\"tab\" type=\"button\">\nBuy\n</button>\n<button aria-selected=\"false\" class=\"c04c34dac c1e8176ab c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7f74399a c7fa4cf55 c80b1c428 c834903b8 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cb1187a8c cc06b624c cca586305 cced1c97c cee061da5 cfe89757b\" data-mol-id=\"rent-tab\" data-state=\"inactive\" role=\"tab\" type=\"button\">\nRent\n</button>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c9052b18c c9866e6d5 c9ed626f5 cbf672402 cc06b624c ce823b5bf cf74bfc1b\" role=\"tablist\">\n<button aria-selected=\"false\" class=\"c04c34dac c1e8176ab c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7f74399a c7fa4cf55 c80b1c428 c834903b8 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cb1187a8c cc06b624c cca586305 cced1c97c cee061da5 cfe89757b\" data-state=\"inactive\" role=\"tab\" type=\"button\">\nBuy\n</button>\n<button aria-selected=\"true\" class=\"c04c34dac c1e8176ab c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7f74399a c7fa4cf55 c80b1c428 c834903b8 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cb1187a8c cc06b624c cca586305 cced1c97c cee061da5 cfe89757b\" data-mol-id=\"rent-tab\" data-state=\"active\" role=\"tab\" type=\"button\">\nRent\n</button>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "the options change": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c9052b18c c9866e6d5 c9ed626f5 cbf672402 cc06b624c ce823b5bf cf74bfc1b\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c04c34dac c1e8176ab c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7f74399a c7fa4cf55 c80b1c428 c834903b8 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cb1187a8c cc06b624c cca586305 cced1c97c cee061da5 cfe89757b\" data-state=\"active\" role=\"tab\" type=\"button\">\nBuy\n</button>\n<button aria-selected=\"false\" class=\"c04c34dac c1e8176ab c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7f74399a c7fa4cf55 c80b1c428 c834903b8 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cb1187a8c cc06b624c cca586305 cced1c97c cee061da5 cfe89757b\" data-mol-id=\"rent-tab\" data-state=\"inactive\" role=\"tab\" type=\"button\">\nRent\n</button>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c9052b18c c9866e6d5 c9ed626f5 cbf672402 cc06b624c ce823b5bf cf74bfc1b\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c04c34dac c1e8176ab c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7f74399a c7fa4cf55 c80b1c428 c834903b8 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cb1187a8c cc06b624c cca586305 cced1c97c cee061da5 cfe89757b\" data-state=\"active\" role=\"tab\" type=\"button\">\nAll\n</button>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c9052b18c c9866e6d5 c9ed626f5 cbf672402 cc06b624c ce823b5bf cf74bfc1b\" role=\"tablist\">\n<button aria-selected=\"false\" class=\"c04c34dac c1e8176ab c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7f74399a c7fa4cf55 c80b1c428 c834903b8 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cb1187a8c cc06b624c cca586305 cced1c97c cee061da5 cfe89757b\" data-state=\"inactive\" role=\"tab\" type=\"button\">\nBuy\n</button>\n<button aria-selected=\"true\" class=\"c04c34dac c1e8176ab c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7f74399a c7fa4cf55 c80b1c428 c834903b8 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cb1187a8c cc06b624c cca586305 cced1c97c cee061da5 cfe89757b\" data-mol-id=\"rent-tab\" data-state=\"active\" role=\"tab\" type=\"button\">\nRent\n</button>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "the className changes": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c9052b18c c9866e6d5 c9ed626f5 cbf672402 cc06b624c cd75bbd18 ce823b5bf cf74bfc1b\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c04c34dac c1e8176ab c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7f74399a c7fa4cf55 c80b1c428 c834903b8 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cb1187a8c cc06b624c cca586305 cced1c97c cee061da5 cfe89757b\" data-state=\"active\" role=\"tab\" type=\"button\">\nBuy\n</button>\n<button aria-selected=\"false\" class=\"c04c34dac c1e8176ab c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7f74399a c7fa4cf55 c80b1c428 c834903b8 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cb1187a8c cc06b624c cca586305 cced1c97c cee061da5 cfe89757b\" data-mol-id=\"rent-tab\" data-state=\"inactive\" role=\"tab\" type=\"button\">\nRent\n</button>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c9052b18c c9866e6d5 c9ed626f5 cbf672402 cc06b624c ccaded727 ce823b5bf cf74bfc1b\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c04c34dac c1e8176ab c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7f74399a c7fa4cf55 c80b1c428 c834903b8 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cb1187a8c cc06b624c cca586305 cced1c97c cee061da5 cfe89757b\" data-state=\"active\" role=\"tab\" type=\"button\">\nBuy\n</button>\n<button aria-selected=\"false\" class=\"c04c34dac c1e8176ab c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7f74399a c7fa4cf55 c80b1c428 c834903b8 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cb1187a8c cc06b624c cca586305 cced1c97c cee061da5 cfe89757b\" data-mol-id=\"rent-tab\" data-state=\"inactive\" role=\"tab\" type=\"button\">\nRent\n</button>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a dataMolId appears on a later render": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c9052b18c c9866e6d5 c9ed626f5 cbf672402 cc06b624c ce823b5bf cf74bfc1b\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c04c34dac c1e8176ab c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7f74399a c7fa4cf55 c80b1c428 c834903b8 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cb1187a8c cc06b624c cca586305 cced1c97c cee061da5 cfe89757b\" data-state=\"active\" role=\"tab\" type=\"button\">\nBuy\n</button>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c9052b18c c9866e6d5 c9ed626f5 cbf672402 cc06b624c ce823b5bf cf74bfc1b\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c04c34dac c1e8176ab c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7f74399a c7fa4cf55 c80b1c428 c834903b8 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cb1187a8c cc06b624c cca586305 cced1c97c cee061da5 cfe89757b\" data-mol-id=\"buy-tab\" data-state=\"active\" role=\"tab\" type=\"button\">\nBuy\n</button>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "two options, the first selected, then a locale switch": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c9052b18c c9866e6d5 c9ed626f5 cbf672402 cc06b624c ce823b5bf cf74bfc1b\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c04c34dac c1e8176ab c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7f74399a c7fa4cf55 c80b1c428 c834903b8 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cb1187a8c cc06b624c cca586305 cced1c97c cee061da5 cfe89757b\" data-state=\"active\" role=\"tab\" type=\"button\">\nBuy\n</button>\n<button aria-selected=\"false\" class=\"c04c34dac c1e8176ab c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7f74399a c7fa4cf55 c80b1c428 c834903b8 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cb1187a8c cc06b624c cca586305 cced1c97c cee061da5 cfe89757b\" data-mol-id=\"rent-tab\" data-state=\"inactive\" role=\"tab\" type=\"button\">\nRent\n</button>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c9052b18c c9866e6d5 c9ed626f5 cbf672402 cc06b624c ce823b5bf cf74bfc1b\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c04c34dac c1e8176ab c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7f74399a c7fa4cf55 c80b1c428 c834903b8 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cb1187a8c cc06b624c cca586305 cced1c97c cee061da5 cfe89757b\" data-state=\"active\" role=\"tab\" type=\"button\">\nBuy\n</button>\n<button aria-selected=\"false\" class=\"c04c34dac c1e8176ab c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7f74399a c7fa4cf55 c80b1c428 c834903b8 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cb1187a8c cc06b624c cca586305 cced1c97c cee061da5 cfe89757b\" data-mol-id=\"rent-tab\" data-state=\"inactive\" role=\"tab\" type=\"button\">\nRent\n</button>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "two options, the first selected, then options again as equal new objects": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c9052b18c c9866e6d5 c9ed626f5 cbf672402 cc06b624c ce823b5bf cf74bfc1b\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c04c34dac c1e8176ab c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7f74399a c7fa4cf55 c80b1c428 c834903b8 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cb1187a8c cc06b624c cca586305 cced1c97c cee061da5 cfe89757b\" data-state=\"active\" role=\"tab\" type=\"button\">\nBuy\n</button>\n<button aria-selected=\"false\" class=\"c04c34dac c1e8176ab c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7f74399a c7fa4cf55 c80b1c428 c834903b8 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cb1187a8c cc06b624c cca586305 cced1c97c cee061da5 cfe89757b\" data-mol-id=\"rent-tab\" data-state=\"inactive\" role=\"tab\" type=\"button\">\nRent\n</button>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c9052b18c c9866e6d5 c9ed626f5 cbf672402 cc06b624c ce823b5bf cf74bfc1b\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c04c34dac c1e8176ab c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7f74399a c7fa4cf55 c80b1c428 c834903b8 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cb1187a8c cc06b624c cca586305 cced1c97c cee061da5 cfe89757b\" data-conformance-mark=\"0\" data-state=\"active\" role=\"tab\" type=\"button\">\nBuy\n</button>\n<button aria-selected=\"false\" class=\"c04c34dac c1e8176ab c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7f74399a c7fa4cf55 c80b1c428 c834903b8 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cb1187a8c cc06b624c cca586305 cced1c97c cee061da5 cfe89757b\" data-conformance-mark=\"1\" data-mol-id=\"rent-tab\" data-state=\"inactive\" role=\"tab\" type=\"button\">\nRent\n</button>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c9052b18c c9866e6d5 c9ed626f5 cbf672402 cc06b624c ce823b5bf cf74bfc1b\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c04c34dac c1e8176ab c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7f74399a c7fa4cf55 c80b1c428 c834903b8 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cb1187a8c cc06b624c cca586305 cced1c97c cee061da5 cfe89757b\" data-conformance-mark=\"0\" data-state=\"active\" role=\"tab\" type=\"button\">\nBuy\n</button>\n<button aria-selected=\"false\" class=\"c04c34dac c1e8176ab c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7f74399a c7fa4cf55 c80b1c428 c834903b8 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cb1187a8c cc06b624c cca586305 cced1c97c cee061da5 cfe89757b\" data-conformance-mark=\"1\" data-mol-id=\"rent-tab\" data-state=\"inactive\" role=\"tab\" type=\"button\">\nRent\n</button>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "two options, the first selected, then options reversed": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c9052b18c c9866e6d5 c9ed626f5 cbf672402 cc06b624c ce823b5bf cf74bfc1b\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c04c34dac c1e8176ab c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7f74399a c7fa4cf55 c80b1c428 c834903b8 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cb1187a8c cc06b624c cca586305 cced1c97c cee061da5 cfe89757b\" data-state=\"active\" role=\"tab\" type=\"button\">\nBuy\n</button>\n<button aria-selected=\"false\" class=\"c04c34dac c1e8176ab c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7f74399a c7fa4cf55 c80b1c428 c834903b8 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cb1187a8c cc06b624c cca586305 cced1c97c cee061da5 cfe89757b\" data-mol-id=\"rent-tab\" data-state=\"inactive\" role=\"tab\" type=\"button\">\nRent\n</button>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c9052b18c c9866e6d5 c9ed626f5 cbf672402 cc06b624c ce823b5bf cf74bfc1b\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c04c34dac c1e8176ab c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7f74399a c7fa4cf55 c80b1c428 c834903b8 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cb1187a8c cc06b624c cca586305 cced1c97c cee061da5 cfe89757b\" data-conformance-mark=\"0\" data-state=\"active\" role=\"tab\" type=\"button\">\nBuy\n</button>\n<button aria-selected=\"false\" class=\"c04c34dac c1e8176ab c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7f74399a c7fa4cf55 c80b1c428 c834903b8 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cb1187a8c cc06b624c cca586305 cced1c97c cee061da5 cfe89757b\" data-conformance-mark=\"1\" data-mol-id=\"rent-tab\" data-state=\"inactive\" role=\"tab\" type=\"button\">\nRent\n</button>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c9052b18c c9866e6d5 c9ed626f5 cbf672402 cc06b624c ce823b5bf cf74bfc1b\" role=\"tablist\">\n<button aria-selected=\"false\" class=\"c04c34dac c1e8176ab c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7f74399a c7fa4cf55 c80b1c428 c834903b8 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cb1187a8c cc06b624c cca586305 cced1c97c cee061da5 cfe89757b\" data-conformance-mark=\"1\" data-mol-id=\"rent-tab\" data-state=\"inactive\" role=\"tab\" type=\"button\">\nRent\n</button>\n<button aria-selected=\"true\" class=\"c04c34dac c1e8176ab c45cfc6cf c4647f690 c5b8ef7a8 c7371f437 c7f74399a c7fa4cf55 c80b1c428 c834903b8 c8b197f7c c8b4b949e c9052b18c c9773cd2b ca76eb0c4 cb1187a8c cc06b624c cca586305 cced1c97c cee061da5 cfe89757b\" data-conformance-mark=\"0\" data-state=\"active\" role=\"tab\" type=\"button\">\nBuy\n</button>\n</div>\n@route /"
+    ],
+    "calls": []
+   }
+  }
+ }
+}

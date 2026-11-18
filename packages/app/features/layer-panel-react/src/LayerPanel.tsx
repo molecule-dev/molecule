@@ -27,8 +27,9 @@ export interface LayerPanelProps {
   /** Called when an inline rename commits with a non-empty trimmed value. */
   onRename: (id: string, name: string) => void
   /**
-   * Currently active layer id — drives `aria-selected` and a "selected"
-   * highlight on the row. Optional; when omitted no row is highlighted.
+   * Currently active layer id — drives the row's "selected" highlight and
+   * `aria-current="true"` on its select (layer-name) button. Optional; when
+   * omitted no row is highlighted.
    */
   activeId?: string
   /** Optional extra classes appended to the panel root. */
@@ -184,7 +185,6 @@ export function LayerPanel(props: LayerPanelProps): JSX.Element {
   return (
     <ul
       className={cm.cn(cm.stack(0 as const), className)}
-      role="listbox"
       aria-label={t('layerPanel.label', {}, { defaultValue: 'Layers' })}
       data-mol-id="layer-panel"
     >
@@ -206,8 +206,6 @@ export function LayerPanel(props: LayerPanelProps): JSX.Element {
             key={layer.id}
             data-mol-id={`layer-panel-row-${layer.id}`}
             data-layer-index={index}
-            role="option"
-            aria-selected={isActive}
             onPointerDown={(e) => onRowPointerDown(index, layer.id, e)}
             onPointerMove={onRowPointerMove}
             onPointerUp={endDrag}
@@ -290,6 +288,7 @@ export function LayerPanel(props: LayerPanelProps): JSX.Element {
                 <button
                   type="button"
                   onClick={() => onSelect(layer.id)}
+                  aria-current={isActive ? 'true' : undefined}
                   data-mol-id={`layer-panel-name-${layer.id}`}
                   /* mol-bespoke-button: the layer NAME is the row's select
                      control — a native button carrying plain text, so the

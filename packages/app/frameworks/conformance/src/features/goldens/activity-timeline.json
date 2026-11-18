@@ -1,0 +1,273 @@
+{
+ "exports": [
+  "ActivityTimeline",
+  "ActivityTimelineDot",
+  "ActivityTimelineRow"
+ ],
+ "values": {},
+ "cases": {
+  "ActivityTimeline": {
+   "no events": {
+    "snapshots": [
+     "<div class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 c97d61bf0 cc26cbf54\">\n<div class=\"c2cbb8333 c9f66f1da cbaac6b89 ccae02ff2 cfc82911d\">\n<span aria-hidden=\"true\" class=\"cfde19efb\" style=\"bottom: 0.5rem; left: 0.75rem; position: absolute; top: 0.5rem; width: 1px\">\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a single event": {
+    "snapshots": [
+     "<div class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 c97d61bf0 cc26cbf54\">\n<div class=\"c2cbb8333 c9f66f1da cbaac6b89 ccae02ff2 cfc82911d\">\n<span aria-hidden=\"true\" class=\"cfde19efb\" style=\"bottom: 0.5rem; left: 0.75rem; position: absolute; top: 0.5rem; width: 1px\">\n</span>\n<div class=\"c93250a05 cfc82911d\">\n<div class=\"c0dd268bc c1e8176ab c42740ba6 c79cdb03d c9052b18c c9773cd2b c977c65f3 cc1672728 ccae02ff2 cd34f1515 cd9b20003\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\ncall\n</span>\n</div>\n<div>\n<div class=\"c1e8176ab c42740ba6 c8a721dd8 c937ba156 ccae02ff2 cd9b20003\">\n<h3 class=\"c0d99ed10 c445db9b9\">\nCalled Jane\n</h3>\n<span class=\"c267fcecb c4647f690 c80b1c428 ce823b5bf\" style=\"white-space: nowrap\">\n2h ago\n</span>\n</div>\n<p class=\"c4647f690 ce823b5bf\">\nLeft a voicemail\n</p>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "three events with no tone map": {
+    "snapshots": [
+     "<div class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 c97d61bf0 cc26cbf54\">\n<div class=\"c2cbb8333 c9f66f1da cbaac6b89 ccae02ff2 cfc82911d\">\n<span aria-hidden=\"true\" class=\"cfde19efb\" style=\"bottom: 0.5rem; left: 0.75rem; position: absolute; top: 0.5rem; width: 1px\">\n</span>\n<div class=\"c93250a05 cfc82911d\">\n<div class=\"c0dd268bc c1e8176ab c388af5c7 c42740ba6 c9052b18c c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003 cda72d38d\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\nevent\n</span>\n</div>\n<div>\n<div class=\"c1e8176ab c42740ba6 c8a721dd8 c937ba156 ccae02ff2 cd9b20003\">\n<h3 class=\"c0d99ed10 c445db9b9\">\nCalled Jane\n</h3>\n<span class=\"c267fcecb c4647f690 c80b1c428 ce823b5bf\" style=\"white-space: nowrap\">\n2h ago\n</span>\n</div>\n<p class=\"c4647f690 ce823b5bf\">\nLeft a voicemail\n</p>\n</div>\n</div>\n<div class=\"c93250a05 cfc82911d\">\n<div class=\"c0dd268bc c1e8176ab c388af5c7 c42740ba6 c9052b18c c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003 cda72d38d\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\nevent\n</span>\n</div>\n<div>\n<div class=\"c1e8176ab c42740ba6 c8a721dd8 c937ba156 ccae02ff2 cd9b20003\">\n<h3 class=\"c0d99ed10 c445db9b9\">\nEmailed Bob\n</h3>\n<span class=\"c267fcecb c4647f690 c80b1c428 ce823b5bf\" style=\"white-space: nowrap\">\nYesterday\n</span>\n</div>\n</div>\n</div>\n<div class=\"c93250a05 cfc82911d\">\n<div class=\"c0dd268bc c1e8176ab c388af5c7 c42740ba6 c9052b18c c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003 cda72d38d\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\nevent\n</span>\n</div>\n<div>\n<div class=\"c1e8176ab c42740ba6 c8a721dd8 c937ba156 ccae02ff2 cd9b20003\">\n<h3 class=\"c0d99ed10 c445db9b9\">\nSigned contract\n</h3>\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a tone map with a mapped and an unmapped kind": {
+    "snapshots": [
+     "<div class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 c97d61bf0 cc26cbf54\">\n<div class=\"c2cbb8333 c9f66f1da cbaac6b89 ccae02ff2 cfc82911d\">\n<span aria-hidden=\"true\" class=\"cfde19efb\" style=\"bottom: 0.5rem; left: 0.75rem; position: absolute; top: 0.5rem; width: 1px\">\n</span>\n<div class=\"c93250a05 cfc82911d\">\n<div class=\"c0dd268bc c1e8176ab c42740ba6 c79cdb03d c9052b18c c9773cd2b c977c65f3 cc1672728 ccae02ff2 cd34f1515 cd9b20003\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\ncall\n</span>\n</div>\n<div>\n<div class=\"c1e8176ab c42740ba6 c8a721dd8 c937ba156 ccae02ff2 cd9b20003\">\n<h3 class=\"c0d99ed10 c445db9b9\">\nCalled Jane\n</h3>\n<span class=\"c267fcecb c4647f690 c80b1c428 ce823b5bf\" style=\"white-space: nowrap\">\n2h ago\n</span>\n</div>\n<p class=\"c4647f690 ce823b5bf\">\nLeft a voicemail\n</p>\n</div>\n</div>\n<div class=\"c93250a05 cfc82911d\">\n<div class=\"c0dd268bc c1e8176ab c388af5c7 c42740ba6 c9052b18c c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003 cda72d38d\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\nmail\n</span>\n</div>\n<div>\n<div class=\"c1e8176ab c42740ba6 c8a721dd8 c937ba156 ccae02ff2 cd9b20003\">\n<h3 class=\"c0d99ed10 c445db9b9\">\nEmailed Bob\n</h3>\n<span class=\"c267fcecb c4647f690 c80b1c428 ce823b5bf\" style=\"white-space: nowrap\">\nYesterday\n</span>\n</div>\n</div>\n</div>\n<div class=\"c93250a05 cfc82911d\">\n<div class=\"c0dd268bc c1e8176ab c388af5c7 c42740ba6 c9052b18c c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003 cda72d38d\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\nevent\n</span>\n</div>\n<div>\n<div class=\"c1e8176ab c42740ba6 c8a721dd8 c937ba156 ccae02ff2 cd9b20003\">\n<h3 class=\"c0d99ed10 c445db9b9\">\nSigned contract\n</h3>\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a default tone for kinds the map omits": {
+    "snapshots": [
+     "<div class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 c97d61bf0 cc26cbf54\">\n<div class=\"c2cbb8333 c9f66f1da cbaac6b89 ccae02ff2 cfc82911d\">\n<span aria-hidden=\"true\" class=\"cfde19efb\" style=\"bottom: 0.5rem; left: 0.75rem; position: absolute; top: 0.5rem; width: 1px\">\n</span>\n<div class=\"c93250a05 cfc82911d\">\n<div class=\"c0dd268bc c1e8176ab c42740ba6 c79cdb03d c9052b18c c9773cd2b c977c65f3 cc1672728 ccae02ff2 cd34f1515 cd9b20003\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\ncall\n</span>\n</div>\n<div>\n<div class=\"c1e8176ab c42740ba6 c8a721dd8 c937ba156 ccae02ff2 cd9b20003\">\n<h3 class=\"c0d99ed10 c445db9b9\">\nCalled Jane\n</h3>\n<span class=\"c267fcecb c4647f690 c80b1c428 ce823b5bf\" style=\"white-space: nowrap\">\n2h ago\n</span>\n</div>\n<p class=\"c4647f690 ce823b5bf\">\nLeft a voicemail\n</p>\n</div>\n</div>\n<div class=\"c93250a05 cfc82911d\">\n<div class=\"c0dd268bc c1e8176ab c388af5c7 c42740ba6 c9052b18c c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003 cda72d38d\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\nmail\n</span>\n</div>\n<div>\n<div class=\"c1e8176ab c42740ba6 c8a721dd8 c937ba156 ccae02ff2 cd9b20003\">\n<h3 class=\"c0d99ed10 c445db9b9\">\nEmailed Bob\n</h3>\n<span class=\"c267fcecb c4647f690 c80b1c428 ce823b5bf\" style=\"white-space: nowrap\">\nYesterday\n</span>\n</div>\n</div>\n</div>\n<div class=\"c93250a05 cfc82911d\">\n<div class=\"c0dd268bc c1e8176ab c388af5c7 c42740ba6 c9052b18c c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003 cda72d38d\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\ncircle\n</span>\n</div>\n<div>\n<div class=\"c1e8176ab c42740ba6 c8a721dd8 c937ba156 ccae02ff2 cd9b20003\">\n<h3 class=\"c0d99ed10 c445db9b9\">\nSigned contract\n</h3>\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a header slot": {
+    "snapshots": [
+     "<div class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 c97d61bf0 cc26cbf54\">\n<header>\nToday\n</header>\n<div class=\"c2cbb8333 c9f66f1da cbaac6b89 ccae02ff2 cfc82911d\">\n<span aria-hidden=\"true\" class=\"cfde19efb\" style=\"bottom: 0.5rem; left: 0.75rem; position: absolute; top: 0.5rem; width: 1px\">\n</span>\n<div class=\"c93250a05 cfc82911d\">\n<div class=\"c0dd268bc c1e8176ab c42740ba6 c79cdb03d c9052b18c c9773cd2b c977c65f3 cc1672728 ccae02ff2 cd34f1515 cd9b20003\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\ncall\n</span>\n</div>\n<div>\n<div class=\"c1e8176ab c42740ba6 c8a721dd8 c937ba156 ccae02ff2 cd9b20003\">\n<h3 class=\"c0d99ed10 c445db9b9\">\nCalled Jane\n</h3>\n<span class=\"c267fcecb c4647f690 c80b1c428 ce823b5bf\" style=\"white-space: nowrap\">\n2h ago\n</span>\n</div>\n<p class=\"c4647f690 ce823b5bf\">\nLeft a voicemail\n</p>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a text header": {
+    "snapshots": [
+     "<div class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 c97d61bf0 cc26cbf54\">\nToday\n<div class=\"c2cbb8333 c9f66f1da cbaac6b89 ccae02ff2 cfc82911d\">\n<span aria-hidden=\"true\" class=\"cfde19efb\" style=\"bottom: 0.5rem; left: 0.75rem; position: absolute; top: 0.5rem; width: 1px\">\n</span>\n<div class=\"c93250a05 cfc82911d\">\n<div class=\"c0dd268bc c1e8176ab c388af5c7 c42740ba6 c9052b18c c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003 cda72d38d\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\nevent\n</span>\n</div>\n<div>\n<div class=\"c1e8176ab c42740ba6 c8a721dd8 c937ba156 ccae02ff2 cd9b20003\">\n<h3 class=\"c0d99ed10 c445db9b9\">\nCalled Jane\n</h3>\n<span class=\"c267fcecb c4647f690 c80b1c428 ce823b5bf\" style=\"white-space: nowrap\">\n2h ago\n</span>\n</div>\n<p class=\"c4647f690 ce823b5bf\">\nLeft a voicemail\n</p>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a footer slot": {
+    "snapshots": [
+     "<div class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 c97d61bf0 cc26cbf54\">\n<div class=\"c2cbb8333 c9f66f1da cbaac6b89 ccae02ff2 cfc82911d\">\n<span aria-hidden=\"true\" class=\"cfde19efb\" style=\"bottom: 0.5rem; left: 0.75rem; position: absolute; top: 0.5rem; width: 1px\">\n</span>\n<div class=\"c93250a05 cfc82911d\">\n<div class=\"c0dd268bc c1e8176ab c42740ba6 c79cdb03d c9052b18c c9773cd2b c977c65f3 cc1672728 ccae02ff2 cd34f1515 cd9b20003\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\ncall\n</span>\n</div>\n<div>\n<div class=\"c1e8176ab c42740ba6 c8a721dd8 c937ba156 ccae02ff2 cd9b20003\">\n<h3 class=\"c0d99ed10 c445db9b9\">\nCalled Jane\n</h3>\n<span class=\"c267fcecb c4647f690 c80b1c428 ce823b5bf\" style=\"white-space: nowrap\">\n2h ago\n</span>\n</div>\n<p class=\"c4647f690 ce823b5bf\">\nLeft a voicemail\n</p>\n</div>\n</div>\n</div>\n<button type=\"button\">\nLoad more\n</button>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a header and a footer together": {
+    "snapshots": [
+     "<div class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 c97d61bf0 cc26cbf54\">\n<header>\nThis week\n</header>\n<div class=\"c2cbb8333 c9f66f1da cbaac6b89 ccae02ff2 cfc82911d\">\n<span aria-hidden=\"true\" class=\"cfde19efb\" style=\"bottom: 0.5rem; left: 0.75rem; position: absolute; top: 0.5rem; width: 1px\">\n</span>\n<div class=\"c93250a05 cfc82911d\">\n<div class=\"c0dd268bc c1e8176ab c42740ba6 c79cdb03d c9052b18c c9773cd2b c977c65f3 cc1672728 ccae02ff2 cd34f1515 cd9b20003\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\ncall\n</span>\n</div>\n<div>\n<div class=\"c1e8176ab c42740ba6 c8a721dd8 c937ba156 ccae02ff2 cd9b20003\">\n<h3 class=\"c0d99ed10 c445db9b9\">\nCalled Jane\n</h3>\n<span class=\"c267fcecb c4647f690 c80b1c428 ce823b5bf\" style=\"white-space: nowrap\">\n2h ago\n</span>\n</div>\n<p class=\"c4647f690 ce823b5bf\">\nLeft a voicemail\n</p>\n</div>\n</div>\n<div class=\"c93250a05 cfc82911d\">\n<div class=\"c0dd268bc c1e8176ab c388af5c7 c42740ba6 c9052b18c c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003 cda72d38d\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\nmail\n</span>\n</div>\n<div>\n<div class=\"c1e8176ab c42740ba6 c8a721dd8 c937ba156 ccae02ff2 cd9b20003\">\n<h3 class=\"c0d99ed10 c445db9b9\">\nEmailed Bob\n</h3>\n<span class=\"c267fcecb c4647f690 c80b1c428 ce823b5bf\" style=\"white-space: nowrap\">\nYesterday\n</span>\n</div>\n</div>\n</div>\n<div class=\"c93250a05 cfc82911d\">\n<div class=\"c0dd268bc c1e8176ab c388af5c7 c42740ba6 c9052b18c c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003 cda72d38d\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\nevent\n</span>\n</div>\n<div>\n<div class=\"c1e8176ab c42740ba6 c8a721dd8 c937ba156 ccae02ff2 cd9b20003\">\n<h3 class=\"c0d99ed10 c445db9b9\">\nSigned contract\n</h3>\n</div>\n</div>\n</div>\n</div>\n<small>\n3 events\n</small>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "node-valued titles, descriptions and meta": {
+    "snapshots": [
+     "<div class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 c97d61bf0 cc26cbf54\">\n<div class=\"c2cbb8333 c9f66f1da cbaac6b89 ccae02ff2 cfc82911d\">\n<span aria-hidden=\"true\" class=\"cfde19efb\" style=\"bottom: 0.5rem; left: 0.75rem; position: absolute; top: 0.5rem; width: 1px\">\n</span>\n<div class=\"c93250a05 cfc82911d\">\n<div class=\"c0dd268bc c1e8176ab c388af5c7 c42740ba6 c9052b18c c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003 cda72d38d\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\nevent\n</span>\n</div>\n<div>\n<div class=\"c1e8176ab c42740ba6 c8a721dd8 c937ba156 ccae02ff2 cd9b20003\">\n<h3 class=\"c0d99ed10 c445db9b9\">\n<strong>\nNia called\n</strong>\n</h3>\n<span class=\"c267fcecb c4647f690 c80b1c428 ce823b5bf\" style=\"white-space: nowrap\">\n<time>\n09:30\n</time>\n</span>\n</div>\n<p class=\"c4647f690 ce823b5bf\">\n<em>\nvoicemail left\n</em>\n</p>\n<span data-chip>\nvip\n</span>\n</div>\n</div>\n<div class=\"c93250a05 cfc82911d\">\n<div class=\"c0dd268bc c1e8176ab c388af5c7 c42740ba6 c9052b18c c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003 cda72d38d\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\nevent\n</span>\n</div>\n<div>\n<div class=\"c1e8176ab c42740ba6 c8a721dd8 c937ba156 ccae02ff2 cd9b20003\">\n<h3 class=\"c0d99ed10 c445db9b9\">\nPlain title\n</h3>\n<span class=\"c267fcecb c4647f690 c80b1c428 ce823b5bf\" style=\"white-space: nowrap\">\nMar 5\n</span>\n</div>\n<p class=\"c4647f690 ce823b5bf\">\nPlain description\n</p>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a row wrapper wraps every row": {
+    "snapshots": [
+     "<div class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 c97d61bf0 cc26cbf54\">\n<div class=\"c2cbb8333 c9f66f1da cbaac6b89 ccae02ff2 cfc82911d\">\n<span aria-hidden=\"true\" class=\"cfde19efb\" style=\"bottom: 0.5rem; left: 0.75rem; position: absolute; top: 0.5rem; width: 1px\">\n</span>\n<div class=\"c93250a05 cfc82911d\">\n<a href=\"/activities/1\">\ncall\n</a>\n</div>\n<div class=\"c93250a05 cfc82911d\">\n<a href=\"/activities/2\">\nemail\n</a>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "className passthrough": {
+    "snapshots": [
+     "<div class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 c97d61bf0 cc26cbf54 cd75bbd18\">\n<div class=\"c2cbb8333 c9f66f1da cbaac6b89 ccae02ff2 cfc82911d\">\n<span aria-hidden=\"true\" class=\"cfde19efb\" style=\"bottom: 0.5rem; left: 0.75rem; position: absolute; top: 0.5rem; width: 1px\">\n</span>\n<div class=\"c93250a05 cfc82911d\">\n<div class=\"c0dd268bc c1e8176ab c42740ba6 c79cdb03d c9052b18c c9773cd2b c977c65f3 cc1672728 ccae02ff2 cd34f1515 cd9b20003\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\ncall\n</span>\n</div>\n<div>\n<div class=\"c1e8176ab c42740ba6 c8a721dd8 c937ba156 ccae02ff2 cd9b20003\">\n<h3 class=\"c0d99ed10 c445db9b9\">\nCalled Jane\n</h3>\n<span class=\"c267fcecb c4647f690 c80b1c428 ce823b5bf\" style=\"white-space: nowrap\">\n2h ago\n</span>\n</div>\n<p class=\"c4647f690 ce823b5bf\">\nLeft a voicemail\n</p>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "reserved event fields are not rendered": {
+    "snapshots": [
+     "<div class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 c97d61bf0 cc26cbf54\">\n<div class=\"c2cbb8333 c9f66f1da cbaac6b89 ccae02ff2 cfc82911d\">\n<span aria-hidden=\"true\" class=\"cfde19efb\" style=\"bottom: 0.5rem; left: 0.75rem; position: absolute; top: 0.5rem; width: 1px\">\n</span>\n<div class=\"c93250a05 cfc82911d\">\n<div class=\"c0dd268bc c1e8176ab c42740ba6 c79cdb03d c9052b18c c9773cd2b c977c65f3 cc1672728 ccae02ff2 cd34f1515 cd9b20003\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\ncall\n</span>\n</div>\n<div>\n<div class=\"c1e8176ab c42740ba6 c8a721dd8 c937ba156 ccae02ff2 cd9b20003\">\n<h3 class=\"c0d99ed10 c445db9b9\">\nCalled Jane\n</h3>\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "the events change": {
+    "snapshots": [
+     "<div class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 c97d61bf0 cc26cbf54\">\n<div class=\"c2cbb8333 c9f66f1da cbaac6b89 ccae02ff2 cfc82911d\">\n<span aria-hidden=\"true\" class=\"cfde19efb\" style=\"bottom: 0.5rem; left: 0.75rem; position: absolute; top: 0.5rem; width: 1px\">\n</span>\n<div class=\"c93250a05 cfc82911d\">\n<div class=\"c0dd268bc c1e8176ab c42740ba6 c79cdb03d c9052b18c c9773cd2b c977c65f3 cc1672728 ccae02ff2 cd34f1515 cd9b20003\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\ncall\n</span>\n</div>\n<div>\n<div class=\"c1e8176ab c42740ba6 c8a721dd8 c937ba156 ccae02ff2 cd9b20003\">\n<h3 class=\"c0d99ed10 c445db9b9\">\nCalled Jane\n</h3>\n<span class=\"c267fcecb c4647f690 c80b1c428 ce823b5bf\" style=\"white-space: nowrap\">\n2h ago\n</span>\n</div>\n<p class=\"c4647f690 ce823b5bf\">\nLeft a voicemail\n</p>\n</div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 c97d61bf0 cc26cbf54\">\n<div class=\"c2cbb8333 c9f66f1da cbaac6b89 ccae02ff2 cfc82911d\">\n<span aria-hidden=\"true\" class=\"cfde19efb\" style=\"bottom: 0.5rem; left: 0.75rem; position: absolute; top: 0.5rem; width: 1px\">\n</span>\n<div class=\"c93250a05 cfc82911d\">\n<div class=\"c0dd268bc c1e8176ab c42740ba6 c79cdb03d c9052b18c c9773cd2b c977c65f3 cc1672728 ccae02ff2 cd34f1515 cd9b20003\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\ncall\n</span>\n</div>\n<div>\n<div class=\"c1e8176ab c42740ba6 c8a721dd8 c937ba156 ccae02ff2 cd9b20003\">\n<h3 class=\"c0d99ed10 c445db9b9\">\nCalled Jane\n</h3>\n<span class=\"c267fcecb c4647f690 c80b1c428 ce823b5bf\" style=\"white-space: nowrap\">\n2h ago\n</span>\n</div>\n<p class=\"c4647f690 ce823b5bf\">\nLeft a voicemail\n</p>\n</div>\n</div>\n<div class=\"c93250a05 cfc82911d\">\n<div class=\"c0dd268bc c1e8176ab c388af5c7 c42740ba6 c9052b18c c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003 cda72d38d\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\nmail\n</span>\n</div>\n<div>\n<div class=\"c1e8176ab c42740ba6 c8a721dd8 c937ba156 ccae02ff2 cd9b20003\">\n<h3 class=\"c0d99ed10 c445db9b9\">\nEmailed Bob\n</h3>\n<span class=\"c267fcecb c4647f690 c80b1c428 ce823b5bf\" style=\"white-space: nowrap\">\nYesterday\n</span>\n</div>\n</div>\n</div>\n<div class=\"c93250a05 cfc82911d\">\n<div class=\"c0dd268bc c1e8176ab c388af5c7 c42740ba6 c9052b18c c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003 cda72d38d\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\nevent\n</span>\n</div>\n<div>\n<div class=\"c1e8176ab c42740ba6 c8a721dd8 c937ba156 ccae02ff2 cd9b20003\">\n<h3 class=\"c0d99ed10 c445db9b9\">\nSigned contract\n</h3>\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "the events are emptied": {
+    "snapshots": [
+     "<div class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 c97d61bf0 cc26cbf54\">\n<div class=\"c2cbb8333 c9f66f1da cbaac6b89 ccae02ff2 cfc82911d\">\n<span aria-hidden=\"true\" class=\"cfde19efb\" style=\"bottom: 0.5rem; left: 0.75rem; position: absolute; top: 0.5rem; width: 1px\">\n</span>\n<div class=\"c93250a05 cfc82911d\">\n<div class=\"c0dd268bc c1e8176ab c42740ba6 c79cdb03d c9052b18c c9773cd2b c977c65f3 cc1672728 ccae02ff2 cd34f1515 cd9b20003\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\ncall\n</span>\n</div>\n<div>\n<div class=\"c1e8176ab c42740ba6 c8a721dd8 c937ba156 ccae02ff2 cd9b20003\">\n<h3 class=\"c0d99ed10 c445db9b9\">\nCalled Jane\n</h3>\n<span class=\"c267fcecb c4647f690 c80b1c428 ce823b5bf\" style=\"white-space: nowrap\">\n2h ago\n</span>\n</div>\n<p class=\"c4647f690 ce823b5bf\">\nLeft a voicemail\n</p>\n</div>\n</div>\n<div class=\"c93250a05 cfc82911d\">\n<div class=\"c0dd268bc c1e8176ab c388af5c7 c42740ba6 c9052b18c c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003 cda72d38d\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\nmail\n</span>\n</div>\n<div>\n<div class=\"c1e8176ab c42740ba6 c8a721dd8 c937ba156 ccae02ff2 cd9b20003\">\n<h3 class=\"c0d99ed10 c445db9b9\">\nEmailed Bob\n</h3>\n<span class=\"c267fcecb c4647f690 c80b1c428 ce823b5bf\" style=\"white-space: nowrap\">\nYesterday\n</span>\n</div>\n</div>\n</div>\n<div class=\"c93250a05 cfc82911d\">\n<div class=\"c0dd268bc c1e8176ab c388af5c7 c42740ba6 c9052b18c c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003 cda72d38d\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\nevent\n</span>\n</div>\n<div>\n<div class=\"c1e8176ab c42740ba6 c8a721dd8 c937ba156 ccae02ff2 cd9b20003\">\n<h3 class=\"c0d99ed10 c445db9b9\">\nSigned contract\n</h3>\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 c97d61bf0 cc26cbf54\">\n<div class=\"c2cbb8333 c9f66f1da cbaac6b89 ccae02ff2 cfc82911d\">\n<span aria-hidden=\"true\" class=\"cfde19efb\" style=\"bottom: 0.5rem; left: 0.75rem; position: absolute; top: 0.5rem; width: 1px\">\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a header appears": {
+    "snapshots": [
+     "<div class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 c97d61bf0 cc26cbf54\">\n<div class=\"c2cbb8333 c9f66f1da cbaac6b89 ccae02ff2 cfc82911d\">\n<span aria-hidden=\"true\" class=\"cfde19efb\" style=\"bottom: 0.5rem; left: 0.75rem; position: absolute; top: 0.5rem; width: 1px\">\n</span>\n<div class=\"c93250a05 cfc82911d\">\n<div class=\"c0dd268bc c1e8176ab c42740ba6 c79cdb03d c9052b18c c9773cd2b c977c65f3 cc1672728 ccae02ff2 cd34f1515 cd9b20003\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\ncall\n</span>\n</div>\n<div>\n<div class=\"c1e8176ab c42740ba6 c8a721dd8 c937ba156 ccae02ff2 cd9b20003\">\n<h3 class=\"c0d99ed10 c445db9b9\">\nCalled Jane\n</h3>\n<span class=\"c267fcecb c4647f690 c80b1c428 ce823b5bf\" style=\"white-space: nowrap\">\n2h ago\n</span>\n</div>\n<p class=\"c4647f690 ce823b5bf\">\nLeft a voicemail\n</p>\n</div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 c97d61bf0 cc26cbf54\">\nToday\n<div class=\"c2cbb8333 c9f66f1da cbaac6b89 ccae02ff2 cfc82911d\">\n<span aria-hidden=\"true\" class=\"cfde19efb\" style=\"bottom: 0.5rem; left: 0.75rem; position: absolute; top: 0.5rem; width: 1px\">\n</span>\n<div class=\"c93250a05 cfc82911d\">\n<div class=\"c0dd268bc c1e8176ab c42740ba6 c79cdb03d c9052b18c c9773cd2b c977c65f3 cc1672728 ccae02ff2 cd34f1515 cd9b20003\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\ncall\n</span>\n</div>\n<div>\n<div class=\"c1e8176ab c42740ba6 c8a721dd8 c937ba156 ccae02ff2 cd9b20003\">\n<h3 class=\"c0d99ed10 c445db9b9\">\nCalled Jane\n</h3>\n<span class=\"c267fcecb c4647f690 c80b1c428 ce823b5bf\" style=\"white-space: nowrap\">\n2h ago\n</span>\n</div>\n<p class=\"c4647f690 ce823b5bf\">\nLeft a voicemail\n</p>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a footer appears": {
+    "snapshots": [
+     "<div class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 c97d61bf0 cc26cbf54\">\n<div class=\"c2cbb8333 c9f66f1da cbaac6b89 ccae02ff2 cfc82911d\">\n<span aria-hidden=\"true\" class=\"cfde19efb\" style=\"bottom: 0.5rem; left: 0.75rem; position: absolute; top: 0.5rem; width: 1px\">\n</span>\n<div class=\"c93250a05 cfc82911d\">\n<div class=\"c0dd268bc c1e8176ab c388af5c7 c42740ba6 c9052b18c c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003 cda72d38d\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\nevent\n</span>\n</div>\n<div>\n<div class=\"c1e8176ab c42740ba6 c8a721dd8 c937ba156 ccae02ff2 cd9b20003\">\n<h3 class=\"c0d99ed10 c445db9b9\">\nCalled Jane\n</h3>\n<span class=\"c267fcecb c4647f690 c80b1c428 ce823b5bf\" style=\"white-space: nowrap\">\n2h ago\n</span>\n</div>\n<p class=\"c4647f690 ce823b5bf\">\nLeft a voicemail\n</p>\n</div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 c97d61bf0 cc26cbf54\">\n<div class=\"c2cbb8333 c9f66f1da cbaac6b89 ccae02ff2 cfc82911d\">\n<span aria-hidden=\"true\" class=\"cfde19efb\" style=\"bottom: 0.5rem; left: 0.75rem; position: absolute; top: 0.5rem; width: 1px\">\n</span>\n<div class=\"c93250a05 cfc82911d\">\n<div class=\"c0dd268bc c1e8176ab c388af5c7 c42740ba6 c9052b18c c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003 cda72d38d\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\nevent\n</span>\n</div>\n<div>\n<div class=\"c1e8176ab c42740ba6 c8a721dd8 c937ba156 ccae02ff2 cd9b20003\">\n<h3 class=\"c0d99ed10 c445db9b9\">\nCalled Jane\n</h3>\n<span class=\"c267fcecb c4647f690 c80b1c428 ce823b5bf\" style=\"white-space: nowrap\">\n2h ago\n</span>\n</div>\n<p class=\"c4647f690 ce823b5bf\">\nLeft a voicemail\n</p>\n</div>\n</div>\n</div>\n1 event\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "the tone map changes": {
+    "snapshots": [
+     "<div class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 c97d61bf0 cc26cbf54\">\n<div class=\"c2cbb8333 c9f66f1da cbaac6b89 ccae02ff2 cfc82911d\">\n<span aria-hidden=\"true\" class=\"cfde19efb\" style=\"bottom: 0.5rem; left: 0.75rem; position: absolute; top: 0.5rem; width: 1px\">\n</span>\n<div class=\"c93250a05 cfc82911d\">\n<div class=\"c0dd268bc c1e8176ab c42740ba6 c79cdb03d c9052b18c c9773cd2b c977c65f3 cc1672728 ccae02ff2 cd34f1515 cd9b20003\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\ncall\n</span>\n</div>\n<div>\n<div class=\"c1e8176ab c42740ba6 c8a721dd8 c937ba156 ccae02ff2 cd9b20003\">\n<h3 class=\"c0d99ed10 c445db9b9\">\nCalled Jane\n</h3>\n<span class=\"c267fcecb c4647f690 c80b1c428 ce823b5bf\" style=\"white-space: nowrap\">\n2h ago\n</span>\n</div>\n<p class=\"c4647f690 ce823b5bf\">\nLeft a voicemail\n</p>\n</div>\n</div>\n<div class=\"c93250a05 cfc82911d\">\n<div class=\"c0dd268bc c1e8176ab c388af5c7 c42740ba6 c9052b18c c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003 cda72d38d\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\nmail\n</span>\n</div>\n<div>\n<div class=\"c1e8176ab c42740ba6 c8a721dd8 c937ba156 ccae02ff2 cd9b20003\">\n<h3 class=\"c0d99ed10 c445db9b9\">\nEmailed Bob\n</h3>\n<span class=\"c267fcecb c4647f690 c80b1c428 ce823b5bf\" style=\"white-space: nowrap\">\nYesterday\n</span>\n</div>\n</div>\n</div>\n<div class=\"c93250a05 cfc82911d\">\n<div class=\"c0dd268bc c1e8176ab c388af5c7 c42740ba6 c9052b18c c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003 cda72d38d\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\nevent\n</span>\n</div>\n<div>\n<div class=\"c1e8176ab c42740ba6 c8a721dd8 c937ba156 ccae02ff2 cd9b20003\">\n<h3 class=\"c0d99ed10 c445db9b9\">\nSigned contract\n</h3>\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 c97d61bf0 cc26cbf54\">\n<div class=\"c2cbb8333 c9f66f1da cbaac6b89 ccae02ff2 cfc82911d\">\n<span aria-hidden=\"true\" class=\"cfde19efb\" style=\"bottom: 0.5rem; left: 0.75rem; position: absolute; top: 0.5rem; width: 1px\">\n</span>\n<div class=\"c93250a05 cfc82911d\">\n<div class=\"c0dd268bc c1e8176ab c388af5c7 c42740ba6 c9052b18c c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003 cda72d38d\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\nphone\n</span>\n</div>\n<div>\n<div class=\"c1e8176ab c42740ba6 c8a721dd8 c937ba156 ccae02ff2 cd9b20003\">\n<h3 class=\"c0d99ed10 c445db9b9\">\nCalled Jane\n</h3>\n<span class=\"c267fcecb c4647f690 c80b1c428 ce823b5bf\" style=\"white-space: nowrap\">\n2h ago\n</span>\n</div>\n<p class=\"c4647f690 ce823b5bf\">\nLeft a voicemail\n</p>\n</div>\n</div>\n<div class=\"c93250a05 cfc82911d\">\n<div class=\"c0dd268bc c1e8176ab c388af5c7 c42740ba6 c9052b18c c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003 cda72d38d\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\nevent\n</span>\n</div>\n<div>\n<div class=\"c1e8176ab c42740ba6 c8a721dd8 c937ba156 ccae02ff2 cd9b20003\">\n<h3 class=\"c0d99ed10 c445db9b9\">\nEmailed Bob\n</h3>\n<span class=\"c267fcecb c4647f690 c80b1c428 ce823b5bf\" style=\"white-space: nowrap\">\nYesterday\n</span>\n</div>\n</div>\n</div>\n<div class=\"c93250a05 cfc82911d\">\n<div class=\"c0dd268bc c1e8176ab c388af5c7 c42740ba6 c9052b18c c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003 cda72d38d\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\nevent\n</span>\n</div>\n<div>\n<div class=\"c1e8176ab c42740ba6 c8a721dd8 c937ba156 ccae02ff2 cd9b20003\">\n<h3 class=\"c0d99ed10 c445db9b9\">\nSigned contract\n</h3>\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "the className is removed": {
+    "snapshots": [
+     "<div class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 c97d61bf0 cc26cbf54 cd75bbd18\">\n<div class=\"c2cbb8333 c9f66f1da cbaac6b89 ccae02ff2 cfc82911d\">\n<span aria-hidden=\"true\" class=\"cfde19efb\" style=\"bottom: 0.5rem; left: 0.75rem; position: absolute; top: 0.5rem; width: 1px\">\n</span>\n<div class=\"c93250a05 cfc82911d\">\n<div class=\"c0dd268bc c1e8176ab c388af5c7 c42740ba6 c9052b18c c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003 cda72d38d\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\nevent\n</span>\n</div>\n<div>\n<div class=\"c1e8176ab c42740ba6 c8a721dd8 c937ba156 ccae02ff2 cd9b20003\">\n<h3 class=\"c0d99ed10 c445db9b9\">\nCalled Jane\n</h3>\n<span class=\"c267fcecb c4647f690 c80b1c428 ce823b5bf\" style=\"white-space: nowrap\">\n2h ago\n</span>\n</div>\n<p class=\"c4647f690 ce823b5bf\">\nLeft a voicemail\n</p>\n</div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 c97d61bf0 cc26cbf54\">\n<div class=\"c2cbb8333 c9f66f1da cbaac6b89 ccae02ff2 cfc82911d\">\n<span aria-hidden=\"true\" class=\"cfde19efb\" style=\"bottom: 0.5rem; left: 0.75rem; position: absolute; top: 0.5rem; width: 1px\">\n</span>\n<div class=\"c93250a05 cfc82911d\">\n<div class=\"c0dd268bc c1e8176ab c388af5c7 c42740ba6 c9052b18c c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003 cda72d38d\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\nevent\n</span>\n</div>\n<div>\n<div class=\"c1e8176ab c42740ba6 c8a721dd8 c937ba156 ccae02ff2 cd9b20003\">\n<h3 class=\"c0d99ed10 c445db9b9\">\nCalled Jane\n</h3>\n<span class=\"c267fcecb c4647f690 c80b1c428 ce823b5bf\" style=\"white-space: nowrap\">\n2h ago\n</span>\n</div>\n<p class=\"c4647f690 ce823b5bf\">\nLeft a voicemail\n</p>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "no events, then a locale switch": {
+    "snapshots": [
+     "<div class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 c97d61bf0 cc26cbf54\">\n<div class=\"c2cbb8333 c9f66f1da cbaac6b89 ccae02ff2 cfc82911d\">\n<span aria-hidden=\"true\" class=\"cfde19efb\" style=\"bottom: 0.5rem; left: 0.75rem; position: absolute; top: 0.5rem; width: 1px\">\n</span>\n</div>\n</div>\n@route /",
+     "<div class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 c97d61bf0 cc26cbf54\">\n<div class=\"c2cbb8333 c9f66f1da cbaac6b89 ccae02ff2 cfc82911d\">\n<span aria-hidden=\"true\" class=\"cfde19efb\" style=\"bottom: 0.5rem; left: 0.75rem; position: absolute; top: 0.5rem; width: 1px\">\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "three events with no tone map, then events again as equal new objects": {
+    "snapshots": [
+     "<div class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 c97d61bf0 cc26cbf54\">\n<div class=\"c2cbb8333 c9f66f1da cbaac6b89 ccae02ff2 cfc82911d\">\n<span aria-hidden=\"true\" class=\"cfde19efb\" style=\"bottom: 0.5rem; left: 0.75rem; position: absolute; top: 0.5rem; width: 1px\">\n</span>\n<div class=\"c93250a05 cfc82911d\">\n<div class=\"c0dd268bc c1e8176ab c388af5c7 c42740ba6 c9052b18c c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003 cda72d38d\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\nevent\n</span>\n</div>\n<div>\n<div class=\"c1e8176ab c42740ba6 c8a721dd8 c937ba156 ccae02ff2 cd9b20003\">\n<h3 class=\"c0d99ed10 c445db9b9\">\nCalled Jane\n</h3>\n<span class=\"c267fcecb c4647f690 c80b1c428 ce823b5bf\" style=\"white-space: nowrap\">\n2h ago\n</span>\n</div>\n<p class=\"c4647f690 ce823b5bf\">\nLeft a voicemail\n</p>\n</div>\n</div>\n<div class=\"c93250a05 cfc82911d\">\n<div class=\"c0dd268bc c1e8176ab c388af5c7 c42740ba6 c9052b18c c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003 cda72d38d\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\nevent\n</span>\n</div>\n<div>\n<div class=\"c1e8176ab c42740ba6 c8a721dd8 c937ba156 ccae02ff2 cd9b20003\">\n<h3 class=\"c0d99ed10 c445db9b9\">\nEmailed Bob\n</h3>\n<span class=\"c267fcecb c4647f690 c80b1c428 ce823b5bf\" style=\"white-space: nowrap\">\nYesterday\n</span>\n</div>\n</div>\n</div>\n<div class=\"c93250a05 cfc82911d\">\n<div class=\"c0dd268bc c1e8176ab c388af5c7 c42740ba6 c9052b18c c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003 cda72d38d\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\nevent\n</span>\n</div>\n<div>\n<div class=\"c1e8176ab c42740ba6 c8a721dd8 c937ba156 ccae02ff2 cd9b20003\">\n<h3 class=\"c0d99ed10 c445db9b9\">\nSigned contract\n</h3>\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 c97d61bf0 cc26cbf54\">\n<div class=\"c2cbb8333 c9f66f1da cbaac6b89 ccae02ff2 cfc82911d\">\n<span aria-hidden=\"true\" class=\"cfde19efb\" style=\"bottom: 0.5rem; left: 0.75rem; position: absolute; top: 0.5rem; width: 1px\">\n</span>\n<div class=\"c93250a05 cfc82911d\" data-conformance-mark=\"0\">\n<div class=\"c0dd268bc c1e8176ab c388af5c7 c42740ba6 c9052b18c c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003 cda72d38d\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\nevent\n</span>\n</div>\n<div>\n<div class=\"c1e8176ab c42740ba6 c8a721dd8 c937ba156 ccae02ff2 cd9b20003\">\n<h3 class=\"c0d99ed10 c445db9b9\">\nCalled Jane\n</h3>\n<span class=\"c267fcecb c4647f690 c80b1c428 ce823b5bf\" style=\"white-space: nowrap\">\n2h ago\n</span>\n</div>\n<p class=\"c4647f690 ce823b5bf\">\nLeft a voicemail\n</p>\n</div>\n</div>\n<div class=\"c93250a05 cfc82911d\" data-conformance-mark=\"1\">\n<div class=\"c0dd268bc c1e8176ab c388af5c7 c42740ba6 c9052b18c c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003 cda72d38d\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\nevent\n</span>\n</div>\n<div>\n<div class=\"c1e8176ab c42740ba6 c8a721dd8 c937ba156 ccae02ff2 cd9b20003\">\n<h3 class=\"c0d99ed10 c445db9b9\">\nEmailed Bob\n</h3>\n<span class=\"c267fcecb c4647f690 c80b1c428 ce823b5bf\" style=\"white-space: nowrap\">\nYesterday\n</span>\n</div>\n</div>\n</div>\n<div class=\"c93250a05 cfc82911d\" data-conformance-mark=\"2\">\n<div class=\"c0dd268bc c1e8176ab c388af5c7 c42740ba6 c9052b18c c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003 cda72d38d\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\nevent\n</span>\n</div>\n<div>\n<div class=\"c1e8176ab c42740ba6 c8a721dd8 c937ba156 ccae02ff2 cd9b20003\">\n<h3 class=\"c0d99ed10 c445db9b9\">\nSigned contract\n</h3>\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 c97d61bf0 cc26cbf54\">\n<div class=\"c2cbb8333 c9f66f1da cbaac6b89 ccae02ff2 cfc82911d\">\n<span aria-hidden=\"true\" class=\"cfde19efb\" style=\"bottom: 0.5rem; left: 0.75rem; position: absolute; top: 0.5rem; width: 1px\">\n</span>\n<div class=\"c93250a05 cfc82911d\" data-conformance-mark=\"0\">\n<div class=\"c0dd268bc c1e8176ab c388af5c7 c42740ba6 c9052b18c c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003 cda72d38d\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\nevent\n</span>\n</div>\n<div>\n<div class=\"c1e8176ab c42740ba6 c8a721dd8 c937ba156 ccae02ff2 cd9b20003\">\n<h3 class=\"c0d99ed10 c445db9b9\">\nCalled Jane\n</h3>\n<span class=\"c267fcecb c4647f690 c80b1c428 ce823b5bf\" style=\"white-space: nowrap\">\n2h ago\n</span>\n</div>\n<p class=\"c4647f690 ce823b5bf\">\nLeft a voicemail\n</p>\n</div>\n</div>\n<div class=\"c93250a05 cfc82911d\" data-conformance-mark=\"1\">\n<div class=\"c0dd268bc c1e8176ab c388af5c7 c42740ba6 c9052b18c c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003 cda72d38d\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\nevent\n</span>\n</div>\n<div>\n<div class=\"c1e8176ab c42740ba6 c8a721dd8 c937ba156 ccae02ff2 cd9b20003\">\n<h3 class=\"c0d99ed10 c445db9b9\">\nEmailed Bob\n</h3>\n<span class=\"c267fcecb c4647f690 c80b1c428 ce823b5bf\" style=\"white-space: nowrap\">\nYesterday\n</span>\n</div>\n</div>\n</div>\n<div class=\"c93250a05 cfc82911d\" data-conformance-mark=\"2\">\n<div class=\"c0dd268bc c1e8176ab c388af5c7 c42740ba6 c9052b18c c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003 cda72d38d\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\nevent\n</span>\n</div>\n<div>\n<div class=\"c1e8176ab c42740ba6 c8a721dd8 c937ba156 ccae02ff2 cd9b20003\">\n<h3 class=\"c0d99ed10 c445db9b9\">\nSigned contract\n</h3>\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "three events with no tone map, then events reversed": {
+    "snapshots": [
+     "<div class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 c97d61bf0 cc26cbf54\">\n<div class=\"c2cbb8333 c9f66f1da cbaac6b89 ccae02ff2 cfc82911d\">\n<span aria-hidden=\"true\" class=\"cfde19efb\" style=\"bottom: 0.5rem; left: 0.75rem; position: absolute; top: 0.5rem; width: 1px\">\n</span>\n<div class=\"c93250a05 cfc82911d\">\n<div class=\"c0dd268bc c1e8176ab c388af5c7 c42740ba6 c9052b18c c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003 cda72d38d\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\nevent\n</span>\n</div>\n<div>\n<div class=\"c1e8176ab c42740ba6 c8a721dd8 c937ba156 ccae02ff2 cd9b20003\">\n<h3 class=\"c0d99ed10 c445db9b9\">\nCalled Jane\n</h3>\n<span class=\"c267fcecb c4647f690 c80b1c428 ce823b5bf\" style=\"white-space: nowrap\">\n2h ago\n</span>\n</div>\n<p class=\"c4647f690 ce823b5bf\">\nLeft a voicemail\n</p>\n</div>\n</div>\n<div class=\"c93250a05 cfc82911d\">\n<div class=\"c0dd268bc c1e8176ab c388af5c7 c42740ba6 c9052b18c c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003 cda72d38d\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\nevent\n</span>\n</div>\n<div>\n<div class=\"c1e8176ab c42740ba6 c8a721dd8 c937ba156 ccae02ff2 cd9b20003\">\n<h3 class=\"c0d99ed10 c445db9b9\">\nEmailed Bob\n</h3>\n<span class=\"c267fcecb c4647f690 c80b1c428 ce823b5bf\" style=\"white-space: nowrap\">\nYesterday\n</span>\n</div>\n</div>\n</div>\n<div class=\"c93250a05 cfc82911d\">\n<div class=\"c0dd268bc c1e8176ab c388af5c7 c42740ba6 c9052b18c c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003 cda72d38d\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\nevent\n</span>\n</div>\n<div>\n<div class=\"c1e8176ab c42740ba6 c8a721dd8 c937ba156 ccae02ff2 cd9b20003\">\n<h3 class=\"c0d99ed10 c445db9b9\">\nSigned contract\n</h3>\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 c97d61bf0 cc26cbf54\">\n<div class=\"c2cbb8333 c9f66f1da cbaac6b89 ccae02ff2 cfc82911d\">\n<span aria-hidden=\"true\" class=\"cfde19efb\" style=\"bottom: 0.5rem; left: 0.75rem; position: absolute; top: 0.5rem; width: 1px\">\n</span>\n<div class=\"c93250a05 cfc82911d\" data-conformance-mark=\"0\">\n<div class=\"c0dd268bc c1e8176ab c388af5c7 c42740ba6 c9052b18c c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003 cda72d38d\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\nevent\n</span>\n</div>\n<div>\n<div class=\"c1e8176ab c42740ba6 c8a721dd8 c937ba156 ccae02ff2 cd9b20003\">\n<h3 class=\"c0d99ed10 c445db9b9\">\nCalled Jane\n</h3>\n<span class=\"c267fcecb c4647f690 c80b1c428 ce823b5bf\" style=\"white-space: nowrap\">\n2h ago\n</span>\n</div>\n<p class=\"c4647f690 ce823b5bf\">\nLeft a voicemail\n</p>\n</div>\n</div>\n<div class=\"c93250a05 cfc82911d\" data-conformance-mark=\"1\">\n<div class=\"c0dd268bc c1e8176ab c388af5c7 c42740ba6 c9052b18c c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003 cda72d38d\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\nevent\n</span>\n</div>\n<div>\n<div class=\"c1e8176ab c42740ba6 c8a721dd8 c937ba156 ccae02ff2 cd9b20003\">\n<h3 class=\"c0d99ed10 c445db9b9\">\nEmailed Bob\n</h3>\n<span class=\"c267fcecb c4647f690 c80b1c428 ce823b5bf\" style=\"white-space: nowrap\">\nYesterday\n</span>\n</div>\n</div>\n</div>\n<div class=\"c93250a05 cfc82911d\" data-conformance-mark=\"2\">\n<div class=\"c0dd268bc c1e8176ab c388af5c7 c42740ba6 c9052b18c c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003 cda72d38d\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\nevent\n</span>\n</div>\n<div>\n<div class=\"c1e8176ab c42740ba6 c8a721dd8 c937ba156 ccae02ff2 cd9b20003\">\n<h3 class=\"c0d99ed10 c445db9b9\">\nSigned contract\n</h3>\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 c97d61bf0 cc26cbf54\">\n<div class=\"c2cbb8333 c9f66f1da cbaac6b89 ccae02ff2 cfc82911d\">\n<span aria-hidden=\"true\" class=\"cfde19efb\" style=\"bottom: 0.5rem; left: 0.75rem; position: absolute; top: 0.5rem; width: 1px\">\n</span>\n<div class=\"c93250a05 cfc82911d\" data-conformance-mark=\"2\">\n<div class=\"c0dd268bc c1e8176ab c388af5c7 c42740ba6 c9052b18c c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003 cda72d38d\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\nevent\n</span>\n</div>\n<div>\n<div class=\"c1e8176ab c42740ba6 c8a721dd8 c937ba156 ccae02ff2 cd9b20003\">\n<h3 class=\"c0d99ed10 c445db9b9\">\nSigned contract\n</h3>\n</div>\n</div>\n</div>\n<div class=\"c93250a05 cfc82911d\" data-conformance-mark=\"1\">\n<div class=\"c0dd268bc c1e8176ab c388af5c7 c42740ba6 c9052b18c c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003 cda72d38d\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\nevent\n</span>\n</div>\n<div>\n<div class=\"c1e8176ab c42740ba6 c8a721dd8 c937ba156 ccae02ff2 cd9b20003\">\n<h3 class=\"c0d99ed10 c445db9b9\">\nEmailed Bob\n</h3>\n<span class=\"c267fcecb c4647f690 c80b1c428 ce823b5bf\" style=\"white-space: nowrap\">\nYesterday\n</span>\n</div>\n</div>\n</div>\n<div class=\"c93250a05 cfc82911d\" data-conformance-mark=\"0\">\n<div class=\"c0dd268bc c1e8176ab c388af5c7 c42740ba6 c9052b18c c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003 cda72d38d\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\nevent\n</span>\n</div>\n<div>\n<div class=\"c1e8176ab c42740ba6 c8a721dd8 c937ba156 ccae02ff2 cd9b20003\">\n<h3 class=\"c0d99ed10 c445db9b9\">\nCalled Jane\n</h3>\n<span class=\"c267fcecb c4647f690 c80b1c428 ce823b5bf\" style=\"white-space: nowrap\">\n2h ago\n</span>\n</div>\n<p class=\"c4647f690 ce823b5bf\">\nLeft a voicemail\n</p>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   }
+  },
+  "ActivityTimelineDot": {
+   "the default tone": {
+    "snapshots": [
+     "<div class=\"c0dd268bc c1e8176ab c388af5c7 c42740ba6 c9052b18c c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003 cda72d38d\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\nevent\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a consumer tone with both class overrides": {
+    "snapshots": [
+     "<div class=\"c0dd268bc c1e8176ab c42740ba6 c79cdb03d c9052b18c c9773cd2b c977c65f3 cc1672728 ccae02ff2 cd34f1515 cd9b20003\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\ncall\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "empty class overrides emit no token": {
+    "snapshots": [
+     "<div class=\"c0dd268bc c1e8176ab c42740ba6 c9052b18c c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\nmail\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "className passthrough": {
+    "snapshots": [
+     "<div class=\"c0dd268bc c1e8176ab c388af5c7 c42740ba6 c9052b18c c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd75bbd18 cd9b20003 cda72d38d\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\nevent\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "the tone changes": {
+    "snapshots": [
+     "<div class=\"c0dd268bc c1e8176ab c388af5c7 c42740ba6 c9052b18c c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003 cda72d38d\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\nevent\n</span>\n</div>\n@route /",
+     "<div class=\"c0dd268bc c1e8176ab c388af5c7 c42740ba6 c9052b18c c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003 cda72d38d\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\nmail\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "the class overrides are removed": {
+    "snapshots": [
+     "<div class=\"c0dd268bc c1e8176ab c42740ba6 c79cdb03d c9052b18c c9773cd2b c977c65f3 cc1672728 ccae02ff2 cd34f1515 cd9b20003\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\ncall\n</span>\n</div>\n@route /",
+     "<div class=\"c0dd268bc c1e8176ab c388af5c7 c42740ba6 c9052b18c c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003 cda72d38d\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\nevent\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "the default tone, then a locale switch": {
+    "snapshots": [
+     "<div class=\"c0dd268bc c1e8176ab c388af5c7 c42740ba6 c9052b18c c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003 cda72d38d\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\nevent\n</span>\n</div>\n@route /",
+     "<div class=\"c0dd268bc c1e8176ab c388af5c7 c42740ba6 c9052b18c c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003 cda72d38d\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\nevent\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   }
+  },
+  "ActivityTimelineRow": {
+   "a title alone": {
+    "snapshots": [
+     "<div class=\"c93250a05 cfc82911d\">\n<div class=\"c0dd268bc c1e8176ab c388af5c7 c42740ba6 c9052b18c c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003 cda72d38d\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\ncall\n</span>\n</div>\n<div>\n<div class=\"c1e8176ab c42740ba6 c8a721dd8 c937ba156 ccae02ff2 cd9b20003\">\n<h3 class=\"c0d99ed10 c445db9b9\">\nCalled Jane\n</h3>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "an absent tone falls back to the default icon": {
+    "snapshots": [
+     "<div class=\"c93250a05 cfc82911d\">\n<div class=\"c0dd268bc c1e8176ab c388af5c7 c42740ba6 c9052b18c c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003 cda72d38d\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\nevent\n</span>\n</div>\n<div>\n<div class=\"c1e8176ab c42740ba6 c8a721dd8 c937ba156 ccae02ff2 cd9b20003\">\n<h3 class=\"c0d99ed10 c445db9b9\">\nCalled Jane\n</h3>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a meta label": {
+    "snapshots": [
+     "<div class=\"c93250a05 cfc82911d\">\n<div class=\"c0dd268bc c1e8176ab c388af5c7 c42740ba6 c9052b18c c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003 cda72d38d\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\ncall\n</span>\n</div>\n<div>\n<div class=\"c1e8176ab c42740ba6 c8a721dd8 c937ba156 ccae02ff2 cd9b20003\">\n<h3 class=\"c0d99ed10 c445db9b9\">\nCalled Jane\n</h3>\n<span class=\"c267fcecb c4647f690 c80b1c428 ce823b5bf\" style=\"white-space: nowrap\">\n2h ago\n</span>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a description": {
+    "snapshots": [
+     "<div class=\"c93250a05 cfc82911d\">\n<div class=\"c0dd268bc c1e8176ab c388af5c7 c42740ba6 c9052b18c c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003 cda72d38d\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\ncall\n</span>\n</div>\n<div>\n<div class=\"c1e8176ab c42740ba6 c8a721dd8 c937ba156 ccae02ff2 cd9b20003\">\n<h3 class=\"c0d99ed10 c445db9b9\">\nCalled Jane\n</h3>\n</div>\n<p class=\"c4647f690 ce823b5bf\">\nLeft a voicemail\n</p>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a footer node": {
+    "snapshots": [
+     "<div class=\"c93250a05 cfc82911d\">\n<div class=\"c0dd268bc c1e8176ab c388af5c7 c42740ba6 c9052b18c c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003 cda72d38d\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\ncall\n</span>\n</div>\n<div>\n<div class=\"c1e8176ab c42740ba6 c8a721dd8 c937ba156 ccae02ff2 cd9b20003\">\n<h3 class=\"c0d99ed10 c445db9b9\">\nCalled Jane\n</h3>\n</div>\n<span data-chip>\nvip\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "meta, description and footer together": {
+    "snapshots": [
+     "<div class=\"c93250a05 cfc82911d\">\n<div class=\"c0dd268bc c1e8176ab c388af5c7 c42740ba6 c9052b18c c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003 cda72d38d\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\ncall\n</span>\n</div>\n<div>\n<div class=\"c1e8176ab c42740ba6 c8a721dd8 c937ba156 ccae02ff2 cd9b20003\">\n<h3 class=\"c0d99ed10 c445db9b9\">\nCalled Jane\n</h3>\n<span class=\"c267fcecb c4647f690 c80b1c428 ce823b5bf\" style=\"white-space: nowrap\">\n2h ago\n</span>\n</div>\n<p class=\"c4647f690 ce823b5bf\">\nLeft a voicemail\n</p>\n<em>\nfollow up\n</em>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "node-valued title, meta and description": {
+    "snapshots": [
+     "<div class=\"c93250a05 cfc82911d\">\n<div class=\"c0dd268bc c1e8176ab c388af5c7 c42740ba6 c9052b18c c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003 cda72d38d\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\ncall\n</span>\n</div>\n<div>\n<div class=\"c1e8176ab c42740ba6 c8a721dd8 c937ba156 ccae02ff2 cd9b20003\">\n<h3 class=\"c0d99ed10 c445db9b9\">\n<strong>\nNia called\n</strong>\n</h3>\n<span class=\"c267fcecb c4647f690 c80b1c428 ce823b5bf\" style=\"white-space: nowrap\">\n<time>\n09:30\n</time>\n</span>\n</div>\n<p class=\"c4647f690 ce823b5bf\">\n<em>\nvoicemail\n</em>\n</p>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a wrapper renders the row inside it": {
+    "snapshots": [
+     "<div class=\"c93250a05 cfc82911d\">\n<a href=\"/activities/1\">\nwrapped row\n</a>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "the title changes": {
+    "snapshots": [
+     "<div class=\"c93250a05 cfc82911d\">\n<div class=\"c0dd268bc c1e8176ab c388af5c7 c42740ba6 c9052b18c c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003 cda72d38d\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\ncall\n</span>\n</div>\n<div>\n<div class=\"c1e8176ab c42740ba6 c8a721dd8 c937ba156 ccae02ff2 cd9b20003\">\n<h3 class=\"c0d99ed10 c445db9b9\">\nCalled Jane\n</h3>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c93250a05 cfc82911d\">\n<div class=\"c0dd268bc c1e8176ab c388af5c7 c42740ba6 c9052b18c c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003 cda72d38d\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\ncall\n</span>\n</div>\n<div>\n<div class=\"c1e8176ab c42740ba6 c8a721dd8 c937ba156 ccae02ff2 cd9b20003\">\n<h3 class=\"c0d99ed10 c445db9b9\">\nCalled Bob\n</h3>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "the description, meta and footer are removed": {
+    "snapshots": [
+     "<div class=\"c93250a05 cfc82911d\">\n<div class=\"c0dd268bc c1e8176ab c388af5c7 c42740ba6 c9052b18c c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003 cda72d38d\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\ncall\n</span>\n</div>\n<div>\n<div class=\"c1e8176ab c42740ba6 c8a721dd8 c937ba156 ccae02ff2 cd9b20003\">\n<h3 class=\"c0d99ed10 c445db9b9\">\nCalled Jane\n</h3>\n<span class=\"c267fcecb c4647f690 c80b1c428 ce823b5bf\" style=\"white-space: nowrap\">\n2h ago\n</span>\n</div>\n<p class=\"c4647f690 ce823b5bf\">\nLeft a voicemail\n</p>\n<em>\nfollow up\n</em>\n</div>\n</div>\n@route /",
+     "<div class=\"c93250a05 cfc82911d\">\n<div class=\"c0dd268bc c1e8176ab c388af5c7 c42740ba6 c9052b18c c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003 cda72d38d\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\ncall\n</span>\n</div>\n<div>\n<div class=\"c1e8176ab c42740ba6 c8a721dd8 c937ba156 ccae02ff2 cd9b20003\">\n<h3 class=\"c0d99ed10 c445db9b9\">\nCalled Jane\n</h3>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a title alone, then a locale switch": {
+    "snapshots": [
+     "<div class=\"c93250a05 cfc82911d\">\n<div class=\"c0dd268bc c1e8176ab c388af5c7 c42740ba6 c9052b18c c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003 cda72d38d\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\ncall\n</span>\n</div>\n<div>\n<div class=\"c1e8176ab c42740ba6 c8a721dd8 c937ba156 ccae02ff2 cd9b20003\">\n<h3 class=\"c0d99ed10 c445db9b9\">\nCalled Jane\n</h3>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c93250a05 cfc82911d\">\n<div class=\"c0dd268bc c1e8176ab c388af5c7 c42740ba6 c9052b18c c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003 cda72d38d\" style=\"left: 0px; top: 0px\">\n<span class=\"c4647f690 caeede141\">\ncall\n</span>\n</div>\n<div>\n<div class=\"c1e8176ab c42740ba6 c8a721dd8 c937ba156 ccae02ff2 cd9b20003\">\n<h3 class=\"c0d99ed10 c445db9b9\">\nCalled Jane\n</h3>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   }
+  }
+ }
+}

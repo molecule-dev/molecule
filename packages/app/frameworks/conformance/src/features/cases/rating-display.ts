@@ -59,7 +59,10 @@ export const ratingDisplayFeature: FeatureCases = {
           name: 'interactive with a review count',
           props: { value: 3, reviewCount: 12 },
           callbacks: ['onChange', 'onReviewsClick'],
-          interactions: [{ type: 'click', selector: 'button:nth-of-type(6)' }],
+          // The stars live in the component's inner span, so `nth-of-type`
+          // counts them separately; the review-count button is the star
+          // span's next sibling at the root.
+          interactions: [{ type: 'click', selector: 'span + button' }],
         },
         {
           name: 'interactive with a custom max',
@@ -112,7 +115,7 @@ export const ratingDisplayFeature: FeatureCases = {
           callbacks: ['onChange', 'onReviewsClick'],
           interactions: [
             { type: 'click', selector: 'button:nth-of-type(3)' },
-            { type: 'click', selector: 'button:nth-of-type(6)' },
+            { type: 'click', selector: 'span + button' },
           ],
         },
       ],

@@ -38,6 +38,7 @@ export function formatHour(hour: number): string {
  *   endHour={22}
  *   events={[
  *     { id: 'a', title: 'Stand-up', startHour: 9, endHour: 9.5 },
+ *     // data: the caller picks each event's accent, so the hex stays a literal.
  *     { id: 'b', title: 'Flight to LAX', startHour: 13, endHour: 16, accentColor: '#3366ff' },
  *   ]}
  * />
@@ -81,7 +82,6 @@ export function DayTimeline({
   const railStyle: CSSProperties = {
     position: 'relative',
     height: totalHeight,
-    borderLeft: showAxisLabels ? '1px solid var(--mol-color-outline, rgba(0,0,0,0.12))' : undefined,
   }
 
   return (
@@ -100,13 +100,12 @@ export function DayTimeline({
               <div
                 key={`tick-${h}`}
                 data-axis-tick={h}
-                className={cm.textSize('xs')}
+                className={cm.cn(cm.textSize('xs'), cm.textMuted)}
                 style={{
                   position: 'absolute',
                   top,
                   right: 8,
                   transform: 'translateY(-50%)',
-                  color: 'var(--mol-color-on-surface-variant, #666)',
                 }}
               >
                 {formatHour(h)}
@@ -116,20 +115,24 @@ export function DayTimeline({
         </div>
       )}
 
-      <div style={railStyle} data-mol-id="day-timeline-rail">
+      <div
+        className={showAxisLabels ? cm.borderL : undefined}
+        style={railStyle}
+        data-mol-id="day-timeline-rail"
+      >
         {ticks.map((h) => {
           const top = (h - safeStart) * pxPerHour
           return (
             <div
               key={`gridline-${h}`}
               aria-hidden
+              className={cm.bgBorder}
               style={{
                 position: 'absolute',
                 top,
                 left: 0,
                 right: 0,
                 height: 1,
-                background: 'var(--mol-color-outline, rgba(0,0,0,0.08))',
               }}
             />
           )
@@ -168,6 +171,11 @@ function DayEvent({ event, startHour, pxPerHour, t }: DayEventProps): ReactEleme
   const top = (event.startHour - startHour) * pxPerHour
   const height = Math.max(20, (safeEnd - event.startHour) * pxPerHour)
 
+  // The card's paper is the theme's secondary surface; the accent bar reads
+  // the event's own `accentColor` when it has one, and is the brand primary
+  // otherwise (the recipe's `primary` tone).
+  const tone = event.accentColor ? 'custom' : 'primary'
+
   // The listitem is a plain container (ARIA forbids a `listitem` to be a
   // button, and jsx-a11y forbids its handlers): it carries the card's
   // geometry and look only. The interaction lives on an inner element that
@@ -181,10 +189,10 @@ function DayEvent({ event, startHour, pxPerHour, t }: DayEventProps): ReactEleme
     height,
     borderRadius: 6,
     overflow: 'hidden',
-    background: 'var(--mol-color-surface-variant, rgba(0,0,0,0.04))',
     // The event's accent color drives an inset bar (DESIGN.md → "Accent
-    // bars"), not a hard border-left.
-    ['--mol-accent' as string]: event.accentColor ?? 'var(--mol-color-primary, #3366ff)',
+    // bars"), not a hard border-left. Without it the bar is the brand
+    // primary, through the recipe's `primary` tone.
+    ...(event.accentColor ? { ['--mol-accent' as string]: event.accentColor } : {}),
   }
 
   // Fills the card so the whole surface is the click target. The 30px left
@@ -212,9 +220,7 @@ function DayEvent({ event, startHour, pxPerHour, t }: DayEventProps): ReactEleme
   const content = (
     <>
       <div className={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>{event.title}</div>
-      {event.subtitle && (
-        <div className={cm.accentCardLabel({ tone: 'custom' })}>{event.subtitle}</div>
-      )}
+      {event.subtitle && <div className={cm.accentCardLabel({ tone })}>{event.subtitle}</div>}
     </>
   )
 
@@ -224,7 +230,7 @@ function DayEvent({ event, startHour, pxPerHour, t }: DayEventProps): ReactEleme
       data-event-id={event.id}
       data-mol-id="day-timeline-event"
       aria-label={ariaLabel}
-      className={cm.accentCard({ tone: 'custom' })}
+      className={cm.cn(cm.accentCard({ tone }), cm.surfaceSecondary)}
       style={cardStyle}
     >
       {event.onClick ? (

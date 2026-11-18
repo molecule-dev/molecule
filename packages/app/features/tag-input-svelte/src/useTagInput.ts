@@ -1,0 +1,199 @@
+/**
+ * Tag-entry behavior without markup (Svelte) — the Svelte counterpart of
+ * `@molecule/app-tag-input-react`'s `useTagInput`, with the same options and
+ * the same draft, `inputProps`, `add` and `remove` contract.
+ *
+ * @module
+ */
+
+import { get, type Readable, writable } from 'svelte/store'
+
+import type { TagInputFieldProps, UseTagInputOptions, UseTagInputResult } from './types.js'
+
+/**
+ * Default normalization: trims whitespace, rejects empty strings and duplicates.
+ *
+ * @param raw - The typed text.
+ * @param current - The tags already present.
+ * @returns The tag to add, or `null` to reject it.
+ */
+function defaultNormalize(raw: string, current: string[]): string | null {
+  const v = raw.trim()
+  if (!v) return null
+  if (current.includes(v)) return null
+  return v
+}
+
+/**
+ * Whether a value is a readable store (the read half of the Svelte store
+ * contract), so the options may arrive as one.
+ *
+ * @param value - The options, or a store of them.
+ * @returns True for a store.
+ */
+function isStore(
+  value: UseTagInputOptions | Readable<UseTagInputOptions>,
+): value is Readable<UseTagInputOptions> {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    typeof (value as { subscribe?: unknown }).subscribe === 'function'
+  )
+}
+
+/**
+ * Whether a key event is part of an active input-method composition. A caller
+ * may hand the hook React's synthetic event (`nativeEvent`) or a DOM event.
+ *
+ * @param e - The key event.
+ * @returns `true` while the input method owns the keystroke.
+ */
+function isComposing(e: KeyboardEvent): boolean {
+  const native = (e as { nativeEvent?: { isComposing?: boolean } }).nativeEvent
+  return e.isComposing === true || native?.isComposing === true
+}
+
+/**
+ * The value an input change event carries.
+ *
+ * @param e - The DOM change event.
+ * @returns The input's text.
+ */
+function inputValue(e: Event): string {
+  return (e.target as HTMLInputElement | null)?.value ?? ''
+}
+
+/**
+ * Tag-entry behavior without markup, for an app whose markup is already
+ * decided (a design system, a spec's selectors). Bind `$inputProps` onto your
+ * own `<input>` and render the tags however you need, calling `remove(i)` from
+ * your own remove control. `<TagInput>` is this hook plus default markup.
+ *
+ * Enter commits the draft and never submits an enclosing form: its default is
+ * canceled even when the draft is blank, rejected, or past `maxTags`. Comma and
+ * Tab commit a non-empty draft (an empty Tab keeps normal focus traversal);
+ * blur commits a non-empty draft; Backspace on an empty draft removes the last
+ * tag.
+ *
+ * @param options - The controlled tag list and its rules, or a store (or getter) of them so a component changed props reach the same hook instance.
+ * @returns The draft, input props and add/remove actions (see {@link UseTagInputResult}).
+ */
+export function useTagInput(
+  options: UseTagInputOptions | Readable<UseTagInputOptions> | (() => UseTagInputOptions),
+): UseTagInputResult {
+  const draft = writable('')
+  const currentDraft = { text: '' }
+  let pending: string[] | null = null
+
+  /**
+   * The options as they are now (a component's latest props).
+   * @returns The options.
+   */
+  const read = (): UseTagInputOptions => {
+    if (typeof options === 'function') return (options as () => UseTagInputOptions)()
+    return isStore(options) ? get(options) : options
+  }
+
+  /**
+   * The tag list an action works from: a proposal made in this same tick, or
+   * the controlled list.
+   * @returns The tags.
+   */
+  const tags = (): string[] => pending ?? read().value
+
+  /**
+   * The input props for the draft as it is now.
+   * @returns The props to bind onto the text field.
+   */
+  const fieldProps = (): TagInputFieldProps => ({
+    value: currentDraft.text,
+    onChange: (e: Event) => setDraft(inputValue(e)),
+    onKeyDown,
+    onBlur: () => {
+      if (currentDraft.text.trim()) commit()
+    },
+  })
+
+  const inputProps = writable<TagInputFieldProps>(fieldProps())
+
+  /**
+   * Replaces the draft immediately, including for another action in the same tick.
+   * @param next - The new draft text.
+   */
+  function setDraft(next: string): void {
+    currentDraft.text = next
+    draft.set(next)
+    inputProps.set(fieldProps())
+  }
+
+  /**
+   * Records a pending controlled change before notifying the parent.
+   * @param next - The next tag list.
+   */
+  function change(next: string[]): void {
+    pending = next
+    // The controlled owner re-renders (or declines) after this tick; a later
+    // action reconciles to its `value`, as React's insertion effect does.
+    queueMicrotask(() => {
+      pending = null
+    })
+    setDraft(currentDraft.text)
+    read().onChange(next)
+  }
+
+  /**
+   * Normalizes `raw` and appends it when accepted and under `maxTags`.
+   * @param raw - The text to add.
+   * @returns Whether a tag was added.
+   */
+  function add(raw: string): boolean {
+    const options = read()
+    const current = tags()
+    if (options.maxTags !== undefined && current.length >= options.maxTags) return false
+    const normalize = options.normalize ?? defaultNormalize
+    const next = normalize(raw, current)
+    if (next === null) return false
+    change([...current, next])
+    return true
+  }
+
+  /** Commits the draft (accepted or not) and clears it. */
+  function commit(): void {
+    const raw = currentDraft.text
+    setDraft('')
+    add(raw)
+  }
+
+  /**
+   * Enter/comma/Tab commit; Backspace on an empty draft removes the last tag.
+   * @param e - The key event from the text input.
+   */
+  function onKeyDown(e: KeyboardEvent): void {
+    // Enter can confirm an input-method composition before it is a tag delimiter.
+    if (isComposing(e)) return
+    const text = currentDraft.text
+    const current = tags()
+    if (e.key === 'Enter') {
+      // Always canceled: the browser's implicit submission would otherwise
+      // submit the enclosing form while the user is only adding a tag.
+      e.preventDefault()
+      if (text.trim()) commit()
+    } else if (e.key === ',' || e.key === 'Tab') {
+      if (text.trim()) {
+        e.preventDefault()
+        commit()
+      }
+    } else if (e.key === 'Backspace' && text === '' && current.length > 0) {
+      e.preventDefault()
+      change(current.slice(0, -1))
+    }
+  }
+
+  return {
+    draft,
+    setDraft,
+    inputProps,
+    add,
+    remove: (index) => change(tags().filter((_, j) => j !== index)),
+  }
+}

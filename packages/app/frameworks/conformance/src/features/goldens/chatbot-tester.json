@@ -1,0 +1,485 @@
+{
+ "exports": [
+  "ChatbotTester",
+  "ChatbotTesterInput",
+  "ChatbotTesterMessages"
+ ],
+ "values": {},
+ "cases": {
+  "ChatbotTester": {
+   "empty transcript with the default composer": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c42740ba6 c71a5c916 cb5823274 cbaac6b89 cc2d72006 ccae02ff2\">\n<div class=\"c913cd95a ca46eac0b cb5823274 cd4bf1eb3\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div>\n</div>\n</div>\n</div>\n<div class=\"c42740ba6 c5f14bce3 c64210d2f c913cd95a c9566e21c ca46eac0b cc2d72006 ccae02ff2 cd9b20003 cf0ca6c6e\">\n<textarea class=\"c0f638af6 c10cc0a1f c1d212117 c1f523237 c28ce3678 c2bf204c1 c445db9b9 c4b92e3a8 c8f3cd634 caa6eb57d cb5823274 cd037ccc6\" placeholder=\"Type a message…\" rows=\"1\" {value=\"\"}>\n</textarea>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"chatbot-tester-send\" disabled type=\"button\">\nSend\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "assistant and user messages, with and without a timestamp": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c42740ba6 c71a5c916 cb5823274 cbaac6b89 cc2d72006 ccae02ff2\">\n<div class=\"c913cd95a ca46eac0b cb5823274 cd4bf1eb3\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c2cbb8333 c42740ba6 cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c07a324cf c18b873b1 c445db9b9 c4f8fef6f c8f3cd634 caa6eb57d cd1dd5b6d ce6c94376\">\nHi there\n</div>\n</div>\n<div class=\"c117f3063 c2cbb8333 c42740ba6 ccae02ff2 cd9b20003\">\n<div class=\"c07a324cf c18b873b1 c445db9b9 c4f8fef6f c7f6faa75 c8f3cd634 c973b6d5b caa6eb57d\">\nHello\n<div class=\"c4647f690 c544e0d93 c99fc28ae\">\n10:00\n</div>\n</div>\n</div>\n<div>\n</div>\n</div>\n</div>\n<div class=\"c42740ba6 c5f14bce3 c64210d2f c913cd95a c9566e21c ca46eac0b cc2d72006 ccae02ff2 cd9b20003 cf0ca6c6e\">\n<textarea class=\"c0f638af6 c10cc0a1f c1d212117 c1f523237 c28ce3678 c2bf204c1 c445db9b9 c4b92e3a8 c8f3cd634 caa6eb57d cb5823274 cd037ccc6\" placeholder=\"Type a message…\" rows=\"1\" {value=\"\"}>\n</textarea>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"chatbot-tester-send\" disabled type=\"button\">\nSend\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a system message renders as a bot bubble": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c42740ba6 c71a5c916 cb5823274 cbaac6b89 cc2d72006 ccae02ff2\">\n<div class=\"c913cd95a ca46eac0b cb5823274 cd4bf1eb3\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c2cbb8333 c42740ba6 cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c07a324cf c18b873b1 c445db9b9 c4f8fef6f c8f3cd634 caa6eb57d cd1dd5b6d ce6c94376\">\nSystem note\n<div class=\"c052585d2 c4647f690 c99fc28ae\">\n09:00\n</div>\n</div>\n</div>\n<div>\n</div>\n</div>\n</div>\n<div class=\"c42740ba6 c5f14bce3 c64210d2f c913cd95a c9566e21c ca46eac0b cc2d72006 ccae02ff2 cd9b20003 cf0ca6c6e\">\n<textarea class=\"c0f638af6 c10cc0a1f c1d212117 c1f523237 c28ce3678 c2bf204c1 c445db9b9 c4b92e3a8 c8f3cd634 caa6eb57d cb5823274 cd037ccc6\" placeholder=\"Type a message…\" rows=\"1\" {value=\"\"}>\n</textarea>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"chatbot-tester-send\" disabled type=\"button\">\nSend\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "typing enables send and Enter sends the trimmed text": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c42740ba6 c71a5c916 cb5823274 cbaac6b89 cc2d72006 ccae02ff2\">\n<div class=\"c913cd95a ca46eac0b cb5823274 cd4bf1eb3\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div>\n</div>\n</div>\n</div>\n<div class=\"c42740ba6 c5f14bce3 c64210d2f c913cd95a c9566e21c ca46eac0b cc2d72006 ccae02ff2 cd9b20003 cf0ca6c6e\">\n<textarea class=\"c0f638af6 c10cc0a1f c1d212117 c1f523237 c28ce3678 c2bf204c1 c445db9b9 c4b92e3a8 c8f3cd634 caa6eb57d cb5823274 cd037ccc6\" placeholder=\"Type a message…\" rows=\"1\" {value=\"\"}>\n</textarea>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"chatbot-tester-send\" disabled type=\"button\">\nSend\n</button>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c42740ba6 c71a5c916 cb5823274 cbaac6b89 cc2d72006 ccae02ff2\">\n<div class=\"c913cd95a ca46eac0b cb5823274 cd4bf1eb3\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div>\n</div>\n</div>\n</div>\n<div class=\"c42740ba6 c5f14bce3 c64210d2f c913cd95a c9566e21c ca46eac0b cc2d72006 ccae02ff2 cd9b20003 cf0ca6c6e\">\n<textarea class=\"c0f638af6 c10cc0a1f c1d212117 c1f523237 c28ce3678 c2bf204c1 c445db9b9 c4b92e3a8 c8f3cd634 caa6eb57d cb5823274 cd037ccc6\" placeholder=\"Type a message…\" rows=\"1\" {value=\"  Hello  \"}>\n</textarea>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"chatbot-tester-send\" type=\"button\">\nSend\n</button>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c42740ba6 c71a5c916 cb5823274 cbaac6b89 cc2d72006 ccae02ff2\">\n<div class=\"c913cd95a ca46eac0b cb5823274 cd4bf1eb3\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div>\n</div>\n</div>\n</div>\n<div class=\"c42740ba6 c5f14bce3 c64210d2f c913cd95a c9566e21c ca46eac0b cc2d72006 ccae02ff2 cd9b20003 cf0ca6c6e\">\n<textarea class=\"c0f638af6 c10cc0a1f c1d212117 c1f523237 c28ce3678 c2bf204c1 c445db9b9 c4b92e3a8 c8f3cd634 caa6eb57d cb5823274 cd037ccc6\" placeholder=\"Type a message…\" rows=\"1\" {value=\"\"}>\n</textarea>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"chatbot-tester-send\" disabled type=\"button\">\nSend\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onSend",
+      "args": [
+       "Hello"
+      ]
+     }
+    ]
+   },
+   "Shift+Enter does not send": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c42740ba6 c71a5c916 cb5823274 cbaac6b89 cc2d72006 ccae02ff2\">\n<div class=\"c913cd95a ca46eac0b cb5823274 cd4bf1eb3\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div>\n</div>\n</div>\n</div>\n<div class=\"c42740ba6 c5f14bce3 c64210d2f c913cd95a c9566e21c ca46eac0b cc2d72006 ccae02ff2 cd9b20003 cf0ca6c6e\">\n<textarea class=\"c0f638af6 c10cc0a1f c1d212117 c1f523237 c28ce3678 c2bf204c1 c445db9b9 c4b92e3a8 c8f3cd634 caa6eb57d cb5823274 cd037ccc6\" placeholder=\"Type a message…\" rows=\"1\" {value=\"\"}>\n</textarea>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"chatbot-tester-send\" disabled type=\"button\">\nSend\n</button>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c42740ba6 c71a5c916 cb5823274 cbaac6b89 cc2d72006 ccae02ff2\">\n<div class=\"c913cd95a ca46eac0b cb5823274 cd4bf1eb3\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div>\n</div>\n</div>\n</div>\n<div class=\"c42740ba6 c5f14bce3 c64210d2f c913cd95a c9566e21c ca46eac0b cc2d72006 ccae02ff2 cd9b20003 cf0ca6c6e\">\n<textarea class=\"c0f638af6 c10cc0a1f c1d212117 c1f523237 c28ce3678 c2bf204c1 c445db9b9 c4b92e3a8 c8f3cd634 caa6eb57d cb5823274 cd037ccc6\" placeholder=\"Type a message…\" rows=\"1\" {value=\"line one\"}>\n</textarea>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"chatbot-tester-send\" type=\"button\">\nSend\n</button>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c42740ba6 c71a5c916 cb5823274 cbaac6b89 cc2d72006 ccae02ff2\">\n<div class=\"c913cd95a ca46eac0b cb5823274 cd4bf1eb3\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div>\n</div>\n</div>\n</div>\n<div class=\"c42740ba6 c5f14bce3 c64210d2f c913cd95a c9566e21c ca46eac0b cc2d72006 ccae02ff2 cd9b20003 cf0ca6c6e\">\n<textarea class=\"c0f638af6 c10cc0a1f c1d212117 c1f523237 c28ce3678 c2bf204c1 c445db9b9 c4b92e3a8 c8f3cd634 caa6eb57d cb5823274 cd037ccc6\" placeholder=\"Type a message…\" rows=\"1\" {value=\"line one\"}>\n</textarea>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"chatbot-tester-send\" type=\"button\">\nSend\n</button>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c42740ba6 c71a5c916 cb5823274 cbaac6b89 cc2d72006 ccae02ff2\">\n<div class=\"c913cd95a ca46eac0b cb5823274 cd4bf1eb3\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div>\n</div>\n</div>\n</div>\n<div class=\"c42740ba6 c5f14bce3 c64210d2f c913cd95a c9566e21c ca46eac0b cc2d72006 ccae02ff2 cd9b20003 cf0ca6c6e\">\n<textarea class=\"c0f638af6 c10cc0a1f c1d212117 c1f523237 c28ce3678 c2bf204c1 c445db9b9 c4b92e3a8 c8f3cd634 caa6eb57d cb5823274 cd037ccc6\" placeholder=\"Type a message…\" rows=\"1\" {value=\"line one\"}>\n</textarea>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"chatbot-tester-send\" type=\"button\">\nSend\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "Enter with only whitespace sends nothing": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c42740ba6 c71a5c916 cb5823274 cbaac6b89 cc2d72006 ccae02ff2\">\n<div class=\"c913cd95a ca46eac0b cb5823274 cd4bf1eb3\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div>\n</div>\n</div>\n</div>\n<div class=\"c42740ba6 c5f14bce3 c64210d2f c913cd95a c9566e21c ca46eac0b cc2d72006 ccae02ff2 cd9b20003 cf0ca6c6e\">\n<textarea class=\"c0f638af6 c10cc0a1f c1d212117 c1f523237 c28ce3678 c2bf204c1 c445db9b9 c4b92e3a8 c8f3cd634 caa6eb57d cb5823274 cd037ccc6\" placeholder=\"Type a message…\" rows=\"1\" {value=\"\"}>\n</textarea>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"chatbot-tester-send\" disabled type=\"button\">\nSend\n</button>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c42740ba6 c71a5c916 cb5823274 cbaac6b89 cc2d72006 ccae02ff2\">\n<div class=\"c913cd95a ca46eac0b cb5823274 cd4bf1eb3\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div>\n</div>\n</div>\n</div>\n<div class=\"c42740ba6 c5f14bce3 c64210d2f c913cd95a c9566e21c ca46eac0b cc2d72006 ccae02ff2 cd9b20003 cf0ca6c6e\">\n<textarea class=\"c0f638af6 c10cc0a1f c1d212117 c1f523237 c28ce3678 c2bf204c1 c445db9b9 c4b92e3a8 c8f3cd634 caa6eb57d cb5823274 cd037ccc6\" placeholder=\"Type a message…\" rows=\"1\" {value=\"   \"}>\n</textarea>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"chatbot-tester-send\" disabled type=\"button\">\nSend\n</button>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c42740ba6 c71a5c916 cb5823274 cbaac6b89 cc2d72006 ccae02ff2\">\n<div class=\"c913cd95a ca46eac0b cb5823274 cd4bf1eb3\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div>\n</div>\n</div>\n</div>\n<div class=\"c42740ba6 c5f14bce3 c64210d2f c913cd95a c9566e21c ca46eac0b cc2d72006 ccae02ff2 cd9b20003 cf0ca6c6e\">\n<textarea class=\"c0f638af6 c10cc0a1f c1d212117 c1f523237 c28ce3678 c2bf204c1 c445db9b9 c4b92e3a8 c8f3cd634 caa6eb57d cb5823274 cd037ccc6\" placeholder=\"Type a message…\" rows=\"1\" {value=\"   \"}>\n</textarea>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"chatbot-tester-send\" disabled type=\"button\">\nSend\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "clicking send sends and clears the composer": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c42740ba6 c71a5c916 cb5823274 cbaac6b89 cc2d72006 ccae02ff2\">\n<div class=\"c913cd95a ca46eac0b cb5823274 cd4bf1eb3\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div>\n</div>\n</div>\n</div>\n<div class=\"c42740ba6 c5f14bce3 c64210d2f c913cd95a c9566e21c ca46eac0b cc2d72006 ccae02ff2 cd9b20003 cf0ca6c6e\">\n<textarea class=\"c0f638af6 c10cc0a1f c1d212117 c1f523237 c28ce3678 c2bf204c1 c445db9b9 c4b92e3a8 c8f3cd634 caa6eb57d cb5823274 cd037ccc6\" placeholder=\"Type a message…\" rows=\"1\" {value=\"\"}>\n</textarea>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"chatbot-tester-send\" disabled type=\"button\">\nSend\n</button>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c42740ba6 c71a5c916 cb5823274 cbaac6b89 cc2d72006 ccae02ff2\">\n<div class=\"c913cd95a ca46eac0b cb5823274 cd4bf1eb3\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div>\n</div>\n</div>\n</div>\n<div class=\"c42740ba6 c5f14bce3 c64210d2f c913cd95a c9566e21c ca46eac0b cc2d72006 ccae02ff2 cd9b20003 cf0ca6c6e\">\n<textarea class=\"c0f638af6 c10cc0a1f c1d212117 c1f523237 c28ce3678 c2bf204c1 c445db9b9 c4b92e3a8 c8f3cd634 caa6eb57d cb5823274 cd037ccc6\" placeholder=\"Type a message…\" rows=\"1\" {value=\"Hey\"}>\n</textarea>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"chatbot-tester-send\" type=\"button\">\nSend\n</button>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c42740ba6 c71a5c916 cb5823274 cbaac6b89 cc2d72006 ccae02ff2\">\n<div class=\"c913cd95a ca46eac0b cb5823274 cd4bf1eb3\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div>\n</div>\n</div>\n</div>\n<div class=\"c42740ba6 c5f14bce3 c64210d2f c913cd95a c9566e21c ca46eac0b cc2d72006 ccae02ff2 cd9b20003 cf0ca6c6e\">\n<textarea class=\"c0f638af6 c10cc0a1f c1d212117 c1f523237 c28ce3678 c2bf204c1 c445db9b9 c4b92e3a8 c8f3cd634 caa6eb57d cb5823274 cd037ccc6\" placeholder=\"Type a message…\" rows=\"1\" {value=\"\"}>\n</textarea>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"chatbot-tester-send\" disabled type=\"button\">\nSend\n</button>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c42740ba6 c71a5c916 cb5823274 cbaac6b89 cc2d72006 ccae02ff2\">\n<div class=\"c913cd95a ca46eac0b cb5823274 cd4bf1eb3\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div>\n</div>\n</div>\n</div>\n<div class=\"c42740ba6 c5f14bce3 c64210d2f c913cd95a c9566e21c ca46eac0b cc2d72006 ccae02ff2 cd9b20003 cf0ca6c6e\">\n<textarea class=\"c0f638af6 c10cc0a1f c1d212117 c1f523237 c28ce3678 c2bf204c1 c445db9b9 c4b92e3a8 c8f3cd634 caa6eb57d cb5823274 cd037ccc6\" placeholder=\"Type a message…\" rows=\"1\" {value=\"Again\"}>\n</textarea>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"chatbot-tester-send\" type=\"button\">\nSend\n</button>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c42740ba6 c71a5c916 cb5823274 cbaac6b89 cc2d72006 ccae02ff2\">\n<div class=\"c913cd95a ca46eac0b cb5823274 cd4bf1eb3\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div>\n</div>\n</div>\n</div>\n<div class=\"c42740ba6 c5f14bce3 c64210d2f c913cd95a c9566e21c ca46eac0b cc2d72006 ccae02ff2 cd9b20003 cf0ca6c6e\">\n<textarea class=\"c0f638af6 c10cc0a1f c1d212117 c1f523237 c28ce3678 c2bf204c1 c445db9b9 c4b92e3a8 c8f3cd634 caa6eb57d cb5823274 cd037ccc6\" placeholder=\"Type a message…\" rows=\"1\" {value=\"\"}>\n</textarea>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"chatbot-tester-send\" disabled type=\"button\">\nSend\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onSend",
+      "args": [
+       "Hey"
+      ]
+     },
+     {
+      "name": "onSend",
+      "args": [
+       "Again"
+      ]
+     }
+    ]
+   },
+   "loading disables the composer and shows the typing indicator": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c42740ba6 c71a5c916 cb5823274 cbaac6b89 cc2d72006 ccae02ff2\">\n<div class=\"c913cd95a ca46eac0b cb5823274 cd4bf1eb3\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c052585d2 c4647f690 cded75210\">\n...\n</div>\n<div>\n</div>\n</div>\n</div>\n<div class=\"c42740ba6 c5f14bce3 c64210d2f c913cd95a c9566e21c ca46eac0b cc2d72006 ccae02ff2 cd9b20003 cf0ca6c6e\">\n<textarea class=\"c0f638af6 c10cc0a1f c1d212117 c1f523237 c28ce3678 c2bf204c1 c445db9b9 c4b92e3a8 c8f3cd634 caa6eb57d cb5823274 cd037ccc6\" disabled placeholder=\"Type a message…\" rows=\"1\" {value=\"\"}>\n</textarea>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"chatbot-tester-send\" disabled type=\"button\">\nSend\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "loading suppresses the empty state and keeps the transcript": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c42740ba6 c71a5c916 cb5823274 cbaac6b89 cc2d72006 ccae02ff2\">\n<div class=\"c913cd95a ca46eac0b cb5823274 cd4bf1eb3\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c2cbb8333 c42740ba6 cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c07a324cf c18b873b1 c445db9b9 c4f8fef6f c8f3cd634 caa6eb57d cd1dd5b6d ce6c94376\">\nHi there\n</div>\n</div>\n<div class=\"c052585d2 c4647f690 cded75210\">\n...\n</div>\n<div>\n</div>\n</div>\n</div>\n<div class=\"c42740ba6 c5f14bce3 c64210d2f c913cd95a c9566e21c ca46eac0b cc2d72006 ccae02ff2 cd9b20003 cf0ca6c6e\">\n<textarea class=\"c0f638af6 c10cc0a1f c1d212117 c1f523237 c28ce3678 c2bf204c1 c445db9b9 c4b92e3a8 c8f3cd634 caa6eb57d cb5823274 cd037ccc6\" disabled placeholder=\"Type a message…\" rows=\"1\" {value=\"\"}>\n</textarea>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"chatbot-tester-send\" disabled type=\"button\">\nSend\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "empty state as a slot": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c42740ba6 c71a5c916 cb5823274 cbaac6b89 cc2d72006 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c9773cd2b cb5823274 ccae02ff2 cd9b20003\">\n<p data-empty>\nStart a conversation\n</p>\n</div>\n<div class=\"c42740ba6 c5f14bce3 c64210d2f c913cd95a c9566e21c ca46eac0b cc2d72006 ccae02ff2 cd9b20003 cf0ca6c6e\">\n<textarea class=\"c0f638af6 c10cc0a1f c1d212117 c1f523237 c28ce3678 c2bf204c1 c445db9b9 c4b92e3a8 c8f3cd634 caa6eb57d cb5823274 cd037ccc6\" placeholder=\"Type a message…\" rows=\"1\" {value=\"\"}>\n</textarea>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"chatbot-tester-send\" disabled type=\"button\">\nSend\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "empty state as a node prop": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c42740ba6 c71a5c916 cb5823274 cbaac6b89 cc2d72006 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c9773cd2b cb5823274 ccae02ff2 cd9b20003\">\n<p data-empty>\nStart a conversation\n</p>\n</div>\n<div class=\"c42740ba6 c5f14bce3 c64210d2f c913cd95a c9566e21c ca46eac0b cc2d72006 ccae02ff2 cd9b20003 cf0ca6c6e\">\n<textarea class=\"c0f638af6 c10cc0a1f c1d212117 c1f523237 c28ce3678 c2bf204c1 c445db9b9 c4b92e3a8 c8f3cd634 caa6eb57d cb5823274 cd037ccc6\" placeholder=\"Type a message…\" rows=\"1\" {value=\"\"}>\n</textarea>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"chatbot-tester-send\" disabled type=\"button\">\nSend\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "empty state as a plain string": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c42740ba6 c71a5c916 cb5823274 cbaac6b89 cc2d72006 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c9773cd2b cb5823274 ccae02ff2 cd9b20003\">\nNo messages yet\n</div>\n<div class=\"c42740ba6 c5f14bce3 c64210d2f c913cd95a c9566e21c ca46eac0b cc2d72006 ccae02ff2 cd9b20003 cf0ca6c6e\">\n<textarea class=\"c0f638af6 c10cc0a1f c1d212117 c1f523237 c28ce3678 c2bf204c1 c445db9b9 c4b92e3a8 c8f3cd634 caa6eb57d cb5823274 cd037ccc6\" placeholder=\"Type a message…\" rows=\"1\" {value=\"\"}>\n</textarea>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"chatbot-tester-send\" disabled type=\"button\">\nSend\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "empty state is ignored when messages exist": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c42740ba6 c71a5c916 cb5823274 cbaac6b89 cc2d72006 ccae02ff2\">\n<div class=\"c913cd95a ca46eac0b cb5823274 cd4bf1eb3\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c2cbb8333 c42740ba6 cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c07a324cf c18b873b1 c445db9b9 c4f8fef6f c8f3cd634 caa6eb57d cd1dd5b6d ce6c94376\">\nHi there\n</div>\n</div>\n<div class=\"c117f3063 c2cbb8333 c42740ba6 ccae02ff2 cd9b20003\">\n<div class=\"c07a324cf c18b873b1 c445db9b9 c4f8fef6f c7f6faa75 c8f3cd634 c973b6d5b caa6eb57d\">\nHello\n<div class=\"c4647f690 c544e0d93 c99fc28ae\">\n10:00\n</div>\n</div>\n</div>\n<div>\n</div>\n</div>\n</div>\n<div class=\"c42740ba6 c5f14bce3 c64210d2f c913cd95a c9566e21c ca46eac0b cc2d72006 ccae02ff2 cd9b20003 cf0ca6c6e\">\n<textarea class=\"c0f638af6 c10cc0a1f c1d212117 c1f523237 c28ce3678 c2bf204c1 c445db9b9 c4b92e3a8 c8f3cd634 caa6eb57d cb5823274 cd037ccc6\" placeholder=\"Type a message…\" rows=\"1\" {value=\"\"}>\n</textarea>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"chatbot-tester-send\" disabled type=\"button\">\nSend\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "error renders an alert paragraph": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c42740ba6 c71a5c916 cb5823274 cbaac6b89 cc2d72006 ccae02ff2\">\n<div class=\"c913cd95a ca46eac0b cb5823274 cd4bf1eb3\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div>\n</div>\n</div>\n</div>\n<p class=\"c445db9b9 c913cd95a caa6eb57d cab1062ad\" role=\"alert\">\nNetwork failed\n</p>\n<div class=\"c42740ba6 c5f14bce3 c64210d2f c913cd95a c9566e21c ca46eac0b cc2d72006 ccae02ff2 cd9b20003 cf0ca6c6e\">\n<textarea class=\"c0f638af6 c10cc0a1f c1d212117 c1f523237 c28ce3678 c2bf204c1 c445db9b9 c4b92e3a8 c8f3cd634 caa6eb57d cb5823274 cd037ccc6\" placeholder=\"Type a message…\" rows=\"1\" {value=\"\"}>\n</textarea>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"chatbot-tester-send\" disabled type=\"button\">\nSend\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "error as a node prop": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c42740ba6 c71a5c916 cb5823274 cbaac6b89 cc2d72006 ccae02ff2\">\n<div class=\"c913cd95a ca46eac0b cb5823274 cd4bf1eb3\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div>\n</div>\n</div>\n</div>\n<p class=\"c445db9b9 c913cd95a caa6eb57d cab1062ad\" role=\"alert\">\n<strong data-error>\nBoom\n</strong>\n</p>\n<div class=\"c42740ba6 c5f14bce3 c64210d2f c913cd95a c9566e21c ca46eac0b cc2d72006 ccae02ff2 cd9b20003 cf0ca6c6e\">\n<textarea class=\"c0f638af6 c10cc0a1f c1d212117 c1f523237 c28ce3678 c2bf204c1 c445db9b9 c4b92e3a8 c8f3cd634 caa6eb57d cb5823274 cd037ccc6\" placeholder=\"Type a message…\" rows=\"1\" {value=\"\"}>\n</textarea>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"chatbot-tester-send\" disabled type=\"button\">\nSend\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "error as a slot": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c42740ba6 c71a5c916 cb5823274 cbaac6b89 cc2d72006 ccae02ff2\">\n<div class=\"c913cd95a ca46eac0b cb5823274 cd4bf1eb3\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div>\n</div>\n</div>\n</div>\n<p class=\"c445db9b9 c913cd95a caa6eb57d cab1062ad\" role=\"alert\">\n<strong data-error>\nBoom\n</strong>\n</p>\n<div class=\"c42740ba6 c5f14bce3 c64210d2f c913cd95a c9566e21c ca46eac0b cc2d72006 ccae02ff2 cd9b20003 cf0ca6c6e\">\n<textarea class=\"c0f638af6 c10cc0a1f c1d212117 c1f523237 c28ce3678 c2bf204c1 c445db9b9 c4b92e3a8 c8f3cd634 caa6eb57d cb5823274 cd037ccc6\" placeholder=\"Type a message…\" rows=\"1\" {value=\"\"}>\n</textarea>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"chatbot-tester-send\" disabled type=\"button\">\nSend\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "no alert when error is null": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c42740ba6 c71a5c916 cb5823274 cbaac6b89 cc2d72006 ccae02ff2\">\n<div class=\"c913cd95a ca46eac0b cb5823274 cd4bf1eb3\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div>\n</div>\n</div>\n</div>\n<div class=\"c42740ba6 c5f14bce3 c64210d2f c913cd95a c9566e21c ca46eac0b cc2d72006 ccae02ff2 cd9b20003 cf0ca6c6e\">\n<textarea class=\"c0f638af6 c10cc0a1f c1d212117 c1f523237 c28ce3678 c2bf204c1 c445db9b9 c4b92e3a8 c8f3cd634 caa6eb57d cb5823274 cd037ccc6\" placeholder=\"Type a message…\" rows=\"1\" {value=\"\"}>\n</textarea>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"chatbot-tester-send\" disabled type=\"button\">\nSend\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "bot picker with two bots": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c42740ba6 c71a5c916 cb5823274 cbaac6b89 cc2d72006 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c64210d2f c913cd95a c9666e3af ca96eb3ea cc2d72006 ccae02ff2 cd9b20003 ce2ca5664\">\n<label class=\"c0d99ed10 c4647f690\" for=\"#id0\">\nTest bot\n</label>\n<select class=\"c10cc0a1f c2bf204c1 c445db9b9 c8e3cd4a1 caa6eb57d cacb2c024 cd037ccc6 cd1dd5b6d\" id=\"#id0\" {value=\"b1\"}>\n<option value=\"b1\">\nb1\n</option>\n<option value=\"b2\">\nSecond bot\n</option>\n</select>\n</div>\n<div class=\"c913cd95a ca46eac0b cb5823274 cd4bf1eb3\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div>\n</div>\n</div>\n</div>\n<div class=\"c42740ba6 c5f14bce3 c64210d2f c913cd95a c9566e21c ca46eac0b cc2d72006 ccae02ff2 cd9b20003 cf0ca6c6e\">\n<textarea class=\"c0f638af6 c10cc0a1f c1d212117 c1f523237 c28ce3678 c2bf204c1 c445db9b9 c4b92e3a8 c8f3cd634 caa6eb57d cb5823274 cd037ccc6\" placeholder=\"Type a message…\" rows=\"1\" {value=\"\"}>\n</textarea>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"chatbot-tester-send\" disabled type=\"button\">\nSend\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "bot picker hides a single bot": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c42740ba6 c71a5c916 cb5823274 cbaac6b89 cc2d72006 ccae02ff2\">\n<div class=\"c913cd95a ca46eac0b cb5823274 cd4bf1eb3\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div>\n</div>\n</div>\n</div>\n<div class=\"c42740ba6 c5f14bce3 c64210d2f c913cd95a c9566e21c ca46eac0b cc2d72006 ccae02ff2 cd9b20003 cf0ca6c6e\">\n<textarea class=\"c0f638af6 c10cc0a1f c1d212117 c1f523237 c28ce3678 c2bf204c1 c445db9b9 c4b92e3a8 c8f3cd634 caa6eb57d cb5823274 cd037ccc6\" placeholder=\"Type a message…\" rows=\"1\" {value=\"\"}>\n</textarea>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"chatbot-tester-send\" disabled type=\"button\">\nSend\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "bot picker hides an empty bot list": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c42740ba6 c71a5c916 cb5823274 cbaac6b89 cc2d72006 ccae02ff2\">\n<div class=\"c913cd95a ca46eac0b cb5823274 cd4bf1eb3\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div>\n</div>\n</div>\n</div>\n<div class=\"c42740ba6 c5f14bce3 c64210d2f c913cd95a c9566e21c ca46eac0b cc2d72006 ccae02ff2 cd9b20003 cf0ca6c6e\">\n<textarea class=\"c0f638af6 c10cc0a1f c1d212117 c1f523237 c28ce3678 c2bf204c1 c445db9b9 c4b92e3a8 c8f3cd634 caa6eb57d cb5823274 cd037ccc6\" placeholder=\"Type a message…\" rows=\"1\" {value=\"\"}>\n</textarea>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"chatbot-tester-send\" disabled type=\"button\">\nSend\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "bot picker selects the fixed botId": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c42740ba6 c71a5c916 cb5823274 cbaac6b89 cc2d72006 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c64210d2f c913cd95a c9666e3af ca96eb3ea cc2d72006 ccae02ff2 cd9b20003 ce2ca5664\">\n<label class=\"c0d99ed10 c4647f690\" for=\"#id0\">\nTest bot\n</label>\n<select class=\"c10cc0a1f c2bf204c1 c445db9b9 c8e3cd4a1 caa6eb57d cacb2c024 cd037ccc6 cd1dd5b6d\" id=\"#id0\" {value=\"b2\"}>\n<option value=\"b1\">\nFirst\n</option>\n<option value=\"b2\">\nSecond\n</option>\n<option value=\"b3\">\nThird\n</option>\n</select>\n</div>\n<div class=\"c913cd95a ca46eac0b cb5823274 cd4bf1eb3\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div>\n</div>\n</div>\n</div>\n<div class=\"c42740ba6 c5f14bce3 c64210d2f c913cd95a c9566e21c ca46eac0b cc2d72006 ccae02ff2 cd9b20003 cf0ca6c6e\">\n<textarea class=\"c0f638af6 c10cc0a1f c1d212117 c1f523237 c28ce3678 c2bf204c1 c445db9b9 c4b92e3a8 c8f3cd634 caa6eb57d cb5823274 cd037ccc6\" placeholder=\"Type a message…\" rows=\"1\" {value=\"\"}>\n</textarea>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"chatbot-tester-send\" disabled type=\"button\">\nSend\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "bot picker falls back to the first bot for an unmatched botId": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c42740ba6 c71a5c916 cb5823274 cbaac6b89 cc2d72006 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c64210d2f c913cd95a c9666e3af ca96eb3ea cc2d72006 ccae02ff2 cd9b20003 ce2ca5664\">\n<label class=\"c0d99ed10 c4647f690\" for=\"#id0\">\nTest bot\n</label>\n<select class=\"c10cc0a1f c2bf204c1 c445db9b9 c8e3cd4a1 caa6eb57d cacb2c024 cd037ccc6 cd1dd5b6d\" id=\"#id0\" {value=\"b1\"}>\n<option value=\"b1\">\nb1\n</option>\n<option value=\"b2\">\nSecond bot\n</option>\n</select>\n</div>\n<div class=\"c913cd95a ca46eac0b cb5823274 cd4bf1eb3\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div>\n</div>\n</div>\n</div>\n<div class=\"c42740ba6 c5f14bce3 c64210d2f c913cd95a c9566e21c ca46eac0b cc2d72006 ccae02ff2 cd9b20003 cf0ca6c6e\">\n<textarea class=\"c0f638af6 c10cc0a1f c1d212117 c1f523237 c28ce3678 c2bf204c1 c445db9b9 c4b92e3a8 c8f3cd634 caa6eb57d cb5823274 cd037ccc6\" placeholder=\"Type a message…\" rows=\"1\" {value=\"\"}>\n</textarea>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"chatbot-tester-send\" disabled type=\"button\">\nSend\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "bot picker with a custom label": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c42740ba6 c71a5c916 cb5823274 cbaac6b89 cc2d72006 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c64210d2f c913cd95a c9666e3af ca96eb3ea cc2d72006 ccae02ff2 cd9b20003 ce2ca5664\">\n<label class=\"c0d99ed10 c4647f690\" for=\"#id0\">\nChoose a bot\n</label>\n<select class=\"c10cc0a1f c2bf204c1 c445db9b9 c8e3cd4a1 caa6eb57d cacb2c024 cd037ccc6 cd1dd5b6d\" id=\"#id0\" {value=\"b1\"}>\n<option value=\"b1\">\nb1\n</option>\n<option value=\"b2\">\nSecond bot\n</option>\n</select>\n</div>\n<div class=\"c913cd95a ca46eac0b cb5823274 cd4bf1eb3\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div>\n</div>\n</div>\n</div>\n<div class=\"c42740ba6 c5f14bce3 c64210d2f c913cd95a c9566e21c ca46eac0b cc2d72006 ccae02ff2 cd9b20003 cf0ca6c6e\">\n<textarea class=\"c0f638af6 c10cc0a1f c1d212117 c1f523237 c28ce3678 c2bf204c1 c445db9b9 c4b92e3a8 c8f3cd634 caa6eb57d cb5823274 cd037ccc6\" placeholder=\"Type a message…\" rows=\"1\" {value=\"\"}>\n</textarea>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"chatbot-tester-send\" disabled type=\"button\">\nSend\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "bot picker label as a node prop": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c42740ba6 c71a5c916 cb5823274 cbaac6b89 cc2d72006 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c64210d2f c913cd95a c9666e3af ca96eb3ea cc2d72006 ccae02ff2 cd9b20003 ce2ca5664\">\n<label class=\"c0d99ed10 c4647f690\" for=\"#id0\">\n<em data-bot-label>\nPick one\n</em>\n</label>\n<select class=\"c10cc0a1f c2bf204c1 c445db9b9 c8e3cd4a1 caa6eb57d cacb2c024 cd037ccc6 cd1dd5b6d\" id=\"#id0\" {value=\"b1\"}>\n<option value=\"b1\">\nb1\n</option>\n<option value=\"b2\">\nSecond bot\n</option>\n</select>\n</div>\n<div class=\"c913cd95a ca46eac0b cb5823274 cd4bf1eb3\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div>\n</div>\n</div>\n</div>\n<div class=\"c42740ba6 c5f14bce3 c64210d2f c913cd95a c9566e21c ca46eac0b cc2d72006 ccae02ff2 cd9b20003 cf0ca6c6e\">\n<textarea class=\"c0f638af6 c10cc0a1f c1d212117 c1f523237 c28ce3678 c2bf204c1 c445db9b9 c4b92e3a8 c8f3cd634 caa6eb57d cb5823274 cd037ccc6\" placeholder=\"Type a message…\" rows=\"1\" {value=\"\"}>\n</textarea>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"chatbot-tester-send\" disabled type=\"button\">\nSend\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "bot picker label as a slot": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c42740ba6 c71a5c916 cb5823274 cbaac6b89 cc2d72006 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c64210d2f c913cd95a c9666e3af ca96eb3ea cc2d72006 ccae02ff2 cd9b20003 ce2ca5664\">\n<label class=\"c0d99ed10 c4647f690\" for=\"#id0\">\n<em data-bot-label>\nPick one\n</em>\n</label>\n<select class=\"c10cc0a1f c2bf204c1 c445db9b9 c8e3cd4a1 caa6eb57d cacb2c024 cd037ccc6 cd1dd5b6d\" id=\"#id0\" {value=\"b1\"}>\n<option value=\"b1\">\nb1\n</option>\n<option value=\"b2\">\nSecond bot\n</option>\n</select>\n</div>\n<div class=\"c913cd95a ca46eac0b cb5823274 cd4bf1eb3\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div>\n</div>\n</div>\n</div>\n<div class=\"c42740ba6 c5f14bce3 c64210d2f c913cd95a c9566e21c ca46eac0b cc2d72006 ccae02ff2 cd9b20003 cf0ca6c6e\">\n<textarea class=\"c0f638af6 c10cc0a1f c1d212117 c1f523237 c28ce3678 c2bf204c1 c445db9b9 c4b92e3a8 c8f3cd634 caa6eb57d cb5823274 cd037ccc6\" placeholder=\"Type a message…\" rows=\"1\" {value=\"\"}>\n</textarea>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"chatbot-tester-send\" disabled type=\"button\">\nSend\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "changing the bot calls onBotChange and keeps the controlled value": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c42740ba6 c71a5c916 cb5823274 cbaac6b89 cc2d72006 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c64210d2f c913cd95a c9666e3af ca96eb3ea cc2d72006 ccae02ff2 cd9b20003 ce2ca5664\">\n<label class=\"c0d99ed10 c4647f690\" for=\"#id0\">\nTest bot\n</label>\n<select class=\"c10cc0a1f c2bf204c1 c445db9b9 c8e3cd4a1 caa6eb57d cacb2c024 cd037ccc6 cd1dd5b6d\" id=\"#id0\" {value=\"b1\"}>\n<option value=\"b1\">\nFirst\n</option>\n<option value=\"b2\">\nSecond\n</option>\n<option value=\"b3\">\nThird\n</option>\n</select>\n</div>\n<div class=\"c913cd95a ca46eac0b cb5823274 cd4bf1eb3\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div>\n</div>\n</div>\n</div>\n<div class=\"c42740ba6 c5f14bce3 c64210d2f c913cd95a c9566e21c ca46eac0b cc2d72006 ccae02ff2 cd9b20003 cf0ca6c6e\">\n<textarea class=\"c0f638af6 c10cc0a1f c1d212117 c1f523237 c28ce3678 c2bf204c1 c445db9b9 c4b92e3a8 c8f3cd634 caa6eb57d cb5823274 cd037ccc6\" placeholder=\"Type a message…\" rows=\"1\" {value=\"\"}>\n</textarea>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"chatbot-tester-send\" disabled type=\"button\">\nSend\n</button>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c42740ba6 c71a5c916 cb5823274 cbaac6b89 cc2d72006 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c64210d2f c913cd95a c9666e3af ca96eb3ea cc2d72006 ccae02ff2 cd9b20003 ce2ca5664\">\n<label class=\"c0d99ed10 c4647f690\" for=\"#id0\">\nTest bot\n</label>\n<select class=\"c10cc0a1f c2bf204c1 c445db9b9 c8e3cd4a1 caa6eb57d cacb2c024 cd037ccc6 cd1dd5b6d\" id=\"#id0\" {value=\"b1\"}>\n<option value=\"b1\">\nFirst\n</option>\n<option value=\"b2\">\nSecond\n</option>\n<option value=\"b3\">\nThird\n</option>\n</select>\n</div>\n<div class=\"c913cd95a ca46eac0b cb5823274 cd4bf1eb3\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div>\n</div>\n</div>\n</div>\n<div class=\"c42740ba6 c5f14bce3 c64210d2f c913cd95a c9566e21c ca46eac0b cc2d72006 ccae02ff2 cd9b20003 cf0ca6c6e\">\n<textarea class=\"c0f638af6 c10cc0a1f c1d212117 c1f523237 c28ce3678 c2bf204c1 c445db9b9 c4b92e3a8 c8f3cd634 caa6eb57d cb5823274 cd037ccc6\" placeholder=\"Type a message…\" rows=\"1\" {value=\"\"}>\n</textarea>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"chatbot-tester-send\" disabled type=\"button\">\nSend\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onBotChange",
+      "args": [
+       "b3"
+      ]
+     }
+    ]
+   },
+   "changing the bot without a controlled value keeps the first bot": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c42740ba6 c71a5c916 cb5823274 cbaac6b89 cc2d72006 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c64210d2f c913cd95a c9666e3af ca96eb3ea cc2d72006 ccae02ff2 cd9b20003 ce2ca5664\">\n<label class=\"c0d99ed10 c4647f690\" for=\"#id0\">\nTest bot\n</label>\n<select class=\"c10cc0a1f c2bf204c1 c445db9b9 c8e3cd4a1 caa6eb57d cacb2c024 cd037ccc6 cd1dd5b6d\" id=\"#id0\" {value=\"b1\"}>\n<option value=\"b1\">\nFirst\n</option>\n<option value=\"b2\">\nSecond\n</option>\n<option value=\"b3\">\nThird\n</option>\n</select>\n</div>\n<div class=\"c913cd95a ca46eac0b cb5823274 cd4bf1eb3\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div>\n</div>\n</div>\n</div>\n<div class=\"c42740ba6 c5f14bce3 c64210d2f c913cd95a c9566e21c ca46eac0b cc2d72006 ccae02ff2 cd9b20003 cf0ca6c6e\">\n<textarea class=\"c0f638af6 c10cc0a1f c1d212117 c1f523237 c28ce3678 c2bf204c1 c445db9b9 c4b92e3a8 c8f3cd634 caa6eb57d cb5823274 cd037ccc6\" placeholder=\"Type a message…\" rows=\"1\" {value=\"\"}>\n</textarea>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"chatbot-tester-send\" disabled type=\"button\">\nSend\n</button>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c42740ba6 c71a5c916 cb5823274 cbaac6b89 cc2d72006 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c64210d2f c913cd95a c9666e3af ca96eb3ea cc2d72006 ccae02ff2 cd9b20003 ce2ca5664\">\n<label class=\"c0d99ed10 c4647f690\" for=\"#id0\">\nTest bot\n</label>\n<select class=\"c10cc0a1f c2bf204c1 c445db9b9 c8e3cd4a1 caa6eb57d cacb2c024 cd037ccc6 cd1dd5b6d\" id=\"#id0\" {value=\"b1\"}>\n<option value=\"b1\">\nFirst\n</option>\n<option value=\"b2\">\nSecond\n</option>\n<option value=\"b3\">\nThird\n</option>\n</select>\n</div>\n<div class=\"c913cd95a ca46eac0b cb5823274 cd4bf1eb3\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div>\n</div>\n</div>\n</div>\n<div class=\"c42740ba6 c5f14bce3 c64210d2f c913cd95a c9566e21c ca46eac0b cc2d72006 ccae02ff2 cd9b20003 cf0ca6c6e\">\n<textarea class=\"c0f638af6 c10cc0a1f c1d212117 c1f523237 c28ce3678 c2bf204c1 c445db9b9 c4b92e3a8 c8f3cd634 caa6eb57d cb5823274 cd037ccc6\" placeholder=\"Type a message…\" rows=\"1\" {value=\"\"}>\n</textarea>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"chatbot-tester-send\" disabled type=\"button\">\nSend\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onBotChange",
+      "args": [
+       "b2"
+      ]
+     }
+    ]
+   },
+   "className is forwarded": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c42740ba6 c71a5c916 cb5823274 cbaac6b89 cc2d72006 ccae02ff2 cd75bbd18\">\n<div class=\"c913cd95a ca46eac0b cb5823274 cd4bf1eb3\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div>\n</div>\n</div>\n</div>\n<div class=\"c42740ba6 c5f14bce3 c64210d2f c913cd95a c9566e21c ca46eac0b cc2d72006 ccae02ff2 cd9b20003 cf0ca6c6e\">\n<textarea class=\"c0f638af6 c10cc0a1f c1d212117 c1f523237 c28ce3678 c2bf204c1 c445db9b9 c4b92e3a8 c8f3cd634 caa6eb57d cb5823274 cd037ccc6\" placeholder=\"Type a message…\" rows=\"1\" {value=\"\"}>\n</textarea>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"chatbot-tester-send\" disabled type=\"button\">\nSend\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "custom composer placeholder and send label": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c42740ba6 c71a5c916 cb5823274 cbaac6b89 cc2d72006 ccae02ff2\">\n<div class=\"c913cd95a ca46eac0b cb5823274 cd4bf1eb3\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div>\n</div>\n</div>\n</div>\n<div class=\"c42740ba6 c5f14bce3 c64210d2f c913cd95a c9566e21c ca46eac0b cc2d72006 ccae02ff2 cd9b20003 cf0ca6c6e\">\n<textarea class=\"c0f638af6 c10cc0a1f c1d212117 c1f523237 c28ce3678 c2bf204c1 c445db9b9 c4b92e3a8 c8f3cd634 caa6eb57d cb5823274 cd037ccc6\" placeholder=\"Ask anything\" rows=\"1\" {value=\"\"}>\n</textarea>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"chatbot-tester-send\" disabled type=\"button\">\nGo\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "every prop at once": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c42740ba6 c71a5c916 cb5823274 cbaac6b89 cc2d72006 ccae02ff2 cd75bbd18\">\n<div class=\"c1e8176ab c42740ba6 c64210d2f c913cd95a c9666e3af ca96eb3ea cc2d72006 ccae02ff2 cd9b20003 ce2ca5664\">\n<label class=\"c0d99ed10 c4647f690\" for=\"#id0\">\nBot\n</label>\n<select class=\"c10cc0a1f c2bf204c1 c445db9b9 c8e3cd4a1 caa6eb57d cacb2c024 cd037ccc6 cd1dd5b6d\" id=\"#id0\" {value=\"b2\"}>\n<option value=\"b1\">\nb1\n</option>\n<option value=\"b2\">\nSecond bot\n</option>\n</select>\n</div>\n<div class=\"c913cd95a ca46eac0b cb5823274 cd4bf1eb3\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c2cbb8333 c42740ba6 cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c07a324cf c18b873b1 c445db9b9 c4f8fef6f c8f3cd634 caa6eb57d cd1dd5b6d ce6c94376\">\nHi there\n</div>\n</div>\n<div class=\"c117f3063 c2cbb8333 c42740ba6 ccae02ff2 cd9b20003\">\n<div class=\"c07a324cf c18b873b1 c445db9b9 c4f8fef6f c7f6faa75 c8f3cd634 c973b6d5b caa6eb57d\">\nHello\n<div class=\"c4647f690 c544e0d93 c99fc28ae\">\n10:00\n</div>\n</div>\n</div>\n<div>\n</div>\n</div>\n</div>\n<p class=\"c445db9b9 c913cd95a caa6eb57d cab1062ad\" role=\"alert\">\nCareful\n</p>\n<div class=\"c42740ba6 c5f14bce3 c64210d2f c913cd95a c9566e21c ca46eac0b cc2d72006 ccae02ff2 cd9b20003 cf0ca6c6e\">\n<textarea class=\"c0f638af6 c10cc0a1f c1d212117 c1f523237 c28ce3678 c2bf204c1 c445db9b9 c4b92e3a8 c8f3cd634 caa6eb57d cb5823274 cd037ccc6\" placeholder=\"Ask\" rows=\"1\" {value=\"\"}>\n</textarea>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"chatbot-tester-send\" disabled type=\"button\">\nSend it\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "props change after mount": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c42740ba6 c71a5c916 cb5823274 cbaac6b89 cbe7c7101 cc2d72006 ccae02ff2\">\n<div class=\"c913cd95a ca46eac0b cb5823274 cd4bf1eb3\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div>\n</div>\n</div>\n</div>\n<div class=\"c42740ba6 c5f14bce3 c64210d2f c913cd95a c9566e21c ca46eac0b cc2d72006 ccae02ff2 cd9b20003 cf0ca6c6e\">\n<textarea class=\"c0f638af6 c10cc0a1f c1d212117 c1f523237 c28ce3678 c2bf204c1 c445db9b9 c4b92e3a8 c8f3cd634 caa6eb57d cb5823274 cd037ccc6\" placeholder=\"Type a message…\" rows=\"1\" {value=\"\"}>\n</textarea>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"chatbot-tester-send\" disabled type=\"button\">\nSend\n</button>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c42740ba6 c71a5c916 cb5823274 cbaac6b89 cbe7c7101 cc2d72006 ccae02ff2\">\n<div class=\"c913cd95a ca46eac0b cb5823274 cd4bf1eb3\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c052585d2 c4647f690 cded75210\">\n...\n</div>\n<div>\n</div>\n</div>\n</div>\n<p class=\"c445db9b9 c913cd95a caa6eb57d cab1062ad\" role=\"alert\">\nLate failure\n</p>\n<div class=\"c42740ba6 c5f14bce3 c64210d2f c913cd95a c9566e21c ca46eac0b cc2d72006 ccae02ff2 cd9b20003 cf0ca6c6e\">\n<textarea class=\"c0f638af6 c10cc0a1f c1d212117 c1f523237 c28ce3678 c2bf204c1 c445db9b9 c4b92e3a8 c8f3cd634 caa6eb57d cb5823274 cd037ccc6\" disabled placeholder=\"Type a message…\" rows=\"1\" {value=\"\"}>\n</textarea>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"chatbot-tester-send\" disabled type=\"button\">\nSend\n</button>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c42740ba6 c71a5c916 cb5823274 cbaac6b89 cbe7c7101 cc2d72006 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c64210d2f c913cd95a c9666e3af ca96eb3ea cc2d72006 ccae02ff2 cd9b20003 ce2ca5664\">\n<label class=\"c0d99ed10 c4647f690\" for=\"#id0\">\nTest bot\n</label>\n<select class=\"c10cc0a1f c2bf204c1 c445db9b9 c8e3cd4a1 caa6eb57d cacb2c024 cd037ccc6 cd1dd5b6d\" id=\"#id0\" {value=\"b2\"}>\n<option value=\"b1\">\nb1\n</option>\n<option value=\"b2\">\nSecond bot\n</option>\n</select>\n</div>\n<div class=\"c913cd95a ca46eac0b cb5823274 cd4bf1eb3\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div>\n</div>\n</div>\n</div>\n<div class=\"c42740ba6 c5f14bce3 c64210d2f c913cd95a c9566e21c ca46eac0b cc2d72006 ccae02ff2 cd9b20003 cf0ca6c6e\">\n<textarea class=\"c0f638af6 c10cc0a1f c1d212117 c1f523237 c28ce3678 c2bf204c1 c445db9b9 c4b92e3a8 c8f3cd634 caa6eb57d cb5823274 cd037ccc6\" placeholder=\"Type a message…\" rows=\"1\" {value=\"\"}>\n</textarea>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"chatbot-tester-send\" disabled type=\"button\">\nSend\n</button>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c42740ba6 c71a5c916 cb5823274 cba3aed65 cbaac6b89 cc2d72006 ccae02ff2\">\n<div class=\"c913cd95a ca46eac0b cb5823274 cd4bf1eb3\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div>\n</div>\n</div>\n</div>\n<div class=\"c42740ba6 c5f14bce3 c64210d2f c913cd95a c9566e21c ca46eac0b cc2d72006 ccae02ff2 cd9b20003 cf0ca6c6e\">\n<textarea class=\"c0f638af6 c10cc0a1f c1d212117 c1f523237 c28ce3678 c2bf204c1 c445db9b9 c4b92e3a8 c8f3cd634 caa6eb57d cb5823274 cd037ccc6\" placeholder=\"Type a message…\" rows=\"1\" {value=\"\"}>\n</textarea>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"chatbot-tester-send\" disabled type=\"button\">\nSend\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "composer text survives a props change": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c42740ba6 c71a5c916 cb5823274 cbaac6b89 cc2d72006 ccae02ff2\">\n<div class=\"c913cd95a ca46eac0b cb5823274 cd4bf1eb3\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div>\n</div>\n</div>\n</div>\n<div class=\"c42740ba6 c5f14bce3 c64210d2f c913cd95a c9566e21c ca46eac0b cc2d72006 ccae02ff2 cd9b20003 cf0ca6c6e\">\n<textarea class=\"c0f638af6 c10cc0a1f c1d212117 c1f523237 c28ce3678 c2bf204c1 c445db9b9 c4b92e3a8 c8f3cd634 caa6eb57d cb5823274 cd037ccc6\" placeholder=\"Type a message…\" rows=\"1\" {value=\"\"}>\n</textarea>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"chatbot-tester-send\" disabled type=\"button\">\nSend\n</button>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c42740ba6 c71a5c916 cb5823274 cbaac6b89 cc2d72006 ccae02ff2\">\n<div class=\"c913cd95a ca46eac0b cb5823274 cd4bf1eb3\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div>\n</div>\n</div>\n</div>\n<div class=\"c42740ba6 c5f14bce3 c64210d2f c913cd95a c9566e21c ca46eac0b cc2d72006 ccae02ff2 cd9b20003 cf0ca6c6e\">\n<textarea class=\"c0f638af6 c10cc0a1f c1d212117 c1f523237 c28ce3678 c2bf204c1 c445db9b9 c4b92e3a8 c8f3cd634 caa6eb57d cb5823274 cd037ccc6\" placeholder=\"Type a message…\" rows=\"1\" {value=\"draft\"}>\n</textarea>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"chatbot-tester-send\" type=\"button\">\nSend\n</button>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c42740ba6 c71a5c916 cb5823274 cbaac6b89 cc2d72006 ccae02ff2\">\n<div class=\"c913cd95a ca46eac0b cb5823274 cd4bf1eb3\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div>\n</div>\n</div>\n</div>\n<div class=\"c42740ba6 c5f14bce3 c64210d2f c913cd95a c9566e21c ca46eac0b cc2d72006 ccae02ff2 cd9b20003 cf0ca6c6e\">\n<textarea class=\"c0f638af6 c10cc0a1f c1d212117 c1f523237 c28ce3678 c2bf204c1 c445db9b9 c4b92e3a8 c8f3cd634 caa6eb57d cb5823274 cd037ccc6\" placeholder=\"Type a message…\" rows=\"1\" {value=\"draft\"}>\n</textarea>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"chatbot-tester-send\" type=\"button\">\nSend\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "empty transcript with the default composer, then a locale switch": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c42740ba6 c71a5c916 cb5823274 cbaac6b89 cc2d72006 ccae02ff2\">\n<div class=\"c913cd95a ca46eac0b cb5823274 cd4bf1eb3\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div>\n</div>\n</div>\n</div>\n<div class=\"c42740ba6 c5f14bce3 c64210d2f c913cd95a c9566e21c ca46eac0b cc2d72006 ccae02ff2 cd9b20003 cf0ca6c6e\">\n<textarea class=\"c0f638af6 c10cc0a1f c1d212117 c1f523237 c28ce3678 c2bf204c1 c445db9b9 c4b92e3a8 c8f3cd634 caa6eb57d cb5823274 cd037ccc6\" placeholder=\"Type a message…\" rows=\"1\" {value=\"\"}>\n</textarea>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"chatbot-tester-send\" disabled type=\"button\">\nSend\n</button>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c42740ba6 c71a5c916 cb5823274 cbaac6b89 cc2d72006 ccae02ff2\">\n<div class=\"c913cd95a ca46eac0b cb5823274 cd4bf1eb3\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div>\n</div>\n</div>\n</div>\n<div class=\"c42740ba6 c5f14bce3 c64210d2f c913cd95a c9566e21c ca46eac0b cc2d72006 ccae02ff2 cd9b20003 cf0ca6c6e\">\n<textarea class=\"c0f638af6 c10cc0a1f c1d212117 c1f523237 c28ce3678 c2bf204c1 c445db9b9 c4b92e3a8 c8f3cd634 caa6eb57d cb5823274 cd037ccc6\" placeholder=\"⟦Type a message…⟧\" rows=\"1\" {value=\"\"}>\n</textarea>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"chatbot-tester-send\" disabled type=\"button\">\n⟦Send⟧\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   }
+  },
+  "ChatbotTesterInput": {
+   "empty value with the default placeholder and label": {
+    "snapshots": [
+     "<div class=\"c42740ba6 c5f14bce3 c64210d2f c913cd95a c9566e21c ca46eac0b cc2d72006 ccae02ff2 cd9b20003 cf0ca6c6e\">\n<textarea class=\"c0f638af6 c10cc0a1f c1d212117 c1f523237 c28ce3678 c2bf204c1 c445db9b9 c4b92e3a8 c8f3cd634 caa6eb57d cb5823274 cd037ccc6\" placeholder=\"Type a message…\" rows=\"1\" {value=\"\"}>\n</textarea>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"chatbot-tester-send\" disabled type=\"button\">\nSend\n</button>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a value enables send": {
+    "snapshots": [
+     "<div class=\"c42740ba6 c5f14bce3 c64210d2f c913cd95a c9566e21c ca46eac0b cc2d72006 ccae02ff2 cd9b20003 cf0ca6c6e\">\n<textarea class=\"c0f638af6 c10cc0a1f c1d212117 c1f523237 c28ce3678 c2bf204c1 c445db9b9 c4b92e3a8 c8f3cd634 caa6eb57d cb5823274 cd037ccc6\" placeholder=\"Type a message…\" rows=\"1\" {value=\"Hello\"}>\n</textarea>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"chatbot-tester-send\" type=\"button\">\nSend\n</button>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a whitespace-only value keeps send disabled": {
+    "snapshots": [
+     "<div class=\"c42740ba6 c5f14bce3 c64210d2f c913cd95a c9566e21c ca46eac0b cc2d72006 ccae02ff2 cd9b20003 cf0ca6c6e\">\n<textarea class=\"c0f638af6 c10cc0a1f c1d212117 c1f523237 c28ce3678 c2bf204c1 c445db9b9 c4b92e3a8 c8f3cd634 caa6eb57d cb5823274 cd037ccc6\" placeholder=\"Type a message…\" rows=\"1\" {value=\"   \"}>\n</textarea>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"chatbot-tester-send\" disabled type=\"button\">\nSend\n</button>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "loading disables the field and the button": {
+    "snapshots": [
+     "<div class=\"c42740ba6 c5f14bce3 c64210d2f c913cd95a c9566e21c ca46eac0b cc2d72006 ccae02ff2 cd9b20003 cf0ca6c6e\">\n<textarea class=\"c0f638af6 c10cc0a1f c1d212117 c1f523237 c28ce3678 c2bf204c1 c445db9b9 c4b92e3a8 c8f3cd634 caa6eb57d cb5823274 cd037ccc6\" disabled placeholder=\"Type a message…\" rows=\"1\" {value=\"Hello\"}>\n</textarea>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"chatbot-tester-send\" disabled type=\"button\">\nSend\n</button>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "loading with an empty value": {
+    "snapshots": [
+     "<div class=\"c42740ba6 c5f14bce3 c64210d2f c913cd95a c9566e21c ca46eac0b cc2d72006 ccae02ff2 cd9b20003 cf0ca6c6e\">\n<textarea class=\"c0f638af6 c10cc0a1f c1d212117 c1f523237 c28ce3678 c2bf204c1 c445db9b9 c4b92e3a8 c8f3cd634 caa6eb57d cb5823274 cd037ccc6\" disabled placeholder=\"Type a message…\" rows=\"1\" {value=\"\"}>\n</textarea>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"chatbot-tester-send\" disabled type=\"button\">\nSend\n</button>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "custom placeholder and send label": {
+    "snapshots": [
+     "<div class=\"c42740ba6 c5f14bce3 c64210d2f c913cd95a c9566e21c ca46eac0b cc2d72006 ccae02ff2 cd9b20003 cf0ca6c6e\">\n<textarea class=\"c0f638af6 c10cc0a1f c1d212117 c1f523237 c28ce3678 c2bf204c1 c445db9b9 c4b92e3a8 c8f3cd634 caa6eb57d cb5823274 cd037ccc6\" placeholder=\"Ask anything\" rows=\"1\" {value=\"x\"}>\n</textarea>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"chatbot-tester-send\" type=\"button\">\nGo\n</button>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "typing reports the text and restores the controlled value": {
+    "snapshots": [
+     "<div class=\"c42740ba6 c5f14bce3 c64210d2f c913cd95a c9566e21c ca46eac0b cc2d72006 ccae02ff2 cd9b20003 cf0ca6c6e\">\n<textarea class=\"c0f638af6 c10cc0a1f c1d212117 c1f523237 c28ce3678 c2bf204c1 c445db9b9 c4b92e3a8 c8f3cd634 caa6eb57d cb5823274 cd037ccc6\" placeholder=\"Type a message…\" rows=\"1\" {value=\"\"}>\n</textarea>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"chatbot-tester-send\" disabled type=\"button\">\nSend\n</button>\n</div>\n@route /",
+     "<div class=\"c42740ba6 c5f14bce3 c64210d2f c913cd95a c9566e21c ca46eac0b cc2d72006 ccae02ff2 cd9b20003 cf0ca6c6e\">\n<textarea class=\"c0f638af6 c10cc0a1f c1d212117 c1f523237 c28ce3678 c2bf204c1 c445db9b9 c4b92e3a8 c8f3cd634 caa6eb57d cb5823274 cd037ccc6\" placeholder=\"Type a message…\" rows=\"1\" {value=\"\"}>\n</textarea>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"chatbot-tester-send\" disabled type=\"button\">\nSend\n</button>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onChange",
+      "args": [
+       "Hey there"
+      ]
+     }
+    ]
+   },
+   "typing over an existing value reports the new text": {
+    "snapshots": [
+     "<div class=\"c42740ba6 c5f14bce3 c64210d2f c913cd95a c9566e21c ca46eac0b cc2d72006 ccae02ff2 cd9b20003 cf0ca6c6e\">\n<textarea class=\"c0f638af6 c10cc0a1f c1d212117 c1f523237 c28ce3678 c2bf204c1 c445db9b9 c4b92e3a8 c8f3cd634 caa6eb57d cb5823274 cd037ccc6\" placeholder=\"Type a message…\" rows=\"1\" {value=\"old\"}>\n</textarea>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"chatbot-tester-send\" type=\"button\">\nSend\n</button>\n</div>\n@route /",
+     "<div class=\"c42740ba6 c5f14bce3 c64210d2f c913cd95a c9566e21c ca46eac0b cc2d72006 ccae02ff2 cd9b20003 cf0ca6c6e\">\n<textarea class=\"c0f638af6 c10cc0a1f c1d212117 c1f523237 c28ce3678 c2bf204c1 c445db9b9 c4b92e3a8 c8f3cd634 caa6eb57d cb5823274 cd037ccc6\" placeholder=\"Type a message…\" rows=\"1\" {value=\"old\"}>\n</textarea>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"chatbot-tester-send\" type=\"button\">\nSend\n</button>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onChange",
+      "args": [
+       "new text"
+      ]
+     }
+    ]
+   },
+   "clicking send calls onSend with the event": {
+    "snapshots": [
+     "<div class=\"c42740ba6 c5f14bce3 c64210d2f c913cd95a c9566e21c ca46eac0b cc2d72006 ccae02ff2 cd9b20003 cf0ca6c6e\">\n<textarea class=\"c0f638af6 c10cc0a1f c1d212117 c1f523237 c28ce3678 c2bf204c1 c445db9b9 c4b92e3a8 c8f3cd634 caa6eb57d cb5823274 cd037ccc6\" placeholder=\"Type a message…\" rows=\"1\" {value=\"Hello\"}>\n</textarea>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"chatbot-tester-send\" type=\"button\">\nSend\n</button>\n</div>\n@route /",
+     "<div class=\"c42740ba6 c5f14bce3 c64210d2f c913cd95a c9566e21c ca46eac0b cc2d72006 ccae02ff2 cd9b20003 cf0ca6c6e\">\n<textarea class=\"c0f638af6 c10cc0a1f c1d212117 c1f523237 c28ce3678 c2bf204c1 c445db9b9 c4b92e3a8 c8f3cd634 caa6eb57d cb5823274 cd037ccc6\" placeholder=\"Type a message…\" rows=\"1\" {value=\"Hello\"}>\n</textarea>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"chatbot-tester-send\" type=\"button\">\nSend\n</button>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onSend",
+      "args": [
+       {
+        "event": "click",
+        "target": "button"
+       }
+      ]
+     }
+    ]
+   },
+   "Enter sends without an argument": {
+    "snapshots": [
+     "<div class=\"c42740ba6 c5f14bce3 c64210d2f c913cd95a c9566e21c ca46eac0b cc2d72006 ccae02ff2 cd9b20003 cf0ca6c6e\">\n<textarea class=\"c0f638af6 c10cc0a1f c1d212117 c1f523237 c28ce3678 c2bf204c1 c445db9b9 c4b92e3a8 c8f3cd634 caa6eb57d cb5823274 cd037ccc6\" placeholder=\"Type a message…\" rows=\"1\" {value=\"Hello\"}>\n</textarea>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"chatbot-tester-send\" type=\"button\">\nSend\n</button>\n</div>\n@route /",
+     "<div class=\"c42740ba6 c5f14bce3 c64210d2f c913cd95a c9566e21c ca46eac0b cc2d72006 ccae02ff2 cd9b20003 cf0ca6c6e\">\n<textarea class=\"c0f638af6 c10cc0a1f c1d212117 c1f523237 c28ce3678 c2bf204c1 c445db9b9 c4b92e3a8 c8f3cd634 caa6eb57d cb5823274 cd037ccc6\" placeholder=\"Type a message…\" rows=\"1\" {value=\"Hello\"}>\n</textarea>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"chatbot-tester-send\" type=\"button\">\nSend\n</button>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onSend",
+      "args": []
+     }
+    ]
+   },
+   "Shift+Enter does not send": {
+    "snapshots": [
+     "<div class=\"c42740ba6 c5f14bce3 c64210d2f c913cd95a c9566e21c ca46eac0b cc2d72006 ccae02ff2 cd9b20003 cf0ca6c6e\">\n<textarea class=\"c0f638af6 c10cc0a1f c1d212117 c1f523237 c28ce3678 c2bf204c1 c445db9b9 c4b92e3a8 c8f3cd634 caa6eb57d cb5823274 cd037ccc6\" placeholder=\"Type a message…\" rows=\"1\" {value=\"Hello\"}>\n</textarea>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"chatbot-tester-send\" type=\"button\">\nSend\n</button>\n</div>\n@route /",
+     "<div class=\"c42740ba6 c5f14bce3 c64210d2f c913cd95a c9566e21c ca46eac0b cc2d72006 ccae02ff2 cd9b20003 cf0ca6c6e\">\n<textarea class=\"c0f638af6 c10cc0a1f c1d212117 c1f523237 c28ce3678 c2bf204c1 c445db9b9 c4b92e3a8 c8f3cd634 caa6eb57d cb5823274 cd037ccc6\" placeholder=\"Type a message…\" rows=\"1\" {value=\"Hello\"}>\n</textarea>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"chatbot-tester-send\" type=\"button\">\nSend\n</button>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "another key does not send": {
+    "snapshots": [
+     "<div class=\"c42740ba6 c5f14bce3 c64210d2f c913cd95a c9566e21c ca46eac0b cc2d72006 ccae02ff2 cd9b20003 cf0ca6c6e\">\n<textarea class=\"c0f638af6 c10cc0a1f c1d212117 c1f523237 c28ce3678 c2bf204c1 c445db9b9 c4b92e3a8 c8f3cd634 caa6eb57d cb5823274 cd037ccc6\" placeholder=\"Type a message…\" rows=\"1\" {value=\"Hello\"}>\n</textarea>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"chatbot-tester-send\" type=\"button\">\nSend\n</button>\n</div>\n@route /",
+     "<div class=\"c42740ba6 c5f14bce3 c64210d2f c913cd95a c9566e21c ca46eac0b cc2d72006 ccae02ff2 cd9b20003 cf0ca6c6e\">\n<textarea class=\"c0f638af6 c10cc0a1f c1d212117 c1f523237 c28ce3678 c2bf204c1 c445db9b9 c4b92e3a8 c8f3cd634 caa6eb57d cb5823274 cd037ccc6\" placeholder=\"Type a message…\" rows=\"1\" {value=\"Hello\"}>\n</textarea>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"chatbot-tester-send\" type=\"button\">\nSend\n</button>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "the value follows prop changes": {
+    "snapshots": [
+     "<div class=\"c42740ba6 c5f14bce3 c64210d2f c913cd95a c9566e21c ca46eac0b cc2d72006 ccae02ff2 cd9b20003 cf0ca6c6e\">\n<textarea class=\"c0f638af6 c10cc0a1f c1d212117 c1f523237 c28ce3678 c2bf204c1 c445db9b9 c4b92e3a8 c8f3cd634 caa6eb57d cb5823274 cd037ccc6\" placeholder=\"Type a message…\" rows=\"1\" {value=\"\"}>\n</textarea>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"chatbot-tester-send\" disabled type=\"button\">\nSend\n</button>\n</div>\n@route /",
+     "<div class=\"c42740ba6 c5f14bce3 c64210d2f c913cd95a c9566e21c ca46eac0b cc2d72006 ccae02ff2 cd9b20003 cf0ca6c6e\">\n<textarea class=\"c0f638af6 c10cc0a1f c1d212117 c1f523237 c28ce3678 c2bf204c1 c445db9b9 c4b92e3a8 c8f3cd634 caa6eb57d cb5823274 cd037ccc6\" placeholder=\"Type a message…\" rows=\"1\" {value=\"growing\"}>\n</textarea>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"chatbot-tester-send\" type=\"button\">\nSend\n</button>\n</div>\n@route /",
+     "<div class=\"c42740ba6 c5f14bce3 c64210d2f c913cd95a c9566e21c ca46eac0b cc2d72006 ccae02ff2 cd9b20003 cf0ca6c6e\">\n<textarea class=\"c0f638af6 c10cc0a1f c1d212117 c1f523237 c28ce3678 c2bf204c1 c445db9b9 c4b92e3a8 c8f3cd634 caa6eb57d cb5823274 cd037ccc6\" placeholder=\"Type a message…\" rows=\"1\" {value=\"\"}>\n</textarea>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"chatbot-tester-send\" disabled type=\"button\">\nSend\n</button>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "placeholder, label and loading change through props": {
+    "snapshots": [
+     "<div class=\"c42740ba6 c5f14bce3 c64210d2f c913cd95a c9566e21c ca46eac0b cc2d72006 ccae02ff2 cd9b20003 cf0ca6c6e\">\n<textarea class=\"c0f638af6 c10cc0a1f c1d212117 c1f523237 c28ce3678 c2bf204c1 c445db9b9 c4b92e3a8 c8f3cd634 caa6eb57d cb5823274 cd037ccc6\" placeholder=\"First\" rows=\"1\" {value=\"x\"}>\n</textarea>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"chatbot-tester-send\" type=\"button\">\nOne\n</button>\n</div>\n@route /",
+     "<div class=\"c42740ba6 c5f14bce3 c64210d2f c913cd95a c9566e21c ca46eac0b cc2d72006 ccae02ff2 cd9b20003 cf0ca6c6e\">\n<textarea class=\"c0f638af6 c10cc0a1f c1d212117 c1f523237 c28ce3678 c2bf204c1 c445db9b9 c4b92e3a8 c8f3cd634 caa6eb57d cb5823274 cd037ccc6\" disabled placeholder=\"Second\" rows=\"1\" {value=\"x\"}>\n</textarea>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"chatbot-tester-send\" disabled type=\"button\">\nTwo\n</button>\n</div>\n@route /",
+     "<div class=\"c42740ba6 c5f14bce3 c64210d2f c913cd95a c9566e21c ca46eac0b cc2d72006 ccae02ff2 cd9b20003 cf0ca6c6e\">\n<textarea class=\"c0f638af6 c10cc0a1f c1d212117 c1f523237 c28ce3678 c2bf204c1 c445db9b9 c4b92e3a8 c8f3cd634 caa6eb57d cb5823274 cd037ccc6\" placeholder=\"Second\" rows=\"1\" {value=\"x\"}>\n</textarea>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"chatbot-tester-send\" type=\"button\">\nTwo\n</button>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "empty value with the default placeholder and label, then a locale switch": {
+    "snapshots": [
+     "<div class=\"c42740ba6 c5f14bce3 c64210d2f c913cd95a c9566e21c ca46eac0b cc2d72006 ccae02ff2 cd9b20003 cf0ca6c6e\">\n<textarea class=\"c0f638af6 c10cc0a1f c1d212117 c1f523237 c28ce3678 c2bf204c1 c445db9b9 c4b92e3a8 c8f3cd634 caa6eb57d cb5823274 cd037ccc6\" placeholder=\"Type a message…\" rows=\"1\" {value=\"\"}>\n</textarea>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"chatbot-tester-send\" disabled type=\"button\">\nSend\n</button>\n</div>\n@route /",
+     "<div class=\"c42740ba6 c5f14bce3 c64210d2f c913cd95a c9566e21c ca46eac0b cc2d72006 ccae02ff2 cd9b20003 cf0ca6c6e\">\n<textarea class=\"c0f638af6 c10cc0a1f c1d212117 c1f523237 c28ce3678 c2bf204c1 c445db9b9 c4b92e3a8 c8f3cd634 caa6eb57d cb5823274 cd037ccc6\" placeholder=\"⟦Type a message…⟧\" rows=\"1\" {value=\"\"}>\n</textarea>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"chatbot-tester-send\" disabled type=\"button\">\n⟦Send⟧\n</button>\n</div>\n@route /"
+    ],
+    "calls": []
+   }
+  },
+  "ChatbotTesterMessages": {
+   "empty transcript with no empty state": {
+    "snapshots": [
+     "<div class=\"c913cd95a ca46eac0b cb5823274 cd4bf1eb3\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "assistant and user bubbles": {
+    "snapshots": [
+     "<div class=\"c913cd95a ca46eac0b cb5823274 cd4bf1eb3\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c2cbb8333 c42740ba6 cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c07a324cf c18b873b1 c445db9b9 c4f8fef6f c8f3cd634 caa6eb57d cd1dd5b6d ce6c94376\">\nHi there\n</div>\n</div>\n<div class=\"c117f3063 c2cbb8333 c42740ba6 ccae02ff2 cd9b20003\">\n<div class=\"c07a324cf c18b873b1 c445db9b9 c4f8fef6f c7f6faa75 c8f3cd634 c973b6d5b caa6eb57d\">\nHello\n<div class=\"c4647f690 c544e0d93 c99fc28ae\">\n10:00\n</div>\n</div>\n</div>\n<div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "timestamps on both bubble sides": {
+    "snapshots": [
+     "<div class=\"c913cd95a ca46eac0b cb5823274 cd4bf1eb3\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c2cbb8333 c42740ba6 cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c07a324cf c18b873b1 c445db9b9 c4f8fef6f c8f3cd634 caa6eb57d cd1dd5b6d ce6c94376\">\nBot\n<div class=\"c052585d2 c4647f690 c99fc28ae\">\n10:00\n</div>\n</div>\n</div>\n<div class=\"c117f3063 c2cbb8333 c42740ba6 ccae02ff2 cd9b20003\">\n<div class=\"c07a324cf c18b873b1 c445db9b9 c4f8fef6f c7f6faa75 c8f3cd634 c973b6d5b caa6eb57d\">\nMe\n<div class=\"c4647f690 c544e0d93 c99fc28ae\">\n10:01\n</div>\n</div>\n</div>\n<div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a system message renders as a bot bubble": {
+    "snapshots": [
+     "<div class=\"c913cd95a ca46eac0b cb5823274 cd4bf1eb3\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c2cbb8333 c42740ba6 cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c07a324cf c18b873b1 c445db9b9 c4f8fef6f c8f3cd634 caa6eb57d cd1dd5b6d ce6c94376\">\nHi there\n</div>\n</div>\n<div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "loading appends the typing indicator": {
+    "snapshots": [
+     "<div class=\"c913cd95a ca46eac0b cb5823274 cd4bf1eb3\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c2cbb8333 c42740ba6 cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c07a324cf c18b873b1 c445db9b9 c4f8fef6f c8f3cd634 caa6eb57d cd1dd5b6d ce6c94376\">\nHi there\n</div>\n</div>\n<div class=\"c117f3063 c2cbb8333 c42740ba6 ccae02ff2 cd9b20003\">\n<div class=\"c07a324cf c18b873b1 c445db9b9 c4f8fef6f c7f6faa75 c8f3cd634 c973b6d5b caa6eb57d\">\nHello\n<div class=\"c4647f690 c544e0d93 c99fc28ae\">\n10:00\n</div>\n</div>\n</div>\n<div class=\"c052585d2 c4647f690 cded75210\">\n...\n</div>\n<div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "loading with no messages": {
+    "snapshots": [
+     "<div class=\"c913cd95a ca46eac0b cb5823274 cd4bf1eb3\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c052585d2 c4647f690 cded75210\">\n...\n</div>\n<div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "empty state as a slot": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c9773cd2b cb5823274 ccae02ff2 cd9b20003\">\n<p data-empty>\nStart a conversation\n</p>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "empty state as a node prop": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c9773cd2b cb5823274 ccae02ff2 cd9b20003\">\n<p data-empty>\nStart a conversation\n</p>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "empty state as a plain string": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c9773cd2b cb5823274 ccae02ff2 cd9b20003\">\nNothing yet\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "empty state is ignored when messages exist": {
+    "snapshots": [
+     "<div class=\"c913cd95a ca46eac0b cb5823274 cd4bf1eb3\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c2cbb8333 c42740ba6 cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c07a324cf c18b873b1 c445db9b9 c4f8fef6f c8f3cd634 caa6eb57d cd1dd5b6d ce6c94376\">\nHi there\n</div>\n</div>\n<div class=\"c117f3063 c2cbb8333 c42740ba6 ccae02ff2 cd9b20003\">\n<div class=\"c07a324cf c18b873b1 c445db9b9 c4f8fef6f c7f6faa75 c8f3cd634 c973b6d5b caa6eb57d\">\nHello\n<div class=\"c4647f690 c544e0d93 c99fc28ae\">\n10:00\n</div>\n</div>\n</div>\n<div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "empty state is ignored while loading": {
+    "snapshots": [
+     "<div class=\"c913cd95a ca46eac0b cb5823274 cd4bf1eb3\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c052585d2 c4647f690 cded75210\">\n...\n</div>\n<div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "messages change through props": {
+    "snapshots": [
+     "<div class=\"c913cd95a ca46eac0b cb5823274 cd4bf1eb3\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c913cd95a ca46eac0b cb5823274 cd4bf1eb3\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c2cbb8333 c42740ba6 cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c07a324cf c18b873b1 c445db9b9 c4f8fef6f c8f3cd634 caa6eb57d cd1dd5b6d ce6c94376\">\nHi there\n</div>\n</div>\n<div class=\"c117f3063 c2cbb8333 c42740ba6 ccae02ff2 cd9b20003\">\n<div class=\"c07a324cf c18b873b1 c445db9b9 c4f8fef6f c7f6faa75 c8f3cd634 c973b6d5b caa6eb57d\">\nHello\n<div class=\"c4647f690 c544e0d93 c99fc28ae\">\n10:00\n</div>\n</div>\n</div>\n<div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c913cd95a ca46eac0b cb5823274 cd4bf1eb3\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c913cd95a ca46eac0b cb5823274 cd4bf1eb3\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c052585d2 c4647f690 cded75210\">\n...\n</div>\n<div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "message content is rendered as text": {
+    "snapshots": [
+     "<div class=\"c913cd95a ca46eac0b cb5823274 cd4bf1eb3\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c117f3063 c2cbb8333 c42740ba6 ccae02ff2 cd9b20003\">\n<div class=\"c07a324cf c18b873b1 c445db9b9 c4f8fef6f c7f6faa75 c8f3cd634 c973b6d5b caa6eb57d\">\n&lt;b&gt;not bold&lt;/b&gt; &amp; more\n</div>\n</div>\n<div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "empty transcript with no empty state, then a locale switch": {
+    "snapshots": [
+     "<div class=\"c913cd95a ca46eac0b cb5823274 cd4bf1eb3\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c913cd95a ca46eac0b cb5823274 cd4bf1eb3\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   }
+  }
+ }
+}

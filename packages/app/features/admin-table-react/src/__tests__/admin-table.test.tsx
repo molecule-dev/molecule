@@ -189,6 +189,101 @@ describe('AdminTable (theme-aware surfaces)', () => {
   })
 })
 
+describe('AdminTable (accessible names and row keys)', () => {
+  const editAction = [{ label: 'Edit', onSelect: () => {}, dataMolIdFor: () => 'row-action-edit' }]
+
+  it('gives each row checkbox the translated Select row name', () => {
+    const { container } = render(
+      createElement(AdminTable<Row>, { rows, columns, rowKey: (r) => r.id, bulkSelect: true }),
+    )
+    const box = container.querySelector('input[type="checkbox"]')
+    expect(box?.getAttribute('aria-label')).toBe('Select row')
+  })
+
+  it('names the checkbox and actions column headers for screen readers', () => {
+    const { container } = render(
+      createElement(AdminTable<Row>, {
+        rows,
+        columns,
+        rowKey: (r) => r.id,
+        bulkSelect: true,
+        rowActions: editAction,
+      }),
+    )
+    const heads = Array.from(container.querySelectorAll('thead th'))
+    expect(heads.length).toBe(3)
+    expect(heads[0]?.textContent).toBe('Select')
+    expect(heads[2]?.textContent).toBe('Actions')
+    // Both names are visually hidden spans, not visible header text.
+    expect(heads[0]?.querySelector('span')?.getAttribute('class')).toContain('srOnly')
+    expect(heads[2]?.querySelector('span')?.getAttribute('class')).toContain('srOnly')
+  })
+
+  it('a clickable row keeps the row role instead of link', () => {
+    const { container } = render(
+      createElement(AdminTable<Row>, { rows, columns, rowKey: (r) => r.id, onRowClick: () => {} }),
+    )
+    const row = container.querySelector('tbody tr')
+    expect(row?.hasAttribute('role')).toBe(false)
+    expect(row?.getAttribute('tabindex')).toBe('0')
+  })
+
+  it('Space on a row checkbox toggles it without opening the row', () => {
+    const onRowClick = vi.fn()
+    const { container } = render(
+      createElement(AdminTable<Row>, {
+        rows,
+        columns,
+        rowKey: (r) => r.id,
+        bulkSelect: true,
+        onRowClick,
+      }),
+    )
+    const box = container.querySelector<HTMLInputElement>('input[type="checkbox"]')
+    if (!box) throw new Error('checkbox not found')
+    // Space on a native checkbox: the keydown bubbles to the row, the browser
+    // then toggles the box, which fires the click React sees.
+    fireEvent.keyDown(box, { key: ' ' })
+    fireEvent.click(box)
+    expect(box.checked).toBe(true)
+    expect(onRowClick).not.toHaveBeenCalled()
+  })
+
+  it('Enter on the row-actions trigger opens the menu without opening the row', () => {
+    const onRowClick = vi.fn()
+    const { container } = render(
+      createElement(AdminTable<Row>, {
+        rows,
+        columns,
+        rowKey: (r) => r.id,
+        onRowClick,
+        rowActions: editAction,
+      }),
+    )
+    const trigger = container.querySelector<HTMLElement>(
+      '[data-mol-id="admin-table-row-actions-trigger"]',
+    )
+    if (!trigger) throw new Error('trigger not found')
+    // Enter on a native button: the keydown bubbles to the row, then the
+    // browser produces the click the trigger handles.
+    fireEvent.keyDown(trigger, { key: 'Enter' })
+    fireEvent.click(trigger)
+    expect(container.querySelector('[data-mol-id="row-action-edit"]')).not.toBeNull()
+    expect(onRowClick).not.toHaveBeenCalled()
+  })
+
+  it('Enter on the focused row opens it', () => {
+    const onRowClick = vi.fn()
+    const { container } = render(
+      createElement(AdminTable<Row>, { rows, columns, rowKey: (r) => r.id, onRowClick }),
+    )
+    const row = container.querySelector('tbody tr')
+    if (!row) throw new Error('row not found')
+    fireEvent.keyDown(row, { key: 'Enter' })
+    expect(onRowClick).toHaveBeenCalledTimes(1)
+  })
+})
+
 describe('AdminTableRowActions (kebab menu)', () => {
   const actions = [
     { label: 'Edit', onSelect: () => {}, dataMolIdFor: () => 'row-action-edit' },

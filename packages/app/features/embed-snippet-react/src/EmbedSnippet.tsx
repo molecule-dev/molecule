@@ -1,6 +1,7 @@
 import type { ChangeEvent, ReactElement } from 'react'
 import { useCallback, useMemo, useState } from 'react'
 
+import { copyTextWithFallback } from '@molecule/app-clipboard'
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-react'
@@ -60,8 +61,8 @@ export function EmbedSnippet(props: EmbedSnippetProps): ReactElement {
   const rendered = useMemo(() => substituteTemplate(template, values), [template, values])
 
   const handleCopy = useCallback(() => {
-    if (typeof navigator === 'undefined' || !navigator.clipboard) return
-    void navigator.clipboard.writeText(rendered).then(() => {
+    void copyTextWithFallback(rendered).then((copied) => {
+      if (!copied) return
       setCopied(true)
       onCopy?.(rendered)
       setTimeout(() => setCopied(false), feedbackMs)
@@ -132,8 +133,10 @@ export function EmbedSnippet(props: EmbedSnippetProps): ReactElement {
         />
       ) : null}
 
+      {/* The generated embed code is code, not prose: never translated. */}
       <pre
         data-mol-id={`${molId}-code`}
+        translate="no"
         className={cm.cn(cm.sp('px', 4), cm.sp('py', 3), cm.textSize('sm'))}
       >
         <code>{rendered}</code>

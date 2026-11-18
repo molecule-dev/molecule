@@ -11,6 +11,7 @@
 
 import { type Component, Show } from 'solid-js'
 
+import { useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { RatingDisplayProps } from './types.js'
@@ -63,6 +64,10 @@ const Star: Component<StarProps> = (props) => {
  * review-count tail. When `onChange` is provided each star becomes an
  * interactive button.
  *
+ * The stars sit in an inner span that carries the rating label — `role="img"`
+ * when read-only, `role="group"` (holding the rate buttons) in interactive
+ * mode — and the root is a plain flex span, exactly as React's does.
+ *
  * Uses inline SVG stars so the component works without icon-font fallback.
  * Same props (React names) and same DOM as
  * `@molecule/app-rating-display-react`'s `RatingDisplay`.
@@ -71,31 +76,47 @@ const Star: Component<StarProps> = (props) => {
  * @returns The rendered rating display.
  */
 export const RatingDisplay: Component<RatingDisplayProps> = (props) => {
+  const { t } = useTranslation()
   const cm = getClassMap()
   const max = (): number => props.max ?? 5
   const px = (): number | undefined => SIZE_PX[props.size ?? 'md']
+  // One flex row shared by the root and the stars span, so wrapping the stars
+  // in the inner span leaves the layout as it was.
+  const layout = cm.flex({ align: 'center', gap: 'xs' })
+  const label = (): string =>
+    props.ariaLabel ??
+    t(
+      'ratingDisplay.aria.rating',
+      { value: props.value, max: max() },
+      { defaultValue: 'Rating: {{value}} of {{max}}' },
+    )
+  const rateLabel = (star: number): string =>
+    t(
+      'ratingDisplay.aria.rate',
+      { value: star, max: max() },
+      { defaultValue: 'Rate {{value}} of {{max}}' },
+    )
   const stars = (): { i: number; fill: number }[] =>
     Array.from({ length: max() }, (_value, i) => ({
       i,
       fill: Math.max(0, Math.min(1, props.value - i)),
     }))
   return (
-    <span
-      class={cm.cn(cm.flex({ align: 'center', gap: 'xs' }), props.className)}
-      role="img"
-      aria-label={props.ariaLabel ?? `Rating: ${props.value} of ${max()}`}
-    >
-      {stars().map(({ i, fill }) => (
-        <Show when={props.onChange} fallback={<Star fill={fill} size={px()} />}>
-          <button
-            type="button"
-            onClick={() => props.onChange?.(i + 1)}
-            aria-label={`Rate ${i + 1} of ${max()}`}
-          >
-            <Star fill={fill} size={px()} />
-          </button>
-        </Show>
-      ))}
+    <span class={cm.cn(layout, props.className)}>
+      <span class={layout} role={props.onChange ? 'group' : 'img'} aria-label={label()}>
+        {stars().map(({ i, fill }) => (
+          <Show when={props.onChange} fallback={<Star fill={fill} size={px()} />}>
+            <button
+              type="button"
+              onClick={() => props.onChange?.(i + 1)}
+              aria-pressed={i + 1 <= Math.round(props.value) ? 'true' : 'false'}
+              aria-label={rateLabel(i + 1)}
+            >
+              <Star fill={fill} size={px()} />
+            </button>
+          </Show>
+        ))}
+      </span>
       <Show when={props.reviewCount !== undefined}>
         <Show
           when={props.onReviewsClick}

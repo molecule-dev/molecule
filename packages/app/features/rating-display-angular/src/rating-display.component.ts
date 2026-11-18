@@ -6,6 +6,7 @@
 
 import { Component } from '@angular/core'
 
+import { useTranslation } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -40,7 +41,10 @@ const starId = (): string => `star-grad-${Math.random().toString(36).slice(2, 9)
  * review-count tail. When `onChange` is provided each star becomes an
  * interactive button. The host IS the outer `<span>`
  * (`span[mol-rating-display]`), matching React's root exactly, so the root's
- * class, `role` and `aria-label` are host bindings.
+ * class is a host binding; the stars sit in an inner span that carries the
+ * rating label — `role="img"` when read-only, `role="group"` (holding the
+ * rate buttons) in interactive mode — and the root carries no role, exactly
+ * as React's does.
  *
  * Uses inline SVG stars so the component works without icon-font fallback.
  * Same props (React names) and same DOM as
@@ -60,13 +64,36 @@ const starId = (): string => `star-grad-${Math.random().toString(36).slice(2, 9)
     'className',
   ],
   host: {
-    role: 'img',
     '[class]': 'classes()',
-    '[attr.aria-label]': 'label()',
   },
-  template: `@for (star of stars(); track star.i) {
-      @if (onChange) {
-        <button type="button" (click)="select(star.i)" [attr.aria-label]="rateLabel(star.i)">
+  template: `<span
+      [class]="starsClasses()"
+      [attr.role]="onChange ? 'group' : 'img'"
+      [attr.aria-label]="label()"
+    >
+      @for (star of stars(); track star.i) {
+        @if (onChange) {
+          <button
+            type="button"
+            (click)="select(star.i)"
+            [attr.aria-pressed]="pressed(star.i) ? 'true' : 'false'"
+            [attr.aria-label]="rateLabel(star.i)"
+          >
+            <svg [attr.width]="px()" [attr.height]="px()" viewBox="0 0 24 24" aria-hidden="true">
+              <defs>
+                <linearGradient [attr.id]="star.id">
+                  <stop [attr.offset]="offset(star.fill)" stop-color="currentColor"></stop>
+                  <stop
+                    [attr.offset]="offset(star.fill)"
+                    stop-color="currentColor"
+                    stop-opacity="0.25"
+                  ></stop>
+                </linearGradient>
+              </defs>
+              <path [attr.d]="path" [attr.fill]="fillUrl(star.id)"></path>
+            </svg>
+          </button>
+        } @else {
           <svg [attr.width]="px()" [attr.height]="px()" viewBox="0 0 24 24" aria-hidden="true">
             <defs>
               <linearGradient [attr.id]="star.id">
@@ -80,23 +107,9 @@ const starId = (): string => `star-grad-${Math.random().toString(36).slice(2, 9)
             </defs>
             <path [attr.d]="path" [attr.fill]="fillUrl(star.id)"></path>
           </svg>
-        </button>
-      } @else {
-        <svg [attr.width]="px()" [attr.height]="px()" viewBox="0 0 24 24" aria-hidden="true">
-          <defs>
-            <linearGradient [attr.id]="star.id">
-              <stop [attr.offset]="offset(star.fill)" stop-color="currentColor"></stop>
-              <stop
-                [attr.offset]="offset(star.fill)"
-                stop-color="currentColor"
-                stop-opacity="0.25"
-              ></stop>
-            </linearGradient>
-          </defs>
-          <path [attr.d]="path" [attr.fill]="fillUrl(star.id)"></path>
-        </svg>
+        }
       }
-    }
+    </span>
     @if (reviewCount !== undefined) {
       @if (onReviewsClick) {
         <button type="button" (click)="onReviewsClick($event)" [class]="reviewClasses()">
@@ -120,12 +133,15 @@ export class RatingDisplay {
   size?: 'sm' | 'md' | 'lg'
   /** Interactive mode — star clicks call `onChange(starIndex + 1)`. */
   onChange?: (value: number) => void
-  /** Accessible label override. */
+  /** Accessible label override; defaults to the translated `Rating: {value} of {max}`. */
   ariaLabel?: string
   /** Extra classes. */
   className?: string
   /** The star's single SVG path. */
   readonly path = STAR_PATH
+
+  /** The i18n handle (locale-reactive, so the labels follow a switch). */
+  private readonly i18n = useTranslation()
 
   /**
    * The current class map.
@@ -190,7 +206,11 @@ export class RatingDisplay {
    * @returns The accessible label.
    */
   rateLabel(i: number): string {
-    return `Rate ${i + 1} of ${this.maxValue()}`
+    return this.i18n.t(
+      'ratingDisplay.aria.rate',
+      { value: i + 1, max: this.maxValue() },
+      { defaultValue: 'Rate {{value}} of {{max}}' },
+    )
   }
 
   /**
@@ -199,6 +219,15 @@ export class RatingDisplay {
    */
   select(i: number): void {
     this.onChange?.(i + 1)
+  }
+
+  /**
+   * Whether the star at index `i` is pressed: it is within the rounded rating.
+   * @param i - Star index (0-based).
+   * @returns The button's `aria-pressed` state.
+   */
+  pressed(i: number): boolean {
+    return i + 1 <= Math.round(this.value)
   }
 
   /**
@@ -211,11 +240,27 @@ export class RatingDisplay {
   }
 
   /**
-   * The root `aria-label` (`ariaLabel`, or React's default).
+   * The inner stars span class (`cm.flex({ align: 'center', gap: 'xs' })`, the
+   * same list as the root so wrapping the stars does not move the layout).
+   * @returns The class string.
+   */
+  starsClasses(): string {
+    return this.cm().flex({ align: 'center', gap: 'xs' })
+  }
+
+  /**
+   * The root `aria-label` (`ariaLabel`, or the translated default).
    * @returns The accessible label.
    */
   label(): string {
-    return this.ariaLabel ?? `Rating: ${this.value} of ${this.maxValue()}`
+    return (
+      this.ariaLabel ??
+      this.i18n.t(
+        'ratingDisplay.aria.rating',
+        { value: this.value, max: this.maxValue() },
+        { defaultValue: 'Rating: {{value}} of {{max}}' },
+      )
+    )
   }
 
   /**

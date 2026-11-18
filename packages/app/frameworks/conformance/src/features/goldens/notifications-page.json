@@ -1,0 +1,695 @@
+{
+ "exports": [
+  "DEFAULT_TYPE_ICONS",
+  "NotificationsPage",
+  "resolveTypeIcon"
+ ],
+ "values": {
+  "DEFAULT_TYPE_ICONS": {
+   "system": "campaign",
+   "message": "chat",
+   "mention": "alternate_email",
+   "alert": "priority_high",
+   "reminder": "schedule",
+   "comment": "mode_comment",
+   "follow": "person_add",
+   "like": "favorite",
+   "invite": "mail",
+   "payment": "payments",
+   "shipment": "local_shipping",
+   "status": "info"
+  },
+  "resolveTypeIcon": [
+   "chat",
+   "notifications",
+   "star",
+   "priority_high",
+   "notifications"
+  ]
+ },
+ "cases": {
+  "NotificationsPage": {
+   "defaults load the first page and render its rows": {
+    "snapshots": [
+     "<section class=\"c2cbb8333 c8b62022c c913cd95a c9166dbd0 ca06ea5bf cbaac6b89 ccae02ff2 cd5d4be14\" data-mol-id=\"notifications-page\">\n<header class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c9366def6 c937ba156 ccae02ff2 cd9b20003 ceacde2ad\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\nNotifications\n</h1>\n<button class=\"c13d4ff0f c445db9b9 c7f74399a\" data-mol-id=\"notifications-page-mark-all-read\" type=\"button\">\nMark 2 as read\n</button>\n</div>\n</header>\n<div aria-label=\"Filter notifications\" class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c13d4ff0f c445db9b9 c7f74399a c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-all\" role=\"tab\" type=\"button\">\nAll\n</button>\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-unread\" role=\"tab\" type=\"button\">\nUnread\n</button>\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-mentions\" role=\"tab\" type=\"button\">\nMentions\n</button>\n</div>\n<ul aria-label=\"Notifications\" class=\"cd766b2f8\" data-mol-id=\"notifications-page-feed\">\n<li>\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c93ab4c7f c99d61f16 cb33f6c80 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\nchat\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nNew DM\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n1m\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\nHello there.\n</p>\n</div>\n</div>\n</li>\n<li>\n<a class=\"ceb0cbd62\" href=\"/threads/42\">\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c93ab4c7f c99d61f16 cb33f6c80 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\nalternate_email\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nYou were mentioned\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n5m\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\n@you check this out\n</p>\n</div>\n</div>\n</a>\n</li>\n<li>\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c99d61f16 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\ncampaign\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nWelcome\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n1h\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\nThanks for joining\n</p>\n</div>\n</div>\n</li>\n</ul>\n</section>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     },
+     {
+      "name": "http.get",
+      "args": [
+       {
+        "url": "/api/notifications?limit=20&offset=0"
+       }
+      ]
+     }
+    ]
+   },
+   "an empty page shows the caught-up state": {
+    "snapshots": [
+     "<section class=\"c2cbb8333 c8b62022c c913cd95a c9166dbd0 ca06ea5bf cbaac6b89 ccae02ff2 cd5d4be14\" data-mol-id=\"notifications-page\">\n<header class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c9366def6 c937ba156 ccae02ff2 cd9b20003 ceacde2ad\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\nNotifications\n</h1>\n</div>\n</header>\n<div aria-label=\"Filter notifications\" class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c13d4ff0f c445db9b9 c7f74399a c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-all\" role=\"tab\" type=\"button\">\nAll\n</button>\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-unread\" role=\"tab\" type=\"button\">\nUnread\n</button>\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-mentions\" role=\"tab\" type=\"button\">\nMentions\n</button>\n</div>\n<div class=\"c16e96f28 c2cbb8333 c9566e21c ca5d631fa cbaac6b89 ccae02ff2\" data-mol-id=\"notifications-page-empty\">\n<span class=\"c6a2a1a28 c7f74399a\">\nYou’re all caught up\n</span>\n<span class=\"c445db9b9 ce823b5bf\">\nNew notifications will appear here.\n</span>\n</div>\n</section>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     },
+     {
+      "name": "http.get",
+      "args": [
+       {
+        "url": "/api/notifications?limit=20&offset=0"
+       }
+      ]
+     }
+    ]
+   },
+   "an all-read page hides the mark-all-read action": {
+    "snapshots": [
+     "<section class=\"c2cbb8333 c8b62022c c913cd95a c9166dbd0 ca06ea5bf cbaac6b89 ccae02ff2 cd5d4be14\" data-mol-id=\"notifications-page\">\n<header class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c9366def6 c937ba156 ccae02ff2 cd9b20003 ceacde2ad\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\nNotifications\n</h1>\n</div>\n</header>\n<div aria-label=\"Filter notifications\" class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c13d4ff0f c445db9b9 c7f74399a c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-all\" role=\"tab\" type=\"button\">\nAll\n</button>\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-unread\" role=\"tab\" type=\"button\">\nUnread\n</button>\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-mentions\" role=\"tab\" type=\"button\">\nMentions\n</button>\n</div>\n<ul aria-label=\"Notifications\" class=\"cd766b2f8\" data-mol-id=\"notifications-page-feed\">\n<li>\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c99d61f16 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\ncampaign\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\ntitle-n1\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n5m\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\nbody-n1\n</p>\n</div>\n</div>\n</li>\n<li>\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c99d61f16 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\ncampaign\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\ntitle-n2\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n5m\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\nbody-n2\n</p>\n</div>\n</div>\n</li>\n</ul>\n</section>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     },
+     {
+      "name": "http.get",
+      "args": [
+       {
+        "url": "/api/notifications?limit=20&offset=0"
+       }
+      ]
+     }
+    ]
+   },
+   "loading shows before the first page answers": {
+    "snapshots": [
+     "<section aria-busy=\"true\" class=\"c2cbb8333 c8b62022c c913cd95a c9166dbd0 ca06ea5bf cbaac6b89 ccae02ff2 cd5d4be14\" data-mol-id=\"notifications-page\">\n<header class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c9366def6 c937ba156 ccae02ff2 cd9b20003 ceacde2ad\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\nNotifications\n</h1>\n</div>\n</header>\n<div aria-label=\"Filter notifications\" class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c13d4ff0f c445db9b9 c7f74399a c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-all\" role=\"tab\" type=\"button\">\nAll\n</button>\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-unread\" role=\"tab\" type=\"button\">\nUnread\n</button>\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-mentions\" role=\"tab\" type=\"button\">\nMentions\n</button>\n</div>\n<div aria-live=\"polite\" class=\"c16e96f28 c445db9b9 c97d61bf0 ce823b5bf\" data-mol-id=\"notifications-page-loading\" role=\"status\">\nLoading notifications…\n</div>\n</section>\n@route /",
+     "<section class=\"c2cbb8333 c8b62022c c913cd95a c9166dbd0 ca06ea5bf cbaac6b89 ccae02ff2 cd5d4be14\" data-mol-id=\"notifications-page\">\n<header class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c9366def6 c937ba156 ccae02ff2 cd9b20003 ceacde2ad\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\nNotifications\n</h1>\n<button class=\"c13d4ff0f c445db9b9 c7f74399a\" data-mol-id=\"notifications-page-mark-all-read\" type=\"button\">\nMark 2 as read\n</button>\n</div>\n</header>\n<div aria-label=\"Filter notifications\" class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c13d4ff0f c445db9b9 c7f74399a c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-all\" role=\"tab\" type=\"button\">\nAll\n</button>\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-unread\" role=\"tab\" type=\"button\">\nUnread\n</button>\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-mentions\" role=\"tab\" type=\"button\">\nMentions\n</button>\n</div>\n<ul aria-label=\"Notifications\" class=\"cd766b2f8\" data-mol-id=\"notifications-page-feed\">\n<li>\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c93ab4c7f c99d61f16 cb33f6c80 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\nchat\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nNew DM\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n1m\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\nHello there.\n</p>\n</div>\n</div>\n</li>\n<li>\n<a class=\"ceb0cbd62\" href=\"/threads/42\">\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c93ab4c7f c99d61f16 cb33f6c80 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\nalternate_email\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nYou were mentioned\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n5m\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\n@you check this out\n</p>\n</div>\n</div>\n</a>\n</li>\n<li>\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c99d61f16 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\ncampaign\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nWelcome\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n1h\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\nThanks for joining\n</p>\n</div>\n</div>\n</li>\n</ul>\n</section>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     },
+     {
+      "name": "http.get",
+      "args": [
+       {
+        "url": "/api/notifications?limit=20&offset=0"
+       }
+      ]
+     }
+    ]
+   },
+   "a failed first load shows the alert": {
+    "snapshots": [
+     "<section class=\"c2cbb8333 c8b62022c c913cd95a c9166dbd0 ca06ea5bf cbaac6b89 ccae02ff2 cd5d4be14\" data-mol-id=\"notifications-page\">\n<header class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c9366def6 c937ba156 ccae02ff2 cd9b20003 ceacde2ad\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\nNotifications\n</h1>\n</div>\n</header>\n<div aria-label=\"Filter notifications\" class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c13d4ff0f c445db9b9 c7f74399a c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-all\" role=\"tab\" type=\"button\">\nAll\n</button>\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-unread\" role=\"tab\" type=\"button\">\nUnread\n</button>\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-mentions\" role=\"tab\" type=\"button\">\nMentions\n</button>\n</div>\n<div class=\"c16e96f28 c445db9b9 c99d61f16\" data-mol-id=\"notifications-page-error\" role=\"alert\">\nCould not load notifications.\n</div>\n</section>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     },
+     {
+      "name": "http.get",
+      "args": [
+       {
+        "url": "/api/notifications?limit=20&offset=0"
+       }
+      ]
+     }
+    ]
+   },
+   "a failed filter change replaces the rows with the alert": {
+    "snapshots": [
+     "<section class=\"c2cbb8333 c8b62022c c913cd95a c9166dbd0 ca06ea5bf cbaac6b89 ccae02ff2 cd5d4be14\" data-mol-id=\"notifications-page\">\n<header class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c9366def6 c937ba156 ccae02ff2 cd9b20003 ceacde2ad\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\nNotifications\n</h1>\n<button class=\"c13d4ff0f c445db9b9 c7f74399a\" data-mol-id=\"notifications-page-mark-all-read\" type=\"button\">\nMark 2 as read\n</button>\n</div>\n</header>\n<div aria-label=\"Filter notifications\" class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c13d4ff0f c445db9b9 c7f74399a c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-all\" role=\"tab\" type=\"button\">\nAll\n</button>\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-unread\" role=\"tab\" type=\"button\">\nUnread\n</button>\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-mentions\" role=\"tab\" type=\"button\">\nMentions\n</button>\n</div>\n<ul aria-label=\"Notifications\" class=\"cd766b2f8\" data-mol-id=\"notifications-page-feed\">\n<li>\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c93ab4c7f c99d61f16 cb33f6c80 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\nchat\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nNew DM\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n1m\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\nHello there.\n</p>\n</div>\n</div>\n</li>\n<li>\n<a class=\"ceb0cbd62\" href=\"/threads/42\">\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c93ab4c7f c99d61f16 cb33f6c80 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\nalternate_email\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nYou were mentioned\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n5m\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\n@you check this out\n</p>\n</div>\n</div>\n</a>\n</li>\n<li>\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c99d61f16 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\ncampaign\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nWelcome\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n1h\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\nThanks for joining\n</p>\n</div>\n</div>\n</li>\n</ul>\n</section>\n@route /",
+     "<section class=\"c2cbb8333 c8b62022c c913cd95a c9166dbd0 ca06ea5bf cbaac6b89 ccae02ff2 cd5d4be14\" data-mol-id=\"notifications-page\">\n<header class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c9366def6 c937ba156 ccae02ff2 cd9b20003 ceacde2ad\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\nNotifications\n</h1>\n</div>\n</header>\n<div aria-label=\"Filter notifications\" class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\" role=\"tablist\">\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-all\" role=\"tab\" type=\"button\">\nAll\n</button>\n<button aria-selected=\"true\" class=\"c13d4ff0f c445db9b9 c7f74399a c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-unread\" role=\"tab\" type=\"button\">\nUnread\n</button>\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-mentions\" role=\"tab\" type=\"button\">\nMentions\n</button>\n</div>\n<div class=\"c16e96f28 c445db9b9 c99d61f16\" data-mol-id=\"notifications-page-error\" role=\"alert\">\nCould not load notifications.\n</div>\n</section>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     },
+     {
+      "name": "http.get",
+      "args": [
+       {
+        "url": "/api/notifications?limit=20&offset=0"
+       }
+      ]
+     },
+     {
+      "name": "http.get",
+      "args": [
+       {
+        "url": "/api/notifications?limit=20&offset=0&read=false"
+       }
+      ]
+     }
+    ]
+   },
+   "the unread filter queries read=false": {
+    "snapshots": [
+     "<section class=\"c2cbb8333 c8b62022c c913cd95a c9166dbd0 ca06ea5bf cbaac6b89 ccae02ff2 cd5d4be14\" data-mol-id=\"notifications-page\">\n<header class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c9366def6 c937ba156 ccae02ff2 cd9b20003 ceacde2ad\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\nNotifications\n</h1>\n<button class=\"c13d4ff0f c445db9b9 c7f74399a\" data-mol-id=\"notifications-page-mark-all-read\" type=\"button\">\nMark 2 as read\n</button>\n</div>\n</header>\n<div aria-label=\"Filter notifications\" class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c13d4ff0f c445db9b9 c7f74399a c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-all\" role=\"tab\" type=\"button\">\nAll\n</button>\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-unread\" role=\"tab\" type=\"button\">\nUnread\n</button>\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-mentions\" role=\"tab\" type=\"button\">\nMentions\n</button>\n</div>\n<ul aria-label=\"Notifications\" class=\"cd766b2f8\" data-mol-id=\"notifications-page-feed\">\n<li>\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c93ab4c7f c99d61f16 cb33f6c80 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\nchat\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nNew DM\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n1m\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\nHello there.\n</p>\n</div>\n</div>\n</li>\n<li>\n<a class=\"ceb0cbd62\" href=\"/threads/42\">\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c93ab4c7f c99d61f16 cb33f6c80 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\nalternate_email\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nYou were mentioned\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n5m\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\n@you check this out\n</p>\n</div>\n</div>\n</a>\n</li>\n<li>\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c99d61f16 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\ncampaign\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nWelcome\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n1h\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\nThanks for joining\n</p>\n</div>\n</div>\n</li>\n</ul>\n</section>\n@route /",
+     "<section class=\"c2cbb8333 c8b62022c c913cd95a c9166dbd0 ca06ea5bf cbaac6b89 ccae02ff2 cd5d4be14\" data-mol-id=\"notifications-page\">\n<header class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c9366def6 c937ba156 ccae02ff2 cd9b20003 ceacde2ad\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\nNotifications\n</h1>\n<button class=\"c13d4ff0f c445db9b9 c7f74399a\" data-mol-id=\"notifications-page-mark-all-read\" type=\"button\">\nMark 2 as read\n</button>\n</div>\n</header>\n<div aria-label=\"Filter notifications\" class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\" role=\"tablist\">\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-all\" role=\"tab\" type=\"button\">\nAll\n</button>\n<button aria-selected=\"true\" class=\"c13d4ff0f c445db9b9 c7f74399a c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-unread\" role=\"tab\" type=\"button\">\nUnread\n</button>\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-mentions\" role=\"tab\" type=\"button\">\nMentions\n</button>\n</div>\n<ul aria-label=\"Notifications\" class=\"cd766b2f8\" data-mol-id=\"notifications-page-feed\">\n<li>\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c93ab4c7f c99d61f16 cb33f6c80 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\nchat\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nNew DM\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n1m\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\nHello there.\n</p>\n</div>\n</div>\n</li>\n<li>\n<a class=\"ceb0cbd62\" href=\"/threads/42\">\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c93ab4c7f c99d61f16 cb33f6c80 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\nalternate_email\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nYou were mentioned\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n5m\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\n@you check this out\n</p>\n</div>\n</div>\n</a>\n</li>\n</ul>\n</section>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     },
+     {
+      "name": "http.get",
+      "args": [
+       {
+        "url": "/api/notifications?limit=20&offset=0"
+       }
+      ]
+     },
+     {
+      "name": "http.get",
+      "args": [
+       {
+        "url": "/api/notifications?limit=20&offset=0&read=false"
+       }
+      ]
+     }
+    ]
+   },
+   "the mentions filter queries type=mention": {
+    "snapshots": [
+     "<section class=\"c2cbb8333 c8b62022c c913cd95a c9166dbd0 ca06ea5bf cbaac6b89 ccae02ff2 cd5d4be14\" data-mol-id=\"notifications-page\">\n<header class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c9366def6 c937ba156 ccae02ff2 cd9b20003 ceacde2ad\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\nNotifications\n</h1>\n<button class=\"c13d4ff0f c445db9b9 c7f74399a\" data-mol-id=\"notifications-page-mark-all-read\" type=\"button\">\nMark 2 as read\n</button>\n</div>\n</header>\n<div aria-label=\"Filter notifications\" class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c13d4ff0f c445db9b9 c7f74399a c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-all\" role=\"tab\" type=\"button\">\nAll\n</button>\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-unread\" role=\"tab\" type=\"button\">\nUnread\n</button>\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-mentions\" role=\"tab\" type=\"button\">\nMentions\n</button>\n</div>\n<ul aria-label=\"Notifications\" class=\"cd766b2f8\" data-mol-id=\"notifications-page-feed\">\n<li>\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c93ab4c7f c99d61f16 cb33f6c80 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\nchat\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nNew DM\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n1m\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\nHello there.\n</p>\n</div>\n</div>\n</li>\n<li>\n<a class=\"ceb0cbd62\" href=\"/threads/42\">\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c93ab4c7f c99d61f16 cb33f6c80 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\nalternate_email\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nYou were mentioned\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n5m\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\n@you check this out\n</p>\n</div>\n</div>\n</a>\n</li>\n<li>\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c99d61f16 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\ncampaign\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nWelcome\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n1h\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\nThanks for joining\n</p>\n</div>\n</div>\n</li>\n</ul>\n</section>\n@route /",
+     "<section class=\"c2cbb8333 c8b62022c c913cd95a c9166dbd0 ca06ea5bf cbaac6b89 ccae02ff2 cd5d4be14\" data-mol-id=\"notifications-page\">\n<header class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c9366def6 c937ba156 ccae02ff2 cd9b20003 ceacde2ad\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\nNotifications\n</h1>\n<button class=\"c13d4ff0f c445db9b9 c7f74399a\" data-mol-id=\"notifications-page-mark-all-read\" type=\"button\">\nMark 1 as read\n</button>\n</div>\n</header>\n<div aria-label=\"Filter notifications\" class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\" role=\"tablist\">\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-all\" role=\"tab\" type=\"button\">\nAll\n</button>\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-unread\" role=\"tab\" type=\"button\">\nUnread\n</button>\n<button aria-selected=\"true\" class=\"c13d4ff0f c445db9b9 c7f74399a c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-mentions\" role=\"tab\" type=\"button\">\nMentions\n</button>\n</div>\n<ul aria-label=\"Notifications\" class=\"cd766b2f8\" data-mol-id=\"notifications-page-feed\">\n<li>\n<a class=\"ceb0cbd62\" href=\"/threads/42\">\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c93ab4c7f c99d61f16 cb33f6c80 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\nalternate_email\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nYou were mentioned\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n5m\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\n@you check this out\n</p>\n</div>\n</div>\n</a>\n</li>\n</ul>\n</section>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     },
+     {
+      "name": "http.get",
+      "args": [
+       {
+        "url": "/api/notifications?limit=20&offset=0"
+       }
+      ]
+     },
+     {
+      "name": "http.get",
+      "args": [
+       {
+        "url": "/api/notifications?limit=20&offset=0&type=mention"
+       }
+      ]
+     }
+    ]
+   },
+   "clicking the active filter reloads nothing": {
+    "snapshots": [
+     "<section class=\"c2cbb8333 c8b62022c c913cd95a c9166dbd0 ca06ea5bf cbaac6b89 ccae02ff2 cd5d4be14\" data-mol-id=\"notifications-page\">\n<header class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c9366def6 c937ba156 ccae02ff2 cd9b20003 ceacde2ad\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\nNotifications\n</h1>\n<button class=\"c13d4ff0f c445db9b9 c7f74399a\" data-mol-id=\"notifications-page-mark-all-read\" type=\"button\">\nMark 2 as read\n</button>\n</div>\n</header>\n<div aria-label=\"Filter notifications\" class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c13d4ff0f c445db9b9 c7f74399a c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-all\" role=\"tab\" type=\"button\">\nAll\n</button>\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-unread\" role=\"tab\" type=\"button\">\nUnread\n</button>\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-mentions\" role=\"tab\" type=\"button\">\nMentions\n</button>\n</div>\n<ul aria-label=\"Notifications\" class=\"cd766b2f8\" data-mol-id=\"notifications-page-feed\">\n<li>\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c93ab4c7f c99d61f16 cb33f6c80 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\nchat\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nNew DM\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n1m\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\nHello there.\n</p>\n</div>\n</div>\n</li>\n<li>\n<a class=\"ceb0cbd62\" href=\"/threads/42\">\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c93ab4c7f c99d61f16 cb33f6c80 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\nalternate_email\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nYou were mentioned\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n5m\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\n@you check this out\n</p>\n</div>\n</div>\n</a>\n</li>\n<li>\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c99d61f16 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\ncampaign\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nWelcome\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n1h\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\nThanks for joining\n</p>\n</div>\n</div>\n</li>\n</ul>\n</section>\n@route /",
+     "<section class=\"c2cbb8333 c8b62022c c913cd95a c9166dbd0 ca06ea5bf cbaac6b89 ccae02ff2 cd5d4be14\" data-mol-id=\"notifications-page\">\n<header class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c9366def6 c937ba156 ccae02ff2 cd9b20003 ceacde2ad\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\nNotifications\n</h1>\n<button class=\"c13d4ff0f c445db9b9 c7f74399a\" data-mol-id=\"notifications-page-mark-all-read\" type=\"button\">\nMark 2 as read\n</button>\n</div>\n</header>\n<div aria-label=\"Filter notifications\" class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c13d4ff0f c445db9b9 c7f74399a c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-all\" role=\"tab\" type=\"button\">\nAll\n</button>\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-unread\" role=\"tab\" type=\"button\">\nUnread\n</button>\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-mentions\" role=\"tab\" type=\"button\">\nMentions\n</button>\n</div>\n<ul aria-label=\"Notifications\" class=\"cd766b2f8\" data-mol-id=\"notifications-page-feed\">\n<li>\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c93ab4c7f c99d61f16 cb33f6c80 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\nchat\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nNew DM\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n1m\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\nHello there.\n</p>\n</div>\n</div>\n</li>\n<li>\n<a class=\"ceb0cbd62\" href=\"/threads/42\">\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c93ab4c7f c99d61f16 cb33f6c80 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\nalternate_email\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nYou were mentioned\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n5m\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\n@you check this out\n</p>\n</div>\n</div>\n</a>\n</li>\n<li>\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c99d61f16 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\ncampaign\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nWelcome\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n1h\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\nThanks for joining\n</p>\n</div>\n</div>\n</li>\n</ul>\n</section>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     },
+     {
+      "name": "http.get",
+      "args": [
+       {
+        "url": "/api/notifications?limit=20&offset=0"
+       }
+      ]
+     }
+    ]
+   },
+   "a full single page hides the pagination strip": {
+    "snapshots": [
+     "<section class=\"c2cbb8333 c8b62022c c913cd95a c9166dbd0 ca06ea5bf cbaac6b89 ccae02ff2 cd5d4be14\" data-mol-id=\"notifications-page\">\n<header class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c9366def6 c937ba156 ccae02ff2 cd9b20003 ceacde2ad\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\nNotifications\n</h1>\n<button class=\"c13d4ff0f c445db9b9 c7f74399a\" data-mol-id=\"notifications-page-mark-all-read\" type=\"button\">\nMark 2 as read\n</button>\n</div>\n</header>\n<div aria-label=\"Filter notifications\" class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c13d4ff0f c445db9b9 c7f74399a c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-all\" role=\"tab\" type=\"button\">\nAll\n</button>\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-unread\" role=\"tab\" type=\"button\">\nUnread\n</button>\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-mentions\" role=\"tab\" type=\"button\">\nMentions\n</button>\n</div>\n<ul aria-label=\"Notifications\" class=\"cd766b2f8\" data-mol-id=\"notifications-page-feed\">\n<li>\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c93ab4c7f c99d61f16 cb33f6c80 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\nchat\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nNew DM\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n1m\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\nHello there.\n</p>\n</div>\n</div>\n</li>\n<li>\n<a class=\"ceb0cbd62\" href=\"/threads/42\">\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c93ab4c7f c99d61f16 cb33f6c80 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\nalternate_email\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nYou were mentioned\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n5m\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\n@you check this out\n</p>\n</div>\n</div>\n</a>\n</li>\n<li>\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c99d61f16 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\ncampaign\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nWelcome\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n1h\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\nThanks for joining\n</p>\n</div>\n</div>\n</li>\n</ul>\n</section>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     },
+     {
+      "name": "http.get",
+      "args": [
+       {
+        "url": "/api/notifications?limit=20&offset=0"
+       }
+      ]
+     }
+    ]
+   },
+   "pagination pages forward and back": {
+    "snapshots": [
+     "<section class=\"c2cbb8333 c8b62022c c913cd95a c9166dbd0 ca06ea5bf cbaac6b89 ccae02ff2 cd5d4be14\" data-mol-id=\"notifications-page\">\n<header class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c9366def6 c937ba156 ccae02ff2 cd9b20003 ceacde2ad\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\nNotifications\n</h1>\n<button class=\"c13d4ff0f c445db9b9 c7f74399a\" data-mol-id=\"notifications-page-mark-all-read\" type=\"button\">\nMark 2 as read\n</button>\n</div>\n</header>\n<div aria-label=\"Filter notifications\" class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c13d4ff0f c445db9b9 c7f74399a c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-all\" role=\"tab\" type=\"button\">\nAll\n</button>\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-unread\" role=\"tab\" type=\"button\">\nUnread\n</button>\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-mentions\" role=\"tab\" type=\"button\">\nMentions\n</button>\n</div>\n<ul aria-label=\"Notifications\" class=\"cd766b2f8\" data-mol-id=\"notifications-page-feed\">\n<li>\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c93ab4c7f c99d61f16 cb33f6c80 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\nchat\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nNew DM\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n1m\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\nHello there.\n</p>\n</div>\n</div>\n</li>\n<li>\n<a class=\"ceb0cbd62\" href=\"/threads/42\">\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c93ab4c7f c99d61f16 cb33f6c80 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\nalternate_email\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nYou were mentioned\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n5m\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\n@you check this out\n</p>\n</div>\n</div>\n</a>\n</li>\n<li>\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c99d61f16 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\ncampaign\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nWelcome\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n1h\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\nThanks for joining\n</p>\n</div>\n</div>\n</li>\n</ul>\n<nav aria-label=\"Pagination\" class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<button class=\"c445db9b9 c7f74399a\" data-mol-id=\"notifications-page-prev\" disabled type=\"button\">\nPrevious\n</button>\n<span class=\"c445db9b9 ce823b5bf\">\nPage 1 of 2\n</span>\n<button class=\"c13d4ff0f c445db9b9 c7f74399a\" data-mol-id=\"notifications-page-next\" type=\"button\">\nNext\n</button>\n</nav>\n</section>\n@route /",
+     "<section class=\"c2cbb8333 c8b62022c c913cd95a c9166dbd0 ca06ea5bf cbaac6b89 ccae02ff2 cd5d4be14\" data-mol-id=\"notifications-page\">\n<header class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c9366def6 c937ba156 ccae02ff2 cd9b20003 ceacde2ad\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\nNotifications\n</h1>\n<button class=\"c13d4ff0f c445db9b9 c7f74399a\" data-mol-id=\"notifications-page-mark-all-read\" type=\"button\">\nMark 1 as read\n</button>\n</div>\n</header>\n<div aria-label=\"Filter notifications\" class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c13d4ff0f c445db9b9 c7f74399a c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-all\" role=\"tab\" type=\"button\">\nAll\n</button>\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-unread\" role=\"tab\" type=\"button\">\nUnread\n</button>\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-mentions\" role=\"tab\" type=\"button\">\nMentions\n</button>\n</div>\n<ul aria-label=\"Notifications\" class=\"cd766b2f8\" data-mol-id=\"notifications-page-feed\">\n<li>\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c93ab4c7f c99d61f16 cb33f6c80 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\ncampaign\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\ntitle-n4\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n2h\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\nbody-n4\n</p>\n</div>\n</div>\n</li>\n</ul>\n<nav aria-label=\"Pagination\" class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<button class=\"c13d4ff0f c445db9b9 c7f74399a\" data-mol-id=\"notifications-page-prev\" type=\"button\">\nPrevious\n</button>\n<span class=\"c445db9b9 ce823b5bf\">\nPage 2 of 2\n</span>\n<button class=\"c445db9b9 c7f74399a\" data-mol-id=\"notifications-page-next\" disabled type=\"button\">\nNext\n</button>\n</nav>\n</section>\n@route /",
+     "<section class=\"c2cbb8333 c8b62022c c913cd95a c9166dbd0 ca06ea5bf cbaac6b89 ccae02ff2 cd5d4be14\" data-mol-id=\"notifications-page\">\n<header class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c9366def6 c937ba156 ccae02ff2 cd9b20003 ceacde2ad\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\nNotifications\n</h1>\n<button class=\"c13d4ff0f c445db9b9 c7f74399a\" data-mol-id=\"notifications-page-mark-all-read\" type=\"button\">\nMark 2 as read\n</button>\n</div>\n</header>\n<div aria-label=\"Filter notifications\" class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c13d4ff0f c445db9b9 c7f74399a c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-all\" role=\"tab\" type=\"button\">\nAll\n</button>\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-unread\" role=\"tab\" type=\"button\">\nUnread\n</button>\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-mentions\" role=\"tab\" type=\"button\">\nMentions\n</button>\n</div>\n<ul aria-label=\"Notifications\" class=\"cd766b2f8\" data-mol-id=\"notifications-page-feed\">\n<li>\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c93ab4c7f c99d61f16 cb33f6c80 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\nchat\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nNew DM\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n1m\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\nHello there.\n</p>\n</div>\n</div>\n</li>\n<li>\n<a class=\"ceb0cbd62\" href=\"/threads/42\">\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c93ab4c7f c99d61f16 cb33f6c80 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\nalternate_email\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nYou were mentioned\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n5m\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\n@you check this out\n</p>\n</div>\n</div>\n</a>\n</li>\n<li>\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c99d61f16 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\ncampaign\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nWelcome\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n1h\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\nThanks for joining\n</p>\n</div>\n</div>\n</li>\n</ul>\n<nav aria-label=\"Pagination\" class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<button class=\"c445db9b9 c7f74399a\" data-mol-id=\"notifications-page-prev\" disabled type=\"button\">\nPrevious\n</button>\n<span class=\"c445db9b9 ce823b5bf\">\nPage 1 of 2\n</span>\n<button class=\"c13d4ff0f c445db9b9 c7f74399a\" data-mol-id=\"notifications-page-next\" type=\"button\">\nNext\n</button>\n</nav>\n</section>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     },
+     {
+      "name": "http.get",
+      "args": [
+       {
+        "url": "/api/notifications?limit=20&offset=0"
+       }
+      ]
+     },
+     {
+      "name": "http.get",
+      "args": [
+       {
+        "url": "/api/notifications?limit=20&offset=20"
+       }
+      ]
+     },
+     {
+      "name": "http.get",
+      "args": [
+       {
+        "url": "/api/notifications?limit=20&offset=0"
+       }
+      ]
+     }
+    ]
+   },
+   "changing the filter from the second page resets the offset": {
+    "snapshots": [
+     "<section class=\"c2cbb8333 c8b62022c c913cd95a c9166dbd0 ca06ea5bf cbaac6b89 ccae02ff2 cd5d4be14\" data-mol-id=\"notifications-page\">\n<header class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c9366def6 c937ba156 ccae02ff2 cd9b20003 ceacde2ad\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\nNotifications\n</h1>\n<button class=\"c13d4ff0f c445db9b9 c7f74399a\" data-mol-id=\"notifications-page-mark-all-read\" type=\"button\">\nMark 2 as read\n</button>\n</div>\n</header>\n<div aria-label=\"Filter notifications\" class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c13d4ff0f c445db9b9 c7f74399a c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-all\" role=\"tab\" type=\"button\">\nAll\n</button>\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-unread\" role=\"tab\" type=\"button\">\nUnread\n</button>\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-mentions\" role=\"tab\" type=\"button\">\nMentions\n</button>\n</div>\n<ul aria-label=\"Notifications\" class=\"cd766b2f8\" data-mol-id=\"notifications-page-feed\">\n<li>\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c93ab4c7f c99d61f16 cb33f6c80 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\nchat\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nNew DM\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n1m\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\nHello there.\n</p>\n</div>\n</div>\n</li>\n<li>\n<a class=\"ceb0cbd62\" href=\"/threads/42\">\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c93ab4c7f c99d61f16 cb33f6c80 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\nalternate_email\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nYou were mentioned\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n5m\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\n@you check this out\n</p>\n</div>\n</div>\n</a>\n</li>\n<li>\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c99d61f16 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\ncampaign\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nWelcome\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n1h\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\nThanks for joining\n</p>\n</div>\n</div>\n</li>\n</ul>\n<nav aria-label=\"Pagination\" class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<button class=\"c445db9b9 c7f74399a\" data-mol-id=\"notifications-page-prev\" disabled type=\"button\">\nPrevious\n</button>\n<span class=\"c445db9b9 ce823b5bf\">\nPage 1 of 3\n</span>\n<button class=\"c13d4ff0f c445db9b9 c7f74399a\" data-mol-id=\"notifications-page-next\" type=\"button\">\nNext\n</button>\n</nav>\n</section>\n@route /",
+     "<section class=\"c2cbb8333 c8b62022c c913cd95a c9166dbd0 ca06ea5bf cbaac6b89 ccae02ff2 cd5d4be14\" data-mol-id=\"notifications-page\">\n<header class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c9366def6 c937ba156 ccae02ff2 cd9b20003 ceacde2ad\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\nNotifications\n</h1>\n<button class=\"c13d4ff0f c445db9b9 c7f74399a\" data-mol-id=\"notifications-page-mark-all-read\" type=\"button\">\nMark 2 as read\n</button>\n</div>\n</header>\n<div aria-label=\"Filter notifications\" class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c13d4ff0f c445db9b9 c7f74399a c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-all\" role=\"tab\" type=\"button\">\nAll\n</button>\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-unread\" role=\"tab\" type=\"button\">\nUnread\n</button>\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-mentions\" role=\"tab\" type=\"button\">\nMentions\n</button>\n</div>\n<ul aria-label=\"Notifications\" class=\"cd766b2f8\" data-mol-id=\"notifications-page-feed\">\n<li>\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c93ab4c7f c99d61f16 cb33f6c80 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\nchat\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nNew DM\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n1m\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\nHello there.\n</p>\n</div>\n</div>\n</li>\n<li>\n<a class=\"ceb0cbd62\" href=\"/threads/42\">\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c93ab4c7f c99d61f16 cb33f6c80 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\nalternate_email\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nYou were mentioned\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n5m\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\n@you check this out\n</p>\n</div>\n</div>\n</a>\n</li>\n<li>\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c99d61f16 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\ncampaign\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nWelcome\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n1h\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\nThanks for joining\n</p>\n</div>\n</div>\n</li>\n</ul>\n<nav aria-label=\"Pagination\" class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<button class=\"c13d4ff0f c445db9b9 c7f74399a\" data-mol-id=\"notifications-page-prev\" type=\"button\">\nPrevious\n</button>\n<span class=\"c445db9b9 ce823b5bf\">\nPage 2 of 3\n</span>\n<button class=\"c13d4ff0f c445db9b9 c7f74399a\" data-mol-id=\"notifications-page-next\" type=\"button\">\nNext\n</button>\n</nav>\n</section>\n@route /",
+     "<section class=\"c2cbb8333 c8b62022c c913cd95a c9166dbd0 ca06ea5bf cbaac6b89 ccae02ff2 cd5d4be14\" data-mol-id=\"notifications-page\">\n<header class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c9366def6 c937ba156 ccae02ff2 cd9b20003 ceacde2ad\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\nNotifications\n</h1>\n<button class=\"c13d4ff0f c445db9b9 c7f74399a\" data-mol-id=\"notifications-page-mark-all-read\" type=\"button\">\nMark 2 as read\n</button>\n</div>\n</header>\n<div aria-label=\"Filter notifications\" class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\" role=\"tablist\">\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-all\" role=\"tab\" type=\"button\">\nAll\n</button>\n<button aria-selected=\"true\" class=\"c13d4ff0f c445db9b9 c7f74399a c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-unread\" role=\"tab\" type=\"button\">\nUnread\n</button>\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-mentions\" role=\"tab\" type=\"button\">\nMentions\n</button>\n</div>\n<ul aria-label=\"Notifications\" class=\"cd766b2f8\" data-mol-id=\"notifications-page-feed\">\n<li>\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c93ab4c7f c99d61f16 cb33f6c80 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\nchat\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nNew DM\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n1m\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\nHello there.\n</p>\n</div>\n</div>\n</li>\n<li>\n<a class=\"ceb0cbd62\" href=\"/threads/42\">\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c93ab4c7f c99d61f16 cb33f6c80 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\nalternate_email\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nYou were mentioned\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n5m\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\n@you check this out\n</p>\n</div>\n</div>\n</a>\n</li>\n</ul>\n</section>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     },
+     {
+      "name": "http.get",
+      "args": [
+       {
+        "url": "/api/notifications?limit=20&offset=0"
+       }
+      ]
+     },
+     {
+      "name": "http.get",
+      "args": [
+       {
+        "url": "/api/notifications?limit=20&offset=20"
+       }
+      ]
+     },
+     {
+      "name": "http.get",
+      "args": [
+       {
+        "url": "/api/notifications?limit=20&offset=0&read=false"
+       }
+      ]
+     }
+    ]
+   },
+   "mark all read posts then reloads the list": {
+    "snapshots": [
+     "<section class=\"c2cbb8333 c8b62022c c913cd95a c9166dbd0 ca06ea5bf cbaac6b89 ccae02ff2 cd5d4be14\" data-mol-id=\"notifications-page\">\n<header class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c9366def6 c937ba156 ccae02ff2 cd9b20003 ceacde2ad\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\nNotifications\n</h1>\n<button class=\"c13d4ff0f c445db9b9 c7f74399a\" data-mol-id=\"notifications-page-mark-all-read\" type=\"button\">\nMark 2 as read\n</button>\n</div>\n</header>\n<div aria-label=\"Filter notifications\" class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c13d4ff0f c445db9b9 c7f74399a c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-all\" role=\"tab\" type=\"button\">\nAll\n</button>\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-unread\" role=\"tab\" type=\"button\">\nUnread\n</button>\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-mentions\" role=\"tab\" type=\"button\">\nMentions\n</button>\n</div>\n<ul aria-label=\"Notifications\" class=\"cd766b2f8\" data-mol-id=\"notifications-page-feed\">\n<li>\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c93ab4c7f c99d61f16 cb33f6c80 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\nchat\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nNew DM\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n1m\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\nHello there.\n</p>\n</div>\n</div>\n</li>\n<li>\n<a class=\"ceb0cbd62\" href=\"/threads/42\">\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c93ab4c7f c99d61f16 cb33f6c80 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\nalternate_email\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nYou were mentioned\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n5m\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\n@you check this out\n</p>\n</div>\n</div>\n</a>\n</li>\n<li>\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c99d61f16 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\ncampaign\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nWelcome\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n1h\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\nThanks for joining\n</p>\n</div>\n</div>\n</li>\n</ul>\n</section>\n@route /",
+     "<section class=\"c2cbb8333 c8b62022c c913cd95a c9166dbd0 ca06ea5bf cbaac6b89 ccae02ff2 cd5d4be14\" data-mol-id=\"notifications-page\">\n<header class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c9366def6 c937ba156 ccae02ff2 cd9b20003 ceacde2ad\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\nNotifications\n</h1>\n</div>\n</header>\n<div aria-label=\"Filter notifications\" class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c13d4ff0f c445db9b9 c7f74399a c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-all\" role=\"tab\" type=\"button\">\nAll\n</button>\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-unread\" role=\"tab\" type=\"button\">\nUnread\n</button>\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-mentions\" role=\"tab\" type=\"button\">\nMentions\n</button>\n</div>\n<ul aria-label=\"Notifications\" class=\"cd766b2f8\" data-mol-id=\"notifications-page-feed\">\n<li>\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c99d61f16 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\nchat\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nNew DM\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n1m\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\nHello there.\n</p>\n</div>\n</div>\n</li>\n<li>\n<a class=\"ceb0cbd62\" href=\"/threads/42\">\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c99d61f16 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\nalternate_email\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nYou were mentioned\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n5m\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\n@you check this out\n</p>\n</div>\n</div>\n</a>\n</li>\n<li>\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c99d61f16 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\ncampaign\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nWelcome\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n1h\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\nThanks for joining\n</p>\n</div>\n</div>\n</li>\n</ul>\n</section>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     },
+     {
+      "name": "http.get",
+      "args": [
+       {
+        "url": "/api/notifications?limit=20&offset=0"
+       }
+      ]
+     },
+     {
+      "name": "http.post",
+      "args": [
+       {
+        "url": "/api/notifications/read-all"
+       }
+      ]
+     },
+     {
+      "name": "http.get",
+      "args": [
+       {
+        "url": "/api/notifications?limit=20&offset=0"
+       }
+      ]
+     }
+    ]
+   },
+   "a failed mark all read still reloads the list": {
+    "snapshots": [
+     "<section class=\"c2cbb8333 c8b62022c c913cd95a c9166dbd0 ca06ea5bf cbaac6b89 ccae02ff2 cd5d4be14\" data-mol-id=\"notifications-page\">\n<header class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c9366def6 c937ba156 ccae02ff2 cd9b20003 ceacde2ad\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\nNotifications\n</h1>\n<button class=\"c13d4ff0f c445db9b9 c7f74399a\" data-mol-id=\"notifications-page-mark-all-read\" type=\"button\">\nMark 2 as read\n</button>\n</div>\n</header>\n<div aria-label=\"Filter notifications\" class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c13d4ff0f c445db9b9 c7f74399a c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-all\" role=\"tab\" type=\"button\">\nAll\n</button>\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-unread\" role=\"tab\" type=\"button\">\nUnread\n</button>\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-mentions\" role=\"tab\" type=\"button\">\nMentions\n</button>\n</div>\n<ul aria-label=\"Notifications\" class=\"cd766b2f8\" data-mol-id=\"notifications-page-feed\">\n<li>\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c93ab4c7f c99d61f16 cb33f6c80 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\nchat\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nNew DM\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n1m\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\nHello there.\n</p>\n</div>\n</div>\n</li>\n<li>\n<a class=\"ceb0cbd62\" href=\"/threads/42\">\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c93ab4c7f c99d61f16 cb33f6c80 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\nalternate_email\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nYou were mentioned\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n5m\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\n@you check this out\n</p>\n</div>\n</div>\n</a>\n</li>\n<li>\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c99d61f16 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\ncampaign\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nWelcome\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n1h\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\nThanks for joining\n</p>\n</div>\n</div>\n</li>\n</ul>\n</section>\n@route /",
+     "<section class=\"c2cbb8333 c8b62022c c913cd95a c9166dbd0 ca06ea5bf cbaac6b89 ccae02ff2 cd5d4be14\" data-mol-id=\"notifications-page\">\n<header class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c9366def6 c937ba156 ccae02ff2 cd9b20003 ceacde2ad\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\nNotifications\n</h1>\n<button class=\"c13d4ff0f c445db9b9 c7f74399a\" data-mol-id=\"notifications-page-mark-all-read\" type=\"button\">\nMark 2 as read\n</button>\n</div>\n</header>\n<div aria-label=\"Filter notifications\" class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c13d4ff0f c445db9b9 c7f74399a c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-all\" role=\"tab\" type=\"button\">\nAll\n</button>\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-unread\" role=\"tab\" type=\"button\">\nUnread\n</button>\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-mentions\" role=\"tab\" type=\"button\">\nMentions\n</button>\n</div>\n<ul aria-label=\"Notifications\" class=\"cd766b2f8\" data-mol-id=\"notifications-page-feed\">\n<li>\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c93ab4c7f c99d61f16 cb33f6c80 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\nchat\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nNew DM\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n1m\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\nHello there.\n</p>\n</div>\n</div>\n</li>\n<li>\n<a class=\"ceb0cbd62\" href=\"/threads/42\">\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c93ab4c7f c99d61f16 cb33f6c80 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\nalternate_email\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nYou were mentioned\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n5m\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\n@you check this out\n</p>\n</div>\n</div>\n</a>\n</li>\n<li>\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c99d61f16 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\ncampaign\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nWelcome\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n1h\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\nThanks for joining\n</p>\n</div>\n</div>\n</li>\n</ul>\n</section>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     },
+     {
+      "name": "http.get",
+      "args": [
+       {
+        "url": "/api/notifications?limit=20&offset=0"
+       }
+      ]
+     },
+     {
+      "name": "http.post",
+      "args": [
+       {
+        "url": "/api/notifications/read-all"
+       }
+      ]
+     },
+     {
+      "name": "http.get",
+      "args": [
+       {
+        "url": "/api/notifications?limit=20&offset=0"
+       }
+      ]
+     }
+    ]
+   },
+   "custom page size, endpoints, classes and id": {
+    "snapshots": [
+     "<section class=\"c2cbb8333 c8b62022c c913cd95a c9166dbd0 ca06ea5bf cbaac6b89 ccae02ff2 cd5d4be14 cf839a710\" data-mol-id=\"notifs-page\">\n<header class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c9366def6 c937ba156 ccae02ff2 cd9b20003 ceacde2ad\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\nNotifications\n</h1>\n<button class=\"c13d4ff0f c445db9b9 c7f74399a\" data-mol-id=\"notifications-page-mark-all-read\" type=\"button\">\nMark 2 as read\n</button>\n</div>\n</header>\n<div aria-label=\"Filter notifications\" class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c13d4ff0f c445db9b9 c7f74399a c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-all\" role=\"tab\" type=\"button\">\nAll\n</button>\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-unread\" role=\"tab\" type=\"button\">\nUnread\n</button>\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-mentions\" role=\"tab\" type=\"button\">\nMentions\n</button>\n</div>\n<ul aria-label=\"Notifications\" class=\"cd766b2f8\" data-mol-id=\"notifications-page-feed\">\n<li>\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c93ab4c7f c99d61f16 cb33f6c80 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\nchat\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nNew DM\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n1m\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\nHello there.\n</p>\n</div>\n</div>\n</li>\n<li>\n<a class=\"ceb0cbd62\" href=\"/threads/42\">\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c93ab4c7f c99d61f16 cb33f6c80 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\nalternate_email\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nYou were mentioned\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n5m\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\n@you check this out\n</p>\n</div>\n</div>\n</a>\n</li>\n<li>\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c99d61f16 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\ncampaign\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nWelcome\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n1h\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\nThanks for joining\n</p>\n</div>\n</div>\n</li>\n</ul>\n<nav aria-label=\"Pagination\" class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<button class=\"c445db9b9 c7f74399a\" data-mol-id=\"notifications-page-prev\" disabled type=\"button\">\nPrevious\n</button>\n<span class=\"c445db9b9 ce823b5bf\">\nPage 1 of 3\n</span>\n<button class=\"c13d4ff0f c445db9b9 c7f74399a\" data-mol-id=\"notifications-page-next\" type=\"button\">\nNext\n</button>\n</nav>\n</section>\n@route /",
+     "<section class=\"c2cbb8333 c8b62022c c913cd95a c9166dbd0 ca06ea5bf cbaac6b89 ccae02ff2 cd5d4be14 cf839a710\" data-mol-id=\"notifs-page\">\n<header class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c9366def6 c937ba156 ccae02ff2 cd9b20003 ceacde2ad\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\nNotifications\n</h1>\n</div>\n</header>\n<div aria-label=\"Filter notifications\" class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c13d4ff0f c445db9b9 c7f74399a c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-all\" role=\"tab\" type=\"button\">\nAll\n</button>\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-unread\" role=\"tab\" type=\"button\">\nUnread\n</button>\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-mentions\" role=\"tab\" type=\"button\">\nMentions\n</button>\n</div>\n<ul aria-label=\"Notifications\" class=\"cd766b2f8\" data-mol-id=\"notifications-page-feed\">\n<li>\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c99d61f16 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\nchat\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nNew DM\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n1m\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\nHello there.\n</p>\n</div>\n</div>\n</li>\n<li>\n<a class=\"ceb0cbd62\" href=\"/threads/42\">\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c99d61f16 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\nalternate_email\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nYou were mentioned\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n5m\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\n@you check this out\n</p>\n</div>\n</div>\n</a>\n</li>\n<li>\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c99d61f16 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\ncampaign\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nWelcome\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n1h\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\nThanks for joining\n</p>\n</div>\n</div>\n</li>\n</ul>\n<nav aria-label=\"Pagination\" class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<button class=\"c445db9b9 c7f74399a\" data-mol-id=\"notifications-page-prev\" disabled type=\"button\">\nPrevious\n</button>\n<span class=\"c445db9b9 ce823b5bf\">\nPage 1 of 3\n</span>\n<button class=\"c13d4ff0f c445db9b9 c7f74399a\" data-mol-id=\"notifications-page-next\" type=\"button\">\nNext\n</button>\n</nav>\n</section>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     },
+     {
+      "name": "http.get",
+      "args": [
+       {
+        "url": "/v2/notifs?limit=5&offset=0"
+       }
+      ]
+     },
+     {
+      "name": "http.post",
+      "args": [
+       {
+        "url": "/v2/notifs/read-all"
+       }
+      ]
+     },
+     {
+      "name": "http.get",
+      "args": [
+       {
+        "url": "/v2/notifs?limit=5&offset=0"
+       }
+      ]
+     }
+    ]
+   },
+   "type icon overrides and the unknown fallback": {
+    "snapshots": [
+     "<section class=\"c2cbb8333 c8b62022c c913cd95a c9166dbd0 ca06ea5bf cbaac6b89 ccae02ff2 cd5d4be14\" data-mol-id=\"notifications-page\">\n<header class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c9366def6 c937ba156 ccae02ff2 cd9b20003 ceacde2ad\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\nNotifications\n</h1>\n<button class=\"c13d4ff0f c445db9b9 c7f74399a\" data-mol-id=\"notifications-page-mark-all-read\" type=\"button\">\nMark 3 as read\n</button>\n</div>\n</header>\n<div aria-label=\"Filter notifications\" class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c13d4ff0f c445db9b9 c7f74399a c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-all\" role=\"tab\" type=\"button\">\nAll\n</button>\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-unread\" role=\"tab\" type=\"button\">\nUnread\n</button>\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-mentions\" role=\"tab\" type=\"button\">\nMentions\n</button>\n</div>\n<ul aria-label=\"Notifications\" class=\"cd766b2f8\" data-mol-id=\"notifications-page-feed\">\n<li>\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c93ab4c7f c99d61f16 cb33f6c80 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\nstar\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\ntitle-n1\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n2m\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\nbody-n1\n</p>\n</div>\n</div>\n</li>\n<li>\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c93ab4c7f c99d61f16 cb33f6c80 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\nbolt\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\ntitle-n2\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n3m\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\nbody-n2\n</p>\n</div>\n</div>\n</li>\n<li>\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c93ab4c7f c99d61f16 cb33f6c80 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\nnotifications\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\ntitle-n3\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n4m\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\nbody-n3\n</p>\n</div>\n</div>\n</li>\n</ul>\n</section>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     },
+     {
+      "name": "http.get",
+      "args": [
+       {
+        "url": "/api/notifications?limit=20&offset=0"
+       }
+      ]
+     }
+    ]
+   },
+   "type icon overrides change the glyphs": {
+    "snapshots": [
+     "<section class=\"c2cbb8333 c8b62022c c913cd95a c9166dbd0 ca06ea5bf cbaac6b89 ccae02ff2 cd5d4be14\" data-mol-id=\"notifications-page\">\n<header class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c9366def6 c937ba156 ccae02ff2 cd9b20003 ceacde2ad\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\nNotifications\n</h1>\n<button class=\"c13d4ff0f c445db9b9 c7f74399a\" data-mol-id=\"notifications-page-mark-all-read\" type=\"button\">\nMark 1 as read\n</button>\n</div>\n</header>\n<div aria-label=\"Filter notifications\" class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c13d4ff0f c445db9b9 c7f74399a c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-all\" role=\"tab\" type=\"button\">\nAll\n</button>\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-unread\" role=\"tab\" type=\"button\">\nUnread\n</button>\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-mentions\" role=\"tab\" type=\"button\">\nMentions\n</button>\n</div>\n<ul aria-label=\"Notifications\" class=\"cd766b2f8\" data-mol-id=\"notifications-page-feed\">\n<li>\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c93ab4c7f c99d61f16 cb33f6c80 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\nstar\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\ntitle-n1\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n5m\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\nbody-n1\n</p>\n</div>\n</div>\n</li>\n</ul>\n</section>\n@route /",
+     "<section class=\"c2cbb8333 c8b62022c c913cd95a c9166dbd0 ca06ea5bf cbaac6b89 ccae02ff2 cd5d4be14\" data-mol-id=\"notifications-page\">\n<header class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c9366def6 c937ba156 ccae02ff2 cd9b20003 ceacde2ad\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\nNotifications\n</h1>\n<button class=\"c13d4ff0f c445db9b9 c7f74399a\" data-mol-id=\"notifications-page-mark-all-read\" type=\"button\">\nMark 1 as read\n</button>\n</div>\n</header>\n<div aria-label=\"Filter notifications\" class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c13d4ff0f c445db9b9 c7f74399a c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-all\" role=\"tab\" type=\"button\">\nAll\n</button>\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-unread\" role=\"tab\" type=\"button\">\nUnread\n</button>\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-mentions\" role=\"tab\" type=\"button\">\nMentions\n</button>\n</div>\n<ul aria-label=\"Notifications\" class=\"cd766b2f8\" data-mol-id=\"notifications-page-feed\">\n<li>\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c93ab4c7f c99d61f16 cb33f6c80 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\nbolt\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\ntitle-n1\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n5m\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\nbody-n1\n</p>\n</div>\n</div>\n</li>\n</ul>\n</section>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     },
+     {
+      "name": "http.get",
+      "args": [
+       {
+        "url": "/api/notifications?limit=20&offset=0"
+       }
+      ]
+     }
+    ]
+   },
+   "page size and endpoint changes reload the list": {
+    "snapshots": [
+     "<section class=\"c2cbb8333 c8b62022c c913cd95a c9166dbd0 ca06ea5bf cbaac6b89 ccae02ff2 cd5d4be14\" data-mol-id=\"notifications-page\">\n<header class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c9366def6 c937ba156 ccae02ff2 cd9b20003 ceacde2ad\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\nNotifications\n</h1>\n<button class=\"c13d4ff0f c445db9b9 c7f74399a\" data-mol-id=\"notifications-page-mark-all-read\" type=\"button\">\nMark 2 as read\n</button>\n</div>\n</header>\n<div aria-label=\"Filter notifications\" class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c13d4ff0f c445db9b9 c7f74399a c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-all\" role=\"tab\" type=\"button\">\nAll\n</button>\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-unread\" role=\"tab\" type=\"button\">\nUnread\n</button>\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-mentions\" role=\"tab\" type=\"button\">\nMentions\n</button>\n</div>\n<ul aria-label=\"Notifications\" class=\"cd766b2f8\" data-mol-id=\"notifications-page-feed\">\n<li>\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c93ab4c7f c99d61f16 cb33f6c80 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\nchat\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nNew DM\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n1m\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\nHello there.\n</p>\n</div>\n</div>\n</li>\n<li>\n<a class=\"ceb0cbd62\" href=\"/threads/42\">\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c93ab4c7f c99d61f16 cb33f6c80 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\nalternate_email\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nYou were mentioned\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n5m\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\n@you check this out\n</p>\n</div>\n</div>\n</a>\n</li>\n<li>\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c99d61f16 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\ncampaign\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nWelcome\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n1h\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\nThanks for joining\n</p>\n</div>\n</div>\n</li>\n</ul>\n</section>\n@route /",
+     "<section class=\"c2cbb8333 c8b62022c c913cd95a c9166dbd0 ca06ea5bf cbaac6b89 ccae02ff2 cd5d4be14\" data-mol-id=\"notifications-page\">\n<header class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c9366def6 c937ba156 ccae02ff2 cd9b20003 ceacde2ad\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\nNotifications\n</h1>\n<button class=\"c13d4ff0f c445db9b9 c7f74399a\" data-mol-id=\"notifications-page-mark-all-read\" type=\"button\">\nMark 2 as read\n</button>\n</div>\n</header>\n<div aria-label=\"Filter notifications\" class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c13d4ff0f c445db9b9 c7f74399a c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-all\" role=\"tab\" type=\"button\">\nAll\n</button>\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-unread\" role=\"tab\" type=\"button\">\nUnread\n</button>\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-mentions\" role=\"tab\" type=\"button\">\nMentions\n</button>\n</div>\n<ul aria-label=\"Notifications\" class=\"cd766b2f8\" data-mol-id=\"notifications-page-feed\">\n<li>\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c93ab4c7f c99d61f16 cb33f6c80 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\nchat\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nNew DM\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n1m\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\nHello there.\n</p>\n</div>\n</div>\n</li>\n<li>\n<a class=\"ceb0cbd62\" href=\"/threads/42\">\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c93ab4c7f c99d61f16 cb33f6c80 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\nalternate_email\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nYou were mentioned\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n5m\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\n@you check this out\n</p>\n</div>\n</div>\n</a>\n</li>\n<li>\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c99d61f16 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\ncampaign\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nWelcome\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n1h\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\nThanks for joining\n</p>\n</div>\n</div>\n</li>\n</ul>\n</section>\n@route /",
+     "<section class=\"c2cbb8333 c8b62022c c913cd95a c9166dbd0 ca06ea5bf cbaac6b89 ccae02ff2 cd5d4be14\" data-mol-id=\"notifications-page\">\n<header class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c9366def6 c937ba156 ccae02ff2 cd9b20003 ceacde2ad\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\nNotifications\n</h1>\n<button class=\"c13d4ff0f c445db9b9 c7f74399a\" data-mol-id=\"notifications-page-mark-all-read\" type=\"button\">\nMark 2 as read\n</button>\n</div>\n</header>\n<div aria-label=\"Filter notifications\" class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c13d4ff0f c445db9b9 c7f74399a c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-all\" role=\"tab\" type=\"button\">\nAll\n</button>\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-unread\" role=\"tab\" type=\"button\">\nUnread\n</button>\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-mentions\" role=\"tab\" type=\"button\">\nMentions\n</button>\n</div>\n<ul aria-label=\"Notifications\" class=\"cd766b2f8\" data-mol-id=\"notifications-page-feed\">\n<li>\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c93ab4c7f c99d61f16 cb33f6c80 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\nchat\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nNew DM\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n1m\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\nHello there.\n</p>\n</div>\n</div>\n</li>\n<li>\n<a class=\"ceb0cbd62\" href=\"/threads/42\">\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c93ab4c7f c99d61f16 cb33f6c80 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\nalternate_email\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nYou were mentioned\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n5m\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\n@you check this out\n</p>\n</div>\n</div>\n</a>\n</li>\n<li>\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c99d61f16 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\ncampaign\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nWelcome\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n1h\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\nThanks for joining\n</p>\n</div>\n</div>\n</li>\n</ul>\n</section>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     },
+     {
+      "name": "http.get",
+      "args": [
+       {
+        "url": "/api/notifications?limit=20&offset=0"
+       }
+      ]
+     },
+     {
+      "name": "http.get",
+      "args": [
+       {
+        "url": "/api/notifications?limit=5&offset=0"
+       }
+      ]
+     },
+     {
+      "name": "http.get",
+      "args": [
+       {
+        "url": "/v3/notifs?limit=5&offset=0"
+       }
+      ]
+     }
+    ]
+   },
+   "a pending filter change keeps the old rows busy": {
+    "snapshots": [
+     "<section class=\"c2cbb8333 c8b62022c c913cd95a c9166dbd0 ca06ea5bf cbaac6b89 ccae02ff2 cd5d4be14\" data-mol-id=\"notifications-page\">\n<header class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c9366def6 c937ba156 ccae02ff2 cd9b20003 ceacde2ad\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\nNotifications\n</h1>\n<button class=\"c13d4ff0f c445db9b9 c7f74399a\" data-mol-id=\"notifications-page-mark-all-read\" type=\"button\">\nMark 2 as read\n</button>\n</div>\n</header>\n<div aria-label=\"Filter notifications\" class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c13d4ff0f c445db9b9 c7f74399a c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-all\" role=\"tab\" type=\"button\">\nAll\n</button>\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-unread\" role=\"tab\" type=\"button\">\nUnread\n</button>\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-mentions\" role=\"tab\" type=\"button\">\nMentions\n</button>\n</div>\n<ul aria-label=\"Notifications\" class=\"cd766b2f8\" data-mol-id=\"notifications-page-feed\">\n<li>\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c93ab4c7f c99d61f16 cb33f6c80 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\nchat\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nNew DM\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n1m\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\nHello there.\n</p>\n</div>\n</div>\n</li>\n<li>\n<a class=\"ceb0cbd62\" href=\"/threads/42\">\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c93ab4c7f c99d61f16 cb33f6c80 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\nalternate_email\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nYou were mentioned\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n5m\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\n@you check this out\n</p>\n</div>\n</div>\n</a>\n</li>\n<li>\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c99d61f16 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\ncampaign\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nWelcome\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n1h\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\nThanks for joining\n</p>\n</div>\n</div>\n</li>\n</ul>\n</section>\n@route /",
+     "<section aria-busy=\"true\" class=\"c2cbb8333 c8b62022c c913cd95a c9166dbd0 ca06ea5bf cbaac6b89 ccae02ff2 cd5d4be14\" data-mol-id=\"notifications-page\">\n<header class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c9366def6 c937ba156 ccae02ff2 cd9b20003 ceacde2ad\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\nNotifications\n</h1>\n<button class=\"c13d4ff0f c445db9b9 c7f74399a\" data-mol-id=\"notifications-page-mark-all-read\" type=\"button\">\nMark 2 as read\n</button>\n</div>\n</header>\n<div aria-label=\"Filter notifications\" class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\" role=\"tablist\">\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-all\" role=\"tab\" type=\"button\">\nAll\n</button>\n<button aria-selected=\"true\" class=\"c13d4ff0f c445db9b9 c7f74399a c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-unread\" role=\"tab\" type=\"button\">\nUnread\n</button>\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-mentions\" role=\"tab\" type=\"button\">\nMentions\n</button>\n</div>\n<ul aria-label=\"Notifications\" class=\"cd766b2f8\" data-mol-id=\"notifications-page-feed\">\n<li>\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c93ab4c7f c99d61f16 cb33f6c80 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\nchat\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nNew DM\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n1m\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\nHello there.\n</p>\n</div>\n</div>\n</li>\n<li>\n<a class=\"ceb0cbd62\" href=\"/threads/42\">\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c93ab4c7f c99d61f16 cb33f6c80 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\nalternate_email\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nYou were mentioned\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n5m\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\n@you check this out\n</p>\n</div>\n</div>\n</a>\n</li>\n<li>\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c99d61f16 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\ncampaign\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nWelcome\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n1h\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\nThanks for joining\n</p>\n</div>\n</div>\n</li>\n</ul>\n</section>\n@route /",
+     "<section class=\"c2cbb8333 c8b62022c c913cd95a c9166dbd0 ca06ea5bf cbaac6b89 ccae02ff2 cd5d4be14\" data-mol-id=\"notifications-page\">\n<header class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c9366def6 c937ba156 ccae02ff2 cd9b20003 ceacde2ad\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\nNotifications\n</h1>\n<button class=\"c13d4ff0f c445db9b9 c7f74399a\" data-mol-id=\"notifications-page-mark-all-read\" type=\"button\">\nMark 2 as read\n</button>\n</div>\n</header>\n<div aria-label=\"Filter notifications\" class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\" role=\"tablist\">\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-all\" role=\"tab\" type=\"button\">\nAll\n</button>\n<button aria-selected=\"true\" class=\"c13d4ff0f c445db9b9 c7f74399a c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-unread\" role=\"tab\" type=\"button\">\nUnread\n</button>\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-mentions\" role=\"tab\" type=\"button\">\nMentions\n</button>\n</div>\n<ul aria-label=\"Notifications\" class=\"cd766b2f8\" data-mol-id=\"notifications-page-feed\">\n<li>\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c93ab4c7f c99d61f16 cb33f6c80 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\nchat\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nNew DM\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n1m\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\nHello there.\n</p>\n</div>\n</div>\n</li>\n<li>\n<a class=\"ceb0cbd62\" href=\"/threads/42\">\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c93ab4c7f c99d61f16 cb33f6c80 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\nalternate_email\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nYou were mentioned\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n5m\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\n@you check this out\n</p>\n</div>\n</div>\n</a>\n</li>\n</ul>\n</section>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     },
+     {
+      "name": "http.get",
+      "args": [
+       {
+        "url": "/api/notifications?limit=20&offset=0"
+       }
+      ]
+     },
+     {
+      "name": "http.get",
+      "args": [
+       {
+        "url": "/api/notifications?limit=20&offset=0&read=false"
+       }
+      ]
+     }
+    ]
+   },
+   "a linked row navigates": {
+    "snapshots": [
+     "<section class=\"c2cbb8333 c8b62022c c913cd95a c9166dbd0 ca06ea5bf cbaac6b89 ccae02ff2 cd5d4be14\" data-mol-id=\"notifications-page\">\n<header class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c9366def6 c937ba156 ccae02ff2 cd9b20003 ceacde2ad\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\nNotifications\n</h1>\n<button class=\"c13d4ff0f c445db9b9 c7f74399a\" data-mol-id=\"notifications-page-mark-all-read\" type=\"button\">\nMark 2 as read\n</button>\n</div>\n</header>\n<div aria-label=\"Filter notifications\" class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c13d4ff0f c445db9b9 c7f74399a c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-all\" role=\"tab\" type=\"button\">\nAll\n</button>\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-unread\" role=\"tab\" type=\"button\">\nUnread\n</button>\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-mentions\" role=\"tab\" type=\"button\">\nMentions\n</button>\n</div>\n<ul aria-label=\"Notifications\" class=\"cd766b2f8\" data-mol-id=\"notifications-page-feed\">\n<li>\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c93ab4c7f c99d61f16 cb33f6c80 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\nchat\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nNew DM\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n1m\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\nHello there.\n</p>\n</div>\n</div>\n</li>\n<li>\n<a class=\"ceb0cbd62\" href=\"/threads/42\">\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c93ab4c7f c99d61f16 cb33f6c80 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\nalternate_email\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nYou were mentioned\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n5m\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\n@you check this out\n</p>\n</div>\n</div>\n</a>\n</li>\n<li>\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c99d61f16 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\ncampaign\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nWelcome\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n1h\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\nThanks for joining\n</p>\n</div>\n</div>\n</li>\n</ul>\n</section>\n@route /inbox",
+     "<section class=\"c2cbb8333 c8b62022c c913cd95a c9166dbd0 ca06ea5bf cbaac6b89 ccae02ff2 cd5d4be14\" data-mol-id=\"notifications-page\">\n<header class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c9366def6 c937ba156 ccae02ff2 cd9b20003 ceacde2ad\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\nNotifications\n</h1>\n<button class=\"c13d4ff0f c445db9b9 c7f74399a\" data-mol-id=\"notifications-page-mark-all-read\" type=\"button\">\nMark 2 as read\n</button>\n</div>\n</header>\n<div aria-label=\"Filter notifications\" class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c13d4ff0f c445db9b9 c7f74399a c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-all\" role=\"tab\" type=\"button\">\nAll\n</button>\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-unread\" role=\"tab\" type=\"button\">\nUnread\n</button>\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-mentions\" role=\"tab\" type=\"button\">\nMentions\n</button>\n</div>\n<ul aria-label=\"Notifications\" class=\"cd766b2f8\" data-mol-id=\"notifications-page-feed\">\n<li>\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c93ab4c7f c99d61f16 cb33f6c80 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\nchat\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nNew DM\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n1m\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\nHello there.\n</p>\n</div>\n</div>\n</li>\n<li>\n<a class=\"ceb0cbd62\" href=\"/threads/42\">\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c93ab4c7f c99d61f16 cb33f6c80 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\nalternate_email\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nYou were mentioned\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n5m\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\n@you check this out\n</p>\n</div>\n</div>\n</a>\n</li>\n<li>\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c99d61f16 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\ncampaign\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nWelcome\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n1h\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\nThanks for joining\n</p>\n</div>\n</div>\n</li>\n</ul>\n</section>\n@route /threads/42\n@click default prevented"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     },
+     {
+      "name": "http.get",
+      "args": [
+       {
+        "url": "/api/notifications?limit=20&offset=0"
+       }
+      ]
+     }
+    ]
+   },
+   "an empty or non-string href renders a plain row": {
+    "snapshots": [
+     "<section class=\"c2cbb8333 c8b62022c c913cd95a c9166dbd0 ca06ea5bf cbaac6b89 ccae02ff2 cd5d4be14\" data-mol-id=\"notifications-page\">\n<header class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c9366def6 c937ba156 ccae02ff2 cd9b20003 ceacde2ad\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\nNotifications\n</h1>\n<button class=\"c13d4ff0f c445db9b9 c7f74399a\" data-mol-id=\"notifications-page-mark-all-read\" type=\"button\">\nMark 3 as read\n</button>\n</div>\n</header>\n<div aria-label=\"Filter notifications\" class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c13d4ff0f c445db9b9 c7f74399a c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-all\" role=\"tab\" type=\"button\">\nAll\n</button>\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-unread\" role=\"tab\" type=\"button\">\nUnread\n</button>\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-mentions\" role=\"tab\" type=\"button\">\nMentions\n</button>\n</div>\n<ul aria-label=\"Notifications\" class=\"cd766b2f8\" data-mol-id=\"notifications-page-feed\">\n<li>\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c93ab4c7f c99d61f16 cb33f6c80 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\ncampaign\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nEmpty href\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n5m\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\nbody-n1\n</p>\n</div>\n</div>\n</li>\n<li>\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c93ab4c7f c99d61f16 cb33f6c80 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\ncampaign\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nNumber href\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n5m\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\nbody-n2\n</p>\n</div>\n</div>\n</li>\n<li>\n<a class=\"ceb0cbd62\" href=\"/threads/7\">\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c93ab4c7f c99d61f16 cb33f6c80 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\ncampaign\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nLinked\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n5m\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\nbody-n3\n</p>\n</div>\n</div>\n</a>\n</li>\n</ul>\n</section>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     },
+     {
+      "name": "http.get",
+      "args": [
+       {
+        "url": "/api/notifications?limit=20&offset=0"
+       }
+      ]
+     }
+    ]
+   },
+   "defaults load the first page and render its rows, then a locale switch": {
+    "snapshots": [
+     "<section class=\"c2cbb8333 c8b62022c c913cd95a c9166dbd0 ca06ea5bf cbaac6b89 ccae02ff2 cd5d4be14\" data-mol-id=\"notifications-page\">\n<header class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c9366def6 c937ba156 ccae02ff2 cd9b20003 ceacde2ad\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\nNotifications\n</h1>\n<button class=\"c13d4ff0f c445db9b9 c7f74399a\" data-mol-id=\"notifications-page-mark-all-read\" type=\"button\">\nMark 2 as read\n</button>\n</div>\n</header>\n<div aria-label=\"Filter notifications\" class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c13d4ff0f c445db9b9 c7f74399a c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-all\" role=\"tab\" type=\"button\">\nAll\n</button>\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-unread\" role=\"tab\" type=\"button\">\nUnread\n</button>\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-mentions\" role=\"tab\" type=\"button\">\nMentions\n</button>\n</div>\n<ul aria-label=\"Notifications\" class=\"cd766b2f8\" data-mol-id=\"notifications-page-feed\">\n<li>\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c93ab4c7f c99d61f16 cb33f6c80 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\nchat\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nNew DM\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n1m\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\nHello there.\n</p>\n</div>\n</div>\n</li>\n<li>\n<a class=\"ceb0cbd62\" href=\"/threads/42\">\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c93ab4c7f c99d61f16 cb33f6c80 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\nalternate_email\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nYou were mentioned\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n5m\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\n@you check this out\n</p>\n</div>\n</div>\n</a>\n</li>\n<li>\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c99d61f16 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\ncampaign\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nWelcome\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n1h\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\nThanks for joining\n</p>\n</div>\n</div>\n</li>\n</ul>\n</section>\n@route /",
+     "<section class=\"c2cbb8333 c8b62022c c913cd95a c9166dbd0 ca06ea5bf cbaac6b89 ccae02ff2 cd5d4be14\" data-mol-id=\"notifications-page\">\n<header class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c9366def6 c937ba156 ccae02ff2 cd9b20003 ceacde2ad\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\n⟦Notifications⟧\n</h1>\n<button class=\"c13d4ff0f c445db9b9 c7f74399a\" data-mol-id=\"notifications-page-mark-all-read\" type=\"button\">\n⟦Mark 2 as read⟧\n</button>\n</div>\n</header>\n<div aria-label=\"⟦Filter notifications⟧\" class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c13d4ff0f c445db9b9 c7f74399a c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-all\" role=\"tab\" type=\"button\">\n⟦All⟧\n</button>\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-unread\" role=\"tab\" type=\"button\">\n⟦Unread⟧\n</button>\n<button aria-selected=\"false\" class=\"c13d4ff0f c445db9b9 c80b1c428 c8e3cd4a1 ca76eb0c4\" data-mol-id=\"notifications-page-filter-mentions\" role=\"tab\" type=\"button\">\n⟦Mentions⟧\n</button>\n</div>\n<ul aria-label=\"⟦Notifications⟧\" class=\"cd766b2f8\" data-mol-id=\"notifications-page-feed\">\n<li>\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c93ab4c7f c99d61f16 cb33f6c80 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\nchat\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nNew DM\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n1m\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\nHello there.\n</p>\n</div>\n</div>\n</li>\n<li>\n<a class=\"ceb0cbd62\" href=\"/threads/42\">\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c93ab4c7f c99d61f16 cb33f6c80 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\nalternate_email\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nYou were mentioned\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n5m\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\n@you check this out\n</p>\n</div>\n</div>\n</a>\n</li>\n<li>\n<div class=\"c1af9479c c1f523237 c311021b4 c42740ba6 c4b92e3a8 c5494c1c8 c9366def6 c99d61f16 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b c9773e3a7 ca596e575 caa01b65f cc06cf060 ccae02ff2 cd9b20003 cda72d38d\">\n<span aria-hidden=\"true\" class=\"caeede141\">\ncampaign\n</span>\n</div>\n<div class=\"c71a5c916 cb5823274\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h2 class=\"c504afaf4 c7f74399a\">\nWelcome\n</h2>\n<span class=\"c4647f690 c5b8ef7a8 ce823b5bf\">\n1h\n</span>\n</div>\n<p class=\"c445db9b9 ce823b5bf\">\nThanks for joining\n</p>\n</div>\n</div>\n</li>\n</ul>\n</section>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     },
+     {
+      "name": "http.get",
+      "args": [
+       {
+        "url": "/api/notifications?limit=20&offset=0"
+       }
+      ]
+     },
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en-XA"
+      ]
+     }
+    ]
+   }
+  }
+ }
+}

@@ -1,6 +1,7 @@
 import type { CSSProperties, JSX } from 'react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
+import { copyTextWithFallback } from '@molecule/app-clipboard'
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-react'
@@ -13,6 +14,12 @@ import {
   MIN_LENGTH,
 } from './generator.js'
 import type { PasswordCharsetOptions, PasswordGeneratorProps } from './types.js'
+
+/** The shown password and whether it still has to be copied after it commits. */
+interface GeneratedPassword {
+  password: string
+  copyAfterCommit: boolean
+}
 
 /**
  * Cryptographically-secure password generator UI.
@@ -53,34 +60,61 @@ export function PasswordGenerator({
     ...DEFAULT_CHARSET,
     ...defaultCharset,
   }))
-  const [password, setPassword] = useState<string>(() =>
-    generatePassword(clampLength(defaultLength), { ...DEFAULT_CHARSET, ...defaultCharset }),
-  )
+  // The shown password, and whether to copy it once it commits: a password made
+  // on mount or by an `autoCopy` change is copied after the commit, one made by a
+  // click or a slider move is copied inside that event (browsers allow a
+  // clipboard write only close to a user gesture).
+  const [generated, setGenerated] = useState<GeneratedPassword>(() => ({
+    password: generatePassword(clampLength(defaultLength), {
+      ...DEFAULT_CHARSET,
+      ...defaultCharset,
+    }),
+    copyAfterCommit: autoCopy,
+  }))
+  const { password } = generated
+  // An `autoCopy` change regenerates the password, as a policy change does.
+  const [policyAutoCopy, setPolicyAutoCopy] = useState(autoCopy)
+  if (policyAutoCopy !== autoCopy) {
+    setPolicyAutoCopy(autoCopy)
+    setGenerated({ password: generatePassword(length, charset), copyAfterCommit: autoCopy })
+  }
   const [copied, setCopied] = useState(false)
   const copiedTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   /** Lazy clipboard write — never blocks the regenerate path on failure. */
   const writeClipboard = useCallback((value: string) => {
-    if (typeof navigator !== 'undefined' && navigator.clipboard) {
-      void navigator.clipboard
-        .writeText(value)
-        .then(() => {
-          setCopied(true)
-          if (copiedTimer.current) clearTimeout(copiedTimer.current)
-          copiedTimer.current = setTimeout(() => setCopied(false), 1500)
-        })
-        .catch((_error) => {
-          // Clipboard write can reject (e.g. insecure context) — swallow
-          // silently; the user can still pick or read the password.
-        })
-    }
+    void copyTextWithFallback(value).then((copiedOk) => {
+      if (!copiedOk) return
+      setCopied(true)
+      if (copiedTimer.current) clearTimeout(copiedTimer.current)
+      copiedTimer.current = setTimeout(() => setCopied(false), 1500)
+    })
   }, [])
 
+  useEffect(() => {
+    if (generated.copyAfterCommit) writeClipboard(generated.password)
+  }, [generated, writeClipboard])
+
+  /**
+   * Adopt a policy and refresh the readout from it (copying when `autoCopy`).
+   * Called from the interactions that change the policy, so the readout is
+   * always in sync without an effect that sets state after a commit.
+   *
+   * @param nextLength - Length to generate with.
+   * @param nextCharset - Character classes to generate with.
+   */
+  const adoptPolicy = useCallback(
+    (nextLength: number, nextCharset: PasswordCharsetOptions) => {
+      const next = generatePassword(nextLength, nextCharset)
+      setGenerated({ password: next, copyAfterCommit: false })
+      if (autoCopy) writeClipboard(next)
+    },
+    [autoCopy, writeClipboard],
+  )
+
   const regenerate = useCallback(() => {
-    const next = generatePassword(length, charset)
-    setPassword(next)
-    if (autoCopy) writeClipboard(next)
-  }, [length, charset, autoCopy, writeClipboard])
+    adoptPolicy(length, charset)
+  }, [adoptPolicy, length, charset])
 
   // Cleanup the copied-flag timer on unmount.
   useEffect(() => {
@@ -89,17 +123,24 @@ export function PasswordGenerator({
     }
   }, [])
 
-  // Whenever `length` or `charset` toggles change, automatically refresh
-  // the displayed password so the UI is always in sync with the selected
-  // policy. `regenerate` is captured fresh (via useCallback) on every
-  // [length, charset] change, so listing it is correct here.
-  useEffect(() => {
-    regenerate()
-  }, [regenerate])
+  const updateLength = useCallback(
+    (next: number) => {
+      const clamped = clampLength(next)
+      if (clamped === length) return
+      setLength(clamped)
+      adoptPolicy(clamped, charset)
+    },
+    [adoptPolicy, charset, length],
+  )
 
-  const updateCharset = useCallback((key: keyof PasswordCharsetOptions, value: boolean) => {
-    setCharset((prev) => ({ ...prev, [key]: value }))
-  }, [])
+  const updateCharset = useCallback(
+    (key: keyof PasswordCharsetOptions, value: boolean) => {
+      const next = { ...charset, [key]: value }
+      setCharset(next)
+      adoptPolicy(length, next)
+    },
+    [adoptPolicy, charset, length],
+  )
 
   const copyNow = useCallback(() => writeClipboard(password), [password, writeClipboard])
 
@@ -204,7 +245,7 @@ export function PasswordGenerator({
           max={MAX_LENGTH}
           step={1}
           value={length}
-          onChange={(e) => setLength(clampLength(Number((e.target as HTMLInputElement).value)))}
+          onChange={(e) => updateLength(Number((e.target as HTMLInputElement).value))}
           aria-label={t('password-generator.lengthLabel', {}, { defaultValue: 'Password length' })}
           data-mol-id="password-length"
           style={sliderStyle}

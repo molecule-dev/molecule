@@ -24,11 +24,13 @@
  * with English fallbacks. Companion locale bond:
  * `@molecule/app-locales-embed-snippet`.
  *
- * Copy-to-clipboard uses `navigator.clipboard`, which browsers only expose
- * in secure contexts (HTTPS or localhost). On insecure origins the Copy
- * button is a silent no-op — no error, no "Copied!" feedback. If your app
- * must support insecure origins, wire `onCopy` and surface your own
- * fallback (e.g. select-the-text instructions).
+ * Copy-to-clipboard routes through `copyTextWithFallback()` from
+ * `@molecule/app-clipboard` — the bonded clipboard provider (on the web,
+ * `@molecule/app-clipboard-web`), then a legacy copy-command fallback when no
+ * provider is bonded — so it also works on insecure origins and inside
+ * frames where the async Clipboard API is unavailable. The call resolves
+ * `false` instead of throwing when nothing was copied; the "Copied!"
+ * feedback and `onCopy` fire only on success.
  *
  * Substitution replaces only the `{{width}}`, `{{height}}` and `{{theme}}`
  * placeholders (numbers become `<n>px`); unknown placeholders pass through

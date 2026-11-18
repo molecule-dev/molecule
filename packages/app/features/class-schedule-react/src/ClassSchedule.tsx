@@ -1,6 +1,6 @@
-import type { ReactElement, ReactNode } from 'react'
+import { type ReactElement, type ReactNode, useId } from 'react'
 
-import { useTranslation } from '@molecule/app-react'
+import { useLocale, useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 /**
@@ -50,7 +50,11 @@ export interface ClassScheduleProps {
   cellHeight?: number
   /** Whether to show Saturday + Sunday columns. Defaults to `true`. */
   showWeekendCols?: boolean
-  /** Locale for weekday name formatting (passes through to `Intl.DateTimeFormat`). */
+  /**
+   * Locale for weekday name formatting. Defaults to the app's active locale
+   * (`useLocale()`), so the names follow a locale switch; an explicit `locale`
+   * still wins.
+   */
   locale?: string
   /** Called when an event tile is clicked. */
   onEventClick?: (event: ScheduleEvent) => void
@@ -136,7 +140,7 @@ export function assignLanes<E extends { start: number; end: number }>(
  * @param props.dayHours - Visible hour range `[start, end]`.
  * @param props.cellHeight - Pixel height per hour row.
  * @param props.showWeekendCols - Hide Sat + Sun when `false`.
- * @param props.locale - Locale for weekday names.
+ * @param props.locale - Locale for weekday names (defaults to the app's active locale).
  * @param props.onEventClick - Click handler for event tiles.
  * @param props.onSlotClick - Click handler for empty grid cells.
  * @param props.className - Extra classes for the root container.
@@ -155,6 +159,11 @@ export function ClassSchedule({
 }: ClassScheduleProps): ReactElement {
   const cm = getClassMap()
   const { t } = useTranslation()
+  // Base of the day headers' ids — the columns' `aria-labelledby` names them
+  // (a generated id, never one derived from data).
+  const baseId = useId()
+  // Read every render, so the weekday headers re-word on a locale switch.
+  const activeLocale = useLocale()
 
   const [startHour, endHour] = dayHours
   const safeStart = Math.max(0, Math.min(23, Math.floor(startHour)))
@@ -172,9 +181,11 @@ export function ClassSchedule({
   ] as Array<0 | 1 | 2 | 3 | 4 | 5 | 6>
   const visibleWeekdays = showWeekendCols ? rotated : rotated.filter((d) => !WEEKEND_DAYS.has(d))
 
-  // Localized weekday header. Use a known reference Sunday (1970-01-04 was a Sunday)
-  // so each weekday number maps to a real Date the formatter can render.
-  const weekdayFmt = new Intl.DateTimeFormat(locale, { weekday: 'short' })
+  // Localized weekday header — locale data, not phrases, so it is Intl output
+  // in the app's active locale (an explicit `locale` prop still wins), and it
+  // follows a locale switch. Use a known reference Sunday (1970-01-04 was a
+  // Sunday) so each weekday number maps to a real Date the formatter renders.
+  const weekdayFmt = new Intl.DateTimeFormat(locale ?? activeLocale, { weekday: 'short' })
   /**
    * Returns the localized short weekday name for a given ISO weekday number.
    *
@@ -197,11 +208,14 @@ export function ClassSchedule({
 
   const totalHeightPx = hourCount * cellHeight
 
+  // A named `group`, not a `grid`: the layout is a CSS grid, not an ARIA
+  // grid — it has no rows and no grid keyboard model, and `role="grid"`
+  // would promise one (axe: aria-required-children).
   return (
     <div
       className={cm.cn(className)}
       data-mol-id="class-schedule"
-      role="grid"
+      role="group"
       aria-label={t('classSchedule.aria.region', {}, { defaultValue: 'Weekly class schedule' })}
     >
       <div
@@ -218,7 +232,7 @@ export function ClassSchedule({
         {visibleWeekdays.map((weekday) => (
           <div
             key={`head-${weekday}`}
-            role="columnheader"
+            id={`${baseId}-day-${weekday}`}
             data-mol-id="class-schedule-day-header"
             data-weekday={weekday}
             className={cm.cn(
@@ -260,54 +274,58 @@ export function ClassSchedule({
           })}
         </div>
 
-        {/* Day columns */}
+        {/* Day columns — each one a `group` named by its weekday header. */}
         {visibleWeekdays.map((weekday) => {
           const dayEvents = eventsByDay.get(weekday) ?? []
           const laned = assignLanes(dayEvents)
           return (
             <div
               key={`col-${weekday}`}
-              role="presentation"
+              role="group"
+              aria-labelledby={`${baseId}-day-${weekday}`}
               data-mol-id="class-schedule-day-column"
               data-weekday={weekday}
               className={cm.cn(cm.position('relative'))}
               style={{ height: `${totalHeightPx}px` }}
             >
-              {/* Empty-slot click targets — one button per hour row. */}
-              {Array.from({ length: hourCount }).map((_, i) => {
-                const slotStart = startMinutes + i * MINUTES_PER_HOUR
-                return (
-                  <button
-                    key={`slot-${weekday}-${i}`}
-                    type="button"
-                    data-mol-id="class-schedule-slot"
-                    data-weekday={weekday}
-                    data-start={slotStart}
-                    aria-label={t(
-                      'classSchedule.aria.slot',
-                      { weekday: weekdayLabel(weekday), time: formatHourLabel(slotStart) },
-                      { defaultValue: 'Empty slot, {{weekday}} {{time}}' },
-                    )}
-                    onClick={() => onSlotClick?.({ weekday, start: slotStart })}
-                    /* mol-bespoke-button: an INVISIBLE hour-slot hit target,
-                       absolutely positioned over the grid — it has no label,
-                       no surface and no chrome, so the inline
-                       background/border/padding are native resets. A
-                       `cm.button()` fill would paint the empty grid. */
-                    style={{
-                      position: 'absolute',
-                      top: `${i * cellHeight}px`,
-                      left: 0,
-                      right: 0,
-                      height: `${cellHeight}px`,
-                      background: 'transparent',
-                      border: 0,
-                      padding: 0,
-                      cursor: onSlotClick ? 'pointer' : 'default',
-                    }}
-                  />
-                )
-              })}
+              {/* Empty-slot click targets — one button per hour row, only
+                  while `onSlotClick` is set: a focusable button that does
+                  nothing would be a keyboard trap. */}
+              {onSlotClick &&
+                Array.from({ length: hourCount }).map((_, i) => {
+                  const slotStart = startMinutes + i * MINUTES_PER_HOUR
+                  return (
+                    <button
+                      key={`slot-${weekday}-${i}`}
+                      type="button"
+                      data-mol-id="class-schedule-slot"
+                      data-weekday={weekday}
+                      data-start={slotStart}
+                      aria-label={t(
+                        'classSchedule.aria.slot',
+                        { weekday: weekdayLabel(weekday), time: formatHourLabel(slotStart) },
+                        { defaultValue: 'Empty slot, {{weekday}} {{time}}' },
+                      )}
+                      onClick={() => onSlotClick({ weekday, start: slotStart })}
+                      /* mol-bespoke-button: an INVISIBLE hour-slot hit target,
+                         absolutely positioned over the grid — it has no label,
+                         no surface and no chrome, so the inline
+                         background/border/padding are native resets. A
+                         `cm.button()` fill would paint the empty grid. */
+                      style={{
+                        position: 'absolute',
+                        top: `${i * cellHeight}px`,
+                        left: 0,
+                        right: 0,
+                        height: `${cellHeight}px`,
+                        background: 'transparent',
+                        border: 0,
+                        padding: 0,
+                        cursor: 'pointer',
+                      }}
+                    />
+                  )
+                })}
               {/* Event tiles */}
               {laned.map(({ event, lane, lanes }) => {
                 const eventStart = Math.max(event.start, startMinutes)
@@ -317,50 +335,46 @@ export function ClassSchedule({
                 const heightPx = ((eventEnd - eventStart) / totalMinutes) * totalHeightPx
                 const leftPct = (lane / lanes) * 100
                 const widthPct = (1 / lanes) * 100
-                return (
-                  <button
-                    key={event.id}
-                    type="button"
-                    data-mol-id="class-schedule-event"
-                    data-event-id={event.id}
-                    aria-label={t(
-                      'classSchedule.aria.event',
-                      {
-                        weekday: weekdayLabel(weekday),
-                        start: formatHourLabel(event.start),
-                        end: formatHourLabel(event.end),
-                      },
-                      { defaultValue: '{{weekday}} {{start}} – {{end}}' },
-                    )}
-                    onClick={() => onEventClick?.(event)}
-                    className={cm.cn(
-                      cm.flex({ direction: 'col', align: 'start' }),
-                      cm.sp('p', 1),
-                      cm.textSize('xs'),
-                      cm.fontWeight('semibold'),
-                      // The caller's accentColor drives an inset bar (DESIGN.md →
-                      // "Accent bars"), not a hard border-left.
-                      event.accentColor && cm.accentCard({ tone: 'custom' }),
-                    )}
-                    /* mol-bespoke-button: a calendar EVENT TILE, not a CTA —
-                       it is absolutely positioned and sized from the event's
-                       start/end times and lane, and its accent bar carries
-                       the caller's own `accentColor` (data, not a design
-                       token). No `cm.button()` tier can express either. */
-                    style={{
-                      position: 'absolute',
-                      top: `${topPx}px`,
-                      height: `${heightPx}px`,
-                      left: `calc(${leftPct}% + 2px)`,
-                      width: `calc(${widthPct}% - 4px)`,
-                      overflow: 'hidden',
-                      textAlign: 'left',
-                      cursor: onEventClick ? 'pointer' : 'default',
-                      ...(event.accentColor
-                        ? { ['--mol-accent' as string]: event.accentColor }
-                        : {}),
-                    }}
-                  >
+                // The tile's accessible name is its content — title, subtitle,
+                // meta, then the time — through a visually hidden run (the
+                // former `aria-label` REPLACED that content as the name, so a
+                // screen reader never heard the class).
+                const timeLabel = t(
+                  'classSchedule.aria.event',
+                  {
+                    weekday: weekdayLabel(weekday),
+                    start: formatHourLabel(event.start),
+                    end: formatHourLabel(event.end),
+                  },
+                  { defaultValue: '{{weekday}} {{start}} – {{end}}' },
+                )
+                const tileClassName = cm.cn(
+                  cm.flex({ direction: 'col', align: 'start' }),
+                  cm.sp('p', 1),
+                  cm.textSize('xs'),
+                  cm.fontWeight('semibold'),
+                  // The caller's accentColor drives an inset bar (DESIGN.md →
+                  // "Accent bars"), not a hard border-left.
+                  event.accentColor && cm.accentCard({ tone: 'custom' }),
+                )
+                /* mol-bespoke-button: a calendar EVENT TILE, not a CTA —
+                   it is absolutely positioned and sized from the event's
+                   start/end times and lane, and its accent bar carries
+                   the caller's own `accentColor` (data, not a design
+                   token). No `cm.button()` tier can express either. */
+                const tileStyle = {
+                  position: 'absolute',
+                  top: `${topPx}px`,
+                  height: `${heightPx}px`,
+                  left: `calc(${leftPct}% + 2px)`,
+                  width: `calc(${widthPct}% - 4px)`,
+                  overflow: 'hidden',
+                  textAlign: 'left',
+                  cursor: onEventClick ? 'pointer' : 'default',
+                  ...(event.accentColor ? { ['--mol-accent' as string]: event.accentColor } : {}),
+                } as const
+                const tileChildren = (
+                  <>
                     <span data-mol-id="class-schedule-event-title">{event.title}</span>
                     {event.subtitle && (
                       <span
@@ -382,7 +396,34 @@ export function ClassSchedule({
                         {event.meta}
                       </span>
                     )}
+                    <span className={cm.srOnly}>{timeLabel}</span>
+                  </>
+                )
+                // A `<button>` only while `onEventClick` is set: without a
+                // handler the tile is static content — a focusable button that
+                // does nothing would be a keyboard trap.
+                return onEventClick ? (
+                  <button
+                    key={event.id}
+                    type="button"
+                    data-mol-id="class-schedule-event"
+                    data-event-id={event.id}
+                    onClick={() => onEventClick(event)}
+                    className={tileClassName}
+                    style={tileStyle}
+                  >
+                    {tileChildren}
                   </button>
+                ) : (
+                  <div
+                    key={event.id}
+                    data-mol-id="class-schedule-event"
+                    data-event-id={event.id}
+                    className={tileClassName}
+                    style={tileStyle}
+                  >
+                    {tileChildren}
+                  </div>
                 )
               })}
             </div>

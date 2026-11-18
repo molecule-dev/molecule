@@ -1,0 +1,209 @@
+{
+ "exports": [
+  "AuthBrandHeader",
+  "AuthBrandHeaderChip",
+  "AuthBrandHeaderTagline",
+  "AuthBrandHeaderWordmark"
+ ],
+ "values": {},
+ "cases": {
+  "AuthBrandHeader": {
+   "preset appName and tagline": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c9566e21c cbaac6b89 cc2d72006 ccae02ff2\">\n<h1 class=\"c5e9752b6 c9a4d1a6c cd542c1f3 ce6c94376\">\nAcme\n</h1>\n<p class=\"c052585d2 c445db9b9 c80b1c428\">\nShip faster\n</p>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "preset with an icon chip": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c9566e21c cbaac6b89 cc2d72006 ccae02ff2\">\n<div class=\"c1e8176ab c2f585ff4 c4172119d c42740ba6 c7f6faa75 c8d722291 c9052b18c c9773cd2b c9973e6cd cc26cf386 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c91a3f70a c92985a9a caeede141\" style=\"font-variation-settings: 'FILL' 1\">\nrocket_launch\n</span>\n</div>\n<h1 class=\"c5e9752b6 c9a4d1a6c cd542c1f3 ce6c94376\">\nAcme\n</h1>\n<p class=\"c052585d2 c445db9b9 c80b1c428\">\nShip faster\n</p>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "preset with a gradient chip and a colored wordmark": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c9566e21c cbaac6b89 cc2d72006 ccae02ff2\">\n<div class=\"c1e8176ab c2f585ff4 c4172119d c42740ba6 c8d722291 c9052b18c c9773cd2b c9973e6cd cc26cf386 ccae02ff2 cd9b20003\" style=\"background: linear-gradient(135deg, rgb(224, 90, 43), rgb(240, 106, 59))\">\n<span aria-hidden=\"true\" class=\"c91a3f70a c92985a9a caeede141\" style=\"font-variation-settings: 'FILL' 1\">\ngavel\n</span>\n</div>\n<h1 class=\"c5e9752b6 c9a4d1a6c cd542c1f3 ce6c94376\" style=\"color: rgb(224, 90, 43)\">\nAcme\n</h1>\n<p class=\"c052585d2 c445db9b9 c80b1c428\">\nShip faster\n</p>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "preset with a square chip": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c9566e21c cbaac6b89 cc2d72006 ccae02ff2\">\n<div class=\"c18b873b1 c1e8176ab c2f585ff4 c4172119d c42740ba6 c8d722291 c9773cd2b c9973e6cd cc26cf386 ccae02ff2 cd9b20003\" style=\"background: linear-gradient(red, blue)\">\n<span aria-hidden=\"true\" class=\"c91a3f70a c92985a9a caeede141\" style=\"font-variation-settings: 'FILL' 1\">\nstar\n</span>\n</div>\n<h1 class=\"c5e9752b6 c9a4d1a6c cd542c1f3 ce6c94376\">\nAcme\n</h1>\n<p class=\"c052585d2 c445db9b9 c80b1c428\">\nShip faster\n</p>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "preset with every preset prop absent": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c9566e21c cbaac6b89 cc2d72006 ccae02ff2\">\n<h1 class=\"c5e9752b6 c9a4d1a6c cd542c1f3 ce6c94376\">\n</h1>\n<p class=\"c052585d2 c445db9b9 c80b1c428\">\n</p>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "preset with a className": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c9566e21c cbaac6b89 cc2d72006 ccae02ff2 cd75bbd18\">\n<h1 class=\"c5e9752b6 c9a4d1a6c cd542c1f3 ce6c94376\">\nAcme\n</h1>\n<p class=\"c052585d2 c445db9b9 c80b1c428\">\nShip faster\n</p>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "composed children ignore the preset props": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c9566e21c cbaac6b89 cc2d72006 ccae02ff2\">\n<div data-custom>\n<h1>\nBespoke\n</h1>\n<p>\nComposed tagline\n</p>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "translated appName and tagline": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c9566e21c cbaac6b89 cc2d72006 ccae02ff2\">\n<h1 class=\"c5e9752b6 c9a4d1a6c cd542c1f3 ce6c94376\">\nWelcome to Acme\n</h1>\n<p class=\"c052585d2 c445db9b9 c80b1c428\">\nShip faster!\n</p>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "text follows a locale switch": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c9566e21c cbaac6b89 cc2d72006 ccae02ff2\">\n<h1 class=\"c5e9752b6 c9a4d1a6c cd542c1f3 ce6c94376\">\nWelcome to Acme\n</h1>\n<p class=\"c052585d2 c445db9b9 c80b1c428\">\nShip faster!\n</p>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c42740ba6 c9566e21c cbaac6b89 cc2d72006 ccae02ff2\">\n<h1 class=\"c5e9752b6 c9a4d1a6c cd542c1f3 ce6c94376\">\nBienvenue chez Acme\n</h1>\n<p class=\"c052585d2 c445db9b9 c80b1c428\">\nShip faster !\n</p>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "preset props change": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c9566e21c cbaac6b89 cc2d72006 ccae02ff2\">\n<h1 class=\"c5e9752b6 c9a4d1a6c cd542c1f3 ce6c94376\">\nAcme\n</h1>\n<p class=\"c052585d2 c445db9b9 c80b1c428\">\nShip faster\n</p>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c42740ba6 c9566e21c cbaac6b89 cc2d72006 ccae02ff2\">\n<div class=\"c1e8176ab c2f585ff4 c4172119d c42740ba6 c7f6faa75 c8d722291 c9052b18c c9773cd2b c9973e6cd cc26cf386 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c91a3f70a c92985a9a caeede141\" style=\"font-variation-settings: 'FILL' 1\">\nrocket_launch\n</span>\n</div>\n<h1 class=\"c5e9752b6 c9a4d1a6c cd542c1f3 ce6c94376\" style=\"color: rgb(255, 0, 0)\">\nAcme Cloud\n</h1>\n<p class=\"c052585d2 c445db9b9 c80b1c428\">\nShip much faster\n</p>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c42740ba6 c9566e21c cbaac6b89 cc2d72006 ccae02ff2\">\n<h1 class=\"c5e9752b6 c9a4d1a6c cd542c1f3 ce6c94376\">\nAcme Cloud\n</h1>\n<p class=\"c052585d2 c445db9b9 c80b1c428\">\nShip much faster\n</p>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "preset appName and tagline, then a locale switch": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c9566e21c cbaac6b89 cc2d72006 ccae02ff2\">\n<h1 class=\"c5e9752b6 c9a4d1a6c cd542c1f3 ce6c94376\">\nAcme\n</h1>\n<p class=\"c052585d2 c445db9b9 c80b1c428\">\nShip faster\n</p>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c42740ba6 c9566e21c cbaac6b89 cc2d72006 ccae02ff2\">\n<h1 class=\"c5e9752b6 c9a4d1a6c cd542c1f3 ce6c94376\">\n⟦Acme⟧\n</h1>\n<p class=\"c052585d2 c445db9b9 c80b1c428\">\n⟦Ship faster⟧\n</p>\n</div>\n@route /"
+    ],
+    "calls": []
+   }
+  },
+  "AuthBrandHeaderChip": {
+   "icon only falls back to the primary background": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c2f585ff4 c4172119d c42740ba6 c7f6faa75 c8d722291 c9052b18c c9773cd2b c9973e6cd cc26cf386 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c91a3f70a c92985a9a caeede141\" style=\"font-variation-settings: 'FILL' 1\">\ndescription\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "round chip with a gradient": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c2f585ff4 c4172119d c42740ba6 c8d722291 c9052b18c c9773cd2b c9973e6cd cc26cf386 ccae02ff2 cd9b20003\" style=\"background: linear-gradient(red, blue)\">\n<span aria-hidden=\"true\" class=\"c91a3f70a c92985a9a caeede141\" style=\"font-variation-settings: 'FILL' 1\">\nstar\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "square chip without a gradient": {
+    "snapshots": [
+     "<div class=\"c18b873b1 c1e8176ab c2f585ff4 c4172119d c42740ba6 c7f6faa75 c8d722291 c9773cd2b c9973e6cd cc26cf386 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c91a3f70a c92985a9a caeede141\" style=\"font-variation-settings: 'FILL' 1\">\nstar\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "square chip with a gradient": {
+    "snapshots": [
+     "<div class=\"c18b873b1 c1e8176ab c2f585ff4 c4172119d c42740ba6 c8d722291 c9773cd2b c9973e6cd cc26cf386 ccae02ff2 cd9b20003\" style=\"background: linear-gradient(red, blue)\">\n<span aria-hidden=\"true\" class=\"c91a3f70a c92985a9a caeede141\" style=\"font-variation-settings: 'FILL' 1\">\nstar\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "empty icon": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c2f585ff4 c4172119d c42740ba6 c7f6faa75 c8d722291 c9052b18c c9773cd2b c9973e6cd cc26cf386 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c91a3f70a c92985a9a caeede141\" style=\"font-variation-settings: 'FILL' 1\">\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "chip shape and gradient change": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c2f585ff4 c4172119d c42740ba6 c7f6faa75 c8d722291 c9052b18c c9773cd2b c9973e6cd cc26cf386 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c91a3f70a c92985a9a caeede141\" style=\"font-variation-settings: 'FILL' 1\">\nstar\n</span>\n</div>\n@route /",
+     "<div class=\"c18b873b1 c1e8176ab c2f585ff4 c4172119d c42740ba6 c8d722291 c9773cd2b c9973e6cd cc26cf386 ccae02ff2 cd9b20003\" style=\"background: linear-gradient(red, blue)\">\n<span aria-hidden=\"true\" class=\"c91a3f70a c92985a9a caeede141\" style=\"font-variation-settings: 'FILL' 1\">\nstar\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "icon only falls back to the primary background, then a locale switch": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c2f585ff4 c4172119d c42740ba6 c7f6faa75 c8d722291 c9052b18c c9773cd2b c9973e6cd cc26cf386 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c91a3f70a c92985a9a caeede141\" style=\"font-variation-settings: 'FILL' 1\">\ndescription\n</span>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c2f585ff4 c4172119d c42740ba6 c7f6faa75 c8d722291 c9052b18c c9773cd2b c9973e6cd cc26cf386 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c91a3f70a c92985a9a caeede141\" style=\"font-variation-settings: 'FILL' 1\">\ndescription\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   }
+  },
+  "AuthBrandHeaderTagline": {
+   "text children": {
+    "snapshots": [
+     "<p class=\"c052585d2 c445db9b9 c80b1c428\">\nShip faster\n</p>\n@route /"
+    ],
+    "calls": []
+   },
+   "node children": {
+    "snapshots": [
+     "<p class=\"c052585d2 c445db9b9 c80b1c428\">\n<em>\nShip faster\n</em>\n</p>\n@route /"
+    ],
+    "calls": []
+   },
+   "extra classes": {
+    "snapshots": [
+     "<p class=\"c052585d2 c445db9b9 c80b1c428 cceecd988\">\nShip faster\n</p>\n@route /"
+    ],
+    "calls": []
+   },
+   "default treatment": {
+    "snapshots": [
+     "<p class=\"c052585d2 c445db9b9 c80b1c428\">\nShip faster\n</p>\n@route /"
+    ],
+    "calls": []
+   },
+   "className change": {
+    "snapshots": [
+     "<p class=\"c052585d2 c445db9b9 c80b1c428\">\nShip faster\n</p>\n@route /",
+     "<p class=\"c052585d2 c445db9b9 c80b1c428 cceecd988\">\nShip faster\n</p>\n@route /"
+    ],
+    "calls": []
+   },
+   "text children, then a locale switch": {
+    "snapshots": [
+     "<p class=\"c052585d2 c445db9b9 c80b1c428\">\nShip faster\n</p>\n@route /",
+     "<p class=\"c052585d2 c445db9b9 c80b1c428\">\nShip faster\n</p>\n@route /"
+    ],
+    "calls": []
+   }
+  },
+  "AuthBrandHeaderWordmark": {
+   "text children": {
+    "snapshots": [
+     "<h1 class=\"c5e9752b6 c9a4d1a6c cd542c1f3 ce6c94376\">\nRefract\n</h1>\n@route /"
+    ],
+    "calls": []
+   },
+   "node children": {
+    "snapshots": [
+     "<h1 class=\"c5e9752b6 c9a4d1a6c cd542c1f3 ce6c94376\">\n<strong>\nRefract\n</strong>\n</h1>\n@route /"
+    ],
+    "calls": []
+   },
+   "color and extra classes": {
+    "snapshots": [
+     "<h1 class=\"c50f185bc c5e9752b6 c9a4d1a6c cd542c1f3 ce6c94376\" style=\"color: rgb(124, 58, 237)\">\nReverb\n</h1>\n@route /"
+    ],
+    "calls": []
+   },
+   "default treatment": {
+    "snapshots": [
+     "<h1 class=\"c5e9752b6 c9a4d1a6c cd542c1f3 ce6c94376\">\nPlain\n</h1>\n@route /"
+    ],
+    "calls": []
+   },
+   "color and className change": {
+    "snapshots": [
+     "<h1 class=\"c5e9752b6 c9a4d1a6c cd542c1f3 ce6c94376\">\nRefract\n</h1>\n@route /",
+     "<h1 class=\"c50f185bc c5e9752b6 c9a4d1a6c cd542c1f3 ce6c94376\" style=\"color: rgb(124, 58, 237)\">\nRefract\n</h1>\n@route /"
+    ],
+    "calls": []
+   },
+   "text children, then a locale switch": {
+    "snapshots": [
+     "<h1 class=\"c5e9752b6 c9a4d1a6c cd542c1f3 ce6c94376\">\nRefract\n</h1>\n@route /",
+     "<h1 class=\"c5e9752b6 c9a4d1a6c cd542c1f3 ce6c94376\">\nRefract\n</h1>\n@route /"
+    ],
+    "calls": []
+   }
+  }
+ }
+}

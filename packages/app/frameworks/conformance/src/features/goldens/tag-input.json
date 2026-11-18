@@ -1,0 +1,1855 @@
+{
+ "exports": [
+  "TagChip",
+  "TagInput",
+  "TagList",
+  "useTagInput"
+ ],
+ "values": {},
+ "cases": {
+  "TagChip": {
+   "plain label": {
+    "snapshots": [
+     "<span class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c8d3cd30e c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nreact\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "extra classes": {
+    "snapshots": [
+     "<span class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c8d3cd30e c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd290176e cd9b20003\">\n<span>\nreact\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "clickable body": {
+    "snapshots": [
+     "<span class=\"c13d4ff0f c1e8176ab c42740ba6 c4647f690 c80b1c428 c8d3cd30e c9052b18c c9866e6d5 ca76eb0c4 cb3a6ebb6 cc2d72006 ccae02ff2 cd9b20003\" role=\"button\" tabindex=\"0\">\n<span>\nreact\n</span>\n</span>\n@route /",
+     "<span class=\"c13d4ff0f c1e8176ab c42740ba6 c4647f690 c80b1c428 c8d3cd30e c9052b18c c9866e6d5 ca76eb0c4 cb3a6ebb6 cc2d72006 ccae02ff2 cd9b20003\" role=\"button\" tabindex=\"0\">\n<span>\nreact\n</span>\n</span>\n@route /",
+     "<span class=\"c13d4ff0f c1e8176ab c42740ba6 c4647f690 c80b1c428 c8d3cd30e c9052b18c c9866e6d5 ca76eb0c4 cb3a6ebb6 cc2d72006 ccae02ff2 cd9b20003\" role=\"button\" tabindex=\"0\">\n<span>\nreact\n</span>\n</span>\n@route /",
+     "<span class=\"c13d4ff0f c1e8176ab c42740ba6 c4647f690 c80b1c428 c8d3cd30e c9052b18c c9866e6d5 ca76eb0c4 cb3a6ebb6 cc2d72006 ccae02ff2 cd9b20003\" role=\"button\" tabindex=\"0\">\n<span>\nreact\n</span>\n</span>\n@route /",
+     "<span class=\"c13d4ff0f c1e8176ab c42740ba6 c4647f690 c80b1c428 c8d3cd30e c9052b18c c9866e6d5 ca76eb0c4 cb3a6ebb6 cc2d72006 ccae02ff2 cd9b20003\" role=\"button\" tabindex=\"0\">\n<span>\nreact\n</span>\n</span>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onClick",
+      "args": [
+       {
+        "event": "click",
+        "target": "span"
+       }
+      ]
+     },
+     {
+      "name": "onClick",
+      "args": []
+     },
+     {
+      "name": "onClick",
+      "args": []
+     }
+    ]
+   },
+   "remove button": {
+    "snapshots": [
+     "<span class=\"c1e8176ab c42740ba6 c4647f690 c6fd8f382 c80b1c428 c8d3cd30e c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\njs\n</span>\n<button aria-label=\"Remove\" class=\"c1e8176ab c42740ba6 c9773cd2b cc3672a4e ccae02ff2 cd14f11ef cd9b20003\" type=\"button\">\n×\n</button>\n</span>\n@route /",
+     "<span class=\"c1e8176ab c42740ba6 c4647f690 c6fd8f382 c80b1c428 c8d3cd30e c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\njs\n</span>\n<button aria-label=\"Remove\" class=\"c1e8176ab c42740ba6 c9773cd2b cc3672a4e ccae02ff2 cd14f11ef cd9b20003\" type=\"button\">\n×\n</button>\n</span>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onRemove",
+      "args": [
+       {
+        "event": "click",
+        "target": "button"
+       }
+      ]
+     }
+    ]
+   },
+   "body action beside a remove button": {
+    "snapshots": [
+     "<span class=\"c1e8176ab c2e52528d c42740ba6 c4647f690 c80b1c428 c8d3cd30e c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<button class=\"c13d4ff0f\" style=\"background: transparent; border: medium; color: inherit; font: inherit; padding: 0px\" type=\"button\">\n<span>\nreact\n</span>\n</button>\n<button aria-label=\"Remove\" class=\"c1e8176ab c42740ba6 c9773cd2b cc3672a4e ccae02ff2 cd14f11ef cd9b20003\" type=\"button\">\n×\n</button>\n</span>\n@route /",
+     "<span class=\"c1e8176ab c2e52528d c42740ba6 c4647f690 c80b1c428 c8d3cd30e c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<button class=\"c13d4ff0f\" style=\"background: transparent; border: medium; color: inherit; font: inherit; padding: 0px\" type=\"button\">\n<span>\nreact\n</span>\n</button>\n<button aria-label=\"Remove\" class=\"c1e8176ab c42740ba6 c9773cd2b cc3672a4e ccae02ff2 cd14f11ef cd9b20003\" type=\"button\">\n×\n</button>\n</span>\n@route /",
+     "<span class=\"c1e8176ab c2e52528d c42740ba6 c4647f690 c80b1c428 c8d3cd30e c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<button class=\"c13d4ff0f\" style=\"background: transparent; border: medium; color: inherit; font: inherit; padding: 0px\" type=\"button\">\n<span>\nreact\n</span>\n</button>\n<button aria-label=\"Remove\" class=\"c1e8176ab c42740ba6 c9773cd2b cc3672a4e ccae02ff2 cd14f11ef cd9b20003\" type=\"button\">\n×\n</button>\n</span>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onClick",
+      "args": [
+       {
+        "event": "click",
+        "target": "button"
+       }
+      ]
+     },
+     {
+      "name": "onRemove",
+      "args": [
+       {
+        "event": "click",
+        "target": "button"
+       }
+      ]
+     }
+    ]
+   },
+   "plain label, then a locale switch": {
+    "snapshots": [
+     "<span class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c8d3cd30e c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nreact\n</span>\n</span>\n@route /",
+     "<span class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c8d3cd30e c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nreact\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   }
+  },
+  "TagInput": {
+   "empty": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c9866e6d5 c9bd6223c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<input class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cb5823274 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" placeholder=\"Add a tag…\" type=\"text\" value {value=\"\"}>\n</input>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "two tags": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c9866e6d5 c9bd6223c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c8d3cd30e c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nreact\n</span>\n<button aria-label=\"Remove\" class=\"c1e8176ab c42740ba6 c9773cd2b cc3672a4e ccae02ff2 cd14f11ef cd9b20003\" type=\"button\">\n×\n</button>\n</span>\n<span class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c8d3cd30e c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nvue\n</span>\n<button aria-label=\"Remove\" class=\"c1e8176ab c42740ba6 c9773cd2b cc3672a4e ccae02ff2 cd14f11ef cd9b20003\" type=\"button\">\n×\n</button>\n</span>\n<input class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cb5823274 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" placeholder=\"Add a tag…\" type=\"text\" value {value=\"\"}>\n</input>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c9866e6d5 c9bd6223c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c8d3cd30e c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nreact\n</span>\n<button aria-label=\"Remove\" class=\"c1e8176ab c42740ba6 c9773cd2b cc3672a4e ccae02ff2 cd14f11ef cd9b20003\" type=\"button\">\n×\n</button>\n</span>\n<span class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c8d3cd30e c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nvue\n</span>\n<button aria-label=\"Remove\" class=\"c1e8176ab c42740ba6 c9773cd2b cc3672a4e ccae02ff2 cd14f11ef cd9b20003\" type=\"button\">\n×\n</button>\n</span>\n<input class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cb5823274 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" placeholder=\"Add a tag…\" type=\"text\" value {value=\"\"}>\n</input>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c9866e6d5 c9bd6223c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c8d3cd30e c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nreact\n</span>\n<button aria-label=\"Remove\" class=\"c1e8176ab c42740ba6 c9773cd2b cc3672a4e ccae02ff2 cd14f11ef cd9b20003\" type=\"button\">\n×\n</button>\n</span>\n<span class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c8d3cd30e c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nvue\n</span>\n<button aria-label=\"Remove\" class=\"c1e8176ab c42740ba6 c9773cd2b cc3672a4e ccae02ff2 cd14f11ef cd9b20003\" type=\"button\">\n×\n</button>\n</span>\n<input class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cb5823274 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" placeholder=\"Add a tag…\" type=\"text\" value {value=\"\"}>\n</input>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onChange",
+      "args": [
+       [
+        "react"
+       ]
+      ]
+     },
+     {
+      "name": "onChange",
+      "args": [
+       [
+        "vue"
+       ]
+      ]
+     }
+    ]
+   },
+   "custom placeholder": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c9866e6d5 c9bd6223c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<input class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cb5823274 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" placeholder=\"Type a label\" type=\"text\" value {value=\"\"}>\n</input>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "extra classes": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c9866e6d5 c9bd6223c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad cf67eaa3f\">\n<input class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cb5823274 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" placeholder=\"Add a tag…\" type=\"text\" value {value=\"\"}>\n</input>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "typing then Enter adds the trimmed tag": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c9866e6d5 c9bd6223c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<input class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cb5823274 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" placeholder=\"Add a tag…\" type=\"text\" value {value=\"\"}>\n</input>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c9866e6d5 c9bd6223c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<input class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cb5823274 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" placeholder=\"Add a tag…\" type=\"text\" value=\"  solid  \" {value=\"  solid  \"}>\n</input>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c9866e6d5 c9bd6223c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<input class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cb5823274 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" placeholder=\"Add a tag…\" type=\"text\" value {value=\"\"}>\n</input>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onChange",
+      "args": [
+       [
+        "solid"
+       ]
+      ]
+     }
+    ]
+   },
+   "comma commits the draft": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c9866e6d5 c9bd6223c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c8d3cd30e c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nreact\n</span>\n<button aria-label=\"Remove\" class=\"c1e8176ab c42740ba6 c9773cd2b cc3672a4e ccae02ff2 cd14f11ef cd9b20003\" type=\"button\">\n×\n</button>\n</span>\n<input class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cb5823274 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" placeholder=\"Add a tag…\" type=\"text\" value {value=\"\"}>\n</input>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c9866e6d5 c9bd6223c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c8d3cd30e c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nreact\n</span>\n<button aria-label=\"Remove\" class=\"c1e8176ab c42740ba6 c9773cd2b cc3672a4e ccae02ff2 cd14f11ef cd9b20003\" type=\"button\">\n×\n</button>\n</span>\n<input class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cb5823274 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" placeholder=\"Add a tag…\" type=\"text\" value=\"vue\" {value=\"vue\"}>\n</input>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c9866e6d5 c9bd6223c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c8d3cd30e c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nreact\n</span>\n<button aria-label=\"Remove\" class=\"c1e8176ab c42740ba6 c9773cd2b cc3672a4e ccae02ff2 cd14f11ef cd9b20003\" type=\"button\">\n×\n</button>\n</span>\n<input class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cb5823274 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" placeholder=\"Add a tag…\" type=\"text\" value {value=\"\"}>\n</input>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onChange",
+      "args": [
+       [
+        "react",
+        "vue"
+       ]
+      ]
+     }
+    ]
+   },
+   "Tab commits a non-empty draft": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c9866e6d5 c9bd6223c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<input class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cb5823274 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" placeholder=\"Add a tag…\" type=\"text\" value {value=\"\"}>\n</input>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c9866e6d5 c9bd6223c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<input class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cb5823274 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" placeholder=\"Add a tag…\" type=\"text\" value=\"svelte\" {value=\"svelte\"}>\n</input>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c9866e6d5 c9bd6223c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<input class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cb5823274 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" placeholder=\"Add a tag…\" type=\"text\" value {value=\"\"}>\n</input>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onChange",
+      "args": [
+       [
+        "svelte"
+       ]
+      ]
+     }
+    ]
+   },
+   "an empty Tab keeps focus traversal": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c9866e6d5 c9bd6223c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<input class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cb5823274 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" placeholder=\"Add a tag…\" type=\"text\" value {value=\"\"}>\n</input>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c9866e6d5 c9bd6223c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<input class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cb5823274 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" placeholder=\"Add a tag…\" type=\"text\" value {value=\"\"}>\n</input>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "blur commits a non-empty draft": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c9866e6d5 c9bd6223c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<input class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cb5823274 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" placeholder=\"Add a tag…\" type=\"text\" value {value=\"\"}>\n</input>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c9866e6d5 c9bd6223c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<input class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cb5823274 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" placeholder=\"Add a tag…\" type=\"text\" value=\"angular\" {value=\"angular\"}>\n</input>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c9866e6d5 c9bd6223c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<input class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cb5823274 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" placeholder=\"Add a tag…\" type=\"text\" value {value=\"\"}>\n</input>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onChange",
+      "args": [
+       [
+        "angular"
+       ]
+      ]
+     }
+    ]
+   },
+   "a duplicate is rejected": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c9866e6d5 c9bd6223c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c8d3cd30e c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nreact\n</span>\n<button aria-label=\"Remove\" class=\"c1e8176ab c42740ba6 c9773cd2b cc3672a4e ccae02ff2 cd14f11ef cd9b20003\" type=\"button\">\n×\n</button>\n</span>\n<input class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cb5823274 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" placeholder=\"Add a tag…\" type=\"text\" value {value=\"\"}>\n</input>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c9866e6d5 c9bd6223c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c8d3cd30e c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nreact\n</span>\n<button aria-label=\"Remove\" class=\"c1e8176ab c42740ba6 c9773cd2b cc3672a4e ccae02ff2 cd14f11ef cd9b20003\" type=\"button\">\n×\n</button>\n</span>\n<input class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cb5823274 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" placeholder=\"Add a tag…\" type=\"text\" value=\"react\" {value=\"react\"}>\n</input>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c9866e6d5 c9bd6223c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c8d3cd30e c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nreact\n</span>\n<button aria-label=\"Remove\" class=\"c1e8176ab c42740ba6 c9773cd2b cc3672a4e ccae02ff2 cd14f11ef cd9b20003\" type=\"button\">\n×\n</button>\n</span>\n<input class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cb5823274 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" placeholder=\"Add a tag…\" type=\"text\" value {value=\"\"}>\n</input>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "maxTags stops further additions": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c9866e6d5 c9bd6223c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c8d3cd30e c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\na\n</span>\n<button aria-label=\"Remove\" class=\"c1e8176ab c42740ba6 c9773cd2b cc3672a4e ccae02ff2 cd14f11ef cd9b20003\" type=\"button\">\n×\n</button>\n</span>\n<input class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cb5823274 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" placeholder=\"Add a tag…\" type=\"text\" value {value=\"\"}>\n</input>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c9866e6d5 c9bd6223c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c8d3cd30e c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\na\n</span>\n<button aria-label=\"Remove\" class=\"c1e8176ab c42740ba6 c9773cd2b cc3672a4e ccae02ff2 cd14f11ef cd9b20003\" type=\"button\">\n×\n</button>\n</span>\n<input class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cb5823274 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" placeholder=\"Add a tag…\" type=\"text\" value=\"b\" {value=\"b\"}>\n</input>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c9866e6d5 c9bd6223c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c8d3cd30e c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\na\n</span>\n<button aria-label=\"Remove\" class=\"c1e8176ab c42740ba6 c9773cd2b cc3672a4e ccae02ff2 cd14f11ef cd9b20003\" type=\"button\">\n×\n</button>\n</span>\n<input class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cb5823274 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" placeholder=\"Add a tag…\" type=\"text\" value {value=\"\"}>\n</input>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a custom normalize decides what is added": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c9866e6d5 c9bd6223c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<input class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cb5823274 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" placeholder=\"Add a tag…\" type=\"text\" value {value=\"\"}>\n</input>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c9866e6d5 c9bd6223c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<input class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cb5823274 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" placeholder=\"Add a tag…\" type=\"text\" value=\"  Weird  \" {value=\"  Weird  \"}>\n</input>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c9866e6d5 c9bd6223c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<input class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cb5823274 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" placeholder=\"Add a tag…\" type=\"text\" value {value=\"\"}>\n</input>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onChange",
+      "args": [
+       [
+        "slug"
+       ]
+      ]
+     }
+    ]
+   },
+   "Backspace on an empty field removes the last tag": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c9866e6d5 c9bd6223c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c8d3cd30e c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\na\n</span>\n<button aria-label=\"Remove\" class=\"c1e8176ab c42740ba6 c9773cd2b cc3672a4e ccae02ff2 cd14f11ef cd9b20003\" type=\"button\">\n×\n</button>\n</span>\n<span class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c8d3cd30e c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nb\n</span>\n<button aria-label=\"Remove\" class=\"c1e8176ab c42740ba6 c9773cd2b cc3672a4e ccae02ff2 cd14f11ef cd9b20003\" type=\"button\">\n×\n</button>\n</span>\n<input class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cb5823274 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" placeholder=\"Add a tag…\" type=\"text\" value {value=\"\"}>\n</input>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c9866e6d5 c9bd6223c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c8d3cd30e c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\na\n</span>\n<button aria-label=\"Remove\" class=\"c1e8176ab c42740ba6 c9773cd2b cc3672a4e ccae02ff2 cd14f11ef cd9b20003\" type=\"button\">\n×\n</button>\n</span>\n<span class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c8d3cd30e c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nb\n</span>\n<button aria-label=\"Remove\" class=\"c1e8176ab c42740ba6 c9773cd2b cc3672a4e ccae02ff2 cd14f11ef cd9b20003\" type=\"button\">\n×\n</button>\n</span>\n<input class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cb5823274 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" placeholder=\"Add a tag…\" type=\"text\" value {value=\"\"}>\n</input>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onChange",
+      "args": [
+       [
+        "a"
+       ]
+      ]
+     }
+    ]
+   },
+   "Backspace with a draft keeps the tags": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c9866e6d5 c9bd6223c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c8d3cd30e c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\na\n</span>\n<button aria-label=\"Remove\" class=\"c1e8176ab c42740ba6 c9773cd2b cc3672a4e ccae02ff2 cd14f11ef cd9b20003\" type=\"button\">\n×\n</button>\n</span>\n<input class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cb5823274 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" placeholder=\"Add a tag…\" type=\"text\" value {value=\"\"}>\n</input>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c9866e6d5 c9bd6223c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c8d3cd30e c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\na\n</span>\n<button aria-label=\"Remove\" class=\"c1e8176ab c42740ba6 c9773cd2b cc3672a4e ccae02ff2 cd14f11ef cd9b20003\" type=\"button\">\n×\n</button>\n</span>\n<input class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cb5823274 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" placeholder=\"Add a tag…\" type=\"text\" value=\"b\" {value=\"b\"}>\n</input>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c9866e6d5 c9bd6223c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c8d3cd30e c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\na\n</span>\n<button aria-label=\"Remove\" class=\"c1e8176ab c42740ba6 c9773cd2b cc3672a4e ccae02ff2 cd14f11ef cd9b20003\" type=\"button\">\n×\n</button>\n</span>\n<input class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cb5823274 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" placeholder=\"Add a tag…\" type=\"text\" value=\"b\" {value=\"b\"}>\n</input>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a changed controlled value replaces the tags": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c9866e6d5 c9bd6223c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c8d3cd30e c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\na\n</span>\n<button aria-label=\"Remove\" class=\"c1e8176ab c42740ba6 c9773cd2b cc3672a4e ccae02ff2 cd14f11ef cd9b20003\" type=\"button\">\n×\n</button>\n</span>\n<input class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cb5823274 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" placeholder=\"Add a tag…\" type=\"text\" value {value=\"\"}>\n</input>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c9866e6d5 c9bd6223c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c8d3cd30e c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nb\n</span>\n<button aria-label=\"Remove\" class=\"c1e8176ab c42740ba6 c9773cd2b cc3672a4e ccae02ff2 cd14f11ef cd9b20003\" type=\"button\">\n×\n</button>\n</span>\n<span class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c8d3cd30e c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nc\n</span>\n<button aria-label=\"Remove\" class=\"c1e8176ab c42740ba6 c9773cd2b cc3672a4e ccae02ff2 cd14f11ef cd9b20003\" type=\"button\">\n×\n</button>\n</span>\n<input class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cb5823274 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" placeholder=\"Add a tag…\" type=\"text\" value {value=\"\"}>\n</input>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "empty, then a locale switch": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c9866e6d5 c9bd6223c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<input class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cb5823274 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" placeholder=\"Add a tag…\" type=\"text\" value {value=\"\"}>\n</input>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c9866e6d5 c9bd6223c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<input class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cb5823274 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" placeholder=\"⟦Add a tag…⟧\" type=\"text\" value {value=\"\"}>\n</input>\n</div>\n@route /"
+    ],
+    "calls": []
+   }
+  },
+  "TagList": {
+   "saved tags as chips": {
+    "snapshots": [
+     "<ul class=\"c1e8176ab c9866e6d5 cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<li>\n<span class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c8d3cd30e c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nreact\n</span>\n</span>\n</li>\n<li>\n<span class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c8d3cd30e c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nvue\n</span>\n</span>\n</li>\n<li>\n<span class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c8d3cd30e c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nreact\n</span>\n</span>\n</li>\n</ul>\n@route /"
+    ],
+    "calls": []
+   },
+   "no tags": {
+    "snapshots": [
+     "<ul class=\"c1e8176ab c9866e6d5 cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n</ul>\n@route /"
+    ],
+    "calls": []
+   },
+   "list and item classes": {
+    "snapshots": [
+     "<ul class=\"c1c767af9 c1e8176ab c9866e6d5 cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<li class=\"c3d5a9671\">\n<span class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c8d3cd30e c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\na\n</span>\n</span>\n</li>\n<li class=\"c3d5a9671\">\n<span class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c8d3cd30e c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nb\n</span>\n</span>\n</li>\n</ul>\n@route /"
+    ],
+    "calls": []
+   },
+   "app-owned tag content": {
+    "snapshots": [
+     "<ul class=\"c1e8176ab c9866e6d5 cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<li>\n<strong data-index=\"0\">\n#react\n</strong>\n</li>\n<li>\n<strong data-index=\"1\">\n#vue\n</strong>\n</li>\n</ul>\n@route /"
+    ],
+    "calls": []
+   },
+   "a changed value replaces the list": {
+    "snapshots": [
+     "<ul class=\"c1e8176ab c9866e6d5 cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<li>\n<span class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c8d3cd30e c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\na\n</span>\n</span>\n</li>\n</ul>\n@route /",
+     "<ul class=\"c1e8176ab c9866e6d5 cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<li>\n<span class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c8d3cd30e c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nb\n</span>\n</span>\n</li>\n<li>\n<span class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c8d3cd30e c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nc\n</span>\n</span>\n</li>\n</ul>\n@route /"
+    ],
+    "calls": []
+   },
+   "saved tags as chips, then a locale switch": {
+    "snapshots": [
+     "<ul class=\"c1e8176ab c9866e6d5 cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<li>\n<span class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c8d3cd30e c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nreact\n</span>\n</span>\n</li>\n<li>\n<span class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c8d3cd30e c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nvue\n</span>\n</span>\n</li>\n<li>\n<span class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c8d3cd30e c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nreact\n</span>\n</span>\n</li>\n</ul>\n@route /",
+     "<ul class=\"c1e8176ab c9866e6d5 cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<li>\n<span class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c8d3cd30e c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nreact\n</span>\n</span>\n</li>\n<li>\n<span class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c8d3cd30e c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nvue\n</span>\n</span>\n</li>\n<li>\n<span class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c8d3cd30e c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nreact\n</span>\n</span>\n</li>\n</ul>\n@route /"
+    ],
+    "calls": []
+   }
+  }
+ },
+ "hooks": {
+  "useTagInput": {
+   "a default add trims and appends": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "add": "method",
+      "draft": "value",
+      "inputProps": "value",
+      "remove": "method",
+      "setDraft": "method"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "add": "[method]",
+       "draft": "",
+       "inputProps": {
+        "onBlur": "[function]",
+        "onChange": "[function]",
+        "onKeyDown": "[function]",
+        "value": ""
+       },
+       "remove": "[method]",
+       "setDraft": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "add": "[method]",
+       "draft": "",
+       "inputProps": {
+        "onBlur": "[function]",
+        "onChange": "[function]",
+        "onKeyDown": "[function]",
+        "value": ""
+       },
+       "remove": "[method]",
+       "setDraft": "[method]"
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "onChange",
+      "args": [
+       [
+        "one"
+       ]
+      ]
+     },
+     {
+      "name": "=> add",
+      "args": [
+       {
+        "returned": true
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "blank and duplicate additions are rejected": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "add": "method",
+      "draft": "value",
+      "inputProps": "value",
+      "remove": "method",
+      "setDraft": "method"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "add": "[method]",
+       "draft": "",
+       "inputProps": {
+        "onBlur": "[function]",
+        "onChange": "[function]",
+        "onKeyDown": "[function]",
+        "value": ""
+       },
+       "remove": "[method]",
+       "setDraft": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "add": "[method]",
+       "draft": "",
+       "inputProps": {
+        "onBlur": "[function]",
+        "onChange": "[function]",
+        "onKeyDown": "[function]",
+        "value": ""
+       },
+       "remove": "[method]",
+       "setDraft": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "add": "[method]",
+       "draft": "",
+       "inputProps": {
+        "onBlur": "[function]",
+        "onChange": "[function]",
+        "onKeyDown": "[function]",
+        "value": ""
+       },
+       "remove": "[method]",
+       "setDraft": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "add": "[method]",
+       "draft": "",
+       "inputProps": {
+        "onBlur": "[function]",
+        "onChange": "[function]",
+        "onKeyDown": "[function]",
+        "value": ""
+       },
+       "remove": "[method]",
+       "setDraft": "[method]"
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "=> add",
+      "args": [
+       {
+        "returned": false
+       }
+      ]
+     },
+     {
+      "name": "=> add",
+      "args": [
+       {
+        "returned": false
+       }
+      ]
+     },
+     {
+      "name": "onChange",
+      "args": [
+       [
+        "one",
+        "two"
+       ]
+      ]
+     },
+     {
+      "name": "=> add",
+      "args": [
+       {
+        "returned": true
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "maxTags blocks further additions": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "add": "method",
+      "draft": "value",
+      "inputProps": "value",
+      "remove": "method",
+      "setDraft": "method"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "add": "[method]",
+       "draft": "",
+       "inputProps": {
+        "onBlur": "[function]",
+        "onChange": "[function]",
+        "onKeyDown": "[function]",
+        "value": ""
+       },
+       "remove": "[method]",
+       "setDraft": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "add": "[method]",
+       "draft": "",
+       "inputProps": {
+        "onBlur": "[function]",
+        "onChange": "[function]",
+        "onKeyDown": "[function]",
+        "value": ""
+       },
+       "remove": "[method]",
+       "setDraft": "[method]"
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "=> add",
+      "args": [
+       {
+        "returned": false
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "remove drops the tag at its index": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "add": "method",
+      "draft": "value",
+      "inputProps": "value",
+      "remove": "method",
+      "setDraft": "method"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "add": "[method]",
+       "draft": "",
+       "inputProps": {
+        "onBlur": "[function]",
+        "onChange": "[function]",
+        "onKeyDown": "[function]",
+        "value": ""
+       },
+       "remove": "[method]",
+       "setDraft": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "add": "[method]",
+       "draft": "",
+       "inputProps": {
+        "onBlur": "[function]",
+        "onChange": "[function]",
+        "onKeyDown": "[function]",
+        "value": ""
+       },
+       "remove": "[method]",
+       "setDraft": "[method]"
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "onChange",
+      "args": [
+       [
+        "a",
+        "c"
+       ]
+      ]
+     },
+     {
+      "name": "=> remove",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "a custom normalize decides what is added": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "add": "method",
+      "draft": "value",
+      "inputProps": "value",
+      "remove": "method",
+      "setDraft": "method"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "add": "[method]",
+       "draft": "",
+       "inputProps": {
+        "onBlur": "[function]",
+        "onChange": "[function]",
+        "onKeyDown": "[function]",
+        "value": ""
+       },
+       "remove": "[method]",
+       "setDraft": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "add": "[method]",
+       "draft": "",
+       "inputProps": {
+        "onBlur": "[function]",
+        "onChange": "[function]",
+        "onKeyDown": "[function]",
+        "value": ""
+       },
+       "remove": "[method]",
+       "setDraft": "[method]"
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "slug",
+      "args": [
+       "  Weird  ",
+       []
+      ]
+     },
+     {
+      "name": "onChange",
+      "args": [
+       [
+        "slug"
+       ]
+      ]
+     },
+     {
+      "name": "=> add",
+      "args": [
+       {
+        "returned": true
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "setDraft replaces the draft the input shows": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "add": "method",
+      "draft": "value",
+      "inputProps": "value",
+      "remove": "method",
+      "setDraft": "method"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "add": "[method]",
+       "draft": "",
+       "inputProps": {
+        "onBlur": "[function]",
+        "onChange": "[function]",
+        "onKeyDown": "[function]",
+        "value": ""
+       },
+       "remove": "[method]",
+       "setDraft": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "add": "[method]",
+       "draft": "one",
+       "inputProps": {
+        "onBlur": "[function]",
+        "onChange": "[function]",
+        "onKeyDown": "[function]",
+        "value": "one"
+       },
+       "remove": "[method]",
+       "setDraft": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "add": "[method]",
+       "draft": "two",
+       "inputProps": {
+        "onBlur": "[function]",
+        "onChange": "[function]",
+        "onKeyDown": "[function]",
+        "value": "two"
+       },
+       "remove": "[method]",
+       "setDraft": "[method]"
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "=> setDraft",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     },
+     {
+      "name": "=> inputProps.onChange",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "Enter commits the draft and clears it": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "add": "method",
+      "draft": "value",
+      "inputProps": "value",
+      "remove": "method",
+      "setDraft": "method"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "add": "[method]",
+       "draft": "",
+       "inputProps": {
+        "onBlur": "[function]",
+        "onChange": "[function]",
+        "onKeyDown": "[function]",
+        "value": ""
+       },
+       "remove": "[method]",
+       "setDraft": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "add": "[method]",
+       "draft": "one",
+       "inputProps": {
+        "onBlur": "[function]",
+        "onChange": "[function]",
+        "onKeyDown": "[function]",
+        "value": "one"
+       },
+       "remove": "[method]",
+       "setDraft": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "add": "[method]",
+       "draft": "",
+       "inputProps": {
+        "onBlur": "[function]",
+        "onChange": "[function]",
+        "onKeyDown": "[function]",
+        "value": ""
+       },
+       "remove": "[method]",
+       "setDraft": "[method]"
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "=> setDraft",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     },
+     {
+      "name": "prevent",
+      "args": []
+     },
+     {
+      "name": "onChange",
+      "args": [
+       [
+        "one"
+       ]
+      ]
+     },
+     {
+      "name": "=> inputProps.onKeyDown",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "Enter on a blank draft is canceled and adds nothing": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "add": "method",
+      "draft": "value",
+      "inputProps": "value",
+      "remove": "method",
+      "setDraft": "method"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "add": "[method]",
+       "draft": "",
+       "inputProps": {
+        "onBlur": "[function]",
+        "onChange": "[function]",
+        "onKeyDown": "[function]",
+        "value": ""
+       },
+       "remove": "[method]",
+       "setDraft": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "add": "[method]",
+       "draft": "",
+       "inputProps": {
+        "onBlur": "[function]",
+        "onChange": "[function]",
+        "onKeyDown": "[function]",
+        "value": ""
+       },
+       "remove": "[method]",
+       "setDraft": "[method]"
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "prevent",
+      "args": []
+     },
+     {
+      "name": "=> inputProps.onKeyDown",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "a composing Enter is left to the input method": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "add": "method",
+      "draft": "value",
+      "inputProps": "value",
+      "remove": "method",
+      "setDraft": "method"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "add": "[method]",
+       "draft": "",
+       "inputProps": {
+        "onBlur": "[function]",
+        "onChange": "[function]",
+        "onKeyDown": "[function]",
+        "value": ""
+       },
+       "remove": "[method]",
+       "setDraft": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "add": "[method]",
+       "draft": "日本",
+       "inputProps": {
+        "onBlur": "[function]",
+        "onChange": "[function]",
+        "onKeyDown": "[function]",
+        "value": "日本"
+       },
+       "remove": "[method]",
+       "setDraft": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "add": "[method]",
+       "draft": "日本",
+       "inputProps": {
+        "onBlur": "[function]",
+        "onChange": "[function]",
+        "onKeyDown": "[function]",
+        "value": "日本"
+       },
+       "remove": "[method]",
+       "setDraft": "[method]"
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "=> setDraft",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     },
+     {
+      "name": "=> inputProps.onKeyDown",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "comma and Tab commit a non-empty draft": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "add": "method",
+      "draft": "value",
+      "inputProps": "value",
+      "remove": "method",
+      "setDraft": "method"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "add": "[method]",
+       "draft": "",
+       "inputProps": {
+        "onBlur": "[function]",
+        "onChange": "[function]",
+        "onKeyDown": "[function]",
+        "value": ""
+       },
+       "remove": "[method]",
+       "setDraft": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "add": "[method]",
+       "draft": "one",
+       "inputProps": {
+        "onBlur": "[function]",
+        "onChange": "[function]",
+        "onKeyDown": "[function]",
+        "value": "one"
+       },
+       "remove": "[method]",
+       "setDraft": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "add": "[method]",
+       "draft": "",
+       "inputProps": {
+        "onBlur": "[function]",
+        "onChange": "[function]",
+        "onKeyDown": "[function]",
+        "value": ""
+       },
+       "remove": "[method]",
+       "setDraft": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "add": "[method]",
+       "draft": "two",
+       "inputProps": {
+        "onBlur": "[function]",
+        "onChange": "[function]",
+        "onKeyDown": "[function]",
+        "value": "two"
+       },
+       "remove": "[method]",
+       "setDraft": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "add": "[method]",
+       "draft": "",
+       "inputProps": {
+        "onBlur": "[function]",
+        "onChange": "[function]",
+        "onKeyDown": "[function]",
+        "value": ""
+       },
+       "remove": "[method]",
+       "setDraft": "[method]"
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "=> setDraft",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     },
+     {
+      "name": "prevent",
+      "args": []
+     },
+     {
+      "name": "onChange",
+      "args": [
+       [
+        "one"
+       ]
+      ]
+     },
+     {
+      "name": "=> inputProps.onKeyDown",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     },
+     {
+      "name": "=> setDraft",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     },
+     {
+      "name": "prevent",
+      "args": []
+     },
+     {
+      "name": "onChange",
+      "args": [
+       [
+        "two"
+       ]
+      ]
+     },
+     {
+      "name": "=> inputProps.onKeyDown",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "an empty Tab keeps browser focus traversal": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "add": "method",
+      "draft": "value",
+      "inputProps": "value",
+      "remove": "method",
+      "setDraft": "method"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "add": "[method]",
+       "draft": "",
+       "inputProps": {
+        "onBlur": "[function]",
+        "onChange": "[function]",
+        "onKeyDown": "[function]",
+        "value": ""
+       },
+       "remove": "[method]",
+       "setDraft": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "add": "[method]",
+       "draft": "",
+       "inputProps": {
+        "onBlur": "[function]",
+        "onChange": "[function]",
+        "onKeyDown": "[function]",
+        "value": ""
+       },
+       "remove": "[method]",
+       "setDraft": "[method]"
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "=> inputProps.onKeyDown",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "Backspace on an empty draft removes the last tag": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "add": "method",
+      "draft": "value",
+      "inputProps": "value",
+      "remove": "method",
+      "setDraft": "method"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "add": "[method]",
+       "draft": "",
+       "inputProps": {
+        "onBlur": "[function]",
+        "onChange": "[function]",
+        "onKeyDown": "[function]",
+        "value": ""
+       },
+       "remove": "[method]",
+       "setDraft": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "add": "[method]",
+       "draft": "",
+       "inputProps": {
+        "onBlur": "[function]",
+        "onChange": "[function]",
+        "onKeyDown": "[function]",
+        "value": ""
+       },
+       "remove": "[method]",
+       "setDraft": "[method]"
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "prevent",
+      "args": []
+     },
+     {
+      "name": "onChange",
+      "args": [
+       [
+        "a"
+       ]
+      ]
+     },
+     {
+      "name": "=> inputProps.onKeyDown",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "Backspace with a draft keeps the tags": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "add": "method",
+      "draft": "value",
+      "inputProps": "value",
+      "remove": "method",
+      "setDraft": "method"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "add": "[method]",
+       "draft": "",
+       "inputProps": {
+        "onBlur": "[function]",
+        "onChange": "[function]",
+        "onKeyDown": "[function]",
+        "value": ""
+       },
+       "remove": "[method]",
+       "setDraft": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "add": "[method]",
+       "draft": "b",
+       "inputProps": {
+        "onBlur": "[function]",
+        "onChange": "[function]",
+        "onKeyDown": "[function]",
+        "value": "b"
+       },
+       "remove": "[method]",
+       "setDraft": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "add": "[method]",
+       "draft": "b",
+       "inputProps": {
+        "onBlur": "[function]",
+        "onChange": "[function]",
+        "onKeyDown": "[function]",
+        "value": "b"
+       },
+       "remove": "[method]",
+       "setDraft": "[method]"
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "=> setDraft",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     },
+     {
+      "name": "=> inputProps.onKeyDown",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "blur commits a non-empty draft": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "add": "method",
+      "draft": "value",
+      "inputProps": "value",
+      "remove": "method",
+      "setDraft": "method"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "add": "[method]",
+       "draft": "",
+       "inputProps": {
+        "onBlur": "[function]",
+        "onChange": "[function]",
+        "onKeyDown": "[function]",
+        "value": ""
+       },
+       "remove": "[method]",
+       "setDraft": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "add": "[method]",
+       "draft": "one",
+       "inputProps": {
+        "onBlur": "[function]",
+        "onChange": "[function]",
+        "onKeyDown": "[function]",
+        "value": "one"
+       },
+       "remove": "[method]",
+       "setDraft": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "add": "[method]",
+       "draft": "",
+       "inputProps": {
+        "onBlur": "[function]",
+        "onChange": "[function]",
+        "onKeyDown": "[function]",
+        "value": ""
+       },
+       "remove": "[method]",
+       "setDraft": "[method]"
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "=> setDraft",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     },
+     {
+      "name": "onChange",
+      "args": [
+       [
+        "one"
+       ]
+      ]
+     },
+     {
+      "name": "=> inputProps.onBlur",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "blur after a committed Enter adds nothing more": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "add": "method",
+      "draft": "value",
+      "inputProps": "value",
+      "remove": "method",
+      "setDraft": "method"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "add": "[method]",
+       "draft": "",
+       "inputProps": {
+        "onBlur": "[function]",
+        "onChange": "[function]",
+        "onKeyDown": "[function]",
+        "value": ""
+       },
+       "remove": "[method]",
+       "setDraft": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "add": "[method]",
+       "draft": "one",
+       "inputProps": {
+        "onBlur": "[function]",
+        "onChange": "[function]",
+        "onKeyDown": "[function]",
+        "value": "one"
+       },
+       "remove": "[method]",
+       "setDraft": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "add": "[method]",
+       "draft": "",
+       "inputProps": {
+        "onBlur": "[function]",
+        "onChange": "[function]",
+        "onKeyDown": "[function]",
+        "value": ""
+       },
+       "remove": "[method]",
+       "setDraft": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "add": "[method]",
+       "draft": "",
+       "inputProps": {
+        "onBlur": "[function]",
+        "onChange": "[function]",
+        "onKeyDown": "[function]",
+        "value": ""
+       },
+       "remove": "[method]",
+       "setDraft": "[method]"
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "=> setDraft",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     },
+     {
+      "name": "prevent",
+      "args": []
+     },
+     {
+      "name": "onChange",
+      "args": [
+       [
+        "one"
+       ]
+      ]
+     },
+     {
+      "name": "=> inputProps.onKeyDown",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     },
+     {
+      "name": "=> inputProps.onBlur",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "an add keeps the independent draft for a later blur": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "add": "method",
+      "draft": "value",
+      "inputProps": "value",
+      "remove": "method",
+      "setDraft": "method"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "add": "[method]",
+       "draft": "",
+       "inputProps": {
+        "onBlur": "[function]",
+        "onChange": "[function]",
+        "onKeyDown": "[function]",
+        "value": ""
+       },
+       "remove": "[method]",
+       "setDraft": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "add": "[method]",
+       "draft": "typed",
+       "inputProps": {
+        "onBlur": "[function]",
+        "onChange": "[function]",
+        "onKeyDown": "[function]",
+        "value": "typed"
+       },
+       "remove": "[method]",
+       "setDraft": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "add": "[method]",
+       "draft": "typed",
+       "inputProps": {
+        "onBlur": "[function]",
+        "onChange": "[function]",
+        "onKeyDown": "[function]",
+        "value": "typed"
+       },
+       "remove": "[method]",
+       "setDraft": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "add": "[method]",
+       "draft": "",
+       "inputProps": {
+        "onBlur": "[function]",
+        "onChange": "[function]",
+        "onKeyDown": "[function]",
+        "value": ""
+       },
+       "remove": "[method]",
+       "setDraft": "[method]"
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "=> setDraft",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     },
+     {
+      "name": "onChange",
+      "args": [
+       [
+        "suggested"
+       ]
+      ]
+     },
+     {
+      "name": "=> add",
+      "args": [
+       {
+        "returned": true
+       }
+      ]
+     },
+     {
+      "name": "onChange",
+      "args": [
+       [
+        "typed"
+       ]
+      ]
+     },
+     {
+      "name": "=> inputProps.onBlur",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "changed arguments reach the retained actions": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "add": "method",
+      "draft": "value",
+      "inputProps": "value",
+      "remove": "method",
+      "setDraft": "method"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "add": "[method]",
+       "draft": "",
+       "inputProps": {
+        "onBlur": "[function]",
+        "onChange": "[function]",
+        "onKeyDown": "[function]",
+        "value": ""
+       },
+       "remove": "[method]",
+       "setDraft": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "add": "[method]",
+       "draft": "",
+       "inputProps": {
+        "onBlur": "[function]",
+        "onChange": "[function]",
+        "onKeyDown": "[function]",
+        "value": ""
+       },
+       "remove": "[method]",
+       "setDraft": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "add": "[method]",
+       "draft": "",
+       "inputProps": {
+        "onBlur": "[function]",
+        "onChange": "[function]",
+        "onKeyDown": "[function]",
+        "value": ""
+       },
+       "remove": "[method]",
+       "setDraft": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "add": "[method]",
+       "draft": "",
+       "inputProps": {
+        "onBlur": "[function]",
+        "onChange": "[function]",
+        "onKeyDown": "[function]",
+        "value": ""
+       },
+       "remove": "[method]",
+       "setDraft": "[method]"
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "=> add",
+      "args": [
+       {
+        "returned": false
+       }
+      ]
+     },
+     {
+      "name": "after",
+      "args": [
+       []
+      ]
+     },
+     {
+      "name": "=> remove",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   }
+  }
+ }
+}

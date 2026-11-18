@@ -68,11 +68,17 @@ export function FilterPill({
       >
         <span className={cm.flex({ align: 'center', gap: 'sm' })}>
           {leadingIcon ? (
-            <span className={cm.cn(cm.textSize('sm'), cm.iconGlyphFont)}>{leadingIcon}</span>
+            <span aria-hidden="true" className={cm.cn(cm.textSize('sm'), cm.iconGlyphFont)}>
+              {leadingIcon}
+            </span>
           ) : null}
           {label}
           {!hideChevron ? (
-            <span className={cm.cn(cm.textSize('sm'), cm.iconGlyphFont)}>expand_more</span>
+            // The icon-font ligature name is decoration; the pill's own label
+            // names the filter, so screen readers must not read the glyph out.
+            <span aria-hidden="true" className={cm.cn(cm.textSize('sm'), cm.iconGlyphFont)}>
+              expand_more
+            </span>
           ) : null}
         </span>
       </button>

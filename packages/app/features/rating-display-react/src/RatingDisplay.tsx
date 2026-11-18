@@ -1,5 +1,7 @@
 import type { JSX } from 'react'
+import { useState } from 'react'
 
+import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 /** Props for {@link RatingDisplay}. */
@@ -16,7 +18,7 @@ export interface RatingDisplayProps {
   size?: 'sm' | 'md' | 'lg'
   /** Interactive mode — star clicks call `onChange(starIndex + 1)`. */
   onChange?: (value: number) => void
-  /** Accessible label override. */
+  /** Accessible label override; defaults to the translated `Rating: {value} of {max}`. */
   ariaLabel?: string
   /** Extra classes. */
   className?: string
@@ -31,7 +33,9 @@ const SIZE_PX = { sm: 12, md: 16, lg: 20 } as const
 function Star({ fill, size }: { fill: number; size: number }): JSX.Element {
   const path =
     'M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z'
-  const id = `star-grad-${Math.random().toString(36).slice(2, 9)}`
+  // One random gradient id per star, minted once when the star mounts (as every
+  // framework's rating display names it), so no render reads `Math.random()`.
+  const [id] = useState(() => `star-grad-${Math.random().toString(36).slice(2, 9)}`)
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden>
       <defs>
@@ -50,6 +54,12 @@ function Star({ fill, size }: { fill: number; size: number }): JSX.Element {
  * review-count tail. When `onChange` is provided each star becomes an
  * interactive button.
  *
+ * The stars sit in an inner span that carries the rating label — `role="img"`
+ * when read-only, `role="group"` (holding the rate buttons) in interactive
+ * mode — and the root is a plain flex span: an image's children are
+ * presentational, so buttons under `role="img"` would vanish for assistive
+ * technology.
+ *
  * Uses inline SVG stars so the component works without icon-font fallback.
  * @param props - Component props (see {@link RatingDisplayProps}).
  */
@@ -63,32 +73,42 @@ export function RatingDisplay({
   ariaLabel,
   className,
 }: RatingDisplayProps): JSX.Element {
+  const { t } = useTranslation()
   const cm = getClassMap()
   const px = SIZE_PX[size]
   const stars = Array.from({ length: max }, (_, i) => {
     const fill = Math.max(0, Math.min(1, value - i))
     return { i, fill }
   })
+  // One flex row shared by the root and the stars span, so wrapping the stars
+  // in the inner span leaves the layout as it was.
+  const starsLayout = cm.flex({ align: 'center', gap: 'xs' })
+  const label =
+    ariaLabel ??
+    t('ratingDisplay.aria.rating', { value, max }, { defaultValue: 'Rating: {{value}} of {{max}}' })
   return (
-    <span
-      className={cm.cn(cm.flex({ align: 'center', gap: 'xs' }), className)}
-      role="img"
-      aria-label={ariaLabel ?? `Rating: ${value} of ${max}`}
-    >
-      {stars.map(({ i, fill }) =>
-        onChange ? (
-          <button
-            key={i}
-            type="button"
-            onClick={() => onChange(i + 1)}
-            aria-label={`Rate ${i + 1} of ${max}`}
-          >
-            <Star fill={fill} size={px} />
-          </button>
-        ) : (
-          <Star key={i} fill={fill} size={px} />
-        ),
-      )}
+    <span className={cm.cn(starsLayout, className)}>
+      <span className={starsLayout} role={onChange ? 'group' : 'img'} aria-label={label}>
+        {stars.map(({ i, fill }) =>
+          onChange ? (
+            <button
+              key={i}
+              type="button"
+              onClick={() => onChange(i + 1)}
+              aria-pressed={i + 1 <= Math.round(value)}
+              aria-label={t(
+                'ratingDisplay.aria.rate',
+                { value: i + 1, max },
+                { defaultValue: 'Rate {{value}} of {{max}}' },
+              )}
+            >
+              <Star fill={fill} size={px} />
+            </button>
+          ) : (
+            <Star key={i} fill={fill} size={px} />
+          ),
+        )}
+      </span>
       {reviewCount !== undefined &&
         (onReviewsClick ? (
           <button

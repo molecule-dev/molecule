@@ -11,6 +11,7 @@
 import { defineComponent, h, type PropType, type VNode } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
+import { useTranslation } from '@molecule/app-vue'
 
 import type { RatingDisplayProps } from './types.js'
 
@@ -56,6 +57,10 @@ const star = (fill: number, size: number | undefined, id: string): VNode =>
  * review-count tail. When `onChange` is provided each star becomes an
  * interactive button.
  *
+ * The stars sit in an inner span that carries the rating label — `role="img"`
+ * when read-only, `role="group"` (holding the rate buttons) in interactive
+ * mode — and the root is a plain flex span, exactly as React's does.
+ *
  * Uses inline SVG stars so the component works without icon-font fallback.
  * Same props (React names) and same DOM as
  * `@molecule/app-rating-display-react`'s `RatingDisplay`.
@@ -79,11 +84,15 @@ export const RatingDisplay = defineComponent({
     className: { type: String, default: undefined },
   },
   setup(props) {
+    const { t } = useTranslation()
     const cm = getClassMap()
 
     return (): VNode => {
       const max = props.max
       const px: number | undefined = SIZE_PX[props.size]
+      // One flex row shared by the root and the stars span, so wrapping the
+      // stars in the inner span leaves the layout as it was.
+      const layout = cm.flex({ align: 'center', gap: 'xs' })
       const stars: VNode[] = []
       for (let i = 0; i < max; i++) {
         const fill = Math.max(0, Math.min(1, props.value - i))
@@ -95,36 +104,47 @@ export const RatingDisplay = defineComponent({
                 {
                   type: 'button',
                   onClick: () => props.onChange?.(i + 1),
-                  'aria-label': `Rate ${i + 1} of ${max}`,
+                  'aria-pressed': i + 1 <= Math.round(props.value) ? 'true' : 'false',
+                  'aria-label': t(
+                    'ratingDisplay.aria.rate',
+                    { value: i + 1, max },
+                    { defaultValue: 'Rate {{value}} of {{max}}' },
+                  ),
                 },
                 [icon],
               )
             : icon,
         )
       }
-      return h(
-        'span',
-        {
-          class: cm.cn(cm.flex({ align: 'center', gap: 'xs' }), props.className),
-          role: 'img',
-          'aria-label': props.ariaLabel ?? `Rating: ${props.value} of ${max}`,
-        },
-        [
-          ...stars,
-          props.reviewCount !== undefined &&
-            (props.onReviewsClick
-              ? h(
-                  'button',
-                  {
-                    type: 'button',
-                    onClick: (event: MouseEvent) => props.onReviewsClick?.(event),
-                    class: cm.cn(cm.textSize('sm'), cm.link),
-                  },
-                  [`(${props.reviewCount})`],
-                )
-              : h('span', { class: cm.textSize('sm') }, [`(${props.reviewCount})`])),
-        ],
-      )
+      return h('span', { class: cm.cn(layout, props.className) }, [
+        h(
+          'span',
+          {
+            class: layout,
+            role: props.onChange ? 'group' : 'img',
+            'aria-label':
+              props.ariaLabel ??
+              t(
+                'ratingDisplay.aria.rating',
+                { value: props.value, max },
+                { defaultValue: 'Rating: {{value}} of {{max}}' },
+              ),
+          },
+          stars,
+        ),
+        props.reviewCount !== undefined &&
+          (props.onReviewsClick
+            ? h(
+                'button',
+                {
+                  type: 'button',
+                  onClick: (event: MouseEvent) => props.onReviewsClick?.(event),
+                  class: cm.cn(cm.textSize('sm'), cm.link),
+                },
+                [`(${props.reviewCount})`],
+              )
+            : h('span', { class: cm.textSize('sm') }, [`(${props.reviewCount})`])),
+      ])
     }
   },
 })

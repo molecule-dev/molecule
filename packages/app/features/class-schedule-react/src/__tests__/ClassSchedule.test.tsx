@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { fireEvent, render } from '@testing-library/react'
+import { act, fireEvent, render } from '@testing-library/react'
 import type { ReactNode } from 'react'
 import React from 'react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -131,9 +131,32 @@ describe('<ClassSchedule>', () => {
         <ClassSchedule events={events} />
       </Wrap>,
     )
-    const grid = getByRole('grid')
-    expect(grid.getAttribute('aria-label')).toBe('Weekly class schedule')
+    // A `group`, not a `grid`: the layout is a CSS grid with no rows and no
+    // grid keyboard model, so `role="grid"` would promise one.
+    const grid = getByRole('group', { name: 'Weekly class schedule' })
     expect(grid.getAttribute('data-mol-id')).toBe('class-schedule')
+    expect(grid.getAttribute('aria-label')).toBe('Weekly class schedule')
+  })
+
+  it('names each day column by its weekday header', () => {
+    const { getByRole, container } = render(
+      <Wrap>
+        <ClassSchedule events={events} />
+      </Wrap>,
+    )
+    const header = container.querySelector<HTMLElement>(
+      '[data-mol-id="class-schedule-day-header"][data-weekday="1"]',
+    )!
+    // A generated id (useId), carried by the header and named by its column.
+    expect(header.id).not.toBe('')
+    const column = container.querySelector<HTMLElement>(
+      `[data-mol-id="class-schedule-day-column"][data-weekday="1"]`,
+    )!
+    expect(column.getAttribute('role')).toBe('group')
+    expect(column.getAttribute('aria-labelledby')).toBe(header.id)
+    // The label resolves: the group is named "Mon" — the header's text.
+    expect(getByRole('group', { name: 'Mon' })).toBe(column)
+    expect(header.getAttribute('role')).toBeNull()
   })
 
   it('renders 7 day columns by default', () => {
@@ -175,6 +198,60 @@ describe('<ClassSchedule>', () => {
     const tiles = container.querySelectorAll('[data-mol-id="class-schedule-event"]')
     expect(tiles).toHaveLength(2)
     expect(tiles[0].getAttribute('data-event-id')).toBe('math')
+  })
+
+  it('an event tile without onEventClick is static content, not a button', () => {
+    const { container } = render(
+      <Wrap>
+        <ClassSchedule events={events} />
+      </Wrap>,
+    )
+    const tiles = container.querySelectorAll('[data-mol-id="class-schedule-event"]')
+    expect(tiles).toHaveLength(2)
+    for (const tile of tiles) {
+      expect(tile.tagName).toBe('DIV')
+      expect(tile.getAttribute('aria-label')).toBeNull()
+    }
+    expect(container.querySelectorAll('[data-mol-id="class-schedule-slot"]')).toHaveLength(0)
+  })
+
+  it('an event tile with onEventClick is a button named by its content, ending in the time', () => {
+    const { container, getByRole } = render(
+      <Wrap>
+        <ClassSchedule events={[events[0]]} onEventClick={() => {}} />
+      </Wrap>,
+    )
+    const tile = container.querySelector('[data-mol-id="class-schedule-event"]')!
+    expect(tile.tagName).toBe('BUTTON')
+    expect(tile.getAttribute('aria-label')).toBeNull()
+    // The name is the content — it starts with the title and ends with the
+    // time run (the former aria-label replaced the content as the name).
+    expect(getByRole('button', { name: /^Math.*Mon 09:00 – 10:00$/ })).toBe(tile)
+    // The time run is the tile's last child (its `srOnly` class comes from the
+    // real ClassMap bond — the conformance goldens pin it).
+    const timeRun = tile.lastElementChild as HTMLElement
+    expect(timeRun.tagName).toBe('SPAN')
+    expect(timeRun.textContent).toBe('Mon 09:00 – 10:00')
+  })
+
+  it('renders slot buttons only while onSlotClick is set', () => {
+    const onSlotClick = vi.fn()
+    const withHandler = render(
+      <Wrap>
+        <ClassSchedule events={[]} onSlotClick={onSlotClick} dayHours={[9, 11]} />
+      </Wrap>,
+    )
+    expect(
+      withHandler.container.querySelectorAll('[data-mol-id="class-schedule-slot"]'),
+    ).toHaveLength(2 * 7)
+    const withoutHandler = render(
+      <Wrap>
+        <ClassSchedule events={[]} dayHours={[9, 11]} />
+      </Wrap>,
+    )
+    expect(
+      withoutHandler.container.querySelectorAll('[data-mol-id="class-schedule-slot"]'),
+    ).toHaveLength(0)
   })
 
   it('renders title, subtitle, and meta lines on the tile', () => {
@@ -309,5 +386,36 @@ describe('<ClassSchedule>', () => {
       </Wrap>,
     )
     expect(container.querySelectorAll('[data-mol-id="class-schedule-event"]')).toHaveLength(0)
+  })
+
+  it("renders weekday headers in the provider's active locale, and re-words them on a switch", async () => {
+    const provider = createSimpleI18nProvider('en', [{ code: 'de', name: 'Deutsch' }])
+    const { container } = render(
+      <I18nProvider provider={provider}>
+        <ClassSchedule events={events} />
+      </I18nProvider>,
+    )
+    const header = (weekday: number): string | null =>
+      container.querySelector(
+        `[data-mol-id="class-schedule-day-header"][data-weekday="${weekday}"]`,
+      )?.textContent ?? null
+    expect(header(1)).toBe('Mon')
+    await act(() => provider.setLocale('de'))
+    expect(header(1)).toBe('Mo')
+  })
+
+  it('an explicit locale prop overrides the active locale', async () => {
+    const provider = createSimpleI18nProvider('en', [{ code: 'de', name: 'Deutsch' }])
+    const { container } = render(
+      <I18nProvider provider={provider}>
+        <ClassSchedule events={events} locale="nl" />
+      </I18nProvider>,
+    )
+    const monday = container.querySelector(
+      '[data-mol-id="class-schedule-day-header"][data-weekday="1"]',
+    )
+    expect(monday?.textContent).toBe('ma')
+    await act(() => provider.setLocale('de'))
+    expect(monday?.textContent).toBe('ma')
   })
 })

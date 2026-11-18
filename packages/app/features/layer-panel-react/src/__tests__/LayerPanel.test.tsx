@@ -163,14 +163,18 @@ function Harness(props: {
 }
 
 describe('<LayerPanel> rendering', () => {
-  it('renders one row per layer with role=option', () => {
+  it('renders one list item per layer with no option role', () => {
     const { container } = render(
       <Wrap>
         <Harness />
       </Wrap>,
     )
-    const rows = container.querySelectorAll('[role="option"]')
-    expect(rows.length).toBe(3)
+    const items = container.querySelectorAll('ul > li')
+    expect(items.length).toBe(3)
+    // The rows hold their own buttons, so neither the list nor a row may
+    // carry a role whose children are presentational.
+    expect(container.querySelector('[role="listbox"]')).toBeNull()
+    expect(container.querySelector('[role="option"]')).toBeNull()
   })
 
   it('renders layer names in the original (top-down) order', () => {
@@ -207,7 +211,7 @@ describe('<LayerPanel> rendering', () => {
 })
 
 describe('<LayerPanel> selection', () => {
-  it('clicking the layer-name button calls onSelect and marks the row aria-selected', () => {
+  it('clicking the layer-name button calls onSelect and marks the name button aria-current', () => {
     const onSelect = vi.fn()
     const { container } = render(
       <Wrap>
@@ -218,7 +222,14 @@ describe('<LayerPanel> selection', () => {
     const mid = container.querySelector('[data-mol-id="layer-panel-row-mid"]')!
     fireEvent.click(midName)
     expect(onSelect).toHaveBeenCalledWith('mid')
-    expect(mid.getAttribute('aria-selected')).toBe('true')
+    // The selected layer is announced on its select control, not the row.
+    expect(
+      container.querySelector('[data-mol-id="layer-panel-name-mid"]')!.getAttribute('aria-current'),
+    ).toBe('true')
+    expect(
+      container.querySelector('[data-mol-id="layer-panel-name-top"]')!.getAttribute('aria-current'),
+    ).toBeNull()
+    expect(mid.getAttribute('aria-selected')).toBeNull()
   })
 
   it('renders the layer name as a native button — Enter/Space select via platform activation', () => {
@@ -349,7 +360,7 @@ describe('<LayerPanel> inline rename', () => {
 })
 
 describe('<LayerPanel> aria + i18n', () => {
-  it('exposes a localized aria-label on the listbox', () => {
+  it('exposes a localized aria-label on the list', () => {
     const { container } = render(
       <Wrap>
         <Harness />

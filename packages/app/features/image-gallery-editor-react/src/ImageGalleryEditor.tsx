@@ -1,11 +1,17 @@
 /**
  * Editable image gallery — a hero drop zone with a side grid of
  * thumbnail slots. Clicking an empty slot or the drop zone opens the
- * native file picker; clicking a filled slot prompts to remove.
+ * native file picker, and image files dropped on the drop zone fill the
+ * empty slots in order; clicking a filled slot prompts to remove.
  *
  * Stateless about persistence: the consumer supplies the slot array
  * and reacts to `onChange` (e.g. by uploading to S3 and replacing the
  * preview URL with the persisted URL).
+ *
+ * Every click target is a keyboard-operable `role="button"`: the drop zone
+ * and each slot are focusable (`tabIndex={0}`) and Enter / Space run the same
+ * action as the click (`activateWithKeyboard`), so mouse, keyboard and
+ * touch users all reach the picker and the remove confirm.
  *
  * Styling goes entirely through the ClassMap bond (`getClassMap()` / `cm.*`)
  * so the editor renders out of the box under ANY styling library and needs
@@ -20,9 +26,18 @@
  * @module
  */
 
-import { type JSX, type ReactNode, useRef, useState } from 'react'
+import {
+  type ChangeEvent,
+  type DragEvent,
+  type JSX,
+  type KeyboardEvent,
+  type ReactNode,
+  useRef,
+  useState,
+} from 'react'
 
 import type { IconName } from '@molecule/app-icons'
+import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { ConfirmDialog, Icon } from '@molecule/app-ui-react'
 
@@ -38,8 +53,11 @@ export interface ImageGalleryEditorProps {
   header?: ReactNode
   /** Photo-counter label (e.g. "3 / 24 Photos"). */
   counter?: ReactNode
+  /** Drop-zone heading. Defaults through i18n (English "Drag and drop assets here"). */
   dropZoneTitle?: ReactNode
+  /** Drop-zone hint. Defaults through i18n (English "or click to browse local files"). */
   dropZoneHint?: ReactNode
+  /** Remove-confirmation message. Defaults through i18n (English "Remove this image?"). */
   confirmRemoveMessage?: string
   statusMessage?: ReactNode
   /**
@@ -57,6 +75,20 @@ export interface ImageGalleryEditorProps {
  */
 const SLOT_RADIUS = '0.75rem'
 
+/**
+ * Activate a `role="button"` element from the keyboard — Enter and Space run
+ * the same action the mouse click runs. `preventDefault()` suppresses Space's
+ * page scroll and Enter's form submission; every other key is left alone.
+ *
+ * @param event - DOM keyboard event on the focusable element.
+ * @param action - The click handler to mirror.
+ */
+function activateWithKeyboard(event: KeyboardEvent<HTMLElement>, action: () => void): void {
+  if (event.key !== 'Enter' && event.key !== ' ') return
+  event.preventDefault()
+  action()
+}
+
 /** Editable image gallery primitive. */
 export function ImageGalleryEditor({
   slots,
@@ -65,13 +97,32 @@ export function ImageGalleryEditor({
   maxImages = 24,
   header,
   counter,
-  dropZoneTitle = 'Drag and drop assets here',
-  dropZoneHint = 'or click to browse local files',
-  confirmRemoveMessage = 'Remove this image?',
+  dropZoneTitle,
+  dropZoneHint,
+  confirmRemoveMessage,
   statusMessage,
   emptySlotIcon = 'image',
 }: ImageGalleryEditorProps): JSX.Element {
   const cm = getClassMap()
+  const { t } = useTranslation()
+  // Slot buttons hold only an image or a glyph, so they have no name from
+  // content — give each one an explicit, translated accessible name.
+  const addImageLabel = t('imageGalleryEditor.aria.addImage', {}, { defaultValue: 'Add image' })
+  const removeImageLabel = t(
+    'imageGalleryEditor.aria.removeImage',
+    {},
+    { defaultValue: 'Remove image' },
+  )
+  const title =
+    dropZoneTitle ??
+    t('imageGalleryEditor.dropZone.title', {}, { defaultValue: 'Drag and drop assets here' })
+  const hint =
+    dropZoneHint ??
+    t('imageGalleryEditor.dropZone.hint', {}, { defaultValue: 'or click to browse local files' })
+  const removeMessage =
+    confirmRemoveMessage ??
+    t('imageGalleryEditor.remove.message', {}, { defaultValue: 'Remove this image?' })
+  const removeTitle = t('imageGalleryEditor.remove.title', {}, { defaultValue: 'Remove image?' })
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [uploadingSlot, setUploadingSlot] = useState<number | null>(null)
   const [removeIndex, setRemoveIndex] = useState<number | null>(null)
@@ -99,15 +150,20 @@ export function ImageGalleryEditor({
     fileInputRef.current?.click()
   }
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>): Promise<void> => {
-    const files = e.target.files
-    if (!files?.length) return
+  /**
+   * Turns picked or dropped files into slot URLs and writes them: into the
+   * slot that opened the picker, or else into the empty slots in order.
+   *
+   * @param files - The files the user picked or dropped.
+   * @param slot - The slot that opened the picker, or null.
+   */
+  const placeFiles = async (files: FileList, slot: number | null): Promise<void> => {
     const urls = onPickFiles
       ? await onPickFiles(files)
       : Array.from(files).map((f) => URL.createObjectURL(f))
     const next = [...slots]
-    if (uploadingSlot !== null) {
-      next[uploadingSlot] = urls[0] ?? null
+    if (slot !== null) {
+      next[slot] = urls[0] ?? null
     } else {
       let writeAt = next.findIndex((s) => s === null)
       for (const url of urls) {
@@ -117,8 +173,26 @@ export function ImageGalleryEditor({
       }
     }
     onChange(next.slice(0, maxImages))
+  }
+
+  const handleFileChange = async (e: ChangeEvent<HTMLInputElement>): Promise<void> => {
+    const files = e.target.files
+    if (!files?.length) return
+    await placeFiles(files, uploadingSlot)
     setUploadingSlot(null)
     e.target.value = ''
+  }
+
+  // The drop zone takes what the picker takes (`accept="image/*"`): a drop
+  // that carries anything else is refused, so the browser never opens it.
+  const handleDragOver = (e: DragEvent<HTMLDivElement>): void => {
+    e.preventDefault()
+  }
+  const handleDrop = (e: DragEvent<HTMLDivElement>): void => {
+    e.preventDefault()
+    const files = e.dataTransfer.files
+    if (!files.length || Array.from(files).some((f) => !f.type.startsWith('image/'))) return
+    void placeFiles(files, null)
   }
 
   return (
@@ -145,8 +219,18 @@ export function ImageGalleryEditor({
         {/* Hero drop zone (spans 8/12). grid-column span, aspect ratio, corner
             radius, and the dashed affordance border are ClassMap-can't-express
             (Rule 5); each uses a real theme token, never a hardcoded color. */}
+        {/* mol-bespoke-button: the role="button" is the keyboard a11y contract on
+            a bespoke 16:9 drop-zone surface, not a CTA — the dashed affordance
+            border and tile radius are the documented ClassMap-can't-express
+            cases (Rule 5); the button recipe's CTA chrome does not apply. */}
         <div
+          role="button"
+          tabIndex={0}
+          data-mol-id="image-gallery-editor-dropzone"
           onClick={handleUploadAreaClick}
+          onKeyDown={(e) => activateWithKeyboard(e, handleUploadAreaClick)}
+          onDragOver={handleDragOver}
+          onDrop={handleDrop}
           className={cm.cn(
             cm.surfaceSecondary,
             cm.flex({ direction: 'col', align: 'center', justify: 'center' }),
@@ -171,8 +255,8 @@ export function ImageGalleryEditor({
           >
             <Icon name="upload" size={28} className={cm.textPrimary} />
           </div>
-          <p className={cm.cn(cm.fontWeight('bold'))}>{dropZoneTitle}</p>
-          <p className={cm.cn(cm.textSize('sm'), cm.textMuted, cm.sp('mt', 1))}>{dropZoneHint}</p>
+          <p className={cm.cn(cm.fontWeight('bold'))}>{title}</p>
+          <p className={cm.cn(cm.textSize('sm'), cm.textMuted, cm.sp('mt', 1))}>{hint}</p>
         </div>
         {/* Thumbnail slot grid (spans 4/12). */}
         <div
@@ -180,9 +264,18 @@ export function ImageGalleryEditor({
           style={{ gridColumn: 'span 4 / span 4' }}
         >
           {slots.map((url, i) => (
+            /* mol-bespoke-button: the role="button" is the keyboard a11y
+               contract on a 1:1 image-thumbnail tile, not a CTA — aspect ratio
+               and tile radius are Rule 5 inline exceptions; the button recipe
+               does not style image slots. */
             <div
               key={i}
+              role="button"
+              tabIndex={0}
+              data-mol-id={`image-gallery-editor-slot-${i}`}
+              aria-label={url ? removeImageLabel : addImageLabel}
               onClick={() => handleSlotClick(i)}
+              onKeyDown={(e) => activateWithKeyboard(e, () => handleSlotClick(i))}
               className={cm.cn(cm.surfaceSecondary, cm.position('relative'), cm.cursorPointer)}
               style={{ aspectRatio: '1 / 1', borderRadius: SLOT_RADIUS, overflow: 'hidden' }}
             >
@@ -248,8 +341,8 @@ export function ImageGalleryEditor({
       <ConfirmDialog
         open={removeIndex !== null}
         onClose={() => setRemoveIndex(null)}
-        title="Remove image?"
-        description={confirmRemoveMessage}
+        title={removeTitle}
+        description={removeMessage}
         onConfirm={() => {
           if (removeIndex !== null) removeSlot(removeIndex)
         }}

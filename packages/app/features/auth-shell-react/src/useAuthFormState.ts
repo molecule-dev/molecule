@@ -115,9 +115,11 @@ export function useAuthFormState(options?: UseAuthFormStateOptions): AuthFormSta
 
   // Mirror the latest fields in a ref so setters can compute the next
   // value synchronously (handling rapid successive calls in one tick)
-  // without an impure functional-updater side effect.
+  // without an impure functional-updater side effect. Every state update
+  // (`setField`, `setFields`, `clear`, the hydration merge) writes this ref
+  // before it sets the state, so it is never stale; writing it during render
+  // would be a ref write in the render path.
   const fieldsRef = useRef(fields)
-  fieldsRef.current = fields
 
   const persist = useCallback(
     (next: AuthFormFields): void => {

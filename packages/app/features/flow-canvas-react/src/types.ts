@@ -34,6 +34,12 @@ export interface FlowNode<T = unknown> {
   width?: number
   /** Optional explicit height (in world units). Defaults to 80. */
   height?: number
+  /**
+   * The node's accessible name, already translated. Names the node's
+   * keyboard select button; without it a node whose renderer and children
+   * render nothing is announced as the canvas's own numbered node label.
+   */
+  ariaLabel?: string
 }
 
 /**

@@ -36,6 +36,7 @@ vi.mock('@molecule/app-ui', () => ({
 import { createApp, defineComponent, h } from 'vue'
 
 import { RatingDisplay } from '../RatingDisplay.js'
+import type { RatingDisplayProps } from '../types.js'
 
 afterEach(() => {
   document.body.innerHTML = ''
@@ -47,7 +48,7 @@ afterEach(() => {
  * @param props - The RatingDisplay props.
  * @returns The rendered markup.
  */
-const render = (props: Record<string, unknown>): string => {
+const render = (props: RatingDisplayProps): string => {
   const host = document.createElement('div')
   document.body.appendChild(host)
   const app = createApp(defineComponent({ render: () => h(RatingDisplay, props) }))
@@ -93,5 +94,21 @@ describe('RatingDisplay', () => {
   it('forwards className', () => {
     const markup = render({ value: 3, className: 'rd-cls' })
     expect(markup).toContain('rd-cls')
+  })
+
+  it('keeps the rating label and role on the inner stars span, not the root', () => {
+    const markup = render({ value: 3.5, max: 5 })
+    expect(markup.match(/role="img"/g) ?? []).toHaveLength(1)
+    expect(markup).toContain('aria-label="Rating: 3.5 of 5"')
+  })
+
+  it('groups the interactive stars under the rating label with pressed states', () => {
+    const markup = render({ value: 2.4, max: 5, onChange: () => {} })
+    expect(markup.match(/role="group"/g) ?? []).toHaveLength(1)
+    expect(markup.match(/role="img"/g) ?? []).toHaveLength(0)
+    expect(markup).toContain('aria-label="Rating: 2.4 of 5"')
+    // Math.round(2.4) = 2: the first two stars pressed, the other three not.
+    expect(markup.match(/aria-pressed="true"/g) ?? []).toHaveLength(2)
+    expect(markup.match(/aria-pressed="false"/g) ?? []).toHaveLength(3)
   })
 })

@@ -1,8 +1,10 @@
 /**
  * `@molecule/app-image-gallery-editor-react` — hero drop zone + side grid of
- * thumbnail slots. Click an empty slot or the drop zone to upload; click a
+ * thumbnail slots. Click an empty slot or the drop zone to upload, or drop
+ * image files on the drop zone to fill the empty slots in order; click a
  * filled slot to remove (confirmed via the shared `ConfirmDialog` from
- * `@molecule/app-ui-react`).
+ * `@molecule/app-ui-react`). The drop zone and every slot are keyboard
+ * buttons: Enter and Space do what a click does.
  *
  * Stateless about persistence — the consumer owns the slot array and handles
  * uploads via `onPickFiles` (defaults to local object URLs for preview).
@@ -44,8 +46,14 @@
  *   Material Symbols font to load. Requires a bonded `@molecule/app-icons` set.
  * - The filled-slot delete affordance is always visible (touch-friendly)
  *   rather than hover-revealed.
- * - `dropZoneTitle` / `dropZoneHint` / `confirmRemoveMessage` default to
- *   English strings — pass translated values (`t('...')`) in localized apps.
+ * - Its text (the drop-zone heading and hint, the remove confirmation, the
+ *   slots' accessible names) flows through `t()` with English `defaultValue`
+ *   fallbacks under the `imageGalleryEditor.*` keys, so the
+ *   `@molecule/app-locales-image-gallery-editor` companion bond (or the host
+ *   app's own locale) translates it. `dropZoneTitle`, `dropZoneHint` and
+ *   `confirmRemoveMessage` override it per instance.
+ * - A drop that carries a file other than an image is refused, as the picker
+ *   (`accept="image/*"`) would refuse it.
  * - `getClassMap()` requires a bonded ClassMap for the layout primitives.
  *
  * @module

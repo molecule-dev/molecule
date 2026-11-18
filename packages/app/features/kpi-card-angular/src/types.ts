@@ -1,0 +1,104 @@
+/**
+ * Types of `@molecule/app-kpi-card-angular` — the Angular counterpart of
+ * `@molecule/app-kpi-card-react`, with the same prop names and values.
+ *
+ * @module
+ */
+
+/** Direction of a KPI trend indicator: rising, falling, or unchanged. */
+export type KpiTrendDirection = 'up' | 'down' | 'flat'
+
+/**
+ * Where (if anywhere) to draw the colored accent bar.
+ *
+ * The polished flagship apps use a 4px colored bar — sometimes on the
+ * left edge (`'left'`), sometimes across the top (`'top'`), and sometimes
+ * none at all (`'none'`). Default is `'none'` to preserve back-compat for
+ * call sites that don't pass the prop.
+ */
+export type KpiCardAccentSide = 'left' | 'top' | 'none'
+
+/**
+ * Props accepted by {@link KpiCard} — the same props
+ * `@molecule/app-kpi-card-react` accepts. Node props (`title`, `value`,
+ * `subtitle`, `icon`, `trend`, `action`) are projected content in Angular (an
+ * input cannot carry a node), so they are typed `unknown`: pass them in the
+ * host template as `[slot=<name>]` content, not as values.
+ */
+export interface KpiCardProps {
+  /** Label describing the metric — projected as `[slot=title]` content. */
+  title?: unknown
+  /** Large primary value — projected as `[slot=value]` content. */
+  value?: unknown
+  /** Optional supporting text below the value — projected as `[slot=subtitle]` content. */
+  subtitle?: unknown
+  /** Optional leading icon — projected as `[slot=icon]` content. */
+  icon?: unknown
+  /** Optional trend indicator — projected as `[slot=trend]` content. */
+  trend?: unknown
+  /** Optional right-side action — projected as `[slot=action]` content. */
+  action?: unknown
+  /**
+   * Where to draw the 4px colored accent bar. Default `'none'`.
+   * - `'left'` — left edge (border-l-4) — used by blog, helpdesk-ticketing.
+   * - `'top'` — top edge (border-t-4) — used by crm, project-management.
+   * - `'none'` — no accent — bare card.
+   */
+  accentSide?: KpiCardAccentSide
+  /**
+   * Tailwind class for the accent bar's color, e.g. `'border-primary'` or
+   * `'border-success'`. Defaults to the ClassMap's accent color. Ignored when
+   * `accentSide === 'none'`.
+   */
+  accentColor?: string
+  /**
+   * When `true`, renders the title in 10px-uppercase-tracking-widest style
+   * matching the polished pattern. Default `false` keeps the older
+   * sentence-case look. Pass `true` for new dashboard call sites.
+   */
+  upperLabel?: boolean
+  /**
+   * When `true`, uses `font-extrabold` for the value (matches the polished
+   * pattern). Default `false` keeps `font-bold`.
+   */
+  emphasizeValue?: boolean
+  /**
+   * When `true`, applies a subtle hover lift. Polished dashboards use this.
+   * Default `false`.
+   */
+  hoverLift?: boolean
+  /** Extra classes on the outer Card. */
+  className?: string
+  /** `data-mol-id` for AI-agent selectors. */
+  dataMolId?: string
+}
+
+/**
+ * Props accepted by {@link KpiCardGrid} — the same props
+ * `@molecule/app-kpi-card-react` accepts. The cards are projected content.
+ */
+export interface KpiCardGridProps {
+  /** KPI cards, projected as the element's default content. */
+  children?: unknown
+  /** Column count at the md+ breakpoint. 2–6. Defaults to 4. */
+  columns?: 2 | 3 | 4 | 5 | 6
+  /** Gap between cards. */
+  gap?: 'xs' | 'sm' | 'md' | 'lg'
+  /** Extra classes. */
+  className?: string
+}
+
+/** Props accepted by {@link KpiCardTrend} — the same props `@molecule/app-kpi-card-react` accepts. */
+export interface KpiCardTrendProps {
+  /** Numeric delta to display (e.g. 12.3 for +12.3%). Sign drives direction when `direction` omitted. */
+  delta: number
+  /**
+   * Explicit direction override. When omitted, derived from the sign of `delta`
+   * (0 = flat, >0 = up, <0 = down).
+   */
+  direction?: KpiTrendDirection
+  /** Suffix appended to the delta. Defaults to `'%'`. */
+  suffix?: string
+  /** Extra classes. */
+  className?: string
+}

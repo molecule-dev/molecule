@@ -1,0 +1,70 @@
+/**
+ * Solid message/chat primitives.
+ *
+ * Exports:
+ * - `<MessageBubble>` — one message (avatar + meta row + body + optional
+ *   attachments/reactions/thread nodes from `message.attachments` etc.).
+ *   Props: `message`, `isSelf?`, `showMeta?`, `className?`.
+ * - `<MessageMeta>` — author · timestamp row.
+ * - `<MessageAttachments attachments={[...]}>` — attachment rows (icon + name ·
+ *   size + action slot).
+ * - `<MessageReactions reactions={[...]} onToggle? onAdd?>` — reaction-chip row.
+ * - `<ThreadIndicator replyCount lastReplyAt? onOpen?>` — "3 replies · …" footer.
+ * - `<MessageList messages selfAuthorId? renderDateSeparator? emptyState?>` —
+ *   vertical list of bubbles.
+ * - `<MessageComposer onSubmit placeholder? submitOnEnter? leading? trailing?
+ *   disabled?>` — textarea + Send button.
+ * - `MessageData`, `MessageAuthor`, `MessageAttachment`, `MessageReaction` types.
+ *
+ * It is the Solid counterpart of `@molecule/app-message-bubble-react`: same
+ * names, same props (React spelling), and the same DOM for the same input, so
+ * an app switches framework by changing only the package name in its imports.
+ *
+ * @remarks
+ * - `isSelf` (or `MessageList.selfAuthorId`) only right-aligns the row — there is
+ *   no built-in bubble background/tint. Style the body via `className` (or wrap
+ *   `message.body`) if you want classic chat bubbles.
+ * - `timestamp` renders exactly what you pass — no time-ago or date formatting.
+ *   Pre-format ("2m ago", "10:01") before passing; raw ISO strings display as-is.
+ * - The composer submits on the Send button or Ctrl/Cmd+Enter (`submitOnEnter`),
+ *   NOT plain Enter; it trims and clears on submit and blocks empty sends.
+ * - Composer strings route through `t()` (`composer.placeholder`,
+ *   `composer.send`) with the `@molecule/app-locales-message-bubble` companion
+ *   bond; `ThreadIndicator` uses `thread.replies`, pluralized by `count`
+ *   (`thread.replies_one` / `thread.replies_other`) in the same bond.
+ * - `MessageReactions` marks the viewer's own reaction with `aria-pressed` only —
+ *   no visual highlight ships.
+ * - Requires wired i18n (`useTranslation`) and a ClassMap bond; Avatar/Button/
+ *   Textarea come from `@molecule/app-ui-solid`.
+ *
+ * @example
+ * ```tsx
+ * import { createSignal, type JSX } from 'solid-js'
+ * import { MessageComposer, MessageList } from '@molecule/app-message-bubble-solid'
+ * import type { MessageData } from '@molecule/app-message-bubble-solid'
+ *
+ * export function Chat(): JSX.Element {
+ *   const [messages, setMessages] = createSignal<MessageData[]>([
+ *     { id: '1', author: { id: 'u1', name: 'Alice', avatarSrc: '/alice.png' }, body: 'Hey there!', timestamp: '10:00' },
+ *     { id: '2', author: { id: 'u2', name: 'Bob' }, body: 'Hi Alice!', timestamp: '10:01' },
+ *   ])
+ *   return (
+ *     <>
+ *       <MessageList messages={messages()} selfAuthorId="u1" />
+ *       <MessageComposer onSubmit={(text) => setMessages((all) => [...all, sent(text)])} />
+ *     </>
+ *   )
+ * }
+ * ```
+ *
+ * @module
+ */
+
+export * from './MessageAttachments.jsx'
+export * from './MessageBubble.jsx'
+export * from './MessageComposer.jsx'
+export * from './MessageList.jsx'
+export * from './MessageMeta.jsx'
+export * from './MessageReactions.jsx'
+export * from './ThreadIndicator.jsx'
+export * from './types.js'

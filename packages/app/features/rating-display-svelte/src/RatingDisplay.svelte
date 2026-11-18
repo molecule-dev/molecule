@@ -5,6 +5,7 @@
   names), same DOM for the same input.
 -->
 <script lang="ts">
+  import { useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
   import type { RatingDisplayProps } from './types.js'
@@ -34,8 +35,32 @@
    */
   const starId = (): string => `star-grad-${Math.random().toString(36).slice(2, 9)}`
 
+  const { t } = useTranslation()
   const cm = $derived(getClassMap())
   const px = $derived<number | undefined>(SIZE_PX[size])
+  // One flex row shared by the root and the stars span, so wrapping the stars
+  // in the inner span leaves the layout as it was.
+  const layout = $derived(cm.flex({ align: 'center', gap: 'xs' }))
+  const label = $derived(
+    ariaLabel ??
+      t(
+        'ratingDisplay.aria.rating',
+        { value, max },
+        { defaultValue: 'Rating: {{value}} of {{max}}' },
+      ),
+  )
+  /**
+   * The per-star button label in interactive mode.
+   *
+   * @param star - The star number (1-based).
+   * @returns The accessible label.
+   */
+  const rateLabel = (star: number): string =>
+    t(
+      'ratingDisplay.aria.rate',
+      { value: star, max },
+      { defaultValue: 'Rate {{value}} of {{max}}' },
+    )
   const stars = $derived(
     Array.from({ length: max }, (_value, i) => ({
       i,
@@ -57,24 +82,23 @@
   </svg>
 {/snippet}
 
-<span
-  class={cm.cn(cm.flex({ align: 'center', gap: 'xs' }), className)}
-  role="img"
-  aria-label={ariaLabel ?? `Rating: ${value} of ${max}`}
->
-  {#each stars as { i, fill, id } (i)}
-    {#if onChange}
-      <button
-        type="button"
-        onclick={() => onChange?.(i + 1)}
-        aria-label={`Rate ${i + 1} of ${max}`}
-      >
+<span class={cm.cn(layout, className)}>
+  <span class={layout} role={onChange ? 'group' : 'img'} aria-label={label}>
+    {#each stars as { i, fill, id } (i)}
+      {#if onChange}
+        <button
+          type="button"
+          onclick={() => onChange?.(i + 1)}
+          aria-pressed={i + 1 <= Math.round(value) ? 'true' : 'false'}
+          aria-label={rateLabel(i + 1)}
+        >
+          {@render star(fill, id)}
+        </button>
+      {:else}
         {@render star(fill, id)}
-      </button>
-    {:else}
-      {@render star(fill, id)}
-    {/if}
-  {/each}
+      {/if}
+    {/each}
+  </span>
   {#if reviewCount !== undefined}
     {#if onReviewsClick}
       <button

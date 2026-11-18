@@ -12,6 +12,7 @@
 
 import { type JSX, type ReactNode, useState } from 'react'
 
+import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 import { ChatbotTesterInput } from './ChatbotTesterInput.js'
@@ -32,8 +33,11 @@ export interface ChatbotTesterProps {
   error?: ReactNode
   /** Empty-state slot when there are no messages yet. */
   emptyState?: ReactNode
+  /** Bot picker's label — an explicit node overrides `t('chatbotTester.label.testBot')`. */
   botPickerLabel?: ReactNode
+  /** Composer placeholder — an explicit value overrides `t('chatbotTester.placeholder.message')`. */
   inputPlaceholder?: string
+  /** Send button label — an explicit value overrides `t('chatbotTester.label.send')`. */
   sendLabel?: string
   className?: string
 }
@@ -48,12 +52,17 @@ export function ChatbotTester({
   onBotChange,
   error,
   emptyState,
-  botPickerLabel = 'Test bot',
+  botPickerLabel,
   inputPlaceholder,
   sendLabel,
   className,
 }: ChatbotTesterProps): JSX.Element {
   const cm = getClassMap()
+  const { t } = useTranslation()
+  const pickerLabel =
+    botPickerLabel === undefined
+      ? t('chatbotTester.label.testBot', undefined, { defaultValue: 'Test bot' })
+      : botPickerLabel
   const [input, setInput] = useState('')
   const handleSend = async (): Promise<void> => {
     const text = input.trim()
@@ -77,7 +86,7 @@ export function ChatbotTester({
             htmlFor="chatbot-tester-bot-select"
             className={cm.cn(cm.textSize('xs'), cm.fontWeight('bold'))}
           >
-            {botPickerLabel}
+            {pickerLabel}
           </label>
           <select
             id="chatbot-tester-bot-select"

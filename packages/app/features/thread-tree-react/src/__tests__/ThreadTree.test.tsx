@@ -224,4 +224,58 @@ describe('<ThreadTree>', () => {
     expect(c11?.getAttribute('data-thread-depth')).toBe('1')
     expect(c111?.getAttribute('data-thread-depth')).toBe('2')
   })
+
+  it('renders plain nested lists without tree roles', () => {
+    render(
+      <Wrap>
+        <ThreadTree comments={SAMPLE} />
+      </Wrap>,
+    )
+    const root = document.querySelector('[data-mol-id="thread-tree"]')
+    expect(root?.tagName).toBe('UL')
+    expect(root?.getAttribute('role')).toBeNull()
+    const nested = document.querySelector('[data-mol-id="thread-tree-comment-c1"] > ul')
+    expect(nested?.getAttribute('role')).toBeNull()
+    // A plain `li` inside a plain `ul` keeps its implicit `listitem` role.
+    expect(
+      document.querySelector('[data-mol-id="thread-tree-comment-c1"]')?.getAttribute('role'),
+    ).toBeNull()
+  })
+
+  it('wires each collapse toggle to its replies list with aria-controls', () => {
+    render(
+      <Wrap>
+        <ThreadTree comments={SAMPLE} />
+      </Wrap>,
+    )
+    const toggleEl = document.querySelector(
+      '[data-mol-id="thread-tree-toggle-c1"]',
+    ) as HTMLButtonElement
+    const replies = document.querySelector(
+      '[data-mol-id="thread-tree-comment-c1"] > ul',
+    ) as HTMLUListElement
+    // The id is generated (`useId()`), never derived from the comment's data.
+    expect(replies.id).not.toBe('c1')
+    expect(toggleEl.getAttribute('aria-controls')).toBe(replies.id)
+    // A comment without children has no replies list to point at.
+    const leafToggle = document.querySelector(
+      '[data-mol-id="thread-tree-toggle-c2"]',
+    ) as HTMLButtonElement
+    expect(leafToggle.getAttribute('aria-controls')).toBeNull()
+
+    // While collapsed the list is not rendered, so `aria-controls` is dropped.
+    act(() => {
+      toggleEl.click()
+    })
+    expect(toggleEl.getAttribute('aria-controls')).toBeNull()
+    expect(document.getElementById(replies.id)).toBeNull()
+
+    act(() => {
+      toggleEl.click()
+    })
+    const reopened = document.querySelector(
+      '[data-mol-id="thread-tree-comment-c1"] > ul',
+    ) as HTMLUListElement
+    expect(toggleEl.getAttribute('aria-controls')).toBe(reopened.id)
+  })
 })

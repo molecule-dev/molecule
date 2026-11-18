@@ -16,6 +16,10 @@ vi.mock('@molecule/app-ui', () => ({
     fontWeight: () => 'fw',
     accentCard: () => 'accent-card',
     accentCardLabel: () => 'accent-card-label',
+    textMuted: 'muted',
+    borderL: 'border-l',
+    bgBorder: 'bg-border',
+    surfaceSecondary: 'surface-secondary',
   }),
 }))
 
@@ -106,6 +110,14 @@ describe('<DayTimeline>', () => {
   it('renders an axis tick per hour in the visible window', () => {
     const { container } = render(<DayTimeline startHour={9} endHour={12} events={[]} />)
     expect(container.querySelectorAll('[data-axis-tick]')).toHaveLength(3)
+    // Neutral surfaces come from the theme: muted tick text, a theme-border
+    // gridline, and the rail divider only while the axis shows.
+    const tick = container.querySelector('[data-axis-tick]') as HTMLElement
+    expect(tick.className).toContain('muted')
+    const rail = container.querySelector('[data-mol-id="day-timeline-rail"]') as HTMLElement
+    expect(rail.className).toContain('border-l')
+    const gridline = rail.querySelector('[aria-hidden]') as HTMLElement
+    expect(gridline.className).toContain('bg-border')
   })
 
   it('hides axis labels when showAxisLabels=false', () => {
@@ -113,6 +125,9 @@ describe('<DayTimeline>', () => {
       <DayTimeline showAxisLabels={false} startHour={9} endHour={12} events={[]} />,
     )
     expect(container.querySelectorAll('[data-axis-tick]')).toHaveLength(0)
+    // No axis, no rail divider.
+    const rail = container.querySelector('[data-mol-id="day-timeline-rail"]') as HTMLElement
+    expect(rail.className).not.toContain('border-l')
   })
 
   it('honors the startHour/endHour viewport when positioning events', () => {
@@ -184,15 +199,23 @@ describe('<DayTimeline>', () => {
             endHour: 10,
             accentColor: '#ff0000',
           },
+          { id: 'plain', title: 'Plain', startHour: 11, endHour: 12 },
         ]}
       />,
     )
     const red = container.querySelector('[data-event-id="red"]') as HTMLElement
     expect(red.className).toContain('accent-card')
+    expect(red.className).toContain('surface-secondary')
     expect(red.style.getPropertyValue('--mol-accent')).toBe('#ff0000')
     expect(red.style.borderLeft).toBe('')
     // The caption takes the bar's color through the label recipe.
     expect(red.querySelector('.accent-card-label')?.textContent).toBe('Room 4')
+    // Without an accent color the bar is the brand primary: the recipe's
+    // primary tone, and no data color is set.
+    const plain = container.querySelector('[data-event-id="plain"]') as HTMLElement
+    expect(plain.style.getPropertyValue('--mol-accent')).toBe('')
+    expect(plain.className).toContain('accent-card')
+    expect(plain.className).toContain('surface-secondary')
   })
 
   it('translates the event aria-label with title and times', () => {

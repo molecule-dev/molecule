@@ -25,8 +25,9 @@ vi.mock('@molecule/app-ui', () => ({
 
 vi.mock('@molecule/app-react', () => ({
   useTranslation: () => ({
-    t: (_key: string, _values: unknown, opts?: { defaultValue?: string }) =>
-      opts?.defaultValue ?? _key,
+    // A marker provider: every key renders as «key», so text that bypassed
+    // t() (a hardcoded default or literal) shows up as plain English.
+    t: (key: string) => `«${key}»`,
   }),
 }))
 
@@ -137,13 +138,40 @@ describe('AuthShellBackLink', () => {
     const markup = html(createElement(AuthShellBackLink, {}))
     expect(markup).toContain('data-link=""')
     expect(markup).toContain('href="/"')
-    expect(markup).toContain('Back to home')
+    expect(markup).toContain('«auth.backHome»')
+  })
+
+  it('takes the default label through i18n by default', () => {
+    const markup = html(createElement(AuthShellBackLink, {}))
+    // The marker provider renders every translated string as «key»; plain
+    // English here would mean the label bypassed t().
+    expect(markup).toContain('«auth.backHome»')
+    expect(markup).not.toContain('Back to home')
+  })
+
+  it('falls back to the default label when the label is empty or blank', () => {
+    // An empty or blank label would leave the link with no accessible name (the
+    // glyph is aria-hidden), so it falls back to the translated default.
+    for (const label of ['', '  ']) {
+      const markup = html(createElement(AuthShellBackLink, { label }))
+      expect(markup).toContain('«auth.backHome»')
+    }
+  })
+
+  it('renders the arrow glyph aria-hidden so the label alone names the link', () => {
+    const markup = html(createElement(AuthShellBackLink, {}))
+    // The glyph is a Material Symbols ligature name — "arrow_back" paints a
+    // left arrow — not text a screen reader should announce. The link's
+    // accessible name is its t() label alone.
+    expect(markup).toContain('aria-hidden="true">arrow_back</span>')
   })
 
   it('honours a custom destination and label', () => {
     const markup = html(createElement(AuthShellBackLink, { to: '/welcome', label: 'Go back' }))
     expect(markup).toContain('href="/welcome"')
     expect(markup).toContain('Go back')
+    // An explicit label bypasses t(), so no marker wraps it.
+    expect(markup).not.toContain('«')
   })
 })
 
@@ -232,7 +260,20 @@ describe('AuthShell (preset)', () => {
     expect(markup).toContain('Welcome')
     expect(markup).toContain('sign in to continue')
     expect(markup).toContain('data-form=""')
-    expect(markup).toContain('Back to home')
+    expect(markup).toContain('«auth.backHome»')
+  })
+
+  it("renders the back link's arrow glyph aria-hidden", () => {
+    const markup = html(
+      createElement(AuthShell, {
+        heading: 'Welcome',
+        subheading: 'sign in to continue',
+        children: createElement('form', { 'data-form': '' }),
+      }),
+    )
+    // The composed AuthShellBackLink hides its Material Symbols glyph from
+    // the accessibility tree, exactly as the standalone primitive does.
+    expect(markup).toContain('aria-hidden="true">arrow_back</span>')
   })
 
   it('renders the brand, decoration, and footer slots when supplied', () => {
@@ -260,6 +301,7 @@ describe('AuthShell (preset)', () => {
         showBackLink: false,
       }),
     )
-    expect(markup).not.toContain('Back to home')
+    expect(markup).not.toContain('«auth.backHome»')
+    expect(markup).not.toContain('arrow_back')
   })
 })

@@ -1,0 +1,348 @@
+{
+ "exports": [
+  "HeroMetricCard",
+  "HeroMetricTrendChip"
+ ],
+ "values": {},
+ "cases": {
+  "HeroMetricCard": {
+   "title and value": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad cc26cbf54 cdccefb20\">\n<div class=\"c99d61f16\">\n<div class=\"c1e8176ab c42740ba6 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c267fcecb c4647f690 cdf83deeb ce823b5bf\">\nTotal Revenue\n</span>\n<div class=\"c42740ba6 c50554581 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c62c44ece c66ab74f8 c9a4d1a6c\">\n$84,320\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "title, value and unit": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad cc26cbf54 cdccefb20\">\n<div class=\"c99d61f16\">\n<div class=\"c1e8176ab c42740ba6 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c267fcecb c4647f690 cdf83deeb ce823b5bf\">\nTotal Revenue\n</span>\n<div class=\"c42740ba6 c50554581 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c62c44ece c66ab74f8 c9a4d1a6c\">\n$84,320\n</span>\n<span class=\"c6a2a1a28 c80b1c428 ce823b5bf\">\nUSD\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "title and value as nodes": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad cc26cbf54 cdccefb20\">\n<div class=\"c99d61f16\">\n<div class=\"c1e8176ab c42740ba6 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c267fcecb c4647f690 cdf83deeb ce823b5bf\">\n<strong>\nTotal Revenue\n</strong>\n</span>\n<div class=\"c42740ba6 c50554581 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c62c44ece c66ab74f8 c9a4d1a6c\">\n<b>\n$84,320\n</b>\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "an empty unit renders its span": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad cc26cbf54 cdccefb20\">\n<div class=\"c99d61f16\">\n<div class=\"c1e8176ab c42740ba6 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c267fcecb c4647f690 cdf83deeb ce823b5bf\">\nT\n</span>\n<div class=\"c42740ba6 c50554581 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c62c44ece c66ab74f8 c9a4d1a6c\">\n1\n</span>\n<span class=\"c6a2a1a28 c80b1c428 ce823b5bf\">\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a null unit renders nothing": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad cc26cbf54 cdccefb20\">\n<div class=\"c99d61f16\">\n<div class=\"c1e8176ab c42740ba6 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c267fcecb c4647f690 cdf83deeb ce823b5bf\">\nT\n</span>\n<div class=\"c42740ba6 c50554581 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c62c44ece c66ab74f8 c9a4d1a6c\">\n1\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "unit as a node": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad cc26cbf54 cdccefb20\">\n<div class=\"c99d61f16\">\n<div class=\"c1e8176ab c42740ba6 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c267fcecb c4647f690 cdf83deeb ce823b5bf\">\nT\n</span>\n<div class=\"c42740ba6 c50554581 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c62c44ece c66ab74f8 c9a4d1a6c\">\n1\n</span>\n<span class=\"c6a2a1a28 c80b1c428 ce823b5bf\">\n<small>\nUSD\n</small>\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "an upward trend": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad cc26cbf54 cdccefb20\">\n<div class=\"c99d61f16\">\n<div class=\"c1e8176ab c42740ba6 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c267fcecb c4647f690 cdf83deeb ce823b5bf\">\nSteps\n</span>\n<div class=\"c42740ba6 c50554581 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c62c44ece c66ab74f8 c9a4d1a6c\">\n9,420\n</span>\n</div>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-label=\"Trending up\" role=\"img\">\n▲\n</span>\n<span>\n+12.4%\n</span>\n</span>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a downward trend": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad cc26cbf54 cdccefb20\">\n<div class=\"c99d61f16\">\n<div class=\"c1e8176ab c42740ba6 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c267fcecb c4647f690 cdf83deeb ce823b5bf\">\nResting HR\n</span>\n<div class=\"c42740ba6 c50554581 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c62c44ece c66ab74f8 c9a4d1a6c\">\n58\n</span>\n<span class=\"c6a2a1a28 c80b1c428 ce823b5bf\">\nbpm\n</span>\n</div>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-label=\"Trending down\" role=\"img\">\n▼\n</span>\n<span>\n-3 bpm\n</span>\n</span>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a subtitle": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad cc26cbf54 cdccefb20\">\n<div class=\"c99d61f16\">\n<div class=\"c1e8176ab c42740ba6 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c267fcecb c4647f690 cdf83deeb ce823b5bf\">\nT\n</span>\n<div class=\"c42740ba6 c50554581 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c62c44ece c66ab74f8 c9a4d1a6c\">\n1\n</span>\n</div>\n<span class=\"c445db9b9 ce823b5bf\">\nvs last month\n</span>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "subtitle as a node": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad cc26cbf54 cdccefb20\">\n<div class=\"c99d61f16\">\n<div class=\"c1e8176ab c42740ba6 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c267fcecb c4647f690 cdf83deeb ce823b5bf\">\nT\n</span>\n<div class=\"c42740ba6 c50554581 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c62c44ece c66ab74f8 c9a4d1a6c\">\n1\n</span>\n</div>\n<span class=\"c445db9b9 ce823b5bf\">\n<em>\nvs last month\n</em>\n</span>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "the progress ring wins over the icon": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad cc26cbf54 cdccefb20\">\n<div class=\"c99d61f16\">\n<div class=\"c1e8176ab c42740ba6 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c267fcecb c4647f690 cdf83deeb ce823b5bf\">\nSleep score\n</span>\n<div class=\"c42740ba6 c50554581 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c62c44ece c66ab74f8 c9a4d1a6c\">\n84\n</span>\n</div>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\">\n<span data-ring>\nring\n</span>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "the icon alone": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad cc26cbf54 cdccefb20\">\n<div class=\"c99d61f16\">\n<div class=\"c1e8176ab c42740ba6 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c267fcecb c4647f690 cdf83deeb ce823b5bf\">\nMood\n</span>\n<div class=\"c42740ba6 c50554581 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c62c44ece c66ab74f8 c9a4d1a6c\">\n:-)\n</span>\n</div>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\">\n<i data-icon>\n</i>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "everything together": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad cc26cbf54 cd75bbd18 cdccefb20\" data-mol-id=\"hero\" style=\"overflow: hidden\">\n<span aria-hidden=\"true\" class=\"cef6f5494\" style=\"display: block; height: 4px\">\n</span>\n<div class=\"c99d61f16\">\n<div class=\"c1e8176ab c42740ba6 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c267fcecb c4647f690 cdf83deeb ce823b5bf\">\nTotal Revenue\n</span>\n<div class=\"c42740ba6 c50554581 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c62c44ece c66ab74f8 c9a4d1a6c\">\n$84,320\n</span>\n<span class=\"c6a2a1a28 c80b1c428 ce823b5bf\">\nUSD\n</span>\n</div>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-label=\"Trending up\" role=\"img\">\n▲\n</span>\n<span>\n+12.4%\n</span>\n</span>\n<span class=\"c445db9b9 ce823b5bf\">\nvs last month\n</span>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\">\n<span data-ring>\nring\n</span>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "loading replaces the value and hides trend and subtitle": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad cc26cbf54 cdccefb20\">\n<div class=\"c99d61f16\">\n<div aria-busy=\"true\" class=\"c1e8176ab c42740ba6 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c267fcecb c4647f690 cdf83deeb ce823b5bf\">\nWorkout\n</span>\n<span aria-live=\"polite\" class=\"c0d99ed10 c66ab74f8\" role=\"status\">\nLoading metric…\n</span>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "loading then ready": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad cc26cbf54 cdccefb20\">\n<div class=\"c99d61f16\">\n<div aria-busy=\"true\" class=\"c1e8176ab c42740ba6 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c267fcecb c4647f690 cdf83deeb ce823b5bf\">\nSteps\n</span>\n<span aria-live=\"polite\" class=\"c0d99ed10 c66ab74f8\" role=\"status\">\nLoading metric…\n</span>\n</div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad cc26cbf54 cdccefb20\">\n<div class=\"c99d61f16\">\n<div class=\"c1e8176ab c42740ba6 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c267fcecb c4647f690 cdf83deeb ce823b5bf\">\nSteps\n</span>\n<div class=\"c42740ba6 c50554581 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c62c44ece c66ab74f8 c9a4d1a6c\">\n9,420\n</span>\n</div>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-label=\"Trending up\" role=\"img\">\n▲\n</span>\n<span>\n+12.4%\n</span>\n</span>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "ready then loading": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad cc26cbf54 cdccefb20\">\n<div class=\"c99d61f16\">\n<div class=\"c1e8176ab c42740ba6 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c267fcecb c4647f690 cdf83deeb ce823b5bf\">\nSteps\n</span>\n<div class=\"c42740ba6 c50554581 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c62c44ece c66ab74f8 c9a4d1a6c\">\n9,420\n</span>\n</div>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-label=\"Trending up\" role=\"img\">\n▲\n</span>\n<span>\n+12.4%\n</span>\n</span>\n</div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad cc26cbf54 cdccefb20\">\n<div class=\"c99d61f16\">\n<div aria-busy=\"true\" class=\"c1e8176ab c42740ba6 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c267fcecb c4647f690 cdf83deeb ce823b5bf\">\nSteps\n</span>\n<span aria-live=\"polite\" class=\"c0d99ed10 c66ab74f8\" role=\"status\">\nLoading metric…\n</span>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "accent primary": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad cc26cbf54 cdccefb20\" style=\"overflow: hidden\">\n<span aria-hidden=\"true\" class=\"c7f6faa75\" style=\"display: block; height: 4px\">\n</span>\n<div class=\"c99d61f16\">\n<div class=\"c1e8176ab c42740ba6 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c267fcecb c4647f690 cdf83deeb ce823b5bf\">\nT\n</span>\n<div class=\"c42740ba6 c50554581 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c62c44ece c66ab74f8 c9a4d1a6c\">\n1\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "accent success": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad cc26cbf54 cdccefb20\" style=\"overflow: hidden\">\n<span aria-hidden=\"true\" class=\"cef6f5494\" style=\"display: block; height: 4px\">\n</span>\n<div class=\"c99d61f16\">\n<div class=\"c1e8176ab c42740ba6 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c267fcecb c4647f690 cdf83deeb ce823b5bf\">\nT\n</span>\n<div class=\"c42740ba6 c50554581 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c62c44ece c66ab74f8 c9a4d1a6c\">\n1\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "accent warning": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad cc26cbf54 cdccefb20\" style=\"overflow: hidden\">\n<span aria-hidden=\"true\" class=\"c04255343\" style=\"display: block; height: 4px\">\n</span>\n<div class=\"c99d61f16\">\n<div class=\"c1e8176ab c42740ba6 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c267fcecb c4647f690 cdf83deeb ce823b5bf\">\nT\n</span>\n<div class=\"c42740ba6 c50554581 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c62c44ece c66ab74f8 c9a4d1a6c\">\n1\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "accent danger": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad cc26cbf54 cdccefb20\" style=\"overflow: hidden\">\n<span aria-hidden=\"true\" class=\"c0d4608b5\" style=\"display: block; height: 4px\">\n</span>\n<div class=\"c99d61f16\">\n<div class=\"c1e8176ab c42740ba6 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c267fcecb c4647f690 cdf83deeb ce823b5bf\">\nT\n</span>\n<div class=\"c42740ba6 c50554581 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c62c44ece c66ab74f8 c9a4d1a6c\">\n1\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "accent info": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad cc26cbf54 cdccefb20\" style=\"overflow: hidden\">\n<span aria-hidden=\"true\" class=\"cc9516029\" style=\"display: block; height: 4px\">\n</span>\n<div class=\"c99d61f16\">\n<div class=\"c1e8176ab c42740ba6 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c267fcecb c4647f690 cdf83deeb ce823b5bf\">\nT\n</span>\n<div class=\"c42740ba6 c50554581 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c62c44ece c66ab74f8 c9a4d1a6c\">\n1\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "accent neutral": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad cc26cbf54 cdccefb20\" style=\"overflow: hidden\">\n<span aria-hidden=\"true\" class=\"cb1b1fd95\" style=\"display: block; height: 4px\">\n</span>\n<div class=\"c99d61f16\">\n<div class=\"c1e8176ab c42740ba6 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c267fcecb c4647f690 cdf83deeb ce823b5bf\">\nT\n</span>\n<div class=\"c42740ba6 c50554581 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c62c44ece c66ab74f8 c9a4d1a6c\">\n1\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a raw CSS accent color": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad cc26cbf54 cdccefb20\" style=\"overflow: hidden\">\n<span aria-hidden=\"true\" style=\"background-color: rgb(255, 136, 0); display: block; height: 4px\">\n</span>\n<div class=\"c99d61f16\">\n<div class=\"c1e8176ab c42740ba6 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c267fcecb c4647f690 cdf83deeb ce823b5bf\">\nT\n</span>\n<div class=\"c42740ba6 c50554581 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c62c44ece c66ab74f8 c9a4d1a6c\">\n1\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "an empty accent renders no bar": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad cc26cbf54 cdccefb20\">\n<div class=\"c99d61f16\">\n<div class=\"c1e8176ab c42740ba6 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c267fcecb c4647f690 cdf83deeb ce823b5bf\">\nT\n</span>\n<div class=\"c42740ba6 c50554581 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c62c44ece c66ab74f8 c9a4d1a6c\">\n1\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "the accent changes": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad cc26cbf54 cdccefb20\" style=\"overflow: hidden\">\n<span aria-hidden=\"true\" class=\"cef6f5494\" style=\"display: block; height: 4px\">\n</span>\n<div class=\"c99d61f16\">\n<div class=\"c1e8176ab c42740ba6 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c267fcecb c4647f690 cdf83deeb ce823b5bf\">\nT\n</span>\n<div class=\"c42740ba6 c50554581 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c62c44ece c66ab74f8 c9a4d1a6c\">\n1\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad cc26cbf54 cdccefb20\" style=\"overflow: hidden\">\n<span aria-hidden=\"true\" class=\"c0d4608b5\" style=\"display: block; height: 4px\">\n</span>\n<div class=\"c99d61f16\">\n<div class=\"c1e8176ab c42740ba6 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c267fcecb c4647f690 cdf83deeb ce823b5bf\">\nT\n</span>\n<div class=\"c42740ba6 c50554581 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c62c44ece c66ab74f8 c9a4d1a6c\">\n1\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad cc26cbf54 cdccefb20\" style=\"overflow: hidden\">\n<span aria-hidden=\"true\" style=\"background-color: rgb(255, 136, 0); display: block; height: 4px\">\n</span>\n<div class=\"c99d61f16\">\n<div class=\"c1e8176ab c42740ba6 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c267fcecb c4647f690 cdf83deeb ce823b5bf\">\nT\n</span>\n<div class=\"c42740ba6 c50554581 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c62c44ece c66ab74f8 c9a4d1a6c\">\n1\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad cc26cbf54 cdccefb20\">\n<div class=\"c99d61f16\">\n<div class=\"c1e8176ab c42740ba6 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c267fcecb c4647f690 cdf83deeb ce823b5bf\">\nT\n</span>\n<div class=\"c42740ba6 c50554581 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c62c44ece c66ab74f8 c9a4d1a6c\">\n1\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "className and data-mol-id": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad cc26cbf54 cd75bbd18 cdccefb20\" data-mol-id=\"hero-card\">\n<div class=\"c99d61f16\">\n<div class=\"c1e8176ab c42740ba6 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c267fcecb c4647f690 cdf83deeb ce823b5bf\">\nT\n</span>\n<div class=\"c42740ba6 c50554581 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c62c44ece c66ab74f8 c9a4d1a6c\">\n1\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "className and data-mol-id change": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad cc26cbf54 cd75bbd18 cdccefb20\" data-mol-id=\"first-id\">\n<div class=\"c99d61f16\">\n<div class=\"c1e8176ab c42740ba6 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c267fcecb c4647f690 cdf83deeb ce823b5bf\">\nT\n</span>\n<div class=\"c42740ba6 c50554581 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c62c44ece c66ab74f8 c9a4d1a6c\">\n1\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad cc26cbf54 ccaded727 cdccefb20\" data-mol-id=\"second-id\">\n<div class=\"c99d61f16\">\n<div class=\"c1e8176ab c42740ba6 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c267fcecb c4647f690 cdf83deeb ce823b5bf\">\nT\n</span>\n<div class=\"c42740ba6 c50554581 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c62c44ece c66ab74f8 c9a4d1a6c\">\n1\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad cc26cbf54 ccaded727 cdccefb20\">\n<div class=\"c99d61f16\">\n<div class=\"c1e8176ab c42740ba6 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c267fcecb c4647f690 cdf83deeb ce823b5bf\">\nT\n</span>\n<div class=\"c42740ba6 c50554581 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c62c44ece c66ab74f8 c9a4d1a6c\">\n1\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a click calls onClick": {
+    "snapshots": [
+     "<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c7028c459 c7d778e2d cc26cbf54 cdccefb20\" role=\"button\" tabindex=\"0\">\n<div class=\"c99d61f16\">\n<div class=\"c1e8176ab c42740ba6 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c267fcecb c4647f690 cdf83deeb ce823b5bf\">\nVitals\n</span>\n<div class=\"c42740ba6 c50554581 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c62c44ece c66ab74f8 c9a4d1a6c\">\nOK\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c7028c459 c7d778e2d cc26cbf54 cdccefb20\" role=\"button\" tabindex=\"0\">\n<div class=\"c99d61f16\">\n<div class=\"c1e8176ab c42740ba6 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c267fcecb c4647f690 cdf83deeb ce823b5bf\">\nVitals\n</span>\n<div class=\"c42740ba6 c50554581 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c62c44ece c66ab74f8 c9a4d1a6c\">\nOK\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onClick",
+      "args": [
+       {
+        "event": "click",
+        "target": "div"
+       }
+      ]
+     }
+    ]
+   },
+   "without onClick the card is not a button": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad cc26cbf54 cdccefb20\">\n<div class=\"c99d61f16\">\n<div class=\"c1e8176ab c42740ba6 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c267fcecb c4647f690 cdf83deeb ce823b5bf\">\nVitals\n</span>\n<div class=\"c42740ba6 c50554581 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c62c44ece c66ab74f8 c9a4d1a6c\">\nOK\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "Enter activates the interactive card": {
+    "snapshots": [
+     "<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c7028c459 c7d778e2d cc26cbf54 cdccefb20\" role=\"button\" tabindex=\"0\">\n<div class=\"c99d61f16\">\n<div class=\"c1e8176ab c42740ba6 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c267fcecb c4647f690 cdf83deeb ce823b5bf\">\nVitals\n</span>\n<div class=\"c42740ba6 c50554581 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c62c44ece c66ab74f8 c9a4d1a6c\">\nOK\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c7028c459 c7d778e2d cc26cbf54 cdccefb20\" role=\"button\" tabindex=\"0\">\n<div class=\"c99d61f16\">\n<div class=\"c1e8176ab c42740ba6 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c267fcecb c4647f690 cdf83deeb ce823b5bf\">\nVitals\n</span>\n<div class=\"c42740ba6 c50554581 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c62c44ece c66ab74f8 c9a4d1a6c\">\nOK\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onClick",
+      "args": [
+       {
+        "event": "click",
+        "target": "div"
+       }
+      ]
+     }
+    ]
+   },
+   "Space activates the interactive card": {
+    "snapshots": [
+     "<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c7028c459 c7d778e2d cc26cbf54 cdccefb20\" role=\"button\" tabindex=\"0\">\n<div class=\"c99d61f16\">\n<div class=\"c1e8176ab c42740ba6 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c267fcecb c4647f690 cdf83deeb ce823b5bf\">\nVitals\n</span>\n<div class=\"c42740ba6 c50554581 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c62c44ece c66ab74f8 c9a4d1a6c\">\nOK\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c7028c459 c7d778e2d cc26cbf54 cdccefb20\" role=\"button\" tabindex=\"0\">\n<div class=\"c99d61f16\">\n<div class=\"c1e8176ab c42740ba6 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c267fcecb c4647f690 cdf83deeb ce823b5bf\">\nVitals\n</span>\n<div class=\"c42740ba6 c50554581 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c62c44ece c66ab74f8 c9a4d1a6c\">\nOK\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onClick",
+      "args": [
+       {
+        "event": "click",
+        "target": "div"
+       }
+      ]
+     }
+    ]
+   },
+   "another key does not activate the card": {
+    "snapshots": [
+     "<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c7028c459 c7d778e2d cc26cbf54 cdccefb20\" role=\"button\" tabindex=\"0\">\n<div class=\"c99d61f16\">\n<div class=\"c1e8176ab c42740ba6 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c267fcecb c4647f690 cdf83deeb ce823b5bf\">\nVitals\n</span>\n<div class=\"c42740ba6 c50554581 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c62c44ece c66ab74f8 c9a4d1a6c\">\nOK\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c7028c459 c7d778e2d cc26cbf54 cdccefb20\" role=\"button\" tabindex=\"0\">\n<div class=\"c99d61f16\">\n<div class=\"c1e8176ab c42740ba6 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c267fcecb c4647f690 cdf83deeb ce823b5bf\">\nVitals\n</span>\n<div class=\"c42740ba6 c50554581 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c62c44ece c66ab74f8 c9a4d1a6c\">\nOK\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "the value, unit and subtitle change": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad cc26cbf54 cdccefb20\">\n<div class=\"c99d61f16\">\n<div class=\"c1e8176ab c42740ba6 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c267fcecb c4647f690 cdf83deeb ce823b5bf\">\nSteps\n</span>\n<div class=\"c42740ba6 c50554581 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c62c44ece c66ab74f8 c9a4d1a6c\">\n9,420\n</span>\n<span class=\"c6a2a1a28 c80b1c428 ce823b5bf\">\nsteps\n</span>\n</div>\n<span class=\"c445db9b9 ce823b5bf\">\ntoday\n</span>\n</div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad cc26cbf54 cdccefb20\">\n<div class=\"c99d61f16\">\n<div class=\"c1e8176ab c42740ba6 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c267fcecb c4647f690 cdf83deeb ce823b5bf\">\nSteps\n</span>\n<div class=\"c42740ba6 c50554581 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c62c44ece c66ab74f8 c9a4d1a6c\">\n10,002\n</span>\n<span class=\"c6a2a1a28 c80b1c428 ce823b5bf\">\ncount\n</span>\n</div>\n<span class=\"c445db9b9 ce823b5bf\">\nyesterday\n</span>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "the trend changes direction": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad cc26cbf54 cdccefb20\">\n<div class=\"c99d61f16\">\n<div class=\"c1e8176ab c42740ba6 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c267fcecb c4647f690 cdf83deeb ce823b5bf\">\nSteps\n</span>\n<div class=\"c42740ba6 c50554581 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c62c44ece c66ab74f8 c9a4d1a6c\">\n9,420\n</span>\n</div>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-label=\"Trending up\" role=\"img\">\n▲\n</span>\n<span>\n+12.4%\n</span>\n</span>\n</div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad cc26cbf54 cdccefb20\">\n<div class=\"c99d61f16\">\n<div class=\"c1e8176ab c42740ba6 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c267fcecb c4647f690 cdf83deeb ce823b5bf\">\nSteps\n</span>\n<div class=\"c42740ba6 c50554581 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c62c44ece c66ab74f8 c9a4d1a6c\">\n9,420\n</span>\n</div>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-label=\"Trending down\" role=\"img\">\n▼\n</span>\n<span>\n-3 bpm\n</span>\n</span>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "the loading label follows a locale switch": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad cc26cbf54 cdccefb20\">\n<div class=\"c99d61f16\">\n<div aria-busy=\"true\" class=\"c1e8176ab c42740ba6 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c267fcecb c4647f690 cdf83deeb ce823b5bf\">\nSteps\n</span>\n<span aria-live=\"polite\" class=\"c0d99ed10 c66ab74f8\" role=\"status\">\nLoading metric…\n</span>\n</div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad cc26cbf54 cdccefb20\">\n<div class=\"c99d61f16\">\n<div aria-busy=\"true\" class=\"c1e8176ab c42740ba6 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c267fcecb c4647f690 cdf83deeb ce823b5bf\">\nSteps\n</span>\n<span aria-live=\"polite\" class=\"c0d99ed10 c66ab74f8\" role=\"status\">\n⟦Chargement de la métrique…⟧\n</span>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "the trend label follows a locale switch": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad cc26cbf54 cdccefb20\">\n<div class=\"c99d61f16\">\n<div class=\"c1e8176ab c42740ba6 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c267fcecb c4647f690 cdf83deeb ce823b5bf\">\nSteps\n</span>\n<div class=\"c42740ba6 c50554581 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c62c44ece c66ab74f8 c9a4d1a6c\">\n9,420\n</span>\n</div>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-label=\"Trending up\" role=\"img\">\n▲\n</span>\n<span>\n+12.4%\n</span>\n</span>\n</div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad cc26cbf54 cdccefb20\">\n<div class=\"c99d61f16\">\n<div class=\"c1e8176ab c42740ba6 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c267fcecb c4647f690 cdf83deeb ce823b5bf\">\nSteps\n</span>\n<div class=\"c42740ba6 c50554581 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c62c44ece c66ab74f8 c9a4d1a6c\">\n9,420\n</span>\n</div>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-label=\"⟦En hausse⟧\" role=\"img\">\n▲\n</span>\n<span>\n+12.4%\n</span>\n</span>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "title and value, then a locale switch": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad cc26cbf54 cdccefb20\">\n<div class=\"c99d61f16\">\n<div class=\"c1e8176ab c42740ba6 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c267fcecb c4647f690 cdf83deeb ce823b5bf\">\nTotal Revenue\n</span>\n<div class=\"c42740ba6 c50554581 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c62c44ece c66ab74f8 c9a4d1a6c\">\n$84,320\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad cc26cbf54 cdccefb20\">\n<div class=\"c99d61f16\">\n<div class=\"c1e8176ab c42740ba6 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c267fcecb c4647f690 cdf83deeb ce823b5bf\">\nTotal Revenue\n</span>\n<div class=\"c42740ba6 c50554581 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c62c44ece c66ab74f8 c9a4d1a6c\">\n$84,320\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   }
+  },
+  "HeroMetricTrendChip": {
+   "an upward trend": {
+    "snapshots": [
+     "<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-label=\"Trending up\" role=\"img\">\n▲\n</span>\n<span>\n+12.4%\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "a downward trend": {
+    "snapshots": [
+     "<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-label=\"Trending down\" role=\"img\">\n▼\n</span>\n<span>\n-3 bpm\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "an empty delta": {
+    "snapshots": [
+     "<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-label=\"Trending up\" role=\"img\">\n▲\n</span>\n<span>\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "className": {
+    "snapshots": [
+     "<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd75bbd18 cd9b20003\">\n<span aria-label=\"Trending up\" role=\"img\">\n▲\n</span>\n<span>\n+12.4%\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "the delta changes": {
+    "snapshots": [
+     "<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-label=\"Trending up\" role=\"img\">\n▲\n</span>\n<span>\n+12.4%\n</span>\n</span>\n@route /",
+     "<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-label=\"Trending up\" role=\"img\">\n▲\n</span>\n<span>\n+2%\n</span>\n</span>\n@route /",
+     "<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-label=\"Trending up\" role=\"img\">\n▲\n</span>\n<span>\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "the direction changes": {
+    "snapshots": [
+     "<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-label=\"Trending up\" role=\"img\">\n▲\n</span>\n<span>\n+12.4%\n</span>\n</span>\n@route /",
+     "<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-label=\"Trending down\" role=\"img\">\n▼\n</span>\n<span>\n-3 bpm\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "className changes": {
+    "snapshots": [
+     "<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd75bbd18 cd9b20003\">\n<span aria-label=\"Trending up\" role=\"img\">\n▲\n</span>\n<span>\n+12.4%\n</span>\n</span>\n@route /",
+     "<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c9866e6d5 cc2d72006 ccaded727 ccae02ff2 cd9b20003\">\n<span aria-label=\"Trending up\" role=\"img\">\n▲\n</span>\n<span>\n+12.4%\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "the aria label follows a locale switch": {
+    "snapshots": [
+     "<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-label=\"Trending up\" role=\"img\">\n▲\n</span>\n<span>\n+12.4%\n</span>\n</span>\n@route /",
+     "<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-label=\"⟦En hausse⟧\" role=\"img\">\n▲\n</span>\n<span>\n+12.4%\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "the down aria label follows a locale switch": {
+    "snapshots": [
+     "<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-label=\"Trending down\" role=\"img\">\n▼\n</span>\n<span>\n-3 bpm\n</span>\n</span>\n@route /",
+     "<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-label=\"⟦En baisse⟧\" role=\"img\">\n▼\n</span>\n<span>\n-3 bpm\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "an upward trend, then a locale switch": {
+    "snapshots": [
+     "<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-label=\"Trending up\" role=\"img\">\n▲\n</span>\n<span>\n+12.4%\n</span>\n</span>\n@route /",
+     "<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-label=\"⟦Trending up⟧\" role=\"img\">\n▲\n</span>\n<span>\n+12.4%\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   }
+  }
+ }
+}

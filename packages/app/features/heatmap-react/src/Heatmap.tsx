@@ -1,4 +1,4 @@
-import type { JSX } from 'react'
+import type { JSX, KeyboardEvent as ReactKeyboardEvent } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
@@ -267,12 +267,27 @@ export function Heatmap({
 
   const rootLabel = ariaLabel ?? t('heatmap.aria.grid', {}, { defaultValue: 'Activity heatmap' })
 
+  /**
+   * Activate a clickable cell from the keyboard: Enter and Space both run the
+   * same handler a mouse click does.
+   * @param event - The keydown event on the focused cell.
+   * @param cell - The cell descriptor to pass to `onCellClick`.
+   */
+  const handleCellKeyDown = (
+    event: ReactKeyboardEvent<SVGRectElement>,
+    cell: HeatmapCell,
+  ): void => {
+    if (event.key !== 'Enter' && event.key !== ' ') return
+    event.preventDefault()
+    onCellClick?.(cell)
+  }
+
   return (
     <svg
       width={width}
       height={height}
       viewBox={`0 0 ${width} ${height}`}
-      role="img"
+      role="group"
       aria-label={rootLabel}
       data-mol-id="heatmap"
       className={cm.cn(className)}
@@ -285,6 +300,7 @@ export function Heatmap({
             y={cellSize - 1}
             fontSize={cellSize - 1}
             fill="currentColor"
+            aria-hidden="true"
             data-mol-id={`heatmap-month-${month}`}
           >
             {t(monthKeys[month], {}, { defaultValue: monthDefaults[month] })}
@@ -302,6 +318,7 @@ export function Heatmap({
               y={monthHeader + dow * cellStep + cellSize - 1}
               fontSize={cellSize - 1}
               fill="currentColor"
+              aria-hidden="true"
               data-mol-id={`heatmap-weekday-${idx}`}
             >
               {t(weekdayKeysSun[idx], {}, { defaultValue: weekdayDefaultsSun[idx] })}
@@ -324,9 +341,11 @@ export function Heatmap({
             data-mol-id={`heatmap-cell-${cell.date}`}
             data-bucket={cell.bucket}
             data-value={cell.value}
+            role={onCellClick ? 'button' : 'img'}
             aria-label={label}
-            tabIndex={onCellClick ? 0 : -1}
+            tabIndex={onCellClick ? 0 : undefined}
             onClick={onCellClick ? () => onCellClick(cell) : undefined}
+            onKeyDown={onCellClick ? (event) => handleCellKeyDown(event, cell) : undefined}
             onMouseEnter={onCellHover ? () => onCellHover(cell) : undefined}
             style={{ cursor: onCellClick ? 'pointer' : undefined }}
           >

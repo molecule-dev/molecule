@@ -180,7 +180,7 @@ export function AuthShellFooter({ children }: { children: ReactNode }): JSX.Elem
  */
 export interface AuthShellBackLinkProps {
   to?: string
-  /** Translated label override; falls back to `auth.backHome` → "Back to home". */
+  /** Translated label override; falls back to `auth.backHome` → "Back to home" when absent, empty or blank. */
   label?: string
 }
 
@@ -196,10 +196,13 @@ export function AuthShellBackLink({ to = '/', label }: AuthShellBackLinkProps): 
         to={to}
         className={cm.cn(cm.flex({ align: 'center', gap: 'xs' }), cm.authShellBackLinkAnchor)}
       >
-        <span className={cm.iconGlyphFont} style={{ fontSize: 14 }}>
+        {/* The Material Symbols ligature name paints a glyph, not text — hidden
+            from the accessibility tree so the link's accessible name is its
+            `t()` label alone. */}
+        <span className={cm.iconGlyphFont} style={{ fontSize: 14 }} aria-hidden="true">
           arrow_back
         </span>
-        {label ?? t('auth.backHome', undefined, { defaultValue: 'Back to home' })}
+        {label?.trim() ? label : t('auth.backHome', undefined, { defaultValue: 'Back to home' })}
       </Link>
     </p>
   )

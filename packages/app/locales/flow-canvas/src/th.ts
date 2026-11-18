@@ -3,5 +3,6 @@ import type { FlowCanvasTranslations } from './types.js'
 /** Flow-canvas translations for Thai. */
 export const th: FlowCanvasTranslations = {
   'flowCanvas.aria.canvas': 'Flow canvas',
+  'flowCanvas.aria.node': 'โหนด {{number}}',
   'flowCanvas.aria.sourceHandle': 'ลากเพื่อเชื่อมต่อ',
 }

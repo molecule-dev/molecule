@@ -1,41 +1,5 @@
 {
-  "@molecule/app-activity-timeline-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-adjustment-slider-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-admin-table-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-audio-recorder-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-auth-brand-header-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
   "@molecule/app-auth-modal-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-auth-shell-react": [
     "vue",
     "solid",
     "svelte",
@@ -53,67 +17,13 @@
     "svelte",
     "angular"
   ],
-  "@molecule/app-carousel-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-chatbot-tester-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-class-schedule-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
   "@molecule/app-client-search-react": [
     "vue",
     "solid",
     "svelte",
     "angular"
   ],
-  "@molecule/app-cookie-banner-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-data-table-ui-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-day-timeline-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-embed-snippet-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
   "@molecule/app-embeddable-chat-widget": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-emoji-reactions-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-faceted-search-react": [
     "vue",
     "solid",
     "svelte",
@@ -167,18 +77,6 @@
     "svelte",
     "angular"
   ],
-  "@molecule/app-feature-thread-tree-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-feature-video-scrubber-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
   "@molecule/app-feature-video-timeline-react": [
     "vue",
     "solid",
@@ -186,24 +84,6 @@
     "angular"
   ],
   "@molecule/app-file-card-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-flow-canvas-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-heatmap-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-hero-metric-card-react": [
     "vue",
     "solid",
     "svelte",
@@ -221,25 +101,7 @@
     "svelte",
     "angular"
   ],
-  "@molecule/app-image-gallery-editor-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
   "@molecule/app-inbox-row-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-kpi-card-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-layer-panel-react": [
     "vue",
     "solid",
     "svelte",
@@ -257,19 +119,7 @@
     "svelte",
     "angular"
   ],
-  "@molecule/app-map-drawing-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
   "@molecule/app-margin-notes-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-message-bubble-react": [
     "vue",
     "solid",
     "svelte",
@@ -317,19 +167,7 @@
     "svelte",
     "angular"
   ],
-  "@molecule/app-notifications-page-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
   "@molecule/app-nps-distribution-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-password-generator-react": [
     "vue",
     "solid",
     "svelte",
@@ -426,12 +264,6 @@
     "angular"
   ],
   "@molecule/app-survey-question-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-tag-input-react": [
     "vue",
     "solid",
     "svelte",

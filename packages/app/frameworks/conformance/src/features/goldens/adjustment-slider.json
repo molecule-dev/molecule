@@ -1,0 +1,395 @@
+{
+ "exports": [
+  "AdjustmentSlider",
+  "clampStep",
+  "defaultFormatter",
+  "defaultResetValue",
+  "keyboardNudge"
+ ],
+ "values": {
+  "clampStep": [
+   -100,
+   100,
+   0.4,
+   0.5,
+   0.1,
+   -0.1,
+   0.3,
+   7,
+   -10
+  ],
+  "defaultResetValue": [
+   0,
+   0,
+   50,
+   0
+  ],
+  "keyboardNudge": [
+   1,
+   0.1,
+   10,
+   1,
+   20
+  ]
+ },
+ "cases": {
+  "AdjustmentSlider": {
+   "defaults with a value and no unit": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" data-mol-id=\"adjustment-slider\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nBrightness\n</span>\n<button aria-label=\"Reset Brightness\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"adjustment-slider-reset\" type=\"button\">\n25\n</button>\n</div>\n<div style=\"position: relative\">\n<span aria-hidden=\"true\" data-mol-id=\"adjustment-slider-center-mark\" style=\"background: currentcolor; height: 8px; left: 50%; opacity: 0.5; pointer-events: none; position: absolute; top: 50%; transform: translate(-50%, -50%); width: 1px\">\n</span>\n<input aria-label=\"Brightness\" data-mol-id=\"adjustment-slider-input\" max=\"100\" min=\"-100\" step=\"1\" style=\"width: 100%\" type=\"range\" value=\"25\" {value=\"25\"}>\n</input>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "defaults at the reset target": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" data-mol-id=\"adjustment-slider\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nBrightness\n</span>\n<button aria-label=\"Reset Brightness\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"adjustment-slider-reset\" type=\"button\">\n0\n</button>\n</div>\n<div style=\"position: relative\">\n<span aria-hidden=\"true\" data-mol-id=\"adjustment-slider-center-mark\" style=\"background: currentcolor; height: 8px; left: 50%; opacity: 0.5; pointer-events: none; position: absolute; top: 50%; transform: translate(-50%, -50%); width: 1px\">\n</span>\n<input aria-label=\"Brightness\" data-mol-id=\"adjustment-slider-input\" max=\"100\" min=\"-100\" step=\"1\" style=\"width: 100%\" type=\"range\" value=\"0\" {value=\"0\"}>\n</input>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "unit suffix": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" data-mol-id=\"adjustment-slider\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nBrightness\n</span>\n<button aria-label=\"Reset Brightness\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"adjustment-slider-reset\" type=\"button\">\n25%\n</button>\n</div>\n<div style=\"position: relative\">\n<span aria-hidden=\"true\" data-mol-id=\"adjustment-slider-center-mark\" style=\"background: currentcolor; height: 8px; left: 50%; opacity: 0.5; pointer-events: none; position: absolute; top: 50%; transform: translate(-50%, -50%); width: 1px\">\n</span>\n<input aria-label=\"Brightness\" data-mol-id=\"adjustment-slider-input\" max=\"100\" min=\"-100\" step=\"1\" style=\"width: 100%\" type=\"range\" value=\"25\" {value=\"25\"}>\n</input>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "unit with a leading space": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" data-mol-id=\"adjustment-slider\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nGain\n</span>\n<button aria-label=\"Reset Gain\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"adjustment-slider-reset\" type=\"button\">\n-3 dB\n</button>\n</div>\n<div style=\"position: relative\">\n<span aria-hidden=\"true\" data-mol-id=\"adjustment-slider-center-mark\" style=\"background: currentcolor; height: 8px; left: 50%; opacity: 0.5; pointer-events: none; position: absolute; top: 50%; transform: translate(-50%, -50%); width: 1px\">\n</span>\n<input aria-label=\"Gain\" data-mol-id=\"adjustment-slider-input\" max=\"100\" min=\"-100\" step=\"1\" style=\"width: 100%\" type=\"range\" value=\"-3\" {value=\"-3\"}>\n</input>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "negative value without a unit": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" data-mol-id=\"adjustment-slider\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nContrast\n</span>\n<button aria-label=\"Reset Contrast\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"adjustment-slider-reset\" type=\"button\">\n-40\n</button>\n</div>\n<div style=\"position: relative\">\n<span aria-hidden=\"true\" data-mol-id=\"adjustment-slider-center-mark\" style=\"background: currentcolor; height: 8px; left: 50%; opacity: 0.5; pointer-events: none; position: absolute; top: 50%; transform: translate(-50%, -50%); width: 1px\">\n</span>\n<input aria-label=\"Contrast\" data-mol-id=\"adjustment-slider-input\" max=\"100\" min=\"-100\" step=\"1\" style=\"width: 100%\" type=\"range\" value=\"-40\" {value=\"-40\"}>\n</input>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "unipolar slider hides the center mark": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" data-mol-id=\"adjustment-slider\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nVolume\n</span>\n<button aria-label=\"Reset Volume\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"adjustment-slider-reset\" type=\"button\">\n50\n</button>\n</div>\n<div style=\"position: relative\">\n<input aria-label=\"Volume\" data-mol-id=\"adjustment-slider-input\" max=\"100\" min=\"0\" step=\"1\" style=\"width: 100%\" type=\"range\" value=\"50\" {value=\"50\"}>\n</input>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "bipolar slider above zero has no center mark": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" data-mol-id=\"adjustment-slider\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nVolume\n</span>\n<button aria-label=\"Reset Volume\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"adjustment-slider-reset\" type=\"button\">\n30\n</button>\n</div>\n<div style=\"position: relative\">\n<input aria-label=\"Volume\" data-mol-id=\"adjustment-slider-input\" max=\"100\" min=\"20\" step=\"1\" style=\"width: 100%\" type=\"range\" value=\"30\" {value=\"30\"}>\n</input>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "asymmetric range places the center mark": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" data-mol-id=\"adjustment-slider\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nExposure\n</span>\n<button aria-label=\"Reset Exposure\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"adjustment-slider-reset\" type=\"button\">\n10\n</button>\n</div>\n<div style=\"position: relative\">\n<span aria-hidden=\"true\" data-mol-id=\"adjustment-slider-center-mark\" style=\"background: currentcolor; height: 8px; left: 25%; opacity: 0.5; pointer-events: none; position: absolute; top: 50%; transform: translate(-50%, -50%); width: 1px\">\n</span>\n<input aria-label=\"Exposure\" data-mol-id=\"adjustment-slider-input\" max=\"60\" min=\"-20\" step=\"1\" style=\"width: 100%\" type=\"range\" value=\"10\" {value=\"10\"}>\n</input>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "fractional step range": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" data-mol-id=\"adjustment-slider\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nSaturation\n</span>\n<button aria-label=\"Reset Saturation\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"adjustment-slider-reset\" type=\"button\">\n0.3\n</button>\n</div>\n<div style=\"position: relative\">\n<span aria-hidden=\"true\" data-mol-id=\"adjustment-slider-center-mark\" style=\"background: currentcolor; height: 8px; left: 50%; opacity: 0.5; pointer-events: none; position: absolute; top: 50%; transform: translate(-50%, -50%); width: 1px\">\n</span>\n<input aria-label=\"Saturation\" data-mol-id=\"adjustment-slider-input\" max=\"1\" min=\"-1\" step=\"0.1\" style=\"width: 100%\" type=\"range\" value=\"0.3\" {value=\"0.3\"}>\n</input>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "custom formatter": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" data-mol-id=\"adjustment-slider\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nExposure\n</span>\n<button aria-label=\"Reset Exposure\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"adjustment-slider-reset\" type=\"button\">\n+1.5 EV\n</button>\n</div>\n<div style=\"position: relative\">\n<span aria-hidden=\"true\" data-mol-id=\"adjustment-slider-center-mark\" style=\"background: currentcolor; height: 8px; left: 50%; opacity: 0.5; pointer-events: none; position: absolute; top: 50%; transform: translate(-50%, -50%); width: 1px\">\n</span>\n<input aria-label=\"Exposure\" data-mol-id=\"adjustment-slider-input\" max=\"100\" min=\"-100\" step=\"1\" style=\"width: 100%\" type=\"range\" value=\"1.5\" {value=\"1.5\"}>\n</input>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "custom formatter ignores the unit": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" data-mol-id=\"adjustment-slider\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nExposure\n</span>\n<button aria-label=\"Reset Exposure\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"adjustment-slider-reset\" type=\"button\">\n+1.5 EV\n</button>\n</div>\n<div style=\"position: relative\">\n<span aria-hidden=\"true\" data-mol-id=\"adjustment-slider-center-mark\" style=\"background: currentcolor; height: 8px; left: 50%; opacity: 0.5; pointer-events: none; position: absolute; top: 50%; transform: translate(-50%, -50%); width: 1px\">\n</span>\n<input aria-label=\"Exposure\" data-mol-id=\"adjustment-slider-input\" max=\"100\" min=\"-100\" step=\"1\" style=\"width: 100%\" type=\"range\" value=\"1.5\" {value=\"1.5\"}>\n</input>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "className and dataMolId passthrough": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2 cd75bbd18\" data-mol-id=\"adjustment-slider-hue\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nHue\n</span>\n<button aria-label=\"Reset Hue\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"adjustment-slider-reset\" type=\"button\">\n0\n</button>\n</div>\n<div style=\"position: relative\">\n<span aria-hidden=\"true\" data-mol-id=\"adjustment-slider-center-mark\" style=\"background: currentcolor; height: 8px; left: 50%; opacity: 0.5; pointer-events: none; position: absolute; top: 50%; transform: translate(-50%, -50%); width: 1px\">\n</span>\n<input aria-label=\"Hue\" data-mol-id=\"adjustment-slider-input\" max=\"100\" min=\"-100\" step=\"1\" style=\"width: 100%\" type=\"range\" value=\"0\" {value=\"0\"}>\n</input>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "double-click restores the bipolar default": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" data-mol-id=\"adjustment-slider\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nHue\n</span>\n<button aria-label=\"Reset Hue\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"adjustment-slider-reset\" type=\"button\">\n42\n</button>\n</div>\n<div style=\"position: relative\">\n<span aria-hidden=\"true\" data-mol-id=\"adjustment-slider-center-mark\" style=\"background: currentcolor; height: 8px; left: 50%; opacity: 0.5; pointer-events: none; position: absolute; top: 50%; transform: translate(-50%, -50%); width: 1px\">\n</span>\n<input aria-label=\"Hue\" data-mol-id=\"adjustment-slider-input\" max=\"100\" min=\"-100\" step=\"1\" style=\"width: 100%\" type=\"range\" value=\"42\" {value=\"42\"}>\n</input>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" data-mol-id=\"adjustment-slider\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nHue\n</span>\n<button aria-label=\"Reset Hue\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"adjustment-slider-reset\" type=\"button\">\n42\n</button>\n</div>\n<div style=\"position: relative\">\n<span aria-hidden=\"true\" data-mol-id=\"adjustment-slider-center-mark\" style=\"background: currentcolor; height: 8px; left: 50%; opacity: 0.5; pointer-events: none; position: absolute; top: 50%; transform: translate(-50%, -50%); width: 1px\">\n</span>\n<input aria-label=\"Hue\" data-mol-id=\"adjustment-slider-input\" max=\"100\" min=\"-100\" step=\"1\" style=\"width: 100%\" type=\"range\" value=\"42\" {value=\"42\"}>\n</input>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onChange",
+      "args": [
+       0
+      ]
+     }
+    ]
+   },
+   "double-click restores min in unipolar mode": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" data-mol-id=\"adjustment-slider\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nVolume\n</span>\n<button aria-label=\"Reset Volume\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"adjustment-slider-reset\" type=\"button\">\n75\n</button>\n</div>\n<div style=\"position: relative\">\n<input aria-label=\"Volume\" data-mol-id=\"adjustment-slider-input\" max=\"100\" min=\"20\" step=\"1\" style=\"width: 100%\" type=\"range\" value=\"75\" {value=\"75\"}>\n</input>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" data-mol-id=\"adjustment-slider\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nVolume\n</span>\n<button aria-label=\"Reset Volume\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"adjustment-slider-reset\" type=\"button\">\n75\n</button>\n</div>\n<div style=\"position: relative\">\n<input aria-label=\"Volume\" data-mol-id=\"adjustment-slider-input\" max=\"100\" min=\"20\" step=\"1\" style=\"width: 100%\" type=\"range\" value=\"75\" {value=\"75\"}>\n</input>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onChange",
+      "args": [
+       20
+      ]
+     }
+    ]
+   },
+   "double-click uses a custom onReset": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" data-mol-id=\"adjustment-slider\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nTint\n</span>\n<button aria-label=\"Reset Tint\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"adjustment-slider-reset\" type=\"button\">\n20\n</button>\n</div>\n<div style=\"position: relative\">\n<span aria-hidden=\"true\" data-mol-id=\"adjustment-slider-center-mark\" style=\"background: currentcolor; height: 8px; left: 50%; opacity: 0.5; pointer-events: none; position: absolute; top: 50%; transform: translate(-50%, -50%); width: 1px\">\n</span>\n<input aria-label=\"Tint\" data-mol-id=\"adjustment-slider-input\" max=\"100\" min=\"-100\" step=\"1\" style=\"width: 100%\" type=\"range\" value=\"20\" {value=\"20\"}>\n</input>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" data-mol-id=\"adjustment-slider\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nTint\n</span>\n<button aria-label=\"Reset Tint\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"adjustment-slider-reset\" type=\"button\">\n20\n</button>\n</div>\n<div style=\"position: relative\">\n<span aria-hidden=\"true\" data-mol-id=\"adjustment-slider-center-mark\" style=\"background: currentcolor; height: 8px; left: 50%; opacity: 0.5; pointer-events: none; position: absolute; top: 50%; transform: translate(-50%, -50%); width: 1px\">\n</span>\n<input aria-label=\"Tint\" data-mol-id=\"adjustment-slider-input\" max=\"100\" min=\"-100\" step=\"1\" style=\"width: 100%\" type=\"range\" value=\"20\" {value=\"20\"}>\n</input>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onReset",
+      "args": []
+     }
+    ]
+   },
+   "reset button restores the bipolar default": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" data-mol-id=\"adjustment-slider\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nContrast\n</span>\n<button aria-label=\"Reset Contrast\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"adjustment-slider-reset\" type=\"button\">\n15\n</button>\n</div>\n<div style=\"position: relative\">\n<span aria-hidden=\"true\" data-mol-id=\"adjustment-slider-center-mark\" style=\"background: currentcolor; height: 8px; left: 50%; opacity: 0.5; pointer-events: none; position: absolute; top: 50%; transform: translate(-50%, -50%); width: 1px\">\n</span>\n<input aria-label=\"Contrast\" data-mol-id=\"adjustment-slider-input\" max=\"100\" min=\"-100\" step=\"1\" style=\"width: 100%\" type=\"range\" value=\"15\" {value=\"15\"}>\n</input>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" data-mol-id=\"adjustment-slider\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nContrast\n</span>\n<button aria-label=\"Reset Contrast\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"adjustment-slider-reset\" type=\"button\">\n15\n</button>\n</div>\n<div style=\"position: relative\">\n<span aria-hidden=\"true\" data-mol-id=\"adjustment-slider-center-mark\" style=\"background: currentcolor; height: 8px; left: 50%; opacity: 0.5; pointer-events: none; position: absolute; top: 50%; transform: translate(-50%, -50%); width: 1px\">\n</span>\n<input aria-label=\"Contrast\" data-mol-id=\"adjustment-slider-input\" max=\"100\" min=\"-100\" step=\"1\" style=\"width: 100%\" type=\"range\" value=\"15\" {value=\"15\"}>\n</input>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onChange",
+      "args": [
+       0
+      ]
+     }
+    ]
+   },
+   "reset button uses a custom onReset": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" data-mol-id=\"adjustment-slider\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nContrast\n</span>\n<button aria-label=\"Reset Contrast\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"adjustment-slider-reset\" type=\"button\">\n15\n</button>\n</div>\n<div style=\"position: relative\">\n<span aria-hidden=\"true\" data-mol-id=\"adjustment-slider-center-mark\" style=\"background: currentcolor; height: 8px; left: 50%; opacity: 0.5; pointer-events: none; position: absolute; top: 50%; transform: translate(-50%, -50%); width: 1px\">\n</span>\n<input aria-label=\"Contrast\" data-mol-id=\"adjustment-slider-input\" max=\"100\" min=\"-100\" step=\"1\" style=\"width: 100%\" type=\"range\" value=\"15\" {value=\"15\"}>\n</input>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" data-mol-id=\"adjustment-slider\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nContrast\n</span>\n<button aria-label=\"Reset Contrast\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"adjustment-slider-reset\" type=\"button\">\n15\n</button>\n</div>\n<div style=\"position: relative\">\n<span aria-hidden=\"true\" data-mol-id=\"adjustment-slider-center-mark\" style=\"background: currentcolor; height: 8px; left: 50%; opacity: 0.5; pointer-events: none; position: absolute; top: 50%; transform: translate(-50%, -50%); width: 1px\">\n</span>\n<input aria-label=\"Contrast\" data-mol-id=\"adjustment-slider-input\" max=\"100\" min=\"-100\" step=\"1\" style=\"width: 100%\" type=\"range\" value=\"15\" {value=\"15\"}>\n</input>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onReset",
+      "args": []
+     }
+    ]
+   },
+   "shift+arrow up nudges by ten steps": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" data-mol-id=\"adjustment-slider\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nGain\n</span>\n<button aria-label=\"Reset Gain\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"adjustment-slider-reset\" type=\"button\">\n0\n</button>\n</div>\n<div style=\"position: relative\">\n<span aria-hidden=\"true\" data-mol-id=\"adjustment-slider-center-mark\" style=\"background: currentcolor; height: 8px; left: 50%; opacity: 0.5; pointer-events: none; position: absolute; top: 50%; transform: translate(-50%, -50%); width: 1px\">\n</span>\n<input aria-label=\"Gain\" data-mol-id=\"adjustment-slider-input\" max=\"100\" min=\"-100\" step=\"1\" style=\"width: 100%\" type=\"range\" value=\"0\" {value=\"0\"}>\n</input>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" data-mol-id=\"adjustment-slider\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nGain\n</span>\n<button aria-label=\"Reset Gain\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"adjustment-slider-reset\" type=\"button\">\n0\n</button>\n</div>\n<div style=\"position: relative\">\n<span aria-hidden=\"true\" data-mol-id=\"adjustment-slider-center-mark\" style=\"background: currentcolor; height: 8px; left: 50%; opacity: 0.5; pointer-events: none; position: absolute; top: 50%; transform: translate(-50%, -50%); width: 1px\">\n</span>\n<input aria-label=\"Gain\" data-mol-id=\"adjustment-slider-input\" max=\"100\" min=\"-100\" step=\"1\" style=\"width: 100%\" type=\"range\" value=\"0\" {value=\"0\"}>\n</input>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onChange",
+      "args": [
+       10
+      ]
+     }
+    ]
+   },
+   "shift+arrow right nudges by ten steps": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" data-mol-id=\"adjustment-slider\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nGain\n</span>\n<button aria-label=\"Reset Gain\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"adjustment-slider-reset\" type=\"button\">\n0\n</button>\n</div>\n<div style=\"position: relative\">\n<span aria-hidden=\"true\" data-mol-id=\"adjustment-slider-center-mark\" style=\"background: currentcolor; height: 8px; left: 50%; opacity: 0.5; pointer-events: none; position: absolute; top: 50%; transform: translate(-50%, -50%); width: 1px\">\n</span>\n<input aria-label=\"Gain\" data-mol-id=\"adjustment-slider-input\" max=\"100\" min=\"-100\" step=\"1\" style=\"width: 100%\" type=\"range\" value=\"0\" {value=\"0\"}>\n</input>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" data-mol-id=\"adjustment-slider\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nGain\n</span>\n<button aria-label=\"Reset Gain\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"adjustment-slider-reset\" type=\"button\">\n0\n</button>\n</div>\n<div style=\"position: relative\">\n<span aria-hidden=\"true\" data-mol-id=\"adjustment-slider-center-mark\" style=\"background: currentcolor; height: 8px; left: 50%; opacity: 0.5; pointer-events: none; position: absolute; top: 50%; transform: translate(-50%, -50%); width: 1px\">\n</span>\n<input aria-label=\"Gain\" data-mol-id=\"adjustment-slider-input\" max=\"100\" min=\"-100\" step=\"1\" style=\"width: 100%\" type=\"range\" value=\"0\" {value=\"0\"}>\n</input>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onChange",
+      "args": [
+       10
+      ]
+     }
+    ]
+   },
+   "shift+arrow down nudges down by ten steps": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" data-mol-id=\"adjustment-slider\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nGain\n</span>\n<button aria-label=\"Reset Gain\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"adjustment-slider-reset\" type=\"button\">\n0\n</button>\n</div>\n<div style=\"position: relative\">\n<span aria-hidden=\"true\" data-mol-id=\"adjustment-slider-center-mark\" style=\"background: currentcolor; height: 8px; left: 50%; opacity: 0.5; pointer-events: none; position: absolute; top: 50%; transform: translate(-50%, -50%); width: 1px\">\n</span>\n<input aria-label=\"Gain\" data-mol-id=\"adjustment-slider-input\" max=\"100\" min=\"-100\" step=\"2\" style=\"width: 100%\" type=\"range\" value=\"0\" {value=\"0\"}>\n</input>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" data-mol-id=\"adjustment-slider\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nGain\n</span>\n<button aria-label=\"Reset Gain\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"adjustment-slider-reset\" type=\"button\">\n0\n</button>\n</div>\n<div style=\"position: relative\">\n<span aria-hidden=\"true\" data-mol-id=\"adjustment-slider-center-mark\" style=\"background: currentcolor; height: 8px; left: 50%; opacity: 0.5; pointer-events: none; position: absolute; top: 50%; transform: translate(-50%, -50%); width: 1px\">\n</span>\n<input aria-label=\"Gain\" data-mol-id=\"adjustment-slider-input\" max=\"100\" min=\"-100\" step=\"2\" style=\"width: 100%\" type=\"range\" value=\"0\" {value=\"0\"}>\n</input>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onChange",
+      "args": [
+       -20
+      ]
+     }
+    ]
+   },
+   "shift+arrow left nudges down by ten steps": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" data-mol-id=\"adjustment-slider\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nGain\n</span>\n<button aria-label=\"Reset Gain\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"adjustment-slider-reset\" type=\"button\">\n0\n</button>\n</div>\n<div style=\"position: relative\">\n<span aria-hidden=\"true\" data-mol-id=\"adjustment-slider-center-mark\" style=\"background: currentcolor; height: 8px; left: 50%; opacity: 0.5; pointer-events: none; position: absolute; top: 50%; transform: translate(-50%, -50%); width: 1px\">\n</span>\n<input aria-label=\"Gain\" data-mol-id=\"adjustment-slider-input\" max=\"100\" min=\"-100\" step=\"1\" style=\"width: 100%\" type=\"range\" value=\"0\" {value=\"0\"}>\n</input>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" data-mol-id=\"adjustment-slider\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nGain\n</span>\n<button aria-label=\"Reset Gain\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"adjustment-slider-reset\" type=\"button\">\n0\n</button>\n</div>\n<div style=\"position: relative\">\n<span aria-hidden=\"true\" data-mol-id=\"adjustment-slider-center-mark\" style=\"background: currentcolor; height: 8px; left: 50%; opacity: 0.5; pointer-events: none; position: absolute; top: 50%; transform: translate(-50%, -50%); width: 1px\">\n</span>\n<input aria-label=\"Gain\" data-mol-id=\"adjustment-slider-input\" max=\"100\" min=\"-100\" step=\"1\" style=\"width: 100%\" type=\"range\" value=\"0\" {value=\"0\"}>\n</input>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onChange",
+      "args": [
+       -10
+      ]
+     }
+    ]
+   },
+   "a shift nudge clamps against max": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" data-mol-id=\"adjustment-slider\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nGain\n</span>\n<button aria-label=\"Reset Gain\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"adjustment-slider-reset\" type=\"button\">\n95\n</button>\n</div>\n<div style=\"position: relative\">\n<span aria-hidden=\"true\" data-mol-id=\"adjustment-slider-center-mark\" style=\"background: currentcolor; height: 8px; left: 50%; opacity: 0.5; pointer-events: none; position: absolute; top: 50%; transform: translate(-50%, -50%); width: 1px\">\n</span>\n<input aria-label=\"Gain\" data-mol-id=\"adjustment-slider-input\" max=\"100\" min=\"-100\" step=\"1\" style=\"width: 100%\" type=\"range\" value=\"95\" {value=\"95\"}>\n</input>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" data-mol-id=\"adjustment-slider\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nGain\n</span>\n<button aria-label=\"Reset Gain\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"adjustment-slider-reset\" type=\"button\">\n95\n</button>\n</div>\n<div style=\"position: relative\">\n<span aria-hidden=\"true\" data-mol-id=\"adjustment-slider-center-mark\" style=\"background: currentcolor; height: 8px; left: 50%; opacity: 0.5; pointer-events: none; position: absolute; top: 50%; transform: translate(-50%, -50%); width: 1px\">\n</span>\n<input aria-label=\"Gain\" data-mol-id=\"adjustment-slider-input\" max=\"100\" min=\"-100\" step=\"1\" style=\"width: 100%\" type=\"range\" value=\"95\" {value=\"95\"}>\n</input>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onChange",
+      "args": [
+       100
+      ]
+     }
+    ]
+   },
+   "plain arrows are left to the native slider": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" data-mol-id=\"adjustment-slider\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nGain\n</span>\n<button aria-label=\"Reset Gain\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"adjustment-slider-reset\" type=\"button\">\n0\n</button>\n</div>\n<div style=\"position: relative\">\n<span aria-hidden=\"true\" data-mol-id=\"adjustment-slider-center-mark\" style=\"background: currentcolor; height: 8px; left: 50%; opacity: 0.5; pointer-events: none; position: absolute; top: 50%; transform: translate(-50%, -50%); width: 1px\">\n</span>\n<input aria-label=\"Gain\" data-mol-id=\"adjustment-slider-input\" max=\"100\" min=\"-100\" step=\"1\" style=\"width: 100%\" type=\"range\" value=\"0\" {value=\"0\"}>\n</input>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" data-mol-id=\"adjustment-slider\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nGain\n</span>\n<button aria-label=\"Reset Gain\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"adjustment-slider-reset\" type=\"button\">\n0\n</button>\n</div>\n<div style=\"position: relative\">\n<span aria-hidden=\"true\" data-mol-id=\"adjustment-slider-center-mark\" style=\"background: currentcolor; height: 8px; left: 50%; opacity: 0.5; pointer-events: none; position: absolute; top: 50%; transform: translate(-50%, -50%); width: 1px\">\n</span>\n<input aria-label=\"Gain\" data-mol-id=\"adjustment-slider-input\" max=\"100\" min=\"-100\" step=\"1\" style=\"width: 100%\" type=\"range\" value=\"0\" {value=\"0\"}>\n</input>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a shift keypress that is not an arrow does nothing": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" data-mol-id=\"adjustment-slider\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nGain\n</span>\n<button aria-label=\"Reset Gain\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"adjustment-slider-reset\" type=\"button\">\n0\n</button>\n</div>\n<div style=\"position: relative\">\n<span aria-hidden=\"true\" data-mol-id=\"adjustment-slider-center-mark\" style=\"background: currentcolor; height: 8px; left: 50%; opacity: 0.5; pointer-events: none; position: absolute; top: 50%; transform: translate(-50%, -50%); width: 1px\">\n</span>\n<input aria-label=\"Gain\" data-mol-id=\"adjustment-slider-input\" max=\"100\" min=\"-100\" step=\"1\" style=\"width: 100%\" type=\"range\" value=\"0\" {value=\"0\"}>\n</input>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" data-mol-id=\"adjustment-slider\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nGain\n</span>\n<button aria-label=\"Reset Gain\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"adjustment-slider-reset\" type=\"button\">\n0\n</button>\n</div>\n<div style=\"position: relative\">\n<span aria-hidden=\"true\" data-mol-id=\"adjustment-slider-center-mark\" style=\"background: currentcolor; height: 8px; left: 50%; opacity: 0.5; pointer-events: none; position: absolute; top: 50%; transform: translate(-50%, -50%); width: 1px\">\n</span>\n<input aria-label=\"Gain\" data-mol-id=\"adjustment-slider-input\" max=\"100\" min=\"-100\" step=\"1\" style=\"width: 100%\" type=\"range\" value=\"0\" {value=\"0\"}>\n</input>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "typing a value snaps it to the step": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" data-mol-id=\"adjustment-slider\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nSaturation\n</span>\n<button aria-label=\"Reset Saturation\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"adjustment-slider-reset\" type=\"button\">\n0\n</button>\n</div>\n<div style=\"position: relative\">\n<span aria-hidden=\"true\" data-mol-id=\"adjustment-slider-center-mark\" style=\"background: currentcolor; height: 8px; left: 50%; opacity: 0.5; pointer-events: none; position: absolute; top: 50%; transform: translate(-50%, -50%); width: 1px\">\n</span>\n<input aria-label=\"Saturation\" data-mol-id=\"adjustment-slider-input\" max=\"1\" min=\"-1\" step=\"0.1\" style=\"width: 100%\" type=\"range\" value=\"0\" {value=\"0\"}>\n</input>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" data-mol-id=\"adjustment-slider\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nSaturation\n</span>\n<button aria-label=\"Reset Saturation\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"adjustment-slider-reset\" type=\"button\">\n0\n</button>\n</div>\n<div style=\"position: relative\">\n<span aria-hidden=\"true\" data-mol-id=\"adjustment-slider-center-mark\" style=\"background: currentcolor; height: 8px; left: 50%; opacity: 0.5; pointer-events: none; position: absolute; top: 50%; transform: translate(-50%, -50%); width: 1px\">\n</span>\n<input aria-label=\"Saturation\" data-mol-id=\"adjustment-slider-input\" max=\"1\" min=\"-1\" step=\"0.1\" style=\"width: 100%\" type=\"range\" value=\"0\" {value=\"0\"}>\n</input>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onChange",
+      "args": [
+       0.5
+      ]
+     }
+    ]
+   },
+   "typing the current value emits nothing": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" data-mol-id=\"adjustment-slider\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nHue\n</span>\n<button aria-label=\"Reset Hue\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"adjustment-slider-reset\" type=\"button\">\n50\n</button>\n</div>\n<div style=\"position: relative\">\n<input aria-label=\"Hue\" data-mol-id=\"adjustment-slider-input\" max=\"100\" min=\"0\" step=\"1\" style=\"width: 100%\" type=\"range\" value=\"50\" {value=\"50\"}>\n</input>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" data-mol-id=\"adjustment-slider\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nHue\n</span>\n<button aria-label=\"Reset Hue\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"adjustment-slider-reset\" type=\"button\">\n50\n</button>\n</div>\n<div style=\"position: relative\">\n<input aria-label=\"Hue\" data-mol-id=\"adjustment-slider-input\" max=\"100\" min=\"0\" step=\"1\" style=\"width: 100%\" type=\"range\" value=\"50\" {value=\"50\"}>\n</input>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "typing below the range clamps to min": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" data-mol-id=\"adjustment-slider\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nBrightness\n</span>\n<button aria-label=\"Reset Brightness\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"adjustment-slider-reset\" type=\"button\">\n0\n</button>\n</div>\n<div style=\"position: relative\">\n<span aria-hidden=\"true\" data-mol-id=\"adjustment-slider-center-mark\" style=\"background: currentcolor; height: 8px; left: 50%; opacity: 0.5; pointer-events: none; position: absolute; top: 50%; transform: translate(-50%, -50%); width: 1px\">\n</span>\n<input aria-label=\"Brightness\" data-mol-id=\"adjustment-slider-input\" max=\"100\" min=\"-100\" step=\"1\" style=\"width: 100%\" type=\"range\" value=\"0\" {value=\"0\"}>\n</input>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" data-mol-id=\"adjustment-slider\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nBrightness\n</span>\n<button aria-label=\"Reset Brightness\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"adjustment-slider-reset\" type=\"button\">\n0\n</button>\n</div>\n<div style=\"position: relative\">\n<span aria-hidden=\"true\" data-mol-id=\"adjustment-slider-center-mark\" style=\"background: currentcolor; height: 8px; left: 50%; opacity: 0.5; pointer-events: none; position: absolute; top: 50%; transform: translate(-50%, -50%); width: 1px\">\n</span>\n<input aria-label=\"Brightness\" data-mol-id=\"adjustment-slider-input\" max=\"100\" min=\"-100\" step=\"1\" style=\"width: 100%\" type=\"range\" value=\"0\" {value=\"0\"}>\n</input>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onChange",
+      "args": [
+       -100
+      ]
+     }
+    ]
+   },
+   "typing above the range clamps to max": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" data-mol-id=\"adjustment-slider\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nBrightness\n</span>\n<button aria-label=\"Reset Brightness\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"adjustment-slider-reset\" type=\"button\">\n0\n</button>\n</div>\n<div style=\"position: relative\">\n<span aria-hidden=\"true\" data-mol-id=\"adjustment-slider-center-mark\" style=\"background: currentcolor; height: 8px; left: 50%; opacity: 0.5; pointer-events: none; position: absolute; top: 50%; transform: translate(-50%, -50%); width: 1px\">\n</span>\n<input aria-label=\"Brightness\" data-mol-id=\"adjustment-slider-input\" max=\"100\" min=\"-100\" step=\"1\" style=\"width: 100%\" type=\"range\" value=\"0\" {value=\"0\"}>\n</input>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" data-mol-id=\"adjustment-slider\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nBrightness\n</span>\n<button aria-label=\"Reset Brightness\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"adjustment-slider-reset\" type=\"button\">\n0\n</button>\n</div>\n<div style=\"position: relative\">\n<span aria-hidden=\"true\" data-mol-id=\"adjustment-slider-center-mark\" style=\"background: currentcolor; height: 8px; left: 50%; opacity: 0.5; pointer-events: none; position: absolute; top: 50%; transform: translate(-50%, -50%); width: 1px\">\n</span>\n<input aria-label=\"Brightness\" data-mol-id=\"adjustment-slider-input\" max=\"100\" min=\"-100\" step=\"1\" style=\"width: 100%\" type=\"range\" value=\"0\" {value=\"0\"}>\n</input>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onChange",
+      "args": [
+       100
+      ]
+     }
+    ]
+   },
+   "typing then changing the value prop": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" data-mol-id=\"adjustment-slider\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nSaturation\n</span>\n<button aria-label=\"Reset Saturation\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"adjustment-slider-reset\" type=\"button\">\n0\n</button>\n</div>\n<div style=\"position: relative\">\n<span aria-hidden=\"true\" data-mol-id=\"adjustment-slider-center-mark\" style=\"background: currentcolor; height: 8px; left: 50%; opacity: 0.5; pointer-events: none; position: absolute; top: 50%; transform: translate(-50%, -50%); width: 1px\">\n</span>\n<input aria-label=\"Saturation\" data-mol-id=\"adjustment-slider-input\" max=\"1\" min=\"-1\" step=\"0.1\" style=\"width: 100%\" type=\"range\" value=\"0\" {value=\"0\"}>\n</input>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" data-mol-id=\"adjustment-slider\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nSaturation\n</span>\n<button aria-label=\"Reset Saturation\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"adjustment-slider-reset\" type=\"button\">\n0\n</button>\n</div>\n<div style=\"position: relative\">\n<span aria-hidden=\"true\" data-mol-id=\"adjustment-slider-center-mark\" style=\"background: currentcolor; height: 8px; left: 50%; opacity: 0.5; pointer-events: none; position: absolute; top: 50%; transform: translate(-50%, -50%); width: 1px\">\n</span>\n<input aria-label=\"Saturation\" data-mol-id=\"adjustment-slider-input\" max=\"1\" min=\"-1\" step=\"0.1\" style=\"width: 100%\" type=\"range\" value=\"0\" {value=\"0\"}>\n</input>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" data-mol-id=\"adjustment-slider\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nSaturation\n</span>\n<button aria-label=\"Reset Saturation\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"adjustment-slider-reset\" type=\"button\">\n0.9\n</button>\n</div>\n<div style=\"position: relative\">\n<span aria-hidden=\"true\" data-mol-id=\"adjustment-slider-center-mark\" style=\"background: currentcolor; height: 8px; left: 50%; opacity: 0.5; pointer-events: none; position: absolute; top: 50%; transform: translate(-50%, -50%); width: 1px\">\n</span>\n<input aria-label=\"Saturation\" data-mol-id=\"adjustment-slider-input\" max=\"1\" min=\"-1\" step=\"0.1\" style=\"width: 100%\" type=\"range\" value=\"0.9\" {value=\"0.9\"}>\n</input>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onChange",
+      "args": [
+       0.4
+      ]
+     }
+    ]
+   },
+   "value prop changes move the slider and the display": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" data-mol-id=\"adjustment-slider\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nBrightness\n</span>\n<button aria-label=\"Reset Brightness\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"adjustment-slider-reset\" type=\"button\">\n0\n</button>\n</div>\n<div style=\"position: relative\">\n<span aria-hidden=\"true\" data-mol-id=\"adjustment-slider-center-mark\" style=\"background: currentcolor; height: 8px; left: 50%; opacity: 0.5; pointer-events: none; position: absolute; top: 50%; transform: translate(-50%, -50%); width: 1px\">\n</span>\n<input aria-label=\"Brightness\" data-mol-id=\"adjustment-slider-input\" max=\"100\" min=\"-100\" step=\"1\" style=\"width: 100%\" type=\"range\" value=\"0\" {value=\"0\"}>\n</input>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" data-mol-id=\"adjustment-slider\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nBrightness\n</span>\n<button aria-label=\"Reset Brightness\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"adjustment-slider-reset\" type=\"button\">\n50\n</button>\n</div>\n<div style=\"position: relative\">\n<span aria-hidden=\"true\" data-mol-id=\"adjustment-slider-center-mark\" style=\"background: currentcolor; height: 8px; left: 50%; opacity: 0.5; pointer-events: none; position: absolute; top: 50%; transform: translate(-50%, -50%); width: 1px\">\n</span>\n<input aria-label=\"Brightness\" data-mol-id=\"adjustment-slider-input\" max=\"100\" min=\"-100\" step=\"1\" style=\"width: 100%\" type=\"range\" value=\"50\" {value=\"50\"}>\n</input>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" data-mol-id=\"adjustment-slider\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nBrightness\n</span>\n<button aria-label=\"Reset Brightness\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"adjustment-slider-reset\" type=\"button\">\n-25\n</button>\n</div>\n<div style=\"position: relative\">\n<span aria-hidden=\"true\" data-mol-id=\"adjustment-slider-center-mark\" style=\"background: currentcolor; height: 8px; left: 50%; opacity: 0.5; pointer-events: none; position: absolute; top: 50%; transform: translate(-50%, -50%); width: 1px\">\n</span>\n<input aria-label=\"Brightness\" data-mol-id=\"adjustment-slider-input\" max=\"100\" min=\"-100\" step=\"1\" style=\"width: 100%\" type=\"range\" value=\"-25\" {value=\"-25\"}>\n</input>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "range prop changes move the center mark": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" data-mol-id=\"adjustment-slider\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nExposure\n</span>\n<button aria-label=\"Reset Exposure\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"adjustment-slider-reset\" type=\"button\">\n0\n</button>\n</div>\n<div style=\"position: relative\">\n<span aria-hidden=\"true\" data-mol-id=\"adjustment-slider-center-mark\" style=\"background: currentcolor; height: 8px; left: 50%; opacity: 0.5; pointer-events: none; position: absolute; top: 50%; transform: translate(-50%, -50%); width: 1px\">\n</span>\n<input aria-label=\"Exposure\" data-mol-id=\"adjustment-slider-input\" max=\"100\" min=\"-100\" step=\"1\" style=\"width: 100%\" type=\"range\" value=\"0\" {value=\"0\"}>\n</input>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" data-mol-id=\"adjustment-slider\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nExposure\n</span>\n<button aria-label=\"Reset Exposure\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"adjustment-slider-reset\" type=\"button\">\n0\n</button>\n</div>\n<div style=\"position: relative\">\n<input aria-label=\"Exposure\" data-mol-id=\"adjustment-slider-input\" max=\"100\" min=\"0\" step=\"1\" style=\"width: 100%\" type=\"range\" value=\"0\" {value=\"0\"}>\n</input>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" data-mol-id=\"adjustment-slider\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nExposure\n</span>\n<button aria-label=\"Reset Exposure\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"adjustment-slider-reset\" type=\"button\">\n0\n</button>\n</div>\n<div style=\"position: relative\">\n<span aria-hidden=\"true\" data-mol-id=\"adjustment-slider-center-mark\" style=\"background: currentcolor; height: 8px; left: 25%; opacity: 0.5; pointer-events: none; position: absolute; top: 50%; transform: translate(-50%, -50%); width: 1px\">\n</span>\n<input aria-label=\"Exposure\" data-mol-id=\"adjustment-slider-input\" max=\"60\" min=\"-20\" step=\"1\" style=\"width: 100%\" type=\"range\" value=\"0\" {value=\"0\"}>\n</input>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "bipolar prop change hides and restores the center mark": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" data-mol-id=\"adjustment-slider\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nVolume\n</span>\n<button aria-label=\"Reset Volume\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"adjustment-slider-reset\" type=\"button\">\n0\n</button>\n</div>\n<div style=\"position: relative\">\n<span aria-hidden=\"true\" data-mol-id=\"adjustment-slider-center-mark\" style=\"background: currentcolor; height: 8px; left: 50%; opacity: 0.5; pointer-events: none; position: absolute; top: 50%; transform: translate(-50%, -50%); width: 1px\">\n</span>\n<input aria-label=\"Volume\" data-mol-id=\"adjustment-slider-input\" max=\"100\" min=\"-100\" step=\"1\" style=\"width: 100%\" type=\"range\" value=\"0\" {value=\"0\"}>\n</input>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" data-mol-id=\"adjustment-slider\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nVolume\n</span>\n<button aria-label=\"Reset Volume\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"adjustment-slider-reset\" type=\"button\">\n0\n</button>\n</div>\n<div style=\"position: relative\">\n<input aria-label=\"Volume\" data-mol-id=\"adjustment-slider-input\" max=\"100\" min=\"-100\" step=\"1\" style=\"width: 100%\" type=\"range\" value=\"0\" {value=\"0\"}>\n</input>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" data-mol-id=\"adjustment-slider\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nVolume\n</span>\n<button aria-label=\"Reset Volume\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"adjustment-slider-reset\" type=\"button\">\n0\n</button>\n</div>\n<div style=\"position: relative\">\n<span aria-hidden=\"true\" data-mol-id=\"adjustment-slider-center-mark\" style=\"background: currentcolor; height: 8px; left: 50%; opacity: 0.5; pointer-events: none; position: absolute; top: 50%; transform: translate(-50%, -50%); width: 1px\">\n</span>\n<input aria-label=\"Volume\" data-mol-id=\"adjustment-slider-input\" max=\"100\" min=\"-100\" step=\"1\" style=\"width: 100%\" type=\"range\" value=\"0\" {value=\"0\"}>\n</input>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "format and unit prop changes update the display": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" data-mol-id=\"adjustment-slider\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nExposure\n</span>\n<button aria-label=\"Reset Exposure\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"adjustment-slider-reset\" type=\"button\">\n1.5%\n</button>\n</div>\n<div style=\"position: relative\">\n<span aria-hidden=\"true\" data-mol-id=\"adjustment-slider-center-mark\" style=\"background: currentcolor; height: 8px; left: 50%; opacity: 0.5; pointer-events: none; position: absolute; top: 50%; transform: translate(-50%, -50%); width: 1px\">\n</span>\n<input aria-label=\"Exposure\" data-mol-id=\"adjustment-slider-input\" max=\"100\" min=\"-100\" step=\"1\" style=\"width: 100%\" type=\"range\" value=\"1.5\" {value=\"1.5\"}>\n</input>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" data-mol-id=\"adjustment-slider\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nExposure\n</span>\n<button aria-label=\"Reset Exposure\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"adjustment-slider-reset\" type=\"button\">\n+1.5 EV\n</button>\n</div>\n<div style=\"position: relative\">\n<span aria-hidden=\"true\" data-mol-id=\"adjustment-slider-center-mark\" style=\"background: currentcolor; height: 8px; left: 50%; opacity: 0.5; pointer-events: none; position: absolute; top: 50%; transform: translate(-50%, -50%); width: 1px\">\n</span>\n<input aria-label=\"Exposure\" data-mol-id=\"adjustment-slider-input\" max=\"100\" min=\"-100\" step=\"1\" style=\"width: 100%\" type=\"range\" value=\"1.5\" {value=\"1.5\"}>\n</input>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" data-mol-id=\"adjustment-slider\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nExposure\n</span>\n<button aria-label=\"Reset Exposure\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"adjustment-slider-reset\" type=\"button\">\n1.5 dB\n</button>\n</div>\n<div style=\"position: relative\">\n<span aria-hidden=\"true\" data-mol-id=\"adjustment-slider-center-mark\" style=\"background: currentcolor; height: 8px; left: 50%; opacity: 0.5; pointer-events: none; position: absolute; top: 50%; transform: translate(-50%, -50%); width: 1px\">\n</span>\n<input aria-label=\"Exposure\" data-mol-id=\"adjustment-slider-input\" max=\"100\" min=\"-100\" step=\"1\" style=\"width: 100%\" type=\"range\" value=\"1.5\" {value=\"1.5\"}>\n</input>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" data-mol-id=\"adjustment-slider\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nExposure\n</span>\n<button aria-label=\"Reset Exposure\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"adjustment-slider-reset\" type=\"button\">\n1.5\n</button>\n</div>\n<div style=\"position: relative\">\n<span aria-hidden=\"true\" data-mol-id=\"adjustment-slider-center-mark\" style=\"background: currentcolor; height: 8px; left: 50%; opacity: 0.5; pointer-events: none; position: absolute; top: 50%; transform: translate(-50%, -50%); width: 1px\">\n</span>\n<input aria-label=\"Exposure\" data-mol-id=\"adjustment-slider-input\" max=\"100\" min=\"-100\" step=\"1\" style=\"width: 100%\" type=\"range\" value=\"1.5\" {value=\"1.5\"}>\n</input>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "className and dataMolId prop changes": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" data-mol-id=\"adjustment-slider\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nHue\n</span>\n<button aria-label=\"Reset Hue\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"adjustment-slider-reset\" type=\"button\">\n0\n</button>\n</div>\n<div style=\"position: relative\">\n<span aria-hidden=\"true\" data-mol-id=\"adjustment-slider-center-mark\" style=\"background: currentcolor; height: 8px; left: 50%; opacity: 0.5; pointer-events: none; position: absolute; top: 50%; transform: translate(-50%, -50%); width: 1px\">\n</span>\n<input aria-label=\"Hue\" data-mol-id=\"adjustment-slider-input\" max=\"100\" min=\"-100\" step=\"1\" style=\"width: 100%\" type=\"range\" value=\"0\" {value=\"0\"}>\n</input>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2 cd75bbd18\" data-mol-id=\"adjustment-slider\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nHue\n</span>\n<button aria-label=\"Reset Hue\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"adjustment-slider-reset\" type=\"button\">\n0\n</button>\n</div>\n<div style=\"position: relative\">\n<span aria-hidden=\"true\" data-mol-id=\"adjustment-slider-center-mark\" style=\"background: currentcolor; height: 8px; left: 50%; opacity: 0.5; pointer-events: none; position: absolute; top: 50%; transform: translate(-50%, -50%); width: 1px\">\n</span>\n<input aria-label=\"Hue\" data-mol-id=\"adjustment-slider-input\" max=\"100\" min=\"-100\" step=\"1\" style=\"width: 100%\" type=\"range\" value=\"0\" {value=\"0\"}>\n</input>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2 cd75bbd18\" data-mol-id=\"adjustment-slider-y\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nHue\n</span>\n<button aria-label=\"Reset Hue\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"adjustment-slider-reset\" type=\"button\">\n0\n</button>\n</div>\n<div style=\"position: relative\">\n<span aria-hidden=\"true\" data-mol-id=\"adjustment-slider-center-mark\" style=\"background: currentcolor; height: 8px; left: 50%; opacity: 0.5; pointer-events: none; position: absolute; top: 50%; transform: translate(-50%, -50%); width: 1px\">\n</span>\n<input aria-label=\"Hue\" data-mol-id=\"adjustment-slider-input\" max=\"100\" min=\"-100\" step=\"1\" style=\"width: 100%\" type=\"range\" value=\"0\" {value=\"0\"}>\n</input>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "step prop change then a shift nudge": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" data-mol-id=\"adjustment-slider\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nGain\n</span>\n<button aria-label=\"Reset Gain\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"adjustment-slider-reset\" type=\"button\">\n0\n</button>\n</div>\n<div style=\"position: relative\">\n<span aria-hidden=\"true\" data-mol-id=\"adjustment-slider-center-mark\" style=\"background: currentcolor; height: 8px; left: 50%; opacity: 0.5; pointer-events: none; position: absolute; top: 50%; transform: translate(-50%, -50%); width: 1px\">\n</span>\n<input aria-label=\"Gain\" data-mol-id=\"adjustment-slider-input\" max=\"100\" min=\"-100\" step=\"1\" style=\"width: 100%\" type=\"range\" value=\"0\" {value=\"0\"}>\n</input>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" data-mol-id=\"adjustment-slider\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nGain\n</span>\n<button aria-label=\"Reset Gain\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"adjustment-slider-reset\" type=\"button\">\n0\n</button>\n</div>\n<div style=\"position: relative\">\n<span aria-hidden=\"true\" data-mol-id=\"adjustment-slider-center-mark\" style=\"background: currentcolor; height: 8px; left: 50%; opacity: 0.5; pointer-events: none; position: absolute; top: 50%; transform: translate(-50%, -50%); width: 1px\">\n</span>\n<input aria-label=\"Gain\" data-mol-id=\"adjustment-slider-input\" max=\"100\" min=\"-100\" step=\"5\" style=\"width: 100%\" type=\"range\" value=\"0\" {value=\"0\"}>\n</input>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" data-mol-id=\"adjustment-slider\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nGain\n</span>\n<button aria-label=\"Reset Gain\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"adjustment-slider-reset\" type=\"button\">\n0\n</button>\n</div>\n<div style=\"position: relative\">\n<span aria-hidden=\"true\" data-mol-id=\"adjustment-slider-center-mark\" style=\"background: currentcolor; height: 8px; left: 50%; opacity: 0.5; pointer-events: none; position: absolute; top: 50%; transform: translate(-50%, -50%); width: 1px\">\n</span>\n<input aria-label=\"Gain\" data-mol-id=\"adjustment-slider-input\" max=\"100\" min=\"-100\" step=\"5\" style=\"width: 100%\" type=\"range\" value=\"0\" {value=\"0\"}>\n</input>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onChange",
+      "args": [
+       50
+      ]
+     }
+    ]
+   },
+   "min and max prop changes reach the input": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" data-mol-id=\"adjustment-slider\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nBrightness\n</span>\n<button aria-label=\"Reset Brightness\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"adjustment-slider-reset\" type=\"button\">\n0\n</button>\n</div>\n<div style=\"position: relative\">\n<span aria-hidden=\"true\" data-mol-id=\"adjustment-slider-center-mark\" style=\"background: currentcolor; height: 8px; left: 50%; opacity: 0.5; pointer-events: none; position: absolute; top: 50%; transform: translate(-50%, -50%); width: 1px\">\n</span>\n<input aria-label=\"Brightness\" data-mol-id=\"adjustment-slider-input\" max=\"100\" min=\"-100\" step=\"1\" style=\"width: 100%\" type=\"range\" value=\"0\" {value=\"0\"}>\n</input>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" data-mol-id=\"adjustment-slider\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nBrightness\n</span>\n<button aria-label=\"Reset Brightness\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"adjustment-slider-reset\" type=\"button\">\n0\n</button>\n</div>\n<div style=\"position: relative\">\n<input aria-label=\"Brightness\" data-mol-id=\"adjustment-slider-input\" max=\"10\" min=\"0\" step=\"1\" style=\"width: 100%\" type=\"range\" value=\"0\" {value=\"0\"}>\n</input>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "defaults with a value and no unit, then a locale switch": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" data-mol-id=\"adjustment-slider\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nBrightness\n</span>\n<button aria-label=\"Reset Brightness\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"adjustment-slider-reset\" type=\"button\">\n25\n</button>\n</div>\n<div style=\"position: relative\">\n<span aria-hidden=\"true\" data-mol-id=\"adjustment-slider-center-mark\" style=\"background: currentcolor; height: 8px; left: 50%; opacity: 0.5; pointer-events: none; position: absolute; top: 50%; transform: translate(-50%, -50%); width: 1px\">\n</span>\n<input aria-label=\"Brightness\" data-mol-id=\"adjustment-slider-input\" max=\"100\" min=\"-100\" step=\"1\" style=\"width: 100%\" type=\"range\" value=\"25\" {value=\"25\"}>\n</input>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" data-mol-id=\"adjustment-slider\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nBrightness\n</span>\n<button aria-label=\"⟦Reset Brightness⟧\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"adjustment-slider-reset\" type=\"button\">\n25\n</button>\n</div>\n<div style=\"position: relative\">\n<span aria-hidden=\"true\" data-mol-id=\"adjustment-slider-center-mark\" style=\"background: currentcolor; height: 8px; left: 50%; opacity: 0.5; pointer-events: none; position: absolute; top: 50%; transform: translate(-50%, -50%); width: 1px\">\n</span>\n<input aria-label=\"⟦Brightness⟧\" data-mol-id=\"adjustment-slider-input\" max=\"100\" min=\"-100\" step=\"1\" style=\"width: 100%\" type=\"range\" value=\"25\" {value=\"25\"}>\n</input>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   }
+  }
+ }
+}

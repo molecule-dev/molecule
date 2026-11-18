@@ -7,6 +7,7 @@
 
 import { type JSX, useEffect, useRef, useState } from 'react'
 
+import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-react'
 
@@ -16,7 +17,11 @@ import type { AdminTableRowAction } from './types.js'
 export interface AdminTableRowActionsProps<T> {
   row: T
   actions: AdminTableRowAction<T>[]
-  ariaLabel: string
+  /**
+   * Accessible label for the trigger button. Overrides the translated default
+   * (`adminTable.aria.rowActions`, English `'Row actions'`).
+   */
+  ariaLabel?: string
 }
 
 /**
@@ -30,6 +35,14 @@ export function AdminTableRowActions<T>({
   ariaLabel,
 }: AdminTableRowActionsProps<T>): JSX.Element {
   const cm = getClassMap()
+  // The translated default when the caller passes no label; the hook re-renders
+  // on a locale switch, so the name follows it like every other t() string.
+  const { t } = useTranslation()
+  const triggerLabel =
+    ariaLabel ??
+    t('adminTable.aria.rowActions', undefined, {
+      defaultValue: 'Row actions',
+    })
   const [open, setOpen] = useState(false)
   const popoverRef = useRef<HTMLDivElement | null>(null)
   useEffect(() => {
@@ -63,7 +76,7 @@ export function AdminTableRowActions<T>({
       <Button
         variant="ghost"
         size="icon"
-        aria-label={ariaLabel}
+        aria-label={triggerLabel}
         aria-haspopup="menu"
         aria-expanded={open}
         data-mol-id="admin-table-row-actions-trigger"
@@ -72,7 +85,8 @@ export function AdminTableRowActions<T>({
           setOpen((v) => !v)
         }}
       >
-        <span className={cm.cn(cm.iconGlyphFont)} data-icon="more_vert">
+        {/* The ligature name is font data, not text; the button's aria-label names it. */}
+        <span aria-hidden="true" className={cm.cn(cm.iconGlyphFont)} data-icon="more_vert">
           more_vert
         </span>
       </Button>
