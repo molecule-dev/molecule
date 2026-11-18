@@ -10,6 +10,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import type { UserProfile } from '@molecule/app-auth'
 import { getLogger } from '@molecule/app-logger'
 
+import { useStableCallback } from '../render/useStableCallback.js'
 import { useAuth } from './useAuth.js'
 import { useHttpClient } from './useHttp.js'
 
@@ -138,10 +139,15 @@ export function useVerifyPaymentReturn(
   // refresh, strict-mode double-invoke) must not re-POST a purchase.
   const attemptedRef = useRef<string | null>(null)
 
-  // Callbacks are read through a ref so a caller passing inline functions does
-  // not re-trigger the effect on every render.
-  const callbacksRef = useRef({ onVerified, onError })
-  callbacksRef.current = { onVerified, onError }
+  // Callbacks are read through stable callbacks so a caller passing inline
+  // functions does not re-trigger the effect on every render; each call runs the
+  // latest COMMITTED function, whether it comes from the effect or from `retry`.
+  const notifyVerified = useStableCallback((): void => {
+    onVerified?.()
+  })
+  const notifyError = useStableCallback((failure: Error): void => {
+    onError?.(failure)
+  })
 
   const userId = state.user?.id ?? null
 
@@ -176,7 +182,7 @@ export function useVerifyPaymentReturn(
       })
       if (!mountedRef.current) return
       setStatus('verified')
-      callbacksRef.current.onVerified?.()
+      notifyVerified()
 
       if (cleanUrl && typeof window !== 'undefined' && window.history?.replaceState) {
         const url = new URL(window.location.href)
@@ -195,9 +201,9 @@ export function useVerifyPaymentReturn(
       }
       setStatus('failed')
       setError(failure)
-      callbacksRef.current.onError?.(failure)
+      notifyError(failure)
     }
-  }, [cleanUrl, http, provider, refresh, transactionId, userId])
+  }, [cleanUrl, http, notifyError, notifyVerified, provider, refresh, transactionId, userId])
 
   useEffect(() => {
     if (!isReturn || !transactionId) return

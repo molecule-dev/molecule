@@ -3,10 +3,12 @@
  *
  * @module
  */
-import { useEffect, useInsertionEffect, useRef, useState, useSyncExternalStore } from 'react'
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
 
 import type { OptimisticValueOptions, OptimisticValueState } from '@molecule/app-state'
 import { createOptimisticValue, shallowEqual } from '@molecule/app-state'
+
+import { useStableCallback } from '../render/useStableCallback.js'
 
 /**
  * What {@link useOptimisticValue} returns: the state to render and the two ways to change it.
@@ -90,19 +92,27 @@ export interface UseOptimisticValueResult<T> extends OptimisticValueState<T> {
 export const useOptimisticValue = <T>(
   options: OptimisticValueOptions<T>,
 ): UseOptimisticValueResult<T> => {
-  const latest = useRef(options)
-  // Exposed actions may run in a descendant's layout effect, before this component's
-  // layout/passive effects. Publish options from committed renders before those actions.
-  useInsertionEffect(() => {
-    latest.current = options
+  // The controller outlives every render, so its hooks read the latest COMMITTED
+  // options through stable callbacks: exposed actions may run in a descendant's
+  // layout effect, before this component's own effects, and a render React throws
+  // away must never reach a save.
+  const commitChange = useStableCallback(
+    (next: T, previous: T, confirm: (change: (current: T) => T) => void) =>
+      options.commit(next, previous, confirm),
+  )
+  const equalsChange = useStableCallback((a: T, b: T): boolean =>
+    (options.equals ?? shallowEqual)(a, b),
+  )
+  const reportError = useStableCallback((error: unknown, value: T): void => {
+    options.onError?.(error, value)
   })
 
   const [controller] = useState(() =>
     createOptimisticValue<T>({
       value: options.value,
-      commit: (next, previous, confirm) => latest.current.commit(next, previous, confirm),
-      equals: (a, b) => (latest.current.equals ?? shallowEqual)(a, b),
-      onError: (error, value) => latest.current.onError?.(error, value),
+      commit: commitChange,
+      equals: equalsChange,
+      onError: reportError,
     }),
   )
 

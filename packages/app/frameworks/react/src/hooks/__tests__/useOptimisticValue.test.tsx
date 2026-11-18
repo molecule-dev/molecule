@@ -192,9 +192,10 @@ describe('useOptimisticValue', () => {
     const { result, rerender } = renderHook(
       ({ commit }) => {
         const value = useOptimisticValue({ value: 1, commit })
+        const { set } = value
         useLayoutEffect(() => {
-          if (commit === second) value.set(2)
-        }, [commit, value.set])
+          if (commit === second) set(2)
+        }, [commit, set])
         return value
       },
       { initialProps: { commit: first } },

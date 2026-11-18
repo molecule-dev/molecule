@@ -19,7 +19,10 @@ import { useState } from 'react'
  * discarded render's value instead, and `useMemo` is only a cache React may drop.
  * On a key change the hook updates its state during render (React's documented
  * pattern for information from previous renders), which re-renders this
- * component before anything commits.
+ * component before anything commits: one extra run of the calling component's
+ * body on each key change (no extra commit). Use it when a key change starts
+ * real work anyway. For a value built only from the keys, use `useMemo`; for a
+ * value read from an external store, cache it in the store's snapshot.
  *
  * @param value - The value for the current render.
  * @param keys - The keys whose change takes a new value.

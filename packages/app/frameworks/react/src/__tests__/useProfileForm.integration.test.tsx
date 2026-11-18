@@ -3,7 +3,7 @@
 import { createServer, type Server } from 'node:http'
 
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import {
@@ -189,15 +189,19 @@ function ProfileForm({
   )
 }
 
-/** The recorded manual effect: every new user object overwrites editable controls. */
+/** The recorded manual hydration: every new user object overwrites editable controls. */
 function LegacyForm(): React.ReactElement {
   const { user } = useAuth<Reader>()
   const [bio, setBio] = useState('')
   const [image, setImage] = useState('')
-  useEffect(() => {
+  const [hydratedUser, setHydratedUser] = useState(user)
+  // The recorded effect, as React's render-phase update: a new user object still overwrites
+  // both controls, but the stale values never reach the committed DOM.
+  if (hydratedUser !== user) {
+    setHydratedUser(user)
     setBio(user?.bio ?? '')
     setImage(user?.image ?? '')
-  }, [user])
+  }
   const { client } = legacyClient
   return (
     <form

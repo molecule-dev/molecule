@@ -45,13 +45,27 @@ function cacheFor(scope: string): CacheState {
   return cache
 }
 
-type Listener = (state: {
+/** What a scope's cache currently holds — the value the hook renders. */
+interface CatalogSnapshot {
   models: AppModelDefinition[] | null
   defaults: AppModeModelDefaults | undefined
   error: Error | null
-}) => void
+}
+
+type Listener = (state: CatalogSnapshot) => void
 /** Listeners keyed by the same scope as the cache they observe. */
 const listenersByScope = new Map<string, Set<Listener>>()
+
+/**
+ * Reads a scope's cache.
+ *
+ * @param scope - `''` for the unscoped catalog, else the projectId.
+ * @returns A fresh snapshot of what that scope currently holds.
+ */
+function snapshotFor(scope: string): CatalogSnapshot {
+  const cache = cacheFor(scope)
+  return { models: cache.models, defaults: cache.defaults, error: cache.error }
+}
 
 /**
  * The listener set for a scope, created on first use.
@@ -158,21 +172,19 @@ export interface UseAIModelsResult {
 export function useAIModels(projectId?: string): UseAIModelsResult {
   const http = useHttpClient()
   const scope = projectId ?? ''
-  const [snapshot, setSnapshot] = useState<{
-    models: AppModelDefinition[] | null
-    defaults: AppModeModelDefaults | undefined
-    error: Error | null
-  }>(() => {
-    const cache = cacheFor(scope)
-    return { models: cache.models, defaults: cache.defaults, error: cache.error }
-  })
+  const [snapshot, setSnapshot] = useState<CatalogSnapshot>(() => snapshotFor(scope))
+  const [trackedScope, setTrackedScope] = useState(scope)
+  if (trackedScope !== scope) {
+    // A new scope shows its own cache, read here so the first render of the new
+    // scope is already right instead of showing the previous scope's catalog.
+    setTrackedScope(scope)
+    setSnapshot(snapshotFor(scope))
+  }
 
   useEffect(() => {
     const cache = cacheFor(scope)
     const listener: Listener = (next) => setSnapshot(next)
     listenersFor(scope).add(listener)
-    // The scope may have changed since the lazy useState init — resync.
-    setSnapshot({ models: cache.models, defaults: cache.defaults, error: cache.error })
 
     if (!cache.models && !cache.error) {
       void fetchOnce(http, scope).catch((_error: unknown) => {

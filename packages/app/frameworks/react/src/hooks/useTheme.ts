@@ -4,7 +4,7 @@
  * @module
  */
 
-import { useCallback, useContext, useMemo, useSyncExternalStore } from 'react'
+import { useCallback, useContext, useRef, useSyncExternalStore } from 'react'
 
 import { t } from '@molecule/app-i18n'
 import type { Theme, ThemeProvider } from '@molecule/app-theme'
@@ -52,6 +52,37 @@ function subscribeToThemeProvider(provider: ThemeProvider, callback: () => void)
 }
 
 /**
+ * The theme and its name as one snapshot, so both come from the same read.
+ */
+interface ThemeSnapshot {
+  theme: Theme
+  name: string
+}
+
+/**
+ * Reads one snapshot of the provider's active theme. The name comes from
+ * `getThemeName()` when the provider has it, from the theme object otherwise.
+ * @param provider - The ThemeProvider to read.
+ * @returns The active theme and its name.
+ */
+function readThemeSnapshot(provider: ThemeProvider): ThemeSnapshot {
+  const theme = provider.getTheme()
+  const candidate = provider as unknown as Record<string, (...args: unknown[]) => string>
+  const name = typeof candidate.getThemeName === 'function' ? candidate.getThemeName() : theme.name
+  return { theme, name }
+}
+
+/**
+ * Whether two snapshots of one provider show the same theme.
+ * @param a - The earlier snapshot.
+ * @param b - The later snapshot.
+ * @returns `true` when neither the theme nor its name changed.
+ */
+function sameTheme(a: ThemeSnapshot, b: ThemeSnapshot): boolean {
+  return Object.is(a.theme, b.theme) && a.name === b.name
+}
+
+/**
  * Hook for theme state and actions.
  *
  * @returns Theme state and actions
@@ -71,49 +102,60 @@ export function useTheme(): UseThemeResult {
   const provider = useThemeProvider()
 
   // The provider as an external store: the theme and its name, re-read only
-  // when the provider announces a change. Reading through a cache (rather than
-  // calling `getTheme()` on every render) keeps the snapshot stable for a
-  // provider that builds a fresh theme object per call — React treats a
-  // snapshot that changes between two reads with no change in between as a
-  // bug and re-renders without end.
-  const store = useMemo(() => {
-    const readName = (): string =>
-      typeof (provider as unknown as Record<string, (...args: unknown[]) => string>)
-        .getThemeName === 'function'
-        ? (provider as unknown as Record<string, (...args: unknown[]) => string>).getThemeName()
-        : provider.getTheme().name
-    let theme = provider.getTheme()
-    let name = readName()
-    return {
-      subscribe: (onChange: () => void): (() => void) => {
-        theme = provider.getTheme()
-        name = readName()
-        return subscribeToThemeProvider(provider, () => {
-          theme = provider.getTheme()
-          name = readName()
-          onChange()
-        })
-      },
-      getTheme: (): Theme => theme,
-      getName: (): string => name,
-    }
+  // when the provider announces a change. Reading through a cached snapshot
+  // (rather than calling `getTheme()` on every render) keeps the snapshot
+  // stable for a provider that builds a fresh theme object per call — React
+  // treats a snapshot that changes between two reads with no change in between
+  // as a bug and re-renders without end.
+  const clientCache = useRef<{ provider: ThemeProvider; snapshot: ThemeSnapshot } | null>(null)
+  /** Re-reads the provider into the cache, keeping the snapshot when nothing changed. */
+  const publish = useCallback((): void => {
+    const cached = clientCache.current
+    const snapshot = readThemeSnapshot(provider)
+    if (cached && cached.provider === provider && sameTheme(cached.snapshot, snapshot)) return
+    clientCache.current = { provider, snapshot }
   }, [provider])
+
+  const getSnapshot = useCallback((): ThemeSnapshot => {
+    const cached = clientCache.current
+    if (cached && cached.provider === provider) return cached.snapshot
+    const snapshot = readThemeSnapshot(provider)
+    clientCache.current = { provider, snapshot }
+    return snapshot
+  }, [provider])
+
+  const subscribe = useCallback(
+    (onChange: () => void): (() => void) => {
+      // Re-read on subscribing and on every announced change: a change made
+      // between a render and the subscription sends no event React could see.
+      publish()
+      return subscribeToThemeProvider(provider, () => {
+        publish()
+        onChange()
+      })
+    },
+    [provider, publish],
+  )
+
   // On the server, and on the client WHILE HYDRATING, React reads the server
   // snapshot instead of the live one — the theme the markup was rendered with
   // (`getServerTheme()`, when the provider has one) — and re-renders with the
   // live theme right after. A client that restored a persisted choice or
   // follows the OS preference therefore renders the HTML it was sent first,
   // instead of a mismatch React resolves by throwing that HTML away.
-  const theme = useSyncExternalStore<Theme>(
-    store.subscribe,
-    store.getTheme,
-    () => provider.getServerTheme?.() ?? store.getTheme(),
-  )
-  const themeName = useSyncExternalStore<string>(
-    store.subscribe,
-    store.getName,
-    () => provider.getServerTheme?.().name ?? store.getName(),
-  )
+  const serverCache = useRef<{ provider: ThemeProvider; snapshot: ThemeSnapshot } | null>(null)
+  const getServerSnapshot = useCallback((): ThemeSnapshot => {
+    const cached = serverCache.current
+    if (cached && cached.provider === provider) return cached.snapshot
+    const theme = provider.getServerTheme?.() ?? getSnapshot().theme
+    const snapshot = { theme, name: theme.name }
+    serverCache.current = { provider, snapshot }
+    return snapshot
+  }, [provider, getSnapshot])
+
+  const snapshot = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot)
+  const theme = snapshot.theme
+  const themeName = snapshot.name
 
   // Memoized action wrappers
   const setTheme = useCallback((name: string) => provider.setTheme(name), [provider])

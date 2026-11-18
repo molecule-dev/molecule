@@ -10,7 +10,7 @@ import type { HttpClient, HttpResponse, RequestConfig } from '@molecule/app-http
 import { t } from '@molecule/app-i18n'
 
 import { HttpContext } from '../contexts.js'
-import { useEffectEvent } from './useEffectEvent.js'
+import { useEffectEvent } from '../render/useEffectEvent.js'
 
 /**
  * Hook to access the HTTP client from context.

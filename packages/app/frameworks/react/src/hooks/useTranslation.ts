@@ -17,7 +17,6 @@ import { getProvider, I18nError } from '@molecule/app-i18n'
 
 import { I18nContext } from '../contexts.js'
 import type { UseTFunction, UseTranslationResult } from '../types.js'
-import { useValueAtKeyChange } from './useValueAtKeyChange.js'
 
 /**
  * Hook to access the i18n provider: the one the nearest `I18nProvider` supplies, otherwise
@@ -31,11 +30,23 @@ export function useI18nProvider(): I18nProvider {
   return useContext(I18nContext) ?? getProvider()
 }
 
+/** What a component reads from the provider, rebuilt only when the provider's state changes. */
+interface LocaleSnapshot {
+  /** Changes on every notification, revision and locale switch. */
+  key: string
+  /** The locale the snapshot was built for. */
+  locale: string
+  /** One list per `key`. */
+  locales: ReturnType<I18nProvider['getLocales']>
+  /** One translation function per locale. */
+  t: I18nProvider['t']
+}
+
 /** The provider listener `useLocaleSnapshot` attaches, in the shape useSyncExternalStore reads. */
 interface LocaleStore {
   listener: () => void
   subscribe: (onChange: () => void) => () => void
-  getSnapshot: () => string
+  getSnapshot: () => LocaleSnapshot
 }
 
 /**
@@ -46,6 +57,7 @@ interface LocaleStore {
  */
 function createLocaleStore(provider: I18nProvider): LocaleStore {
   let notifications = 0
+  let cached: LocaleSnapshot | null = null
   const onChanges = new Set<() => void>()
   return {
     listener: (): void => {
@@ -58,8 +70,25 @@ function createLocaleStore(provider: I18nProvider): LocaleStore {
         onChanges.delete(onChange)
       }
     },
-    getSnapshot: (): string =>
-      `${notifications}:${provider.getRevision?.() ?? 0}:${provider.getLocale()}`,
+    // The cache holds only what the provider itself says (never a prop or the
+    // component's state), so a render React throws away fills it with what a
+    // committed render would.
+    getSnapshot: (): LocaleSnapshot => {
+      const locale = provider.getLocale()
+      const key = `${notifications}:${provider.getRevision?.() ?? 0}:${locale}`
+      if (cached?.key === key) return cached
+      cached = {
+        key,
+        locale,
+        locales: provider.getLocales(),
+        t:
+          cached?.locale === locale
+            ? cached.t
+            : (k: string, values?: InterpolationValues, options?: TranslateOptions): string =>
+                provider.t(k, values, options),
+      }
+      return cached
+    },
   }
 }
 
@@ -88,14 +117,15 @@ function createLocaleStore(provider: I18nProvider): LocaleStore {
  * this hook runs, remains unobservable — register translations at module scope
  * or in an effect, never while rendering.
  *
- * The snapshot is a string, so subscribing rebuilds no function; each hook
- * decides which of its functions follow the locale (`useTranslation`'s `t`
- * does, so text memoized on it refreshes; `useT`'s keeps one identity).
+ * The snapshot is one cached object per notification: its `locales` list is
+ * rebuilt only then, and its `t` only on a locale switch (`useTranslation`'s
+ * `t` follows the locale, so text memoized on it refreshes; `useT`'s keeps one
+ * identity). Reading them from the snapshot costs no extra render.
  *
  * @param provider - The i18n provider from context.
- * @returns A value that changes on every notification, revision and locale switch.
+ * @returns The snapshot, a new object on every notification, revision and locale switch.
  */
-function useLocaleSnapshot(provider: I18nProvider): string {
+function useLocaleSnapshot(provider: I18nProvider): LocaleSnapshot {
   const store = useMemo(() => createLocaleStore(provider), [provider])
   useLayoutEffect(() => provider.onLocaleChange(store.listener), [provider, store])
   return useSyncExternalStore(store.subscribe, store.getSnapshot, store.getSnapshot)
@@ -124,25 +154,18 @@ function useLocaleSnapshot(provider: I18nProvider): string {
  */
 export function useTranslation(): UseTranslationResult {
   const provider = useI18nProvider()
-  const snapshot = useLocaleSnapshot(provider)
+  // `locales` is a new list once per notification and the same list otherwise,
+  // so an effect that depends on it stays stable. `t` is one function per
+  // provider and locale: its identity follows a locale switch, so text memoized
+  // on it (or a React.memo child that takes `t` as a prop) refreshes after the
+  // switch — `useT()` is the identity-stable form.
+  const { locales, t } = useLocaleSnapshot(provider)
 
   // Read from the provider on every render, never copied into state: a
   // replaced provider, or a switch that landed before the subscription, shows
   // its own values on the first render instead of the previous ones.
   const locale = provider.getLocale()
   const direction = provider.getDirection()
-  // `snapshot` is the change key: a new list once per notification, the same
-  // list otherwise, so an effect that depends on `locales` stays stable.
-  const locales = useValueAtKeyChange(provider.getLocales(), [provider, snapshot])
-
-  // One translation function per provider and locale: `t`'s identity follows a
-  // locale switch, so text memoized on it (or a React.memo child that takes `t`
-  // as a prop) refreshes after the switch — `useT()` is the identity-stable form.
-  const t = useValueAtKeyChange<I18nProvider['t']>(
-    (key: string, values?: InterpolationValues, options?: TranslateOptions) =>
-      provider.t(key, values, options),
-    [provider, locale],
-  )
 
   // Memoized action wrappers
   const setLocale = useCallback((code: string) => provider.setLocale(code), [provider])

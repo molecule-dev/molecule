@@ -8,7 +8,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import type { QueryOptions, QueryState } from '@molecule/app-query'
 import { getQueryClient, hashQueryKey } from '@molecule/app-query'
-import { useValueAtKeyChange } from '@molecule/app-react'
+import { useValueAtKeyChange } from '@molecule/app-react/render'
 
 import type { UseQueryResult } from './types.js'
 

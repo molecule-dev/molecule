@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { act, cleanup, render, screen } from '@testing-library/react'
 import type { ReactNode } from 'react'
-import { StrictMode, useEffect, useLayoutEffect, useState } from 'react'
+import { StrictMode, useEffect, useLayoutEffect } from 'react'
 import { afterEach, describe, expect, it } from 'vitest'
 
 import type { I18nProvider, LocaleConfig } from '@molecule/app-i18n'
@@ -268,16 +268,16 @@ describe('translations the rendered text depends on', () => {
       provider.addTranslations('en', { own: 'Own text' })
       return <span data-testid="own">{t('own', 'Pending')}</span>
     }
-    function Host() {
-      const [tick, setTick] = useState(0)
-      useEffect(() => {
-        if (tick === 0) setTick(1)
-      }, [tick])
-      return <SelfRegistering />
-    }
-    render(
+    const view = render(
       <Root provider={provider}>
-        <Host />
+        <SelfRegistering />
+      </Root>,
+    )
+    expect(screen.getByTestId('own').textContent).toBe('Own text')
+    // A second render re-registers the same translations; a notification would loop forever.
+    view.rerender(
+      <Root provider={provider}>
+        <SelfRegistering />
       </Root>,
     )
     expect(screen.getByTestId('own').textContent).toBe('Own text')

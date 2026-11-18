@@ -205,6 +205,15 @@
  * ```
  *
  * @remarks
+ * - React-only render helpers come from `@molecule/app-react/render`, not the root:
+ *   `useEffectEvent(fn)` (a function an effect calls that reads the latest props and
+ *   state without being a dependency), `useStableCallback(fn)` (one identity, the
+ *   latest committed `fn`, for handlers passed down or stored) and
+ *   `useValueAtKeyChange(value, keys)` (the value of the render in which `keys` last
+ *   changed). Call a `useEffectEvent` function only from effects and what they
+ *   schedule, and never call either function while rendering. The root holds what
+ *   every framework binding also exports; these exist only because a React body
+ *   re-runs and a render can be thrown away.
  * - Server-backed switches and counters use `useOptimisticValue`. When one commit saves
  *   several records, call its third argument after each accepted request:
  *   `confirm((current) => ({ ...current, [id]: saved }))`, then return nothing. A later

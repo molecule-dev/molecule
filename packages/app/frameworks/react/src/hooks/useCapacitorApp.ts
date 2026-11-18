@@ -4,7 +4,7 @@
  * @module
  */
 
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import {
   type CapacitorApp,
@@ -42,24 +42,16 @@ export type UseCapacitorAppResult = CapacitorAppState & {
  * ```
  */
 export function useCapacitorApp(options: CapacitorAppOptions = {}): UseCapacitorAppResult {
-  const appRef = useRef<CapacitorApp | null>(null)
+  // The coordinator is created once per mount, from the options of the first render.
+  const [app] = useState<CapacitorApp>(() => createCapacitorApp(options))
 
-  // Lazy-init the app instance so it's only created once
-  if (!appRef.current) {
-    appRef.current = createCapacitorApp(options)
-  }
-
-  const [state, setState] = useState<CapacitorAppState>(() => appRef.current!.getState())
+  const [state, setState] = useState<CapacitorAppState>(() => app.getState())
 
   const initialize = useCallback(async () => {
-    if (appRef.current) {
-      await appRef.current.initialize()
-    }
-  }, [])
+    await app.initialize()
+  }, [app])
 
   useEffect(() => {
-    const app = appRef.current!
-
     // Subscribe to state changes
     const unsubscribe = app.subscribe((newState) => {
       setState(newState)
@@ -74,7 +66,7 @@ export function useCapacitorApp(options: CapacitorAppOptions = {}): UseCapacitor
       unsubscribe()
       app.destroy()
     }
-  }, [])
+  }, [app])
 
   return {
     ...state,

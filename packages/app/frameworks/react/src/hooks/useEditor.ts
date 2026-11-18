@@ -4,7 +4,7 @@
  * @module
  */
 
-import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { useCallback, useContext, useMemo, useRef, useSyncExternalStore } from 'react'
 
 import type {
   DiffFile,
@@ -49,20 +49,51 @@ export function useEditorProvider(): EditorProvider {
  */
 export function useEditor(): UseEditorResult {
   const provider = useEditorProvider()
-  const [tabs, setTabs] = useState<EditorTab[]>(() => provider.getTabs())
-  const activeFile = useMemo(() => tabs.find((tab) => tab.isActive)?.path ?? null, [tabs])
+
+  /**
+   * The provider's tab list as React sees it. It is refreshed on every change
+   * event and after every action below, so `tabs` keeps its identity between
+   * changes even when the provider builds a fresh array per `getTabs()` call.
+   */
+  const tabsRef = useRef<{ provider: EditorProvider; tabs: EditorTab[] } | null>(null)
+  /** React's re-read callback while subscribed; the actions below re-render through it. */
+  const notifyRef = useRef<(() => void) | null>(null)
+
+  const getTabsSnapshot = useCallback((): EditorTab[] => {
+    const cached = tabsRef.current
+    if (cached && cached.provider === provider) return cached.tabs
+    const tabs = provider.getTabs()
+    tabsRef.current = { provider, tabs }
+    return tabs
+  }, [provider])
+
+  const subscribeTabs = useCallback(
+    (onChange: () => void): (() => void) => {
+      // Read once on subscribing too: a change between the first render and this
+      // subscription, or a replaced provider, sends no event this subscription
+      // could see.
+      tabsRef.current = { provider, tabs: provider.getTabs() }
+      notifyRef.current = onChange
+      const unsubscribe = provider.onChange(() => {
+        tabsRef.current = { provider, tabs: provider.getTabs() }
+        onChange()
+      })
+      return () => {
+        notifyRef.current = null
+        unsubscribe()
+      }
+    },
+    [provider],
+  )
 
   // Re-reads the provider's tab list, which also carries the active tab.
-  const syncTabs = useCallback(() => setTabs(provider.getTabs()), [provider])
+  const syncTabs = useCallback((): void => {
+    tabsRef.current = { provider, tabs: provider.getTabs() }
+    notifyRef.current?.()
+  }, [provider])
 
-  // Subscribe to changes to update tabs and active file. Read once on
-  // subscribing too: a change between the first render and this effect, or a
-  // replaced provider, sends no event this subscription could see.
-  useEffect(() => {
-    const unsubscribe = provider.onChange(syncTabs)
-    syncTabs()
-    return unsubscribe
-  }, [provider, syncTabs])
+  const tabs = useSyncExternalStore(subscribeTabs, getTabsSnapshot, getTabsSnapshot)
+  const activeFile = useMemo(() => tabs.find((tab) => tab.isActive)?.path ?? null, [tabs])
 
   const openFile = useCallback(
     (file: EditorFile) => {
@@ -96,7 +127,7 @@ export function useEditor(): UseEditorResult {
   )
 
   const mount = useCallback(
-    (...args: Parameters<typeof provider.mount>) => provider.mount(...args),
+    (...args: Parameters<EditorProvider['mount']>) => provider.mount(...args),
     [provider],
   )
 

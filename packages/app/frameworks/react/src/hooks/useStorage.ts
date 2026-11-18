@@ -4,12 +4,14 @@
  * @module
  */
 
-import { useCallback, useContext, useEffect, useRef, useState } from 'react'
+import { useCallback, useContext, useEffect, useInsertionEffect, useRef, useState } from 'react'
 
 import { t } from '@molecule/app-i18n'
 import { getPreferenceStore, type StorageProvider } from '@molecule/app-storage'
 
 import { StorageContext } from '../contexts.js'
+import { useEffectEvent } from '../render/useEffectEvent.js'
+import { useStableCallback } from '../render/useStableCallback.js'
 
 /**
  * Hook to access the storage provider from context.
@@ -93,12 +95,12 @@ export function useStorageValue<T>(
    */
   const writeVersion = useRef(0)
   /**
-   * The latest `defaultValue`, kept out of effect dependencies: an object
-   * written inline (`{ defaultValue: { size: 1 } }`) is a new object on every
-   * render and would otherwise re-read storage on every render.
+   * The latest `defaultValue`, read from the effect and its subscription and
+   * kept out of their dependencies: an object written inline
+   * (`{ defaultValue: { size: 1 } }`) is a new object on every render and would
+   * otherwise re-read storage on every render.
    */
-  const defaultRef = useRef(defaultValue)
-  defaultRef.current = defaultValue
+  const readDefault = useEffectEvent(() => defaultValue)
   /** The key `value` belongs to. */
   const [valueKey, setValueKey] = useState(key)
   if (valueKey !== key) {
@@ -119,7 +121,7 @@ export function useStorageValue<T>(
         const stored = await storage.get<T>(key)
         if (!mounted) return
         // A write made after this read started holds the newer value; the read still ends loading.
-        if (writeVersion.current === version) setValueState(stored ?? defaultRef.current)
+        if (writeVersion.current === version) setValueState(stored ?? readDefault())
         setLoading(false)
       } catch (err) {
         if (!mounted) return
@@ -145,7 +147,7 @@ export function useStorageValue<T>(
 
     return storage.subscribe(key, (next) => {
       writeVersion.current += 1
-      setValueState(next === null ? defaultRef.current : (next as T))
+      setValueState(next === null ? readDefault() : (next as T))
     })
   }, [key, sync, storage])
 
@@ -164,17 +166,17 @@ export function useStorageValue<T>(
     [key, storage],
   )
 
-  const removeValue = useCallback(async () => {
+  const removeValue = useStableCallback(async () => {
     writeVersion.current += 1
     try {
       await storage.remove(key)
-      setValueState(defaultRef.current)
+      setValueState(defaultValue)
       setError(null)
     } catch (err) {
       setError(err instanceof Error ? err : new Error(String(err)))
       throw err
     }
-  }, [key, storage])
+  })
 
   return {
     value,
@@ -249,45 +251,68 @@ export function useStoragePreference<T = unknown>(
   options?: UseStoragePreferenceOptions<T>,
 ): UseStoragePreferenceResult<T> {
   const store = getPreferenceStore()
-  const defaultValueRef = useRef<T | undefined>(options?.defaultValue)
-  defaultValueRef.current = options?.defaultValue
+  const defaultValue = options?.defaultValue
 
-  const read = useCallback((): T | undefined => {
-    if (!key) return defaultValueRef.current
-    const stored = store.get<T>(key)
-    return stored === null ? defaultValueRef.current : stored
-  }, [store, key])
+  /**
+   * The latest `defaultValue`, read from the effect and its subscription and
+   * kept out of their dependencies: an object written inline is a new object on
+   * every render and would otherwise resubscribe on every render.
+   */
+  const readDefault = useEffectEvent(() => defaultValue)
 
-  const [value, setValueState] = useState<T | undefined>(read)
-  const [ready, setReady] = useState<boolean>(!key)
+  /** Reads a key from the store; `undefined` means the store has nothing for it. */
+  const readStored = useCallback(
+    (forKey: string | null | undefined): T | undefined => {
+      if (!forKey) return undefined
+      const stored = store.get<T>(forKey)
+      return stored === null ? undefined : stored
+    },
+    [store],
+  )
+
+  const [value, setValueState] = useState<T | undefined>(() =>
+    key ? (readStored(key) ?? defaultValue) : defaultValue,
+  )
+  /**
+   * The key whose hydration has landed. `ready` is false for any other key, so
+   * a key change is unready from its first render instead of one render later.
+   */
+  const [readyKey, setReadyKey] = useState<string | null>(null)
+  const [trackedKey, setTrackedKey] = useState(key)
+  if (trackedKey !== key) {
+    // A new key's value comes from the store during render, so the first render
+    // showing that key already renders it instead of the previous key's value.
+    setTrackedKey(key)
+    setValueState(key ? (readStored(key) ?? defaultValue) : defaultValue)
+  }
+  const ready = !key || readyKey === key
+
+  /** The value the actions below compute from, before React has re-rendered. */
   const valueRef = useRef<T | undefined>(value)
-  valueRef.current = value
+  // Written at commit, so a render React throws away leaves no trace.
+  useInsertionEffect(() => {
+    valueRef.current = value
+  })
 
   useEffect(() => {
-    if (!key) {
-      setReady(true)
-      setValueState(defaultValueRef.current)
-      return
-    }
+    if (!key) return
     let cancelled = false
     const sync = (): void => {
-      if (!cancelled) setValueState(read())
+      if (cancelled) return
+      const stored = store.get<T>(key)
+      setValueState(stored === null ? readDefault() : stored)
     }
-    // Seed from whatever the store already knows, then let hydration converge
-    // it. With a synchronous provider this is a no-op change.
-    sync()
-    setReady(false)
     const stop = store.subscribe(key, sync)
     void store.hydrate([key]).then(() => {
       if (cancelled) return
       sync()
-      setReady(true)
+      setReadyKey(key)
     })
     return () => {
       cancelled = true
       stop()
     }
-  }, [store, key, read])
+  }, [store, key])
 
   const setValue = useCallback(
     (next: T | ((previous: T | undefined) => T)): void => {
@@ -302,11 +327,11 @@ export function useStoragePreference<T = unknown>(
     [store, key],
   )
 
-  const removeValue = useCallback((): void => {
-    valueRef.current = defaultValueRef.current
-    setValueState(defaultValueRef.current)
+  const removeValue = useStableCallback((): void => {
+    valueRef.current = defaultValue
+    setValueState(defaultValue)
     if (key) store.remove(key)
-  }, [store, key])
+  })
 
   return { value, setValue, removeValue, ready }
 }

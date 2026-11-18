@@ -17,7 +17,7 @@
  */
 import { act, cleanup, render, screen } from '@testing-library/react'
 import type { ReactNode } from 'react'
-import { Activity, memo, StrictMode, useEffect, useLayoutEffect, useState } from 'react'
+import { Activity, memo, StrictMode, useEffect, useLayoutEffect } from 'react'
 import { afterEach, describe, expect, it } from 'vitest'
 
 import type { I18nProvider, LocaleConfig } from '@molecule/app-i18n'
@@ -320,27 +320,29 @@ describe('ordinary effects and notifications stay green', () => {
 
   it('useT: an unchanged re-registration while rendering does not loop', () => {
     const provider = createSimpleI18nProvider('en', LOCALES)
-    let renders = 0
+    let commits = 0
     function SelfRegistering() {
       const t = useT()
-      renders += 1
+      useEffect(() => {
+        commits += 1
+      })
       provider.addTranslations('en', { own: 'Own text' })
       return <span data-testid="own">{t('own', 'Pending')}</span>
     }
-    function Host() {
-      const [tick, setTick] = useState(0)
-      useEffect(() => {
-        if (tick === 0) setTick(1)
-      }, [tick])
-      return <SelfRegistering />
-    }
-    render(
+    const view = render(
       <Root provider={provider}>
-        <Host />
+        <SelfRegistering />
       </Root>,
     )
     expect(screen.getByTestId('own').textContent).toBe('Own text')
-    expect(renders).toBeLessThanOrEqual(3)
+    // A second render re-registers the same translations; a notification would loop forever.
+    view.rerender(
+      <Root provider={provider}>
+        <SelfRegistering />
+      </Root>,
+    )
+    expect(screen.getByTestId('own').textContent).toBe('Own text')
+    expect(commits).toBeLessThanOrEqual(3)
   })
 })
 

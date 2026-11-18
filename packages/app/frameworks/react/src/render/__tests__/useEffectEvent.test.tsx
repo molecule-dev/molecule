@@ -4,7 +4,7 @@ import * as React from 'react'
 import { type ReactElement, startTransition, Suspense, use, useEffect, useState } from 'react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { useEffectEvent } from '../useEffectEvent.js'
+import { useEffectEvent as moleculeUseEffectEvent } from '../useEffectEvent.js'
 import { useStableCallback } from '../useStableCallback.js'
 
 afterEach(() => {
@@ -24,7 +24,7 @@ function Blocker({ k }: { k: string }): null {
 describe('useEffectEvent', () => {
   it("is React's own useEffectEvent where React has one", () => {
     expect('useEffectEvent' in React).toBe(true)
-    expect(useEffectEvent).toBe(React.useEffectEvent)
+    expect(moleculeUseEffectEvent).toBe(React.useEffectEvent)
   })
 
   it('is useStableCallback on a React without useEffectEvent', async () => {
@@ -40,17 +40,18 @@ describe('useEffectEvent', () => {
 })
 
 // One contract, run against React's hook (19.2+) and the stand-in used on React 18 to 19.1, so
-// the older path is exercised although only one React is installed.
+// the older path is exercised although only one React is installed. The parameter carries the
+// hook's own name, which is how the lint plugin knows its result is an Effect Event.
 describe.each([
   ['React.useEffectEvent', React.useEffectEvent],
   ['useStableCallback', useStableCallback],
-] as const)('the Effect Event contract: %s', (_name, useEvent: typeof useStableCallback) => {
+] as const)('the Effect Event contract: %s', (_name, useEffectEvent: typeof useStableCallback) => {
   it('reads the latest committed props from an effect that does not re-run', () => {
     const probe: { fire?: () => void; effects: number } = { effects: 0 }
     const seen = vi.fn<(value: number) => void>()
 
     function Ticker({ value }: { value: number }): ReactElement | null {
-      const onTick = useEvent(() => seen(value))
+      const onTick = useEffectEvent(() => seen(value))
       useEffect(() => {
         probe.effects += 1
         probe.fire = () => onTick()
@@ -72,7 +73,7 @@ describe.each([
 
     function Reader({ k, onRender }: { k: string; onRender: (k: string) => void }): null {
       onRender(k)
-      const read = useEvent(() => k)
+      const read = useEffectEvent(() => k)
       useEffect(() => {
         probe.fire = () => read()
       }, [])
