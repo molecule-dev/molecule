@@ -14,7 +14,7 @@ import { getClassMap } from '@molecule/app-ui'
 import { Alert, Button, Flex, Input, Modal } from '@molecule/app-ui-angular'
 
 /** The two-factor enrollment data `POST /users/:id/verify-two-factor` returns. */
-interface TwoFactorSetup {
+export interface TwoFactorSetup {
   QRImageUrl?: string
   keyUrl?: string
   secret?: string

@@ -17,7 +17,7 @@ import { Alert, Button, Flex, Input, Modal } from '@molecule/app-ui-vue'
 import { useAuth, useChangePassword, useHttpClient, useTranslation } from '@molecule/app-vue'
 
 /** The enrollment payload `POST /users/:id/verify-two-factor` answers with. */
-interface TwoFactorSetup {
+export interface TwoFactorSetup {
   QRImageUrl?: string
   keyUrl?: string
   secret?: string

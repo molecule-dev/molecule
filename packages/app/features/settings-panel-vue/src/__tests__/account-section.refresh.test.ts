@@ -13,13 +13,13 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createApp, defineComponent, h, nextTick } from 'vue'
 
 import { type AuthClient, createJWTAuthClient, type UserProfile } from '@molecule/app-auth'
-import type { HttpClient } from '@molecule/app-http'
 import { createSimpleI18nProvider, setProvider as setI18nProvider } from '@molecule/app-i18n'
 import { createAuthPlugin, createHttpPlugin } from '@molecule/app-vue'
 
 import { AccountSection } from '../AccountSection.js'
+import { fakeHttpClient } from './http-client.js'
 
-const http = { get: vi.fn(), patch: vi.fn() }
+const { client: httpClient, ...http } = fakeHttpClient()
 
 const first = { id: 'account-a', name: 'Alice', email: 'alice@example.test' }
 const cleanups: (() => void)[] = []
@@ -71,7 +71,7 @@ async function renderAccountSection(client: AuthClient<UserProfile>): Promise<vo
   document.body.appendChild(host)
   const app = createApp(defineComponent({ render: () => h(AccountSection) }))
   app.use(createAuthPlugin(client))
-  app.use(createHttpPlugin(http as unknown as HttpClient))
+  app.use(createHttpPlugin(httpClient))
   mounted.app = app
   app.mount(host)
   await flush()

@@ -14,14 +14,14 @@ import { Alert, Button, ConfirmButton, Flex, Modal } from '@molecule/app-ui-angu
 import { openUrl } from '@molecule/app-utilities'
 
 /** One tier price as the section renders it (React's local `TierPrice`). */
-interface TierPrice {
+export interface TierPrice {
   stripePriceId?: string
   interval: string
   priceLabel: string
 }
 
 /** One upgrade tier with its subscribe-able prices (React's local `Tier`). */
-interface Tier {
+export interface Tier {
   planKey: string
   name: string
   prices: TierPrice[]

@@ -9,7 +9,19 @@ import { Component, DestroyRef, ElementRef, inject } from '@angular/core'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
-import { provideSettingsPanelContext } from './context.js'
+import { provideSettingsPanelContext } from './container-context.js'
+
+/** Props for `SettingsContainer` — the same props React's `SettingsContainer` accepts. */
+export interface SettingsContainerProps {
+  /** Dismiss-the-panel handler, published to every section through context. */
+  onClose?: () => void
+  /**
+   * The section sub-components to host. They are projected content in Angular
+   * (an input cannot carry a node), so this is typed `unknown`: pass them in
+   * the host template, not as a value.
+   */
+  children?: unknown
+}
 
 /**
  * SettingsContainer component.

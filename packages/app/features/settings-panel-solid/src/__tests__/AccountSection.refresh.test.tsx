@@ -62,7 +62,7 @@ function mount(client: AuthClient<UserProfile>): void {
   const dispose = render(
     () =>
       (
-        <MoleculeProvider config={{ auth: client as AuthClient<Record<string, unknown>> }}>
+        <MoleculeProvider config={{ auth: client }}>
           <AccountSection />
         </MoleculeProvider>
       ) as JSX.Element,

@@ -12,13 +12,12 @@ import { flushSync, mount, unmount } from 'svelte'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { createJWTAuthClient, type UserProfile } from '@molecule/app-auth'
-import type { HttpClient } from '@molecule/app-http'
 import { createSimpleI18nProvider, setProvider as setI18nProvider } from '@molecule/app-i18n'
 
+import { fakeHttpClient } from './http-client.js'
 import TestHost from './TestHost.svelte'
 
-const httpMock = { get: vi.fn(), patch: vi.fn() }
-const http = httpMock as unknown as HttpClient
+const { client: http, ...httpMock } = fakeHttpClient()
 
 const first = { id: 'account-a', name: 'Alice', email: 'alice@example.test' }
 const cleanups: (() => void)[] = []

@@ -11,13 +11,14 @@
 
 import '@angular/compiler'
 import {
+  type ApplicationRef,
   type ComponentRef,
   createComponent,
   type EventEmitter,
   provideZonelessChangeDetection,
   type Type,
 } from '@angular/core'
-import { type ApplicationRef, createApplication } from '@angular/platform-browser'
+import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Proxy ClassMap echoing each accessed member back as its token (members the

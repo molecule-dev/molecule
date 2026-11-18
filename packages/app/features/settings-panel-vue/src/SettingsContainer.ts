@@ -15,6 +15,14 @@ import { getClassMap } from '@molecule/app-ui'
 
 import { SettingsPanelContext } from './context.js'
 
+/** Props for the `SettingsContainer` component. */
+export interface SettingsContainerProps {
+  /** Dismiss-the-panel handler, published to every section through context. */
+  onClose: () => void
+  /** The section sub-components to host (the default slot content). */
+  children?: VNodeChild
+}
+
 /**
  * Outer settings-panel layout: padded vertical stack that hosts the
  * section sub-components. Publishes `onClose` to descendants via

@@ -14,6 +14,16 @@ import { Button, Flex, Icon, Spinner } from '@molecule/app-ui-angular'
 
 import type { Device } from './types.js'
 
+/** Props for `DevicesSection` — the same props React's `DevicesSection` accepts. */
+export interface DevicesSectionProps {
+  /**
+   * Custom trailing element per device row, replacing the built-in revoke
+   * control. It is a template in Angular (its context carries the device as
+   * `$implicit`); pass an empty template to suppress the control entirely.
+   */
+  renderRowIcon?: TemplateRef<unknown> | null
+}
+
 /**
  * DevicesSection component.
  *

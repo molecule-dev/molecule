@@ -11,6 +11,14 @@ import { getClassMap } from '@molecule/app-ui'
 import { SettingsPanelContext } from './context.js'
 import type { SettingsPanelContextValue } from './types.js'
 
+/** Props for {@link SettingsContainer}. */
+export interface SettingsContainerProps {
+  /** Dismiss-the-panel handler, published to every section through context. */
+  onClose: () => void
+  /** The section sub-components to host. */
+  children?: JSX.Element
+}
+
 /**
  * Outer settings-panel layout: padded vertical stack that hosts the
  * section sub-components. Publishes `onClose` to descendants via
@@ -20,12 +28,7 @@ import type { SettingsPanelContextValue } from './types.js'
  * @param props - The component props.
  * @returns The settings panel container.
  */
-export function SettingsContainer(props: {
-  /** The handler published to descendants through the container context. */
-  onClose: () => void
-  /** The section sub-components the panel hosts. */
-  children?: JSX.Element
-}): JSX.Element {
+export function SettingsContainer(props: SettingsContainerProps): JSX.Element {
   const cm = getClassMap()
   // Read the CURRENT prop, so a changed handler reaches descendants the way
   // React's memoized context value does after a re-render.

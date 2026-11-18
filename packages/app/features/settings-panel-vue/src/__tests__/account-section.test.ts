@@ -13,14 +13,19 @@ import '@molecule/app-framework-conformance/ui/setup'
 import { afterEach, beforeEach, describe, expect, it, type MockInstance, vi } from 'vitest'
 import { createApp, defineComponent, h, nextTick, ref } from 'vue'
 
-import { type AuthClient, createJWTAuthClient, type UserProfile } from '@molecule/app-auth'
-import type { HttpClient } from '@molecule/app-http'
+import {
+  type AuthClient,
+  type AuthProfileConstraint,
+  createJWTAuthClient,
+  type UserProfile,
+} from '@molecule/app-auth'
 import { createSimpleI18nProvider, setProvider as setI18nProvider } from '@molecule/app-i18n'
 import { createAuthPlugin, createHttpPlugin, useProfileForm } from '@molecule/app-vue'
 
 import { AccountSection } from '../AccountSection.js'
+import { fakeHttpClient } from './http-client.js'
 
-const http = { get: vi.fn(), patch: vi.fn() }
+const { client: httpClient, ...http } = fakeHttpClient()
 
 interface StorageAdapterLike {
   getItem(key: string): string | null
@@ -41,7 +46,7 @@ const storage = (): StorageAdapterLike => {
 }
 
 const token = [btoa('{}'), btoa(JSON.stringify({ exp: 9999999999 })), 'signature'].join('.')
-function clientFor<T extends object>(user: T): AuthClient<T> {
+function clientFor<T extends AuthProfileConstraint<T>>(user: T): AuthClient<T> {
   const client = createJWTAuthClient<T>({
     storage: storage(),
     profileEndpoint: '/configured-profile',
@@ -64,12 +69,15 @@ const control = (label: string): HTMLInputElement => {
     (l) => l.textContent?.trim() === label,
   )
   const id = labelEl?.getAttribute('for') ?? ''
-  return (
-    document.getElementById(id) ??
-    (Array.from(document.querySelectorAll('button')).find(
-      (b) => b.textContent?.trim() === label,
-    ) as HTMLInputElement)
+  return document.getElementById(id) as HTMLInputElement
+}
+/** Finds a form button by its visible text; the submit controls are not inputs. */
+const controlButton = (label: string): HTMLButtonElement => {
+  const button = Array.from(document.querySelectorAll('button')).find(
+    (b) => b.textContent?.trim() === label,
   )
+  if (!button) throw new Error(`no button "${label}"`)
+  return button
 }
 const first = { id: 'account-a', name: 'Alice', email: 'alice@example.test' }
 const second = { id: 'account-b', name: 'Bob', email: 'bob@example.test' }
@@ -86,7 +94,7 @@ async function render(component: ReturnType<typeof defineComponent>): Promise<vo
   document.body.appendChild(host)
   const app = createApp(component)
   app.use(createAuthPlugin(sectionClient ?? (clientFor(first) as AuthClient<object>)))
-  app.use(createHttpPlugin(http as unknown as HttpClient))
+  app.use(createHttpPlugin(httpClient))
   mounted.app = app
   app.mount(host)
   await flush()
@@ -289,7 +297,7 @@ describe('representative non-X1 custom aliases and custom-form counterexample', 
     await render(defineComponent({ render: () => h(ContactForm, { client }) }))
     typeLikeUser(control('Display name'), '')
     typeLikeUser(control('Avatar URL'), '')
-    control('Save contact').click()
+    controlButton('Save contact').click()
     await waitFor(() => expect(update).toHaveBeenCalledWith({ displayName: null, avatarUrl: null }))
     await flush()
     client.setSession({
@@ -344,7 +352,7 @@ describe('representative non-X1 custom aliases and custom-form counterexample', 
     await render(NewsletterForm)
     control('Weekly digest').click()
     await flush()
-    control('Save newsletter').click()
+    controlButton('Save newsletter').click()
     await flush()
     expect(document.querySelector('[aria-label="Newsletter state"]')?.textContent).toBe('true')
     expect(update).not.toHaveBeenCalled()

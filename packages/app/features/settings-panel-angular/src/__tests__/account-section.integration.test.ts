@@ -16,6 +16,7 @@
 
 import '@angular/compiler'
 import {
+  type ApplicationRef,
   ChangeDetectionStrategy,
   Component,
   type ComponentRef,
@@ -26,7 +27,7 @@ import {
   signal,
   type Type,
 } from '@angular/core'
-import { type ApplicationRef, createApplication } from '@angular/platform-browser'
+import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Proxy ClassMap echoing each accessed member back as its token (e.g.
@@ -182,7 +183,7 @@ vi.mock('@molecule/app-angular', async (importOriginal) => {
 })
 
 import { provideAuth, useAuth, useProfileForm } from '@molecule/app-angular'
-import type { AuthClient, UserProfile } from '@molecule/app-auth'
+import type { AuthClient, AuthProfileConstraint, UserProfile } from '@molecule/app-auth'
 import { createJWTAuthClient } from '@molecule/app-auth'
 import { createSimpleI18nProvider, setProvider as setI18nProvider } from '@molecule/app-i18n'
 
@@ -201,7 +202,7 @@ function storage() {
     },
   }
 }
-function clientFor<T extends object>(user: T): AuthClient<T> {
+function clientFor<T extends AuthProfileConstraint<T>>(user: T): AuthClient<T> {
   const client = createJWTAuthClient<T>({
     storage: storage(),
     profileEndpoint: '/configured-profile',

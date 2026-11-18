@@ -5,7 +5,8 @@ import { useAuthClient, useProfileForm, useTranslation } from '@molecule/app-rea
 import { getClassMap } from '@molecule/app-ui'
 import { Flex, Input, Spinner } from '@molecule/app-ui-react'
 
-type AccountValues = {
+/** The profile values `AccountSection` edits (its controlled form fields). */
+export type AccountValues = {
   name: string
   email: string
 }

@@ -14,13 +14,15 @@ import { openUrl } from '@molecule/app-utilities'
 
 import type { TiersUpgradeSectionProps } from './types.js'
 
-interface TierPrice {
+/** One price of a billing tier, mapped from `/api/billing/tiers`. */
+export interface TierPrice {
   stripePriceId?: string
   interval: string
   priceLabel: string
 }
 
-interface Tier {
+/** One paid tier, mapped from `/api/billing/tiers`. */
+export interface Tier {
   planKey: string
   name: string
   prices: TierPrice[]

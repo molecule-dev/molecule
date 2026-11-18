@@ -15,6 +15,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import {
   type AuthClient,
+  type AuthProfileConstraint,
   createJWTAuthClient,
   type StorageAdapter,
   type UserProfile,
@@ -49,7 +50,7 @@ function storage(): StorageAdapter {
     },
   }
 }
-function clientFor<T extends object>(user: T): AuthClient<T> {
+function clientFor<T extends AuthProfileConstraint<T>>(user: T): AuthClient<T> {
   const client = createJWTAuthClient<T>({
     storage: storage(),
     profileEndpoint: '/configured-profile',

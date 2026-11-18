@@ -7,7 +7,8 @@ import { useAuth, useChangePassword, useHttpClient, useTranslation } from '@mole
 import { getClassMap } from '@molecule/app-ui'
 import { Alert, Button, Flex, Input, Modal } from '@molecule/app-ui-react'
 
-interface TwoFactorSetup {
+/** The two-factor enrollment payload `POST /users/:id/verify-two-factor` answers with. */
+export interface TwoFactorSetup {
   QRImageUrl?: string
   keyUrl?: string
   secret?: string

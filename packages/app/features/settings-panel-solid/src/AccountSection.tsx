@@ -11,7 +11,8 @@ import { useAuthClient, useProfileForm, useTranslation } from '@molecule/app-sol
 import { getClassMap } from '@molecule/app-ui'
 import { Flex, Input, Spinner } from '@molecule/app-ui-solid'
 
-interface AccountValues {
+/** The profile values `AccountSection` edits (its controlled form fields). */
+export interface AccountValues {
   name: string
   email: string
 }

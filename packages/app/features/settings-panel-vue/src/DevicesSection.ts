@@ -15,6 +15,15 @@ import { useHttpClient, useTranslation } from '@molecule/app-vue'
 
 import type { Device } from './types.js'
 
+/** Props for the `DevicesSection` component. */
+export interface DevicesSectionProps {
+  /**
+   * Custom trailing element per device row, replacing the built-in revoke
+   * control. Render nothing to suppress the control entirely.
+   */
+  renderRowIcon?: (device: Device) => VNodeChild
+}
+
 /**
  * Devices section — lists the user's registered devices and lets them
  * revoke (sign out) any device other than the one they're currently using.

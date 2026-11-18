@@ -14,6 +14,15 @@ export interface Device {
   isCurrent?: boolean
 }
 
+/** Props for {@link DevicesSection}. */
+export interface DevicesSectionProps {
+  /**
+   * Custom trailing element per device row, replacing the built-in revoke
+   * control. Render nothing to suppress the control entirely.
+   */
+  renderRowIcon?: (device: Device) => ReactNode
+}
+
 /**
  * Devices section — lists the user's registered devices and lets them
  * revoke (sign out) any device other than the one they're currently using.
@@ -30,11 +39,7 @@ export interface Device {
  * `renderRowIcon` callback (which then replaces the built-in revoke
  * control); pass `() => null` to suppress it entirely.
  */
-export function DevicesSection({
-  renderRowIcon,
-}: {
-  renderRowIcon?: (device: Device) => ReactNode
-} = {}): JSX.Element {
+export function DevicesSection({ renderRowIcon }: DevicesSectionProps = {}): JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
   const http = useHttpClient()

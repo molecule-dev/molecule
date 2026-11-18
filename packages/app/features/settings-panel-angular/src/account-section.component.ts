@@ -21,7 +21,7 @@ import { getClassMap } from '@molecule/app-ui'
 import { Flex, Input, Spinner } from '@molecule/app-ui-angular'
 
 /** The controlled values the account form edits (React's local `AccountValues`). */
-interface AccountValues {
+export interface AccountValues {
   name: string
   email: string
 }

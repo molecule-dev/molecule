@@ -27,14 +27,14 @@ import { useHttpClient, useTranslation } from '@molecule/app-vue'
 import type { TiersUpgradeSectionProps } from './types.js'
 
 /** One price line of a tier, as the section renders it. */
-interface TierPrice {
+export interface TierPrice {
   stripePriceId?: string
   interval: string
   priceLabel: string
 }
 
 /** One upgrade tier with its prices. */
-interface Tier {
+export interface Tier {
   planKey: string
   name: string
   prices: TierPrice[]

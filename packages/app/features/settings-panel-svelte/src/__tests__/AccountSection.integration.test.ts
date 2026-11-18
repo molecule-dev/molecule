@@ -14,19 +14,19 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import {
   type AuthClient,
+  type AuthProfileConstraint,
   createJWTAuthClient,
   type StorageAdapter,
   type UserProfile,
 } from '@molecule/app-auth'
-import type { HttpClient } from '@molecule/app-http'
 import { createSimpleI18nProvider, setProvider as setI18nProvider } from '@molecule/app-i18n'
 
 import type { HandleUser } from './account-types.js'
 import ContactHost from './ContactHost.svelte'
+import { fakeHttpClient } from './http-client.js'
 import TestHost from './TestHost.svelte'
 
-const httpMock = { get: vi.fn(), patch: vi.fn() }
-const http = httpMock as unknown as HttpClient
+const { client: http, ...httpMock } = fakeHttpClient()
 
 const token = [btoa('{}'), btoa(JSON.stringify({ exp: 9999999999 })), 'signature'].join('.')
 function storage(): StorageAdapter {
@@ -41,7 +41,7 @@ function storage(): StorageAdapter {
     },
   }
 }
-function clientFor<T extends object>(user: T): AuthClient<T> {
+function clientFor<T extends AuthProfileConstraint<T>>(user: T): AuthClient<T> {
   const client = createJWTAuthClient<T>({
     storage: storage(),
     profileEndpoint: '/configured-profile',

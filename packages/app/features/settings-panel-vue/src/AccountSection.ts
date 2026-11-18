@@ -16,7 +16,7 @@ import { Flex, Input, Spinner } from '@molecule/app-ui-vue'
 import { useAuthClient, useProfileForm, useTranslation } from '@molecule/app-vue'
 
 /** The account section's controlled values. */
-interface AccountValues {
+export interface AccountValues {
   name: string
   email: string
 }

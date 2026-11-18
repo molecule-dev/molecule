@@ -12,6 +12,15 @@ import { Button, Flex, Icon, Spinner } from '@molecule/app-ui-solid'
 
 import type { Device } from './types.js'
 
+/** Props for {@link DevicesSection}. */
+export interface DevicesSectionProps {
+  /**
+   * Custom trailing element per device row, replacing the built-in revoke
+   * control. Render nothing to suppress the control entirely.
+   */
+  renderRowIcon?: (device: Device) => JSX.Element
+}
+
 /**
  * Devices section — lists the user's registered devices and lets them
  * revoke (sign out) any device other than the one they're currently using.
@@ -31,10 +40,7 @@ import type { Device } from './types.js'
  * @param props - Component props.
  * @returns The devices settings section.
  */
-export function DevicesSection(props: {
-  /** Replaces the built-in revoke control per row; `() => null` suppresses it. */
-  renderRowIcon?: (device: Device) => JSX.Element
-}): JSX.Element {
+export function DevicesSection(props: DevicesSectionProps): JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
   const http = useHttpClient()
