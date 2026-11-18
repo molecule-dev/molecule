@@ -30,6 +30,7 @@
 import { execFileSync } from 'node:child_process'
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
+import { text } from 'node:stream/consumers'
 import { fileURLToPath } from 'node:url'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
@@ -112,7 +113,7 @@ if (providedChanges) {
 let changed
 try {
   changed = providedChanges
-    ? JSON.parse(readFileSync(0, 'utf8'))
+    ? JSON.parse(await text(process.stdin))
     : git('diff', '--name-only', base, 'HEAD').split('\n').filter(Boolean)
   if (!Array.isArray(changed) || changed.some((file) => typeof file !== 'string'))
     full('invalid changed-file inventory')

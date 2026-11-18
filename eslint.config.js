@@ -500,6 +500,18 @@ export default tseslint.config(
     },
     rules: {
       '@typescript-eslint/explicit-function-return-type': 'off',
+      // `import process from 'node:process'` evaluates every property of process, `process.stdin`
+      // included, which opens a piped stdin non-blocking; a synchronous read of it then throws EAGAIN
+      // when the writer pauses (2026-11-18: the pre-commit's check-peer-floors, given 1,039 paths).
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector:
+            "CallExpression[callee.name='readFileSync'][arguments.0.value=0], CallExpression[callee.property.name='readFileSync'][arguments.0.value=0], CallExpression[callee.name='readFileSync'][arguments.0.value='/dev/stdin'], CallExpression[callee.property.name='readFileSync'][arguments.0.value='/dev/stdin']",
+          message:
+            "Read stdin as a stream: `await text(process.stdin)` from 'node:stream/consumers'. A synchronous read of a piped stdin throws EAGAIN once anything has touched process.stdin.",
+        },
+      ],
     },
   },
   {
