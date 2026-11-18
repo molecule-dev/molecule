@@ -12,7 +12,7 @@
  * @module
  */
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import type { AppModelDefinition, AppModeModelDefaults } from '@molecule/app-ai-models'
 import { loadAIModelCatalog, pickFreeTierModel } from '@molecule/app-ai-models'
@@ -53,6 +53,13 @@ interface CatalogSnapshot {
 }
 
 type Listener = (state: CatalogSnapshot) => void
+/**
+ * The list a hook returns while the catalog loads or after it fails. One module-level array, like the catalog's
+ * own lists, which every hook on a scope shares: a new `[]` per render would change the identity of an unchanged
+ * catalog, and a `useMemo` is a cache React may drop.
+ */
+const NO_MODELS: AppModelDefinition[] = []
+
 /** Listeners keyed by the same scope as the cache they observe. */
 const listenersByScope = new Map<string, Set<Listener>>()
 
@@ -200,9 +207,7 @@ export function useAIModels(projectId?: string): UseAIModelsResult {
     }
   }, [http, scope])
 
-  // One empty list per hook: a new `[]` on every render would change the identity of an unchanged catalog.
-  const none = useMemo<AppModelDefinition[]>(() => [], [])
-  const models = snapshot.models ?? none
+  const models = snapshot.models ?? NO_MODELS
   return {
     models,
     defaults: snapshot.defaults,

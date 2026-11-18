@@ -101,6 +101,16 @@ describe('useAIModels', () => {
     expect(result.current.models).toEqual([])
   })
 
+  it('gives two callers on one scope the same empty models list while the catalog loads', async () => {
+    const { client } = makeClient([fixtureModel()])
+    const { result } = renderHook(() => ({ first: useAIModels(), second: useAIModels() }), {
+      wrapper: wrapperFor(client),
+    })
+    expect(result.current.first.loading).toBe(true)
+    expect(result.current.second.models).toBe(result.current.first.models)
+    await waitFor(() => expect(result.current.first.loading).toBe(false))
+  })
+
   it('resolves with the fetched models', async () => {
     const models = [fixtureModel({ id: 'a' }), fixtureModel({ id: 'b', freeTier: true })]
     const { client } = makeClient(models)

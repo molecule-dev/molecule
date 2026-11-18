@@ -23,6 +23,13 @@ import { useHttpClient } from '../context.js'
 import { fieldStore } from './live-store.js'
 import { type MaybeReadable, toReadable } from './maybe-readable.js'
 
+/**
+ * The list returned while the catalog loads or after it fails. One module-level array, like the catalog's
+ * own lists, which every caller on a scope shares: a new `[]` per read would change the identity of an
+ * unchanged catalog.
+ */
+const NO_MODELS: AppModelDefinition[] = []
+
 interface CacheState {
   models: AppModelDefinition[] | null
   defaults: AppModeModelDefaults | undefined
@@ -231,13 +238,11 @@ export function useAIModels(projectId?: MaybeReadable<string | undefined>): UseA
   })
   onDestroy(stopProjectId)
 
-  // One empty list per instance: a new `[]` on every read would change the identity of an unchanged catalog.
-  const none: AppModelDefinition[] = []
   const loading = derived(snapshot, (current) => !current.models && !current.error)
   return {
-    models: derived(snapshot, (current) => current.models ?? none),
+    models: derived(snapshot, (current) => current.models ?? NO_MODELS),
     defaults: fieldStore(snapshot, 'defaults'),
-    freeTierModel: derived(snapshot, (current) => pickFreeTierModel(current.models ?? none)),
+    freeTierModel: derived(snapshot, (current) => pickFreeTierModel(current.models ?? NO_MODELS)),
     loading,
     error: fieldStore(snapshot, 'error'),
   }

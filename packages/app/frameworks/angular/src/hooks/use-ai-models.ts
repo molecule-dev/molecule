@@ -18,6 +18,13 @@ import type { HttpClient } from '@molecule/app-http'
 import { type MaybeSignal, readMaybeSignal } from '../maybe-signal.js'
 import { useHttpClient } from './use-http.js'
 
+/**
+ * The list returned while the catalog loads or after it fails. One module-level array, like the catalog's
+ * own lists, which every caller on a scope shares: a new `[]` per read would change the identity of an
+ * unchanged catalog.
+ */
+const NO_MODELS: AppModelDefinition[] = []
+
 interface CacheState {
   models: AppModelDefinition[] | null
   defaults: AppModeModelDefaults | undefined
@@ -217,9 +224,7 @@ export function useAIModels(projectId?: MaybeSignal<string | undefined>): UseAIM
     listenersFor(scope).delete(listener)
   })
 
-  // One empty list per instance: a new `[]` on every read would change the identity of an unchanged catalog.
-  const none: AppModelDefinition[] = []
-  const models = computed(() => snapshot().models ?? none)
+  const models = computed(() => snapshot().models ?? NO_MODELS)
   return {
     models,
     defaults: computed(() => snapshot().defaults),

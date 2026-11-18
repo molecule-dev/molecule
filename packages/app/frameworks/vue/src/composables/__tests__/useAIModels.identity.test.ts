@@ -63,4 +63,24 @@ describe('useAIModels', () => {
     await vi.waitFor(() => expect(result.loading.value).toBe(false))
     expect(result.models.value).toBe(first)
   })
+
+  it('gives two callers on one scope the same empty models list while the catalog loads', async () => {
+    resetAIModelsCache()
+    let fail: (error: Error) => void = () => undefined
+    const fetchMock = vi.fn<typeof fetch>(
+      () =>
+        new Promise<Response>((_resolve, reject) => {
+          fail = reject
+        }),
+    )
+    vi.stubGlobal('fetch', fetchMock)
+    const first = runAIModels()
+    const second = runAIModels()
+    expect(first.loading.value).toBe(true)
+    expect(second.models.value).toBe(first.models.value)
+
+    await vi.waitFor(() => expect(fetchMock).toHaveBeenCalled())
+    fail(new Error('boom'))
+    await vi.waitFor(() => expect(first.loading.value).toBe(false))
+  })
 })

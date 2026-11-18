@@ -70,4 +70,30 @@ describe('useAIModels', () => {
     fixture.detectChanges()
     expect(catalog.models()).toBe(first)
   })
+
+  it('gives two callers on one scope the same empty models list while the catalog loads', async () => {
+    resetAIModelsCache()
+    let fail: (error: Error) => void = () => undefined
+    const fetchMock = vi.fn<typeof fetch>(
+      () =>
+        new Promise<Response>((_resolve, reject) => {
+          fail = reject
+        }),
+    )
+    vi.stubGlobal('fetch', fetchMock)
+    TestBed.configureTestingModule({
+      imports: [AIModelsIdentityProbeComponent],
+      providers: [provideZonelessChangeDetection(), provideMolecule({ http: createFetchClient() })],
+    })
+    const first = TestBed.createComponent(AIModelsIdentityProbeComponent)
+    const second = TestBed.createComponent(AIModelsIdentityProbeComponent)
+    first.detectChanges()
+    second.detectChanges()
+    expect(first.componentInstance.catalog.loading()).toBe(true)
+    expect(second.componentInstance.catalog.models()).toBe(first.componentInstance.catalog.models())
+
+    await vi.waitFor(() => expect(fetchMock).toHaveBeenCalled())
+    fail(new Error('boom'))
+    await vi.waitFor(() => expect(first.componentInstance.catalog.loading()).toBe(false))
+  })
 })

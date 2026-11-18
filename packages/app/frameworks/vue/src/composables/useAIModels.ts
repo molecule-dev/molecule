@@ -28,6 +28,13 @@ import { loadAIModelCatalog, pickFreeTierModel } from '@molecule/app-ai-models'
 
 import { useHttpClient } from './useHttp.js'
 
+/**
+ * The list returned while the catalog loads or after it fails. One module-level array, like the catalog's
+ * own lists, which every caller on a scope shares: a new `[]` per read would change the identity of an
+ * unchanged catalog.
+ */
+const NO_MODELS: AppModelDefinition[] = []
+
 interface CacheState {
   models: AppModelDefinition[] | null
   defaults: AppModeModelDefaults | undefined
@@ -223,9 +230,7 @@ export function useAIModels(projectId?: MaybeRefOrGetter<string | undefined>): U
     })
   }
 
-  // One empty list per instance: a new `[]` on every read would change the identity of an unchanged catalog.
-  const none: AppModelDefinition[] = []
-  const models = computed(() => snapshot.value.models ?? none)
+  const models = computed(() => snapshot.value.models ?? NO_MODELS)
   return {
     models,
     defaults: computed(() => snapshot.value.defaults),
