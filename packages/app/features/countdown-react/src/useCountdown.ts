@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useMemo, useSyncExternalStore } from 'react'
 
 /** Snapshot of time remaining until a target date. */
 export interface CountdownState {
@@ -17,12 +17,14 @@ export interface CountdownState {
 }
 
 /**
- * Computes the countdown state for a given epoch-ms target.
+ * Computes the countdown state at a given instant.
  *
- * @param target
+ * @param now - The epoch-ms time the clock last read.
+ * @param target - The epoch-ms target.
+ * @returns The time remaining from `now` to `target`.
  */
-function compute(target: number): CountdownState {
-  const ms = target - Date.now()
+function computeAt(now: number, target: number): CountdownState {
+  const ms = target - now
   const expired = ms <= 0
   const t = Math.max(0, ms)
   return {
@@ -35,11 +37,54 @@ function compute(target: number): CountdownState {
   }
 }
 
+/** One target's countdown as an external store for `useSyncExternalStore`. */
+interface CountdownStore {
+  /** Starts the interval (none when `tickMs` is `0` or less); returns its stop. */
+  subscribe: (onTick: () => void) => () => void
+  /** The countdown: computed from the clock on the first read, then again after each tick. */
+  read: () => CountdownState
+}
+
+/**
+ * Creates the countdown store for one target and tick interval.
+ *
+ * @param target - The epoch-ms target.
+ * @param tickMs - Refresh interval; `0` or less never ticks.
+ * @returns The store.
+ */
+function createCountdownStore(target: number, tickMs: number): CountdownStore {
+  let ticks = 0
+  let snapshot: { ticks: number; state: CountdownState } | null = null
+  return {
+    subscribe(onTick) {
+      if (tickMs <= 0) return () => {}
+      const id = setInterval(() => {
+        ticks += 1
+        onTick()
+      }, tickMs)
+      return () => clearInterval(id)
+    },
+    read() {
+      if (snapshot === null || snapshot.ticks !== ticks) {
+        snapshot = { ticks, state: computeAt(Date.now(), target) }
+      }
+      return snapshot.state
+    },
+  }
+}
+
 /**
  * Live-updating countdown to a target date.
  *
+ * The clock is read as an external store: a new `target` or `tickMs` reads it
+ * afresh and restarts the interval, as the other frameworks' countdowns do, and
+ * each tick reads it again. A `tickMs` of `0` or less never ticks, so the
+ * countdown then moves only when `target` changes. The returned object keeps its
+ * identity between ticks.
+ *
  * @param target - Date / ISO string / epoch ms.
  * @param tickMs - Refresh interval. Defaults to 1000.
+ * @returns The time remaining.
  */
 export function useCountdown(
   target: Date | string | number,
@@ -47,12 +92,6 @@ export function useCountdown(
 ): CountdownState {
   const ts =
     typeof target === 'number' ? target : target instanceof Date ? +target : +new Date(target)
-  const [state, setState] = useState(() => compute(ts))
-  useEffect(() => {
-    setState(compute(ts))
-    if (tickMs <= 0) return
-    const id = setInterval(() => setState(compute(ts)), tickMs)
-    return () => clearInterval(id)
-  }, [ts, tickMs])
-  return state
+  const store = useMemo(() => createCountdownStore(ts, tickMs), [ts, tickMs])
+  return useSyncExternalStore(store.subscribe, store.read, store.read)
 }
