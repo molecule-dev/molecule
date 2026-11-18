@@ -82,6 +82,7 @@ import {
 import { homedir } from 'node:os'
 import { dirname, extname, join, relative } from 'node:path'
 import process from 'node:process'
+import { text } from 'node:stream/consumers'
 import { fileURLToPath } from 'node:url'
 import { promisify } from 'node:util'
 
@@ -625,8 +626,11 @@ export async function scanFleet(
 
 const isMain = process.argv[1] === fileURLToPath(import.meta.url)
 if (isMain) {
+  // Read as a stream, not readFileSync(0): `import process from 'node:process'` evaluates every property of
+  // process, `process.stdin` included, which opens a piped stdin non-blocking. A synchronous read then throws
+  // EAGAIN as soon as the writer pauses (2026-11-18: a pre-commit staging 1,039 files, more than a pipe holds).
   const only = process.argv.includes('--paths-from-stdin')
-    ? packagesForPaths(ROOT, readFileSync(0, 'utf8').split('\n').filter(Boolean))
+    ? packagesForPaths(ROOT, (await text(process.stdin)).split('\n').filter(Boolean))
     : null
   const rows = only?.size === 0 ? [] : await scanFleet(ROOT, {}, { only })
   if (process.argv.includes('--json')) {

@@ -764,6 +764,37 @@ describe('scanFleet', () => {
     )
     expect(out).toBe('')
   })
+
+  it('reads every path from a writer that pauses partway, as the pre-commit hook pipes them', () => {
+    // More than a pipe buffer (64 KiB), then a pause: a synchronous read of the non-blocking stdin
+    // that `import process from 'node:process'` leaves threw EAGAIN here.
+    const dir = mkdtempSync(join(tmpdir(), 'peer-floors-stdin-'))
+    try {
+      const paths = Array.from(
+        { length: 1200 },
+        (_, i) => `docs/not-a-package/file-${i}-${'x'.repeat(60)}.md`,
+      )
+      writeFileSync(join(dir, 'first'), `${paths.slice(0, 900).join('\n')}\n`)
+      writeFileSync(join(dir, 'rest'), `${paths.slice(900).join('\n')}\n`)
+      const script = fileURLToPath(new URL('../check-peer-floors.mjs', import.meta.url))
+      const out = execFileSync(
+        'sh',
+        [
+          '-c',
+          '{ cat "$1"; sleep 0.3; cat "$2"; } | "$3" "$4" --paths-from-stdin',
+          'sh',
+          join(dir, 'first'),
+          join(dir, 'rest'),
+          process.execPath,
+          script,
+        ],
+        { env: { ...process.env, npm_config_registry: 'http://127.0.0.1:9/' }, encoding: 'utf8' },
+      )
+      expect(out).toBe('')
+    } finally {
+      rmSync(dir, { recursive: true, force: true })
+    }
+  })
 })
 
 describe('the registry reads', () => {
