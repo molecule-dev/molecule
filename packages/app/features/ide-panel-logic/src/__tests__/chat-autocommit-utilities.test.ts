@@ -180,6 +180,11 @@ describe('autoCommitReducer — tick', () => {
     expect(autoCommitReducer(zero, { type: 'tick' })).toEqual({ intervalSeconds: 10, remaining: 0 })
   })
 
+  it('returns the same state at zero, so a viewer whose countdown keeps ticking does not re-render', () => {
+    const zero: AutoCommitState = { intervalSeconds: 10, remaining: 0 }
+    expect(autoCommitReducer(zero, { type: 'tick' })).toBe(zero)
+  })
+
   it('is a no-op when disabled or paused (remaining null)', () => {
     expect(autoCommitReducer(AUTO_COMMIT_DISABLED, { type: 'tick' })).toEqual(AUTO_COMMIT_DISABLED)
     const paused: AutoCommitState = { intervalSeconds: 10, remaining: null }

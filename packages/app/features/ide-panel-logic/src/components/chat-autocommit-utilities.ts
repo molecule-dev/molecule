@@ -151,8 +151,9 @@ export function autoCommitReducer(
       if (state.intervalSeconds <= 0) return state
       return { intervalSeconds: state.intervalSeconds, remaining: state.intervalSeconds }
     case 'tick':
-      // Disabled or paused (remaining === null) ignores ticks.
-      if (state.remaining === null) return state
+      // Disabled or paused (remaining === null) ignores ticks, and a countdown at 0 stays the same state:
+      // a viewer who cannot commit keeps ticking there, and a new object each second would re-render the panel.
+      if (state.remaining === null || state.remaining === 0) return state
       return { intervalSeconds: state.intervalSeconds, remaining: Math.max(0, state.remaining - 1) }
     case 'fired':
       // Commit dispatched: pause (don't re-fire on a clean tree) until the next
