@@ -52,9 +52,15 @@ export function InlineEdit({
   useEffect(() => {
     if (editing) inputRef.current?.focus()
   }, [editing])
-  useEffect(() => {
+  // A new committed `value` resets the draft. Adjust it during render (React's
+  // documented pattern for state derived from a previous prop) rather than in
+  // an effect, so the editor never renders one frame with a stale draft and no
+  // effect-triggered second render.
+  const [prevValue, setPrevValue] = useState(value)
+  if (prevValue !== value) {
+    setPrevValue(value)
     setDraft(value)
-  }, [value])
+  }
 
   /**
    * Submits the current draft value by calling onSubmit, then closes the editor.

@@ -1,4 +1,4 @@
-import { type Component, createEffect, createSignal, onMount, Show } from 'solid-js'
+import { type Component, createEffect, createSignal, onMount, Show, untrack } from 'solid-js'
 
 import { useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
@@ -111,9 +111,16 @@ export const InlineEdit: Component<InlineEditProps> = (props) => {
   const [saving, setSaving] = createSignal(false)
   const variant = (): 'input' | 'textarea' => props.variant ?? 'input'
 
-  // React's `useEffect(() => setDraft(value), [value])`.
+  // React's `useEffect(() => setDraft(value), [value])`: only an actual change
+  // of `value` re-syncs, so a parent that re-renders with the same value — a
+  // fresh row object carrying the same string — leaves the typed draft alone.
+  let syncedValue = untrack(() => props.value)
   createEffect(() => {
-    setDraft(props.value)
+    const next = props.value
+    if (next !== syncedValue) {
+      syncedValue = next
+      setDraft(next)
+    }
   })
 
   /**
