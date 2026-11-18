@@ -2,7 +2,7 @@
  * React product / property / listing card primitives.
  *
  * Exports:
- * - `<ListingCard>` — outer Card shell. Props: `children`, `onClick?`,
+ * - `<ListingCard>` — outer Card shell. Props: `children`, `toggle?`, `onClick?`,
  *   `className?`, `dataMolId?`.
  * - `<ListingCardMedia>` — top image slot. Props: `src?`, `alt?`, `children?`
  *   (custom media node), `aspect?` (`'1/1' | '4/3' | '16/9' | '3/2'`, default
@@ -18,7 +18,13 @@
  * @remarks
  * - `ListingCard.onClick` is attached to the WHOLE card — clicks on buttons inside
  *   `<ListingCardActions>` bubble into it. Call `e.stopPropagation()` in every
- *   action handler (as in the example) or the card navigation fires too.
+ *   custom action handler or the card navigation fires too. The built-in
+ *   `toggle` handles that itself.
+ * - Pass `toggle` for a server-backed action with a count, such as a vote or
+ *   endorsement. The card renders the button and count together, including zero.
+ *   Pass the loaded `{ pressed, count }` and return both saved fields from
+ *   `commit(desired)`. Keep the card mounted and keyed by record ID. Omit
+ *   `toggle` for cards without that action.
  * - `<ListingGrid columns={n}>` renders a responsive n-column grid (via `cm.grid`):
  *   1 column on phones, stepping up to `n` at larger breakpoints, so listings
  *   don't overflow on mobile. Override `className` for a fixed grid.
@@ -29,15 +35,24 @@
  *
  * @example
  * ```tsx
- * import { ListingCard, ListingCardMedia, ListingCardBody, ListingCardActions, ListingGrid } from '@molecule/app-listing-card-react'
+ * import { ListingCard, ListingCardMedia, ListingCardBody, ListingGrid } from '@molecule/app-listing-card-react'
  *
  * <ListingGrid columns={3}>
- *   <ListingCard onClick={() => navigate(`/listings/${item.id}`)}>
+ *   <ListingCard
+ *     key={item.id}
+ *     onClick={() => navigate(`/listings/${item.id}`)}
+ *     toggle={{
+ *       value: { pressed: item.recommended, count: item.recommendations },
+ *       commit: async (desired) => {
+ *         const saved = await setRecommendation(item.id, desired)
+ *         return { pressed: saved.recommended, count: saved.recommendations }
+ *       },
+ *       activeLabel: t('listing.undoRecommendation', undefined, { defaultValue: 'Undo recommendation' }),
+ *       inactiveLabel: t('listing.recommend', undefined, { defaultValue: 'Recommend' }),
+ *     }}
+ *   >
  *     <ListingCardMedia src={item.imageUrl} aspect="4/3" alt={item.name} />
  *     <ListingCardBody title={item.name} subtitle={item.location} price={`$${item.price}/night`} />
- *     <ListingCardActions>
- *       <button onClick={(e) => { e.stopPropagation(); saveListing(item.id) }}>Save</button>
- *     </ListingCardActions>
  *   </ListingCard>
  * </ListingGrid>
  * ```
