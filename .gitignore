@@ -3,6 +3,8 @@ node_modules
 
 # build output
 dist
+# a package build written beside dist, before it replaces dist whole
+.dist-*/
 *.tsbuildinfo
 *.js.map
 *.d.ts
