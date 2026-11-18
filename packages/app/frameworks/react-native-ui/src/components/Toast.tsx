@@ -4,7 +4,7 @@
  * @module
  */
 
-import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react'
+import React, { createContext, useCallback, useContext, useEffect, useState } from 'react'
 import { Animated, Pressable, Text, View } from 'react-native'
 
 import { useTranslation } from '@molecule/app-react'
@@ -42,7 +42,9 @@ export const Toast: React.FC<ToastProps> = ({
     }),
     className,
   )
-  const opacity = useRef(new Animated.Value(1)).current
+  // The animated value is created once per mount and kept in state; a ref would
+  // have to be read while rendering.
+  const [opacity] = useState(() => new Animated.Value(1))
 
   useEffect(() => {
     if (duration > 0) {

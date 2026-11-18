@@ -17,7 +17,7 @@
  * @module
  */
 
-import { type JSX, type ReactNode, useEffect, useRef, useState } from 'react'
+import { type JSX, type ReactNode, useEffect, useRef, useState, useSyncExternalStore } from 'react'
 
 import { useAuthFormState } from '@molecule/app-auth-shell-react'
 import { OAuthButtons, OAuthDivider } from '@molecule/app-oauth-buttons-react'
@@ -51,6 +51,43 @@ const TOUCH_FIRST_QUERY = '(max-width: 767px), (pointer: coarse)'
 const SUCCESS_DISPLAY_MS = 1000
 
 /**
+ * Subscribe to changes of {@link TOUCH_FIRST_QUERY}; the no-op subscription on
+ * a runtime without `matchMedia` (SSR) never fires.
+ *
+ * @param onStoreChange - Called when the media query starts or stops matching.
+ * @returns The unsubscribe function.
+ */
+function subscribeTouchFirst(onStoreChange: () => void): () => void {
+  if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return () => {}
+  const mql = window.matchMedia(TOUCH_FIRST_QUERY)
+  mql.addEventListener('change', onStoreChange)
+  return () => mql.removeEventListener('change', onStoreChange)
+}
+
+/**
+ * Whether {@link TOUCH_FIRST_QUERY} currently matches, read from the browser.
+ *
+ * @returns True on phone-width or touch-first devices.
+ */
+function getTouchFirstSnapshot(): boolean {
+  return (
+    typeof window !== 'undefined' &&
+    typeof window.matchMedia === 'function' &&
+    window.matchMedia(TOUCH_FIRST_QUERY).matches
+  )
+}
+
+/**
+ * The server-side snapshot: no viewport exists when rendering to a string, so
+ * report a non-touch desktop. The client re-reads the real value on hydration.
+ *
+ * @returns Always `false`.
+ */
+function getTouchFirstServerSnapshot(): boolean {
+  return false
+}
+
+/**
  * Whether {@link TOUCH_FIRST_QUERY} currently matches. SSR-safe (reports
  * `false` until mounted in a browser) and subscribes to media-query changes
  * (rotation, window resize across the breakpoint). Local to this package — it
@@ -58,21 +95,11 @@ const SUCCESS_DISPLAY_MS = 1000
  * @returns True on phone-width or touch-first devices.
  */
 function useTouchFirstViewport(): boolean {
-  const [matches, setMatches] = useState(
-    () =>
-      typeof window !== 'undefined' &&
-      typeof window.matchMedia === 'function' &&
-      window.matchMedia(TOUCH_FIRST_QUERY).matches,
+  return useSyncExternalStore(
+    subscribeTouchFirst,
+    getTouchFirstSnapshot,
+    getTouchFirstServerSnapshot,
   )
-  useEffect(() => {
-    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return
-    const mql = window.matchMedia(TOUCH_FIRST_QUERY)
-    const onChange = (e: MediaQueryListEvent): void => setMatches(e.matches)
-    setMatches(mql.matches)
-    mql.addEventListener('change', onChange)
-    return () => mql.removeEventListener('change', onChange)
-  }, [])
-  return matches
 }
 
 /** Props for {@link AuthModal}. */

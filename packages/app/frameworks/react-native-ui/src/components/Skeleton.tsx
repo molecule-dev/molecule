@@ -4,7 +4,7 @@
  * @module
  */
 
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Animated, View, type ViewStyle } from 'react-native'
 
 import type { SkeletonProps } from '@molecule/app-ui'
@@ -30,7 +30,9 @@ export const Skeleton: React.FC<SkeletonProps> = ({
   testId,
 }) => {
   const cm = getClassMap()
-  const opacity = useRef(new Animated.Value(1)).current
+  // The animated value is created once per mount and kept in state; a ref would
+  // have to be read while rendering.
+  const [opacity] = useState(() => new Animated.Value(1))
 
   useEffect(() => {
     if (animation === 'pulse') {

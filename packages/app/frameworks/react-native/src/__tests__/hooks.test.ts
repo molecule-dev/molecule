@@ -21,6 +21,8 @@ import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } 
 let stateSlots: Array<{ value: unknown; setter: (v: unknown) => void }> = []
 let stateCallIndex = 0
 const effectCallbacks: Array<() => (() => void) | undefined | void> = []
+// What a useSyncExternalStore subscription tells React: React re-reads the snapshot when it is called.
+const storeChanged = vi.fn()
 
 function resetHookState(): void {
   stateSlots = []
@@ -68,7 +70,14 @@ vi.mock('react', () => ({
   useContext: () => null,
   useMemo: (fn: () => unknown) => fn(),
   useRef: (initial: unknown) => ({ current: initial }),
-  useSyncExternalStore: (_subscribe: unknown, getSnapshot: () => unknown) => getSnapshot(),
+  // React subscribes after the render commits, as an effect does.
+  useSyncExternalStore: (
+    subscribe: (onStoreChange: () => void) => () => void,
+    getSnapshot: () => unknown,
+  ) => {
+    effectCallbacks.push(() => subscribe(storeChanged))
+    return getSnapshot()
+  },
 }))
 
 // ---------------------------------------------------------------------------
@@ -99,6 +108,13 @@ const mockBackHandlerAddEventListener = vi.fn().mockReturnValue({ remove: mockBa
 
 const mockAppStateRemove = vi.fn()
 const mockAppStateAddEventListener = vi.fn().mockReturnValue({ remove: mockAppStateRemove })
+const mockAppState: {
+  currentState: string | null
+  addEventListener: typeof mockAppStateAddEventListener
+} = {
+  currentState: 'active',
+  addEventListener: mockAppStateAddEventListener,
+}
 
 const mockKeyboardRemoveShow = vi.fn()
 const mockKeyboardRemoveHide = vi.fn()
@@ -116,10 +132,7 @@ const requireMockModules: Record<string, unknown> = {
     BackHandler: {
       addEventListener: mockBackHandlerAddEventListener,
     },
-    AppState: {
-      currentState: 'active',
-      addEventListener: mockAppStateAddEventListener,
-    },
+    AppState: mockAppState,
     Keyboard: {
       addListener: mockKeyboardAddListener,
     },
@@ -185,6 +198,7 @@ beforeEach(() => {
   // Restore default mock return values after clearAllMocks
   mockBackHandlerAddEventListener.mockReturnValue({ remove: mockBackHandlerRemove })
   mockAppStateAddEventListener.mockReturnValue({ remove: mockAppStateRemove })
+  mockAppState.currentState = 'active'
   mockKeyboardAddListener.mockImplementation((event: string) => {
     if (event.includes('Show') || event.includes('show')) {
       return { remove: mockKeyboardRemoveShow }
@@ -306,24 +320,48 @@ describe('useAppState', () => {
     expect(mockAppStateRemove).toHaveBeenCalled()
   })
 
-  it('updates state when AppState fires change event', () => {
+  it('tells React to re-read the state when AppState fires change event', () => {
     useAppState()
     runEffects()
 
-    // Get the change handler that was registered
+    // React Native updates currentState before it calls the listeners.
+    mockAppState.currentState = 'background'
     const changeHandler = mockAppStateAddEventListener.mock.calls[0][1]
     changeHandler('background')
 
-    // stateSlots[0] is appState (first useState call in useAppState)
-    expect(stateSlots[0].value).toBe('background')
+    expect(storeChanged).toHaveBeenCalled()
+    expect(useAppState()).toEqual({ appState: 'background', isActive: false })
   })
 
-  it('sets initial state from AppState.currentState on effect', () => {
-    useAppState()
-    runEffects()
+  it('reports AppState.currentState on the first render', () => {
+    mockAppState.currentState = 'background'
 
-    // The mock AppState.currentState is 'active', so the setter was called with 'active'
-    expect(stateSlots[0].value).toBe('active')
+    expect(useAppState()).toEqual({ appState: 'background', isActive: false })
+  })
+
+  it('reports active while AppState has no current state yet', () => {
+    mockAppState.currentState = null
+
+    expect(useAppState().appState).toBe('active')
+  })
+
+  it('reports an inactive app as not active', () => {
+    mockAppState.currentState = 'inactive'
+
+    expect(useAppState()).toEqual({ appState: 'inactive', isActive: false })
+  })
+
+  it('reports active, and subscribes to nothing, where React Native is unavailable', () => {
+    const reactNative = requireMockModules['react-native'] as { AppState?: unknown }
+    reactNative.AppState = undefined
+    try {
+      expect(useAppState().appState).toBe('active')
+      const cleanup = runEffects()
+      expect(mockAppStateAddEventListener).not.toHaveBeenCalled()
+      expect(() => cleanup?.()).not.toThrow()
+    } finally {
+      reactNative.AppState = mockAppState
+    }
   })
 
   it('isActive reflects whether appState is active', () => {

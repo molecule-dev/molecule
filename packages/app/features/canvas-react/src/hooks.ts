@@ -6,7 +6,7 @@
  * @module
  */
 
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useState } from 'react'
 
 import { clampViewport } from './coordinates.js'
 import type { CanvasItemId, CanvasViewport, ViewportLimits } from './types.js'
@@ -47,10 +47,14 @@ export function useCanvasViewport(options?: {
   value?: CanvasViewport
   onChange?: (next: CanvasViewport) => void
 }): UseCanvasViewportResult {
-  // Seed once via a ref so subsequent renders with a different `initial`
-  // don't reset state — that's `reset()`'s job.
-  const initialRef = useRef<CanvasViewport>(options?.initial ?? { x: 0, y: 0, zoom: 1 })
-  const [internal, setInternal] = useState<CanvasViewport>(initialRef.current)
+  // Seed once from the initial value so subsequent renders with a different
+  // `initial` don't reset state — that's `reset()`'s job. Held in state (not a
+  // ref) because `reset()` reads it after render: a ref read in render is not
+  // allowed, and state belongs to the committed render.
+  const [initialViewport] = useState<CanvasViewport>(
+    () => options?.initial ?? { x: 0, y: 0, zoom: 1 },
+  )
+  const [internal, setInternal] = useState<CanvasViewport>(initialViewport)
   const limits = options?.limits
   const isControlled = options?.value !== undefined
   const viewport = isControlled ? (options!.value as CanvasViewport) : internal
@@ -91,8 +95,8 @@ export function useCanvasViewport(options?: {
   )
 
   const reset = useCallback(() => {
-    setViewport(initialRef.current)
-  }, [setViewport])
+    setViewport(initialViewport)
+  }, [setViewport, initialViewport])
 
   return { viewport, setViewport, panBy, zoomBy, reset }
 }
@@ -134,8 +138,7 @@ export function useCanvasSelection(options?: {
   value?: ReadonlySet<CanvasItemId>
   onChange?: (next: ReadonlySet<CanvasItemId>) => void
 }): UseCanvasSelectionResult {
-  const initialRef = useRef<Set<CanvasItemId>>(new Set(options?.initial ?? []))
-  const [internal, setInternal] = useState<Set<CanvasItemId>>(initialRef.current)
+  const [internal, setInternal] = useState<Set<CanvasItemId>>(() => new Set(options?.initial ?? []))
   const isControlled = options?.value !== undefined
   const selected: ReadonlySet<CanvasItemId> = isControlled
     ? (options!.value as ReadonlySet<CanvasItemId>)

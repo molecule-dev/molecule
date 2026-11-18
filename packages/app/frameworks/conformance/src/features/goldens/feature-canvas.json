@@ -1,0 +1,1787 @@
+{
+ "exports": [
+  "CanvasEdge",
+  "CanvasNode",
+  "CanvasSurface",
+  "buildEdgePath",
+  "canvasToScreen",
+  "clampViewport",
+  "fitToBounds",
+  "screenToCanvas",
+  "useCanvasSelection",
+  "useCanvasViewport"
+ ],
+ "values": {
+  "buildEdgePath": [
+   "M 0 0 L 100 50",
+   "M 0 0 L 100 0 L 100 50",
+   "M 0 0 C 100 0, 100 100, 200 100",
+   "M 0 0 C 20 0, -10 100, 10 100",
+   "M 50 50 L 50 10"
+  ],
+  "screenToCanvas": [
+   {
+    "x": 110,
+    "y": 70
+   },
+   {
+    "x": 0,
+    "y": 55
+   },
+   {
+    "x": 100,
+    "y": 0
+   }
+  ],
+  "canvasToScreen": [
+   {
+    "x": 90,
+    "y": 30
+   },
+   {
+    "x": 300,
+    "y": 40
+   },
+   {
+    "x": 0,
+    "y": 0
+   }
+  ],
+  "clampViewport": [
+   {
+    "x": 1,
+    "y": 2,
+    "zoom": 3
+   },
+   {
+    "x": 0,
+    "y": 0,
+    "zoom": 4
+   },
+   {
+    "x": 0,
+    "y": 0,
+    "zoom": 0.5
+   },
+   {
+    "x": 0,
+    "y": 200,
+    "zoom": 1
+   },
+   {
+    "x": 50,
+    "y": 50,
+    "zoom": 2
+   }
+  ],
+  "fitToBounds": [
+   {
+    "x": 5,
+    "y": 7,
+    "zoom": 1
+   },
+   {
+    "x": 0,
+    "y": 0,
+    "zoom": 2
+   },
+   {
+    "x": 0,
+    "y": -25,
+    "zoom": 2
+   },
+   {
+    "x": -2.5,
+    "y": -27.5,
+    "zoom": 1.6
+   }
+  ]
+ },
+ "cases": {
+  "CanvasEdge": {
+   "a straight edge between two points": {
+    "snapshots": [
+     "<svg aria-label=\"Canvas edge\" class=\"c0dd268bc\" data-edge-kind=\"line\" data-mol-id=\"canvas-edge\" height=\"140\" role=\"img\" style=\"height: 140px; left: -20px; overflow: visible; pointer-events: none; position: absolute; top: -20px; width: 140px\" viewbox=\"0 0 140 140\" width=\"140\">\n<path d=\"M 20 20 L 120 120\" data-mol-id=\"canvas-edge-path\" fill=\"none\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\">\n</path>\n</svg>\n@route /"
+    ],
+    "calls": []
+   },
+   "a bezier edge": {
+    "snapshots": [
+     "<svg aria-label=\"Canvas edge\" class=\"c0dd268bc\" data-edge-kind=\"bezier\" data-mol-id=\"canvas-edge\" height=\"140\" role=\"img\" style=\"height: 140px; left: -20px; overflow: visible; pointer-events: none; position: absolute; top: -20px; width: 240px\" viewbox=\"0 0 240 140\" width=\"240\">\n<path d=\"M 20 20 C 120 20, 120 120, 220 120\" data-mol-id=\"canvas-edge-path\" fill=\"none\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\">\n</path>\n</svg>\n@route /"
+    ],
+    "calls": []
+   },
+   "an orthogonal edge": {
+    "snapshots": [
+     "<svg aria-label=\"Canvas edge\" class=\"c0dd268bc\" data-edge-kind=\"orthogonal\" data-mol-id=\"canvas-edge\" height=\"90\" role=\"img\" style=\"height: 90px; left: -20px; overflow: visible; pointer-events: none; position: absolute; top: -20px; width: 140px\" viewbox=\"0 0 140 90\" width=\"140\">\n<path d=\"M 20 20 L 120 20 L 120 70\" data-mol-id=\"canvas-edge-path\" fill=\"none\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\">\n</path>\n</svg>\n@route /"
+    ],
+    "calls": []
+   },
+   "stroke width and color": {
+    "snapshots": [
+     "<svg aria-label=\"Canvas edge\" class=\"c0dd268bc\" data-edge-kind=\"line\" data-mol-id=\"canvas-edge\" height=\"130\" role=\"img\" style=\"height: 130px; left: 10px; overflow: visible; pointer-events: none; position: absolute; top: 20px; width: 180px\" viewbox=\"0 0 180 130\" width=\"180\">\n<path d=\"M 40 40 L 140 90\" data-mol-id=\"canvas-edge-path\" fill=\"none\" stroke=\"#ff0000\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"10\">\n</path>\n</svg>\n@route /"
+    ],
+    "calls": []
+   },
+   "an edge spanning the bounding box in the negative direction": {
+    "snapshots": [
+     "<svg aria-label=\"Canvas edge\" class=\"c0dd268bc\" data-edge-kind=\"line\" data-mol-id=\"canvas-edge\" height=\"140\" role=\"img\" style=\"height: 140px; left: -20px; overflow: visible; pointer-events: none; position: absolute; top: -20px; width: 140px\" viewbox=\"0 0 140 140\" width=\"140\">\n<path d=\"M 120 120 L 20 20\" data-mol-id=\"canvas-edge-path\" fill=\"none\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\">\n</path>\n</svg>\n@route /"
+    ],
+    "calls": []
+   },
+   "aria label and classes": {
+    "snapshots": [
+     "<svg aria-label=\"Connector\" class=\"c05cb54e6 c0dd268bc\" data-edge-kind=\"line\" data-mol-id=\"canvas-edge\" height=\"50\" role=\"img\" style=\"height: 50px; left: -20px; overflow: visible; pointer-events: none; position: absolute; top: -20px; width: 50px\" viewbox=\"0 0 50 50\" width=\"50\">\n<path d=\"M 20 20 L 30 30\" data-mol-id=\"canvas-edge-path\" fill=\"none\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\">\n</path>\n</svg>\n@route /"
+    ],
+    "calls": []
+   },
+   "later props change the geometry and the kind": {
+    "snapshots": [
+     "<svg aria-label=\"Canvas edge\" class=\"c0dd268bc\" data-edge-kind=\"line\" data-mol-id=\"canvas-edge\" height=\"40\" role=\"img\" style=\"height: 40px; left: -20px; overflow: visible; pointer-events: none; position: absolute; top: -20px; width: 140px\" viewbox=\"0 0 140 40\" width=\"140\">\n<path d=\"M 20 20 L 120 20\" data-mol-id=\"canvas-edge-path\" fill=\"none\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\">\n</path>\n</svg>\n@route /",
+     "<svg aria-label=\"Canvas edge\" class=\"c0dd268bc\" data-edge-kind=\"bezier\" data-mol-id=\"canvas-edge\" height=\"140\" role=\"img\" style=\"height: 140px; left: -20px; overflow: visible; pointer-events: none; position: absolute; top: -20px; width: 40px\" viewbox=\"0 0 40 140\" width=\"40\">\n<path d=\"M 20 20 C 40 20, 0 120, 20 120\" data-mol-id=\"canvas-edge-path\" fill=\"none\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"4\">\n</path>\n</svg>\n@route /"
+    ],
+    "calls": []
+   },
+   "a straight edge between two points, then a locale switch": {
+    "snapshots": [
+     "<svg aria-label=\"Canvas edge\" class=\"c0dd268bc\" data-edge-kind=\"line\" data-mol-id=\"canvas-edge\" height=\"140\" role=\"img\" style=\"height: 140px; left: -20px; overflow: visible; pointer-events: none; position: absolute; top: -20px; width: 140px\" viewbox=\"0 0 140 140\" width=\"140\">\n<path d=\"M 20 20 L 120 120\" data-mol-id=\"canvas-edge-path\" fill=\"none\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\">\n</path>\n</svg>\n@route /",
+     "<svg aria-label=\"⟦Canvas edge⟧\" class=\"c0dd268bc\" data-edge-kind=\"line\" data-mol-id=\"canvas-edge\" height=\"140\" role=\"img\" style=\"height: 140px; left: -20px; overflow: visible; pointer-events: none; position: absolute; top: -20px; width: 140px\" viewbox=\"0 0 140 140\" width=\"140\">\n<path d=\"M 20 20 L 120 120\" data-mol-id=\"canvas-edge-path\" fill=\"none\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\">\n</path>\n</svg>\n@route /"
+    ],
+    "calls": []
+   }
+  },
+  "CanvasNode": {
+   "a node at a canvas position": {
+    "snapshots": [
+     "<div aria-label=\"Canvas node\" class=\"c0dd268bc\" data-mol-id=\"canvas-node\" role=\"group\" style=\"left: 100px; position: absolute; top: 50px; touch-action: none\">\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "an id, a size and children": {
+    "snapshots": [
+     "<div aria-label=\"Canvas node\" class=\"c0dd268bc\" data-canvas-node-id=\"a\" data-mol-id=\"canvas-node-a\" role=\"group\" style=\"height: 40px; left: 10px; position: absolute; top: 20px; touch-action: none; width: 80px\">\n<b>\nx\n</b>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a selected node describes itself as Selected": {
+    "snapshots": [
+     "<div aria-describedby=\"#id0\" aria-label=\"Canvas node\" class=\"c0dd268bc\" data-canvas-node-id=\"a\" data-mol-id=\"canvas-node-a\" data-selected=\"true\" role=\"group\" style=\"left: 0px; position: absolute; top: 0px; touch-action: none\">\n<span hidden id=\"#id0\">\nSelected\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "aria label and classes": {
+    "snapshots": [
+     "<div aria-label=\"Card\" class=\"c0dd268bc cac0ab84b\" data-canvas-node-id=\"a\" data-mol-id=\"canvas-node-a\" role=\"group\" style=\"left: 0px; position: absolute; top: 0px; touch-action: none\">\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "pressing without moving selects the node": {
+    "snapshots": [
+     "<div aria-label=\"Canvas node\" class=\"c0dd268bc\" data-canvas-node-id=\"a\" data-mol-id=\"canvas-node-a\" role=\"group\" style=\"left: 0px; position: absolute; top: 0px; touch-action: none\">\n</div>\n@route /",
+     "<div aria-label=\"Canvas node\" class=\"c0dd268bc\" data-canvas-node-id=\"a\" data-mol-id=\"canvas-node-a\" role=\"group\" style=\"left: 0px; position: absolute; top: 0px; touch-action: none\">\n</div>\n@route /",
+     "<div aria-label=\"Canvas node\" class=\"c0dd268bc\" data-canvas-node-id=\"a\" data-mol-id=\"canvas-node-a\" role=\"group\" style=\"left: 0px; position: absolute; top: 0px; touch-action: none\">\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onSelect",
+      "args": [
+       "a",
+       {
+        "event": "pointerup",
+        "target": "div"
+       }
+      ]
+     }
+    ]
+   },
+   "selecting without an id reports it as absent": {
+    "snapshots": [
+     "<div aria-label=\"Canvas node\" class=\"c0dd268bc\" data-mol-id=\"canvas-node\" role=\"group\" style=\"left: 0px; position: absolute; top: 0px; touch-action: none\">\n</div>\n@route /",
+     "<div aria-label=\"Canvas node\" class=\"c0dd268bc\" data-mol-id=\"canvas-node\" role=\"group\" style=\"left: 0px; position: absolute; top: 0px; touch-action: none\">\n</div>\n@route /",
+     "<div aria-label=\"Canvas node\" class=\"c0dd268bc\" data-mol-id=\"canvas-node\" role=\"group\" style=\"left: 0px; position: absolute; top: 0px; touch-action: none\">\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onSelect",
+      "args": [
+       null,
+       {
+        "event": "pointerup",
+        "target": "div"
+       }
+      ]
+     }
+    ]
+   },
+   "dragging reports canvas deltas and a final end": {
+    "snapshots": [
+     "<div aria-label=\"Canvas node\" class=\"c0dd268bc\" data-canvas-node-id=\"a\" data-mol-id=\"canvas-node-a\" role=\"group\" style=\"left: 0px; position: absolute; top: 0px; touch-action: none\">\n</div>\n@route /",
+     "<div aria-label=\"Canvas node\" class=\"c0dd268bc\" data-canvas-node-id=\"a\" data-mol-id=\"canvas-node-a\" role=\"group\" style=\"left: 0px; position: absolute; top: 0px; touch-action: none\">\n</div>\n@route /",
+     "<div aria-label=\"Canvas node\" class=\"c0dd268bc\" data-canvas-node-id=\"a\" data-mol-id=\"canvas-node-a\" role=\"group\" style=\"left: 0px; position: absolute; top: 0px; touch-action: none\">\n</div>\n@route /",
+     "<div aria-label=\"Canvas node\" class=\"c0dd268bc\" data-canvas-node-id=\"a\" data-mol-id=\"canvas-node-a\" role=\"group\" style=\"left: 0px; position: absolute; top: 0px; touch-action: none\">\n</div>\n@route /",
+     "<div aria-label=\"Canvas node\" class=\"c0dd268bc\" data-canvas-node-id=\"a\" data-mol-id=\"canvas-node-a\" role=\"group\" style=\"left: 0px; position: absolute; top: 0px; touch-action: none\">\n</div>\n@route /",
+     "<div aria-label=\"Canvas node\" class=\"c0dd268bc\" data-canvas-node-id=\"a\" data-mol-id=\"canvas-node-a\" role=\"group\" style=\"left: 0px; position: absolute; top: 0px; touch-action: none\">\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onDrag",
+      "args": [
+       {
+        "delta": {
+         "x": 30,
+         "y": 40
+        },
+        "end": false,
+        "position": {
+         "x": 30,
+         "y": 40
+        },
+        "start": true
+       }
+      ]
+     },
+     {
+      "name": "onDrag",
+      "args": [
+       {
+        "delta": {
+         "x": 20,
+         "y": 20
+        },
+        "end": false,
+        "position": {
+         "x": 50,
+         "y": 60
+        },
+        "start": false
+       }
+      ]
+     },
+     {
+      "name": "onDrag",
+      "args": [
+       {
+        "delta": {
+         "x": 0,
+         "y": 0
+        },
+        "end": true,
+        "position": {
+         "x": 50,
+         "y": 60
+        },
+        "start": false
+       }
+      ]
+     }
+    ]
+   },
+   "a resize gesture reports the new size and a final end": {
+    "snapshots": [
+     "<div aria-label=\"Canvas node\" class=\"c0dd268bc\" data-canvas-node-id=\"a\" data-mol-id=\"canvas-node-a\" role=\"group\" style=\"height: 40px; left: 10px; position: absolute; top: 20px; touch-action: none; width: 80px\">\n<div aria-label=\"Resize node\" data-mol-id=\"canvas-node-resize-handle-a\" role=\"button\" style=\"bottom: 0px; cursor: se-resize; height: 12px; position: absolute; right: 0px; touch-action: none; width: 12px\">\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Canvas node\" class=\"c0dd268bc\" data-canvas-node-id=\"a\" data-mol-id=\"canvas-node-a\" role=\"group\" style=\"height: 40px; left: 10px; position: absolute; top: 20px; touch-action: none; width: 80px\">\n<div aria-label=\"Resize node\" data-mol-id=\"canvas-node-resize-handle-a\" role=\"button\" style=\"bottom: 0px; cursor: se-resize; height: 12px; position: absolute; right: 0px; touch-action: none; width: 12px\">\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Canvas node\" class=\"c0dd268bc\" data-canvas-node-id=\"a\" data-mol-id=\"canvas-node-a\" role=\"group\" style=\"height: 40px; left: 10px; position: absolute; top: 20px; touch-action: none; width: 80px\">\n<div aria-label=\"Resize node\" data-mol-id=\"canvas-node-resize-handle-a\" role=\"button\" style=\"bottom: 0px; cursor: se-resize; height: 12px; position: absolute; right: 0px; touch-action: none; width: 12px\">\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Canvas node\" class=\"c0dd268bc\" data-canvas-node-id=\"a\" data-mol-id=\"canvas-node-a\" role=\"group\" style=\"height: 40px; left: 10px; position: absolute; top: 20px; touch-action: none; width: 80px\">\n<div aria-label=\"Resize node\" data-mol-id=\"canvas-node-resize-handle-a\" role=\"button\" style=\"bottom: 0px; cursor: se-resize; height: 12px; position: absolute; right: 0px; touch-action: none; width: 12px\">\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onResize",
+      "args": [
+       {
+        "end": false,
+        "position": {
+         "x": 10,
+         "y": 20
+        },
+        "size": {
+         "height": 50,
+         "width": 100
+        }
+       }
+      ]
+     },
+     {
+      "name": "onResize",
+      "args": [
+       {
+        "end": true,
+        "position": {
+         "x": 10,
+         "y": 20
+        },
+        "size": {
+         "height": 40,
+         "width": 80
+        }
+       }
+      ]
+     }
+    ]
+   },
+   "no resize handle without a size": {
+    "snapshots": [
+     "<div aria-label=\"Canvas node\" class=\"c0dd268bc\" data-canvas-node-id=\"a\" data-mol-id=\"canvas-node-a\" role=\"group\" style=\"left: 0px; position: absolute; top: 0px; touch-action: none\">\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "later props move, resize, select and unselect the node": {
+    "snapshots": [
+     "<div aria-describedby=\"#id0\" aria-label=\"Canvas node\" class=\"c0dd268bc\" data-canvas-node-id=\"a\" data-mol-id=\"canvas-node-a\" data-selected=\"true\" role=\"group\" style=\"height: 40px; left: 0px; position: absolute; top: 0px; touch-action: none; width: 80px\">\n<span hidden id=\"#id0\">\nSelected\n</span>\n<div aria-label=\"Resize node\" data-mol-id=\"canvas-node-resize-handle-a\" role=\"button\" style=\"bottom: 0px; cursor: se-resize; height: 12px; position: absolute; right: 0px; touch-action: none; width: 12px\">\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Moved\" class=\"c0dd268bc\" data-canvas-node-id=\"a\" data-mol-id=\"canvas-node-a\" role=\"group\" style=\"height: 60px; left: 40px; position: absolute; top: 60px; touch-action: none; width: 120px\">\n<div aria-label=\"Resize node\" data-mol-id=\"canvas-node-resize-handle-a\" role=\"button\" style=\"bottom: 0px; cursor: se-resize; height: 12px; position: absolute; right: 0px; touch-action: none; width: 12px\">\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Moved\" class=\"c0dd268bc\" data-canvas-node-id=\"b\" data-mol-id=\"canvas-node-b\" role=\"group\" style=\"height: 60px; left: 40px; position: absolute; top: 60px; touch-action: none; width: 120px\">\n<div aria-label=\"Resize node\" data-mol-id=\"canvas-node-resize-handle-b\" role=\"button\" style=\"bottom: 0px; cursor: se-resize; height: 12px; position: absolute; right: 0px; touch-action: none; width: 12px\">\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a node at a canvas position, then a locale switch": {
+    "snapshots": [
+     "<div aria-label=\"Canvas node\" class=\"c0dd268bc\" data-mol-id=\"canvas-node\" role=\"group\" style=\"left: 100px; position: absolute; top: 50px; touch-action: none\">\n</div>\n@route /",
+     "<div aria-label=\"⟦Canvas node⟧\" class=\"c0dd268bc\" data-mol-id=\"canvas-node\" role=\"group\" style=\"left: 100px; position: absolute; top: 50px; touch-action: none\">\n</div>\n@route /"
+    ],
+    "calls": []
+   }
+  },
+  "CanvasSurface": {
+   "a sized surface at the identity viewport": {
+    "snapshots": [
+     "<div aria-label=\"Canvas surface\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "children render in the canvas-space layer": {
+    "snapshots": [
+     "<div aria-label=\"Canvas surface\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 240px; overflow: hidden; position: relative; touch-action: none; width: 320px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<span data-child=\"1\">\nhello\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "aria label, classes and a controlled viewport": {
+    "snapshots": [
+     "<div aria-label=\"Board\" class=\"cd75bbd18 cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"10\" data-canvas-y=\"20\" data-canvas-zoom=\"2\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(2) translate(-10px, -20px); width: 0px\">\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "an initial viewport transforms the inner layer": {
+    "snapshots": [
+     "<div aria-label=\"Canvas surface\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"40\" data-canvas-y=\"-20\" data-canvas-zoom=\"1.5\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1.5) translate(-40px, 20px); width: 0px\">\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "dragging the surface pans an uncontrolled viewport": {
+    "snapshots": [
+     "<div aria-label=\"Canvas surface\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Canvas surface\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Canvas surface\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"-10\" data-canvas-y=\"-20\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(10px, 20px); width: 0px\">\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Canvas surface\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"10\" data-canvas-y=\"10\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(-10px, -10px); width: 0px\">\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Canvas surface\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"10\" data-canvas-y=\"10\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(-10px, -10px); width: 0px\">\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a cancelled pointer ends the pan": {
+    "snapshots": [
+     "<div aria-label=\"Canvas surface\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Canvas surface\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Canvas surface\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"-10\" data-canvas-y=\"-20\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(10px, 20px); width: 0px\">\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Canvas surface\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"-10\" data-canvas-y=\"-20\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(10px, 20px); width: 0px\">\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Canvas surface\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"-10\" data-canvas-y=\"-20\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(10px, 20px); width: 0px\">\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "panOnDrag false keeps the viewport": {
+    "snapshots": [
+     "<div aria-label=\"Canvas surface\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Canvas surface\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Canvas surface\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Canvas surface\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a controlled pan reports the clamped viewport": {
+    "snapshots": [
+     "<div aria-label=\"Canvas surface\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Canvas surface\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Canvas surface\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Canvas surface\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onViewportChange",
+      "args": [
+       {
+        "x": -10,
+        "y": -20,
+        "zoom": 1
+       }
+      ]
+     }
+    ]
+   },
+   "a zero zoom is treated as identity while panning": {
+    "snapshots": [
+     "<div aria-label=\"Canvas surface\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"0\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(0) translate(0px, 0px); width: 0px\">\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Canvas surface\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"0\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(0) translate(0px, 0px); width: 0px\">\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Canvas surface\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"0\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(0) translate(0px, 0px); width: 0px\">\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onViewportChange",
+      "args": [
+       {
+        "x": -10,
+        "y": -20,
+        "zoom": 0
+       }
+      ]
+     }
+    ]
+   },
+   "limits clamp the pan origin": {
+    "snapshots": [
+     "<div aria-label=\"Canvas surface\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Canvas surface\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Canvas surface\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "an empty-area press calls onBackgroundPointerDown": {
+    "snapshots": [
+     "<div aria-label=\"Canvas surface\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Canvas surface\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onBackgroundPointerDown",
+      "args": [
+       {
+        "event": "pointerdown",
+        "target": "div"
+       }
+      ]
+     }
+    ]
+   },
+   "a child press is not a background press": {
+    "snapshots": [
+     "<div aria-label=\"Canvas surface\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<span data-child=\"1\">\nhello\n</span>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Canvas surface\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<span data-child=\"1\">\nhello\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a wheel with a negated zoom factor leaves the viewport": {
+    "snapshots": [
+     "<div aria-label=\"Canvas surface\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Canvas surface\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "later props update the label": {
+    "snapshots": [
+     "<div aria-label=\"Before\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n</div>\n</div>\n@route /",
+     "<div aria-label=\"After\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Canvas surface\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a later initial viewport keeps an uncontrolled viewport": {
+    "snapshots": [
+     "<div aria-label=\"Canvas surface\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"1\" data-canvas-y=\"2\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(-1px, -2px); width: 0px\">\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Canvas surface\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"1\" data-canvas-y=\"2\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(-1px, -2px); width: 0px\">\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a sized surface at the identity viewport, then a locale switch": {
+    "snapshots": [
+     "<div aria-label=\"Canvas surface\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n</div>\n</div>\n@route /",
+     "<div aria-label=\"⟦Canvas surface⟧\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   }
+  }
+ },
+ "hooks": {
+  "useCanvasSelection": {
+   "starts empty": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "clear": "method",
+      "deselect": "method",
+      "isSelected": "method",
+      "select": "method",
+      "selected": "value",
+      "toggle": "method"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "clear": "[method]",
+       "deselect": "[method]",
+       "isSelected": "[method]",
+       "select": "[method]",
+       "selected": [],
+       "toggle": "[method]"
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "seeds from the initial ids": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "clear": "method",
+      "deselect": "method",
+      "isSelected": "method",
+      "select": "method",
+      "selected": "value",
+      "toggle": "method"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "clear": "[method]",
+       "deselect": "[method]",
+       "isSelected": "[method]",
+       "select": "[method]",
+       "selected": [
+        "a",
+        "b"
+       ],
+       "toggle": "[method]"
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "select replaces the selection by default": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "clear": "method",
+      "deselect": "method",
+      "isSelected": "method",
+      "select": "method",
+      "selected": "value",
+      "toggle": "method"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "clear": "[method]",
+       "deselect": "[method]",
+       "isSelected": "[method]",
+       "select": "[method]",
+       "selected": [
+        "a"
+       ],
+       "toggle": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "clear": "[method]",
+       "deselect": "[method]",
+       "isSelected": "[method]",
+       "select": "[method]",
+       "selected": [
+        "b"
+       ],
+       "toggle": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "clear": "[method]",
+       "deselect": "[method]",
+       "isSelected": "[method]",
+       "select": "[method]",
+       "selected": [
+        "b"
+       ],
+       "toggle": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "clear": "[method]",
+       "deselect": "[method]",
+       "isSelected": "[method]",
+       "select": "[method]",
+       "selected": [
+        "b"
+       ],
+       "toggle": "[method]"
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "=> select",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     },
+     {
+      "name": "=> isSelected",
+      "args": [
+       {
+        "returned": false
+       }
+      ]
+     },
+     {
+      "name": "=> isSelected",
+      "args": [
+       {
+        "returned": true
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "an additive select merges": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "clear": "method",
+      "deselect": "method",
+      "isSelected": "method",
+      "select": "method",
+      "selected": "value",
+      "toggle": "method"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "clear": "[method]",
+       "deselect": "[method]",
+       "isSelected": "[method]",
+       "select": "[method]",
+       "selected": [
+        "a"
+       ],
+       "toggle": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "clear": "[method]",
+       "deselect": "[method]",
+       "isSelected": "[method]",
+       "select": "[method]",
+       "selected": [
+        "a",
+        "b",
+        "c"
+       ],
+       "toggle": "[method]"
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "=> select",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "toggle flips a membership": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "clear": "method",
+      "deselect": "method",
+      "isSelected": "method",
+      "select": "method",
+      "selected": "value",
+      "toggle": "method"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "clear": "[method]",
+       "deselect": "[method]",
+       "isSelected": "[method]",
+       "select": "[method]",
+       "selected": [],
+       "toggle": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "clear": "[method]",
+       "deselect": "[method]",
+       "isSelected": "[method]",
+       "select": "[method]",
+       "selected": [
+        "a"
+       ],
+       "toggle": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "clear": "[method]",
+       "deselect": "[method]",
+       "isSelected": "[method]",
+       "select": "[method]",
+       "selected": [],
+       "toggle": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "clear": "[method]",
+       "deselect": "[method]",
+       "isSelected": "[method]",
+       "select": "[method]",
+       "selected": [
+        "b"
+       ],
+       "toggle": "[method]"
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "=> toggle",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     },
+     {
+      "name": "=> toggle",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     },
+     {
+      "name": "=> toggle",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "deselect removes a present id and ignores an absent one": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "clear": "method",
+      "deselect": "method",
+      "isSelected": "method",
+      "select": "method",
+      "selected": "value",
+      "toggle": "method"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "clear": "[method]",
+       "deselect": "[method]",
+       "isSelected": "[method]",
+       "select": "[method]",
+       "selected": [
+        "a",
+        "b"
+       ],
+       "toggle": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "clear": "[method]",
+       "deselect": "[method]",
+       "isSelected": "[method]",
+       "select": "[method]",
+       "selected": [
+        "b"
+       ],
+       "toggle": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "clear": "[method]",
+       "deselect": "[method]",
+       "isSelected": "[method]",
+       "select": "[method]",
+       "selected": [
+        "b"
+       ],
+       "toggle": "[method]"
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "=> deselect",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     },
+     {
+      "name": "=> deselect",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "clear empties the selection": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "clear": "method",
+      "deselect": "method",
+      "isSelected": "method",
+      "select": "method",
+      "selected": "value",
+      "toggle": "method"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "clear": "[method]",
+       "deselect": "[method]",
+       "isSelected": "[method]",
+       "select": "[method]",
+       "selected": [
+        "a",
+        "b"
+       ],
+       "toggle": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "clear": "[method]",
+       "deselect": "[method]",
+       "isSelected": "[method]",
+       "select": "[method]",
+       "selected": [],
+       "toggle": "[method]"
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "=> clear",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "controlled mode reports each change and keeps the given set": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "clear": "method",
+      "deselect": "method",
+      "isSelected": "method",
+      "select": "method",
+      "selected": "value",
+      "toggle": "method"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "clear": "[method]",
+       "deselect": "[method]",
+       "isSelected": "[method]",
+       "select": "[method]",
+       "selected": [
+        "a"
+       ],
+       "toggle": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "clear": "[method]",
+       "deselect": "[method]",
+       "isSelected": "[method]",
+       "select": "[method]",
+       "selected": [
+        "a"
+       ],
+       "toggle": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "clear": "[method]",
+       "deselect": "[method]",
+       "isSelected": "[method]",
+       "select": "[method]",
+       "selected": [
+        "a"
+       ],
+       "toggle": "[method]"
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "onChange",
+      "args": [
+       [
+        "a",
+        "b"
+       ]
+      ]
+     },
+     {
+      "name": "=> toggle",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     },
+     {
+      "name": "onChange",
+      "args": [
+       [
+        "a",
+        "c"
+       ]
+      ]
+     },
+     {
+      "name": "=> select",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "a later controlled set replaces the selection": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "clear": "method",
+      "deselect": "method",
+      "isSelected": "method",
+      "select": "method",
+      "selected": "value",
+      "toggle": "method"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "clear": "[method]",
+       "deselect": "[method]",
+       "isSelected": "[method]",
+       "select": "[method]",
+       "selected": [
+        "a"
+       ],
+       "toggle": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "clear": "[method]",
+       "deselect": "[method]",
+       "isSelected": "[method]",
+       "select": "[method]",
+       "selected": [
+        "x",
+        "y"
+       ],
+       "toggle": "[method]"
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   }
+  },
+  "useCanvasViewport": {
+   "seeds from the initial viewport": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "panBy": "method",
+      "reset": "method",
+      "setViewport": "method",
+      "viewport": "value",
+      "zoomBy": "method"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "panBy": "[method]",
+       "reset": "[method]",
+       "setViewport": "[method]",
+       "viewport": {
+        "x": 10,
+        "y": 20,
+        "zoom": 2
+       },
+       "zoomBy": "[method]"
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "defaults to the identity viewport": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "panBy": "method",
+      "reset": "method",
+      "setViewport": "method",
+      "viewport": "value",
+      "zoomBy": "method"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "panBy": "[method]",
+       "reset": "[method]",
+       "setViewport": "[method]",
+       "viewport": {
+        "x": 0,
+        "y": 0,
+        "zoom": 1
+       },
+       "zoomBy": "[method]"
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "panBy divides the screen delta by the zoom": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "panBy": "method",
+      "reset": "method",
+      "setViewport": "method",
+      "viewport": "value",
+      "zoomBy": "method"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "panBy": "[method]",
+       "reset": "[method]",
+       "setViewport": "[method]",
+       "viewport": {
+        "x": 0,
+        "y": 0,
+        "zoom": 2
+       },
+       "zoomBy": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "panBy": "[method]",
+       "reset": "[method]",
+       "setViewport": "[method]",
+       "viewport": {
+        "x": -50,
+        "y": -25,
+        "zoom": 2
+       },
+       "zoomBy": "[method]"
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "=> panBy",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "panBy treats a zero zoom as identity": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "panBy": "method",
+      "reset": "method",
+      "setViewport": "method",
+      "viewport": "value",
+      "zoomBy": "method"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "panBy": "[method]",
+       "reset": "[method]",
+       "setViewport": "[method]",
+       "viewport": {
+        "x": 0,
+        "y": 0,
+        "zoom": 0
+       },
+       "zoomBy": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "panBy": "[method]",
+       "reset": "[method]",
+       "setViewport": "[method]",
+       "viewport": {
+        "x": -40,
+        "y": -20,
+        "zoom": 0
+       },
+       "zoomBy": "[method]"
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "=> panBy",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "zoomBy holds the focal point fixed": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "panBy": "method",
+      "reset": "method",
+      "setViewport": "method",
+      "viewport": "value",
+      "zoomBy": "method"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "panBy": "[method]",
+       "reset": "[method]",
+       "setViewport": "[method]",
+       "viewport": {
+        "x": 0,
+        "y": 0,
+        "zoom": 1
+       },
+       "zoomBy": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "panBy": "[method]",
+       "reset": "[method]",
+       "setViewport": "[method]",
+       "viewport": {
+        "x": 25,
+        "y": 25,
+        "zoom": 2
+       },
+       "zoomBy": "[method]"
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "=> zoomBy",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "zoomBy ignores a non-positive factor": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "panBy": "method",
+      "reset": "method",
+      "setViewport": "method",
+      "viewport": "value",
+      "zoomBy": "method"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "panBy": "[method]",
+       "reset": "[method]",
+       "setViewport": "[method]",
+       "viewport": {
+        "x": 1,
+        "y": 2,
+        "zoom": 1
+       },
+       "zoomBy": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "panBy": "[method]",
+       "reset": "[method]",
+       "setViewport": "[method]",
+       "viewport": {
+        "x": 1,
+        "y": 2,
+        "zoom": 1
+       },
+       "zoomBy": "[method]"
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "=> zoomBy",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "setViewport clamps through the limits": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "panBy": "method",
+      "reset": "method",
+      "setViewport": "method",
+      "viewport": "value",
+      "zoomBy": "method"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "panBy": "[method]",
+       "reset": "[method]",
+       "setViewport": "[method]",
+       "viewport": {
+        "x": 0,
+        "y": 0,
+        "zoom": 1
+       },
+       "zoomBy": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "panBy": "[method]",
+       "reset": "[method]",
+       "setViewport": "[method]",
+       "viewport": {
+        "x": 0,
+        "y": 0,
+        "zoom": 4
+       },
+       "zoomBy": "[method]"
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "=> setViewport",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "zoomBy clamps through the limits": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "panBy": "method",
+      "reset": "method",
+      "setViewport": "method",
+      "viewport": "value",
+      "zoomBy": "method"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "panBy": "[method]",
+       "reset": "[method]",
+       "setViewport": "[method]",
+       "viewport": {
+        "x": 0,
+        "y": 0,
+        "zoom": 1
+       },
+       "zoomBy": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "panBy": "[method]",
+       "reset": "[method]",
+       "setViewport": "[method]",
+       "viewport": {
+        "x": 0,
+        "y": 0,
+        "zoom": 2
+       },
+       "zoomBy": "[method]"
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "=> zoomBy",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "reset returns to the initial viewport": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "panBy": "method",
+      "reset": "method",
+      "setViewport": "method",
+      "viewport": "value",
+      "zoomBy": "method"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "panBy": "[method]",
+       "reset": "[method]",
+       "setViewport": "[method]",
+       "viewport": {
+        "x": 5,
+        "y": 5,
+        "zoom": 1
+       },
+       "zoomBy": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "panBy": "[method]",
+       "reset": "[method]",
+       "setViewport": "[method]",
+       "viewport": {
+        "x": -35,
+        "y": -35,
+        "zoom": 1
+       },
+       "zoomBy": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "panBy": "[method]",
+       "reset": "[method]",
+       "setViewport": "[method]",
+       "viewport": {
+        "x": 5,
+        "y": 5,
+        "zoom": 1
+       },
+       "zoomBy": "[method]"
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "=> panBy",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     },
+     {
+      "name": "=> reset",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "controlled mode reports updates and keeps the given viewport": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "panBy": "method",
+      "reset": "method",
+      "setViewport": "method",
+      "viewport": "value",
+      "zoomBy": "method"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "panBy": "[method]",
+       "reset": "[method]",
+       "setViewport": "[method]",
+       "viewport": {
+        "x": 0,
+        "y": 0,
+        "zoom": 1
+       },
+       "zoomBy": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "panBy": "[method]",
+       "reset": "[method]",
+       "setViewport": "[method]",
+       "viewport": {
+        "x": 0,
+        "y": 0,
+        "zoom": 1
+       },
+       "zoomBy": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "panBy": "[method]",
+       "reset": "[method]",
+       "setViewport": "[method]",
+       "viewport": {
+        "x": 0,
+        "y": 0,
+        "zoom": 1
+       },
+       "zoomBy": "[method]"
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "onChange",
+      "args": [
+       {
+        "x": -20,
+        "y": 0,
+        "zoom": 1
+       }
+      ]
+     },
+     {
+      "name": "=> panBy",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     },
+     {
+      "name": "onChange",
+      "args": [
+       {
+        "x": 5,
+        "y": 5,
+        "zoom": 2
+       }
+      ]
+     },
+     {
+      "name": "=> zoomBy",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "a new options object follows the viewport and keeps the seed": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "panBy": "method",
+      "reset": "method",
+      "setViewport": "method",
+      "viewport": "value",
+      "zoomBy": "method"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "panBy": "[method]",
+       "reset": "[method]",
+       "setViewport": "[method]",
+       "viewport": {
+        "x": 1,
+        "y": 2,
+        "zoom": 1
+       },
+       "zoomBy": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "panBy": "[method]",
+       "reset": "[method]",
+       "setViewport": "[method]",
+       "viewport": {
+        "x": 7,
+        "y": 8,
+        "zoom": 2
+       },
+       "zoomBy": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "panBy": "[method]",
+       "reset": "[method]",
+       "setViewport": "[method]",
+       "viewport": {
+        "x": 7,
+        "y": 8,
+        "zoom": 2
+       },
+       "zoomBy": "[method]"
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "onChange",
+      "args": [
+       {
+        "x": 1,
+        "y": 2,
+        "zoom": 1
+       }
+      ]
+     },
+     {
+      "name": "=> reset",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   }
+  }
+ }
+}
