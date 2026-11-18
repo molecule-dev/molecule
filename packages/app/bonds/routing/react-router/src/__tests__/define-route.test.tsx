@@ -65,6 +65,34 @@ it.each([
   expect(screen.getByRole<HTMLInputElement>('textbox', { name: 'Shelf title' }).value).toBe(title)
 })
 
+it('builds the saved record destination from the same declaration that mounts it', () => {
+  const detail = defineRoute('/shelves/:shelf', ({ shelf }) => <h1>{shelf}</h1>)
+  const saved = { slug: 'reference/maps #1' }
+  const destination = detail.href?.({ shelf: saved.slug })
+  expect(destination).toBe('/shelves/reference%2Fmaps%20%231')
+
+  function Detail() {
+    return useRoutes([detail])
+  }
+  render(
+    <MemoryRouter initialEntries={[destination!]}>
+      <Detail />
+    </MemoryRouter>,
+  )
+  expect(screen.getByRole('heading', { name: saved.slug })).toBeDefined()
+  expectTypeOf(detail.href).parameter(0).toExtend<{ shelf: string }>()
+})
+
+it('builds static and optional-parameter links without changing how their pages are mounted', () => {
+  const home = defineRoute('/library', () => null)
+  const search = defineRoute('/search/:query?', () => null)
+  const files = defineRoute('/files/*', () => null)
+  expect(home.href?.()).toBe('/library')
+  expect(search.href?.()).toBe('/search')
+  expect(search.href?.({ query: 'street maps' })).toBe('/search/street%20maps')
+  expect(files.href?.({ '*': 'guides/street maps' })).toBe('/files/guides/street%20maps')
+})
+
 function TypecheckedShelf(_props: { params: { shelf: string | undefined } }) {
   return null
 }

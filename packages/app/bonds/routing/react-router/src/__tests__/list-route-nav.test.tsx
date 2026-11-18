@@ -81,6 +81,71 @@ const library = {
 } satisfies Record<string, ListRouteNavItem>
 
 describe('ListRouteNav URL-selected navigation', () => {
+  it('uses the same literal route to select the active link and the rendered list', () => {
+    const selections = {
+      open: { path: '/members/:member', label: 'Open work' },
+      saved: { path: '/members/:member/saved', label: 'Saved work' },
+    }
+    const rows = { open: 'Draft contract', saved: 'Signed contract' }
+
+    function Page() {
+      return (
+        <ListRouteNav aria-label="Member work" selections={selections}>
+          {({ selection }) => <output data-testid="rows">{selection && rows[selection]}</output>}
+        </ListRouteNav>
+      )
+    }
+
+    act(() => {
+      root.render(
+        <MemoryRouter initialEntries={['/members/morgan/saved']}>
+          <Routes>
+            <Route path="/members/:member/:view?" element={<Page />} />
+          </Routes>
+        </MemoryRouter>,
+      )
+    })
+    expect(read('rows')).toBe('Signed contract')
+    expect(choice('saved').getAttribute('aria-current')).toBe('page')
+    act(() => choice('open').click())
+    expect(read('rows')).toBe('Draft contract')
+    expect(choice('open').getAttribute('aria-current')).toBe('page')
+  })
+
+  it('keeps loaded filter links visible while the new selection loads its rows', () => {
+    const selections = {
+      all: { path: '/library', label: 'All books' },
+      history: { path: '/library/:shelf', params: { shelf: 'history' }, label: 'History' },
+      fiction: { path: '/library/:shelf', params: { shelf: 'fiction' }, label: 'Fiction' },
+    }
+    const rows = { all: 'All books', history: 'Loading history', fiction: 'Loading fiction' }
+
+    act(() => {
+      root.render(
+        <MemoryRouter initialEntries={['/library']}>
+          <Routes>
+            <Route
+              path="/library/:shelf?"
+              element={
+                <ListRouteNav aria-label="Filter books" selections={selections}>
+                  {({ selection }) => (
+                    <output data-testid="rows">{selection && rows[selection]}</output>
+                  )}
+                </ListRouteNav>
+              }
+            />
+          </Routes>
+        </MemoryRouter>,
+      )
+    })
+    const history = choice('history')
+    act(() => history.click())
+    expect(read('rows')).toBe('Loading history')
+    expect(choice('history')).toBe(history)
+    expect(choice('history').getAttribute('aria-current')).toBe('page')
+    expect(choice('fiction').getAttribute('href')).toBe('/library/fiction')
+  })
+
   it('keeps list markup while a named destination resets the page and leaves its source path', () => {
     mount('/shelves/reference?page=2&sort=title', library, {
       list: { className: 'library-menu', itemClassName: 'library-menu-item' },

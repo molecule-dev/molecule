@@ -10,7 +10,7 @@ import { Link, useParams } from 'react-router'
 import type { RouteParams } from '@molecule/app-routing'
 import { generatePath } from '@molecule/app-routing'
 
-import type { ListRouteAuth, ListRouteSelection } from './list-types.js'
+import type { ListRouteAuth, ListRouteResult, ListRouteSelection } from './list-types.js'
 import { useListRoute } from './useListRoute.js'
 
 /** A named list view and its navigation label. */
@@ -52,6 +52,8 @@ export interface ListRouteNavProps<Selection extends string = string> extends Om
   list?: { className?: string; itemClassName?: string }
   /** App-owned styling, resolved from its class map. */
   linkClassName?: string | ((state: ListRouteNavItemState<Selection>) => string | undefined)
+  /** Render the list beside the nav using its exact URL state, including resolved item params. */
+  children?: (route: ListRouteResult<string, Selection>) => ReactNode
 }
 
 /**
@@ -59,9 +61,11 @@ export interface ListRouteNavProps<Selection extends string = string> extends Om
  * selecting any view resets pagination through useListRoute. Native link behavior (new-tab
  * clicks, keyboard activation and history) is preserved. This is a navigation landmark,
  * not an ARIA tablist with local panels. No active-value state or change handler is needed.
+ * When children are supplied, they render after the navigation landmark. Put loading and
+ * empty results in that branch so a pending list never removes the filter controls.
  *
  * @param props - Named destinations, translated labels, optional auth and native nav attributes.
- * @returns The navigation landmark and all its declared choices.
+ * @returns The navigation landmark with all its choices, followed by any rendered content.
  */
 export function ListRouteNav<Selection extends string>({
   selections,
@@ -70,6 +74,7 @@ export function ListRouteNav<Selection extends string>({
   auth,
   list,
   linkClassName,
+  children,
   ...rest
 }: ListRouteNavProps<Selection>): JSX.Element {
   const routeParams = useParams()
@@ -125,5 +130,10 @@ export function ListRouteNav<Selection extends string>({
     },
   )
 
-  return <nav {...rest}>{list ? <ul className={list.className}>{links}</ul> : links}</nav>
+  return (
+    <>
+      <nav {...rest}>{list ? <ul className={list.className}>{links}</ul> : links}</nav>
+      {children?.(route)}
+    </>
+  )
 }

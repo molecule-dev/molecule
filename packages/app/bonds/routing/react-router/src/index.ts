@@ -26,6 +26,10 @@
  *   defineRoute('/shelves/:shelf/saved', ({ shelf }) => <Shelf name={shelf} view="saved" />),
  * ]
  * ```
+ * Keep the returned route when links or a save handler need its destination. For
+ * `const detail = defineRoute('/shelves/:shelf', { Component: ShelfDetail })`, use
+ * `detail.href({ shelf: saved.slug })` to navigate to the saved record. A profile
+ * form can call it from `useProfileForm`'s `onSaved` after it updates other caches.
  *
  * **Paginated or filtered page? Use `useListRoute` for its URL state.** It reads
  * page, filters and selected views from the current URL; builds links that retain
@@ -43,6 +47,10 @@
  * path and query together. It renders every declared choice on every route, builds
  * each destination through `useListRoute`, resets pagination on selection, and derives
  * the active link from the URL. Keep this declaration shared by the related routes.
+ * Give it a render function as children to use the same selection, params and page
+ * for the list query and links. Render loading and empty results inside that branch.
+ * Place the nav at the same level on each route, including a filtered route, so the
+ * controls remain available while the result changes.
  * Pass `list={{ className, itemClassName }}` when the design uses a list of links.
  * Use the UI package's `Tabs` for panels whose selection is genuinely local state.
  *
@@ -62,7 +70,9 @@
  *         open: { path: '/orders', query: { view: 'open' },
  *           label: t('orders.open', undefined, { defaultValue: 'Open orders' }) },
  *       }}
- *     />
+ *     >
+ *       {({ selection, page }) => <OrderResults view={selection} page={page} />}
+ *     </ListRouteNav>
  *   )
  * }
  * ```
