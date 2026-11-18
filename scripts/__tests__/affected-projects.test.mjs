@@ -88,8 +88,12 @@ function fixture() {
     git('add', '--', ...Object.keys(changes))
     git('commit', '-qm', 'fixture change')
   }
+  // The fixture is its own unsharded CI job. Every CI test shard sets MOL_VITEST_SHARD=<i>/8, and an inherited
+  // shard selected 0 of the fixture's one project, so its `npm test` exited 0 having run nothing.
   const env = (extra = {}) => ({
-    ...process.env,
+    ...Object.fromEntries(
+      Object.entries(process.env).filter(([name]) => !name.startsWith('MOL_VITEST_')),
+    ),
     TMPDIR: path.join(dir, 'tmp'),
     GITHUB_EVENT_NAME: 'push',
     GITHUB_EVENT_BEFORE: base,
@@ -115,7 +119,8 @@ afterEach(() => {
   for (const dir of fixtures.splice(0)) fs.rmSync(dir, { recursive: true, force: true })
 })
 
-describe('trust-only affected scope', () => {
+// Each test builds a real Git fixture and spawns Node, so it gets the same limit as the suite runs it drives.
+describe('trust-only affected scope', { timeout: 30000 }, () => {
   it('uses the identical CI rule in a committed export with an explicit changed-file inventory', () => {
     const f = fixture()
     f.change({ 'packages/api/core/a/src/index.ts': 'export const changed = true\n' })
@@ -200,7 +205,7 @@ describe('trust-only affected scope', () => {
   }, 30000)
 })
 
-describe('source-only affected scope', () => {
+describe('source-only affected scope', { timeout: 30000 }, () => {
   it('runs the repository guards with the affected packages', () => {
     const f = fixture()
     f.change({ 'packages/api/core/c/src/index.ts': 'export const value=2\n' })
