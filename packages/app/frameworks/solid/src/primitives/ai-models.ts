@@ -135,7 +135,10 @@ export function resetAIModelsCache(): void {
  * names React returns).
  */
 export interface UseAIModelsResult {
-  /** Available models (an empty array while loading), as an accessor. */
+  /**
+   * Available models (an empty array while loading or after a failed fetch), as an accessor. Every read returns
+   * the same list until the catalog changes, the empty one included.
+   */
   models: Accessor<AppModelDefinition[]>
   /** Per-mode server default model ids, or undefined while loading, as an accessor. */
   defaults: Accessor<AppModeModelDefaults | undefined>
@@ -207,10 +210,12 @@ export function useAIModels(projectId?: MaybeAccessor<string>): UseAIModelsResul
     stopListener = null
   })
 
+  // One empty list per instance: a new `[]` on every read would change the identity of an unchanged catalog.
+  const none: AppModelDefinition[] = []
   return {
-    models: () => snapshot().models ?? [],
+    models: () => snapshot().models ?? none,
     defaults: () => snapshot().defaults,
-    freeTierModel: () => pickFreeTierModel(snapshot().models ?? []),
+    freeTierModel: () => pickFreeTierModel(snapshot().models ?? none),
     loading: () => !snapshot().models && !snapshot().error,
     error: () => snapshot().error,
   }

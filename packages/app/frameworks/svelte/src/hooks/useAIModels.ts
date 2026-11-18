@@ -143,7 +143,10 @@ interface CacheSnapshot {
  * Result returned by `useAIModels`.
  */
 export interface UseAIModelsResult {
-  /** Available models, or an empty array while loading, as a readable store. */
+  /**
+   * Available models, or an empty array while loading or after a failed fetch, as a readable store. The list
+   * keeps its identity until the catalog changes, the empty one included.
+   */
   models: Readable<AppModelDefinition[]>
   /**
    * Per-mode server default model ids for the requester's tier, or `undefined`
@@ -228,11 +231,13 @@ export function useAIModels(projectId?: MaybeReadable<string | undefined>): UseA
   })
   onDestroy(stopProjectId)
 
+  // One empty list per instance: a new `[]` on every read would change the identity of an unchanged catalog.
+  const none: AppModelDefinition[] = []
   const loading = derived(snapshot, (current) => !current.models && !current.error)
   return {
-    models: derived(snapshot, (current) => current.models ?? []),
+    models: derived(snapshot, (current) => current.models ?? none),
     defaults: fieldStore(snapshot, 'defaults'),
-    freeTierModel: derived(snapshot, (current) => pickFreeTierModel(current.models ?? [])),
+    freeTierModel: derived(snapshot, (current) => pickFreeTierModel(current.models ?? none)),
     loading,
     error: fieldStore(snapshot, 'error'),
   }

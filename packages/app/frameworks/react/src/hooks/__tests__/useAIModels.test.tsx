@@ -137,4 +137,27 @@ describe('useAIModels', () => {
     expect(result.current.error?.message).toBe('boom')
     expect(result.current.models).toEqual([])
   })
+
+  it('keeps one empty models list while the catalog loads and after it fails', async () => {
+    let fail: (error: Error) => void = () => undefined
+    const failingClient = {
+      ...makeClient([]).client,
+      get: vi.fn(
+        () =>
+          new Promise<never>((_resolve, reject) => {
+            fail = reject
+          }),
+      ),
+    } as unknown as HttpClient
+    const { result, rerender } = renderHook(() => useAIModels(), {
+      wrapper: wrapperFor(failingClient),
+    })
+    const first = result.current.models
+    rerender()
+    expect(result.current.models).toBe(first)
+
+    fail(new Error('boom'))
+    await waitFor(() => expect(result.current.loading).toBe(false))
+    expect(result.current.models).toBe(first)
+  })
 })

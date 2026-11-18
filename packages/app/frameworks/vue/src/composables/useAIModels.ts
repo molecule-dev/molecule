@@ -142,7 +142,10 @@ export function resetAIModelsCache(): void {
  * Result returned by `useAIModels`.
  */
 export interface UseAIModelsResult {
-  /** Available models, or an empty array while loading. */
+  /**
+   * Available models, or an empty array while loading or after a failed fetch. The list keeps its identity
+   * until the catalog changes, the empty one included, so it can key a watcher.
+   */
   models: Ref<AppModelDefinition[]>
   /**
    * Per-mode server default model ids for the requester's tier, or `undefined`
@@ -220,7 +223,9 @@ export function useAIModels(projectId?: MaybeRefOrGetter<string | undefined>): U
     })
   }
 
-  const models = computed(() => snapshot.value.models ?? [])
+  // One empty list per instance: a new `[]` on every read would change the identity of an unchanged catalog.
+  const none: AppModelDefinition[] = []
+  const models = computed(() => snapshot.value.models ?? none)
   return {
     models,
     defaults: computed(() => snapshot.value.defaults),

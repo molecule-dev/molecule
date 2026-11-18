@@ -141,7 +141,10 @@ interface AIModelsSnapshot {
  * Result returned by {@link useAIModels}: every field as a signal.
  */
 export interface UseAIModelsResult {
-  /** Available models, or an empty array while loading. */
+  /**
+   * Available models, or an empty array while loading or after a failed fetch. The list keeps its identity
+   * until the catalog changes, the empty one included, so it can key a computed or an effect.
+   */
   readonly models: Signal<AppModelDefinition[]>
   /**
    * Per-mode server default model ids for the requester's tier, or `undefined`
@@ -214,7 +217,9 @@ export function useAIModels(projectId?: MaybeSignal<string | undefined>): UseAIM
     listenersFor(scope).delete(listener)
   })
 
-  const models = computed(() => snapshot().models ?? [])
+  // One empty list per instance: a new `[]` on every read would change the identity of an unchanged catalog.
+  const none: AppModelDefinition[] = []
+  const models = computed(() => snapshot().models ?? none)
   return {
     models,
     defaults: computed(() => snapshot().defaults),

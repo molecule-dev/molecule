@@ -12,7 +12,7 @@
  * @module
  */
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import type { AppModelDefinition, AppModeModelDefaults } from '@molecule/app-ai-models'
 import { loadAIModelCatalog, pickFreeTierModel } from '@molecule/app-ai-models'
@@ -145,7 +145,10 @@ export function resetAIModelsCache(): void {
  * Result returned by `useAIModels`.
  */
 export interface UseAIModelsResult {
-  /** Available models, or an empty array while loading. */
+  /**
+   * Available models, or an empty array while loading or after a failed fetch. The list keeps its identity
+   * until the catalog changes, the empty one included, so it can key a memo or an effect.
+   */
   models: AppModelDefinition[]
   /**
    * Per-mode server default model ids for the requester's tier, or `undefined`
@@ -197,7 +200,9 @@ export function useAIModels(projectId?: string): UseAIModelsResult {
     }
   }, [http, scope])
 
-  const models = snapshot.models ?? []
+  // One empty list per hook: a new `[]` on every render would change the identity of an unchanged catalog.
+  const none = useMemo<AppModelDefinition[]>(() => [], [])
+  const models = snapshot.models ?? none
   return {
     models,
     defaults: snapshot.defaults,
