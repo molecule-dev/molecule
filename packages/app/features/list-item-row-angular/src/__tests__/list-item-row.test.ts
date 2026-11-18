@@ -28,7 +28,9 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 // Proxy ClassMap echoing each accessed member back as its token (e.g.
 // `cursorPointer`), so tests can assert which cm.* class was applied without a
-// real bond — the same mock the React tests use.
+// real bond — the same mock the React tests use. Angular's `[class]` binding
+// takes a plain string, so the icon-wrapper members (used as values, not
+// called) resolve to their token string instead of a callable.
 vi.mock('@molecule/app-ui', () => ({
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
@@ -42,6 +44,7 @@ vi.mock('@molecule/app-ui', () => ({
               .join(' ')
         }
         const token = String(prop)
+        if (token === 'buttonIconLeft' || token === 'buttonIconRight') return token
         return (..._args: unknown[]) => token
       },
     }
@@ -55,6 +58,8 @@ const { ListItemRow } = await import('../list-item-row.component.js')
 interface Mounted {
   /** The host element whose children the component template produced. */
   readonly host: HTMLElement
+  /** The running application, for an explicit change-detection pass. */
+  readonly appRef: ApplicationRef
   /** Destroys the app and removes the host. */
   destroy(): Promise<void>
 }
@@ -97,6 +102,7 @@ async function mount(
   appRef.tick()
   return {
     host,
+    appRef,
     destroy: async () => {
       appRef.destroy()
       host.remove()
@@ -243,4 +249,48 @@ describe('ListItemRow', () => {
     const m = await render({ title: 'T', className: 'lir-cls' })
     expect(rowOf(m).getAttribute('class')).toContain('lir-cls')
   })
+})
+
+it('turns a loaded row toggle into its own button that persists the change', async () => {
+  let saved = false
+  const open = vi.fn()
+  const commit = vi.fn(async (desired: boolean) => (saved = desired))
+  const row = () => ({
+    title: 'Sprint plan',
+    metadata: '4 collaborators',
+    onClick: open,
+    toggle: {
+      value: saved,
+      commit,
+      activeLabel: 'Unpin',
+      inactiveLabel: 'Pin',
+    },
+  })
+  const m = await mount(
+    `<div mol-list-item-row [title]="p['title']" [metadata]="p['metadata']" [onClick]="p['onClick']" [toggle]="p['toggle']"></div>`,
+    ListItemRow as Type<unknown>,
+    row(),
+  )
+  mounted.push(m)
+  const toggle = m.host.querySelector<HTMLButtonElement>('button[aria-pressed]')
+  expect(toggle?.textContent?.trim()).toBe('Pin')
+  toggle!.click()
+  for (let i = 0; i < 5; i += 1) await Promise.resolve()
+  m.appRef.tick()
+  expect(commit).toHaveBeenCalledExactlyOnceWith(true)
+  expect(open).not.toHaveBeenCalled()
+  expect(toggle?.textContent?.trim()).toBe('Unpin')
+  const next = await mount(
+    `<div mol-list-item-row [title]="p['title']" [metadata]="p['metadata']" [onClick]="p['onClick']" [toggle]="p['toggle']"></div>`,
+    ListItemRow as Type<unknown>,
+    row(),
+  )
+  mounted.push(next)
+  expect(next.host.querySelector('button[aria-pressed="true"]')?.textContent?.trim()).toBe('Unpin')
+})
+
+it('counterexample: row metadata is read-only when there is no toggle', async () => {
+  const m = await render({ title: 'Sprint plan', metadata: '4 collaborators' })
+  expect(m.host.textContent).toContain('4 collaborators')
+  expect(m.host.querySelector('button')).toBeNull()
 })

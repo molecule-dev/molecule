@@ -3,8 +3,9 @@
  *
  * Exports `<ListItemRow>` — leading slot (icon/avatar/thumbnail) + up to three
  * text lines (title / subtitle / metadata) + right-side actions. Inputs: `title`,
- * `subtitle?`, `metadata?`, `leading?`, `actions?`, `onClick?`, `selected?`,
- * `disabled?`, `density?` (`'comfortable'` default | `'compact'`), `className?`.
+ * `subtitle?`, `metadata?`, `leading?`, `actions?`, `toggle?`, `onClick?`,
+ * `selected?`, `disabled?`, `density?` (`'comfortable'` default | `'compact'`),
+ * `className?`.
  * Use for nav lists, mobile menus, search results, picker dialogs, inbox threads.
  * For table rows use `<RowWithActions>` from `@molecule/app-data-table-ui-angular`
  * instead — this component is not a `<tr>`. It is the Angular counterpart of

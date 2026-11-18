@@ -16,8 +16,10 @@ import {
 
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
+import { OptimisticToggleButton } from '@molecule/app-ui-angular'
 
 import { hasNodes, SlotGuard } from './slot-dom.js'
+import type { ListItemRowProps } from './types.js'
 
 /**
  * ListItemRow component.
@@ -47,12 +49,14 @@ import { hasNodes, SlotGuard } from './slot-dom.js'
 @Component({
   selector: 'div[mol-list-item-row]',
   standalone: true,
+  imports: [OptimisticToggleButton],
   inputs: [
     'title',
     'subtitle',
     'metadata',
     'leading',
     'actions',
+    'toggle',
     'onClick',
     'selected',
     'disabled',
@@ -103,6 +107,24 @@ import { hasNodes, SlotGuard } from './slot-dom.js'
       </div>
     </div>
     <div #actionsWrap [class]="actionsClass()">
+      @if (toggle) {
+        <button
+          mol-optimistic-toggle-button
+          [value]="toggle.value"
+          [commit]="toggle.commit"
+          [onError]="toggle.onError"
+          [variant]="toggle.variant"
+          [color]="toggle.color"
+          [size]="toggle.size"
+          [fullWidth]="toggle.fullWidth ?? false"
+          [disabled]="toggle.disabled ?? false"
+          [className]="toggle.className"
+          [testId]="toggle.testId"
+        >
+          <span slot="activeLabel">{{ toggle.activeLabel }}</span>
+          <span slot="inactiveLabel">{{ toggle.inactiveLabel }}</span>
+        </button>
+      }
       @if (actionsText()) {
         {{ actionsText() }}
       }
@@ -120,6 +142,8 @@ export class ListItemRow implements AfterViewInit, AfterViewChecked {
   leading?: unknown
   /** Optional right-side actions (`[slot=actions]` content, or text). */
   actions?: unknown
+  /** Loaded boolean action rendered as its own native button, independently of read-only metadata. */
+  toggle?: ListItemRowProps['toggle']
   /**
    * Called when the row is activated (React's `onClick`, called bare). The
    * whole row is clickable through a transparent native button over it, named
@@ -368,6 +392,9 @@ export class ListItemRow implements AfterViewInit, AfterViewChecked {
     this.guard.toggle(leading, this.leadingText() !== '' || this.hasLeadingSlot)
     this.guard.toggle(subtitle, this.subtitleText() !== '' || this.hasSubtitleSlot)
     this.guard.toggle(metadata, this.metadataText() !== '' || this.hasMetadataSlot)
-    this.guard.toggle(actions, this.actionsText() !== '' || this.hasActionsSlot)
+    this.guard.toggle(
+      actions,
+      this.actionsText() !== '' || this.hasActionsSlot || Boolean(this.toggle),
+    )
   }
 }

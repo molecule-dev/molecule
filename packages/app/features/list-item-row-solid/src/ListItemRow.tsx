@@ -10,6 +10,7 @@
 import { type Component, createUniqueId } from 'solid-js'
 
 import { getClassMap } from '@molecule/app-ui'
+import { OptimisticToggleButton } from '@molecule/app-ui-solid'
 
 import type { ListItemRowProps } from './types.js'
 
@@ -80,9 +81,12 @@ export const ListItemRow: Component<ListItemRowProps> = (props) => {
         {props.subtitle && <div class={cm.textSize('sm')}>{props.subtitle}</div>}
         {props.metadata && <div class={cm.textSize('xs')}>{props.metadata}</div>}
       </div>
-      {props.actions && (
-        <div class={cm.cn(cm.shrink0, cm.position('relative'))}>{props.actions}</div>
-      )}
+      {props.toggle || props.actions ? (
+        <div class={cm.cn(cm.shrink0, cm.position('relative'))}>
+          {props.toggle && <OptimisticToggleButton {...props.toggle} />}
+          {props.actions}
+        </div>
+      ) : undefined}
     </div>
   )
 }

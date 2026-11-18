@@ -35,7 +35,7 @@ vi.mock('@molecule/app-ui', () => ({
   },
 }))
 
-import { type App, createApp, defineComponent, h } from 'vue'
+import { type App, createApp, defineComponent, h, nextTick } from 'vue'
 
 import { ListItemRow } from '../ListItemRow.js'
 
@@ -73,6 +73,12 @@ const render = (props: Record<string, unknown>): string => {
   const host = mountRow(props)
   const markup = host.innerHTML
   return markup
+}
+
+/** Waits for the toggle's asynchronous save and Vue's DOM update. */
+const settle = async (): Promise<void> => {
+  for (let i = 0; i < 5; i += 1) await Promise.resolve()
+  await nextTick()
 }
 
 describe('ListItemRow', () => {
@@ -180,4 +186,36 @@ describe('ListItemRow', () => {
     const markup = render({ title: 'T', className: 'lir-cls' })
     expect(markup).toContain('lir-cls')
   })
+})
+
+it('turns a loaded row toggle into its own button that persists the change', async () => {
+  let saved = false
+  const open = vi.fn()
+  const commit = vi.fn(async (desired: boolean) => (saved = desired))
+  const row = () => ({
+    title: 'Sprint plan',
+    metadata: '4 collaborators',
+    onClick: open,
+    toggle: {
+      value: saved,
+      commit,
+      activeLabel: 'Unpin',
+      inactiveLabel: 'Pin',
+    },
+  })
+  const host = mountRow(row())
+  const toggle = host.querySelector<HTMLButtonElement>('button[aria-pressed]')
+  expect(toggle?.textContent).toBe('Pin')
+  toggle!.click()
+  await settle()
+  expect(commit).toHaveBeenCalledExactlyOnceWith(true)
+  expect(open).not.toHaveBeenCalled()
+  expect(toggle?.textContent).toBe('Unpin')
+  expect(mountRow(row()).querySelector('button[aria-pressed="true"]')?.textContent).toBe('Unpin')
+})
+
+it('counterexample: row metadata is read-only when there is no toggle', () => {
+  const host = mountRow({ title: 'Sprint plan', metadata: '4 collaborators' })
+  expect(host.textContent).toContain('4 collaborators')
+  expect(host.querySelector('button')).toBeNull()
 })

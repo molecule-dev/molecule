@@ -6,6 +6,8 @@
 
 import type { JSX } from 'solid-js'
 
+import type { OptimisticToggleButtonProps } from '@molecule/app-ui-solid'
+
 /** Props accepted by the {@link ListItemRow} component. */
 export interface ListItemRowProps {
   /** Title — first line. */
@@ -18,6 +20,8 @@ export interface ListItemRowProps {
   leading?: JSX.Element
   /** Optional right-side actions (buttons, action menu). */
   actions?: JSX.Element
+  /** Loaded boolean action rendered as its own native button, independently of read-only metadata. */
+  toggle?: OptimisticToggleButtonProps
   /**
    * Called when the row is activated. The whole row is clickable through a
    * transparent native button over it, named by the title; the inner controls

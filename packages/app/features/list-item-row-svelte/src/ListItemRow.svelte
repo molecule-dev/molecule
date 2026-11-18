@@ -8,6 +8,7 @@
 -->
 <script lang="ts">
   import { getClassMap } from '@molecule/app-ui'
+  import { OptimisticToggleButton } from '@molecule/app-ui-svelte'
 
   import type { ListItemRowProps } from './types.js'
 
@@ -17,6 +18,7 @@
     metadata,
     leading,
     actions,
+    toggle,
     onClick,
     selected,
     disabled,
@@ -83,9 +85,14 @@
       </div>
     {/if}
   </div>
-  {#if actions}
+  {#if toggle || actions}
     <div class={cm.cn(cm.shrink0, cm.position('relative'))}>
-      {#if typeof actions === 'function'}{@render actions()}{:else}{actions}{/if}
+      {#if toggle}
+        <OptimisticToggleButton {...toggle} />
+      {/if}
+      {#if actions}
+        {#if typeof actions === 'function'}{@render actions()}{:else}{actions}{/if}
+      {/if}
     </div>
   {/if}
 </div>

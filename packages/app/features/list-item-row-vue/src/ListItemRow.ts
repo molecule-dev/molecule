@@ -10,6 +10,9 @@
 import { defineComponent, h, type PropType, useId, type VNode, type VNodeChild } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
+import { OptimisticToggleButton } from '@molecule/app-ui-vue'
+
+import type { ListItemRowProps } from './types.js'
 
 /**
  * Resolves a node-valued prop that may also arrive as a same-named slot, with
@@ -53,6 +56,10 @@ export const ListItemRow = defineComponent({
     metadata: null,
     leading: null,
     actions: null,
+    toggle: {
+      type: Object as PropType<ListItemRowProps['toggle']>,
+      default: undefined,
+    },
     onClick: {
       type: Function as PropType<() => void>,
       default: undefined,
@@ -81,6 +88,7 @@ export const ListItemRow = defineComponent({
       const subtitle = slotOrProp(slots.subtitle, props.subtitle as VNodeChild | null | undefined)
       const metadata = slotOrProp(slots.metadata, props.metadata as VNodeChild | null | undefined)
       const actions = slotOrProp(slots.actions, props.actions as VNodeChild | null | undefined)
+      const toggle = props.toggle
 
       // The row's open control, rendered first like React's: an empty,
       // transparent native button stretched over the whole row (Enter / Space
@@ -118,8 +126,13 @@ export const ListItemRow = defineComponent({
           ...(subtitle.length > 0 ? [h('div', { class: cm.textSize('sm') }, subtitle)] : []),
           ...(metadata.length > 0 ? [h('div', { class: cm.textSize('xs') }, metadata)] : []),
         ]),
-        ...(actions.length > 0
-          ? [h('div', { class: cm.cn(cm.shrink0, cm.position('relative')) }, actions)]
+        ...(toggle || actions.length > 0
+          ? [
+              h('div', { class: cm.cn(cm.shrink0, cm.position('relative')) }, [
+                ...(toggle ? [h(OptimisticToggleButton, { ...toggle })] : []),
+                ...actions,
+              ]),
+            ]
           : []),
       ]
 

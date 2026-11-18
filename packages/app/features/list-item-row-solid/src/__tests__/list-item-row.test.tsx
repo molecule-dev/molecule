@@ -176,3 +176,32 @@ describe('ListItemRow', () => {
     expect(markup).toContain('lir-cls')
   })
 })
+
+it('turns a loaded row toggle into its own button that persists the change', async () => {
+  let saved = false
+  const open = vi.fn()
+  const commit = vi.fn(async (desired: boolean) => (saved = desired))
+  const row = () => (
+    <ListItemRow
+      title="Sprint plan"
+      metadata="4 collaborators"
+      onClick={open}
+      toggle={{ value: saved, commit, activeLabel: 'Unpin', inactiveLabel: 'Pin' }}
+    />
+  )
+  const container = mount(row)
+  const toggle = container.querySelector<HTMLButtonElement>('button[aria-pressed]')
+  expect(toggle?.textContent).toBe('Pin')
+  toggle!.click()
+  await new Promise((resolve) => setTimeout(resolve, 0))
+  expect(commit).toHaveBeenCalledExactlyOnceWith(true)
+  expect(open).not.toHaveBeenCalled()
+  expect(toggle?.textContent).toBe('Unpin')
+  expect(mount(row).querySelector('button[aria-pressed="true"]')?.textContent).toBe('Unpin')
+})
+
+it('counterexample: row metadata is read-only when there is no toggle', () => {
+  const container = mount(() => <ListItemRow title="Sprint plan" metadata="4 collaborators" />)
+  expect(container.textContent).toContain('4 collaborators')
+  expect(container.querySelector('button')).toBeNull()
+})

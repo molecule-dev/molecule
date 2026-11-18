@@ -73,6 +73,12 @@ const openButton = (target: HTMLElement): HTMLButtonElement => {
 /** Renders a {@link ListItemRow} and returns the markup it produced. */
 const render = (props: Record<string, unknown>): string => mountRow(props).innerHTML
 
+/** Waits for the toggle's asynchronous save and Svelte's DOM update. */
+const settle = async (): Promise<void> => {
+  for (let i = 0; i < 5; i += 1) await Promise.resolve()
+  flushSync()
+}
+
 describe('ListItemRow', () => {
   it('renders the title', () => {
     const markup = render({ title: 'Inbox' })
@@ -180,4 +186,40 @@ describe('ListItemRow', () => {
     const markup = render({ title: 'T', className: 'lir-cls' })
     expect(markup).toContain('lir-cls')
   })
+})
+
+it('turns a loaded row toggle into its own button that persists the change', async () => {
+  let saved = false
+  const open = vi.fn()
+  const commit = vi.fn(async (desired: boolean) => (saved = desired))
+  const row = () => ({
+    title: 'Sprint plan',
+    metadata: '4 collaborators',
+    onClick: open,
+    toggle: {
+      value: saved,
+      commit,
+      activeLabel: 'Unpin',
+      inactiveLabel: 'Pin',
+    },
+  })
+  const target = mountRow(row())
+  const toggle = target.querySelector<HTMLButtonElement>('button[aria-pressed]')
+  // Svelte's Button template keeps its own whitespace around the label node;
+  // React's renders the label text alone. The label itself is the same.
+  expect(toggle?.textContent?.trim()).toBe('Pin')
+  toggle!.click()
+  await settle()
+  expect(commit).toHaveBeenCalledExactlyOnceWith(true)
+  expect(open).not.toHaveBeenCalled()
+  expect(toggle?.textContent?.trim()).toBe('Unpin')
+  expect(mountRow(row()).querySelector('button[aria-pressed="true"]')?.textContent?.trim()).toBe(
+    'Unpin',
+  )
+})
+
+it('counterexample: row metadata is read-only when there is no toggle', () => {
+  const target = mountRow({ title: 'Sprint plan', metadata: '4 collaborators' })
+  expect(target.textContent).toContain('4 collaborators')
+  expect(target.querySelector('button')).toBeNull()
 })
