@@ -53,7 +53,10 @@ function scan(dir, depth) {
       if (pkg.name?.startsWith('@molecule/') && pkg.scripts?.build) {
         const allDeps = { ...pkg.dependencies, ...pkg.devDependencies, ...pkg.peerDependencies }
         const molDeps = Object.keys(allDeps).filter((d) => d.startsWith('@molecule/'))
-        packages.set(pkg.name, { path: dir, deps: molDeps })
+        const hardDeps = Object.keys({ ...pkg.dependencies, ...pkg.peerDependencies }).filter((d) =>
+          d.startsWith('@molecule/'),
+        )
+        packages.set(pkg.name, { path: dir, deps: molDeps, hardDeps })
       }
     } catch (_error) {
       // A package.json that is absent or unparseable is simply not a buildable
@@ -292,20 +295,98 @@ function levelTasks(names) {
 }
 
 /**
- * Calculate the dependency depth of a package.
+ * Group packages into strongly connected components (Tarjan).
  *
- * @param name - Package name.
- * @param visited - Already-visited packages (cycle guard).
- * @returns Depth level.
+ * @param names - Every package name.
+ * @param edgesOf - The package names one package builds after.
+ * @returns Package name → component id; a cycle's members share one id.
  */
-function getDepth(name, visited = new Set()) {
-  if (visited.has(name)) return 0
-  visited.add(name)
-  const info = packages.get(name)
-  if (!info) return 0
-  const internalDeps = info.deps.filter((d) => packages.has(d))
-  if (internalDeps.length === 0) return 0
-  return 1 + Math.max(...internalDeps.map((d) => getDepth(d, new Set(visited))))
+function components(names, edgesOf) {
+  let next = 0
+  let count = 0
+  const index = new Map()
+  const low = new Map()
+  const stack = []
+  const onStack = new Set()
+  const component = new Map()
+  const visit = (name) => {
+    index.set(name, next)
+    low.set(name, next)
+    next++
+    stack.push(name)
+    onStack.add(name)
+    for (const dep of edgesOf(name)) {
+      if (!index.has(dep)) {
+        visit(dep)
+        low.set(name, Math.min(low.get(name), low.get(dep)))
+      } else if (onStack.has(dep)) low.set(name, Math.min(low.get(name), index.get(dep)))
+    }
+    if (low.get(name) !== index.get(name)) return
+    let member
+    do {
+      member = stack.pop()
+      onStack.delete(member)
+      component.set(member, count)
+    } while (member !== name)
+    count++
+  }
+  for (const name of names) if (!index.has(name)) visit(name)
+  return component
+}
+
+/**
+ * Assign each package its build level: a package builds after every `@molecule/*`
+ * package it declares in dependencies, peerDependencies or devDependencies (a
+ * devDependency can carry types its source imports).
+ *
+ * A dependency cycle has no order. The visited-set depth walk this replaces cut
+ * a cycle wherever its walk started, so a consumer could land on a LOWER level
+ * than the package it imports: on 2026-11-18 app-bonds-default-react (level 8)
+ * compiled before app-routing-react-router (level 9) through router → query-react
+ * → react → bonds-default-react, and every clean build failed with TS2307. Two of
+ * those edges were test-only devDependencies; builds exclude `src/**\/__tests__/**`.
+ * So inside a cycle only devDependency edges are dropped, and a cycle through
+ * dependencies or peerDependencies alone is an error that names it.
+ *
+ * @param graph - Package name → `{ deps, hardDeps }` (all declared vs dependencies + peers).
+ * @returns Package name → level; level 0 builds first.
+ */
+function buildLevels(graph) {
+  const declared = (name) => graph.get(name).deps.filter((d) => d !== name && graph.has(d))
+  const first = components(graph.keys(), declared)
+  const kept = new Map()
+  for (const name of graph.keys()) {
+    const hard = new Set(graph.get(name).hardDeps ?? [])
+    kept.set(
+      name,
+      declared(name).filter((d) => first.get(d) !== first.get(name) || hard.has(d)),
+    )
+  }
+  const second = components(graph.keys(), (name) => kept.get(name))
+  const members = new Map()
+  for (const [name, id] of second) members.set(id, [...(members.get(id) ?? []), name])
+  for (const group of members.values()) {
+    if (group.length < 2) continue
+    const inGroup = new Set(group)
+    const path = [group[0]]
+    while (path.indexOf(path.at(-1)) === path.length - 1)
+      path.push(kept.get(path.at(-1)).find((d) => inGroup.has(d)))
+    throw new Error(
+      `dependency cycle through dependencies/peerDependencies, so no build order exists: ${path
+        .slice(path.indexOf(path.at(-1)))
+        .join(' -> ')}`,
+    )
+  }
+  const level = new Map()
+  const levelOf = (name) => {
+    if (level.has(name)) return level.get(name)
+    const deps = kept.get(name)
+    const value = deps.length ? 1 + Math.max(...deps.map(levelOf)) : 0
+    level.set(name, value)
+    return value
+  }
+  for (const name of graph.keys()) levelOf(name)
+  return level
 }
 
 /**
@@ -380,9 +461,21 @@ if (onlyArg) {
   console.log(`--only: ${requested.length} requested -> ${packages.size} with internal deps\n`)
 }
 
+let depths
+try {
+  depths = buildLevels(packages)
+} catch (error) {
+  console.error(error.message)
+  process.exit(1)
+}
+// --print-levels: the level assignment as JSON, without building anything.
+if (process.argv.includes('--print-levels')) {
+  console.log(JSON.stringify(Object.fromEntries([...depths].sort(([a], [b]) => (a < b ? -1 : 1)))))
+  process.exit(0)
+}
 const levels = new Map()
 for (const name of packages.keys()) {
-  const depth = getDepth(name)
+  const depth = depths.get(name)
   if (!levels.has(depth)) levels.set(depth, [])
   levels.get(depth).push(name)
 }
