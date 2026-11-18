@@ -115,6 +115,44 @@ describe.each([
     expect(api.calls.filter((call) => call.startsWith('GET /tickets {"page":1}'))).toHaveLength(2)
   })
 
+  it('renders a created row once when a caller prepends the already-refreshed response', async () => {
+    const tickets = resource()
+    const page = mountHook<Ticket[]>(tickets.list('agent-1'))
+    await settle()
+    const created = await tickets.create('agent-1', { subject: 'Projector' })
+    // This is the exact redundant update made by an app after resource.create(). Assert
+    // before any later refetch can hide the duplicate: the cache and the DOM must agree.
+    page.value().setData((current) => [created, ...(current ?? [])])
+    await settle()
+    expect(page.text().match(/"id":"t2"/g) ?? []).toHaveLength(1)
+    expect(page.value().data?.map((row) => row.id)).toEqual(['t2', 't1'])
+    expect(
+      getQueryClient()
+        .get<Ticket[]>(tickets.list('agent-1').key)
+        ?.map((row) => row.id),
+    ).toEqual(['t2', 't1'])
+    expect(api.rows.filter((row) => row.id === 't2')).toHaveLength(1)
+    await page.value().refetch()
+    await settle()
+    expect(page.text().match(/"id":"t2"/g) ?? []).toHaveLength(1)
+  })
+
+  it('keeps distinct records with identical text and keeps duplicates in an ordinary query', async () => {
+    const tickets = resource()
+    api.rows.push({ id: 't2', subject: 'Printer', escalated: false })
+    const resourcePage = mountHook<Ticket[]>(tickets.list('agent-1'))
+    const occurrences = [
+      { id: 'same', subject: 'Printer' },
+      { id: 'same', subject: 'Printer' },
+    ]
+    const query = mountHook({ key: ['inventory-occurrences'], fetch: async () => occurrences })
+    await settle()
+    expect(resourcePage.value().data).toHaveLength(2)
+    expect(query.value().data).toHaveLength(2)
+    query.value().setData((current) => [...(current ?? []), occurrences[0]])
+    expect(query.value().data).toHaveLength(3)
+  })
+
   it('refreshes after a pre-mutation list request already in flight settles', async () => {
     const tickets = resource()
     const get = api.http.get
@@ -216,7 +254,7 @@ describe.each([
 
   it('paints the saved record into a mounted detail page and resolves a toggle with it', async () => {
     const tickets = resource()
-    const page = mountHook<Ticket>(tickets.detail('agent-1', 't1'))
+    const page = mountHook<Ticket | null>(tickets.detail('agent-1', 't1'))
     await settle()
     expect(page.value().data?.escalated).toBe(false)
 
@@ -249,7 +287,7 @@ describe.each([
     api.http.get = async () => {
       throw Object.assign(new Error('Server error'), { status: 500 })
     }
-    const page = mountHook<Ticket>(tickets.detail('agent-1', 't1'))
+    const page = mountHook<Ticket | null>(tickets.detail('agent-1', 't1'))
     await settle()
     expect(page.value().status).toBe('error')
   })

@@ -39,6 +39,64 @@ it('selects one view-specific empty state and switches to populated content', as
   expect(view.host.textContent).toBe('Bolt')
 })
 
+it('chooses one selected-view empty branch instead of mounting generic list content too', async () => {
+  const model = {
+    query: { data: [] as string[], status: 'success' as const, error: undefined },
+    when: (rows: string[]) => rows.length === 0,
+  }
+  const Host = hostOf(
+    `<mol-query-content [query]="model.query" [children]="content" [empty]="{when: model.when, render: empty}"></mol-query-content>
+    <ng-template #content><p class="loaded">No items yet</p></ng-template>
+    <ng-template #empty><p class="empty"><a href="/inventory">Clear filters</a></p></ng-template>`,
+    model,
+    [QueryContent],
+  )
+  const view = await mounted(mountComponent<object>(Host))
+  expect(view.host.querySelectorAll('.empty')).toHaveLength(1)
+  expect(view.host.textContent).toBe('Clear filters')
+  expect(view.host.querySelector('.loaded')).toBeNull()
+})
+
+it('keeps populated envelopes and unconfigured empty arrays on their loaded branch', async () => {
+  const model = {
+    query: { data: { rows: ['Bolt'] }, status: 'success' as const, error: undefined },
+    when: (page: { rows: string[] }) => page.rows.length === 0,
+  }
+  const Host = hostOf(
+    `<mol-query-content [query]="model.query" [children]="content" [empty]="{when: model.when, render: empty}"></mol-query-content>
+    <ng-template #content let-page><p>{{ page.rows[0] }}</p></ng-template>
+    <ng-template #empty><p class="empty">Filtered out</p></ng-template>`,
+    model,
+    [QueryContent],
+  )
+  const view = await mounted(mountComponent<object>(Host))
+  expect(view.host.textContent).toBe('Bolt')
+  expect(view.host.querySelector('.empty')).toBeNull()
+})
+
+it('does not evaluate the empty predicate before a document exists', async () => {
+  const when = vi.fn(() => true)
+  const model = {
+    query: {
+      data: undefined as string[] | undefined,
+      status: 'loading' as const,
+      error: undefined,
+    },
+    when,
+  }
+  const Host = hostOf(
+    `<mol-query-content [query]="model.query" [children]="content" [empty]="{when: model.when, render: empty}" [pending]="pending"></mol-query-content>
+    <ng-template #content><p>Rows</p></ng-template>
+    <ng-template #empty><p>Empty</p></ng-template>
+    <ng-template #pending><p>Loading</p></ng-template>`,
+    model,
+    [QueryContent],
+  )
+  const view = await mounted(mountComponent<object>(Host))
+  expect(view.host.textContent).toBe('Loading')
+  expect(when).not.toHaveBeenCalled()
+})
+
 const viewStates = [
   {
     name: 'previous empty page while the next view loads',

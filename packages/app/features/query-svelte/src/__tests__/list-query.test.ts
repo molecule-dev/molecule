@@ -168,7 +168,7 @@ describe('useListQuery', () => {
     expect(p.fetch).not.toHaveBeenCalled()
   })
 
-  it('fetches the page the route points at and delivers its rows', async () => {
+  it('hands read the current values and the route state, and fetches the page once', async () => {
     const p = page()
     p.resolveRows(['r1', 'r2'])
     p.viewer.set('u1')
@@ -192,7 +192,7 @@ describe('useListQuery', () => {
     expect(getQueryClient().get(['items', 'u1', 's1', 'x', 'a', 10, 20])).toEqual(['r1', 'r2'])
   })
 
-  it('starts fetching when the viewer arrives', async () => {
+  it('fetches once when the viewer arrives from null', async () => {
     const p = page()
     p.resolveRows(['u1 rows'])
     const h = mountListQuery(p.route, { viewer: p.viewer, params: p.params, slug: 's1' }, p.read)
@@ -207,7 +207,7 @@ describe('useListQuery', () => {
     expect(getQueryClient().get(['items', 'u1', 's1', 'x', 'a', 10, 0])).toEqual(['u1 rows'])
   })
 
-  it('fetches the new page when the offset changes and updates the data', async () => {
+  it('fetches the new page when the offset changes', async () => {
     const p = page()
     p.viewer.set('u1')
     p.resolveRows(['page 1'])
@@ -224,7 +224,7 @@ describe('useListQuery', () => {
     expect(getQueryClient().get(['items', 'u1', 's1', 'x', 'a', 10, 10])).toEqual(['page 2'])
   })
 
-  it('fetches the new page when a filter changes', async () => {
+  it('fetches the new key when a filter changes', async () => {
     const p = page()
     p.viewer.set('u1')
     p.resolveRows(['tagged a'])
@@ -240,7 +240,7 @@ describe('useListQuery', () => {
     expect(getQueryClient().get(['items', 'u1', 's1', 'x', 'b', 10, 0])).toEqual(['tagged b'])
   })
 
-  it('fetches the new page when the params change', async () => {
+  it('fetches the new key when the params change', async () => {
     const p = page()
     p.viewer.set('u1')
     p.resolveRows(['q x rows'])
@@ -256,7 +256,7 @@ describe('useListQuery', () => {
     expect(getQueryClient().get(['items', 'u1', 's1', 'y', 'a', 10, 0])).toEqual(['q y rows'])
   })
 
-  it('fetches the new page when the slug input store changes', async () => {
+  it('fetches the new key when the slug input changes', async () => {
     const p = page()
     p.viewer.set('u1')
     p.resolveRows(['s1 rows'])
@@ -273,7 +273,7 @@ describe('useListQuery', () => {
     expect(getQueryClient().get(['items', 'u1', 's2', 'x', 'a', 10, 0])).toEqual(['s2 rows'])
   })
 
-  it('returns to idle without fetching when the route can no longer load', async () => {
+  it('returns to idle when the route stops being loadable, without a new fetch', async () => {
     const p = page()
     p.viewer.set('u1')
     p.resolveRows(['r1'])

@@ -14,7 +14,7 @@ import { provider as tanstackProvider } from '@molecule/app-query-tanstack'
 
 import { createQueryResource, type ResourceHttp } from '../resource.js'
 import { useQuery } from '../use-query.js'
-import { renderHook, settle } from './helpers.jsx'
+import { mountComponent, renderHook, settle } from './helpers.jsx'
 
 interface Ticket {
   id: string
@@ -102,6 +102,59 @@ describe.each([
     expect(page.value().data?.map((row) => row.subject)).toEqual(['Printer', 'Projector'])
     expect(api.calls.filter((call) => call.startsWith('GET /tickets {"page":1}'))).toHaveLength(2)
     await page.unmount()
+  })
+
+  it('renders a created row once when a caller prepends the already-refreshed response', async () => {
+    const tickets = resource()
+    let query!: ReturnType<typeof useQuery<Ticket[]>>
+    const view = mountComponent(() => {
+      query = useQuery(tickets.list('agent-1'))
+      return (
+        <section>
+          {query.data?.map((row) => (
+            <p data-record={row.id}>{row.subject}</p>
+          ))}
+        </section>
+      )
+    })
+    await settle()
+    const created = await tickets.create('agent-1', { subject: 'Projector' })
+    // This is the exact redundant update made by an app after resource.create(). Assert
+    // before any later refetch can hide the duplicate: the cache and the DOM must agree.
+    query.setData((current) => [created, ...(current ?? [])])
+    await settle()
+    expect(view.host.querySelectorAll('[data-record="t2"]')).toHaveLength(1)
+    expect(query.data?.map((row) => row.id)).toEqual(['t2', 't1'])
+    expect(
+      getQueryClient()
+        .get<Ticket[]>(tickets.list('agent-1').key)
+        ?.map((row) => row.id),
+    ).toEqual(['t2', 't1'])
+    expect(api.rows.filter((row) => row.id === 't2')).toHaveLength(1)
+    await query.refetch()
+    await settle()
+    expect(view.host.querySelectorAll('[data-record="t2"]')).toHaveLength(1)
+    await view.unmount()
+  })
+
+  it('keeps distinct records with identical text and keeps duplicates in an ordinary query', async () => {
+    const tickets = resource()
+    api.rows.push({ id: 't2', subject: 'Printer', escalated: false })
+    const resourcePage = renderHook(() => useQuery(tickets.list('agent-1')))
+    const occurrences = [
+      { id: 'same', subject: 'Printer' },
+      { id: 'same', subject: 'Printer' },
+    ]
+    const query = renderHook(() =>
+      useQuery({ key: ['inventory-occurrences'], fetch: async () => occurrences }),
+    )
+    await settle()
+    expect(resourcePage.value().data).toHaveLength(2)
+    expect(query.value().data).toHaveLength(2)
+    query.value().setData((current) => [...(current ?? []), occurrences[0]])
+    expect(query.value().data).toHaveLength(3)
+    await resourcePage.unmount()
+    await query.unmount()
   })
 
   it('refreshes after a pre-mutation list request already in flight settles', async () => {

@@ -11,15 +11,12 @@
  *
  * @module
  */
-import { DestroyRef, effect, inject, isSignal, type Signal, signal, untracked } from '@angular/core'
+import { DestroyRef, effect, inject, isSignal, signal, untracked } from '@angular/core'
 
 import type { QueryOptions, QueryState } from '@molecule/app-query'
 import { getQueryClient, hashQueryKey } from '@molecule/app-query'
 
-import type { UseQueryResult } from './types.js'
-
-/** The options a query may arrive in: plain values, or a signal of them. */
-type QueryOptionsSource<T> = QueryOptions<T> | null | Signal<QueryOptions<T> | null>
+import type { QueryOptionsInput, UseQueryResult } from './types.js'
 
 const IDLE: QueryState<never> = {
   data: undefined,
@@ -93,7 +90,7 @@ interface ObservedKey {
  *   hook cannot tell a route change from a principal switch, so it refuses
  *   rather than risk showing one principal's document to another.
  */
-export function useQuery<T>(options: QueryOptionsSource<T>): UseQueryResult<T> {
+export function useQuery<T>(options: QueryOptionsInput<T>): UseQueryResult<T> {
   const readOptions = (): QueryOptions<T> | null =>
     isSignal(options) ? untracked(() => options()) : options
   /** The options a later options change must carry to be accepted. */

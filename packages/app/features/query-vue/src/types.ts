@@ -38,6 +38,15 @@ export interface UseQueryResult<T> extends QueryState<T> {
 }
 
 /**
+ * What {@link QueryContentProps.children} (the loaded-data branch) receives: the loaded
+ * document (the default slot receives it as `{ data }`).
+ */
+export type QueryContentContext<T> = NonNullable<T>
+
+/** What {@link QueryContentProps.error} receives: the error the failed initial read rejected with. */
+export type QueryContentErrorContext = unknown
+
+/**
  * A loaded document owns its controls; absent documents expose only status
  * content.
  */
@@ -60,13 +69,13 @@ export interface QueryContentProps<T> {
    * list. A render function (React's render-prop name) or the default slot,
    * which receives the document as its scoped-slot prop `{ data }`.
    */
-  children: (data: NonNullable<T>) => VNodeChild
+  children: (data: QueryContentContext<T>) => VNodeChild
   /** Initial idle/loading content. Render a status node, never a fake item or action. */
   pending?: VNodeChild
   /** Content for a loaded null record. Null is distinct from an unfinished request. */
   missing?: VNodeChild
   /** A failed initial read. Cached data stays visible if its refresh fails. */
-  error?: (error: unknown) => VNodeChild
+  error?: (error: QueryContentErrorContext) => VNodeChild
 }
 
 /**

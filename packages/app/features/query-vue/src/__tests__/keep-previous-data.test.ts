@@ -295,7 +295,16 @@ describe.each([
 
   it('refuses retention without a principal', async () => {
     const fetch = vi.fn(async () => [])
-    const h = mountQuery<string[]>({ key: ['list'], keepPreviousData: true, fetch })
+    // A caller that asserts a principal it does not have yet (a signed-in id read
+    // before sign-in finishes): the types are satisfied, so only the composable's own
+    // runtime guard stops it.
+    const session: { userId?: string } = {}
+    const h = mountQuery<string[]>({
+      key: ['list'],
+      keepPreviousData: true,
+      principal: session.userId!,
+      fetch,
+    })
     // The composable refuses before anything subscribes: the result is the throw.
     expect(() => h.value()).toThrow(/keepPreviousData requires principal/)
     await h.unmount()

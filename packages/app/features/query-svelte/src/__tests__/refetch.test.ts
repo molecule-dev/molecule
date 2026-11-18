@@ -48,8 +48,7 @@ describe.each([
     expect(page.text()).toBe('["existing"]')
     // The wrapper calls the hook's own method optionally, as an app's view model does.
     const refresh = async (): Promise<void> => {
-      const target = page.value() as unknown as { refetch?: () => Promise<unknown> }
-      await target.refetch?.()
+      await page.value().refetch?.()
     }
     serverRows = ['new', 'existing']
     await refresh()

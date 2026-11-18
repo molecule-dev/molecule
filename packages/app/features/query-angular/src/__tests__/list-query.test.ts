@@ -203,7 +203,7 @@ describe('useListQuery', () => {
     expect(page.fetch).not.toHaveBeenCalled()
   })
 
-  it('reads the enabled page once and fetches its key', async () => {
+  it('hands read the current values and the route state, and fetches the page once', async () => {
     const page = await mountPage({ viewer: 'u1', canLoad: true, offset: 20 })
     await drain()
     expect(page.read).toHaveBeenCalledTimes(1)
@@ -222,7 +222,7 @@ describe('useListQuery', () => {
     ])
   })
 
-  it('fetches once when the viewer arrives', async () => {
+  it('fetches once when the viewer arrives from null', async () => {
     const page = await mountPage({ canLoad: true })
     await drain()
     expect(page.fetch).not.toHaveBeenCalled()
@@ -237,7 +237,7 @@ describe('useListQuery', () => {
     ])
   })
 
-  it('fetches the new key and updates the data when the offset changes', async () => {
+  it('fetches the new page when the offset changes', async () => {
     const page = await mountPage({ viewer: 'u1', canLoad: true })
     await drain()
     expect(page.value().data).toEqual(['rows for call 1'])
@@ -306,7 +306,7 @@ describe('useListQuery', () => {
     ])
   })
 
-  it('goes back to idle, without a new fetch, when the route stops being loadable', async () => {
+  it('returns to idle when the route stops being loadable, without a new fetch', async () => {
     const page = await mountPage({ viewer: 'u1', canLoad: true })
     await drain()
     expect(page.value().status).toBe('success')

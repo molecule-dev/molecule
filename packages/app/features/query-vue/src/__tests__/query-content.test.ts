@@ -30,7 +30,7 @@ it('keeps loading status outside a list: the first item is always real data', as
       fetch: async () => request.promise,
     })
     return () =>
-      h(QueryContent, {
+      h(QueryContent<string[]>, {
         query: query.value,
         pending: h('p', { role: 'status' }, 'Loading…'),
         children: (items) =>
@@ -66,7 +66,7 @@ it('does not expose a follow-like toggle before its target exists; the first cli
       fetch: async () => request.promise,
     })
     return () =>
-      h(QueryContent, {
+      h(QueryContent<Repository>, {
         query: query.value,
         children: (repository) =>
           h(
@@ -92,7 +92,7 @@ it('drops old record actions immediately when a new key has no data', async () =
       fetch: async () => new Promise<{ id: string }>(() => {}),
     }))
     return () =>
-      h(QueryContent, {
+      h(QueryContent<{ id: string }>, {
         query: query.value,
         children: (record) => h('button', {}, record.id),
       })
@@ -116,7 +116,7 @@ it('counterexample: cached data stays actionable through a pending and failed re
   const page = mountApp(() => {
     const query = useQuery<{ id: string }>({ key: ['book'], fetch: async () => request })
     return () =>
-      h(QueryContent, {
+      h(QueryContent<{ id: string }>, {
         query: query.value,
         error,
         children: (book) => h('button', {}, book.id),
@@ -142,7 +142,7 @@ it('an initial failure never mounts its resource actions and can recover on retr
     })
     retry = query.value.refetch
     return () =>
-      h(QueryContent, {
+      h(QueryContent<{ id: string }>, {
         query: query.value,
         error: () => h('p', { role: 'alert' }, 'Failed'),
         children: (book) => h('button', {}, book.id),

@@ -101,7 +101,7 @@ function pageOptions(
 }
 
 describe('useListQuery', () => {
-  it('observes nothing while the viewer is still null', async () => {
+  it('observes nothing while the viewer is null', async () => {
     const fetch = vi.fn(async (_key: QueryKey, _signal: AbortSignal) => ['a', 'b'])
     const read = vi.fn((values: ListValues, list: ListQueryState) =>
       pageOptions(fetch, values, list),
@@ -139,7 +139,7 @@ describe('useListQuery', () => {
     expect(fetch).not.toHaveBeenCalled()
   })
 
-  it('reads the page the inputs and route name and lands its answer', async () => {
+  it('hands read the current values and the route state, and fetches the page once', async () => {
     const fetch = vi.fn(async (_key: QueryKey, _signal: AbortSignal) => ['a', 'b'])
     const read = vi.fn((values: ListValues, list: ListQueryState) =>
       pageOptions(fetch, values, list),
@@ -164,7 +164,7 @@ describe('useListQuery', () => {
     ])
   })
 
-  it('fetches the viewer key once the viewer arrives', async () => {
+  it('fetches once when the viewer arrives from null', async () => {
     const fetch = vi.fn(async (_key: QueryKey, _signal: AbortSignal) => ['u1 rows'])
     const read = vi.fn((values: ListValues, list: ListQueryState) =>
       pageOptions(fetch, values, list),
@@ -294,7 +294,7 @@ describe('useListQuery', () => {
     ])
   })
 
-  it('goes back to idle when the route stops being loadable', async () => {
+  it('returns to idle when the route stops being loadable, without a new fetch', async () => {
     const fetch = vi.fn(async (_key: QueryKey, _signal: AbortSignal) => ['a', 'b'])
     const read = vi.fn((values: ListValues, list: ListQueryState) =>
       pageOptions(fetch, values, list),

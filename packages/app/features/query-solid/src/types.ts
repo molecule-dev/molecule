@@ -6,7 +6,10 @@
  */
 import type { Accessor, JSX } from 'solid-js'
 
-import type { QueryState } from '@molecule/app-query'
+import type { QueryOptions, QueryState } from '@molecule/app-query'
+
+/** What `useQuery` observes: the options for one key or `null` (nothing), as plain values or an accessor of them. */
+export type QueryOptionsInput<T> = QueryOptions<T> | null | Accessor<QueryOptions<T> | null>
 
 /**
  * A mounted query's state and its explicit cache and refresh actions. The state
@@ -35,6 +38,12 @@ export interface UseQueryResult<T> extends QueryState<T> {
   refetch: () => Promise<QueryState<T>>
 }
 
+/** What {@link QueryContentProps.children} (the loaded-data branch) receives: an accessor of the loaded document. */
+export type QueryContentContext<T> = Accessor<NonNullable<T>>
+
+/** What {@link QueryContentProps.error} receives: the error the failed initial read rejected with. */
+export type QueryContentErrorContext = unknown
+
 /** A loaded document owns its controls; absent documents expose only status content. */
 export interface QueryContentProps<T> {
   /**
@@ -55,11 +64,20 @@ export interface QueryContentProps<T> {
    * per loaded stretch with the document as an accessor (Solid's `<Show>` idiom): a new
    * document reaches the same mounted content, so read it where it is used (`data()`).
    */
-  children: (data: Accessor<NonNullable<T>>) => JSX.Element
+  children: (data: QueryContentContext<T>) => JSX.Element
   /** Initial idle/loading content. Render a status node, never a fake item or action. */
   pending?: JSX.Element
   /** Content for a loaded null record. Null is distinct from an unfinished request. */
   missing?: JSX.Element
   /** A failed initial read. Cached data stays visible if its refresh fails. */
-  error?: (error: unknown) => JSX.Element
+  error?: (error: QueryContentErrorContext) => JSX.Element
 }
+
+/**
+ * The content {@link QueryContentProps} renders for each state: the loaded-data branch, the
+ * pending and missing content and the error renderer (the render props React takes too).
+ */
+export type QueryContentSlots<T> = Pick<
+  QueryContentProps<T>,
+  'children' | 'pending' | 'missing' | 'error'
+>

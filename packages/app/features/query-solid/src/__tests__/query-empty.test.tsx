@@ -42,6 +42,54 @@ it('selects one view-specific empty state and switches to populated content', as
   await view.unmount()
 })
 
+it('chooses one selected-view empty branch instead of mounting generic list content too', () => {
+  const children = vi.fn(() => <p>No items yet</p>)
+  const view = mountComponent(() => (
+    <QueryContent<string[]>
+      query={{ data: [], status: 'success', error: undefined }}
+      empty={{
+        when: (rows) => rows.length === 0,
+        render: () => (
+          <p class="empty">
+            <a href="/inventory">Clear filters</a>
+          </p>
+        ),
+      }}
+      children={children}
+    />
+  ))
+  expect(view.host.querySelectorAll('.empty')).toHaveLength(1)
+  expect(view.host.textContent).toBe('Clear filters')
+  expect(children).not.toHaveBeenCalled()
+})
+
+it('keeps populated envelopes and unconfigured empty arrays on their loaded branch', () => {
+  const empty = vi.fn(() => 'Filtered out')
+  const view = mountComponent(() => (
+    <QueryContent<{ rows: string[] }>
+      query={{ data: { rows: ['Bolt'] }, status: 'success', error: undefined }}
+      empty={{ when: (page) => page.rows.length === 0, render: empty }}
+      children={(page) => <p>{page().rows[0]}</p>}
+    />
+  ))
+  expect(view.host.textContent).toBe('Bolt')
+  expect(empty).not.toHaveBeenCalled()
+})
+
+it('does not evaluate the empty predicate before a document exists', () => {
+  const when = vi.fn(() => true)
+  const view = mountComponent(() => (
+    <QueryContent<string[]>
+      query={{ data: undefined, status: 'loading', error: undefined }}
+      pending="Loading"
+      empty={{ when, render: () => 'Empty' }}
+      children={() => 'Rows'}
+    />
+  ))
+  expect(view.host.textContent).toBe('Loading')
+  expect(when).not.toHaveBeenCalled()
+})
+
 const viewStates = [
   {
     name: 'previous empty page while the next view loads',

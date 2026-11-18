@@ -7,6 +7,7 @@
  * @module
  */
 import '@angular/compiler'
+import { Component, type Type } from '@angular/core'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { QueryProvider } from '@molecule/app-query'
@@ -14,8 +15,8 @@ import { getQueryClient, resetQueryClient, setProvider } from '@molecule/app-que
 import { provider as memoryProvider } from '@molecule/app-query-memory'
 import { provider as tanstackProvider } from '@molecule/app-query-tanstack'
 
-import { createQueryResource, type ResourceHttp } from '../index.js'
-import { drain } from './harness.js'
+import { createQueryResource, type ResourceHttp, useQuery } from '../index.js'
+import { type ComponentMount, drain, mountComponent } from './harness.js'
 import { destroyQueryMounts, mountQuery } from './query-harness.js'
 
 interface Ticket {
@@ -24,7 +25,11 @@ interface Ticket {
   escalated: boolean
 }
 
+/** The component pages this file mounted, destroyed after every test. */
+const pages: ComponentMount<object>[] = []
+
 afterEach(async () => {
+  for (const page of pages.splice(0)) await page.destroy()
   await destroyQueryMounts()
 })
 
@@ -111,6 +116,61 @@ describe.each([
     await settle()
     expect(page.value().data?.map((row) => row.subject)).toEqual(['Printer', 'Projector'])
     expect(api.calls.filter((call) => call.startsWith('GET /tickets {"page":1}'))).toHaveLength(2)
+  })
+
+  it('renders a created row once when a caller prepends the already-refreshed response', async () => {
+    const tickets = resource()
+    const List = Component({
+      selector: 'mol-parity-ticket-rows',
+      standalone: true,
+      template: `<section>
+        @for (row of query.data ?? []; track row.id) {
+          <p [attr.data-record]="row.id">{{ row.subject }}</p>
+        }
+      </section>`,
+    })(
+      class TicketRows {
+        readonly query = useQuery(tickets.list('agent-1'))
+      },
+    ) as Type<unknown>
+    const view = await mountComponent<{ query: ReturnType<typeof useQuery<Ticket[]>> }>(List)
+    pages.push(view as ComponentMount<object>)
+    await settle()
+    const created = await tickets.create('agent-1', { subject: 'Projector' })
+    // This is the exact redundant update made by an app after resource.create(). Assert
+    // before any later refetch can hide the duplicate: the cache and the DOM must agree.
+    view.component.query.setData((current) => [created, ...(current ?? [])])
+    view.tick()
+    expect(view.host.querySelectorAll('[data-record="t2"]')).toHaveLength(1)
+    expect(view.component.query.data?.map((row) => row.id)).toEqual(['t2', 't1'])
+    expect(
+      getQueryClient()
+        .get<Ticket[]>(tickets.list('agent-1').key)
+        ?.map((row) => row.id),
+    ).toEqual(['t2', 't1'])
+    expect(api.rows.filter((row) => row.id === 't2')).toHaveLength(1)
+    await view.component.query.refetch()
+    await view.settle()
+    expect(view.host.querySelectorAll('[data-record="t2"]')).toHaveLength(1)
+  })
+
+  it('keeps distinct records with identical text and keeps duplicates in an ordinary query', async () => {
+    const tickets = resource()
+    api.rows.push({ id: 't2', subject: 'Printer', escalated: false })
+    const resourcePage = await mountQuery(() => tickets.list('agent-1'))
+    const occurrences = [
+      { id: 'same', subject: 'Printer' },
+      { id: 'same', subject: 'Printer' },
+    ]
+    const query = await mountQuery(() => ({
+      key: ['inventory-occurrences'],
+      fetch: async () => occurrences,
+    }))
+    await settle()
+    expect(resourcePage.value().data).toHaveLength(2)
+    expect(query.value().data).toHaveLength(2)
+    query.value().setData((current) => [...(current ?? []), occurrences[0]])
+    expect(query.value().data).toHaveLength(3)
   })
 
   it('refreshes after a pre-mutation list request already in flight settles', async () => {

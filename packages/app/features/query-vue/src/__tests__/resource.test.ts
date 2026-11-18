@@ -6,6 +6,7 @@
  * and its writes change what a mounted page shows.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { h, nextTick, type Ref } from 'vue'
 
 import type { QueryProvider } from '@molecule/app-query'
 import { getQueryClient, resetQueryClient, setProvider } from '@molecule/app-query'
@@ -13,7 +14,9 @@ import { provider as memoryProvider } from '@molecule/app-query-memory'
 import { provider as tanstackProvider } from '@molecule/app-query-tanstack'
 
 import { createQueryResource, type ResourceHttp } from '../resource.js'
-import { mountQuery, settle, unmountAll } from './helpers.js'
+import type { UseQueryResult } from '../types.js'
+import { useQuery } from '../useQuery.js'
+import { mountApp, mountQuery, settle, unmountAll } from './helpers.js'
 
 interface Ticket {
   id: string
@@ -109,6 +112,55 @@ describe.each([
     await settle()
     expect(page.value().data?.map((row) => row.subject)).toEqual(['Printer', 'Projector'])
     expect(api.calls.filter((call) => call.startsWith('GET /tickets {"page":1}'))).toHaveLength(2)
+  })
+
+  it('renders a created row once when a caller prepends the already-refreshed response', async () => {
+    const tickets = resource()
+    let query!: Ref<UseQueryResult<Ticket[]>>
+    const view = mountApp(() => {
+      query = useQuery(tickets.list('agent-1'))
+      return () =>
+        h(
+          'section',
+          {},
+          query.value.data?.map((row) =>
+            h('p', { key: row.id, 'data-record': row.id }, row.subject),
+          ),
+        )
+    })
+    await settle()
+    const created = await tickets.create('agent-1', { subject: 'Projector' })
+    // This is the exact redundant update made by an app after resource.create(). Assert
+    // before any later refetch can hide the duplicate: the cache and the DOM must agree.
+    query.value.setData((current) => [created, ...(current ?? [])])
+    await nextTick()
+    expect(view.host.querySelectorAll('[data-record="t2"]')).toHaveLength(1)
+    expect(query.value.data?.map((row) => row.id)).toEqual(['t2', 't1'])
+    expect(
+      getQueryClient()
+        .get<Ticket[]>(tickets.list('agent-1').key)
+        ?.map((row) => row.id),
+    ).toEqual(['t2', 't1'])
+    expect(api.rows.filter((row) => row.id === 't2')).toHaveLength(1)
+    await query.value.refetch()
+    await settle()
+    expect(view.host.querySelectorAll('[data-record="t2"]')).toHaveLength(1)
+  })
+
+  it('keeps distinct records with identical text and keeps duplicates in an ordinary query', async () => {
+    const tickets = resource()
+    api.rows.push({ id: 't2', subject: 'Printer', escalated: false })
+    const resourcePage = mountQuery(tickets.list('agent-1'))
+    const occurrences = [
+      { id: 'same', subject: 'Printer' },
+      { id: 'same', subject: 'Printer' },
+    ]
+    const query = mountQuery({ key: ['inventory-occurrences'], fetch: async () => occurrences })
+    await settle()
+    expect(resourcePage.value().data).toHaveLength(2)
+    expect(query.value().data).toHaveLength(2)
+    query.value().setData((current) => [...(current ?? []), occurrences[0]])
+    expect(query.value().data).toHaveLength(3)
   })
 
   it('refreshes after a pre-mutation list request already in flight settles', async () => {

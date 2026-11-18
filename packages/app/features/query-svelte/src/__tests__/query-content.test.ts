@@ -6,7 +6,7 @@
  * and false, zero, an empty list and null are documents of their own kinds.
  */
 import { type Component, createRawSnippet, flushSync, mount, type Snippet, unmount } from 'svelte'
-import { writable } from 'svelte/store'
+import { type Writable, writable } from 'svelte/store'
 import { afterAll, afterEach, beforeAll, beforeEach, expect, it, vi } from 'vitest'
 
 import type { QueryOptions } from '@molecule/app-query'
@@ -17,7 +17,7 @@ import QueryContent from '../QueryContent.svelte'
 import type { UseQueryResult } from '../types.js'
 import { deferred, settle } from './helpers/harness.js'
 import Items from './helpers/Items.svelte'
-import Record from './helpers/Record.svelte'
+import RecordRegion from './helpers/Record.svelte'
 
 beforeAll(() => setProvider(provider))
 beforeEach(() => resetQueryClient())
@@ -47,7 +47,7 @@ function track(
 }
 
 /** A writable options store the test can change on the same mount. */
-const optionsOf = <T>(initial: QueryOptions<T> | null): ReturnType<typeof writable<T | null>> =>
+const optionsOf = <T>(initial: QueryOptions<T> | null): Writable<QueryOptions<T> | null> =>
   writable<QueryOptions<T> | null>(initial)
 
 interface RecordHandle<T> {
@@ -67,7 +67,7 @@ function mountRecord<T>(
   let latest: UseQueryResult<T> | undefined
   const committed: T[] = []
   const counters = { errors: 0 }
-  const container = track(Record, {
+  const container = track(RecordRegion, {
     options,
     capture: (result: UseQueryResult<T>) => {
       latest = result
@@ -117,7 +117,7 @@ it('does not expose a follow-like toggle before its target exists; the first cli
   }
   const gate = deferred<Repository>()
   const committed: string[] = []
-  const container = track(Record, {
+  const container = track(RecordRegion, {
     options: optionsOf<Repository>({
       key: ['repository', 'a'],
       fetch: async () => gate.promise,
@@ -141,7 +141,7 @@ it('drops old record actions immediately when a new key has no data', async () =
     key: ['repository', 'a'],
     fetch: async () => new Promise<{ id: string }>(() => {}),
   })
-  const container = track(Record, {
+  const container = track(RecordRegion, {
     options,
     label: (record: { id: string }) => record.id,
   })

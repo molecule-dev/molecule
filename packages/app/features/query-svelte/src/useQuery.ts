@@ -15,7 +15,7 @@ import { get, type Readable, type Writable, writable } from 'svelte/store'
 import type { QueryOptions, QueryState } from '@molecule/app-query'
 import { getQueryClient, hashQueryKey } from '@molecule/app-query'
 
-import type { UseQueryResult } from './types.js'
+import type { QueryOptionsInput, UseQueryResult } from './types.js'
 
 /** The refusal when `keepPreviousData` arrives without a principal (React's message). */
 const PRINCIPAL_REQUIRED =
@@ -123,9 +123,7 @@ interface ObservedKey {
  * {/if}
  * ```
  */
-export function useQuery<T>(
-  options: QueryOptions<T> | null | Readable<QueryOptions<T> | null>,
-): Readable<UseQueryResult<T>> {
+export function useQuery<T>(options: QueryOptionsInput<T>): Readable<UseQueryResult<T>> {
   // The store form is how an app (and the conformance kit) passes options that
   // change on a live component: a new key re-observes here, on the same mount.
   const source: Readable<QueryOptions<T> | null> | null = isStore(options) ? options : null

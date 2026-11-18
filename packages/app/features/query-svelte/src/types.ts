@@ -7,7 +7,10 @@
 import type { Snippet } from 'svelte'
 import type { Readable } from 'svelte/store'
 
-import type { QueryState } from '@molecule/app-query'
+import type { QueryOptions, QueryState } from '@molecule/app-query'
+
+/** What `useQuery` observes: the options for one key or `null` (nothing), as plain values or a store of them. */
+export type QueryOptionsInput<T> = QueryOptions<T> | null | Readable<QueryOptions<T> | null>
 
 /**
  * A mounted query's state and its explicit cache and refresh actions. The
@@ -35,6 +38,12 @@ export interface UseQueryResult<T> extends QueryState<T> {
   refetch: () => Promise<QueryState<T>>
 }
 
+/** What {@link QueryContentProps.children} (the loaded-data branch) receives: the loaded document, as the snippet argument. */
+export type QueryContentContext<T> = NonNullable<T>
+
+/** What {@link QueryContentProps.error} receives: the error the failed initial read rejected with. */
+export type QueryContentErrorContext = unknown
+
 /** A loaded document owns its controls; absent documents expose only status content. */
 export interface QueryContentProps<T> {
   /**
@@ -56,14 +65,23 @@ export interface QueryContentProps<T> {
     | Readable<Pick<QueryState<T>, 'data' | 'status' | 'error' | 'isPreviousData'>>
     | Pick<QueryState<T>, 'data' | 'status' | 'error' | 'isPreviousData'>
   /** Mounted only with a real document, including false, zero and an empty list. */
-  children: Snippet<[NonNullable<T>]>
+  children: Snippet<[QueryContentContext<T>]>
   /** Initial idle/loading content. Render a status snippet, never a fake item or action. */
   pending?: Snippet | null
   /** Content for a loaded null record. Null is distinct from an unfinished request. */
   missing?: Snippet | null
   /** A failed initial read. Cached data stays visible if its refresh fails. */
-  error?: Snippet<[unknown]> | null
+  error?: Snippet<[QueryContentErrorContext]> | null
 }
+
+/**
+ * The content {@link QueryContentProps} renders for each state: the loaded-data branch, the
+ * pending and missing content and the error renderer (the snippets the component takes).
+ */
+export type QueryContentSlots<T> = Pick<
+  QueryContentProps<T>,
+  'children' | 'pending' | 'missing' | 'error'
+>
 
 /**
  * The handlers {@link intentPrefetchProps} returns, in Svelte 5's listener

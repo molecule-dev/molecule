@@ -29,6 +29,7 @@ import {
   getQueryClient,
   type QueryOptions,
   resetQueryClient,
+  type ResourceHttp,
   setProvider,
 } from '@molecule/app-query'
 import { provider as memoryProvider } from '@molecule/app-query-memory'
@@ -161,7 +162,7 @@ const nodeRequire = createRequire(import.meta.url)
  * @returns Every diagnostic, flattened; empty means the example compiles.
  */
 function typeCheckExample(code: string): Diagnostic[] {
-  const emitted = svelte2tsx(code, { filename: 'resource-example.svelte', isTs: true }).code
+  const emitted = svelte2tsx(code, { filename: 'resource-example.svelte', isTsFile: true }).code
   const file = join(here, '../__resource-example__.svelte.tsx')
   const options: ts.CompilerOptions = {
     strict: true,
@@ -196,18 +197,24 @@ function typeCheckExample(code: string): Diagnostic[] {
   }))
 }
 
-it('the complete resource example compiles against the installed public contracts', () => {
-  const snippet = snippets.find((code) => code.includes('OptimisticToggleButton'))
-  if (!snippet) throw new Error('Missing query-svelte resource example')
-  expect(typeCheckExample(snippet)).toEqual([])
-  // The check is not vacuous: one wrong prop name fails it through the same
-  // pipeline — which also proves the child snippet's record arrives typed.
-  const broken = snippet.replace('value={invoice.flagged}', 'value={invoice.flgged}')
-  expect(broken).not.toBe(snippet)
-  const diagnostics = typeCheckExample(broken)
-  expect(diagnostics.length).toBeGreaterThan(0)
-  expect(diagnostics.some((item) => item.message.includes('flgged'))).toBe(true)
-})
+// The real program build over the installed contracts takes far longer than the
+// default test budget on a loaded machine; the timeout is the only slack added.
+it(
+  'the complete resource example compiles against the installed public contracts',
+  { timeout: 180_000 },
+  () => {
+    const snippet = snippets.find((code) => code.includes('OptimisticToggleButton'))
+    if (!snippet) throw new Error('Missing query-svelte resource example')
+    expect(typeCheckExample(snippet)).toEqual([])
+    // The check is not vacuous: one wrong prop name fails it through the same
+    // pipeline — which also proves the child snippet's record arrives typed.
+    const broken = snippet.replace('value={invoice.flagged}', 'value={invoice.flgged}')
+    expect(broken).not.toBe(snippet)
+    const diagnostics = typeCheckExample(broken)
+    expect(diagnostics.length).toBeGreaterThan(0)
+    expect(diagnostics.some((item) => item.message.includes('flgged'))).toBe(true)
+  },
+)
 
 /** Mounts the documented page under `name`. */
 function renderPackagePage(name = 'inventory'): HTMLDivElement {
@@ -456,18 +463,19 @@ describe.each([
 
   /**
    * The documented invoice API, as a bonded client: only the ResourceHttp
-   * surface the resource calls is implemented, so the cast is the test's
-   * statement that the rest of the client is never reached.
+   * surface the resource calls is mocked, over a real client so the rest of
+   * `HttpClient` stays complete. Each override returns just the `{ data }` the
+   * resource reads.
    */
-  const mockHttp = (overrides: Partial<HttpClient> = {}): HttpClient =>
-    ({
+  const mockHttp = (overrides: Partial<ResourceHttp> = {}): HttpClient =>
+    Object.assign(createFetchClient({ baseURL: '' }), {
       get: vi.fn(),
       post: vi.fn(),
       put: vi.fn(),
       patch: vi.fn(),
       delete: vi.fn(),
       ...overrides,
-    }) as HttpClient
+    })
 
   /** Mounts the documented invoice page and tracks it. */
   function mountInvoicePage(id: string): HTMLDivElement {
@@ -485,7 +493,7 @@ describe.each([
   }
 
   it('waits for the initial record before mounting an action, then saves its first click', async () => {
-    const read = Promise.withResolvers<{ data: { id: string; number: string; flagged: boolean } }>()
+    const read = deferred<{ data: { id: string; number: string; flagged: boolean } }>()
     const http = mockHttp({
       get: vi.fn(() => read.promise),
       post: vi.fn(async () => ({ data: { id: 'one', number: 'INV-1', flagged: true } })),

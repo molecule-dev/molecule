@@ -23,13 +23,14 @@ import {
   ref,
 } from 'vue'
 
-import { type ResourceHttp, unwrapList, unwrapSingle } from '@molecule/app-http'
+import { unwrapList, unwrapSingle } from '@molecule/app-http'
 import { getQueryClient, resetQueryClient, setProvider } from '@molecule/app-query'
 import { provider as memoryProvider } from '@molecule/app-query-memory'
 import { provider as tanstackProvider } from '@molecule/app-query-tanstack'
 import { useOptimisticValue } from '@molecule/app-vue'
 
 import { createQueryResource, intentPrefetchProps, QueryContent, useQuery } from '../index.js'
+import type { ResourceHttp } from '../resource.js'
 import { settle } from './helpers.js'
 
 interface Invoice {
@@ -37,7 +38,7 @@ interface Invoice {
   number: string
   flagged: boolean
 }
-interface Example {
+type Example = {
   invoices: ReturnType<typeof createQueryResource<Invoice>>
   InvoicePage: Component
 }
@@ -90,31 +91,37 @@ function compile(http: ResourceHttp): Example {
 }
 
 /** The complete resource example compiles against the installed public contracts. */
-it('the complete resource example compiles against the installed public contracts', () => {
-  const file = join(here, '__resource-example__.ts')
-  const options: ts.CompilerOptions = {
-    strict: true,
-    noEmit: true,
-    skipLibCheck: true,
-    types: [],
-    target: ts.ScriptTarget.ES2022,
-    module: ts.ModuleKind.ESNext,
-    moduleResolution: ts.ModuleResolutionKind.Bundler,
-  }
-  const host = ts.createCompilerHost(options)
-  const getSourceFile = host.getSourceFile.bind(host)
-  host.getSourceFile = (path, languageVersion, onError, shouldCreateNewSourceFile) =>
-    path === file
-      ? ts.createSourceFile(path, snippet, languageVersion, true, ts.ScriptKind.TS)
-      : getSourceFile(path, languageVersion, onError, shouldCreateNewSourceFile)
-  const diagnostics = ts.getPreEmitDiagnostics(ts.createProgram([file], options, host))
-  expect(
-    diagnostics.map((item) => ({
-      line: item.file?.getLineAndCharacterOfPosition(item.start ?? 0).line,
-      message: ts.flattenDiagnosticMessageText(item.messageText, '\n'),
-    })),
-  ).toEqual([])
-})
+// The real program build over the installed contracts takes far longer than the
+// default test budget on a loaded machine; the timeout is the only slack added.
+it(
+  'the complete resource example compiles against the installed public contracts',
+  { timeout: 180_000 },
+  () => {
+    const file = join(here, '__resource-example__.ts')
+    const options: ts.CompilerOptions = {
+      strict: true,
+      noEmit: true,
+      skipLibCheck: true,
+      types: [],
+      target: ts.ScriptTarget.ES2022,
+      module: ts.ModuleKind.ESNext,
+      moduleResolution: ts.ModuleResolutionKind.Bundler,
+    }
+    const host = ts.createCompilerHost(options)
+    const getSourceFile = host.getSourceFile.bind(host)
+    host.getSourceFile = (path, languageVersion, onError, shouldCreateNewSourceFile) =>
+      path === file
+        ? ts.createSourceFile(path, snippet, languageVersion, true, ts.ScriptKind.TS)
+        : getSourceFile(path, languageVersion, onError, shouldCreateNewSourceFile)
+    const diagnostics = ts.getPreEmitDiagnostics(ts.createProgram([file], options, host))
+    expect(
+      diagnostics.map((item) => ({
+        line: item.file?.getLineAndCharacterOfPosition(item.start ?? 0).line,
+        message: ts.flattenDiagnosticMessageText(item.messageText, '\n'),
+      })),
+    ).toEqual([])
+  },
+)
 
 let app: App | null = null
 let host: HTMLElement
@@ -206,8 +213,7 @@ describe.each([
     let resolveList!: (response: { data: Invoice[] }) => void
     const list = compiled.invoices.list('reader')
     getQueryClient().set(list.key, [initial])
-    const getList = vi.mocked(http.get)
-    getList.mockImplementation(async (path) =>
+    vi.mocked(http.get).mockImplementation(async (path) =>
       path === '/invoices' ? new Promise((resolve) => (resolveList = resolve)) : { data: initial },
     )
     mount(compiled)

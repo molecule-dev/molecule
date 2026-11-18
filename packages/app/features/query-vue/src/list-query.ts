@@ -19,6 +19,14 @@ export type ListQueryInputs<Values> = {
 }
 
 /**
+ * The list route a list query reads: its current list state, or a ref or getter of it (as
+ * `useListRoute` from `@molecule/app-vue` returns).
+ */
+export type ListQueryRoute<Filter extends string = string> = MaybeRefOrGetter<
+  ListQueryState<Filter>
+>
+
+/**
  * The list state a list query reads. `useListRoute` from `@molecule/app-vue` returns it as a
  * computed ref, which {@link useListQuery} takes as it is.
  */
@@ -51,7 +59,7 @@ export function useListQuery<
   Values extends { viewer: string | null },
   Filter extends string = string,
 >(
-  route: MaybeRefOrGetter<ListQueryState<Filter>>,
+  route: ListQueryRoute<Filter>,
   inputs: ListQueryInputs<Values>,
   read: (values: Values & { viewer: string }, list: ListQueryState<Filter>) => QueryOptions<T>,
 ): Ref<UseQueryResult<T>> {

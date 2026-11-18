@@ -14,6 +14,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { type App, type Component, computed, createApp, defineComponent, h, ref } from 'vue'
 
 import { createFetchClient, isHttpError, unwrapList, unwrapSingle } from '@molecule/app-http'
+import type { QueryOptions } from '@molecule/app-query'
 import { getQueryClient, resetQueryClient, setProvider } from '@molecule/app-query'
 import { provider as memoryProvider } from '@molecule/app-query-memory'
 import { provider as tanstackProvider } from '@molecule/app-query-tanstack'
@@ -22,14 +23,19 @@ import { useOptimisticValue } from '@molecule/app-vue'
 import { createQueryResource, intentPrefetchProps, QueryContent, useQuery } from '../index.js'
 import { settle } from './helpers.js'
 
+interface PackageDocument {
+  name: string
+  description: string
+}
+
 interface DetailExample {
   PackagePage: Component
-  packageQuery: (name: string) => { key: readonly unknown[] }
+  packageQuery: (name: string) => QueryOptions<PackageDocument | null>
 }
 
 interface MutationExample {
   feedKey: (principal: string, filter: string, page: number) => readonly unknown[]
-  feedOptions: (principal: string, filter: string, page: number) => { key: readonly unknown[] }
+  feedOptions: (principal: string, filter: string, page: number) => QueryOptions<unknown>
   setFollowing: (principal: string, authorId: string, follow: boolean) => Promise<void>
 }
 

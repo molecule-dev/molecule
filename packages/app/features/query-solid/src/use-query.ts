@@ -9,7 +9,7 @@ import { type Accessor, createEffect, createSignal, on, onCleanup, untrack } fro
 import type { QueryOptions, QueryState } from '@molecule/app-query'
 import { getQueryClient, hashQueryKey } from '@molecule/app-query'
 
-import type { UseQueryResult } from './types.js'
+import type { QueryOptionsInput, UseQueryResult } from './types.js'
 
 const IDLE: QueryState<never> = {
   data: undefined,
@@ -31,9 +31,6 @@ interface ObservedKey {
   hash: string
   principal: string | undefined
 }
-
-/** The options a query may arrive in: plain values, or an accessor of them. */
-type QueryOptionsSource<T> = QueryOptions<T> | null | Accessor<QueryOptions<T> | null>
 
 /**
  * The document for the options' key, kept current: cached data is read on the
@@ -90,7 +87,7 @@ type QueryOptionsSource<T> = QueryOptions<T> | null | Accessor<QueryOptions<T> |
  *   hook cannot tell a route change from a principal switch, so it refuses
  *   rather than risk showing one principal's document to another.
  */
-export function useQuery<T>(options: QueryOptionsSource<T>): UseQueryResult<T> {
+export function useQuery<T>(options: QueryOptionsInput<T>): UseQueryResult<T> {
   const readOptions = (): QueryOptions<T> | null =>
     typeof options === 'function' ? (options as Accessor<QueryOptions<T> | null>)() : options
   const validate = (value: QueryOptions<T> | null): void => {

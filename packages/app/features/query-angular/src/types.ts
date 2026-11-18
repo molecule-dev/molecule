@@ -4,9 +4,12 @@
  * Angular `TemplateRef`s.
  * @module
  */
-import type { TemplateRef } from '@angular/core'
+import type { Signal, TemplateRef } from '@angular/core'
 
-import type { QueryState } from '@molecule/app-query'
+import type { QueryOptions, QueryState } from '@molecule/app-query'
+
+/** What `useQuery` observes: the options for one key or `null` (nothing), as plain values or a signal of them. */
+export type QueryOptionsInput<T> = QueryOptions<T> | null | Signal<QueryOptions<T> | null>
 
 /**
  * A mounted query's state and its explicit cache and refresh actions. The state
@@ -83,3 +86,12 @@ export interface QueryContentProps<T> {
   /** A failed initial read. Cached data stays visible if its refresh fails. */
   error?: TemplateRef<QueryContentErrorContext> | null
 }
+
+/**
+ * The content {@link QueryContentProps} renders for each state: the loaded-data branch, the
+ * pending and missing content and the error renderer (the templates the component takes as inputs).
+ */
+export type QueryContentSlots<T> = Pick<
+  QueryContentProps<T>,
+  'children' | 'pending' | 'missing' | 'error'
+>

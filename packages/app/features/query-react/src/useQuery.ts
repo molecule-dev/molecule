@@ -6,11 +6,11 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
-import type { QueryOptions, QueryState } from '@molecule/app-query'
+import type { QueryState } from '@molecule/app-query'
 import { getQueryClient, hashQueryKey } from '@molecule/app-query'
 import { useValueAtKeyChange } from '@molecule/app-react/render'
 
-import type { UseQueryResult } from './types.js'
+import type { QueryOptionsInput, UseQueryResult } from './types.js'
 
 const IDLE: QueryState<never> = {
   data: undefined,
@@ -82,7 +82,7 @@ interface ObservedKey {
  *   hook cannot tell a route change from a principal switch, so it refuses
  *   rather than risk showing one principal's document to another.
  */
-export function useQuery<T>(options: QueryOptions<T> | null): UseQueryResult<T> {
+export function useQuery<T>(options: QueryOptionsInput<T>): UseQueryResult<T> {
   const hash = options ? hashQueryKey(options.key) : ''
   const principal = options?.principal
   const keepPreviousData = options?.keepPreviousData === true

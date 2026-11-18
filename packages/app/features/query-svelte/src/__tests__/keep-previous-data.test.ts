@@ -288,10 +288,15 @@ describe.each([
   })
 
   it('refuses retention without a principal', () => {
+    // A caller that asserts a principal it does not have yet (a signed-in id read
+    // before sign-in finishes): the types are satisfied, so only the hook's own
+    // runtime guard stops it.
+    const session: { userId?: string } = {}
     expect(() =>
       hook({
         key: ['list'],
         keepPreviousData: true,
+        principal: session.userId!,
         fetch: async () => [],
       }),
     ).toThrow(/keepPreviousData requires principal/)
