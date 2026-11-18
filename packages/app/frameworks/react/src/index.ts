@@ -45,8 +45,11 @@
  * the session candidate for retry, but `isAuthenticated` can be false and `user`
  * can be null. A restore failure other than 401/403 never signs out.
  * `MoleculeProvider auth={authClient}` and `AuthProvider client={authClient}`
- * hold public pages until that initial loading status ends by default,
- * so their first render reads the restored user when restoration succeeds.
+ * start the bundled client's restore when they first read the session. The
+ * app entry can mount its root without calling `initialize()`. A cached token
+ * and user render signed-in content immediately, and a visitor without a session
+ * candidate renders signed-out content immediately. The providers hold pages
+ * by default while a token-only or cookie-only restore is undecided.
  * Set `awaitSession={false}` for a deliberately ungated public shell or synchronous SSR.
  * `sessionFallback` remains inside the service providers. Unavailable sessions
  * also render and can still have a null user. Synchronous SSR renders the

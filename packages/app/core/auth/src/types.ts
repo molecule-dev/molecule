@@ -360,7 +360,7 @@ export interface PasswordResetConfirm {
  * for retry; its profile can still be null. A restore failure other than
  * 401/403 never signs out.
  *
- * - `'loading'`: no decision yet (before `initialize()` settles). An auth
+ * - `'loading'`: the initial session is still undecided. An auth
  *   operation in flight is {@link AuthState.loading} and KEEPS the decided
  *   status, so a page guarded on `'loading'` stays mounted while a Login or
  *   Register request runs.
@@ -728,17 +728,17 @@ export interface AuthClient<
    *
    * LAZY and IDEMPOTENT: the first read of the state ({@link getState},
    * {@link subscribe}, `useAuth()`) starts this same restore when nobody has called
-   * `initialize()`, and every later call shares the one promise instead of sending a
-   * second request. An app that keeps the template's explicit call behaves exactly as
-   * before; an app that loses that line still restores its session.
+   * `initialize()`. Later calls join the same restore, including any verification
+   * still in progress.
    *
    * With a stored token AND a stored user it marks the session `'authenticated'`
    * SYNCHRONOUSLY — before its first `await` — so the first render is the
    * signed-in UI and no page waits on a verification round trip. Any check
    * (a refresh, the cookie-restore probe) settles behind that render, and only an
    * explicit 401/403 ends the session; a network/5xx/404 failure keeps it and
-   * reports `'unavailable'`. With no stored user the client stays `'loading'`
-   * until the cookie restore decides.
+   * reports `'unavailable'`. A token-only or cookie-only candidate stays
+   * `'loading'` until its current-user request decides the session. With neither
+   * a token nor a cookie candidate, the client is immediately `'unauthenticated'`.
    *
    * Do not put this call (or a `/me` request of your own) in front of the first
    * render, and do not render a loading screen over a session it just restored:

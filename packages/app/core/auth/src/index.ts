@@ -51,7 +51,7 @@
  * app without that bond, create the client once at startup with
  * `setClient(createJWTAuthClient({ baseURL, authScheme: 'Token', storage:
  * createBrowserStorageAdapter() }))`, or `createDefaultAuthClient(authConfig)`
- * from `@molecule/app-bonds-default-react`, then call `initialize()`. The bond's
+ * from `@molecule/app-bonds-default-react`. The bond's
  * HTTP-sync variants also register `whenRestored()` as the request gate.
  *
  * Sharing `tokenKey` with the bonded client does not make another context or
@@ -61,10 +61,12 @@
  * the bond, but have them read the bonded client or framework binding instead of
  * mirroring session state.
  *
- * **`initialize()` restores a cached token AND user BEFORE the first render.**
- * That restore is synchronous and costs no request. Cookie-only and token-only
- * restoration need an asynchronous current-user request. An HttpOnly
- * session cookie restores through `currentUserEndpoint` (default `/users/me`).
+ * **The first session read restores a stored token and cached user synchronously.**
+ * The first render can use the cached user immediately. Verification of an
+ * expired or opaque token can run asynchronously. Without a token or cookie
+ * session candidate, the client reports `'unauthenticated'` immediately.
+ * Cookie-only and token-only restores use an asynchronous `currentUserEndpoint`
+ * request (default `/users/me`).
  * The default `cookieRestore: 'hint'` requires a readable `mol_auth=1` cookie
  * set by the API alongside the HttpOnly cookie. For an external cookie API
  * without that convention, configure `storage: 'memory'`,
@@ -82,11 +84,9 @@
  * **Calling `initialize()` is optional — initialization is lazy and idempotent.**
  * The first read of the client (`getState()`, `subscribe()`/`onAuthChange()`, a
  * `useAuth()` mount, `isAuthenticated()`, `getUser()`) starts the same one restore,
- * and an explicit `initialize()` returns the same promise, so a second call asks the
- * server nothing. Keep the template's explicit call (it makes the first render
- * deterministic); an entry file that drops it still restores instead of reporting
- * `'loading'` forever (a `main.tsx` rewrite can drop the line, and every page
- * then stays on its loading branch).
+ * and each explicit `initialize()` joins that restore. A framework provider
+ * that reads the session starts restoration even when the app's entry file
+ * only mounts the root component.
  *
  * **Never fetch viewer-dependent data before the restore settles.** A
  * component effect that runs on mount fires while `initialize()` is still
@@ -109,8 +109,8 @@
  * `'loading'` (no decision yet) → `'authenticated'` / `'unauthenticated'`, and
  * `'unavailable'` when a stored session exists but the server could not confirm it.
  * **A stored token AND a stored user make the FIRST render `'authenticated'`**:
- * `initialize()` sets that state synchronously, before any request, and every
- * verification settles behind that render. Never hold the first paint on
+ * the first state read or `initialize()` sets that state synchronously and
+ * any needed verification runs asynchronously. Never hold the first paint on
  * `validateSession()` or a `/me` request of your own — a protected page then pays
  * an API round trip on every navigation. Route
  * guards read this same `status`: wait only while it is `'loading'` — that

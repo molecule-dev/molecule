@@ -64,7 +64,9 @@ describe('the scaffolded-app wiring in the module description (xr-molecule-flash
     expect(doc).toContain('initialize()')
     expect(doc).toContain('MoleculeProvider')
     expect(doc).toContain('useAuth()')
-    expect(doc).toContain('BEFORE the first render')
+    expect(doc).toContain(
+      'first session read restores a stored token and cached user synchronously',
+    )
     expect(doc).toContain('401 signs the user out')
     // The second trap the same run hit (+25:40): a hand-rolled gate holding its own restore.
     expect(doc).toContain('skipAuthGate')
@@ -75,7 +77,7 @@ describe('the scaffolded-app wiring in the module description (xr-molecule-flash
     for (const sentence of [
       'keep the generated auth bond',
       'MoleculeProvider',
-      'BEFORE the first render',
+      'first session read restores a stored token and cached user synchronously',
     ]) {
       const at = readme.indexOf(sentence)
       expect(at).toBeGreaterThan(-1)

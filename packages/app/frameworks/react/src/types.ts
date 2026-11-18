@@ -146,13 +146,13 @@ export interface MoleculeProviderProps extends ProviderProps {
   auth?: AuthClient<unknown>
   /**
    * Render the app only once `auth` leaves its initial loading status ({@link SessionReadyProps}). Defaults to true.
-   * With the bundled JWT client, a stored token AND cached user restore synchronously without
-   * a request. Token-only and cookie-only sessions need an asynchronous current-user request;
+   * With the bundled JWT client, a stored token AND cached user restore synchronously.
+   * Token-only and cookie-only sessions need an asynchronous current-user request;
    * until it answers `useAuth().user` is `null` — a public page's signed-in action
    * (`if (!user) return`, a redirect to `/login`) then treats a signed-in visitor as signed out.
    * When restoration succeeds, every page's first render reads the restored user. An
    * `'unavailable'` session also renders, but remains unconfirmed and may have a null user.
-   * A visitor with no session to restore settles in microtasks without a request.
+   * A visitor with no session candidate settles synchronously without a request.
    * Ignored without `auth`. Synchronous SSR renders the fallback for a loading client:
    * initialize a request-scoped client first, or set this false for an ungated SSR shell.
    */

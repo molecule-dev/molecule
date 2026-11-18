@@ -165,7 +165,7 @@ describe('sessionReady', () => {
     ready.stop()
   })
 
-  it('is ready for a visitor with no session to restore, without a request', async () => {
+  it('is immediately ready for an anonymous visitor without entry initialization', () => {
     const fetchSpy = vi.fn()
     vi.stubGlobal('fetch', fetchSpy)
     const client = createJWTAuthClient<UserProfile>({
@@ -173,13 +173,10 @@ describe('sessionReady', () => {
       autoRefresh: false,
     })
     clients.push(client)
-    // As the scaffold's hooks.client.ts does before the first render.
-    void client.initialize()
     const { sessionReady } = createAuthStoresFromClient<UserProfile>(client)
     const ready = mount(sessionReady)
-    await client.whenRestored!()
-    expect(client.getState().status).toBe('unauthenticated')
     expect(ready.current()).toBe(true)
+    expect(client.getState().status).toBe('unauthenticated')
     expect(fetchSpy).not.toHaveBeenCalled()
     ready.stop()
   })
@@ -218,11 +215,9 @@ describe('sessionReady', () => {
       autoRefresh: false,
     })
     clients.push(client)
-    void client.initialize()
     const { sessionReady } = createAuthStoresFromClient<UserProfile>(client)
     const ready = mount(sessionReady)
-    // A stored token AND user are the session: initialize() restores them synchronously,
-    // so the store's first value is ready and a protected page's first render is signed in.
+    // The store's first read restores the cached session synchronously.
     expect(ready.values).toEqual([true])
     await client.whenRestored!()
     expect(client.getState().status).toBe('authenticated')

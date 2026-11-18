@@ -14,8 +14,8 @@ import type { SessionReadyProps } from './types.js'
  * or `'unavailable'`), and `fallback` until then. It never redirects. An unavailable session
  * is unconfirmed and may still have `user === null`; handle that status separately from sign-out.
  *
- * With the bundled JWT client, a stored token AND cached user restore synchronously without a
- * request, so this boundary renders immediately. Token-only and cookie-only sessions need an
+ * With the bundled JWT client, a stored token AND cached user restore synchronously,
+ * so this boundary renders immediately. Token-only and cookie-only sessions need an
  * asynchronous current-user request. Until it answers, `useAuth().user` is `null`, so a public
  * page that renders a signed-in action
  * at once lets that action run against "signed out": a Follow button whose handler starts with
@@ -23,7 +23,7 @@ import type { SessionReadyProps } from './types.js'
  * the flow. Wrapping the routes (or passing `awaitSession` to `MoleculeProvider`) makes every
  * page's first render read the restored user when restoration succeeds.
  *
- * A visitor with no session to restore settles in microtasks without a request. Must render
+ * A visitor with no session candidate settles synchronously without a request. Must render
  * inside the auth context (`AuthProvider`, or `MoleculeProvider` with `auth`). A client that
  * nobody initialized starts its restore on this first read.
  * The bundled JWT client bounds each auth request (default 10 seconds) and settles a timeout

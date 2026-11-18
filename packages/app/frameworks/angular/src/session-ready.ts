@@ -15,8 +15,9 @@ import { useAuth } from './hooks/use-auth.js'
  * then. It never redirects. An unavailable session is unconfirmed and may
  * still have `user === null`; handle that status separately from sign-out.
  *
- * After a full page load a returning visitor's session is restored by one
- * request. Until it answers, `useAuth().user` is `null` everywhere, so a
+ * With the bundled JWT client, a stored token and cached user restore synchronously.
+ * Token-only and cookie-only sessions need an asynchronous current-user request.
+ * Until it answers, `useAuth().user` is `null` everywhere, so a
  * public page that renders a signed-in action at once lets that action run
  * against "signed out": a Follow button whose handler starts with
  * `if (!user) return` ignores the click, one that redirects to `/login` signs
@@ -24,7 +25,7 @@ import { useAuth } from './hooks/use-auth.js'
  * to `provideMolecule`) makes every page's first render read the restored user
  * when restoration succeeds.
  *
- * A visitor with no session to restore settles in microtasks without a
+ * A visitor with no session candidate settles synchronously without a
  * request. Must render inside the auth registration (`provideMolecule` with
  * `auth`). A client that nobody initialized starts its restore on this first
  * read. The bundled JWT client bounds each auth request (default 10 seconds)

@@ -30,8 +30,8 @@ interface AuthStores<T, TRegister extends RegisterExtraShape<TRegister> = Record
    * signed out, or unavailable. Gate a public page's first render on it
    * (`{#if $sessionReady}`) so a handler that checks `user` never runs against a session
    * restore still in flight. `'unavailable'` also becomes ready and may still have a
-   * null user. Without a session hint, an anonymous visitor settles in microtasks without
-   * a request.
+   * null user. A stored token and cached user are ready synchronously. A visitor with
+   * no session candidate is ready synchronously without a request.
    */
   sessionReady: Readable<boolean>
   error?: Readable<string | null>

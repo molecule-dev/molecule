@@ -104,20 +104,63 @@ describe('lazy initialization — a dropped initialize() is no longer fatal', ()
     expect(mockFetch).not.toHaveBeenCalled()
   })
 
-  it('does not leave an anonymous client `loading` after the first read', async () => {
+  it('identifies an anonymous client on the first read without probing the API', () => {
     const client = createJWTAuthClient({ storage: createMockStorage(), autoRefresh: false })
-
-    // Before the restore settles there is genuinely no decision yet.
-    expect(client.getState().status).toBe('loading')
-
-    // The first read started it; `whenRestored()` is the same restore's signal.
-    await client.whenRestored!()
 
     expect(client.getState()).toMatchObject({
       status: 'unauthenticated',
       initialized: true,
       authenticated: false,
     })
+    expect(mockFetch).not.toHaveBeenCalled()
+  })
+
+  it.each(['subscribe', 'onAuthChange'] as const)(
+    '%s receives the first signed-out decision when it starts restoration',
+    async (method) => {
+      const client = createJWTAuthClient({ storage: createMockStorage(), autoRefresh: false })
+      const change = vi.fn()
+      const stop = client[method](change)
+
+      expect(client.getState().status).toBe('unauthenticated')
+      expect(change).not.toHaveBeenCalled()
+      await client.whenRestored!()
+
+      expect(change).toHaveBeenCalledExactlyOnceWith(client.getState())
+      stop()
+      client.destroy()
+    },
+  )
+
+  it('notifies the first subscriber if an immediate sign-out confirms the same snapshot', async () => {
+    const client = createJWTAuthClient({ storage: createMockStorage(), autoRefresh: false })
+    const change = vi.fn()
+    const stop = client.subscribe(change)
+    client.setUser(null)
+    await client.whenRestored!()
+
+    expect(change).toHaveBeenCalledExactlyOnceWith(client.getState())
+    expect(client.getState().status).toBe('unauthenticated')
+    stop()
+    client.destroy()
+  })
+
+  it('skips deferred verification when a replacement session already owns the client', async () => {
+    const storage = createMockStorage()
+    storage.setItem('molecule:auth:accessToken', 'opaque-token')
+    storage.setItem('molecule:auth:user', JSON.stringify(user))
+    ;(globalThis as { document?: { cookie: string } }).document = { cookie: 'mol_auth=1' }
+    mockFetch.mockImplementation(() => createMockResponse({ user }))
+    const client = createJWTAuthClient({ storage, autoRefresh: false })
+
+    expect(client.getState().user).toEqual(user)
+    const replacement = { id: 'replacement', name: 'Replacement' }
+    client.setSession({ accessToken: createJWT(3600), user: replacement })
+    await client.initialize()
+
+    expect(client.getState()).toMatchObject({ status: 'authenticated', user: replacement })
+    expect(mockFetch).not.toHaveBeenCalled()
+    client.destroy()
   })
 
   it('loads and maps a token-only session once through the configured current-user route', async () => {

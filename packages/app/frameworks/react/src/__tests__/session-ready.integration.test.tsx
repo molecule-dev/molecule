@@ -33,6 +33,7 @@ import { SessionReady } from '../session-ready.js'
 
 const reader: UserProfile = { id: 'reader', name: 'Reader' }
 const clients: AuthClient<UserProfile>[] = []
+const validToken = [btoa('{}'), btoa(JSON.stringify({ exp: 4_102_444_800 })), 'signature'].join('.')
 
 function memoryStorage(): StorageAdapter {
   const values = new Map<string, string>()
@@ -45,6 +46,22 @@ function memoryStorage(): StorageAdapter {
       values.delete(key)
     },
   }
+}
+
+/** Open a fresh client using the session storage from the previous document. */
+function cachedVisitor(accessToken: string): AuthClient<UserProfile> {
+  const storage = memoryStorage()
+  const previous = createJWTAuthClient<UserProfile>({ storage, autoRefresh: false })
+  previous.setSession({ accessToken, user: reader })
+  previous.destroy()
+  const client = createJWTAuthClient<UserProfile>({ storage, autoRefresh: false })
+  clients.push(client)
+  return client
+}
+
+function SessionPage() {
+  const { status, user } = useAuth<UserProfile>()
+  return <h1>{status === 'authenticated' ? `Signed in as ${user?.name}` : 'Signed out'}</h1>
 }
 
 /** A real client for a returning visitor whose restore request answers when `answer` is called. */
@@ -172,26 +189,84 @@ describe('MoleculeProvider awaitSession', () => {
     },
   )
 
-  it('renders an existing stored session synchronously without a network request', () => {
-    const fetchSpy = vi.fn()
+  it.each(['auth', 'molecule'] as const)(
+    '%s provider renders a cached visitor on the first render without entry initialization',
+    (provider) => {
+      const fetchSpy = vi.fn()
+      vi.stubGlobal('fetch', fetchSpy)
+      const client = cachedVisitor(validToken)
+      render(
+        <StrictMode>
+          {provider === 'auth' ? (
+            <AuthProvider client={client}>
+              <SessionPage />
+            </AuthProvider>
+          ) : (
+            <MoleculeProvider auth={client}>
+              <SessionPage />
+            </MoleculeProvider>
+          )}
+        </StrictMode>,
+      )
+      expect(screen.getByRole('heading', { name: 'Signed in as Reader' })).toBeTruthy()
+      expect(fetchSpy).not.toHaveBeenCalled()
+    },
+  )
+
+  it('waits for one current-user read when the previous document stored only the token', async () => {
+    let respond!: (response: Response) => void
+    const fetchSpy = vi.fn(
+      () =>
+        new Promise<Response>((resolve) => {
+          respond = resolve
+        }),
+    )
     vi.stubGlobal('fetch', fetchSpy)
     const storage = memoryStorage()
-    storage.setItem(
-      'molecule:auth:accessToken',
-      [btoa('{}'), btoa(JSON.stringify({ exp: 4_102_444_800 })), 'signature'].join('.'),
-    )
-    storage.setItem('molecule:auth:user', JSON.stringify(reader))
-    const client = createJWTAuthClient({ storage, autoRefresh: false })
+    storage.setItem('molecule:auth:accessToken', validToken)
+    const client = createJWTAuthClient<UserProfile>({ storage, autoRefresh: false })
     clients.push(client)
-    const onFollow = vi.fn()
     render(
-      <MoleculeProvider auth={client} awaitSession>
-        <FollowButton onFollow={onFollow} />
+      <MoleculeProvider auth={client} sessionFallback={<p>Restoring</p>}>
+        <SessionPage />
       </MoleculeProvider>,
     )
-    fireEvent.click(screen.getByRole('button', { name: 'Follow' }))
-    expect(onFollow).toHaveBeenCalledWith(reader.id)
+    expect(screen.queryByRole('heading')).toBeNull()
+    expect(screen.getByText('Restoring')).toBeTruthy()
+    expect(fetchSpy).toHaveBeenCalledExactlyOnceWith(
+      '/users/me',
+      expect.objectContaining({
+        method: 'GET',
+        headers: expect.objectContaining({ Authorization: `Bearer ${validToken}` }),
+      }),
+    )
+    await act(async () => {
+      respond(Response.json({ user: reader }))
+      await client.whenRestored!()
+    })
+    expect(screen.getByRole('heading', { name: 'Signed in as Reader' })).toBeTruthy()
+    expect(fetchSpy).toHaveBeenCalledTimes(1)
+  })
+
+  it('renders a cached opaque-token session before a current-user read and verifies it once', async () => {
+    document.cookie = 'mol_auth=1; path=/'
+    const fetchSpy = vi.fn(async () => Response.json({ user: reader }))
+    vi.stubGlobal('fetch', fetchSpy)
+    const client = cachedVisitor('opaque-token')
+    render(
+      <AuthProvider client={client} sessionFallback={<p>Restoring</p>}>
+        <SessionPage />
+      </AuthProvider>,
+    )
+    expect(screen.getByRole('heading', { name: 'Signed in as Reader' })).toBeTruthy()
     expect(fetchSpy).not.toHaveBeenCalled()
+
+    await act(async () => Promise.all([client.initialize(), client.initialize()]))
+    await client.initialize()
+    expect(fetchSpy).toHaveBeenCalledExactlyOnceWith(
+      '/users/me',
+      expect.objectContaining({ method: 'GET', credentials: 'include' }),
+    )
   })
 
   it('provides theme and translations to its session fallback', async () => {
@@ -242,20 +317,17 @@ describe('MoleculeProvider awaitSession', () => {
     expect(fetch).not.toHaveBeenCalled()
   })
 
-  it('server-renders the fallback while loading and content after initialization', async () => {
-    const fetchSpy = vi.fn()
-    vi.stubGlobal('fetch', fetchSpy)
-    const client = createJWTAuthClient({ storage: memoryStorage(), autoRefresh: false })
-    clients.push(client)
+  it('server-renders the fallback while a cookie restore is pending', async () => {
+    const { client, answer } = returningVisitor(false)
     const app = (
       <MoleculeProvider auth={client} awaitSession sessionFallback={<p>Restoring</p>}>
         <p>Server page</p>
       </MoleculeProvider>
     )
     expect(renderToString(app)).toContain('Restoring')
-    await client.initialize()
+    await answer()
     expect(renderToString(app)).toContain('Server page')
-    expect(fetchSpy).not.toHaveBeenCalled()
+    expect(fetch).toHaveBeenCalledTimes(1)
   })
 
   it('lazily restores exactly once under StrictMode without initialize()', async () => {
@@ -357,7 +429,7 @@ describe('MoleculeProvider awaitSession', () => {
     expect(onFollow).not.toHaveBeenCalled()
   })
 
-  it('renders a visitor with no session to restore without waiting on a request', async () => {
+  it('renders an anonymous visitor as signed out immediately without a hold', () => {
     const fetchSpy = vi.fn()
     vi.stubGlobal('fetch', fetchSpy)
     const client = createJWTAuthClient<UserProfile>({
@@ -365,16 +437,13 @@ describe('MoleculeProvider awaitSession', () => {
       autoRefresh: false,
     })
     clients.push(client)
-    // As the scaffold's main.tsx does before the first render.
-    void client.initialize()
     render(
-      <MoleculeProvider auth={client} awaitSession>
-        <p>Public page</p>
+      <MoleculeProvider auth={client} sessionFallback={<p>Restoring</p>}>
+        <SessionPage />
       </MoleculeProvider>,
     )
-    await act(async () => client.whenRestored!())
-    expect(client.getState().status).toBe('unauthenticated')
-    expect(screen.getByText('Public page')).toBeTruthy()
+    expect(screen.queryByText('Restoring')?.textContent ?? null).toBeNull()
+    expect(screen.getByRole('heading', { name: 'Signed out' })).toBeTruthy()
     expect(fetchSpy).not.toHaveBeenCalled()
   })
 

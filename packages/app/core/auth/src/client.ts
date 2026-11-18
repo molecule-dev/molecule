@@ -528,7 +528,10 @@ export const createJWTAuthClient = <
     return 'unauthenticated'
   }
 
-  const setState = (updates: Partial<AuthState<T>>, revisionAdvanced = false): void => {
+  const setState = (
+    updates: Partial<AuthState<T>>,
+    { revisionAdvanced = false, notifyListeners = true } = {},
+  ): void => {
     const previous = state
     const next = { ...previous, ...updates }
     if (previous.authenticated && !next.authenticated && !revisionAdvanced) sessionRevision++
@@ -541,9 +544,8 @@ export const createJWTAuthClient = <
       next.user = previous.user
     }
     const nextState = { ...next, status: deriveStatus(next, updates.status) }
-    state = nextState
     // Nothing the subscriber can observe changed — the same user object, the same flags: do not
-    // notify. A listener that renders from this state has nothing new to render.
+    // replace the snapshot or notify.
     const unchanged =
       previous.status === nextState.status &&
       previous.initialized === nextState.initialized &&
@@ -551,7 +553,9 @@ export const createJWTAuthClient = <
       previous.user === nextState.user &&
       previous.loading === nextState.loading &&
       previous.error === nextState.error
-    if (!unchanged) notify()
+    if (unchanged) return
+    state = nextState
+    if (notifyListeners) notify()
   }
 
   /** Ends local ownership before any cleanup, so older operations cannot publish. */
@@ -574,7 +578,7 @@ export const createJWTAuthClient = <
         user: null,
         status: 'unauthenticated',
       },
-      true,
+      { revisionAdvanced: true },
     )
   }
 
@@ -901,13 +905,15 @@ export const createJWTAuthClient = <
     })
   }
 
+  // The readable hint avoids probing anonymous loads by default. Retries for
+  // a known candidate and cookie APIs configured to always probe need no hint.
+  const hasCookieRestoreCandidate = (): boolean =>
+    cookieSessionCandidate ||
+    cookieRestore === 'always' ||
+    (typeof document !== 'undefined' && /(?:^|;\s*)mol_auth=1(?:;|$)/.test(document.cookie))
+
   // Re-read the current user through the HttpOnly session cookie. The server
   // can restore that session without exposing its cookie to JavaScript.
-  //
-  // By default, use the readable `mol_auth=1` hint to avoid probing every anonymous
-  // load. External cookie APIs can opt into `cookieRestore: 'always'`. Once this
-  // client has a candidate, retries do not depend on the hint remaining readable.
-  //
   // Shared by initialize() (reload/deep-link restore) and refresh(). An explicit
   // refresh may also authenticate this read with an access-only API's token:
   // those APIs have neither a refresh credential nor a readable cookie hint.
@@ -919,15 +925,8 @@ export const createJWTAuthClient = <
         clearSessionHintCookie()
         return { user: null, attempted: false, rejected: false }
       }
-      const hasSessionHint =
-        typeof document !== 'undefined' && /(?:^|;\s*)mol_auth=1(?:;|$)/.test(document.cookie)
       const token = tokenStorage.getAccessToken()
-      if (
-        !(allowAccessToken && token) &&
-        !hasSessionHint &&
-        !cookieSessionCandidate &&
-        cookieRestore !== 'always'
-      ) {
+      if (!(allowAccessToken && token) && !hasCookieRestoreCandidate()) {
         return { user: null, attempted: false, rejected: false }
       }
       cookieSessionCandidate = true
@@ -1047,9 +1046,11 @@ export const createJWTAuthClient = <
           return
         }
 
-        // The token is expired, or carries no readable `exp` (an opaque session
-        // token: `isTokenExpired` cannot tell). Confirm the session behind the
-        // render — never in front of it.
+        // The first state read can happen during render. Let it return the cached
+        // session before starting verification of an expired or opaque token.
+        await Promise.resolve()
+        if (!operation.isCurrent()) return
+
         const refreshToken = tokenStorage.getRefreshToken()
         if (refreshToken) {
           try {
@@ -1107,6 +1108,15 @@ export const createJWTAuthClient = <
         await client.validateSession!()
         if (!operation.isCurrent()) return
         setState({ initialized: true })
+        return
+      }
+      if (!hasCookieRestoreCandidate()) {
+        // Publish the first snapshot now and give a subscription that started
+        // restoration a chance to register before notifying it.
+        setState({ initialized: true }, { notifyListeners: false })
+        const signedOut = state
+        await Promise.resolve()
+        if (state === signedOut) notify()
         return
       }
       const outcome = await restoreFromSessionCookie()

@@ -299,12 +299,10 @@ describe('every module-doc mapper example', () => {
         accessToken: string | null
       }
       expect(readSession()).toMatchObject({
-        status: 'loading',
+        status: 'unauthenticated',
         user: null,
         accessToken: null,
       })
-      await client.initialize()
-      expect(readSession().status).toBe('unauthenticated')
       client.setSession({ accessToken: 'portal-session', user: { id: 'member-42' } })
       expect(readSession()).toMatchObject({
         status: 'authenticated',

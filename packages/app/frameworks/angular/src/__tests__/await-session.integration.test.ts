@@ -173,7 +173,7 @@ describe('provideMolecule awaitSession', () => {
     expect(onFollow).not.toHaveBeenCalled()
   })
 
-  it('bootstraps a visitor with no session to restore without waiting on a request', async () => {
+  it('bootstraps an anonymous visitor immediately without entry initialization', () => {
     const fetchSpy = vi.fn()
     vi.stubGlobal('fetch', fetchSpy)
     const client = createJWTAuthClient<UserProfile>({
@@ -181,14 +181,11 @@ describe('provideMolecule awaitSession', () => {
       autoRefresh: false,
     })
     clients.push(client)
-    // As the scaffold's main.ts does, before bootstrap.
-    void client.initialize()
     TestBed.configureTestingModule({
       imports: [FollowComponent],
       providers: [provideMolecule({ auth: client, awaitSession: true })],
     })
     const initStatus = TestBed.inject(ApplicationInitStatus)
-    await initStatus.donePromise
     expect(initStatus.done).toBe(true)
     expect(client.getState().status).toBe('unauthenticated')
     expect(fetchSpy).not.toHaveBeenCalled()
@@ -256,7 +253,6 @@ describe('provideMolecule awaitSession', () => {
       autoRefresh: false,
     })
     clients.push(client)
-    void client.initialize()
     TestBed.configureTestingModule({
       imports: [FollowComponent],
       providers: [provideMolecule({ auth: client, awaitSession: true })],

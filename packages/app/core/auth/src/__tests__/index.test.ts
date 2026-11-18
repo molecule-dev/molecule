@@ -331,8 +331,8 @@ describe('JWT Auth Client', () => {
       const client = createJWTAuthClient()
 
       expect(client.getState()).toEqual({
-        status: 'loading',
-        initialized: false,
+        status: 'unauthenticated',
+        initialized: true,
         authenticated: false,
         user: null,
         loading: false,
@@ -389,7 +389,7 @@ describe('JWT Auth Client', () => {
       const client = createJWTAuthClient()
       const state = client.getState()
 
-      expect(state.initialized).toBe(false)
+      expect(state.initialized).toBe(true)
       expect(state.authenticated).toBe(false)
       expect(state.user).toBeNull()
       expect(state.loading).toBe(false)

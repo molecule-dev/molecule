@@ -193,7 +193,7 @@ describe('MoleculeProvider config.awaitSession', () => {
     expect(onFollow).not.toHaveBeenCalled()
   })
 
-  it('renders a visitor with no session to restore without waiting on a request', async () => {
+  it('renders an anonymous visitor on mount without entry initialization', () => {
     const fetchSpy = vi.fn()
     vi.stubGlobal('fetch', fetchSpy)
     const client = createJWTAuthClient<UserProfile>({
@@ -201,8 +201,6 @@ describe('MoleculeProvider config.awaitSession', () => {
       autoRefresh: false,
     })
     clients.push(client)
-    // As the scaffold's App.tsx does before the first render.
-    void client.initialize()
     const container = mount(() =>
       createComponent(MoleculeProvider, {
         config: { auth: client, awaitSession: true },
@@ -211,10 +209,8 @@ describe('MoleculeProvider config.awaitSession', () => {
         },
       }),
     )
-    await client.whenRestored!()
-    await settle()
-    expect(client.getState().status).toBe('unauthenticated')
     expect(container.textContent).toContain('Public page')
+    expect(client.getState().status).toBe('unauthenticated')
     expect(fetchSpy).not.toHaveBeenCalled()
   })
 

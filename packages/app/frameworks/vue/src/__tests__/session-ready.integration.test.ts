@@ -150,7 +150,7 @@ describe('SessionReady', () => {
     expect(onFollow).not.toHaveBeenCalled()
   })
 
-  it('renders a visitor with no session to restore without waiting on a request', async () => {
+  it('renders an anonymous visitor on mount without entry initialization', () => {
     const fetchSpy = vi.fn()
     vi.stubGlobal('fetch', fetchSpy)
     const client = createJWTAuthClient<UserProfile>({
@@ -158,16 +158,12 @@ describe('SessionReady', () => {
       autoRefresh: false,
     })
     clients.push(client)
-    // As the scaffold's main.ts does before the first render.
-    void client.initialize()
     const wrapper = mountApp(
       client,
       gatedPage(() => h('p', 'Public page')),
     )
-    await client.whenRestored!()
-    await nextTick()
-    expect(client.getState().status).toBe('unauthenticated')
     expect(wrapper.text()).toContain('Public page')
+    expect(client.getState().status).toBe('unauthenticated')
     expect(fetchSpy).not.toHaveBeenCalled()
   })
 
