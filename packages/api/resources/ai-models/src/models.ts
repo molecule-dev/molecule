@@ -258,6 +258,28 @@ const CHINA_PUBLIC_HOLIDAYS = [
  *   the Responses API" — the same shape as gpt-6.1-sol, served by the bond's
  *   /v1/responses calls. Supersedes gpt-5.6-terra, same tier at $2/$12,
  *   repointed from gpt-6.1-sol.)
+ *   (verified 2026-11-18 on the pricing page + the gpt-6.2-astra model page:
+ *   ADDED gpt-6.2-astra ($8/$40, cached $0.40 — 5% of input — cache writes
+ *   $10; >272K band $16/$60, cached $0.80, writes $20 not modeled; 1.05M ctx /
+ *   128K out; image input; knowledge cutoff May 18 2026; effort
+ *   low|medium|high|xhigh|max with NO 'none' — live-probed on /v1/responses
+ *   with tools at every level 2026-11-18, and the 'none' rejection's error
+ *   names exactly those five; temperature → 400; forced tool_choice → 200).
+ *   It supersedes gpt-6-astra (the same flagship tier at $10/$50). The 5.6-sol
+ *   promo footnote now reads "available until November 30, 2026" — the
+ *   KNOWN_DIVERGENCES expiry in check-model-freshness.mjs was extended to
+ *   match. Web search stays $10/1k calls on reasoning models.)
+ *   (verified 2026-11-18 on the pricing page + the gpt-6.2-sol model page:
+ *   ADDED gpt-6.2-sol ($2/$10, cached $0.10 — 5% of input — cache writes
+ *   $2.50; >272K band $4/$15, cached $0.20, writes $5 not modeled; 1.05M ctx /
+ *   128K out; image input; knowledge cutoff Jun 1 2026; effort
+ *   low|medium|high|xhigh|max with NO 'none' — the model page states the API
+ *   rejects 'none', and all five levels were probed live with tools on
+ *   /v1/responses 2026-11-18; temperature → 400; forced tool_choice → 200).
+ *   It supersedes gpt-6.1-sol (same $2/$10 tier, newer generation); gpt-6-sol
+ *   / 5.6-sol / 5.5 / 5.4 repointed one hop to it. No GPT-6.2 terra or luna id
+ *   exists on either page. The 5.6-sol promo footnote ("until November 30,
+ *   2026") and web-search price are unchanged.)
  * - Google: https://ai.google.dev/gemini-api/docs/pricing (gemini-3.6-flash GA
  *   2026-07-21 $1.50/$7.50 supersedes 3.5-flash as the agentic flagship;
  *   gemini-3.1-pro-preview still the pro tier — "3.5 Pro" has NOT shipped as
@@ -1110,7 +1132,58 @@ export const MODELS: readonly ModelDefinition[] = [
   // /v1/responses calls, so it too needs no `toolsRequireReasoningOff` pin.
   // At $1/$5 it is 5.6-terra's tier at half the price, so 5.6-terra repoints
   // to it.
+  //
+  // gpt-6.2-astra (released 2026-11-17, added 2026-11-18) is astra's own
+  // successor at $8/$40 with cached input at 5% of input (the 6.1-family
+  // ratio, not the 10% GPT-6 carried). Like gpt-6-astra it has no 'none'
+  // effort — the API rejects it and the error names low|medium|high|xhigh|max,
+  // all five verified live with tools on /v1/responses (2026-11-18) —
+  // temperature is rejected like the rest of the family, and a forced
+  // tool_choice returns 200, so it needs no pins at all.
+  //
+  // gpt-6.2-sol (released 2026-11-17, added 2026-11-18) is sol's own successor:
+  // the same $2/$10 list as gpt-6.1-sol with the same 5% cached-input ratio and
+  // $2.50 cache writes, cutoff Jun 1 2026. Identical probe shape to
+  // gpt-6.2-astra: no 'none' effort (the rejection's error names exactly
+  // low|medium|high|xhigh|max), all five levels verified live with tools on
+  // /v1/responses (2026-11-18), temperature → 400, forced tool_choice → 200 —
+  // no pins. It supersedes gpt-6.1-sol (same tier, same price, newer
+  // generation); no GPT-6.2 terra or luna id exists.
   // ---------------------------------------------------------------------------
+  {
+    id: 'gpt-6.2-astra',
+    provider: 'openai',
+    label: 'GPT-6.2 Astra',
+    description: 'OpenAI flagship — the hardest reasoning & coding work',
+    // Documented as 1.05M; floored to 1M like the other OpenAI entries.
+    contextWindow: 1_000_000,
+    maxOutputTokens: 128_000,
+    supportsThinking: true,
+    thinkingBudgetTokens: 16_000,
+    thinkingConfigurable: true,
+    // No 'none' on this model. All five levels verified accepted with tools on
+    // /v1/responses (2026-11-18) — the 'none' rejection's own error message
+    // lists exactly these values.
+    supportedEffortLevels: ['low', 'medium', 'high', 'xhigh', 'max'],
+    defaultEffortLevel: 'medium',
+    // temperature → 400 "Unsupported parameter: 'temperature' is not supported
+    // with this model" (probed live 2026-11-18).
+    rejectsTemperature: true,
+    supportsVision: true,
+    supportsPromptCaching: true,
+    supportsTools: true,
+    webSearchToolType: 'web_search',
+    // $10 per 1,000 web_search_call items (pricing page tool table, reasoning
+    // models); search-result tokens bill as input.
+    webSearchPricePer1k: 10,
+    codeExecutionToolType: 'code_interpreter',
+    // Standard tier; >272K band ($16/$60, cached $0.80, writes $20) not modeled.
+    inputPricePerMTok: 8,
+    outputPricePerMTok: 40,
+    cacheReadPricePerMTok: 0.4,
+    cacheWritePricePerMTok: 10,
+    knowledgeCutoff: '2026-05-18',
+  },
   {
     id: 'gpt-6-astra',
     provider: 'openai',
@@ -1143,6 +1216,47 @@ export const MODELS: readonly ModelDefinition[] = [
     cacheReadPricePerMTok: 1,
     cacheWritePricePerMTok: 12.5,
     knowledgeCutoff: '2026-04-30',
+    // Superseded by gpt-6.2-astra — the same flagship tier at $8/$40 with a
+    // fifth of the cached-input rate. Still served and priceable — just not
+    // offered in the picker.
+    deprecatedAt: '2026-11-18',
+    supersededBy: 'gpt-6.2-astra',
+  },
+  {
+    id: 'gpt-6.2-sol',
+    provider: 'openai',
+    label: 'GPT-6.2 Sol',
+    description: 'OpenAI for complex coding & agentic work',
+    // Documented as 1.05M; floored to 1M like the other OpenAI entries.
+    contextWindow: 1_000_000,
+    maxOutputTokens: 128_000,
+    supportsThinking: true,
+    thinkingBudgetTokens: 16_000,
+    thinkingConfigurable: true,
+    // No 'none' on this model (model page: "The API rejects requests that set
+    // reasoning effort to `none`."). All five levels verified accepted with
+    // tools on /v1/responses (2026-11-18) — the 'none' rejection's own error
+    // message lists exactly these values.
+    supportedEffortLevels: ['low', 'medium', 'high', 'xhigh', 'max'],
+    defaultEffortLevel: 'medium',
+    // temperature → 400 "Unsupported parameter: 'temperature' is not supported
+    // with this model" (probed live 2026-11-18).
+    rejectsTemperature: true,
+    supportsVision: true,
+    supportsPromptCaching: true,
+    supportsTools: true,
+    webSearchToolType: 'web_search',
+    // $10 per 1,000 web_search_call items (pricing page tool table, reasoning
+    // models); search-result tokens bill as input.
+    webSearchPricePer1k: 10,
+    codeExecutionToolType: 'code_interpreter',
+    // Standard tier. Cached input is 5% of input like the 6.1 family; >272K
+    // band ($4/$15, cached $0.20, writes $5) not modeled.
+    inputPricePerMTok: 2,
+    outputPricePerMTok: 10,
+    cacheReadPricePerMTok: 0.1,
+    cacheWritePricePerMTok: 2.5,
+    knowledgeCutoff: '2026-06-01',
   },
   {
     id: 'gpt-6.1-sol',
@@ -1174,6 +1288,11 @@ export const MODELS: readonly ModelDefinition[] = [
     cacheReadPricePerMTok: 0.1,
     cacheWritePricePerMTok: 2.5,
     knowledgeCutoff: '2026-04-30',
+    // Superseded by gpt-6.2-sol — the same $2/$10 tier with a newer
+    // generation (cutoff Jun 1 2026 vs Apr 30 2026). Still served and
+    // priceable — just not offered in the picker.
+    deprecatedAt: '2026-11-18',
+    supersededBy: 'gpt-6.2-sol',
   },
   {
     id: 'gpt-6.1-terra',
@@ -1240,10 +1359,11 @@ export const MODELS: readonly ModelDefinition[] = [
     cacheReadPricePerMTok: 0.2,
     cacheWritePricePerMTok: 2.5,
     knowledgeCutoff: '2026-04-20',
-    // Superseded by gpt-6.1-sol (same $2/$10, cached input $0.10 vs $0.20).
-    // Still served and priceable — just not offered in the picker.
+    // Superseded by gpt-6.2-sol (via gpt-6.1-sol: same $2/$10, cached input
+    // $0.10 vs $0.20). Still served and priceable — just not offered in the
+    // picker.
     deprecatedAt: '2026-09-30',
-    supersededBy: 'gpt-6.1-sol',
+    supersededBy: 'gpt-6.2-sol',
   },
   {
     id: 'gpt-6-luna',
@@ -1305,10 +1425,11 @@ export const MODELS: readonly ModelDefinition[] = [
     codeExecutionToolType: 'code_interpreter',
     // LIST price. OpenAI ran a >20% PROMO from 2026-08-22 ($4/$20, cache read
     // $0.40, cache write $5) — "GPT-5.6 Sol's promotional pricing is available
-    // at least through November 21, 2026" per the pricing page's own footnote.
+    // until November 30, 2026" per the pricing page's own footnote (re-read
+    // 2026-11-18; it previously said "at least through November 21, 2026").
     // Billed here at list so metering never under-charges when it lapses; same
     // policy as the gemini-flash and claude-sonnet-5 promos, and recorded in
-    // check-model-freshness.mjs KNOWN_DIVERGENCES (expires 2026-11-21).
+    // check-model-freshness.mjs KNOWN_DIVERGENCES (expires 2026-11-30).
     inputPricePerMTok: 5,
     outputPricePerMTok: 30,
     // Cached input 0.1× input, cache write 1.25× input (see section note).
@@ -1317,10 +1438,10 @@ export const MODELS: readonly ModelDefinition[] = [
     // Not published — best-effort estimate.
     knowledgeCutoff: '2026-03-01',
     // Superseded by gpt-6-sol ($2/$10 vs $5/$30 list); points one hop to
-    // gpt-6.1-sol since 2026-09-30, when gpt-6-sol was superseded. Still served and
-    // priceable — just not offered in the picker.
+    // gpt-6.2-sol since 2026-11-18, when gpt-6.1-sol was itself superseded.
+    // Still served and priceable — just not offered in the picker.
     deprecatedAt: '2026-09-23',
-    supersededBy: 'gpt-6.1-sol',
+    supersededBy: 'gpt-6.2-sol',
   },
   {
     id: 'gpt-5.6-terra',
@@ -1434,11 +1555,11 @@ export const MODELS: readonly ModelDefinition[] = [
     cacheWritePricePerMTok: 5,
     knowledgeCutoff: '2025-12-01',
     // Superseded by gpt-5.6-sol (same frontier tier, same $5/$30), and since
-    // 2026-09-23 points one hop to gpt-6-sol, 5.6-sol's own successor (gpt-6.1-sol
-    // since 2026-09-30). Still
-    // listed as current by OpenAI, so it stays priceable — just not offered.
+    // 2026-09-23 points one hop to the sol line's current generation (gpt-6.2-sol
+    // since 2026-11-18). Still listed as current by OpenAI, so it stays
+    // priceable — just not offered.
     deprecatedAt: '2026-07-09',
-    supersededBy: 'gpt-6.1-sol',
+    supersededBy: 'gpt-6.2-sol',
   },
   {
     id: 'gpt-5.4',
@@ -1472,9 +1593,9 @@ export const MODELS: readonly ModelDefinition[] = [
     // offers only the 5.6 generation (this is OUR taxonomy, not OpenAI's
     // deprecations page; the model stays priceable). Points one hop to
     // gpt-6-sol since 2026-09-23, when 5.6-terra was itself superseded, and to
-    // gpt-6.1-sol since 2026-09-30.
+    // the sol line's current generation since 2026-11-18.
     deprecatedAt: '2026-07-28',
-    supersededBy: 'gpt-6.1-sol',
+    supersededBy: 'gpt-6.2-sol',
   },
   {
     id: 'gpt-5.4-mini',

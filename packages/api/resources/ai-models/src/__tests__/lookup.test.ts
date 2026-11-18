@@ -1158,21 +1158,28 @@ const INTENTIONAL_FAMILY_OVERLAPS: { older: string; newer: string; why: string }
       '(it is what ended coder-plus being the ONLY cheap Alibaba tier), not a coder id.',
   },
   {
-    older: 'gpt-6-astra',
-    newer: 'gpt-6.1-sol',
-    why: "OpenAI's flagship tier ($10/$50); GPT-6.1 ships no astra-tier id.",
+    older: 'gpt-6.1-terra',
+    newer: 'gpt-6.2-astra',
+    why:
+      "OpenAI's balanced tier ($1/$5); GPT-6.2 ships no terra-tier id — " +
+      'astra is the flagship tier ($8/$40).',
   },
   {
-    older: 'gpt-6-astra',
-    newer: 'gpt-6.1-terra',
+    older: 'gpt-6.1-terra',
+    newer: 'gpt-6.2-sol',
     why:
-      "OpenAI's flagship tier ($10/$50); GPT-6.1 ships no astra-tier id — " +
-      'terra is the balanced tier ($1/$5).',
+      "OpenAI's balanced tier ($1/$5); GPT-6.2 ships no terra-tier id — " +
+      'sol is the coding & agentic tier ($2/$10).',
   },
   {
     older: 'gpt-6-luna',
-    newer: 'gpt-6.1-sol',
-    why: "OpenAI's cheap tier ($0.10/$0.50); GPT-6.1 ships no luna-tier id.",
+    newer: 'gpt-6.2-astra',
+    why: "OpenAI's cheap tier ($0.10/$0.50); GPT-6.2 ships no luna-tier id.",
+  },
+  {
+    older: 'gpt-6-luna',
+    newer: 'gpt-6.2-sol',
+    why: "OpenAI's cheap tier ($0.10/$0.50); GPT-6.2 ships no luna-tier id.",
   },
   {
     older: 'gpt-6-luna',
@@ -1286,12 +1293,14 @@ describe('supersededBy', () => {
       'claude-sonnet-5': 'claude-sonnet-5-5',
       'claude-sonnet-4-6': 'claude-sonnet-5-5',
       'claude-haiku-4-5-20251001': 'claude-haiku-5-5',
-      'gpt-6-sol': 'gpt-6.1-sol',
-      'gpt-5.6-sol': 'gpt-6.1-sol',
+      'gpt-6-astra': 'gpt-6.2-astra',
+      'gpt-6.1-sol': 'gpt-6.2-sol',
+      'gpt-6-sol': 'gpt-6.2-sol',
+      'gpt-5.6-sol': 'gpt-6.2-sol',
       'gpt-5.6-terra': 'gpt-6.1-terra',
       'gpt-5.6-luna': 'gpt-6-luna',
-      'gpt-5.5': 'gpt-6.1-sol',
-      'gpt-5.4': 'gpt-6.1-sol',
+      'gpt-5.5': 'gpt-6.2-sol',
+      'gpt-5.4': 'gpt-6.2-sol',
       'gpt-5.4-mini': 'gpt-6-luna',
       'gemini-3.5-flash': 'gemini-4-hydrogen',
       'gemini-3.6-flash': 'gemini-4-hydrogen',
