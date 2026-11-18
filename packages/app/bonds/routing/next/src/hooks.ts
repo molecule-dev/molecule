@@ -5,11 +5,11 @@
  * @module
  */
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect } from 'react'
 
-import { createHistoryRouter, type Router, setRouter } from '@molecule/app-routing'
+import { type Router, setRouter } from '@molecule/app-routing'
 
-import { createNextHistory } from './history.js'
+import { useLiveHistory } from './live-history.js'
 import type { NextRouterConfig } from './types.js'
 
 /**
@@ -49,19 +49,9 @@ import type { NextRouterConfig } from './types.js'
  * ```
  */
 export function useMoleculeRouter(config: NextRouterConfig): Router {
-  // The history reads this ref, so the router survives navigation-driven re-renders
-  // while its location/params/queries stay current at every call.
-  const configRef = useRef(config)
-  configRef.current = config
-
-  const [created] = useState(() => {
-    const nextHistory = createNextHistory(() => configRef.current)
-    return {
-      router: createHistoryRouter(nextHistory, { routes: config.routes }),
-      history: nextHistory,
-    }
-  })
-  const { router, history } = created
+  // One router for the component's whole life; its history reads the latest values, so the
+  // location/params/queries stay current at every call.
+  const { router, history } = useLiveHistory(config)
 
   // Bond THIS adapter once, so @molecule/app-routing's navigate()/getRouter() drive the
   // real Next.js App Router instead of the core's fallback (window.location) router.

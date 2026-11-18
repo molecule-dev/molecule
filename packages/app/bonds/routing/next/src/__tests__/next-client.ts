@@ -17,7 +17,7 @@
  */
 
 import type { ReactNode } from 'react'
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, createElement, useContext, useEffect, useState } from 'react'
 
 import type { NextNavigation, NextParams, NextSearchParams } from '../types.js'
 
@@ -251,7 +251,9 @@ export function createNextClient(options: NextClientOptions = {}): NextClient {
       }
     }, [])
     const values: NextClientValues = { navigation, ...snapshot }
-    return <NextClientContext.Provider value={values}>{children}</NextClientContext.Provider>
+    // `createElement`, not JSX: this package's tsconfig sets no `jsx` option (its shipped
+    // sources are plain `.ts`), so the tests type-check as plain `.ts` too.
+    return createElement(NextClientContext.Provider, { value: values }, children)
   }
 
   return {

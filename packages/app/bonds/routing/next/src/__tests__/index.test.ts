@@ -154,7 +154,10 @@ describe('@molecule/app-routing-next', () => {
       })
 
       it('should return typed params', () => {
-        interface ProductParams {
+        // A type alias, not an interface: an interface carries no implicit index
+        // signature, so it does not satisfy `getParams`' `RouteParams`
+        // (`Record<string, string>`) constraint; an object-literal type does.
+        type ProductParams = {
           id: string
           category: string
         }

@@ -2,12 +2,12 @@
 /**
  * The shared router conformance cases over the bond's real construction path:
  * `useMoleculeRouter` — the public factory a Next app mounts — driving the stand-in
- * Next.js App Router client (`./next-client.tsx`) that behaves the way Next 15/16's
+ * Next.js App Router client (`./next-client.ts`) that behaves the way Next 15/16's
  * client does in a browser, over jsdom's real `window.history`. The native side is the
  * stand-in client: a "link" is its `link(path)`, the back button is the real
  * `window.history.back()`, and the native path is read from the document URL.
  */
-import { act, type ReactNode } from 'react'
+import { act, createElement, type ReactNode, useEffect } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 
 import { runRouterConformance } from '@molecule/app-framework-conformance/routing'
@@ -32,7 +32,10 @@ let bridged: Router | undefined
  */
 function Bridge(): ReactNode {
   const { navigation, pathname, searchParams, params } = useNextClient()
-  bridged = useMoleculeRouter({ navigation, pathname, searchParams, params, routes: [] })
+  const router = useMoleculeRouter({ navigation, pathname, searchParams, params, routes: [] })
+  useEffect(() => {
+    bridged = router
+  }, [router])
   return null
 }
 
@@ -42,11 +45,9 @@ runRouterConformance('next', (initialPath) => {
   document.body.append(host)
   const root: Root = createRoot(host)
   act(() => {
-    root.render(
-      <client.Provider>
-        <Bridge />
-      </client.Provider>,
-    )
+    // `createElement`, not JSX: this package's tsconfig sets no `jsx` option, so the
+    // test type-checks as plain `.ts`.
+    root.render(createElement(client.Provider, null, createElement(Bridge)))
   })
   if (!bridged) throw new Error('the bridge did not bond a router')
 

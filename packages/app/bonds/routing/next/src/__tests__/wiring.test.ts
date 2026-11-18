@@ -1,10 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import type * as AppRouting from '@molecule/app-routing'
+
 // The REAL core router module, with `setRouter` wrapped so the test can observe the
 // bond while the real bond registry still receives the router — that is the wiring
 // under test: core navigate() must reach the bonded adapter.
 vi.mock('@molecule/app-routing', async (importOriginal) => {
-  const actual = await importOriginal()
+  // Type the original as the module it stands in for, so the spread and the wrapped
+  // `setRouter` keep the real module's types (`importOriginal` defaults to `unknown`).
+  const actual = await importOriginal<typeof AppRouting>()
   return { ...actual, setRouter: vi.fn(actual.setRouter) }
 })
 
