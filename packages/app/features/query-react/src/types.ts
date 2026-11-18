@@ -69,6 +69,17 @@ export interface QueryContentProps<T> {
   error?: (error: QueryContentErrorContext) => ReactNode
 }
 
+/** A loaded document and its verified identity are required to render the record's actions. */
+export interface QueryRecordContentProps<T, Id extends string | number> extends Omit<
+  QueryContentProps<T>,
+  'children'
+> {
+  /** Extracts the ID from the loaded document. Null, undefined and an empty string are pending. */
+  getRecordId: (data: QueryContentContext<T>) => Id | null | undefined
+  /** Receives the ID with the document. The branch remounts when the ID or recordKey changes. */
+  children: (data: QueryContentContext<T>, id: NoInfer<Id>) => ReactNode
+}
+
 /**
  * The content {@link QueryContentProps} renders for each state: the loaded-data branch, the
  * pending and missing nodes and the error renderer (the props the other bindings also take as

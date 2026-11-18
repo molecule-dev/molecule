@@ -35,7 +35,9 @@
  * - **A relationship modeled as POST to enable and DELETE to disable already has a client:**
  *   `createQueryResource(config).toggle(viewer, id, action, desired)` sends POST for `true`
  *   and DELETE for `false`, then returns the server's saved record. `desired` is the value
- *   wanted AFTER the request. A boolean PUT/PATCH body or an API with different action
+ *   wanted AFTER the request. Record writes require a nonempty ID and reject a missing ID
+ *   before dispatch. Mount the action with an identified record from the detail query.
+ *   A boolean PUT/PATCH body or an API with different action
  *   semantics uses `update()` or its own explicit adapter instead.
  *   ```typescript
  *   const members = createQueryResource<Member>({

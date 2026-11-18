@@ -245,20 +245,22 @@
  *   return (
  *     <QueryContent
  *       query={query}
+ *       getRecordId={(invoice) => invoice.id}
+ *       recordKey={viewer}
  *       pending={<p role="status">{t('common.loading', undefined, { defaultValue: 'Loading…' })}</p>}
  *       missing={<p role="alert">{t('invoice.missing', undefined, { defaultValue: 'Invoice not found.' })}</p>}
  *       error={() => <p role="alert">{t('invoice.failed', undefined, { defaultValue: 'Unable to load invoice.' })}</p>}
  *     >
- *       {(invoice) => <FlagButton key={invoice.id} invoice={invoice} viewer={viewer} />}
+ *       {(invoice, id) => <FlagButton id={id} invoice={invoice} viewer={viewer} />}
  *     </QueryContent>
  *   )
  * }
  *
- * function FlagButton({ invoice, viewer }: { invoice: Invoice; viewer: string }) {
+ * function FlagButton({ id, invoice, viewer }: { id: string; invoice: Invoice; viewer: string }) {
  *   const { t } = useTranslation()
  *   const flag = useOptimisticValue({
  *     value: invoice.flagged,
- *     commit: async (on) => (await invoices.toggle(viewer, invoice.id, 'flag', on)).flagged,
+ *     commit: async (on) => (await invoices.toggle(viewer, id, 'flag', on)).flagged,
  *   })
  *   return (
  *     <button type="button" aria-pressed={flag.value} onClick={() => flag.update((on) => !on)}>
@@ -389,6 +391,9 @@
  * Keep every resource identity in the query key. A boundary cannot correct a query that supplies
  * another record's cached data. For a list, map real rows inside the child; never style a status
  * placeholder as a row. QueryContent is headless and owns no translations or styling.
+ * For record actions, pass `getRecordId={(record) => record.id}` and use the second child
+ * argument as the mutation target. The action branch mounts only for a current document with
+ * an ID. Use `recordKey={viewer}` when the same ID can appear under different accounts.
  *
  * For a collection, `QueryContent` also accepts one `empty` branch:
  * `{ when: page => page.rows.length === 0, render: page => selectedEmptyState }`.

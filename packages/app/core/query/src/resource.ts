@@ -80,7 +80,7 @@ export interface QueryResource<T, Create = Partial<T>, Update = Partial<T>> {
   ): QueryOptions<Page>
   /**
    * `useQuery` options for one record, or null while `id` is not known yet (`useQuery(null)`
-   * observes nothing). A missing record resolves to null, not to an error.
+   * observes nothing). An empty ID is also unknown. A missing record resolves to null.
    */
   detail(viewer: string, id: string | null | undefined): QueryOptions<T | null> | null
   /** Creates a record, shows it in the cache and refreshes the lists on screen. */
@@ -92,7 +92,7 @@ export interface QueryResource<T, Create = Partial<T>, Update = Partial<T>> {
   /**
    * Switches a flag the API models as a sub-path: `POST path/id/action` turns it on and
    * `DELETE path/id/action` turns it off. Resolves with the saved record, so it is the `commit`
-   * of `useOptimisticValue`.
+   * of `useOptimisticValue`. Rejects an absent or empty record ID before sending a request.
    * The saved detail is published before tracked lists finish refreshing; this promise waits
    * for those refreshes. Render the shared controller's value and let it queue inverse clicks
    * during that interval. A page-local busy guard can drop a click on the newly changed label.
@@ -140,7 +140,10 @@ export function createQueryResource<T, Create = Partial<T>, Update = Partial<T>>
   const readOne = config.readOne ?? ((response: ResourceResponse) => response.data as T | null)
   const idField = config.id ?? 'id'
   const base = config.path.replace(/\/+$/, '')
-  const one = (id: string): string => `${base}/${encodeURIComponent(id)}`
+  const one = (id: string): string => {
+    if (id == null || id === '') throw new Error(`${config.name}: a record ID is required`)
+    return `${base}/${encodeURIComponent(id)}`
+  }
   const detailKey = (viewer: string, id: string): QueryKey => [config.name, viewer, 'detail', id]
   // The lists handed out most recently, newest last: the ones a write fetches again. A list
   // nobody reads any more costs one request and is then dropped by the next ones.
@@ -286,10 +289,13 @@ export function createQueryResource<T, Create = Partial<T>, Update = Partial<T>>
             },
           },
     create: async (viewer, input) => saved(viewer, await config.http().post(base, input), true),
-    update: async (viewer, id, input) =>
-      saved(viewer, await config.http()[config.updateMethod ?? 'put'](one(id), input)),
+    update: async (viewer, id, input) => {
+      const path = one(id)
+      return saved(viewer, await config.http()[config.updateMethod ?? 'put'](path, input))
+    },
     remove: async (viewer, id) => {
-      await config.http().delete(one(id))
+      const path = one(id)
+      await config.http().delete(path)
       const ids = removed.get(viewer) ?? new Set<string>()
       ids.add(id)
       removed.set(viewer, ids)
