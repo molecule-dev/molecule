@@ -149,7 +149,11 @@ function scratchRepo({
   mkdirSync(join(root, 'bin'))
   writeFileSync(join(root, 'bin', 'gh'), '#!/bin/sh\necho "$@" >> "$GH_LOG"\n', { mode: 0o755 })
   cpSync(join(SCRIPTS, 'lib'), join(root, 'scripts', 'lib'), { recursive: true })
-  cpSync(join(SCRIPTS, 'trust-new-packages.mjs'), join(root, 'scripts', 'trust-new-packages.mjs'))
+  // TRUST_NEW_SCRIPT: another version of the script to judge (a known-bad proof runs the old one).
+  cpSync(
+    process.env.TRUST_NEW_SCRIPT ?? join(SCRIPTS, 'trust-new-packages.mjs'),
+    join(root, 'scripts', 'trust-new-packages.mjs'),
+  )
   for (const name of names) {
     const dir = join(root, 'packages', 'api', 'bonds', name.split('/')[1])
     mkdirSync(dir, { recursive: true })
@@ -235,6 +239,7 @@ function runTrustNew(
   socketPath?: string,
   env: Record<string, string> = {},
   input?: string,
+  inputDelayMs = 0,
 ) {
   writeFileSync(join(root, 'scenario.json'), JSON.stringify(scenario))
   let pid: number | undefined
@@ -265,7 +270,7 @@ function runTrustNew(
       },
     )
     pid = child.pid
-    if (input !== undefined) child.stdin?.end(input)
+    if (input !== undefined) setTimeout(() => child.stdin?.end(input), inputDelayMs)
     // A case that times out leaves its run waiting (on the phone, on a lock pause); the run
     // is detached, so nothing else ends it. Kill its whole process group when the case ends.
     let exited = false
@@ -723,6 +728,39 @@ describe("trust:new with the owner's phone", { timeout: RUN_MS }, () => {
     expect(run.code, run.out).toBe(0)
     expect(run.out).toMatch(`2 package(s) have no working trusted publisher:\n  ${C}\n  ${D}\n`)
     expect(run.out).not.toMatch(/not in the commit being pushed/)
+  })
+
+  it('in the pre-push hook, reads the pushed refs even when git writes them after the run starts', async () => {
+    // A synchronous read of the non-blocking stdin `import process` leaves threw EAGAIN here, and the
+    // run listed HEAD, which lacks D, instead of the pushed commit.
+    const C = '@molecule/api-demo-c'
+    const D = '@molecule/api-demo-d'
+    const root = scratchRepo({ ledger: [], names: [C, D] })
+    commitLedger(root, new Date(), ['packages/api/bonds/api-demo-c'])
+    const env = {
+      ...Object.fromEntries(Object.entries(process.env).filter(([key]) => !key.startsWith('GIT_'))),
+      GIT_AUTHOR_NAME: 'test',
+      GIT_AUTHOR_EMAIL: 'test@example.com',
+      GIT_COMMITTER_NAME: 'test',
+      GIT_COMMITTER_EMAIL: 'test@example.com',
+    }
+    const git = (...a: string[]) =>
+      execFileSync('git', a, { cwd: root, encoding: 'utf8', env }).trim()
+    git('add', 'packages')
+    const side = git('commit-tree', git('write-tree'), '-p', 'HEAD', '-m', 'side')
+    git('reset', '-q')
+    const run = await runTrustNew(
+      root,
+      ['--from-hook'],
+      {},
+      undefined,
+      {},
+      `refs/heads/side ${side} refs/heads/side ${'0'.repeat(40)}\n`,
+      1500,
+    )
+    expect(run.code, run.out).toBe(0)
+    expect(run.out).toMatch(`2 package(s) have no working trusted publisher:\n  ${C}\n  ${D}\n`)
+    expect(run.out).not.toMatch(/not in the commit being pushed|could not read the pushed refs/)
   })
 
   it('inside the workspace, --release points at the release runner instead of dispatching Release by hand (OLD MUSTFAIL)', async () => {

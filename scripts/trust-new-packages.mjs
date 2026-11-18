@@ -47,6 +47,7 @@ import { closeSync, existsSync, openSync, readFileSync, writeFileSync } from 'no
 import { join } from 'node:path'
 import process from 'node:process'
 import { createInterface } from 'node:readline/promises'
+import { text as streamText } from 'node:stream/consumers'
 import { ReadStream, WriteStream } from 'node:tty'
 
 import { assertPackComplete } from './lib/assert-pack-complete.mjs'
@@ -89,17 +90,23 @@ import {
 /**
  * The commit a `git push` sends, from the lines git writes to a pre-push hook's stdin
  * (`<local ref> <local sha> <remote ref> <remote sha>`): the first one that is not a delete.
- * Read only when stdin is not a terminal, so a hand-run `--from-hook` never waits on it.
+ * Read only when stdin is not a terminal, so a hand-run `--from-hook` never waits on it. Read as a
+ * stream until git closes it: `import process from 'node:process'` evaluates `process.stdin`, which
+ * opens a piped stdin non-blocking, so a synchronous read threw EAGAIN before git had written and
+ * the run silently fell back to REF.
  *
  * @returns The full sha, or null when there is none to read.
  */
-const pushedCommit = () => {
+const pushedCommit = async () => {
   if (process.stdin.isTTY) return null
   let text
   try {
-    text = readFileSync(0, 'utf8')
-  } catch (_error) {
+    text = await streamText(process.stdin)
+  } catch (error) {
     // No readable stdin (closed or not a pipe): the run falls back to REF.
+    console.log(
+      `  could not read the pushed refs from stdin (${error.code ?? error.message}); listing ${REF}`,
+    )
     return null
   }
   for (const line of text.split('\n')) {
@@ -251,7 +258,7 @@ if (!CI) {
 // such packages as if the push carried them; trust:new itself skipped them at build time.
 // A re-link (a package npm already has) builds nothing, so it stays listed.
 if (!CI && untrusted.length) {
-  const pushed = FROM_HOOK ? pushedCommit() : null
+  const pushed = FROM_HOOK ? await pushedCommit() : null
   const dirs = committedPackageDirs(pushed ?? REF)
   if (dirs) {
     const absent = untrusted.filter((pkg) => !pkg.relink && !dirs.has(pkg.dir))
