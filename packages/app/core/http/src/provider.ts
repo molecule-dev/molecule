@@ -218,9 +218,11 @@ export const createFetchClient = (config: HttpClientConfig = {}): HttpClient => 
         // A timeout signal belongs to ONE attempt: reusing an aborted
         // controller would abort every retry instantly.
         let timeoutId: ReturnType<typeof setTimeout> | undefined
-        if (timeout && !finalConfig.signal) {
+        if (timeout && (!finalConfig.signal || finalConfig.timeoutWithSignal)) {
           const controller = new AbortController()
-          fetchOptions.signal = controller.signal
+          fetchOptions.signal = finalConfig.signal
+            ? AbortSignal.any([finalConfig.signal, controller.signal])
+            : controller.signal
           timeoutId = setTimeout(() => controller.abort(), timeout)
         }
 

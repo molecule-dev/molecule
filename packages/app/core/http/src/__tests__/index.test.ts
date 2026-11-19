@@ -697,6 +697,35 @@ describe('@molecule/app-http', () => {
       )
     })
 
+    it.each(['deadline', 'caller cancellation'])(
+      'keeps the configured timeout with a caller signal when opted in (%s)',
+      async (cause) => {
+        vi.useFakeTimers()
+        try {
+          const caller = new AbortController()
+          mockFetch.mockImplementation(
+            (_url, request: RequestInit) =>
+              new Promise((resolve, reject) => {
+                request.signal?.addEventListener('abort', () => reject(request.signal?.reason), {
+                  once: true,
+                })
+                setTimeout(() => resolve(createMockResponse({ saved: true })), 100)
+              }),
+          )
+          const client = createFetchClient({ timeout: 25 })
+          const options = { signal: caller.signal, timeoutWithSignal: true }
+          const answer = client.post('/test', {}, options).catch((error: unknown) => error)
+          await vi.advanceTimersByTimeAsync(5)
+          if (cause === 'caller cancellation') caller.abort()
+          await vi.advanceTimersByTimeAsync(100)
+          expect(await answer).toMatchObject({ status: 0, aborted: true })
+          expect(caller.signal.aborted).toBe(cause === 'caller cancellation')
+        } finally {
+          vi.useRealTimers()
+        }
+      },
+    )
+
     it('should handle abort error from user-provided signal', async () => {
       const controller = new AbortController()
       const abortError = new DOMException('The operation was aborted', 'AbortError')

@@ -81,6 +81,13 @@ export interface RequestConfig {
   signal?: AbortSignal
 
   /**
+   * Keep the fetch client's configured timeout when a caller also supplies a signal.
+   * Use this when the signal represents cancellation independent of the timeout,
+   * such as a session change during a write.
+   */
+  timeoutWithSignal?: boolean
+
+  /**
    * Keep the request running when the page navigates away or closes before it finishes — fetch's
    * own `keepalive`. The bundled clients already do this for a write (POST, PUT, PATCH, DELETE) to
    * the page's own origin with a body of at most 8 KB, so a favorite or a save followed at once by
