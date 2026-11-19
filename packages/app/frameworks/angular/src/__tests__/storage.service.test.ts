@@ -1,6 +1,8 @@
 import { firstValueFrom } from 'rxjs'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import type { StorageProvider } from '@molecule/app-storage'
+
 vi.mock('@angular/core', () => ({
   Injectable: () => (target: unknown) => target,
   Inject: () => () => undefined,
@@ -21,27 +23,22 @@ vi.mock('@molecule/app-state', () => ({}))
 vi.mock('@molecule/app-storage', () => ({}))
 vi.mock('@molecule/app-theme', () => ({}))
 
-import { MoleculeStorageService } from '../services/storage.service.js'
+import { MoleculeStorageService, type StorageValueState } from '../services/storage.service.js'
+import { createTestStorageProvider } from './helpers/test-providers.js'
 
 describe('MoleculeStorageService', () => {
   let service: MoleculeStorageService
-  let mockProvider: Record<string, ReturnType<typeof vi.fn>>
+  let mockProvider: StorageProvider
 
   beforeEach(() => {
-    mockProvider = {
-      get: vi.fn(() => Promise.resolve(null)),
-      set: vi.fn(() => Promise.resolve()),
-      remove: vi.fn(() => Promise.resolve()),
-      clear: vi.fn(() => Promise.resolve()),
-      keys: vi.fn(() => Promise.resolve([])),
-    }
+    mockProvider = createTestStorageProvider()
 
     service = new MoleculeStorageService(mockProvider)
   })
 
   describe('get', () => {
     it('should return an observable of the stored value', async () => {
-      mockProvider.get.mockResolvedValue('stored-value')
+      vi.mocked(mockProvider.get).mockResolvedValue('stored-value')
       const result = await firstValueFrom(service.get<string>('key'))
 
       expect(mockProvider.get).toHaveBeenCalledWith('key')
@@ -49,7 +46,7 @@ describe('MoleculeStorageService', () => {
     })
 
     it('should return null when key does not exist', async () => {
-      mockProvider.get.mockResolvedValue(null)
+      vi.mocked(mockProvider.get).mockResolvedValue(null)
       const result = await firstValueFrom(service.get('missing-key'))
 
       expect(result).toBeNull()
@@ -57,7 +54,7 @@ describe('MoleculeStorageService', () => {
 
     it('should handle complex objects', async () => {
       const obj = { name: 'Test', items: [1, 2, 3] }
-      mockProvider.get.mockResolvedValue(obj)
+      vi.mocked(mockProvider.get).mockResolvedValue(obj)
 
       const result = await firstValueFrom(service.get<typeof obj>('complex'))
       expect(result).toEqual(obj)
@@ -97,7 +94,7 @@ describe('MoleculeStorageService', () => {
 
   describe('keys', () => {
     it('should return an observable of all keys', async () => {
-      mockProvider.keys.mockResolvedValue(['key1', 'key2', 'key3'])
+      vi.mocked(mockProvider.keys).mockResolvedValue(['key1', 'key2', 'key3'])
       const result = await firstValueFrom(service.keys())
 
       expect(result).toEqual(['key1', 'key2', 'key3'])
@@ -111,10 +108,11 @@ describe('MoleculeStorageService', () => {
 
   describe('createValue', () => {
     it('should create a BehaviorSubject with loading state', async () => {
-      // Don't resolve the get promise yet
-      let resolveGet: (value: unknown) => void
-      mockProvider.get.mockReturnValue(
-        new Promise((r) => {
+      // Don't resolve the get promise yet; the executor assigns the resolver
+      // synchronously, before mockReturnValue returns.
+      let resolveGet!: (value: string | null) => void
+      vi.mocked(mockProvider.get).mockReturnValue(
+        new Promise<string | null>((r) => {
           resolveGet = r
         }),
       )
@@ -128,7 +126,7 @@ describe('MoleculeStorageService', () => {
     })
 
     it('should update with stored value when loaded', async () => {
-      mockProvider.get.mockResolvedValue('dark')
+      vi.mocked(mockProvider.get).mockResolvedValue('dark')
 
       const state = service.createValue<string>('theme', 'light')
 
@@ -139,7 +137,7 @@ describe('MoleculeStorageService', () => {
     })
 
     it('should use default value when stored value is null', async () => {
-      mockProvider.get.mockResolvedValue(null)
+      vi.mocked(mockProvider.get).mockResolvedValue(null)
 
       const state = service.createValue<string>('theme', 'light')
 
@@ -151,7 +149,7 @@ describe('MoleculeStorageService', () => {
 
     it('should set error state on failure', async () => {
       const error = new Error('Storage error')
-      mockProvider.get.mockRejectedValue(error)
+      vi.mocked(mockProvider.get).mockRejectedValue(error)
 
       const state = service.createValue<string>('theme', 'light')
 
@@ -166,12 +164,12 @@ describe('MoleculeStorageService', () => {
 
   describe('updateValue', () => {
     it('should set loading state, save to storage, and update the subject', async () => {
-      mockProvider.get.mockResolvedValue('light')
+      vi.mocked(mockProvider.get).mockResolvedValue('light')
       const state = service.createValue<string>('theme', 'light')
 
       await new Promise((resolve) => setTimeout(resolve, 50))
 
-      const states: unknown[] = []
+      const states: StorageValueState<string>[] = []
       state.subscribe((s) => states.push(s))
 
       service.updateValue('theme', 'dark', state)
@@ -190,8 +188,8 @@ describe('MoleculeStorageService', () => {
 
     it('should set error state when save fails', async () => {
       const error = new Error('Save failed')
-      mockProvider.get.mockResolvedValue('light')
-      mockProvider.set.mockRejectedValue(error)
+      vi.mocked(mockProvider.get).mockResolvedValue('light')
+      vi.mocked(mockProvider.set).mockRejectedValue(error)
 
       const state = service.createValue<string>('theme', 'light')
 

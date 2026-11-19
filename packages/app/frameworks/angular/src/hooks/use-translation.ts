@@ -56,6 +56,11 @@ export interface UseTranslationResult {
    * method itself) that reads the provider on every call AND the locale
    * notifications signal, so a template, `computed` or `effect` that calls it
    * re-runs on a locale switch the way React re-renders on one.
+   *
+   * Its identity follows the active locale, like React's `useTranslation().t`:
+   * a value memoized on it (a `computed`, a child bound `t` as an input)
+   * refreshes after a switch, while an `addTranslations` for the same locale
+   * keeps it. `useT()` is the one-identity form.
    */
   readonly t: I18nProvider['t']
   /** The active locale code. */
@@ -103,13 +108,22 @@ export function useTranslation(): UseTranslationResult {
   // the notifications signal inside it makes the CALLER depend on the locale, so
   // a view that renders `t(…)` (directly or through a method) refreshes on a
   // switch without reading `locale()` itself.
-  const t: I18nProvider['t'] = (
-    key: string,
-    values?: InterpolationValues,
-    options?: TranslateOptions,
-  ) => {
-    void notifications()
-    return provider.t(key, values, options)
+  //
+  // ONE identity per locale, like React's `useTranslation().t`: a locale switch
+  // hands back a new function (so a value memoized on `t` refreshes), and an
+  // `addTranslations` for the same locale keeps the current one. The function
+  // still reads the notifications signal, so new text for the active locale
+  // re-runs its caller even though its identity did not change.
+  let translator: { locale: string; fn: I18nProvider['t'] } | null = null
+  const currentTranslator = (): I18nProvider['t'] => {
+    const code = provider.getLocale()
+    if (translator?.locale === code) return translator.fn
+    const fn: I18nProvider['t'] = (key, values, options) => {
+      void notifications()
+      return provider.t(key, values, options)
+    }
+    translator = { locale: code, fn }
+    return fn
   }
 
   // The provider's own promise is returned (a caller may await the switch, and
@@ -122,7 +136,20 @@ export function useTranslation(): UseTranslationResult {
   const formatDate = (value: Date | number | string, options?: DateFormatOptions): string =>
     provider.formatDate(value, options)
 
-  return { t, locale, setLocale, locales, formatNumber, formatDate, direction }
+  return {
+    // A getter, so reading `t` yields the function for the locale active at
+    // that read: the identity follows a switch without the caller re-creating
+    // the result object.
+    get t(): I18nProvider['t'] {
+      return currentTranslator()
+    },
+    locale,
+    setLocale,
+    locales,
+    formatNumber,
+    formatDate,
+    direction,
+  }
 }
 
 /**

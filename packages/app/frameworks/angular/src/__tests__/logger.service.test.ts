@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import type { Logger, LoggerConfig, LoggerProvider } from '@molecule/app-logger'
+
 vi.mock('@angular/core', () => ({
   Injectable: () => (target: unknown) => target,
   Inject: () => () => undefined,
@@ -21,30 +23,16 @@ vi.mock('@molecule/app-storage', () => ({}))
 vi.mock('@molecule/app-theme', () => ({}))
 
 import { MoleculeLoggerService } from '../services/logger.service.js'
+import { createTestLogger, createTestLoggerProvider } from './helpers/test-providers.js'
 
 describe('MoleculeLoggerService', () => {
   let service: MoleculeLoggerService
-  let mockProvider: Record<string, ReturnType<typeof vi.fn>>
-  let mockLogger: Record<string, ReturnType<typeof vi.fn>>
+  let mockProvider: LoggerProvider
+  let mockLogger: Logger
 
   beforeEach(() => {
-    mockLogger = {
-      trace: vi.fn(),
-      debug: vi.fn(),
-      info: vi.fn(),
-      warn: vi.fn(),
-      error: vi.fn(),
-    }
-
-    mockProvider = {
-      getLogger: vi.fn(() => mockLogger),
-      createLogger: vi.fn(() => mockLogger),
-      setLevel: vi.fn(),
-      getLevel: vi.fn(() => 'info'),
-      enable: vi.fn(),
-      disable: vi.fn(),
-      isEnabled: vi.fn(() => true),
-    }
+    mockLogger = createTestLogger()
+    mockProvider = createTestLoggerProvider(mockLogger)
 
     service = new MoleculeLoggerService(mockProvider)
   })
@@ -77,7 +65,7 @@ describe('MoleculeLoggerService', () => {
 
   describe('createLogger', () => {
     it('should delegate to the provider with config', () => {
-      const config = { name: 'Custom', level: 'debug' } as Record<string, unknown>
+      const config: LoggerConfig = { name: 'Custom', level: 'debug' }
       const logger = service.createLogger(config)
 
       expect(mockProvider.createLogger).toHaveBeenCalledWith(config)
@@ -137,7 +125,7 @@ describe('MoleculeLoggerService', () => {
     })
 
     it('should return false when logging is disabled', () => {
-      mockProvider.isEnabled.mockReturnValue(false)
+      vi.mocked(mockProvider.isEnabled).mockReturnValue(false)
       expect(service.isEnabled()).toBe(false)
     })
   })

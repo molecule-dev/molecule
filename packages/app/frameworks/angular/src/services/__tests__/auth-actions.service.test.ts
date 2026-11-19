@@ -1,38 +1,16 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { createTestAuthClient } from '../../__tests__/helpers/test-providers.js'
 import { createChangePasswordState } from '../change-password.service.js'
 import { createLoginState } from '../login.service.js'
 import { createOAuthState } from '../oauth.service.js'
 import { createPasswordResetState } from '../password-reset.service.js'
 import { createSignupState } from '../signup.service.js'
 
-const mockClient = {
-  login: vi.fn(),
-  register: vi.fn(),
-  requestPasswordReset: vi.fn(),
-  confirmPasswordReset: vi.fn(),
-  changePassword: vi.fn(),
-  logout: vi.fn(),
-  refresh: vi.fn(),
-  getState: vi.fn(() => ({
-    status: 'loading' as const,
-    initialized: false,
-    authenticated: false,
-    user: null,
-    loading: false,
-    error: null,
-  })),
-  isAuthenticated: vi.fn(() => false),
-  getUser: vi.fn(() => null),
-  getAccessToken: vi.fn(() => null),
-  getRefreshToken: vi.fn(() => null),
-  updateProfile: vi.fn(),
-  initialize: vi.fn(),
-  subscribe: vi.fn(() => () => {}),
-  onAuthChange: vi.fn(() => () => {}),
-  addEventListener: vi.fn(() => () => {}),
-  destroy: vi.fn(),
-}
+/** The user profile this suite's auth client stands in for. */
+type TestUser = { id: string; email: string }
+
+const mockClient = vi.mocked(createTestAuthClient<TestUser>())
 
 beforeEach(() => {
   vi.clearAllMocks()
@@ -98,7 +76,7 @@ describe('createLoginState', () => {
   })
 
   it('reset clears state', async () => {
-    const authResult = { user: { id: '1' }, accessToken: 'tok' }
+    const authResult = { user: { id: '1', email: 'a@b.com' }, accessToken: 'tok' }
     mockClient.login.mockResolvedValue(authResult)
 
     const manager = createLoginState(mockClient)

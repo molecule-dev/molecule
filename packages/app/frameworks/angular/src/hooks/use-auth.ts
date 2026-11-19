@@ -84,8 +84,11 @@ export interface UseAuthResult<
  * Authentication state and actions. Call it in an injection context (a
  * component field initializer or constructor).
  *
- * `status === 'loading'` is undecided; `'unavailable'` keeps the candidate
- * session for retry; a restore failure never signs out.
+ * `status === 'loading'` is undecided: wait for it and redirect only on
+ * `status === 'unauthenticated'`. `'unavailable'` keeps the session candidate
+ * for retry, but `isAuthenticated` can be false and `user` can be null while a
+ * token/cookie-only restore has no cached profile. A restore failure other than
+ * 401/403 never signs out.
  *
  * The options may be a signal: `autoRefresh` turning on through it probes once
  * (when the visitor is signed out and decided), the way React re-renders

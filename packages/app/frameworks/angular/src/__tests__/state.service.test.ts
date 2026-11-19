@@ -1,6 +1,8 @@
 import { firstValueFrom } from 'rxjs'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import type { StateProvider, Store } from '@molecule/app-state'
+
 vi.mock('@angular/core', () => ({
   Injectable: () => (target: unknown) => target,
   Inject: () => () => undefined,
@@ -22,23 +24,21 @@ vi.mock('@molecule/app-storage', () => ({}))
 vi.mock('@molecule/app-theme', () => ({}))
 
 import { MoleculeStateService } from '../services/state.service.js'
+import { createTestStateProvider } from './helpers/test-providers.js'
 
 describe('MoleculeStateService', () => {
   let service: MoleculeStateService
-  let mockProvider: Record<string, ReturnType<typeof vi.fn>>
+  let mockProvider: StateProvider
 
-  function createMockStore<T>(initialState: T): {
-    getState: ReturnType<typeof vi.fn>
-    setState: ReturnType<typeof vi.fn>
-    subscribe: ReturnType<typeof vi.fn>
-    destroy: ReturnType<typeof vi.fn>
-    _getListenerCount: () => number
-  } {
+  /** A `Store<T>` mock driven by an in-memory state variable. */
+  function createMockStore<T extends object>(
+    initialState: T,
+  ): Store<T> & { _getListenerCount: () => number } {
     let state = initialState
     const listeners: Array<() => void> = []
 
     return {
-      getState: vi.fn(() => state),
+      getState: vi.fn((): T => state),
       setState: vi.fn((partial: Partial<T> | ((s: T) => Partial<T>)) => {
         const updates = typeof partial === 'function' ? partial(state) : partial
         state = { ...state, ...updates }
@@ -57,9 +57,7 @@ describe('MoleculeStateService', () => {
   }
 
   beforeEach(() => {
-    mockProvider = {
-      createStore: vi.fn(),
-    }
+    mockProvider = createTestStateProvider()
 
     service = new MoleculeStateService(mockProvider)
   })
@@ -67,16 +65,16 @@ describe('MoleculeStateService', () => {
   describe('observe', () => {
     it('should return an observable of the store state', async () => {
       const store = createMockStore({ count: 0 })
-      const state = await firstValueFrom(service.observe(store as unknown))
+      const state = await firstValueFrom(service.observe(store))
 
       expect(state).toEqual({ count: 0 })
     })
 
     it('should emit when the store state changes', () => {
       const store = createMockStore({ count: 0 })
-      const states: unknown[] = []
+      const states: Array<{ count: number }> = []
 
-      service.observe(store as unknown).subscribe((s) => states.push(s))
+      service.observe(store).subscribe((s) => states.push(s))
 
       store.setState({ count: 1 })
       store.setState({ count: 2 })
@@ -90,8 +88,8 @@ describe('MoleculeStateService', () => {
     it('should reuse the same subject for the same store', () => {
       const store = createMockStore({ count: 0 })
 
-      service.observe(store as unknown)
-      service.observe(store as unknown)
+      service.observe(store)
+      service.observe(store)
 
       // Only one subscription should be created on the store
       expect(store.subscribe).toHaveBeenCalledTimes(1)
@@ -101,8 +99,8 @@ describe('MoleculeStateService', () => {
       const store1 = createMockStore({ count: 0 })
       const store2 = createMockStore({ name: 'test' })
 
-      service.observe(store1 as unknown)
-      service.observe(store2 as unknown)
+      service.observe(store1)
+      service.observe(store2)
 
       expect(store1.subscribe).toHaveBeenCalledTimes(1)
       expect(store2.subscribe).toHaveBeenCalledTimes(1)
@@ -112,9 +110,7 @@ describe('MoleculeStateService', () => {
   describe('select', () => {
     it('should select a piece of state', async () => {
       const store = createMockStore({ count: 5, name: 'test' })
-      const count = await firstValueFrom(
-        service.select(store as unknown, (s: Record<string, unknown>) => s.count),
-      )
+      const count = await firstValueFrom(service.select(store, (s) => s.count))
 
       expect(count).toBe(5)
     })
@@ -123,9 +119,7 @@ describe('MoleculeStateService', () => {
       const store = createMockStore({ count: 0, name: 'test' })
       const counts: number[] = []
 
-      service
-        .select(store as unknown, (s: Record<string, unknown>) => s.count)
-        .subscribe((c) => counts.push(c))
+      service.select(store, (s) => s.count).subscribe((c) => counts.push(c))
 
       // Change name but not count
       store.setState({ name: 'updated' })
@@ -139,9 +133,7 @@ describe('MoleculeStateService', () => {
       const store = createMockStore({ count: 0, name: 'test' })
       const counts: number[] = []
 
-      service
-        .select(store as unknown, (s: Record<string, unknown>) => s.count)
-        .subscribe((c) => counts.push(c))
+      service.select(store, (s) => s.count).subscribe((c) => counts.push(c))
 
       store.setState({ count: 1 })
       store.setState({ count: 2 })
@@ -154,7 +146,7 @@ describe('MoleculeStateService', () => {
   describe('snapshot', () => {
     it('should return the current state of a store', () => {
       const store = createMockStore({ count: 42 })
-      const state = service.snapshot(store as unknown)
+      const state = service.snapshot(store)
 
       expect(state).toEqual({ count: 42 })
     })
@@ -164,18 +156,18 @@ describe('MoleculeStateService', () => {
     it('should update a store with a partial object', () => {
       const store = createMockStore({ count: 0, name: 'test' })
 
-      service.update(store as unknown, { count: 5 })
+      service.update(store, { count: 5 })
 
       expect(store.setState).toHaveBeenCalledWith({ count: 5 })
     })
 
     it('should update a store with an updater function', () => {
       const store = createMockStore({ count: 0 })
-      const updater = (state: Record<string, number>): Record<string, number> => ({
+      const updater = (state: { count: number }): { count: number } => ({
         count: state.count + 10,
       })
 
-      service.update(store as unknown, updater)
+      service.update(store, updater)
 
       expect(store.setState).toHaveBeenCalledWith(updater)
     })
@@ -186,8 +178,8 @@ describe('MoleculeStateService', () => {
       const store1 = createMockStore({ count: 0 })
       const store2 = createMockStore({ name: 'test' })
 
-      service.observe(store1 as unknown)
-      service.observe(store2 as unknown)
+      service.observe(store1)
+      service.observe(store2)
 
       expect(store1._getListenerCount()).toBe(1)
       expect(store2._getListenerCount()).toBe(1)
@@ -202,7 +194,7 @@ describe('MoleculeStateService', () => {
       const store = createMockStore({ count: 0 })
       const completeSpy = vi.fn()
 
-      service.observe(store as unknown).subscribe({ complete: completeSpy })
+      service.observe(store).subscribe({ complete: completeSpy })
 
       service.ngOnDestroy()
 
@@ -215,7 +207,7 @@ describe('MoleculeStateService', () => {
 
     it('should handle being called multiple times', () => {
       const store = createMockStore({ count: 0 })
-      service.observe(store as unknown)
+      service.observe(store)
 
       service.ngOnDestroy()
       expect(() => service.ngOnDestroy()).not.toThrow()

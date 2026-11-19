@@ -171,28 +171,56 @@ export interface UseFormResult<T extends FormValuesConstraint<T>> {
  * Providers may return fresh objects from their getters; reads between
  * notifications must still return the same snapshot.
  *
- * @param form - Controller that owns the subscription.
- * @param read - Reads the form state or a selected field.
+ * The controller and the selected name may be signals: a new one is subscribed
+ * in place of the old (the old subscription is dropped first), the way React
+ * re-renders `useWatch`/`useFieldState` with new arguments.
+ *
+ * @param form - Controller that owns the subscription (or a signal of it).
+ * @param name - The selected field name (or a signal of it).
+ * @param read - Reads the selected field from the controller and name.
  * @returns The current subscribed snapshot as a signal.
  */
-function useFormSnapshot<T extends FormValuesConstraint<T>, S>(
-  form: FormController<T>,
-  read: () => S,
+function useFormSnapshot<T extends FormValuesConstraint<T>, K, S>(
+  form: MaybeSignal<FormController<T>>,
+  name: MaybeSignal<K>,
+  read: (form: FormController<T>, name: K) => S,
 ): Signal<S> {
-  let snapshot = read()
-  return useExternalStore(
+  let currentForm = readMaybeSignal(form)
+  let currentName = readMaybeSignal(name)
+  let snapshot = read(currentForm, currentName)
+  let notifyStore: (() => void) | null = null
+  let stop: (() => void) | null = null
+  const state = useExternalStore(
     () => snapshot,
     (onChange) => {
       const refresh = (): void => {
-        snapshot = read()
+        snapshot = read(currentForm, currentName)
         onChange()
       }
-      const unsubscribe = form.subscribe(refresh)
+      notifyStore = onChange
+      stop = currentForm.subscribe(refresh)
       // A controller can change after render but before React subscribes.
       refresh()
-      return unsubscribe
+      return () => stop?.()
     },
   )
+  effect(() => {
+    const nextForm = readMaybeSignal(form)
+    const nextName = readMaybeSignal(name)
+    if (nextForm === currentForm && nextName === currentName) return
+    currentForm = nextForm
+    currentName = nextName
+    untracked(() => {
+      stop?.()
+      snapshot = read(currentForm, currentName)
+      stop = currentForm.subscribe(() => {
+        snapshot = read(currentForm, currentName)
+        notifyStore?.()
+      })
+      notifyStore?.()
+    })
+  })
+  return state
 }
 
 /**
@@ -240,6 +268,14 @@ export function useForm<T extends FormValuesConstraint<T> = Record<string, unkno
   let stateSnapshot: FormState<T> = form.getState()
   const formState = signal<FormState<T>>(stateSnapshot)
   let stopState: (() => void) | null = null
+  // `asState`'s [edit, fill] pair per field, cached the way React keeps them in
+  // the controller's scope: the same functions across notifications and
+  // rerenders, dropped with the controller they were created for.
+  type AsStateActions = readonly [
+    (value: SetStateInput<T | T[keyof T]>) => void,
+    (value: SetStateInput<T | T[keyof T]>) => void,
+  ]
+  let asStateActions = new Map<keyof T | undefined, AsStateActions>()
   const bindState = (controller: FormController<T>): void => {
     stopState?.()
     stateSnapshot = controller.getState()
@@ -291,6 +327,7 @@ export function useForm<T extends FormValuesConstraint<T> = Record<string, unkno
         formResetKey = next.resetKey
         form = createControllerOf(next)
         bindState(form)
+        asStateActions = new Map()
         lastExternalValues = null
       }
       applyExternalValues(next)
@@ -331,23 +368,33 @@ export function useForm<T extends FormValuesConstraint<T> = Record<string, unkno
   // restores the overloads, like the Vue and Svelte bindings: `edit`/`fill`
   // accept a superset of the tuple's declared call shapes.
   const asState = (name?: keyof T): readonly [unknown, unknown, unknown] => {
+    // The value the last notification published, exactly like React's
+    // `state.getSnapshot()`: a provider that clones from its getters still
+    // shows the same value between notifications.
+    const visible = name === undefined ? stateSnapshot.values : stateSnapshot.values[name]
+    const cached = asStateActions.get(name)
+    if (cached) return [visible, cached[0], cached[1]] as const
+    // The pair belongs to the controller it was created for (React's per-scope
+    // cache): an old action captured before a resetKey change cannot reach the
+    // replacement controller or its record.
+    const actionForm = form
     const read = (): T | T[keyof T] =>
-      name === undefined ? form.getState().values : form.getValue(name)
+      name === undefined ? actionForm.getState().values : actionForm.getValue(name)
     const edit = (value: SetStateInput<T | T[keyof T]>): void => {
       const next =
         typeof value === 'function'
           ? (value as (previous: T | T[keyof T]) => T | T[keyof T])(read())
           : value
       if (name !== undefined) {
-        form.setValue(name as string, next as T[keyof T])
+        actionForm.setValue(name as string, next as T[keyof T])
         return
       }
       const nextValues = next as T
       for (const field of Object.keys(
-        Object.assign({}, form.getState().values, nextValues),
+        Object.assign({}, actionForm.getState().values, nextValues),
       ) as Extract<keyof T, string>[]) {
-        if (!formValuesEqual(form.getValue(field), nextValues[field]))
-          form.setValue(field, nextValues[field])
+        if (!formValuesEqual(actionForm.getValue(field), nextValues[field]))
+          actionForm.setValue(field, nextValues[field])
       }
     }
     const fill = (value: SetStateInput<T | T[keyof T]>): void => {
@@ -355,12 +402,12 @@ export function useForm<T extends FormValuesConstraint<T> = Record<string, unkno
         typeof value === 'function'
           ? (value as (previous: T | T[keyof T]) => T | T[keyof T])(read())
           : value
-      form.updateValues(
+      actionForm.updateValues(
         name === undefined ? (next as Partial<T>) : ({ [name]: next } as Partial<T>),
         { keepDirtyValues: true, keepOmittedValues: name !== undefined },
       )
     }
-    const visible = name === undefined ? form.getState().values : form.getValue(name)
+    asStateActions.set(name, [edit, fill])
     return [visible, edit, fill] as const
   }
 
@@ -403,27 +450,33 @@ type SetStateInput<T> = T | ((previous: T) => T)
 /**
  * Watches one field's value. Call it in an injection context.
  *
- * @param form - Form controller.
- * @param name - Field name to watch.
+ * The controller and name may be signals, so a new controller or field is
+ * followed the way React re-renders `useWatch` with new arguments.
+ *
+ * @param form - Form controller (or a signal of it).
+ * @param name - Field name to watch (or a signal of it).
  * @returns The current field value as a signal.
  */
 export function useWatch<T extends FormValuesConstraint<T>, K extends keyof T>(
-  form: FormController<T>,
-  name: K,
+  form: MaybeSignal<FormController<T>>,
+  name: MaybeSignal<K>,
 ): Signal<T[K]> {
-  return useFormSnapshot(form, () => form.getValue(name))
+  return useFormSnapshot(form, name, (current, currentName) => current.getValue(currentName))
 }
 
 /**
  * Reads one field's state. Call it in an injection context.
  *
- * @param form - Form controller.
- * @param name - Field name.
+ * The controller and name may be signals, so a new controller or field is
+ * followed the way React re-renders `useFieldState` with new arguments.
+ *
+ * @param form - Form controller (or a signal of it).
+ * @param name - Field name (or a signal of it).
  * @returns The field state as a signal.
  */
 export function useFieldState<T extends FormValuesConstraint<T>>(
-  form: FormController<T>,
-  name: keyof T,
+  form: MaybeSignal<FormController<T>>,
+  name: MaybeSignal<keyof T>,
 ): Signal<FieldState<T[keyof T]>> {
-  return useFormSnapshot(form, () => form.getFieldState(name))
+  return useFormSnapshot(form, name, (current, currentName) => current.getFieldState(currentName))
 }

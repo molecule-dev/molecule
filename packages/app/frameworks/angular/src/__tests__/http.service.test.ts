@@ -1,6 +1,8 @@
 import { firstValueFrom } from 'rxjs'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import type { HttpClient, RequestConfig } from '@molecule/app-http'
+
 vi.mock('@angular/core', () => ({
   Injectable: () => (target: unknown) => target,
   Inject: () => () => undefined,
@@ -21,20 +23,30 @@ vi.mock('@molecule/app-state', () => ({}))
 vi.mock('@molecule/app-storage', () => ({}))
 vi.mock('@molecule/app-theme', () => ({}))
 
-import { MoleculeHttpService } from '../services/http.service.js'
+import { type HttpState, MoleculeHttpService } from '../services/http.service.js'
+import { createTestHttpClient, testHttpResponse } from './helpers/test-providers.js'
 
 describe('MoleculeHttpService', () => {
   let service: MoleculeHttpService
-  let mockClient: Record<string, ReturnType<typeof vi.fn>>
+  let mockClient: HttpClient
 
   beforeEach(() => {
-    mockClient = {
-      get: vi.fn(() => Promise.resolve({ data: { items: [1, 2, 3] }, status: 200 })),
-      post: vi.fn(() => Promise.resolve({ data: { id: '1' }, status: 201 })),
-      put: vi.fn(() => Promise.resolve({ data: { updated: true }, status: 200 })),
-      patch: vi.fn(() => Promise.resolve({ data: { patched: true }, status: 200 })),
-      delete: vi.fn(() => Promise.resolve({ data: { deleted: true }, status: 200 })),
-    }
+    mockClient = createTestHttpClient()
+    vi.mocked(mockClient.get).mockResolvedValue(
+      testHttpResponse({ items: [1, 2, 3] }, 'GET', '/api/items'),
+    )
+    vi.mocked(mockClient.post).mockResolvedValue(
+      testHttpResponse({ id: '1' }, 'POST', '/api/items', 201),
+    )
+    vi.mocked(mockClient.put).mockResolvedValue(
+      testHttpResponse({ updated: true }, 'PUT', '/api/items/1'),
+    )
+    vi.mocked(mockClient.patch).mockResolvedValue(
+      testHttpResponse({ patched: true }, 'PATCH', '/api/items/1'),
+    )
+    vi.mocked(mockClient.delete).mockResolvedValue(
+      testHttpResponse({ deleted: true }, 'DELETE', '/api/items/1'),
+    )
 
     service = new MoleculeHttpService(mockClient)
   })
@@ -49,7 +61,7 @@ describe('MoleculeHttpService', () => {
 
     it('should pass request config to the client', async () => {
       const config = { headers: { Authorization: 'Bearer token' } }
-      await firstValueFrom(service.get('/api/items', config as unknown))
+      await firstValueFrom(service.get('/api/items', config))
 
       expect(mockClient.get).toHaveBeenCalledWith('/api/items', config)
     })
@@ -67,7 +79,7 @@ describe('MoleculeHttpService', () => {
     it('should pass config to the client', async () => {
       const body = { name: 'New Item' }
       const config = { headers: { 'Content-Type': 'application/json' } }
-      await firstValueFrom(service.post('/api/items', body, config as unknown))
+      await firstValueFrom(service.post('/api/items', body, config))
 
       expect(mockClient.post).toHaveBeenCalledWith('/api/items', body, config)
     })
@@ -107,38 +119,38 @@ describe('MoleculeHttpService', () => {
       const result = await firstValueFrom(service.request('GET', '/api/items'))
 
       expect(mockClient.get).toHaveBeenCalledWith('/api/items', undefined)
-      expect(result).toEqual({ data: { items: [1, 2, 3] }, status: 200 })
+      expect(result).toEqual(testHttpResponse({ items: [1, 2, 3] }, 'GET', '/api/items'))
     })
 
     it('should handle POST method', async () => {
-      const config = { data: { name: 'Test' } } as Record<string, unknown>
+      const config: RequestConfig = { data: { name: 'Test' } }
       const result = await firstValueFrom(service.request('POST', '/api/items', config))
 
       expect(mockClient.post).toHaveBeenCalledWith('/api/items', config.data, config)
-      expect(result).toEqual({ data: { id: '1' }, status: 201 })
+      expect(result).toEqual(testHttpResponse({ id: '1' }, 'POST', '/api/items', 201))
     })
 
     it('should handle PUT method', async () => {
-      const config = { data: { name: 'Updated' } } as Record<string, unknown>
+      const config: RequestConfig = { data: { name: 'Updated' } }
       const result = await firstValueFrom(service.request('PUT', '/api/items/1', config))
 
       expect(mockClient.put).toHaveBeenCalledWith('/api/items/1', config.data, config)
-      expect(result).toEqual({ data: { updated: true }, status: 200 })
+      expect(result).toEqual(testHttpResponse({ updated: true }, 'PUT', '/api/items/1'))
     })
 
     it('should handle PATCH method', async () => {
-      const config = { data: { name: 'Patched' } } as Record<string, unknown>
+      const config: RequestConfig = { data: { name: 'Patched' } }
       const result = await firstValueFrom(service.request('PATCH', '/api/items/1', config))
 
       expect(mockClient.patch).toHaveBeenCalledWith('/api/items/1', config.data, config)
-      expect(result).toEqual({ data: { patched: true }, status: 200 })
+      expect(result).toEqual(testHttpResponse({ patched: true }, 'PATCH', '/api/items/1'))
     })
 
     it('should handle DELETE method', async () => {
       const result = await firstValueFrom(service.request('DELETE', '/api/items/1'))
 
       expect(mockClient.delete).toHaveBeenCalledWith('/api/items/1', undefined)
-      expect(result).toEqual({ data: { deleted: true }, status: 200 })
+      expect(result).toEqual(testHttpResponse({ deleted: true }, 'DELETE', '/api/items/1'))
     })
   })
 
@@ -154,7 +166,7 @@ describe('MoleculeHttpService', () => {
   describe('getWithState', () => {
     it('should set loading to true and then update with data', async () => {
       const state = service.createState<{ items: number[] }>()
-      const states: unknown[] = []
+      const states: HttpState<{ items: number[] }>[] = []
       state.subscribe((s) => states.push(s))
 
       service.getWithState('/api/items', state)
@@ -171,10 +183,10 @@ describe('MoleculeHttpService', () => {
 
     it('should set error state on failure', async () => {
       const error = new Error('Network error')
-      mockClient.get.mockRejectedValue(error)
+      vi.mocked(mockClient.get).mockRejectedValue(error)
 
       const state = service.createState<unknown>()
-      const states: unknown[] = []
+      const states: HttpState<unknown>[] = []
       state.subscribe((s) => states.push(s))
 
       // The source code re-throws in catchError after updating state,
@@ -208,7 +220,7 @@ describe('MoleculeHttpService', () => {
 
     it('should pass config to the underlying get call', async () => {
       const state = service.createState<unknown>()
-      const config = { headers: { Authorization: 'Bearer token' } } as Record<string, unknown>
+      const config: RequestConfig = { headers: { Authorization: 'Bearer token' } }
 
       service.getWithState('/api/items', state, config)
 

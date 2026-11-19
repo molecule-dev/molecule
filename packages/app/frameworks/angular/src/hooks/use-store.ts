@@ -34,6 +34,15 @@ export interface UseStoreOptions<T, S = T> {
 }
 
 /**
+ * Options for {@link useStore} that pick part of the store: a selector is
+ * required, so the selected type `S` always comes from it.
+ */
+export interface SelectingStoreOptions<T, S> extends UseStoreOptions<T, S> {
+  /** Picks the value the hook returns from the store's state. */
+  selector: (state: T) => S
+}
+
+/**
  * The fix, appended to the error below — this function is the one place that
  * READS the token, so it is the one place that has to say where the provider
  * comes from. The sentences are code (a function call, a bootstrap array), so
@@ -91,10 +100,34 @@ export function useStateProvider(): StateProvider {
  * @param options - Hook options (`selector`, `equalityFn`), or a signal of them.
  * @returns A signal of the selected state.
  */
-export function useStore<T, S = T>(
+export function useStore<T>(
   store: MaybeSignal<Store<T>>,
-  options?: MaybeSignal<UseStoreOptions<T, S>>,
-): Signal<S> {
+  options?: MaybeSignal<UseStoreOptions<T, T>>,
+): Signal<T>
+/**
+ * Subscribes to the part of a store a selector picks.
+ *
+ * @param store - The store to subscribe to (or a signal of it).
+ * @param options - The selector, and an optional equality function for its
+ *   results, or a signal of them.
+ * @returns A signal of the selected value.
+ */
+export function useStore<T, S>(
+  store: MaybeSignal<Store<T>>,
+  options: MaybeSignal<SelectingStoreOptions<T, S>>,
+): Signal<S>
+/**
+ * The implementation both signatures share: without a selector the selected
+ * value is the state itself, which the first signature types as `T`.
+ *
+ * @param store - The store to subscribe to (or a signal of it).
+ * @param options - Hook options (`selector`, `equalityFn`), or a signal of them.
+ * @returns A signal of the selected value.
+ */
+export function useStore<T>(
+  store: MaybeSignal<Store<T>>,
+  options?: MaybeSignal<UseStoreOptions<T, unknown>>,
+): Signal<unknown> {
   const initialOptions = readMaybeSignal(options)
   let currentStore = readMaybeSignal(store)
   let currentSelector = initialOptions?.selector
@@ -102,11 +135,12 @@ export function useStore<T, S = T>(
 
   // The previous selected value for the equality comparison, exactly like
   // React's ref: an equal selection keeps the previous result (its identity).
-  let prevSelected: S | undefined
+  let prevSelected: unknown
 
-  const read = (): S => {
+  const read = (): unknown => {
     const state = currentStore.getState()
-    const selected = currentSelector ? currentSelector(state) : (state as unknown as S)
+    // No selector means the caller selected the whole state.
+    const selected = currentSelector ? currentSelector(state) : state
     if (currentEquality && prevSelected !== undefined) {
       if (currentEquality(prevSelected, selected)) {
         return prevSelected

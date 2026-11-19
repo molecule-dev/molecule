@@ -4,19 +4,20 @@
  * @module
  */
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { BehaviorSubject, type Observable } from 'rxjs'
 
 import type { PromiseState } from '@molecule/app-utilities'
 
 /**
  * Promise state manager.
- * @returns The result.
+ *
+ * @template T - The resolved value's type.
+ * @template Args - The tracked function's parameters.
  */
-export interface PromiseStateManager<T> {
+export interface PromiseStateManager<T, Args extends unknown[] = unknown[]> {
   state$: Observable<PromiseState<T>>
   getState: () => PromiseState<T>
-  call: (...args: any[]) => Promise<T>
+  call: (...args: Args) => Promise<T>
   cancel: (message?: string) => void
   reset: () => void
   destroy: () => void
@@ -31,6 +32,8 @@ const createIdleState = <T>(): PromiseState<T> => ({
 /**
  * Creates a promise state manager for tracking async function state.
  *
+ * @template Args - The tracked function's parameters.
+ * @template T - The tracked function's resolved value.
  * @param asyncFn - The async function to track
  * @returns Promise state manager with observable state
  *
@@ -47,10 +50,10 @@ const createIdleState = <T>(): PromiseState<T> => ({
  * await call('123')
  * ```
  */
-export const createPromiseState = <T extends (...args: any[]) => Promise<any>>(
-  asyncFn: T,
-): PromiseStateManager<Awaited<ReturnType<T>>> => {
-  type V = Awaited<ReturnType<T>>
+export const createPromiseState = <Args extends unknown[], T>(
+  asyncFn: (...args: Args) => Promise<T>,
+): PromiseStateManager<T, Args> => {
+  type V = T
 
   const subject = new BehaviorSubject<PromiseState<V>>(createIdleState<V>())
   let callId = 0
@@ -58,7 +61,7 @@ export const createPromiseState = <T extends (...args: any[]) => Promise<any>>(
 
   const getState = (): PromiseState<V> => subject.getValue()
 
-  const call = (...args: any[]): Promise<V> => {
+  const call = (...args: Args): Promise<V> => {
     callId += 1
     const thisCallId = callId
 

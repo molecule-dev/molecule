@@ -10,7 +10,7 @@
  */
 
 import '@angular/compiler'
-import { Component, provideZonelessChangeDetection } from '@angular/core'
+import { Component, provideZonelessChangeDetection, type Type } from '@angular/core'
 import { TestBed } from '@angular/core/testing'
 import { platformBrowser } from '@angular/platform-browser'
 import { BrowserTestingModule } from '@angular/platform-browser/testing'
@@ -66,10 +66,11 @@ afterEach(() => {
 })
 
 describe('translation follows the locale in a zoneless view', () => {
-  for (const [name, component] of [
+  const cases: ReadonlyArray<[string, Type<unknown>]> = [
     ['useTranslation().t', GreetingComponent],
     ['useT()', ShortGreetingComponent],
-  ] as const) {
+  ]
+  for (const [name, component] of cases) {
     it(`${name} re-renders on a locale switch without reading locale()`, async () => {
       const provider = i18n()
       TestBed.configureTestingModule({

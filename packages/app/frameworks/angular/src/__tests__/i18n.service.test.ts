@@ -1,6 +1,13 @@
 import { firstValueFrom } from 'rxjs'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import type {
+  DateFormatOptions,
+  I18nProvider,
+  LocaleConfig,
+  NumberFormatOptions,
+} from '@molecule/app-i18n'
+
 vi.mock('@angular/core', () => ({
   Injectable: () => (target: unknown) => target,
   Inject: () => () => undefined,
@@ -22,33 +29,23 @@ vi.mock('@molecule/app-storage', () => ({}))
 vi.mock('@molecule/app-theme', () => ({}))
 
 import { MoleculeI18nService } from '../services/i18n.service.js'
+import { createTestI18nProvider } from './helpers/test-providers.js'
 
 describe('MoleculeI18nService', () => {
   let service: MoleculeI18nService
-  let mockProvider: Record<string, ReturnType<typeof vi.fn>>
-  let localeChangeCallback: (() => void) | null
+  let mockProvider: I18nProvider
+  let localeChangeCallback: ((locale: string) => void) | null
 
   beforeEach(() => {
     localeChangeCallback = null
 
-    mockProvider = {
-      getLocale: vi.fn(() => 'en'),
-      getDirection: vi.fn(() => 'ltr' as const),
-      getLocales: vi.fn(() => [
-        { code: 'en', name: 'English' },
-        { code: 'ar', name: 'Arabic' },
-      ]),
-      onLocaleChange: vi.fn((cb: () => void) => {
-        localeChangeCallback = cb
-        return () => {
-          localeChangeCallback = null
-        }
-      }),
-      t: vi.fn((key: string, _values?: Record<string, unknown>) => `translated:${key}`),
-      setLocale: vi.fn(),
-      formatNumber: vi.fn((value: number) => `${value}`),
-      formatDate: vi.fn((_value: unknown) => 'formatted-date'),
-    }
+    mockProvider = createTestI18nProvider()
+    vi.mocked(mockProvider.onLocaleChange).mockImplementation((listener) => {
+      localeChangeCallback = listener
+      return () => {
+        localeChangeCallback = null
+      }
+    })
 
     service = new MoleculeI18nService(mockProvider)
   })
@@ -82,13 +79,9 @@ describe('MoleculeI18nService', () => {
       const locales: string[] = []
       service.locale$.subscribe((l) => locales.push(l))
 
-      mockProvider.getLocale.mockReturnValue('ar')
-      mockProvider.getDirection.mockReturnValue('rtl')
-      mockProvider.getLocales.mockReturnValue([
-        { code: 'en', name: 'English' },
-        { code: 'ar', name: 'Arabic' },
-      ])
-      localeChangeCallback!()
+      vi.mocked(mockProvider.getLocale).mockReturnValue('ar')
+      vi.mocked(mockProvider.getDirection).mockReturnValue('rtl')
+      localeChangeCallback!('ar')
 
       expect(locales).toHaveLength(2)
       expect(locales[1]).toBe('ar')
@@ -98,27 +91,27 @@ describe('MoleculeI18nService', () => {
       const directions: string[] = []
       service.direction$.subscribe((d) => directions.push(d))
 
-      mockProvider.getLocale.mockReturnValue('ar')
-      mockProvider.getDirection.mockReturnValue('rtl')
-      mockProvider.getLocales.mockReturnValue([])
-      localeChangeCallback!()
+      vi.mocked(mockProvider.getLocale).mockReturnValue('ar')
+      vi.mocked(mockProvider.getDirection).mockReturnValue('rtl')
+      vi.mocked(mockProvider.getLocales).mockReturnValue([])
+      localeChangeCallback!('ar')
 
       expect(directions).toHaveLength(2)
       expect(directions[1]).toBe('rtl')
     })
 
     it('should update locales$ when locale changes', () => {
-      const allLocales: unknown[] = []
+      const allLocales: LocaleConfig[][] = []
       service.locales$.subscribe((l) => allLocales.push(l))
 
-      mockProvider.getLocale.mockReturnValue('fr')
-      mockProvider.getDirection.mockReturnValue('ltr')
-      mockProvider.getLocales.mockReturnValue([
+      vi.mocked(mockProvider.getLocale).mockReturnValue('fr')
+      vi.mocked(mockProvider.getDirection).mockReturnValue('ltr')
+      vi.mocked(mockProvider.getLocales).mockReturnValue([
         { code: 'en', name: 'English' },
         { code: 'fr', name: 'French' },
         { code: 'ar', name: 'Arabic' },
       ])
-      localeChangeCallback!()
+      localeChangeCallback!('fr')
 
       expect(allLocales).toHaveLength(2)
       expect(allLocales[1]).toHaveLength(3)
@@ -165,7 +158,7 @@ describe('MoleculeI18nService', () => {
     })
 
     it('should pass format options to the provider', () => {
-      const options = { style: 'currency', currency: 'USD' } as Intl.NumberFormatOptions
+      const options: NumberFormatOptions = { style: 'currency', currency: 'USD' }
       service.formatNumber(99.99, options)
       expect(mockProvider.formatNumber).toHaveBeenCalledWith(99.99, options)
     })
@@ -180,7 +173,7 @@ describe('MoleculeI18nService', () => {
     })
 
     it('should pass format options to the provider', () => {
-      const options = { dateStyle: 'long' } as Intl.DateTimeFormatOptions
+      const options: DateFormatOptions = { dateStyle: 'long' }
       service.formatDate('2024-01-01', options)
       expect(mockProvider.formatDate).toHaveBeenCalledWith('2024-01-01', options)
     })

@@ -1,6 +1,8 @@
 import { firstValueFrom } from 'rxjs'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import type { Theme, ThemeProvider } from '@molecule/app-theme'
+
 vi.mock('@angular/core', () => ({
   Injectable: () => (target: unknown) => target,
   Inject: () => () => undefined,
@@ -22,29 +24,27 @@ vi.mock('@molecule/app-storage', () => ({}))
 vi.mock('@molecule/app-theme', () => ({}))
 
 import { MoleculeThemeService } from '../services/theme.service.js'
+import { createTestTheme, createTestThemeProvider } from './helpers/test-providers.js'
 
 describe('MoleculeThemeService', () => {
   let service: MoleculeThemeService
-  let mockProvider: Record<string, ReturnType<typeof vi.fn>>
-  let subscribeCallback: (() => void) | null
+  let mockProvider: ThemeProvider
+  let subscribeCallback: ((theme: Theme) => void) | null
 
-  const lightTheme = { name: 'light', mode: 'light' as const, colors: {} }
-  const darkTheme = { name: 'dark', mode: 'dark' as const, colors: {} }
+  const lightTheme = createTestTheme('light', 'light')
+  const darkTheme = createTestTheme('dark', 'dark')
 
   beforeEach(() => {
     subscribeCallback = null
 
-    mockProvider = {
-      getTheme: vi.fn(() => lightTheme),
-      getThemes: vi.fn(() => [lightTheme, darkTheme]),
-      setTheme: vi.fn(),
-      subscribe: vi.fn((cb: () => void) => {
-        subscribeCallback = cb
-        return () => {
-          subscribeCallback = null
-        }
-      }),
-    }
+    mockProvider = createTestThemeProvider(lightTheme)
+    vi.mocked(mockProvider.getThemes!).mockReturnValue([lightTheme, darkTheme])
+    vi.mocked(mockProvider.subscribe).mockImplementation((listener) => {
+      subscribeCallback = listener
+      return () => {
+        subscribeCallback = null
+      }
+    })
 
     service = new MoleculeThemeService(mockProvider)
   })
@@ -72,11 +72,11 @@ describe('MoleculeThemeService', () => {
 
   describe('reactive state updates', () => {
     it('should update theme$ when theme changes', () => {
-      const themes: unknown[] = []
+      const themes: Theme[] = []
       service.theme$.subscribe((t) => themes.push(t))
 
-      mockProvider.getTheme.mockReturnValue(darkTheme)
-      subscribeCallback!()
+      vi.mocked(mockProvider.getTheme).mockReturnValue(darkTheme)
+      subscribeCallback!(darkTheme)
 
       expect(themes).toHaveLength(2)
       expect(themes[1]).toEqual(darkTheme)
@@ -86,8 +86,8 @@ describe('MoleculeThemeService', () => {
       const names: string[] = []
       service.themeName$.subscribe((n) => names.push(n))
 
-      mockProvider.getTheme.mockReturnValue(darkTheme)
-      subscribeCallback!()
+      vi.mocked(mockProvider.getTheme).mockReturnValue(darkTheme)
+      subscribeCallback!(darkTheme)
 
       expect(names).toHaveLength(2)
       expect(names[1]).toBe('dark')
@@ -97,8 +97,8 @@ describe('MoleculeThemeService', () => {
       const modes: string[] = []
       service.mode$.subscribe((m) => modes.push(m))
 
-      mockProvider.getTheme.mockReturnValue(darkTheme)
-      subscribeCallback!()
+      vi.mocked(mockProvider.getTheme).mockReturnValue(darkTheme)
+      subscribeCallback!(darkTheme)
 
       expect(modes).toHaveLength(2)
       expect(modes[1]).toBe('dark')
@@ -109,9 +109,9 @@ describe('MoleculeThemeService', () => {
       service.mode$.subscribe((m) => modes.push(m))
 
       // Different theme object, same mode
-      const anotherLightTheme = { name: 'light-alt', mode: 'light' as const, colors: { alt: true } }
-      mockProvider.getTheme.mockReturnValue(anotherLightTheme)
-      subscribeCallback!()
+      const anotherLightTheme = createTestTheme('light-alt', 'light', { background: '#fafafa' })
+      vi.mocked(mockProvider.getTheme).mockReturnValue(anotherLightTheme)
+      subscribeCallback!(anotherLightTheme)
 
       // mode is still 'light', so no new emission
       expect(modes).toHaveLength(1)
@@ -154,7 +154,7 @@ describe('MoleculeThemeService', () => {
 
     it('should wrap around to the first theme', () => {
       // Set current theme to 'dark' (last in list)
-      mockProvider.getTheme.mockReturnValue(darkTheme)
+      vi.mocked(mockProvider.getTheme).mockReturnValue(darkTheme)
 
       service.toggleTheme()
 
@@ -163,7 +163,7 @@ describe('MoleculeThemeService', () => {
     })
 
     it('should handle single theme gracefully', () => {
-      mockProvider.getThemes.mockReturnValue([lightTheme])
+      vi.mocked(mockProvider.getThemes!).mockReturnValue([lightTheme])
 
       service.toggleTheme()
 
@@ -172,8 +172,8 @@ describe('MoleculeThemeService', () => {
     })
 
     it('should handle current theme not found in list', () => {
-      const unknownTheme = { name: 'unknown', mode: 'light' as const, colors: {} }
-      mockProvider.getTheme.mockReturnValue(unknownTheme)
+      const unknownTheme = createTestTheme('unknown', 'light')
+      vi.mocked(mockProvider.getTheme).mockReturnValue(unknownTheme)
 
       service.toggleTheme()
 

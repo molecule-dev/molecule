@@ -1,6 +1,15 @@
 import { firstValueFrom } from 'rxjs'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import type {
+  NavigateOptions,
+  QueryParams,
+  RouteChangeListener,
+  RouteLocation,
+  RouteParams,
+  Router,
+} from '@molecule/app-routing'
+
 vi.mock('@angular/core', () => ({
   Injectable: () => (target: unknown) => target,
   Inject: () => () => undefined,
@@ -22,34 +31,40 @@ vi.mock('@molecule/app-storage', () => ({}))
 vi.mock('@molecule/app-theme', () => ({}))
 
 import { MoleculeRouterService } from '../services/router.service.js'
+import { createTestRouter } from './helpers/test-providers.js'
 
 describe('MoleculeRouterService', () => {
   let service: MoleculeRouterService
-  let mockRouter: Record<string, ReturnType<typeof vi.fn>>
-  let subscribeCallback: (() => void) | null
+  let mockRouter: Router
+  let subscribeCallback: RouteChangeListener | null
 
   beforeEach(() => {
     subscribeCallback = null
 
-    mockRouter = {
-      getLocation: vi.fn(() => ({ pathname: '/', search: '', hash: '' })),
-      getParams: vi.fn(() => ({})),
-      getQuery: vi.fn(() => ({})),
-      subscribe: vi.fn((cb: () => void) => {
-        subscribeCallback = cb
-        return () => {
-          subscribeCallback = null
-        }
-      }),
-      navigate: vi.fn(),
-      navigateTo: vi.fn(),
-      back: vi.fn(),
-      forward: vi.fn(),
-      isActive: vi.fn(() => false),
-    }
+    mockRouter = createTestRouter()
+    vi.mocked(mockRouter.subscribe).mockImplementation((listener) => {
+      subscribeCallback = listener
+      return () => {
+        subscribeCallback = null
+      }
+    })
 
     service = new MoleculeRouterService(mockRouter)
   })
+
+  /** Fires the captured route-change listener the way a real router does. */
+  const emitRouteChange = (
+    location: RouteLocation,
+    params: RouteParams,
+    query: QueryParams,
+  ): void => {
+    vi.mocked(mockRouter.getLocation).mockReturnValue(location)
+    // getParams is generic, so it is a plain function the test replaces
+    // instead of a `vi.fn` to override.
+    mockRouter.getParams = <T extends RouteParams = RouteParams>(): T => params as T
+    vi.mocked(mockRouter.getQuery).mockReturnValue(query)
+    subscribeCallback!(location, 'push')
+  }
 
   describe('constructor', () => {
     it('should initialize location$ with the current location', async () => {
@@ -79,39 +94,30 @@ describe('MoleculeRouterService', () => {
 
   describe('reactive state updates', () => {
     it('should update location$ on route change', () => {
-      const locations: unknown[] = []
+      const locations: RouteLocation[] = []
       service.location$.subscribe((l) => locations.push(l))
 
-      mockRouter.getLocation.mockReturnValue({ pathname: '/about', search: '', hash: '' })
-      mockRouter.getParams.mockReturnValue({})
-      mockRouter.getQuery.mockReturnValue({})
-      subscribeCallback!()
+      emitRouteChange({ pathname: '/about', search: '', hash: '' }, {}, {})
 
       expect(locations).toHaveLength(2)
       expect(locations[1].pathname).toBe('/about')
     })
 
     it('should update params$ on route change', () => {
-      const paramValues: unknown[] = []
+      const paramValues: RouteParams[] = []
       service.params$.subscribe((p) => paramValues.push(p))
 
-      mockRouter.getLocation.mockReturnValue({ pathname: '/users/123', search: '', hash: '' })
-      mockRouter.getParams.mockReturnValue({ id: '123' })
-      mockRouter.getQuery.mockReturnValue({})
-      subscribeCallback!()
+      emitRouteChange({ pathname: '/users/123', search: '', hash: '' }, { id: '123' }, {})
 
       expect(paramValues).toHaveLength(2)
       expect(paramValues[1]).toEqual({ id: '123' })
     })
 
     it('should update query$ on route change', () => {
-      const queryValues: unknown[] = []
+      const queryValues: QueryParams[] = []
       service.query$.subscribe((q) => queryValues.push(q))
 
-      mockRouter.getLocation.mockReturnValue({ pathname: '/search', search: '?q=test', hash: '' })
-      mockRouter.getParams.mockReturnValue({})
-      mockRouter.getQuery.mockReturnValue({ q: 'test' })
-      subscribeCallback!()
+      emitRouteChange({ pathname: '/search', search: '?q=test', hash: '' }, {}, { q: 'test' })
 
       expect(queryValues).toHaveLength(2)
       expect(queryValues[1]).toEqual({ q: 'test' })
@@ -121,10 +127,7 @@ describe('MoleculeRouterService', () => {
       const pathnames: string[] = []
       service.pathname$.subscribe((p) => pathnames.push(p))
 
-      mockRouter.getLocation.mockReturnValue({ pathname: '/dashboard', search: '', hash: '' })
-      mockRouter.getParams.mockReturnValue({})
-      mockRouter.getQuery.mockReturnValue({})
-      subscribeCallback!()
+      emitRouteChange({ pathname: '/dashboard', search: '', hash: '' }, {}, {})
 
       expect(pathnames).toHaveLength(2)
       expect(pathnames[1]).toBe('/dashboard')
@@ -135,10 +138,7 @@ describe('MoleculeRouterService', () => {
       service.pathname$.subscribe((p) => pathnames.push(p))
 
       // Same pathname, different search
-      mockRouter.getLocation.mockReturnValue({ pathname: '/', search: '?foo=bar', hash: '' })
-      mockRouter.getParams.mockReturnValue({})
-      mockRouter.getQuery.mockReturnValue({ foo: 'bar' })
-      subscribeCallback!()
+      emitRouteChange({ pathname: '/', search: '?foo=bar', hash: '' }, {}, { foo: 'bar' })
 
       // pathname is still '/', so no new emission
       expect(pathnames).toHaveLength(1)
@@ -166,8 +166,8 @@ describe('MoleculeRouterService', () => {
     })
 
     it('should pass navigation options', () => {
-      const options = { replace: true }
-      service.navigate('/about', options as unknown)
+      const options: NavigateOptions = { replace: true }
+      service.navigate('/about', options)
       expect(mockRouter.navigate).toHaveBeenCalledWith('/about', options)
     })
   })
@@ -184,8 +184,8 @@ describe('MoleculeRouterService', () => {
     })
 
     it('should pass navigation options', () => {
-      const options = { replace: true }
-      service.navigateTo('home', undefined, undefined, options as unknown)
+      const options: NavigateOptions = { replace: true }
+      service.navigateTo('home', undefined, undefined, options)
       expect(mockRouter.navigateTo).toHaveBeenCalledWith('home', undefined, undefined, options)
     })
   })
@@ -216,7 +216,7 @@ describe('MoleculeRouterService', () => {
     })
 
     it('should return the result from the router', () => {
-      mockRouter.isActive.mockReturnValue(true)
+      vi.mocked(mockRouter.isActive).mockReturnValue(true)
       expect(service.isActive('/')).toBe(true)
     })
   })

@@ -1,7 +1,10 @@
 import { firstValueFrom } from 'rxjs'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import type { AuthClient } from '@molecule/app-auth'
+
 import { createOAuthState } from '../services/oauth.service.js'
+import { createTestAuthClient } from './helpers/test-providers.js'
 
 describe('createOAuthState', () => {
   interface MockLocation {
@@ -15,7 +18,7 @@ describe('createOAuthState', () => {
   let replaceStateMock: ReturnType<typeof vi.fn>
   let sessionStore: Map<string, string>
   let fetchMock: ReturnType<typeof vi.fn>
-  let mockAuthClient: Record<string, ReturnType<typeof vi.fn>>
+  let mockAuthClient: AuthClient<unknown>
 
   const setPath = (pathname: string, search = ''): void => {
     mockLocation.pathname = pathname
@@ -71,11 +74,7 @@ describe('createOAuthState', () => {
     })
     fetchMock = vi.fn()
     vi.stubGlobal('fetch', fetchMock)
-    mockAuthClient = {
-      setAccessToken: vi.fn(),
-      setUser: vi.fn(),
-      initialize: vi.fn(() => Promise.resolve()),
-    }
+    mockAuthClient = createTestAuthClient()
   })
 
   afterEach(() => {

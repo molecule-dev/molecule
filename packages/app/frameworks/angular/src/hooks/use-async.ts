@@ -52,18 +52,15 @@ export interface UsePromiseState<T> {
  * state, so it is not proof that an outstanding request has stopped. Use an
  * app-owned queue when every click must be accepted in order.
  *
+ * @template V - What the async function resolves with.
+ * @template A - The async function's parameters.
  * @param asyncFn - The async function to wrap.
  * @returns A tuple of `[state, wrappedFunction]`; the state object is updated
  *   in place for this instance's lifetime.
  */
-export const usePromise = <T extends (...args: never[]) => Promise<unknown>>(
-  asyncFn: T,
-): [
-  UsePromiseState<Awaited<ReturnType<T>>>,
-  (...args: Parameters<T>) => Promise<Awaited<ReturnType<T>>>,
-] => {
-  type V = Awaited<ReturnType<T>>
-
+export const usePromise = <V, A extends unknown[]>(
+  asyncFn: (...args: A) => Promise<V>,
+): [UsePromiseState<V>, (...args: A) => Promise<V>] => {
   const destroyRef = inject(DestroyRef)
   let unmounted = false
   destroyRef.onDestroy(() => {
@@ -93,7 +90,7 @@ export const usePromise = <T extends (...args: never[]) => Promise<unknown>>(
     },
   }
 
-  const callAsyncFn = (...args: Parameters<T>): Promise<V> => {
+  const callAsyncFn = (...args: A): Promise<V> => {
     callId += 1
     const thisCallId = callId
 
@@ -102,7 +99,7 @@ export const usePromise = <T extends (...args: never[]) => Promise<unknown>>(
       state.error = null
     }
 
-    const promise = asyncFn(...args) as Promise<V>
+    const promise = asyncFn(...args)
 
     return promise.then(
       (resolved: V) => {

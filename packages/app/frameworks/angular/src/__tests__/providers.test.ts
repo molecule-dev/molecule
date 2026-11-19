@@ -1,5 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import type { AuthClient } from '@molecule/app-auth'
+import type { HttpClient } from '@molecule/app-http'
+import type { I18nProvider } from '@molecule/app-i18n'
+import type { LoggerProvider } from '@molecule/app-logger'
+import type { Router } from '@molecule/app-routing'
+import type { StorageProvider } from '@molecule/app-storage'
+import type { ThemeProvider } from '@molecule/app-theme'
+
 // Track calls to makeEnvironmentProviders
 const makeEnvProvidersCalls: unknown[][] = []
 
@@ -67,6 +75,17 @@ import {
   STORAGE_PROVIDER,
   THEME_PROVIDER,
 } from '../tokens.js'
+import {
+  createTestAuthClient,
+  createTestHttpClient,
+  createTestI18nProvider,
+  createTestLoggerProvider,
+  createTestRouter,
+  createTestStateProvider,
+  createTestStorageProvider,
+  createTestTheme,
+  createTestThemeProvider,
+} from './helpers/test-providers.js'
 
 describe('providers', () => {
   beforeEach(() => {
@@ -75,7 +94,7 @@ describe('providers', () => {
 
   describe('provideState', () => {
     it('should create environment providers with the state provider', () => {
-      const mockStateProvider = { createStore: vi.fn() } as unknown
+      const mockStateProvider: StateProvider = createTestStateProvider()
       const result = provideState(mockStateProvider)
 
       expect(makeEnvProvidersCalls).toHaveLength(1)
@@ -88,7 +107,7 @@ describe('providers', () => {
 
   describe('provideAuth', () => {
     it('should create environment providers with the auth client', () => {
-      const mockAuthClient = { login: vi.fn(), logout: vi.fn() } as unknown
+      const mockAuthClient: AuthClient<unknown> = createTestAuthClient()
       const result = provideAuth(mockAuthClient)
 
       expect(makeEnvProvidersCalls).toHaveLength(1)
@@ -99,7 +118,9 @@ describe('providers', () => {
 
   describe('provideTheme', () => {
     it('should create environment providers with the theme provider', () => {
-      const mockThemeProvider = { getTheme: vi.fn() } as unknown
+      const mockThemeProvider: ThemeProvider = createTestThemeProvider(
+        createTestTheme('light', 'light'),
+      )
       const result = provideTheme(mockThemeProvider)
 
       expect(makeEnvProvidersCalls).toHaveLength(1)
@@ -112,7 +133,7 @@ describe('providers', () => {
 
   describe('provideRouter', () => {
     it('should create environment providers with the router', () => {
-      const mockRouter = { navigate: vi.fn() } as unknown
+      const mockRouter: Router = createTestRouter()
       const result = provideRouter(mockRouter)
 
       expect(makeEnvProvidersCalls).toHaveLength(1)
@@ -123,7 +144,7 @@ describe('providers', () => {
 
   describe('provideI18n', () => {
     it('should create environment providers with the i18n provider', () => {
-      const mockI18n = { t: vi.fn() } as unknown
+      const mockI18n: I18nProvider = createTestI18nProvider()
       const result = provideI18n(mockI18n)
 
       expect(makeEnvProvidersCalls).toHaveLength(1)
@@ -134,7 +155,7 @@ describe('providers', () => {
 
   describe('provideHttp', () => {
     it('should create environment providers with the HTTP client', () => {
-      const mockHttpClient = { get: vi.fn() } as unknown
+      const mockHttpClient: HttpClient = createTestHttpClient()
       const result = provideHttp(mockHttpClient)
 
       expect(makeEnvProvidersCalls).toHaveLength(1)
@@ -145,7 +166,7 @@ describe('providers', () => {
 
   describe('provideStorage', () => {
     it('should create environment providers with the storage provider', () => {
-      const mockStorageProvider = { get: vi.fn() } as unknown
+      const mockStorageProvider: StorageProvider = createTestStorageProvider()
       const result = provideStorage(mockStorageProvider)
 
       expect(makeEnvProvidersCalls).toHaveLength(1)
@@ -158,7 +179,7 @@ describe('providers', () => {
 
   describe('provideLogger', () => {
     it('should create environment providers with the logger provider', () => {
-      const mockLoggerProvider = { getLogger: vi.fn() } as unknown
+      const mockLoggerProvider: LoggerProvider = createTestLoggerProvider()
       const result = provideLogger(mockLoggerProvider)
 
       expect(makeEnvProvidersCalls).toHaveLength(1)
@@ -172,14 +193,14 @@ describe('providers', () => {
   describe('provideMolecule', () => {
     it('should create environment providers with all configured providers', () => {
       const config = {
-        state: { createStore: vi.fn() } as unknown,
-        auth: { login: vi.fn() } as unknown,
-        theme: { getTheme: vi.fn() } as unknown,
-        router: { navigate: vi.fn() } as unknown,
-        i18n: { t: vi.fn(), onLocaleChange: vi.fn() } as unknown,
-        http: { get: vi.fn() } as unknown,
-        storage: { get: vi.fn() } as unknown,
-        logger: { getLogger: vi.fn() } as unknown,
+        state: createTestStateProvider(),
+        auth: createTestAuthClient(),
+        theme: createTestThemeProvider(createTestTheme('light', 'light')),
+        router: createTestRouter(),
+        i18n: createTestI18nProvider(),
+        http: createTestHttpClient(),
+        storage: createTestStorageProvider(),
+        logger: createTestLoggerProvider(),
       }
 
       provideMolecule(config)
@@ -200,8 +221,8 @@ describe('providers', () => {
 
     it('should only include providers that are configured', () => {
       const config = {
-        state: { createStore: vi.fn() } as unknown,
-        auth: { login: vi.fn() } as unknown,
+        state: createTestStateProvider(),
+        auth: createTestAuthClient(),
       }
 
       provideMolecule(config)
@@ -220,7 +241,7 @@ describe('providers', () => {
     })
 
     it('should fall back to the bonded state provider when none is configured', () => {
-      const bondedProvider = { createStore: vi.fn() } as unknown as StateProvider
+      const bondedProvider: StateProvider = createTestStateProvider()
       vi.mocked(hasStateProvider).mockReturnValueOnce(true)
       vi.mocked(getStateProvider).mockReturnValueOnce(bondedProvider)
 
@@ -233,7 +254,7 @@ describe('providers', () => {
 
     it('should handle single provider configuration', () => {
       const config = {
-        theme: { getTheme: vi.fn() } as unknown,
+        theme: createTestThemeProvider(createTestTheme('light', 'light')),
       }
 
       provideMolecule(config)
@@ -246,7 +267,7 @@ describe('providers', () => {
     it('should not include undefined providers', () => {
       const config = {
         state: undefined,
-        auth: { login: vi.fn() } as unknown,
+        auth: createTestAuthClient(),
         theme: undefined,
       }
 

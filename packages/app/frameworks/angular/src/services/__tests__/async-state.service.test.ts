@@ -176,3 +176,119 @@ describe('createAsyncState', () => {
     destroy()
   })
 })
+
+/** The state shape React's `useAsyncState` tests use, for the same inputs. */
+interface ParityState {
+  foo: string
+  bar: string
+}
+
+describe('createAsyncState (React `useAsyncState` parity)', () => {
+  it('synchronous setState works', () => {
+    const { getState, setState, destroy } = createAsyncState<ParityState>({
+      foo: 'hello',
+      bar: 'world',
+    })
+
+    setState({ foo: 'updated', bar: 'state' })
+
+    expect(getState()).toEqual({ foo: 'updated', bar: 'state' })
+
+    destroy()
+  })
+
+  it('function setState works (receives previous state)', () => {
+    const { getState, setState, destroy } = createAsyncState<ParityState>({
+      foo: 'hello',
+      bar: 'world',
+    })
+
+    setState((prev) => ({
+      foo: prev.foo.toUpperCase(),
+      bar: prev.bar.toUpperCase(),
+    }))
+
+    expect(getState()).toEqual({ foo: 'HELLO', bar: 'WORLD' })
+
+    destroy()
+  })
+
+  it('Promise setState works (await then set)', async () => {
+    const { getState, setState, destroy } = createAsyncState<ParityState>({
+      foo: 'hello',
+      bar: 'world',
+    })
+
+    setState(
+      new Promise((resolve) =>
+        setTimeout(() => resolve({ foo: 'async-foo', bar: 'async-bar' }), 10),
+      ),
+    )
+    await new Promise((r) => setTimeout(r, 50))
+
+    expect(getState()).toEqual({ foo: 'async-foo', bar: 'async-bar' })
+
+    destroy()
+  })
+
+  it('extendState merges partial updates', () => {
+    const { getState, extendState, destroy } = createAsyncState<ParityState>({
+      foo: 'hello',
+      bar: 'world',
+    })
+
+    extendState({ foo: 'updated' })
+
+    expect(getState()).toEqual({ foo: 'updated', bar: 'world' })
+
+    destroy()
+  })
+
+  it('function extendState works', () => {
+    const { getState, extendState, destroy } = createAsyncState<ParityState>({
+      foo: 'hello',
+      bar: 'world',
+    })
+
+    extendState((prev) => ({ bar: prev.bar.toUpperCase() }))
+
+    expect(getState()).toEqual({ foo: 'hello', bar: 'WORLD' })
+
+    destroy()
+  })
+
+  it('Promise extendState works', async () => {
+    const { getState, extendState, destroy } = createAsyncState<ParityState>({
+      foo: 'hello',
+      bar: 'world',
+    })
+
+    extendState(new Promise((resolve) => setTimeout(() => resolve({ foo: 'async-updated' }), 10)))
+    await new Promise((r) => setTimeout(r, 50))
+
+    expect(getState()).toEqual({ foo: 'async-updated', bar: 'world' })
+
+    destroy()
+  })
+
+  it('rejected promise is silently handled', async () => {
+    const { getState, setState, extendState, destroy } = createAsyncState<ParityState>({
+      foo: 'hello',
+      bar: 'world',
+    })
+
+    // Rejected promise setState should not throw or update state.
+    setState(Promise.reject(new Error('fail')))
+    await flush()
+
+    expect(getState()).toEqual({ foo: 'hello', bar: 'world' })
+
+    // Rejected promise extendState should not throw or update state.
+    extendState(Promise.reject(new Error('extend fail')))
+    await flush()
+
+    expect(getState()).toEqual({ foo: 'hello', bar: 'world' })
+
+    destroy()
+  })
+})

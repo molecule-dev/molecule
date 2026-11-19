@@ -197,8 +197,7 @@ export class MoleculeFormInstance<T extends FormValuesConstraint<T>> {
    * @param value - The new value to set for the field.
    */
   setValue<K extends keyof T>(name: K, value: T[K]): void {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    this.controller.setValue(name as any, value as any)
+    this.controller.setValue(name as string, value)
   }
 
   /**
@@ -208,8 +207,7 @@ export class MoleculeFormInstance<T extends FormValuesConstraint<T>> {
    * @returns The error message for the field, or `undefined` if the field has no error.
    */
   getError(name: keyof T): string | undefined {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return this.controller.getError(name as any)
+    return this.controller.getError(name as string)
   }
 
   /**
@@ -220,8 +218,7 @@ export class MoleculeFormInstance<T extends FormValuesConstraint<T>> {
    */
   setError(name: keyof T, error: string | undefined): void {
     if (error !== undefined) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      this.controller.setError(name as any, error)
+      this.controller.setError(name as string, error)
     } else {
       this.controller.clearError(name)
     }

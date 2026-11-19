@@ -8,28 +8,21 @@
  * @example
  * ```typescript
  * // main.ts — wire concrete providers into Angular DI:
+ * import { Component, inject } from '@angular/core'
  * import { bootstrapApplication } from '@angular/platform-browser'
- * import { provideMolecule } from '@molecule/app-angular'
+ * import {
+ *   MoleculeAuthService,
+ *   MoleculeThemeService,
+ *   provideMolecule,
+ *   t,
+ * } from '@molecule/app-angular'
  * import { createJWTAuthClient } from '@molecule/app-auth'
  * import { provider as stateProvider } from '@molecule/app-state-zustand'
  * import { provider as themeProvider } from '@molecule/app-theme-css-variables'
  *
  * const authClient = createJWTAuthClient({ baseURL: '/api' })
  *
- * bootstrapApplication(AppComponent, {
- *   providers: [
- *     provideMolecule({
- *       state: stateProvider,
- *       auth: authClient,
- *       theme: themeProvider,
- *     }),
- *   ],
- * })
- *
  * // dashboard.component.ts — inject the Molecule services:
- * import { Component, inject } from '@angular/core'
- * import { MoleculeAuthService, MoleculeThemeService, t } from '@molecule/app-angular'
- *
  * @Component({
  *   selector: 'app-dashboard',
  *   template: `
@@ -42,7 +35,7 @@
  *     </div>
  *   `,
  * })
- * class DashboardComponent {
+ * export class DashboardComponent {
  *   // Expose the reactive t() so template bindings re-evaluate on locale change.
  *   protected readonly t = t
  *
@@ -56,7 +49,37 @@
  *     void this.authService.logout()
  *   }
  * }
+ *
+ * // app.component.ts — the root that mounts the dashboard:
+ * @Component({
+ *   selector: 'app-root',
+ *   imports: [DashboardComponent],
+ *   template: '<app-dashboard />',
+ * })
+ * export class AppComponent {}
+ *
+ * bootstrapApplication(AppComponent, {
+ *   providers: [
+ *     provideMolecule({
+ *       state: stateProvider,
+ *       auth: authClient,
+ *       theme: themeProvider,
+ *     }),
+ *   ],
+ * })
  * ```
+ *
+ * **Session restore:** `useAuth().status === 'loading'` is undecided: wait for
+ * it and redirect only on `status === 'unauthenticated'`. `'unavailable'` keeps
+ * the session candidate for retry, but `isAuthenticated` can be false and
+ * `user` can be null. A restore failure other than 401/403 never signs out.
+ * `provideMolecule({ auth })` starts the bundled client's restore when a
+ * consumer first reads the session, so the app entry can mount its root without
+ * calling `initialize()`. A cached token and user render signed-in content
+ * immediately, and a visitor without a session candidate renders signed-out
+ * content immediately. Set `awaitSession: true` to hold bootstrap — and so
+ * every page's first render — while a token-only or cookie-only restore is
+ * undecided.
  *
  * @remarks
  * - Peer requirements: Angular 22 (`@angular/core` is pinned to 22.0.0) and

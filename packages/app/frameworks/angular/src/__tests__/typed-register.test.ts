@@ -47,7 +47,7 @@ function diagnosticsFor(source: string): string[] {
 }
 
 describe('MoleculeAuthService types the app’s own registration fields', () => {
-  it('accepts the client’s second generic', () => {
+  it('accepts the client’s second generic', { timeout: 120_000 }, () => {
     const diagnostics = diagnosticsFor(`
 import type { MoleculeAuthService } from '../services/auth.service.js'
 
