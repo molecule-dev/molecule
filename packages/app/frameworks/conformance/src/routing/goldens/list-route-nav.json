@@ -1,0 +1,203 @@
+{
+  "keeps every declared choice visible on a parameterized route and selects the base view": [
+    {
+      "step": "mount",
+      "path": "/shelves/reference?page=2",
+      "dom": "<nav aria-label=\"Library views\">\n<a data-mol-id=\"list-route-all\" data-state=\"inactive\" href=\"/library\">\nAll books\n</a>\n<a aria-current=\"page\" data-mol-id=\"list-route-shelf\" data-state=\"active\" href=\"/shelves/reference\">\nThis shelf\n</a>\n</nav>"
+    },
+    {
+      "step": "click all",
+      "path": "/library",
+      "dom": "<nav aria-label=\"Library views\">\n<a aria-current=\"page\" data-mol-id=\"list-route-all\" data-state=\"active\" href=\"/library\">\nAll books\n</a>\n<a data-mol-id=\"list-route-shelf\" data-state=\"inactive\" href=\"/shelves/reference\">\nThis shelf\n</a>\n</nav>",
+      "prevented": true,
+      "sameChoices": true
+    }
+  ],
+  "keeps list markup and URL-derived link classes across a selection": [
+    {
+      "step": "mount",
+      "path": "/shelves/reference?page=2&sort=title",
+      "dom": "<nav aria-label=\"Library views\">\n<ul class=\"library-menu\">\n<li class=\"library-menu-item\">\n<a class=\"choice\" data-mol-id=\"list-route-all\" data-state=\"inactive\" href=\"/library?sort=title\">\nAll books\n</a>\n</li>\n<li class=\"library-menu-item\">\n<a aria-current=\"page\" class=\"selected\" data-mol-id=\"list-route-shelf\" data-state=\"active\" href=\"/shelves/reference?sort=title\">\nThis shelf\n</a>\n</li>\n</ul>\n</nav>"
+    },
+    {
+      "step": "click all",
+      "path": "/library?sort=title",
+      "dom": "<nav aria-label=\"Library views\">\n<ul class=\"library-menu\">\n<li class=\"library-menu-item\">\n<a aria-current=\"page\" class=\"selected\" data-mol-id=\"list-route-all\" data-state=\"active\" href=\"/library?sort=title\">\nAll books\n</a>\n</li>\n<li class=\"library-menu-item\">\n<a class=\"choice\" data-mol-id=\"list-route-shelf\" data-state=\"inactive\" href=\"/shelves/reference?sort=title\">\nThis shelf\n</a>\n</li>\n</ul>\n</nav>",
+      "prevented": true,
+      "sameChoices": true
+    }
+  ],
+  "keeps a sibling view destination independent of the selected view": [
+    {
+      "step": "mount",
+      "path": "/members/Ada%20Lovelace?page=3",
+      "dom": "<nav aria-label=\"Library views\">\n<a aria-current=\"page\" data-mol-id=\"list-route-authored\" data-state=\"active\" href=\"/members/Ada%20Lovelace\">\nAuthored entries\n</a>\n<a data-mol-id=\"list-route-saved\" data-state=\"inactive\" href=\"/members/Ada%20Lovelace/saved\">\nSaved entries\n</a>\n</nav>"
+    },
+    {
+      "step": "click saved",
+      "path": "/members/Ada%20Lovelace/saved",
+      "dom": "<nav aria-label=\"Library views\">\n<a data-mol-id=\"list-route-authored\" data-state=\"inactive\" href=\"/members/Ada%20Lovelace\">\nAuthored entries\n</a>\n<a aria-current=\"page\" data-mol-id=\"list-route-saved\" data-state=\"active\" href=\"/members/Ada%20Lovelace/saved\">\nSaved entries\n</a>\n</nav>",
+      "prevented": true,
+      "sameChoices": true
+    },
+    {
+      "step": "click authored",
+      "path": "/members/Ada%20Lovelace",
+      "dom": "<nav aria-label=\"Library views\">\n<a aria-current=\"page\" data-mol-id=\"list-route-authored\" data-state=\"active\" href=\"/members/Ada%20Lovelace\">\nAuthored entries\n</a>\n<a data-mol-id=\"list-route-saved\" data-state=\"inactive\" href=\"/members/Ada%20Lovelace/saved\">\nSaved entries\n</a>\n</nav>",
+      "prevented": true,
+      "sameChoices": true
+    }
+  ],
+  "derives query-selected views and keeps unrelated query values and the hash": [
+    {
+      "step": "mount",
+      "path": "/orders?view=open&page=3&campaign=mail#rows",
+      "dom": "<nav aria-label=\"Library views\">\n<a data-mol-id=\"list-route-all\" data-state=\"inactive\" href=\"/orders?campaign=mail#rows\">\nAll orders\n</a>\n<a aria-current=\"page\" data-mol-id=\"list-route-open\" data-state=\"active\" href=\"/orders?campaign=mail&amp;view=open#rows\">\nOpen orders\n</a>\n</nav>"
+    },
+    {
+      "step": "click all",
+      "path": "/orders?campaign=mail#rows",
+      "dom": "<nav aria-label=\"Library views\">\n<a aria-current=\"page\" data-mol-id=\"list-route-all\" data-state=\"active\" href=\"/orders?campaign=mail#rows\">\nAll orders\n</a>\n<a data-mol-id=\"list-route-open\" data-state=\"inactive\" href=\"/orders?campaign=mail&amp;view=open#rows\">\nOpen orders\n</a>\n</nav>",
+      "prevented": true,
+      "sameChoices": true
+    }
+  ],
+  "restores the URL-selected choice on Back and Forward": [
+    {
+      "step": "mount",
+      "path": "/shelves/reference?page=2",
+      "dom": "<nav aria-label=\"Library views\">\n<a data-mol-id=\"list-route-all\" data-state=\"inactive\" href=\"/library\">\nAll books\n</a>\n<a aria-current=\"page\" data-mol-id=\"list-route-shelf\" data-state=\"active\" href=\"/shelves/reference\">\nThis shelf\n</a>\n</nav>"
+    },
+    {
+      "step": "click all",
+      "path": "/library",
+      "dom": "<nav aria-label=\"Library views\">\n<a aria-current=\"page\" data-mol-id=\"list-route-all\" data-state=\"active\" href=\"/library\">\nAll books\n</a>\n<a data-mol-id=\"list-route-shelf\" data-state=\"inactive\" href=\"/shelves/reference\">\nThis shelf\n</a>\n</nav>",
+      "prevented": true,
+      "sameChoices": true
+    },
+    {
+      "step": "back",
+      "path": "/shelves/reference?page=2",
+      "dom": "<nav aria-label=\"Library views\">\n<a data-mol-id=\"list-route-all\" data-state=\"inactive\" href=\"/library\">\nAll books\n</a>\n<a aria-current=\"page\" data-mol-id=\"list-route-shelf\" data-state=\"active\" href=\"/shelves/reference\">\nThis shelf\n</a>\n</nav>",
+      "sameChoices": true
+    },
+    {
+      "step": "forward",
+      "path": "/library",
+      "dom": "<nav aria-label=\"Library views\">\n<a aria-current=\"page\" data-mol-id=\"list-route-all\" data-state=\"active\" href=\"/library\">\nAll books\n</a>\n<a data-mol-id=\"list-route-shelf\" data-state=\"inactive\" href=\"/shelves/reference\">\nThis shelf\n</a>\n</nav>",
+      "sameChoices": true
+    }
+  ],
+  "uses each destination parameter and a custom pagination key": [
+    {
+      "step": "mount",
+      "path": "/shelves/history?cursorPage=4",
+      "dom": "<nav aria-label=\"Library views\">\n<a data-mol-id=\"list-route-all\" data-state=\"inactive\" href=\"/library\">\nAll books\n</a>\n<a data-mol-id=\"list-route-shelf\" data-state=\"inactive\" href=\"/shelves/reference\">\nThis shelf\n</a>\n</nav>"
+    },
+    {
+      "step": "click shelf",
+      "path": "/shelves/reference",
+      "dom": "<nav aria-label=\"Library views\">\n<a data-mol-id=\"list-route-all\" data-state=\"inactive\" href=\"/library\">\nAll books\n</a>\n<a aria-current=\"page\" data-mol-id=\"list-route-shelf\" data-state=\"active\" href=\"/shelves/reference\">\nThis shelf\n</a>\n</nav>",
+      "prevented": true,
+      "sameChoices": true
+    }
+  ],
+  "distinguishes choices sharing a path pattern with different parameters": [
+    {
+      "step": "mount",
+      "path": "/shelves/history?page=2",
+      "dom": "<nav aria-label=\"Library views\">\n<a data-mol-id=\"list-route-reference\" data-state=\"inactive\" href=\"/shelves/reference\">\nReference\n</a>\n<a aria-current=\"page\" data-mol-id=\"list-route-history\" data-state=\"active\" href=\"/shelves/history\">\nHistory\n</a>\n</nav>"
+    },
+    {
+      "step": "click reference",
+      "path": "/shelves/reference",
+      "dom": "<nav aria-label=\"Library views\">\n<a aria-current=\"page\" data-mol-id=\"list-route-reference\" data-state=\"active\" href=\"/shelves/reference\">\nReference\n</a>\n<a data-mol-id=\"list-route-history\" data-state=\"inactive\" href=\"/shelves/history\">\nHistory\n</a>\n</nav>",
+      "prevented": true,
+      "sameChoices": true
+    }
+  ],
+  "keeps a disabled choice visible without a destination": [
+    {
+      "step": "mount",
+      "path": "/library?page=2",
+      "dom": "<nav aria-label=\"Library views\">\n<a aria-current=\"page\" data-mol-id=\"list-route-all\" data-state=\"active\" href=\"/library\">\nAll books\n</a>\n<span aria-disabled=\"true\" data-mol-id=\"list-route-shelf\" data-state=\"inactive\" role=\"link\">\nThis shelf\n</span>\n</nav>"
+    },
+    {
+      "step": "click shelf",
+      "path": "/library?page=2",
+      "dom": "<nav aria-label=\"Library views\">\n<a aria-current=\"page\" data-mol-id=\"list-route-all\" data-state=\"active\" href=\"/library\">\nAll books\n</a>\n<span aria-disabled=\"true\" data-mol-id=\"list-route-shelf\" data-state=\"inactive\" role=\"link\">\nThis shelf\n</span>\n</nav>",
+      "prevented": false,
+      "sameChoices": true
+    }
+  ],
+  "passes native nav attributes and URL-derived styling": [
+    {
+      "step": "mount",
+      "path": "/library?page=2",
+      "dom": "<nav aria-label=\"Book categories\" id=\"#id0\">\n<a aria-current=\"page\" class=\"chosen\" data-mol-id=\"list-route-all\" data-state=\"active\" href=\"/library\">\nAll books\n</a>\n<a class=\"available\" data-mol-id=\"list-route-shelf\" data-state=\"inactive\" href=\"/shelves/reference\">\nThis shelf\n</a>\n</nav>"
+    }
+  ],
+  "renders the list after the navigation landmark from the same route": [
+    {
+      "step": "mount",
+      "path": "/members/morgan/saved",
+      "dom": "<nav aria-label=\"Member work\">\n<a data-mol-id=\"list-route-open\" data-state=\"inactive\" href=\"/members/morgan\">\nOpen work\n</a>\n<a aria-current=\"page\" data-mol-id=\"list-route-saved\" data-state=\"active\" href=\"/members/morgan/saved\">\nSaved work\n</a>\n</nav>\n<output data-testid=\"children\">\nSigned contract\n</output>"
+    },
+    {
+      "step": "click open",
+      "path": "/members/morgan",
+      "dom": "<nav aria-label=\"Member work\">\n<a aria-current=\"page\" data-mol-id=\"list-route-open\" data-state=\"active\" href=\"/members/morgan\">\nOpen work\n</a>\n<a data-mol-id=\"list-route-saved\" data-state=\"inactive\" href=\"/members/morgan/saved\">\nSaved work\n</a>\n</nav>\n<output data-testid=\"children\">\nDraft contract\n</output>",
+      "prevented": true,
+      "sameChoices": true
+    }
+  ],
+  "decodes a route parameter once, keeping an escaped percent sign literal": [
+    {
+      "step": "mount",
+      "path": "/members/50%25%20off",
+      "dom": "<nav aria-label=\"Library views\">\n<a aria-current=\"page\" data-mol-id=\"list-route-authored\" data-state=\"active\" href=\"/members/50%25%20off\">\nAuthored entries\n</a>\n<a data-mol-id=\"list-route-saved\" data-state=\"inactive\" href=\"/members/50%25%20off/saved\">\nSaved entries\n</a>\n</nav>"
+    },
+    {
+      "step": "click saved",
+      "path": "/members/50%25%20off/saved",
+      "dom": "<nav aria-label=\"Library views\">\n<a data-mol-id=\"list-route-authored\" data-state=\"inactive\" href=\"/members/50%25%20off\">\nAuthored entries\n</a>\n<a aria-current=\"page\" data-mol-id=\"list-route-saved\" data-state=\"active\" href=\"/members/50%25%20off/saved\">\nSaved entries\n</a>\n</nav>",
+      "prevented": true,
+      "sameChoices": true
+    }
+  ],
+  "keeps the filter links while the new selection loads its rows": [
+    {
+      "step": "mount",
+      "path": "/library",
+      "dom": "<nav aria-label=\"Filter books\">\n<a aria-current=\"page\" data-mol-id=\"list-route-all\" data-state=\"active\" href=\"/library\">\nAll books\n</a>\n<a data-mol-id=\"list-route-history\" data-state=\"inactive\" href=\"/library/history\">\nHistory\n</a>\n<a data-mol-id=\"list-route-fiction\" data-state=\"inactive\" href=\"/library/fiction\">\nFiction\n</a>\n</nav>\n<output data-testid=\"children\">\nAll books\n</output>"
+    },
+    {
+      "step": "click history",
+      "path": "/library/history",
+      "dom": "<nav aria-label=\"Filter books\">\n<a data-mol-id=\"list-route-all\" data-state=\"inactive\" href=\"/library\">\nAll books\n</a>\n<a aria-current=\"page\" data-mol-id=\"list-route-history\" data-state=\"active\" href=\"/library/history\">\nHistory\n</a>\n<a data-mol-id=\"list-route-fiction\" data-state=\"inactive\" href=\"/library/fiction\">\nFiction\n</a>\n</nav>\n<output data-testid=\"children\">\nLoading history\n</output>",
+      "prevented": true,
+      "sameChoices": true
+    },
+    {
+      "step": "click fiction",
+      "path": "/library/fiction",
+      "dom": "<nav aria-label=\"Filter books\">\n<a data-mol-id=\"list-route-all\" data-state=\"inactive\" href=\"/library\">\nAll books\n</a>\n<a data-mol-id=\"list-route-history\" data-state=\"inactive\" href=\"/library/history\">\nHistory\n</a>\n<a aria-current=\"page\" data-mol-id=\"list-route-fiction\" data-state=\"active\" href=\"/library/fiction\">\nFiction\n</a>\n</nav>\n<output data-testid=\"children\">\nLoading fiction\n</output>",
+      "prevented": true,
+      "sameChoices": true
+    }
+  ],
+  "leaves a modified click to the browser": [
+    {
+      "step": "mount",
+      "path": "/shelves/reference?page=2",
+      "dom": "<nav aria-label=\"Library views\">\n<a data-mol-id=\"list-route-all\" data-state=\"inactive\" href=\"/library\">\nAll books\n</a>\n<a aria-current=\"page\" data-mol-id=\"list-route-shelf\" data-state=\"active\" href=\"/shelves/reference\">\nThis shelf\n</a>\n</nav>"
+    },
+    {
+      "step": "ctrl-click all",
+      "path": "/shelves/reference?page=2",
+      "dom": "<nav aria-label=\"Library views\">\n<a data-mol-id=\"list-route-all\" data-state=\"inactive\" href=\"/library\">\nAll books\n</a>\n<a aria-current=\"page\" data-mol-id=\"list-route-shelf\" data-state=\"active\" href=\"/shelves/reference\">\nThis shelf\n</a>\n</nav>",
+      "prevented": false,
+      "sameChoices": true
+    }
+  ]
+}

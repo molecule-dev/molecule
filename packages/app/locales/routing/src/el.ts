@@ -25,4 +25,10 @@ export const el: RoutingTranslations = {
   'routing.listRoute.error.page': 'useListRoute: το page πρέπει να είναι θετικός ασφαλής ακέραιος',
   'routing.sveltekit.error.serverHistory':
     'οι μετακινήσεις ιστορικού είναι διαθέσιμες μόνο στο πρόγραμμα περιήγησης: ο δρομολογητής πελάτη του SvelteKit δεν εκτελείται κατά την αποδοχή στην πλευρά του διακομιστή',
+  'routing.angularRouter.error.useMoleculeRouterOutsideRouter':
+    'Το `useMoleculeRouter` πρέπει να καλείται σε περιβάλλον έγχυσης μιας εφαρμογής Angular που παρέχει τον δρομολογητή. Προσθέστε το `provideRouter(routes)` στους παρόχους της εφαρμογής.',
+  'routing.vueRouter.error.useMoleculeRouterOutsideRouter':
+    'Το `useMoleculeRouter` πρέπει να καλείται στο `setup` ενός στοιχείου μιας εφαρμογής Vue με εγκατεστημένο το Vue Router. Εγκαταστήστε το με `app.use(router)`.',
+  'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
+    'Το `useMoleculeRouter` πρέπει να χρησιμοποιείται σε έναν δρομολογητή Solid Router. Τοποθετήστε `Router`, `HashRouter` ή `MemoryRouter`.',
 }

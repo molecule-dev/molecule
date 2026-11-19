@@ -5,13 +5,17 @@
  */
 
 import { Location } from '@angular/common'
-import type { EnvironmentProviders } from '@angular/core'
-import { inject, makeEnvironmentProviders } from '@angular/core'
+import {
+  type EnvironmentProviders,
+  inject,
+  makeEnvironmentProviders,
+  provideEnvironmentInitializer,
+} from '@angular/core'
 import { Router as AngularRouter } from '@angular/router'
 
 import { ROUTER } from '@molecule/app-angular'
 
-import { createAngularRouter } from './provider.js'
+import { bondMoleculeRouter, MOLECULE_ROUTER_CONTEXT, moleculeRouterFor } from './router-context.js'
 import type { AngularRouterOptions } from './types.js'
 
 /**
@@ -23,7 +27,15 @@ import type { AngularRouterOptions } from './types.js'
  * its route config; the molecule options only name the routes molecule should know
  * ({@link Router.navigateTo}, {@link Router.generatePath}).
  *
- * @param options - Molecule route definitions for named routes and route params.
+ * The application's environment initializer bonds the adapter through
+ * `@molecule/app-routing`'s `setRouter` when the app bootstraps (React's
+ * `MoleculeRouterProvider` bonds in its mount effect), so `navigate()`/`getRouter()`
+ * from `@molecule/app-routing` drive the real Angular Router instead of the core's
+ * browser-history fallback. {@link AngularRouterOptions.onRouterReady} runs at that
+ * same moment, once per router.
+ *
+ * @param options - Molecule route definitions for named routes and route params, and the
+ *   optional ready callback.
  * @returns Environment providers.
  *
  * @example
@@ -40,7 +52,17 @@ import type { AngularRouterOptions } from './types.js'
 export const provideMoleculeRouter = (options: AngularRouterOptions = {}): EnvironmentProviders =>
   makeEnvironmentProviders([
     {
-      provide: ROUTER,
-      useFactory: () => createAngularRouter(inject(AngularRouter), inject(Location), options),
+      provide: MOLECULE_ROUTER_CONTEXT,
+      useFactory: () => moleculeRouterFor(inject(AngularRouter), inject(Location), options),
     },
+    {
+      provide: ROUTER,
+      useFactory: () => inject(MOLECULE_ROUTER_CONTEXT),
+    },
+    // Runs at bootstrap, in an injection context, before any component renders: the
+    // caller's navigate()/getRouter() reach the real Angular Router from the first page,
+    // as React's provider bonds in its mount effect.
+    provideEnvironmentInitializer(() => {
+      bondMoleculeRouter(inject(MOLECULE_ROUTER_CONTEXT), options.onRouterReady)
+    }),
   ])

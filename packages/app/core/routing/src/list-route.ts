@@ -9,6 +9,7 @@
 
 import { I18nError } from '@molecule/app-i18n'
 
+import { decodeParam } from './decode-param.js'
 import type {
   ListRouteChange,
   ListRouteNavigate,
@@ -62,21 +63,6 @@ function matchesQuery(search: URLSearchParams, query: QueryParams = {}): boolean
     const actual = search.getAll(key)
     return actual.length === expected.length && actual.every((entry, i) => entry === expected[i])
   })
-}
-
-/**
- * Decodes a matched param. A malformed escape stays a usable literal, as React Router keeps it.
- *
- * @param value - The still-encoded param.
- * @returns The decoded value.
- */
-function decodeParam(value: string): string {
-  try {
-    return decodeURIComponent(value)
-  } catch (_error) {
-    // A malformed incoming URL is still a usable literal filter; do not crash the page.
-    return value
-  }
 }
 
 /**

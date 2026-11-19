@@ -4,7 +4,7 @@
  * @module
  */
 
-import type { RouteDefinition } from '@molecule/app-routing'
+import type { RouteDefinition, Router } from '@molecule/app-routing'
 
 // Re-export core types
 export type {
@@ -35,6 +35,18 @@ export interface AngularRouterOptions {
    * repeat (only) the ones molecule should know by name here.
    */
   routes?: RouteDefinition[]
+
+  /**
+   * Called once with the molecule `Router` this provider bonds.
+   *
+   * `provideMoleculeRouter` bonds the adapter through `@molecule/app-routing`'s
+   * `setRouter` when the application bootstraps, so `navigate()`/`getRouter()` from
+   * `@molecule/app-routing` drive the real Angular Router; this callback runs at that
+   * same moment, once per router — a second provider scope over the same Angular Router
+   * does not invoke it again (React's `MoleculeRouterProvider` keeps one `readyRouter`
+   * ref, this bond keeps one per router).
+   */
+  onRouterReady?: (router: Router) => void
 }
 
 /**

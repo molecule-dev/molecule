@@ -69,10 +69,11 @@ export interface SolidRouterOptions {
   routes?: RouteDefinition[]
 
   /**
-   * The memory history the mounted `<MemoryRouter history={…}>` uses, from
+   * The memory history a Solid Router `<MemoryRouter history={…}>` uses, from
    * {@link createSolidMemoryHistory}: the router reads each entry's state and key from it
-   * and hears its moves as pops. Browser routers (`<Router>`, `<HashRouter>`) need no
-   * option: their entries live in `history.state` and their pops arrive as `popstate`.
+   * and hears its moves as pops. Under the bond's own `MemoryRouter` the history comes
+   * from it, and browser routers (`<Router>`, `<HashRouter>`) need none: their entries
+   * live in `history.state` and their pops arrive as `popstate`.
    */
   history?: SolidMemoryHistory
 }
@@ -130,3 +131,88 @@ export type SolidRouteParamName<Path extends string> = string extends Path
 export type SolidRouteParams<Path extends string> = Readonly<{
   [Name in SolidRouteParamName<Path>]: string | undefined
 }>
+
+/** Characters a link parameter's name may contain, as React Router reads the name. */
+type LinkParamNameChar = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_'
+
+/**
+ * Reads a parameter name one character at a time.
+ *
+ * @template S - The text from the next unread character.
+ * @template Name - The name read so far.
+ */
+type ReadLinkParamName<S extends string, Name extends string> = S extends `${infer C}${infer R}`
+  ? LinkParamNameChar extends `${string}${C}${string}`
+    ? ReadLinkParamName<R, `${Name}${C}`>
+    : Name
+  : Name
+
+/**
+ * The parameters a path declares, with the optional ones marked optional: `:name`,
+ * `:name?` and a trailing splat. This is React Router's {@link SolidPathParam} grammar,
+ * which the `href` of {@link defineRoute} interpolates.
+ *
+ * @template Path - A route path.
+ */
+type LinkPathParams<Path extends string> = Path extends '*'
+  ? { '*': string }
+  : Path extends `${infer Rest}/*`
+    ? { '*': string } & LinkPathParams<Rest>
+    : LinkPathSegments<Path>
+
+/**
+ * The parameters one slash-free segment of a path declares.
+ *
+ * @template Segment - The segment, with no `/`.
+ */
+type LinkPathSegments<Segment extends string> = Segment extends `${infer Left}/${infer Right}`
+  ? LinkPathSegments<Left> & LinkPathSegments<Right>
+  : Segment extends `:${infer Param}?${string}`
+    ? { [Name in ReadLinkParamName<Param, ''>]?: string | null | undefined }
+    : Segment extends `:${infer Param}`
+      ? { [Name in ReadLinkParamName<Param, ''>]: string }
+      : Record<never, string>
+
+/**
+ * The parameter names a route path declares for a link, as React Router reads them:
+ * `:name` and the trailing splat, `*`. A path that is not a literal declares any name.
+ *
+ * @template Path - A route path.
+ */
+export type SolidPathParam<Path extends string> = keyof LinkPathParams<Path> & string
+
+/**
+ * The parameter names whose values a link must supply: every named parameter except an
+ * optional `:name?`, which may be left out.
+ *
+ * @template Path - A route path.
+ */
+type SolidRequiredLinkKey<Path extends string> = Path extends `${infer Segment}/${infer Rest}`
+  ? SolidRequiredLinkKey<Segment> | SolidRequiredLinkKey<Rest>
+  : Path extends `:${string}?${string}`
+    ? never
+    : SolidPathParam<Path>
+
+/**
+ * The parameters a link for a path takes: every required parameter's value, and an
+ * optional parameter's value or `null` to leave it out.
+ *
+ * @template Path - A route path.
+ */
+export type SolidLinkParams<Path extends string> = Record<SolidRequiredLinkKey<Path>, string> &
+  Partial<Record<Exclude<SolidPathParam<Path>, SolidRequiredLinkKey<Path>>, string | null>>
+
+/**
+ * The arguments a path's `href` takes: the required parameters when the path declares
+ * any, an optional parameter object when every parameter is optional, and none at all
+ * for a path without parameters. A path that is not a literal accepts any parameter map.
+ *
+ * @template Path - A route path.
+ */
+export type SolidLinkArgs<Path extends string> = string extends Path
+  ? [params?: Record<string, string | null | undefined>]
+  : [SolidPathParam<Path>] extends [never]
+    ? []
+    : [SolidRequiredLinkKey<Path>] extends [never]
+      ? [params?: SolidLinkParams<Path>]
+      : [params: SolidLinkParams<Path>]

@@ -9,8 +9,9 @@
  * @module
  */
 
-import { t } from '@molecule/app-i18n'
+import { I18nError } from '@molecule/app-i18n'
 
+import { decodeParams } from './decode-param.js'
 import type {
   GuardResult,
   NavigateOptions,
@@ -76,10 +77,8 @@ export const formatLocation = (
   location: Pick<RouteLocation, 'pathname' | 'search' | 'hash'>,
 ): string => location.pathname + location.search + location.hash
 
-const routeNotFound = (name: string): Error =>
-  new Error(
-    t('routing.error.routeNotFound', { name }, { defaultValue: 'Route "{{name}}" not found' }),
-  )
+const routeNotFound = (name: string): I18nError =>
+  new I18nError('routing.error.routeNotFound', { name }, 'Route "{{name}}" not found')
 
 /**
  * Runs the guards in order. Stays synchronous while every guard answers synchronously,
@@ -157,8 +156,11 @@ export const createHistoryRouter = (
   const resolveTarget = (path: string, navigateOptions: NavigateOptions): string => {
     const current = history.location()
     const target = parseLocation(path)
+    // A target that is only a query or a hash stays on the current page, as React Router's
+    // `navigate('?tab=profile')` does; its query is dropped for a hash alone, as there.
+    const samePage = path.startsWith('?') || path.startsWith('#')
     return formatLocation({
-      pathname: target.pathname,
+      pathname: samePage ? current.pathname : target.pathname,
       search: target.search || (navigateOptions.preserveQuery ? current.search : ''),
       hash: target.hash || (navigateOptions.preserveHash ? current.hash : ''),
     })
@@ -191,11 +193,15 @@ export const createHistoryRouter = (
 
     getParams<T extends RouteParams = RouteParams>(): T {
       const native = history.params?.()
-      if (native) return native as T
+      // A native router that matched no route, or a route without params, reports `{}`. The
+      // registered definitions answer then, as they do in React Router's bond above a matched
+      // `<Route>`, where `useParams()` is empty.
+      if (native && Object.keys(native).length > 0) return native as T
+      // Matched on the raw pathname, so decoded here, as every native router's params are.
       const { pathname } = history.location()
       for (const route of flatRoutes) {
         const match = matchPath<T>(route.path, pathname, true)
-        if (match) return match.params
+        if (match) return decodeParams(match.params)
       }
       return {} as T
     },
@@ -248,6 +254,8 @@ export const createHistoryRouter = (
     ): RouteMatch<Params> | null => matchPath<Params>(pattern, pathname),
 
     generatePath: namedPath,
+
+    createHref: (path: string) => history.createHref?.(path) ?? path,
 
     subscribe(listener: RouteChangeListener): () => void {
       listeners.add(listener)

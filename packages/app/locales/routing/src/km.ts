@@ -24,4 +24,10 @@ export const km: RoutingTranslations = {
   'routing.listRoute.error.page': 'useListRoute: page ត្រូវតែជាចំនួនគត់សុវត្ថិភាពវិជ្ជមាន',
   'routing.sveltekit.error.serverHistory':
     'ការផ្លាស់ទីប្រវត្តិមានតែក្នុងកម្មវិធីរុករកប៉ុណ្ណោះ៖ រ៉ោតទ័រ client របស់ SvelteKit មិនដំណើរការក្នុងអំឡុងពេលបង្ហាញនៅផ្នែក server ទេ',
+  'routing.angularRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` ត្រូវតែហៅនៅក្នុងបរិបទចាក់បញ្ចូលនៃកម្មវិធី Angular ដែលផ្តល់រ៉ោតទ័រ។ បន្ថែម `provideRouter(routes)` ទៅកាន់អ្នកផ្តល់របស់កម្មវិធី។',
+  'routing.vueRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` ត្រូវតែហៅនៅក្នុង `setup` នៃសមាសភាគនៃកម្មវិធី Vue ដែលមាន Vue Router ដំឡើង។ ដំឡើងវាដោយ `app.use(router)`។',
+  'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` ត្រូវតែប្រើនៅក្នុងរ៉ោតទ័រ Solid Router។ ម៉ោន `Router`, `HashRouter` ឬ `MemoryRouter`។',
 }

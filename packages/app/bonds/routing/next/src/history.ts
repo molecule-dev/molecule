@@ -39,9 +39,10 @@ export interface NextHistoryOptions {
 export interface NextHistory extends RouterHistory {
   /**
    * The identity of the current history entry — the `key` of `location()`. It is
-   * written into the entry when this history commits it, so a back/forward move onto an
-   * old entry returns the key that entry had; entries written by someone else (the
-   * document's first load) get this history's counter, which changes per commit.
+   * written into the entry once Next has written it, so a back/forward move onto an old
+   * entry returns the key that entry had; an entry someone else wrote gets a fresh key when
+   * it is first read, and one without any state (before Next's first write) this history's
+   * counter.
    *
    * @returns The entry key.
    */
@@ -57,6 +58,13 @@ export interface NextHistory extends RouterHistory {
    */
   pathKey(): string
 
+  /**
+   * Brings the current history entry's key and state up to date (see
+   * {@link createNextHistory}). Every read does it first; the hook also calls it after each
+   * commit, so an entry Next rewrote in place gets its key and state back before the
+   * user leaves it.
+   */
+  syncEntry(): void
   /**
    * Records that a `popstate` event arrived, so the next
    * {@link NextHistory.notifyAfterCommit} reports the move as a `'pop'`. The hook
@@ -183,6 +191,33 @@ const routeParamsOf = (params: NextParams | undefined): RouteParams => {
 }
 
 /**
+ * The basePath a Next build compiles into its client code: `next.config`'s `basePath`,
+ * which webpack and Turbopack both define as `process.env.__NEXT_ROUTER_BASEPATH`
+ * (v16.0.7 `build/define-env.js` line 131), and which `next/link`'s `addBasePath` and
+ * `removeBasePath` read (`client/add-base-path.js` line 13). The bundler replaces the
+ * expression with the value, so it needs no `process` at run time.
+ *
+ * @returns The compiled basePath, or `undefined` outside a Next build.
+ */
+const compiledBasePath = (): string | undefined => {
+  try {
+    return process.env.__NEXT_ROUTER_BASEPATH
+  } catch (_error) {
+    // No bundler replaced the expression and this runtime has no `process` (a browser
+    // bundle built without Next): no basePath was compiled in.
+    return undefined
+  }
+}
+
+/**
+ * The basePath links and navigations carry: the config's, else the one Next compiled in.
+ *
+ * @param config - The current hook values.
+ * @returns The basePath, or `''` for none.
+ */
+const basePathOf = (config: NextRouterConfig): string => config.basePath ?? compiledBasePath() ?? ''
+
+/**
  * The pathname the location reports: the hook value when given, otherwise the document's
  * own pathname (Next's `usePathname()` returns null during a fallback render; the
  * document URL is the committed location).
@@ -192,7 +227,13 @@ const routeParamsOf = (params: NextParams | undefined): RouteParams => {
  */
 const pathnameOf = (config: NextRouterConfig): string => {
   if (config.pathname !== undefined) return config.pathname
-  return typeof window !== 'undefined' ? window.location.pathname : '/'
+  if (typeof window === 'undefined') return '/'
+  // `usePathname()` leaves the basePath out; so does the document's pathname read here.
+  const { pathname } = window.location
+  const base = basePathOf(config)
+  if (base && (pathname === base || pathname.startsWith(`${base}/`)))
+    return pathname.slice(base.length) || '/'
+  return pathname
 }
 
 /**
@@ -206,33 +247,55 @@ const rawHistoryState = (): unknown => {
   return window.history.state
 }
 
+/** The key and state one history entry carries, and the URL it was seen at. */
+interface EntryMeta {
+  /** The entry's `pathname + search + hash` in the document (basePath included). */
+  url: string
+  /** The key naming the entry ({@link MOLECULE_KEY_KEY}). */
+  key: string
+  /** The app's state for the entry ({@link MOLECULE_STATE_KEY}), or `undefined`. */
+  state: unknown
+}
+
+/** A navigation this history started whose entry Next has not written yet. */
+interface PendingEntry extends EntryMeta {
+  /** `window.history.state` when the navigation started: Next's write replaces it. */
+  before: unknown
+}
+
 /**
- * Writes this history's entry keys into the current history entry, after Next wrote it:
- * the entry's {@link MOLECULE_KEY_KEY} — always, so the entry is named — and the app's
- * state under {@link MOLECULE_STATE_KEY} when one was given. Next's own `push`/`replace`
- * take no app state (their options are scroll and prefetch only), so the state arrives
- * through this write; the merge keeps the keys Next already put on the fresh entry
- * (`__NA`, `__PRIVATE_NEXTJS_INTERNALS_TREE` — `copyNextJsInternalHistoryState`,
- * v16.0.7 lines 119–133), so its pops keep working. Without a History API to write
- * with (outside the browser, or a full-page `window.location` navigation where nothing
- * persists) there is nothing to name, so it does nothing.
+ * The document's `pathname + search + hash`, or `''` outside the browser.
  *
- * @param state - The state handed to `push`/`replace`, or `undefined`.
- * @param key - The key naming this entry (the history's current counter value).
+ * @returns The URL of the current history entry.
  */
-const writeEntryMeta = (state: unknown, key: string): void => {
-  if (
-    typeof window === 'undefined' ||
-    !window.history ||
-    typeof window.history.replaceState !== 'function'
-  ) {
-    return
-  }
+const documentUrl = (): string =>
+  typeof window === 'undefined'
+    ? ''
+    : window.location.pathname + window.location.search + window.location.hash
+
+/**
+ * Whether there is a History API to name entries with: not outside the browser (SSR), nor
+ * on a partial `window` stand-in.
+ *
+ * @returns `true` when `window.history.replaceState` can be called.
+ */
+const canWriteEntries = (): boolean =>
+  typeof window !== 'undefined' && typeof window.history?.replaceState === 'function'
+
+/**
+ * Merges an entry's key and state into the current history entry, keeping the keys Next
+ * put there (`__NA`, `__PRIVATE_NEXTJS_INTERNALS_TREE`) so its pops keep working. Only an
+ * entry that already holds an object is written: Next ignores a pop onto an entry without
+ * state (v16.0.7 `onPopState`), and writing one would make it reload the page instead.
+ *
+ * @param meta - The key and state to write.
+ */
+const writeEntry = (meta: EntryMeta): void => {
   const current = rawHistoryState()
-  const entry: Record<string, unknown> =
-    typeof current === 'object' && current !== null ? { ...current } : {}
-  entry[MOLECULE_KEY_KEY] = key
-  if (state !== undefined) entry[MOLECULE_STATE_KEY] = state
+  if (typeof current !== 'object' || current === null) return
+  const entry: Record<string, unknown> = { ...current, [MOLECULE_KEY_KEY]: meta.key }
+  if (meta.state === undefined) delete entry[MOLECULE_STATE_KEY]
+  else entry[MOLECULE_STATE_KEY] = meta.state
   window.history.replaceState(entry, '')
 }
 
@@ -241,6 +304,19 @@ const writeEntryMeta = (state: unknown, key: string): void => {
  * React hook passes a getter over its ref (the location is current at every call) and
  * lets its render cycle notify; `createNextRouter` passes its config snapshot and
  * notifies right after the native call it made.
+ *
+ * Next's `push`/`replace` take no app state, and Next writes the new history entry only
+ * when the navigation commits, with none of the entry's own state
+ * (`preserveCustomHistoryState: false` in its navigate, refresh and server-action
+ * reducers; v16.0.7 `HistoryUpdater`). So a navigation's key and state wait as a pending
+ * entry, and every read of this history first brings the current entry up to date:
+ *
+ * - a pending navigation whose entry Next has written (`history.state` is a new object at
+ *   the target URL) gets its key and state;
+ * - an entry Next rewrote in place (`router.refresh()`, a server action, a `<Link>` to the
+ *   current URL) gets back the key and state it had;
+ * - an entry nobody named (a `<Link>` to another URL, a redirect, app code's
+ *   `pushState`) gets a fresh key and no state.
  *
  * @param readConfig - Reads the hook values at the time of the call.
  * @param options - `notifyOnNativeNavigation` for the snapshot caller.
@@ -255,8 +331,39 @@ export const createNextHistory = (
   let entryKeyValue = '0'
   let popPending = false
   let mounted = false
+  let pending: PendingEntry | undefined
+  let current: EntryMeta | undefined
+
+  const syncEntry = (): void => {
+    if (!canWriteEntries()) return
+    const entry = rawHistoryState()
+    if (typeof entry !== 'object' || entry === null) return
+    // Next has not written the navigation's entry yet.
+    if (pending && entry === pending.before) return
+    const url = documentUrl()
+    const started = pending
+    pending = undefined
+    if (started && started.url === url) {
+      current = { url, key: started.key, state: started.state }
+      writeEntry(current)
+      return
+    }
+    const fields = entry as Record<string, unknown>
+    const key = fields[MOLECULE_KEY_KEY]
+    if (typeof key === 'string') {
+      current = { url, key, state: fields[MOLECULE_STATE_KEY] }
+      return
+    }
+    if (!started && current && current.url === url) {
+      writeEntry(current)
+      return
+    }
+    current = { url, key: String(++keyCounter), state: undefined }
+    writeEntry(current)
+  }
 
   const location = (): RouteLocation => {
+    syncEntry()
     const config = readConfig()
     const entry = rawHistoryState()
     return {
@@ -271,17 +378,28 @@ export const createNextHistory = (
   }
 
   const navigate = (path: string, replace: boolean, state?: unknown): void => {
+    syncEntry()
     const config = readConfig()
-    entryKeyValue = String(++keyCounter)
+    // The URL Next writes: `router.push` puts the basePath first.
+    const url = basePathOf(config) + path
     if (config.navigation) {
+      if (canWriteEntries()) {
+        const target = new URL(url, window.location.href)
+        pending = {
+          url: target.pathname + target.search + target.hash,
+          key: String(++keyCounter),
+          state,
+          before: rawHistoryState(),
+        }
+      }
       if (replace) config.navigation.replace(path)
       else config.navigation.push(path)
     } else if (typeof window !== 'undefined') {
-      // No App Router handed to us: a full-page navigation, like the previous bond.
-      if (replace) window.location.replace(path)
-      else window.location.href = path
+      // No App Router handed to us: a full-page navigation, like the previous bond. The new
+      // document starts with an empty history entry, so no key or state can reach it.
+      if (replace) window.location.replace(url)
+      else window.location.href = url
     }
-    writeEntryMeta(state, entryKeyValue)
     if (options.notifyOnNativeNavigation) {
       for (const listener of [...listeners]) listener(replace ? 'replace' : 'push')
     }
@@ -311,7 +429,15 @@ export const createNextHistory = (
       }
     },
 
-    entryKey: () => entryKeyOf(rawHistoryState(), entryKeyValue),
+    // Next's `<Link>` renders `addBasePath(href)`.
+    createHref: (path) => basePathOf(readConfig()) + path,
+
+    entryKey: () => {
+      syncEntry()
+      return entryKeyOf(rawHistoryState(), entryKeyValue)
+    },
+
+    syncEntry,
 
     pathKey: () => {
       const { pathname, search, hash } = location()

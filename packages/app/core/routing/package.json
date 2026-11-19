@@ -14,6 +14,10 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
+    },
+    "./bond-utilities": {
+      "types": "./dist/bond-utilities.d.ts",
+      "import": "./dist/bond-utilities.js"
     }
   },
   "files": [

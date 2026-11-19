@@ -24,4 +24,10 @@ export const is: RoutingTranslations = {
   'routing.listRoute.error.page': 'useListRoute: page verður að vera jákvæð örugg heiltala',
   'routing.sveltekit.error.serverHistory':
     'historíuhreyfingar eru aðeins tiltækar í vafranum: biðlaraleiðari SvelteKit keyrir ekki við teiknun á þjóni',
+  'routing.angularRouter.error.useMoleculeRouterOutsideRouter':
+    'Kalla verður `useMoleculeRouter` í innsprautunarumhverfi Angular forrits sem útvegar leiðarann. Bættu `provideRouter(routes)` við veitendur forritsins.',
+  'routing.vueRouter.error.useMoleculeRouterOutsideRouter':
+    'Kalla verður `useMoleculeRouter` í `setup` íhlutar Vue forrits með Vue Router uppsett. Settu það upp með `app.use(router)`.',
+  'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` verður að nota innan Solid Router leiðara. Tengdu `Router`, `HashRouter` eða `MemoryRouter`.',
 }

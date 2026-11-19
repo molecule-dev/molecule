@@ -23,4 +23,10 @@ export const ar: RoutingTranslations = {
   'routing.listRoute.error.page': 'useListRoute: يجب أن يكون page عددًا صحيحًا آمنًا موجبًا',
   'routing.sveltekit.error.serverHistory':
     'حركات السجل متاحة في المتصفح فقط: موجّه عميل SvelteKit لا يعمل أثناء التصيير من جهة الخادم',
+  'routing.angularRouter.error.useMoleculeRouterOutsideRouter':
+    'يجب استدعاء `useMoleculeRouter` في سياق حقن لتطبيق Angular يوفر الموجه. أضف `provideRouter(routes)` إلى موفري التطبيق.',
+  'routing.vueRouter.error.useMoleculeRouterOutsideRouter':
+    'يجب استدعاء `useMoleculeRouter` داخل `setup` لمكوّن في تطبيق Vue مثبت عليه Vue Router. ثبّته باستخدام `app.use(router)`.',
+  'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
+    'يجب استخدام `useMoleculeRouter` داخل موجه Solid Router. قم بتثبيت `Router` أو `HashRouter` أو `MemoryRouter`.',
 }

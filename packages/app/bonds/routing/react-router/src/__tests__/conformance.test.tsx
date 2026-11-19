@@ -4,19 +4,34 @@
  * React Router: once under `MemoryRouter`, and once under `BrowserRouter` over jsdom's
  * `window.history`. The molecule router is the one `MoleculeRouterProvider` builds and
  * hands to `onRouterReady`; the native side is React Router's own hooks and history.
+ *
+ * This package's `ListRouteNav` is the reference for the kit's ListRouteNav DOM cases:
+ * `RECORD_GOLDENS=1 npx vitest run src/__tests__/conformance.test.tsx` records them.
  */
-import { act, type ReactElement, useEffect } from 'react'
+import { act, type ReactElement, useEffect, useState } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
-import { BrowserRouter, MemoryRouter, Route, Routes, useLocation, useNavigate } from 'react-router'
+import {
+  BrowserRouter,
+  Link,
+  MemoryRouter,
+  Route,
+  Routes,
+  useLocation,
+  useNavigate,
+} from 'react-router'
 
 import {
+  type ListRouteNavMount,
+  listRouteNavRoutes,
   type RouterHarness,
   type RouterHarnessFactory,
+  runListRouteNavConformance,
   runRouterConformance,
 } from '@molecule/app-framework-conformance/routing'
 import type { Router } from '@molecule/app-routing'
 
 import { MoleculeRouterProvider } from '../hooks.js'
+import { ListRouteNav } from '../ListRouteNav.js'
 
 // React 19 reports updates outside `act()` while a test environment is declared; the
 // harness drives every navigation through `act()` or `settle()`.
@@ -55,17 +70,36 @@ function Capture(props: { onCapture: (capture: NativeCapture) => void }): null {
 }
 
 /**
+ * Renders React Router's own `<Link>` to the path the harness asks about, so
+ * `nativeHref` reads the href React Router writes.
+ *
+ * @param props - The callback that receives the setter of the probed path.
+ * @returns The link, once a path is asked about.
+ */
+function HrefProbe(props: {
+  onSetter: (set: (path: string) => void) => void
+}): ReactElement | null {
+  const [to, setTo] = useState<string | null>(null)
+  const { onSetter } = props
+  useEffect(() => {
+    onSetter(setTo)
+  }, [onSetter])
+  return to === null ? null : <Link to={to} data-href-probe="" />
+}
+
+/**
  * How one conformance run mounts its native router and drives it from the outside.
  */
 interface NativeRouterSetup {
   /**
-   * Wraps the app in the native router, starting at `initialPath`.
+   * Wraps the app in the native router, starting at `initialPath` under `base`.
    *
    * @param children - The provider and the capture child.
-   * @param initialPath - Where the native router starts.
+   * @param initialPath - Where the native router starts, within the app.
+   * @param base - The basename (`''` for none).
    * @returns The router element to render.
    */
-  element: (children: ReactElement, initialPath: string) => ReactElement
+  element: (children: ReactElement, initialPath: string, base: string) => ReactElement
 
   /**
    * Moves the native router back one entry, as the browser's back button does.
@@ -75,11 +109,12 @@ interface NativeRouterSetup {
   nativeBack: (capture: NativeCapture) => void
 
   /**
-   * Points the native router at `initialPath` before the render (jsdom's URL).
+   * Points the native router at `initialPath` under `base` before the render (jsdom's URL).
    *
-   * @param initialPath - Where the native router starts.
+   * @param initialPath - Where the native router starts, within the app.
+   * @param base - The basename (`''` for none).
    */
-  prepare?: (initialPath: string) => void
+  prepare?: (initialPath: string, base: string) => void
 
   /**
    * Restores the native state the run changed, at teardown.
@@ -98,14 +133,13 @@ interface NativeRouterSetup {
  */
 const createHarnessOver =
   (native: NativeRouterSetup): RouterHarnessFactory =>
-  (initialPath) => {
-    native.prepare?.(initialPath)
+  (initialPath, { base, container }) => {
+    native.prepare?.(initialPath, base)
 
     let bonded: Router | undefined
     let root: Root | undefined
+    let probe: ((path: string) => void) | undefined
     const capture: { current: NativeCapture | undefined } = { current: undefined }
-    const container = document.createElement('div')
-    document.body.appendChild(container)
 
     const app = (
       <MoleculeRouterProvider
@@ -118,8 +152,15 @@ const createHarnessOver =
             capture.current = value
           }}
         />
+        <HrefProbe
+          onSetter={(set) => {
+            probe = set
+          }}
+        />
         <Routes>
           <Route path="/users/:id" element={null} />
+          <Route path="/one" element={<p>page one</p>} />
+          <Route path="/two" element={<p>page two</p>} />
           <Route path="*" element={null} />
         </Routes>
       </MoleculeRouterProvider>
@@ -127,7 +168,7 @@ const createHarnessOver =
 
     act(() => {
       root = createRoot(container)
-      root.render(native.element(app, initialPath))
+      root.render(native.element(app, initialPath, base))
     })
 
     const currentCapture = (): NativeCapture => {
@@ -150,12 +191,19 @@ const createHarnessOver =
         const { pathname, search, hash } = currentCapture().location
         return pathname + search + hash
       },
+      nativeHref: (path) => {
+        act(() => {
+          probe?.(path)
+        })
+        const link = container.querySelector('[data-href-probe]')
+        if (!link) throw new Error('React Router never rendered the href probe')
+        return link.getAttribute('href') ?? ''
+      },
       settle: () => act(async () => {}),
       teardown: () => {
         act(() => {
           root?.unmount()
         })
-        container.remove()
         native.restore?.()
       },
     }
@@ -165,8 +213,10 @@ const createHarnessOver =
 runRouterConformance(
   'react-router (MemoryRouter)',
   createHarnessOver({
-    element: (children, initialPath) => (
-      <MemoryRouter initialEntries={[initialPath]}>{children}</MemoryRouter>
+    element: (children, initialPath, base) => (
+      <MemoryRouter basename={base || undefined} initialEntries={[base + initialPath]}>
+        {children}
+      </MemoryRouter>
     ),
     nativeBack: (capture) => {
       act(() => {
@@ -179,9 +229,11 @@ runRouterConformance(
 runRouterConformance(
   'react-router (BrowserRouter over jsdom history)',
   createHarnessOver({
-    element: (children) => <BrowserRouter>{children}</BrowserRouter>,
-    prepare: (initialPath) => {
-      window.history.replaceState(null, '', initialPath)
+    element: (children, _initialPath, base) => (
+      <BrowserRouter basename={base || undefined}>{children}</BrowserRouter>
+    ),
+    prepare: (initialPath, base) => {
+      window.history.replaceState(null, '', base + initialPath)
     },
     nativeBack: () => {
       window.history.back()
@@ -191,3 +243,63 @@ runRouterConformance(
     },
   }),
 )
+
+/**
+ * Mounts this package's `ListRouteNav` under a `MemoryRouter` declaring the kit's routes,
+ * every one rendering the same `ListRouteNav`, with no molecule provider.
+ *
+ * @param container - Where the app renders.
+ * @param initialPath - Where the router starts.
+ * @param props - The case's props.
+ * @returns The mounted nav.
+ */
+const mountListRouteNav: ListRouteNavMount = async (container, initialPath, props) => {
+  const capture: { current: NativeCapture | undefined } = { current: undefined }
+  const { attrs, children, ...rest } = props
+  const nav = (
+    <ListRouteNav {...attrs} {...rest}>
+      {children && ((route) => <output data-testid="children">{children(route)}</output>)}
+    </ListRouteNav>
+  )
+  let root: Root | undefined
+  act(() => {
+    root = createRoot(container)
+    root.render(
+      <MemoryRouter initialEntries={[initialPath]}>
+        <Capture
+          onCapture={(value) => {
+            capture.current = value
+          }}
+        />
+        <Routes>
+          {listRouteNavRoutes.map((path) => (
+            <Route key={path} path={path} element={nav} />
+          ))}
+        </Routes>
+      </MemoryRouter>,
+    )
+  })
+  const current = (): NativeCapture => {
+    if (!capture.current) throw new Error('React Router never rendered the capture child')
+    return capture.current
+  }
+  return {
+    nativePath: () => {
+      const { pathname, search, hash } = current().location
+      return pathname + search + hash
+    },
+    nativeBack: () => current().navigate(-1),
+    nativeForward: () => current().navigate(1),
+    perform: (action) =>
+      act(async () => {
+        await action()
+      }),
+    unmount: async () => {
+      act(() => {
+        root?.unmount()
+      })
+    },
+  }
+}
+
+runListRouteNavConformance('react-router', mountListRouteNav, { reference: true })

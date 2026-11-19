@@ -24,4 +24,10 @@ export const ja: RoutingTranslations = {
   'routing.listRoute.error.page': 'useListRoute: page は正の安全な整数である必要があります',
   'routing.sveltekit.error.serverHistory':
     'history の移動はブラウザーでのみ利用できます: SvelteKit のクライアントルーターはサーバーサイドレンダリング中には実行されません',
+  'routing.angularRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` は、ルーターを提供する Angular アプリのインジェクションコンテキスト内で呼び出す必要があります。アプリのプロバイダーに `provideRouter(routes)` を追加してください。',
+  'routing.vueRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` は、Vue Router をインストールした Vue アプリのコンポーネントの `setup` 内で呼び出す必要があります。`app.use(router)` でインストールしてください。',
+  'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` は Solid Router のルーター内で使用する必要があります。`Router`、`HashRouter`、または `MemoryRouter` をマウントしてください。',
 }

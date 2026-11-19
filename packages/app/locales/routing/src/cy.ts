@@ -25,4 +25,10 @@ export const cy: RoutingTranslations = {
   'routing.listRoute.error.page': 'useListRoute: rhaid i page fod yn gyfanrif diogel cadarnhaol',
   'routing.sveltekit.error.serverHistory':
     'mae symudiadau hanes ar gael yn y porwr yn unig: nid yw llwybrydd cleient SvelteKit yn rhedeg wrth ganu ar y gweinydd',
+  'routing.angularRouter.error.useMoleculeRouterOutsideRouter':
+    "Rhaid galw `useMoleculeRouter` mewn cyd-destun chwistrellu o ap Angular sy'n darparu'r llwybrydd. Ychwanegwch `provideRouter(routes)` at ddarparwyr yr ap.",
+  'routing.vueRouter.error.useMoleculeRouterOutsideRouter':
+    "Rhaid galw `useMoleculeRouter` yn `setup` cydran o ap Vue sydd â Vue Router wedi'i osod. Gosodwch ef gyda `app.use(router)`.",
+  'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
+    'Rhaid defnyddio `useMoleculeRouter` o fewn llwybrydd Solid Router. Mowntiwch `Router`, `HashRouter` neu `MemoryRouter`.',
 }

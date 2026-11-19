@@ -23,4 +23,10 @@ export const sk: RoutingTranslations = {
   'routing.listRoute.error.page': 'useListRoute: page musí byť kladné bezpečné celé číslo',
   'routing.sveltekit.error.serverHistory':
     'posuny v histórii sú k dispozícii iba v prehliadači: klientský router SvelteKit sa pri vykresľovaní na serveri nespúšťa',
+  'routing.angularRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` sa musí volať v kontexte injektáže aplikácie Angular, ktorá poskytuje router. Pridajte `provideRouter(routes)` do poskytovateľov aplikácie.',
+  'routing.vueRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` sa musí volať v `setup` komponentu aplikácie Vue s nainštalovaným Vue Router. Nainštalujte ho pomocou `app.use(router)`.',
+  'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` sa musí použiť v rámci routera Solid Router. Pripojte `Router`, `HashRouter` alebo `MemoryRouter`.',
 }

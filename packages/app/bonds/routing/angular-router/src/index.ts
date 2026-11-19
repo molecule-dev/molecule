@@ -33,6 +33,23 @@
  * constant is the core browser router fallback (an Angular-backed router needs a
  * booted injector, which an import-time constant cannot have).
  *
+ * `useMoleculeRouter`, `useMoleculeQuery`, `useMoleculeNavigate` and `useIsActive` are
+ * React's routing hooks under React's names: they work inside any Angular application
+ * whose injector has Angular's `Router` (`provideRouter(routes)`, or `provideRouter` plus
+ * `provideLocationMocks()` for a memory history), with or without
+ * {@link provideMoleculeRouter} — React's hooks never need their provider either. Call
+ * them in an injection context; the two whose answer follows the URL return signals.
+ * {@link lazyPage} is React's `lazyPage` under React's name: a route page loaded on
+ * demand, replaced at once when the URL moves and showing its own `fallback` until its
+ * code arrives — where `loadComponent` makes the router hold the previous page. Angular
+ * page props are the wrapper's `props` input.
+ * {@link ListRouteNav} is React's `ListRouteNav` as `<nav mol-list-route-nav>`: every
+ * declared list view is one of its own anchors, and the URL selects the active choice.
+ * Mount {@link provideMoleculeRouter} to bond the adapter for `@molecule/app-routing`'s
+ * `navigate()`/`getRouter()`, to name routes, or to receive `onRouterReady`. A router a
+ * hook created without a provider stays local, so several of them cannot overwrite the
+ * global bond.
+ *
  * A route with parameters? Declare its page with `defineRoute` and read its parameters with
  * `injectRouteParams`. The route path is the source of truth for the parameter names (`:name`;
  * Angular paths have no optional parameters):
@@ -52,6 +69,13 @@
  */
 
 export * from './define-route.js'
+export * from './hooks.js'
+export * from './lazy-page.js'
+export * from './list-route-nav.js'
+export * from './list-types.js'
 export * from './provider.js'
 export * from './providers.js'
 export * from './types.js'
+export * from './use-consumed-search-param.js'
+export * from './use-list-route.js'
+export * from './utilities.js'

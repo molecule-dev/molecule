@@ -18,8 +18,11 @@ import { createNextClient, useNextClient } from './next-client.js'
 
 Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
 
-/** The routes the native stand-in declares: `/users/:id` plus a catch-all, so any path is routable. */
-const routes = [{ path: '/users/:id' }, { path: '*' }]
+/** The routes the native stand-in declares: `/users/:id`, the two pages, and a catch-all. */
+const routes = [{ path: '/users/:id' }, { path: '/one' }, { path: '/two' }, { path: '*' }]
+
+/** The page each routed path renders, as the app's page files would. */
+const pages: Record<string, string> = { '/one': 'page one', '/two': 'page two' }
 
 /** The router the rendered bridge bonded; set inside the `act` that mounts it. */
 let bridged: Router | undefined
@@ -36,14 +39,14 @@ function Bridge(): ReactNode {
   useEffect(() => {
     bridged = router
   }, [router])
-  return null
+  return pages[pathname] ? createElement('p', null, pages[pathname]) : null
 }
 
-runRouterConformance('next', (initialPath) => {
-  const client = createNextClient({ initialPath, routes })
-  const host = document.createElement('div')
-  document.body.append(host)
-  const root: Root = createRoot(host)
+runRouterConformance('next', (initialPath, { base, container }) => {
+  // A Next build compiles `next.config`'s basePath in as this define; the app passes none.
+  process.env.__NEXT_ROUTER_BASEPATH = base
+  const client = createNextClient({ initialPath, routes, basePath: base })
+  const root: Root = createRoot(container)
   act(() => {
     // `createElement`, not JSX: this package's tsconfig sets no `jsx` option, so the
     // test type-checks as plain `.ts`.
@@ -64,6 +67,7 @@ runRouterConformance('next', (initialPath) => {
       })
     },
     nativePath: () => client.path(),
+    nativeHref: (path) => client.href(path),
     settle: async () => {
       await act(async () => {})
     },
@@ -71,9 +75,9 @@ runRouterConformance('next', (initialPath) => {
       act(() => {
         root.unmount()
       })
-      host.remove()
       client.destroy()
       bridged = undefined
+      delete process.env.__NEXT_ROUTER_BASEPATH
       // Hand jsdom's window back the way this client found it.
       window.history.replaceState(null, '', '/')
     },

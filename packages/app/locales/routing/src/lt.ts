@@ -27,4 +27,10 @@ export const lt: RoutingTranslations = {
     'useListRoute: page turi būti teigiamas saugus sveikasis skaičius',
   'routing.sveltekit.error.serverHistory':
     'istorijos perkėlimai prieinami tik naršyklėje: SvelteKit kliento maršrutizatorius neveikia atvaizduojant serveryje',
+  'routing.angularRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` turi būti iškviečiamas Angular programos, kuri teikia maršrutizatorių, įterpimo kontekste. Pridėkite `provideRouter(routes)` prie programos tiekėjų.',
+  'routing.vueRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` turi būti iškviečiamas Vue programos, kurioje įdiegtas Vue Router, komponento `setup` dalyje. Įdiekite jį su `app.use(router)`.',
+  'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
+    '„Solid Router“ maršrutizatoriuje turi būti naudojamas `useMoleculeRouter` . Prijunkite `Router`, `HashRouter` arba `MemoryRouter`.',
 }

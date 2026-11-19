@@ -24,4 +24,10 @@ export const lv: RoutingTranslations = {
   'routing.listRoute.error.page': 'useListRoute: page jābūt pozitīvam drošam veselam skaitlim',
   'routing.sveltekit.error.serverHistory':
     'vēstures pārvietojumi ir pieejami tikai pārlūkā: SvelteKit klienta maršrutētājs nedarbojas servera pušu renderēšanas laikā',
+  'routing.angularRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` jāizsauc Angular lietotnes, kas nodrošina maršrutētāju, injekcijas kontekstā. Pievienojiet `provideRouter(routes)` lietotnes nodrošinātājiem.',
+  'routing.vueRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` jāizsauc Vue lietotnes komponenta `setup` daļā, kurā ir instalēts Vue Router. Instalējiet to ar `app.use(router)`.',
+  'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
+    'Solid Router maršrutētāja ietvaros jāizmanto `useMoleculeRouter` . Pievienojiet `Router`, `HashRouter` vai `MemoryRouter`.',
 }

@@ -229,6 +229,8 @@ describe('routing hooks without MoleculeRouterProvider', () => {
     await act(async () => fireEvent.click(view.getByRole('button', { name: 'Profile tab' })))
     expect(view.getByLabelText('query').textContent).toBe('{"tab":"profile"}')
     expect(view.getByLabelText('state').textContent).toBe('{"source":"tabs"}')
+    expect(view.getByLabelText('location').textContent).toBe('/settings/team?tab=profile')
+    expect(view.getByLabelText('active').textContent).toBe('true')
 
     await act(async () => fireEvent.click(view.getByRole('button', { name: 'Preferences' })))
     expect(view.getByLabelText('query').textContent).toBe('{"tab":"notifications"}')

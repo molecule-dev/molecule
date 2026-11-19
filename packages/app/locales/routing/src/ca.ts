@@ -24,4 +24,10 @@ export const ca: Partial<RoutingTranslations> = {
   'routing.listRoute.error.page': 'useListRoute: page ha de ser un enter segur positiu',
   'routing.sveltekit.error.serverHistory':
     "els moviments d'historial només estan disponibles al navegador: l'encaminador client de SvelteKit no s'executa durant el renderitzat al servidor",
+  'routing.angularRouter.error.useMoleculeRouterOutsideRouter':
+    "`useMoleculeRouter` s'ha de cridar en un context d'injecció d'una aplicació Angular que proporcioni l'encaminador. Afegiu `provideRouter(routes)` als proveïdors de l'aplicació.",
+  'routing.vueRouter.error.useMoleculeRouterOutsideRouter':
+    "`useMoleculeRouter` s'ha de cridar al `setup` d'un component d'una aplicació Vue amb Vue Router instal·lat. Instal·leu-lo amb `app.use(router)`.",
+  'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
+    "`useMoleculeRouter` s'ha d'utilitzar dins d'un encaminador Solid Router. Munteu `Router`, `HashRouter` o `MemoryRouter`.",
 }

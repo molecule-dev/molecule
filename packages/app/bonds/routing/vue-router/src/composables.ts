@@ -4,11 +4,13 @@
  * @module
  */
 
-import { computed, type ComputedRef, watch } from 'vue'
+import { computed, type ComputedRef, hasInjectionContext, inject, isRef, watch } from 'vue'
 import { type Router as VueRouterInstance, useRouter as useVueRouter } from 'vue-router'
 
-import { setRouter } from '@molecule/app-routing'
+import { I18nError } from '@molecule/app-i18n'
+import { type NavigateOptions, setRouter } from '@molecule/app-routing'
 
+import { MOLECULE_ROUTER_KEY } from './context.js'
 import { createVueRouter } from './provider.js'
 import type { QueryParams, RouteDefinition, RouteLocation, RouteParams, Router } from './types.js'
 
@@ -20,26 +22,77 @@ import type { QueryParams, RouteDefinition, RouteLocation, RouteParams, Router }
 const moleculeRouters = new WeakMap<VueRouterInstance, Router>()
 
 /**
+ * The route array each molecule `Router` was last given, by identity. A router created
+ * with `routes` records them here, so registering them again — the provider passes the
+ * same array through both paths — appends nothing. A later, different array from another
+ * `useMoleculeRouter(routes)` call registers onto the same router, as React's hooks do.
+ */
+const registeredRouteArrays = new WeakMap<Router, readonly RouteDefinition[]>()
+
+/**
+ * Registers a route array on a router the first time that exact array reaches it.
+ *
+ * @param router - The molecule `Router` to register on.
+ * @param routes - The route definitions to register.
+ */
+const registerRoutesOnce = (router: Router, routes: RouteDefinition[]): void => {
+  if (registeredRouteArrays.get(router) === routes) return
+  registeredRouteArrays.set(router, routes)
+  router.registerRoutes(routes)
+}
+
+/**
+ * Reads a provided value as the molecule `Router` it carries, whether the provider
+ * supplied the reactive ref or the router itself.
+ *
+ * @param provided - The injected value.
+ * @returns The molecule `Router`.
+ */
+const readProvidedRouter = (provided: ComputedRef<Router> | Router): Router =>
+  isRef(provided) ? provided.value : provided
+
+/**
  * Returns the molecule `Router` for a Vue Router instance, creating it on first use.
  *
  * @param vueRouter - The Vue Router instance.
- * @param routes - Route definitions for molecule named routes; used when the router is
- * first created (later calls with different routes return the existing router unchanged).
+ * @param routes - Route definitions for molecule named routes, registered when the
+ * router is first created; a later call with a different array registers it too.
  * @returns The molecule `Router` driving that Vue Router.
  */
+/**
+ * The error every composable throws when no Vue Router is installed where it is called.
+ *
+ * @returns The error, naming how to install the router.
+ */
+const outsideRouter = (): I18nError =>
+  new I18nError(
+    'routing.vueRouter.error.useMoleculeRouterOutsideRouter',
+    undefined,
+    "`useMoleculeRouter` must be called in a component's `setup` of a Vue app with Vue Router installed. Install it with `app.use(router)`.",
+  )
+
 const routerFor = (vueRouter: VueRouterInstance, routes?: RouteDefinition[]): Router => {
   const existing = moleculeRouters.get(vueRouter)
   if (existing) return existing
   const router = createVueRouter({ router: vueRouter, routes })
   moleculeRouters.set(vueRouter, router)
+  if (routes) registeredRouteArrays.set(router, routes)
   return router
 }
 
 /**
- * Composable to create and provide a molecule Router.
+ * Composable to get the molecule `Router` for the current Vue Router.
  *
- * @param routes - Optional route definitions for named routes
- * @returns The molecule Router instance
+ * Returns the router a mounted `MoleculeRouterProvider` provides exactly; without one it
+ * creates ONE router for the calling Vue Router instance and reuses it for the app's
+ * lifetime. Passing `routes` registers them for molecule named routes: the first array
+ * creates the router with them, and a later, different array registers onto the same
+ * router.
+ *
+ * @param routes - Optional route definitions for named routes.
+ * @returns The reactive molecule Router ref.
+ * @throws {I18nError} `routing.vueRouter.error.useMoleculeRouterOutsideRouter` outside a
+ * component's `setup` (or `app.runWithContext`) of an app with Vue Router installed.
  *
  * @example
  * ```vue
@@ -56,11 +109,23 @@ const routerFor = (vueRouter: VueRouterInstance, routes?: RouteDefinition[]): Ro
  * ```
  */
 export function useMoleculeRouter(routes?: RouteDefinition[]): ComputedRef<Router> {
-  const vueRouter = useVueRouter()
+  // A mounted MoleculeRouterProvider answers for every descendant: its router, unchanged.
+  // Outside `setup` Vue's `inject` only warns and answers `undefined`.
+  if (!hasInjectionContext()) throw outsideRouter()
+  const provided = inject(MOLECULE_ROUTER_KEY, undefined)
+  if (provided) {
+    if (routes) registerRoutesOnce(readProvidedRouter(provided), routes)
+    return computed(() => readProvidedRouter(provided))
+  }
+
+  const vueRouter: VueRouterInstance | undefined = useVueRouter()
+  if (!vueRouter) throw outsideRouter()
 
   // The same Vue Router always gets the same molecule Router: one instance per app, whose
   // subscriptions stay live for its lifetime.
-  return computed(() => routerFor(vueRouter, routes))
+  const router = routerFor(vueRouter, routes)
+  if (routes) registerRoutesOnce(router, routes)
+  return computed(() => router)
 }
 
 /**
@@ -109,6 +174,8 @@ export function useMoleculeRouterProvider(routes?: RouteDefinition[]): ComputedR
 /**
  * Composable to get the current location as a reactive ref.
  *
+ * @deprecated The name collides with `@molecule/app-vue`'s. Use `useMoleculeRouter()` and
+ * read `getLocation()` from it instead.
  * @returns Reactive location ref
  *
  * @example
@@ -132,6 +199,8 @@ export function useLocation(): ComputedRef<RouteLocation> {
 /**
  * Composable to get route params as a reactive ref.
  *
+ * @deprecated The name collides with `@molecule/app-vue`'s. Use `useMoleculeRouter()` and
+ * read `getParams()` from it instead.
  * @returns Reactive params ref
  *
  * @example
@@ -155,6 +224,8 @@ export function useParams<T extends RouteParams = RouteParams>(): ComputedRef<T>
 /**
  * Composable to get query params as a reactive ref.
  *
+ * @deprecated The name collides with `@molecule/app-vue`'s. Use {@link useMoleculeQuery}
+ * instead, which returns the same reactive query.
  * @returns Reactive query params ref
  *
  * @example
@@ -178,6 +249,9 @@ export function useQuery(): ComputedRef<QueryParams> {
 /**
  * Composable to get a navigate function.
  *
+ * @deprecated The name collides with `@molecule/app-vue`'s. Use
+ * {@link useMoleculeNavigate} instead, which takes molecule's own `NavigateOptions`
+ * (`replace`, `state`, `preserveQuery`, `preserveHash`).
  * @returns Navigate function
  *
  * @example
@@ -195,7 +269,7 @@ export function useQuery(): ComputedRef<QueryParams> {
  */
 export function useNavigate() {
   const router = useMoleculeRouter()
-  return (path: string, options?: { replace?: boolean; state?: unknown }) => {
+  return (path: string, options?: NavigateOptions) => {
     router.value.navigate(path, options)
   }
 }
@@ -304,8 +378,3 @@ export function useNavigationGuard(
     { immediate: true },
   )
 }
-
-/**
- * Symbol for providing molecule router in Vue.
- */
-export const MOLECULE_ROUTER_KEY = Symbol('molecule-router')

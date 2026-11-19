@@ -21,4 +21,10 @@ export const zh: RoutingTranslations = {
   'routing.listRoute.error.page': 'useListRoute: page 必须是正的安全整数',
   'routing.sveltekit.error.serverHistory':
     'history 移动仅在浏览器中可用：SvelteKit 客户端路由器在服务器端渲染期间不会运行',
+  'routing.angularRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter`必须在提供路由器的 Angular 应用的注入上下文中调用。将 `provideRouter(routes)` 添加到应用提供者。',
+  'routing.vueRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter`必须在已安装 Vue Router 的 Vue 应用组件的 `setup` 中调用。使用 `app.use(router)` 安装。',
+  'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter`必须在 Solid Router 路由器中使用。挂载`Router`、`HashRouter`或`MemoryRouter`。',
 }

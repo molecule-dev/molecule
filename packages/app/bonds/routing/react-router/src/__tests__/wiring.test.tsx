@@ -25,6 +25,8 @@ vi.mock('react-router', () => ({
   useParams: () => ({}),
   useNavigationType: () => 'PUSH',
   useSearchParams: () => [new URLSearchParams(''), vi.fn()],
+  // No basename: the href of a path is the path.
+  useHref: (to: string) => to,
 }))
 
 // Run effects/memos synchronously so calling the component function performs the bond.

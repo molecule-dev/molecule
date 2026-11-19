@@ -2,84 +2,188 @@
  * The router conformance cases over real Solid Routers, once for each way the bond
  * detects pops: a `MemoryRouter` driven by `createSolidMemoryHistory()` — its history is
  * handed to `createSolidRouter` through `SolidRouterOptions.history` — and a `<Router>`
- * on the browser History API, whose pops are detected through `popstate`.
+ * on the browser History API, whose pops are detected through `popstate`. Each renders
+ * the routed pages, and an `<A>` writes the native href.
  */
 import type { Navigator, RouteSectionProps } from '@solidjs/router'
-import { MemoryRouter, Route, Router as SolidRouter, useNavigate } from '@solidjs/router'
-import type { JSX } from 'solid-js'
+import { A, MemoryRouter, Route, Router as SolidRouter, useNavigate } from '@solidjs/router'
+import { createSignal, type JSX, Show } from 'solid-js'
 import { render } from 'solid-js/web'
 
-import { runRouterConformance } from '@molecule/app-framework-conformance/routing'
+import {
+  type ListRouteNavMount,
+  listRouteNavRoutes,
+  type RouterHarnessOptions,
+  runListRouteNavConformance,
+  runRouterConformance,
+} from '@molecule/app-framework-conformance/routing'
 import type { Router } from '@molecule/app-routing'
 
+import { ListRouteNav } from '../ListRouteNav.jsx'
 import { createSolidMemoryHistory } from '../memory-history.js'
 import { createSolidRouter } from '../provider.js'
 
 const Empty = (): JSX.Element => <div />
+const PageOne = (): JSX.Element => <p>page one</p>
+const PageTwo = (): JSX.Element => <p>page two</p>
 
 /**
- * Builds a harness whose Solid Router starts at `initialPath` with the routes
- * `/users/:id` and `*rest`, in the memory or the browser history mode.
+ * Builds a harness whose Solid Router starts at `initialPath` under the kit's base, with
+ * the routes `/users/:id`, `/one`, `/two` and `*rest`, in the memory or the browser
+ * history mode.
  *
  * @param mode - Which native history the router sits on.
  * @returns The harness factory for `runRouterConformance`.
  */
-const createHarness = (mode: 'memory' | 'browser') => (initialPath: string) => {
-  const memory = mode === 'memory' ? createSolidMemoryHistory([initialPath]) : null
-  if (!memory) {
-    window.history.replaceState(null, '', initialPath)
+const createHarness =
+  (mode: 'memory' | 'browser') =>
+  (initialPath: string, { base, container }: RouterHarnessOptions) => {
+    const memory = mode === 'memory' ? createSolidMemoryHistory([base + initialPath]) : null
+    if (!memory) {
+      window.history.replaceState(null, '', base + initialPath)
+    }
+
+    const holder: { router: Router | null; navigate: Navigator | null } = {
+      router: null,
+      navigate: null,
+    }
+    const [probe, setProbe] = createSignal<string>()
+
+    const Root = (props: RouteSectionProps): JSX.Element => {
+      holder.router = memory ? createSolidRouter({ history: memory }) : createSolidRouter()
+      holder.navigate = useNavigate()
+      return (
+        <>
+          <Show when={probe()}>{(to) => <A href={to()} data-href-probe="" />}</Show>
+          {props.children}
+        </>
+      )
+    }
+
+    const routes = (
+      <>
+        <Route path="/users/:id" component={Empty} />
+        <Route path="/one" component={PageOne} />
+        <Route path="/two" component={PageTwo} />
+        <Route path="*rest" component={Empty} />
+      </>
+    )
+    const dispose = render(
+      () =>
+        memory ? (
+          <MemoryRouter history={memory} base={base || undefined} root={Root}>
+            {routes}
+          </MemoryRouter>
+        ) : (
+          <SolidRouter base={base || undefined} root={Root}>
+            {routes}
+          </SolidRouter>
+        ),
+      container,
+    )
+
+    const { router, navigate } = holder
+    if (!router || !navigate) {
+      dispose()
+      throw new Error('the Solid Router did not mount its root; the harness has no router')
+    }
+
+    const withoutBase = (path: string): string =>
+      base && path.startsWith(base) ? path.slice(base.length) || '/' : path
+
+    return {
+      router,
+      nativePush: (path: string) => navigate(path),
+      nativeBack: () => (memory ? memory.back() : window.history.back()),
+      nativePath: () =>
+        withoutBase(
+          memory
+            ? memory.get()
+            : window.location.pathname + window.location.search + window.location.hash,
+        ),
+      nativeHref: (path: string) => {
+        setProbe(path)
+        const href = container.querySelector('[data-href-probe]')?.getAttribute('href')
+        if (href === null || href === undefined) throw new Error('<A> rendered no href')
+        return href
+      },
+      teardown: () => {
+        router.destroy()
+        dispose()
+      },
+    }
   }
 
-  const holder: { router: Router | null; navigate: Navigator | null } = {
-    router: null,
-    navigate: null,
-  }
+runRouterConformance('solid-router', createHarness('memory'))
+runRouterConformance('solid-router (browser history)', createHarness('browser'))
 
-  const Root = (props: RouteSectionProps): JSX.Element => {
-    holder.router = memory ? createSolidRouter({ history: memory }) : createSolidRouter()
-    holder.navigate = useNavigate()
-    return <>{props.children}</>
-  }
+/** A route component that renders nothing: the nav is the only thing the DOM cases show. */
+const NoPage = (): JSX.Element => null
 
-  const container = document.createElement('div')
-  document.body.appendChild(container)
+/**
+ * Mounts this package's `ListRouteNav` over a real `<MemoryRouter>` on
+ * `createSolidMemoryHistory`, declaring the kit's routes and no molecule provider. The nav
+ * sits in the router's persistent `root`, above the outlet, so it keeps its DOM (and its
+ * choices' element identity) across route changes, as React's fragment does; the declared
+ * routes supply the path parameters the cases use.
+ *
+ * @param container - Where the app renders.
+ * @param initialPath - Where the native router starts.
+ * @param props - The case's props.
+ * @returns The mounted nav.
+ */
+const mountListRouteNav: ListRouteNavMount = async (container, initialPath, props) => {
+  const { attrs, children, ...rest } = props
+  const memory = createSolidMemoryHistory([initialPath])
+
+  const Shell = (shell: RouteSectionProps): JSX.Element => (
+    <>
+      <ListRouteNav
+        {...attrs}
+        {...rest}
+        children={
+          children === undefined
+            ? undefined
+            : (route) => (
+                <output data-testid="children">
+                  {children({ selection: route.selection, page: route.page })}
+                </output>
+              )
+        }
+      />
+      {shell.children}
+    </>
+  )
+
   const dispose = render(
-    () =>
-      memory ? (
-        <MemoryRouter history={memory} root={Root}>
-          <Route path="/users/:id" component={Empty} />
-          <Route path="*rest" component={Empty} />
-        </MemoryRouter>
-      ) : (
-        <SolidRouter root={Root}>
-          <Route path="/users/:id" component={Empty} />
-          <Route path="*rest" component={Empty} />
-        </SolidRouter>
-      ),
+    () => (
+      <MemoryRouter history={memory} root={Shell}>
+        {listRouteNavRoutes.map((path) => (
+          <Route path={path} component={NoPage} />
+        ))}
+      </MemoryRouter>
+    ),
     container,
   )
 
-  const { router, navigate } = holder
-  if (!router || !navigate) {
-    container.remove()
-    throw new Error('the Solid Router did not mount its root; the harness has no router')
+  const settle = async (): Promise<void> => {
+    for (let round = 0; round < 4; round += 1) {
+      await new Promise((resolve) => setTimeout(resolve, 0))
+    }
   }
 
   return {
-    router,
-    nativePush: (path: string) => navigate(path),
-    nativeBack: () => (memory ? memory.back() : window.history.back()),
-    nativePath: () =>
-      memory
-        ? memory.get()
-        : window.location.pathname + window.location.search + window.location.hash,
-    teardown: () => {
-      router.destroy()
+    nativePath: () => memory.get(),
+    nativeBack: () => memory.back(),
+    nativeForward: () => memory.forward(),
+    perform: async (action) => {
+      action()
+      await settle()
+    },
+    unmount: async () => {
       dispose()
-      container.remove()
     },
   }
 }
 
-runRouterConformance('solid-router', createHarness('memory'))
-runRouterConformance('solid-router (browser history)', createHarness('browser'))
+runListRouteNavConformance('solid-router', mountListRouteNav)

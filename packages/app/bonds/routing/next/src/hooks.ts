@@ -73,6 +73,13 @@ export function useMoleculeRouter(config: NextRouterConfig): Router {
     }
   }, [history])
 
+  // After every commit: a navigation's entry, or an entry Next rewrote in place
+  // (`router.refresh()`, a server action), gets its key and state before anything else
+  // can move the history. No dependency list: a refresh changes none of the hook values.
+  useEffect(() => {
+    history.syncEntry()
+  })
+
   // Notify after commit: this effect re-runs whenever the location changed — every
   // navigation Next commits changes it, whether this router started it (push/replace),
   // a `<Link>` did, or the back button moved the entry (marked as a pop above). It runs

@@ -8,59 +8,10 @@
  * @module
  */
 
-import { I18nError, t } from '@molecule/app-i18n'
 import { createHistoryRouter } from '@molecule/app-routing'
 
 import { createReactRouterSnapshotHistory } from './history.js'
 import type { ReactRouterConfig, Router } from './types.js'
-
-/**
- * The message the core's named routes throw with for a missing name, as this exact
- * `t()` call renders it. Comparing against the same call the core makes keeps the
- * detection exact in every locale.
- *
- * @param name - The route name that was looked up.
- * @returns The interpolated route-not-found message.
- */
-const routeNotFoundMessage = (name: string): string =>
-  t('routing.error.routeNotFound', { name }, { defaultValue: 'Route "{{name}}" not found' })
-
-/**
- * Rethrows the core's route-not-found `Error` as the bond's `I18nError`, so the key and
- * values travel with the error for re-translation. The core owns the named-route logic;
- * only the error type is this bond's contract.
- *
- * @param router - The router `createHistoryRouter` built.
- * @returns The same router with the named-route methods rethrowing `I18nError`.
- */
-const withI18nRouteErrors = (router: Router): Router => {
-  const generatePath = router.generatePath.bind(router)
-  const navigateTo = router.navigateTo.bind(router)
-
-  const rethrowNamedRouteError = <T>(name: string, action: () => T): T => {
-    try {
-      return action()
-    } catch (error) {
-      if (error instanceof Error && error.message === routeNotFoundMessage(name)) {
-        throw new I18nError(
-          'routing.error.routeNotFound',
-          { name },
-          'Route "{{name}}" not found',
-          error,
-        )
-      }
-      throw error
-    }
-  }
-
-  router.generatePath = (name, routeParams, query) =>
-    rethrowNamedRouteError(name, () => generatePath(name, routeParams, query))
-
-  router.navigateTo = (name, routeParams, query, options) =>
-    rethrowNamedRouteError(name, () => navigateTo(name, routeParams, query, options))
-
-  return router
-}
 
 /**
  * Creates a React Router adapter that implements the molecule Router interface over a
@@ -99,9 +50,7 @@ const withI18nRouteErrors = (router: Router): Router => {
  * @returns A molecule `Router` with navigation, guards, query/hash management, and route matching.
  */
 export const createReactRouter = (config: ReactRouterConfig = {}): Router =>
-  withI18nRouteErrors(
-    createHistoryRouter(createReactRouterSnapshotHistory(config), { routes: config.routes }),
-  )
+  createHistoryRouter(createReactRouterSnapshotHistory(config), { routes: config.routes })
 
 /**
  * Default React Router provider (basic, no hooks). For full functionality, use

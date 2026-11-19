@@ -26,4 +26,10 @@ export const ha: RoutingTranslations = {
     'useListRoute: dole ne page ya kasance ingantaccen lamba mai gaba daya mai aminci',
   'routing.sveltekit.error.serverHistory':
     'motsin tarihi ana samunta ne kawai a cikin burauza: mai sadarwa na abokin ciniki na SvelteKit ba ya gudana lokacin zana gefen uwar garken',
+  'routing.angularRouter.error.useMoleculeRouterOutsideRouter':
+    "Dole ne a kira `useMoleculeRouter` a cikin mahallin allura na ƙa'idar Angular da ke ba da na'urar sadarwa. Ƙara `provideRouter(routes)` a cikin masu samar da ƙa'idar.",
+  'routing.vueRouter.error.useMoleculeRouterOutsideRouter':
+    "Dole ne a kira `useMoleculeRouter` a cikin `setup` na ɓangaren ƙa'idar Vue da ke da Vue Router a shigar. Shigar da shi da `app.use(router)`.",
+  'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
+    "Dole ne a yi amfani da `useMoleculeRouter` a cikin na'urar sadarwa ta Solid Router. Haɗa `Router`, `HashRouter`, ko `MemoryRouter`.",
 }

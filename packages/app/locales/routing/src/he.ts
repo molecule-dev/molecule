@@ -22,4 +22,10 @@ export const he: RoutingTranslations = {
   'routing.listRoute.error.page': 'useListRoute: page חייב להיות מספר שלם בטוח וחיובי',
   'routing.sveltekit.error.serverHistory':
     'פעולות היסטוריה זמינות רק בדפדפן: נתב הלקוח של SvelteKit אינו פועל במהלך עיבוד בצד השרת',
+  'routing.angularRouter.error.useMoleculeRouterOutsideRouter':
+    'יש לקרוא ל `useMoleculeRouter` בהקשר הזרקה של אפליקציית Angular המספקת את הנתב. יש להוסיף את `provideRouter(routes)` לספקי האפליקציה.',
+  'routing.vueRouter.error.useMoleculeRouterOutsideRouter':
+    'יש לקרוא ל `useMoleculeRouter` ב `setup` של רכיב של אפליקציית Vue עם Vue Router מותקן. יש להתקין אותו עם `app.use(router)`.',
+  'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
+    'יש להשתמש ב `useMoleculeRouter` בתוך נתב של Solid Router. יש להרכיב את `Router`, `HashRouter`, או `MemoryRouter`.',
 }

@@ -26,4 +26,10 @@ export const eu: RoutingTranslations = {
     'useListRoute: page-k osoko zenbaki seguru positibo bat izan behar du',
   'routing.sveltekit.error.serverHistory':
     'historia-mugimendak nabigatzailean soilik erabil daitezke: SvelteKit bezero-bideratzailea ez da exekutatzen zerbitzari aldeko errendatzean',
+  'routing.angularRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` Angular aplikazio bateko injekzio-testuinguruan deitu behar da, bideratzailea eskaintzen duenak. Gehitu `provideRouter(routes)` aplikazioaren hornitzaileei.',
+  'routing.vueRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` Vue Router instalatuta duen Vue aplikazio bateko osagai baten `setup` -ean deitu behar da. Instalatu `app.use(router)` erabiliz.',
+  'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` Solid Router bideratzaile baten barruan erabili behar da. Muntatu `Router`, `HashRouter` edo `MemoryRouter`.',
 }

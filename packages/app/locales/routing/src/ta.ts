@@ -26,4 +26,10 @@ export const ta: RoutingTranslations = {
     'useListRoute: page ஒரு நேர்மறை பாதுகாப்பான முழு எண்ணாக இருக்க வேண்டும்',
   'routing.sveltekit.error.serverHistory':
     'வரலாறு நகர்வுகள் பிரௌசரில் மட்டுமே கிடைக்கும்: SvelteKit கிளையன்ட் ரௌட்டர் சர்வர்-சைட் ரெண்டரிங்கின் போது இயங்காது',
+  'routing.angularRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` ரௌட்டரை வழங்கும் Angular ஆப்பின் இன்ஜெக்ஷன் சூழலில் அழைக்கப்பட வேண்டும். ஆப்பின் வழங்குநர்களில் `provideRouter(routes)` சேர்க்கவும்.',
+  'routing.vueRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` Vue Router நிறுவப்பட்ட Vue ஆப்பின் கூறின் `setup` இல் அழைக்கப்பட வேண்டும். அதை `app.use(router)` மூலம் நிறுவவும்.',
+  'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` ஒரு Solid Router ரௌட்டருக்குள் பயன்படுத்தப்பட வேண்டும். `Router`, `HashRouter` அல்லது `MemoryRouter` மவுண்ட் செய்யவும்.',
 }

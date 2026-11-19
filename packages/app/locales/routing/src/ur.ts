@@ -24,4 +24,10 @@ export const ur: RoutingTranslations = {
   'routing.listRoute.error.page': 'useListRoute: page ایک مثبت محفوظ صحیح عدد ہونا چاہیے',
   'routing.sveltekit.error.serverHistory':
     'تاریخ کی نقل و حرکت صرف براؤزر میں دستیاب ہے: SvelteKit کلائنٹ روٹر سرور سائیڈ رینڈرنگ کے دوران نہیں چلتا',
+  'routing.angularRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` کو روٹر فراہم کرنے والی Angular ایپ کے انجیکشن سیاق میں کال کرنا ضروری ہے۔ ایپ کے پرووائیڈرز میں `provideRouter(routes)` شامل کریں۔',
+  'routing.vueRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` کو Vue Router نصب شدہ Vue ایپ کے کمپوننٹ کے `setup` میں کال کرنا ضروری ہے۔ اسے `app.use(router)` سے نصب کریں۔',
+  'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` کو Solid Router روٹر کے اندر استعمال کرنا ضروری ہے۔ `Router`، `HashRouter` یا `MemoryRouter` ماؤنٹ کریں۔',
 }

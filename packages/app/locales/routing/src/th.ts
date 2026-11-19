@@ -24,4 +24,10 @@ export const th: RoutingTranslations = {
   'routing.listRoute.error.page': 'useListRoute: page ต้องเป็นจำนวนเต็มที่ปลอดภัยและเป็นบวก',
   'routing.sveltekit.error.serverHistory':
     'การเคลื่อนที่ของ history ใช้ได้ในเบราว์เซอร์เท่านั้น: เราเตอร์ฝั่ง client ของ SvelteKit ไม่ทำงานระหว่างการเรนเดอร์ฝั่ง server',
+  'routing.angularRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` ต้องถูกเรียกในบริบทการฉีดของแอป Angular ที่มีเราเตอร์ เพิ่ม `provideRouter(routes)` ลงในผู้ให้บริการของแอป',
+  'routing.vueRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` ต้องถูกเรียกใน `setup` ของคอมโพเนนต์ของแอป Vue ที่ติดตั้ง Vue Router แล้ว ติดตั้งด้วย `app.use(router)`',
+  'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` ต้องใช้ภายในเราเตอร์ Solid Router เท่านั้น ต้องทำการ Mount `Router`, `HashRouter` หรือ `MemoryRouter`',
 }

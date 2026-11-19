@@ -24,4 +24,10 @@ export const si: RoutingTranslations = {
   'routing.listRoute.error.page': 'useListRoute: page ධන ආරක්ෂිත නිඛිලයක් විය යුතුය',
   'routing.sveltekit.error.serverHistory':
     'ඉතිහාස චලන ලබාගත හැක්කේ බ්‍රව්සරය තුළ පමණි: SvelteKit සේවාදායක router එක සේවාදායක පැත්තේ විදහායීමේදී ක්‍රියා නොකරයි',
+  'routing.angularRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` රවුටරය සපයන Angular යෙදුමක එන්නත් කිරීමේ සන්දර්භය තුළ ඇමතිය යුතුය. යෙදුමේ සපයන්නන්ට `provideRouter(routes)` එක් කරන්න.',
+  'routing.vueRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` Vue Router ස්ථාපනය කළ Vue යෙදුමක සංරචකයක `setup` තුළ ඇමතිය යුතුය. එය `app.use(router)` සමඟ ස්ථාපනය කරන්න.',
+  'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` Solid Router රවුටරයක් තුළ භාවිතා කළ යුතුය. `Router`, `HashRouter` හෝ `MemoryRouter` සවි කරන්න.',
 }

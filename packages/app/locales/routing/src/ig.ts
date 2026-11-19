@@ -25,4 +25,10 @@ export const ig: Partial<RoutingTranslations> = {
     'useListRoute: page kwesịrị ịbụ ọnụọgụ zuru oke nke dị mma ma dị nchekwa',
   'routing.sveltekit.error.serverHistory':
     "mmegharị akụkọ na-arụ ọrụ naanị na brauzer: rawụta onye ahịa SvelteKit anaghị agba ọsọ mgbe a na-ese ihe n'akụkụ sava",
+  'routing.angularRouter.error.useMoleculeRouterOutsideRouter':
+    "A ga-akpọ `useMoleculeRouter` n'ime ọnọdụ injection nke ngwa Angular nke na-enye rawụta. Tinye `provideRouter(routes)` na ndị na-enye ngwa ahụ.",
+  'routing.vueRouter.error.useMoleculeRouterOutsideRouter':
+    "A ga-akpọ `useMoleculeRouter` n'ime `setup` nke akụkụ ngwa Vue nke nwere Vue Router arụnyere. Wụnye ya na `app.use(router)`.",
+  'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
+    "A ga-eji `useMoleculeRouter` n'ime rawụta Solid Router. Wụnye `Router`, `HashRouter`, ma ọ bụ `MemoryRouter`.",
 }

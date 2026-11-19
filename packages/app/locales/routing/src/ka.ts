@@ -25,4 +25,10 @@ export const ka: RoutingTranslations = {
   'routing.listRoute.error.page': 'useListRoute: page უნდა იყოს დადებითი უსაფრთხო მთელი რიცხვი',
   'routing.sveltekit.error.serverHistory':
     'ისტორიის გადაადგილებები ხელმისაწვდომია მხოლოდ ბრაუზერში: SvelteKit-ის კლიენტის როუტერი არ მუშაობს სერვერის მხარეს რენდერის დროს',
+  'routing.angularRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` უნდა გამოიძახოს Angular აპის ინექციის კონტექსტში, რომელიც უზრუნველყოფს როუტერს. დაამატეთ `provideRouter(routes)` აპის პროვაიდერებს.',
+  'routing.vueRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` უნდა გამოიძახოს Vue აპის კომპონენტის `setup`-ში, სადაც Vue Router დაყენებულია. დააინსტალირეთ ის `app.use(router)`-ით.',
+  'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` უნდა იქნას გამოყენებული Solid Router-ის როუტერში. დაამონტაჟეთ `Router`, `HashRouter` ან `MemoryRouter`.',
 }

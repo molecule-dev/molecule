@@ -25,4 +25,10 @@ export const ro: RoutingTranslations = {
   'routing.listRoute.error.page': 'useListRoute: page trebuie să fie un întreg sigur pozitiv',
   'routing.sveltekit.error.serverHistory':
     'mutările în istoric sunt disponibile doar în browser: routerul client SvelteKit nu rulează în timpul randării pe server',
+  'routing.angularRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` trebuie apelat într-un context de injecție al unei aplicații Angular care furnizează routerul. Adăugați `provideRouter(routes)` la providerii aplicației.',
+  'routing.vueRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` trebuie apelat în `setup`-ul unei componente a unei aplicații Vue cu Vue Router instalat. Instalați-l cu `app.use(router)`.',
+  'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` trebuie utilizat într-un router Solid Router. Se montează `Router`, `HashRouter` sau `MemoryRouter`.',
 }

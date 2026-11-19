@@ -25,4 +25,10 @@ export const sl: RoutingTranslations = {
   'routing.listRoute.error.page': 'useListRoute: page mora biti pozitivno varno celo število',
   'routing.sveltekit.error.serverHistory':
     'premiki po zgodovini so na voljo samo v brskalniku: odjemalski usmerjevalnik SvelteKit se ne izvaja med upodabljanjem na strežniku',
+  'routing.angularRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` je treba klicati v kontekstu injiciranja aplikacije Angular, ki zagotavlja usmerjevalnik. Dodajte `provideRouter(routes)` med ponudnike aplikacije.',
+  'routing.vueRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` je treba klicati v `setup` komponente aplikacije Vue z nameščenim Vue Router. Namestite ga z `app.use(router)`.',
+  'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` mora biti uporabljen znotraj usmerjevalnika Solid Router. Priklopite `Router`, `HashRouter` ali `MemoryRouter`.',
 }

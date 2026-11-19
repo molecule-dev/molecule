@@ -1,7 +1,10 @@
 import { describe, expect, it, vi } from 'vitest'
 
-// Mock @molecule/app-i18n
-vi.mock('@molecule/app-i18n', () => ({
+import type * as I18n from '@molecule/app-i18n'
+
+// t() echoes its defaultValue; the rest of the module is real, so provider.ts throws a real I18nError.
+vi.mock('@molecule/app-i18n', async (importOriginal) => ({
+  ...(await importOriginal<typeof I18n>()),
   t: vi.fn((_key: string, values?: Record<string, unknown>, opts?: { defaultValue?: string }) => {
     let text = opts?.defaultValue ?? _key
     if (values) {

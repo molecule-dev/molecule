@@ -1,11 +1,14 @@
 import { useRef, useState } from 'react'
-import type { Location, NavigateFunction, Params } from 'react-router'
+import { type Location, type NavigateFunction, type Params, useHref } from 'react-router'
 
 import {
   createReactRouterHistory,
   type ReactRouterHistory,
   type ReactRouterSnapshot,
 } from './history.js'
+
+/** The path whose `useHref` gives the prefix React Router puts before every in-app path. */
+const HREF_PROBE = '/x'
 
 /**
  * The live history of the calling component. It reads a mirror of React Router's values that
@@ -17,6 +20,10 @@ export function useLiveHistory(current: {
   params: Params
 }): ReactRouterHistory {
   const { navigate, location, params } = current
+  // React Router writes every in-app path's href as one prefix plus the path, so the href of
+  // one probe path gives the prefix for all of them.
+  const probe = useHref(HREF_PROBE)
+  const rootHref = useHref('/')
   const snapshot = useRef<ReactRouterSnapshot>(undefined)
   snapshot.current = {
     navigate,
@@ -28,6 +35,8 @@ export function useLiveHistory(current: {
       key: location.key,
     },
     params,
+    hrefPrefix: probe.slice(0, probe.length - HREF_PROBE.length),
+    rootHref,
   }
   const [history] = useState(() => createReactRouterHistory(snapshot))
   return history

@@ -25,4 +25,10 @@ export const ms: RoutingTranslations = {
   'routing.listRoute.error.page': 'useListRoute: page mesti berupa integer selamat positif',
   'routing.sveltekit.error.serverHistory':
     'pergerakan sejarah hanya tersedia dalam pelayar: penghala pelanggan SvelteKit tidak berjalan semasa pemaparan sisi pelayan',
+  'routing.angularRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` mesti dipanggil dalam konteks suntikan aplikasi Angular yang menyediakan penghala. Tambah `provideRouter(routes)` pada penyedia aplikasi.',
+  'routing.vueRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` mesti dipanggil dalam `setup` komponen aplikasi Vue dengan Vue Router dipasang. Pasang dengan `app.use(router)`.',
+  'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` mesti digunakan dalam penghala Solid Router. Pasang `Router`, `HashRouter` atau `MemoryRouter`.',
 }

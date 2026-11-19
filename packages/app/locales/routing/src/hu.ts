@@ -26,4 +26,10 @@ export const hu: RoutingTranslations = {
     'useListRoute: a page pozitív biztonságos egész számnak kell lennie',
   'routing.sveltekit.error.serverHistory':
     'az előzménymozgások csak böngészőben érhetők el: a SvelteKit kliensoldali routere szerveroldali renderelés alatt nem fut',
+  'routing.angularRouter.error.useMoleculeRouterOutsideRouter':
+    'A `useMoleculeRouter`-t egy Angular alkalmazás injektálási kontextusában kell meghívni, amely biztosítja a routert. Add hozzá a `provideRouter(routes)`-t az alkalmazás providereihez.',
+  'routing.vueRouter.error.useMoleculeRouterOutsideRouter':
+    'A `useMoleculeRouter`-t egy Vue Routerrel telepített Vue alkalmazás komponensének `setup` függvényében kell meghívni. Telepítsd az `app.use(router)` segítségével.',
+  'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
+    'A `useMoleculeRouter`-t Solid Router routeren belül kell használni. Szereld be a `Router`, `HashRouter` vagy `MemoryRouter` elemet.',
 }

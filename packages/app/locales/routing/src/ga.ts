@@ -26,4 +26,10 @@ export const ga: RoutingTranslations = {
     'useListRoute: caithfidh page a bheith ina uimhir shlán thearfach shábháilte',
   'routing.sveltekit.error.serverHistory':
     'níl beirithe staire ar fáil ach sa bhrabhsálaí: ní ritheann ródaire cliaint SvelteKit le linn cur i láthair ar thaobh an fhreastalaí',
+  'routing.angularRouter.error.useMoleculeRouterOutsideRouter':
+    "Ní mór `useMoleculeRouter` a ghlaoch i gcomhthéacs insteallta d'fheidhmchlár Angular a sholáthraíonn an ródaire. Cuir `provideRouter(routes)` le soláthraithe an fheidhmchláir.",
+  'routing.vueRouter.error.useMoleculeRouterOutsideRouter':
+    "Ní mór `useMoleculeRouter` a ghlaoch in `setup` comhpháirte d'fheidhmchlár Vue a bhfuil Vue Router suiteáilte ann. Suiteáil é le `app.use(router)`.",
+  'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
+    'Ní mór `useMoleculeRouter` a úsáid laistigh de ródaire Solid Router. Suiteáil `Router`, `HashRouter` nó `MemoryRouter`.',
 }

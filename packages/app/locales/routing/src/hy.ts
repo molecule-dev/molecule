@@ -25,4 +25,10 @@ export const hy: RoutingTranslations = {
   'routing.listRoute.error.page': 'useListRoute: page-ը պետք է լինի դրական անվտանգ ամբողջ թիվ',
   'routing.sveltekit.error.serverHistory':
     'պատմության տեղաշարժերը հասանելի են միայն բրաուզերում՝ SvelteKit-ի կլիենտային ռաութերը չի գործարկվում սերվերի կողմի արտապատկերման ժամանակ',
+  'routing.angularRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter`-ը պետք է կանչվի Angular հավելվածի ներարկման կոնտեքստում, որը տրամադրում է ռաութերը։ Ավելացրեք `provideRouter(routes)`-ը հավելվածի պրովայդերներին։',
+  'routing.vueRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter`-ը պետք է կանչվի Vue հավելվածի կոմպոնենտի `setup`-ում, որտեղ տեղադրված է Vue Router։ Տեղադրեք այն `app.use(router)`-ով։',
+  'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter`-ը պետք է օգտագործվի Solid Router ռաութերի ներսում։ Տեղադրեք `Router`, `HashRouter` կամ `MemoryRouter`։',
 }

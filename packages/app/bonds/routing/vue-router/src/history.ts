@@ -218,6 +218,9 @@ export const vueRouterHistory = (router: VueRouterInstance): RouterHistory => {
     push: (path, state) => commit(path, state, (target) => router.push(target)),
     replace: (path, state) => commit(path, state, (target) => router.replace(target)),
     go: (delta) => router.go(delta),
+    // The href `<RouterLink :to="path">` renders: Vue Router's own `resolve(path).href`,
+    // with the history's base (`createWebHistory('/app')`) or `#` (`createWebHashHistory`).
+    createHref: (path) => router.resolve(path).href,
     listen(listener: (action?: NavigationAction) => void): () => void {
       listeners.add(listener)
       return () => {

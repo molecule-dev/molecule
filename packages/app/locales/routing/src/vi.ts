@@ -25,4 +25,10 @@ export const vi: RoutingTranslations = {
   'routing.listRoute.error.page': 'useListRoute: page phải là số nguyên an toàn dương',
   'routing.sveltekit.error.serverHistory':
     'các thao tác history chỉ khả dụng trong trình duyệt: bộ định tuyến client của SvelteKit không chạy trong quá trình kết xuất phía máy chủ',
+  'routing.angularRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` phải được gọi trong ngữ cảnh tiêm phụ thuộc của một ứng dụng Angular có cung cấp bộ định tuyến. Thêm `provideRouter(routes)` vào các provider của ứng dụng.',
+  'routing.vueRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` phải được gọi trong `setup` của một component thuộc ứng dụng Vue đã cài đặt Vue Router. Cài đặt nó bằng `app.use(router)`.',
+  'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` phải được sử dụng bên trong một bộ định tuyến Solid Router. Gắn `Router`, `HashRouter` hoặc `MemoryRouter`.',
 }

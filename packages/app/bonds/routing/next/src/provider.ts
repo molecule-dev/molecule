@@ -20,49 +20,41 @@ import { createNextSnapshotHistory } from './history.js'
 import type { NextRouterConfig } from './types.js'
 
 /**
- * Creates a Next.js App Router adapter from a config snapshot.
+ * Creates a Next.js App Router adapter over one fixed config snapshot: for code that runs
+ * outside a component's render cycle, such as a test or a server render.
  *
- * Prefer {@link useMoleculeRouter} inside a React app: it builds one router whose
- * location follows the `next/navigation` hooks across navigations, while a router from
- * `createNextRouter` stays at the config's location — its `subscribe` still hears every
- * navigation this router starts (guards included), but a Next `<Link>` click or the
- * back button cannot reach it, because nothing re-renders the snapshot.
+ * In a React app use {@link useMoleculeRouter}: it builds one router for the component's
+ * life, whose location follows the `next/navigation` hooks across navigations. A router
+ * from `createNextRouter` stays at the config's location — its `subscribe` still hears
+ * every navigation this router starts (guards included), but a Next `<Link>` click or the
+ * back button cannot reach it, and rebuilding it on every render (in a `useMemo` over the
+ * hook values) drops its subscribers, its guards and the state of a navigation it started,
+ * which reaches the new history entry only once Next has committed it.
  *
  * @example
- * ```tsx
- * 'use client'
+ * ```ts
+ * import { createNextRouter } from '@molecule/app-routing-next'
  *
- * import { useRouter, usePathname, useSearchParams, useParams } from 'next/navigation'
- * import { createNextRouter, setRouter } from '@molecule/app-routing-next'
+ * const router = createNextRouter({
+ *   pathname: '/orders',
+ *   searchParams: { page: '2' },
+ *   params: {},
+ *   routes: [{ path: '/orders/:id', name: 'order' }],
+ * })
  *
- * function RouterProvider({ children }) {
- *   const navigation = useRouter()
- *   const pathname = usePathname()
- *   const searchParams = useSearchParams()
- *   const params = useParams()
- *
- *   const router = useMemo(() => createNextRouter({
- *     navigation,
- *     pathname,
- *     searchParams: Object.fromEntries(searchParams),
- *     params,
- *   }), [navigation, pathname, searchParams, params])
- *
- *   useEffect(() => {
- *     setRouter(router)
- *   }, [router])
- *
- *   return children
- * }
+ * router.getQueryParam('page') // '2'
+ * router.generatePath('order', { id: '7' }) // '/orders/7'
  * ```
- * @param config - Configuration with Next.js's `navigation` (from `useRouter()`), `pathname`, `searchParams`, `params`, and optional `routes`.
+ * @param config - Configuration with Next.js's `navigation` (from `useRouter()`), `pathname`, `searchParams`, `params`, `basePath`, and optional `routes`.
  * @returns A molecule `Router` over that config snapshot, with navigation, guards, query/hash management, and route matching.
  */
 export const createNextRouter = (config: NextRouterConfig = {}): Router =>
   createHistoryRouter(createNextSnapshotHistory(config), { routes: config.routes })
 
 /**
- * Default Next.js router provider (basic, no hooks). For full functionality, use
- * `useMoleculeRouter` (or `createNextRouter` with `useRouter`/`usePathname`/`useSearchParams`/`useParams`).
+ * Default Next.js router provider (basic, no hooks): with no App Router to drive, each
+ * navigation is a full page load, whose new document starts with an empty history entry, so
+ * a navigation's `state` cannot reach it. Mount {@link useMoleculeRouter} for client-side
+ * navigation, history state and route-change notifications.
  */
 export const provider: Router = createNextRouter()

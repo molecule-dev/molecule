@@ -9,15 +9,26 @@
  *
  * Every behaviour below cites the Next.js source it mirrors
  * (`packages/next/src/client/components/app-router.tsx`). What it does NOT mirror:
- * the server round-trip behind `router.push` (Next fetches the RSC payload and commits
- * later; the stand-in commits synchronously — the conformance suite settles either
- * way), Next's scroll restoration and its `refresh`/`prefetch` (no-ops here).
+ * the server round-trip behind `router.push` (Next fetches the RSC payload before the
+ * transition commits; the stand-in's transition commits as soon as React renders it),
+ * Next's scroll restoration and `prefetch` (a no-op here). Like Next, it
+ * dispatches each navigation in a transition and writes the history entry in the
+ * commit that shows the new route (`useInsertionEffect`), so the URL never names a
+ * page that is not yet on screen.
  *
  * @module
  */
 
 import type { ReactNode } from 'react'
-import { createContext, createElement, useContext, useEffect, useState } from 'react'
+import {
+  createContext,
+  createElement,
+  startTransition,
+  useContext,
+  useEffect,
+  useInsertionEffect,
+  useState,
+} from 'react'
 
 import type { NextNavigation, NextParams, NextSearchParams } from '../types.js'
 
@@ -56,6 +67,11 @@ export interface NextClientOptions {
 
   /** The routes the stand-in matches, for `params`. Defaults to a `*` catch-all. */
   routes?: NextClientRoute[]
+  /**
+   * `next.config`'s `basePath`: `router.push` writes it before each path (`addBasePath`),
+   * `usePathname()` leaves it out (`removeBasePath`), and `<Link>` renders it in the href.
+   */
+  basePath?: string
 }
 
 /** The values the stand-in's hooks return — what the app hands to {@link useMoleculeRouter}. */
@@ -84,11 +100,27 @@ export interface NextClient {
   /** `useRouter()`'s navigation object, also handed to the context. */
   navigation: NextNavigation
 
-  /** The native router's own current `pathname + search + hash`, from the document URL. */
+  /** The native router's own current `pathname + search + hash`, from the document URL, without the basePath. */
   path(): string
+  /** The href Next's `<Link href={path}>` renders: `addBasePath(path)`. */
+  href(path: string): string
 
   /** Detaches the client (the page dying; the provider's unmount does the same). */
   destroy(): void
+}
+
+/**
+ * The App Router state the stand-in keeps, as Next's reducer does: the route the hooks
+ * read, the canonical URL to write, and `pushRef` (`app-router.tsx` v16.0.7
+ * `HistoryUpdater`, lines 48–80 of the published `dist/client/components/app-router.js`).
+ */
+interface AppState {
+  /** What the location hooks hold. */
+  snapshot: Snapshot
+  /** The canonical URL (`pathname + search + hash`, basePath included) this state writes. */
+  url: string
+  /** Next's `pushRef`: push a new entry, and whether the entry's own state is kept. */
+  pushRef: { pendingPush: boolean; preserveCustomHistoryState: boolean }
 }
 
 /** One committed route: what the stand-in's location hooks hold. */
@@ -111,9 +143,13 @@ const NextClientContext = createContext<NextClientValues | null>(null)
  *
  * @returns The snapshot.
  */
-function readSnapshot(routes: NextClientRoute[]): Snapshot {
-  const pathname = window.location.pathname
-  const search = new URLSearchParams(window.location.search)
+function readSnapshot(
+  routes: NextClientRoute[],
+  basePath: string,
+  url: URL = new URL(window.location.href),
+): Snapshot {
+  const pathname = withoutBase(url.pathname, basePath)
+  const search = new URLSearchParams(url.search)
   const searchParams: NextSearchParams = {}
   search.forEach((value, key) => {
     const existing = searchParams[key]
@@ -130,6 +166,18 @@ function readSnapshot(routes: NextClientRoute[]): Snapshot {
     }
   }
   return { pathname, searchParams, params }
+}
+
+/**
+ * A document pathname without the basePath, as `usePathname()` returns it (`removeBasePath`).
+ *
+ * @param pathname - The document's pathname.
+ * @param basePath - The basePath (`''` for none).
+ * @returns The pathname within the app.
+ */
+function withoutBase(pathname: string, basePath: string): string {
+  if (!basePath || (pathname !== basePath && !pathname.startsWith(`${basePath}/`))) return pathname
+  return pathname.slice(basePath.length) || '/'
 }
 
 /**
@@ -170,30 +218,63 @@ export function createNextClient(options: NextClientOptions = {}): NextClient {
 
   // A fresh document for this client: the harness starts every case at `initialPath`,
   // the way a fresh page load would.
-  window.history.replaceState(null, '', options.initialPath ?? '/')
+  const basePath = options.basePath ?? ''
+  window.history.replaceState(null, '', basePath + (options.initialPath ?? '/'))
 
-  let setState: ((snapshot: Snapshot) => void) | null = null
+  let setState: ((state: AppState) => void) | null = null
+
+  const currentUrl = (): string =>
+    window.location.pathname + window.location.search + window.location.hash
 
   /**
-   * Commits a navigation the way Next's history updater does — write the entry with
-   * Next's keys, then update the router state so the location hooks hold the new URL
-   * (`app-router.tsx` v16.0.7 lines 68–92: `historyState = { __NA: true,
-   * __PRIVATE_NEXTJS_INTERNALS_TREE: appHistoryState }`, then `pushState`/`replaceState`
-   * with the canonical URL).
+   * Writes the history entry of one committed state, as Next's `HistoryUpdater` does in a
+   * `useInsertionEffect` (so the URL changes in the same commit as the page): a push when
+   * one is pending and the URL differs, else a replace, with Next's keys and, only when
+   * `preserveCustomHistoryState`, the entry's own state (v16.0.7 `app-router.js` 48–80).
+   *
+   * @param state - The committed state.
+   */
+  const writeHistory = (state: AppState): void => {
+    const historyState = {
+      ...(state.pushRef.preserveCustomHistoryState ? window.history.state : {}),
+      [NEXT_NA_KEY]: true,
+      [NEXT_TREE_KEY]: {
+        tree: { stub: true },
+        renderedSearch: new URL(state.url, window.location.href).search,
+      },
+    }
+    if (state.pushRef.pendingPush && currentUrl() !== state.url) {
+      state.pushRef.pendingPush = false
+      window.history.pushState(historyState, '', state.url)
+    } else {
+      window.history.replaceState(historyState, '', state.url)
+    }
+  }
+
+  /**
+   * Navigates the way `router.push`/`router.replace` do: the new state is dispatched in a
+   * transition (`app-router-instance.js` v16.0.7 lines 281–290, `startTransition` around
+   * `dispatchNavigateAction`), and its history entry is written when it commits.
    *
    * @param path - The target path.
    * @param replace - Replace the current entry instead of pushing.
    */
   const write = (path: string, replace: boolean): void => {
-    const url = new URL(path, window.location.href)
-    const historyState = {
-      [NEXT_NA_KEY]: true,
-      [NEXT_TREE_KEY]: { tree: { stub: true }, renderedSearch: url.search },
+    const url = new URL(basePath + path, window.location.href)
+    const next: AppState = {
+      snapshot: readSnapshot(routes, basePath, url),
+      url: url.pathname + url.search + url.hash,
+      pushRef: { pendingPush: !replace, preserveCustomHistoryState: false },
     }
-    const target = url.pathname + url.search + url.hash
-    if (replace) window.history.replaceState(historyState, '', target)
-    else window.history.pushState(historyState, '', target)
-    setState?.(readSnapshot(routes))
+    const set = setState
+    if (set) {
+      startTransition(() => {
+        set(next)
+      })
+    } else {
+      // No mounted App Router to commit through: write the entry at once.
+      writeHistory(next)
+    }
   }
 
   const navigation: NextNavigation = {
@@ -211,8 +292,20 @@ export function createNextClient(options: NextClientOptions = {}): NextClient {
     forward: () => {
       window.history.forward()
     },
+    // `router.refresh()` re-fetches the route and commits a new state at the same URL with
+    // `preserveCustomHistoryState: false` (`refresh-reducer.js` v16.0.7 line 28), so the
+    // entry is rewritten in place without its own state.
     refresh: () => {
-      // Next re-fetches the current route; no history move, so a no-op here.
+      const set = setState
+      if (!set) return
+      const url = new URL(window.location.href)
+      startTransition(() => {
+        set({
+          snapshot: readSnapshot(routes, basePath, url),
+          url: currentUrl(),
+          pushRef: { pendingPush: false, preserveCustomHistoryState: false },
+        })
+      })
     },
     prefetch: () => {
       // Next caches the target route; nothing observable in the stand-in.
@@ -225,7 +318,7 @@ export function createNextClient(options: NextClientOptions = {}): NextClient {
   }
 
   const path = (): string =>
-    window.location.pathname + window.location.search + window.location.hash
+    withoutBase(window.location.pathname, basePath) + window.location.search + window.location.hash
 
   /**
    * The provider holding the location state — the root layout's `<Bridge>` stand-in.
@@ -238,11 +331,25 @@ export function createNextClient(options: NextClientOptions = {}): NextClient {
    * @returns The provider element.
    */
   function Provider({ children }: { children: ReactNode }): ReactNode {
-    const [snapshot, update] = useState<Snapshot>(() => readSnapshot(routes))
+    const [state, update] = useState<AppState>(() => ({
+      snapshot: readSnapshot(routes, basePath),
+      url: currentUrl(),
+      // The initial state keeps whatever the entry already holds (Next's initial pushRef).
+      pushRef: { pendingPush: false, preserveCustomHistoryState: true },
+    }))
+    const { snapshot } = state
+    useInsertionEffect(() => {
+      writeHistory(state)
+    }, [state])
     useEffect(() => {
       setState = update
+      // A Back/Forward restores the entry's own route (ACTION_RESTORE), keeping its state.
       const onPop = (): void => {
-        update(readSnapshot(routes))
+        update({
+          snapshot: readSnapshot(routes, basePath),
+          url: currentUrl(),
+          pushRef: { pendingPush: false, preserveCustomHistoryState: true },
+        })
       }
       window.addEventListener('popstate', onPop)
       return () => {
@@ -261,6 +368,7 @@ export function createNextClient(options: NextClientOptions = {}): NextClient {
     link,
     navigation,
     path,
+    href: (target) => basePath + target,
     destroy(): void {
       setState = null
     },

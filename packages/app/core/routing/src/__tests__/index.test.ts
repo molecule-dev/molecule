@@ -668,7 +668,7 @@ describe('@molecule/app-routing', () => {
 
       try {
         const router = createBrowserRouter({
-          mode: 'hash',
+          mode: 'history',
           basePath: '/app',
           routes: [{ path: '/', name: 'home' }],
         })

@@ -24,4 +24,10 @@ export const et: RoutingTranslations = {
   'routing.listRoute.error.page': 'useListRoute: page peab olema positiivne turvaline täisarv',
   'routing.sveltekit.error.serverHistory':
     'ajaloo liikumised on saadaval ainult brauseris: SvelteKiti kliendipoolne ruuter ei tööta serveripoolsel renderdamisel',
+  'routing.angularRouter.error.useMoleculeRouterOutsideRouter':
+    'Angular rakenduse süstimiskontekstis, mis pakub ruuterit, tuleb kutsuda `useMoleculeRouter` . Lisage `provideRouter(routes)` rakenduse pakkujatele.',
+  'routing.vueRouter.error.useMoleculeRouterOutsideRouter':
+    'Vue rakenduse komponendi `setup` -is, kus on Vue Router paigaldatud, tuleb kutsuda `useMoleculeRouter` . Paigaldage see `app.use(router)` abil.',
+  'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
+    'Solid Routeri ruuteri sees tuleb kasutada `useMoleculeRouter` . Paigaldage `Router`, `HashRouter` või `MemoryRouter`.',
 }

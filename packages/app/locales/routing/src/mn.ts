@@ -24,4 +24,10 @@ export const mn: RoutingTranslations = {
   'routing.listRoute.error.page': 'useListRoute: page эерэг, аюулгүй бүхэл тоо байх ёстой',
   'routing.sveltekit.error.serverHistory':
     'түүхэн шилжилт зөвхөн хөтчид боломжтой: SvelteKit клиент чиглүүлэгч сервер талын дүрслэлийн үед ажиллахгүй',
+  'routing.angularRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter`-ыг маршрутизаторыг өгдөг Angular аппын injection контекстэд дуудах ёстой. Аппын провайдеруудад `provideRouter(routes)` нэмнэ үү.',
+  'routing.vueRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter`-ыг Vue Router суулгасан Vue аппын компонентийн `setup` дотор дуудах ёстой. Үүнийг `app.use(router)`-оор суулгана уу.',
+  'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter`-ыг Solid Router чиглүүлэгч дотор ашиглах ёстой. `Router`, `HashRouter`, эсвэл `MemoryRouter` холбоно уу.',
 }

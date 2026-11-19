@@ -24,4 +24,10 @@ export const gu: RoutingTranslations = {
   'routing.listRoute.error.page': 'useListRoute: page ધનાત્મક સુરક્ષિત પૂર્ણાંક હોવો જોઈએ',
   'routing.sveltekit.error.serverHistory':
     'હિસ્ટ્રી મૂવ્સ ફક્ત બ્રાઉઝરમાં ઉપલબ્ધ છે: SvelteKit ક્લાયન્ટ રાઉટર સર્વર-સાઇડ રેન્ડરિંગ દરમિયાન ચાલતું નથી',
+  'routing.angularRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` એ રાઉટર પ્રદાન કરતી Angular એપ્લિકેશનના ઇન્જેક્શન સંદર્ભમાં કૉલ થવો જોઈએ. એપ્લિકેશનના પ્રોવાઇડર્સમાં `provideRouter(routes)` ઉમેરો.',
+  'routing.vueRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` એ Vue Router ઇન્સ્ટોલ કરેલી Vue એપ્લિકેશનના ઘટકના `setup` માં કૉલ થવો જોઈએ. તેને `app.use(router)` વડે ઇન્સ્ટોલ કરો.',
+  'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` એ Solid Router રાઉટરમાં વપરાવો જોઈએ. `Router`, `HashRouter` અથવા `MemoryRouter` માઉન્ટ કરો.',
 }

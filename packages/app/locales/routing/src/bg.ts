@@ -25,4 +25,10 @@ export const bg: RoutingTranslations = {
   'routing.listRoute.error.page': 'useListRoute: page трябва да е положително безопасно цяло число',
   'routing.sveltekit.error.serverHistory':
     'движенията по историята са налични само в браузъра: клиентският рутер на SvelteKit не работи при сървърно рендериране',
+  'routing.angularRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` трябва да се извиква в контекст за инжектиране на Angular приложение, което предоставя рутера. Добавете `provideRouter(routes)` към доставчиците на приложението.',
+  'routing.vueRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` трябва да се извиква в `setup` на компонент на Vue приложение с инсталиран Vue Router. Инсталирайте го с `app.use(router)`.',
+  'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` трябва да се използва в рутер на Solid Router. Монтирайте `Router`, `HashRouter` или `MemoryRouter`.',
 }

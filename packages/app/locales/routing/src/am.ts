@@ -21,4 +21,10 @@ export const am: RoutingTranslations = {
   'routing.listRoute.error.page': 'useListRoute: page አዎንታዊ እና ደህንነቱ የተጠበቀ ሙሉ ቁጥር መሆን አለበት',
   'routing.sveltekit.error.serverHistory':
     'የታሪክ እንቅስቃሴዎች በአሳሽ ውስጥ ብቻ ይገኛሉ፦ የSvelteKit ደንበኛ ራውተር በአገልጋይ ጎን በሚታየትበት ወቅት አይንቀሳቀስም።',
+  'routing.angularRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` ራውተሩን በሚያቀርብ የAngular መተግበሪያ ውስጥ በሚገኝ የመርፌ አውድ ውስጥ መጠራት አለበት። `provideRouter(routes)` ን በመተግበሪያው አቅራቢዎች ላይ ያክሉ።',
+  'routing.vueRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` Vue Router በተጫነበት የVue መተግበሪያ ውስጥ ባለው አካል `setup` ውስጥ መጠራት አለበት። በ`app.use(router)` ይጫኑት።',
+  'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` በSolid Router ራውተር ውስጥ ጥቅም ላይ መዋል አለበት። `Router`፣ `HashRouter` ወይም `MemoryRouter` ማውንት።',
 }

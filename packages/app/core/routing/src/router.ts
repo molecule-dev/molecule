@@ -11,10 +11,11 @@ import { getLogger } from '@molecule/app-logger'
 import { createHistoryRouter, parseLocation } from './history-router.js'
 import { fromHistoryStateRecord, toHistoryStateRecord } from './history-state.js'
 import type {
+  BrowserRouterConfig,
+  MemoryRouterConfig,
   NavigationAction,
   RouteLocation,
   Router,
-  RouterConfig,
   RouterHistory,
 } from './types.js'
 
@@ -78,9 +79,12 @@ const createEmitter = (): {
  * @param config - Mode and base path.
  * @returns The history.
  */
-const createBrowserRouterHistory = (config: RouterConfig): RouterHistory => {
+const createBrowserRouterHistory = (config: BrowserRouterConfig): RouterHistory => {
   const logger = getLogger('routing')
-  const { mode = 'history', basePath = '' } = config
+  const mode = config.mode ?? 'history'
+  const basePath = config.mode === 'hash' ? '' : (config.basePath ?? '')
+  // The URL a path is written to, and so the href a link to it carries.
+  const hrefOf = (path: string): string => (mode === 'hash' ? `#${path}` : basePath + path)
   const emitter = createEmitter()
   let lastHref = typeof window === 'undefined' ? '' : window.location.href
 
@@ -102,7 +106,7 @@ const createBrowserRouterHistory = (config: RouterConfig): RouterHistory => {
 
   const write = (path: string, state: unknown, action: 'push' | 'replace'): void => {
     logger.debug('Navigating', path)
-    const url = mode === 'hash' ? `#${path}` : basePath + path
+    const url = hrefOf(path)
     const entry = { ...toHistoryStateRecord(state), [ENTRY_KEY]: newKey() }
     if (action === 'replace') window.history.replaceState(entry, '', url)
     else window.history.pushState(entry, '', url)
@@ -128,6 +132,7 @@ const createBrowserRouterHistory = (config: RouterConfig): RouterHistory => {
     replace: (path, state) => write(path, state, 'replace'),
     go: (delta) => window.history.go(delta),
     listen: emitter.listen,
+    createHref: hrefOf,
     destroy() {
       emitter.clear()
       if (typeof window === 'undefined') return
@@ -141,9 +146,10 @@ const createBrowserRouterHistory = (config: RouterConfig): RouterHistory => {
  * An in-memory history: a list of entries and a position in it.
  *
  * @param initialEntries - The starting entries; the last one is current.
+ * @param basePath - Prefixed to each `createHref`.
  * @returns The history.
  */
-const createMemoryRouterHistory = (initialEntries: string[]): RouterHistory => {
+const createMemoryRouterHistory = (initialEntries: string[], basePath: string): RouterHistory => {
   const emitter = createEmitter()
   const entries: RouteLocation[] = (initialEntries.length ? initialEntries : ['/']).map(
     (entry) => ({ ...parseLocation(entry), key: newKey() }),
@@ -169,6 +175,7 @@ const createMemoryRouterHistory = (initialEntries: string[]): RouterHistory => {
       emitter.emit('pop')
     },
     listen: emitter.listen,
+    createHref: (path) => basePath + path,
     destroy: emitter.clear,
   }
 }
@@ -181,7 +188,7 @@ const createMemoryRouterHistory = (initialEntries: string[]): RouterHistory => {
  * @param config - Router configuration (mode, basePath, initial routes).
  * @returns A `Router` instance bound to the browser history.
  */
-export const createBrowserRouter = (config: RouterConfig = {}): Router =>
+export const createBrowserRouter = (config: BrowserRouterConfig = {}): Router =>
   createHistoryRouter(createBrowserRouterHistory(config), { routes: config.routes })
 
 /**
@@ -191,9 +198,8 @@ export const createBrowserRouter = (config: RouterConfig = {}): Router =>
  * @param config - Router configuration with optional `initialEntries` for the history stack.
  * @returns A `Router` instance backed by an in-memory history.
  */
-export const createMemoryRouter = (
-  config: RouterConfig & { initialEntries?: string[] } = {},
-): Router =>
-  createHistoryRouter(createMemoryRouterHistory(config.initialEntries ?? ['/']), {
-    routes: config.routes,
-  })
+export const createMemoryRouter = (config: MemoryRouterConfig = {}): Router =>
+  createHistoryRouter(
+    createMemoryRouterHistory(config.initialEntries ?? ['/'], config.basePath ?? ''),
+    { routes: config.routes },
+  )

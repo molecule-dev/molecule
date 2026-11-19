@@ -60,7 +60,14 @@ export interface NextSearchParams {
 /**
  * Configuration options for the Next.js router provider.
  */
-export interface NextRouterConfig extends RouterConfig {
+export interface NextRouterConfig {
+  /**
+   * The app's `basePath`: Next's `<Link>` and `router.push` write it before each path and
+   * `usePathname()` leaves it out, so `createHref` writes it too. Defaults to the
+   * `next.config` `basePath` the Next build compiles in, so a Next app leaves it unset.
+   */
+  basePath?: string
+
   /**
    * Next.js navigation object (from useRouter).
    */

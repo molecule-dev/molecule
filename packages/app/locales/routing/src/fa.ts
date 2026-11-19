@@ -24,4 +24,10 @@ export const fa: RoutingTranslations = {
   'routing.listRoute.error.page': 'useListRoute: page باید یک عدد صحیح امن مثبت باشد',
   'routing.sveltekit.error.serverHistory':
     'جابه‌جایی‌های تاریخچه فقط در مرورگر در دسترس است: روتر کلاینت SvelteKit هنگام رندر سمت سرور اجرا نمی‌شود',
+  'routing.angularRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` باید در یک زمینه تزریق از یک برنامه Angular که روتر را فراهم می‌کند فراخوانی شود. `provideRouter(routes)` را به ارائه‌دهندگان برنامه اضافه کنید.',
+  'routing.vueRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` باید در `setup` یک مؤلفه از یک برنامه Vue با Vue Router نصب‌شده فراخوانی شود. آن را با `app.use(router)` نصب کنید.',
+  'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` باید درون یک روتر Solid Router استفاده شود. `Router` ، `HashRouter` یا `MemoryRouter` را نصب کنید.',
 }

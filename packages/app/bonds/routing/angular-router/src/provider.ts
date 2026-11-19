@@ -182,6 +182,10 @@ export const createAngularRouter = (
 
     go: (delta) => location.historyGo(delta),
 
+    // The href `<a [routerLink]>` renders for the URL: Angular's serialized URL tree, with
+    // the `LocationStrategy`'s base (`APP_BASE_HREF`) or `#` (`HashLocationStrategy`).
+    createHref: (path) => location.prepareExternalUrl(router.serializeUrl(router.parseUrl(path))),
+
     listen(listener) {
       listeners.add(listener)
       return () => {

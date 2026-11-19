@@ -25,4 +25,10 @@ export const tr: RoutingTranslations = {
   'routing.listRoute.error.page': 'useListRoute: page pozitif bir güvenli tam sayı olmalıdır',
   'routing.sveltekit.error.serverHistory':
     'geçmiş hareketleri yalnızca tarayıcıda kullanılabilir: SvelteKit istemci yönlendiricisi sunucu tarafında işleme sırasında çalışmaz',
+  'routing.angularRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` yönlendiriciyi sağlayan bir Angular uygulamasının enjeksiyon bağlamında çağrılmalıdır. Uygulamanın sağlayıcılarına `provideRouter(routes)` ekleyin.',
+  'routing.vueRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter`, Vue Router kurulu bir Vue uygulamasının bileşeninin `setup` işlevi içinde çağrılmalıdır. `app.use(router)` ile kurun.',
+  'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` bir Solid Router yönlendiricisi içinde kullanılmalıdır. `Router`, `HashRouter` veya `MemoryRouter` bağlayın.',
 }

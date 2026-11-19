@@ -5,7 +5,7 @@
  * @module
  */
 
-import { t } from '@molecule/app-i18n'
+import { I18nError } from '@molecule/app-i18n'
 
 import type { QueryParams, RouteMatch, RouteParams } from './types.js'
 
@@ -111,18 +111,16 @@ export const matchPath = <Params extends RouteParams = RouteParams>(
  * @param pattern - Route pattern with `:param` placeholders (e.g. `/users/:id`).
  * @param params - Parameter values to substitute into the pattern.
  * @returns The generated path with parameters URL-encoded.
- * @throws {Error} If a required parameter is missing.
+ * @throws {I18nError} `routing.error.missingParam` when a required parameter is missing.
  */
 export const generatePath = (pattern: string, params: RouteParams = {}): string => {
   return pattern.replace(/:([^/]+)/g, (_, name) => {
     const value = params[name]
     if (value === undefined) {
-      throw new Error(
-        t(
-          'routing.error.missingParam',
-          { name, pattern },
-          { defaultValue: 'Missing param "{{name}}" for path "{{pattern}}"' },
-        ),
+      throw new I18nError(
+        'routing.error.missingParam',
+        { name, pattern },
+        'Missing param "{{name}}" for path "{{pattern}}"',
       )
     }
     return encodeURIComponent(value)

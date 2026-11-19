@@ -24,4 +24,10 @@ export const pa: RoutingTranslations = {
   'routing.listRoute.error.page': 'useListRoute: page ਸਕਾਰਾਤਮਕ ਸੁਰੱਖਿਅਤ ਪੂਰਨ ਅੰਕ ਹੋਣਾ ਚਾਹੀਦਾ ਹੈ',
   'routing.sveltekit.error.serverHistory':
     'ਹਿਸਟਰੀ ਮੂਵਜ਼ ਸਿਰਫ਼ ਬਰਾਊਜ਼ਰ ਵਿੱਚ ਉਪਲਬਧ ਹਨ: SvelteKit ਕਲਾਇੰਟ ਰਾਊਟਰ ਸਰਵਰ-ਸਾਈਡ ਰੈਂਡਰਿੰਗ ਦੌਰਾਨ ਨਹੀਂ ਚੱਲਦਾ',
+  'routing.angularRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` ਨੂੰ ਰਾਊਟਰ ਪ੍ਰਦਾਨ ਕਰਨ ਵਾਲੀ Angular ਐਪ ਦੇ ਇੰਜੈਕਸ਼ਨ ਸੰਦਰਭ ਵਿੱਚ ਕਾਲ ਕੀਤਾ ਜਾਣਾ ਚਾਹੀਦਾ ਹੈ। ਐਪ ਦੇ ਪ੍ਰੋਵਾਈਡਰਾਂ ਵਿੱਚ `provideRouter(routes)` ਸ਼ਾਮਲ ਕਰੋ।',
+  'routing.vueRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` ਨੂੰ Vue Router ਸਥਾਪਿਤ ਕੀਤੇ Vue ਐਪ ਦੇ ਕੰਪੋਨੈਂਟ ਦੇ `setup` ਵਿੱਚ ਕਾਲ ਕੀਤਾ ਜਾਣਾ ਚਾਹੀਦਾ ਹੈ। ਇਸਨੂੰ `app.use(router)` ਨਾਲ ਸਥਾਪਿਤ ਕਰੋ।',
+  'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` ਨੂੰ Solid Router ਰਾਊਟਰ ਦੇ ਅੰਦਰ ਵਰਤਿਆ ਜਾਣਾ ਚਾਹੀਦਾ ਹੈ। `Router`, `HashRouter` ਜਾਂ `MemoryRouter` ਮਾਊਂਟ ਕਰੋ।',
 }

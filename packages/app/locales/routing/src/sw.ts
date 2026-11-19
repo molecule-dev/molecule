@@ -25,4 +25,10 @@ export const sw: RoutingTranslations = {
   'routing.listRoute.error.page': 'useListRoute: page lazima iwe nambari kamili chanya salama',
   'routing.sveltekit.error.serverHistory':
     'uisogeaji wa historia upatikani tu kwenye kivinjari: kipanga njia cha mteja cha SvelteKit hakifanyi kazi wakati wa kuonyesha upande wa seva',
+  'routing.angularRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` lazima iitwe katika muktadha wa sindano wa programu ya Angular inayotoa kipanga njia. Ongeza `provideRouter(routes)` kwenye watoa huduma wa programu.',
+  'routing.vueRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` lazima iitwe katika `setup` ya sehemu ya programu ya Vue iliyo na Vue Router imesakinishwa. Isakinishe kwa `app.use(router)`.',
+  'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` lazima itumike ndani ya kipanga njia cha Solid Router. Weka `Router`, `HashRouter` au `MemoryRouter`.',
 }

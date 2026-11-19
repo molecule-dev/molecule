@@ -9,8 +9,15 @@
  * @module
  */
 
-import { useLocation, useNavigate, useParams } from '@solidjs/router'
-import { createEffect, createRoot, on, untrack } from 'solid-js'
+import {
+  RouterContext,
+  useHref,
+  useLocation,
+  useNavigate,
+  useParams,
+  useResolvedPath,
+} from '@solidjs/router'
+import { createEffect, createRoot, getOwner, on, runWithOwner, untrack, useContext } from 'solid-js'
 
 import type {
   NavigationAction,
@@ -26,6 +33,8 @@ import {
   toHistoryStateRecord,
 } from '@molecule/app-routing'
 
+import { MemoryHistoryContext } from './context.js'
+import { decodeParam } from './decode-param.js'
 import type { SolidRouterOptions } from './types.js'
 
 /** Origin used only to parse a native history entry into its parts. */
@@ -62,6 +71,23 @@ const newKey = (): string => Math.random().toString(36).slice(2)
  */
 const ROUTER_STATE_TAG = '_depth'
 
+/** A navigation a molecule router started, until Solid Router writes its browser entry. */
+interface PendingEntry {
+  /** The navigation's target path. */
+  path: string
+  /** The entry key it was given. */
+  key: string
+  /** The app state it was asked to carry. */
+  state: unknown
+}
+
+/**
+ * The navigation in flight on each Solid Router, shared by every molecule router built on
+ * it. Each hook builds its own molecule router, and one that did not start the navigation
+ * must still read its state and key while the browser entry is unwritten.
+ */
+const pendingEntries = new WeakMap<object, { current: PendingEntry | null }>()
+
 /** The `history.state` key this bond keeps each entry's location key under. */
 const ENTRY_KEY = '__moleculeKey'
 
@@ -93,18 +119,26 @@ const readStoredEntry = (raw: unknown): Entry => {
   }
 }
 
+/** The history record a navigation writes, and the entry key it carries. */
+interface NavigatedEntry {
+  /** What `window.history.state` receives. */
+  record: Record<string, unknown>
+  /** The entry key inside that record. */
+  key: string
+}
+
 /**
  * The state a navigation through this router writes: any value the browser can store
  * (wrapped by `toHistoryStateRecord` when it is not a plain object, or uses Solid
  * Router's `_depth`), plus a new entry key.
  *
  * @param state - The navigation's state.
- * @returns The history state to write.
+ * @returns The history state to write, with its entry key.
  */
-const entryState = (state: unknown): Record<string, unknown> => ({
-  ...toHistoryStateRecord(state, isSolidRouterKey),
-  [ENTRY_KEY]: newKey(),
-})
+const entryState = (state: unknown): NavigatedEntry => {
+  const key = newKey()
+  return { record: { ...toHistoryStateRecord(state, isSolidRouterKey), [ENTRY_KEY]: key }, key }
+}
 
 /**
  * Creates a molecule `Router` over the Solid Router the call sits inside.
@@ -129,19 +163,32 @@ const entryState = (state: unknown): Record<string, unknown> => ({
  * A Solid Router reports no navigation action and no entry key, and its memory router
  * keeps no state, so the bond tracks both itself. Browser histories (`<Router>`,
  * `<HashRouter>`) keep each entry's state and key in `history.state` and report pops
- * through `popstate`. A memory router needs the history from
- * {@link createSolidMemoryHistory}, passed to both `<MemoryRouter history={memory}>` and
- * `options.history`.
+ * through `popstate`. A memory router needs a history from
+ * {@link createSolidMemoryHistory}: the bond's `MemoryRouter` makes one and every router
+ * under it reads it; under Solid Router's own `<MemoryRouter history={memory}>`, pass the
+ * same history as `options.history`.
  *
  * @param options - Route definitions and, for a memory router, its history.
  * @returns A molecule `Router` driving that Solid Router.
  */
 export const createSolidRouter = (options: SolidRouterOptions = {}): Router => {
-  const { routes, history: memoryHistory } = options
+  const { routes } = options
+  // The bond's `MemoryRouter` publishes its history; an explicit option wins.
+  const memoryHistory = options.history ?? useContext(MemoryHistoryContext)
   const location = useLocation()
   const navigate = useNavigate()
   const nativeParams = useParams()
   const onWindow = !memoryHistory && typeof window !== 'undefined'
+  const owner = getOwner()
+
+  // Solid Router's location holds its `base` (`<Router base="/app">`) before the in-app
+  // path; the base is what it resolves the app's root to (`/` when it has none).
+  const resolvedRoot = untrack(useResolvedPath(() => '/'))
+  const base = resolvedRoot === undefined || resolvedRoot === '/' ? '' : resolvedRoot
+  const inApp = (pathname: string): string =>
+    base && (pathname === base || pathname.startsWith(`${base}/`))
+      ? pathname.slice(base.length) || '/'
+      : pathname
 
   /** The Solid Router's current path, tracked (an effect reading it re-runs on change). */
   const trackedPath = (): string =>
@@ -152,6 +199,15 @@ export const createSolidRouter = (options: SolidRouterOptions = {}): Router => {
   let lastRaw: unknown
   let lastKey: string | undefined
   let lastEntry: Entry = { state: undefined, key: 'default' }
+  // A navigation this bond starts commits the location before Solid Router writes the
+  // entry (its `set`, browser or memory, runs in the transition's completion). Until the
+  // entry carries the key, an entry read must answer with this navigation's own record: the
+  // key it was given, and the app state it was asked to carry. The record is shared by
+  // every molecule router on this Solid Router (`useLocation` above has already required
+  // one), so a subscriber of another hook reads it too.
+  const nativeRouter: object = useContext(RouterContext) ?? {}
+  const pending = pendingEntries.get(nativeRouter) ?? { current: null }
+  pendingEntries.set(nativeRouter, pending)
   const readEntry = (): Entry => {
     const memoryEntry = memoryHistory?.entry()
     const raw: unknown = memoryEntry ? memoryEntry.state : onWindow ? window.history.state : null
@@ -159,7 +215,22 @@ export const createSolidRouter = (options: SolidRouterOptions = {}): Router => {
       lastRaw = raw
       lastKey = memoryEntry?.key
       const stored = readStoredEntry(raw)
-      lastEntry = memoryEntry ? { state: stored.state, key: memoryEntry.key } : stored
+      // An entry this bond navigated to carries its own key in its state, under a memory
+      // history as in the browser; any other memory entry has the history's key.
+      lastEntry =
+        memoryEntry && stored.key === 'default'
+          ? { state: stored.state, key: memoryEntry.key }
+          : stored
+    }
+    const pendingEntry = pending.current
+    if (pendingEntry !== null) {
+      const current = untrack(trackedPath)
+      const rawKey =
+        raw !== null && typeof raw === 'object' && ENTRY_KEY in raw ? raw[ENTRY_KEY] : undefined
+      if (pendingEntry.path === current && rawKey !== pendingEntry.key) {
+        return { state: pendingEntry.state, key: pendingEntry.key }
+      }
+      if (pendingEntry.path !== current || rawKey === pendingEntry.key) pending.current = null
     }
     return lastEntry
   }
@@ -220,7 +291,7 @@ export const createSolidRouter = (options: SolidRouterOptions = {}): Router => {
     location(): RouteLocation {
       const { state, key } = readEntry()
       return {
-        pathname: untrack(() => location.pathname),
+        pathname: inApp(untrack(() => location.pathname)),
         search: untrack(() => location.search),
         hash: untrack(() => location.hash),
         state,
@@ -230,27 +301,50 @@ export const createSolidRouter = (options: SolidRouterOptions = {}): Router => {
 
     /**
      * The params of the route the native router matched (its merged router-level
-     * params). Keys whose value is `undefined` (Solid Router's optional segments) are
-     * dropped: the molecule `RouteParams` values are strings.
+     * params), decoded: Solid Router hands out the raw path segment (`Ada%20Lovelace`),
+     * where React Router's `useParams` and Vue Router's `route.params` decode it. Keys
+     * whose value is `undefined` (Solid Router's optional segments) are dropped: the
+     * molecule `RouteParams` values are strings.
      *
-     * @returns A plain copy of the native params.
+     * @returns A decoded plain copy of the native params.
      */
     params: () =>
       untrack(() => {
         const copy: RouteParams = {}
         for (const [name, value] of Object.entries(nativeParams)) {
-          if (typeof value === 'string') copy[name] = value
+          if (typeof value === 'string') copy[name] = decodeParam(value)
         }
         return copy
       }),
 
-    push: (path, state) => navigate(path, { state: entryState(state) }),
+    push: (path, state) => {
+      const entry = entryState(state)
+      pending.current = { path, key: entry.key, state }
+      return navigate(path, { replace: false, state: entry.record })
+    },
 
-    replace: (path, state) => navigate(path, { replace: true, state: entryState(state) }),
+    replace: (path, state) => {
+      const entry = entryState(state)
+      pending.current = { path, key: entry.key, state }
+      return navigate(path, { replace: true, state: entry.record })
+    },
 
     // A numeric target is Solid Router's own history move: `navigateFromRoute` routes it
     // through the integration's `go` (`memoryHistory.go`, `window.history.go`).
     go: (delta) => navigate(delta),
+
+    // The href `<A href={path}>` renders, from the primitives `<A>` itself uses: the path
+    // resolved against the router's base, then rendered by its integration (`#` first
+    // under `<HashRouter>`). They create computations, so each call runs them in a root
+    // under this router's owner (for the router context) and disposes it at once.
+    createHref: (path) =>
+      runWithOwner(owner, () =>
+        createRoot((dispose) => {
+          const href = untrack(useHref(useResolvedPath(() => path)))
+          dispose()
+          return href
+        }),
+      ) ?? path,
 
     /**
      * Calls `listener` once per committed navigation of the native router, `'pop'` for a

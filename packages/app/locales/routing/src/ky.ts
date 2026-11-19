@@ -24,4 +24,10 @@ export const ky: RoutingTranslations = {
   'routing.listRoute.error.page': 'useListRoute: page оң коопсуз бүтүн сан болушу керек',
   'routing.sveltekit.error.serverHistory':
     'тарых боюнча жылышуулар гана браузерде жеткиликтүү: SvelteKit клиент роутери сервер тараптуу көрсөтүү учурунда иштебейт',
+  'routing.angularRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` маршрутизаторду камсыз кылган Angular колдонмосунун инъекция контекстинде чакырылышы керек. Колдонмонун провайдерлерине `provideRouter(routes)` кошуңуз.',
+  'routing.vueRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` Vue Router орнотулган Vue колдонмосунун компонентинин `setup` ичинде чакырылышы керек. Аны `app.use(router)` менен орнотуңуз.',
+  'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` Solid Router маршрутизаторунда колдонулушу керек. `Router`, `HashRouter` же `MemoryRouter` орнотуңуз.',
 }

@@ -25,4 +25,10 @@ export const be: RoutingTranslations = {
   'routing.listRoute.error.page': 'useListRoute: page павінен быць дадатным бяспечным цэлым лікам',
   'routing.sveltekit.error.serverHistory':
     'перасоўванні па гісторыі даступныя толькі ў браўзеры: кліенцкі маршрутызатар SvelteKit не працуе падчас рэндэрынгу на серверы',
+  'routing.angularRouter.error.useMoleculeRouterOutsideRouter':
+    "`useMoleculeRouter` павінен выклікацца ў кантэксце ін'екцыі Angular-праграмы, якая прадастаўляе маршрутызатар. Дадайце `provideRouter(routes)` у правайдэры праграмы.",
+  'routing.vueRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` павінен выклікацца ў `setup` кампанента Vue-праграмы з усталяваным Vue Router. Усталюйце яго з дапамогай `app.use(router)`.',
+  'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` павінен выкарыстоўвацца ўнутры маршрутызатара Solid Router. Прымацуйце `Router`, `HashRouter` або `MemoryRouter`.',
 }

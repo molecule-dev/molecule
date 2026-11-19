@@ -1,33 +1,32 @@
 // @vitest-environment jsdom
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
-// Mock vue-router's composables (the tests drive the bond through its own mock router).
-vi.mock('vue-router', () => ({
-  useRouter: vi.fn(),
-  useRoute: vi.fn(),
-  // Vue Router's route before its first navigation; no mock route is this object.
-  START_LOCATION: { path: '/', fullPath: '/', hash: '', params: {} },
-}))
+// Only the two composables are mocked: the tests that predate the React parity port drive
+// the bond through a mock router. Everything else (createRouter, createWebHistory,
+// START_LOCATION, the rest of vue) is the REAL module, because the ported titles build a
+// real Vue Router and run the bond over it.
+vi.mock('vue-router', async () => {
+  const actual = await vi.importActual<Record<string, unknown>>('vue-router')
+  return { ...actual, useRouter: vi.fn(), useRoute: vi.fn() }
+})
 
 // The REAL @molecule/app-routing: the bond builds on its createHistoryRouter /
 // createBrowserRouter, and the no-vue-router fallback IS the core browser router.
 vi.mock('@molecule/app-routing', async () => await vi.importActual('@molecule/app-routing'))
 
-// Mock vue
-vi.mock('vue', () => ({
-  computed: vi.fn((fn: () => unknown) => ({ value: fn() })),
-  ref: vi.fn((val: unknown) => ({ value: val })),
-  watch: vi.fn(),
-  onUnmounted: vi.fn(),
-}))
-
+import { createApp } from 'vue'
 import {
+  createRouter,
+  createWebHistory,
   type LocationQueryValue,
   type NavigationFailure,
   type RouteLocationNormalizedLoaded,
   type Router as VueRouterInstance,
+  type RouteRecordRaw,
   useRouter as useVueRouter,
 } from 'vue-router'
+
+import { I18nError } from '@molecule/app-i18n'
 
 import type { RouteDefinition, RouteLocation } from '../index.js'
 import {
@@ -36,8 +35,11 @@ import {
   matchPath,
   MOLECULE_ROUTER_KEY,
   normalizeParams,
+  normalizePath,
+  parseSearchParams,
   parseVueQuery,
   provider,
+  resolvePath,
   stringifyQuery,
   toVueQuery,
   useMoleculeRouter,
@@ -45,6 +47,14 @@ import {
 
 // Flush microtasks so async navigate() calls complete
 const flush = (): Promise<unknown> => new Promise((resolve) => setTimeout(resolve, 0))
+
+// A fallback test swaps in a stand-in window; give the real one back to every later test.
+// The address is reset too: a test that drives a REAL Vue Router leaves the browser on the
+// page it navigated to, and the core browser router the bond falls back to reads it.
+afterEach(() => {
+  vi.unstubAllGlobals()
+  window.history.replaceState(null, '', '/')
+})
 
 describe('@molecule/app-routing-vue-router', () => {
   // A mock Vue route is the real type: the bond reads these fields off `currentRoute`.
@@ -94,7 +104,7 @@ describe('@molecule/app-routing-vue-router', () => {
 
   // The move information Vue Router's history listener reports. Its `type` mirrors the
   // internal `NavigationInformation['type']` ('pop' | 'push'); this double also uses
-  // 'replace' for its own commits, which the bond reads as any non-pop move.
+  // 'replace' for its own commits, which the bond reads as a non-pop move.
   interface MockHistoryInfo {
     type: 'push' | 'replace' | 'pop'
     delta: number
@@ -190,6 +200,66 @@ describe('@molecule/app-routing-vue-router', () => {
   // away from that contract, this cast itself stops compiling.
   const asVueRouter = (mock: MockVueRouter): VueRouterInstance => mock as VueRouterInstance
 
+  /** A page the declared Vue Router routes render (nothing — only routing is under test). */
+  const EmptyRoute = { render: (): null => null }
+
+  /**
+   * Builds the REAL Vue Router the ported React titles run over — `vue-router`'s own
+   * `createRouter` with the browser history, brought to `initialPath` and ready, the way
+   * the bond's conformance test builds one. The molecule router is then created over it, so
+   * "navigateFn" is the native `push`/`replace`/`go`, spied at the call site.
+   *
+   * @param initialPath - The address the router opens on (path, query and hash).
+   * @param routes - The Vue Router records that must match that address (so params fill).
+   * @returns The ready Vue Router.
+   */
+  const createRealVueRouter = async (
+    initialPath: string,
+    routes: RouteRecordRaw[] = [],
+  ): Promise<VueRouterInstance> => {
+    window.history.replaceState(null, '', initialPath)
+    const vueRouter = createRouter({ history: createWebHistory(), routes })
+    await vueRouter.push(initialPath)
+    await vueRouter.isReady()
+    return vueRouter
+  }
+
+  /** The browser pieces the core browser router reads, as a stand-in `window`. */
+  interface StubWindow {
+    location: { href: string; pathname: string; search: string; hash: string }
+    history: {
+      state: unknown
+      pushState: ReturnType<typeof vi.fn>
+      replaceState: ReturnType<typeof vi.fn>
+      back: ReturnType<typeof vi.fn>
+      forward: ReturnType<typeof vi.fn>
+      go: ReturnType<typeof vi.fn>
+    }
+  }
+
+  /**
+   * Replaces `globalThis.window` with the browser surface the core browser router reads, so
+   * a fallback navigation is observed without really navigating jsdom. The file's
+   * `afterEach` gives the real window back, whatever the test asserted.
+   *
+   * @returns The stand-in window, whose spies the test asserts on.
+   */
+  const withStubWindow = (): StubWindow => {
+    const stub: StubWindow = {
+      location: { href: '', pathname: '/', search: '', hash: '' },
+      history: {
+        state: null,
+        pushState: vi.fn(),
+        replaceState: vi.fn(),
+        back: vi.fn(),
+        forward: vi.fn(),
+        go: vi.fn(),
+      },
+    }
+    vi.stubGlobal('window', stub)
+    return stub
+  }
+
   describe('createVueRouter', () => {
     describe('initialization', () => {
       it('should create a router with default config', () => {
@@ -200,6 +270,44 @@ describe('@molecule/app-routing-vue-router', () => {
         expect(router.getParams).toBeInstanceOf(Function)
         expect(router.getQuery).toBeInstanceOf(Function)
         expect(router.navigate).toBeInstanceOf(Function)
+      })
+
+      it('should create a router with a provided location', async () => {
+        const vueRouter = await createRealVueRouter('/dashboard?tab=settings#section', [
+          { path: '/dashboard', component: EmptyRoute },
+        ])
+
+        const router = createVueRouter({ router: vueRouter })
+
+        const location = router.getLocation()
+        expect(location.pathname).toBe('/dashboard')
+        expect(location.search).toBe('?tab=settings')
+        expect(location.hash).toBe('#section')
+      })
+
+      it('should create a router with params', async () => {
+        const vueRouter = await createRealVueRouter('/users/123', [
+          { path: '/users/:id', component: EmptyRoute },
+        ])
+
+        const router = createVueRouter({ router: vueRouter })
+
+        const params = router.getParams<{ id: string }>()
+        expect(params.id).toBe('123')
+      })
+
+      it('should filter undefined params', async () => {
+        // Vue Router fills only the names the URL has a value for: an optional segment the
+        // URL leaves out is ABSENT, not present with an `undefined` value.
+        const vueRouter = await createRealVueRouter('/users/123', [
+          { path: '/users/:id/:tab?', component: EmptyRoute },
+        ])
+
+        const router = createVueRouter({ router: vueRouter })
+
+        const params = router.getParams()
+        expect(params.id).toBe('123')
+        expect('tab' in params).toBe(false)
       })
 
       it('should create a router reading the provided route', () => {
@@ -253,6 +361,26 @@ describe('@molecule/app-routing-vue-router', () => {
     })
 
     describe('getLocation', () => {
+      it('should return current location from provided location object', async () => {
+        const vueRouter = await createRealVueRouter('/about?ref=home#top', [
+          { path: '/about', component: EmptyRoute },
+        ])
+        // The app's state lives on the history entry (Vue Router keeps its own bookkeeping
+        // beside it); the location reports the app's part only.
+        window.history.replaceState({ ...window.history.state, from: 'nav' }, '')
+
+        const router = createVueRouter({ router: vueRouter })
+
+        const location = router.getLocation()
+        expect(location.pathname).toBe('/about')
+        expect(location.search).toBe('?ref=home')
+        expect(location.hash).toBe('#top')
+        expect(location.state).toEqual({ from: 'nav' })
+        // The key is the one the bond writes into the entry, so Back brings it back.
+        expect(typeof location.key).toBe('string')
+        expect(window.history.state).toMatchObject({ __moleculeKey: location.key })
+      })
+
       it('should return current location from provided route', () => {
         // The entry state is read from the real history: give this entry a position.
         window.history.replaceState({ position: 4 }, '', '/about?ref=home#top')
@@ -311,6 +439,33 @@ describe('@molecule/app-routing-vue-router', () => {
     })
 
     describe('getParams', () => {
+      it('should return empty object when no params', async () => {
+        const vueRouter = await createRealVueRouter('/home', [
+          { path: '/home', component: EmptyRoute },
+        ])
+
+        const router = createVueRouter({ router: vueRouter })
+
+        expect(router.getParams()).toEqual({})
+      })
+
+      it('should return typed params', async () => {
+        type ProductParams = {
+          id: string
+          category: string
+        }
+
+        const vueRouter = await createRealVueRouter('/products/electronics/123', [
+          { path: '/products/:category/:id', component: EmptyRoute },
+        ])
+
+        const router = createVueRouter({ router: vueRouter })
+
+        const params = router.getParams<ProductParams>()
+        expect(params.id).toBe('123')
+        expect(params.category).toBe('electronics')
+      })
+
       it('should return empty object when no route', () => {
         const router = createVueRouter()
 
@@ -338,6 +493,39 @@ describe('@molecule/app-routing-vue-router', () => {
     })
 
     describe('getQuery', () => {
+      it('should return empty object when no search params', async () => {
+        const vueRouter = await createRealVueRouter('/home', [
+          { path: '/home', component: EmptyRoute },
+        ])
+
+        const router = createVueRouter({ router: vueRouter })
+
+        expect(router.getQuery()).toEqual({})
+      })
+
+      it('should parse search string into query params', async () => {
+        const vueRouter = await createRealVueRouter('/search?page=1&limit=10', [
+          { path: '/search', component: EmptyRoute },
+        ])
+
+        const router = createVueRouter({ router: vueRouter })
+
+        const query = router.getQuery()
+        expect(query.page).toBe('1')
+        expect(query.limit).toBe('10')
+      })
+
+      it('should handle duplicate keys as arrays', async () => {
+        const vueRouter = await createRealVueRouter('/search?tag=react&tag=vue', [
+          { path: '/search', component: EmptyRoute },
+        ])
+
+        const router = createVueRouter({ router: vueRouter })
+
+        const query = router.getQuery()
+        expect(query.tag).toEqual(['react', 'vue'])
+      })
+
       it('should return empty object when no route', () => {
         const router = createVueRouter()
 
@@ -384,6 +572,26 @@ describe('@molecule/app-routing-vue-router', () => {
     })
 
     describe('getQueryParam', () => {
+      it('should return undefined for missing param', async () => {
+        const vueRouter = await createRealVueRouter('/search', [
+          { path: '/search', component: EmptyRoute },
+        ])
+
+        const router = createVueRouter({ router: vueRouter })
+
+        expect(router.getQueryParam('missing')).toBeUndefined()
+      })
+
+      it('should return string param value', async () => {
+        const vueRouter = await createRealVueRouter('/search?page=5', [
+          { path: '/search', component: EmptyRoute },
+        ])
+
+        const router = createVueRouter({ router: vueRouter })
+
+        expect(router.getQueryParam('page')).toBe('5')
+      })
+
       it('should return undefined when no route', () => {
         const router = createVueRouter()
 
@@ -425,6 +633,16 @@ describe('@molecule/app-routing-vue-router', () => {
     })
 
     describe('getHash', () => {
+      it('should return hash from location', async () => {
+        const vueRouter = await createRealVueRouter('/page#section1', [
+          { path: '/page', component: EmptyRoute },
+        ])
+
+        const router = createVueRouter({ router: vueRouter })
+
+        expect(router.getHash()).toBe('#section1')
+      })
+
       it('should return hash from route', () => {
         const route = createMockRoute('/page', {
           hash: '#section1',
@@ -445,6 +663,66 @@ describe('@molecule/app-routing-vue-router', () => {
     })
 
     describe('navigate', () => {
+      it('should call navigateFn for regular navigation', async () => {
+        const vueRouter = await createRealVueRouter('/')
+        const navigateFn = vi.spyOn(vueRouter, 'push')
+
+        const router = createVueRouter({ router: vueRouter })
+        await router.navigate('/products')
+
+        expect(navigateFn).toHaveBeenCalledWith('/products')
+      })
+
+      it('should call navigateFn with replace option', async () => {
+        const vueRouter = await createRealVueRouter('/')
+        const navigateFn = vi.spyOn(vueRouter, 'replace')
+
+        const router = createVueRouter({ router: vueRouter })
+        await router.navigate('/products', { replace: true })
+
+        expect(navigateFn).toHaveBeenCalledWith('/products')
+      })
+
+      it('should pass state to navigateFn', async () => {
+        const vueRouter = await createRealVueRouter('/')
+
+        const router = createVueRouter({ router: vueRouter })
+        await router.navigate('/products', { state: { fromCart: true } })
+
+        // Vue Router's `push` takes only the target; the state is written onto the history
+        // entry the navigation lands on (what React's `navigateFn` receives as an option).
+        expect(router.getLocation().state).toEqual({ fromCart: true })
+        expect(window.history.state).toMatchObject({ fromCart: true })
+      })
+
+      it('should notify listeners after navigation', async () => {
+        const vueRouter = await createRealVueRouter('/')
+
+        const router = createVueRouter({ router: vueRouter })
+        const listener = vi.fn()
+
+        router.subscribe(listener)
+        await router.navigate('/new-page')
+
+        // The port's location follows the native router, so the listener hears the
+        // location the navigation landed on.
+        expect(listener).toHaveBeenCalledWith(
+          expect.objectContaining({ pathname: '/new-page' }),
+          'push',
+        )
+      })
+
+      it('should fall back to window.location when no navigate function provided', () => {
+        // The exported `provider` is the core browser router: with no native router it
+        // navigates through the History API (`history.pushState`), which is what moves
+        // `window.location`; React's bond assigns `location.href` instead.
+        const stub = withStubWindow()
+
+        provider.navigate('/fallback-path')
+
+        expect(stub.history.pushState).toHaveBeenCalledWith(expect.anything(), '', '/fallback-path')
+      })
+
       it('should call vueRouter.push for regular navigation', async () => {
         const vueRouter = createMockVueRouter()
 
@@ -589,9 +867,63 @@ describe('@molecule/app-routing-vue-router', () => {
 
         expect(() => router.navigateTo('unknown')).toThrow('Route "unknown" not found')
       })
+
+      it('should throw I18nError with routing.error.routeNotFound key for unknown route', () => {
+        const router = createVueRouter({
+          routes: [{ path: '/products', name: 'products' }],
+        })
+
+        let caught: unknown
+        try {
+          router.navigateTo('unknown')
+        } catch (err) {
+          caught = err
+        }
+        expect(caught).toBeInstanceOf(I18nError)
+        expect((caught as I18nError).i18nKey).toBe('routing.error.routeNotFound')
+        expect((caught as I18nError).i18nValues).toEqual({ name: 'unknown' })
+      })
     })
 
     describe('back and forward', () => {
+      it('should call navigateFn(-1) for back', async () => {
+        const vueRouter = await createRealVueRouter('/')
+        const navigateFn = vi.spyOn(vueRouter, 'go')
+
+        const router = createVueRouter({ router: vueRouter })
+        router.back()
+
+        // Vue Router's native history move is `go(delta)`; back is `go(-1)`.
+        expect(navigateFn).toHaveBeenCalledWith(-1)
+      })
+
+      it('should call navigateFn(1) for forward', async () => {
+        const vueRouter = await createRealVueRouter('/')
+        const navigateFn = vi.spyOn(vueRouter, 'go')
+
+        const router = createVueRouter({ router: vueRouter })
+        router.forward()
+
+        expect(navigateFn).toHaveBeenCalledWith(1)
+      })
+
+      it('should fall back to window.history.back when no navigate function', () => {
+        // The core browser router moves with `history.go(delta)`, so a back is `go(-1)`.
+        const stub = withStubWindow()
+
+        provider.back()
+
+        expect(stub.history.go).toHaveBeenCalledWith(-1)
+      })
+
+      it('should fall back to window.history.forward when no navigate function', () => {
+        const stub = withStubWindow()
+
+        provider.forward()
+
+        expect(stub.history.go).toHaveBeenCalledWith(1)
+      })
+
       it('should call vueRouter.go(-1) for back', () => {
         const vueRouter = createMockVueRouter()
 
@@ -638,6 +970,24 @@ describe('@molecule/app-routing-vue-router', () => {
     })
 
     describe('go', () => {
+      it('should call navigateFn with delta', async () => {
+        const vueRouter = await createRealVueRouter('/')
+        const navigateFn = vi.spyOn(vueRouter, 'go')
+
+        const router = createVueRouter({ router: vueRouter })
+        router.go(-2)
+
+        expect(navigateFn).toHaveBeenCalledWith(-2)
+      })
+
+      it('should fall back to window.history.go when no navigate function', () => {
+        const stub = withStubWindow()
+
+        provider.go(-3)
+
+        expect(stub.history.go).toHaveBeenCalledWith(-3)
+      })
+
       it('should call vueRouter.go with delta', () => {
         const vueRouter = createMockVueRouter()
 
@@ -829,6 +1179,20 @@ describe('@molecule/app-routing-vue-router', () => {
         const router = createVueRouter({ routes: [] })
 
         expect(() => router.generatePath('unknown')).toThrow('Route "unknown" not found')
+      })
+
+      it('should throw I18nError with routing.error.routeNotFound key for unknown generatePath route', () => {
+        const router = createVueRouter({ routes: [] })
+
+        let caught: unknown
+        try {
+          router.generatePath('missing')
+        } catch (err) {
+          caught = err
+        }
+        expect(caught).toBeInstanceOf(I18nError)
+        expect((caught as I18nError).i18nKey).toBe('routing.error.routeNotFound')
+        expect((caught as I18nError).i18nValues).toEqual({ name: 'missing' })
       })
     })
 
@@ -1106,6 +1470,38 @@ describe('@molecule/app-routing-vue-router', () => {
   })
 
   describe('Utility Functions', () => {
+    describe('parseSearchParams', () => {
+      it('should parse simple search params', () => {
+        const params = new URLSearchParams('page=1&limit=10')
+        const result = parseSearchParams(params)
+
+        expect(result.page).toBe('1')
+        expect(result.limit).toBe('10')
+      })
+
+      it('should handle duplicate keys as arrays', () => {
+        const params = new URLSearchParams('tag=react&tag=vue&tag=angular')
+        const result = parseSearchParams(params)
+
+        expect(result.tag).toEqual(['react', 'vue', 'angular'])
+      })
+
+      it('should return empty object for empty params', () => {
+        const params = new URLSearchParams('')
+        const result = parseSearchParams(params)
+
+        expect(result).toEqual({})
+      })
+
+      it('should handle encoded values', () => {
+        const params = new URLSearchParams('q=hello+world&path=%2Ffoo%2Fbar')
+        const result = parseSearchParams(params)
+
+        expect(result.q).toBe('hello world')
+        expect(result.path).toBe('/foo/bar')
+      })
+    })
+
     describe('parseVueQuery', () => {
       it('should parse simple string values', () => {
         const result = parseVueQuery({ page: '1', limit: '10' })
@@ -1267,13 +1663,77 @@ describe('@molecule/app-routing-vue-router', () => {
       })
 
       it('should throw for missing required param', () => {
-        expect(() => generatePath('/products/:id', {})).toThrow('Missing required param "id"')
+        expect(() => generatePath('/products/:id', {})).toThrow(
+          'Missing param "id" for path "/products/:id"',
+        )
+      })
+
+      it('should throw I18nError with routing.error.missingParam key for missing param', () => {
+        let caught: unknown
+        try {
+          generatePath('/products/:id', {})
+        } catch (err) {
+          caught = err
+        }
+        expect(caught).toBeInstanceOf(I18nError)
+        expect((caught as I18nError).i18nKey).toBe('routing.error.missingParam')
+        expect((caught as I18nError).i18nValues).toEqual({ name: 'id', pattern: '/products/:id' })
       })
 
       it('should encode param values', () => {
         const path = generatePath('/search/:query', { query: 'hello world' })
 
         expect(path).toBe('/search/hello%20world')
+      })
+    })
+
+    describe('resolvePath', () => {
+      it('should return absolute path as-is', () => {
+        const result = resolvePath('/dashboard', '/any/path')
+
+        expect(result).toBe('/dashboard')
+      })
+
+      it('should resolve relative path', () => {
+        const result = resolvePath('details', '/products/123')
+
+        expect(result).toBe('/products/details')
+      })
+
+      it('should resolve parent path with ..', () => {
+        const result = resolvePath('../settings', '/users/123/profile')
+
+        expect(result).toBe('/users/settings')
+      })
+
+      it('should handle current directory with .', () => {
+        const result = resolvePath('./details', '/products/123')
+
+        expect(result).toBe('/products/details')
+      })
+
+      it('should resolve multiple .. segments', () => {
+        const result = resolvePath('../../dashboard', '/users/123/posts/456')
+
+        expect(result).toBe('/users/dashboard')
+      })
+    })
+
+    describe('normalizePath', () => {
+      it('should remove trailing slash', () => {
+        expect(normalizePath('/products/')).toBe('/products')
+      })
+
+      it('should remove multiple trailing slashes', () => {
+        expect(normalizePath('/products///')).toBe('/products')
+      })
+
+      it('should keep root path', () => {
+        expect(normalizePath('/')).toBe('/')
+      })
+
+      it('should not modify path without trailing slash', () => {
+        expect(normalizePath('/products')).toBe('/products')
       })
     })
 
@@ -1406,8 +1866,11 @@ describe('@molecule/app-routing-vue-router', () => {
       const vueRouter = createMockVueRouter()
       vi.mocked(useVueRouter).mockReturnValue(asVueRouter(vueRouter))
 
-      const first = useMoleculeRouter()
-      const second = useMoleculeRouter()
+      // Composables run in an injection context; an app's `runWithContext` is one.
+      const [first, second] = createApp({}).runWithContext(() => [
+        useMoleculeRouter(),
+        useMoleculeRouter(),
+      ])
 
       expect(second.value).toBe(first.value)
     })

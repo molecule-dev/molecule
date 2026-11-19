@@ -25,4 +25,10 @@ export const uz: RoutingTranslations = {
   'routing.listRoute.error.page': "useListRoute: page musbat xavfsiz butun son bo'lishi kerak",
   'routing.sveltekit.error.serverHistory':
     'tarix harakatlari faqat brauzerda mavjud: SvelteKit klient routeri server tomonda renderlash paytida ishlamaydi',
+  'routing.angularRouter.error.useMoleculeRouterOutsideRouter':
+    "`useMoleculeRouter` routerni ta'minlovchi Angular ilovasining inyeksiya kontekstida chaqirilishi kerak. Ilova provayderlariga `provideRouter(routes)` qo'shing.",
+  'routing.vueRouter.error.useMoleculeRouterOutsideRouter':
+    "`useMoleculeRouter` Vue Router o'rnatilgan Vue ilovasining komponenti `setup` ichida chaqirilishi kerak. Uni `app.use(router)` bilan o'rnating.",
+  'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
+    "`useMoleculeRouter` Solid Router routeri ichida ishlatilishi kerak. `Router`, `HashRouter` yoki `MemoryRouter` o'rnating.",
 }

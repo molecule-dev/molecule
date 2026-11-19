@@ -27,4 +27,10 @@ export const ml: RoutingTranslations = {
     'useListRoute: page ഒരു പോസിറ്റീവ് സുരക്ഷിത പൂർണ്ണസംഖ്യ ആയിരിക്കണം',
   'routing.sveltekit.error.serverHistory':
     'ചരിത്ര നീക്കങ്ങൾ ബ്രൗസറിൽ മാത്രമേ ലഭ്യമാകൂ: SvelteKit ക്ലയന്റ് റൂട്ടർ സെർവർ-സൈഡ് റെൻഡറിംഗിനിടെ പ്രവർത്തിക്കുന്നില്ല',
+  'routing.angularRouter.error.useMoleculeRouterOutsideRouter':
+    'റൂട്ടർ നൽകുന്ന Angular ആപ്പിന്റെ ഇൻജെക്ഷൻ സന്ദർഭത്തിൽ `useMoleculeRouter` വിളിക്കണം. ആപ്പിന്റെ പ്രൊവൈഡർമാർക്ക് `provideRouter(routes)` ചേർക്കുക.',
+  'routing.vueRouter.error.useMoleculeRouterOutsideRouter':
+    'Vue Router ഇൻസ്റ്റാൾ ചെയ്ത Vue ആപ്പിന്റെ കമ്പോണന്റിന്റെ `setup`-ൽ `useMoleculeRouter` വിളിക്കണം. `app.use(router)` ഉപയോഗിച്ച് ഇത് ഇൻസ്റ്റാൾ ചെയ്യുക.',
+  'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
+    'Solid Router റൂട്ടറിൽ `useMoleculeRouter` ഉപയോഗിക്കണം. `Router`, `HashRouter`, അല്ലെങ്കിൽ `MemoryRouter` മൗണ്ട് ചെയ്യുക.',
 }

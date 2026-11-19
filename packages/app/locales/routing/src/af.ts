@@ -25,4 +25,10 @@ export const af: Partial<RoutingTranslations> = {
   'routing.listRoute.error.page': "useListRoute: page moet 'n positiewe veilige heelgetal wees",
   'routing.sveltekit.error.serverHistory':
     'geskiedenisbewegings is slegs in die blaaier beskikbaar: die SvelteKit-kliëntrouter loop nie tydens weergawe aan die bedienerkant nie',
+  'routing.angularRouter.error.useMoleculeRouterOutsideRouter':
+    "`useMoleculeRouter` moet in 'n inspuitkonteks van 'n Angular-program wat die router verskaf, geroep word. Voeg `provideRouter(routes)` by die program se verskaffers.",
+  'routing.vueRouter.error.useMoleculeRouterOutsideRouter':
+    "`useMoleculeRouter` moet in 'n komponent se `setup` van 'n Vue-program met Vue Router geïnstalleer, geroep word. Installeer dit met `app.use(router)`.",
+  'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
+    "`useMoleculeRouter` moet binne 'n Solid Router-router gebruik word. Monteer `Router`, `HashRouter` of `MemoryRouter`.",
 }

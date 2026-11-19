@@ -27,4 +27,10 @@ export const sq: RoutingTranslations = {
     'useListRoute: page duhet të jetë një numër i plotë i sigurt pozitiv',
   'routing.sveltekit.error.serverHistory':
     'lëvizjet e historisë janë të disponueshme vetëm në shfletues: routeri i klientit i SvelteKit nuk ekzekutohet gjatë renditjes në server',
+  'routing.angularRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` duhet të thirret në një kontekst injektimi të një aplikacioni Angular që ofron routerin. Shtoni `provideRouter(routes)` te ofruesit e aplikacionit.',
+  'routing.vueRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` duhet të thirret në `setup` të një komponenti të një aplikacioni Vue me Vue Router të instaluar. Instalojeni me `app.use(router)`.',
+  'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` duhet të përdoret brenda një routeri Solid Router. Montoni `Router`, `HashRouter` ose `MemoryRouter`.',
 }

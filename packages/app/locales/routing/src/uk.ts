@@ -25,4 +25,10 @@ export const uk: RoutingTranslations = {
   'routing.listRoute.error.page': 'useListRoute: page має бути додатним безпечним цілим числом',
   'routing.sveltekit.error.serverHistory':
     'переміщення історією доступні лише в браузері: клієнтський маршрутизатор SvelteKit не працює під час рендерингу на сервері',
+  'routing.angularRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` потрібно викликати в контексті впровадження застосунку Angular, який надає маршрутизатор. Додайте `provideRouter(routes)` до провайдерів застосунку.',
+  'routing.vueRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` потрібно викликати в `setup` компонента застосунку Vue зі встановленим Vue Router. Установіть його за допомогою `app.use(router)`.',
+  'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` має використовуватися в маршрутизаторі Solid Router. Монтуйте `Router`, `HashRouter` або `MemoryRouter`.',
 }

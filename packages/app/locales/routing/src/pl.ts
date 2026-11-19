@@ -26,4 +26,10 @@ export const pl: RoutingTranslations = {
     'useListRoute: page musi być dodatnią bezpieczną liczbą całkowitą',
   'routing.sveltekit.error.serverHistory':
     'przesunięcia w historii są dostępne tylko w przeglądarce: router klienta SvelteKit nie działa podczas renderowania po stronie serwera',
+  'routing.angularRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` musi być wywoływany w kontekście wstrzykiwania aplikacji Angular, która udostępnia router. Dodaj `provideRouter(routes)` do providerów aplikacji.',
+  'routing.vueRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` musi być wywoływany w `setup` komponentu aplikacji Vue z zainstalowanym Vue Router. Zainstaluj go za pomocą `app.use(router)`.',
+  'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` musi być używany w routerze Solid Router. Zamontuj `Router`, `HashRouter` lub `MemoryRouter`.',
 }

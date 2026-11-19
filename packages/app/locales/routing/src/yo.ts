@@ -25,4 +25,10 @@ export const yo: RoutingTranslations = {
     'useListRoute: gbọdọ̀ page jẹ́ nọ́mbà odidi tí ó kéré ju òdo lọ tí ó sì ní ààbò',
   'routing.sveltekit.error.serverHistory':
     'àwọn ìgbesẹ̀ ìtàn wà nínú aṣàwákiri nìkan: rédíò oníbárà SvelteKit kì í ṣiṣẹ́ nígbà tí a bá ń fihàn ní ẹ̀gbẹ́ server',
+  'routing.angularRouter.error.useMoleculeRouterOutsideRouter':
+    'A gbọ́dọ̀ pe `useMoleculeRouter` nínú àyíká abẹ́rẹ́ ti áàpù Angular tí ó ń pèsè rédíò náà. Fi `provideRouter(routes)` kún àwọn olùpèsè áàpù náà.',
+  'routing.vueRouter.error.useMoleculeRouterOutsideRouter':
+    'A gbọ́dọ̀ pe `useMoleculeRouter` nínú `setup` ti ẹ̀yà áàpù Vue tí Vue Router ti wà. Fi `app.use(router)` gbé e.',
+  'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
+    'A gbọ́dọ̀ lo `useMoleculeRouter` nínú rédíò Solid Router. Gbé `Router`, `HashRouter`, tàbí `MemoryRouter` sókè.',
 }

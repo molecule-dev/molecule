@@ -40,6 +40,18 @@ export interface ReactRouterSnapshot {
    * The `useParams()` value of the render; empty above any matched `<Route>`.
    */
   params: Record<string, string | undefined>
+
+  /**
+   * What React Router's own links put before an in-app path in this render: the router's
+   * `basename`, `#` under a hash router, or nothing (from `useHref` of one path).
+   */
+  hrefPrefix: string
+
+  /**
+   * The href React Router's own links write for the app's root (`useHref('/')`): the
+   * `basename` itself under one (`/app`, not `/app/`).
+   */
+  rootHref: string
 }
 
 /**
@@ -128,6 +140,16 @@ export const createReactRouterHistory = (snapshot: ReactRouterSnapshotRef): Reac
     replace: (path, state) => requireSnapshot().navigate(path, { replace: true, state }),
 
     go: (delta) => requireSnapshot().navigate(delta),
+
+    // The href `<Link to={path}>` renders: `useHref` puts the same prefix (the basename,
+    // or `#`) before every in-app path, and writes the root as `rootHref`.
+    createHref: (path) => {
+      const current = snapshot.current
+      if (!current) return path
+      return /^\/(?=[?#]|$)/.test(path)
+        ? current.rootHref + path.slice(1)
+        : current.hrefPrefix + path
+    },
 
     listen: (listener) => {
       listeners.add(listener)

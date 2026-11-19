@@ -26,4 +26,10 @@ export const fi: RoutingTranslations = {
     'useListRoute: page:n on oltava positiivinen turvallinen kokonaisluku',
   'routing.sveltekit.error.serverHistory':
     'historialiikkeet ovat käytettävissä vain selaimessa: SvelteKitin asiakasreititin ei käy palvelinpuolen renderöinnin aikana',
+  'routing.angularRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` on kutsuttava Angular-sovelluksen injektiokontekstissa, joka tarjoaa reitittimen. Lisää `provideRouter(routes)` sovelluksen providereihin.',
+  'routing.vueRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` on kutsuttava Vue-sovelluksen komponentin `setup` -funktiossa, johon Vue Router on asennettu. Asenna se komennolla `app.use(router)`.',
+  'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` on käytettävä Solid Router -reitittimen sisällä. Liitä `Router`, `HashRouter` tai `MemoryRouter`.',
 }

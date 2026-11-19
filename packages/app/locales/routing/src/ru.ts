@@ -26,4 +26,10 @@ export const ru: RoutingTranslations = {
     'useListRoute: page должно быть положительным безопасным целым числом',
   'routing.sveltekit.error.serverHistory':
     'перемещения по истории доступны только в браузере: клиентский роутер SvelteKit не работает при рендеринге на сервере',
+  'routing.angularRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` необходимо вызывать в контексте внедрения приложения Angular, предоставляющего маршрутизатор. Добавьте `provideRouter(routes)` в провайдеры приложения.',
+  'routing.vueRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` необходимо вызывать в `setup` компонента приложения Vue с установленным Vue Router. Установите его с помощью `app.use(router)`.',
+  'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` необходимо использовать внутри маршрутизатора Solid Router. Подключите `Router`, `HashRouter` или `MemoryRouter`.',
 }

@@ -25,4 +25,10 @@ export const id: RoutingTranslations = {
   'routing.listRoute.error.page': 'useListRoute: page harus berupa bilangan bulat aman positif',
   'routing.sveltekit.error.serverHistory':
     'pergerakan history hanya tersedia di browser: router klien SvelteKit tidak berjalan selama rendering sisi server',
+  'routing.angularRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` harus dipanggil dalam konteks injeksi aplikasi Angular yang menyediakan router. Tambahkan `provideRouter(routes)` ke penyedia aplikasi.',
+  'routing.vueRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` harus dipanggil dalam `setup` komponen aplikasi Vue dengan Vue Router terpasang. Pasang dengan `app.use(router)`.',
+  'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` harus digunakan di dalam router Solid Router. Pasang `Router`, `HashRouter`, atau `MemoryRouter`.',
 }

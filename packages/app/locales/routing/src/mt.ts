@@ -25,4 +25,10 @@ export const mt: RoutingTranslations = {
   'routing.listRoute.error.page': 'useListRoute: page irid ikun numru sħiħ pożittiv u sigur',
   'routing.sveltekit.error.serverHistory':
     "l-movimenti tal-istorja huma disponibbli biss fil-browser: ir-router tal-klijent ta' SvelteKit ma jaħdimx waqt ir-rendering fuq in-naħa tas-server",
+  'routing.angularRouter.error.useMoleculeRouterOutsideRouter':
+    "`useMoleculeRouter` irid jiġi msejjaħ f'kuntest ta' injezzjoni ta' app Angular li tipprovdi r-router. Żid `provideRouter(routes)` mal-providers tal-app.",
+  'routing.vueRouter.error.useMoleculeRouterOutsideRouter':
+    "`useMoleculeRouter` irid jiġi msejjaħ fis-`setup` ta' komponent ta' app Vue b'Vue Router installat. Installaħ b'`app.use(router)`.",
+  'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
+    "`useMoleculeRouter` irid jintuża f'router ta' Solid Router. Immonta `Router`, `HashRouter` jew `MemoryRouter`.",
 }

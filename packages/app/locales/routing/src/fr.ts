@@ -24,4 +24,10 @@ export const fr: Partial<RoutingTranslations> = {
   'routing.listRoute.error.page': 'useListRoute: page doit être un entier sûr positif',
   'routing.sveltekit.error.serverHistory':
     "les mouvements d'historique ne sont disponibles que dans le navigateur : le routeur client de SvelteKit ne s'exécute pas pendant le rendu côté serveur",
+  'routing.angularRouter.error.useMoleculeRouterOutsideRouter':
+    "`useMoleculeRouter` doit être appelée dans un contexte d'injection d'une application Angular qui fournit le routeur. Ajoutez `provideRouter(routes)` aux fournisseurs de l'application.",
+  'routing.vueRouter.error.useMoleculeRouterOutsideRouter':
+    "`useMoleculeRouter` doit être appelée dans le `setup` d'un composant d'une application Vue avec Vue Router installé. Installez-le avec `app.use(router)`.",
+  'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` doit être utilisée dans un routeur Solid Router. Montez `Router`, `HashRouter` ou `MemoryRouter`.',
 }

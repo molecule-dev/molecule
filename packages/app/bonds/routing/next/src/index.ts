@@ -53,6 +53,10 @@
  *   `NextResponse.next()` yourself; returning the guard result directly does nothing.
  * - `searchParams` must be a plain object — spread the hook value with
  *   `Object.fromEntries(useSearchParams())`.
+ * - `router.createHref(path)` is the href Next's `<Link>` renders for `path`, with the
+ *   `next.config` `basePath` the build compiles in; pass `basePath` only to override it.
+ * - A navigation's `state` reaches its new history entry once Next commits it, and stays
+ *   when Next rewrites that entry in place (`router.refresh()`, a server action).
  *
  * @module
  */

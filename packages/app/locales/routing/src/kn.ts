@@ -24,4 +24,10 @@ export const kn: RoutingTranslations = {
   'routing.listRoute.error.page': 'useListRoute: page ಧನಾತ್ಮಕ ಸುರಕ್ಷಿತ ಪೂರ್ಣಾಂಕ ಆಗಿರಬೇಕು',
   'routing.sveltekit.error.serverHistory':
     'ಇತಿಹಾಸ ಚಲನೆಗಳು ಕೇವಲ ಬ್ರೌಸರ್‌ನಲ್ಲಿ ಲಭ್ಯವಿದೆ: SvelteKit ಕ್ಲೈಂಟ್ ರೂಟರ್ ಸರ್ವರ್-ಸೈಡ್ ರೆಂಡರಿಂಗ್ ಸಮಯದಲ್ಲಿ ಚಲಿಸುವುದಿಲ್ಲ',
+  'routing.angularRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` ಅನ್ನು ರೂಟರ್ ಒದಗಿಸುವ Angular ಅಪ್ಲಿಕೇಶನ್‌ನ ಇಂಜೆಕ್ಷನ್ ಸಂದರ್ಭದಲ್ಲಿ ಕರೆಯಬೇಕು. ಅಪ್ಲಿಕೇಶನ್‌ನ ಪ್ರೊವೈಡರ್‌ಗಳಿಗೆ `provideRouter(routes)` ಸೇರಿಸಿ.',
+  'routing.vueRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` ಅನ್ನು Vue Router ಸ್ಥಾಪಿಸಿದ Vue ಅಪ್ಲಿಕೇಶನ್‌ನ ಘಟಕದ `setup` ನಲ್ಲಿ ಕರೆಯಬೇಕು. ಅದನ್ನು `app.use(router)` ನಿಂದ ಸ್ಥಾಪಿಸಿ.',
+  'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` ಅನ್ನು Solid Router ರೂಟರ್‌ನಲ್ಲಿ ಬಳಸಬೇಕು. `Router`, `HashRouter`, ಅಥವಾ `MemoryRouter` ಮೌಂಟ್ ಮಾಡಿ.',
 }

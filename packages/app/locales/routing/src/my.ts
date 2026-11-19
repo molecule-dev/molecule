@@ -26,4 +26,10 @@ export const my: RoutingTranslations = {
     'useListRoute: page သည် အပြုသဘောဆောင်သော လုံခြုံသော ကိန်းပြည့် ဖြစ်ရမည်',
   'routing.sveltekit.error.serverHistory':
     'history ရွေ့လျားမှုများကို browser တွင်သာ ရရှိနိုင်သည်- SvelteKit client router သည် server-side rendering အတွင်း မလည်ပတ်ပါ',
+  'routing.angularRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` ကို router ပံ့ပိုးပေးသော Angular အက်ပ်၏ injection context တွင် ခေါ်ရမည်။ အက်ပ်၏ providers များတွင် `provideRouter(routes)` ထည့်ပါ။',
+  'routing.vueRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` ကို Vue Router တပ်ဆင်ထားသော Vue အက်ပ်၏ component ၏ `setup` တွင် ခေါ်ရမည်။ ၎င်းကို `app.use(router)` ဖြင့် တပ်ဆင်ပါ။',
+  'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` ကို Solid Router router အတွင်းတွင် အသုံးပြုရမည်။ `Router`, `HashRouter` သို့မဟုတ် `MemoryRouter` ကို mount လုပ်ပါ။',
 }

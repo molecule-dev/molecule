@@ -26,4 +26,10 @@ export const zu: RoutingTranslations = {
     'useListRoute: page kumele kube yinani eliphelele eliposithivu eliphephile',
   'routing.sveltekit.error.serverHistory':
     'ukunyakaza komlando kutholakala kuphela kusiphequluli: i-SvelteKit client router ayisebenzi ngesikhathi sokubonakalisa ngasohlangothi lweseva',
+  'routing.angularRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` kumele ibizwe endaweni yokujova yohlelo lwe-Angular olunikeza i-router. Engeza `provideRouter(routes)` kubanikezeli bohlelo.',
+  'routing.vueRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` kumele ibizwe ku-`setup` yengxenye yohlelo lwe-Vue olufakwe i-Vue Router. Yifake nge-`app.use(router)`.',
+  'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` kumele isetshenziswe ngaphakathi kwe-Solid Router router. Faka `Router`, `HashRouter` noma `MemoryRouter`.',
 }

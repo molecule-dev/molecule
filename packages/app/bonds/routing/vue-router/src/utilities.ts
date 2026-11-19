@@ -1,12 +1,15 @@
 /**
- * Utility functions for Vue Router provider.
+ * Utility functions for Vue Router provider. The path helpers every routing bond exports come from
+ * `@molecule/app-routing/bond-utilities`, one implementation for every bond.
  *
  * @module
  */
 
 import type { LocationQueryRaw, LocationQueryValue } from 'vue-router'
 
-import type { QueryParams, RouteMatch, RouteParams } from './types.js'
+import type { QueryParams, RouteParams } from './types.js'
+
+export * from '@molecule/app-routing/bond-utilities'
 
 /**
  * Converts a Vue Router query object (with nullable values) into a molecule `QueryParams` object.
@@ -50,89 +53,6 @@ export function toVueQuery(params: QueryParams): LocationQueryRaw {
   }
 
   return result
-}
-
-/**
- * Converts a molecule `QueryParams` object to a URL search string (e.g. `?key=val&arr=1&arr=2`).
- * Omits keys with `undefined` values.
- * @param params - The query parameters to stringify.
- * @returns A URL search string starting with `?`, or empty string if no params.
- */
-export function stringifyQuery(params: QueryParams): string {
-  const entries = Object.entries(params)
-    .filter(([, v]) => v !== undefined)
-    .flatMap(([k, v]) => {
-      if (Array.isArray(v)) {
-        return v.map((val) => `${encodeURIComponent(k)}=${encodeURIComponent(val)}`)
-      }
-      return `${encodeURIComponent(k)}=${encodeURIComponent(v as string)}`
-    })
-
-  return entries.length ? `?${entries.join('&')}` : ''
-}
-
-/**
- * Matches a path pattern (with `:param` segments and `*` wildcards) against a pathname.
- * @param pattern - The route pattern (e.g. `'/users/:id'`).
- * @param pathname - The actual URL pathname to test.
- * @param exact - Whether to require an exact match (default `true`). Set to `false` for prefix matching.
- * @returns A `RouteMatch` with extracted params, or `null` if no match.
- */
-export function matchPath<Params extends RouteParams = RouteParams>(
-  pattern: string,
-  pathname: string,
-  exact?: boolean,
-): RouteMatch<Params> | null {
-  // Convert pattern to regex
-  // :param -> named capture group
-  // * -> wildcard
-  const paramNames: string[] = []
-
-  const regexPattern = pattern
-    .replace(/:([^/]+)/g, (_, name) => {
-      paramNames.push(name)
-      return '([^/]+)'
-    })
-    .replace(/\*/g, '.*')
-
-  const fullPattern = exact !== false ? `^${regexPattern}$` : `^${regexPattern}`
-  const regex = new RegExp(fullPattern)
-  const match = pathname.match(regex)
-
-  if (!match) {
-    return null
-  }
-
-  const params: Record<string, string> = {}
-  paramNames.forEach((name, index) => {
-    params[name] = match[index + 1] || ''
-  })
-
-  return {
-    path: pattern,
-    pathname: match[0],
-    params: params as Params,
-    isExact: match[0] === pathname,
-  }
-}
-
-/**
- * Generates a concrete path from a route pattern by replacing `:param` segments with values.
- * Throws if a required param is missing.
- * @param pattern - The route pattern (e.g. `'/users/:id'`).
- * @param params - A map of param names to values.
- * @returns The resolved path string with params URL-encoded.
- */
-export function generatePath(pattern: string, params?: RouteParams): string {
-  if (!params) return pattern
-
-  return pattern.replace(/:([^/]+)/g, (_, name) => {
-    const value = params[name]
-    if (value === undefined) {
-      throw new Error(`Missing required param "${name}"`)
-    }
-    return encodeURIComponent(value)
-  })
 }
 
 /**

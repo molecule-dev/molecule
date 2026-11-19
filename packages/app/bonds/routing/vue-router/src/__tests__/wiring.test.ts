@@ -1,132 +1,124 @@
-import { beforeEach, describe, expect, it, type Mock, vi } from 'vitest'
-import type { RouteLocationNormalizedLoaded } from 'vue-router'
+// @vitest-environment jsdom
+/**
+ * The React bond's wiring titles, ported to `MoleculeRouterProvider`: the provider's
+ * mount-time bond is proved against a REAL Vue Router over a memory history, with only
+ * core's `setRouter` observed (it still performs the real bond).
+ */
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { type App, createApp, defineComponent, h } from 'vue'
+import {
+  createMemoryHistory,
+  createRouter,
+  type Router as VueRouterInstance,
+  type RouteRecordRaw,
+} from 'vue-router'
 
-// Shared framework mocks, defined before vi.mock hoisting.
-const { mockVueRouter, mockRoute } = vi.hoisted(() => {
-  // The route the bond reads through the live currentRoute (not a passed snapshot).
-  const mockRoute: RouteLocationNormalizedLoaded = {
-    path: '/',
-    fullPath: '/',
-    hash: '',
-    query: {},
-    params: {},
-    meta: {},
-    name: 'home',
-    matched: [],
-    redirectedFrom: undefined,
-  }
-  const mockVueRouter: {
-    currentRoute: { value: RouteLocationNormalizedLoaded }
-    push: Mock<(path: string) => Promise<void>>
-    replace: Mock<(path: string) => Promise<void>>
-    back: Mock<() => void>
-    forward: Mock<() => void>
-    go: Mock<(delta: number) => void>
-    resolve: Mock<(to: { name: string }) => { fullPath: string }>
-    afterEach: Mock<() => () => void>
-    options: { history: { state: { position: number }; listen: Mock<() => () => void> } }
-  } = {
-    currentRoute: { value: mockRoute },
-    push: vi.fn(async (path: string) => {
-      mockVueRouter.currentRoute.value = {
-        ...mockVueRouter.currentRoute.value,
-        path,
-        fullPath: path,
-      }
-    }),
-    replace: vi.fn(async (path: string) => {
-      mockVueRouter.currentRoute.value = {
-        ...mockVueRouter.currentRoute.value,
-        path,
-        fullPath: path,
-      }
-    }),
-    back: vi.fn(),
-    forward: vi.fn(),
-    go: vi.fn(),
-    resolve: vi.fn((to: { name: string }) => ({ fullPath: `/${to.name}` })),
-    afterEach: vi.fn(() => () => {}),
-    options: { history: { state: { position: 0 }, listen: vi.fn(() => () => {}) } },
-  }
-  return { mockVueRouter, mockRoute }
-})
-
-// @molecule/app-routing with only the bond overridden, so navigate() delegates to whatever
-// is bonded (the provider singleton needs the real createBrowserRouter at import time).
-let bonded: { navigate: (path: string, options?: unknown) => unknown } | null = null
+// core keeps its real behaviour (createHistoryRouter, getRouter, navigate); setRouter is
+// wrapped so the tests can see the bond happen, and still stores the adapter for real.
 vi.mock('@molecule/app-routing', async (importOriginal) => {
-  const actual = await importOriginal<typeof actualAppRouting>()
+  const actual = await importOriginal<Record<string, unknown>>()
   return {
     ...actual,
-    setRouter: vi.fn((router: { navigate: (p: string, o?: unknown) => unknown }) => {
-      bonded = router
-    }),
-    getRouter: () => bonded,
-    navigate: (path: string, options?: unknown) => bonded?.navigate(path, options),
+    setRouter: vi.fn(actual.setRouter as (router: unknown) => void),
   }
 })
 
-vi.mock('vue-router', () => ({
-  useRouter: () => mockVueRouter,
-  useRoute: () => mockRoute,
-  // Vue Router's route before its first navigation; no mock route is this object.
-  START_LOCATION: { path: '/', fullPath: '/', hash: '', params: {} },
-}))
+import { getRouter, navigate as coreNavigate, type Router, setRouter } from '@molecule/app-routing'
 
-// computed → { value }, watch → run immediately with the unwrapped value.
-vi.mock('vue', () => ({
-  computed: (fn: () => unknown) => ({ value: fn() }),
-  ref: (val: unknown) => ({ value: val }),
-  watch: (
-    source: { value: unknown },
-    cb: (value: unknown, oldValue: unknown, onCleanup: (fn: () => void) => void) => void,
-    opts?: { immediate?: boolean },
-  ) => {
-    if (opts?.immediate) cb(source.value, undefined, () => {})
-  },
-  onUnmounted: vi.fn(),
-}))
+import { MoleculeRouterProvider } from '../index.js'
 
-// The real module's types, for `importOriginal` below (type-only: erased at runtime).
-import type * as actualAppRouting from '@molecule/app-routing'
-import { navigate as coreNavigate, setRouter } from '@molecule/app-routing'
+const originalBond = getRouter()
+const mountedApps: App[] = []
+const hosts: HTMLElement[] = []
 
-import { useMoleculeRouterProvider } from '../index.js'
+/** A page the declared routes render (nothing — only routing is under test). */
+const Empty = { render: (): null => null }
 
+/** A catch-all route, so every navigation below matches a record. */
+const routes: RouteRecordRaw[] = [{ path: '/:rest(.*)*', component: Empty }]
+
+/** Waits a macrotask, so Vue Router's promises and Vue's render queue have settled. */
 const flush = (): Promise<unknown> => new Promise((resolve) => setTimeout(resolve, 0))
 
-describe('useMoleculeRouterProvider wiring (vue-router)', () => {
-  beforeEach(() => {
-    bonded = null
-    mockVueRouter.push.mockClear()
-    mockVueRouter.replace.mockClear()
-    vi.mocked(setRouter).mockClear()
+/**
+ * Mounts `MoleculeRouterProvider` in an app with a REAL Vue Router over a memory history.
+ *
+ * @param props - The provider props to mount it with.
+ * @returns The Vue Router the provider bonded over.
+ */
+const mountProvider = async (
+  props: {
+    onRouterReady?: (router: Router) => void
+  } = {},
+): Promise<VueRouterInstance> => {
+  const vueRouter = createRouter({ history: createMemoryHistory(), routes })
+  await vueRouter.push('/')
+  await vueRouter.isReady()
+  const Root = defineComponent({
+    setup() {
+      return () => h(MoleculeRouterProvider, props, { default: () => h('p', 'app') })
+    },
   })
+  const host = document.createElement('div')
+  document.body.appendChild(host)
+  const app = createApp(Root)
+  app.use(vueRouter)
+  app.mount(host)
+  mountedApps.push(app)
+  hosts.push(host)
+  return vueRouter
+}
 
-  it('bonds the adapter via setRouter in an immediate watch', () => {
-    const router = useMoleculeRouterProvider()
+beforeEach(() => {
+  vi.mocked(setRouter).mockClear()
+  window.history.replaceState(null, '', '/')
+})
+
+afterEach(() => {
+  for (const app of mountedApps.splice(0)) app.unmount()
+  for (const host of hosts.splice(0)) host.remove()
+  setRouter(originalBond)
+})
+
+describe('MoleculeRouterProvider wiring (vue-router)', () => {
+  it('bonds the adapter via setRouter on mount', async () => {
+    await mountProvider()
 
     expect(setRouter).toHaveBeenCalledTimes(1)
     const adapter = vi.mocked(setRouter).mock.calls[0][0]
-    expect(adapter).toBe(router.value)
+    expect(adapter).toBeDefined()
     expect(adapter.navigate).toBeInstanceOf(Function)
+    expect(getRouter()).toBe(adapter)
   })
 
-  it('core navigate() drives the real Vue Router push after setup', async () => {
-    useMoleculeRouterProvider()
+  it('core navigate() drives the real React Router navigate after mount', async () => {
+    // The title keeps React's words; the body drives the port's real Vue Router push.
+    const vueRouter = await mountProvider()
+    const push = vi.spyOn(vueRouter, 'push')
 
-    coreNavigate('/products')
+    // navigate() from @molecule/app-routing — NOT a composable — must reach the real
+    // Vue Router through the bonded adapter.
+    coreNavigate('/dashboard')
     await flush()
 
-    expect(mockVueRouter.push).toHaveBeenCalledWith('/products')
+    expect(push).toHaveBeenCalledWith('/dashboard')
+  })
+
+  it('still invokes the optional onRouterReady callback with the bonded router', async () => {
+    const onRouterReady = vi.fn<(router: Router) => void>()
+    await mountProvider({ onRouterReady })
+
+    expect(onRouterReady).toHaveBeenCalledTimes(1)
+    expect(onRouterReady.mock.calls[0][0]).toBe(vi.mocked(setRouter).mock.calls[0][0])
   })
 
   it('core navigate({ replace }) drives Vue Router replace', async () => {
-    useMoleculeRouterProvider()
+    const vueRouter = await mountProvider()
+    const replace = vi.spyOn(vueRouter, 'replace')
 
     coreNavigate('/login', { replace: true })
     await flush()
 
-    expect(mockVueRouter.replace).toHaveBeenCalledWith('/login')
+    expect(replace).toHaveBeenCalledWith('/login')
   })
 })

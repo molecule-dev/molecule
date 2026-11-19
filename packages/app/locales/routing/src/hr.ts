@@ -25,4 +25,10 @@ export const hr: RoutingTranslations = {
   'routing.listRoute.error.page': 'useListRoute: page mora biti pozitivan siguran cijeli broj',
   'routing.sveltekit.error.serverHistory':
     'pomaci po povijesti dostupni su samo u pregledniku: SvelteKit klijentski usmjerivač ne radi tijekom renderiranja na serveru',
+  'routing.angularRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` se mora pozvati u kontekstu injekcije Angular aplikacije koja pruža usmjerivač. Dodajte `provideRouter(routes)` u pružatelje aplikacije.',
+  'routing.vueRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` se mora pozvati u `setup` komponente Vue aplikacije s instaliranim Vue Routerom. Instalirajte ga pomoću `app.use(router)`.',
+  'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` se mora koristiti unutar Solid Router usmjerivača. Montirajte `Router`, `HashRouter` ili `MemoryRouter`.',
 }

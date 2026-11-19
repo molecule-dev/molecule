@@ -26,4 +26,10 @@ export const bn: RoutingTranslations = {
     'useListRoute: page অবশ্যই একটি ধনাত্মক নিরাপদ পূর্ণসংখ্যা হতে হবে',
   'routing.sveltekit.error.serverHistory':
     'হিস্টোরি মুভগুলো শুধুমাত্র ব্রাউজারে পাওয়া যায়: SvelteKit ক্লায়েন্ট রাউটার সার্ভার-সাইড রেন্ডারিংয়ের সময় চলে না',
+  'routing.angularRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` অবশ্যই রাউটার প্রদান করে এমন একটি Angular অ্যাপের ইনজেকশন কনটেক্সটে কল করতে হবে। অ্যাপের প্রোভাইডারগুলিতে `provideRouter(routes)` যোগ করুন।',
+  'routing.vueRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` অবশ্যই Vue Router ইনস্টল করা একটি Vue অ্যাপের একটি কম্পোনেন্টের `setup`-এ কল করতে হবে। `app.use(router)` দিয়ে এটি ইনস্টল করুন।',
+  'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` অবশ্যই একটি Solid Router রাউটারের মধ্যে ব্যবহার করতে হবে। `Router`, `HashRouter` বা `MemoryRouter` মাউন্ট করুন।',
 }

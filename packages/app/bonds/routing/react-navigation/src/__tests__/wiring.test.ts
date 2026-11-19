@@ -1,7 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-// t() just echoes its defaultValue (provider.ts uses it for error messages).
-vi.mock('@molecule/app-i18n', () => ({
+import type * as I18n from '@molecule/app-i18n'
+
+// t() just echoes its defaultValue; the rest of the module is real, so provider.ts throws a real I18nError.
+vi.mock('@molecule/app-i18n', async (importOriginal) => ({
+  ...(await importOriginal<typeof I18n>()),
   t: vi.fn(
     (_key: string, _values?: unknown, opts?: { defaultValue?: string }) =>
       opts?.defaultValue ?? _key,

@@ -173,7 +173,8 @@ export interface RouterHistory {
   location(): RouteLocation
   /**
    * The params of the route the native router matched. Omit it when the native router
-   * does not match routes; params then come from the registered route definitions.
+   * does not match routes. When it is omitted or reports none (`{}`: no route matched, or
+   * the matched route has no params), params come from the registered route definitions.
    */
   params?(): RouteParams
   /** Adds `path` (pathname, query string and hash) as a new history entry. */
@@ -191,6 +192,12 @@ export interface RouterHistory {
    * @returns A function that stops listening.
    */
   listen(listener: (action?: NavigationAction) => void): () => void
+  /**
+   * The `href` the native router's own link writes for an in-app `path`: with its base
+   * path prefixed, or as a `#/…` fragment under a hash history. Omit it when the native
+   * router writes the path unchanged.
+   */
+  createHref?(path: string): string
   /** Releases what the history holds (event listeners); called by `Router.destroy()`. */
   destroy?(): void
 }
@@ -292,6 +299,16 @@ export interface Router {
   generatePath(name: string, params?: RouteParams, query?: QueryParams): string
 
   /**
+   * The `href` an anchor to the in-app `path` carries, as the native router's own link
+   * writes it (its base path prefixed, or `#/…` under a hash history), so a middle-click,
+   * a new tab or a copied link opens the same page a click does.
+   *
+   * @param path - Pathname with optional query string and hash, as passed to `navigate`.
+   * @returns The `href`.
+   */
+  createHref(path: string): string
+
+  /**
    * Subscribes to route changes.
    */
   subscribe(listener: RouteChangeListener): () => void
@@ -318,7 +335,52 @@ export interface Router {
 }
 
 /**
+ * Options for `createBrowserRouter`. `history` mode (the default) keeps the path in the URL's
+ * pathname, under `basePath` when the app is served below the root; `hash` mode keeps it in the
+ * URL's hash (`#/users?x=1`), so it takes no base path.
+ */
+export type BrowserRouterConfig = {
+  /** Initial routes. */
+  routes?: RouteDefinition[]
+} & (
+  | {
+      /** The path stays in the URL's pathname. */
+      mode?: 'history'
+      /**
+       * The path the app is served under, such as `/app`: the URL is `basePath + path`, links
+       * carry it (`createHref`), and the location the router reads leaves it out.
+       */
+      basePath?: string
+    }
+  | {
+      /** The path is the URL's hash: `#/users?x=1`. */
+      mode: 'hash'
+    }
+)
+
+/**
+ * Options for `createMemoryRouter`.
+ */
+export interface MemoryRouterConfig {
+  /** The starting history entries, paths within the app; the last one is current (default `['/']`). */
+  initialEntries?: string[]
+
+  /**
+   * The path the app would be served under, such as `/app`: links carry `basePath + path`
+   * (`createHref`), as React Router's and Vue Router's memory routers write them. The entries and
+   * the location stay paths within the app.
+   */
+  basePath?: string
+
+  /** Initial routes. */
+  routes?: RouteDefinition[]
+}
+
+/**
  * Configuration options for creating a router instance.
+ *
+ * @deprecated Use `BrowserRouterConfig` (`createBrowserRouter`) or `MemoryRouterConfig`
+ *   (`createMemoryRouter`): each takes only the options it acts on.
  */
 export interface RouterConfig {
   /**

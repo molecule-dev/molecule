@@ -24,4 +24,10 @@ export const az: RoutingTranslations = {
   'routing.listRoute.error.page': 'useListRoute: page müsbət təhlükəsiz tam ədəd olmalıdır',
   'routing.sveltekit.error.serverHistory':
     'tarixçə hərəkətləri yalnız brauzerdə mövcuddur: SvelteKit müştəri routeri server tərəfindəki göstərmə zamanı işləmir',
+  'routing.angularRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` routeri təmin edən Angular tətbiqinin inyeksiya kontekstində çağırılmalıdır. `provideRouter(routes)` funksiyasını tətbiqin təminatçılarına əlavə edin.',
+  'routing.vueRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` Vue Router quraşdırılmış Vue tətbiqində komponentin `setup` funksiyası daxilində çağırılmalıdır. Onu `app.use(router)` ilə quraşdırın.',
+  'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` Solid Router routeri daxilində istifadə olunmalıdır. `Router`, `HashRouter` və ya `MemoryRouter` quraşdırın.',
 }

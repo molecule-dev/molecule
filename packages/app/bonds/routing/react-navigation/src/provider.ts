@@ -7,7 +7,7 @@
  * @module
  */
 
-import { t } from '@molecule/app-i18n'
+import { I18nError } from '@molecule/app-i18n'
 import type {
   NavigateOptions,
   NavigationGuard,
@@ -161,12 +161,10 @@ export function createReactNavigationRouter(config: ReactNavigationConfig): Rout
 
     navigate(path: string, options?: NavigateOptions): void {
       if (!navigationRef) {
-        throw new Error(
-          t(
-            'routing.error.noNavigationRef',
-            {},
-            { defaultValue: 'Navigation ref not set. Ensure `MoleculeProvider` is mounted.' },
-          ),
+        throw new I18nError(
+          'routing.error.noNavigationRef',
+          {},
+          'Navigation ref not set. Ensure `MoleculeProvider` is mounted.',
         )
       }
 
@@ -203,13 +201,7 @@ export function createReactNavigationRouter(config: ReactNavigationConfig): Rout
     ): void {
       const route = namedRoutes.get(name)
       if (!route) {
-        throw new Error(
-          t(
-            'routing.error.routeNotFound',
-            { name },
-            { defaultValue: 'Route "{{name}}" not found' },
-          ),
-        )
+        throw new I18nError('routing.error.routeNotFound', { name }, 'Route "{{name}}" not found')
       }
 
       let path = generatePath(route.path, params)
@@ -276,13 +268,7 @@ export function createReactNavigationRouter(config: ReactNavigationConfig): Rout
     generatePath(name: string, params?: RouteParams, query?: QueryParams): string {
       const route = namedRoutes.get(name)
       if (!route) {
-        throw new Error(
-          t(
-            'routing.error.routeNotFound',
-            { name },
-            { defaultValue: 'Route "{{name}}" not found' },
-          ),
-        )
+        throw new I18nError('routing.error.routeNotFound', { name }, 'Route "{{name}}" not found')
       }
 
       let path = generatePath(route.path, params)
@@ -292,6 +278,10 @@ export function createReactNavigationRouter(config: ReactNavigationConfig): Rout
 
       return path
     },
+
+    // React Navigation's links on the web write the linked path itself; there is no base path
+    // or hash history to add.
+    createHref: (path: string): string => path,
 
     subscribe(listener: RouteChangeListener): () => void {
       listeners.add(listener)

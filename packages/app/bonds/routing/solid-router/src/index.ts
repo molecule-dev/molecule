@@ -41,10 +41,23 @@
  *   ]
  *   ```
  *
+ *   Keep the returned route when links or a save handler need its destination. For
+ *   `const detail = defineRoute('/shelves/:shelf', { Component: ShelfDetail })`, use
+ *   `detail.href({ shelf: saved.slug })` to navigate to the saved record.
+ *
  * @module @molecule/app-routing-solid-router
  */
 
 export * from './define-route.js'
+export * from './hooks.jsx'
+export * from './lazy-page.jsx'
+export * from './list-types.js'
+export * from './ListRouteNav.jsx'
 export * from './memory-history.js'
+export * from './memory-router.jsx'
 export * from './provider.js'
+export * from './provider-component.jsx'
 export * from './types.js'
+export * from './use-consumed-search-param.js'
+export * from './use-list-route.js'
+export * from './utilities.js'

@@ -25,4 +25,10 @@ export const ne: RoutingTranslations = {
   'routing.listRoute.error.page': 'useListRoute: page सकारात्मक सुरक्षित पूर्णाङ्क हुनुपर्छ',
   'routing.sveltekit.error.serverHistory':
     'हिस्ट्री मुभहरू ब्राउजरमा मात्र उपलब्ध छन्: SvelteKit क्लाइन्ट राउटर सर्भर-साइड रेन्डरिङको समयमा चल्दैन',
+  'routing.angularRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` राउटर प्रदान गर्ने Angular एपको इन्जेक्सन सन्दर्भमा कल गर्नुपर्छ। एपका प्रोभाइडरहरूमा `provideRouter(routes)` थप्नुहोस्।',
+  'routing.vueRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` Vue Router स्थापना गरिएको Vue एपको कम्पोनेन्टको `setup` मा कल गर्नुपर्छ। यसलाई `app.use(router)` ले स्थापना गर्नुहोस्।',
+  'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` Solid Router राउटर भित्र प्रयोग गर्नुपर्छ। `Router`, `HashRouter` वा `MemoryRouter` माउन्ट गर्नुहोस्।',
 }

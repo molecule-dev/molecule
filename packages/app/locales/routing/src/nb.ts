@@ -24,4 +24,10 @@ export const nb: RoutingTranslations = {
   'routing.listRoute.error.page': 'useListRoute: page må være et positivt trygt heltall',
   'routing.sveltekit.error.serverHistory':
     'historikkbevegelser er bare tilgjengelige i nettleseren: SvelteKit-klientruteren kjøres ikke under gjengivelse på serversiden',
+  'routing.angularRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` må kalles i en injeksjonskontekst til en Angular-app som tilbyr ruteren. Legg til `provideRouter(routes)` i appens providere.',
+  'routing.vueRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` må kalles i `setup` i en komponent i en Vue-app med Vue Router installert. Installer det med `app.use(router)`.',
+  'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` må brukes i en Solid Router-ruter. Monter `Router`, `HashRouter` eller `MemoryRouter`.',
 }

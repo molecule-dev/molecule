@@ -23,19 +23,44 @@ export interface RouterHarness {
   nativePush(path: string): void | Promise<void>
   /** Moves the native router back one entry, as the browser's back button does. */
   nativeBack(): void | Promise<void>
-  /** The native router's own current path: `pathname + search + hash`. */
+  /** The native router's own current path: `pathname + search + hash`, within the app (no base). */
   nativePath(): string
+  /**
+   * The `href` the native router's own link writes for an in-app `path`: React Router's
+   * `useHref`, Vue Router's `router.resolve(path).href`, Angular's
+   * `Location.prepareExternalUrl`, Solid Router's `useHref`, the base SvelteKit prefixes.
+   */
+  nativeHref(path: string): string
   /** Waits until navigations in flight have committed (default: a few macrotasks). */
   settle?(): Promise<void>
   /** Removes the router and its native router. */
   teardown(): void | Promise<void>
 }
 
+/** What a harness builds its native router with. */
+export interface RouterHarnessOptions {
+  /**
+   * The path the app is served under: `''` (the root) or `'/app'`. The native router is built
+   * under it (React Router's `basename`, Vue Router's history base, Angular's `APP_BASE_HREF`,
+   * Solid Router's `base`, SvelteKit's `paths.base`, a core router's `basePath`; a hash
+   * history keeps the document at it). `nativePath` stays the path within the app.
+   */
+  base: '' | '/app'
+  /**
+   * Where the native router renders the page of its current route. It declares `/one` and
+   * `/two`, whose pages are elements with the text `page one` and `page two`.
+   */
+  container: HTMLElement
+}
+
 /**
  * Builds a fresh harness whose native router starts at `initialPath` and declares the
- * route `/users/:id` (with any other path also routable).
+ * routes `/users/:id`, `/one` and `/two` (with any other path also routable).
  */
-export type RouterHarnessFactory = (initialPath: string) => RouterHarness | Promise<RouterHarness>
+export type RouterHarnessFactory = (
+  initialPath: string,
+  options: RouterHarnessOptions,
+) => RouterHarness | Promise<RouterHarness>
 
 const pathOf = (location: Pick<RouteLocation, 'pathname' | 'search' | 'hash'>): string =>
   location.pathname + location.search + location.hash
@@ -57,13 +82,40 @@ const macrotasks = async (count: number): Promise<void> => {
   for (let i = 0; i < count; i++) await new Promise((resolve) => setTimeout(resolve, 0))
 }
 
+/** Options for {@link runRouterConformance}. */
+export interface RouterConformanceOptions {
+  /**
+   * The base paths to run the cases under; both (`''` and `'/app'`) by default. Only a
+   * native router whose base is fixed when the app is built passes one, and runs the other
+   * in a second test project built with that base (SvelteKit's `paths.base`).
+   */
+  bases?: readonly ('' | '/app')[]
+}
+
 /**
- * Registers the router conformance cases for one routing bond.
+ * Registers the router conformance cases for one routing bond, twice: with the app at the
+ * root, and served under the base path `/app`.
  *
  * @param name - The bond (`vue-router`, `solid-router`, …).
  * @param createHarness - Builds a harness over the bond's real native router.
+ * @param options - The base paths, when the native router's base is fixed at build time.
  */
-export function runRouterConformance(name: string, createHarness: RouterHarnessFactory): void {
+export function runRouterConformance(
+  name: string,
+  createHarness: RouterHarnessFactory,
+  options: RouterConformanceOptions = {},
+): void {
+  for (const base of options.bases ?? (['', '/app'] as const)) runCases(name, base, createHarness)
+}
+
+/**
+ * The cases, for one base path.
+ *
+ * @param name - The bond.
+ * @param base - The base path the native router is built under.
+ * @param createHarness - Builds a harness over the bond's real native router.
+ */
+function runCases(name: string, base: '' | '/app', createHarness: RouterHarnessFactory): void {
   /**
    * Runs one case against a fresh harness, recording what subscribers hear.
    *
@@ -80,10 +132,13 @@ export function runRouterConformance(name: string, createHarness: RouterHarnessF
         settle: () => Promise<void>
         heard: () => [string, NavigationAction][]
         listen: () => () => void
+        container: HTMLElement
       }) => Promise<void>,
     ) =>
     async (): Promise<void> => {
-      const harness = await createHarness(initialPath)
+      const container = document.createElement('div')
+      document.body.appendChild(container)
+      const harness = await createHarness(initialPath, { base, container })
       const settle = async (): Promise<void> => {
         await macrotasks(3)
         await harness.settle?.()
@@ -99,13 +154,70 @@ export function runRouterConformance(name: string, createHarness: RouterHarnessF
         })
       try {
         await settle()
-        await body({ router: harness.router, harness, settle, heard: () => [...calls], listen })
+        await body({
+          router: harness.router,
+          harness,
+          settle,
+          heard: () => [...calls],
+          listen,
+          container,
+        })
       } finally {
         await harness.teardown()
+        container.remove()
       }
     }
 
-  describe(`${name} router conformance`, () => {
+  describe(`${name} router conformance${base ? ` under the base path ${base}` : ''}`, () => {
+    it(
+      "createHref is the href the native router's own link carries",
+      withHarness('/start', async ({ router, harness }) => {
+        for (const path of ['/', '/users/5', '/users/a%20b', '/orders?page=2&q=a%20b#top'])
+          expect(router.createHref(path), path).toBe(harness.nativeHref(path))
+        if (base)
+          expect(
+            harness.nativeHref('/users/5'),
+            `the native router is built under ${base}, so its links carry more than the path`,
+          ).not.toBe('/users/5')
+      }),
+    )
+
+    it(
+      'a navigation never shows the previous page under the new URL',
+      withHarness('/one', async ({ router, harness, settle, container }) => {
+        const text = (): string => (container.textContent ?? '').replace(/\s+/g, ' ').trim()
+        expect(text(), 'the harness renders the page of /one').toContain('page one')
+        // Samples the URL and the page at every task boundary after the action until settled:
+        // a browser paints only between tasks, so what holds between a task and its
+        // microtasks (a history that moves before the router's own flush) never reaches the
+        // screen, and a sample there would fail a router no user can catch out.
+        const moves = async (from: string, to: string, action: () => unknown): Promise<void> => {
+          const seen: string[] = []
+          const sample = (): void => {
+            const at = urlParts(harness.nativePath()).pathname
+            if (at === `/${to}` && text().includes(`page ${from}`)) seen.push(`${at}: "${text()}"`)
+          }
+          let sampling = true
+          const loop = (): void => {
+            sample()
+            if (sampling) setTimeout(loop, 0)
+          }
+          const done = action()
+          setTimeout(loop, 0)
+          await done
+          await settle()
+          sampling = false
+          sample()
+          expect(seen, `the URL named /${to} while page ${from} was on screen`).toEqual([])
+          expect(text()).toContain(`page ${to}`)
+          expect(text()).not.toContain(`page ${from}`)
+        }
+        await moves('one', 'two', () => router.navigate('/two'))
+        await moves('two', 'one', () => harness.nativeBack())
+        await moves('one', 'two', () => harness.nativePush('/two'))
+      }),
+    )
+
     it(
       'reads the location the native router is at',
       withHarness('/start?tab=a&tag=x&tag=y#top', async ({ router }) => {
@@ -321,6 +433,14 @@ export function runRouterConformance(name: string, createHarness: RouterHarnessF
         router.navigate('/users/7')
         await settle()
         expect(router.getParams()).toEqual({ id: '7' })
+        // Decoded once, as React Router's `useParams` hands them out: an escaped space, and
+        // an escaped percent sign that stays a literal `%`.
+        router.navigate('/users/Ada%20Lovelace')
+        await settle()
+        expect(router.getParams()).toEqual({ id: 'Ada Lovelace' })
+        router.navigate('/users/50%25%20off')
+        await settle()
+        expect(router.getParams()).toEqual({ id: '50% off' })
       }),
     )
 

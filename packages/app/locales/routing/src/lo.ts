@@ -24,4 +24,10 @@ export const lo: RoutingTranslations = {
   'routing.listRoute.error.page': 'useListRoute: page ຕ້ອງເປັນຈຳນວນເຕັມບວກທີ່ປອດໄພ',
   'routing.sveltekit.error.serverHistory':
     'ການເຄື່ອນຍ້າຍປະຫວັດມີພຽງແຕ່ໃນບຣາວເຊີເທົ່ານັ້ນ: ເຣົາເຕີ client ຂອງ SvelteKit ບໍ່ເຮັດວຽກໃນເວລາເຣັນເດີຢູ່ຝັ່ງ server',
+  'routing.angularRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` ຕ້ອງຖືກເອີ້ນໃນບໍລິບົດການສັກຢາຂອງແອັບ Angular ທີ່ໃຫ້ເຣົາເຕີ. ເພີ່ມ `provideRouter(routes)` ໃສ່ຜູ້ໃຫ້ບໍລິການຂອງແອັບ.',
+  'routing.vueRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` ຕ້ອງຖືກເອີ້ນໃນ `setup` ຂອງຄອມໂປເນັນຂອງແອັບ Vue ທີ່ມີ Vue Router ຕິດຕັ້ງແລ້ວ. ຕິດຕັ້ງມັນດ້ວຍ `app.use(router)`.',
+  'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` ຕ້ອງຖືກໃຊ້ພາຍໃນເຣົາເຕີ Solid Router. ຕິດຕັ້ງ `Router`, `HashRouter` ຫຼື `MemoryRouter`.',
 }
