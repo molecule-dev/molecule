@@ -17,9 +17,10 @@
  * export `requestHandlerMap = createArticleHandlers({ mapRequest, mapResponse })`.
  * Keep `create`, `list`, `feed`, `read`, `update`, `del`, `favorite`, `unfavorite`
  * and `tags` in the package.
- * `mapRequest` can unwrap bodies and resolve query filters. Async `mapResponse`
- * can batch-load author profiles, omit fields from list items, rename pagination
- * keys, wrap results, or translate error statuses and bodies. It receives errors
+ * `mapRequest` can unwrap bodies and resolve query filters. For a list, put resolved user
+ * ids in `query.authorId` and `query.favoritedBy`, the same names used by `listArticles`.
+ * Async `mapResponse` can batch-load author profiles, omit fields from list items,
+ * rename pagination keys, wrap results, or translate error statuses and bodies. It receives errors
  * and empty deletes too. Set the authenticated user on `res.locals.session.userId`.
  * For profile projection, pass the page's `authorId`s once to
  * `getPublicProfiles(ids)` from `@molecule/api-resource-user` and
@@ -51,10 +52,13 @@
  * Use the resulting map's handlers on the app's routes. For distinct route projections,
  * create separate maps with separate options. The static `requestHandlerMap` keeps the
  * native flat-body/raw-article format. A list can combine tag, author and favorites
- * filters with limit and offset. When a requested handle cannot be resolved, return an
- * empty page instead of omitting its filter. `getFeed(viewerId, { limit, offset })`
- * handles the followed-author view. The services read the package's tables, so a
- * differently named table with its own schema needs its own persistence.
+ * filters with limit and offset. The list reads `author` as a legacy alias when
+ * `authorId` is absent or blank. If a requested handle cannot be resolved, return
+ * `{ response: { statusCode: 200, body: { data: [], total: 0, limit, offset } } }`
+ * from `mapRequest` to let `mapResponse` project the empty page.
+ * `getFeed(viewerId, { limit, offset })` handles the followed-author view.
+ * The services read the package's tables, so a differently named table with its own
+ * schema needs its own persistence.
  *
  * **Need only a lookup in a custom route?** `findArticleRow(slug)` returns the stored
  * `ArticleRow` or `null`. `getArticleBySlug(slug, viewerId?)` returns an `Article` or
@@ -84,7 +88,7 @@
  *
  * // Wire routes into your Express app via mlcl inject:
  * // POST   /articles                   create (signed in)
- * // GET    /articles                   ?tag= &author= &favoritedBy= &limit= &offset=
+ * // GET    /articles                   ?tag= &authorId= &favoritedBy= &limit= &offset=
  * // GET    /articles/feed              authors the signed-in user follows
  * // GET    /articles/tags              every tag in use, most-used first (?limit= caps it)
  * // GET    /articles/:slug

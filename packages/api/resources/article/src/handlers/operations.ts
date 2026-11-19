@@ -51,8 +51,9 @@ export async function create(req: MoleculeRequest, res: MoleculeResponse): Promi
 }
 
 /**
- * `GET /articles` — newest first; `?tag=`, `?author=` (user id),
- * `?favoritedBy=` (user id), `?limit=`, `?offset=`.
+ * `GET /articles` — newest first; `?tag=`, `?authorId=` (user id),
+ * `?favoritedBy=` (user id), `?limit=`, `?offset=`. The legacy `?author=`
+ * key is used when there is no non-empty `authorId`.
  *
  * @param req - The request.
  * @param res - The response context containing the viewer.
@@ -64,7 +65,7 @@ export async function list(req: MoleculeRequest, res: MoleculeResponse): Promise
       statusCode: 200,
       body: await listArticles({
         tag: queryString(req.query.tag),
-        authorId: queryString(req.query.author),
+        authorId: queryString(req.query.authorId) ?? queryString(req.query.author),
         favoritedBy: queryString(req.query.favoritedBy),
         limit: queryInt(req.query.limit),
         offset: queryInt(req.query.offset),

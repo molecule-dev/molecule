@@ -67,10 +67,17 @@ beforeAll(async () => {
   const filtered =
     'createArticleHandlers' in handlers
       ? handlers.createArticleHandlers({
-          mapRequest: (req) => ({ query: { ...req.query, author: 'editor' } }),
+          mapRequest: (req) => {
+            const { byline, ...query } = req.query
+            if (byline !== 'public-editor') {
+              return { response: { statusCode: 404, body: { error: 'Editor not found' } } }
+            }
+            return { query: { ...query, authorId: 'editor' } }
+          },
         })
       : handlers
   app.get('/filtered', filtered.list)
+  app.get('/native', handlers.list)
   app.post('/native', handlers.create)
   server = app.listen(0, '127.0.0.1')
   await new Promise<void>((resolve, reject) => {
@@ -124,10 +131,6 @@ describe('configured article HTTP handlers with SQLite', () => {
     const list = await call('/archive?limit=1&tag=news', 'GET', 'reader')
     expect(list.body.archive).toMatchObject({ total: 1, limit: 1 })
     expect(list.body.archive.data[0]).toMatchObject({ slug: 'release-notes', favorited: true })
-    const filtered = await call('/filtered?author=public-editor')
-    expect(filtered.status).toBe(200)
-    expect(filtered.body).toMatchObject({ total: 1 })
-    expect(filtered.body.data[0].authorId).toBe('editor')
     const edited = await call('/archive/release-notes', 'PUT', 'editor', {
       entry: { body: 'Second edition' },
     })
@@ -135,6 +138,55 @@ describe('configured article HTTP handlers with SQLite', () => {
     const deleted = await call('/archive/release-notes', 'DELETE', 'editor')
     expect(deleted).toEqual({ status: 204, body: undefined })
     expect((await call('/archive/release-notes')).status).toBe(404)
+  })
+
+  describe('a bulletin archive with entries by different editors', () => {
+    beforeAll(async () => {
+      for (const [author, title] of [
+        ['editor', 'Bulletin one'],
+        ['guest', 'Guest bulletin'],
+        ['editor', 'Bulletin two'],
+      ]) {
+        const created = await call('/native', 'POST', author, {
+          title,
+          body: 'News from the team',
+          tagList: ['bulletin'],
+        })
+        expect(created.status).toBe(201)
+      }
+    })
+
+    it('applies a resolved authorId from mapRequest before counting and paging', async () => {
+      const page = await call('/filtered?byline=public-editor&tag=bulletin&limit=1&offset=1')
+      expect(page.status).toBe(200)
+      expect(page.body).toMatchObject({
+        data: [{ authorId: 'editor', slug: 'bulletin-one' }],
+        total: 2,
+        limit: 1,
+        offset: 1,
+      })
+    })
+
+    it('keeps legacy author filters and lists every matching entry when no author is requested', async () => {
+      const legacy = await call('/native?tag=bulletin&author=guest')
+      expect(legacy.status).toBe(200)
+      expect(legacy.body).toMatchObject({
+        data: [{ authorId: 'guest' }],
+        total: 1,
+      })
+      const all = await call('/native?tag=bulletin')
+      expect(all.status).toBe(200)
+      expect(all.body.total).toBe(3)
+    })
+
+    it('prefers the canonical authorId if a request also includes the legacy key', async () => {
+      const page = await call('/native?tag=bulletin&authorId=guest&author=editor')
+      expect(page.status).toBe(200)
+      expect(page.body).toMatchObject({
+        data: [{ authorId: 'guest' }],
+        total: 1,
+      })
+    })
   })
 
   it('keeps authorization and input validation in front of real database writes', async () => {
