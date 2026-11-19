@@ -8,6 +8,7 @@
   import type { GridProps } from '../types.js'
 
   let {
+    ref = $bindable(null),
     children,
     columns,
     rows,
@@ -44,6 +45,7 @@
 </script>
 
 <div
+  bind:this={ref}
   class={gridClasses}
   use:reactStyle={gridStyle}
   data-testid={testId}

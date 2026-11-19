@@ -8,6 +8,8 @@
   import { useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
+  import { reactAttrs, withoutEvents } from '../attrs.js'
+  import { spreadEvents } from '../dom.js'
   import { reactStyle } from '../style.js'
   import type { AlertProps } from '../types.js'
   import IconGlyph from './IconGlyph.svelte'
@@ -28,6 +30,7 @@
   }
 
   let {
+    ref = $bindable(null),
     children,
     title,
     status = 'info',
@@ -40,6 +43,7 @@
     className,
     style,
     testId,
+    ...rest
   }: AlertProps = $props()
 
   const { t } = useTranslation()
@@ -54,9 +58,21 @@
     ),
   )
   const role = $derived(live ? 'alert' : 'status')
+  // Every other declared prop (id, aria-*, data-*, automationId as data-mol-id,
+  // the DOM event handlers) reaches the root; a caller's role replaces the
+  // live-region default.
+  const attributes = $derived(reactAttrs(withoutEvents(rest)))
 </script>
 
-<div {role} class={alertClasses} use:reactStyle={style} data-testid={testId}>
+<div
+  bind:this={ref}
+  {role}
+  class={alertClasses}
+  use:reactStyle={style}
+  data-testid={testId}
+  {...attributes}
+  use:spreadEvents={rest}
+>
   {#if icon || iconName}
     <span class={cm.alertIconWrapper}>
       {#if icon}{@render icon()}{:else if iconName}<IconGlyph

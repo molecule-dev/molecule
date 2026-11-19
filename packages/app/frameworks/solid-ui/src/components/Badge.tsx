@@ -4,20 +4,21 @@
  * @module
  */
 
-import { type Component, type JSX, splitProps } from 'solid-js'
+import { type JSX, splitProps } from 'solid-js'
 
 import type { BadgeProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
-import { toStyleProps } from '../utilities/dom.js'
+import { reactDomProps, toStyleProps, type WithRef } from '../utilities/dom.js'
+import { withDisplayName } from './displayName.js'
 
 /**
  * Renders the Badge component.
  * @param props - The component props.
  * @returns The rendered badge JSX.
  */
-export const Badge: Component<BadgeProps> = (props) => {
-  const [local] = splitProps(props, [
+export const Badge = withDisplayName<WithRef<BadgeProps, HTMLSpanElement>>((props) => {
+  const [local, rest] = splitProps(props, [
     'children',
     'color',
     'variant',
@@ -38,8 +39,13 @@ export const Badge: Component<BadgeProps> = (props) => {
     )
 
   return (
-    <span class={badgeClasses()} style={toStyleProps(local.style)} data-testid={local.testId}>
+    <span
+      class={badgeClasses()}
+      style={toStyleProps(local.style)}
+      data-testid={local.testId}
+      {...reactDomProps(rest)}
+    >
       {local.children as JSX.Element}
     </span>
   )
-}
+}, 'Badge')

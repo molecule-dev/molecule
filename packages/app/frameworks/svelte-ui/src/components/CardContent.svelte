@@ -7,11 +7,12 @@
   import { reactStyle } from '../style.js'
   import type { CardContentProps } from '../types.js'
 
-  let { children, className, style, ...rest }: CardContentProps = $props()
+  let { ref = $bindable(null), children, className, style, ...rest }: CardContentProps = $props()
   const cm = $derived(getClassMap())
 </script>
 
 <div
+  bind:this={ref}
   class={cm.cn(cm.cardContent, className)}
   use:reactStyle={style}
   {...reactAttrs(withoutEvents(rest))}

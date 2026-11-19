@@ -5,6 +5,8 @@
  */
 
 export * from './dom-context.js'
+export * from './element.js'
+export * from './element-props.js'
 export * from './focus.js'
 export * from './form-field-context.js'
 export * from './form-submit-error.js'

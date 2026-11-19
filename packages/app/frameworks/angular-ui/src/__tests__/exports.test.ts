@@ -67,3 +67,78 @@ describe('@molecule/app-ui-angular exports', () => {
     expect(typeof pkg.getIconSvg).toBe('function')
   })
 })
+
+describe('module exports', () => {
+  // The full primitive surface `@molecule/app-ui-react` exports (a port of
+  // its `exports.test.ts`): every React export exists here under the same
+  // name. Angular's components are `@Component` classes, so the check is
+  // "defined", exactly as React asserts it.
+  const expectedComponents = [
+    'Button',
+    'Input',
+    'Textarea',
+    'Select',
+    'Checkbox',
+    'RadioGroup',
+    'Switch',
+    'ConfirmButton',
+    'ConfirmDialog',
+    'PromptDialog',
+    'Modal',
+    'Spinner',
+    'Avatar',
+    'Badge',
+    'Alert',
+    'Card',
+    'CardHeader',
+    'CardTitle',
+    'CardDescription',
+    'CardContent',
+    'CardFooter',
+    'Tabs',
+    'Table',
+    'Tooltip',
+    'Progress',
+    'Skeleton',
+    'SkeletonText',
+    'SkeletonCircle',
+    'Separator',
+    'Container',
+    'Flex',
+    'Grid',
+    'Spacer',
+    'Form',
+    'FormField',
+    'Label',
+    'Toast',
+    'ToastContainer',
+    'ToastProvider',
+    'Accordion',
+    'Pagination',
+    'Dropdown',
+    'DropdownLabel',
+    'DropdownSeparator',
+    'ResponsiveAppShell',
+    'ResponsiveAppShellTopBar',
+    'ResponsiveAppShellSidebar',
+    'ResponsiveAppShellDrawer',
+    'ResponsiveAppShellContent',
+  ]
+
+  for (const name of expectedComponents) {
+    it(`should export ${name}`, () => {
+      const exp = (pkg as Record<string, unknown>)[name]
+      expect(exp).toBeDefined()
+    })
+  }
+
+  it('should export useToast hook', () => {
+    expect(pkg.useToast).toBeDefined()
+    expect(typeof pkg.useToast).toBe('function')
+  })
+
+  it('should export useIsDesktop hook', () => {
+    expect(pkg.useIsDesktop).toBeDefined()
+    expect(typeof pkg.useIsDesktop).toBe('function')
+  })
+})

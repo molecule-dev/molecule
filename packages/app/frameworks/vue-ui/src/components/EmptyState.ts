@@ -10,6 +10,7 @@ import type { EmptyStateProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 import { classOf, styleOf } from '../utilities/attrs.js'
+import { useElementRef } from '../utilities/elementRef.js'
 
 /**
  * Vue EmptyState UI component with UIClassMap-driven styling.
@@ -32,8 +33,9 @@ export const EmptyState = defineComponent({
     testId: String,
     automationId: String,
   },
-  setup(props, { attrs, slots }) {
+  setup(props, { attrs, slots, expose }) {
     const cm = getClassMap()
+    const element = useElementRef<HTMLDivElement>(expose)
 
     return () => {
       const icon = props.icon ?? slots.icon?.()
@@ -50,6 +52,7 @@ export const EmptyState = defineComponent({
       return h(
         'div',
         {
+          ref: element,
           class: cm.cn(cm.emptyState, ...classOf(props.className, attrs)),
           style: styleOf(props.style, attrs),
           'data-testid': props.testId,

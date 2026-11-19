@@ -22,7 +22,10 @@ export type StyleValue = Record<string, string | number | undefined> | string | 
 
 /**
  * The React `...rest` spread: every fallthrough attr except `class` and
- * `style`, which {@link classOf} and {@link styleOf} merge separately.
+ * `style`, which {@link classOf} and {@link styleOf} merge separately, with
+ * React's DOM-callback names (`onKeyDown`, `onDoubleClick`, `onFocus`, …)
+ * rewritten to the Vue listener keys of the events React listens to, and
+ * `BaseProps.automationId` as the `data-mol-id` attribute it documents.
  *
  * @param attrs - Vue fallthrough attrs.
  * @returns Attrs to spread onto the root element.
@@ -31,9 +34,39 @@ export function restAttrs(attrs: FallthroughAttrs): FallthroughAttrs {
   const rest: FallthroughAttrs = {}
   for (const [key, value] of Object.entries(attrs)) {
     if (key === 'class' || key === 'style') continue
-    rest[key] = value
+    rest[listenerKey(key)] = value
   }
   return rest
+}
+
+/**
+ * A caller's listener from Vue's fallthrough attrs, for a component that runs its own handler
+ * first and then the caller's (as React's kit does after destructuring the prop). Vue types attrs
+ * as `unknown`; a listener is a function, or an array of them when one is bound twice. Anything
+ * else is no listener, so a non-function attr can never be called.
+ *
+ * @param attrs - Vue fallthrough attrs.
+ * @param name - The attr key (`onMouseEnter`, `onSort`, …).
+ * @returns A function calling every listener with its arguments, or `undefined` when there is none.
+ */
+export function attrListener<A extends unknown[]>(
+  attrs: FallthroughAttrs,
+  name: string,
+): ((...args: A) => void) | undefined {
+  const value = attrs[name]
+  if (typeof value === 'function') {
+    return (...args: A): void => {
+      value(...args)
+    }
+  }
+  if (Array.isArray(value)) {
+    const listeners = value.filter((entry) => typeof entry === 'function')
+    if (listeners.length === 0) return undefined
+    return (...args: A): void => {
+      for (const listener of listeners) listener(...args)
+    }
+  }
+  return undefined
 }
 
 /**
@@ -90,3 +123,34 @@ export function nodeProp<T>(value: T | undefined, slot: (() => unknown) | undefi
  * React-shaped children value is narrowed with this before it is passed.
  */
 export type RenderableChildren = Exclude<VNodeChild, null | undefined | void>
+
+/**
+ * React's DOM-callback names whose native event is not the lowercased name: React's `onFocus`
+ * and `onBlur` listen to the bubbling `focusin` and `focusout`, and its `onDoubleClick` to
+ * `dblclick`. Keyed by the lowercased name after `on`.
+ */
+const REACT_EVENT_ALIASES: Record<string, string> = {
+  focus: 'focusin',
+  blur: 'focusout',
+  doubleclick: 'dblclick',
+}
+
+/**
+ * The Vue listener key for an `on*` attr. React forwards DOM callbacks verbatim
+ * (`onKeyDown`, `onDoubleClick`, `onFocus`), but Vue hyphenates whatever follows `on`
+ * (`onKeyDown` would listen for `key-down`). The key is rewritten to `on` + the capitalised
+ * DOM event React listens to (`onKeydown`, `onDblclick`, `onFocusin`), keeping Vue's
+ * `Once`/`Passive`/`Capture` modifiers. A key already in that form maps to itself.
+ * `automationId` becomes `data-mol-id`.
+ *
+ * @param key - The attr name.
+ * @returns The key to spread onto a native element.
+ */
+function listenerKey(key: string): string {
+  if (key === 'automationId' || key === 'automation-id') return 'data-mol-id'
+  const match = /^on([A-Z][a-zA-Z]*?)((?:Once|Passive|Capture)*)$/.exec(key)
+  if (!match) return key
+  const name = match[1].toLowerCase()
+  const event = REACT_EVENT_ALIASES[name] ?? name
+  return `on${event[0].toUpperCase()}${event.slice(1)}${match[2]}`
+}

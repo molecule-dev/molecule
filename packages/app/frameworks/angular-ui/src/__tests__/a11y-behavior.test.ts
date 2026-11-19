@@ -25,8 +25,6 @@ import '@angular/compiler'
 import { ElementRef, Injector, Renderer2, runInInjectionContext } from '@angular/core'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import type { Input } from '../components/input.component.js'
-
 vi.mock('@molecule/app-ui', () => ({
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
@@ -57,6 +55,7 @@ vi.mock('@molecule/app-angular', () => ({
 }))
 
 const { Card } = await import('../components/card.component.js')
+const { Input } = await import('../components/input.component.js')
 const { Modal } = await import('../components/modal.component.js')
 const { PromptDialog } = await import('../components/prompt-dialog.component.js')
 const { ResponsiveAppShellDrawer } = await import('../components/responsive-app-shell.component.js')
@@ -90,7 +89,7 @@ describe('Card keyboard activation', () => {
   // click handler on the same element) reproduced with plain DOM listeners.
   const mount = (interactive: boolean) => {
     const host = document.createElement('div')
-    const card = new Card()
+    const card = runInInjectionContext(injectionContext(), () => new Card())
     if (interactive) card.interactive = true
     const keydowns: KeyboardEvent[] = []
     const clicks: Event[] = []
@@ -141,13 +140,16 @@ describe('Card keyboard activation', () => {
 })
 
 describe('PromptDialog input focus on open', () => {
-  // A real PromptDialog; the `@ViewChild(Input)` view child is a stand-in
-  // carrying just the native input the focus path touches (a view child cannot
-  // exist without an Angular mount).
+  // A real PromptDialog; the `@ViewChild(Input)` view child is a real Input
+  // whose own view never mounted here, so the test hands it the native input
+  // the focus path touches (a view child cannot exist without an Angular
+  // mount).
   const makeDialog = () => {
     const dialog = runInInjectionContext(injectionContext(), () => new PromptDialog())
     const input = document.createElement('input')
-    dialog.inputComponent = { inputEl: { nativeElement: input } } as unknown as Input
+    const inputComponent = runInInjectionContext(injectionContext(), () => new Input())
+    inputComponent.inputEl = new ElementRef(input)
+    dialog.inputComponent = inputComponent
     // The dialog's first control, which the composed Modal focuses on open.
     const closeButton = document.createElement('button')
     document.body.appendChild(input)

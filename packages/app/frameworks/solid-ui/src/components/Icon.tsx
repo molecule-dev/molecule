@@ -2,6 +2,8 @@ import { type Component, createMemo, Index, type JSX, splitProps } from 'solid-j
 
 import { getIcon, type IconName } from '@molecule/app-icons'
 
+import { reactDomProps } from '../utilities/dom.js'
+
 /**
  * Props for {@link Icon}.
  *
@@ -81,7 +83,7 @@ export const Icon: Component<IconProps> = (props) => {
       class={local.className}
       aria-hidden={decorative() ? 'true' : 'false'}
       attr:focusable="false"
-      {...(rest as JSX.SvgSVGAttributes<SVGSVGElement>)}
+      {...reactDomProps(rest)}
     >
       <circle cx="10" cy="10" r="8" fill="currentColor" opacity="0.15" />
     </svg>
@@ -105,7 +107,7 @@ export const Icon: Component<IconProps> = (props) => {
               aria-hidden={decorative() ? 'true' : undefined}
               attr:focusable={decorative() ? 'false' : undefined}
               innerHTML={data.svg}
-              {...(rest as JSX.SvgSVGAttributes<SVGSVGElement>)}
+              {...reactDomProps(rest)}
             />
           )
         }
@@ -123,7 +125,7 @@ export const Icon: Component<IconProps> = (props) => {
             stroke-linecap={data.strokeLinecap}
             stroke-linejoin={data.strokeLinejoin}
             class={local.className}
-            {...(rest as JSX.SvgSVGAttributes<SVGSVGElement>)}
+            {...reactDomProps(rest)}
           >
             {/* React keys the paths `key={i}`, so `<Index>` — a position's
                 node survives and its attributes update. */}

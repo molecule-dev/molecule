@@ -4,15 +4,16 @@
  * @module
  */
 
-import { type Component, For, type JSX, Show, splitProps } from 'solid-js'
+import { For, type JSX, Show, splitProps } from 'solid-js'
 
 import { useTranslation } from '@molecule/app-solid'
 import type { TableColumn, TableProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
-import { toStyleProps } from '../utilities/dom.js'
+import { reactDomProps, toStyleProps, type WithRef } from '../utilities/dom.js'
 import { createKeyedList } from '../utilities/keyedList.js'
 import { renderIcon } from '../utilities/renderIcon.jsx'
+import { withDisplayName } from './displayName.js'
 import { Spinner } from './Spinner.jsx'
 
 /**
@@ -20,8 +21,10 @@ import { Spinner } from './Spinner.jsx'
  * @param props - The component props.
  * @returns The rendered component element.
  */
-export const Table: Component<TableProps<Record<string, unknown>>> = (props) => {
-  const [local] = splitProps(props, [
+export const Table = withDisplayName<
+  WithRef<TableProps<Record<string, unknown>>, HTMLTableElement>
+>((props) => {
+  const [local, rest] = splitProps(props, [
     'data',
     'columns',
     'rowKey',
@@ -96,7 +99,12 @@ export const Table: Component<TableProps<Record<string, unknown>>> = (props) => 
           <Spinner size="lg" />
         </div>
       </Show>
-      <table class={tableClasses()} style={toStyleProps(local.style)} data-testid={local.testId}>
+      <table
+        class={tableClasses()}
+        style={toStyleProps(local.style)}
+        data-testid={local.testId}
+        {...reactDomProps(rest)}
+      >
         <thead class={cm.tableHeader}>
           <tr class={cm.tableRow}>
             <For each={cols.keys()}>
@@ -194,4 +202,4 @@ export const Table: Component<TableProps<Record<string, unknown>>> = (props) => 
       </table>
     </div>
   )
-}
+}, 'Table')

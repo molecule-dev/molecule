@@ -10,9 +10,51 @@
  * @module
  */
 
-import { defineComponent, h, onMounted, type PropType, ref, type VNode, watch } from 'vue'
+import { defineComponent, h, onMounted, type PropType, ref, type VNodeChild, watch } from 'vue'
 
 import { useAuth, useLocation, useRouterInstance, useTranslation } from '@molecule/app-vue'
+
+/**
+ * Props for {@link AuthGuard}.
+ *
+ * Vue port of `@molecule/app-ui-react`'s `AuthGuardProps`: React's
+ * `ReactNode` members are nodes here, the `onAuthenticated` callback is the
+ * `authenticated` emit (so it is optional, like every Vue listener), and the
+ * guarded children are the default slot. All props are optional — the
+ * default behavior matches the React component.
+ */
+export interface AuthGuardProps {
+  /**
+   * Node rendered while `useAuth().status` is `'loading'` — no session
+   * decision yet. Arrives as the `loadingFallback` prop or the
+   * `loadingFallback` slot.
+   */
+  loadingFallback?: VNodeChild
+  /**
+   * i18n key used for the default loading-tag text. Defaults to
+   * `'common.loading'`. Ignored when `loadingFallback` is set.
+   */
+  loadingKey?: string
+  /**
+   * Fallback text if the i18n key is missing. Defaults to `'Loading...'`.
+   * Ignored when `loadingFallback` is set.
+   */
+  loadingDefault?: string
+  /**
+   * Path to redirect to when `useAuth().status` is `'unauthenticated'`.
+   * Defaults to `'/login'`.
+   */
+  loginPath?: string
+  /**
+   * Invoked when `isAuthenticated` transitions to `true` (or is already
+   * `true` on first render) — the `authenticated` emit.
+   */
+  onAuthenticated?: () => void
+  /**
+   * Children to render when authenticated — the default slot.
+   */
+  children?: VNodeChild
+}
 
 /**
  * The pathname part of a login path (`/login?next=x` → `/login`).
@@ -70,16 +112,15 @@ export const AuthGuard = defineComponent({
      * full-page spinner or any other UI you want during the auth bootstrap
      * window.
      */
-    // `null` (Vue's "no runtime type validation" declaration) typed as the
-    // React `ReactNode` shape — TS requires the `unknown` step here because
-    // `null` does not overlap `VNode` structurally.
-    loadingFallback: null as unknown as PropType<VNode | VNode[]>,
+    // Vue's "no runtime type validation" declaration: a node value passes
+    // through without a runtime type check.
+    loadingFallback: null,
     /**
      * i18n key used for the default loading-tag text. Defaults to
      * `'common.loading'`. Ignored when `loadingFallback` is set.
      */
     loadingKey: {
-      type: String,
+      type: String as PropType<AuthGuardProps['loadingKey']>,
       default: 'common.loading',
     },
     /**
@@ -88,7 +129,7 @@ export const AuthGuard = defineComponent({
      * canonicalization plan). Ignored when `loadingFallback` is set.
      */
     loadingDefault: {
-      type: String,
+      type: String as PropType<AuthGuardProps['loadingDefault']>,
       default: 'Loading...',
     },
     /**
@@ -97,7 +138,7 @@ export const AuthGuard = defineComponent({
      * `state.from` for post-login restoration.
      */
     loginPath: {
-      type: String,
+      type: String as PropType<AuthGuardProps['loginPath']>,
       default: '/login',
     },
   },

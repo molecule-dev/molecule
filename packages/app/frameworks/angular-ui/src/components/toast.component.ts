@@ -27,6 +27,7 @@ import type { ColorVariant, ToastProps, UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 import { findDomContext, provideDomContext, removeDomContext } from '../utilities/dom-context.js'
+import { type HasElement, hostElement } from '../utilities/element.js'
 import type { ResolvedIcon } from '../utilities/render-icon.js'
 import { MolIconSvg, resolveIcon } from '../utilities/render-icon.js'
 import { styleText } from '../utilities/style.js'
@@ -61,7 +62,7 @@ export interface ToastContextValue {
   /**
    * Adds a toast.
    * @param toast - The toast to add.
-   * @returns Its generated id.
+   * @returns Its id (the caller's when given).
    */
   addToast: (toast: Omit<ToastProps, 'onDismiss'>) => string
   /**
@@ -97,12 +98,17 @@ type ToastPosition = ToastProps['position']
     'style',
     'testId',
     'position',
+    'automationId',
+    'dataMolId: data-mol-id',
+    'id',
   ],
   outputs: ['dismiss'],
   host: {
     '[class]': 'classes()',
     '[style]': 'hostStyle()',
     '[attr.data-testid]': 'testId',
+    '[attr.data-mol-id]': 'molId()',
+    '[attr.id]': 'id',
     '[attr.role]': 'role()',
     '[attr.data-state]': 'visible() ? "open" : null',
     '(mouseenter)': 'pauseTimer()',
@@ -136,7 +142,7 @@ type ToastPosition = ToastProps['position']
       </button>
     }`,
 })
-export class Toast implements AfterViewInit, DoCheck, OnDestroy {
+export class Toast implements AfterViewInit, DoCheck, OnDestroy, HasElement<HTMLDivElement> {
   /** The toast title. */
   title?: string
   /** The toast description (a string or a node value rendered as a template). */
@@ -157,6 +163,12 @@ export class Toast implements AfterViewInit, DoCheck, OnDestroy {
   testId?: string
   /** Accepted for prop parity; positioning is the container's job. */
   position?: ToastPosition
+  /** `data-mol-id` automation id (React's `automationId`). */
+  automationId?: string
+  /** A `data-mol-id` given as a plain rest attribute (React's `rootProps` precedence). */
+  dataMolId?: string
+  /** The toast's DOM `id` (React spreads the toast record, id included, onto `<Toast>`). */
+  id?: string
 
   /** Fires when the toast dismisses itself or its close button is pressed. */
   @Output() readonly dismiss = new EventEmitter<void>()
@@ -170,6 +182,9 @@ export class Toast implements AfterViewInit, DoCheck, OnDestroy {
   readonly visible = signal(true)
 
   private readonly el = inject(ElementRef)
+  private readonly hostRef: ElementRef<HTMLDivElement> = inject(ElementRef)
+  /** The element a caller's ref receives: the host `<div>`. */
+  readonly element = hostElement(this.hostRef)
 
   /**
    * Reactive translation, read in the injection context. Its `t` reads the
@@ -228,6 +243,14 @@ export class Toast implements AfterViewInit, DoCheck, OnDestroy {
    */
   hostStyle(): string | null {
     return styleText(this.style)
+  }
+
+  /**
+   * The `data-mol-id` value (`automationId` wins over a rest `data-mol-id`).
+   * @returns The attribute value.
+   */
+  molId(): string | undefined {
+    return this.automationId ?? this.dataMolId ?? this.host.getAttribute('data-mol-id') ?? undefined
   }
 
   /**
@@ -425,14 +448,24 @@ export class Toast implements AfterViewInit, DoCheck, OnDestroy {
   },
   template: `<div #container [class]="classes()"><ng-content></ng-content></div>`,
 })
-export class ToastContainer implements AfterViewInit, OnDestroy {
+export class ToastContainer implements AfterViewInit, OnDestroy, HasElement<HTMLDivElement> {
   /** The container position (default `bottom-right`). */
   position: ToastPosition = 'bottom-right'
   /** Extra classes. */
   className?: string
 
   /** The container element (moved to `document.body`). */
-  @ViewChild('container') container?: ElementRef<HTMLDivElement>
+  private container?: ElementRef<HTMLDivElement>
+  /** The container view query; also feeds the caller's ref element. */
+  @ViewChild('container')
+  set containerQuery(ref: ElementRef<HTMLDivElement> | undefined) {
+    this.container = ref
+    this.inner.set(ref?.nativeElement ?? null)
+  }
+
+  private readonly inner = signal<HTMLDivElement | null>(null)
+  /** The element a caller's ref receives: the positioned container `<div>`. */
+  readonly element = this.inner.asReadonly()
 
   private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
 
@@ -496,6 +529,8 @@ export class ToastContainer implements AfterViewInit, OnDestroy {
           [className]="toast.className"
           [style]="toast.style"
           [testId]="toast.testId"
+          [automationId]="toast.automationId"
+          [id]="toast.id"
           (dismiss)="removeToast(toast.id)"
         ></div>
       }
@@ -540,12 +575,13 @@ export class ToastProvider implements AfterViewInit, OnDestroy {
   }
 
   /**
-   * Adds a toast and returns its generated id (React's `addToast`).
+   * Adds a toast and returns its handle (React's `addToast`). A caller's `id`
+   * is the handle and the toast element's id; otherwise one is generated.
    * @param toast - The toast to add.
    * @returns The id.
    */
   addToast(toast: Omit<ToastProps, 'onDismiss'>): string {
-    const id = `toast-${++toastCounter}`
+    const id = toast.id ?? `toast-${++toastCounter}`
     this.toasts.update((prev) => [...prev, { ...toast, id }])
     return id
   }
@@ -601,7 +637,7 @@ class ToastContextImplementation implements ToastContextValue {
   /**
    * Adds a toast.
    * @param toast - The toast to add.
-   * @returns The generated id.
+   * @returns Its id (the caller's when given).
    */
   addToast(toast: Omit<ToastProps, 'onDismiss'>): string {
     return this.provider.addToast(toast)

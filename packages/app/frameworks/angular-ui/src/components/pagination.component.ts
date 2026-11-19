@@ -4,12 +4,13 @@
  * @module
  */
 
-import { Component, EventEmitter, Output } from '@angular/core'
+import { Component, ElementRef, EventEmitter, inject, Output } from '@angular/core'
 
 import { useTranslation } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
+import { type HasElement, hostElement } from '../utilities/element.js'
 import type { ResolvedIcon } from '../utilities/render-icon.js'
 import { MolIconSvg, resolveIcon } from '../utilities/render-icon.js'
 import { styleText } from '../utilities/style.js'
@@ -81,6 +82,8 @@ function generatePaginationRange(
     'style',
     'testId',
     'disabled',
+    'automationId',
+    'dataMolId: data-mol-id',
   ],
   outputs: ['change'],
   host: {
@@ -89,6 +92,7 @@ function generatePaginationRange(
     '[class]': 'classes()',
     '[style]': 'hostStyle()',
     '[attr.data-testid]': 'testId',
+    '[attr.data-mol-id]': 'molId()',
   },
   template: `<ul [class]="cm().paginationContent">
     @if (showFirstLast) {
@@ -167,7 +171,7 @@ function generatePaginationRange(
     }
   </ul>`,
 })
-export class Pagination {
+export class Pagination implements HasElement<HTMLElement> {
   /** The active page. */
   page = 1
   /** The total number of pages. */
@@ -192,9 +196,17 @@ export class Pagination {
   testId?: string
   /** Disables every button. */
   disabled?: boolean
+  /** `data-mol-id` automation id (React's `automationId`). */
+  automationId?: string
+  /** A `data-mol-id` given as a plain rest attribute (React's `rootProps` precedence). */
+  dataMolId?: string
 
   /** Fires with the requested page (React's `onChange`). */
   @Output() readonly change = new EventEmitter<number>()
+
+  private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
+  /** The element a caller's ref receives: the host `<nav>`. */
+  readonly element = hostElement(this.host)
 
   /**
    * Reactive translation, read in the injection context. Its `t` reads the
@@ -217,6 +229,19 @@ export class Pagination {
    */
   classes(): string {
     return this.cm().cn(this.cm().paginationRoot, this.className)
+  }
+
+  /**
+   * The `data-mol-id` value (`automationId` wins over a rest `data-mol-id`).
+   * @returns The attribute value.
+   */
+  molId(): string | undefined {
+    return (
+      this.automationId ??
+      this.dataMolId ??
+      this.host.nativeElement.getAttribute('data-mol-id') ??
+      undefined
+    )
   }
 
   /**

@@ -31,7 +31,9 @@ vi.mock('@molecule/app-ui', () => ({
   },
 }))
 
-import { type Component, createRawSnippet, mount, unmount } from 'svelte'
+import { type Component, createRawSnippet, flushSync, mount, unmount } from 'svelte'
+
+import type { CardProps } from '../types.js'
 
 const { default: Card } = await import('../components/Card.svelte')
 
@@ -62,6 +64,20 @@ function mountCard(interactive: boolean, onClick: () => void, children?: string)
   return (
     interactive ? host.querySelector('[role="button"]') : host.firstElementChild
   ) as HTMLElement
+}
+
+/** Mounts the Card with the given props around one child element; returns the card element. */
+function mountCardWith(props: CardProps, childHtml: string): HTMLElement {
+  const host = document.createElement('div')
+  document.body.appendChild(host)
+  hosts.push(host)
+  const children = createRawSnippet(() => ({ render: () => childHtml }))
+  mounted.push(mount(Card, { target: host, props: { ...props, children } }))
+  // The event-forwarding action attaches in an effect; flush it as a render does.
+  flushSync()
+  const card = host.firstElementChild
+  if (!(card instanceof HTMLElement)) throw new Error('the Card rendered no element')
+  return card
 }
 
 /** Dispatches a keydown with the given key on the element. */
@@ -105,5 +121,52 @@ describe('Card keyboard activation', () => {
     expect(card.hasAttribute('role')).toBe(false)
     pressKey(card, 'Enter')
     expect(onClick).not.toHaveBeenCalled()
+  })
+
+  it("the caller's onKeyDown runs before the activation", () => {
+    const calls: string[] = []
+    const card = mountCardWith(
+      {
+        interactive: true,
+        onClick: () => calls.push('click'),
+        onKeyDown: () => calls.push('keydown'),
+      },
+      '<span>Clickable card</span>',
+    )
+    pressKey(card, 'Enter')
+    expect(calls).toEqual(['keydown', 'click'])
+  })
+
+  it("preventDefault in the caller's onKeyDown cancels the activation", () => {
+    const onClick = vi.fn()
+    const card = mountCardWith(
+      { interactive: true, onClick, onKeyDown: (event) => event.preventDefault() },
+      '<span>Clickable card</span>',
+    )
+    pressKey(card, 'Enter')
+    expect(onClick).not.toHaveBeenCalled()
+  })
+})
+
+describe('Card forwards its declared props', () => {
+  it('id, title, onFocus, onBlur and onDoubleClick reach the card', () => {
+    const onFocus = vi.fn()
+    const onBlur = vi.fn()
+    const onDoubleClick = vi.fn()
+    const card = mountCardWith(
+      { testId: 'billing', id: 'billing-card', title: 'Billing', onFocus, onBlur, onDoubleClick },
+      '<button type="button">Edit</button>',
+    )
+    expect(card.id).toBe('billing-card')
+    expect(card.title).toBe('Billing')
+    // React's onFocus and onBlur hear focus moving onto and off a control inside the card.
+    const edit = card.querySelector('button')!
+    edit.focus()
+    expect(onFocus).toHaveBeenCalledTimes(1)
+    expect(onFocus.mock.calls[0][0].target).toBe(edit)
+    edit.blur()
+    expect(onBlur).toHaveBeenCalledTimes(1)
+    card.dispatchEvent(new MouseEvent('dblclick', { bubbles: true, cancelable: true }))
+    expect(onDoubleClick).toHaveBeenCalledTimes(1)
   })
 })

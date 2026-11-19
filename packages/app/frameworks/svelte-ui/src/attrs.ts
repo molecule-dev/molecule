@@ -11,7 +11,8 @@
  */
 
 /**
- * React prop names whose DOM attribute name differs and Svelte does not map.
+ * React prop names whose DOM attribute name differs and Svelte does not map, and
+ * `BaseProps.automationId`, which renders as the `data-mol-id` attribute it documents.
  * Built through assignment (not an object literal) because the values are DOM
  * ATTRIBUTE names — `class` here is the attribute a `className` prop lands on,
  * not a CSS class token, and the raw-class-names lint reads object-literal
@@ -20,6 +21,7 @@
 const RENAMES: Record<string, string> = {}
 RENAMES.htmlFor = 'for'
 RENAMES.className = 'class'
+RENAMES.automationId = 'data-mol-id'
 
 /**
  * Renames the React-only prop names inside a rest-prop bag so it can be

@@ -7,11 +7,12 @@
   import { reactStyle } from '../style.js'
   import type { CardTitleProps } from '../types.js'
 
-  let { children, className, style, ...rest }: CardTitleProps = $props()
+  let { ref = $bindable(null), children, className, style, ...rest }: CardTitleProps = $props()
   const cm = $derived(getClassMap())
 </script>
 
 <h3
+  bind:this={ref}
   class={cm.cn(cm.cardTitle, className)}
   use:reactStyle={style}
   {...reactAttrs(withoutEvents(rest))}

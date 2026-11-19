@@ -72,3 +72,78 @@ describe('@molecule/app-ui-svelte exports', () => {
     expect((pkg as Record<string, unknown>).default).toBeUndefined()
   })
 })
+
+describe('module exports', () => {
+  describe('component exports', () => {
+    const expectedComponents = [
+      'Button',
+      'Input',
+      'Textarea',
+      'Select',
+      'Checkbox',
+      'RadioGroup',
+      'Switch',
+      'ConfirmButton',
+      'ConfirmDialog',
+      'PromptDialog',
+      'Modal',
+      'Spinner',
+      'Avatar',
+      'Badge',
+      'Alert',
+      'Card',
+      'CardHeader',
+      'CardTitle',
+      'CardDescription',
+      'CardContent',
+      'CardFooter',
+      'Tabs',
+      'Table',
+      'Tooltip',
+      'Progress',
+      'Skeleton',
+      'SkeletonText',
+      'SkeletonCircle',
+      'Separator',
+      'Container',
+      'Flex',
+      'Grid',
+      'Spacer',
+      'Form',
+      'FormField',
+      'Label',
+      'Toast',
+      'ToastContainer',
+      'ToastProvider',
+      'Accordion',
+      'Pagination',
+      'Dropdown',
+      'DropdownLabel',
+      'DropdownSeparator',
+      'ResponsiveAppShell',
+      'ResponsiveAppShellTopBar',
+      'ResponsiveAppShellSidebar',
+      'ResponsiveAppShellDrawer',
+      'ResponsiveAppShellContent',
+    ]
+
+    for (const name of expectedComponents) {
+      it(`should export ${name}`, () => {
+        const exp = (pkg as Record<string, unknown>)[name]
+        expect(exp).toBeDefined()
+      })
+    }
+  })
+
+  describe('hook exports', () => {
+    it('should export useToast hook', () => {
+      expect(pkg.useToast).toBeDefined()
+      expect(typeof pkg.useToast).toBe('function')
+    })
+
+    it('should export useIsDesktop hook', () => {
+      expect(pkg.useIsDesktop).toBeDefined()
+      expect(typeof pkg.useIsDesktop).toBe('function')
+    })
+  })
+})

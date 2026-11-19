@@ -29,6 +29,7 @@ import { useRouter } from '@molecule/app-angular'
 import type { DropdownItem, UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
+import { type HasElement, hostElement } from '../utilities/element.js'
 import { nextInstanceId } from '../utilities/ids.js'
 import { styleText } from '../utilities/style.js'
 import { MolTemplateOutlet } from './template-outlet.directive.js'
@@ -134,6 +135,8 @@ type DropdownAlign = 'start' | 'center' | 'end'
     'className',
     'style',
     'testId',
+    'automationId',
+    'disabled',
   ],
   outputs: ['select', 'openChange'],
   host: {
@@ -151,6 +154,7 @@ type DropdownAlign = 'start' | 'center' | 'end'
         [class]="menuClasses()"
         [style]="menuStyleText()"
         [attr.data-testid]="menuTestId()"
+        [attr.data-mol-id]="menuAutomationId()"
         (keydown)="handleMenuKeyDown($event)"
       >
         @for (item of items; track keyForItem(item, $index)) {
@@ -185,7 +189,9 @@ type DropdownAlign = 'start' | 'center' | 'end'
       </div></ng-template
     >`,
 })
-export class Dropdown implements AfterViewInit, AfterViewChecked, DoCheck, OnDestroy {
+export class Dropdown
+  implements AfterViewInit, AfterViewChecked, DoCheck, OnDestroy, HasElement<HTMLDivElement>
+{
   /** Dropdown trigger (node-valued prop). */
   trigger?: unknown
   /** Dropdown items. */
@@ -204,6 +210,10 @@ export class Dropdown implements AfterViewInit, AfterViewChecked, DoCheck, OnDes
   style?: Record<string, unknown>
   /** `data-testid` (the menu's becomes `${testId}-menu`). */
   testId?: string
+  /** `data-mol-id` (the menu's becomes `${automationId}-menu`). */
+  automationId?: string
+  /** A disabled dropdown never opens and its trigger is disabled (React's `disabled`). */
+  disabled?: boolean
 
   /** Fires with the selected item's value (React's `onSelect`). */
   @Output() readonly select = new EventEmitter<string>()
@@ -230,11 +240,21 @@ export class Dropdown implements AfterViewInit, AfterViewChecked, DoCheck, OnDes
   readonly router = useRouter()
 
   private readonly el = inject(ElementRef)
+  private readonly inner = signal<HTMLDivElement | null>(null)
+  /** The element a caller's ref receives: the menu, or `null` while closed. */
+  readonly element = this.inner.asReadonly()
   private readonly renderer = inject(Renderer2)
   private readonly cdr = inject(ChangeDetectorRef)
   private readonly host: HTMLElement = this.el.nativeElement
   /** The adopted trigger element (cloned element or fallback wrapper). */
   private triggerEl: HTMLElement | null = null
+  /** The trigger's own `data-testid`/`data-mol-id`, kept when the caller sets none (React's cloneElement). */
+  private triggerOwnTestId: string | null = null
+  private triggerOwnMolId: string | null = null
+  /** Whether the cloned trigger was disabled itself: a dropdown that is enabled again leaves it so. */
+  private triggerOwnDisabled = false
+  /** Whether the adopted trigger is the fallback `role="button"` wrapper (not a cloned element). */
+  private triggerIsFallback = false
   /** The menu's embedded view, while open. */
   private menuView?: EmbeddedViewRef<unknown>
   /** The portal menu element, while open. */
@@ -310,6 +330,8 @@ export class Dropdown implements AfterViewInit, AfterViewChecked, DoCheck, OnDes
    * @returns The open state.
    */
   isOpen(): boolean {
+    // A disabled dropdown never opens, whatever `open` says (React's `isOpen`).
+    if (this.disabled) return false
     return this.open !== undefined ? this.open : this.internalOpen()
   }
 
@@ -341,6 +363,14 @@ export class Dropdown implements AfterViewInit, AfterViewChecked, DoCheck, OnDes
    */
   menuTestId(): string | null {
     return this.testId ? `${this.testId}-menu` : null
+  }
+
+  /**
+   * The menu `data-mol-id`.
+   * @returns `${automationId}-menu`, or null.
+   */
+  menuAutomationId(): string | null {
+    return this.automationId ? `${this.automationId}-menu` : null
   }
 
   /**
@@ -443,6 +473,7 @@ export class Dropdown implements AfterViewInit, AfterViewChecked, DoCheck, OnDes
    * The trigger click: toggles the menu (React's `handleTriggerClick`).
    */
   handleTriggerClick(): void {
+    if (this.disabled) return
     if (!this.isOpen()) this.pendingOpenFocus = 'first'
     this.setOpen(!this.isOpen())
   }
@@ -454,6 +485,7 @@ export class Dropdown implements AfterViewInit, AfterViewChecked, DoCheck, OnDes
    * @param event - The key event.
    */
   handleTriggerKeyDown(event: KeyboardEvent): void {
+    if (this.disabled) return
     switch (event.key) {
       case 'Enter':
       case ' ':
@@ -544,14 +576,18 @@ export class Dropdown implements AfterViewInit, AfterViewChecked, DoCheck, OnDes
       const target = elements[0] as HTMLElement
       for (const node of children) parent.insertBefore(node, anchor)
       this.triggerEl = target
+      this.triggerIsFallback = false
+      this.triggerOwnTestId = target.getAttribute('data-testid')
+      this.triggerOwnMolId = target.getAttribute('data-mol-id')
+      this.triggerOwnDisabled = target.hasAttribute('disabled')
       this.listen(target)
     } else {
       const wrapper = this.renderer.createElement('div') as HTMLDivElement
       this.renderer.setAttribute(wrapper, 'role', 'button')
-      this.renderer.setAttribute(wrapper, 'tabindex', '0')
       this.renderer.setAttribute(wrapper, 'aria-haspopup', 'menu')
       this.renderer.addClass(wrapper, this.cm().dropdownTrigger)
       this.triggerEl = wrapper
+      this.triggerIsFallback = true
       parent.insertBefore(wrapper, anchor)
       for (const node of children) wrapper.appendChild(node)
       this.listen(wrapper)
@@ -671,6 +707,7 @@ export class Dropdown implements AfterViewInit, AfterViewChecked, DoCheck, OnDes
       if (root) {
         this.menuEl = root
         document.body.appendChild(root)
+        this.inner.set(root)
       }
       // The view is created in "create" mode; run its first update now so the
       // menu element's attributes (role, tabindex, classes) exist before focus.
@@ -699,6 +736,7 @@ export class Dropdown implements AfterViewInit, AfterViewChecked, DoCheck, OnDes
     this.menuView?.destroy()
     this.menuView = undefined
     this.menuEl = null
+    this.inner.set(null)
   }
 
   /** React's menu width: the trigger width, a number, or the raw value. */
@@ -753,19 +791,35 @@ export class Dropdown implements AfterViewInit, AfterViewChecked, DoCheck, OnDes
     const target = this.triggerEl
     if (!target) return
     const open = this.isOpen()
-    if (target.getAttribute('role') === 'button' && !target.hasAttribute('data-mol-menu-trigger')) {
-      // The fallback wrapper: React's own attributes on the wrapper element.
+    if (this.triggerIsFallback) {
+      // The fallback wrapper: React's own attributes (it is not a clone).
       this.renderer.setAttribute(target, 'role', 'button')
-      this.renderer.setAttribute(target, 'tabindex', '0')
+      this.renderer.setAttribute(target, 'tabindex', this.disabled ? '-1' : '0')
     } else if (!target.hasAttribute('tabindex')) {
       this.renderer.setAttribute(target, 'tabindex', '0')
+    }
+    if (this.triggerIsFallback) {
+      if (this.disabled) this.renderer.setAttribute(target, 'aria-disabled', 'true')
+      else this.renderer.removeAttribute(target, 'aria-disabled')
+    } else if (this.disabled || this.triggerOwnDisabled) {
+      // A disabled dropdown disables its (cloned) trigger, whatever element it is (the
+      // attribute is what a button's disabled property reflects).
+      this.renderer.setAttribute(target, 'disabled', '')
+    } else {
+      // Enabled again: the trigger is back to its own state, as React's clone is.
+      this.renderer.removeAttribute(target, 'disabled')
     }
     this.renderer.setAttribute(target, 'aria-haspopup', 'menu')
     this.renderer.setAttribute(target, 'aria-expanded', open ? 'true' : 'false')
     if (open) this.renderer.setAttribute(target, 'aria-controls', this.menuId)
     else this.renderer.removeAttribute(target, 'aria-controls')
-    if (this.testId) this.renderer.setAttribute(target, 'data-testid', this.testId)
-    else this.renderer.removeAttribute(target, 'data-testid')
+    // React only writes these when the caller gave one; otherwise the trigger's own survive.
+    const testId = this.testId !== undefined ? this.testId : this.triggerOwnTestId
+    if (testId === null) this.renderer.removeAttribute(target, 'data-testid')
+    else this.renderer.setAttribute(target, 'data-testid', testId)
+    const molId = this.automationId !== undefined ? this.automationId : this.triggerOwnMolId
+    if (molId === null) this.renderer.removeAttribute(target, 'data-mol-id')
+    else this.renderer.setAttribute(target, 'data-mol-id', molId)
   }
 }
 
@@ -781,7 +835,11 @@ export class Dropdown implements AfterViewInit, AfterViewChecked, DoCheck, OnDes
   },
   template: `<ng-content></ng-content>`,
 })
-export class DropdownLabel {
+export class DropdownLabel implements HasElement<HTMLDivElement> {
+  private readonly host: ElementRef<HTMLDivElement> = inject(ElementRef)
+  /** The element a caller's ref receives: the host `<div>`. */
+  readonly element = hostElement(this.host)
+
   /** Extra classes. */
   className?: string
 
@@ -815,7 +873,11 @@ export class DropdownLabel {
   },
   template: ``,
 })
-export class DropdownSeparator {
+export class DropdownSeparator implements HasElement<HTMLDivElement> {
+  private readonly host: ElementRef<HTMLDivElement> = inject(ElementRef)
+  /** The element a caller's ref receives: the host `<div>`. */
+  readonly element = hostElement(this.host)
+
   /** Extra classes. */
   className?: string
 

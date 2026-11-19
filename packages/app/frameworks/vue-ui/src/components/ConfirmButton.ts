@@ -14,41 +14,53 @@
  * @module
  */
 
-import { defineComponent, h, onUnmounted, type PropType, ref, watch } from 'vue'
+import { defineComponent, h, onUnmounted, type PropType, ref, type VNodeChild, watch } from 'vue'
 
-import type { ButtonProps, ButtonSize, ButtonVariant, ColorVariant } from '@molecule/app-ui'
+import type { ButtonProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { useTranslation } from '@molecule/app-vue'
 
-import { classOf, type FallthroughAttrs, restAttrs, styleOf } from '../utilities/attrs.js'
-
-/** React's DOM-callback names that alias a differently spelled native event. */
-const REACT_EVENT_ALIASES: Record<string, string> = {
-  onDoubleClick: 'onDblclick',
-}
-
-/**
- * React forwards DOM callbacks in `...rest` verbatim (`onKeyDown`, …). Vue
- * only attaches a native listener for `on` + the DOM event name (`onKeydown`)
- * — it hyphenates anything after `on`, so React's camelCase spelling would
- * listen for an event nothing dispatches. Rewrites rest keys to the native
- * spelling: `on` + the lowercased DOM event name.
- *
- * @param attrs - The fallthrough attributes to spread onto a native element.
- * @returns The same attributes with event keys in Vue's native spelling.
- */
-function nativeEventAttrs(attrs: FallthroughAttrs): FallthroughAttrs {
-  const out: FallthroughAttrs = {}
-  for (const [key, value] of Object.entries(attrs)) {
-    out[
-      REACT_EVENT_ALIASES[key] ?? (/^on[A-Z]/.test(key) ? `on${key.slice(2).toLowerCase()}` : key)
-    ] = value
-  }
-  return out
-}
+import { classOf, restAttrs, styleOf } from '../utilities/attrs.js'
+import { useElementRef } from '../utilities/elementRef.js'
 
 /** The arm/commit lifecycle a {@link ConfirmButton} moves through. */
 type ConfirmPhase = 'idle' | 'armed' | 'pending'
+
+/**
+ * Props for {@link ConfirmButton}.
+ *
+ * Vue port of `@molecule/app-ui-react`'s `ConfirmButtonProps`: the button
+ * props React's declaration inherits (minus the ones this component owns or
+ * forwards itself), with React's `ReactNode` labels as nodes. Anything else
+ * a caller passes — `data-*`, `aria-*`, DOM listeners — falls through to the
+ * rendered button, as React's `...rest` does.
+ */
+export interface ConfirmButtonProps extends Omit<
+  ButtonProps,
+  'onClick' | 'children' | 'onConfirm' | 'type' | 'value'
+> {
+  /**
+   * Fired ONLY on the confirming (second) click — when the action actually
+   * commits. Declared as a plain prop (not an emit) because the button
+   * AWAITS its return to decide when to return to idle.
+   */
+  onConfirm: () => void | Promise<void>
+  /** Visible label in the idle (armed-to-be-clicked) state. */
+  label?: VNodeChild
+  /** Visible label in the armed state — the "click again to confirm" step. */
+  confirmLabel?: VNodeChild
+  /** Visible label while `onConfirm` is pending. */
+  pendingLabel?: VNodeChild
+  /**
+   * Seconds before the armed state auto-disarms back to idle; `0` disables
+   * auto-disarm.
+   */
+  disarmSeconds?: number
+  /** Disable the control entirely (idle and confirming states). */
+  disabled?: boolean
+  /** data-mol-id for the button (all states share one element). */
+  testId?: string
+}
 
 /**
  * Two-step destructive-action button: the first click ARMS it ("Confirm?"),
@@ -72,7 +84,7 @@ export const ConfirmButton = defineComponent({
      * AWAITS its return to decide when to return to idle.
      */
     onConfirm: {
-      type: Function as PropType<() => void | Promise<void>>,
+      type: Function as PropType<ConfirmButtonProps['onConfirm']>,
       required: true,
     },
     /** Visible label in the idle (armed-to-be-clicked) state. */
@@ -86,25 +98,26 @@ export const ConfirmButton = defineComponent({
      * auto-disarm.
      */
     disarmSeconds: {
-      type: Number,
+      type: Number as PropType<ConfirmButtonProps['disarmSeconds']>,
       default: 4,
     },
     /** Disable the control entirely (idle and confirming states). */
     disabled: {
-      type: Boolean,
+      type: Boolean as PropType<ConfirmButtonProps['disabled']>,
       default: false,
     },
     /** data-mol-id for the button (all states share one element). */
-    testId: String,
-    color: String as PropType<ColorVariant>,
-    size: String as PropType<ButtonSize>,
-    variant: String as PropType<ButtonVariant>,
-    className: String,
-    style: [String, Object] as PropType<ButtonProps['style']>,
+    testId: String as PropType<ConfirmButtonProps['testId']>,
+    color: String as PropType<ConfirmButtonProps['color']>,
+    size: String as PropType<ConfirmButtonProps['size']>,
+    variant: String as PropType<ConfirmButtonProps['variant']>,
+    className: String as PropType<ConfirmButtonProps['className']>,
+    style: [String, Object] as PropType<ConfirmButtonProps['style']>,
   },
-  setup(props, { attrs, slots }) {
+  setup(props, { attrs, slots, expose }) {
     const cm = getClassMap()
     const { t } = useTranslation()
+    const element = useElementRef<HTMLButtonElement>(expose)
     const phase = ref<ConfirmPhase>('idle')
     let disarmTimer: ReturnType<typeof setTimeout> | null = null
 
@@ -176,6 +189,7 @@ export const ConfirmButton = defineComponent({
       return h(
         'button',
         {
+          ref: element,
           type: 'button',
           onClick: () => {
             void handleClick()
@@ -193,7 +207,7 @@ export const ConfirmButton = defineComponent({
             ...classOf(props.className, attrs),
           ),
           style: styleOf(props.style, attrs),
-          ...nativeEventAttrs(restAttrs(attrs)),
+          ...restAttrs(attrs),
         },
         [visibleLabel],
       )

@@ -18,7 +18,7 @@ import { useTranslation } from '@molecule/app-solid'
 import type { ButtonProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
-import { toStyleProps } from '../utilities/dom.js'
+import { reactDomProps, toStyleProps, type WithRef } from '../utilities/dom.js'
 
 /**
  * Props for {@link ConfirmButton}.
@@ -64,7 +64,7 @@ export interface ConfirmButtonProps extends Omit<
  * @param props - Component props (see {@link ConfirmButtonProps}).
  * @returns The rendered two-step button.
  */
-export const ConfirmButton: Component<ConfirmButtonProps> = (props) => {
+export const ConfirmButton: Component<WithRef<ConfirmButtonProps, HTMLButtonElement>> = (props) => {
   const [local, rest] = splitProps(props, [
     'onConfirm',
     'label',
@@ -162,7 +162,7 @@ export const ConfirmButton: Component<ConfirmButtonProps> = (props) => {
         local.className,
       )}
       style={toStyleProps(local.style)}
-      {...(rest as JSX.ButtonHTMLAttributes<HTMLButtonElement>)}
+      {...reactDomProps(rest)}
     >
       {visibleLabel()}
     </button>

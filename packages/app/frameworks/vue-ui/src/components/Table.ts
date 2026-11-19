@@ -10,8 +10,10 @@ import type { Size, TableColumn, TableProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { useTranslation } from '@molecule/app-vue'
 
-import { classOf, styleOf } from '../utilities/attrs.js'
+import { attrListener, classOf, restAttrs, styleOf } from '../utilities/attrs.js'
+import { useElementRef } from '../utilities/elementRef.js'
 import { renderIcon } from '../utilities/renderIcon.js'
+import { setDisplayName } from './displayName.js'
 import { Spinner } from './Spinner.js'
 
 /** VNode children with the empty values that `h()`'s children type excludes. */
@@ -67,9 +69,11 @@ export const Table = defineComponent({
     style: [String, Object] as PropType<TableProps<Record<string, unknown>>['style']>,
     testId: String,
   },
-  setup(props, { attrs, slots }) {
+  setup(props, { attrs, slots, expose }) {
     const cm = getClassMap()
     const { t } = useTranslation()
+    // The `<table>` is React's `forwardRef` target, not the wrapper div.
+    const element = useElementRef<HTMLTableElement>(expose)
 
     const getRowKey = (row: Record<string, unknown>, index: number): string | number => {
       if (typeof props.rowKey === 'function') {
@@ -97,9 +101,11 @@ export const Table = defineComponent({
     // handlers are read from the incoming `on*` attrs instead of declared
     // emits — a declared emit strips its listener out of `attrs` and the
     // presence check would never see it.
-    const onSort = attrs.onSort as ((key: string, direction: 'asc' | 'desc') => void) | undefined
-    const onRowClick = attrs.onRowClick as
-      ((row: Record<string, unknown>, index: number) => void) | undefined
+    const onSort = attrListener<[key: string, direction: 'asc' | 'desc']>(attrs, 'onSort')
+    const onRowClick = attrListener<[row: Record<string, unknown>, index: number]>(
+      attrs,
+      'onRowClick',
+    )
 
     const handleSort = (column: TableColumn<Record<string, unknown>>): void => {
       if (!column.sortable || !onSort) return
@@ -119,14 +125,24 @@ export const Table = defineComponent({
 
       const emptyContent = props.emptyContent ?? slots.emptyContent?.()
 
+      // React destructures `onSort`/`onRowClick` (they only branch the styles
+      // above), so they are not part of its root spread.
+      const rest = { ...attrs }
+      delete rest.onSort
+      delete rest.onRowClick
+
       return h('div', { class: cm.tableWrapper }, [
         props.loading && h('div', { class: cm.tableLoadingOverlay }, h(Spinner, { size: 'lg' })),
         h(
           'table',
           {
+            ref: element,
             class: tableClasses,
             style: styleOf(props.style, attrs),
             'data-testid': props.testId,
+            // Every other declared prop (id, title, aria-*, data-*, automationId
+            // as data-mol-id, the DOM event handlers) reaches the table.
+            ...restAttrs(rest),
           },
           [
             h('thead', { class: cm.tableHeader }, [
@@ -225,3 +241,5 @@ export const Table = defineComponent({
     }
   },
 })
+
+setDisplayName(Table, 'Table')

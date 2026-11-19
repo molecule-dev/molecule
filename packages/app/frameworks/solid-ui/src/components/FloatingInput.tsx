@@ -10,13 +10,21 @@ import {
 
 import { getClassMap } from '@molecule/app-ui'
 
-import { toStyleProps } from '../utilities/dom.js'
+import { reactDomProps, toStyleProps, type WithRef } from '../utilities/dom.js'
 
 /**
  * Props for {@link FloatingInput}: the input element attributes plus the
  * React-only spellings this binding keeps (`className`, `defaultValue`).
  */
-export interface FloatingInputProps extends JSX.InputHTMLAttributes<HTMLInputElement> {
+export interface FloatingInputProps extends Omit<
+  JSX.InputHTMLAttributes<HTMLInputElement>,
+  'onChange'
+> {
+  /**
+   * Called on every keystroke, as React's text-input `onChange` is. A function only: the
+   * component calls it itself, so Solid's bound `[handler, data]` form is not accepted.
+   */
+  onChange?: JSX.ChangeEventHandler<HTMLInputElement, Event>
   /** Extra classes appended to the input (React spelling). */
   className?: string
   /** Initial value of the uncontrolled input (React spelling). */
@@ -44,7 +52,7 @@ export interface FloatingInputProps extends JSX.InputHTMLAttributes<HTMLInputEle
  * @param props - The input attributes.
  * @returns The rendered floating-input JSX.
  */
-export const FloatingInput: Component<FloatingInputProps> = (props) => {
+export const FloatingInput: Component<WithRef<FloatingInputProps, HTMLInputElement>> = (props) => {
   const [local, rest] = splitProps(props, [
     'placeholder',
     'className',
@@ -75,11 +83,13 @@ export const FloatingInput: Component<FloatingInputProps> = (props) => {
   // React's text-input onChange fires on the `input` event; a controlled
   // input restores the prop value after the event when the caller does not
   // adopt the typed one.
-  const handleInput = (event: Event & { target: HTMLInputElement }): void => {
+  const handleInput = (
+    event: Event & { currentTarget: HTMLInputElement; target: HTMLInputElement },
+  ): void => {
     if (!isControlled()) {
       setInternalValue(event.target.value)
     }
-    ;(local.onChange as ((event: Event) => void) | undefined)?.(event)
+    local.onChange?.(event)
     if (isControlled()) event.target.value = String(local.value)
   }
 
@@ -89,15 +99,15 @@ export const FloatingInput: Component<FloatingInputProps> = (props) => {
         ref={(el) => {
           inputEl = el
         }}
-        {...(rest as JSX.InputHTMLAttributes<HTMLInputElement>)}
+        {...reactDomProps(rest)}
         id={inputId()}
         placeholder={local.placeholder}
         class={cm.cn(cm.input(), cm.floatingInput, local.className)}
         style={toStyleProps(local.style)}
         value={value()}
         onInput={handleInput}
-        onFocusIn={local.onFocus as JSX.EventHandlerUnion<HTMLInputElement, FocusEvent>}
-        onFocusOut={local.onBlur as JSX.EventHandlerUnion<HTMLInputElement, FocusEvent>}
+        onFocusIn={local.onFocus}
+        onFocusOut={local.onBlur}
       />
       <Show when={local.placeholder}>
         <label for={inputId()} class={cm.floatingLabel}>

@@ -11,12 +11,35 @@ import {
   ElementRef,
   inject,
   Renderer2,
+  type TemplateRef,
   ViewChild,
 } from '@angular/core'
 
 import { useAuth, useRouter, useTranslation } from '@molecule/app-angular'
 
+import { asTemplate, isGiven, nodeText } from '../utilities/node-value.js'
 import { hasNodes, SlotWrapper } from './button.component.js'
+import { MolTemplateOutlet } from './template-outlet.directive.js'
+
+/**
+ * Props for {@link AuthGuard} (React's `AuthGuardProps`, in Angular's form).
+ *
+ * The fallback UI is a `string | number | TemplateRef<unknown>` input or a
+ * projected `[slot=loadingFallback]`; the authenticated children are projected
+ * content, so they have no member.
+ */
+export interface AuthGuardProps {
+  /** Element rendered while the auth status is `loading`. */
+  loadingFallback?: string | number | TemplateRef<unknown>
+  /** i18n key for the default loading-tag text (default `common.loading`). */
+  loadingKey?: string
+  /** Fallback text if the i18n key is missing (default `Loading...`). */
+  loadingDefault?: string
+  /** Path to redirect to when unauthenticated (default `/login`). */
+  loginPath?: string
+  /** Fired when `isAuthenticated` becomes true (also when true at mount). */
+  onAuthenticated?: () => void
+}
 
 /**
  * The pathname part of a login path (`/login?next=x` → `/login`).
@@ -29,8 +52,9 @@ const loginPathname = (loginPath: string): string => loginPath.split(/[?#]/)[0] 
 /**
  * Route-element guard for authenticated sections of a routing tree.
  *
- * While the auth status is `'loading'` it renders the `loadingFallback` slot
- * (or the default `data-mol-id="auth-guard-loading"` tag); while
+ * While the auth status is `'loading'` it renders the `loadingFallback` input
+ * (or its `[slot=loadingFallback]` projection, or the default
+ * `data-mol-id="auth-guard-loading"` tag); while
  * `'unauthenticated'` off the login path it renders nothing and redirects to
  * `loginPath` (state `from` carries the attempted location); otherwise it
  * renders the projected children. The host is unwrapped by the DOM normalizer
@@ -47,30 +71,47 @@ const loginPathname = (loginPath: string): string => loginPath.split(/[?#]/)[0] 
 @Component({
   selector: 'mol-auth-guard',
   standalone: true,
-  inputs: ['loadingKey', 'loadingDefault', 'loginPath', 'onAuthenticated'],
+  imports: [MolTemplateOutlet],
+  inputs: ['loadingFallback', 'loadingKey', 'loadingDefault', 'loginPath', 'onAuthenticated'],
   host: {
     'data-parity-unwrap': '',
     style: 'display: contents',
   },
   template: `<div data-mol-id="auth-guard-loading" #defaultLoading>{{ loadingText() }}</div>
+    <span #dataFallback
+      ><ng-container [molTemplateOutlet]="asTemplate(loadingFallback)"></ng-container
+      >{{ nodeText(loadingFallback) }}</span
+    >
     <span #fallbackWrap><ng-content select="[slot=loadingFallback]"></ng-content></span>
     <span #childrenWrap><ng-content></ng-content></span>`,
 })
 export class AuthGuard implements AfterViewInit {
   /**
-   * i18n key for the default loading-tag text (default `common.loading`).
-   * Ignored when a `loadingFallback` slot is projected.
+   * Element rendered while the auth status is `loading` (a node value, or the
+   * projected `[slot=loadingFallback]`). Overrides the default loading tag.
    */
-  loadingKey?: string
+  loadingFallback?: AuthGuardProps['loadingFallback']
+  /**
+   * i18n key for the default loading-tag text (default `common.loading`).
+   * Ignored when a `loadingFallback` is given.
+   */
+  loadingKey?: AuthGuardProps['loadingKey']
   /** Fallback text if the i18n key is missing (default `Loading...`). */
-  loadingDefault?: string
+  loadingDefault?: AuthGuardProps['loadingDefault']
   /** Path to redirect to when unauthenticated (default `/login`). */
-  loginPath?: string
+  loginPath?: AuthGuardProps['loginPath']
   /** Fired when `isAuthenticated` becomes true (also when true at mount). */
-  onAuthenticated?: () => void
+  onAuthenticated?: AuthGuardProps['onAuthenticated']
+
+  /** Template helpers (templates see only class members). */
+  readonly asTemplate = asTemplate
+  /** Renders a plain-string/number node value. */
+  readonly nodeText = nodeText
 
   /** The default loading tag. */
   @ViewChild('defaultLoading') defaultLoading?: ElementRef<HTMLDivElement>
+  /** The node-valued fallback (shown when the input is given). */
+  @ViewChild('dataFallback') dataFallback?: ElementRef<HTMLSpanElement>
   /** The `loadingFallback` slot capture (always mounted). */
   @ViewChild('fallbackWrap') fallbackWrap?: ElementRef<HTMLSpanElement>
   /** The children capture; its nodes are moved bare into the host to render. */
@@ -172,8 +213,11 @@ export class AuthGuard implements AfterViewInit {
       // The capture span itself never renders (React's children are bare).
       this.sync.sync(this.childrenWrap?.nativeElement, false)
     }
-    this.sync.sync(this.defaultLoading?.nativeElement, branch === 'loading' && !this.hasFallback)
-    this.sync.sync(this.fallbackWrap?.nativeElement, branch === 'loading' && this.hasFallback)
+    const loading = branch === 'loading'
+    const hasNode = isGiven(this.loadingFallback)
+    this.sync.sync(this.defaultLoading?.nativeElement, loading && !hasNode && !this.hasFallback)
+    this.sync.sync(this.fallbackWrap?.nativeElement, loading && !hasNode && this.hasFallback)
+    this.sync.sync(this.dataFallback?.nativeElement, loading && hasNode)
   }
 
   /**

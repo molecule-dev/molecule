@@ -21,7 +21,9 @@ import {
 import type { TooltipPlacement, TooltipProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
-import { classOf, type RenderableChildren, styleOf } from '../utilities/attrs.js'
+import { classOf, type RenderableChildren, restAttrs, styleOf } from '../utilities/attrs.js'
+import { useElementRef } from '../utilities/elementRef.js'
+import { setDisplayName } from './displayName.js'
 
 interface Position {
   top: number
@@ -192,17 +194,19 @@ export const Tooltip = defineComponent({
     style: [String, Object] as PropType<TooltipProps['style']>,
     testId: String,
   },
-  setup(props, { attrs, slots }) {
+  setup(props, { attrs, slots, expose }) {
     const cm = getClassMap()
     // Programmatically associates the tooltip with its trigger. The wrapper
     // is not itself the focused element, so its `aria-describedby` would
     // never be announced for the child that actually receives focus (see
     // the single-child clone below).
-    const tooltipId = `mol-tooltip-${nextTooltipId++}`
+    const generatedTooltipId = `mol-tooltip-${nextTooltipId++}`
     const isVisible = ref(false)
     const position = ref<Position>({ top: 0, left: 0 })
     const triggerRef = ref<HTMLElement | null>(null)
-    const tooltipRef = ref<HTMLElement | null>(null)
+    // The visible tooltip box is React's `forwardRef` target; it holds `null`
+    // while the tooltip is closed.
+    const tooltipRef = useElementRef<HTMLDivElement>(expose)
     let showTimeout: ReturnType<typeof setTimeout> | undefined
     let hideTimeout: ReturnType<typeof setTimeout> | undefined
 
@@ -358,6 +362,9 @@ export const Tooltip = defineComponent({
     })
 
     return () => {
+      // A caller's `id` names the tooltip box, so the trigger's
+      // `aria-describedby` points at it (React: `rest.id ?? useId()`).
+      const tooltipId = typeof attrs.id === 'string' ? attrs.id : generatedTooltipId
       // Single-child API (mirrors every mainstream tooltip library): when the
       // trigger is exactly one element node, re-create it with
       // `aria-describedby` while the tooltip is visible — that id is what a
@@ -442,11 +449,15 @@ export const Tooltip = defineComponent({
                   'div',
                   {
                     ref: tooltipRef,
-                    id: tooltipId,
                     role: 'tooltip',
                     class: cm.cn(cm.tooltipContent, ...classOf(props.className, attrs)),
                     style: styleOf(props.style, attrs),
                     'data-testid': props.testId,
+                    // The box carries every declared prop (title, aria-*, data-*,
+                    // automationId as data-mol-id, handlers); the box's id is the
+                    // caller's or the generated one.
+                    ...restAttrs(attrs),
+                    id: tooltipId,
                   },
                   props.content ?? slots.content?.(),
                 ),
@@ -462,3 +473,5 @@ export const Tooltip = defineComponent({
     }
   },
 })
+
+setDisplayName(Tooltip, 'Tooltip')

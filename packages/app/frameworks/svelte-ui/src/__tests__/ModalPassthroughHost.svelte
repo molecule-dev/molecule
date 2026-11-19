@@ -11,10 +11,10 @@
   let { mode = 'state' }: { mode?: 'state' | 'locale' } = $props()
 
   let label = $state('First label')
-  let state = $state('one')
+  let dataState = $state('one')
   const { t } = useTranslation()
 
-  const stateAttrs = $derived({ 'aria-label': label, 'data-state': state })
+  const stateAttrs = $derived({ 'aria-label': label, 'data-state': dataState })
   const localeAttrs = $derived({
     'aria-label': t('modalPassthrough.label', undefined, { defaultValue: 'fallback' }),
   })
@@ -26,7 +26,7 @@
     data-change
     onclick={() => {
       label = 'Second label'
-      state = 'two'
+      dataState = 'two'
     }}
   >
     change

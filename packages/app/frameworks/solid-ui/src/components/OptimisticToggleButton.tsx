@@ -16,6 +16,7 @@ import {
 
 import type { ButtonProps } from '@molecule/app-ui'
 
+import { reactDomProps, type WithRef } from '../utilities/dom.js'
 import { createOptimisticValue } from '../utilities/optimistic.js'
 import { Button } from './Button.jsx'
 
@@ -45,7 +46,9 @@ export interface OptimisticToggleButtonProps extends Omit<
  * @param props - Component props (see {@link OptimisticToggleButtonProps}).
  * @returns The rendered toggle button.
  */
-export const OptimisticToggleButton: Component<OptimisticToggleButtonProps> = (props) => {
+export const OptimisticToggleButton: Component<
+  WithRef<OptimisticToggleButtonProps, HTMLButtonElement>
+> = (props) => {
   const [local, rest] = splitProps(props, [
     'value',
     'commit',
@@ -80,7 +83,7 @@ export const OptimisticToggleButton: Component<OptimisticToggleButtonProps> = (p
   return (
     <Button
       data-mol-id="optimistic-toggle"
-      {...rest}
+      {...reactDomProps(rest)}
       type="button"
       aria-pressed={state().value}
       aria-busy={state().pending}

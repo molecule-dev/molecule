@@ -10,8 +10,10 @@ import type { RadioGroupProps, RadioOption, Size } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { useTranslation } from '@molecule/app-vue'
 
-import { classOf, styleOf } from '../utilities/attrs.js'
+import { classOf, restAttrs, styleOf } from '../utilities/attrs.js'
 import { vControlledChecked } from '../utilities/checked.js'
+import { useElementRef } from '../utilities/elementRef.js'
+import { setDisplayName } from './displayName.js'
 
 /** Source of the generated per-instance group names. */
 let nextGeneratedName = 1
@@ -52,9 +54,10 @@ export const RadioGroup = defineComponent({
     testId: String,
   },
   emits: ['change'],
-  setup(props, { attrs, emit }) {
+  setup(props, { attrs, emit, expose }) {
     const cm = getClassMap()
     const { t } = useTranslation()
+    const element = useElementRef<HTMLDivElement>(expose)
     // Radios only form a native group (arrow-key navigation, exclusive native
     // checked state) when they share a `name` — and that name must be UNIQUE
     // per group. The visible `label` is deliberately NOT used as the name:
@@ -141,6 +144,7 @@ export const RadioGroup = defineComponent({
       return h(
         'div',
         {
+          ref: element,
           class: classOf(props.className, attrs),
           style: styleOf(props.style, attrs),
           'data-testid': props.testId,
@@ -149,9 +153,12 @@ export const RadioGroup = defineComponent({
             props.label ?? t('ui.radioGroup.label', undefined, { defaultValue: 'Radio group' }),
           'aria-invalid': props.error ? true : undefined,
           'aria-describedby': props.error ? errorId : undefined,
+          ...restAttrs(attrs),
         },
         children,
       )
     }
   },
 })
+
+setDisplayName(RadioGroup, 'RadioGroup')

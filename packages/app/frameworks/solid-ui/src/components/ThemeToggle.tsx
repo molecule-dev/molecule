@@ -4,7 +4,7 @@ import type { IconName } from '@molecule/app-icons'
 import { useTheme, useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
-import { toStyleProps } from '../utilities/dom.js'
+import { reactDomProps, toStyleProps } from '../utilities/dom.js'
 import { Icon } from './Icon.jsx'
 
 /**
@@ -87,7 +87,7 @@ export const ThemeToggle: Component<ThemeToggleProps> = (props) => {
       onClick={toggleTheme}
       class={cm.cn(cm.themeToggleButton, local.className)}
       style={toStyleProps(local.style)}
-      {...(rest as JSX.ButtonHTMLAttributes<HTMLButtonElement>)}
+      {...reactDomProps(rest)}
     >
       <Show when={mode() === 'dark'} fallback={<Icon name={lightIcon()} size={iconSize()} />}>
         <Icon name={darkIcon()} size={iconSize()} />

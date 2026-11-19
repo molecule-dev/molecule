@@ -15,6 +15,16 @@ import { Component, ElementRef, inject, type OnDestroy } from '@angular/core'
 import { findDomContext, provideDomContext, removeDomContext } from '../utilities/dom-context.js'
 
 /**
+ * Props for {@link PanelCloseProvider} (React's `PanelCloseProviderProps`, in
+ * Angular's form). The panel content is projected content, so it has no
+ * member.
+ */
+export interface PanelCloseProviderProps {
+  /** Callback that dismisses the enclosing drawer/modal. */
+  close: () => void
+}
+
+/**
  * Provides the drawer-close callback to descendants.
  *
  * Rendered internally by `UserMenu` and `SidebarUserCard` around their panel
@@ -34,7 +44,7 @@ import { findDomContext, provideDomContext, removeDomContext } from '../utilitie
 })
 export class PanelCloseProvider implements OnDestroy {
   /** Callback that dismisses the enclosing drawer/modal. */
-  close?: () => void
+  close?: PanelCloseProviderProps['close']
 
   private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
   /** Registers the context value on the host (before any projected child resolves it). */

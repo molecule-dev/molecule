@@ -26,8 +26,10 @@ import type { ColorVariant, ToastProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { useTranslation } from '@molecule/app-vue'
 
-import { classOf, styleOf } from '../utilities/attrs.js'
+import { attrListener, classOf, restAttrs, styleOf } from '../utilities/attrs.js'
+import { useElementRef } from '../utilities/elementRef.js'
 import { renderIcon } from '../utilities/renderIcon.js'
+import { setDisplayName } from './displayName.js'
 
 /** Where a {@link ToastContainer} anchors its toasts on screen. */
 type ToastPosition = 'top' | 'top-right' | 'top-left' | 'bottom' | 'bottom-right' | 'bottom-left'
@@ -39,8 +41,8 @@ type ToastEntry = Omit<ToastProps, 'onDismiss'> & { id: string }
 export interface ToastContext {
   /** The currently managed toasts, oldest first. */
   toasts: ToastEntry[]
-  /** Adds a toast and returns its id. */
-  addToast: (toast: Omit<ToastEntry, 'id'>) => string
+  /** Adds a toast and returns its id (the caller's `id` when given). */
+  addToast: (toast: Omit<ToastEntry, 'id'> & { id?: string }) => string
   /** Removes the toast with the given id. */
   removeToast: (id: string) => void
 }
@@ -108,9 +110,10 @@ export const Toast = defineComponent({
     testId: String,
   },
   emits: ['dismiss'],
-  setup(props, { attrs, emit, slots }) {
+  setup(props, { attrs, emit, slots, expose }) {
     const cm = getClassMap()
     const { t } = useTranslation()
+    const element = useElementRef<HTMLDivElement>(expose)
     const isVisible = ref(true)
 
     // WCAG 2.2.1 (Timing Adjustable): a countdown a slow reader or AT user
@@ -210,25 +213,56 @@ export const Toast = defineComponent({
         )
       }
 
+      // React destructures these four and runs its own timer handlers first, then
+      // the caller's; they are not part of its root spread.
+      const rest = { ...attrs }
+      const callerMouseEnter = attrListener<[MouseEvent]>(rest, 'onMouseEnter')
+      const callerMouseLeave = attrListener<[MouseEvent]>(rest, 'onMouseLeave')
+      const callerFocus = attrListener<[FocusEvent]>(rest, 'onFocus')
+      const callerBlur = attrListener<[FocusEvent]>(rest, 'onBlur')
+      delete rest.onMouseEnter
+      delete rest.onMouseLeave
+      delete rest.onFocus
+      delete rest.onBlur
+
       // React's onFocus/onBlur are the bubbling focusin/focusout events.
       return h(
         'div',
         {
+          ref: element,
           role,
           'data-state': 'open',
           class: cm.cn(cm.toast({ variant }), ...classOf(props.className, attrs)),
           style: styleOf(props.style, attrs),
           'data-testid': props.testId,
-          onMouseenter: pauseTimer,
-          onMouseleave: resumeTimer,
-          onFocusin: pauseTimer,
-          onFocusout: resumeTimer,
+          // Every other declared prop (id, aria-*, data-*, automationId as
+          // data-mol-id, the DOM event handlers) reaches the root; a caller's role
+          // replaces the live-region default.
+          ...restAttrs(rest),
+          onMouseenter: (event: MouseEvent) => {
+            pauseTimer()
+            callerMouseEnter?.(event)
+          },
+          onMouseleave: (event: MouseEvent) => {
+            resumeTimer()
+            callerMouseLeave?.(event)
+          },
+          onFocusin: (event: FocusEvent) => {
+            pauseTimer()
+            callerFocus?.(event)
+          },
+          onFocusout: (event: FocusEvent) => {
+            resumeTimer()
+            callerBlur?.(event)
+          },
         },
         children,
       )
     }
   },
 })
+
+setDisplayName(Toast, 'Toast')
 
 /**
  * Vue Toast container component with UIClassMap-driven styling.
@@ -248,8 +282,9 @@ export const ToastContainer = defineComponent({
     },
     className: String,
   },
-  setup(props, { attrs, slots }) {
+  setup(props, { attrs, slots, expose }) {
     const cm = getClassMap()
+    const element = useElementRef<HTMLDivElement>(expose)
 
     return () => {
       if (typeof document === 'undefined') return null
@@ -260,6 +295,7 @@ export const ToastContainer = defineComponent({
         h(
           'div',
           {
+            ref: element,
             class: cm.cn(
               cm.toastContainer({ position: props.position }),
               ...classOf(props.className, attrs),
@@ -271,6 +307,8 @@ export const ToastContainer = defineComponent({
     }
   },
 })
+
+setDisplayName(ToastContainer, 'ToastContainer')
 
 let toastCounter = 0
 
@@ -294,8 +332,9 @@ export const ToastProvider = defineComponent({
   setup(props, { slots }) {
     const toasts = reactive<ToastEntry[]>([])
 
-    const addToast = (toast: Omit<ToastEntry, 'id'>): string => {
-      const id = `toast-${++toastCounter}`
+    const addToast = (toast: Omit<ToastEntry, 'id'> & { id?: string }): string => {
+      // A caller's `id` is the toast's handle and its element id; otherwise one is generated.
+      const id = toast.id ?? `toast-${++toastCounter}`
       toasts.push({ ...toast, id })
       return id
     }

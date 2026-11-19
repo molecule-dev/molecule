@@ -23,6 +23,7 @@ import {
   type PropType,
   ref,
   useId,
+  type VNodeChild,
   watch,
 } from 'vue'
 
@@ -32,6 +33,49 @@ import { useTranslation } from '@molecule/app-vue'
 import { Button } from './Button.js'
 import { Input } from './Input.js'
 import { Modal } from './Modal.js'
+
+/**
+ * Props for {@link PromptDialog}.
+ *
+ * Vue port of `@molecule/app-ui-react`'s `PromptDialogProps`: React's
+ * `ReactNode` members are nodes, the extra body content under the input is
+ * the default slot, and `onClose` is the `close` emit — optional, like every
+ * Vue listener. `onSubmit` stays a prop because the dialog AWAITS its return
+ * to decide whether to close.
+ */
+export interface PromptDialogProps {
+  /** Whether the dialog is open. */
+  open: boolean
+  /** Called when the dialog should close (escape, backdrop, cancel, or a fulfilled submit). */
+  onClose?: () => void
+  /** Dialog heading. */
+  title?: VNodeChild
+  /** Explanatory line under the title. */
+  description?: VNodeChild
+  /** Input placeholder. */
+  placeholder?: string
+  /** Value the input starts from every time the dialog opens. */
+  initialValue?: string
+  /**
+   * Called with the entered value on confirm. Resolve to close the dialog;
+   * reject or throw to keep it open (show the error via `children`).
+   */
+  onSubmit?: (value: string) => void | Promise<void>
+  /** Confirm-button label. Falls back to a localized "Confirm". */
+  confirmLabel?: VNodeChild
+  /** Cancel-button label. Falls back to a localized "Cancel". */
+  cancelLabel?: VNodeChild
+  /** Render the confirm button in the error color. */
+  destructive?: boolean
+  /** `data-mol-id` for the text input. */
+  inputMolId?: string
+  /** `data-mol-id` for the confirm button. */
+  confirmMolId?: string
+  /** `data-mol-id` for the cancel button. */
+  cancelMolId?: string
+  /** Extra body content under the input (the default slot). */
+  children?: VNodeChild
+}
 
 /**
  * Modal that asks the user for a short string, replacing `window.prompt`:
@@ -48,7 +92,7 @@ export const PromptDialog = defineComponent({
   props: {
     /** Whether the dialog is open. */
     open: {
-      type: Boolean,
+      type: Boolean as PropType<PromptDialogProps['open']>,
       required: true,
     },
     /** Dialog heading. */
@@ -56,10 +100,10 @@ export const PromptDialog = defineComponent({
     /** Explanatory line under the title. */
     description: null,
     /** Input placeholder. */
-    placeholder: String,
+    placeholder: String as PropType<PromptDialogProps['placeholder']>,
     /** Value the input starts from every time the dialog opens. */
     initialValue: {
-      type: String,
+      type: String as PropType<PromptDialogProps['initialValue']>,
       default: '',
     },
     /**
@@ -68,7 +112,7 @@ export const PromptDialog = defineComponent({
      * AWAITS its return: resolve to close, reject or throw to stay open.
      */
     onSubmit: {
-      type: Function as PropType<(value: string) => void | Promise<void>>,
+      type: Function as PropType<PromptDialogProps['onSubmit']>,
       default: undefined,
     },
     /** Confirm-button label. Falls back to a localized "Confirm". */
@@ -77,15 +121,15 @@ export const PromptDialog = defineComponent({
     cancelLabel: null,
     /** Render the confirm button in the error color. */
     destructive: {
-      type: Boolean,
+      type: Boolean as PropType<PromptDialogProps['destructive']>,
       default: false,
     },
     /** `data-mol-id` for the text input. */
-    inputMolId: String,
+    inputMolId: String as PropType<PromptDialogProps['inputMolId']>,
     /** `data-mol-id` for the confirm button. */
-    confirmMolId: String,
+    confirmMolId: String as PropType<PromptDialogProps['confirmMolId']>,
     /** `data-mol-id` for the cancel button. */
-    cancelMolId: String,
+    cancelMolId: String as PropType<PromptDialogProps['cancelMolId']>,
   },
   emits: ['close'],
   setup(props, { slots, emit }) {
@@ -120,14 +164,16 @@ export const PromptDialog = defineComponent({
     // one, so focusing here directly would lose to it. One tick of deferral
     // runs after Modal's focus, and the input ends up focused. `immediate`
     // covers the dialog mounted already open (React's effect runs on mount
-    // too); the DOM exists by the deferred tick.
+    // too); the DOM exists by the deferred tick. Input's ref element IS the
+    // native input (its `$el`), so it is focused directly.
     watch(
       () => props.open,
       (open) => {
         if (!open) return
         void nextTick(() => {
-          const root = inputRef.value?.$el as HTMLElement | undefined
-          root?.querySelector<HTMLInputElement>('input')?.focus()
+          // Input's ref element IS the native input (its `$el`), so focus it.
+          const element: HTMLElement | null | undefined = inputRef.value?.$el
+          element?.focus()
         })
       },
       { flush: 'post', immediate: true },

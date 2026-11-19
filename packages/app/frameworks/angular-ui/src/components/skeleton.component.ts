@@ -4,11 +4,12 @@
  * @module
  */
 
-import { Component } from '@angular/core'
+import { Component, ElementRef, inject } from '@angular/core'
 
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
+import { type HasElement, hostElement } from '../utilities/element.js'
 import { styleText } from '../utilities/style.js'
 
 /**
@@ -30,15 +31,22 @@ import { styleText } from '../utilities/style.js'
     'className',
     'style',
     'testId',
+    'automationId',
+    'dataMolId: data-mol-id',
   ],
   host: {
     '[class]': 'classes()',
     '[style]': 'hostStyle()',
     '[attr.data-testid]': 'testId',
+    '[attr.data-mol-id]': 'molId()',
   },
   template: '',
 })
-export class Skeleton {
+export class Skeleton implements HasElement<HTMLDivElement> {
+  private readonly host: ElementRef<HTMLDivElement> = inject(ElementRef)
+  /** The element a caller's ref receives: the host `<div>`. */
+  readonly element = hostElement(this.host)
+
   /** Width (number = px, or any CSS value). */
   width?: number | string
   /** Height (number = px, or any CSS value). */
@@ -55,6 +63,10 @@ export class Skeleton {
   style?: Record<string, unknown>
   /** `data-testid`. */
   testId?: string
+  /** `data-mol-id` automation id (React's `automationId`). */
+  automationId?: string
+  /** A `data-mol-id` given as a plain rest attribute (React's `rootProps` precedence). */
+  dataMolId?: string
 
   /**
    * The current class map.
@@ -75,6 +87,19 @@ export class Skeleton {
       this.animation === 'none' && this.cm().skeletonNone,
       this.animation === 'wave' && this.cm().skeletonWave,
       this.className,
+    )
+  }
+
+  /**
+   * The `data-mol-id` value (`automationId` wins over a rest `data-mol-id`).
+   * @returns The attribute value.
+   */
+  molId(): string | undefined {
+    return (
+      this.automationId ??
+      this.dataMolId ??
+      this.host.nativeElement.getAttribute('data-mol-id') ??
+      undefined
     )
   }
 
@@ -116,7 +141,11 @@ export class Skeleton {
     <div mol-skeleton [height]="16" [width]="$index === lines - 1 ? '60%' : '100%'"></div>
   }`,
 })
-export class SkeletonText {
+export class SkeletonText implements HasElement<HTMLDivElement> {
+  private readonly host: ElementRef<HTMLDivElement> = inject(ElementRef)
+  /** The element a caller's ref receives: the host `<div>`. */
+  readonly element = hostElement(this.host)
+
   /** Number of skeleton lines. */
   lines = 3
   /** Extra classes. */
@@ -163,7 +192,11 @@ export class SkeletonText {
   },
   template: '',
 })
-export class SkeletonCircle {
+export class SkeletonCircle implements HasElement<HTMLDivElement> {
+  private readonly host: ElementRef<HTMLDivElement> = inject(ElementRef)
+  /** The element a caller's ref receives: the host `<div>` (the skeleton itself). */
+  readonly element = hostElement(this.host)
+
   /** Circle diameter in pixels. */
   size = 40
   /** Extra classes. */

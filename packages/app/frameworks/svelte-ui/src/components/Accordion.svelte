@@ -16,6 +16,7 @@
   import ReactNode from './ReactNode.svelte'
 
   let {
+    ref = $bindable(null),
     items,
     value,
     defaultValue,
@@ -25,6 +26,8 @@
     className,
     style,
     testId,
+    automationId,
+    disabled,
   }: AccordionProps = $props()
 
   const cm = $derived(getClassMap())
@@ -62,20 +65,27 @@
   }
 </script>
 
-<div class={cm.cn(cm.accordionRoot, className)} use:reactStyle={style} data-testid={testId}>
+<div
+  bind:this={ref}
+  class={cm.cn(cm.accordionRoot, className)}
+  use:reactStyle={style}
+  data-testid={testId}
+  data-mol-id={automationId}
+>
   {#each items as item (item.value)}
     {@const ids = idsFor(item.value)}
     {@const isExpanded = expandedItems.includes(item.value)}
+    {@const isDisabled = disabled || item.disabled}
     <div class={cm.accordionItem} data-state={isExpanded ? 'open' : 'closed'}>
       <button
         id={ids.triggerId}
         type="button"
         class={cm.cn(cm.accordion({ variant: 'default' }), cm.accordionTriggerBase)}
-        onclick={() => !item.disabled && toggleItem(item.value)}
+        onclick={() => !isDisabled && toggleItem(item.value)}
         aria-expanded={isExpanded}
         aria-controls={ids.contentId}
         data-state={isExpanded ? 'open' : 'closed'}
-        disabled={item.disabled}
+        disabled={isDisabled}
       >
         <ReactNode node={item.header} />
         <IconGlyph name="chevron-down" className={cm.accordionChevron} />

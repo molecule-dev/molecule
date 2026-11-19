@@ -12,15 +12,23 @@ import {
   inject,
   Output,
   Renderer2,
+  signal,
   ViewChild,
 } from '@angular/core'
 
-import type { UIClassMap } from '@molecule/app-ui'
+import type {
+  FocusEventHandler,
+  KeyboardEventHandler,
+  MouseEventHandler,
+  UIClassMap,
+} from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
+import type { HasElement } from '../utilities/element.js'
 import type { FormFieldContext } from '../utilities/form-field-context.js'
 import { fieldContext } from '../utilities/form-field-context.js'
-import { moveRestAttributes } from '../utilities/rest-attrs.js'
+import { nextInstanceId } from '../utilities/ids.js'
+import { moveRestAttributes, takeDataMolId } from '../utilities/rest-attrs.js'
 import { styleText } from '../utilities/style.js'
 import { hasNodes, SlotWrapper } from './button.component.js'
 import { MolControlledChecked } from './controlled-checked.directive.js'
@@ -50,6 +58,12 @@ import { MolControlledChecked } from './controlled-checked.directive.js'
     'name',
     'id',
     'defaultChecked',
+    'automationId',
+    'dataMolId: data-mol-id',
+    'onClick',
+    'onFocus',
+    'onBlur',
+    'onKeyDown',
   ],
   host: {
     '[class]': 'cm().formFieldWrapper',
@@ -68,8 +82,12 @@ import { MolControlledChecked } from './controlled-checked.directive.js'
         [class]="classes()"
         [attr.style]="hostStyle()"
         [attr.data-testid]="testId"
+        [attr.data-mol-id]="molId()"
         (click)="handleClick($event)"
         (change)="handleChange($event)"
+        (focusin)="onFocus?.($event)"
+        (focusout)="onBlur?.($event)"
+        (keydown)="onKeyDown?.($event)"
         #input
       />
       <span [class]="cm().cn(cm().controlText, disabled && cm().controlDisabled)" #labelSlot
@@ -80,7 +98,7 @@ import { MolControlledChecked } from './controlled-checked.directive.js'
       <p [attr.id]="errorId()" [class]="cm().cn(cm().formError, cm().sp('mt', 1))">{{ error }}</p>
     }`,
 })
-export class Checkbox implements AfterViewChecked {
+export class Checkbox implements AfterViewChecked, HasElement<HTMLInputElement> {
   /** Checkbox label (text, or projected `[slot=label]` nodes). */
   label?: unknown
   /** Whether the checkbox is checked. */
@@ -105,20 +123,52 @@ export class Checkbox implements AfterViewChecked {
   id?: string
   /** Uncontrolled initial checked state (renders as the checked attribute). */
   defaultChecked?: boolean
+  /** `data-mol-id` automation id (React's `automationId`). */
+  automationId?: string
+  /** A `data-mol-id` given as a plain rest attribute (React's `rootProps` precedence). */
+  dataMolId?: string
+
+  /**
+   * A caller's click handler (React's `onClick`, which React spreads onto the input). Runs
+   * before `change`; its `preventDefault()` makes the browser restore the box.
+   */
+  onClick?: MouseEventHandler
+
+  /** React's `onFocus`, which React spreads onto the <input>: its `currentTarget` is that element. */
+  onFocus?: FocusEventHandler
+  /** React's `onBlur`, which React spreads onto the <input>: its `currentTarget` is that element. */
+  onBlur?: FocusEventHandler
+  /** React's `onKeyDown`, which React spreads onto the <input>: its `currentTarget` is that element. */
+  onKeyDown?: KeyboardEventHandler
 
   /** The genuine native `change` event. */
   @Output() readonly change = new EventEmitter<Event>()
 
   /** The native input (React's `...rest` spread target). */
-  @ViewChild('input') input?: ElementRef<HTMLInputElement>
+  private input?: ElementRef<HTMLInputElement>
+  /** The native input view query; also feeds the caller's ref element. */
+  @ViewChild('input')
+  set inputQuery(ref: ElementRef<HTMLInputElement> | undefined) {
+    this.input = ref
+    this.inner.set(ref?.nativeElement ?? null)
+  }
+
+  private readonly inner = signal<HTMLInputElement | null>(null)
+  /** The element a caller's ref receives: the native `<input>`. */
+  readonly element = this.inner.asReadonly()
   /** The label text wrapper. */
   @ViewChild('labelSlot') labelSlot?: ElementRef<HTMLSpanElement>
 
   private readonly host = inject(ElementRef)
+
+  /** The per-instance id used when the caller gives no `id` or `name` (React's `useId`). */
+  private readonly generatedId = nextInstanceId()
   /** The `aria-describedby` the caller spread onto the host (React's rest). */
   private restDescribedBy: string | null = null
   /** Whether the rest-describedby value was captured. */
   private restDescribedByCaptured = false
+  /** The `data-mol-id` a caller bound on the host (React spreads it onto the input). */
+  private externalMolId: string | undefined
   private readonly sync = new SlotWrapper(inject(ElementRef), inject(Renderer2))
   private hasLabel = false
   private syncIndeterminate = false
@@ -145,7 +195,7 @@ export class Checkbox implements AfterViewChecked {
    * @returns The error element id.
    */
   errorId(): string {
-    return `${this.checkboxId() ?? 'r0'}-error`
+    return `${this.checkboxId() ?? this.generatedId}-error`
   }
 
   /**
@@ -186,13 +236,22 @@ export class Checkbox implements AfterViewChecked {
   }
 
   /**
+   * The `data-mol-id` value (`automationId` wins over a rest `data-mol-id`).
+   * @returns The attribute value.
+   */
+  molId(): string | undefined {
+    return this.automationId ?? this.dataMolId ?? this.externalMolId
+  }
+
+  /**
    * React's checkbox `onChange` fires on the checkbox's CLICK event (React's
    * change-event plugin maps checkbox/radio changes to the click), so the
    * click event object is what callers receive.
    *
    * @param event - The native click event.
    */
-  handleClick(event: Event): void {
+  handleClick(event: MouseEvent): void {
+    this.onClick?.(event)
     this.justClicked = true
     this.change.emit(event)
     queueMicrotask(() => (this.justClicked = false))
@@ -227,6 +286,7 @@ export class Checkbox implements AfterViewChecked {
         this.restDescribedByCaptured = true
       }
       moveRestAttributes(this.host.nativeElement, input)
+      this.externalMolId = takeDataMolId(this.host.nativeElement) ?? this.externalMolId
       if (this.syncIndeterminate !== !!this.indeterminate) {
         input.indeterminate = !!this.indeterminate
         this.syncIndeterminate = !!this.indeterminate

@@ -4,19 +4,25 @@
  * @module
  */
 
-import { type Component, createEffect, createUniqueId, type JSX, Show, splitProps } from 'solid-js'
+import { createEffect, createUniqueId, type JSX, Show, splitProps } from 'solid-js'
 
 import type { CheckboxProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
-import { reflectCheckedAtCreation, toStyleProps } from '../utilities/dom.js'
+import {
+  reactDomProps,
+  reflectCheckedAtCreation,
+  toStyleProps,
+  type WithRef,
+} from '../utilities/dom.js'
+import { withDisplayName } from './displayName.js'
 
 /**
  * Renders the Checkbox component.
  * @param props - The component props.
  * @returns The rendered checkbox JSX.
  */
-export const Checkbox: Component<CheckboxProps> = (props) => {
+export const Checkbox = withDisplayName<WithRef<CheckboxProps, HTMLInputElement>>((props) => {
   const [local, rest] = splitProps(props, [
     'label',
     'checked',
@@ -30,6 +36,7 @@ export const Checkbox: Component<CheckboxProps> = (props) => {
     'name',
     'id',
     'onChange',
+    'onClick',
   ])
 
   let inputRef: HTMLInputElement | undefined
@@ -49,11 +56,13 @@ export const Checkbox: Component<CheckboxProps> = (props) => {
   const checkboxClasses = (): string =>
     cm.cn(cm.checkbox({ error: !!local.error }), local.className)
 
-  // React's checkbox onChange fires on the `click` event; a controlled
-  // checkbox restores the prop value after the event when the caller does
-  // not adopt the toggled one.
+  // React's checkbox onChange fires on the `click` event, after the caller's
+  // onClick (whose preventDefault() makes the browser restore the box); a
+  // controlled checkbox restores the prop value after the event when the
+  // caller does not adopt the toggled one.
   const handleClick = (event: MouseEvent & { currentTarget: HTMLInputElement }): void => {
-    ;(local.onChange as ((event: Event) => void) | undefined)?.(event)
+    local.onClick?.(event)
+    local.onChange?.(event)
     if (local.checked !== undefined) event.currentTarget.checked = !!local.checked
   }
 
@@ -78,7 +87,7 @@ export const Checkbox: Component<CheckboxProps> = (props) => {
           style={toStyleProps(local.style)}
           data-testid={local.testId}
           onClick={handleClick}
-          {...(rest as JSX.InputHTMLAttributes<HTMLInputElement>)}
+          {...reactDomProps(rest)}
         />
         <Show when={local.label}>
           <span class={cm.cn(cm.controlText, local.disabled && cm.controlDisabled)}>
@@ -93,4 +102,4 @@ export const Checkbox: Component<CheckboxProps> = (props) => {
       </Show>
     </div>
   )
-}
+}, 'Checkbox')

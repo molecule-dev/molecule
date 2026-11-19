@@ -9,7 +9,9 @@ import { defineComponent, h, type PropType } from 'vue'
 import type { BaseProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
-import { classOf, styleOf } from '../utilities/attrs.js'
+import { classOf, restAttrs, styleOf } from '../utilities/attrs.js'
+import { useElementRef } from '../utilities/elementRef.js'
+import { setDisplayName } from './displayName.js'
 
 /**
  * Props for the Separator component.
@@ -50,8 +52,9 @@ export const Separator = defineComponent({
     style: [String, Object] as PropType<BaseProps['style']>,
     testId: String,
   },
-  setup(props, { attrs }) {
+  setup(props, { attrs, expose }) {
     const cm = getClassMap()
+    const element = useElementRef<HTMLDivElement>(expose)
 
     return () => {
       const separatorClasses = cm.cn(
@@ -60,12 +63,16 @@ export const Separator = defineComponent({
       )
 
       return h('div', {
+        ref: element,
         role: props.decorative ? 'none' : 'separator',
         'aria-orientation': props.decorative ? undefined : props.orientation,
         class: separatorClasses,
         style: styleOf(props.style, attrs),
         'data-testid': props.testId,
+        ...restAttrs(attrs),
       })
     }
   },
 })
+
+setDisplayName(Separator, 'Separator')

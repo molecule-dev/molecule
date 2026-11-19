@@ -11,35 +11,12 @@ import { getClassMap } from '@molecule/app-ui'
 import { useTranslation } from '@molecule/app-vue'
 
 import { classOf, restAttrs, styleOf } from '../utilities/attrs.js'
+import { useElementRef } from '../utilities/elementRef.js'
 import { renderIcon } from '../utilities/renderIcon.js'
+import { setDisplayName } from './displayName.js'
 
 /** Counter backing the generated ids that stand in for React's `useId()`. */
 let nextGeneratedId = 0
-
-/** React's DOM-callback names that alias a differently spelled native event. */
-const REACT_EVENT_ALIASES: Record<string, string> = {
-  onDoubleClick: 'onDblclick',
-}
-
-/**
- * React forwards DOM callbacks in `...rest` verbatim (`onKeyDown`, …). Vue
- * only attaches a native listener for `on` + the DOM event name (`onKeydown`)
- * — it hyphenates anything after `on`, so React's camelCase spelling would
- * listen for an event nothing dispatches. Rewrites rest keys to the native
- * spelling: `on` + the lowercased DOM event name.
- *
- * @param attrs - The fallthrough attributes to spread onto a native element.
- * @returns The same attributes with event keys in Vue's native spelling.
- */
-function nativeEventAttrs(attrs: Record<string, unknown>): Record<string, unknown> {
-  const out: Record<string, unknown> = {}
-  for (const [key, value] of Object.entries(attrs)) {
-    out[
-      REACT_EVENT_ALIASES[key] ?? (/^on[A-Z]/.test(key) ? `on${key.slice(2).toLowerCase()}` : key)
-    ] = value
-  }
-  return out
-}
 
 /**
  * Vue Input UI component with UIClassMap-driven styling.
@@ -93,9 +70,11 @@ export const Input = defineComponent({
     id: String,
   },
   emits: ['change', 'clear', 'focus', 'blur'],
-  setup(props, { attrs, slots, emit }) {
+  setup(props, { attrs, slots, emit, expose }) {
     const cm = getClassMap()
     const { t } = useTranslation()
+    // The native input is React's `forwardRef` target, not the label wrapper.
+    const element = useElementRef<HTMLInputElement>(expose)
     // Fall back to a generated id so label htmlFor / aria-describedby never
     // point at `undefined-error` (which also collides across multiple
     // id-less inputs on the same page). Allocated once per instance, like
@@ -116,6 +95,7 @@ export const Input = defineComponent({
       )
 
       const inputAttrs: Record<string, unknown> = {
+        ref: element,
         type: props.type,
         id: inputId,
         name: props.name,
@@ -142,7 +122,7 @@ export const Input = defineComponent({
         // React's onFocus/onBlur use the bubbling focus events.
         onFocusin: (event: FocusEvent) => emit('focus', event),
         onFocusout: (event: FocusEvent) => emit('blur', event),
-        ...nativeEventAttrs(restAttrs(attrs)),
+        ...restAttrs(attrs),
       }
       // Never pass both: an uncontrolled input's `value` key would set the
       // dirty flag and block `defaultValue` from updating the property.
@@ -201,3 +181,5 @@ export const Input = defineComponent({
     }
   },
 })
+
+setDisplayName(Input, 'Input')

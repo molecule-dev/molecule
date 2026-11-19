@@ -5,10 +5,19 @@
   a document.body portal; while visible the single child element carries
   aria-describedby pointing at the tooltip.
 -->
+<script module lang="ts">
+  // Coordinate hover and delayed shows across ALL tooltip instances in a page.
+  // This lives in the module script so every instance shares the one map; in
+  // the instance script each Tooltip would get its own, and entering a second
+  // trigger would leave the first tooltip visible.
+  const activeTooltips = new WeakMap<Document, () => void>()
+</script>
+
 <script lang="ts">
   import type { TooltipPlacement } from '@molecule/app-ui'
   import { getClassMap } from '@molecule/app-ui'
 
+  import { reactAttrs, withoutEvents } from '../attrs.js'
   import { bodyPortal, spreadEvents, useGeneratedId } from '../dom.js'
   import { type CSSStyle, reactStyle } from '../style.js'
   import type { TooltipProps } from '../types.js'
@@ -16,9 +25,6 @@
 
   /** Arrow square size (px) before the 45° rotation that turns it into a diamond. */
   const ARROW_SIZE = 8
-
-  // Coordinate hover and delayed shows across all tooltip instances in a page.
-  const activeTooltips = new WeakMap<Document, () => void>()
 
   /** The arrow's inline style for a placement (the sanctioned ClassMap exception). */
   const arrowStyle = (placement: TooltipPlacement): CSSStyle => {
@@ -98,6 +104,7 @@
   }
 
   let {
+    ref = $bindable(null),
     content,
     children,
     placement = 'top',
@@ -106,23 +113,28 @@
     className,
     style,
     testId,
+    ...rest
   }: TooltipProps = $props()
 
   let isVisible = $state(false)
   let position = $state<{ top: number; left: number }>({ top: 0, left: 0 })
   let triggerEl = $state<HTMLDivElement | null>(null)
-  let tooltipEl = $state<HTMLDivElement | null>(null)
   let showTimer: ReturnType<typeof setTimeout> | undefined
   let hideTimer: ReturnType<typeof setTimeout> | undefined
-  const tooltipId = useGeneratedId()
+  // A caller's `id` names the tooltip box, so the association points at it.
+  const generatedId = useGeneratedId()
+  const tooltipId = $derived(String(rest.id ?? generatedId))
+  // The box carries every declared prop: className, style, testId, and the
+  // rest (id, title, aria-*, data-*, automationId as data-mol-id, handlers).
+  const attributes = $derived(reactAttrs(withoutEvents(rest)))
 
   const cm = $derived(getClassMap())
 
   const updatePosition = (): void => {
     if (typeof window === 'undefined' || typeof document === 'undefined') return
-    if (!triggerEl || !tooltipEl) return
+    if (!triggerEl || !ref) return
     const triggerRect = triggerEl.getBoundingClientRect()
-    const tooltipRect = tooltipEl.getBoundingClientRect()
+    const tooltipRect = ref.getBoundingClientRect()
     const newPosition = calculatePosition(triggerRect, tooltipRect, placement)
     // Clamp into the viewport (document space; page scrollbar excluded).
     const margin = 8
@@ -283,12 +295,14 @@
     use:spreadEvents={boxHandlers}
   >
     <div
-      bind:this={tooltipEl}
+      bind:this={ref}
       id={tooltipId}
       role="tooltip"
       class={cm.cn(cm.tooltipContent, className)}
       use:reactStyle={style}
       data-testid={testId}
+      {...attributes}
+      use:spreadEvents={rest}
     >
       <ReactNode node={content} />
     </div>

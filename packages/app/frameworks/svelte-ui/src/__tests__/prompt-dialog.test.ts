@@ -7,6 +7,7 @@
  *
  * @module
  */
+import { fireEvent, waitFor, within } from '@testing-library/dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('@molecule/app-ui', () => ({
@@ -42,7 +43,7 @@ vi.mock('@molecule/app-icons', () => ({
   getIcon: () => ({ viewBox: '0 0 20 20', fill: 'currentColor', paths: [{ d: 'M0 0h20v20H0z' }] }),
 }))
 
-import { type Component, mount, unmount } from 'svelte'
+import { type Component, flushSync, mount, unmount } from 'svelte'
 
 const { default: PromptDialog } = await import('../components/PromptDialog.svelte')
 
@@ -54,40 +55,87 @@ afterEach(() => {
   for (const host of hosts.splice(0)) host.remove()
 })
 
+/** The props the tests drive on an open PromptDialog. */
+interface TestDialogProps {
+  open: boolean
+  onClose: () => void
+  onSubmit: (value: string) => void | Promise<void>
+  title: string
+  placeholder?: string
+  initialValue?: string
+  inputMolId?: string
+  confirmMolId?: string
+  cancelMolId?: string
+}
+
 /** Mounts an open PromptDialog. */
 function mountDialog(): void {
   const host = document.createElement('div')
   document.body.appendChild(host)
   hosts.push(host)
   mounted.push(
-    mount(
-      PromptDialog as Component<{
-        open: boolean
-        onClose: () => void
-        onSubmit: (value: string) => void
-        title: string
-        placeholder?: string
-        initialValue?: string
-        inputMolId?: string
-        confirmMolId?: string
-        cancelMolId?: string
-      }>,
-      {
-        target: host,
-        props: {
-          open: true,
-          onClose: () => {},
-          onSubmit: () => {},
-          title: 'Rename board',
-          placeholder: 'Board name',
-          initialValue: 'Sprint 4',
-          inputMolId: 'prompt-input',
-          confirmMolId: 'prompt-confirm',
-          cancelMolId: 'prompt-cancel',
-        },
+    mount(PromptDialog as Component<TestDialogProps>, {
+      target: host,
+      props: {
+        open: true,
+        onClose: () => {},
+        onSubmit: () => {},
+        title: 'Rename board',
+        placeholder: 'Board name',
+        initialValue: 'Sprint 4',
+        inputMolId: 'prompt-input',
+        confirmMolId: 'prompt-confirm',
+        cancelMolId: 'prompt-cancel',
       },
-    ),
+    }),
   )
+}
+
+/** The dialog's input, selected by the accessible name derived from the title. */
+function inputField(): HTMLInputElement {
+  return document.querySelector('input[aria-label="Rename board"]') as HTMLInputElement
+}
+
+/**
+ * Mounts an open PromptDialog with the given handlers and starting value, the
+ * Svelte counterpart of the React test's `renderDialog`.
+ *
+ * @param overrides - The submit/close handlers and the starting value to use.
+ * @returns The handlers the assertions watch.
+ */
+async function renderDialog(
+  overrides: {
+    onSubmit?: (value: string) => void | Promise<void>
+    onClose?: () => void
+    initialValue?: string
+  } = {},
+): Promise<{ onClose: () => void; onSubmit: (value: string) => void | Promise<void> }> {
+  const onClose = overrides.onClose ?? vi.fn()
+  const onSubmit = overrides.onSubmit ?? vi.fn()
+  const host = document.createElement('div')
+  document.body.appendChild(host)
+  hosts.push(host)
+  mounted.push(
+    mount(PromptDialog as Component<TestDialogProps>, {
+      target: host,
+      props: {
+        open: true,
+        onClose,
+        onSubmit,
+        title: 'Rename board',
+        placeholder: 'Board name',
+        initialValue: overrides.initialValue ?? 'Sprint 4',
+        inputMolId: 'prompt-input',
+        confirmMolId: 'prompt-confirm',
+        cancelMolId: 'prompt-cancel',
+      },
+    }),
+  )
+  flushSync()
+  // The input's accessible name is derived from the rendered title in an
+  // effect; a macrotask turn drains it before the assertions query the input.
+  await new Promise((resolve) => setTimeout(resolve, 0))
+  return { onClose, onSubmit }
 }
 
 describe('PromptDialog focus', () => {
@@ -99,5 +147,58 @@ describe('PromptDialog focus', () => {
     const input = document.querySelector('input[aria-label="Rename board"]') as HTMLInputElement
     expect(input.value).toBe('Sprint 4')
     expect(document.activeElement).toBe(input)
+  })
+})
+
+describe('PromptDialog', () => {
+  it('seeds the input from initialValue and accepts edits', async () => {
+    await renderDialog()
+    const input = inputField()
+    expect(input.value).toBe('Sprint 4')
+    fireEvent.input(input, { target: { value: 'Sprint 5' } })
+    flushSync()
+    expect(input.value).toBe('Sprint 5')
+  })
+
+  it('cancel closes without calling onSubmit', async () => {
+    const d = await renderDialog()
+    fireEvent.click(within(document.body).getByText('Cancel'))
+    expect(d.onSubmit).not.toHaveBeenCalled()
+    expect(d.onClose).toHaveBeenCalledTimes(1)
+  })
+
+  it('submit passes the entered value and closes on resolve', async () => {
+    const d = await renderDialog({ onSubmit: vi.fn().mockResolvedValue(undefined) })
+    fireEvent.input(inputField(), { target: { value: 'Sprint 5' } })
+    flushSync()
+    fireEvent.click(within(document.body).getByText('Confirm'))
+    await waitFor(() => expect(d.onSubmit).toHaveBeenCalledWith('Sprint 5'))
+    await waitFor(() => expect(d.onClose).toHaveBeenCalledTimes(1))
+  })
+
+  it('re-enables the form after a resolved submit when the parent keeps it open', async () => {
+    // A multi-stage flow advances its stage in onClose and leaves `open` true;
+    // the dialog must accept the next submit instead of staying disabled.
+    const d = await renderDialog({ onSubmit: vi.fn().mockResolvedValue(undefined) })
+    fireEvent.click(within(document.body).getByText('Confirm'))
+    await waitFor(() => expect(d.onClose).toHaveBeenCalledTimes(1))
+    await waitFor(() => expect(inputField().disabled).toBe(false))
+    expect((within(document.body).getByText('Confirm') as HTMLButtonElement).disabled).toBe(false)
+  })
+
+  it('stays open with the value intact when onSubmit rejects', async () => {
+    const d = await renderDialog({ onSubmit: vi.fn().mockRejectedValue(new Error('taken')) })
+    fireEvent.input(inputField(), { target: { value: 'Dup' } })
+    flushSync()
+    fireEvent.click(within(document.body).getByText('Confirm'))
+    await waitFor(() => expect(d.onSubmit).toHaveBeenCalled())
+    expect(d.onClose).not.toHaveBeenCalled()
+    // Pending state cleared — the confirm control is enabled again.
+    await waitFor(() =>
+      expect((within(document.body).getByText('Confirm') as HTMLButtonElement).disabled).toBe(
+        false,
+      ),
+    )
+    expect(inputField().value).toBe('Dup')
   })
 })

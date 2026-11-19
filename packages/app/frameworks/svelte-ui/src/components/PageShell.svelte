@@ -10,6 +10,7 @@
   import type { PageShellProps } from '../types.js'
 
   let {
+    ref = $bindable(null),
     children,
     sidebar,
     topbar,
@@ -26,6 +27,7 @@
 </script>
 
 <div
+  bind:this={ref}
   class={cm.cn(cm.pageShell, className)}
   use:reactStyle={style}
   data-testid={testId}

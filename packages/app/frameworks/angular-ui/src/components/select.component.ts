@@ -12,17 +12,24 @@ import {
   EventEmitter,
   inject,
   Output,
+  signal,
   ViewChild,
 } from '@angular/core'
 
 import { useTranslation } from '@molecule/app-angular'
-import type { Size, UIClassMap } from '@molecule/app-ui'
+import type { FocusEventHandler, KeyboardEventHandler, Size, UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
+import type { HasElement } from '../utilities/element.js'
 import type { FormFieldContext } from '../utilities/form-field-context.js'
 import { fieldContext } from '../utilities/form-field-context.js'
+import { nextInstanceId } from '../utilities/ids.js'
 import { MolIconSvg, type ResolvedIcon, resolveIcon } from '../utilities/render-icon.js'
-import { moveRestAttributes, reapplyRestAttributes } from '../utilities/rest-attrs.js'
+import {
+  moveRestAttributes,
+  reapplyRestAttributes,
+  takeDataMolId,
+} from '../utilities/rest-attrs.js'
 import { styleText } from '../utilities/style.js'
 
 /** One select option (React's `SelectOption`). */
@@ -66,6 +73,11 @@ export interface SelectPropsOption {
     'required',
     'name',
     'id',
+    'automationId',
+    'dataMolId: data-mol-id',
+    'onFocus',
+    'onBlur',
+    'onKeyDown',
   ],
   host: {
     '[class]': 'cm().inputWrapper',
@@ -88,7 +100,11 @@ export interface SelectPropsOption {
         [class]="classes()"
         [attr.style]="hostStyle()"
         [attr.data-testid]="testId"
+        [attr.data-mol-id]="molId()"
         (change)="handleChange($event)"
+        (focusin)="onFocus?.($event)"
+        (focusout)="onBlur?.($event)"
+        (keydown)="onKeyDown?.($event)"
         #selectEl
       >
         @if (placeholder) {
@@ -126,7 +142,7 @@ export interface SelectPropsOption {
       <p [attr.id]="selectId() + '-hint'" [class]="cm().formHint">{{ hint }}</p>
     }`,
 })
-export class Select implements AfterViewInit, AfterViewChecked {
+export class Select implements AfterViewInit, AfterViewChecked, HasElement<HTMLSelectElement> {
   /** The options to render. */
   options?: SelectPropsOption[]
   /** Controlled value. */
@@ -159,6 +175,17 @@ export class Select implements AfterViewInit, AfterViewChecked {
   name?: string
   /** Explicit select id. */
   id?: string
+  /** `data-mol-id` automation id (React's `automationId`). */
+  automationId?: string
+  /** A `data-mol-id` given as a plain rest attribute (React's `rootProps` precedence). */
+  dataMolId?: string
+
+  /** React's `onFocus`, which React spreads onto the <select>: its `currentTarget` is that element. */
+  onFocus?: FocusEventHandler
+  /** React's `onBlur`, which React spreads onto the <select>: its `currentTarget` is that element. */
+  onBlur?: FocusEventHandler
+  /** React's `onKeyDown`, which React spreads onto the <select>: its `currentTarget` is that element. */
+  onKeyDown?: KeyboardEventHandler
 
   /** Fires the raw `change` event (React's onChange). */
   @Output() readonly change = new EventEmitter<Event>()
@@ -166,9 +193,22 @@ export class Select implements AfterViewInit, AfterViewChecked {
   @Output() readonly valueChange = new EventEmitter<string>()
 
   /** The native select (React's `...rest` spread target). */
-  @ViewChild('selectEl') selectEl?: ElementRef<HTMLSelectElement>
+  private selectEl?: ElementRef<HTMLSelectElement>
+  /** The native select view query; also feeds the caller's ref element. */
+  @ViewChild('selectEl')
+  set selectElQuery(ref: ElementRef<HTMLSelectElement> | undefined) {
+    this.selectEl = ref
+    this.inner.set(ref?.nativeElement ?? null)
+  }
+
+  private readonly inner = signal<HTMLSelectElement | null>(null)
+  /** The element a caller's ref receives: the native `<select>`. */
+  readonly element = this.inner.asReadonly()
 
   private readonly host = inject(ElementRef)
+
+  /** The per-instance id used when the caller gives no `id` or `name` (React's `useId`). */
+  private readonly generatedId = nextInstanceId()
 
   /**
    * Reactive translation, read in the injection context. Its `t` reads the
@@ -181,6 +221,8 @@ export class Select implements AfterViewInit, AfterViewChecked {
   private restDescribedBy: string | null = null
   /** Whether the rest-describedby value was captured. */
   private restDescribedByCaptured = false
+  /** The `data-mol-id` a caller bound on the host (React spreads it onto the select). */
+  private externalMolId: string | undefined
 
   /**
    * The current class map.
@@ -196,7 +238,7 @@ export class Select implements AfterViewInit, AfterViewChecked {
    * @returns The id value.
    */
   selectId(): string {
-    return this.id || this.fieldContext()?.id || this.name || 'r0'
+    return this.id || this.fieldContext()?.id || this.name || this.generatedId
   }
 
   /**
@@ -281,6 +323,14 @@ export class Select implements AfterViewInit, AfterViewChecked {
   }
 
   /**
+   * The `data-mol-id` value (`automationId` wins over a rest `data-mol-id`).
+   * @returns The attribute value.
+   */
+  molId(): string | undefined {
+    return this.automationId ?? this.dataMolId ?? this.externalMolId
+  }
+
+  /**
    * React's change handler: the raw event first, then the selected value; the
    * event never reaches the host, where the `change` output binding would
    * record it a second time. A controlled select is restored afterwards.
@@ -303,6 +353,7 @@ export class Select implements AfterViewInit, AfterViewChecked {
       this.restDescribedBy = this.host.nativeElement.getAttribute('aria-describedby')
       this.restDescribedByCaptured = true
     }
+    this.externalMolId = takeDataMolId(this.host.nativeElement) ?? this.externalMolId
     moveRestAttributes(this.host.nativeElement, this.selectEl?.nativeElement)
     this.applyValue(true)
   }
@@ -320,6 +371,7 @@ export class Select implements AfterViewInit, AfterViewChecked {
     // detection never re-checks this view — the parent's re-bound
     // `[attr.aria-label]` would land on the host and stay there.
     void this.i18n.locale()
+    this.externalMolId = takeDataMolId(this.host.nativeElement) ?? this.externalMolId
     reapplyRestAttributes(this.host.nativeElement, this.selectEl?.nativeElement)
     this.applyValue(false)
   }

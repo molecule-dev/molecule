@@ -6,6 +6,7 @@
  */
 
 import {
+  afterEveryRender,
   type AfterViewInit,
   ChangeDetectorRef,
   Component,
@@ -17,10 +18,12 @@ import {
   ViewChild,
 } from '@angular/core'
 
-import type { TooltipPlacement, UIClassMap } from '@molecule/app-ui'
+import type { MouseEventHandler, TooltipPlacement, UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
+import type { HasElement } from '../utilities/element.js'
 import { nextInstanceId } from '../utilities/ids.js'
+import { takeDataMolId } from '../utilities/rest-attrs.js'
 import { styleText } from '../utilities/style.js'
 
 /** Arrow square size (px) before the 45° rotation that turns it into a diamond. */
@@ -152,7 +155,20 @@ function calculatePosition(
 @Component({
   selector: 'mol-tooltip',
   standalone: true,
-  inputs: ['content', 'placement', 'delay', 'hasArrow', 'className', 'style', 'testId'],
+  inputs: [
+    'content',
+    'placement',
+    'delay',
+    'hasArrow',
+    'className',
+    'style',
+    'testId',
+    'automationId',
+    'dataMolId: data-mol-id',
+    'id',
+    'title',
+    'onDoubleClick',
+  ],
   host: {
     'data-parity-unwrap': '',
     style: 'display: contents',
@@ -174,10 +190,13 @@ function calculatePosition(
       <div
         #contentEl
         role="tooltip"
-        [id]="tooltipId"
+        [id]="boxId()"
         [class]="contentClasses()"
         [style]="contentStyleText()"
         [attr.data-testid]="testId"
+        [attr.data-mol-id]="molId()"
+        [attr.title]="title"
+        (dblclick)="onDoubleClick?.($event)"
         (mouseover)="keepVisible()"
         (mouseout)="scheduleHide()"
       >
@@ -188,7 +207,7 @@ function calculatePosition(
       }
     </div>`,
 })
-export class Tooltip implements AfterViewInit, DoCheck, OnDestroy {
+export class Tooltip implements AfterViewInit, DoCheck, OnDestroy, HasElement<HTMLDivElement> {
   /** The tooltip content (node-valued prop). */
   content?: unknown
   /** The tooltip placement (default `top`). */
@@ -203,9 +222,35 @@ export class Tooltip implements AfterViewInit, DoCheck, OnDestroy {
   style?: Record<string, unknown>
   /** `data-testid` for the visible tooltip box. */
   testId?: string
+  /** `data-mol-id` automation id (React's `automationId`). */
+  automationId?: string
+  /** A `data-mol-id` given as a plain rest attribute (React's `rootProps` precedence). */
+  dataMolId?: string
+  /** The visible box's `id` (React spreads a caller's `id`; it is the `aria-describedby` target). */
+  id?: string
+  /** The visible box's `title` attribute (React's rest spread). */
+  title?: string
+  /** A caller's double-click handler on the visible box (React spreads it there). */
+  onDoubleClick?: MouseEventHandler
 
   /** The generated tooltip id (the normalizer renumbers it). */
   readonly tooltipId = nextInstanceId()
+  /**
+   * The visible box's id: a caller's `id`, else the generated one (React's
+   * `rest.id ?? generatedId`). The trigger's `aria-describedby` names it.
+   * @returns The id.
+   */
+  boxId(): string {
+    return this.id ?? this.tooltipId
+  }
+
+  /**
+   * The `data-mol-id` value (`automationId` wins over a rest `data-mol-id`).
+   * @returns The attribute value.
+   */
+  molId(): string | undefined {
+    return this.automationId ?? this.dataMolId ?? this.externalMolId
+  }
   /** Whether the tooltip is visible. */
   readonly visible = signal(false)
   /** The current position (React's `{0,0}` initial state). */
@@ -221,6 +266,9 @@ export class Tooltip implements AfterViewInit, DoCheck, OnDestroy {
   @ViewChild('contentEl') contentEl?: ElementRef<HTMLDivElement>
 
   private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
+  private readonly inner = signal<HTMLDivElement | null>(null)
+  /** The element a caller's ref receives: the tooltip box, or `null` while hidden. */
+  readonly element = this.inner.asReadonly()
   private readonly cdr = inject(ChangeDetectorRef)
   private showTimer: ReturnType<typeof setTimeout> | undefined
   private hideTimer: ReturnType<typeof setTimeout> | undefined
@@ -231,8 +279,36 @@ export class Tooltip implements AfterViewInit, DoCheck, OnDestroy {
   private escapeBound = false
   private attached = false
   private lastVisible = false
+  /** The rendered content the current position was measured for. */
+  private lastContentText: string | null = null
+  /** The placement the current position was measured for. */
+  private lastPlacement: TooltipPlacement | null = null
   private associateEl: HTMLElement | null = null
   private hostParent: Node | null = null
+  /** The `data-mol-id` a caller bound on the host (React spreads it onto the tooltip box). */
+  private externalMolId: string | undefined
+
+  /**
+   * React re-measures in a layout effect whose dependencies include `content`
+   * (`[isVisible, updatePosition, content]`), so asynchronously expanded
+   * content stays anchored above its trigger. This port renders its content by
+   * projection, which no component input can observe, so the rendered text is
+   * compared after every render — the same moment React's layout effect runs.
+   */
+  constructor() {
+    afterEveryRender(() => this.repositionForContentChange())
+  }
+
+  /**
+   * Re-measures a visible tooltip whose rendered content or placement changed.
+   */
+  private repositionForContentChange(): void {
+    const text = this.contentEl?.nativeElement.textContent ?? null
+    if (text === this.lastContentText && this.placement === this.lastPlacement) return
+    this.lastContentText = text
+    this.lastPlacement = this.placement
+    if (this.visible()) this.updatePosition()
+  }
 
   /**
    * The current class map.
@@ -376,8 +452,13 @@ export class Tooltip implements AfterViewInit, DoCheck, OnDestroy {
     this.lastVisible = false
   }
 
-  /** Reconciles visibility (and its portal/focus side effects) each pass. */
+  /**
+   * Reconciles visibility (and its portal/focus side effects) each pass. A
+   * content or placement change while visible is handled after the render
+   * (`repositionForContentChange`), matching React's layout effect.
+   */
   ngDoCheck(): void {
+    this.externalMolId = takeDataMolId(this.host.nativeElement) ?? this.externalMolId
     const visible = this.visible()
     if (visible === this.lastVisible) return
     this.lastVisible = visible
@@ -408,9 +489,10 @@ export class Tooltip implements AfterViewInit, DoCheck, OnDestroy {
     const portal = this.portalWrap?.nativeElement
     if (!portal) return
     document.body.appendChild(portal)
+    this.inner.set(this.contentEl?.nativeElement ?? null)
     this.attached = true
     this.updatePosition()
-    this.associateEl?.setAttribute('aria-describedby', this.tooltipId)
+    this.associateEl?.setAttribute('aria-describedby', this.boxId())
     if (!this.escapeBound) {
       document.addEventListener('keydown', this.escapeListener)
       this.escapeBound = true
@@ -420,6 +502,7 @@ export class Tooltip implements AfterViewInit, DoCheck, OnDestroy {
   /** Detaches the portal and removes the trigger association. */
   private detachPortal(): void {
     this.portalWrap?.nativeElement.remove()
+    this.inner.set(null)
     this.attached = false
     this.associateEl?.removeAttribute('aria-describedby')
     if (this.escapeBound) {

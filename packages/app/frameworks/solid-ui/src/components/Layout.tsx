@@ -4,12 +4,13 @@
  * @module
  */
 
-import { type Component, type JSX, splitProps } from 'solid-js'
+import { type JSX, splitProps } from 'solid-js'
 
 import type { ContainerProps, FlexProps, GridProps, Size, SpacerProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
-import { toStyleProps } from '../utilities/dom.js'
+import { reactDomProps, toStyleProps, type WithRef } from '../utilities/dom.js'
+import { withDisplayName } from './displayName.js'
 
 /** The gap tokens the ClassMap's `flex`/`grid` recipes accept. */
 const GAP_SIZES = ['none', 'xs', 'sm', 'md', 'lg', 'xl'] as const
@@ -22,7 +23,7 @@ const SPACER_SIZES = ['xs', 'sm', 'md', 'lg', 'xl'] as const
  * @param props - The component props.
  * @returns The rendered component element.
  */
-export const Container: Component<ContainerProps> = (props) => {
+export const Container = withDisplayName<WithRef<ContainerProps, HTMLDivElement>>((props) => {
   const [local, rest] = splitProps(props, [
     'children',
     'maxWidth',
@@ -48,19 +49,19 @@ export const Container: Component<ContainerProps> = (props) => {
       class={containerClasses()}
       style={toStyleProps(local.style)}
       data-testid={local.testId}
-      {...(rest as JSX.HTMLAttributes<HTMLDivElement>)}
+      {...reactDomProps(rest)}
     >
       {local.children as JSX.Element}
     </div>
   )
-}
+}, 'Container')
 
 /**
  * Renders the Flex container component.
  * @param props - The component props.
  * @returns The rendered component element.
  */
-export const Flex: Component<FlexProps> = (props) => {
+export const Flex = withDisplayName<WithRef<FlexProps, HTMLDivElement>>((props) => {
   const [local, rest] = splitProps(props, [
     'children',
     'direction',
@@ -117,19 +118,19 @@ export const Flex: Component<FlexProps> = (props) => {
       // as given, the way Grid and Container forward theirs: a Flex is a plain
       // box, and a consumer that makes one clickable gives it the role and keys
       // that go with the click.
-      {...(rest as JSX.HTMLAttributes<HTMLDivElement>)}
+      {...reactDomProps(rest)}
     >
       {local.children as JSX.Element}
     </div>
   )
-}
+}, 'Flex')
 
 /**
  * Renders the Grid container component.
  * @param props - The component props.
  * @returns The rendered component element.
  */
-export const Grid: Component<GridProps> = (props) => {
+export const Grid = withDisplayName<WithRef<GridProps, HTMLDivElement>>((props) => {
   const [local, rest] = splitProps(props, [
     'children',
     'columns',
@@ -185,19 +186,19 @@ export const Grid: Component<GridProps> = (props) => {
       class={gridClasses()}
       style={toStyleProps(gridStyle())}
       data-testid={local.testId}
-      {...(rest as JSX.HTMLAttributes<HTMLDivElement>)}
+      {...reactDomProps(rest)}
     >
       {local.children as JSX.Element}
     </div>
   )
-}
+}, 'Grid')
 
 /**
  * Renders the Spacer component.
  * @param props - The component props.
  * @returns The rendered component element.
  */
-export const Spacer: Component<SpacerProps> = (props) => {
+export const Spacer = withDisplayName<WithRef<SpacerProps, HTMLDivElement>>((props) => {
   const [local, rest] = splitProps(props, ['size', 'horizontal', 'className', 'style', 'testId'])
 
   const cm = getClassMap()
@@ -232,7 +233,7 @@ export const Spacer: Component<SpacerProps> = (props) => {
       class={spacerClasses()}
       style={toStyleProps({ ...local.style, ...sizeStyle() })}
       data-testid={local.testId}
-      {...(rest as JSX.HTMLAttributes<HTMLDivElement>)}
+      {...reactDomProps(rest)}
     />
   )
-}
+}, 'Spacer')

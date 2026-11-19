@@ -11,6 +11,8 @@
   import type { ColorVariant } from '@molecule/app-ui'
   import { getClassMap } from '@molecule/app-ui'
 
+  import { reactAttrs, withoutEvents } from '../attrs.js'
+  import { spreadEvents } from '../dom.js'
   import { reactStyle } from '../style.js'
   import type { ToastProps } from '../types.js'
   import IconGlyph from './IconGlyph.svelte'
@@ -38,6 +40,7 @@
   }
 
   let {
+    ref = $bindable(null),
     children,
     title,
     description,
@@ -50,6 +53,11 @@
     className,
     style,
     testId,
+    onMouseEnter,
+    onMouseLeave,
+    onFocus,
+    onBlur,
+    ...rest
   }: ToastProps = $props()
 
   let isVisible = $state(true)
@@ -103,20 +111,47 @@
     isVisible = false
     onDismiss?.()
   }
+
+  // Every other declared prop (id, aria-*, data-*, automationId as data-mol-id,
+  // the DOM event handlers) reaches the root; a caller's role replaces the
+  // live-region default.
+  const attributes = $derived(reactAttrs(withoutEvents(rest)))
+
+  // The timer pauses while the pointer or focus is on the toast; the caller's
+  // handlers for the same events run after it.
+  const handleMouseEnter = (event: MouseEvent): void => {
+    pauseTimer()
+    onMouseEnter?.(event)
+  }
+  const handleMouseLeave = (event: MouseEvent): void => {
+    resumeTimer()
+    onMouseLeave?.(event)
+  }
+  const handleFocusIn = (event: FocusEvent): void => {
+    pauseTimer()
+    onFocus?.(event)
+  }
+  const handleFocusOut = (event: FocusEvent): void => {
+    resumeTimer()
+    onBlur?.(event)
+  }
 </script>
 
 {#if isVisible}
   {@const role = variant === 'warning' || variant === 'error' ? 'alert' : 'status'}
   <div
+    bind:this={ref}
     {role}
     data-state="open"
     class={cm.cn(cm.toast({ variant }), className)}
     use:reactStyle={style}
     data-testid={testId}
-    onmouseenter={pauseTimer}
-    onmouseleave={resumeTimer}
-    onfocusin={pauseTimer}
-    onfocusout={resumeTimer}
+    {...attributes}
+    onmouseenter={handleMouseEnter}
+    onmouseleave={handleMouseLeave}
+    onfocusin={handleFocusIn}
+    onfocusout={handleFocusOut}
+    use:spreadEvents={rest}
   >
     {#if iconName}<span class={cm.toastIconWrapper}
         ><IconGlyph name={iconName} className={cm.iconMd} /></span

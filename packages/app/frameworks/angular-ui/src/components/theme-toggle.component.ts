@@ -14,6 +14,26 @@ import { getClassMap } from '@molecule/app-ui'
 import { Icon } from './icon.component.js'
 
 /**
+ * Props for {@link ThemeToggle} (React's `ThemeToggleProps`, in Angular's
+ * form). Extra `<button>` attributes (`data-*`, `title`, `disabled`, …) land
+ * on the host element, exactly React's spread target.
+ */
+export interface ThemeToggleProps {
+  /** i18n key for the `aria-label` (default `theme.toggle`). */
+  ariaLabelKey?: string
+  /** Fallback `aria-label` if the i18n key is missing. */
+  ariaLabelDefault?: string
+  /** Icon name rendered in dark mode (default `moon`). */
+  darkIcon?: IconName
+  /** Icon name rendered in light mode (default `sun`). */
+  lightIcon?: IconName
+  /** Pixel size for the rendered icon (default 20). */
+  iconSize?: number
+  /** Extra classes joined onto the toggle classes. */
+  className?: string
+}
+
+/**
  * ThemeToggle component.
  *
  * Button that flips the wired theme bond between light and dark. The host is
@@ -46,17 +66,17 @@ import { Icon } from './icon.component.js'
 })
 export class ThemeToggle {
   /** i18n key for the `aria-label` (default `theme.toggle`). */
-  ariaLabelKey?: string
+  ariaLabelKey?: ThemeToggleProps['ariaLabelKey']
   /** Fallback `aria-label` if the i18n key is missing. */
-  ariaLabelDefault?: string
+  ariaLabelDefault?: ThemeToggleProps['ariaLabelDefault']
   /** Icon name rendered in dark mode (default `moon`). */
-  darkIcon?: IconName
+  darkIcon?: ThemeToggleProps['darkIcon']
   /** Icon name rendered in light mode (default `sun`). */
-  lightIcon?: IconName
+  lightIcon?: ThemeToggleProps['lightIcon']
   /** Pixel size for the rendered icon (default 20). */
-  iconSize?: number
+  iconSize?: ThemeToggleProps['iconSize']
   /** Extra classes joined onto the toggle classes. */
-  className?: string
+  className?: ThemeToggleProps['className']
 
   /** Theme state and actions, read in the component's injection context. */
   readonly theme = useTheme()

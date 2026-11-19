@@ -5,11 +5,12 @@
  */
 
 import { NgTemplateOutlet } from '@angular/common'
-import { Component, EventEmitter, Output } from '@angular/core'
+import { Component, ElementRef, EventEmitter, inject, Output } from '@angular/core'
 
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
+import { type HasElement, hostElement } from '../utilities/element.js'
 import { asTemplate, nodeText } from '../utilities/node-value.js'
 import { MolIconSvg, type ResolvedIcon, resolveIcon } from '../utilities/render-icon.js'
 import { styleText } from '../utilities/style.js'
@@ -48,11 +49,15 @@ export interface AccordionItemData {
     'className',
     'style',
     'testId',
+    'automationId',
+    'dataMolId: data-mol-id',
+    'disabled',
   ],
   host: {
     '[class]': 'classes()',
     '[style]': 'hostStyle()',
     '[attr.data-testid]': 'testId',
+    '[attr.data-mol-id]': 'molId()',
   },
   template: `@for (item of items ?? []; track item.value) {
     <div [class]="cm().accordionItem" [attr.data-state]="isOpen(item.value) ? 'open' : 'closed'">
@@ -64,7 +69,7 @@ export interface AccordionItemData {
         [attr.aria-expanded]="isOpen(item.value) ? 'true' : 'false'"
         [attr.aria-controls]="ids(item.value).content"
         [attr.data-state]="isOpen(item.value) ? 'open' : 'closed'"
-        [disabled]="item.disabled"
+        [disabled]="item.disabled || disabled"
       >
         @if (asTemplate(item.header); as tpl) {
           <ng-container [ngTemplateOutlet]="tpl" />
@@ -92,7 +97,7 @@ export interface AccordionItemData {
     </div>
   }`,
 })
-export class Accordion {
+export class Accordion implements HasElement<HTMLDivElement> {
   /** The items to render. */
   items?: AccordionItemData[]
   /** Controlled expanded value(s). */
@@ -109,6 +114,12 @@ export class Accordion {
   style?: Record<string, unknown>
   /** `data-testid` for the root. */
   testId?: string
+  /** `data-mol-id` automation id (React's `automationId`). */
+  automationId?: string
+  /** A `data-mol-id` given as a plain rest attribute (React's `rootProps` precedence). */
+  dataMolId?: string
+  /** Disables every header, whatever an item says (React's `disabled`). */
+  disabled?: boolean
 
   /** Template helpers (templates see only class members). */
   readonly asTemplate = asTemplate
@@ -119,6 +130,9 @@ export class Accordion {
   @Output() readonly change = new EventEmitter<string | string[]>()
 
   private internalExpanded: string[] | null = null
+  private readonly host: ElementRef<HTMLDivElement> = inject(ElementRef)
+  /** The element a caller's ref receives: the host `<div>`. */
+  readonly element = hostElement(this.host)
   private readonly idMap = new Map<string, { trigger: string; content: string }>()
   private idCount = 0
 
@@ -136,6 +150,19 @@ export class Accordion {
    */
   classes(): string {
     return this.cm().cn(this.cm().accordionRoot, this.className)
+  }
+
+  /**
+   * The `data-mol-id` value (`automationId` wins over a rest `data-mol-id`).
+   * @returns The attribute value.
+   */
+  molId(): string | undefined {
+    return (
+      this.automationId ??
+      this.dataMolId ??
+      this.host.nativeElement.getAttribute('data-mol-id') ??
+      undefined
+    )
   }
 
   /**

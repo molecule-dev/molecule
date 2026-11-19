@@ -6,9 +6,9 @@
 
   import type { DropdownSeparatorProps } from '../types.js'
 
-  let { className }: DropdownSeparatorProps = $props()
+  let { ref = $bindable(null), className }: DropdownSeparatorProps = $props()
 
   const cm = $derived(getClassMap())
 </script>
 
-<div class={cm.cn(cm.dropdownSeparator, className)} role="separator"></div>
+<div bind:this={ref} class={cm.cn(cm.dropdownSeparator, className)} role="separator"></div>

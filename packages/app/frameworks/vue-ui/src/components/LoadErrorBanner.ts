@@ -27,12 +27,42 @@
 
 import { defineComponent, h, type PropType, ref, type VNodeChild } from 'vue'
 
-import { getClassMap } from '@molecule/app-ui'
+import { getClassMap, type HTMLElementProps } from '@molecule/app-ui'
 import { useTranslation } from '@molecule/app-vue'
 
 import { classOf, restAttrs, styleOf } from '../utilities/attrs.js'
 import { Alert } from './Alert.js'
 import { Button } from './Button.js'
+
+/**
+ * Props for {@link LoadErrorBanner}.
+ *
+ * Vue port of `@molecule/app-ui-react`'s `LoadErrorBannerProps`: React's
+ * `ReactNode` members are nodes (each also accepted as a same-named slot),
+ * and the extra content between the message and the retry row is the default
+ * slot. Rest attributes (`data-*`, `aria-*`, listeners) are forwarded to the
+ * root `<div>`, so this extends the kit's element props like React extends
+ * the div's attributes. `message` is optional here where React requires it:
+ * Vue's node props are declared without a required runtime check.
+ */
+export interface LoadErrorBannerProps extends Omit<HTMLElementProps, 'children'> {
+  /** The primary error line (e.g. the localized "Could not load X."). */
+  message?: VNodeChild
+  /** Secondary line under the message (status code, hint). */
+  detail?: VNodeChild
+  /**
+   * Called when Retry is clicked. Return the promise; while pending, the
+   * button is disabled and shows "Retrying…". Omit for a display-only
+   * banner.
+   */
+  onRetry?: () => void | Promise<void>
+  /** Retry-button label. Falls back to a localized "Retry". */
+  retryLabel?: VNodeChild
+  /** `data-mol-id` for the retry button (default `load-error-retry`). */
+  retryMolId?: string
+  /** Extra content between message and retry row (the default slot). */
+  children?: VNodeChild
+}
 
 /**
  * Vue LoadErrorBanner UI component with an owned pending-state Retry button.
@@ -50,16 +80,16 @@ export const LoadErrorBanner = defineComponent({
     // values. `@retry` templates still bind here (Vue normalizes the
     // listener to the `onRetry` prop).
     onRetry: {
-      type: Function as PropType<() => void | Promise<void>>,
+      type: Function as PropType<LoadErrorBannerProps['onRetry']>,
       default: undefined,
     },
     retryLabel: null,
     retryMolId: {
-      type: String,
+      type: String as PropType<LoadErrorBannerProps['retryMolId']>,
       default: 'load-error-retry',
     },
-    className: String,
-    style: [String, Object] as PropType<Record<string, string | number> | string>,
+    className: String as PropType<LoadErrorBannerProps['className']>,
+    style: [String, Object] as PropType<LoadErrorBannerProps['style']>,
   },
   setup(props, { attrs, slots }) {
     const cm = getClassMap()

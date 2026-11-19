@@ -8,6 +8,7 @@
   import type { ContainerProps } from '../types.js'
 
   let {
+    ref = $bindable(null),
     children,
     maxWidth = 'lg',
     centered = true,
@@ -29,6 +30,7 @@
 </script>
 
 <div
+  bind:this={ref}
   class={containerClasses}
   use:reactStyle={style}
   data-testid={testId}

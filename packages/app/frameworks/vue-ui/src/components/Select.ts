@@ -19,7 +19,9 @@ import { getClassMap } from '@molecule/app-ui'
 import { useTranslation } from '@molecule/app-vue'
 
 import { classOf, restAttrs, styleOf } from '../utilities/attrs.js'
+import { useElementRef } from '../utilities/elementRef.js'
 import { renderIcon } from '../utilities/renderIcon.js'
+import { setDisplayName } from './displayName.js'
 
 /** Source of the generated per-instance select ids. */
 let nextGeneratedId = 1
@@ -71,20 +73,18 @@ export const Select = defineComponent({
     id: String,
   },
   emits: ['change', 'valueChange'],
-  setup(props, { attrs, emit }) {
+  setup(props, { attrs, emit, expose }) {
     const cm = getClassMap()
     const { t } = useTranslation()
+    // The native select is React's `forwardRef` target; it also drives the
+    // controlled-selection sync below.
+    const element = useElementRef<HTMLSelectElement>(expose)
     // Fall back to a generated id so label htmlFor / aria-describedby never
     // point at `undefined-error` (which also collides across multiple
     // id-less selects on the same page).
     const selectId = props.id || props.name || `mol-select-${nextGeneratedId++}`
     const errorId = `${selectId}-error`
     const hintId = `${selectId}-hint`
-
-    let selectEl: HTMLSelectElement | null = null
-    const setSelectEl = (el: unknown): void => {
-      selectEl = (el as HTMLSelectElement) ?? null
-    }
 
     // React DOM syncs a controlled <select> after every commit
     // (`updateOptions`): the matching <option> gets its live `selected`
@@ -94,7 +94,7 @@ export const Select = defineComponent({
     // clear selectedness entirely (an empty value where React shows the
     // first option).
     const syncSelected = (): void => {
-      const select = selectEl
+      const select = element.value
       if (!select || props.value === undefined) return
       for (const option of select.options) {
         if (option.value === props.value) {
@@ -223,7 +223,7 @@ export const Select = defineComponent({
               class: selectClasses,
               style: styleOf(props.style, attrs),
               'data-testid': props.testId,
-              ref: setSelectEl,
+              ref: element,
               onChange: handleChange,
               ...rest,
             },
@@ -245,3 +245,5 @@ export const Select = defineComponent({
     }
   },
 })
+
+setDisplayName(Select, 'Select')

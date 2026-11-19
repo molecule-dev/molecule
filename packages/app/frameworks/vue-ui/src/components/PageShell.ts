@@ -11,6 +11,7 @@ import { getClassMap } from '@molecule/app-ui'
 import { useTranslation } from '@molecule/app-vue'
 
 import { classOf, styleOf } from '../utilities/attrs.js'
+import { useElementRef } from '../utilities/elementRef.js'
 
 /**
  * Vue PageShell UI component with UIClassMap-driven styling.
@@ -47,9 +48,10 @@ export const PageShell = defineComponent({
     testId: String,
     automationId: String,
   },
-  setup(props, { attrs, slots }) {
+  setup(props, { attrs, slots, expose }) {
     const cm = getClassMap()
     const { t } = useTranslation()
+    const element = useElementRef<HTMLDivElement>(expose)
 
     return () => {
       const sidebar = props.sidebar ?? slots.sidebar?.()
@@ -99,6 +101,7 @@ export const PageShell = defineComponent({
       return h(
         'div',
         {
+          ref: element,
           class: cm.cn(cm.pageShell, ...classOf(props.className, attrs)),
           style: styleOf(props.style, attrs),
           'data-testid': props.testId,

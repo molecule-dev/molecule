@@ -87,12 +87,14 @@ export class MolIconSvg implements OnChanges {
   data?: ResolvedIcon
 
   /**
-   * The fill attribute value: `none` for stroked icons, the icon fill or
-   * `currentColor` otherwise.
+   * The fill attribute value, matching React's `renderIcon` (which writes the
+   * icon's own fill or `currentColor`, even for a stroked glyph) and React
+   * `Icon`'s svg-backed branch (`icon.fill` or `none`).
    * @returns The fill value.
    */
   get fill(): string {
-    return this.data?.stroked ? 'none' : (this.data?.icon.fill ?? 'currentColor') || 'currentColor'
+    if (this.data?.icon.svg) return this.data.icon.fill || 'none'
+    return this.data?.icon.fill || 'currentColor'
   }
 
   /**

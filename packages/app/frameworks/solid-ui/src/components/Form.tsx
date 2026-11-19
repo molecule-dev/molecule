@@ -5,7 +5,6 @@
  */
 
 import {
-  type Component,
   createEffect,
   createMemo,
   createSignal,
@@ -21,7 +20,8 @@ import { useTranslation } from '@molecule/app-solid'
 import type { FormFieldProps, FormProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
-import { toStyleProps } from '../utilities/dom.js'
+import { reactDomProps, toStyleProps, type WithRef } from '../utilities/dom.js'
+import { withDisplayName } from './displayName.js'
 import { formSubmitErrorMessages } from './formSubmitError.js'
 
 /** Props for the Solid form, including a failure managed by an external form controller. */
@@ -29,6 +29,17 @@ export interface SolidFormProps extends FormProps {
   /** A rejected submission, for example a form controller's `submitError`. */
   submitError?: unknown
 }
+
+/**
+ * Props for the form under React's name, so code typed against
+ * `@molecule/app-ui-react`'s `Form` compiles unchanged after swapping the
+ * binding: React's members (`FormProps` plus the opaque `submitError`) in
+ * Solid's form.
+ *
+ * Equal to {@link SolidFormProps} by definition, so the React-named contract
+ * and the Solid one cannot drift.
+ */
+export type ReactFormProps = SolidFormProps
 
 /**
  * Renders the Form component.
@@ -40,7 +51,7 @@ export interface SolidFormProps extends FormProps {
  * @param props - The component props.
  * @returns The rendered form JSX.
  */
-export const Form: Component<SolidFormProps> = (props) => {
+export const Form = withDisplayName<WithRef<SolidFormProps, HTMLFormElement>>((props) => {
   const [local, rest] = splitProps(props, [
     'children',
     'onFormSubmit',
@@ -97,7 +108,7 @@ export const Form: Component<SolidFormProps> = (props) => {
           call(() => local.onFormSubmit?.(data))
         }
         // Call both handlers before yielding: the native event's currentTarget is still valid.
-        call(() => local.onSubmit?.(e as unknown as Event))
+        call(() => local.onSubmit?.(e))
         await Promise.all(submissions)
       } catch (error) {
         if (attempt === current) setFailure({ error })
@@ -135,8 +146,8 @@ export const Form: Component<SolidFormProps> = (props) => {
       method={local.method}
       noValidate={local.noValidate}
       onSubmit={handleSubmit}
-      onReset={local.onReset as JSX.EventHandlerUnion<HTMLFormElement, Event>}
-      {...(rest as JSX.FormHTMLAttributes<HTMLFormElement>)}
+      onReset={local.onReset}
+      {...reactDomProps(rest)}
     >
       <Show when={messages().length > 0}>
         <ul role="alert" class={cm.formError}>
@@ -150,7 +161,7 @@ export const Form: Component<SolidFormProps> = (props) => {
       </fieldset>
     </form>
   )
-}
+}, 'Form')
 
 /**
  * Renders the FormField wrapper component.
@@ -169,8 +180,8 @@ export const Form: Component<SolidFormProps> = (props) => {
  * @param props - The component props.
  * @returns The rendered form field JSX.
  */
-export const FormField: Component<FormFieldProps> = (props) => {
-  const [local] = splitProps(props, [
+export const FormField = withDisplayName<WithRef<FormFieldProps, HTMLDivElement>>((props) => {
+  const [local, rest] = splitProps(props, [
     'children',
     'label',
     'name',
@@ -257,6 +268,7 @@ export const FormField: Component<FormFieldProps> = (props) => {
       class={cm.cn(cm.inputWrapper, cm.sp('mb', 4), local.className)}
       style={toStyleProps(local.style)}
       data-testid={local.testId}
+      {...reactDomProps(rest)}
     >
       <Show when={local.label}>
         <label
@@ -279,26 +291,32 @@ export const FormField: Component<FormFieldProps> = (props) => {
       </Show>
     </div>
   )
-}
+}, 'FormField')
 
 /**
  * Renders the Label component.
  * @param props - The label attributes (`required` adds the marker).
  * @returns The rendered label JSX.
  */
-export const Label: Component<
-  {
-    children?: JSX.Element
-    required?: boolean
-    className?: string
-  } & JSX.HTMLAttributes<HTMLLabelElement>
-> = (props) => {
+export const Label = withDisplayName<
+  WithRef<
+    {
+      children?: JSX.Element
+      required?: boolean
+      className?: string
+    } & JSX.HTMLAttributes<HTMLLabelElement>,
+    HTMLLabelElement
+  >
+>((props) => {
   const [local, rest] = splitProps(props, ['children', 'required', 'className', 'style'])
   const cm = getClassMap()
 
   return (
-    <label class={cm.cn(cm.label({ required: !!local.required }), local.className)} {...rest}>
+    <label
+      class={cm.cn(cm.label({ required: !!local.required }), local.className)}
+      {...reactDomProps(rest)}
+    >
       {local.children}
     </label>
   )
-}
+}, 'Label')

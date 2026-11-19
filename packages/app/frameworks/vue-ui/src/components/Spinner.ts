@@ -11,6 +11,8 @@ import { getClassMap } from '@molecule/app-ui'
 import { useTranslation } from '@molecule/app-vue'
 
 import { classOf, restAttrs, styleOf } from '../utilities/attrs.js'
+import { useElementRef } from '../utilities/elementRef.js'
+import { setDisplayName } from './displayName.js'
 
 /** The `color` values that name a ClassMap variant rather than a CSS color. */
 const NAMED_COLOR_VARIANTS = ['primary', 'secondary', 'success', 'warning', 'error', 'info']
@@ -37,9 +39,10 @@ export const Spinner = defineComponent({
     style: [String, Object] as PropType<Record<string, string | number> | string>,
     testId: String,
   },
-  setup(props, { attrs }) {
+  setup(props, { attrs, expose }) {
     const cm = getClassMap()
     const { t } = useTranslation()
+    const element = useElementRef<HTMLDivElement>(expose)
 
     return () => {
       const classes = cm.cn(cm.spinner({ size: props.size }), ...classOf(props.className, attrs))
@@ -60,6 +63,7 @@ export const Spinner = defineComponent({
       return h(
         'div',
         {
+          ref: element,
           role: 'status',
           'aria-label':
             props.label || t('ui.spinner.loading', undefined, { defaultValue: 'Loading' }),
@@ -75,6 +79,8 @@ export const Spinner = defineComponent({
     }
   },
 })
+
+setDisplayName(Spinner, 'Spinner')
 
 /**
  * Merges two style values the way React's `{...style, ...colorStyle}` does

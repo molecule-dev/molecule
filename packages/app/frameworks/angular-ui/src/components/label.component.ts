@@ -4,10 +4,12 @@
  * @module
  */
 
-import { Component } from '@angular/core'
+import { Component, ElementRef, inject } from '@angular/core'
 
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
+
+import { type HasElement, hostElement } from '../utilities/element.js'
 
 /**
  * Label component.
@@ -25,7 +27,11 @@ import { getClassMap } from '@molecule/app-ui'
   },
   template: `<ng-content></ng-content>`,
 })
-export class Label {
+export class Label implements HasElement<HTMLLabelElement> {
+  private readonly host: ElementRef<HTMLLabelElement> = inject(ElementRef)
+  /** The element a caller's ref receives: the host `<label>`. */
+  readonly element = hostElement(this.host)
+
   /** Whether the label renders its required marker. */
   required?: boolean
   /** Extra classes. */

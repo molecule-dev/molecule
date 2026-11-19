@@ -7,11 +7,36 @@
 import { defineComponent, h, type PropType } from 'vue'
 
 import type { IconName } from '@molecule/app-icons'
-import { getClassMap } from '@molecule/app-ui'
+import { getClassMap, type HTMLElementProps } from '@molecule/app-ui'
 import { useTheme, useTranslation } from '@molecule/app-vue'
 
 import { classOf, restAttrs, styleOf } from '../utilities/attrs.js'
 import { Icon } from './Icon.js'
+
+/**
+ * Props for {@link ThemeToggle}.
+ *
+ * Vue port of `@molecule/app-ui-react`'s `ThemeToggleProps`: React extends
+ * the `<button>` attributes here, so this extends the kit's element props and
+ * any other button attribute (`data-*`, `aria-*`, listeners) falls through to
+ * the button. `aria-label`, `aria-pressed` and `onClick` are the component's
+ * own, exactly as React omits them.
+ */
+export interface ThemeToggleProps extends Omit<
+  HTMLElementProps,
+  'aria-label' | 'aria-pressed' | 'onClick'
+> {
+  /** i18n key for the `aria-label`. Defaults to `'theme.toggle'`. */
+  ariaLabelKey?: string
+  /** Fallback `aria-label` if the i18n key is missing. Defaults to `'Toggle theme'`. */
+  ariaLabelDefault?: string
+  /** Icon name to render in dark mode. Defaults to `'moon'`. */
+  darkIcon?: IconName
+  /** Icon name to render in light mode. Defaults to `'sun'`. */
+  lightIcon?: IconName
+  /** Pixel size for the rendered icon. Defaults to `20`. */
+  iconSize?: number
+}
 
 /**
  * Vue ThemeToggle UI component with UIClassMap-driven styling.
@@ -29,27 +54,27 @@ export const ThemeToggle = defineComponent({
   inheritAttrs: false,
   props: {
     ariaLabelKey: {
-      type: String,
+      type: String as PropType<ThemeToggleProps['ariaLabelKey']>,
       default: 'theme.toggle',
     },
     ariaLabelDefault: {
-      type: String,
+      type: String as PropType<ThemeToggleProps['ariaLabelDefault']>,
       default: 'Toggle theme',
     },
     darkIcon: {
-      type: String as PropType<IconName>,
+      type: String as PropType<ThemeToggleProps['darkIcon']>,
       default: 'moon',
     },
     lightIcon: {
-      type: String as PropType<IconName>,
+      type: String as PropType<ThemeToggleProps['lightIcon']>,
       default: 'sun',
     },
     iconSize: {
-      type: Number,
+      type: Number as PropType<ThemeToggleProps['iconSize']>,
       default: 20,
     },
-    className: String,
-    style: [String, Object] as PropType<Record<string, string | number> | string>,
+    className: String as PropType<ThemeToggleProps['className']>,
+    style: [String, Object] as PropType<ThemeToggleProps['style']>,
   },
   setup(props, { attrs }) {
     const cm = getClassMap()

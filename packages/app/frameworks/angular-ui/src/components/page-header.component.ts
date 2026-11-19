@@ -19,6 +19,7 @@ import { useTranslation } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
+import { type HasElement, hostElement } from '../utilities/element.js'
 import { styleText } from '../utilities/style.js'
 import { hasNodes, SlotWrapper } from './button.component.js'
 
@@ -75,7 +76,7 @@ interface Breadcrumb {
       </div>
     </div>`,
 })
-export class PageHeader implements AfterViewInit, DoCheck {
+export class PageHeader implements AfterViewInit, DoCheck, HasElement<HTMLDivElement> {
   /** Page title. */
   title = ''
   /** Page description. */
@@ -102,6 +103,9 @@ export class PageHeader implements AfterViewInit, DoCheck {
   private readonly i18n = useTranslation()
 
   private readonly sync = new SlotWrapper(inject(ElementRef), inject(Renderer2))
+  private readonly host: ElementRef<HTMLDivElement> = inject(ElementRef)
+  /** The element a caller's ref receives: the host `<div>`. */
+  readonly element = hostElement(this.host)
   private hasActions = false
   private actionsParent: HTMLElement | null = null
 

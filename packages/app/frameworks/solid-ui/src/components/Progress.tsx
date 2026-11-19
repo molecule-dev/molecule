@@ -4,13 +4,14 @@
  * @module
  */
 
-import { type Component, Show, splitProps } from 'solid-js'
+import { Show, splitProps } from 'solid-js'
 
 import { useTranslation } from '@molecule/app-solid'
 import type { BaseProps, ColorVariant, Size } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
-import { toStyleProps } from '../utilities/dom.js'
+import { reactDomProps, toStyleProps, type WithRef } from '../utilities/dom.js'
+import { withDisplayName } from './displayName.js'
 
 /**
  * Props for the Progress component.
@@ -57,8 +58,8 @@ export interface ProgressProps extends BaseProps {
  * @param props - The component props.
  * @returns The rendered progress JSX.
  */
-export const Progress: Component<ProgressProps> = (props) => {
-  const [local] = splitProps(props, [
+export const Progress = withDisplayName<WithRef<ProgressProps, HTMLDivElement>>((props) => {
+  const [local, rest] = splitProps(props, [
     'value',
     'max',
     'size',
@@ -82,6 +83,7 @@ export const Progress: Component<ProgressProps> = (props) => {
       class={cm.cn(cm.progressWrapper, local.className)}
       style={toStyleProps(local.style)}
       data-testid={local.testId}
+      {...reactDomProps(rest)}
     >
       <Show when={local.label || local.showValue}>
         <div class={cm.progressLabelContainer}>
@@ -117,4 +119,4 @@ export const Progress: Component<ProgressProps> = (props) => {
       </div>
     </div>
   )
-}
+}, 'Progress')

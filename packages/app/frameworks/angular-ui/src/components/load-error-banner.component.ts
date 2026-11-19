@@ -14,6 +14,7 @@ import {
   type OnDestroy,
   Renderer2,
   signal,
+  type TemplateRef,
   ViewChild,
 } from '@angular/core'
 
@@ -21,8 +22,30 @@ import { useTranslation } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
+import { asTemplate, isGiven, nodeText } from '../utilities/node-value.js'
 import { Alert } from './alert.component.js'
 import { hasNodes, SlotWrapper } from './button.component.js'
+import { MolTemplateOutlet } from './template-outlet.directive.js'
+
+/**
+ * Props for {@link LoadErrorBanner} (React's `LoadErrorBannerProps`, in
+ * Angular's form). Rest props (`data-*`, `aria-*`, `id`) land on the host, so
+ * they are not enumerated here.
+ */
+export interface LoadErrorBannerProps {
+  /** The primary error line. */
+  message?: string | number | TemplateRef<unknown>
+  /** Secondary line under the message. */
+  detail?: string | number | TemplateRef<unknown>
+  /** Called when Retry is clicked; a returned promise keeps the button pending. */
+  onRetry?: () => void | Promise<void>
+  /** Retry-button label. */
+  retryLabel?: string | number | TemplateRef<unknown>
+  /** `data-mol-id` for the retry button (default `load-error-retry`). */
+  retryMolId?: string
+  /** Extra classes for the root (React's rest `className`). */
+  className?: string
+}
 
 /**
  * LoadErrorBanner component.
@@ -36,15 +59,21 @@ import { hasNodes, SlotWrapper } from './button.component.js'
 @Component({
   selector: 'div[mol-load-error-banner]',
   standalone: true,
-  imports: [Alert],
+  imports: [Alert, MolTemplateOutlet],
   inputs: ['message', 'detail', 'retryLabel', 'retryMolId', 'onRetry'],
   host: {
     '[class]': 'className',
   },
   template: `<div mol-alert [status]="'error'" [live]="false">
     <div [class]="cm().stack(2)">
-      <p [class]="cm().textSize('sm')"><ng-content select="[slot=message]"></ng-content></p>
-      <p #detailSlot [class]="detailClasses()"><ng-content select="[slot=detail]"></ng-content></p>
+      <p [class]="cm().textSize('sm')">
+        <ng-container [molTemplateOutlet]="asTemplate(message)"></ng-container
+        ><ng-content select="[slot=message]"></ng-content>{{ nodeText(message) }}
+      </p>
+      <p #detailSlot [class]="detailClasses()">
+        <ng-container [molTemplateOutlet]="asTemplate(detail)"></ng-container
+        ><ng-content select="[slot=detail]"></ng-content>{{ nodeText(detail) }}
+      </p>
       <ng-content></ng-content>
       <div #retrySlot [class]="cm().flex({ justify: 'start' })">
         <button
@@ -56,7 +85,10 @@ import { hasNodes, SlotWrapper } from './button.component.js'
           (click)="handleRetry()"
         >
           <span #retryLabelSlot><ng-content select="[slot=retryLabel]"></ng-content></span>
-          @if (!hasRetryLabel()) {
+          @if (!hasRetryLabel() && isGiven(retryLabel)) {
+            <ng-container [molTemplateOutlet]="asTemplate(retryLabel)"></ng-container
+            >{{ nodeText(retryLabel) }}
+          } @else if (!hasRetryLabel()) {
             {{ retryText() }}
           }
         </button>
@@ -66,17 +98,24 @@ import { hasNodes, SlotWrapper } from './button.component.js'
 })
 export class LoadErrorBanner implements AfterViewInit, DoCheck, OnDestroy {
   /** The primary error line (node-valued prop). */
-  message?: unknown
+  message?: LoadErrorBannerProps['message']
   /** Secondary line under the message (node-valued prop). */
-  detail?: unknown
+  detail?: LoadErrorBannerProps['detail']
   /** Retry-button label (node-valued prop). */
-  retryLabel?: unknown
+  retryLabel?: LoadErrorBannerProps['retryLabel']
   /** `data-mol-id` for the retry button (default `load-error-retry`). */
-  retryMolId = 'load-error-retry'
+  retryMolId?: LoadErrorBannerProps['retryMolId'] = 'load-error-retry'
   /** Called when Retry is clicked; a returned promise keeps the button pending. */
-  onRetry?: () => void | Promise<void>
+  onRetry?: LoadErrorBannerProps['onRetry']
   /** Extra classes for the root (React's rest `className`). */
-  className?: string
+  className?: LoadErrorBannerProps['className']
+
+  /** Template helpers (templates see only class members). */
+  readonly asTemplate = asTemplate
+  /** Renders a plain-string/number node value. */
+  readonly nodeText = nodeText
+  /** Whether a node-valued prop was given. */
+  readonly isGiven = isGiven
 
   /** Whether a retry is in flight. */
   readonly pending = signal(false)
@@ -155,7 +194,7 @@ export class LoadErrorBanner implements AfterViewInit, DoCheck, OnDestroy {
   ngAfterViewInit(): void {
     this.detailParent = this.detailSlot?.nativeElement.parentElement ?? null
     this.retryParent = this.retrySlot?.nativeElement.parentElement ?? null
-    this.hasDetail = hasNodes(this.detailSlot?.nativeElement)
+    this.hasDetail = this.detailPresent()
     this.hasRetryLabel.set(hasNodes(this.retryLabelSlot?.nativeElement))
     this.sync.sync(
       this.retryLabelSlot?.nativeElement,
@@ -169,10 +208,20 @@ export class LoadErrorBanner implements AfterViewInit, DoCheck, OnDestroy {
    * Re-reconciles the conditional wrappers on later passes.
    */
   ngDoCheck(): void {
+    this.hasDetail = this.detailPresent()
     this.sync.sync(this.detailSlot?.nativeElement, this.hasDetail, this.detailParent ?? undefined)
     // React renders the retry row exactly when `onRetry` is given.
     this.sync.sync(this.retrySlot?.nativeElement, !!this.onRetry, this.retryParent ?? undefined)
     this.showRetryLabel()
+  }
+
+  /**
+   * Whether React would render the detail paragraph (a given node value or
+   * projected slot content).
+   * @returns True when the detail renders.
+   */
+  private detailPresent(): boolean {
+    return isGiven(this.detail) || hasNodes(this.detailSlot?.nativeElement)
   }
 
   /** Restores the retry-label capture span on unmount. */

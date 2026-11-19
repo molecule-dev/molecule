@@ -19,8 +19,10 @@ import {
 import type { AccordionItem as AccordionItemType, AccordionProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
-import { classOf, styleOf } from '../utilities/attrs.js'
+import { classOf, restAttrs, styleOf } from '../utilities/attrs.js'
+import { useElementRef } from '../utilities/elementRef.js'
 import { renderIcon } from '../utilities/renderIcon.js'
+import { setDisplayName } from './displayName.js'
 
 /**
  * Accordion context interface.
@@ -43,6 +45,8 @@ const AccordionItemComponent = defineComponent({
       type: Object as PropType<AccordionItemType<string>>,
       required: true,
     },
+    /** The whole accordion is disabled: every header is, whatever its item says. */
+    disabled: Boolean,
   },
   setup(props) {
     const cm = getClassMap()
@@ -54,6 +58,7 @@ const AccordionItemComponent = defineComponent({
 
     return () => {
       const isExpanded = context.expandedItems.includes(props.item.value)
+      const isDisabled = props.disabled || props.item.disabled
 
       return h(
         'div',
@@ -68,11 +73,11 @@ const AccordionItemComponent = defineComponent({
               id: triggerId,
               type: 'button',
               class: cm.cn(cm.accordion({ variant: 'default' }), cm.accordionTriggerBase),
-              onClick: () => !props.item.disabled && context.toggleItem(props.item.value),
+              onClick: () => !isDisabled && context.toggleItem(props.item.value),
               'aria-expanded': isExpanded,
               'aria-controls': contentId,
               'data-state': isExpanded ? 'open' : 'closed',
-              disabled: props.item.disabled,
+              disabled: isDisabled,
             },
             [props.item.header, renderIcon('chevron-down', cm.accordionChevron)] as VNodeChild[],
           ),
@@ -130,10 +135,12 @@ export const Accordion = defineComponent({
     className: String,
     style: [String, Object] as PropType<AccordionProps['style']>,
     testId: String,
+    disabled: Boolean,
   },
   emits: ['change'],
-  setup(props, { attrs, emit }) {
+  setup(props, { attrs, emit, expose }) {
     const cm = getClassMap()
+    const element = useElementRef<HTMLDivElement>(expose)
 
     // Normalize value to array
     const normalizeValue = (v: string | string[] | undefined): string[] => {
@@ -191,16 +198,21 @@ export const Accordion = defineComponent({
       h(
         'div',
         {
+          ref: element,
           class: cm.cn(cm.accordionRoot, ...classOf(props.className, attrs)),
           style: styleOf(props.style, attrs),
           'data-testid': props.testId,
+          ...restAttrs(attrs),
         },
         props.items.map((item) =>
           h(AccordionItemComponent, {
             key: item.value,
             item,
+            disabled: props.disabled,
           }),
         ),
       )
   },
 })
+
+setDisplayName(Accordion, 'Accordion')

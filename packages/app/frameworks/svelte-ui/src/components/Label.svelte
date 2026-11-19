@@ -5,12 +5,13 @@
   import { reactAttrs, withoutEvents } from '../attrs.js'
   import { spreadEvents } from '../dom.js'
   import type { LabelProps } from '../types.js'
-  let { children, required, className, ...rest }: LabelProps = $props()
+  let { ref = $bindable(null), children, required, className, ...rest }: LabelProps = $props()
 
   const cm = $derived(getClassMap())
 </script>
 
 <label
+  bind:this={ref}
   class={cm.cn(cm.label({ required: !!required }), className)}
   {...reactAttrs(withoutEvents(rest))}
   use:spreadEvents={rest}>{@render children?.()}</label

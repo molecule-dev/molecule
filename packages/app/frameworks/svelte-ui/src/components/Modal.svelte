@@ -10,6 +10,7 @@
   import { useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
+  import { reactAttrs, withoutEvents } from '../attrs.js'
   import {
     bodyPortal,
     getFocusableElements,
@@ -17,6 +18,7 @@
     lockBodyScroll,
     popModalStack,
     pushModalStack,
+    spreadEvents,
     unlockBodyScroll,
     useGeneratedId,
   } from '../dom.js'
@@ -26,6 +28,7 @@
   import ReactNode from './ReactNode.svelte'
 
   let {
+    ref = $bindable(null),
     open,
     onClose,
     title,
@@ -53,8 +56,6 @@
   // 'modal-title' would duplicate the id whenever two modals are mounted.
   const instanceId = useGeneratedId()
 
-  let dialogRef = $state<HTMLDivElement | null>(null)
-
   // Effect A — stack registration + move focus INTO the dialog on open +
   // restore focus to whatever was focused before on close. Runs exactly
   // once per open/close transition, not on every re-render.
@@ -62,9 +63,9 @@
     if (!open) return
     const previouslyFocused = document.activeElement as HTMLElement | null
     pushModalStack(instanceId)
-    if (dialogRef) {
-      const focusables = getFocusableElements(dialogRef)
-      ;(focusables[0] ?? dialogRef).focus()
+    if (ref) {
+      const focusables = getFocusableElements(ref)
+      ;(focusables[0] ?? ref).focus()
     }
     return () => {
       popModalStack(instanceId)
@@ -95,7 +96,7 @@
         return
       }
       if (e.key !== 'Tab' || !isTopOfModalStack(instanceId)) return
-      const el = dialogRef
+      const el = ref
       if (!el) return
       const focusables = getFocusableElements(el)
       if (focusables.length === 0) {
@@ -120,13 +121,11 @@
     return () => document.removeEventListener('keydown', handleKeyDown)
   })
 
-  const passthrough = $derived.by(() => {
-    const out: Record<string, unknown> = {}
-    for (const [k, v] of Object.entries(rest)) {
-      if (k.startsWith('data-') || k.startsWith('aria-')) out[k] = v
-    }
-    return out
-  })
+  // Every other declared prop (`id`, `title`, `aria-*`, `data-*`, `automationId`
+  // as `data-mol-id`, the DOM event handlers) reaches the inner dialog; the
+  // spread lands after the defaults, so a caller's `role`, `tabIndex` or
+  // `aria-labelledby` replaces them (e.g. `role="alertdialog"`).
+  const attributes = $derived(reactAttrs(withoutEvents(rest)))
 
   // The wrapper is a presentation layer around the dialog: a click on the
   // wrapper itself (the backdrop) closes, and a click that bubbled up from
@@ -156,7 +155,7 @@
     use:bodyPortal
   >
     <div
-      bind:this={dialogRef}
+      bind:this={ref}
       role="dialog"
       aria-modal="true"
       aria-labelledby={title ? instanceId : undefined}
@@ -164,7 +163,8 @@
       class={cm.cn(cm.modal({ size }), className)}
       use:reactStyle={style}
       data-testid={testId}
-      {...passthrough}
+      {...attributes}
+      use:spreadEvents={rest}
     >
       {#if title}
         <div class={cm.dialogHeader}>

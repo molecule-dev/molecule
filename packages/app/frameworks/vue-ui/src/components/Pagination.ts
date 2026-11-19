@@ -10,8 +10,10 @@ import type { PaginationProps, Size } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { useTranslation } from '@molecule/app-vue'
 
-import { classOf, styleOf } from '../utilities/attrs.js'
+import { classOf, restAttrs, styleOf } from '../utilities/attrs.js'
+import { useElementRef } from '../utilities/elementRef.js'
 import { renderIcon } from '../utilities/renderIcon.js'
+import { setDisplayName } from './displayName.js'
 
 /** CSS properties that take unitless numbers; every other numeric value gets `px`. */
 const UNITLESS_STYLE_PROPERTIES = new Set([
@@ -159,6 +161,7 @@ function generatePaginationRange(
  */
 export const Pagination = defineComponent({
   name: 'MPagination',
+  inheritAttrs: false,
   props: {
     page: {
       type: Number,
@@ -198,9 +201,10 @@ export const Pagination = defineComponent({
     testId: String,
   },
   emits: ['change'],
-  setup(props, { attrs, emit }) {
+  setup(props, { attrs, emit, expose }) {
     const cm = getClassMap()
     const { t } = useTranslation()
+    const element = useElementRef<HTMLElement>(expose)
 
     const range = computed(() =>
       generatePaginationRange(props.page, props.totalPages, props.siblings, props.boundaries),
@@ -224,12 +228,14 @@ export const Pagination = defineComponent({
       h(
         'nav',
         {
+          ref: element,
           role: 'navigation',
           'aria-label':
             props.labels?.nav ?? t('ui.pagination.nav', undefined, { defaultValue: 'Pagination' }),
           class: cm.cn(cm.paginationRoot, ...classOf(props.className, attrs)),
           style: normalizeStyleObjects(styleOf(props.style, attrs)),
           'data-testid': props.testId,
+          ...restAttrs(attrs),
         },
         [
           h('ul', { class: cm.paginationContent }, [
@@ -352,3 +358,5 @@ export const Pagination = defineComponent({
       )
   },
 })
+
+setDisplayName(Pagination, 'Pagination')

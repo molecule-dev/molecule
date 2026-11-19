@@ -9,7 +9,7 @@ import { type Component, type JSX, Show, splitProps } from 'solid-js'
 import type { EmptyStateProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
-import { toStyleProps } from '../utilities/dom.js'
+import { toStyleProps, type WithRef } from '../utilities/dom.js'
 
 /**
  * Renders the EmptyState component.
@@ -20,7 +20,7 @@ import { toStyleProps } from '../utilities/dom.js'
  * @param props - The component props.
  * @returns The rendered empty-state JSX.
  */
-export const EmptyState: Component<EmptyStateProps> = (props) => {
+export const EmptyState: Component<WithRef<EmptyStateProps, HTMLDivElement>> = (props) => {
   const [local] = splitProps(props, [
     'icon',
     'title',
@@ -30,12 +30,16 @@ export const EmptyState: Component<EmptyStateProps> = (props) => {
     'style',
     'testId',
     'automationId',
+    'ref',
   ])
 
   const cm = getClassMap()
 
   return (
     <div
+      ref={(el) => {
+        if (typeof local.ref === 'function') local.ref(el)
+      }}
       class={cm.cn(cm.emptyState, local.className)}
       style={toStyleProps(local.style)}
       data-testid={local.testId}

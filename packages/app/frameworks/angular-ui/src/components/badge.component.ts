@@ -4,11 +4,12 @@
  * @module
  */
 
-import { Component } from '@angular/core'
+import { Component, ElementRef, inject } from '@angular/core'
 
 import type { ColorVariant, Size, UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
+import { type HasElement, hostElement } from '../utilities/element.js'
 import { styleText } from '../utilities/style.js'
 
 /**
@@ -20,15 +21,30 @@ import { styleText } from '../utilities/style.js'
 @Component({
   selector: 'span[mol-badge]',
   standalone: true,
-  inputs: ['color', 'variant', 'size', 'rounded', 'className', 'style', 'testId'],
+  inputs: [
+    'color',
+    'variant',
+    'size',
+    'rounded',
+    'className',
+    'style',
+    'testId',
+    'automationId',
+    'dataMolId: data-mol-id',
+  ],
   host: {
     '[class]': 'classes()',
     '[style]': 'hostStyle()',
     '[attr.data-testid]': 'testId',
+    '[attr.data-mol-id]': 'molId()',
   },
   template: `<ng-content></ng-content>`,
 })
-export class Badge {
+export class Badge implements HasElement<HTMLSpanElement> {
+  private readonly host: ElementRef<HTMLSpanElement> = inject(ElementRef)
+  /** The element a caller's ref receives: the host `<span>`. */
+  readonly element = hostElement(this.host)
+
   /** Named color variant (`primary`, `success`, …). */
   color: ColorVariant = 'primary'
   /** Visual style (kept for React prop parity; the class map keys off `color`). */
@@ -43,6 +59,10 @@ export class Badge {
   style?: Record<string, unknown>
   /** `data-testid` for the badge. */
   testId?: string
+  /** `data-mol-id` automation id (React's `automationId`). */
+  automationId?: string
+  /** A `data-mol-id` given as a plain rest attribute (React's `rootProps` precedence). */
+  dataMolId?: string
 
   /**
    * The current class map.
@@ -61,6 +81,19 @@ export class Badge {
       this.cm().badge({ variant: this.color, size: this.size }),
       !this.rounded && this.cm().badgeSquare,
       this.className,
+    )
+  }
+
+  /**
+   * The `data-mol-id` value (`automationId` wins over a rest `data-mol-id`).
+   * @returns The attribute value.
+   */
+  molId(): string | undefined {
+    return (
+      this.automationId ??
+      this.dataMolId ??
+      this.host.nativeElement.getAttribute('data-mol-id') ??
+      undefined
     )
   }
 

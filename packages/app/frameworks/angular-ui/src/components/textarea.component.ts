@@ -12,16 +12,23 @@ import {
   EventEmitter,
   inject,
   Output,
+  signal,
   ViewChild,
 } from '@angular/core'
 
 import { useTranslation } from '@molecule/app-angular'
-import type { Size, UIClassMap } from '@molecule/app-ui'
+import type { FocusEventHandler, KeyboardEventHandler, Size, UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
+import type { HasElement } from '../utilities/element.js'
 import type { FormFieldContext } from '../utilities/form-field-context.js'
 import { fieldContext } from '../utilities/form-field-context.js'
-import { moveRestAttributes, reapplyRestAttributes } from '../utilities/rest-attrs.js'
+import { nextInstanceId } from '../utilities/ids.js'
+import {
+  moveRestAttributes,
+  reapplyRestAttributes,
+  takeDataMolId,
+} from '../utilities/rest-attrs.js'
 import { styleText } from '../utilities/style.js'
 
 /**
@@ -55,6 +62,11 @@ import { styleText } from '../utilities/style.js'
     'name',
     'id',
     'rows',
+    'automationId',
+    'dataMolId: data-mol-id',
+    'onFocus',
+    'onBlur',
+    'onKeyDown',
   ],
   host: {
     '[class]': 'cm().inputWrapper',
@@ -78,8 +90,12 @@ import { styleText } from '../utilities/style.js'
       [class]="classes()"
       [attr.style]="hostStyle()"
       [attr.data-testid]="testId"
+      [attr.data-mol-id]="molId()"
       (input)="handleInput($event)"
       (change)="handleChange($event)"
+      (focusin)="onFocus?.($event)"
+      (focusout)="onBlur?.($event)"
+      (keydown)="onKeyDown?.($event)"
       #textareaEl
     ></textarea>
     @if (error) {
@@ -89,7 +105,7 @@ import { styleText } from '../utilities/style.js'
       <p [attr.id]="textareaId() + '-hint'" [class]="cm().formHint">{{ hint }}</p>
     }`,
 })
-export class Textarea implements AfterViewInit, AfterViewChecked {
+export class Textarea implements AfterViewInit, AfterViewChecked, HasElement<HTMLTextAreaElement> {
   /** Textarea size. */
   size?: Size
   /** Field label. */
@@ -126,14 +142,38 @@ export class Textarea implements AfterViewInit, AfterViewChecked {
   id?: string
   /** Explicit rows attribute. */
   rows?: number
+  /** `data-mol-id` automation id (React's `automationId`). */
+  automationId?: string
+  /** A `data-mol-id` given as a plain rest attribute (React's `rootProps` precedence). */
+  dataMolId?: string
+
+  /** React's `onFocus`, which React spreads onto the <textarea>: its `currentTarget` is that element. */
+  onFocus?: FocusEventHandler
+  /** React's `onBlur`, which React spreads onto the <textarea>: its `currentTarget` is that element. */
+  onBlur?: FocusEventHandler
+  /** React's `onKeyDown`, which React spreads onto the <textarea>: its `currentTarget` is that element. */
+  onKeyDown?: KeyboardEventHandler
 
   /** Fires the raw `input` event (React's textarea onChange). */
   @Output() readonly change = new EventEmitter<Event>()
 
   /** The native textarea (React's `...rest` spread target). */
-  @ViewChild('textareaEl') textareaEl?: ElementRef<HTMLTextAreaElement>
+  private textareaEl?: ElementRef<HTMLTextAreaElement>
+  /** The native textarea view query; also feeds the caller's ref element. */
+  @ViewChild('textareaEl')
+  set textareaElQuery(ref: ElementRef<HTMLTextAreaElement> | undefined) {
+    this.textareaEl = ref
+    this.inner.set(ref?.nativeElement ?? null)
+  }
+
+  private readonly inner = signal<HTMLTextAreaElement | null>(null)
+  /** The element a caller's ref receives: the native `<textarea>`. */
+  readonly element = this.inner.asReadonly()
 
   private readonly host = inject(ElementRef)
+
+  /** The per-instance id used when the caller gives no `id` or `name` (React's `useId`). */
+  private readonly generatedId = nextInstanceId()
 
   /**
    * Reactive translation, read in the injection context. Its `locale` marks
@@ -145,6 +185,8 @@ export class Textarea implements AfterViewInit, AfterViewChecked {
   private restDescribedBy: string | null = null
   /** Whether the rest-describedby value was captured. */
   private restDescribedByCaptured = false
+  /** The `data-mol-id` a caller bound on the host (React spreads it onto the textarea). */
+  private externalMolId: string | undefined
 
   /**
    * The current class map.
@@ -161,7 +203,7 @@ export class Textarea implements AfterViewInit, AfterViewChecked {
    * @returns The id value.
    */
   textareaId(): string {
-    return this.id || this.fieldContext()?.id || this.name || 'r0'
+    return this.id || this.fieldContext()?.id || this.name || this.generatedId
   }
 
   /**
@@ -211,6 +253,14 @@ export class Textarea implements AfterViewInit, AfterViewChecked {
    */
   hostStyle(): string | null {
     return styleText(this.autoResize ? { minHeight: 0, resize: 'none', ...this.style } : this.style)
+  }
+
+  /**
+   * The `data-mol-id` value (`automationId` wins over a rest `data-mol-id`).
+   * @returns The attribute value.
+   */
+  molId(): string | undefined {
+    return this.automationId ?? this.dataMolId ?? this.externalMolId
   }
 
   /**
@@ -267,6 +317,7 @@ export class Textarea implements AfterViewInit, AfterViewChecked {
       this.restDescribedBy = this.host.nativeElement.getAttribute('aria-describedby')
       this.restDescribedByCaptured = true
     }
+    this.externalMolId = takeDataMolId(this.host.nativeElement) ?? this.externalMolId
     moveRestAttributes(this.host.nativeElement, this.textareaEl?.nativeElement)
     this.applyValue(true)
     this.resize()
@@ -286,6 +337,7 @@ export class Textarea implements AfterViewInit, AfterViewChecked {
     // detection never re-checks this view — the parent's re-bound
     // `[attr.aria-label]` would land on the host and stay there.
     void this.i18n.locale()
+    this.externalMolId = takeDataMolId(this.host.nativeElement) ?? this.externalMolId
     reapplyRestAttributes(this.host.nativeElement, this.textareaEl?.nativeElement)
     this.applyValue(false)
     this.resize()

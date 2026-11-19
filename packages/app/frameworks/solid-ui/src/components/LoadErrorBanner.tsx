@@ -15,7 +15,7 @@ import { type Component, createSignal, type JSX, Show, splitProps } from 'solid-
 import { useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
-import { toStyleProps } from '../utilities/dom.js'
+import { reactDomProps, toStyleProps } from '../utilities/dom.js'
 import { Alert } from './Alert.jsx'
 import { Button } from './Button.jsx'
 
@@ -84,7 +84,7 @@ export const LoadErrorBanner: Component<LoadErrorBannerProps> = (props) => {
   }
 
   return (
-    <div class={local.className} style={toStyleProps(local.style)} {...rest}>
+    <div class={local.className} style={toStyleProps(local.style)} {...reactDomProps(rest)}>
       <Alert status="error" live={false}>
         <div class={cm.stack(2)}>
           <p class={cm.textSize('sm')}>{local.message}</p>

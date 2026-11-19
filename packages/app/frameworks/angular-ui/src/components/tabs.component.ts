@@ -6,8 +6,9 @@
 
 import {
   Component,
-  type ElementRef,
+  ElementRef,
   EventEmitter,
+  inject,
   type OnInit,
   Output,
   type QueryList,
@@ -19,6 +20,7 @@ import {
 import type { TabItem, UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
+import { type HasElement, hostElement } from '../utilities/element.js'
 import { nextInstanceId } from '../utilities/ids.js'
 import { styleText } from '../utilities/style.js'
 import { MolTemplateOutlet } from './template-outlet.directive.js'
@@ -46,12 +48,16 @@ import { MolTemplateOutlet } from './template-outlet.directive.js'
     'className',
     'style',
     'testId',
+    'automationId',
+    'dataMolId: data-mol-id',
+    'disabled',
   ],
   outputs: ['change'],
   host: {
     '[class]': 'className',
     '[style]': 'hostStyle()',
     '[attr.data-testid]': 'testId',
+    '[attr.data-mol-id]': 'molId()',
   },
   template: `<div [class]="listClasses()" role="tablist">
       @for (item of items; track item.value) {
@@ -64,7 +70,7 @@ import { MolTemplateOutlet } from './template-outlet.directive.js'
           [attr.aria-controls]="controlsId(item)"
           [attr.data-state]="item.value === activeValue() ? 'active' : 'inactive'"
           [attr.tabindex]="item.value === activeValue() ? 0 : -1"
-          [disabled]="!!item.disabled"
+          [disabled]="!!item.disabled || disabled"
           (click)="selectTab(item.value)"
           (keydown)="handleKeyDown($event)"
           [class]="triggerClasses()"
@@ -87,21 +93,27 @@ import { MolTemplateOutlet } from './template-outlet.directive.js'
       }
     </div>
     @if (hasContent()) {
-      <div
-        role="tabpanel"
-        [id]="panelId(activeValue() ?? '')"
-        [attr.aria-labelledby]="tabId(activeValue() ?? '')"
-        [class]="contentClasses()"
-      >
-        @if (activeContent(); as contentTpl) {
+      @if (activeContent(); as contentTpl) {
+        <div
+          role="tabpanel"
+          [id]="panelId(activeValue() ?? '')"
+          [attr.aria-labelledby]="tabId(activeValue() ?? '')"
+          [class]="contentClasses()"
+        >
           <ng-container [molTemplateOutlet]="contentTpl"></ng-container>
-        } @else {
-          {{ contentText() }}
-        }
-      </div>
+        </div>
+      } @else {
+        <div
+          role="tabpanel"
+          [id]="panelId(activeValue() ?? '')"
+          [attr.aria-labelledby]="tabId(activeValue() ?? '')"
+          [class]="contentClasses()"
+          [textContent]="contentText()"
+        ></div>
+      }
     }`,
 })
-export class Tabs implements OnInit {
+export class Tabs implements OnInit, HasElement<HTMLDivElement> {
   /** The tabs. */
   items: TabItem<string>[] = []
   /** Controlled active value. */
@@ -120,9 +132,19 @@ export class Tabs implements OnInit {
   style?: Record<string, unknown>
   /** `data-testid`. */
   testId?: string
+  /** `data-mol-id` automation id (React's `automationId`). */
+  automationId?: string
+  /** A `data-mol-id` given as a plain rest attribute (React's `rootProps` precedence). */
+  dataMolId?: string
+  /** Disables every tab, whatever an item says (React's `disabled`). */
+  disabled?: boolean
 
   /** Fires with the selected tab's value (React's `onChange`). */
   @Output() readonly change = new EventEmitter<string>()
+
+  private readonly host: ElementRef<HTMLDivElement> = inject(ElementRef)
+  /** The element a caller's ref receives: the host `<div>`. */
+  readonly element = hostElement(this.host)
 
   /** The tab buttons (for focus movement). */
   @ViewChildren('tabBtn') tabButtons?: QueryList<ElementRef<HTMLButtonElement>>
@@ -227,6 +249,19 @@ export class Tabs implements OnInit {
   }
 
   /**
+   * The `data-mol-id` value (`automationId` wins over a rest `data-mol-id`).
+   * @returns The attribute value.
+   */
+  molId(): string | undefined {
+    return (
+      this.automationId ??
+      this.dataMolId ??
+      this.host.nativeElement.getAttribute('data-mol-id') ??
+      undefined
+    )
+  }
+
+  /**
    * Narrows a node-valued prop to a TemplateRef.
    *
    * @param value - The prop value.
@@ -287,6 +322,7 @@ export class Tabs implements OnInit {
    * @param event - The key event.
    */
   handleKeyDown(event: KeyboardEvent): void {
+    if (this.disabled) return
     const enabled = this.items.filter((item) => !item.disabled)
     if (enabled.length === 0) return
     const active = this.activeValue()

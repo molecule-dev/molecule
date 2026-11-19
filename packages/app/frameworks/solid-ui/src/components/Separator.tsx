@@ -4,20 +4,27 @@
  * @module
  */
 
-import { type Component, splitProps } from 'solid-js'
+import { splitProps } from 'solid-js'
 
 import type { SeparatorProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
-import { toStyleProps } from '../utilities/dom.js'
+import { reactDomProps, toStyleProps, type WithRef } from '../utilities/dom.js'
+import { withDisplayName } from './displayName.js'
 
 /**
  * Renders the Separator component.
  * @param props - The component props.
  * @returns The rendered separator JSX.
  */
-export const Separator: Component<SeparatorProps> = (props) => {
-  const [local] = splitProps(props, ['orientation', 'decorative', 'className', 'style', 'testId'])
+export const Separator = withDisplayName<WithRef<SeparatorProps, HTMLDivElement>>((props) => {
+  const [local, rest] = splitProps(props, [
+    'orientation',
+    'decorative',
+    'className',
+    'style',
+    'testId',
+  ])
 
   const cm = getClassMap()
   const orientation = (): 'horizontal' | 'vertical' => local.orientation ?? 'horizontal'
@@ -32,6 +39,7 @@ export const Separator: Component<SeparatorProps> = (props) => {
       class={separatorClasses()}
       style={toStyleProps(local.style)}
       data-testid={local.testId}
+      {...reactDomProps(rest)}
     />
   )
-}
+}, 'Separator')

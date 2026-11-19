@@ -4,49 +4,17 @@
  * @module
  */
 
-import {
-  defineComponent,
-  h,
-  onMounted,
-  onUnmounted,
-  type PropType,
-  type Ref,
-  ref,
-  watch,
-} from 'vue'
+import { defineComponent, h, onMounted, onUnmounted, type PropType, watch } from 'vue'
 
 import type { TextareaProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 import { classOf, restAttrs, styleOf } from '../utilities/attrs.js'
+import { useElementRef } from '../utilities/elementRef.js'
+import { setDisplayName } from './displayName.js'
 
 /** Counter backing the generated ids that stand in for React's `useId()`. */
 let nextGeneratedId = 0
-
-/** React's DOM-callback names that alias a differently spelled native event. */
-const REACT_EVENT_ALIASES: Record<string, string> = {
-  onDoubleClick: 'onDblclick',
-}
-
-/**
- * React forwards DOM callbacks in `...rest` verbatim (`onKeyDown`, …). Vue
- * only attaches a native listener for `on` + the DOM event name (`onKeydown`)
- * — it hyphenates anything after `on`, so React's camelCase spelling would
- * listen for an event nothing dispatches. Rewrites rest keys to the native
- * spelling: `on` + the lowercased DOM event name.
- *
- * @param attrs - The fallthrough attributes to spread onto a native element.
- * @returns The same attributes with event keys in Vue's native spelling.
- */
-function nativeEventAttrs(attrs: Record<string, unknown>): Record<string, unknown> {
-  const out: Record<string, unknown> = {}
-  for (const [key, value] of Object.entries(attrs)) {
-    out[
-      REACT_EVENT_ALIASES[key] ?? (/^on[A-Z]/.test(key) ? `on${key.slice(2).toLowerCase()}` : key)
-    ] = value
-  }
-  return out
-}
 
 /**
  * Vue Textarea UI component with UIClassMap-driven styling.
@@ -98,25 +66,26 @@ export const Textarea = defineComponent({
     rows: Number,
   },
   emits: ['change', 'focus', 'blur'],
-  setup(props, { attrs, emit }) {
+  setup(props, { attrs, emit, expose }) {
     const cm = getClassMap()
     // Fall back to a generated id so label htmlFor / aria-describedby never
     // point at `undefined-error` (which also collides across multiple
     // id-less textareas on the same page). Allocated once per instance, like
     // React's `useId()`.
     const generatedId = `mol-textarea-${nextGeneratedId++}`
-    // Always track the node (for autoResize) like React's internalRef.
-    const internalRef: Ref<HTMLTextAreaElement | null> = ref(null)
+    // The native textarea is React's `forwardRef` target; it also drives the
+    // autoResize sizing and the controlled-value sync.
+    const element = useElementRef<HTMLTextAreaElement>(expose)
 
     const resize = (): void => {
-      const element = internalRef.value
-      if (!props.autoResize || !element) return
-      element.style.height = 'auto'
-      const lineHeight = parseInt(getComputedStyle(element).lineHeight) || 20
+      const node = element.value
+      if (!props.autoResize || !node) return
+      node.style.height = 'auto'
+      const lineHeight = parseInt(getComputedStyle(node).lineHeight) || 20
       const minHeight = props.minRows * lineHeight
       const maxHeight = props.maxRows ? props.maxRows * lineHeight : Infinity
-      const newHeight = Math.min(Math.max(element.scrollHeight, minHeight), maxHeight)
-      element.style.height = `${newHeight}px`
+      const newHeight = Math.min(Math.max(node.scrollHeight, minHeight), maxHeight)
+      node.style.height = `${newHeight}px`
     }
 
     // Controlled usage (value tracked by the caller) recomputes here, and a
@@ -132,10 +101,10 @@ export const Textarea = defineComponent({
     // attribute, so the initial value is set imperatively, exactly where
     // React's mount/update code sets it.
     const syncValue = (): void => {
-      const element = internalRef.value
-      if (!element) return
-      if (props.value !== undefined) element.value = String(props.value)
-      else if (props.defaultValue !== undefined) element.defaultValue = props.defaultValue
+      const node = element.value
+      if (!node) return
+      if (props.value !== undefined) node.value = String(props.value)
+      else if (props.defaultValue !== undefined) node.defaultValue = props.defaultValue
     }
     watch(() => props.value, syncValue)
 
@@ -147,12 +116,12 @@ export const Textarea = defineComponent({
     onMounted(() => {
       syncValue()
       resize()
-      const element = internalRef.value
-      if (props.autoResize && element) element.addEventListener('input', onInputResize)
+      const node = element.value
+      if (props.autoResize && node) node.addEventListener('input', onInputResize)
     })
     onUnmounted(() => {
-      const element = internalRef.value
-      if (element) element.removeEventListener('input', onInputResize)
+      const node = element.value
+      if (node) node.removeEventListener('input', onInputResize)
     })
 
     return () => {
@@ -164,7 +133,7 @@ export const Textarea = defineComponent({
       )
 
       const textareaAttrs: Record<string, unknown> = {
-        ref: internalRef,
+        ref: element,
         id: textareaId,
         name: props.name,
         placeholder: props.placeholder,
@@ -195,7 +164,7 @@ export const Textarea = defineComponent({
         },
         onFocusin: (event: FocusEvent) => emit('focus', event),
         onFocusout: (event: FocusEvent) => emit('blur', event),
-        ...nativeEventAttrs(restAttrs(attrs)),
+        ...restAttrs(attrs),
       }
 
       const children = [h('textarea', textareaAttrs)]
@@ -222,3 +191,5 @@ export const Textarea = defineComponent({
     }
   },
 })
+
+setDisplayName(Textarea, 'Textarea')

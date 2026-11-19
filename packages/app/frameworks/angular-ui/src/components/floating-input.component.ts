@@ -12,12 +12,15 @@ import {
   inject,
   type OnInit,
   Output,
+  signal,
   ViewChild,
 } from '@angular/core'
 
-import type { UIClassMap } from '@molecule/app-ui'
+import type { FocusEventHandler, KeyboardEventHandler, UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
+import type { HasElement } from '../utilities/element.js'
+import { nextInstanceId } from '../utilities/ids.js'
 import { moveRestAttributes } from '../utilities/rest-attrs.js'
 
 /**
@@ -31,7 +34,16 @@ import { moveRestAttributes } from '../utilities/rest-attrs.js'
 @Component({
   selector: 'span[mol-floating-input]',
   standalone: true,
-  inputs: ['placeholder', 'className', 'value', 'defaultValue', 'id'],
+  inputs: [
+    'placeholder',
+    'className',
+    'value',
+    'defaultValue',
+    'id',
+    'onFocus',
+    'onBlur',
+    'onKeyDown',
+  ],
   host: {
     '[class]': 'cm().floatingInputWrapper',
   },
@@ -42,13 +54,16 @@ import { moveRestAttributes } from '../utilities/rest-attrs.js'
       [attr.value]="currentValue()"
       (input)="handleInput($event)"
       (change)="stopPropagation($event)"
+      (focusin)="onFocus?.($event)"
+      (focusout)="onBlur?.($event)"
+      (keydown)="onKeyDown?.($event)"
       #inputEl
     />
     @if (placeholder) {
       <label [attr.for]="inputId()" [class]="cm().floatingLabel">{{ placeholder }}</label>
     }`,
 })
-export class FloatingInput implements OnInit, AfterViewInit {
+export class FloatingInput implements OnInit, AfterViewInit, HasElement<HTMLInputElement> {
   /** Placeholder text, also rendered as the floating label. */
   placeholder?: string
   /** Extra classes joined onto the input classes. */
@@ -60,13 +75,32 @@ export class FloatingInput implements OnInit, AfterViewInit {
   /** Explicit input id. */
   id?: string
 
+  /** React's `onFocus`, which React spreads onto the <input>: its `currentTarget` is that element. */
+  onFocus?: FocusEventHandler
+  /** React's `onBlur`, which React spreads onto the <input>: its `currentTarget` is that element. */
+  onBlur?: FocusEventHandler
+  /** React's `onKeyDown`, which React spreads onto the <input>: its `currentTarget` is that element. */
+  onKeyDown?: KeyboardEventHandler
+
   /** Fires the raw `input` event (React's text-input onChange). */
   @Output() readonly change = new EventEmitter<Event>()
 
   /** The native input (React's `...rest` spread target). */
-  @ViewChild('inputEl') inputEl?: ElementRef<HTMLInputElement>
+  private inputEl?: ElementRef<HTMLInputElement>
+  /** The native input view query; also feeds the caller's ref element. */
+  @ViewChild('inputEl')
+  set inputElQuery(ref: ElementRef<HTMLInputElement> | undefined) {
+    this.inputEl = ref
+    this.inner.set(ref?.nativeElement ?? null)
+  }
+
+  private readonly inner = signal<HTMLInputElement | null>(null)
+  /** The element a caller's ref receives: the native `<input>`. */
+  readonly element = this.inner.asReadonly()
 
   private readonly host = inject(ElementRef)
+  /** The per-instance id used when the caller gives none (React's `useId`). */
+  private readonly generatedId = nextInstanceId()
   private internalValue = ''
 
   /**
@@ -83,7 +117,7 @@ export class FloatingInput implements OnInit, AfterViewInit {
    * @returns The id value.
    */
   inputId(): string {
-    return this.id || 'r0'
+    return this.id || this.generatedId
   }
 
   /**

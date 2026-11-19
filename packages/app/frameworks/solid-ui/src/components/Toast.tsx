@@ -24,9 +24,10 @@ import { useTranslation } from '@molecule/app-solid'
 import type { ColorVariant, ToastProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
-import { toStyleProps } from '../utilities/dom.js'
+import { reactDomProps, toStyleProps, type WithRef } from '../utilities/dom.js'
 import { BodyPortal } from '../utilities/portal.jsx'
 import { renderIcon } from '../utilities/renderIcon.jsx'
+import { withDisplayName } from './displayName.js'
 
 /**
  * Map status to toast variant.
@@ -65,8 +66,8 @@ const statusIconMap: Record<string, IconName> = {
  * @param props - The component props.
  * @returns The rendered toast JSX.
  */
-export const Toast: Component<ToastProps> = (props) => {
-  const [local] = splitProps(props, [
+export const Toast = withDisplayName<WithRef<ToastProps, HTMLDivElement>>((props) => {
+  const [local, rest] = splitProps(props, [
     'children',
     'title',
     'description',
@@ -79,6 +80,12 @@ export const Toast: Component<ToastProps> = (props) => {
     'style',
     'testId',
     'onDismiss',
+    // The countdown's own pause/resume handlers (below) run first; a caller's
+    // handlers for the same events run after them.
+    'onMouseEnter',
+    'onMouseLeave',
+    'onFocus',
+    'onBlur',
   ])
 
   const [isVisible, setIsVisible] = createSignal(true)
@@ -158,15 +165,29 @@ export const Toast: Component<ToastProps> = (props) => {
   return (
     <Show when={isVisible()}>
       <div
+        // A caller's role, spread below, replaces this default.
         role={role()}
         data-state="open"
         class={cm.cn(cm.toast({ variant: variant() }), local.className)}
         style={toStyleProps(local.style)}
         data-testid={local.testId}
-        onMouseEnter={pauseTimer}
-        onMouseLeave={resumeTimer}
-        onFocusIn={pauseTimer}
-        onFocusOut={resumeTimer}
+        {...reactDomProps(rest)}
+        onMouseEnter={(event) => {
+          pauseTimer()
+          local.onMouseEnter?.(event)
+        }}
+        onMouseLeave={(event) => {
+          resumeTimer()
+          local.onMouseLeave?.(event)
+        }}
+        onFocusIn={(event) => {
+          pauseTimer()
+          local.onFocus?.(event)
+        }}
+        onFocusOut={(event) => {
+          resumeTimer()
+          local.onBlur?.(event)
+        }}
       >
         <Show when={statusIcon()}>
           <span class={cm.toastIconWrapper}>{statusIcon()}</span>
@@ -196,7 +217,7 @@ export const Toast: Component<ToastProps> = (props) => {
       </div>
     </Show>
   )
-}
+}, 'Toast')
 
 /**
  * Props for the {@link ToastContainer} component.
@@ -212,23 +233,29 @@ interface ToastContainerProps {
  * @param props - The component props.
  * @returns The rendered toast container JSX.
  */
-export const ToastContainer: Component<ToastContainerProps> = (props) => {
-  const cm = getClassMap()
+export const ToastContainer = withDisplayName<WithRef<ToastContainerProps, HTMLDivElement>>(
+  (props) => {
+    const cm = getClassMap()
 
-  const container = (
-    <div
-      class={cm.cn(
-        cm.toastContainer({ position: props.position ?? 'bottom-right' }),
-        props.className,
-      )}
-    >
-      {props.children}
-    </div>
-  )
+    const container = (
+      <div
+        ref={(el) => {
+          if (typeof props.ref === 'function') props.ref(el)
+        }}
+        class={cm.cn(
+          cm.toastContainer({ position: props.position ?? 'bottom-right' }),
+          props.className,
+        )}
+      >
+        {props.children}
+      </div>
+    )
 
-  if (typeof document === 'undefined') return null
-  return <BodyPortal>{container}</BodyPortal>
-}
+    if (typeof document === 'undefined') return null
+    return <BodyPortal>{container}</BodyPortal>
+  },
+  'ToastContainer',
+)
 
 /**
  * Toast context for managing toasts globally.
@@ -277,7 +304,8 @@ export const ToastProvider: Component<ToastProviderProps> = (props) => {
   const [toasts, setToasts] = createSignal<(ToastProps & { id: string })[]>([])
 
   const addToast = (toast: Omit<ToastProps, 'onDismiss'>): string => {
-    const id = `toast-${++toastCounter}`
+    // A caller's `id` is the toast's handle and its element id; otherwise one is generated.
+    const id = toast.id ?? `toast-${++toastCounter}`
     setToasts((prev) => [...prev, { ...toast, id }])
     return id
   }

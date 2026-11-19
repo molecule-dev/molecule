@@ -9,6 +9,7 @@
   import type { SkeletonProps } from '../types.js'
 
   let {
+    ref = $bindable(null),
     width,
     height,
     circle,
@@ -17,6 +18,7 @@
     className,
     style,
     testId,
+    automationId,
   }: SkeletonProps = $props()
 
   const cm = $derived(getClassMap())
@@ -48,4 +50,10 @@
   })
 </script>
 
-<div class={skeletonClasses} use:reactStyle={computedStyle} data-testid={testId}></div>
+<div
+  bind:this={ref}
+  class={skeletonClasses}
+  use:reactStyle={computedStyle}
+  data-testid={testId}
+  data-mol-id={automationId}
+></div>

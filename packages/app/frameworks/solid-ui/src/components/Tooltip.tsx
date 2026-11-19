@@ -5,11 +5,11 @@
  */
 
 import {
-  type Component,
   createEffect,
   createSignal,
   createUniqueId,
   type JSX,
+  on,
   onCleanup,
   Show,
   splitProps,
@@ -18,8 +18,9 @@ import {
 import type { TooltipPlacement, TooltipProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
-import { toStyleProps } from '../utilities/dom.js'
+import { reactDomProps, toStyleProps, type WithRef } from '../utilities/dom.js'
 import { BodyPortal } from '../utilities/portal.jsx'
+import { withDisplayName } from './displayName.js'
 
 interface Position {
   top: number
@@ -177,8 +178,8 @@ function crossedBoundary(wrapper: Element, event: MouseEvent): boolean {
  * @param props - The component props.
  * @returns The rendered component element.
  */
-export const Tooltip: Component<TooltipProps> = (props) => {
-  const [local] = splitProps(props, [
+export const Tooltip = withDisplayName<WithRef<TooltipProps, HTMLDivElement>>((props) => {
+  const [local, rest] = splitProps(props, [
     'content',
     'children',
     'placement',
@@ -187,10 +188,13 @@ export const Tooltip: Component<TooltipProps> = (props) => {
     'className',
     'style',
     'testId',
+    'ref',
   ])
 
   const cm = getClassMap()
-  const tooltipId = createUniqueId()
+  // A caller's `id` names the tooltip box, so the association points at it.
+  const generatedId = createUniqueId()
+  const tooltipId = (): string => rest.id ?? generatedId
   const [isVisible, setIsVisible] = createSignal(false)
   const [position, setPosition] = createSignal<Position>({ top: 0, left: 0 })
   // Assigned through the SolidJS ref bindings below and read by the
@@ -280,14 +284,24 @@ export const Tooltip: Component<TooltipProps> = (props) => {
     }
   }
 
-  createEffect(() => {
-    if (isVisible()) {
-      // Position after the tooltip element exists in the DOM (the Show above
-      // renders it in the same signal flush, after this effect was created).
-      // A microtask — not rAF — so fake-timer environments place it too.
-      queueMicrotask(updatePosition)
-    }
-  })
+  // Position the tooltip when it becomes visible, and again whenever its
+  // content changes: React re-runs its layout effect on `content`, so content
+  // that expands asynchronously (a "Loading" label that resolves into a longer
+  // one) keeps the tooltip anchored above its trigger instead of staying at the
+  // height it was first measured with.
+  createEffect(
+    on(
+      () => [isVisible(), local.content] as const,
+      () => {
+        if (isVisible()) {
+          // Position after the tooltip element exists in the DOM (the Show above
+          // renders it in the same signal flush, after this effect was created).
+          // A microtask — not rAF — so fake-timer environments place it too.
+          queueMicrotask(updatePosition)
+        }
+      },
+    ),
+  )
 
   // Hovered content must dismiss while focus stays in the editor/composer:
   // Escape anywhere in the document hides a visible tooltip.
@@ -316,7 +330,7 @@ export const Tooltip: Component<TooltipProps> = (props) => {
     )
     const target = elements.length === 1 && !hasText ? elements[0] : null
     if (!target) return
-    if (visible) target.setAttribute('aria-describedby', tooltipId)
+    if (visible) target.setAttribute('aria-describedby', tooltipId())
     else target.removeAttribute('aria-describedby')
   })
 
@@ -390,12 +404,16 @@ export const Tooltip: Component<TooltipProps> = (props) => {
             <div
               ref={(el) => {
                 tooltipRef = el
+                // A caller's ref reaches the box too, as React forwards it there. Solid hands a
+                // component its ref as a callback prop, kept out of the spread below.
+                if (typeof local.ref === 'function') local.ref(el)
               }}
-              id={tooltipId}
+              id={tooltipId()}
               role="tooltip"
               class={cm.cn(cm.tooltipContent, local.className)}
               style={toStyleProps(local.style)}
               data-testid={local.testId}
+              {...reactDomProps(rest)}
             >
               {local.content as JSX.Element}
             </div>
@@ -407,4 +425,4 @@ export const Tooltip: Component<TooltipProps> = (props) => {
       </Show>
     </>
   )
-}
+}, 'Tooltip')

@@ -10,7 +10,6 @@ import {
   onMounted,
   onUnmounted,
   type PropType,
-  ref,
   Teleport,
   type VNode,
   watch,
@@ -21,7 +20,9 @@ import { getClassMap } from '@molecule/app-ui'
 import { useTranslation } from '@molecule/app-vue'
 
 import { classOf, restAttrs, styleOf } from '../utilities/attrs.js'
+import { useElementRef } from '../utilities/elementRef.js'
 import { renderIcon } from '../utilities/renderIcon.js'
+import { setDisplayName } from './displayName.js'
 
 /** Elements the WAI-ARIA APG dialog pattern treats as tab-stops for the focus trap. */
 const FOCUSABLE_SELECTOR =
@@ -94,10 +95,10 @@ let nextModalInstanceId = 0
  * Vue Modal UI component with UIClassMap-driven styling.
  *
  * Faithful port of `@molecule/app-ui-react`'s Modal. Renders into a
- * `document.body` Teleport. Any extra `data-*` or `aria-*` attributes fall
- * through onto the inner dialog `<div>` (e.g. callers commonly pass
- * `data-mol-id="some-modal"` for AI-agent / e2e selectors); every other
- * fallthrough attribute is dropped, exactly like the React `...rest` filter.
+ * `document.body` Teleport. Every extra declared prop (id, aria-*, data-*,
+ * automationId as data-mol-id, the DOM event handlers) falls through onto the
+ * inner dialog `<div>`, exactly like React's `...rest` spread; a caller's
+ * `role`, `tabIndex` or `aria-labelledby` replaces the dialog's default.
  *
  * The internal close button always carries `data-mol-id="modal-close"` as
  * the molecule-convention default for the one fixed interactive element
@@ -152,7 +153,7 @@ export const Modal = defineComponent({
     testId: String,
   },
   emits: ['close'],
-  setup(props, { attrs, emit, slots }) {
+  setup(props, { attrs, emit, slots, expose }) {
     const cm = getClassMap()
     const { t } = useTranslation()
     // Per-instance title id AND stack key. A hardcoded 'modal-title'
@@ -162,7 +163,8 @@ export const Modal = defineComponent({
     const instanceId = `mol-modal-${nextModalInstanceId++}`
     const titleId = instanceId
 
-    const dialogRef = ref<HTMLElement | null>(null)
+    // The dialog is React's `forwardRef` target; it holds `null` while closed.
+    const dialogRef = useElementRef<HTMLDivElement>(expose)
     // The element focused right before this dialog opened — restored on close.
     const previouslyFocused: { current: HTMLElement | null } = { current: null }
     // Whether the open-side bookkeeping (stack entry, keydown listener,
@@ -309,11 +311,6 @@ export const Modal = defineComponent({
       const title = props.title ?? slots.title?.()
       const footer = props.footer ?? slots.footer?.()
 
-      const passthrough: Record<string, unknown> = {}
-      for (const [k, v] of Object.entries(restAttrs(attrs))) {
-        if (k.startsWith('data-') || k.startsWith('aria-')) passthrough[k] = v
-      }
-
       const closeButton = (closeClassName: string): VNode | null =>
         props.showCloseButton
           ? h(
@@ -364,7 +361,9 @@ export const Modal = defineComponent({
                 class: cm.cn(cm.modal({ size: props.size }), ...classOf(props.className, attrs)),
                 style: styleOf(props.style, attrs),
                 'data-testid': props.testId,
-                ...passthrough,
+                // Every other declared prop reaches the dialog; a caller's role,
+                // tabIndex or aria-labelledby replaces the default.
+                ...restAttrs(attrs),
               },
               [
                 // With a title the close button shares the header row; without
@@ -389,3 +388,5 @@ export const Modal = defineComponent({
     }
   },
 })
+
+setDisplayName(Modal, 'Modal')

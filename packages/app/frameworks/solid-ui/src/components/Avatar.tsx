@@ -4,23 +4,24 @@
  * @module
  */
 
-import { type Component, createSignal, type JSX, Show, splitProps } from 'solid-js'
+import { createSignal, type JSX, Show, splitProps } from 'solid-js'
 
 import { useTranslation } from '@molecule/app-solid'
 import type { AvatarProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
-import { toStyleProps } from '../utilities/dom.js'
+import { reactDomProps, toStyleProps, type WithRef } from '../utilities/dom.js'
 import { getInitials } from '../utilities/initials.js'
 import { renderIcon } from '../utilities/renderIcon.jsx'
+import { withDisplayName } from './displayName.js'
 
 /**
  * Renders the Avatar component.
  * @param props - The component props.
  * @returns The rendered avatar JSX.
  */
-export const Avatar: Component<AvatarProps> = (props) => {
-  const [local] = splitProps(props, [
+export const Avatar = withDisplayName<WithRef<AvatarProps, HTMLDivElement>>((props) => {
+  const [local, rest] = splitProps(props, [
     'src',
     'alt',
     'name',
@@ -57,6 +58,7 @@ export const Avatar: Component<AvatarProps> = (props) => {
       class={containerClasses()}
       style={toStyleProps({ ...local.style, ...customStyle() })}
       data-testid={local.testId}
+      {...reactDomProps(rest)}
     >
       <Show
         when={!showFallback()}
@@ -84,4 +86,4 @@ export const Avatar: Component<AvatarProps> = (props) => {
       </Show>
     </div>
   )
-}
+}, 'Avatar')

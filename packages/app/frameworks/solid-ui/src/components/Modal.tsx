@@ -4,24 +4,16 @@
  * @module
  */
 
-import {
-  type Component,
-  createEffect,
-  createUniqueId,
-  type JSX,
-  on,
-  onCleanup,
-  Show,
-  splitProps,
-} from 'solid-js'
+import { createEffect, createUniqueId, type JSX, on, onCleanup, Show, splitProps } from 'solid-js'
 
 import { useTranslation } from '@molecule/app-solid'
 import type { ModalProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
-import { toStyleProps } from '../utilities/dom.js'
+import { reactDomProps, toStyleProps, type WithRef } from '../utilities/dom.js'
 import { BodyPortal } from '../utilities/portal.jsx'
 import { renderIcon } from '../utilities/renderIcon.jsx'
+import { withDisplayName } from './displayName.js'
 
 /** Elements the WAI-ARIA APG dialog pattern treats as tab-stops for the focus trap. */
 const FOCUSABLE_SELECTOR =
@@ -90,10 +82,10 @@ function unlockBodyScroll(): void {
 /**
  * Renders the Modal component.
  *
- * Renders into a `document.body` portal. Forwards any extra `data-*` or
- * `aria-*` props on the rest spread to the inner dialog `<div>` (e.g.
- * callers commonly pass `data-mol-id="some-modal"` for AI-agent / e2e
- * selectors).
+ * Renders into a `document.body` portal. Every other declared prop (`id`,
+ * `title`, `aria-*`, `data-*`, `automationId` as `data-mol-id`, the DOM event
+ * handlers) reaches the inner dialog `<div>`; a caller's `role`, `tabIndex` or
+ * `aria-labelledby` replaces the default (e.g. `role="alertdialog"`).
  *
  * The internal close button always carries `data-mol-id="modal-close"`
  * as the molecule-convention default for the one fixed interactive
@@ -111,7 +103,9 @@ function unlockBodyScroll(): void {
  * @param props - The component props.
  * @returns The rendered modal JSX.
  */
-export const Modal: Component<ModalProps & { 'data-mol-id'?: string }> = (props) => {
+export const Modal = withDisplayName<
+  WithRef<ModalProps & { 'data-mol-id'?: string }, HTMLDivElement>
+>((props) => {
   const [local, rest] = splitProps(props, [
     'open',
     'onClose',
@@ -143,13 +137,7 @@ export const Modal: Component<ModalProps & { 'data-mol-id'?: string }> = (props)
   // The element focused right before this dialog opened — restored on close.
   let previouslyFocused: HTMLElement | null = null
 
-  const passthrough = (): Record<string, unknown> => {
-    const out: Record<string, unknown> = {}
-    for (const [k, v] of Object.entries(rest as Record<string, unknown>)) {
-      if (k.startsWith('data-') || k.startsWith('aria-')) out[k] = v
-    }
-    return out
-  }
+  const passthrough = (): Record<string, unknown> => reactDomProps(rest)
 
   // The wrapper is a presentation layer around the dialog: a click on the
   // wrapper itself (the backdrop) closes, and a click that bubbled up from
@@ -301,7 +289,7 @@ export const Modal: Component<ModalProps & { 'data-mol-id'?: string }> = (props)
             ref={setDialogRef}
             role="dialog"
             aria-modal="true"
-            aria-labelledby={local.title ? titleId : undefined}
+            aria-labelledby={rest['aria-labelledby'] ?? (local.title ? titleId : undefined)}
             tabindex={-1}
             class={cm.cn(cm.modal({ size: local.size ?? 'md' }), local.className)}
             style={toStyleProps(local.style)}
@@ -330,4 +318,4 @@ export const Modal: Component<ModalProps & { 'data-mol-id'?: string }> = (props)
       </BodyPortal>
     </Show>
   )
-}
+}, 'Modal')

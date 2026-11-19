@@ -9,6 +9,13 @@
 
 import { afterEach, beforeEach, describe, expect, it, type Mock, vi } from 'vitest'
 
+// Each suite loads its component with `await import(...)` so the mocked `vue`
+// module is in place, which means that component module's first transform runs
+// inside the test body. On a machine running several suites at once that
+// transform alone can exceed the package's 10 s default (measured 10.2 s here),
+// so this file gives its tests room to finish.
+vi.setConfig({ testTimeout: 60_000 })
+
 // ============================================================================
 // Mock Vue
 // ============================================================================
@@ -80,12 +87,28 @@ const mockProvide = vi.fn()
 const mockInject = vi.fn()
 const mockReactive = vi.fn((obj: unknown) => obj)
 
-const mockDefineComponent = vi.fn((opts: Record<string, unknown>) => opts)
+/** Stand-in for Vue's `setup` context `expose`, which these suites' own context objects omit. */
+const mockExpose = vi.fn()
+
+// These suites call a component's `setup` directly. A real instance always
+// hands setup a full context, including `expose`; supply it here so a
+// component that exposes its ref element works outside a mounted app.
+const mockDefineComponent = vi.fn((opts: Record<string, unknown>) => {
+  const setup = opts.setup
+  if (typeof setup !== 'function') return opts
+  return {
+    ...opts,
+    setup: (props: unknown, context: Record<string, unknown>) =>
+      setup(props, { expose: mockExpose, ...context }),
+  }
+})
 
 /** Counter backing the mocked `useId` (React `useId()` parity). */
 let mockUseIdCounter = 0
 
-vi.mock('vue', () => ({
+vi.mock('vue', async () => ({
+  // A pure helper that needs no component instance: the real one merges the props these suites read.
+  mergeProps: (await vi.importActual<Record<string, unknown>>('vue')).mergeProps,
   defineComponent: (opts: Record<string, unknown>) => mockDefineComponent(opts),
   useId: () => `mol-use-id-${mockUseIdCounter++}`,
   h: (...args: unknown[]) => mockH(...(args as Parameters<typeof mockH>)),
@@ -97,6 +120,10 @@ vi.mock('vue', () => ({
   onUnmounted: (fn: unknown) => mockOnUnmounted(fn),
   provide: (...args: unknown[]) => mockProvide(...args),
   inject: (...args: unknown[]) => mockInject(...args),
+  // These suites call a component's `setup` directly, outside any component
+  // instance (Form reads the instance for `submitError` presence and falls
+  // back to the props object it was handed).
+  getCurrentInstance: () => null,
   reactive: (obj: unknown) => mockReactive(obj),
   // These suites invoke watchers by hand; a deferred tick would never run in
   // them, so run the callback in place (the callers only assert the wiring).
@@ -2149,7 +2176,7 @@ describe('Card components', () => {
     expect(rootCall[1].style).toEqual({ marginTop: '4px' })
   })
 
-  it('Card render should forward data and aria attributes and drop the rest', async () => {
+  it('Card render should forward every rest attribute, as React spreads its rest props', async () => {
     const { Card } = await import('../components/Card.js')
     const mockEmit = vi.fn()
     const mockSlots = { default: () => 'content' }
@@ -2157,7 +2184,7 @@ describe('Card components', () => {
     const renderFn = (Card.setup as (...args: unknown[]) => (...args: unknown[]) => unknown)(
       { variant: 'elevated', padding: 'md', interactive: false },
       {
-        attrs: { 'data-mol-id': 'billing-card', 'aria-label': 'Billing summary', id: 'dropped' },
+        attrs: { 'data-mol-id': 'billing-card', 'aria-label': 'Billing summary', id: 'billing' },
         emit: mockEmit,
         slots: mockSlots,
       },
@@ -2167,7 +2194,7 @@ describe('Card components', () => {
     const rootCall = mockH.mock.calls[mockH.mock.calls.length - 1]
     expect(rootCall[1]).toHaveProperty('data-mol-id', 'billing-card')
     expect(rootCall[1]).toHaveProperty('aria-label', 'Billing summary')
-    expect(rootCall[1]).not.toHaveProperty('id')
+    expect(rootCall[1]).toHaveProperty('id', 'billing')
   })
 
   it('Card render should emit click with the original DOM event', async () => {
@@ -2182,7 +2209,7 @@ describe('Card components', () => {
 
     renderFn()
     const rootCall = mockH.mock.calls[mockH.mock.calls.length - 1]
-    const event = { type: 'click' } as unknown as MouseEvent
+    const event = new Event('click') as MouseEvent
     ;(rootCall[1].onClick as (event: MouseEvent) => void)(event)
     expect(mockEmit).toHaveBeenCalledWith('click', event)
   })
@@ -2210,7 +2237,7 @@ describe('Card components', () => {
     expect(rootCall[1]).toHaveProperty('id', 'card-header')
     expect(rootCall[1]).toHaveProperty('aria-label', 'Card header')
     expect(rootCall[1]).toHaveProperty('data-mol-id', 'header')
-    const event = { type: 'click' } as unknown as MouseEvent
+    const event = new Event('click') as MouseEvent
     ;(rootCall[1].onClick as (event: MouseEvent) => void)(event)
     expect(mockEmit).toHaveBeenCalledWith('click', event)
   })
@@ -2786,15 +2813,15 @@ describe('Modal component', () => {
     expect(h2Call).toBeUndefined()
   })
 
-  it('forwards data-* and aria-* attrs to the dialog and drops the rest', async () => {
+  it('forwards every declared attr to the dialog, as React spreads its rest props', async () => {
     await renderModal(
       { title: 'Passthrough' },
-      { 'aria-label': 'Confirm deletion', 'data-mol-id': 'delete-modal', id: 'dropped' },
+      { 'aria-label': 'Confirm deletion', 'data-mol-id': 'delete-modal', id: 'dialog-id' },
     )
     const dialogCall = mockH.mock.calls.find((call) => call[1]?.role === 'dialog')
     expect(dialogCall![1]['aria-label']).toBe('Confirm deletion')
     expect(dialogCall![1]['data-mol-id']).toBe('delete-modal')
-    expect(dialogCall![1].id).toBeUndefined()
+    expect(dialogCall![1].id).toBe('dialog-id')
   })
 
   it('applies className, style and testId on the dialog', async () => {
@@ -2901,6 +2928,8 @@ describe('Form components', () => {
         className: undefined,
         style: undefined,
         testId: undefined,
+        onFormSubmit: undefined,
+        onSubmit: undefined,
         ...props,
       },
       { attrs, slots },
@@ -2925,14 +2954,16 @@ describe('Form components', () => {
     expect(props).toHaveProperty('className')
     expect(props).toHaveProperty('style')
     expect(props).toHaveProperty('testId')
+    expect(props).toHaveProperty('onFormSubmit')
+    expect(props).toHaveProperty('onSubmit')
   })
 
-  it('should read onSubmit and onFormSubmit handlers from attrs, not declared emits', async () => {
+  it('should take onSubmit and onFormSubmit as declared props, not emits', async () => {
     const { Form } = await import('../components/Form.js')
-    // React branches on whether the named handlers exist, so the raw handlers
-    // are read from the incoming `on*` attrs instead of declared emits.
+    // React branches on whether the named handlers exist; a declared prop is
+    // undefined when absent, and an emit would hide the listener from that check.
     expect(Form.emits).toBeUndefined()
-    const { renderFn } = await setupForm({}, { onSubmit: vi.fn(), onFormSubmit: vi.fn() })
+    const { renderFn } = await setupForm({ onSubmit: vi.fn(), onFormSubmit: vi.fn() })
     renderFn()
     const formCall = mockH.mock.calls.find((call) => call[0] === 'form')
     expect(formCall).toBeDefined()
@@ -2960,9 +2991,9 @@ describe('Form components', () => {
     expect(formCall![1].class).toBe('parity-token')
     expect(formCall![1].style).toEqual({ marginTop: '4px' })
     expect(formCall![1]['data-testid']).toBe('signup')
-    // React's rest spread carries `onReset` verbatim; Vue needs the native
-    // event spelling (`onreset`), not `onReset` (an event nothing dispatches).
-    expect(typeof formCall![1].onreset).toBe('function')
+    // React's rest spread carries `onReset`; restAttrs rewrites each React callback name to
+    // Vue's listener key for the DOM event React listens to (`onReset` is already `reset`).
+    expect(typeof formCall![1].onReset).toBe('function')
   })
 
   it('should wrap children in a fieldset with the contents class', async () => {
@@ -2986,7 +3017,7 @@ describe('Form components', () => {
     try {
       const onFormSubmit = vi.fn()
       const onSubmit = vi.fn()
-      const { renderFn } = await setupForm({}, { onFormSubmit, onSubmit })
+      const { renderFn } = await setupForm({ onFormSubmit, onSubmit })
       renderFn()
       const formCall = mockH.mock.calls.find((call) => call[0] === 'form')
       const handler = formCall![1].onSubmit as (e: unknown) => Promise<void>
@@ -5478,11 +5509,12 @@ describe('usePanelClose', () => {
 describe('UserMenu component', () => {
   beforeEach(async () => {
     const { I18nKey, RouterKey } = await import('@molecule/app-vue')
-    const cm = mockClassMap as unknown as Record<string, unknown>
-    cm.minH = vi.fn((n: number) => `min-height-${n}`)
-    cm.minW = vi.fn((n: number) => `min-width-${n}`)
-    cm.drawer = 'drawer-classes'
-    cm.drawerLeft = 'drawer-left-classes'
+    Object.assign(mockClassMap, {
+      minH: vi.fn((n: number) => `min-height-${n}`),
+      minW: vi.fn((n: number) => `min-width-${n}`),
+      drawer: 'drawer-classes',
+      drawerLeft: 'drawer-left-classes',
+    })
     const i18n = {
       getLocale: () => 'en',
       onLocaleChange: () => () => {},
@@ -5724,20 +5756,21 @@ describe('SidebarUserCard component', () => {
 
   beforeEach(async () => {
     const { AuthKey, I18nKey, RouterKey } = await import('@molecule/app-vue')
-    const cm = mockClassMap as unknown as Record<string, unknown>
-    cm.sp = vi.fn((axis: string, n: number) => `spacing-${axis}-${n}`)
-    cm.h = vi.fn((n: number) => `height-${n}`)
-    cm.minW = vi.fn((n: number) => `min-width-${n}`)
-    cm.flex1 = 'flex-one-classes'
-    cm.textSize = vi.fn((s: string) => `text-size-${s}`)
-    cm.fontWeight = vi.fn((w: string) => `font-weight-${w}`)
-    cm.textTruncate = 'text-truncate-classes'
-    cm.textMuted = 'text-muted-classes'
-    cm.roundedFull = 'rounded-full-classes'
-    cm.shrink0 = 'shrink-zero-classes'
-    cm.objectCover = 'object-cover-classes'
-    cm.sidebarUserCardTrigger = 'sidebar-user-card-trigger-classes'
-    cm.drawer = 'drawer-classes'
+    Object.assign(mockClassMap, {
+      sp: vi.fn((axis: string, n: number) => `spacing-${axis}-${n}`),
+      h: vi.fn((n: number) => `height-${n}`),
+      minW: vi.fn((n: number) => `min-width-${n}`),
+      flex1: 'flex-one-classes',
+      textSize: vi.fn((s: string) => `text-size-${s}`),
+      fontWeight: vi.fn((w: string) => `font-weight-${w}`),
+      textTruncate: 'text-truncate-classes',
+      textMuted: 'text-muted-classes',
+      roundedFull: 'rounded-full-classes',
+      shrink0: 'shrink-zero-classes',
+      objectCover: 'object-cover-classes',
+      sidebarUserCardTrigger: 'sidebar-user-card-trigger-classes',
+      drawer: 'drawer-classes',
+    })
     authState = {
       status: 'authenticated',
       authenticated: true,
@@ -6126,16 +6159,12 @@ describe('PromptDialog component', () => {
     const modalCall = mockH.mock.calls.find((call) => hTargetName(call[0]) === 'MModal')
     ;(modalCall![2] as { default: () => unknown }).default()
 
-    // The ref handed to the Input vnode is the dialog's own input ref; wire it
-    // to a fake Input root wrapping the native input.
+    // The ref handed to the Input vnode is the dialog's own input ref; the
+    // element it receives is the native input itself (Input's `$el`).
     const inputCall = mockH.mock.calls.find((call) => hTargetName(call[0]) === 'MInput')
     const inputRef = (inputCall![1] as { ref: { value: unknown } }).ref
     const fakeInput = { focus: vi.fn() }
-    inputRef.value = {
-      $el: {
-        querySelector: (selector: string) => (selector === 'input' ? fakeInput : null),
-      },
-    }
+    inputRef.value = { $el: fakeInput }
 
     // The open watcher defers one tick so Modal's focus-into-dialog runs
     // first, then the input ends up focused.
@@ -6252,9 +6281,10 @@ const installPopoverServices = async (authState: Record<string, unknown>): Promi
 
 describe('UserMenuPopover component', () => {
   beforeEach(() => {
-    const cm = mockClassMap as unknown as Record<string, unknown>
-    cm.position = vi.fn((p: string) => `position-${p}`)
-    cm.sp = vi.fn((axis: string, n: number) => `spacing-${axis}-${n}`)
+    Object.assign(mockClassMap, {
+      position: vi.fn((p: string) => `position-${p}`),
+      sp: vi.fn((axis: string, n: number) => `spacing-${axis}-${n}`),
+    })
   })
 
   afterEach(() => {
@@ -6449,16 +6479,17 @@ describe('UserMenuPopoverTrigger component', () => {
   let context: ReturnType<typeof popoverContext>
 
   beforeEach(async () => {
-    const cm = mockClassMap as unknown as Record<string, unknown>
-    cm.sp = vi.fn((axis: string, n: number) => `spacing-${axis}-${n}`)
-    cm.h = vi.fn((n: number) => `height-${n}`)
-    cm.minW = vi.fn((n: number) => `min-width-${n}`)
-    cm.flex1 = 'flex-one-classes'
-    cm.roundedFull = 'rounded-full-classes'
-    cm.shrink0 = 'shrink-zero-classes'
-    cm.textTruncate = 'text-truncate-classes'
-    cm.textMuted = 'text-muted-classes'
-    cm.userMenuPopoverTrigger = 'user-menu-popover-trigger-classes'
+    Object.assign(mockClassMap, {
+      sp: vi.fn((axis: string, n: number) => `spacing-${axis}-${n}`),
+      h: vi.fn((n: number) => `height-${n}`),
+      minW: vi.fn((n: number) => `min-width-${n}`),
+      flex1: 'flex-one-classes',
+      roundedFull: 'rounded-full-classes',
+      shrink0: 'shrink-zero-classes',
+      textTruncate: 'text-truncate-classes',
+      textMuted: 'text-muted-classes',
+      userMenuPopoverTrigger: 'user-menu-popover-trigger-classes',
+    })
     context = popoverContext()
     // The trigger's hooks inject by key: i18n for `t`, everything else reads
     // the popover context (its key is module-local to UserMenuPopover.ts).
@@ -6558,10 +6589,11 @@ describe('UserMenuPopoverPanel component', () => {
   let context: ReturnType<typeof popoverContext>
 
   beforeEach(async () => {
-    const cm = mockClassMap as unknown as Record<string, unknown>
-    cm.sp = vi.fn((axis: string, n: number) => `spacing-${axis}-${n}`)
-    cm.userMenuPopoverPanel = 'user-menu-popover-panel-classes'
-    cm.userMenuPopoverHeader = 'user-menu-popover-header-classes'
+    Object.assign(mockClassMap, {
+      sp: vi.fn((axis: string, n: number) => `spacing-${axis}-${n}`),
+      userMenuPopoverPanel: 'user-menu-popover-panel-classes',
+      userMenuPopoverHeader: 'user-menu-popover-header-classes',
+    })
     context = popoverContext()
     // Same key dispatch as the trigger: i18n for `t`, the popover context for
     // the module-local popover key.
@@ -6673,10 +6705,11 @@ describe('UserMenuPopoverSignOut component', () => {
 
   beforeEach(async () => {
     const { AuthKey, I18nKey } = await import('@molecule/app-vue')
-    const cm = mockClassMap as unknown as Record<string, unknown>
-    cm.sp = vi.fn((axis: string, n: number) => `spacing-${axis}-${n}`)
-    cm.textError = 'text-error-classes'
-    cm.userMenuPopoverSignOut = 'user-menu-popover-sign-out-classes'
+    Object.assign(mockClassMap, {
+      sp: vi.fn((axis: string, n: number) => `spacing-${axis}-${n}`),
+      textError: 'text-error-classes',
+      userMenuPopoverSignOut: 'user-menu-popover-sign-out-classes',
+    })
     context = popoverContext()
     logout = vi.fn(async () => undefined)
     const authClient = { getState: () => ({}), onAuthChange: () => () => {}, logout }
@@ -7129,10 +7162,7 @@ describe('ResponsiveAppShell components', () => {
 
   beforeEach(async () => {
     shellClassMapMembers()
-    const keys = (await import('@molecule/app-vue')) as unknown as {
-      I18nKey: symbol
-      RouterKey: symbol
-    }
+    const keys = await import('@molecule/app-vue')
     i18nKey = keys.I18nKey
     routerKey = keys.RouterKey
   })
@@ -7721,5 +7751,275 @@ describe('ResponsiveAppShell components', () => {
       expect(mockOnUnmounted).toHaveBeenCalled()
       vi.unstubAllGlobals()
     })
+  })
+})
+
+// ============================================================================
+// Component definitions (React `components.test.tsx` parity)
+// ============================================================================
+
+/**
+ * The export name and lazy module loader of every component React's
+ * `components.test.tsx` checks for a display name.
+ *
+ * React's `forwardRef` object carries `displayName`; a Vue component is a
+ * `defineComponent` options object, so the package attaches the same
+ * `displayName` through `setDisplayName` (its `name` stays the Vue id, which
+ * this package prefixes `M`). The modules load inside each test because the
+ * `vue` mock above reads values this module initializes after its imports.
+ */
+const componentLoaders: [string, () => Promise<object>][] = [
+  ['Accordion', async () => (await import('../components/Accordion.js')).Accordion],
+  ['Alert', async () => (await import('../components/Alert.js')).Alert],
+  ['Avatar', async () => (await import('../components/Avatar.js')).Avatar],
+  ['Badge', async () => (await import('../components/Badge.js')).Badge],
+  ['Button', async () => (await import('../components/Button.js')).Button],
+  ['Card', async () => (await import('../components/Card.js')).Card],
+  ['CardHeader', async () => (await import('../components/Card.js')).CardHeader],
+  ['CardTitle', async () => (await import('../components/Card.js')).CardTitle],
+  ['CardDescription', async () => (await import('../components/Card.js')).CardDescription],
+  ['CardContent', async () => (await import('../components/Card.js')).CardContent],
+  ['CardFooter', async () => (await import('../components/Card.js')).CardFooter],
+  ['Checkbox', async () => (await import('../components/Checkbox.js')).Checkbox],
+  ['Container', async () => (await import('../components/Layout.js')).Container],
+  ['Dropdown', async () => (await import('../components/Dropdown.js')).Dropdown],
+  ['DropdownLabel', async () => (await import('../components/Dropdown.js')).DropdownLabel],
+  ['DropdownSeparator', async () => (await import('../components/Dropdown.js')).DropdownSeparator],
+  ['Flex', async () => (await import('../components/Layout.js')).Flex],
+  ['Form', async () => (await import('../components/Form.js')).Form],
+  ['FormField', async () => (await import('../components/Form.js')).FormField],
+  ['Grid', async () => (await import('../components/Layout.js')).Grid],
+  ['Input', async () => (await import('../components/Input.js')).Input],
+  ['Label', async () => (await import('../components/Form.js')).Label],
+  ['Modal', async () => (await import('../components/Modal.js')).Modal],
+  ['Pagination', async () => (await import('../components/Pagination.js')).Pagination],
+  ['Progress', async () => (await import('../components/Progress.js')).Progress],
+  ['RadioGroup', async () => (await import('../components/RadioGroup.js')).RadioGroup],
+  ['Select', async () => (await import('../components/Select.js')).Select],
+  ['Separator', async () => (await import('../components/Separator.js')).Separator],
+  ['Skeleton', async () => (await import('../components/Skeleton.js')).Skeleton],
+  ['SkeletonText', async () => (await import('../components/Skeleton.js')).SkeletonText],
+  ['SkeletonCircle', async () => (await import('../components/Skeleton.js')).SkeletonCircle],
+  ['Spacer', async () => (await import('../components/Layout.js')).Spacer],
+  ['Spinner', async () => (await import('../components/Spinner.js')).Spinner],
+  ['Switch', async () => (await import('../components/Switch.js')).Switch],
+  ['Table', async () => (await import('../components/Table.js')).Table],
+  ['Tabs', async () => (await import('../components/Tabs.js')).Tabs],
+  ['Textarea', async () => (await import('../components/Textarea.js')).Textarea],
+  ['Toast', async () => (await import('../components/Toast.js')).Toast],
+  ['ToastContainer', async () => (await import('../components/Toast.js')).ToastContainer],
+  ['Tooltip', async () => (await import('../components/Tooltip.js')).Tooltip],
+]
+
+/**
+ * Reads the `displayName` a component carries, if any.
+ *
+ * `setDisplayName` attaches the property at runtime, so it is not part of the
+ * component's declared type; a component that never passed through it has
+ * none, which is what the test's expected value rules out.
+ *
+ * @param component - The module export.
+ * @returns The display name, or undefined when the component carries none.
+ */
+const displayNameOf = (component: object): string | undefined => {
+  if (!('displayName' in component)) return undefined
+  const value = component.displayName
+  return typeof value === 'string' ? value : undefined
+}
+
+describe('component display names', () => {
+  for (const [name, load] of componentLoaders) {
+    it(`${name} should have displayName set to "${name}"`, async () => {
+      const component = await load()
+      expect(displayNameOf(component)).toBe(name)
+    })
+  }
+})
+
+/**
+ * Asserts a module export is a Vue component definition: the object
+ * `defineComponent` returns carrying a `setup` function, where React's
+ * forwardRef object carries `$$typeof`.
+ *
+ * @param component - The module export to check.
+ */
+const expectVueComponent = (component: unknown): void => {
+  expect(typeof component).toBe('object')
+  expect(component).toHaveProperty('setup')
+}
+
+describe('component types', () => {
+  it('Button should be a valid React component (object with render or $$typeof)', async () => {
+    const { Button } = await import('../components/Button.js')
+    expectVueComponent(Button)
+  })
+
+  it('Input should be a valid React forwardRef component', async () => {
+    const { Input } = await import('../components/Input.js')
+    expectVueComponent(Input)
+  })
+
+  it('Textarea should be a valid React forwardRef component', async () => {
+    const { Textarea } = await import('../components/Textarea.js')
+    expectVueComponent(Textarea)
+  })
+
+  it('Select should be a valid React forwardRef component', async () => {
+    const { Select } = await import('../components/Select.js')
+    expectVueComponent(Select)
+  })
+
+  it('Checkbox should be a valid React forwardRef component', async () => {
+    const { Checkbox } = await import('../components/Checkbox.js')
+    expectVueComponent(Checkbox)
+  })
+
+  it('RadioGroup should be a valid React forwardRef component', async () => {
+    const { RadioGroup } = await import('../components/RadioGroup.js')
+    expectVueComponent(RadioGroup)
+  })
+
+  it('Switch should be a valid React forwardRef component', async () => {
+    const { Switch } = await import('../components/Switch.js')
+    expectVueComponent(Switch)
+  })
+
+  it('Modal should be a valid React forwardRef component', async () => {
+    const { Modal } = await import('../components/Modal.js')
+    expectVueComponent(Modal)
+  })
+
+  it('Spinner should be a valid React forwardRef component', async () => {
+    const { Spinner } = await import('../components/Spinner.js')
+    expectVueComponent(Spinner)
+  })
+
+  it('Avatar should be a valid React forwardRef component', async () => {
+    const { Avatar } = await import('../components/Avatar.js')
+    expectVueComponent(Avatar)
+  })
+
+  it('Badge should be a valid React forwardRef component', async () => {
+    const { Badge } = await import('../components/Badge.js')
+    expectVueComponent(Badge)
+  })
+
+  it('Alert should be a valid React forwardRef component', async () => {
+    const { Alert } = await import('../components/Alert.js')
+    expectVueComponent(Alert)
+  })
+
+  it('Card should be a valid React forwardRef component', async () => {
+    const { Card } = await import('../components/Card.js')
+    expectVueComponent(Card)
+  })
+
+  it('Tabs should be a valid React forwardRef component', async () => {
+    const { Tabs } = await import('../components/Tabs.js')
+    expectVueComponent(Tabs)
+  })
+
+  it('Table should be a valid React forwardRef component', async () => {
+    const { Table } = await import('../components/Table.js')
+    expectVueComponent(Table)
+  })
+
+  it('Tooltip should be a valid React forwardRef component', async () => {
+    const { Tooltip } = await import('../components/Tooltip.js')
+    expectVueComponent(Tooltip)
+  })
+
+  it('Progress should be a valid React forwardRef component', async () => {
+    const { Progress } = await import('../components/Progress.js')
+    expectVueComponent(Progress)
+  })
+
+  it('Skeleton should be a valid React forwardRef component', async () => {
+    const { Skeleton } = await import('../components/Skeleton.js')
+    expectVueComponent(Skeleton)
+  })
+
+  it('Separator should be a valid React forwardRef component', async () => {
+    const { Separator } = await import('../components/Separator.js')
+    expectVueComponent(Separator)
+  })
+
+  it('Container should be a valid React forwardRef component', async () => {
+    const { Container } = await import('../components/Layout.js')
+    expectVueComponent(Container)
+  })
+
+  it('Flex should be a valid React forwardRef component', async () => {
+    const { Flex } = await import('../components/Layout.js')
+    expectVueComponent(Flex)
+  })
+
+  it('Grid should be a valid React forwardRef component', async () => {
+    const { Grid } = await import('../components/Layout.js')
+    expectVueComponent(Grid)
+  })
+
+  it('Spacer should be a valid React forwardRef component', async () => {
+    const { Spacer } = await import('../components/Layout.js')
+    expectVueComponent(Spacer)
+  })
+
+  it('Form should be a valid React forwardRef component', async () => {
+    const { Form } = await import('../components/Form.js')
+    expectVueComponent(Form)
+  })
+
+  it('FormField should be a valid React forwardRef component', async () => {
+    const { FormField } = await import('../components/Form.js')
+    expectVueComponent(FormField)
+  })
+
+  it('Label should be a valid React forwardRef component', async () => {
+    const { Label } = await import('../components/Form.js')
+    expectVueComponent(Label)
+  })
+
+  it('Toast should be a valid React forwardRef component', async () => {
+    const { Toast } = await import('../components/Toast.js')
+    expectVueComponent(Toast)
+  })
+
+  it('ToastContainer should be a valid React forwardRef component', async () => {
+    const { ToastContainer } = await import('../components/Toast.js')
+    expectVueComponent(ToastContainer)
+  })
+
+  it('Accordion should be a valid React forwardRef component', async () => {
+    const { Accordion } = await import('../components/Accordion.js')
+    expectVueComponent(Accordion)
+  })
+
+  it('Pagination should be a valid React forwardRef component', async () => {
+    const { Pagination } = await import('../components/Pagination.js')
+    expectVueComponent(Pagination)
+  })
+
+  it('Dropdown should be a valid React forwardRef component', async () => {
+    const { Dropdown } = await import('../components/Dropdown.js')
+    expectVueComponent(Dropdown)
+  })
+
+  it('DropdownLabel should be a valid React forwardRef component', async () => {
+    const { DropdownLabel } = await import('../components/Dropdown.js')
+    expectVueComponent(DropdownLabel)
+  })
+
+  it('DropdownSeparator should be a valid React forwardRef component', async () => {
+    const { DropdownSeparator } = await import('../components/Dropdown.js')
+    expectVueComponent(DropdownSeparator)
+  })
+
+  it('ToastProvider should be a function (React FC)', async () => {
+    // Vue's provider is a component, not a function component: `defineComponent`
+    // returns the options object whose `setup` renders the provider that a
+    // caller mounts once around the tree, the role React's FC plays.
+    const { ToastProvider } = await import('../components/Toast.js')
+    expect(typeof ToastProvider).toBe('object')
+    expect(ToastProvider).toHaveProperty('setup')
   })
 })

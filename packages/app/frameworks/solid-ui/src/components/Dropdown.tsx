@@ -23,9 +23,10 @@ import { useLocation } from '@molecule/app-solid'
 import type { DropdownItem, DropdownProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
-import { toStyleProps } from '../utilities/dom.js'
+import { toStyleProps, type WithRef } from '../utilities/dom.js'
 import { createKeyedList } from '../utilities/keyedList.js'
 import { BodyPortal } from '../utilities/portal.jsx'
+import { withDisplayName } from './displayName.js'
 
 interface Position {
   top: number
@@ -209,7 +210,7 @@ const ClonedTrigger: Component<{
  * @param props - The component props.
  * @returns The rendered component element.
  */
-export const Dropdown: Component<DropdownProps<string>> = (props) => {
+export const Dropdown = withDisplayName<WithRef<DropdownProps<string>, HTMLDivElement>>((props) => {
   const cm = getClassMap()
   const [internalOpen, setInternalOpen] = createSignal(false)
   const [position, setPosition] = createSignal<Position>({ top: 0, left: 0 })
@@ -239,7 +240,8 @@ export const Dropdown: Component<DropdownProps<string>> = (props) => {
   // single static node for the life of the dropdown.
   const triggerNode = props.trigger
 
-  const isOpen = (): boolean => props.open ?? internalOpen()
+  // A disabled dropdown never opens, whatever `open` says.
+  const isOpen = (): boolean => !props.disabled && (props.open ?? internalOpen())
 
   const setOpen = (open: boolean): void => {
     if (props.open === undefined) {
@@ -264,11 +266,13 @@ export const Dropdown: Component<DropdownProps<string>> = (props) => {
   }
 
   const handleTriggerClick = (): void => {
+    if (props.disabled) return
     if (!isOpen()) pendingOpenFocus = 'first'
     setOpen(!isOpen())
   }
 
   const handleTriggerKeyDown = (e: KeyboardEvent): void => {
+    if (props.disabled) return
     switch (e.key) {
       case 'Enter':
       case ' ':
@@ -468,9 +472,27 @@ export const Dropdown: Component<DropdownProps<string>> = (props) => {
       if (isOpen()) el.setAttribute('aria-controls', menuId)
       else el.removeAttribute('aria-controls')
     })
+    // React's cloneElement only overrides an attribute the dropdown itself sets; a
+    // trigger that arrived with its own `data-testid`/`data-mol-id` keeps it.
+    const ownTestId = el.getAttribute('data-testid')
+    const ownAutomationId = el.getAttribute('data-mol-id')
+    // A disabled dropdown disables its trigger (a Button or a native button then ignores clicks).
+    const ownDisabled = el.hasAttribute('disabled')
     createRenderEffect(() => {
-      if (props.testId) el.setAttribute('data-testid', props.testId)
-      else el.removeAttribute('data-testid')
+      if (props.disabled) el.setAttribute('disabled', '')
+      else if (!ownDisabled) el.removeAttribute('disabled')
+    })
+    createRenderEffect(() => {
+      const testId = props.testId
+      if (testId !== undefined) el.setAttribute('data-testid', testId)
+      else if (ownTestId === null) el.removeAttribute('data-testid')
+      else el.setAttribute('data-testid', ownTestId)
+    })
+    createRenderEffect(() => {
+      const automationId = props.automationId
+      if (automationId !== undefined) el.setAttribute('data-mol-id', automationId)
+      else if (ownAutomationId === null) el.removeAttribute('data-mol-id')
+      else el.setAttribute('data-mol-id', ownAutomationId)
     })
   }
 
@@ -484,7 +506,8 @@ export const Dropdown: Component<DropdownProps<string>> = (props) => {
               triggerRef = el
             }}
             role="button"
-            tabIndex={0}
+            tabIndex={props.disabled ? -1 : 0}
+            aria-disabled={props.disabled || undefined}
             aria-haspopup="menu"
             aria-expanded={isOpen()}
             aria-controls={isOpen() ? menuId : undefined}
@@ -492,6 +515,7 @@ export const Dropdown: Component<DropdownProps<string>> = (props) => {
             onKeyDown={handleTriggerKeyDown}
             class={cm.dropdownTrigger}
             data-testid={props.testId}
+            data-mol-id={props.automationId}
           >
             {triggerNode as JSX.Element}
           </div>
@@ -506,6 +530,8 @@ export const Dropdown: Component<DropdownProps<string>> = (props) => {
           <div
             ref={(el) => {
               menuRef = el
+              // The menu is Dropdown's ref element; it takes no rest spread, so hand it over here.
+              if (typeof props.ref === 'function') props.ref(el)
             }}
             id={menuId}
             role="menu"
@@ -524,6 +550,7 @@ export const Dropdown: Component<DropdownProps<string>> = (props) => {
               zIndex: 50,
             })}
             data-testid={props.testId ? `${props.testId}-menu` : undefined}
+            data-mol-id={props.automationId ? `${props.automationId}-menu` : undefined}
             onKeyDown={handleMenuKeyDown}
           >
             <For each={items.keys()}>
@@ -544,24 +571,46 @@ export const Dropdown: Component<DropdownProps<string>> = (props) => {
       </Show>
     </>
   )
-}
+}, 'Dropdown')
 
 /**
  * Dropdown label for grouping items.
  * @param props - The component props.
  * @returns The rendered label element.
  */
-export const DropdownLabel: Component<{ children?: JSX.Element; className?: string }> = (props) => {
+export const DropdownLabel = withDisplayName<
+  WithRef<{ children?: JSX.Element; className?: string }, HTMLDivElement>
+>((props) => {
   const cm = getClassMap()
-  return <div class={cm.cn(cm.dropdownLabel, props.className)}>{props.children}</div>
-}
+  return (
+    <div
+      ref={(el) => {
+        if (typeof props.ref === 'function') props.ref(el)
+      }}
+      class={cm.cn(cm.dropdownLabel, props.className)}
+    >
+      {props.children}
+    </div>
+  )
+}, 'DropdownLabel')
 
 /**
  * Dropdown separator for dividing groups.
  * @param props - The component props.
  * @returns The rendered separator element.
  */
-export const DropdownSeparator: Component<{ className?: string }> = (props) => {
-  const cm = getClassMap()
-  return <div class={cm.cn(cm.dropdownSeparator, props.className)} role="separator" />
-}
+export const DropdownSeparator = withDisplayName<WithRef<{ className?: string }, HTMLDivElement>>(
+  (props) => {
+    const cm = getClassMap()
+    return (
+      <div
+        ref={(el) => {
+          if (typeof props.ref === 'function') props.ref(el)
+        }}
+        class={cm.cn(cm.dropdownSeparator, props.className)}
+        role="separator"
+      />
+    )
+  },
+  'DropdownSeparator',
+)

@@ -18,7 +18,13 @@
 import type { Snippet } from 'svelte'
 
 import type { IconName } from '@molecule/app-icons'
-import type { ColorVariant, ToastPosition, TooltipPlacement } from '@molecule/app-ui'
+import type {
+  ColorVariant,
+  KeyboardEventHandler,
+  Size,
+  ToastPosition,
+  TooltipPlacement,
+} from '@molecule/app-ui'
 
 import type { ShellSidebarWidth } from './shell-context.js'
 import type { CSSStyle } from './style.js'
@@ -41,6 +47,11 @@ export type {
   InputElementProps,
   InputType,
   KeyboardEventHandler,
+  KitEvent,
+  KitFocusEvent,
+  KitKeyboardEvent,
+  KitModifierKeys,
+  KitMouseEvent,
   ModalSize,
   MouseEventHandler,
   RadioOption,
@@ -51,6 +62,17 @@ export type {
   TextareaElementProps,
   TooltipPlacement,
 } from '@molecule/app-ui'
+
+/**
+ * A component's props plus the bindable `ref` that receives its ref element.
+ *
+ * A caller writes `bind:ref={el}` (the bits-ui / shadcn-svelte convention).
+ * The ref element is the one that takes the caller's `className` and `style`,
+ * as React's `forwardRef` targets it, so the two kits hand over the same
+ * element. It is `null` while that element is not rendered (a closed Tooltip,
+ * Dropdown or Modal).
+ */
+export type WithElementRef<P, E extends Element = HTMLElement> = P & { ref?: E | null }
 
 /** One accordion entry. */
 export interface AccordionEntry {
@@ -67,7 +89,7 @@ export interface AccordionEntry {
 }
 
 /** Props for {@link Accordion}. */
-export interface AccordionProps {
+export interface AccordionProps extends WithElementRef<object, HTMLDivElement> {
   /** The accordion entries. */
   items: AccordionEntry[]
   /** Controlled expanded value(s). */
@@ -86,12 +108,16 @@ export interface AccordionProps {
   style?: CSSStyle
   /** data-testid. */
   testId?: string
+  /** Disables the whole component (every control it renders). */
+  disabled?: boolean
+  /** Automation id, rendered as `data-mol-id`. */
+  automationId?: string
   /** Any extra props. */
   [key: string]: unknown
 }
 
 /** Props for {@link Alert}. */
-export interface AlertProps {
+export interface AlertProps extends WithElementRef<object, HTMLDivElement> {
   /** Alert content. */
   children?: Snippet
   /** Alert title. */
@@ -116,6 +142,8 @@ export interface AlertProps {
   style?: Record<string, string | number | undefined>
   /** data-testid. */
   testId?: string
+  /** Automation id, rendered as `data-mol-id`. */
+  automationId?: string
   /** Any extra attributes. */
   [key: string]: unknown
 }
@@ -139,7 +167,7 @@ export interface AuthGuardProps {
 }
 
 /** Props for {@link Avatar}. */
-export interface AvatarProps {
+export interface AvatarProps extends WithElementRef<object, HTMLDivElement> {
   /** Image source; the fallback shows when absent or failed. */
   src?: string
   /** Image alt text. */
@@ -158,12 +186,14 @@ export interface AvatarProps {
   style?: Record<string, string | number | undefined>
   /** data-testid. */
   testId?: string
+  /** Automation id, rendered as `data-mol-id`. */
+  automationId?: string
   /** Any extra attributes. */
   [key: string]: unknown
 }
 
 /** Props for {@link Badge}. */
-export interface BadgeProps {
+export interface BadgeProps extends WithElementRef<object, HTMLSpanElement> {
   /** Badge content. */
   children?: Snippet
   /** Color variant. */
@@ -180,12 +210,14 @@ export interface BadgeProps {
   style?: Record<string, string | number | undefined>
   /** data-testid. */
   testId?: string
+  /** Automation id, rendered as `data-mol-id`. */
+  automationId?: string
   /** Any extra attributes. */
   [key: string]: unknown
 }
 
 /** Props for {@link Button}. */
-export interface ButtonProps {
+export interface ButtonProps extends WithElementRef<object, HTMLButtonElement> {
   /** Button content. */
   children?: Snippet
   /** Visual variant. */
@@ -221,7 +253,7 @@ export interface ButtonProps {
 }
 
 /** Props for {@link Card}. */
-export interface CardProps {
+export interface CardProps extends WithElementRef<object, HTMLDivElement> {
   /** Card content. */
   children?: Snippet
   /** Card variant. */
@@ -236,14 +268,18 @@ export interface CardProps {
   style?: Record<string, string | number | undefined>
   /** data-testid. */
   testId?: string
+  /** Disables the whole component (every control it renders). */
+  disabled?: boolean
   /** Click handler. */
   onClick?: (event: MouseEvent) => void
-  /** Any extra data-* or aria-* attributes forwarded to the card. */
+  /** Key handler; runs before an interactive card's Enter/Space activation, which its preventDefault() cancels. */
+  onKeyDown?: KeyboardEventHandler
+  /** Any other attribute or React DOM event handler (id, title, aria-*, data-*, onFocus, …), forwarded to the card. */
   [key: string]: unknown
 }
 
 /** Props for {@link CardContent}. */
-export interface CardContentProps {
+export interface CardContentProps extends WithElementRef<object, HTMLDivElement> {
   /** Content. */
   children?: Snippet
   /** Extra class names. */
@@ -254,7 +290,7 @@ export interface CardContentProps {
 }
 
 /** Props for {@link CardDescription}. */
-export interface CardDescriptionProps {
+export interface CardDescriptionProps extends WithElementRef<object, HTMLParagraphElement> {
   /** Description content. */
   children?: Snippet
   /** Extra class names. */
@@ -265,7 +301,7 @@ export interface CardDescriptionProps {
 }
 
 /** Props for {@link CardFooter}. */
-export interface CardFooterProps {
+export interface CardFooterProps extends WithElementRef<object, HTMLDivElement> {
   /** Footer content. */
   children?: Snippet
   /** Extra class names. */
@@ -276,7 +312,7 @@ export interface CardFooterProps {
 }
 
 /** Props for {@link CardHeader}. */
-export interface CardHeaderProps {
+export interface CardHeaderProps extends WithElementRef<object, HTMLDivElement> {
   /** Header content. */
   children?: Snippet
   /** Extra class names. */
@@ -287,7 +323,7 @@ export interface CardHeaderProps {
 }
 
 /** Props for {@link CardTitle}. */
-export interface CardTitleProps {
+export interface CardTitleProps extends WithElementRef<object, HTMLHeadingElement> {
   /** Title content. */
   children?: Snippet
   /** Extra class names. */
@@ -297,8 +333,10 @@ export interface CardTitleProps {
   [key: string]: unknown
 }
 
-/** Props for {@link Checkbox}. */
-export interface CheckboxProps {
+/**
+ * Props for {@link Checkbox}. The ref element is the native checkbox input, not its label wrapper.
+ */
+export interface CheckboxProps extends WithElementRef<object, HTMLInputElement> {
   /** Label content. */
   label?: string | Snippet
   /** Controlled checked state. */
@@ -330,7 +368,7 @@ export interface CheckboxProps {
 }
 
 /** Props for {@link ConfirmButton}. */
-export interface ConfirmButtonProps {
+export interface ConfirmButtonProps extends WithElementRef<object, HTMLButtonElement> {
   /** Fired ONLY on the confirming (second) click. */
   onConfirm: () => void | Promise<void>
   /** Visible label in the idle state. */
@@ -386,7 +424,7 @@ export interface ConfirmDialogProps {
 }
 
 /** Props for {@link Container}. */
-export interface ContainerProps {
+export interface ContainerProps extends WithElementRef<object, HTMLDivElement> {
   /** Content. */
   children?: Snippet
   /** Max width preset. */
@@ -416,8 +454,10 @@ export interface DropdownItem {
   [key: string]: unknown
 }
 
-/** Props for {@link Dropdown}. */
-export interface DropdownProps {
+/**
+ * Props for {@link Dropdown}. The ref element is the role="menu" menu, not the trigger (test id and automation id go to the trigger).
+ */
+export interface DropdownProps extends WithElementRef<object, HTMLDivElement> {
   /** Trigger content; a single element becomes the menu button itself, anything else is wrapped in one. */
   trigger?: Snippet | string
   /** Menu entries. */
@@ -441,12 +481,16 @@ export interface DropdownProps {
   style?: CSSStyle
   /** data-testid on the trigger (the menu gets `<testId>-menu`). */
   testId?: string
+  /** Disables the whole component (every control it renders). */
+  disabled?: boolean
+  /** Automation id on the trigger; the menu gets `<automationId>-menu`. */
+  automationId?: string
   /** Any extra props. */
   [key: string]: unknown
 }
 
 /** Props for {@link DropdownLabel}. */
-export interface DropdownLabelProps {
+export interface DropdownLabelProps extends WithElementRef<object, HTMLDivElement> {
   /** Label content. */
   children?: Snippet | string
   /** Extra class names. */
@@ -456,7 +500,7 @@ export interface DropdownLabelProps {
 }
 
 /** Props for {@link DropdownSeparator}. */
-export interface DropdownSeparatorProps {
+export interface DropdownSeparatorProps extends WithElementRef<object, HTMLDivElement> {
   /** Extra class names. */
   className?: string
   /** Any extra props. */
@@ -464,7 +508,7 @@ export interface DropdownSeparatorProps {
 }
 
 /** Props for {@link EmptyState}. */
-export interface EmptyStateProps {
+export interface EmptyStateProps extends WithElementRef<object, HTMLDivElement> {
   /** Leading icon. */
   icon?: Snippet
   /** Title. */
@@ -486,7 +530,7 @@ export interface EmptyStateProps {
 }
 
 /** Props for {@link Flex}. */
-export interface FlexProps {
+export interface FlexProps extends WithElementRef<object, HTMLDivElement> {
   /** Content. */
   children?: Snippet
   /** Flex direction. */
@@ -512,7 +556,7 @@ export interface FlexProps {
 }
 
 /** Props for {@link FloatingInput}. */
-export interface FloatingInputProps {
+export interface FloatingInputProps extends WithElementRef<object, HTMLInputElement> {
   /** Placeholder; also rendered as the floating label. */
   placeholder?: string
   /** Extra class names. */
@@ -530,7 +574,7 @@ export interface FloatingInputProps {
 }
 
 /** Props for {@link Form}. */
-export interface FormProps {
+export interface FormProps extends WithElementRef<object, HTMLFormElement> {
   /** Form content. */
   children?: Snippet
   /** Async submit handler receiving the collected form data. */
@@ -556,7 +600,7 @@ export interface FormProps {
 }
 
 /** Props for {@link FormField}. */
-export interface FormFieldProps {
+export interface FormFieldProps extends WithElementRef<object, HTMLDivElement> {
   /** The field control. */
   children?: Snippet
   /** Visible label. */
@@ -575,12 +619,14 @@ export interface FormFieldProps {
   style?: CSSStyle
   /** data-testid. */
   testId?: string
+  /** Automation id, rendered as `data-mol-id`. */
+  automationId?: string
   /** Any extra attributes. */
   [key: string]: unknown
 }
 
 /** Props for {@link Grid}. */
-export interface GridProps {
+export interface GridProps extends WithElementRef<object, HTMLDivElement> {
   /** Content. */
   children?: Snippet
   /** Column count or a raw grid-template-columns value. */
@@ -623,8 +669,10 @@ export interface IconGlyphProps {
   className?: string
 }
 
-/** Props for {@link Input}. */
-export interface InputProps {
+/**
+ * Props for {@link Input}. The ref element is the native input, not its label wrapper.
+ */
+export interface InputProps extends WithElementRef<object, HTMLInputElement> {
   /** Input type. */
   type?: string
   /** Control size. */
@@ -680,7 +728,7 @@ export interface InputProps {
 }
 
 /** Props for {@link Label}. */
-export interface LabelProps {
+export interface LabelProps extends WithElementRef<object, HTMLLabelElement> {
   /** Label content. */
   children?: Snippet
   /** Whether the required marker renders. */
@@ -739,8 +787,10 @@ export interface LoadErrorBannerProps {
   [key: string]: unknown
 }
 
-/** Props for {@link Modal}. */
-export interface ModalProps {
+/**
+ * Props for {@link Modal}. The ref element is the dialog, and null while the modal is closed.
+ */
+export interface ModalProps extends WithElementRef<object, HTMLDivElement> {
   /** Whether the dialog is open. */
   open: boolean
   /** Called when the dialog should close (escape, overlay, close button). */
@@ -771,20 +821,22 @@ export interface ModalProps {
   style?: CSSStyle
   /** data-testid. */
   testId?: string
+  /** Automation id, rendered as `data-mol-id`. */
+  automationId?: string
   /** data-* and aria-* attributes forwarded to the dialog panel. */
   [key: string]: unknown
 }
 
 /** Props for {@link OptimisticToggleButton}; labels come from the app's translations. */
-export interface OptimisticToggleButtonProps {
+export interface OptimisticToggleButtonProps extends WithElementRef<object, HTMLButtonElement> {
   /** The loaded server value. Mount the button only after its initial record exists. */
   value: boolean
   /** Saves the desired boolean and returns the server-confirmed boolean; reject on failure. */
   commit: (desired: boolean) => Promise<boolean>
   /** Label when the displayed value is true. */
-  activeLabel?: Snippet | string
+  activeLabel: Snippet | string
   /** Label when the displayed value is false. */
-  inactiveLabel?: Snippet | string
+  inactiveLabel: Snippet | string
   /** Receives a failed save after the controller has restored the last confirmed value. */
   onError?: (error: unknown) => void
   /** Any other ButtonProps passthrough. */
@@ -792,7 +844,7 @@ export interface OptimisticToggleButtonProps {
 }
 
 /** Props for {@link PageHeader}. */
-export interface PageHeaderProps {
+export interface PageHeaderProps extends WithElementRef<object, HTMLDivElement> {
   /** Page title. */
   title?: string
   /** Description under the title. */
@@ -814,7 +866,7 @@ export interface PageHeaderProps {
 }
 
 /** Props for {@link PageShell}. */
-export interface PageShellProps {
+export interface PageShellProps extends WithElementRef<object, HTMLDivElement> {
   /** Main content. */
   children?: Snippet
   /** Sidebar content. */
@@ -856,7 +908,7 @@ export interface PaginationLabels {
 }
 
 /** Props for {@link Pagination}. */
-export interface PaginationProps {
+export interface PaginationProps extends WithElementRef<object, HTMLElement> {
   /** The currently active page number. */
   page: number
   /** The total number of pages. */
@@ -883,6 +935,8 @@ export interface PaginationProps {
   testId?: string
   /** Disables every control. */
   disabled?: boolean
+  /** Automation id, rendered as `data-mol-id`. */
+  automationId?: string
   /** Any extra props. */
   [key: string]: unknown
 }
@@ -896,7 +950,7 @@ export interface PanelCloseProviderProps {
 }
 
 /** Props for {@link Progress}. */
-export interface ProgressProps {
+export interface ProgressProps extends WithElementRef<object, HTMLDivElement> {
   /** Progress value. */
   value: number
   /** Maximum value. */
@@ -917,6 +971,8 @@ export interface ProgressProps {
   style?: Record<string, string | number | undefined>
   /** data-testid. */
   testId?: string
+  /** Automation id, rendered as `data-mol-id`. */
+  automationId?: string
   /** Any extra attributes. */
   [key: string]: unknown
 }
@@ -956,7 +1012,7 @@ export interface PromptDialogProps {
 }
 
 /** Props for {@link RadioGroup}. */
-export interface RadioGroupProps {
+export interface RadioGroupProps extends WithElementRef<object, HTMLDivElement> {
   /** Radio options. */
   options: { value: string; label?: unknown; disabled?: boolean }[]
   /** Controlled selected value. */
@@ -981,6 +1037,8 @@ export interface RadioGroupProps {
   testId?: string
   /** Disables every option. */
   disabled?: boolean
+  /** Automation id, rendered as `data-mol-id`. */
+  automationId?: string
   /** Any extra attributes. */
   [key: string]: unknown
 }
@@ -1103,8 +1161,10 @@ export interface ResponsiveAppShellTopBarProps {
   testId?: string
 }
 
-/** Props for {@link Select}. */
-export interface SelectProps {
+/**
+ * Props for {@link Select}. The ref element is the native select, not its label wrapper.
+ */
+export interface SelectProps extends WithElementRef<object, HTMLSelectElement> {
   /** Select options, optionally grouped. */
   options: { value: string; label?: unknown; disabled?: boolean; group?: string }[]
   /** Controlled selected value. */
@@ -1144,7 +1204,7 @@ export interface SelectProps {
 }
 
 /** Props for {@link Separator}. */
-export interface SeparatorProps {
+export interface SeparatorProps extends WithElementRef<object, HTMLDivElement> {
   /** Orientation of the separator. */
   orientation?: 'horizontal' | 'vertical'
   /** Decorative separators are purely visual. */
@@ -1155,6 +1215,8 @@ export interface SeparatorProps {
   style?: Record<string, string | number | undefined>
   /** data-testid. */
   testId?: string
+  /** Automation id, rendered as `data-mol-id`. */
+  automationId?: string
   /** Any extra attributes. */
   [key: string]: unknown
 }
@@ -1184,7 +1246,7 @@ export interface SidebarUserCardProps {
 }
 
 /** Props for {@link Skeleton}. */
-export interface SkeletonProps {
+export interface SkeletonProps extends WithElementRef<object, HTMLDivElement> {
   /** Width in pixels or a raw CSS value. */
   width?: number | string
   /** Height in pixels or a raw CSS value. */
@@ -1201,12 +1263,14 @@ export interface SkeletonProps {
   style?: Record<string, string | number | undefined>
   /** data-testid. */
   testId?: string
+  /** Automation id, rendered as `data-mol-id`. */
+  automationId?: string
   /** Any extra attributes. */
   [key: string]: unknown
 }
 
 /** Props for {@link SkeletonCircle}. */
-export interface SkeletonCircleProps {
+export interface SkeletonCircleProps extends WithElementRef<object, HTMLDivElement> {
   /** Pixel size. */
   size?: number
   /** Extra class names. */
@@ -1214,7 +1278,7 @@ export interface SkeletonCircleProps {
 }
 
 /** Props for {@link SkeletonText}. */
-export interface SkeletonTextProps {
+export interface SkeletonTextProps extends WithElementRef<object, HTMLDivElement> {
   /** Number of lines. */
   lines?: number
   /** Extra class names. */
@@ -1222,7 +1286,7 @@ export interface SkeletonTextProps {
 }
 
 /** Props for {@link Spacer}. */
-export interface SpacerProps {
+export interface SpacerProps extends WithElementRef<object, HTMLDivElement> {
   /** Named size or raw value. */
   size?: number | string
   /** Whether the spacer is inline. */
@@ -1238,7 +1302,7 @@ export interface SpacerProps {
 }
 
 /** Props for {@link Spinner}. */
-export interface SpinnerProps {
+export interface SpinnerProps extends WithElementRef<object, HTMLDivElement> {
   /** Spinner size. */
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl'
   /** Named color variant or a raw CSS color. */
@@ -1251,12 +1315,16 @@ export interface SpinnerProps {
   style?: Record<string, string | number | undefined>
   /** data-testid. */
   testId?: string
+  /** Automation id, rendered as `data-mol-id`. */
+  automationId?: string
   /** Any extra data-* or aria-* attributes forwarded to the div. */
   [key: string]: unknown
 }
 
-/** Props for {@link Switch}. */
-export interface SwitchProps {
+/**
+ * Props for {@link Switch}. The ref element is the role="switch" button.
+ */
+export interface SwitchProps extends WithElementRef<object, HTMLButtonElement> {
   /** Label content. */
   label?: string | Snippet
   /** Controlled checked state. */
@@ -1301,8 +1369,10 @@ export interface TableColumnSpec {
   [key: string]: unknown
 }
 
-/** Props for {@link Table}. */
-export interface TableProps {
+/**
+ * Props for {@link Table}. The ref element is the table, not its scroll wrapper.
+ */
+export interface TableProps extends WithElementRef<object, HTMLTableElement> {
   /** The rows. */
   data: Record<string, unknown>[]
   /** The columns. */
@@ -1331,6 +1401,8 @@ export interface TableProps {
   style?: CSSStyle
   /** data-testid. */
   testId?: string
+  /** Automation id, rendered as `data-mol-id`. */
+  automationId?: string
   /** Any extra props. */
   [key: string]: unknown
 }
@@ -1352,7 +1424,7 @@ export interface TabItem {
 }
 
 /** Props for {@link Tabs}. */
-export interface TabsProps {
+export interface TabsProps extends WithElementRef<object, HTMLDivElement> {
   /** The tab entries. */
   items: TabItem[]
   /** Controlled active value. */
@@ -1361,10 +1433,10 @@ export interface TabsProps {
   defaultValue?: string
   /** Called with the newly active value. */
   onChange?: (value: string) => void
-  /** Visual variant. */
-  variant?: 'line' | 'enclosed'
+  /** Visual variant; the same set `@molecule/app-ui`'s `TabsProps` declares. */
+  variant?: 'line' | 'enclosed' | 'soft-rounded' | 'solid-rounded'
   /** Control size. */
-  size?: 'sm' | 'md' | 'lg'
+  size?: Size
   /** Stretches triggers to fill the list. */
   fitted?: boolean
   /** Extra class names on the root. */
@@ -1373,12 +1445,18 @@ export interface TabsProps {
   style?: CSSStyle
   /** data-testid. */
   testId?: string
+  /** Disables the whole component (every control it renders). */
+  disabled?: boolean
+  /** Automation id, rendered as `data-mol-id`. */
+  automationId?: string
   /** Any extra props. */
   [key: string]: unknown
 }
 
-/** Props for {@link Textarea}. */
-export interface TextareaProps {
+/**
+ * Props for {@link Textarea}. The ref element is the native textarea, not its label wrapper.
+ */
+export interface TextareaProps extends WithElementRef<object, HTMLTextAreaElement> {
   /** Control size. */
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl'
   /** Visible label. */
@@ -1446,7 +1524,7 @@ export interface ThemeToggleProps {
 }
 
 /** Props for {@link Toast}. */
-export interface ToastProps {
+export interface ToastProps extends WithElementRef<object, HTMLDivElement> {
   /** Toast body (used when no description is given). */
   children?: Snippet
   /** Title line. */
@@ -1471,12 +1549,24 @@ export interface ToastProps {
   style?: CSSStyle
   /** data-testid. */
   testId?: string
+  /** DOM id (ToastProvider sets it from the toast handle). */
+  id?: string
+  /** Automation id, rendered as `data-mol-id`. */
+  automationId?: string
+  /** Pointer entered the toast — runs after the countdown pauses. */
+  onMouseEnter?: (event: MouseEvent) => void
+  /** Pointer left the toast — runs after the countdown resumes. */
+  onMouseLeave?: (event: MouseEvent) => void
+  /** Focus entered the toast — runs after the countdown pauses. */
+  onFocus?: (event: FocusEvent) => void
+  /** Focus left the toast — runs after the countdown resumes. */
+  onBlur?: (event: FocusEvent) => void
   /** Any extra props. */
   [key: string]: unknown
 }
 
 /** Props for {@link ToastContainer}. */
-export interface ToastContainerProps {
+export interface ToastContainerProps extends WithElementRef<object, HTMLDivElement> {
   /** The toasts to position. */
   children?: Snippet
   /** Where on screen the container sits. */
@@ -1497,8 +1587,10 @@ export interface ToastProviderProps {
   [key: string]: unknown
 }
 
-/** Props for {@link Tooltip}. */
-export interface TooltipProps {
+/**
+ * Props for {@link Tooltip}. The ref element is the role="tooltip" box, and null while it is hidden.
+ */
+export interface TooltipProps extends WithElementRef<object, HTMLDivElement> {
   /** Tooltip text. */
   content?: Snippet | string
   /** The single element the tooltip describes. */
@@ -1515,6 +1607,8 @@ export interface TooltipProps {
   style?: CSSStyle
   /** data-testid. */
   testId?: string
+  /** Automation id, rendered as `data-mol-id`. */
+  automationId?: string
   /** Any extra props. */
   [key: string]: unknown
 }

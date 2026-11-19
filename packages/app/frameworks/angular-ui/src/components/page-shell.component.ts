@@ -21,6 +21,7 @@ import { useTranslation } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
+import { type HasElement, hostElement } from '../utilities/element.js'
 import { styleText } from '../utilities/style.js'
 import { hasNodes, SlotWrapper } from './button.component.js'
 
@@ -68,7 +69,7 @@ import { hasNodes, SlotWrapper } from './button.component.js'
       <main [class]="cm().pageShellContent"><ng-content></ng-content></main>
     </div>`,
 })
-export class PageShell implements AfterViewInit, DoCheck {
+export class PageShell implements AfterViewInit, DoCheck, HasElement<HTMLDivElement> {
   /** Sidebar content (node-valued prop). */
   sidebar?: unknown
   /** Top bar content (node-valued prop). */
@@ -100,6 +101,9 @@ export class PageShell implements AfterViewInit, DoCheck {
   private readonly i18n = useTranslation()
 
   private readonly sync = new SlotWrapper(inject(ElementRef), inject(Renderer2))
+  private readonly host: ElementRef<HTMLDivElement> = inject(ElementRef)
+  /** The element a caller's ref receives: the host `<div>`. */
+  readonly element = hostElement(this.host)
   private hasSidebar = false
   private hasTopbar = false
   private sidebarParent: HTMLElement | null = null

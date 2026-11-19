@@ -17,6 +17,7 @@ import {
 import type { ButtonVariant, ColorVariant, Size, UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
+import { type HasElement, hostElement } from '../utilities/element.js'
 import { styleText } from '../utilities/style.js'
 import { Spinner } from './spinner.component.js'
 
@@ -117,11 +118,14 @@ export class SlotWrapper {
     'testId',
     'disabled',
     'type',
+    'automationId',
+    'dataMolId: data-mol-id',
   ],
   host: {
     '[class]': 'classes()',
     '[style]': 'hostStyle()',
     '[attr.data-testid]': 'testId',
+    '[attr.data-mol-id]': 'molId()',
     '[attr.type]': 'type',
     '[disabled]': 'disabled || loading',
     '[attr.aria-busy]': 'loading ? "true" : "false"',
@@ -141,7 +145,7 @@ export class SlotWrapper {
       ><ng-content select="[slot=rightIcon]"></ng-content
     ></span>`,
 })
-export class Button implements AfterViewInit, DoCheck {
+export class Button implements AfterViewInit, DoCheck, HasElement<HTMLButtonElement> {
   /** Button variant. */
   variant: ButtonVariant = 'solid'
   /** Button color. */
@@ -160,6 +164,13 @@ export class Button implements AfterViewInit, DoCheck {
   style?: Record<string, unknown>
   /** `data-testid` for the button. */
   testId?: string
+  /** `data-mol-id` automation id (React's `automationId`). */
+  automationId?: string
+  /**
+   * A `data-mol-id` passed as a plain rest attribute (React spreads it onto
+   * the root); `automationId` wins when both are given.
+   */
+  dataMolId?: string
   /** Disables the button. */
   disabled = false
   /** The button's `type` attribute. */
@@ -171,6 +182,9 @@ export class Button implements AfterViewInit, DoCheck {
   @ViewChild('rightSlot') rightSlot?: ElementRef<HTMLSpanElement>
 
   private readonly sync = new SlotWrapper(inject(ElementRef), inject(Renderer2))
+  private readonly host: ElementRef<HTMLButtonElement> = inject(ElementRef)
+  /** The element a caller's ref receives: the host `<button>`. */
+  readonly element = hostElement(this.host)
 
   /**
    * The current class map.
@@ -178,6 +192,21 @@ export class Button implements AfterViewInit, DoCheck {
    */
   cm(): UIClassMap {
     return getClassMap()
+  }
+
+  /**
+   * The `data-mol-id` value: `automationId` when given, else a caller's own
+   * `data-mol-id` (the `dataMolId` prop or a `[attr.data-mol-id]` binding on
+   * the element), matching React's `rootProps` precedence.
+   * @returns The attribute value, or undefined.
+   */
+  molId(): string | undefined {
+    return (
+      this.automationId ??
+      this.dataMolId ??
+      this.host.nativeElement.getAttribute('data-mol-id') ??
+      undefined
+    )
   }
 
   /**

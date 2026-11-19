@@ -9,6 +9,7 @@
   import type { EmptyStateProps } from '../types.js'
 
   let {
+    ref = $bindable(null),
     icon,
     title,
     description,
@@ -23,6 +24,7 @@
 </script>
 
 <div
+  bind:this={ref}
   class={cm.cn(cm.emptyState, className)}
   use:reactStyle={style}
   data-testid={testId}

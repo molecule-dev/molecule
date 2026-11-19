@@ -37,8 +37,7 @@ export function moveRestAttributes(host: Element, target: Element | undefined | 
   return moved
 }
 
-/** Options for {@link reapplyRestAttributes}. */
-export interface ReapplyRestAttributesOptions {
+/** Options for {@link reapplyRestAttributes}. */ export interface ReapplyRestAttributesOptions {
   /**
    * Move `aria-describedby` too. The default keeps it on the host: a
    * component that MERGES the host's `aria-describedby` with its own target
@@ -85,4 +84,19 @@ export function reapplyRestAttributes(
     moved.push(name)
   }
   return moved
+}
+
+/**
+ * Reads and removes a caller's `data-mol-id` from the host, for a component
+ * whose React `...rest` target is an inner element: the value is re-rendered
+ * on that element by the component's own `data-mol-id` binding, so it must not
+ * stay on the wrapper as a duplicate.
+ *
+ * @param host - The component host element.
+ * @returns The value, or undefined when the host had none.
+ */
+export function takeDataMolId(host: Element): string | undefined {
+  const value = host.getAttribute('data-mol-id') ?? undefined
+  host.removeAttribute('data-mol-id')
+  return value
 }

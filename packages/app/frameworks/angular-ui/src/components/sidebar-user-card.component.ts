@@ -37,6 +37,28 @@ interface AccountUserShape {
 }
 
 /**
+ * Props for {@link SidebarUserCard} (React's `SidebarUserCardProps`, in
+ * Angular's form). The panel content is projected content, so it has no
+ * member; the trigger's extra `<button>` attributes land on the host.
+ */
+export interface SidebarUserCardProps {
+  /** Display name override. */
+  name?: string
+  /** Secondary line under the name. */
+  secondaryLine?: string
+  /** Avatar image URL override. */
+  avatarUrl?: string
+  /** i18n key for the trigger's aria-label (default `sidebarUserCard.open`). */
+  ariaLabelKey?: string
+  /** Fallback aria-label if the i18n key is missing. */
+  ariaLabelDefault?: string
+  /** `data-mol-id` for the trigger (default `sidebar-user-card`). */
+  dataMolId?: string
+  /** Extra classes for the trigger. */
+  className?: string
+}
+
+/**
  * SidebarUserCard component.
  *
  * React's root is a FRAGMENT (the trigger button plus a drawer), so the host
@@ -93,19 +115,19 @@ interface AccountUserShape {
 })
 export class SidebarUserCard implements AfterViewInit, OnDestroy {
   /** Display name override (falls back to the auth user, then the guest label). */
-  name?: string
+  name?: SidebarUserCardProps['name']
   /** Secondary line under the name (falls back to the auth user's email). */
-  secondaryLine?: string
+  secondaryLine?: SidebarUserCardProps['secondaryLine']
   /** Avatar image URL override. */
-  avatarUrl?: string
+  avatarUrl?: SidebarUserCardProps['avatarUrl']
   /** i18n key for the trigger's aria-label (default `sidebarUserCard.open`). */
-  ariaLabelKey?: string
+  ariaLabelKey?: SidebarUserCardProps['ariaLabelKey']
   /** Fallback aria-label (default `Open account menu`). */
-  ariaLabelDefault?: string
+  ariaLabelDefault?: SidebarUserCardProps['ariaLabelDefault']
   /** `data-mol-id` for the trigger (default `sidebar-user-card`). */
-  dataMolId = 'sidebar-user-card'
+  dataMolId?: SidebarUserCardProps['dataMolId'] = 'sidebar-user-card'
   /** Extra classes for the trigger. */
-  className?: string
+  className?: SidebarUserCardProps['className']
 
   /** Whether the drawer is open. */
   readonly isOpen = signal(false)

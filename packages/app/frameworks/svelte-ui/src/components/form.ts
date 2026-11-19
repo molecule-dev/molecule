@@ -7,6 +7,18 @@
 import { getClassMap, type UIClassMap } from '@molecule/app-ui'
 
 import { classAtLoad } from '../class-at-load.js'
+import type { FormProps } from '../types.js'
+
+/**
+ * Props for the Svelte form, including a failure managed by an external form controller.
+ *
+ * The Svelte counterpart of `@molecule/app-ui-react`'s `ReactFormProps`, with the
+ * same React members adapted to Svelte's rendering (`children` is a snippet).
+ */
+export interface ReactFormProps extends FormProps {
+  /** A rejected submission, for example useForm().formState.submitError. */
+  submitError?: unknown
+}
 
 /**
  * Options for generating form field classes.

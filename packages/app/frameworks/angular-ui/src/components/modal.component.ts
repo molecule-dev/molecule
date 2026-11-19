@@ -14,17 +14,23 @@ import {
   inject,
   type OnDestroy,
   Output,
+  signal,
   ViewChild,
 } from '@angular/core'
 
 import { useTranslation } from '@molecule/app-angular'
-import type { ModalSize, UIClassMap } from '@molecule/app-ui'
+import type { ModalSize, MouseEventHandler, UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
+import type { HasElement } from '../utilities/element.js'
 import { createScrollLock, getFocusableElements } from '../utilities/focus.js'
 import type { ResolvedIcon } from '../utilities/render-icon.js'
 import { MolIconSvg, resolveIcon } from '../utilities/render-icon.js'
-import { moveRestAttributes, reapplyRestAttributes } from '../utilities/rest-attrs.js'
+import {
+  moveRestAttributes,
+  reapplyRestAttributes,
+  takeDataMolId,
+} from '../utilities/rest-attrs.js'
 import { styleText } from '../utilities/style.js'
 
 /** Module-level open-modal stack (Escape/Tab act only for the topmost). */
@@ -75,6 +81,9 @@ let modalInstance = 0
     'className',
     'style',
     'testId',
+    'automationId',
+    'dataMolId: data-mol-id',
+    'onDoubleClick',
   ],
   outputs: ['close'],
   host: {
@@ -98,6 +107,8 @@ let modalInstance = 0
         [class]="dialogClasses()"
         [style]="dialogStyle()"
         [attr.data-testid]="testId"
+        [attr.data-mol-id]="molId()"
+        (dblclick)="onDoubleClick?.($event)"
       >
         @if (title) {
           <div [class]="cm().dialogHeader">
@@ -134,7 +145,9 @@ let modalInstance = 0
       </div>
     </div>`,
 })
-export class Modal implements AfterViewInit, AfterViewChecked, DoCheck, OnDestroy {
+export class Modal
+  implements AfterViewInit, AfterViewChecked, DoCheck, OnDestroy, HasElement<HTMLDivElement>
+{
   /** Whether the dialog is open. */
   open = false
   /** The dialog title. */
@@ -161,6 +174,12 @@ export class Modal implements AfterViewInit, AfterViewChecked, DoCheck, OnDestro
   style?: Record<string, unknown>
   /** `data-testid` for the dialog. */
   testId?: string
+  /** `data-mol-id` automation id (React's `automationId`). */
+  automationId?: string
+  /** A `data-mol-id` given as a plain rest attribute (React's `rootProps` precedence). */
+  dataMolId?: string
+  /** A caller's double-click handler on the dialog (React spreads rest onto it). */
+  onDoubleClick?: MouseEventHandler
 
   /** Fires when the dialog asks to close (React's `onClose`). */
   @Output() readonly close = new EventEmitter<MouseEvent | undefined>()
@@ -180,6 +199,9 @@ export class Modal implements AfterViewInit, AfterViewChecked, DoCheck, OnDestro
   private readonly stackId = modalInstance
 
   private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
+  private readonly inner = signal<HTMLDivElement | null>(null)
+  /** The element a caller's ref receives: the dialog, or `null` while closed. */
+  readonly element = this.inner.asReadonly()
 
   /**
    * Reactive translation, read in the injection context. Its `t` reads the
@@ -196,6 +218,8 @@ export class Modal implements AfterViewInit, AfterViewChecked, DoCheck, OnDestro
   private listeners: (() => void)[] = []
   private locked = false
   private moved = false
+  /** The `data-mol-id` a caller bound on the host (React spreads it onto the dialog). */
+  private externalMolId: string | undefined
 
   /**
    * The current class map.
@@ -219,6 +243,14 @@ export class Modal implements AfterViewInit, AfterViewChecked, DoCheck, OnDestro
    */
   dialogStyle(): string | null {
     return styleText(this.style)
+  }
+
+  /**
+   * The `data-mol-id` value (`automationId` wins over a rest `data-mol-id`).
+   * @returns The attribute value.
+   */
+  molId(): string | undefined {
+    return this.automationId ?? this.dataMolId ?? this.externalMolId
   }
 
   /**
@@ -285,7 +317,10 @@ export class Modal implements AfterViewInit, AfterViewChecked, DoCheck, OnDestro
     const wrapper = this.wrapper?.nativeElement
     const dialog = this.dialog?.nativeElement
     this.footerParent = this.footerSlot?.nativeElement.parentElement ?? null
-    if (dialog) moveRestAttributes(this.host.nativeElement, dialog)
+    if (dialog) {
+      this.externalMolId = takeDataMolId(this.host.nativeElement) ?? this.externalMolId
+      moveRestAttributes(this.host.nativeElement, dialog)
+    }
     this.lastFooter = this.hasFooter()
     this.syncFooter()
     const open = !!this.open
@@ -330,6 +365,7 @@ export class Modal implements AfterViewInit, AfterViewChecked, DoCheck, OnDestro
    * nothing), so it re-moves that attribute too.
    */
   ngAfterViewChecked(): void {
+    this.externalMolId = takeDataMolId(this.host.nativeElement) ?? this.externalMolId
     reapplyRestAttributes(this.host.nativeElement, this.dialog?.nativeElement, {
       includeDescribedBy: true,
     })
@@ -416,6 +452,7 @@ export class Modal implements AfterViewInit, AfterViewChecked, DoCheck, OnDestro
     if (!overlay || !wrapper) return
     document.body.appendChild(overlay)
     document.body.appendChild(wrapper)
+    this.inner.set(this.dialog?.nativeElement ?? null)
     this.moved = true
   }
 
@@ -423,6 +460,7 @@ export class Modal implements AfterViewInit, AfterViewChecked, DoCheck, OnDestro
   private detachPortal(): void {
     this.overlay?.nativeElement.remove()
     this.wrapper?.nativeElement.remove()
+    this.inner.set(null)
     this.moved = false
   }
 

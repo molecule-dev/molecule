@@ -13,13 +13,44 @@
  * @module
  */
 
-import { defineComponent, h, useId } from 'vue'
+import { defineComponent, h, type PropType, useId, type VNodeChild } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
 import { useTranslation } from '@molecule/app-vue'
 
 import { Button } from './Button.js'
 import { Modal } from './Modal.js'
+
+/**
+ * Props for {@link ConfirmDialog}.
+ *
+ * Vue port of `@molecule/app-ui-react`'s `ConfirmDialogProps`: React's
+ * `ReactNode` members are nodes, the extra body content is the default slot,
+ * and `onClose`/`onConfirm` are the `close`/`confirm` emits — optional, like
+ * every Vue listener (React declares them required).
+ */
+export interface ConfirmDialogProps {
+  /** Whether the dialog is open. */
+  open: boolean
+  /** Called when the dialog should close (escape, backdrop, cancel). */
+  onClose?: () => void
+  /** Title. */
+  title?: VNodeChild
+  /** Body / warning text. */
+  description?: VNodeChild
+  /** Confirm-button label (e.g. "Delete"). */
+  confirmLabel?: VNodeChild
+  /** Cancel-button label. */
+  cancelLabel?: VNodeChild
+  /** Called when the user confirms. */
+  onConfirm?: () => void | Promise<void>
+  /** Is the confirm action destructive? Defaults to true. */
+  destructive?: boolean
+  /** Extra body content between description and footer (the default slot). */
+  children?: VNodeChild
+  /** Disables both buttons while the caller's confirm action is pending. */
+  loading?: boolean
+}
 
 /**
  * Are-you-sure-style confirmation modal for destructive actions: a title, a
@@ -36,7 +67,7 @@ export const ConfirmDialog = defineComponent({
   props: {
     /** Whether the dialog is open. */
     open: {
-      type: Boolean,
+      type: Boolean as PropType<ConfirmDialogProps['open']>,
       required: true,
     },
     /** Title. */
@@ -49,12 +80,12 @@ export const ConfirmDialog = defineComponent({
     cancelLabel: null,
     /** Is the confirm action destructive? Defaults to true. */
     destructive: {
-      type: Boolean,
+      type: Boolean as PropType<ConfirmDialogProps['destructive']>,
       default: true,
     },
     /** Disables both buttons while the caller's confirm action is pending. */
     loading: {
-      type: Boolean,
+      type: Boolean as PropType<ConfirmDialogProps['loading']>,
       default: false,
     },
   },

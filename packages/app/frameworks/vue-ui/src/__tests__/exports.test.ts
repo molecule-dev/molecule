@@ -118,75 +118,157 @@ vi.mock('@molecule/app-ui', () => ({
 // Tests
 // ============================================================================
 
+/**
+ * The whole index is loaded once at module scope, not inside a test: the
+ * first dynamic import transforms every source file in the package and can
+ * exceed a single test's timeout on a loaded machine.
+ */
+const indexExports = await import('../index.js')
+
 describe('package exports', () => {
-  it('should export cn utility', async () => {
-    const exports = await import('../index.js')
-    expect(exports.cn).toBeDefined()
-    expect(typeof exports.cn).toBe('function')
+  it('should export cn utility', () => {
+    expect(indexExports.cn).toBeDefined()
+    expect(typeof indexExports.cn).toBe('function')
+  })
+
+  // The React package's own export list (module exports → component
+  // exports), asserted by the same titles so a component that goes missing
+  // from either binding is caught by the same test name. Vue implements the
+  // same 50 components.
+  const expectedComponents = [
+    'Button',
+    'Input',
+    'Textarea',
+    'Select',
+    'Checkbox',
+    'RadioGroup',
+    'Switch',
+    'ConfirmButton',
+    'ConfirmDialog',
+    'PromptDialog',
+    'Modal',
+    'Spinner',
+    'Avatar',
+    'Badge',
+    'Alert',
+    'Card',
+    'CardHeader',
+    'CardTitle',
+    'CardDescription',
+    'CardContent',
+    'CardFooter',
+    'Tabs',
+    'Table',
+    'Tooltip',
+    'Progress',
+    'Skeleton',
+    'SkeletonText',
+    'SkeletonCircle',
+    'Separator',
+    'Container',
+    'Flex',
+    'Grid',
+    'Spacer',
+    'Form',
+    'FormField',
+    'Label',
+    'Toast',
+    'ToastContainer',
+    'ToastProvider',
+    'Accordion',
+    'Pagination',
+    'Dropdown',
+    'DropdownLabel',
+    'DropdownSeparator',
+    'ResponsiveAppShell',
+    'ResponsiveAppShellTopBar',
+    'ResponsiveAppShellSidebar',
+    'ResponsiveAppShellDrawer',
+    'ResponsiveAppShellContent',
+  ]
+
+  for (const name of expectedComponents) {
+    it(`should export ${name}`, async () => {
+      const moduleExports = indexExports
+      expect(Object.hasOwn(moduleExports, name)).toBe(true)
+      expect(moduleExports[name as keyof typeof moduleExports]).toBeDefined()
+    })
+  }
+
+  it('should export useToast hook', async () => {
+    const exports = indexExports
+    expect(exports.useToast).toBeDefined()
+    expect(typeof exports.useToast).toBe('function')
+  })
+
+  it('should export useIsDesktop hook', async () => {
+    const exports = indexExports
+    expect(exports.useIsDesktop).toBeDefined()
+    expect(typeof exports.useIsDesktop).toBe('function')
   })
 
   it('should export Button component', async () => {
-    const exports = await import('../index.js')
+    const exports = indexExports
     expect(exports.Button).toBeDefined()
   })
 
   it('should export Input component', async () => {
-    const exports = await import('../index.js')
+    const exports = indexExports
     expect(exports.Input).toBeDefined()
   })
 
   it('should export Textarea component', async () => {
-    const exports = await import('../index.js')
+    const exports = indexExports
     expect(exports.Textarea).toBeDefined()
   })
 
   it('should export Select component', async () => {
-    const exports = await import('../index.js')
+    const exports = indexExports
     expect(exports.Select).toBeDefined()
   })
 
   it('should export Checkbox component', async () => {
-    const exports = await import('../index.js')
+    const exports = indexExports
     expect(exports.Checkbox).toBeDefined()
   })
 
   it('should export RadioGroup component', async () => {
-    const exports = await import('../index.js')
+    const exports = indexExports
     expect(exports.RadioGroup).toBeDefined()
   })
 
   it('should export Switch component', async () => {
-    const exports = await import('../index.js')
+    const exports = indexExports
     expect(exports.Switch).toBeDefined()
   })
 
   it('should export Modal component', async () => {
-    const exports = await import('../index.js')
+    const exports = indexExports
     expect(exports.Modal).toBeDefined()
   })
 
   it('should export Spinner component', async () => {
-    const exports = await import('../index.js')
+    const exports = indexExports
     expect(exports.Spinner).toBeDefined()
   })
 
   it('should export Avatar component', async () => {
-    const exports = await import('../index.js')
+    const exports = indexExports
     expect(exports.Avatar).toBeDefined()
   })
 
   it('should export Badge component', async () => {
-    const exports = await import('../index.js')
+    const exports = indexExports
     expect(exports.Badge).toBeDefined()
   })
 
   it('should export Alert component', async () => {
-    const exports = await import('../index.js')
+    const exports = indexExports
     expect(exports.Alert).toBeDefined()
   })
 
   it('should export Card components', async () => {
-    const exports = await import('../index.js')
+    const exports = indexExports
     expect(exports.Card).toBeDefined()
     expect(exports.CardHeader).toBeDefined()
     expect(exports.CardTitle).toBeDefined()
@@ -196,34 +278,34 @@ describe('package exports', () => {
   })
 
   it('should export Tabs component', async () => {
-    const exports = await import('../index.js')
+    const exports = indexExports
     expect(exports.Tabs).toBeDefined()
   })
 
   it('should export Table component', async () => {
-    const exports = await import('../index.js')
+    const exports = indexExports
     expect(exports.Table).toBeDefined()
   })
 
   it('should export Tooltip component', async () => {
-    const exports = await import('../index.js')
+    const exports = indexExports
     expect(exports.Tooltip).toBeDefined()
   })
 
   it('should export Progress component', async () => {
-    const exports = await import('../index.js')
+    const exports = indexExports
     expect(exports.Progress).toBeDefined()
   })
 
   it('should export Skeleton components', async () => {
-    const exports = await import('../index.js')
+    const exports = indexExports
     expect(exports.Skeleton).toBeDefined()
     expect(exports.SkeletonText).toBeDefined()
     expect(exports.SkeletonCircle).toBeDefined()
   })
 
   it('should export Layout components', async () => {
-    const exports = await import('../index.js')
+    const exports = indexExports
     expect(exports.Container).toBeDefined()
     expect(exports.Flex).toBeDefined()
     expect(exports.Grid).toBeDefined()
@@ -231,19 +313,19 @@ describe('package exports', () => {
   })
 
   it('should export Separator component', async () => {
-    const exports = await import('../index.js')
+    const exports = indexExports
     expect(exports.Separator).toBeDefined()
   })
 
   it('should export Form components', async () => {
-    const exports = await import('../index.js')
+    const exports = indexExports
     expect(exports.Form).toBeDefined()
     expect(exports.FormField).toBeDefined()
     expect(exports.Label).toBeDefined()
   })
 
   it('should export Toast components', async () => {
-    const exports = await import('../index.js')
+    const exports = indexExports
     expect(exports.Toast).toBeDefined()
     expect(exports.ToastContainer).toBeDefined()
     expect(exports.ToastProvider).toBeDefined()
@@ -251,17 +333,17 @@ describe('package exports', () => {
   })
 
   it('should export Accordion component', async () => {
-    const exports = await import('../index.js')
+    const exports = indexExports
     expect(exports.Accordion).toBeDefined()
   })
 
   it('should export Pagination component', async () => {
-    const exports = await import('../index.js')
+    const exports = indexExports
     expect(exports.Pagination).toBeDefined()
   })
 
   it('should export Dropdown components', async () => {
-    const exports = await import('../index.js')
+    const exports = indexExports
     expect(exports.Dropdown).toBeDefined()
     expect(exports.DropdownLabel).toBeDefined()
     expect(exports.DropdownSeparator).toBeDefined()

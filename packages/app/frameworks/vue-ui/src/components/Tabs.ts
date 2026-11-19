@@ -17,7 +17,9 @@ import {
 import type { Size, TabItem, TabsProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
-import { classOf, styleOf } from '../utilities/attrs.js'
+import { classOf, restAttrs, styleOf } from '../utilities/attrs.js'
+import { useElementRef } from '../utilities/elementRef.js'
+import { setDisplayName } from './displayName.js'
 
 /** Counter backing the generated id prefix that stands in for React's `useId()`. */
 let nextGeneratedId = 0
@@ -56,10 +58,12 @@ export const Tabs = defineComponent({
     className: String,
     style: [String, Object] as PropType<TabsProps<string>['style']>,
     testId: String,
+    disabled: Boolean,
   },
   emits: ['change'],
-  setup(props, { attrs, emit }) {
+  setup(props, { attrs, emit, expose }) {
     const cm = getClassMap()
+    const element = useElementRef<HTMLDivElement>(expose)
     const internalValue = ref<string | undefined>(props.defaultValue || props.items[0]?.value)
     // Per-instance id prefix: bare `tab-${value}` ids collided whenever two
     // Tabs instances on one page shared a tab value (e.g. both have an
@@ -83,9 +87,9 @@ export const Tabs = defineComponent({
     // (only the active tab is a Tab stop — see `tabindex` below) plus
     // Left/Right/Home/End moving BOTH focus and the active tab, so keyboard
     // users never have to Tab through every trigger to reach the one they
-    // want. Disabled tabs are skipped.
+    // want. Disabled tabs are skipped; a disabled Tabs disables every tab.
     const handleKeyDown = (event: KeyboardEvent): void => {
-      const enabled = props.items.filter((item) => !item.disabled)
+      const enabled = props.disabled ? [] : props.items.filter((item) => !item.disabled)
       if (enabled.length === 0) return
       const activeValue = props.value !== undefined ? props.value : internalValue.value
       const currentIndex = enabled.findIndex((item) => item.value === activeValue)
@@ -130,9 +134,11 @@ export const Tabs = defineComponent({
       return h(
         'div',
         {
+          ref: element,
           class: cm.cn(...classOf(props.className, attrs)),
           style: styleOf(props.style, attrs),
           'data-testid': props.testId,
+          ...restAttrs(attrs),
         },
         [
           h(
@@ -172,8 +178,13 @@ export const Tabs = defineComponent({
                   // Roving tabindex: only the active tab is a Tab stop —
                   // arrow keys (handled on each tab) move focus among the rest.
                   tabindex: isActive ? 0 : -1,
-                  disabled: item.disabled,
-                  onClick: () => selectTab(item.value as string),
+                  disabled: props.disabled || item.disabled,
+                  // A disabled native button ignores a click in the browser; Vue's
+                  // own listener is attached, so it checks the same condition.
+                  onClick: () => {
+                    if (props.disabled || item.disabled) return
+                    selectTab(item.value)
+                  },
                   // The arrow keys act on the focused tab (the tablist itself never
                   // takes focus), so the handler sits on each tab.
                   onKeydown: handleKeyDown,
@@ -206,3 +217,5 @@ export const Tabs = defineComponent({
     }
   },
 })
+
+setDisplayName(Tabs, 'Tabs')

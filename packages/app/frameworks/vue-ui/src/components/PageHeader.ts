@@ -11,6 +11,7 @@ import { getClassMap } from '@molecule/app-ui'
 import { useTranslation } from '@molecule/app-vue'
 
 import { classOf, styleOf } from '../utilities/attrs.js'
+import { useElementRef } from '../utilities/elementRef.js'
 
 /**
  * Vue PageHeader UI component with UIClassMap-driven styling.
@@ -38,9 +39,10 @@ export const PageHeader = defineComponent({
     testId: String,
     automationId: String,
   },
-  setup(props, { attrs, slots }) {
+  setup(props, { attrs, slots, expose }) {
     const { t } = useTranslation()
     const cm = getClassMap()
+    const element = useElementRef<HTMLDivElement>(expose)
 
     return () => {
       const actions = props.actions ?? slots.actions?.()
@@ -89,6 +91,7 @@ export const PageHeader = defineComponent({
       return h(
         'div',
         {
+          ref: element,
           class: cm.cn(cm.pageHeader, ...classOf(props.className, attrs)),
           style: styleOf(props.style, attrs),
           'data-testid': props.testId,

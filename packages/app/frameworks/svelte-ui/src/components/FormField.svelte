@@ -11,12 +11,24 @@
 <script lang="ts">
   import { getClassMap } from '@molecule/app-ui'
 
-  import { useGeneratedId } from '../dom.js'
+  import { reactAttrs, withoutEvents } from '../attrs.js'
+  import { spreadEvents, useGeneratedId } from '../dom.js'
   import { reactStyle } from '../style.js'
   import type { FormFieldProps } from '../types.js'
 
-  let { children, label, name, error, hint, required, className, style, testId }: FormFieldProps =
-    $props()
+  let {
+    ref = $bindable(null),
+    children,
+    label,
+    name,
+    error,
+    hint,
+    required,
+    className,
+    style,
+    testId,
+    ...rest
+  }: FormFieldProps = $props()
 
   const cm = $derived(getClassMap())
   const generatedId = useGeneratedId()
@@ -24,17 +36,19 @@
   const errorId = $derived(`${fieldId}-error`)
   const hintId = $derived(`${fieldId}-hint`)
   const describedBy = $derived(error ? errorId : hint ? hintId : undefined)
+  // Every other declared prop (id, title, aria-*, data-*, automationId as
+  // data-mol-id, the DOM event handlers) reaches the root wrapper.
+  const attributes = $derived(reactAttrs(withoutEvents(rest)))
 
-  let rootEl = $state<HTMLDivElement | null>(null)
   let labelEl = $state<HTMLLabelElement | null>(null)
   let errorEl = $state<HTMLParagraphElement | null>(null)
   let hintEl = $state<HTMLParagraphElement | null>(null)
 
   $effect(() => {
-    if (!rootEl || !children) return
+    if (!ref || !children) return
     // The nodes the children snippet contributed: everything this component
     // did not render itself (its own label and message paragraphs are bound).
-    const contributed = Array.from(rootEl.children).filter(
+    const contributed = Array.from(ref.children).filter(
       (el) => el !== labelEl && el !== errorEl && el !== hintEl,
     )
     if (contributed.length !== 1 || contributed[0]!.nodeType !== 1) return
@@ -59,10 +73,12 @@
 </script>
 
 <div
-  bind:this={rootEl}
+  bind:this={ref}
   class={cm.cn(cm.inputWrapper, cm.sp('mb', 4), className)}
   use:reactStyle={style}
   data-testid={testId}
+  {...attributes}
+  use:spreadEvents={rest}
 >
   {#if label}
     <label

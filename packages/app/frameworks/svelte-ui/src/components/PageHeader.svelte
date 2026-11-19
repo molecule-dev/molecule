@@ -10,6 +10,7 @@
   import type { PageHeaderProps } from '../types.js'
 
   let {
+    ref = $bindable(null),
     title,
     description,
     actions,
@@ -28,6 +29,7 @@
 </script>
 
 <div
+  bind:this={ref}
   class={cm.cn(cm.pageHeader, className)}
   use:reactStyle={style}
   data-testid={testId}

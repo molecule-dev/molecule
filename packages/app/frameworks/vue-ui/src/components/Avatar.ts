@@ -11,8 +11,10 @@ import type { AvatarProps, Size } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { useTranslation } from '@molecule/app-vue'
 
-import { classOf, styleOf } from '../utilities/attrs.js'
+import { classOf, restAttrs, styleOf } from '../utilities/attrs.js'
+import { useElementRef } from '../utilities/elementRef.js'
 import { getInitials } from '../utilities/initials.js'
+import { setDisplayName } from './displayName.js'
 
 /**
  * Renders the decorative fallback glyph, mirroring `renderIcon` from
@@ -79,10 +81,11 @@ export const Avatar = defineComponent({
     style: [String, Object] as PropType<AvatarProps['style']>,
     testId: String,
   },
-  setup(props, { attrs, slots }) {
+  setup(props, { attrs, slots, expose }) {
     const cm = getClassMap()
     const { t } = useTranslation()
     const imageError = ref(false)
+    const element = useElementRef<HTMLDivElement>(expose)
 
     return () => {
       const showFallback = !props.src || imageError.value
@@ -106,9 +109,11 @@ export const Avatar = defineComponent({
       return h(
         'div',
         {
+          ref: element,
           class: containerClasses,
           style: mergeStyles(styleOf(props.style, attrs), customSize),
           'data-testid': props.testId,
+          ...restAttrs(attrs),
         },
         !showFallback
           ? h('img', {
@@ -133,6 +138,8 @@ export const Avatar = defineComponent({
     }
   },
 })
+
+setDisplayName(Avatar, 'Avatar')
 
 /**
  * Merges a custom numeric size into the incoming style the way React's

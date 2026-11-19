@@ -11,8 +11,10 @@ import type { AlertProps, ColorVariant } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { useTranslation } from '@molecule/app-vue'
 
-import { classOf, styleOf } from '../utilities/attrs.js'
+import { classOf, restAttrs, styleOf } from '../utilities/attrs.js'
+import { useElementRef } from '../utilities/elementRef.js'
 import { renderIcon } from '../utilities/renderIcon.js'
+import { setDisplayName } from './displayName.js'
 
 const statusVariantMap: Record<ColorVariant, 'default' | 'info' | 'success' | 'warning' | 'error'> =
   {
@@ -76,10 +78,11 @@ export const Alert = defineComponent({
     testId: String,
   },
   emits: ['dismiss'],
-  setup(props, { attrs, slots, emit }) {
+  setup(props, { attrs, slots, emit, expose }) {
     const cm = getClassMap()
     // Reactive t: text re-renders when the locale changes (parity with app-react).
     const { t } = useTranslation()
+    const element = useElementRef<HTMLDivElement>(expose)
 
     return () => {
       const alertVariant = statusVariantMap[props.status] || 'default'
@@ -99,10 +102,15 @@ export const Alert = defineComponent({
       return h(
         'div',
         {
+          ref: element,
           role,
           class: alertClasses,
           style: styleOf(props.style, attrs),
           'data-testid': props.testId,
+          // Every other declared prop (id, aria-*, data-*, automationId as
+          // data-mol-id, the DOM event handlers) reaches the root; a caller's role
+          // replaces the live-region default.
+          ...restAttrs(attrs),
         },
         [
           (icon || defaultIcon) &&
@@ -129,3 +137,5 @@ export const Alert = defineComponent({
     }
   },
 })
+
+setDisplayName(Alert, 'Alert')

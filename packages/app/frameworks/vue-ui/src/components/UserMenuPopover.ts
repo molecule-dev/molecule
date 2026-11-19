@@ -33,9 +33,11 @@ import {
   type InjectionKey,
   onMounted,
   onUnmounted,
+  type PropType,
   provide,
   type Ref,
   ref,
+  type VNodeChild,
   watch,
 } from 'vue'
 
@@ -98,6 +100,25 @@ function usePopoverContext(component: string): UserMenuPopoverContextValue {
 }
 
 /**
+ * Props for {@link UserMenuPopover}.
+ *
+ * Vue port of `@molecule/app-ui-react`'s `UserMenuPopoverProps`: the trigger
+ * and panel arrive as the default slot (React's `children`, optional here
+ * because a Vue slot is).
+ */
+export interface UserMenuPopoverProps {
+  /** The trigger and panel (the default slot). */
+  children?: VNodeChild
+  /**
+   * Label shown when there is no authenticated user. Defaults to the
+   * `userMenuPopover.guest` translation (English fallback `"Account"`).
+   */
+  guestName?: string
+  /** Extra className composed onto the relative-positioned container. */
+  className?: string
+}
+
+/**
  * Vue UserMenuPopover UI component.
  *
  * Container for the inline popover account menu. Owns the open state and
@@ -119,9 +140,9 @@ export const UserMenuPopover = defineComponent({
      * Label shown when there is no authenticated user. Defaults to the
      * `userMenuPopover.guest` translation (English fallback `"Account"`).
      */
-    guestName: String,
+    guestName: String as PropType<UserMenuPopoverProps['guestName']>,
     /** Extra className composed onto the relative-positioned container. */
-    className: String,
+    className: String as PropType<UserMenuPopoverProps['className']>,
   },
   setup(props, { attrs, slots }) {
     const cm = getClassMap()
@@ -200,6 +221,22 @@ export const UserMenuPopover = defineComponent({
 })
 
 /**
+ * Props for {@link UserMenuPopoverTrigger}.
+ *
+ * Vue port of `@molecule/app-ui-react`'s `UserMenuPopoverTriggerProps`.
+ */
+export interface UserMenuPopoverTriggerProps {
+  /** i18n key for the trigger's aria-label. Default: `'userMenu.open'`. */
+  ariaLabelKey?: string
+  /** Fallback aria-label if the i18n key is missing. Default: `'Open user menu'`. */
+  ariaLabelDefault?: string
+  /** `data-mol-id` for the trigger button. Default: `'user-menu'`. */
+  dataMolId?: string
+  /** Extra className composed onto the trigger button. */
+  className?: string
+}
+
+/**
  * Vue UserMenuPopoverTrigger component.
  *
  * The trigger button: an initials avatar plus the account name and email,
@@ -216,21 +253,21 @@ export const UserMenuPopoverTrigger = defineComponent({
   props: {
     /** i18n key for the trigger's aria-label. Default: `'userMenu.open'`. */
     ariaLabelKey: {
-      type: String,
+      type: String as PropType<UserMenuPopoverTriggerProps['ariaLabelKey']>,
       default: 'userMenu.open',
     },
     /** Fallback aria-label if the i18n key is missing. Default: `'Open user menu'`. */
     ariaLabelDefault: {
-      type: String,
+      type: String as PropType<UserMenuPopoverTriggerProps['ariaLabelDefault']>,
       default: 'Open user menu',
     },
     /** `data-mol-id` for the trigger button. Default: `'user-menu'`. */
     dataMolId: {
-      type: String,
+      type: String as PropType<UserMenuPopoverTriggerProps['dataMolId']>,
       default: 'user-menu',
     },
     /** Extra className composed onto the trigger button. */
-    className: String,
+    className: String as PropType<UserMenuPopoverTriggerProps['className']>,
   },
   setup(props, { attrs }) {
     const cm = getClassMap()
@@ -314,6 +351,26 @@ export const UserMenuPopoverTrigger = defineComponent({
 })
 
 /**
+ * Props for {@link UserMenuPopoverPanel}.
+ *
+ * Vue port of `@molecule/app-ui-react`'s `UserMenuPopoverPanelProps`: the nav
+ * items arrive as the default slot (React's `children`, optional here
+ * because a Vue slot is).
+ */
+export interface UserMenuPopoverPanelProps {
+  /** Panel body — the nav items and a sign-out (the default slot). */
+  children?: VNodeChild
+  /** Extra className composed onto the absolute-positioned panel. */
+  className?: string
+  /** i18n key for the panel's aria-label. Default: `'userMenu.panelLabel'`. */
+  ariaLabelKey?: string
+  /** Fallback aria-label if the i18n key is missing. Default: `'Account menu'`. */
+  ariaLabelDefault?: string
+  /** `data-mol-id` for the panel. Default: `'user-menu-panel'`. */
+  dataMolId?: string
+}
+
+/**
  * Vue UserMenuPopoverPanel component.
  *
  * The popover panel: an absolutely-positioned card with a built-in identity
@@ -336,20 +393,20 @@ export const UserMenuPopoverPanel = defineComponent({
   inheritAttrs: false,
   props: {
     /** Extra className composed onto the absolute-positioned panel. */
-    className: String,
+    className: String as PropType<UserMenuPopoverPanelProps['className']>,
     /** i18n key for the panel's aria-label. Default: `'userMenu.panelLabel'`. */
     ariaLabelKey: {
-      type: String,
+      type: String as PropType<UserMenuPopoverPanelProps['ariaLabelKey']>,
       default: 'userMenu.panelLabel',
     },
     /** Fallback aria-label if the i18n key is missing. Default: `'Account menu'`. */
     ariaLabelDefault: {
-      type: String,
+      type: String as PropType<UserMenuPopoverPanelProps['ariaLabelDefault']>,
       default: 'Account menu',
     },
     /** `data-mol-id` for the panel. Default: `'user-menu-panel'`. */
     dataMolId: {
-      type: String,
+      type: String as PropType<UserMenuPopoverPanelProps['dataMolId']>,
       default: 'user-menu-panel',
     },
   },
@@ -398,6 +455,22 @@ export const UserMenuPopoverPanel = defineComponent({
 })
 
 /**
+ * Props for {@link UserMenuPopoverSignOut}.
+ *
+ * Vue port of `@molecule/app-ui-react`'s `UserMenuPopoverSignOutProps`.
+ */
+export interface UserMenuPopoverSignOutProps {
+  /** i18n key for the button label. Default: `'userMenu.signOut'`. */
+  labelKey?: string
+  /** Fallback label if the i18n key is missing. Default: `'Sign out'`. */
+  labelDefault?: string
+  /** `data-mol-id` for the button. Default: `'user-menu-sign-out'`. */
+  dataMolId?: string
+  /** Extra className composed onto the button. */
+  className?: string
+}
+
+/**
  * Vue UserMenuPopoverSignOut component.
  *
  * The sign-out nav item — closes the popover and calls `auth.logout()`.
@@ -414,21 +487,21 @@ export const UserMenuPopoverSignOut = defineComponent({
   props: {
     /** i18n key for the button label. Default: `'userMenu.signOut'`. */
     labelKey: {
-      type: String,
+      type: String as PropType<UserMenuPopoverSignOutProps['labelKey']>,
       default: 'userMenu.signOut',
     },
     /** Fallback label if the i18n key is missing. Default: `'Sign out'`. */
     labelDefault: {
-      type: String,
+      type: String as PropType<UserMenuPopoverSignOutProps['labelDefault']>,
       default: 'Sign out',
     },
     /** `data-mol-id` for the button. Default: `'user-menu-sign-out'`. */
     dataMolId: {
-      type: String,
+      type: String as PropType<UserMenuPopoverSignOutProps['dataMolId']>,
       default: 'user-menu-sign-out',
     },
     /** Extra className composed onto the button. */
-    className: String,
+    className: String as PropType<UserMenuPopoverSignOutProps['className']>,
   },
   setup(props, { attrs }) {
     const cm = getClassMap()

@@ -27,6 +27,31 @@ import { Modal } from './modal.component.js'
 import { PanelCloseProvider } from './panel-close.component.js'
 
 /**
+ * Props for {@link UserMenu} (React's `UserMenuProps`, in Angular's form).
+ * The panel content is projected content, so it has no member.
+ */
+export interface UserMenuProps {
+  /** i18n key for the trigger's aria-label (default `userMenu.open`). */
+  ariaLabelKey?: string
+  /** Fallback aria-label (default `Open user menu`). */
+  ariaLabelDefault?: string
+  /** Icon name for the trigger (default `user`). */
+  triggerIcon?: IconName
+  /** Pixel size for the trigger icon (default 20). */
+  triggerIconSize?: number
+  /** `data-mol-id` for the trigger (default `user-menu`). */
+  dataMolId?: string
+  /** Extra classes composed onto the trigger. */
+  className?: string
+  /** Whether the trigger is disabled. */
+  disabled?: boolean
+  /** Overrides the trigger click (called instead of opening the panel). */
+  onClick?: () => void
+  /** Which side the panel opens from (default `right`). */
+  side?: 'left' | 'right'
+}
+
+/**
  * UserMenu component.
  *
  * React's root is a FRAGMENT (the trigger button plus a drawer), so the host
@@ -81,23 +106,23 @@ import { PanelCloseProvider } from './panel-close.component.js'
 })
 export class UserMenu implements AfterViewInit, OnDestroy {
   /** i18n key for the trigger's aria-label (default `userMenu.open`). */
-  ariaLabelKey?: string
+  ariaLabelKey?: UserMenuProps['ariaLabelKey']
   /** Fallback aria-label (default `Open user menu`). */
-  ariaLabelDefault?: string
+  ariaLabelDefault?: UserMenuProps['ariaLabelDefault']
   /** Icon name for the trigger (default `user`). */
-  triggerIcon?: IconName
+  triggerIcon?: UserMenuProps['triggerIcon']
   /** Pixel size for the trigger icon (default 20). */
-  triggerIconSize?: number
+  triggerIconSize?: UserMenuProps['triggerIconSize']
   /** `data-mol-id` for the trigger (default `user-menu`). */
-  dataMolId = 'user-menu'
+  dataMolId?: UserMenuProps['dataMolId'] = 'user-menu'
   /** Extra classes composed onto the trigger. */
-  className?: string
+  className?: UserMenuProps['className']
   /** Whether the trigger is disabled. */
-  disabled?: boolean
+  disabled?: UserMenuProps['disabled']
   /** Overrides the trigger click (called instead of opening the panel). */
-  onClick?: () => void
+  onClick?: UserMenuProps['onClick']
   /** Which side the panel opens from (default `right`). */
-  side: 'left' | 'right' = 'right'
+  side?: UserMenuProps['side'] = 'right'
 
   /** Whether the drawer is open. */
   readonly isOpen = signal(false)

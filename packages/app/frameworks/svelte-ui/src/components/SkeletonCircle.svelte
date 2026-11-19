@@ -5,7 +5,7 @@
   import type { SkeletonCircleProps } from '../types.js'
   import Skeleton from './Skeleton.svelte'
 
-  let { size = 40, className }: SkeletonCircleProps = $props()
+  let { ref = $bindable(null), size = 40, className }: SkeletonCircleProps = $props()
 </script>
 
-<Skeleton circle width={size} height={size} {className} />
+<Skeleton circle width={size} height={size} {className} bind:ref />

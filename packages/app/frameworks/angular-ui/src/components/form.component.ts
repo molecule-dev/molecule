@@ -4,14 +4,28 @@
  * @module
  */
 
-import { Component, signal } from '@angular/core'
+import { Component, ElementRef, inject, signal } from '@angular/core'
 
 import { useTranslation } from '@molecule/app-angular'
-import type { UIClassMap } from '@molecule/app-ui'
+import type { FormProps, UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
+import { type HasElement, hostElement } from '../utilities/element.js'
 import { formSubmitErrorMessages } from '../utilities/form-submit-error.js'
 import { styleText } from '../utilities/style.js'
+
+/**
+ * Props for {@link Form} (React's `ReactFormProps`, in Angular's form).
+ *
+ * React's form adds one prop to the core `FormProps`: a failure managed by an
+ * external form controller (`useForm().formState.submitError`). Binding the
+ * `submitError` input is the Angular equivalent — the form then renders the
+ * same accessible server-error list instead of the failure it captured.
+ */
+export interface ReactFormProps extends FormProps {
+  /** A rejected submission, for example useForm().formState.submitError. */
+  submitError?: unknown
+}
 
 /**
  * Form component.
@@ -36,11 +50,14 @@ import { styleText } from '../utilities/style.js'
     'className',
     'style',
     'testId',
+    'automationId',
+    'dataMolId: data-mol-id',
   ],
   host: {
     '[class]': 'className',
     '[style]': 'hostStyle()',
     '[attr.data-testid]': 'testId',
+    '[attr.data-mol-id]': 'molId()',
     '[attr.action]': 'action ?? null',
     '[attr.method]': 'method ?? null',
     '[attr.novalidate]': 'noValidate ? "" : null',
@@ -61,29 +78,31 @@ import { styleText } from '../utilities/style.js'
       <ng-content></ng-content>
     </fieldset>`,
 })
-export class Form {
+export class Form implements HasElement<HTMLFormElement> {
   /** Collects the form's data on submit (React's `onFormSubmit`). */
-  onFormSubmit?: (data: Record<string, unknown>) => void | Promise<void>
+  onFormSubmit?: ReactFormProps['onFormSubmit']
   /** Receives the submit event (React's `onSubmit`). */
-  onSubmit?: (event: Event) => void | Promise<void>
+  onSubmit?: ReactFormProps['onSubmit']
   /** Receives the reset event (React's `onReset`). */
-  onReset?: (event: Event) => void
+  onReset?: ReactFormProps['onReset']
   /** Whether the form is submitting (disables the fieldset). */
-  submitting?: boolean
-  /** A failure managed by an external form controller. */
-  submitError?: unknown
+  submitting?: ReactFormProps['submitting']
   /** Native form action. */
-  action?: string
+  action?: ReactFormProps['action']
   /** Native form method. */
-  method?: string
+  method?: ReactFormProps['method']
   /** Whether native validation is disabled. */
-  noValidate?: boolean
+  noValidate?: ReactFormProps['noValidate']
   /** Extra classes for the form. */
-  className?: string
+  className?: ReactFormProps['className']
   /** Inline style object (React camelCase). */
-  style?: Record<string, unknown>
+  style?: ReactFormProps['style']
   /** `data-testid`. */
-  testId?: string
+  testId?: ReactFormProps['testId']
+  /** `data-mol-id` automation id (React's `automationId`). */
+  automationId?: ReactFormProps['automationId']
+  /** A `data-mol-id` given as a plain rest attribute (React's `rootProps` precedence). */
+  dataMolId?: string
 
   /** Whether a submit is in flight. */
   readonly pending = signal(false)
@@ -91,6 +110,39 @@ export class Form {
   private readonly failure = signal<{ error: unknown } | null>(null)
   /** A submit counter: a later submit supersedes an earlier settling one. */
   private attempt = 0
+  /** The controlled failure's current value. */
+  private controlledError: unknown
+  /** Whether the caller has written `submitError` (React's `Object.hasOwn`). */
+  private controlled = false
+  private readonly host: ElementRef<HTMLFormElement> = inject(ElementRef)
+  /** The element a caller's ref receives: the host `<form>`. */
+  readonly element = hostElement(this.host)
+
+  /**
+   * A failure managed by an external form controller (React's `submitError`
+   * prop).
+   *
+   * An accessor, not a field: Angular writes an input by assigning the
+   * property, so the write itself is the "this prop was passed" signal React
+   * reads with `Object.hasOwn(props, 'submitError')`. A caller that binds
+   * `[submitError]` therefore owns the error UI — an explicit `undefined`
+   * clears a failure the form captured itself.
+   *
+   * @returns The controlled failure, as the caller last wrote it.
+   */
+  get submitError(): ReactFormProps['submitError'] {
+    return this.controlledError
+  }
+
+  /**
+   * Records the caller's controlled failure (and that the caller passed one).
+   *
+   * @param value - The caller's failure, or `undefined` to clear the error UI.
+   */
+  set submitError(value: ReactFormProps['submitError']) {
+    this.controlled = true
+    this.controlledError = value
+  }
 
   /**
    * Reactive translation, read in the injection context. Its `t` reads the
@@ -116,17 +168,34 @@ export class Form {
   }
 
   /**
+   * The `data-mol-id` value (`automationId` wins over a rest `data-mol-id`).
+   * @returns The attribute value.
+   */
+  molId(): string | undefined {
+    return (
+      this.automationId ??
+      this.dataMolId ??
+      this.host.nativeElement.getAttribute('data-mol-id') ??
+      undefined
+    )
+  }
+
+  /**
    * The error messages to announce (React's `submitError`/`failure` branch).
    * @returns The messages.
    */
   messages(): string[] {
-    // Angular has no "prop was passed" signal; an explicitly-present
-    // `submitError` is the external-controller form, absent means the
-    // component owns the failure (React's `Object.hasOwn(props, …)`).
-    const error = this.submitError !== undefined ? { error: this.submitError } : this.failure()
-    if (!error) return []
+    // React's `Object.hasOwn(props, 'submitError')` branch: once the caller
+    // binds the input, it owns the error UI — an explicitly-undefined value
+    // clears the list instead of falling back to a captured failure.
+    const failure = this.controlled
+      ? this.controlledError === undefined
+        ? null
+        : { error: this.controlledError }
+      : this.failure()
+    if (!failure) return []
     return formSubmitErrorMessages(
-      error.error,
+      failure.error,
       this.i18n.t('ui.form.submitError', undefined, {
         defaultValue: 'Unable to submit. Please try again.',
       }),
@@ -153,7 +222,7 @@ export class Form {
           submissions.push(Promise.reject(error))
         }
       }
-      const form = event.currentTarget as HTMLFormElement | null
+      const form = event.currentTarget instanceof HTMLFormElement ? event.currentTarget : null
       if (this.onFormSubmit) {
         event.preventDefault()
         const formData = new FormData(form ?? undefined)

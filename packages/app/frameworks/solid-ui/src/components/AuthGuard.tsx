@@ -1,4 +1,4 @@
-import { createEffect, type JSX, on } from 'solid-js'
+import { createEffect, type JSX, on, Show } from 'solid-js'
 
 import { useAuth, useRouter, useTranslation } from '@molecule/app-solid'
 
@@ -116,18 +116,26 @@ export function AuthGuard(props: AuthGuardProps): JSX.Element {
     ),
   )
 
-  if (status() === 'loading') {
-    return (
-      props.loadingFallback ?? (
-        <div data-mol-id="auth-guard-loading">
-          {t(
-            props.loadingKey ?? 'common.loading',
-            {},
-            { defaultValue: props.loadingDefault ?? 'Loading...' },
-          )}
-        </div>
-      )
-    )
-  }
-  return props.children ?? null
+  // Read the status through a `Show`, not an `if`: a Solid component body runs
+  // once, and a full-load client starts at `'loading'` and reaches its decision a
+  // request later. React re-renders the guard on every `useAuth()` change, so the
+  // loading tag must give way to the children in the same mount.
+  return (
+    <Show
+      when={status() !== 'loading'}
+      fallback={
+        props.loadingFallback ?? (
+          <div data-mol-id="auth-guard-loading">
+            {t(
+              props.loadingKey ?? 'common.loading',
+              {},
+              { defaultValue: props.loadingDefault ?? 'Loading...' },
+            )}
+          </div>
+        )
+      }
+    >
+      {props.children ?? null}
+    </Show>
+  )
 }

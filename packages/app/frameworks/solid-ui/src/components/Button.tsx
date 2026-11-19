@@ -4,12 +4,13 @@
  * @module
  */
 
-import { type Component, type JSX, Show, splitProps } from 'solid-js'
+import { type JSX, Show, splitProps } from 'solid-js'
 
 import type { ButtonProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
-import { toStyleProps } from '../utilities/dom.js'
+import { reactDomProps, toStyleProps, type WithRef } from '../utilities/dom.js'
+import { withDisplayName } from './displayName.js'
 import { Spinner } from './Spinner.jsx'
 
 /**
@@ -24,7 +25,7 @@ import { Spinner } from './Spinner.jsx'
  * @param props - The component props.
  * @returns The rendered button JSX.
  */
-export const Button: Component<ButtonProps> = (props) => {
+export const Button = withDisplayName<WithRef<ButtonProps, HTMLButtonElement>>((props) => {
   const [local, rest] = splitProps(props, [
     'children',
     'variant',
@@ -66,8 +67,8 @@ export const Button: Component<ButtonProps> = (props) => {
       data-testid={local.testId}
       aria-busy={local.loading ? 'true' : 'false'}
       disabled={local.disabled || local.loading}
-      onClick={local.onClick as JSX.EventHandlerUnion<HTMLButtonElement, MouseEvent>}
-      {...(rest as JSX.ButtonHTMLAttributes<HTMLButtonElement>)}
+      onClick={local.onClick}
+      {...reactDomProps(rest)}
     >
       <Show when={local.loading}>
         <Spinner size="sm" className={cm.buttonIconLeft} />
@@ -81,4 +82,4 @@ export const Button: Component<ButtonProps> = (props) => {
       </Show>
     </button>
   )
-}
+}, 'Button')

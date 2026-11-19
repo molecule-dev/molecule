@@ -55,28 +55,107 @@ afterEach(() => {
   for (const host of hosts.splice(0)) host.remove()
 })
 
-/** Mounts an open ConfirmDialog with the standard title/description. */
-function mountDialog(): void {
+/** The props the ported behaviour tests vary; everything else is the standard dialog. */
+interface DialogVariants {
+  open?: boolean
+  onClose?: () => void
+  onConfirm?: () => void
+  confirmLabel?: string
+  cancelLabel?: string
+  loading?: boolean
+}
+
+/**
+ * Mounts a ConfirmDialog with the standard title/description, overridable
+ * per test.
+ *
+ * @param props - The props that differ from the standard open dialog.
+ * @param children - Extra body content (Vue's default slot).
+ * @returns The mount host.
+ */
+function mountDialog(props: DialogVariants = {}, children?: () => unknown): HTMLElement {
   const host = document.createElement('div')
   document.body.appendChild(host)
   hosts.push(host)
   const app = createApp(
     defineComponent({
       render: () =>
-        h(ConfirmDialog, {
-          open: true,
-          onClose: () => {},
-          onConfirm: () => {},
-          title: 'Delete account',
-          description: 'This cannot be undone.',
-        }),
+        h(
+          ConfirmDialog,
+          {
+            open: true,
+            onClose: () => {},
+            onConfirm: () => {},
+            title: 'Delete account',
+            description: 'This cannot be undone.',
+            ...props,
+          },
+          children ? { default: children } : undefined,
+        ),
     }),
   )
   apps.push(app)
   app.mount(host)
+  return host
 }
 
 describe('ConfirmDialog', () => {
+  it('renders nothing while open is false', () => {
+    const host = mountDialog({ open: false })
+    // Nothing observable renders: no element in the mount host and no dialog
+    // in the body portal (Vue leaves only its empty placeholder comment).
+    expect(host.children).toHaveLength(0)
+    expect(host.textContent).toBe('')
+    expect(document.querySelector('[role="dialog"]')).toBeNull()
+  })
+
+  it('renders the title and description once open', () => {
+    mountDialog()
+    // Modal teleports to document.body.
+    const body = within(document.body)
+    expect(body.getByText('Delete account')).toBeTruthy()
+    expect(body.getByText('This cannot be undone.')).toBeTruthy()
+  })
+
+  it('uses the default Cancel / Confirm labels', () => {
+    mountDialog()
+    const body = within(document.body)
+    expect(body.getByText('Cancel')).toBeTruthy()
+    expect(body.getByText('Confirm')).toBeTruthy()
+  })
+
+  it('honours custom confirm / cancel labels', () => {
+    mountDialog({ confirmLabel: 'Delete', cancelLabel: 'Keep it' })
+    const body = within(document.body)
+    expect(body.getByText('Delete')).toBeTruthy()
+    expect(body.getByText('Keep it')).toBeTruthy()
+  })
+
+  it('wires confirm to onConfirm and cancel to onClose', () => {
+    const onConfirm = vi.fn()
+    const onClose = vi.fn()
+    mountDialog({ onConfirm, onClose })
+    const body = within(document.body)
+    body.getByText('Confirm').click()
+    expect(onConfirm).toHaveBeenCalledTimes(1)
+    body.getByText('Cancel').click()
+    expect(onClose).toHaveBeenCalledTimes(1)
+  })
+
+  it('disables both buttons while loading and shows the pending glyph', () => {
+    mountDialog({ loading: true })
+    const body = within(document.body)
+    const confirm = body.getByText('…') as HTMLButtonElement
+    expect(confirm.disabled).toBe(true)
+    expect((body.getByText('Cancel') as HTMLButtonElement).disabled).toBe(true)
+  })
+
+  it('renders extra children between description and footer', () => {
+    mountDialog({}, () => h('input', { 'data-extra': '' }))
+    // Modal portals to document.body, so query there, not the mount host.
+    expect(document.body.querySelector('[data-extra]')).toBeTruthy()
+  })
+
   it('names the dialog with its visible title', () => {
     mountDialog()
     // Modal teleports to document.body.

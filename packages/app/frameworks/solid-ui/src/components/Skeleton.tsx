@@ -4,20 +4,21 @@
  * @module
  */
 
-import { type Component, createMemo, Index, splitProps } from 'solid-js'
+import { createMemo, Index, splitProps } from 'solid-js'
 
 import type { SkeletonProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
-import { toStyleProps } from '../utilities/dom.js'
+import { reactDomProps, toStyleProps, type WithRef } from '../utilities/dom.js'
+import { withDisplayName } from './displayName.js'
 
 /**
  * Renders the Skeleton component.
  * @param props - The component props.
  * @returns The rendered skeleton JSX.
  */
-export const Skeleton: Component<SkeletonProps> = (props) => {
-  const [local] = splitProps(props, [
+export const Skeleton = withDisplayName<WithRef<SkeletonProps, HTMLDivElement>>((props) => {
+  const [local, rest] = splitProps(props, [
     'width',
     'height',
     'circle',
@@ -62,21 +63,30 @@ export const Skeleton: Component<SkeletonProps> = (props) => {
       class={skeletonClasses()}
       style={toStyleProps(computedStyle())}
       data-testid={local.testId}
+      {...reactDomProps(rest)}
     />
   )
-}
+}, 'Skeleton')
 
 /**
  * Renders the SkeletonText component (placeholder text lines).
  * @param props - The component props (`lines` defaults to 3).
  * @returns The rendered skeleton text JSX.
  */
-export const SkeletonText: Component<{ lines?: number; className?: string }> = (props) => {
+export const SkeletonText = withDisplayName<
+  WithRef<{ lines?: number; className?: string }, HTMLDivElement>
+>((props) => {
+  const [local] = splitProps(props, ['ref'])
   const cm = getClassMap()
   const lines = createMemo(() => props.lines ?? 3)
 
   return (
-    <div class={cm.cn(cm.skeletonTextContainer, props.className)}>
+    <div
+      ref={(el) => {
+        if (typeof local.ref === 'function') local.ref(el)
+      }}
+      class={cm.cn(cm.skeletonTextContainer, props.className)}
+    >
       {/* React keys the lines `key={i}`, so `<Index>` — a position's node
           survives a line-count change and its width updates. */}
       <Index each={Array.from({ length: lines() }, (_, i) => i)}>
@@ -84,13 +94,24 @@ export const SkeletonText: Component<{ lines?: number; className?: string }> = (
       </Index>
     </div>
   )
-}
+}, 'SkeletonText')
 
 /**
  * Renders the SkeletonCircle component (avatar placeholder).
  * @param props - The component props (`size` defaults to 40).
  * @returns The rendered skeleton circle JSX.
  */
-export const SkeletonCircle: Component<{ size?: number; className?: string }> = (props) => (
-  <Skeleton circle width={props.size ?? 40} height={props.size ?? 40} className={props.className} />
+export const SkeletonCircle = withDisplayName<
+  WithRef<{ size?: number; className?: string }, HTMLDivElement>
+>(
+  (props) => (
+    <Skeleton
+      circle
+      width={props.size ?? 40}
+      height={props.size ?? 40}
+      className={props.className}
+      ref={props.ref}
+    />
+  ),
+  'SkeletonCircle',
 )

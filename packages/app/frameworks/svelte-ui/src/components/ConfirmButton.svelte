@@ -15,6 +15,7 @@
   import ReactNode from './ReactNode.svelte'
 
   let {
+    ref = $bindable(null),
     onConfirm,
     label,
     confirmLabel,
@@ -86,6 +87,7 @@
 </script>
 
 <button
+  bind:this={ref}
   type="button"
   onclick={handleClick}
   disabled={disabled || phase === 'pending'}

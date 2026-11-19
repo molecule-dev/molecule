@@ -17,7 +17,7 @@ import {
 import { useAuth, useLocation, useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
-import { toStyleProps } from '../utilities/dom.js'
+import { reactDomProps, toStyleProps } from '../utilities/dom.js'
 import { getInitials } from '../utilities/initials.js'
 import { Modal } from './Modal.jsx'
 import { PanelCloseProvider } from './PanelClose.jsx'
@@ -146,7 +146,7 @@ export const SidebarUserCard: Component<SidebarUserCardProps> = (props) => {
           local.className,
         )}
         style={toStyleProps(local.style)}
-        {...(rest as JSX.ButtonHTMLAttributes<HTMLButtonElement>)}
+        {...reactDomProps(rest)}
       >
         <Show
           when={displayAvatarUrl()}

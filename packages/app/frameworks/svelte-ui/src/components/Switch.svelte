@@ -12,6 +12,7 @@
   import type { SwitchProps } from '../types.js'
 
   let {
+    ref = $bindable(null),
     label,
     checked,
     size = 'md',
@@ -28,42 +29,36 @@
   const cm = $derived(getClassMap())
   const dataState = $derived(checked ? 'checked' : 'unchecked')
 
-  let hiddenInput = $state<HTMLInputElement | null>(null)
-
-  // Attached once, reading the latest onChange at event time, so no gap exists
-  // between the switch appearing and its listener existing.
-  $effect.pre(() => {
-    const input = hiddenInput
-    if (!input) return
-    const listener = (event: Event): void => {
-      onChange?.(event)
-    }
-    input.addEventListener('change', listener)
-    return () => input.removeEventListener('change', listener)
-  })
-
   const handleClick = (event: MouseEvent): void => {
     onClick?.(event)
-    if (!disabled && !event.defaultPrevented) {
-      hiddenInput?.click()
-      // React restores a controlled input's checked state after the change
-      // event; the hidden checkbox keeps mirroring the `checked` prop.
-      if (hiddenInput) hiddenInput.checked = !!checked
-    }
+    if (disabled || event.defaultPrevented) return
+    // Resolve the hidden checkbox from the rendered tree instead of a
+    // `bind:this` ref: the binding is only assigned when effects flush, so a
+    // click that lands in the same task as the mount would find it null and
+    // toggle nothing (React attaches its layout-effect listener at commit).
+    const target = event.currentTarget
+    const input =
+      target instanceof HTMLElement ? target.parentElement?.previousElementSibling : null
+    if (!(input instanceof HTMLInputElement)) return
+    input.click()
+    // React restores a controlled input's checked state after the change
+    // event; the hidden checkbox keeps mirroring the `checked` prop.
+    input.checked = !!checked
   }
 </script>
 
 <input
-  bind:this={hiddenInput}
   type="checkbox"
   use:reflectChecked={!!checked}
   {disabled}
   aria-hidden="true"
   tabindex="-1"
   class={cm.srOnly}
+  onchange={(event) => onChange?.(event)}
 />
 <label class={cm.cn(cm.controlLabel, disabled && cm.controlDisabled)}>
   <button
+    bind:this={ref}
     type="button"
     role="switch"
     aria-checked={checked ? 'true' : 'false'}

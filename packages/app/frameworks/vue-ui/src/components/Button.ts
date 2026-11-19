@@ -10,6 +10,8 @@ import type { ButtonProps, ButtonSize, ButtonVariant, ColorVariant } from '@mole
 import { getClassMap } from '@molecule/app-ui'
 
 import { classOf, restAttrs, styleOf } from '../utilities/attrs.js'
+import { useElementRef } from '../utilities/elementRef.js'
+import { setDisplayName } from './displayName.js'
 import { Spinner } from './Spinner.js'
 
 /**
@@ -58,8 +60,9 @@ export const Button = defineComponent({
     testId: String,
   },
   emits: ['click'],
-  setup(props, { attrs, slots, emit }) {
+  setup(props, { attrs, slots, emit, expose }) {
     const cm = getClassMap()
+    const element = useElementRef<HTMLButtonElement>(expose)
 
     return () => {
       const classes = cm.cn(
@@ -87,6 +90,7 @@ export const Button = defineComponent({
       return h(
         'button',
         {
+          ref: element,
           type: props.type,
           class: classes,
           style: styleOf(props.style, attrs),
@@ -101,3 +105,5 @@ export const Button = defineComponent({
     }
   },
 })
+
+setDisplayName(Button, 'Button')

@@ -14,6 +14,7 @@ import {
   EventEmitter,
   Output,
   signal,
+  type TemplateRef,
   ViewChild,
 } from '@angular/core'
 
@@ -22,9 +23,48 @@ import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 import { nextInstanceId } from '../utilities/ids.js'
+import { asTemplate, isGiven, nodeText } from '../utilities/node-value.js'
 import { Button } from './button.component.js'
 import { Input } from './input.component.js'
 import { Modal } from './modal.component.js'
+import { MolTemplateOutlet } from './template-outlet.directive.js'
+
+/**
+ * Props for {@link PromptDialog} (React's `PromptDialogProps`, in Angular's
+ * form).
+ *
+ * Node-valued members are `string | number | TemplateRef<unknown>` inputs; the
+ * title may also be projected as `[slot=title]`. `onClose` keeps React's name
+ * and signature and is carried by the component's `close` output.
+ */
+export interface PromptDialogProps {
+  /** Whether the dialog is open. */
+  open: boolean
+  /** Called when the dialog should close (carried by the `close` output). */
+  onClose: () => void
+  /** Dialog heading. */
+  title?: string | number | TemplateRef<unknown>
+  /** Explanatory line under the title. */
+  description?: string | number | TemplateRef<unknown>
+  /** Input placeholder. */
+  placeholder?: string
+  /** Value the input starts from every time the dialog opens. */
+  initialValue?: string
+  /** Called with the entered value on confirm. */
+  onSubmit: (value: string) => void | Promise<void>
+  /** Confirm-button label. */
+  confirmLabel?: string | number | TemplateRef<unknown>
+  /** Cancel-button label. */
+  cancelLabel?: string | number | TemplateRef<unknown>
+  /** Renders the confirm button in the error color. */
+  destructive?: boolean
+  /** `data-mol-id` for the text input. */
+  inputMolId?: string
+  /** `data-mol-id` for the confirm button. */
+  confirmMolId?: string
+  /** `data-mol-id` for the cancel button. */
+  cancelMolId?: string
+}
 
 /**
  * PromptDialog component.
@@ -37,7 +77,7 @@ import { Modal } from './modal.component.js'
 @Component({
   selector: 'mol-prompt-dialog',
   standalone: true,
-  imports: [Button, Input, Modal],
+  imports: [Button, Input, Modal, MolTemplateOutlet],
   inputs: [
     'open',
     'title',
@@ -61,7 +101,7 @@ import { Modal } from './modal.component.js'
     [open]="open"
     (close)="onModalClose()"
     [attr.aria-labelledby]="titleId"
-    [attr.aria-describedby]="description ? descriptionId : null"
+    [attr.aria-describedby]="isGiven(description) ? descriptionId : null"
     ><form (submit)="handleSubmit($event)">
       <div [class]="cm().stack(3)">
         <h2
@@ -69,10 +109,23 @@ import { Modal } from './modal.component.js'
           [attr.id]="titleId"
           [class]="cm().cn(cm().textSize('lg'), cm().fontWeight('bold'))"
         >
-          <ng-content select="[slot=title]"></ng-content>
+          @if (isGiven(title)) {
+            <ng-container [molTemplateOutlet]="asTemplate(title)"></ng-container
+            >{{ nodeText(title) }}
+          } @else {
+            <ng-content select="[slot=title]"></ng-content>
+          }
         </h2>
-        @if (description) {
-          <p [attr.id]="descriptionId" [class]="cm().textSize('sm')">{{ description }}</p>
+        @if (asTemplate(description); as descriptionTemplate) {
+          <p [attr.id]="descriptionId" [class]="cm().textSize('sm')">
+            <ng-container [molTemplateOutlet]="descriptionTemplate"></ng-container>
+          </p>
+        } @else if (isGiven(description)) {
+          <p
+            [attr.id]="descriptionId"
+            [class]="cm().textSize('sm')"
+            [textContent]="nodeText(description)"
+          ></p>
         }
         <div
           mol-input
@@ -92,7 +145,12 @@ import { Modal } from './modal.component.js'
             (click)="close.emit($event)"
             [attr.data-mol-id]="cancelMolId"
           >
-            {{ cancelText() }}</button
+            @if (isGiven(cancelLabel)) {
+              <ng-container [molTemplateOutlet]="asTemplate(cancelLabel)"></ng-container
+              >{{ nodeText(cancelLabel) }}
+            } @else {
+              {{ cancelText() }}
+            }</button
           ><button
             mol-button
             [type]="'submit'"
@@ -101,7 +159,12 @@ import { Modal } from './modal.component.js'
             [disabled]="pending()"
             [attr.data-mol-id]="confirmMolId"
           >
-            {{ confirmText() }}
+            @if (isGiven(confirmLabel)) {
+              <ng-container [molTemplateOutlet]="asTemplate(confirmLabel)"></ng-container
+              >{{ nodeText(confirmLabel) }}
+            } @else {
+              {{ confirmText() }}
+            }
           </button>
         </div>
       </div>
@@ -110,32 +173,39 @@ import { Modal } from './modal.component.js'
 })
 export class PromptDialog implements AfterViewInit, AfterViewChecked, DoCheck {
   /** Whether the dialog is open. */
-  open = false
+  open: PromptDialogProps['open'] = false
   /** Dialog heading (node-valued prop). */
-  title?: unknown
-  /** Explanatory line under the title. */
-  description?: string
+  title?: PromptDialogProps['title']
+  /** Explanatory line under the title (node-valued prop). */
+  description?: PromptDialogProps['description']
   /** Input placeholder. */
-  placeholder?: string
+  placeholder?: PromptDialogProps['placeholder']
   /** Value the input starts from every time the dialog opens. */
-  initialValue = ''
+  initialValue?: PromptDialogProps['initialValue'] = ''
   /**
    * Called with the entered value on confirm. Resolve to close the dialog;
    * reject or throw to keep it open.
    */
-  onSubmit?: (value: string) => void | Promise<void>
-  /** Confirm-button label. */
-  confirmLabel?: string
-  /** Cancel-button label. */
-  cancelLabel?: string
+  onSubmit?: PromptDialogProps['onSubmit']
+  /** Confirm-button label (node-valued prop). */
+  confirmLabel?: PromptDialogProps['confirmLabel']
+  /** Cancel-button label (node-valued prop). */
+  cancelLabel?: PromptDialogProps['cancelLabel']
   /** Renders the confirm button in the error color. */
-  destructive = false
+  destructive?: PromptDialogProps['destructive'] = false
   /** `data-mol-id` for the text input. */
-  inputMolId?: string
+  inputMolId?: PromptDialogProps['inputMolId']
   /** `data-mol-id` for the confirm button. */
-  confirmMolId?: string
+  confirmMolId?: PromptDialogProps['confirmMolId']
   /** `data-mol-id` for the cancel button. */
-  cancelMolId?: string
+  cancelMolId?: PromptDialogProps['cancelMolId']
+
+  /** Template helpers (templates see only class members). */
+  readonly asTemplate = asTemplate
+  /** Renders a plain-string/number node value. */
+  readonly nodeText = nodeText
+  /** Whether a node-valued prop was given. */
+  readonly isGiven = isGiven
 
   /** Fires when the dialog should close (escape, backdrop, cancel, a fulfilled submit). */
   @Output() readonly close = new EventEmitter<unknown>()
@@ -191,7 +261,9 @@ export class PromptDialog implements AfterViewInit, AfterViewChecked, DoCheck {
    * @returns The label text.
    */
   cancelText(): string {
-    return this.cancelLabel ?? this.i18n.t('prompt.cancel', {}, { defaultValue: 'Cancel' })
+    return typeof this.cancelLabel === 'string'
+      ? this.cancelLabel
+      : this.i18n.t('prompt.cancel', {}, { defaultValue: 'Cancel' })
   }
 
   /**
@@ -199,7 +271,9 @@ export class PromptDialog implements AfterViewInit, AfterViewChecked, DoCheck {
    * @returns The label text.
    */
   confirmText(): string {
-    return this.confirmLabel ?? this.i18n.t('prompt.confirm', {}, { defaultValue: 'Confirm' })
+    return typeof this.confirmLabel === 'string'
+      ? this.confirmLabel
+      : this.i18n.t('prompt.confirm', {}, { defaultValue: 'Confirm' })
   }
 
   /**
@@ -225,9 +299,9 @@ export class PromptDialog implements AfterViewInit, AfterViewChecked, DoCheck {
   ngAfterViewInit(): void {
     this.applyInputLabel()
     this.lastOpen = !!this.open
-    this.lastInitial = this.initialValue
+    this.lastInitial = this.initialValue ?? ''
     if (this.open) {
-      this.value.set(this.initialValue)
+      this.value.set(this.initialValue ?? '')
       this.pending.set(false)
       // The dialog exists to take one string, so opening it puts focus in the
       // input — after the Modal has focused the dialog's first control.
@@ -246,9 +320,9 @@ export class PromptDialog implements AfterViewInit, AfterViewChecked, DoCheck {
     this.applyInputLabel()
     if (open !== this.lastOpen || (open && this.initialValue !== this.lastInitial)) {
       this.lastOpen = open
-      this.lastInitial = this.initialValue
+      this.lastInitial = this.initialValue ?? ''
       if (open) {
-        this.value.set(this.initialValue)
+        this.value.set(this.initialValue ?? '')
         this.pending.set(false)
         this.pendingInputFocus = true
       }

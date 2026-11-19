@@ -7,12 +7,12 @@
   import type { SkeletonTextProps } from '../types.js'
   import Skeleton from './Skeleton.svelte'
 
-  let { lines = 3, className }: SkeletonTextProps = $props()
+  let { ref = $bindable(null), lines = 3, className }: SkeletonTextProps = $props()
 
   const cm = $derived(getClassMap())
 </script>
 
-<div class={cm.cn(cm.skeletonTextContainer, className)}>
+<div bind:this={ref} class={cm.cn(cm.skeletonTextContainer, className)}>
   {#each Array.from({ length: lines }) as _, i (i)}
     <Skeleton height={16} width={i === lines - 1 ? '60%' : '100%'} />
   {/each}

@@ -1,10 +1,11 @@
 // @vitest-environment jsdom
 /**
- * ConfirmDialog names the dialog with its visible title: `aria-labelledby`
- * points at the rendered `<h2>`, so the accessible name resolves to the
- * title text (React parity; axe `aria-dialog-name`). A port of the a11y test
- * in `@molecule/app-ui-react/src/__tests__/confirm-dialog.test.tsx`, mounted
- * with real Svelte like the prompt-dialog suite mounts its component.
+ * Render/behavior tests for ConfirmDialog: content, default + custom labels,
+ * confirm/cancel wiring, loading disabling, children placement, and the
+ * accessible name (`aria-labelledby` at the rendered `<h2>`).
+ *
+ * A port of `@molecule/app-ui-react/src/__tests__/confirm-dialog.test.tsx`,
+ * mounted with real Svelte like the prompt-dialog suite mounts its component.
  *
  * @module
  */
@@ -43,8 +44,8 @@ vi.mock('@molecule/app-icons', () => ({
   getIcon: () => ({ viewBox: '0 0 20 20', fill: 'currentColor', paths: [{ d: 'M0 0h20v20H0z' }] }),
 }))
 
-import { within } from '@testing-library/dom'
-import { type Component, mount, unmount } from 'svelte'
+import { fireEvent, within } from '@testing-library/dom'
+import { createRawSnippet, flushSync, mount, unmount } from 'svelte'
 
 const { default: ConfirmDialog } = await import('../components/ConfirmDialog.svelte')
 
@@ -54,44 +55,108 @@ const hosts: HTMLElement[] = []
 afterEach(() => {
   for (const instance of mounted.splice(0)) unmount(instance)
   for (const host of hosts.splice(0)) host.remove()
+  document.body.innerHTML = ''
 })
 
-/** Mounts an open ConfirmDialog and returns its dialog element. */
-function mountDialog(): HTMLElement {
+const base = {
+  onClose: () => {},
+  onConfirm: () => {},
+  title: 'Delete account',
+  description: 'This cannot be undone.',
+}
+
+/**
+ * Mounts a ConfirmDialog and returns its host element.
+ *
+ * @param props - Props merged over the base props (the dialog is open).
+ * @param children - Optional body content rendered between description and footer.
+ * @returns The mount host.
+ */
+function mountDialog(
+  props: Record<string, unknown> = {},
+  children?: ReturnType<typeof createRawSnippet>,
+): HTMLElement {
   const host = document.createElement('div')
   document.body.appendChild(host)
   hosts.push(host)
   mounted.push(
-    mount(
-      ConfirmDialog as Component<{
-        open: boolean
-        onClose: () => void
-        onConfirm: () => void
-        title: string
-        description: string
-      }>,
-      {
-        target: host,
-        props: {
-          open: true,
-          onClose: () => {},
-          onConfirm: () => {},
-          title: 'Delete account',
-          description: 'This cannot be undone.',
-        },
-      },
-    ),
+    mount(ConfirmDialog, {
+      target: host,
+      props: { ...base, open: true, ...props, ...(children ? { children } : {}) },
+    }),
   )
-  return document.querySelector('[role="dialog"]') as HTMLElement
+  flushSync()
+  return host
 }
+
+/** The rendered dialog element (Modal portals it into the body). */
+const dialog = (): HTMLElement => document.querySelector('[role="dialog"]') as HTMLElement
 
 describe('ConfirmDialog', () => {
   it('names the dialog with its visible title', () => {
-    const dialog = mountDialog()
-    expect(dialog).toBeTruthy()
-    const heading = dialog.querySelector('h2') as HTMLHeadingElement
+    mountDialog()
+    const element = dialog()
+    expect(element).toBeTruthy()
+    const heading = element.querySelector('h2') as HTMLHeadingElement
     expect(heading.id).not.toBe('')
-    expect(dialog.getAttribute('aria-labelledby')).toBe(heading.id)
-    expect(within(document.body).getByRole('dialog', { name: 'Delete account' })).toBe(dialog)
+    expect(element.getAttribute('aria-labelledby')).toBe(heading.id)
+    expect(within(document.body).getByRole('dialog', { name: 'Delete account' })).toBe(element)
+  })
+
+  it('renders nothing while open is false', () => {
+    const host = document.createElement('div')
+    document.body.appendChild(host)
+    hosts.push(host)
+    mounted.push(mount(ConfirmDialog, { target: host, props: { ...base, open: false } }))
+    flushSync()
+    // Svelte leaves comment anchors where a false branch renders; the content
+    // React's container shows is what matters: no element, no text.
+    expect(host.children.length).toBe(0)
+    expect(host.textContent).toBe('')
+    expect(dialog()).toBeNull()
+  })
+
+  it('renders the title and description once open', () => {
+    mountDialog()
+    expect(within(document.body).getByText('Delete account')).toBeTruthy()
+    expect(within(document.body).getByText('This cannot be undone.')).toBeTruthy()
+  })
+
+  it('uses the default Cancel / Confirm labels', () => {
+    mountDialog()
+    expect(within(document.body).getByText('Cancel')).toBeTruthy()
+    expect(within(document.body).getByText('Confirm')).toBeTruthy()
+  })
+
+  it('honours custom confirm / cancel labels', () => {
+    mountDialog({ confirmLabel: 'Delete', cancelLabel: 'Keep it' })
+    expect(within(document.body).getByText('Delete')).toBeTruthy()
+    expect(within(document.body).getByText('Keep it')).toBeTruthy()
+  })
+
+  it('wires confirm to onConfirm and cancel to onClose', () => {
+    const onConfirm = vi.fn()
+    const onClose = vi.fn()
+    mountDialog({ onConfirm, onClose })
+    fireEvent.click(within(document.body).getByText('Confirm'))
+    expect(onConfirm).toHaveBeenCalledTimes(1)
+    fireEvent.click(within(document.body).getByText('Cancel'))
+    expect(onClose).toHaveBeenCalledTimes(1)
+  })
+
+  it('disables both buttons while loading and shows the pending glyph', () => {
+    mountDialog({ loading: true })
+    const confirm = within(document.body).getByText('…') as HTMLButtonElement
+    expect(confirm.disabled).toBe(true)
+    expect((within(document.body).getByText('Cancel') as HTMLButtonElement).disabled).toBe(true)
+  })
+
+  it('renders extra children between description and footer', () => {
+    mountDialog(
+      {},
+      createRawSnippet(() => ({ render: () => '<input data-extra="" />' })),
+    )
+    // Modal portals to document.body, so query there, not the mount host.
+    expect(document.body.querySelector('[data-extra]')).toBeTruthy()
   })
 })

@@ -9,6 +9,7 @@
   import type { ProgressProps } from '../types.js'
 
   let {
+    ref = $bindable(null),
     value,
     max = 100,
     size = 'md',
@@ -19,6 +20,7 @@
     className,
     style,
     testId,
+    automationId,
   }: ProgressProps = $props()
 
   const { t } = useTranslation()
@@ -26,7 +28,13 @@
   const percentage = $derived(Math.min(Math.max((value / max) * 100, 0), 100))
 </script>
 
-<div class={cm.cn(cm.progressWrapper, className)} use:reactStyle={style} data-testid={testId}>
+<div
+  bind:this={ref}
+  class={cm.cn(cm.progressWrapper, className)}
+  use:reactStyle={style}
+  data-testid={testId}
+  data-mol-id={automationId}
+>
   {#if label || showValue}
     <div class={cm.progressLabelContainer}>
       {#if label}<span class={cm.progressLabelText}>{label}</span>{/if}

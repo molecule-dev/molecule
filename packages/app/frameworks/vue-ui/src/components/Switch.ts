@@ -21,31 +21,8 @@ import { getClassMap } from '@molecule/app-ui'
 
 import { classOf, restAttrs, styleOf } from '../utilities/attrs.js'
 import { mountChecked, updateChecked } from '../utilities/checked.js'
-
-/** React's DOM-callback names that alias a differently spelled native event. */
-const REACT_EVENT_ALIASES: Record<string, string> = {
-  onDoubleClick: 'onDblclick',
-}
-
-/**
- * React forwards DOM callbacks in `...rest` verbatim (`onKeyDown`, …). Vue
- * only attaches a native listener for `on` + the DOM event name (`onKeydown`)
- * — it hyphenates anything after `on`, so React's camelCase spelling would
- * listen for an event nothing dispatches. Rewrites rest keys to the native
- * spelling: `on` + the lowercased DOM event name.
- *
- * @param attrs - The fallthrough attributes to spread onto a native element.
- * @returns The same attributes with event keys in Vue's native spelling.
- */
-function nativeEventAttrs(attrs: Record<string, unknown>): Record<string, unknown> {
-  const out: Record<string, unknown> = {}
-  for (const [key, value] of Object.entries(attrs)) {
-    out[
-      REACT_EVENT_ALIASES[key] ?? (/^on[A-Z]/.test(key) ? `on${key.slice(2).toLowerCase()}` : key)
-    ] = value
-  }
-  return out
-}
+import { useElementRef } from '../utilities/elementRef.js'
+import { setDisplayName } from './displayName.js'
 
 /**
  * Vue Switch UI component with UIClassMap-driven styling.
@@ -79,8 +56,11 @@ export const Switch = defineComponent({
     },
   },
   emits: ['change', 'click'],
-  setup(props, { attrs, slots, emit }) {
+  setup(props, { attrs, slots, emit, expose }) {
     const cm = getClassMap()
+    // The visible `role="switch"` button is React's `forwardRef` target; the
+    // hidden native checkbox below keeps its own ref.
+    const element = useElementRef<HTMLButtonElement>(expose)
 
     // A hidden, real native checkbox mirrors `checked` — `handleClick`
     // below calls `.click()` on it instead of forging a fake event object.
@@ -151,6 +131,7 @@ export const Switch = defineComponent({
           h(
             'button',
             {
+              ref: element,
               type: 'button',
               role: 'switch',
               // `role="switch"` REQUIRES aria-checked; coerce so an
@@ -167,7 +148,7 @@ export const Switch = defineComponent({
               ),
               style: styleOf(props.style, attrs),
               'data-testid': props.testId,
-              ...nativeEventAttrs(restAttrs(attrs)),
+              ...restAttrs(attrs),
             },
             [h('span', { 'data-state': state, class: cm.switchThumb({ size: props.size }) })],
           ),
@@ -178,3 +159,5 @@ export const Switch = defineComponent({
     }
   },
 })
+
+setDisplayName(Switch, 'Switch')

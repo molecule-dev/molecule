@@ -10,7 +10,14 @@
  * @module
  */
 
-import { defineComponent, inject, type InjectionKey, type PropType, provide } from 'vue'
+import {
+  defineComponent,
+  inject,
+  type InjectionKey,
+  type PropType,
+  provide,
+  type VNodeChild,
+} from 'vue'
 
 /**
  * Injection key carrying the close callback for the drawer a panel is
@@ -21,6 +28,20 @@ const PanelCloseKey: InjectionKey<() => void> = Symbol('PanelClose')
 
 /** The no-op `usePanelClose()` returns outside any provider. */
 const noOpClose = (): void => undefined
+
+/**
+ * Props for {@link PanelCloseProvider}.
+ *
+ * Vue port of `@molecule/app-ui-react`'s `PanelCloseProviderProps`: the panel
+ * content is the default slot and `close` is optional (Vue's provider is
+ * also mounted without a close callback by the kit's own components).
+ */
+export interface PanelCloseProviderProps {
+  /** Callback that dismisses the enclosing drawer/modal. */
+  close?: () => void
+  /** Panel content that may call {@link usePanelClose} (the default slot). */
+  children?: VNodeChild
+}
 
 /**
  * Provides the panel-close callback to descendants. Rendered internally
@@ -41,7 +62,7 @@ export const PanelCloseProvider = defineComponent({
      * not warn.
      */
     close: {
-      type: Function as PropType<() => void>,
+      type: Function as PropType<PanelCloseProviderProps['close']>,
       default: undefined,
     },
   },

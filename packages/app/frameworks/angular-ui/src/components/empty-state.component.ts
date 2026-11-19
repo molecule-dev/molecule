@@ -17,6 +17,7 @@ import {
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
+import { type HasElement, hostElement } from '../utilities/element.js'
 import { styleText } from '../utilities/style.js'
 import { hasNodes, SlotWrapper } from './button.component.js'
 
@@ -59,7 +60,7 @@ import { hasNodes, SlotWrapper } from './button.component.js'
       <ng-content select="[slot=action]"></ng-content>
     </div>`,
 })
-export class EmptyState implements AfterViewInit, DoCheck {
+export class EmptyState implements AfterViewInit, DoCheck, HasElement<HTMLDivElement> {
   /** An `icon` node prop (TemplateRef), when passed as a prop instead of a slot. */
   icon?: unknown
   /** Heading text. */
@@ -86,6 +87,9 @@ export class EmptyState implements AfterViewInit, DoCheck {
   private hasAction = false
 
   private readonly sync = new SlotWrapper(inject(ElementRef), inject(Renderer2))
+  private readonly host: ElementRef<HTMLDivElement> = inject(ElementRef)
+  /** The element a caller's ref receives: the host `<div>`. */
+  readonly element = hostElement(this.host)
 
   /**
    * The current class map.

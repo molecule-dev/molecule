@@ -31,39 +31,115 @@ export interface CSSProperties {
 export type Children = unknown
 
 /**
+ * The event a UI kit hands a component's handler: the members that behave the same on every kit. React's kit
+ * passes React's event (so `stopPropagation()` stops React parent handlers), the other kits pass the DOM event;
+ * both satisfy this type. A handler that needs a member only one of them has (`nativeEvent`, `composedPath()`,
+ * `isComposing`) takes the component's ref element (see {@link BaseProps}) and listens on it.
+ *
+ * `type` is left out on purpose: kits report different event types for the same moment (a text field's
+ * `onChange` is React's `'change'` and the DOM's `'input'`).
+ */
+export interface KitEvent {
+  /** The element the event started on (`(event.target as HTMLInputElement).value` reads a field). */
+  readonly target: EventTarget | null
+  /** The element of the component the handler was passed to. */
+  readonly currentTarget: EventTarget | null
+  /** Whether a handler already called {@link KitEvent.preventDefault}. */
+  readonly defaultPrevented: boolean
+  /** Cancels the browser's default action (a form's submit, a checkbox's toggle). */
+  preventDefault(): void
+  /** Stops handlers of ancestor components of the same kit. */
+  stopPropagation(): void
+}
+
+/** The modifier keys held during a mouse or keyboard event. */
+export interface KitModifierKeys {
+  /** Alt (Option) was held. */
+  readonly altKey: boolean
+  /** Control was held. */
+  readonly ctrlKey: boolean
+  /** Meta (Command, Windows) was held. */
+  readonly metaKey: boolean
+  /** Shift was held. */
+  readonly shiftKey: boolean
+}
+
+/** A mouse event as every kit hands it to a handler. */
+export interface KitMouseEvent extends KitEvent, KitModifierKeys {
+  /** The button that changed state (0 main, 1 auxiliary, 2 secondary). */
+  readonly button: number
+  /** The buttons held, as a bit mask. */
+  readonly buttons: number
+  /** The pointer's x position in the viewport. */
+  readonly clientX: number
+  /** The pointer's y position in the viewport. */
+  readonly clientY: number
+  /** The pointer's x position in the document. */
+  readonly pageX: number
+  /** The pointer's y position in the document. */
+  readonly pageY: number
+  /** The click count of a click event. */
+  readonly detail: number
+  /** The element the pointer came from or went to, for enter and leave events. */
+  readonly relatedTarget: EventTarget | null
+}
+
+/** A keyboard event as every kit hands it to a handler. */
+export interface KitKeyboardEvent extends KitEvent, KitModifierKeys {
+  /** The key's value (`'Enter'`, `'a'`). */
+  readonly key: string
+  /** The physical key (`'KeyA'`). */
+  readonly code: string
+  /** Whether the key is held down and auto-repeating. */
+  readonly repeat: boolean
+}
+
+/** A focus event as every kit hands it to a handler. */
+export interface KitFocusEvent extends KitEvent {
+  /** The element losing focus (on focus) or gaining it (on blur). */
+  readonly relatedTarget: EventTarget | null
+}
+
+/**
  * Framework-agnostic event handler.
  *
- * @param event - The DOM event object.
+ * @param event - The event, as the kit hands it (see {@link KitEvent}).
  */
-export type EventHandler<E = Event> = (event: E) => void
+export type EventHandler<E extends KitEvent = KitEvent> = (event: E) => void
 
 /**
  * Framework-agnostic mouse event handler.
  */
-export type MouseEventHandler = EventHandler<MouseEvent>
+export type MouseEventHandler = EventHandler<KitMouseEvent>
 
 /**
  * Framework-agnostic keyboard event handler.
  */
-export type KeyboardEventHandler = EventHandler<KeyboardEvent>
+export type KeyboardEventHandler = EventHandler<KitKeyboardEvent>
 
 /**
  * Framework-agnostic focus event handler.
  */
-export type FocusEventHandler = EventHandler<FocusEvent>
+export type FocusEventHandler = EventHandler<KitFocusEvent>
 
 /**
  * Framework-agnostic change event handler.
  */
-export type ChangeEventHandler = EventHandler<Event>
+export type ChangeEventHandler = EventHandler<KitEvent>
 
 /**
  * Framework-agnostic form event handler.
  */
-export type FormEventHandler = EventHandler<Event>
+export type FormEventHandler = EventHandler<KitEvent>
 
 /**
  * Base props shared by all components.
+ *
+ * Ref element: a component that renders one main element gives the caller that element, the one
+ * that takes `className` and `style`. Each UI kit hands it over in its framework's own way: React
+ * and Solid a `ref`, Vue a template ref's `$el`, Svelte `bind:ref`, Angular the component's
+ * `element()` signal. It is empty while the element is not rendered (a closed Tooltip, Dropdown or
+ * Modal). A component's own doc names the element when it is not the outermost one.
  */
 export interface BaseProps {
   /**
@@ -90,7 +166,11 @@ export interface BaseProps {
   automationId?: string
 
   /**
-   * Whether the component is disabled.
+   * Disables the controls the component renders: a disabled Button, Input, Textarea, Select,
+   * Checkbox, Switch, RadioGroup, Tabs, Accordion or Pagination takes no input, a disabled
+   * Dropdown never opens, and a disabled Card never calls `onClick` (an interactive one is
+   * announced as disabled and leaves the tab order). A component that renders no control
+   * (Badge, Spinner, Skeleton, a layout box) ignores it.
    */
   disabled?: boolean
 }
@@ -303,6 +383,8 @@ export type InputType =
 
 /**
  * Props for the Input component (text field, email, password, etc.).
+ *
+ * Ref element: the native `<input>`.
  */
 export interface InputProps extends InputElementProps {
   /**
@@ -369,6 +451,8 @@ export interface InputProps extends InputElementProps {
 
 /**
  * Props for the Textarea component.
+ *
+ * Ref element: the native `<textarea>`.
  */
 export interface TextareaProps extends TextareaElementProps {
   /**
@@ -439,6 +523,8 @@ export interface SelectOption<T = string> {
 
 /**
  * Props for the Select dropdown component (single or multi-select).
+ *
+ * Ref element: the native `<select>`.
  */
 export interface SelectProps<T = string> extends SelectElementProps {
   /**
@@ -493,6 +579,8 @@ export interface SelectProps<T = string> extends SelectElementProps {
 
 /**
  * Props for the Checkbox component.
+ *
+ * Ref element: the native `<input type="checkbox">`.
  */
 export interface CheckboxProps extends InputElementProps {
   /**
@@ -601,6 +689,8 @@ export interface RadioGroupProps<T = string> extends BaseProps {
 
 /**
  * Props for the Switch/Toggle component.
+ *
+ * Ref element: the `role="switch"` button.
  */
 export interface SwitchProps extends InputElementProps {
   /**
@@ -635,6 +725,8 @@ export type ModalSize = 'sm' | 'md' | 'lg' | 'xl' | 'full'
 
 /**
  * Props for the Modal/Dialog component.
+ *
+ * Ref element: the dialog (`role="dialog"`), empty while closed.
  */
 export interface ModalProps extends HTMLElementProps {
   /**
@@ -813,6 +905,8 @@ export type TooltipPlacement =
 
 /**
  * Props for the Tooltip component (hover/focus popover with informational text).
+ *
+ * Ref element: the `role="tooltip"` box, empty while hidden.
  */
 export interface TooltipProps extends HTMLElementProps {
   /**
@@ -1323,6 +1417,8 @@ export interface TableColumn<T> {
 
 /**
  * Props for the Table component.
+ *
+ * Ref element: the `<table>`.
  */
 export interface TableProps<T> extends HTMLElementProps {
   /**
@@ -1546,6 +1642,8 @@ export interface DropdownItem<T = string> {
 
 /**
  * Props for the Dropdown menu component.
+ *
+ * Ref element: the `role="menu"` element, empty while closed (`testId` and `automationId` go to the trigger).
  */
 export interface DropdownProps<T = string> extends BaseProps {
   /**

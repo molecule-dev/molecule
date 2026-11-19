@@ -10,7 +10,7 @@ import { useTranslation } from '@molecule/app-solid'
 import type { PageShellProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
-import { toStyleProps } from '../utilities/dom.js'
+import { toStyleProps, type WithRef } from '../utilities/dom.js'
 
 /**
  * Renders the PageShell component.
@@ -21,7 +21,7 @@ import { toStyleProps } from '../utilities/dom.js'
  * @param props - The component props.
  * @returns The rendered page shell JSX.
  */
-export const PageShell: Component<PageShellProps> = (props) => {
+export const PageShell: Component<WithRef<PageShellProps, HTMLDivElement>> = (props) => {
   const [local] = splitProps(props, [
     'children',
     'sidebar',
@@ -32,6 +32,7 @@ export const PageShell: Component<PageShellProps> = (props) => {
     'style',
     'testId',
     'automationId',
+    'ref',
   ])
 
   const cm = getClassMap()
@@ -51,6 +52,9 @@ export const PageShell: Component<PageShellProps> = (props) => {
 
   return (
     <div
+      ref={(el) => {
+        if (typeof local.ref === 'function') local.ref(el)
+      }}
       class={cm.cn(cm.pageShell, local.className)}
       style={toStyleProps(local.style)}
       data-testid={local.testId}

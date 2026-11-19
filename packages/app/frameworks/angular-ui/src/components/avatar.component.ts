@@ -18,6 +18,7 @@ import { useTranslation } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
+import { type HasElement, hostElement } from '../utilities/element.js'
 import { getInitials } from '../utilities/initials.js'
 import { MolIconSvg, type ResolvedIcon, resolveIcon } from '../utilities/render-icon.js'
 import { styleText } from '../utilities/style.js'
@@ -37,11 +38,23 @@ import { SlotWrapper } from './button.component.js'
   selector: 'div[mol-avatar]',
   standalone: true,
   imports: [MolIconSvg],
-  inputs: ['src', 'alt', 'name', 'size', 'rounded', 'className', 'style', 'testId'],
+  inputs: [
+    'src',
+    'alt',
+    'name',
+    'size',
+    'rounded',
+    'className',
+    'style',
+    'testId',
+    'automationId',
+    'dataMolId: data-mol-id',
+  ],
   host: {
     '[class]': 'classes()',
     '[style]': 'hostStyle()',
     '[attr.data-testid]': 'testId',
+    '[attr.data-mol-id]': 'molId()',
   },
   template: `@if (!showFallback()) {
       <img
@@ -58,7 +71,7 @@ import { SlotWrapper } from './button.component.js'
       </div>
     }`,
 })
-export class Avatar implements AfterViewChecked {
+export class Avatar implements AfterViewChecked, HasElement<HTMLDivElement> {
   /** Image source. */
   src?: string
   /** Image alt text. */
@@ -75,6 +88,10 @@ export class Avatar implements AfterViewChecked {
   style?: Record<string, unknown>
   /** `data-testid`. */
   testId?: string
+  /** `data-mol-id` automation id (React's `automationId`). */
+  automationId?: string
+  /** A `data-mol-id` given as a plain rest attribute (React's `rootProps` precedence). */
+  dataMolId?: string
 
   /** Set when the image fails to load. */
   readonly imageError = signal(false)
@@ -94,6 +111,9 @@ export class Avatar implements AfterViewChecked {
   private readonly i18n = useTranslation()
 
   private readonly sync = new SlotWrapper(inject(ElementRef), inject(Renderer2))
+  private readonly host: ElementRef<HTMLDivElement> = inject(ElementRef)
+  /** The element a caller's ref receives: the host `<div>`. */
+  readonly element = hostElement(this.host)
 
   /**
    * The current class map.
@@ -147,6 +167,19 @@ export class Avatar implements AfterViewChecked {
       this.cm().avatar({ size: avatarSize }),
       !this.rounded && this.cm().avatarSquare,
       this.className,
+    )
+  }
+
+  /**
+   * The `data-mol-id` value (`automationId` wins over a rest `data-mol-id`).
+   * @returns The attribute value.
+   */
+  molId(): string | undefined {
+    return (
+      this.automationId ??
+      this.dataMolId ??
+      this.host.nativeElement.getAttribute('data-mol-id') ??
+      undefined
     )
   }
 

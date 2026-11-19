@@ -14,16 +14,64 @@ import {
   type OnDestroy,
   Renderer2,
   signal,
+  type TemplateRef,
   ViewChild,
 } from '@angular/core'
 
 import type { ButtonVariant, ColorVariant, Size, UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
+import { type HasElement, hostElement } from '../utilities/element.js'
+import { asTemplate, nodeText } from '../utilities/node-value.js'
 import type { OptimisticValue, OptimisticValueState } from '../utilities/optimistic-value.js'
 import { createOptimisticValue } from '../utilities/optimistic-value.js'
 import { styleText } from '../utilities/style.js'
 import { hasNodes, SlotWrapper } from './button.component.js'
+import { MolTemplateOutlet } from './template-outlet.directive.js'
+
+/**
+ * Props for {@link OptimisticToggleButton} (React's
+ * `OptimisticToggleButtonProps`, in Angular's form).
+ *
+ * The labels and icons are node-valued in React; here each is a
+ * `string | number | TemplateRef<unknown>` input, and the labels may also be
+ * projected as `[slot=activeLabel]` / `[slot=inactiveLabel]` (icons as
+ * `[slot=leftIcon]` / `[slot=rightIcon]`).
+ */
+export interface OptimisticToggleButtonProps {
+  /** The loaded server value. */
+  value: boolean
+  /** Saves the desired boolean and returns the server-confirmed boolean. */
+  commit: (desired: boolean) => Promise<boolean>
+  /** Label when the displayed value is true. */
+  activeLabel: string | number | TemplateRef<unknown>
+  /** Label when the displayed value is false. */
+  inactiveLabel: string | number | TemplateRef<unknown>
+  /** Receives a failed save after the controller has restored the confirmed value. */
+  onError?: (error: unknown) => void
+  /** Button variant. */
+  variant?: ButtonVariant
+  /** Button color. */
+  color?: ColorVariant
+  /** Button size. */
+  size?: Size
+  /** Whether the button stretches to fill its container. */
+  fullWidth?: boolean
+  /** Left icon (node value). */
+  leftIcon?: string | number | TemplateRef<unknown>
+  /** Right icon (node value). */
+  rightIcon?: string | number | TemplateRef<unknown>
+  /** Extra classes. */
+  className?: string
+  /** Inline style object (React camelCase). */
+  style?: Record<string, unknown>
+  /** `data-testid`. */
+  testId?: string
+  /** Disables the button (permissions, never a pending save). */
+  disabled?: boolean
+  /** `data-mol-id` automation id (React's `automationId`). */
+  automationId?: string
+}
 
 /**
  * OptimisticToggleButton component.
@@ -37,6 +85,7 @@ import { hasNodes, SlotWrapper } from './button.component.js'
 @Component({
   selector: 'button[mol-optimistic-toggle-button]',
   standalone: true,
+  imports: [MolTemplateOutlet],
   inputs: [
     'value',
     'commit',
@@ -53,12 +102,14 @@ import { hasNodes, SlotWrapper } from './button.component.js'
     'style',
     'testId',
     'disabled',
+    'automationId',
+    'dataMolId: data-mol-id',
   ],
   host: {
     '[class]': 'classes()',
     '[style]': 'hostStyle()',
     '[attr.type]': '"button"',
-    '[attr.data-mol-id]': '"optimistic-toggle"',
+    '[attr.data-mol-id]': 'molId()',
     '[attr.data-testid]': 'testId',
     '[disabled]': 'disabled',
     '[attr.aria-pressed]': 'state().value ? "true" : "false"',
@@ -66,44 +117,65 @@ import { hasNodes, SlotWrapper } from './button.component.js'
     '(click)': 'handleClick()',
   },
   template: `<span #leftSlot [class]="cm().buttonIconLeft"
-      ><ng-content select="[slot=leftIcon]"></ng-content></span
-    ><span #activeSlot><ng-content select="[slot=activeLabel]"></ng-content></span
-    ><span #inactiveSlot><ng-content select="[slot=inactiveLabel]"></ng-content></span
+      ><ng-content select="[slot=leftIcon]"></ng-content
+      ><ng-container [molTemplateOutlet]="asTemplate(leftIcon)"></ng-container
+      >{{ nodeText(leftIcon) }}</span
+    ><span #activeSlot
+      ><ng-content select="[slot=activeLabel]"></ng-content
+      ><ng-container [molTemplateOutlet]="asTemplate(activeLabel)"></ng-container
+      >{{ nodeText(activeLabel) }}</span
+    ><span #inactiveSlot
+      ><ng-content select="[slot=inactiveLabel]"></ng-content
+      ><ng-container [molTemplateOutlet]="asTemplate(inactiveLabel)"></ng-container
+      >{{ nodeText(inactiveLabel) }}</span
     ><span #rightSlot [class]="cm().buttonIconRight"
       ><ng-content select="[slot=rightIcon]"></ng-content
-    ></span>`,
+      ><ng-container [molTemplateOutlet]="asTemplate(rightIcon)"></ng-container
+      >{{ nodeText(rightIcon) }}</span
+    >`,
 })
-export class OptimisticToggleButton implements AfterViewInit, DoCheck, OnDestroy {
+export class OptimisticToggleButton
+  implements AfterViewInit, DoCheck, OnDestroy, HasElement<HTMLButtonElement>
+{
   /** The loaded server value. */
-  value = false
+  value: OptimisticToggleButtonProps['value'] = false
   /** Saves the desired boolean and returns the server-confirmed boolean. */
-  commit?: (desired: boolean) => Promise<boolean | void> | void
+  commit?: OptimisticToggleButtonProps['commit']
   /** Label when the displayed value is true (node-valued prop). */
-  activeLabel?: unknown
+  activeLabel!: OptimisticToggleButtonProps['activeLabel']
   /** Label when the displayed value is false (node-valued prop). */
-  inactiveLabel?: unknown
+  inactiveLabel!: OptimisticToggleButtonProps['inactiveLabel']
   /** Receives a failed save after the controller has restored the last confirmed value. */
-  onError?: (error: unknown) => void
+  onError?: OptimisticToggleButtonProps['onError']
   /** Button variant. */
-  variant?: ButtonVariant
+  variant?: OptimisticToggleButtonProps['variant']
   /** Button color. */
-  color?: ColorVariant
+  color?: OptimisticToggleButtonProps['color']
   /** Button size. */
-  size?: Size
+  size?: OptimisticToggleButtonProps['size']
   /** Whether the button stretches to fill its container. */
-  fullWidth = false
+  fullWidth?: OptimisticToggleButtonProps['fullWidth'] = false
   /** Left icon (node-valued prop). */
-  leftIcon?: unknown
+  leftIcon?: OptimisticToggleButtonProps['leftIcon']
   /** Right icon (node-valued prop). */
-  rightIcon?: unknown
+  rightIcon?: OptimisticToggleButtonProps['rightIcon']
   /** Extra classes. */
-  className?: string
+  className?: OptimisticToggleButtonProps['className']
   /** Inline style object (React camelCase). */
-  style?: Record<string, unknown>
+  style?: OptimisticToggleButtonProps['style']
   /** `data-testid`. */
-  testId?: string
+  testId?: OptimisticToggleButtonProps['testId']
   /** Disables the button (permissions, never a pending save). */
-  disabled = false
+  disabled?: OptimisticToggleButtonProps['disabled'] = false
+  /** `data-mol-id` automation id (React's `automationId`; default `optimistic-toggle`). */
+  automationId?: OptimisticToggleButtonProps['automationId']
+  /** A `data-mol-id` given as a plain rest attribute (React's `rootProps` precedence). */
+  dataMolId?: string
+
+  /** Template helpers (templates see only class members). */
+  readonly asTemplate = asTemplate
+  /** Renders a plain-string/number node value. */
+  readonly nodeText = nodeText
 
   /** The optimistic controller. */
   private readonly controller: OptimisticValue<boolean>
@@ -123,9 +195,11 @@ export class OptimisticToggleButton implements AfterViewInit, DoCheck, OnDestroy
   /** The right icon wrapper. */
   @ViewChild('rightSlot') rightSlot?: ElementRef<HTMLSpanElement>
 
-  private readonly el = inject(ElementRef)
+  private readonly host: ElementRef<HTMLButtonElement> = inject(ElementRef)
+  /** The element a caller's ref receives: the host `<button>`. */
+  readonly element = hostElement(this.host)
   private readonly renderer = inject(Renderer2)
-  private readonly sync = new SlotWrapper(this.el, this.renderer)
+  private readonly sync = new SlotWrapper(this.host, this.renderer)
   private unsubscribe?: () => void
   private lastReceived = false
   private hasLeft = false
@@ -175,6 +249,20 @@ export class OptimisticToggleButton implements AfterViewInit, DoCheck, OnDestroy
    */
   hostStyle(): string | null {
     return styleText(this.style)
+  }
+
+  /**
+   * The `data-mol-id` value: `automationId`, else a rest `data-mol-id`, else
+   * the React default `optimistic-toggle`.
+   * @returns The attribute value.
+   */
+  molId(): string {
+    return (
+      this.automationId ??
+      this.dataMolId ??
+      this.host.nativeElement.getAttribute('data-mol-id') ??
+      'optimistic-toggle'
+    )
   }
 
   /** Flips the displayed value and saves the newest desired value. */
@@ -235,7 +323,7 @@ export class OptimisticToggleButton implements AfterViewInit, DoCheck, OnDestroy
    * @param span - The capture span to show (null parks everything).
    */
   private showSlot(span: HTMLSpanElement | null): void {
-    const host = this.el.nativeElement as HTMLElement
+    const host = this.host.nativeElement
     if (span === this.visibleFrom) return
     for (const node of this.visibleNodes) {
       if (node.parentNode === host) this.visibleFrom?.appendChild(node)
@@ -257,7 +345,7 @@ export class OptimisticToggleButton implements AfterViewInit, DoCheck, OnDestroy
   private labelAnchor(): Comment {
     if (this.anchor?.isConnected) return this.anchor
     const anchor = this.renderer.createComment('label') as Comment
-    const host = this.el.nativeElement as HTMLElement
+    const host = this.host.nativeElement
     const left = this.leftSlot?.nativeElement
     host.insertBefore(anchor, left ? left.nextSibling : host.firstChild)
     this.anchor = anchor

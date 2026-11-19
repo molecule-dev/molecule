@@ -7,6 +7,7 @@
 import {
   cloneVNode,
   defineComponent,
+  getCurrentInstance,
   h,
   isVNode,
   onUnmounted,
@@ -21,32 +22,9 @@ import { getClassMap } from '@molecule/app-ui'
 import { useTranslation } from '@molecule/app-vue'
 
 import { classOf, restAttrs, styleOf } from '../utilities/attrs.js'
+import { useElementRef } from '../utilities/elementRef.js'
+import { setDisplayName } from './displayName.js'
 import { formSubmitErrorMessages } from './formSubmitError.js'
-
-/** React's DOM-callback names that alias a differently spelled native event. */
-const REACT_EVENT_ALIASES: Record<string, string> = {
-  onDoubleClick: 'onDblclick',
-}
-
-/**
- * React forwards DOM callbacks in `...rest` verbatim (`onKeyDown`, …). Vue
- * only attaches a native listener for `on` + the DOM event name (`onKeydown`)
- * — it hyphenates anything after `on`, so React's camelCase spelling would
- * listen for an event nothing dispatches. Rewrites rest keys to the native
- * spelling: `on` + the lowercased DOM event name.
- *
- * @param attrs - The fallthrough attributes to spread onto a native element.
- * @returns The same attributes with event keys in Vue's native spelling.
- */
-function nativeEventAttrs(attrs: Record<string, unknown>): Record<string, unknown> {
-  const out: Record<string, unknown> = {}
-  for (const [key, value] of Object.entries(attrs)) {
-    out[
-      REACT_EVENT_ALIASES[key] ?? (/^on[A-Z]/.test(key) ? `on${key.slice(2).toLowerCase()}` : key)
-    ] = value
-  }
-  return out
-}
 
 /** Counter backing the generated ids that stand in for React's `useId()`. */
 let nextGeneratedId = 0
@@ -72,22 +50,36 @@ export const Form = defineComponent({
     method: String as PropType<FormProps['method']>,
     noValidate: Boolean,
     submitting: Boolean,
-    submitError: null as unknown as PropType<ReactFormProps['submitError']>,
+    // Vue's "no runtime type validation" declaration: the opaque failure value
+    // React accepts passes through without a runtime type check.
+    submitError: null,
     className: String,
     style: [String, Object] as PropType<FormProps['style']>,
     testId: String,
+    // The submit handlers are declared props, so each submit calls the ones the parent passed
+    // last (a value read from attrs in setup would keep the first render's handler). Absent,
+    // a prop is undefined: React's `!onFormSubmit && !onSubmit` check reads the same.
+    onFormSubmit: Function as PropType<FormProps['onFormSubmit']>,
+    onSubmit: Function as PropType<FormProps['onSubmit']>,
   },
-  setup(props, { attrs, slots }) {
+  setup(props, { attrs, slots, expose }) {
     const cm = getClassMap()
     const { t } = useTranslation()
-    // React's `onFormSubmit` / `onSubmit` are named props its Form branches on
-    // (no handlers at all means the submit event is left untouched), so the raw
-    // handlers are read from the incoming `on*` attrs instead of declared
-    // emits — a declared emit strips its listener out of `attrs` and the
-    // presence check would never see it.
-    const onFormSubmit = attrs.onFormSubmit as
-      ((data: Record<string, unknown>) => void | Promise<void>) | undefined
-    const onSubmit = attrs.onSubmit as ((event: Event) => void | Promise<void>) | undefined
+    const element = useElementRef<HTMLFormElement>(expose)
+    // React decides "the caller owns the error" with
+    // `Object.hasOwn(props, 'submitError')`, which is false when the prop was
+    // never passed. Vue's declared props always exist on `props` (undefined
+    // when absent), so presence is read from the vnode the parent rendered
+    // this instance with — a caller who passes `submitError={undefined}`
+    // controls the error (and clears a captured failure), exactly as in React.
+    // Outside an instance (a unit test calling `setup` directly) the props
+    // object itself is the answer.
+    const instance = getCurrentInstance()
+    const submitErrorProvided = (): boolean => {
+      const vnodeProps = instance?.vnode.props
+      if (!vnodeProps) return Object.hasOwn(props, 'submitError')
+      return Object.hasOwn(vnodeProps, 'submitError') || Object.hasOwn(vnodeProps, 'submit-error')
+    }
     const failure = ref<{ error: unknown } | null>(null)
     const pending = ref(false)
     let attempt = 0
@@ -97,7 +89,10 @@ export const Form = defineComponent({
       attempt++
     })
 
-    const handleSubmit = async (e: Event): Promise<void> => {
+    // Bound only as the <form> element's submit listener, so currentTarget is that form,
+    // as React's FormEvent<HTMLFormElement> types it.
+    const handleSubmit = async (e: Event & { currentTarget: HTMLFormElement }): Promise<void> => {
+      const { onFormSubmit, onSubmit } = props
       if (!onFormSubmit && !onSubmit) return
       const current = ++attempt
       failure.value = null
@@ -113,7 +108,7 @@ export const Form = defineComponent({
         }
         if (onFormSubmit) {
           e.preventDefault()
-          const formData = new FormData(e.currentTarget as HTMLFormElement)
+          const formData = new FormData(e.currentTarget)
           const data: Record<string, unknown> = {}
           formData.forEach((value, key) => {
             data[key] = value
@@ -131,7 +126,7 @@ export const Form = defineComponent({
     }
 
     return () => {
-      const error = Object.hasOwn(props, 'submitError')
+      const error = submitErrorProvided()
         ? props.submitError === undefined
           ? null
           : { error: props.submitError }
@@ -163,16 +158,12 @@ export const Form = defineComponent({
         ),
       )
 
-      // React destructures `onFormSubmit` / `onSubmit` out of its rest spread;
-      // this port calls them from `handleSubmit` instead, so they are removed
-      // from the fallthrough the same way.
       const rest = restAttrs(attrs)
-      delete rest.onFormSubmit
-      delete rest.onSubmit
 
       return h(
         'form',
         {
+          ref: element,
           class: cm.cn(...classOf(props.className, attrs)),
           style: styleOf(props.style, attrs),
           'data-testid': props.testId,
@@ -180,13 +171,15 @@ export const Form = defineComponent({
           method: props.method,
           noValidate: props.noValidate,
           onSubmit: handleSubmit,
-          ...nativeEventAttrs(rest),
+          ...rest,
         },
         children,
       )
     }
   },
 })
+
+setDisplayName(Form, 'Form')
 
 /**
  * Form field wrapper component.
@@ -210,8 +203,9 @@ export const FormField = defineComponent({
     style: [String, Object] as PropType<Record<string, string | number> | string>,
     testId: String,
   },
-  setup(props, { attrs, slots }) {
+  setup(props, { attrs, slots, expose }) {
     const cm = getClassMap()
+    const element = useElementRef<HTMLDivElement>(expose)
     // Fall back to a generated id when `name` is absent so `htmlFor`/the
     // error-message id never resolve to the literal string "undefined" —
     // and so they never collide across multiple id-less FormFields on the
@@ -279,15 +273,19 @@ export const FormField = defineComponent({
       return h(
         'div',
         {
+          ref: element,
           class: cm.cn(cm.inputWrapper, cm.sp('mb', 4), ...classOf(props.className, attrs)),
           style: styleOf(props.style, attrs),
           'data-testid': props.testId,
+          ...restAttrs(attrs),
         },
         rootChildren,
       )
     }
   },
 })
+
+setDisplayName(FormField, 'FormField')
 
 /**
  * Vue Label UI component for form fields, with optional required indicator.
@@ -303,13 +301,15 @@ export const Label = defineComponent({
     required: Boolean,
     className: String,
   },
-  setup(props, { attrs, slots }) {
+  setup(props, { attrs, slots, expose }) {
     const cm = getClassMap()
+    const element = useElementRef<HTMLLabelElement>(expose)
 
     return () =>
       h(
         'label',
         {
+          ref: element,
           ...restAttrs(attrs),
           class: cm.cn(
             cm.label({ required: !!props.required }),
@@ -321,3 +321,5 @@ export const Label = defineComponent({
       )
   },
 })
+
+setDisplayName(Label, 'Label')

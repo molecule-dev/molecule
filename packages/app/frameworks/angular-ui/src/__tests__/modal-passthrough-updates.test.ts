@@ -137,7 +137,7 @@ async function mountHost(component: Type<unknown>): Promise<void> {
 const dialog = (): HTMLElement => document.querySelector<HTMLElement>('[role="dialog"]')!
 
 describe('Modal pass-through attributes follow updates', () => {
-  it('aria-label and data-* change on the open dialog when the bindings change', async () => {
+  it('aria-label and data-* change on the open dialog when state changes', async () => {
     await mountHost(StateHost)
     expect(dialog().getAttribute('aria-label')).toBe('First label')
     expect(dialog().getAttribute('data-state')).toBe('one')

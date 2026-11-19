@@ -10,6 +10,8 @@ import type { ContainerProps, FlexProps, GridProps, Size, SpacerProps } from '@m
 import { getClassMap } from '@molecule/app-ui'
 
 import { classOf, restAttrs, styleOf } from '../utilities/attrs.js'
+import { useElementRef } from '../utilities/elementRef.js'
+import { setDisplayName } from './displayName.js'
 
 /** The gap tokens the ClassMap accepts (anything else becomes an inline style). */
 const GAP_TOKENS = ['none', 'xs', 'sm', 'md', 'lg', 'xl'] as const
@@ -78,8 +80,9 @@ export const Container = defineComponent({
     testId: String,
   },
   emits: ['click'],
-  setup(props, { attrs, slots, emit }) {
+  setup(props, { attrs, slots, emit, expose }) {
     const cm = getClassMap()
+    const element = useElementRef<HTMLDivElement>(expose)
 
     return () => {
       const containerClasses = cm.cn(
@@ -91,6 +94,7 @@ export const Container = defineComponent({
       return h(
         'div',
         {
+          ref: element,
           class: containerClasses,
           style: styleOf(props.style, attrs),
           'data-testid': props.testId,
@@ -102,6 +106,8 @@ export const Container = defineComponent({
     }
   },
 })
+
+setDisplayName(Container, 'Container')
 
 /**
  * Vue Flex UI component with UIClassMap-driven styling.
@@ -126,8 +132,9 @@ export const Flex = defineComponent({
     style: [String, Object] as PropType<FlexProps['style']>,
     testId: String,
   },
-  setup(props, { attrs, slots }) {
+  setup(props, { attrs, slots, expose }) {
     const cm = getClassMap()
+    const element = useElementRef<HTMLDivElement>(expose)
 
     return () => {
       const cmDirection = toFlexDirection(props.direction)
@@ -161,6 +168,7 @@ export const Flex = defineComponent({
       return h(
         'div',
         {
+          ref: element,
           class: flexClasses,
           style: mergeStyles(styleOf(props.style, attrs), gapStyle),
           'data-testid': props.testId,
@@ -175,6 +183,8 @@ export const Flex = defineComponent({
     }
   },
 })
+
+setDisplayName(Flex, 'Flex')
 
 /**
  * Vue Grid UI component with UIClassMap-driven styling.
@@ -197,8 +207,9 @@ export const Grid = defineComponent({
     testId: String,
   },
   emits: ['click'],
-  setup(props, { attrs, slots, emit }) {
+  setup(props, { attrs, slots, emit, expose }) {
     const cm = getClassMap()
+    const element = useElementRef<HTMLDivElement>(expose)
 
     return () => {
       const cmCols = typeof props.columns === 'number' ? props.columns : undefined
@@ -239,6 +250,7 @@ export const Grid = defineComponent({
       return h(
         'div',
         {
+          ref: element,
           class: gridClasses,
           style: mergeStyles(styleOf(props.style, attrs), gridStyle),
           'data-testid': props.testId,
@@ -250,6 +262,8 @@ export const Grid = defineComponent({
     }
   },
 })
+
+setDisplayName(Grid, 'Grid')
 
 /**
  * Vue Spacer UI component with UIClassMap-driven styling.
@@ -272,8 +286,9 @@ export const Spacer = defineComponent({
     testId: String,
   },
   emits: ['click'],
-  setup(props, { attrs, emit }) {
+  setup(props, { attrs, emit, expose }) {
     const cm = getClassMap()
+    const element = useElementRef<HTMLDivElement>(expose)
 
     return () => {
       const isNamedSize =
@@ -300,6 +315,7 @@ export const Spacer = defineComponent({
             : undefined
 
       return h('div', {
+        ref: element,
         class: spacerClasses,
         style: mergeStyles(styleOf(props.style, attrs), sizeStyle),
         'data-testid': props.testId,
@@ -309,3 +325,5 @@ export const Spacer = defineComponent({
     }
   },
 })
+
+setDisplayName(Spacer, 'Spacer')

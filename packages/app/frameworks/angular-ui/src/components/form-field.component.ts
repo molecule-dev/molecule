@@ -19,6 +19,7 @@ import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 import { provideDomContext, removeDomContext } from '../utilities/dom-context.js'
+import { type HasElement, hostElement } from '../utilities/element.js'
 import type { FormFieldContext } from '../utilities/form-field-context.js'
 import { nextInstanceId } from '../utilities/ids.js'
 import { styleText } from '../utilities/style.js'
@@ -39,11 +40,23 @@ const FIELD_SELECTOR = 'input, select, textarea'
 @Component({
   selector: 'div[mol-form-field]',
   standalone: true,
-  inputs: ['label', 'name', 'error', 'hint', 'required', 'className', 'style', 'testId'],
+  inputs: [
+    'label',
+    'name',
+    'error',
+    'hint',
+    'required',
+    'className',
+    'style',
+    'testId',
+    'automationId',
+    'dataMolId: data-mol-id',
+  ],
   host: {
     '[class]': 'classes()',
     '[style]': 'hostStyle()',
     '[attr.data-testid]': 'testId',
+    '[attr.data-mol-id]': 'molId()',
   },
   template: `@if (label) {
       <label
@@ -60,7 +73,7 @@ const FIELD_SELECTOR = 'input, select, textarea'
       <p [attr.id]="hintId" [class]="cm().formHint">{{ hint }}</p>
     }`,
 })
-export class FormField implements AfterViewInit, OnDestroy {
+export class FormField implements AfterViewInit, OnDestroy, HasElement<HTMLDivElement> {
   /** Field label. */
   label?: string
   /** Field name (drives the ids). */
@@ -77,6 +90,10 @@ export class FormField implements AfterViewInit, OnDestroy {
   style?: Record<string, unknown>
   /** `data-testid`. */
   testId?: string
+  /** `data-mol-id` automation id (React's `automationId`). */
+  automationId?: string
+  /** A `data-mol-id` given as a plain rest attribute (React's `rootProps` precedence). */
+  dataMolId?: string
 
   /** The projected-children capture point. */
   @ViewChild('capture') capture?: ElementRef<HTMLSpanElement>
@@ -86,7 +103,9 @@ export class FormField implements AfterViewInit, OnDestroy {
 
   /** A generated id used when `name` is absent (the normalizer renumbers it). */
   private readonly generatedId = nextInstanceId()
-  private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
+  private readonly host: ElementRef<HTMLDivElement> = inject(ElementRef)
+  /** The element a caller's ref receives: the host `<div>`. */
+  readonly element = hostElement(this.host)
   private readonly renderer = inject(Renderer2)
   private readonly sync = new SlotWrapper(this.host, this.renderer)
   /** Cached single-child determination (the capture empties at view init). */
@@ -153,6 +172,19 @@ export class FormField implements AfterViewInit, OnDestroy {
    */
   hostStyle(): string | null {
     return styleText(this.style)
+  }
+
+  /**
+   * The `data-mol-id` value (`automationId` wins over a rest `data-mol-id`).
+   * @returns The attribute value.
+   */
+  molId(): string | undefined {
+    return (
+      this.automationId ??
+      this.dataMolId ??
+      this.host.nativeElement.getAttribute('data-mol-id') ??
+      undefined
+    )
   }
 
   /**

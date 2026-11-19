@@ -8,11 +8,16 @@
   import { bodyPortal } from '../dom.js'
   import type { ToastContainerProps } from '../types.js'
 
-  let { children, position = 'bottom-right', className }: ToastContainerProps = $props()
+  let {
+    ref = $bindable(null),
+    children,
+    position = 'bottom-right',
+    className,
+  }: ToastContainerProps = $props()
 
   const cm = $derived(getClassMap())
 </script>
 
-<div class={cm.cn(cm.toastContainer({ position }), className)} use:bodyPortal>
+<div bind:this={ref} class={cm.cn(cm.toastContainer({ position }), className)} use:bodyPortal>
   {@render children?.()}
 </div>

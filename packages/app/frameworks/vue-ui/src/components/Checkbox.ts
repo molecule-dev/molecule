@@ -4,50 +4,18 @@
  * @module
  */
 
-import {
-  defineComponent,
-  h,
-  onMounted,
-  type PropType,
-  type Ref,
-  ref,
-  type VNodeChild,
-  watch,
-} from 'vue'
+import { defineComponent, h, onMounted, type PropType, type VNodeChild, watch } from 'vue'
 
 import type { CheckboxProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 import { classOf, restAttrs, styleOf } from '../utilities/attrs.js'
 import { mountChecked, updateChecked } from '../utilities/checked.js'
+import { useElementRef } from '../utilities/elementRef.js'
+import { setDisplayName } from './displayName.js'
 
 /** Counter backing the generated ids that stand in for React's `useId()`. */
 let nextGeneratedId = 0
-
-/** React's DOM-callback names that alias a differently spelled native event. */
-const REACT_EVENT_ALIASES: Record<string, string> = {
-  onDoubleClick: 'onDblclick',
-}
-
-/**
- * React forwards DOM callbacks in `...rest` verbatim (`onKeyDown`, …). Vue
- * only attaches a native listener for `on` + the DOM event name (`onKeydown`)
- * — it hyphenates anything after `on`, so React's camelCase spelling would
- * listen for an event nothing dispatches. Rewrites rest keys to the native
- * spelling: `on` + the lowercased DOM event name.
- *
- * @param attrs - The fallthrough attributes to spread onto a native element.
- * @returns The same attributes with event keys in Vue's native spelling.
- */
-function nativeEventAttrs(attrs: Record<string, unknown>): Record<string, unknown> {
-  const out: Record<string, unknown> = {}
-  for (const [key, value] of Object.entries(attrs)) {
-    out[
-      REACT_EVENT_ALIASES[key] ?? (/^on[A-Z]/.test(key) ? `on${key.slice(2).toLowerCase()}` : key)
-    ] = value
-  }
-  return out
-}
 
 /**
  * Vue Checkbox UI component with UIClassMap-driven styling.
@@ -84,37 +52,37 @@ export const Checkbox = defineComponent({
     name: String,
     id: String,
   },
-  emits: ['change'],
-  setup(props, { attrs, slots, emit }) {
+  emits: ['change', 'click'],
+  setup(props, { attrs, slots, emit, expose }) {
     const cm = getClassMap()
     // Allocated once per instance, like React's `useId()`; it only backs
     // `errorId` when neither `id` nor `name` is given.
     const generatedId = `mol-checkbox-${nextGeneratedId++}`
-    // Always track the node (for the indeterminate DOM flag) like React's
-    // internalRef.
-    const internalRef: Ref<HTMLInputElement | null> = ref(null)
+    // The native input is React's `forwardRef` target; it also tracks the
+    // node for the indeterminate DOM flag.
+    const element = useElementRef<HTMLInputElement>(expose)
 
     // React's controlled `checked`: the attribute is written when the input
     // is created, the property on every commit (see `mountChecked`).
     // Uncontrolled inputs (no `checked` prop) are left alone, so
     // `defaultChecked` still applies.
     onMounted(() => {
-      if (internalRef.value) {
-        mountChecked(internalRef.value, props.checked)
-        internalRef.value.indeterminate = !!props.indeterminate
+      if (element.value) {
+        mountChecked(element.value, props.checked)
+        element.value.indeterminate = !!props.indeterminate
       }
     })
     watch(
       () => props.checked,
       () => {
-        if (internalRef.value) updateChecked(internalRef.value, props.checked)
+        if (element.value) updateChecked(element.value, props.checked)
       },
     )
     watch(
       () => props.indeterminate,
       () => {
-        if (internalRef.value) {
-          internalRef.value.indeterminate = !!props.indeterminate
+        if (element.value) {
+          element.value.indeterminate = !!props.indeterminate
         }
       },
     )
@@ -135,7 +103,7 @@ export const Checkbox = defineComponent({
       )
 
       const inputAttrs: Record<string, unknown> = {
-        ref: internalRef,
+        ref: element,
         type: 'checkbox',
         id: checkboxId,
         name: props.name,
@@ -147,14 +115,16 @@ export const Checkbox = defineComponent({
         style: styleOf(props.style, attrs),
         'data-testid': props.testId,
         // React fires its checkbox `onChange` during the click that toggles
-        // the input, with that click event, and restores a controlled input's
-        // `checked` right after the handler returns.
+        // the input, with that click event, after the caller's `onClick` (whose
+        // preventDefault() makes the browser restore the box), and restores a
+        // controlled input's `checked` right after the handler returns.
         onClick: (event: MouseEvent) => {
+          emit('click', event)
           emit('change', event)
           const element = event.target as HTMLInputElement | null
           if (props.checked !== undefined && element) element.checked = !!props.checked
         },
-        ...nativeEventAttrs(restAttrs(attrs)),
+        ...restAttrs(attrs),
       }
 
       const children = [
@@ -176,3 +146,5 @@ export const Checkbox = defineComponent({
     }
   },
 })
+
+setDisplayName(Checkbox, 'Checkbox')

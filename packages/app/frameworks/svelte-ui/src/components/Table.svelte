@@ -9,6 +9,8 @@
   import { useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
+  import { reactAttrs, withoutEvents } from '../attrs.js'
+  import { spreadEvents } from '../dom.js'
   import { reactStyle } from '../style.js'
   import type { TableColumnSpec, TableProps } from '../types.js'
   import IconGlyph from './IconGlyph.svelte'
@@ -16,12 +18,14 @@
   import Spinner from './Spinner.svelte'
 
   let {
+    ref = $bindable(null),
     data,
     columns,
     rowKey,
     bordered,
     striped,
     hoverable = true,
+    size: _size,
     emptyContent,
     loading,
     sort,
@@ -30,6 +34,7 @@
     className,
     style,
     testId,
+    ...rest
   }: TableProps = $props()
 
   const { t } = useTranslation()
@@ -60,13 +65,23 @@
   ): render is Snippet<[unknown, Record<string, unknown>, number]> => render.length > 0
 
   const tableClasses = $derived(cm.cn(cm.table, bordered && cm.tableBordered, className))
+  // Every other declared prop (id, title, aria-*, data-*, automationId as
+  // data-mol-id, the DOM event handlers) reaches the <table>.
+  const attributes = $derived(reactAttrs(withoutEvents(rest)))
 </script>
 
 <div class={cm.tableWrapper}>
   {#if loading}
     <div class={cm.tableLoadingOverlay}><Spinner size="lg" /></div>
   {/if}
-  <table class={tableClasses} use:reactStyle={style} data-testid={testId}>
+  <table
+    bind:this={ref}
+    class={tableClasses}
+    use:reactStyle={style}
+    data-testid={testId}
+    {...attributes}
+    use:spreadEvents={rest}
+  >
     <thead class={cm.tableHeader}>
       <tr class={cm.tableRow}>
         {#each columns as column (column.key as string)}

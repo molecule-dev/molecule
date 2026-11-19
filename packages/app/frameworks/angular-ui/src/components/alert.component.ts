@@ -21,6 +21,7 @@ import type { IconName } from '@molecule/app-icons'
 import type { ColorVariant, UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
+import { type HasElement, hostElement } from '../utilities/element.js'
 import type { ResolvedIcon } from '../utilities/render-icon.js'
 import { MolIconSvg, resolveIcon } from '../utilities/render-icon.js'
 import { styleText } from '../utilities/style.js'
@@ -72,6 +73,8 @@ const STATUS_ICON: Record<string, IconName> = {
     'className',
     'style',
     'testId',
+    'automationId',
+    'dataMolId: data-mol-id',
   ],
   outputs: ['dismiss'],
   host: {
@@ -79,6 +82,7 @@ const STATUS_ICON: Record<string, IconName> = {
     '[class]': 'classes()',
     '[style]': 'hostStyle()',
     '[attr.data-testid]': 'testId',
+    '[attr.data-mol-id]': 'molId()',
   },
   template: `<span [class]="cm().alertIconWrapper" #iconSlot>
       <svg mol-icon [data]="resolvedDefaultIcon()" #defaultGlyph />
@@ -101,7 +105,7 @@ const STATUS_ICON: Record<string, IconName> = {
       </button>
     }`,
 })
-export class Alert implements AfterViewInit, DoCheck {
+export class Alert implements AfterViewInit, DoCheck, HasElement<HTMLDivElement> {
   /** Alert title. */
   title?: string
   /** Status color. */
@@ -120,6 +124,10 @@ export class Alert implements AfterViewInit, DoCheck {
   style?: Record<string, unknown>
   /** `data-testid`. */
   testId?: string
+  /** `data-mol-id` automation id (React's `automationId`). */
+  automationId?: string
+  /** A `data-mol-id` given as a plain rest attribute (React's `rootProps` precedence). */
+  dataMolId?: string
 
   /** Fires the raw click event when the dismiss button is pressed. */
   @Output() readonly dismiss = new EventEmitter<MouseEvent>()
@@ -139,6 +147,9 @@ export class Alert implements AfterViewInit, DoCheck {
   private readonly i18n = useTranslation()
 
   private readonly sync = new SlotWrapper(inject(ElementRef), inject(Renderer2))
+  private readonly host: ElementRef<HTMLDivElement> = inject(ElementRef)
+  /** The element a caller's ref receives: the host `<div>`. */
+  readonly element = hostElement(this.host)
 
   /**
    * The current class map.
@@ -218,6 +229,19 @@ export class Alert implements AfterViewInit, DoCheck {
    */
   hostStyle(): string | null {
     return styleText(this.style)
+  }
+
+  /**
+   * The `data-mol-id` value (`automationId` wins over a rest `data-mol-id`).
+   * @returns The attribute value.
+   */
+  molId(): string | undefined {
+    return (
+      this.automationId ??
+      this.dataMolId ??
+      this.host.nativeElement.getAttribute('data-mol-id') ??
+      undefined
+    )
   }
 
   /**

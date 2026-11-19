@@ -4,12 +4,14 @@
  * @module
  */
 
-import { defineComponent, h, type PropType } from 'vue'
+import { defineComponent, h, mergeProps, type PropType } from 'vue'
 
 import type { Size } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 import { classOf, restAttrs, styleOf } from '../utilities/attrs.js'
+import { useElementRef } from '../utilities/elementRef.js'
+import { setDisplayName } from './displayName.js'
 
 /** Maps the Card `variant` prop values onto the ClassMap card variants. */
 const variantMap: Record<string, 'default' | 'elevated' | 'outline' | 'ghost'> = {
@@ -25,9 +27,9 @@ const variantMap: Record<string, 'default' | 'elevated' | 'outline' | 'ghost'> =
  * whose children ride the default slot. `interactive` adds the button role,
  * the tab order and the interactive classes, and Enter/Space on the card
  * itself activate it by clicking the element; a click emits `click` with the
- * original DOM event; `data-*` / `aria-*` fallthrough attributes (including
- * `data-mol-id`) reach the root element, and every other rest attribute is
- * dropped, exactly as React's passthrough filter does.
+ * original DOM event; every other fallthrough attribute (`id`, `title`, `aria-*`,
+ * `data-mol-id`, React's DOM event handlers) reaches the root element, as React's
+ * rest spread does, and a caller's `onKeyDown` runs before the Enter/Space activation.
  */
 export const Card = defineComponent({
   name: 'MCard',
@@ -48,10 +50,12 @@ export const Card = defineComponent({
     className: String,
     style: [String, Object] as PropType<Record<string, string | number> | string>,
     testId: String,
+    disabled: Boolean,
   },
   emits: ['click'],
-  setup(props, { attrs, slots, emit }) {
+  setup(props, { attrs, slots, emit, expose }) {
     const cm = getClassMap()
+    const element = useElementRef<HTMLDivElement>(expose)
 
     return () => {
       const paddingClass = props.padding === 'none' ? '' : cm.cardPadding(props.padding)
@@ -64,40 +68,54 @@ export const Card = defineComponent({
         ...classOf(props.className, attrs),
       )
 
-      // React forwards only data-* and aria-* from the rest props.
-      const passthrough: Record<string, unknown> = {}
-      for (const [key, value] of Object.entries(restAttrs(attrs))) {
-        if (key.startsWith('data-') || key.startsWith('aria-')) passthrough[key] = value
-      }
-
       // An interactive card is announced as a button and sits in the tab order, so
       // Enter and Space activate it the way they activate a native button: by
       // clicking it, which runs `onClick` with a real click event. Keys pressed in a
-      // control inside the card belong to that control.
-      const handleKeyDown = (event: KeyboardEvent): void => {
-        if (!props.interactive || event.target !== event.currentTarget) return
+      // control inside the card belong to that control. Merged after the caller's
+      // keydown listener, which runs first: its preventDefault() cancels the activation,
+      // as it does on a native button.
+      const handleKeyDown = (event: KeyboardEvent & { currentTarget: HTMLElement }): void => {
+        if (
+          event.defaultPrevented ||
+          !props.interactive ||
+          props.disabled ||
+          event.target !== event.currentTarget
+        )
+          return
         if (event.key !== 'Enter' && event.key !== ' ') return
         event.preventDefault()
-        ;(event.currentTarget as HTMLElement).click()
+        event.currentTarget.click()
       }
 
       return h(
         'div',
-        {
-          class: cardClasses,
-          style: styleOf(props.style, attrs),
-          'data-testid': props.testId,
-          onClick: (event: MouseEvent) => emit('click', event),
-          onKeydown: handleKeyDown,
-          role: props.interactive ? 'button' : undefined,
-          tabindex: props.interactive ? 0 : undefined,
-          ...passthrough,
-        },
+        mergeProps(
+          {
+            ref: element,
+            class: cardClasses,
+            style: styleOf(props.style, attrs),
+            'data-testid': props.testId,
+            role: props.interactive ? 'button' : undefined,
+            // A disabled interactive card, like a disabled button, leaves the tab
+            // order and is announced as disabled; a plain card renders no control.
+            tabindex: props.interactive ? (props.disabled ? -1 : 0) : undefined,
+            'aria-disabled': props.interactive && props.disabled ? true : undefined,
+          },
+          // React's rest spread: a caller's role or tabIndex replaces the interactive default.
+          restAttrs(attrs),
+          {
+            // A disabled card never runs the caller's click (React drops `onClick`).
+            onClick: props.disabled ? undefined : (event: MouseEvent) => emit('click', event),
+            onKeydown: handleKeyDown,
+          },
+        ),
         slots.default?.(),
       )
     }
   },
 })
+
+setDisplayName(Card, 'Card')
 
 /**
  * Vue CardHeader UI component: the header row of a Card.
@@ -115,13 +133,15 @@ export const CardHeader = defineComponent({
     style: [String, Object] as PropType<Record<string, string | number> | string>,
   },
   emits: ['click'],
-  setup(props, { attrs, slots, emit }) {
+  setup(props, { attrs, slots, emit, expose }) {
     const cm = getClassMap()
+    const element = useElementRef<HTMLDivElement>(expose)
 
     return () =>
       h(
         'div',
         {
+          ref: element,
           class: cm.cn(cm.cardHeader, ...classOf(props.className, attrs)),
           style: styleOf(props.style, attrs),
           onClick: (event: MouseEvent) => emit('click', event),
@@ -131,6 +151,8 @@ export const CardHeader = defineComponent({
       )
   },
 })
+
+setDisplayName(CardHeader, 'CardHeader')
 
 /**
  * Vue CardTitle UI component: the `h3` title of a Card.
@@ -148,13 +170,15 @@ export const CardTitle = defineComponent({
     style: [String, Object] as PropType<Record<string, string | number> | string>,
   },
   emits: ['click'],
-  setup(props, { attrs, slots, emit }) {
+  setup(props, { attrs, slots, emit, expose }) {
     const cm = getClassMap()
+    const element = useElementRef<HTMLHeadingElement>(expose)
 
     return () =>
       h(
         'h3',
         {
+          ref: element,
           class: cm.cn(cm.cardTitle, ...classOf(props.className, attrs)),
           style: styleOf(props.style, attrs),
           onClick: (event: MouseEvent) => emit('click', event),
@@ -164,6 +188,8 @@ export const CardTitle = defineComponent({
       )
   },
 })
+
+setDisplayName(CardTitle, 'CardTitle')
 
 /**
  * Vue CardDescription UI component: the muted description paragraph of a Card.
@@ -181,13 +207,15 @@ export const CardDescription = defineComponent({
     style: [String, Object] as PropType<Record<string, string | number> | string>,
   },
   emits: ['click'],
-  setup(props, { attrs, slots, emit }) {
+  setup(props, { attrs, slots, emit, expose }) {
     const cm = getClassMap()
+    const element = useElementRef<HTMLParagraphElement>(expose)
 
     return () =>
       h(
         'p',
         {
+          ref: element,
           class: cm.cn(cm.cardDescription, ...classOf(props.className, attrs)),
           style: styleOf(props.style, attrs),
           onClick: (event: MouseEvent) => emit('click', event),
@@ -197,6 +225,8 @@ export const CardDescription = defineComponent({
       )
   },
 })
+
+setDisplayName(CardDescription, 'CardDescription')
 
 /**
  * Vue CardContent UI component: the body region of a Card.
@@ -214,13 +244,15 @@ export const CardContent = defineComponent({
     style: [String, Object] as PropType<Record<string, string | number> | string>,
   },
   emits: ['click'],
-  setup(props, { attrs, slots, emit }) {
+  setup(props, { attrs, slots, emit, expose }) {
     const cm = getClassMap()
+    const element = useElementRef<HTMLDivElement>(expose)
 
     return () =>
       h(
         'div',
         {
+          ref: element,
           class: cm.cn(cm.cardContent, ...classOf(props.className, attrs)),
           style: styleOf(props.style, attrs),
           onClick: (event: MouseEvent) => emit('click', event),
@@ -230,6 +262,8 @@ export const CardContent = defineComponent({
       )
   },
 })
+
+setDisplayName(CardContent, 'CardContent')
 
 /**
  * Vue CardFooter UI component: the footer row of a Card.
@@ -247,13 +281,15 @@ export const CardFooter = defineComponent({
     style: [String, Object] as PropType<Record<string, string | number> | string>,
   },
   emits: ['click'],
-  setup(props, { attrs, slots, emit }) {
+  setup(props, { attrs, slots, emit, expose }) {
     const cm = getClassMap()
+    const element = useElementRef<HTMLDivElement>(expose)
 
     return () =>
       h(
         'div',
         {
+          ref: element,
           class: cm.cn(cm.cardFooter, ...classOf(props.className, attrs)),
           style: styleOf(props.style, attrs),
           onClick: (event: MouseEvent) => emit('click', event),
@@ -263,3 +299,5 @@ export const CardFooter = defineComponent({
       )
   },
 })
+
+setDisplayName(CardFooter, 'CardFooter')

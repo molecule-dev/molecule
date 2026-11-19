@@ -11,7 +11,7 @@ import type { IconName } from '@molecule/app-icons'
 import { useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
-import { toStyleProps } from '../utilities/dom.js'
+import { reactDomProps, toStyleProps } from '../utilities/dom.js'
 import { createKeyedList } from '../utilities/keyedList.js'
 import { Icon } from './Icon.jsx'
 import { Modal } from './Modal.jsx'
@@ -107,7 +107,7 @@ export const LanguagePicker: Component<LanguagePickerProps> = (props) => {
           onClick={() => setOpen(true)}
           class={cm.cn(cm.languagePickerTrigger, local.className)}
           style={toStyleProps(local.style)}
-          {...(rest as JSX.ButtonHTMLAttributes<HTMLButtonElement>)}
+          {...reactDomProps(rest)}
         >
           <Icon name={local.icon ?? 'globe'} size={local.iconSize ?? 16} />
           <Show when={triggerLabel() != null}>

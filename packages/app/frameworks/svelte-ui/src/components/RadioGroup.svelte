@@ -11,6 +11,7 @@
   import type { RadioGroupProps } from '../types.js'
 
   let {
+    ref = $bindable(null),
     options,
     value,
     onChange,
@@ -23,6 +24,7 @@
     style,
     testId,
     disabled,
+    automationId,
   }: RadioGroupProps = $props()
 
   const { t } = useTranslation()
@@ -31,15 +33,13 @@
   const groupName = $derived(name || generatedName)
   const errorId = $derived(`${groupName}-error`)
 
-  let groupEl = $state<HTMLDivElement | null>(null)
-
   const handleChange = (optionValue: string): void => {
     onChange?.(optionValue)
     // React manages a radio input's checked state even without a `value` prop
     // (radios are always controlled for `checked`): after the change event it
     // restores every radio to `checked === (value === option.value)`.
-    if (groupEl) {
-      for (const input of groupEl.querySelectorAll<HTMLInputElement>('input[type="radio"]')) {
+    if (ref) {
+      for (const input of ref.querySelectorAll<HTMLInputElement>('input[type="radio"]')) {
         input.checked = input.value === value
       }
     }
@@ -47,10 +47,11 @@
 </script>
 
 <div
-  bind:this={groupEl}
+  bind:this={ref}
   class={className}
   use:reactStyle={style}
   data-testid={testId}
+  data-mol-id={automationId}
   role="radiogroup"
   aria-label={label ?? t('ui.radioGroup.label', undefined, { defaultValue: 'Radio group' })}
   aria-invalid={error ? 'true' : undefined}

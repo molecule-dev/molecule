@@ -4,15 +4,16 @@
  * @module
  */
 
-import { type Component, createMemo, For, type JSX, Show, splitProps } from 'solid-js'
+import { createMemo, For, type JSX, Show, splitProps } from 'solid-js'
 
 import { useTranslation } from '@molecule/app-solid'
 import type { PaginationProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
-import { toStyleProps } from '../utilities/dom.js'
+import { reactDomProps, toStyleProps, type WithRef } from '../utilities/dom.js'
 import { createKeyedList } from '../utilities/keyedList.js'
 import { renderIcon } from '../utilities/renderIcon.jsx'
+import { withDisplayName } from './displayName.js'
 
 /**
  * Generate pagination range with ellipsis.
@@ -84,8 +85,8 @@ const Ellipsis = (): JSX.Element => {
  * @param props - The component props.
  * @returns The rendered pagination JSX.
  */
-export const Pagination: Component<PaginationProps> = (props) => {
-  const [local] = splitProps(props, [
+export const Pagination = withDisplayName<WithRef<PaginationProps, HTMLElement>>((props) => {
+  const [local, rest] = splitProps(props, [
     'page',
     'totalPages',
     'onChange',
@@ -138,6 +139,7 @@ export const Pagination: Component<PaginationProps> = (props) => {
       class={cm.cn(cm.paginationRoot, local.className)}
       style={toStyleProps(local.style)}
       data-testid={local.testId}
+      {...reactDomProps(rest)}
     >
       <ul class={cm.paginationContent}>
         {/* First page button */}
@@ -245,4 +247,4 @@ export const Pagination: Component<PaginationProps> = (props) => {
       </ul>
     </nav>
   )
-}
+}, 'Pagination')

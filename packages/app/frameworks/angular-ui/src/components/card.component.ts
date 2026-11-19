@@ -5,11 +5,12 @@
  * @module
  */
 
-import { Component } from '@angular/core'
+import { Component, DestroyRef, ElementRef, inject, type OnInit, Renderer2 } from '@angular/core'
 
-import type { UIClassMap } from '@molecule/app-ui'
+import type { MouseEventHandler, UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
+import { type HasElement, hostElement } from '../utilities/element.js'
 import { styleText } from '../utilities/style.js'
 
 /** React's variant spellings → class-map variants. */
@@ -23,23 +24,44 @@ const VARIANT_MAP: Record<string, 'default' | 'elevated' | 'outline' | 'ghost'> 
  * Card component.
  *
  * An interactive card renders `role="button"` and joins the keyboard tab
- * order; rest props (`aria-*`, `data-*`, `id`) land on the host.
+ * order; rest props (`id`, `title`, `aria-*`, `data-*`) and event bindings
+ * (`(focusin)`, `(dblclick)`, `(keydown)`, …) land on the host, and a
+ * caller's `(keydown)` runs before the Enter/Space activation.
  */
 @Component({
   selector: 'div[mol-card]',
   standalone: true,
-  inputs: ['variant', 'interactive', 'padding', 'className', 'style', 'testId'],
+  inputs: [
+    'variant',
+    'interactive',
+    'padding',
+    'className',
+    'style',
+    'testId',
+    'automationId',
+    'dataMolId: data-mol-id',
+    'disabled',
+    'onClick',
+  ],
   host: {
     '[class]': 'classes()',
     '[style]': 'hostStyle()',
     '[attr.data-testid]': 'testId',
+    '[attr.data-mol-id]': 'molId()',
     '[attr.role]': 'interactive ? "button" : null',
-    '[attr.tabindex]': 'interactive ? 0 : null',
-    '(keydown)': 'handleKeyDown($event)',
+    '[attr.tabindex]': 'interactive ? (disabled ? -1 : 0) : null',
+    '[attr.aria-disabled]': 'interactive && disabled ? "true" : null',
+    '(click)': 'handleClick($event)',
   },
   template: `<ng-content></ng-content>`,
 })
-export class Card {
+export class Card implements OnInit, HasElement<HTMLDivElement> {
+  private readonly host: ElementRef<HTMLDivElement> = inject(ElementRef)
+  /** The element a caller's ref receives: the host `<div>`. */
+  readonly element = hostElement(this.host)
+  private readonly renderer = inject(Renderer2)
+  private readonly destroyRef = inject(DestroyRef)
+
   /** Card variant. */
   variant: 'default' | 'elevated' | 'outlined' | 'filled' | 'ghost' = 'elevated'
   /** Whether the card is keyboard-interactive. */
@@ -52,6 +74,14 @@ export class Card {
   style?: Record<string, unknown>
   /** `data-testid`. */
   testId?: string
+  /** `data-mol-id` automation id (React's `automationId`). */
+  automationId?: string
+  /** A `data-mol-id` given as a plain rest attribute (React's `rootProps` precedence). */
+  dataMolId?: string
+  /** A disabled card never calls `onClick` (React's `disabled`). */
+  disabled?: boolean
+  /** React's `onClick` prop: the card's click handler (never called while disabled). */
+  onClick?: MouseEventHandler
 
   /**
    * The current class map.
@@ -76,11 +106,40 @@ export class Card {
   }
 
   /**
+   * The `data-mol-id` value (`automationId` wins over a rest `data-mol-id`).
+   * @returns The attribute value.
+   */
+  molId(): string | undefined {
+    return (
+      this.automationId ??
+      this.dataMolId ??
+      this.host.nativeElement.getAttribute('data-mol-id') ??
+      undefined
+    )
+  }
+
+  /**
    * Serializes the inline style.
    * @returns The style attribute text.
    */
   hostStyle(): string | null {
     return styleText(this.style)
+  }
+
+  /**
+   * Attaches the keyboard activation. A host listener would run before the
+   * `(keydown)` a caller binds on the card (Angular registers a component's
+   * host listeners first); attached here, after the template's bindings, the
+   * caller's handler runs first and its preventDefault() cancels the
+   * activation, as React's Card calls `onKeyDown` before activating.
+   */
+  ngOnInit(): void {
+    const unlisten = this.renderer.listen(
+      this.host.nativeElement,
+      'keydown',
+      (event: KeyboardEvent) => this.handleKeyDown(event),
+    )
+    this.destroyRef.onDestroy(unlisten)
   }
 
   /**
@@ -93,10 +152,27 @@ export class Card {
    * @param event - The key event.
    */
   handleKeyDown(event: KeyboardEvent): void {
-    if (!this.interactive || event.target !== event.currentTarget) return
+    if (event.defaultPrevented || !this.interactive || this.disabled) return
+    // The element the listener is bound to (the host, whether the binding is
+    // the component's own or a caller's); `this.host` is the fallback when the
+    // handler is invoked outside a dispatch.
+    const target =
+      event.currentTarget instanceof HTMLElement ? event.currentTarget : this.host.nativeElement
+    if (event.target !== target) return
     if (event.key !== 'Enter' && event.key !== ' ') return
     event.preventDefault()
-    ;(event.currentTarget as HTMLElement).click()
+    target.click()
+  }
+
+  /**
+   * React passes no `onClick` to a disabled card, so the consumer's handler
+   * never runs; an enabled card's handler is called with the click event.
+   *
+   * @param event - The click event.
+   */
+  handleClick(event: MouseEvent): void {
+    if (this.disabled) return
+    this.onClick?.(event)
   }
 }
 
@@ -112,7 +188,11 @@ export class Card {
   },
   template: `<ng-content></ng-content>`,
 })
-export class CardHeader {
+export class CardHeader implements HasElement<HTMLDivElement> {
+  private readonly host: ElementRef<HTMLDivElement> = inject(ElementRef)
+  /** The element a caller's ref receives: the host `<div>`. */
+  readonly element = hostElement(this.host)
+
   /** Extra classes. */
   className?: string
 
@@ -145,7 +225,11 @@ export class CardHeader {
   },
   template: `<ng-content></ng-content>`,
 })
-export class CardTitle {
+export class CardTitle implements HasElement<HTMLHeadingElement> {
+  private readonly host: ElementRef<HTMLHeadingElement> = inject(ElementRef)
+  /** The element a caller's ref receives: the host `<h3>`. */
+  readonly element = hostElement(this.host)
+
   /** Extra classes. */
   className?: string
 
@@ -178,7 +262,11 @@ export class CardTitle {
   },
   template: `<ng-content></ng-content>`,
 })
-export class CardDescription {
+export class CardDescription implements HasElement<HTMLParagraphElement> {
+  private readonly host: ElementRef<HTMLParagraphElement> = inject(ElementRef)
+  /** The element a caller's ref receives: the host `<p>`. */
+  readonly element = hostElement(this.host)
+
   /** Extra classes. */
   className?: string
 
@@ -211,7 +299,11 @@ export class CardDescription {
   },
   template: `<ng-content></ng-content>`,
 })
-export class CardContent {
+export class CardContent implements HasElement<HTMLDivElement> {
+  private readonly host: ElementRef<HTMLDivElement> = inject(ElementRef)
+  /** The element a caller's ref receives: the host `<div>`. */
+  readonly element = hostElement(this.host)
+
   /** Extra classes. */
   className?: string
 
@@ -244,7 +336,11 @@ export class CardContent {
   },
   template: `<ng-content></ng-content>`,
 })
-export class CardFooter {
+export class CardFooter implements HasElement<HTMLDivElement> {
+  private readonly host: ElementRef<HTMLDivElement> = inject(ElementRef)
+  /** The element a caller's ref receives: the host `<div>`. */
+  readonly element = hostElement(this.host)
+
   /** Extra classes. */
   className?: string
 

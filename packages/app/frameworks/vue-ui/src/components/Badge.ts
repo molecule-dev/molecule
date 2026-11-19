@@ -9,7 +9,9 @@ import { defineComponent, h, type PropType } from 'vue'
 import type { BadgeProps, ColorVariant, Size } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
-import { classOf, styleOf } from '../utilities/attrs.js'
+import { classOf, restAttrs, styleOf } from '../utilities/attrs.js'
+import { useElementRef } from '../utilities/elementRef.js'
+import { setDisplayName } from './displayName.js'
 
 /**
  * Vue Badge UI component with UIClassMap-driven styling.
@@ -39,8 +41,9 @@ export const Badge = defineComponent({
     style: [String, Object] as PropType<BadgeProps['style']>,
     testId: String,
   },
-  setup(props, { attrs, slots }) {
+  setup(props, { attrs, slots, expose }) {
     const cm = getClassMap()
+    const element = useElementRef<HTMLSpanElement>(expose)
 
     return () => {
       const badgeClasses = cm.cn(
@@ -52,12 +55,16 @@ export const Badge = defineComponent({
       return h(
         'span',
         {
+          ref: element,
           class: badgeClasses,
           style: styleOf(props.style, attrs),
           'data-testid': props.testId,
+          ...restAttrs(attrs),
         },
         slots.default?.(),
       )
     }
   },
 })
+
+setDisplayName(Badge, 'Badge')

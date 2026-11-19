@@ -20,8 +20,10 @@ import { useTranslation } from '@molecule/app-angular'
 import type { TableColumn, UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
+import type { HasElement } from '../utilities/element.js'
 import type { ResolvedIcon } from '../utilities/render-icon.js'
 import { MolIconSvg, resolveIcon } from '../utilities/render-icon.js'
+import { takeDataMolId } from '../utilities/rest-attrs.js'
 import { styleText } from '../utilities/style.js'
 import { hasNodes, SlotWrapper } from './button.component.js'
 import { Spinner } from './spinner.component.js'
@@ -55,6 +57,10 @@ import { MolTemplateOutlet } from './template-outlet.directive.js'
     'className',
     'style',
     'testId',
+    'automationId',
+    'dataMolId: data-mol-id',
+    'id',
+    'title',
   ],
   host: {
     '[class]': 'cm().tableWrapper',
@@ -63,7 +69,15 @@ import { MolTemplateOutlet } from './template-outlet.directive.js'
     @if (loading) {
       <div [class]="cm().tableLoadingOverlay"><div mol-spinner [size]="'lg'"></div></div>
     }
-    <table #tableEl [class]="tableClasses()" [style]="tableStyle()" [attr.data-testid]="testId">
+    <table
+      #tableEl
+      [class]="tableClasses()"
+      [style]="tableStyle()"
+      [attr.data-testid]="testId"
+      [attr.data-mol-id]="molId()"
+      [attr.id]="id"
+      [attr.title]="title"
+    >
       <thead [class]="cm().tableHeader">
         <tr [class]="cm().tableRow">
           @for (column of columns; track column.key) {
@@ -121,7 +135,7 @@ import { MolTemplateOutlet } from './template-outlet.directive.js'
       </tbody>
     </table>`,
 })
-export class Table implements AfterViewInit, DoCheck {
+export class Table implements AfterViewInit, DoCheck, HasElement<HTMLTableElement> {
   /** The rows. */
   data: Record<string, unknown>[] = []
   /** The columns. */
@@ -152,11 +166,28 @@ export class Table implements AfterViewInit, DoCheck {
   style?: Record<string, unknown>
   /** `data-testid` for the table. */
   testId?: string
+  /** `data-mol-id` automation id (React's `automationId`). */
+  automationId?: string
+  /** A `data-mol-id` given as a plain rest attribute (React's `rootProps` precedence). */
+  dataMolId?: string
+  /** The table's `id` attribute (React's rest spread). */
+  id?: string
+  /** The table's `title` attribute (React's rest spread). */
+  title?: string
 
   /** The empty-state slot capture point. */
   @ViewChild('emptySlot') emptySlot?: ElementRef<HTMLSpanElement>
   /** The empty-state cell. */
   @ViewChild('emptyCell') emptyCell?: ElementRef<HTMLTableCellElement>
+  /** The `<table>` view query; also feeds the caller's ref element. */
+  @ViewChild('tableEl')
+  set tableElQuery(ref: ElementRef<HTMLTableElement> | undefined) {
+    this.inner.set(ref?.nativeElement ?? null)
+  }
+
+  private readonly inner = signal<HTMLTableElement | null>(null)
+  /** The element a caller's ref receives: the `<table>`, not its scroll wrapper. */
+  readonly element = this.inner.asReadonly()
 
   /** Whether the projected empty content is present (read after view init). */
   readonly hasEmpty = signal(false)
@@ -172,6 +203,8 @@ export class Table implements AfterViewInit, DoCheck {
 
   private readonly renderer = inject(Renderer2)
   private readonly sync = new SlotWrapper(this.host, this.renderer)
+  /** The `data-mol-id` a caller bound on the host (React spreads it onto the table). */
+  private externalMolId: string | undefined
   private emptyParent: HTMLElement | null = null
   private adoptedEmpty: Node[] = []
 
@@ -197,6 +230,14 @@ export class Table implements AfterViewInit, DoCheck {
    */
   tableStyle(): string | null {
     return styleText(this.style)
+  }
+
+  /**
+   * The `data-mol-id` value (`automationId` wins over a rest `data-mol-id`).
+   * @returns The attribute value.
+   */
+  molId(): string | undefined {
+    return this.automationId ?? this.dataMolId ?? this.externalMolId
   }
 
   /**
@@ -400,6 +441,7 @@ export class Table implements AfterViewInit, DoCheck {
    * data length changes).
    */
   ngDoCheck(): void {
+    this.externalMolId = takeDataMolId(this.host.nativeElement) ?? this.externalMolId
     const cell = this.emptyCell?.nativeElement
     if (!cell || !this.hasEmpty()) return
     if (this.adoptedEmpty.some((node) => node.parentNode !== cell)) {

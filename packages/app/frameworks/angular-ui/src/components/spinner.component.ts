@@ -4,12 +4,13 @@
  * @module
  */
 
-import { Component } from '@angular/core'
+import { Component, ElementRef, inject } from '@angular/core'
 
 import { useTranslation } from '@molecule/app-angular'
 import type { Size, UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
+import { type HasElement, hostElement } from '../utilities/element.js'
 import { styleText } from '../utilities/style.js'
 
 /** Color names the class map knows — anything else is a raw CSS color. */
@@ -25,19 +26,33 @@ const NAMED_COLORS = ['primary', 'secondary', 'success', 'warning', 'error', 'in
 @Component({
   selector: 'div[mol-spinner]',
   standalone: true,
-  inputs: ['size', 'color', 'label', 'className', 'style', 'testId'],
+  inputs: [
+    'size',
+    'color',
+    'label',
+    'className',
+    'style',
+    'testId',
+    'automationId',
+    'dataMolId: data-mol-id',
+  ],
   host: {
     '[attr.role]': '"status"',
     '[attr.aria-label]': 'ariaLabel()',
     '[class]': 'classes()',
     '[style]': 'hostStyle()',
     '[attr.data-testid]': 'testId',
+    '[attr.data-mol-id]': 'molId()',
   },
   template: `@if (label) {
     <span [class]="cm().srOnly">{{ label }}</span>
   }`,
 })
-export class Spinner {
+export class Spinner implements HasElement<HTMLDivElement> {
+  private readonly host: ElementRef<HTMLDivElement> = inject(ElementRef)
+  /** The element a caller's ref receives: the host `<div role="status">`. */
+  readonly element = hostElement(this.host)
+
   /** Spinner size. */
   size: Size = 'md'
   /** Named color variant or a raw CSS color. */
@@ -50,6 +65,10 @@ export class Spinner {
   style?: Record<string, unknown>
   /** `data-testid`. */
   testId?: string
+  /** `data-mol-id` automation id (React's `automationId`). */
+  automationId?: string
+  /** A `data-mol-id` given as a plain rest attribute (React's `rootProps` precedence). */
+  dataMolId?: string
 
   /**
    * Reactive translation, read in the injection context. Its `t` reads the
@@ -80,6 +99,19 @@ export class Spinner {
    */
   classes(): string {
     return this.cm().cn(this.cm().spinner({ size: this.size }), this.className)
+  }
+
+  /**
+   * The `data-mol-id` value (`automationId` wins over a rest `data-mol-id`).
+   * @returns The attribute value.
+   */
+  molId(): string | undefined {
+    return (
+      this.automationId ??
+      this.dataMolId ??
+      this.host.nativeElement.getAttribute('data-mol-id') ??
+      undefined
+    )
   }
 
   /**

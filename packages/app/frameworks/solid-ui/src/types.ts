@@ -49,6 +49,11 @@ export type {
   // Input
   InputType,
   KeyboardEventHandler,
+  KitEvent,
+  KitFocusEvent,
+  KitKeyboardEvent,
+  KitModifierKeys,
+  KitMouseEvent,
   ModalProps,
   // Modal
   ModalSize,

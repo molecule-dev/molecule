@@ -76,13 +76,21 @@ export function isTopOfModalStack(id: string): boolean {
  * Svelte action that moves the element it is placed on into `document.body`,
  * reproducing React's `createPortal(…, document.body)` output: the portal
  * children become direct body children, in mount order, with no extra wrapper
- * element. Svelte still owns the node and removes it from wherever it sits on
- * teardown.
+ * element. A portal's node is no longer where Svelte's block teardown looks for
+ * it, so the action returns a `destroy` hook that removes it — without it an
+ * unmounted Modal or Dropdown menu stays in the document and its markup is
+ * found by later queries (React's portal unmounts its children).
  *
  * @param node - The element to portal into the document body.
+ * @returns An action payload whose `destroy` removes the portaled node.
  */
-export function bodyPortal(node: HTMLElement): void {
+export function bodyPortal(node: HTMLElement): { destroy: () => void } {
   if (typeof document !== 'undefined') document.body.appendChild(node)
+  return {
+    destroy: () => {
+      node.remove()
+    },
+  }
 }
 
 // Reference-counted body scroll lock: two overlays can be open at once; closing
@@ -146,11 +154,13 @@ export function reflectChecked(
  * React prop names whose delegated DOM event differs from the lowercased prop
  * suffix: React binds onFocus/onBlur to the BUBBLING focusin/focusout events,
  * not to focus/blur (which do not bubble), so a handler on a child element
- * fires for both the native event and any redispatched one.
+ * fires for both the native event and any redispatched one; and its
+ * onDoubleClick listens to `dblclick` (there is no `doubleclick` event).
  */
 const REST_EVENT_TYPES: Record<string, string> = {
   onFocus: 'focusin',
   onBlur: 'focusout',
+  onDoubleClick: 'dblclick',
 }
 
 /**

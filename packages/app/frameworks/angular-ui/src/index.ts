@@ -62,6 +62,10 @@
  *   `display: contents`.
  * - Hooks (`useToast`, `usePanelClose`, `useIsDesktop`, `useUserMenuPopoverClose`) are called in
  *   an injection context (a component field initializer or constructor).
+ * - Every component whose React export forwards a ref implements `HasElement`: take it with a
+ *   template variable (`<div mol-input #email>`) or `viewChild`, then read `email.element()`.
+ *   That is the same element React's ref receives and is `null` while it is not rendered (a
+ *   closed Tooltip, Dropdown or Modal).
  * - The original first-pass components remain exported under their `Molecule*` names
  *   (`MoleculeButton`, `MoleculeInput`, `MoleculeModal`, …) as deprecated aliases.
  *

@@ -13,8 +13,10 @@ import {
   ElementRef,
   inject,
   type OnDestroy,
+  type OnInit,
   Renderer2,
   signal,
+  type TemplateRef,
   ViewChild,
 } from '@angular/core'
 
@@ -26,13 +28,19 @@ import { useIsDesktop } from '../hooks/use-is-desktop.js'
 import { findDomContext, provideDomContext, removeDomContext } from '../utilities/dom-context.js'
 import { createScrollLock, getFocusableElements } from '../utilities/focus.js'
 import { nextInstanceId } from '../utilities/ids.js'
+import { asTemplate, isGiven, nodeText } from '../utilities/node-value.js'
 import type { ResolvedIcon } from '../utilities/render-icon.js'
 import { MolIconSvg, resolveIcon } from '../utilities/render-icon.js'
 import { styleText } from '../utilities/style.js'
 import { hasNodes, SlotWrapper } from './button.component.js'
+import { MolTemplateOutlet } from './template-outlet.directive.js'
 
-/** The sidebar-width presets (React's `ShellSidebarWidth`). */
-type ShellSidebarWidth = 'sm' | 'md' | 'lg' | number
+/**
+ * Semantic sidebar width — the same stack-agnostic presets React's
+ * `ShellSidebarWidth` uses: `sm` → 208px, `md` → 240px (default), `lg` →
+ * 256px. A raw `number` is an exact pixel width.
+ */
+export type ShellSidebarWidth = 'sm' | 'md' | 'lg' | number
 
 /** Pixel widths for the sidebar presets. */
 const SIDEBAR_WIDTH_PX: Record<'sm' | 'md' | 'lg', number> = { sm: 208, md: 240, lg: 256 }
@@ -72,6 +80,97 @@ export interface ShellContextValue {
 }
 
 /**
+ * Props for the {@link ResponsiveAppShell} root (React's
+ * `ResponsiveAppShellProps`, in Angular's form). The sub-components are
+ * projected content, so they have no member.
+ */
+export interface ResponsiveAppShellProps {
+  /** Sidebar (and drawer) width: `sm`/`md`/`lg` or an exact pixel number. */
+  sidebarWidth?: ShellSidebarWidth
+  /** Extra classes on the root flex container. */
+  className?: string
+  /** `data-mol-id` for the root (default `shell-root`). */
+  dataMolId?: string
+}
+
+/**
+ * Props for {@link ResponsiveAppShellTopBar} (React's
+ * `ResponsiveAppShellTopBarProps`, in Angular's form).
+ */
+export interface ResponsiveAppShellTopBarProps {
+  /** Brand/title node, rendered after the menu trigger. */
+  brand?: string | number | TemplateRef<unknown>
+  /** Trailing actions — user menu, theme toggle, search, etc. */
+  actions?: string | number | TemplateRef<unknown>
+  /** Render the top bar only below the breakpoint (no dead DOM on desktop). */
+  mobileOnly?: boolean
+  /** Extra classes on the `<header>`. */
+  className?: string
+  /** `data-mol-id` (default `shell-topbar`). */
+  dataMolId?: string
+  /** `data-testid`. */
+  testId?: string
+}
+
+/**
+ * Props for {@link ResponsiveAppShellSidebar} (React's
+ * `ResponsiveAppShellSidebarProps`, in Angular's form). The nav links are
+ * projected content, so they have no member.
+ */
+export interface ResponsiveAppShellSidebarProps {
+  /** Accessible name for the sidebar's `<nav>` landmark. */
+  navLabel?: string
+  /** Below-nav content (user card, quick action), after the `<nav>`. */
+  footer?: string | number | TemplateRef<unknown>
+  /** Extra classes on the `<aside>`. */
+  className?: string
+  /** `data-mol-id` (default `shell-sidebar`). */
+  dataMolId?: string
+  /** `data-testid`. */
+  testId?: string
+}
+
+/**
+ * Props for {@link ResponsiveAppShellDrawer} (React's
+ * `ResponsiveAppShellDrawerProps`, in Angular's form). The nav links are
+ * projected content, so they have no member.
+ */
+export interface ResponsiveAppShellDrawerProps {
+  /** Header row content (typically the brand), next to the close button. */
+  header?: string | number | TemplateRef<unknown>
+  /** Accessible name for the dialog and its `<nav>` landmark. */
+  navLabel?: string
+  /** Below-nav content (user card, sign-out), after the `<nav>`. */
+  footer?: string | number | TemplateRef<unknown>
+  /** Whether the panel shows a close (X) button (default true). */
+  showCloseButton?: boolean
+  /** Extra classes on the dialog panel. */
+  className?: string
+  /** `data-mol-id` for the panel (default `shell-drawer`). */
+  dataMolId?: string
+  /** `data-mol-id` for the close button (default `shell-drawer-close`). */
+  closeDataMolId?: string
+  /** `data-testid` for the panel. */
+  testId?: string
+}
+
+/**
+ * Props for {@link ResponsiveAppShellContent} (React's
+ * `ResponsiveAppShellContentProps`, in Angular's form). The routed page is
+ * projected content, so it has no member.
+ */
+export interface ResponsiveAppShellContentProps {
+  /** Extra classes on the `<main>`. */
+  className?: string
+  /** Inline styles on the `<main>`. */
+  style?: Record<string, unknown>
+  /** `data-mol-id` (default `shell-content`). */
+  dataMolId?: string
+  /** `data-testid`. */
+  testId?: string
+}
+
+/**
  * Root of the responsive app shell: owns the breakpoint and drawer state,
  * closes the drawer on navigation and on desktop-crossing resizes, and
  * provides everything to the sub-components through the DOM-ancestor
@@ -90,11 +189,11 @@ export interface ShellContextValue {
 })
 export class ResponsiveAppShell implements DoCheck, OnDestroy {
   /** Sidebar (and drawer) width: `sm`/`md`/`lg` or an exact pixel number. */
-  sidebarWidth?: ShellSidebarWidth
+  sidebarWidth?: ResponsiveAppShellProps['sidebarWidth']
   /** Extra classes on the root flex container. */
-  className?: string
+  className?: ResponsiveAppShellProps['className']
   /** `data-mol-id` for the root (default `shell-root`). */
-  dataMolId = 'shell-root'
+  dataMolId?: ResponsiveAppShellProps['dataMolId'] = 'shell-root'
 
   /** Whether the viewport is at the desktop breakpoint. */
   readonly isDesktop = useIsDesktop()
@@ -226,8 +325,8 @@ class ShellContextValueImpl implements ShellContextValue {
 @Component({
   selector: 'header[mol-responsive-app-shell-topbar]',
   standalone: true,
-  imports: [MolIconSvg],
-  inputs: ['mobileOnly', 'className', 'dataMolId', 'testId'],
+  imports: [MolIconSvg, MolTemplateOutlet],
+  inputs: ['brand', 'actions', 'mobileOnly', 'className', 'dataMolId', 'testId'],
   host: {
     '[class]': 'classes()',
     '[style]': 'hostStyle()',
@@ -253,22 +352,34 @@ class ShellContextValueImpl implements ShellContextValue {
         </button>
       }
       <div #brandSlot [style]="'min-width: 0px'">
-        <ng-content select="[slot=brand]"></ng-content>
+        <ng-content select="[slot=brand]"></ng-content
+        ><ng-container [molTemplateOutlet]="asTemplate(brand)"></ng-container>{{ nodeText(brand) }}
       </div>
     </div>
     <div #actionsSlot [class]="cm().cn(cm().flex({ align: 'center', gap: 'sm' }), cm().shrink0)">
-      <ng-content select="[slot=actions]"></ng-content>
+      <ng-content select="[slot=actions]"></ng-content
+      ><ng-container [molTemplateOutlet]="asTemplate(actions)"></ng-container
+      >{{ nodeText(actions) }}
     </div>`,
 })
-export class ResponsiveAppShellTopBar implements AfterViewInit, DoCheck, OnDestroy {
+export class ResponsiveAppShellTopBar implements OnInit, AfterViewInit, DoCheck, OnDestroy {
+  /** Brand/title node (React's `brand`), rendered after the menu trigger. */
+  brand?: ResponsiveAppShellTopBarProps['brand']
+  /** Trailing actions node (React's `actions`). */
+  actions?: ResponsiveAppShellTopBarProps['actions']
   /** Render the top bar only below the breakpoint (no dead DOM on desktop). */
-  mobileOnly = false
+  mobileOnly?: ResponsiveAppShellTopBarProps['mobileOnly'] = false
   /** Extra classes on the `<header>`. */
-  className?: string
+  className?: ResponsiveAppShellTopBarProps['className']
   /** `data-mol-id` (default `shell-topbar`). */
-  dataMolId = 'shell-topbar'
+  dataMolId?: ResponsiveAppShellTopBarProps['dataMolId'] = 'shell-topbar'
   /** `data-testid`. */
-  testId?: string
+  testId?: ResponsiveAppShellTopBarProps['testId']
+
+  /** Template helpers (templates see only class members). */
+  readonly asTemplate = asTemplate
+  /** Renders a plain-string/number node value. */
+  readonly nodeText = nodeText
 
   /** The brand wrapper (detached when no brand is given). */
   @ViewChild('brandSlot') brandSlot?: ElementRef<HTMLDivElement>
@@ -373,18 +484,27 @@ export class ResponsiveAppShellTopBar implements AfterViewInit, DoCheck, OnDestr
     return resolveIcon('menu', this.cm().iconMd)
   }
 
+  /**
+   * Refuses to render outside a shell (React's `useShellContext` throws).
+   */
+  ngOnInit(): void {
+    requireShell(this.host.nativeElement, 'ResponsiveAppShell.TopBar')
+  }
+
   /** Reads slot presence and applies the `mobileOnly` mount condition. */
   ngAfterViewInit(): void {
     this.brandParent = this.brandSlot?.nativeElement.parentElement ?? null
     this.actionsParent = this.actionsSlot?.nativeElement.parentElement ?? null
-    this.hasBrand = hasNodes(this.brandSlot?.nativeElement)
-    this.hasActions = hasNodes(this.actionsSlot?.nativeElement)
+    this.hasBrand = isGiven(this.brand) || hasNodes(this.brandSlot?.nativeElement)
+    this.hasActions = isGiven(this.actions) || hasNodes(this.actionsSlot?.nativeElement)
     this.syncWrappers()
     this.syncVisibility()
   }
 
   /** Re-reconciles the wrappers and the mount condition. */
   ngDoCheck(): void {
+    this.hasBrand = isGiven(this.brand) || hasNodes(this.brandSlot?.nativeElement)
+    this.hasActions = isGiven(this.actions) || hasNodes(this.actionsSlot?.nativeElement)
     this.syncWrappers()
     this.syncVisibility()
   }
@@ -440,7 +560,8 @@ export class ResponsiveAppShellTopBar implements AfterViewInit, DoCheck, OnDestr
 @Component({
   selector: 'aside[mol-responsive-app-shell-sidebar]',
   standalone: true,
-  inputs: ['navLabel', 'className', 'dataMolId', 'testId'],
+  imports: [MolTemplateOutlet],
+  inputs: ['navLabel', 'footer', 'className', 'dataMolId', 'testId'],
   host: {
     '[class]': 'classes()',
     '[style]': 'hostStyle()',
@@ -461,18 +582,26 @@ export class ResponsiveAppShellTopBar implements AfterViewInit, DoCheck, OnDestr
         )
       "
     >
-      <ng-content select="[slot=footer]"></ng-content>
+      <ng-content select="[slot=footer]"></ng-content
+      ><ng-container [molTemplateOutlet]="asTemplate(footer)"></ng-container>{{ nodeText(footer) }}
     </div>`,
 })
-export class ResponsiveAppShellSidebar implements AfterViewInit, DoCheck, OnDestroy {
+export class ResponsiveAppShellSidebar implements OnInit, AfterViewInit, DoCheck, OnDestroy {
   /** Accessible name for the `<nav>` landmark. */
-  navLabel?: string
+  navLabel?: ResponsiveAppShellSidebarProps['navLabel']
+  /** Below-nav content (React's `footer` node value). */
+  footer?: ResponsiveAppShellSidebarProps['footer']
   /** Extra classes on the `<aside>`. */
-  className?: string
+  className?: ResponsiveAppShellSidebarProps['className']
   /** `data-mol-id` (default `shell-sidebar`). */
-  dataMolId = 'shell-sidebar'
+  dataMolId?: ResponsiveAppShellSidebarProps['dataMolId'] = 'shell-sidebar'
   /** `data-testid`. */
-  testId?: string
+  testId?: ResponsiveAppShellSidebarProps['testId']
+
+  /** Template helpers (templates see only class members). */
+  readonly asTemplate = asTemplate
+  /** Renders a plain-string/number node value. */
+  readonly nodeText = nodeText
 
   /** The footer wrapper (detached when no footer is given). */
   @ViewChild('footerSlot') footerSlot?: ElementRef<HTMLDivElement>
@@ -549,16 +678,24 @@ export class ResponsiveAppShellSidebar implements AfterViewInit, DoCheck, OnDest
     )
   }
 
+  /**
+   * Refuses to render outside a shell (React's `useShellContext` throws).
+   */
+  ngOnInit(): void {
+    requireShell(this.host.nativeElement, 'ResponsiveAppShell.Sidebar')
+  }
+
   /** Applies the initial mount condition and footer presence. */
   ngAfterViewInit(): void {
     this.footerParent = this.footerSlot?.nativeElement.parentElement ?? null
-    this.hasFooter = hasNodes(this.footerSlot?.nativeElement)
+    this.hasFooter = isGiven(this.footer) || hasNodes(this.footerSlot?.nativeElement)
     this.syncWrapper()
     this.syncVisibility()
   }
 
   /** Re-reconciles the mount condition and the footer wrapper. */
   ngDoCheck(): void {
+    this.hasFooter = isGiven(this.footer) || hasNodes(this.footerSlot?.nativeElement)
     this.syncWrapper()
     this.syncVisibility()
   }
@@ -608,8 +745,17 @@ export class ResponsiveAppShellSidebar implements AfterViewInit, DoCheck, OnDest
 @Component({
   selector: 'mol-responsive-app-shell-drawer',
   standalone: true,
-  imports: [MolIconSvg],
-  inputs: ['navLabel', 'showCloseButton', 'className', 'dataMolId', 'closeDataMolId', 'testId'],
+  imports: [MolIconSvg, MolTemplateOutlet],
+  inputs: [
+    'header',
+    'navLabel',
+    'footer',
+    'showCloseButton',
+    'className',
+    'dataMolId',
+    'closeDataMolId',
+    'testId',
+  ],
   host: {
     'data-parity-unwrap': '',
     style: 'display: contents',
@@ -646,7 +792,9 @@ export class ResponsiveAppShellSidebar implements AfterViewInit, DoCheck, OnDest
           "
         >
           <div #headerSlot [style]="'min-width: 0px'">
-            <ng-content select="[slot=header]"></ng-content>
+            <ng-content select="[slot=header]"></ng-content
+            ><ng-container [molTemplateOutlet]="asTemplate(header)"></ng-container
+            >{{ nodeText(header) }}
           </div>
           @if (!headerPresent()) {
             <span aria-hidden="true"></span>
@@ -677,24 +825,35 @@ export class ResponsiveAppShellSidebar implements AfterViewInit, DoCheck, OnDest
             )
           "
         >
-          <ng-content select="[slot=footer]"></ng-content>
+          <ng-content select="[slot=footer]"></ng-content
+          ><ng-container [molTemplateOutlet]="asTemplate(footer)"></ng-container
+          >{{ nodeText(footer) }}
         </div>
       </div>
     </div>`,
 })
-export class ResponsiveAppShellDrawer implements AfterViewInit, DoCheck, OnDestroy {
+export class ResponsiveAppShellDrawer implements OnInit, AfterViewInit, DoCheck, OnDestroy {
+  /** Header row content (React's `header` node value). */
+  header?: ResponsiveAppShellDrawerProps['header']
   /** Accessible name for the dialog and nav landmark. */
-  navLabel?: string
+  navLabel?: ResponsiveAppShellDrawerProps['navLabel']
+  /** Below-nav content (React's `footer` node value). */
+  footer?: ResponsiveAppShellDrawerProps['footer']
   /** Whether the panel shows a close (X) button (default true). */
-  showCloseButton = true
+  showCloseButton?: ResponsiveAppShellDrawerProps['showCloseButton'] = true
   /** Extra classes on the dialog panel. */
-  className?: string
+  className?: ResponsiveAppShellDrawerProps['className']
   /** `data-mol-id` for the panel (default `shell-drawer`). */
-  dataMolId = 'shell-drawer'
+  dataMolId?: ResponsiveAppShellDrawerProps['dataMolId'] = 'shell-drawer'
   /** `data-mol-id` for the close button (default `shell-drawer-close`). */
-  closeDataMolId = 'shell-drawer-close'
+  closeDataMolId?: ResponsiveAppShellDrawerProps['closeDataMolId'] = 'shell-drawer-close'
   /** `data-testid` for the panel. */
-  testId?: string
+  testId?: ResponsiveAppShellDrawerProps['testId']
+
+  /** Template helpers (templates see only class members). */
+  readonly asTemplate = asTemplate
+  /** Renders a plain-string/number node value. */
+  readonly nodeText = nodeText
 
   /** The backdrop element. */
   @ViewChild('overlay') overlay?: ElementRef<HTMLDivElement>
@@ -837,14 +996,21 @@ export class ResponsiveAppShellDrawer implements AfterViewInit, DoCheck, OnDestr
     this.shell().closeDrawer()
   }
 
+  /**
+   * Refuses to render outside a shell (React's `useShellContext` throws).
+   */
+  ngOnInit(): void {
+    requireShell(this.host.nativeElement, 'ResponsiveAppShell.Drawer')
+  }
+
   /** Registers the drawer, reads slots and applies the initial open state. */
   ngAfterViewInit(): void {
     this.shell().registerDrawer(true)
     this.headerParent = this.headerSlot?.nativeElement.parentElement ?? null
     this.headerRowParent = this.headerRow?.nativeElement.parentElement ?? null
     this.footerParent = this.footerSlot?.nativeElement.parentElement ?? null
-    this.headerPresent.set(hasNodes(this.headerSlot?.nativeElement))
-    this.hasFooter = hasNodes(this.footerSlot?.nativeElement)
+    this.headerPresent.set(isGiven(this.header) || hasNodes(this.headerSlot?.nativeElement))
+    this.hasFooter = isGiven(this.footer) || hasNodes(this.footerSlot?.nativeElement)
     this.syncWrappers()
     const open = this.shell().drawerOpen && !this.shell().isDesktop
     this.lastOpen = open
@@ -854,7 +1020,8 @@ export class ResponsiveAppShellDrawer implements AfterViewInit, DoCheck, OnDestr
 
   /** Reconciles the open state, the wrappers and the drawer registration. */
   ngDoCheck(): void {
-    this.hasFooter = hasNodes(this.footerSlot?.nativeElement)
+    this.headerPresent.set(isGiven(this.header) || hasNodes(this.headerSlot?.nativeElement))
+    this.hasFooter = isGiven(this.footer) || hasNodes(this.footerSlot?.nativeElement)
     this.syncWrappers()
     this.syncOpen()
   }
@@ -884,7 +1051,7 @@ export class ResponsiveAppShellDrawer implements AfterViewInit, DoCheck, OnDestr
     if (!this.attached) return
     this.sync.sync(
       this.headerRow?.nativeElement,
-      this.headerPresent() || this.showCloseButton,
+      this.headerPresent() || (this.showCloseButton ?? true),
       this.headerRowParent ?? undefined,
     )
     this.sync.sync(
@@ -1013,13 +1180,13 @@ export class ResponsiveAppShellDrawer implements AfterViewInit, DoCheck, OnDestr
 })
 export class ResponsiveAppShellContent {
   /** Extra classes on the `<main>`. */
-  className?: string
+  className?: ResponsiveAppShellContentProps['className']
   /** Inline styles on the `<main>`. */
-  style?: Record<string, unknown>
+  style?: ResponsiveAppShellContentProps['style']
   /** `data-mol-id` (default `shell-content`). */
-  dataMolId = 'shell-content'
+  dataMolId?: ResponsiveAppShellContentProps['dataMolId'] = 'shell-content'
   /** `data-testid`. */
-  testId?: string
+  testId?: ResponsiveAppShellContentProps['testId']
 
   /**
    * The current class map.
@@ -1065,4 +1232,20 @@ function contextOrDefault(element: Element | null): ShellContextValue {
       registerDrawer: () => undefined,
     }
   )
+}
+
+/**
+ * Refuses to render a sub-component that has no enclosing shell — React's
+ * `useShellContext`, which throws `<…> must be rendered inside
+ * <ResponsiveAppShell>`. Angular has no context consumer to throw from during
+ * render, so the same refusal happens in the component's `ngOnInit` (its
+ * first render pass).
+ *
+ * @param element - The sub-component's host element.
+ * @param name - The React component name the error names.
+ */
+function requireShell(element: Element, name: string): void {
+  if (!findDomContext<ShellContextValue>(element)) {
+    throw new Error(`<${name}> must be rendered inside <ResponsiveAppShell>`)
+  }
 }

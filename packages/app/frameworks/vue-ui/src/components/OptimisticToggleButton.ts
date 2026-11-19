@@ -4,11 +4,21 @@
  * @module
  */
 
-import { defineComponent, h, type PropType, type Ref, ref, watch } from 'vue'
+import {
+  type ComponentPublicInstance,
+  defineComponent,
+  h,
+  type PropType,
+  type Ref,
+  ref,
+  type VNodeChild,
+  watch,
+} from 'vue'
 
-import type { ButtonProps, ButtonSize, ButtonVariant, ColorVariant } from '@molecule/app-ui'
+import type { ButtonProps } from '@molecule/app-ui'
 
 import { restAttrs } from '../utilities/attrs.js'
+import { useElementRef } from '../utilities/elementRef.js'
 import { Button } from './Button.js'
 
 /** What the optimistic toggle exposes for rendering. */
@@ -146,6 +156,30 @@ function createOptimisticToggle(
 }
 
 /**
+ * Props for {@link OptimisticToggleButton}.
+ *
+ * Vue port of `@molecule/app-ui-react`'s `OptimisticToggleButtonProps`: the
+ * button props React's declaration inherits (minus the ones this component
+ * owns), with React's `ReactNode` labels as nodes. `onError` is the `error`
+ * emit, so it is optional like every Vue listener.
+ */
+export interface OptimisticToggleButtonProps extends Omit<
+  ButtonProps,
+  'children' | 'onClick' | 'loading' | 'loadingText' | 'type' | 'value'
+> {
+  /** The loaded server value. Mount the button only after its record exists. */
+  value: boolean
+  /** Saves the desired boolean; resolves with the server-confirmed boolean, rejects on failure. */
+  commit?: (desired: boolean) => Promise<boolean>
+  /** Label when the displayed value is true (prop or same-named slot). */
+  activeLabel: VNodeChild
+  /** Label when the displayed value is false (prop or same-named slot). */
+  inactiveLabel: VNodeChild
+  /** Receives a failed save after the controller has restored the last confirmed value. */
+  onError?: (error: unknown) => void
+}
+
+/**
  * Vue OptimisticToggleButton UI component with UIClassMap-driven styling.
  *
  * Faithful port of `@molecule/app-ui-react`'s OptimisticToggleButton: an
@@ -161,46 +195,67 @@ export const OptimisticToggleButton = defineComponent({
   props: {
     /** The loaded server value. Mount the button only after its record exists. */
     value: {
-      type: Boolean,
+      type: Boolean as PropType<OptimisticToggleButtonProps['value']>,
       required: true,
     },
     /** Saves the desired boolean; resolves with the server-confirmed boolean, rejects on failure. */
     commit: {
-      type: Function as PropType<(desired: boolean) => Promise<boolean>>,
+      type: Function as PropType<OptimisticToggleButtonProps['commit']>,
       default: undefined,
     },
-    /** Label when the displayed value is true (VNode prop or same-named slot). */
-    activeLabel: null,
-    /** Label when the displayed value is false (VNode prop or same-named slot). */
-    inactiveLabel: null,
+    /**
+     * Label when the displayed value is true (VNode prop or same-named slot).
+     * Required like React's `activeLabel`: without it the opposite action's
+     * label would disappear from the button after a save.
+     */
+    activeLabel: {
+      type: null,
+      required: true,
+    },
+    /**
+     * Label when the displayed value is false (VNode prop or same-named slot).
+     * Required like React's `inactiveLabel`, for the same reason.
+     */
+    inactiveLabel: {
+      type: null,
+      required: true,
+    },
     variant: {
-      type: String as PropType<ButtonVariant>,
+      type: String as PropType<OptimisticToggleButtonProps['variant']>,
       default: 'solid',
     },
     color: {
-      type: String as PropType<ColorVariant>,
+      type: String as PropType<OptimisticToggleButtonProps['color']>,
       default: 'primary',
     },
     size: {
-      type: String as PropType<ButtonSize>,
+      type: String as PropType<OptimisticToggleButtonProps['size']>,
       default: 'md',
     },
     fullWidth: {
-      type: Boolean,
+      type: Boolean as PropType<OptimisticToggleButtonProps['fullWidth']>,
       default: false,
     },
     disabled: {
-      type: Boolean,
+      type: Boolean as PropType<OptimisticToggleButtonProps['disabled']>,
       default: false,
     },
     leftIcon: null,
     rightIcon: null,
-    className: String,
-    style: [String, Object] as PropType<ButtonProps['style']>,
-    testId: String,
+    className: String as PropType<OptimisticToggleButtonProps['className']>,
+    style: [String, Object] as PropType<OptimisticToggleButtonProps['style']>,
+    testId: String as PropType<OptimisticToggleButtonProps['testId']>,
   },
   emits: ['error'],
-  setup(props, { attrs, slots, emit }) {
+  setup(props, { attrs, slots, emit, expose }) {
+    // React forwards its ref to the Button it renders, so read that
+    // component's exposed element.
+    const element = useElementRef<HTMLButtonElement>(expose)
+    const setElement = (instance: Element | ComponentPublicInstance | null): void => {
+      const node: unknown =
+        instance !== null && !(instance instanceof Element) ? instance.$el : null
+      element.value = node instanceof HTMLButtonElement ? node : null
+    }
     const state: Ref<OptimisticToggleState> = ref({
       value: props.value,
       pending: false,
@@ -229,6 +284,7 @@ export const OptimisticToggleButton = defineComponent({
       return h(
         Button,
         {
+          ref: setElement,
           'data-mol-id': 'optimistic-toggle',
           ...restAttrs(attrs),
           variant: props.variant,

@@ -4,12 +4,14 @@
  * @module
  */
 
-import { defineComponent, h, type PropType } from 'vue'
+import { type ComponentPublicInstance, defineComponent, h, type PropType } from 'vue'
 
 import type { SkeletonProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
-import { classOf, styleOf } from '../utilities/attrs.js'
+import { classOf, restAttrs, styleOf } from '../utilities/attrs.js'
+import { useElementRef } from '../utilities/elementRef.js'
+import { setDisplayName } from './displayName.js'
 
 /**
  * Merges an incoming style value with computed declarations the way React's
@@ -53,8 +55,9 @@ export const Skeleton = defineComponent({
     style: [String, Object] as PropType<SkeletonProps['style']>,
     testId: String,
   },
-  setup(props, { attrs }) {
+  setup(props, { attrs, expose }) {
     const cm = getClassMap()
+    const element = useElementRef<HTMLDivElement>(expose)
 
     return () => {
       const skeletonClasses = cm.cn(
@@ -81,13 +84,17 @@ export const Skeleton = defineComponent({
       }
 
       return h('div', {
+        ref: element,
         class: skeletonClasses,
         style: mergeStyles(styleOf(props.style, attrs), computedStyle),
         'data-testid': props.testId,
+        ...restAttrs(attrs),
       })
     }
   },
 })
+
+setDisplayName(Skeleton, 'Skeleton')
 
 /**
  * Vue SkeletonText UI component with UIClassMap-driven styling.
@@ -105,13 +112,17 @@ export const SkeletonText = defineComponent({
     },
     className: String,
   },
-  setup(props, { attrs }) {
+  setup(props, { attrs, expose }) {
     const cm = getClassMap()
+    const element = useElementRef<HTMLDivElement>(expose)
 
     return () =>
       h(
         'div',
-        { class: cm.cn(cm.skeletonTextContainer, ...classOf(props.className, attrs)) },
+        {
+          ref: element,
+          class: cm.cn(cm.skeletonTextContainer, ...classOf(props.className, attrs)),
+        },
         Array.from({ length: props.lines }).map((_, i) =>
           h(Skeleton, {
             key: i,
@@ -122,6 +133,8 @@ export const SkeletonText = defineComponent({
       )
   },
 })
+
+setDisplayName(SkeletonText, 'SkeletonText')
 
 /**
  * Vue SkeletonCircle UI component with UIClassMap-driven styling.
@@ -139,12 +152,21 @@ export const SkeletonCircle = defineComponent({
     },
     className: String,
   },
-  setup(props, { attrs }) {
+  setup(props, { attrs, expose }) {
     const cm = getClassMap()
+    const element = useElementRef<HTMLDivElement>(expose)
+    // React's SkeletonCircle forwards its ref to the Skeleton it renders, so
+    // read that component's exposed element.
+    const setElement = (instance: Element | ComponentPublicInstance | null): void => {
+      const node: unknown =
+        instance !== null && !(instance instanceof Element) ? instance.$el : null
+      element.value = node instanceof HTMLDivElement ? node : null
+    }
 
     return () => {
       const className = cm.cn(...classOf(props.className, attrs))
       return h(Skeleton, {
+        ref: setElement,
         circle: true,
         width: props.size,
         height: props.size,
@@ -153,3 +175,5 @@ export const SkeletonCircle = defineComponent({
     }
   },
 })
+
+setDisplayName(SkeletonCircle, 'SkeletonCircle')

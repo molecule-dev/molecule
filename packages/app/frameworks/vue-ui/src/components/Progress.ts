@@ -10,7 +10,9 @@ import type { BaseProps, ColorVariant, Size } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { useTranslation } from '@molecule/app-vue'
 
-import { classOf, styleOf } from '../utilities/attrs.js'
+import { classOf, restAttrs, styleOf } from '../utilities/attrs.js'
+import { useElementRef } from '../utilities/elementRef.js'
+import { setDisplayName } from './displayName.js'
 
 /**
  * Props for the Progress component.
@@ -87,9 +89,10 @@ export const Progress = defineComponent({
     style: [String, Object] as PropType<BaseProps['style']>,
     testId: String,
   },
-  setup(props, { attrs }) {
+  setup(props, { attrs, expose }) {
     const cm = getClassMap()
     const { t } = useTranslation()
+    const element = useElementRef<HTMLDivElement>(expose)
 
     return () => {
       const percentage = Math.min(Math.max((props.value / props.max) * 100, 0), 100)
@@ -143,12 +146,16 @@ export const Progress = defineComponent({
       return h(
         'div',
         {
+          ref: element,
           class: cm.cn(cm.progressWrapper, ...classOf(props.className, attrs)),
           style: styleOf(props.style, attrs),
           'data-testid': props.testId,
+          ...restAttrs(attrs),
         },
         children,
       )
     }
   },
 })
+
+setDisplayName(Progress, 'Progress')

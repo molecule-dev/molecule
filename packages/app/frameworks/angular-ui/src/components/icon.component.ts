@@ -9,6 +9,25 @@ import { Component, ElementRef, inject, type OnChanges } from '@angular/core'
 import { getIcon, type IconData, type IconName } from '@molecule/app-icons'
 
 /**
+ * Props for {@link Icon} (React's `IconProps`, in Angular's form).
+ *
+ * React extends `SVGProps<SVGSVGElement>` so any SVG attribute reaches the
+ * `<svg>`; the host IS the `<svg>`, so extra `data-*`, `aria-*`, `role` and
+ * event attributes spread onto it exactly as React spreads them. The named
+ * props are typed here.
+ */
+export interface IconProps {
+  /** The glyph name from the bonded icon set. */
+  name: IconName
+  /** Width and height in pixels (default 20). */
+  size?: number
+  /** Class name forwarded to the `<svg>`. */
+  className?: string
+  /** Explicit `aria-hidden` (React keeps `false` as the string `"false"`). */
+  'aria-hidden'?: boolean | string
+}
+
+/**
  * Icon component.
  *
  * Renders an SVG glyph looked up by `name` from the bonded icon set. The host
@@ -49,16 +68,16 @@ import { getIcon, type IconData, type IconName } from '@molecule/app-icons'
 })
 export class Icon implements OnChanges {
   /** The glyph name from the bonded icon set. */
-  name!: IconName
+  name!: IconProps['name']
   /** Width and height in pixels (default 20). */
-  size = 20
+  size?: IconProps['size'] = 20
   /** Class name forwarded to the `<svg>`. */
-  className?: string
+  className?: IconProps['className']
   /**
    * Explicit `aria-hidden` (React stringifies `false` to `"false"` rather
    * than dropping the attribute).
    */
-  ariaHidden?: boolean | string
+  ariaHidden?: IconProps['aria-hidden']
 
   /** Whether the name is missing from the bonded set (placeholder renders). */
   failed = false

@@ -14,6 +14,7 @@
  */
 import { execFileSync } from 'node:child_process'
 import { existsSync } from 'node:fs'
+import { tmpdir } from 'node:os'
 import { dirname, resolve } from 'node:path'
 
 // Bonds the reference ClassMap, icon set and i18n provider — the same side
@@ -35,7 +36,10 @@ const packageRoot = (): string => {
 }
 
 describe('built dist package', () => {
-  it('exports a mountable component', async () => {
+  // Importing dist/index.js compiles every component in the package's Svelte
+  // source graph, which takes ~20 s on an idle machine and more on this shared
+  // checkout, so this test needs headroom over vitest.config.ts's 30 s default.
+  it('exports a mountable component', { timeout: 180_000 }, async () => {
     // import.meta.url is not a usable base under vitest's jsdom environment.
     const distIndex = resolve(packageRoot(), 'dist/index.js')
     expect(
@@ -61,19 +65,27 @@ describe('built dist package', () => {
 })
 
 describe('published package', () => {
-  it('ships every component with its generated declarations, and no tests', () => {
-    // svelte-package copies all of src/ into dist/, tests included; package.json's negated
-    // `files` entries are what keep them out of the tarball a consumer installs.
-    const [pack] = JSON.parse(
-      execFileSync('npm', ['pack', '--dry-run', '--json', '--ignore-scripts'], {
-        cwd: packageRoot(),
-        encoding: 'utf8',
-      }),
-    ) as [{ files: { path: string }[] }]
-    const files = pack.files.map((file) => file.path)
-    const components = files.filter((path) => path.endsWith('.svelte'))
-    expect(components.length).toBeGreaterThan(60)
-    for (const component of components) expect(files).toContain(`${component}.d.ts`)
-    expect(files.filter((path) => /__tests__|\.(test|spec)\./.test(path))).toEqual([])
-  })
+  // `npm pack` starts from the working directory: inside this monorepo it first
+  // loads the whole workspace graph (hundreds of members) for ~100 s before it
+  // looks at the package, so run it from the OS temp dir and pass the package
+  // path instead. The file list it reports is the same.
+  it(
+    'ships every component with its generated declarations, and no tests',
+    { timeout: 300_000 },
+    () => {
+      // svelte-package copies all of src/ into dist/, tests included; package.json's negated
+      // `files` entries are what keep them out of the tarball a consumer installs.
+      const [pack] = JSON.parse(
+        execFileSync('npm', ['pack', packageRoot(), '--dry-run', '--json', '--ignore-scripts'], {
+          cwd: tmpdir(),
+          encoding: 'utf8',
+        }),
+      ) as [{ files: { path: string }[] }]
+      const files = pack.files.map((file) => file.path)
+      const components = files.filter((path) => path.endsWith('.svelte'))
+      expect(components.length).toBeGreaterThan(60)
+      for (const component of components) expect(files).toContain(`${component}.d.ts`)
+      expect(files.filter((path) => /__tests__|\.(test|spec)\./.test(path))).toEqual([])
+    },
+  )
 })

@@ -4,21 +4,22 @@
  * @module
  */
 
-import { type Component, createUniqueId, type JSX, Show, splitProps } from 'solid-js'
+import { createUniqueId, type JSX, Show, splitProps } from 'solid-js'
 
 import { useTranslation } from '@molecule/app-solid'
 import type { InputProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
-import { toStyleProps } from '../utilities/dom.js'
+import { reactDomProps, toStyleProps, type WithRef } from '../utilities/dom.js'
 import { renderIcon } from '../utilities/renderIcon.jsx'
+import { withDisplayName } from './displayName.js'
 
 /**
  * Renders the Input component.
  * @param props - The component props.
  * @returns The rendered input JSX.
  */
-export const Input: Component<InputProps> = (props) => {
+export const Input = withDisplayName<WithRef<InputProps, HTMLInputElement>>((props) => {
   const [local, rest] = splitProps(props, [
     'type',
     'size',
@@ -58,7 +59,7 @@ export const Input: Component<InputProps> = (props) => {
   // controlled input restores the prop value after each event when the
   // caller does not adopt the typed one.
   const handleInput = (event: Event & { target: HTMLInputElement }): void => {
-    ;(local.onChange as ((event: Event) => void) | undefined)?.(event)
+    local.onChange?.(event)
     if (local.value !== undefined) event.target.value = String(local.value)
   }
 
@@ -104,9 +105,9 @@ export const Input: Component<InputProps> = (props) => {
           style={toStyleProps(local.style)}
           data-testid={local.testId}
           onInput={handleInput}
-          onFocusIn={local.onFocus as JSX.EventHandlerUnion<HTMLInputElement, FocusEvent>}
-          onFocusOut={local.onBlur as JSX.EventHandlerUnion<HTMLInputElement, FocusEvent>}
-          {...(rest as JSX.InputHTMLAttributes<HTMLInputElement>)}
+          onFocusIn={local.onFocus}
+          onFocusOut={local.onBlur}
+          {...reactDomProps(rest)}
         />
         <Show when={local.rightElement || (local.clearable && local.value)}>
           <div class={cm.inputRightElement}>
@@ -116,7 +117,7 @@ export const Input: Component<InputProps> = (props) => {
             >
               <button
                 type="button"
-                onClick={local.onClear as JSX.EventHandlerUnion<HTMLButtonElement, MouseEvent>}
+                onClick={local.onClear}
                 class={cm.inputClearButton}
                 aria-label={
                   local.clearLabel ?? t('ui.input.clear', undefined, { defaultValue: 'Clear' })
@@ -140,4 +141,4 @@ export const Input: Component<InputProps> = (props) => {
       </Show>
     </div>
   )
-}
+}, 'Input')

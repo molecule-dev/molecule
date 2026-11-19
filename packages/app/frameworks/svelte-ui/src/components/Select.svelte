@@ -14,6 +14,7 @@
   import IconGlyph from './IconGlyph.svelte'
 
   let {
+    ref = $bindable(null),
     options,
     value,
     onValueChange,
@@ -51,22 +52,20 @@
     }, {})
   })
 
-  let selectEl = $state<HTMLSelectElement | null>(null)
-
   // react-dom never assigns `select.value`; it marks the matching <option>'s
   // `selected` property (and, when nothing matches, the first non-disabled
   // option's), which is what a select with no explicit selection displays
   // anyway. Assigning `select.value` instead would deselect everything on a
   // value no option carries.
   const applyReactSelection = (): void => {
-    if (!selectEl) return
+    if (!ref) return
     // Track the rendered option set reactively so re-renders that change it
     // re-mark the selection.
     void groupedOptions
     void placeholder
     void showClearOption
     const multiple = !!rest.multiple
-    const nodes = Array.from(selectEl.options)
+    const nodes = Array.from(ref.options)
     if (multiple) {
       const values = Array.isArray(value) ? value.map(String) : []
       for (const option of nodes) option.selected = values.includes(option.value)
@@ -107,7 +106,7 @@
   {/if}
   <div class={cm.inputInner}>
     <select
-      bind:this={selectEl}
+      bind:this={ref}
       id={selectId}
       {name}
       {disabled}

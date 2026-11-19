@@ -4,21 +4,14 @@
  * @module
  */
 
-import {
-  type Component,
-  createSignal,
-  createUniqueId,
-  For,
-  type JSX,
-  Show,
-  splitProps,
-} from 'solid-js'
+import { createSignal, createUniqueId, For, type JSX, Show, splitProps } from 'solid-js'
 
 import type { TabsProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
-import { toStyleProps } from '../utilities/dom.js'
+import { reactDomProps, toStyleProps, type WithRef } from '../utilities/dom.js'
 import { createKeyedList } from '../utilities/keyedList.js'
+import { withDisplayName } from './displayName.js'
 
 /**
  * Renders the Tabs component.
@@ -32,8 +25,8 @@ import { createKeyedList } from '../utilities/keyedList.js'
  * @param props - The component props.
  * @returns The rendered tabs JSX.
  */
-export const Tabs: Component<TabsProps<string>> = (props) => {
-  const [local] = splitProps(props, [
+export const Tabs = withDisplayName<WithRef<TabsProps<string>, HTMLDivElement>>((props) => {
+  const [local, rest] = splitProps(props, [
     'items',
     'value',
     'defaultValue',
@@ -44,6 +37,7 @@ export const Tabs: Component<TabsProps<string>> = (props) => {
     'className',
     'style',
     'testId',
+    'disabled',
   ])
 
   const [internalValue, setInternalValue] = createSignal<string | undefined>(
@@ -68,7 +62,8 @@ export const Tabs: Component<TabsProps<string>> = (props) => {
   }
 
   const handleKeyDown = (event: KeyboardEvent & { currentTarget: HTMLButtonElement }): void => {
-    const enabled = local.items.filter((item) => !item.disabled)
+    // A disabled Tabs disables every tab.
+    const enabled = local.disabled ? [] : local.items.filter((item) => !item.disabled)
     if (enabled.length === 0) return
     const currentIndex = enabled.findIndex((item) => item.value === activeValue())
 
@@ -108,7 +103,12 @@ export const Tabs: Component<TabsProps<string>> = (props) => {
   )
 
   return (
-    <div class={local.className} style={toStyleProps(local.style)} data-testid={local.testId}>
+    <div
+      class={local.className}
+      style={toStyleProps(local.style)}
+      data-testid={local.testId}
+      {...reactDomProps(rest)}
+    >
       <div
         class={cm.cn(
           cm.tabsList({ variant: local.variant, size: local.size }),
@@ -145,8 +145,14 @@ export const Tabs: Component<TabsProps<string>> = (props) => {
                 // Roving tabindex: only the active tab is a Tab stop —
                 // arrow keys (handled below) move focus among the rest.
                 tabindex={isActive() ? 0 : -1}
-                disabled={item().disabled}
-                onClick={() => selectTab(item().value)}
+                disabled={local.disabled || item().disabled}
+                // React does not run an onClick handler for a disabled button; a Solid
+                // listener on the node still hears the dispatched event, so the guard is
+                // here instead.
+                onClick={() => {
+                  if (local.disabled || item().disabled) return
+                  selectTab(item().value)
+                }}
                 // The arrow keys act on the focused tab (the tablist itself never
                 // takes focus), so the handler sits on each tab.
                 onKeyDown={handleKeyDown}
@@ -176,4 +182,4 @@ export const Tabs: Component<TabsProps<string>> = (props) => {
       </Show>
     </div>
   )
-}
+}, 'Tabs')

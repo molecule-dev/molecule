@@ -10,6 +10,7 @@ import {
   type ElementRef,
   EventEmitter,
   Output,
+  type TemplateRef,
   ViewChild,
 } from '@angular/core'
 
@@ -18,24 +19,56 @@ import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 import { nextInstanceId } from '../utilities/ids.js'
+import { asTemplate, isGiven, nodeText } from '../utilities/node-value.js'
 import { Button, hasNodes } from './button.component.js'
 import { Modal } from './modal.component.js'
+import { MolTemplateOutlet } from './template-outlet.directive.js'
 
 /** Instance counter behind {@link ConfirmDialog.titleId} (Modal's pattern). */
 let confirmDialogInstances = 0
+
+/**
+ * Props for {@link ConfirmDialog} (React's `ConfirmDialogProps`, in Angular's
+ * form).
+ *
+ * Node-valued members are `string | number | TemplateRef<unknown>` inputs; a
+ * caller may project the same content as `[slot=title]` / `[slot=description]`
+ * instead. `onClose` and `onConfirm` keep React's names and signatures here;
+ * the component emits them through its `close` and `confirm` outputs.
+ */
+export interface ConfirmDialogProps {
+  /** Whether the dialog is open. */
+  open: boolean
+  /** Called when the dialog should close (carried by the `close` output). */
+  onClose: () => void
+  /** Title. */
+  title?: string | number | TemplateRef<unknown>
+  /** Body / warning text. */
+  description?: string | number | TemplateRef<unknown>
+  /** Confirm-button label. */
+  confirmLabel?: string | number | TemplateRef<unknown>
+  /** Cancel-button label. */
+  cancelLabel?: string | number | TemplateRef<unknown>
+  /** Called when the user confirms (carried by the `confirm` output). */
+  onConfirm: () => void | Promise<void>
+  /** Is the confirm action destructive? Defaults to true. */
+  destructive?: boolean
+  /** Disables both buttons (the caller owns the pending state). */
+  loading?: boolean
+}
 
 /**
  * ConfirmDialog component.
  *
  * Composed from `Modal` and `Button` exactly as React composes them; the
  * dialog's own title/description/children are projected content (`[slot=title]`,
- * `[slot=description]`, default). The host is unwrapped (`data-parity-unwrap`,
- * React's `Modal` root is a fragment/portal).
+ * `[slot=description]`, default) or node-valued inputs. The host is unwrapped
+ * (`data-parity-unwrap`, React's `Modal` root is a fragment/portal).
  */
 @Component({
   selector: 'mol-confirm-dialog',
   standalone: true,
-  imports: [Button, Modal],
+  imports: [Button, Modal, MolTemplateOutlet],
   inputs: ['open', 'title', 'description', 'confirmLabel', 'cancelLabel', 'destructive', 'loading'],
   outputs: ['close', 'confirm'],
   host: {
@@ -49,15 +82,27 @@ let confirmDialogInstances = 0
     [attr.aria-describedby]="ariaDescribedBy"
     ><div [class]="cm().stack(3)">
       <h2 [attr.id]="titleId" [class]="cm().cn(cm().textSize('lg'), cm().fontWeight('bold'))">
+        @if (isGiven(title)) {
+          <ng-container [molTemplateOutlet]="asTemplate(title)"></ng-container>{{ nodeText(title) }}
+        }
         <ng-content select="[slot=title]"></ng-content>
       </h2>
       <p #descriptionSlot [attr.id]="descriptionId" [class]="cm().textSize('sm')">
+        @if (isGiven(description)) {
+          <ng-container [molTemplateOutlet]="asTemplate(description)"></ng-container
+          >{{ nodeText(description) }}
+        }
         <ng-content select="[slot=description]"></ng-content>
       </p>
       <ng-content></ng-content>
       <div [class]="cm().flex({ justify: 'end', gap: 'sm' })">
         <button mol-button [variant]="'ghost'" [disabled]="!!loading" (click)="close.emit($event)">
-          {{ cancelText() }}</button
+          @if (isGiven(cancelLabel)) {
+            <ng-container [molTemplateOutlet]="asTemplate(cancelLabel)"></ng-container
+            >{{ nodeText(cancelLabel) }}
+          } @else {
+            {{ cancelText() }}
+          }</button
         ><button
           mol-button
           [variant]="'solid'"
@@ -65,7 +110,12 @@ let confirmDialogInstances = 0
           [disabled]="!!loading"
           (click)="confirm.emit()"
         >
-          {{ confirmText() }}
+          @if (isGiven(confirmLabel) && !loading) {
+            <ng-container [molTemplateOutlet]="asTemplate(confirmLabel)"></ng-container
+            >{{ nodeText(confirmLabel) }}
+          } @else {
+            {{ confirmText() }}
+          }
         </button>
       </div>
     </div></mol-modal
@@ -98,19 +148,26 @@ export class ConfirmDialog implements DoCheck {
   descriptionSlot?: ElementRef<HTMLParagraphElement>
 
   /** Whether the dialog is open. */
-  open = false
+  open: ConfirmDialogProps['open'] = false
   /** Title (node-valued prop). */
-  title?: unknown
+  title?: ConfirmDialogProps['title']
   /** Body / warning text (node-valued prop). */
-  description?: unknown
-  /** Confirm-button label. */
-  confirmLabel?: string
-  /** Cancel-button label. */
-  cancelLabel?: string
+  description?: ConfirmDialogProps['description']
+  /** Confirm-button label (node-valued prop). */
+  confirmLabel?: ConfirmDialogProps['confirmLabel']
+  /** Cancel-button label (node-valued prop). */
+  cancelLabel?: ConfirmDialogProps['cancelLabel']
   /** Whether the confirm action is destructive (default true). */
-  destructive = true
+  destructive?: ConfirmDialogProps['destructive'] = true
   /** Disables both buttons (the caller owns the pending state). */
-  loading?: boolean
+  loading?: ConfirmDialogProps['loading']
+
+  /** Template helpers (templates see only class members). */
+  readonly asTemplate = asTemplate
+  /** Renders a plain-string/number node value. */
+  readonly nodeText = nodeText
+  /** Whether a node-valued prop was given. */
+  readonly isGiven = isGiven
 
   /** Fires when the dialog should close (escape, backdrop, cancel). */
   @Output() readonly close = new EventEmitter<unknown>()
@@ -146,7 +203,10 @@ export class ConfirmDialog implements DoCheck {
    * later change to what renders is picked up on the next pass.
    */
   ngDoCheck(): void {
-    this.ariaDescribedBy = hasNodes(this.descriptionSlot?.nativeElement) ? this.descriptionId : null
+    this.ariaDescribedBy =
+      isGiven(this.description) || hasNodes(this.descriptionSlot?.nativeElement)
+        ? this.descriptionId
+        : null
   }
 
   /**
@@ -154,16 +214,20 @@ export class ConfirmDialog implements DoCheck {
    * @returns The label text.
    */
   cancelText(): string {
-    return this.cancelLabel ?? this.i18n.t('confirm.cancel', {}, { defaultValue: 'Cancel' })
+    return typeof this.cancelLabel === 'string'
+      ? this.cancelLabel
+      : this.i18n.t('confirm.cancel', {}, { defaultValue: 'Cancel' })
   }
 
   /**
-   * The confirm button's label (React shows an ellipsis while loading).
+   * The confirm button's label when no node label is given (React shows an
+   * ellipsis while loading).
    * @returns The label text.
    */
   confirmText(): string {
-    return this.loading
-      ? '…'
-      : (this.confirmLabel ?? this.i18n.t('confirm.confirm', {}, { defaultValue: 'Confirm' }))
+    if (this.loading) return '…'
+    return typeof this.confirmLabel === 'string'
+      ? this.confirmLabel
+      : this.i18n.t('confirm.confirm', {}, { defaultValue: 'Confirm' })
   }
 }

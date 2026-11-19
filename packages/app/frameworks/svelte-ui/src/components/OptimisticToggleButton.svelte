@@ -15,6 +15,7 @@
   import ReactNode from './ReactNode.svelte'
 
   let {
+    ref = $bindable(null),
     value,
     commit,
     activeLabel,
@@ -50,6 +51,7 @@
 </script>
 
 <Button
+  bind:ref
   data-mol-id="optimistic-toggle"
   {...props as Record<string, unknown>}
   type="button"

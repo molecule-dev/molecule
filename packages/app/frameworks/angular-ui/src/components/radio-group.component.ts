@@ -10,6 +10,8 @@ import { useTranslation } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
+import { type HasElement, hostElement } from '../utilities/element.js'
+import { nextInstanceId } from '../utilities/ids.js'
 import { styleText } from '../utilities/style.js'
 import { MolControlledChecked } from './controlled-checked.directive.js'
 
@@ -46,11 +48,14 @@ export interface RadioOption {
     'style',
     'testId',
     'disabled',
+    'automationId',
+    'dataMolId: data-mol-id',
   ],
   host: {
     '[class]': 'className',
     '[style]': 'hostStyle()',
     '[attr.data-testid]': 'testId',
+    '[attr.data-mol-id]': 'molId()',
     '[attr.role]': '"radiogroup"',
     '[attr.aria-label]': 'groupLabel()',
     '[attr.aria-invalid]': 'error ? "true" : null',
@@ -84,7 +89,7 @@ export interface RadioOption {
       <p [attr.id]="errorId()" [class]="cm().cn(cm().formError, cm().sp('mt', 1))">{{ error }}</p>
     }`,
 })
-export class RadioGroup {
+export class RadioGroup implements HasElement<HTMLDivElement> {
   /** The options to render. */
   options?: RadioOption[]
   /** The selected option value. */
@@ -107,6 +112,10 @@ export class RadioGroup {
   testId?: string
   /** Disables every option. */
   disabled?: boolean
+  /** `data-mol-id` automation id (React's `automationId`). */
+  automationId?: string
+  /** A `data-mol-id` given as a plain rest attribute (React's `rootProps` precedence). */
+  dataMolId?: string
 
   /**
    * The current class map.
@@ -121,7 +130,7 @@ export class RadioGroup {
    * @returns The name value.
    */
   groupName(): string {
-    return this.name || 'r0'
+    return this.name || this.generatedName
   }
 
   /**
@@ -148,6 +157,19 @@ export class RadioGroup {
    */
   hostStyle(): string | null {
     return styleText(this.style)
+  }
+
+  /**
+   * The `data-mol-id` value (`automationId` wins over a rest `data-mol-id`).
+   * @returns The attribute value.
+   */
+  molId(): string | undefined {
+    return (
+      this.automationId ??
+      this.dataMolId ??
+      this.host.nativeElement.getAttribute('data-mol-id') ??
+      undefined
+    )
   }
 
   /**
@@ -178,5 +200,10 @@ export class RadioGroup {
    */
   private readonly i18n = useTranslation()
 
-  private readonly host = inject(ElementRef)
+  private readonly host: ElementRef<HTMLDivElement> = inject(ElementRef)
+  /** The element a caller's ref receives: the host `role="radiogroup"` `<div>`. */
+  readonly element = hostElement(this.host)
+
+  /** The per-instance native radio-group name when the caller gives none (React's `useId`). */
+  private readonly generatedName = nextInstanceId()
 }

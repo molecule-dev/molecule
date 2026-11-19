@@ -12,13 +12,15 @@ import {
   inject,
   Output,
   Renderer2,
+  signal,
   ViewChild,
 } from '@angular/core'
 
-import type { ColorVariant, Size, UIClassMap } from '@molecule/app-ui'
+import type { ColorVariant, MouseEventHandler, Size, UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
-import { moveRestAttributes } from '../utilities/rest-attrs.js'
+import type { HasElement } from '../utilities/element.js'
+import { moveRestAttributes, takeDataMolId } from '../utilities/rest-attrs.js'
 import { styleText } from '../utilities/style.js'
 import { hasNodes, SlotWrapper } from './button.component.js'
 import { MolControlledChecked } from './controlled-checked.directive.js'
@@ -36,7 +38,19 @@ import { MolControlledChecked } from './controlled-checked.directive.js'
   selector: 'mol-switch',
   standalone: true,
   imports: [MolControlledChecked],
-  inputs: ['label', 'checked', 'size', 'color', 'className', 'style', 'testId', 'disabled'],
+  inputs: [
+    'label',
+    'checked',
+    'size',
+    'color',
+    'className',
+    'style',
+    'testId',
+    'disabled',
+    'automationId',
+    'dataMolId: data-mol-id',
+    'onClick',
+  ],
   host: {
     'data-parity-unwrap': '',
     style: 'display: contents',
@@ -62,6 +76,7 @@ import { MolControlledChecked } from './controlled-checked.directive.js'
         [class]="classes()"
         [attr.style]="hostStyle()"
         [attr.data-testid]="testId"
+        [attr.data-mol-id]="molId()"
         #trigger
       >
         <span [attr.data-state]="state()" [class]="cm().switchThumb({ size: size ?? 'md' })"></span>
@@ -71,7 +86,7 @@ import { MolControlledChecked } from './controlled-checked.directive.js'
       ></span>
     </label>`,
 })
-export class Switch implements AfterViewChecked {
+export class Switch implements AfterViewChecked, HasElement<HTMLButtonElement> {
   /** Switch label (text, or projected `[slot=label]` nodes). */
   label?: unknown
   /** Whether the switch is on. */
@@ -88,6 +103,16 @@ export class Switch implements AfterViewChecked {
   testId?: string
   /** Disables the switch. */
   disabled?: boolean
+  /** `data-mol-id` automation id (React's `automationId`). */
+  automationId?: string
+  /** A `data-mol-id` given as a plain rest attribute (React's `rootProps` precedence). */
+  dataMolId?: string
+
+  /**
+   * A caller's click handler (React's `onClick` prop). Runs BEFORE the toggle
+   * and can veto it with `preventDefault()`.
+   */
+  onClick?: MouseEventHandler
 
   /** The genuine native `change` event of the hidden checkbox. */
   @Output() readonly change = new EventEmitter<Event>()
@@ -95,12 +120,24 @@ export class Switch implements AfterViewChecked {
   /** The hidden native checkbox. */
   @ViewChild('hiddenInput') hiddenInput?: ElementRef<HTMLInputElement>
   /** The visible trigger button (React's `...rest` spread target). */
-  @ViewChild('trigger') trigger?: ElementRef<HTMLButtonElement>
+  private trigger?: ElementRef<HTMLButtonElement>
+  /** The trigger button view query; also feeds the caller's ref element. */
+  @ViewChild('trigger')
+  set triggerQuery(ref: ElementRef<HTMLButtonElement> | undefined) {
+    this.trigger = ref
+    this.inner.set(ref?.nativeElement ?? null)
+  }
+
+  private readonly inner = signal<HTMLButtonElement | null>(null)
+  /** The element a caller's ref receives: the `role="switch"` button. */
+  readonly element = this.inner.asReadonly()
   /** The label text wrapper. */
   @ViewChild('labelSlot') labelSlot?: ElementRef<HTMLSpanElement>
 
   private readonly host = inject(ElementRef)
   private hasLabel = false
+  /** The `data-mol-id` a caller bound on the host (React spreads it onto the trigger). */
+  private externalMolId: string | undefined
   private readonly sync = new SlotWrapper(inject(ElementRef), inject(Renderer2))
 
   /**
@@ -147,12 +184,22 @@ export class Switch implements AfterViewChecked {
   }
 
   /**
-   * Clicking the button clicks the hidden checkbox (unless disabled or the
-   * event was vetoed), exactly like React's handler.
+   * The `data-mol-id` value (`automationId` wins over a rest `data-mol-id`).
+   * @returns The attribute value.
+   */
+  molId(): string | undefined {
+    return this.automationId ?? this.dataMolId ?? this.externalMolId
+  }
+
+  /**
+   * Clicking the button runs the caller's `onClick` first (it may veto the
+   * toggle with `preventDefault()`), then clicks the hidden checkbox (unless
+   * disabled or the event was vetoed), exactly like React's handler.
    *
    * @param event - The button click event.
    */
-  handleClick(event: Event): void {
+  handleClick(event: MouseEvent): void {
+    this.onClick?.(event)
     if (!this.disabled && !event.defaultPrevented) this.hiddenInput?.nativeElement.click()
   }
 
@@ -179,6 +226,7 @@ export class Switch implements AfterViewChecked {
    */
   ngAfterViewChecked(): void {
     moveRestAttributes(this.host.nativeElement, this.trigger?.nativeElement)
+    this.externalMolId = takeDataMolId(this.host.nativeElement) ?? this.externalMolId
     this.hasLabel = !!this.label || hasNodes(this.labelSlot?.nativeElement)
     this.sync.sync(
       this.labelSlot?.nativeElement,

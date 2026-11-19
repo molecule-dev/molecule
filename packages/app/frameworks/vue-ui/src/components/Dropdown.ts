@@ -26,9 +26,23 @@ import { getClassMap } from '@molecule/app-ui'
 import { useLocation } from '@molecule/app-vue'
 
 import { classOf, type RenderableChildren } from '../utilities/attrs.js'
+import { useElementRef } from '../utilities/elementRef.js'
+import { setDisplayName } from './displayName.js'
 
 /** The DOM element (or component instance) a Vue function ref receives. */
 type RefNode = Element | ComponentPublicInstance | null
+
+/**
+ * The DOM element a template ref resolves to: the element itself, or a component's root element
+ * (a trigger that is a component, such as Button, hands its ref a component instance).
+ *
+ * @param node - What Vue passed the ref.
+ * @returns The element, or null.
+ */
+const refElement = (node: RefNode): HTMLElement | null => {
+  const element: unknown = node instanceof Element ? node : node?.$el
+  return element instanceof HTMLElement ? element : null
+}
 
 type Placement = NonNullable<DropdownProps['placement']>
 type Align = NonNullable<DropdownProps['align']>
@@ -296,9 +310,11 @@ export const Dropdown = defineComponent({
     className: String,
     style: [String, Object] as PropType<DropdownProps['style']>,
     testId: String,
+    automationId: String,
+    disabled: Boolean,
   },
   emits: ['select', 'openChange'],
-  setup(props, { attrs, slots, emit }) {
+  setup(props, { attrs, slots, emit, expose }) {
     const cm = getClassMap()
 
     const internalOpen = ref(false)
@@ -306,10 +322,12 @@ export const Dropdown = defineComponent({
     const activeIndex = ref(-1)
     // The actual interactive trigger node — either the cloned single-element
     // trigger, or the fallback `role="button"` wrapper. Used for position
-    // measurement, outside-click detection, AND focus restoration. Plain
-    // variables, like React's refs: reads during render are not reactive.
+    // measurement, outside-click detection, AND focus restoration. A plain
+    // variable, like React's ref: reads during render are not reactive.
     let triggerRef: HTMLElement | null = null
-    let menuRef: HTMLDivElement | null = null
+    // The `role="menu"` element is React's `forwardRef` target; it holds
+    // `null` while closed.
+    const menuRef = useElementRef<HTMLDivElement>(expose)
     const itemRefs: (HTMLElement | null)[] = []
     // Which end of the menu keyboard-driven opens should focus: ArrowDown
     // (and Enter/Space/click) want the first item, ArrowUp wants the last.
@@ -318,7 +336,10 @@ export const Dropdown = defineComponent({
     // renumbers ids by document order either way.
     const menuId = `mol-dropdown-${nextGeneratedMenuId++}`
 
-    const isOpen = computed(() => (props.open !== undefined ? props.open : internalOpen.value))
+    // A disabled dropdown never opens, whatever `open` says.
+    const isOpen = computed(
+      () => !props.disabled && (props.open !== undefined ? props.open : internalOpen.value),
+    )
 
     const setOpen = (open: boolean): void => {
       if (props.open === undefined) {
@@ -328,19 +349,21 @@ export const Dropdown = defineComponent({
     }
 
     const updatePosition = (): void => {
-      if (triggerRef && menuRef) {
+      if (triggerRef && menuRef.value) {
         const triggerRect = triggerRef.getBoundingClientRect()
-        const menuRect = menuRef.getBoundingClientRect()
+        const menuRect = menuRef.value.getBoundingClientRect()
         position.value = calculatePosition(triggerRect, menuRect, props.placement, props.align)
       }
     }
 
     const handleTriggerClick = (): void => {
+      if (props.disabled) return
       if (!isOpen.value) pendingOpenFocus = 'first'
       setOpen(!isOpen.value)
     }
 
     const handleTriggerKeyDown = (event: KeyboardEvent): void => {
+      if (props.disabled) return
       switch (event.key) {
         case 'Enter':
         case ' ':
@@ -422,11 +445,13 @@ export const Dropdown = defineComponent({
 
     // Close on outside click and Escape (with focus restoration).
     const handleClickOutside = (event: MouseEvent): void => {
+      const { target } = event
       if (
+        target instanceof Node &&
         triggerRef &&
-        !triggerRef.contains(event.target as Node) &&
-        menuRef &&
-        !menuRef.contains(event.target as Node)
+        !triggerRef.contains(target) &&
+        menuRef.value &&
+        !menuRef.value.contains(target)
       ) {
         handleClose()
       }
@@ -497,12 +522,39 @@ export const Dropdown = defineComponent({
       }
     }
 
+    /**
+     * Writes `node` into a caller's ref the way Vue's own ref handling does: a
+     * function ref is called, a ref object's `.value` is set. A trigger that
+     * carried its own ref keeps receiving the node (React's `mergeRefs`).
+     */
+    const applyRef = (target: unknown, node: RefNode): void => {
+      if (!target) return
+      if (typeof target === 'function') {
+        target(node)
+        return
+      }
+      if (typeof target !== 'object') return
+      // A vnode whose ref Vue normalized for several owners holds a list of them.
+      if (Array.isArray(target)) {
+        for (const entry of target) applyRef(entry, node)
+        return
+      }
+      if ('value' in target) {
+        target.value = node
+        return
+      }
+      // Vue wraps a vnode's ref in a normalized `{ r, … }` record; the caller's
+      // own ref is inside it (a `ref` object or a function).
+      if ('r' in target) applyRef(target.r, node)
+    }
+
     const setTriggerRef = (node: RefNode): void => {
-      triggerRef = (node as HTMLElement | null) ?? null
+      triggerRef = refElement(node)
     }
 
     const setMenuRef = (node: RefNode): void => {
-      menuRef = (node as HTMLDivElement | null) ?? null
+      const element = refElement(node)
+      menuRef.value = element instanceof HTMLDivElement ? element : null
     }
 
     return () => {
@@ -542,6 +594,7 @@ export const Dropdown = defineComponent({
                 class: cm.cn(cm.dropdownContent, ...classOf(props.className, attrs)),
                 style: menuStyle,
                 'data-testid': props.testId ? `${props.testId}-menu` : undefined,
+                'data-mol-id': props.automationId ? `${props.automationId}-menu` : undefined,
                 onKeydown: handleMenuKeyDown,
               },
               props.items.map((item, index) =>
@@ -552,7 +605,7 @@ export const Dropdown = defineComponent({
                   onSelect: handleSelect,
                   onClose: closeAndRefocusTrigger,
                   registerRef: (node: RefNode): void => {
-                    itemRefs[index] = (node as HTMLElement | null) ?? null
+                    itemRefs[index] = refElement(node)
                   },
                 }),
               ),
@@ -573,13 +626,23 @@ export const Dropdown = defineComponent({
         // (Vue chains `on*` handlers the way React's wrapper calls the
         // original handler first).
         const source: VNode = triggerContent
+        // React merges the trigger's own ref with its internal one.
+        const sourceRef = source.ref
         renderedTrigger = cloneVNode(source, {
-          ref: setTriggerRef,
+          ref: (node: RefNode): void => {
+            setTriggerRef(node)
+            applyRef(sourceRef, node)
+          },
           tabindex: (source.props?.tabIndex as number | undefined) ?? 0,
           'aria-haspopup': 'menu',
           'aria-expanded': isOpen.value,
           'aria-controls': isOpen.value ? menuId : undefined,
-          'data-testid': props.testId,
+          // Only a given id replaces the trigger's own; an absent one leaves it in place.
+          ...(props.testId === undefined ? {} : { 'data-testid': props.testId }),
+          ...(props.automationId === undefined ? {} : { 'data-mol-id': props.automationId }),
+          // A disabled dropdown disables its trigger (a Button or a native button
+          // then ignores clicks).
+          ...(props.disabled ? { disabled: true } : {}),
           onClick: handleTriggerClick,
           onKeydown: handleTriggerKeyDown,
         })
@@ -589,7 +652,8 @@ export const Dropdown = defineComponent({
           {
             ref: setTriggerRef,
             role: 'button',
-            tabindex: 0,
+            tabindex: props.disabled ? -1 : 0,
+            'aria-disabled': props.disabled || undefined,
             'aria-haspopup': 'menu',
             'aria-expanded': isOpen.value,
             'aria-controls': isOpen.value ? menuId : undefined,
@@ -597,6 +661,7 @@ export const Dropdown = defineComponent({
             onKeydown: handleTriggerKeyDown,
             class: cm.dropdownTrigger,
             'data-testid': props.testId,
+            'data-mol-id': props.automationId,
           },
           triggerContent,
         )
@@ -606,6 +671,8 @@ export const Dropdown = defineComponent({
     }
   },
 })
+
+setDisplayName(Dropdown, 'Dropdown')
 
 /**
  * Dropdown label for grouping items.
@@ -617,17 +684,20 @@ export const DropdownLabel = defineComponent({
   props: {
     className: String,
   },
-  setup(props, { attrs, slots }) {
+  setup(props, { attrs, slots, expose }) {
     const cm = getClassMap()
+    const element = useElementRef<HTMLDivElement>(expose)
 
     return () =>
       h(
         'div',
-        { class: cm.cn(cm.dropdownLabel, ...classOf(props.className, attrs)) },
+        { ref: element, class: cm.cn(cm.dropdownLabel, ...classOf(props.className, attrs)) },
         slots.default?.(),
       )
   },
 })
+
+setDisplayName(DropdownLabel, 'DropdownLabel')
 
 /**
  * Dropdown separator for dividing groups.
@@ -639,13 +709,17 @@ export const DropdownSeparator = defineComponent({
   props: {
     className: String,
   },
-  setup(props, { attrs }) {
+  setup(props, { attrs, expose }) {
     const cm = getClassMap()
+    const element = useElementRef<HTMLDivElement>(expose)
 
     return () =>
       h('div', {
+        ref: element,
         class: cm.cn(cm.dropdownSeparator, ...classOf(props.className, attrs)),
         role: 'separator',
       })
   },
 })
+
+setDisplayName(DropdownSeparator, 'DropdownSeparator')

@@ -13,6 +13,7 @@
   import type { CheckboxProps } from '../types.js'
 
   let {
+    ref = $bindable(null),
     label,
     checked,
     defaultChecked,
@@ -38,11 +39,9 @@
   // uncontrolled default.
   const effective = $derived(checked ?? defaultChecked ?? false)
 
-  let inputEl = $state<HTMLInputElement | null>(null)
-
   $effect(() => {
-    if (inputEl) {
-      inputEl.indeterminate = !!indeterminate
+    if (ref) {
+      ref.indeterminate = !!indeterminate
     }
   })
 
@@ -51,14 +50,14 @@
   // own change-event polyfill for those input types).
   const handleChange = (event: MouseEvent): void => {
     onChange?.(event)
-    if (checked !== undefined && inputEl) inputEl.checked = !!checked
+    if (checked !== undefined && ref) ref.checked = !!checked
   }
 </script>
 
 <div class={cm.formFieldWrapper}>
   <label class={cm.controlLabel}>
     <input
-      bind:this={inputEl}
+      bind:this={ref}
       type="checkbox"
       id={checkboxId}
       {name}

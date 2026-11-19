@@ -4,11 +4,12 @@
  * @module
  */
 
-import { Component } from '@angular/core'
+import { Component, ElementRef, inject } from '@angular/core'
 
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
+import { type HasElement, hostElement } from '../utilities/element.js'
 import { styleText } from '../utilities/style.js'
 
 /** Gap names the class map understands; anything else is a CSS value. */
@@ -33,15 +34,29 @@ const DIRECTION_MAP: Record<string, 'row' | 'col' | 'row-reverse' | 'col-reverse
 @Component({
   selector: 'div[mol-container]',
   standalone: true,
-  inputs: ['maxWidth', 'centered', 'paddingX', 'className', 'style', 'testId'],
+  inputs: [
+    'maxWidth',
+    'centered',
+    'paddingX',
+    'className',
+    'style',
+    'testId',
+    'automationId',
+    'dataMolId: data-mol-id',
+  ],
   host: {
     '[class]': 'classes()',
     '[style]': 'hostStyle()',
     '[attr.data-testid]': 'testId',
+    '[attr.data-mol-id]': 'molId()',
   },
   template: `<ng-content></ng-content>`,
 })
-export class Container {
+export class Container implements HasElement<HTMLDivElement> {
+  private readonly host: ElementRef<HTMLDivElement> = inject(ElementRef)
+  /** The element a caller's ref receives: the host `<div>`. */
+  readonly element = hostElement(this.host)
+
   /** Maximum width preset. */
   maxWidth: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full' | string = 'lg'
   /** Whether the column is centered. */
@@ -54,6 +69,10 @@ export class Container {
   style?: Record<string, unknown>
   /** `data-testid`. */
   testId?: string
+  /** `data-mol-id` automation id (React's `automationId`). */
+  automationId?: string
+  /** A `data-mol-id` given as a plain rest attribute (React's `rootProps` precedence). */
+  dataMolId?: string
 
   /**
    * The current class map.
@@ -78,6 +97,19 @@ export class Container {
   }
 
   /**
+   * The `data-mol-id` value (`automationId` wins over a rest `data-mol-id`).
+   * @returns The attribute value.
+   */
+  molId(): string | undefined {
+    return (
+      this.automationId ??
+      this.dataMolId ??
+      this.host.nativeElement.getAttribute('data-mol-id') ??
+      undefined
+    )
+  }
+
+  /**
    * Serializes the inline style.
    * @returns The style attribute text.
    */
@@ -94,15 +126,31 @@ export class Container {
 @Component({
   selector: 'div[mol-flex]',
   standalone: true,
-  inputs: ['direction', 'justify', 'align', 'wrap', 'gap', 'className', 'style', 'testId'],
+  inputs: [
+    'direction',
+    'justify',
+    'align',
+    'wrap',
+    'gap',
+    'className',
+    'style',
+    'testId',
+    'automationId',
+    'dataMolId: data-mol-id',
+  ],
   host: {
     '[class]': 'classes()',
     '[style]': 'hostStyle()',
     '[attr.data-testid]': 'testId',
+    '[attr.data-mol-id]': 'molId()',
   },
   template: `<ng-content></ng-content>`,
 })
-export class Flex {
+export class Flex implements HasElement<HTMLDivElement> {
+  private readonly host: ElementRef<HTMLDivElement> = inject(ElementRef)
+  /** The element a caller's ref receives: the host `<div>`. */
+  readonly element = hostElement(this.host)
+
   /** Flex direction. */
   direction: 'row' | 'column' | 'row-reverse' | 'column-reverse' = 'row'
   /** Main-axis justification. */
@@ -119,6 +167,10 @@ export class Flex {
   style?: Record<string, unknown>
   /** `data-testid`. */
   testId?: string
+  /** `data-mol-id` automation id (React's `automationId`). */
+  automationId?: string
+  /** A `data-mol-id` given as a plain rest attribute (React's `rootProps` precedence). */
+  dataMolId?: string
 
   /**
    * The current class map.
@@ -150,6 +202,19 @@ export class Flex {
   }
 
   /**
+   * The `data-mol-id` value (`automationId` wins over a rest `data-mol-id`).
+   * @returns The attribute value.
+   */
+  molId(): string | undefined {
+    return (
+      this.automationId ??
+      this.dataMolId ??
+      this.host.nativeElement.getAttribute('data-mol-id') ??
+      undefined
+    )
+  }
+
+  /**
    * Serializes the merged inline style (numeric or custom gaps inline).
    * @returns The style attribute text.
    */
@@ -173,15 +238,31 @@ export class Flex {
 @Component({
   selector: 'div[mol-grid]',
   standalone: true,
-  inputs: ['columns', 'rows', 'gap', 'columnGap', 'rowGap', 'className', 'style', 'testId'],
+  inputs: [
+    'columns',
+    'rows',
+    'gap',
+    'columnGap',
+    'rowGap',
+    'className',
+    'style',
+    'testId',
+    'automationId',
+    'dataMolId: data-mol-id',
+  ],
   host: {
     '[class]': 'classes()',
     '[style]': 'hostStyle()',
     '[attr.data-testid]': 'testId',
+    '[attr.data-mol-id]': 'molId()',
   },
   template: `<ng-content></ng-content>`,
 })
-export class Grid {
+export class Grid implements HasElement<HTMLDivElement> {
+  private readonly host: ElementRef<HTMLDivElement> = inject(ElementRef)
+  /** The element a caller's ref receives: the host `<div>`. */
+  readonly element = hostElement(this.host)
+
   /** Column count or `grid-template-columns` value. */
   columns?: number | string
   /** `grid-template-rows` value. */
@@ -198,6 +279,10 @@ export class Grid {
   style?: Record<string, unknown>
   /** `data-testid`. */
   testId?: string
+  /** `data-mol-id` automation id (React's `automationId`). */
+  automationId?: string
+  /** A `data-mol-id` given as a plain rest attribute (React's `rootProps` precedence). */
+  dataMolId?: string
 
   /**
    * The current class map.
@@ -222,6 +307,19 @@ export class Grid {
         gap: cmGap,
       }),
       this.className,
+    )
+  }
+
+  /**
+   * The `data-mol-id` value (`automationId` wins over a rest `data-mol-id`).
+   * @returns The attribute value.
+   */
+  molId(): string | undefined {
+    return (
+      this.automationId ??
+      this.dataMolId ??
+      this.host.nativeElement.getAttribute('data-mol-id') ??
+      undefined
     )
   }
 
@@ -266,16 +364,30 @@ export class Grid {
 @Component({
   selector: 'div[mol-spacer]',
   standalone: true,
-  inputs: ['size', 'horizontal', 'className', 'style', 'testId', 'ariaHidden: aria-hidden'],
+  inputs: [
+    'size',
+    'horizontal',
+    'className',
+    'style',
+    'testId',
+    'ariaHidden: aria-hidden',
+    'automationId',
+    'dataMolId: data-mol-id',
+  ],
   host: {
     '[class]': 'classes()',
     '[style]': 'hostStyle()',
     '[attr.data-testid]': 'testId',
+    '[attr.data-mol-id]': 'molId()',
     '[attr.aria-hidden]': 'ariaHiddenAttr()',
   },
   template: '',
 })
-export class Spacer {
+export class Spacer implements HasElement<HTMLDivElement> {
+  private readonly host: ElementRef<HTMLDivElement> = inject(ElementRef)
+  /** The element a caller's ref receives: the host `<div>`. */
+  readonly element = hostElement(this.host)
+
   /** Spacer size (preset name, number in px, or CSS value). */
   size: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | number | string = 'md'
   /** Whether the spacer takes width instead of height. */
@@ -288,6 +400,10 @@ export class Spacer {
   testId?: string
   /** Explicit `aria-hidden` (React stringifies booleans). */
   ariaHidden?: boolean | string
+  /** `data-mol-id` automation id (React's `automationId`). */
+  automationId?: string
+  /** A `data-mol-id` given as a plain rest attribute (React's `rootProps` precedence). */
+  dataMolId?: string
 
   /**
    * The `aria-hidden` attribute value (React renders `true` as `"true"`).
@@ -333,6 +449,19 @@ export class Spacer {
           ? this.cm().displayInlineBlock
           : this.cm().displayBlock,
       this.className,
+    )
+  }
+
+  /**
+   * The `data-mol-id` value (`automationId` wins over a rest `data-mol-id`).
+   * @returns The attribute value.
+   */
+  molId(): string | undefined {
+    return (
+      this.automationId ??
+      this.dataMolId ??
+      this.host.nativeElement.getAttribute('data-mol-id') ??
+      undefined
     )
   }
 

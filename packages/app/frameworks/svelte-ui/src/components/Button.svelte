@@ -12,6 +12,7 @@
   import Spinner from './Spinner.svelte'
 
   let {
+    ref = $bindable(null),
     children,
     variant = 'solid',
     color = 'primary',
@@ -35,6 +36,7 @@
 </script>
 
 <button
+  bind:this={ref}
   {type}
   class={classes}
   use:reactStyle={style}

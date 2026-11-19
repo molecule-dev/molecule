@@ -13,18 +13,25 @@ import {
   inject,
   Output,
   Renderer2,
+  signal,
   TemplateRef,
   ViewChild,
 } from '@angular/core'
 
 import { useTranslation } from '@molecule/app-angular'
-import type { Size, UIClassMap } from '@molecule/app-ui'
+import type { FocusEventHandler, KeyboardEventHandler, Size, UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
+import type { HasElement } from '../utilities/element.js'
 import type { FormFieldContext } from '../utilities/form-field-context.js'
 import { fieldContext } from '../utilities/form-field-context.js'
+import { nextInstanceId } from '../utilities/ids.js'
 import { MolIconSvg, type ResolvedIcon, resolveIcon } from '../utilities/render-icon.js'
-import { moveRestAttributes, reapplyRestAttributes } from '../utilities/rest-attrs.js'
+import {
+  moveRestAttributes,
+  reapplyRestAttributes,
+  takeDataMolId,
+} from '../utilities/rest-attrs.js'
 import { styleText } from '../utilities/style.js'
 import { hasNodes, SlotWrapper } from './button.component.js'
 
@@ -65,6 +72,11 @@ import { hasNodes, SlotWrapper } from './button.component.js'
     'placeholder',
     'name',
     'id',
+    'automationId',
+    'dataMolId: data-mol-id',
+    'onFocus',
+    'onBlur',
+    'onKeyDown',
   ],
   host: {
     '[class]': 'cm().inputWrapper',
@@ -98,8 +110,12 @@ import { hasNodes, SlotWrapper } from './button.component.js'
         [class]="classes()"
         [attr.style]="hostStyle()"
         [attr.data-testid]="testId"
+        [attr.data-mol-id]="molId()"
         (input)="handleInput($event)"
         (change)="handleChange($event)"
+        (focusin)="onFocus?.($event)"
+        (focusout)="onBlur?.($event)"
+        (keydown)="onKeyDown?.($event)"
         #inputEl
       />
       <div [class]="cm().inputRightElement" #rightSlot>
@@ -130,7 +146,7 @@ import { hasNodes, SlotWrapper } from './button.component.js'
       <p [attr.id]="inputId() + '-hint'" [class]="cm().formHint">{{ hint }}</p>
     }`,
 })
-export class Input implements DoCheck {
+export class Input implements DoCheck, HasElement<HTMLInputElement> {
   /** Input type. */
   type?: string
   /** Input size. */
@@ -171,6 +187,17 @@ export class Input implements DoCheck {
   name?: string
   /** Explicit input id. */
   id?: string
+  /** `data-mol-id` automation id (React's `automationId`). */
+  automationId?: string
+  /** A `data-mol-id` given as a plain rest attribute (React's `rootProps` precedence). */
+  dataMolId?: string
+
+  /** React's `onFocus`, which React spreads onto the <input>: its `currentTarget` is that element. */
+  onFocus?: FocusEventHandler
+  /** React's `onBlur`, which React spreads onto the <input>: its `currentTarget` is that element. */
+  onBlur?: FocusEventHandler
+  /** React's `onKeyDown`, which React spreads onto the <input>: its `currentTarget` is that element. */
+  onKeyDown?: KeyboardEventHandler
 
   /** Fires the raw `input` event (React's text-input onChange). */
   @Output() readonly change = new EventEmitter<Event>()
@@ -178,7 +205,17 @@ export class Input implements DoCheck {
   @Output() readonly clear = new EventEmitter<Event>()
 
   /** The native input (React's `...rest` spread target). */
-  @ViewChild('inputEl') inputEl?: ElementRef<HTMLInputElement>
+  inputEl?: ElementRef<HTMLInputElement>
+  /** The native input view query; also feeds the caller's ref element. */
+  @ViewChild('inputEl')
+  set inputElQuery(ref: ElementRef<HTMLInputElement> | undefined) {
+    this.inputEl = ref
+    this.inner.set(ref?.nativeElement ?? null)
+  }
+
+  private readonly inner = signal<HTMLInputElement | null>(null)
+  /** The element a caller's ref receives: the native `<input>`, not the label wrapper. */
+  readonly element = this.inner.asReadonly()
   /** The left adornment wrapper. */
   @ViewChild('leftSlot') leftSlot?: ElementRef<HTMLDivElement>
   /** The right adornment wrapper. */
@@ -187,6 +224,9 @@ export class Input implements DoCheck {
   @ViewChild('rightInner') rightInner?: ElementRef<HTMLSpanElement>
 
   private readonly host = inject(ElementRef)
+
+  /** The per-instance id used when the caller gives no `id` or `name` (React's `useId`). */
+  private readonly generatedId = nextInstanceId()
 
   /**
    * Reactive translation, read in the injection context. Its `t` reads the
@@ -203,6 +243,8 @@ export class Input implements DoCheck {
   private movedRest = false
   /** The `aria-describedby` the caller spread onto the host (React's rest). */
   private restDescribedBy: string | null = null
+  /** The `data-mol-id` a caller bound on the host (React spreads it onto the input). */
+  private externalMolId: string | undefined
 
   /**
    * The current class map.
@@ -218,7 +260,7 @@ export class Input implements DoCheck {
    * @returns The id value.
    */
   inputId(): string {
-    return this.id || this.fieldContext()?.id || this.name || 'r0'
+    return this.id || this.fieldContext()?.id || this.name || this.generatedId
   }
 
   /**
@@ -292,6 +334,14 @@ export class Input implements DoCheck {
   }
 
   /**
+   * The `data-mol-id` value (`automationId` wins over a rest `data-mol-id`).
+   * @returns The attribute value.
+   */
+  molId(): string | undefined {
+    return this.automationId ?? this.dataMolId ?? this.externalMolId
+  }
+
+  /**
    * React's text-input onChange: the `input` event, with the controlled value
    * restored afterwards.
    *
@@ -355,10 +405,12 @@ export class Input implements DoCheck {
     if (!this.movedRest && input) {
       this.restDescribedBy = host.getAttribute('aria-describedby')
       this.movedRest = true
+      this.externalMolId = takeDataMolId(host) ?? this.externalMolId
       moveRestAttributes(host, input)
     }
     // A caller's re-bound rest attribute (`[attr.aria-label]` following a
     // locale switch) lands back on the host; move it onto the input again.
+    this.externalMolId = takeDataMolId(host) ?? this.externalMolId
     reapplyRestAttributes(host, input)
     // React's controlled input: the live value always follows the `value` prop
     // after a re-render (the binding sets the attribute; the property is only

@@ -8,6 +8,7 @@
   import type { FlexProps } from '../types.js'
 
   let {
+    ref = $bindable(null),
     children,
     direction = 'row',
     justify,
@@ -57,6 +58,7 @@
      as given: a Flex is a plain box, and a consumer that makes one clickable
      gives it the role and keys that go with the click. -->
 <div
+  bind:this={ref}
   class={flexClasses}
   use:reactStyle={{ ...style, ...gapStyle }}
   data-testid={testId}

@@ -36,8 +36,11 @@ export function renderIcon(name: IconName, className?: string): VNode {
       'stroke-linecap': icon.strokeLinecap,
       'stroke-linejoin': icon.strokeLinejoin,
     },
-    icon.paths.map((p) =>
+    icon.paths.map((p, i) =>
       h('path', {
+        // Same numeric child key React passes to every path element; Vue keeps
+        // it on the VNode (`key` is a reserved prop, never rendered).
+        key: i,
         d: p.d,
         'fill-rule': p.fillRule,
         'clip-rule': p.clipRule,

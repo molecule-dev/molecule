@@ -14,6 +14,7 @@
   import type { FloatingInputProps } from '../types.js'
 
   let {
+    ref = $bindable(null),
     placeholder,
     className,
     value: valueProp,
@@ -44,6 +45,7 @@
 
 <span class={cm.floatingInputWrapper}>
   <input
+    bind:this={ref}
     id={inputId}
     {...reactAttrs(withoutEvents(props))}
     use:spreadEvents={props}

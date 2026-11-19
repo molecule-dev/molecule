@@ -9,31 +9,7 @@ import { defineComponent, h, type PropType, ref } from 'vue'
 import { getClassMap } from '@molecule/app-ui'
 
 import { classOf, restAttrs, styleOf } from '../utilities/attrs.js'
-
-/** React's DOM-callback names that alias a differently spelled native event. */
-const REACT_EVENT_ALIASES: Record<string, string> = {
-  onDoubleClick: 'onDblclick',
-}
-
-/**
- * React forwards DOM callbacks in `...rest` verbatim (`onKeyDown`, …). Vue
- * only attaches a native listener for `on` + the DOM event name (`onKeydown`)
- * — it hyphenates anything after `on`, so React's camelCase spelling would
- * listen for an event nothing dispatches. Rewrites rest keys to the native
- * spelling: `on` + the lowercased DOM event name.
- *
- * @param attrs - The fallthrough attributes to spread onto a native element.
- * @returns The same attributes with event keys in Vue's native spelling.
- */
-function nativeEventAttrs(attrs: Record<string, unknown>): Record<string, unknown> {
-  const out: Record<string, unknown> = {}
-  for (const [key, value] of Object.entries(attrs)) {
-    out[
-      REACT_EVENT_ALIASES[key] ?? (/^on[A-Z]/.test(key) ? `on${key.slice(2).toLowerCase()}` : key)
-    ] = value
-  }
-  return out
-}
+import { useElementRef } from '../utilities/elementRef.js'
 
 /** Counter backing the generated ids that stand in for React's `useId()`. */
 let nextGeneratedId = 0
@@ -64,10 +40,12 @@ export const FloatingInput = defineComponent({
     id: String,
   },
   emits: ['change', 'focus', 'blur'],
-  setup(props, { attrs, emit }) {
+  setup(props, { attrs, emit, expose }) {
     const cm = getClassMap()
     const internalValue = ref(String(props.defaultValue ?? ''))
     const generatedId = `mol-floating-input-${nextGeneratedId++}`
+    // The native input is React's `forwardRef` target, not the wrapper span.
+    const element = useElementRef<HTMLInputElement>(expose)
 
     const handleChange = (e: Event): void => {
       emit('change', e)
@@ -86,8 +64,9 @@ export const FloatingInput = defineComponent({
 
       return h('span', { class: cm.floatingInputWrapper }, [
         h('input', {
+          ref: element,
           id: inputId,
-          ...nativeEventAttrs(restAttrs(attrs)),
+          ...restAttrs(attrs),
           placeholder: props.placeholder,
           class: cm.cn(cm.input(), cm.floatingInput, ...classOf(props.className, attrs)),
           value,

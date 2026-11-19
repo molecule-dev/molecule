@@ -4,13 +4,14 @@
  * @module
  */
 
-import { type Component, Show, splitProps } from 'solid-js'
+import { Show, splitProps } from 'solid-js'
 
 import { useTranslation } from '@molecule/app-solid'
 import type { SpinnerProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
-import { toStyleProps } from '../utilities/dom.js'
+import { reactDomProps, toStyleProps, type WithRef } from '../utilities/dom.js'
+import { withDisplayName } from './displayName.js'
 
 /**
  * Renders the Spinner component.
@@ -21,7 +22,9 @@ import { toStyleProps } from '../utilities/dom.js'
  * @param props - The component props.
  * @returns The rendered spinner JSX.
  */
-export const Spinner: Component<SpinnerProps & { 'data-mol-id'?: string }> = (props) => {
+export const Spinner = withDisplayName<
+  WithRef<SpinnerProps & { 'data-mol-id'?: string }, HTMLDivElement>
+>((props) => {
   const [local, rest] = splitProps(props, [
     'size',
     'color',
@@ -46,14 +49,6 @@ export const Spinner: Component<SpinnerProps & { 'data-mol-id'?: string }> = (pr
     return undefined
   }
 
-  const passthrough = (): Record<string, unknown> => {
-    const out: Record<string, unknown> = {}
-    for (const [k, v] of Object.entries(rest as Record<string, unknown>)) {
-      if (k.startsWith('data-') || k.startsWith('aria-')) out[k] = v
-    }
-    return out
-  }
-
   return (
     <div
       role="status"
@@ -61,11 +56,11 @@ export const Spinner: Component<SpinnerProps & { 'data-mol-id'?: string }> = (pr
       class={classes()}
       style={toStyleProps({ ...local.style, ...colorStyle() })}
       data-testid={local.testId}
-      {...passthrough()}
+      {...reactDomProps(rest)}
     >
       <Show when={local.label}>
         <span class={cm.srOnly}>{local.label}</span>
       </Show>
     </div>
   )
-}
+}, 'Spinner')

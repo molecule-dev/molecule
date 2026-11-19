@@ -16,6 +16,7 @@
   import ReactNode from './ReactNode.svelte'
 
   let {
+    ref = $bindable(null),
     items,
     value,
     defaultValue,
@@ -26,6 +27,8 @@
     className,
     style,
     testId,
+    automationId,
+    disabled,
   }: TabsProps = $props()
 
   const cm = $derived(getClassMap())
@@ -44,12 +47,14 @@
   }
 
   const selectTab = (tabValue: string): void => {
+    if (disabled) return
     if (value === undefined) internalValue = tabValue
     onChange?.(tabValue)
   }
 
   const handleKeyDown = (event: KeyboardEvent): void => {
-    const enabled = items.filter((item) => !item.disabled)
+    // A disabled Tabs disables every tab, whatever its item says.
+    const enabled = disabled ? [] : items.filter((item) => !item.disabled)
     if (enabled.length === 0) return
     const currentIndex = enabled.findIndex((item) => item.value === activeValue)
 
@@ -85,7 +90,13 @@
   const tablistRole = 'tablist' as const
 </script>
 
-<div class={className} use:reactStyle={style} data-testid={testId}>
+<div
+  bind:this={ref}
+  class={className}
+  use:reactStyle={style}
+  data-testid={testId}
+  data-mol-id={automationId}
+>
   <div class={cm.cn(cm.tabsList({ variant, size }), fitted && cm.tabsFitted)} role={tablistRole}>
     {#each items as item (item.value)}
       {@const isActive = item.value === activeValue}
@@ -104,8 +115,8 @@
         aria-controls={isActive && !!item.content ? `${idBase}-tabpanel-${item.value}` : undefined}
         data-state={isActive ? 'active' : 'inactive'}
         tabindex={isActive ? 0 : -1}
-        disabled={item.disabled}
-        onclick={() => selectTab(item.value)}
+        disabled={disabled || item.disabled}
+        onclick={() => !disabled && !item.disabled && selectTab(item.value)}
         onkeydown={handleKeyDown}
         class={cm.cn(cm.tabsTrigger({ variant, size }), fitted && cm.tabTriggerFitted)}
       >

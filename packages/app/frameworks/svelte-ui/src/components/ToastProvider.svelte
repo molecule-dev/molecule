@@ -3,22 +3,34 @@
   toasts with useToast(); the toasts render in a ToastContainer under the
   component tree.
 -->
+<script lang="ts" module>
+  // One counter for every provider on the page, as React's is: two providers never
+  // generate the same toast id (it is the toast element's DOM id).
+  let toastCounter = 0
+
+  /**
+   * The next generated toast id.
+   *
+   * @returns An id no other toast on the page has.
+   */
+  const nextToastId = (): string => `toast-${++toastCounter}`
+</script>
+
 <script lang="ts">
   import { setContext } from 'svelte'
 
-  import { type ManagedToast, TOAST_CONTEXT } from '../toast.js'
-  import type { ToastProps, ToastProviderProps } from '../types.js'
+  import { type ManagedToast, TOAST_CONTEXT, type ToastContextValue } from '../toast.js'
+  import type { ToastProviderProps } from '../types.js'
   import Toast from './Toast.svelte'
   import ToastContainer from './ToastContainer.svelte'
 
   let { children, position = 'bottom-right' }: ToastProviderProps = $props()
 
   let toasts = $state<ManagedToast[]>([])
-  let toastCounter = 0
 
-  const addToast = (toast: Omit<ToastProps, 'onDismiss'>): string => {
-    toastCounter += 1
-    const id = `toast-${toastCounter}`
+  const addToast: ToastContextValue['addToast'] = (toast) => {
+    // A caller's `id` is the toast's handle and its element id; otherwise one is generated.
+    const id = toast.id ?? nextToastId()
     toasts = [...toasts, { ...toast, id }]
     return id
   }

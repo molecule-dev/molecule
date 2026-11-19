@@ -26,6 +26,7 @@
   import ReactNode from './ReactNode.svelte'
 
   let {
+    ref = $bindable(null),
     trigger,
     items,
     onSelect,
@@ -37,6 +38,8 @@
     className,
     style,
     testId,
+    automationId,
+    disabled,
   }: DropdownProps = $props()
 
   const cm = $derived(getClassMap())
@@ -57,13 +60,15 @@
   // role="button" wrapper. Used for position measurement, outside-click
   // detection AND focus restoration.
   let triggerEl = $state<HTMLElement | null>(null)
-  let menuEl = $state<HTMLDivElement | null>(null)
   const itemEls: (HTMLDivElement | null)[] = []
   // Which end of the menu keyboard-driven opens should focus: ArrowDown (and
   // Enter/Space/click) want the first item, ArrowUp wants the last.
   let pendingOpenFocus: 'first' | 'last' = 'first'
 
-  const isOpen = $derived(controlledOpen !== undefined ? controlledOpen : internalOpen)
+  // A disabled dropdown never opens, whatever `open` says.
+  const isOpen = $derived(
+    !disabled && (controlledOpen !== undefined ? controlledOpen : internalOpen),
+  )
 
   const setOpen = (open: boolean): void => {
     if (controlledOpen === undefined) internalOpen = open
@@ -72,7 +77,7 @@
 
   const updatePosition = (): void => {
     const t = triggerEl
-    const m = menuEl
+    const m = ref
     if (t && m) {
       position = calculateDropdownPosition(
         t.getBoundingClientRect(),
@@ -84,11 +89,13 @@
   }
 
   const handleTriggerClick = (): void => {
+    if (disabled) return
     if (!isOpen) pendingOpenFocus = 'first'
     setOpen(!isOpen)
   }
 
   const handleTriggerKeyDown = (e: KeyboardEvent): void => {
+    if (disabled) return
     switch (e.key) {
       case 'Enter':
       case ' ':
@@ -183,7 +190,7 @@
     if (!isOpen) return
     const handleClickOutside = (e: MouseEvent): void => {
       const t = triggerEl
-      const m = menuEl
+      const m = ref
       if (t && !t.contains(e.target as Node) && m && !m.contains(e.target as Node)) handleClose()
     }
     const handleEscape = (e: KeyboardEvent): void => {
@@ -266,6 +273,9 @@
   // role="button" fallback container.
   let triggerHost = $state<HTMLDivElement | null>(null)
   let adopted = false
+  // Whether the trigger is React's fallback role="button" wrapper (anything
+  // that is not a single element) rather than an adopted trigger element.
+  let triggerIsWrapper = $state(false)
   $effect(() => {
     if (!triggerHost || adopted) return
     adopted = true
@@ -282,6 +292,7 @@
         ? (content[0] as HTMLElement)
         : null
     const el = single ?? host
+    triggerIsWrapper = single === null
     if (single) {
       const parent = host.parentNode
       if (parent) {
@@ -300,15 +311,46 @@
   })
 
   // React's cloned/wrapped trigger re-renders with the live open state; the
-  // adopted element gets the same attributes re-applied on every change.
+  // adopted element gets the same attributes re-applied on every change. A
+  // given testId/automationId replaces the trigger's own; an absent one leaves
+  // it in place (only a value this component previously set is removed).
+  let appliedTestId: string | undefined
+  let appliedAutomationId: string | undefined
+  let appliedDisabled = false
   $effect(() => {
     const el = triggerEl
     if (!el) return
     el.setAttribute('aria-expanded', isOpen ? 'true' : 'false')
     if (isOpen) el.setAttribute('aria-controls', menuId)
     else el.removeAttribute('aria-controls')
-    if (testId !== undefined) el.setAttribute('data-testid', testId)
-    else el.removeAttribute('data-testid')
+    if (triggerIsWrapper) {
+      // React's fallback container: announced disabled and out of the tab order.
+      el.setAttribute('tabindex', disabled ? '-1' : '0')
+      if (disabled) el.setAttribute('aria-disabled', 'true')
+      else el.removeAttribute('aria-disabled')
+    } else if (disabled) {
+      // A disabled dropdown disables the cloned trigger (a Button or a native
+      // button then ignores clicks). An absent `disabled` leaves the trigger's own.
+      el.setAttribute('disabled', '')
+      appliedDisabled = true
+    } else if (appliedDisabled) {
+      el.removeAttribute('disabled')
+      appliedDisabled = false
+    }
+    if (testId !== undefined) {
+      el.setAttribute('data-testid', testId)
+      appliedTestId = testId
+    } else if (appliedTestId !== undefined) {
+      el.removeAttribute('data-testid')
+      appliedTestId = undefined
+    }
+    if (automationId !== undefined) {
+      el.setAttribute('data-mol-id', automationId)
+      appliedAutomationId = automationId
+    } else if (appliedAutomationId !== undefined) {
+      el.removeAttribute('data-mol-id')
+      appliedAutomationId = undefined
+    }
   })
 
   // Not measurable until the trigger element exists (the first open frame,
@@ -346,7 +388,7 @@
        a click on a separator or the menu's padding keeps focus in the menu,
        so the arrow keys still move between its items. -->
   <div
-    bind:this={menuEl}
+    bind:this={ref}
     id={menuId}
     role="menu"
     tabindex={-1}
@@ -355,6 +397,7 @@
     use:reactStyle={menuStyle}
     use:bodyPortal
     data-testid={testId ? `${testId}-menu` : undefined}
+    data-mol-id={automationId ? `${automationId}-menu` : undefined}
     onkeydown={handleMenuKeyDown}
   >
     {#each items as item, index (item.separator ? `separator-${index}` : item.value)}

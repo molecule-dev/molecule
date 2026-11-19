@@ -6,10 +6,21 @@
   import { useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
+  import { reactAttrs, withoutEvents } from '../attrs.js'
+  import { spreadEvents } from '../dom.js'
   import { reactStyle } from '../style.js'
   import type { SpinnerProps } from '../types.js'
 
-  let { size = 'md', color, label, className, style, testId, ...rest }: SpinnerProps = $props()
+  let {
+    ref = $bindable(null),
+    size = 'md',
+    color,
+    label,
+    className,
+    style,
+    testId,
+    ...rest
+  }: SpinnerProps = $props()
 
   const { t } = useTranslation()
   const cm = $derived(getClassMap())
@@ -20,23 +31,21 @@
       ? { borderColor: color, borderTopColor: 'transparent' }
       : undefined,
   )
-  const passthrough = $derived.by(() => {
-    const out: Record<string, unknown> = {}
-    for (const [k, v] of Object.entries(rest)) {
-      if (k.startsWith('data-') || k.startsWith('aria-')) out[k] = v
-    }
-    return out
-  })
+  // React's rest spread: every declared prop (a caller's aria-label replaces
+  // the default, automationId renders as data-mol-id, data-* reach the div).
+  const attributes = $derived(reactAttrs(withoutEvents(rest)))
   const mergedStyle = $derived({ ...style, ...colorStyle })
 </script>
 
 <div
+  bind:this={ref}
   role="status"
   aria-label={label || t('ui.spinner.loading', undefined, { defaultValue: 'Loading' })}
   class={classes}
   use:reactStyle={mergedStyle}
   data-testid={testId}
-  {...passthrough}
+  {...attributes}
+  use:spreadEvents={rest}
 >
   {#if label}<span class={cm.srOnly}>{label}</span>{/if}
 </div>

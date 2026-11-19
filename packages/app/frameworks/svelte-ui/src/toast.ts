@@ -14,12 +14,20 @@ import type { ToastProps } from './types.js'
 /** A managed toast entry: the caller's toast props plus its id. */
 export type ManagedToast = ToastProps & { id: string }
 
+/**
+ * The props `addToast` takes: `ToastProps` without `onDismiss`, which the provider supplies. Key
+ * remapping, not `Omit`: `ToastProps` carries rest attributes as an index signature, and `Omit` over
+ * one keeps only that signature, so a caller's `id`, `title` and every other prop would type as
+ * `unknown`.
+ */
+type NewToast = { [K in keyof ToastProps as K extends 'onDismiss' ? never : K]: ToastProps[K] }
+
 /** What {@link useToast} returns: the current toasts and how to change them. */
 export interface ToastContextValue {
   /** The currently shown toasts. */
   toasts: ManagedToast[]
   /** Adds a toast and returns its id. */
-  addToast: (toast: Omit<ToastProps, 'onDismiss'>) => string
+  addToast: (toast: NewToast) => string
   /** Removes a toast by id. */
   removeToast: (id: string) => void
 }

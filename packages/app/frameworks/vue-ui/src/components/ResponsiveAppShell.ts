@@ -210,7 +210,8 @@ export interface ResponsiveAppShellProps {
 }
 
 /**
- * Vue ResponsiveAppShell UI component with UIClassMap-driven styling.
+ * Root of the responsive app shell family (exported below with its
+ * sub-components attached, like React's `ResponsiveAppShell`).
  *
  * Faithful port of `@molecule/app-ui-react`'s `ResponsiveAppShell` root: owns
  * the breakpoint signal (`useIsDesktop`) and the drawer open state, closes the
@@ -221,7 +222,7 @@ export interface ResponsiveAppShellProps {
  * `ResponsiveAppShellSidebar`, `ResponsiveAppShellDrawer` and
  * `ResponsiveAppShellContent` — as the default slot.
  */
-export const ResponsiveAppShell = defineComponent({
+const ResponsiveAppShellBase = defineComponent({
   name: 'MResponsiveAppShell',
   inheritAttrs: false,
   props: {
@@ -939,4 +940,25 @@ export const ResponsiveAppShellContent = defineComponent({
       )
     }
   },
+})
+
+/**
+ * The responsive app shell family — see {@link ResponsiveAppShellBase} and the
+ * module docs for the full contract.
+ *
+ * Consumed as `<ResponsiveAppShell.TopBar />`, `.Sidebar`, `.Drawer` and
+ * `.Content` (or `h(ResponsiveAppShell.TopBar, …)`) inside the shell; each is
+ * also exported as a named component (`ResponsiveAppShellTopBar`, …) for
+ * star-import consumers — the same surface React's `ResponsiveAppShell`
+ * exposes.
+ */
+export const ResponsiveAppShell = Object.assign(ResponsiveAppShellBase, {
+  /** The `<header>` landmark — brand + actions + the drawer menu trigger. */
+  TopBar: ResponsiveAppShellTopBar,
+  /** The desktop `<aside>`/`<nav>` landmarks (≥768px only). */
+  Sidebar: ResponsiveAppShellSidebar,
+  /** The mobile dialog drawer (<768px only). */
+  Drawer: ResponsiveAppShellDrawer,
+  /** The `<main>` landmark. */
+  Content: ResponsiveAppShellContent,
 })

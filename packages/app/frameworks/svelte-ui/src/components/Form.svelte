@@ -9,10 +9,11 @@
   import { reactAttrs, withoutEvents } from '../attrs.js'
   import { spreadEvents } from '../dom.js'
   import { reactStyle } from '../style.js'
-  import type { FormProps } from '../types.js'
+  import type { ReactFormProps } from './form.js'
   import { formSubmitErrorMessages } from './form-submit-error.js'
 
   let {
+    ref = $bindable(null),
     children,
     onFormSubmit,
     submitting,
@@ -24,7 +25,7 @@
     method,
     noValidate,
     ...rest
-  }: FormProps = $props()
+  }: ReactFormProps = $props()
 
   const { t } = useTranslation()
   const cm = $derived(getClassMap())
@@ -63,7 +64,7 @@
           call(() => onFormSubmit(data))
         }
         // Call both handlers before yielding: the native event's currentTarget is still valid.
-        call(() => onSubmit?.(e as unknown as Event))
+        call(() => onSubmit?.(e))
         await Promise.all(submissions)
       } catch (error) {
         if (attempt === current) failure = { error }
@@ -96,6 +97,7 @@
 </script>
 
 <form
+  bind:this={ref}
   class={className}
   use:reactStyle={style}
   data-testid={testId}

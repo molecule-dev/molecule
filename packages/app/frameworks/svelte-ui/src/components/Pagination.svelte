@@ -11,6 +11,7 @@
   import IconGlyph from './IconGlyph.svelte'
 
   let {
+    ref = $bindable(null),
     page,
     totalPages,
     onChange,
@@ -24,6 +25,7 @@
     style,
     testId,
     disabled,
+    automationId,
   }: PaginationProps = $props()
 
   const { t } = useTranslation()
@@ -68,11 +70,13 @@
 </script>
 
 <nav
+  bind:this={ref}
   role={navRole}
   aria-label={labels?.nav ?? t('ui.pagination.nav', undefined, { defaultValue: 'Pagination' })}
   class={cm.cn(cm.paginationRoot, className)}
   use:reactStyle={style}
   data-testid={testId}
+  data-mol-id={automationId}
 >
   <ul class={cm.paginationContent}>
     {#if showFirstLast}

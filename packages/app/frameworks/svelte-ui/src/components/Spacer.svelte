@@ -7,7 +7,15 @@
   import { reactStyle } from '../style.js'
   import type { SpacerProps } from '../types.js'
 
-  let { size = 'md', horizontal, className, style, testId, ...rest }: SpacerProps = $props()
+  let {
+    ref = $bindable(null),
+    size = 'md',
+    horizontal,
+    className,
+    style,
+    testId,
+    ...rest
+  }: SpacerProps = $props()
 
   const cm = $derived(getClassMap())
   const namedSizes = ['xs', 'sm', 'md', 'lg', 'xl']
@@ -36,6 +44,7 @@
 </script>
 
 <div
+  bind:this={ref}
   class={spacerClasses}
   use:reactStyle={{ ...style, ...sizeStyle }}
   data-testid={testId}

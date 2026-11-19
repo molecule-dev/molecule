@@ -69,12 +69,12 @@ import {
 // `createApplication` bootstraps the browser platform (jsdom here), exactly
 // as the conformance adapter does.
 import { createApplication } from '@angular/platform-browser'
-import { within } from '@testing-library/dom'
+import { fireEvent, within } from '@testing-library/dom'
 
 const { ConfirmDialog } = await import('../components/confirm-dialog.component.js')
 
 /** Host component projecting the title/description slots into ConfirmDialog. */
-const Host: Type<unknown> = Component({
+const Host = Component({
   standalone: true,
   imports: [ConfirmDialog],
   template: `<mol-confirm-dialog [open]="true" (close)="noop()" (confirm)="noop()">
@@ -113,5 +113,146 @@ describe('ConfirmDialog', () => {
     expect(heading.id).not.toBe('')
     expect(dialog.getAttribute('aria-labelledby')).toBe(heading.id)
     expect(within(document.body).getByRole('dialog', { name: 'Delete vault?' })).toBe(dialog)
+  })
+})
+
+/**
+ * A host driving every prop the React tests set (title/description are
+ * projected slots — the Angular form of React's node-valued props) and
+ * recording the close/confirm callbacks.
+ */
+const DialogHost = Component({
+  selector: 'mol-spec-confirm-host',
+  standalone: true,
+  imports: [ConfirmDialog],
+  template: `<mol-confirm-dialog
+    [open]="open"
+    [loading]="loading"
+    [confirmLabel]="confirmLabel"
+    [cancelLabel]="cancelLabel"
+    (close)="onClose()"
+    (confirm)="onConfirm()"
+  >
+    <span slot="title">Delete account</span>
+    <span slot="description">This cannot be undone.</span>
+  </mol-confirm-dialog>`,
+})(
+  class DialogHostComponent {
+    open = true
+    loading = false
+    confirmLabel?: string
+    cancelLabel?: string
+    closes = 0
+    confirms = 0
+
+    /** Counts a close request. */
+    onClose(): void {
+      this.closes += 1
+    }
+
+    /** Counts a confirm. */
+    onConfirm(): void {
+      this.confirms += 1
+    }
+  },
+)
+
+/** The same host with an extra child between the description and the footer. */
+const DialogWithChildHost = Component({
+  selector: 'mol-spec-confirm-child-host',
+  standalone: true,
+  imports: [ConfirmDialog],
+  template: `<mol-confirm-dialog [open]="true" (close)="noop()" (confirm)="noop()">
+    <span slot="title">Delete account</span>
+    <span slot="description">This cannot be undone.</span>
+    <input data-extra="" />
+  </mol-confirm-dialog>`,
+})(
+  class DialogWithChildHostComponent {
+    noop(): void {}
+  },
+)
+
+/** Mounted dialog under its host. */
+interface MountedDialog<T> {
+  /** The host component instance, for props and callback counts. */
+  readonly instance: T
+  /** Runs one change-detection pass. */
+  readonly tick: () => void
+}
+
+/**
+ * Bootstraps a spec host (zoneless) and applies its props before the first pass.
+ *
+ * @param host - The host component to mount.
+ * @param configure - Applies the test's props before the first pass.
+ * @returns The host instance and a tick.
+ */
+async function mountHost<T>(
+  host: Type<T>,
+  configure?: (instance: T) => void,
+): Promise<MountedDialog<T>> {
+  appRef = await createApplication({ providers: [provideZonelessChangeDetection()] })
+  const ref = createComponent(host, { environmentInjector: appRef.injector })
+  document.body.appendChild(ref.location.nativeElement as HTMLElement)
+  appRef.attachView(ref.hostView)
+  if (configure) configure(ref.instance)
+  appRef.tick()
+  return { instance: ref.instance, tick: () => appRef?.tick() }
+}
+
+describe('ConfirmDialog rendering and wiring', () => {
+  it('renders nothing while open is false', async () => {
+    await mountHost(DialogHost, (instance) => {
+      instance.open = false
+    })
+    // React renders null while closed; Angular detaches the portal, so neither
+    // the dialog nor its content is in the document.
+    expect(document.querySelector('[role="dialog"]')).toBeNull()
+    expect(within(document.body).queryAllByText('Delete account')).toHaveLength(0)
+  })
+
+  it('renders the title and description once open', async () => {
+    await mountHost(DialogHost)
+    expect(within(document.body).getByText('Delete account')).toBeTruthy()
+    expect(within(document.body).getByText('This cannot be undone.')).toBeTruthy()
+  })
+
+  it('uses the default Cancel / Confirm labels', async () => {
+    await mountHost(DialogHost)
+    expect(within(document.body).getByText('Cancel')).toBeTruthy()
+    expect(within(document.body).getByText('Confirm')).toBeTruthy()
+  })
+
+  it('honours custom confirm / cancel labels', async () => {
+    await mountHost(DialogHost, (instance) => {
+      instance.confirmLabel = 'Delete'
+      instance.cancelLabel = 'Keep it'
+    })
+    expect(within(document.body).getByText('Delete')).toBeTruthy()
+    expect(within(document.body).getByText('Keep it')).toBeTruthy()
+  })
+
+  it('wires confirm to onConfirm and cancel to onClose', async () => {
+    const { instance } = await mountHost(DialogHost)
+    fireEvent.click(within(document.body).getByText('Confirm'))
+    expect(instance.confirms).toBe(1)
+    fireEvent.click(within(document.body).getByText('Cancel'))
+    expect(instance.closes).toBe(1)
+  })
+
+  it('disables both buttons while loading and shows the pending glyph', async () => {
+    await mountHost(DialogHost, (instance) => {
+      instance.loading = true
+    })
+    const confirm = within(document.body).getByText('…') as HTMLButtonElement
+    expect(confirm.disabled).toBe(true)
+    expect((within(document.body).getByText('Cancel') as HTMLButtonElement).disabled).toBe(true)
+  })
+
+  it('renders extra children between description and footer', async () => {
+    await mountHost(DialogWithChildHost)
+    // Modal portals to document.body, so query there, not the host container.
+    expect(document.body.querySelector('[data-extra]')).toBeTruthy()
   })
 })

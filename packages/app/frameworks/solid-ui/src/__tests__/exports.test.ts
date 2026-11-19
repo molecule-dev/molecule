@@ -1,0 +1,90 @@
+// @vitest-environment jsdom
+/**
+ * Tests for the module's exported API surface.
+ * Verifies that all expected components, types, and utilities are exported.
+ *
+ * Solid counterpart of `@molecule/app-ui-react`'s `exports.test.ts`: the same
+ * export names, so a caller can swap the framework binding without changing
+ * imports.
+ *
+ * @module
+ */
+
+import { describe, expect, it } from 'vitest'
+
+import * as allExports from '../index.js'
+
+describe('module exports', () => {
+  describe('component exports', () => {
+    const expectedComponents = [
+      'Button',
+      'Input',
+      'Textarea',
+      'Select',
+      'Checkbox',
+      'RadioGroup',
+      'Switch',
+      'ConfirmButton',
+      'ConfirmDialog',
+      'PromptDialog',
+      'Modal',
+      'Spinner',
+      'Avatar',
+      'Badge',
+      'Alert',
+      'Card',
+      'CardHeader',
+      'CardTitle',
+      'CardDescription',
+      'CardContent',
+      'CardFooter',
+      'Tabs',
+      'Table',
+      'Tooltip',
+      'Progress',
+      'Skeleton',
+      'SkeletonText',
+      'SkeletonCircle',
+      'Separator',
+      'Container',
+      'Flex',
+      'Grid',
+      'Spacer',
+      'Form',
+      'FormField',
+      'Label',
+      'Toast',
+      'ToastContainer',
+      'ToastProvider',
+      'Accordion',
+      'Pagination',
+      'Dropdown',
+      'DropdownLabel',
+      'DropdownSeparator',
+      'ResponsiveAppShell',
+      'ResponsiveAppShellTopBar',
+      'ResponsiveAppShellSidebar',
+      'ResponsiveAppShellDrawer',
+      'ResponsiveAppShellContent',
+    ]
+
+    for (const name of expectedComponents) {
+      it(`should export ${name}`, () => {
+        const exp = (allExports as Record<string, unknown>)[name]
+        expect(exp).toBeDefined()
+      })
+    }
+  })
+
+  describe('hook exports', () => {
+    it('should export useToast hook', () => {
+      expect(allExports.useToast).toBeDefined()
+      expect(typeof allExports.useToast).toBe('function')
+    })
+
+    it('should export useIsDesktop hook', () => {
+      expect(allExports.useIsDesktop).toBeDefined()
+      expect(typeof allExports.useIsDesktop).toBe('function')
+    })
+  })
+})

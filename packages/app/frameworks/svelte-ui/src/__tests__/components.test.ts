@@ -1,9 +1,17 @@
 /**
- * Tests for svelte-ui's component class-generator functions.
+ * Tests for svelte-ui's components module: its class-generator functions and
+ * its component definitions.
  *
- * svelte-ui exports pure class-string generators (not Svelte components), so
- * each `getXClasses(options)` can be exercised directly. `@molecule/app-ui`
- * and `@molecule/app-icons` are stubbed so the generators run in node.
+ * svelte-ui exports pure class-string generators, so each
+ * `getXClasses(options)` can be exercised directly. `@molecule/app-ui` and
+ * `@molecule/app-icons` are stubbed so the generators run in node.
+ *
+ * The definition tests are the Svelte port of `@molecule/app-ui-react`'s
+ * `components.test.tsx`: React exports a forwardRef exotic object carrying
+ * `displayName` and `$$typeof`, while Svelte compiles each component to a
+ * function the runtime mounts. The same titles assert the same observable a
+ * caller has — the export is a renderable component and its declared name is
+ * the React display name (the compiled function's own name).
  *
  * @module
  */
@@ -140,5 +148,212 @@ describe('icon-data + helper exports', () => {
 
   it('generateToastId produces unique-ish ids', () => {
     expect(components.generateToastId()).not.toBe(components.generateToastId())
+  })
+})
+
+// =============================================================================
+// Component definitions — ported from @molecule/app-ui-react
+// =============================================================================
+
+/**
+ * Asserts a module export is a Svelte component: a function the Svelte runtime
+ * mounts, the counterpart of React's forwardRef object (`$$typeof`).
+ *
+ * @param component - The module export to check.
+ */
+const expectSvelteComponent = (component: unknown): void => {
+  expect(typeof component).toBe('function')
+}
+
+describe('component display names', () => {
+  const componentsWithDisplayNames: [string, { readonly name: string }][] = [
+    ['Button', components.Button],
+    ['Input', components.Input],
+    ['Textarea', components.Textarea],
+    ['Select', components.Select],
+    ['Checkbox', components.Checkbox],
+    ['RadioGroup', components.RadioGroup],
+    ['Switch', components.Switch],
+    ['Modal', components.Modal],
+    ['Spinner', components.Spinner],
+    ['Avatar', components.Avatar],
+    ['Badge', components.Badge],
+    ['Alert', components.Alert],
+    ['Card', components.Card],
+    ['CardHeader', components.CardHeader],
+    ['CardTitle', components.CardTitle],
+    ['CardDescription', components.CardDescription],
+    ['CardContent', components.CardContent],
+    ['CardFooter', components.CardFooter],
+    ['Tabs', components.Tabs],
+    ['Table', components.Table],
+    ['Tooltip', components.Tooltip],
+    ['Progress', components.Progress],
+    ['Skeleton', components.Skeleton],
+    ['SkeletonText', components.SkeletonText],
+    ['SkeletonCircle', components.SkeletonCircle],
+    ['Separator', components.Separator],
+    ['Container', components.Container],
+    ['Flex', components.Flex],
+    ['Grid', components.Grid],
+    ['Spacer', components.Spacer],
+    ['Form', components.Form],
+    ['FormField', components.FormField],
+    ['Label', components.Label],
+    ['Toast', components.Toast],
+    ['ToastContainer', components.ToastContainer],
+    ['Accordion', components.Accordion],
+    ['Pagination', components.Pagination],
+    ['Dropdown', components.Dropdown],
+    ['DropdownLabel', components.DropdownLabel],
+    ['DropdownSeparator', components.DropdownSeparator],
+  ]
+
+  for (const [name, component] of componentsWithDisplayNames) {
+    it(`${name} should have displayName set to "${name}"`, () => {
+      expect(component.name).toBe(name)
+    })
+  }
+})
+
+describe('component types', () => {
+  it('Button should be a valid React component (object with render or $$typeof)', () => {
+    // A Svelte component is a function, where React's forwardRef returns an
+    // exotic object (`$$typeof`); the rule is the same: a caller can render it.
+    expectSvelteComponent(components.Button)
+  })
+
+  it('Input should be a valid React forwardRef component', () => {
+    expectSvelteComponent(components.Input)
+  })
+
+  it('Textarea should be a valid React forwardRef component', () => {
+    expectSvelteComponent(components.Textarea)
+  })
+
+  it('Select should be a valid React forwardRef component', () => {
+    expectSvelteComponent(components.Select)
+  })
+
+  it('Checkbox should be a valid React forwardRef component', () => {
+    expectSvelteComponent(components.Checkbox)
+  })
+
+  it('RadioGroup should be a valid React forwardRef component', () => {
+    expectSvelteComponent(components.RadioGroup)
+  })
+
+  it('Switch should be a valid React forwardRef component', () => {
+    expectSvelteComponent(components.Switch)
+  })
+
+  it('Modal should be a valid React forwardRef component', () => {
+    expectSvelteComponent(components.Modal)
+  })
+
+  it('Spinner should be a valid React forwardRef component', () => {
+    expectSvelteComponent(components.Spinner)
+  })
+
+  it('Avatar should be a valid React forwardRef component', () => {
+    expectSvelteComponent(components.Avatar)
+  })
+
+  it('Badge should be a valid React forwardRef component', () => {
+    expectSvelteComponent(components.Badge)
+  })
+
+  it('Alert should be a valid React forwardRef component', () => {
+    expectSvelteComponent(components.Alert)
+  })
+
+  it('Card should be a valid React forwardRef component', () => {
+    expectSvelteComponent(components.Card)
+  })
+
+  it('Tabs should be a valid React forwardRef component', () => {
+    expectSvelteComponent(components.Tabs)
+  })
+
+  it('Table should be a valid React forwardRef component', () => {
+    expectSvelteComponent(components.Table)
+  })
+
+  it('Tooltip should be a valid React forwardRef component', () => {
+    expectSvelteComponent(components.Tooltip)
+  })
+
+  it('Progress should be a valid React forwardRef component', () => {
+    expectSvelteComponent(components.Progress)
+  })
+
+  it('Skeleton should be a valid React forwardRef component', () => {
+    expectSvelteComponent(components.Skeleton)
+  })
+
+  it('Separator should be a valid React forwardRef component', () => {
+    expectSvelteComponent(components.Separator)
+  })
+
+  it('Container should be a valid React forwardRef component', () => {
+    expectSvelteComponent(components.Container)
+  })
+
+  it('Flex should be a valid React forwardRef component', () => {
+    expectSvelteComponent(components.Flex)
+  })
+
+  it('Grid should be a valid React forwardRef component', () => {
+    expectSvelteComponent(components.Grid)
+  })
+
+  it('Spacer should be a valid React forwardRef component', () => {
+    expectSvelteComponent(components.Spacer)
+  })
+
+  it('Form should be a valid React forwardRef component', () => {
+    expectSvelteComponent(components.Form)
+  })
+
+  it('FormField should be a valid React forwardRef component', () => {
+    expectSvelteComponent(components.FormField)
+  })
+
+  it('Label should be a valid React forwardRef component', () => {
+    expectSvelteComponent(components.Label)
+  })
+
+  it('Toast should be a valid React forwardRef component', () => {
+    expectSvelteComponent(components.Toast)
+  })
+
+  it('ToastContainer should be a valid React forwardRef component', () => {
+    expectSvelteComponent(components.ToastContainer)
+  })
+
+  it('Accordion should be a valid React forwardRef component', () => {
+    expectSvelteComponent(components.Accordion)
+  })
+
+  it('Pagination should be a valid React forwardRef component', () => {
+    expectSvelteComponent(components.Pagination)
+  })
+
+  it('Dropdown should be a valid React forwardRef component', () => {
+    expectSvelteComponent(components.Dropdown)
+  })
+
+  it('DropdownLabel should be a valid React forwardRef component', () => {
+    expectSvelteComponent(components.DropdownLabel)
+  })
+
+  it('DropdownSeparator should be a valid React forwardRef component', () => {
+    expectSvelteComponent(components.DropdownSeparator)
+  })
+
+  it('ToastProvider should be a function (React FC)', () => {
+    // ToastProvider is a plain component function in React (an FC, not
+    // forwardRef), and a compiled component function in Svelte.
+    expect(typeof components.ToastProvider).toBe('function')
   })
 })

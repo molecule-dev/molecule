@@ -54,6 +54,64 @@ export interface UserMenuPopoverContext {
 }
 
 /**
+ * Props for {@link UserMenuPopover} (React's `UserMenuPopoverProps`, in
+ * Angular's form). The trigger and panel are projected content, so they have
+ * no member.
+ */
+export interface UserMenuPopoverProps {
+  /** Label shown when there is no authenticated user (default `Account`). */
+  guestName?: string
+  /** Extra classes composed onto the relative-positioned container. */
+  className?: string
+}
+
+/**
+ * Props for {@link UserMenuPopoverTrigger} (React's
+ * `UserMenuPopoverTriggerProps`, in Angular's form).
+ */
+export interface UserMenuPopoverTriggerProps {
+  /** i18n key for the trigger's aria-label (default `userMenu.open`). */
+  ariaLabelKey?: string
+  /** Fallback aria-label (default `Open user menu`). */
+  ariaLabelDefault?: string
+  /** `data-mol-id` for the trigger (default `user-menu`). */
+  dataMolId?: string
+  /** Extra classes for the trigger. */
+  className?: string
+}
+
+/**
+ * Props for {@link UserMenuPopoverPanel} (React's
+ * `UserMenuPopoverPanelProps`, in Angular's form). The panel body is
+ * projected content, so it has no member.
+ */
+export interface UserMenuPopoverPanelProps {
+  /** i18n key for the panel's aria-label (default `userMenu.panelLabel`). */
+  ariaLabelKey?: string
+  /** Fallback aria-label (default `Account menu`). */
+  ariaLabelDefault?: string
+  /** `data-mol-id` for the panel (default `user-menu-panel`). */
+  dataMolId?: string
+  /** Extra classes for the panel. */
+  className?: string
+}
+
+/**
+ * Props for {@link UserMenuPopoverSignOut} (React's
+ * `UserMenuPopoverSignOutProps`, in Angular's form).
+ */
+export interface UserMenuPopoverSignOutProps {
+  /** i18n key for the button label (default `userMenu.signOut`). */
+  labelKey?: string
+  /** Fallback label (default `Sign out`). */
+  labelDefault?: string
+  /** `data-mol-id` for the button (default `user-menu-sign-out`). */
+  dataMolId?: string
+  /** Extra classes for the button. */
+  className?: string
+}
+
+/**
  * UserMenuPopover root: owns the open state and the auto-dismiss behavior
  * (route change, outside click, Escape) and provides the identity context.
  */
@@ -68,9 +126,9 @@ export interface UserMenuPopoverContext {
 })
 export class UserMenuPopover implements AfterViewInit, DoCheck, OnDestroy {
   /** Label shown when there is no authenticated user (default `Account`). */
-  guestName?: string
+  guestName?: UserMenuPopoverProps['guestName']
   /** Extra classes composed onto the relative-positioned container. */
-  className?: string
+  className?: UserMenuPopoverProps['className']
 
   /** Whether the popover is open. */
   readonly isOpen = signal(false)
@@ -271,13 +329,13 @@ class UserMenuPopoverContextValue implements UserMenuPopoverContext {
 })
 export class UserMenuPopoverTrigger {
   /** i18n key for the trigger's aria-label (default `userMenu.open`). */
-  ariaLabelKey?: string
+  ariaLabelKey?: UserMenuPopoverTriggerProps['ariaLabelKey']
   /** Fallback aria-label (default `Open user menu`). */
-  ariaLabelDefault?: string
+  ariaLabelDefault?: UserMenuPopoverTriggerProps['ariaLabelDefault']
   /** `data-mol-id` for the trigger (default `user-menu`). */
-  dataMolId = 'user-menu'
+  dataMolId?: UserMenuPopoverTriggerProps['dataMolId'] = 'user-menu'
   /** Extra classes for the trigger. */
-  className?: string
+  className?: UserMenuPopoverTriggerProps['className']
 
   private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
 
@@ -432,13 +490,13 @@ export class UserMenuPopoverTrigger {
 })
 export class UserMenuPopoverPanel implements AfterViewInit, DoCheck {
   /** i18n key for the panel's aria-label (default `userMenu.panelLabel`). */
-  ariaLabelKey?: string
+  ariaLabelKey?: UserMenuPopoverPanelProps['ariaLabelKey']
   /** Fallback aria-label (default `Account menu`). */
-  ariaLabelDefault?: string
+  ariaLabelDefault?: UserMenuPopoverPanelProps['ariaLabelDefault']
   /** `data-mol-id` for the panel (default `user-menu-panel`). */
-  dataMolId = 'user-menu-panel'
+  dataMolId?: UserMenuPopoverPanelProps['dataMolId'] = 'user-menu-panel'
   /** Extra classes for the panel. */
-  className?: string
+  className?: UserMenuPopoverPanelProps['className']
 
   /** The panel element (removed from the DOM while closed). */
   @ViewChild('panel') panel?: ElementRef<HTMLDivElement>
@@ -556,13 +614,13 @@ export class UserMenuPopoverPanel implements AfterViewInit, DoCheck {
 })
 export class UserMenuPopoverSignOut {
   /** i18n key for the button label (default `userMenu.signOut`). */
-  labelKey?: string
+  labelKey?: UserMenuPopoverSignOutProps['labelKey']
   /** Fallback label (default `Sign out`). */
-  labelDefault?: string
+  labelDefault?: UserMenuPopoverSignOutProps['labelDefault']
   /** `data-mol-id` for the button (default `user-menu-sign-out`). */
-  dataMolId = 'user-menu-sign-out'
+  dataMolId?: UserMenuPopoverSignOutProps['dataMolId'] = 'user-menu-sign-out'
   /** Extra classes for the button. */
-  className?: string
+  className?: UserMenuPopoverSignOutProps['className']
 
   /** Auth state (the logout action). */
   readonly auth = useAuth()

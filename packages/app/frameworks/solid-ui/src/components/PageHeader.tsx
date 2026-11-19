@@ -10,7 +10,7 @@ import { useTranslation } from '@molecule/app-solid'
 import type { PageHeaderProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
-import { toStyleProps } from '../utilities/dom.js'
+import { toStyleProps, type WithRef } from '../utilities/dom.js'
 
 /**
  * Renders the PageHeader component.
@@ -21,7 +21,7 @@ import { toStyleProps } from '../utilities/dom.js'
  * @param props - The component props.
  * @returns The rendered page header JSX.
  */
-export const PageHeader: Component<PageHeaderProps> = (props) => {
+export const PageHeader: Component<WithRef<PageHeaderProps, HTMLDivElement>> = (props) => {
   const [local] = splitProps(props, [
     'title',
     'description',
@@ -31,6 +31,7 @@ export const PageHeader: Component<PageHeaderProps> = (props) => {
     'style',
     'testId',
     'automationId',
+    'ref',
   ])
 
   const { t } = useTranslation()
@@ -38,6 +39,9 @@ export const PageHeader: Component<PageHeaderProps> = (props) => {
 
   return (
     <div
+      ref={(el) => {
+        if (typeof local.ref === 'function') local.ref(el)
+      }}
       class={cm.cn(cm.pageHeader, local.className)}
       style={toStyleProps(local.style)}
       data-testid={local.testId}

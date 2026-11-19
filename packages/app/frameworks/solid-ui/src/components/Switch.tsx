@@ -4,12 +4,18 @@
  * @module
  */
 
-import { type Component, type JSX, onCleanup, onMount, Show, splitProps } from 'solid-js'
+import { type JSX, onCleanup, onMount, Show, splitProps } from 'solid-js'
 
 import type { SwitchProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
-import { reflectCheckedAtCreation, toStyleProps } from '../utilities/dom.js'
+import {
+  reactDomProps,
+  reflectCheckedAtCreation,
+  toStyleProps,
+  type WithRef,
+} from '../utilities/dom.js'
+import { withDisplayName } from './displayName.js'
 
 /**
  * Renders the Switch component.
@@ -28,7 +34,7 @@ import { reflectCheckedAtCreation, toStyleProps } from '../utilities/dom.js'
  * @param props - The component props.
  * @returns The rendered switch JSX.
  */
-export const Switch: Component<SwitchProps> = (props) => {
+export const Switch = withDisplayName<WithRef<SwitchProps, HTMLButtonElement>>((props) => {
   const [local, rest] = splitProps(props, [
     'label',
     'checked',
@@ -57,7 +63,7 @@ export const Switch: Component<SwitchProps> = (props) => {
     if (!input) return
     reflectCheckedAtCreation(input, !!local.checked)
     const listener = (event: Event): void => {
-      ;(local.onChange as ((event: Event) => void) | undefined)?.(event)
+      local.onChange?.(event)
       input.checked = !!local.checked
     }
     input.addEventListener('change', listener)
@@ -104,7 +110,7 @@ export const Switch: Component<SwitchProps> = (props) => {
           )}
           style={toStyleProps(local.style)}
           data-testid={local.testId}
-          {...(rest as JSX.ButtonHTMLAttributes<HTMLButtonElement>)}
+          {...reactDomProps(rest)}
         >
           <span data-state={state()} class={cm.switchThumb({ size: local.size ?? 'md' })} />
         </button>
@@ -114,4 +120,4 @@ export const Switch: Component<SwitchProps> = (props) => {
       </label>
     </>
   )
-}
+}, 'Switch')

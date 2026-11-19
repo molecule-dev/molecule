@@ -11,6 +11,7 @@
   import type { TextareaProps } from '../types.js'
 
   let {
+    ref = $bindable(null),
     size,
     label,
     error,
@@ -40,10 +41,8 @@
   const textareaId = $derived(id || name || generatedId)
   const textareaClasses = $derived(cm.cn(cm.textarea({ error: !!error, size }), className))
 
-  let textareaEl = $state<HTMLTextAreaElement | null>(null)
-
   const resize = (): void => {
-    const element = textareaEl
+    const element = ref
     if (!autoResize || !element) return
     element.style.height = 'auto'
     const lineHeight = parseInt(getComputedStyle(element).lineHeight) || 20
@@ -61,7 +60,7 @@
 
   // Uncontrolled usage catches real keystrokes through input events.
   $effect(() => {
-    const element = textareaEl
+    const element = ref
     if (!autoResize || !element) return
     element.addEventListener('input', resize)
     return () => element.removeEventListener('input', resize)
@@ -72,7 +71,7 @@
   const handleChange = (e: Event): void => {
     onChange?.(e)
     // Controlled value without a caller update keeps its prop value.
-    if (value !== undefined && textareaEl) textareaEl.value = value
+    if (value !== undefined && ref) ref.value = value
   }
 </script>
 
@@ -83,7 +82,7 @@
     >
   {/if}
   <textarea
-    bind:this={textareaEl}
+    bind:this={ref}
     id={textareaId}
     {name}
     value={shownValue}

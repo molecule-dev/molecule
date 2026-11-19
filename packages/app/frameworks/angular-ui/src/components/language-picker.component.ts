@@ -29,6 +29,38 @@ import { Modal } from './modal.component.js'
 import { MolTemplateOutlet } from './template-outlet.directive.js'
 
 /**
+ * Props for {@link LanguagePicker} (React's `LanguagePickerProps`, in
+ * Angular's form).
+ *
+ * React's `renderTrigger` is a render function receiving the open action;
+ * here it is a `TemplateRef<unknown>` whose context carries `open` (also as
+ * `$implicit`). Extra `<button>` attributes reach the trigger through the
+ * host (React's rest spread).
+ */
+export interface LanguagePickerProps {
+  /** i18n key for the trigger label / aria-label (default `footer.language`). */
+  labelKey?: string
+  /** Fallback label if the i18n key is missing (default `Language`). */
+  labelDefault?: string
+  /** i18n key for the modal title (default `languagePicker.modalTitle`). */
+  modalTitleKey?: string
+  /** Fallback modal title if the i18n key is missing (default `Choose language`). */
+  modalTitleDefault?: string
+  /** Icon glyph before the current locale name (default `globe`). */
+  icon?: IconName
+  /** Pixel size for the rendered icon (default 16). */
+  iconSize?: number
+  /** What the trigger renders: the locale name, its code, or the icon only. */
+  display?: 'name' | 'code' | 'icon'
+  /** Extra classes appended to the trigger button. */
+  className?: string
+  /** Inline style object for the trigger button (React camelCase). */
+  style?: Record<string, unknown>
+  /** Optional trigger replacement (a node value rendered as a template). */
+  renderTrigger?: TemplateRef<unknown>
+}
+
+/**
  * LanguagePicker component.
  *
  * React's root is a FRAGMENT (trigger button + locale modal), so the host is
@@ -57,7 +89,10 @@ import { MolTemplateOutlet } from './template-outlet.directive.js'
     style: 'display: contents',
   },
   template: `@if (asTemplate(renderTrigger); as customTrigger) {
-      <ng-container [molTemplateOutlet]="customTrigger"></ng-container>
+      <ng-container
+        [molTemplateOutlet]="customTrigger"
+        [molTemplateOutletContext]="triggerContext"
+      ></ng-container>
     } @else {
       <button
         #trigger
@@ -98,25 +133,34 @@ import { MolTemplateOutlet } from './template-outlet.directive.js'
 })
 export class LanguagePicker implements AfterViewInit, DoCheck {
   /** i18n key for the trigger label / aria-label (default `footer.language`). */
-  labelKey?: string
+  labelKey?: LanguagePickerProps['labelKey']
   /** Fallback label if the i18n key is missing (default `Language`). */
-  labelDefault?: string
+  labelDefault?: LanguagePickerProps['labelDefault']
   /** i18n key for the modal title (default `languagePicker.modalTitle`). */
-  modalTitleKey?: string
+  modalTitleKey?: LanguagePickerProps['modalTitleKey']
   /** Fallback modal title if the i18n key is missing (default `Choose language`). */
-  modalTitleDefault?: string
+  modalTitleDefault?: LanguagePickerProps['modalTitleDefault']
   /** Icon glyph before the current locale name (default `globe`). */
-  icon?: IconName
+  icon?: LanguagePickerProps['icon']
   /** Pixel size for the rendered icon (default 16). */
-  iconSize?: number
+  iconSize?: LanguagePickerProps['iconSize']
   /** What the trigger renders: the locale name, its code, or the icon only. */
-  display: 'name' | 'code' | 'icon' = 'name'
+  display?: LanguagePickerProps['display'] = 'name'
   /** Extra classes appended to the trigger button. */
-  className?: string
+  className?: LanguagePickerProps['className']
   /** Inline style object for the trigger button (React camelCase). */
-  style?: Record<string, unknown>
+  style?: LanguagePickerProps['style']
   /** Optional trigger replacement (a node value rendered as a template). */
-  renderTrigger?: unknown
+  renderTrigger?: LanguagePickerProps['renderTrigger']
+
+  /**
+   * The context a `renderTrigger` template receives: `open` (also as
+   * `$implicit`), React's `renderTrigger(open)` argument.
+   */
+  readonly triggerContext: Record<string, unknown> = {
+    $implicit: (): void => this.open(),
+    open: (): void => this.open(),
+  }
 
   /** The default trigger button. */
   @ViewChild('trigger') trigger?: ElementRef<HTMLButtonElement>

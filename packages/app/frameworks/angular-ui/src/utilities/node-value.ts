@@ -19,13 +19,15 @@ export function asTemplate(value: unknown): TemplateRef<unknown> | null {
 }
 
 /**
- * Renders a plain-string node value (React renders strings as text).
+ * Renders a plain-string (or numeric) node value (React renders both as text).
  *
  * @param value - The prop value.
  * @returns The text, or empty.
  */
 export function nodeText(value: unknown): string {
-  return typeof value === 'string' ? value : ''
+  if (typeof value === 'string') return value
+  if (typeof value === 'number') return String(value)
+  return ''
 }
 
 /**

@@ -14,6 +14,7 @@
   import IconGlyph from './IconGlyph.svelte'
 
   let {
+    ref = $bindable(null),
     type = 'text',
     size = 'md',
     align,
@@ -57,8 +58,6 @@
   )
   const valueProps = $derived({ value, defaultValue })
 
-  let inputEl = $state<HTMLInputElement | null>(null)
-
   $effect(() => {
     if (autoFocus) {
       const el = document.getElementById(inputId)
@@ -70,7 +69,7 @@
     onChange?.(e)
     // A controlled value without a caller update keeps its prop value, exactly
     // like React's controlled-input restore.
-    if (value !== undefined && inputEl) inputEl.value = value
+    if (value !== undefined && ref) ref.value = value
   }
 </script>
 
@@ -83,7 +82,7 @@
   <div class={cm.inputInner}>
     {#if leftElement}<div class={cm.inputLeftElement}>{@render leftElement()}</div>{/if}
     <input
-      bind:this={inputEl}
+      bind:this={ref}
       {type}
       id={inputId}
       {name}

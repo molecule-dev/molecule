@@ -4,27 +4,20 @@
  * @module
  */
 
-import {
-  type Component,
-  createEffect,
-  createUniqueId,
-  type JSX,
-  onCleanup,
-  Show,
-  splitProps,
-} from 'solid-js'
+import { createEffect, createUniqueId, onCleanup, Show, splitProps } from 'solid-js'
 
 import type { TextareaProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
-import { toStyleProps } from '../utilities/dom.js'
+import { reactDomProps, toStyleProps, type WithRef } from '../utilities/dom.js'
+import { withDisplayName } from './displayName.js'
 
 /**
  * Renders the Textarea component.
  * @param props - The component props.
  * @returns The rendered textarea JSX.
  */
-export const Textarea: Component<TextareaProps> = (props) => {
+export const Textarea = withDisplayName<WithRef<TextareaProps, HTMLTextAreaElement>>((props) => {
   const [local, rest] = splitProps(props, [
     'size',
     'label',
@@ -62,7 +55,7 @@ export const Textarea: Component<TextareaProps> = (props) => {
   // textarea restores the prop value after the event when the caller does
   // not adopt the typed one.
   const handleInput = (event: Event & { target: HTMLTextAreaElement }): void => {
-    ;(local.onChange as ((event: Event) => void) | undefined)?.(event)
+    local.onChange?.(event)
     if (local.value !== undefined) event.target.value = String(local.value)
   }
 
@@ -132,9 +125,9 @@ export const Textarea: Component<TextareaProps> = (props) => {
         )}
         data-testid={local.testId}
         onInput={handleInput}
-        onFocusIn={local.onFocus as JSX.EventHandlerUnion<HTMLTextAreaElement, FocusEvent>}
-        onFocusOut={local.onBlur as JSX.EventHandlerUnion<HTMLTextAreaElement, FocusEvent>}
-        {...(rest as JSX.TextareaHTMLAttributes<HTMLTextAreaElement>)}
+        onFocusIn={local.onFocus}
+        onFocusOut={local.onBlur}
+        {...reactDomProps(rest)}
       />
       <Show when={local.error}>
         <p id={`${textareaId()}-error`} class={cm.formError}>
@@ -148,4 +141,4 @@ export const Textarea: Component<TextareaProps> = (props) => {
       </Show>
     </div>
   )
-}
+}, 'Textarea')
