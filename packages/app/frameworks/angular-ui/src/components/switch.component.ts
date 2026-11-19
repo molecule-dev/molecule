@@ -20,7 +20,7 @@ import type { ColorVariant, MouseEventHandler, Size, UIClassMap } from '@molecul
 import { getClassMap } from '@molecule/app-ui'
 
 import type { HasElement } from '../utilities/element.js'
-import { moveRestAttributes, takeDataMolId } from '../utilities/rest-attrs.js'
+import { adoptHostDataMolId, moveRestAttributes } from '../utilities/rest-attrs.js'
 import { styleText } from '../utilities/style.js'
 import { hasNodes, SlotWrapper } from './button.component.js'
 import { MolControlledChecked } from './controlled-checked.directive.js'
@@ -225,8 +225,15 @@ export class Switch implements AfterViewChecked, HasElement<HTMLButtonElement> {
    * `{!!label && <span>}` label condition after queries resolve.
    */
   ngAfterViewChecked(): void {
+    adoptHostDataMolId(
+      this.host.nativeElement,
+      this.trigger?.nativeElement,
+      (id) => {
+        this.externalMolId = id
+      },
+      () => this.molId(),
+    )
     moveRestAttributes(this.host.nativeElement, this.trigger?.nativeElement)
-    this.externalMolId = takeDataMolId(this.host.nativeElement) ?? this.externalMolId
     this.hasLabel = !!this.label || hasNodes(this.labelSlot?.nativeElement)
     this.sync.sync(
       this.labelSlot?.nativeElement,

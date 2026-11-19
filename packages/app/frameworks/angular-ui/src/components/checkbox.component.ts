@@ -28,7 +28,7 @@ import type { HasElement } from '../utilities/element.js'
 import type { FormFieldContext } from '../utilities/form-field-context.js'
 import { fieldContext } from '../utilities/form-field-context.js'
 import { nextInstanceId } from '../utilities/ids.js'
-import { moveRestAttributes, takeDataMolId } from '../utilities/rest-attrs.js'
+import { adoptHostDataMolId, moveRestAttributes } from '../utilities/rest-attrs.js'
 import { styleText } from '../utilities/style.js'
 import { hasNodes, SlotWrapper } from './button.component.js'
 import { MolControlledChecked } from './controlled-checked.directive.js'
@@ -285,8 +285,15 @@ export class Checkbox implements AfterViewChecked, HasElement<HTMLInputElement> 
         this.restDescribedBy = this.host.nativeElement.getAttribute('aria-describedby')
         this.restDescribedByCaptured = true
       }
+      adoptHostDataMolId(
+        this.host.nativeElement,
+        input,
+        (id) => {
+          this.externalMolId = id
+        },
+        () => this.molId(),
+      )
       moveRestAttributes(this.host.nativeElement, input)
-      this.externalMolId = takeDataMolId(this.host.nativeElement) ?? this.externalMolId
       if (this.syncIndeterminate !== !!this.indeterminate) {
         input.indeterminate = !!this.indeterminate
         this.syncIndeterminate = !!this.indeterminate

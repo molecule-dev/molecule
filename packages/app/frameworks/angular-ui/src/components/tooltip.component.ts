@@ -7,6 +7,7 @@
 
 import {
   afterEveryRender,
+  type AfterViewChecked,
   type AfterViewInit,
   ChangeDetectorRef,
   Component,
@@ -23,7 +24,7 @@ import { getClassMap } from '@molecule/app-ui'
 
 import type { HasElement } from '../utilities/element.js'
 import { nextInstanceId } from '../utilities/ids.js'
-import { takeDataMolId } from '../utilities/rest-attrs.js'
+import { adoptHostDataMolId } from '../utilities/rest-attrs.js'
 import { styleText } from '../utilities/style.js'
 
 /** Arrow square size (px) before the 45° rotation that turns it into a diamond. */
@@ -207,7 +208,9 @@ function calculatePosition(
       }
     </div>`,
 })
-export class Tooltip implements AfterViewInit, DoCheck, OnDestroy, HasElement<HTMLDivElement> {
+export class Tooltip
+  implements AfterViewInit, AfterViewChecked, DoCheck, OnDestroy, HasElement<HTMLDivElement>
+{
   /** The tooltip content (node-valued prop). */
   content?: unknown
   /** The tooltip placement (default `top`). */
@@ -453,12 +456,34 @@ export class Tooltip implements AfterViewInit, DoCheck, OnDestroy, HasElement<HT
   }
 
   /**
+   * Puts a `data-mol-id` bound on the host onto the tooltip in the pass that bound it (the host
+   * attribute is written after this component's `ngDoCheck`).
+   */
+  ngAfterViewChecked(): void {
+    adoptHostDataMolId(
+      this.host.nativeElement,
+      this.contentEl?.nativeElement,
+      (id) => {
+        this.externalMolId = id
+      },
+      () => this.molId(),
+    )
+  }
+
+  /**
    * Reconciles visibility (and its portal/focus side effects) each pass. A
    * content or placement change while visible is handled after the render
    * (`repositionForContentChange`), matching React's layout effect.
    */
   ngDoCheck(): void {
-    this.externalMolId = takeDataMolId(this.host.nativeElement) ?? this.externalMolId
+    adoptHostDataMolId(
+      this.host.nativeElement,
+      this.contentEl?.nativeElement,
+      (id) => {
+        this.externalMolId = id
+      },
+      () => this.molId(),
+    )
     const visible = this.visible()
     if (visible === this.lastVisible) return
     this.lastVisible = visible

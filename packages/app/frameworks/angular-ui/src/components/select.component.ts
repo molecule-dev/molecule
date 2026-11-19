@@ -26,9 +26,9 @@ import { fieldContext } from '../utilities/form-field-context.js'
 import { nextInstanceId } from '../utilities/ids.js'
 import { MolIconSvg, type ResolvedIcon, resolveIcon } from '../utilities/render-icon.js'
 import {
+  adoptHostDataMolId,
   moveRestAttributes,
   reapplyRestAttributes,
-  takeDataMolId,
 } from '../utilities/rest-attrs.js'
 import { styleText } from '../utilities/style.js'
 
@@ -353,7 +353,14 @@ export class Select implements AfterViewInit, AfterViewChecked, HasElement<HTMLS
       this.restDescribedBy = this.host.nativeElement.getAttribute('aria-describedby')
       this.restDescribedByCaptured = true
     }
-    this.externalMolId = takeDataMolId(this.host.nativeElement) ?? this.externalMolId
+    adoptHostDataMolId(
+      this.host.nativeElement,
+      this.selectEl?.nativeElement,
+      (id) => {
+        this.externalMolId = id
+      },
+      () => this.molId(),
+    )
     moveRestAttributes(this.host.nativeElement, this.selectEl?.nativeElement)
     this.applyValue(true)
   }
@@ -371,7 +378,14 @@ export class Select implements AfterViewInit, AfterViewChecked, HasElement<HTMLS
     // detection never re-checks this view — the parent's re-bound
     // `[attr.aria-label]` would land on the host and stay there.
     void this.i18n.locale()
-    this.externalMolId = takeDataMolId(this.host.nativeElement) ?? this.externalMolId
+    adoptHostDataMolId(
+      this.host.nativeElement,
+      this.selectEl?.nativeElement,
+      (id) => {
+        this.externalMolId = id
+      },
+      () => this.molId(),
+    )
     reapplyRestAttributes(this.host.nativeElement, this.selectEl?.nativeElement)
     this.applyValue(false)
   }

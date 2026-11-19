@@ -27,9 +27,9 @@ import { createScrollLock, getFocusableElements } from '../utilities/focus.js'
 import type { ResolvedIcon } from '../utilities/render-icon.js'
 import { MolIconSvg, resolveIcon } from '../utilities/render-icon.js'
 import {
+  adoptHostDataMolId,
   moveRestAttributes,
   reapplyRestAttributes,
-  takeDataMolId,
 } from '../utilities/rest-attrs.js'
 import { styleText } from '../utilities/style.js'
 
@@ -318,7 +318,14 @@ export class Modal
     const dialog = this.dialog?.nativeElement
     this.footerParent = this.footerSlot?.nativeElement.parentElement ?? null
     if (dialog) {
-      this.externalMolId = takeDataMolId(this.host.nativeElement) ?? this.externalMolId
+      adoptHostDataMolId(
+        this.host.nativeElement,
+        dialog,
+        (id) => {
+          this.externalMolId = id
+        },
+        () => this.molId(),
+      )
       moveRestAttributes(this.host.nativeElement, dialog)
     }
     this.lastFooter = this.hasFooter()
@@ -365,7 +372,14 @@ export class Modal
    * nothing), so it re-moves that attribute too.
    */
   ngAfterViewChecked(): void {
-    this.externalMolId = takeDataMolId(this.host.nativeElement) ?? this.externalMolId
+    adoptHostDataMolId(
+      this.host.nativeElement,
+      this.dialog?.nativeElement,
+      (id) => {
+        this.externalMolId = id
+      },
+      () => this.molId(),
+    )
     reapplyRestAttributes(this.host.nativeElement, this.dialog?.nativeElement, {
       includeDescribedBy: true,
     })

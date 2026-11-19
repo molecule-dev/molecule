@@ -5,6 +5,7 @@
  */
 
 import {
+  type AfterViewChecked,
   type AfterViewInit,
   Component,
   type DoCheck,
@@ -23,7 +24,7 @@ import { getClassMap } from '@molecule/app-ui'
 import type { HasElement } from '../utilities/element.js'
 import type { ResolvedIcon } from '../utilities/render-icon.js'
 import { MolIconSvg, resolveIcon } from '../utilities/render-icon.js'
-import { takeDataMolId } from '../utilities/rest-attrs.js'
+import { adoptHostDataMolId } from '../utilities/rest-attrs.js'
 import { styleText } from '../utilities/style.js'
 import { hasNodes, SlotWrapper } from './button.component.js'
 import { Spinner } from './spinner.component.js'
@@ -135,7 +136,9 @@ import { MolTemplateOutlet } from './template-outlet.directive.js'
       </tbody>
     </table>`,
 })
-export class Table implements AfterViewInit, DoCheck, HasElement<HTMLTableElement> {
+export class Table
+  implements AfterViewInit, AfterViewChecked, DoCheck, HasElement<HTMLTableElement>
+{
   /** The rows. */
   data: Record<string, unknown>[] = []
   /** The columns. */
@@ -437,11 +440,33 @@ export class Table implements AfterViewInit, DoCheck, HasElement<HTMLTableElemen
   }
 
   /**
+   * Puts a `data-mol-id` bound on the host onto the table in the pass that bound it (the host
+   * attribute is written after this component's `ngDoCheck`).
+   */
+  ngAfterViewChecked(): void {
+    adoptHostDataMolId(
+      this.host.nativeElement,
+      this.inner(),
+      (id) => {
+        this.externalMolId = id
+      },
+      () => this.molId(),
+    )
+  }
+
+  /**
    * Re-reconciles the empty content (the empty cell is re-created when the
    * data length changes).
    */
   ngDoCheck(): void {
-    this.externalMolId = takeDataMolId(this.host.nativeElement) ?? this.externalMolId
+    adoptHostDataMolId(
+      this.host.nativeElement,
+      this.inner(),
+      (id) => {
+        this.externalMolId = id
+      },
+      () => this.molId(),
+    )
     const cell = this.emptyCell?.nativeElement
     if (!cell || !this.hasEmpty()) return
     if (this.adoptedEmpty.some((node) => node.parentNode !== cell)) {

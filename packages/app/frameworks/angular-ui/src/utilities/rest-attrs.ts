@@ -100,3 +100,30 @@ export function takeDataMolId(host: Element): string | undefined {
   host.removeAttribute('data-mol-id')
   return value
 }
+
+/**
+ * Takes a `data-mol-id` the caller bound on the host (`[attr.data-mol-id]`) and writes the id the
+ * component renders onto its element in the same pass, as React spreads it there in the render that
+ * passed it. Call it from `ngAfterViewInit` and `ngAfterViewChecked`, before
+ * {@link moveRestAttributes} / {@link reapplyRestAttributes}: by then the host attribute of this pass
+ * is written, while the element's own `[attr.data-mol-id]` binding already ran. A component that
+ * only stored the id showed it a change detection late, and a move that ran first carried the raw
+ * host value over the component's own `automationId`.
+ *
+ * @param host - The component host element.
+ * @param target - The element that carries the id, when rendered.
+ * @param store - Keeps the taken host id for the component's `molId()`.
+ * @param molId - The id the component renders, read after `store`.
+ */
+export function adoptHostDataMolId(
+  host: Element,
+  target: Element | undefined | null,
+  store: (hostId: string) => void,
+  molId: () => string | undefined,
+): void {
+  const hostId = takeDataMolId(host)
+  if (hostId === undefined) return
+  store(hostId)
+  const id = molId()
+  if (id !== undefined) target?.setAttribute('data-mol-id', id)
+}

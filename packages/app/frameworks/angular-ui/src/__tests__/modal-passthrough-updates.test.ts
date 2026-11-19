@@ -76,6 +76,7 @@ const StateHost: Type<unknown> = Component({
       title="State"
       [attr.aria-label]="label()"
       [attr.data-state]="state()"
+      [attr.data-mol-id]="molId()"
       >body</mol-modal
     >`,
 })(
@@ -84,11 +85,14 @@ const StateHost: Type<unknown> = Component({
     readonly label = signal('First label')
     /** A pass-through `data-*` attribute. */
     readonly state = signal('one')
+    /** The dialog's automation id, bound on the host. */
+    readonly molId = signal('search-dialog')
 
-    /** Changes both bound values (React's next render). */
+    /** Changes the bound values (React's next render). */
     change(): void {
       this.label.set('Second label')
       this.state.set('two')
+      this.molId.set('search-dialog-2')
     }
   },
 )
@@ -147,6 +151,17 @@ describe('Modal pass-through attributes follow updates', () => {
 
     expect(dialog().getAttribute('aria-label')).toBe('Second label')
     expect(dialog().getAttribute('data-state')).toBe('two')
+  })
+
+  it('a data-mol-id bound on the host is on the dialog after the first pass, and follows changes', async () => {
+    await mountHost(StateHost)
+    expect(dialog().getAttribute('data-mol-id')).toBe('search-dialog')
+    expect(document.querySelector('mol-modal')?.hasAttribute('data-mol-id')).toBe(false)
+
+    document.querySelector<HTMLElement>('button')!.click()
+    appRef.tick()
+
+    expect(dialog().getAttribute('data-mol-id')).toBe('search-dialog-2')
   })
 
   it('a translated aria-label follows a locale switch while the dialog is open', async () => {

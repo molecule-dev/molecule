@@ -25,9 +25,9 @@ import type { FormFieldContext } from '../utilities/form-field-context.js'
 import { fieldContext } from '../utilities/form-field-context.js'
 import { nextInstanceId } from '../utilities/ids.js'
 import {
+  adoptHostDataMolId,
   moveRestAttributes,
   reapplyRestAttributes,
-  takeDataMolId,
 } from '../utilities/rest-attrs.js'
 import { styleText } from '../utilities/style.js'
 
@@ -317,7 +317,14 @@ export class Textarea implements AfterViewInit, AfterViewChecked, HasElement<HTM
       this.restDescribedBy = this.host.nativeElement.getAttribute('aria-describedby')
       this.restDescribedByCaptured = true
     }
-    this.externalMolId = takeDataMolId(this.host.nativeElement) ?? this.externalMolId
+    adoptHostDataMolId(
+      this.host.nativeElement,
+      this.textareaEl?.nativeElement,
+      (id) => {
+        this.externalMolId = id
+      },
+      () => this.molId(),
+    )
     moveRestAttributes(this.host.nativeElement, this.textareaEl?.nativeElement)
     this.applyValue(true)
     this.resize()
@@ -337,7 +344,14 @@ export class Textarea implements AfterViewInit, AfterViewChecked, HasElement<HTM
     // detection never re-checks this view — the parent's re-bound
     // `[attr.aria-label]` would land on the host and stay there.
     void this.i18n.locale()
-    this.externalMolId = takeDataMolId(this.host.nativeElement) ?? this.externalMolId
+    adoptHostDataMolId(
+      this.host.nativeElement,
+      this.textareaEl?.nativeElement,
+      (id) => {
+        this.externalMolId = id
+      },
+      () => this.molId(),
+    )
     reapplyRestAttributes(this.host.nativeElement, this.textareaEl?.nativeElement)
     this.applyValue(false)
     this.resize()

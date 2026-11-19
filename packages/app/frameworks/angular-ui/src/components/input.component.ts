@@ -6,6 +6,7 @@
 
 import { NgTemplateOutlet } from '@angular/common'
 import {
+  type AfterViewChecked,
   Component,
   type DoCheck,
   ElementRef,
@@ -28,9 +29,9 @@ import { fieldContext } from '../utilities/form-field-context.js'
 import { nextInstanceId } from '../utilities/ids.js'
 import { MolIconSvg, type ResolvedIcon, resolveIcon } from '../utilities/render-icon.js'
 import {
+  adoptHostDataMolId,
   moveRestAttributes,
   reapplyRestAttributes,
-  takeDataMolId,
 } from '../utilities/rest-attrs.js'
 import { styleText } from '../utilities/style.js'
 import { hasNodes, SlotWrapper } from './button.component.js'
@@ -146,7 +147,7 @@ import { hasNodes, SlotWrapper } from './button.component.js'
       <p [attr.id]="inputId() + '-hint'" [class]="cm().formHint">{{ hint }}</p>
     }`,
 })
-export class Input implements DoCheck, HasElement<HTMLInputElement> {
+export class Input implements AfterViewChecked, DoCheck, HasElement<HTMLInputElement> {
   /** Input type. */
   type?: string
   /** Input size. */
@@ -367,6 +368,21 @@ export class Input implements DoCheck, HasElement<HTMLInputElement> {
   }
 
   /**
+   * Puts a `data-mol-id` bound on the host onto the input in the pass that bound it (the host
+   * attribute is written after this component's `ngDoCheck`).
+   */
+  ngAfterViewChecked(): void {
+    adoptHostDataMolId(
+      this.host.nativeElement,
+      this.inputEl?.nativeElement ?? this.host.nativeElement.querySelector('input'),
+      (id) => {
+        this.externalMolId = id
+      },
+      () => this.molId(),
+    )
+  }
+
+  /**
    * Reconciles the adornment wrappers every check: detects projected slot
    * content (view queries resolve only at view init, so the very first pass —
    * which runs before the view's bindings — falls back to structural sibling
@@ -405,12 +421,26 @@ export class Input implements DoCheck, HasElement<HTMLInputElement> {
     if (!this.movedRest && input) {
       this.restDescribedBy = host.getAttribute('aria-describedby')
       this.movedRest = true
-      this.externalMolId = takeDataMolId(host) ?? this.externalMolId
+      adoptHostDataMolId(
+        host,
+        input,
+        (id) => {
+          this.externalMolId = id
+        },
+        () => this.molId(),
+      )
       moveRestAttributes(host, input)
     }
     // A caller's re-bound rest attribute (`[attr.aria-label]` following a
     // locale switch) lands back on the host; move it onto the input again.
-    this.externalMolId = takeDataMolId(host) ?? this.externalMolId
+    adoptHostDataMolId(
+      host,
+      input,
+      (id) => {
+        this.externalMolId = id
+      },
+      () => this.molId(),
+    )
     reapplyRestAttributes(host, input)
     // React's controlled input: the live value always follows the `value` prop
     // after a re-render (the binding sets the attribute; the property is only
