@@ -1,6 +1,6 @@
 /**
  * `@molecule/app-header-react` cases: brand link, the default theme toggle,
- * action slots and the fixed / static bar.
+ * action slots, the fixed / static bar and the primary navigation landmark.
  *
  * @module
  */
@@ -60,6 +60,43 @@ export const headerFeature: FeatureCases = {
           props: { appName: 'Acme' },
           context: { theme: 'light' },
           interactions: [{ type: 'click', selector: 'header button' }],
+        },
+        {
+          name: 'a primary navigation landmark with one link per destination',
+          props: {
+            appName: 'Acme',
+            navigation: {
+              label: 'Primary',
+              links: {
+                '/articles': { children: 'Articles' },
+                '/editor': { children: 'Write', className: 'parity-token', 'aria-current': 'page' },
+              },
+              className: 'parity-token',
+              listClassName: 'parity-token',
+              itemClassName: 'parity-token',
+            },
+          },
+        },
+        {
+          name: 'a navigation link navigates in-app',
+          props: {
+            appName: 'Acme',
+            navigation: { label: 'Primary', links: { '/articles': { children: 'Articles' } } },
+          },
+          context: { route: '/settings' },
+          interactions: [{ type: 'click', selector: 'nav li a' }],
+        },
+        {
+          name: 'modified clicks on a navigation link are left to the browser',
+          props: {
+            appName: 'Acme',
+            navigation: { label: 'Primary', links: { '/articles': { children: 'Articles' } } },
+          },
+          context: { route: '/settings' },
+          interactions: [
+            { type: 'click', selector: 'nav li a', modifiers: { ctrlKey: true } },
+            { type: 'click', selector: 'nav li a', modifiers: { metaKey: true } },
+          ],
         },
         {
           name: 'name changes',

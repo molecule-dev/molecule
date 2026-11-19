@@ -5,6 +5,51 @@
  * @module
  */
 
+import type { TemplateRef } from '@angular/core'
+
+/**
+ * One destination of an {@link AppHeaderNavigation} — React's link props with
+ * `to` removed (the map key is the destination) plus the link's content.
+ *
+ * The visible content React passes as `children` is a string, a number, or an
+ * embedded template rendered with `ngTemplateOutlet`, so an icon and its text
+ * share one native link and one keyboard stop.
+ *
+ * Not exported: React exports no such name.
+ */
+interface AppHeaderNavigationLink {
+  /**
+   * Content of the link. Put a destination's icon and text in the same
+   * children so they share one native link and one keyboard stop.
+   */
+  children: string | number | TemplateRef<unknown>
+  /** The anchor's `className` (React's link prop). */
+  className?: string
+  /** Replace the current history entry instead of pushing one. */
+  replace?: boolean
+  /** State stored with the new history entry. */
+  state?: unknown
+  /** Any other anchor attribute (`target`, `rel`, `aria-*`, `data-*`, event handlers, …). */
+  [attribute: string]: unknown
+}
+
+/**
+ * A primary navigation landmark with one link per declared destination —
+ * the Angular form of `@molecule/app-header-react`'s `navigation` prop.
+ */
+export interface AppHeaderNavigation {
+  /** Accessible name for the navigation landmark. */
+  label: string
+  /** Router destinations mapped to their link props, the destination itself being the key. */
+  links: Readonly<Record<string, AppHeaderNavigationLink>>
+  /** Additional class on the native nav element. */
+  className?: string
+  /** Additional class on the links' list. */
+  listClassName?: string
+  /** Additional class on each list item. */
+  itemClassName?: string
+}
+
 /**
  * Props for `AppHeader` — the same props `@molecule/app-header-react`
  * accepts. Node props (`userMenu`, `themeToggle`, `extraActions`) are
@@ -22,6 +67,14 @@ export interface AppHeaderProps {
   logoSize?: number
   /** Path the brand link navigates to. Defaults to `/`. */
   brandTo?: string
+  /** Additional class on the brand anchor. */
+  brandClassName?: string
+  /**
+   * Primary destinations, rendered inside the navigation landmark that
+   * wraps the header's brand and actions (React's `navigation`). Without it
+   * the header keeps a plain brand-and-actions wrapper with no `<nav>`.
+   */
+  navigation?: AppHeaderNavigation
   /** Slot for the right-side user menu, projected as `[slot=userMenu]` content. */
   userMenu?: unknown
   /**

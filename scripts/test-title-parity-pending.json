@@ -517,13 +517,6 @@
     "delegates stopPeriodicChecks to provider",
     "unsubscribes from all events on unmount"
   ],
-  "@molecule/app-avatar-stack-angular": [
-    "renders one canonical name link per byline, with the avatar outside it",
-    "keeps an action and subtitle outside the identity link",
-    "supports independent copies in a header and footer without suppressing either",
-    "preserves an unlinked identity, forwarded attributes and escaped display names",
-    "forwards router and link attributes to the canonical name link"
-  ],
   "@molecule/app-avatar-stack-solid": [
     "renders one canonical name link per byline, with the avatar outside it",
     "keeps an action and subtitle outside the identity link",
@@ -556,22 +549,6 @@
   ],
   "@molecule/app-feature-thread-tree-vue": [
     "wraps an unbroken project comment without dropping any text"
-  ],
-  "@molecule/app-header-angular": [
-    "renders the brand and each declared destination as links in the primary navigation landmark",
-    "keeps a brand-and-actions header without a primary navigation landmark"
-  ],
-  "@molecule/app-header-solid": [
-    "renders the brand and each declared destination as links in the primary navigation landmark",
-    "keeps a brand-and-actions header without a primary navigation landmark"
-  ],
-  "@molecule/app-header-svelte": [
-    "renders the brand and each declared destination as links in the primary navigation landmark",
-    "keeps a brand-and-actions header without a primary navigation landmark"
-  ],
-  "@molecule/app-header-vue": [
-    "renders the brand and each declared destination as links in the primary navigation landmark",
-    "keeps a brand-and-actions header without a primary navigation landmark"
   ],
   "@molecule/app-query-angular": [
     "does not advertise a previous empty collection while the new view is pending (%s)"

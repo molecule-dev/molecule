@@ -135,6 +135,88 @@ const render = (
 }
 
 describe('AppHeader', () => {
+  it('renders the brand and each declared destination as links in the primary navigation landmark', () => {
+    // Held outside the props literal: anchor attributes such as `class` and
+    // `aria-current` reach the anchor through Vue's attrs, not the link's
+    // typed props (react-router's LinkProps types them directly).
+    const accountLink = {
+      className: 'account-link',
+      'aria-current': 'page',
+      children: [h('span', null, [h('img', { src: '/avatar.png', alt: '' }), 'My notebook'])],
+    }
+    const markup = render(
+      {
+        appName: 'Field Notes',
+        brandClassName: 'wordmark',
+        navigation: {
+          label: 'Site',
+          className: 'site-navigation',
+          listClassName: 'site-links',
+          itemClassName: 'site-link-item',
+          links: {
+            '/': { children: 'Home' },
+            '/notebooks/42': accountLink,
+          },
+        },
+        extraActions: h('button', { type: 'button' }, 'Preferences'),
+      },
+      undefined,
+      { router: true },
+    )
+    const nav = markup.match(/<nav\b[^>]*aria-label="Site"[^>]*>([\s\S]+?)<\/nav>/)?.[1]
+    expect(nav).toBeDefined()
+    expect(markup).toMatch(/<nav[^>]*class="[^"]*site-navigation"/)
+    expect(nav).toMatch(/<a[^>]*class="wordmark"[^>]*href="\/"/)
+    expect(nav).toContain('<ul class="site-links">')
+    expect(nav?.match(/<li class="site-link-item">/g)).toHaveLength(2)
+    expect(nav?.match(/href="\/notebooks\/42"/g)).toHaveLength(1)
+    expect(nav).toMatch(
+      /<a[^>]*class="account-link"[^>]*aria-current="page"[^>]*>.*avatar\.png.*My notebook.*<\/a>/,
+    )
+    expect(nav?.match(/href="\/"/g)).toHaveLength(2)
+    expect(nav).toContain('Preferences')
+  })
+
+  it("passes a destination's replace and state to the router", () => {
+    // `replace` and `state` are the parts of `LinkProps` a navigation entry
+    // carries besides `to` (the map key) and its children; they reach the
+    // router through `Link`, exactly as react-router's `<Link>` receives them.
+    const target = createMemoryRouter({ initialEntries: ['/settings'] })
+    const host = document.createElement('div')
+    document.body.appendChild(host)
+    const app = createApp(
+      defineComponent({
+        render: () =>
+          h(AppHeader, {
+            appName: 'Acme',
+            navigation: {
+              label: 'Site',
+              links: { '/home': { replace: true, state: { from: 'nav' }, children: 'Home' } },
+            },
+          }),
+      }),
+    )
+    app.use(createRouterPlugin(target))
+    app.mount(host)
+    const link = host.querySelector('ul a')
+    expect(link?.getAttribute('href')).toBe('/home')
+    link?.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }))
+    expect(target.getLocation().pathname).toBe('/home')
+    expect(target.getLocation().state).toEqual({ from: 'nav' })
+    app.unmount()
+    host.remove()
+  })
+
+  it('keeps a brand-and-actions header without a primary navigation landmark', () => {
+    const markup = render({
+      appName: 'Field Notes',
+      extraActions: h('button', { type: 'button' }, 'Preferences'),
+    })
+    expect(markup).toContain('Field Notes')
+    expect(markup).toContain('Preferences')
+    expect(markup).not.toContain('<nav')
+  })
+
   it('renders the appName and the logo image', () => {
     const markup = render({ appName: 'Acme' })
     expect(markup).toContain('Acme')

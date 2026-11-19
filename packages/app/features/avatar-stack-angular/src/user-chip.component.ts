@@ -18,9 +18,25 @@ import {
 
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
-import { Avatar, hasNodes, styleText } from '@molecule/app-ui-angular'
+import { Avatar, ElementPropsWriter, hasNodes, styleText } from '@molecule/app-ui-angular'
 
 import type { UserChipProps } from './types.js'
+
+/**
+ * `nameLinkProps` keys the template owns: `href` is the input, `className` /
+ * `class` are composed into the template's `[class]` binding, the style is
+ * serialized by `nameLinkStyle()`, and the rest cannot replace the name or the
+ * profile `data-mol-id`.
+ */
+const OWNED_NAME_LINK_KEYS = new Set([
+  'className',
+  'class',
+  'href',
+  'children',
+  'innerHTML',
+  'textContent',
+  'style',
+])
 
 /**
  * UserChip component.
@@ -78,8 +94,7 @@ export class UserChip implements AfterViewInit, AfterViewChecked, OnDestroy {
 
   private readonly renderer = inject(Renderer2)
   private renderedNameLink?: HTMLAnchorElement
-  private appliedNameLinkProps = new Map<string, unknown>()
-  private readonly nameLinkListeners = new Map<string, () => void>()
+  private nameLinkWriter?: ElementPropsWriter
 
   /** Whether the subtitle span renders (withdrawn when nothing fills it). */
   private readonly subtitleProjected = signal(true)
@@ -163,68 +178,24 @@ export class UserChip implements AfterViewInit, AfterViewChecked, OnDestroy {
   ngAfterViewChecked(): void {
     const link = this.nameLink?.nativeElement
     if (link !== this.renderedNameLink) {
-      this.clearNameLinkListeners()
-      this.appliedNameLinkProps.clear()
+      this.nameLinkWriter?.destroy()
+      this.nameLinkWriter = undefined
       this.renderedNameLink = link
     }
     if (!link) return
-
-    const next = new Map<string, unknown>(
-      Object.entries({ 'data-mol-id': 'user-chip-profile', ...this.nameLinkProps }),
+    this.nameLinkWriter ??= new ElementPropsWriter(this.renderer, link)
+    // The profile id is the default: a caller's own `data-mol-id` wins, as
+    // React's spread order does.
+    this.nameLinkWriter.write(
+      { 'data-mol-id': 'user-chip-profile', ...this.nameLinkProps },
+      OWNED_NAME_LINK_KEYS,
     )
-    // These are owned by the template: href and children cannot replace the profile/name.
-    for (const key of [
-      'className',
-      'class',
-      'href',
-      'children',
-      'innerHTML',
-      'textContent',
-      'style',
-    ])
-      next.delete(key)
-    for (const key of new Set([...this.appliedNameLinkProps.keys(), ...next.keys()])) {
-      const value = next.get(key)
-      if (this.appliedNameLinkProps.has(key) && this.appliedNameLinkProps.get(key) === value)
-        continue
-      this.nameLinkListeners.get(key)?.()
-      this.nameLinkListeners.delete(key)
-      if (/^on[A-Z]/.test(key)) {
-        if (typeof value === 'function') {
-          const capture = key.endsWith('Capture')
-          const event = key.slice(2, capture ? -7 : undefined).toLowerCase()
-          this.nameLinkListeners.set(
-            key,
-            this.renderer.listen(
-              link,
-              event === 'doubleclick' ? 'dblclick' : event,
-              (event: Event) => {
-                value(event)
-              },
-              { capture },
-            ),
-          )
-        }
-      } else if (!key.startsWith('on')) {
-        const textBoolean = /^(aria-|data-)|^(contentEditable|draggable|spellCheck)$/.test(key)
-        if (value == null || (value === false && !textBoolean))
-          this.renderer.removeAttribute(link, key)
-        else
-          this.renderer.setAttribute(link, key, value === true && !textBoolean ? '' : String(value))
-      }
-    }
-    this.appliedNameLinkProps = next
   }
 
   /** Removes link listeners when the chip unmounts. */
   ngOnDestroy(): void {
-    this.clearNameLinkListeners()
-  }
-
-  /** Removes listeners when the anchor is replaced or the chip unmounts. */
-  private clearNameLinkListeners(): void {
-    for (const remove of this.nameLinkListeners.values()) remove()
-    this.nameLinkListeners.clear()
+    this.nameLinkWriter?.destroy()
+    this.nameLinkWriter = undefined
   }
 
   /**

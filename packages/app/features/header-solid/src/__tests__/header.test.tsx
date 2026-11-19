@@ -1,10 +1,12 @@
 // @vitest-environment jsdom
-import type { Context, JSX } from 'solid-js'
+import type { JSX } from 'solid-js'
 import { render } from 'solid-js/web'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { createSimpleI18nProvider } from '@molecule/app-i18n'
 import { createMemoryRouter } from '@molecule/app-routing'
 import type * as SolidBinding from '@molecule/app-solid'
+import type { I18nProvider, ThemeProvider } from '@molecule/app-solid'
 
 // Proxy ClassMap echoing each accessed member back as its token (e.g.
 // `headerBar`), so tests can assert which cm.* call was applied without a
@@ -46,22 +48,33 @@ vi.mock('@molecule/app-solid', async (importOriginal) => {
   const actual = await importOriginal<typeof SolidBinding>()
   const { createContext } = await import('solid-js')
   return {
-    ThemeContext: createContext<unknown>(),
-    I18nContext: createContext<unknown>(),
+    ThemeContext: createContext<ThemeProvider>(),
+    I18nContext: createContext<I18nProvider>(),
     Link: actual.Link,
     RouterContext: actual.RouterContext,
   }
 })
 
 const { AppHeader } = await import('../AppHeader.jsx')
-const { ThemeContext, I18nContext } = (await import('@molecule/app-solid')) as unknown as {
-  ThemeContext: Context<unknown>
-  I18nContext: Context<unknown>
-}
+const { ThemeContext, I18nContext } = await import('@molecule/app-solid')
 const { RouterContext } = await import('@molecule/app-solid')
-const { UserMenu } = (await import('@molecule/app-ui-solid')) as unknown as {
-  UserMenu: (props: { children?: JSX.Element }) => JSX.Element
+const { UserMenu } = await import('@molecule/app-ui-solid')
+
+/**
+ * A `ThemeProvider` value: the header only probes `ThemeContext` for presence,
+ * and the mocked `ThemeToggle` reads nothing from it, so `getTheme` never runs.
+ */
+const themeProvider: ThemeProvider = {
+  getTheme: () => {
+    throw new Error('the header only probes ThemeContext for presence')
+  },
+  setTheme: () => {},
+  toggleMode: () => {},
+  subscribe: () => () => {},
 }
+
+/** A real in-memory `I18nProvider` — again, presence alone is what matters here. */
+const i18nProvider: I18nProvider = createSimpleI18nProvider()
 
 const disposers: Array<() => void> = []
 
@@ -93,12 +106,62 @@ function mount(view: () => JSX.Element): HTMLElement {
  * would render above the providers and miss their contexts.
  */
 const withProviders = (view: () => JSX.Element): JSX.Element => (
-  <ThemeContext.Provider value={{}}>
-    <I18nContext.Provider value={{}}>{view()}</I18nContext.Provider>
+  <ThemeContext.Provider value={themeProvider}>
+    <I18nContext.Provider value={i18nProvider}>{view()}</I18nContext.Provider>
   </ThemeContext.Provider>
 )
 
 describe('AppHeader', () => {
+  it('renders the brand and each declared destination as links in the primary navigation landmark', () => {
+    const markup = mount(() => (
+      <AppHeader
+        appName="Field Notes"
+        brandClassName="wordmark"
+        navigation={{
+          label: 'Site',
+          className: 'site-navigation',
+          listClassName: 'site-links',
+          itemClassName: 'site-link-item',
+          links: {
+            '/': { children: 'Home' },
+            '/notebooks/42': {
+              className: 'account-link',
+              'aria-current': 'page',
+              children: (
+                <span>
+                  <img src="/avatar.png" alt="" />
+                  My notebook
+                </span>
+              ),
+            },
+          },
+        }}
+        extraActions={<button type="button">Preferences</button>}
+      />
+    )).innerHTML
+    const nav = markup.match(/<nav\b[^>]*aria-label="Site"[^>]*>([\s\S]+?)<\/nav>/)?.[1]
+    expect(nav).toBeDefined()
+    expect(markup).toMatch(/<nav[^>]*class="[^"]*site-navigation"/)
+    expect(nav).toMatch(/<a[^>]*class="wordmark"[^>]*href="\/"/)
+    expect(nav).toContain('<ul class="site-links">')
+    expect(nav?.match(/<li class="site-link-item">/g)).toHaveLength(2)
+    expect(nav?.match(/href="\/notebooks\/42"/g)).toHaveLength(1)
+    expect(nav).toMatch(
+      /<a[^>]*class="account-link"[^>]*aria-current="page"[^>]*>.*avatar\.png.*My notebook.*<\/a>/,
+    )
+    expect(nav?.match(/href="\/"/g)).toHaveLength(2)
+    expect(nav).toContain('Preferences')
+  })
+
+  it('keeps a brand-and-actions header without a primary navigation landmark', () => {
+    const markup = mount(() => (
+      <AppHeader appName="Field Notes" extraActions={<button type="button">Preferences</button>} />
+    )).innerHTML
+    expect(markup).toContain('Field Notes')
+    expect(markup).toContain('Preferences')
+    expect(markup).not.toContain('<nav')
+  })
+
   it('renders the appName and the logo image', () => {
     const container = mount(() => <AppHeader appName="Acme" />)
     expect(container.innerHTML).toContain('Acme')
@@ -139,13 +202,13 @@ describe('AppHeader', () => {
 
   it('omits the default toggle when only ONE of the two providers is present', () => {
     const onlyTheme = mount(() => (
-      <ThemeContext.Provider value={{}}>
+      <ThemeContext.Provider value={themeProvider}>
         <AppHeader appName="Acme" />
       </ThemeContext.Provider>
     ))
     expect(onlyTheme.querySelector('[data-theme-toggle]')).toBeNull()
     const onlyI18n = mount(() => (
-      <I18nContext.Provider value={{}}>
+      <I18nContext.Provider value={i18nProvider}>
         <AppHeader appName="Acme" />
       </I18nContext.Provider>
     ))

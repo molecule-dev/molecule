@@ -1,5 +1,6 @@
 import type { Component, JSX } from 'solid-js'
-import { useContext } from 'solid-js'
+import { For, useContext } from 'solid-js'
+import { Dynamic } from 'solid-js/web'
 
 import { I18nContext, Link, ThemeContext } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
@@ -49,21 +50,42 @@ export const AppHeader: Component<AppHeaderProps> = (props) => {
   const logoSize = (): number => props.logoSize ?? 30
   const brandTo = (): string => props.brandTo ?? '/'
   const fixed = (): boolean => props.fixed ?? true
+  /** The brand+actions bar is a `nav` landmark only when destinations are declared. */
+  const Inner = (): 'nav' | 'div' => (props.navigation ? 'nav' : 'div')
 
   return (
     <header
       class={cm.cn(cm.headerBar, fixed() ? cm.headerFixed : '', props.className)}
       data-mol-id={props.dataMolId}
     >
-      <div class={cm.headerInner}>
+      <Dynamic
+        component={Inner()}
+        class={
+          props.navigation?.className
+            ? cm.cn(cm.headerInner, props.navigation.className)
+            : cm.headerInner
+        }
+        aria-label={props.navigation?.label}
+      >
         <Flex align="center" justify="between" className={cm.h('full')}>
-          <Link to={brandTo()}>
+          <Link to={brandTo()} class={props.brandClassName}>
             <Flex align="center" gap="xs">
               <img src={logoSrc()} width={logoSize()} height={logoSize()} alt="" />
               <span class={cm.logoText}>{props.appName}</span>
             </Flex>
           </Link>
           <Flex align="center" gap="sm">
+            {props.navigation && (
+              <ul class={props.navigation.listClassName}>
+                <For each={Object.entries(props.navigation.links)}>
+                  {([to, { className, ...link }]) => (
+                    <li class={props.navigation?.itemClassName}>
+                      <Link class={className} {...link} to={to} />
+                    </li>
+                  )}
+                </For>
+              </ul>
+            )}
             {/* React's default parameter: an omitted slot falls back to the
                 resilient default toggle; an explicit `null` force-hides it. */}
             {props.themeToggle !== undefined ? props.themeToggle : <DefaultThemeToggle />}
@@ -71,7 +93,7 @@ export const AppHeader: Component<AppHeaderProps> = (props) => {
             {props.userMenu}
           </Flex>
         </Flex>
-      </div>
+      </Dynamic>
     </header>
   )
 }

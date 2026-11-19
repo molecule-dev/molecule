@@ -1,5 +1,30 @@
 import type { JSX } from 'solid-js'
 
+import type { LinkProps } from '@molecule/app-solid'
+
+/** A primary navigation landmark with one link per declared destination. */
+export interface AppHeaderNavigation {
+  /** Accessible name for the navigation landmark. */
+  label: string
+  /**
+   * Router destinations mapped to anchor props. Put a destination's icon and text in
+   * the same children so they share one native link and one keyboard stop. The
+   * anchor's class is `className`, as in React's entries.
+   */
+  links: Readonly<
+    Record<
+      string,
+      Omit<LinkProps, 'to' | 'children' | 'class'> & { children: JSX.Element; className?: string }
+    >
+  >
+  /** Additional class on the native nav element. */
+  className?: string
+  /** Additional class on the links' list. */
+  listClassName?: string
+  /** Additional class on each list item. */
+  itemClassName?: string
+}
+
 /** Props for the {@link AppHeader} component. */
 export interface AppHeaderProps {
   /** Brand display name shown next to the logo. */
@@ -10,6 +35,10 @@ export interface AppHeaderProps {
   logoSize?: number
   /** Path the brand link navigates to. Defaults to `/`. */
   brandTo?: string
+  /** Additional class on the brand anchor. */
+  brandClassName?: string
+  /** Primary destinations, such as public links or links for the current session. */
+  navigation?: AppHeaderNavigation
   /** Slot for the right-side user menu — typically `<UserMenu />` from `@molecule/app-ui-solid`. */
   userMenu?: JSX.Element
   /**

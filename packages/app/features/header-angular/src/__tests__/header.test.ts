@@ -21,13 +21,16 @@ import {
   type EnvironmentProviders,
   type Provider,
   provideZonelessChangeDetection,
+  signal,
   type Type,
+  type WritableSignal,
 } from '@angular/core'
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import type * as AngularBinding from '@molecule/app-angular'
 import { createMemoryRouter } from '@molecule/app-routing'
+import type * as AppUiAngular from '@molecule/app-ui-angular'
 
 // Proxy ClassMap echoing each accessed member back as its token (e.g. `headerBar`),
 // so tests can assert which cm.* class was applied without a real bond.
@@ -52,10 +55,28 @@ vi.mock('@molecule/app-ui', () => ({
 }))
 
 // The UI components AppHeader composes, each rendering one marked element —
-// the same observable contracts the React suite's mocks have.
-vi.mock('@molecule/app-ui-angular', async () => {
-  const { Component } = await import('@angular/core')
+// the same observable contracts the React suite's mocks have — plus the two
+// node helpers the header renders link content with.
+vi.mock('@molecule/app-ui-angular', async (importOriginal) => {
+  const { ElementPropsWriter } = await importOriginal<typeof AppUiAngular>()
+  const { Component, TemplateRef } = await import('@angular/core')
   return {
+    ElementPropsWriter,
+    asTemplate: (value: unknown) => (value instanceof TemplateRef ? value : null),
+    cn: (...inputs: (string | undefined | null | false)[]) => inputs.filter(Boolean).join(' '),
+    nodeText: (value: unknown) => {
+      if (typeof value === 'string') return value
+      if (typeof value === 'number') return String(value)
+      return ''
+    },
+    styleText: (style: Record<string, unknown> | undefined | null) => {
+      if (!style) return null
+      const text = Object.entries(style)
+        .filter(([, value]) => value != null && value !== false)
+        .map(([key, value]) => `${key}: ${String(value)}`)
+        .join('; ')
+      return text || null
+    },
     Flex: Component({
       selector: 'div[mol-flex]',
       standalone: true,
@@ -117,20 +138,24 @@ const { I18N_PROVIDER, THEME_PROVIDER, provideRouter } = await import('@molecule
 
 /** The host template for one AppHeader render: every React prop is bound. */
 const headerTemplate = `<header mol-app-header
-  [appName]="p['appName']"
-  [logoSrc]="p['logoSrc']"
-  [logoSize]="p['logoSize']"
-  [brandTo]="p['brandTo']"
-  [themeToggle]="p['themeToggle']"
-  [fixed]="p['fixed']"
-  [className]="p['className']"
-  [dataMolId]="p['dataMolId']"
+  [appName]="p()['appName']"
+  [logoSrc]="p()['logoSrc']"
+  [logoSize]="p()['logoSize']"
+  [brandTo]="p()['brandTo']"
+  [brandClassName]="p()['brandClassName']"
+  [navigation]="p()['navigation']"
+  [themeToggle]="p()['themeToggle']"
+  [fixed]="p()['fixed']"
+  [className]="p()['className']"
+  [dataMolId]="p()['dataMolId']"
 ></header>`
 
 /** A mounted spec host: its DOM and a teardown. */
 interface Mounted {
   /** The host element whose children the component template produced. */
   readonly host: HTMLElement
+  /** Merges props into the host's bound props (a signal write) and re-renders. */
+  setProps(patch: Record<string, unknown>): void
   /** Destroys the app and removes the host. */
   destroy(): Promise<void>
 }
@@ -141,7 +166,7 @@ interface Mounted {
  *
  * @param template - The host template (the component element + projected content).
  * @param component - The component class under test.
- * @param props - The props object the template reads as `p['name']`.
+ * @param props - The props object the template reads as `p()['name']`.
  * @param providers - Extra environment providers (the theme/i18n tokens under test).
  * @returns The mounted host.
  */
@@ -160,7 +185,7 @@ async function mount(
   })(
     class SpecHost {
       /** The props the template binds. */
-      p: Record<string, unknown> = props
+      readonly p = signal<Record<string, unknown>>(props)
     },
   )
   const appRef: ApplicationRef = await createApplication({
@@ -170,7 +195,7 @@ async function mount(
       ...providers,
     ],
   })
-  const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
+  const ref: ComponentRef<{ p: WritableSignal<Record<string, unknown>> }> = createComponent(Host, {
     environmentInjector: appRef.injector,
   })
   const host = ref.location.nativeElement as HTMLElement
@@ -179,6 +204,10 @@ async function mount(
   appRef.tick()
   return {
     host,
+    setProps: (patch) => {
+      ref.instance.p.update((current) => ({ ...current, ...patch }))
+      appRef.tick()
+    },
     destroy: async () => {
       appRef.destroy()
       host.remove()
@@ -223,6 +252,191 @@ afterEach(async () => {
 })
 
 describe('AppHeader', () => {
+  it('renders the brand and each declared destination as links in the primary navigation landmark', async () => {
+    const m = await renderHeader(
+      {
+        appName: 'Field Notes',
+        brandClassName: 'wordmark',
+        navigation: {
+          label: 'Site',
+          className: 'site-navigation',
+          listClassName: 'site-links',
+          itemClassName: 'site-link-item',
+          links: {
+            '/': { children: 'Home' },
+            '/notebooks/42': {
+              className: 'account-link',
+              'aria-current': 'page',
+              children: 'My notebook',
+            },
+          },
+        },
+      },
+      [],
+      '<button slot="extraActions" type="button">Preferences</button>',
+    )
+    const nav = m.host.querySelector('nav')
+    if (!nav) throw new Error('no <nav> rendered')
+    expect(nav.getAttribute('aria-label')).toBe('Site')
+    expect(nav.getAttribute('class')).toContain('site-navigation')
+    const brand = nav.querySelector('a[href="/"]')
+    expect(brand?.getAttribute('class')).toBe('wordmark')
+    const list = nav.querySelector('ul')
+    expect(list?.getAttribute('class')).toBe('site-links')
+    expect(nav.querySelectorAll('ul.site-links > li.site-link-item')).toHaveLength(2)
+    expect(nav.querySelectorAll('a[href="/notebooks/42"]')).toHaveLength(1)
+    const account = nav.querySelector('a.account-link')
+    expect(account?.getAttribute('aria-current')).toBe('page')
+    expect(account?.textContent).toContain('My notebook')
+    expect(nav.querySelectorAll('a[href="/"]')).toHaveLength(2)
+    expect(nav.textContent).toContain('Preferences')
+  })
+
+  it('applies every other anchor attribute from a link entry, and updates and removes it', async () => {
+    const m = await renderHeader({
+      appName: 'Field Notes',
+      navigation: {
+        label: 'Site',
+        links: {
+          '/docs': {
+            children: 'Docs',
+            className: 'docs-link',
+            target: '_blank',
+            rel: 'noreferrer',
+            'aria-label': 'Open the docs',
+            'data-analytics': 'docs-link',
+          },
+        },
+      },
+    })
+    const link = m.host.querySelector('a[href="/docs"]')
+    if (!link) throw new Error('no /docs link')
+    expect(link.getAttribute('class')).toBe('docs-link')
+    expect(link.getAttribute('target')).toBe('_blank')
+    expect(link.getAttribute('rel')).toBe('noreferrer')
+    expect(link.getAttribute('aria-label')).toBe('Open the docs')
+    expect(link.getAttribute('data-analytics')).toBe('docs-link')
+    m.setProps({
+      navigation: {
+        label: 'Site',
+        links: { '/docs': { children: 'Docs', className: 'docs-link', download: true } },
+      },
+    })
+    const updated = m.host.querySelector('a[href="/docs"]')
+    if (!updated) throw new Error('no /docs link after update')
+    expect(updated.getAttribute('rel')).toBeNull()
+    expect(updated.getAttribute('target')).toBeNull()
+    expect(updated.getAttribute('aria-label')).toBeNull()
+    expect(updated.getAttribute('download')).toBe('')
+  })
+
+  it('renders a TemplateRef child as the link content', async () => {
+    const m = await mount(
+      `<header mol-app-header [appName]="'Field Notes'" [navigation]="{ label: 'Site', links: { '/notebooks/42': { children: content } } }"></header><ng-template #content><img alt="" src="/avatar.png" />My notebook</ng-template>`,
+      AppHeader as Type<unknown>,
+    )
+    mounted.push(m)
+    const link = m.host.querySelector('a[href="/notebooks/42"]')
+    if (!link) throw new Error('no /notebooks/42 link')
+    expect(link.querySelector('img')?.getAttribute('src')).toBe('/avatar.png')
+    expect(link.textContent).toContain('My notebook')
+  })
+
+  it('renders numeric link content as text', async () => {
+    const m = await renderHeader({
+      appName: 'Field Notes',
+      navigation: { label: 'Site', links: { '/inbox': { children: 7 } } },
+    })
+    const link = m.host.querySelector('a[href="/inbox"]')
+    expect(link?.textContent).toBe('7')
+  })
+
+  it('navigates a link entry with replace and its state', async () => {
+    const router = createMemoryRouter({ initialEntries: ['/settings'] })
+    const m = await renderHeader(
+      {
+        appName: 'Field Notes',
+        navigation: {
+          label: 'Site',
+          links: {
+            '/notebooks/42': { children: 'Notebook', replace: true, state: { from: 'header' } },
+          },
+        },
+      },
+      [provideRouter(router)],
+    )
+    const link = m.host.querySelector('a[href="/notebooks/42"]')
+    if (!link) throw new Error('no /notebooks/42 link')
+    link.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, button: 0 }))
+    expect(router.getLocation().pathname).toBe('/notebooks/42')
+    expect(router.getLocation().state).toEqual({ from: 'header' })
+    // A replace kept the single history entry: going back leaves the location in place.
+    router.back()
+    expect(router.getLocation().pathname).toBe('/notebooks/42')
+  })
+
+  it('pushes a link entry that does not set replace', async () => {
+    const router = createMemoryRouter({ initialEntries: ['/settings'] })
+    const m = await renderHeader(
+      {
+        appName: 'Field Notes',
+        navigation: { label: 'Site', links: { '/notebooks/42': { children: 'Notebook' } } },
+      },
+      [provideRouter(router)],
+    )
+    const link = m.host.querySelector('a[href="/notebooks/42"]')
+    if (!link) throw new Error('no /notebooks/42 link')
+    link.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, button: 0 }))
+    expect(router.getLocation().pathname).toBe('/notebooks/42')
+    router.back()
+    expect(router.getLocation().pathname).toBe('/settings')
+  })
+
+  it('runs an entry onClick before the router link, so preventDefault cancels navigation', async () => {
+    const router = createMemoryRouter({ initialEntries: ['/settings'] })
+    const onClick = vi.fn((event: MouseEvent) => event.preventDefault())
+    const m = await renderHeader(
+      {
+        appName: 'Field Notes',
+        navigation: { label: 'Site', links: { '/docs': { children: 'Docs', onClick } } },
+      },
+      [provideRouter(router)],
+    )
+    const link = m.host.querySelector('a[href="/docs"]')
+    if (!link) throw new Error('no /docs link')
+    link.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, button: 0 }))
+    expect(onClick).toHaveBeenCalledTimes(1)
+    expect(router.getLocation().pathname).toBe('/settings')
+  })
+
+  it('keeps a brand-and-actions header without a primary navigation landmark', async () => {
+    const m = await renderHeader(
+      { appName: 'Field Notes' },
+      [],
+      '<button slot="extraActions" type="button">Preferences</button>',
+    )
+    expect(m.host.innerHTML).toContain('Field Notes')
+    expect(m.host.innerHTML).toContain('Preferences')
+    expect(m.host.innerHTML).not.toContain('<nav')
+  })
+
+  it('moves the header into the navigation landmark when navigation is set after mount', async () => {
+    const m = await renderHeader(
+      { appName: 'Field Notes' },
+      [],
+      '<button slot="extraActions" type="button">Preferences</button>',
+    )
+    expect(m.host.querySelector('nav')).toBeNull()
+    m.setProps({ navigation: { label: 'Site', links: { '/': { children: 'Home' } } } })
+    const nav = m.host.querySelector('nav')
+    if (!nav) throw new Error('no <nav> rendered')
+    expect(nav.getAttribute('aria-label')).toBe('Site')
+    expect(nav.querySelectorAll('a[href="/"]')).toHaveLength(2)
+    expect(nav.textContent).toContain('Preferences')
+    // The projected action is bare, as React renders `{extraActions}`: no capture wrapper survives.
+    expect(nav.querySelectorAll('span[data-mol-slot]')).toHaveLength(0)
+  })
+
   it('renders the appName and the logo image', async () => {
     const m = await renderHeader({ appName: 'Acme' })
     expect(m.host.innerHTML).toContain('Acme')

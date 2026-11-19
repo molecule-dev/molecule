@@ -42,6 +42,11 @@
  *   Pass `themeToggle={null}` to force-hide it, or your own node to override.
  * - Node-valued props (`userMenu`, `themeToggle`, `extraActions`) arrive as a
  *   prop AND a same-named slot; components accept either.
+ * - Give `navigation` the destinations available in the current view or
+ *   session: the header's inner element becomes a named `<nav>` landmark
+ *   wrapping the brand and the actions, with one link per destination. Group
+ *   an avatar or icon with its label in that link's children, and use
+ *   `brandClassName` and the navigation classes with the app's stylesheet.
  * - `fixed` defaults to `true` (`cm.headerFixed` positions the header fixed):
  *   give the page content a matching top offset (flagships get it from
  *   `<AppShellLayout>`), or pass `fixed={false}` for an in-flow header.

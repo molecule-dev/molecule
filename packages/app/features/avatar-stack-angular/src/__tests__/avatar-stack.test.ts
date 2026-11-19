@@ -12,6 +12,7 @@
 
 import '@angular/compiler'
 import {
+  type ApplicationRef,
   ChangeDetectionStrategy,
   Component,
   type ComponentRef,
@@ -19,8 +20,10 @@ import {
   provideZonelessChangeDetection,
   type Type,
 } from '@angular/core'
-import { type ApplicationRef, createApplication } from '@angular/platform-browser'
+import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+
+import type * as AppUiAngular from '@molecule/app-ui-angular'
 
 // Proxy ClassMap echoing each accessed member back as its token (e.g. `flex`),
 // so tests can assert which cm.* class was applied without a real bond.
@@ -47,10 +50,13 @@ vi.mock('@molecule/app-ui', () => ({
 // `Avatar` is the only `@molecule/app-ui-angular` component dependency — stub
 // it to an inspectable `<img>`-bearing div carrying the supplied src + name,
 // the same markers the React suite's `@molecule/app-ui-react` stub renders.
-// `hasNodes` is re-implemented exactly as the real bundle's helper.
-vi.mock('@molecule/app-ui-angular', async () => {
+// `hasNodes` is re-implemented exactly as the real bundle's helper. The
+// `ElementPropsWriter` UserChip writes its link props with is the real one.
+vi.mock('@molecule/app-ui-angular', async (importOriginal) => {
+  const actual = await importOriginal<typeof AppUiAngular>()
   const { Component } = await import('@angular/core')
   return {
+    ElementPropsWriter: actual.ElementPropsWriter,
     Avatar: Component({
       selector: 'div[mol-avatar]',
       standalone: true,

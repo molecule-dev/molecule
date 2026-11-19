@@ -18,6 +18,8 @@
     logoSrc = '/logo.svg',
     logoSize = 30,
     brandTo = '/',
+    brandClassName,
+    navigation,
     userMenu,
     themeToggle,
     extraActions,
@@ -30,15 +32,30 @@
 </script>
 
 <header class={cm.cn(cm.headerBar, fixed ? cm.headerFixed : '', className)} data-mol-id={dataMolId}>
-  <div class={cm.headerInner}>
+  <svelte:element
+    this={navigation ? 'nav' : 'div'}
+    class={navigation?.className ? cm.cn(cm.headerInner, navigation.className) : cm.headerInner}
+    aria-label={navigation?.label}
+  >
     <Flex align="center" justify="between" className={cm.h('full')}>
-      <Link to={brandTo}>
+      <Link to={brandTo} class={brandClassName}>
         <Flex align="center" gap="xs">
           <img src={logoSrc} width={logoSize} height={logoSize} alt="" />
           <span class={cm.logoText}>{appName}</span>
         </Flex>
       </Link>
       <Flex align="center" gap="sm">
+        {#if navigation}
+          <ul class={navigation.listClassName}>
+            {#each Object.entries(navigation.links) as [to, { children, className, ...anchor }] (to)}
+              <li class={navigation.itemClassName}>
+                <Link class={className} {...anchor} {to}
+                  >{#if typeof children === 'function'}{@render children()}{:else}{children}{/if}</Link
+                >
+              </li>
+            {/each}
+          </ul>
+        {/if}
         {#if themeToggle !== null}
           {#if themeToggle}{@render themeToggle()}{:else}<DefaultThemeToggle />{/if}
         {/if}
@@ -46,5 +63,5 @@
         {#if userMenu}{@render userMenu()}{/if}
       </Flex>
     </Flex>
-  </div>
+  </svelte:element>
 </header>

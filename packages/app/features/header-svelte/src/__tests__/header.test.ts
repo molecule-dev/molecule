@@ -55,6 +55,54 @@ afterEach(async () => {
 })
 
 describe('AppHeader', () => {
+  it('renders the brand and each declared destination as links in the primary navigation landmark', async () => {
+    await render({
+      appName: 'Field Notes',
+      brandClassName: 'wordmark',
+      navigation: {
+        label: 'Site',
+        className: 'site-navigation',
+        listClassName: 'site-links',
+        itemClassName: 'site-link-item',
+        links: {
+          '/': { children: raw('Home') },
+          '/notebooks/42': {
+            className: 'account-link',
+            'aria-current': 'page',
+            children: raw('<span><img src="/avatar.png" alt="" />My notebook</span>'),
+          },
+        },
+      },
+      extraActions: raw('<button type="button">Preferences</button>'),
+    })
+    const nav = document.body.querySelector('nav[aria-label="Site"]')
+    expect(nav).not.toBeNull()
+    expect(nav?.getAttribute('class')).toContain('site-navigation')
+    const brand = nav?.querySelector('a[class="wordmark"]')
+    expect(brand).not.toBeNull()
+    expect(brand?.getAttribute('href')).toBe('/')
+    const list = nav?.querySelector('ul')
+    expect(list?.getAttribute('class')).toBe('site-links')
+    expect(nav?.querySelectorAll('li[class="site-link-item"]')).toHaveLength(2)
+    expect(nav?.querySelectorAll('a[href="/notebooks/42"]')).toHaveLength(1)
+    const account = nav?.querySelector('a[class="account-link"][aria-current="page"]')
+    expect(account).not.toBeNull()
+    expect(account?.querySelector('img')?.getAttribute('src')).toBe('/avatar.png')
+    expect(account?.textContent).toContain('My notebook')
+    expect(nav?.querySelectorAll('a[href="/"]')).toHaveLength(2)
+    expect(nav?.textContent).toContain('Preferences')
+  })
+
+  it('keeps a brand-and-actions header without a primary navigation landmark', async () => {
+    await render({
+      appName: 'Field Notes',
+      extraActions: raw('<button type="button">Preferences</button>'),
+    })
+    expect(document.body.textContent).toContain('Field Notes')
+    expect(document.body.textContent).toContain('Preferences')
+    expect(document.body.querySelector('nav')).toBeNull()
+  })
+
   it('renders the appName and the logo image', async () => {
     await render({ appName: 'Acme' })
     const body = document.body
