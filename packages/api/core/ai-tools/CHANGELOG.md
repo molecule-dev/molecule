@@ -1,5 +1,11 @@
 # @molecule/api-ai-tools
 
+## 2.2.1
+
+### Patch Changes
+
+- write_file and edit_file name a same-name sibling (`auth.ts` beside `auth.tsx`) that answers the same import, and say which file loads.
+
 ## 2.2.0
 
 ### Minor Changes

@@ -1,5 +1,11 @@
 # @molecule/api-resource-follow
 
+## 1.1.3
+
+### Patch Changes
+
+- Show how to project follow state for a page with one relationship lookup.
+
 ## 1.1.2
 
 ### Patch Changes

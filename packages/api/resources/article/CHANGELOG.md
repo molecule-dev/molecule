@@ -1,5 +1,11 @@
 # @molecule/api-resource-article
 
+## 1.3.1
+
+### Patch Changes
+
+- Show how to reuse article filters and project a paginated preview response in a custom route.
+
 ## 1.3.0
 
 ### Minor Changes

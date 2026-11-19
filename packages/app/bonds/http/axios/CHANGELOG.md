@@ -1,5 +1,11 @@
 # @molecule/app-http-axios
 
+## 1.3.1
+
+### Patch Changes
+
+- Update the request options reference for deadlines and cancellation signals.
+
 ## 1.3.0
 
 ### Minor Changes

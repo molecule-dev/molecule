@@ -1,5 +1,11 @@
 # @molecule/app-http
 
+## 1.9.1
+
+### Patch Changes
+
+- Allow requests to retain their configured timeout alongside an independent cancellation signal.
+
 ## 1.9.0
 
 ### Minor Changes

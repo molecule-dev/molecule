@@ -1,5 +1,11 @@
 # @molecule/api-slug
 
+## 1.0.4
+
+### Patch Changes
+
+- Show how to generate slugs for a custom table with a fallback, length limit, and update exclusion.
+
 ## 1.0.3
 
 ### Patch Changes
