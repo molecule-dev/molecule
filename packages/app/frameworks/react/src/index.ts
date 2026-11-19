@@ -6,7 +6,14 @@
  * chat, workspace, editor, preview), so framework-agnostic providers plug
  * into React idioms.
  *
- * **Server-backed boolean controls with any markup:** `useOptimisticToggle({ value, commit })`
+ * **Generated record pages:** Use the resource module's `View` component and toggle hook when
+ * available. Put record markup in the view's loaded child. It stays mounted through refetches
+ * and starts fresh when the viewer or record changes. Use the generated hook's `toggle()` for a
+ * flag named by the contract, or `set(on)` to request a value while displaying the saved record.
+ * Keep the control enabled during saves so clicks can queue. Wait for the save to finish before
+ * opening another page that reads the result.
+ *
+ * **Custom server-backed boolean controls:** `useOptimisticToggle({ value, commit })`
  * returns `{ value, toggle, pending, error }`. Render `value` and use `onClick={toggle}`;
  * `toggle()` takes NO argument. The hook computes the next boolean and passes that
  * DESIRED value to `commit(desired)`. Return the server's confirmed boolean from commit.
@@ -56,7 +63,7 @@
  * fallback for a loading client: initialize a request-scoped client first,
  * or leave the opt-in hold disabled for SSR.
  *
- * **Server-backed toggles:** use `useOptimisticValue` for a favorite/follow/like,
+ * **Custom server-backed toggles:** use `useOptimisticValue` for a favorite/follow/like,
  * bookmark or settings switch that changes immediately. Keep its flag and count
  * in one value. Render that value, update it with a functional updater, and return
  * both server fields from `commit`. Do not add a second `useState`, a prop-copy
