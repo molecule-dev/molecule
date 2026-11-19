@@ -1,41 +1,50 @@
-// @vitest-environment jsdom
 /**
- * The shared router conformance cases over the bond's real construction path:
- * `createSvelteKitRouter` — the public factory — driving a stand-in SvelteKit client
- * (`./kit-client.ts`) that behaves the way `@sveltejs/kit` 2.63's client router does in
- * a browser, over jsdom's real `window.history`. The native side is the stand-in client:
- * a "link" is its `link(path)`, the back button is the real `window.history.back()`, and
- * the native path is read from the client's own `page` url.
+ * The shared router conformance cases over SvelteKit's real client router: the test app
+ * (`./kit-app`) built by kit's own Vite plugin, started with kit's `start` in jsdom, its root
+ * layout building the router through `createSvelteKitNavigation` and `createSvelteKitRouter`
+ * as an app's does. Each vitest project builds kit with one configuration (the root, the
+ * base path `/app`, hash routing), so each runs the cases under its own base.
+ *
+ * The native side is kit itself: a native link is a click on an anchor kit's own link
+ * handler follows, the back button is `window.history.back()` (kit follows popstate), the
+ * native path is the document URL read the way kit reads it, and a native href is kit's
+ * `resolve(path)`.
  */
-import { runRouterConformance } from '@molecule/app-framework-conformance/routing'
+import {
+  type RouterHarness,
+  runRouterConformance,
+} from '@molecule/app-framework-conformance/routing'
 
-import { createSvelteKitNavigation, createSvelteKitRouter } from '../provider.js'
-import type { KitClientRoute } from './kit-client.js'
-import { createKitClient } from './kit-client.js'
+import {
+  awaitNavigation,
+  clickLink,
+  documentUrl,
+  inAppPath,
+  kitBase,
+  kitHash,
+  startKit,
+} from './start-kit.js'
 
-/** The routes the native stand-in declares: `/users/:id` plus a catch-all, so any path is routable. */
-const routes: KitClientRoute[] = [{ path: '/users/:id' }, { path: '*' }]
+/** Lets a task run. */
+const macrotask = (): Promise<void> => new Promise((resolve) => setTimeout(resolve, 0))
 
-runRouterConformance('sveltekit', (initialPath) => {
-  const client = createKitClient({ initialPath, routes })
-  const router = createSvelteKitRouter(
-    createSvelteKitNavigation({
-      goto: client.goto,
-      replaceState: client.replaceState,
-      page: client.page,
-      afterNavigate: client.afterNavigate,
-    }),
-  )
-  return {
-    router,
-    nativePush: (path) => client.link(path),
-    nativeBack: () => {
-      window.history.back()
-    },
-    nativePath: () => client.path(),
-    teardown: () => {
-      router.destroy()
-      client.destroy()
-    },
-  }
-})
+runRouterConformance(
+  kitHash ? 'sveltekit (hash routing)' : 'sveltekit',
+  async (initialPath, { container }): Promise<RouterHarness> => {
+    const kit = await startKit(documentUrl(initialPath), container)
+    return {
+      router: kit.app.router,
+      // A click on an in-app anchor, which kit's document-level link handler follows.
+      nativePush: (path) => clickLink(kit.app, container, path),
+      nativeBack: () => awaitNavigation(kit.app, () => window.history.back()),
+      nativePath: inAppPath,
+      nativeHref: (path) => kit.app.resolve(path),
+      // Until the router's `goto`s have finished and kit has no navigation in flight.
+      settle: async () => {
+        for (let i = 0; i < 500 && !kit.app.idle(); i++) await macrotask()
+      },
+      teardown: () => kit.stop(),
+    }
+  },
+  { bases: [kitBase] },
+)

@@ -57,7 +57,7 @@
     "@molecule/app-realtime": "^1.0.1",
     "@molecule/app-realtime-socketio": "^1.0.1",
     "@molecule/app-routing": "^1.0.1",
-    "@molecule/app-routing-sveltekit": "^1.0.0",
+    "@molecule/app-routing-sveltekit": "^1.0.0 || ^2.0.0",
     "@molecule/app-video": "^1.0.1",
     "@molecule/app-video-hls": "^1.0.1",
     "@molecule/app-virtual-scroll": "^1.0.1",
