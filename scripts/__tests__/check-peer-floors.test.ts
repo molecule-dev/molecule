@@ -26,6 +26,7 @@ import {
   classMapReads,
   declaredExports,
   entryTypesPath,
+  EVERY_EXPORT,
   fetchPublishedVersions,
   findFloorGaps,
   namedImports,
@@ -94,11 +95,38 @@ describe('namedImports', () => {
     expect([...found.get('@molecule/z')!].sort()).toEqual(['V', 'd', 'e'])
   })
 
+  it('records every export for a star re-export or a namespace import', () => {
+    const src = [
+      "import * as locales from '@molecule/ns'",
+      "export * from '@molecule/star/sub'",
+      "export * as all from '@molecule/star-as'",
+      "export type * from '@molecule/star-types'",
+    ].join('\n')
+    const found = namedImports(src, 'a.ts')
+    expect([...found.keys()].sort()).toEqual([
+      '@molecule/ns',
+      '@molecule/star-as',
+      '@molecule/star-types',
+      '@molecule/star/sub',
+    ])
+    for (const names of found.values()) expect([...names]).toEqual([EVERY_EXPORT])
+  })
+
+  it('records the types a type-only namespace import references', () => {
+    const src = [
+      "import type * as I18n from '@molecule/app-i18n'",
+      'type T = typeof import("x") | I18n.TranslateFn',
+      'const f = (o: I18n.Options): I18n.TranslateFn => o.t',
+    ].join('\n')
+    expect([...namedImports(src, 'a.ts').get('@molecule/app-i18n')!].sort()).toEqual([
+      'Options',
+      'TranslateFn',
+    ])
+  })
+
   it('skips imports that name nothing', () => {
     const src = [
-      "import * as ns from '@molecule/ns'",
       "import '@molecule/side-effect'",
-      "export * from '@molecule/star'",
       "const lazy = await import('@molecule/dynamic')",
     ].join('\n')
     expect([...namedImports(src, 'a.ts').keys()]).toEqual([])
@@ -295,7 +323,9 @@ describe('findFloorGaps', () => {
   })
 
   it('ignores peers outside @molecule and peers the package imports nothing from', () => {
-    const pkg = { peerDependencies: { react: '^18.0.0', '@molecule/core': '^1.0.0' } }
+    const pkg = {
+      peerDependencies: { react: '^18.0.0', '@molecule/core': '^1.0.0' },
+    }
     const read = vi.fn(exportsAt)
     expect(findFloorGaps(pkg, new Map(), versions, read, publishing('1.0.0'))).toEqual([])
     expect(read).not.toHaveBeenCalled()
@@ -342,7 +372,11 @@ describe('findFloorGaps', () => {
         fix: '^1.4.0',
         missing: [
           { name: 'rootOnly', entry: './render', files: ['src/hook.ts'] },
-          { name: 'useCommittedRef', entry: './render', files: ['src/hook.ts'] },
+          {
+            name: 'useCommittedRef',
+            entry: './render',
+            files: ['src/hook.ts'],
+          },
         ],
       },
     ])
@@ -358,7 +392,13 @@ describe('findFloorGaps', () => {
     ).toEqual([
       expect.objectContaining({
         fix: '^1.2.0',
-        missing: [{ name: 'useCommittedRef', entry: './render', files: ['src/hook.ts'] }],
+        missing: [
+          {
+            name: 'useCommittedRef',
+            entry: './render',
+            files: ['src/hook.ts'],
+          },
+        ],
       }),
     ])
   })
@@ -369,9 +409,15 @@ describe('entryTypesPath', () => {
     types: './dist/index.d.ts',
     exports: {
       '.': { types: './dist/index.d.ts', import: './dist/index.js' },
-      './render': { types: './dist/render/index.d.ts', import: './dist/render/index.js' },
+      './render': {
+        types: './dist/render/index.d.ts',
+        import: './dist/render/index.js',
+      },
       './components/Tooltip.js': { import: './dist/components/Tooltip.js' },
-      './optional/*.js': { types: './dist/optional/*.d.ts', import: './dist/optional/*.js' },
+      './optional/*.js': {
+        types: './dist/optional/*.d.ts',
+        import: './dist/optional/*.js',
+      },
       './optional/special/*.js': './dist/special/*.js',
       './package.json': './package.json',
     },
@@ -608,7 +654,10 @@ describe('scanFleet', () => {
       'packages/app/bonds/routing/x/package.json': JSON.stringify({
         name: '@molecule/app-routing-x',
         version: '1.0.0',
-        peerDependencies: { '@molecule/app-routing': '^1.0.1', react: '^19.0.0' },
+        peerDependencies: {
+          '@molecule/app-routing': '^1.0.1',
+          react: '^19.0.0',
+        },
       }),
       'packages/app/bonds/routing/x/src/router.ts':
         "import { createHistoryRouter, getRouter } from '@molecule/app-routing'",
@@ -725,6 +774,138 @@ describe('scanFleet', () => {
           ],
         },
       ])
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  })
+
+  it("reports the names a star form uses that its floor's entry lacks, read from the workspace source", async () => {
+    // 2026-11-19: `export * from '@molecule/app-routing/bond-utilities'` passed under "^1.2.0",
+    // whose versions have no such entry, because a star form named nothing.
+    const root = tree({
+      'packages/app/core/routing/package.json': JSON.stringify({
+        name: '@molecule/app-routing',
+        version: '1.3.0',
+        exports: {
+          '.': { types: './dist/index.d.ts', import: './dist/index.js' },
+          './bond-utilities': {
+            types: './dist/bond-utilities.d.ts',
+            import: './dist/bond-utilities.js',
+          },
+        },
+      }),
+      'packages/app/core/routing/src/index.ts': 'export const getRouter = () => null',
+      'packages/app/core/routing/src/bond-utilities.ts': [
+        'export const matchPath = () => null',
+        'export const stringifyQuery = () => ""',
+      ].join('\n'),
+      'packages/api/locales/tag/package.json': JSON.stringify({
+        name: '@molecule/api-locales-tag',
+        version: '1.1.0',
+      }),
+      'packages/api/locales/tag/src/index.ts': "export * from './en.js'\nexport * from './fr.js'",
+      'packages/api/locales/tag/src/en.ts': 'export const en = {}',
+      'packages/api/locales/tag/src/fr.ts': 'export const fr = {}',
+      'packages/app/bonds/routing/x/package.json': JSON.stringify({
+        name: '@molecule/app-routing-x',
+        version: '1.0.0',
+        peerDependencies: {
+          '@molecule/app-routing': '^1.2.0',
+          '@molecule/api-locales-tag': '^1.0.0',
+        },
+      }),
+      'packages/app/bonds/routing/x/src/utilities.ts':
+        "export * from '@molecule/app-routing/bond-utilities'",
+      'packages/app/bonds/routing/x/src/i18n.ts': [
+        "import * as locales from '@molecule/api-locales-tag'",
+        'register(locales)',
+      ].join('\n'),
+    })
+    try {
+      const reads: string[] = []
+      const rows = await scanFleet(root, {
+        versionsOf: async () =>
+          new Map([
+            ['@molecule/app-routing', ['1.2.0', '1.3.0']],
+            ['@molecule/api-locales-tag', ['1.0.0', '1.1.0']],
+          ]),
+        prefetch: async () => undefined,
+        exportsAt: (name: string, version: string, entry: string) => {
+          reads.push(`${name}@${version} ${entry}`)
+          // Neither published app-routing has the entry; locales 1.0.0 lacks fr, 1.1.0 has it.
+          if (name === '@molecule/app-routing') return new Set()
+          return new Set(version === '1.0.0' ? ['en'] : ['en', 'fr'])
+        },
+      })
+      // Each entry it reads, once per scan pass: the subpath entry, never the root.
+      expect([...new Set(reads)].sort()).toEqual([
+        '@molecule/api-locales-tag@1.0.0 .',
+        '@molecule/api-locales-tag@1.1.0 .',
+        '@molecule/app-routing@1.2.0 ./bond-utilities',
+        '@molecule/app-routing@1.3.0 ./bond-utilities',
+      ])
+      expect(rows).toEqual([
+        {
+          package: '@molecule/app-routing-x',
+          dir: 'packages/app/bonds/routing/x',
+          gaps: [
+            {
+              peer: '@molecule/app-routing',
+              range: '^1.2.0',
+              floor: '1.2.0',
+              // 1.3.0 is the workspace version and npm serves it without the entry: the next minor.
+              fix: '^1.4.0',
+              missing: ['matchPath', 'stringifyQuery'].map((name) => ({
+                name,
+                entry: './bond-utilities',
+                files: ['packages/app/bonds/routing/x/src/utilities.ts'],
+              })),
+            },
+            {
+              peer: '@molecule/api-locales-tag',
+              range: '^1.0.0',
+              floor: '1.0.0',
+              fix: '^1.1.0',
+              missing: [
+                {
+                  name: 'fr',
+                  files: ['packages/app/bonds/routing/x/src/i18n.ts'],
+                },
+              ],
+            },
+          ],
+        },
+      ])
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  })
+
+  it('counterexample: a star form passes when its floor exports every name of the entry', async () => {
+    const root = tree({
+      'packages/app/core/routing/package.json': JSON.stringify({
+        name: '@molecule/app-routing',
+        version: '1.4.0',
+        exports: {
+          './bond-utilities': { types: './dist/bond-utilities.d.ts' },
+        },
+      }),
+      'packages/app/core/routing/src/bond-utilities.ts': 'export const matchPath = () => null',
+      'packages/app/bonds/routing/x/package.json': JSON.stringify({
+        name: '@molecule/app-routing-x',
+        version: '1.0.0',
+        peerDependencies: { '@molecule/app-routing': '^1.4.0' },
+      }),
+      'packages/app/bonds/routing/x/src/utilities.ts':
+        "export * from '@molecule/app-routing/bond-utilities'",
+    })
+    try {
+      const rows = await scanFleet(root, {
+        versionsOf: async () => new Map([['@molecule/app-routing', ['1.4.0']]]),
+        prefetch: async () => undefined,
+        exportsAt: () => new Set(['matchPath']),
+      })
+      expect(rows).toEqual([])
     } finally {
       rmSync(root, { recursive: true, force: true })
     }
@@ -972,7 +1153,10 @@ describe('scanFleet', () => {
           process.execPath,
           script,
         ],
-        { env: { ...process.env, npm_config_registry: 'http://127.0.0.1:9/' }, encoding: 'utf8' },
+        {
+          env: { ...process.env, npm_config_registry: 'http://127.0.0.1:9/' },
+          encoding: 'utf8',
+        },
       )
       expect(out).toBe('')
     } finally {

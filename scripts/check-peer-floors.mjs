@@ -132,8 +132,22 @@ export function scriptText(text, fileName) {
 }
 
 /**
+ * The name {@link namedImports} records for a star form (`export * from`, `export * as ns
+ * from`, `import * as ns from`): it uses every name the entry exports, which
+ * {@link readFleet} reads from the workspace's own source of that entry.
+ */
+export const EVERY_EXPORT = '*'
+
+/**
  * The names a source file imports or re-exports from each bare specifier.
- * Namespace imports and dynamic imports name nothing and are skipped.
+ *
+ * A star form records {@link EVERY_EXPORT}: `export *` makes every name of the entry part of
+ * this package's own exports, and a namespace import can read all of them
+ * (`registerLocaleModule(locales)` does), so a floor that lacks one, or lacks the entry,
+ * breaks this package (2026-11-19: `export * from '@molecule/app-routing/bond-utilities'`
+ * passed under `^1.2.0`, whose versions have no such entry). A type-only namespace import
+ * reads only the types it names, so it records each `ns.Name` the file references. Side-effect
+ * and dynamic imports name nothing and are skipped.
  *
  * @param text - Script text (see {@link scriptText}).
  * @param fileName - File name (decides TSX parsing).
@@ -143,6 +157,8 @@ export function namedImports(text, fileName) {
   const kind = fileName.endsWith('.tsx') ? ts.ScriptKind.TSX : ts.ScriptKind.TS
   const sf = ts.createSourceFile(fileName, text, ts.ScriptTarget.Latest, true, kind)
   const found = new Map()
+  // `import type * as ns`: namespace name → specifier.
+  const typeNamespaces = new Map()
   const add = (specifier, name) => {
     const names = found.get(specifier) ?? new Set()
     names.add(name)
@@ -156,17 +172,34 @@ export function namedImports(text, fileName) {
       if (clause.namedBindings && ts.isNamedImports(clause.namedBindings)) {
         for (const el of clause.namedBindings.elements)
           add(node.moduleSpecifier.text, (el.propertyName ?? el.name).text)
+      } else if (clause.namedBindings && ts.isNamespaceImport(clause.namedBindings)) {
+        if (!clause.isTypeOnly) add(node.moduleSpecifier.text, EVERY_EXPORT)
+        else typeNamespaces.set(clause.namedBindings.name.text, node.moduleSpecifier.text)
       }
     } else if (
       ts.isExportDeclaration(node) &&
       node.moduleSpecifier &&
-      ts.isStringLiteral(node.moduleSpecifier) &&
-      node.exportClause &&
-      ts.isNamedExports(node.exportClause)
+      ts.isStringLiteral(node.moduleSpecifier)
     ) {
-      for (const el of node.exportClause.elements)
-        add(node.moduleSpecifier.text, (el.propertyName ?? el.name).text)
+      if (node.exportClause && ts.isNamedExports(node.exportClause)) {
+        for (const el of node.exportClause.elements)
+          add(node.moduleSpecifier.text, (el.propertyName ?? el.name).text)
+      } else {
+        add(node.moduleSpecifier.text, EVERY_EXPORT)
+      }
     }
+  }
+  if (typeNamespaces.size > 0) {
+    const visit = (node) => {
+      if (
+        ts.isQualifiedName(node) &&
+        ts.isIdentifier(node.left) &&
+        typeNamespaces.has(node.left.text)
+      )
+        add(typeNamespaces.get(node.left.text), node.right.text)
+      ts.forEachChild(node, visit)
+    }
+    visit(sf)
   }
   return found
 }
@@ -186,7 +219,10 @@ function checkedPeers(pkg, imports, workspaceVersions) {
     const current = workspaceVersions.get(peer)
     const entries = [...imports]
       .filter(([specifier, names]) => packageNameOf(specifier) === peer && names.size > 0)
-      .map(([specifier, names]) => ({ entry: entryOf(peer, specifier), names }))
+      .map(([specifier, names]) => ({
+        entry: entryOf(peer, specifier),
+        names,
+      }))
     if (entries.length && current) peers.push({ peer, range, current, entries })
   }
   return peers
@@ -630,6 +666,33 @@ function readFleet(root, only = null) {
   }))
   const workspaceVersions = new Map(manifests.map(({ pkg }) => [pkg.name, pkg.version]))
   const dirOf = new Map(manifests.map(({ dir, pkg }) => [pkg.name, dir]))
+  const manifestOf = new Map(manifests.map(({ pkg }) => [pkg.name, pkg]))
+  // The names each workspace package entry's own source exports, for the star forms.
+  const entryNames = new Map()
+  const workspaceEntryExports = (peer, entry, rel) => {
+    const key = `${peer}${entry === '.' ? '' : entry.slice(1)}`
+    if (!entryNames.has(key)) {
+      const types = manifestOf.has(peer) ? entryTypesPath(manifestOf.get(peer), entry) : null
+      if (types === null)
+        throw new Error(`${rel}: ${key} is not an entry of the workspace's ${peer}`)
+      const declared = join(dirOf.get(peer), types)
+      const inSrc = types.replace(/^\.?\/?dist\//, 'src/').replace(/\.d\.ts$/, '')
+      // The root of a package without an `exports` map reads its `src/index.ts`, as
+      // classMapMembersOf does.
+      const candidates = [`${inSrc}.ts`, `${inSrc}.tsx`]
+      if (entry === '.') candidates.push('src/index.ts', 'src/index.tsx')
+      const file = candidates
+        .map((f) => join(dirOf.get(peer), f))
+        .concat(declared)
+        .find((f) => existsSync(f))
+      if (!file)
+        throw new Error(
+          `${rel}: cannot read the names ${key} exports: neither its source nor ${types} exists`,
+        )
+      entryNames.set(key, declaredExports(file))
+    }
+    return entryNames.get(key)
+  }
   // The ClassMap members each workspace package's own source declares, read once.
   const localMembers = new Map()
   const classMapMembersOf = (name) => {
@@ -662,8 +725,14 @@ function readFleet(root, only = null) {
       for (const [specifier, names] of namedImports(scriptText(text, file), file)) {
         // A subpath import is kept under its own specifier: it is checked against that
         // entry of the peer's exports map (see findFloorGaps).
-        if (!peers.includes(packageNameOf(specifier))) continue
-        for (const name of names) use(specifier, name, rel)
+        const peer = packageNameOf(specifier)
+        if (!peers.includes(peer)) continue
+        for (const name of names) {
+          if (name !== EVERY_EXPORT) use(specifier, name, rel)
+          else
+            for (const each of workspaceEntryExports(peer, entryOf(peer, specifier), rel))
+              use(specifier, each, rel)
+        }
         const isRoot = specifier === packageNameOf(specifier)
         if (isRoot && (names.has('getClassMap') || names.has(CLASS_MAP))) classMapPeer = specifier
       }
