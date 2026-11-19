@@ -240,6 +240,13 @@ function renderInline(text: string, onNavigatePreview?: (path: string) => void):
 // ---------------------------------------------------------------------------
 
 /**
+ * A header line: one to three `#`s, a space and its text. The paragraph loop ends at exactly
+ * the lines this matches. When it also ended at `## ` alone (a header marker whose text has not
+ * streamed in yet), neither branch took that line and the parse never returned.
+ */
+const HEADER_RE = /^(#{1,3}) (.+)/
+
+/**
  * Renders a prose text segment as structured HTML (headers, lists, paragraphs).
  * @param props - Component props (see {@link MarkdownContentProps}).
  * @returns The rendered prose block element.
@@ -268,7 +275,7 @@ function Prose({
     }
 
     // Headers
-    const hm = line.match(/^(#{1,3}) (.+)/)
+    const hm = line.match(HEADER_RE)
     if (hm) {
       const lvl = hm[1].length
       els.push(
@@ -330,7 +337,7 @@ function Prose({
     while (
       i < lines.length &&
       lines[i].trim() &&
-      !/^#{1,3} /.test(lines[i]) &&
+      !HEADER_RE.test(lines[i]) &&
       !/^[-*] /.test(lines[i]) &&
       !/^\d+\. /.test(lines[i])
     ) {

@@ -144,6 +144,21 @@
    }
   ]
  },
+ "a header marker with no text after it is prose until its text arrives": {
+  "snapshots": [
+   "<div style=\"font-size: 13px; line-height: 1.6; margin-top: 6px; word-break: break-word\">\n<p style=\"margin-bottom: 6px; white-space: pre-wrap\">\nIntro\n## \n### \n</p>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
  "unordered lists accept both markers and stop at prose": {
   "snapshots": [
    "<div style=\"font-size: 13px; line-height: 1.6; margin-top: 6px; word-break: break-word\">\n<ul style=\"list-style-type: disc; margin-bottom: 6px; padding-left: 18px\">\n<li>\ndash item\n</li>\n<li>\nstar item\n</li>\n</ul>\n<p style=\"margin-bottom: 6px; white-space: pre-wrap\">\nA paragraph after\n</p>\n</div>\n@route /"

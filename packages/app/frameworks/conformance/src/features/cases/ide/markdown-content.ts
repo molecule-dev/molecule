@@ -116,6 +116,12 @@ export const markdownContentCases: FeatureComponentCases = {
       props: { text: '#### Not a header' },
     },
     {
+      // A stream cut just after a header marker (`## ` before its text arrives) froze the tab:
+      // the paragraph loop stopped at the line and the header branch did not take it.
+      name: 'a header marker with no text after it is prose until its text arrives',
+      props: { text: 'Intro\n## \n### ' },
+    },
+    {
       name: 'unordered lists accept both markers and stop at prose',
       props: { text: '- dash item\n* star item\nA paragraph after' },
     },
