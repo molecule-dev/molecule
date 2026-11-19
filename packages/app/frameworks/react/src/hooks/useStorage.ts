@@ -4,12 +4,13 @@
  * @module
  */
 
-import { useCallback, useContext, useEffect, useInsertionEffect, useRef, useState } from 'react'
+import { useCallback, useContext, useEffect, useRef, useState } from 'react'
 
 import { t } from '@molecule/app-i18n'
 import { getPreferenceStore, type StorageProvider } from '@molecule/app-storage'
 
 import { StorageContext } from '../contexts.js'
+import { useCommittedRef } from '../render/useCommittedRef.js'
 import { useEffectEvent } from '../render/useEffectEvent.js'
 import { useStableCallback } from '../render/useStableCallback.js'
 
@@ -290,9 +291,7 @@ export function useStoragePreference<T = unknown>(
   /** The value the actions below compute from, before React has re-rendered. */
   const valueRef = useRef<T | undefined>(value)
   // Written at commit, so a render React throws away leaves no trace.
-  useInsertionEffect(() => {
-    valueRef.current = value
-  })
+  useCommittedRef(valueRef, value)
 
   useEffect(() => {
     if (!key) return

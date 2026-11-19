@@ -4,12 +4,13 @@
  * @module
  */
 
-import { useCallback, useContext, useEffect, useInsertionEffect, useRef, useState } from 'react'
+import { useCallback, useContext, useEffect, useRef, useState } from 'react'
 
 import type { HttpClient, HttpResponse, RequestConfig } from '@molecule/app-http'
 import { t } from '@molecule/app-i18n'
 
 import { HttpContext } from '../contexts.js'
+import { useCommittedRef } from '../render/useCommittedRef.js'
 import { useEffectEvent } from '../render/useEffectEvent.js'
 
 /**
@@ -144,9 +145,7 @@ export function useHttp<T>(
   // that suspends or is discarded must not change a mounted action's request.
   // This only updates our own ref: no DOM access or state update is involved.
   const optionsRef = useRef(options)
-  useInsertionEffect(() => {
-    optionsRef.current = options
-  }, [options])
+  useCommittedRef(optionsRef, options)
 
   const execute = useCallback(async (): Promise<T | null> => {
     if (!mountedRef.current) return null

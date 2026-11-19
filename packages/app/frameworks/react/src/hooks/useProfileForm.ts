@@ -4,11 +4,12 @@
  * @module
  */
 
-import { useCallback, useInsertionEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useCallback, useLayoutEffect, useRef, useState } from 'react'
 
 import type { FieldRegistration, FormValuesConstraint } from '@molecule/app-forms'
 import { formValuesEqual, snapshotFormValue } from '@molecule/app-forms'
 
+import { useCommittedRef } from '../render/useCommittedRef.js'
 import { useAuth, useAuthClient } from './useAuth.js'
 import { useForm, type UseFormOptions, type UseFormResult } from './useForm.js'
 
@@ -149,10 +150,8 @@ export function useProfileForm<TUser, TValues extends FormValuesConstraint<TValu
   const mounted = useRef(false)
 
   // Actions use committed configuration, never an abandoned concurrent render.
-  useInsertionEffect(() => {
-    optionsRef.current = options
-    committedClient.current = client
-  }, [options, client])
+  useCommittedRef(optionsRef, options)
+  useCommittedRef(committedClient, client)
   useLayoutEffect(() => {
     mounted.current = true
     return () => {

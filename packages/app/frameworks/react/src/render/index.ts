@@ -19,6 +19,7 @@
  * @module
  */
 
+export * from './useCommittedRef.js'
 export * from './useEffectEvent.js'
 export * from './useStableCallback.js'
 export * from './useValueAtKeyChange.js'

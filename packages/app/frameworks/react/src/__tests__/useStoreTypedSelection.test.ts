@@ -109,6 +109,21 @@ export function Profile() {
     expect(diagnostics.join('\n')).toEqual('')
   })
 
+  it('accepts the resolved value and the parameters as explicit type arguments', () => {
+    const diagnostics = diagnosticsFor(`
+import { usePromise } from '../hooks/usePromise.js'
+
+export function Profile() {
+  const [state, fetchUser] = usePromise<{ name: string }, [id: string]>(async (id) => ({ name: id }))
+  const name: string | undefined = state.value?.name
+  const pending: Promise<{ name: string }> = fetchUser('123')
+  return [name, pending]
+}
+`)
+
+    expect(diagnostics.join('\n')).toEqual('')
+  })
+
   it('refuses arguments the wrapped function does not take', () => {
     const diagnostics = diagnosticsFor(`
 import { usePromise } from '../hooks/usePromise.js'

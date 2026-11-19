@@ -201,7 +201,7 @@ export function useTheme(): UseThemeResult {
     )
     const nextIndex = (currentIndex + 1) % themes.length
     const next = themes[nextIndex]
-    provider.setTheme(typeof next === 'string' ? next : (next as Theme).name)
+    provider.setTheme(typeof next === 'string' ? next : next.name)
   }, [provider])
 
   return {

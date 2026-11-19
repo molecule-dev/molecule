@@ -4,7 +4,7 @@
  * @module
  */
 
-import { useCallback, useContext, useEffect, useMemo, useState, useSyncExternalStore } from 'react'
+import { useCallback, useContext, useEffect, useState, useSyncExternalStore } from 'react'
 
 import { t } from '@molecule/app-i18n'
 import type {
@@ -230,7 +230,18 @@ export function useListRoute<Filter extends string = string, Selection extends s
  */
 export function useConsumedSearchParam(name: string): readonly [string, (value: string) => void] {
   const router = useRouterInstance()
-  const param = useMemo(() => createConsumedSearchParam(router, name), [router, name])
+  // Held in state, not useMemo: once the address is clean the consumed value exists only in
+  // this object, and React may drop a memoized value. A new router or name starts a new one.
+  const [held, setHeld] = useState(() => ({
+    router,
+    name,
+    param: createConsumedSearchParam(router, name),
+  }))
+  let param = held.param
+  if (held.router !== router || held.name !== name) {
+    param = createConsumedSearchParam(router, name)
+    setHeld({ router, name, param })
+  }
   const value = useSyncExternalStore(param.subscribe, param.get, param.get)
   useEffect(() => param.connect(), [param])
   return [value, param.set] as const
