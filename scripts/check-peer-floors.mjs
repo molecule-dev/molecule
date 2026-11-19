@@ -183,31 +183,62 @@ function checkedPeers(pkg, imports, workspaceVersions) {
   const peers = []
   for (const [peer, range] of Object.entries(pkg.peerDependencies ?? {})) {
     if (!peer.startsWith('@molecule/')) continue
-    const names = imports.get(peer)
     const current = workspaceVersions.get(peer)
-    if (names?.size && current) peers.push({ peer, range, current, names })
+    const entries = [...imports]
+      .filter(([specifier, names]) => packageNameOf(specifier) === peer && names.size > 0)
+      .map(([specifier, names]) => ({ entry: entryOf(peer, specifier), names }))
+    if (entries.length && current) peers.push({ peer, range, current, entries })
   }
   return peers
 }
 
 /**
+ * The `exports` map key a specifier resolves through: `.` for the package itself,
+ * `./render` for `@molecule/app-react/render`.
+ *
+ * @param peer - The package name.
+ * @param specifier - The imported specifier (the package name or one of its subpaths).
+ * @returns The entry key.
+ */
+export const entryOf = (peer, specifier) =>
+  specifier === peer ? '.' : `.${specifier.slice(peer.length)}`
+
+/**
  * Find the imported names a package's peer floors do not export.
  *
+ * A name imported from a subpath (`@molecule/app-react/render`) is checked against that
+ * entry of the floor's `exports` map, not the package root: the subpath is a module of its
+ * own, and a user's install resolves it from the floor like any other import (2026-11-19:
+ * `useTagInput` imported `useCommittedRef`, new in app-react's `./render`, under `^4.8.0`,
+ * and passed because subpath imports were skipped; 4.8.0's `./render` lacks it).
+ *
  * @param pkg - The parsed package.json.
- * @param imports - Peer package name → imported name → files importing it.
+ * @param imports - Imported specifier (a peer or one of its subpaths) → imported name →
+ *   files importing it.
  * @param workspaceVersions - Package name → version in this workspace.
- * @param exportsAt - `(name, version)` → the exported names of that published version.
+ * @param exportsAt - `(name, version, entry)` → the names that published version exports
+ *   from `entry` (`.` or a subpath key such as `./render`).
  * @param publishedVersions - Package name → every version npm publishes (empty or
  *   absent when it publishes none).
- * @returns One entry per peer with missing names.
+ * @returns One entry per peer with missing names; a name from a subpath carries its
+ *   `entry`.
  */
 export function findFloorGaps(pkg, imports, workspaceVersions, exportsAt, publishedVersions) {
   const gaps = []
-  for (const { peer, range, current, names } of checkedPeers(pkg, imports, workspaceVersions)) {
+  for (const { peer, range, current, entries } of checkedPeers(pkg, imports, workspaceVersions)) {
     const published = publishedVersions.get(peer) ?? []
     const floor = semver.minSatisfying(published, range)
     if (!floor || semver.gt(floor, current)) continue
-    const missing = [...names.keys()].filter((name) => !exportsAt(peer, floor).has(name)).sort()
+    const lacks = (version) =>
+      entries.flatMap(({ entry, names }) => {
+        const exported = exportsAt(peer, version, entry)
+        return [...names.keys()]
+          .filter((name) => !exported.has(name))
+          .map((name) => ({ entry, name, files: [...names.get(name)].sort() }))
+      })
+    const missing = lacks(floor).sort(
+      (a, b) => a.entry.localeCompare(b.entry) || a.name.localeCompare(b.name),
+    )
     if (missing.length === 0) continue
     // The smallest upgrade that has every name: the lowest version npm serves above the
     // floor, in the workspace version's major and not above it, that exports every
@@ -217,7 +248,6 @@ export function findFloorGaps(pkg, imports, workspaceVersions, exportsAt, publis
     // fetches them together. When none has them all, a workspace version npm does not
     // serve yet releases them as it is; one npm serves without them ships them in the
     // next version, a minor for added exports.
-    const all = [...names.keys()]
     const candidates = published
       .filter(
         (version) =>
@@ -227,10 +257,8 @@ export function findFloorGaps(pkg, imports, workspaceVersions, exportsAt, publis
           semver.major(version) === semver.major(current),
       )
       .sort(semver.compare)
-    const candidateExports = candidates.map((version) => exportsAt(peer, version))
-    const lowest = candidates.find((_version, i) =>
-      all.every((name) => candidateExports[i].has(name)),
-    )
+    const candidateGaps = candidates.map(lacks)
+    const lowest = candidates.find((_version, i) => candidateGaps[i].length === 0)
     gaps.push({
       peer,
       range,
@@ -240,7 +268,9 @@ export function findFloorGaps(pkg, imports, workspaceVersions, exportsAt, publis
         : published.includes(current)
           ? `^${semver.inc(current, 'minor')}`
           : `^${current}`,
-      missing: missing.map((name) => ({ name, files: [...names.get(name)].sort() })),
+      missing: missing.map(({ entry, name, files }) =>
+        entry === '.' ? { name, files } : { name, entry, files },
+      ),
     })
   }
   return gaps
@@ -419,36 +449,111 @@ export async function prefetchTarballs(keys, concurrency = 16) {
 }
 
 /**
- * The exported names of a published package version, from its npm tarball.
- * {@link prefetchTarballs} must have cached it.
+ * The declaration file a package entry resolves to, the way TypeScript resolves an import
+ * of it under NodeNext: the `exports` map key (an exact key, else the longest `*` pattern
+ * that matches), then its `types` condition, else its `import` or `default` target with
+ * `.js` read as `.d.ts`. The root falls back to `types`, `typings`, then `index.d.ts`; a
+ * subpath of a package without an `exports` map is the file at that path.
+ *
+ * @param manifest - The published package.json.
+ * @param entry - `.` or a subpath key such as `./render`.
+ * @returns The path relative to the package root, or null when the package does not
+ *   export the entry (an import of it cannot resolve).
+ */
+export function entryTypesPath(manifest, entry) {
+  const map = manifest.exports
+  const fallback = entry === '.' ? (manifest.types ?? manifest.typings ?? 'index.d.ts') : null
+  if (map === undefined || map === null) return fallback ?? declarationOf(entry)
+  const keyed =
+    typeof map === 'object' &&
+    !Array.isArray(map) &&
+    Object.keys(map).some((k) => k.startsWith('.'))
+  // A map of conditions (or a bare string) exports the root alone.
+  if (!keyed) return entry === '.' ? (typesOf(map) ?? fallback) : null
+  let target = map[entry]
+  let star
+  if (target === undefined) {
+    const pattern = Object.keys(map)
+      .filter((key) => {
+        const at = key.indexOf('*')
+        return (
+          at >= 0 &&
+          entry.length >= key.length - 1 &&
+          entry.startsWith(key.slice(0, at)) &&
+          entry.endsWith(key.slice(at + 1))
+        )
+      })
+      .sort((a, b) => b.length - a.length)[0]
+    if (pattern === undefined) return null
+    const at = pattern.indexOf('*')
+    star = entry.slice(at, entry.length - (pattern.length - at - 1))
+    target = map[pattern]
+  }
+  const types = typesOf(target) ?? fallback
+  if (types === null) return null
+  return star === undefined ? types : types.replaceAll('*', star)
+}
+
+/**
+ * The declaration file next to a JavaScript path (`./dist/x.js` → `./dist/x.d.ts`).
+ *
+ * @param path - A `.js`, `.mjs` or `.cjs` path; any other path is returned as is.
+ * @returns The declaration path.
+ */
+const declarationOf = (path) => path.replace(/\.(m|c)?js$/, '.d.$1ts')
+
+/**
+ * The declaration file an `exports` target names: its `types` condition, else its `import`
+ * or `default` target's declaration file.
+ *
+ * @param target - A string target or a conditions object.
+ * @returns The path, or undefined when the target names none.
+ */
+function typesOf(target) {
+  if (typeof target === 'string') return declarationOf(target)
+  if (!target || typeof target !== 'object' || Array.isArray(target)) return undefined
+  if (typeof target.types === 'string') return target.types
+  return typesOf(target.import) ?? typesOf(target.default)
+}
+
+/**
+ * The names a published package version exports from one entry, from its npm tarball.
+ * {@link prefetchTarballs} must have cached it. A subpath the version does not export, or
+ * whose declaration file it does not ship, exports nothing (an import of it cannot resolve);
+ * a root without its declaration file is an error, as before subpaths were read.
  *
  * @param name - Package name.
  * @param version - Exact version.
+ * @param entry - `.` (the default) or a subpath key such as `./render`.
  * @returns The names.
  */
-export function publishedExports(name, version) {
+export function publishedExports(name, version, entry = '.') {
   const key = `${name}@${version}`
-  if (exportCache.has(key)) return exportCache.get(key)
+  const cacheKey = `${key}${entry === '.' ? '' : entry.slice(1)}`
+  if (exportCache.has(cacheKey)) return exportCache.get(cacheKey)
   const dir = cacheDir(key)
   const pkgDir = join(dir, 'package')
-  const stored = join(dir, EXPORTS_FILE)
+  const stored = join(
+    dir,
+    entry === '.'
+      ? EXPORTS_FILE
+      : EXPORTS_FILE.replace('.json', `-${encodeURIComponent(entry.slice(2))}.json`),
+  )
   if (existsSync(stored)) {
     const names = new Set(JSON.parse(readFileSync(stored, 'utf8')))
-    exportCache.set(key, names)
+    exportCache.set(cacheKey, names)
     return names
   }
   if (!existsSync(join(pkgDir, 'package.json')))
     throw new Error(`${key} is not cached: call prefetchTarballs first`)
   const manifest = JSON.parse(readFileSync(join(pkgDir, 'package.json'), 'utf8'))
-  const root = manifest.exports?.['.']
-  const types =
-    (typeof root === 'object' ? root.types : undefined) ??
-    manifest.types ??
-    manifest.typings ??
-    'index.d.ts'
-  const names = declaredExports(join(pkgDir, types))
+  const types = entryTypesPath(manifest, entry)
+  const names =
+    types !== null && (entry === '.' || existsSync(join(pkgDir, types)))
+      ? declaredExports(join(pkgDir, types))
+      : new Set()
   writeFileSync(stored, JSON.stringify([...names].sort()))
-  exportCache.set(key, names)
+  exportCache.set(cacheKey, names)
   return names
 }
 
@@ -555,10 +660,12 @@ function readFleet(root, only = null) {
       const text = readFileSync(file, 'utf8')
       let classMapPeer
       for (const [specifier, names] of namedImports(scriptText(text, file), file)) {
-        // Subpath imports name a module of their own; only the root entry is checked.
-        if (specifier !== packageNameOf(specifier) || !peers.includes(specifier)) continue
+        // A subpath import is kept under its own specifier: it is checked against that
+        // entry of the peer's exports map (see findFloorGaps).
+        if (!peers.includes(packageNameOf(specifier))) continue
         for (const name of names) use(specifier, name, rel)
-        if (names.has('getClassMap') || names.has(CLASS_MAP)) classMapPeer = specifier
+        const isRoot = specifier === packageNameOf(specifier)
+        if (isRoot && (names.has('getClassMap') || names.has(CLASS_MAP))) classMapPeer = specifier
       }
       if (!classMapPeer) continue
       const members = classMapMembersOf(classMapPeer)
@@ -607,9 +714,9 @@ export async function scanFleet(
   const fetched = new Set()
   for (;;) {
     const wanted = new Set()
-    const read = (name, version) => {
+    const read = (name, version, entry) => {
       const key = `${name}@${version}`
-      if (fetched.has(key)) return exportsAt(name, version)
+      if (fetched.has(key)) return exportsAt(name, version, entry)
       wanted.add(key)
       return EVERY_NAME
     }
@@ -646,10 +753,17 @@ if (isMain) {
   } else {
     for (const row of rows) {
       for (const gap of row.gaps) {
-        const names = gap.missing.map((m) => m.name).join(', ')
+        // `a, b from @molecule/x and c from @molecule/x/render`: each entry with its names.
+        const byEntry = Map.groupBy(gap.missing, (m) => m.entry ?? '.')
+        const uses = [...byEntry]
+          .map(([entry, missing]) => {
+            const from = entry === '.' ? gap.peer : `${gap.peer}${entry.slice(1)}`
+            return `${missing.map((m) => m.name).join(', ')} from ${from}`
+          })
+          .join(' and ')
         const files = [...new Set(gap.missing.flatMap((m) => m.files))].join(', ')
         console.error(
-          `✗ ${row.package} uses ${names} from ${gap.peer}, which ${gap.peer}@${gap.floor} ` +
+          `✗ ${row.package} uses ${uses}, which ${gap.peer}@${gap.floor} ` +
             `(the floor of "${gap.range}") does not declare — raise it to "${gap.fix}" in ` +
             `${row.dir}/package.json peerDependencies (${files})`,
         )

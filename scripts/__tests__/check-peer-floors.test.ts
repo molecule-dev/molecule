@@ -25,6 +25,7 @@ import {
   CLASS_MAP_EVERY_MEMBER,
   classMapReads,
   declaredExports,
+  entryTypesPath,
   fetchPublishedVersions,
   findFloorGaps,
   namedImports,
@@ -299,6 +300,108 @@ describe('findFloorGaps', () => {
     expect(findFloorGaps(pkg, new Map(), versions, read, publishing('1.0.0'))).toEqual([])
     expect(read).not.toHaveBeenCalled()
   })
+
+  it("checks a subpath import against that entry of the floor's exports map", () => {
+    // 2026-11-19: useTagInput imported useCommittedRef from @molecule/app-react/render under
+    // ^4.8.0, and 4.8.0's ./render lacks it. Subpath imports were skipped, so it passed.
+    const byEntry: Record<string, Record<string, string[]>> = {
+      '1.0.0': { '.': ['old', 'rootOnly'], './render': ['useLatest'] },
+      '1.2.0': { '.': ['old'], './render': ['useLatest', 'useCommittedRef'] },
+    }
+    const read = (name: string, version: string, entry: string): Set<string> => {
+      const names = name === '@molecule/core' ? byEntry[version]?.[entry] : undefined
+      if (!names) throw new Error(`read ${name}@${version} ${entry}, which npm does not publish`)
+      return new Set(names)
+    }
+    const imports = new Map([
+      ['@molecule/core', new Map([['old', new Set(['src/a.ts'])]])],
+      [
+        '@molecule/core/render',
+        new Map([
+          ['useCommittedRef', new Set(['src/hook.ts'])],
+          ['useLatest', new Set(['src/hook.ts'])],
+          // Exported by the root, not by ./render: the entry decides.
+          ['rootOnly', new Set(['src/hook.ts'])],
+        ]),
+      ],
+    ])
+    expect(
+      findFloorGaps(
+        { peerDependencies: { '@molecule/core': '^1.0.0' } },
+        imports,
+        versions,
+        read,
+        publishing('1.0.0', '1.2.0'),
+      ),
+    ).toEqual([
+      {
+        peer: '@molecule/core',
+        range: '^1.0.0',
+        floor: '1.0.0',
+        // 1.2.0 still lacks rootOnly in ./render, so no served version fixes it: release 1.4.0.
+        fix: '^1.4.0',
+        missing: [
+          { name: 'rootOnly', entry: './render', files: ['src/hook.ts'] },
+          { name: 'useCommittedRef', entry: './render', files: ['src/hook.ts'] },
+        ],
+      },
+    ])
+    imports.get('@molecule/core/render')!.delete('rootOnly')
+    expect(
+      findFloorGaps(
+        { peerDependencies: { '@molecule/core': '^1.0.0' } },
+        imports,
+        versions,
+        read,
+        publishing('1.0.0', '1.2.0'),
+      ),
+    ).toEqual([
+      expect.objectContaining({
+        fix: '^1.2.0',
+        missing: [{ name: 'useCommittedRef', entry: './render', files: ['src/hook.ts'] }],
+      }),
+    ])
+  })
+})
+
+describe('entryTypesPath', () => {
+  const manifest = {
+    types: './dist/index.d.ts',
+    exports: {
+      '.': { types: './dist/index.d.ts', import: './dist/index.js' },
+      './render': { types: './dist/render/index.d.ts', import: './dist/render/index.js' },
+      './components/Tooltip.js': { import: './dist/components/Tooltip.js' },
+      './optional/*.js': { types: './dist/optional/*.d.ts', import: './dist/optional/*.js' },
+      './optional/special/*.js': './dist/special/*.js',
+      './package.json': './package.json',
+    },
+  }
+
+  it('reads an exact key, else the longest matching pattern, through its types condition', () => {
+    expect(entryTypesPath(manifest, '.')).toBe('./dist/index.d.ts')
+    expect(entryTypesPath(manifest, './render')).toBe('./dist/render/index.d.ts')
+    expect(entryTypesPath(manifest, './components/Tooltip.js')).toBe(
+      './dist/components/Tooltip.d.ts',
+    )
+    expect(entryTypesPath(manifest, './optional/maps-leaflet.js')).toBe(
+      './dist/optional/maps-leaflet.d.ts',
+    )
+    expect(entryTypesPath(manifest, './optional/special/a.js')).toBe('./dist/special/a.d.ts')
+  })
+
+  it('names no file for a subpath the map does not export', () => {
+    expect(entryTypesPath(manifest, './hooks')).toBeNull()
+    expect(entryTypesPath({ exports: { types: './i.d.ts', import: './i.js' } }, './x')).toBeNull()
+  })
+
+  it('falls back to types, typings and index.d.ts for the root, and a path without a map', () => {
+    expect(entryTypesPath({ exports: { types: './i.d.ts', import: './i.js' } }, '.')).toBe(
+      './i.d.ts',
+    )
+    expect(entryTypesPath({ typings: './t.d.ts' }, '.')).toBe('./t.d.ts')
+    expect(entryTypesPath({}, '.')).toBe('index.d.ts')
+    expect(entryTypesPath({}, './types.js')).toBe('./types.d.ts')
+  })
 })
 
 describe('classMapReads', () => {
@@ -464,6 +567,34 @@ describe('publishedExports', () => {
   it('refuses a version that was never fetched', () => {
     expect(() => publishedExports('@molecule/cached', '0.1.0')).toThrow(/prefetchTarballs/)
   })
+
+  it('reads a subpath through its exports entry, and nothing from one it does not export', () => {
+    const pkgDir = join(cache, '@molecule+sub@1.0.0', 'package')
+    mkdirSync(join(pkgDir, 'dist', 'render'), { recursive: true })
+    writeFileSync(
+      join(pkgDir, 'package.json'),
+      JSON.stringify({
+        exports: {
+          '.': { types: './dist/index.d.ts' },
+          './render': { types: './dist/render/index.d.ts' },
+          './gone': { types: './dist/gone.d.ts' },
+        },
+      }),
+    )
+    writeFileSync(join(pkgDir, 'dist', 'index.d.ts'), 'export declare const root: 1')
+    writeFileSync(join(pkgDir, 'dist', 'render', 'index.d.ts'), 'export declare const useLatest: 1')
+    expect([...publishedExports('@molecule/sub', '1.0.0')]).toEqual(['root'])
+    expect([...publishedExports('@molecule/sub', '1.0.0', './render')]).toEqual(['useLatest'])
+    // Not in the map, or in the map without its file: an import of it cannot resolve.
+    expect(publishedExports('@molecule/sub', '1.0.0', './hooks').size).toBe(0)
+    expect(publishedExports('@molecule/sub', '1.0.0', './gone').size).toBe(0)
+    // Each entry's list is stored on its own, beside the root's.
+    expect(
+      JSON.parse(
+        readFileSync(join(cache, '@molecule+sub@1.0.0', 'exports-v2-render.json'), 'utf8'),
+      ),
+    ).toEqual(['useLatest'])
+  })
 })
 
 describe('scanFleet', () => {
@@ -483,11 +614,9 @@ describe('scanFleet', () => {
         "import { createHistoryRouter, getRouter } from '@molecule/app-routing'",
       'packages/app/bonds/routing/x/src/Link.svelte':
         '<script lang="ts">\nimport { resolveListRoute } from \'@molecule/app-routing\'\n</script>',
-      // Tests, subpath imports and private packages are not what a user installs.
+      // Tests and private packages are not what a user installs.
       'packages/app/bonds/routing/x/src/__tests__/router.test.ts':
         "import { testOnly } from '@molecule/app-routing'",
-      'packages/app/bonds/routing/x/src/sub.ts':
-        "import { subpathOnly } from '@molecule/app-routing/types.js'",
       'packages/app/private/package.json': JSON.stringify({
         name: '@molecule/private',
         version: '1.0.0',
@@ -535,6 +664,61 @@ describe('scanFleet', () => {
                 {
                   name: 'resolveListRoute',
                   files: ['packages/app/bonds/routing/x/src/Link.svelte'],
+                },
+              ],
+            },
+          ],
+        },
+      ])
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  })
+
+  it("reports a subpath import its floor's entry lacks, and reads that entry", async () => {
+    const root = tree({
+      'packages/app/frameworks/react/package.json': JSON.stringify({
+        name: '@molecule/app-react',
+        version: '4.8.0',
+      }),
+      'packages/app/frameworks/react/src/index.ts': 'export const useHttp = () => null',
+      'packages/app/features/tag-input-react/package.json': JSON.stringify({
+        name: '@molecule/app-tag-input-react',
+        version: '1.0.0',
+        peerDependencies: { '@molecule/app-react': '^4.8.0' },
+      }),
+      'packages/app/features/tag-input-react/src/useTagInput.ts': [
+        "import { useHttp } from '@molecule/app-react'",
+        "import { useCommittedRef } from '@molecule/app-react/render'",
+      ].join('\n'),
+    })
+    try {
+      const reads: string[] = []
+      const rows = await scanFleet(root, {
+        versionsOf: async () => new Map([['@molecule/app-react', ['4.7.3', '4.8.0']]]),
+        prefetch: async () => undefined,
+        exportsAt: (name: string, version: string, entry: string) => {
+          reads.push(`${name}@${version} ${entry}`)
+          return new Set(entry === '.' ? ['useHttp'] : ['useInsertionHandler'])
+        },
+      })
+      expect(reads).toEqual(['@molecule/app-react@4.8.0 .', '@molecule/app-react@4.8.0 ./render'])
+      expect(rows).toEqual([
+        {
+          package: '@molecule/app-tag-input-react',
+          dir: 'packages/app/features/tag-input-react',
+          gaps: [
+            {
+              peer: '@molecule/app-react',
+              range: '^4.8.0',
+              floor: '4.8.0',
+              // 4.8.0 is the workspace version and npm already serves it: the next minor.
+              fix: '^4.9.0',
+              missing: [
+                {
+                  name: 'useCommittedRef',
+                  entry: './render',
+                  files: ['packages/app/features/tag-input-react/src/useTagInput.ts'],
                 },
               ],
             },
