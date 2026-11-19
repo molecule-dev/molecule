@@ -21,8 +21,8 @@ declare module 'expo-notifications' {
     sound: string | { [key: string]: string } | null
   }
 
-  /** Minimal notification request shape. */
-  interface NotificationRequest {
+  /** Minimal notification request shape (a scheduled notification, as the real package names it). */
+  export interface NotificationRequest {
     identifier: string
     content: NotificationContent
   }
@@ -46,12 +46,6 @@ declare module 'expo-notifications' {
   /** Minimal device push token shape. */
   export interface DevicePushToken {
     data: string | object
-  }
-
-  /** Minimal scheduled notification shape. */
-  export interface ScheduledNotification {
-    identifier: string
-    content: NotificationContent
   }
 
   /**
@@ -123,7 +117,7 @@ declare module 'expo-notifications' {
   }): Promise<string>
   export function cancelScheduledNotificationAsync(id: string): Promise<void>
   export function cancelAllScheduledNotificationsAsync(): Promise<void>
-  export function getAllScheduledNotificationsAsync(): Promise<ScheduledNotification[]>
+  export function getAllScheduledNotificationsAsync(): Promise<NotificationRequest[]>
   export function getPresentedNotificationsAsync(): Promise<Notification[]>
   export function dismissNotificationAsync(id: string): Promise<void>
   export function dismissAllNotificationsAsync(): Promise<void>

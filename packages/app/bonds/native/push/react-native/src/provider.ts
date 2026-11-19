@@ -9,9 +9,9 @@
 import type {
   DevicePushToken as ExpoDevicePushToken,
   Notification as ExpoNotification,
+  NotificationRequest as ExpoNotificationRequest,
   NotificationResponse as ExpoNotificationResponse,
   NotificationTriggerInput as ExpoNotificationTriggerInput,
-  ScheduledNotification as ExpoScheduledNotification,
 } from 'expo-notifications'
 
 import { t } from '@molecule/app-i18n'
@@ -394,7 +394,7 @@ export function createReactNativePushProvider(config: ReactNativePushConfig = {}
     async getPendingLocal(): Promise<LocalNotificationOptions[]> {
       const Notifications = await getExpoNotifications()
       const pending = await Notifications.getAllScheduledNotificationsAsync()
-      return pending.map((n: ExpoScheduledNotification) => ({
+      return pending.map((n: ExpoNotificationRequest) => ({
         id: n.identifier,
         title: n.content.title ?? '',
         body: n.content.body ?? undefined,

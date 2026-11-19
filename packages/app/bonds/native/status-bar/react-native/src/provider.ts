@@ -6,7 +6,7 @@
  * @module
  */
 
-import type { StatusBarStatic } from 'react-native'
+import type { StatusBar } from 'react-native'
 
 import { t } from '@molecule/app-i18n'
 import type {
@@ -45,7 +45,7 @@ async function loadReactNative(): Promise<typeof import('react-native')> {
  * Dynamically loads react-native StatusBar.
  * @returns The StatusBar module.
  */
-async function getReactNativeStatusBar(): Promise<StatusBarStatic> {
+async function getReactNativeStatusBar(): Promise<typeof StatusBar> {
   try {
     const { StatusBar } = await loadReactNative()
     return StatusBar

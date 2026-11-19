@@ -8,6 +8,7 @@
 
 ### Patch Changes
 
+- Requires `@solidjs/router` 0.16.1 or later, the first release that exports `RouterContext`.
 - Report the location without the router's `base`, decode `getParams()` values as React Router does, and add `createHref` (the href `<A>` renders).
 
 ## 1.1.0

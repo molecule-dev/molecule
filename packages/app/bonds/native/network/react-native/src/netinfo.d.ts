@@ -21,15 +21,12 @@ declare module '@react-native-community/netinfo' {
     } | null
   }
 
-  /** NetInfo module shape used by this provider. */
-  export interface NetInfoModule {
-    fetch(): Promise<NetInfoState>
-    addEventListener(callback: (state: NetInfoState) => void): () => void
-  }
-
   export function fetch(): Promise<NetInfoState>
   export function addEventListener(callback: (state: NetInfoState) => void): () => void
 
-  const _default: NetInfoModule
+  const _default: {
+    fetch(): Promise<NetInfoState>
+    addEventListener(callback: (state: NetInfoState) => void): () => void
+  }
   export default _default
 }

@@ -8,6 +8,7 @@
 
 ### Patch Changes
 
+- Requires Vue 3.4.20 or later, the first release that exports `DefineSetupFnComponent`.
 - The routing hooks throw an `I18nError` that names how to install the router when the app has none.
 
 ## 1.1.0

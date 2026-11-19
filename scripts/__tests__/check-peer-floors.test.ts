@@ -12,6 +12,7 @@ import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
+import semver from 'semver'
 import { afterAll, describe, expect, it, vi } from 'vitest'
 
 // The cache location is read when the module loads, so it is set before the import.
@@ -33,6 +34,7 @@ import {
   packagesForPaths,
   prefetchTarballs,
   publishedExports,
+  raisedRange,
   scanFleet,
   scriptText,
 } from '../check-peer-floors.mjs'
@@ -322,13 +324,76 @@ describe('findFloorGaps', () => {
     expect(read).not.toHaveBeenCalled()
   })
 
-  it('ignores peers outside @molecule and peers the package imports nothing from', () => {
+  it('ignores peers the package imports nothing from', () => {
     const pkg = {
       peerDependencies: { react: '^18.0.0', '@molecule/core': '^1.0.0' },
     }
     const read = vi.fn(exportsAt)
-    expect(findFloorGaps(pkg, new Map(), versions, read, publishing('1.0.0'))).toEqual([])
+    const published = new Map([...publishing('1.0.0'), ['react', ['18.0.0']]])
+    expect(findFloorGaps(pkg, new Map(), versions, read, published)).toEqual([])
     expect(read).not.toHaveBeenCalled()
+  })
+
+  describe('a third-party peer', () => {
+    /** Names per published vue version; null for a version that ships no declarations. */
+    const vueAt = (table: Record<string, string[] | null>) =>
+      vi.fn((name: string, version: string): Set<string> | null => {
+        if (name !== 'vue' || !(version in table))
+          throw new Error(`read ${name}@${version}, which npm does not publish`)
+        const names = table[version]
+        return names && new Set(names)
+      })
+    const vue = (...list: string[]) => new Map([['vue', list]])
+    const pkg = { peerDependencies: { vue: '^3.4.0' } }
+    const imports = importsOf('vue', ['ref', 'useTemplateRef'])
+
+    it('names the lowest version its range allows that declares every imported name', () => {
+      // 2026-11-19: 22 Vue ports called useTemplateRef, new in vue 3.5, under ^3.4.0. Only
+      // @molecule peers were checked, so a user on vue 3.4 got a missing export.
+      const read = vueAt({
+        '3.4.0': ['ref'],
+        '3.4.5': ['ref'],
+        '3.5.0': ['ref', 'useTemplateRef'],
+        '3.5.3': ['ref', 'useTemplateRef'],
+      })
+      expect(
+        findFloorGaps(
+          pkg,
+          imports,
+          new Map(),
+          read,
+          vue('3.3.0', '3.4.0', '3.4.5', '3.5.0-beta.1', '3.5.0', '3.5.3'),
+        ),
+      ).toEqual([
+        {
+          peer: 'vue',
+          range: '^3.4.0',
+          floor: '3.4.0',
+          fix: '^3.5.0',
+          missing: [{ name: 'useTemplateRef', files: ['src/a.ts'] }],
+        },
+      ])
+      // A prerelease is never a candidate, and a version below the floor is never read.
+      expect(read).not.toHaveBeenCalledWith('vue', '3.5.0-beta.1', '.')
+      expect(read).not.toHaveBeenCalledWith('vue', '3.3.0', '.')
+    })
+
+    it('passes when the floor declares every imported name', () => {
+      const read = vueAt({ '3.4.0': ['ref', 'useTemplateRef'] })
+      expect(findFloorGaps(pkg, imports, new Map(), read, vue('3.4.0', '3.5.0'))).toEqual([])
+    })
+
+    it('names no fix when no version the range allows declares the names', () => {
+      const read = vueAt({ '3.4.0': ['ref'], '3.5.0': ['ref'] })
+      expect(
+        findFloorGaps(pkg, imports, new Map(), read, vue('3.4.0', '3.5.0')).map(({ fix }) => fix),
+      ).toEqual([null])
+    })
+
+    it('skips a floor that ships no declarations, whose types a user picks from @types', () => {
+      const read = vueAt({ '3.4.0': null })
+      expect(findFloorGaps(pkg, imports, new Map(), read, vue('3.4.0', '3.5.0'))).toEqual([])
+    })
   })
 
   it("checks a subpath import against that entry of the floor's exports map", () => {
@@ -401,6 +466,20 @@ describe('findFloorGaps', () => {
         ],
       }),
     ])
+  })
+})
+
+describe('raisedRange', () => {
+  it('starts the alternative holding the version at it, keeping its shorthand or upper bound', () => {
+    expect(raisedRange('^3.4.0', '3.5.0')).toBe('^3.5.0')
+    expect(raisedRange('~0.16.0', '0.16.1')).toBe('~0.16.1')
+    expect(raisedRange('>=9.0.0', '11.0.0')).toBe('>=11.0.0')
+    expect(raisedRange('>=1.0.0 <3.0.0', '2.1.0')).toBe('>=2.1.0 <3.0.0')
+  })
+
+  it('drops the alternatives wholly below the version and keeps the higher ones', () => {
+    expect(raisedRange('^7.0.0 || ^8.0.0', '7.2.0')).toBe('^7.2.0 || ^8.0.0')
+    expect(raisedRange('^7.0.0 || ^8.0.0', '8.1.0')).toBe('^8.1.0')
   })
 })
 
@@ -588,6 +667,37 @@ describe('declaredExports', () => {
       rmSync(root, { recursive: true, force: true })
     }
   })
+
+  it('reads a module the file declares by name, as a DefinitelyTyped package does', () => {
+    const root = tree({
+      'index.d.ts': "declare module 'netinfo-like' {\n  export const fetch: () => void\n}",
+    })
+    try {
+      expect([...declaredExports(join(root, 'index.d.ts'), 'netinfo-like')]).toEqual(['fetch'])
+      expect(() => declaredExports(join(root, 'index.d.ts'), 'another')).toThrow(/not a module/)
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  })
+
+  it('reads export = as a default export beside the members it carries', () => {
+    const root = tree({
+      'index.d.ts': [
+        'declare function lib(): void',
+        'declare namespace lib {',
+        '  const version: string',
+        '}',
+        'export = lib',
+      ].join('\n'),
+    })
+    try {
+      expect([...declaredExports(join(root, 'index.d.ts'))]).toEqual(
+        expect.arrayContaining(['default', 'version']),
+      )
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  })
 })
 
 describe('publishedExports', () => {
@@ -637,9 +747,35 @@ describe('publishedExports', () => {
     // Each entry's list is stored on its own, beside the root's.
     expect(
       JSON.parse(
-        readFileSync(join(cache, '@molecule+sub@1.0.0', 'exports-v2-render.json'), 'utf8'),
+        readFileSync(join(cache, '@molecule+sub@1.0.0', 'exports-v3-render.json'), 'utf8'),
       ),
     ).toEqual(['useLatest'])
+  })
+
+  it('reads nothing from a third-party version without declarations, and stores that', () => {
+    // Its types come from @types/*, whose version a user picks apart from the package's.
+    const pkgDir = join(cache, 'untyped@1.0.0', 'package')
+    mkdirSync(pkgDir, { recursive: true })
+    writeFileSync(join(pkgDir, 'package.json'), JSON.stringify({ name: 'untyped', main: 'i.js' }))
+    expect(publishedExports('untyped', '1.0.0')).toBeNull()
+    expect(
+      JSON.parse(readFileSync(join(cache, 'untyped@1.0.0', 'exports-v3.json'), 'utf8')),
+    ).toBeNull()
+  })
+
+  it('refuses a @molecule version whose manifest names a declaration file it does not ship', () => {
+    const pkgDir = join(cache, '@molecule+hollow@1.0.0', 'package')
+    mkdirSync(pkgDir, { recursive: true })
+    writeFileSync(join(pkgDir, 'package.json'), JSON.stringify({ types: './dist/index.d.ts' }))
+    expect(() => publishedExports('@molecule/hollow', '1.0.0')).toThrow(/does not ship/)
+  })
+
+  it('resolves a types path naming a directory to its index, as react-native\'s "types" does', () => {
+    const pkgDir = join(cache, 'native-like@1.0.0', 'package')
+    mkdirSync(join(pkgDir, 'types'), { recursive: true })
+    writeFileSync(join(pkgDir, 'package.json'), JSON.stringify({ types: 'types' }))
+    writeFileSync(join(pkgDir, 'types', 'index.d.ts'), 'export declare const StatusBar: 1')
+    expect([...publishedExports('native-like', '1.0.0')!]).toEqual(['StatusBar'])
   })
 })
 
@@ -719,6 +855,58 @@ describe('scanFleet', () => {
           ],
         },
       ])
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  })
+
+  it('finds the fix for a third-party peer over passes, reading only what it fetched', async () => {
+    const root = tree({
+      'packages/app/frameworks/vue/package.json': JSON.stringify({
+        name: '@molecule/app-x-vue',
+        version: '1.0.0',
+        peerDependencies: { vue: '^3.4.0' },
+      }),
+      'packages/app/frameworks/vue/src/X.vue':
+        '<script setup lang="ts">\nimport { ref, useTemplateRef } from \'vue\'\n</script>',
+    })
+    try {
+      const list = ['3.4.0', '3.4.1', '3.4.2', '3.4.3', '3.5.0', '3.5.1', '3.5.2']
+      const fetched = new Set<string>()
+      const prefetch = vi.fn(async (keys: string[]) => {
+        for (const key of keys) fetched.add(key)
+      })
+      const rows = await scanFleet(root, {
+        versionsOf: async (names: string[]) => {
+          expect(names).toEqual(['vue'])
+          return new Map([['vue', list]])
+        },
+        prefetch,
+        exportsAt: (name: string, version: string) => {
+          if (!fetched.has(`${name}@${version}`))
+            throw new Error(`read ${name}@${version} unfetched`)
+          return new Set(semver.lt(version, '3.5.0') ? ['ref'] : ['ref', 'useTemplateRef'])
+        },
+      })
+      expect(rows).toEqual([
+        {
+          package: '@molecule/app-x-vue',
+          dir: 'packages/app/frameworks/vue',
+          gaps: [
+            {
+              peer: 'vue',
+              range: '^3.4.0',
+              floor: '3.4.0',
+              fix: '^3.5.0',
+              missing: [
+                { name: 'useTemplateRef', files: ['packages/app/frameworks/vue/src/X.vue'] },
+              ],
+            },
+          ],
+        },
+      ])
+      // A binary search over the versions above the floor, not a read of each one.
+      expect(fetched.size).toBeLessThan(list.length)
     } finally {
       rmSync(root, { recursive: true, force: true })
     }
@@ -1166,19 +1354,77 @@ describe('scanFleet', () => {
 })
 
 describe('the registry reads', () => {
-  /** A tarball of one package whose declarations export `names`. */
-  const tarball = (names: string[]): Buffer => {
-    const root = tree({
-      'package/package.json': JSON.stringify({ types: 'index.d.ts' }),
-      'package/index.d.ts': names.map((n) => `export declare const ${n}: 1`).join('\n'),
-    })
+  /** A gzipped tarball of `files`, each path starting with its top directory. */
+  const tarOf = (files: Record<string, string>): Buffer => {
+    const root = tree(files)
     try {
-      execFileSync('tar', ['-czf', join(root, 'p.tgz'), '-C', root, 'package'])
+      const tops = [...new Set(Object.keys(files).map((file) => file.split('/')[0]))]
+      execFileSync('tar', ['-czf', join(root, 'p.tgz'), '-C', root, ...tops])
       return readFileSync(join(root, 'p.tgz'))
     } finally {
       rmSync(root, { recursive: true, force: true })
     }
   }
+
+  /** A tarball of one package whose declarations export `names`. */
+  const tarball = (names: string[]): Buffer =>
+    tarOf({
+      'package/package.json': JSON.stringify({ types: 'index.d.ts' }),
+      'package/index.d.ts': names.map((n) => `export declare const ${n}: 1`).join('\n'),
+    })
+
+  const gzip = (body: Buffer) => ({ type: 'application/octet-stream', body })
+  const versionsDoc = (...list: string[]) => ({
+    type: 'application/vnd.npm.install-v1+json',
+    body: JSON.stringify({ versions: Object.fromEntries(list.map((v) => [v, {}])) }),
+  })
+
+  it("stores a tarball whose top directory is the package's name, as @types tarballs are", async () => {
+    await withRegistry(
+      {
+        '/@types/estree-like/-/estree-like-1.0.0.tgz': gzip(
+          tarOf({
+            'estree-like/package.json': JSON.stringify({ name: '@types/estree-like' }),
+            'estree-like/index.d.ts': 'export declare const node: 1',
+          }),
+        ),
+      },
+      async () => {
+        await prefetchTarballs(['@types/estree-like@1.0.0'])
+        expect([...publishedExports('@types/estree-like', '1.0.0')!]).toEqual(['node'])
+      },
+    )
+  })
+
+  it('reads the names a version re-exports from another package, at the lowest version it allows', async () => {
+    // vue's declarations are `export * from '@vue/runtime-dom'` and little else: without that
+    // package beside it, every Vue name read as missing.
+    await withRegistry(
+      {
+        '/vue-like/-/vue-like-3.4.0.tgz': gzip(
+          tarOf({
+            'package/package.json': JSON.stringify({
+              name: 'vue-like',
+              types: 'index.d.ts',
+              dependencies: { '@vue-like/runtime': '^3.4.0' },
+            }),
+            'package/index.d.ts': "export * from '@vue-like/runtime'\nexport declare const own: 1",
+          }),
+        ),
+        '/@vue-like%2fruntime': versionsDoc('3.3.0', '3.4.0', '3.4.2'),
+        '/@vue-like/runtime/-/runtime-3.4.0.tgz': gzip(tarball(['ref'])),
+      },
+      async (requests) => {
+        await prefetchTarballs(['vue-like@3.4.0'])
+        expect([...publishedExports('vue-like', '3.4.0')!].sort()).toEqual(['own', 'ref'])
+        expect(requests.some((r) => r.includes('runtime-3.4.2'))).toBe(false)
+        // The links are stored and reused: a second prefetch asks npm for nothing.
+        const before = requests.length
+        await prefetchTarballs(['vue-like@3.4.0'])
+        expect(requests.length).toBe(before)
+      },
+    )
+  })
 
   /** Serve a fake registry for the duration of `body`. */
   const withRegistry = async (

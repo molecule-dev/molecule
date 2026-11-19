@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
- * Every name a package imports from a `@molecule/*` peer must exist in the LOWEST
- * PUBLISHED version that peer's range allows.
+ * Every name a package imports from a peer must exist in the LOWEST PUBLISHED version
+ * that peer's range allows: a `@molecule/*` peer and a third-party one alike.
  *
  * WHY THIS GATE EXISTS: npm workspaces link every package to its newest local
  * source, so a bond can import an export its core gained in this release and still
@@ -9,13 +9,16 @@
  * A user who installs the new bond next to an older core that the range still
  * allows then gets a missing export at build or load time. (2026-11-13: six routing
  * bonds imported `createHistoryRouter` and five framework bindings imported
- * `resolveListRoute`, all new since app-routing 1.0.5, under `^1.0.1`.)
+ * `resolveListRoute`, all new since app-routing 1.0.5, under `^1.0.1`.) A third-party peer
+ * is no different: 22 Vue packages imported `useId`, new in Vue 3.5, under `"vue": "^3.4.0"`,
+ * and the Svelte IDE package imported Svelte 5.40's `createContext` under `^5.0.0`
+ * (2026-11-19), invisible here because the workspace installs one newest version.
  *
  * Rules, per publishable package under packages/:
- * - Reads the named imports and `export { … } from` names of every bare
- *   `@molecule/*` specifier in its shipped `src/**` (`.ts`/`.tsx`/`.mts`/`.cts`, and
- *   the `<script>` blocks of `.svelte`/`.vue` files), skipping tests.
- * - For each `@molecule/*` peer it imports names from, the floor is the lowest
+ * - Reads the named imports and `export { … } from` names of every bare specifier of
+ *   a peer in its shipped `src/**` (`.ts`/`.tsx`/`.mts`/`.cts`, and the `<script>`
+ *   blocks of `.svelte`/`.vue` files), skipping tests.
+ * - For each peer it imports names from, the floor is the lowest
  *   version npm publishes that the range allows: what a user's install can resolve.
  *   It is NOT the range's minimum: `^1.1.0` over published 1.0.5 and 1.2.0 installs
  *   1.2.0, so 1.2.0 is checked (2026-11-14: four framework bindings imported
@@ -39,7 +42,18 @@
  *   reads `undefined` for a class, or throws calling a member function (2026-11-15: 72
  *   published packages read members such as `touchTargetCompact`, `iconGlyphFont` and
  *   `accentCard` under `^1.0.1`, whose 1.0.1 has none of them).
- * - The floor's published type declarations must export every imported name.
+ * - A third-party peer is checked the same way, with three differences. It has no
+ *   workspace version, so every version the range allows is a candidate fix. A star
+ *   re-export of it (`export * from 'vue'`) passes on whatever the installed version
+ *   has, so it names nothing to check. And a peer whose floor publishes no declaration
+ *   file for the entry (`react`, `express`: their types are `@types/*` packages, which a
+ *   user installs at any version, not the peer's) has nothing this check can read.
+ * - The floor's published type declarations must export every imported name: the
+ *   names of its entry file, of the `declare module '<specifier>'` block when that file
+ *   is a set of ambient declarations (svelte, `@sveltejs/kit`), and of every package it
+ *   re-exports from (vue re-exports `@vue/runtime-dom`), which is fetched at the lowest
+ *   version the floor's manifest allows. An `export =` module (React's types) exports
+ *   `default` too.
  *   Each peer's version list is read from the registry on every run (new versions
  *   appear); a published version never changes, so its tarball is downloaded once
  *   and its export list kept, in a per-user cache shared by every checkout:
@@ -52,6 +66,9 @@
  * imported name, which the fix names: the workspace version when npm does not serve
  * it yet or serves it with every name, else (npm serves it without them, so a
  * pending changeset will release them) the next minor; give that peer a changeset too.
+ * For a third-party peer the fix is the lowest published version the range allows that
+ * has every name; when none has, the import is wrong (it names something the package
+ * never exported, as a hand-written `declare module` shim can), not the range.
  *
  * Usage:
  *   node scripts/check-peer-floors.mjs            # check (exit 1 on any offender)
@@ -71,12 +88,15 @@ import { execFile } from 'node:child_process'
 import console from 'node:console'
 import {
   existsSync,
+  lstatSync,
   mkdirSync,
   readdirSync,
   readFileSync,
+  readlinkSync,
   renameSync,
   rmSync,
   statSync,
+  symlinkSync,
   writeFileSync,
 } from 'node:fs'
 import { homedir } from 'node:os'
@@ -99,7 +119,11 @@ const CACHE =
   join(process.env.XDG_CACHE_HOME ?? join(homedir(), '.cache'), 'molecule-check-peer-floors')
 // Bump when the way export names are read changes, so stored lists are recomputed.
 // v2: the members of an exported `UIClassMap` are names too (`UIClassMap.<member>`).
-const EXPORTS_FILE = 'exports-v2.json'
+// v3: ambient `declare module` blocks, re-exports from other packages and `export =` are
+// read, and an entry without a declaration file is stored as unreadable (null).
+const EXPORTS_FILE = 'exports-v3.json'
+// What a version's re-exported packages were linked to (see linkReexports), per version.
+const REEXPORTS_FILE = 'reexports-v1.json'
 /** The ClassMap interface whose members count as names (see {@link classMapReads}). */
 const CLASS_MAP = 'UIClassMap'
 /**
@@ -205,27 +229,66 @@ export function namedImports(text, fileName) {
 }
 
 /**
- * The `@molecule/*` peers a package imports names from, which the check reads.
+ * Whether a package is one of this workspace's (`@molecule/*`), which has a workspace version
+ * and always publishes declarations, rather than a third-party package.
+ *
+ * @param name - Package name.
+ * @returns True for a `@molecule/*` name.
+ */
+const isOurs = (name) => name.startsWith('@molecule/')
+
+/**
+ * The peers a package imports names from, which the check reads.
  *
  * @param pkg - The parsed package.json.
  * @param imports - Peer package name → imported name → files importing it.
  * @param workspaceVersions - Package name → version in this workspace.
- * @returns Each checked peer with its range, workspace version and imported names.
+ * @returns Each checked peer with its range, workspace version (null for a third-party
+ *   peer) and imported names.
  */
 function checkedPeers(pkg, imports, workspaceVersions) {
   const peers = []
   for (const [peer, range] of Object.entries(pkg.peerDependencies ?? {})) {
-    if (!peer.startsWith('@molecule/')) continue
-    const current = workspaceVersions.get(peer)
+    const current = isOurs(peer) ? workspaceVersions.get(peer) : null
+    // A `@molecule/*` peer this workspace no longer holds has no version to compare with.
+    if (current === undefined) continue
     const entries = [...imports]
       .filter(([specifier, names]) => packageNameOf(specifier) === peer && names.size > 0)
       .map(([specifier, names]) => ({
         entry: entryOf(peer, specifier),
         names,
       }))
-    if (entries.length && current) peers.push({ peer, range, current, entries })
+    if (entries.length) peers.push({ peer, range, current, entries })
   }
   return peers
+}
+
+/**
+ * A peer range with its lowest version raised to `version`: each `||` alternative wholly
+ * below it is dropped, the one holding it starts at it (keeping its `^`/`~` shorthand or
+ * its upper bound), and higher ones are kept.
+ *
+ * @param range - The peer range (`^3.4.0`, `^7.0.0 || ^8.0.0`, `>=9.0.0`).
+ * @param version - The lowest version the new range must allow.
+ * @returns The new range (`^3.5.0`, `^7.2.0 || ^8.0.0`, `>=11.0.0`).
+ */
+export function raisedRange(range, version) {
+  const out = []
+  for (const set of range.split('||').map((s) => s.trim())) {
+    const parsed = new semver.Range(set)
+    if (semver.gtr(version, parsed)) continue
+    if (!parsed.test(version)) {
+      out.push(set)
+      continue
+    }
+    if (/^[\^~]/.test(set)) {
+      out.push(`${set[0]}${version}`)
+      continue
+    }
+    const upper = parsed.set[0].filter((c) => c.operator.startsWith('<')).map((c) => c.value)
+    out.push([`>=${version}`, ...upper].join(' '))
+  }
+  return out.join(' || ')
 }
 
 /**
@@ -253,29 +316,61 @@ export const entryOf = (peer, specifier) =>
  *   files importing it.
  * @param workspaceVersions - Package name → version in this workspace.
  * @param exportsAt - `(name, version, entry)` → the names that published version exports
- *   from `entry` (`.` or a subpath key such as `./render`).
+ *   from `entry` (`.` or a subpath key such as `./render`), or null when it publishes no
+ *   declaration file for it (a third-party package typed by `@types/*`).
  * @param publishedVersions - Package name → every version npm publishes (empty or
  *   absent when it publishes none).
  * @returns One entry per peer with missing names; a name from a subpath carries its
- *   `entry`.
+ *   `entry`. A third-party peer's `fix` is null when no version its range allows has them.
  */
 export function findFloorGaps(pkg, imports, workspaceVersions, exportsAt, publishedVersions) {
   const gaps = []
   for (const { peer, range, current, entries } of checkedPeers(pkg, imports, workspaceVersions)) {
     const published = publishedVersions.get(peer) ?? []
     const floor = semver.minSatisfying(published, range)
-    if (!floor || semver.gt(floor, current)) continue
+    if (!floor || (current !== null && semver.gt(floor, current))) continue
     const lacks = (version) =>
       entries.flatMap(({ entry, names }) => {
-        const exported = exportsAt(peer, version, entry)
+        // A version without declarations for the entry cannot be shown to have a name.
+        const exported = exportsAt(peer, version, entry) ?? new Set()
         return [...names.keys()]
           .filter((name) => !exported.has(name))
           .map((name) => ({ entry, name, files: [...names.get(name)].sort() }))
       })
+    if (current === null && entries.some(({ entry }) => exportsAt(peer, floor, entry) === null))
+      continue
     const missing = lacks(floor).sort(
       (a, b) => a.entry.localeCompare(b.entry) || a.name.localeCompare(b.name),
     )
     if (missing.length === 0) continue
+    const report = (fix) =>
+      gaps.push({
+        peer,
+        range,
+        floor,
+        fix,
+        missing: missing.map(({ entry, name, files }) =>
+          entry === '.' ? { name, files } : { name, entry, files },
+        ),
+      })
+    if (current === null) {
+      // A third-party peer: the lowest version the range allows with every name. Vue
+      // publishes ~80 versions in `^3.4.0`, each re-exporting four packages, so this is a
+      // binary search over them (a name, once added, stays), each step one read.
+      const candidates = published
+        .filter((v) => !semver.prerelease(v) && semver.gt(v, floor) && semver.satisfies(v, range))
+        .sort(semver.compare)
+      let lowest = null
+      for (let lo = 0, hi = candidates.length - 1; lo <= hi;) {
+        const mid = (lo + hi) >> 1
+        if (lacks(candidates[mid]).length === 0) {
+          lowest = candidates[mid]
+          hi = mid - 1
+        } else lo = mid + 1
+      }
+      report(lowest && raisedRange(range, lowest))
+      continue
+    }
     // The smallest upgrade that has every name: the lowest version npm serves above the
     // floor, in the workspace version's major and not above it, that exports every
     // imported name (2026-11-16: app-ui 1.3.11 already had the ClassMap members 81
@@ -295,19 +390,13 @@ export function findFloorGaps(pkg, imports, workspaceVersions, exportsAt, publis
       .sort(semver.compare)
     const candidateGaps = candidates.map(lacks)
     const lowest = candidates.find((_version, i) => candidateGaps[i].length === 0)
-    gaps.push({
-      peer,
-      range,
-      floor,
-      fix: lowest
+    report(
+      lowest
         ? `^${lowest}`
         : published.includes(current)
           ? `^${semver.inc(current, 'minor')}`
           : `^${current}`,
-      missing: missing.map(({ entry, name, files }) =>
-        entry === '.' ? { name, files } : { name, entry, files },
-      ),
-    })
+    )
   }
   return gaps
 }
@@ -395,10 +484,16 @@ export function classMapReads(text) {
  * Every name a module's type declarations export, following `export *` chains, and
  * `UIClassMap.<member>` for each member of an exported `UIClassMap` interface.
  *
+ * A file of ambient declarations (svelte's `types/index.d.ts` holds a
+ * `declare module 'svelte/store' { … }` block per entry) is no module itself: its entry is
+ * the block named `specifier`. An `export =` module (React's and Express's types) also
+ * exports `default`, which a default import binds under `esModuleInterop`.
+ *
  * @param typesFile - The entry `.d.ts` (or a package's `src/index.ts`).
+ * @param specifier - The import specifier the file declares, for an ambient one.
  * @returns The exported names.
  */
-export function declaredExports(typesFile) {
+export function declaredExports(typesFile, specifier) {
   const program = ts.createProgram([typesFile], {
     module: ts.ModuleKind.NodeNext,
     moduleResolution: ts.ModuleResolutionKind.NodeNext,
@@ -411,10 +506,13 @@ export function declaredExports(typesFile) {
   })
   const checker = program.getTypeChecker()
   const sf = program.getSourceFile(typesFile)
-  const symbol = sf && checker.getSymbolAtLocation(sf)
+  const symbol =
+    (sf && checker.getSymbolAtLocation(sf)) ??
+    (specifier && checker.getAmbientModules().find((m) => m.getName() === `"${specifier}"`))
   if (!symbol) throw new Error(`${typesFile}: not a module`)
   const exported = checker.getExportsOfModule(symbol)
   const names = new Set(exported.map((s) => s.getName()))
+  if (symbol.exports?.has(ts.InternalSymbolName.ExportEquals)) names.add('default')
   let classMap = exported.find((s) => s.getName() === CLASS_MAP)
   if (classMap && classMap.flags & ts.SymbolFlags.Alias)
     classMap = checker.getAliasedSymbol(classMap)
@@ -445,6 +543,9 @@ const cacheDir = (key) => join(CACHE, key.replace('/', '+'))
  * older version of this check wrote for a version npm had not published yet) is
  * fetched again: that version may be published by now.
  *
+ * A tarball whose one top directory is not `package/` (DefinitelyTyped's are named after the
+ * package, `estree/` for `@types/estree`) is stored under `package/` like any other.
+ *
  * @param key - `name@version`.
  * @returns Resolves once the version is cached.
  */
@@ -464,24 +565,157 @@ async function fetchTarball(key) {
   writeFileSync(file, Buffer.from(await response.arrayBuffer()))
   await execFileAsync('tar', ['-xzf', file, '-C', staging])
   rmSync(file)
+  const top = readdirSync(staging)
+  if (!top.includes('package') && top.length === 1)
+    renameSync(join(staging, top[0]), join(staging, 'package'))
   rmSync(dir, { recursive: true, force: true })
   renameSync(staging, dir)
   return true
 }
 
 /**
- * Fetch many published versions, a few at a time.
+ * Run `task` over `items`, a few at a time.
+ *
+ * @param items - The inputs.
+ * @param task - The async work for one input.
+ * @param concurrency - Tasks in flight at once.
+ * @returns Resolves when every task has.
+ */
+async function pool(items, task, concurrency) {
+  const queue = [...items]
+  const worker = async () => {
+    while (queue.length) await task(queue.shift())
+  }
+  await Promise.all(Array.from({ length: Math.min(concurrency, queue.length) }, worker))
+}
+
+/**
+ * Fetch many published versions, a few at a time, each with the packages its declarations
+ * re-export from (see {@link linkReexports}), and theirs.
  *
  * @param keys - `name@version` entries.
  * @param concurrency - Downloads in flight at once.
  * @returns Resolves when every tarball is cached.
  */
 export async function prefetchTarballs(keys, concurrency = 16) {
-  const queue = [...new Set(keys)]
-  const worker = async () => {
-    while (queue.length) await fetchTarball(queue.shift())
+  const seen = new Set(keys)
+  for (let wave = [...seen]; wave.length;) {
+    await pool(wave, fetchTarball, concurrency)
+    const next = []
+    for (const key of wave)
+      for (const dep of await linkReexports(key))
+        if (!seen.has(dep)) {
+          seen.add(dep)
+          next.push(dep)
+        }
+    wave = next
   }
-  await Promise.all(Array.from({ length: Math.min(concurrency, queue.length) }, worker))
+}
+
+/**
+ * The packages other than `self` that declaration files under `dir` re-export from
+ * (`export * from 'x'`, `export { a } from 'x'`), at the top level or inside a
+ * `declare module` block.
+ *
+ * @param dir - A package directory.
+ * @param self - The package's own name (a self-reference resolves inside it).
+ * @returns Package names.
+ */
+function reexportedPackages(dir, self) {
+  const out = new Set()
+  const visit = (statements) => {
+    for (const node of statements) {
+      if (
+        ts.isExportDeclaration(node) &&
+        node.moduleSpecifier &&
+        ts.isStringLiteral(node.moduleSpecifier) &&
+        !/^[./]/.test(node.moduleSpecifier.text) &&
+        !node.moduleSpecifier.text.startsWith('node:')
+      ) {
+        const name = packageNameOf(node.moduleSpecifier.text)
+        if (name !== self) out.add(name)
+      } else if (ts.isModuleDeclaration(node) && node.body && ts.isModuleBlock(node.body)) {
+        visit(node.body.statements)
+      }
+    }
+  }
+  const walk = (at) => {
+    for (const entry of readdirSync(at, { withFileTypes: true })) {
+      const path = join(at, entry.name)
+      if (entry.isDirectory()) {
+        if (entry.name !== 'node_modules') walk(path)
+      } else if (/\.d\.[mc]?ts$/.test(entry.name)) {
+        const text = readFileSync(path, 'utf8')
+        if (text.includes('from'))
+          visit(ts.createSourceFile(path, text, ts.ScriptTarget.Latest, false).statements)
+      }
+    }
+  }
+  walk(dir)
+  return out
+}
+
+/**
+ * Point `at` at `target` with a symbolic link, replacing a link to anything else.
+ *
+ * @param at - The link path.
+ * @param target - What it points to.
+ */
+function linkInto(at, target) {
+  try {
+    if (lstatSync(at).isSymbolicLink() && readlinkSync(at) === target) return
+  } catch (error) {
+    if (error.code !== 'ENOENT') throw error
+  }
+  mkdirSync(dirname(at), { recursive: true })
+  const staging = `${at}.tmp-${process.pid}`
+  rmSync(staging, { force: true })
+  symlinkSync(target, staging)
+  renameSync(staging, at)
+}
+
+/**
+ * Make the packages a cached version's declarations re-export from resolvable beside it, so
+ * its export list holds their names: vue's `export * from '@vue/runtime-dom'` is most of
+ * Vue. Each is linked into `<version dir>/node_modules/` at the LOWEST version the version's
+ * manifest allows (its `dependencies`, else `peerDependencies` or `optionalDependencies`;
+ * `@types/<name>` for a package it gets its types from), so the stored export list never
+ * changes; vue pins its own packages exactly, so that is what a user installs. A package the
+ * manifest does not name cannot resolve for a user either and is not linked. The links made
+ * are stored beside the version and reused.
+ *
+ * @param key - A cached `name@version`.
+ * @returns The `name@version` of each linked package, which must be fetched too.
+ */
+async function linkReexports(key) {
+  const dir = cacheDir(key)
+  const stored = join(dir, REEXPORTS_FILE)
+  if (existsSync(stored)) return JSON.parse(readFileSync(stored, 'utf8'))
+  const pkgDir = join(dir, 'package')
+  const manifest = JSON.parse(readFileSync(join(pkgDir, 'package.json'), 'utf8'))
+  const ranges = {
+    ...manifest.optionalDependencies,
+    ...manifest.peerDependencies,
+    ...manifest.dependencies,
+  }
+  const wanted = []
+  for (const name of reexportedPackages(pkgDir, manifest.name)) {
+    const typesName = `@types/${name.startsWith('@') ? name.slice(1).replace('/', '__') : name}`
+    const target = [name, typesName].find((n) => semver.validRange(ranges[n] ?? ''))
+    if (target) wanted.push([target, ranges[target]])
+  }
+  const versions = wanted.length
+    ? await fetchPublishedVersions(wanted.map(([name]) => name))
+    : new Map()
+  const linked = []
+  for (const [target, range] of wanted) {
+    const version = semver.minSatisfying(versions.get(target) ?? [], range)
+    if (!version) continue
+    linkInto(join(dir, 'node_modules', target), join(cacheDir(`${target}@${version}`), 'package'))
+    linked.push(`${target}@${version}`)
+  }
+  writeFileSync(stored, JSON.stringify(linked))
+  return linked
 }
 
 /**
@@ -553,15 +787,32 @@ function typesOf(target) {
 }
 
 /**
+ * The declaration file a types path names, resolved as TypeScript does: the file itself,
+ * else `<path>.d.ts`, else `<path>/index.d.ts` (react-native's manifest says `"types": "types"`).
+ *
+ * @param pkgDir - The package directory.
+ * @param path - The path its manifest gives.
+ * @returns The absolute file path, or null when none exists.
+ */
+function declarationFile(pkgDir, path) {
+  const base = join(pkgDir, path)
+  for (const file of [base, `${base}.d.ts`, join(base, 'index.d.ts')])
+    if (existsSync(file) && statSync(file).isFile()) return file
+  return null
+}
+
+/**
  * The names a published package version exports from one entry, from its npm tarball.
- * {@link prefetchTarballs} must have cached it. A subpath the version does not export, or
- * whose declaration file it does not ship, exports nothing (an import of it cannot resolve);
- * a root without its declaration file is an error, as before subpaths were read.
+ * {@link prefetchTarballs} must have cached it. A subpath the version does not export
+ * exports nothing (an import of it cannot resolve), and so does a `@molecule/*` subpath
+ * whose declaration file the version does not ship; a `@molecule/*` root without one is an
+ * error. A third-party entry without a declaration file is unreadable: its types come from
+ * an `@types/*` package, whose version a user picks apart from the peer's.
  *
  * @param name - Package name.
  * @param version - Exact version.
  * @param entry - `.` (the default) or a subpath key such as `./render`.
- * @returns The names.
+ * @returns The names, or null for an unreadable third-party entry.
  */
 export function publishedExports(name, version, entry = '.') {
   const key = `${name}@${version}`
@@ -576,7 +827,8 @@ export function publishedExports(name, version, entry = '.') {
       : EXPORTS_FILE.replace('.json', `-${encodeURIComponent(entry.slice(2))}.json`),
   )
   if (existsSync(stored)) {
-    const names = new Set(JSON.parse(readFileSync(stored, 'utf8')))
+    const list = JSON.parse(readFileSync(stored, 'utf8'))
+    const names = list === null ? null : new Set(list)
     exportCache.set(cacheKey, names)
     return names
   }
@@ -584,11 +836,15 @@ export function publishedExports(name, version, entry = '.') {
     throw new Error(`${key} is not cached: call prefetchTarballs first`)
   const manifest = JSON.parse(readFileSync(join(pkgDir, 'package.json'), 'utf8'))
   const types = entryTypesPath(manifest, entry)
-  const names =
-    types !== null && (entry === '.' || existsSync(join(pkgDir, types)))
-      ? declaredExports(join(pkgDir, types))
-      : new Set()
-  writeFileSync(stored, JSON.stringify([...names].sort()))
+  const file = types === null ? null : declarationFile(pkgDir, types)
+  let names
+  if (file) names = declaredExports(file, entry === '.' ? name : `${name}${entry.slice(1)}`)
+  else if (types === null) names = new Set()
+  else if (!isOurs(name)) names = null
+  else if (entry === '.')
+    throw new Error(`${key}: its manifest names ${types}, which it does not ship`)
+  else names = new Set()
+  writeFileSync(stored, JSON.stringify(names && [...names].sort()))
   exportCache.set(cacheKey, names)
   return names
 }
@@ -652,7 +908,7 @@ export function packagesForPaths(root, paths) {
 }
 
 /**
- * Read every publishable package and the names it imports from its `@molecule/*` peers.
+ * Read every publishable package and the names it imports from its peers.
  *
  * @param root - The monorepo root (its `packages/` is scanned).
  * @param only - Package directories relative to `root` to read imports for; null reads all.
@@ -709,7 +965,7 @@ function readFleet(root, only = null) {
   for (const { dir, pkg } of manifests) {
     if (pkg.private) continue
     if (only && !only.has(relative(root, dir))) continue
-    const peers = Object.keys(pkg.peerDependencies ?? {}).filter((n) => n.startsWith('@molecule/'))
+    const peers = Object.keys(pkg.peerDependencies ?? {})
     if (peers.length === 0) continue
     const srcRoot = join(dir, 'src')
     const imports = new Map()
@@ -729,7 +985,8 @@ function readFleet(root, only = null) {
         if (!peers.includes(peer)) continue
         for (const name of names) {
           if (name !== EVERY_EXPORT) use(specifier, name, rel)
-          else
+          // A third-party star form passes on whatever the installed version has.
+          else if (isOurs(peer))
             for (const each of workspaceEntryExports(peer, entryOf(peer, specifier), rel))
               use(specifier, each, rel)
         }
@@ -816,8 +1073,8 @@ if (isMain) {
   } else if (rows.length === 0) {
     console.log(
       only
-        ? `✓ the @molecule peer floors of ${only.size} package(s) export the names they import`
-        : '✓ every @molecule peer floor exports the names its dependents import',
+        ? `✓ the peer floors of ${only.size} package(s) export the names they import`
+        : '✓ every peer floor exports the names its dependents import',
     )
   } else {
     for (const row of rows) {
@@ -831,10 +1088,12 @@ if (isMain) {
           })
           .join(' and ')
         const files = [...new Set(gap.missing.flatMap((m) => m.files))].join(', ')
+        const fix = gap.fix
+          ? `raise it to "${gap.fix}" in ${row.dir}/package.json peerDependencies`
+          : `and no version that range allows declares them either: import them from where ${gap.peer} declares them, or declare them in this package`
         console.error(
           `✗ ${row.package} uses ${uses}, which ${gap.peer}@${gap.floor} ` +
-            `(the floor of "${gap.range}") does not declare — raise it to "${gap.fix}" in ` +
-            `${row.dir}/package.json peerDependencies (${files})`,
+            `(the floor of "${gap.range}") does not declare — ${fix} (${files})`,
         )
       }
     }

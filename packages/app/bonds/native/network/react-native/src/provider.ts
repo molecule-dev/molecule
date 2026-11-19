@@ -6,7 +6,7 @@
  * @module
  */
 
-import type { NetInfoModule, NetInfoState } from '@react-native-community/netinfo'
+import type { default as NetInfo, NetInfoState } from '@react-native-community/netinfo'
 
 import { t } from '@molecule/app-i18n'
 import { getLogger } from '@molecule/app-logger'
@@ -20,6 +20,9 @@ import type {
 } from '@molecule/app-network'
 
 import type { ReactNativeNetworkConfig } from './types.js'
+
+/** The NetInfo module (the package's default export) this provider calls. */
+type NetInfoModule = typeof NetInfo
 
 /**
  * Dynamically loads `@react-native-community/netinfo`.

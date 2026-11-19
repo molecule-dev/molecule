@@ -11,17 +11,14 @@
  */
 
 declare module 'react-native' {
-  /** Minimal shape of the react-native StatusBar static API used by this package. */
-  export interface StatusBarStatic {
+  /** The react-native StatusBar static API this package calls. */
+  export const StatusBar: {
     setBarStyle(style: string, animated?: boolean): void
     setBackgroundColor(color: string, animated?: boolean): void
     setHidden(hidden: boolean, animation?: string): void
     setTranslucent(translucent: boolean): void
     currentHeight?: number
   }
-
-  /** The react-native StatusBar static API. */
-  export const StatusBar: StatusBarStatic
 
   /** Platform detection utilities. */
   export const Platform: {
