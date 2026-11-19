@@ -452,17 +452,27 @@ describe('chat() — errors', () => {
     expect(events.some((e) => e.type === 'error')).toBe(true)
   })
 
-  it('a plain 400 (invalid param, not context-length) → distinct non-retryable message', async () => {
+  it('reports the upstream HTTP 400 detail separately from the client error', async () => {
     const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
-    fetch.mockResolvedValue(jsonResponse(400, { error: { message: 'temperature must be <= 2' } }))
+    const detail = 'Messages with role tool must respond to an assistant tool call'
+    fetch.mockResolvedValue(jsonResponse(400, { error: { message: detail } }))
+    const onProviderHttpError = vi.fn()
     const events = await drain(
       createProvider({ apiKey: 'k' }).chat({
         messages: [{ role: 'user', content: 'hi' }],
         stream: false,
+        onProviderHttpError,
       }),
     )
-    const err = events.find((e) => e.type === 'error') as { message: string }
-    expect(err.message).toBe('AI request was invalid — check the model and request parameters.')
+    expect(onProviderHttpError).toHaveBeenCalledExactlyOnceWith(400, detail)
+    expect(events).toEqual([
+      {
+        type: 'error',
+        message: 'AI request was invalid — check the model and request parameters.',
+        errorKey: 'ai.error.apiError',
+      },
+    ])
+    expect(fetch).toHaveBeenCalledTimes(1)
   })
 
   it('a 402 (exhausted provider account) → the balance message, never the generic "try again"', async () => {

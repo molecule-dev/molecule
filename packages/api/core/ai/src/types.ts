@@ -372,6 +372,12 @@ export interface ChatParams {
    */
   onProviderWait?: AiRateLimitCallback
   /**
+   * Reports an upstream HTTP rejection before the provider yields its public
+   * error event. The detail is untrusted and must be redacted before storage.
+   * Providers that do not expose HTTP diagnostics can ignore this callback.
+   */
+  onProviderHttpError?: (status: number, detail: string) => void
+  /**
    * Control whether the model must call a tool. 'auto' (default) lets the model
    * decide; 'required' forces at least one tool call (any tool); `{ type: 'tool',
    * name }` forces that ONE specific tool — stronger than 'required', which only

@@ -649,7 +649,8 @@ class DeepseekAIProviderImpl implements AIProvider {
           let detail = `HTTP ${response.status}`
           try {
             const parsed = JSON.parse(errorBody) as { error?: { message?: string } }
-            if (parsed.error?.message) detail = parsed.error.message
+            if (typeof parsed?.error?.message === 'string' && parsed.error.message)
+              detail = parsed.error.message
           } catch (_error) {
             // JSON.parse failed — raw text is already in `errorBody`; use it as-is.
             if (errorBody.length > 0 && errorBody.length < 200) detail = errorBody
@@ -696,6 +697,12 @@ class DeepseekAIProviderImpl implements AIProvider {
                           // code is classifiable (and 5xx-shaped ones ride `http 5xx`
                           // into the transient class) instead of a bare "try again".
                           `AI service error (HTTP ${response.status}). Please try again.`
+          try {
+            params.onProviderHttpError?.(response.status, detail)
+          } catch (_error) {
+            // A host telemetry failure cannot replace the original rejection.
+            logger.warn('DeepSeek provider HTTP error callback threw')
+          }
           yield { type: 'error', message: clientMessage, errorKey: 'ai.error.apiError' }
           return
         }
