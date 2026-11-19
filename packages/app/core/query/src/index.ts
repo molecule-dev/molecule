@@ -10,6 +10,17 @@
  * principal before an observer can fail at runtime. Pass the viewer's stable ID (also in the
  * query key), or `'public'` when the response is identical for every viewer.
  *
+ * **For a contract-backed app, use the generated client in `src/resources/`.**
+ * `mlcl resources --contract <path>` generates the supported client for the
+ * routes in that contract. Import its named reads, writes and record views.
+ * They use the bonded auth session automatically, pause reads while it settles,
+ * and share a public cache when there is no auth bond. A successful write
+ * publishes the saved detail or deletion and refetches up to four recently
+ * read lists for that resource and session. Query failures appear in `error`,
+ * and writes reject with the original HTTP error. Use the generated
+ * `<record>ErrorMessage(error)` helper to display the contract's validation
+ * message or a generic fallback.
+ *
  * @example
  * ```typescript
  * import { getClient } from '@molecule/app-http'
