@@ -1,0 +1,183 @@
+import { readdirSync, readFileSync } from 'node:fs'
+import { dirname, isAbsolute, relative, resolve, sep } from 'node:path'
+
+import type { Plugin, ResolvedConfig } from 'vite'
+
+const sourceExtension =
+  /\.(?:[cm]?[jt]sx?|vue|svelte|css|scss|sass|less|styl|stylus|pcss|json|svg|png|jpe?g|gif|webp|avif|ico|woff2?|ttf|otf|eot)$/i
+const stylesheetExtension = /\.(?:css|scss|sass|less|styl|stylus|pcss)$/i
+const auxiliaryFile =
+  /(?:^|\.)(?:spec|test|stories|config)\.[cm]?[jt]sx?$|(?:^|\.)(?:d|types)\.[cm]?ts$/i
+const auxiliaryDirectory =
+  /^(?:\.|__(?:tests|mocks|fixtures)__$|tests?$|fixtures?$|e2e$|public$|node_modules$)/
+const cssReference = /@import\s+(['"])([^'"]+)\1|url\(\s*(?:"([^"]*)"|'([^']*)'|([^)]*))\s*\)/gi
+
+/** The cross-version part of the production bundler's plugin context. */
+interface SourceGraph {
+  getModuleIds(): Iterable<string>
+  getModuleInfo(id: string): { isEntry: boolean; importedIds: readonly string[] } | null
+  // Rollup exposes CSS/preprocessor inputs recorded with addWatchFile. Rolldown
+  // does not expose this hook, so the CSS source map and asset hooks count those.
+  getWatchFiles?(): string[]
+}
+
+interface SourceFilesAudit {
+  config: Plugin['config']
+  trackAssets(config: ResolvedConfig): void
+  captureCss(root: string, id: string, getSources: () => readonly string[]): void
+  captureEmitted(root: string, names: readonly string[]): void
+  collect(root: string, graph: SourceGraph, includeEntries?: boolean): void
+  report(config: ResolvedConfig): void
+}
+
+/**
+ * List runtime source candidates in the app's own source tree.
+ *
+ * @param directory - The source directory being visited.
+ * @param publicDir - Vite's configured static directory.
+ * @returns Files eligible for the diagnostic.
+ */
+function listSourceFiles(directory: string, publicDir: string): string[] {
+  let entries
+  try {
+    entries = readdirSync(directory, { withFileTypes: true })
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') return []
+    throw error
+  }
+  return entries.flatMap((entry) => {
+    const file = resolve(directory, entry.name)
+    if (entry.isDirectory() && file !== publicDir && !auxiliaryDirectory.test(entry.name))
+      return listSourceFiles(file, publicDir)
+    if (entry.isFile() && sourceExtension.test(entry.name) && !auxiliaryFile.test(entry.name))
+      return [file]
+    return []
+  })
+}
+
+/**
+ * Collect source inputs from Vite's actual production build, including its
+ * nested CSS/asset and worker pipelines. The shared config uses this alongside
+ * its existing asset diagnostics.
+ *
+ * @returns Hooks for recording the build's inputs and reporting unused source paths.
+ */
+export function createSourceFilesAudit(): SourceFilesAudit {
+  const reached = new Set<string>()
+  const entries = new Set<string>()
+  const add = (root: string, id: string): void => {
+    if (id.startsWith('\0')) return
+    const filename = id.split(/[?#]/, 1)[0]
+    if (filename) reached.add(resolve(root, filename))
+  }
+  const collect = (root: string, graph: SourceGraph, includeEntries = true): void => {
+    for (const id of graph.getModuleIds()) {
+      if (!isAbsolute(id)) continue
+      add(root, id)
+      const info = graph.getModuleInfo(id)
+      if (!includeEntries || !info?.isEntry) continue
+      if (/\.html?$/i.test(id)) {
+        for (const imported of info.importedIds) {
+          if (/\.[cm]?[jt]sx?$/.test(imported) && isAbsolute(imported)) entries.add(imported)
+        }
+      } else entries.add(id)
+    }
+    for (const file of graph.getWatchFiles?.() ?? []) add(root, file)
+  }
+  const config: Plugin['config'] = (_config, { command }) => {
+    if (command !== 'build') return
+    return {
+      // Read the upstream paths from Vite's preprocessor maps, including CSS
+      // inlined by @import rather than loaded as a separate module.
+      css: { devSourcemap: true },
+      worker: {
+        plugins: () => [
+          {
+            name: 'molecule:worker-source-inputs',
+            closeBundle() {
+              collect(this.environment?.config.root ?? process.cwd(), this, false)
+            },
+          },
+        ],
+      },
+    }
+  }
+  const trackAssets = (config: ResolvedConfig): void => {
+    const builds = new Set([
+      config.build,
+      ...Object.values(config.environments ?? {}).map(({ build }) => build),
+    ])
+    for (const build of builds) {
+      const limit = build.assetsInlineLimit
+      build.assetsInlineLimit = (file, content) => {
+        add(config.root, file)
+        if (typeof limit === 'function') return limit(file, content)
+        if (limit === 4096) return undefined
+        // Preserve Vite's numeric inline decision for existing nondefault limits.
+        return (
+          content.length < Number(limit) &&
+          !content.subarray(0, 42).toString().startsWith('version https://git-lfs.github.com')
+        )
+      }
+    }
+  }
+  const report = (config: ResolvedConfig): void => {
+    const { root, publicDir } = config
+    const display = (file: string): string => relative(root, file).split(sep).join('/')
+    const src = resolve(root, 'src')
+    const candidates = listSourceFiles(src, publicDir).sort()
+    const sourcePaths = new Set(candidates)
+    // Tailwind can inline CSS before Vite sees it, including empty imports
+    // which have no source-map segment. Forced-inline URLs have no emitted
+    // asset name either. On already-reached CSS, keep those literal local
+    // references out of the warnings. Unloaded styles never seed this walk.
+    for (const file of reached) {
+      if (!sourcePaths.has(file) || !stylesheetExtension.test(file)) continue
+      const css = readFileSync(file, 'utf8').replace(/\/\*[\s\S]*?\*\//g, '')
+      for (const match of css.matchAll(cssReference)) {
+        const url = (match[2] ?? match[3] ?? match[4] ?? match[5] ?? '').trim()
+        if (!url || /^(?:[a-z][a-z0-9+.-]*:|\/\/|#)/i.test(url)) continue
+        let name: string
+        try {
+          name = decodeURIComponent(url.split(/[?#]/, 1)[0])
+        } catch (_error) {
+          // An invalid percent escape cannot identify an additional path.
+          continue
+        }
+        const target = name.startsWith('/')
+          ? resolve(root, '.' + name)
+          : resolve(dirname(file), name)
+        if (sourcePaths.has(target)) reached.add(target)
+      }
+    }
+    const appEntries = [...entries]
+      .map(display)
+      .filter((id) => id.startsWith('src/'))
+      .sort()
+    const entry = appEntries[0]
+      ? `the app entry (${appEntries[0]}) or the route that uses it`
+      : 'the app entry or the route that uses it'
+    for (const file of config.configFileDependencies) add(root, file)
+    for (const file of candidates) {
+      if (reached.has(file)) continue
+      config.logger.warn(
+        `[molecule:unreached-source] ${JSON.stringify(display(file))} is outside the Vite build graph. Import it from ${entry}, reference it in a loaded page or stylesheet, or remove it.`,
+      )
+    }
+  }
+  return {
+    config,
+    trackAssets,
+    captureCss(root: string, id: string, getSources: () => readonly string[]): void {
+      const filename = id.split('?', 1)[0]
+      if (!isAbsolute(filename) || !stylesheetExtension.test(filename)) return
+      if (!relative(root, filename).startsWith(`src${sep}`)) return
+      for (const file of getSources()) add(dirname(filename), file)
+    },
+    captureEmitted(root: string, names: readonly string[]): void {
+      for (const name of names) add(root, name)
+    },
+    collect,
+    report,
+  }
+}

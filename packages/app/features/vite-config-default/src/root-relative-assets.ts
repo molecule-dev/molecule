@@ -4,6 +4,8 @@ import { dirname, isAbsolute, relative, resolve, sep } from 'node:path'
 import { originalPositionFor, TraceMap } from '@jridgewell/trace-mapping'
 import type { Plugin, ResolvedConfig } from 'vite'
 
+import { createSourceFilesAudit } from './unreached-source-files.js'
+
 interface AssetReference {
   path: string
   file: string
@@ -72,10 +74,16 @@ function walk(node: unknown, visit: (node: SyntaxNode) => void): void {
  * routes come from the resolved server config. Development is unaffected.
  *
  * @returns The shared asset-validation Vite plugin.
+ * @param options - Build graph options.
+ * @param options.prerender - The same plugin instance observes a client build
+ * and then its SSR prerender build before reporting unused files.
  */
-export function rootRelativeAssetsPlugin(): Plugin {
+export function rootRelativeAssetsPlugin({
+  prerender = false,
+}: { prerender?: boolean } = {}): Plugin {
   let config: ResolvedConfig
   let failed = false
+  const sources = createSourceFilesAudit()
   const modules = new Map<string, AssetReference[]>()
   const directories = new Set<string>()
 
@@ -83,8 +91,11 @@ export function rootRelativeAssetsPlugin(): Plugin {
     name: 'molecule:root-relative-assets',
     apply: 'build',
     enforce: 'post',
+    sharedDuringBuild: true,
+    config: sources.config,
     configResolved(resolved) {
       config = resolved
+      sources.trackAssets(resolved)
     },
     options: {
       order: 'post',
@@ -108,6 +119,7 @@ export function rootRelativeAssetsPlugin(): Plugin {
       // Keep cached modules across watch builds; transform replaces changed ones.
     },
     transform(code, id) {
+      sources.captureCss(config.root, id, () => this.getCombinedSourcemap().sources)
       const file = id.split('?')[0]
       if (
         !isAbsolute(file) ||
@@ -165,11 +177,35 @@ export function rootRelativeAssetsPlugin(): Plugin {
     writeBundle(options) {
       directories.add(resolve(config.root, options.dir ?? dirname(options.file!)))
     },
+    generateBundle(_options, bundle) {
+      for (const output of Object.values(bundle)) {
+        if (output.type === 'asset')
+          sources.captureEmitted(config.root, output.originalFileNames ?? [])
+      }
+    },
+    buildApp: {
+      order: 'post',
+      async handler(builder) {
+        if (
+          builder.config.builder &&
+          Object.values(builder.environments).every((env) => env.isBuilt)
+        ) {
+          sources.report(builder.config)
+        }
+      },
+    },
     closeBundle: {
       order: 'post',
       sequential: true,
       handler() {
         if (failed || !config.build.write || directories.size === 0) return
+        const ssr = this.environment?.config.build.ssr ?? config.build.ssr
+        sources.collect(config.root, this, !ssr)
+        if (!config.builder && !config.build.lib && Boolean(ssr) === prerender) {
+          sources.report(config)
+        }
+        // The SSR build serves no browser assets of its own.
+        if (prerender) return
         const references = [...this.getModuleIds()].flatMap((id) => modules.get(id) ?? [])
         const paths = new Map<string, AssetReference>()
         for (const reference of references.sort(

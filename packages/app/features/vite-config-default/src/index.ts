@@ -94,6 +94,10 @@
  * or import it from `src/`. Files emitted by other plugins count too. Proxied
  * routes, external URLs, comments and interpolated templates are excluded.
  * `rootRelativeAssetsPlugin()` exports the same build check for custom configs.
+ * It also reports source files outside the production graph with their paths
+ * and where to import or reference them. Test sources, declarations, configs
+ * and public files are exempt. Prerender builds use the same plugin instance
+ * for their client and server passes so files used by either pass count.
  *
  * **A SvelteKit app deploys the same site.** `@molecule/app-vite-config-default/sveltekit`
  * finishes the static site `@sveltejs/adapter-static` writes to `dist/` (with
