@@ -1,5 +1,7 @@
 import type { ChangeEvent, KeyboardEvent } from 'react'
-import { useInsertionEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
+
+import { useCommittedRef } from '@molecule/app-react/render'
 
 /** Options for {@link useTagInput}. */
 export interface UseTagInputOptions {
@@ -102,9 +104,7 @@ export function useTagInput({
   // Reconcile with the committed controlled value before any consumer layout
   // effect can call an action. Event-time updates below stay visible to the
   // next action even when React batches the parent's onChange updates.
-  useInsertionEffect(() => {
-    current.current = { value, onChange, normalize, maxTags }
-  })
+  useCommittedRef(current, { value, onChange, normalize, maxTags })
 
   /**
    * Replaces the draft immediately, including for another action in the same batch.
