@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-audio-recorder-svelte",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Mic permission + MediaRecorder wrapper that emits a Blob — voice notes, meeting capture, AI voice agents",
   "homepage": "https://www.molecule.dev/packages/app-audio-recorder-svelte",
   "type": "module",

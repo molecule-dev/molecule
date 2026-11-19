@@ -1,5 +1,11 @@
 # @molecule/app-flow-canvas-react
 
+## 4.1.0
+
+### Minor Changes
+
+- Nodes take an optional `ariaLabel` that names their select button; a node with no renderer and no children is named by the translated `Node {{number}}` label instead of nothing, and two edges drawn in the same millisecond get distinct ids.
+
 ## 4.0.1
 
 ### Patch Changes

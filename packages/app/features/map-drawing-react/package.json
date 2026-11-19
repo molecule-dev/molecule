@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-map-drawing-react",
-  "version": "4.0.1",
+  "version": "4.0.2",
   "description": "Map polygon / circle / pin / line drawing primitives for geofence editing — composes with @molecule/app-maps for the underlying map backend",
   "homepage": "https://www.molecule.dev/packages/app-map-drawing-react",
   "type": "module",
@@ -43,7 +43,7 @@
   },
   "devDependencies": {
     "@molecule/app-i18n": "1.2.2",
-    "@molecule/app-react": "4.8.0",
+    "@molecule/app-react": "4.9.0",
     "@molecule/app-ui": "1.4.0",
     "@testing-library/react": "16.3.3",
     "@types/node": "26.6.5",

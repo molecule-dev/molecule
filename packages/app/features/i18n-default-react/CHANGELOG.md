@@ -1,5 +1,11 @@
 # @molecule/app-i18n-default-react
 
+## 1.0.8
+
+### Patch Changes
+
+- The `@molecule/app-locales-common` peer range is now `^1.0.5`, the first version that exports the `./en.js` and `./loader.js` entries this package imports.
+
 ## 1.0.7
 
 ### Patch Changes

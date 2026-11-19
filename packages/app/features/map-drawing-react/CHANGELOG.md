@@ -1,5 +1,11 @@
 # @molecule/app-map-drawing-react
 
+## 4.0.2
+
+### Patch Changes
+
+- A controlled `activeTool` change discards the in-progress draft in the same render as the switch instead of one render later.
+
 ## 4.0.1
 
 ### Patch Changes

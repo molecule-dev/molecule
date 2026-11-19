@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-layer-panel-angular",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Photoshop-style reorderable layer stack with visibility/lock toggles, opacity/blend-mode metadata, and inline rename — drag-to-reorder via pointer events",
   "homepage": "https://www.molecule.dev/packages/app-layer-panel-angular",
   "type": "module",

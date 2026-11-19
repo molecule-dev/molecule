@@ -1,5 +1,11 @@
 # @molecule/app-notifications-page-react
 
+## 4.1.0
+
+### Minor Changes
+
+- A response for a superseded filter or page is dropped, so a slow earlier request no longer replaces the page on screen; the package now peers on `@molecule/app-react` 4.8 or later.
+
 ## 4.0.0
 
 ### Patch Changes

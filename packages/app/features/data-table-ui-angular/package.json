@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-data-table-ui-angular",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Card data table + table chrome primitives (toolbar, footer, row-with-actions, empty row) — standalone, renders its own table elements",
   "homepage": "https://www.molecule.dev/packages/app-data-table-ui-angular",
   "type": "module",

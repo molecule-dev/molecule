@@ -1,5 +1,12 @@
 # @molecule/app-rating-display-react
 
+## 4.0.1
+
+### Patch Changes
+
+- Accessible labels are translated through `useTranslation()` and follow a locale switch: the rating label and, in interactive mode, each star's "Rate N of M" button label. The stars now sit in a labelled group, so the rate buttons keep their pressed state for assistive technology instead of being hidden under an image role.
+- Each star keeps the gradient id it was given when it mounted instead of drawing a new one on every render.
+
 ## 4.0.0
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-heatmap-angular",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "GitHub-contributions-style year-grid activity heatmap (SVG, no library dep)",
   "homepage": "https://www.molecule.dev/packages/app-heatmap-angular",
   "type": "module",

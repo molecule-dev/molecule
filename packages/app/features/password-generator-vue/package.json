@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-password-generator-vue",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Configurable secure password generator UI with length slider + character class toggles + regenerate + copy-to-clipboard",
   "homepage": "https://www.molecule.dev/packages/app-password-generator-vue",
   "type": "module",

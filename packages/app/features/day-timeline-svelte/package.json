@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-day-timeline-svelte",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Vertical 24h day-of-events timeline — itinerary planner, daily agenda, schedule view",
   "homepage": "https://www.molecule.dev/packages/app-day-timeline-svelte",
   "type": "module",

@@ -1,5 +1,11 @@
 # @molecule/app-faceted-search-react
 
+## 4.0.3
+
+### Patch Changes
+
+- The filter pill's icon-font glyphs, its leading icon and the `expand_more` chevron, are hidden from screen readers, so the pill's own label names the filter instead.
+
 ## 4.0.2
 
 ### Patch Changes

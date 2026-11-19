@@ -1,5 +1,11 @@
 # @molecule/app-feature-thread-tree-react
 
+## 4.0.2
+
+### Patch Changes
+
+- The comment tree now uses plain nested list semantics, and the collapse toggle's `aria-expanded` and `aria-controls` attributes carry the state instead of an ARIA tree role.
+
 ## 4.0.1
 
 ### Patch Changes

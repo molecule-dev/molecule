@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-auth-shell-solid",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Auth-page layout shell — centered card with heading/subheading/form/footer + back-link below. Composable children for per-app decorative background + brand mark.",
   "homepage": "https://www.molecule.dev/packages/app-auth-shell-solid",
   "type": "module",

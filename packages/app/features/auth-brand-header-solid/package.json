@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-auth-brand-header-solid",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Brand header for auth pages — gradient material-symbol chip + large wordmark + tagline.",
   "homepage": "https://www.molecule.dev/packages/app-auth-brand-header-solid",
   "type": "module",

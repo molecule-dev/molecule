@@ -1,5 +1,15 @@
 # @molecule/app-routing-react-router
 
+## 1.6.0
+
+### Minor Changes
+
+- Share one URL state between filter links and results, and build typed links from route declarations.
+
+### Patch Changes
+
+- `onRouterReady` fires once per router, StrictMode included; `useConsumedSearchParam` uses the shared `@molecule/app-routing` implementation, and the `@molecule/app-routing` peer range is now `^1.2.0`.
+
 ## 1.5.0
 
 ### Minor Changes

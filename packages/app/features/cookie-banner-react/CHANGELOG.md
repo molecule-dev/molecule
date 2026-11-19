@@ -1,5 +1,11 @@
 # @molecule/app-cookie-banner-react
 
+## 4.0.2
+
+### Patch Changes
+
+- Each category switch is now named by its category label and described by its description, and the Customize button reports whether the details list is open.
+
 ## 4.0.1
 
 ### Patch Changes

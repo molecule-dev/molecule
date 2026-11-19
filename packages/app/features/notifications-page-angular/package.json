@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-notifications-page-angular",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Drop-in Notifications page composing notification-feed/center components — header, filters, mark-all-read, paginated list, empty state.",
   "homepage": "https://www.molecule.dev/packages/app-notifications-page-angular",
   "type": "module",

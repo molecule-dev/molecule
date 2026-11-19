@@ -1,5 +1,11 @@
 # @molecule/app-chatbot-tester-react
 
+## 4.0.3
+
+### Patch Changes
+
+- The bot picker label, composer placeholder and Send button label come from `chatbotTester.*` translation keys, so the locale bond translates them in every language; an explicit prop still overrides each.
+
 ## 4.0.2
 
 ### Patch Changes
