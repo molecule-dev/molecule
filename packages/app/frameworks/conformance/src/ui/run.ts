@@ -15,6 +15,7 @@ import { fileURLToPath } from 'node:url'
 
 import { describe, expect, it } from 'vitest'
 
+import { watchConformanceEventLoop } from '../stall-watchdog-vitest.js'
 import * as allCases from './cases/index.js'
 import { PSEUDO_LOCALE } from './environment.js'
 import goldensJson from './goldens.json' with { type: 'json' }
@@ -191,6 +192,8 @@ export interface CaseSuite {
  */
 export function runCaseSuite(suite: CaseSuite, adapter: FrameworkAdapter, gaps: UIKnownGaps): void {
   describe(suite.title, () => {
+    // A case's timeout is a timer: it cannot fire while a port spins in a microtask loop.
+    watchConformanceEventLoop()
     it('lists only components and cases that exist', () => {
       for (const [component, names] of Object.entries(gaps)) {
         expect(

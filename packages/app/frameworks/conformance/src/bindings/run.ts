@@ -12,6 +12,7 @@
 
 import { describe, expect, it, vi } from 'vitest'
 
+import { watchConformanceEventLoop } from '../stall-watchdog-vitest.js'
 import { advanceClock, installCaseClock } from '../ui/clock.js'
 import { writeLocalStorageFromOtherTab } from '../ui/environment.js'
 import { type CaseLocalStorage, installLocalStorage, resetCasePage } from '../ui/page.js'
@@ -550,6 +551,8 @@ export function runBindingConformance(
   const families = bindingCaseFamilies.filter((f) => !filter || filter.includes(f.hook))
 
   describe(`${adapter.name} binding conformance`, () => {
+    // A case's timeout is a timer: it cannot fire while a binding spins in a microtask loop.
+    watchConformanceEventLoop()
     it('lists only exports and cases that exist', () => {
       for (const [hook, names] of Object.entries(gaps)) {
         expect(

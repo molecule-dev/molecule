@@ -45,10 +45,14 @@ import {
   writeFeatureGoldensAt,
   writeFeatureReadableGoldens,
 } from '../features/index.js'
+import { watchConformanceEventLoop } from '../stall-watchdog-vitest.js'
 import { caseExports, type CaseResult, onlyFromEnv, writePixelCapture } from '../ui/index.js'
 import { createReactAdapter } from './react-adapter.js'
 import { createReactBindingAdapter } from './react-bindings-adapter.js'
 import { assertCompleteRecording, missingRecordings } from './recording.js'
+
+// React is recorded here: a reference that stops yielding ends the run with its stack.
+watchConformanceEventLoop()
 
 const RECORD = process.env.RECORD_GOLDENS === '1'
 /**

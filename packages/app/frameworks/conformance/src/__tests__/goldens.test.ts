@@ -23,6 +23,7 @@ import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from 'vites
 
 import * as ReactUI from '@molecule/app-ui-react'
 
+import { watchConformanceEventLoop } from '../stall-watchdog-vitest.js'
 import {
   caseExports,
   type CaseResult,
@@ -33,6 +34,9 @@ import {
 } from '../ui/index.js'
 import { reactAdapter } from './react-adapter.js'
 import { assertCompleteRecording, missingRecordings } from './recording.js'
+
+// React is recorded here: a reference that stops yielding ends the run with its stack.
+watchConformanceEventLoop()
 
 const RECORD = process.env.RECORD_GOLDENS === '1'
 const SKIP_GOLDENS = process.env.CONFORMANCE_SKIP_GOLDENS === '1'

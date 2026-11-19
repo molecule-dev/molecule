@@ -30,8 +30,12 @@ import {
   requiredBindingExports,
   runHookCase,
 } from '../bindings/index.js'
+import { watchConformanceEventLoop } from '../stall-watchdog-vitest.js'
 import { reactBindingAdapter } from './react-bindings-adapter.js'
 import { assertCompleteRecording, missingRecordings } from './recording.js'
+
+// React is recorded here: a reference that stops yielding ends the run with its stack.
+watchConformanceEventLoop()
 
 const RECORD = process.env.RECORD_GOLDENS === '1'
 const SKIP_GOLDENS = process.env.CONFORMANCE_SKIP_GOLDENS === '1'
