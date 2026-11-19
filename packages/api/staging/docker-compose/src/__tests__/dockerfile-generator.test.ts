@@ -175,10 +175,12 @@ describe('generateNginxConf', () => {
     expect(result).toContain('root /usr/share/nginx/html')
   })
 
-  it('should cache static assets', () => {
+  it('caches only content-hashed build output for a year', () => {
     const result = generateNginxConf()
 
-    expect(result).toContain('expires 1y')
-    expect(result).toContain('Cache-Control')
+    expect(result).toContain('location ~ ^/(assets|_app/immutable)/ {')
+    expect(result).toContain('add_header Cache-Control "public, max-age=31536000, immutable";')
+    expect(result).not.toMatch(/location ~\*? \\\.\(js/)
+    // nginx-conf.docker.test.ts serves this config with the real image.
   })
 })

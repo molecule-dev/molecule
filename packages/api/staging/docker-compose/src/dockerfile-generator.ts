@@ -231,6 +231,12 @@ EXPOSE 80
  * Uses \`try_files\` to serve \`index.html\` for all routes, which is
  * required for client-side routing (React Router, Vue Router, etc.).
  *
+ * Only content-hashed build output is cached for a year: Vite's \`/assets/\` and
+ * SvelteKit's \`/_app/immutable/\`, whose names change with their bytes. A missing
+ * hashed file is a 404, never the app page. Every other file (\`index.html\`, the
+ * service worker, \`public/\` icons, SvelteKit's \`_app/version.json\`) keeps its
+ * name across deploys, so it revalidates and a new deploy shows up on the next load.
+ *
  * @returns Nginx config content as a string.
  */
 export function generateNginxConf(): string {
@@ -242,13 +248,14 @@ server {
     index index.html;
 
     location / {
+        add_header Cache-Control "no-cache";
         try_files $uri $uri/ /index.html;
     }
 
-    # Cache static assets
-    location ~* \\.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2)$ {
-        expires 1y;
-        add_header Cache-Control "public, immutable";
+    # Content-hashed build output: Vite's assets/, SvelteKit's _app/immutable/.
+    location ~ ^/(assets|_app/immutable)/ {
+        add_header Cache-Control "public, max-age=31536000, immutable";
+        try_files $uri =404;
     }
 }
 `
