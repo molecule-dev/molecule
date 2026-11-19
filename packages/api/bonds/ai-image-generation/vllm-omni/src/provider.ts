@@ -26,13 +26,22 @@ import type {
 import { configNotConfiguredError } from '@molecule/api-secrets'
 
 import {
+  isMinimaxH3Image,
+  MINIMAX_H3_IMAGE_DEFAULT_SIZE,
+  MINIMAX_H3_IMAGE_GUIDANCE,
+  MINIMAX_H3_IMAGE_MAX_REFERENCE_IMAGES,
+  MINIMAX_H3_IMAGE_SIZES,
+  MINIMAX_H3_IMAGE_STEPS,
+  nearestMinimaxH3ImageSize,
+} from './minimax-h3-image.js'
+import {
   isQwenImage21,
   nearestQwenImage21Size,
   QWEN_IMAGE_2_1_MAX_REFERENCE_IMAGES,
   QWEN_IMAGE_2_1_MODEL,
   QWEN_IMAGE_2_1_SIZES,
 } from './qwen-image.js'
-import type { VllmOmniImageGenerationConfig } from './types.js'
+import type { VllmOmniImageGenerationConfig, VllmOmniImageProvider } from './types.js'
 
 /** Default per-request timeout: 2K diffusion runs take tens of seconds or more. */
 export const DEFAULT_TIMEOUT_MS = 300_000
@@ -99,8 +108,9 @@ function normalizeBaseUrl(raw: string): string {
 }
 
 /**
- * Picks the size to send: Qwen-Image-2.1 sizes are snapped to the nearest
- * native 2K size; other models get the requested size unchanged.
+ * Picks the size to send: Qwen-Image-2.1 and MiniMax-H3-Image sizes are
+ * snapped to the nearest native size; other models get the requested size
+ * unchanged.
  *
  * @param size - Requested size, if any.
  * @param model - Model id being targeted.
@@ -108,13 +118,15 @@ function normalizeBaseUrl(raw: string): string {
  */
 function resolveSize(size: string | undefined, model: string): string | undefined {
   if (!size) return undefined
-  return isQwenImage21(model) ? nearestQwenImage21Size(size) : size
+  if (isQwenImage21(model)) return nearestQwenImage21Size(size)
+  if (isMinimaxH3Image(model)) return nearestMinimaxH3ImageSize(size)
+  return size
 }
 
 /**
  * Builds a size from Stability-style params: explicit width/height win, then
- * an aspect ratio (Qwen-Image-2.1 only — other models have no known native
- * size table, so their aspect ratio is ignored).
+ * an aspect ratio (Qwen-Image-2.1 and MiniMax-H3-Image only — other models
+ * have no known native size table, so their aspect ratio is ignored).
  *
  * @param params - Width/height/aspectRatio from the caller.
  * @param model - Model id being targeted.
@@ -125,13 +137,71 @@ function sizeFromDimensions(
   model: string,
 ): string | undefined {
   if (params.width && params.height) return resolveSize(`${params.width}x${params.height}`, model)
-  if (params.aspectRatio && isQwenImage21(model)) {
-    const native = QWEN_IMAGE_2_1_SIZES[params.aspectRatio.trim()]
+  if (params.aspectRatio && (isQwenImage21(model) || isMinimaxH3Image(model))) {
+    const table = isQwenImage21(model) ? QWEN_IMAGE_2_1_SIZES : MINIMAX_H3_IMAGE_SIZES
+    const snap = isQwenImage21(model) ? nearestQwenImage21Size : nearestMinimaxH3ImageSize
+    const native = table[params.aspectRatio.trim()]
     if (native) return native
     const [w, h] = params.aspectRatio.split(':').map(Number)
-    if (w && h) return nearestQwenImage21Size(`${w}x${h}`)
+    if (w && h) return snap(`${w}x${h}`)
   }
   return undefined
+}
+
+/**
+ * The size to send when the caller sets none: MiniMax-H3-Image REQUIRES a
+ * `size` (its server 400s without one) and gets its 1:1 native default; other
+ * models let the server choose.
+ *
+ * @param model - Model id being targeted.
+ * @returns The default size, or `undefined` to let the server choose.
+ */
+function defaultSizeFor(model: string): string | undefined {
+  return isMinimaxH3Image(model) ? MINIMAX_H3_IMAGE_DEFAULT_SIZE : undefined
+}
+
+/**
+ * Most reference images one edit accepts for the model, when it has a known
+ * cap (Qwen-Image-2.1: 10, MiniMax-H3-Image: 16).
+ *
+ * @param model - Model id being targeted.
+ * @returns The cap, or `undefined` when the model has no known cap.
+ */
+function referenceCapFor(model: string): number | undefined {
+  if (isQwenImage21(model)) return QWEN_IMAGE_2_1_MAX_REFERENCE_IMAGES
+  if (isMinimaxH3Image(model)) return MINIMAX_H3_IMAGE_MAX_REFERENCE_IMAGES
+  return undefined
+}
+
+/**
+ * Validates the diffusion controls a MiniMax-H3-Image server rejects: the
+ * checkpoint is distilled to exactly 6 steps with no classifier-free guidance,
+ * has no negative-prompt support, and answers each of those fields with
+ * HTTP 400. Values equal to the only accepted one are fine (and then NOT
+ * forwarded — omitting is the documented form); anything else throws before
+ * the request.
+ *
+ * @param params - Diffusion controls from the caller (steps, guidanceScale, negativePrompt).
+ * @param model - Model id being targeted (for the error message).
+ * @throws {Error} When a control has a value the server would reject.
+ */
+function assertH3ImageControls(
+  params: Pick<GenerateImageParams, 'steps' | 'guidanceScale' | 'negativePrompt'>,
+  model: string,
+): void {
+  if (params.steps !== undefined && params.steps !== MINIMAX_H3_IMAGE_STEPS) {
+    throw new Error(
+      `${model} accepts ${MINIMAX_H3_IMAGE_STEPS} inference steps or none (it is distilled to 6 NFEs) — got ${params.steps}.`,
+    )
+  }
+  if (params.guidanceScale !== undefined && params.guidanceScale !== MINIMAX_H3_IMAGE_GUIDANCE) {
+    throw new Error(
+      `${model} accepts a guidance scale of ${MINIMAX_H3_IMAGE_GUIDANCE} or none (no classifier-free guidance) — got ${params.guidanceScale}.`,
+    )
+  }
+  if (params.negativePrompt !== undefined) {
+    throw new Error(`${model} has no negative-prompt support — the server rejects the field.`)
+  }
 }
 
 /**
@@ -233,7 +303,9 @@ class VllmOmniImageGenerationProvider implements AIImageGenerationProvider {
       n: params.n ?? 1,
       response_format: 'b64_json',
     }
-    const size = resolveSize(params.size, model)
+    // MiniMax-H3-Image REQUIRES a size; with none the bond sends its 1:1
+    // native default. Other models let the server choose.
+    const size = resolveSize(params.size, model) ?? defaultSizeFor(model)
     if (size) body.size = size
 
     const data = await this.callJson(cfg, '/v1/images/generations', body)
@@ -251,17 +323,22 @@ class VllmOmniImageGenerationProvider implements AIImageGenerationProvider {
   async generateImage(params: GenerateImageParams): Promise<ImageGenerationResult> {
     const cfg = this.resolveConfig()
     const model = params.model ?? cfg.defaultModel
+    // MiniMax-H3-Image: validate (and then omit) the fields its server
+    // rejects — 6 steps and no CFG are baked into the checkpoint.
+    if (isMinimaxH3Image(model)) assertH3ImageControls(params, model)
     const body: Record<string, unknown> = {
       model,
       prompt: params.prompt,
       n: params.count ?? 1,
       response_format: 'b64_json',
     }
-    const size = sizeFromDimensions(params, model)
+    const size = sizeFromDimensions(params, model) ?? defaultSizeFor(model)
     if (size) body.size = size
-    if (params.negativePrompt) body.negative_prompt = params.negativePrompt
-    if (params.steps !== undefined) body.num_inference_steps = params.steps
-    if (params.guidanceScale !== undefined) body.true_cfg_scale = params.guidanceScale
+    if (!isMinimaxH3Image(model)) {
+      if (params.negativePrompt) body.negative_prompt = params.negativePrompt
+      if (params.steps !== undefined) body.num_inference_steps = params.steps
+      if (params.guidanceScale !== undefined) body.true_cfg_scale = params.guidanceScale
+    }
     if (params.seed !== undefined) body.seed = params.seed
 
     const data = await this.callJson(cfg, '/v1/images/generations', body)
@@ -282,10 +359,16 @@ class VllmOmniImageGenerationProvider implements AIImageGenerationProvider {
   async edit(params: ImageEditParams): Promise<ImageGenerationResult> {
     const cfg = this.resolveConfig()
     const model = params.model ?? cfg.defaultModel
-    const references = [params.image, ...(params.images ?? [])]
-    if (isQwenImage21(model) && references.length > QWEN_IMAGE_2_1_MAX_REFERENCE_IMAGES) {
+    if (isMinimaxH3Image(model) && params.mask !== undefined) {
       throw new Error(
-        `Qwen-Image-2.1 accepts at most ${QWEN_IMAGE_2_1_MAX_REFERENCE_IMAGES} reference images per edit; got ${references.length} (image + images).`,
+        `${model} has no masked editing — its edits API has no mask field. Describe the edit in the prompt and pass reference images instead.`,
+      )
+    }
+    const references = [params.image, ...(params.images ?? [])]
+    const referenceCap = referenceCapFor(model)
+    if (referenceCap !== undefined && references.length > referenceCap) {
+      throw new Error(
+        `${model} accepts at most ${referenceCap} reference images per edit; got ${references.length} (image + images).`,
       )
     }
 
@@ -294,7 +377,7 @@ class VllmOmniImageGenerationProvider implements AIImageGenerationProvider {
     form.append('prompt', params.prompt)
     form.append('response_format', 'b64_json')
     if (params.n !== undefined) form.append('n', String(params.n))
-    const size = resolveSize(params.size, model)
+    const size = resolveSize(params.size, model) ?? defaultSizeFor(model)
     if (size) form.append('size', size)
     references.forEach((ref, i) => {
       const blob = toBlob(ref)
@@ -321,19 +404,29 @@ class VllmOmniImageGenerationProvider implements AIImageGenerationProvider {
   async imageToImage(params: ImageToImageParams): Promise<ImageGenerationResult> {
     const cfg = this.resolveConfig()
     const model = params.model ?? cfg.defaultModel
+    // MiniMax-H3-Image: validate (and then omit) the fields its server
+    // rejects, plus `output_format` — its output is always PNG.
+    if (isMinimaxH3Image(model)) {
+      assertH3ImageControls(params, model)
+      if (params.outputFormat !== undefined && params.outputFormat !== 'png') {
+        throw new Error(`${model} always returns PNG — output_format is not supported.`)
+      }
+    }
 
     const form = new FormData()
     form.append('model', model)
     form.append('prompt', params.prompt)
     form.append('response_format', 'b64_json')
     if (params.count !== undefined) form.append('n', String(params.count))
-    const size = sizeFromDimensions(params, model)
+    const size = sizeFromDimensions(params, model) ?? defaultSizeFor(model)
     if (size) form.append('size', size)
-    if (params.outputFormat) form.append('output_format', params.outputFormat)
-    if (params.negativePrompt) form.append('negative_prompt', params.negativePrompt)
-    if (params.steps !== undefined) form.append('num_inference_steps', String(params.steps))
-    if (params.guidanceScale !== undefined)
-      form.append('guidance_scale', String(params.guidanceScale))
+    if (!isMinimaxH3Image(model)) {
+      if (params.outputFormat) form.append('output_format', params.outputFormat)
+      if (params.negativePrompt) form.append('negative_prompt', params.negativePrompt)
+      if (params.steps !== undefined) form.append('num_inference_steps', String(params.steps))
+      if (params.guidanceScale !== undefined)
+        form.append('guidance_scale', String(params.guidanceScale))
+    }
     if (params.seed !== undefined) form.append('seed', String(params.seed))
     const blob = toBlob(params.image)
     form.append('image', blob, `image.${extensionFor(blob)}`)
@@ -473,9 +566,10 @@ class VllmOmniImageGenerationProvider implements AIImageGenerationProvider {
  * Creates a vLLM-Omni image generation provider.
  *
  * @param config - Optional overrides (base URL, API key, default model, timeout).
- * @returns An `AIImageGenerationProvider` backed by a vLLM-Omni server.
+ * @returns A provider backed by a vLLM-Omni server, with `generateImage`, `edit` and `imageToImage`
+ *   always present.
  */
-export function createProvider(config?: VllmOmniImageGenerationConfig): AIImageGenerationProvider {
+export function createProvider(config?: VllmOmniImageGenerationConfig): VllmOmniImageProvider {
   return new VllmOmniImageGenerationProvider(config)
 }
 

@@ -1,0 +1,53 @@
+{
+  "name": "@molecule/api-ai-video-generation-minimax",
+  "version": "1.0.0",
+  "description": "MiniMax H3 video generation provider for molecule.dev — hosted text/image-to-video with native synchronized stereo audio (up to 2K, 15 s) over api.minimax.io's async task API",
+  "homepage": "https://www.molecule.dev/packages/api-ai-video-generation-minimax",
+  "author": "Molecule Dev, Inc. (https://molecule.dev)",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "keywords": [
+    "molecule",
+    "ai",
+    "video",
+    "generation",
+    "minimax",
+    "h3",
+    "hailuo",
+    "text-to-video",
+    "video-with-audio",
+    "hosted"
+  ],
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/bonds/ai-video-generation/minimax"
+  },
+  "peerDependencies": {
+    "@molecule/api-ai-video-generation": ">=1.0.0",
+    "@molecule/api-secrets": "^1.0.1"
+  },
+  "devDependencies": {
+    "@molecule/api-ai-video-generation": "1.2.1",
+    "@types/node": "26.6.5",
+    "typescript": "6.0.3",
+    "vitest": "4.1.12"
+  }
+}
