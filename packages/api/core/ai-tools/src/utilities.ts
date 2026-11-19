@@ -3031,6 +3031,8 @@ function failedTests(log: string): FailedTest[] {
   return out
 }
 
+const TEST_BUDGET_ERROR = /^(?:Error: )?Test timeout of (\d+)ms exceeded\b/
+
 /**
  * The error a failure block reports: the first line of its body that names a thrown error
  * (`TimeoutError: page.waitForURL: Timeout 10000ms exceeded.`), else its first real line.
@@ -3043,7 +3045,7 @@ function failedTests(log: string): FailedTest[] {
  * @returns The error line, or null when the block has no body.
  */
 function failureErrorLine(body: string[]): string | null {
-  const timeout = body.find((line) => /^Test timeout of \d+ms exceeded/.test(line))
+  const timeout = body.find((line) => TEST_BUDGET_ERROR.test(line))
   const thrown = body.find(
     (line) =>
       /^(?:[A-Za-z_$][\w.$]*)?(?:Error|Exception)\b/.test(line) &&
@@ -3051,9 +3053,10 @@ function failureErrorLine(body: string[]): string | null {
       // a consequence of the timeout, not a different failure to diagnose.
       !(
         timeout &&
-        /^Error: (?:page|locator)\.[^:]+: Target page, context or browser has been closed/.test(
-          line,
-        )
+        (line === timeout ||
+          /^Error: (?:page|locator)\.[^:]+: Target page, context or browser has been closed/.test(
+            line,
+          ))
       ),
   )
   return thrown ?? timeout ?? body.find((line) => !/^Retry #\d+\b/.test(line)) ?? null
@@ -3285,7 +3288,8 @@ function normalizedSignature(s: string): string {
  * @returns The budget in ms, or null.
  */
 function failureBudgetMs(block: string): number | null {
-  const m = /\bTest timeout of (\d+)ms exceeded\b/.exec(block.replace(ANSI_SGR, ''))
+  if (!block.includes('Test timeout of ')) return null
+  const m = TEST_BUDGET_ERROR.exec(failureErrorLine(failureBody(block)) ?? '')
   return m ? Number(m[1]) : null
 }
 
@@ -3424,6 +3428,8 @@ export function repeatingFailure(log: string): RepeatingFailure | null {
     const message = failureMessage(block)
     if (message === null) continue
     withBody.add(testKey({ where, title, seconds: null }))
+    // Equal per-test time limits can expire at different steps for unrelated reasons.
+    if (failureBudgetMs(block) !== null) continue
     const group = byMessage.get(message)
     if (group) group.push({ where, title, seconds: null })
     else byMessage.set(message, [{ where, title, seconds: null }])
@@ -3487,6 +3493,7 @@ export function repeatingFailure(log: string): RepeatingFailure | null {
  * @param excluded - The test titles the request carves out, if the caller knows them.
  * @param options - `finalOnly` reads only a failure the run has finished with; `noRetries` says
  *   the command proves the run cannot retry (`--retries=0`), so its first failure is final.
+ *   `excludeTestBudget` skips whole-test deadline errors when collecting repair cues.
  *   `onCause` receives each distinct normalized native error from the matching bodies.
  * @returns True when a `✘` row's own test, outside the request's exclusions, has a failure body
  *   under it — and, with `finalOnly`, that failure is final in the log read so far.
@@ -3494,9 +3501,16 @@ export function repeatingFailure(log: string): RepeatingFailure | null {
 export function logShowsInlineFailureBodies(
   log: string,
   excluded: readonly string[] = [],
-  options: { finalOnly?: boolean; noRetries?: boolean; onCause?: (cause: string) => void } = {},
+  options: {
+    finalOnly?: boolean
+    noRetries?: boolean
+    excludeTestBudget?: boolean
+    onCause?: (cause: string) => void
+  } = {},
 ): boolean {
-  const bodies = inlineFailureBodies(log, excluded, options)
+  const bodies = inlineFailureBodies(log, excluded, options).filter(
+    (block) => !options.excludeTestBudget || failureBudgetMs(block) === null,
+  )
   if (options.onCause) {
     const causes = new Set(
       bodies.map(failureMessage).filter((message): message is string => message !== null),
@@ -3867,7 +3881,9 @@ function emptyPageCause(
   // A blank page cannot RESOLVE a locator: `locator resolved to …` (or an actionability outcome
   // like `element is not visible`) means the page painted and only the element's box or
   // visibility was wrong. xr-molecule-flash-m187 stopped two narrowed re-runs on exactly this.
-  if (blocks.some((block) => ELEMENT_FOUND.test(block))) return null
+  // A whole-test deadline also says nothing about whether the pending locator could resolve.
+  if (blocks.some((block) => ELEMENT_FOUND.test(block) || failureBudgetMs(block) !== null))
+    return null
   // Both readings of the same failures: a `list` line carries the test and its duration, a
   // numbered block carries its body. The larger is the count — a failure that has a block but
   // whose result line the poll had not reached yet is still a failure.
@@ -4808,11 +4824,18 @@ export function failureCausesNote(
 ): string | null {
   const { causes, ignored, flaky } = groupFailures(log, excluded, pageErrors)
   const total = causes.reduce((n, c) => n + c.tests.length, 0)
+  const timedOut = causes.filter((cause) => cause.budgetMs !== undefined)
   // A short log needs no single recap only when it is also the displayed log. A long log MAY
   // lose the inline error to the host's middle cut; the 100 KB formatter may instead preserve
   // its failure blocks, and a mid-run caller displays a separate slice. Neither the log's length
   // nor a single failure establishes where the displayed output was cut.
-  if (total === 0 || (total === 1 && log.length <= TOOL_RESULT_CHARS && displayedLog === log))
+  if (
+    total === 0 ||
+    (timedOut.length === 0 &&
+      total === 1 &&
+      log.length <= TOOL_RESULT_CHARS &&
+      displayedLog === log)
+  )
     return null
   // Group the browser's repeated invalid navigations without inferring their configuration cause.
   if (causes.every((c) => c.message !== null && INVALID_NAVIGATION_URL_ERROR.test(c.message)))
@@ -4883,19 +4906,33 @@ export function failureCausesNote(
   const missingHeader = missingHeaderNote(log, pageErrors)
   const header =
     (missingHeader === null ? '' : `${missingHeader}\n`) +
-    (clipped !== null
-      ? `${total} failure${total === 1 ? '' : 's'} in the LAST part of this run’s log — its ` +
-        `first ${clipped[1]} ${clipped[2]} were clipped, so a cause that failed earlier is ` +
-        `missing here. Fix every cause below${connections.length > 0 ? ' the app’s code can produce, and re-send the connection error once as it is' : ''}, ` +
-        `and read the whole run log before concluding:\n`
-      : total === 1
-        ? `1 failure in this run — fix this cause before the next deploy:\n`
-        : `${total} failures in this run, grouped by cause — fix every cause ` +
-          `below${connections.length > 0 ? ' the app’s code can produce, and re-send the connection error once as it is' : ' before the next deploy'}:\n`)
+    (timedOut.length > 0
+      ? (clipped !== null ? 'These are the failures in the retained tail of the run. ' : '') +
+        'Playwright exhausted the whole-test time limit. The final operation shows where it stopped. ' +
+        'Re-run the timed-out tests on the same target with the original settings after this walk finishes. ' +
+        'If a timeout repeats, inspect the native step timings before editing for it.' +
+        (timedOut.length < causes.length
+          ? ' Use the other failures below to guide repairs.\n'
+          : '\n')
+      : clipped !== null
+        ? `${total} failure${total === 1 ? '' : 's'} in the LAST part of this run’s log — its ` +
+          `first ${clipped[1]} ${clipped[2]} were clipped, so a cause that failed earlier is ` +
+          `missing here. Fix every cause below${connections.length > 0 ? ' the app’s code can produce, and re-send the connection error once as it is' : ''}, ` +
+          `and read the whole run log before concluding:\n`
+        : total === 1
+          ? `1 failure in this run — fix this cause before the next deploy:\n`
+          : `${total} failures in this run, grouped by cause — fix every cause ` +
+            `below${connections.length > 0 ? ' the app’s code can produce, and re-send the connection error once as it is' : ' before the next deploy'}:\n`)
   // The flaky sentence sits before the ignored one: the ignored sentence is the LAST thing the
   // note says, and callers assert on that ending.
+  const rerunPrompt =
+    timedOut.length === 0
+      ? ' Re-run just these once they are fixed: '
+      : timedOut.length === causes.length && regressedSpecs.length === 0
+        ? ' Run the timed-out checks once more with '
+        : ' After diagnosing the timeouts and repairing any other failures, verify with '
   const tail =
-    failureRerunSentence(rerun, ' Re-run just these once they are fixed: ') +
+    failureRerunSentence(rerun, rerunPrompt) +
     (flakyTitles.length
       ? ' Flaky (failed once, passed on the config retry — the runner counts these as flaky, not ' +
         `as failures): ${failureTitlesRecap(flakyTitles)}.`

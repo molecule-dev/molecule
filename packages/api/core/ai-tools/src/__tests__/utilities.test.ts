@@ -4683,6 +4683,75 @@ describe('failureCausesNote — the test budget a timeout cause normalized away'
     expect(note).not.toContain('Test timeout of <n>')
   })
 
+  it('offers an unchanged targeted rerun for a short whole-test timeout', () => {
+    const log = [
+      '  1) [chromium] › inventory.spec.ts:21:3 › receive a delivery ────────',
+      '    Error: page.waitForSelector: Target page, context or browser has been closed',
+      '    Test timeout of 1000ms exceeded.',
+      '  1 failed',
+    ].join('\n')
+    const command =
+      'BASE_URL=https://inventory.example TEST_MODE=live npx playwright test --config checks.ts --timeout=1000'
+    const note = failureCausesNote(log, [], { command, cwd: '/workspace/checks' }) ?? ''
+    expect(note).toContain('Re-run the timed-out tests on the same target')
+    expect(note).toContain('Test timeout of 1000ms exceeded.')
+    expect(note).toContain('inventory.spec.ts:21')
+    expect(note).toContain('BASE_URL=https://inventory.example')
+    expect(note).toContain('TEST_MODE=live')
+    expect(note).toContain('--config checks.ts')
+    expect(note).toContain('--timeout=1000')
+    expect(note).not.toContain('fix this cause before the next deploy')
+  })
+
+  it('does not use a budget string in a failing assertion as timing evidence', () => {
+    const log = [
+      '  1) [chromium] › inventory.spec.ts:21:3 › receives a delivery ────────',
+      '    Error: expect(locator).toHaveText(expected) failed',
+      '    Expected: My deliveries',
+      '    Received: Test timeout of 1000ms exceeded.',
+      '  1 failed',
+    ].join('\n')
+    expect(failuresByCause(log)[0]).not.toHaveProperty('budgetMs')
+  })
+
+  it('keeps assertion and edited cases in verification after diagnosing a timeout', () => {
+    const log = [
+      budget,
+      '  3) [chromium] › shipping.spec.ts:30:3 › opens a shipment ────────',
+      '    Error: expect(locator).toBeVisible() failed',
+      '  3 failed',
+    ].join('\n')
+    const note = failureCausesNote(
+      log,
+      [],
+      { command: 'BASE_URL=https://inventory.example npx playwright test' },
+      [],
+      ['edited.spec.ts'],
+    )
+    expect(note).toContain('Re-run the timed-out tests on the same target')
+    const verification = note?.split('verify with ').at(-1)
+    expect(verification).toContain('shipping.spec.ts:30')
+    expect(verification).toContain('edited.spec.ts')
+  })
+
+  it('keeps walking when the only repeated signature is the test budget', () => {
+    const log = ['receiving', 'shipping', 'counting', 'sales']
+      .map((name, index) =>
+        [
+          `  ✘  ${index + 1} [chromium] › ${name}.spec.ts:21:3 › lists stock (1.1s)`,
+          `  1) [chromium] › ${name}.spec.ts:21:3 › lists stock ────────`,
+          '    Test timeout of 1000ms exceeded.',
+          '    Error: page.waitForSelector: Target page, context or browser has been closed',
+          '    Call log:',
+          '      - waiting for locator(".stock") to be visible',
+          '',
+        ].join('\n'),
+      )
+      .join('\n')
+    expect(repeatingFailure(log)).toBeNull()
+    expect(universalCause(log, null)).toBeNull()
+  })
+
   it("leaves a locator wait's own timeout normalized — that is the config, not the budget", () => {
     const waits = [
       '  1) [chromium] › e2e/a.spec.ts:10:3 › A › one ────────',

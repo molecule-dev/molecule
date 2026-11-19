@@ -7053,6 +7053,47 @@ describe('opt-in first diagnostic progress from a deployed task', () => {
     expect(result.note).toContain('not a completed result')
   })
 
+  const budgetFailure = [
+    '  ✘  2 [chromium] › stock.spec.ts:8:3 › restock shelves (1.1s)',
+    '  1) [chromium] › stock.spec.ts:8:3 › restock shelves ─────────',
+    '',
+    '    Error: page.waitForSelector: Target page, context or browser has been closed',
+    '',
+    '    Test timeout of 1000ms exceeded.',
+    '',
+  ].join('\n')
+
+  it('collects a deployed walk whose only final error is a whole-test timeout', async () => {
+    const { backend, state } = fixture()
+    state.text = `${budgetFailure}\n${nextTest}\n  1 failed\n  2 passed (2s)`
+    state.finishAt = Date.now() + 20000
+    state.finishCode = 1
+    const result = await wait(backend, await launch(backend, `${command} --retries=0`), enabled)
+    expect(result).toMatchObject({ status: 'completed', exitCode: 1 })
+    expect(result.note).toContain('Re-run the timed-out tests on the same target')
+    expect(result.note).toContain('stock.spec.ts:8')
+  })
+
+  it('still yields a real final failure beside a whole-test timeout', async () => {
+    const { backend, state } = fixture()
+    state.text = `${budgetFailure}\n${failure}\n${nextTest}`
+    const result = await wait(backend, await launch(backend, `${command} --retries=0`), enabled)
+    expect(result).toMatchObject({ status: 'running', waitedMs: 12000 })
+    expect(result.newFailureCauses).toEqual([
+      expect.stringContaining('page.waitForSelector: Timeout'),
+    ])
+  })
+
+  it('still yields a browser close without a whole-test timeout', async () => {
+    const { backend, state } = fixture()
+    state.text = budgetFailure.replace('    Test timeout of 1000ms exceeded.\n', '')
+    const result = await wait(backend, await launch(backend, `${command} --retries=0`), enabled)
+    expect(result).toMatchObject({ status: 'running', waitedMs: 12000 })
+    expect(result.newFailureCauses).toEqual([
+      expect.stringContaining('Target page, context or browser has been closed'),
+    ])
+  })
+
   /**
    * xr-molecule-flash-hl01 (+21:24): since l69 the yield fires only on a FINAL failure, so the
    * deployed run it belongs to can no longer pass and an edit cannot void a green proof. Its note

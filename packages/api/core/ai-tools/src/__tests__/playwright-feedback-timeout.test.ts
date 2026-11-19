@@ -27,9 +27,20 @@ it('reports a native browser loop timeout even when it has no locator', async ()
       `export default {testDir:'.',timeout:800,use:{baseURL:'http://127.0.0.1:${port}'}}`,
     )
     const path = join(root, 'inventory.spec.ts')
-    const content = `import {test} from '@playwright/test';
+    // The page fixture has its own clock so a slow browser launch cannot spend the body deadline.
+    const content = `import {test as base} from '@playwright/test';
+const test = base.extend({
+  page: [async ({browser, baseURL}, use) => {
+    const page = await browser.newPage({baseURL});
+    try {
+      await page.goto('/inventory');
+      await use(page);
+    } finally {
+      await page.close();
+    }
+  }, {timeout: 10000}],
+});
 test('inventory settles', async ({page}) => {
-  await page.goto('/inventory');
   while (true) await page.waitForTimeout(50);
 });`
     await writeFile(path, content)
@@ -46,7 +57,7 @@ test('inventory settles', async ({page}) => {
     expect(result.failures).toHaveLength(1)
     expect(result.failures[0]).toMatchObject({
       spec: path,
-      line: 4,
+      line: 14,
       locator: 'page.waitForTimeout',
     })
     expect(result.failures[0].rendered).toContain('Pending inventory')

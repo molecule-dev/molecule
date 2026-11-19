@@ -4340,26 +4340,13 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           logShowsInlineFailureBodies(causeLog, excludedTestTitles?.() ?? [], {
             finalOnly: true,
             noRetries: namesNoRetries(step.command),
+            // A deployed whole-test timeout needs a same-target check after collection. It
+            // cannot by itself tell the builder which app code to repair during the walk.
+            excludeTestBudget: !localDiagnostic,
             onCause: (cause) => finalCauses.push(cause),
           })
-        if (
-          yieldDiagnostic &&
-          taskRecord &&
-          finalCauses.some((cause) => !taskRecord?.diagnosticCauses?.has(cause)) &&
-          // A failure the request excludes by name is not a diagnostic to hand back — the same
-          // matcher the finished run's causes note drops it with, so the wait keeps running and
-          // a diagnostic stays available for a failure that counts (xr-molecule-flash-h13).
-          // Only a failure the run has FINISHED with is a diagnostic: a first attempt whose retry
-          // has not printed yet may still pass, and handing it back sent the builder to fix a test
-          // the retry absorbed while the deployed proof went green — the edit voided that proof
-          // and cost a redeploy plus a whole walk (xr-molecule-flash-l69). The yield itself stays:
-          // the retry-failure shape it was written for keeps firing. A command pinned to
-          // `--retries=0` has no retry to wait for, so its first failure is already final.
-          logShowsInlineFailureBodies(causeLog, excludedTestTitles?.() ?? [], {
-            finalOnly: true,
-            noRetries: namesNoRetries(step.command),
-          })
-        ) {
+        const earlierCauses = taskRecord?.diagnosticCauses
+        if (taskRecord && finalCauses.some((cause) => !earlierCauses?.has(cause))) {
           // Completion during the log read still wins over a progress return.
           exitCode = await readExit()
           if (exitCode !== null) break
