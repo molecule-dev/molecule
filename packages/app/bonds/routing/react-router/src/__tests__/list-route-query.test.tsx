@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { act, useState } from 'react'
+import { act, useEffect, useState } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { Route, Routes, useNavigate } from 'react-router'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
@@ -32,7 +32,10 @@ afterEach(() => act(() => root.unmount()))
 function Page() {
   const list = useListRoute({ selections })
   const [panel, setPanel] = useState('Preview')
-  go = useNavigate()
+  const navigate = useNavigate()
+  useEffect(() => {
+    go = navigate
+  })
   const query = useQuery({
     key: ['member-entries', list.selection],
     fetch: () => read(list.selection === 'saved'),

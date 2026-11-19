@@ -9,12 +9,12 @@ import React, {
   type Dispatch,
   type ReactNode,
   type SetStateAction,
-  useCallback,
   useContext,
   useEffect,
   useMemo,
   useRef,
   useState,
+  useSyncExternalStore,
 } from 'react'
 import {
   type NavigationType,
@@ -26,13 +26,18 @@ import {
 } from 'react-router'
 
 import { I18nError } from '@molecule/app-i18n'
-import { createHistoryRouter, type NavigationAction, setRouter } from '@molecule/app-routing'
-
 import {
-  createReactRouterHistory,
-  type ReactRouterHistory,
-  type ReactRouterSnapshot,
-} from './history.js'
+  type ConsumedSearchParam,
+  createConsumedSearchParam,
+  createHistoryRouter,
+  matchPath,
+  type NavigationAction,
+  parseQuery,
+  setRouter,
+} from '@molecule/app-routing'
+
+import type { ReactRouterHistory } from './history.js'
+import { useLiveHistory } from './live-history.js'
 import type { QueryParams, RouteDefinition, Router } from './types.js'
 
 /**
@@ -119,20 +124,7 @@ function useMoleculeRouterInstance(routes: RouteDefinition[]): {
   const params = useParams()
   const navigationType = useNavigationType()
 
-  const snapshot = useRef<ReactRouterSnapshot>(undefined)
-  snapshot.current = {
-    navigate,
-    location: {
-      pathname: location.pathname,
-      search: location.search,
-      hash: location.hash,
-      state: location.state,
-      key: location.key,
-    },
-    params,
-  }
-
-  const [history] = useState(() => createReactRouterHistory(snapshot))
+  const history = useLiveHistory({ navigate, location, params })
   const [router] = useState(() => createHistoryRouter(history, { routes }))
 
   return { router, history, locationKey: location.key, navigationType }
@@ -181,16 +173,20 @@ export function MoleculeRouterProvider(props: MoleculeRouterProviderProps): Reac
   const { children, routes = [], onRouterReady } = props
   const { router, history, locationKey, navigationType } = useMoleculeRouterInstance(routes)
 
-  const readyCallback = useRef(onRouterReady)
-  readyCallback.current = onRouterReady
-
   useEffect(() => {
     // Bonded once per router: `@molecule/app-routing`'s navigate()/getRouter() drive THIS
-    // real React Router adapter for the provider's whole life, and `onRouterReady` fires
-    // once instead of on every navigation.
+    // real React Router adapter for the provider's whole life.
     setRouter(router)
-    readyCallback.current?.(router)
   }, [router])
+
+  const readyRouter = useRef<Router | null>(null)
+  useEffect(() => {
+    // Once per router, with the callback of the render that bonded it: a later callback
+    // identity is not a new router.
+    if (readyRouter.current === router) return
+    readyRouter.current = router
+    onRouterReady?.(router)
+  }, [router, onRouterReady])
 
   const registeredRoutes = useRef(routes)
   useEffect(() => {
@@ -204,6 +200,24 @@ export function MoleculeRouterProvider(props: MoleculeRouterProviderProps): Reac
   useNotifyCommittedNavigation(history, locationKey, navigationType)
 
   return <MoleculeRouterContext.Provider value={router}>{children}</MoleculeRouterContext.Provider>
+}
+
+/**
+ * Throws unless the caller renders inside a React Router router.
+ *
+ * @throws {Error} If used outside a React Router router; mount a router component.
+ */
+function useRequiredRouterContext(): void {
+  const inRouter = useInRouterContext()
+  if (!inRouter) {
+    // Thrown like the package's other errors: the key travels with the English message
+    // and is translated wherever the error is shown.
+    throw new I18nError(
+      'routing.error.useMoleculeRouterOutsideRouter',
+      undefined,
+      '`useMoleculeRouter` must be used within a React Router router. Mount `BrowserRouter`, `HashRouter`, `MemoryRouter`, `Router`, or `RouterProvider`.',
+    )
+  }
 }
 
 /**
@@ -236,16 +250,7 @@ export function MoleculeRouterProvider(props: MoleculeRouterProviderProps): Reac
  */
 export function useMoleculeRouter(): Router {
   const router = useContext(MoleculeRouterContext)
-  const inRouter = useInRouterContext()
-  if (!inRouter) {
-    // Thrown like the package's other errors: the key travels with the English message
-    // and is translated wherever the error is shown.
-    throw new I18nError(
-      'routing.error.useMoleculeRouterOutsideRouter',
-      undefined,
-      '`useMoleculeRouter` must be used within a React Router router. Mount `BrowserRouter`, `HashRouter`, `MemoryRouter`, `Router`, or `RouterProvider`.',
-    )
-  }
+  useRequiredRouterContext()
 
   const {
     router: localRouter,
@@ -280,10 +285,9 @@ export function useMoleculeRouter(): Router {
  * ```
  */
 export function useIsActive(path: string, exact?: boolean): boolean {
-  const router = useMoleculeRouter()
-  const location = useLocation()
-  // Re-evaluate when location changes
-  return useMemo(() => router.isActive(path, exact), [router, path, exact, location.pathname])
+  useRequiredRouterContext()
+  const { pathname } = useLocation()
+  return matchPath(path, pathname, exact) !== null
 }
 
 /**
@@ -326,17 +330,63 @@ export function useMoleculeNavigate(): Router['navigate'] {
  * ```
  */
 export function useMoleculeQuery(): QueryParams {
-  const router = useMoleculeRouter()
-  const location = useLocation()
-  // Re-evaluate when search changes
-  return useMemo(() => router.getQuery(), [router, location.search])
+  useRequiredRouterContext()
+  const { search } = useLocation()
+  return useMemo(() => parseQuery(search), [search])
+}
+
+/** Top-level `history.state` keys React Router owns; every other key is the app's. */
+const REACT_ROUTER_STATE_KEYS = ['usr', 'key', 'idx', 'masked']
+
+/**
+ * The router a consumed parameter navigates through: its replace keeps the top-level
+ * `history.state` fields React Router does not model.
+ */
+const retainingHistoryState = (router: Router): Router => ({
+  ...router,
+  navigate: (path, options) => {
+    const before: unknown = typeof window === 'undefined' ? undefined : window.history.state
+    const result = router.navigate(path, options)
+    if (before !== null && typeof before === 'object') {
+      const retained = Object.fromEntries(
+        Object.entries(before).filter(([key]) => !REACT_ROUTER_STATE_KEYS.includes(key)),
+      )
+      if (Object.keys(retained).length > 0) {
+        window.history.replaceState(
+          { ...retained, ...window.history.state },
+          '',
+          window.location.href,
+        )
+      }
+    }
+    return result
+  },
+})
+
+/** One consumed parameter with the router and name it belongs to, and its setter. */
+const holdConsumedSearchParam = (
+  router: Router,
+  name: string,
+): {
+  router: Router
+  name: string
+  param: ConsumedSearchParam
+  update: Dispatch<SetStateAction<string>>
+} => {
+  const param = createConsumedSearchParam(retainingHistoryState(router), name)
+  return {
+    router,
+    name,
+    param,
+    update: (action) => param.set(typeof action === 'function' ? action(param.get()) : action),
+  }
 }
 
 /**
  * Consume a credential query parameter into component state and remove only that parameter from
  * the address through React Router. The value survives local rerenders, StrictMode, failed-submit
  * retries and later query-only navigation; a newly arriving value on the same mounted route is
- * consumed too. Path, hash, unrelated query values and router location state are retained.
+ * consumed too and shows one commit later. Path, hash, unrelated query values and router location state are retained.
  *
  * React Router owns the URL replacement, so `useLocation()` and `window.location` agree. A
  * metadata-only history merge retains unrelated pre-existing top-level state fields that React
@@ -353,81 +403,12 @@ export function useMoleculeQuery(): QueryParams {
 export function useConsumedSearchParam(
   name: string,
 ): readonly [string, Dispatch<SetStateAction<string>>] {
-  const location = useLocation()
-  const navigate = useNavigate()
-  const current = new URLSearchParams(location.search).get(name) ?? ''
-  const [consumed, setConsumed] = useState(current)
-  const consumedByEntry = useRef(new Map<string, string>())
-  const pending = useRef<string | undefined>(undefined)
-  const latest = useRef(consumed)
-  latest.current = consumed
-
-  const updateConsumed = useCallback<Dispatch<SetStateAction<string>>>(
-    (action) => {
-      setConsumed((previous) => {
-        const next = typeof action === 'function' ? action(previous) : action
-        consumedByEntry.current.set(location.key, next)
-        return next
-      })
-    },
-    [location.key],
-  )
-
-  useEffect(() => {
-    const params = new URLSearchParams(location.search)
-    if (!params.has(name)) {
-      const pendingValue = pending.current
-      if (pendingValue !== undefined) {
-        consumedByEntry.current.set(location.key, pendingValue)
-        pending.current = undefined
-      } else if (consumedByEntry.current.has(location.key)) {
-        setConsumed(consumedByEntry.current.get(location.key) ?? '')
-      } else if (latest.current) {
-        // Query-only navigation creates a new key but not a new credential link.
-        consumedByEntry.current.set(location.key, latest.current)
-      }
-      return
-    }
-
-    const value = params.get(name) ?? ''
-    pending.current = value
-    setConsumed(value)
-    params.delete(name)
-    const search = params.toString()
-    const previousHistoryState =
-      typeof window === 'undefined' ? undefined : (window.history.state as unknown)
-
-    navigate(
-      {
-        pathname: location.pathname,
-        search: search ? `?${search}` : '',
-        hash: location.hash,
-      },
-      { replace: true, state: location.state },
-    )
-
-    if (
-      previousHistoryState !== null &&
-      typeof previousHistoryState === 'object' &&
-      typeof window !== 'undefined'
-    ) {
-      const retained = Object.fromEntries(
-        Object.entries(previousHistoryState).filter(
-          ([key]) => !['usr', 'key', 'idx', 'masked'].includes(key),
-        ),
-      )
-      if (Object.keys(retained).length > 0) {
-        window.history.replaceState(
-          { ...retained, ...window.history.state },
-          '',
-          window.location.href,
-        )
-      }
-    }
-  }, [location, navigate, name])
-
-  return [
-    current || (consumedByEntry.current.get(location.key) ?? consumed),
-    updateConsumed,
-  ] as const
+  const router = useMoleculeRouter()
+  // Held in state, not a memo: the value lives only here once the address is clean.
+  const [held, setHeld] = useState(() => holdConsumedSearchParam(router, name))
+  if (held.router !== router || held.name !== name) setHeld(holdConsumedSearchParam(router, name))
+  const { param } = held
+  const value = useSyncExternalStore(param.subscribe, param.get, param.get)
+  useEffect(() => param.connect(), [param])
+  return [value, held.update] as const
 }

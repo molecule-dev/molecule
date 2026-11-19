@@ -5,7 +5,7 @@
  * `window.history`. The molecule router is the one `MoleculeRouterProvider` builds and
  * hands to `onRouterReady`; the native side is React Router's own hooks and history.
  */
-import { act, type ReactElement } from 'react'
+import { act, type ReactElement, useEffect } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { BrowserRouter, MemoryRouter, Route, Routes, useLocation, useNavigate } from 'react-router'
 
@@ -41,11 +41,16 @@ interface NativeCapture {
 /**
  * Records React Router's own navigate and location on every render.
  *
- * @param props - The shared slot the harness reads the capture from.
+ * @param props - The callback that receives each commit's capture.
  * @returns Nothing; the component renders nothing.
  */
-function Capture(props: { capture: { current: NativeCapture | undefined } }): null {
-  props.capture.current = { navigate: useNavigate(), location: useLocation() }
+function Capture(props: { onCapture: (capture: NativeCapture) => void }): null {
+  const { onCapture } = props
+  const navigate = useNavigate()
+  const location = useLocation()
+  useEffect(() => {
+    onCapture({ navigate, location })
+  })
   return null
 }
 
@@ -108,7 +113,11 @@ const createHarnessOver =
           bonded = router
         }}
       >
-        <Capture capture={capture} />
+        <Capture
+          onCapture={(value) => {
+            capture.current = value
+          }}
+        />
         <Routes>
           <Route path="/users/:id" element={null} />
           <Route path="*" element={null} />

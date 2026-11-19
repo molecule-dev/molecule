@@ -1,7 +1,15 @@
 // @vitest-environment jsdom
 
 import { expectTypeOf } from 'expect-type'
-import { act, type ComponentProps, type ComponentType, type JSX, lazy, Suspense } from 'react'
+import {
+  act,
+  type ComponentProps,
+  type ComponentType,
+  type JSX,
+  lazy,
+  Suspense,
+  useEffect,
+} from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import {
   Link,
@@ -68,7 +76,10 @@ function Path(): JSX.Element {
 }
 
 function Fallback(): JSX.Element {
-  fallbackRenders += 1
+  // Counts committed fallbacks, which is what 'no fallback flash' means.
+  useEffect(() => {
+    fallbackRenders += 1
+  })
   return <p data-fallback="">loading</p>
 }
 
