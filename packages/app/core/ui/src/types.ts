@@ -101,11 +101,17 @@ export interface KitFocusEvent extends KitEvent {
 }
 
 /**
- * Framework-agnostic event handler.
+ * Framework-agnostic event handler. An unannotated handler's event is `E`. It is declared as a
+ * method (as React types its own handlers), so TypeScript compares its parameter both ways: a
+ * handler written for the event a kit passes, such as `(event: Event) => void` on the Vue, Solid,
+ * Svelte and Angular kits or `(event: React.ChangeEvent<HTMLInputElement>) => void` on React's,
+ * is accepted too.
  *
  * @param event - The event, as the kit hands it (see {@link KitEvent}).
  */
-export type EventHandler<E extends KitEvent = KitEvent> = (event: E) => void
+export type EventHandler<E extends KitEvent = KitEvent> = {
+  handle(event: E): void
+}['handle']
 
 /**
  * Framework-agnostic mouse event handler.
