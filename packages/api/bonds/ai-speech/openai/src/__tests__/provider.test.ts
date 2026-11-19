@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { AISpeechProvider } from '@molecule/api-ai-speech'
 
 import { createProvider, provider as lazyProvider } from '../provider.js'
+import type { OpenaiSpeechConfig } from '../types.js'
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -61,6 +62,45 @@ function mockErrorResponse(status: number, body: string): Record<string, unknown
 /** Sample audio buffer for tests. */
 const sampleAudio = new Uint8Array([0x52, 0x49, 0x46, 0x46, 0x00, 0x00, 0x00, 0x00])
 
+/**
+ * The speech capabilities the OpenAI bond implements.
+ *
+ * The core `AISpeechProvider` contract leaves every method optional so that
+ * TTS-only and STT-only providers type-check. OpenAI implements all three of
+ * the directions these tests exercise, so they are required here and checked
+ * for at construction — a bond that silently dropped one would fail loudly
+ * instead of the test calling `undefined`.
+ */
+interface OpenaiSpeechCapabilities {
+  readonly name: string
+  synthesize: NonNullable<AISpeechProvider['synthesize']>
+  transcribe: NonNullable<AISpeechProvider['transcribe']>
+  translate: NonNullable<AISpeechProvider['translate']>
+}
+
+/**
+ * Creates an OpenAI speech provider and narrows it to the capabilities it ships.
+ *
+ * Methods are bound to the provider instance because they read instance state
+ * (`apiKey`, `baseUrl`, model defaults) through `this`.
+ *
+ * @param config - OpenAI speech provider configuration.
+ * @returns The provider's `name` plus its required capability methods.
+ */
+function openaiProvider(config: OpenaiSpeechConfig): OpenaiSpeechCapabilities {
+  const p = createProvider(config)
+  const { synthesize, transcribe, translate } = p
+  if (!synthesize || !transcribe || !translate) {
+    throw new Error('OpenAI speech provider must implement synthesize, transcribe and translate')
+  }
+  return {
+    name: p.name,
+    synthesize: synthesize.bind(p),
+    transcribe: transcribe.bind(p),
+    translate: translate.bind(p),
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Tests
 // ---------------------------------------------------------------------------
@@ -77,7 +117,7 @@ describe('OpenaiSpeechProvider', () => {
     vi.unstubAllGlobals()
   })
 
-  const provider = createProvider({ apiKey: 'test-key', baseUrl: 'https://test.api' })
+  const provider = openaiProvider({ apiKey: 'test-key', baseUrl: 'https://test.api' })
 
   // =========================================================================
   // synthesize() — TTS
@@ -172,7 +212,7 @@ describe('OpenaiSpeechProvider', () => {
     })
 
     it('uses config defaults for model, voice, format, and speed', async () => {
-      const customProvider = createProvider({
+      const customProvider = openaiProvider({
         apiKey: 'test-key',
         baseUrl: 'https://test.api',
         defaultTTSModel: 'tts-1-hd',
@@ -339,7 +379,7 @@ describe('OpenaiSpeechProvider', () => {
     })
 
     it('uses default STT model from config', async () => {
-      const customProvider = createProvider({
+      const customProvider = openaiProvider({
         apiKey: 'test-key',
         baseUrl: 'https://test.api',
         defaultSTTModel: 'gpt-4o-transcribe',
@@ -581,7 +621,7 @@ describe('OpenaiSpeechProvider', () => {
   describe('configuration', () => {
     it('uses OPENAI_API_KEY env var when no key provided', async () => {
       vi.stubEnv('OPENAI_API_KEY', 'env-key')
-      const envProvider = createProvider({ baseUrl: 'https://test.api' })
+      const envProvider = openaiProvider({ baseUrl: 'https://test.api' })
       mockFetch.mockResolvedValue(mockTTSResponse([0x00]))
 
       await envProvider.synthesize({ input: 'test' })
@@ -593,7 +633,7 @@ describe('OpenaiSpeechProvider', () => {
 
     it('honours OPENAI_BASE_URL env var', async () => {
       vi.stubEnv('OPENAI_BASE_URL', 'https://gateway.broker')
-      const envProvider = createProvider({ apiKey: 'k' })
+      const envProvider = openaiProvider({ apiKey: 'k' })
       mockFetch.mockResolvedValue(mockTTSResponse([0x00]))
 
       await envProvider.synthesize({ input: 'test' })
@@ -604,7 +644,7 @@ describe('OpenaiSpeechProvider', () => {
 
     it('config.baseUrl takes precedence over OPENAI_BASE_URL env var', async () => {
       vi.stubEnv('OPENAI_BASE_URL', 'https://env.broker')
-      const cfgProvider = createProvider({ apiKey: 'k', baseUrl: 'https://config.broker' })
+      const cfgProvider = openaiProvider({ apiKey: 'k', baseUrl: 'https://config.broker' })
       mockFetch.mockResolvedValue(mockTTSResponse([0x00]))
 
       await cfgProvider.synthesize({ input: 'test' })

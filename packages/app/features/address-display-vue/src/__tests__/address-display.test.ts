@@ -36,6 +36,7 @@ vi.mock('@molecule/app-ui', () => ({
 import { createApp, defineComponent, h } from 'vue'
 
 import { AddressDisplay } from '../AddressDisplay.js'
+import type { AddressDisplayProps } from '../types.js'
 
 const address = {
   line1: '123 Main St',
@@ -51,7 +52,7 @@ afterEach(() => {
 })
 
 /** Renders an {@link AddressDisplay} and returns the markup it produced. */
-const render = (props: Record<string, unknown>): string => {
+const render = (props: AddressDisplayProps): string => {
   const host = document.createElement('div')
   document.body.appendChild(host)
   const app = createApp(defineComponent({ render: () => h(AddressDisplay, props) }))

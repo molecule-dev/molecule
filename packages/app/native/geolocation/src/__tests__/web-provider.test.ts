@@ -3,6 +3,41 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { GeolocationProvider } from '../types.js'
 import { createWebGeolocationProvider } from '../web-provider.js'
 
+/**
+ * Builds a complete `GeolocationPosition` fixture. The browser API always
+ * provides `toJSON()` on a position and on its coordinates, so a faithful
+ * mock must include both.
+ */
+const position = (values: {
+  latitude: number
+  longitude: number
+  accuracy: number
+  altitude?: number | null
+  altitudeAccuracy?: number | null
+  heading?: number | null
+  speed?: number | null
+}): GeolocationPosition => {
+  const base = {
+    latitude: values.latitude,
+    longitude: values.longitude,
+    accuracy: values.accuracy,
+    altitude: values.altitude ?? null,
+    altitudeAccuracy: values.altitudeAccuracy ?? null,
+    heading: values.heading ?? null,
+    speed: values.speed ?? null,
+  }
+  const coords: GeolocationCoordinates = {
+    ...base,
+    toJSON: () => ({ ...base }),
+  }
+  const timestamp = Date.now()
+  return {
+    coords,
+    timestamp,
+    toJSON: () => ({ coords: coords.toJSON(), timestamp }),
+  }
+}
+
 describe('geolocation/web-provider', () => {
   let provider: GeolocationProvider
   let mockPosition: GeolocationPosition
@@ -16,18 +51,15 @@ describe('geolocation/web-provider', () => {
   }
 
   beforeEach(() => {
-    mockPosition = {
-      coords: {
-        latitude: 37.7749,
-        longitude: -122.4194,
-        accuracy: 10,
-        altitude: 100,
-        altitudeAccuracy: 5,
-        heading: 90,
-        speed: 10,
-      },
-      timestamp: Date.now(),
-    }
+    mockPosition = position({
+      latitude: 37.7749,
+      longitude: -122.4194,
+      accuracy: 10,
+      altitude: 100,
+      altitudeAccuracy: 5,
+      heading: 90,
+      speed: 10,
+    })
 
     mockNavigator = {
       permissions: {
@@ -121,18 +153,15 @@ describe('geolocation/web-provider', () => {
     })
 
     it('should handle null optional values', async () => {
-      mockPosition = {
-        coords: {
-          latitude: 37.7749,
-          longitude: -122.4194,
-          accuracy: 10,
-          altitude: null,
-          altitudeAccuracy: null,
-          heading: null,
-          speed: null,
-        },
-        timestamp: Date.now(),
-      }
+      mockPosition = position({
+        latitude: 37.7749,
+        longitude: -122.4194,
+        accuracy: 10,
+        altitude: null,
+        altitudeAccuracy: null,
+        heading: null,
+        speed: null,
+      })
       mockNavigator.geolocation!.getCurrentPosition.mockImplementation(
         (success: (pos: GeolocationPosition) => void) => success(mockPosition),
       )

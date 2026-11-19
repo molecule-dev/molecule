@@ -115,7 +115,6 @@ const makeRes = (): MoleculeResponse => ({
   set: vi.fn(),
   setHeader: vi.fn(),
   cookie: vi.fn(),
-  clearCookie: vi.fn(),
   write: vi.fn(),
   locals: {},
 })

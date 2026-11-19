@@ -43,6 +43,8 @@ vi.mock('@molecule/app-solid', () => ({
   }),
 }))
 
+import type { AnnouncementBarProps } from '../types.js'
+
 const { AnnouncementBar } = await import('../AnnouncementBar.jsx')
 
 const disposers: Array<() => void> = []
@@ -52,7 +54,7 @@ afterEach(() => {
 })
 
 /** Renders an {@link AnnouncementBar} and returns the container's markup. */
-function renderBar(props: Record<string, unknown>): string {
+function renderBar(props: AnnouncementBarProps): string {
   const container = document.createElement('div')
   document.body.appendChild(container)
   disposers.push(render(() => <AnnouncementBar {...props} />, container))

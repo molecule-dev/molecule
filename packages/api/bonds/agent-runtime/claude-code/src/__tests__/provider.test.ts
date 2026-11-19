@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import type { Sandbox, SandboxProvider } from '@molecule/api-code-sandbox'
+import type { ExecOptions, ExecResult, Sandbox, SandboxProvider } from '@molecule/api-code-sandbox'
 import { setProvider } from '@molecule/api-code-sandbox'
 
 import { createProvider, RUNTIME_ALLOWED_HOSTS } from '../provider.js'
@@ -9,7 +9,20 @@ import { createProvider, RUNTIME_ALLOWED_HOSTS } from '../provider.js'
 const GH_TOKEN = `ghp_${'a'.repeat(36)}`
 const ANTHROPIC_KEY = 'test-fake-anthropic-key'
 
-type ExecResult = { exitCode: number; stdout: string; stderr: string }
+/**
+ * The scripted fake sandbox: the real `Sandbox` contract plus the two recorders
+ * these tests assert on, and the optional `applyNetwork` capability the runtime
+ * feature-detects (a handle without it is the docker/flyio shape).
+ */
+type FakeSandbox = Sandbox & {
+  /** Every exec the runtime issued, in order: command + env. */
+  execs: Array<{ cmd: string; env: Record<string, string> }>
+  /** Results queued for the post-probe execs, consumed in order. */
+  execResults: ExecResult[]
+  /** The allow-list `applyNetwork` received; `null` until it is called. */
+  appliedNetwork: string[] | null
+  applyNetwork(allowOut: string[]): Promise<void>
+}
 
 /**
  * A scripted fake sandbox. Egress probes (the `node -e "fetch('https://<host>/…')"`
@@ -18,22 +31,22 @@ type ExecResult = { exitCode: number; stdout: string; stderr: string }
  * only for the post-probe execs (askpass stage, clone, install, agent, diff).
  */
 function fakeSandbox(
-  over: Partial<Sandbox> = {},
+  over: Partial<FakeSandbox> = {},
   probeExit?: (host: string) => number | undefined,
-): Sandbox & { execs: Array<{ cmd: string; env: Record<string, string> }> } {
-  const execs: Array<{ cmd: string; env: Record<string, string> }> = []
+): FakeSandbox {
+  const execs: FakeSandbox['execs'] = []
   const execResults: ExecResult[] = []
-  const handle = {
+  const handle: FakeSandbox = {
     id: 'sbx-test-1',
-    status: 'running' as const,
+    status: 'running',
     previewUrl: '',
     execs,
     execResults,
-    appliedNetwork: null as string[] | null,
+    appliedNetwork: null,
     async applyNetwork(allowOut: string[]) {
       this.appliedNetwork = allowOut
     },
-    async exec(command: string, opts?: { env?: Record<string, string>; timeout?: number }) {
+    async exec(command: string, opts?: ExecOptions) {
       execs.push({ cmd: command, env: opts?.env ?? {} })
       if (command.includes(`fetch('https://`)) {
         const host = /fetch\('https:\/\/([^/]+)\//.exec(command)![1]
@@ -45,26 +58,48 @@ function fakeSandbox(
       }
       return execResults.shift() ?? { exitCode: 0, stdout: '', stderr: '' }
     },
+    // The runtime under test uses exec/writeFile/id/applyNetwork; the rest of
+    // the lifecycle/file contract is present so the fake IS a Sandbox.
+    async start() {},
+    async stop() {},
+    async sleep() {},
+    async wake() {},
+    async readFile() {
+      return ''
+    },
     async writeFile() {},
+    async readDir() {
+      return []
+    },
+    async deleteFile() {},
+    getPreviewUrl() {
+      return ''
+    },
+    onFileChange() {
+      return () => {}
+    },
     ...over,
   }
-  return handle as never
+  return handle
 }
 
 /** Wire a fake sandbox provider; returns the destroy spy. */
-function wireProvider(
-  handle: ReturnType<typeof fakeSandbox>,
-  destroy = vi.fn().mockResolvedValue(undefined),
-) {
+function wireProvider(handle: Sandbox, destroy = vi.fn().mockResolvedValue(undefined)) {
   const provider: SandboxProvider = {
     name: 'fake',
     async create() {
       return handle
     },
+    async get() {
+      return null
+    },
+    async list() {
+      return []
+    },
     async destroy(id: string) {
       await destroy(id)
     },
-  } as never
+  }
   setProvider(provider)
   return { destroy }
 }
@@ -111,7 +146,7 @@ describe('api-agent-runtime-claude-code', () => {
     // The sandbox is destroyed BEFORE the artifact is returned.
     expect(destroy).toHaveBeenCalledWith('sbx-test-1')
     // Egress was deny-by-default with the runtime hosts.
-    expect(handle.appliedNetwork).toEqual(expect.arrayContaining(RUNTIME_ALLOWED_HOSTS))
+    expect(handle.appliedNetwork).toEqual(expect.arrayContaining([...RUNTIME_ALLOWED_HOSTS]))
     // The canary was probed alongside EVERY allowed host (not a sample).
     expect(probeExecs(handle)).toHaveLength(RUNTIME_ALLOWED_HOSTS.length + 1)
     expect(probeExecs(handle).some((e) => e.cmd.includes('example.com'))).toBe(true)
@@ -184,7 +219,17 @@ describe('api-agent-runtime-claude-code', () => {
     const handle = fakeSandbox()
     const create = vi.fn().mockResolvedValue(handle)
     const destroy = vi.fn().mockResolvedValue(undefined)
-    setProvider({ name: 'fake', create, destroy } as never)
+    setProvider({
+      name: 'fake',
+      create,
+      async get() {
+        return null
+      },
+      async list() {
+        return []
+      },
+      destroy,
+    })
     for (const repoUrl of [
       'http://github.com/acme/widgets',
       'https://gitlab.com/acme/widgets',
@@ -239,9 +284,10 @@ describe('api-agent-runtime-claude-code', () => {
   })
 
   it('refuses the run when the sandbox provider cannot enforce per-run egress (M-3)', async () => {
-    // A provider whose handle has NO applyNetwork (docker/flyio-shaped).
+    // A provider whose handle has NO applyNetwork (docker/flyio-shaped): a plain
+    // Sandbox without the optional capability the runtime feature-detects.
     const { applyNetwork: _omitted, ...bare } = fakeSandbox()
-    const handle = bare as unknown as ReturnType<typeof fakeSandbox>
+    const handle: Sandbox = bare
     wireProvider(handle)
     const artifact = await createProvider().run(SPEC, {
       env: { GITHUB_TOKEN: GH_TOKEN, ANTHROPIC_API_KEY: ANTHROPIC_KEY },
@@ -249,9 +295,9 @@ describe('api-agent-runtime-claude-code', () => {
     expect(artifact.exitStatus).toBe('failed')
     expect(artifact.logs).toContain('cannot enforce per-run egress')
     // No credential ever entered the sandbox: no askpass, no clone, no install, no agent.
-    expect(handle.execs.some((e) => e.cmd.includes('git clone'))).toBe(false)
-    expect(handle.execs.some((e) => e.cmd.includes('npm install'))).toBe(false)
-    expect(handle.execs.some((e) => e.cmd.includes('claude -p'))).toBe(false)
+    expect(bare.execs.some((e) => e.cmd.includes('git clone'))).toBe(false)
+    expect(bare.execs.some((e) => e.cmd.includes('npm install'))).toBe(false)
+    expect(bare.execs.some((e) => e.cmd.includes('claude -p'))).toBe(false)
   })
 
   it('destroys the sandbox on failure too, and redacts the token from logs', async () => {

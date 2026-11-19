@@ -603,9 +603,11 @@ describe('network/utilities', () => {
     })
 
     it('should call onOffline callback when going offline', async () => {
-      let offlineCallback: (() => void) | null = null
-      mockProvider.onOffline = vi.fn().mockImplementation((cb) => {
-        offlineCallback = cb
+      // Holds the callback `createNetworkAwareFetch` registered, read after
+      // registration (a `let` local would stay control-flow-narrowed to null).
+      const captured: { onOffline?: () => void } = {}
+      mockProvider.onOffline = vi.fn().mockImplementation((cb: () => void) => {
+        captured.onOffline = cb
         return () => {}
       })
       mockProvider.isConnected = vi.fn().mockResolvedValue(true)
@@ -614,21 +616,22 @@ describe('network/utilities', () => {
       createNetworkAwareFetch({ onOffline: onOfflineHandler })
 
       // Simulate going offline
-      offlineCallback?.()
+      captured.onOffline?.()
 
       expect(onOfflineHandler).toHaveBeenCalled()
     })
 
     it('should call onReconnect callback when coming back online', async () => {
-      let onlineCallback: (() => void) | null = null
-      let offlineCallback: (() => void) | null = null
+      // Holds the callbacks `createNetworkAwareFetch` registered, read after
+      // registration (a `let` local would stay control-flow-narrowed to null).
+      const captured: { onOnline?: () => void; onOffline?: () => void } = {}
 
-      mockProvider.onOnline = vi.fn().mockImplementation((cb) => {
-        onlineCallback = cb
+      mockProvider.onOnline = vi.fn().mockImplementation((cb: () => void) => {
+        captured.onOnline = cb
         return () => {}
       })
-      mockProvider.onOffline = vi.fn().mockImplementation((cb) => {
-        offlineCallback = cb
+      mockProvider.onOffline = vi.fn().mockImplementation((cb: () => void) => {
+        captured.onOffline = cb
         return () => {}
       })
       mockProvider.isConnected = vi.fn().mockResolvedValue(true)
@@ -637,17 +640,19 @@ describe('network/utilities', () => {
       createNetworkAwareFetch({ onReconnect: onReconnectHandler })
 
       // Simulate going offline then online
-      offlineCallback?.()
-      onlineCallback?.()
+      captured.onOffline?.()
+      captured.onOnline?.()
 
       expect(onReconnectHandler).toHaveBeenCalled()
     })
 
     it('should not call onReconnect if was not offline', async () => {
-      let onlineCallback: (() => void) | null = null
+      // Holds the callback `createNetworkAwareFetch` registered, read after
+      // registration (a `let` local would stay control-flow-narrowed to null).
+      const captured: { onOnline?: () => void } = {}
 
-      mockProvider.onOnline = vi.fn().mockImplementation((cb) => {
-        onlineCallback = cb
+      mockProvider.onOnline = vi.fn().mockImplementation((cb: () => void) => {
+        captured.onOnline = cb
         return () => {}
       })
       mockProvider.onOffline = vi.fn().mockReturnValue(() => {})
@@ -657,7 +662,7 @@ describe('network/utilities', () => {
       createNetworkAwareFetch({ onReconnect: onReconnectHandler })
 
       // Simulate online event without being offline first
-      onlineCallback?.()
+      captured.onOnline?.()
 
       expect(onReconnectHandler).not.toHaveBeenCalled()
     })
@@ -686,17 +691,18 @@ describe('network/utilities', () => {
     })
 
     it('should process queued requests when coming back online', async () => {
-      let onlineCallback: (() => void) | null = null
-      let offlineCallback: (() => void) | null = null
+      // Holds the callbacks `createNetworkAwareFetch` registered, read after
+      // registration (a `let` local would stay control-flow-narrowed to null).
+      const captured: { onOnline?: () => void; onOffline?: () => void } = {}
       let isOnline = true
 
       // Set up mocks before creating the fetch wrapper
-      mockProvider.onOnline = vi.fn().mockImplementation((cb) => {
-        onlineCallback = cb
+      mockProvider.onOnline = vi.fn().mockImplementation((cb: () => void) => {
+        captured.onOnline = cb
         return () => {}
       })
-      mockProvider.onOffline = vi.fn().mockImplementation((cb) => {
-        offlineCallback = cb
+      mockProvider.onOffline = vi.fn().mockImplementation((cb: () => void) => {
+        captured.onOffline = cb
         return () => {}
       })
       mockProvider.isConnected = vi.fn().mockImplementation(async () => isOnline)
@@ -713,7 +719,7 @@ describe('network/utilities', () => {
 
       // Go offline first (sets wasOffline = true)
       isOnline = false
-      offlineCallback?.()
+      captured.onOffline?.()
 
       // Queue a request while offline
       const fetchPromise = networkFetch('https://example.com/queued')
@@ -723,7 +729,7 @@ describe('network/utilities', () => {
 
       // Come back online - this should trigger queue processing
       isOnline = true
-      onlineCallback?.()
+      captured.onOnline?.()
 
       // Allow microtasks to flush (fetch mock's promise needs to resolve)
       await Promise.resolve()

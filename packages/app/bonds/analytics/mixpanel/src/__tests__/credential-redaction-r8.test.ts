@@ -1,7 +1,16 @@
+import type { Mixpanel } from 'mixpanel-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 const cleanups: Array<() => void> = []
 const documents: Array<{ referrer: string }> = []
+// vi.resetModules() does not re-run the SDK's externalized module, so the
+// initialized singleton survives across tests in this file and init fires its
+// `loaded` callback only for the first of them. Capture the instance it hands
+// back once; every test configures that same object.
+let capturedInstance: Mixpanel | undefined
+const captureInstance = (instance: Mixpanel): void => {
+  capturedInstance = instance
+}
 afterEach(() => {
   for (const cleanup of cleanups.splice(0)) cleanup()
   vi.unstubAllGlobals()
@@ -70,14 +79,20 @@ const setup = async (
   vi.stubGlobal('screen', window.screen)
   vi.stubGlobal('XMLHttpRequest', TransportXHR)
 
-  const { default: mixpanel } = await import('mixpanel-browser')
-  mixpanel.init('mixpanel-test-project', {
+  const { default: mixpanelModule } = await import('mixpanel-browser')
+  mixpanelModule.init('mixpanel-test-project', {
     track_pageview: false,
     hooks,
     disable_persistence: true,
     batch_requests: batchRequests,
     api_payload_format: 'json',
-  } as Parameters<typeof mixpanel.init>[1])
+    loaded: captureInstance,
+  } as Parameters<typeof mixpanelModule.init>[1])
+  // `loaded` fires synchronously during init; on the already-initialized
+  // singleton (every test after the first) the instance captured there is
+  // reused. A cast would hide a silent no-fire, so fail loudly instead.
+  if (!capturedInstance) throw new Error('mixpanel init did not call loaded')
+  const mixpanel = capturedInstance
   // reset() clears identity, not the initialized singleton: replace hooks for each isolated case.
   mixpanel.set_config({ hooks: hooks ?? {} } as Parameters<typeof mixpanel.set_config>[0])
   if (batchRequests) {

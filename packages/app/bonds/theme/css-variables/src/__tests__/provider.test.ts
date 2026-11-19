@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { createCSSVariablesThemeProvider, darkTheme, lightTheme } from '../index.js'
+import type { ThemeStorageAdapter } from '../types.js'
 
 interface StubElement {
   style: { setProperty: ReturnType<typeof vi.fn> }
@@ -91,7 +92,8 @@ describe('createCSSVariablesThemeProvider', () => {
         defaultTheme: 'light',
         applyToDocument: false,
       })
-      expect(provider.getThemes()).toEqual([lightTheme, darkTheme])
+      // getThemes is optional in the ThemeProvider contract; this provider implements it.
+      expect(provider.getThemes?.()).toEqual([lightTheme, darkTheme])
     })
   })
 
@@ -217,11 +219,9 @@ describe('createCSSVariablesThemeProvider', () => {
   })
 
   describe('persistence via supplied storage adapter', () => {
-    function makeStorage(initial: Record<string, string> = {}): {
-      getItem: ReturnType<typeof vi.fn>
-      setItem: ReturnType<typeof vi.fn>
-      state: Record<string, string>
-    } {
+    function makeStorage(
+      initial: Record<string, string> = {},
+    ): ThemeStorageAdapter & { state: Record<string, string> } {
       const state = { ...initial }
       return {
         getItem: vi.fn((k: string) => state[k] ?? null),

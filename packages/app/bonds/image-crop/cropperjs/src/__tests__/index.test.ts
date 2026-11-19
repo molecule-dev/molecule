@@ -1,4 +1,5 @@
 // @vitest-environment jsdom
+import type Cropper from 'cropperjs'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 // cropperjs is mocked: jsdom has no real canvas cropping and never fires image
@@ -28,7 +29,14 @@ const { mockCropperInstance, mockCroppedCanvas, mockCropData, MockCropper } = vi
     scale: vi.fn(),
     destroy: vi.fn(),
   }
-  const MockCropper = vi.fn(function () {
+  // Parameter types mirror the real cropperjs v1 constructor as the provider
+  // calls it (`new Cropper(img, options)`), so `MockCropper.mock.calls` entries
+  // are typed `[HTMLImageElement, Cropper.Options<HTMLImageElement>]`. The mock
+  // body ignores them; the `_` prefix marks that as intentional.
+  const MockCropper = vi.fn(function mockCropperConstructor(
+    _element: HTMLImageElement,
+    _options: Cropper.Options<HTMLImageElement>,
+  ) {
     return mockCropperInstance
   })
   return { mockCropperInstance, mockCroppedCanvas, mockCropData, MockCropper }
@@ -46,8 +54,7 @@ import { createProvider, provider } from '../index.js'
 /** Convenience: the options object passed to the most recent `new Cropper(...)`. */
 const lastCropperOptions = () => MockCropper.mock.calls[MockCropper.mock.calls.length - 1][1]
 /** Convenience: the element passed to the most recent `new Cropper(...)`. */
-const lastCropperElement = () =>
-  MockCropper.mock.calls[MockCropper.mock.calls.length - 1][0] as HTMLImageElement
+const lastCropperElement = () => MockCropper.mock.calls[MockCropper.mock.calls.length - 1][0]
 
 describe('@molecule/app-image-crop-cropperjs', () => {
   beforeEach(() => {

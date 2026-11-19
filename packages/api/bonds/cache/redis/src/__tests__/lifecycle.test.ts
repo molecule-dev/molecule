@@ -13,7 +13,8 @@ async function settleImport(): Promise<void> {
 
 describe('redis cache bond lifecycle integration', () => {
   beforeEach(() => {
-    clearProviders()
+    // The cache bond registers under the 'cache' category in the bond registry.
+    clearProviders('cache')
     resetRegistrationsForTests()
   })
 

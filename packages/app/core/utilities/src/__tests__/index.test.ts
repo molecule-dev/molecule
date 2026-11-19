@@ -6,7 +6,7 @@
  * formatting, URL utilities, encoding, async helpers,
  * error handling, clipboard, and random generation.
  */
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, type Mock, vi } from 'vitest'
 
 import type { AlphanumericOptions } from '../index.js'
 import {
@@ -677,12 +677,18 @@ describe('@molecule/app-utilities', () => {
     })
 
     describe('handleAnchorClick', () => {
-      let navigateMock: ReturnType<typeof vi.fn>
-      let preventDefaultMock: ReturnType<typeof vi.fn>
+      // Mocks typed as the real functions they stand in for (handleAnchorClick's
+      // `navigate` param; MouseEvent.preventDefault) so the calls are checked.
+      let navigateMock: Mock<(url: string) => void>
+      let preventDefaultMock: Mock<() => void>
+
+      // Each test feeds handleAnchorClick a deliberate partial MouseEvent stub —
+      // just the fields it reads (`target`, the modifier keys, `preventDefault`) —
+      // which is why the object is cast to MouseEvent below.
 
       beforeEach(() => {
-        navigateMock = vi.fn()
-        preventDefaultMock = vi.fn()
+        navigateMock = vi.fn<(url: string) => void>()
+        preventDefaultMock = vi.fn<() => void>()
         Object.defineProperty(window, 'location', {
           value: { origin: 'https://example.com' },
           writable: true,

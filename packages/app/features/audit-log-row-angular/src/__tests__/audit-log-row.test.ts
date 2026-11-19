@@ -11,13 +11,14 @@
 
 import '@angular/compiler'
 import {
+  type ApplicationRef,
   ChangeDetectionStrategy,
   Component,
   createComponent,
   provideZonelessChangeDetection,
   type Type,
 } from '@angular/core'
-import { type ApplicationRef, createApplication } from '@angular/platform-browser'
+import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
@@ -92,7 +93,7 @@ const render = async (props: Record<string, unknown> = {}): Promise<Mounted> => 
   document.body.appendChild(host)
   appRef.attachView(ref.hostView)
   appRef.tick()
-  const row = host.querySelector('[data-mol-id="audit-log-row"]')
+  const row = host.querySelector<HTMLElement>('[data-mol-id="audit-log-row"]')
   if (!row) throw new Error('the audit log row did not render')
   const m: Mounted = {
     host,

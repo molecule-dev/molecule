@@ -89,8 +89,17 @@ const mockDocument = {
 
 ;(globalThis as unknown as { document: typeof mockDocument }).document = mockDocument
 
+/**
+ * A `KeyboardProvider` test double that also exposes the recorded callback
+ * lists as triggers, so tests can fire show/hide events directly.
+ */
+type MockKeyboardProvider = KeyboardProvider & {
+  _triggerShow: (event: KeyboardShowEvent) => void
+  _triggerHide: () => void
+}
+
 // Create a mock provider
-function createMockProvider(): KeyboardProvider {
+function createMockProvider(): MockKeyboardProvider {
   const showCallbacks: Array<(event: KeyboardShowEvent) => void> = []
   const hideCallbacks: Array<() => void> = []
 
@@ -138,9 +147,6 @@ function createMockProvider(): KeyboardProvider {
     _triggerHide: () => {
       hideCallbacks.forEach((cb) => cb())
     },
-  } as KeyboardProvider & {
-    _triggerShow: (event: KeyboardShowEvent) => void
-    _triggerHide: () => void
   }
 }
 

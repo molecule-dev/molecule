@@ -13,6 +13,7 @@
  * @module
  */
 
+import type { JSX } from 'solid-js'
 import { render } from 'solid-js/web'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -40,9 +41,9 @@ vi.mock('@molecule/app-ui', () => ({
 }))
 
 vi.mock('@molecule/app-ui-solid', () => ({
-  Card: (props: { children?: unknown; className?: string; style?: unknown }) => (
+  Card: (props: { children?: JSX.Element; className?: string; style?: JSX.CSSProperties }) => (
     <div data-card="" class={props.className} style={props.style}>
-      {props.children as never}
+      {props.children}
     </div>
   ),
 }))

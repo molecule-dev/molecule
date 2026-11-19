@@ -8,6 +8,7 @@ import type {
   FormOptions,
   FormProvider,
   FormState,
+  FormValuesConstraint,
   RegisterOptions,
   ValidationRule,
   ValidationSchema,
@@ -463,7 +464,7 @@ describe('@molecule/app-forms', () => {
       })
 
       it('uses external values as the initial clean baseline over defaults', () => {
-        const form = nativeProvider.createForm({
+        const form = nativeProvider.createForm<{ name: string; email: string }>({
           defaultValues: { name: 'Default', email: 'default@example.test' },
           values: { name: 'Loaded' },
           resetOptions: { keepDirtyValues: true },
@@ -699,7 +700,8 @@ describe('@molecule/app-forms', () => {
 
     it('should set and get a custom provider', () => {
       const customProvider: FormProvider = {
-        createForm: () => ({}) as FormController<Record<string, unknown>>,
+        createForm: <T extends FormValuesConstraint<T>>(options: FormOptions<T>) =>
+          nativeProvider.createForm(options),
       }
       setProvider(customProvider)
       expect(getProvider()).toBe(customProvider)

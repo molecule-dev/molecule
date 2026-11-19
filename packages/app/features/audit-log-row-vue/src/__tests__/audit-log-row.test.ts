@@ -36,7 +36,7 @@ vi.mock('@molecule/app-ui', () => ({
 import { createApp, defineComponent, h } from 'vue'
 
 import { AuditLogRow } from '../AuditLogRow.js'
-import type { AuditLogEntry } from '../types.js'
+import type { AuditLogEntry, AuditLogRowProps } from '../types.js'
 
 afterEach(() => {
   document.body.innerHTML = ''
@@ -51,7 +51,7 @@ const entry = (over: Partial<AuditLogEntry> = {}): AuditLogEntry => ({
 })
 
 /** Renders an {@link AuditLogRow} and returns the markup it produced. */
-const render = (props: Record<string, unknown>): string => {
+const render = (props: AuditLogRowProps): string => {
   const host = document.createElement('div')
   document.body.appendChild(host)
   const app = createApp(defineComponent({ render: () => h(AuditLogRow, props) }))

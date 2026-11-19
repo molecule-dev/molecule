@@ -251,18 +251,19 @@ describe('WhistleSpeechProvider', () => {
     ])
     const call = fake.calls.find((c) => c.name === 'needle_transcribe')
     expect(call).toBeDefined()
-    expect(call.args[1]).toBe(2 * WHISTLE_SAMPLE_RATE)
-    expect(call.args[2]).toBeNull() // auto-detect
-    expect(call.args[3]).toBeNull() // no keywords
-    expect(call.args[4]).toBe(1) // word timestamps requested
+    expect(call?.args[1]).toBe(2 * WHISTLE_SAMPLE_RATE)
+    expect(call?.args[2]).toBeNull() // auto-detect
+    expect(call?.args[3]).toBeNull() // no keywords
+    expect(call?.args[4]).toBe(1) // word timestamps requested
   })
 
   it('forces a supported BCP-47 language and passes prompt as keyword biasing', async () => {
     const speech = createProvider()
     await speech.transcribe!({ audio: silenceWav(1), language: 'de-DE', prompt: 'Acme' })
     const call = fake.calls.find((c) => c.name === 'needle_transcribe')
-    expect(call.args[2]).toBe('de')
-    expect(call.args[3]).toBe('Acme')
+    expect(call).toBeDefined()
+    expect(call?.args[2]).toBe('de')
+    expect(call?.args[3]).toBe('Acme')
   })
 
   it('throws for a language outside the seven', async () => {
@@ -299,8 +300,8 @@ describe('WhistleSpeechProvider', () => {
     const calls = fake.calls.filter((c) => c.name === 'needle_transcribe')
     expect(calls).toHaveLength(3)
     expect(calls.map((c) => c.args[1])).toEqual([480000, 480000, 16000])
-    expect(result.segments.map((s) => s.start)).toEqual([0, 30, 60])
-    expect(result.words.map((w) => w.start)).toEqual([0, 30, 60])
+    expect(result.segments?.map((s) => s.start)).toEqual([0, 30, 60])
+    expect(result.words?.map((w) => w.start)).toEqual([0, 30, 60])
   })
 
   it('throws WhistleWavError for non-WAV audio instead of passing it through', async () => {
@@ -407,10 +408,15 @@ describe('WhistleSpeechProvider', () => {
     // `push()` — the generator must refuse the rate up front instead.
     const speech = createProvider()
     const pcm = new Uint8Array(3200) // 0.1 s of PCM16
+    // Pull the stream's FIRST event: the refusal must happen on the first
+    // `next()`, before any audio reaches the engine.
+    const pullFirst = async (sampleRate: number): Promise<void> => {
+      for await (const _event of speech.transcribeStream!(chunksOf(pcm, 1600), { sampleRate })) {
+        void _event
+      }
+    }
     for (const badRate of [0, -8000, Number.NaN]) {
-      await expect(
-        speech.transcribeStream!(chunksOf(pcm, 1600), { sampleRate: badRate }).next(),
-      ).rejects.toThrow(/sampleRate/)
+      await expect(pullFirst(badRate)).rejects.toThrow(/sampleRate/)
     }
     // Nothing reached the engine: the refusal happens before any work.
     expect(fake.calls.filter((c) => c.name === 'needle_stream_transcribe_process')).toHaveLength(0)
@@ -551,7 +557,7 @@ describe('WhistleSpeechProvider', () => {
       yield pcmB.subarray(0, WHISTLE_SAMPLE_RATE * 2)
       yield pcmB.subarray(WHISTLE_SAMPLE_RATE * 2)
     }
-    const drain = async (gen: AsyncGenerator<TranscriptionStreamEvent>): Promise<void> => {
+    const drain = async (gen: AsyncIterable<TranscriptionStreamEvent>): Promise<void> => {
       for await (const event of gen) void event
     }
 
@@ -623,7 +629,7 @@ describe('WhistleSpeechProvider', () => {
       for (let i = 0; i < samples; i++) view.setInt16(i * 2, value, true)
       return out
     }
-    const drain = async (gen: AsyncGenerator<TranscriptionStreamEvent>): Promise<void> => {
+    const drain = async (gen: AsyncIterable<TranscriptionStreamEvent>): Promise<void> => {
       for await (const event of gen) void event
     }
 

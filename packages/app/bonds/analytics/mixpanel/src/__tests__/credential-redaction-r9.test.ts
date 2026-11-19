@@ -43,7 +43,7 @@ const setup = async () => {
     documentElement: {},
     body: { appendChild: () => {} },
   }
-  const window = {
+  const windowStub = {
     location,
     document,
     navigator: { userAgent: 'round-nine-test', onLine: true },
@@ -54,11 +54,11 @@ const setup = async () => {
     dispatchEvent: () => {},
     CustomEvent: class {},
   }
-  vi.stubGlobal('window', window)
+  vi.stubGlobal('window', windowStub)
   vi.stubGlobal('document', document)
   vi.stubGlobal('location', location)
-  vi.stubGlobal('navigator', window.navigator)
-  vi.stubGlobal('screen', window.screen)
+  vi.stubGlobal('navigator', windowStub.navigator)
+  vi.stubGlobal('screen', windowStub.screen)
   vi.stubGlobal('XMLHttpRequest', TransportXHR)
 
   const { default: mixpanel } = await import('mixpanel-browser')
@@ -67,8 +67,11 @@ const setup = async () => {
     disable_persistence: true,
     api_payload_format: 'json',
   })
+  // The SDK binds window.fetch once during init (FlagsManager stores it), so
+  // the recorder transport must not be on the stub until init has run: a mock
+  // present earlier answers init's own request and the recorder never flushes.
   const transport = vi.fn()
-  Object.assign(window, { fetch: transport })
+  const window = Object.assign(windowStub, { fetch: transport })
   const { createProvider } = await import('../provider.js')
   createProvider({ token: 'mixpanel-test-project' })
   cleanups.push(() => mixpanel.reset())

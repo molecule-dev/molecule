@@ -48,6 +48,19 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { createReactNativeClipboardProvider, provider } from '../provider.js'
 
+/**
+ * Asserts the provider implements the optional `onChange` contract member
+ * (the React Native provider always does) and returns it as a callable.
+ */
+function requireOnChange(
+  target: ReturnType<typeof createReactNativeClipboardProvider>,
+): NonNullable<ReturnType<typeof createReactNativeClipboardProvider>['onChange']> {
+  if (!target.onChange) {
+    throw new Error('expected the provider to implement onChange')
+  }
+  return target.onChange
+}
+
 describe('@molecule/app-clipboard-react-native', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -210,7 +223,8 @@ describe('@molecule/app-clipboard-react-native', () => {
 
     describe('onChange', () => {
       it('should return a cleanup function when polling is disabled', () => {
-        const cleanup = p.onChange(vi.fn())
+        const onChange = requireOnChange(p)
+        const cleanup = onChange(vi.fn())
         expect(cleanup).toBeTypeOf('function')
         cleanup()
       })
@@ -222,7 +236,7 @@ describe('@molecule/app-clipboard-react-native', () => {
           pollInterval: 500,
         })
         const callback = vi.fn()
-        const cleanup = pollingProvider.onChange(callback)
+        const cleanup = requireOnChange(pollingProvider)(callback)
 
         expect(cleanup).toBeTypeOf('function')
         cleanup()
@@ -238,7 +252,7 @@ describe('@molecule/app-clipboard-react-native', () => {
         const callback = vi.fn()
 
         mockGetString.mockResolvedValue('new text')
-        const cleanup = pollingProvider.onChange(callback)
+        const cleanup = requireOnChange(pollingProvider)(callback)
 
         await vi.advanceTimersByTimeAsync(150)
         expect(callback).toHaveBeenCalledWith({

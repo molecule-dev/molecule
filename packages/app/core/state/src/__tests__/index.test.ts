@@ -292,8 +292,12 @@ describe('@molecule/app-state Public API', () => {
         initialState: { name: '', loggedIn: false },
       })
 
-      const settingsStore = provider.createStore({
-        initialState: { theme: 'light' as const, notifications: true },
+      // The store's state allows both themes; it just starts as 'light'.
+      const settingsStore = provider.createStore<{
+        theme: 'light' | 'dark'
+        notifications: boolean
+      }>({
+        initialState: { theme: 'light', notifications: true },
       })
 
       const appStore = combineStores<{

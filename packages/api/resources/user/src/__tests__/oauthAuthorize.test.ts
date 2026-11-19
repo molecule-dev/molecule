@@ -52,6 +52,14 @@ import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
 
 import { oauthAuthorize } from '../handlers/oauthAuthorize.js'
 
+/** What the handler asks the bonded provider's `getAuthorizeUrl` for. */
+type AuthorizeParams = {
+  redirectUri?: string
+  state: string
+  codeChallenge?: string
+  codeChallengeMethod?: 'S256' | 'plain'
+}
+
 const makeReq = (overrides: Record<string, unknown> = {}): MoleculeRequest => ({
   body: {},
   params: {} as Record<string, string>,
@@ -184,7 +192,9 @@ describe('oauthAuthorize — happy path', () => {
   })
 
   it('appends a valid same-origin redirect_to path to the redirect URI', async () => {
-    const getAuthorizeUrl = vi.fn(() => 'https://provider.example/authorize')
+    const getAuthorizeUrl = vi.fn(
+      (_params: AuthorizeParams) => 'https://provider.example/authorize',
+    )
     mockGet.mockReturnValue({ getAuthorizeUrl })
     const handler = oauthAuthorize()
 
@@ -204,7 +214,9 @@ describe('oauthAuthorize — happy path', () => {
     ['backslash trick', '/\\evil.example'],
     ['relative path', 'login'],
   ])('ignores a malicious redirect_to (%s) — open-redirect guard', async (_label, value) => {
-    const getAuthorizeUrl = vi.fn(() => 'https://provider.example/authorize')
+    const getAuthorizeUrl = vi.fn(
+      (_params: AuthorizeParams) => 'https://provider.example/authorize',
+    )
     mockGet.mockReturnValue({ getAuthorizeUrl })
     const handler = oauthAuthorize()
 
@@ -220,15 +232,15 @@ describe('oauthAuthorize — happy path', () => {
 
   it('omits redirectUri entirely when APP_ORIGIN is unset (provider uses its registered callback)', async () => {
     configureEnv({ NODE_ENV: 'test' })
-    const getAuthorizeUrl = vi.fn(() => 'https://provider.example/authorize')
+    const getAuthorizeUrl = vi.fn(
+      (_params: AuthorizeParams) => 'https://provider.example/authorize',
+    )
     mockGet.mockReturnValue({ getAuthorizeUrl })
     const handler = oauthAuthorize()
 
     await handler(makeReq({ params: { provider: 'github' } }), makeRes())
 
-    expect(
-      (getAuthorizeUrl.mock.calls[0][0] as { redirectUri?: string }).redirectUri,
-    ).toBeUndefined()
+    expect(getAuthorizeUrl.mock.calls[0][0].redirectUri).toBeUndefined()
   })
 
   it('generates a fresh state per request (no fixation)', async () => {

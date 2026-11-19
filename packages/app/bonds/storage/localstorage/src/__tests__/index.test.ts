@@ -505,7 +505,9 @@ describe('@molecule/app-storage-localstorage', () => {
       it('should handle mixed value types', async () => {
         const storage = createLocalStorageProvider({ storage: mockStorage })
 
-        await storage.setMany!([
+        // Values are of mixed types: spell out the union so inference does not
+        // collapse T to the first entry's type.
+        await storage.setMany!<string | number | { a: number } | number[]>([
           ['str', 'hello'],
           ['num', 42],
           ['obj', { a: 1 }],

@@ -1106,7 +1106,7 @@ describe('layout components', () => {
 
 describe('integration tests', () => {
   it('should allow combining component classes with cn utility', () => {
-    const result = cn(button({ variant: 'primary', size: 'lg' }), 'extra-class')
+    const result = cn(button({ variant: 'secondary', size: 'lg' }), 'extra-class')
     expect(result).toContain('inline-flex')
     expect(result).toContain('h-10')
     expect(result).toContain('extra-class')

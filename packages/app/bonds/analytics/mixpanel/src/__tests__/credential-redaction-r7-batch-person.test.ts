@@ -1,6 +1,15 @@
 import { gunzipSync } from 'node:zlib'
 
+import type { Mixpanel } from 'mixpanel-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+
+// The SDK hands its instance back once through `loaded`, typed as Mixpanel,
+// which carries the batcher members its declaration omits (see
+// mixpanel-browser-declarations.d.ts).
+let capturedInstance: Mixpanel | undefined
+const captureInstance = (instance: Mixpanel): void => {
+  capturedInstance = instance
+}
 
 const decodeBody = async (body: unknown): Promise<string> => {
   if (typeof body === 'string') return body
@@ -93,7 +102,15 @@ describe('round-seven Mixpanel batched people transport', () => {
     vi.stubGlobal('screen', window.screen)
     vi.stubGlobal('XMLHttpRequest', TransportXHR)
 
-    const { default: mixpanel } = await import('mixpanel-browser')
+    const { default: mixpanelModule } = await import('mixpanel-browser')
+    // Initializing here is behavior-neutral: the provider's init config equals
+    // the SDK defaults, and a second init on the already-initialized singleton
+    // is a no-op.
+    mixpanelModule.init('mixpanel-test-project', { loaded: captureInstance })
+    // `loaded` fires synchronously during init; a cast would hide a silent
+    // no-fire, so fail loudly instead.
+    if (!capturedInstance) throw new Error('mixpanel init did not call loaded')
+    const mixpanel = capturedInstance
     const { createProvider } = await import('../provider.js')
     const analytics = await import('@molecule/app-analytics')
     analytics.setProvider(createProvider({ token: 'mixpanel-test-project' }))

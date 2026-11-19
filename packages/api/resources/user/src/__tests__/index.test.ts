@@ -3,6 +3,7 @@
  */
 
 import { describe, expect, it } from 'vitest'
+import { z } from 'zod'
 
 import { createResource, resource } from '../resource.js'
 import {
@@ -23,6 +24,21 @@ import {
 } from '../schema.js'
 import type * as types from '../types.js'
 
+/**
+ * The exported resources are declared as `types.Resource`, whose `schema` is `unknown` (the
+ * interface also admits non-Zod schemas for backward compatibility). Narrow it with Zod's own
+ * class check so the tests read the schema with its real type instead of casting the value.
+ * @param value - The value to narrow.
+ * @returns The value as a Zod schema.
+ */
+function zodSchema(value: unknown): z.ZodType {
+  if (!(value instanceof z.ZodType)) {
+    throw new Error('User resource.schema is not a Zod schema')
+  }
+
+  return value
+}
+
 describe('User resource definition', () => {
   it('should have correct name', () => {
     expect(resource.name).toBe('User')
@@ -34,7 +50,7 @@ describe('User resource definition', () => {
 
   it('should have a schema', () => {
     expect(resource.schema).toBeDefined()
-    expect(resource.schema.safeParse).toBeDefined()
+    expect(zodSchema(resource.schema).safeParse).toBeDefined()
   })
 })
 
@@ -65,7 +81,7 @@ describe('createResource', () => {
       oauthServer: 'google',
     }
 
-    const result = customResource.schema.safeParse(validProps)
+    const result = zodSchema(customResource.schema).safeParse(validProps)
     expect(result.success).toBe(true)
   })
 
@@ -85,7 +101,7 @@ describe('createResource', () => {
       planKey: 'pro',
     }
 
-    const result = customResource.schema.safeParse(validProps)
+    const result = zodSchema(customResource.schema).safeParse(validProps)
     expect(result.success).toBe(true)
   })
 
@@ -104,7 +120,7 @@ describe('createResource', () => {
       planKey: 'premium',
     }
 
-    const result = customResource.schema.safeParse(validProps)
+    const result = zodSchema(customResource.schema).safeParse(validProps)
     expect(result.success).toBe(true)
   })
 })
@@ -786,7 +802,7 @@ describe('resource schema matches propsSchema', () => {
   it('should use a schema from createSchema', () => {
     // The resource uses createSchema() internally
     expect(resource.schema).toBeDefined()
-    expect(resource.schema.safeParse).toBeDefined()
+    expect(zodSchema(resource.schema).safeParse).toBeDefined()
   })
 
   it('should validate the same data as propsSchema', () => {
@@ -799,7 +815,7 @@ describe('resource schema matches propsSchema', () => {
     }
 
     const propsResult = propsSchema.safeParse(testData)
-    const resourceResult = resource.schema.safeParse(testData)
+    const resourceResult = zodSchema(resource.schema).safeParse(testData)
 
     expect(propsResult.success).toBe(true)
     expect(resourceResult.success).toBe(true)

@@ -16,7 +16,7 @@ const { mockQuillInstance, MockQuill } = vi.hoisted(() => {
     getContents: vi.fn(() => ({ ops: [{ insert: 'test content\n' }] })),
     setContents: vi.fn(),
     getLength: vi.fn(() => 12),
-    getSelection: vi.fn(() => ({ index: 0, length: 0 })),
+    getSelection: vi.fn((): { index: number; length: number } | null => ({ index: 0, length: 0 })),
     setSelection: vi.fn(),
     format: vi.fn(),
     formatText: vi.fn(),
@@ -43,7 +43,9 @@ const { mockQuillInstance, MockQuill } = vi.hoisted(() => {
     },
   }
 
-  const MockQuill = vi.fn(function () {
+  // Variadic args: this mock stands in for `new Quill(container, options)`, so the
+  // recorded calls must expose their arguments (`MockQuill.mock.calls[i][1]`).
+  const MockQuill = vi.fn(function MockQuill(..._args: unknown[]) {
     return mockQuillInstance
   })
 
@@ -65,6 +67,7 @@ import {
   toolbarConfigToQuill,
 } from '../index.js'
 import type {
+  EditorOptions,
   QuillOptions,
   RichTextEditor,
   RichTextProvider,
@@ -252,10 +255,18 @@ describe('Quill Rich Text Provider', () => {
 
     it('should disable toolbar when toolbar is false', () => {
       const provider = createQuillProvider()
-      provider.createEditor({
+      // `toolbar: false` is this bond's documented runtime contract (../index.ts
+      // remarks; provider.ts destructures toolbar as `EditorOptions['toolbar'] | false`
+      // and handles `false` by disabling the toolbar), but the CORE EditorOptions.toolbar
+      // type is `string | ToolbarConfig` and rejects it. Type the options through that
+      // runtime shape — not a suppression — and hand them to createEditor.
+      const options: Omit<QuillOptions, 'toolbar'> & {
+        toolbar?: QuillOptions['toolbar'] | false
+      } = {
         container,
         toolbar: false,
-      })
+      }
+      provider.createEditor(options as EditorOptions)
 
       expect(MockQuill).toHaveBeenCalledWith(
         container,

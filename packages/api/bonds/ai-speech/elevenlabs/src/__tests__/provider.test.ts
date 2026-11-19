@@ -1,10 +1,42 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import type { AISpeechProvider } from '@molecule/api-ai-speech'
+
 import { createProvider } from '../provider.js'
 
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
+
+/**
+ * `AISpeechProvider` declares every capability method optional because a bond
+ * may implement only some of them. This bond is TTS-only, so the tests below
+ * require exactly the capabilities it ships.
+ */
+type TtsProvider = Required<
+  Pick<AISpeechProvider, 'synthesizeSpeech' | 'synthesizeStream' | 'listVoices'>
+> &
+  Pick<AISpeechProvider, 'name'>
+
+/**
+ * Narrows a speech provider to the TTS capabilities this bond implements,
+ * failing loudly if a capability the tests exercise is missing.
+ *
+ * @param speechProvider - Provider returned by `createProvider`.
+ * @returns The same provider with its TTS capabilities non-optional.
+ */
+function requireTtsProvider(speechProvider: AISpeechProvider): TtsProvider {
+  const { synthesizeSpeech, synthesizeStream, listVoices } = speechProvider
+  if (!synthesizeSpeech || !synthesizeStream || !listVoices) {
+    throw new Error('ElevenLabs provider is missing a required TTS capability')
+  }
+  return {
+    name: speechProvider.name,
+    synthesizeSpeech: synthesizeSpeech.bind(speechProvider),
+    synthesizeStream: synthesizeStream.bind(speechProvider),
+    listVoices: listVoices.bind(speechProvider),
+  }
+}
 
 const mockFetch = vi.fn()
 
@@ -95,7 +127,9 @@ describe('ElevenlabsSpeechProvider', () => {
     vi.unstubAllGlobals()
   })
 
-  const provider = createProvider({ apiKey: 'test-key', baseUrl: 'https://test.api' })
+  const provider = requireTtsProvider(
+    createProvider({ apiKey: 'test-key', baseUrl: 'https://test.api' }),
+  )
 
   // =========================================================================
   // synthesize()
@@ -459,7 +493,7 @@ describe('ElevenlabsSpeechProvider', () => {
   describe('configuration', () => {
     it('uses ELEVENLABS_API_KEY env var when no key provided', async () => {
       vi.stubEnv('ELEVENLABS_API_KEY', 'env-key')
-      const envProvider = createProvider({ baseUrl: 'https://test.api' })
+      const envProvider = requireTtsProvider(createProvider({ baseUrl: 'https://test.api' }))
       mockFetch.mockResolvedValue(mockAudioResponse())
 
       await envProvider.synthesizeSpeech({ text: 'test', voiceId: 'voice-1' })
@@ -471,7 +505,7 @@ describe('ElevenlabsSpeechProvider', () => {
 
     it('honours ELEVENLABS_BASE_URL env var', async () => {
       vi.stubEnv('ELEVENLABS_BASE_URL', 'https://gateway.broker')
-      const envProvider = createProvider({ apiKey: 'k' })
+      const envProvider = requireTtsProvider(createProvider({ apiKey: 'k' }))
       mockFetch.mockResolvedValue(mockVoicesResponse())
 
       await envProvider.listVoices()
@@ -482,7 +516,9 @@ describe('ElevenlabsSpeechProvider', () => {
 
     it('config.baseUrl takes precedence over ELEVENLABS_BASE_URL env var', async () => {
       vi.stubEnv('ELEVENLABS_BASE_URL', 'https://env.broker')
-      const cfgProvider = createProvider({ apiKey: 'k', baseUrl: 'https://config.broker' })
+      const cfgProvider = requireTtsProvider(
+        createProvider({ apiKey: 'k', baseUrl: 'https://config.broker' }),
+      )
       mockFetch.mockResolvedValue(mockVoicesResponse())
 
       await cfgProvider.listVoices()
@@ -505,11 +541,13 @@ describe('ElevenlabsSpeechProvider', () => {
     })
 
     it('respects custom default model from config', async () => {
-      const customProvider = createProvider({
-        apiKey: 'test-key',
-        baseUrl: 'https://test.api',
-        defaultModel: 'eleven_turbo_v2_5',
-      })
+      const customProvider = requireTtsProvider(
+        createProvider({
+          apiKey: 'test-key',
+          baseUrl: 'https://test.api',
+          defaultModel: 'eleven_turbo_v2_5',
+        }),
+      )
       mockFetch.mockResolvedValue(mockAudioResponse())
 
       await customProvider.synthesizeSpeech({ text: 'test', voiceId: 'voice-1' })
@@ -519,12 +557,14 @@ describe('ElevenlabsSpeechProvider', () => {
     })
 
     it('respects custom default stability and similarity boost', async () => {
-      const customProvider = createProvider({
-        apiKey: 'test-key',
-        baseUrl: 'https://test.api',
-        defaultStability: 0.9,
-        defaultSimilarityBoost: 0.3,
-      })
+      const customProvider = requireTtsProvider(
+        createProvider({
+          apiKey: 'test-key',
+          baseUrl: 'https://test.api',
+          defaultStability: 0.9,
+          defaultSimilarityBoost: 0.3,
+        }),
+      )
       mockFetch.mockResolvedValue(mockAudioResponse())
 
       await customProvider.synthesizeSpeech({ text: 'test', voiceId: 'voice-1' })
@@ -535,11 +575,13 @@ describe('ElevenlabsSpeechProvider', () => {
     })
 
     it('respects custom default output format', async () => {
-      const customProvider = createProvider({
-        apiKey: 'test-key',
-        baseUrl: 'https://test.api',
-        defaultOutputFormat: 'pcm_24000',
-      })
+      const customProvider = requireTtsProvider(
+        createProvider({
+          apiKey: 'test-key',
+          baseUrl: 'https://test.api',
+          defaultOutputFormat: 'pcm_24000',
+        }),
+      )
       mockFetch.mockResolvedValue(mockAudioResponse())
 
       await customProvider.synthesizeSpeech({ text: 'test', voiceId: 'voice-1' })

@@ -34,7 +34,7 @@ vi.mock('@molecule/app-ui', () => ({
 import { createApp, defineComponent, h } from 'vue'
 
 import { AuditLogRow } from '../AuditLogRow.js'
-import type { AuditLogEntry } from '../types.js'
+import type { AuditLogEntry, AuditLogRowProps } from '../types.js'
 
 const entry: AuditLogEntry = {
   id: '1',
@@ -52,9 +52,7 @@ afterEach(() => {
  *
  * @param props - The row props.
  */
-const render = (
-  props: Record<string, unknown>,
-): { row: HTMLElement | null; unmount: () => void } => {
+const render = (props: AuditLogRowProps): { row: HTMLElement | null; unmount: () => void } => {
   const host = document.createElement('div')
   document.body.appendChild(host)
   const app = createApp(defineComponent({ render: () => h(AuditLogRow, props) }))

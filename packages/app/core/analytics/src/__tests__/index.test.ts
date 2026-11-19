@@ -31,6 +31,7 @@ vi.mock('@molecule/app-logger', async (importOriginal) => ({
   }),
 }))
 
+import type { AutoTrackingOptions } from '../index.js'
 import {
   flush,
   getProvider,
@@ -44,6 +45,16 @@ import {
   track,
 } from '../index.js'
 import type { AnalyticsProvider } from '../types.js'
+
+// The client shapes `setupAutoTracking` accepts (AuthClientLike/RouterLike/
+// HttpClientLike are internal to auto-tracking.ts), derived from the public
+// options type so a fixture that drifts from the real contract fails here.
+type AuthClient = NonNullable<AutoTrackingOptions['authClient']>
+type AuthEvent = Parameters<Parameters<AuthClient['addEventListener']>[0]>[0]
+type AnalyticsRouter = NonNullable<AutoTrackingOptions['router']>
+type RouteLocation = Parameters<Parameters<AnalyticsRouter['subscribe']>[0]>[0]
+type AnalyticsHttpClient = NonNullable<AutoTrackingOptions['httpClient']>
+type HttpErrorInterceptor = Parameters<AnalyticsHttpClient['addErrorInterceptor']>[0]
 
 function createMockProvider(): AnalyticsProvider & {
   identify: ReturnType<typeof vi.fn>
@@ -184,9 +195,9 @@ describe('@molecule/app-analytics', () => {
 
     describe('auth events', () => {
       it('should track login events', () => {
-        const listeners: ((event: unknown) => void)[] = []
-        const authClient = {
-          addEventListener: (listener: (event: unknown) => void) => {
+        const listeners: ((event: AuthEvent) => void)[] = []
+        const authClient: AuthClient = {
+          addEventListener: (listener) => {
             listeners.push(listener)
             return () => {
               const idx = listeners.indexOf(listener)
@@ -211,9 +222,9 @@ describe('@molecule/app-analytics', () => {
       })
 
       it('should track register events', () => {
-        const listeners: ((event: unknown) => void)[] = []
-        const authClient = {
-          addEventListener: (listener: (event: unknown) => void) => {
+        const listeners: ((event: AuthEvent) => void)[] = []
+        const authClient: AuthClient = {
+          addEventListener: (listener) => {
             listeners.push(listener)
             return () => {
               const idx = listeners.indexOf(listener)
@@ -237,9 +248,9 @@ describe('@molecule/app-analytics', () => {
       })
 
       it('should track logout events and reset', () => {
-        const listeners: ((event: unknown) => void)[] = []
-        const authClient = {
-          addEventListener: (listener: (event: unknown) => void) => {
+        const listeners: ((event: AuthEvent) => void)[] = []
+        const authClient: AuthClient = {
+          addEventListener: (listener) => {
             listeners.push(listener)
             return () => {
               const idx = listeners.indexOf(listener)
@@ -256,9 +267,9 @@ describe('@molecule/app-analytics', () => {
       })
 
       it('should track auth errors', () => {
-        const listeners: ((event: unknown) => void)[] = []
-        const authClient = {
-          addEventListener: (listener: (event: unknown) => void) => {
+        const listeners: ((event: AuthEvent) => void)[] = []
+        const authClient: AuthClient = {
+          addEventListener: (listener) => {
             listeners.push(listener)
             return () => {
               const idx = listeners.indexOf(listener)
@@ -279,9 +290,9 @@ describe('@molecule/app-analytics', () => {
 
     describe('route changes', () => {
       it('should track page views on route changes', () => {
-        const listeners: ((location: unknown, action: string) => void)[] = []
-        const router = {
-          subscribe: (listener: (location: unknown, action: string) => void) => {
+        const listeners: ((location: RouteLocation, action: string) => void)[] = []
+        const router: AnalyticsRouter = {
+          subscribe: (listener) => {
             listeners.push(listener)
             return () => {
               const idx = listeners.indexOf(listener)
@@ -302,9 +313,9 @@ describe('@molecule/app-analytics', () => {
 
     describe('HTTP errors', () => {
       it('should track HTTP errors', () => {
-        const interceptors: ((error: unknown) => unknown)[] = []
-        const httpClient = {
-          addErrorInterceptor: (interceptor: (error: unknown) => unknown) => {
+        const interceptors: HttpErrorInterceptor[] = []
+        const httpClient: AnalyticsHttpClient = {
+          addErrorInterceptor: (interceptor) => {
             interceptors.push(interceptor)
             return () => {
               const idx = interceptors.indexOf(interceptor)
@@ -380,9 +391,9 @@ describe('@molecule/app-analytics', () => {
       mockProvider.identify.mockRejectedValue(new Error('analytics down'))
       mockProvider.page.mockRejectedValue(new Error('analytics down'))
 
-      const listeners: ((event: unknown) => void)[] = []
-      const authClient = {
-        addEventListener: (listener: (event: unknown) => void) => {
+      const listeners: ((event: AuthEvent) => void)[] = []
+      const authClient: AuthClient = {
+        addEventListener: (listener) => {
           listeners.push(listener)
           return () => {}
         },

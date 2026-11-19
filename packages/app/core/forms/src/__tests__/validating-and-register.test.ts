@@ -190,7 +190,7 @@ describe('register', () => {
 
   it('accepts the name-first form the interface declares', async () => {
     const form = nativeProvider.createForm({ defaultValues: { email: '' } })
-    const field = form.register('email', { required: 'Email is required' })
+    const field = form.register('email', { name: 'email', required: 'Email is required' })
 
     expect(field.name).toBe('email')
     expect(await form.validateField('email')).toBe(false)

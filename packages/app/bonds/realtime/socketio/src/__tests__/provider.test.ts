@@ -396,6 +396,7 @@ describe('@molecule/app-realtime-socketio', () => {
       })
       const failure = await join.catch((error: unknown) => error)
       expect(failure).toBeInstanceOf(Error)
+      if (!(failure instanceof Error)) throw new Error('expected the join to reject with an Error')
       expect(failure.message).toBe('/callback?token=[REDACTED]&safe=1')
       expect(failure.message).not.toContain('websocket-denial-credential')
     })

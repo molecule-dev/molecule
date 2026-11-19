@@ -1,11 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import type { ActivityEvent } from '@molecule/api-activity'
 import type { ChannelProvider, OutboundMessage, SendResult } from '@molecule/api-channel'
 
-const record = vi.fn(() => Promise.resolve())
+/** Typed as the real `record(event: ActivityEvent): Promise<void>` it replaces. */
+const record = vi.fn<(event: ActivityEvent) => Promise<void>>()
 
 vi.mock('@molecule/api-activity', () => ({
-  record: (...args: unknown[]) => record(...args),
+  record: (...args: Parameters<typeof record>) => record(...args),
 }))
 
 import { createChannelCaptureProvider, provider } from '../provider.js'

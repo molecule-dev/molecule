@@ -51,7 +51,12 @@ import {
 // Mock Theme for Testing
 // =============================================================================
 
-const mockTheme: Theme = {
+// Declared with `satisfies` instead of a `: Theme` annotation so the mock keeps its
+// inferred object-literal type: `themeToCSS()` takes `ThemeLike`, whose record-shaped
+// properties (e.g. `colors: Record<string, string | number>`) accept an inferred
+// object-literal type's implicit index signatures but NOT the `Theme` interfaces
+// (`ThemeColors` etc.), which carry none.
+const mockTheme = {
   name: 'test',
   mode: 'light',
   colors: {
@@ -60,6 +65,7 @@ const mockTheme: Theme = {
     backgroundTertiary: '#eeeeee',
     surface: '#ffffff',
     surfaceSecondary: '#fafafa',
+    inputBackground: '#ffffff',
     text: '#1a1a1a',
     textSecondary: '#666666',
     textTertiary: '#999999',
@@ -163,7 +169,7 @@ const mockTheme: Theme = {
     tooltip: 1500,
     toast: 1600,
   },
-}
+} satisfies Theme
 
 // =============================================================================
 // cn Utility Tests
@@ -694,42 +700,75 @@ describe('themeToCSS', () => {
 // themeToTailwind Tests
 // =============================================================================
 
+/**
+ * Runtime guard for one color entry of a `themeToTailwind()` result. The function
+ * declares its return type as the flat `Record<string, Record<string, unknown>>`,
+ * but each color entry is actually a scale object (`{ DEFAULT, secondary, ... }`);
+ * this verifies the nested shape before the tests walk into it.
+ */
+function isColorScale(value: unknown): value is Record<string, string> {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    Object.values(value).every((entry) => typeof entry === 'string')
+  )
+}
+
+/**
+ * Narrows one color entry of a `themeToTailwind()` result to its scale shape,
+ * failing the test with a precise message if the entry is not one.
+ */
+function colorScale(value: unknown, label: string): Record<string, string> {
+  if (!isColorScale(value)) {
+    throw new Error(`themeToTailwind().${label} is not a color scale object`)
+  }
+  return value
+}
+
 describe('themeToTailwind', () => {
   it('should convert colors to Tailwind format', () => {
     const tailwindConfig = themeToTailwind(mockTheme)
+    const background = colorScale(tailwindConfig.colors.background, 'colors.background')
+    const primary = colorScale(tailwindConfig.colors.primary, 'colors.primary')
 
-    expect(tailwindConfig.colors.background.DEFAULT).toBe('#ffffff')
-    expect(tailwindConfig.colors.background.secondary).toBe('#f5f5f5')
-    expect(tailwindConfig.colors.primary.DEFAULT).toBe('#0066cc')
-    expect(tailwindConfig.colors.primary.light).toBe('#3399ff')
-    expect(tailwindConfig.colors.primary.dark).toBe('#004d99')
+    expect(background.DEFAULT).toBe('#ffffff')
+    expect(background.secondary).toBe('#f5f5f5')
+    expect(primary.DEFAULT).toBe('#0066cc')
+    expect(primary.light).toBe('#3399ff')
+    expect(primary.dark).toBe('#004d99')
   })
 
   it('should convert foreground colors from text colors', () => {
     const tailwindConfig = themeToTailwind(mockTheme)
+    const foreground = colorScale(tailwindConfig.colors.foreground, 'colors.foreground')
 
-    expect(tailwindConfig.colors.foreground.DEFAULT).toBe('#1a1a1a')
-    expect(tailwindConfig.colors.foreground.secondary).toBe('#666666')
-    expect(tailwindConfig.colors.foreground.tertiary).toBe('#999999')
-    expect(tailwindConfig.colors.foreground.inverse).toBe('#ffffff')
+    expect(foreground.DEFAULT).toBe('#1a1a1a')
+    expect(foreground.secondary).toBe('#666666')
+    expect(foreground.tertiary).toBe('#999999')
+    expect(foreground.inverse).toBe('#ffffff')
   })
 
   it('should convert semantic colors', () => {
     const tailwindConfig = themeToTailwind(mockTheme)
+    const success = colorScale(tailwindConfig.colors.success, 'colors.success')
+    const warning = colorScale(tailwindConfig.colors.warning, 'colors.warning')
+    const error = colorScale(tailwindConfig.colors.error, 'colors.error')
+    const info = colorScale(tailwindConfig.colors.info, 'colors.info')
 
-    expect(tailwindConfig.colors.success.DEFAULT).toBe('#28a745')
-    expect(tailwindConfig.colors.success.light).toBe('#d4edda')
-    expect(tailwindConfig.colors.warning.DEFAULT).toBe('#b87a00')
-    expect(tailwindConfig.colors.error.DEFAULT).toBe('#dc3545')
-    expect(tailwindConfig.colors.info.DEFAULT).toBe('#17a2b8')
+    expect(success.DEFAULT).toBe('#28a745')
+    expect(success.light).toBe('#d4edda')
+    expect(warning.DEFAULT).toBe('#b87a00')
+    expect(error.DEFAULT).toBe('#dc3545')
+    expect(info.DEFAULT).toBe('#17a2b8')
   })
 
   it('should convert border colors', () => {
     const tailwindConfig = themeToTailwind(mockTheme)
+    const border = colorScale(tailwindConfig.colors.border, 'colors.border')
 
-    expect(tailwindConfig.colors.border.DEFAULT).toBe('#e0e0e0')
-    expect(tailwindConfig.colors.border.secondary).toBe('#cccccc')
-    expect(tailwindConfig.colors.border.focus).toBe('#0066cc')
+    expect(border.DEFAULT).toBe('#e0e0e0')
+    expect(border.secondary).toBe('#cccccc')
+    expect(border.focus).toBe('#0066cc')
   })
 
   it('should convert spacing', () => {

@@ -8,6 +8,8 @@ import {
   createStore,
   createStoreWithActions,
   provider,
+  type SetState,
+  type StoreMiddleware,
 } from '../index.js'
 
 describe('@molecule/app-state-zustand', () => {
@@ -151,30 +153,24 @@ describe('@molecule/app-state-zustand', () => {
 
   describe('createStore with middleware', () => {
     it('should apply a single middleware', () => {
-      const middlewareFn = vi.fn(
-        (
-          set: (
-            partial: Partial<CounterState> | ((state: CounterState) => Partial<CounterState>),
-          ) => void,
-          _get: () => CounterState,
-        ) => {
-          return (
-            partial: Partial<CounterState> | ((state: CounterState) => Partial<CounterState>),
-          ) => {
-            middlewareFn()
-            set(partial)
-          }
-        },
-      )
+      // The set-wrapper the middleware installs records every set it forwards.
+      const setRecorder = vi.fn<SetState<CounterState>>()
+
+      const recordMiddleware: StoreMiddleware<CounterState> = (set, _get) => {
+        return (partial) => {
+          setRecorder(partial)
+          set(partial)
+        }
+      }
 
       const store = createStore<CounterState>({
         initialState: { count: 0 },
-        middleware: [middlewareFn],
+        middleware: [recordMiddleware],
       })
 
       store.setState({ count: 5 })
 
-      expect(middlewareFn).toHaveBeenCalled()
+      expect(setRecorder).toHaveBeenCalled()
       expect(store.getState().count).toBe(5)
     })
 
@@ -246,21 +242,17 @@ describe('@molecule/app-state-zustand', () => {
     })
 
     it('should allow middleware to access current state via get', () => {
-      type SetCounter = (
-        partial: Partial<CounterState> | ((state: CounterState) => Partial<CounterState>),
-      ) => void
-      type GetCounter = () => CounterState
+      // The middleware records the state snapshots it reads around each set.
+      const stateRecorder = vi.fn<(prevState: CounterState, nextState: CounterState) => void>()
 
-      const logMiddleware = vi.fn((set: SetCounter, get: GetCounter) => {
-        return (
-          partial: Partial<CounterState> | ((state: CounterState) => Partial<CounterState>),
-        ) => {
+      const logMiddleware: StoreMiddleware<CounterState> = (set, get) => {
+        return (partial) => {
           const prevState = get()
           set(partial)
           const nextState = get()
-          logMiddleware(prevState, nextState)
+          stateRecorder(prevState, nextState)
         }
-      })
+      }
 
       const store = createStore<CounterState>({
         initialState: { count: 0 },
@@ -269,7 +261,7 @@ describe('@molecule/app-state-zustand', () => {
 
       store.setState({ count: 5 })
 
-      expect(logMiddleware).toHaveBeenCalledWith({ count: 0 }, { count: 5 })
+      expect(stateRecorder).toHaveBeenCalledWith({ count: 0 }, { count: 5 })
     })
   })
 
@@ -567,16 +559,31 @@ describe('@molecule/app-state-zustand', () => {
   })
 
   describe('combineSlices', () => {
+    // `combineSlices` takes `Slice<object, object>[]`, so a slice's actions receive an
+    // object-typed state. This narrows it back to the counter shape the slice owns.
+    const isCounterState = (state: object): state is CounterState =>
+      'count' in state && typeof state.count === 'number'
+
+    // Builds the `set` updater that moves the counter slice's count by `delta`.
+    const counterDelta =
+      (delta: number) =>
+      (state: object): Partial<CounterState> => {
+        if (!isCounterState(state)) {
+          throw new TypeError('counter slice state has no numeric count')
+        }
+        return { count: state.count + delta }
+      }
+
     it('should combine multiple slices into one store', () => {
-      const counterSlice = createSlice({
+      const counterSlice = createSlice<object, { increment: () => void }>({
         name: 'counter',
         initialState: { count: 0 },
-        actions: (set, get) => ({
-          increment: () => set({ count: get().count + 1 }),
+        actions: (set) => ({
+          increment: () => set(counterDelta(1)),
         }),
       })
 
-      const userSlice = createSlice({
+      const userSlice = createSlice<object, { setName: (name: string) => void }>({
         name: 'user',
         initialState: { name: 'Guest' },
         actions: (set) => ({
@@ -593,15 +600,17 @@ describe('@molecule/app-state-zustand', () => {
     })
 
     it('should expose slice actions on the combined store', () => {
-      const counterSlice = createSlice({
+      const counterSlice = createSlice<object, { increment: () => void; decrement: () => void }>({
         name: 'counter',
         initialState: { count: 0 },
-        actions: (set, get) => ({
-          increment: () => set({ count: get().count + 1 }),
-          decrement: () => set({ count: get().count - 1 }),
+        actions: (set) => ({
+          increment: () => set(counterDelta(1)),
+          decrement: () => set(counterDelta(-1)),
         }),
       })
 
+      // combineSlices attaches the slice actions to the store at runtime; its declared
+      // return type only names the Store members, so the intersection names them here.
       const store = combineSlices([counterSlice]) as ReturnType<typeof combineSlices> &
         Record<string, (...args: unknown[]) => unknown>
 
@@ -610,11 +619,11 @@ describe('@molecule/app-state-zustand', () => {
     })
 
     it('should update slice state through actions', () => {
-      const counterSlice = createSlice({
+      const counterSlice = createSlice<object, { increment: () => void }>({
         name: 'counter',
         initialState: { count: 0 },
-        actions: (set, get) => ({
-          increment: () => set({ count: get().count + 1 }),
+        actions: (set) => ({
+          increment: () => set(counterDelta(1)),
         }),
       })
 
@@ -624,19 +633,19 @@ describe('@molecule/app-state-zustand', () => {
       store.increment()
       store.increment()
 
-      expect(store.getState().counter.count).toBe(2)
+      expect(store.getState()).toEqual({ counter: { count: 2 } })
     })
 
     it('should isolate slice updates', () => {
-      const counterSlice = createSlice({
+      const counterSlice = createSlice<object, { increment: () => void }>({
         name: 'counter',
         initialState: { count: 0 },
         actions: (set) => ({
-          increment: () => set((state) => ({ count: state.count + 1 })),
+          increment: () => set(counterDelta(1)),
         }),
       })
 
-      const userSlice = createSlice({
+      const userSlice = createSlice<object, { setName: (name: string) => void }>({
         name: 'user',
         initialState: { name: 'Guest' },
         actions: (set) => ({
@@ -657,11 +666,11 @@ describe('@molecule/app-state-zustand', () => {
     })
 
     it('should notify subscribers on slice updates', () => {
-      const counterSlice = createSlice({
+      const counterSlice = createSlice<object, { increment: () => void }>({
         name: 'counter',
         initialState: { count: 0 },
-        actions: (set, get) => ({
-          increment: () => set({ count: get().count + 1 }),
+        actions: (set) => ({
+          increment: () => set(counterDelta(1)),
         }),
       })
 

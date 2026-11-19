@@ -37,6 +37,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import type { CacheProvider } from '@molecule/api-cache'
 
 import { createClient, createProvider } from '../provider.js'
+import { expectFullCacheProvider } from './full-cache-provider.js'
 
 const REDIS_URL = process.env.REDIS_URL
 
@@ -45,11 +46,13 @@ describe.runIf(!!REDIS_URL)('@molecule/api-cache-redis — LIVE server', () => {
   // run against the same server) can never be mistaken for this run's keys.
   const KEY_PREFIX = `livetest-${Date.now()}-${Math.random().toString(36).slice(2, 8)}:`
 
-  let provider: CacheProvider
+  // The Redis provider implements the FULL `CacheProvider` surface (every
+  // method the core contract marks optional) — hold it as that type.
+  let provider: Required<CacheProvider>
   let raw: RedisClient
 
   beforeAll(() => {
-    provider = createProvider({ url: REDIS_URL, keyPrefix: KEY_PREFIX })
+    provider = expectFullCacheProvider(createProvider({ url: REDIS_URL, keyPrefix: KEY_PREFIX }))
     raw = createClient({ url: REDIS_URL })
   })
 
@@ -160,16 +163,18 @@ describe.runIf(!!REDIS_URL)('@molecule/api-cache-redis — LIVE server', () => {
     // Fail-fast options exist precisely so a down Redis surfaces fast
     // instead of ioredis' default ~10s+ of queued retries — this is the
     // module's own documented usage (see `@remarks` in `index.ts`).
-    let unreachable: CacheProvider
+    let unreachable: Required<CacheProvider>
 
     beforeAll(() => {
-      unreachable = createProvider({
-        host: '127.0.0.1',
-        port: 1, // nothing listens here — ECONNREFUSED, no real server involved
-        keyPrefix: KEY_PREFIX,
-        maxRetriesPerRequest: 1,
-        commandTimeout: 1000,
-      })
+      unreachable = expectFullCacheProvider(
+        createProvider({
+          host: '127.0.0.1',
+          port: 1, // nothing listens here — ECONNREFUSED, no real server involved
+          keyPrefix: KEY_PREFIX,
+          maxRetriesPerRequest: 1,
+          commandTimeout: 1000,
+        }),
+      )
     })
 
     afterAll(async () => {

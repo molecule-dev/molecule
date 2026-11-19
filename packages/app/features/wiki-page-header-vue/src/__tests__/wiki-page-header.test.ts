@@ -55,6 +55,7 @@ vi.mock('@molecule/app-ui-vue', async () => {
 
 import { createApp, defineComponent, h, type VNodeChild } from 'vue'
 
+import type { WikiPageHeaderProps } from '../types.js'
 import { WikiPageHeader } from '../WikiPageHeader.js'
 
 afterEach(() => {
@@ -69,10 +70,7 @@ afterEach(() => {
  * @param slots - Same-named slots, when the test mounts with slots.
  * @returns The markup.
  */
-const render = (
-  props: Record<string, unknown>,
-  slots?: Record<string, () => VNodeChild[]>,
-): string => {
+const render = (props: WikiPageHeaderProps, slots?: Record<string, () => VNodeChild[]>): string => {
   const host = document.createElement('div')
   document.body.appendChild(host)
   const app = createApp(defineComponent({ render: () => h(WikiPageHeader, props, slots) }))

@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { promisify } from 'node:util'
 
-import { build, createLogger, type Plugin, type UserConfig } from 'vite'
+import { build, createLogger, type InlineConfig, type Plugin } from 'vite'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { createDefaultViteConfig } from '../config.js'
@@ -34,7 +34,9 @@ async function fixture(files: Record<string, string>): Promise<string> {
   return root
 }
 
-function config(root: string, overrides: UserConfig = {}): UserConfig {
+// `build()` takes an InlineConfig, and `configFile` lives there too in vite 8
+// (InlineConfig extends UserConfig, not the other way around).
+function config(root: string, overrides: InlineConfig = {}): InlineConfig {
   const defaults = createDefaultViteConfig(branding)
   return {
     ...defaults,
@@ -53,7 +55,9 @@ afterEach(async () => {
   await Promise.all(fixtures.splice(0).map((root) => rm(root, { recursive: true, force: true })))
 })
 
-describe('root-relative assets in real Vite builds', () => {
+// Every case runs a real Vite build; the first in-process one also loads Vite itself, which takes
+// longer than the default 5 s on a busy machine.
+describe('root-relative assets in real Vite builds', { timeout: 30_000 }, () => {
   it('fails the CLI build at the original TypeScript line for a missing fallback avatar', async () => {
     const root = await fixture({
       'src/main.ts':

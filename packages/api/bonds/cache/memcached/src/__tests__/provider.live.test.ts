@@ -35,6 +35,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import type { CacheProvider } from '@molecule/api-cache'
 
 import { createProvider } from '../provider.js'
+import { asFullCacheProvider } from './full-cache-provider.js'
 
 const MEMCACHED_SERVERS = process.env.MEMCACHED_SERVERS
 
@@ -45,7 +46,7 @@ describe.runIf(!!MEMCACHED_SERVERS)('@molecule/api-cache-memcached — LIVE serv
   const KEY_PREFIX = `livetest-${Date.now()}-${Math.random().toString(36).slice(2, 8)}:`
 
   let servers: string[]
-  let provider: CacheProvider
+  let provider: Required<CacheProvider>
 
   beforeAll(() => {
     // MEMCACHED_SERVERS is comma-separated, matching the provider's own env
@@ -55,7 +56,7 @@ describe.runIf(!!MEMCACHED_SERVERS)('@molecule/api-cache-memcached — LIVE serv
     // collection, even for a skipped suite — only the hook/test bodies are
     // skipped).
     servers = MEMCACHED_SERVERS!.split(',')
-    provider = createProvider({ servers, keyPrefix: KEY_PREFIX })
+    provider = asFullCacheProvider(createProvider({ servers, keyPrefix: KEY_PREFIX }))
   })
 
   afterAll(async () => {
@@ -140,7 +141,9 @@ describe.runIf(!!MEMCACHED_SERVERS)('@molecule/api-cache-memcached — LIVE serv
     })
 
     it('never touches a DIFFERENT keyPrefix instance sharing the same memcached server', async () => {
-      const foreignProvider = createProvider({ servers, keyPrefix: `${KEY_PREFIX}foreign:` })
+      const foreignProvider = asFullCacheProvider(
+        createProvider({ servers, keyPrefix: `${KEY_PREFIX}foreign:` }),
+      )
       try {
         await foreignProvider.set('shared-server-key', 'foreign-survives')
         await provider.set('own-key', 'own-value')

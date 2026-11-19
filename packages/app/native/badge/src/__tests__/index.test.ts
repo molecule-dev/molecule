@@ -430,7 +430,7 @@ describe('badge', () => {
 
         // Initial sync
         await flushPromises()
-        const callCount = mockProvider.set.mock.calls.length
+        const callCount = vi.mocked(mockProvider.set).mock.calls.length
 
         // Stop syncing before next timer fires
         stop()
@@ -439,7 +439,7 @@ describe('badge', () => {
         await vi.advanceTimersByTimeAsync(2000)
 
         // Should not have been called again after stop
-        expect(mockProvider.set.mock.calls.length).toBe(callCount)
+        expect(vi.mocked(mockProvider.set).mock.calls.length).toBe(callCount)
       })
 
       it('should handle errors in getValue gracefully', async () => {

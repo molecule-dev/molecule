@@ -1,5 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, type Mock, vi } from 'vitest'
 
+import { expectFullCacheProvider } from './full-cache-provider.js'
+
 // Mock ioredis before importing
 vi.mock('ioredis', () => {
   const mockGet = vi.fn()
@@ -81,7 +83,13 @@ describe('@molecule/api-cache-redis', () => {
   }
 
   describe('createProvider()', () => {
-    it('should create a provider with default config', async () => {
+    // This file's FIRST test pays the cold module-graph load: every test
+    // dynamically re-imports after `vi.resetModules()`, and the first one
+    // evaluates `../provider.js` and its dependency graph from scratch. On a
+    // cold transform cache that has measured >5s on a loaded machine — past
+    // Vitest's default 5s test timeout — so give this one test a cold-start
+    // budget (the assertions themselves are instant once imports resolve).
+    it('should create a provider with default config', { timeout: 15_000 }, async () => {
       const { Redis } = await import('ioredis')
       const { createProvider } = await import('../provider.js')
 
@@ -448,7 +456,7 @@ describe('@molecule/api-cache-redis', () => {
     it('should return empty map for empty keys array', async () => {
       const { createProvider } = await import('../provider.js')
 
-      const provider = createProvider()
+      const provider = expectFullCacheProvider(createProvider())
       const result = await provider.getMany([])
 
       expect(result).toEqual(new Map())
@@ -467,7 +475,7 @@ describe('@molecule/api-cache-redis', () => {
         JSON.stringify({ c: 3 }),
       ])
 
-      const provider = createProvider()
+      const provider = expectFullCacheProvider(createProvider())
       const result = await provider.getMany(['key1', 'key2', 'key3'])
 
       expect(result.get('key1')).toEqual({ a: 1 })
@@ -484,7 +492,7 @@ describe('@molecule/api-cache-redis', () => {
       )()
       vi.mocked(mockClient.mget).mockResolvedValueOnce(['plain string'])
 
-      const provider = createProvider()
+      const provider = expectFullCacheProvider(createProvider())
       const result = await provider.getMany(['key1'])
 
       expect(result.get('key1')).toBe('plain string')
@@ -499,7 +507,7 @@ describe('@molecule/api-cache-redis', () => {
       )()
       vi.mocked(mockClient.mget).mockRejectedValueOnce(new Error('ECONNREFUSED'))
 
-      const provider = createProvider()
+      const provider = expectFullCacheProvider(createProvider())
       await expect(provider.getMany(['key1'])).resolves.toEqual(new Map())
     })
   })
@@ -513,7 +521,7 @@ describe('@molecule/api-cache-redis', () => {
         Redis as unknown as new (...args: unknown[]) => Record<string, Mock>
       )()
 
-      const provider = createProvider()
+      const provider = expectFullCacheProvider(createProvider())
       await provider.setMany([])
 
       expect(mockClient.pipeline).not.toHaveBeenCalled()
@@ -529,7 +537,7 @@ describe('@molecule/api-cache-redis', () => {
       stubNoReverseIndex(mockClient)
       const mockPipeline = mockClient.pipeline()
 
-      const provider = createProvider()
+      const provider = expectFullCacheProvider(createProvider())
       await provider.setMany([
         ['key1', 'value1'],
         ['key2', 'value2'],
@@ -549,7 +557,7 @@ describe('@molecule/api-cache-redis', () => {
       stubNoReverseIndex(mockClient)
       const mockPipeline = mockClient.pipeline()
 
-      const provider = createProvider()
+      const provider = expectFullCacheProvider(createProvider())
       await provider.setMany([['key1', 'value1']], { ttl: 60 })
 
       expect(mockPipeline.setex).toHaveBeenCalledWith('key1', 60, '"value1"')
@@ -565,7 +573,7 @@ describe('@molecule/api-cache-redis', () => {
       stubNoReverseIndex(mockClient)
       const mockPipeline = mockClient.pipeline()
 
-      const provider = createProvider()
+      const provider = expectFullCacheProvider(createProvider())
       await provider.setMany([['key1', 'value1']], { tags: ['tag1'] })
 
       expect(mockPipeline.sadd).toHaveBeenCalledWith('_tag:tag1', 'key1')
@@ -577,7 +585,7 @@ describe('@molecule/api-cache-redis', () => {
     it('should return 0 for empty keys array', async () => {
       const { createProvider } = await import('../provider.js')
 
-      const provider = createProvider()
+      const provider = expectFullCacheProvider(createProvider())
       const result = await provider.deleteMany([])
 
       expect(result).toBe(0)
@@ -593,7 +601,7 @@ describe('@molecule/api-cache-redis', () => {
       stubNoReverseIndex(mockClient)
       vi.mocked(mockClient.del).mockResolvedValueOnce(2)
 
-      const provider = createProvider()
+      const provider = expectFullCacheProvider(createProvider())
       const result = await provider.deleteMany(['key1', 'key2'])
 
       expect(mockClient.del).toHaveBeenCalledWith('key1', 'key2')
@@ -612,7 +620,7 @@ describe('@molecule/api-cache-redis', () => {
       vi.mocked(mockClient.smembers).mockResolvedValueOnce(['key1', 'key2'])
       stubNoReverseIndex(mockClient)
 
-      const provider = createProvider()
+      const provider = expectFullCacheProvider(createProvider())
       await provider.invalidateTag('tag1')
 
       expect(mockClient.smembers).toHaveBeenCalledWith('_tag:tag1')
@@ -629,7 +637,7 @@ describe('@molecule/api-cache-redis', () => {
       )()
       vi.mocked(mockClient.smembers).mockResolvedValueOnce([])
 
-      const provider = createProvider()
+      const provider = expectFullCacheProvider(createProvider())
       await provider.invalidateTag('empty-tag')
 
       expect(mockClient.del).toHaveBeenCalledWith('_tag:empty-tag')
@@ -648,7 +656,7 @@ describe('@molecule/api-cache-redis', () => {
         key === '_tags:key1' ? JSON.stringify(['tag1', 'other-tag']) : null,
       )
 
-      const provider = createProvider()
+      const provider = expectFullCacheProvider(createProvider())
       await provider.invalidateTag('tag1')
 
       const pipelineInstance = vi.mocked(mockClient.pipeline).mock.results[0]?.value as {
@@ -668,7 +676,7 @@ describe('@molecule/api-cache-redis', () => {
       )()
       vi.mocked(mockClient.scan).mockResolvedValueOnce(['0', []])
 
-      const provider = createProvider()
+      const provider = expectFullCacheProvider(createProvider())
       await provider.clear()
 
       expect(mockClient.flushdb).not.toHaveBeenCalled()
@@ -686,7 +694,7 @@ describe('@molecule/api-cache-redis', () => {
         ['molecule:key1', 'molecule:_tag:tag1'],
       ])
 
-      const provider = createProvider({ keyPrefix: 'molecule:' })
+      const provider = expectFullCacheProvider(createProvider({ keyPrefix: 'molecule:' }))
       await provider.clear()
 
       expect(mockClient.scan).toHaveBeenCalledWith('0', 'MATCH', 'molecule:*', 'COUNT', 200)
@@ -707,7 +715,7 @@ describe('@molecule/api-cache-redis', () => {
         .mockResolvedValueOnce(['17', ['molecule:key1']])
         .mockResolvedValueOnce(['0', ['molecule:key2']])
 
-      const provider = createProvider()
+      const provider = expectFullCacheProvider(createProvider())
       await provider.clear()
 
       expect(mockClient.scan).toHaveBeenCalledTimes(2)
@@ -724,7 +732,7 @@ describe('@molecule/api-cache-redis', () => {
       )()
       vi.mocked(mockClient.scan).mockResolvedValueOnce(['0', []])
 
-      const provider = createProvider()
+      const provider = expectFullCacheProvider(createProvider())
       await provider.clear()
 
       expect(mockClient.unlink).not.toHaveBeenCalled()
@@ -740,7 +748,7 @@ describe('@molecule/api-cache-redis', () => {
         Redis as unknown as new (...args: unknown[]) => Record<string, Mock>
       )()
 
-      const provider = createProvider()
+      const provider = expectFullCacheProvider(createProvider())
       await provider.close()
 
       expect(mockClient.quit).toHaveBeenCalled()
@@ -759,7 +767,7 @@ describe('@molecule/api-cache-redis', () => {
 
       const factory = vi.fn().mockResolvedValue({ fresh: true })
 
-      const provider = createProvider()
+      const provider = expectFullCacheProvider(createProvider())
       const result = await provider.getOrSet('key', factory)
 
       expect(result).toEqual({ cached: true })
@@ -778,7 +786,7 @@ describe('@molecule/api-cache-redis', () => {
 
       const factory = vi.fn().mockResolvedValue({ fresh: true })
 
-      const provider = createProvider()
+      const provider = expectFullCacheProvider(createProvider())
       const result = await provider.getOrSet('key', factory, { ttl: 60 })
 
       expect(result).toEqual({ fresh: true })

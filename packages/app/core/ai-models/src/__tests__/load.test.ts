@@ -9,23 +9,24 @@ import {
   partitionByDeprecation,
   pickFreeTierModel,
 } from '../load.js'
-import type { AppModelDefinition } from '../types.js'
+import type { AppModelDefinition, ListAIModelsResponse } from '../types.js'
 
 function fakeHttp(models: AppModelDefinition[]): HttpClient {
-  const get = vi.fn(async () => {
-    const response: HttpResponse<{ models: AppModelDefinition[] }> = {
-      data: { models },
+  const body: ListAIModelsResponse = { models }
+  // Only the methods loadAIModels touches are filled; the rest are unused stubs.
+  const client: HttpClient = {
+    baseURL: '',
+    defaultHeaders: {},
+    // `HttpClient.get` is generic: the caller picks `T` (`loadAIModels` reads the body
+    // as `ListAIModelsResponse`), so the fake hands back its one body as that `T`, the
+    // way a real transport hands back the parsed JSON.
+    get: async <T>(url: string): Promise<HttpResponse<T>> => ({
+      data: body as T,
       status: 200,
       statusText: 'OK',
       headers: {},
-    }
-    return response
-  })
-  // Only the methods loadAIModels touches are filled; the rest are unused stubs.
-  return {
-    baseURL: '',
-    defaultHeaders: {},
-    get,
+      config: { method: 'GET', url },
+    }),
     post: vi.fn(),
     put: vi.fn(),
     patch: vi.fn(),
@@ -37,7 +38,9 @@ function fakeHttp(models: AppModelDefinition[]): HttpClient {
     setAuthToken: vi.fn(),
     getAuthToken: vi.fn(() => null),
     onAuthError: vi.fn(() => () => undefined),
-  } as unknown as HttpClient
+  }
+  vi.spyOn(client, 'get')
+  return client
 }
 
 function fixtureModel(overrides: Partial<AppModelDefinition> = {}): AppModelDefinition {

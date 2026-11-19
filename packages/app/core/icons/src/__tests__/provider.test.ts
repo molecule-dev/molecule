@@ -3,7 +3,18 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import { unbond } from '@molecule/app-bond'
 
 import { getIcon, getIconSet, hasIconSet, setIconSet } from '../provider.js'
-import type { IconSet } from '../types.js'
+import type { IconName, IconSet } from '../types.js'
+
+// The mock set below adds names beyond the ComponentIconName contract, the way
+// a real icon set bond does. Declaring them through CustomIconNames — the
+// package's own extension mechanism — is what makes getIcon() accept them
+// type-safely instead of only at runtime.
+declare module '../types.js' {
+  interface CustomIconNames {
+    'test-icon': true
+    'stroke-icon': true
+  }
+}
 
 const mockIconSet: IconSet = {
   'test-icon': {
@@ -68,7 +79,11 @@ describe('icon provider', () => {
 
     it('should throw for unknown icon name', () => {
       setIconSet(mockIconSet)
-      expect(() => getIcon('nonexistent')).toThrow('Icon "nonexistent" not found')
+      // Deliberately invalid input: 'nonexistent' is intentionally not a
+      // declared IconName — the cast from a plain string feeds it to getIcon()
+      // to prove the runtime rejects it.
+      const unknownName: string = 'nonexistent'
+      expect(() => getIcon(unknownName as IconName)).toThrow('Icon "nonexistent" not found')
     })
   })
 })

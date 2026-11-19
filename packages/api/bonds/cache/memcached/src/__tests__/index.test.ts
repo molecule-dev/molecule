@@ -20,6 +20,7 @@ import Memcached from 'memcached'
 import type { CacheProvider } from '@molecule/api-cache'
 
 import { createProvider } from '../provider.js'
+import { asFullCacheProvider } from './full-cache-provider.js'
 
 type FakeMemcachedClient = {
   get: Mock
@@ -126,12 +127,16 @@ const createFakeMemcachedClient = (): {
 /** Wires the mocked `Memcached` constructor to a fresh fake client and returns a provider backed by it. */
 const createTestProvider = (
   options?: Parameters<typeof createProvider>[0],
-): { provider: CacheProvider; client: FakeMemcachedClient; store: Map<string, string> } => {
+): {
+  provider: Required<CacheProvider>
+  client: FakeMemcachedClient
+  store: Map<string, string>
+} => {
   const { client, store } = createFakeMemcachedClient()
   ;(Memcached as unknown as Mock).mockImplementation(function () {
     return client
   })
-  const provider = createProvider(options)
+  const provider = asFullCacheProvider(createProvider(options))
   return { provider, client, store }
 }
 

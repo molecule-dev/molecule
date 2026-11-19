@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, type Mock, vi } from 'vitest'
 
 import type { ActivityEvent } from '@molecule/api-activity'
 
@@ -25,6 +25,29 @@ const sampleEvent: ActivityEvent = {
   timestamp: '2026-05-24T00:00:00.000Z',
 }
 
+/** The global `fetch` signature, used to type the stub and its recorded calls. */
+type FetchSignature = typeof fetch
+
+/**
+ * Reads one recorded call from the stubbed `fetch`, narrowed to the URL and init
+ * object the sink must send. Throws when the call or its init is missing, so a
+ * regression fails the test instead of reading as `undefined`.
+ */
+function fetchCall(
+  fetchMock: Mock<FetchSignature>,
+  index = 0,
+): [string | URL | Request, RequestInit] {
+  const call = fetchMock.mock.calls[index]
+  if (!call) {
+    throw new Error(`expected fetch call ${index + 1} to be recorded, but it was not`)
+  }
+  const [url, init] = call
+  if (!init) {
+    throw new Error(`expected fetch call ${index + 1} to pass an init object`)
+  }
+  return [url, init]
+}
+
 describe('http activity sink', () => {
   beforeEach(() => {
     vi.resetAllMocks()
@@ -38,7 +61,9 @@ describe('http activity sink', () => {
   })
 
   it('POSTs the event with auth + app id headers and JSON body', async () => {
-    const fetchMock = vi.fn(() => Promise.resolve(new Response(null, { status: 201 })))
+    const fetchMock = vi.fn<FetchSignature>(() =>
+      Promise.resolve(new Response(null, { status: 201 })),
+    )
     vi.stubGlobal('fetch', fetchMock)
 
     const sink = createHttpSink({
@@ -49,20 +74,23 @@ describe('http activity sink', () => {
     await sink.record(sampleEvent)
 
     expect(fetchMock).toHaveBeenCalledTimes(1)
-    const [url, init] = fetchMock.mock.calls[0]
+    const [url, init] = fetchCall(fetchMock)
+    const headers = new Headers(init.headers)
     expect(url).toBe('https://example.test/v1/activity')
     expect(init.method).toBe('POST')
-    expect(init.headers.Authorization).toBe('Bearer mvt_abc')
-    expect(init.headers['X-Molecule-App-Id']).toBe('app-123')
-    expect(init.headers['Content-Type']).toBe('application/json')
-    expect(JSON.parse(init.body)).toEqual(sampleEvent)
+    expect(headers.get('Authorization')).toBe('Bearer mvt_abc')
+    expect(headers.get('X-Molecule-App-Id')).toBe('app-123')
+    expect(headers.get('Content-Type')).toBe('application/json')
+    expect(init.body).toBe(JSON.stringify(sampleEvent))
   })
 
   it('does not phone home when no activity URL is configured', async () => {
     // Even with auth env present, an unconfigured sink must have NO destination.
     process.env.MOLECULE_VAULT_TOKEN = 'mvt_env'
     process.env.MOLECULE_APP_ID = 'app-env'
-    const fetchMock = vi.fn(() => Promise.resolve(new Response(null, { status: 200 })))
+    const fetchMock = vi.fn<FetchSignature>(() =>
+      Promise.resolve(new Response(null, { status: 200 })),
+    )
     vi.stubGlobal('fetch', fetchMock)
 
     const sink = createHttpSink()
@@ -77,43 +105,52 @@ describe('http activity sink', () => {
     process.env.MOLECULE_ACTIVITY_URL = 'https://ingest.example.test/v1/activity'
     process.env.MOLECULE_VAULT_TOKEN = 'mvt_env'
     process.env.MOLECULE_APP_ID = 'app-env'
-    const fetchMock = vi.fn(() => Promise.resolve(new Response(null, { status: 200 })))
+    const fetchMock = vi.fn<FetchSignature>(() =>
+      Promise.resolve(new Response(null, { status: 200 })),
+    )
     vi.stubGlobal('fetch', fetchMock)
 
     const sink = createHttpSink()
     await sink.record(sampleEvent)
 
-    const [url, init] = fetchMock.mock.calls[0]
+    const [url, init] = fetchCall(fetchMock)
+    const headers = new Headers(init.headers)
     expect(url).toBe('https://ingest.example.test/v1/activity')
-    expect(init.headers.Authorization).toBe('Bearer mvt_env')
-    expect(init.headers['X-Molecule-App-Id']).toBe('app-env')
+    expect(headers.get('Authorization')).toBe('Bearer mvt_env')
+    expect(headers.get('X-Molecule-App-Id')).toBe('app-env')
   })
 
   it('honors MOLECULE_ACTIVITY_URL', async () => {
     process.env.MOLECULE_ACTIVITY_URL = 'https://override.test/activity'
-    const fetchMock = vi.fn(() => Promise.resolve(new Response(null, { status: 200 })))
+    const fetchMock = vi.fn<FetchSignature>(() =>
+      Promise.resolve(new Response(null, { status: 200 })),
+    )
     vi.stubGlobal('fetch', fetchMock)
 
     const sink = createHttpSink()
     await sink.record(sampleEvent)
 
-    expect(fetchMock.mock.calls[0][0]).toBe('https://override.test/activity')
+    const [url] = fetchCall(fetchMock)
+    expect(url).toBe('https://override.test/activity')
   })
 
   it('omits auth header when no token is available', async () => {
-    const fetchMock = vi.fn(() => Promise.resolve(new Response(null, { status: 200 })))
+    const fetchMock = vi.fn<FetchSignature>(() =>
+      Promise.resolve(new Response(null, { status: 200 })),
+    )
     vi.stubGlobal('fetch', fetchMock)
 
     const sink = createHttpSink({ url: 'https://example.test/activity' })
     await sink.record(sampleEvent)
 
-    const init = fetchMock.mock.calls[0][1]
-    expect(init.headers.Authorization).toBeUndefined()
-    expect(init.headers['X-Molecule-App-Id']).toBeUndefined()
+    const [, init] = fetchCall(fetchMock)
+    const headers = new Headers(init.headers)
+    expect(headers.has('Authorization')).toBe(false)
+    expect(headers.has('X-Molecule-App-Id')).toBe(false)
   })
 
   it('swallows non-ok responses and logs a warning', async () => {
-    const fetchMock = vi.fn(() =>
+    const fetchMock = vi.fn<FetchSignature>(() =>
       Promise.resolve(new Response('nope', { status: 500, statusText: 'Internal Server Error' })),
     )
     vi.stubGlobal('fetch', fetchMock)
@@ -124,7 +161,7 @@ describe('http activity sink', () => {
   })
 
   it('swallows fetch rejections and never throws', async () => {
-    const fetchMock = vi.fn(() => Promise.reject(new Error('network down')))
+    const fetchMock = vi.fn<FetchSignature>(() => Promise.reject(new Error('network down')))
     vi.stubGlobal('fetch', fetchMock)
 
     const sink = createHttpSink({ url: 'https://example.test/activity' })

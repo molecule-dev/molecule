@@ -38,7 +38,7 @@ vi.mock('@molecule/app-ui', () => ({
 // The Card marker the React tests mock `@molecule/app-ui-react` with: a
 // `data-card` element carrying the className and style it received.
 vi.mock('@molecule/app-ui-solid', () => ({
-  Card: (props: { children?: JSX.Element; className?: string; style?: unknown }) => (
+  Card: (props: { children?: JSX.Element; className?: string; style?: JSX.CSSProperties }) => (
     <div data-card="" class={props.className} style={props.style}>
       {props.children}
     </div>

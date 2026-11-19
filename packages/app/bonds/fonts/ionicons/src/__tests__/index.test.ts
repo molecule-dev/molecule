@@ -6,7 +6,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { resetFonts, setFont } from '@molecule/app-fonts'
 // The exact import form the package README documents: a bundler asset URL.
-// It resolves only because package.json exports `./fonts/*`.
+// It resolves only because package.json exports `./fonts/*`. Its URL-string shape is declared
+// in ./bundler-asset-url.d.ts — the `?url` form has no types of its own.
 import woffUrl from '@molecule/app-fonts-ionicons/fonts/ionicons.woff?url'
 
 import { font } from '../index.js'

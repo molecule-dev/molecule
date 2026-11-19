@@ -1,6 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import type { ClientSearchIndex, ClientSearchProvider } from '../types.js'
+import type {
+  ClientSearchDocument,
+  ClientSearchIndex,
+  ClientSearchIndexOptions,
+  ClientSearchProvider,
+} from '../types.js'
 
 const { mockBond, mockGet, mockIsBonded } = vi.hoisted(() => ({
   mockBond: vi.fn(),
@@ -16,11 +21,43 @@ vi.mock('@molecule/app-bond', () => ({
 
 const { createIndex, getProvider, hasProvider, setProvider } = await import('../provider.js')
 
-const fakeIndex = { size: 0 } as unknown as ClientSearchIndex
+// A minimal index over `docs` — the provider tests never search it, they only
+// check that the bonded provider built it and that its result came back.
+function fakeIndexFor<T extends ClientSearchDocument>(
+  docs: T[],
+  options: ClientSearchIndexOptions<T>,
+): ClientSearchIndex<T> {
+  return {
+    options,
+    size: docs.length,
+    search: () => [],
+    suggest: () => [],
+    add: () => {},
+    replace: () => {},
+    remove: () => {},
+  }
+}
+
+// The index the fake provider built on its last call. Held as `unknown` because
+// `createIndex` is generic (`ClientSearchIndex<T>` for each call's `T`), which
+// is why it cannot be wrapped in a `vi.fn` — vitest's `Mock` erases generic
+// signatures, so the spy is placed over a real generic function instead.
+let builtIndex: unknown
+
+function fakeCreateIndex<T extends ClientSearchDocument>(
+  docs: T[],
+  options: ClientSearchIndexOptions<T>,
+): ClientSearchIndex<T> {
+  const index = fakeIndexFor(docs, options)
+  builtIndex = index
+  return index
+}
+
 const fakeProvider: ClientSearchProvider = {
   name: 'fake',
-  createIndex: vi.fn(() => fakeIndex),
+  createIndex: fakeCreateIndex,
 }
+vi.spyOn(fakeProvider, 'createIndex')
 
 beforeEach(() => {
   vi.resetAllMocks()
@@ -51,7 +88,8 @@ describe('provider', () => {
     mockGet.mockReturnValue(fakeProvider)
     const docs = [{ id: '1' }]
     const options = { idField: 'id', fields: ['id'] }
-    expect(createIndex(docs, options)).toBe(fakeIndex)
+    const index = createIndex(docs, options)
     expect(fakeProvider.createIndex).toHaveBeenCalledWith(docs, options)
+    expect(index).toBe(builtIndex)
   })
 })

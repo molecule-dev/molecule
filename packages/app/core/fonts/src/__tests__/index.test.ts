@@ -97,6 +97,13 @@ const iconFont: FontDefinition = {
 // Tests
 // ---------------------------------------------------------------------------
 
+/** The manifest fields the font bond packages' peer-range checks read. */
+interface FontBondManifest {
+  name: string
+  peerDependencies: Record<string, string>
+  devDependencies: Record<string, string>
+}
+
 describe('packaged local font compatibility', () => {
   // A package-relative asset URL needs the final-URL behavior released in
   // app-fonts 1.2.0. Earlier cores prepend `fonts/` to that complete URL.
@@ -106,12 +113,18 @@ describe('packaged local font compatibility', () => {
   const manifests = readdirSync(fontsRoot)
     .filter((name) => existsSync(new URL(`${name}/fonts/`, fontsRoot)))
     .sort()
-    .map((name) => JSON.parse(readFileSync(new URL(`${name}/package.json`, fontsRoot), 'utf8')))
+    .map((name): FontBondManifest =>
+      JSON.parse(readFileSync(new URL(`${name}/package.json`, fontsRoot), 'utf8')),
+    )
 
   it.each(manifests)('$name excludes cores that corrupt final asset URLs', (manifest) => {
     const range = manifest.peerDependencies['@molecule/app-fonts']
     expect(semver.satisfies('1.1.0', range)).toBe(false)
-    expect(semver.gte(semver.minVersion(range), '1.2.0')).toBe(true)
+    // An invalid range would already have failed the satisfies checks above;
+    // this narrows minVersion's real `SemVer | null` before the comparison.
+    const minAdmitted = semver.minVersion(range)
+    if (minAdmitted === null) throw new Error(`peer range "${range}" has no minimum version`)
+    expect(semver.gte(minAdmitted, '1.2.0')).toBe(true)
     expect(semver.satisfies('1.2.0', range)).toBe(true)
     expect(semver.satisfies(manifest.devDependencies['@molecule/app-fonts'], range)).toBe(true)
   })

@@ -27,7 +27,7 @@ const {
 } = vi.hoisted(() => {
   // The handler resolves `analytics` once at module load, so the track
   // function it captures must be a stable handle we can assert on.
-  const track = vi.fn(() => ({ catch: vi.fn() }))
+  const track = vi.fn((_event: AnalyticsEvent) => ({ catch: vi.fn() }))
   return {
     mockGetAnalytics: vi.fn(() => ({
       track,
@@ -81,6 +81,7 @@ vi.mock('@molecule/api-two-factor', () => ({
 // Imports under test (after mocks).
 // ---------------------------------------------------------------------------
 
+import type { AnalyticsEvent } from '@molecule/api-analytics'
 import type { MoleculeRequest } from '@molecule/api-resource'
 
 import { verifyTwoFactor } from '../handlers/verifyTwoFactor.js'

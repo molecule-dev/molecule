@@ -63,7 +63,25 @@ vi.mock('@react-native-async-storage/async-storage', () => ({
 // -------------------------------------------------------------------
 
 import { createAsyncStorageProvider, provider } from '../index.js'
-import type { AsyncStorageConfig } from '../types.js'
+import type { AsyncStorageConfig, StorageProvider } from '../types.js'
+
+/**
+ * The core `StorageProvider` interface marks `getMany`, `setMany` and
+ * `removeMany` optional (a provider may not implement them); this bond always
+ * supplies them. Guard once here so the batch tests call them as required
+ * members of the provider's real type.
+ */
+function withBatchMethods(storage: StorageProvider) {
+  if (!storage.getMany || !storage.setMany || !storage.removeMany) {
+    throw new Error('AsyncStorage provider must always supply its batch methods')
+  }
+  return {
+    ...storage,
+    getMany: storage.getMany,
+    setMany: storage.setMany,
+    removeMany: storage.removeMany,
+  }
+}
 
 // -------------------------------------------------------------------
 // Tests
@@ -405,7 +423,7 @@ describe('@molecule/app-storage-async-storage', () => {
   describe('batch operations', () => {
     describe('getMany', () => {
       it('should retrieve multiple values at once', async () => {
-        const storage = createAsyncStorageProvider()
+        const storage = withBatchMethods(createAsyncStorageProvider())
         await storage.set('a', 1)
         await storage.set('b', 2)
         await storage.set('c', 3)
@@ -419,7 +437,7 @@ describe('@molecule/app-storage-async-storage', () => {
       })
 
       it('should return null for missing keys', async () => {
-        const storage = createAsyncStorageProvider()
+        const storage = withBatchMethods(createAsyncStorageProvider())
         await storage.set('a', 1)
 
         const result = await storage.getMany(['a', 'missing'])
@@ -429,7 +447,7 @@ describe('@molecule/app-storage-async-storage', () => {
       })
 
       it('should handle empty keys array', async () => {
-        const storage = createAsyncStorageProvider()
+        const storage = withBatchMethods(createAsyncStorageProvider())
 
         const result = await storage.getMany([])
 
@@ -437,7 +455,7 @@ describe('@molecule/app-storage-async-storage', () => {
       })
 
       it('should return null for values that fail deserialization', async () => {
-        const storage = createAsyncStorageProvider()
+        const storage = withBatchMethods(createAsyncStorageProvider())
         // Set a valid value and an invalid one directly
         store.set('good', '"hello"')
         store.set('bad', 'not valid json{{{')
@@ -451,7 +469,7 @@ describe('@molecule/app-storage-async-storage', () => {
 
     describe('setMany', () => {
       it('should store multiple entries at once', async () => {
-        const storage = createAsyncStorageProvider()
+        const storage = withBatchMethods(createAsyncStorageProvider())
 
         await storage.setMany([
           ['x', 10],
@@ -465,7 +483,7 @@ describe('@molecule/app-storage-async-storage', () => {
       })
 
       it('should call multiSet on AsyncStorage', async () => {
-        const storage = createAsyncStorageProvider()
+        const storage = withBatchMethods(createAsyncStorageProvider())
 
         await storage.setMany([
           ['a', 1],
@@ -479,20 +497,23 @@ describe('@molecule/app-storage-async-storage', () => {
       })
 
       it('should handle empty entries array', async () => {
-        const storage = createAsyncStorageProvider()
+        const storage = withBatchMethods(createAsyncStorageProvider())
 
         await expect(storage.setMany([])).resolves.toBeUndefined()
       })
 
       it('should handle mixed value types', async () => {
-        const storage = createAsyncStorageProvider()
+        const storage = withBatchMethods(createAsyncStorageProvider())
 
-        await storage.setMany([
+        // The entries mix value types on purpose; spelling the tuple type out
+        // keeps the generic `setMany` from inferring `T` from the first entry.
+        const entries: Array<[string, string | number | { a: number } | number[]]> = [
           ['str', 'hello'],
           ['num', 42],
           ['obj', { a: 1 }],
           ['arr', [1, 2]],
-        ])
+        ]
+        await storage.setMany(entries)
 
         expect(await storage.get('str')).toBe('hello')
         expect(await storage.get('num')).toBe(42)
@@ -503,7 +524,7 @@ describe('@molecule/app-storage-async-storage', () => {
 
     describe('removeMany', () => {
       it('should remove multiple keys at once', async () => {
-        const storage = createAsyncStorageProvider()
+        const storage = withBatchMethods(createAsyncStorageProvider())
         await storage.set('a', 1)
         await storage.set('b', 2)
         await storage.set('c', 3)
@@ -516,7 +537,7 @@ describe('@molecule/app-storage-async-storage', () => {
       })
 
       it('should call multiRemove on AsyncStorage', async () => {
-        const storage = createAsyncStorageProvider()
+        const storage = withBatchMethods(createAsyncStorageProvider())
 
         await storage.removeMany(['x', 'y'])
 
@@ -524,13 +545,13 @@ describe('@molecule/app-storage-async-storage', () => {
       })
 
       it('should handle empty keys array', async () => {
-        const storage = createAsyncStorageProvider()
+        const storage = withBatchMethods(createAsyncStorageProvider())
 
         await expect(storage.removeMany([])).resolves.toBeUndefined()
       })
 
       it('should not throw for non-existent keys', async () => {
-        const storage = createAsyncStorageProvider()
+        const storage = withBatchMethods(createAsyncStorageProvider())
 
         await expect(storage.removeMany(['x', 'y'])).resolves.toBeUndefined()
       })
@@ -673,7 +694,7 @@ describe('@molecule/app-storage-async-storage', () => {
     })
 
     it('should handle batch operations with prefix', async () => {
-      const storage = createAsyncStorageProvider({ prefix: 'batch_' })
+      const storage = withBatchMethods(createAsyncStorageProvider({ prefix: 'batch_' }))
 
       await storage.setMany([
         ['a', 1],

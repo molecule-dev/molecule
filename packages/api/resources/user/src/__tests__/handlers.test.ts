@@ -7,6 +7,7 @@
 
 import crypto from 'node:crypto'
 
+import type { Mock } from 'vitest'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 // ---------------------------------------------------------------------------
@@ -52,7 +53,9 @@ const {
   mockResourceCreate: vi.fn(),
   mockResourceUpdate: vi.fn(),
   mockSign: vi.fn(() => 'mock-jwt-token'),
-  mockGetConfig: vi.fn((key: string) => {
+  // Config lookups answer a string (or the caller's fallback); the return type is widened
+  // here so each test can mock whatever values its scenario reads.
+  mockGetConfig: vi.fn((key: string): string | undefined => {
     if (key === 'NODE_ENV') return 'production'
     return undefined
   }),
@@ -144,15 +147,23 @@ const makeReq = (overrides: Record<string, unknown> = {}): MoleculeRequest => ({
   ...overrides,
 })
 
-const makeRes = (): MoleculeResponse & { clearCookie: ReturnType<typeof vi.fn> } => ({
-  status: vi.fn().mockReturnThis() as unknown as MoleculeResponse['status'],
+/** A response double whose cookie mock the tests inspect. */
+type Res = Omit<MoleculeResponse, 'cookie'> & {
+  cookie: Mock<MoleculeResponse['cookie']>
+  clearCookie: Mock<(name: string, options?: Record<string, unknown>) => void>
+}
+
+const makeRes = (): Res => ({
+  status: vi.fn(function (this: Res) {
+    return this
+  }),
   json: vi.fn(),
   send: vi.fn(),
   end: vi.fn(),
   set: vi.fn(),
   setHeader: vi.fn(),
-  cookie: vi.fn(),
-  clearCookie: vi.fn(),
+  cookie: vi.fn<MoleculeResponse['cookie']>(),
+  clearCookie: vi.fn<(name: string, options?: Record<string, unknown>) => void>(),
   write: vi.fn(),
   locals: {} as Record<string, unknown>,
 })
@@ -611,6 +622,7 @@ describe('logIn handler — password reset token', () => {
 
     vi.spyOn(authorization, 'set').mockImplementation((_req, _res, _session) => {
       callOrder.push('authorization.set')
+      return 'mock-jwt-token'
     })
 
     const req = makeReq({
@@ -847,7 +859,7 @@ describe('logInOAuth handler — CSRF state validation', () => {
     })
     mockUpdateById.mockResolvedValue({ affected: 1 })
 
-    vi.spyOn(authorization, 'set').mockImplementation((_req, _res, _session) => {})
+    vi.spyOn(authorization, 'set').mockImplementation((_req, _res, _session) => 'mock-jwt-token')
 
     const req = makeReq({
       body: { server: 'google', code: 'auth-code', state: stateValue },
@@ -900,7 +912,7 @@ describe('logInOAuth handler — CSRF state validation', () => {
       oauthId: 'google-user-123',
     })
     mockUpdateById.mockResolvedValue({ affected: 1 })
-    vi.spyOn(authorization, 'set').mockImplementation((_req, _res, _session) => {})
+    vi.spyOn(authorization, 'set').mockImplementation((_req, _res, _session) => 'mock-jwt-token')
 
     const req = makeReq({
       body: {
@@ -1004,7 +1016,7 @@ describe('logInOAuth handler — CSRF state validation', () => {
     })
     mockUpdateById.mockResolvedValue({ affected: 1 })
 
-    vi.spyOn(authorization, 'set').mockImplementation((_req, _res, _session) => {})
+    vi.spyOn(authorization, 'set').mockImplementation((_req, _res, _session) => 'mock-jwt-token')
 
     const req = makeReq({
       body: { server: 'github', code: 'auth-code' },
@@ -1080,7 +1092,7 @@ describe('logInOAuth handler — email-collision account-takeover guard', () => 
       body: { props: { id: 'created-id', username: 'newuser', email: 'fresh@example.com' } },
     })
     mockStoreCreate.mockResolvedValue({ affected: 1 })
-    vi.spyOn(authorization, 'set').mockImplementation(() => {})
+    vi.spyOn(authorization, 'set').mockImplementation(() => 'mock-jwt-token')
 
     const result = await handler(
       makeReq({ body: { server: 'google', code: 'auth-code' } }) as MoleculeRequest,
@@ -1101,7 +1113,7 @@ describe('logInOAuth handler — email-collision account-takeover guard', () => 
       oauthServer: 'google',
       oauthId: 'new-google-id',
     })
-    const setSpy = vi.spyOn(authorization, 'set').mockImplementation(() => {})
+    const setSpy = vi.spyOn(authorization, 'set').mockImplementation(() => 'mock-jwt-token')
 
     const result = await handler(
       makeReq({ body: { server: 'google', code: 'auth-code' } }) as MoleculeRequest,
@@ -1156,7 +1168,7 @@ describe('logInOAuth handler — profile capture on account creation', () => {
       body: { props: { id: 'created-id', username: 'newuser' } },
     })
     mockStoreCreate.mockResolvedValue({ affected: 1 })
-    vi.spyOn(authorization, 'set').mockImplementation(() => {})
+    vi.spyOn(authorization, 'set').mockImplementation(() => 'mock-jwt-token')
   })
 
   it('persists the provider display name, bio, and avatar on the created account', async () => {
@@ -1466,7 +1478,7 @@ describe('logInOAuth handler — username derivation on account creation', () =>
       body: { props: { id: 'created-id', username: 'created' } },
     })
     mockStoreCreate.mockResolvedValue({ affected: 1 })
-    vi.spyOn(authorization, 'set').mockImplementation(() => {})
+    vi.spyOn(authorization, 'set').mockImplementation(() => 'mock-jwt-token')
   })
 
   it('claims the provider handle (`vialoh@github` → `vialoh`), not the flattened mash', async () => {
@@ -2241,8 +2253,10 @@ describe('updatePlan handler — privilege escalation prevention', () => {
 
     const result = await handler(req as MoleculeRequest)
 
-    expect(result?.statusCode).toBe(400)
-    expect(result?.body?.errorKey).toBe('user.error.failedToUpdatePlan')
+    expect(result).toMatchObject({
+      statusCode: 400,
+      body: { errorKey: 'user.error.failedToUpdatePlan' },
+    })
     // The resource update must NOT have been called — upgrade was blocked.
     expect(mockResourceUpdate).not.toHaveBeenCalled()
   })
@@ -2284,8 +2298,10 @@ describe('updatePlan handler — privilege escalation prevention', () => {
 
     const result = await handler(req as MoleculeRequest)
 
-    expect(result?.statusCode).toBe(400)
-    expect(result?.body?.errorKey).toBe('user.error.planKeyRequired')
+    expect(result).toMatchObject({
+      statusCode: 400,
+      body: { errorKey: 'user.error.planKeyRequired' },
+    })
   })
 
   it('should return 404 when user is not found', async () => {
@@ -2299,8 +2315,10 @@ describe('updatePlan handler — privilege escalation prevention', () => {
 
     const result = await handler(req as MoleculeRequest)
 
-    expect(result?.statusCode).toBe(404)
-    expect(result?.body?.errorKey).toBe('user.error.notFound')
+    expect(result).toMatchObject({
+      statusCode: 404,
+      body: { errorKey: 'user.error.notFound' },
+    })
   })
 
   it('should reject any non-empty planKey as upgrade attempt without PlanService', async () => {
@@ -2321,8 +2339,10 @@ describe('updatePlan handler — privilege escalation prevention', () => {
 
       const result = await handler(req as MoleculeRequest)
 
-      expect(result?.statusCode).toBe(400)
-      expect(result?.body?.errorKey).toBe('user.error.failedToUpdatePlan')
+      expect(result).toMatchObject({
+        statusCode: 400,
+        body: { errorKey: 'user.error.failedToUpdatePlan' },
+      })
       expect(mockResourceUpdate).not.toHaveBeenCalled()
     }
   })
@@ -2358,8 +2378,10 @@ describe('updatePlan handler — privilege escalation prevention', () => {
 
     const result = await handler(req as MoleculeRequest)
 
-    expect(result?.statusCode).toBe(400)
-    expect(result?.body?.errorKey).toBe('user.error.subscriptionActivationRequiresVerification')
+    expect(result).toMatchObject({
+      statusCode: 400,
+      body: { errorKey: 'user.error.subscriptionActivationRequiresVerification' },
+    })
     // CRITICAL: the user record must NOT be upgraded to the paid plan.
     expect(mockResourceUpdate).not.toHaveBeenCalled()
   })
@@ -2388,8 +2410,10 @@ describe('updatePlan handler — privilege escalation prevention', () => {
 
     const result = await handler(req as MoleculeRequest)
 
-    expect(result?.statusCode).toBe(400)
-    expect(result?.body?.errorKey).toBe('user.error.subscriptionActivationRequiresVerification')
+    expect(result).toMatchObject({
+      statusCode: 400,
+      body: { errorKey: 'user.error.subscriptionActivationRequiresVerification' },
+    })
     expect(mockResourceUpdate).not.toHaveBeenCalled()
   })
 
@@ -2434,9 +2458,13 @@ describe('updatePlan handler — privilege escalation prevention', () => {
 
     const result = await handler(req as MoleculeRequest)
 
-    expect(result?.statusCode).toBe(503)
-    expect(result?.body?.errorKey).toBe('config.notConfigured')
-    expect(result?.body?.error).toContain('STRIPE_SECRET_KEY')
+    expect(result).toMatchObject({
+      statusCode: 503,
+      body: {
+        errorKey: 'config.notConfigured',
+        error: expect.stringContaining('STRIPE_SECRET_KEY'),
+      },
+    })
     expect(mockResourceUpdate).not.toHaveBeenCalled()
   })
 
@@ -2975,9 +3003,12 @@ describe('logout (POST /users/logout — revoke device + clear cookies)', () => 
       locals: { session: { userId: 'u1' } },
       clearCookie: vi.fn(),
       removeHeader: vi.fn(),
-    } as unknown as MoleculeResponse
+    }
 
-    const result = await logout()({} as unknown as MoleculeRequest, res)
+    const result = await logout()(
+      {} as unknown as MoleculeRequest,
+      res as unknown as MoleculeResponse,
+    )
 
     expect(result.statusCode).toBe(200)
     expect(res.clearCookie).toHaveBeenCalled()
@@ -3049,10 +3080,15 @@ describe('auth responses strip secret user columns', () => {
     )
 
     expect(result?.statusCode).toBe(201)
+    const body = result?.body
+    expect(body).toMatchObject({
+      props: { id: 'created-id', email: 'n@example.com' },
+      user: { id: 'created-id', email: 'n@example.com' },
+    })
     for (const key of ['props', 'user'] as const) {
-      const payload = result?.body?.[key] as Record<string, unknown>
-      expect(payload).toMatchObject({ id: 'created-id', email: 'n@example.com' })
-      for (const secret of Object.keys(SECRETS)) expect(payload).not.toHaveProperty(secret)
+      for (const secret of Object.keys(SECRETS)) {
+        expect(body).not.toHaveProperty(`${key}.${secret}`)
+      }
     }
   })
 
@@ -3085,7 +3121,7 @@ describe('auth responses strip secret user columns', () => {
       oauthServer: 'google',
       ...SECRETS,
     })
-    vi.spyOn(authorization, 'set').mockImplementation(() => {})
+    vi.spyOn(authorization, 'set').mockImplementation(() => 'mock-jwt-token')
 
     const result = await handler(
       makeReq({ body: { server: 'google', code: 'auth-code' } }) as MoleculeRequest,

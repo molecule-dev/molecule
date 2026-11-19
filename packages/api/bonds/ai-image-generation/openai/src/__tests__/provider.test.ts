@@ -1,5 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import type { AIImageGenerationProvider } from '@molecule/api-ai-image-generation'
+
 import { createProvider } from '../provider.js'
 
 // ---------------------------------------------------------------------------
@@ -32,6 +34,19 @@ function mockErrorResponse(status: number, body: string): Record<string, unknown
     text: vi.fn().mockResolvedValue(body),
     headers: new Headers(),
   }
+}
+
+/**
+ * Narrows the provider's optional `edit` method for tests that exercise the
+ * OpenAI bond's editing support, which this bond is required to implement.
+ * Throws if the bond stops implementing it.
+ */
+function requireEdit(
+  provider: AIImageGenerationProvider,
+): NonNullable<AIImageGenerationProvider['edit']> {
+  const edit = provider.edit
+  if (!edit) throw new Error('OpenAI image provider must implement edit()')
+  return edit.bind(provider)
 }
 
 // ---------------------------------------------------------------------------
@@ -212,11 +227,13 @@ describe('OpenaiImageGenerationProvider', () => {
   // =========================================================================
 
   describe('edit()', () => {
+    const edit = requireEdit(provider)
+
     it('sends image as multipart form data', async () => {
       mockFetch.mockResolvedValue(mockImagesResponse([{ url: 'https://example.com/edited.png' }]))
 
       const imageBuffer = Buffer.from('fake-image-data')
-      const result = await provider.edit({
+      const result = await edit({
         image: imageBuffer,
         prompt: 'Add a hat',
       })
@@ -236,7 +253,7 @@ describe('OpenaiImageGenerationProvider', () => {
       mockFetch.mockResolvedValue(mockImagesResponse([{ url: 'https://example.com/edited.png' }]))
 
       const base64Image = Buffer.from('fake-image-data').toString('base64')
-      const result = await provider.edit({
+      const result = await edit({
         image: base64Image,
         prompt: 'Make it blue',
       })
@@ -250,7 +267,7 @@ describe('OpenaiImageGenerationProvider', () => {
 
       const imageBuffer = Buffer.from('fake-image-data')
       const maskBuffer = Buffer.from('fake-mask-data')
-      await provider.edit({
+      await edit({
         image: imageBuffer,
         prompt: 'Remove background',
         mask: maskBuffer,
@@ -265,7 +282,7 @@ describe('OpenaiImageGenerationProvider', () => {
       mockFetch.mockResolvedValue(mockImagesResponse([{ url: 'https://example.com/edited.png' }]))
 
       const imageBuffer = Buffer.from('fake-image-data')
-      await provider.edit({
+      await edit({
         image: imageBuffer,
         prompt: 'Edit',
         n: 3,
@@ -282,7 +299,7 @@ describe('OpenaiImageGenerationProvider', () => {
       mockFetch.mockResolvedValue(mockImagesResponse([{ url: 'https://example.com/edited.png' }]))
 
       const imageBuffer = Buffer.from('fake-image-data')
-      await provider.edit({
+      await edit({
         image: imageBuffer,
         prompt: 'Edit',
         model: 'dall-e-2',

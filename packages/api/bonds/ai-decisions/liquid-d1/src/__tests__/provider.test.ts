@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import type { DecisionQuestion } from '@molecule/api-ai-decisions'
+import type { ChoiceQuestion, DecisionQuestion } from '@molecule/api-ai-decisions'
 
 import {
   createProvider,
@@ -320,9 +320,11 @@ describe('ai-decisions-liquid-d1', () => {
     // or its probability is dropped and `confidence` reads the inherited
     // getter (an Object.prototype, not a number).
     vi.stubEnv('LIQUID_API_KEY', 'liquid-key')
+    // Typed as the one choice question the fixture holds, so the answer is a
+    // `ChoiceAnswer` rather than the opaque `DecisionAnswer` union.
     const questions = JSON.parse(
       '{"__proto__":{"type":"choice","instructions":"Which?","criteria":{"__proto__":"Yes","billing":"No"}}}',
-    ) as Record<string, DecisionQuestion>
+    ) as { __proto__: ChoiceQuestion }
     mockFetch.mockResolvedValueOnce(
       ok(
         JSON.parse(
@@ -333,12 +335,7 @@ describe('ai-decisions-liquid-d1', () => {
 
     const result = await createProvider({ apiKey: 'k' }).decide({ state: 's', questions })
 
-    const answer = result.answers['__proto__'] as {
-      type: string
-      choice: string
-      probabilities: Record<string, number>
-      confidence: number
-    }
+    const answer = result.answers['__proto__']
     // (No `{ __proto__: … }` object literal can appear on the EXPECTED side
     // either — the literal key sets a prototype, so the assertions below
     // compare fields individually.)

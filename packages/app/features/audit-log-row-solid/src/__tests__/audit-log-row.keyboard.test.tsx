@@ -33,7 +33,7 @@ vi.mock('@molecule/app-ui', () => ({
 }))
 
 const { AuditLogRow } = await import('../AuditLogRow.jsx')
-import type { AuditLogEntry } from '../types.js'
+import type { AuditLogEntry, AuditLogRowProps } from '../types.js'
 
 const entry: AuditLogEntry = {
   id: '1',
@@ -49,11 +49,11 @@ afterEach(() => {
 })
 
 /** Render with Solid's browser renderer and return the row element. */
-function renderRow(props: Record<string, unknown>): HTMLElement {
+function renderRow(props: AuditLogRowProps): HTMLElement {
   const container = document.createElement('div')
   document.body.appendChild(container)
-  disposers.push(render(() => <AuditLogRow {...(props as never)} />, container))
-  const row = container.querySelector('[data-mol-id="audit-log-row"]')
+  disposers.push(render(() => <AuditLogRow {...props} />, container))
+  const row = container.querySelector<HTMLElement>('[data-mol-id="audit-log-row"]')
   if (!row) throw new Error('the audit log row did not render')
   return row
 }

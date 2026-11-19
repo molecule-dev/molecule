@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { createJWTAuthClient } from '../../../auth/src/index.js'
+import { createJWTAuthClient } from '@molecule/app-auth'
+
 import { getProvider, setProvider, setupAutoTracking } from '../index.js'
 import type { AnalyticsEvent } from '../types.js'
 

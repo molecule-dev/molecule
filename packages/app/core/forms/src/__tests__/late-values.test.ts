@@ -68,7 +68,7 @@ describe('native late form values', () => {
     const form = nativeProvider.createForm({ defaultValues: { node: defaults } })
     form.setValue('node', local)
     form.updateValues({ node: incoming }, { keepDirtyValues: true })
-    const result = form.getValue('node')
+    const result = form.getValues().node
     expect(result.label).toBe('draft')
     expect(result.loaded).toBe('remote')
     expect(result.self).toBe(result)
@@ -326,7 +326,7 @@ describe('formValuesEqual', () => {
 
     form.updateValues({ tags: ['loaded'] }, { keepDirtyValues: true })
     expect(form.getValue('tags')).toStrictEqual(sparse)
-    expect(0 in form.getValue('tags')).toBe(false)
+    expect(0 in form.getValues().tags).toBe(false)
   })
 
   it('clones and compares circular values without overflowing', () => {
@@ -339,7 +339,7 @@ describe('formValuesEqual', () => {
     const form = nativeProvider.createForm({ defaultValues: { node } })
 
     expect(form.getValue('node')).not.toBe(node)
-    expect(form.getValue('node').self).toBe(form.getValue('node'))
+    expect(form.getValues().node.self).toBe(form.getValues().node)
     expect(form.getState().isDirty).toBe(false)
     expect(formValuesEqual(node, form.getValue('node'))).toBe(true)
   })

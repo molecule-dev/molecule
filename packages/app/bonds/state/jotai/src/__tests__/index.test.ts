@@ -16,6 +16,7 @@ import {
   defaultStore,
   provider,
 } from '../index.js'
+import type { StoreMiddleware } from '../types.js'
 
 describe('@molecule/app-state-jotai', () => {
   // Test state interfaces
@@ -166,25 +167,22 @@ describe('@molecule/app-state-jotai', () => {
 
   describe('createStore with middleware', () => {
     it('should apply a single middleware', () => {
-      const middlewareFn = vi.fn(
-        (
-          set: (
+      const middlewareFn =
+        vi.fn<
+          (
             partial: Partial<CounterState> | ((state: CounterState) => Partial<CounterState>),
-          ) => void,
-          _get: () => CounterState,
-        ) => {
-          return (
-            partial: Partial<CounterState> | ((state: CounterState) => Partial<CounterState>),
-          ) => {
-            middlewareFn()
-            set(partial)
-          }
-        },
-      )
+          ) => void
+        >()
+      const middleware: StoreMiddleware<CounterState> = (set) => {
+        return (partial) => {
+          middlewareFn(partial)
+          set(partial)
+        }
+      }
 
       const store = createStore<CounterState>({
         initialState: { count: 0 },
-        middleware: [middlewareFn],
+        middleware: [middleware],
       })
 
       store.setState({ count: 5 })
@@ -261,12 +259,8 @@ describe('@molecule/app-state-jotai', () => {
     })
 
     it('should allow middleware to access current state via get', () => {
-      type SetCounter = (
-        partial: Partial<CounterState> | ((state: CounterState) => Partial<CounterState>),
-      ) => void
-      type GetCounter = () => CounterState
-
-      const logMiddleware = vi.fn((set: SetCounter, get: GetCounter) => {
+      const logMiddleware = vi.fn<(prevState: CounterState, nextState: CounterState) => void>()
+      const loggingMiddleware: StoreMiddleware<CounterState> = (set, get) => {
         return (
           partial: Partial<CounterState> | ((state: CounterState) => Partial<CounterState>),
         ) => {
@@ -275,11 +269,11 @@ describe('@molecule/app-state-jotai', () => {
           const nextState = get()
           logMiddleware(prevState, nextState)
         }
-      })
+      }
 
       const store = createStore<CounterState>({
         initialState: { count: 0 },
-        middleware: [logMiddleware],
+        middleware: [loggingMiddleware],
       })
 
       store.setState({ count: 5 })
@@ -481,7 +475,8 @@ describe('@molecule/app-state-jotai', () => {
 
       expect(store.get(fahrenheitAtom)).toBe(32) // 0C = 32F
 
-      store.set(fahrenheitAtom, 212) // 212F = 100C
+      // The atom's write function is invoked against the store's own get/set.
+      fahrenheitAtom.write(store.get, store.set, 212) // 212F = 100C
 
       expect(celsiusAtom.get(store)).toBe(100)
       expect(store.get(fahrenheitAtom)).toBe(212)
@@ -502,7 +497,7 @@ describe('@molecule/app-state-jotai', () => {
       expect(store.get(doubleAtom)).toBe(10)
 
       // Update via derived
-      store.set(doubleAtom, 40)
+      doubleAtom.write(store.get, store.set, 40)
       expect(baseAtom.get(store)).toBe(20)
     })
   })

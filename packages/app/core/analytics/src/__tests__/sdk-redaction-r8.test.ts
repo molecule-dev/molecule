@@ -80,7 +80,9 @@ describe('round-eight data-only SDK capture', () => {
       )
       expect(inherited).toHaveBeenCalledTimes(1)
     } finally {
-      delete Object.prototype.toJSON
+      // Remove the prototype patch installed above; the cast names the one
+      // property this test added to Object.prototype.
+      delete (Object.prototype as { toJSON?: unknown }).toJSON
     }
   })
 

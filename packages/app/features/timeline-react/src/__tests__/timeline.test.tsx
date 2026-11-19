@@ -113,13 +113,13 @@ describe('TimelineEvent', () => {
 
 describe('TimelineDate', () => {
   it('renders its children', () => {
-    expect(html(createElement(TimelineDate, {}, 'Yesterday'))).toContain('Yesterday')
+    expect(html(createElement(TimelineDate, { children: 'Yesterday' }))).toContain('Yesterday')
   })
 
   it('forwards className', () => {
-    expect(html(createElement(TimelineDate, { className: 'date-cls' }, 'Today'))).toContain(
-      'date-cls',
-    )
+    expect(
+      html(createElement(TimelineDate, { className: 'date-cls', children: 'Today' })),
+    ).toContain('date-cls')
   })
 })
 

@@ -328,7 +328,7 @@ describe('native deep form-value snapshots', () => {
     const onSubmit = vi.fn()
     const submission = form.handleSubmit(onSubmit)()
 
-    form.getValue('details').title = ''
+    form.getValues().details.title = ''
     release({})
     await submission
 
@@ -357,8 +357,8 @@ describe('native deep form-value snapshots', () => {
     const onSubmit = vi.fn()
     const submission = form.handleSubmit(onSubmit)()
 
-    form.getValue('labels').set('status', 'unvalidated')
-    form.getValue('tags').add('unvalidated')
+    form.getValues().labels.set('status', 'unvalidated')
+    form.getValues().tags.add('unvalidated')
     release()
     await submission
 

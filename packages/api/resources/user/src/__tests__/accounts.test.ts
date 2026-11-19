@@ -57,7 +57,9 @@ const {
   mockHash: vi.fn(),
   mockResourceCreate: vi.fn(),
   mockResourceUpdate: vi.fn(),
-  mockSign: vi.fn(() => 'mock-jwt-token'),
+  // Stands in for `sign(payload, options?, privateKey?)`; the parameter type lets the
+  // tests read the claims the session was signed with.
+  mockSign: vi.fn((_payload: JSONObject) => 'mock-jwt-token'),
   mockGetConfig: vi.fn((key: string) => {
     if (key === 'NODE_ENV') return 'production'
     return undefined
@@ -117,6 +119,7 @@ vi.mock('../utilities/fetchAvatarDataUri.js', () => ({
   fetchAvatarDataUri: vi.fn(async () => 'data:image/png;base64,FETCHED'),
 }))
 
+import type { JSONObject } from '@molecule/api-jwt'
 import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
 
 import {

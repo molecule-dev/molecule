@@ -22,7 +22,12 @@ describe('round-nine SDK data capture', () => {
 
   it('limits session-entry exemptions to verified direct SDK metadata', () => {
     const getter = vi.fn(() => 'session-entry-field-credential')
-    const properties: Record<string, unknown> = {
+    const properties: {
+      $session_entry_url: string
+      nested: { $session_entry_url: string }
+      // Set by defineProperty below (a credential-named getter that must never be read).
+      $session_entry_secret?: string
+    } = {
       $session_entry_url: '/reset?token=url-credential&view=full',
       nested: { $session_entry_url: '/reset?token=nested-credential&view=full' },
     }

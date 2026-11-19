@@ -10,6 +10,8 @@
 
 import { describe, expect, it, vi } from 'vitest'
 
+import type { ColorSwatchPickerProps } from '../types.js'
+
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
 // `stack`), so tests can assert which cm.* class was applied without a real
 // bond — the same mock the React tests use.
@@ -44,7 +46,7 @@ const { h } = await import('vue')
  * @param props - The component props.
  * @returns The serialized markup.
  */
-const html = async (props: Record<string, unknown>): Promise<string> =>
+const html = async (props: ColorSwatchPickerProps): Promise<string> =>
   renderToString(h(ColorSwatchPicker, props))
 
 const swatches = [
