@@ -11,7 +11,7 @@
  * @module
  */
 
-import { flushSync, mount, unmount } from 'svelte'
+import { type Component, flushSync, mount, unmount } from 'svelte'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('@molecule/app-ui', () => ({
@@ -45,7 +45,10 @@ afterEach(async () => {
  * @param props - Its props.
  * @returns The container element the component mounted into.
  */
-function render(component: typeof ColorPicker, props: Record<string, unknown> = {}): HTMLElement {
+function render<Props extends Record<string, unknown>>(
+  component: Component<Props>,
+  props: Props,
+): HTMLElement {
   const host = document.createElement('div')
   document.body.appendChild(host)
   mounted.push(mount(component, { target: host, props }))

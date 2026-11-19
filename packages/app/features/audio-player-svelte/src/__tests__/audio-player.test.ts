@@ -55,6 +55,7 @@ vi.mock('@molecule/app-ui-svelte', async () => {
 import { createRawSnippet, flushSync, mount, type Snippet, unmount } from 'svelte'
 
 import { AudioPlayer } from '../components.js'
+import type { AudioPlayerProps } from '../types.js'
 
 afterEach(() => {
   document.body.innerHTML = ''
@@ -69,7 +70,7 @@ const raw = (html: string): Snippet => createRawSnippet(() => ({ render: () => h
  * @param props - The player props.
  * @returns The rendered markup.
  */
-const render = (props: Record<string, unknown>): string => {
+const render = (props: AudioPlayerProps): string => {
   const target = document.createElement('div')
   document.body.appendChild(target)
   const component = mount(AudioPlayer, { target, props })

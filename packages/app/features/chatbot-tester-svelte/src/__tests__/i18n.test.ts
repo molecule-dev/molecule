@@ -10,7 +10,7 @@
  * @module
  */
 
-import { flushSync, mount, unmount } from 'svelte'
+import { type Component, flushSync, mount, unmount } from 'svelte'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('@molecule/app-ui', () => ({
@@ -38,11 +38,10 @@ const MARKERS = {
   'chatbotTester.label.testBot': 'Bot auswählen',
 } as const
 
-const instances: unknown[] = []
+const instances: Array<ReturnType<typeof mount>> = []
 
 afterEach(async () => {
-  for (const instance of instances.splice(0))
-    await unmount(instance as Parameters<typeof unmount>[0])
+  for (const instance of instances.splice(0)) await unmount(instance)
   document.body.innerHTML = ''
   // Reset the global i18n singleton to a clean English provider so a bonded
   // override registered in one test can't bleed into the next.
@@ -56,13 +55,13 @@ afterEach(async () => {
  * @param props - Its props.
  * @returns The mount target (its children are the rendered markup).
  */
-const render = (
-  component: Parameters<typeof mount>[0],
-  props: Record<string, unknown>,
-): HTMLElement => {
+function render<Props extends Record<string, unknown>, Exports extends Record<string, unknown>>(
+  component: Component<Props, Exports>,
+  props: Props,
+): HTMLElement {
   const target = document.createElement('div')
   document.body.appendChild(target)
-  instances.push(mount(component, { target, props: props as never }))
+  instances.push(mount(component, { target, props }))
   flushSync()
   return target
 }
@@ -77,14 +76,22 @@ const bondMarkers = (): void => {
 describe('ChatbotTesterInput text', () => {
   it('takes the composer placeholder through i18n by default', () => {
     bondMarkers()
-    const markup = render(ChatbotTesterInput, { value: '' }).innerHTML
+    const markup = render(ChatbotTesterInput, {
+      value: '',
+      onChange: () => {},
+      onSend: () => {},
+    }).innerHTML
     expect(markup).toContain(`placeholder="${MARKERS['chatbotTester.placeholder.message']}"`)
     expect(markup).not.toContain('Type a message…')
   })
 
   it('takes the send label through i18n by default', () => {
     bondMarkers()
-    const markup = render(ChatbotTesterInput, { value: '' }).innerHTML
+    const markup = render(ChatbotTesterInput, {
+      value: '',
+      onChange: () => {},
+      onSend: () => {},
+    }).innerHTML
     expect(markup).toContain(`>${MARKERS['chatbotTester.label.send']}</button>`)
     expect(markup).not.toContain('>Send</button>')
   })
@@ -93,6 +100,8 @@ describe('ChatbotTesterInput text', () => {
     bondMarkers()
     const markup = render(ChatbotTesterInput, {
       value: '',
+      onChange: () => {},
+      onSend: () => {},
       placeholder: 'Ask away',
       sendLabel: 'Go',
     }).innerHTML
@@ -106,7 +115,11 @@ describe('ChatbotTesterInput text', () => {
 describe('ChatbotTester text', () => {
   it('takes the bot picker label through i18n by default', () => {
     bondMarkers()
-    const target = render(ChatbotTester, { messages: [], bots: [{ id: 'b1' }, { id: 'b2' }] })
+    const target = render(ChatbotTester, {
+      messages: [],
+      onSend: () => {},
+      bots: [{ id: 'b1' }, { id: 'b2' }],
+    })
     // The label's if-boundary comments sit between its text and `</label>`,
     // so the text is read off the element rather than the markup string.
     expect(target.querySelector('label')?.textContent).toBe(MARKERS['chatbotTester.label.testBot'])
@@ -117,6 +130,7 @@ describe('ChatbotTester text', () => {
     bondMarkers()
     const target = render(ChatbotTester, {
       messages: [],
+      onSend: () => {},
       bots: [{ id: 'b1' }, { id: 'b2' }],
       botPickerLabel: 'Pick a bot',
     })

@@ -9,7 +9,7 @@
  */
 
 import '@molecule/app-framework-conformance/ui/setup'
-import { flushSync, mount, unmount } from 'svelte'
+import { type Component, type ComponentProps, flushSync, mount, unmount } from 'svelte'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { copyTextWithFallback } from '@molecule/app-clipboard'
@@ -32,9 +32,9 @@ const mounted: ReturnType<typeof mount>[] = []
  * @param props - Its props.
  * @returns The host element the component rendered into.
  */
-function mountComponent(
-  component: typeof EmbedSnippet | typeof Controlled,
-  props: Record<string, unknown> = {},
+function mountComponent<Props extends object>(
+  component: Component<Props>,
+  props: Props,
 ): HTMLElement {
   const host = document.createElement('div')
   document.body.appendChild(host)
@@ -49,7 +49,7 @@ function mountComponent(
  * @param props - The component's props.
  * @returns The host element the component rendered into.
  */
-function renderSnippet(props: Record<string, unknown>): HTMLElement {
+function renderSnippet(props: ComponentProps<typeof EmbedSnippet>): HTMLElement {
   return mountComponent(EmbedSnippet, props)
 }
 
@@ -174,7 +174,7 @@ describe('<EmbedSnippet>', () => {
   })
 
   it('lets a controlled wrapper update the rendered snippet on change', () => {
-    const host = mountComponent(Controlled)
+    const host = mountComponent(Controlled, {})
     const widthInput = host.querySelector(
       '[data-mol-id="embed-snippet-input-width"]',
     ) as HTMLInputElement

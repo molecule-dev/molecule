@@ -44,7 +44,8 @@ vi.mock('@molecule/app-svelte', () => ({
 
 import { createRawSnippet, flushSync, mount, type Snippet, unmount } from 'svelte'
 
-const { default: TransportBar } = await import('../TransportBar.svelte')
+import type { TransportBarProps } from '../types.js'
+
 const { default: Harness } = await import('./Harness.svelte')
 const { PropBag } = await import('./props.svelte.js')
 
@@ -71,11 +72,11 @@ interface Mounted {
  * @param children - A `children` slot snippet.
  * @returns The mounted bar.
  */
-const renderBar = (initial: Record<string, unknown> = {}, children?: Snippet): Mounted => {
+const renderBar = (initial: Partial<TransportBarProps> = {}, children?: Snippet): Mounted => {
   const target = document.createElement('div')
   document.body.appendChild(target)
   const bag = new PropBag(initial)
-  mounted.push(mount(Harness, { target, props: { component: TransportBar, bag, children } }))
+  mounted.push(mount(Harness, { target, props: { bag, children } }))
   flushSync()
   return { target, bag }
 }

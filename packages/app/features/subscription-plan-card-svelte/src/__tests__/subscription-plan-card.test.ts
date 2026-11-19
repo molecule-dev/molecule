@@ -10,9 +10,10 @@ import { flushSync, mount, unmount } from 'svelte'
 import { describe, expect, it } from 'vitest'
 
 import SubscriptionPlanCard from '../SubscriptionPlanCard.svelte'
+import type { SubscriptionPlanCardProps } from '../types.js'
 
 /** Renders a `SubscriptionPlanCard` with the given props, returning the host markup. */
-const render = (props: Record<string, unknown>): string => {
+const render = (props: SubscriptionPlanCardProps): string => {
   const target = document.createElement('div')
   document.body.appendChild(target)
   const instance = mount(SubscriptionPlanCard, { target, props })

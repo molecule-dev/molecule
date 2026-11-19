@@ -5,7 +5,14 @@
  * assertions, rendered with a real mount (jsdom) and the bonded ClassMap.
  */
 import '@molecule/app-framework-conformance/ui/setup'
-import { createRawSnippet, flushSync, mount, type Snippet, unmount } from 'svelte'
+import {
+  type ComponentProps,
+  createRawSnippet,
+  flushSync,
+  mount,
+  type Snippet,
+  unmount,
+} from 'svelte'
 import { describe, expect, it } from 'vitest'
 
 import FlashcardCard from '../FlashcardCard.svelte'
@@ -19,7 +26,7 @@ const raw = (html: string): Snippet => createRawSnippet(() => ({ render: () => h
  * @param props - The card's props.
  * @returns The markup.
  */
-const render = (props: Record<string, unknown>): string => {
+const render = (props: ComponentProps<typeof FlashcardCard>): string => {
   const target = document.createElement('div')
   document.body.appendChild(target)
   const instance = mount(FlashcardCard, { target, props })

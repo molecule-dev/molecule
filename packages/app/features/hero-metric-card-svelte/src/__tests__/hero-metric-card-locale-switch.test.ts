@@ -15,7 +15,7 @@
  */
 
 import '@molecule/app-framework-conformance/ui/setup'
-import { type Component, type ComponentProps, flushSync, mount, unmount } from 'svelte'
+import { type Component, flushSync, mount, unmount } from 'svelte'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
 import type { I18nProvider } from '@molecule/app-i18n'
@@ -25,11 +25,12 @@ import { classMap } from '@molecule/app-ui-tailwind'
 
 import HeroMetricCard from '../HeroMetricCard.svelte'
 import HeroMetricTrendChip from '../HeroMetricTrendChip.svelte'
+import type { HeroMetricTrend } from '../types.js'
 
 /** The bonded provider from {@link beforeEach}, so the switch drives the exact provider the components' `t` resolves against. */
 let provider: I18nProvider
 /** The mounted instances, torn down after each test. */
-const instances: unknown[] = []
+const instances: Array<ReturnType<typeof mount>> = []
 
 beforeEach(() => {
   setClassMap(classMap)
@@ -55,16 +56,12 @@ beforeEach(() => {
 })
 
 afterEach(async () => {
-  for (const instance of instances.splice(0))
-    await unmount(instance as Parameters<typeof unmount>[0])
+  for (const instance of instances.splice(0)) await unmount(instance)
   document.body.innerHTML = ''
   // Reset the global i18n singleton to a clean English provider so a locale
   // override registered in one test can't bleed into the next.
   setProvider(createSimpleI18nProvider('en'))
 })
-
-/** A Svelte component whose props are a plain record, as `ComponentProps` accepts it. */
-type MountedComponent = Component<Record<string, unknown>, Record<string, unknown>>
 
 /**
  * Mounts a component and returns its rendered root element.
@@ -73,7 +70,10 @@ type MountedComponent = Component<Record<string, unknown>, Record<string, unknow
  * @param props - Its props.
  * @returns The element holding the component's DOM.
  */
-function render<C extends MountedComponent>(component: C, props: ComponentProps<C>): HTMLElement {
+function render<Props extends Record<string, unknown>, Exports extends Record<string, unknown>>(
+  component: Component<Props, Exports>,
+  props: Props,
+): HTMLElement {
   const target = document.createElement('div')
   document.body.appendChild(target)
   instances.push(mount(component, { target, props }))
@@ -95,7 +95,9 @@ describe('hero-metric-card locale switch', () => {
   })
 
   it('HeroMetricTrendChip renders the trend aria-label in French after setLocale', async () => {
-    const host = render(HeroMetricTrendChip, { trend: { direction: 'up', delta: '+12%' } })
+    const host = render(HeroMetricTrendChip, {
+      trend: { direction: 'up', delta: '+12%' } satisfies HeroMetricTrend,
+    })
     expect(host.querySelector('[aria-label="Trending up"]')).not.toBeNull()
 
     // The switch itself: the chip must re-render in French. Against the

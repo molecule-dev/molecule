@@ -16,13 +16,12 @@ import '@molecule/app-framework-conformance/ui/setup'
 import { flushSync, mount, unmount } from 'svelte'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
-import Host from '@molecule/app-framework-conformance/adapters/svelte-bindings/Host.svelte'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
-import { setMoleculeContext } from '@molecule/app-svelte'
 
 import PasswordStrengthMeter from '../PasswordStrengthMeter.svelte'
 import type { PasswordScore } from '../scorer.js'
 import { scorePassword } from '../scorer.js'
+import type { PasswordStrengthMeterProps } from '../types.js'
 
 /** Every key the component can pass to `t()` — the locale bond's full set. */
 const ALL_KEYS: readonly string[] = [
@@ -72,15 +71,10 @@ const mounted: ReturnType<typeof mount>[] = []
  * @param props - The meter's props.
  * @returns The host element whose children the meter rendered.
  */
-function render(props: Record<string, unknown>): HTMLElement {
+function render(props: PasswordStrengthMeterProps): HTMLElement {
   const host = document.createElement('div')
   document.body.appendChild(host)
-  mounted.push(
-    mount(Host, {
-      target: host,
-      props: { config: {}, setMoleculeContext, component: PasswordStrengthMeter, props },
-    }),
-  )
+  mounted.push(mount(PasswordStrengthMeter, { target: host, props }))
   flushSync()
   return host
 }

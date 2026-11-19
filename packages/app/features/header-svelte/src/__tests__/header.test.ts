@@ -6,17 +6,16 @@
  * provider probing.
  */
 import '@molecule/app-framework-conformance/ui/setup'
-import { createRawSnippet, flushSync, mount, type Snippet } from 'svelte'
+import { type ComponentProps, createRawSnippet, flushSync, mount, type Snippet } from 'svelte'
 import { afterEach, describe, expect, it } from 'vitest'
 
-import Host from '@molecule/app-framework-conformance/adapters/svelte-bindings/Host.svelte'
 import { createFakeThemeProvider } from '@molecule/app-framework-conformance/ui'
 import { createSimpleI18nProvider } from '@molecule/app-i18n'
 import { createMemoryRouter } from '@molecule/app-routing'
-import { setMoleculeContext } from '@molecule/app-svelte'
 
-import AppHeader from '../AppHeader.svelte'
-import UserMenuHeader from './UserMenuHeader.svelte'
+import type { AppHeaderProps } from '../types.js'
+import HeaderHost from './HeaderHost.svelte'
+import UserMenuHeaderHost from './UserMenuHeaderHost.svelte'
 
 /** A snippet rendering the given markup, the way a caller fills a slot. */
 const raw = (html: string): Snippet => createRawSnippet(() => ({ render: () => html }))
@@ -40,16 +39,13 @@ const i18n = createSimpleI18nProvider('en', [
  * @returns Whether the default theme toggle rendered.
  */
 async function render(
-  props: Record<string, unknown> = {},
+  props: AppHeaderProps,
   providers: { theme?: boolean; i18n?: boolean } = {},
 ): Promise<{ themeToggle: Element | null }> {
-  const config: Record<string, unknown> = { router }
+  const config: ComponentProps<typeof HeaderHost>['config'] = { router }
   if (providers.theme) config.theme = createFakeThemeProvider('light', sink)
   if (providers.i18n) config.i18n = i18n
-  mount(Host, {
-    target: document.body,
-    props: { config, setMoleculeContext, component: AppHeader, props },
-  })
+  mount(HeaderHost, { target: document.body, props: { config, props } })
   flushSync()
   return { themeToggle: document.body.querySelector('[data-mol-id="theme-toggle"]') }
 }
@@ -121,9 +117,9 @@ describe('AppHeader', () => {
   it('renders the documented UserMenu-as-userMenu composition (children API, no renderPanel)', async () => {
     // The module @example with the real UserMenu: its trigger sits in the
     // header, and its children (the settings panel) open in its drawer.
-    mount(Host, {
+    mount(UserMenuHeaderHost, {
       target: document.body,
-      props: { config: { router, i18n }, setMoleculeContext, component: UserMenuHeader, props: {} },
+      props: { config: { router, i18n } },
     })
     flushSync()
     const trigger = document.body.querySelector<HTMLElement>('header [data-mol-id="user-menu"]')

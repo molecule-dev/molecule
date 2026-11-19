@@ -4,10 +4,9 @@
 -->
 <script lang="ts">
   import MapDrawing from '../MapDrawing.svelte'
-  import type { MapDrawingProps } from '../types.js'
   import type { PropBag } from './props-bag.svelte.js'
 
   let { bag }: { bag: PropBag } = $props()
 </script>
 
-<MapDrawing {...bag.props as MapDrawingProps} />
+<MapDrawing {...bag.props} />

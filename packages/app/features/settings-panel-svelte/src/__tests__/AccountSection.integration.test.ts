@@ -57,11 +57,14 @@ function publishUpdates<T extends object>(client: AuthClient<T>): ReturnType<typ
   })
 }
 
-const mounted: { instance: Record<string, unknown>; container: HTMLElement }[] = []
-function render(component: Component, props: Record<string, unknown>): void {
+const mounted: { instance: ReturnType<typeof mount>; container: HTMLElement }[] = []
+function render<Props extends Record<string, unknown>>(
+  component: Component<Props>,
+  props: Props,
+): void {
   const container = document.createElement('div')
   document.body.appendChild(container)
-  const instance = mount(component, { target: container, props }) as Record<string, unknown>
+  const instance = mount(component, { target: container, props })
   flushSync()
   mounted.push({ instance, container })
 }
@@ -106,7 +109,7 @@ beforeEach(() => {
 })
 afterEach(async () => {
   for (const { instance, container } of mounted.splice(0)) {
-    await unmount(instance as never)
+    await unmount(instance)
     container.remove()
   }
   // Give the binding's same-turn handoff lane its disarm turn before the next test mounts.
@@ -243,7 +246,13 @@ describe('representative non-X1 custom aliases and custom-form counterexample', 
   })
 
   it('keeps a non-profile newsletter form local and does not call profile transport', async () => {
-    const client = clientFor<UserProfile>(first)
+    // The host renders its contact form too, so it reads a handle-keyed account.
+    const client = clientFor<HandleUser>({
+      handle: 'alice',
+      email: 'alice@example.test',
+      displayName: 'Alice',
+      avatarUrl: null,
+    })
     const update = publishUpdates(client)
     render(ContactHost, { client })
     clicked(document.querySelector('[aria-label="Weekly digest"]')!)

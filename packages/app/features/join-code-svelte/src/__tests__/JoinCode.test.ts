@@ -52,7 +52,6 @@ vi.mock('@molecule/app-svelte', async (importOriginal) => {
 })
 
 import JoinCode from '../JoinCode.svelte'
-import type { JoinCodeProps } from '../types.js'
 import ControlledJoinCode from './ControlledJoinCode.svelte'
 
 /** Mounted components, torn down after each test. */
@@ -65,7 +64,10 @@ const mounted: Array<Record<string, unknown>> = []
  * @param props - Its props.
  * @returns The element the component rendered into.
  */
-function render(component: Component<JoinCodeProps>, props: JoinCodeProps = {}): HTMLElement {
+function render<Props extends Record<string, unknown>>(
+  component: Component<Props>,
+  props: NoInfer<Props>,
+): HTMLElement {
   const host = document.createElement('div')
   document.body.appendChild(host)
   mounted.push(mount(component, { target: host, props }))
@@ -133,7 +135,7 @@ afterEach(async () => {
 
 describe('<JoinCode>', () => {
   it('renders the configured number of slots (default 6)', () => {
-    render(JoinCode)
+    render(JoinCode, {})
     const slots = document.querySelectorAll('[data-mol-id^="join-code-slot-"]')
     expect(slots.length).toBe(6)
   })
@@ -249,7 +251,7 @@ describe('<JoinCode>', () => {
   })
 
   it('controlled mode reflects parent value and ignores invalid chars at render', () => {
-    render(ControlledJoinCode)
+    render(ControlledJoinCode, {})
     expect(getSlot(0).value).toBe('A')
     expect(getSlot(1).value).toBe('B')
     expect(getSlot(2).value).toBe('')

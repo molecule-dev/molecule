@@ -39,7 +39,7 @@ vi.mock('@molecule/app-ui-svelte', async () => {
   return { Avatar, Card }
 })
 
-import { mount, unmount } from 'svelte'
+import { type ComponentProps, mount, unmount } from 'svelte'
 
 const { VendorCard } = await import('../components.js')
 const { default: SlotsHost } = await import('./SlotsHost.svelte')
@@ -49,7 +49,7 @@ afterEach(() => {
 })
 
 /** Renders a {@link VendorCard} and returns the markup it produced. */
-const render = (props: Record<string, unknown>): string => {
+const render = (props: ComponentProps<typeof VendorCard>): string => {
   const target = document.createElement('div')
   document.body.appendChild(target)
   const component = mount(VendorCard, { target, props })

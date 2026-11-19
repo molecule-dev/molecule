@@ -13,7 +13,7 @@
  * @param initial - The props the host mounts with.
  * @returns The reactive bag; assigning a key re-renders the host.
  */
-export function createPropBag(initial: Record<string, unknown>): Record<string, unknown> {
-  const bag = $state<Record<string, unknown>>(initial)
+export function createPropBag<Props extends Record<string, unknown>>(initial: Props): Props {
+  const bag = $state<Props>(initial)
   return bag
 }

@@ -10,7 +10,7 @@
  * @module
  */
 
-import { createRawSnippet, flushSync, mount, type Snippet } from 'svelte'
+import { type ComponentProps, createRawSnippet, flushSync, mount, type Snippet } from 'svelte'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
@@ -53,7 +53,7 @@ const swatches = [
  * @param props - The component props.
  * @returns The host element whose `innerHTML` the assertions read.
  */
-const render = (props: Record<string, unknown>): HTMLElement => {
+const render = (props: ComponentProps<typeof ColorSwatchPicker>): HTMLElement => {
   const host = document.createElement('div')
   document.body.appendChild(host)
   mount(ColorSwatchPicker, { target: host, props })

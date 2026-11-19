@@ -9,7 +9,14 @@ import '@molecule/app-framework-conformance/ui/setup'
 import { flushSync, mount, unmount } from 'svelte'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { clampClipMove, type Clip, clipToPixels, pixelsToTime, TrackLane } from '../index.js'
+import {
+  clampClipMove,
+  type Clip,
+  clipToPixels,
+  pixelsToTime,
+  TrackLane,
+  type TrackLaneProps,
+} from '../index.js'
 
 /** The instances mounted during one test, unmounted in `afterEach`. */
 const mounted: ReturnType<typeof mount>[] = []
@@ -20,7 +27,7 @@ const mounted: ReturnType<typeof mount>[] = []
  * @param props - Component props.
  * @returns The host element.
  */
-function render(props: Record<string, unknown>): HTMLElement {
+function render(props: TrackLaneProps): HTMLElement {
   const target = document.createElement('div')
   document.body.appendChild(target)
   mounted.push(mount(TrackLane, { target, props }))

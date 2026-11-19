@@ -8,7 +8,7 @@
  * @module
  */
 
-import { flushSync, mount, unmount } from 'svelte'
+import { type ComponentProps, flushSync, mount, unmount } from 'svelte'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { copyTextWithFallback } from '@molecule/app-clipboard'
@@ -75,7 +75,7 @@ afterEach(async () => {
 })
 
 /** Mounts a {@link CodeBlock} and returns the markup it produced. */
-const render = (props: Record<string, unknown>): string => {
+const render = (props: ComponentProps<typeof CodeBlock>): string => {
   const target = document.createElement('div')
   document.body.appendChild(target)
   mounted.push(mount(CodeBlock, { target, props }))
@@ -86,7 +86,7 @@ const render = (props: Record<string, unknown>): string => {
 const code = 'const x = 1\nconst y = 2\nconsole.log(x + y)'
 
 /** Mounts a {@link CodeBlock} that stays mounted (for the click tests). */
-const mountLive = (props: Record<string, unknown>): { target: HTMLDivElement } => {
+const mountLive = (props: ComponentProps<typeof CodeBlock>): { target: HTMLDivElement } => {
   const target = document.createElement('div')
   document.body.appendChild(target)
   mounted.push(mount(CodeBlock, { target, props }))

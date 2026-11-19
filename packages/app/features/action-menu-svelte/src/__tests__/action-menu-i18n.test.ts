@@ -19,6 +19,7 @@ vi.mock('@molecule/app-svelte', () => ({
 }))
 
 import ActionMenu from '../ActionMenu.svelte'
+import type { ActionMenuProps } from '../types.js'
 
 /** A mounted menu. */
 interface Mounted {
@@ -38,7 +39,7 @@ afterEach(async () => {
  * @param props - Props to pass to the component.
  * @returns The mounted host.
  */
-function render(props: Record<string, unknown>): Mounted {
+function render(props: ActionMenuProps): Mounted {
   const host = document.createElement('div')
   document.body.appendChild(host)
   const instance = mount(ActionMenu, { target: host, props })

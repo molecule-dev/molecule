@@ -8,13 +8,14 @@ import '@molecule/app-framework-conformance/ui/setup'
 import { createRawSnippet, flushSync, mount, type Snippet, unmount } from 'svelte'
 import { describe, expect, it } from 'vitest'
 
+import type { WikiPageHeaderProps } from '../types.js'
 import WikiPageHeader from '../WikiPageHeader.svelte'
 
 /** A snippet rendering the given markup, the way a caller fills a slot. */
 const raw = (html: string): Snippet => createRawSnippet(() => ({ render: () => html }))
 
 /** Renders a `WikiPageHeader` with the given props, returning the host markup. */
-const render = (props: Record<string, unknown>): string => {
+const render = (props: WikiPageHeaderProps): string => {
   const target = document.createElement('div')
   document.body.appendChild(target)
   const instance = mount(WikiPageHeader, { target, props })

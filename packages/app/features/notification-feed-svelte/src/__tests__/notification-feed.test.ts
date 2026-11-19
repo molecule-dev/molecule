@@ -40,7 +40,7 @@ vi.mock('@molecule/app-svelte', async () => {
   return { Link }
 })
 
-import { flushSync, mount, unmount } from 'svelte'
+import { type ComponentProps, flushSync, mount, unmount } from 'svelte'
 
 const { NotificationFeed } = await import('../components.js')
 const { fmtRelativeShort } = await import('../fmtRelativeShort.js')
@@ -51,7 +51,7 @@ afterEach(() => {
 })
 
 /** Renders a {@link NotificationFeed} and returns the markup it produced. */
-const html = (props: Record<string, unknown>): string => {
+const html = (props: ComponentProps<typeof NotificationFeed>): string => {
   const target = document.createElement('div')
   document.body.appendChild(target)
   const mounted = mount(NotificationFeed, { target, props })

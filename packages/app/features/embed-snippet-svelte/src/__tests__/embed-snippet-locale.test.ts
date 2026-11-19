@@ -10,7 +10,7 @@
  */
 
 import '@molecule/app-framework-conformance/ui/setup'
-import { flushSync, mount, unmount } from 'svelte'
+import { type ComponentProps, flushSync, mount, unmount } from 'svelte'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { getProvider } from '@molecule/app-i18n'
@@ -29,7 +29,7 @@ const mounted: ReturnType<typeof mount>[] = []
  * @param props - The component's props.
  * @returns The host element the component rendered into.
  */
-function renderSnippet(props: Record<string, unknown> = {}): HTMLElement {
+function renderSnippet(props: ComponentProps<typeof EmbedSnippet>): HTMLElement {
   const host = document.createElement('div')
   document.body.appendChild(host)
   mounted.push(mount(EmbedSnippet, { target: host, props }))

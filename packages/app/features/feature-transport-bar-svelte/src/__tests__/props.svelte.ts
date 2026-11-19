@@ -5,18 +5,24 @@
  * @module
  */
 
+import type { TransportBarProps } from '../types.js'
+
 /** One mount's props, held in Svelte state so writes reach the component. */
 export class PropBag {
   /** The props the component reads. */
-  props = $state<Record<string, unknown>>({})
+  props = $state<TransportBarProps>({
+    isPlaying: false,
+    onPlayToggle: () => {},
+    onStop: () => {},
+  })
 
   /**
    * Creates a bag with the first render's props.
    *
-   * @param initial - The initial props.
+   * @param initial - The initial props, merged over the bar's defaults.
    */
-  constructor(initial: Record<string, unknown>) {
-    this.props = { ...initial }
+  constructor(initial: Partial<TransportBarProps> = {}) {
+    this.props = { ...this.props, ...initial }
   }
 
   /**
@@ -24,7 +30,7 @@ export class PropBag {
    *
    * @param next - The props to write.
    */
-  set(next: Record<string, unknown>): void {
+  set(next: Partial<TransportBarProps>): void {
     this.props = { ...this.props, ...next }
   }
 }

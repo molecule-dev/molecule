@@ -33,7 +33,7 @@ vi.mock('@molecule/app-svelte', () => ({
 const { default: ChapterList } = await import('../ChapterList.svelte')
 const { findActiveChapterIndex, formatTimestamp } = await import('../timestamps.js')
 
-import type { Chapter } from '../types.js'
+import type { Chapter, ChapterListProps } from '../types.js'
 
 /**
  * Permissive ClassMap stub — `cn(...)` joins truthy strings; every other
@@ -67,7 +67,7 @@ const mounted: ReturnType<typeof mount>[] = []
  * @param props - The component props.
  * @returns The container the root was rendered into.
  */
-function render(props: Record<string, unknown>): HTMLElement {
+function render(props: ChapterListProps): HTMLElement {
   const target = document.createElement('div')
   document.body.appendChild(target)
   mounted.push(mount(ChapterList, { target, props }))

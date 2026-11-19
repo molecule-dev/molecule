@@ -37,9 +37,7 @@ vi.mock('@molecule/app-ui', () => ({
 
 import { flushSync, mount, unmount } from 'svelte'
 
-import Host from '@molecule/app-framework-conformance/adapters/svelte-bindings/Host.svelte'
-import { createSimpleI18nProvider } from '@molecule/app-i18n'
-import { setMoleculeContext } from '@molecule/app-svelte'
+import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 
 import ClassSchedule from '../ClassSchedule.svelte'
 import { assignLanes, formatHourLabel } from '../helpers.js'
@@ -64,14 +62,12 @@ function render(
   props: Partial<ClassScheduleProps>,
   i18n: ReturnType<typeof createSimpleI18nProvider> = createSimpleI18nProvider('en'),
 ): HTMLElement {
-  const instance = mount(Host, {
+  // The component reads i18n through the bonded provider (React's app-level
+  // provider), so the helper bonds the test's provider for the mount.
+  setProvider(i18n)
+  const instance = mount(ClassSchedule, {
     target: document.body,
-    props: {
-      config: { i18n },
-      setMoleculeContext,
-      component: ClassSchedule,
-      props: { events: [], ...props },
-    },
+    props: { events: [], ...props },
   })
   flushSync()
   mounted.push(instance)

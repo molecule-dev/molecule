@@ -43,11 +43,10 @@ import ListingGrid from '../ListingGrid.svelte'
 /** A snippet rendering the given markup, the way a caller fills a slot. */
 const raw = (html: string): Snippet => createRawSnippet(() => ({ render: () => html }))
 
-const instances: unknown[] = []
+const instances: Array<ReturnType<typeof mount>> = []
 
 afterEach(async () => {
-  for (const instance of instances.splice(0))
-    await unmount(instance as Parameters<typeof unmount>[0])
+  for (const instance of instances.splice(0)) await unmount(instance)
   document.body.innerHTML = ''
 })
 
@@ -58,10 +57,13 @@ afterEach(async () => {
  * @param props - The props to pass.
  * @returns The rendered markup.
  */
-function render(component: Component<Record<string, unknown>>, props: Record<string, unknown>) {
+function render<Props extends Record<string, unknown>>(
+  component: Component<Props>,
+  props: Props,
+): string {
   const target = document.createElement('div')
   document.body.appendChild(target)
-  const instance = mount(component, { target, props: props as never })
+  const instance = mount(component, { target, props })
   instances.push(instance)
   flushSync()
   return target.innerHTML
@@ -74,7 +76,7 @@ describe('ListingCardActions', () => {
   })
 
   it('renders with the stacked layout without error', () => {
-    const markup = render(ListingCardActions, { children: raw('x'), layout: 'stacked' })
+    const markup = render(ListingCardActions, { children: raw('x'), layout: 'stacked' } as const)
     expect(markup).toContain('x')
   })
 
@@ -149,7 +151,7 @@ describe('ListingCardMedia', () => {
   })
 
   it('honours a custom aspect ratio', () => {
-    const markup = render(ListingCardMedia, { src: 'pic.png', aspect: '16/9' })
+    const markup = render(ListingCardMedia, { src: 'pic.png', aspect: '16/9' } as const)
     expect(markup).toContain('aspect-ratio: 16 / 9')
   })
 

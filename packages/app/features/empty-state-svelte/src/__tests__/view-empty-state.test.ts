@@ -11,10 +11,8 @@ import '@molecule/app-framework-conformance/ui/setup'
 import { createRawSnippet, flushSync, mount, type Snippet, unmount } from 'svelte'
 import { afterEach, describe, expect, it } from 'vitest'
 
-import Host from '@molecule/app-framework-conformance/adapters/svelte-bindings/Host.svelte'
-import { setMoleculeContext } from '@molecule/app-svelte'
-
 import EmptyState from '../EmptyState.svelte'
+import type { EmptyStateComponentProps } from '../props.js'
 
 /** A snippet rendering the given markup, the way a caller fills a slot. */
 const raw = (html: string): Snippet => createRawSnippet(() => ({ render: () => html }))
@@ -25,11 +23,8 @@ const raw = (html: string): Snippet => createRawSnippet(() => ({ render: () => h
  * @param props - The props to pass.
  * @returns The markup the component produced.
  */
-const render = (props: Record<string, unknown>): string => {
-  const instance = mount(Host, {
-    target: document.body,
-    props: { config: {}, setMoleculeContext, component: EmptyState, props },
-  })
+const render = (props: EmptyStateComponentProps): string => {
+  const instance = mount(EmptyState, { target: document.body, props })
   flushSync()
   const markup = document.body.innerHTML
   unmount(instance)

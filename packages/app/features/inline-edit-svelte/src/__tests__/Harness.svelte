@@ -5,10 +5,10 @@
 <script lang="ts">
   import type { Component } from 'svelte'
 
+  import type { InlineEditProps } from '../types.js'
   import type { PropBag } from './props.svelte.js'
 
-  let { component: Target, bag }: { component: Component<Record<string, unknown>>; bag: PropBag } =
-    $props()
+  let { component: Target, bag }: { component: Component<InlineEditProps>; bag: PropBag } = $props()
 </script>
 
 <Target {...bag.props} />

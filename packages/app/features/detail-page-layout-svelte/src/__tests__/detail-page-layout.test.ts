@@ -9,10 +9,8 @@ import '@molecule/app-framework-conformance/ui/setup'
 import { createRawSnippet, flushSync, mount, type Snippet, unmount } from 'svelte'
 import { afterEach, describe, expect, it } from 'vitest'
 
-import Host from '@molecule/app-framework-conformance/adapters/svelte-bindings/Host.svelte'
-import { setMoleculeContext } from '@molecule/app-svelte'
-
 import DetailPageLayout from '../DetailPageLayout.svelte'
+import type { DetailPageLayoutProps } from '../types.js'
 
 /** A snippet rendering the given markup, the way a caller fills a slot. */
 const raw = (html: string): Snippet => createRawSnippet(() => ({ render: () => html }))
@@ -30,10 +28,10 @@ interface Mounted {
  * @returns The mounted instance and the layout's root element.
  */
 async function render(
-  props: Record<string, unknown> = {},
+  props: Partial<DetailPageLayoutProps> = {},
   slots: { main?: string; breadcrumb?: string; topBar?: string; sidebar?: string } = {},
 ): Promise<Mounted> {
-  const targetProps: Record<string, unknown> = {
+  const targetProps: DetailPageLayoutProps = {
     ...props,
     main: raw(slots.main ?? '<div data-main>Body</div>'),
   }
@@ -42,17 +40,9 @@ async function render(
   if (slots.sidebar !== undefined) targetProps.sidebar = raw(slots.sidebar)
   const host = document.createElement('div')
   document.body.appendChild(host)
-  const instance = mount(Host, {
-    target: host,
-    props: {
-      config: {},
-      setMoleculeContext,
-      component: DetailPageLayout,
-      props: targetProps,
-    },
-  })
+  const instance = mount(DetailPageLayout, { target: host, props: targetProps })
   flushSync()
-  const root = host.querySelector('div:not([data-parity-unwrap])')
+  const root = host.querySelector<HTMLElement>('div')
   if (!root) throw new Error('no DetailPageLayout root rendered')
   return { instance, root }
 }

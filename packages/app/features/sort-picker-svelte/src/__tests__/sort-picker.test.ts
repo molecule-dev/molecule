@@ -8,19 +8,19 @@ import '@molecule/app-framework-conformance/ui/setup'
 import { createRawSnippet, flushSync, mount, type Snippet } from 'svelte'
 import { afterEach, describe, expect, it } from 'vitest'
 
-import Host from '@molecule/app-framework-conformance/adapters/svelte-bindings/Host.svelte'
-import { createSimpleI18nProvider } from '@molecule/app-i18n'
-import { setMoleculeContext } from '@molecule/app-svelte'
+import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 
 import SortPicker from '../SortPicker.svelte'
+import type { SortPickerProps } from '../types.js'
 
 /** A snippet rendering the given markup, the way a caller fills a slot. */
 const raw = (html: string): Snippet => createRawSnippet(() => ({ render: () => html }))
 
-/** The i18n provider a wired app mounts above the picker. */
+/** The i18n provider a wired app supplies to the picker. */
 const i18n = createSimpleI18nProvider('en', [
   { code: 'en', name: 'English', direction: 'ltr', translations: {} },
 ])
+setProvider(i18n)
 
 const options = [
   { value: 'recent', label: 'Most recent' },
@@ -31,20 +31,15 @@ const options = [
 const root = (): HTMLElement => document.body.firstElementChild as HTMLElement
 
 /**
- * Mounts `SortPicker` in a wired molecule context.
+ * Mounts `SortPicker` with the props a caller supplies.
  *
  * @param props - The picker props.
  * @returns The rendered root element.
  */
-function render(props: Record<string, unknown> = {}): HTMLElement {
-  mount(Host, {
+function render(props: Partial<SortPickerProps> = {}): HTMLElement {
+  mount(SortPicker, {
     target: document.body,
-    props: {
-      config: { i18n },
-      setMoleculeContext,
-      component: SortPicker,
-      props: { value: 'recent', options, onChange: () => {}, ...props },
-    },
+    props: { value: 'recent', options, onChange: () => {}, ...props },
   })
   flushSync()
   return root()

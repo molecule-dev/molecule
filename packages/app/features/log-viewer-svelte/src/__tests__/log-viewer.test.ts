@@ -38,7 +38,7 @@ vi.mock('@molecule/app-ui', () => ({
 }))
 
 import LogViewer from '../LogViewer.svelte'
-import type { LogEntry } from '../types.js'
+import type { LogEntry, LogViewerProps } from '../types.js'
 
 const mounted: Array<ReturnType<typeof mount>> = []
 
@@ -51,7 +51,7 @@ afterEach(() => {
 const raw = (html: string): Snippet => createRawSnippet(() => ({ render: () => html }))
 
 /** Mounts a {@link LogViewer} and returns the markup it produced. */
-const render = (props: Record<string, unknown>): string => {
+const render = (props: LogViewerProps): string => {
   const target = document.createElement('div')
   document.body.appendChild(target)
   mounted.push(mount(LogViewer, { target, props }))

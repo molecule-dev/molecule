@@ -10,7 +10,7 @@
  * @module
  */
 
-import { mount, unmount } from 'svelte'
+import { type ComponentProps, mount, unmount } from 'svelte'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 // A ClassMap proxy echoing each accessed member back as its token — the same
@@ -63,7 +63,7 @@ afterEach(() => {
  * @param props - The card's props.
  * @returns The markup.
  */
-const render = (props: Record<string, unknown>): string => {
+const render = (props: ComponentProps<typeof HabitStreakCard>): string => {
   const target = document.createElement('div')
   document.body.appendChild(target)
   const instance = mount(HabitStreakCard, { target, props })

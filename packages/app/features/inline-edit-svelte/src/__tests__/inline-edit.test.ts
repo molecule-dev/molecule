@@ -13,6 +13,7 @@ import { createRawSnippet, flushSync, mount, type Snippet, unmount } from 'svelt
 import { afterEach, describe, expect, it } from 'vitest'
 
 import InlineEdit from '../InlineEdit.svelte'
+import type { InlineEditProps } from '../types.js'
 
 const mounted: Array<ReturnType<typeof mount>> = []
 
@@ -22,7 +23,7 @@ afterEach(async () => {
 })
 
 /** Mounts an {@link InlineEdit} and returns the markup it produced. */
-const render = (props: Record<string, unknown>): string => {
+const render = (props: Omit<InlineEditProps, 'onSubmit'>): string => {
   const host = document.createElement('div')
   document.body.appendChild(host)
   const instance = mount(InlineEdit, {

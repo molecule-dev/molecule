@@ -7,13 +7,13 @@
 <script lang="ts">
   import { untrack } from 'svelte'
 
-  import type { AuthClient } from '@molecule/app-auth'
+  import type { AuthClient, UserProfile } from '@molecule/app-auth'
   import type { HttpClient } from '@molecule/app-http'
   import { setMoleculeContext } from '@molecule/app-svelte'
 
   import AccountSection from '../AccountSection.svelte'
 
-  let { client, http }: { client: AuthClient<never>; http: HttpClient } = $props()
+  let { client, http }: { client: AuthClient<UserProfile>; http: HttpClient } = $props()
 
   // The services are fixed for the life of the mount, like the conformance
   // host's composition root.

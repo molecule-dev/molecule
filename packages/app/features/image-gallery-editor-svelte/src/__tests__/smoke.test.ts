@@ -47,7 +47,7 @@ vi.mock('@molecule/app-svelte', () => ({
   }),
 }))
 
-import { flushSync, mount, unmount } from 'svelte'
+import { type ComponentProps, flushSync, mount, unmount } from 'svelte'
 
 const { ImageGalleryEditor } = await import('../components.js')
 
@@ -56,7 +56,7 @@ afterEach(() => {
 })
 
 /** Renders the editor with the given props and returns the markup it produced. */
-const html = (props: Record<string, unknown>): string => {
+const html = (props: ComponentProps<typeof ImageGalleryEditor>): string => {
   const target = document.createElement('div')
   document.body.appendChild(target)
   const component = mount(ImageGalleryEditor, { target, props })

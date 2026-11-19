@@ -9,12 +9,13 @@ import { createRawSnippet, flushSync, mount, type Snippet, unmount } from 'svelt
 import { describe, expect, it } from 'vitest'
 
 import DetailHeader from '../DetailHeader.svelte'
+import type { DetailHeaderProps } from '../types.js'
 
 /** A snippet rendering the given markup, the way a caller fills a slot. */
 const raw = (html: string): Snippet => createRawSnippet(() => ({ render: () => html }))
 
 /** Renders a `DetailHeader` with the given props, returning the host markup. */
-const render = (props: Record<string, unknown>): string => {
+const render = (props: DetailHeaderProps): string => {
   const target = document.createElement('div')
   document.body.appendChild(target)
   const instance = mount(DetailHeader, { target, props })

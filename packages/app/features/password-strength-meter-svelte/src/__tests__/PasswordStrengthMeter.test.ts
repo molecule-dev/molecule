@@ -9,11 +9,9 @@ import '@molecule/app-framework-conformance/ui/setup'
 import { flushSync, mount, unmount } from 'svelte'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import Host from '@molecule/app-framework-conformance/adapters/svelte-bindings/Host.svelte'
-import { setMoleculeContext } from '@molecule/app-svelte'
-
 import PasswordStrengthMeter from '../PasswordStrengthMeter.svelte'
 import { scorePassword } from '../scorer.js'
+import type { PasswordStrengthMeterProps } from '../types.js'
 
 /** The instances mounted during one test, unmounted in `afterEach`. */
 const mounted: ReturnType<typeof mount>[] = []
@@ -24,17 +22,12 @@ const mounted: ReturnType<typeof mount>[] = []
  * @param props - The meter's props.
  * @returns The host element whose children the meter rendered.
  */
-function render(props: Record<string, unknown>): HTMLElement {
+function render(props: PasswordStrengthMeterProps): HTMLElement {
   // A fresh host per mount, so the returned element is THIS mount's even when
   // an earlier mount is still on the page within the same test.
   const host = document.createElement('div')
   document.body.appendChild(host)
-  mounted.push(
-    mount(Host, {
-      target: host,
-      props: { config: {}, setMoleculeContext, component: PasswordStrengthMeter, props },
-    }),
-  )
+  mounted.push(mount(PasswordStrengthMeter, { target: host, props }))
   flushSync()
   return host
 }

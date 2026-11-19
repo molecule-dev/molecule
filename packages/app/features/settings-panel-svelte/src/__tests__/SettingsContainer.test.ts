@@ -17,7 +17,7 @@
  */
 
 import '@molecule/app-framework-conformance/ui/setup'
-import { flushSync, mount, unmount } from 'svelte'
+import { type ComponentProps, flushSync, mount, unmount } from 'svelte'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { captured, resetCaptured } from './context-capture.js'
@@ -33,7 +33,7 @@ const mounted: Array<ReturnType<typeof mount>> = []
  * @param props - The props the host mounts with.
  * @returns The bag a test assigns to, to set a prop (React's `rerender`).
  */
-function mountHost(props: Record<string, unknown>): Record<string, unknown> {
+function mountHost(props: ComponentProps<typeof Host>): Record<string, unknown> {
   const target = document.createElement('div')
   document.body.appendChild(target)
   const bag = createPropBag(props)
@@ -54,7 +54,7 @@ beforeEach(() => {
 })
 
 afterEach(async () => {
-  for (const instance of mounted.splice(0)) await unmount(instance as never)
+  for (const instance of mounted.splice(0)) await unmount(instance)
   document.body.innerHTML = ''
   vi.restoreAllMocks()
 })

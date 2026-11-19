@@ -11,14 +11,14 @@
  */
 
 import '@molecule/app-framework-conformance/ui/setup'
-import { flushSync, mount, unmount } from 'svelte'
+import { type ComponentProps, flushSync, mount, unmount } from 'svelte'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import Host from '@molecule/app-framework-conformance/adapters/svelte-bindings/Host.svelte'
 import { createSimpleI18nProvider } from '@molecule/app-i18n'
 import { setMoleculeContext } from '@molecule/app-svelte'
 
 import EmbedSnippet from '../EmbedSnippet.svelte'
+import Host from './fixtures/ContextHost.svelte'
 
 vi.mock('@molecule/app-clipboard', () => ({ copyTextWithFallback: vi.fn(async () => true) }))
 
@@ -56,11 +56,11 @@ const mounted: ReturnType<typeof mount>[] = []
  * @param props - The component's props.
  * @returns The host element the component rendered into.
  */
-function renderSnippet(props: Record<string, unknown> = {}): HTMLElement {
+function renderSnippet(props: ComponentProps<typeof EmbedSnippet>): HTMLElement {
   const host = document.createElement('div')
   document.body.appendChild(host)
   mounted.push(
-    mount(Host, {
+    mount(Host<ComponentProps<typeof EmbedSnippet>>, {
       target: host,
       props: {
         config: { i18n },

@@ -61,9 +61,9 @@ afterEach(async () => {
 })
 
 /** Mounts a component into a fresh container and returns the container. */
-const render = (
-  component: Component<Record<string, unknown>>,
-  props: Record<string, unknown> = {},
+const render = <Props extends Record<string, unknown>>(
+  component: Component<Props>,
+  props: Props,
 ): HTMLElement => {
   const container = document.createElement('div')
   document.body.appendChild(container)
@@ -166,7 +166,7 @@ describe('<OAuthButtons />', () => {
   it('switches to grid layout with 2 columns when >4 providers', () => {
     const container = render(OAuthButtons, {
       providers: ['google', 'github', 'gitlab', 'twitter', 'apple'],
-      layout: 'grid',
+      layout: 'grid' as const,
     })
     const group = container.querySelector<HTMLElement>('[data-mol-id="oauth-buttons"]')
     expect(group?.style.display).toBe('grid')
@@ -176,7 +176,7 @@ describe('<OAuthButtons />', () => {
   it('switches to column flex direction in vertical layout', () => {
     const container = render(OAuthButtons, {
       providers: ['google', 'github'],
-      layout: 'vertical',
+      layout: 'vertical' as const,
     })
     const group = container.querySelector<HTMLElement>('[data-mol-id="oauth-buttons"]')
     expect(group?.style.flexDirection).toBe('column')
@@ -195,7 +195,7 @@ describe('<OAuthButtons />', () => {
   it('omits brand colors by default — independent of iconMode', () => {
     // iconMode controls the logo, not the button surface: brand-mode
     // logos still get a ClassMap-neutral button unless brandButtons is set.
-    const container = render(OAuthButtons, { providers: ['github'], iconMode: 'brand' })
+    const container = render(OAuthButtons, { providers: ['github'], iconMode: 'brand' as const })
     const button = container.querySelector<HTMLElement>('button[data-provider="github"]')
     expect(button?.style.background).toBe('')
   })
@@ -234,7 +234,7 @@ describe('<OAuthButtons />', () => {
 
 describe('<OAuthDivider />', () => {
   it('renders the default "or continue with" label', () => {
-    const container = render(OAuthDivider)
+    const container = render(OAuthDivider, {})
     expect(container.textContent).toContain('or continue with')
   })
 

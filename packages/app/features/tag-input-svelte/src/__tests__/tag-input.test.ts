@@ -7,7 +7,7 @@
  * @module
  */
 
-import { flushSync, mount, type Snippet, unmount } from 'svelte'
+import { type Component, flushSync, mount, type Snippet, unmount } from 'svelte'
 import { createRawSnippet } from 'svelte'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
@@ -61,10 +61,7 @@ afterEach(async () => {
  * @param props - Its props.
  * @returns The host's innerHTML.
  */
-const renderMarkup = (
-  component: Parameters<typeof mount>[0],
-  props: Record<string, unknown>,
-): string => {
+const renderMarkup = <Props extends object>(component: Component<Props>, props: Props): string => {
   const host = document.createElement('div')
   document.body.appendChild(host)
   mounted.push(mount(component, { target: host, props }))

@@ -53,7 +53,7 @@ afterEach(() => {
  * @param props - The props to pass.
  * @returns The component's markup.
  */
-const html = (component: Component<Record<string, unknown>>, props = {}): string => {
+const html = <Props extends object>(component: Component<Props>, props: Props): string => {
   const instance = mount(component, { target: document.body, props })
   flushSync()
   const markup = document.body.innerHTML

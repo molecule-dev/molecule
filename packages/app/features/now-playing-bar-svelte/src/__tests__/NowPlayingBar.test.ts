@@ -14,7 +14,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { formatTime } from '../format.js'
 import NowPlayingBar from '../NowPlayingBar.svelte'
-import type { NowPlayingTrack } from '../types.js'
+import type { NowPlayingBarProps, NowPlayingTrack } from '../types.js'
 
 /** A snippet rendering the given markup, the way a caller fills a slot. */
 const raw = (html: string): Snippet => createRawSnippet(() => ({ render: () => html }))
@@ -28,7 +28,7 @@ const mounted: Array<ReturnType<typeof mount>> = []
  * @param props - The component props.
  * @returns The host element.
  */
-function render(props: Record<string, unknown>): HTMLElement {
+function render(props: NowPlayingBarProps): HTMLElement {
   const target = document.createElement('div')
   document.body.appendChild(target)
   mounted.push(mount(NowPlayingBar, { target, props }))

@@ -6,7 +6,7 @@
  * and assert the click handler runs — proving the clickable row behaves like a
  * native button.
  */
-import { flushSync, mount, unmount } from 'svelte'
+import { type ComponentProps, flushSync, mount, unmount } from 'svelte'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('@molecule/app-ui', () => ({
@@ -48,12 +48,14 @@ afterEach(() => {
  *
  * @param props - The row props.
  */
-const render = (props: Record<string, unknown>): { row: HTMLElement; unmount: () => void } => {
+const render = (
+  props: ComponentProps<typeof AuditLogRow>,
+): { row: HTMLElement; unmount: () => void } => {
   const host = document.createElement('div')
   document.body.appendChild(host)
   const instance = mount(AuditLogRow, { target: host, props })
   flushSync()
-  const row = host.querySelector('[data-mol-id="audit-log-row"]')
+  const row = host.querySelector<HTMLElement>('[data-mol-id="audit-log-row"]')
   if (!row) throw new Error('the audit log row did not render')
   return { row, unmount: () => unmount(instance) }
 }

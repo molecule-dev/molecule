@@ -8,7 +8,14 @@
  * @module
  */
 
-import { createRawSnippet, flushSync, mount, type Snippet, unmount } from 'svelte'
+import {
+  type ComponentProps,
+  createRawSnippet,
+  flushSync,
+  mount,
+  type Snippet,
+  unmount,
+} from 'svelte'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
@@ -58,7 +65,7 @@ afterEach(async () => {
 })
 
 /** Renders a {@link ContactDisplay} and returns its target element. */
-const mountInto = (props: Record<string, unknown>): HTMLElement => {
+const mountInto = (props: ComponentProps<typeof ContactDisplay>): HTMLElement => {
   const target = document.createElement('div')
   document.body.appendChild(target)
   instances.push(mount(ContactDisplay, { target, props }))
@@ -67,7 +74,7 @@ const mountInto = (props: Record<string, unknown>): HTMLElement => {
 }
 
 /** Renders a {@link ContactDisplay} and returns the markup it produced. */
-const html = (props: Record<string, unknown>): string => mountInto(props).innerHTML
+const html = (props: ComponentProps<typeof ContactDisplay>): string => mountInto(props).innerHTML
 
 /** The row's transparent open button. */
 const openButton = (target: HTMLElement): HTMLButtonElement =>

@@ -8,7 +8,7 @@
  * @module
  */
 
-import { createRawSnippet, flushSync, mount, type Snippet, unmount } from 'svelte'
+import { type Component, createRawSnippet, flushSync, mount, type Snippet, unmount } from 'svelte'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 // A ClassMap proxy echoing each accessed member back as its token, with the
@@ -48,9 +48,9 @@ const { default: PageHeader } = await import('../PageHeader.svelte')
 const raw = (html: string): Snippet => createRawSnippet(() => ({ render: () => html }))
 
 /** Mounts one component into jsdom and returns its markup and teardown. */
-const render = (
-  component: typeof PageHeader | typeof HeroSection,
-  props: Record<string, unknown>,
+const render = <Props extends object>(
+  component: Component<Props>,
+  props: NoInfer<Props>,
 ): { markup: string; done: () => Promise<void> } => {
   const target = document.createElement('div')
   document.body.appendChild(target)

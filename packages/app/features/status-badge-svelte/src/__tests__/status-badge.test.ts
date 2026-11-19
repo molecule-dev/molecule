@@ -42,7 +42,7 @@ vi.mock('@molecule/app-ui-svelte', async () => {
   return { Badge }
 })
 
-import { createRawSnippet, flushSync, mount, type Snippet, unmount } from 'svelte'
+import { type Component, createRawSnippet, flushSync, mount, type Snippet, unmount } from 'svelte'
 
 const { StatusBadge, StatusPill } = await import('../components.js')
 
@@ -60,7 +60,10 @@ const raw = (html: string): Snippet => createRawSnippet(() => ({ render: () => h
  * @param props - Its props.
  * @returns The rendered markup.
  */
-const render = (component: Parameters<typeof mount>[0], props: Record<string, unknown>): string => {
+const render = <Props extends object>(
+  component: Component<Props>,
+  props: NoInfer<Props>,
+): string => {
   const target = document.createElement('div')
   document.body.appendChild(target)
   const instance = mount(component, { target, props })

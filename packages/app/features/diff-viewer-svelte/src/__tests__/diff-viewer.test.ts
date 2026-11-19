@@ -35,6 +35,7 @@ vi.mock('@molecule/app-ui', () => ({
 }))
 
 import DiffViewer from '../DiffViewer.svelte'
+import type { DiffViewerProps } from '../types.js'
 
 /** The instances mounted during one test, unmounted in `afterEach`. */
 const mounted: ReturnType<typeof mount>[] = []
@@ -45,7 +46,7 @@ afterEach(async () => {
 })
 
 /** Mounts a {@link DiffViewer} and returns the markup it produced. */
-const render = (props: Record<string, unknown>): string => {
+const render = (props: DiffViewerProps): string => {
   const target = document.createElement('div')
   document.body.appendChild(target)
   mounted.push(mount(DiffViewer, { target, props }))

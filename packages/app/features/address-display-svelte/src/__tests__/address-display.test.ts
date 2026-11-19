@@ -35,6 +35,7 @@ vi.mock('@molecule/app-ui', () => ({
 }))
 
 import AddressDisplay from '../AddressDisplay.svelte'
+import type { AddressDisplayProps } from '../types.js'
 
 /** A snippet rendering the given markup, the way a caller fills a slot. */
 const raw = (html: string): Snippet => createRawSnippet(() => ({ render: () => html }))
@@ -56,7 +57,7 @@ afterEach(async () => {
 })
 
 /** Renders an {@link AddressDisplay} and returns the markup it produced. */
-const render = (props: Record<string, unknown>): string => {
+const render = (props: AddressDisplayProps): string => {
   const target = document.createElement('div')
   document.body.appendChild(target)
   instances.push(mount(AddressDisplay, { target, props }))

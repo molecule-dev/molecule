@@ -13,11 +13,10 @@ import { flushSync, mount, unmount } from 'svelte'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { copyTextWithFallback } from '@molecule/app-clipboard'
-import Host from '@molecule/app-framework-conformance/adapters/svelte-bindings/Host.svelte'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
-import { setMoleculeContext } from '@molecule/app-svelte'
 
 import SocialShareButtons from '../SocialShareButtons.svelte'
+import type { SocialShareButtonsProps } from '../types.js'
 
 vi.mock('@molecule/app-clipboard', () => ({
   copyTextWithFallback: vi.fn(async () => true),
@@ -39,15 +38,10 @@ const mounted: ReturnType<typeof mount>[] = []
  * @param props - The row's props.
  * @returns The outer wrapper div (React's root).
  */
-function render(props: Record<string, unknown> = {}): HTMLElement {
+function render(props: SocialShareButtonsProps): HTMLElement {
   const host = document.createElement('div')
   document.body.appendChild(host)
-  mounted.push(
-    mount(Host, {
-      target: host,
-      props: { config: {}, setMoleculeContext, component: SocialShareButtons, props },
-    }),
-  )
+  mounted.push(mount(SocialShareButtons, { target: host, props }))
   flushSync()
   const root = host.firstElementChild
   if (!(root instanceof HTMLElement)) throw new Error('no row rendered')

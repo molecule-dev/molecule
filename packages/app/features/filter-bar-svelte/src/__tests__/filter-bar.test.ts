@@ -58,7 +58,7 @@ vi.mock('@molecule/app-svelte', () => ({
 
 const { default: FilterBar } = await import('../FilterBar.svelte')
 
-import type { FilterField, FilterValues } from '../types.js'
+import type { FilterBarProps, FilterField, FilterValues } from '../types.js'
 
 /** A snippet rendering the given markup, the way a caller fills a slot. */
 const raw = (html: string): Snippet => createRawSnippet(() => ({ render: () => html }))
@@ -76,7 +76,7 @@ afterEach(async () => {
  * @param props - The component props.
  * @returns The mounted host element.
  */
-const render = (props: Record<string, unknown>): HTMLElement => {
+const render = (props: FilterBarProps): HTMLElement => {
   const target = document.createElement('div')
   document.body.appendChild(target)
   instances.push(mount(FilterBar, { target, props }))
@@ -90,7 +90,7 @@ const render = (props: Record<string, unknown>): HTMLElement => {
  * @param props - The component props.
  * @returns The markup the component produced.
  */
-const html = (props: Record<string, unknown>): string => render(props).innerHTML
+const html = (props: FilterBarProps): string => render(props).innerHTML
 
 describe('FilterBar', () => {
   beforeEach(() => tSpy.mockClear())

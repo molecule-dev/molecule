@@ -8,7 +8,14 @@
  * @module
  */
 import '@molecule/app-framework-conformance/ui/setup'
-import { createRawSnippet, flushSync, mount, type Snippet, unmount } from 'svelte'
+import {
+  type ComponentProps,
+  createRawSnippet,
+  flushSync,
+  mount,
+  type Snippet,
+  unmount,
+} from 'svelte'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import FlowCanvas from '../FlowCanvas.svelte'
@@ -35,7 +42,7 @@ beforeEach(() => {
 const raw = (html: string): Snippet => createRawSnippet(() => ({ render: () => html }))
 
 /** Renders a `FlowCanvas` and returns the element it mounted into. */
-const render = (props: Record<string, unknown>): HTMLElement => {
+const render = (props: ComponentProps<typeof FlowCanvas>): HTMLElement => {
   const target = document.createElement('div')
   document.body.appendChild(target)
   mounted.push(mount(FlowCanvas, { target, props }))

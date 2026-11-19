@@ -6,7 +6,14 @@
  * bonded i18n provider.
  */
 import '@molecule/app-framework-conformance/ui/setup'
-import { createRawSnippet, flushSync, mount, type Snippet, unmount } from 'svelte'
+import {
+  type ComponentProps,
+  createRawSnippet,
+  flushSync,
+  mount,
+  type Snippet,
+  unmount,
+} from 'svelte'
 import { afterEach, describe, expect, it } from 'vitest'
 
 import AnnouncementBar from '../AnnouncementBar.svelte'
@@ -18,7 +25,7 @@ const raw = (html: string): Snippet => createRawSnippet(() => ({ render: () => h
 const mounted: ReturnType<typeof mount>[] = []
 
 /** Renders an `AnnouncementBar` with the given props, returning the host markup. */
-const render = (props: Record<string, unknown>): string => {
+const render = (props: ComponentProps<typeof AnnouncementBar>): string => {
   const target = document.createElement('div')
   document.body.appendChild(target)
   mounted.push(mount(AnnouncementBar, { target, props }))

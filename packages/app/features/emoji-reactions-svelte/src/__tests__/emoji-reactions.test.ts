@@ -9,7 +9,14 @@
  */
 
 import '@molecule/app-framework-conformance/ui/setup'
-import { createRawSnippet, flushSync, mount, type Snippet, unmount } from 'svelte'
+import {
+  type ComponentProps,
+  createRawSnippet,
+  flushSync,
+  mount,
+  type Snippet,
+  unmount,
+} from 'svelte'
 import { afterEach, describe, expect, it } from 'vitest'
 
 import EmojiReactions from '../EmojiReactions.svelte'
@@ -18,7 +25,7 @@ import EmojiReactions from '../EmojiReactions.svelte'
 const mounted: ReturnType<typeof mount>[] = []
 
 /** Renders an {@link EmojiReactions} with the given props, returning the markup. */
-const render = (props: Record<string, unknown>): string => {
+const render = (props: ComponentProps<typeof EmojiReactions>): string => {
   const target = document.createElement('div')
   document.body.appendChild(target)
   mounted.push(mount(EmojiReactions, { target, props }))

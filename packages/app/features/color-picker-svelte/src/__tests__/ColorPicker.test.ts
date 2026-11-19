@@ -7,7 +7,7 @@
  * @module
  */
 
-import { flushSync, mount, unmount } from 'svelte'
+import { type Component, flushSync, mount, unmount } from 'svelte'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 // The same ClassMap mock the React tests use: enough of the map for the
@@ -39,9 +39,9 @@ afterEach(async () => {
  * @param props - Its props.
  * @returns The container element the component mounted into.
  */
-function render(
-  component: typeof ColorPicker | typeof ControlledHost,
-  props: Record<string, unknown> = {},
+function render<Props extends Record<string, unknown>>(
+  component: Component<Props>,
+  props: Props,
 ): HTMLElement {
   const host = document.createElement('div')
   document.body.appendChild(host)
@@ -178,7 +178,7 @@ describe('<ColorPicker>', () => {
   })
 
   it('reflects parent-driven value updates in controlled mode', () => {
-    const container = render(ControlledHost)
+    const container = render(ControlledHost, {})
     const button = container.querySelector('button') as HTMLButtonElement
     button.click()
     flushSync()

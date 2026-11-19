@@ -11,10 +11,8 @@ import '@molecule/app-framework-conformance/ui/setup'
 import { createRawSnippet, flushSync, mount, type Snippet, unmount } from 'svelte'
 import { afterEach, describe, expect, it } from 'vitest'
 
-import Host from '@molecule/app-framework-conformance/adapters/svelte-bindings/Host.svelte'
-import { setMoleculeContext } from '@molecule/app-svelte'
-
 import ComparisonRow from '../ComparisonRow.svelte'
+import type { ComparisonRowProps } from '../types.js'
 
 /** A snippet rendering the given markup, the way a caller fills a slot. */
 const raw = (html: string): Snippet => createRawSnippet(() => ({ render: () => html }))
@@ -27,7 +25,7 @@ const raw = (html: string): Snippet => createRawSnippet(() => ({ render: () => h
  * @returns The markup of the mounted row.
  */
 function render(
-  props: Record<string, unknown> = {},
+  props: ComparisonRowProps,
   propsMap: {
     labelSnippet?: string
     currentSnippet?: string
@@ -35,7 +33,7 @@ function render(
     periodLabelSnippet?: string
   } = {},
 ): string {
-  const targetProps: Record<string, unknown> = { ...props }
+  const targetProps: ComparisonRowProps = { ...props }
   if (propsMap.labelSnippet !== undefined) targetProps.label = raw(propsMap.labelSnippet)
   if (propsMap.currentSnippet !== undefined) targetProps.current = raw(propsMap.currentSnippet)
   if (propsMap.previousSnippet !== undefined) targetProps.previous = raw(propsMap.previousSnippet)
@@ -43,15 +41,7 @@ function render(
     targetProps.periodLabel = raw(propsMap.periodLabelSnippet)
   const host = document.createElement('div')
   document.body.appendChild(host)
-  const instance = mount(Host, {
-    target: host,
-    props: {
-      config: {},
-      setMoleculeContext,
-      component: ComparisonRow,
-      props: targetProps,
-    },
-  })
+  const instance = mount(ComparisonRow, { target: host, props: targetProps })
   flushSync()
   const markup = host.innerHTML
   unmount(instance)
@@ -100,7 +90,7 @@ describe('ComparisonRow', () => {
 
   it('uses a custom formatDelta when supplied', () => {
     // The formatter is a snippet taking the delta as its parameter.
-    const formatDelta = createRawSnippet((delta) => {
+    const formatDelta = createRawSnippet((delta: () => number) => {
       const value = typeof delta === 'function' ? delta() : delta
       return { render: () => `<span data-fmt="">delta ${String(value)}</span>` }
     })

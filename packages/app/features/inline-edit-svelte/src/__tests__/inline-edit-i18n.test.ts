@@ -25,6 +25,7 @@ vi.mock('@molecule/app-svelte', () => ({
 }))
 
 import InlineEdit from '../InlineEdit.svelte'
+import type { InlineEditProps } from '../types.js'
 
 const mounted: Array<ReturnType<typeof mount>> = []
 
@@ -40,7 +41,7 @@ afterEach(async () => {
  * @param props - Props over the component.
  * @returns The host's markup with the editor open.
  */
-const openEditor = (props: Record<string, unknown>): string => {
+const openEditor = (props: Omit<InlineEditProps, 'onSubmit'>): string => {
   const host = document.createElement('div')
   document.body.appendChild(host)
   const instance = mount(InlineEdit, {

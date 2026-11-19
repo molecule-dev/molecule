@@ -10,8 +10,6 @@ import { flushSync, mount, unmount } from 'svelte'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { copyTextWithFallback } from '@molecule/app-clipboard'
-import Host from '@molecule/app-framework-conformance/adapters/svelte-bindings/Host.svelte'
-import { setMoleculeContext } from '@molecule/app-svelte'
 
 import CopyLinkField from '../CopyLinkField.svelte'
 import type { CopyLinkFieldProps } from '../types.js'
@@ -38,17 +36,12 @@ interface Rendered {
  * @param props - The field's props.
  * @returns The outer wrapper div and the input.
  */
-function render(props: Record<string, unknown> = {}): Rendered {
+function render(props: CopyLinkFieldProps): Rendered {
   // A fresh host per mount, so the returned elements are THIS mount's even
   // when an earlier mount is still on the page within the same test.
   const host = document.createElement('div')
   document.body.appendChild(host)
-  mounted.push(
-    mount(Host, {
-      target: host,
-      props: { config: {}, setMoleculeContext, component: CopyLinkField, props },
-    }),
-  )
+  mounted.push(mount(CopyLinkField, { target: host, props }))
   flushSync()
   const input = host.querySelector<HTMLInputElement>('input')
   if (!input) throw new Error('no input rendered')
@@ -73,12 +66,7 @@ beforeEach(() => {
 function mountLive(props: CopyLinkFieldProps): { host: HTMLDivElement } {
   const host = document.createElement('div')
   document.body.appendChild(host)
-  mounted.push(
-    mount(Host, {
-      target: host,
-      props: { config: {}, setMoleculeContext, component: CopyLinkField, props },
-    }),
-  )
+  mounted.push(mount(CopyLinkField, { target: host, props }))
   flushSync()
   return { host }
 }

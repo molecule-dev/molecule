@@ -8,11 +8,10 @@ import '@molecule/app-framework-conformance/ui/setup'
 import { createRawSnippet, flushSync, mount, type Snippet, unmount } from 'svelte'
 import { afterEach, describe, expect, it } from 'vitest'
 
-import Host from '@molecule/app-framework-conformance/adapters/svelte-bindings/Host.svelte'
-import { setMoleculeContext } from '@molecule/app-svelte'
 import { getClassMap } from '@molecule/app-ui'
 
 import AppShellLayout from '../AppShellLayout.svelte'
+import type { AppShellLayoutProps } from '../types.js'
 
 /** A snippet rendering the given markup, the way a caller fills a slot. */
 const raw = (html: string): Snippet => createRawSnippet(() => ({ render: () => html }))
@@ -31,24 +30,16 @@ interface Mounted {
  * @returns The mounted instance and the key elements.
  */
 async function render(
-  props: Record<string, unknown> = {},
+  props: Omit<AppShellLayoutProps, 'children' | 'header' | 'footer'> = {},
   slots: { header?: string; footer?: string; children?: string } = {},
 ): Promise<Mounted> {
-  const targetProps: Record<string, unknown> = {
+  const targetProps: AppShellLayoutProps = {
     ...props,
     children: raw(slots.children ?? '<p data-content>Main content</p>'),
   }
   if (slots.header !== undefined) targetProps.header = raw(slots.header)
   if (slots.footer !== undefined) targetProps.footer = raw(slots.footer)
-  const instance = mount(Host, {
-    target: document.body,
-    props: {
-      config: {},
-      setMoleculeContext,
-      component: AppShellLayout,
-      props: targetProps,
-    },
-  })
+  const instance = mount(AppShellLayout, { target: document.body, props: targetProps })
   flushSync()
   const main = document.body.querySelector('main')
   return { instance, main, wrapper: main?.parentElement ?? null }

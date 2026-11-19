@@ -12,12 +12,11 @@ import '@molecule/app-framework-conformance/ui/setup'
 import { flushSync, mount, unmount } from 'svelte'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
-import Host from '@molecule/app-framework-conformance/adapters/svelte-bindings/Host.svelte'
 import type { I18nProvider } from '@molecule/app-i18n'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
-import { setMoleculeContext } from '@molecule/app-svelte'
 
 import PasswordStrengthMeter from '../PasswordStrengthMeter.svelte'
+import type { PasswordStrengthMeterProps } from '../types.js'
 
 /** The bonded provider from {@link beforeEach}, so the switch drives the exact provider the component's `t` resolves against. */
 let provider: I18nProvider
@@ -31,15 +30,10 @@ const mounted: ReturnType<typeof mount>[] = []
  * @param props - The meter's props.
  * @returns The host element whose children the meter rendered.
  */
-function render(props: Record<string, unknown>): HTMLElement {
+function render(props: PasswordStrengthMeterProps): HTMLElement {
   const host = document.createElement('div')
   document.body.appendChild(host)
-  mounted.push(
-    mount(Host, {
-      target: host,
-      props: { config: {}, setMoleculeContext, component: PasswordStrengthMeter, props },
-    }),
-  )
+  mounted.push(mount(PasswordStrengthMeter, { target: host, props }))
   flushSync()
   return host
 }

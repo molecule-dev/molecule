@@ -7,7 +7,7 @@
  * @module
  */
 
-import { flushSync, mount, unmount } from 'svelte'
+import { type ComponentProps, flushSync, mount, unmount } from 'svelte'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('@molecule/app-ui', () => ({
@@ -54,7 +54,7 @@ afterEach(() => {
  * @param props - The component props.
  * @returns The container holding the rendered DOM.
  */
-function render(props: Record<string, unknown>): HTMLElement {
+function render(props: ComponentProps<typeof DayTimeline>): HTMLElement {
   const container = document.createElement('div')
   document.body.appendChild(container)
   instances.push(mount(DayTimeline, { target: container, props }))

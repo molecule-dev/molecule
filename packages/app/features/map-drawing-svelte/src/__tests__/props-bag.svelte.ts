@@ -6,10 +6,12 @@
  * @module
  */
 
+import type { MapDrawingProps } from '../types.js'
+
 /** The reactive holder the host reads its props from. */
 export interface PropBag {
   /** The props the host renders with. */
-  props: Record<string, unknown>
+  props: MapDrawingProps
 }
 
 /**
@@ -18,7 +20,7 @@ export interface PropBag {
  * @param props - Initial props.
  * @returns The reactive bag.
  */
-export function createPropBag(props: Record<string, unknown>): PropBag {
+export function createPropBag(props: MapDrawingProps): PropBag {
   const bag: PropBag = $state({ props })
   return bag
 }

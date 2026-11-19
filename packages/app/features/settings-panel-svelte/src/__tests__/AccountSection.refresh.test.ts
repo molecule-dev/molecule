@@ -32,14 +32,14 @@ function clientFor() {
   cleanups.push(() => client.destroy())
   return client
 }
-const mounted: { instance: Record<string, unknown>; container: HTMLElement }[] = []
+const mounted: { instance: ReturnType<typeof mount>; container: HTMLElement }[] = []
 function render(client = clientFor()): void {
   const container = document.createElement('div')
   document.body.appendChild(container)
   const instance = mount(TestHost, {
     target: container,
     props: { client, http },
-  }) as Record<string, unknown>
+  })
   flushSync()
   mounted.push({ instance, container })
 }
@@ -94,7 +94,7 @@ beforeEach(() => {
 })
 afterEach(async () => {
   for (const { instance, container } of mounted.splice(0)) {
-    await unmount(instance as never)
+    await unmount(instance)
     container.remove()
   }
   // Give the binding's same-turn handoff lane its disarm turn before the next test mounts.
@@ -135,7 +135,7 @@ describe('AccountSection configured session refresh', () => {
     const instance = mount(TestHost, {
       target: container,
       props: { client, http },
-    }) as Record<string, unknown>
+    })
     flushSync()
     mounted.push({ instance, container })
     await waitFor(() => expect(client.getState().status).toBe('unavailable'))
@@ -159,7 +159,7 @@ describe('AccountSection configured session refresh', () => {
     const instance = mount(TestHost, {
       target: container,
       props: { client, http },
-    }) as Record<string, unknown>
+    })
     flushSync()
     typed(control('Name'), 'Alice edited')
     blurred(control('Name'))
@@ -189,7 +189,7 @@ describe('AccountSection configured session refresh', () => {
     const instance = mount(TestHost, {
       target: container,
       props: { client, http },
-    }) as Record<string, unknown>
+    })
     flushSync()
     mounted.push({ instance, container })
     const other = { id: 'account-b', name: 'Bob', email: 'bob@example.test' }
@@ -212,7 +212,7 @@ describe('AccountSection configured session refresh', () => {
     const instance = mount(TestHost, {
       target: container,
       props: { client, http },
-    }) as Record<string, unknown>
+    })
     flushSync()
     mounted.push({ instance, container })
     expect(control('Name').value).toBe('Alice')

@@ -40,6 +40,8 @@ vi.mock('@molecule/app-ui-svelte', async () => {
 
 import { mount, unmount } from 'svelte'
 
+import type { LeaderboardRowProps } from '../types.js'
+
 const { LeaderboardRow } = await import('../components.js')
 
 /** The mounted components, unmounted after each test. */
@@ -51,7 +53,7 @@ afterEach(() => {
 })
 
 /** Renders a {@link LeaderboardRow} and returns the markup it produced. */
-const render = (props: Record<string, unknown>): string => {
+const render = (props: LeaderboardRowProps): string => {
   const target = mountRow(props)
   const markup = target.innerHTML
   target.remove()
@@ -62,7 +64,7 @@ const render = (props: Record<string, unknown>): string => {
  * Mounts a {@link LeaderboardRow} and returns its target element (the string
  * renderer cannot fire events).
  */
-const mountRow = (props: Record<string, unknown>): HTMLElement => {
+const mountRow = (props: LeaderboardRowProps): HTMLElement => {
   const target = document.createElement('div')
   document.body.appendChild(target)
   mounted.push(mount(LeaderboardRow, { target, props }))

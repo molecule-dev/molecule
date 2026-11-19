@@ -11,13 +11,11 @@
  */
 
 import '@molecule/app-framework-conformance/ui/setup'
-import { flushSync, mount, unmount } from 'svelte'
+import { type ComponentProps, flushSync, mount, unmount } from 'svelte'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
-import Host from '@molecule/app-framework-conformance/adapters/svelte-bindings/Host.svelte'
 import type { I18nProvider } from '@molecule/app-i18n'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
-import { setMoleculeContext } from '@molecule/app-svelte'
 
 import AmountInput from '../AmountInput.svelte'
 
@@ -39,21 +37,14 @@ beforeEach(() => {
   const noop = (): void => {}
   host = document.createElement('div')
   document.body.appendChild(host)
-  instance = mount(Host, {
-    target: host,
-    props: {
-      config: {},
-      setMoleculeContext,
-      component: AmountInput,
-      props: {
-        amount: 0,
-        onAmountChange: noop,
-        type: 'expense',
-        onTypeChange: noop,
-        typeOptions: ['expense'],
-      },
-    },
-  })
+  const props: ComponentProps<typeof AmountInput> = {
+    amount: 0,
+    onAmountChange: noop,
+    type: 'expense',
+    onTypeChange: noop,
+    typeOptions: ['expense'],
+  }
+  instance = mount(AmountInput, { target: host, props })
   flushSync()
 })
 

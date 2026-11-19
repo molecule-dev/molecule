@@ -1,6 +1,8 @@
 // @vitest-environment jsdom
-import { createRawSnippet, flushSync, mount, type Snippet, unmount } from 'svelte'
+import { type Component, createRawSnippet, flushSync, mount, type Snippet, unmount } from 'svelte'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+
+import type { CountdownProps } from '../types.js'
 
 // Proxy ClassMap echoing each accessed member back as its token, the same mock
 // the React package's own tests use.
@@ -41,13 +43,13 @@ const ONE_D_TWO_H_THREE_M_FOUR_S = 86_400_000 + 2 * 3_600_000 + 3 * 60_000 + 4_0
 const raw = (html: string): Snippet => createRawSnippet(() => ({ render: () => html }))
 
 /**
- * Mounts a component into the document body and flushes its first render.
+ * Mounts a countdown into the document body and flushes its first render.
  *
  * @param component - The component to mount.
  * @param props - Its props.
  * @returns The document body's markup.
  */
-function render(component: Parameters<typeof mount>[0], props: Record<string, unknown>): string {
+function render(component: Component<CountdownProps>, props: CountdownProps): string {
   mounted.push(mount(component, { target: document.body, props }))
   flushSync()
   return document.body.innerHTML
@@ -72,7 +74,7 @@ describe('useCountdown', () => {
    * @returns The countdown state as plain data.
    */
   function probe(target: number): Record<string, unknown> {
-    render(Probe, { target })
+    mounted.push(mount(Probe, { target: document.body, props: { target } }))
     const text = document.querySelector('[data-state]')?.textContent ?? '{}'
     return JSON.parse(text) as Record<string, unknown>
   }

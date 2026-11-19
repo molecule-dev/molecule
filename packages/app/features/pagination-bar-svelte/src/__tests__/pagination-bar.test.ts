@@ -7,7 +7,7 @@
  * @module
  */
 
-import { flushSync, mount, unmount } from 'svelte'
+import { type ComponentProps, flushSync, mount, unmount } from 'svelte'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
@@ -64,7 +64,7 @@ afterEach(async () => {
 })
 
 /** Mounts a {@link PaginationBar} and flushes Svelte's pending work. */
-function render(props: Record<string, unknown>): HTMLElement {
+function render(props: ComponentProps<typeof PaginationBar>): HTMLElement {
   const target = document.createElement('div')
   document.body.appendChild(target)
   const instance = mount(PaginationBar, { target, props })

@@ -9,15 +9,7 @@
  */
 
 import '@molecule/app-framework-conformance/ui/setup'
-import {
-  type Component,
-  type ComponentProps,
-  createRawSnippet,
-  flushSync,
-  mount,
-  type Snippet,
-  unmount,
-} from 'svelte'
+import { createRawSnippet, flushSync, mount, type Snippet, unmount } from 'svelte'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
@@ -25,7 +17,7 @@ import { setClassMap, type UIClassMap } from '@molecule/app-ui'
 
 import GpaCard from '../GpaCard.svelte'
 import Gradebook from '../Gradebook.svelte'
-import type { Grade } from '../types.js'
+import type { GpaCardProps, Grade, GradebookProps } from '../types.js'
 import { computePercentage, defaultGpaMax, formatGpa } from '../utilities.js'
 
 /**
@@ -59,7 +51,7 @@ function buildStubClassMap(): UIClassMap {
 /** A snippet rendering the given markup, the way a caller fills a node prop. */
 const raw = (html: string): Snippet => createRawSnippet(() => ({ render: () => html }))
 
-const instances: unknown[] = []
+const instances: ReturnType<typeof mount>[] = []
 
 beforeEach(() => {
   setClassMap(buildStubClassMap())
@@ -67,26 +59,34 @@ beforeEach(() => {
 })
 
 afterEach(async () => {
-  for (const instance of instances.splice(0))
-    await unmount(instance as Parameters<typeof unmount>[0])
+  for (const instance of instances.splice(0)) await unmount(instance)
   document.body.innerHTML = ''
 })
 
-/** A Svelte component whose props are a plain record, as `mount` accepts it. */
-type MountedComponent = Component<Record<string, unknown>, Record<string, unknown>>
-
 /**
- * Mounts a component and returns its rendered root element.
+ * Mounts a {@link Gradebook} into a fresh target and returns that target.
  *
- * @param component - The component to mount.
- * @param props - Its props.
+ * @param props - The gradebook props.
  * @returns The element holding the component's DOM.
  */
-function render<C extends MountedComponent>(component: C, props: ComponentProps<C>): HTMLElement {
+function renderGradebook(props: GradebookProps): HTMLElement {
   const target = document.createElement('div')
   document.body.appendChild(target)
-  const instance = mount(component, { target, props })
-  instances.push(instance)
+  instances.push(mount(Gradebook, { target, props }))
+  flushSync()
+  return target
+}
+
+/**
+ * Mounts a {@link GpaCard} into a fresh target and returns that target.
+ *
+ * @param props - The GPA card props.
+ * @returns The element holding the component's DOM.
+ */
+function renderGpaCard(props: GpaCardProps): HTMLElement {
+  const target = document.createElement('div')
+  document.body.appendChild(target)
+  instances.push(mount(GpaCard, { target, props }))
   flushSync()
   return target
 }
@@ -146,14 +146,14 @@ const baseGrades: Grade[] = [
 
 describe('<Gradebook>', () => {
   it('renders a region with the gradebook aria-label', () => {
-    const host = render(Gradebook, { grades: baseGrades, gpaScale: '4.0' })
+    const host = renderGradebook({ grades: baseGrades, gpaScale: '4.0' })
     const region = host.querySelector('[role="region"]')
     expect(region?.getAttribute('aria-label')).toBe('Gradebook')
     expect(region?.getAttribute('data-mol-id')).toBe('gradebook')
   })
 
   it('renders one row per grade with title, letter, and weight', () => {
-    const host = render(Gradebook, { grades: baseGrades, gpaScale: '4.0' })
+    const host = renderGradebook({ grades: baseGrades, gpaScale: '4.0' })
     const rows = host.querySelectorAll('[data-mol-id="gradebook-row"]')
     expect(rows.length).toBe(2)
     expect(rows[0].getAttribute('data-row-id')).toBe('g1')
@@ -165,7 +165,7 @@ describe('<Gradebook>', () => {
   })
 
   it('renders score / maxPoints in the numeric column for non-percentage scales', () => {
-    const host = render(Gradebook, { grades: baseGrades, gpaScale: '4.0' })
+    const host = renderGradebook({ grades: baseGrades, gpaScale: '4.0' })
     const rows = host.querySelectorAll('[data-mol-id="gradebook-row"]')
     expect(rows[0].querySelector('[data-mol-id="gradebook-cell-numeric"]')?.textContent).toBe(
       '92 / 100',
@@ -176,14 +176,14 @@ describe('<Gradebook>', () => {
   })
 
   it('renders rounded percentages when gpaScale is percentage', () => {
-    const host = render(Gradebook, { grades: baseGrades, gpaScale: 'percentage' })
+    const host = renderGradebook({ grades: baseGrades, gpaScale: 'percentage' })
     const rows = host.querySelectorAll('[data-mol-id="gradebook-row"]')
     expect(rows[0].querySelector('[data-mol-id="gradebook-cell-numeric"]')?.textContent).toBe('92%')
     expect(rows[1].querySelector('[data-mol-id="gradebook-cell-numeric"]')?.textContent).toBe('82%')
   })
 
   it('renders contribution column using formatGpa for the active scale', () => {
-    const host = render(Gradebook, { grades: baseGrades, gpaScale: '4.0' })
+    const host = renderGradebook({ grades: baseGrades, gpaScale: '4.0' })
     const rows = host.querySelectorAll('[data-mol-id="gradebook-row"]')
     expect(rows[0].querySelector('[data-mol-id="gradebook-cell-contribution"]')?.textContent).toBe(
       '0.93',
@@ -191,7 +191,7 @@ describe('<Gradebook>', () => {
   })
 
   it('renders em-dash placeholders for missing optional fields', () => {
-    const host = render(Gradebook, {
+    const host = renderGradebook({
       grades: [{ id: 'g3', title: 'Quiz', score: 50, maxPoints: 60 }],
       gpaScale: '4.0',
     })
@@ -201,14 +201,14 @@ describe('<Gradebook>', () => {
   })
 
   it('renders an empty state when grades is empty', () => {
-    const host = render(Gradebook, { grades: [], gpaScale: '4.0' })
+    const host = renderGradebook({ grades: [], gpaScale: '4.0' })
     expect(host.querySelector('[data-mol-id="gradebook-empty"]')).not.toBeNull()
     expect(host.querySelector('[data-mol-id="gradebook-table"]')).toBeNull()
   })
 
   it('fires onCellClick with the grade and column id when a cell is clicked', () => {
     const onCellClick = vi.fn()
-    const host = render(Gradebook, { grades: baseGrades, gpaScale: '4.0', onCellClick })
+    const host = renderGradebook({ grades: baseGrades, gpaScale: '4.0', onCellClick })
     host
       .querySelector('[data-mol-id="gradebook-cell-title"]')
       ?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
@@ -227,30 +227,30 @@ describe('<Gradebook>', () => {
 
 describe('<GpaCard>', () => {
   it('renders the formatted GPA value and the default ceiling for the scale', () => {
-    const host = render(GpaCard, { gpa: 3.72, scale: '4.0' })
+    const host = renderGpaCard({ gpa: 3.72, scale: '4.0' })
     expect(host.querySelector('[data-mol-id="gpa-card-value"]')?.textContent).toBe('3.72')
     expect(host.querySelector('[data-mol-id="gpa-card-out-of"]')?.textContent).toBe('out of 4.00')
   })
 
   it('honours an explicit max prop', () => {
-    const host = render(GpaCard, { gpa: 4.5, scale: '5.0', max: 5 })
+    const host = renderGpaCard({ gpa: 4.5, scale: '5.0', max: 5 })
     expect(host.querySelector('[data-mol-id="gpa-card-out-of"]')?.textContent).toBe('out of 5.00')
   })
 
   it('renders percentages without decimals', () => {
-    const host = render(GpaCard, { gpa: 87, scale: 'percentage' })
+    const host = renderGpaCard({ gpa: 87, scale: 'percentage' })
     expect(host.querySelector('[data-mol-id="gpa-card-value"]')?.textContent).toBe('87%')
     expect(host.querySelector('[data-mol-id="gpa-card-out-of"]')?.textContent).toBe('out of 100%')
   })
 
   it('renders trend chip when trend is set', () => {
-    const up = render(GpaCard, { gpa: 3.5, scale: '4.0', trend: 'up' })
+    const up = renderGpaCard({ gpa: 3.5, scale: '4.0', trend: 'up' })
     let chip = up.querySelector('[data-mol-id="gpa-card-trend"]')
     expect(chip).not.toBeNull()
     expect(chip?.getAttribute('data-trend')).toBe('up')
     expect(up.querySelector('[data-mol-id="gpa-card-trend-text"]')?.textContent).toBe('Trending up')
 
-    const down = render(GpaCard, { gpa: 3.5, scale: '4.0', trend: 'down' })
+    const down = renderGpaCard({ gpa: 3.5, scale: '4.0', trend: 'down' })
     chip = down.querySelector('[data-mol-id="gpa-card-trend"]')
     expect(chip?.getAttribute('data-trend')).toBe('down')
     expect(down.querySelector('[data-mol-id="gpa-card-trend-text"]')?.textContent).toBe(
@@ -259,12 +259,12 @@ describe('<GpaCard>', () => {
   })
 
   it('omits trend chip when trend is not set', () => {
-    const host = render(GpaCard, { gpa: 3.5, scale: '4.0' })
+    const host = renderGpaCard({ gpa: 3.5, scale: '4.0' })
     expect(host.querySelector('[data-mol-id="gpa-card-trend"]')).toBeNull()
   })
 
   it('renders trendLabel beside the trend chip when provided', () => {
-    const host = render(GpaCard, {
+    const host = renderGpaCard({
       gpa: 3.5,
       scale: '4.0',
       trend: 'flat',

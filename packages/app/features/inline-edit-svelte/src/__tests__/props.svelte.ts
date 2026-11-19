@@ -5,17 +5,19 @@
  * @module
  */
 
+import type { InlineEditProps } from '../types.js'
+
 /** One mount's props, held in Svelte state so writes reach the component. */
 export class PropBag {
   /** The props the component reads. */
-  props = $state<Record<string, unknown>>({})
+  props = $state<InlineEditProps>({ value: '', onSubmit: () => {} })
 
   /**
    * Creates a bag with the first render's props.
    *
    * @param initial - The initial props.
    */
-  constructor(initial: Record<string, unknown>) {
+  constructor(initial: InlineEditProps) {
     this.props = { ...initial }
   }
 
@@ -24,7 +26,7 @@ export class PropBag {
    *
    * @param next - The props to write.
    */
-  set(next: Record<string, unknown>): void {
+  set(next: Partial<InlineEditProps>): void {
     this.props = { ...this.props, ...next }
   }
 }

@@ -10,7 +10,14 @@
  * @module
  */
 
-import { createRawSnippet, flushSync, mount, type Snippet, unmount } from 'svelte'
+import {
+  type ComponentProps,
+  createRawSnippet,
+  flushSync,
+  mount,
+  type Snippet,
+  unmount,
+} from 'svelte'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
@@ -54,7 +61,7 @@ afterEach(() => {
  * @param props - The props to render.
  * @returns The target element.
  */
-const mountRow = (props: Record<string, unknown>): HTMLElement => {
+const mountRow = (props: ComponentProps<typeof ListItemRow>): HTMLElement => {
   const target = document.createElement('div')
   document.body.appendChild(target)
   const instance = mount(ListItemRow, { target, props })
@@ -71,7 +78,7 @@ const openButton = (target: HTMLElement): HTMLButtonElement => {
 }
 
 /** Renders a {@link ListItemRow} and returns the markup it produced. */
-const render = (props: Record<string, unknown>): string => mountRow(props).innerHTML
+const render = (props: ComponentProps<typeof ListItemRow>): string => mountRow(props).innerHTML
 
 /** Waits for the toggle's asynchronous save and Svelte's DOM update. */
 const settle = async (): Promise<void> => {

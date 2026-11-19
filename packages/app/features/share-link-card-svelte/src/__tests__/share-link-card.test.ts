@@ -9,10 +9,9 @@
  */
 
 import '@molecule/app-framework-conformance/ui/setup'
-import { createRawSnippet, flushSync, mount, type Snippet, unmount } from 'svelte'
+import { type Component, createRawSnippet, flushSync, mount, type Snippet, unmount } from 'svelte'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import Host from '@molecule/app-framework-conformance/adapters/svelte-bindings/Host.svelte'
 import { setMoleculeContext } from '@molecule/app-svelte'
 
 vi.mock('@molecule/app-clipboard', () => ({
@@ -43,15 +42,16 @@ const mounted: ReturnType<typeof mount>[] = []
  * @param props - Its props.
  * @returns The host element holding the rendered markup.
  */
-function render(component: unknown, props: Record<string, unknown> = {}): HTMLElement {
+function render<Props extends Record<string, unknown>>(
+  component: Component<Props>,
+  props: Props,
+): HTMLElement {
   const host = document.createElement('div')
   document.body.appendChild(host)
-  mounted.push(
-    mount(Host, {
-      target: host,
-      props: { config: {}, setMoleculeContext, component, props },
-    }),
-  )
+  // The composition root the conformance Host installs: no services, so the
+  // component reads the bonded providers exactly as an app would.
+  setMoleculeContext({})
+  mounted.push(mount(component, { target: host, props }))
   flushSync()
   return host
 }

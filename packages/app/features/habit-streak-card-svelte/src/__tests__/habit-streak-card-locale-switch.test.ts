@@ -13,7 +13,7 @@
  * @module
  */
 
-import { flushSync, mount, unmount } from 'svelte'
+import { type ComponentProps, flushSync, mount, unmount } from 'svelte'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { I18nProvider } from '@molecule/app-i18n'
@@ -87,7 +87,7 @@ afterEach(() => {
  * @param props - The card's props.
  * @returns The host element.
  */
-const render = (props: Record<string, unknown>): HTMLElement => {
+const render = (props: ComponentProps<typeof HabitStreakCard>): HTMLElement => {
   const target = document.createElement('div')
   document.body.appendChild(target)
   const instance = mount(HabitStreakCard, { target, props })

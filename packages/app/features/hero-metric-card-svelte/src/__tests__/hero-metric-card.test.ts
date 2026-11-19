@@ -9,15 +9,7 @@
  */
 
 import '@molecule/app-framework-conformance/ui/setup'
-import {
-  type Component,
-  type ComponentProps,
-  createRawSnippet,
-  flushSync,
-  mount,
-  type Snippet,
-  unmount,
-} from 'svelte'
+import { type Component, createRawSnippet, flushSync, mount, type Snippet, unmount } from 'svelte'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
@@ -26,7 +18,7 @@ import { classMap } from '@molecule/app-ui-tailwind'
 
 import HeroMetricCard from '../HeroMetricCard.svelte'
 import HeroMetricTrendChip from '../HeroMetricTrendChip.svelte'
-import type { HeroMetricAccent } from '../types.js'
+import type { HeroMetricAccent, HeroMetricTrend } from '../types.js'
 
 // Wire a real ClassMap once for the whole test file so `getClassMap()`
 // inside the components under test resolves to the Tailwind bond — the same
@@ -36,19 +28,15 @@ setClassMap(classMap)
 /** A snippet rendering the given markup, the way a caller fills a slot. */
 const raw = (html: string): Snippet => createRawSnippet(() => ({ render: () => html }))
 
-const instances: unknown[] = []
+const instances: Array<ReturnType<typeof mount>> = []
 
 afterEach(async () => {
-  for (const instance of instances.splice(0))
-    await unmount(instance as Parameters<typeof unmount>[0])
+  for (const instance of instances.splice(0)) await unmount(instance)
   document.body.innerHTML = ''
   // Reset the global i18n singleton to a clean English provider so a locale
   // override registered in one test can't bleed into the next.
   setProvider(createSimpleI18nProvider('en'))
 })
-
-/** A Svelte component whose props are a plain record, as `ComponentProps` accepts it. */
-type MountedComponent = Component<Record<string, unknown>, Record<string, unknown>>
 
 /**
  * Mounts a component and returns its rendered root element.
@@ -57,7 +45,10 @@ type MountedComponent = Component<Record<string, unknown>, Record<string, unknow
  * @param props - Its props.
  * @returns The element holding the component's DOM.
  */
-function render<C extends MountedComponent>(component: C, props: ComponentProps<C>): HTMLElement {
+function render<Props extends Record<string, unknown>, Exports extends Record<string, unknown>>(
+  component: Component<Props, Exports>,
+  props: Props,
+): HTMLElement {
   const target = document.createElement('div')
   document.body.appendChild(target)
   const instance = mount(component, { target, props })
@@ -78,7 +69,7 @@ describe('<HeroMetricCard>', () => {
     const host = render(HeroMetricCard, {
       title: 'Steps',
       value: '9,420',
-      trend: { direction: 'up', delta: '+12%' },
+      trend: { direction: 'up', delta: '+12%' } satisfies HeroMetricTrend,
     })
     expect(host.textContent).toContain('+12%')
     expect(host.textContent).toContain('▲')
@@ -89,7 +80,7 @@ describe('<HeroMetricCard>', () => {
       title: 'Resting HR',
       value: '58',
       unit: 'bpm',
-      trend: { direction: 'down', delta: '-3 bpm' },
+      trend: { direction: 'down', delta: '-3 bpm' } satisfies HeroMetricTrend,
     })
     expect(host.textContent).toContain('-3 bpm')
     expect(host.textContent).toContain('▼')
@@ -118,7 +109,7 @@ describe('<HeroMetricCard>', () => {
       title: 'Workout',
       value: '42 min',
       loading: true,
-      trend: { direction: 'up', delta: '+5 min' },
+      trend: { direction: 'up', delta: '+5 min' } satisfies HeroMetricTrend,
     })
     expect(host.textContent).not.toContain('42 min')
     expect(host.textContent).not.toContain('+5 min')
@@ -196,7 +187,9 @@ describe('<HeroMetricCard>', () => {
 
 describe('<HeroMetricTrendChip>', () => {
   it('renders the arrow and delta of an upward trend', () => {
-    const host = render(HeroMetricTrendChip, { trend: { direction: 'up', delta: '+12%' } })
+    const host = render(HeroMetricTrendChip, {
+      trend: { direction: 'up', delta: '+12%' } satisfies HeroMetricTrend,
+    })
     expect(host.textContent).toContain('▲')
     expect(host.textContent).toContain('+12%')
     expect(host.querySelector('[aria-label="Trending up"]')).not.toBeNull()
@@ -204,7 +197,7 @@ describe('<HeroMetricTrendChip>', () => {
 
   it('renders the arrow and delta of a downward trend', () => {
     const host = render(HeroMetricTrendChip, {
-      trend: { direction: 'down', delta: '-3 bpm' },
+      trend: { direction: 'down', delta: '-3 bpm' } satisfies HeroMetricTrend,
     })
     expect(host.textContent).toContain('▼')
     expect(host.querySelector('[aria-label="Trending down"]')).not.toBeNull()
@@ -212,7 +205,7 @@ describe('<HeroMetricTrendChip>', () => {
 
   it('forwards className onto the chip', () => {
     const host = render(HeroMetricTrendChip, {
-      trend: { direction: 'up', delta: '+1%' },
+      trend: { direction: 'up', delta: '+1%' } satisfies HeroMetricTrend,
       className: 'parity-token',
     })
     expect(host.innerHTML).toContain('parity-token')

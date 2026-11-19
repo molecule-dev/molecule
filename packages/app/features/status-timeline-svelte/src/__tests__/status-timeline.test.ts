@@ -5,7 +5,7 @@
  * the same behavioral assertions, rendered with a real Svelte 5 mount (jsdom)
  * and the mocked ClassMap.
  */
-import { flushSync, mount, unmount } from 'svelte'
+import { type ComponentProps, flushSync, mount, unmount } from 'svelte'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 // Proxy ClassMap echoing each accessed member back as its token (e.g.
@@ -38,7 +38,7 @@ afterEach(async () => {
 })
 
 /** Mounts a {@link StatusTimeline} into a fresh host and returns its markup. */
-const render = (props: Record<string, unknown>): string => {
+const render = (props: ComponentProps<typeof StatusTimeline>): string => {
   const host = document.createElement('div')
   document.body.appendChild(host)
   const instance = mount(StatusTimeline, { target: host, props })

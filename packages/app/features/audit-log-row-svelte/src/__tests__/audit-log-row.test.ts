@@ -5,7 +5,7 @@
  * the same behavioral assertions, rendered with a real mount (jsdom) and the
  * bonded ClassMap.
  */
-import { flushSync, mount, unmount } from 'svelte'
+import { type ComponentProps, flushSync, mount, unmount } from 'svelte'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
@@ -47,7 +47,7 @@ const entry = (over: Partial<AuditLogEntry> = {}): AuditLogEntry => ({
 })
 
 /** Mounts an {@link AuditLogRow} and returns the markup it produced. */
-const render = (props: Record<string, unknown>): string => {
+const render = (props: ComponentProps<typeof AuditLogRow>): string => {
   const host = document.createElement('div')
   document.body.appendChild(host)
   const instance = mount(AuditLogRow, { target: host, props })

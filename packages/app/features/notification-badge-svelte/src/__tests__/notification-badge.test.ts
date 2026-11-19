@@ -10,11 +10,8 @@
  * @module
  */
 import '@molecule/app-framework-conformance/ui/setup'
-import { createRawSnippet, flushSync, mount, type Snippet, unmount } from 'svelte'
+import { type Component, createRawSnippet, flushSync, mount, type Snippet, unmount } from 'svelte'
 import { afterEach, describe, expect, it } from 'vitest'
-
-import Host from '@molecule/app-framework-conformance/adapters/svelte-bindings/Host.svelte'
-import { setMoleculeContext } from '@molecule/app-svelte'
 
 import NotificationBadge from '../NotificationBadge.svelte'
 import NotificationDot from '../NotificationDot.svelte'
@@ -30,18 +27,13 @@ const raw = (html: string): Snippet => createRawSnippet(() => ({ render: () => h
  * @param props - The component props.
  * @returns The markup of the mounted component.
  */
-function render(component: unknown, props: Record<string, unknown>): string {
+const render = <const Props extends Record<string, unknown>>(
+  component: Component<Props>,
+  props: Props,
+): string => {
   const host = document.createElement('div')
   document.body.appendChild(host)
-  const instance = mount(Host, {
-    target: host,
-    props: {
-      config: {},
-      setMoleculeContext,
-      component,
-      props,
-    },
-  })
+  const instance = mount(component, { target: host, props })
   flushSync()
   const markup = host.innerHTML
   unmount(instance)

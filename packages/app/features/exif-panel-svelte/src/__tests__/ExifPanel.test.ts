@@ -7,15 +7,13 @@
  * @module
  */
 import '@molecule/app-framework-conformance/ui/setup'
-import { type Component, flushSync, mount, unmount } from 'svelte'
+import { flushSync, mount, unmount } from 'svelte'
 import { afterEach, describe, expect, it } from 'vitest'
 
-import Host from '@molecule/app-framework-conformance/adapters/svelte-bindings/Host.svelte'
-import { createSimpleI18nProvider } from '@molecule/app-i18n'
-import { setMoleculeContext } from '@molecule/app-svelte'
+import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 
 import ExifPanel from '../ExifPanel.svelte'
-import type { ExifData } from '../types.js'
+import type { ExifData, ExifPanelProps } from '../types.js'
 
 /** The i18n provider every mount sits inside (React's `I18nProvider`). */
 const i18n = createSimpleI18nProvider('en')
@@ -52,18 +50,13 @@ let instance: ReturnType<typeof mount> | null = null
  * @returns The rendered `<aside>` element.
  */
 function render(
-  props: Record<string, unknown>,
+  props: ExifPanelProps,
   provider: ReturnType<typeof createSimpleI18nProvider> = i18n,
 ): HTMLElement | null {
-  instance = mount(Host, {
-    target: document.body,
-    props: {
-      config: { i18n: provider },
-      setMoleculeContext,
-      component: ExifPanel as Component<Record<string, unknown>>,
-      props,
-    },
-  })
+  // The panel translates through the bonded provider, so the case's provider
+  // is bonded before the mount, the way an app wires its i18n bond.
+  setProvider(provider)
+  instance = mount(ExifPanel, { target: document.body, props })
   flushSync()
   return document.body.querySelector('aside')
 }

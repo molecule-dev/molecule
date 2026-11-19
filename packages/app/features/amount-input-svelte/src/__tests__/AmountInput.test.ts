@@ -6,12 +6,10 @@
  * bonded i18n provider.
  */
 import '@molecule/app-framework-conformance/ui/setup'
-import { flushSync, mount, unmount } from 'svelte'
+import { type ComponentProps, flushSync, mount, unmount } from 'svelte'
 import { afterEach, describe, expect, it } from 'vitest'
 
-import Host from '@molecule/app-framework-conformance/adapters/svelte-bindings/Host.svelte'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
-import { setMoleculeContext } from '@molecule/app-svelte'
 
 import AmountInput from '../AmountInput.svelte'
 
@@ -34,15 +32,10 @@ afterEach(async () => {
  * @param props - The component props.
  * @returns The host element the component rendered into.
  */
-function render(props: Record<string, unknown>): HTMLElement {
+function render(props: ComponentProps<typeof AmountInput>): HTMLElement {
   const host = document.createElement('div')
   document.body.appendChild(host)
-  mounted.push(
-    mount(Host, {
-      target: host,
-      props: { config: {}, setMoleculeContext, component: AmountInput, props },
-    }),
-  )
+  mounted.push(mount(AmountInput, { target: host, props }))
   flushSync()
   return host
 }

@@ -15,6 +15,8 @@ import '@molecule/app-framework-conformance/ui/setup'
 import { flushSync, mount, unmount } from 'svelte'
 import { afterEach, describe, expect, it } from 'vitest'
 
+import type { MapDrawingProps } from '../types.js'
+
 const { createPropBag } = await import('./props-bag.svelte.js')
 const { default: MapDrawingHost } = await import('./MapDrawingHost.svelte')
 
@@ -41,7 +43,7 @@ interface View {
  * @param initial - Initial component props.
  * @returns The mounted view.
  */
-function mountControlled(initial: Record<string, unknown>): View {
+function mountControlled(initial: MapDrawingProps): View {
   const target = document.createElement('div')
   document.body.appendChild(target)
   const bag = createPropBag(initial)

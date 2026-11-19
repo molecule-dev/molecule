@@ -15,6 +15,7 @@ import { afterEach, describe, expect, it } from 'vitest'
 import { getClassMap } from '@molecule/app-ui'
 
 import ActionMenu from '../ActionMenu.svelte'
+import type { ActionMenuProps } from '../types.js'
 
 const cm = getClassMap()
 
@@ -56,7 +57,7 @@ afterEach(async () => {
  * @param props - Props to pass to the component.
  * @returns The mounted host.
  */
-function render(props: Record<string, unknown>): Mounted {
+function render(props: ActionMenuProps): Mounted {
   const host = document.createElement('div')
   document.body.appendChild(host)
   const instance = mount(ActionMenu, { target: host, props })
@@ -78,7 +79,7 @@ function render(props: Record<string, unknown>): Mounted {
  * @param props - Props to pass to the component.
  * @returns The mounted host with the menu opened.
  */
-function renderOpen(props: Record<string, unknown>): Mounted {
+function renderOpen(props: ActionMenuProps): Mounted {
   const entry = render(props)
   const trigger = entry.host.querySelector<HTMLElement>('[data-mol-id="action-menu-trigger"]')
   if (!trigger) throw new Error('trigger not found')

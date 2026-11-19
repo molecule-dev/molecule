@@ -8,7 +8,7 @@
  * @module
  */
 
-import { createRawSnippet, flushSync, mount, type Snippet, unmount } from 'svelte'
+import { type Component, createRawSnippet, flushSync, mount, type Snippet, unmount } from 'svelte'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
@@ -54,9 +54,9 @@ afterEach(() => {
  * @param props - Its props.
  * @returns The rendered markup.
  */
-const html = (
-  component: Parameters<typeof mount>[0],
-  props: Record<string, unknown> = {},
+const html = <Props extends Record<string, unknown>>(
+  component: Component<Props>,
+  props: Props,
 ): string => {
   const host = document.createElement('div')
   document.body.appendChild(host)
@@ -218,7 +218,7 @@ describe('KanbanBoard', () => {
         return `<button data-hdr="${col.id}"></button>`
       },
     }))
-    const markup = html(KanbanBoard, { columns, renderHeaderActions } as Record<string, unknown>)
+    const markup = html(KanbanBoard, { columns, renderHeaderActions })
     expect(seen).toEqual(['todo', 'done'])
     expect(markup).toContain('data-hdr="todo"')
     expect(markup).toContain('data-hdr="done"')
@@ -233,7 +233,7 @@ describe('KanbanBoard', () => {
         return `<div data-foot="${col.id}"></div>`
       },
     }))
-    const markup = html(KanbanBoard, { columns, renderFooter } as Record<string, unknown>)
+    const markup = html(KanbanBoard, { columns, renderFooter })
     expect(seen).toEqual(['todo', 'done'])
     expect(markup).toContain('data-foot="todo"')
     expect(markup).toContain('data-foot="done"')

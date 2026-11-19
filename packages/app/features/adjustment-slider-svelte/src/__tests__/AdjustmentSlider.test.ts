@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { flushSync, mount, unmount } from 'svelte'
+import { type ComponentProps, flushSync, mount, unmount } from 'svelte'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
@@ -43,7 +43,7 @@ afterEach(async () => {
  * @param props - The slider's props.
  * @returns The container element the component mounted into.
  */
-function render(props: Record<string, unknown>): HTMLElement {
+function render(props: ComponentProps<typeof AdjustmentSlider>): HTMLElement {
   const host = document.createElement('div')
   document.body.appendChild(host)
   mounted.push(mount(AdjustmentSlider, { target: host, props }))

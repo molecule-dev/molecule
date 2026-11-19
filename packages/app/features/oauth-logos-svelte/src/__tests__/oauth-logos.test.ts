@@ -33,9 +33,9 @@ afterEach(async () => {
 })
 
 /** Mounts a component into a fresh container and returns the container. */
-const render = (
-  component: Component<Record<string, unknown>>,
-  props: Record<string, unknown> = {},
+const render = <Props extends Record<string, unknown>>(
+  component: Component<Props>,
+  props: Props,
 ): HTMLElement => {
   const container = document.createElement('div')
   document.body.appendChild(container)
@@ -60,7 +60,7 @@ const LOGOS = [
 
 describe('individual provider logos', () => {
   it.each(LOGOS)('%s renders an <svg> with its default brand aria-label', (_n, logo, label) => {
-    const svg = render(logo as Component<Record<string, unknown>>, {}).querySelector('svg')!
+    const svg = render(logo, {}).querySelector('svg')!
     expect(svg).not.toBeNull()
     expect(svg.getAttribute('aria-label')).toBe(label)
     expect(svg.getAttribute('role')).toBe('img')
@@ -68,37 +68,33 @@ describe('individual provider logos', () => {
   })
 
   it.each(LOGOS)('%s defaults to a 20px square', (_n, logo) => {
-    const svg = render(logo as Component<Record<string, unknown>>, {}).querySelector('svg')!
+    const svg = render(logo, {}).querySelector('svg')!
     expect(svg.getAttribute('width')).toBe('20')
     expect(svg.getAttribute('height')).toBe('20')
   })
 
   it.each(LOGOS)('%s honours an explicit size', (_n, logo) => {
-    const svg = render(logo as Component<Record<string, unknown>>, { size: 32 }).querySelector(
-      'svg',
-    )!
+    const svg = render(logo, { size: 32 }).querySelector('svg')!
     expect(svg.getAttribute('width')).toBe('32')
     expect(svg.getAttribute('height')).toBe('32')
   })
 
   it.each(LOGOS)('%s renders aria-hidden (no role/label) when ariaLabel is ""', (_n, logo) => {
-    const svg = render(logo as Component<Record<string, unknown>>, { ariaLabel: '' }).querySelector(
-      'svg',
-    )!
+    const svg = render(logo, { ariaLabel: '' }).querySelector('svg')!
     expect(svg.getAttribute('aria-hidden')).toBe('true')
     expect(svg.getAttribute('role')).toBeNull()
     expect(svg.getAttribute('aria-label')).toBeNull()
   })
 
   it.each(LOGOS)('%s renders a <title> element when title is set', (_n, logo) => {
-    const svg = render(logo as Component<Record<string, unknown>>, {
+    const svg = render(logo, {
       title: 'Sign in',
     }).querySelector('svg')!
     expect(svg.querySelector('title')?.textContent).toBe('Sign in')
   })
 
   it.each(LOGOS)('%s forwards className to the <svg>', (_n, logo) => {
-    const svg = render(logo as Component<Record<string, unknown>>, {
+    const svg = render(logo, {
       className: 'logo-cls',
     }).querySelector('svg')!
     expect(svg.getAttribute('class')).toBe('logo-cls')
@@ -107,7 +103,7 @@ describe('individual provider logos', () => {
   it.each(LOGOS)(
     '%s marks its root <svg> translate="no" so the brand name never translates',
     (_n, logo, label) => {
-      const svg = render(logo as Component<Record<string, unknown>>, {}).querySelector('svg')!
+      const svg = render(logo, {}).querySelector('svg')!
       // HTML's own marker for text that stays as written in every language:
       // the accessible name is a brand name, so it takes no t() and no locale bond.
       expect(svg.getAttribute('translate')).toBe('no')
@@ -118,7 +114,7 @@ describe('individual provider logos', () => {
   it.each(LOGOS)(
     '%s keeps translate="no" when an explicit ariaLabel overrides the brand default',
     (_n, logo, label) => {
-      const svg = render(logo as Component<Record<string, unknown>>, {
+      const svg = render(logo, {
         ariaLabel: 'Continue with this provider',
       }).querySelector('svg')!
       expect(svg.getAttribute('translate')).toBe('no')
@@ -128,7 +124,7 @@ describe('individual provider logos', () => {
   )
 
   it.each(LOGOS)('%s emits drawable geometry (<path> or <rect>)', (_n, logo) => {
-    const svg = render(logo as Component<Record<string, unknown>>, {}).querySelector('svg')!
+    const svg = render(logo, {}).querySelector('svg')!
     // 8 marks use <path>; Microsoft's mark is 4 colored <rect> squares.
     expect(svg.querySelector('path, rect')).not.toBeNull()
   })
@@ -149,7 +145,7 @@ describe('OAuthProviderLogo dispatcher', () => {
     ['linkedin', 'LinkedIn'],
     ['discord', 'Discord'],
   ])('dispatches "%s" to the logo with default label "%s"', async (provider, label) => {
-    const svg = render(OAuthProviderLogo as Component<Record<string, unknown>>, {
+    const svg = render(OAuthProviderLogo, {
       provider,
     }).querySelector('svg')!
     expect(svg).not.toBeNull()
@@ -162,7 +158,7 @@ describe('OAuthProviderLogo dispatcher', () => {
     ['apple', 'Apple'],
     ['discord', 'Discord'],
   ])('dispatches "%s" with translate="no" on the root <svg>', async (provider, label) => {
-    const svg = render(OAuthProviderLogo as Component<Record<string, unknown>>, {
+    const svg = render(OAuthProviderLogo, {
       provider,
     }).querySelector('svg')!
     expect(svg.getAttribute('translate')).toBe('no')
@@ -171,7 +167,7 @@ describe('OAuthProviderLogo dispatcher', () => {
 
   it('renders the fallback for an unknown provider', async () => {
     const { default: FallbackHost } = await import('./FallbackHost.svelte')
-    const container = render(FallbackHost as Component<Record<string, unknown>>, {
+    const container = render(FallbackHost, {
       provider: 'myspace',
     })
     expect(container.querySelector('span')?.textContent).toBe('n/a')
@@ -179,7 +175,7 @@ describe('OAuthProviderLogo dispatcher', () => {
   })
 
   it('renders nothing for an unknown provider when no fallback is given', () => {
-    const container = render(OAuthProviderLogo as Component<Record<string, unknown>>, {
+    const container = render(OAuthProviderLogo, {
       provider: 'unknown',
     })
     expect(container.childElementCount).toBe(0)
@@ -187,20 +183,20 @@ describe('OAuthProviderLogo dispatcher', () => {
   })
 
   it('treats "twitter" and "x" as the same mark', async () => {
-    const twitter = render(OAuthProviderLogo as Component<Record<string, unknown>>, {
+    const twitter = render(OAuthProviderLogo, {
       provider: 'twitter',
     }).innerHTML
     await unmount(instance!)
     instance = null
     document.body.innerHTML = ''
-    const x = render(OAuthProviderLogo as Component<Record<string, unknown>>, {
+    const x = render(OAuthProviderLogo, {
       provider: 'x',
     }).innerHTML
     expect(twitter).toBe(x)
   })
 
   it('forwards size + ariaLabel through to the dispatched logo', () => {
-    const svg = render(OAuthProviderLogo as Component<Record<string, unknown>>, {
+    const svg = render(OAuthProviderLogo, {
       provider: 'github',
       size: 40,
       ariaLabel: 'Continue with GitHub',
