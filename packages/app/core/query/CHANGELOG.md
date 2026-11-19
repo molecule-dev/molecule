@@ -1,5 +1,11 @@
 # @molecule/app-query
 
+## 1.3.4
+
+### Patch Changes
+
+- Document the supported generated resource client, automatic session scoping, write refresh, and validation errors.
+
 ## 1.3.3
 
 ### Patch Changes

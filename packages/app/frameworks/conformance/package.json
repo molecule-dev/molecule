@@ -214,7 +214,7 @@
     "@molecule/app-progress-bar-react": "4.0.0",
     "@molecule/app-progress-rings-react": "4.0.1",
     "@molecule/app-push": "1.1.0",
-    "@molecule/app-query": "1.3.3",
+    "@molecule/app-query": "1.3.4",
     "@molecule/app-query-memory": "1.1.0",
     "@molecule/app-query-react": "1.8.0",
     "@molecule/app-quiz-card-react": "4.0.1",
