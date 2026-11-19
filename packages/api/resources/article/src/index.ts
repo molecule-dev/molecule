@@ -13,7 +13,7 @@
  * unique, and `article_tags.position` is the order the tags were given in). It also ships
  * `src/__setup__/reactions.sql` and `src/__setup__/follows.sql`, which create the `reactions` and `follows` tables it reads by name.
  *
- * **HTTP format is configuration.** In the scaffold's `App/Resource/Article/index.ts`,
+ * **Reuse the article tables for custom routes.** In the scaffold's `App/Resource/Article/index.ts`,
  * export `requestHandlerMap = createArticleHandlers({ mapRequest, mapResponse })`.
  * Keep `create`, `list`, `feed`, `read`, `update`, `del`, `favorite`, `unfavorite`
  * and `tags` in the package.
@@ -28,7 +28,7 @@
  * queries even when many entries share an author; per-entry lookups repeat the same work.
  *
  * ```typescript
- * import { createArticleHandlers } from '@molecule/api-resource-article'
+ * import { createArticleHandlers, listArticles, type ListArticlesOptions } from '@molecule/api-resource-article'
  *
  * export const requestHandlerMap = createArticleHandlers({
  *   mapRequest: (req) => ({ body: req.body?.entry }),
@@ -36,12 +36,25 @@
  *     ? result
  *     : { ...result, body: { entry: result.body } },
  * })
+ *
+ * // For a custom list route, resolve public handles to user ids in the app.
+ * // Pass those ids as authorId and favoritedBy, and the current reader as viewerId.
+ * export async function listEntryPreviews(filters: ListArticlesOptions) {
+ *   const { data, total } = await listArticles(filters)
+ *   return {
+ *     entries: data.map(({ id, slug, title, favorited }) => ({ id, slug, title, favorited })),
+ *     entriesCount: total,
+ *   }
+ * }
  * ```
  *
  * Use the resulting map's handlers on the app's routes. For distinct route projections,
  * create separate maps with separate options. The static `requestHandlerMap` keeps the
- * native flat-body/raw-article format. Use service functions for a different domain workflow.
- * Read Quick Start for filter mapping and early responses.
+ * native flat-body/raw-article format. A list can combine tag, author and favorites
+ * filters with limit and offset. When a requested handle cannot be resolved, return an
+ * empty page instead of omitting its filter. `getFeed(viewerId, { limit, offset })`
+ * handles the followed-author view. The services read the package's tables, so a
+ * differently named table with its own schema needs its own persistence.
  *
  * **Need only a lookup in a custom route?** `findArticleRow(slug)` returns the stored
  * `ArticleRow` or `null`. `getArticleBySlug(slug, viewerId?)` returns an `Article` or

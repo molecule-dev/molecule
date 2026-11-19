@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
 
-const service = vi.hoisted(() => ({ createArticle: vi.fn() }))
+const service = vi.hoisted(() => ({ createArticle: vi.fn(), listArticles: vi.fn() }))
 vi.mock('../service.js', () => service)
 
 import * as article from '../index.js'
@@ -14,7 +14,10 @@ import * as article from '../index.js'
 // Execute the recipe there, rather than locking its wording. The old intro has
 // no recipe, leaving a reader on the existing default map. That control fails
 // on HTTP behavior (400 instead of 201), not on a missing export or code fence.
-function documentedMap(surface: 'source' | 'readme' = 'source'): article.ArticleRequestHandlerMap {
+function documentedRecipe(surface: 'source' | 'readme' = 'source'): {
+  requestHandlerMap?: article.ArticleRequestHandlerMap
+  listEntryPreviews?: (filters: article.ListArticlesOptions) => Promise<unknown>
+} {
   const source = readFileSync(
     new URL(surface === 'source' ? '../index.ts' : '../../README.md', import.meta.url),
     'utf8',
@@ -29,9 +32,13 @@ function documentedMap(surface: 'source' | 'readme' = 'source'): article.Article
   const js = ts.transpileModule(example, {
     compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
   }).outputText
-  const result: { requestHandlerMap?: article.ArticleRequestHandlerMap } = {}
+  const result = {}
   new Function('require', 'exports', js)(() => article, result)
-  return result.requestHandlerMap!
+  return result
+}
+
+function documentedMap(surface: 'source' | 'readme' = 'source'): article.ArticleRequestHandlerMap {
+  return documentedRecipe(surface).requestHandlerMap!
 }
 
 const created = { slug: 'issue', title: 'Issue', body: 'News', authorId: 'editor' }
@@ -108,4 +115,30 @@ describe('the article composition recipe in the doc introduction', () => {
       ).statusCode,
     ).toBe(400)
   })
+
+  it.each(['source', 'readme'] as const)(
+    'projects a filtered newsletter page through the %s introduction recipe',
+    async (surface) => {
+      const filters = {
+        tag: 'news',
+        authorId: 'editor',
+        favoritedBy: 'subscriber',
+        viewerId: 'reader',
+        limit: 1,
+        offset: 2,
+      }
+      service.listArticles.mockReset().mockResolvedValue({
+        data: [{ ...created, id: 'edition', favorited: false }],
+        total: 3,
+        limit: 1,
+        offset: 2,
+      })
+      const project = documentedRecipe(surface).listEntryPreviews ?? article.listArticles
+      expect(await project(filters)).toEqual({
+        entries: [{ id: 'edition', slug: 'issue', title: 'Issue', favorited: false }],
+        entriesCount: 3,
+      })
+      expect(service.listArticles).toHaveBeenCalledExactlyOnceWith(filters)
+    },
+  )
 })

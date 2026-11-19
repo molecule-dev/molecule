@@ -1,3 +1,6 @@
+import { readFileSync } from 'node:fs'
+
+import ts from 'typescript'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const { findOne } = vi.hoisted(() => ({ findOne: vi.fn() }))
@@ -45,7 +48,32 @@ describe('uniqueSlug', () => {
 })
 
 describe('uniqueSlugInTable', () => {
-  beforeEach(() => findOne.mockReset())
+  beforeEach(() => {
+    findOne.mockReset()
+  })
+
+  it('applies the custom table recipe without losing the default helper policy', async () => {
+    const intro = readFileSync(new URL('../index.ts', import.meta.url), 'utf8')
+      .split('\n * @module')[0]
+      .replace(/^ \* ?/gm, '')
+    const example = intro.match(/```typescript\n([\s\S]*?)```/)?.[1]
+    const fallback = (title: string, excludeId?: string) =>
+      uniqueSlugInTable('notes', 'slug', title, { excludeId })
+    const exports = { noteSlug: fallback }
+    if (example) {
+      const js = ts.transpileModule(example, {
+        compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
+      }).outputText
+      new Function('require', 'exports', js)(() => ({ uniqueSlugInTable }), exports)
+    }
+    findOne.mockImplementation(async (_table, where) =>
+      where[0]?.value === 'note' ? { id: 'existing' } : null,
+    )
+    expect(await exports.noteSlug('!!!')).toBe('note-2')
+    expect(await exports.noteSlug('!!!', 'existing')).toBe('note')
+    expect(await exports.noteSlug('x'.repeat(120))).toBe('x'.repeat(120))
+    expect(await fallback('!!!')).toBe('item')
+  })
 
   it('checks the column, and lets a row keep its own slug', async () => {
     findOne.mockImplementation(async (_table: string, where?: Array<{ value: string }>) =>

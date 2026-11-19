@@ -5,6 +5,29 @@
  * `uniqueSlug` finds one your store does not have yet; `uniqueSlugInTable`
  * does that against a table column through the bonded DataStore.
  *
+ * **Custom storage and routes can use the same collision policy.**
+ * Pass the table and the column you already own. Set `fallback`, `maxLength`
+ * and `maxNumbered` to match your naming policy. On update, pass the current
+ * row's id as `excludeId` so it can retain its own slug.
+ *
+ * ```typescript
+ * import { uniqueSlugInTable } from '@molecule/api-slug'
+ *
+ * export function noteSlug(title: string, excludeId?: string): Promise<string> {
+ *   return uniqueSlugInTable('notes', 'slug', title, {
+ *     fallback: 'note',
+ *     maxLength: 180,
+ *     maxNumbered: 100,
+ *     excludeId,
+ *   })
+ * }
+ * ```
+ *
+ * For a custom lookup, pass `uniqueSlug(title, isTaken, options)` a callback that
+ * checks a candidate against your store. Both helpers normalize the base before
+ * checking availability. An externally assigned, case-sensitive identifier needs
+ * its own availability policy.
+ *
  * @module
  * @example
  * ```typescript

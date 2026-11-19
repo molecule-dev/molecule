@@ -21,6 +21,18 @@
  * A genuinely different relationship schema stays local; these calls do not read a
  * custom `followingId` column or a separate table.
  *
+ * ```typescript
+ * import { getFollowedIds } from '@molecule/api-resource-follow'
+ *
+ * export async function projectWatchedNotes(
+ *   notes: readonly { id: string; title: string }[],
+ *   viewerId?: string | null,
+ * ) {
+ *   const followed = await getFollowedIds(viewerId, 'note', notes.map(({ id }) => id))
+ *   return notes.map((note) => ({ ...note, watching: followed.has(note.id) }))
+ * }
+ * ```
+ *
  * @module
  * @example
  * ```typescript

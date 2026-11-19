@@ -16,6 +16,7 @@ vi.mock('@molecule/api-database', () => ({
 
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import * as followResource from '../index.js'
 import {
   follow,
   getFollowerCount,
@@ -26,9 +27,63 @@ import {
   unfollow,
 } from '../service.js'
 
+function documentedProjection(): (
+  notes: readonly { id: string; title: string }[],
+  viewerId?: string | null,
+) => Promise<Array<{ id: string; title: string; watching: boolean }>> {
+  const intro = readFileSync(new URL('../index.ts', import.meta.url), 'utf8')
+    .split('\n * @module')[0]
+    .replace(/^ \* ?/gm, '')
+  const example = intro.match(/```typescript\n([\s\S]*?)```/)?.[1]
+  if (!example) {
+    return (notes, viewerId) =>
+      Promise.all(
+        notes.map(async (note) => ({
+          ...note,
+          watching: await isFollowing(viewerId, 'note', note.id),
+        })),
+      )
+  }
+  const js = ts.transpileModule(example, {
+    compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
+  }).outputText
+  const exports = {
+    projectWatchedNotes: undefined as ReturnType<typeof documentedProjection> | undefined,
+  }
+  new Function('require', 'exports', js)(() => followResource, exports)
+  return exports.projectWatchedNotes!
+}
+
 describe('@molecule/api-resource-follow service', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+  })
+
+  it('projects a page of notes with one relationship read using the introduction recipe', async () => {
+    const notes = [
+      { id: 'n1', title: 'One' },
+      { id: 'n2', title: 'Two' },
+    ]
+    mockFindOne.mockImplementation(async (_table, where) =>
+      where[2]?.value === 'n2' ? { targetId: 'n2' } : null,
+    )
+    mockFindMany.mockResolvedValue([{ targetId: 'n2' }])
+    const project = documentedProjection()
+    expect(await project(notes, 'reader')).toEqual([
+      { ...notes[0], watching: false },
+      { ...notes[1], watching: true },
+    ])
+    expect(mockFindMany).toHaveBeenCalledExactlyOnceWith('follows', {
+      select: ['targetId'],
+      where: [
+        { field: 'followerId', operator: '=', value: 'reader' },
+        { field: 'targetType', operator: '=', value: 'note' },
+        { field: 'targetId', operator: 'in', value: ['n1', 'n2'] },
+      ],
+    })
+    expect(mockFindOne).not.toHaveBeenCalled()
+    expect(await project(notes, null)).toEqual(notes.map((note) => ({ ...note, watching: false })))
+    expect(mockFindMany).toHaveBeenCalledOnce()
   })
 
   describe('follow', () => {
@@ -158,3 +213,6 @@ describe('@molecule/api-resource-follow service', () => {
     })
   })
 })
+import { readFileSync } from 'node:fs'
+
+import ts from 'typescript'
