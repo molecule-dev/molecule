@@ -46,3 +46,8 @@ npm-debug.log*
 # CI dist-cache index (written by scripts/dist-cache-manifest.mjs, restored from
 # the Actions cache). Build-output metadata, never source.
 .dist-manifest.json
+
+# Agent scratch: work product is committed or deleted before a session ends; this catches leftovers
+# (the workspace root ignores the same pattern, which does not reach this repo).
+.agent-scratch-*
+/.agent-scratch/
