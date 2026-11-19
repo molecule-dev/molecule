@@ -1,6 +1,7 @@
 import { type Component, createEffect, createSignal, onMount, Show, untrack } from 'solid-js'
 
 import { useTranslation } from '@molecule/app-solid'
+import type { KitKeyboardEvent } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Input, Textarea } from '@molecule/app-ui-solid'
 
@@ -21,7 +22,7 @@ interface EditorProps {
   /** Receives each typed value. */
   onInput: (value: string) => void
   /** Handles Escape / Enter on the field. */
-  onKey: (event: KeyboardEvent) => void
+  onKey: (event: KitKeyboardEvent) => void
   /** Cancels editing. */
   onCancel: () => void
   /** Saves the draft. */
@@ -61,7 +62,7 @@ const Editor: Component<EditorProps> = (props) => {
         fallback={
           <Textarea
             value={props.draft}
-            onChange={(e: Event) => props.onInput((e.target as HTMLTextAreaElement).value)}
+            onChange={(e) => props.onInput((e.target as HTMLTextAreaElement).value)}
             onKeyDown={props.onKey}
             aria-label={props.ariaLabel}
           />
@@ -70,7 +71,7 @@ const Editor: Component<EditorProps> = (props) => {
         <Input
           type="text"
           value={props.draft}
-          onChange={(e: Event) => props.onInput((e.target as HTMLInputElement).value)}
+          onChange={(e) => props.onInput((e.target as HTMLInputElement).value)}
           onKeyDown={props.onKey}
           aria-label={props.ariaLabel}
         />
@@ -148,7 +149,7 @@ export const InlineEdit: Component<InlineEditProps> = (props) => {
    * Handles keyboard events: Escape cancels, Enter (or Cmd/Ctrl+Enter for textarea) submits.
    * @param e - The keyboard event.
    */
-  const onKey = (e: KeyboardEvent): void => {
+  const onKey = (e: KitKeyboardEvent): void => {
     if (e.key === 'Escape') {
       e.preventDefault()
       cancel()

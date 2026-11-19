@@ -7,6 +7,8 @@
 
 import type { JSX } from 'solid-js'
 
+import type { KitMouseEvent } from '@molecule/app-ui'
+
 /** Connection status for an integration. */
 export type IntegrationStatus = 'connected' | 'disconnected' | 'pending' | 'error'
 
@@ -25,7 +27,7 @@ export interface IntegrationCardProps {
     /** Button label. */
     label?: JSX.Element
     /** Click handler (receives the DOM click event, as React's handler does). */
-    onClick?: (event?: MouseEvent) => void
+    onClick?: (event?: KitMouseEvent) => void
     /** When set, the button renders inside a plain anchor to this URL. */
     href?: string
     /** While true on the button branch, the label is replaced by an ellipsis glyph. */

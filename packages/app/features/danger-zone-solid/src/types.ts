@@ -6,6 +6,8 @@
 
 import type { JSX } from 'solid-js'
 
+import type { KitMouseEvent } from '@molecule/app-ui'
+
 /** Props accepted by the {@link DangerZoneSection} component. */
 export interface DangerZoneSectionProps {
   /** Section title. */
@@ -15,7 +17,7 @@ export interface DangerZoneSectionProps {
   /** Label on the action button (e.g. "Delete account"). */
   actionLabel?: JSX.Element
   /** Called when the button is clicked. */
-  onAction?: (event: MouseEvent) => void
+  onAction?: (event: KitMouseEvent) => void
   /** When true, the button disables and shows a loading label. */
   loading?: boolean
   /** When true, the button is disabled without loading. */

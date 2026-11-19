@@ -2,7 +2,7 @@
  * Vue product / property / listing card primitives.
  *
  * Exports:
- * - `<ListingCard>` — outer Card shell. Props: `children`, `onClick?`,
+ * - `<ListingCard>` — outer Card shell. Props: `children`, `toggle?`, `onClick?`,
  *   `className?`, `dataMolId?`.
  * - `<ListingCardMedia>` — top image slot. Props: `src?`, `alt?`, `children?`
  *   (custom media node), `aspect?` (`'1/1' | '4/3' | '16/9' | '3/2'`, default
@@ -21,7 +21,11 @@
  * @remarks
  * - `ListingCard.onClick` is attached to the WHOLE card — clicks on buttons inside
  *   `<ListingCardActions>` bubble into it. Call `event.stopPropagation()` in every
- *   action handler (as in the example) or the card navigation fires too.
+ *   action handler (as in the example) or the card navigation fires too. The
+ *   built-in `toggle` handles that itself.
+ * - Pass `toggle` for a server-backed action with a count, such as a vote or
+ *   endorsement: the card renders the counted button after the content, including
+ *   zero, and a rejected save puts both fields back together.
  * - `<ListingGrid columns={n}>` renders a fixed n-column grid (via `cm.grid`);
  *   override `className` for a custom grid.
  * - `overlay` children are rendered inside an absolutely-positioned inset-0 layer;

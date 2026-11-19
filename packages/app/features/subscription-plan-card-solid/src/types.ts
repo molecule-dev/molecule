@@ -8,6 +8,8 @@
 
 import type { JSX } from 'solid-js'
 
+import type { KitMouseEvent } from '@molecule/app-ui'
+
 /** Props accepted by the {@link SubscriptionPlanCard} component. */
 export interface SubscriptionPlanCardProps {
   /** Plan name (e.g. "Pro", "Team", "Enterprise"). */
@@ -23,7 +25,7 @@ export interface SubscriptionPlanCardProps {
   /** Primary CTA button label. */
   ctaLabel?: JSX.Element
   /** Click / nav handler (receives the click event, as React's CTA does). */
-  onCta?: (event?: MouseEvent) => void
+  onCta?: (event?: KitMouseEvent) => void
   /** When set, the CTA renders as a plain anchor to this URL. */
   ctaHref?: string
   /** Visually highlight as the recommended / popular plan. */

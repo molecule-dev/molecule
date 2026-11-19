@@ -40,7 +40,7 @@ export const SubscriptionPlanCard: Component<SubscriptionPlanCardProps> = (props
       <Button
         variant="solid"
         color={props.recommended ? 'primary' : 'secondary'}
-        onClick={withHandler ? (event: MouseEvent) => props.onCta?.(event) : undefined}
+        onClick={withHandler ? (event) => props.onCta?.(event) : undefined}
       >
         {props.ctaLabel}
       </Button>

@@ -2,6 +2,7 @@ import type { ReactNode } from 'react'
 import { useEffect, useRef, useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
+import type { KitKeyboardEvent } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Input, Textarea } from '@molecule/app-ui-react'
 
@@ -86,7 +87,7 @@ export function InlineEdit({
    * Handles keyboard events: Escape cancels, Enter (or Cmd/Ctrl+Enter for textarea) submits.
    * @param e
    */
-  function onKey(e: KeyboardEvent): void {
+  function onKey(e: KitKeyboardEvent): void {
     if (e.key === 'Escape') {
       e.preventDefault()
       cancel()

@@ -3,9 +3,11 @@
  * media / body / actions / grid parts, in every prop branch.
  *
  * The five components have no i18n, router or service dependency, so every
- * case mounts on the UI providers alone. `ListingCard` is the only one with a
- * callback (`onClick`, on the whole card — a click inside the actions row
+ * case mounts on the UI providers alone. `ListingCard` is the only one with
+ * callbacks: `onClick`, on the whole card (a click inside the actions row
  * bubbles into it, and its presence alone makes the card cursor-pointer), and
+ * its `toggle`'s `commit` / `onError` (a toggle click updates at once, is
+ * busy while the save runs, and never reaches `onClick`); and
  * `ListingCardMedia` is the only one that swaps a caller node for its own
  * `<img>` fallback.
  *
@@ -30,6 +32,14 @@ const metaNode = [{ tag: 'span', attrs: { 'data-meta': '' }, children: ['4.9 ★
 const mediaNode = [{ tag: 'video', attrs: { 'data-video': '' } }]
 /** The overlay node, absolutely positioned over the media. */
 const overlayNode = [{ tag: 'span', attrs: { 'data-overlay': '' }, children: ['New'] }]
+
+/** A counted toggle: not pressed, three people so far. */
+const toggle = {
+  value: { pressed: false, count: 3 },
+  commit: { $callback: 'commit' },
+  activeLabel: 'Saved',
+  inactiveLabel: 'Save',
+}
 
 /** `@molecule/app-listing-card-react`. */
 export const listingCardFeature: FeatureCases = {
@@ -59,6 +69,36 @@ export const listingCardFeature: FeatureCases = {
           // later `props` step can take it away again.
           props: { dataMolId: 'card-x', onClick: { $callback: 'onClick' } },
           children: [{ tag: 'div', attrs: { 'data-inner': '' }, children: ['x'] }],
+        },
+        {
+          name: 'a counted toggle after the content',
+          props: { toggle },
+          children: ['x'],
+        },
+        {
+          name: 'a pressed toggle with its own data-mol-id',
+          props: { toggle: { ...toggle, value: { pressed: true, count: 4 }, dataMolId: 'like' } },
+          children: ['x'],
+        },
+        {
+          name: 'a toggle click shows the desired count while the save runs, without calling onClick',
+          props: { onClick: { $callback: 'onClick' }, toggle },
+          callbackResults: { commit: { defer: true } },
+          children: ['x'],
+          interactions: [
+            { type: 'click', selector: 'button' },
+            { type: 'settle', callback: 'commit', value: { pressed: true, count: 10 } },
+          ],
+        },
+        {
+          name: 'a failed toggle save restores the confirmed state and reports the error',
+          props: { toggle: { ...toggle, onError: { $callback: 'onError' } } },
+          callbackResults: { commit: { defer: true } },
+          children: ['x'],
+          interactions: [
+            { type: 'click', selector: 'button' },
+            { type: 'settle', callback: 'commit', error: 'offline' },
+          ],
         },
         {
           name: 'a click anywhere on the card calls onClick',

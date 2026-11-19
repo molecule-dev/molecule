@@ -72,7 +72,7 @@ export const IntegrationCard: Component<IntegrationCardProps> = (props) => {
     ) : (
       <Button
         disabled={Boolean(action.disabled) || Boolean(action.loading)}
-        onClick={(event: MouseEvent) => action.onClick?.(event)}
+        onClick={(event) => action.onClick?.(event)}
       >
         {actionLabel(action)}
       </Button>

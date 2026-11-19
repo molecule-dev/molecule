@@ -573,26 +573,6 @@
     "renders the brand and each declared destination as links in the primary navigation landmark",
     "keeps a brand-and-actions header without a primary navigation landmark"
   ],
-  "@molecule/app-listing-card-angular": [
-    "renders the configured button and zero count, saves it, and shows the server count",
-    "rolls back both the pressed state and the count on a rejected save",
-    "leaves a card that intentionally omits a record field alone"
-  ],
-  "@molecule/app-listing-card-solid": [
-    "renders the configured button and zero count, saves it, and shows the server count",
-    "rolls back both the pressed state and the count on a rejected save",
-    "leaves a card that intentionally omits a record field alone"
-  ],
-  "@molecule/app-listing-card-svelte": [
-    "renders the configured button and zero count, saves it, and shows the server count",
-    "rolls back both the pressed state and the count on a rejected save",
-    "leaves a card that intentionally omits a record field alone"
-  ],
-  "@molecule/app-listing-card-vue": [
-    "renders the configured button and zero count, saves it, and shows the server count",
-    "rolls back both the pressed state and the count on a rejected save",
-    "leaves a card that intentionally omits a record field alone"
-  ],
   "@molecule/app-query-angular": [
     "does not advertise a previous empty collection while the new view is pending (%s)"
   ],

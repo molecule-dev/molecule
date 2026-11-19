@@ -12,7 +12,14 @@
  * @module
  */
 
+import type { CaseA11y } from '../../ui/spec.js'
 import type { FeatureCases } from '../spec.js'
+
+/** The case passes an action with an empty label. */
+const EMPTY_ACTION_LABEL: CaseA11y = {
+  expect: ['button-name'],
+  reason: 'The case passes an action with an empty label',
+}
 
 /** A leading icon, the way a caller passes a node. */
 const icon = [{ tag: 'span', attrs: { 'data-icon': '' }, children: ['🔌'] }]
@@ -95,6 +102,7 @@ export const integrationCardFeature: FeatureCases = {
         },
         {
           name: 'action with an empty label',
+          a11y: EMPTY_ACTION_LABEL,
           props: { title: 'Slack', action: { label: '', onClick: connect } },
         },
         { name: 'cta variant', props: { title: 'Slack', variant: 'cta' } },

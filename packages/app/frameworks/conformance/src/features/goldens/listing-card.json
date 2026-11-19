@@ -39,6 +39,54 @@
     ],
     "calls": []
    },
+   "a counted toggle after the content": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\nx\n<div class=\"c2cbb8333 c42740ba6 c9566e21c c9cd623cf cc2d72006 ccae02ff2 cd9b20003\">\n<button aria-busy=\"false\" aria-pressed=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"listing-card-toggle\" type=\"button\">\nSave\n<span>\n3\n</span>\n</button>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a pressed toggle with its own data-mol-id": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\nx\n<div class=\"c2cbb8333 c42740ba6 c9566e21c c9cd623cf cc2d72006 ccae02ff2 cd9b20003\">\n<button aria-busy=\"false\" aria-pressed=\"true\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"like\" type=\"button\">\nSaved\n<span>\n4\n</span>\n</button>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a toggle click shows the desired count while the save runs, without calling onClick": {
+    "snapshots": [
+     "<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\nx\n<div class=\"c2cbb8333 c42740ba6 c9566e21c c9cd623cf cc2d72006 ccae02ff2 cd9b20003\">\n<button aria-busy=\"false\" aria-pressed=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"listing-card-toggle\" type=\"button\">\nSave\n<span>\n3\n</span>\n</button>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\nx\n<div class=\"c2cbb8333 c42740ba6 c9566e21c c9cd623cf cc2d72006 ccae02ff2 cd9b20003\">\n<button aria-busy=\"true\" aria-pressed=\"true\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"listing-card-toggle\" type=\"button\">\nSaved\n<span>\n4\n</span>\n</button>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\nx\n<div class=\"c2cbb8333 c42740ba6 c9566e21c c9cd623cf cc2d72006 ccae02ff2 cd9b20003\">\n<button aria-busy=\"false\" aria-pressed=\"true\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"listing-card-toggle\" type=\"button\">\nSaved\n<span>\n10\n</span>\n</button>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "commit",
+      "args": [
+       true
+      ]
+     }
+    ]
+   },
+   "a failed toggle save restores the confirmed state and reports the error": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\nx\n<div class=\"c2cbb8333 c42740ba6 c9566e21c c9cd623cf cc2d72006 ccae02ff2 cd9b20003\">\n<button aria-busy=\"false\" aria-pressed=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"listing-card-toggle\" type=\"button\">\nSave\n<span>\n3\n</span>\n</button>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\nx\n<div class=\"c2cbb8333 c42740ba6 c9566e21c c9cd623cf cc2d72006 ccae02ff2 cd9b20003\">\n<button aria-busy=\"true\" aria-pressed=\"true\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"listing-card-toggle\" type=\"button\">\nSaved\n<span>\n4\n</span>\n</button>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\nx\n<div class=\"c2cbb8333 c42740ba6 c9566e21c c9cd623cf cc2d72006 ccae02ff2 cd9b20003\">\n<button aria-busy=\"false\" aria-pressed=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"listing-card-toggle\" type=\"button\">\nSave\n<span>\n3\n</span>\n</button>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "commit",
+      "args": [
+       true
+      ]
+     },
+     {
+      "name": "onError",
+      "args": [
+       {}
+      ]
+     }
+    ]
+   },
    "a click anywhere on the card calls onClick": {
     "snapshots": [
      "<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<div data-inner>\nx\n</div>\n</div>\n</div>\n@route /",

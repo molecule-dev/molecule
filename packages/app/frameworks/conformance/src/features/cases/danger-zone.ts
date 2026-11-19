@@ -5,7 +5,14 @@
  * @module
  */
 
+import type { CaseA11y } from '../../ui/spec.js'
 import type { FeatureCases } from '../spec.js'
+
+/** The case passes a bare input as children to check where children render. */
+const UNLABELLED_CHILD_INPUT: CaseA11y = {
+  expect: ['label'],
+  reason: 'The case passes a bare input as children to check where children render',
+}
 
 /** The section's required copy, as plain text props. */
 const section = {
@@ -61,6 +68,7 @@ export const dangerZoneFeature: FeatureCases = {
         },
         {
           name: 'extra content between description and button',
+          a11y: UNLABELLED_CHILD_INPUT,
           props: { ...section },
           callbacks: ['onAction'],
           children: [{ tag: 'input', attrs: { 'data-parity-confirm': '' } }],

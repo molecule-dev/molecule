@@ -96,7 +96,7 @@ export const SettingsActionsBar: Component<SettingsActionsBarProps> = (props) =>
         <Show when={props.onCancel}>
           <Button
             variant="ghost"
-            onClick={(event: MouseEvent) => props.onCancel?.(event)}
+            onClick={(event) => props.onCancel?.(event)}
             disabled={props.loading}
           >
             {t('settingsActions.cancel', {}, { defaultValue: 'Cancel' })}

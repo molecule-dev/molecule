@@ -5,6 +5,40 @@
  * @module
  */
 
+import type { ButtonSize, ButtonVariant, ColorVariant } from '@molecule/app-ui'
+
+/** A server-backed card action with the total number of people who selected it. */
+export interface ListingCardToggleProps {
+  /** The pressed state and count from the same loaded record. */
+  value: { pressed: boolean; count: number }
+  /** Saves the desired state and returns the server-confirmed state and count together. */
+  commit: (desired: boolean) => Promise<ListingCardToggleProps['value']>
+  /** Label when the displayed value is true. */
+  activeLabel: string | number
+  /** Label when the displayed value is false. */
+  inactiveLabel: string | number
+  /** Receives a failed save after the toggle put the last confirmed state and count back. */
+  onError?: (error: unknown) => void
+  /** Overrides the button's default `data-mol-id`. */
+  dataMolId?: string
+  /** Button variant (defaults to `'solid'` while pressed, `'outline'` otherwise). */
+  variant?: ButtonVariant
+  /** Button color. */
+  color?: ColorVariant
+  /** Button size. */
+  size?: ButtonSize
+  /** Whether the button stretches to fill its container. */
+  fullWidth?: boolean
+  /** Disables the button (permissions, never a pending save). */
+  disabled?: boolean
+  /** Extra classes on the button. */
+  className?: string
+  /** `data-testid` for the button. */
+  testId?: string
+  /** `data-mol-id` automation id; wins over `dataMolId` (React's precedence). */
+  automationId?: string
+}
+
 /**
  * Props accepted by {@link ListingCard} — the same props
  * `@molecule/app-listing-card-react` accepts. Node props (`children`) are
@@ -14,6 +48,8 @@
 export interface ListingCardProps {
   /** Slots — projected as the element's default content. */
   children?: unknown
+  /** Renders a counted native toggle after the content, outside any links in the content. */
+  toggle?: ListingCardToggleProps
   /** Called on any click on the card (React's `onClick`, with the click event). */
   onClick?: (event: MouseEvent) => void
   /** Extra classes on the outer Card. */

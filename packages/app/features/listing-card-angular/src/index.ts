@@ -3,6 +3,7 @@
  *
  * Exports:
  * - `<ListingCard>` — outer Card shell (`div[mol-listing-card]`). Props:
+ *   `toggle?` (a counted server-backed action, rendered after the content),
  *   `onClick?`, `className?`, `dataMolId?`; children are projected content.
  * - `<ListingCardMedia>` — top image slot (`div[mol-listing-card-media]`).
  *   Props: `src?`, `alt?`, node children (custom media node), `aspect?`

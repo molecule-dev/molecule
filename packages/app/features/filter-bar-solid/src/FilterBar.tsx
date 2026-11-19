@@ -11,6 +11,7 @@
 import { type Component, For, type JSX, Show } from 'solid-js'
 
 import { useTranslation } from '@molecule/app-solid'
+import type { KitMouseEvent } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Input, Select } from '@molecule/app-ui-solid'
 
@@ -142,8 +143,8 @@ export const FilterBar: Component<FilterBarProps> = (props) => {
    *
    * @param event - The click event.
    */
-  const clearAll = (event: MouseEvent): void => {
-    const notify: ((e: MouseEvent) => void) | undefined = props.onClear
+  const clearAll = (event: KitMouseEvent): void => {
+    const notify: ((e: KitMouseEvent) => void) | undefined = props.onClear
     notify?.(event)
   }
 

@@ -6,6 +6,8 @@
 
 import type { JSX } from 'solid-js'
 
+import type { KitMouseEvent } from '@molecule/app-ui'
+
 /**
  * Props accepted by the {@link SettingsActionsBar} component — the same props
  * `@molecule/app-settings-actions-bar-react` accepts. Node-valued props
@@ -19,7 +21,7 @@ export interface SettingsActionsBarProps {
    * Called when Cancel is clicked (with the click event, as React's
    * `onClick={onCancel}` forwards it). Hides Cancel if omitted.
    */
-  onCancel?: (event?: MouseEvent) => void
+  onCancel?: (event?: KitMouseEvent) => void
   /** When true, the Save button disables and shows a loading label. */
   loading?: boolean
   /** When true, the Save button is disabled without a loading label. */

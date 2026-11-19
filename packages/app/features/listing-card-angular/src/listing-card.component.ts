@@ -9,6 +9,8 @@ import { Component } from '@angular/core'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
+import { ListingCardActions } from './listing-card-actions.component.js'
+import { ListingCardToggle } from './listing-card-toggle.component.js'
 import type { ListingCardProps } from './types.js'
 
 /**
@@ -20,19 +22,27 @@ import type { ListingCardProps } from './types.js'
  * + `cm.cursorPointer` when a click handler is supplied + `className`),
  * `data-mol-id` and the click handler live on it. The children are projected
  * content, stacked vertically in the inner `div` (`cm.stack(0)`).
+ *
+ * A supplied `toggle` renders the counted card action after the content,
+ * outside any links in it — React's `<ListingCardActions><ListingCardToggle>`
+ * pair, in the same DOM order.
  */
 @Component({
   selector: 'div[mol-listing-card]',
   standalone: true,
-  inputs: ['onClick', 'className', 'dataMolId'],
+  imports: [ListingCardActions, ListingCardToggle],
+  inputs: ['toggle', 'onClick', 'className', 'dataMolId'],
   host: {
     '[class]': 'classes()',
     '[attr.data-mol-id]': 'dataMolId ?? null',
     '(click)': 'handleClick($event)',
   },
-  template: `<div [class]="stackClasses()"><ng-content></ng-content></div>`,
+  // prettier-ignore
+  template: `<div [class]="stackClasses()"><ng-content></ng-content>@if (toggle) {<div mol-listing-card-actions><button mol-listing-card-toggle [value]="toggle.value" [commit]="toggle.commit" [activeLabel]="toggle.activeLabel" [inactiveLabel]="toggle.inactiveLabel" [onError]="toggle.onError" [dataMolId]="toggle.dataMolId" [variant]="toggle.variant" [color]="toggle.color" [size]="toggle.size" [fullWidth]="toggle.fullWidth ?? false" [disabled]="toggle.disabled ?? false" [className]="toggle.className" [testId]="toggle.testId" [automationId]="toggle.automationId"></button></div>}</div>`,
 })
 export class ListingCard {
+  /** Renders a counted native toggle after the content, outside any links in the content. */
+  toggle?: ListingCardProps['toggle']
   /** Click handler; receives the DOM click event (React's `onClick`). */
   onClick?: ListingCardProps['onClick']
   /** Extra classes on the outer Card. */

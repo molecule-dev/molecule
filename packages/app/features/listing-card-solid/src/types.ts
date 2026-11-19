@@ -8,17 +8,35 @@
 
 import type { JSX } from 'solid-js'
 
+import type { KitMouseEvent } from '@molecule/app-ui'
+import type { OptimisticToggleButtonProps } from '@molecule/app-ui-solid'
+
+/** A server-backed card action with the total number of people who selected it. */
+export interface ListingCardToggleProps extends Omit<
+  OptimisticToggleButtonProps,
+  'value' | 'commit'
+> {
+  /** The pressed state and count from the same loaded record. */
+  value: { pressed: boolean; count: number }
+  /** Saves the desired state and returns the server-confirmed state and count together. */
+  commit: (desired: boolean) => Promise<ListingCardToggleProps['value']>
+  /** Overrides the button's default `data-mol-id`. */
+  dataMolId?: string
+}
+
 /** Props for {@link ListingCard}. */
 export interface ListingCardProps {
   /** Slots — usually `<ListingCardMedia>` + `<ListingCardBody>` + `<ListingCardActions>`. */
   children: JSX.Element
+  /** Renders a counted native toggle after the content, outside any links in the content. */
+  toggle?: ListingCardToggleProps
   /**
    * Called on any click on the card — including clicks inside
    * `<ListingCardActions>`, which bubble into it unless the action handler
    * stops propagation. The DOM click event is passed the way React's DOM
    * handler receives it.
    */
-  onClick?: (event: MouseEvent) => void
+  onClick?: (event: KitMouseEvent) => void
   /** Extra classes on the outer Card. */
   className?: string
   /** `data-mol-id` for AI-agent selectors. */
