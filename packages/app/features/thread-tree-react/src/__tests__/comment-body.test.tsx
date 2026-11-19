@@ -34,6 +34,18 @@ describe('plain and rich comment body semantics', () => {
     expect(container.querySelector('script')).toBeNull()
   })
 
+  it('wraps an unbroken project comment without dropping any text', () => {
+    const body = 'trackingcode'.repeat(240)
+    const { container } = render(
+      <I18nProvider provider={createSimpleI18nProvider('en')}>
+        <ThreadTree comments={[{ id: 'project-reply', author: 'Reader', body }]} />
+      </I18nProvider>,
+    )
+    const paragraph = container.querySelector<HTMLParagraphElement>('article > p')
+    expect(paragraph?.textContent).toBe(body)
+    expect(paragraph?.style.overflowWrap).toBe('anywhere')
+  })
+
   it('preserves rich block content without nesting a paragraph around it', () => {
     const { container } = render(
       <I18nProvider provider={createSimpleI18nProvider('en')}>
