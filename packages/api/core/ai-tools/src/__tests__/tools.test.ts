@@ -5990,6 +5990,45 @@ describe('parse check after a write', () => {
     )
   })
 
+  it('write_file and edit_file carry the parse check’s same-module sibling (l3577)', async () => {
+    const backend = mockBackend()
+    ;(backend.run as ReturnType<typeof vi.fn>).mockResolvedValue({
+      stdout: 'MOL_SAME_MODULE ["auth.tsx"]\n',
+      stderr: '',
+      exitCode: 0,
+    })
+    const tools = buildTools(backend)
+    const written = (await tools
+      .find((t) => t.name === 'write_file')!
+      .execute({ path: '/test/src/conduit/auth.ts', content: 'export const a = 1\n' })) as {
+      ok?: boolean
+      syntaxError?: string
+      sameModuleNote?: string
+    }
+    expect(written.ok).toBe(true)
+    expect(written.syntaxError).toBeUndefined()
+    expect(written.sameModuleNote).toMatch(/^`auth\.tsx` in this folder also answers/)
+    const edited = (await tools
+      .find((t) => t.name === 'edit_file')!
+      .execute({
+        path: '/test/src/conduit/auth.ts',
+        old_string: 'const a = 1',
+        new_string: 'const a = 2',
+      })) as { ok?: boolean; sameModuleNote?: string }
+    expect(edited.ok).toBe(true)
+    expect(edited.sameModuleNote).toMatch(/If this file replaces it, delete `auth\.tsx`\.$/)
+  })
+
+  it('counterexample: a write with no sibling carries no same-module note', async () => {
+    const backend = mockBackend()
+    const write = buildTools(backend).find((t) => t.name === 'write_file')!
+    const result = (await write.execute({
+      path: '/test/src/conduit/auth.ts',
+      content: 'export const a = 1\n',
+    })) as Record<string, unknown>
+    expect(result).not.toHaveProperty('sameModuleNote')
+  })
+
   it('does not re-read the file it just wrote when no after-write hook can change it', async () => {
     const backend = mockBackend()
     const writeFile = buildTools(backend).find((t) => t.name === 'write_file')!

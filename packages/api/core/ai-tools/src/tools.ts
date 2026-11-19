@@ -931,6 +931,7 @@ import {
   runningCauseCommand,
   runningLogReadCommand,
   runningOutputSliceCommand,
+  sameModuleNote,
   searchTimeoutError,
   serializedChars,
   shellQuote,
@@ -1499,12 +1500,13 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
    * mangled a template literal in `scripts/prerender.mjs`, the site stopped
    * building, and the fix round spent 500 calls on the fallout. `node --check`
    * is ~50 ms; the executor sees the exact line while the edit is still in
-   * front of it.
+   * front of it. The same check names a same-name sibling that answers this
+   * file's import ({@link sameModuleNote}).
    */
   async function syntaxErrorAfterWrite(
     path: string,
     checked?: { stdout: string; stderr: string; exitCode: number } | null,
-  ): Promise<{ syntaxError?: string }> {
+  ): Promise<{ syntaxError?: string; sameModuleNote?: string }> {
     const command = parseCheckCommand(path)
     if (!command) return {}
     const result =
@@ -1522,11 +1524,15 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
       problem !== null && /\.ts$/.test(path) && /Expected ">" but found|JSX/i.test(problem)
         ? '\nThis looks like JSX in a `.ts` file: JSX only parses in a `.tsx` file — rename it (and its imports keep the `.js` extension).'
         : ''
-    return problem
-      ? {
-          syntaxError: `The file no longer parses after this change — fix it before anything else, every build and test fails until it does:\n${problem}${jsxInTs}`,
-        }
-      : {}
+    const sibling = result ? sameModuleNote(path, result.stdout) : null
+    return {
+      ...(problem
+        ? {
+            syntaxError: `The file no longer parses after this change — fix it before anything else, every build and test fails until it does:\n${problem}${jsxInTs}`,
+          }
+        : {}),
+      ...(sibling ? { sameModuleNote: sibling } : {}),
+    }
   }
 
   /**
@@ -3095,6 +3101,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
                   : {}),
                 ...syntax,
               }),
+          ...(syntax.sameModuleNote ? { sameModuleNote: syntax.sameModuleNote } : {}),
           ...(skippedNote ? { skippedNote } : {}),
           ...(alreadyApplied > 0 ? { alreadyApplied, note: alreadyNote } : {}),
           totalLines: countLines(finalContent),

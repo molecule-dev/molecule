@@ -5406,6 +5406,75 @@ export const PARSE_CHECKABLE = /\.(m?js|cjs|jsx|ts|tsx|mts|cts|json)$/
  */
 const TYPESCRIPT_CONFIG = /^(?:ts|js)config(?:\.[^/\\]+)?\.json$/
 
+/** The line the TypeScript parse check prints when other files answer the written file's import. */
+export const SAME_MODULE_MARK = 'MOL_SAME_MODULE '
+
+/** The source extensions an import of `./name.js` (or `./name`) can resolve to. */
+const SAME_MODULE_EXTENSIONS = ['.ts', '.tsx', '.js', '.jsx'] as const
+
+/**
+ * The part of the TypeScript parse check that lists the written file's same-name siblings
+ * (`auth.ts` beside `auth.tsx`) on one {@link SAME_MODULE_MARK} line. It reads one directory in
+ * the process the check already starts, so it adds no sandbox call. Inside a double-quoted shell
+ * argument, so it holds no `$`, backtick, backslash or double quote; a directory it cannot read
+ * lists nothing (the parse check runs either way).
+ */
+const SAME_MODULE_PROBE =
+  `try{const x=${JSON.stringify(SAME_MODULE_EXTENSIONS).replace(/"/g, "'")};` +
+  `const ext=(f)=>f.slice(f.lastIndexOf('.'));const stem=(f)=>f.slice(0,f.lastIndexOf('.'));` +
+  `const i=p.lastIndexOf('/');const b=p.slice(i+1);if(x.includes(ext(b))){` +
+  `const s=require('fs').readdirSync(i<0?'.':p.slice(0,i)||'/')` +
+  `.filter((f)=>f!==b&&x.includes(ext(f))&&stem(f)===stem(b)).sort();` +
+  `if(s.length)console.log('${SAME_MODULE_MARK}'+JSON.stringify(s))}}catch(_error){}`
+
+/**
+ * What the write's result says when another file in its folder answers the same import, or null.
+ *
+ * `auth.ts` and `auth.tsx` side by side both answer `./auth.js`. TypeScript and Vite both try
+ * `.ts` before `.tsx`, so the `.tsx` never runs, yet it is still type-checked and shipped, and a
+ * change elsewhere can break the build through it. A `.js` or `.jsx` sibling can make the
+ * type-checker and the bundler load different files, so that case names no winner.
+ *
+ * @param path - The written file's path.
+ * @param stdout - The parse check's standard output.
+ * @returns The note, or null when no sibling answers the same import.
+ */
+export function sameModuleNote(path: string, stdout: string): string | null {
+  // xr-molecule-flash-l3577 (P465) wrote `conduit/auth.ts` beside its earlier `auth.tsx` at +4 min.
+  // Nothing imported the `.tsx`; at +9 min an edit to `api.ts` broke its imports, the deployed
+  // build's type check failed, and deleting the file, redeploying and walking both suites again
+  // cost 6.5 min after a green walk.
+  const line = stdout.split('\n').find((text) => text.startsWith(SAME_MODULE_MARK))
+  if (!line) return null
+  let others: unknown
+  try {
+    others = JSON.parse(line.slice(SAME_MODULE_MARK.length))
+  } catch (_error) {
+    // A cut or foreign line is not a listing: name nothing rather than guess.
+    return null
+  }
+  if (!Array.isArray(others) || others.length === 0) return null
+  if (!others.every((other): other is string => typeof other === 'string')) return null
+  const name = path.slice(path.lastIndexOf('/') + 1)
+  const stem = name.slice(0, name.lastIndexOf('.'))
+  const listed = others.map((other) => `\`${other}\``).join(' and ')
+  const verb = others.length === 1 ? 'answers' : 'answer'
+  const specifier = `\`./${stem}.js\``
+  if (![name, ...others].every((file) => /\.tsx?$/.test(file)))
+    return (
+      `${listed} in this folder also ${verb} the import ${specifier}, and the type-checker and ` +
+      'the bundler can load different ones of these files. Keep one and delete the others.'
+    )
+  const loaded = `${stem}.ts`
+  return name === loaded
+    ? `${listed} in this folder also ${verb} the import ${specifier}. TypeScript and Vite load ` +
+        `this file (\`${loaded}\`), so ${listed} never runs, but it is still type-checked and ` +
+        `shipped. If this file replaces it, delete ${listed}.`
+    : `\`${loaded}\` in this folder also answers the import ${specifier}, and TypeScript and Vite ` +
+        `load \`${loaded}\`, so the code in this file never runs. Put it in \`${loaded}\`, or ` +
+        `delete \`${loaded}\` if this file replaces it.`
+}
+
 /**
  * The shell command that parses one file and exits non-zero with the error
  * when it does not parse: `node --check` for JavaScript, `JSON.parse` for
@@ -5443,6 +5512,7 @@ export function parseCheckCommand(path: string): string | null {
   // (X1 runs sol-m05, sol-m06).
   return (
     `node -e "const p=process.argv[1];const src=require('fs').readFileSync(p,'utf8');` +
+    SAME_MODULE_PROBE +
     `try{require('esbuild').transformSync(src,{loader:p.endsWith('x')?'tsx':'ts',logLevel:'silent'})}` +
     `catch(e){const m=(e.errors||[])[0];if(!m||!m.location)throw e;const l=m.location;` +
     `console.error(l.line+':'+(l.column+1)+': '+m.text+String.fromCharCode(10)+l.lineText.slice(0,240)+String.fromCharCode(10)+' '.repeat(Math.min(l.column,240))+'^');process.exit(1)}" ${q}`

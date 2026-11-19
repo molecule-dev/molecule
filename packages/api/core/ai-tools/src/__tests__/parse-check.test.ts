@@ -5,13 +5,18 @@
  * re-emitting the file (X1 runs sol-m05, sol-m06 saw only `<stdin>:7:44`).
  */
 import { spawnSync } from 'node:child_process'
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
 import { afterAll, describe, expect, it } from 'vitest'
 
-import { parseCheckCommand, parseCheckProblem } from '../utilities.js'
+import {
+  parseCheckCommand,
+  parseCheckProblem,
+  SAME_MODULE_MARK,
+  sameModuleNote,
+} from '../utilities.js'
 
 const dir = mkdtempSync(join(tmpdir(), 'parse-check-'))
 afterAll(() => {
@@ -118,5 +123,99 @@ describe('parse check treats TypeScript config files as JSONC', () => {
         exitCode: 1,
       }),
     ).toBeNull()
+  })
+})
+
+/**
+ * The same check lists the written file's same-name siblings: `auth.ts` beside `auth.tsx` both
+ * answer `./auth.js`, one of them never runs, and both are type-checked and shipped
+ * (xr-molecule-flash-l3577: a stale `auth.tsx` failed the deployed build's type check after a
+ * green walk, 6.5 min to delete, redeploy and walk again).
+ */
+describe('parse check names a sibling that answers the same import', () => {
+  const run = (folder: string, name: string, text: string) => {
+    const path = join(folder, name)
+    writeFileSync(path, text)
+    const command = parseCheckCommand(path)
+    if (!command) throw new Error(`${name} is not parse-checkable`)
+    const r = spawnSync('sh', ['-c', command], { encoding: 'utf8', cwd: process.cwd() })
+    return { path, stdout: r.stdout, status: r.status, stderr: r.stderr }
+  }
+  const folder = (name: string): string => {
+    const at = join(dir, name)
+    mkdirSync(at)
+    return at
+  }
+
+  it('writing auth.ts beside auth.tsx names the stale .tsx (l3577)', () => {
+    const at = folder('l3577')
+    writeFileSync(join(at, 'auth.tsx'), 'export const old = () => <b>old</b>\n')
+    const r = run(at, 'auth.ts', 'export const useSession = () => null\n')
+    expect(r.status).toBe(0)
+    expect(sameModuleNote(r.path, r.stdout)).toBe(
+      '`auth.tsx` in this folder also answers the import `./auth.js`. TypeScript and Vite load ' +
+        'this file (`auth.ts`), so `auth.tsx` never runs, but it is still type-checked and ' +
+        'shipped. If this file replaces it, delete `auth.tsx`.',
+    )
+  })
+
+  it('writing auth.tsx beside auth.ts says this file never runs', () => {
+    const at = folder('reverse')
+    writeFileSync(join(at, 'auth.ts'), 'export const a = 1\n')
+    const r = run(at, 'auth.tsx', 'export const A = () => <b>a</b>\n')
+    expect(sameModuleNote(r.path, r.stdout)).toBe(
+      '`auth.ts` in this folder also answers the import `./auth.js`, and TypeScript and Vite ' +
+        'load `auth.ts`, so the code in this file never runs. Put it in `auth.ts`, or delete ' +
+        '`auth.ts` if this file replaces it.',
+    )
+  })
+
+  it('a .js sibling is named without saying which file loads', () => {
+    const at = folder('js-sibling')
+    writeFileSync(join(at, 'api.js'), 'export const a = 1\n')
+    const r = run(at, 'api.ts', 'export const a: number = 1\n')
+    expect(sameModuleNote(r.path, r.stdout)).toBe(
+      '`api.js` in this folder also answers the import `./api.js`, and the type-checker and the ' +
+        'bundler can load different ones of these files. Keep one and delete the others.',
+    )
+  })
+
+  it('the sibling is still named when the written file does not parse', () => {
+    const at = folder('broken')
+    writeFileSync(join(at, 'feed.tsx'), 'export const F = () => <b>f</b>\n')
+    const r = run(at, 'feed.ts', "export const x = 'open\n")
+    expect(
+      parseCheckProblem({ stdout: r.stdout, stderr: r.stderr, exitCode: r.status ?? 1 }),
+    ).toMatch(/Unterminated string literal/)
+    expect(sameModuleNote(r.path, r.stdout)).toMatch(/^`feed\.tsx` in this folder/)
+  })
+
+  it('counterexample: tests, stories, styles and declarations beside a module name nothing', () => {
+    const at = folder('neighbours')
+    for (const other of [
+      'Button.test.tsx',
+      'Button.stories.tsx',
+      'Button.css',
+      'Button.module.css',
+      'Button.d.ts',
+      'Button.mts',
+    ])
+      writeFileSync(join(at, other), 'export {}\n')
+    const r = run(at, 'Button.tsx', 'export const Button = () => <button>b</button>\n')
+    expect(r.stdout).toBe('')
+    expect(sameModuleNote(r.path, r.stdout)).toBeNull()
+  })
+
+  it('counterexample: an .mts file and a lone module list nothing', () => {
+    const at = folder('alone')
+    writeFileSync(join(at, 'server.ts'), 'export {}\n')
+    expect(run(at, 'server.mts', 'export const s = 1\n').stdout).toBe('')
+    expect(run(folder('lone'), 'notes.ts', 'export const notes: string[] = []\n').stdout).toBe('')
+  })
+
+  it('a cut or foreign line is not a listing', () => {
+    expect(sameModuleNote('/w/a.ts', `${SAME_MODULE_MARK}["a.tsx"`)).toBeNull()
+    expect(sameModuleNote('/w/a.ts', `${SAME_MODULE_MARK}[1]`)).toBeNull()
+    expect(sameModuleNote('/w/a.ts', 'unrelated output')).toBeNull()
   })
 })
