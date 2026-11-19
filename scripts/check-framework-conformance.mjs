@@ -59,6 +59,14 @@
  *   until it is removed, and a React package added later has no entry, so it
  *   ships with its counterparts;
  * - a feature bond's known-gaps.json is `{}`: it matches React in every case;
+ * - every test title a React package declares is a test title in each of its counterparts
+ *   ({@link titleParityViolations}): a feature or infrastructure package's `-vue`, `-solid`,
+ *   `-svelte` and `-angular` packages, and in the UI, binding and routing groups each member
+ *   that does not depend on React. The counterpart's test runs against its own
+ *   implementation, so the behaviour React's test pins down is pinned down in every framework
+ *   a bond can be swapped to. Titles not ported yet are listed in {@link TITLE_PARITY_PENDING},
+ *   which may only shrink; a React test of something only React has is exempt, with the
+ *   reason, in {@link TITLE_PARITY_EXEMPT};
  * - its conformance test passes its React package's cases
  *   (`${KIT}/features/cases/<x>`), and the kit has that cases file and its
  *   recorded goldens (`src/features/cases/<x>.ts`, `src/features/goldens/<x>.json` or, stored
@@ -67,10 +75,12 @@
  * @module
  */
 import console from 'node:console'
-import { existsSync, readdirSync, readFileSync } from 'node:fs'
+import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
+
+import { testFilesOf, testTitlesOf } from './lib/test-titles.mjs'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 
@@ -506,6 +516,7 @@ export function findConformanceViolations(root = ROOT) {
   }
 
   out.push(...featureParityViolations(root, kit))
+  out.push(...titleParityViolations(root))
 
   // Component markup of every UI bond and every feature bond takes its classes from the ClassMap.
   for (const { dir, pkg } of [...packages, ...featureBonds]) {
@@ -642,12 +653,200 @@ export function featureParityViolations(root, kit) {
   return [...new Set(out)]
 }
 
+/**
+ * The ledger of React test titles a counterpart does not declare yet: counterpart package →
+ * the titles it lacks. It may only shrink: a title the counterpart now declares, or that its
+ * React package no longer declares, is a violation until it is removed.
+ */
+export const TITLE_PARITY_PENDING = 'scripts/test-title-parity-pending.json'
+
+/**
+ * React test files no counterpart has a test for, per React package: a path under the
+ * package (a file, or a directory ending in `/`) → why no counterpart can run it. Each
+ * one tests something only the React package has; behaviour every framework shares is
+ * never exempt.
+ */
+export const TITLE_PARITY_EXEMPT = {
+  [BINDING_REFERENCE]: {
+    'src/render/':
+      "`@molecule/app-react/render` holds helpers for React's render model (committed refs, effect events, stable callbacks), which no other binding has; app-facing hooks live on the root export, which every binding matches",
+  },
+  '@molecule/app-routing-react-router': {
+    'src/__tests__/main-entry-without-react-dom.test.ts':
+      'keeps the main entry loadable without react-dom, which only the react-router/dom split has',
+    'src/__tests__/oldest-react-router-dom-exports.test.ts':
+      'pins the /dom entry to the names react-router/dom 7.0.0 exports',
+    'src/__tests__/routers.test.tsx':
+      "turns off React Router's `useTransitions` (a React concurrent-rendering prop); the pages it guards are covered by every bond's lazy-page tests",
+  },
+}
+
+/** The React Router bond the other frameworks' routing bonds are measured against. */
+export const ROUTING_REFERENCE = '@molecule/app-routing-react-router'
+
+/**
+ * Whether a package.json depends on React at run time (a React package, never a counterpart
+ * of one). A devDependency is not one: a counterpart may render React in its own tests.
+ */
+const dependsOnReact = (pkg) => 'react' in { ...pkg.peerDependencies, ...pkg.dependencies }
+
+/**
+ * Each React package and the counterparts that must declare its test titles: a React
+ * feature or infrastructure package and its `-vue`, `-solid`, `-svelte` and `-angular`
+ * counterparts that exist, and in each other group of swappable bonds (UI bonds,
+ * framework bindings, routing bonds) its React package and every member that does not
+ * depend on React.
+ *
+ * @param root - The molecule repository root.
+ * @returns `{ react, ports }` pairs, each package as `{ dir, pkg }`.
+ */
+export function titleParityPairs(root = ROOT) {
+  const out = []
+  const counterparts = counterpartPackages(root)
+  const byName = new Map(counterparts.map((p) => [p.pkg.name, p]))
+  for (const react of counterparts.filter((p) => isReactPackage(p.pkg))) {
+    const ports = FEATURE_FRAMEWORKS.map((fw) => byName.get(featureCounterpart(react.pkg.name, fw)))
+    out.push({ react, ports: ports.filter(Boolean) })
+  }
+  const frameworks = frameworkPackages(root)
+  const groups = [
+    [REFERENCE, frameworks.filter((p) => p.pkg.name?.startsWith('@molecule/app-ui-'))],
+    [
+      BINDING_REFERENCE,
+      frameworks.filter((p) => p.pkg.name !== KIT && !p.pkg.name?.startsWith('@molecule/app-ui-')),
+    ],
+    [
+      ROUTING_REFERENCE,
+      routingPackages(root).filter((p) => p.pkg.name !== '@molecule/app-routing'),
+    ],
+  ]
+  for (const [reference, members] of groups) {
+    const react = members.find((p) => p.pkg.name === reference)
+    if (react) out.push({ react, ports: members.filter((p) => !dependsOnReact(p.pkg)) })
+  }
+  return out.filter((pair) => pair.ports.length > 0)
+}
+
+/**
+ * Finds React test titles a counterpart does not declare, and ledger or exemption entries
+ * that are out of date. Swapping a bond is only safe when its counterpart does what the
+ * React package does, and the React package's tests say what that is: so each counterpart
+ * declares a test with each React title, which the counterpart's own suite runs against
+ * its own implementation.
+ *
+ * @param root - The molecule repository root.
+ * @returns One line per violation.
+ */
+export function titleParityViolations(root = ROOT) {
+  const out = []
+  const ledgerFile = join(root, TITLE_PARITY_PENDING)
+  let ledger = {}
+  if (existsSync(ledgerFile)) {
+    try {
+      ledger = readJson(ledgerFile)
+    } catch (error) {
+      return [`${TITLE_PARITY_PENDING}: not valid JSON (${error.message})`]
+    }
+  }
+  const pairs = titleParityPairs(root)
+  const ported = new Set()
+  for (const { react, ports } of pairs) {
+    const exempt = TITLE_PARITY_EXEMPT[react.pkg.name] ?? {}
+    const files = testFilesOf(join(root, react.dir))
+    // An exemption that names no test file of a React package with tests has outlived its file.
+    for (const path of files.length ? Object.keys(exempt) : [])
+      if (!files.some((file) => (path.endsWith('/') ? file.startsWith(path) : file === path)))
+        out.push(
+          `${react.dir}: TITLE_PARITY_EXEMPT names ${path}, which holds no test file; remove the entry`,
+        )
+    const isExempt = (file) =>
+      Object.keys(exempt).some((path) =>
+        path.endsWith('/') ? file.startsWith(path) : file === path,
+      )
+    const titles = testTitlesOf(join(root, react.dir), (file) => !isExempt(file))
+    for (const port of ports) {
+      ported.add(port.pkg.name)
+      const mine = testTitlesOf(join(root, port.dir))
+      const pending = ledger[port.pkg.name] ?? []
+      if (!Array.isArray(pending) || pending.some((t) => typeof t !== 'string')) {
+        out.push(`${TITLE_PARITY_PENDING}: ${port.pkg.name} must list titles (strings)`)
+        continue
+      }
+      const missing = new Map()
+      for (const [title, file] of titles) {
+        if (mine.has(title) || pending.includes(title)) continue
+        missing.set(file, [...(missing.get(file) ?? []), title])
+      }
+      for (const [file, list] of missing)
+        out.push(
+          `${port.dir}: lacks ${list.length} test(s) of ${react.dir}/${file}: ${list.map((t) => JSON.stringify(t)).join(', ')}. Port each to a test in ${port.dir}/src with that exact title (an it.each table keeps the template), run against this package's implementation`,
+        )
+      for (const title of pending) {
+        if (mine.has(title))
+          out.push(
+            `${TITLE_PARITY_PENDING}: ${port.pkg.name} declares ${JSON.stringify(title)} now; remove it from the entry`,
+          )
+        else if (!titles.has(title))
+          out.push(
+            `${TITLE_PARITY_PENDING}: ${react.pkg.name} declares no test ${JSON.stringify(title)} (or exempts its file); remove it from ${port.pkg.name}'s entry`,
+          )
+      }
+    }
+  }
+  for (const name of Object.keys(ledger).sort())
+    if (!ported.has(name))
+      out.push(
+        `${TITLE_PARITY_PENDING}: ${name} is not a counterpart of a React package; remove its entry`,
+      )
+  return out
+}
+
+/**
+ * The title ledger with every entry removed that {@link titleParityViolations} reports as out
+ * of date: titles a counterpart now declares, titles its React package no longer declares, and
+ * packages that are no counterpart. It never adds a title, so a landing that ports tests can
+ * shrink the ledger in the same commit and nothing can grow it.
+ *
+ * @param root - The molecule repository root.
+ * @returns The shrunk ledger (counterpart package → titles), entries sorted by name.
+ */
+export function prunedTitlePending(root = ROOT) {
+  const ledgerFile = join(root, TITLE_PARITY_PENDING)
+  const ledger = existsSync(ledgerFile) ? readJson(ledgerFile) : {}
+  const out = {}
+  for (const { react, ports } of titleParityPairs(root)) {
+    const exempt = Object.keys(TITLE_PARITY_EXEMPT[react.pkg.name] ?? {})
+    const titles = testTitlesOf(
+      join(root, react.dir),
+      (file) => !exempt.some((p) => (p.endsWith('/') ? file.startsWith(p) : file === p)),
+    )
+    for (const port of ports) {
+      const pending = ledger[port.pkg.name]
+      if (!Array.isArray(pending)) continue
+      const mine = testTitlesOf(join(root, port.dir))
+      const kept = pending.filter((t) => typeof t === 'string' && titles.has(t) && !mine.has(t))
+      if (kept.length) out[port.pkg.name] = kept
+    }
+  }
+  return Object.fromEntries(
+    Object.keys(out)
+      .sort()
+      .map((name) => [name, out[name]]),
+  )
+}
+
 const isMain = process.argv[1] === fileURLToPath(import.meta.url)
-if (isMain) {
+if (isMain && process.argv.includes('--prune-title-pending')) {
+  // Shrinks the title ledger to what is still missing; the check itself runs without the flag.
+  writeFileSync(
+    join(ROOT, TITLE_PARITY_PENDING),
+    `${JSON.stringify(prunedTitlePending(), null, 2)}\n`,
+  )
+} else if (isMain) {
   const violations = findConformanceViolations()
   for (const v of violations) console.error(`framework-conformance: ${v}`)
   if (violations.length) process.exit(1)
   console.log(
-    'framework-conformance: every UI bond, framework binding, feature bond and routing bond runs the conformance kit, and every React package has its framework counterparts (or a pending-ledger entry)',
+    'framework-conformance: every UI bond, framework binding, feature bond and routing bond runs the conformance kit, every React package has its framework counterparts (or a pending-ledger entry), and every counterpart declares its React package’s test titles (or a pending-ledger entry)',
   )
 }

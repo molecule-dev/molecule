@@ -24,8 +24,14 @@ import {
   featureReference,
   findConformanceViolations,
   KIT,
+  prunedTitlePending,
   REFERENCE,
   ROUTING_EXEMPT,
+  ROUTING_REFERENCE,
+  TITLE_PARITY_EXEMPT,
+  TITLE_PARITY_PENDING,
+  titleParityPairs,
+  titleParityViolations,
 } from '../check-framework-conformance.mjs'
 
 const roots = []
@@ -757,5 +763,222 @@ runFeatureConformance('${REACT_FEATURE}', adapter, { module, cases: widgetFeatur
 
   it('finds no violations in the real tree', () => {
     expect(findConformanceViolations()).toEqual([])
+  })
+})
+
+describe('test-title parity', () => {
+  /**
+   * A tree holding packages and their files.
+   *
+   * @param files - Path → text (a package.json may be given as an object).
+   * @returns The fixture root.
+   */
+  function titleTree(files) {
+    const root = mkdtempSync(join(tmpdir(), 'title-parity-'))
+    roots.push(root)
+    mkdirSync(join(root, 'packages/app/frameworks'), { recursive: true })
+    for (const [file, text] of Object.entries(files)) {
+      mkdirSync(dirname(join(root, file)), { recursive: true })
+      writeFileSync(join(root, file), typeof text === 'string' ? text : JSON.stringify(text))
+    }
+    return root
+  }
+
+  const REACT = 'packages/app/features/widget-react'
+  const VUE = 'packages/app/features/widget-vue'
+  const reactPkg = { name: '@molecule/app-widget-react', peerDependencies: { react: '^19.0.0' } }
+  const vuePkg = { name: '@molecule/app-widget-vue', peerDependencies: { vue: '^3.5.0' } }
+  const REACT_TEST = `it('opens the menu on Enter', () => {})
+it.each(['a', 'b'])('selects %s', () => {})
+it.skip('is not written yet', () => {})
+`
+
+  it('fails a counterpart that lacks a React test title, naming the React file and the title', () => {
+    const root = titleTree({
+      [`${REACT}/package.json`]: reactPkg,
+      [`${REACT}/src/__tests__/menu.test.tsx`]: REACT_TEST,
+      [`${VUE}/package.json`]: vuePkg,
+      [`${VUE}/src/__tests__/menu.test.ts`]: `it('opens the menu on Enter', () => {})\n`,
+    })
+    const violations = titleParityViolations(root)
+    expect(violations).toHaveLength(1)
+    expect(violations[0]).toContain(
+      `${VUE}: lacks 1 test(s) of ${REACT}/src/__tests__/menu.test.tsx: "selects %s"`,
+    )
+  })
+
+  it('counterexample: passes a counterpart declaring every title, a table test by its template', () => {
+    const root = titleTree({
+      [`${REACT}/package.json`]: reactPkg,
+      [`${REACT}/src/__tests__/menu.test.tsx`]: REACT_TEST,
+      [`${VUE}/package.json`]: vuePkg,
+      [`${VUE}/src/__tests__/menu.test.ts`]: `it('opens the menu on Enter', () => {})
+it.each([['a'], ['b']])('selects %s', () => {})
+`,
+    })
+    expect(titleParityViolations(root)).toEqual([])
+  })
+
+  it('does not count a skipped counterpart test as the React test', () => {
+    const root = titleTree({
+      [`${REACT}/package.json`]: reactPkg,
+      [`${REACT}/src/__tests__/menu.test.tsx`]: `it('opens the menu on Enter', () => {})\n`,
+      [`${VUE}/package.json`]: vuePkg,
+      [`${VUE}/src/__tests__/menu.test.ts`]: `it.skip('opens the menu on Enter', () => {})\n`,
+    })
+    expect(titleParityViolations(root)).toHaveLength(1)
+  })
+
+  describe('the pending ledger', () => {
+    const files = (ledger, port = '') => ({
+      [`${REACT}/package.json`]: reactPkg,
+      [`${REACT}/src/__tests__/menu.test.tsx`]: `it('opens the menu on Enter', () => {})\n`,
+      [`${VUE}/package.json`]: vuePkg,
+      [`${VUE}/src/__tests__/menu.test.ts`]: port,
+      [TITLE_PARITY_PENDING]: ledger,
+    })
+
+    it('holds a title the counterpart has not ported yet', () => {
+      const root = titleTree(files({ '@molecule/app-widget-vue': ['opens the menu on Enter'] }))
+      expect(titleParityViolations(root)).toEqual([])
+    })
+
+    it('fails an entry for a title the counterpart now declares, so the ledger only shrinks', () => {
+      const root = titleTree(
+        files(
+          { '@molecule/app-widget-vue': ['opens the menu on Enter'] },
+          `it('opens the menu on Enter', () => {})\n`,
+        ),
+      )
+      expect(titleParityViolations(root)).toEqual([
+        `${TITLE_PARITY_PENDING}: @molecule/app-widget-vue declares "opens the menu on Enter" now; remove it from the entry`,
+      ])
+    })
+
+    it('fails an entry for a title React does not declare', () => {
+      const root = titleTree(
+        files({ '@molecule/app-widget-vue': ['opens the menu on Enter', 'closes on Escape'] }),
+      )
+      expect(titleParityViolations(root)).toEqual([
+        `${TITLE_PARITY_PENDING}: @molecule/app-widget-react declares no test "closes on Escape" (or exempts its file); remove it from @molecule/app-widget-vue's entry`,
+      ])
+    })
+
+    it('prunes what is out of date and never adds a missing title', () => {
+      const root = titleTree({
+        ...files(
+          {
+            '@molecule/app-widget-vue': ['opens the menu on Enter', 'closes on Escape'],
+            '@molecule/app-gone-vue': ['anything'],
+          },
+          `it('opens the menu on Enter', () => {})\n`,
+        ),
+        [`${REACT}/src/__tests__/keys.test.tsx`]: `it('moves focus with the arrows', () => {})\n`,
+      })
+      // "opens…" is ported, "closes…" is not React's, app-gone-vue is no counterpart, and the
+      // unported "moves focus…" was never listed, so it stays a violation rather than an entry.
+      expect(prunedTitlePending(root)).toEqual({})
+      writeFileSync(join(root, TITLE_PARITY_PENDING), JSON.stringify(prunedTitlePending(root)))
+      expect(titleParityViolations(root)).toEqual([
+        expect.stringContaining('"moves focus with the arrows"'),
+      ])
+    })
+
+    it('fails an entry for a package that is no counterpart', () => {
+      const root = titleTree(
+        files({
+          '@molecule/app-widget-vue': ['opens the menu on Enter'],
+          '@molecule/app-gone-vue': [],
+        }),
+      )
+      expect(titleParityViolations(root)).toEqual([
+        `${TITLE_PARITY_PENDING}: @molecule/app-gone-vue is not a counterpart of a React package; remove its entry`,
+      ])
+    })
+  })
+
+  describe('the groups of swappable bonds', () => {
+    const fw = 'packages/app/frameworks'
+    const groupTree = (extra = {}) =>
+      titleTree({
+        [`${fw}/react/package.json`]: {
+          name: BINDING_REFERENCE,
+          peerDependencies: { react: '^19.0.0' },
+        },
+        [`${fw}/react/src/__tests__/hooks.test.tsx`]: `it('reads the user', () => {})\n`,
+        [`${fw}/react/src/render/__tests__/useCommittedRef.test.tsx`]: `it('commits the ref', () => {})\n`,
+        [`${fw}/react-native/package.json`]: {
+          name: '@molecule/app-react-native',
+          peerDependencies: { react: '^19.0.0', 'react-native': '^0.80.0' },
+        },
+        [`${fw}/vue/package.json`]: {
+          name: '@molecule/app-vue',
+          devDependencies: { react: '19.0.0' },
+        },
+        [`${fw}/vue/src/__tests__/hooks.test.ts`]: `it('reads the user', () => {})\n`,
+        ...extra,
+      })
+
+    it('measures each member that does not depend on React against the group React package', () => {
+      const pairs = titleParityPairs(groupTree())
+      expect(pairs.map((p) => [p.react.pkg.name, p.ports.map((x) => x.pkg.name)])).toEqual([
+        [BINDING_REFERENCE, ['@molecule/app-vue']],
+      ])
+    })
+
+    it('fails a binding that lacks a React binding test outside the exempt render helpers', () => {
+      const root = groupTree({ [`${fw}/vue/src/__tests__/hooks.test.ts`]: '' })
+      expect(titleParityViolations(root)).toEqual([
+        expect.stringContaining(
+          `${fw}/vue: lacks 1 test(s) of ${fw}/react/src/__tests__/hooks.test.tsx: "reads the user"`,
+        ),
+      ])
+    })
+
+    it('exempts every React-only test file it names, each with its reason', () => {
+      expect(Object.keys(TITLE_PARITY_EXEMPT[BINDING_REFERENCE])).toContain('src/render/')
+      for (const reasons of Object.values(TITLE_PARITY_EXEMPT))
+        for (const reason of Object.values(reasons)) expect(reason.length).toBeGreaterThan(40)
+      expect(titleParityViolations(groupTree())).toEqual([])
+    })
+
+    it('fails an exemption whose React file is gone', () => {
+      const root = groupTree({ [`${fw}/react/src/render/__tests__/useCommittedRef.test.tsx`]: '' })
+      // The file is still there (empty), so the exemption holds; remove the directory's last test.
+      expect(titleParityViolations(root)).toEqual([])
+      rmSync(join(root, `${fw}/react/src/render`), { recursive: true })
+      expect(titleParityViolations(root)).toEqual([
+        `${fw}/react: TITLE_PARITY_EXEMPT names src/render/, which holds no test file; remove the entry`,
+      ])
+    })
+
+    it('measures the routing bonds of other frameworks against React Router, not the React ones', () => {
+      const routing = 'packages/app/bonds/routing'
+      const root = titleTree({
+        'packages/app/core/routing/package.json': { name: '@molecule/app-routing' },
+        [`${routing}/react-router/package.json`]: {
+          name: ROUTING_REFERENCE,
+          peerDependencies: { react: '^19.0.0' },
+        },
+        [`${routing}/react-router/src/__tests__/navigate.test.tsx`]: `it('navigates', () => {})\n`,
+        [`${routing}/next/package.json`]: {
+          name: '@molecule/app-routing-next',
+          peerDependencies: { react: '^19.0.0' },
+        },
+        [`${routing}/vue-router/package.json`]: { name: '@molecule/app-routing-vue-router' },
+        // React Router's exempt files exist, so their exemptions hold.
+        ...Object.fromEntries(
+          Object.keys(TITLE_PARITY_EXEMPT[ROUTING_REFERENCE]).map((path) => [
+            `${routing}/react-router/${path}`,
+            `it('runs only under React Router', () => {})\n`,
+          ]),
+        ),
+      })
+      expect(titleParityViolations(root)).toEqual([
+        expect.stringContaining(
+          `${routing}/vue-router: lacks 1 test(s) of ${routing}/react-router/src/__tests__/navigate.test.tsx`,
+        ),
+      ])
+    })
   })
 })
