@@ -1,5 +1,11 @@
 # @molecule/app-settings-panel-vue
 
+## 1.2.1
+
+### Patch Changes
+
+- A failed account save focuses the first invalid field again, as the React panel does.
+
 ## 1.2.0
 
 ### Minor Changes
