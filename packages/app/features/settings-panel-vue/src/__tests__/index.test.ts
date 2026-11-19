@@ -33,10 +33,14 @@ describe('@molecule/app-settings-panel-vue', () => {
 
   it('exports the SettingsPanelContext and the shared push helpers', () => {
     expect(panel.SettingsPanelContext).toBeDefined()
-    expect(typeof panel.enablePushOnCurrentDevice).toBe('function')
-    expect(typeof panel.disablePushOnCurrentDevice).toBe('function')
-    expect(typeof panel.findCurrentDevice).toBe('function')
-    expect(typeof panel.readCurrentDevicePushEnabled).toBe('function')
-    expect(typeof panel.subscriptionFromToken).toBe('function')
+    for (const name of [
+      'disablePushOnCurrentDevice',
+      'enablePushOnCurrentDevice',
+      'findCurrentDevice',
+      'readCurrentDevicePushEnabled',
+      'subscriptionFromToken',
+    ]) {
+      expect(panel, name).toHaveProperty(name, expect.any(Function))
+    }
   })
 })

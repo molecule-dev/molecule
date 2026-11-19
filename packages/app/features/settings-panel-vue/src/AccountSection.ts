@@ -69,9 +69,9 @@ export const AccountSection = defineComponent({
 
     // React's Input forwards the registration's element ref, which the form
     // controller stores for `shouldFocusError` (a failed submit focuses the
-    // first field with an error). The Vue Input's public instance exposes its
-    // wrapper div as `$el`, so a stable per-field ref forwards the native
-    // input to the CURRENT registration.
+    // first field with an error). The Vue Input exposes that same native
+    // field as `$el` (the kit's `useElementRef`), so a stable per-field ref
+    // forwards it to the CURRENT registration.
     type RegisteredField = ReturnType<typeof profile.register>
     const registrations: { name?: RegisteredField; email?: RegisteredField } = {}
 
@@ -85,11 +85,9 @@ export const AccountSection = defineComponent({
     const fieldRef =
       (field: 'name' | 'email') =>
       (instance: Element | ComponentPublicInstance | null): void => {
-        const root =
-          instance === null || instance instanceof Element
-            ? null
-            : ((instance as ComponentPublicInstance).$el as HTMLElement | null)
-        registrations[field]?.ref?.((root?.querySelector('input') ?? null) as HTMLElement | null)
+        const field$el: unknown =
+          instance === null || instance instanceof Element ? null : instance.$el
+        registrations[field]?.ref?.(field$el instanceof HTMLElement ? field$el : null)
       }
     const nameFieldRef = fieldRef('name')
     const emailFieldRef = fieldRef('email')
