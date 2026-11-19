@@ -1,5 +1,11 @@
 # @molecule/api-staging-docker-compose
 
+## 1.1.2
+
+### Patch Changes
+
+- The staging nginx config caches only content-hashed build output (`assets/`, `_app/immutable/`) for a year; every other file revalidates.
+
 ## 1.1.0
 
 ### Minor Changes

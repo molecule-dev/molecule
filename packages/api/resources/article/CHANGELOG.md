@@ -1,5 +1,11 @@
 # @molecule/api-resource-article
 
+## 1.3.2
+
+### Patch Changes
+
+- Apply the `authorId` that a list request adapter supplies before counting and paging articles. Keep support for the legacy `author` query key.
+
 ## 1.3.1
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/api-ai
 
+## 1.6.2
+
+### Patch Changes
+
+- Expose upstream DeepSeek HTTP status and diagnostic text through an optional server-side callback while preserving the client-facing error event.
+
 ## 1.6.1
 
 ### Patch Changes

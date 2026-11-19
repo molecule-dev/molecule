@@ -1,5 +1,11 @@
 # @molecule/api-ai-tools
 
+## 2.2.2
+
+### Patch Changes
+
+- Explain Playwright per-test timeouts and offer a targeted rerun with the original settings.
+
 ## 2.2.1
 
 ### Patch Changes

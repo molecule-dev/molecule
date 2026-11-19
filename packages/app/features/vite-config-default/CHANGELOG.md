@@ -1,5 +1,11 @@
 # @molecule/app-vite-config-default
 
+## 1.4.0
+
+### Minor Changes
+
+- Add `@molecule/app-vite-config-default/sveltekit`: builds a SvelteKit app into a static site with its service worker and web app manifest, and previews it like the deployed site.
+
 ## 1.3.2
 
 ### Patch Changes
