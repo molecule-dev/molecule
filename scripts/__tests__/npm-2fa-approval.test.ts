@@ -286,6 +286,24 @@ describe('requestOwnerOtp', () => {
     expect(posts(calls)).toHaveLength(1)
   })
 
+  it('asks for a code alone when npm does not answer for the approval link (OLD MUSTFAIL: threw)', async () => {
+    const { socketPath, calls } = await fakeService([{ status: 'code', code: '135790' }])
+    const answer = await requestOwnerOtp({
+      purpose: 'p',
+      link: async () => {
+        throw new TypeError('fetch failed')
+      },
+      bearer: 'b',
+      socketPath,
+      fetchImpl: async () => json({}, 202),
+      sleep: noSleep,
+    })
+    expect(answer).toEqual({ otp: '135790', kind: 'code' })
+    const created = calls.find((c) => c.method === 'POST' && c.path === '/requests')
+    expect(created?.body).toMatchObject({ kind: 'code' })
+    expect(created?.body).not.toHaveProperty('authUrl')
+  })
+
   it("asks again with npm's current link, not the first one", async () => {
     const { socketPath, calls } = await fakeService([
       { status: 'pending' },
@@ -414,6 +432,75 @@ describe('requestOwnerNpmLogin', () => {
       path: '/requests/req-1/link',
       body: { authUrl: LOGIN_FRESH.loginUrl },
     })
+  })
+
+  // 2026-11-19: a trust:new run built 242 first publishes for 20 minutes, then ended on one failed
+  // fetch of the sign-in start, before the owner was asked: "no npm sign-in from the phone: fetch failed".
+  it('starts the sign-in once npm answers, after a network error and a server error (OLD MUSTFAIL: stopped)', async () => {
+    const { socketPath, calls } = await fakeService([{ status: 'pending' }])
+    const answers: Array<() => Response> = [
+      () => {
+        throw new TypeError('fetch failed')
+      },
+      () => json({ error: 'bad gateway' }, 502),
+      () => json(LOGIN),
+      () => json({ token: 'session-3' }),
+    ]
+    const token = await requestOwnerNpmLogin({
+      purpose: 'p',
+      socketPath,
+      fetchImpl: async () => (answers.shift() ?? (() => json({}, 202)))(),
+      sleep: noSleep,
+    })
+    expect(token).toBe('session-3')
+    expect(answers).toHaveLength(0)
+    const created = calls.filter((c) => c.method === 'POST' && c.path === '/requests')
+    expect(created).toHaveLength(1)
+    expect(created[0].body).toMatchObject({ authUrl: LOGIN.loginUrl })
+  })
+
+  it('counterexample: stops at once when npm refuses to start a sign-in', async () => {
+    const { socketPath, calls } = await fakeService([{ status: 'pending' }])
+    let starts = 0
+    await expect(
+      requestOwnerNpmLogin({
+        purpose: 'p',
+        socketPath,
+        fetchImpl: async () => {
+          starts++
+          return json({ error: 'unauthorized' }, 401)
+        },
+        sleep: noSleep,
+      }),
+    ).rejects.toThrow(/did not start a web sign-in \(401\)/)
+    expect(starts).toBe(1)
+    expect(calls).toEqual([])
+  })
+
+  it('gives up on an unanswering npm at the timeout', async () => {
+    const { socketPath, calls } = await fakeService([{ status: 'pending' }])
+    let now = 0
+    const realNow = Date.now
+    Date.now = () => realNow() + now
+    try {
+      await expect(
+        requestOwnerNpmLogin({
+          purpose: 'p',
+          socketPath,
+          fetchImpl: async () => {
+            throw new TypeError('fetch failed')
+          },
+          timeoutMs: 10_000,
+          pollMs: 3_000,
+          sleep: async (ms) => {
+            now += ms
+          },
+        }),
+      ).rejects.toThrow(/fetch failed/)
+    } finally {
+      Date.now = realNow
+    }
+    expect(calls).toEqual([])
   })
 
   it('throws on a denial and withdraws the request', async () => {

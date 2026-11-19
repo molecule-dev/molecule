@@ -292,7 +292,12 @@ export async function requestOwnerOtp({
   pollMs = 2_000,
   sleep = (ms) => delay(ms),
 }) {
-  let pair = await link()
+  // The link only lets the owner approve on npm instead of sending a code: when npm does not
+  // answer for it, ask for a code alone rather than end the run.
+  let pair = await link().catch((error) => {
+    console.error(`  npm did not offer an approval link (${error.message}); asking for a code`)
+    return null
+  })
   return askOwner({
     request: () => ({ purpose, kind: 'code', ...(pair ? { authUrl: pair.authUrl } : {}) }),
     fromPhone: (view) =>
@@ -387,8 +392,36 @@ export async function npmLoginPair({ fetchImpl = fetch } = {}) {
     return null
   })
   if (!res.ok || !isNpmLoginPair(body))
-    throw new Error(`npm did not start a web sign-in (${res.status})`)
+    throw Object.assign(new Error(`npm did not start a web sign-in (${res.status})`), {
+      // A refusal is an answer; a server error or rate limit is npm not answering yet.
+      npmAnswered: res.status < 500 && res.status !== 429,
+    })
   return { loginUrl: body.loginUrl, doneUrl: body.doneUrl }
+}
+
+/**
+ * {@link npmLoginPair}, asked again while npm does not answer (a network error, a server error,
+ * a rate limit), until `timeoutMs`. A run reaches its first sign-in after building every first
+ * publish (about 20 minutes for 240 packages), and one failed fetch there ended it before the
+ * owner was asked (2026-11-19: "no npm sign-in from the phone: fetch failed"). A refusal is
+ * thrown at once.
+ *
+ * @param options - `fetchImpl`, `timeoutMs`, `pollMs` and `sleep`, as for the wait.
+ * @returns `{ loginUrl, doneUrl }`.
+ */
+async function loginPairOnceNpmAnswers({ fetchImpl, timeoutMs, pollMs, sleep }) {
+  const deadline = Date.now() + timeoutMs
+  let reported = false
+  for (;;) {
+    try {
+      return await npmLoginPair({ fetchImpl })
+    } catch (error) {
+      if (error.npmAnswered || Date.now() + pollMs > deadline) throw error
+      if (!reported) console.error(`  npm did not answer (${error.message}); retrying`)
+      reported = true
+      await sleep(pollMs)
+    }
+  }
 }
 
 /**
@@ -415,7 +448,7 @@ export async function requestOwnerNpmLogin({
   pollMs = 3_000,
   sleep = (ms) => delay(ms),
 }) {
-  let pair = await npmLoginPair({ fetchImpl })
+  let pair = await loginPairOnceNpmAnswers({ fetchImpl, timeoutMs, pollMs, sleep })
   return askOwner({
     request: () => ({ purpose, kind: 'login', authUrl: pair.loginUrl }),
     fromPhone: () => null,
