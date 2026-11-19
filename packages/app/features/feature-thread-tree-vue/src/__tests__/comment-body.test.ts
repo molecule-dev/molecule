@@ -65,6 +65,14 @@ describe('plain and rich comment body semantics', () => {
     expect(container.querySelector('script')).toBeNull()
   })
 
+  it('wraps an unbroken project comment without dropping any text', () => {
+    const body = 'trackingcode'.repeat(240)
+    const container = render([{ id: 'project-reply', author: 'Reader', body }])
+    const paragraph = container.querySelector<HTMLParagraphElement>('article > p')
+    expect(paragraph?.textContent).toBe(body)
+    expect(paragraph?.style.overflowWrap).toBe('anywhere')
+  })
+
   it('preserves rich block content without nesting a paragraph around it', () => {
     const rich = h('section', null, [
       h('h2', null, 'Details'),

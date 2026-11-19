@@ -101,6 +101,14 @@ describe('plain and rich comment body semantics', () => {
     expect(container.querySelector('script')).toBeNull()
   })
 
+  it('wraps an unbroken project comment without dropping any text', async () => {
+    const body = 'trackingcode'.repeat(240)
+    const container = await draw([{ id: 'project-reply', author: 'Reader', body }])
+    const paragraph = container.querySelector<HTMLParagraphElement>('article > p')
+    expect(paragraph?.textContent).toBe(body)
+    expect(paragraph?.style.overflowWrap).toBe('anywhere')
+  })
+
   it('preserves rich block content without nesting a paragraph around it', async () => {
     const Host = Component({
       selector: 'mol-spec-rich-host',

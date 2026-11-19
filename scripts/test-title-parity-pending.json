@@ -20,18 +20,6 @@
     "preserves an unlinked identity, forwarded attributes and escaped display names",
     "forwards router and link attributes to the canonical name link"
   ],
-  "@molecule/app-feature-thread-tree-angular": [
-    "wraps an unbroken project comment without dropping any text"
-  ],
-  "@molecule/app-feature-thread-tree-solid": [
-    "wraps an unbroken project comment without dropping any text"
-  ],
-  "@molecule/app-feature-thread-tree-svelte": [
-    "wraps an unbroken project comment without dropping any text"
-  ],
-  "@molecule/app-feature-thread-tree-vue": [
-    "wraps an unbroken project comment without dropping any text"
-  ],
   "@molecule/app-tag-input-angular": [
     "puts the consumer’s id, accessible name and testing hook on the list itself"
   ],
