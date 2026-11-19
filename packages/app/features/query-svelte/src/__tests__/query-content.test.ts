@@ -6,7 +6,7 @@
  * and false, zero, an empty list and null are documents of their own kinds.
  */
 import { type Component, createRawSnippet, flushSync, mount, type Snippet, unmount } from 'svelte'
-import { type Writable, writable } from 'svelte/store'
+import { type Readable, type Writable, writable } from 'svelte/store'
 import { afterAll, afterEach, beforeAll, beforeEach, expect, it, vi } from 'vitest'
 
 import type { QueryOptions } from '@molecule/app-query'
@@ -34,10 +34,38 @@ afterEach(async () => {
 })
 afterAll(() => resetQueryClient())
 
-/** Mounts a helper component in a tracked container. */
-function track(
-  component: Component<Record<string, unknown>>,
-  props: Record<string, unknown>,
+/** The props the record-region helper takes at one document type. */
+type RecordRegionProps<T> = {
+  /** The options store the helper's query observes. */
+  options: Readable<QueryOptions<T> | null>
+  /** Receives every query result. */
+  capture?: (result: UseQueryResult<T>) => void
+  /** Receives every committed record. */
+  onCommit?: (record: T) => void
+  /** Counts error-branch renders. */
+  onError?: () => void
+  /** The action button's label for a record. */
+  label?: (record: T) => string
+}
+
+/** The props the list helper takes at one item type. */
+type ItemsProps<T> = {
+  /** The options store the helper's query observes. */
+  options: Readable<QueryOptions<T[]> | null>
+  /** Receives the clicked item. */
+  onPick: (item: T) => void
+}
+
+/**
+ * Mounts a helper component, checked against that component's own props.
+ *
+ * @param component - The helper component to mount.
+ * @param props - The props to pass it.
+ * @returns The container the helper rendered into.
+ */
+function track<const Props extends Record<string, unknown>>(
+  component: Component<Props>,
+  props: Props,
 ): HTMLDivElement {
   const container = document.createElement('div')
   document.body.append(container)
@@ -69,7 +97,7 @@ function mountRecord<T>(
   let latest: UseQueryResult<T> | undefined
   const committed: T[] = []
   const counters = { errors: 0 }
-  const container = track(RecordRegion, {
+  const container = track<RecordRegionProps<T>>(RecordRegion, {
     options,
     capture: (result: UseQueryResult<T>) => {
       latest = result
@@ -97,7 +125,7 @@ function mountRecord<T>(
 it('keeps loading status outside a list: the first item is always real data', async () => {
   const gate = deferred<string[]>()
   const picked: unknown[] = []
-  const container = track(Items, {
+  const container = track<ItemsProps<string>>(Items, {
     options: optionsOf({ key: ['categories'], fetch: async () => gate.promise }),
     onPick: (item: unknown) => picked.push(item),
   })
@@ -119,7 +147,7 @@ it('does not expose a follow-like toggle before its target exists; the first cli
   }
   const gate = deferred<Repository>()
   const committed: string[] = []
-  const container = track(RecordRegion, {
+  const container = track<RecordRegionProps<Repository>>(RecordRegion, {
     options: optionsOf<Repository>({
       key: ['repository', 'a'],
       fetch: async () => gate.promise,
@@ -143,7 +171,7 @@ it('drops old record actions immediately when a new key has no data', async () =
     key: ['repository', 'a'],
     fetch: async () => new Promise<{ id: string }>(() => {}),
   })
-  const container = track(RecordRegion, {
+  const container = track<RecordRegionProps<{ id: string }>>(RecordRegion, {
     options,
     label: (record: { id: string }) => record.id,
   })

@@ -20,7 +20,7 @@ import { t } from '@molecule/app-i18n'
 import type { StateProvider, Store } from '@molecule/app-state'
 
 import { StateKey } from '../injection-keys.js'
-import type { UseStoreOptions } from '../types.js'
+import type { SelectingStoreOptions, UseStoreOptions } from '../types.js'
 
 /**
  * The fix, appended to the error below — this composable is the one place
@@ -101,22 +101,47 @@ export function useStateProvider(): StateProvider {
  * </template>
  * ```
  */
-export function useStore<T, S = T>(
+export function useStore<T>(
   store: MaybeRefOrGetter<Store<T>>,
-  options?: MaybeRefOrGetter<UseStoreOptions<T, S> | undefined>,
-): Ref<S> {
+  options?: MaybeRefOrGetter<UseStoreOptions<T, T> | undefined>,
+): Ref<T>
+/**
+ * Composable to subscribe to the part of a store a selector picks.
+ *
+ * @param store - The store to subscribe to; may be reactive.
+ * @param options - The selector, and an optional equality function for its
+ *   results; may be reactive.
+ * @returns Reactive reference to the selected value
+ */
+export function useStore<T, S>(
+  store: MaybeRefOrGetter<Store<T>>,
+  options: MaybeRefOrGetter<SelectingStoreOptions<T, S>>,
+): Ref<S>
+/**
+ * The implementation both signatures share: without a selector the selected
+ * value is the state itself, which the first signature types as `T`.
+ *
+ * @param store - The store to subscribe to; may be reactive.
+ * @param options - Composable options (selector, equalityFn); may be reactive.
+ * @returns Reactive reference to the selected value
+ */
+export function useStore<T>(
+  store: MaybeRefOrGetter<Store<T>>,
+  options?: MaybeRefOrGetter<UseStoreOptions<T, unknown> | undefined>,
+): Ref<unknown> {
   // The previous selected value, kept so a caller's equality function can
   // hold the SAME result across notifications that select an equal value.
   // It survives a store or options change, exactly like React's ref.
-  let previous: S | undefined
+  let previous: unknown
 
   let currentStore = toValue(store)
   let selector = toValue(options)?.selector
   let equalityFn = toValue(options)?.equalityFn
 
-  const read = (): S => {
+  const read = (): unknown => {
     const state = currentStore.getState()
-    const selected = selector ? selector(state) : (state as unknown as S)
+    // Without a selector the whole state is the selected value.
+    const selected = selector ? selector(state) : state
 
     // If we have an equality function and a previous value, check equality
     if (equalityFn && previous !== undefined) {
@@ -129,7 +154,7 @@ export function useStore<T, S = T>(
     return selected
   }
 
-  const state = shallowRef<S>(read())
+  const state = shallowRef<unknown>(read())
 
   // Subscribe to store changes
   const onNotify = (): void => {
@@ -236,5 +261,5 @@ export function useStoreAction<T, Args extends unknown[], R>(
  */
 export function useStoreComputed<T, S>(store: Store<T>, selector: (state: T) => S): ComputedRef<S> {
   const state = useStore(store)
-  return computed(() => selector(state.value as T))
+  return computed(() => selector(state.value))
 }

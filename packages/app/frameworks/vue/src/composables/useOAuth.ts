@@ -41,7 +41,6 @@ import {
   toValue,
 } from 'vue'
 
-import type { AuthClient } from '@molecule/app-auth'
 import { t } from '@molecule/app-i18n'
 
 import { AuthKey } from '../injection-keys.js'
@@ -78,6 +77,20 @@ interface OAuthRelayMessage {
 }
 
 /**
+ * The auth-client surface {@link useOAuth} needs to establish a session after
+ * the callback exchange: seed the token, seed the user, then let the client's
+ * own `initialize()` flip `authenticated`. A full `AuthClient` satisfies it.
+ */
+export interface OAuthSessionClient {
+  /** Stores the exchanged bearer token. */
+  setAccessToken(token: string): void
+  /** Stores the exchanged user. */
+  setUser(user: unknown): void
+  /** Settles the client's session state after the seeds above. */
+  initialize(): Promise<void>
+}
+
+/**
  * OAuth configuration options. {@link UseOAuthConfig} is the same type under the name
  * every framework binding uses.
  */
@@ -107,7 +120,7 @@ export interface UseOAuthOptions {
    * composable runs during component setup — pass one explicitly for
    * callers/tests outside an auth provider.
    */
-  authClient?: AuthClient<unknown>
+  authClient?: OAuthSessionClient
 }
 
 /** OAuth configuration for {@link useOAuth}: the app's `oauthConfig`, named as in every binding. */
@@ -168,7 +181,7 @@ export function useOAuth(options?: MaybeRefOrGetter<UseOAuthOptions | undefined>
   // `options.authClient` wins; the `getCurrentInstance()` guard keeps the
   // composable callable outside components (where injection is unavailable).
   const injectedClient = getCurrentInstance() ? inject(AuthKey, null) : null
-  const authClient: AuthClient<unknown> | null = initial?.authClient ?? injectedClient
+  const authClient: OAuthSessionClient | null = initial?.authClient ?? injectedClient
 
   // Whether the host is mounted, read when a flow settles. Set at setup, so a
   // callback exchange started on the first mount still reports its result.

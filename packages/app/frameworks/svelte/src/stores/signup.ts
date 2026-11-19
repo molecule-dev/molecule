@@ -12,7 +12,7 @@ import { createPromiseStore, type PromiseStore } from './promise.js'
 /**
  * Signup store type.
  */
-export type SignupStore<T = unknown> = PromiseStore<AuthResult<T>>
+export type SignupStore<T = unknown> = PromiseStore<AuthResult<T>, [RegisterData]>
 
 /**
  * Creates a signup store with async state tracking.

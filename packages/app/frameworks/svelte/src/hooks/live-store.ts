@@ -19,6 +19,21 @@ import type { PromiseStatus } from '@molecule/app-utilities'
 import type { UsePromiseStore } from './usePromise.js'
 
 /**
+ * A readable store that always holds `read()`'s value, plus a way to re-read
+ * the service now (`refresh`), which a hydrating hook uses to move from the
+ * value the server rendered to the live one.
+ *
+ * @template T - The value the store holds.
+ */
+export interface LiveStore<T> extends Readable<T> {
+  /**
+   * Re-reads the service immediately and publishes the value, without waiting
+   * for the service to notify. React's binding does this right after hydration.
+   */
+  refresh(): void
+}
+
+/**
  * A readable store that always holds `read()`'s value.
  *
  * The store subscribes `subscribe` eagerly (at creation, during component
@@ -28,16 +43,21 @@ import type { UsePromiseStore } from './usePromise.js'
  *
  * @param read - Reads the service's current value.
  * @param subscribe - Subscribes the service; returns its unsubscribe.
- * @returns A readable store of the current value.
+ * @param initial - The value before the first live read, when a caller has
+ *   one (a hydrating hook seeds the server's value, then calls `refresh`).
+ * @returns A readable store of the current value, with `refresh`.
  */
 export function liveStore<T>(
   read: () => T,
   subscribe: (notify: () => void) => () => void,
-): Readable<T> {
-  const store = writable(read())
-  const stop = subscribe(() => store.set(read()))
+  initial: T = read(),
+): LiveStore<T> {
+  const store = writable(initial)
+  /** Re-reads the service now; `subscribe`'s callback is the same read. */
+  const refresh = (): void => store.set(read())
+  const stop = subscribe(refresh)
   onDestroy(stop)
-  return { subscribe: store.subscribe }
+  return { subscribe: store.subscribe, refresh }
 }
 
 /**

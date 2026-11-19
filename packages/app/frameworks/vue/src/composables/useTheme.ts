@@ -30,6 +30,38 @@ export function useThemeProvider(): ThemeProvider {
   return provider
 }
 
+/** The subscription method a provider written before `subscribe` still carries. */
+interface LegacyThemeSubscription {
+  onThemeChange(callback: () => void): () => void
+}
+
+/** The name accessor a provider written before `Theme.name` still carries. */
+interface NamedThemeProvider {
+  getThemeName(): string
+}
+
+/**
+ * Whether a provider still offers the pre-`subscribe` change listener.
+ *
+ * @param provider - The theme provider.
+ * @returns `true` when it has `onThemeChange`.
+ */
+function hasOnThemeChange(
+  provider: ThemeProvider,
+): provider is ThemeProvider & LegacyThemeSubscription {
+  return 'onThemeChange' in provider && typeof provider.onThemeChange === 'function'
+}
+
+/**
+ * Whether a provider still offers its theme name separately.
+ *
+ * @param provider - The theme provider.
+ * @returns `true` when it has `getThemeName()`.
+ */
+function hasThemeName(provider: ThemeProvider): provider is ThemeProvider & NamedThemeProvider {
+  return 'getThemeName' in provider && typeof provider.getThemeName === 'function'
+}
+
 /**
  * Subscribe to a theme provider, supporting both `subscribe` and the legacy
  * `onThemeChange` methods.
@@ -40,14 +72,11 @@ export function useThemeProvider(): ThemeProvider {
  */
 function subscribeToThemeProvider(provider: ThemeProvider, callback: () => void): () => void {
   if (typeof provider.subscribe === 'function') {
-    return provider.subscribe(callback as unknown as (theme: Theme) => void)
+    // A listener that takes no argument fits a one-argument callback.
+    return provider.subscribe(callback)
   }
-  const legacy = (provider as unknown as Record<string, (...args: unknown[]) => unknown>)
-    .onThemeChange
-  if (typeof legacy === 'function') {
-    return (
-      provider as unknown as Record<string, (...args: unknown[]) => () => void>
-    ).onThemeChange(callback)
+  if (hasOnThemeChange(provider)) {
+    return provider.onThemeChange(callback)
   }
   return () => {}
 }
@@ -60,13 +89,16 @@ function subscribeToThemeProvider(provider: ThemeProvider, callback: () => void)
  * @returns The active theme's name.
  */
 function readThemeName(provider: ThemeProvider): string {
-  const byName = (provider as unknown as Record<string, (...args: unknown[]) => string>)
-    .getThemeName
-  return typeof byName === 'function' ? byName.call(provider) : provider.getTheme().name
+  return hasThemeName(provider) ? provider.getThemeName() : provider.getTheme().name
 }
 
 /**
  * Composable for theme state and actions.
+ *
+ * A server render and the hydrating client's first render both read the
+ * provider's `getServerTheme()` when it has one, so the markup stays the same;
+ * the mounted hook then switches to the live `getTheme()`. A provider whose
+ * theme cannot differ between server and client need not implement it.
  *
  * @returns Theme state and actions
  *
@@ -89,9 +121,16 @@ function readThemeName(provider: ThemeProvider): string {
 export function useTheme(): UseThemeReturn {
   const provider = useThemeProvider()
 
+  // A render with no browser (a server or build-time render) has no storage and
+  // no OS preference, and the hydrating client's FIRST render is the markup the
+  // server sent. Both read `getServerTheme()` (when the provider has one) so the
+  // markup matches; the mounted hook below then switches to the live theme.
+  // This is React's `useSyncExternalStore` server snapshot in Vue's terms.
+  const serverTheme = provider.getServerTheme?.()
+
   // Reactive state
-  const currentTheme = ref<Theme>(provider.getTheme())
-  const currentThemeName = ref<string>(readThemeName(provider))
+  const currentTheme = ref<Theme>(serverTheme ?? provider.getTheme())
+  const currentThemeName = ref<string>(serverTheme ? serverTheme.name : readThemeName(provider))
 
   // Subscribe to theme changes
   let unsubscribe: (() => void) | null = null
@@ -137,7 +176,7 @@ export function useTheme(): UseThemeReturn {
       typeof entry === 'string' ? entry === currentName : entry.name === currentName,
     )
     const next = themes[(currentIndex + 1) % themes.length]
-    provider.setTheme(typeof next === 'string' ? next : (next as Theme).name)
+    provider.setTheme(typeof next === 'string' ? next : next.name)
   }
 
   return {

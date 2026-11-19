@@ -15,7 +15,11 @@ import type { WorkspaceProvider } from '@molecule/app-ide'
 import type { PreviewProvider } from '@molecule/app-live-preview'
 import type { LoggerProvider } from '@molecule/app-logger'
 import type { Router } from '@molecule/app-routing'
-import type { StateProvider } from '@molecule/app-state'
+import {
+  getProvider as getStateProvider,
+  hasProvider as hasStateProvider,
+  type StateProvider,
+} from '@molecule/app-state'
 import type { StorageProvider } from '@molecule/app-storage'
 import type { ThemeProvider } from '@molecule/app-theme'
 
@@ -95,6 +99,17 @@ export const moleculePlugin: Plugin<MoleculePluginOptions> = {
 
     if (state) {
       app.provide(StateKey, state)
+    }
+
+    // Fall back to the BONDED state provider: it is the singleton every
+    // `createStore()` reads, so `useStore()` inside a scaffolded app needs no
+    // `state` option. Nothing wired the Vue injection before, so the documented
+    // createStore()+useStore() pattern threw "useStateProvider must be used
+    // within a StateProvider" on a correctly-built app (X1 flash-m65). An
+    // explicit `state` option still wins — that is how an app overrides the
+    // bond.
+    if (!state && hasStateProvider()) {
+      app.provide(StateKey, getStateProvider())
     }
 
     if (auth) {

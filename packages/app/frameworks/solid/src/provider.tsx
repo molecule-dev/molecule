@@ -7,6 +7,11 @@
 import { createComponent, type JSX, type ParentComponent } from 'solid-js'
 
 import {
+  getProvider as getBondedStateProvider,
+  hasProvider as hasBondedStateProvider,
+} from '@molecule/app-state'
+
+import {
   AuthContext,
   ChatContext,
   EditorContext,
@@ -21,7 +26,43 @@ import {
   WorkspaceContext,
 } from './context.js'
 import { SessionReady } from './session-ready.js'
-import type { MoleculeConfig } from './types.js'
+import type { AuthProviderProps, MoleculeConfig } from './types.js'
+
+/**
+ * Provider for authentication, alone.
+ *
+ * The counterpart of React's `AuthProvider`: it supplies the auth client under
+ * its context and, by default, holds rendering until the client has decided the
+ * session — so a returning visitor's first render reads the restored user
+ * rather than `null`. Pass `awaitSession={false}` for a deliberately ungated
+ * shell.
+ *
+ * @param props - Component props (see {@link AuthProviderProps}).
+ * @returns The auth context provider wrapping the children.
+ * @example
+ * ```tsx
+ * <AuthProvider client={authClient}>
+ *   <App />
+ * </AuthProvider>
+ * ```
+ */
+export function AuthProvider<T = unknown>(props: AuthProviderProps<T>): JSX.Element {
+  return createComponent(AuthContext.Provider, {
+    value: props.client,
+    get children() {
+      return props.awaitSession === false
+        ? props.children
+        : createComponent(SessionReady, {
+            get fallback() {
+              return props.sessionFallback
+            },
+            get children() {
+              return props.children
+            },
+          })
+    },
+  })
+}
 
 /**
  * MoleculeProvider component that provides all molecule services to the component tree.
@@ -216,12 +257,18 @@ export const MoleculeProvider: ParentComponent<{ config: MoleculeConfig }> = (pr
       })
   }
 
-  if (props.config.state) {
+  // Fall back to the BONDED state provider: it is the singleton every
+  // `createStore()` reads, so `useStore()` inside a scaffolded app needs no
+  // `config.state`. An explicit `config.state` still wins — that is how an app
+  // overrides the bond. (The React provider has always done this.)
+  const state =
+    props.config.state ?? (hasBondedStateProvider() ? getBondedStateProvider() : undefined)
+  if (state) {
     const inner = render
     render = () =>
       createComponent(StateContext.Provider, {
         get value() {
-          return props.config.state!
+          return state
         },
         get children() {
           return inner()

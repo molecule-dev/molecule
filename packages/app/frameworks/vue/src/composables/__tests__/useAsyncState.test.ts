@@ -180,10 +180,10 @@ describe('useAsyncState', () => {
       state = start<TestState>({ name: 'Alice', count: 0 })
     })
 
-    // This should not throw
-    await state.setState(Promise.reject(new Error('fail'))).catch((_error) => {
-      // React's hook swallows the rejection; the async wrapper must too.
-    })
+    // This should not throw. React's hook swallows the rejection and the async
+    // wrapper returns void (it attaches its own catch), so there is no promise
+    // here to await.
+    state.setState(Promise.reject(new Error('fail')))
 
     await flush()
 
@@ -201,10 +201,10 @@ describe('useAsyncState', () => {
       state = start<TestState>({ name: 'Alice', count: 0 })
     })
 
-    // This should not throw
-    await state.extendState(Promise.reject(new Error('fail'))).catch((_error) => {
-      // React's hook swallows the rejection; the async wrapper must too.
-    })
+    // This should not throw. React's hook swallows the rejection and the async
+    // wrapper returns void (it attaches its own catch), so there is no promise
+    // here to await.
+    state.extendState(Promise.reject(new Error('fail')))
 
     await flush()
 
@@ -247,5 +247,96 @@ describe('useAsyncState', () => {
     expect(state.read()).toBe('world')
 
     scope.stop()
+  })
+})
+
+interface ParityState {
+  foo: string
+  bar: string
+}
+
+/**
+ * The React hook's own cases, carried over title for title. The tuple's first
+ * element is read live, so every assertion re-reads it.
+ */
+describe('useAsyncState (React cases)', () => {
+  it('synchronous setState works', () => {
+    const result = useAsyncState<ParityState>({ foo: 'hello', bar: 'world' })
+
+    result[1]({ foo: 'updated', bar: 'state' })
+
+    expect(result[0]).toEqual({ foo: 'updated', bar: 'state' })
+  })
+
+  it('function setState works (receives previous state)', () => {
+    const result = useAsyncState<ParityState>({ foo: 'hello', bar: 'world' })
+
+    result[1]((prev) => ({
+      foo: prev.foo.toUpperCase(),
+      bar: prev.bar.toUpperCase(),
+    }))
+
+    expect(result[0]).toEqual({ foo: 'HELLO', bar: 'WORLD' })
+  })
+
+  it('Promise setState works (await then set)', async () => {
+    const result = useAsyncState<ParityState>({ foo: 'hello', bar: 'world' })
+
+    result[1](
+      new Promise<ParityState>((resolve) =>
+        setTimeout(() => resolve({ foo: 'async-foo', bar: 'async-bar' }), 10),
+      ),
+    )
+    await new Promise((r) => setTimeout(r, 50))
+
+    expect(result[0]).toEqual({ foo: 'async-foo', bar: 'async-bar' })
+  })
+
+  it('extendState merges partial updates', () => {
+    const result = useAsyncState<ParityState>({ foo: 'hello', bar: 'world' })
+
+    result[2]({ foo: 'updated' })
+
+    expect(result[0]).toEqual({ foo: 'updated', bar: 'world' })
+  })
+
+  it('function extendState works', () => {
+    const result = useAsyncState<ParityState>({ foo: 'hello', bar: 'world' })
+
+    result[2]((prev) => ({ bar: prev.bar.toUpperCase() }))
+
+    expect(result[0]).toEqual({ foo: 'hello', bar: 'WORLD' })
+  })
+
+  it('Promise extendState works', async () => {
+    const result = useAsyncState<ParityState>({ foo: 'hello', bar: 'world' })
+
+    result[2](
+      new Promise<Partial<ParityState>>((resolve) =>
+        setTimeout(() => resolve({ foo: 'async-updated' }), 10),
+      ),
+    )
+    await new Promise((r) => setTimeout(r, 50))
+
+    expect(result[0]).toEqual({
+      foo: 'async-updated',
+      bar: 'world',
+    })
+  })
+
+  it('rejected promise is silently handled', async () => {
+    const result = useAsyncState<ParityState>({ foo: 'hello', bar: 'world' })
+
+    // Rejected promise setState should not throw or update state
+    result[1](Promise.reject(new Error('fail')))
+    await flush()
+
+    expect(result[0]).toEqual({ foo: 'hello', bar: 'world' })
+
+    // Rejected promise extendState should not throw or update state
+    result[2](Promise.reject(new Error('extend fail')))
+    await flush()
+
+    expect(result[0]).toEqual({ foo: 'hello', bar: 'world' })
   })
 })

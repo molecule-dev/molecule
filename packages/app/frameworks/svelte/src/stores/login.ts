@@ -12,7 +12,7 @@ import { createPromiseStore, type PromiseStore } from './promise.js'
 /**
  * Login store type.
  */
-export type LoginStore<T = unknown> = PromiseStore<AuthResult<T>>
+export type LoginStore<T = unknown> = PromiseStore<AuthResult<T>, [LoginCredentials]>
 
 /**
  * Creates a login store with async state tracking.

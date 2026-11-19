@@ -1,7 +1,11 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { effectScope, nextTick } from 'vue'
+// @vitest-environment jsdom
+import { mount, type VueWrapper } from '@vue/test-utils'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { defineComponent, effectScope, h, nextTick } from 'vue'
 
 import type { CapacitorApp, CapacitorAppState } from '@molecule/app-platform'
+
+import type { UseCapacitorAppReturn } from '../useCapacitorApp.js'
 
 // Mock @molecule/app-platform
 const mockSubscribe = vi.fn<(cb: (state: CapacitorAppState) => void) => () => void>()
@@ -27,6 +31,31 @@ vi.mock('@molecule/app-platform', () => ({
 // Must import after mock setup
 const { useCapacitorApp } = await import('../useCapacitorApp.js')
 const { createCapacitorApp } = await import('@molecule/app-platform')
+
+const wrappers: VueWrapper[] = []
+
+afterEach(() => {
+  for (const wrapper of wrappers.splice(0)) wrapper.unmount()
+})
+
+/**
+ * Runs `useCapacitorApp` inside a mounted component.
+ *
+ * @returns The mounted wrapper and the composable result.
+ */
+function mountApp(): { wrapper: VueWrapper; result: UseCapacitorAppReturn } {
+  let captured: UseCapacitorAppReturn | null = null
+  const Probe = defineComponent({
+    setup() {
+      captured = useCapacitorApp()
+      return () => h('div')
+    },
+  })
+  const wrapper = mount(Probe)
+  wrappers.push(wrapper)
+  if (!captured) throw new Error('useCapacitorApp setup did not run')
+  return { wrapper, result: captured }
+}
 
 describe('useCapacitorApp', () => {
   const initialState: CapacitorAppState = {
@@ -182,5 +211,79 @@ describe('useCapacitorApp', () => {
     expect(mockInitialize).toHaveBeenCalledTimes(2)
 
     scope.stop()
+  })
+})
+
+/**
+ * The React hook's own cases, carried over title for title. A composable runs
+ * in `setup()`, so these mount a `Probe` component, the Vue counterpart of a
+ * rendered hook.
+ */
+describe('useCapacitorApp (React cases)', () => {
+  let subscriberCallback: ((state: CapacitorAppState) => void) | null = null
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+    subscriberCallback = null
+
+    mockGetState.mockReturnValue({
+      ready: false,
+      deviceReady: false,
+      pushReady: true,
+      error: null,
+    })
+    mockInitialize.mockResolvedValue(undefined)
+    mockSubscribe.mockImplementation((callback: (state: CapacitorAppState) => void) => {
+      subscriberCallback = callback
+      return () => {
+        subscriberCallback = null
+      }
+    })
+    mockOnReady.mockReturnValue(() => {})
+  })
+
+  it('returns initial state with ready=false', () => {
+    const { result } = mountApp()
+
+    expect(result.ready.value).toBe(false)
+    expect(result.deviceReady.value).toBe(false)
+    expect(result.pushReady.value).toBe(true)
+    expect(result.error.value).toBe(null)
+    expect(typeof result.initialize).toBe('function')
+  })
+
+  it('auto-initializes on mount', async () => {
+    mountApp()
+
+    await vi.waitFor(() => {
+      expect(mockInitialize).toHaveBeenCalledOnce()
+    })
+  })
+
+  it('updates state when app becomes ready', () => {
+    const { result } = mountApp()
+
+    expect(result.ready.value).toBe(false)
+
+    // Simulate the coordinator pushing a state update via subscribe callback
+    subscriberCallback?.({
+      ready: true,
+      deviceReady: true,
+      pushReady: true,
+      error: null,
+    })
+
+    expect(result.ready.value).toBe(true)
+    expect(result.deviceReady.value).toBe(true)
+  })
+
+  it('cleans up on unmount by calling destroy', () => {
+    const { wrapper } = mountApp()
+
+    expect(mockDestroy).not.toHaveBeenCalled()
+
+    wrapper.unmount()
+
+    expect(mockDestroy).toHaveBeenCalledOnce()
   })
 })

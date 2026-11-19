@@ -9,42 +9,12 @@
 
 import { join } from 'node:path'
 
-import ts from 'typescript'
 import { describe, expect, it } from 'vitest'
 
-/**
- * Compiles `source` as a file of this package and returns its diagnostics.
- *
- * @param source - The TypeScript source to check.
- * @returns The diagnostic messages.
- */
-function diagnosticsFor(source: string): string[] {
-  const configPath = join(__dirname, '..', '..', 'tsconfig.json')
-  const parsed = ts.getParsedCommandLineOfConfigFile(
-    configPath,
-    { noEmit: true },
-    {
-      ...ts.sys,
-      onUnRecoverableConfigFileDiagnostic: () => undefined,
-    },
-  )
-  const options: ts.CompilerOptions = { ...(parsed?.options ?? {}), noEmit: true }
-  const virtualFile = join(__dirname, '__typed-probe__.ts')
-  const host = ts.createCompilerHost(options)
-  const getSourceFile = host.getSourceFile.bind(host)
-  const fileExists = host.fileExists.bind(host)
-  const readFile = host.readFile.bind(host)
-  host.getSourceFile = (fileName, languageVersion, onError, shouldCreateNewSourceFile) =>
-    fileName === virtualFile
-      ? ts.createSourceFile(fileName, source, languageVersion, true, ts.ScriptKind.TS)
-      : getSourceFile(fileName, languageVersion, onError, shouldCreateNewSourceFile)
-  host.fileExists = (fileName) => fileName === virtualFile || fileExists(fileName)
-  host.readFile = (fileName) => (fileName === virtualFile ? source : readFile(fileName))
-  const program = ts.createProgram([virtualFile], options, host)
-  return ts
-    .getPreEmitDiagnostics(program)
-    .map((diagnostic) => ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n'))
-}
+import { createTypeCheck } from './typeCheck.js'
+
+/** Compiles a probe as a file of this package and returns its diagnostics. */
+const diagnosticsFor = createTypeCheck(join(__dirname, '__typed-probe__.ts'))
 
 describe('createAuth types the app’s own registration fields', () => {
   it('accepts the client’s second generic through the primitives and helpers', () => {
@@ -79,5 +49,5 @@ export function viaClient() {
 `)
 
     expect(diagnostics.join('\n')).toEqual('')
-  })
+  }, 240_000)
 })

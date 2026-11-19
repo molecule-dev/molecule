@@ -32,6 +32,14 @@ export function useThemeProvider(): ThemeProvider {
 }
 
 /**
+ * A provider that may also carry the legacy `onThemeChange` subscription some
+ * pre-bond providers exposed.
+ */
+interface LegacyThemeProvider extends ThemeProvider {
+  onThemeChange?: (callback: () => void) => () => void
+}
+
+/**
  * Subscribe to a theme provider, supporting both `subscribe` and
  * `onThemeChange` methods.
  *
@@ -41,15 +49,11 @@ export function useThemeProvider(): ThemeProvider {
  */
 function subscribeToThemeProvider(provider: ThemeProvider, callback: () => void): () => void {
   if (typeof provider.subscribe === 'function') {
-    return provider.subscribe(callback as unknown as (theme: Theme) => void)
+    return provider.subscribe(callback)
   }
-  if (
-    typeof (provider as unknown as Record<string, (...args: unknown[]) => unknown>)
-      .onThemeChange === 'function'
-  ) {
-    return (
-      provider as unknown as Record<string, (...args: unknown[]) => () => void>
-    ).onThemeChange(callback)
+  const legacy: LegacyThemeProvider = provider
+  if (typeof legacy.onThemeChange === 'function') {
+    return legacy.onThemeChange(callback)
   }
   return () => {}
 }
@@ -110,7 +114,7 @@ export function useTheme(): UseThemeResult {
     )
     const nextIndex = (currentIndex + 1) % themes.length
     const next = themes[nextIndex]
-    provider.setTheme(typeof next === 'string' ? next : (next as Theme).name)
+    provider.setTheme(typeof next === 'string' ? next : next.name)
   }
 
   return {

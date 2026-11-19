@@ -23,9 +23,10 @@ vi.mock('@molecule/app-logger', () => ({
 import { getProvider } from '@molecule/app-push'
 
 import { useForm } from '../composables/useForms.js'
-import { useHttp, type UseHttpReturn } from '../composables/useHttp.js'
+import { useHttp } from '../composables/useHttp.js'
 import { usePush } from '../composables/usePush.js'
 import { moleculePlugin } from '../plugin.js'
+import type { UseHttpReturn } from '../types.js'
 
 interface ScriptedClient {
   get: ReturnType<typeof vi.fn>

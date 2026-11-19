@@ -1,7 +1,9 @@
 import { createRoot } from 'solid-js'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { createVersion } from '../version.js'
+import type { VersionEvent } from '@molecule/app-version'
+
+import { createVersion, useVersion } from '../version.js'
 
 const mockProvider = {
   getState: vi.fn(),
@@ -12,7 +14,8 @@ const mockProvider = {
   getServiceWorker: vi.fn(),
   applyUpdate: vi.fn(),
   dismissUpdate: vi.fn(),
-  on: vi.fn(),
+  // The snapshot subscription (`useVersion`) always passes a no-arg state-change handler.
+  on: vi.fn<(event: VersionEvent, handler: () => void) => () => void>(),
   off: vi.fn(),
   destroy: vi.fn(),
 }
@@ -211,6 +214,132 @@ describe('createVersion', () => {
         for (const unsub of unsubscribeFns) {
           expect(unsub).toHaveBeenCalled()
         }
+
+        resolve()
+      })
+    })
+  })
+})
+
+describe('useVersion', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    mockProvider.getState.mockReturnValue({
+      buildId: 'abc123',
+      version: '1.0.0',
+      isUpdateAvailable: false,
+      isServiceWorkerWaiting: false,
+      isChecking: false,
+    })
+    mockProvider.on.mockReturnValue(vi.fn())
+  })
+
+  it('subscribes to all 6 version events', () => {
+    return new Promise<void>((resolve) => {
+      createRoot((dispose) => {
+        useVersion()
+
+        const onCalls = mockProvider.on.mock.calls
+        const subscribedEvents = onCalls.map(([event]) => event)
+
+        expect(subscribedEvents).toContain('update-available')
+        expect(subscribedEvents).toContain('service-worker-waiting')
+        expect(subscribedEvents).toContain('service-worker-activated')
+        expect(subscribedEvents).toContain('check-start')
+        expect(subscribedEvents).toContain('check-complete')
+        expect(subscribedEvents).toContain('check-error')
+        expect(onCalls).toHaveLength(6)
+
+        dispose()
+        resolve()
+      })
+    })
+  })
+
+  it('updates state when events fire', () => {
+    return new Promise<void>((resolve) => {
+      createRoot((dispose) => {
+        const { isUpdateAvailable, newVersion } = useVersion()
+
+        expect(isUpdateAvailable()).toBe(false)
+
+        // Simulate the provider announcing a change: the same handler the
+        // subscription registered, then the provider's new snapshot.
+        const handler = mockProvider.on.mock.calls[0][1]
+        mockProvider.getState.mockReturnValue({
+          buildId: 'abc123',
+          version: '1.0.0',
+          isUpdateAvailable: true,
+          isServiceWorkerWaiting: false,
+          isChecking: false,
+          newVersion: '2.0.0',
+        })
+        handler()
+
+        // The snapshot engine renders on the scheduler (React's
+        // useSyncExternalStore cadence), so the new state commits on the next
+        // microtask rather than inside the notification.
+        queueMicrotask(() => {
+          expect(isUpdateAvailable()).toBe(true)
+          expect(newVersion()).toBe('2.0.0')
+
+          dispose()
+          resolve()
+        })
+      })
+    })
+  })
+
+  it('caches snapshot for referential stability', () => {
+    return new Promise<void>((resolve) => {
+      createRoot((dispose) => {
+        // A fresh object per read, like React's fixture: only the hook's cache
+        // can make two reads agree on the reference.
+        mockProvider.getState.mockImplementation(() => ({
+          buildId: 'abc123',
+          version: '1.0.0',
+          isUpdateAvailable: false,
+          isServiceWorkerWaiting: false,
+          isChecking: false,
+        }))
+
+        const { state } = useVersion()
+
+        const firstState = state()
+        // Solid's stand-in for React's rerender: the subscription's change
+        // callback runs again with an equal snapshot.
+        const handler = mockProvider.on.mock.calls[0][1]
+        handler()
+
+        queueMicrotask(() => {
+          // Same reference since nothing changed
+          expect(state()).toBe(firstState)
+
+          dispose()
+          resolve()
+        })
+      })
+    })
+  })
+
+  it('unsubscribes from all events on unmount', () => {
+    return new Promise<void>((resolve) => {
+      const unsubFns = Array.from({ length: 6 }, () => vi.fn())
+      let callIndex = 0
+      mockProvider.on.mockImplementation(() => {
+        const unsub = unsubFns[callIndex]
+        callIndex++
+        return unsub
+      })
+
+      createRoot((dispose) => {
+        useVersion()
+
+        unsubFns.forEach((fn) => expect(fn).not.toHaveBeenCalled())
+
+        dispose()
+
+        unsubFns.forEach((fn) => expect(fn).toHaveBeenCalledOnce())
 
         resolve()
       })

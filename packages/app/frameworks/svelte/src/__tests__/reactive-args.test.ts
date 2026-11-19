@@ -14,7 +14,7 @@ import { get, readable, writable } from 'svelte/store'
 import { describe, expect, it } from 'vitest'
 
 import Host from '@molecule/app-framework-conformance/adapters/svelte-bindings/Host.svelte'
-import type { FullRequestConfig, HttpClient, HttpResponse } from '@molecule/app-http'
+import type { FullRequestConfig, HttpClient, HttpResponse, RequestConfig } from '@molecule/app-http'
 
 import { setMoleculeContext } from '../context.js'
 import { isReadable, toReadable } from '../hooks/maybe-readable.js'
@@ -65,25 +65,30 @@ describe('toReadable', () => {
  */
 const scriptedClient = (): { client: HttpClient; calls: string[] } => {
   const calls: string[] = []
-  const respond = <T>(url: string, config?: FullRequestConfig): HttpResponse<T> => {
-    calls.push(url)
+  const respond = async <T>(config: FullRequestConfig): Promise<HttpResponse<T>> => {
+    calls.push(config.url)
     return {
-      data: { url } as T,
+      data: { url: config.url } as T,
       status: 200,
       statusText: 'OK',
       headers: {},
-      config: { ...config, url } as FullRequestConfig,
+      config,
     }
   }
   const client: HttpClient = {
     baseURL: '',
     defaultHeaders: {},
-    request: <T>(config: FullRequestConfig) => respond<T>(config.url ?? '', config),
-    get: <T>(url: string, config?: FullRequestConfig) => respond<T>(url, config),
-    post: <T>(url: string, _data?: unknown, config?: FullRequestConfig) => respond<T>(url, config),
-    put: <T>(url: string, _data?: unknown, config?: FullRequestConfig) => respond<T>(url, config),
-    patch: <T>(url: string, _data?: unknown, config?: FullRequestConfig) => respond<T>(url, config),
-    delete: <T>(url: string, config?: FullRequestConfig) => respond<T>(url, config),
+    request: async <T>(config: FullRequestConfig) => respond<T>(config),
+    get: async <T>(url: string, config?: RequestConfig) =>
+      respond<T>({ ...config, method: 'GET', url }),
+    post: async <T>(url: string, data?: unknown, config?: RequestConfig) =>
+      respond<T>({ ...config, method: 'POST', url, data }),
+    put: async <T>(url: string, data?: unknown, config?: RequestConfig) =>
+      respond<T>({ ...config, method: 'PUT', url, data }),
+    patch: async <T>(url: string, data?: unknown, config?: RequestConfig) =>
+      respond<T>({ ...config, method: 'PATCH', url, data }),
+    delete: async <T>(url: string, config?: RequestConfig) =>
+      respond<T>({ ...config, method: 'DELETE', url }),
     addRequestInterceptor: () => () => {},
     addResponseInterceptor: () => () => {},
     addErrorInterceptor: () => () => {},

@@ -2,10 +2,8 @@
  * Tests for auth action composables (useLogin, useSignup, usePasswordReset,
  * useChangePassword, useOAuth).
  */
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, type Mock, vi } from 'vitest'
 import { effectScope } from 'vue'
-
-import type { AuthClient } from '@molecule/app-auth'
 
 vi.mock('../useAuth.js', () => ({
   useAuthClient: vi.fn(),
@@ -18,7 +16,7 @@ import { useOAuth, type UseOAuthReturn } from '../useOAuth.js'
 import { usePasswordReset, type UsePasswordResetReturn } from '../usePasswordReset.js'
 import { useSignup, type UseSignupReturn } from '../useSignup.js'
 
-const createMockClient = (): ReturnType<typeof createMockClient> => ({
+const createMockClient = () => ({
   login: vi.fn(),
   logout: vi.fn(),
   register: vi.fn(),
@@ -410,13 +408,13 @@ describe('useOAuth', () => {
     })
 
     const createMockAuthClient = (): {
-      setAccessToken: ReturnType<typeof vi.fn>
-      setUser: ReturnType<typeof vi.fn>
-      initialize: ReturnType<typeof vi.fn>
+      setAccessToken: Mock<(token: string) => void>
+      setUser: Mock<(user: unknown) => void>
+      initialize: Mock<() => Promise<void>>
     } => ({
-      setAccessToken: vi.fn(),
-      setUser: vi.fn(),
-      initialize: vi.fn(() => Promise.resolve()),
+      setAccessToken: vi.fn<(token: string) => void>(),
+      setUser: vi.fn<(user: unknown) => void>(),
+      initialize: vi.fn<() => Promise<void>>(() => Promise.resolve()),
     })
 
     beforeEach(() => {
@@ -514,7 +512,7 @@ describe('useOAuth', () => {
           baseURL: 'https://api.example.com',
           onSuccess,
           onError,
-          authClient: mockAuthClient as unknown as AuthClient<unknown>,
+          authClient: mockAuthClient,
         })
       })
 
@@ -560,7 +558,7 @@ describe('useOAuth', () => {
           baseURL: 'https://api.example.com',
           onSuccess,
           onError,
-          authClient: mockAuthClient as unknown as AuthClient<unknown>,
+          authClient: mockAuthClient,
         })
       })
 

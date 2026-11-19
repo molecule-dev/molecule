@@ -13,6 +13,7 @@ import { resetQueryClient, setProvider } from '@molecule/app-query'
 import { provider } from '@molecule/app-query-memory'
 
 import QueryContent from '../QueryContent.svelte'
+import type { QueryContentProps } from '../types.js'
 import { settle } from './helpers/harness.js'
 import RecordAction from './helpers/RecordAction.svelte'
 import ScopedRecord from './helpers/ScopedRecord.svelte'
@@ -30,10 +31,16 @@ afterEach(async () => {
   for (const container of containers.splice(0)) container.remove()
 })
 
-/** Mounts a helper component in a tracked container. */
-function track(
-  component: Component<Record<string, unknown>>,
-  props: Record<string, unknown>,
+/**
+ * Mounts a helper component, checked against that component's own props.
+ *
+ * @param component - The helper component to mount.
+ * @param props - The props to pass it.
+ * @returns The container the helper rendered into.
+ */
+function track<const Props extends Record<string, unknown>>(
+  component: Component<Props>,
+  props: Props,
 ): HTMLDivElement {
   const container = document.createElement('div')
   document.body.append(container)
@@ -51,7 +58,7 @@ interface Notebook {
 
 it('withholds a record action until a nonempty ID exists, then passes that ID to the action', async () => {
   const post = vi.fn()
-  const pin = (id: string | undefined): void => {
+  const pin = (id: string | number | undefined): void => {
     post(`/notebooks/${encodeURIComponent(id ?? '')}/pin`)
   }
   const source: Writable<
@@ -109,9 +116,14 @@ it('leaves read-only data without an identity renderable', async () => {
   const container = document.createElement('div')
   document.body.append(container)
   containers.push(container)
-  const instance = mount(QueryContent, {
+  const query: Pick<QueryState<string>, 'data' | 'status' | 'error'> = {
+    data: 'Unsaved note',
+    status: 'success',
+    error: undefined,
+  }
+  const instance = mount<QueryContentProps<string>, Record<string, never>>(QueryContent, {
     target: container,
-    props: { query: { data: 'Unsaved note', status: 'success', error: undefined }, children },
+    props: { query, children },
   })
   flushSync()
   instances.push(() => unmount(instance))

@@ -4,7 +4,6 @@
  * @module
  */
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { getCurrentScope, onScopeDispose, type ShallowRef, shallowRef } from 'vue'
 
 import type { PromiseStatus } from '@molecule/app-utilities'
@@ -32,7 +31,10 @@ export interface UsePromiseState<T> {
  * `[state, call]`; this alias names that tuple for callers that import the old
  * type name.
  */
-export type UsePromiseReturn<T> = [UsePromiseState<T>, (...args: any[]) => Promise<T>]
+export type UsePromiseReturn<T, Args extends unknown[] = unknown[]> = [
+  UsePromiseState<T>,
+  (...args: Args) => Promise<T>,
+]
 
 /** React-parity state shape the reactive core keeps. */
 interface PromiseInternalState<T> {
@@ -49,11 +51,13 @@ interface PromiseInternalState<T> {
  * @param fn - The async function to track.
  * @returns The state ref plus the `call`/`cancel`/`reset` controls.
  */
-export function usePromiseCore<T>(fn: (...args: any[]) => Promise<T>): {
+export function usePromiseCore<Args extends unknown[], T>(
+  fn: (...args: Args) => Promise<T>,
+): {
   /** The tracked state; each settle replaces the object wholesale. */
   state: ShallowRef<PromiseInternalState<T>>
   /** Invoke the async function; resolves with its result, rejects with its error. */
-  call: (...args: any[]) => Promise<T>
+  call: (...args: Args) => Promise<T>
   /** Mark the tracked call rejected; a late result is not shown. */
   cancel: (message?: string) => void
   /** Return to idle with no value and no error. */
@@ -74,7 +78,7 @@ export function usePromiseCore<T>(fn: (...args: any[]) => Promise<T>): {
     })
   }
 
-  const call = async (...args: any[]): Promise<T> => {
+  const call = async (...args: Args): Promise<T> => {
     const currentId = ++callId
 
     state.value = {
@@ -151,6 +155,8 @@ export function usePromiseCore<T>(fn: (...args: any[]) => Promise<T>): {
  * still settles with its caller). `reset` alone does NOT supersede a pending
  * call — its late result lands, exactly like React's hook.
  *
+ * @template Result - What the async function resolves with
+ * @template Args - The async function's parameters
  * @param fn - The async function to track
  * @returns Tuple of `[state, call]`
  *
@@ -174,22 +180,17 @@ export function usePromiseCore<T>(fn: (...args: any[]) => Promise<T>): {
  * </template>
  * ```
  */
-export function usePromise<T extends (...args: any[]) => Promise<any>>(
-  fn: T,
-): [
-  UsePromiseState<Awaited<ReturnType<T>>>,
-  (...args: Parameters<T>) => Promise<Awaited<ReturnType<T>>>,
-] {
-  const { state, call, cancel, reset } = usePromiseCore<Awaited<ReturnType<T>>>(
-    fn as (...args: any[]) => Promise<any>,
-  )
+export function usePromise<Result, Args extends unknown[]>(
+  fn: (...args: Args) => Promise<Result>,
+): [UsePromiseState<Result>, (...args: Args) => Promise<Result>] {
+  const { state, call, cancel, reset } = usePromiseCore<Args, Result>(fn)
 
   // The tuple's first element is a live view of the reactive state: each field
   // reads through at access time, so a consumer destructuring it
   // (`const [state, call] = usePromise(fn)`) — or wrapping a field in
   // `computed(() => state.status)` — follows the settled state of the latest
   // call, like React's tuple.
-  const view = {} as UsePromiseState<Awaited<ReturnType<T>>>
+  const view = {} as UsePromiseState<Result>
   for (const field of ['status', 'value', 'error'] as const) {
     Object.defineProperty(view, field, {
       get: () => state.value[field],
@@ -210,8 +211,5 @@ export function usePromise<T extends (...args: any[]) => Promise<any>>(
     configurable: true,
   })
 
-  return [view, call] as [
-    UsePromiseState<Awaited<ReturnType<T>>>,
-    (...args: Parameters<T>) => Promise<Awaited<ReturnType<T>>>,
-  ]
+  return [view, call]
 }

@@ -58,8 +58,9 @@ function useLocaleNotifications(provider: I18nProvider): Accessor<number> {
 export interface UseTranslationResult {
   /**
    * Translates a key in the active locale. Follows locale changes, so text
-   * read through it re-renders; `useT()` returns one that also keeps its
-   * identity across locale changes.
+   * read through it re-renders, and its identity follows a locale switch (one
+   * function per locale, as React's `useTranslation` returns); `useT()`
+   * returns one that also keeps its identity across locale changes.
    */
   t: I18nProvider['t']
   /** The active locale code, as an accessor. */
@@ -90,22 +91,53 @@ export function useTranslation(): UseTranslationResult {
   const provider = useI18nProvider()
   const version = useLocaleNotifications(provider)
 
-  const t: I18nProvider['t'] = (key, values, options) => {
-    version()
-    return provider.t(key, values, options)
+  // One translation function per locale, exactly like React's
+  // `useTranslation`: the identity follows a locale switch (so text memoized on
+  // it, or a child that receives it as a prop, refreshes after the switch) and
+  // is unchanged by a notification that leaves the locale alone. `useT()` is
+  // the identity-stable form. Each function reads the notification counter, so
+  // text read through it — including a destructured `const { t }` — still
+  // re-renders on a locale change.
+  let cachedLocale: string | null = null
+  let cachedT: I18nProvider['t'] | null = null
+  const translationForActiveLocale = (): I18nProvider['t'] => {
+    const locale = provider.getLocale()
+    if (cachedT === null || cachedLocale !== locale) {
+      cachedLocale = locale
+      cachedT = (key, values, options) => {
+        version()
+        return provider.t(key, values, options)
+      }
+    }
+    return cachedT
+  }
+
+  // One locale list per notification, the same list otherwise, so an effect
+  // that depends on it stays stable until the provider announces a change.
+  let cachedLocalesVersion = -1
+  let cachedLocales: ReturnType<I18nProvider['getLocales']> | null = null
+  const locales = (): ReturnType<I18nProvider['getLocales']> => {
+    const current = version()
+    if (cachedLocales === null || cachedLocalesVersion !== current) {
+      cachedLocalesVersion = current
+      cachedLocales = provider.getLocales()
+    }
+    return cachedLocales
   }
 
   return {
-    t,
+    // A getter, not a captured value: reading `t` again after a notification
+    // hands back the function for the locale that is active now.
+    get t() {
+      version()
+      return translationForActiveLocale()
+    },
     locale: () => {
       version()
       return provider.getLocale()
     },
     setLocale: (code: string) => provider.setLocale(code),
-    locales: () => {
-      version()
-      return provider.getLocales()
-    },
+    locales,
     formatNumber: (value: number, options?: NumberFormatOptions) =>
       provider.formatNumber(value, options),
     formatDate: (value: Date | number | string, options?: DateFormatOptions) =>

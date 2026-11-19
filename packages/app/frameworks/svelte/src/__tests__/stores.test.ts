@@ -1,13 +1,14 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { AuthClient, AuthState } from '@molecule/app-auth'
-import type { HttpClient, RequestConfig } from '@molecule/app-http'
+import type { HttpClient, HttpResponse, RequestConfig } from '@molecule/app-http'
 import type { I18nProvider, InterpolationValues, NumberFormatOptions } from '@molecule/app-i18n'
 import type { Logger, LoggerConfig, LoggerProvider } from '@molecule/app-logger'
 import type { RouteLocation, Router } from '@molecule/app-routing'
 import type { Store as MoleculeStore } from '@molecule/app-state'
 import type { StorageProvider } from '@molecule/app-storage'
 import type { Theme, ThemeProvider } from '@molecule/app-theme'
+import { createLightTheme } from '@molecule/app-theme'
 
 // --- Mock svelte/store ---
 type Subscriber<T> = (value: T) => void
@@ -146,6 +147,46 @@ function getValue<T>(store: { subscribe: (fn: (v: T) => void) => () => void }): 
   return value!
 }
 
+/**
+ * A complete `AuthClient` mock: every member the contract requires, so the
+ * object is a real `AuthClient` rather than an incomplete literal cast to one.
+ * The members the cases steer are spies.
+ *
+ * @returns The client.
+ */
+function createMockAuthClient(): AuthClient<unknown> {
+  return {
+    getState: vi.fn((): AuthState<unknown> => ({
+      status: 'unauthenticated',
+      initialized: true,
+      authenticated: false,
+      user: null,
+      loading: false,
+      error: null,
+    })),
+    isAuthenticated: vi.fn(() => false),
+    getUser: vi.fn(() => null),
+    setUser: vi.fn(),
+    getAccessToken: vi.fn(() => null),
+    setAccessToken: vi.fn(),
+    setSession: vi.fn(),
+    getRefreshToken: vi.fn(() => null),
+    login: vi.fn(() => Promise.resolve({ user: { name: 'Test' } })),
+    logout: vi.fn(() => Promise.resolve()),
+    register: vi.fn(() => Promise.resolve({ user: { name: 'New' } })),
+    refresh: vi.fn(() => Promise.resolve({ user: { name: 'Test' } })),
+    requestPasswordReset: vi.fn(() => Promise.resolve()),
+    confirmPasswordReset: vi.fn(() => Promise.resolve()),
+    updateProfile: vi.fn(() => Promise.resolve(null)),
+    changePassword: vi.fn(() => Promise.resolve()),
+    initialize: vi.fn(() => Promise.resolve()),
+    subscribe: vi.fn(() => () => {}),
+    onAuthChange: vi.fn(() => () => {}),
+    addEventListener: vi.fn(() => () => {}),
+    destroy: vi.fn(),
+  }
+}
+
 // --- Auth stores tests ---
 describe('Auth stores', () => {
   let mockAuthClient: AuthClient<unknown>
@@ -155,28 +196,18 @@ describe('Auth stores', () => {
     contextStore.clear()
     authChangeCallbacks = []
     mockAuthClient = {
-      getState: vi.fn(() => ({
-        user: null,
-        authenticated: false,
-        loading: false,
-        error: null,
-      })),
+      ...createMockAuthClient(),
       onAuthChange: vi.fn((cb: (state: AuthState<unknown>) => void) => {
         authChangeCallbacks.push(cb)
         return () => {
           authChangeCallbacks = authChangeCallbacks.filter((c) => c !== cb)
         }
       }),
-      login: vi.fn(() => Promise.resolve({ user: { name: 'Test' }, token: 'abc' })),
-      logout: vi.fn(() => Promise.resolve()),
-      register: vi.fn(() => Promise.resolve({ user: { name: 'New' }, token: 'def' })),
-      refresh: vi.fn(() => Promise.resolve({ user: { name: 'Test' }, token: 'abc' })),
-    } as unknown as AuthClient<unknown>
+    }
   })
 
   // We need a fresh import for each describe to avoid stale context
-  // eslint-disable-next-line @typescript-eslint/consistent-type-imports
-  async function getAuthStoresModule(): Promise<typeof import('../stores/auth.js')> {
+  async function getAuthStoresModule() {
     const mod = await import('../stores/auth.js')
     return mod
   }
@@ -230,7 +261,9 @@ describe('Auth stores', () => {
   })
 
   it('createAuthStoresFromClient reads initial state from client', async () => {
-    mockAuthClient.getState.mockReturnValue({
+    vi.mocked(mockAuthClient.getState).mockReturnValue({
+      status: 'authenticated',
+      initialized: true,
       user: { name: 'Existing' },
       authenticated: true,
       loading: false,
@@ -255,23 +288,64 @@ describe('Auth stores', () => {
   })
 })
 
+/**
+ * A complete response body.
+ *
+ * @param data - The response data.
+ * @param status - The HTTP status code.
+ * @returns The response.
+ */
+function okResponse<T>(data: T, status = 200): HttpResponse<T> {
+  return {
+    data,
+    status,
+    statusText: status === 201 ? 'Created' : status === 204 ? 'No Content' : 'OK',
+    headers: {},
+    config: { method: 'GET', url: '' },
+  }
+}
+
+/**
+ * A complete `HttpClient` mock: every member the contract requires, so the
+ * object is a real `HttpClient` rather than an incomplete literal cast to one.
+ *
+ * @returns The client.
+ */
+function createMockHttpClient(): HttpClient {
+  const client: HttpClient = {
+    baseURL: '',
+    defaultHeaders: {},
+    request: vi.fn(),
+    get: vi.fn(),
+    post: vi.fn(),
+    put: vi.fn(),
+    patch: vi.fn(),
+    delete: vi.fn(),
+    addRequestInterceptor: vi.fn(() => () => {}),
+    addResponseInterceptor: vi.fn(() => () => {}),
+    addErrorInterceptor: vi.fn(() => () => {}),
+    setAuthToken: vi.fn(),
+    getAuthToken: vi.fn(() => null),
+    onAuthError: vi.fn(() => () => {}),
+  }
+  vi.mocked(client.get).mockImplementation(async () => okResponse({ users: [] }))
+  vi.mocked(client.post).mockImplementation(async () => okResponse({ id: '1' }, 201))
+  vi.mocked(client.put).mockImplementation(async () => okResponse({ updated: true }))
+  vi.mocked(client.patch).mockImplementation(async () => okResponse({ patched: true }))
+  vi.mocked(client.delete).mockImplementation(async () => okResponse(null, 204))
+  return client
+}
+
 // --- HTTP stores tests ---
 describe('HTTP stores', () => {
   let mockHttpClient: HttpClient
 
   beforeEach(() => {
     contextStore.clear()
-    mockHttpClient = {
-      get: vi.fn(() => Promise.resolve({ data: { users: [] }, status: 200 })),
-      post: vi.fn(() => Promise.resolve({ data: { id: '1' }, status: 201 })),
-      put: vi.fn(() => Promise.resolve({ data: { updated: true }, status: 200 })),
-      patch: vi.fn(() => Promise.resolve({ data: { patched: true }, status: 200 })),
-      delete: vi.fn(() => Promise.resolve({ data: null, status: 204 })),
-    } as unknown as HttpClient
+    mockHttpClient = createMockHttpClient()
   })
 
-  // eslint-disable-next-line @typescript-eslint/consistent-type-imports
-  async function getHttpStoresModule(): Promise<typeof import('../stores/http.js')> {
+  async function getHttpStoresModule() {
     return await import('../stores/http.js')
   }
 
@@ -344,7 +418,7 @@ describe('HTTP stores', () => {
   })
 
   it('HTTP store handles errors', async () => {
-    mockHttpClient.get.mockRejectedValue(new Error('Network error'))
+    vi.mocked(mockHttpClient.get).mockRejectedValue(new Error('Network error'))
 
     const { createHttpStoresFromClient } = await getHttpStoresModule()
     const stores = createHttpStoresFromClient(mockHttpClient)
@@ -360,7 +434,7 @@ describe('HTTP stores', () => {
   })
 
   it('HTTP store handles non-Error throws', async () => {
-    mockHttpClient.get.mockRejectedValue('string error')
+    vi.mocked(mockHttpClient.get).mockRejectedValue('string error')
 
     const { createHttpStoresFromClient } = await getHttpStoresModule()
     const stores = createHttpStoresFromClient(mockHttpClient)
@@ -417,11 +491,16 @@ describe('I18n stores', () => {
           localeCallbacks = localeCallbacks.filter((c) => c !== cb)
         }
       }),
-    } as unknown as I18nProvider
+      addLocale: vi.fn(),
+      removeLocale: vi.fn(() => false),
+      addTranslations: vi.fn(),
+      exists: vi.fn(() => false),
+      formatRelativeTime: vi.fn(() => ''),
+      formatList: vi.fn((values: string[]) => values.join(', ')),
+    }
   })
 
-  // eslint-disable-next-line @typescript-eslint/consistent-type-imports
-  async function getI18nModule(): Promise<typeof import('../stores/i18n.js')> {
+  async function getI18nModule() {
     return await import('../stores/i18n.js')
   }
 
@@ -497,26 +576,31 @@ describe('Logger stores', () => {
   beforeEach(() => {
     contextStore.clear()
     mockLogger = {
+      trace: vi.fn(),
+      debug: vi.fn(),
       info: vi.fn(),
       warn: vi.fn(),
       error: vi.fn(),
-      debug: vi.fn(),
-      trace: vi.fn(),
-      withContext: vi.fn(() => ({ info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() })),
-    } as unknown as Logger
+      setLevel: vi.fn(),
+      getLevel: () => 'info',
+      child: () => mockLogger,
+      withContext: vi.fn(() => mockLogger),
+      addTransport: vi.fn(() => () => {}),
+      removeTransport: vi.fn(),
+    }
     mockLoggerProvider = {
       getLogger: vi.fn(() => mockLogger),
       createLogger: vi.fn(() => mockLogger),
       setLevel: vi.fn(),
-      getLevel: vi.fn(() => 'info'),
+      getLevel: vi.fn<LoggerProvider['getLevel']>(() => 'info'),
+      addTransport: vi.fn(() => () => {}),
       enable: vi.fn(),
       disable: vi.fn(),
       isEnabled: vi.fn(() => true),
-    } as unknown as LoggerProvider
+    }
   })
 
-  // eslint-disable-next-line @typescript-eslint/consistent-type-imports
-  async function getLoggerModule(): Promise<typeof import('../stores/logger.js')> {
+  async function getLoggerModule() {
     return await import('../stores/logger.js')
   }
 
@@ -593,8 +677,10 @@ describe('Router stores', () => {
     routeCallbacks = []
     mockRouter = {
       getLocation: vi.fn(() => ({ pathname: '/', hash: '', search: '' })),
-      getParams: vi.fn(() => ({})),
+      getParams: vi.fn(),
       getQuery: vi.fn(() => ({})),
+      getQueryParam: vi.fn(() => undefined),
+      getHash: vi.fn(() => ''),
       subscribe: vi.fn((cb: (location: RouteLocation) => void) => {
         routeCallbacks.push(cb)
         return () => {
@@ -605,12 +691,23 @@ describe('Router stores', () => {
       navigateTo: vi.fn(),
       back: vi.fn(),
       forward: vi.fn(),
+      go: vi.fn(),
+      setQuery: vi.fn(),
+      setQueryParam: vi.fn(),
+      setHash: vi.fn(),
       isActive: vi.fn((path: string) => path === '/'),
-    } as unknown as Router
+      matchPath: vi.fn(() => null),
+      generatePath: vi.fn(() => ''),
+      createHref: vi.fn((path: string) => path),
+      addGuard: vi.fn(() => () => {}),
+      registerRoutes: vi.fn(),
+      getRoutes: vi.fn(() => []),
+      destroy: vi.fn(),
+    }
+    vi.mocked(mockRouter.getParams).mockReturnValue({})
   })
 
-  // eslint-disable-next-line @typescript-eslint/consistent-type-imports
-  async function getRouterModule(): Promise<typeof import('../stores/router.js')> {
+  async function getRouterModule() {
     return await import('../stores/router.js')
   }
 
@@ -697,11 +794,11 @@ describe('State stores', () => {
           storeCallbacks = storeCallbacks.filter((c) => c !== cb)
         }
       }),
-    } as unknown as MoleculeStore<{ count: number }>
+      destroy: vi.fn(),
+    }
   })
 
-  // eslint-disable-next-line @typescript-eslint/consistent-type-imports
-  async function getStateModule(): Promise<typeof import('../stores/state.js')> {
+  async function getStateModule() {
     return await import('../stores/state.js')
   }
 
@@ -748,16 +845,16 @@ describe('Storage stores', () => {
   beforeEach(() => {
     contextStore.clear()
     mockStorage = {
-      get: vi.fn(() => Promise.resolve('stored-value')),
+      get: vi.fn(),
       set: vi.fn(() => Promise.resolve()),
       remove: vi.fn(() => Promise.resolve()),
       clear: vi.fn(() => Promise.resolve()),
       keys: vi.fn(() => Promise.resolve(['key1', 'key2'])),
-    } as unknown as StorageProvider
+    }
+    vi.mocked(mockStorage.get).mockResolvedValue('stored-value')
   })
 
-  // eslint-disable-next-line @typescript-eslint/consistent-type-imports
-  async function getStorageModule(): Promise<typeof import('../stores/storage.js')> {
+  async function getStorageModule() {
     return await import('../stores/storage.js')
   }
 
@@ -785,7 +882,7 @@ describe('Storage stores', () => {
   })
 
   it('createStorageStoreFromProvider load uses default when storage returns null', async () => {
-    mockStorage.get.mockResolvedValue(null)
+    vi.mocked(mockStorage.get).mockResolvedValue(null)
     const { createStorageStoreFromProvider } = await getStorageModule()
     const store = createStorageStoreFromProvider(mockStorage, 'testKey', 'fallback')
 
@@ -795,7 +892,7 @@ describe('Storage stores', () => {
   })
 
   it('createStorageStoreFromProvider load handles errors', async () => {
-    mockStorage.get.mockRejectedValue(new Error('Storage error'))
+    vi.mocked(mockStorage.get).mockRejectedValue(new Error('Storage error'))
     const { createStorageStoreFromProvider } = await getStorageModule()
     const store = createStorageStoreFromProvider(mockStorage, 'testKey', 'default')
 
@@ -818,7 +915,7 @@ describe('Storage stores', () => {
   })
 
   it('createStorageStoreFromProvider set handles errors', async () => {
-    mockStorage.set.mockRejectedValue(new Error('Write error'))
+    vi.mocked(mockStorage.set).mockRejectedValue(new Error('Write error'))
     const { createStorageStoreFromProvider } = await getStorageModule()
     const store = createStorageStoreFromProvider(mockStorage, 'testKey', 'default')
 
@@ -872,15 +969,15 @@ describe('Theme stores', () => {
   let mockThemeProvider: ThemeProvider
   let themeCallbacks: ((theme: Theme) => void)[]
 
+  /** The two registered themes, complete `Theme` values the provider returns. */
+  const lightTheme = createLightTheme({ name: 'light', mode: 'light' })
+  const darkTheme = createLightTheme({ name: 'dark', mode: 'dark' })
+
   beforeEach(() => {
     contextStore.clear()
     themeCallbacks = []
     mockThemeProvider = {
-      getTheme: vi.fn(() => ({
-        name: 'light',
-        mode: 'light' as const,
-        colors: { background: { primary: '#fff' } },
-      })),
+      getTheme: vi.fn(() => lightTheme),
       subscribe: vi.fn((cb: (theme: Theme) => void) => {
         themeCallbacks.push(cb)
         return () => {
@@ -888,15 +985,12 @@ describe('Theme stores', () => {
         }
       }),
       setTheme: vi.fn(),
-      getThemes: vi.fn(() => [
-        { name: 'light', mode: 'light' },
-        { name: 'dark', mode: 'dark' },
-      ]),
-    } as unknown as ThemeProvider
+      toggleMode: vi.fn(),
+      getThemes: vi.fn(() => [lightTheme, darkTheme]),
+    }
   })
 
-  // eslint-disable-next-line @typescript-eslint/consistent-type-imports
-  async function getThemeModule(): Promise<typeof import('../stores/theme.js')> {
+  async function getThemeModule() {
     return await import('../stores/theme.js')
   }
 
@@ -943,10 +1037,7 @@ describe('Theme stores', () => {
     const { createThemeStoresFromProvider } = await getThemeModule()
     const result = createThemeStoresFromProvider(mockThemeProvider)
 
-    expect(result.themes).toEqual([
-      { name: 'light', mode: 'light' },
-      { name: 'dark', mode: 'dark' },
-    ])
+    expect(result.themes).toEqual([lightTheme, darkTheme])
   })
 
   it('createThemeStoresFromProvider handles missing getThemes', async () => {
@@ -997,15 +1088,7 @@ describe('OAuth helpers', () => {
     json: () => Promise.resolve(body),
   })
 
-  const createOAuthAuthClient = (): {
-    setAccessToken: ReturnType<typeof vi.fn>
-    setUser: ReturnType<typeof vi.fn>
-    initialize: ReturnType<typeof vi.fn>
-  } => ({
-    setAccessToken: vi.fn(),
-    setUser: vi.fn(),
-    initialize: vi.fn(() => Promise.resolve()),
-  })
+  const createOAuthAuthClient = (): AuthClient<unknown> => createMockAuthClient()
 
   async function getOAuthModule() {
     return await import('../stores/oauth.js')
@@ -1107,7 +1190,7 @@ describe('OAuth helpers', () => {
       baseURL: 'https://api.example.com',
       onSuccess,
       onError,
-      authClient: mockAuthClient as unknown as AuthClient<unknown>,
+      authClient: mockAuthClient,
     })
 
     setPath('/login', '?code=abc123&state=st4te')
@@ -1151,7 +1234,7 @@ describe('OAuth helpers', () => {
       baseURL: 'https://api.example.com',
       onSuccess,
       onError,
-      authClient: mockAuthClient as unknown as AuthClient<unknown>,
+      authClient: mockAuthClient,
     })
 
     setPath('/login', '?code=abc123&state=st4te')
@@ -1192,7 +1275,7 @@ describe('OAuth helpers', () => {
       baseURL: 'https://api.example.com',
       onSuccess,
       onError,
-      authClient: mockAuthClient as unknown as AuthClient<unknown>,
+      authClient: mockAuthClient,
     })
 
     await vi.waitFor(() => {

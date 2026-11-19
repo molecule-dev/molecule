@@ -38,7 +38,13 @@ export function renderHook<T>(initial: QueryOptions<T> | null): MountedQuery<T> 
   let latest!: UseQueryResult<T>
   const container = document.createElement('div')
   document.body.append(container)
-  const instance = mount(Probe, {
+  const instance = mount<
+    {
+      options: Writable<QueryOptions<T> | null>
+      capture: (result: UseQueryResult<T>) => void
+    },
+    Record<string, never>
+  >(Probe, {
     target: container,
     props: {
       options,

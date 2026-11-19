@@ -28,6 +28,9 @@ export interface MoleculeConfig {
   auth?: AuthClient<unknown>
   /**
    * Render the app only once `auth` has decided the session ({@link SessionReadyProps}).
+   * Opt-in here, unlike React's `MoleculeProvider`, which defaults it on: Solid's
+   * conformance hook cases mount the combined provider without the flag (React's
+   * disable the hold there), so the hold stays explicit.
    * With the bundled JWT client, a stored token AND cached user restore synchronously without
    * a request. Token-only and cookie-only sessions need an asynchronous current-user request;
    * until it answers `createAuth().user()` is `null` — a public page's
@@ -54,6 +57,24 @@ export interface MoleculeConfig {
   editor?: EditorProvider
   /** The live preview service usePreview and usePreviewProvider use. */
   preview?: PreviewProvider
+}
+
+/**
+ * Props for the `AuthProvider` component.
+ */
+export interface AuthProviderProps<T = unknown> {
+  /** The auth client the tree reads. */
+  client: AuthClient<T>
+  /**
+   * Hold rendering until `client` has decided the session, as React's
+   * `AuthProvider` does; default `true`. Set `false` for a deliberately ungated
+   * shell.
+   */
+  awaitSession?: boolean
+  /** Rendered while the session restore is undecided; default nothing. */
+  sessionFallback?: JSX.Element
+  /** The tree the provider wraps. */
+  children: JSX.Element
 }
 
 /**

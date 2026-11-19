@@ -4,16 +4,20 @@
  * @module
  */
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { type Readable, writable } from 'svelte/store'
 
 import type { PromiseState, PromiseStatus } from '@molecule/app-utilities'
 
 /**
  * Promise store with action methods.
+ *
+ * @template T - The value the tracked function resolves with.
+ * @template A - The tracked function's argument list.
  */
-export interface PromiseStore<T> extends Readable<PromiseState<T>> {
-  call: (...args: any[]) => Promise<T>
+export interface PromiseStore<T, A extends unknown[] = unknown[]> extends Readable<
+  PromiseState<T>
+> {
+  call: (...args: A) => Promise<T>
   cancel: (message?: string) => void
   reset: () => void
 }
@@ -42,10 +46,10 @@ export interface PromiseStore<T> extends Readable<PromiseState<T>> {
  * {/if}
  * ```
  */
-export const createPromiseStore = <T extends (...args: any[]) => Promise<any>>(
-  asyncFn: T,
-): PromiseStore<Awaited<ReturnType<T>>> => {
-  type V = Awaited<ReturnType<T>>
+export const createPromiseStore = <T, A extends unknown[]>(
+  asyncFn: (...args: A) => Promise<T>,
+): PromiseStore<T, A> => {
+  type V = T
 
   const initial: PromiseState<V> = {
     status: 'idle' as PromiseStatus,
@@ -57,7 +61,7 @@ export const createPromiseStore = <T extends (...args: any[]) => Promise<any>>(
 
   let callId = 0
 
-  const call = (...args: any[]): Promise<V> => {
+  const call = (...args: A): Promise<V> => {
     callId += 1
     const thisCallId = callId
 

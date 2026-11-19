@@ -339,11 +339,64 @@ export function useForm<T extends FormValuesConstraint<T> = Record<string, unkno
 }
 
 /**
+ * Subscribes a controller selection and republishes what `read` returns.
+ *
+ * The controller and the field name are each a plain value or a readable
+ * store (React's `rerender` with new props is a store the app sets): a change
+ * re-subscribes the new controller — the old subscription is ended, so an
+ * update to a controller or field that is no longer selected is not read.
+ *
+ * @param form - The controller, or a store of it.
+ * @param name - The field name, or a store of it.
+ * @param read - Reads the selected field's published value from the controller.
+ * @returns The selected value as a readable store.
+ */
+function followField<T extends FormValuesConstraint<T>, K extends keyof T, S>(
+  form: MaybeReadable<FormController<T>>,
+  name: MaybeReadable<K>,
+  read: (controller: FormController<T>, field: K) => S,
+): Readable<S> {
+  const formSource = toReadable(form)
+  const nameSource = toReadable(name)
+  const state = writable<S>(read(get(formSource), get(nameSource)))
+  let subscribed: { controller: FormController<T>; field: K } | null = null
+  let stopController: (() => void) | null = null
+
+  const follow = (): void => {
+    const controller = get(formSource)
+    const field = get(nameSource)
+    if (subscribed !== null && subscribed.controller === controller && subscribed.field === field) {
+      return
+    }
+    stopController?.()
+    subscribed = { controller, field }
+    stopController = controller.subscribe(() => {
+      state.set(read(controller, field))
+    })
+    // A controller can change after the first read but before the subscription
+    // settles (React's refresh right after subscribing).
+    state.set(read(controller, field))
+  }
+
+  // A store calls back at once with its current value; a plain value arrives as
+  // a constant store, so the first callback is the creation read's follow-up.
+  const stopForm = formSource.subscribe(follow)
+  const stopName = nameSource.subscribe(follow)
+  onDestroy(() => {
+    stopForm()
+    stopName()
+    stopController?.()
+  })
+
+  return { subscribe: state.subscribe }
+}
+
+/**
  * Hook to watch a specific field value, React's `useWatch` in Svelte's idiom:
  * a readable store of the field's current value.
  *
- * @param form - Form controller
- * @param name - Field name to watch
+ * @param form - Form controller, or a readable store of one
+ * @param name - Field name to watch, or a readable store of one
  * @returns A readable store of the current field value
  * @example
  * ```svelte
@@ -357,42 +410,23 @@ export function useForm<T extends FormValuesConstraint<T> = Record<string, unkno
  * ```
  */
 export function useWatch<T extends FormValuesConstraint<T>, K extends keyof T>(
-  form: FormController<T>,
-  name: K,
+  form: MaybeReadable<FormController<T>>,
+  name: MaybeReadable<K>,
 ): Readable<T[K]> {
-  // The whole state as the cached snapshot (React's useFormSnapshot over
-  // getValue), one read at creation, one re-read after subscribing, one per
-  // notification.
-  const state = writable<FormState<T>>(form.getState())
-  const refresh = (): void => {
-    state.set(form.getState())
-  }
-  const unsubscribe = form.subscribe(refresh)
-  refresh()
-  onDestroy(unsubscribe)
-
-  return derived(state, (current) => current.values[name])
+  return followField(form, name, (controller, field) => controller.getState().values[field] as T[K])
 }
 
 /**
  * Hook to get field-level state, React's `useFieldState` in Svelte's idiom: a
  * readable store of the field's state.
  *
- * @param form - Form controller
- * @param name - Field name
+ * @param form - Form controller, or a readable store of one
+ * @param name - Field name, or a readable store of one
  * @returns A readable store of the field state (value, error, touched, dirty, valid, validating)
  */
 export function useFieldState<T extends FormValuesConstraint<T>>(
-  form: FormController<T>,
-  name: keyof T,
+  form: MaybeReadable<FormController<T>>,
+  name: MaybeReadable<keyof T>,
 ): Readable<FieldState<T[keyof T]>> {
-  const state = writable<FieldState<T[keyof T]>>(form.getFieldState(name))
-  const refresh = (): void => {
-    state.set(form.getFieldState(name))
-  }
-  const unsubscribe = form.subscribe(refresh)
-  refresh()
-  onDestroy(unsubscribe)
-
-  return { subscribe: state.subscribe }
+  return followField(form, name, (controller, field) => controller.getFieldState(field))
 }

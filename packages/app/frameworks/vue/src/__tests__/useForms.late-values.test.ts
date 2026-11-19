@@ -167,7 +167,7 @@ describe('Vue late form values', () => {
     const onSubmit = vi.fn()
     const submission = form.handleSubmit(onSubmit)()
 
-    options.values!.details.title = ''
+    options.values!.details!.title = ''
     await nextTick()
     release({})
     await submission
@@ -210,7 +210,7 @@ describe('Vue late form values', () => {
 
     // The default keeps dirty values: the merge lands but the submission —
     // validated against its start-of-submit snapshot — completes.
-    options.values!.details.title = ''
+    options.values!.details!.title = ''
     await nextTick()
     expect(form.getValue('details').title).toBe('')
     release({})

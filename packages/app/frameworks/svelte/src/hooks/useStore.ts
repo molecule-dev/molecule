@@ -20,6 +20,15 @@ export interface UseStoreOptions<T, S> {
 }
 
 /**
+ * Options for {@link useStore} that pick part of the store: a selector is
+ * required, so the selected type `S` always comes from it.
+ */
+export interface SelectingStoreOptions<T, S> extends UseStoreOptions<T, S> {
+  /** Picks the value the hook returns from the store's state. */
+  selector: (state: T) => S
+}
+
+/**
  * Subscribes a store with an optional selector and equality function, React's
  * `useStore` in Svelte's idiom: a readable store of the selected value.
  *
@@ -52,27 +61,52 @@ export interface UseStoreOptions<T, S> {
  * <p>{$count} / {$doubled}</p>
  * ```
  */
-export function useStore<T, S = T>(
+export function useStore<T>(
   store: MaybeReadable<Store<T>>,
-  options?: MaybeReadable<UseStoreOptions<T, S> | undefined>,
-): Readable<S> {
+  options?: MaybeReadable<UseStoreOptions<T, T> | undefined>,
+): Readable<T>
+/**
+ * Subscribes to the part of a store a selector picks.
+ *
+ * @param store - The store to subscribe to (or a readable store of it).
+ * @param options - The selector, and an optional equality function for its
+ *   results, or a store of them.
+ * @returns A readable store of the selected value.
+ */
+export function useStore<T, S>(
+  store: MaybeReadable<Store<T>>,
+  options: MaybeReadable<SelectingStoreOptions<T, S>>,
+): Readable<S>
+/**
+ * The implementation both signatures share: without a selector the selected
+ * value is the state itself, which the first signature types as `T`.
+ *
+ * @param store - The store to subscribe to (or a readable store of it).
+ * @param options - Hook options (selector, equalityFn), or a store of them.
+ * @returns A readable store of the selected value.
+ */
+export function useStore<T>(
+  store: MaybeReadable<Store<T>>,
+  options?: MaybeReadable<UseStoreOptions<T, unknown> | undefined>,
+): Readable<unknown> {
   const storeStore = toReadable(store)
   const optionsStore = toReadable(options)
 
   // The store currently subscribed: setting the source re-subscribes, as
   // React's subscribe callback (keyed on the store) does on a re-render.
-  let currentStore = get(storeStore) as Store<T>
+  let currentStore = get(storeStore)
   let stopStore: (() => void) | null = null
   let stopSource: (() => void) | null = null
 
   // The previous selected value (React's prevSelectedRef): while an equality
   // function accepts it, it stays the result, so its identity is stable.
-  let previous: S | undefined
+  let previous: unknown
 
-  const getSnapshot = (): S => {
+  const getSnapshot = (): unknown => {
     const { selector, equalityFn } = get(optionsStore) ?? {}
     const state = currentStore.getState()
-    const selected = selector ? selector(state) : (state as unknown as S)
+    // Without a selector the selection IS the store's state.
+    const selected = selector ? selector(state) : state
     // With an equality function and a previous value, an equal selection
     // keeps the previous result — the same value, not a fresh object.
     if (equalityFn && previous !== undefined) {
@@ -87,8 +121,7 @@ export function useStore<T, S = T>(
     // A new store in the source re-subscribes and re-checks the snapshot, the
     // way React's useSyncExternalStore does when its subscribe function
     // changes. The store calls back at once with the store already read.
-    stopSource = storeStore.subscribe((next) => {
-      const incoming = next as Store<T>
+    stopSource = storeStore.subscribe((incoming) => {
       if (Object.is(incoming, currentStore)) return
       currentStore = incoming
       stopStore?.()
@@ -103,7 +136,7 @@ export function useStore<T, S = T>(
     }
   }
 
-  return useSyncExternalStore<S>(subscribe, getSnapshot)
+  return useSyncExternalStore<unknown>(subscribe, getSnapshot)
 }
 
 /**

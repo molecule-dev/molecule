@@ -53,7 +53,8 @@ export function useAuthClient<
  * `status === 'loading'` is undecided: wait for it and redirect only on
  * `status === 'unauthenticated'`. `'unavailable'` keeps the session candidate
  * for retry, but `isAuthenticated` can be false and `user` can be null while a
- * token/cookie-only restore has no cached profile.
+ * token/cookie-only restore has no cached profile. A restore failure other than
+ * 401/403 never signs out.
  *
  * Save profile edits with `updateProfile(patch)`; adopt a caller-issued session
  * with `setSession({ accessToken, user })` — `setUser` alone does not sign in.

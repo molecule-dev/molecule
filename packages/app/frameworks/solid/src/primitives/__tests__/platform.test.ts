@@ -1,9 +1,10 @@
+import { createEffect, createRoot, createSignal } from 'solid-js'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { createPlatform } from '../platform.js'
+import type { Platform, PlatformInfo } from '@molecule/app-platform'
 
-const mockPlatformInfo = {
-  platform: 'web' as const,
+const mockPlatformInfo: PlatformInfo = {
+  platform: 'web',
   isNative: false,
   isMobile: false,
   isDesktop: false,
@@ -14,13 +15,19 @@ const mockPlatformInfo = {
 }
 
 vi.mock('@molecule/app-platform', () => ({
-  platform: () => mockPlatformInfo,
-  isPlatform: vi.fn((...platforms: string[]) => platforms.includes(mockPlatformInfo.platform)),
+  platform: vi.fn(() => mockPlatformInfo),
+  isPlatform: vi.fn((...platforms: Platform[]) => platforms.includes('web')),
 }))
+
+import { isPlatform, platform } from '@molecule/app-platform'
+
+import { createPlatform, usePlatform } from '../platform.js'
 
 describe('createPlatform', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    vi.mocked(platform).mockReturnValue(mockPlatformInfo)
+    vi.mocked(isPlatform).mockImplementation((...platforms) => platforms.includes('web'))
   })
 
   it('returns the current platform', () => {
@@ -85,5 +92,95 @@ describe('createPlatform', () => {
     expect(result).toHaveProperty('isDevelopment')
     expect(result).toHaveProperty('isProduction')
     expect(result).toHaveProperty('isPlatform')
+  })
+})
+
+describe('usePlatform', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    vi.mocked(platform).mockReturnValue(mockPlatformInfo)
+    vi.mocked(isPlatform).mockImplementation((...platforms) => platforms.includes('web'))
+  })
+
+  it('returns platform info fields', () => {
+    const info = usePlatform()
+
+    expect(info.platform).toBe('web')
+    expect(info.isWeb).toBe(true)
+    expect(info.isNative).toBe(false)
+    expect(info.isMobile).toBe(false)
+    expect(info.isDesktop).toBe(false)
+    expect(info.isDevelopment).toBe(true)
+    expect(info.isProduction).toBe(false)
+  })
+
+  it('isPlatform delegates to module function', () => {
+    const info = usePlatform()
+
+    expect(info.isPlatform('web')).toBe(true)
+    expect(isPlatform).toHaveBeenCalledWith('web')
+
+    expect(info.isPlatform('ios', 'android')).toBe(false)
+    expect(isPlatform).toHaveBeenCalledWith('ios', 'android')
+  })
+
+  it('does not call platform() again on rerender', () => {
+    const [tick, setTick] = createSignal(0)
+    const dispose = createRoot((disposeRoot) => {
+      // A Solid component body runs once; the reactive update below reads the
+      // same platform result without asking for the platform again.
+      const info = usePlatform()
+      createEffect(() => {
+        void tick()
+        void info.isWeb
+      })
+      return disposeRoot
+    })
+
+    const callCount = vi.mocked(platform).mock.calls.length
+    setTick(1)
+
+    expect(vi.mocked(platform).mock.calls.length).toBe(callCount)
+    dispose()
+  })
+
+  it('returns correct values for native platform', () => {
+    vi.mocked(platform).mockReturnValue({
+      ...mockPlatformInfo,
+      platform: 'ios',
+      isNative: true,
+      isMobile: true,
+      isWeb: false,
+      isDevelopment: false,
+      isProduction: true,
+    })
+    vi.mocked(isPlatform).mockImplementation((...platforms) => platforms.includes('ios'))
+
+    const info = usePlatform()
+
+    expect(info.platform).toBe('ios')
+    expect(info.isNative).toBe(true)
+    expect(info.isMobile).toBe(true)
+    expect(info.isWeb).toBe(false)
+    expect(info.isProduction).toBe(true)
+    expect(info.isPlatform('ios')).toBe(true)
+    expect(info.isPlatform('web')).toBe(false)
+  })
+
+  it('returns correct values for desktop platform', () => {
+    vi.mocked(platform).mockReturnValue({
+      ...mockPlatformInfo,
+      platform: 'electron',
+      isNative: true,
+      isDesktop: true,
+      isWeb: false,
+    })
+
+    const info = usePlatform()
+
+    expect(info.platform).toBe('electron')
+    expect(info.isNative).toBe(true)
+    expect(info.isDesktop).toBe(true)
+    expect(info.isWeb).toBe(false)
   })
 })

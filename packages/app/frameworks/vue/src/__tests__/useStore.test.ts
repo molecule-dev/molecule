@@ -67,12 +67,18 @@ describe('useStateProvider', () => {
 
 describe('useStore', () => {
   let subscribeCallback: (() => void) | null
-  let mockStore: {
-    getState: ReturnType<typeof vi.fn>
-    setState: ReturnType<typeof vi.fn>
-    subscribe: ReturnType<typeof vi.fn>
-  }
+  let mockStore: ReturnType<typeof createMockStore>
   const mockUnsubscribe = vi.fn()
+
+  const createMockStore = () => ({
+    getState: vi.fn(() => ({ count: 0, name: 'test' })),
+    setState: vi.fn(),
+    subscribe: vi.fn((cb: () => void) => {
+      subscribeCallback = cb
+      return mockUnsubscribe
+    }),
+    destroy: vi.fn(),
+  })
 
   beforeEach(() => {
     mockInjectReturnValue = undefined
@@ -80,14 +86,7 @@ describe('useStore', () => {
     subscribeCallback = null
     mockUnsubscribe.mockClear()
 
-    mockStore = {
-      getState: vi.fn(() => ({ count: 0, name: 'test' })),
-      setState: vi.fn(),
-      subscribe: vi.fn((cb: () => void) => {
-        subscribeCallback = cb
-        return mockUnsubscribe
-      }),
-    }
+    mockStore = createMockStore()
   })
 
   it('returns a reactive ref with initial state', () => {
@@ -108,12 +107,12 @@ describe('useStore', () => {
   })
 
   it('applies selector to initial state', () => {
-    const result = useStore(mockStore as never, { selector: (s: { count: number }) => s.count })
+    const result = useStore(mockStore, { selector: (s: { count: number }) => s.count })
     expect(result.value).toBe(0)
   })
 
   it('applies selector on state updates', () => {
-    const result = useStore(mockStore as never, { selector: (s: { count: number }) => s.count })
+    const result = useStore(mockStore, { selector: (s: { count: number }) => s.count })
     mockStore.getState.mockReturnValue({ count: 10, name: 'updated' })
     subscribeCallback!()
     expect(result.value).toBe(10)
@@ -139,8 +138,9 @@ describe('useSetStore', () => {
       getState: vi.fn(),
       setState: setStateFn,
       subscribe: vi.fn(),
+      destroy: vi.fn(),
     }
-    const result = useSetStore(mockStore as never)
+    const result = useSetStore(mockStore)
     expect(result).toBe(setStateFn)
   })
 })
@@ -156,9 +156,10 @@ describe('useStoreComputed', () => {
       getState: vi.fn(() => ({ count: 42, label: 'items' })),
       setState: vi.fn(),
       subscribe: vi.fn(() => vi.fn()),
+      destroy: vi.fn(),
     }
 
-    const result = useStoreComputed(mockStore as never, (s: { count: number }) => s.count)
+    const result = useStoreComputed(mockStore, (s: { count: number }) => s.count)
     // computed mock returns fn() result
     expect(result.value).toBeDefined()
   })

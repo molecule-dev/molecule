@@ -1,4 +1,10 @@
-import { fromJSON, type SerovalJSON, SerovalMalformedNodeError, toJSON } from 'seroval'
+import {
+  fromJSON,
+  type SerovalJSON,
+  SerovalMalformedNodeError,
+  type SerovalNode,
+  toJSON,
+} from 'seroval'
 import { describe, expect, it } from 'vitest'
 
 /**
@@ -15,17 +21,35 @@ import { describe, expect, it } from 'vitest'
  * and the test fails here instead of showing up as a renewed advisory.
  */
 
-/** seroval's node encoding: object = 10, typed array = 15, DataView = 20. */
-const objectNodeWithLength = (length: number): unknown => ({
-  t: 10,
-  i: 1,
-  p: { k: ['length'], v: [{ t: 0, s: length }] },
-  o: 0,
-})
+/** A seroval object node (`{ length }`) — the wrong node shape for a buffer. */
+const objectNodeWithLength = (length: number): SerovalNode => toJSON({ length }).t
 
-/** Wraps a deliberately malformed root node in the outer shape `fromJSON` reads. */
-const payload = (root: unknown): SerovalJSON =>
-  ({ t: root, f: 63, m: [] }) as unknown as SerovalJSON
+/** Wraps a root node in the outer shape `fromJSON` reads. */
+const payload = (root: SerovalNode): SerovalJSON => ({ t: root, f: 63, m: [] })
+
+/**
+ * A typed-array node whose `f` buffer points at a plain object carrying a
+ * `length` — the hostile shape GHSA-jp82-f5mq-hwhp described.
+ *
+ * @returns The malformed node.
+ */
+const typedArrayWithPlainObjectBuffer = (): SerovalNode => {
+  const node = toJSON(new Uint8Array(3)).t
+  node.f = objectNodeWithLength(16)
+  return node
+}
+
+/**
+ * A DataView node whose `f` buffer points at a plain object carrying a
+ * `length`.
+ *
+ * @returns The malformed node.
+ */
+const dataViewWithPlainObjectBuffer = (): SerovalNode => {
+  const node = toJSON(new DataView(new ArrayBuffer(4))).t
+  node.f = objectNodeWithLength(16)
+  return node
+}
 
 /** Returns the `cause` seroval attaches to its deserialization error, if it throws. */
 const causeOfRejection = (hostile: SerovalJSON): unknown => {
@@ -44,20 +68,13 @@ describe('seroval deserialization boundary', () => {
   })
 
   it('rejects a typed array whose buffer is a plain object with a length', () => {
-    const hostile = payload({
-      t: 15,
-      i: 0,
-      c: 'Uint8Array',
-      f: objectNodeWithLength(16),
-      b: 0,
-      l: 3,
-    })
+    const hostile = payload(typedArrayWithPlainObjectBuffer())
     expect(() => fromJSON(hostile)).toThrow()
     expect(causeOfRejection(hostile)).toBeInstanceOf(SerovalMalformedNodeError)
   })
 
   it('rejects a DataView whose buffer is a plain object with a length', () => {
-    const hostile = payload({ t: 20, i: 0, f: objectNodeWithLength(16), b: 0, l: 4 })
+    const hostile = payload(dataViewWithPlainObjectBuffer())
     expect(() => fromJSON(hostile)).toThrow()
     expect(causeOfRejection(hostile)).toBeInstanceOf(SerovalMalformedNodeError)
   })

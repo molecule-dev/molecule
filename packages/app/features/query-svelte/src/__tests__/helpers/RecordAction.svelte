@@ -20,7 +20,7 @@
     onPin,
   }: {
     source: Readable<Pick<QueryState<Notebook>, 'data' | 'status' | 'error' | 'isPreviousData'>>
-    onPin: (id: string) => void
+    onPin: (id: string | number | undefined) => void
   } = $props()
 </script>
 

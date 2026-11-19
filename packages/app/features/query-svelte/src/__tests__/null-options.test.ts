@@ -43,7 +43,13 @@ describe.each([
     const container = document.createElement('div')
     document.body.append(container)
     containers.push(container)
-    const instance = mount(Probe, {
+    const instance = mount<
+      {
+        options: Writable<QueryOptions<string> | null>
+        capture: (value: UseQueryResult<string>) => void
+      },
+      Record<string, never>
+    >(Probe, {
       target: container,
       props: {
         options,

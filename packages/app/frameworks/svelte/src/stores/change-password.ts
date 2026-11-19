@@ -10,7 +10,7 @@ import { createPromiseStore, type PromiseStore } from './promise.js'
 /**
  * Change password store type.
  */
-export type ChangePasswordStore = PromiseStore<void>
+export type ChangePasswordStore = PromiseStore<void, [string, string]>
 
 /**
  * Creates a change password store with async state tracking.

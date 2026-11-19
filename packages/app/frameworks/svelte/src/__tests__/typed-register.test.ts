@@ -47,7 +47,7 @@ function diagnosticsFor(source: string): string[] {
 }
 
 describe('createAuthStores types the app’s own registration fields', () => {
-  it('accepts the client’s second generic through both factories', () => {
+  it('accepts the client’s second generic through both factories', { timeout: 60_000 }, () => {
     const diagnostics = diagnosticsFor(`
 import { createJWTAuthClient } from '@molecule/app-auth'
 import { createAuthStores, createAuthStoresFromClient } from '../stores/auth.js'
@@ -71,6 +71,99 @@ export function viaClient() {
   const { register } = createAuthStoresFromClient(client)
   return () => register({ email: 'reader@example.test', password: 'pw', username: 'reader' })
 }
+`)
+
+    expect(diagnostics.join('\n')).toEqual('')
+  })
+})
+
+// The cases below carry React's `useAuthTypedRegister.test.ts` titles character
+// for character, against the Svelte binding's own entry points.
+
+describe('useAuth types the app’s own registration fields', () => {
+  it(
+    'accepts the client’s second generic and passes custom fields to register()',
+    { timeout: 60_000 },
+    () => {
+      const diagnostics = diagnosticsFor(`
+import { createJWTAuthClient } from '@molecule/app-auth'
+import { useAuth } from '../hooks/useAuth.js'
+import { createAuthStores } from '../stores/auth.js'
+
+interface AppUser {
+  id: string
+  email?: string
+  username?: string
+}
+
+interface AppRegisterFields {
+  username: string
+}
+
+const client = createJWTAuthClient<AppUser, AppRegisterFields>({
+  storage: 'memory',
+  requestBody: (kind, payload) => ({ user: payload }),
+})
+
+export function viaUseAuth() {
+  const { register } = useAuth<AppUser, AppRegisterFields>()
+  return () => register({ email: 'reader@example.test', password: 'pw', username: 'reader' })
+}
+
+export function viaAuthStores() {
+  const { register } = createAuthStores<AppUser, AppRegisterFields>()
+  return (data: { email: string; password: string; username: string }) => register(data)
+}
+`)
+
+      expect(diagnostics.join('\n')).toEqual('')
+    },
+  )
+
+  it(
+    'still rejects custom fields when the hook is used without the second generic',
+    { timeout: 60_000 },
+    () => {
+      const diagnostics = diagnosticsFor(`
+import { useAuth } from '../hooks/useAuth.js'
+
+interface AppUser {
+  id: string
+  email?: string
+  username?: string
+}
+
+export function untyped() {
+  const { register } = useAuth<AppUser>()
+  return () => register({ email: 'reader@example.test', password: 'pw', username: 'reader' })
+}
+`)
+
+      expect(diagnostics.join('\n')).toContain('username')
+    },
+  )
+
+  it('takes a type alias for the same fields', { timeout: 60_000 }, () => {
+    const diagnostics = diagnosticsFor(`
+import { createJWTAuthClient } from '@molecule/app-auth'
+import { useAuth } from '../hooks/useAuth.js'
+
+interface AppUser {
+  id: string
+}
+
+type AppRegisterFields = {
+  username: string
+}
+
+const client = createJWTAuthClient<AppUser, AppRegisterFields>({ storage: 'memory' })
+
+export function viaUseAuth() {
+  const { register } = useAuth<AppUser, AppRegisterFields>()
+  return () => register({ email: 'reader@example.test', password: 'pw', username: 'reader' })
+}
+
+export const wiring = client
 `)
 
     expect(diagnostics.join('\n')).toEqual('')

@@ -1,4 +1,63 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, type Mock, vi } from 'vitest'
+
+import type { AuthClient, AuthEventListener, AuthState } from '@molecule/app-auth'
+import type {
+  ErrorInterceptor,
+  FullRequestConfig,
+  HttpClient,
+  HttpResponse,
+  RequestInterceptor,
+  ResponseInterceptor,
+} from '@molecule/app-http'
+import type { I18nProvider } from '@molecule/app-i18n'
+import type { Logger, LoggerConfig, LoggerProvider, LogTransport } from '@molecule/app-logger'
+import type {
+  NavigationGuard,
+  RouteChangeListener,
+  RouteDefinition,
+  Router,
+} from '@molecule/app-routing'
+import type { StateListener, StateProvider, Store } from '@molecule/app-state'
+import type { StorageProvider } from '@molecule/app-storage'
+import type { Theme, ThemeProvider } from '@molecule/app-theme'
+import { createDarkTheme, createLightTheme } from '@molecule/app-theme'
+
+/**
+ * A `T` whose methods are `vi.fn` mocks carrying the method's REAL signature,
+ * so the mock can be passed wherever `T` is expected while tests still assert
+ * on the mocks (`mockReturnValue`, `toHaveBeenCalledWith`) with types checked.
+ */
+type Mocked<T> = {
+  [K in keyof T]: T[K] extends (...args: infer Args) => infer Return
+    ? Mock<(...args: Args) => Return>
+    : T[K]
+}
+
+/**
+ * A mock for a method that RETURNS its own type parameter (e.g.
+ * `get<T>(url): Promise<HttpResponse<T>>`): no concrete stub can produce a
+ * value of a free `T`, so the erased `Mock<(...args) => Return>` shape is not
+ * assignable to the interface. The mock object therefore carries the
+ * interface's OWN generic method as its type (joined with the `vi.fn`), and
+ * behavior is attached through `mockResolvedValue`/`mockReturnValue`, whose
+ * argument type is the erased (unknown) response.
+ */
+type GenericMethodMock<T, K extends keyof T> = T[K] extends (...args: never[]) => unknown
+  ? Mock<T[K]> & T[K]
+  : never
+
+/**
+ * Wraps a `vi.fn` so a mock object property carries its method's real generic
+ * signature. The stand-in function is never invoked: `Object.assign` gives the
+ * mock the method's type without a cast, and the `vi.fn` stays the runtime
+ * target that records calls and returns the canned responses.
+ */
+const asMethod = <Method extends (...args: never[]) => unknown>(
+  mock: Mock<Method>,
+): Mock<Method> & Method =>
+  Object.assign(mock, (): never => {
+    throw new Error('generic method stand-in — calls are recorded by the vi.fn mock')
+  })
 
 // --- Mock solid-js ---
 const contextValues = new Map<symbol, unknown>()
@@ -28,8 +87,9 @@ vi.mock('solid-js', () => {
     }),
     createSignal: vi.fn(<T>(initial: T) => {
       let value = initial
-      const getter = (() => value) as unknown as (() => T) & { _type: string }
-      getter._type = 'accessor'
+      const getter: (() => T) & { _type: string } = Object.assign(() => value, {
+        _type: 'accessor',
+      })
       const setter = (newValue: T | ((prev: T) => T)): void => {
         if (typeof newValue === 'function') {
           value = (newValue as (prev: T) => T)(value)
@@ -53,12 +113,10 @@ vi.mock('solid-js', () => {
       fn()
     }),
     createResource: vi.fn((_source: unknown, _fetcher: unknown) => {
-      const resource = (() => undefined) as unknown as (() => undefined) & {
-        loading: boolean
-        error: undefined
-      }
-      resource.loading = false
-      resource.error = undefined
+      const resource: (() => undefined) & { loading: boolean; error: undefined } = Object.assign(
+        () => undefined,
+        { loading: false, error: undefined },
+      )
       return [resource, {}]
     }),
   }
@@ -77,32 +135,50 @@ import {
 } from '../context.js'
 
 // --- Auth primitives tests ---
+
+/** A full `AuthClient<unknown>` whose every method is a mock with its real signature. */
+type MockAuthClient = Mocked<AuthClient<unknown>>
+
+const createMockAuthClient = (): MockAuthClient => ({
+  getState: vi.fn(() => ({
+    status: 'loading',
+    initialized: false,
+    user: null,
+    authenticated: false,
+    loading: true,
+    error: null,
+  })),
+  isAuthenticated: vi.fn(() => false),
+  getUser: vi.fn(() => null),
+  setUser: vi.fn(),
+  getAccessToken: vi.fn(() => null),
+  setAccessToken: vi.fn(),
+  setSession: vi.fn(),
+  getRefreshToken: vi.fn(() => null),
+  getToken: vi.fn(() => null),
+  login: vi.fn(() => Promise.resolve({ user: { name: 'Test' }, accessToken: 'abc' })),
+  logout: vi.fn(() => Promise.resolve()),
+  register: vi.fn(() => Promise.resolve({ user: { name: 'New' }, accessToken: 'def' })),
+  refresh: vi.fn(() => Promise.resolve({ user: { name: 'Test' }, accessToken: 'abc' })),
+  requestPasswordReset: vi.fn(() => Promise.resolve()),
+  confirmPasswordReset: vi.fn(() => Promise.resolve()),
+  updateProfile: vi.fn(() => Promise.resolve({ name: 'Test' })),
+  changePassword: vi.fn(() => Promise.resolve()),
+  initialize: vi.fn(() => Promise.resolve()),
+  subscribe: vi.fn((_callback: (state: AuthState<unknown>) => void) => () => {}),
+  onAuthChange: vi.fn((_callback: (state: AuthState<unknown>) => void) => () => {}),
+  addEventListener: vi.fn((_listener: AuthEventListener<unknown>) => () => {}),
+  destroy: vi.fn(),
+})
+
 describe('Auth primitives', () => {
-  let mockAuthClient: Record<string, ReturnType<typeof vi.fn>>
+  let mockAuthClient: MockAuthClient
 
   beforeEach(() => {
     contextValues.clear()
     effectCallbacks = []
     cleanupCallbacks = []
-    mockAuthClient = {
-      getState: vi.fn(() => ({
-        user: null,
-        authenticated: false,
-        loading: true,
-        error: null,
-      })),
-      onAuthChange: vi.fn((_cb: unknown) => {
-        return () => {}
-      }),
-      login: vi.fn(() => Promise.resolve({ user: { name: 'Test' }, token: 'abc' })),
-      logout: vi.fn(() => Promise.resolve()),
-      register: vi.fn(() => Promise.resolve({ user: { name: 'New' }, token: 'def' })),
-      refresh: vi.fn(() => Promise.resolve({ user: { name: 'Test' }, token: 'abc' })),
-      initialize: vi.fn(() => Promise.resolve()),
-      getUser: vi.fn(() => null),
-      getToken: vi.fn(() => null),
-      isAuthenticated: vi.fn(() => false),
-    }
+    mockAuthClient = createMockAuthClient()
     contextValues.set(AuthContext.id, mockAuthClient)
   })
 
@@ -125,22 +201,20 @@ describe('Auth primitives', () => {
   })
 
   it('createAuthFromClient initializes from client state', async () => {
-    mockAuthClient.getState.mockReturnValue({
+    const authedState: AuthState<unknown> = {
+      status: 'authenticated',
+      initialized: true,
       user: { name: 'Alice' },
       authenticated: true,
       loading: false,
       error: null,
-    })
+    }
+    mockAuthClient.getState.mockReturnValue(authedState)
 
     const { createAuthFromClient } = await getAuthModule()
     const result = createAuthFromClient(mockAuthClient)
 
-    expect(result.state()).toEqual({
-      user: { name: 'Alice' },
-      authenticated: true,
-      loading: false,
-      error: null,
-    })
+    expect(result.state()).toEqual(authedState)
     expect(result.user()).toEqual({ name: 'Alice' })
     expect(result.isAuthenticated()).toBe(true)
     expect(result.isLoading()).toBe(false)
@@ -217,23 +291,61 @@ describe('Auth primitives', () => {
 })
 
 // --- HTTP primitives tests ---
+
+/** A full `HttpResponse<T>` fixture — the tests' mock responses carry every field. */
+const httpResponse = <T>(
+  data: T,
+  status = 200,
+  method: FullRequestConfig['method'] = 'GET',
+): HttpResponse<T> => ({
+  data,
+  status,
+  statusText: 'OK',
+  headers: {},
+  config: { method, url: '/api/test' },
+})
+
 describe('HTTP primitives', () => {
-  let mockHttpClient: Record<string, ReturnType<typeof vi.fn>>
+  type MockHttpClient = Omit<
+    Mocked<HttpClient>,
+    'request' | 'get' | 'post' | 'put' | 'patch' | 'delete'
+  > & {
+    request: GenericMethodMock<HttpClient, 'request'>
+    get: GenericMethodMock<HttpClient, 'get'>
+    post: GenericMethodMock<HttpClient, 'post'>
+    put: GenericMethodMock<HttpClient, 'put'>
+    patch: GenericMethodMock<HttpClient, 'patch'>
+    delete: GenericMethodMock<HttpClient, 'delete'>
+  }
+
+  let mockHttpClient: MockHttpClient
 
   beforeEach(() => {
     contextValues.clear()
     effectCallbacks = []
     cleanupCallbacks = []
     mockHttpClient = {
-      get: vi.fn(() => Promise.resolve({ data: { items: [] }, status: 200 })),
-      post: vi.fn(() => Promise.resolve({ data: { id: '1' }, status: 201 })),
-      put: vi.fn(() => Promise.resolve({ data: { updated: true }, status: 200 })),
-      patch: vi.fn(() => Promise.resolve({ data: { patched: true }, status: 200 })),
-      delete: vi.fn(() => Promise.resolve({ data: null, status: 204 })),
-      request: vi.fn(() => Promise.resolve({ data: {}, status: 200 })),
+      baseURL: '/api',
+      defaultHeaders: {},
+      get: asMethod(vi.fn<HttpClient['get']>()),
+      post: asMethod(vi.fn<HttpClient['post']>()),
+      put: asMethod(vi.fn<HttpClient['put']>()),
+      patch: asMethod(vi.fn<HttpClient['patch']>()),
+      delete: asMethod(vi.fn<HttpClient['delete']>()),
+      request: asMethod(vi.fn<HttpClient['request']>()),
+      addRequestInterceptor: vi.fn((_interceptor: RequestInterceptor) => () => {}),
+      addResponseInterceptor: vi.fn((_interceptor: ResponseInterceptor) => () => {}),
+      addErrorInterceptor: vi.fn((_interceptor: ErrorInterceptor) => () => {}),
       setAuthToken: vi.fn(),
       getAuthToken: vi.fn(() => 'token123'),
+      onAuthError: vi.fn((_handler: () => void) => () => {}),
     }
+    mockHttpClient.get.mockResolvedValue(httpResponse({ items: [] }))
+    mockHttpClient.post.mockResolvedValue(httpResponse({ id: '1' }, 201, 'POST'))
+    mockHttpClient.put.mockResolvedValue(httpResponse({ updated: true }, 200, 'PUT'))
+    mockHttpClient.patch.mockResolvedValue(httpResponse({ patched: true }, 200, 'PATCH'))
+    mockHttpClient.delete.mockResolvedValue(httpResponse(null, 204, 'DELETE'))
+    mockHttpClient.request.mockResolvedValue(httpResponse({}, 200, 'GET'))
     contextValues.set(HttpContext.id, mockHttpClient)
   })
 
@@ -422,7 +534,7 @@ describe('HTTP primitives', () => {
 
 // --- I18n primitives tests ---
 describe('I18n primitives', () => {
-  let mockI18nProvider: Record<string, ReturnType<typeof vi.fn>>
+  let mockI18nProvider: Mocked<I18nProvider>
 
   beforeEach(() => {
     contextValues.clear()
@@ -430,21 +542,26 @@ describe('I18n primitives', () => {
     cleanupCallbacks = []
     mockI18nProvider = {
       getLocale: vi.fn(() => 'en'),
-      getDirection: vi.fn(() => 'ltr' as const),
+      setLocale: vi.fn(() => Promise.resolve()),
       getLocales: vi.fn(() => [
         { code: 'en', name: 'English' },
         { code: 'es', name: 'Spanish' },
       ]),
-      t: vi.fn((key: string, _values?: unknown, _options?: unknown) => `translated:${key}`),
-      setLocale: vi.fn(() => Promise.resolve()),
+      addLocale: vi.fn(),
+      removeLocale: vi.fn(() => true),
+      addTranslations: vi.fn(),
+      t: vi.fn((key: string) => `translated:${key}`),
+      exists: vi.fn(() => true),
       formatNumber: vi.fn((value: number) => String(value)),
       formatDate: vi.fn(() => 'formatted-date'),
-      onLocaleChange: vi.fn((_cb: unknown) => () => {}),
-      onReady: vi.fn((_cb: unknown) => () => {}),
+      formatRelativeTime: vi.fn(() => 'formatted-relative-time'),
+      formatList: vi.fn(() => 'formatted-list'),
+      onLocaleChange: vi.fn((_listener: (locale: string) => void) => () => {}),
+      getDirection: vi.fn(() => 'ltr'),
+      hasKey: vi.fn(() => true),
       isReady: vi.fn(() => true),
-      hasKey: vi.fn((_key: string) => true),
-      exists: vi.fn((_key: string) => true),
-    }
+      onReady: vi.fn((_callback: () => void) => () => {}),
+    } satisfies Mocked<I18nProvider>
     contextValues.set(I18nContext.id, mockI18nProvider)
   })
 
@@ -477,7 +594,7 @@ describe('I18n primitives', () => {
     const { createI18nFromProvider } = await getI18nModule()
     const result = createI18nFromProvider(mockI18nProvider)
 
-    result.t('greeting', { name: 'World' }, { count: 1 } as unknown)
+    result.t('greeting', { name: 'World' }, { count: 1 })
     expect(mockI18nProvider.t).toHaveBeenCalledWith('greeting', { name: 'World' }, { count: 1 })
   })
 
@@ -559,36 +676,45 @@ describe('I18n primitives', () => {
 })
 
 // --- Logger primitives tests ---
+
+/** A full `Logger` whose every method is a mock with its real signature. */
+type MockLogger = Mocked<Logger>
+
+const createMockLogger = (): MockLogger => ({
+  trace: vi.fn(),
+  debug: vi.fn(),
+  info: vi.fn(),
+  warn: vi.fn(),
+  error: vi.fn(),
+  setLevel: vi.fn(),
+  getLevel: vi.fn(() => 'info'),
+  child: vi.fn(() => createMockLogger()),
+  withContext: vi.fn(() => createMockLogger()),
+  addTransport: vi.fn((_transport: LogTransport) => () => {}),
+  removeTransport: vi.fn(),
+})
+
 describe('Logger primitives', () => {
-  let mockLoggerProvider: Record<string, ReturnType<typeof vi.fn>>
-  let mockLogger: Record<string, ReturnType<typeof vi.fn>>
+  let mockLoggerProvider: Mocked<LoggerProvider>
+  let mockLogger: MockLogger
 
   beforeEach(() => {
     contextValues.clear()
     effectCallbacks = []
     cleanupCallbacks = []
-    mockLogger = {
-      info: vi.fn(),
-      warn: vi.fn(),
-      error: vi.fn(),
-      debug: vi.fn(),
-      trace: vi.fn(),
-      withContext: vi.fn(() => ({
-        info: vi.fn(),
-        warn: vi.fn(),
-        error: vi.fn(),
-        debug: vi.fn(),
-      })),
-    }
+    mockLogger = createMockLogger()
     mockLoggerProvider = {
-      getLogger: vi.fn(() => mockLogger),
-      createLogger: vi.fn(() => mockLogger),
+      getLogger: vi.fn((_name?: string) => mockLogger),
+      createLogger: vi.fn(
+        (_nameOrConfig: string | LoggerConfig, _config?: LoggerConfig) => mockLogger,
+      ),
       setLevel: vi.fn(),
       getLevel: vi.fn(() => 'info'),
+      addTransport: vi.fn((_transport: LogTransport) => () => {}),
       enable: vi.fn(),
       disable: vi.fn(),
       isEnabled: vi.fn(() => true),
-    }
+    } satisfies Mocked<LoggerProvider>
     contextValues.set(LoggerContext.id, mockLoggerProvider)
   })
 
@@ -613,7 +739,7 @@ describe('Logger primitives', () => {
 
   it('createLogger delegates to provider with config', async () => {
     const { createLogger } = await getLoggerModule()
-    const config = { name: 'API', level: 'debug' } as unknown
+    const config: LoggerConfig = { name: 'API', level: 'debug' }
     createLogger(config)
 
     expect(mockLoggerProvider.createLogger).toHaveBeenCalledWith(config)
@@ -698,7 +824,14 @@ describe('Logger primitives', () => {
 
 // --- Router primitives tests ---
 describe('Router primitives', () => {
-  let mockRouter: Record<string, ReturnType<typeof vi.fn>>
+  // `getParams` and `matchPath` return their own type parameter, so they need
+  // the interface's own generic signature (see GenericMethodMock).
+  type MockRouter = Omit<Mocked<Router>, 'getParams' | 'matchPath'> & {
+    getParams: GenericMethodMock<Router, 'getParams'>
+    matchPath: GenericMethodMock<Router, 'matchPath'>
+  }
+
+  let mockRouter: MockRouter
 
   beforeEach(() => {
     contextValues.clear()
@@ -706,15 +839,30 @@ describe('Router primitives', () => {
     cleanupCallbacks = []
     mockRouter = {
       getLocation: vi.fn(() => ({ pathname: '/home', hash: '', search: '' })),
-      getParams: vi.fn(() => ({ id: '123' })),
+      getParams: asMethod(vi.fn<Router['getParams']>()),
       getQuery: vi.fn(() => ({ q: 'test' })),
-      subscribe: vi.fn((_cb: unknown) => () => {}),
+      getQueryParam: vi.fn((_key: string) => undefined),
+      getHash: vi.fn(() => ''),
       navigate: vi.fn(),
       navigateTo: vi.fn(),
       back: vi.fn(),
       forward: vi.fn(),
-      isActive: vi.fn((path: string) => path === '/home'),
+      go: vi.fn(),
+      setQuery: vi.fn(),
+      setQueryParam: vi.fn(),
+      setHash: vi.fn(),
+      isActive: vi.fn((path: string, _exact?: boolean) => path === '/home'),
+      matchPath: asMethod(vi.fn<Router['matchPath']>()),
+      generatePath: vi.fn(() => ''),
+      createHref: vi.fn((path: string) => path),
+      subscribe: vi.fn((_listener: RouteChangeListener) => () => {}),
+      addGuard: vi.fn((_guard: NavigationGuard) => () => {}),
+      registerRoutes: vi.fn((_routes: RouteDefinition[]) => {}),
+      getRoutes: vi.fn(() => []),
+      destroy: vi.fn(),
     }
+    mockRouter.getParams.mockReturnValue({ id: '123' })
+    mockRouter.matchPath.mockReturnValue(null)
     contextValues.set(RouterContext.id, mockRouter)
   })
 
@@ -828,10 +976,22 @@ describe('Router primitives', () => {
 })
 
 // --- State primitives tests ---
+
+/** The state shape the test store holds. */
+interface MockState {
+  count: number
+  name: string
+}
+
 describe('State primitives', () => {
-  let mockStateProvider: Record<string, ReturnType<typeof vi.fn>>
-  let mockStore: Record<string, ReturnType<typeof vi.fn>>
-  let storeCallbacks: ((state: unknown) => void)[]
+  // StateProvider.createStore returns its own type parameter — see GenericMethodMock.
+  type MockStateProvider = Omit<Mocked<StateProvider>, 'createStore'> & {
+    createStore: GenericMethodMock<StateProvider, 'createStore'>
+  }
+
+  let mockStateProvider: MockStateProvider
+  let mockStore: Mocked<Store<MockState>>
+  let storeCallbacks: StateListener<MockState>[]
 
   beforeEach(() => {
     contextValues.clear()
@@ -841,16 +1001,18 @@ describe('State primitives', () => {
     mockStore = {
       getState: vi.fn(() => ({ count: 0, name: 'test' })),
       setState: vi.fn(),
-      subscribe: vi.fn((cb: (state: unknown) => void) => {
-        storeCallbacks.push(cb)
+      subscribe: vi.fn((listener: StateListener<MockState>) => {
+        storeCallbacks.push(listener)
         return () => {
-          storeCallbacks = storeCallbacks.filter((c) => c !== cb)
+          storeCallbacks = storeCallbacks.filter((c) => c !== listener)
         }
       }),
+      destroy: vi.fn(),
     }
     mockStateProvider = {
-      createStore: vi.fn(() => mockStore),
+      createStore: asMethod(vi.fn<StateProvider['createStore']>()),
     }
+    mockStateProvider.createStore.mockReturnValue(mockStore)
     contextValues.set(StateContext.id, mockStateProvider)
   })
 
@@ -860,7 +1022,7 @@ describe('State primitives', () => {
 
   it('createStore delegates to state provider', async () => {
     const { createStore } = await getStateModule()
-    const config = { initial: { count: 0 } }
+    const config = { initialState: { count: 0 } }
     const store = createStore(config)
 
     expect(mockStateProvider.createStore).toHaveBeenCalledWith(config)
@@ -876,7 +1038,7 @@ describe('State primitives', () => {
 
   it('useStore with selector returns selected value', async () => {
     const { useStore } = await getStateModule()
-    const count = useStore(mockStore, { selector: (s: Record<string, unknown>) => s.count })
+    const count = useStore(mockStore, { selector: (state) => state.count })
 
     expect(count()).toBe(0)
   })
@@ -945,7 +1107,7 @@ describe('State primitives', () => {
 
     expect(helpers).toHaveProperty('createStore')
 
-    helpers.createStore({ initial: { count: 0 } } as unknown)
+    helpers.createStore({ initialState: { count: 0 } })
     expect(mockStateProvider.createStore).toHaveBeenCalled()
   })
 
@@ -953,26 +1115,32 @@ describe('State primitives', () => {
     const { createStateHelpersFromProvider } = await getStateModule()
     const helpers = createStateHelpersFromProvider(mockStateProvider)
 
-    helpers.createStore({ initial: { value: 'x' } } as unknown)
+    helpers.createStore({ initialState: { value: 'x' } })
     expect(mockStateProvider.createStore).toHaveBeenCalled()
   })
 })
 
 // --- Storage primitives tests ---
 describe('Storage primitives', () => {
-  let mockStorageProvider: Record<string, ReturnType<typeof vi.fn>>
+  // StorageProvider.get returns its own type parameter — see GenericMethodMock.
+  type MockStorageProvider = Omit<Mocked<StorageProvider>, 'get'> & {
+    get: GenericMethodMock<StorageProvider, 'get'>
+  }
+
+  let mockStorageProvider: MockStorageProvider
 
   beforeEach(() => {
     contextValues.clear()
     effectCallbacks = []
     cleanupCallbacks = []
     mockStorageProvider = {
-      get: vi.fn(() => Promise.resolve('stored')),
+      get: asMethod(vi.fn<StorageProvider['get']>()),
       set: vi.fn(() => Promise.resolve()),
       remove: vi.fn(() => Promise.resolve()),
       clear: vi.fn(() => Promise.resolve()),
       keys: vi.fn(() => Promise.resolve(['a', 'b'])),
     }
+    mockStorageProvider.get.mockResolvedValue('stored')
     contextValues.set(StorageContext.id, mockStorageProvider)
   })
 
@@ -1086,27 +1254,25 @@ describe('Storage primitives', () => {
 })
 
 // --- Theme primitives tests ---
+
+/** Complete themes (every token group), used as the provider's fixtures. */
+const lightTheme = createLightTheme()
+const darkTheme = createDarkTheme()
+
 describe('Theme primitives', () => {
-  let mockThemeProvider: Record<string, ReturnType<typeof vi.fn>>
+  let mockThemeProvider: Mocked<ThemeProvider>
 
   beforeEach(() => {
     contextValues.clear()
     effectCallbacks = []
     cleanupCallbacks = []
     mockThemeProvider = {
-      getTheme: vi.fn(() => ({
-        name: 'light',
-        mode: 'light' as const,
-        colors: { background: '#fff' },
-      })),
-      subscribe: vi.fn((_cb: unknown) => () => {}),
+      getTheme: vi.fn(() => lightTheme),
       setTheme: vi.fn(),
       toggleMode: vi.fn(),
-      getThemes: vi.fn(() => [
-        { name: 'light', mode: 'light' },
-        { name: 'dark', mode: 'dark' },
-      ]),
-    }
+      subscribe: vi.fn((_callback: (theme: Theme) => void) => () => {}),
+      getThemes: vi.fn(() => [lightTheme, darkTheme]),
+    } satisfies Mocked<ThemeProvider>
     contextValues.set(ThemeContext.id, mockThemeProvider)
   })
 
@@ -1129,11 +1295,7 @@ describe('Theme primitives', () => {
     const { createThemeFromProvider } = await getThemeModule()
     const result = createThemeFromProvider(mockThemeProvider)
 
-    expect(result.theme()).toEqual({
-      name: 'light',
-      mode: 'light',
-      colors: { background: '#fff' },
-    })
+    expect(result.theme()).toEqual(lightTheme)
   })
 
   it('createThemeFromProvider themeName returns theme name', async () => {
@@ -1193,10 +1355,7 @@ describe('Theme primitives', () => {
     expect(mockThemeProvider.toggleMode).toHaveBeenCalled()
 
     const themes = helpers.getAvailableThemes()
-    expect(themes).toEqual([
-      { name: 'light', mode: 'light' },
-      { name: 'dark', mode: 'dark' },
-    ])
+    expect(themes).toEqual([lightTheme, darkTheme])
   })
 
   it('createThemeHelpers handles missing getThemes', async () => {
@@ -1221,7 +1380,7 @@ describe('OAuth primitives', () => {
   let replaceStateMock: ReturnType<typeof vi.fn>
   let sessionStore: Map<string, string>
   let fetchMock: ReturnType<typeof vi.fn>
-  let mockAuthClient: Record<string, ReturnType<typeof vi.fn>>
+  let mockAuthClient: MockAuthClient
 
   const setPath = (pathname: string, search = ''): void => {
     mockLocation.pathname = pathname
@@ -1279,11 +1438,7 @@ describe('OAuth primitives', () => {
     })
     fetchMock = vi.fn()
     vi.stubGlobal('fetch', fetchMock)
-    mockAuthClient = {
-      setAccessToken: vi.fn(),
-      setUser: vi.fn(),
-      initialize: vi.fn(() => Promise.resolve()),
-    }
+    mockAuthClient = createMockAuthClient()
   })
 
   afterEach(() => {

@@ -1,5 +1,7 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { effectScope } from 'vue'
+// @vitest-environment jsdom
+import { mount, type VueWrapper } from '@vue/test-utils'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { defineComponent, type EffectScope, effectScope, h, nextTick, ref, shallowRef } from 'vue'
 
 import type { UseDeviceReturn } from '../useDevice.js'
 import { useDevice } from '../useDevice.js'
@@ -62,7 +64,7 @@ const mockFeatureSupport = {
   clipboard: true,
 }
 
-const createMockProvider = (): ReturnType<typeof createMockProvider> => ({
+const createMockProvider = () => ({
   getDeviceInfo: vi.fn().mockReturnValue(mockDeviceInfo),
   getScreenInfo: vi.fn().mockReturnValue(mockScreenInfo),
   getHardwareInfo: vi.fn().mockReturnValue(mockHardwareInfo),
@@ -80,12 +82,59 @@ const createMockProvider = (): ReturnType<typeof createMockProvider> => ({
 
 describe('useDevice', () => {
   let mockProvider: ReturnType<typeof createMockProvider>
+  const scopes: EffectScope[] = []
+  const wrappers: VueWrapper[] = []
 
   beforeEach(() => {
     vi.clearAllMocks()
     mockProvider = createMockProvider()
     vi.mocked(getProvider).mockReturnValue(mockProvider as never)
   })
+
+  afterEach(() => {
+    for (const scope of scopes.splice(0)) scope.stop()
+    for (const wrapper of wrappers.splice(0)) wrapper.unmount()
+  })
+
+  /** Runs the composable inside an effect scope, the way a component setup runs it. */
+  function open(): UseDeviceReturn {
+    const scope = effectScope()
+    let result!: UseDeviceReturn
+    scope.run(() => {
+      result = useDevice()
+    })
+    scopes.push(scope)
+    return result
+  }
+
+  /**
+   * Mounts one component that reads the composable in setup, with a reactive
+   * value its render reads: assigning it re-renders the component, Vue's
+   * counterpart of React's `rerender()`.
+   *
+   * @returns The last result the composable produced and an update trigger.
+   */
+  function mountDevice(): { current: () => UseDeviceReturn; update: () => Promise<void> } {
+    const holder = shallowRef<UseDeviceReturn | null>(null)
+    const tick = ref(0)
+    const Page = defineComponent({
+      setup() {
+        holder.value = useDevice()
+        return () => h('div', String(tick.value))
+      },
+    })
+    wrappers.push(mount(Page))
+    return {
+      current: () => {
+        if (holder.value === null) throw new Error('useDevice() has not run')
+        return holder.value
+      },
+      update: async () => {
+        tick.value++
+        await nextTick()
+      },
+    }
+  }
 
   it('returns device info from provider', () => {
     const scope = effectScope()
@@ -220,5 +269,89 @@ describe('useDevice', () => {
     expect(result.featureSupport.serviceWorker).toBe(true)
 
     scope.stop()
+  })
+
+  it('returns device info', () => {
+    const device = open()
+
+    expect(device.deviceInfo).toEqual(mockDeviceInfo)
+    expect(device.deviceInfo.isDesktop).toBe(true)
+    expect(device.deviceInfo.isMobile).toBe(false)
+  })
+
+  it('returns screen info', () => {
+    const device = open()
+
+    expect(device.screenInfo).toEqual(mockScreenInfo)
+    expect(device.screenInfo.width).toBe(1920)
+    expect(device.screenInfo.pixelRatio).toBe(2)
+  })
+
+  it('returns hardware info', () => {
+    const device = open()
+
+    expect(device.hardwareInfo).toEqual(mockHardwareInfo)
+    expect(device.hardwareInfo.cpuCores).toBe(8)
+    expect(device.hardwareInfo.memory).toBe(16)
+  })
+
+  it('returns feature support', () => {
+    const device = open()
+
+    expect(device.featureSupport).toEqual(mockFeatureSupport)
+    expect(device.featureSupport.serviceWorker).toBe(true)
+    expect(device.featureSupport.bluetooth).toBe(false)
+  })
+
+  it('supports() delegates to provider', () => {
+    const device = open()
+
+    expect(device.supports('serviceWorker')).toBe(true)
+    expect(device.supports('bluetooth')).toBe(false)
+  })
+
+  it('isOnline() delegates to provider', () => {
+    const device = open()
+
+    expect(device.isOnline()).toBe(true)
+  })
+
+  it('isStandalone() delegates to provider', () => {
+    const device = open()
+
+    expect(device.isStandalone()).toBe(false)
+  })
+
+  it('returns language and languages', () => {
+    const device = open()
+
+    expect(device.language).toBe('en-US')
+    expect(device.languages).toEqual(['en-US', 'en'])
+  })
+
+  it('caches result with useMemo (same reference on rerender)', async () => {
+    const device = mountDevice()
+    const first = device.current()
+
+    // React's `rerender()` commits the same component again; Vue's is another
+    // render of the same instance, whose setup (and so the composable) ran once.
+    await device.update()
+
+    expect(device.current()).toBe(first)
+  })
+
+  it('calls provider methods once via useMemo', async () => {
+    const device = mountDevice()
+
+    expect(mockProvider.getDeviceInfo).toHaveBeenCalledOnce()
+    expect(mockProvider.getScreenInfo).toHaveBeenCalledOnce()
+    expect(mockProvider.getHardwareInfo).toHaveBeenCalledOnce()
+    expect(mockProvider.getFeatureSupport).toHaveBeenCalledOnce()
+
+    await device.update()
+
+    // Should not call again after rerender
+    expect(mockProvider.getDeviceInfo).toHaveBeenCalledOnce()
+    expect(mockProvider.getScreenInfo).toHaveBeenCalledOnce()
   })
 })

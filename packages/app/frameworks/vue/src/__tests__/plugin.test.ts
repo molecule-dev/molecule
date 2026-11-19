@@ -15,7 +15,7 @@ vi.mock('vue', () => ({
 }))
 
 // Mock all molecule packages
-vi.mock('@molecule/app-state', () => ({}))
+vi.mock('@molecule/app-state', () => ({ hasProvider: vi.fn(() => false), getProvider: vi.fn() }))
 vi.mock('@molecule/app-auth', () => ({}))
 vi.mock('@molecule/app-theme', () => ({}))
 vi.mock('@molecule/app-routing', () => ({}))

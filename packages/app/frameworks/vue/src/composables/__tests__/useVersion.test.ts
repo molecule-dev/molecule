@@ -1,6 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { effectScope } from 'vue'
 
+import type { VersionState } from '@molecule/app-version'
+
 import type { UseVersionReturn } from '../useVersion.js'
 import { useVersion } from '../useVersion.js'
 
@@ -10,7 +12,7 @@ vi.mock('@molecule/app-version', () => ({
 
 import { getProvider } from '@molecule/app-version'
 
-const createMockProvider = (): ReturnType<typeof createMockProvider> => ({
+const createMockProvider = () => ({
   getState: vi.fn().mockReturnValue({
     buildId: 'abc123',
     version: '1.0.0',
@@ -248,5 +250,113 @@ describe('useVersion', () => {
     expect(result.isChecking.value).toBe(true)
 
     scope.stop()
+  })
+
+  it('subscribes to all 6 version events', () => {
+    const scope = effectScope()
+
+    scope.run(() => {
+      useVersion()
+    })
+
+    const subscribedEvents: string[] = mockProvider.on.mock.calls.map(([event]) => event)
+
+    expect(subscribedEvents).toContain('update-available')
+    expect(subscribedEvents).toContain('service-worker-waiting')
+    expect(subscribedEvents).toContain('service-worker-activated')
+    expect(subscribedEvents).toContain('check-start')
+    expect(subscribedEvents).toContain('check-complete')
+    expect(subscribedEvents).toContain('check-error')
+    expect(mockProvider.on.mock.calls).toHaveLength(6)
+
+    scope.stop()
+  })
+
+  it('updates state when events fire', () => {
+    const scope = effectScope()
+    let result!: UseVersionReturn
+    const eventCallbacks: Array<() => void> = []
+    mockProvider.on.mockImplementation((_event: string, cb: () => void) => {
+      eventCallbacks.push(cb)
+      return vi.fn()
+    })
+
+    scope.run(() => {
+      result = useVersion()
+    })
+
+    expect(result.isUpdateAvailable.value).toBe(false)
+
+    mockProvider.getState.mockReturnValue({
+      buildId: 'abc123',
+      version: '1.0.0',
+      isUpdateAvailable: true,
+      isServiceWorkerWaiting: false,
+      isChecking: false,
+      newVersion: '2.0.0',
+    })
+    // `update-available` is the first subscription.
+    eventCallbacks[0]()
+
+    expect(result.isUpdateAvailable.value).toBe(true)
+    expect(result.newVersion.value).toBe('2.0.0')
+
+    scope.stop()
+  })
+
+  it('caches snapshot for referential stability', () => {
+    const scope = effectScope()
+    let result!: UseVersionReturn
+    const eventCallbacks: Array<() => void> = []
+    // The provider hands out a NEW object per read, exactly like the real one;
+    // equal fields must still resolve to the object the composable already has.
+    const readState = (): VersionState => ({
+      buildId: 'abc123',
+      version: '1.0.0',
+      isUpdateAvailable: false,
+      isServiceWorkerWaiting: false,
+      isChecking: false,
+    })
+    mockProvider.getState.mockImplementation(readState)
+    mockProvider.on.mockImplementation((_event: string, cb: () => void) => {
+      eventCallbacks.push(cb)
+      return vi.fn()
+    })
+
+    scope.run(() => {
+      result = useVersion()
+    })
+
+    const firstState = result.state.value
+    // An event with unchanged contents: no new snapshot is adopted.
+    eventCallbacks[0]()
+    const secondState = result.state.value
+
+    expect(firstState).toBe(secondState)
+
+    scope.stop()
+  })
+
+  it('unsubscribes from all events on unmount', () => {
+    const unsubFns = Array.from({ length: 6 }, () => vi.fn())
+    let callIndex = 0
+    mockProvider.on.mockImplementation(() => {
+      const unsub = unsubFns[callIndex]
+      callIndex++
+      return unsub
+    })
+    // A component's unmount disposes the effect scope it owns, which is where a
+    // composable registers its disposal — the Vue form of React's unmount cleanup.
+    const scope = effectScope()
+
+    scope.run(() => {
+      useVersion()
+    })
+
+    unsubFns.forEach((fn) => expect(fn).not.toHaveBeenCalled())
+
+    scope.stop()
+
+    unsubFns.forEach((fn) => expect(fn).toHaveBeenCalledOnce())
   })
 })

@@ -57,13 +57,20 @@ function useLocaleVersion(provider: I18nProvider): Ref<number> {
 
   let unsubscribe: (() => void) | null = null
 
+  // What the provider said when this composable was created. A change between
+  // setup and mount sends no notification a subscription attached at mount
+  // could see, so mount reconciles only when one of these moved — a quiet mount
+  // renders once, like the React hook's snapshot re-read after subscribing.
+  const seenRevision = provider.getRevision?.()
+  const seenLocale = provider.getLocale()
+
   onMounted(() => {
     unsubscribe = provider.onLocaleChange(() => {
       version.value++
     })
-    // A locale change between setup and mount sends no notification this
-    // subscription could see — reconcile it now.
-    version.value++
+    if (provider.getRevision?.() !== seenRevision || provider.getLocale() !== seenLocale) {
+      version.value++
+    }
   })
 
   onUnmounted(() => {
@@ -102,7 +109,8 @@ export function useTranslation(): UseTranslationReturn {
   const provider = useI18nProvider()
 
   // Reactive state
-  const currentLocale = ref<string>(provider.getLocale())
+  const initialLocale = provider.getLocale()
+  const currentLocale = ref<string>(initialLocale)
   const currentDirection = ref<'ltr' | 'rtl'>(provider.getDirection())
   const currentLocales = ref(provider.getLocales())
 
@@ -116,6 +124,12 @@ export function useTranslation(): UseTranslationReturn {
   // Subscribe to locale changes
   let unsubscribe: (() => void) | null = null
 
+  // What the provider said when this composable was created: a change between
+  // setup and mount sends no notification a subscription attached at mount
+  // could see, so mount reconciles only when one of these moved — a quiet mount
+  // renders once, like the React hook's snapshot re-read after subscribing.
+  const seenRevision = provider.getRevision?.()
+
   onMounted(() => {
     const refresh = (): void => {
       version.value++
@@ -124,9 +138,9 @@ export function useTranslation(): UseTranslationReturn {
       currentLocales.value = provider.getLocales()
     }
     unsubscribe = provider.onLocaleChange(refresh)
-    // A locale change between setup and mount sends no notification this
-    // subscription could see — reconcile it now.
-    refresh()
+    if (provider.getRevision?.() !== seenRevision || provider.getLocale() !== initialLocale) {
+      refresh()
+    }
   })
 
   onUnmounted(() => {

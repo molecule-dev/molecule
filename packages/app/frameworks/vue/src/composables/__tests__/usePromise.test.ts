@@ -69,32 +69,50 @@ describe('usePromise', () => {
     scope.stop()
   })
 
-  it('cancel sets rejected with the given message', () => {
+  it('cancel sets status to rejected with error message', async () => {
     const scope = effectScope()
     let state!: UsePromiseState<string>
+    let call!: () => Promise<string>
+    let resolve!: (value: string) => void
 
     scope.run(() => {
-      ;[state] = usePromise(async () => 'hello')
+      ;[state, call] = usePromise(
+        () =>
+          new Promise<string>((r) => {
+            resolve = r
+          }),
+      )
     })
+
+    void call()
+    expect(state.status).toBe('pending')
 
     state.cancel('User cancelled')
 
     expect(state.status).toBe('rejected')
-    expect(state.value).toBeNull()
     expect(state.error).toBeInstanceOf(Error)
     expect(state.error!.message).toBe('User cancelled')
+
+    // A result from the cancelled call is ignored.
+    resolve('should be ignored')
+    await flush()
+
+    expect(state.status).toBe('rejected')
+    expect(state.value).toBeNull()
 
     scope.stop()
   })
 
-  it('cancel without a message leaves the error null (React parity)', () => {
+  it('cancel without message sets rejected with null error', () => {
     const scope = effectScope()
     let state!: UsePromiseState<string>
+    let call!: () => Promise<string>
 
     scope.run(() => {
-      ;[state] = usePromise(async () => 'hello')
+      ;[state, call] = usePromise(() => new Promise<string>(() => {}))
     })
 
+    void call()
     state.cancel()
 
     expect(state.status).toBe('rejected')
@@ -103,18 +121,18 @@ describe('usePromise', () => {
     scope.stop()
   })
 
-  it('reset clears state to idle', async () => {
+  it('reset clears state back to idle', async () => {
     const scope = effectScope()
     let state!: UsePromiseState<string>
     let call!: () => Promise<string>
 
     scope.run(() => {
-      ;[state, call] = usePromise(async () => 'hello')
+      ;[state, call] = usePromise(async () => 'data')
     })
 
     await call()
     expect(state.status).toBe('resolved')
-    expect(state.value).toBe('hello')
+    expect(state.value).toBe('data')
 
     state.reset()
 
@@ -155,43 +173,45 @@ describe('usePromise', () => {
     scope.stop()
   })
 
-  it('multiple calls — latest result wins', async () => {
+  it('multiple calls - only latest result is used (stale calls ignored)', async () => {
     const scope = effectScope()
-    let state!: UsePromiseState<number>
-    let call!: () => Promise<number>
-    const resolvers: Array<(value: number) => void> = []
+    let state!: UsePromiseState<string>
+    let call!: (id: string) => Promise<string>
+    const resolvers: Array<(value: string) => void> = []
 
     scope.run(() => {
       ;[state, call] = usePromise(
-        () =>
-          new Promise<number>((r) => {
+        (_id: string) =>
+          new Promise<string>((r) => {
             resolvers.push(r)
           }),
       )
     })
 
-    void call()
-    const promise2 = call()
+    // Start the first call, then the second — the first is now stale.
+    void call('first')
+    const promise2 = call('second')
 
-    // Resolve the first call (stale)
-    resolvers[0](1)
+    expect(state.status).toBe('pending')
+
+    // A result from the stale first call is ignored.
+    resolvers[0]('first-result')
     await flush()
 
-    // Status should still be pending because call 2 is the current one
-    expect(state.status).toBe('pending')
     expect(state.value).toBeNull()
+    expect(state.status).toBe('pending')
 
-    // Resolve the second call (current)
-    resolvers[1](2)
+    // The latest call's result is applied.
+    resolvers[1]('second-result')
     await promise2
 
     expect(state.status).toBe('resolved')
-    expect(state.value).toBe(2)
+    expect(state.value).toBe('second-result')
 
     scope.stop()
   })
 
-  it('scope stop (unmount) prevents state updates', async () => {
+  it('unmount prevents state updates', async () => {
     const scope = effectScope()
     let state!: UsePromiseState<string>
     let call!: () => Promise<string>
@@ -213,12 +233,30 @@ describe('usePromise', () => {
     scope.stop()
 
     // Resolve after unmount
-    resolve('hello')
+    resolve('after unmount')
     await promise
+    await flush()
 
     // State should not have been updated after disposal
     expect(state.status).toBe('pending')
     expect(state.value).toBeNull()
+  })
+
+  it('returns the resolved value from the wrapped function', async () => {
+    const scope = effectScope()
+    let state!: UsePromiseState<number>
+    let call!: () => Promise<number>
+
+    scope.run(() => {
+      ;[state, call] = usePromise(async () => 42)
+    })
+
+    const returnedValue = await call()
+
+    expect(returnedValue).toBe(42)
+    expect(state.value).toBe(42)
+
+    scope.stop()
   })
 
   it('passes arguments through to the async function', async () => {

@@ -40,6 +40,15 @@ export interface UseStoreOptions<T, S> {
 }
 
 /**
+ * Options for useStore that pick part of the store: a selector is required,
+ * so the selected type `S` always comes from it.
+ */
+export interface SelectingStoreOptions<T, S> extends UseStoreOptions<T, S> {
+  /** Picks the value the composable returns from the store's state. */
+  selector: (state: T) => S
+}
+
+/**
  * Return type for useAuth composable.
  *
  * @template T - The user profile the API returns.

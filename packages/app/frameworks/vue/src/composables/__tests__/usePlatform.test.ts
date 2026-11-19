@@ -1,5 +1,7 @@
+// @vitest-environment jsdom
+import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { effectScope } from 'vue'
+import { defineComponent, effectScope, h, nextTick, ref } from 'vue'
 
 import type { UsePlatformReturn } from '../usePlatform.js'
 import { usePlatform } from '../usePlatform.js'
@@ -27,7 +29,7 @@ describe('usePlatform', () => {
     vi.mocked(isPlatform).mockReturnValue(false)
   })
 
-  it('returns platform info from platform()', () => {
+  it('returns platform info fields', () => {
     const scope = effectScope()
     let result!: UsePlatformReturn
 
@@ -36,18 +38,18 @@ describe('usePlatform', () => {
     })
 
     expect(result.platform).toBe('web')
+    expect(result.isWeb).toBe(true)
     expect(result.isNative).toBe(false)
     expect(result.isMobile).toBe(false)
     expect(result.isDesktop).toBe(false)
-    expect(result.isWeb).toBe(true)
     expect(result.isDevelopment).toBe(true)
     expect(result.isProduction).toBe(false)
 
     scope.stop()
   })
 
-  it('delegates isPlatform to the module function', () => {
-    vi.mocked(isPlatform).mockReturnValue(true)
+  it('isPlatform delegates to module function', () => {
+    vi.mocked(isPlatform).mockImplementation((...platforms) => platforms.includes('web'))
 
     const scope = effectScope()
     let result!: UsePlatformReturn
@@ -56,29 +58,42 @@ describe('usePlatform', () => {
       result = usePlatform()
     })
 
-    const matched = result.isPlatform('ios', 'android')
-    expect(matched).toBe(true)
+    expect(result.isPlatform('web')).toBe(true)
+    expect(isPlatform).toHaveBeenCalledWith('web')
+
+    expect(result.isPlatform('ios', 'android')).toBe(false)
     expect(isPlatform).toHaveBeenCalledWith('ios', 'android')
 
     scope.stop()
   })
 
-  it('returns false from isPlatform when no match', () => {
-    vi.mocked(isPlatform).mockReturnValue(false)
-
-    const scope = effectScope()
-    let result!: UsePlatformReturn
-
-    scope.run(() => {
-      result = usePlatform()
+  it('does not call platform() again on rerender', async () => {
+    const tick = ref(0)
+    const Probe = defineComponent({
+      setup() {
+        const info = usePlatform()
+        return () => {
+          // Reading the ref makes this render tracked, so the bump re-renders.
+          void tick.value
+          return h('span', info.platform)
+        }
+      },
     })
 
-    expect(result.isPlatform('electron')).toBe(false)
+    const wrapper = mount(Probe)
+    const callCount = vi.mocked(platform).mock.calls.length
+    expect(callCount).toBe(1)
 
-    scope.stop()
+    tick.value += 1
+    await nextTick()
+
+    // The composable read the platform once, on setup; a re-render adds no call.
+    expect(vi.mocked(platform).mock.calls.length).toBe(callCount)
+
+    wrapper.unmount()
   })
 
-  it('detects native mobile platform', () => {
+  it('returns correct values for native platform', () => {
     vi.mocked(platform).mockReturnValue({
       platform: 'ios',
       isNative: true,
@@ -89,6 +104,7 @@ describe('usePlatform', () => {
       isProduction: true,
       userAgent: 'Capacitor/iOS',
     })
+    vi.mocked(isPlatform).mockImplementation((...platforms) => platforms.includes('ios'))
 
     const scope = effectScope()
     let result!: UsePlatformReturn
@@ -102,11 +118,13 @@ describe('usePlatform', () => {
     expect(result.isMobile).toBe(true)
     expect(result.isWeb).toBe(false)
     expect(result.isProduction).toBe(true)
+    expect(result.isPlatform('ios')).toBe(true)
+    expect(result.isPlatform('web')).toBe(false)
 
     scope.stop()
   })
 
-  it('detects desktop platform', () => {
+  it('returns correct values for desktop platform', () => {
     vi.mocked(platform).mockReturnValue({
       platform: 'electron',
       isNative: true,
@@ -125,9 +143,24 @@ describe('usePlatform', () => {
     })
 
     expect(result.platform).toBe('electron')
-    expect(result.isDesktop).toBe(true)
-    expect(result.isMobile).toBe(false)
     expect(result.isNative).toBe(true)
+    expect(result.isDesktop).toBe(true)
+    expect(result.isWeb).toBe(false)
+
+    scope.stop()
+  })
+
+  it('returns false from isPlatform when no match', () => {
+    vi.mocked(isPlatform).mockReturnValue(false)
+
+    const scope = effectScope()
+    let result!: UsePlatformReturn
+
+    scope.run(() => {
+      result = usePlatform()
+    })
+
+    expect(result.isPlatform('electron')).toBe(false)
 
     scope.stop()
   })

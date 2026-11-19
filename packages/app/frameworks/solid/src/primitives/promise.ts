@@ -4,7 +4,6 @@
  * @module
  */
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { batch, createSignal, onCleanup } from 'solid-js'
 
 import type { PromiseState, PromiseStatus } from '@molecule/app-utilities'
@@ -13,10 +12,13 @@ import { liveStateTuple } from './reactive-tuple.js'
 
 /**
  * Promise state accessor with actions.
+ *
+ * @template T - The resolved value type.
+ * @template Args - The wrapped function's argument list.
  */
-export interface CreatePromiseReturn<T> {
+export interface CreatePromiseReturn<T, Args extends unknown[] = unknown[]> {
   state: () => PromiseState<T>
-  call: (...args: any[]) => Promise<T>
+  call: (...args: Args) => Promise<T>
   cancel: (message?: string) => void
   reset: () => void
 }
@@ -56,11 +58,9 @@ const INITIAL_STATE: PromiseState<never> = {
  * }
  * ```
  */
-export function createPromise<T extends (...args: any[]) => Promise<any>>(
-  asyncFn: T,
-): CreatePromiseReturn<Awaited<ReturnType<T>>> {
-  type V = Awaited<ReturnType<T>>
-
+export function createPromise<V, Args extends unknown[]>(
+  asyncFn: (...args: Args) => Promise<V>,
+): CreatePromiseReturn<V, Args> {
   const [state, setState] = createSignal<PromiseState<V>>(INITIAL_STATE as PromiseState<V>)
 
   let callId = 0
@@ -70,7 +70,7 @@ export function createPromise<T extends (...args: any[]) => Promise<any>>(
     cleaned = true
   })
 
-  const call = (...args: any[]): Promise<V> => {
+  const call = (...args: Args): Promise<V> => {
     callId += 1
     const thisCallId = callId
 
@@ -158,6 +158,8 @@ export interface UsePromiseState<T> {
  * still reaches its caller (a rejection rethrows). `cancel` marks the pending
  * call rejected with its message; `reset` returns to idle.
  *
+ * @template V - What the async function resolves with.
+ * @template A - The async function's parameters.
  * @param asyncFn - The async function to wrap.
  * @returns The tuple: the live state and the wrapped function.
  * @example
@@ -166,14 +168,9 @@ export interface UsePromiseState<T> {
  * <button disabled={state().status === 'pending'}>Fetch</button>
  * ```
  */
-export const usePromise = <T extends (...args: never[]) => Promise<unknown>>(
-  asyncFn: T,
-): [
-  UsePromiseState<Awaited<ReturnType<T>>>,
-  (...args: Parameters<T>) => Promise<Awaited<ReturnType<T>>>,
-] => {
-  type V = Awaited<ReturnType<T>>
-
+export const usePromise = <V, A extends unknown[]>(
+  asyncFn: (...args: A) => Promise<V>,
+): [UsePromiseState<V>, (...args: A) => Promise<V>] => {
   const [status, setStatus] = createSignal<PromiseStatus>('idle')
   const [value, setValue] = createSignal<V | null>(null)
   const [error, setError] = createSignal<Error | null>(null)
@@ -202,7 +199,7 @@ export const usePromise = <T extends (...args: never[]) => Promise<unknown>>(
     }
   }
 
-  const callAsyncFn = (...args: Parameters<T>): Promise<V> => {
+  const callAsyncFn = (...args: A): Promise<V> => {
     callId += 1
     const thisCallId = callId
 
@@ -211,7 +208,7 @@ export const usePromise = <T extends (...args: never[]) => Promise<unknown>>(
       setError(null)
     }
 
-    const promise = asyncFn(...args) as Promise<V>
+    const promise = asyncFn(...args)
 
     return promise.then(
       (resolved: V) => {

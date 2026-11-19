@@ -4,6 +4,7 @@
  * @module
  */
 
+import { onMount } from 'svelte'
 import { derived, type Readable } from 'svelte/store'
 
 import type { Theme, ThemeProvider } from '@molecule/app-theme'
@@ -35,13 +36,33 @@ export interface UseThemeResult {
  */
 function subscribeToThemeProvider(provider: ThemeProvider, callback: () => void): () => void {
   if (typeof provider.subscribe === 'function') {
-    return provider.subscribe(callback as unknown as (theme: Theme) => void)
+    // A listener that takes no argument satisfies one that receives the theme.
+    return provider.subscribe(callback)
   }
-  const legacy = provider as unknown as Record<string, (...args: unknown[]) => unknown>
-  if (typeof legacy.onThemeChange === 'function') {
-    return legacy.onThemeChange(callback) as () => void
+  // `onThemeChange` is not part of `ThemeProvider`; a provider that predates
+  // `subscribe` may still expose it. Read it as an unknown function rather
+  // than asserting the provider's shape.
+  const legacy: unknown = Reflect.get(provider, 'onThemeChange')
+  if (typeof legacy !== 'function') return () => {}
+  const stop: unknown = legacy(callback)
+  return typeof stop === 'function' ? () => stop() : () => {}
+}
+
+/**
+ * The active theme's name. `getThemeName()` is not part of `ThemeProvider`;
+ * probe it the way React does, so a provider that predates the theme object's
+ * `name` still works.
+ *
+ * @param provider - The theme provider to read.
+ * @returns The active theme's name.
+ */
+function readThemeName(provider: ThemeProvider): string {
+  const named: unknown = Reflect.get(provider, 'getThemeName')
+  if (typeof named === 'function') {
+    const name: unknown = named()
+    if (typeof name === 'string') return name
   }
-  return () => {}
+  return provider.getTheme().name
 }
 
 /**
@@ -61,17 +82,24 @@ function subscribeToThemeProvider(provider: ThemeProvider, callback: () => void)
  */
 export function useTheme(): UseThemeResult {
   const provider = useThemeProvider()
-  // `getThemeName()` is not part of `ThemeProvider`; probe it the way React
-  // does, so a provider that predates the theme object's `name` still works.
-  const providerWithName = provider as unknown as Record<string, (...args: unknown[]) => string>
-  const readName = (): string =>
-    typeof providerWithName.getThemeName === 'function'
-      ? providerWithName.getThemeName()
-      : provider.getTheme().name
+  const readName = (): string => readThemeName(provider)
+  const readTheme = (): { theme: Theme; name: string } => ({
+    theme: provider.getTheme(),
+    name: readName(),
+  })
+  // A static site prerenders on a server that reads no storage and no OS
+  // preference, then hydrates in a browser that reads both. The first value is
+  // the theme that markup was rendered with (`getServerTheme()` when the
+  // provider has one), so hydration matches; the mount below switches to the
+  // live theme, as React's binding does right after hydration. A server render
+  // never mounts, so it keeps the server theme.
+  const serverTheme = provider.getServerTheme?.()
   const state = liveStore(
-    () => ({ theme: provider.getTheme(), name: readName() }),
+    readTheme,
     (notify) => subscribeToThemeProvider(provider, notify),
+    serverTheme === undefined ? undefined : { theme: serverTheme, name: serverTheme.name },
   )
+  onMount(() => state.refresh())
 
   const toggleTheme = (): void => {
     // Prefer the provider's purpose-built light/dark toggle — unlike
@@ -85,11 +113,9 @@ export function useTheme(): UseThemeResult {
     const themes = provider.getThemes?.() ?? []
     if (themes.length === 0) return
     const currentName = readName()
-    const currentIndex = themes.findIndex((entry: Theme | string) =>
-      typeof entry === 'string' ? entry === currentName : entry.name === currentName,
-    )
+    const currentIndex = themes.findIndex((entry) => entry.name === currentName)
     const next = themes[(currentIndex + 1) % themes.length]
-    provider.setTheme(typeof next === 'string' ? next : (next as Theme).name)
+    provider.setTheme(next.name)
   }
 
   return {

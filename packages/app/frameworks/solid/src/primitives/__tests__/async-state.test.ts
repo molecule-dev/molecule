@@ -3,6 +3,12 @@ import { describe, expect, it } from 'vitest'
 
 import { createAsyncState } from '../async-state.js'
 
+/** The state shape React's `useAsyncState` cases use. */
+interface TestState {
+  foo: string
+  bar: string
+}
+
 describe('createAsyncState', () => {
   it('returns initial state', () => {
     return new Promise<void>((resolve) => {
@@ -177,6 +183,126 @@ describe('createAsyncState', () => {
         await new Promise((r) => setTimeout(r, 10))
 
         expect(state()).toEqual({ a: 1, b: 2 })
+
+        dispose()
+        resolve()
+      })
+    })
+  })
+
+  it('synchronous setState works', () => {
+    return new Promise<void>((resolve) => {
+      createRoot((dispose) => {
+        const { state, setState } = createAsyncState<TestState>({ foo: 'hello', bar: 'world' })
+
+        setState({ foo: 'updated', bar: 'state' })
+
+        expect(state()).toEqual({ foo: 'updated', bar: 'state' })
+
+        dispose()
+        resolve()
+      })
+    })
+  })
+
+  it('function setState works (receives previous state)', () => {
+    return new Promise<void>((resolve) => {
+      createRoot((dispose) => {
+        const { state, setState } = createAsyncState<TestState>({ foo: 'hello', bar: 'world' })
+
+        setState((prev) => ({ foo: prev.foo.toUpperCase(), bar: prev.bar.toUpperCase() }))
+
+        expect(state()).toEqual({ foo: 'HELLO', bar: 'WORLD' })
+
+        dispose()
+        resolve()
+      })
+    })
+  })
+
+  it('Promise setState works (await then set)', () => {
+    return new Promise<void>((resolve) => {
+      createRoot(async (dispose) => {
+        const { state, setState } = createAsyncState<TestState>({ foo: 'hello', bar: 'world' })
+
+        await setState(
+          new Promise<TestState>((resolveValue) =>
+            setTimeout(() => resolveValue({ foo: 'async-foo', bar: 'async-bar' }), 10),
+          ),
+        )
+
+        expect(state()).toEqual({ foo: 'async-foo', bar: 'async-bar' })
+
+        dispose()
+        resolve()
+      })
+    })
+  })
+
+  it('extendState merges partial updates', () => {
+    return new Promise<void>((resolve) => {
+      createRoot((dispose) => {
+        const { state, extendState } = createAsyncState<TestState>({ foo: 'hello', bar: 'world' })
+
+        extendState({ foo: 'updated' })
+
+        expect(state()).toEqual({ foo: 'updated', bar: 'world' })
+
+        dispose()
+        resolve()
+      })
+    })
+  })
+
+  it('function extendState works', () => {
+    return new Promise<void>((resolve) => {
+      createRoot((dispose) => {
+        const { state, extendState } = createAsyncState<TestState>({ foo: 'hello', bar: 'world' })
+
+        extendState((prev) => ({ bar: prev.bar.toUpperCase() }))
+
+        expect(state()).toEqual({ foo: 'hello', bar: 'WORLD' })
+
+        dispose()
+        resolve()
+      })
+    })
+  })
+
+  it('Promise extendState works', () => {
+    return new Promise<void>((resolve) => {
+      createRoot(async (dispose) => {
+        const { state, extendState } = createAsyncState<TestState>({ foo: 'hello', bar: 'world' })
+
+        await extendState(
+          new Promise<Partial<TestState>>((resolveValue) =>
+            setTimeout(() => resolveValue({ foo: 'async-updated' }), 10),
+          ),
+        )
+
+        expect(state()).toEqual({ foo: 'async-updated', bar: 'world' })
+
+        dispose()
+        resolve()
+      })
+    })
+  })
+
+  it('rejected promise is silently handled', () => {
+    return new Promise<void>((resolve) => {
+      createRoot(async (dispose) => {
+        const { state, setState, extendState } = createAsyncState<TestState>({
+          foo: 'hello',
+          bar: 'world',
+        })
+
+        // Rejected promise setState must not throw or update state.
+        await setState(Promise.reject(new Error('fail')))
+        expect(state()).toEqual({ foo: 'hello', bar: 'world' })
+
+        // Rejected promise extendState must not throw or update state.
+        await extendState(Promise.reject(new Error('extend fail')))
+        expect(state()).toEqual({ foo: 'hello', bar: 'world' })
 
         dispose()
         resolve()

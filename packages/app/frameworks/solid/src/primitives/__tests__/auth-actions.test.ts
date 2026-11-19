@@ -7,6 +7,8 @@
 import { createRoot } from 'solid-js'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import type { AuthClient } from '@molecule/app-auth'
+
 vi.mock('../../context.js', () => ({
   getAuthClient: vi.fn(),
 }))
@@ -18,32 +20,34 @@ import { createOAuth } from '../oauth.js'
 import { createPasswordReset } from '../password-reset.js'
 import { createSignup } from '../signup.js'
 
+/** A fully recorded auth client; every member keeps its interface signature. */
 const mockClient = {
-  login: vi.fn(),
-  register: vi.fn(),
-  requestPasswordReset: vi.fn(),
-  confirmPasswordReset: vi.fn(),
-  changePassword: vi.fn(),
-  logout: vi.fn(),
-  refresh: vi.fn(),
-  getState: vi.fn(),
-  isAuthenticated: vi.fn(),
-  getUser: vi.fn(),
-  getAccessToken: vi.fn(),
-  getRefreshToken: vi.fn(),
-  updateProfile: vi.fn(),
-  initialize: vi.fn(),
-  subscribe: vi.fn(),
-  onAuthChange: vi.fn(),
-  addEventListener: vi.fn(),
-  destroy: vi.fn(),
+  login: vi.fn<AuthClient<unknown>['login']>(),
+  register: vi.fn<AuthClient<unknown>['register']>(),
+  requestPasswordReset: vi.fn<AuthClient<unknown>['requestPasswordReset']>(),
+  confirmPasswordReset: vi.fn<AuthClient<unknown>['confirmPasswordReset']>(),
+  changePassword: vi.fn<AuthClient<unknown>['changePassword']>(),
+  logout: vi.fn<AuthClient<unknown>['logout']>(),
+  refresh: vi.fn<AuthClient<unknown>['refresh']>(),
+  getState: vi.fn<AuthClient<unknown>['getState']>(),
+  isAuthenticated: vi.fn<AuthClient<unknown>['isAuthenticated']>(),
+  getUser: vi.fn<AuthClient<unknown>['getUser']>(),
+  getAccessToken: vi.fn<AuthClient<unknown>['getAccessToken']>(),
+  setAccessToken: vi.fn<AuthClient<unknown>['setAccessToken']>(),
+  setUser: vi.fn<AuthClient<unknown>['setUser']>(),
+  setSession: vi.fn<AuthClient<unknown>['setSession']>(),
+  getRefreshToken: vi.fn<AuthClient<unknown>['getRefreshToken']>(),
+  updateProfile: vi.fn<AuthClient<unknown>['updateProfile']>(),
+  initialize: vi.fn<AuthClient<unknown>['initialize']>(),
+  subscribe: vi.fn<AuthClient<unknown>['subscribe']>(),
+  onAuthChange: vi.fn<AuthClient<unknown>['onAuthChange']>(),
+  addEventListener: vi.fn<AuthClient<unknown>['addEventListener']>(),
+  destroy: vi.fn<AuthClient<unknown>['destroy']>(),
 }
 
 beforeEach(() => {
   vi.clearAllMocks()
-  vi.mocked(getAuthClient).mockReturnValue(
-    mockClient as unknown as ReturnType<typeof getAuthClient>,
-  )
+  vi.mocked(getAuthClient).mockReturnValue(mockClient)
 })
 
 describe('createLogin', () => {

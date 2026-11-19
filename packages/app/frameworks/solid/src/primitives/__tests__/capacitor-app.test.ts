@@ -1,7 +1,7 @@
 import { createRoot } from 'solid-js'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { createCapacitorApp } from '../capacitor-app.js'
+import { createCapacitorApp, useCapacitorApp } from '../capacitor-app.js'
 
 let subscribeCallback: ((state: unknown) => void) | null = null
 
@@ -114,6 +114,76 @@ describe('createCapacitorApp', () => {
 
         expect(unsubscribe).toHaveBeenCalled()
         expect(mockApp.destroy).toHaveBeenCalled()
+
+        resolve()
+      })
+    })
+  })
+
+  it('returns initial state with ready=false', () => {
+    return new Promise<void>((resolve) => {
+      createRoot((dispose) => {
+        const { ready, deviceReady, pushReady, error, initialize } = useCapacitorApp()
+
+        expect(ready()).toBe(false)
+        expect(deviceReady()).toBe(false)
+        expect(pushReady()).toBe(false)
+        expect(error()).toBe(null)
+        expect(typeof initialize).toBe('function')
+
+        dispose()
+        resolve()
+      })
+    })
+  })
+
+  it('auto-initializes on mount', () => {
+    return new Promise<void>((resolve) => {
+      createRoot((dispose) => {
+        useCapacitorApp()
+
+        expect(mockApp.initialize).toHaveBeenCalledTimes(1)
+
+        dispose()
+        resolve()
+      })
+    })
+  })
+
+  it('updates state when app becomes ready', () => {
+    return new Promise<void>((resolve) => {
+      createRoot((dispose) => {
+        const { ready, deviceReady } = useCapacitorApp()
+
+        expect(ready()).toBe(false)
+
+        // Simulate the coordinator pushing a state update via subscribe callback.
+        subscribeCallback!({
+          ready: true,
+          deviceReady: true,
+          pushReady: true,
+          error: null,
+        })
+
+        expect(ready()).toBe(true)
+        expect(deviceReady()).toBe(true)
+
+        dispose()
+        resolve()
+      })
+    })
+  })
+
+  it('cleans up on unmount by calling destroy', () => {
+    return new Promise<void>((resolve) => {
+      createRoot((dispose) => {
+        useCapacitorApp()
+
+        expect(mockApp.destroy).not.toHaveBeenCalled()
+
+        dispose()
+
+        expect(mockApp.destroy).toHaveBeenCalledTimes(1)
 
         resolve()
       })

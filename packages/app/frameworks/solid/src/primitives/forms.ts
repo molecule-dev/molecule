@@ -173,19 +173,16 @@ export function createForm<T extends FormValuesConstraint<T>>(
   }
 
   const setValue = <K extends keyof T>(name: K, value: T[K]): void => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    controller.setValue(name as any, value as any)
+    controller.setValue(name as string, value)
   }
 
   const getError = <K extends keyof T>(name: K): string | undefined => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return controller.getError(name as any)
+    return controller.getError(name as string)
   }
 
   const setError = <K extends keyof T>(name: K, error: string | undefined): void => {
     if (error !== undefined) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      controller.setError(name as any, error)
+      controller.setError(name as string, error)
     } else {
       controller.clearError(name)
     }
@@ -410,19 +407,16 @@ export function createFormFromController<T extends FormValuesConstraint<T>>(
   }
 
   const setValue = <K extends keyof T>(name: K, value: T[K]): void => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    controller.setValue(name as any, value as any)
+    controller.setValue(name as string, value)
   }
 
   const getError = <K extends keyof T>(name: K): string | undefined => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return controller.getError(name as any)
+    return controller.getError(name as string)
   }
 
   const setError = <K extends keyof T>(name: K, error: string | undefined): void => {
     if (error !== undefined) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      controller.setError(name as any, error)
+      controller.setError(name as string, error)
     } else {
       controller.clearError(name)
     }

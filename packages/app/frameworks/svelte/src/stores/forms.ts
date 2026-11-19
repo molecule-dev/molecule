@@ -154,19 +154,17 @@ export function createFormStores<T extends FormValuesConstraint<T>>(
     value: T[K],
     opts?: { shouldValidate?: boolean; shouldDirty?: boolean; shouldTouch?: boolean },
   ): void => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    controller.setValue(name as any, value as any, opts)
+    // Field names arrive as keys; the controller addresses them as strings.
+    controller.setValue(String(name), value, opts)
   }
 
   const getError = <K extends keyof T>(name: K): string | undefined => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return controller.getError(name as any)
+    return controller.getError(String(name))
   }
 
   const setError = <K extends keyof T>(name: K, error: string | undefined): void => {
     if (error !== undefined) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      controller.setError(name as any, error)
+      controller.setError(String(name), error)
     } else {
       controller.clearError(name)
     }

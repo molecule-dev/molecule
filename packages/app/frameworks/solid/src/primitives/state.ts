@@ -61,6 +61,18 @@ export interface UseStoreOptions<T, S> {
 }
 
 /**
+ * Hook options that pick part of the store: a selector is required, so the
+ * selected type `S` always comes from it.
+ *
+ * @template T - The store's state type.
+ * @template S - The selected value type.
+ */
+export interface SelectingStoreOptions<T, S> extends UseStoreOptions<T, S> {
+  /** Picks the value the hook returns from the store's state. */
+  selector: (state: T) => S
+}
+
+/**
  * The fix, appended to the error below — this hook is the one place that READS
  * the context, so it is the one place that has to say where the context comes
  * from. The sentences are code (an import, a component, a bond call), so they
@@ -122,19 +134,43 @@ export function useStateProvider(): Accessor<StateProvider> {
  * const doubled = useStore(counterStore, { selector: (s) => s.count * 2 })
  * ```
  */
-export function useStore<T, S = T>(
+export function useStore<T>(
   store: MaybeAccessor<Store<T>>,
-  options?: MaybeAccessor<UseStoreOptions<T, S>>,
-): Accessor<S> {
+  options?: MaybeAccessor<UseStoreOptions<T, T>>,
+): Accessor<T>
+/**
+ * Subscribe to the part of a store a selector picks, under React's hook name.
+ *
+ * @param store - The store to subscribe to. May be an accessor.
+ * @param options - The selector, and an optional equality function for its
+ *   results. May be an accessor.
+ * @returns Accessor for the selected value.
+ */
+export function useStore<T, S>(
+  store: MaybeAccessor<Store<T>>,
+  options: MaybeAccessor<SelectingStoreOptions<T, S>>,
+): Accessor<S>
+/**
+ * The implementation both signatures share: without a selector the selected
+ * value is the state itself, which the first signature types as `T`.
+ *
+ * @param store - The store to subscribe to. May be an accessor.
+ * @param options - Selector and equality function. May be an accessor.
+ * @returns Accessor for the selected value.
+ */
+export function useStore<T>(
+  store: MaybeAccessor<Store<T>>,
+  options?: MaybeAccessor<UseStoreOptions<T, unknown>>,
+): Accessor<unknown> {
   // The previous selection, for the equality check. `undefined` means no read
   // has happened yet (React uses a ref with the same initial value); it
   // survives a store or options change.
-  let prevSelected: S | undefined
+  let prevSelected: unknown
 
-  const getSnapshot = (): S => {
+  const getSnapshot = (): unknown => {
     const { selector, equalityFn } = access(options) ?? {}
     const state = access(store).getState()
-    const selected = selector ? selector(state) : (state as unknown as S)
+    const selected = selector ? selector(state) : state
     if (equalityFn && prevSelected !== undefined && equalityFn(prevSelected, selected)) {
       return prevSelected
     }

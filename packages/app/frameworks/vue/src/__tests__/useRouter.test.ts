@@ -274,10 +274,21 @@ describe('useQuery', () => {
 })
 
 describe('useNavigate', () => {
+  let mockRouter: {
+    getLocation: ReturnType<typeof vi.fn>
+    getParams: ReturnType<typeof vi.fn>
+    getQuery: ReturnType<typeof vi.fn>
+    navigate: ReturnType<typeof vi.fn>
+    navigateTo: ReturnType<typeof vi.fn>
+    back: ReturnType<typeof vi.fn>
+    forward: ReturnType<typeof vi.fn>
+    isActive: ReturnType<typeof vi.fn>
+    subscribe: ReturnType<typeof vi.fn>
+  }
   beforeEach(() => {
     onMountedCallbacks.length = 0
     onUnmountedCallbacks.length = 0
-    mockInjectReturnValue = {
+    mockRouter = {
       getLocation: vi.fn(),
       getParams: vi.fn(),
       getQuery: vi.fn(),
@@ -288,6 +299,7 @@ describe('useNavigate', () => {
       isActive: vi.fn(),
       subscribe: vi.fn(() => vi.fn()),
     }
+    mockInjectReturnValue = mockRouter
   })
 
   it('returns a navigate function', () => {
@@ -298,13 +310,13 @@ describe('useNavigate', () => {
   it('delegates to router.navigate', () => {
     const result = useNavigate()
     result('/dashboard')
-    expect((mockInjectReturnValue as never).navigate).toHaveBeenCalledWith('/dashboard', undefined)
+    expect(mockRouter.navigate).toHaveBeenCalledWith('/dashboard', undefined)
   })
 
   it('passes options to router.navigate', () => {
     const result = useNavigate()
     result('/dashboard', { replace: true })
-    expect((mockInjectReturnValue as never).navigate).toHaveBeenCalledWith('/dashboard', {
+    expect(mockRouter.navigate).toHaveBeenCalledWith('/dashboard', {
       replace: true,
     })
   })

@@ -6,6 +6,11 @@
  * them in components via `useAuth`, `useTheme`, `useTranslation`,
  * `useStore`, and the other composables.
  *
+ * Render session-dependent UI from the three-way `status`, never a boolean
+ * signed-out branch: `status === 'loading'` is undecided, redirect only on
+ * `status === 'unauthenticated'`, and `'unavailable'` keeps a session candidate
+ * for retry — a restore failure other than 401/403 never signs out.
+ *
  * @example
  * ```ts
  * import { createApp, defineComponent, h } from 'vue'
@@ -37,6 +42,70 @@
  *   theme: themeProvider,
  * })
  * app.mount('#app')
+ * ```
+ *
+ * @example
+ * ```ts
+ * import { defineComponent, h, type PropType } from 'vue'
+ * import { useHttpClient, useOptimisticValue, useTranslation } from '@molecule/app-vue'
+ *
+ * interface FavoriteRecord {
+ *   slug: string
+ *   favorited: boolean
+ *   favoritesCount: number
+ * }
+ *
+ * const FavoriteButton = defineComponent({
+ *   props: {
+ *     article: { type: Object as PropType<FavoriteRecord>, required: true },
+ *     onChanged: {
+ *       type: Function as PropType<(saved: FavoriteRecord) => void>,
+ *       default: undefined,
+ *     },
+ *   },
+ *   setup(props) {
+ *     const http = useHttpClient()
+ *     const { t } = useTranslation()
+ *     const favorite = useOptimisticValue({
+ *       value: { favorited: props.article.favorited, count: props.article.favoritesCount },
+ *       commit: async (next) => {
+ *         const path = `/articles/${props.article.slug}/favorite`
+ *         const response = next.favorited
+ *           ? await http.post<{ article: FavoriteRecord }>(path)
+ *           : await http.delete<{ article: FavoriteRecord }>(path)
+ *         const saved = response.data.article
+ *         props.onChanged?.(saved)
+ *         return { favorited: saved.favorited, count: saved.favoritesCount }
+ *       },
+ *     })
+ *     return () =>
+ *       h(
+ *         'button',
+ *         {
+ *           'aria-pressed': favorite.value.value.favorited,
+ *           'aria-label': t('article.favorite', undefined, { defaultValue: 'Favorite article' }),
+ *           onClick: () =>
+ *             favorite.update((current) => ({
+ *               favorited: !current.favorited,
+ *               count: current.count + (current.favorited ? -1 : 1),
+ *             })),
+ *         },
+ *         String(favorite.value.value.count),
+ *       )
+ *   },
+ * })
+ *
+ * const FavoriteControl = defineComponent({
+ *   props: {
+ *     article: { type: Object as PropType<FavoriteRecord | null>, default: null },
+ *   },
+ *   setup(props) {
+ *     return () =>
+ *       props.article
+ *         ? h(FavoriteButton, { key: props.article.slug, article: props.article })
+ *         : null
+ *   },
+ * })
  * ```
  *
  * @remarks

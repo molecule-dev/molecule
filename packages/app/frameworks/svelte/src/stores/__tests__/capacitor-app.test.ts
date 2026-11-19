@@ -7,17 +7,17 @@ vi.mock('@molecule/app-platform', () => ({
   createCapacitorApp: vi.fn(),
 }))
 
-import { createCapacitorApp } from '@molecule/app-platform'
+import { type CapacitorAppState, createCapacitorApp } from '@molecule/app-platform'
 
 const mockCreateCapacitorApp = createCapacitorApp as ReturnType<typeof vi.fn>
 
 function createMockApp() {
-  const listeners = new Set<(state: Record<string, unknown>) => void>()
-  let state = {
+  const listeners = new Set<(state: CapacitorAppState) => void>()
+  let state: CapacitorAppState = {
     ready: false,
     deviceReady: false,
     pushReady: true,
-    error: null as Error | null,
+    error: null,
   }
 
   return {
@@ -30,7 +30,7 @@ function createMockApp() {
     }),
     isReady: vi.fn(() => state.ready),
     getState: vi.fn(() => state),
-    subscribe: vi.fn((callback: (s: typeof state) => void) => {
+    subscribe: vi.fn((callback: (state: CapacitorAppState) => void) => {
       listeners.add(callback)
       return () => listeners.delete(callback)
     }),

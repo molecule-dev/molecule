@@ -92,11 +92,12 @@ export function useAuthClient<
 /**
  * Authentication state and actions, under React's hook name.
  *
- * `status() === 'loading'` is undecided: wait for it and redirect only on
- * `'unauthenticated'`. `'unavailable'` keeps the session candidate for retry,
- * but `isAuthenticated()` can be false and `user()` null while a token-only
- * restore has no cached profile. A restore failure other than 401/403 never
- * signs out.
+ * The session decision is three-way, never a boolean signed-out branch:
+ * `status === 'loading'` is undecided — wait for it and redirect only on
+ * `status === 'unauthenticated'`. `'unavailable'` keeps the session candidate
+ * for retry, but `isAuthenticated()` can be false and `user()` null while a
+ * token-only restore has no cached profile. A restore failure other than
+ * 401/403 never signs out.
  *
  * @param options - Hook options (`autoRefresh` probes once on mount while signed
  *   out). May be an accessor: `autoRefresh` turning on through it probes once

@@ -187,10 +187,20 @@ describe('useTranslation', () => {
 })
 
 describe('useT', () => {
+  let mockProvider: {
+    t: ReturnType<typeof vi.fn>
+    getLocale: ReturnType<typeof vi.fn>
+    getDirection: ReturnType<typeof vi.fn>
+    getLocales: ReturnType<typeof vi.fn>
+    setLocale: ReturnType<typeof vi.fn>
+    formatNumber: ReturnType<typeof vi.fn>
+    formatDate: ReturnType<typeof vi.fn>
+    onLocaleChange: ReturnType<typeof vi.fn>
+  }
   beforeEach(() => {
     onMountedCallbacks.length = 0
     onUnmountedCallbacks.length = 0
-    mockInjectReturnValue = {
+    mockProvider = {
       t: vi.fn((key: string) => `translated:${key}`),
       getLocale: vi.fn(() => 'en'),
       getDirection: vi.fn(() => 'ltr'),
@@ -200,6 +210,7 @@ describe('useT', () => {
       formatDate: vi.fn(),
       onLocaleChange: vi.fn(() => vi.fn()),
     }
+    mockInjectReturnValue = mockProvider
   })
 
   it('returns a translation function', () => {
@@ -210,11 +221,7 @@ describe('useT', () => {
   it('delegates to provider.t', () => {
     const t = useT()
     t('key', { name: 'World' })
-    expect((mockInjectReturnValue as never).t).toHaveBeenCalledWith(
-      'key',
-      { name: 'World' },
-      undefined,
-    )
+    expect(mockProvider.t).toHaveBeenCalledWith('key', { name: 'World' }, undefined)
   })
 })
 

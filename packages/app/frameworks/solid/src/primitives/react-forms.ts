@@ -33,26 +33,31 @@ import { useAuth, useAuthClient } from './auth.js'
 import { access, type MaybeAccessor } from './maybe-accessor.js'
 
 /**
- * Subscribes an accessor to a controller's notifications, closing the
- * render-to-subscription gap with a synchronous refresh (React's
- * `useFormSnapshot`).
+ * Subscribes an accessor to one read of a controller, following reactive
+ * arguments on the same mount the way React's hook follows a re-render: a
+ * changed controller or field re-subscribes, and a controller that updates
+ * between the first read and the subscription is picked up by the synchronous
+ * refresh.
  *
- * @param form - Controller that owns the subscription.
- * @param read - Reads the form state or a selected field.
+ * @param form - Controller that owns the subscription, or an accessor of it.
+ * @param read - Reads the selected value from a controller.
  * @returns An accessor of the read value.
  */
 function useFormSnapshot<T extends FormValuesConstraint<T>, S>(
-  form: FormController<T>,
-  read: () => S,
+  form: MaybeAccessor<FormController<T>>,
+  read: (controller: FormController<T>) => S,
 ): Accessor<S> {
-  const [snapshot, setSnapshot] = createSignal<S>(read())
-  const refresh = (): void => {
-    setSnapshot(() => read())
-  }
-  const unsubscribe = form.subscribe(refresh)
-  // A controller can change after render but before the subscription settles.
-  refresh()
-  onCleanup(unsubscribe)
+  const [snapshot, setSnapshot] = createSignal<S>(read(access(form)))
+  createEffect(() => {
+    const controller = access(form)
+    const refresh = (): void => {
+      setSnapshot(() => read(controller))
+    }
+    const unsubscribe = controller.subscribe(refresh)
+    // A controller can change after render but before the subscription settles.
+    refresh()
+    onCleanup(unsubscribe)
+  })
   return snapshot
 }
 
@@ -331,30 +336,34 @@ export function useForm<T extends FormValuesConstraint<T> = Record<string, unkno
 /**
  * One field's current value, under React's hook name.
  *
- * @param form - Form controller.
- * @param name - Field name to watch.
+ * @param form - Form controller, or an accessor of one; a changed controller is
+ *   followed on the same mount.
+ * @param name - Field name to watch, or an accessor of it; a changed field is
+ *   followed on the same mount.
  * @returns An accessor of the field value.
  */
 export function useWatch<T extends FormValuesConstraint<T>, K extends keyof T>(
-  form: FormController<T>,
-  name: K,
+  form: MaybeAccessor<FormController<T>>,
+  name: MaybeAccessor<K>,
 ): Accessor<T[K]> {
-  return useFormSnapshot(form, () => form.getValue(name))
+  return useFormSnapshot(form, (controller) => controller.getValue(access(name)))
 }
 
 /**
  * One field's state (value, error, touched, dirty, valid), under React's hook
  * name.
  *
- * @param form - Form controller.
- * @param name - Field name.
+ * @param form - Form controller, or an accessor of one; a changed controller is
+ *   followed on the same mount.
+ * @param name - Field name, or an accessor of it; a changed field is followed on
+ *   the same mount.
  * @returns An accessor of the field state.
  */
 export function useFieldState<T extends FormValuesConstraint<T>>(
-  form: FormController<T>,
-  name: keyof T,
+  form: MaybeAccessor<FormController<T>>,
+  name: MaybeAccessor<keyof T>,
 ): Accessor<FieldState<T[keyof T]>> {
-  return useFormSnapshot(form, () => form.getFieldState(name))
+  return useFormSnapshot(form, (controller) => controller.getFieldState(access(name)))
 }
 
 /**

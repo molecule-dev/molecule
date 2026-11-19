@@ -253,106 +253,104 @@ describe('useHttp', () => {
 })
 
 describe('useGet', () => {
+  let client: MockHttpClient
   beforeEach(() => {
-    mockInjectReturnValue = {
+    client = {
       get: vi.fn(() => Promise.resolve({ data: 'get-data', status: 200 })),
       post: vi.fn(),
       put: vi.fn(),
       patch: vi.fn(),
       delete: vi.fn(),
     }
+    mockInjectReturnValue = client
   })
 
   it('creates a GET request composable', async () => {
     const result = useGet('/api/items')
     await result.execute()
-    expect((mockInjectReturnValue as never).get).toHaveBeenCalledWith('/api/items', {})
+    expect(client.get).toHaveBeenCalledWith('/api/items', {})
   })
 })
 
 describe('usePost', () => {
+  let client: MockHttpClient
   beforeEach(() => {
-    mockInjectReturnValue = {
+    client = {
       get: vi.fn(),
       post: vi.fn(() => Promise.resolve({ data: 'post-data', status: 201 })),
       put: vi.fn(),
       patch: vi.fn(),
       delete: vi.fn(),
     }
+    mockInjectReturnValue = client
   })
 
   it('creates a POST request composable', async () => {
     const config = { data: { name: 'new' } } as never
     const result = usePost('/api/items', config)
     await result.execute()
-    expect((mockInjectReturnValue as never).post).toHaveBeenCalledWith(
-      '/api/items',
-      { name: 'new' },
-      config,
-    )
+    expect(client.post).toHaveBeenCalledWith('/api/items', { name: 'new' }, config)
   })
 })
 
 describe('usePut', () => {
+  let client: MockHttpClient
   beforeEach(() => {
-    mockInjectReturnValue = {
+    client = {
       get: vi.fn(),
       post: vi.fn(),
       put: vi.fn(() => Promise.resolve({ data: 'put-data', status: 200 })),
       patch: vi.fn(),
       delete: vi.fn(),
     }
+    mockInjectReturnValue = client
   })
 
   it('creates a PUT request composable', async () => {
     const config = { data: { name: 'updated' } } as never
     const result = usePut('/api/items/1', config)
     await result.execute()
-    expect((mockInjectReturnValue as never).put).toHaveBeenCalledWith(
-      '/api/items/1',
-      { name: 'updated' },
-      config,
-    )
+    expect(client.put).toHaveBeenCalledWith('/api/items/1', { name: 'updated' }, config)
   })
 })
 
 describe('usePatch', () => {
+  let client: MockHttpClient
   beforeEach(() => {
-    mockInjectReturnValue = {
+    client = {
       get: vi.fn(),
       post: vi.fn(),
       put: vi.fn(),
       patch: vi.fn(() => Promise.resolve({ data: 'patch-data', status: 200 })),
       delete: vi.fn(),
     }
+    mockInjectReturnValue = client
   })
 
   it('creates a PATCH request composable', async () => {
     const config = { data: { field: 'val' } } as never
     const result = usePatch('/api/items/1', config)
     await result.execute()
-    expect((mockInjectReturnValue as never).patch).toHaveBeenCalledWith(
-      '/api/items/1',
-      { field: 'val' },
-      config,
-    )
+    expect(client.patch).toHaveBeenCalledWith('/api/items/1', { field: 'val' }, config)
   })
 })
 
 describe('useDelete', () => {
+  let client: MockHttpClient
   beforeEach(() => {
-    mockInjectReturnValue = {
+    client = {
       get: vi.fn(),
       post: vi.fn(),
       put: vi.fn(),
       patch: vi.fn(),
       delete: vi.fn(() => Promise.resolve({ data: null, status: 204 })),
     }
+    mockInjectReturnValue = client
   })
 
   it('creates a DELETE request composable', async () => {
     const result = useDelete('/api/items/1')
     await result.execute()
-    expect((mockInjectReturnValue as never).delete).toHaveBeenCalledWith('/api/items/1', {})
+    expect(client.delete).toHaveBeenCalledWith('/api/items/1', {})
   })
 })

@@ -41,6 +41,13 @@
  * }
  * ```
  *
+ * Authentication is a three-way decision, never a boolean signed-out branch:
+ * `status === 'loading'` is undecided (wait for it, do not redirect),
+ * `status === 'unauthenticated'` is a rejected session, and `'unavailable'` is a
+ * check that failed for another reason (a network error, a 5xx). Only a 401/403
+ * answer signs a user out, so a store outage never drops a session. Read the
+ * accessor where a component branches: `status()`.
+ *
  * @remarks
  * - **Primitives throw outside `MoleculeProvider` — and per missing service.** `config` wires
  *   ONLY the services you pass; calling `createAuth()` in a tree whose config lacks `auth`

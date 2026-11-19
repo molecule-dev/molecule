@@ -7,7 +7,7 @@ vi.mock('@molecule/app-version', () => ({
   getProvider: vi.fn(),
 }))
 
-import { getProvider } from '@molecule/app-version'
+import { getProvider, type VersionState } from '@molecule/app-version'
 
 const mockGetProvider = getProvider as ReturnType<typeof vi.fn>
 
@@ -15,7 +15,7 @@ function createMockProvider() {
   const handlers = new Map<string, Set<(...args: unknown[]) => void>>()
 
   return {
-    getState: vi.fn(() => ({
+    getState: vi.fn((): VersionState => ({
       buildId: 'abc123',
       version: '1.0.0',
       isUpdateAvailable: false,

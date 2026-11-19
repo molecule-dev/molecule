@@ -13,6 +13,7 @@ import {
   type ShallowRef,
   shallowRef,
   toValue,
+  triggerRef,
   watch,
 } from 'vue'
 
@@ -246,20 +247,21 @@ export function useForm<T extends FormValuesConstraint<T> = Record<string, unkno
   ): FieldRegistration =>
     form.register({ ...registerOptions, name: name as string } as RegisterOptions)
 
+  // The controller keys fields by name string; `keyof T` may also be a number
+  // or symbol for a values type that is not an interface of named fields.
+  const fieldName = (name: keyof T): string => (typeof name === 'string' ? name : String(name))
+
   const getValue = <K extends keyof T>(name: K): T[K] => form.getValue(name)
 
   const setValue = <K extends keyof T>(name: K, value: T[K]): void => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    form.setValue(name as any, value as any)
+    form.setValue(fieldName(name), value)
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const getError = (name: keyof T): string | undefined => form.getError(name as any)
+  const getError = (name: keyof T): string | undefined => form.getError(fieldName(name))
 
   const setError = (name: keyof T, error: string | undefined): void => {
     if (error !== undefined) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      form.setError(name as any, error)
+      form.setError(fieldName(name), error)
     } else {
       form.clearError(name)
     }
@@ -355,6 +357,10 @@ export function useForm<T extends FormValuesConstraint<T> = Record<string, unkno
 /**
  * Composable to watch a specific field value.
  *
+ * The controller and the field name may be reactive (a ref or a getter): a
+ * change resubscribes to the new controller and reads the new field on the same
+ * component, the way React follows a hook's new arguments on a re-render.
+ *
  * @param form - Form controller (from useForm().form)
  * @param name - Field name to watch
  * @returns Computed reference to the field value
@@ -374,25 +380,46 @@ export function useForm<T extends FormValuesConstraint<T> = Record<string, unkno
  * ```
  */
 export function useWatch<T extends FormValuesConstraint<T>, K extends keyof T>(
-  form: FormController<T>,
-  name: K,
+  form: MaybeRefOrGetter<FormController<T>>,
+  name: MaybeRefOrGetter<K>,
 ): ComputedRef<T[K]> {
-  const state: ShallowRef<FormState<T>> = shallowRef(form.getState())
+  let activeForm = toValue(form)
+  let activeName = toValue(name)
+  const state: ShallowRef<FormState<T>> = shallowRef(activeForm.getState())
 
   const refresh = (): void => {
-    state.value = form.getState()
+    state.value = activeForm.getState()
   }
-  const unsubscribe = form.subscribe(refresh)
+  let unsubscribe = activeForm.subscribe(refresh)
   refresh()
   if (getCurrentScope()) {
-    onScopeDispose(unsubscribe)
+    onScopeDispose(() => {
+      unsubscribe()
+    })
   }
+  watch([() => toValue(form), () => toValue(name)], ([nextForm, nextName]) => {
+    if (nextForm !== activeForm) {
+      unsubscribe()
+      activeForm = nextForm
+      unsubscribe = nextForm.subscribe(refresh)
+    }
+    activeName = nextName
+    refresh()
+    // The watched value is read through the closure's field name, so adopting a
+    // new name must re-evaluate the computed even when the state object is the
+    // one it already holds.
+    triggerRef(state)
+  })
 
-  return computed(() => state.value.values[name])
+  return computed(() => state.value.values[activeName])
 }
 
 /**
  * Composable to get field-level state.
+ *
+ * The controller and the field name may be reactive (a ref or a getter): a
+ * change resubscribes to the new controller and reads the new field on the same
+ * component, the way React follows a hook's new arguments on a re-render.
  *
  * @param form - Form controller (from useForm().form)
  * @param name - Field name
@@ -413,19 +440,34 @@ export function useWatch<T extends FormValuesConstraint<T>, K extends keyof T>(
  * ```
  */
 export function useFieldState<T extends FormValuesConstraint<T>>(
-  form: FormController<T>,
-  name: keyof T,
+  form: MaybeRefOrGetter<FormController<T>>,
+  name: MaybeRefOrGetter<keyof T>,
 ): ComputedRef<FieldState<T[keyof T]>> {
-  const state: ShallowRef<FieldState<T[keyof T]>> = shallowRef(form.getFieldState(name))
+  const activeForm = shallowRef<FormController<T>>(toValue(form))
+  const activeName = shallowRef<keyof T>(toValue(name))
+  const state: ShallowRef<FieldState<T[keyof T]>> = shallowRef(
+    activeForm.value.getFieldState(activeName.value),
+  )
 
   const refresh = (): void => {
-    state.value = form.getFieldState(name)
+    state.value = activeForm.value.getFieldState(activeName.value)
   }
-  const unsubscribe = form.subscribe(refresh)
+  let unsubscribe = activeForm.value.subscribe(refresh)
   refresh()
   if (getCurrentScope()) {
-    onScopeDispose(unsubscribe)
+    onScopeDispose(() => {
+      unsubscribe()
+    })
   }
+  watch([() => toValue(form), () => toValue(name)], ([nextForm, nextName]) => {
+    if (nextForm !== activeForm.value) {
+      unsubscribe()
+      activeForm.value = nextForm
+      unsubscribe = nextForm.subscribe(refresh)
+    }
+    activeName.value = nextName
+    refresh()
+  })
 
   return computed(() => state.value)
 }

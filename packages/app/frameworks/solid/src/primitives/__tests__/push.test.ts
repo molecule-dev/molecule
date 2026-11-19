@@ -1,7 +1,64 @@
 import { createRoot } from 'solid-js'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, type Mock, vi } from 'vitest'
 
-import { createPush } from '../push.js'
+import {
+  getProvider as getLoggerProvider,
+  type Logger,
+  type LoggerProvider,
+  setProvider as setLoggerProvider,
+} from '@molecule/app-logger'
+import type { PushToken } from '@molecule/app-push'
+
+import { createPush, type PushPrimitives, usePush, type UsePushOptions } from '../push.js'
+
+const flush = (): Promise<unknown> => new Promise((resolve) => setTimeout(resolve, 0))
+
+const mockToken: PushToken = {
+  value: 'test-token-123',
+  platform: 'web',
+  timestamp: Date.now(),
+}
+
+/** A full `Logger` whose `warn` the test can inspect. */
+function createMockLogger(warn: Mock<Logger['warn']>): Logger {
+  return {
+    trace: vi.fn(),
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn,
+    error: vi.fn(),
+    setLevel: vi.fn(),
+    getLevel: () => 'info',
+    child: () => createMockLogger(warn),
+    withContext: () => createMockLogger(warn),
+    addTransport: () => () => {},
+    removeTransport: () => {},
+  }
+}
+
+/** A full `LoggerProvider` that hands out the given logger. */
+function createMockLoggerProvider(logger: Logger): LoggerProvider {
+  return {
+    getLogger: () => logger,
+    createLogger: () => logger,
+    setLevel: vi.fn(),
+    getLevel: () => 'info',
+    addTransport: () => () => {},
+    enable: vi.fn(),
+    disable: vi.fn(),
+    isEnabled: () => true,
+  }
+}
+
+/** Mounts `usePush` in a reactive root and keeps its disposal. */
+function mountPush(options?: UsePushOptions) {
+  let push!: PushPrimitives
+  const dispose = createRoot((disposeRoot) => {
+    push = usePush(options)
+    return disposeRoot
+  })
+  return { push, dispose }
+}
 
 const mockProvider = {
   checkPermission: vi.fn(),
@@ -216,5 +273,188 @@ describe('createPush', () => {
         resolve()
       })
     })
+  })
+})
+
+describe('usePush', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    mockProvider.checkPermission.mockResolvedValue('default')
+    mockProvider.requestPermission.mockResolvedValue('granted')
+    mockProvider.register.mockResolvedValue(mockToken)
+    mockProvider.unregister.mockResolvedValue(undefined)
+    mockProvider.setBadge.mockResolvedValue(undefined)
+    mockProvider.clearBadge.mockResolvedValue(undefined)
+  })
+
+  it('returns initial state with null permission and token', () => {
+    const { push, dispose } = mountPush()
+
+    expect(push.permission()).toBeNull()
+    expect(push.token()).toBeNull()
+
+    dispose()
+  })
+
+  it('checks permission on mount when checkOnMount is true', async () => {
+    const { push, dispose } = mountPush({ checkOnMount: true })
+
+    await flush()
+
+    expect(mockProvider.checkPermission).toHaveBeenCalledOnce()
+    expect(push.permission()).toBe('default')
+
+    dispose()
+  })
+
+  it('logs a permission check on mount that fails', async () => {
+    const warn = vi.fn<Logger['warn']>()
+    const previous = getLoggerProvider()
+    setLoggerProvider(createMockLoggerProvider(createMockLogger(warn)))
+    mockProvider.checkPermission.mockRejectedValueOnce(new Error('permission API unavailable'))
+
+    const { push, dispose } = mountPush({ checkOnMount: true })
+
+    try {
+      await flush()
+
+      expect(push.permission()).toBeNull()
+      expect(warn).toHaveBeenCalledWith('Checking push permission on mount failed', {
+        error: expect.objectContaining({ message: 'permission API unavailable' }),
+      })
+    } finally {
+      setLoggerProvider(previous)
+      dispose()
+    }
+  })
+
+  it('does not check permission on mount by default', async () => {
+    const { dispose } = mountPush()
+
+    await flush()
+
+    expect(mockProvider.checkPermission).not.toHaveBeenCalled()
+
+    dispose()
+  })
+
+  it('checkPermission updates permission state', async () => {
+    const { push, dispose } = mountPush()
+
+    expect(push.permission()).toBeNull()
+
+    const status = await push.checkPermission()
+    expect(status).toBe('default')
+
+    expect(push.permission()).toBe('default')
+    expect(mockProvider.checkPermission).toHaveBeenCalledOnce()
+
+    dispose()
+  })
+
+  it('requestPermission updates permission state', async () => {
+    const { push, dispose } = mountPush()
+
+    const status = await push.requestPermission()
+    expect(status).toBe('granted')
+
+    expect(push.permission()).toBe('granted')
+    expect(mockProvider.requestPermission).toHaveBeenCalledOnce()
+
+    dispose()
+  })
+
+  it('register updates token state', async () => {
+    const { push, dispose } = mountPush()
+
+    expect(push.token()).toBeNull()
+
+    const token = await push.register()
+    expect(token).toEqual(mockToken)
+
+    expect(push.token()).toEqual(mockToken)
+    expect(mockProvider.register).toHaveBeenCalledOnce()
+
+    dispose()
+  })
+
+  it('register forwards options (runtime VAPID public key) to the provider', async () => {
+    const { push, dispose } = mountPush()
+
+    await push.register({ vapidPublicKey: 'runtime-key' })
+
+    expect(mockProvider.register).toHaveBeenCalledWith({ vapidPublicKey: 'runtime-key' })
+
+    dispose()
+  })
+
+  it('unregister clears token state', async () => {
+    const { push, dispose } = mountPush()
+
+    // First register to get a token
+    await push.register()
+
+    expect(push.token()).toEqual(mockToken)
+
+    // Then unregister
+    await push.unregister()
+
+    expect(push.token()).toBeNull()
+    expect(mockProvider.unregister).toHaveBeenCalledOnce()
+
+    dispose()
+  })
+
+  it('onNotificationReceived delegates to provider', () => {
+    const { push, dispose } = mountPush()
+
+    const listener = vi.fn()
+    push.onNotificationReceived(listener)
+
+    expect(mockProvider.onNotificationReceived).toHaveBeenCalledWith(listener)
+
+    dispose()
+  })
+
+  it('onNotificationAction delegates to provider', () => {
+    const { push, dispose } = mountPush()
+
+    const listener = vi.fn()
+    push.onNotificationAction(listener)
+
+    expect(mockProvider.onNotificationAction).toHaveBeenCalledWith(listener)
+
+    dispose()
+  })
+
+  it('onTokenChange delegates to provider', () => {
+    const { push, dispose } = mountPush()
+
+    const listener = vi.fn()
+    push.onTokenChange(listener)
+
+    expect(mockProvider.onTokenChange).toHaveBeenCalledWith(listener)
+
+    dispose()
+  })
+
+  it('setBadge delegates to provider', async () => {
+    const { push, dispose } = mountPush()
+
+    await push.setBadge(5)
+
+    expect(mockProvider.setBadge).toHaveBeenCalledWith(5)
+
+    dispose()
+  })
+
+  it('clearBadge delegates to provider', async () => {
+    const { push, dispose } = mountPush()
+
+    await push.clearBadge()
+
+    expect(mockProvider.clearBadge).toHaveBeenCalledOnce()
+
+    dispose()
   })
 })

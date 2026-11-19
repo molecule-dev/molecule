@@ -9,15 +9,14 @@
 
 import { createRawSnippet, flushSync, mount, unmount } from 'svelte'
 
-import Host from '@molecule/app-framework-conformance/adapters/svelte-bindings/Host.svelte'
 import { runLinkConformance } from '@molecule/app-framework-conformance/link'
 
-import { setMoleculeContext } from '../context.js'
-import { Link } from '../link/index.js'
+import type { LinkProps } from '../link/index.js'
+import LinkHost from './LinkHost.svelte'
 
 runLinkConformance('@molecule/app-svelte', async (container, router, props) => {
   // A reactive props object: changing `to` updates the same mounted link.
-  const linkProps = $state<Record<string, unknown>>({
+  const link = $state<LinkProps>({
     to: props.to,
     replace: props.replace,
     state: props.state,
@@ -25,14 +24,14 @@ runLinkConformance('@molecule/app-svelte', async (container, router, props) => {
     ...props.attrs,
     children: createRawSnippet(() => ({ render: () => `<span>${props.text}</span>` })),
   })
-  const app = mount(Host, {
+  const app = mount(LinkHost, {
     target: container,
-    props: { config: { router }, setMoleculeContext, component: Link, props: linkProps },
+    props: { config: { router }, link },
   })
   flushSync()
   return {
     setTo: async (next) => {
-      linkProps.to = next
+      link.to = next
       flushSync()
     },
     unmount: async () => {
