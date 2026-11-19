@@ -19,6 +19,10 @@
     "./assets": {
       "types": "./dist/root-relative-assets.d.ts",
       "import": "./dist/root-relative-assets.js"
+    },
+    "./sveltekit": {
+      "types": "./dist/sveltekit.d.ts",
+      "import": "./dist/sveltekit.js"
     }
   },
   "files": [

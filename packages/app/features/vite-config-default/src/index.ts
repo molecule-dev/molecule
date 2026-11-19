@@ -95,6 +95,14 @@
  * routes, external URLs, comments and interpolated templates are excluded.
  * `rootRelativeAssetsPlugin()` exports the same build check for custom configs.
  *
+ * **A SvelteKit app deploys the same site.** `@molecule/app-vite-config-default/sveltekit`
+ * finishes the static site `@sveltejs/adapter-static` writes to `dist/` (with
+ * `fallback: 'index.html'`): `svelteKitStaticSite()` adds the web-manifest link, runs the
+ * app's page and site steps, generates the service worker after the adapter, refuses a
+ * site with no `index.html`, and makes `vite preview` answer from the site as the deployed
+ * front does. `svelteKitPwaPlugins(VitePWA(options))` takes out the hooks SvelteKit never
+ * calls, and `svelteKitPrecache()` precaches kit's shell files.
+ *
  * The config also carries vitest's `test.exclude`, keeping the Playwright
  * suite under `e2e/` out of `npm test` (`vitest run`): Playwright specs are
  * `*.spec.ts`, which vitest's default include would otherwise collect and
@@ -108,3 +116,4 @@
 export * from './config.js'
 export * from './push-sw.js'
 export * from './root-relative-assets.js'
+export * from './sveltekit.js'
