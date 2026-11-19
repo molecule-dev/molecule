@@ -10,8 +10,15 @@ import { afterEach, describe, expect, it } from 'vitest'
 import * as grouped from '../vitest-grouped.mjs'
 import { vitestBin } from '../vitest-with-tmp-root.mjs'
 
-const { balancedGroups, runPool, selectProjects, shardProjects, testTimeoutArgs, workersPerGroup } =
-  grouped
+const {
+  absoluteFilter,
+  balancedGroups,
+  runPool,
+  selectProjects,
+  shardProjects,
+  testTimeoutArgs,
+  workersPerGroup,
+} = grouped
 
 const ROOT = path.resolve(import.meta.dirname, '../..')
 const scratch = path.resolve(ROOT, '../.experiments/vitest-grouped-tests')
@@ -20,9 +27,11 @@ const fixtures = []
 /**
  * A repository with six packages (any red or slow when asked), the real runner and the real
  * root config. A package named in `timed` sets `testTimeout: 50` in its own config and its test
- * passes no limit of its own: `'sleep'` takes 200 ms, `'hang'` never settles.
+ * passes no limit of its own: `'sleep'` takes 200 ms, `'hang'` never settles. With `nested`, a
+ * seventh package's config declares two projects of its own (`one`, `two`), each with its own
+ * `dir` and provided value, as the SvelteKit routing bond's three kit apps do.
  */
-function fixture({ red = [], slow = [], timed = {} } = {}) {
+function fixture({ red = [], slow = [], timed = {}, nested = false } = {}) {
   fs.mkdirSync(scratch, { recursive: true })
   const dir = fs.mkdtempSync(path.join(scratch, 'repo-'))
   fixtures.push(dir)
@@ -60,6 +69,16 @@ function fixture({ red = [], slow = [], timed = {} } = {}) {
     write(
       `${pkg}/src/__tests__/sample.test.ts`,
       `import {it,expect} from 'vitest';it('package ${name} test',async()=>{${wait}expect(1).toBe(${red.includes(name) ? 2 : 1})}${timing ? '' : ',20000'})\n`,
+    )
+  }
+  if (nested) {
+    write(
+      'packages/api/core/nested/vitest.config.ts',
+      "import {defineConfig} from 'vitest/config';const project=(flavor)=>({root:import.meta.dirname,test:{name:'nested-'+flavor,dir:import.meta.dirname+'/src/__tests__/cases',include:['*.test.ts'],environment:'node',provide:{flavor}}});export default defineConfig({test:{projects:[project('one'),project('two')]}})\n",
+    )
+    write(
+      'packages/api/core/nested/src/__tests__/cases/flavor.test.ts',
+      "import {inject,it,expect} from 'vitest';it('nested flavor',()=>{const flavor=inject('flavor');expect(['one','two']).toContain(flavor);})\n",
     )
   }
   fs.mkdirSync(path.join(dir, 'tmp'))
@@ -276,6 +295,21 @@ describe('grouped Vitest runs', () => {
     expect(result.stderr).not.toContain('[vitest-grouped] group')
   }, 60000)
 
+  it('runs a config that declares projects of its own as those projects, in a run of its own', () => {
+    // 2026-11-19: listed in a group config, such a config ran as one plain project, so its
+    // projects' plugins, provided values and `dir` never applied and the kit tests failed in CI.
+    const { run } = fixture({ nested: true })
+    const result = run(['packages/api/core/nested', 'packages/api/core/a'])
+    const out = result.stdout + result.stderr
+    // Run as one plain project, the package's one test file fails: nothing provides `flavor`.
+    expect(result.status, out).toBe(0)
+    // The plain package keeps its group; the declaring config is a group of its own, whose one
+    // test file runs once in each of its two projects.
+    expect(events(result).filter((event) => !event.exit)).toHaveLength(2)
+    expect(out).toMatch(/Test Files {2}2 passed \(2\)/)
+    expect(out).toMatch(/Test Files {2}1 passed \(1\)/)
+  })
+
   it('runs Vitest unchanged when a filter names no project path', () => {
     const result = fixture({ red: ['b'] }).run(['sample.test'])
     expect(result.status).toBe(1)
@@ -355,6 +389,14 @@ describe('selection and grouping rules', () => {
     expect(peak).toBe(2)
     expect(started).toEqual([0, 1, 2])
     expect(results).toEqual([0, 1, 'stop'])
+  })
+
+  it('passes a path filter absolute, a directory with a slash so it names no sibling', () => {
+    // Vitest reads a relative filter against each project's `dir`; an absolute one matches by prefix.
+    expect(absoluteFilter(ROOT, 'scripts')).toBe(`${ROOT}/scripts/`)
+    expect(absoluteFilter(ROOT, 'scripts/vitest-grouped.mjs')).toBe(
+      `${ROOT}/scripts/vitest-grouped.mjs`,
+    )
   })
 
   it('balances groups so sizes differ by at most one', () => {

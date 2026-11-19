@@ -41,6 +41,10 @@ const kitProject = (
     // passed 32 of 32 runs alone. 30 s still fails a navigation that never completes.
     testTimeout: 30000,
     hookTimeout: 30000,
+    // Each project runs whole wherever it is listed: the monorepo's grouped runner runs these
+    // projects in place of this file (scripts/vitest-grouped.mjs), so nothing is set outside them.
+    fileParallelism: false,
+    pool: 'forks',
     provide: {
       kitOutDir: join(app, '.svelte-kit', name),
       kitBase: base,
@@ -56,7 +60,5 @@ export default defineConfig({
       kitProject('base', { paths: { base: '/app' } }, '/app'),
       kitProject('hash', { router: { type: 'hash' } }, ''),
     ],
-    fileParallelism: false,
-    pool: 'forks',
   },
 })

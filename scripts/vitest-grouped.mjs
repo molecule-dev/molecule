@@ -105,6 +105,22 @@ export function projectConfigs(patterns, root = ROOT, globSync = fs.globSync) {
 }
 
 /**
+ * A path argument as Vitest matches it in every project: absolute, a directory with a trailing
+ * slash. Vitest reads a relative filter against each project's `dir`, so a repo-relative path
+ * selected no file of a project whose tests live in a `dir` of their own (the SvelteKit
+ * routing bond's `src/__tests__`), while an absolute one matches by prefix wherever it is; the
+ * slash keeps `features/foo` from matching `features/foo-bar`.
+ *
+ * @param root - Repository root.
+ * @param path - A repo-relative path argument.
+ * @returns The filter.
+ */
+export function absoluteFilter(root, path) {
+  const full = join(root, path)
+  return fs.existsSync(full) && fs.statSync(full).isDirectory() ? `${full}/` : full
+}
+
+/**
  * Which projects each path argument names: the project itself, the projects under a
  * directory, or the one project that contains a path.
  *
@@ -215,6 +231,35 @@ export async function runPool(count, limit, task, stop = () => false) {
 }
 
 /**
+ * Which project configs declare projects of their own (`test.projects`): a package whose
+ * tests need one Vite setup per configuration, as the SvelteKit routing bond runs its suite in
+ * three kit apps (a root, a base path, hash routing), each with kit's plugin set up its way.
+ *
+ * Vitest reads `test.projects` only from the config it was started with. Listed as one project
+ * of a group, such a config ran as a single plain project: none of its projects' plugins or
+ * options applied, and its own include globs matched `dist/` copies too (2026-11-19: the kit
+ * tests failed in the release's CI scope, "Failed to load tsconfig '$app/tsconfig'", while each
+ * passed in the package). Imported into a group config as inline projects, the same kit projects
+ * still failed (the hash-routing app's pages did not render), and they pass whenever Vitest loads
+ * the file itself. So each such config is a group of its own, run with `--config` set to it.
+ *
+ * A config is imported only when its text names `projects`, which every such config must;
+ * one exported as a function is read as declaring none.
+ *
+ * @param files - Absolute project config paths.
+ * @returns The ones whose exported config sets `test.projects`.
+ */
+export async function configsWithProjects(files) {
+  const out = new Set()
+  for (const file of files) {
+    if (!fs.readFileSync(file, 'utf8').includes('projects')) continue
+    const { default: config } = await import(pathToFileURL(file).href)
+    if (Array.isArray(config?.test?.projects)) out.add(file)
+  }
+  return out
+}
+
+/**
  * The Vitest config of one group: the repository root and that group's project configs.
  *
  * @param root - Repository root.
@@ -294,7 +339,14 @@ export async function runGrouped(args, options = {}) {
     if (!selected.size) throw new Error('no Vitest projects selected')
     return 0 // A valid shard can be empty when there are fewer projects than runners.
   }
-  const groups = balancedGroups(projects, max)
+  // A config that declares projects of its own runs alone, as Vitest loads it (configsWithProjects).
+  const declaring = await configsWithProjects(projects.map((dir) => join(root, configs.get(dir))))
+  const ownsRun = (dir) => declaring.has(join(root, configs.get(dir)))
+  const shared = projects.filter((dir) => !ownsRun(dir))
+  const groups = [
+    ...(shared.length ? balancedGroups(shared, max) : []),
+    ...projects.filter(ownsRun).map((dir) => [dir]),
+  ]
   const parallel = Math.min(concurrency, groups.length)
   const workers = parallel > 1 ? [`--maxWorkers=${workersPerGroup(cpus, parallel)}`] : []
   const scratch = fs.mkdtempSync(join(base, 'mol-vitest-groups-'))
@@ -305,15 +357,20 @@ export async function runGrouped(args, options = {}) {
       async (index) => {
         const group = groups[index]
         const name = `group ${index + 1}/${groups.length}`
-        const config = join(scratch, `group-${index + 1}.config.mjs`)
-        fs.writeFileSync(
-          config,
-          groupConfigSource(
-            root,
-            group.map((dir) => join(root, configs.get(dir))),
-          ),
+        let config = join(root, configs.get(group[0]))
+        if (!ownsRun(group[0])) {
+          config = join(scratch, `group-${index + 1}.config.mjs`)
+          fs.writeFileSync(
+            config,
+            groupConfigSource(
+              root,
+              group.map((dir) => join(root, configs.get(dir))),
+            ),
+          )
+        }
+        const filters = [...new Set(group.flatMap((dir) => selected.get(dir)))].map((path) =>
+          absoluteFilter(root, path),
         )
-        const filters = [...new Set(group.flatMap((dir) => selected.get(dir)))]
         const output =
           parallel > 1
             ? {
