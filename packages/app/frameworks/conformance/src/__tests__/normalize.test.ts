@@ -191,6 +191,31 @@ describe('normalizeDom framework bookkeeping attributes', () => {
   })
 })
 
+describe('normalizeDom style attribute', () => {
+  const styled = (style: string): HTMLElement =>
+    container((root) => {
+      const el = h('div', ['x'])
+      el.setAttribute('style', style)
+      root.append(el)
+    })
+
+  it("reads Vue's -webkit-filter as the filter a browser serializes", () => {
+    expect(norm(styled('-webkit-filter: grayscale(0.6); opacity: 0.5'))).toBe(
+      norm(styled('filter: grayscale(0.6); opacity: 0.5')),
+    )
+    expect(norm(styled('-webkit-filter: grayscale(0.6)'))).toContain(
+      'style="filter: grayscale(0.6)"',
+    )
+  })
+
+  it('keeps a different filter and other vendor names apart', () => {
+    expect(norm(styled('-webkit-filter: grayscale(0.6)'))).not.toBe(
+      norm(styled('filter: grayscale(0.5)')),
+    )
+    expect(norm(styled('-webkit-backdrop-filter: blur(2px)'))).toContain('-webkit-backdrop-filter')
+  })
+})
+
 describe('normalizeDom id references', () => {
   it('renumbers ids and the references that resolve to them', () => {
     const render = (prefix: string): HTMLElement =>

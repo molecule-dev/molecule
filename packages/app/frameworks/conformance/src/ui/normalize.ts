@@ -83,6 +83,15 @@ const escapeText = (s: string): string =>
 const escapeAttr = (s: string): string =>
   s.replaceAll('&', '&amp;').replaceAll('"', '&quot;').replaceAll('<', '&lt;')
 
+/**
+ * Vendor names every browser treats as the same property, mapped to the standard name. Vue's
+ * runtime-dom sets a style object's `filter` through `webkitFilter` whenever the DOM has it (its
+ * `autoPrefix` special-cases `filter`), and so writes `-webkit-filter` for any style that reaches
+ * it as an object, a string merged through `mergeProps` included. Browsers alias the two, so the
+ * style attribute they serialize says `filter`, as React's does; jsdom keeps them apart.
+ */
+const STYLE_ALIASES: ReadonlyMap<string, string> = new Map([['-webkit-filter', 'filter']])
+
 const normalizeStyle = (value: string): string =>
   value
     .split(';')
@@ -91,7 +100,8 @@ const normalizeStyle = (value: string): string =>
     .map((d) => {
       const i = d.indexOf(':')
       if (i < 0) return d
-      return `${d.slice(0, i).trim().toLowerCase()}: ${d
+      const name = d.slice(0, i).trim().toLowerCase()
+      return `${STYLE_ALIASES.get(name) ?? name}: ${d
         .slice(i + 1)
         .trim()
         .replace(/\s+/g, ' ')}`
