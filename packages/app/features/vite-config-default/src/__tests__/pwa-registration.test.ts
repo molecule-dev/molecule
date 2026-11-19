@@ -9,6 +9,38 @@ import { describe, expect, it } from 'vitest'
 import { createDefaultViteConfig } from '../index.js'
 
 describe('the flagship production build', () => {
+  it('serves launch artwork without putting it on the worker install path', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'flagship-launch-artwork-'))
+    try {
+      const icons = join(root, 'public/icons')
+      await mkdir(icons, { recursive: true })
+      for (const name of ['splash-640x1136.svg', 'splash-legend.svg', 'icon-192.svg']) {
+        await writeFile(join(icons, name), '<svg xmlns="http://www.w3.org/2000/svg"/>')
+      }
+      await writeFile(join(root, 'index.html'), '<head></head><body>Equipment console</body>')
+
+      await build({
+        ...createDefaultViteConfig({
+          APP_NAME: 'Equipment console',
+          APP_DESCRIPTION: 'A maintenance dashboard',
+          BRAND_COLOR: '#332288',
+        }),
+        configFile: false,
+        root,
+        logLevel: 'silent',
+      })
+
+      const worker = await readFile(join(root, 'dist/sw.js'), 'utf8')
+      expect(worker).toContain('index.html')
+      expect(worker).toContain('icons/icon-192.svg')
+      expect(worker).toContain('icons/splash-legend.svg')
+      expect(worker).not.toContain('icons/splash-640x1136.svg')
+      expect(await readFile(join(root, 'dist/icons/splash-640x1136.svg'), 'utf8')).toContain('<svg')
+    } finally {
+      await rm(root, { recursive: true, force: true })
+    }
+  }, 30_000)
+
   it.each([true, false])(
     'runs the app registrar only with VitePWA enabled (%s)',
     async (pwa) => {
