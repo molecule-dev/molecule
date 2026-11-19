@@ -12,7 +12,7 @@ import type { HTMLAnchorAttributes } from 'svelte/elements'
  * `aria-*`, `data-*`, `onclick`) goes on the anchor.
  */
 export interface LinkProps extends Omit<HTMLAnchorAttributes, 'href' | 'children'> {
-  /** Destination: an app path (`/settings?tab=billing#plan`) or a URL. Rendered as the anchor's `href`. */
+  /** Destination: an app path (`/settings?tab=billing#plan`) or a URL. An app path's `href` is the one the router writes for it (`routerLinkHref`), base path included. */
   to: string
   /**
    * Replace the current history entry instead of pushing one. When omitted, a
@@ -24,4 +24,6 @@ export interface LinkProps extends Omit<HTMLAnchorAttributes, 'href' | 'children
   state?: unknown
   /** The link's content. */
   children?: Snippet
+  /** The rendered anchor (`bind:ref`), as React's `ref` receives it. */
+  ref?: HTMLAnchorElement | null
 }

@@ -26,7 +26,7 @@ runLinkConformance('@molecule/app-svelte', async (container, router, props) => {
   })
   const app = mount(LinkHost, {
     target: container,
-    props: { config: { router }, link },
+    props: { config: { router }, link, onanchor: props.ref },
   })
   flushSync()
   return {

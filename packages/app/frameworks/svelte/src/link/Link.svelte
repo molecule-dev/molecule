@@ -7,12 +7,20 @@
   and a URL on another origin are left to the browser.
 -->
 <script lang="ts">
-  import { followRouterLink } from '@molecule/app-routing'
+  import { followRouterLink, routerLinkHref } from '@molecule/app-routing'
 
   import { useRouterInstance } from '../context.js'
   import type { LinkProps } from './types.js'
 
-  let { to, replace, state, children, onclick, ...anchor }: LinkProps = $props()
+  let {
+    to,
+    replace,
+    state,
+    children,
+    onclick,
+    ref = $bindable(null),
+    ...anchor
+  }: LinkProps = $props()
 
   const router = useRouterInstance()
 
@@ -30,4 +38,6 @@
   }
 </script>
 
-<a {...anchor} href={to} onclick={handleClick}>{@render children?.()}</a>
+<a {...anchor} bind:this={ref} href={routerLinkHref(to, router)} onclick={handleClick}
+  >{@render children?.()}</a
+>

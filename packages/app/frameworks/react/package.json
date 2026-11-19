@@ -14,6 +14,10 @@
       "types": "./dist/render/index.d.ts",
       "import": "./dist/render/index.js"
     },
+    "./link": {
+      "types": "./dist/link.d.ts",
+      "import": "./dist/link.js"
+    },
     "./package.json": "./package.json"
   },
   "files": [
@@ -41,7 +45,7 @@
     "@molecule/app-http": "^1.0.1",
     "@molecule/app-i18n": "^1.0.1",
     "@molecule/app-logger": "^1.0.1",
-    "@molecule/app-routing": "^1.2.0",
+    "@molecule/app-routing": "^1.4.0",
     "@molecule/app-state": "^1.2.0",
     "@molecule/app-storage": "^1.1.1",
     "@molecule/app-theme": "^1.0.1",

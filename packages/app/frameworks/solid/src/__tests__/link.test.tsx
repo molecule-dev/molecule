@@ -25,6 +25,7 @@ runLinkConformance('@molecule/app-solid', async (container, router, props) => {
           replace={props.replace}
           state={props.state}
           onClick={props.onClick}
+          ref={(anchor) => props.ref?.(anchor)}
           {...props.attrs}
         >
           {props.text}

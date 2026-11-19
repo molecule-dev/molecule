@@ -30,6 +30,12 @@ export interface LinkMountProps {
   onClick?: (event: MouseEvent) => void
   /** The link's text. */
   text: string
+  /**
+   * Receives the rendered anchor, as React's `ref` does: each binding passes it through its own
+   * element reference (Solid's `ref`, Svelte's `bind:ref`, a Vue template ref's `$el`, the
+   * anchor an Angular `molLink` sits on).
+   */
+  ref?: (anchor: HTMLAnchorElement | null) => void
 }
 
 /** A rendered link. */
@@ -50,6 +56,12 @@ export type LinkMount = (
   props: LinkMountProps,
 ) => Promise<MountedLink>
 
+/** The router a case renders its link over. */
+export interface LinkRouterOptions {
+  /** The path the app is served under (`createMemoryRouter`'s `basePath`). */
+  basePath?: string
+}
+
 /** What a case gets: a rendered link over a router whose history is `/home` then `/start`. */
 export interface RenderedLink {
   router: Router
@@ -66,7 +78,9 @@ export interface LinkCase {
    *
    * @param render - Renders a link with the given props.
    */
-  run(render: (props: LinkMountProps) => Promise<RenderedLink>): Promise<void>
+  run(
+    render: (props: LinkMountProps, router?: LinkRouterOptions) => Promise<RenderedLink>,
+  ): Promise<void>
 }
 
 /** Modifier keys and the button of a click. */
@@ -299,6 +313,47 @@ export const linkCases: LinkCase[] = [
     },
   },
   {
+    name: 'an app path carries the href the router writes for it, base path included',
+    run: async (render) => {
+      const { router, anchor } = await render(
+        { to: '/settings?tab=billing#plan', text: 'Settings' },
+        { basePath: '/app' },
+      )
+      // A middle-click or a new tab opens this href, so it must be the page a click opens.
+      expect(anchor.getAttribute('href')).toBe('/app/settings?tab=billing#plan')
+      expect(click(anchor)).toBe(true)
+      await settle()
+      expect(pathOf(router)).toBe('/settings?tab=billing#plan')
+    },
+  },
+  {
+    name: 'a URL keeps the href it was written with under a base path',
+    run: async (render) => {
+      const external = await render(
+        { to: 'https://example.com/docs', text: 'Docs' },
+        { basePath: '/app' },
+      )
+      expect(external.anchor.getAttribute('href')).toBe('https://example.com/docs')
+      const own = `${window.location.origin}/docs/intro`
+      const sameOrigin = await render({ to: own, text: 'Intro' }, { basePath: '/app' })
+      expect(sameOrigin.anchor.getAttribute('href')).toBe(own)
+    },
+  },
+  {
+    name: 'forwards ref to the anchor',
+    run: async (render) => {
+      const seen: { anchor?: HTMLAnchorElement | null } = {}
+      const { anchor } = await render({
+        to: '/settings',
+        text: 'Settings',
+        ref: (element) => {
+          seen.anchor = element
+        },
+      })
+      expect(seen.anchor).toBe(anchor)
+    },
+  },
+  {
     name: 'follows a changed destination without a remount',
     run: async (render) => {
       const { router, anchor, link } = await render({ to: '/one', text: 'Go' })
@@ -324,8 +379,11 @@ export const linkCases: LinkCase[] = [
  */
 export const linkRenderer =
   (name: string, mountLink: LinkMount, mounted: MountedLink[]) =>
-  async (props: LinkMountProps): Promise<RenderedLink> => {
-    const router = createMemoryRouter({ initialEntries: ['/home', '/start'] })
+  async (props: LinkMountProps, options: LinkRouterOptions = {}): Promise<RenderedLink> => {
+    const router = createMemoryRouter({
+      initialEntries: ['/home', '/start'],
+      ...(options.basePath === undefined ? {} : { basePath: options.basePath }),
+    })
     const container = document.createElement('div')
     document.body.appendChild(container)
     const link = await mountLink(container, router, props)

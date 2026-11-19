@@ -197,6 +197,7 @@ function createMockRouter(): Router {
 
   return {
     getLocation: () => location,
+    createHref: (path: string) => path,
     getParams: <T extends RouteParams = RouteParams>(): T => params as T,
     getQuery: () => query,
     getQueryParam: (key) => query[key],

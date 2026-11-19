@@ -7,7 +7,7 @@
 
 import { DestroyRef, Directive, ElementRef, inject, type OnInit, Renderer2 } from '@angular/core'
 
-import { followRouterLink } from '@molecule/app-routing'
+import { followRouterLink, routerLinkHref } from '@molecule/app-routing'
 
 import { useRouterInstance } from './hooks/use-router.js'
 
@@ -49,10 +49,13 @@ import { useRouterInstance } from './hooks/use-router.js'
   selector: 'a[molLink]',
   standalone: true,
   inputs: ['molLink', 'replace', 'state'],
-  host: { '[attr.href]': 'molLink' },
+  host: { '[attr.href]': 'href' },
 })
 export class Link implements OnInit {
-  /** The destination: an app path (`/settings?tab=billing#plan`) or a URL. */
+  /**
+   * The destination: an app path (`/settings?tab=billing#plan`) or a URL. An app path's `href` is
+   * the one the router writes for it (`routerLinkHref`), base path included.
+   */
   molLink = ''
   /** Replace the current history entry instead of pushing one. */
   replace?: boolean
@@ -60,6 +63,11 @@ export class Link implements OnInit {
   state?: unknown
 
   private readonly router = useRouterInstance()
+
+  /** The anchor's `href`: the one the router writes for an app path, base path included. */
+  get href(): string {
+    return routerLinkHref(this.molLink, this.router)
+  }
   private readonly element = inject<ElementRef<HTMLAnchorElement>>(ElementRef)
   private readonly renderer = inject(Renderer2)
   private readonly destroyRef = inject(DestroyRef)

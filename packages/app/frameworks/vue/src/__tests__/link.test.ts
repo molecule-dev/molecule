@@ -25,6 +25,12 @@ runLinkConformance('@molecule/app-vue', async (container, router, props) => {
           replace: props.replace,
           state: props.state,
           onClick: props.onClick,
+          // A template ref on `Link` reaches its anchor as the component's `$el`.
+          ref: (instance) => {
+            const element =
+              instance === null || instance instanceof Element ? instance : instance.$el
+            props.ref?.(element instanceof HTMLAnchorElement ? element : null)
+          },
           ...props.attrs,
         },
         () => props.text,

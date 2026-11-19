@@ -38,6 +38,21 @@ export function resolveLinkPath(to: string, origin = globalThis.location?.origin
 }
 
 /**
+ * The `href` an in-app link's anchor carries. An app path gets the href the router's own
+ * link writes (`router.createHref`: its base path, or `#/…` under a hash history), so a
+ * middle-click, a new tab or a copied link opens the page a click opens. A URL
+ * (`https://…`, `mailto:`, `//host`) keeps the href it was written with, as
+ * react-router's `<Link>` renders it.
+ *
+ * @param to - The link's destination.
+ * @param router - The router the link navigates.
+ * @returns The anchor's `href`.
+ */
+export function routerLinkHref(to: string, router: Pick<Router, 'createHref'>): string {
+  return ABSOLUTE_URL.test(to) ? to : router.createHref(to)
+}
+
+/**
  * Whether the router should handle a link click itself, under react-router's
  * `<Link>` rule: the primary button, no meta/ctrl/shift/alt key, not already
  * `defaultPrevented`, and an anchor `target` that is absent or `_self`. Any other

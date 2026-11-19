@@ -12,10 +12,21 @@
   import type { LinkProps } from '../link/types.js'
   import type { MoleculeConfig } from '../types.js'
 
-  let { config, link }: { config: MoleculeConfig; link: LinkProps } = $props()
+  let {
+    config,
+    link,
+    onanchor,
+  }: {
+    config: MoleculeConfig
+    link: LinkProps
+    onanchor?: (anchor: HTMLAnchorElement | null) => void
+  } = $props()
+
+  let anchor = $state<HTMLAnchorElement | null>(null)
+  $effect(() => onanchor?.(anchor))
 
   // The case's services are fixed for the host's whole run.
   untrack(() => setMoleculeContext(config))
 </script>
 
-<Link {...link} />
+<Link {...link} bind:ref={anchor} />

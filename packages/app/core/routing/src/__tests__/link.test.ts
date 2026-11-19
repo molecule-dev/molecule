@@ -6,7 +6,7 @@
  */
 import { describe, expect, it } from 'vitest'
 
-import { followRouterLink, isRouterLinkClick, resolveLinkPath } from '../link.js'
+import { followRouterLink, isRouterLinkClick, resolveLinkPath, routerLinkHref } from '../link.js'
 import { createMemoryRouter } from '../router.js'
 
 /**
@@ -69,6 +69,27 @@ describe('resolveLinkPath', () => {
 
   it('reads the current page origin by default', () => {
     expect(resolveLinkPath(`${window.location.origin}/here`)).toBe('/here')
+  })
+})
+
+describe('routerLinkHref', () => {
+  it('writes an app path as the router writes its own links', () => {
+    const router = createMemoryRouter({ basePath: '/app' })
+    expect(routerLinkHref('/settings?tab=billing#plan', router)).toBe(
+      '/app/settings?tab=billing#plan',
+    )
+    expect(routerLinkHref('/', createMemoryRouter())).toBe('/')
+  })
+
+  it('keeps a URL as written', () => {
+    const router = createMemoryRouter({ basePath: '/app' })
+    for (const url of [
+      'https://example.com/docs',
+      'mailto:team@example.com',
+      '//cdn.example.com/a.js',
+      `${location.origin}/docs`,
+    ])
+      expect(routerLinkHref(url, router)).toBe(url)
   })
 })
 

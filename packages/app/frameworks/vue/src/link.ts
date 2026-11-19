@@ -6,13 +6,13 @@
 
 import { defineComponent, h, mergeProps } from 'vue'
 
-import { followRouterLink } from '@molecule/app-routing'
+import { followRouterLink, routerLinkHref } from '@molecule/app-routing'
 
 import { useRouterInstance } from './composables/useRouter.js'
 
 /** Props for {@link Link}. Every other attribute (`class`, `target`, `rel`, `aria-*`, `onClick`) goes on the anchor. */
 export interface LinkProps {
-  /** Destination: an app path (`/settings?tab=billing#plan`) or a URL. Rendered as the anchor's `href`. */
+  /** Destination: an app path (`/settings?tab=billing#plan`) or a URL. An app path's `href` is the one the router writes for it (`routerLinkHref`), base path included. */
   to: string
   /**
    * Replace the current history entry instead of pushing one. When omitted, a
@@ -67,7 +67,12 @@ export const Link = defineComponent(
       followRouterLink(event, props.to, router, { replace: props.replace, state: props.state })
     }
 
-    return () => h('a', mergeProps(attrs, { href: props.to, onClick }), slots.default?.())
+    return () =>
+      h(
+        'a',
+        mergeProps(attrs, { href: routerLinkHref(props.to, router), onClick }),
+        slots.default?.(),
+      )
   },
   { name: 'Link', props: ['to', 'replace', 'state'], inheritAttrs: false },
 )

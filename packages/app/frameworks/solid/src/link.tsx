@@ -6,7 +6,7 @@
 
 import { type JSX, splitProps } from 'solid-js'
 
-import { followRouterLink } from '@molecule/app-routing'
+import { followRouterLink, routerLinkHref } from '@molecule/app-routing'
 
 import { useRouterInstance } from './primitives/router.js'
 
@@ -15,7 +15,7 @@ import { useRouterInstance } from './primitives/router.js'
  * `rel`, `aria-*`, `data-*`, `onClick`) goes on the anchor.
  */
 export interface LinkProps extends Omit<JSX.AnchorHTMLAttributes<HTMLAnchorElement>, 'href'> {
-  /** Destination: an app path (`/settings?tab=billing#plan`) or a URL. Rendered as the anchor's `href`. */
+  /** Destination: an app path (`/settings?tab=billing#plan`) or a URL. An app path's `href` is the one the router writes for it (`routerLinkHref`), base path included. */
   to: string
   /**
    * Replace the current history entry instead of pushing one. When omitted, a
@@ -86,7 +86,7 @@ export const Link = (props: LinkProps): JSX.Element => {
   }
 
   return (
-    <a {...anchor} href={local.to} onClick={onClick}>
+    <a {...anchor} href={routerLinkHref(local.to, router)} onClick={onClick}>
       {local.children}
     </a>
   )

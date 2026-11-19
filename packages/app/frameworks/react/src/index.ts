@@ -221,6 +221,11 @@
  *   schedule, and never call either function while rendering. The root holds what
  *   every framework binding also exports; these exist only because a React body
  *   re-runs and a render can be thrown away.
+ * - The in-app anchor comes from `@molecule/app-react/link`: `<Link to="/settings">`
+ *   navigates through the molecule router under every routing bond (react-router's
+ *   `<Link>` rules), and its `href` is the one the router writes, base path included.
+ *   It renders a DOM anchor, so it sits outside the root, which `@molecule/app-react-native`
+ *   re-exports.
  * - Server-backed switches and counters use `useOptimisticValue`. When one commit saves
  *   several records, call its third argument after each accepted request:
  *   `confirm((current) => ({ ...current, [id]: saved }))`, then return nothing. A later
