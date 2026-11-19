@@ -1,5 +1,17 @@
 # @molecule/app-routing
 
+## 1.4.0
+
+### Minor Changes
+
+- Add `Router.createHref` and the shared `@molecule/app-routing/bond-utilities` path helpers; named-route and missing-param errors are `I18nError`.
+- Add `routerLinkHref(to, router)`, the `href` an in-app link carries: the router's `createHref` for an app path (base path or hash history included), a URL as written.
+
+### Patch Changes
+
+- `getParams()` returns decoded params when the history matches routes itself (the memory and browser routers), as React Router's `useParams` does.
+- `navigate('?…')` and `navigate('#…')` stay on the current page, as React Router's do, and `getParams()` reads the registered routes when the native router matched no params.
+
 ## 1.3.0
 
 ### Minor Changes

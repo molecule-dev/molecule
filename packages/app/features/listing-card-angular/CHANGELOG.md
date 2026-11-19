@@ -1,5 +1,11 @@
 # @molecule/app-listing-card-angular
 
+## 1.2.0
+
+### Minor Changes
+
+- Add the `toggle` prop: a counted, server-backed toggle after the card's content, as `@molecule/app-listing-card-react` renders it.
+
 ## 1.1.0
 
 ### Minor Changes

@@ -1,5 +1,15 @@
 # @molecule/app-routing-vue-router
 
+## 1.2.0
+
+### Minor Changes
+
+- Add `Router.createHref` and the shared `@molecule/app-routing/bond-utilities` path helpers; named-route and missing-param errors are `I18nError`.
+
+### Patch Changes
+
+- The routing hooks throw an `I18nError` that names how to install the router when the app has none.
+
 ## 1.1.0
 
 ### Minor Changes

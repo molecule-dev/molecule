@@ -1,5 +1,17 @@
 # @molecule/app-ui-angular
 
+## 1.3.0
+
+### Minor Changes
+
+- Export the props types `@molecule/app-ui-react` exports (`ConfirmDialogProps`, `ResponsiveAppShellProps`, `ReactFormProps`, …); dialogs, banners and the shell render their node inputs given as data (`brand`, `actions`, `footer`, `loadingFallback`, …) as React does; add `ElementPropsWriter`, which writes React-spelled element props onto an element.
+- A `data-mol-id` bound on a component's host reaches its element in the change detection that bound it, and follows a change (Modal, Tooltip, Input, Switch, Checkbox, Textarea, Table, Select); the component's own `automationId` still wins. Adds `adoptHostDataMolId` for components that render the id on an inner element.
+- Matches `@molecule/app-ui-react`: a component's ref receives its main element, components forward every prop their types declare (`automationId` as `data-mol-id`, `id`, `title`, `aria-*` and DOM event handlers), Tabs, Accordion, Dropdown and Card honor `disabled`, and handlers are typed with the kit event types from `@molecule/app-ui`.
+
+### Patch Changes
+
+- Dropdown re-enables its trigger when `disabled` turns back to false.
+
 ## 1.2.1
 
 ### Patch Changes

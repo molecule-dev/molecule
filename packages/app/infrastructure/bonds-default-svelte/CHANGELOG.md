@@ -1,5 +1,11 @@
 # @molecule/app-bonds-default-svelte
 
+## 1.2.1
+
+### Patch Changes
+
+- Accept `@molecule/app-routing-sveltekit` 2 (SvelteKit 3) and document its root-layout call.
+
 ## 1.2.0
 
 ### Minor Changes

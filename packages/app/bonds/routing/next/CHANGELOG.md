@@ -1,5 +1,11 @@
 # @molecule/app-routing-next
 
+## 1.0.8
+
+### Patch Changes
+
+- Carry a navigation's history state and key to the entry Next commits and keep them across `router.refresh()`; add `createHref` with the compiled `basePath`.
+
 ## 1.0.7
 
 ### Patch Changes

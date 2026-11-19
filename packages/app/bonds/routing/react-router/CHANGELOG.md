@@ -1,5 +1,11 @@
 # @molecule/app-routing-react-router
 
+## 1.7.0
+
+### Minor Changes
+
+- Add `Router.createHref` and the shared `@molecule/app-routing/bond-utilities` path helpers; named-route and missing-param errors are `I18nError`.
+
 ## 1.6.0
 
 ### Minor Changes

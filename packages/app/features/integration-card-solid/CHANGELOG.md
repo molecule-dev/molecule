@@ -1,5 +1,11 @@
 # @molecule/app-integration-card-solid
 
+## 1.1.1
+
+### Patch Changes
+
+- Event handler parameters are typed with the kit event types from `@molecule/app-ui`, so they accept the event every UI kit passes.
+
 ## 1.1.0
 
 ### Minor Changes

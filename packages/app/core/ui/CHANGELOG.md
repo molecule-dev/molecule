@@ -1,5 +1,15 @@
 # @molecule/app-ui
 
+## 1.5.0
+
+### Minor Changes
+
+- Adds `KitEvent`, `KitMouseEvent`, `KitKeyboardEvent`, `KitFocusEvent` and `KitModifierKeys`, the event members every UI kit passes to a component's handlers. `BaseProps` now documents which element a component's ref receives, and that `disabled` disables the controls a component renders.
+
+### Patch Changes
+
+- A handler written for the event a kit passes, such as `(event: Event) => void` on the Vue, Solid, Svelte and Angular kits, is accepted by the kits' handler props again; an unannotated handler's event is still `KitEvent`.
+
 ## 1.4.0
 
 ### Minor Changes

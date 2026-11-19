@@ -1,5 +1,15 @@
 # @molecule/app-vue
 
+## 3.8.0
+
+### Minor Changes
+
+- The forms, theme, translation, store, promise and OAuth composables behave as `@molecule/app-react`'s hooks do, and `moleculePlugin` falls back to the bonded state provider, and the types their signatures use are exported.
+
+### Patch Changes
+
+- `Link` writes the `href` the router writes for an app path, so a middle-click, a new tab or a copied link under a base path or a hash history opens the page a click opens.
+
 ## 3.7.2
 
 ### Patch Changes

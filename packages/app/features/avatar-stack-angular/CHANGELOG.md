@@ -1,5 +1,11 @@
 # @molecule/app-avatar-stack-angular
 
+## 1.2.1
+
+### Patch Changes
+
+- `UserChip` writes its name link's props with `ElementPropsWriter` from `@molecule/app-ui-angular`.
+
 ## 1.2.0
 
 ### Minor Changes

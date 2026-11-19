@@ -1,5 +1,12 @@
 # @molecule/app-svelte
 
+## 3.8.0
+
+### Minor Changes
+
+- The form, theme, store and promise hooks and the auth stores behave as `@molecule/app-react`'s do, and the types their signatures use are exported.
+- `Link` takes a bindable `ref` (the anchor), and writes the `href` the router writes for an app path, so a middle-click or a new tab under a base path or a hash history opens the page a click opens.
+
 ## 3.7.2
 
 ### Patch Changes

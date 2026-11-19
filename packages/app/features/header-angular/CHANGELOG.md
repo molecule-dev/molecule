@@ -1,5 +1,11 @@
 # @molecule/app-header-angular
 
+## 1.2.0
+
+### Minor Changes
+
+- Add the `navigation` prop: a named navigation landmark with one router link per destination, taking the link props `@molecule/app-header-react` takes.
+
 ## 1.1.0
 
 ### Minor Changes

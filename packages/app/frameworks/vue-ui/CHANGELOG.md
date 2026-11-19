@@ -1,5 +1,12 @@
 # @molecule/app-ui-vue
 
+## 1.2.0
+
+### Minor Changes
+
+- Export the props types `@molecule/app-ui-react` exports (`ConfirmDialogProps`, `OptimisticToggleButtonProps`, …); `Form` treats a passed `submitError` as React's does, and each component carries React's `displayName`.
+- Matches `@molecule/app-ui-react`: a component's ref receives its main element, components forward every prop their types declare (`automationId` as `data-mol-id`, `id`, `title`, `aria-*` and DOM event handlers), Tabs, Accordion, Dropdown and Card honor `disabled`, and handlers are typed with the kit event types from `@molecule/app-ui`.
+
 ## 1.1.5
 
 ### Patch Changes

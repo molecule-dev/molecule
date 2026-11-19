@@ -1,5 +1,12 @@
 # @molecule/app-ui-solid
 
+## 1.2.0
+
+### Minor Changes
+
+- Export `ReactFormProps`, the name `@molecule/app-ui-react` gives the `Form` props.
+- Matches `@molecule/app-ui-react`: a component's ref receives its main element, components forward every prop their types declare (`automationId` as `data-mol-id`, `id`, `title`, `aria-*` and DOM event handlers), Tabs, Accordion, Dropdown and Card honor `disabled`, and handlers are typed with the kit event types from `@molecule/app-ui`.
+
 ## 1.1.5
 
 ### Patch Changes

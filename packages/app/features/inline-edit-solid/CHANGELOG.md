@@ -1,5 +1,11 @@
 # @molecule/app-inline-edit-solid
 
+## 1.1.3
+
+### Patch Changes
+
+- Event handler parameters are typed with the kit event types from `@molecule/app-ui`, so they accept the event every UI kit passes.
+
 ## 1.1.2
 
 ### Patch Changes
