@@ -15,6 +15,8 @@ vi.mock('@molecule/api-bond', () => ({
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import type { AITool } from '@molecule/api-ai'
+
 import { createProvider } from '../provider.js'
 
 function jsonResponse(
@@ -111,8 +113,15 @@ describe('chat()', () => {
       Promise.resolve(jsonResponse(200, { choices: [{ message: { content: 'hi' } }], usage: {} })),
     )
     const provider = createProvider({ apiKey: 'k' })
-    const tools = [
-      { name: 'ask_user', description: 'Ask', parameters: { type: 'object', properties: {} } },
+    // A real caller's tool carries its execute callback; this test only maps the
+    // request body, so the callback is never invoked.
+    const tools: AITool[] = [
+      {
+        name: 'ask_user',
+        description: 'Ask',
+        parameters: { type: 'object', properties: {} },
+        execute: async () => ({}),
+      },
     ]
     for await (const _ of provider.chat({
       messages: [{ role: 'user', content: 'h' }],
@@ -302,7 +311,15 @@ describe('chat()', () => {
     for await (const _ of provider.chat({
       messages: [{ role: 'user', content: 'h' }],
       stream: false,
-      tools: [{ name: 'add', description: 'sum', parameters: { type: 'object' } }],
+      // execute is never invoked — this test only checks the outbound tool shape.
+      tools: [
+        {
+          name: 'add',
+          description: 'sum',
+          parameters: { type: 'object' },
+          execute: async () => ({}),
+        },
+      ],
     })) {
       // drain
     }

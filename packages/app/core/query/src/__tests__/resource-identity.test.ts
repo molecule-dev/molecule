@@ -1,12 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { createQueryResource } from '../index.js'
+import { resetQueryClient, setProvider } from '../provider.js'
+import { fakeQueryClient } from './fake-client.js'
 
-const cache = vi.hoisted(() => ({ set: vi.fn(), invalidate: vi.fn() }))
-vi.mock(import('../provider.js'), async (importOriginal) => ({
-  ...(await importOriginal()),
-  getQueryClient: () => cache,
-}))
+const cache = fakeQueryClient()
 
 const pinnedNote = { id: 'folder/note 1', pinned: true }
 const post = vi.fn(async () => ({ data: pinnedNote }))
@@ -15,7 +13,11 @@ const put = vi.fn(async () => ({ data: pinnedNote }))
 const http = vi.fn(() => ({ get: vi.fn(), post, put, patch: vi.fn(), delete: remove }))
 const notes = createQueryResource<typeof pinnedNote>({ name: 'notes', path: '/notes', http })
 
-beforeEach(() => vi.clearAllMocks())
+beforeEach(() => {
+  resetQueryClient()
+  setProvider({ name: 'fake', createClient: () => cache })
+  vi.clearAllMocks()
+})
 
 describe('query resource record identity', () => {
   it('rejects both directions of a toggle before sending a request with an empty ID', async () => {

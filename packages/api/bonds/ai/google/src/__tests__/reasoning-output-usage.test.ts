@@ -2,6 +2,18 @@ import { afterEach, expect, it, vi } from 'vitest'
 
 import { createProvider } from '../provider.js'
 
+/**
+ * Every event a chat stream yields, in order.
+ *
+ * @param stream - The provider's chat stream.
+ * @returns The events.
+ */
+async function collect<T>(stream: AsyncIterable<T>): Promise<T[]> {
+  const events: T[] = []
+  for await (const event of stream) events.push(event)
+  return events
+}
+
 afterEach(() => {
   vi.unstubAllGlobals()
 })
@@ -33,7 +45,7 @@ it.each([true, false])(
         : Response.json(response),
     )
 
-    const events = await Array.fromAsync(
+    const events = await collect(
       createProvider({ apiKey: 'fixture', baseUrl: 'https://provider.invalid' }).chat({
         messages: [{ role: 'user', content: 'Hello' }],
         stream,
@@ -48,6 +60,7 @@ it.each([true, false])(
       meteredOutputTokens: 19,
     }
     expect(events.at(-1)).toMatchObject({ type: 'done', usage })
-    if (stream) expect(events.findLast((event) => event.type === 'usage')?.usage).toEqual(usage)
+    if (stream)
+      expect(events.filter((event) => event.type === 'usage').at(-1)?.usage).toEqual(usage)
   },
 )

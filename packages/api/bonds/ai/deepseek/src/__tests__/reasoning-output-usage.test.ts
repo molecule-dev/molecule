@@ -2,6 +2,18 @@ import { afterEach, expect, it, vi } from 'vitest'
 
 import { createProvider } from '../provider.js'
 
+/**
+ * Every event a chat stream yields, in order.
+ *
+ * @param stream - The provider's chat stream.
+ * @returns The events.
+ */
+async function collect<T>(stream: AsyncIterable<T>): Promise<T[]> {
+  const events: T[] = []
+  for await (const event of stream) events.push(event)
+  return events
+}
+
 afterEach(() => {
   vi.unstubAllGlobals()
 })
@@ -36,7 +48,7 @@ it.each([true, false])('records reasoning in Chat Completions (stream=%s)', asyn
   vi.stubGlobal('fetch', fetch)
 
   const provider = createProvider({ apiKey: 'fixture', baseUrl: 'https://provider.invalid' })
-  const events = await Array.fromAsync(
+  const events = await collect(
     provider.chat({ messages: [{ role: 'user', content: 'Hello' }], stream }),
   )
 
@@ -61,7 +73,7 @@ it.each([undefined, null, 0])('preserves an optional reasoning count (%s)', asyn
     }),
   )
   const provider = createProvider({ apiKey: 'fixture', baseUrl: 'https://provider.invalid' })
-  const events = await Array.fromAsync(
+  const events = await collect(
     provider.chat({ messages: [{ role: 'user', content: 'Hello' }], stream: false }),
   )
   const done = events.find((event) => event.type === 'done')
@@ -85,7 +97,7 @@ it('uses the latest reasoning snapshot and keeps it when a later frame omits it'
       ),
   )
 
-  const events = await Array.fromAsync(
+  const events = await collect(
     createProvider({ apiKey: 'fixture', baseUrl: 'https://provider.invalid' }).chat({
       messages: [{ role: 'user', content: 'Hello' }],
     }),

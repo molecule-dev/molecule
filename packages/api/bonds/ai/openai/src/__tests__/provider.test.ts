@@ -413,7 +413,14 @@ describe('chat() — request shape', () => {
     const provider = createProvider({ apiKey: 'k', api: 'chat-completions' })
     for await (const _ of provider.chat({
       messages: [{ role: 'user', content: 'x' }],
-      tools: [{ name: 'add', description: 'Sum two ints', parameters: { type: 'object' } }],
+      tools: [
+        {
+          name: 'add',
+          description: 'Sum two ints',
+          parameters: { type: 'object' },
+          execute: async () => ({}), // stub: fetch is mocked, never invoked
+        },
+      ],
       stream: false,
     })) {
       // drain
@@ -435,7 +442,14 @@ describe('chat() — request shape', () => {
     const provider = createProvider({ apiKey: 'k', api: 'chat-completions' })
     for await (const _ of provider.chat({
       messages: [{ role: 'user', content: 'x' }],
-      tools: [{ name: 'finalize', description: 'f', parameters: { type: 'object' } }],
+      tools: [
+        {
+          name: 'finalize',
+          description: 'f',
+          parameters: { type: 'object' },
+          execute: async () => ({}), // stub: fetch is mocked, never invoked
+        },
+      ],
       toolChoice,
       stream: false,
     })) {

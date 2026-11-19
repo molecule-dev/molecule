@@ -350,8 +350,13 @@ describe("the DeepSeek bond prices only DeepSeek's own endpoint", () => {
     try {
       const provider = deepseek.createProvider({ apiKey: 'sk-test' })
       expect(bound(provider)).toEqual({ known: true, upperBoundTokens: 1024 })
+      // `estimateImageInputTokens` is optional on the AIProvider interface; the
+      // optional call still fails the assertion if this bond ever drops it.
       expect(
-        provider.estimateImageInputTokens({ model: 'deepseek-flash', mediaType: 'image/svg+xml' }),
+        provider.estimateImageInputTokens?.({
+          model: 'deepseek-flash',
+          mediaType: 'image/svg+xml',
+        }),
       ).toEqual({ known: false })
       expect(calls).toBe(0)
     } finally {

@@ -539,7 +539,12 @@ describe('GoogleAIProvider — streaming + request mapping', () => {
         model: 'gemini-3.1-pro-preview',
         messages: [{ role: 'user', content: 'go' }],
         tools: [
-          { name: 'search', description: 'Search', parameters: { type: 'object', properties: {} } },
+          {
+            name: 'search',
+            description: 'Search',
+            parameters: { type: 'object', properties: {} },
+            execute: vi.fn(),
+          },
         ],
         serverTools: [{ type: 'google_search', name: 'web_search' }],
       }),

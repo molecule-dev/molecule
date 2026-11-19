@@ -35,11 +35,13 @@ vi.mock('@molecule/api-bond', () => ({
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import type { ChatEvent, ChatMessage, ChatParams } from '@molecule/api-ai'
+import type { AITool, ChatEvent, ChatMessage, ChatParams } from '@molecule/api-ai'
 
 import { createProvider } from '../provider.js'
 
-const ECHO_TOOL = {
+// Echo stub: the tool never runs (fetch is mocked), but it must satisfy the
+// real AITool contract the wire format is derived from.
+const ECHO_TOOL: AITool = {
   name: 'echo',
   description: 'Return the text it was given.',
   parameters: {
@@ -47,6 +49,7 @@ const ECHO_TOOL = {
     properties: { text: { type: 'string' } },
     required: ['text'],
   },
+  execute: async (input) => input,
 }
 
 /** Build an SSE response from already-serialized `data:` payloads. */

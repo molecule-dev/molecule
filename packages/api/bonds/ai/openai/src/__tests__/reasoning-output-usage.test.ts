@@ -2,6 +2,18 @@ import { afterEach, expect, it, vi } from 'vitest'
 
 import { createProvider } from '../provider.js'
 
+/**
+ * Every event a chat stream yields, in order.
+ *
+ * @param stream - The provider's chat stream.
+ * @returns The events.
+ */
+async function collect<T>(stream: AsyncIterable<T>): Promise<T[]> {
+  const events: T[] = []
+  for await (const event of stream) events.push(event)
+  return events
+}
+
 afterEach(() => {
   vi.unstubAllGlobals()
 })
@@ -35,7 +47,7 @@ it.each([true, false])('records reasoning in Chat Completions (stream=%s)', asyn
   vi.stubGlobal('fetch', fetch)
 
   const provider = createProvider({ apiKey: 'fixture', api: 'chat-completions' })
-  const events = await Array.fromAsync(
+  const events = await collect(
     provider.chat({ messages: [{ role: 'user', content: 'Hello' }], stream }),
   )
 
@@ -69,7 +81,7 @@ it.each([true, false])('records reasoning in the Responses API (stream=%s)', asy
       : Response.json(response),
   )
 
-  const events = await Array.fromAsync(
+  const events = await collect(
     createProvider({ apiKey: 'fixture', api: 'responses' }).chat({
       messages: [{ role: 'user', content: 'Hello' }],
       stream,

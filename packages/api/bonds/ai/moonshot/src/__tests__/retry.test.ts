@@ -95,6 +95,7 @@ describe('configurable same-request overload retries', () => {
           name: 'read_file',
           description: 'Read source',
           parameters: { type: 'object', properties: { path: { type: 'string' } } },
+          execute: async (input) => input, // stub: fetch is mocked, never invoked
         },
       ],
       cacheControl: { type: 'ephemeral' },

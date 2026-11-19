@@ -15,6 +15,8 @@ vi.mock('@molecule/api-bond', () => ({
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import type { AITool } from '@molecule/api-ai'
+
 import { createProvider } from '../provider.js'
 
 function jsonResponse(
@@ -165,8 +167,15 @@ describe('chat()', () => {
       Promise.resolve(jsonResponse(200, { choices: [{ message: { content: 'h' } }], usage: {} })),
     )
     const provider = createProvider({ apiKey: 'k' })
-    const tools = [
-      { name: 'ask_user', description: 'Ask', parameters: { type: 'object', properties: {} } },
+    // A real AITool carries an execute callback; these calls never reach it —
+    // the assertions below only read the serialized request body.
+    const tools: AITool[] = [
+      {
+        name: 'ask_user',
+        description: 'Ask',
+        parameters: { type: 'object', properties: {} },
+        execute: async () => ({}),
+      },
     ]
     for await (const _ of provider.chat({
       messages: [{ role: 'user', content: 'h' }],
@@ -247,6 +256,8 @@ describe('chat()', () => {
           name: 'read_file',
           description: 'Read a file',
           parameters: { type: 'object', properties: {} },
+          // Never invoked here — the test asserts the serialized request body.
+          execute: async () => ({}),
         },
       ],
       serverTools: [{ type: 'web_search', name: 'web_search' }],

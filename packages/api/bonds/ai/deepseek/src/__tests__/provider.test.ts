@@ -156,8 +156,16 @@ describe('chat() — request shape', () => {
       createProvider({ apiKey: 'k' }).chat({
         messages: [{ role: 'user', content: 'hi' }],
         stream: false,
-        tools: [{ name: 'read_file', description: 'read', parameters: { type: 'object' } }],
-        thinking: { budgetTokens: 13_000 },
+        // The stub execute is never invoked: fetch is mocked, so no tool call runs.
+        tools: [
+          {
+            name: 'read_file',
+            description: 'read',
+            parameters: { type: 'object' },
+            execute: async () => undefined,
+          },
+        ],
+        thinking: { type: 'enabled', budgetTokens: 13_000 },
       }),
     )
     const body = JSON.parse((fetch.mock.calls[0][1] as RequestInit).body as string)
@@ -208,7 +216,7 @@ describe('chat() — request shape', () => {
       createProvider({ apiKey: 'k' }).chat({
         messages: [{ role: 'user', content: 'hi' }],
         stream: false,
-        thinking: { budgetTokens: 1_000 },
+        thinking: { type: 'enabled', budgetTokens: 1_000 },
       }),
     )
     const body = JSON.parse((fetch.mock.calls[0][1] as RequestInit).body as string)
@@ -252,7 +260,14 @@ describe('chat() — request shape', () => {
       createProvider({ apiKey: 'k' }).chat({
         messages: [{ role: 'user', content: 'hi' }],
         stream: false,
-        tools: [{ name: 'finalize', description: 'f', parameters: { type: 'object' } }],
+        tools: [
+          {
+            name: 'finalize',
+            description: 'f',
+            parameters: { type: 'object' },
+            execute: async () => undefined, // stub: fetch is mocked, never invoked
+          },
+        ],
         toolChoice,
       }),
     )
@@ -292,9 +307,16 @@ describe('chat() — request shape', () => {
       createProvider({ apiKey: 'k' }).chat({
         messages: [{ role: 'user', content: 'hi' }],
         stream: false,
-        tools: [{ name: 'finalize', description: 'f', parameters: { type: 'object' } }],
+        tools: [
+          {
+            name: 'finalize',
+            description: 'f',
+            parameters: { type: 'object' },
+            execute: async () => undefined, // stub: fetch is mocked, never invoked
+          },
+        ],
         toolChoice,
-        thinking: { budgetTokens: 4096 },
+        thinking: { type: 'enabled', budgetTokens: 4096 },
       }),
     )
     return JSON.parse((fetch.mock.calls[0][1] as RequestInit).body as string)
@@ -1278,8 +1300,10 @@ describe('chat() — mixed tool-result + image message', () => {
     // The image part must arrive as its own user message AFTER the tool result —
     // not be silently dropped (the pre-2026-09-30 behavior).
     const imageMsg = body.messages.find(
-      (m: { role: string; content?: unknown[] }) =>
-        Array.isArray(m.content) && m.content.some((p) => p?.type === 'image_url'),
+      (m: {
+        role: string
+        content?: Array<{ type?: string; image_url?: { url: string } } | null>
+      }) => Array.isArray(m.content) && m.content.some((p) => p?.type === 'image_url'),
     )
     expect(imageMsg).toBeDefined()
     expect(imageMsg.role).toBe('user')

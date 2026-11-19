@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import type { QueryClient, QueryProvider } from '../types.js'
+import type { QueryProvider } from '../types.js'
+import { fakeQueryClient } from './fake-client.js'
 
 const { mockBond, mockGet, mockIsBonded } = vi.hoisted(() => ({
   mockBond: vi.fn(),
@@ -23,10 +24,6 @@ const {
   setProvider,
 } = await import('../provider.js')
 
-function fakeClient(): QueryClient {
-  return { clear: vi.fn() } as unknown as QueryClient
-}
-
 beforeEach(() => {
   vi.resetAllMocks()
   resetQueryClient()
@@ -35,13 +32,13 @@ beforeEach(() => {
 
 describe('provider', () => {
   it('bonds under the query category', () => {
-    const provider: QueryProvider = { name: 'fake', createClient: vi.fn(fakeClient) }
+    const provider: QueryProvider = { name: 'fake', createClient: vi.fn(fakeQueryClient) }
     setProvider(provider)
     expect(mockBond).toHaveBeenCalledWith('query', provider)
   })
 
   it('returns the bonded provider and reports whether one is bonded', () => {
-    const provider: QueryProvider = { name: 'fake', createClient: vi.fn(fakeClient) }
+    const provider: QueryProvider = { name: 'fake', createClient: vi.fn(fakeQueryClient) }
     mockGet.mockReturnValue(provider)
     mockIsBonded.mockReturnValue(true)
     expect(getProvider()).toBe(provider)
@@ -55,7 +52,7 @@ describe('provider', () => {
   })
 
   it('creates the shared client once, with the configured defaults, until reset', () => {
-    const createClient = vi.fn(fakeClient)
+    const createClient = vi.fn(fakeQueryClient)
     mockGet.mockReturnValue({ name: 'fake', createClient })
     configureQueryClient({ staleMs: 10 })
     const a = getQueryClient()
@@ -70,10 +67,10 @@ describe('provider', () => {
   })
 
   it('drops the shared client when a new provider is bonded', () => {
-    const first = vi.fn(fakeClient)
+    const first = vi.fn(fakeQueryClient)
     mockGet.mockReturnValue({ name: 'a', createClient: first })
     getQueryClient()
-    const second = vi.fn(fakeClient)
+    const second = vi.fn(fakeQueryClient)
     setProvider({ name: 'b', createClient: second })
     mockGet.mockReturnValue({ name: 'b', createClient: second })
     getQueryClient()

@@ -123,7 +123,12 @@ describe('chat() — request shape', () => {
     )
     const provider = createProvider({ apiKey: 'k' })
     const tools = [
-      { name: 'ask_user', description: 'Ask', parameters: { type: 'object', properties: {} } },
+      {
+        name: 'ask_user',
+        description: 'Ask',
+        parameters: { type: 'object', properties: {} },
+        execute: async () => ({}), // stub: fetch is mocked, never invoked
+      },
     ]
     for await (const _ of provider.chat({
       messages: [{ role: 'user', content: 'h' }],
@@ -379,7 +384,15 @@ describe('chat() — request shape', () => {
     for await (const _ of provider.chat({
       messages: [{ role: 'user', content: 'h' }],
       stream: false,
-      tools: [{ name: 'add', description: 'sum', parameters: { type: 'object' } }],
+      // execute is a stub: fetch is mocked, so no tool call ever runs.
+      tools: [
+        {
+          name: 'add',
+          description: 'sum',
+          parameters: { type: 'object' },
+          execute: async () => ({}),
+        },
+      ],
     })) {
       // drain
     }
