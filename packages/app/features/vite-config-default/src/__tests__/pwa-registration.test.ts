@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process'
-import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
+import { mkdir, mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
@@ -9,7 +9,7 @@ import { describe, expect, it } from 'vitest'
 import { createDefaultViteConfig } from '../index.js'
 
 describe('the flagship production build', () => {
-  it('serves launch artwork without putting it on the worker install path', async () => {
+  it('serves launch artwork on demand and installs Workbox with the offline shell', async () => {
     const root = await mkdtemp(join(tmpdir(), 'flagship-launch-artwork-'))
     try {
       const icons = join(root, 'public/icons')
@@ -31,6 +31,10 @@ describe('the flagship production build', () => {
       })
 
       const worker = await readFile(join(root, 'dist/sw.js'), 'utf8')
+      expect((await readdir(join(root, 'dist'))).filter((name) => /^workbox-/.test(name))).toEqual(
+        [],
+      )
+      expect(worker).toContain('push-sw.js')
       expect(worker).toContain('index.html')
       expect(worker).toContain('icons/icon-192.svg')
       expect(worker).toContain('icons/splash-legend.svg')

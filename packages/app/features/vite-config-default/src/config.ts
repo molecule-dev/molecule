@@ -244,6 +244,8 @@ export function createDefaultViteConfig(branding: DefaultViteConfigBranding): Us
       // the banner sticks on "Updating…". Claim clients so activation drives the
       // one reload in registerPWA.
       clientsClaim: true,
+      // Install the worker without a serial Workbox runtime fetch on a cold visit.
+      inlineWorkboxRuntime: true,
       // vite-plugin-pwa defaults this to 2 MiB; apps that bundle heavy
       // deps (e.g. a Monaco-based code editor) ship a >2 MiB entry chunk
       // and fail the build outright. 5 MiB gives the fleet headroom.
