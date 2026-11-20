@@ -249,8 +249,7 @@ describe('PreviewPanel — dead-end probe timers', () => {
     })
     await advance(500)
     const after = container.querySelector('iframe') as HTMLIFrameElement
-    expect(after.getAttribute('src')).toContain('5174')
-    expect(after.getAttribute('src')).not.toContain('5173')
+    expect(new URL(after.getAttribute('src') ?? '').host).toBe('localhost:5174')
   }, 30_000)
 
   it('cancels the pending probe when the panel unmounts behind a notice', async () => {

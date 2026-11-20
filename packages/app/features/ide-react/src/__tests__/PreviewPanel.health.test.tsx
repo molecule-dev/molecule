@@ -361,9 +361,8 @@ describe('PreviewPanel — health check down verdict and recovery', () => {
     const after = container.querySelector('iframe') as HTMLIFrameElement
     // The NEW target mounted (cache-busted); the OLD one's poll stopped —
     // no reload of the abandoned URL ever landed.
-    expect(after.getAttribute('src')).toContain('5174')
+    expect(new URL(after.getAttribute('src') ?? '').host).toBe('localhost:5174')
     expect(after.getAttribute('src')).toContain('_r=')
-    expect(after.getAttribute('src')).not.toContain('5173')
   }, 30_000)
 
   it('aborts the in-flight status probe when its poll chain is superseded (no opaque fallback after the abort)', async () => {
@@ -451,7 +450,7 @@ describe('PreviewPanel — health check down verdict and recovery', () => {
     release.resolve?.({ ok: false, status: 503 } as Response)
     await advance(100)
     const after = container.querySelector('iframe') as HTMLIFrameElement
-    expect(after.getAttribute('src')).toContain('5174')
+    expect(new URL(after.getAttribute('src') ?? '').host).toBe('localhost:5174')
     expect(after.getAttribute('src')).toContain('_r=')
   }, 30_000)
 
