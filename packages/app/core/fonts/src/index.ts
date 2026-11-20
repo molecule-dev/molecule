@@ -48,7 +48,7 @@
  * - **Local-source fonts load from `<basePath>fonts/<file>` unless the face's
  *   `file` is already a URL.** A `file` starting with `/`, `//`, `http` or
  *   `data:` is used as-is — that is what a bundler's asset import produces
- *   (`import woff from '@molecule/app-fonts-ionicons/fonts/ionicons.woff?url'`),
+ *   (`import woff2 from '@molecule/app-fonts-ionicons/fonts/ionicons.woff2?url'`),
  *   so an app that cannot copy files into `public/` can still bond a font
  *   package. Every local font provider package ships a `./fonts/*` export for
  *   exactly that import. Any other `file` is a filename that must be served at
