@@ -227,7 +227,16 @@ if [ -n "$PKG_SRC" ]; then
   PKG_DIRS=$(echo "$PKG_SRC" | while IFS= read -r f; do case "$f" in */src/*) echo "${f%%/src/*}" ;; *) echo "${f%/package.json}" ;; esac; done | sort -u)
   if [ -n "$MLCL_TSX" ]; then
     index_tree
-    ( cd ../mlcl && MOLECULE_PACKAGES_DIR="$INDEX_TREE/packages" node --import tsx scripts/check-registry-exports.mjs $PKG_DIRS )
+    # mlcl's working-tree registry is shared: another session's uncommitted entry for a package
+    # this commit stages refused a commit that changed none of its exports (2026-11-20,
+    # app-ui-react's Kit* types). A package also passes when mlcl HEAD's entry agrees with the
+    # source this commit carries; one that neither registry agrees with is still refused. The
+    # commit's own GIT_DIR / GIT_INDEX_FILE would point `git -C ../mlcl` at molecule's repository.
+    REGISTRY_FALLBACK=""
+    if env -u GIT_DIR -u GIT_INDEX_FILE -u GIT_WORK_TREE git -C ../mlcl show HEAD:registry.json > "$INDEX_TREE/.mlcl-head-registry.json" 2>/dev/null; then
+      REGISTRY_FALLBACK="--fallback-registry=$INDEX_TREE/.mlcl-head-registry.json"
+    fi
+    ( cd ../mlcl && MOLECULE_PACKAGES_DIR="$INDEX_TREE/packages" node --import tsx scripts/check-registry-exports.mjs $REGISTRY_FALLBACK $PKG_DIRS )
   else
     echo "ℹ registry-export check skipped: mlcl deps not installed — run 'npm ci' in mlcl, then 'npm run verify:registry-exports' to verify"
   fi
