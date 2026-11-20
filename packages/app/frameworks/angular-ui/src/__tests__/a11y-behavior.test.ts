@@ -22,7 +22,15 @@
 // Register Angular's JIT compiler facade before any @Component class loads —
 // evaluating the decorators otherwise throws "needs the JIT compiler".
 import '@angular/compiler'
-import { ElementRef, Injector, Renderer2, runInInjectionContext } from '@angular/core'
+import {
+  type ApplicationRef,
+  ElementRef,
+  Injector,
+  provideZonelessChangeDetection,
+  Renderer2,
+  runInInjectionContext,
+} from '@angular/core'
+import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('@molecule/app-ui', () => ({
@@ -60,24 +68,34 @@ const { Modal } = await import('../components/modal.component.js')
 const { PromptDialog } = await import('../components/prompt-dialog.component.js')
 const { ResponsiveAppShellDrawer } = await import('../components/responsive-app-shell.component.js')
 
+/**
+ * The application whose injector carries the after-render hooks the components
+ * register; `appRef.tick()` runs them the way a real render does.
+ */
+let appRef: ApplicationRef
+
 /** An injector serving the components' `inject(ElementRef)` / `inject(Renderer2)`. */
 const injectionContext = (): Injector =>
-  Injector.create([
-    {
-      provide: ElementRef,
-      useValue: { nativeElement: document.createElement('div') },
-    },
-    // The renderer is only touched by slot/portal management, which these
-    // handler tests never reach.
-    { provide: Renderer2, useValue: {} as Renderer2 },
-  ])
+  Injector.create({
+    providers: [
+      {
+        provide: ElementRef,
+        useValue: { nativeElement: document.createElement('div') },
+      },
+      // The renderer is only touched by slot/portal management, which these
+      // handler tests never reach.
+      { provide: Renderer2, useValue: {} as Renderer2 },
+    ],
+    parent: appRef.injector,
+  })
 
 /** A cancelable bubbling KeyboardEvent, as the conformance kit dispatches them. */
 const keydown = (key: string): KeyboardEvent =>
   new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true })
 
-beforeEach(() => {
+beforeEach(async () => {
   document.body.innerHTML = ''
+  appRef ??= await createApplication({ providers: [provideZonelessChangeDetection()] })
 })
 
 afterEach(() => {
@@ -165,6 +183,9 @@ describe('PromptDialog input focus on open', () => {
     closeButton.focus()
     dialog.ngAfterViewInit()
     dialog.ngAfterViewChecked()
+    // The focus move is an after-render hook now, so let the application
+    // render once before asserting it.
+    appRef.tick()
     expect(document.activeElement).toBe(input)
   })
 
@@ -172,6 +193,7 @@ describe('PromptDialog input focus on open', () => {
     const { dialog, input, closeButton } = makeDialog()
     dialog.ngAfterViewInit()
     dialog.ngAfterViewChecked()
+    appRef.tick()
     expect(document.activeElement).not.toBe(input)
     dialog.open = true
     // One change-detection pass, in Angular's order: the parent's ngDoCheck
@@ -180,6 +202,9 @@ describe('PromptDialog input focus on open', () => {
     dialog.ngDoCheck()
     closeButton.focus()
     dialog.ngAfterViewChecked()
+    // The focus move is an after-render hook now, so let the application
+    // render once before asserting it.
+    appRef.tick()
     expect(document.activeElement).toBe(input)
   })
 
@@ -188,10 +213,12 @@ describe('PromptDialog input focus on open', () => {
     dialog.open = true
     dialog.ngAfterViewInit()
     dialog.ngAfterViewChecked()
+    appRef.tick()
     expect(document.activeElement).toBe(input)
     closeButton.focus()
     dialog.ngDoCheck()
     dialog.ngAfterViewChecked()
+    appRef.tick()
     expect(document.activeElement).toBe(closeButton)
   })
 

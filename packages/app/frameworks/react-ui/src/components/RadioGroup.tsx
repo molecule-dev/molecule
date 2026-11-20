@@ -27,6 +27,7 @@ export const RadioGroup = forwardRef<HTMLDivElement, RadioGroupProps<string>>(
       className,
       style,
       testId,
+      automationId,
       disabled,
     },
     ref,
@@ -53,6 +54,7 @@ export const RadioGroup = forwardRef<HTMLDivElement, RadioGroupProps<string>>(
         className={className}
         style={style}
         data-testid={testId}
+        data-mol-id={automationId}
         role="radiogroup"
         aria-label={label ?? t('ui.radioGroup.label', undefined, { defaultValue: 'Radio group' })}
         aria-invalid={error ? true : undefined}

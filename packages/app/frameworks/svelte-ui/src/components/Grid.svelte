@@ -30,18 +30,19 @@
       : undefined,
   )
   const gridClasses = $derived(cm.cn(cm.grid({ cols: cmCols, gap: cmGap }), className))
-  const gridStyle = $derived({
-    ...style,
-    gridTemplateColumns: typeof columns === 'string' ? columns : undefined,
-    gridTemplateRows: typeof rows === 'string' ? rows : undefined,
-    gap:
-      typeof gap === 'number' || (typeof gap === 'string' && !tokenGaps.includes(gap))
-        ? gap
-        : undefined,
-    columnGap:
-      typeof columnGap === 'number' || typeof columnGap === 'string' ? columnGap : undefined,
-    rowGap: typeof rowGap === 'number' || typeof rowGap === 'string' ? rowGap : undefined,
-  } as CSSStyle)
+  // Only the values this Grid sets, as React's Grid does: `reactStyle` writes an undefined key as
+  // '' the way React does, which removed the gaps `gap` had just set and erased the same property
+  // from the caller's `style`.
+  const gridStyle = $derived.by(() => {
+    const own: Record<string, string | number> = {}
+    if (typeof columns === 'string') own.gridTemplateColumns = columns
+    if (typeof rows === 'string') own.gridTemplateRows = rows
+    if (typeof gap === 'number' || (typeof gap === 'string' && !tokenGaps.includes(gap)))
+      own.gap = gap
+    if (typeof columnGap === 'number' || typeof columnGap === 'string') own.columnGap = columnGap
+    if (typeof rowGap === 'number' || typeof rowGap === 'string') own.rowGap = rowGap
+    return { ...style, ...own } as CSSStyle
+  })
 </script>
 
 <div

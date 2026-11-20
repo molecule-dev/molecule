@@ -10,6 +10,7 @@ import { useTranslation } from '@molecule/app-react'
 import type { FormFieldProps, FormProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
+import { rootProps } from '../utilities/rootProps.js'
 import { formSubmitErrorMessages } from './formSubmitError.js'
 
 /** Props for the React form, including a failure managed by an external form controller. */
@@ -72,7 +73,7 @@ export const Form = forwardRef<HTMLFormElement, ReactFormProps>((props, ref) => 
         call(() => onFormSubmit(data))
       }
       // Call both handlers before yielding: the native event's currentTarget is still valid.
-      call(() => onSubmit?.(e as unknown as Event))
+      call(() => onSubmit?.(e))
       await Promise.all(submissions)
     } catch (error) {
       if (attempt.current === current) setFailure({ error })
@@ -104,7 +105,7 @@ export const Form = forwardRef<HTMLFormElement, ReactFormProps>((props, ref) => 
       method={method}
       noValidate={noValidate}
       onSubmit={handleSubmit}
-      {...(rest as React.FormHTMLAttributes<HTMLFormElement>)}
+      {...(rootProps(rest) as React.FormHTMLAttributes<HTMLFormElement>)}
     >
       {messages.length > 0 && (
         <ul role="alert" className={cm.formError}>
@@ -126,7 +127,7 @@ Form.displayName = 'Form'
  * Form field wrapper component.
  */
 export const FormField = forwardRef<HTMLDivElement, FormFieldProps>(
-  ({ children, label, name, error, hint, required, className, style, testId }, ref) => {
+  ({ children, label, name, error, hint, required, className, style, testId, ...rest }, ref) => {
     const cm = getClassMap()
     // Fall back to a generated id when `name` is absent so `htmlFor`/the
     // error-message id never resolve to the literal string "undefined" —
@@ -172,6 +173,7 @@ export const FormField = forwardRef<HTMLDivElement, FormFieldProps>(
         className={cm.cn(cm.inputWrapper, cm.sp('mb', 4), className)}
         style={style}
         data-testid={testId}
+        {...(rootProps(rest) as React.HTMLAttributes<HTMLDivElement>)}
       >
         {label && (
           <label

@@ -9,6 +9,8 @@ import React, { forwardRef } from 'react'
 import type { ContainerProps, FlexProps, GridProps, Size, SpacerProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
+import { rootProps } from '../utilities/rootProps.js'
+
 // spacerSizeMap removed — use cm.spacer({ size, horizontal }) instead
 
 /**
@@ -41,7 +43,7 @@ export const Container = forwardRef<HTMLDivElement, ContainerProps>(
         className={containerClasses}
         style={style}
         data-testid={testId}
-        {...(rest as React.HTMLAttributes<HTMLDivElement>)}
+        {...(rootProps(rest) as React.HTMLAttributes<HTMLDivElement>)}
       >
         {children as React.ReactNode}
       </div>
@@ -105,7 +107,7 @@ export const Flex = forwardRef<HTMLDivElement, FlexProps>(
         // as given, the way Grid and Container forward theirs: a Flex is a plain
         // box, and a consumer that makes one clickable gives it the role and keys
         // that go with the click.
-        {...(rest as React.HTMLAttributes<HTMLDivElement>)}
+        {...(rootProps(rest) as React.HTMLAttributes<HTMLDivElement>)}
       >
         {children as React.ReactNode}
       </div>
@@ -130,24 +132,21 @@ export const Grid = forwardRef<HTMLDivElement, GridProps>(
 
     const gridClasses = cm.cn(cm.grid({ cols: cmCols, gap: cmGap }), className)
 
-    const gridStyle: React.CSSProperties = {
-      ...style,
-      gridTemplateColumns: typeof columns === 'string' ? columns : undefined,
-      gridTemplateRows: typeof rows === 'string' ? rows : undefined,
-      gap:
-        typeof gap === 'number'
-          ? gap
-          : typeof gap === 'string' && !['none', 'xs', 'sm', 'md', 'lg', 'xl'].includes(gap)
-            ? gap
-            : undefined,
-      columnGap:
-        typeof columnGap === 'number'
-          ? columnGap
-          : typeof columnGap === 'string'
-            ? columnGap
-            : undefined,
-      rowGap: typeof rowGap === 'number' ? rowGap : typeof rowGap === 'string' ? rowGap : undefined,
-    }
+    // Only the values this Grid sets. React writes an undefined style key as '' (removing that
+    // property), so `columnGap: undefined` after `gap: 6` removed both gaps `gap` had just set and
+    // a browser drew the class's gap instead of 6px, and an undefined key erased the same property
+    // from the caller's `style`.
+    const own: React.CSSProperties = {}
+    if (typeof columns === 'string') own.gridTemplateColumns = columns
+    if (typeof rows === 'string') own.gridTemplateRows = rows
+    if (
+      typeof gap === 'number' ||
+      (typeof gap === 'string' && !['none', 'xs', 'sm', 'md', 'lg', 'xl'].includes(gap))
+    )
+      own.gap = gap
+    if (typeof columnGap === 'number' || typeof columnGap === 'string') own.columnGap = columnGap
+    if (typeof rowGap === 'number' || typeof rowGap === 'string') own.rowGap = rowGap
+    const gridStyle: React.CSSProperties = { ...style, ...own }
 
     return (
       <div
@@ -155,7 +154,7 @@ export const Grid = forwardRef<HTMLDivElement, GridProps>(
         className={gridClasses}
         style={gridStyle}
         data-testid={testId}
-        {...(rest as React.HTMLAttributes<HTMLDivElement>)}
+        {...(rootProps(rest) as React.HTMLAttributes<HTMLDivElement>)}
       >
         {children as React.ReactNode}
       </div>
@@ -200,7 +199,7 @@ export const Spacer = forwardRef<HTMLDivElement, SpacerProps>(
         className={spacerClasses}
         style={{ ...style, ...sizeStyle }}
         data-testid={testId}
-        {...(rest as React.HTMLAttributes<HTMLDivElement>)}
+        {...(rootProps(rest) as React.HTMLAttributes<HTMLDivElement>)}
       />
     )
   },

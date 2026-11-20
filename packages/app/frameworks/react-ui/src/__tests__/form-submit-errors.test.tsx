@@ -40,6 +40,28 @@ describe('Form submission error defaults', () => {
     expect(save).toHaveBeenCalledTimes(2)
   })
 
+  it('calls the submit handlers the parent passed most recently', async () => {
+    const first = { submit: vi.fn(), data: vi.fn() }
+    const second = { submit: vi.fn(), data: vi.fn() }
+    const view = render(
+      <Form onSubmit={first.submit} onFormSubmit={first.data}>
+        <input name="name" defaultValue="Luke" />
+      </Form>,
+    )
+    view.rerender(
+      <Form onSubmit={second.submit} onFormSubmit={second.data}>
+        <input name="name" defaultValue="Luke" />
+      </Form>,
+    )
+    await act(async () => {
+      fireEvent.submit(view.container.querySelector('form')!)
+    })
+    expect(first.submit).not.toHaveBeenCalled()
+    expect(first.data).not.toHaveBeenCalled()
+    expect(second.submit).toHaveBeenCalledTimes(1)
+    expect(second.data).toHaveBeenCalledWith({ name: 'Luke' })
+  })
+
   it('uses the real useForm submit handler without an app-owned error catch', async () => {
     function ProfileForm() {
       const form = useForm({ defaultValues: { bio: 'Draft bio' } })

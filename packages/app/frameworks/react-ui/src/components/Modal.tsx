@@ -11,7 +11,9 @@ import { useTranslation } from '@molecule/app-react'
 import type { ModalProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
+import { mergeRefs } from '../utilities/mergeRefs.js'
 import { renderIcon } from '../utilities/renderIcon.js'
+import { rootProps } from '../utilities/rootProps.js'
 
 /** Elements the WAI-ARIA APG dialog pattern treats as tab-stops for the focus trap. */
 const FOCUSABLE_SELECTOR =
@@ -24,26 +26,6 @@ const FOCUSABLE_SELECTOR =
  */
 function getFocusableElements(container: HTMLElement): HTMLElement[] {
   return Array.from(container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR))
-}
-
-/**
- * Merges multiple refs (object or callback) into a single callback ref, so
- * an internal ref (needed for focus-trap bookkeeping) can coexist with the
- * consumer's own forwarded ref on the same DOM node.
- * @param refs - The refs to merge; `undefined`/`null` entries are skipped.
- * @returns A single callback ref that updates every merged ref.
- */
-function mergeRefs<T>(...refs: Array<React.Ref<T> | undefined>): React.RefCallback<T> {
-  return (node: T | null) => {
-    for (const r of refs) {
-      if (!r) continue
-      if (typeof r === 'function') {
-        r(node)
-      } else {
-        ;(r as React.MutableRefObject<T | null>).current = node
-      }
-    }
-  }
 }
 
 // ---------------------------------------------------------------------------
@@ -99,10 +81,10 @@ function unlockBodyScroll(): void {
 /**
  * Modal component.
  *
- * Renders into a `document.body` portal. Forwards any extra `data-*` or
- * `aria-*` props on the rest spread to the inner dialog `<div>` (e.g.
- * callers commonly pass `data-mol-id="some-modal"` for AI-agent / e2e
- * selectors).
+ * Renders into a `document.body` portal. Every other declared prop (`id`, `title`,
+ * `aria-*`, `data-*`, `automationId` as `data-mol-id`, the DOM event handlers) reaches the
+ * inner dialog `<div>`; a caller's `role`, `tabIndex` or `aria-labelledby` replaces the
+ * default (e.g. `role="alertdialog"`).
  *
  * The internal close button always carries `data-mol-id="modal-close"`
  * as the molecule-convention default for the one fixed interactive
@@ -256,11 +238,6 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps & { 'data-mol-id'?: s
       return null
     }
 
-    const passthrough: Record<string, unknown> = {}
-    for (const [k, v] of Object.entries(rest as Record<string, unknown>)) {
-      if (k.startsWith('data-') || k.startsWith('aria-')) passthrough[k] = v
-    }
-
     const closeButton = (closeClassName: string): React.ReactNode =>
       showCloseButton ? (
         <button
@@ -307,7 +284,7 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps & { 'data-mol-id'?: s
             className={cm.cn(cm.modal({ size }), className)}
             style={style}
             data-testid={testId}
-            {...passthrough}
+            {...(rootProps(rest) as React.HTMLAttributes<HTMLDivElement>)}
           >
             {/* With a title the close button shares the header row; without
                 one it floats over the top-right corner — a title-less modal

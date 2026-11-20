@@ -5,13 +5,16 @@
  */
 
 import {
+  afterNextRender,
   type AfterViewChecked,
   type AfterViewInit,
   Component,
   type DoCheck,
   ElementRef,
+  EnvironmentInjector,
   EventEmitter,
   inject,
+  Injector,
   type OnDestroy,
   Output,
   signal,
@@ -199,6 +202,10 @@ export class Modal
   private readonly stackId = modalInstance
 
   private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
+  /** Schedules the deferred focus moves from the change-detection hooks. */
+  private readonly injector = inject(Injector)
+  /** Schedules the focus restore of a destroyed open dialog (the component's own injector is gone). */
+  private readonly environmentInjector = inject(EnvironmentInjector)
   private readonly inner = signal<HTMLDivElement | null>(null)
   /** The element a caller's ref receives: the dialog, or `null` while closed. */
   readonly element = this.inner.asReadonly()
@@ -335,10 +342,7 @@ export class Modal
       this.previouslyFocused = (document.activeElement as HTMLElement | null) ?? null
       pushModalStack(this.stackId)
       if (overlay && wrapper) this.attachPortal()
-      if (dialog) {
-        const focusables = getFocusableElements(dialog)
-        ;(focusables[0] ?? dialog).focus()
-      }
+      this.focusFirstInDialog()
       this.addListeners()
     } else if (overlay && wrapper) {
       // React renders nothing while closed.
@@ -389,6 +393,18 @@ export class Modal
   ngOnDestroy(): void {
     this.removeListeners()
     popModalStack(this.stackId)
+    // Removed while open: focus goes back to whatever opened the dialog, as React's effect
+    // cleanup does on unmount. After the render, since a view removed by its parent's template
+    // is destroyed while Angular checks that parent. Not while the whole application is torn
+    // down: its environment injector is already marked destroyed and takes no new hook.
+    const toRestore = this.lastOpen ? this.previouslyFocused : null
+    if (toRestore && !this.environmentInjector.destroyed)
+      afterNextRender(
+        () => {
+          if (document.contains(toRestore)) toRestore.focus()
+        },
+        { injector: this.environmentInjector },
+      )
     if (this.locked) {
       this.sync.unlock()
       this.locked = false
@@ -443,20 +459,42 @@ export class Modal
       this.previouslyFocused = (document.activeElement as HTMLElement | null) ?? null
       pushModalStack(this.stackId)
       this.attachPortal()
-      const dialog = this.dialog?.nativeElement
-      if (dialog) {
-        const focusables = getFocusableElements(dialog)
-        ;(focusables[0] ?? dialog).focus()
-      }
+      this.focusFirstInDialog()
       this.addListeners()
     } else {
       popModalStack(this.stackId)
       this.removeListeners()
       this.detachPortal()
       const toRestore = this.previouslyFocused
-      if (toRestore && document.contains(toRestore)) toRestore.focus()
+      // After the render: the focus events fire listeners whose state changes
+      // must be rendered (they are not while the view is still being checked).
+      if (toRestore)
+        afterNextRender(
+          () => {
+            if (document.contains(toRestore)) toRestore.focus()
+          },
+          { injector: this.injector },
+        )
     }
     this.syncScrollLock()
+  }
+
+  /**
+   * Moves focus into the dialog after the render — the WAI-ARIA open focus.
+   * Deferred out of the change-detection hooks: focusing during one fires the
+   * dialog's `focusin` listeners while Angular is still checking, and a state
+   * change they make is never rendered.
+   */
+  private focusFirstInDialog(): void {
+    afterNextRender(
+      () => {
+        const dialog = this.dialog?.nativeElement
+        if (!dialog) return
+        const focusables = getFocusableElements(dialog)
+        ;(focusables[0] ?? dialog).focus()
+      },
+      { injector: this.injector },
+    )
   }
 
   /** Re-inserts the portal nodes into `document.body` (in React's order). */

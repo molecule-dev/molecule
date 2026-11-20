@@ -12,12 +12,16 @@ import { getClassMap } from '@molecule/app-ui'
 
 import { getInitials } from '../utilities/initials.js'
 import { renderIcon } from '../utilities/renderIcon.js'
+import { rootProps } from '../utilities/rootProps.js'
 
 /**
  * Avatar component.
  */
 export const Avatar = forwardRef<HTMLDivElement, AvatarProps>(
-  ({ src, alt, name, size = 'md', rounded = true, fallback, className, style, testId }, ref) => {
+  (
+    { src, alt, name, size = 'md', rounded = true, fallback, className, style, testId, ...rest },
+    ref,
+  ) => {
     const [imageError, setImageError] = useState(false)
     const { t } = useTranslation()
 
@@ -39,6 +43,9 @@ export const Avatar = forwardRef<HTMLDivElement, AvatarProps>(
         className={containerClasses}
         style={{ ...style, ...customSize }}
         data-testid={testId}
+        // Every other declared prop (id, title, aria-*, data-*, automationId as data-mol-id,
+        // the DOM event handlers) reaches the root.
+        {...rootProps(rest)}
       >
         {!showFallback ? (
           <img

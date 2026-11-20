@@ -106,6 +106,9 @@ export interface OptimisticToggleButtonProps {
     'dataMolId: data-mol-id',
   ],
   host: {
+    // `value` is the loaded server state, which React keeps off the <button>; Angular would also keep
+    // a static `value="…"` on the host as the button's form value.
+    '[attr.value]': 'null',
     '[class]': 'classes()',
     '[style]': 'hostStyle()',
     '[attr.type]': '"button"',

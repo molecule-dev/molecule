@@ -78,6 +78,9 @@ const STATUS_ICON: Record<string, IconName> = {
   ],
   outputs: ['dismiss'],
   host: {
+    // `title` is this component's heading, which React renders as text; Angular would also keep a
+    // static `title="…"` on the host, where the browser shows it as a tooltip.
+    '[attr.title]': 'null',
     '[attr.role]': 'live ? "alert" : "status"',
     '[class]': 'classes()',
     '[style]': 'hostStyle()',

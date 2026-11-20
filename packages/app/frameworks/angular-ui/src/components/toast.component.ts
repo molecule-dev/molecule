@@ -104,6 +104,9 @@ type ToastPosition = ToastProps['position']
   ],
   outputs: ['dismiss'],
   host: {
+    // `title` is this component's heading, which React renders as text; Angular would also keep a
+    // static `title="…"` on the host, where the browser shows it as a tooltip.
+    '[attr.title]': 'null',
     '[class]': 'classes()',
     '[style]': 'hostStyle()',
     '[attr.data-testid]': 'testId',

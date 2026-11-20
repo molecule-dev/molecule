@@ -9,6 +9,8 @@ import React, { forwardRef, useCallback, useEffect, useId, useRef } from 'react'
 import type { CheckboxProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
+import { rootProps } from '../utilities/rootProps.js'
+
 /**
  * Checkbox component.
  */
@@ -77,8 +79,8 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
             className={checkboxClasses}
             style={style}
             data-testid={testId}
-            onChange={onChange as unknown as React.ChangeEventHandler<HTMLInputElement>}
-            {...(rest as React.InputHTMLAttributes<HTMLInputElement>)}
+            onChange={onChange}
+            {...(rootProps(rest) as React.InputHTMLAttributes<HTMLInputElement>)}
           />
           {!!label && (
             <span className={cm.cn(cm.controlText, disabled && cm.controlDisabled)}>

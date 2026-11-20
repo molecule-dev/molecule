@@ -18,7 +18,7 @@
 // Register Angular's JIT compiler facade before any @Component class loads —
 // evaluating the decorators otherwise throws "needs the JIT compiler".
 import '@angular/compiler'
-import { Component, provideZonelessChangeDetection, type Type } from '@angular/core'
+import { ApplicationRef, Component, provideZonelessChangeDetection, type Type } from '@angular/core'
 import { type ComponentFixture, TestBed } from '@angular/core/testing'
 import { platformBrowser } from '@angular/platform-browser'
 import { BrowserTestingModule } from '@angular/platform-browser/testing'
@@ -405,6 +405,25 @@ describe('ResponsiveAppShell on mobile (<768px)', () => {
     expect(within(document.body).queryByRole('dialog')).toBeNull()
     expect(document.body.style.overflow).toBe('')
     expect(document.activeElement).toBe(trigger())
+  })
+
+  it('unmounting the shell with the drawer open returns focus to the element focused before it opened', () => {
+    // Focused outside the shell, so the restore target survives the shell's removal (a click
+    // through fireEvent does not move focus to the trigger).
+    const outside = document.createElement('button')
+    document.body.appendChild(outside)
+    outside.focus()
+    const fixture = mount(ShellHost)
+    fireEvent.click(trigger())
+    fixture.detectChanges()
+    expect(within(document.body).getByRole('dialog')).toBeDefined()
+
+    fixture.destroy()
+    // The restore runs after the next render, as every focus move out of a lifecycle hook does.
+    TestBed.inject(ApplicationRef).tick()
+
+    expect(document.activeElement).toBe(outside)
+    outside.remove()
   })
 
   it('a backdrop click closes the drawer but a click inside the panel does not', () => {

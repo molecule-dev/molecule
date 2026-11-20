@@ -262,6 +262,24 @@ describe('ResponsiveAppShell on mobile (<768px)', () => {
     expect(document.activeElement).toBe(trigger())
   })
 
+  it('unmounting the shell with the drawer open returns focus to the element focused before it opened', async () => {
+    // Focused outside the shell, so the restore target survives the shell's removal (a click
+    // through fireEvent does not move focus to the trigger).
+    const outside = document.createElement('button')
+    document.body.appendChild(outside)
+    outside.focus()
+    await mount(shellTree)
+    trigger().click()
+    await flush()
+    expect(body().getByRole('dialog')).toBeDefined()
+
+    for (const app of apps.splice(0)) app.unmount()
+    await flush()
+
+    expect(document.activeElement).toBe(outside)
+    outside.remove()
+  })
+
   it('a backdrop click closes the drawer but a click inside the panel does not', async () => {
     await mount(shellTree)
     trigger().click()

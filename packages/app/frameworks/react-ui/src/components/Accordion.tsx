@@ -42,10 +42,17 @@ const useAccordionContext = (): AccordionContextValue => {
 interface AccordionItemComponentProps {
   item: AccordionItemType<string>
   className?: string
+  /** The whole accordion is disabled: every header is, whatever its item says. */
+  disabled?: boolean
 }
 
-const AccordionItemComponent: React.FC<AccordionItemComponentProps> = ({ item, className }) => {
+const AccordionItemComponent: React.FC<AccordionItemComponentProps> = ({
+  item,
+  className,
+  disabled,
+}) => {
   const { expandedItems, toggleItem } = useAccordionContext()
+  const isDisabled = disabled || item.disabled
   const isExpanded = expandedItems.includes(item.value)
   const contentId = useId()
   const triggerId = useId()
@@ -58,11 +65,11 @@ const AccordionItemComponent: React.FC<AccordionItemComponentProps> = ({ item, c
         id={triggerId}
         type="button"
         className={cm.cn(cm.accordion({ variant: 'default' }), cm.accordionTriggerBase)}
-        onClick={() => !item.disabled && toggleItem(item.value)}
+        onClick={() => !isDisabled && toggleItem(item.value)}
         aria-expanded={isExpanded}
         aria-controls={contentId}
         data-state={isExpanded ? 'open' : 'closed'}
-        disabled={item.disabled}
+        disabled={isDisabled}
       >
         {item.header as React.ReactNode}
         {renderIcon('chevron-down', cm.accordionChevron)}
@@ -98,6 +105,8 @@ export const Accordion = forwardRef<HTMLDivElement, AccordionProps<string>>(
       className,
       style,
       testId,
+      automationId,
+      disabled,
     },
     ref,
   ) => {
@@ -159,9 +168,10 @@ export const Accordion = forwardRef<HTMLDivElement, AccordionProps<string>>(
           className={cm.cn(cm.accordionRoot, className)}
           style={style}
           data-testid={testId}
+          data-mol-id={automationId}
         >
           {items.map((item) => (
-            <AccordionItemComponent key={item.value} item={item} />
+            <AccordionItemComponent key={item.value} item={item} disabled={disabled} />
           ))}
         </div>
       </AccordionContext.Provider>

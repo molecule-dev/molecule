@@ -79,4 +79,58 @@ describe('Card keyboard activation', () => {
     fireEvent.keyDown(card, { key: 'Enter' })
     expect(onClick).not.toHaveBeenCalled()
   })
+
+  it("the caller's onKeyDown runs before the activation", () => {
+    const calls: string[] = []
+    const { getByRole } = render(
+      <Card interactive onClick={() => calls.push('click')} onKeyDown={() => calls.push('keydown')}>
+        Clickable card
+      </Card>,
+    )
+    fireEvent.keyDown(getByRole('button'), { key: 'Enter' })
+    expect(calls).toEqual(['keydown', 'click'])
+  })
+
+  it("preventDefault in the caller's onKeyDown cancels the activation", () => {
+    const onClick = vi.fn()
+    const { getByRole } = render(
+      <Card interactive onClick={onClick} onKeyDown={(event) => event.preventDefault()}>
+        Clickable card
+      </Card>,
+    )
+    fireEvent.keyDown(getByRole('button'), { key: 'Enter' })
+    expect(onClick).not.toHaveBeenCalled()
+  })
+})
+
+describe('Card forwards its declared props', () => {
+  it('id, title, onFocus, onBlur and onDoubleClick reach the card', () => {
+    const onFocus = vi.fn()
+    const onBlur = vi.fn()
+    const onDoubleClick = vi.fn()
+    const { getByTestId, getByRole } = render(
+      <Card
+        testId="billing"
+        id="billing-card"
+        title="Billing"
+        onFocus={onFocus}
+        onBlur={onBlur}
+        onDoubleClick={onDoubleClick}
+      >
+        <button type="button">Edit</button>
+      </Card>,
+    )
+    const card = getByTestId('billing')
+    expect(card.id).toBe('billing-card')
+    expect(card.title).toBe('Billing')
+    // React's onFocus and onBlur hear focus moving onto and off a control inside the card.
+    const edit = getByRole('button')
+    edit.focus()
+    expect(onFocus).toHaveBeenCalledTimes(1)
+    expect(onFocus.mock.calls[0][0].target).toBe(edit)
+    edit.blur()
+    expect(onBlur).toHaveBeenCalledTimes(1)
+    fireEvent.doubleClick(card)
+    expect(onDoubleClick).toHaveBeenCalledTimes(1)
+  })
 })

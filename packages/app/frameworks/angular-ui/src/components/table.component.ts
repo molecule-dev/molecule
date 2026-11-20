@@ -24,7 +24,11 @@ import { getClassMap } from '@molecule/app-ui'
 import type { HasElement } from '../utilities/element.js'
 import type { ResolvedIcon } from '../utilities/render-icon.js'
 import { MolIconSvg, resolveIcon } from '../utilities/render-icon.js'
-import { adoptHostDataMolId } from '../utilities/rest-attrs.js'
+import {
+  adoptHostDataMolId,
+  moveRestAttributes,
+  reapplyRestAttributes,
+} from '../utilities/rest-attrs.js'
 import { styleText } from '../utilities/style.js'
 import { hasNodes, SlotWrapper } from './button.component.js'
 import { Spinner } from './spinner.component.js'
@@ -64,6 +68,10 @@ import { MolTemplateOutlet } from './template-outlet.directive.js'
     'title',
   ],
   host: {
+    // `id` and `title` are bound onto the inner <table>, where React spreads them; Angular would also
+    // keep a static `id="…"`/`title="…"` on this wrapper, giving two elements the same id.
+    '[attr.id]': 'null',
+    '[attr.title]': 'null',
     '[class]': 'cm().tableWrapper',
   },
   template: `<span #emptySlot><ng-content select="[slot=emptyContent]"></ng-content></span>
@@ -424,7 +432,9 @@ export class Table
 
   /**
    * Reads the empty-slot presence at view init (view queries resolve only
-   * then) and adopts the projected empty content into the empty cell.
+   * then), adopts the projected empty content into the empty cell, and moves
+   * the host's rest attributes (`aria-*`, `data-*`, `id`, …) onto the
+   * `<table>`, where React spreads them.
    */
   ngAfterViewInit(): void {
     const slot = this.emptySlot?.nativeElement
@@ -437,11 +447,21 @@ export class Table
       for (const node of this.adoptedEmpty) cell.appendChild(node)
     }
     this.sync.sync(slot, false, this.emptyParent ?? undefined)
+    adoptHostDataMolId(
+      this.host.nativeElement,
+      this.inner(),
+      (id) => {
+        this.externalMolId = id
+      },
+      () => this.molId(),
+    )
+    moveRestAttributes(this.host.nativeElement, this.inner())
   }
 
   /**
    * Puts a `data-mol-id` bound on the host onto the table in the pass that bound it (the host
-   * attribute is written after this component's `ngDoCheck`).
+   * attribute is written after this component's `ngDoCheck`), and moves a rest attribute the
+   * caller re-bound since view init onto the table too.
    */
   ngAfterViewChecked(): void {
     adoptHostDataMolId(
@@ -452,6 +472,7 @@ export class Table
       },
       () => this.molId(),
     )
+    reapplyRestAttributes(this.host.nativeElement, this.inner())
   }
 
   /**

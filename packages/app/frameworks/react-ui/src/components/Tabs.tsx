@@ -14,7 +14,20 @@ import { getClassMap } from '@molecule/app-ui'
  */
 export const Tabs = forwardRef<HTMLDivElement, TabsProps<string>>(
   (
-    { items, value, defaultValue, onChange, variant, size, fitted, className, style, testId },
+    {
+      items,
+      value,
+      defaultValue,
+      onChange,
+      variant,
+      size,
+      fitted,
+      className,
+      style,
+      testId,
+      automationId,
+      disabled,
+    },
     ref,
   ) => {
     const [internalValue, setInternalValue] = useState(defaultValue || items[0]?.value)
@@ -39,9 +52,9 @@ export const Tabs = forwardRef<HTMLDivElement, TabsProps<string>>(
     // (only the active tab is a Tab stop — see `tabIndex` below) plus
     // Left/Right/Home/End moving BOTH focus and the active tab, so keyboard
     // users never have to Tab through every trigger to reach the one they
-    // want. Disabled tabs are skipped.
+    // want. Disabled tabs are skipped; a disabled Tabs disables every tab.
     const handleKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>): void => {
-      const enabled = items.filter((item) => !item.disabled)
+      const enabled = disabled ? [] : items.filter((item) => !item.disabled)
       if (enabled.length === 0) return
       const currentIndex = enabled.findIndex((item) => item.value === activeValue)
 
@@ -71,7 +84,13 @@ export const Tabs = forwardRef<HTMLDivElement, TabsProps<string>>(
     const activeItem = items.find((item) => item.value === activeValue)
 
     return (
-      <div ref={ref} className={className} style={style} data-testid={testId}>
+      <div
+        ref={ref}
+        className={className}
+        style={style}
+        data-testid={testId}
+        data-mol-id={automationId}
+      >
         <div
           className={cm.cn(cm.tabsList({ variant, size }), fitted && cm.tabsFitted)}
           role="tablist"
@@ -104,7 +123,7 @@ export const Tabs = forwardRef<HTMLDivElement, TabsProps<string>>(
                 // Roving tabindex: only the active tab is a Tab stop —
                 // arrow keys (handled above) move focus among the rest.
                 tabIndex={isActive ? 0 : -1}
-                disabled={item.disabled}
+                disabled={disabled || item.disabled}
                 onClick={() => selectTab(item.value)}
                 // The arrow keys act on the focused tab (the tablist itself never
                 // takes focus), so the handler sits on each tab.

@@ -11,6 +11,7 @@ import type { TableColumn, TableProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 import { renderIcon } from '../utilities/renderIcon.js'
+import { rootProps } from '../utilities/rootProps.js'
 import { Spinner } from './Spinner.js'
 
 /**
@@ -34,6 +35,7 @@ export const Table = forwardRef<HTMLTableElement, TableProps<Record<string, unkn
       className,
       style,
       testId,
+      ...rest
     },
     ref,
   ) => {
@@ -79,7 +81,15 @@ export const Table = forwardRef<HTMLTableElement, TableProps<Record<string, unkn
             <Spinner size="lg" />
           </div>
         )}
-        <table ref={ref} className={tableClasses} style={style} data-testid={testId}>
+        {/* Every other declared prop (id, title, aria-*, data-*, automationId as data-mol-id,
+            the DOM event handlers) reaches the table, with its class, style and test id. */}
+        <table
+          ref={ref}
+          className={tableClasses}
+          style={style}
+          data-testid={testId}
+          {...rootProps(rest)}
+        >
           <thead className={cm.tableHeader}>
             <tr className={cm.tableRow}>
               {columns.map((column) => (

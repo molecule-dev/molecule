@@ -9,6 +9,8 @@ import React, { forwardRef } from 'react'
 import type { CardProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
+import { rootProps } from '../utilities/rootProps.js'
+
 const variantMap: Record<string, 'default' | 'elevated' | 'outline' | 'ghost'> = {
   elevated: 'elevated',
   outlined: 'outline',
@@ -31,6 +33,8 @@ export const Card = forwardRef<HTMLDivElement, CardProps & { 'data-mol-id'?: str
       style,
       testId,
       onClick,
+      onKeyDown,
+      disabled,
       ...rest
     },
     ref,
@@ -46,17 +50,17 @@ export const Card = forwardRef<HTMLDivElement, CardProps & { 'data-mol-id'?: str
       className,
     )
 
-    const passthrough: Record<string, unknown> = {}
-    for (const [k, v] of Object.entries(rest as Record<string, unknown>)) {
-      if (k.startsWith('data-') || k.startsWith('aria-')) passthrough[k] = v
-    }
-
     // An interactive card is announced as a button and sits in the tab order, so
     // Enter and Space activate it the way they activate a native button: by
     // clicking it, which runs `onClick` with a real click event. Keys pressed in a
-    // control inside the card belong to that control.
+    // control inside the card belong to that control. The caller's `onKeyDown` runs
+    // first; its preventDefault() cancels the activation, as it does on a native button.
+    // A disabled card, like a disabled button, never calls onClick: an interactive one is
+    // announced as disabled and leaves the tab order.
     const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>): void => {
-      if (!interactive || event.target !== event.currentTarget) return
+      onKeyDown?.(event)
+      if (event.defaultPrevented || !interactive || disabled) return
+      if (event.target !== event.currentTarget) return
       if (event.key !== 'Enter' && event.key !== ' ') return
       event.preventDefault()
       event.currentTarget.click()
@@ -68,11 +72,14 @@ export const Card = forwardRef<HTMLDivElement, CardProps & { 'data-mol-id'?: str
         className={cardClasses}
         style={style}
         data-testid={testId}
-        onClick={onClick as unknown as React.MouseEventHandler<HTMLDivElement>}
-        onKeyDown={handleKeyDown}
         role={interactive ? 'button' : undefined}
-        tabIndex={interactive ? 0 : undefined}
-        {...passthrough}
+        tabIndex={interactive ? (disabled ? -1 : 0) : undefined}
+        aria-disabled={interactive && disabled ? true : undefined}
+        // Every other declared prop (id, title, aria-*, data-*, the DOM event handlers) reaches
+        // the div, as Container's do; a caller's role or tabIndex replaces the interactive default.
+        {...rootProps(rest)}
+        onClick={disabled ? undefined : onClick}
+        onKeyDown={handleKeyDown}
       >
         {children as React.ReactNode}
       </div>

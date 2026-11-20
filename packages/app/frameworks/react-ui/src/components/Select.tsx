@@ -11,6 +11,7 @@ import type { SelectProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 import { renderIcon } from '../utilities/renderIcon.js'
+import { rootProps } from '../utilities/rootProps.js'
 
 /**
  * Select component.
@@ -71,7 +72,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps<string>>(
     }, {})
 
     const handleChange = (e: React.ChangeEvent<HTMLSelectElement>): void => {
-      onChange?.(e as unknown as Event)
+      onChange?.(e)
       onValueChange?.(e.target.value)
     }
 
@@ -133,7 +134,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps<string>>(
             style={style}
             data-testid={testId}
             onChange={handleChange}
-            {...(rest as React.SelectHTMLAttributes<HTMLSelectElement>)}
+            {...(rootProps(rest) as React.SelectHTMLAttributes<HTMLSelectElement>)}
           >
             {placeholder && (
               <option value="" disabled>

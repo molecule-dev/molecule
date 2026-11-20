@@ -9,6 +9,7 @@ import React, { forwardRef } from 'react'
 import type { ButtonProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
+import { rootProps } from '../utilities/rootProps.js'
 import { Spinner } from './Spinner.js'
 
 /**
@@ -53,9 +54,9 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         style={style}
         data-testid={testId}
         disabled={disabled || loading}
-        onClick={onClick as unknown as React.MouseEventHandler<HTMLButtonElement>}
+        onClick={onClick}
         aria-busy={loading}
-        {...(rest as React.ButtonHTMLAttributes<HTMLButtonElement>)}
+        {...(rootProps(rest) as React.ButtonHTMLAttributes<HTMLButtonElement>)}
       >
         {loading && <Spinner size="sm" className={cm.buttonIconLeft} />}
         {!loading && !!leftIcon && (

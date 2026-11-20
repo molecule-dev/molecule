@@ -157,29 +157,23 @@ export const Grid = withDisplayName<WithRef<GridProps, HTMLDivElement>>((props) 
       local.className,
     )
 
-  const gridStyle = (): Record<string, string | number | undefined> => ({
-    ...local.style,
-    gridTemplateColumns: typeof local.columns === 'string' ? local.columns : undefined,
-    gridTemplateRows: typeof local.rows === 'string' ? local.rows : undefined,
-    gap:
-      typeof local.gap === 'number'
-        ? local.gap
-        : typeof local.gap === 'string' && !(GAP_SIZES as readonly string[]).includes(local.gap)
-          ? local.gap
-          : undefined,
-    columnGap:
-      typeof local.columnGap === 'number'
-        ? local.columnGap
-        : typeof local.columnGap === 'string'
-          ? local.columnGap
-          : undefined,
-    rowGap:
-      typeof local.rowGap === 'number'
-        ? local.rowGap
-        : typeof local.rowGap === 'string'
-          ? local.rowGap
-          : undefined,
-  })
+  // Only the values this Grid sets, as React's Grid does: an undefined key would erase the same
+  // property from the caller's `style`.
+  const gridStyle = (): Record<string, string | number | undefined> => {
+    const own: Record<string, string | number> = {}
+    if (typeof local.columns === 'string') own.gridTemplateColumns = local.columns
+    if (typeof local.rows === 'string') own.gridTemplateRows = local.rows
+    if (
+      typeof local.gap === 'number' ||
+      (typeof local.gap === 'string' && !(GAP_SIZES as readonly string[]).includes(local.gap))
+    )
+      own.gap = local.gap
+    if (typeof local.columnGap === 'number' || typeof local.columnGap === 'string')
+      own.columnGap = local.columnGap
+    if (typeof local.rowGap === 'number' || typeof local.rowGap === 'string')
+      own.rowGap = local.rowGap
+    return { ...local.style, ...own }
+  }
 
   return (
     <div

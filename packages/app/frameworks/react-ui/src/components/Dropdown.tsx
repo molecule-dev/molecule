@@ -10,6 +10,7 @@ import React, {
   useEffect,
   useId,
   useLayoutEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react'
@@ -18,6 +19,8 @@ import { useLocation } from 'react-router'
 
 import type { DropdownItem, DropdownProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
+
+import { mergeRefs } from '../utilities/mergeRefs.js'
 
 interface Position {
   top: number
@@ -156,6 +159,8 @@ interface CloneableTriggerProps {
   'aria-expanded'?: boolean
   'aria-controls'?: string
   'data-testid'?: string
+  'data-mol-id'?: string
+  disabled?: boolean
   onClick?: (e: React.MouseEvent) => void
   onKeyDown?: (e: React.KeyboardEvent) => void
 }
@@ -198,8 +203,10 @@ export const Dropdown = forwardRef<HTMLDivElement, DropdownProps<string>>(
       className,
       style,
       testId,
+      automationId,
+      disabled,
     },
-    _ref,
+    ref,
   ) => {
     const [internalOpen, setInternalOpen] = useState(false)
     const [position, setPosition] = useState<Position>({ top: 0, left: 0 })
@@ -220,7 +227,10 @@ export const Dropdown = forwardRef<HTMLDivElement, DropdownProps<string>>(
     const menuId = useId()
 
     const cm = getClassMap()
-    const isOpen = controlledOpen !== undefined ? controlledOpen : internalOpen
+    // A disabled dropdown never opens, whatever `open` says.
+    const isOpen = !disabled && (controlledOpen !== undefined ? controlledOpen : internalOpen)
+    // The forwarded ref names the menu, the element that carries className and style.
+    const setMenuRef = useMemo(() => mergeRefs<HTMLDivElement>(ref, menuRef), [ref])
 
     const setOpen = useCallback(
       (open: boolean) => {
@@ -241,12 +251,14 @@ export const Dropdown = forwardRef<HTMLDivElement, DropdownProps<string>>(
     }, [placement, align])
 
     const handleTriggerClick = useCallback(() => {
+      if (disabled) return
       if (!isOpen) setPendingOpenFocus('first')
       setOpen(!isOpen)
-    }, [isOpen, setOpen])
+    }, [disabled, isOpen, setOpen])
 
     const handleTriggerKeyDown = useCallback(
       (e: React.KeyboardEvent) => {
+        if (disabled) return
         switch (e.key) {
           case 'Enter':
           case ' ':
@@ -268,7 +280,7 @@ export const Dropdown = forwardRef<HTMLDivElement, DropdownProps<string>>(
             break
         }
       },
-      [setOpen],
+      [disabled, setOpen],
     )
 
     const handleClose = useCallback(() => {
@@ -431,7 +443,7 @@ export const Dropdown = forwardRef<HTMLDivElement, DropdownProps<string>>(
 
     const menu = isOpen && (
       <div
-        ref={menuRef}
+        ref={setMenuRef}
         id={menuId}
         role="menu"
         // Focusable but never a Tab stop (the items carry the roving tab stop):
@@ -449,6 +461,7 @@ export const Dropdown = forwardRef<HTMLDivElement, DropdownProps<string>>(
           zIndex: 50,
         }}
         data-testid={testId ? `${testId}-menu` : undefined}
+        data-mol-id={automationId ? `${automationId}-menu` : undefined}
         onKeyDown={handleMenuKeyDown}
       >
         {items.map((item, index) => (
@@ -466,37 +479,45 @@ export const Dropdown = forwardRef<HTMLDivElement, DropdownProps<string>>(
       </div>
     )
 
-    const triggerElement = trigger as React.ReactNode
-    const isCloneableTrigger =
-      React.isValidElement(triggerElement) &&
-      (triggerElement as React.ReactElement).type !== React.Fragment
+    // A single element (not a fragment) becomes the menu button itself; anything else is wrapped.
+    const cloneable =
+      React.isValidElement<CloneableTriggerProps>(trigger) && trigger.type !== React.Fragment
+        ? trigger
+        : null
+    // The trigger's own ref (React 19 carries it in props) keeps receiving the node too. It is
+    // read when React attaches the node, never while rendering.
+    const setTriggerNode = useCallback(
+      (node: HTMLElement | null) => mergeRefs<HTMLElement>(cloneable?.props.ref, triggerRef)(node),
+      [cloneable],
+    )
 
-    const renderedTrigger: React.ReactNode = isCloneableTrigger ? (
-      React.cloneElement(triggerElement as React.ReactElement<CloneableTriggerProps>, {
-        ref: (node: HTMLElement | null) => {
-          triggerRef.current = node
-        },
-        tabIndex: (triggerElement as React.ReactElement<CloneableTriggerProps>).props.tabIndex ?? 0,
+    const renderedTrigger: React.ReactNode = cloneable ? (
+      React.cloneElement(cloneable, {
+        ref: setTriggerNode,
+        tabIndex: cloneable.props.tabIndex ?? 0,
         'aria-haspopup': 'menu',
         'aria-expanded': isOpen,
         'aria-controls': isOpen ? menuId : undefined,
-        'data-testid': testId,
+        // Only a given id replaces the trigger's own; an absent one leaves it in place.
+        ...(testId === undefined ? {} : { 'data-testid': testId }),
+        ...(automationId === undefined ? {} : { 'data-mol-id': automationId }),
+        // A disabled dropdown disables its trigger (a Button or a native button then ignores clicks).
+        ...(disabled ? { disabled: true } : {}),
         onClick: (e: React.MouseEvent) => {
-          ;(triggerElement as React.ReactElement<CloneableTriggerProps>).props.onClick?.(e)
+          cloneable.props.onClick?.(e)
           handleTriggerClick()
         },
         onKeyDown: (e: React.KeyboardEvent) => {
-          ;(triggerElement as React.ReactElement<CloneableTriggerProps>).props.onKeyDown?.(e)
+          cloneable.props.onKeyDown?.(e)
           handleTriggerKeyDown(e)
         },
       })
     ) : (
       <div
-        ref={(node: HTMLDivElement | null) => {
-          triggerRef.current = node
-        }}
+        ref={setTriggerNode}
         role="button"
-        tabIndex={0}
+        tabIndex={disabled ? -1 : 0}
+        aria-disabled={disabled || undefined}
         aria-haspopup="menu"
         aria-expanded={isOpen}
         aria-controls={isOpen ? menuId : undefined}
@@ -504,6 +525,7 @@ export const Dropdown = forwardRef<HTMLDivElement, DropdownProps<string>>(
         onKeyDown={handleTriggerKeyDown}
         className={cm.dropdownTrigger}
         data-testid={testId}
+        data-mol-id={automationId}
       >
         {trigger as React.ReactNode}
       </div>

@@ -13,7 +13,20 @@ import { getClassMap } from '@molecule/app-ui'
  * Skeleton component.
  */
 export const Skeleton = forwardRef<HTMLDivElement, SkeletonProps>(
-  ({ width, height, circle, borderRadius, animation = 'pulse', className, style, testId }, ref) => {
+  (
+    {
+      width,
+      height,
+      circle,
+      borderRadius,
+      animation = 'pulse',
+      className,
+      style,
+      testId,
+      automationId,
+    },
+    ref,
+  ) => {
     const cm = getClassMap()
 
     const skeletonClasses = cm.cn(
@@ -40,7 +53,15 @@ export const Skeleton = forwardRef<HTMLDivElement, SkeletonProps>(
       computedStyle.height = computedStyle.width
     }
 
-    return <div ref={ref} className={skeletonClasses} style={computedStyle} data-testid={testId} />
+    return (
+      <div
+        ref={ref}
+        className={skeletonClasses}
+        style={computedStyle}
+        data-testid={testId}
+        data-mol-id={automationId}
+      />
+    )
   },
 )
 

@@ -10,6 +10,7 @@ import React, {
   useEffect,
   useId,
   useLayoutEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react'
@@ -17,6 +18,9 @@ import { createPortal } from 'react-dom'
 
 import type { TooltipPlacement, TooltipProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
+
+import { mergeRefs } from '../utilities/mergeRefs.js'
+import { rootProps } from '../utilities/rootProps.js'
 
 interface Position {
   top: number
@@ -151,8 +155,18 @@ function calculatePosition(
  */
 export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(
   (
-    { content, children, placement = 'top', delay = 0, hasArrow = false, className, style, testId },
-    _ref,
+    {
+      content,
+      children,
+      placement = 'top',
+      delay = 0,
+      hasArrow = false,
+      className,
+      style,
+      testId,
+      ...rest
+    },
+    ref,
   ) => {
     const [isVisible, setIsVisible] = useState(false)
     const [position, setPosition] = useState<Position>({ top: 0, left: 0 })
@@ -165,7 +179,10 @@ export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(
     // not itself the focused element, so its `aria-describedby` would never
     // be announced for the child that actually receives focus (see the
     // single-child cloning below).
-    const tooltipId = useId()
+    // A caller's `id` names the tooltip box, so the association points at it.
+    const generatedId = useId()
+    const tooltipId = rest.id ?? generatedId
+    const setTooltipRef = useMemo(() => mergeRefs<HTMLDivElement>(ref, tooltipRef), [ref])
 
     const cm = getClassMap()
 
@@ -299,13 +316,16 @@ export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(
         onMouseEnter={keepVisible}
         onMouseLeave={scheduleHide}
       >
+        {/* The box carries every declared prop: className, style, testId, the forwarded ref,
+            and the rest (title, aria-*, data-*, automationId as data-mol-id, handlers). */}
         <div
-          ref={tooltipRef}
-          id={tooltipId}
+          ref={setTooltipRef}
           role="tooltip"
           className={cm.cn(cm.tooltipContent, className)}
           style={style}
           data-testid={testId}
+          {...(rootProps(rest) as React.HTMLAttributes<HTMLDivElement>)}
+          id={tooltipId}
         >
           {content as React.ReactNode}
         </div>

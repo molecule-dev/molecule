@@ -9,6 +9,8 @@ import React, { forwardRef, useEffect, useLayoutEffect, useRef } from 'react'
 import type { SwitchProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
+import { rootProps } from '../utilities/rootProps.js'
+
 // Layout effects run in the commit itself, so the listener below is attached
 // before the browser can deliver a click; on the server, fall back to
 // useEffect to avoid React's SSR useLayoutEffect warning.
@@ -74,7 +76,7 @@ export const Switch = forwardRef<HTMLButtonElement, SwitchProps>(
     // preventDefault(); it used to be spread over this handler, so passing
     // one silently disabled the switch.
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>): void => {
-      ;(onClick as unknown as React.MouseEventHandler<HTMLButtonElement> | undefined)?.(event)
+      onClick?.(event)
       if (!disabled && !event.defaultPrevented) {
         hiddenInputRef.current?.click()
       }
@@ -111,7 +113,7 @@ export const Switch = forwardRef<HTMLButtonElement, SwitchProps>(
             className={cm.cn(cm.switchBase({ size, color }), className)}
             style={style}
             data-testid={testId}
-            {...(rest as React.ButtonHTMLAttributes<HTMLButtonElement>)}
+            {...(rootProps(rest) as React.ButtonHTMLAttributes<HTMLButtonElement>)}
           >
             <span data-state={state} className={cm.switchThumb({ size })} />
           </button>

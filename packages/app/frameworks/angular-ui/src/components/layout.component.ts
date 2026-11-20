@@ -328,30 +328,20 @@ export class Grid implements HasElement<HTMLDivElement> {
    * @returns The style attribute text.
    */
   hostStyle(): string | null {
-    const gridStyle: Record<string, unknown> = {
-      ...this.style,
-      gridTemplateColumns: typeof this.columns === 'string' ? this.columns : undefined,
-      gridTemplateRows: typeof this.rows === 'string' ? this.rows : undefined,
-      gap:
-        typeof this.gap === 'number'
-          ? this.gap
-          : typeof this.gap === 'string' && !GAP_NAMES.includes(this.gap)
-            ? this.gap
-            : undefined,
-      columnGap:
-        typeof this.columnGap === 'number'
-          ? this.columnGap
-          : typeof this.columnGap === 'string'
-            ? this.columnGap
-            : undefined,
-      rowGap:
-        typeof this.rowGap === 'number'
-          ? this.rowGap
-          : typeof this.rowGap === 'string'
-            ? this.rowGap
-            : undefined,
-    }
-    return styleText(gridStyle)
+    // Only the values this Grid sets, as React's Grid does: an undefined key would erase the same
+    // property from the caller's `style`.
+    const own: Record<string, unknown> = {}
+    if (typeof this.columns === 'string') own.gridTemplateColumns = this.columns
+    if (typeof this.rows === 'string') own.gridTemplateRows = this.rows
+    if (
+      typeof this.gap === 'number' ||
+      (typeof this.gap === 'string' && !GAP_NAMES.includes(this.gap))
+    )
+      own.gap = this.gap
+    if (typeof this.columnGap === 'number' || typeof this.columnGap === 'string')
+      own.columnGap = this.columnGap
+    if (typeof this.rowGap === 'number' || typeof this.rowGap === 'string') own.rowGap = this.rowGap
+    return styleText({ ...this.style, ...own })
   }
 }
 

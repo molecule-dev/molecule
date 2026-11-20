@@ -27,7 +27,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { IconData, IconSet } from '@molecule/app-icons'
 import { setIconSet } from '@molecule/app-icons'
-import type { ClassMapValue, UIClassMap } from '@molecule/app-ui'
+import type { ClassMapValue, KitEvent, UIClassMap } from '@molecule/app-ui'
 import { setClassMap } from '@molecule/app-ui'
 
 import {
@@ -774,7 +774,7 @@ describe('a11y contract — what assistive technology actually receives', () => 
     let currentTargetIsInput = false
     let preventDefaultThrew = false
     let stopPropagationThrew = false
-    const onChange = vi.fn((e: Event) => {
+    const onChange = vi.fn((e: KitEvent) => {
       try {
         e.preventDefault()
       } catch (_error) {

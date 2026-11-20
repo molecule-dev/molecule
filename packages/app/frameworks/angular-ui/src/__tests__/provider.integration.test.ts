@@ -1283,6 +1283,9 @@ describe('Modal — focus management (WAI-ARIA APG dialog pattern)', () => {
       [Modal],
       { noop: () => {} },
     )
+    // The open focus runs after the render (an after-render hook), not during
+    // the view check, so let the application render before asserting it.
+    await flush()
     expect(document.activeElement).toBe(screen.getByRole('dialog'))
   })
 
@@ -1295,6 +1298,8 @@ describe('Modal — focus management (WAI-ARIA APG dialog pattern)', () => {
       [Modal],
       { noop: () => {} },
     )
+    // The panel's open focus runs after the render (an after-render hook).
+    await flush()
     const first = screen.getByRole('button', { name: 'First' })
     const last = screen.getByRole('button', { name: 'Last' })
     expect(document.activeElement).toBe(first)

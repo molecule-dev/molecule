@@ -12,6 +12,7 @@ import type { AlertProps, ColorVariant } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 import { renderIcon } from '../utilities/renderIcon.js'
+import { rootProps } from '../utilities/rootProps.js'
 
 const statusVariantMap: Record<ColorVariant, 'default' | 'info' | 'success' | 'warning' | 'error'> =
   {
@@ -63,6 +64,7 @@ export const Alert = forwardRef<HTMLDivElement, AlertProps & { live?: boolean }>
       className,
       style,
       testId,
+      ...rest
     },
     ref,
   ) => {
@@ -82,7 +84,16 @@ export const Alert = forwardRef<HTMLDivElement, AlertProps & { live?: boolean }>
     const role = live ? 'alert' : 'status'
 
     return (
-      <div ref={ref} role={role} className={alertClasses} style={style} data-testid={testId}>
+      // Every other declared prop (id, aria-*, data-*, automationId as data-mol-id, the DOM
+      // event handlers) reaches the root; a caller's role replaces the live-region default.
+      <div
+        ref={ref}
+        role={role}
+        className={alertClasses}
+        style={style}
+        data-testid={testId}
+        {...rootProps(rest)}
+      >
         {(icon || defaultIcon) && (
           <span className={cm.alertIconWrapper}>{(icon || defaultIcon) as React.ReactNode}</span>
         )}

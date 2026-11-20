@@ -95,6 +95,7 @@ export const Pagination = forwardRef<HTMLElement, PaginationProps>(
       className,
       style,
       testId,
+      automationId,
       disabled,
     },
     ref,
@@ -126,6 +127,7 @@ export const Pagination = forwardRef<HTMLElement, PaginationProps>(
         className={cm.cn(cm.paginationRoot, className)}
         style={style}
         data-testid={testId}
+        data-mol-id={automationId}
       >
         <ul className={cm.paginationContent}>
           {/* First page button */}

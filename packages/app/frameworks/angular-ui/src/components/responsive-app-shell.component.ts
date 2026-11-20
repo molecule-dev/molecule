@@ -6,12 +6,15 @@
  */
 
 import {
+  afterNextRender,
   type AfterViewInit,
   Component,
   type DoCheck,
   effect,
   ElementRef,
+  EnvironmentInjector,
   inject,
+  Injector,
   type OnDestroy,
   type OnInit,
   Renderer2,
@@ -881,6 +884,10 @@ export class ResponsiveAppShellDrawer implements OnInit, AfterViewInit, DoCheck,
   private readonly i18n = useTranslation()
 
   private readonly renderer = inject(Renderer2)
+  /** Schedules the deferred focus moves from the change-detection hooks. */
+  private readonly injector = inject(Injector)
+  /** Schedules the focus restore of a destroyed open drawer (the component's own injector is gone). */
+  private readonly environmentInjector = inject(EnvironmentInjector)
   private readonly sync = new SlotWrapper(this.host, this.renderer)
   private readonly scrollLock = createScrollLock()
   private hasFooter = false
@@ -1026,10 +1033,24 @@ export class ResponsiveAppShellDrawer implements OnInit, AfterViewInit, DoCheck,
     this.syncOpen()
   }
 
-  /** Unregisters the drawer, unlocks scroll and restores the portal nodes. */
+  /**
+   * Unregisters the drawer, unlocks scroll, restores the portal nodes and, when it was open, puts
+   * focus back on whatever opened it (React's effect cleanup does on unmount).
+   */
   ngOnDestroy(): void {
     this.shell().registerDrawer(false)
     this.removeListeners()
+    // After the render, since a view removed by its parent's template is destroyed while Angular
+    // checks that parent; not while the whole application is torn down (its environment injector
+    // is already marked destroyed and takes no new hook).
+    const toRestore = this.lastOpen ? this.previouslyFocused : null
+    if (toRestore && !this.environmentInjector.destroyed)
+      afterNextRender(
+        () => {
+          if (document.contains(toRestore)) toRestore.focus()
+        },
+        { injector: this.environmentInjector },
+      )
     if (this.locked) {
       this.scrollLock.unlock()
       this.locked = false
@@ -1077,7 +1098,15 @@ export class ResponsiveAppShellDrawer implements OnInit, AfterViewInit, DoCheck,
         this.locked = false
       }
       const toRestore = this.previouslyFocused
-      if (toRestore && document.contains(toRestore)) toRestore.focus()
+      // After the render: the focus events fire listeners whose state changes
+      // must be rendered (they are not while the view is still being checked).
+      if (toRestore)
+        afterNextRender(
+          () => {
+            if (document.contains(toRestore)) toRestore.focus()
+          },
+          { injector: this.injector },
+        )
     }
   }
 
@@ -1088,11 +1117,17 @@ export class ResponsiveAppShellDrawer implements OnInit, AfterViewInit, DoCheck,
     // The wrappers could not be reconciled while the portal was detached
     // (every node read as disconnected); apply them now that it is mounted.
     this.syncWrappers()
-    const panel = this.panel?.nativeElement
-    if (panel) {
-      const focusables = getFocusableElements(panel)
-      ;(focusables[0] ?? panel).focus()
-    }
+    // After the render, so the panel's `focusin` listeners settle after the
+    // view check (a state change made during it is never rendered).
+    afterNextRender(
+      () => {
+        const panel = this.panel?.nativeElement
+        if (!panel) return
+        const focusables = getFocusableElements(panel)
+        ;(focusables[0] ?? panel).focus()
+      },
+      { injector: this.injector },
+    )
     this.scrollLock.lock()
     this.locked = true
     this.addListeners()

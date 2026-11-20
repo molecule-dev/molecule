@@ -10,6 +10,8 @@ import { useTranslation } from '@molecule/app-react'
 import type { ButtonProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
+import { rootProps } from '../utilities/rootProps.js'
+
 /**
  * Props for {@link ConfirmButton}.
  */
@@ -168,7 +170,7 @@ export const ConfirmButton = forwardRef<HTMLButtonElement, ConfirmButtonProps>(
           cm.button({ color: phase === 'armed' ? 'error' : (color ?? 'primary'), size, variant }),
           className,
         )}
-        {...rest}
+        {...rootProps(rest)}
       >
         {visibleLabel}
       </button>

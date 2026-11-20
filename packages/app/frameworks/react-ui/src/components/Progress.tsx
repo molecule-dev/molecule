@@ -69,6 +69,7 @@ export const Progress = forwardRef<HTMLDivElement, ProgressProps>(
       className,
       style,
       testId,
+      automationId,
     },
     ref,
   ) => {
@@ -82,6 +83,7 @@ export const Progress = forwardRef<HTMLDivElement, ProgressProps>(
         className={cm.cn(cm.progressWrapper, className)}
         style={style}
         data-testid={testId}
+        data-mol-id={automationId}
       >
         {(label || showValue) && (
           <div className={cm.progressLabelContainer}>

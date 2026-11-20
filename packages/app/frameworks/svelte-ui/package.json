@@ -12,6 +12,11 @@
       "svelte": "./dist/index.js",
       "default": "./dist/index.js"
     },
+    "./components/Tooltip.js": {
+      "types": "./dist/components/tooltip-entry.d.ts",
+      "svelte": "./dist/components/tooltip-entry.js",
+      "default": "./dist/components/tooltip-entry.js"
+    },
     "./package.json": "./package.json"
   },
   "svelte": "./dist/index.js",

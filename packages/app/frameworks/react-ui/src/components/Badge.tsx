@@ -9,6 +9,8 @@ import React, { forwardRef } from 'react'
 import type { BadgeProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
+import { rootProps } from '../utilities/rootProps.js'
+
 /**
  * Badge component.
  */
@@ -23,6 +25,7 @@ export const Badge = forwardRef<HTMLSpanElement, BadgeProps>(
       className,
       style,
       testId,
+      ...rest
     },
     ref,
   ) => {
@@ -35,7 +38,15 @@ export const Badge = forwardRef<HTMLSpanElement, BadgeProps>(
     )
 
     return (
-      <span ref={ref} className={badgeClasses} style={style} data-testid={testId}>
+      // Every other declared prop (id, title, aria-*, data-*, automationId as data-mol-id,
+      // the DOM event handlers) reaches the span.
+      <span
+        ref={ref}
+        className={badgeClasses}
+        style={style}
+        data-testid={testId}
+        {...rootProps(rest)}
+      >
         {children as React.ReactNode}
       </span>
     )

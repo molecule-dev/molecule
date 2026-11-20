@@ -11,6 +11,7 @@ import type { InputProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 import { renderIcon } from '../utilities/renderIcon.js'
+import { rootProps } from '../utilities/rootProps.js'
 
 /**
  * Input component.
@@ -90,10 +91,10 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             className={inputClasses}
             style={style}
             data-testid={testId}
-            onChange={onChange as unknown as React.ChangeEventHandler<HTMLInputElement>}
-            onFocus={onFocus as unknown as React.FocusEventHandler<HTMLInputElement>}
-            onBlur={onBlur as unknown as React.FocusEventHandler<HTMLInputElement>}
-            {...(rest as React.InputHTMLAttributes<HTMLInputElement>)}
+            onChange={onChange}
+            onFocus={onFocus}
+            onBlur={onBlur}
+            {...(rootProps(rest) as React.InputHTMLAttributes<HTMLInputElement>)}
           />
           {(rightElement || (clearable && value)) && (
             <div className={cm.inputRightElement}>

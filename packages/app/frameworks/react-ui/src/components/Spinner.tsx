@@ -10,11 +10,13 @@ import { useTranslation } from '@molecule/app-react'
 import type { SpinnerProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
+import { rootProps } from '../utilities/rootProps.js'
+
 /**
  * Spinner component.
  *
- * Extracts data-* and aria-* props from the rest spread so callers can
- * pass `data-mol-id`, custom `aria-*` overrides, etc. without forking.
+ * `automationId` renders as `data-mol-id`; `data-*` and `aria-*` props on the rest reach
+ * the status element (a caller's `aria-label` replaces the default).
  */
 export const Spinner = forwardRef<HTMLDivElement, SpinnerProps & { 'data-mol-id'?: string }>(
   ({ size = 'md', color, label, className, style, testId, ...rest }, ref) => {
@@ -29,11 +31,6 @@ export const Spinner = forwardRef<HTMLDivElement, SpinnerProps & { 'data-mol-id'
         ? { borderColor: color, borderTopColor: 'transparent' }
         : undefined
 
-    const passthrough: Record<string, unknown> = {}
-    for (const [k, v] of Object.entries(rest as Record<string, unknown>)) {
-      if (k.startsWith('data-') || k.startsWith('aria-')) passthrough[k] = v
-    }
-
     return (
       <div
         ref={ref}
@@ -42,7 +39,7 @@ export const Spinner = forwardRef<HTMLDivElement, SpinnerProps & { 'data-mol-id'
         className={classes}
         style={{ ...style, ...colorStyle }}
         data-testid={testId}
-        {...passthrough}
+        {...(rootProps(rest) as React.HTMLAttributes<HTMLDivElement>)}
       >
         {label && <span className={cm.srOnly}>{label}</span>}
       </div>

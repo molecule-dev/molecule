@@ -28,7 +28,10 @@ export interface SeparatorProps extends BaseProps {
  * Separator component.
  */
 export const Separator = forwardRef<HTMLDivElement, SeparatorProps>(
-  ({ orientation = 'horizontal', decorative = true, className, style, testId }, ref) => {
+  (
+    { orientation = 'horizontal', decorative = true, className, style, testId, automationId },
+    ref,
+  ) => {
     const cm = getClassMap()
     const separatorClasses = cm.cn(cm.separator({ orientation }), className)
 
@@ -40,6 +43,7 @@ export const Separator = forwardRef<HTMLDivElement, SeparatorProps>(
         className={separatorClasses}
         style={style}
         data-testid={testId}
+        data-mol-id={automationId}
       />
     )
   },

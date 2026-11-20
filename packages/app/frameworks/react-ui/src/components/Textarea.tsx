@@ -9,6 +9,8 @@ import React, { forwardRef, useCallback, useEffect, useId, useRef } from 'react'
 import type { TextareaProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
+import { rootProps } from '../utilities/rootProps.js'
+
 /**
  * Textarea component.
  */
@@ -119,10 +121,10 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
           // enforce `minRows` instead. Caller style still wins.
           style={autoResize ? { minHeight: 0, resize: 'none', ...style } : style}
           data-testid={testId}
-          onChange={onChange as unknown as React.ChangeEventHandler<HTMLTextAreaElement>}
-          onFocus={onFocus as unknown as React.FocusEventHandler<HTMLTextAreaElement>}
-          onBlur={onBlur as unknown as React.FocusEventHandler<HTMLTextAreaElement>}
-          {...(rest as React.TextareaHTMLAttributes<HTMLTextAreaElement>)}
+          onChange={onChange}
+          onFocus={onFocus}
+          onBlur={onBlur}
+          {...(rootProps(rest) as React.TextareaHTMLAttributes<HTMLTextAreaElement>)}
         />
         {error && (
           <p id={`${textareaId}-error`} className={cm.formError}>

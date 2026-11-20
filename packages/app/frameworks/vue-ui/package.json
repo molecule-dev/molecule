@@ -6,6 +6,17 @@
   "sideEffects": false,
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./components/Tooltip.js": {
+      "types": "./dist/components/Tooltip.d.ts",
+      "default": "./dist/components/Tooltip.js"
+    },
+    "./package.json": "./package.json"
+  },
   "files": [
     "dist",
     "README.md"

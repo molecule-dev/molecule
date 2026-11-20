@@ -9,6 +9,7 @@ import React, { forwardRef } from 'react'
 import { useOptimisticValue } from '@molecule/app-react'
 import type { ButtonProps } from '@molecule/app-ui'
 
+import { rootProps } from '../utilities/rootProps.js'
 import { Button } from './Button.js'
 
 /** Props for {@link OptimisticToggleButton}. Labels come from the application's translations. */
@@ -61,7 +62,7 @@ export const OptimisticToggleButton = forwardRef<HTMLButtonElement, OptimisticTo
     return (
       <Button
         data-mol-id="optimistic-toggle"
-        {...props}
+        {...rootProps(props)}
         ref={ref}
         type="button"
         aria-pressed={toggle.value}

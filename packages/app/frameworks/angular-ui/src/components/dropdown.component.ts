@@ -6,7 +6,8 @@
  */
 
 import {
-  type AfterViewChecked,
+  afterEveryRender,
+  afterNextRender,
   type AfterViewInit,
   ChangeDetectorRef,
   Component,
@@ -16,6 +17,7 @@ import {
   type EmbeddedViewRef,
   EventEmitter,
   inject,
+  Injector,
   type OnDestroy,
   Output,
   Renderer2,
@@ -189,9 +191,7 @@ type DropdownAlign = 'start' | 'center' | 'end'
       </div></ng-template
     >`,
 })
-export class Dropdown
-  implements AfterViewInit, AfterViewChecked, DoCheck, OnDestroy, HasElement<HTMLDivElement>
-{
+export class Dropdown implements AfterViewInit, DoCheck, OnDestroy, HasElement<HTMLDivElement> {
   /** Dropdown trigger (node-valued prop). */
   trigger?: unknown
   /** Dropdown items. */
@@ -245,6 +245,8 @@ export class Dropdown
   readonly element = this.inner.asReadonly()
   private readonly renderer = inject(Renderer2)
   private readonly cdr = inject(ChangeDetectorRef)
+  /** Schedules the deferred focus moves from the change-detection hooks. */
+  private readonly injector = inject(Injector)
   private readonly host: HTMLElement = this.el.nativeElement
   /** The adopted trigger element (cloned element or fallback wrapper). */
   private triggerEl: HTMLElement | null = null
@@ -652,14 +654,20 @@ export class Dropdown
   }
 
   /**
-   * After the view (and its `@for` reorder) has updated: React's keyed
-   * reconciliation moves the focused menu item's node without detaching it,
-   * so its DOM focus survives an items update, while `@for` detaches the
-   * views it moves and drops focus to the body. After an items update, while
-   * the menu is open, put focus back on the item only if it had focus before
-   * the update. Focus the user moved elsewhere stays there, as in React.
+   * Registers the focus restore as an after-render write: React's keyed
+   * reconciliation moves the focused menu item's node without detaching it, so
+   * its DOM focus survives an items update, while `@for` detaches the views it
+   * moves and drops focus to the body. After an items update, while the menu is
+   * open, the item that had focus before the update gets it back — after the
+   * render, so a `focusin` listener's state change renders. Focus the user
+   * moved elsewhere stays there, as in React.
    */
-  ngAfterViewChecked(): void {
+  constructor() {
+    afterEveryRender({ write: () => this.restoreItemFocus() })
+  }
+
+  /** Puts focus back on the item that held it, only after its items changed. */
+  private restoreItemFocus(): void {
     const itemsChanged = this.items !== this.checkedItems
     this.checkedItems = this.items
     if (!this.isOpen()) {
@@ -722,7 +730,10 @@ export class Dropdown
       )
     }
     this.pendingOpenFocus = 'first'
-    this.focusActive()
+    // The menu can be created from a change-detection hook (the open state is
+    // reconciled in ngDoCheck), so the focus runs after the check: a `focusin`
+    // listener's state change made during it is never rendered.
+    afterNextRender(() => this.focusActive(), { injector: this.injector })
     this.addListeners()
     this.schedulePosition()
     this.syncTrigger()

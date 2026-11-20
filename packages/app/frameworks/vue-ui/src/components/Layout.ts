@@ -223,29 +223,22 @@ export const Grid = defineComponent({
         ...classOf(props.className, attrs),
       )
 
-      const gridStyle: Record<string, string | undefined> = {
-        gridTemplateColumns: typeof props.columns === 'string' ? props.columns : undefined,
-        gridTemplateRows: typeof props.rows === 'string' ? props.rows : undefined,
-        gap:
-          typeof props.gap === 'number'
-            ? `${props.gap}px`
-            : typeof props.gap === 'string' &&
-                !(GAP_TOKENS as readonly string[]).includes(props.gap)
-              ? props.gap
-              : undefined,
-        columnGap:
-          typeof props.columnGap === 'number'
-            ? `${props.columnGap}px`
-            : typeof props.columnGap === 'string'
-              ? props.columnGap
-              : undefined,
-        rowGap:
-          typeof props.rowGap === 'number'
-            ? `${props.rowGap}px`
-            : typeof props.rowGap === 'string'
-              ? props.rowGap
-              : undefined,
-      }
+      // Only the values this Grid sets, as React's Grid does. Vue writes an undefined style key
+      // as '' (removing that property), so `columnGap: undefined` after `gap` removed both gaps
+      // `gap` had just set, and an undefined key erased the same property from the caller's style.
+      const gridStyle: Record<string, string> = {}
+      if (typeof props.columns === 'string') gridStyle.gridTemplateColumns = props.columns
+      if (typeof props.rows === 'string') gridStyle.gridTemplateRows = props.rows
+      if (typeof props.gap === 'number') gridStyle.gap = `${props.gap}px`
+      else if (
+        typeof props.gap === 'string' &&
+        !(GAP_TOKENS as readonly string[]).includes(props.gap)
+      )
+        gridStyle.gap = props.gap
+      if (typeof props.columnGap === 'number') gridStyle.columnGap = `${props.columnGap}px`
+      else if (typeof props.columnGap === 'string') gridStyle.columnGap = props.columnGap
+      if (typeof props.rowGap === 'number') gridStyle.rowGap = `${props.rowGap}px`
+      else if (typeof props.rowGap === 'string') gridStyle.rowGap = props.rowGap
 
       return h(
         'div',
