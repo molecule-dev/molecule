@@ -1,12 +1,14 @@
 import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
-import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 
 import tailwind from '@tailwindcss/vite'
-import { build, createBuilder, createLogger, type PluginOption } from 'vite'
+import { build, createBuilder, createLogger, type InlineConfig, type PluginOption } from 'vite'
 import { afterEach, describe, expect, it } from 'vitest'
 
 import { rootRelativeAssetsPlugin } from '../root-relative-assets.js'
+
+/** This package's own node_modules, where each fixture site is written. */
+const MODULES = join(import.meta.dirname, '../../node_modules')
 
 const roots: string[] = []
 afterEach(async () => {
@@ -18,7 +20,11 @@ async function buildSite(
   mode: 'client' | 'prerender' | 'environments' = 'client',
   plugins: PluginOption[] = [],
 ): Promise<string[]> {
-  const root = await mkdtemp(join(tmpdir(), 'source-graph-'))
+  // The site lives under this package, never the system temp directory: a fixture stylesheet's
+  // `@import 'tailwindcss'` resolves by walking up from the file, and under /tmp (CI, the release's
+  // grouped runner) no node_modules is reachable.
+  await mkdir(MODULES, { recursive: true })
+  const root = await mkdtemp(join(MODULES, '.source-graph-'))
   roots.push(root)
   for (const [name, contents] of Object.entries(files)) {
     const file = join(root, name)
@@ -28,12 +34,12 @@ async function buildSite(
   const diagnostics: string[] = []
   const logger = createLogger('silent')
   logger.warn = (message) => diagnostics.push(message)
-  const config = {
+  const config: InlineConfig = {
     root,
     configFile: false,
     customLogger: logger,
     plugins: [...plugins, rootRelativeAssetsPlugin({ prerender: mode === 'prerender' })],
-    build: { minify: false as const },
+    build: { minify: false },
   }
   const ssr = { ssr: join(root, 'src/document.ts'), outDir: 'server' }
   if (mode === 'environments') {
