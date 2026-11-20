@@ -15,6 +15,7 @@ import type { AuthClient, AuthState } from '@molecule/app-auth'
 import { bond, get as bondGet, isBonded } from '@molecule/app-bond'
 import {
   type FullRequestConfig,
+  type HttpAuthErrorEvent,
   type HttpClient,
   HttpError,
   type HttpResponse,
@@ -232,7 +233,7 @@ function createScriptedHttpClient(
   const unused = scripts.map((script) => ({ script, used: false }))
   const pending: PendingRequest[] = []
   let authToken: string | null = null
-  const authErrorHandlers = new Set<() => void>()
+  const authErrorHandlers = new Set<(event: HttpAuthErrorEvent) => void>()
 
   const respond = (
     config: FullRequestConfig,
