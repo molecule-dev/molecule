@@ -21,6 +21,7 @@ export const en: ExifPanelTranslations = {
   'exifPanel.mapLink': 'View on map',
   'exifPanel.value.aperture': 'f/{{value}}',
   'exifPanel.value.shutter': '{{value}} s',
+  // keep-english: ISO is the sensitivity unit cameras print in every language
   'exifPanel.value.iso': 'ISO {{value}}',
   'exifPanel.value.focalLength': '{{value}} mm',
 }

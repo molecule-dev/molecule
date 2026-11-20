@@ -10,7 +10,10 @@ export const en: BiometricsTranslations = {
   'biometrics.error.permissionDenied': 'Permission denied',
   'biometrics.error.unknown': 'Unknown error',
   'biometrics.device.fingerprint': 'Fingerprint',
+  // keep-english: a brand name, written the same in every language
   'biometrics.device.faceId': 'Face ID',
+  // keep-english: a brand name, written the same in every language
   'biometrics.device.touchId': 'Touch ID',
+  // keep-english: a brand name, written the same in every language
   'biometrics.device.windowsHello': 'Windows Hello',
 }
