@@ -24,7 +24,7 @@
 
 import { execFileSync, spawnSync } from 'node:child_process'
 import console from 'node:console'
-import { existsSync, mkdtempSync, rmSync, symlinkSync } from 'node:fs'
+import { existsSync, mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import process from 'node:process'
@@ -36,11 +36,16 @@ import { fileURLToPath } from 'node:url'
  *
  * @param repo - The repository root.
  * @param dest - An empty directory.
+ * @param files - NUL-delimited paths to export, or undefined for the whole tree.
  */
-export function exportIndex(repo, dest) {
-  execFileSync('git', ['checkout-index', '-a', `--prefix=${dest}/`], { cwd: repo })
-  const modules = join(repo, 'node_modules')
-  if (existsSync(modules)) symlinkSync(modules, join(dest, 'node_modules'), 'dir')
+export function exportIndex(repo, dest, files) {
+  execFileSync(
+    'git',
+    ['checkout-index', `--prefix=${dest}/`, ...(files === undefined ? ['-a'] : ['-z', '--stdin'])],
+    { cwd: repo, input: files },
+  )
+  const modules = [join(repo, 'node_modules'), join(repo, '..', 'node_modules')].find(existsSync)
+  if (modules) symlinkSync(modules, join(dest, 'node_modules'), 'dir')
 }
 
 /**
@@ -48,13 +53,45 @@ export function exportIndex(repo, dest) {
  *
  * @param repo - The repository root.
  * @param commands - Each a script path relative to the root, then its arguments.
+ * @param scope - Hook mode: 'tree' gives checks the staged path list, 'changed' exports
+ * only changed files and prettier configuration for documentation commits.
  * @returns The first failing command's exit status, or 0.
  */
-export function runOnIndex(repo, commands) {
-  const tree = mkdtempSync(join(tmpdir(), 'molecule-index-'))
+export function runOnIndex(repo, commands, scope) {
+  const scratch = mkdtempSync(join(tmpdir(), 'molecule-index-'))
   let status = 0
   try {
-    exportIndex(repo, tree)
+    const tree = join(scratch, 'tree')
+    mkdirSync(tree)
+    const git = (args) => execFileSync('git', args, { cwd: repo, maxBuffer: 1 << 24 })
+    const pathsFile = join(scratch, 'staged-paths')
+    const base = process.env.MOL_PRECOMMIT_BASE
+    const diff = (filters) =>
+      git([
+        'diff',
+        '--cached',
+        '-z',
+        '--name-only',
+        '--no-renames',
+        ...filters,
+        ...(base ? [base] : []),
+      ])
+    let files
+    if (scope) writeFileSync(pathsFile, diff([]))
+    if (scope === 'changed') {
+      const config = git([
+        'ls-files',
+        '-z',
+        '--',
+        'scripts/check-index-files.mjs',
+        ':(glob)**/.prettier*',
+        ':(glob)**/prettier.config.*',
+        ':(glob)**/package.json',
+      ])
+      const present = diff(['--diff-filter=AMT'])
+      files = [...new Set(`${config}${present}`.split('\0').filter(Boolean))].join('\0') + '\0'
+    }
+    exportIndex(repo, tree, files)
     for (const command of commands) {
       const [script, ...args] = command.split(' ').filter(Boolean)
       if (!existsSync(join(tree, script))) {
@@ -64,14 +101,19 @@ export function runOnIndex(repo, commands) {
       }
       const child = spawnSync(process.execPath, [join(tree, script), ...args], {
         cwd: tree,
+        env: scope ? { ...process.env, MOL_INDEX_PATHS_FILE: pathsFile } : process.env,
         stdio: 'inherit',
       })
-      if (child.error) console.error(`run-on-index: ${script} did not run: ${child.error.message}`)
       const code = child.error ? 1 : (child.status ?? 1)
-      if (code !== 0) status ||= code
+      if (code !== 0) {
+        console.error(
+          `run-on-index: ${script} failed (${child.error?.message ?? child.signal ?? code})`,
+        )
+        status ||= code
+      }
     }
   } finally {
-    rmSync(tree, { recursive: true, force: true })
+    rmSync(scratch, { recursive: true, force: true })
   }
   return status
 }
@@ -83,5 +125,5 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
     process.exit(2)
   }
   const repo = execFileSync('git', ['rev-parse', '--show-toplevel'], { encoding: 'utf8' }).trim()
-  process.exit(runOnIndex(repo, commands))
+  process.exit(runOnIndex(repo, commands, process.env.MOL_RUN_ON_INDEX))
 }
