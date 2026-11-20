@@ -194,6 +194,28 @@ export const toastProviderCases: UIComponentCases = {
       ],
     },
     {
+      name: 'useToast keeps the id a caller gives, as the element id and the removeToast handle',
+      children: [
+        {
+          probe: 'useToast',
+          method: 'addToast',
+          args: [{ id: 'upload-done', title: 'Uploaded', duration: 0 }],
+          label: 'add uploaded',
+        },
+        {
+          probe: 'useToast',
+          method: 'removeToast',
+          args: ['upload-done'],
+          label: 'remove uploaded',
+        },
+        'Page content',
+      ],
+      interactions: [
+        { type: 'click', selector: '[data-parity-probe="add uploaded"]' },
+        { type: 'click', selector: '[data-parity-probe="remove uploaded"]' },
+      ],
+    },
+    {
       name: 'useToast adds a default toast',
       children: [
         {

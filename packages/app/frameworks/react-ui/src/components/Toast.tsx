@@ -21,6 +21,7 @@ import type { ColorVariant, ToastProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 import { renderIcon } from '../utilities/renderIcon.js'
+import { rootProps } from '../utilities/rootProps.js'
 
 /**
  * Map status to toast variant.
@@ -71,6 +72,11 @@ export const Toast = forwardRef<HTMLDivElement, ToastProps>(
       className,
       style,
       testId,
+      onMouseEnter,
+      onMouseLeave,
+      onFocus,
+      onBlur,
+      ...rest
     },
     ref,
   ) => {
@@ -158,10 +164,27 @@ export const Toast = forwardRef<HTMLDivElement, ToastProps>(
         className={cm.cn(cm.toast({ variant }), className)}
         style={style}
         data-testid={testId}
-        onMouseEnter={pauseTimer}
-        onMouseLeave={resumeTimer}
-        onFocus={pauseTimer}
-        onBlur={resumeTimer}
+        // Every other declared prop (id, aria-*, data-*, automationId as data-mol-id, the DOM
+        // event handlers) reaches the root; a caller's role replaces the live-region default.
+        {...rootProps(rest)}
+        // The timer pauses while the pointer or focus is on the toast; the caller's handlers
+        // for the same events run after it.
+        onMouseEnter={(event) => {
+          pauseTimer()
+          onMouseEnter?.(event)
+        }}
+        onMouseLeave={(event) => {
+          resumeTimer()
+          onMouseLeave?.(event)
+        }}
+        onFocus={(event) => {
+          pauseTimer()
+          onFocus?.(event)
+        }}
+        onBlur={(event) => {
+          resumeTimer()
+          onBlur?.(event)
+        }}
       >
         {statusIcon && <span className={cm.toastIconWrapper}>{statusIcon}</span>}
         <div className={cm.toastContentWrapper}>
@@ -270,7 +293,8 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({
   const [toasts, setToasts] = useState<(ToastProps & { id: string })[]>([])
 
   const addToast = useCallback((toast: Omit<ToastProps, 'onDismiss'>) => {
-    const id = `toast-${++toastCounter}`
+    // A caller's `id` is the toast's handle and its element id; otherwise one is generated.
+    const id = toast.id ?? `toast-${++toastCounter}`
     setToasts((prev) => [...prev, { ...toast, id }])
     return id
   }, [])
