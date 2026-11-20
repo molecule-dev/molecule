@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# commit-staged-paths: --index-only
 # Staged-only pre-commit hook. Original ran format:check + lint + tests over the
 # entire monorepo (~30s), which serialised badly when many parallel agents were
 # committing concurrently — the wide hook window let other agents' staged files
@@ -25,33 +26,10 @@ staged_diff() {
 # Fast secret scan — blocks a commit that introduces a high-confidence secret
 # (staged added lines only). Runs first so a leaked key fails before the slower
 # format/lint pass. Bypass a reviewed false positive with: git commit --no-verify
-node scripts/precommit-secret-scan.mjs
-
-# Secret-scanner drift (cross-repo). scripts/precommit-secret-scan.mjs here is a
-# VENDORED copy of the workspace canonical (../scripts/precommit-secret-scan.mjs).
-# This repo's copy was the NEWEST when they diverged — the false-positive
-# exemptions were added here and nowhere else, so the other three kept blocking
-# `postgres://postgres:postgres@localhost` in docs. Fix the canonical, then sync.
-# Only checked when this copy is staged; skipped in a standalone clone.
-if staged_diff --name-only --diff-filter=ACM |
-  grep -q '^scripts/precommit-secret-scan\.mjs$'; then
-  if [ -f ../scripts/sync-secret-scanner.mjs ]; then
-    (cd .. && node scripts/sync-secret-scanner.mjs --check)
-  fi
-fi
-
-# Shared-lint-rule drift (cross-repo), same shape as the scanner check above.
-# eslint-rules/*.mjs here are VENDORED copies of the workspace canonical
-# (../scripts/eslint-rules/). molecule-dev/app carries the same files, and a
-# rule that fires in one repo but not the other is worse than no rule — the
-# design inconsistency simply migrates to the repo whose copy fell behind.
-# Only checked when a copy is staged; skipped in a standalone clone.
-if staged_diff --name-only --diff-filter=ACM |
-  grep -q '^eslint-rules/.*\.mjs$'; then
-  if [ -f ../scripts/sync-eslint-rules.mjs ]; then
-    (cd .. && node scripts/sync-eslint-rules.mjs --check)
-  fi
-fi
+node scripts/precommit-secret-scan.mjs || {
+  echo 'pre-commit: precommit-secret-scan failed' >&2
+  exit 1
+}
 
 # PATHSPEC COMMIT DETECTION — load-bearing for the README regen at the bottom.
 #
@@ -75,7 +53,8 @@ case "${GIT_INDEX_FILE:-}" in
 *next-index*) PATHSPEC_COMMIT=1 ;;
 esac
 
-STAGED=$(staged_diff --name-only --diff-filter=AM)
+STAGED=$(staged_diff --name-only --no-renames --diff-filter=AMT)
+ALL_STAGED=$(staged_diff --name-only --no-renames)
 
 # mlcl is a workspace member of the parent checkout, so its bins hoist to the
 # workspace root; a standalone mlcl install keeps them local. Check availability
@@ -87,7 +66,10 @@ fi
 # Published source/export changes need a pending changeset in THIS staged tree.
 # Run before the STAGED early exit too: that list intentionally excludes deletions,
 # but deleting published source also needs a changeset.
-node scripts/precommit-changeset.mjs
+node scripts/precommit-changeset.mjs || {
+  echo 'pre-commit: precommit-changeset failed' >&2
+  exit 1
+}
 
 # Every relative import in this commit must name a file the commit carries. A file
 # git ignores or never tracked still resolves in this checkout, so local builds and
@@ -95,55 +77,21 @@ node scripts/precommit-changeset.mjs
 # ignored `bag.svelte.js` and a release waited on CI). Reads the index, so a private
 # GIT_INDEX_FILE and MOL_PRECOMMIT_BASE are honoured. Before the early exit: a
 # deletion can strand an importer too.
-node scripts/check-tracked-imports.mjs --staged
-
-if [ -z "$STAGED" ]; then
-  exit 0
-fi
-
-JSTS=$(echo "$STAGED" | grep -E '\.(ts|tsx|js|jsx|mjs|cjs|svelte)$' || true)
-JSON_MD=$(echo "$STAGED" | grep -E '\.(json|md|css|scss|html|yaml|yml)$' || true)
-
-if [ -n "$JSTS" ]; then
-  echo "$JSTS" | xargs npx --no-install prettier --check
-  # --max-warnings 0 is LOAD-BEARING, not decoration. Bare `eslint <files>` exits
-  # 0 when there are only warnings, and this config reports almost everything as
-  # a warning — so from 2026-05-01 (when this hook was scoped to staged files and
-  # the flag was dropped) until 2026-08-03 the lint step could not fail on a
-  # warning, and 732 of them accumulated behind a green hook. `npm run lint` has
-  # always carried the flag; the hook must match it or it is not the same gate.
-  echo "$JSTS" | xargs npx --no-install eslint --no-error-on-unmatched-pattern --max-warnings 0
-fi
-
-# Every staged TypeScript file must PARSE (milliseconds; the parser only, no
-# types). A `*/` inside a JSDoc example once ended the doc comment early and the
-# package built as garbage; eslint and the doc-example verifier both read past
-# it, and the first parser it met was the owner's trust:new run before a publish.
-TS_STAGED=$(echo "$STAGED" | grep -E '\.(ts|tsx|mts|cts)$' || true)
-if [ -n "$TS_STAGED" ]; then
-  echo "$TS_STAGED" | xargs node scripts/check-syntax.mjs
-fi
-
-# Each staged package's @molecule peer floors must export what it imports (CI's
-# check:peer-floors, scoped to the packages whose package.json or src/ is staged;
-# no npm request when none is). 2026-11-16: a forms fix imported a type new in
-# app-forms 2.4.0 into five bindings under ^2.3.1, and nothing caught it before
-# CI failed on the release's version commit.
-echo "$STAGED" | node scripts/check-peer-floors.mjs --paths-from-stdin
-
-# .md is checked here (it was `.prettierignore`d until 2026-08-03, which is how
-# ~900 generated README.md files drifted). *.json is still ignored on purpose —
-# registry.json and the locale data are machine-written.
-if [ -n "$JSON_MD" ]; then
-  echo "$JSON_MD" | xargs npx --no-install prettier --check
-fi
+node scripts/check-tracked-imports.mjs --staged || {
+  echo 'pre-commit: check-tracked-imports failed' >&2
+  exit 1
+}
 
 # Internal @molecule version coherence: refuse only findings THIS commit adds
 # to its parent. The ordinary workspace `npm run verify:molecule-versions` still
 # judges the whole tree; a release's version-to-pins window or a peer's existing
 # incoherence must not refuse an unrelated commit. Skipped in a standalone clone.
-if [ -f ../scripts/verify-molecule-versions.mjs ]; then
-  ( cd .. && node scripts/verify-molecule-versions.mjs --quiet --staged ) || exit 1
+if [ -f ../scripts/verify-molecule-versions.mjs ] &&
+  printf '%s\n' "$ALL_STAGED" | grep -qE '^(package(-lock)?\.json|packages/.+/package\.json|\.changeset/held\.json)$'; then
+  ( cd .. && node scripts/verify-molecule-versions.mjs --quiet --staged ) || {
+    echo 'pre-commit: verify-molecule-versions failed' >&2
+    exit 1
+  }
 fi
 
 # The whole-tree checks judge the tree THIS commit carries: run-on-index.mjs exports
@@ -178,15 +126,63 @@ fi
 # - check-published-tests: no publishable package's build puts src/**/__tests__ in its
 #   tarball (precommit-changeset.mjs above counts on it). 193 packages whose tsconfig
 #   lacked the exclude shipped dist/__tests__/*.test.js to npm until 2026-11-16.
-node scripts/run-on-index.mjs \
-  "scripts/check-lockfile.js" \
-  "scripts/check-peer-deps.js" \
-  "scripts/check-package-repository.js" \
-  "scripts/check-package-metadata.mjs" \
-  "scripts/check-i18n-parity.js --check" \
-  "scripts/check-locale-placeholders.js" \
-  "scripts/check-jsx-specifiers.mjs" \
-  "scripts/check-published-tests.mjs"
+# The fleet checks read package/configuration inputs and their own scripts.
+# Everything else needs only the staged file checks, including formatting docs.
+if printf '%s\n' "$ALL_STAGED" | grep -qE '^packages/.+/src/' ||
+  printf '%s\n' "$ALL_STAGED" |
+    grep -E '^(packages/|scripts/|package(-lock)?\.json$|tsconfig[^/]*\.json$|\.npmrc$)' |
+    grep -qvE '\.(md|mdx)$'; then
+  # A lockfile dry run can judge scripts and config without consulting npm.
+  if ! printf '%s\n' "$ALL_STAGED" | grep -qE '(^|/)package\.json$|(^|/)src/'; then
+    export npm_config_offline=true
+  fi
+  MOL_RUN_ON_INDEX=tree node scripts/run-on-index.mjs \
+    "scripts/check-index-files.mjs" \
+    "scripts/check-lockfile.js" \
+    "scripts/check-peer-deps.js" \
+    "scripts/check-package-repository.js" \
+    "scripts/check-package-metadata.mjs" \
+    "scripts/check-i18n-parity.js --check" \
+    "scripts/check-locale-placeholders.js" \
+    "scripts/check-jsx-specifiers.mjs" \
+    "scripts/check-published-tests.mjs"
+elif [ -n "$STAGED" ]; then
+  MOL_RUN_ON_INDEX=changed node scripts/run-on-index.mjs "scripts/check-index-files.mjs"
+fi
+
+# The remaining steps read sibling worktrees, dispatch live probes, or generate
+# and publish README files. A producer index owns its own generated files.
+if [ "${1:-}" = --index-only ]; then exit 0; fi
+
+# Secret-scanner drift (cross-repo). scripts/precommit-secret-scan.mjs here is a
+# VENDORED copy of the workspace canonical (../scripts/precommit-secret-scan.mjs).
+# This repo's copy was the NEWEST when they diverged — the false-positive
+# exemptions were added here and nowhere else, so the other three kept blocking
+# `postgres://postgres:postgres@localhost` in docs. Fix the canonical, then sync.
+# Only checked when this copy is staged; skipped in a standalone clone.
+if staged_diff --name-only --diff-filter=ACM |
+  grep -q '^scripts/precommit-secret-scan\.mjs$'; then
+  if [ -f ../scripts/sync-secret-scanner.mjs ]; then
+    (cd .. && node scripts/sync-secret-scanner.mjs --check)
+  fi
+fi
+
+# Shared-lint-rule drift (cross-repo), same shape as the scanner check above.
+# eslint-rules/*.mjs here are VENDORED copies of the workspace canonical
+# (../scripts/eslint-rules/). molecule-dev/app carries the same files, and a
+# rule that fires in one repo but not the other is worse than no rule — the
+# design inconsistency simply migrates to the repo whose copy fell behind.
+# Only checked when a copy is staged; skipped in a standalone clone.
+if staged_diff --name-only --diff-filter=ACM |
+  grep -q '^eslint-rules/.*\.mjs$'; then
+  if [ -f ../scripts/sync-eslint-rules.mjs ]; then
+    (cd .. && node scripts/sync-eslint-rules.mjs --check)
+  fi
+fi
+
+if [ -z "$STAGED" ]; then
+  exit 0
+fi
 
 # Registry export-drift gate (same spirit as i18n-parity, but cross-REPO). A
 # package's public exports are the source of truth, yet they are recorded in
