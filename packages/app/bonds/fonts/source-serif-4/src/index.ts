@@ -19,6 +19,8 @@
  * - **License:** the font files are Source Serif 4, under the SIL Open Font License 1.1;
  *   `fonts/OFL.txt` ships with them and must stay with any copy. This package's code is Apache-2.0.
  *
+ * - `fonts/OFL-Adobe.txt` records Adobe's reserved “Source” name for these faces.
+ *
  * @module
  */
 

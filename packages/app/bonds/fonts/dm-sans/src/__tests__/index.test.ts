@@ -10,7 +10,7 @@ describe('@molecule/app-fonts-dm-sans', () => {
     expect(font.family).toBe('DM Sans')
     expect(font.role).toBe('sans')
     expect(font.source.type).toBe('local')
-    expect(font.source.faces).toHaveLength(1)
+    expect(font.source.faces).toHaveLength(2)
   })
 
   it('should never load from an external CDN', () => {

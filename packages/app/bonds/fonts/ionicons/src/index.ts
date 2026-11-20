@@ -45,8 +45,7 @@
  *   dependency to the app's `package.json` (pin the version already installed
  *   there), then in `app/src/bonds/index.ts` call `setFont(icons)`. That is
  *   the whole wiring: the exported definition's face is
- *   `new URL('../fonts/ionicons.woff', import.meta.url)`, which the bundler
- *   resolves to the emitted asset in both dev and the production build.
+ *   a module-relative WOFF2 URL that the bundler resolves to the emitted asset in both dev and the production build.
  *   Copying the file into `app/public/fonts/` is unnecessary; a missing file
  *   there is not a configuration to add.
  * - **A face URL that answers with HTML means the file is not there.** If the

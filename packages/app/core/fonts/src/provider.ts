@@ -135,14 +135,14 @@ export function setFont(font: FontDefinition, options: SetFontOptions = {}): voi
       const base = resolveFontBasePath(options.basePath)
       const css = font.source.faces
         .map((face) => {
-          const weight = face.weight
-          const style = face.style ?? 'normal'
+          const format = face.format ? ` format('${face.format}')` : ''
+          const unicodeRange = face.unicodeRange ? `\n  unicode-range: ${face.unicodeRange};` : ''
           return `@font-face {
   font-family: '${font.family}';
-  src: url('${resolveFontFaceUrl(face.file, base)}');
-  font-weight: ${weight};
-  font-style: ${style};
-  font-display: swap;
+  src: url('${resolveFontFaceUrl(face.file, base)}')${format};
+  font-weight: ${face.weight};
+  font-style: ${face.style ?? 'normal'};
+  font-display: swap;${unicodeRange}
 }`
         })
         .join('\n')

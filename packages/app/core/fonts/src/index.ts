@@ -35,7 +35,7 @@
  * @remarks
  * - **ALL fonts are local — NEVER load one from a CDN.** Every provider bond here
  *   (`@molecule/app-fonts-inter`, `-jetbrains-mono`, `-material-symbols`, and the
- *   display/serif faces) is `source: 'local'` and self-hosts from `/fonts/`. Do
+ *   display/serif faces) is `source: 'local'` and self-hosts its font files. Do
  *   NOT add a Google Fonts `<link href="https://fonts.googleapis.com…">`, an
  *   `@import url(https://fonts.gstatic…)`, or a `next/font/google` import: external
  *   fonts fail in the sandbox (egress is blocked), leak the visitor's IP, and add
@@ -55,6 +55,9 @@
  *   `<basePath>fonts/` (copy the bond's `fonts/` into the app's
  *   `public/fonts/`) or every face silently 404s and the fallback stack renders
  *   instead. CDN sources inject `<link>` tags (with preconnect origins).
+ * - A local face can declare `format: 'woff2'` and a CSS `unicodeRange`. Give
+ *   the Latin subset and its full-font fallback the same weight and style,
+ *   with separate ranges, so the browser only fetches the files its text needs.
  * - **A site served under a sub-path (Vite `base: '/blog/'`, `BASE_PATH`) MUST pass
  *   the base: `setFont(font, { basePath: import.meta.env.BASE_URL })`.** Its
  *   `public/fonts/` is at `/blog/fonts/`, so a root-absolute `/fonts/…` 404s on

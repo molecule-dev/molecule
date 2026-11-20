@@ -6,6 +6,8 @@
 
 import type { FontDefinition } from '@molecule/app-fonts'
 
+import { faces } from './font-faces.js'
+
 /** DM Serif Display font definition — local, self-hosted (no external CDN). */
 export const font: FontDefinition = {
   family: 'DM Serif Display',
@@ -13,8 +15,6 @@ export const font: FontDefinition = {
   fallbacks: ['Georgia', 'Cambria', '"Times New Roman"', 'serif'],
   source: {
     type: 'local',
-    faces: [
-      { file: new URL('../fonts/DMSerifDisplay-Regular.ttf', import.meta.url).href, weight: 400 },
-    ],
+    faces,
   },
 }

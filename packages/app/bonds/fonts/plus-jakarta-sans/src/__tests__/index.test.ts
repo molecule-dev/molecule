@@ -10,7 +10,7 @@ describe('@molecule/app-fonts-plus-jakarta-sans', () => {
     expect(font.family).toBe('Plus Jakarta Sans')
     expect(font.role).toBe('sans')
     expect(font.source.type).toBe('local')
-    expect(font.source.faces).toHaveLength(1)
+    expect(font.source.faces).toHaveLength(2)
   })
 
   it('should never load from an external CDN', () => {

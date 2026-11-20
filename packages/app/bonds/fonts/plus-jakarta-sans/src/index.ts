@@ -14,6 +14,7 @@
  *   at startup. The packaged faces resolve relative to this module; the browser
  *   bundler emits the complete files as fingerprinted assets, including its
  *   configured public base path. No manual copy or app-side asset import is needed.
+ * - Text faces ship a Latin subset and a full WOFF2 face for other characters.
  * - The registry retains filenames for `mlcl` static font copying. A custom
  *   face may still use a plain filename with `setFont`'s `basePath` option.
  * - **License:** the font files are Plus Jakarta Sans, under the SIL Open Font License 1.1;

@@ -447,6 +447,48 @@ describe('@molecule/app-fonts', () => {
       expect(styleEl.textContent).toContain("src: url('/blog/fonts/Arimo-Bold.ttf')")
     })
 
+    it('renders explicit formats and character ranges on both rules of a variable face', () => {
+      setFont(
+        {
+          ...localFont,
+          source: {
+            type: 'local',
+            faces: [
+              {
+                file: 'Full.woff2',
+                weight: '400 700',
+                style: 'italic',
+                variable: true,
+                format: 'woff2',
+                unicodeRange: 'U+0370-03FF, U+0400-04FF',
+              },
+              {
+                file: '/assets/Latin',
+                weight: '400 700',
+                style: 'italic',
+                variable: true,
+                format: 'woff2',
+                unicodeRange: 'U+0000-00FF',
+              },
+            ],
+          },
+        },
+        { basePath: '/blog/' },
+      )
+
+      const { textContent } = mockAppendChild.mock.calls[0][0]
+      const rules = textContent.match(/@font-face \{[^}]+\}/g)
+      expect(rules).toHaveLength(2)
+      expect(rules[0]).toContain("url('/blog/fonts/Full.woff2') format('woff2')")
+      expect(rules[0]).toContain('unicode-range: U+0370-03FF, U+0400-04FF;')
+      expect(rules[1]).toContain("url('/assets/Latin') format('woff2')")
+      expect(rules[1]).toContain('unicode-range: U+0000-00FF;')
+      for (const rule of rules) {
+        expect(rule).toContain('font-weight: 400 700;')
+        expect(rule).toContain('font-style: italic;')
+      }
+    })
+
     it('should inject @font-face plus the utility class for icon fonts', () => {
       setFont(iconFont)
       expect(mockAppendChild).toHaveBeenCalledTimes(1)

@@ -6,6 +6,8 @@
 
 import type { FontDefinition } from '@molecule/app-fonts'
 
+import { faces } from './font-faces.js'
+
 /** Space Grotesk font definition — local, self-hosted (no external CDN). */
 export const font: FontDefinition = {
   family: 'Space Grotesk',
@@ -13,12 +15,6 @@ export const font: FontDefinition = {
   fallbacks: ['system-ui', '-apple-system', 'sans-serif'],
   source: {
     type: 'local',
-    faces: [
-      {
-        file: new URL('../fonts/SpaceGrotesk-VariableFont.ttf', import.meta.url).href,
-        weight: '300 700',
-        variable: true,
-      },
-    ],
+    faces,
   },
 }

@@ -1,7 +1,7 @@
 /**
  * Arimo font bond for molecule.dev — a clean sans-serif, metrically compatible
  * with Arial. Exports a ready-made `FontDefinition` (`font`, role `sans`) with
- * locally-served TTF faces (regular 400, bold 700, variable 100-1000).
+ * locally-served WOFF2 faces (regular 400, bold 700, variable 100-1000).
  *
  * @example
  * ```typescript
@@ -23,8 +23,12 @@
  *   at startup. The packaged faces resolve relative to this module; the browser
  *   bundler emits the complete files as fingerprinted assets, including its
  *   configured public base path. No manual copy or app-side asset import is needed.
+ * - Text faces ship a Latin subset and a full WOFF2 face for other characters.
  * - The registry retains filenames for `mlcl` static font copying. A custom
  *   face may still use a plain filename with `setFont`'s `basePath` option.
+ *
+ * - The font files are licensed under the SIL Open Font License 1.1. Keep
+ *   the notice in `fonts/OFL.txt` with any copy of the font files.
  *
  * @module
  */

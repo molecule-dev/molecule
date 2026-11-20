@@ -10,7 +10,7 @@ describe('@molecule/app-fonts-newsreader', () => {
     expect(font.family).toBe('Newsreader')
     expect(font.role).toBe('serif')
     expect(font.source.type).toBe('local')
-    expect(font.source.faces).toHaveLength(2)
+    expect(font.source.faces).toHaveLength(4)
   })
 
   it('should never load from an external CDN', () => {

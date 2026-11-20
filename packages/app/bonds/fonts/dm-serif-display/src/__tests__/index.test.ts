@@ -10,7 +10,7 @@ describe('@molecule/app-fonts-dm-serif-display', () => {
     expect(font.family).toBe('DM Serif Display')
     expect(font.role).toBe('serif')
     expect(font.source.type).toBe('local')
-    expect(font.source.faces).toHaveLength(1)
+    expect(font.source.faces).toHaveLength(2)
   })
 
   it('should never load from an external CDN', () => {

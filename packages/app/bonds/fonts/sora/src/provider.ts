@@ -6,6 +6,8 @@
 
 import type { FontDefinition } from '@molecule/app-fonts'
 
+import { faces } from './font-faces.js'
+
 /** Sora font definition — local, self-hosted (no external CDN). */
 export const font: FontDefinition = {
   family: 'Sora',
@@ -13,12 +15,6 @@ export const font: FontDefinition = {
   fallbacks: ['system-ui', '-apple-system', 'sans-serif'],
   source: {
     type: 'local',
-    faces: [
-      {
-        file: new URL('../fonts/Sora-VariableFont.ttf', import.meta.url).href,
-        weight: '100 800',
-        variable: true,
-      },
-    ],
+    faces,
   },
 }

@@ -22,7 +22,7 @@ describe('@molecule/app-fonts-ionicons', () => {
     expect(font.source.faces).toHaveLength(1)
     // The default face is the package's own webfont URL, not a bare filename that would need
     // a copy into `app/public/fonts/` (xr-molecule-flash-m186).
-    expect(font.source.faces?.[0]?.file).toMatch(/\/fonts\/ionicons\.woff$/)
+    expect(font.source.faces?.[0]?.file).toMatch(/\/fonts\/ionicons\.woff2$/)
   })
 
   it('should never load from an external CDN', () => {
@@ -69,7 +69,7 @@ describe('setFont(font) alone delivers the webfont (xr-molecule-flash-m186)', ()
     vi.unstubAllGlobals()
   })
 
-  it('injects the package webfont URL, not <basePath>fonts/ionicons.woff', () => {
+  it('injects the package webfont URL, not <basePath>fonts/ionicons.woff2', () => {
     const appended: Record<string, unknown>[] = []
     vi.stubGlobal('document', {
       documentElement: { style: { setProperty: vi.fn() } },
@@ -84,13 +84,13 @@ describe('setFont(font) alone delivers the webfont (xr-molecule-flash-m186)', ()
     setFont(font, { basePath: '/blog/' })
 
     const file = font.source.faces?.[0]?.file ?? ''
-    expect(file).toMatch(/\/fonts\/ionicons\.woff$/)
+    expect(file).toMatch(/\/fonts\/ionicons\.woff2$/)
     expect(appended[0].textContent).toContain(`src: url('${file}')`)
     expect(appended[0].textContent).not.toContain('/blog/fonts/')
   })
 
   it('points at the font file the package ships', () => {
-    // A bare `new URL('../fonts/ionicons.woff', import.meta.url)` that does not land on the
+    // A bare `new URL('../fonts/ionicons.woff2', import.meta.url)` that does not land on the
     // shipped file is the same silent 404 the run hit as an HTML response.
     expect(existsSync(fileURLToPath(font.source.faces?.[0]?.file ?? ''))).toBe(true)
   })

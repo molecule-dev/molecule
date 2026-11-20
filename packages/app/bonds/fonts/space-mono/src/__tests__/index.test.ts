@@ -10,7 +10,7 @@ describe('@molecule/app-fonts-space-mono', () => {
     expect(font.family).toBe('Space Mono')
     expect(font.role).toBe('mono')
     expect(font.source.type).toBe('local')
-    expect(font.source.faces).toHaveLength(3)
+    expect(font.source.faces).toHaveLength(6)
   })
 
   it('should never load from an external CDN', () => {

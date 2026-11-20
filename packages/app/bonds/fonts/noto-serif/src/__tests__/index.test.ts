@@ -10,7 +10,7 @@ describe('@molecule/app-fonts-noto-serif', () => {
     expect(font.family).toBe('Noto Serif')
     expect(font.role).toBe('serif')
     expect(font.source.type).toBe('local')
-    expect(font.source.faces).toHaveLength(2)
+    expect(font.source.faces).toHaveLength(4)
   })
 
   it('should never load from an external CDN', () => {

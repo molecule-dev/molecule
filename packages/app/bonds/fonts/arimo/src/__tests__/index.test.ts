@@ -12,7 +12,7 @@ describe('@molecule/app-fonts-arimo', () => {
   it('should have local font source', () => {
     expect(font.source.type).toBe('local')
     expect(font.source.faces).toBeDefined()
-    expect(font.source.faces).toHaveLength(3)
+    expect(font.source.faces).toHaveLength(6)
   })
 
   it('should have fallback fonts', () => {

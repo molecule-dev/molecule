@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto'
 import { existsSync, readFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -47,5 +48,15 @@ describe('@molecule/app-fonts-source-sans-3', () => {
     const license = readFileSync(new URL('../../fonts/OFL.txt', import.meta.url), 'utf8')
     expect(license).toMatch(/SIL Open Font License/i)
     expect(license).toMatch(/Copyright/)
+  })
+
+  it('keeps the original Adobe face whose Source name is reserved', () => {
+    const face = font.source.faces?.[0]
+    expect(face?.file).toMatch(/\/fonts\/SourceSans3-VariableFont\.ttf$/)
+    expect(face?.unicodeRange).toBeUndefined()
+    const digest = createHash('sha256')
+      .update(readFileSync(new URL(face!.file)))
+      .digest('hex')
+    expect(digest).toBe('042fe2cc0b933e328410d7acbd0aa6a1873dca5aef81875f4bc214b08825c7b9')
   })
 })

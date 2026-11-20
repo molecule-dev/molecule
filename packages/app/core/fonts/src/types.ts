@@ -21,10 +21,10 @@ export type FontRole = 'sans' | 'serif' | 'mono' | 'icon'
 export interface FontFaceDescriptor {
   /**
    * Font file: a filename relative to the package's fontsDir
-   * (e.g., 'Arimo-Regular.ttf'), or an already-final URL — a root-absolute
-   * asset path (`/assets/Arimo-1a2b.ttf`), a full `http(s):` URL or a
+   * (e.g., 'Arimo-Regular.woff2'), or an already-final URL — a root-absolute
+   * asset path (`/assets/Arimo-1a2b.woff2`), a full `http(s):` URL or a
    * `data:` URL — which `setFont()` uses as-is. That is the shape a bundler
-   * emits for `import ttf from '…Arimo-Regular.ttf?url'`.
+   * emits for `import woff2 from '…Arimo-Regular.woff2?url'`.
    */
   file: string
   /** CSS font-weight value — number (400) or range string ('100 1000'). */
@@ -33,6 +33,10 @@ export interface FontFaceDescriptor {
   style?: string
   /** If true, this is a variable font — wrap in `@supports` (font-variation-settings: normal). */
   variable?: boolean
+  /** CSS source format hint, e.g. 'woff2'. Omit for automatic detection by the browser. */
+  format?: string
+  /** CSS unicode-range, e.g. 'U+0000-00FF'. Omit to use the entire character map. */
+  unicodeRange?: string
 }
 
 /** Font loading source information. */
