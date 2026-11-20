@@ -144,6 +144,13 @@ jobs:
       # 193 packages shipped dist/__tests__/*.test.js until 2026-11-16, and the
       # pre-commit changeset gate treats every __tests__ change as unpublished.
       - run: npm run check:published-tests
+      # Every Vue, Svelte, Solid and Angular port of a React package or bond carries each of
+      # its React test titles. As a scripts test alone it ran only when scripts/ changed, so a
+      # React test added without its ports passed the affected-test scope. --base=ci also
+      # refuses an entry the push or pull request adds to a parity ledger or known-gaps file.
+      - run: npm run check:framework-conformance -- --base=ci
+        env:
+          GITHUB_EVENT_BEFORE: ${{ github.event.before }}
       # Every name a package imports from a @molecule peer exists in the LOWEST
       # published version its peer range allows. Workspaces link the newest local source, so
       # a bond importing an export its core gained this release builds green here

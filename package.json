@@ -33,6 +33,7 @@
     "changeset": "changeset",
     "check:changesets-consumed": "node scripts/check-changesets-consumed.mjs",
     "check:feature-jsdocs": "node scripts/check-feature-jsdocs.mjs --check",
+    "check:framework-conformance": "node scripts/check-framework-conformance.mjs",
     "check:i18n-parity": "node scripts/check-i18n-parity.js --check",
     "check:jsx-specifiers": "node scripts/check-jsx-specifiers.mjs",
     "check:locale-placeholders": "node scripts/check-locale-placeholders.js",

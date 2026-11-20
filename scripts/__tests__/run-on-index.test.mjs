@@ -166,4 +166,14 @@ describe('run-on-index', () => {
     expect(result.stderr).toContain('the commit does not carry scripts/untracked.mjs')
     expect(result.stdout).not.toContain('ran')
   })
+
+  it('tells each command the repository the export came from', () => {
+    const root = fixture()
+    write(root, 'scripts/repo.mjs', 'console.log(process.env.MOL_INDEX_REPO)\n')
+    git(root, ['add', 'scripts/repo.mjs'])
+
+    const result = run(root, ['scripts/repo.mjs'])
+    expect(result.status).toBe(0)
+    expect(result.stdout.trim()).toBe(git(root, ['rev-parse', '--show-toplevel']))
+  })
 })

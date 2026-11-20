@@ -72,8 +72,13 @@
  *   recorded goldens (`src/features/cases/<x>.ts`, `src/features/goldens/<x>.json` or, stored
  *   per component, `src/features/goldens/<x>/index.json`).
  *
+ * With `--base=<commit>`, the ledgers and every known-gaps file must also hold no entry that commit
+ * does not ({@link ledgerGrowthViolations}): they may only shrink, so a gap is closed by porting
+ * it, never by listing it.
+ *
  * @module
  */
+import { execFileSync } from 'node:child_process'
 import console from 'node:console'
 import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
@@ -835,6 +840,119 @@ export function prunedTitlePending(root = ROOT) {
   )
 }
 
+/** Where a bond keeps the conformance cases it still fails, under its package directory. */
+const KNOWN_GAPS_SUFFIX = '/src/__tests__/conformance/known-gaps.json'
+
+/**
+ * The files that record what a counterpart still owes and may only shrink: the pending ledgers
+ * and every bond's conformance `known-gaps.json`.
+ *
+ * @param root - The molecule repository root.
+ * @returns Their repo-relative paths, those the tree holds.
+ */
+export function shrinkOnlyLedgers(root = ROOT) {
+  const gaps = [...frameworkPackages(root), ...featurePackages(root), ...routingPackages(root)].map(
+    ({ dir }) => `${dir}${KNOWN_GAPS_SUFFIX}`,
+  )
+  return [FEATURE_PARITY_PENDING, TITLE_PARITY_PENDING, ...gaps].filter((path) =>
+    existsSync(join(root, path)),
+  )
+}
+
+/**
+ * The entries the tree's ledgers and known-gaps files hold that the base does not. Each may only
+ * shrink, so a gap is closed by porting it, never by listing it: without this rule, a change could
+ * add its own gap to the ledger and pass every other check.
+ *
+ * @param root - The molecule repository root.
+ * @param readBase - Reads a repo-relative file at the base: its text, or `null` when the base has
+ *   no such file.
+ * @param base - The base's name, for messages.
+ * @returns One line per added entry.
+ */
+export function ledgerGrowthViolations(root, readBase, base) {
+  const out = []
+  for (const path of shrinkOnlyLedgers(root)) {
+    let now
+    try {
+      now = readJson(join(root, path))
+    } catch (_error) {
+      // Not JSON: the rule that reads this file names it; there is nothing to compare.
+      continue
+    }
+    if (!now || typeof now !== 'object' || Array.isArray(now)) continue
+    const text = readBase(path)
+    // A port the base does not have at all starts its known-gaps.json here, and from then on it may
+    // only shrink: landing a new port with its gaps closes more than it opens (its pending-ledger
+    // entry goes). The pending ledgers are one file each, so they judge a new package's entries too.
+    const gapsOf = path.endsWith(KNOWN_GAPS_SUFFIX)
+      ? path.slice(0, -KNOWN_GAPS_SUFFIX.length)
+      : null
+    if (text === null && gapsOf !== null && readBase(`${gapsOf}/package.json`) === null) continue
+    let before = {}
+    if (text !== null)
+      try {
+        before = JSON.parse(text)
+      } catch (_error) {
+        // A base whose copy is not JSON lists nothing, so every entry the tree holds is new.
+        before = {}
+      }
+    for (const [name, entries] of Object.entries(now)) {
+      if (!Array.isArray(entries)) continue
+      const had = new Set(Array.isArray(before?.[name]) ? before[name] : [])
+      for (const entry of entries)
+        if (!had.has(entry))
+          out.push(
+            `${path}: ${name} adds ${JSON.stringify(entry)}, which ${base} does not list; this file may only shrink, so port it instead of listing it`,
+          )
+    }
+  }
+  return out
+}
+
+/**
+ * Reads files at one commit of a git repository, for {@link ledgerGrowthViolations}.
+ *
+ * @param root - The repository root.
+ * @param rev - The commit (a sha, `HEAD`, `origin/main`).
+ * @returns `readBase(path)`: the file's text at `rev`, or `null` when `rev` has no such file.
+ * @throws {Error} When `rev` names no commit, so a mistyped base is never read as an empty one.
+ */
+export function gitFileReader(root, rev) {
+  const git = (args) =>
+    execFileSync('git', ['-C', root, ...args], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 })
+  try {
+    git(['rev-parse', '--verify', '--quiet', `${rev}^{commit}`])
+  } catch (error) {
+    throw new Error(`--base=${rev} names no commit of ${root}`, { cause: error })
+  }
+  return (path) =>
+    git(['ls-tree', '--name-only', rev, '--', path]).trim() ? git(['show', `${rev}:${path}`]) : null
+}
+
+/**
+ * The base `--base=ci` names, chosen as `scripts/affected-projects.mjs` chooses its diff base: a
+ * pull request's merge base with its target branch, or the commit before a push. A push that
+ * created its branch, and any run outside CI, has none: the tree is checked alone (the release's
+ * committed-tree mirror of CI), and the pre-commit hook judges growth against the commit's parent.
+ *
+ * @param env - The environment: GITHUB_EVENT_NAME, GITHUB_BASE_REF and GITHUB_EVENT_BEFORE.
+ * @param mergeBase - Returns the merge base of a ref and HEAD.
+ * @returns The base commit, or `null`.
+ * @throws {Error} For a pull request without GITHUB_BASE_REF.
+ */
+export function ciBase(env, mergeBase) {
+  if (env.GITHUB_EVENT_NAME === 'pull_request') {
+    if (!env.GITHUB_BASE_REF) throw new Error('--base=ci: a pull request with no GITHUB_BASE_REF')
+    return mergeBase(`origin/${env.GITHUB_BASE_REF}`)
+  }
+  if (env.GITHUB_EVENT_NAME === 'push') {
+    const before = env.GITHUB_EVENT_BEFORE ?? ''
+    return /^0*$/.test(before) ? null : before
+  }
+  return null
+}
+
 const isMain = process.argv[1] === fileURLToPath(import.meta.url)
 if (isMain && process.argv.includes('--prune-title-pending')) {
   // Shrinks the title ledger to what is still missing; the check itself runs without the flag.
@@ -843,7 +961,39 @@ if (isMain && process.argv.includes('--prune-title-pending')) {
     `${JSON.stringify(prunedTitlePending(), null, 2)}\n`,
   )
 } else if (isMain) {
-  const violations = findConformanceViolations()
+  // --base=<commit>: also refuse any ledger or known-gaps entry that commit does not hold
+  // (pre-commit: the commit's parent; CI: --base=ci, the commit the push or pull request starts from).
+  const baseArg = process.argv.find((a) => a.startsWith('--base='))?.slice('--base='.length)
+  // run-on-index runs this from an export of the index, which has no .git: the base is read from
+  // the repository the export came from.
+  const repo = process.env.MOL_INDEX_REPO ?? ROOT
+  const base =
+    baseArg === 'ci'
+      ? ciBase(process.env, (ref) =>
+          execFileSync('git', ['-C', repo, 'merge-base', ref, 'HEAD'], { encoding: 'utf8' }).trim(),
+        )
+      : baseArg
+  if (baseArg === 'ci' && !base)
+    console.log(
+      'framework-conformance: no push or pull-request base, so ledger growth is not judged here (the pre-commit hook judges it against the commit parent)',
+    )
+  // Read first, so a base that names no commit stops the check before the long scan.
+  let readBase = null
+  if (base)
+    try {
+      readBase = gitFileReader(repo, base)
+    } catch (error) {
+      // A force push's before-commit is not in CI's clone: say so and check the tree alone. A
+      // base named by hand that names no commit is a mistake, and stops the check.
+      if (baseArg !== 'ci') throw error
+      console.log(
+        `framework-conformance: ${error.message} (a force push), so ledger growth is not judged here`,
+      )
+    }
+  const violations = [
+    ...findConformanceViolations(),
+    ...(readBase ? ledgerGrowthViolations(ROOT, readBase, base) : []),
+  ]
   for (const v of violations) console.error(`framework-conformance: ${v}`)
   if (violations.length) process.exit(1)
   console.log(

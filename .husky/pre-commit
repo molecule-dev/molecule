@@ -126,6 +126,10 @@ fi
 # - check-published-tests: no publishable package's build puts src/**/__tests__ in its
 #   tarball (precommit-changeset.mjs above counts on it). 193 packages whose tsconfig
 #   lacked the exclude shipped dist/__tests__/*.test.js to npm until 2026-11-16.
+# - check-framework-conformance: every Vue, Svelte, Solid and Angular port of a React
+#   package or bond carries each of its React test titles, and the parity ledgers and
+#   known-gaps files hold no entry the commit's parent lacks. Only the scripts suite ran
+#   it, so a commit adding a React test without its ports passed this hook.
 # The fleet checks read package/configuration inputs and their own scripts.
 # Everything else needs only the staged file checks, including formatting docs.
 if printf '%s\n' "$ALL_STAGED" | grep -qE '^packages/.+/src/' ||
@@ -145,7 +149,8 @@ if printf '%s\n' "$ALL_STAGED" | grep -qE '^packages/.+/src/' ||
     "scripts/check-i18n-parity.js --check" \
     "scripts/check-locale-placeholders.js" \
     "scripts/check-jsx-specifiers.mjs" \
-    "scripts/check-published-tests.mjs"
+    "scripts/check-published-tests.mjs" \
+    "scripts/check-framework-conformance.mjs --base=${DIFF_BASE:-HEAD}"
 elif [ -n "$STAGED" ]; then
   MOL_RUN_ON_INDEX=changed node scripts/run-on-index.mjs "scripts/check-index-files.mjs"
 fi

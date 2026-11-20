@@ -6,6 +6,7 @@
  *
  * @module
  */
+import { execFileSync } from 'node:child_process'
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
@@ -16,6 +17,7 @@ import {
   BINDING_EXEMPT,
   BINDING_REFERENCE,
   BUILD_TESTS_EXCLUDE,
+  ciBase,
   EXEMPT,
   FEATURE_FRAMEWORKS,
   FEATURE_PARITY_PENDING,
@@ -23,11 +25,14 @@ import {
   featureCounterpart,
   featureReference,
   findConformanceViolations,
+  gitFileReader,
   KIT,
+  ledgerGrowthViolations,
   prunedTitlePending,
   REFERENCE,
   ROUTING_EXEMPT,
   ROUTING_REFERENCE,
+  shrinkOnlyLedgers,
   TITLE_PARITY_EXEMPT,
   TITLE_PARITY_PENDING,
   titleParityPairs,
@@ -979,6 +984,151 @@ it.each([['a'], ['b']])('selects %s', () => {})
           `${routing}/vue-router: lacks 1 test(s) of ${routing}/react-router/src/__tests__/navigate.test.tsx`,
         ),
       ])
+    })
+  })
+})
+
+describe('the ledgers only shrink', () => {
+  const GAPS = 'packages/app/frameworks/vue/src/__tests__/conformance/known-gaps.json'
+
+  /**
+   * A tree holding the given files, and its base: a reader of the files the base held.
+   *
+   * @param files - Repo-relative path → text, in the tree.
+   * @param base - Repo-relative path → text, at the base.
+   * @returns The violations.
+   */
+  const growth = (files, base) => {
+    const root = mkdtempSync(join(tmpdir(), 'ledger-growth-'))
+    roots.push(root)
+    mkdirSync(join(root, 'packages/app/frameworks/vue'), { recursive: true })
+    for (const [file, text] of Object.entries(files)) {
+      mkdirSync(dirname(join(root, file)), { recursive: true })
+      writeFileSync(join(root, file), text)
+    }
+    writeFileSync(
+      join(root, 'packages/app/frameworks/vue/package.json'),
+      JSON.stringify({ name: '@molecule/app-vue' }),
+    )
+    return ledgerGrowthViolations(root, (path) => base[path] ?? null, 'the base')
+  }
+  const ledger = (entries) => JSON.stringify(entries)
+
+  it('fails an entry the base does not list, naming the file, the name and the entry', () => {
+    expect(
+      growth(
+        { [TITLE_PARITY_PENDING]: ledger({ '@molecule/app-widget-vue': ['opens', 'closes'] }) },
+        { [TITLE_PARITY_PENDING]: ledger({ '@molecule/app-widget-vue': ['opens'] }) },
+      ),
+    ).toEqual([
+      `${TITLE_PARITY_PENDING}: @molecule/app-widget-vue adds "closes", which the base does not list; this file may only shrink, so port it instead of listing it`,
+    ])
+  })
+
+  it('fails a new name, a ledger the base lacks and a known-gaps entry alike', () => {
+    const violations = growth(
+      {
+        [FEATURE_PARITY_PENDING]: ledger({
+          '@molecule/app-a-react': ['vue'],
+          '@molecule/app-b-react': ['solid'],
+        }),
+        [TITLE_PARITY_PENDING]: ledger({ '@molecule/app-vue': ['renders'] }),
+        [GAPS]: ledger({ Button: ['renders a link'] }),
+      },
+      {
+        [FEATURE_PARITY_PENDING]: ledger({ '@molecule/app-a-react': ['vue'] }),
+        [GAPS]: ledger({}),
+      },
+    )
+    expect(violations.map((v) => v.slice(0, v.indexOf(', which')))).toEqual([
+      `${FEATURE_PARITY_PENDING}: @molecule/app-b-react adds "solid"`,
+      `${TITLE_PARITY_PENDING}: @molecule/app-vue adds "renders"`,
+      `${GAPS}: Button adds "renders a link"`,
+    ])
+  })
+
+  it('lets a port the base lacks start its known-gaps list, never a port the base has', () => {
+    const gaps = { [GAPS]: ledger({ Button: ['renders a link'] }) }
+    expect(growth(gaps, {})).toEqual([])
+    expect(growth(gaps, { 'packages/app/frameworks/vue/package.json': '{}' })).toEqual([
+      `${GAPS}: Button adds "renders a link", which the base does not list; this file may only shrink, so port it instead of listing it`,
+    ])
+  })
+
+  it('counterexample: passes a ledger that shrank or stayed, and a removed ledger', () => {
+    expect(
+      growth(
+        {
+          [TITLE_PARITY_PENDING]: ledger({ '@molecule/app-widget-vue': ['opens'] }),
+          [GAPS]: ledger({ Button: ['renders a link'] }),
+        },
+        {
+          [TITLE_PARITY_PENDING]: ledger({ '@molecule/app-widget-vue': ['opens', 'closes'] }),
+          [FEATURE_PARITY_PENDING]: ledger({ '@molecule/app-a-react': ['vue'] }),
+          [GAPS]: ledger({ Button: ['renders a link'] }),
+        },
+      ),
+    ).toEqual([])
+  })
+
+  it('lists the three ledgers and each bond known-gaps file the tree holds', () => {
+    const root = mkdtempSync(join(tmpdir(), 'ledger-growth-'))
+    roots.push(root)
+    for (const [file, text] of Object.entries({
+      'packages/app/frameworks/vue/package.json': '{}',
+      [GAPS]: '{}',
+      'packages/app/frameworks/solid/package.json': '{}',
+      [TITLE_PARITY_PENDING]: '{}',
+    })) {
+      mkdirSync(dirname(join(root, file)), { recursive: true })
+      writeFileSync(join(root, file), text)
+    }
+    expect(shrinkOnlyLedgers(root)).toEqual([TITLE_PARITY_PENDING, GAPS])
+  })
+
+  it('reads a ledger at a commit, null for a file it lacks, and refuses an unknown commit', () => {
+    const root = mkdtempSync(join(tmpdir(), 'ledger-growth-git-'))
+    roots.push(root)
+    const git = (...args) => execFileSync('git', ['-C', root, ...args], { encoding: 'utf8' })
+    git('init', '-q')
+    mkdirSync(join(root, 'scripts'))
+    writeFileSync(join(root, TITLE_PARITY_PENDING), ledger({ a: ['x'] }))
+    git('add', TITLE_PARITY_PENDING)
+    git('-c', 'user.email=t@example.com', '-c', 'user.name=t', 'commit', '-qm', 'base')
+    writeFileSync(join(root, TITLE_PARITY_PENDING), ledger({ a: ['x', 'y'] }))
+    const read = gitFileReader(root, 'HEAD')
+    expect(JSON.parse(read(TITLE_PARITY_PENDING))).toEqual({ a: ['x'] })
+    expect(read(FEATURE_PARITY_PENDING)).toBeNull()
+    expect(() => gitFileReader(root, 'no-such-commit')).toThrow(
+      '--base=no-such-commit names no commit',
+    )
+  })
+
+  describe('--base=ci', () => {
+    const mergeBase = (ref) => `merge base of ${ref}`
+
+    it("names a pull request's merge base and the commit before a push", () => {
+      expect(
+        ciBase({ GITHUB_EVENT_NAME: 'pull_request', GITHUB_BASE_REF: 'main' }, mergeBase),
+      ).toBe('merge base of origin/main')
+      expect(ciBase({ GITHUB_EVENT_NAME: 'push', GITHUB_EVENT_BEFORE: 'abc123' }, mergeBase)).toBe(
+        'abc123',
+      )
+    })
+
+    it('counterexample: names none for a push that created its branch, or outside a push or pull request', () => {
+      expect(
+        ciBase({ GITHUB_EVENT_NAME: 'push', GITHUB_EVENT_BEFORE: '0'.repeat(40) }, mergeBase),
+      ).toBeNull()
+      expect(ciBase({ GITHUB_EVENT_NAME: 'push' }, mergeBase)).toBeNull()
+      expect(ciBase({ GITHUB_EVENT_NAME: 'workflow_dispatch' }, mergeBase)).toBeNull()
+      expect(ciBase({}, mergeBase)).toBeNull()
+    })
+
+    it('refuses a pull request without its target branch', () => {
+      expect(() => ciBase({ GITHUB_EVENT_NAME: 'pull_request' }, mergeBase)).toThrow(
+        'GITHUB_BASE_REF',
+      )
     })
   })
 })

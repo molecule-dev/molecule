@@ -12,6 +12,9 @@
  * then its arguments, separated by spaces. Exits with the first failing
  * command's status; the rest still run, so one commit attempt reports every gap.
  *
+ * The export has no `.git`: a check that reads another commit (the base it compares against)
+ * finds the repository the export came from in `MOL_INDEX_REPO`.
+ *
  * WHY: the pre-commit hook ran these checks over the shared worktree, which
  * holds more than the commit — another session's untracked package or unstaged
  * dependency. On 2026-11-13 two untracked bond packages (no lock file entry, no
@@ -101,7 +104,11 @@ export function runOnIndex(repo, commands, scope) {
       }
       const child = spawnSync(process.execPath, [join(tree, script), ...args], {
         cwd: tree,
-        env: scope ? { ...process.env, MOL_INDEX_PATHS_FILE: pathsFile } : process.env,
+        env: {
+          ...process.env,
+          MOL_INDEX_REPO: repo,
+          ...(scope ? { MOL_INDEX_PATHS_FILE: pathsFile } : {}),
+        },
         stdio: 'inherit',
       })
       const code = child.error ? 1 : (child.status ?? 1)
