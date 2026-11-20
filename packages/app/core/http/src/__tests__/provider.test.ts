@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { createFetchClient } from '../provider.js'
-import { HttpError } from '../types.js'
+import { HttpError, type RequestConfig } from '../types.js'
 
 describe('HTTP Provider', () => {
   const mockFetch = vi.fn()
@@ -417,7 +417,7 @@ describe('HTTP Provider', () => {
       })
     })
 
-    it.each([
+    it.each<RequestConfig>([
       { headers: { aUtHoRiZaTiOn: 'Basic test' } },
       { headers: { cOoKiE: 'session=test' } },
       { withCredentials: true },
