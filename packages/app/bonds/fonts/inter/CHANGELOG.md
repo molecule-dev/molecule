@@ -1,5 +1,11 @@
 # @molecule/app-fonts-inter
 
+## 1.0.7
+
+### Patch Changes
+
+- Ship valid regular and bold WOFF2 fonts and use Latin subsets for faster page loads.
+
 ## 1.0.6
 
 ### Patch Changes

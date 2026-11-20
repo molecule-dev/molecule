@@ -1,5 +1,11 @@
 # @molecule/app-push-react-native
 
+## 1.0.8
+
+### Patch Changes
+
+- Types the loaded module with names the real package exports (`NotificationRequest`, NetInfo’s default export, the `StatusBar` class) instead of names only the bundled declarations had.
+
 ## 1.0.7
 
 ### Patch Changes

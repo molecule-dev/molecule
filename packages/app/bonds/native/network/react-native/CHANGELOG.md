@@ -1,5 +1,11 @@
 # @molecule/app-network-react-native
 
+## 1.0.6
+
+### Patch Changes
+
+- Types the loaded module with names the real package exports (`NotificationRequest`, NetInfo’s default export, the `StatusBar` class) instead of names only the bundled declarations had.
+
 ## 1.0.5
 
 ### Patch Changes

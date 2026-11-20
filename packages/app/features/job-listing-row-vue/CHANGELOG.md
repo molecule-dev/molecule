@@ -1,5 +1,11 @@
 # @molecule/app-job-listing-row-vue
 
+## 1.1.2
+
+### Patch Changes
+
+- Requires Vue 3.5 or later, the first release with `useId`.
+
 ## 1.1.1
 
 ### Patch Changes

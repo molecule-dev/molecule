@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-share-link-card-vue",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Card with share URL, copy button, optional QR code placeholder, password toggle",
   "homepage": "https://www.molecule.dev/packages/app-share-link-card-vue",
   "type": "module",

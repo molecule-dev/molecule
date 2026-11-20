@@ -1,5 +1,11 @@
 # @molecule/app-fonts
 
+## 1.3.0
+
+### Minor Changes
+
+- Support optional format and Unicode range descriptors for self-hosted font faces.
+
 ## 1.2.1
 
 ### Patch Changes

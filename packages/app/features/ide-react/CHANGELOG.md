@@ -1,5 +1,11 @@
 # @molecule/app-ide-react
 
+## 4.2.2
+
+### Patch Changes
+
+- Chat Markdown no longer freezes the page when a streamed message stops right after a header marker (`## `) and before its text.
+
 ## 4.2.1
 
 ### Patch Changes

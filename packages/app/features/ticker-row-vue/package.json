@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-ticker-row-vue",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Financial ticker row — symbol, price, change%, sparkline for crypto/stocks/markets",
   "homepage": "https://www.molecule.dev/packages/app-ticker-row-vue",
   "type": "module",

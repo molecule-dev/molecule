@@ -1,5 +1,11 @@
 # @molecule/app-http-axios
 
+## 1.4.0
+
+### Minor Changes
+
+- Include request details in HTTP 401 notifications from Axios.
+
 ## 1.3.1
 
 ### Patch Changes

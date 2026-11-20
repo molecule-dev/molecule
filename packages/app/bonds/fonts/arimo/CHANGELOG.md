@@ -1,5 +1,11 @@
 # @molecule/app-fonts-arimo
 
+## 1.0.6
+
+### Patch Changes
+
+- Serve Latin text from a WOFF2 subset and preserve other characters in a full WOFF2 face.
+
 ## 1.0.4
 
 ### Patch Changes

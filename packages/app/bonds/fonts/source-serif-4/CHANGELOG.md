@@ -1,5 +1,11 @@
 # @molecule/app-fonts-source-serif-4
 
+## 1.1.1
+
+### Patch Changes
+
+- Include the Adobe font license with the Source Serif 4 faces.
+
 ## 1.1.0
 
 ### Minor Changes

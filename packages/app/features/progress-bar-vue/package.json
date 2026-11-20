@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-progress-bar-vue",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Vue labeled progress bar with card wrapper",
   "homepage": "https://www.molecule.dev/packages/app-progress-bar-vue",
   "type": "module",

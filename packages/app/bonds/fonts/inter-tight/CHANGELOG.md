@@ -1,5 +1,11 @@
 # @molecule/app-fonts-inter-tight
 
+## 1.0.2
+
+### Patch Changes
+
+- Serve Latin text from a WOFF2 subset and preserve other characters in a full WOFF2 face.
+
 ## 1.0.1
 
 ### Patch Changes

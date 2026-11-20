@@ -1,5 +1,11 @@
 # @molecule/app-fonts-manrope
 
+## 1.0.8
+
+### Patch Changes
+
+- Serve Latin text from a WOFF2 subset and preserve other characters in a full WOFF2 face.
+
 ## 1.0.7
 
 ### Patch Changes

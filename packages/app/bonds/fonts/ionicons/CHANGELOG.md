@@ -1,5 +1,11 @@
 # @molecule/app-fonts-ionicons
 
+## 1.1.6
+
+### Patch Changes
+
+- Serve the Ionicons webfont in the smaller WOFF2 format.
+
 ## 1.1.5
 
 ### Patch Changes

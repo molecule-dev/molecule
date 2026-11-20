@@ -1,5 +1,11 @@
 # @molecule/app-http
 
+## 1.10.0
+
+### Minor Changes
+
+- Include the request method, redacted URL, and credential status in HTTP 401 notifications.
+
 ## 1.9.1
 
 ### Patch Changes

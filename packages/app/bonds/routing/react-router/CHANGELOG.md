@@ -1,5 +1,11 @@
 # @molecule/app-routing-react-router
 
+## 1.8.0
+
+### Minor Changes
+
+- Send signed-out visitors to the configured sign-in page when an unauthenticated GET returns 401.
+
 ## 1.7.0
 
 ### Minor Changes

@@ -1,5 +1,13 @@
 # @molecule/app-vite-config-default
 
+## 1.4.2
+
+### Patch Changes
+
+- Inline the Workbox runtime to eliminate a network round trip during the first service worker install.
+- Report source files that have no import or asset reference in the production Vite build.
+- Exclude hidden tool metadata from unreached source diagnostics.
+
 ## 1.4.1
 
 ### Patch Changes

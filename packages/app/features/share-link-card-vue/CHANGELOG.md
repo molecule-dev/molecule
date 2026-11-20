@@ -1,5 +1,11 @@
 # @molecule/app-share-link-card-vue
 
+## 1.2.1
+
+### Patch Changes
+
+- Requires Vue 3.5 or later, the first release with `useId`.
+
 ## 1.2.0
 
 ### Minor Changes
