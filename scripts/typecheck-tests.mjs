@@ -16,6 +16,11 @@
  * (`npm run typecheck:tests --workspaces --if-present`). A package with no test files
  * under `src/` is skipped too: its build already type-checks its sources.
  *
+ * Svelte: tsc reads every `.svelte` import as the ambient `declare module '*.svelte'` type, so a
+ * test that mounts a Svelte component with props it rejects passes tsc. A package with
+ * `.svelte` files under `src/` is therefore checked by svelte-check, with the same generated
+ * config: it checks the TypeScript files that config includes with each component's real props.
+ *
  * Speed: packages whose compiler options are identical, once their output and source
  * directories are set aside, are checked as ONE TypeScript program (at most `--chunk`
  * packages each, default 40), and programs run in parallel (`--jobs`, default: CPU
@@ -26,10 +31,15 @@
  *
  * Usage:
  *   node scripts/typecheck-tests.mjs                     every workspace package
- *   node scripts/typecheck-tests.mjs <dir>...            those packages; an argument that is not a
- *                                                        package (e.g. scripts/__tests__) is ignored,
- *                                                        so CI can pass affected-projects.mjs's output
+ *   node scripts/typecheck-tests.mjs <dir>...            those packages; a directory that is not a
+ *                                                        package is refused (exit 2)
+ *   node scripts/typecheck-tests.mjs --scope="$FILTER"   scripts/affected-projects.mjs's output, as CI
+ *                                                        passes it: the package directories it names
+ *                                                        (its scripts/__tests__ entry is not one, and is
+ *                                                        named as not checked); an empty scope means
+ *                                                        every workspace package, as it does for vitest
  *   --jobs=<n>  --chunk=<n>  --tsc=<path to a tsc binary> (or TYPECHECK_TESTS_TSC)
+ *   --list      print the package directories it would consider, one per line, and check nothing
  *
  * Exits 1 and prints tsc's messages, by package, when any test file has a type error.
  */
@@ -55,6 +65,7 @@ import ts from 'typescript'
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const TEST_FILE = /(^|\/)__tests__\/|\.(test|spec)\.[cm]?tsx?$/
 const TS_FILE = /\.([cm]?tsx?)$/
+const SVELTE_FILE = /\.svelte$/
 
 /** Compiler options that only place output or sources; they do not change a type. */
 const LAYOUT_OPTIONS = [
@@ -88,9 +99,14 @@ const LAYOUT_OPTIONS = [
  */
 function parseArgs(argv) {
   for (const a of argv)
-    if (a.startsWith('--') && !/^--(jobs|chunk|tsc)=./.test(a))
+    if (
+      a.startsWith('--') &&
+      !/^--(jobs|chunk|tsc)=./.test(a) &&
+      !a.startsWith('--scope=') &&
+      a !== '--list'
+    )
       throw new Error(
-        `unknown option ${a}: the options are --jobs=<n>, --chunk=<n> and --tsc=<path>`,
+        `unknown option ${a}: the options are --jobs=<n>, --chunk=<n>, --tsc=<path>, --scope=<dirs> and --list`,
       )
   const flag = (name) => argv.find((a) => a.startsWith(`--${name}=`))?.slice(name.length + 3)
   const number = (name, fallback) => {
@@ -101,8 +117,14 @@ function parseArgs(argv) {
       throw new Error(`--${name} must be a positive integer, got ${value}`)
     return n
   }
+  const dirs = argv.filter((a) => !a.startsWith('--'))
+  const scope = flag('scope')
+  if (scope !== undefined && dirs.length)
+    throw new Error('pass package directories or --scope=<dirs>, not both')
   return {
-    dirs: argv.filter((a) => !a.startsWith('--')),
+    dirs,
+    scope: scope?.split(/\s+/).filter(Boolean),
+    list: argv.includes('--list'),
     jobs: number('jobs', availableParallelism()),
     chunk: number('chunk', 40),
     tsc:
@@ -143,13 +165,24 @@ function workspacePackages() {
  * @returns Paths relative to `dir`, with `/` separators.
  */
 function tsFiles(dir) {
+  return sourceFiles(dir, TS_FILE)
+}
+
+/**
+ * Every file under a directory whose name matches, skipping `node_modules` and `dist`.
+ *
+ * @param dir - The directory to walk.
+ * @param pattern - The file-name pattern.
+ * @returns Paths relative to `dir`, with `/` separators.
+ */
+function sourceFiles(dir, pattern) {
   const out = []
   const walk = (at, prefix) => {
     for (const entry of readdirSync(at, { withFileTypes: true })) {
       if (entry.name === 'node_modules' || entry.name === 'dist') continue
       const rel = prefix ? `${prefix}/${entry.name}` : entry.name
       if (entry.isDirectory()) walk(join(at, entry.name), rel)
-      else if (TS_FILE.test(entry.name)) out.push(rel)
+      else if (pattern.test(entry.name)) out.push(rel)
     }
   }
   if (existsSync(dir)) walk(dir, '')
@@ -195,7 +228,8 @@ function groupKey(dir, options) {
   const ownModules =
     existsSync(join(dir, 'node_modules')) &&
     readdirSync(join(dir, 'node_modules')).some((name) => !name.startsWith('.'))
-  return JSON.stringify(sorted) + (ownModules ? `\0${dir}` : '')
+  const svelte = sourceFiles(join(dir, 'src'), SVELTE_FILE).length > 0
+  return JSON.stringify(sorted) + (svelte ? '\0svelte' : '') + (ownModules ? `\0${dir}` : '')
 }
 
 /**
@@ -249,6 +283,58 @@ function runTsc(tsc, config) {
   })
 }
 
+/**
+ * Runs svelte-check over one program's packages: the TypeScript files and Svelte components its
+ * config includes, each component with its own props type.
+ *
+ * @param config - The program's config file.
+ * @param workspace - The packages' common directory (svelte-check reports paths relative to it).
+ * @returns Exit code (`null` when it did not finish) and output: each error as a tsc-style
+ *   `file(line,col): error TS<code>: message` line (a Svelte compiler error, which has no
+ *   TypeScript code, as `TS0`).
+ */
+function runSvelteCheck(config, workspace) {
+  return new Promise((done, fail) => {
+    const bin = join(ROOT, 'node_modules/svelte-check/bin/svelte-check')
+    const child = spawn(
+      process.execPath,
+      [
+        bin,
+        '--tsconfig',
+        config,
+        '--workspace',
+        workspace,
+        '--output',
+        'machine-verbose',
+        '--threshold',
+        'error',
+      ],
+      { cwd: workspace },
+    )
+    let raw = ''
+    child.stdout.on('data', (d) => (raw += d))
+    child.stderr.on('data', (d) => (raw += d))
+    child.on('error', fail)
+    child.on('close', (code) => {
+      const lines = []
+      let finished = false
+      for (const line of raw.split('\n')) {
+        const json = line.match(/^\d+ (\{.*\})$/)?.[1]
+        if (json) {
+          const d = JSON.parse(json)
+          if (d.type !== 'ERROR') continue
+          // A TypeScript diagnostic has a numeric code; a Svelte compiler one has a string code.
+          const code = Number.isInteger(d.code) ? d.code : 0
+          // machine-verbose gives 0-based lines and columns; tsc's are 1-based.
+          const at = `${relative(ROOT, join(workspace, d.filename))}(${d.start.line + 1},${d.start.character + 1})`
+          lines.push(`${at}: error TS${code}: ${String(d.message).replace(/\n\s*/g, ' ')}`)
+        } else if (/^\d+ COMPLETED /.test(line)) finished = true
+      }
+      done({ code: finished ? code : null, output: finished ? lines.join('\n') : raw })
+    })
+  })
+}
+
 const settings = parseArgs(process.argv.slice(2))
 const started = Date.now()
 // A named directory that is not a package is a mistake in the call, never a package with nothing
@@ -258,9 +344,32 @@ if (notPackages.length) {
   console.error(`not a package directory (no package.json): ${notPackages.join(', ')}`)
   process.exit(2)
 }
-const candidates = settings.dirs.length
-  ? settings.dirs.map((d) => resolve(ROOT, d))
-  : workspacePackages()
+// --scope: affected-projects.mjs names the package directories a push affects, then scripts/__tests__ (the
+// repository guards, which vitest runs and which hold no package). Its other entries are named, not refused: the
+// scope comes from a tool, not a person, and an empty scope already means every package.
+// scripts/__tests__ is not type-checked on purpose: what it tests is plain .mjs tooling, which molecule's lint keeps
+// free of JSDoc types (jsdoc/no-types), so a compiler would check the types it infers from default values
+// (`log = console` read as `Console`), not a contract (2026-11-19: 47 such errors in 11 of its 29 .ts files, each
+// one a passing test).
+const isPackage = (d) => existsSync(join(resolve(ROOT, d), 'package.json'))
+const scoped = settings.scope?.filter(isPackage) ?? []
+const outsideScope = settings.scope?.filter((d) => !isPackage(d)) ?? []
+// Notes go to stderr, so --list prints directories only.
+if (outsideScope.length)
+  console.error(`Not packages, so not checked here: ${outsideScope.join(', ')}`)
+if (settings.scope?.length && !scoped.length) {
+  console.error('No affected package to check.')
+  process.exit(0)
+}
+const named = settings.dirs.length ? settings.dirs : scoped
+const candidates = named.length ? named.map((d) => resolve(ROOT, d)) : workspacePackages()
+if (settings.list) {
+  // The fleet's list is larger than a pipe holds (about 64 KB), and process.exit drops what is still queued: wait
+  // until the write has reached the pipe.
+  const text = candidates.map((dir) => `${relative(ROOT, dir)}\n`).join('')
+  await new Promise((done) => process.stdout.write(text, done))
+  process.exit(0)
+}
 
 const skipped = { ownScript: 0, noTests: 0, noTsconfig: 0 }
 const groups = new Map()
@@ -316,7 +425,10 @@ const worker = async () => {
         exclude: dirs.flatMap((d) => [join(d, 'node_modules'), join(d, 'dist')]),
       }),
     )
-    const { code, output } = await runTsc(settings.tsc, config)
+    const svelte = dirs.some((d) => sourceFiles(join(d, 'src'), SVELTE_FILE).length > 0)
+    const { code, output } = svelte
+      ? await runSvelteCheck(config, commonDir(dirs))
+      : await runTsc(settings.tsc, config)
     let current
     let diagnostics = 0
     for (const line of output.split('\n')) {
@@ -339,7 +451,7 @@ const worker = async () => {
     // compiler). A non-zero exit with none parsed, or a signal, means it did not finish checking.
     if (code === null || (code !== 0 && !diagnostics))
       crashes.push(
-        `program of ${dirs.map((d) => relative(ROOT, d)).join(', ')} (exit ${code}):\n${output.trim()}`,
+        `${svelte ? 'svelte-check' : 'tsc'} did not finish: program of ${dirs.map((d) => relative(ROOT, d)).join(', ')} (exit ${code}):\n${output.trim()}`,
       )
   }
 }
@@ -357,7 +469,7 @@ for (const [pkg, lines] of [...errorsByPackage].sort(([a], [b]) => a.localeCompa
   console.log(`\n${pkg}`)
   for (const line of lines) console.log(`  ${line}`)
 }
-for (const crash of crashes) console.log(`\ntsc did not finish: ${crash}`)
+for (const crash of crashes) console.log(`\n${crash}`)
 const seconds = ((Date.now() - started) / 1000).toFixed(1)
 console.log(
   `\n${checked} package(s) in ${programs.length} program(s), ${seconds} s` +
@@ -372,6 +484,7 @@ if (errorCount || crashes.length) {
       "import Solid's `JSX` from 'solid-js'. Never cast to `any` or suppress the error.\n" +
       'Re-check one package: node scripts/typecheck-tests.mjs <its dir>',
   )
-  process.exit(1)
-}
-console.log('No type errors.')
+  // exitCode, not process.exit: a CI log of thousands of errors is larger than a pipe holds, and process.exit drops
+  // what is still queued.
+  process.exitCode = 1
+} else console.log('No type errors.')

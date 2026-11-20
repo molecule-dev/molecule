@@ -1,5 +1,5 @@
 /** The test-file type-check gate, run as CI runs it, over fixture packages it must judge. */
-import { spawnSync } from 'node:child_process'
+import { spawn, spawnSync } from 'node:child_process'
 import fs from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
@@ -165,6 +165,45 @@ describe('typecheck-tests', () => {
     },
   )
 
+  it(
+    "checks a Svelte package's tests against each component's own props",
+    { timeout: 300_000 },
+    () => {
+      // tsc reads `../Greeting.svelte` as svelte's ambient `declare module '*.svelte'` type, so it
+      // passes a mount with the wrong props; svelte-check reads the component's `$props()` type.
+      const component = {
+        'src/Greeting.svelte':
+          '<script lang="ts">\n  let { name }: { name: string } = $props()\n</script>\n\n<p>{name}</p>\n',
+        'src/index.ts': "export { default as Greeting } from './Greeting.svelte'\n",
+      }
+      const mountWith = (props) =>
+        "import { mount } from 'svelte'\n\nimport Greeting from '../Greeting.svelte'\n\n" +
+        `export const show = (target: HTMLElement): void => {\n  mount(Greeting, { target, props: ${props} })\n}\n`
+      const wrong = pkg('svelte-wrong-props', {
+        ...component,
+        'src/__tests__/greeting.test.ts': mountWith('{ name: 1 }'),
+      })
+      const right = pkg('svelte-right-props', {
+        ...component,
+        'src/__tests__/greeting.test.ts': mountWith("{ name: 'Ada' }"),
+      })
+      const failing = gate(wrong, good)
+      expect(failing.status, failing.out).toBe(1)
+      const rel = path.relative(ROOT, wrong)
+      expect(failing.out).toContain(`${rel}/src/__tests__/greeting.test.ts(6,`)
+      expect(failing.out).toMatch(
+        /: error TS2322: Type 'number' is not assignable to type 'string'/,
+      )
+      // A Svelte package never shares a program with a plain TypeScript one.
+      expect(failing.out).toContain('2 package(s) in 2 program(s)')
+      expect(failing.out).toContain('1 type error(s) in 1 package(s)')
+
+      const passing = gate(right)
+      expect(passing.status, passing.out).toBe(0)
+      expect(passing.out).toContain('No type errors.')
+    },
+  )
+
   it('refuses a named directory that is not a package, and an option without =', () => {
     const notAPackage = path.join(base, 'not-a-package')
     fs.mkdirSync(notAPackage, { recursive: true })
@@ -179,5 +218,110 @@ describe('typecheck-tests', () => {
     })
     expect(r.status, r.stderr).not.toBe(0)
     expect(r.stderr).toContain('unknown option --jobs')
+  })
+
+  /**
+   * Runs the gate with `--scope`, as CI passes scripts/affected-projects.mjs's output.
+   *
+   * @param scope - The scope text.
+   * @param [rest] - Further arguments.
+   * @returns Exit status, stdout and stderr.
+   */
+  const scoped = (scope, ...rest) => {
+    const r = spawnSync(
+      process.execPath,
+      ['scripts/typecheck-tests.mjs', '--jobs=2', `--scope=${scope}`, ...rest],
+      { cwd: ROOT, encoding: 'utf8' },
+    )
+    return { status: r.status, stdout: r.stdout, stderr: r.stderr }
+  }
+
+  it(
+    'checks the packages of an affected-projects scope and names its other entries',
+    { timeout: 180_000 },
+    () => {
+      const r = scoped(`${path.relative(ROOT, bad)} ${path.relative(ROOT, good)} scripts/__tests__`)
+      expect(r.status, r.stdout + r.stderr).toBe(1)
+      expect(r.stderr).toContain('Not packages, so not checked here: scripts/__tests__')
+      expect(r.stdout).toContain(
+        `${path.relative(ROOT, bad)}/src/__tests__/add.test.ts(3,35): error TS2345`,
+      )
+      expect(r.stdout).toContain('2 package(s) in 1 program(s)')
+    },
+  )
+
+  it('checks nothing for a scope that names no package', () => {
+    const r = scoped('scripts/__tests__')
+    expect(r.status, r.stdout + r.stderr).toBe(0)
+    expect(r.stderr).toContain('No affected package to check.')
+    expect(r.stdout).toBe('')
+  })
+
+  /**
+   * Runs the gate with a reader that takes its output slowly: it pauses 100 ms after each chunk,
+   * so the gate writes faster than the pipe drains, as a busy log collector can. Output still
+   * queued when the gate exits is lost, so a gate that exits before its writes reach the pipe
+   * comes back short here on every run (a reader that keeps up loses it on some runs only).
+   *
+   * @param args - The gate's arguments.
+   * @returns Exit status and stdout.
+   */
+  const slowRead = (...args) =>
+    new Promise((done, fail) => {
+      const child = spawn(process.execPath, ['scripts/typecheck-tests.mjs', ...args], { cwd: ROOT })
+      let out = ''
+      child.stdout.setEncoding('utf8')
+      child.stdout.on('data', (chunk) => {
+        out += chunk
+        child.stdout.pause()
+        setTimeout(() => child.stdout.resume(), 100)
+      })
+      child.stderr.resume()
+      child.on('error', fail)
+      child.on('close', (status) => done({ status, stdout: out }))
+    })
+
+  it('reads an empty scope as every workspace package, as vitest does', async () => {
+    const all = await slowRead('--list')
+    // Every workspace package, counted without the script: the list is larger than a pipe holds,
+    // and a process.exit after console.log cut it short at about 64 KB.
+    const { workspaces } = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8'))
+    const expected = fs
+      .globSync(
+        workspaces.map((w) => `${w}/package.json`),
+        { cwd: ROOT },
+      )
+      .map((p) => path.dirname(p))
+      .sort()
+    expect(all.status).toBe(0)
+    expect(all.stdout.trimEnd().split('\n').sort()).toEqual(expected)
+    const empty = await slowRead('--scope=', '--list')
+    expect(empty.status).toBe(0)
+    expect(empty.stdout).toBe(all.stdout)
+    expect(empty.stdout.split('\n')).toContain('packages/app/frameworks/react')
+    expect((await slowRead('--scope=  ', '--list')).stdout).toBe(all.stdout)
+  })
+
+  it('prints every error of a report larger than a pipe holds', { timeout: 180_000 }, async () => {
+    const lines = Array.from(
+      { length: 1500 },
+      (_, i) => `export const sum${i}: number = add(1, '2')\n`,
+    )
+    const many = pkg('many-errors', {
+      ...source,
+      'src/__tests__/add.test.ts': `import { add } from '../index.js'\n\n${lines.join('')}`,
+    })
+    const { status, stdout: out } = await slowRead('--jobs=2', many)
+    expect(status).toBe(1)
+    const rel = path.relative(ROOT, many)
+    expect(out).toContain(`${rel}/src/__tests__/add.test.ts(1502,39): error TS2345`)
+    expect(out).toContain('1500 type error(s) in 1 package(s).')
+    expect(out).toContain('Re-check one package: node scripts/typecheck-tests.mjs <its dir>')
+  })
+
+  it('refuses a scope together with named directories', () => {
+    const r = scoped(path.relative(ROOT, good), good)
+    expect(r.status).not.toBe(0)
+    expect(r.stderr).toContain('pass package directories or --scope=<dirs>, not both')
   })
 })
