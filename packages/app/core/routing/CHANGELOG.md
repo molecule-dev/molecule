@@ -1,5 +1,11 @@
 # @molecule/app-routing
 
+## 1.5.0
+
+### Minor Changes
+
+- Add `redirectSignedOutRejections` and `watchSignedOutRejection`: the rule a router applies when a signed-out visitor's credential-free GET is answered 401.
+
 ## 1.4.0
 
 ### Minor Changes

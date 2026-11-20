@@ -1,5 +1,12 @@
 # @molecule/app-routing-sveltekit
 
+## 2.1.0
+
+### Minor Changes
+
+- Send signed-out visitors to the configured sign-in page when an unauthenticated GET returns 401, through `@molecule/app-routing`'s shared rule.
+- Adds `MoleculeRouterProvider`, `useMoleculeRouter`, `useMoleculeNavigate`, `useMoleculeQuery`, `useIsActive`, `useListRoute`, `useConsumedSearchParam` and `ListRouteNav`, matching the React Router bond.
+
 ## 2.0.0
 
 ### Major Changes

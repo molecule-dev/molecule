@@ -1,5 +1,11 @@
 # @molecule/app-ui-react
 
+## 4.1.7
+
+### Patch Changes
+
+- `Toast` passes a caller's `id` and other element props to its root, and `useToast().addToast` keeps an `id` the caller gives.
+
 ## 4.1.6
 
 ### Patch Changes

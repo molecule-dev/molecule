@@ -1,5 +1,11 @@
 # @molecule/app-fonts-ionicons
 
+## 1.1.7
+
+### Patch Changes
+
+- The package no longer ships the unused `fonts/ionicons.woff`; `fonts/ionicons.woff2` is the face it serves.
+
 ## 1.1.6
 
 ### Patch Changes

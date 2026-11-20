@@ -1,5 +1,11 @@
 # @molecule/app-fonts
 
+## 1.3.1
+
+### Patch Changes
+
+- The bundler example imports Ionicons' `.woff2` face.
+
 ## 1.3.0
 
 ### Minor Changes

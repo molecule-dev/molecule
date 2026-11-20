@@ -1,5 +1,11 @@
 # @molecule/app-routing-vue-router
 
+## 1.3.0
+
+### Minor Changes
+
+- Send signed-out visitors to the configured sign-in page when an unauthenticated GET returns 401, through `@molecule/app-routing`'s shared rule.
+
 ## 1.2.0
 
 ### Minor Changes

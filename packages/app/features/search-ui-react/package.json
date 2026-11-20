@@ -49,7 +49,7 @@
     "@molecule/app-client-search-react": "1.1.0",
     "@molecule/app-react": "4.10.0",
     "@molecule/app-ui": "1.5.0",
-    "@molecule/app-ui-react": "4.1.6",
+    "@molecule/app-ui-react": "4.1.7",
     "@types/node": "26.6.5",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",

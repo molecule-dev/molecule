@@ -1,5 +1,11 @@
 # @molecule/app-locales-flow-canvas
 
+## 1.1.1
+
+### Patch Changes
+
+- Translate the flow canvas label, mark brand names and units that read the same in every language, and remove a stray space before a full stop.
+
 ## 1.1.0
 
 ### Minor Changes

@@ -1,5 +1,11 @@
 # @molecule/app-locales-routing
 
+## 1.2.0
+
+### Minor Changes
+
+- Add the message shown when `useMoleculeRouter` from `@molecule/app-routing-sveltekit` is called outside a `MoleculeRouterProvider`.
+
 ## 1.1.0
 
 ### Minor Changes
