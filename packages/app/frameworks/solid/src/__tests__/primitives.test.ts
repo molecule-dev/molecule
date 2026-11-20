@@ -338,7 +338,7 @@ describe('HTTP primitives', () => {
       addErrorInterceptor: vi.fn((_interceptor: ErrorInterceptor) => () => {}),
       setAuthToken: vi.fn(),
       getAuthToken: vi.fn(() => 'token123'),
-      onAuthError: vi.fn((_handler: () => void) => () => {}),
+      onAuthError: vi.fn<HttpClient['onAuthError']>(() => () => {}),
     }
     mockHttpClient.get.mockResolvedValue(httpResponse({ items: [] }))
     mockHttpClient.post.mockResolvedValue(httpResponse({ id: '1' }, 201, 'POST'))
