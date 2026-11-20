@@ -31,4 +31,6 @@ export const hr: RoutingTranslations = {
     '`useMoleculeRouter` se mora pozvati u `setup` komponente Vue aplikacije s instaliranim Vue Routerom. Instalirajte ga pomoću `app.use(router)`.',
   'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
     '`useMoleculeRouter` se mora koristiti unutar Solid Router usmjerivača. Montirajte `Router`, `HashRouter` ili `MemoryRouter`.',
+  'routing.sveltekit.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` se mora koristiti unutar `MoleculeRouterProvider`. Montirajte `MoleculeRouterProvider` u vašem korijenskom rasporedu oko stranice.',
 }

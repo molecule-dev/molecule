@@ -7,15 +7,31 @@
  * `afterNavigate` adapter — and gets the whole `Router` from the core
  * `createHistoryRouter`, exactly like every other routing bond.
  *
+ * With HTTP and auth clients bonded, the router replaces the current location with
+ * `/login` after a credential-free GET receives a 401 and the session is confirmed signed
+ * out, as React's `BrowserRouter` does (`redirectSignedOutRejections` from
+ * `@molecule/app-routing`). `location.state.from` holds the original location. Set
+ * `signInPath` to use a different sign-in route or `signInPath: false` to opt out.
+ *
  * @module
  */
 
+import { get } from '@molecule/app-bond'
 import { t } from '@molecule/app-i18n'
-import type { RouteLocation, Router, RouterHistory } from '@molecule/app-routing'
+import type {
+  RouteLocation,
+  Router,
+  RouterHistory,
+  SignInRequiredHttpSource,
+  SignInRequiredSessionSource,
+  SignInRequiredSources,
+} from '@molecule/app-routing'
 import {
   createBrowserRouter,
   createHistoryRouter,
+  DEFAULT_SIGN_IN_PATH,
   fromHistoryStateRecord,
+  redirectSignedOutRejections,
   toHistoryStateRecord,
 } from '@molecule/app-routing'
 
@@ -35,6 +51,24 @@ const KIT_STATE_PREFIX = 'sveltekit:'
 
 /** The record kit writes into every history entry it commits (`sveltekit:metadata`, `@sveltejs/kit` 3.2 `src/runtime/client/constants.js:4`), whose `historyIndex` is read for the per-entry location key. */
 const KIT_HISTORY_METADATA = 'sveltekit:metadata'
+
+/**
+ * The kit apps (by their `page`) whose sign-in rule is applied, so a second router over the
+ * same kit client does not redirect a second time.
+ */
+const signInWatched = new WeakSet<object>()
+
+/**
+ * The HTTP and auth clients the app bonds, read from the same slots as their accessors
+ * without loading the optional packages.
+ *
+ * @returns Both sources, or `undefined` while either is unbonded.
+ */
+const bondedSignInSources = (): SignInRequiredSources | undefined => {
+  const http = get<SignInRequiredHttpSource>('http-client')
+  const session = get<SignInRequiredSessionSource>('auth-client')
+  return http && session ? { http, session } : undefined
+}
 
 /** The `page.state` key this bond keeps each entry's location key under. */
 const ENTRY_KEY = '__moleculeKey'
@@ -151,7 +185,9 @@ const inAppParts = (
  *
  * The app passes kit's `goto`, kit's `page`, its root href and an `afterNavigate` adapter (see
  * {@link SvelteKitNavigation.onNavigate} and the package example) once, from the root
- * layout, and registers the result with `@molecule/app-svelte`'s `setMoleculeContext`.
+ * layout. `MoleculeRouterProvider` builds it there and bonds it with
+ * `@molecule/app-routing`'s `setRouter`; a layout that builds it by hand does the same, and
+ * may also supply it to `@molecule/app-svelte`'s `setMoleculeContext`.
  *
  * Subscribers hear exactly one call per navigation kit commits — kit links, the back
  * button, and this router's own `navigate` — because kit fires `afterNavigate` only
@@ -161,7 +197,8 @@ const inAppParts = (
  * through the unsubscribe `listen` returns.
  *
  * @param kit - The SvelteKit pieces (see {@link SvelteKitNavigation}).
- * @param options - Route definitions, and an optional `onRouterReady` called once with the router.
+ * @param options - Route definitions, an optional `onRouterReady` called once with the router,
+ *   and the `signInPath` a signed-out GET 401 sends the visitor to (`false` turns it off).
  * @returns The router.
  */
 export const createSvelteKitRouter = (
@@ -219,6 +256,21 @@ export const createSvelteKitRouter = (
   }
 
   const router = createHistoryRouter(history, { routes: options.routes })
+  const { signInPath = DEFAULT_SIGN_IN_PATH } = options
+  const page: object = kit.page
+  if (signInPath !== false && !signInWatched.has(page)) {
+    signInWatched.add(page)
+    const stop = redirectSignedOutRejections(router, {
+      signInPath,
+      sources: bondedSignInSources,
+    })
+    const destroy = router.destroy
+    router.destroy = (): void => {
+      stop()
+      signInWatched.delete(page)
+      destroy()
+    }
+  }
   // Called once, at construction: the layout builds the router once, so a later change of the
   // callback (or of anything else the caller holds) never re-invokes it — React's
   // `MoleculeRouterProvider` calls `onRouterReady` once per router for the same reason.

@@ -29,7 +29,9 @@ export const eu: RoutingTranslations = {
   'routing.angularRouter.error.useMoleculeRouterOutsideRouter':
     '`useMoleculeRouter` Angular aplikazio bateko injekzio-testuinguruan deitu behar da, bideratzailea eskaintzen duenak. Gehitu `provideRouter(routes)` aplikazioaren hornitzaileei.',
   'routing.vueRouter.error.useMoleculeRouterOutsideRouter':
-    '`useMoleculeRouter` Vue Router instalatuta duen Vue aplikazio bateko osagai baten `setup` -ean deitu behar da. Instalatu `app.use(router)` erabiliz.',
+    '`useMoleculeRouter` Vue Router instalatuta duen Vue aplikazio bateko osagai baten `setup`-ean deitu behar da. Instalatu `app.use(router)` erabiliz.',
   'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
     '`useMoleculeRouter` Solid Router bideratzaile baten barruan erabili behar da. Muntatu `Router`, `HashRouter` edo `MemoryRouter`.',
+  'routing.sveltekit.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` `MoleculeRouterProvider` baten barruan erabili behar da. Muntatu `MoleculeRouterProvider` erroko diseinuan, orriaren inguruan.',
 }

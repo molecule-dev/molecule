@@ -32,4 +32,6 @@ export const fi: RoutingTranslations = {
     '`useMoleculeRouter` on kutsuttava Vue-sovelluksen komponentin `setup` -funktiossa, johon Vue Router on asennettu. Asenna se komennolla `app.use(router)`.',
   'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
     '`useMoleculeRouter` on käytettävä Solid Router -reitittimen sisällä. Liitä `Router`, `HashRouter` tai `MemoryRouter`.',
+  'routing.sveltekit.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` on käytettävä `MoleculeRouterProvider`-komponentin sisällä. Liitä `MoleculeRouterProvider` juuriasetteluusi sivun ympärille.',
 }

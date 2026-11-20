@@ -5,14 +5,52 @@
  * subscriptions) comes from `@molecule/app-routing`'s `createHistoryRouter`; this provider
  * supplies the Vue Router's history ({@link vueRouterHistory}) and route definitions.
  *
+ * With HTTP and auth clients bonded, the router built over a Vue Router replaces the current
+ * location with `/login` after a credential-free GET receives a 401 and the session is
+ * confirmed signed out, as React's `BrowserRouter` does (`redirectSignedOutRejections` from
+ * `@molecule/app-routing`). `location.state.from` holds the original location. Set
+ * `signInPath` to use a different sign-in route or `signInPath: false` to opt out.
+ *
  * @module
  */
 
-import type { Router } from '@molecule/app-routing'
-import { createBrowserRouter, createHistoryRouter } from '@molecule/app-routing'
+import type { Router as VueRouterInstance } from 'vue-router'
+
+import { get } from '@molecule/app-bond'
+import type {
+  Router,
+  SignInRequiredHttpSource,
+  SignInRequiredSessionSource,
+  SignInRequiredSources,
+} from '@molecule/app-routing'
+import {
+  createBrowserRouter,
+  createHistoryRouter,
+  DEFAULT_SIGN_IN_PATH,
+  redirectSignedOutRejections,
+} from '@molecule/app-routing'
 
 import { vueRouterHistory } from './history.js'
 import type { VueRouterConfig } from './types.js'
+
+/**
+ * The Vue Routers whose sign-in rule is applied, so a second molecule router over the same
+ * Vue Router (`useMoleculeRouter` beside the app's own `createVueRouter`) does not redirect
+ * a second time.
+ */
+const signInWatched = new WeakSet<VueRouterInstance>()
+
+/**
+ * The HTTP and auth clients the app bonds, read from the same slots as their accessors
+ * without loading the optional packages.
+ *
+ * @returns Both sources, or `undefined` while either is unbonded.
+ */
+const bondedSignInSources = (): SignInRequiredSources | undefined => {
+  const http = get<SignInRequiredHttpSource>('http-client')
+  const session = get<SignInRequiredSessionSource>('auth-client')
+  return http && session ? { http, session } : undefined
+}
 
 /**
  * Creates a molecule `Router` that drives a Vue Router instance.
@@ -22,7 +60,8 @@ import type { VueRouterConfig } from './types.js'
  * it never goes stale after a navigation, and subscribers hear Vue Router's own
  * navigations (links, the back button) too — not only `navigate` calls made here.
  *
- * Without a `router` (no Vue Router instance yet), the core's browser router is returned.
+ * Without a `router` (no Vue Router instance yet), the core's browser router is returned,
+ * without the sign-in rule.
  *
  * @example
  * ```vue
@@ -41,9 +80,22 @@ import type { VueRouterConfig } from './types.js'
  * matching.
  */
 export const createVueRouter = (config: VueRouterConfig = {}): Router => {
-  const { router, routes = [] } = config
+  const { router, routes = [], signInPath = DEFAULT_SIGN_IN_PATH } = config
   if (!router) return createBrowserRouter({ routes })
-  return createHistoryRouter(vueRouterHistory(router), { routes })
+  const moleculeRouter = createHistoryRouter(vueRouterHistory(router), { routes })
+  if (signInPath === false || signInWatched.has(router)) return moleculeRouter
+  signInWatched.add(router)
+  const stop = redirectSignedOutRejections(moleculeRouter, {
+    signInPath,
+    sources: bondedSignInSources,
+  })
+  const destroy = moleculeRouter.destroy
+  moleculeRouter.destroy = (): void => {
+    stop()
+    signInWatched.delete(router)
+    destroy()
+  }
+  return moleculeRouter
 }
 
 /**

@@ -34,6 +34,7 @@ import {
   Router as AngularRouter,
   type RouterConfigOptions,
   RouterOutlet,
+  withHashLocation,
   withRouterConfig,
 } from '@angular/router'
 
@@ -85,6 +86,8 @@ export interface BootAppOptions {
   providers?: Array<Provider | EnvironmentProviders>
   /** Use Angular's memory history (`provideLocationMocks()`) instead of the browser's. */
   memory?: boolean
+  /** Keep the path in the URL's hash (`withHashLocation()`) on the browser's history. */
+  hash?: boolean
   /** The path the app starts at (`pathname + search + hash`). */
   initialPath?: string
   /** The `history.state` the start entry already carries (a browser-history app). */
@@ -111,7 +114,11 @@ export const bootApp = async (options: BootAppOptions = {}): Promise<BootedApp> 
   const initialPath = options.initialPath ?? '/'
   const base = options.base ?? ''
   if (!memory)
-    window.history.replaceState(options.initialState ?? null, '', `${base}${initialPath}`)
+    window.history.replaceState(
+      options.initialState ?? null,
+      '',
+      options.hash ? `${base}/#${initialPath}` : `${base}${initialPath}`,
+    )
 
   const appRef = await createApplication({
     providers: [
@@ -119,6 +126,7 @@ export const bootApp = async (options: BootAppOptions = {}): Promise<BootedApp> 
       provideRouter(
         routes,
         ...(options.routerConfig ? [withRouterConfig(options.routerConfig)] : []),
+        ...(options.hash ? [withHashLocation()] : []),
       ),
       { provide: APP_BASE_HREF, useValue: base },
       ...(memory ? provideLocationMocks() : []),

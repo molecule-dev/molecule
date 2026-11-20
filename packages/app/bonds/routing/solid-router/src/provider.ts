@@ -6,6 +6,14 @@
  * helpers, guards, named routes, matching, subscriptions) from
  * `createHistoryRouter`, the same construction every routing bond uses.
  *
+ * With HTTP and auth clients bonded, the app's router (`createSolidRouter()` in the router's
+ * `root`, or `MoleculeRouterProvider`) replaces the current location with `/login` after a
+ * credential-free GET receives a 401 and the session is confirmed signed out, as React's
+ * `BrowserRouter` does (`redirectSignedOutRejections` from `@molecule/app-routing`).
+ * `location.state.from` holds the original location. Set `signInPath` to use a different
+ * sign-in route or `signInPath: false` to opt out. The routers `useMoleculeRouter` builds
+ * for a component never apply it.
+ *
  * @module
  */
 
@@ -17,25 +25,59 @@ import {
   useParams,
   useResolvedPath,
 } from '@solidjs/router'
-import { createEffect, createRoot, getOwner, on, runWithOwner, untrack, useContext } from 'solid-js'
+import {
+  createEffect,
+  createRoot,
+  getOwner,
+  on,
+  onCleanup,
+  runWithOwner,
+  untrack,
+  useContext,
+} from 'solid-js'
 
+import { get } from '@molecule/app-bond'
 import type {
   NavigationAction,
   RouteLocation,
   RouteParams,
   Router,
   RouterHistory,
+  SignInRequiredHttpSource,
+  SignInRequiredSessionSource,
+  SignInRequiredSources,
 } from '@molecule/app-routing'
 import {
   createBrowserRouter,
   createHistoryRouter,
+  DEFAULT_SIGN_IN_PATH,
   fromHistoryStateRecord,
+  redirectSignedOutRejections,
   toHistoryStateRecord,
 } from '@molecule/app-routing'
 
 import { MemoryHistoryContext } from './context.js'
 import { decodeParam } from './decode-param.js'
 import type { SolidRouterOptions } from './types.js'
+
+/**
+ * The Solid Routers whose sign-in rule is applied, so a second app-level router over the
+ * same Solid Router (`MoleculeRouterProvider` beside a `createSolidRouter()` root) does not
+ * redirect a second time.
+ */
+const signInWatched = new WeakSet<object>()
+
+/**
+ * The HTTP and auth clients the app bonds, read from the same slots as their accessors
+ * without loading the optional packages.
+ *
+ * @returns Both sources, or `undefined` while either is unbonded.
+ */
+const bondedSignInSources = (): SignInRequiredSources | undefined => {
+  const http = get<SignInRequiredHttpSource>('http-client')
+  const session = get<SignInRequiredSessionSource>('auth-client')
+  return http && session ? { http, session } : undefined
+}
 
 /** Origin used only to parse a native history entry into its parts. */
 const URL_BASE = 'http://localhost'
@@ -154,7 +196,7 @@ const entryState = (state: unknown): NavigatedEntry => {
  * import { createSolidRouter } from '@molecule/app-routing-solid-router'
  *
  * <Router root={(props) => (
- *   <MoleculeProvider config={{ router: createSolidRouter() }}>{props.children}</MoleculeProvider>
+ *   <MoleculeProvider router={createSolidRouter()}>{props.children}</MoleculeProvider>
  * )}>
  *   <Route path="/users/:id" component={User} />
  * </Router>
@@ -172,7 +214,7 @@ const entryState = (state: unknown): NavigatedEntry => {
  * @returns A molecule `Router` driving that Solid Router.
  */
 export const createSolidRouter = (options: SolidRouterOptions = {}): Router => {
-  const { routes } = options
+  const { routes, signInPath = DEFAULT_SIGN_IN_PATH } = options
   // The bond's `MemoryRouter` publishes its history; an explicit option wins.
   const memoryHistory = options.history ?? useContext(MemoryHistoryContext)
   const location = useLocation()
@@ -369,7 +411,28 @@ export const createSolidRouter = (options: SolidRouterOptions = {}): Router => {
     },
   }
 
-  return createHistoryRouter(history, { routes })
+  const router = createHistoryRouter(history, { routes })
+  if (signInPath === false || signInWatched.has(nativeRouter)) return router
+  signInWatched.add(nativeRouter)
+  const stopSignIn = redirectSignedOutRejections(router, {
+    signInPath,
+    sources: bondedSignInSources,
+  })
+  let signInStopped = false
+  const releaseSignIn = (): void => {
+    if (signInStopped) return
+    signInStopped = true
+    stopSignIn()
+    signInWatched.delete(nativeRouter)
+  }
+  // The router lives as long as the component that built it, or until `destroy()`.
+  if (owner) onCleanup(releaseSignIn)
+  const destroy = router.destroy
+  router.destroy = (): void => {
+    releaseSignIn()
+    destroy()
+  }
+  return router
 }
 
 /**

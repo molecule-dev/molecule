@@ -1,106 +1,115 @@
 <!--
   The Svelte form of React's `list-route.integration` page: the app's list page over the
-  bond's router, resolving the shared `resolveListRoute` rules on every committed
-  navigation (and on the app's own re-render, an auth status change), exactly as
-  `@molecule/app-svelte`'s `useListRoute` does. The case declares the page from `window`
-  (`list-probe.ts`) and reads it back through the handle the page publishes; the
-  collection request replaces React's `useQuery`, keyed by the request as that query is.
+  bond's `useListRoute` and `useConsumedSearchParam`, exactly the hooks
+  `@molecule/app-svelte` returns. The page hands the case's options to the hook as a store
+  (a case's `rerender()` republishes them, React's re-render), keeps the one-time
+  credential with the hook, and publishes the handle the case reads its state and calls its
+  actions through. The collection request replaces React's `useQuery`, keyed by the request
+  as that query is.
 -->
 <script lang="ts">
   import { resolve } from '$app/paths'
-  import { onDestroy, onMount } from 'svelte'
+  import { onDestroy } from 'svelte'
+  import { get, writable } from 'svelte/store'
 
   import { I18nError } from '@molecule/app-i18n'
-  import {
-    createConsumedSearchParam,
-    listRouteRedirect,
-    type ListRouteResult,
-    resolveListRoute,
-    type RouteParams,
-  } from '@molecule/app-routing'
+  import type { ListRouteOptions, ListRouteResult, RouteParams } from '@molecule/app-routing'
 
+  import { useConsumedSearchParam, useListRoute, useMoleculeRouter } from '../../../../index.js'
   import {
     type ListProbeLink,
     type ListProbeRequest,
     listProbeScenario,
     publishListProbeHandle,
   } from './list-probe.js'
-  import { appRouter } from './probe.js'
 
   const scenario = listProbeScenario()
-  const router = appRouter()
+  const router = useMoleculeRouter()
 
-  // Bumped by the router's own notification for every commit, and by the case's
-  // `rerender()` (React's re-render when the app's auth status changes).
+  // Bumped by the router's own notification for every commit, so the address this page
+  // renders re-reads the location (the list fields below are stores and follow by
+  // themselves).
   let revision = $state(0)
-  let rerenders = $state(0)
   let data = $state<unknown>(undefined)
-
-  // The one-time credential, read at once as React's hook reads it at render, then
-  // connected after mount so it is taken out of the address with a replace navigation.
-  const credential = scenario.token ? createConsumedSearchParam(router, scenario.token) : undefined
-  let token = $state(credential?.get() ?? '')
 
   const stopRouter = router.subscribe(() => {
     revision += 1
   })
   onDestroy(stopRouter)
 
-  const list = $derived.by((): ListRouteResult<string, string> => {
-    void revision
-    void rerenders
-    return resolveListRoute<string, string>(
-      { location: router.getLocation(), routeParams: router.getParams() },
-      scenario.options,
-      (path, options) => router.navigate(path, options),
-    )
-  })
+  // The options are a store so `rerender()` (React's re-render when the app's auth status
+  // changes) publishes a fresh object and the hook re-resolves the list.
+  const options = writable<ListRouteOptions<string, string>>(scenario.options)
+  const {
+    page,
+    pageSize,
+    offset,
+    filters,
+    selection,
+    params,
+    canLoad,
+    status,
+    redirectTo,
+    href,
+    navigate,
+    setPage,
+    setFilters,
+    select,
+  } = useListRoute<string, string>(options)
 
-  const links = $derived.by(() => {
-    const declared: ListProbeLink[] = Object.keys(scenario.options.selections ?? {}).map(
-      (selection) => ({ id: selection, selection }),
-    )
-    return [...declared, ...(scenario.extraLinks ?? [])].map((link) => ({
-      ...link,
-      href: hrefOf(link.selection, link.params),
-    }))
-  })
+  // The one-time credential: the hook reads it now and consumes it after mount, as
+  // React's hook does.
+  const credential = scenario.token ? useConsumedSearchParam(scenario.token) : undefined
 
   /**
    * A view's link, or `undefined` when its declaration needs a path parameter this address
    * cannot supply — the case declares such a view through `extraLinks` with its values.
    *
-   * @param selection - The declared view.
-   * @param params - Path parameter values for the link.
+   * @param view - The declared view.
+   * @param viewParams - Path parameter values for the link.
    * @returns The in-app href, or `undefined` when the declaration cannot be built.
    */
-  function hrefOf(selection: string, params?: RouteParams): string | undefined {
+  function hrefOf(view: string, viewParams?: RouteParams): string | undefined {
     try {
-      return resolve(list.href({ selection, params }))
+      return resolve(href({ selection: view, params: viewParams }))
     } catch (error) {
       if (error instanceof I18nError) return undefined
       throw error
     }
   }
 
+  const declared: ListProbeLink[] = Object.keys(scenario.options.selections ?? {}).map((view) => ({
+    id: view,
+    selection: view,
+  }))
+  // Rebuilt on every commit: `href` reads the hook's latest resolution, and `revision`
+  // makes this derivation run again after the hook's own notification updated it.
+  const links = $derived.by(() => {
+    void revision
+    return [...declared, ...(scenario.extraLinks ?? [])].map((link) => ({
+      ...link,
+      href: hrefOf(link.selection, link.params),
+    }))
+  })
+
+  /** The next page's link, rebuilt on every commit for the same reason as {@link links}. */
+  const nextHref = $derived.by(() => {
+    void revision
+    return resolve(href({ page: $page + 1 }))
+  })
+
   // One fetch per committed request, and React's `useQuery` key is the request itself:
   // a re-render that leaves the request unchanged reads what it already has.
   let requested = ''
   $effect(() => {
-    const current = list
-    const redirect = listRouteRedirect(current, router.getLocation())
-    if (redirect) {
-      void router.navigate(redirect.to, redirect.options)
-      return
-    }
-    if (!current.canLoad || !scenario.read) return
     const request: ListProbeRequest = {
-      selection: current.selection,
-      filters: current.filters,
-      params: current.params,
-      limit: current.pageSize,
-      offset: current.offset,
+      selection: $selection,
+      filters: $filters,
+      params: $params,
+      limit: $pageSize,
+      offset: $offset,
     }
+    if (!$canLoad || !scenario.read) return
     const key = JSON.stringify(request)
     if (key === requested) return
     requested = key
@@ -109,41 +118,62 @@
     })
   })
 
-  onMount(() => {
-    if (!credential) return
-    const stopValue = credential.subscribe((value) => {
-      token = value
-    })
-    // Consume after mount, as React's effect does, so the address is read before it moves.
-    const stopConnect = credential.connect()
-    return () => {
-      stopValue()
-      stopConnect()
-    }
+  /**
+   * The address the router reads, re-read on every commit (the list fields follow by
+   * themselves).
+   *
+   * @returns The in-app pathname, query string and hash.
+   */
+  const currentUrl = $derived.by(() => {
+    void revision
+    const location = router.getLocation()
+    return location.pathname + location.search + location.hash
+  })
+
+  /**
+   * The list state of the page's current render, as React's `current` holds it.
+   *
+   * @returns The resolved list for the current location and options.
+   */
+  const list = (): ListRouteResult<string, string> => ({
+    page: get(page),
+    pageSize: get(pageSize),
+    offset: get(offset),
+    filters: get(filters),
+    selection: get(selection),
+    params: get(params),
+    canLoad: get(canLoad),
+    status: get(status),
+    redirectTo: get(redirectTo),
+    href,
+    navigate,
+    setPage,
+    setFilters,
+    select,
   })
 
   publishListProbeHandle({
-    list: () => list,
+    list,
     url: () => {
       const location = router.getLocation()
       return location.pathname + location.search + location.hash
     },
     state: () => router.getLocation().state,
     data: () => data,
-    token: () => token,
+    token: () => (credential ? get(credential)[0] : ''),
     rerender: () => {
-      rerenders += 1
+      options.set({ ...scenario.options })
     },
   })
 </script>
 
-<output data-testid="page">{list.page}</output>
-<a id="next" href={resolve(list.href({ page: list.page + 1 }))}>Next</a>
+<output data-testid="page">{$page}</output>
+<a id="next" href={nextHref}>Next</a>
 <button
   id="previous"
   type="button"
   onclick={() => {
-    list.setPage(Math.max(1, list.page - 1))
+    setPage(Math.max(1, $page - 1))
   }}>Previous</button
 >
 {#each links as link (link.id)}
@@ -151,6 +181,4 @@
     <a id={link.id} href={link.href}>{link.selection}</a>
   {/if}
 {/each}
-<output data-testid="url"
-  >{router.getLocation().pathname + router.getLocation().search + router.getLocation().hash}</output
->
+<output data-testid="url">{currentUrl}</output>

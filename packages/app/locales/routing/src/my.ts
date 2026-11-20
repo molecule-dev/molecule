@@ -32,4 +32,6 @@ export const my: RoutingTranslations = {
     '`useMoleculeRouter` ကို Vue Router တပ်ဆင်ထားသော Vue အက်ပ်၏ component ၏ `setup` တွင် ခေါ်ရမည်။ ၎င်းကို `app.use(router)` ဖြင့် တပ်ဆင်ပါ။',
   'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
     '`useMoleculeRouter` ကို Solid Router router အတွင်းတွင် အသုံးပြုရမည်။ `Router`, `HashRouter` သို့မဟုတ် `MemoryRouter` ကို mount လုပ်ပါ။',
+  'routing.sveltekit.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` ကို `MoleculeRouterProvider` အတွင်းတွင် အသုံးပြုရမည်။ စာမျက်နှာကို ဝန်းရံပြီး သင့် root layout တွင် `MoleculeRouterProvider` ကို mount လုပ်ပါ။',
 }

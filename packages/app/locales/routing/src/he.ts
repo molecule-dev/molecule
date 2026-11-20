@@ -28,4 +28,6 @@ export const he: RoutingTranslations = {
     'יש לקרוא ל `useMoleculeRouter` ב `setup` של רכיב של אפליקציית Vue עם Vue Router מותקן. יש להתקין אותו עם `app.use(router)`.',
   'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
     'יש להשתמש ב `useMoleculeRouter` בתוך נתב של Solid Router. יש להרכיב את `Router`, `HashRouter`, או `MemoryRouter`.',
+  'routing.sveltekit.error.useMoleculeRouterOutsideRouter':
+    'יש להשתמש ב `useMoleculeRouter` בתוך `MoleculeRouterProvider`. יש להרכיב את `MoleculeRouterProvider` בפריסת השורש שלך, סביב העמוד.',
 }

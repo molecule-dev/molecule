@@ -4,7 +4,7 @@ import type { RoutingTranslations } from './types.js'
 export const ar: RoutingTranslations = {
   'routing.error.missingParam': 'المعامل "{{name}}" مفقود للمسار "{{pattern}}"',
   'routing.error.routeNotFound': 'المسار "{{name}}" غير موجود',
-  'routing.error.noNavigationRef': 'لم يتم تعيين مرجع التنقل. تأكد من تثبيت `MoleculeProvider` .',
+  'routing.error.noNavigationRef': 'لم يتم تعيين مرجع التنقل. تأكد من تثبيت `MoleculeProvider`.',
   'routing.error.useMoleculeRouterOutsideRouter':
     'يجب استخدام `useMoleculeRouter` داخل موجه React Router. قم بتثبيت `BrowserRouter` أو `HashRouter` أو `MemoryRouter` أو `Router` أو `RouterProvider`.',
   'routing.error.reactRouterHistoryBeforeRender':
@@ -29,4 +29,6 @@ export const ar: RoutingTranslations = {
     'يجب استدعاء `useMoleculeRouter` داخل `setup` لمكوّن في تطبيق Vue مثبت عليه Vue Router. ثبّته باستخدام `app.use(router)`.',
   'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
     'يجب استخدام `useMoleculeRouter` داخل موجه Solid Router. قم بتثبيت `Router` أو `HashRouter` أو `MemoryRouter`.',
+  'routing.sveltekit.error.useMoleculeRouterOutsideRouter':
+    'يجب استخدام `useMoleculeRouter` داخل `MoleculeRouterProvider`. قم بتثبيت `MoleculeRouterProvider` في التخطيط الجذري حول الصفحة.',
 }

@@ -31,4 +31,6 @@ export const mt: RoutingTranslations = {
     "`useMoleculeRouter` irid jiġi msejjaħ fis-`setup` ta' komponent ta' app Vue b'Vue Router installat. Installaħ b'`app.use(router)`.",
   'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
     "`useMoleculeRouter` irid jintuża f'router ta' Solid Router. Immonta `Router`, `HashRouter` jew `MemoryRouter`.",
+  'routing.sveltekit.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` irid jintuża ġewwa `MoleculeRouterProvider`. Immonta `MoleculeRouterProvider` fil-layout tal-għerq tiegħek, madwar il-paġna.',
 }

@@ -32,4 +32,6 @@ export const ga: RoutingTranslations = {
     "Ní mór `useMoleculeRouter` a ghlaoch in `setup` comhpháirte d'fheidhmchlár Vue a bhfuil Vue Router suiteáilte ann. Suiteáil é le `app.use(router)`.",
   'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
     'Ní mór `useMoleculeRouter` a úsáid laistigh de ródaire Solid Router. Suiteáil `Router`, `HashRouter` nó `MemoryRouter`.',
+  'routing.sveltekit.error.useMoleculeRouterOutsideRouter':
+    'Ní mór `useMoleculeRouter` a úsáid laistigh de `MoleculeRouterProvider`. Suiteáil `MoleculeRouterProvider` i do leagan amach fréimhe, timpeall an leathanaigh.',
 }

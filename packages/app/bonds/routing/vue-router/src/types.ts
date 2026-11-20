@@ -45,6 +45,12 @@ export interface VueRouterConfig {
    * Initial route definitions for named routes.
    */
   routes?: RouteDefinition[]
+
+  /**
+   * Path to replace the current location with on a signed-out GET 401. Defaults to
+   * `/login`; `false` turns the redirect off. Applies only with a `router`.
+   */
+  signInPath?: string | false
 }
 
 /**

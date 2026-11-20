@@ -30,4 +30,6 @@ export const fr: Partial<RoutingTranslations> = {
     "`useMoleculeRouter` doit être appelée dans le `setup` d'un composant d'une application Vue avec Vue Router installé. Installez-le avec `app.use(router)`.",
   'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
     '`useMoleculeRouter` doit être utilisée dans un routeur Solid Router. Montez `Router`, `HashRouter` ou `MemoryRouter`.',
+  'routing.sveltekit.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` doit être utilisée dans un `MoleculeRouterProvider`. Montez `MoleculeRouterProvider` dans votre mise en page racine, autour de la page.',
 }

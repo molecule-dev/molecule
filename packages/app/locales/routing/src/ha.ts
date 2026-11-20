@@ -32,4 +32,6 @@ export const ha: RoutingTranslations = {
     "Dole ne a kira `useMoleculeRouter` a cikin `setup` na ɓangaren ƙa'idar Vue da ke da Vue Router a shigar. Shigar da shi da `app.use(router)`.",
   'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
     "Dole ne a yi amfani da `useMoleculeRouter` a cikin na'urar sadarwa ta Solid Router. Haɗa `Router`, `HashRouter`, ko `MemoryRouter`.",
+  'routing.sveltekit.error.useMoleculeRouterOutsideRouter':
+    'Dole ne a yi amfani da `useMoleculeRouter` a cikin `MoleculeRouterProvider`. Haɗa `MoleculeRouterProvider` a cikin tsarin tushe naka, kewaye da shafin.',
 }

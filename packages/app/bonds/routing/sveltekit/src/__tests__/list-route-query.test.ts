@@ -2,7 +2,7 @@
 /**
  * The React bond's `list-route-query` titles, ported to SvelteKit. React's `useQuery` (from
  * `@molecule/app-query-react`) has no SvelteKit counterpart in this bond: the collection
- * request is the probe page's own async `read`, re-issued by the same `resolveListRoute`
+ * request is the probe page's own async `read`, re-issued by the bond's `useListRoute`
  * selection React's page keys its query by, and rendered as a list once it answers. The
  * rest — kit's real client router, the probe routes under `/probe`, the URL-selected view —
  * is driven exactly as `list-route-nav.test.ts` drives it.

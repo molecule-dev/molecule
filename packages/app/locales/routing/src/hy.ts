@@ -31,4 +31,6 @@ export const hy: RoutingTranslations = {
     '`useMoleculeRouter`-ը պետք է կանչվի Vue հավելվածի կոմպոնենտի `setup`-ում, որտեղ տեղադրված է Vue Router։ Տեղադրեք այն `app.use(router)`-ով։',
   'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
     '`useMoleculeRouter`-ը պետք է օգտագործվի Solid Router ռաութերի ներսում։ Տեղադրեք `Router`, `HashRouter` կամ `MemoryRouter`։',
+  'routing.sveltekit.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter`-ը պետք է օգտագործվի `MoleculeRouterProvider`-ի ներսում։ Տեղադրեք `MoleculeRouterProvider`-ը ձեր արմատային դասավորության մեջ՝ էջի շուրջ։',
 }

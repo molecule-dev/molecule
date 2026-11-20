@@ -5,6 +5,13 @@
  * navigate the app's real Solid Router. Build it from a component under the router and
  * hand it to `MoleculeProvider`, so every molecule package shares it:
  *
+ * With HTTP and auth clients bonded, the app's router (`createSolidRouter()` in the router's
+ * `root`, or `MoleculeRouterProvider`)
+ * replaces the current URL with `/login` after a credential-free GET receives a 401 and
+ * the session is confirmed signed out, as React's `BrowserRouter` does. `location.state.from`
+ * holds the original location. Set `signInPath` to use a different sign-in route or pass
+ * `signInPath: false` to opt out.
+ *
  * @example
  * ```tsx
  * import { MemoryRouter, Route } from '@solidjs/router'
@@ -12,7 +19,7 @@
  * import { createSolidRouter } from '@molecule/app-routing-solid-router'
  *
  * <MemoryRouter history={memory} root={(props) => (
- *   <MoleculeProvider config={{ router: createSolidRouter({ history: memory }) }}>
+ *   <MoleculeProvider router={createSolidRouter({ history: memory })}>
  *     {props.children}
  *   </MoleculeProvider>
  * )}>

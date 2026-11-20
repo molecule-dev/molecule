@@ -30,4 +30,6 @@ export const lo: RoutingTranslations = {
     '`useMoleculeRouter` ຕ້ອງຖືກເອີ້ນໃນ `setup` ຂອງຄອມໂປເນັນຂອງແອັບ Vue ທີ່ມີ Vue Router ຕິດຕັ້ງແລ້ວ. ຕິດຕັ້ງມັນດ້ວຍ `app.use(router)`.',
   'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
     '`useMoleculeRouter` ຕ້ອງຖືກໃຊ້ພາຍໃນເຣົາເຕີ Solid Router. ຕິດຕັ້ງ `Router`, `HashRouter` ຫຼື `MemoryRouter`.',
+  'routing.sveltekit.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` ຕ້ອງຖືກໃຊ້ພາຍໃນ `MoleculeRouterProvider`. ຕິດຕັ້ງ `MoleculeRouterProvider` ໃນເລົາເອົ້າຕ໌ຂອງທ່ານ ອ້ອມຮອບໜ້າ.',
 }

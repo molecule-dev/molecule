@@ -31,4 +31,6 @@ export const mr: RoutingTranslations = {
     '`useMoleculeRouter` Vue Router इन्स्टॉल केलेल्या Vue ॲपच्या कंपोनंटच्या `setup` मध्ये कॉल करणे आवश्यक आहे. ते `app.use(router)` ने इन्स्टॉल करा.',
   'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
     '`useMoleculeRouter` Solid Router राउटरमध्ये वापरला पाहिजे. `Router`, `HashRouter` किंवा `MemoryRouter` माउंट करा.',
+  'routing.sveltekit.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` `MoleculeRouterProvider` मध्ये वापरला पाहिजे. पृष्ठाभोवती तुमच्या रूट लेआउटमध्ये `MoleculeRouterProvider` माउंट करा.',
 }

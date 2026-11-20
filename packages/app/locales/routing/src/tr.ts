@@ -31,4 +31,6 @@ export const tr: RoutingTranslations = {
     '`useMoleculeRouter`, Vue Router kurulu bir Vue uygulamasının bileşeninin `setup` işlevi içinde çağrılmalıdır. `app.use(router)` ile kurun.',
   'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
     '`useMoleculeRouter` bir Solid Router yönlendiricisi içinde kullanılmalıdır. `Router`, `HashRouter` veya `MemoryRouter` bağlayın.',
+  'routing.sveltekit.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` bir `MoleculeRouterProvider` içinde kullanılmalıdır. `MoleculeRouterProvider` bileşenini kök düzeninizde sayfanın etrafına bağlayın.',
 }

@@ -5,9 +5,9 @@ export const lv: RoutingTranslations = {
   'routing.error.missingParam': 'Trūkst parametra "{{name}}" ceļam "{{pattern}}"',
   'routing.error.routeNotFound': 'Maršruts "{{name}}" nav atrasts',
   'routing.error.noNavigationRef':
-    'Navigācijas atsauce nav iestatīta. Pārliecinieties, vai ir pievienots `MoleculeProvider` .',
+    'Navigācijas atsauce nav iestatīta. Pārliecinieties, vai ir pievienots `MoleculeProvider`.',
   'routing.error.useMoleculeRouterOutsideRouter':
-    'React Router maršrutētāja ietvaros jāizmanto `useMoleculeRouter` . Pievienojiet `BrowserRouter`, `HashRouter`, `MemoryRouter`, `Router` vai `RouterProvider`.',
+    'React Router maršrutētāja ietvaros jāizmanto `useMoleculeRouter`. Pievienojiet `BrowserRouter`, `HashRouter`, `MemoryRouter`, `Router` vai `RouterProvider`.',
   'routing.error.reactRouterHistoryBeforeRender':
     'React Router vēsturi izmantoja, pirms tā komponents tika attēlots. Pievienojiet to React Router maršrutētāja ietvaros, izmantojot MoleculeRouterProvider vai useMoleculeRouter.',
   'routing.listRoute.error.pageSize':
@@ -29,5 +29,7 @@ export const lv: RoutingTranslations = {
   'routing.vueRouter.error.useMoleculeRouterOutsideRouter':
     '`useMoleculeRouter` jāizsauc Vue lietotnes komponenta `setup` daļā, kurā ir instalēts Vue Router. Instalējiet to ar `app.use(router)`.',
   'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
-    'Solid Router maršrutētāja ietvaros jāizmanto `useMoleculeRouter` . Pievienojiet `Router`, `HashRouter` vai `MemoryRouter`.',
+    'Solid Router maršrutētāja ietvaros jāizmanto `useMoleculeRouter`. Pievienojiet `Router`, `HashRouter` vai `MemoryRouter`.',
+  'routing.sveltekit.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` ir jāizmanto `MoleculeRouterProvider` ietvaros. Pievienojiet `MoleculeRouterProvider` savā saknes izkārtojumā ap lapu.',
 }

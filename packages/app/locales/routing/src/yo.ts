@@ -31,4 +31,6 @@ export const yo: RoutingTranslations = {
     'A gbọ́dọ̀ pe `useMoleculeRouter` nínú `setup` ti ẹ̀yà áàpù Vue tí Vue Router ti wà. Fi `app.use(router)` gbé e.',
   'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
     'A gbọ́dọ̀ lo `useMoleculeRouter` nínú rédíò Solid Router. Gbé `Router`, `HashRouter`, tàbí `MemoryRouter` sókè.',
+  'routing.sveltekit.error.useMoleculeRouterOutsideRouter':
+    'A gbọ́dọ̀ lo `useMoleculeRouter` nínú `MoleculeRouterProvider`. Gbé `MoleculeRouterProvider` sókè nínú àgbáyé gbòǹgbò rẹ, yíká ojú-ìwé náà.',
 }

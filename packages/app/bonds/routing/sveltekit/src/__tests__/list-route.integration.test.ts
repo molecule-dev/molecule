@@ -4,9 +4,10 @@
  *
  * Every title drives kit's REAL client router over the test app (`./kit-app`), started by
  * `./start-kit.js` the way an app's page boot starts it: the app's list page
- * (`kit-app/src/lib/ListProbePage.svelte`) resolves the shared `resolveListRoute` rules on
- * every commit, exactly as `@molecule/app-svelte`'s `useListRoute` does, and performs the
- * redirect `listRouteRedirect` asks for.
+ * (`kit-app/src/lib/ListProbePage.svelte`) calls this bond's `useListRoute` and
+ * `useConsumedSearchParam`, the same hooks `@molecule/app-svelte` returns, over the
+ * router the layout's `MoleculeRouterProvider` built, and performs the redirect
+ * `listRouteRedirect` asks for.
  *
  * Framework-forced translations, one line each:
  * - `MemoryRouter`/`BrowserRouter`/`<Route>` become kit's one client router over the
@@ -17,8 +18,8 @@
  *   follows; `useNavigate()(-1)` becomes the browser's Back/Forward, which kit follows.
  * - `useQuery` becomes the page's keyed collection request (`read`): one request per
  *   committed request, as the query key is the request.
- * - `useConsumedSearchParam` becomes core's `createConsumedSearchParam` over the same
- *   router, connected on mount.
+ * - `useConsumedSearchParam` becomes this bond's hook of the same name over the same
+ *   router, connected on mount by the page.
  * - Every href is compared with kit's own `resolve(path)`, the href a kit link carries
  *   under this project's base path (or `#` under hash routing).
  */

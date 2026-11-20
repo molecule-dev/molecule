@@ -27,4 +27,6 @@ export const am: RoutingTranslations = {
     '`useMoleculeRouter` Vue Router በተጫነበት የVue መተግበሪያ ውስጥ ባለው አካል `setup` ውስጥ መጠራት አለበት። በ`app.use(router)` ይጫኑት።',
   'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
     '`useMoleculeRouter` በSolid Router ራውተር ውስጥ ጥቅም ላይ መዋል አለበት። `Router`፣ `HashRouter` ወይም `MemoryRouter` ማውንት።',
+  'routing.sveltekit.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` በ`MoleculeRouterProvider` ውስጥ ጥቅም ላይ መዋል አለበት። `MoleculeRouterProvider` ን በስር አቀማመጥዎ ውስጥ በገጹ ዙሪያ ያስቀምጡ።',
 }

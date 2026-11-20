@@ -31,4 +31,6 @@ export const sv: RoutingTranslations = {
     '`useMoleculeRouter` måste anropas i `setup` för en komponent i en Vue-app med Vue Router installerat. Installera det med `app.use(router)`.',
   'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
     '`useMoleculeRouter` måste användas i en Solid Router-router. Montera `Router`, `HashRouter` eller `MemoryRouter`.',
+  'routing.sveltekit.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` måste användas i en `MoleculeRouterProvider`. Montera `MoleculeRouterProvider` i din rotlayout, runt sidan.',
 }

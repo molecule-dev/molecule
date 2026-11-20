@@ -31,4 +31,6 @@ export const sw: RoutingTranslations = {
     '`useMoleculeRouter` lazima iitwe katika `setup` ya sehemu ya programu ya Vue iliyo na Vue Router imesakinishwa. Isakinishe kwa `app.use(router)`.',
   'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
     '`useMoleculeRouter` lazima itumike ndani ya kipanga njia cha Solid Router. Weka `Router`, `HashRouter` au `MemoryRouter`.',
+  'routing.sveltekit.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` lazima itumike ndani ya `MoleculeRouterProvider`. Weka `MoleculeRouterProvider` kwenye mpangilio wako mzizi, kuzunguka ukurasa.',
 }

@@ -32,4 +32,6 @@ export const ta: RoutingTranslations = {
     '`useMoleculeRouter` Vue Router நிறுவப்பட்ட Vue ஆப்பின் கூறின் `setup` இல் அழைக்கப்பட வேண்டும். அதை `app.use(router)` மூலம் நிறுவவும்.',
   'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
     '`useMoleculeRouter` ஒரு Solid Router ரௌட்டருக்குள் பயன்படுத்தப்பட வேண்டும். `Router`, `HashRouter` அல்லது `MemoryRouter` மவுண்ட் செய்யவும்.',
+  'routing.sveltekit.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` ஒரு `MoleculeRouterProvider`-க்குள் பயன்படுத்தப்பட வேண்டும். பக்கத்தைச் சுற்றி உங்கள் ரூட் லேஅவுட்டில் `MoleculeRouterProvider` மவுண்ட் செய்யவும்.',
 }

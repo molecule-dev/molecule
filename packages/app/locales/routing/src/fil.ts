@@ -5,7 +5,7 @@ export const fil: RoutingTranslations = {
   'routing.error.missingParam': 'Nawawalang parameter na "{{name}}" para sa path na "{{pattern}}"',
   'routing.error.routeNotFound': 'Hindi nahanap ang ruta na "{{name}}"',
   'routing.error.noNavigationRef':
-    'Hindi nakatakda ang navigation ref. Tiyaking naka-mount `MoleculeProvider` .',
+    'Hindi nakatakda ang navigation ref. Tiyaking naka-mount `MoleculeProvider`.',
   'routing.error.useMoleculeRouterOutsideRouter':
     'Dapat gamitin `useMoleculeRouter` sa loob ng isang React Router router. I-mount ang `BrowserRouter`, `HashRouter`, `MemoryRouter`, `Router`, o `RouterProvider`.',
   'routing.error.reactRouterHistoryBeforeRender':
@@ -31,4 +31,6 @@ export const fil: RoutingTranslations = {
     'Dapat tawagin ang `useMoleculeRouter` sa `setup` ng isang component ng isang Vue app na may naka-install na Vue Router. I-install ito gamit ang `app.use(router)`.',
   'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
     'Dapat gamitin ang `useMoleculeRouter` sa loob ng isang Solid Router router. I-mount ang `Router`, `HashRouter`, o `MemoryRouter`.',
+  'routing.sveltekit.error.useMoleculeRouterOutsideRouter':
+    'Dapat gamitin ang `useMoleculeRouter` sa loob ng isang `MoleculeRouterProvider`. I-mount ang `MoleculeRouterProvider` sa iyong root layout, pinalibutan ang pahina.',
 }

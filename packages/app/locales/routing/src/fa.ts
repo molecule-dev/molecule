@@ -7,7 +7,7 @@ export const fa: RoutingTranslations = {
   'routing.error.noNavigationRef':
     'مرجع ناوبری تنظیم نشده است. مطمئن شوید که `MoleculeProvider` نصب شده است.',
   'routing.error.useMoleculeRouterOutsideRouter':
-    '`useMoleculeRouter` باید درون یک روتر React Router استفاده شود. `BrowserRouter` ، `HashRouter` ، `MemoryRouter` ، `Router` یا `RouterProvider` را نصب کنید.',
+    '`useMoleculeRouter` باید درون یک روتر React Router استفاده شود. `BrowserRouter`، `HashRouter`، `MemoryRouter`، `Router` یا `RouterProvider` را نصب کنید.',
   'routing.error.reactRouterHistoryBeforeRender':
     'تاریخچه React Router پیش از رندر شدن کامپوننتش استفاده شد. آن را از طریق MoleculeRouterProvider یا useMoleculeRouter درون یک روتر React Router نصب کنید.',
   'routing.listRoute.error.pageSize': 'useListRoute: pageSize باید یک عدد صحیح امن مثبت باشد',
@@ -29,5 +29,7 @@ export const fa: RoutingTranslations = {
   'routing.vueRouter.error.useMoleculeRouterOutsideRouter':
     '`useMoleculeRouter` باید در `setup` یک مؤلفه از یک برنامه Vue با Vue Router نصب‌شده فراخوانی شود. آن را با `app.use(router)` نصب کنید.',
   'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
-    '`useMoleculeRouter` باید درون یک روتر Solid Router استفاده شود. `Router` ، `HashRouter` یا `MemoryRouter` را نصب کنید.',
+    '`useMoleculeRouter` باید درون یک روتر Solid Router استفاده شود. `Router`، `HashRouter` یا `MemoryRouter` را نصب کنید.',
+  'routing.sveltekit.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` باید درون یک `MoleculeRouterProvider` استفاده شود. `MoleculeRouterProvider` را در چیدمان ریشه خود، پیرامون صفحه نصب کنید.',
 }

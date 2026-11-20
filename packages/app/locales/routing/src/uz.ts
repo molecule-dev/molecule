@@ -31,4 +31,6 @@ export const uz: RoutingTranslations = {
     "`useMoleculeRouter` Vue Router o'rnatilgan Vue ilovasining komponenti `setup` ichida chaqirilishi kerak. Uni `app.use(router)` bilan o'rnating.",
   'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
     "`useMoleculeRouter` Solid Router routeri ichida ishlatilishi kerak. `Router`, `HashRouter` yoki `MemoryRouter` o'rnating.",
+  'routing.sveltekit.error.useMoleculeRouterOutsideRouter':
+    "`useMoleculeRouter` `MoleculeRouterProvider` ichida ishlatilishi kerak. `MoleculeRouterProvider` ni ildiz tartibingizda sahifa atrofida o'rnating.",
 }

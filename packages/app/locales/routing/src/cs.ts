@@ -5,7 +5,7 @@ export const cs: RoutingTranslations = {
   'routing.error.missingParam': 'Chybějící parametr "{{name}}" pro cestu "{{pattern}}"',
   'routing.error.routeNotFound': 'Cesta "{{name}}" nebyla nalezena',
   'routing.error.noNavigationRef':
-    'Navigační odkaz není nastaven. Ujistěte se, že je připojen objekt `MoleculeProvider` .',
+    'Navigační odkaz není nastaven. Ujistěte se, že je připojen objekt `MoleculeProvider`.',
   'routing.error.useMoleculeRouterOutsideRouter':
     '`useMoleculeRouter` musí být použit v rámci routeru React Router. Připojte `BrowserRouter`, `HashRouter`, `MemoryRouter`, `Router` nebo `RouterProvider`.',
   'routing.error.reactRouterHistoryBeforeRender':
@@ -29,4 +29,6 @@ export const cs: RoutingTranslations = {
     '`useMoleculeRouter` musí být volán v `setup` komponenty aplikace Vue s nainstalovaným Vue Router. Nainstalujte jej pomocí `app.use(router)`.',
   'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
     '`useMoleculeRouter` musí být použit v rámci routeru Solid Router. Připojte `Router`, `HashRouter` nebo `MemoryRouter`.',
+  'routing.sveltekit.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` musí být použit v rámci `MoleculeRouterProvider`. Připojte `MoleculeRouterProvider` v kořenovém rozvržení kolem stránky.',
 }

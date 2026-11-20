@@ -31,4 +31,6 @@ export const vi: RoutingTranslations = {
     '`useMoleculeRouter` phải được gọi trong `setup` của một component thuộc ứng dụng Vue đã cài đặt Vue Router. Cài đặt nó bằng `app.use(router)`.',
   'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
     '`useMoleculeRouter` phải được sử dụng bên trong một bộ định tuyến Solid Router. Gắn `Router`, `HashRouter` hoặc `MemoryRouter`.',
+  'routing.sveltekit.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` phải được sử dụng bên trong một `MoleculeRouterProvider`. Gắn `MoleculeRouterProvider` trong bố cục gốc của bạn, bao quanh trang.',
 }

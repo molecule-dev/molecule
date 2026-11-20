@@ -5,13 +5,30 @@
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "svelte": "./dist/index.js",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "svelte": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./dist": "./dist/index.js",
+    "./dist/*.d.ts.map": "./dist/*.d.ts.map",
+    "./dist/*.d.ts": "./dist/*.d.ts",
+    "./dist/*.js": "./dist/*.js",
+    "./dist/*": "./dist/*.js",
+    "./package.json": "./package.json"
+  },
   "files": [
     "dist",
+    "!dist/**/__tests__",
+    "!dist/**/*.test.*",
+    "!dist/**/*.spec.*",
     "README.md"
   ],
   "scripts": {
-    "build": "tsc",
-    "dev": "tsc --watch",
+    "build": "svelte-check --tsconfig ./tsconfig.json --fail-on-warnings && svelte-package --input src --output dist --tsconfig ./tsconfig.json",
+    "dev": "svelte-package --input src --output dist --tsconfig ./tsconfig.json --watch",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck:tests": "svelte-kit sync --config src/__tests__/kit-app/vite.config.ts && svelte-check --workspace src/__tests__/kit-app --fail-on-warnings && tsc -p tsconfig.tests.json"
@@ -22,14 +39,18 @@
     "node": ">=20"
   },
   "peerDependencies": {
+    "@molecule/app-bond": "^1.0.1",
     "@molecule/app-i18n": "^1.0.1",
-    "@molecule/app-routing": "^1.4.0",
-    "@sveltejs/kit": "^3.0.0"
+    "@molecule/app-routing": "^1.5.0",
+    "@sveltejs/kit": "^3.0.0",
+    "svelte": "^5.7.0"
   },
   "devDependencies": {
+    "@molecule/app-bond": "1.0.5",
     "@molecule/app-framework-conformance": "0.0.0",
     "@molecule/app-i18n": "1.2.2",
     "@sveltejs/kit": "3.2.0",
+    "@sveltejs/package": "3.0.2",
     "@sveltejs/vite-plugin-svelte": "7.3.1",
     "@types/node": "26.6.5",
     "jsdom": "30.1.3",

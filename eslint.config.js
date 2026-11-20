@@ -434,6 +434,22 @@ export default tseslint.config(
     },
   },
   {
+    // The SvelteKit routing bond's docs show real Svelte template snippets, and
+    // `{@render children()}` is Svelte syntax, not a JSDoc inline tag. Declaring it here
+    // beats mangling the snippet — an escaped `{\@render}` would document syntax that does
+    // not work. Scoped to this package so `{@render}` stays invalid everywhere else.
+    files: ['packages/app/bonds/routing/sveltekit/**/*.ts'],
+    rules: {
+      'jsdoc/check-tag-names': [
+        'warn',
+        {
+          definedTags: ['module', 'remarks', 'defaultValue', 'e2e'],
+          inlineTags: ['link', 'linkcode', 'linkplain', 'tutorial', 'render'],
+        },
+      ],
+    },
+  },
+  {
     // Rule 5 for the framework UI packages and the feature components built on
     // them: each one styles through ClassMap tokens, so React, Vue, Solid, Svelte,
     // Angular and React Native render the same classes from the same bond and a

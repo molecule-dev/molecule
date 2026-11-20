@@ -31,4 +31,6 @@ export const ig: Partial<RoutingTranslations> = {
     "A ga-akpọ `useMoleculeRouter` n'ime `setup` nke akụkụ ngwa Vue nke nwere Vue Router arụnyere. Wụnye ya na `app.use(router)`.",
   'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
     "A ga-eji `useMoleculeRouter` n'ime rawụta Solid Router. Wụnye `Router`, `HashRouter`, ma ọ bụ `MemoryRouter`.",
+  'routing.sveltekit.error.useMoleculeRouterOutsideRouter':
+    "A ga-eji `useMoleculeRouter` n'ime `MoleculeRouterProvider`. Wụnye `MoleculeRouterProvider` na nhazi mgbọrọgwụ gị, gburugburu ibe ahụ.",
 }

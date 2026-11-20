@@ -30,4 +30,6 @@ export const ja: RoutingTranslations = {
     '`useMoleculeRouter` は、Vue Router をインストールした Vue アプリのコンポーネントの `setup` 内で呼び出す必要があります。`app.use(router)` でインストールしてください。',
   'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
     '`useMoleculeRouter` は Solid Router のルーター内で使用する必要があります。`Router`、`HashRouter`、または `MemoryRouter` をマウントしてください。',
+  'routing.sveltekit.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` は `MoleculeRouterProvider` 内で使用する必要があります。ルートレイアウトでページを囲むように `MoleculeRouterProvider` をマウントしてください。',
 }

@@ -4,6 +4,12 @@
  * This package provides a Vue Router implementation of the molecule Router interface,
  * allowing you to use molecule's routing abstractions with Vue Router.
  *
+ * With HTTP and auth clients bonded, the router `createVueRouter({ router })` builds
+ * replaces the current URL with `/login` after a credential-free GET receives a 401 and
+ * the session is confirmed signed out, as React's `BrowserRouter` does. `location.state.from`
+ * holds the original location. Set `signInPath` to use a different sign-in route or pass
+ * `signInPath: false` to opt out.
+ *
  * @example
  * ```vue
  * <!-- App.vue (or a root-level component INSIDE the vue-router app) -->

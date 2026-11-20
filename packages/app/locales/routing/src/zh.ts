@@ -27,4 +27,6 @@ export const zh: RoutingTranslations = {
     '`useMoleculeRouter`必须在已安装 Vue Router 的 Vue 应用组件的 `setup` 中调用。使用 `app.use(router)` 安装。',
   'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
     '`useMoleculeRouter`必须在 Solid Router 路由器中使用。挂载`Router`、`HashRouter`或`MemoryRouter`。',
+  'routing.sveltekit.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter`必须在`MoleculeRouterProvider`内使用。在根布局中围绕页面挂载`MoleculeRouterProvider`。',
 }

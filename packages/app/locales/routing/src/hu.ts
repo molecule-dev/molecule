@@ -32,4 +32,6 @@ export const hu: RoutingTranslations = {
     'A `useMoleculeRouter`-t egy Vue Routerrel telepített Vue alkalmazás komponensének `setup` függvényében kell meghívni. Telepítsd az `app.use(router)` segítségével.',
   'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
     'A `useMoleculeRouter`-t Solid Router routeren belül kell használni. Szereld be a `Router`, `HashRouter` vagy `MemoryRouter` elemet.',
+  'routing.sveltekit.error.useMoleculeRouterOutsideRouter':
+    'A `useMoleculeRouter`-t `MoleculeRouterProvider`-en belül kell használni. Szereld be a `MoleculeRouterProvider`-t a gyökér-elrendezésedbe, az oldal köré.',
 }

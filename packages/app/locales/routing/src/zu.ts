@@ -32,4 +32,6 @@ export const zu: RoutingTranslations = {
     '`useMoleculeRouter` kumele ibizwe ku-`setup` yengxenye yohlelo lwe-Vue olufakwe i-Vue Router. Yifake nge-`app.use(router)`.',
   'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
     '`useMoleculeRouter` kumele isetshenziswe ngaphakathi kwe-Solid Router router. Faka `Router`, `HashRouter` noma `MemoryRouter`.',
+  'routing.sveltekit.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` kumele isetshenziswe ngaphakathi kwe-`MoleculeRouterProvider`. Faka `MoleculeRouterProvider` kusakhiwo sakho sezimpande, sizungeze ikhasi.',
 }

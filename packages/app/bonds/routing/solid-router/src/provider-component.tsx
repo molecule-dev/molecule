@@ -41,6 +41,12 @@ export interface MoleculeRouterProviderProps {
    * each entry's state and key.
    */
   history?: SolidMemoryHistory
+
+  /**
+   * Path to replace the current location with on a signed-out GET 401. Defaults to
+   * `/login`; `false` turns the redirect off.
+   */
+  signInPath?: string | false
 }
 
 /**
@@ -60,7 +66,8 @@ export interface MoleculeRouterProviderProps {
  *   (rendered inside the router context), `routes` (optional named-route definitions; pass
  *   a stable array — later identities register onto the same router), `onRouterReady`
  *   (optional callback invoked ONCE with the router after it is bonded, e.g. to register
- *   guards) and `history` (the memory history the mounted `<MemoryRouter>` uses).
+ *   guards), `history` (the memory history the mounted `<MemoryRouter>` uses) and `signInPath`
+ *   (the sign-in path a signed-out GET 401 sends the visitor to; `false` turns it off).
  * @returns The rendered provider wrapping children with the router context.
  * @example
  * ```tsx
@@ -80,7 +87,11 @@ export interface MoleculeRouterProviderProps {
  * ```
  */
 export function MoleculeRouterProvider(props: MoleculeRouterProviderProps): JSX.Element {
-  const router = createSolidRouter({ routes: props.routes, history: props.history })
+  const router = createSolidRouter({
+    routes: props.routes,
+    history: props.history,
+    signInPath: props.signInPath,
+  })
 
   // Bonded once per router while rendering, before children: `@molecule/app-routing`'s
   // navigate()/getRouter() drive THIS real Solid Router adapter for the provider's whole life.

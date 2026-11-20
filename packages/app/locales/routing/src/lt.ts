@@ -5,9 +5,9 @@ export const lt: RoutingTranslations = {
   'routing.error.missingParam': 'Trūksta parametro "{{name}}" keliui "{{pattern}}"',
   'routing.error.routeNotFound': 'Maršrutas "{{name}}" nerastas',
   'routing.error.noNavigationRef':
-    'Navigacijos nuoroda nenustatyta. Įsitikinkite, kad prijungtas `MoleculeProvider` .',
+    'Navigacijos nuoroda nenustatyta. Įsitikinkite, kad prijungtas `MoleculeProvider`.',
   'routing.error.useMoleculeRouterOutsideRouter':
-    '„React Router“ maršrutizatoriuje turi būti naudojamas `useMoleculeRouter` . Prijunkite `BrowserRouter`, `HashRouter`, `MemoryRouter`, `Router` arba `RouterProvider`.',
+    '„React Router“ maršrutizatoriuje turi būti naudojamas `useMoleculeRouter`. Prijunkite `BrowserRouter`, `HashRouter`, `MemoryRouter`, `Router` arba `RouterProvider`.',
   'routing.error.reactRouterHistoryBeforeRender':
     'React Router istorija buvo naudota, kol dar nebuvo atvaizduotas jos komponentas. Prijunkite ją React Router maršrutizatoriuje naudodami MoleculeRouterProvider arba useMoleculeRouter.',
   'routing.listRoute.error.pageSize':
@@ -32,5 +32,7 @@ export const lt: RoutingTranslations = {
   'routing.vueRouter.error.useMoleculeRouterOutsideRouter':
     '`useMoleculeRouter` turi būti iškviečiamas Vue programos, kurioje įdiegtas Vue Router, komponento `setup` dalyje. Įdiekite jį su `app.use(router)`.',
   'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
-    '„Solid Router“ maršrutizatoriuje turi būti naudojamas `useMoleculeRouter` . Prijunkite `Router`, `HashRouter` arba `MemoryRouter`.',
+    '„Solid Router“ maršrutizatoriuje turi būti naudojamas `useMoleculeRouter`. Prijunkite `Router`, `HashRouter` arba `MemoryRouter`.',
+  'routing.sveltekit.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` turi būti naudojamas `MoleculeRouterProvider` viduje. Prijunkite `MoleculeRouterProvider` savo šakniniame išdėstyme aplink puslapį.',
 }

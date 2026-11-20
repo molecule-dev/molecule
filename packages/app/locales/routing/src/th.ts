@@ -30,4 +30,6 @@ export const th: RoutingTranslations = {
     '`useMoleculeRouter` ต้องถูกเรียกใน `setup` ของคอมโพเนนต์ของแอป Vue ที่ติดตั้ง Vue Router แล้ว ติดตั้งด้วย `app.use(router)`',
   'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
     '`useMoleculeRouter` ต้องใช้ภายในเราเตอร์ Solid Router เท่านั้น ต้องทำการ Mount `Router`, `HashRouter` หรือ `MemoryRouter`',
+  'routing.sveltekit.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` ต้องใช้ภายใน `MoleculeRouterProvider` เท่านั้น ต้องทำการ Mount `MoleculeRouterProvider` ในเลย์เอาต์รากของคุณ ล้อมรอบหน้า',
 }

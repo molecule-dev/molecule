@@ -33,4 +33,6 @@ export const ml: RoutingTranslations = {
     'Vue Router ഇൻസ്റ്റാൾ ചെയ്ത Vue ആപ്പിന്റെ കമ്പോണന്റിന്റെ `setup`-ൽ `useMoleculeRouter` വിളിക്കണം. `app.use(router)` ഉപയോഗിച്ച് ഇത് ഇൻസ്റ്റാൾ ചെയ്യുക.',
   'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
     'Solid Router റൂട്ടറിൽ `useMoleculeRouter` ഉപയോഗിക്കണം. `Router`, `HashRouter`, അല്ലെങ്കിൽ `MemoryRouter` മൗണ്ട് ചെയ്യുക.',
+  'routing.sveltekit.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` ഒരു `MoleculeRouterProvider`-നുള്ളിൽ ഉപയോഗിക്കണം. പേജിനെ ചുറ്റി നിങ്ങളുടെ റൂട്ട് ലേയൗട്ടിൽ `MoleculeRouterProvider` മൗണ്ട് ചെയ്യുക.',
 }

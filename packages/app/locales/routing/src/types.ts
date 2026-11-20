@@ -17,6 +17,7 @@ export type RoutingTranslationKey =
   | 'routing.angularRouter.error.useMoleculeRouterOutsideRouter'
   | 'routing.vueRouter.error.useMoleculeRouterOutsideRouter'
   | 'routing.solidRouter.error.useMoleculeRouterOutsideRouter'
+  | 'routing.sveltekit.error.useMoleculeRouterOutsideRouter'
 
 /** Translation record mapping routing keys to translated strings. */
 export type RoutingTranslations = Record<RoutingTranslationKey, string>

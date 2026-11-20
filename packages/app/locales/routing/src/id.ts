@@ -31,4 +31,6 @@ export const id: RoutingTranslations = {
     '`useMoleculeRouter` harus dipanggil dalam `setup` komponen aplikasi Vue dengan Vue Router terpasang. Pasang dengan `app.use(router)`.',
   'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
     '`useMoleculeRouter` harus digunakan di dalam router Solid Router. Pasang `Router`, `HashRouter`, atau `MemoryRouter`.',
+  'routing.sveltekit.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` harus digunakan di dalam `MoleculeRouterProvider`. Pasang `MoleculeRouterProvider` di tata letak akar Anda, mengelilingi halaman.',
 }

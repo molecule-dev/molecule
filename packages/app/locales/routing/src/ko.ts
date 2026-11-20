@@ -30,4 +30,6 @@ export const ko: RoutingTranslations = {
     '`useMoleculeRouter` 는 Vue Router 가 설치된 Vue 앱의 컴포넌트 `setup` 에서 호출해야 합니다. `app.use(router)` 로 설치하세요.',
   'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
     '`useMoleculeRouter` 는 Solid Router 라우터 내에서 사용해야 합니다. `Router`, `HashRouter` 또는 `MemoryRouter` 를 마운트하세요.',
+  'routing.sveltekit.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` 는 `MoleculeRouterProvider` 내에서 사용해야 합니다. 루트 레이아웃에서 페이지를 감싸도록 `MoleculeRouterProvider` 를 마운트하세요.',
 }

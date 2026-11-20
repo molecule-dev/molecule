@@ -30,4 +30,6 @@ export const te: RoutingTranslations = {
     '`useMoleculeRouter` Vue Router ఇన్‌స్టాల్ చేసిన Vue యాప్ కాంపోనెంట్ `setup` లో పిలవాలి. దాన్ని `app.use(router)` తో ఇన్‌స్టాల్ చేయండి.',
   'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
     '`useMoleculeRouter` తప్పనిసరిగా Solid Router రౌటర్‌లోపల ఉపయోగించాలి. `Router`, `HashRouter`, లేదా `MemoryRouter` మౌంట్ చేయండి.',
+  'routing.sveltekit.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` తప్పనిసరిగా `MoleculeRouterProvider` లోపల ఉపయోగించాలి. పేజీ చుట్టూ మీ రూట్ లేఅవుట్‌లో `MoleculeRouterProvider` మౌంట్ చేయండి.',
 }

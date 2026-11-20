@@ -30,4 +30,6 @@ export const pt: RoutingTranslations = {
     '`useMoleculeRouter` deve ser chamado no `setup` de um componente de um aplicativo Vue com Vue Router instalado. Instale-o com `app.use(router)`.',
   'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
     '`useMoleculeRouter` deve ser usado dentro de um roteador Solid Router. Monte `Router`, `HashRouter` ou `MemoryRouter`.',
+  'routing.sveltekit.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` deve ser usado dentro de um `MoleculeRouterProvider`. Monte `MoleculeRouterProvider` no seu layout raiz, em volta da página.',
 }

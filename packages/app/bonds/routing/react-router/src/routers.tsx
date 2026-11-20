@@ -32,10 +32,14 @@ import {
   useResolvedPath,
 } from 'react-router'
 
-import type { AuthClient, AuthStatus } from '@molecule/app-auth'
+import type { AuthClient } from '@molecule/app-auth'
 import { get } from '@molecule/app-bond'
 import type { HttpClient } from '@molecule/app-http'
-import type { Router as MoleculeRouter } from '@molecule/app-routing'
+import {
+  DEFAULT_SIGN_IN_PATH,
+  type Router as MoleculeRouter,
+  watchSignedOutRejection,
+} from '@molecule/app-routing'
 
 /** The molecule router interface, retained alongside the React Router component value. */
 export type Router = MoleculeRouter
@@ -69,7 +73,8 @@ export type RouterProviderProps = Omit<ReactRouterProviderProps, 'useTransitions
 const useRouterEffect = typeof window === 'undefined' ? useEffect : useLayoutEffect
 
 /**
- * Handles anonymous 401 responses for the current route after the session is settled.
+ * Handles anonymous 401 responses for the current route after the session is settled, by
+ * `@molecule/app-routing`'s `watchSignedOutRejection` (the rule every routing bond shares).
  *
  * @param props - The router's configured sign-in path.
  * @returns No UI.
@@ -86,33 +91,9 @@ function SignInRequired({ signInPath }: { signInPath: string }): null {
     const http = get<HttpClient>('http-client')
     const auth = get<AuthClient>('auth-client')
     if (!http || !auth) return
-
-    let stopWaiting: (() => void) | undefined
-    let redirected = false
-    const settle = (status: AuthStatus): void => {
-      if (status === 'loading') return
-      stopWaiting?.()
-      stopWaiting = undefined
-      if (status !== 'unauthenticated' || redirected) return
-      redirected = true
+    return watchSignedOutRejection({ http, session: auth }, () => {
       void navigate(signInPath, { replace: true, state: { from: location } })
-    }
-
-    const unsubscribe = http.onAuthError((request) => {
-      // Some older transports call the handler without request metadata.
-      if (request?.method !== 'GET' || request.sentCredentials !== false || redirected) return
-      const { status } = auth.getState()
-      if (status !== 'loading') {
-        settle(status)
-      } else if (!stopWaiting) {
-        stopWaiting = auth.subscribe(({ status }) => settle(status))
-        settle(auth.getState().status)
-      }
     })
-    return () => {
-      unsubscribe()
-      stopWaiting?.()
-    }
   }, [location, navigate, signInPath, signInPathname])
 
   return null
@@ -130,7 +111,7 @@ function SignInRequired({ signInPath }: { signInPath: string }): null {
  */
 export function BrowserRouter({
   children,
-  signInPath = '/login',
+  signInPath = DEFAULT_SIGN_IN_PATH,
   ...props
 }: BrowserRouterProps): JSX.Element {
   return (
@@ -153,7 +134,7 @@ export function BrowserRouter({
  */
 export function HashRouter({
   children,
-  signInPath = '/login',
+  signInPath = DEFAULT_SIGN_IN_PATH,
   ...props
 }: HashRouterProps): JSX.Element {
   return (
@@ -176,7 +157,7 @@ export function HashRouter({
  */
 export function MemoryRouter({
   children,
-  signInPath = '/login',
+  signInPath = DEFAULT_SIGN_IN_PATH,
   ...props
 }: MemoryRouterProps): JSX.Element {
   return (

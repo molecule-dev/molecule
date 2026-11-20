@@ -31,4 +31,6 @@ export const cy: RoutingTranslations = {
     "Rhaid galw `useMoleculeRouter` yn `setup` cydran o ap Vue sydd â Vue Router wedi'i osod. Gosodwch ef gyda `app.use(router)`.",
   'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
     'Rhaid defnyddio `useMoleculeRouter` o fewn llwybrydd Solid Router. Mowntiwch `Router`, `HashRouter` neu `MemoryRouter`.',
+  'routing.sveltekit.error.useMoleculeRouterOutsideRouter':
+    'Rhaid defnyddio `useMoleculeRouter` o fewn `MoleculeRouterProvider`. Mowntiwch `MoleculeRouterProvider` yn eich cynllun gwraidd, o amgylch y dudalen.',
 }

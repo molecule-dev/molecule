@@ -31,4 +31,6 @@ export const ka: RoutingTranslations = {
     '`useMoleculeRouter` უნდა გამოიძახოს Vue აპის კომპონენტის `setup`-ში, სადაც Vue Router დაყენებულია. დააინსტალირეთ ის `app.use(router)`-ით.',
   'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
     '`useMoleculeRouter` უნდა იქნას გამოყენებული Solid Router-ის როუტერში. დაამონტაჟეთ `Router`, `HashRouter` ან `MemoryRouter`.',
+  'routing.sveltekit.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` უნდა იქნას გამოყენებული `MoleculeRouterProvider`-ში. დაამონტაჟეთ `MoleculeRouterProvider` თქვენს ძირეულ განლაგებაში, გვერდის გარშემო.',
 }

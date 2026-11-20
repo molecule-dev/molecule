@@ -30,4 +30,6 @@ export const km: RoutingTranslations = {
     '`useMoleculeRouter` ត្រូវតែហៅនៅក្នុង `setup` នៃសមាសភាគនៃកម្មវិធី Vue ដែលមាន Vue Router ដំឡើង។ ដំឡើងវាដោយ `app.use(router)`។',
   'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
     '`useMoleculeRouter` ត្រូវតែប្រើនៅក្នុងរ៉ោតទ័រ Solid Router។ ម៉ោន `Router`, `HashRouter` ឬ `MemoryRouter`។',
+  'routing.sveltekit.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` ត្រូវតែប្រើនៅក្នុង `MoleculeRouterProvider`។ ម៉ោន `MoleculeRouterProvider` នៅក្នុងប្លង់ឫសរបស់អ្នក ជុំវិញទំព័រ។',
 }

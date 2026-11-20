@@ -25,7 +25,7 @@ const newKey = (): string => Math.random().toString(36).slice(2)
  * ```tsx
  * const memory = createSolidMemoryHistory(['/start'])
  * <MemoryRouter history={memory} root={(props) => (
- *   <MoleculeProvider config={{ router: createSolidRouter({ history: memory }) }}>
+ *   <MoleculeProvider router={createSolidRouter({ history: memory })}>
  *     {props.children}
  *   </MoleculeProvider>
  * )} />

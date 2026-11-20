@@ -7,16 +7,54 @@
  * @module
  */
 
-import type { NavigationAction, Router } from '@molecule/app-routing'
+import type { NavigateOptions, NavigationAction, Router } from '@molecule/app-routing'
 
 import type { SvelteKitNavigation } from '../../../../types.js'
 
+/** The `goto` options a case reads back. */
+export interface GotoCallOptions {
+  /** Whether the router asked kit to replace the current history entry. */
+  replace?: boolean
+  /** Whether the router asked kit to keep the navigation state across a reload. */
+  persistState?: boolean
+}
+
+/** One call the layout's `goto` observer saw. */
+export interface GotoCall {
+  /** The URL kit was asked to navigate to, with the base (or `#`) first. */
+  url: string
+  /** The options the router passed. */
+  options?: GotoCallOptions
+}
+
 /** What the root layout hands the harness. */
 export interface KitApp {
-  /** The molecule router over kit's client router. */
+  /** The molecule router the root layout's `MoleculeRouterProvider` built. */
   router: Router
-  /** The navigation pieces the router was built from (`createSvelteKitNavigation`). */
+  /** The navigation pieces the provider's router was built from (`createSvelteKitNavigation`). */
   navigation: SvelteKitNavigation
+  /**
+   * `@molecule/app-routing`'s `getRouter()` in the started app's OWN module graph — the
+   * router the provider bonded with `setRouter` during its initialisation.
+   */
+  bonded(): Router
+  /**
+   * `@molecule/app-routing`'s `setRouter()` in the started app's own module graph, for a
+   * case that bonds another router the way a consumer would.
+   *
+   * @param router - The router to bond.
+   */
+  bond(router: Router): void
+  /**
+   * `@molecule/app-routing`'s `navigate()` in the started app's own module graph: core
+   * navigation, which must reach the provider's router.
+   *
+   * @param path - The in-app path to navigate to.
+   * @param options - Molecule navigation options.
+   */
+  navigate(path: string, options?: NavigateOptions): void
+  /** Every URL the layout's observed kit `goto` received, in order. */
+  gotoCalls(): readonly GotoCall[]
   /**
    * Whether kit is idle: no `goto` the router started is still pending, and kit has no
    * navigation in flight (`$app/state`'s `navigating.type` is `null`).

@@ -30,4 +30,6 @@ export const is: RoutingTranslations = {
     'Kalla verður `useMoleculeRouter` í `setup` íhlutar Vue forrits með Vue Router uppsett. Settu það upp með `app.use(router)`.',
   'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
     '`useMoleculeRouter` verður að nota innan Solid Router leiðara. Tengdu `Router`, `HashRouter` eða `MemoryRouter`.',
+  'routing.sveltekit.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` verður að nota innan `MoleculeRouterProvider`. Tengdu `MoleculeRouterProvider` í rótarútlitinu þínu, í kringum síðuna.',
 }

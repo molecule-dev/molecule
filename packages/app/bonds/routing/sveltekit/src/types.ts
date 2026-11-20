@@ -261,4 +261,10 @@ export interface SvelteKitRouterOptions {
    * @param router - The router `createSvelteKitRouter` built.
    */
   onRouterReady?: (router: Router) => void
+
+  /**
+   * Path to replace the current location with on a signed-out GET 401. Defaults to
+   * `/login`; `false` turns the redirect off.
+   */
+  signInPath?: string | false
 }

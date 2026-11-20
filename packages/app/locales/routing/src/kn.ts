@@ -30,4 +30,6 @@ export const kn: RoutingTranslations = {
     '`useMoleculeRouter` ಅನ್ನು Vue Router ಸ್ಥಾಪಿಸಿದ Vue ಅಪ್ಲಿಕೇಶನ್‌ನ ಘಟಕದ `setup` ನಲ್ಲಿ ಕರೆಯಬೇಕು. ಅದನ್ನು `app.use(router)` ನಿಂದ ಸ್ಥಾಪಿಸಿ.',
   'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
     '`useMoleculeRouter` ಅನ್ನು Solid Router ರೂಟರ್‌ನಲ್ಲಿ ಬಳಸಬೇಕು. `Router`, `HashRouter`, ಅಥವಾ `MemoryRouter` ಮೌಂಟ್ ಮಾಡಿ.',
+  'routing.sveltekit.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` ಅನ್ನು `MoleculeRouterProvider` ನಲ್ಲಿ ಬಳಸಬೇಕು. ಪುಟದ ಸುತ್ತ ನಿಮ್ಮ ಮೂಲ ಲೇಔಟ್‌ನಲ್ಲಿ `MoleculeRouterProvider` ಮೌಂಟ್ ಮಾಡಿ.',
 }

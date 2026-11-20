@@ -72,7 +72,8 @@ export function useMoleculeRouter(options: SolidRouterOptions = {}): Router {
   const provided = useContext(MoleculeRouterContext)
   if (provided) return provided
   requireSolidRouter()
-  const router = createSolidRouter(options)
+  // A component's own router: the app-level router applies the sign-in rule once.
+  const router = createSolidRouter({ ...options, signInPath: false })
   onCleanup(() => router.destroy())
   return router
 }

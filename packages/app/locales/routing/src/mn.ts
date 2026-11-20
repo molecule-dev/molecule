@@ -30,4 +30,6 @@ export const mn: RoutingTranslations = {
     '`useMoleculeRouter`-ыг Vue Router суулгасан Vue аппын компонентийн `setup` дотор дуудах ёстой. Үүнийг `app.use(router)`-оор суулгана уу.',
   'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
     '`useMoleculeRouter`-ыг Solid Router чиглүүлэгч дотор ашиглах ёстой. `Router`, `HashRouter`, эсвэл `MemoryRouter` холбоно уу.',
+  'routing.sveltekit.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter`-ыг `MoleculeRouterProvider` дотор ашиглах ёстой. `MoleculeRouterProvider`-ыг үндсэн зохион байгуулалтад хуудсыг тойруулан холбоно уу.',
 }

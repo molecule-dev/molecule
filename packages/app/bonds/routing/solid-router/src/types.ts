@@ -76,6 +76,12 @@ export interface SolidRouterOptions {
    * live in `history.state` and their pops arrive as `popstate`.
    */
   history?: SolidMemoryHistory
+
+  /**
+   * Path to replace the current location with on a signed-out GET 401. Defaults to
+   * `/login`; `false` turns the redirect off. `useMoleculeRouter`'s routers never apply it.
+   */
+  signInPath?: string | false
 }
 
 /** Characters a Solid Router parameter name may contain. */

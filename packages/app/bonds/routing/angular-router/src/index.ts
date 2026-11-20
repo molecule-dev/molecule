@@ -11,6 +11,12 @@
  * Wire it once at bootstrap, next to Angular's own router providers, and inject it
  * through `@molecule/app-angular`'s `ROUTER` token:
  *
+ * With HTTP and auth clients bonded, the router `provideMoleculeRouter` provides
+ * replaces the current URL with `/login` after a credential-free GET receives a 401 and
+ * the session is confirmed signed out, as React's `BrowserRouter` does. `location.state.from`
+ * holds the original location. Set `signInPath` to use a different sign-in route or pass
+ * `signInPath: false` to opt out.
+ *
  * @example
  * ```ts
  * import { bootstrapApplication } from '@angular/platform-browser'

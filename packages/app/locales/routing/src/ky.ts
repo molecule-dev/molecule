@@ -30,4 +30,6 @@ export const ky: RoutingTranslations = {
     '`useMoleculeRouter` Vue Router орнотулган Vue колдонмосунун компонентинин `setup` ичинде чакырылышы керек. Аны `app.use(router)` менен орнотуңуз.',
   'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
     '`useMoleculeRouter` Solid Router маршрутизаторунда колдонулушу керек. `Router`, `HashRouter` же `MemoryRouter` орнотуңуз.',
+  'routing.sveltekit.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` `MoleculeRouterProvider` ичинде колдонулушу керек. `MoleculeRouterProvider` ды тамыр жайгаштырууңузда барактын айланасына орнотуңуз.',
 }
