@@ -90,6 +90,9 @@
  * spelling. Clear the token (and any token resolver) or use a separate client to send another
  * credential. The Axios bond retains Axios's precedence: explicit default/request headers and
  * request interceptors can override the client's token.
+ * `client.onAuthError(handler)` calls `handler({ method, url, sentCredentials })` on 401.
+ * The event describes the rejected request after interception and token injection. Its URL
+ * is credential-redacted, and explicit cookie inclusion counts as credentialed.
  *
  * **A different account does not require a hand-written transport.** For demo data,
  * an operator action, or another tenant's token, construct a separate package client in

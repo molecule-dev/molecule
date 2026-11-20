@@ -12,6 +12,11 @@
  * supply named routes, or receive onRouterReady. Hook-created adapters remain local
  * so multiple consumers cannot overwrite the global router bond.
  *
+ * With HTTP and auth clients bonded, `BrowserRouter`, `HashRouter`, and `MemoryRouter`
+ * replace the current URL with `/login` after a credential-free GET receives a 401 and
+ * the session is confirmed signed out. `location.state.from` holds the original location.
+ * Set `signInPath` to use a different sign-in route or pass `signInPath={false}` to opt out.
+ *
  * **A route with parameters? Declare its page with `defineRoute`.** The route path
  * is the source of truth for the page's parameter names. Use `{ Component: Page }`
  * to receive a typed `params` prop automatically, or use the callback to supply

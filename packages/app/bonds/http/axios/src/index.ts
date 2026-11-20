@@ -37,6 +37,8 @@
  *   silently bypass the Axios client (no interceptors, no auth token).
  * - `get()`/`post()`/… resolve to `HttpResponse<T>` — read `.data` for the
  *   body (`const { data: users } = await get('/users')`).
+ * - `client.onAuthError(handler)` reports the rejected request's method, credential-redacted
+ *   URL and whether it carried credentials or explicitly included cookies when it gets a 401.
  * - The exported `provider` constant is a pre-built default client (no baseURL,
  *   30 s timeout); prefer `createAxiosClient({...})` so baseURL/credentials are
  *   explicit.

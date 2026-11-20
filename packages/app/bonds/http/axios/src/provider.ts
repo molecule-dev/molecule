@@ -15,6 +15,7 @@ import axios, {
 
 import {
   awaitAuthGate,
+  type HttpAuthErrorEvent,
   isIdempotentRequest,
   type KeepaliveReservation,
   reserveKeepalive,
@@ -268,7 +269,7 @@ export function createAxiosClient(config: AxiosHttpClientConfig = {}): HttpClien
   const requestInterceptors: RequestInterceptor[] = []
   const responseInterceptors: ResponseInterceptor[] = []
   const errorInterceptors: ErrorInterceptor[] = []
-  const authErrorHandlers: Set<() => void> = new Set()
+  const authErrorHandlers = new Set<(event: HttpAuthErrorEvent) => void>()
 
   let authToken: string | null = null
   // The app's live session token, installed by `setAuthTokenSource()` through `setClient()`.
@@ -514,8 +515,21 @@ export function createAxiosClient(config: AxiosHttpClientConfig = {}): HttpClien
     },
     async (error: AxiosError) => {
       // Handle auth errors
-      if (error.response?.status === 401) {
-        authErrorHandlers.forEach((handler) => handler())
+      if (error.response?.status === 401 && authErrorHandlers.size) {
+        const sent = error.response.config ?? error.config
+        const headers = AxiosHeaders.from(sent?.headers)
+        const event: HttpAuthErrorEvent = {
+          method: (sent?.method?.toUpperCase() ?? 'GET') as FullRequestConfig['method'],
+          url: HttpError.redactUrlCredentials(sent?.url ?? ''),
+          sentCredentials: Boolean(
+            !sent ||
+            sent.withCredentials ||
+            sent.auth ||
+            headers.get('Authorization') ||
+            headers.get('Cookie'),
+          ),
+        }
+        authErrorHandlers.forEach((handler) => handler(event))
       }
 
       // A cancelled request (an AbortController signal) arrives with no response
@@ -740,7 +754,7 @@ export function createAxiosClient(config: AxiosHttpClientConfig = {}): HttpClien
       return resolveAuthToken()
     },
 
-    onAuthError(handler: () => void): () => void {
+    onAuthError(handler: (event: HttpAuthErrorEvent) => void): () => void {
       authErrorHandlers.add(handler)
       return () => authErrorHandlers.delete(handler)
     },

@@ -18,6 +18,20 @@ const HTTP_ERROR_BRAND = Symbol.for('@molecule/app-http/HttpError')
  */
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'HEAD' | 'OPTIONS'
 
+/** Request metadata passed to a client auth-error listener when the server responds with 401. */
+export interface HttpAuthErrorEvent {
+  /** The HTTP method after request interception. */
+  readonly method: HttpMethod
+  /** The request's configured URL after interception, with credentials redacted. */
+  readonly url: string
+  /**
+   * Whether the request supplied an Authorization or Cookie header, configured transport auth,
+   * or explicitly opted into sending cookies. Browsers do not expose implicit cookies to the
+   * client, so consumers also need the app's auth state to decide whether a visitor is signed out.
+   */
+  readonly sentCredentials: boolean
+}
+
 /**
  * HTTP request options (headers, query params, timeout, credentials, response type, abort signal).
  */

@@ -14,7 +14,7 @@ import type { AuthTokenResolver, HttpClient, HttpClientConfig } from './client.j
 import type { ErrorInterceptor, RequestInterceptor, ResponseInterceptor } from './interceptors.js'
 import { reserveKeepalive } from './keepalive.js'
 import { retryDelayMs, shouldRetryRequest } from './retry.js'
-import type { FullRequestConfig, HttpResponse, RequestConfig } from './types.js'
+import type { FullRequestConfig, HttpAuthErrorEvent, HttpResponse, RequestConfig } from './types.js'
 import { HttpError, snapshotHttpErrorBody } from './types.js'
 
 /** Wait for a retry backoff. */
@@ -101,7 +101,7 @@ export const createFetchClient = (config: HttpClientConfig = {}): HttpClient => 
   const requestInterceptors: RequestInterceptor[] = []
   const responseInterceptors: ResponseInterceptor[] = []
   const errorInterceptors: ErrorInterceptor[] = []
-  const authErrorHandlers = new Set<() => void>()
+  const authErrorHandlers = new Set<(event: HttpAuthErrorEvent) => void>()
 
   /** The bearer this request carries: the resolver's answer, else the static token. */
   const resolveAuthToken = (): string | null =>
@@ -329,8 +329,18 @@ export const createFetchClient = (config: HttpClientConfig = {}): HttpClient => 
             )
 
             // Handle auth errors
-            if (fetchResponse.status === 401) {
-              authErrorHandlers.forEach((handler) => handler())
+            if (fetchResponse.status === 401 && authErrorHandlers.size) {
+              const event: HttpAuthErrorEvent = {
+                method: finalConfig.method,
+                url: HttpError.redactUrlCredentials(finalConfig.url),
+                sentCredentials:
+                  fetchOptions.credentials === 'include' ||
+                  Object.entries(headers).some(
+                    ([name, value]) =>
+                      /^(authorization|cookie)$/i.test(name) && Boolean(value.trim()),
+                  ),
+              }
+              authErrorHandlers.forEach((handler) => handler(event))
             }
 
             if (
@@ -542,7 +552,7 @@ export const createFetchClient = (config: HttpClientConfig = {}): HttpClient => 
       return resolveAuthToken()
     },
 
-    onAuthError(handler: () => void): () => void {
+    onAuthError(handler: (event: HttpAuthErrorEvent) => void): () => void {
       authErrorHandlers.add(handler)
       return () => authErrorHandlers.delete(handler)
     },

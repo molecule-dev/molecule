@@ -380,20 +380,81 @@ describe('HTTP Provider', () => {
       await expect(client.get('/test')).rejects.toThrow(HttpError)
     })
 
-    it('should trigger auth error handler on 401', async () => {
+    it('reports the request that reached fetch when it receives a 401', async () => {
       mockFetch.mockImplementation(() => createMockResponse({ error: 'Unauthorized' }, 401))
       const client = createFetchClient()
       const authHandler = vi.fn()
+      client.onAuthError(authHandler)
+      client.addRequestInterceptor((config) => ({ ...config, url: '/protected' }))
 
+      await expect(client.get('/before-interception')).rejects.toMatchObject({ status: 401 })
+      expect(authHandler).toHaveBeenCalledExactlyOnceWith({
+        method: 'GET',
+        url: '/protected',
+        sentCredentials: false,
+      })
+    })
+
+    it('reports the credential from dispatch after the token is cleared', async () => {
+      const client = createFetchClient()
+      const authHandler = vi.fn()
+      let token: string | null = 'expired'
+      client.setAuthTokenResolver?.(() => token)
+      client.onAuthError(authHandler)
+      mockFetch.mockImplementation(() => {
+        token = null
+        return createMockResponse({}, 401)
+      })
+
+      await expect(client.get('/protected')).rejects.toMatchObject({ status: 401 })
+      expect(mockFetch.mock.calls[0]?.[1]?.headers).toMatchObject({
+        Authorization: 'Bearer expired',
+      })
+      expect(authHandler).toHaveBeenCalledExactlyOnceWith({
+        method: 'GET',
+        url: '/protected',
+        sentCredentials: true,
+      })
+    })
+
+    it.each([
+      { headers: { aUtHoRiZaTiOn: 'Basic test' } },
+      { headers: { cOoKiE: 'session=test' } },
+      { withCredentials: true },
+    ])('reports explicit credentials on a failed request with %j', async (options) => {
+      mockFetch.mockImplementation(() => createMockResponse({}, 401))
+      const client = createFetchClient()
+      const authHandler = vi.fn()
       client.onAuthError(authHandler)
 
-      try {
-        await client.get('/protected')
-      } catch (_error) {
-        // Intentionally ignored — the 401 error is expected and the test only asserts the auth handler was called
-      }
+      await expect(client.post('/private', {}, options)).rejects.toMatchObject({ status: 401 })
+      expect(authHandler).toHaveBeenCalledExactlyOnceWith({
+        method: 'POST',
+        url: '/private',
+        sentCredentials: true,
+      })
+    })
 
-      expect(authHandler).toHaveBeenCalled()
+    it('redacts URL credentials and emits no event on 200 or 422', async () => {
+      mockFetch
+        .mockImplementationOnce(() => createMockResponse({}, 200))
+        .mockImplementationOnce(() => createMockResponse({}, 422))
+        .mockImplementationOnce(() => createMockResponse({}, 401))
+      const client = createFetchClient()
+      const authHandler = vi.fn()
+      client.onAuthError(authHandler)
+
+      await client.get('/public')
+      await expect(client.post('/login', {})).rejects.toMatchObject({ status: 422 })
+      expect(authHandler).not.toHaveBeenCalled()
+      await expect(client.get('/private?token=secret&view=mine')).rejects.toMatchObject({
+        status: 401,
+      })
+      expect(authHandler).toHaveBeenCalledExactlyOnceWith({
+        method: 'GET',
+        url: '/private?token=[REDACTED]&view=mine',
+        sentCredentials: false,
+      })
     })
 
     it('should allow removing auth error handler', async () => {

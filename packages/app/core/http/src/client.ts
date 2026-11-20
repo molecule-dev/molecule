@@ -8,7 +8,7 @@
 
 import type { ErrorInterceptor, RequestInterceptor, ResponseInterceptor } from './interceptors.js'
 import type { RetryOptions } from './retry.js'
-import type { FullRequestConfig, HttpResponse, RequestConfig } from './types.js'
+import type { FullRequestConfig, HttpAuthErrorEvent, HttpResponse, RequestConfig } from './types.js'
 
 /**
  * A live access-token resolver: called once per request, it returns the token the session
@@ -232,11 +232,12 @@ export interface HttpClient {
   setAuthTokenResolver?(resolver: AuthTokenResolver | null): void
 
   /**
-   * Registers a handler for authentication errors (401).
+   * Registers a handler for authentication errors (401), with the rejected request's metadata.
    *
+   * @param handler - Receives the method, URL and credential state of the rejected request.
    * @returns An unsubscribe function.
    */
-  onAuthError(handler: () => void): () => void
+  onAuthError(handler: (event: HttpAuthErrorEvent) => void): () => void
 }
 /* eslint-enable @typescript-eslint/no-unused-vars */
 

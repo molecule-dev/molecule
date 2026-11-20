@@ -67,19 +67,28 @@ const cases = [
     name: 'BrowserRouter',
     component: ReactRouterBrowserRouter,
     render: () => BrowserRouter({ basename: '/app', children: 'app' }),
-    props: { basename: '/app', children: 'app' },
+    props: {
+      basename: '/app',
+      children: [expect.objectContaining({ props: { signInPath: '/login' } }), 'app'],
+    },
   },
   {
     name: 'HashRouter',
     component: ReactRouterHashRouter,
     render: () => HashRouter({ basename: '/app', children: 'app' }),
-    props: { basename: '/app', children: 'app' },
+    props: {
+      basename: '/app',
+      children: [expect.objectContaining({ props: { signInPath: '/login' } }), 'app'],
+    },
   },
   {
     name: 'MemoryRouter',
     component: ReactRouterMemoryRouter,
     render: () => MemoryRouter({ initialEntries: ['/app'], children: 'app' }),
-    props: { initialEntries: ['/app'], children: 'app' },
+    props: {
+      initialEntries: ['/app'],
+      children: [expect.objectContaining({ props: { signInPath: '/login' } }), 'app'],
+    },
   },
   {
     name: 'Router',
@@ -129,7 +138,8 @@ describe('synchronous React Router components', () => {
       { children: 'app', useTransitions: true },
     ]) as MockElement
 
-    expect(element.props).toMatchObject({ children: 'app', useTransitions: false })
+    expect(element.props).toMatchObject({ useTransitions: false })
+    expect(element.props.children).toContain('app')
   })
 
   it('accepts the core provider flushSync prop but not useTransitions', () => {
