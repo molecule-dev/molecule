@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 
 import { describe, expect, it } from 'vitest'
 
@@ -24,5 +24,15 @@ describe('@molecule/app-fonts-source-serif-4', () => {
     const license = readFileSync(new URL('../../fonts/OFL.txt', import.meta.url), 'utf8')
     expect(license).toMatch(/SIL Open Font License/i)
     expect(license).toMatch(/Copyright/)
+  })
+
+  it('ships Adobe’s reserved-name notice with its original TrueType faces', () => {
+    const notice = new URL('../../fonts/OFL-Adobe.txt', import.meta.url)
+    expect(existsSync(notice)).toBe(true)
+    expect(readFileSync(notice, 'utf8')).toContain("with Reserved Font Name 'Source'")
+    for (const face of font.source.faces ?? []) {
+      expect(face.file).toMatch(/\.ttf$/)
+      expect(face.unicodeRange).toBeUndefined()
+    }
   })
 })
