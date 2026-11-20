@@ -107,6 +107,17 @@ describe('unreached app source', () => {
     expect(await buildSite(workshop)).toEqual([])
   })
 
+  it('ignores hidden tool metadata while reporting a detached module beside it', async () => {
+    const warnings = await buildSite({
+      ...workshop,
+      'src/resources/.generator-state.json': '{}',
+      'src/resources/detached.ts': 'export const detached = true',
+    })
+    expect(warnings.map((line) => line.match(/"src\/[^"]+"/)?.[0])).toEqual([
+      '"src/resources/detached.ts"',
+    ])
+  })
+
   it('counts CSS inlined by Tailwind and explicitly inlined URLs', async () => {
     const warnings = await buildSite(
       {

@@ -9,7 +9,7 @@ const stylesheetExtension = /\.(?:css|scss|sass|less|styl|stylus|pcss)$/i
 const auxiliaryFile =
   /(?:^|\.)(?:spec|test|stories|config)\.[cm]?[jt]sx?$|(?:^|\.)(?:d|types)\.[cm]?ts$/i
 const auxiliaryDirectory =
-  /^(?:\.|__(?:tests|mocks|fixtures)__$|tests?$|fixtures?$|e2e$|public$|node_modules$)/
+  /^(?:__(?:tests|mocks|fixtures)__$|tests?$|fixtures?$|e2e$|public$|node_modules$)/
 const cssReference = /@import\s+(['"])([^'"]+)\1|url\(\s*(?:"([^"]*)"|'([^']*)'|([^)]*))\s*\)/gi
 
 /** The cross-version part of the production bundler's plugin context. */
@@ -46,6 +46,8 @@ function listSourceFiles(directory: string, publicDir: string): string[] {
     throw error
   }
   return entries.flatMap((entry) => {
+    // Dot-prefixed entries are conventionally tool metadata, like generator manifests.
+    if (entry.name.startsWith('.')) return []
     const file = resolve(directory, entry.name)
     if (entry.isDirectory() && file !== publicDir && !auxiliaryDirectory.test(entry.name))
       return listSourceFiles(file, publicDir)
