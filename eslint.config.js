@@ -5,7 +5,9 @@ import simpleImportSort from 'eslint-plugin-simple-import-sort'
 import svelte from 'eslint-plugin-svelte'
 import tseslint from 'typescript-eslint'
 
+import noCamelCaseNativeEventsInVueH from './eslint-rules/no-camel-case-native-events-in-vue-h.mjs'
 import noClassCode from './eslint-rules/no-class-code.mjs'
+import noDomEventsInAngularCheckHooks from './eslint-rules/no-dom-events-in-angular-check-hooks.mjs'
 import { noHandStyledButton } from './eslint-rules/no-hand-styled-button.mjs'
 import { noRawClassNames } from './eslint-rules/no-raw-class-names.mjs'
 
@@ -29,10 +31,21 @@ import { noRawClassNames } from './eslint-rules/no-raw-class-names.mjs'
  * `no-raw-class-names` enforces Rule 5 itself (CSS class names only in ClassMap
  * bonds) where every framework must render the same classes: the framework UI
  * packages. Same canonical/sync arrangement.
+ *
+ * `no-dom-events-in-angular-check-hooks` keeps `focus()`, `blur()`, `click()` and
+ * `dispatchEvent()` out of Angular's change-detection hooks (and `ngOnDestroy`): their
+ * listeners run while Angular is still checking the view, so a state change they make is
+ * never rendered. molecule-only (no Angular code in molecule-dev/app), so it is not synced.
+ *
+ * `no-camel-case-native-events-in-vue-h` keeps React's listener spelling (`onMouseEnter`) off native
+ * elements in a Vue `h()` call: Vue hyphenates the key, so the listener waits for a `mouse-enter`
+ * event no browser fires. molecule-only (no Vue code in molecule-dev/app), so it is not synced.
  */
 const moleculeLocal = {
   rules: {
     'no-class-code': noClassCode,
+    'no-dom-events-in-angular-check-hooks': noDomEventsInAngularCheckHooks,
+    'no-camel-case-native-events-in-vue-h': noCamelCaseNativeEventsInVueH,
     'no-hand-styled-button': noHandStyledButton,
     'no-raw-class-names': noRawClassNames,
     'require-catch-binding': {
@@ -461,6 +474,23 @@ export default tseslint.config(
     ignores: ['**/__tests__/**', '**/*.test.{ts,tsx}', '**/*.spec.{ts,tsx}'],
     rules: {
       'molecule-local/no-raw-class-names': 'error',
+    },
+  },
+  {
+    // A synchronous DOM event in an Angular change-detection hook runs its listeners while the
+    // view is still being checked, so what they change is never rendered (a Tooltip that hid on
+    // focusout stays open). Defer the call past the render with afterNextRender/afterEveryRender.
+    files: ['packages/app/**/*angular*/src/**/*.ts', 'packages/app/frameworks/angular/src/**/*.ts'],
+    rules: {
+      'molecule-local/no-dom-events-in-angular-check-hooks': 'error',
+    },
+  },
+  {
+    // Vue binds an h() listener key on a native element by hyphenating it, so React's
+    // `onMouseEnter` waits for a `mouse-enter` event and never runs. Write `onMouseenter`.
+    files: ['packages/app/**/*vue*/src/**/*.ts', 'packages/app/frameworks/vue/src/**/*.ts'],
+    rules: {
+      'molecule-local/no-camel-case-native-events-in-vue-h': 'error',
     },
   },
   {
