@@ -636,19 +636,28 @@ export function createAngularAdapter({
               appRef.destroy()
               throw error
             }
+            /**
+             * Change detection after each interaction and each timer callback of an advance, as
+             * the app's scheduler runs it after each task in a browser.
+             *
+             * @param step - The work to run.
+             */
+            const tickAfter = async (step: () => unknown): Promise<void> => {
+              await step()
+              appRef.tick()
+            }
             return {
               flush: async () => {
                 appRef.tick()
-                await settle()
+                // Through the same scope as every later step: a timer callback the mount runs
+                // (a session restoring its queue) writes a signal outside change detection, and
+                // zoneless Angular's own render for it waits on a fake timer nothing advances,
+                // so whenStable() would never resolve.
+                await settle(tickAfter)
                 await appRef.whenStable()
                 appRef.tick()
               },
-              // Change detection after each interaction and each timer callback of an advance,
-              // as the app's scheduler runs it after each task in a browser.
-              wrap: async (step) => {
-                await step()
-                appRef.tick()
-              },
+              wrap: tickAfter,
               setProps: async () => {
                 // Steps run in order, so the next materialized `props` step is this one.
                 ref.instance.p = { ...ref.instance.p, ...laterProps[stepProps++] }
