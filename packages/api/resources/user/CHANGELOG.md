@@ -1,5 +1,11 @@
 # @molecule/api-resource-user
 
+## 1.10.4
+
+### Patch Changes
+
+- Ship editable Express account routes for scaffolds with the native account contract; Express is now a peer dependency.
+
 ## 1.10.3
 
 ### Patch Changes

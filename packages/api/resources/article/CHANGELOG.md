@@ -1,5 +1,11 @@
 # @molecule/api-resource-article
 
+## 1.3.3
+
+### Patch Changes
+
+- Ship the editable Express router source (Express is now a peer dependency) and validate article mutations made directly through the service.
+
 ## 1.3.2
 
 ### Patch Changes

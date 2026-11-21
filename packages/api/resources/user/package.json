@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-resource-user",
-  "version": "1.10.3",
+  "version": "1.10.4",
   "description": "User registration, login, JWT sessions",
   "type": "module",
   "main": "dist/index.js",

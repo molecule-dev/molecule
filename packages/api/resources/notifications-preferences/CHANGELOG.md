@@ -1,5 +1,11 @@
 # @molecule/api-notifications-preferences
 
+## 1.0.8
+
+### Patch Changes
+
+- Keep the read handlers compatible with TypeScript projects that check unused parameters.
+
 ## 1.0.7
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/api-resource-message
 
+## 1.0.10
+
+### Patch Changes
+
+- Keep the read handlers compatible with TypeScript projects that check unused parameters.
+
 ## 1.0.9
 
 ### Patch Changes
