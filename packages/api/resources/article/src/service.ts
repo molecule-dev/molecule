@@ -11,6 +11,8 @@
  * @module
  */
 
+import { z } from 'zod'
+
 import type { OrderBy } from '@molecule/api-database'
 import {
   count,
@@ -33,11 +35,17 @@ import type {
   TagCount,
   UpdateArticleInput,
 } from './types.js'
+import { createArticleSchema, updateArticleSchema } from './validation.js'
 
 const ARTICLES = 'articles'
 const ARTICLE_TAGS = 'article_tags'
 const REACTIONS = 'reactions'
 const FOLLOWS = 'follows'
+
+// Service callers can import tags in bulk. The HTTP schemas cap a single request.
+const serviceTags = z.array(z.string()).optional()
+const createInput = createArticleSchema.extend({ tagList: serviceTags })
+const updateInput = updateArticleSchema.extend({ tagList: serviceTags })
 
 /** The resource type favorites and comments on articles are stored under. */
 export const ARTICLE_RESOURCE_TYPE = 'article'
@@ -202,8 +210,9 @@ const writeTags = async (articleId: string, tags: string[]): Promise<void> => {
  * @returns The created article.
  */
 export async function createArticle(authorId: string, input: CreateArticleInput): Promise<Article> {
-  const slug = await uniqueArticleSlug(input.title)
-  const tags = cleanTags(input.tagList)
+  const { title, description, body, tagList } = createInput.parse(input)
+  const slug = await uniqueArticleSlug(title)
+  const tags = cleanTags(tagList)
   // Written here rather than left to the column default: the default is
   // millisecond-precision, so two articles created inside the same millisecond
   // would still tie and "newest first" would come back in either order. This one
@@ -211,9 +220,9 @@ export async function createArticle(authorId: string, input: CreateArticleInput)
   const now = nextCreatedAt()
   const result = await dbCreate<ArticleRow>(ARTICLES, {
     slug,
-    title: input.title,
-    description: input.description ?? '',
-    body: input.body,
+    title,
+    description: description ?? '',
+    body,
     tagList: JSON.stringify(tags),
     authorId,
     createdAt: now,
@@ -375,17 +384,18 @@ export async function updateArticle(
   userId: string,
   input: UpdateArticleInput,
 ): Promise<AuthorChange<Article>> {
+  const { title, description, body, tagList } = updateInput.parse(input)
   const row = await findArticleRow(slug)
   if (!row) return { status: 'not_found' }
   if (row.authorId !== userId) return { status: 'forbidden' }
   const patch: Record<string, unknown> = { updatedAt: nextUpdatedAt(row.updatedAt) }
-  if (input.title !== undefined && input.title !== row.title) {
-    patch.title = input.title
-    patch.slug = await uniqueArticleSlug(input.title, row.id)
+  if (title !== undefined && title !== row.title) {
+    patch.title = title
+    patch.slug = await uniqueArticleSlug(title, row.id)
   }
-  if (input.description !== undefined) patch.description = input.description
-  if (input.body !== undefined) patch.body = input.body
-  const tags = input.tagList !== undefined ? cleanTags(input.tagList) : null
+  if (description !== undefined) patch.description = description
+  if (body !== undefined) patch.body = body
+  const tags = tagList !== undefined ? cleanTags(tagList) : null
   if (tags) patch.tagList = JSON.stringify(tags)
   const result = await updateById<ArticleRow>(ARTICLES, row.id, patch)
   if (tags) await writeTags(row.id, tags)

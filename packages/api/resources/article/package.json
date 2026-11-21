@@ -19,6 +19,7 @@
   "files": [
     "dist",
     "src/__setup__",
+    "src/scaffold-router.ts",
     "README.md"
   ],
   "keywords": [

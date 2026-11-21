@@ -13,10 +13,11 @@
  * unique, and `article_tags.position` is the order the tags were given in). It also ships
  * `src/__setup__/reactions.sql` and `src/__setup__/follows.sql`, which create the `reactions` and `follows` tables it reads by name.
  *
- * **Reuse the article tables for custom routes.** In the scaffold's `App/Resource/Article/index.ts`,
- * export `requestHandlerMap = createArticleHandlers({ mapRequest, mapResponse })`.
- * Keep `create`, `list`, `feed`, `read`, `update`, `del`, `favorite`, `unfavorite`
- * and `tags` in the package.
+ * **Edit the scaffold's Express routes in `api/src/handlers/articles.ts`.** Adjust paths,
+ * request fields and JSON there. Use `createArticle`, `updateArticle`, `deleteArticle`,
+ * `setFavorite` and the read services for validation, ownership and storage.
+ *
+ * Apps using the package's own handler map can call `createArticleHandlers({ mapRequest, mapResponse })`.
  * `mapRequest` can unwrap bodies and resolve query filters. For a list, put resolved user
  * ids in `query.authorId` and `query.favoritedBy`, the same names used by `listArticles`.
  * Async `mapResponse` can batch-load author profiles, omit fields from list items,

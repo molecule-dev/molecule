@@ -75,6 +75,18 @@ afterAll(() => {
 })
 
 describe('articles', () => {
+  it('validates a mutation before touching the database when called outside HTTP', async () => {
+    await expect(createArticle(ALICE, { title: ' ', body: 'Draft' })).rejects.toMatchObject({
+      issues: [expect.objectContaining({ path: ['title'] })],
+    })
+    const article = await createArticle(ALICE, { title: 'Validation draft', body: 'Original' })
+    await expect(updateArticle(article.slug, ALICE, { body: '' })).rejects.toMatchObject({
+      issues: [expect.objectContaining({ path: ['body'] })],
+    })
+    expect((await getArticleBySlug(article.slug))?.body).toBe('Original')
+    await deleteArticle(article.slug, ALICE)
+  })
+
   it('creates articles with unique slugs, keeps tags, and never uses a route word', async () => {
     const a = await createArticle(ALICE, {
       title: 'Hello World',

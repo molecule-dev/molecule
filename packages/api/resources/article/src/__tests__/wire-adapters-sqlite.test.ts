@@ -11,6 +11,7 @@ import { createMigrator, createPool, createStore } from '@molecule/api-database-
 import type { RequestHandlerOptions } from '@molecule/api-resource'
 
 import * as handlers from '../handlers/index.js'
+import scaffoldRouter from '../scaffold-router.js'
 
 let directory: string
 let server: Server
@@ -79,6 +80,7 @@ beforeAll(async () => {
   app.get('/filtered', filtered.list)
   app.get('/native', handlers.list)
   app.post('/native', handlers.create)
+  app.use('/editable', scaffoldRouter)
   server = app.listen(0, '127.0.0.1')
   await new Promise<void>((resolve, reject) => {
     server.once('listening', resolve)
@@ -114,6 +116,32 @@ const call = async (path: string, method = 'GET', userId?: string, body?: unknow
 }
 
 describe('configured article HTTP handlers with SQLite', () => {
+  it('serves all native article routes from the editable Express router', async () => {
+    const articles = '/editable/articles'
+    const input = { title: 'Feed', body: 'From the newsroom', tagList: ['newsroom'] }
+    expect((await call(articles, 'POST', undefined, input)).status).toBe(401)
+    expect((await call(articles, 'POST', 'lead', { ...input, title: '' })).status).toBe(400)
+    const created = await call(articles, 'POST', 'lead', input)
+    expect(created).toMatchObject({ status: 201, body: { slug: 'feed-2', ...input } })
+    const article = `${articles}/${created.body.slug}`
+    expect((await call(`${articles}/feed`)).status).toBe(401)
+    expect((await call(`${articles}/feed`, 'GET', 'reader')).body.total).toBe(0)
+    expect((await call(`${articles}/tags`)).body).toContainEqual({ tag: 'newsroom', count: 1 })
+    expect((await call(`${articles}?tag=newsroom&authorId=lead`)).body).toMatchObject({
+      total: 1,
+      data: [{ slug: 'feed-2' }],
+    })
+    const favorite = `${article}/favorite`
+    expect((await call(favorite, 'POST', 'reader')).body).toMatchObject({ favorited: true })
+    expect((await call(article, 'GET', 'reader')).body).toMatchObject({ favoritesCount: 1 })
+    expect((await call(favorite, 'DELETE', 'reader')).body).toMatchObject({ favorited: false })
+    expect((await call(article, 'PUT', 'reader', { body: 'Denied' })).status).toBe(403)
+    expect((await call(article, 'DELETE', 'reader')).status).toBe(403)
+    expect((await call(article, 'PUT', 'lead', { body: 'Edited' })).body.body).toBe('Edited')
+    expect(await call(article, 'DELETE', 'lead')).toEqual({ status: 204, body: undefined })
+    expect((await call(article)).status).toBe(404)
+  })
+
   it('persists an enveloped publish, viewer favorite, paged read, edit and delete', async () => {
     const created = await call('/archive', 'POST', 'editor', {
       entry: { title: 'Release notes', body: 'First edition', tagList: ['news'] },
