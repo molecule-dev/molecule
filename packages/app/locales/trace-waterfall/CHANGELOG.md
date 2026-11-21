@@ -1,5 +1,11 @@
 # @molecule/app-locales-trace-waterfall
 
+## 1.0.7
+
+### Patch Changes
+
+- Write span durations with each language's own unit symbols and spacing.
+
 ## 1.0.6
 
 ### Patch Changes

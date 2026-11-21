@@ -1,5 +1,11 @@
 # @molecule/app-locales-search-ui
 
+## 1.1.0
+
+### Minor Changes
+
+- Add the dialog label, the search syntax examples and the active-result announcement.
+
 ## 1.0.4
 
 ### Patch Changes

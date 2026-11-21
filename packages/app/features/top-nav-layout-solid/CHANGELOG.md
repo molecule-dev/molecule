@@ -1,5 +1,11 @@
 # @molecule/app-top-nav-layout-solid
 
+## 1.1.2
+
+### Patch Changes
+
+- The primary nav's aria-label is now translated, so it follows the active language, while an explicit `navAriaLabel` prop still takes precedence.
+
 ## 1.1.1
 
 ### Patch Changes

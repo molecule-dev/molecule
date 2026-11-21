@@ -1,5 +1,11 @@
 # @molecule/app-tag-input-vue
 
+## 1.1.1
+
+### Patch Changes
+
+- Let saved tag lists carry the page’s accessible label and native list attributes, as the React package does.
+
 ## 1.1.0
 
 ### Minor Changes

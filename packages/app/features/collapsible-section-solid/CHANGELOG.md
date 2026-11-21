@@ -1,5 +1,11 @@
 # @molecule/app-collapsible-section-solid
 
+## 1.1.2
+
+### Patch Changes
+
+- Show `MoleculeProvider`'s flat props in the usage example.
+
 ## 1.1.1
 
 ### Patch Changes

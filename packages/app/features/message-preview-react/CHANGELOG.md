@@ -1,5 +1,11 @@
 # @molecule/app-message-preview-react
 
+## 4.0.3
+
+### Patch Changes
+
+- A row with `onClick` is now focusable in the Tab order, and Enter or Space activates it like a native button.
+
 ## 4.0.2
 
 ### Patch Changes

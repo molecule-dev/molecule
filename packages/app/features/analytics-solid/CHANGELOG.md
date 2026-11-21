@@ -1,5 +1,11 @@
 # @molecule/app-analytics-solid
 
+## 1.1.1
+
+### Patch Changes
+
+- Show `MoleculeProvider`'s flat props in the usage example.
+
 ## 1.1.0
 
 ### Minor Changes

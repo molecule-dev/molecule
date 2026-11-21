@@ -1,5 +1,11 @@
 # @molecule/api-locales-resource-grade
 
+## 1.0.4
+
+### Patch Changes
+
+- Translate the "Access denied" error into every language.
+
 ## 1.0.3
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-node-editor-panel-react",
-  "version": "4.0.3",
+  "version": "4.0.4",
   "description": "Properties-panel chrome + section/slider/toggle/radio primitives",
   "homepage": "https://www.molecule.dev/packages/app-node-editor-panel-react",
   "type": "module",
@@ -41,7 +41,7 @@
     "react": "^18.0.0 || ^19.0.0"
   },
   "devDependencies": {
-    "@molecule/app-react": "4.10.0",
+    "@molecule/app-react": "4.10.1",
     "@molecule/app-ui": "1.5.0",
     "@molecule/app-ui-react": "4.2.0",
     "@types/node": "26.6.5",

@@ -1,5 +1,11 @@
 # @molecule/app-sparkline-react
 
+## 4.0.1
+
+### Patch Changes
+
+- Translate the default accessible label.
+
 ## 4.0.0
 
 ### Patch Changes

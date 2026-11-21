@@ -1,5 +1,11 @@
 # @molecule/app-rating-form-react
 
+## 4.0.1
+
+### Patch Changes
+
+- Make the stars a radio group with one tab stop that the arrow keys move, and translate the comment field's label.
+
 ## 4.0.0
 
 ### Patch Changes

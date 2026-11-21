@@ -1,5 +1,11 @@
 # @molecule/app-footer-solid
 
+## 1.2.0
+
+### Minor Changes
+
+- Export `AppFooterLoadContent`, the type of the `loadContent` prop.
+
 ## 1.1.0
 
 ### Minor Changes

@@ -1,5 +1,11 @@
 # @molecule/app-typing-indicator-react
 
+## 4.0.2
+
+### Patch Changes
+
+- The accessible label is looked up through the translation key `typingIndicator.aria.label` instead of a fixed English string, and an `ariaLabel` prop still overrides it.
+
 ## 4.0.1
 
 ### Patch Changes

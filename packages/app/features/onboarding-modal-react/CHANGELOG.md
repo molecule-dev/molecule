@@ -1,5 +1,11 @@
 # @molecule/app-onboarding-modal-react
 
+## 4.0.1
+
+### Patch Changes
+
+- The dialog is named after the current step's title through `aria-labelledby`, so screen readers announce which step is showing.
+
 ## 4.0.0
 
 ### Patch Changes

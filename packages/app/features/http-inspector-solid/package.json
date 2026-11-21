@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-http-inspector-solid",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "HTTP method + URL builder + headers/params/body tabs + response status/timing display",
   "homepage": "https://www.molecule.dev/packages/app-http-inspector-solid",
   "type": "module",
@@ -51,7 +51,7 @@
     "@molecule/app-framework-conformance": "0.0.0",
     "@molecule/app-i18n": "1.2.2",
     "@molecule/app-icons": "1.0.4",
-    "@molecule/app-solid": "3.8.0",
+    "@molecule/app-solid": "3.9.0",
     "@molecule/app-ui": "1.5.0",
     "@molecule/app-ui-solid": "1.2.1",
     "@types/node": "26.6.5",

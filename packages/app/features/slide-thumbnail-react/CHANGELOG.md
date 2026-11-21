@@ -1,5 +1,11 @@
 # @molecule/app-slide-thumbnail-react
 
+## 4.0.2
+
+### Patch Changes
+
+- The tile canvas and the index badge take their colours from the theme instead of fixed white, black and hex values, so thumbnails follow light and dark themes.
+
 ## 4.0.1
 
 ### Patch Changes

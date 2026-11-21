@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-client-search-svelte",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Svelte hooks for @molecule/app-client-search — build an index from a list, search it as the person types, and move through the hits with the keyboard",
   "homepage": "https://www.molecule.dev/packages/app-client-search-svelte",
   "type": "module",
@@ -64,7 +64,7 @@
     "@molecule/app-i18n": "1.2.2",
     "@molecule/app-icons": "1.0.4",
     "@molecule/app-storage": "1.1.1",
-    "@molecule/app-svelte": "3.8.0",
+    "@molecule/app-svelte": "3.9.0",
     "@molecule/app-ui": "1.5.0",
     "@molecule/app-ui-svelte": "1.2.1",
     "@sveltejs/package": "3.0.2",

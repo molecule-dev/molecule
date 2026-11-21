@@ -1,5 +1,11 @@
 # @molecule/app-progress-bar-vue
 
+## 1.1.2
+
+### Patch Changes
+
+- The progress track always has an accessible name: its rendered label, an element id passed as `labelledBy`, or a translatable default, with `describedBy` adding a description. `ProgressCard` names the bar by its title and describes it by its description.
+
 ## 1.1.1
 
 ### Patch Changes

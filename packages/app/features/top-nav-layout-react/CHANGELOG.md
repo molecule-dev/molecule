@@ -1,5 +1,11 @@
 # @molecule/app-top-nav-layout-react
 
+## 4.0.3
+
+### Patch Changes
+
+- The primary nav's aria-label is now translated, so it follows the active language, while an explicit `navAriaLabel` prop still takes precedence.
+
 ## 4.0.2
 
 ### Patch Changes

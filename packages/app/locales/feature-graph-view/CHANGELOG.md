@@ -1,5 +1,11 @@
 # @molecule/app-locales-feature-graph-view
 
+## 1.0.6
+
+### Patch Changes
+
+- The graph's canvas and node labels are translated in every language instead of falling back to English.
+
 ## 1.0.5
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/app-newsletter-signup-solid
 
+## 1.1.2
+
+### Patch Changes
+
+- Type the input handlers with Solid's own event types.
+
 ## 1.1.1
 
 ### Patch Changes

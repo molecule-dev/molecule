@@ -1,5 +1,11 @@
 # @molecule/app-locales-file-card
 
+## 1.1.0
+
+### Minor Changes
+
+- Adds the file size unit labels in every language.
+
 ## 1.0.7
 
 ### Patch Changes

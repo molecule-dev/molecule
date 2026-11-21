@@ -1,5 +1,11 @@
 # @molecule/app-header-svelte
 
+## 1.2.1
+
+### Patch Changes
+
+- Type the theme and i18n services from the binding's accessors, now that `@molecule/app-svelte` gives `ThemeProvider` and `I18nProvider` to its provider components.
+
 ## 1.2.0
 
 ### Minor Changes

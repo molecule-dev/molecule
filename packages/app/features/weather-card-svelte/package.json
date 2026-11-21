@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-weather-card-svelte",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Current-conditions hero with gradient + glass pill + sparkline",
   "homepage": "https://www.molecule.dev/packages/app-weather-card-svelte",
   "type": "module",
@@ -60,7 +60,7 @@
     "@molecule/app-framework-conformance": "0.0.0",
     "@molecule/app-i18n": "1.2.2",
     "@molecule/app-icons": "1.0.4",
-    "@molecule/app-svelte": "3.8.0",
+    "@molecule/app-svelte": "3.9.0",
     "@molecule/app-ui": "1.5.0",
     "@molecule/app-ui-svelte": "1.2.1",
     "@sveltejs/package": "3.0.2",

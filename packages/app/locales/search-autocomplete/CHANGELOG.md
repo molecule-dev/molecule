@@ -1,5 +1,11 @@
 # @molecule/app-locales-search-autocomplete
 
+## 1.0.5
+
+### Patch Changes
+
+- Adds the `search.aria.label` translation in every language.
+
 ## 1.0.4
 
 ### Patch Changes

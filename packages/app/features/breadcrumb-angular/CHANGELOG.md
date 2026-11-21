@@ -1,5 +1,11 @@
 # @molecule/app-breadcrumb-angular
 
+## 1.1.1
+
+### Patch Changes
+
+- The navigation landmark's accessible name is now looked up in the app's translation function with `Breadcrumb` as the English default, so it follows the active locale.
+
 ## 1.1.0
 
 ### Minor Changes

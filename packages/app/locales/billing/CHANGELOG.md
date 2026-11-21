@@ -1,5 +1,11 @@
 # @molecule/app-locales-billing
 
+## 1.0.6
+
+### Patch Changes
+
+- Pricing period and billed labels now come from new label helpers that use literal translation keys, and the locale bond adds those keys in every language.
+
 ## 1.0.5
 
 ### Patch Changes

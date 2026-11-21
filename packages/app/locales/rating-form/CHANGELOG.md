@@ -1,5 +1,11 @@
 # @molecule/app-locales-rating-form
 
+## 1.1.0
+
+### Minor Changes
+
+- Add the comment field's label.
+
 ## 1.0.5
 
 ### Patch Changes

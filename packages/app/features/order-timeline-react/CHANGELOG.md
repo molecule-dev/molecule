@@ -1,5 +1,11 @@
 # @molecule/app-order-timeline-react
 
+## 4.0.1
+
+### Patch Changes
+
+- Color milestone dots and connectors with the theme's tones instead of fixed colors.
+
 ## 4.0.0
 
 ### Patch Changes

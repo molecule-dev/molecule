@@ -1,5 +1,11 @@
 # @molecule/app-footer-react
 
+## 4.1.0
+
+### Minor Changes
+
+- Export `AppFooterLoadContent`, the type of the `loadContent` prop.
+
 ## 4.0.0
 
 ### Patch Changes

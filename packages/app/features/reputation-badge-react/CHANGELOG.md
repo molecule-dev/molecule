@@ -1,5 +1,11 @@
 # @molecule/app-reputation-badge-react
 
+## 4.0.1
+
+### Patch Changes
+
+- Level names are looked up through literal translation keys, with a fallback key that the locale bond adds in every language so a level outside the built-in set still shows its own name. Non-interactive badges in the shelf are exposed to screen readers as labelled images.
+
 ## 4.0.0
 
 ### Patch Changes

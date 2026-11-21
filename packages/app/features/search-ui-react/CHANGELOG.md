@@ -1,5 +1,11 @@
 # @molecule/app-search-ui-react
 
+## 4.1.0
+
+### Minor Changes
+
+- Add QuickSearchDialog's `label` (its accessible name, "Search" by default), announce the keyboard-active result, and translate the search syntax examples.
+
 ## 4.0.2
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/app-slide-thumbnail-solid
 
+## 1.1.1
+
+### Patch Changes
+
+- The tile canvas and the index badge take their colours from the theme instead of fixed white, black and hex values, so thumbnails follow light and dark themes.
+
 ## 1.1.0
 
 ### Minor Changes

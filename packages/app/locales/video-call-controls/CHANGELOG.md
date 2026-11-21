@@ -1,5 +1,11 @@
 # @molecule/app-locales-video-call-controls
 
+## 1.0.5
+
+### Patch Changes
+
+- Adds the `call.aria.muted`, `call.aria.handRaised` and `call.label.you` translations in every language.
+
 ## 1.0.4
 
 ### Patch Changes

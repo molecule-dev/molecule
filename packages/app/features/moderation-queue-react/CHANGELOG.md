@@ -1,5 +1,11 @@
 # @molecule/app-moderation-queue-react
 
+## 4.0.2
+
+### Patch Changes
+
+- Kind and severity labels are looked up by literal translation keys instead of keys built at runtime.
+
 ## 4.0.1
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-feature-piano-roll-react",
-  "version": "4.0.1",
+  "version": "4.0.2",
   "description": "MIDI piano roll editor — note grid with vertical piano keys + horizontal time grid + draggable/resizable note rectangles for music-daw",
   "homepage": "https://www.molecule.dev/packages/app-feature-piano-roll-react",
   "type": "module",
@@ -43,7 +43,7 @@
   },
   "devDependencies": {
     "@molecule/app-i18n": "1.2.2",
-    "@molecule/app-react": "4.10.0",
+    "@molecule/app-react": "4.10.1",
     "@molecule/app-ui": "1.5.0",
     "@testing-library/react": "16.3.3",
     "@types/node": "26.6.5",

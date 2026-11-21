@@ -57,7 +57,7 @@
     "@molecule/app-logger": "1.1.0",
     "@molecule/app-ui": "1.5.0",
     "@molecule/app-ui-vue": "1.2.1",
-    "@molecule/app-vue": "3.8.0",
+    "@molecule/app-vue": "3.9.0",
     "@types/node": "26.6.5",
     "jsdom": "30.1.3",
     "typescript": "6.0.3",

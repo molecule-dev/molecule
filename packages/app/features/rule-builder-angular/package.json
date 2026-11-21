@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-rule-builder-angular",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Visual condition / rule builder — nested AND / OR groups of field-operator-value leaves, used for feature-flag targeting, automation triggers, segmentation, and IoT scenarios",
   "homepage": "https://www.molecule.dev/packages/app-rule-builder-angular",
   "type": "module",
@@ -60,7 +60,7 @@
     "@angular/compiler-cli": "22.2.3",
     "@angular/core": "22.2.3",
     "@angular/platform-browser": "22.2.3",
-    "@molecule/app-angular": "3.8.0",
+    "@molecule/app-angular": "3.9.0",
     "@molecule/app-framework-conformance": "0.0.0",
     "@molecule/app-i18n": "1.2.2",
     "@molecule/app-icons": "1.0.4",

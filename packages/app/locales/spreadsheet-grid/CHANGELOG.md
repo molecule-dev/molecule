@@ -1,5 +1,11 @@
 # @molecule/app-locales-spreadsheet-grid
 
+## 1.0.5
+
+### Patch Changes
+
+- Translates the grid's accessible name and its cell editor's label, which every language held in English.
+
 ## 1.0.4
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-loyalty-tier-badge-svelte",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Bronze/Silver/Gold/Platinum loyalty tier badge with progress to next tier — hotels, airlines, retail rewards",
   "homepage": "https://www.molecule.dev/packages/app-loyalty-tier-badge-svelte",
   "type": "module",
@@ -60,7 +60,7 @@
     "@molecule/app-framework-conformance": "0.0.0",
     "@molecule/app-i18n": "1.2.2",
     "@molecule/app-icons": "1.0.4",
-    "@molecule/app-svelte": "3.8.0",
+    "@molecule/app-svelte": "3.9.0",
     "@molecule/app-ui": "1.5.0",
     "@molecule/app-ui-svelte": "1.2.1",
     "@molecule/app-ui-tailwind": "1.3.0",

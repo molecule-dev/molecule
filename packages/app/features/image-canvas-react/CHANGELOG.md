@@ -1,5 +1,11 @@
 # @molecule/app-feature-image-canvas-react
 
+## 4.0.1
+
+### Patch Changes
+
+- The pan offset keeps one object per position, so the canvas callbacks that read it no longer change identity on every render.
+
 ## 4.0.0
 
 ### Patch Changes

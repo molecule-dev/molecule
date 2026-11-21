@@ -1,5 +1,11 @@
 # @molecule/app-locales-feature-animation-canvas
 
+## 1.0.6
+
+### Patch Changes
+
+- Only the canvas root carries an accessible name: the shape groups inside its `role="img"` drop their unexposed `aria-label`, and the bond drops its `animationCanvas.aria.shape` key.
+
 ## 1.0.5
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/app-price-range-slider-svelte
 
+## 1.1.1
+
+### Patch Changes
+
+- The minimum and maximum handles' aria-labels now come from the `priceRangeSlider.aria.minimum` and `priceRangeSlider.aria.maximum` translation keys, so they follow the active locale.
+
 ## 1.1.0
 
 ### Minor Changes

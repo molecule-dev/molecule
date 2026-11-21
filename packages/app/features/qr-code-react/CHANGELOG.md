@@ -1,5 +1,11 @@
 # @molecule/app-qr-code-react
 
+## 4.0.1
+
+### Patch Changes
+
+- The `fgColor` and `bgColor` props are documented as literal QR data rather than theme colours: the black-on-white defaults stay fixed because scanners need that contrast.
+
 ## 4.0.0
 
 ### Patch Changes

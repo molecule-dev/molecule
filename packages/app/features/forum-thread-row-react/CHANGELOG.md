@@ -1,5 +1,11 @@
 # @molecule/app-forum-thread-row-react
 
+## 4.0.1
+
+### Patch Changes
+
+- The pin and lock marker labels and the votes, replies and views text go through i18n, with the locale bond carrying them in every language. With a click handler the whole row becomes one native button named by the thread title, so Enter and Space activate it.
+
 ## 4.0.0
 
 ### Patch Changes

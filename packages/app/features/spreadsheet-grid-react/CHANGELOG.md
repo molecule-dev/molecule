@@ -1,5 +1,11 @@
 # @molecule/app-spreadsheet-grid-react
 
+## 4.0.4
+
+### Patch Changes
+
+- Copying a selection goes through `@molecule/app-clipboard`, which falls back when the async Clipboard API is unavailable.
+
 ## 4.0.3
 
 ### Patch Changes

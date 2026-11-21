@@ -1,5 +1,11 @@
 # @molecule/app-feature-piano-roll-react
 
+## 4.0.2
+
+### Patch Changes
+
+- Describe the grid's keyboard controls to screen readers, and mint a note's id only when it is painted.
+
 ## 4.0.1
 
 ### Patch Changes

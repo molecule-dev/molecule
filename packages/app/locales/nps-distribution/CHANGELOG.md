@@ -1,5 +1,11 @@
 # @molecule/app-locales-nps-distribution
 
+## 1.0.7
+
+### Patch Changes
+
+- The `NPS` label is marked as written the same in every language.
+
 ## 1.0.6
 
 ### Patch Changes

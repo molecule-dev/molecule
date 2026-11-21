@@ -1,5 +1,11 @@
 # @molecule/app-margin-notes-react
 
+## 4.0.2
+
+### Patch Changes
+
+- A margin mark without a `markLabel` is decorative and hidden from assistive technology, instead of an image with no name.
+
 ## 4.0.1
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/app-sparkline-solid
 
+## 1.1.1
+
+### Patch Changes
+
+- Translate the default accessible label, as the React package does.
+
 ## 1.1.0
 
 ### Minor Changes

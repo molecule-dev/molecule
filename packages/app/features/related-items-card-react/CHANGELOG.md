@@ -1,5 +1,11 @@
 # @molecule/app-related-items-card-react
 
+## 4.0.1
+
+### Patch Changes
+
+- Clickable rows are now reachable and usable from the keyboard: each row stays a list item and its content sits in a focusable `role="button"` element that runs the row's handler on Enter or Space as it does on click.
+
 ## 4.0.0
 
 ### Patch Changes

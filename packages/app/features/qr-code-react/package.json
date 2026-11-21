@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-qr-code-react",
-  "version": "4.0.0",
+  "version": "4.0.1",
   "description": "Render a QR code as crisp scalable SVG with optional center logo",
   "homepage": "https://www.molecule.dev/packages/app-qr-code-react",
   "type": "module",
@@ -43,7 +43,7 @@
   },
   "devDependencies": {
     "@molecule/app-i18n": "1.2.2",
-    "@molecule/app-react": "4.10.0",
+    "@molecule/app-react": "4.10.1",
     "@molecule/app-ui": "1.5.0",
     "@testing-library/react": "16.3.3",
     "@types/node": "26.6.5",

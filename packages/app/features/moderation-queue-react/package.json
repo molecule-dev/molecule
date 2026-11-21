@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-moderation-queue-react",
-  "version": "4.0.1",
+  "version": "4.0.2",
   "description": "Moderation queue UI: flagged items list with approve/reject/escalate/mute actions, severity, and bulk-select",
   "homepage": "https://www.molecule.dev/packages/app-moderation-queue-react",
   "type": "module",
@@ -41,7 +41,7 @@
   },
   "devDependencies": {
     "@molecule/app-i18n": "1.2.2",
-    "@molecule/app-react": "4.10.0",
+    "@molecule/app-react": "4.10.1",
     "@molecule/app-ui": "1.5.0",
     "@molecule/app-ui-react": "4.2.0",
     "@testing-library/react": "16.3.3",

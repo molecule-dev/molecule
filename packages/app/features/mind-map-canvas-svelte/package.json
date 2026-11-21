@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-mind-map-canvas-svelte",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Svelte mind-map canvas — tree-structured nodes with parent/child links, automatic radial/horizontal/vertical tree layout, fold/unfold subtrees, inline edit-on-double-click; thin domain wrapper over @molecule/app-feature-canvas-react.",
   "homepage": "https://www.molecule.dev/packages/app-mind-map-canvas-svelte",
   "type": "module",
@@ -59,11 +59,11 @@
     "svelte": "^5.0.0"
   },
   "devDependencies": {
-    "@molecule/app-feature-canvas-svelte": "1.0.0",
+    "@molecule/app-feature-canvas-svelte": "1.1.0",
     "@molecule/app-framework-conformance": "0.0.0",
     "@molecule/app-i18n": "1.2.2",
     "@molecule/app-icons": "1.0.4",
-    "@molecule/app-svelte": "3.8.0",
+    "@molecule/app-svelte": "3.9.0",
     "@molecule/app-ui": "1.5.0",
     "@molecule/app-ui-svelte": "1.2.1",
     "@sveltejs/package": "3.0.2",

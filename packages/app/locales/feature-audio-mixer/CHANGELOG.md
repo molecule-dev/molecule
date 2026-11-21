@@ -1,5 +1,11 @@
 # @molecule/app-locales-feature-audio-mixer
 
+## 1.1.0
+
+### Minor Changes
+
+- Adds the mute and solo button initials in every language.
+
 ## 1.0.5
 
 ### Patch Changes

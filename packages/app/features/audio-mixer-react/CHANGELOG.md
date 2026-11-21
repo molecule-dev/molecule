@@ -1,5 +1,11 @@
 # @molecule/app-feature-audio-mixer-react
 
+## 4.0.2
+
+### Patch Changes
+
+- The compact mute and solo buttons show a translated initial (`audioMixer.button.muteInitial`, `audioMixer.button.soloInitial`) instead of the first character of the translated label.
+
 ## 4.0.1
 
 ### Patch Changes

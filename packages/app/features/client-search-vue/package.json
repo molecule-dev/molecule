@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-client-search-vue",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Vue hooks for @molecule/app-client-search — build an index from a list, search it as the person types, and move through the hits with the keyboard",
   "homepage": "https://www.molecule.dev/packages/app-client-search-vue",
   "type": "module",
@@ -60,7 +60,7 @@
     "@molecule/app-storage": "1.1.1",
     "@molecule/app-ui": "1.5.0",
     "@molecule/app-ui-vue": "1.2.1",
-    "@molecule/app-vue": "3.8.0",
+    "@molecule/app-vue": "3.9.0",
     "@types/node": "26.6.5",
     "jsdom": "30.1.3",
     "typescript": "6.0.3",

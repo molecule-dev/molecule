@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-locales-storefront-chrome",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Translations for @molecule/app-storefront-chrome-react in 79 languages",
   "homepage": "https://www.molecule.dev/packages/app-locales-storefront-chrome",
   "license": "Apache-2.0",

@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-feature-audio-mixer-angular",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Channel-strip mixer (fader/pan/sends/master) for music-DAW — UI only; caller wires faders to actual audio engine",
   "homepage": "https://www.molecule.dev/packages/app-feature-audio-mixer-angular",
   "type": "module",
@@ -61,7 +61,7 @@
     "@angular/compiler-cli": "22.2.3",
     "@angular/core": "22.2.3",
     "@angular/platform-browser": "22.2.3",
-    "@molecule/app-angular": "3.8.0",
+    "@molecule/app-angular": "3.9.0",
     "@molecule/app-framework-conformance": "0.0.0",
     "@molecule/app-i18n": "1.2.2",
     "@molecule/app-icons": "1.0.4",

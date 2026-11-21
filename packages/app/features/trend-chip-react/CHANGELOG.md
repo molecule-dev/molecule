@@ -1,5 +1,11 @@
 # @molecule/app-trend-chip-react
 
+## 4.0.2
+
+### Patch Changes
+
+- Status colours come from the theme's success, error and secondary tones instead of fixed hex values, and the pill preset reads the theme's inverse text colour. The chip now follows the app's palette and dark mode.
+
 ## 4.0.1
 
 ### Patch Changes

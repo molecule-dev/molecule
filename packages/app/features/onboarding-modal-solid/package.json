@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-onboarding-modal-solid",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Multi-step welcome / onboarding overlay with prev/next + skip",
   "homepage": "https://www.molecule.dev/packages/app-onboarding-modal-solid",
   "type": "module",
@@ -51,7 +51,7 @@
     "@molecule/app-framework-conformance": "0.0.0",
     "@molecule/app-i18n": "1.2.2",
     "@molecule/app-icons": "1.0.4",
-    "@molecule/app-solid": "3.8.0",
+    "@molecule/app-solid": "3.9.0",
     "@molecule/app-ui": "1.5.0",
     "@molecule/app-ui-solid": "1.2.1",
     "@types/node": "26.6.5",

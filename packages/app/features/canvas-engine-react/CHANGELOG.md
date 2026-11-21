@@ -1,5 +1,11 @@
 # @molecule/app-canvas-engine-react
 
+## 4.0.1
+
+### Patch Changes
+
+- Keep the selection array the same object between renders, controlled or not.
+
 ## 4.0.0
 
 ### Patch Changes

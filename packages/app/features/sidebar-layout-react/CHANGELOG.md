@@ -1,5 +1,11 @@
 # @molecule/app-sidebar-layout-react
 
+## 4.0.3
+
+### Patch Changes
+
+- The primary navigation region's aria-label now comes from the `sidebarLayout.aria.primaryNavigation` translation key, defaulting to the English 'Primary navigation'. Passing `navAriaLabel` still overrides it.
+
 ## 4.0.2
 
 ### Patch Changes

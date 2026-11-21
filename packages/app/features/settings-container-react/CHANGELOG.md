@@ -1,5 +1,11 @@
 # @molecule/app-settings-container-react
 
+## 4.0.1
+
+### Patch Changes
+
+- The settings sidebar's nav region now names itself through the active locale, and a new `ariaLabel` prop overrides the translated name.
+
 ## 4.0.0
 
 ### Patch Changes

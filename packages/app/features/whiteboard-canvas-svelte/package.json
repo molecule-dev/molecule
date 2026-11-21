@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-whiteboard-canvas-svelte",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Svelte whiteboard canvas — pen / marker / eraser / sticky-note / line / arrow / shape / text tools layered on top of @molecule/app-feature-canvas-react",
   "homepage": "https://www.molecule.dev/packages/app-whiteboard-canvas-svelte",
   "type": "module",
@@ -60,11 +60,11 @@
     "svelte": "^5.0.0"
   },
   "devDependencies": {
-    "@molecule/app-feature-canvas-svelte": "1.0.0",
+    "@molecule/app-feature-canvas-svelte": "1.1.0",
     "@molecule/app-framework-conformance": "0.0.0",
     "@molecule/app-i18n": "1.2.2",
     "@molecule/app-icons": "1.0.4",
-    "@molecule/app-svelte": "3.8.0",
+    "@molecule/app-svelte": "3.9.0",
     "@molecule/app-ui": "1.5.0",
     "@molecule/app-ui-svelte": "1.2.1",
     "@sveltejs/package": "3.0.2",

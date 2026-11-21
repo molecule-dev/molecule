@@ -1,5 +1,11 @@
 # @molecule/app-react
 
+## 4.10.1
+
+### Patch Changes
+
+- Mark `ThemeProviderProps.initialTheme` deprecated: it is not read; pass `defaultTheme` to the theme provider instead.
+
 ## 4.10.0
 
 ### Minor Changes

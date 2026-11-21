@@ -1,5 +1,11 @@
 # @molecule/app-presence-indicator-svelte
 
+## 1.1.1
+
+### Patch Changes
+
+- The default accessible label is looked up through the active locale's presence keys instead of a fixed English string, with the status word translated too. An explicit `ariaLabel` still overrides it.
+
 ## 1.1.0
 
 ### Minor Changes

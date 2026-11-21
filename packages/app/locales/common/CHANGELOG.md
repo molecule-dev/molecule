@@ -1,5 +1,11 @@
 # @molecule/app-locales-common
 
+## 1.0.8
+
+### Patch Changes
+
+- Status banners and badges take their colours from the theme's success, warning, error and info tones instead of fixed hex values. The status labels are looked up through literal translation keys, which the common locale bond now provides in every language.
+
 ## 1.0.7
 
 ### Patch Changes

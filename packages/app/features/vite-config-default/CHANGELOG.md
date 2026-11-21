@@ -1,5 +1,11 @@
 # @molecule/app-vite-config-default
 
+## 1.4.3
+
+### Patch Changes
+
+- An unimported client module that mlcl generated now gets a build note naming its hooks to import, instead of an offer to remove it.
+
 ## 1.4.2
 
 ### Patch Changes

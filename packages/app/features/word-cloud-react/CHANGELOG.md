@@ -1,5 +1,11 @@
 # @molecule/app-word-cloud-react
 
+## 4.0.1
+
+### Patch Changes
+
+- Clarifies that the default palette's colours are categorical word hues, not theme status tones.
+
 ## 4.0.0
 
 ### Patch Changes

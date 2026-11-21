@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-auth-modal-svelte",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "In-app login / signup modal + click-interceptor + popup OAuth — authenticate and upgrade without ever navigating away or losing work",
   "homepage": "https://www.molecule.dev/packages/app-auth-modal-svelte",
   "type": "module",
@@ -66,7 +66,7 @@
     "@molecule/app-i18n": "1.2.2",
     "@molecule/app-icons": "1.0.4",
     "@molecule/app-oauth-buttons-svelte": "1.2.0",
-    "@molecule/app-svelte": "3.8.0",
+    "@molecule/app-svelte": "3.9.0",
     "@molecule/app-ui": "1.5.0",
     "@molecule/app-ui-svelte": "1.2.1",
     "@sveltejs/package": "3.0.2",

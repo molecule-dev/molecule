@@ -1,5 +1,11 @@
 # @molecule/app-locales-feature-piano-roll
 
+## 1.1.0
+
+### Minor Changes
+
+- Add the piano roll grid's keyboard help.
+
 ## 1.0.7
 
 ### Patch Changes

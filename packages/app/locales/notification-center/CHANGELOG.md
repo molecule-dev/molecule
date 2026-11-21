@@ -1,5 +1,11 @@
 # @molecule/app-locales-notification-center
 
+## 1.0.6
+
+### Patch Changes
+
+- Notification rows work with the keyboard, and an unread row is announced to screen readers and tinted with the theme's primary colour. The locale bond adds the "Unread" label in every language.
+
 ## 1.0.5
 
 ### Patch Changes

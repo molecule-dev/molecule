@@ -1,5 +1,11 @@
 # @molecule/app-auth-ui-angular
 
+## 1.2.0
+
+### Minor Changes
+
+- Export `OAuthButtonsProps`, the same props type `@molecule/app-auth-ui-react` exports.
+
 ## 1.1.0
 
 ### Minor Changes

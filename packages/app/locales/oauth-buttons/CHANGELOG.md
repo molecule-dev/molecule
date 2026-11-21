@@ -1,5 +1,11 @@
 # @molecule/app-locales-oauth-buttons
 
+## 1.0.7
+
+### Patch Changes
+
+- Translate "Continue with {{provider}}" into every language; provider names stay as their brands write them.
+
 ## 1.0.6
 
 ### Patch Changes

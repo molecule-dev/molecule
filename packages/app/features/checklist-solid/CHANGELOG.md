@@ -1,5 +1,11 @@
 # @molecule/app-checklist-solid
 
+## 1.1.1
+
+### Patch Changes
+
+- Type the input handlers with Solid's own event types.
+
 ## 1.1.0
 
 ### Minor Changes

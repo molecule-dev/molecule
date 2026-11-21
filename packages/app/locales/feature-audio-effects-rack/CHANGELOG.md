@@ -1,5 +1,11 @@
 # @molecule/app-locales-feature-audio-effects-rack
 
+## 1.0.5
+
+### Patch Changes
+
+- Effect kind and parameter labels are now looked up by literal translation keys, with one fallback label for parameters outside the built-in effect schemas. The locale bond adds that fallback label in every language.
+
 ## 1.0.4
 
 ### Patch Changes

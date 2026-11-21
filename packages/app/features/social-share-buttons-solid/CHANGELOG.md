@@ -1,5 +1,11 @@
 # @molecule/app-social-share-buttons-solid
 
+## 1.2.1
+
+### Patch Changes
+
+- Show `MoleculeProvider`'s flat props in the usage example.
+
 ## 1.2.0
 
 ### Minor Changes

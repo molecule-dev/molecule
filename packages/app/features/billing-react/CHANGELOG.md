@@ -1,5 +1,11 @@
 # @molecule/app-billing-react
 
+## 4.1.0
+
+### Minor Changes
+
+- Pricing period and billed labels now come from new label helpers that use literal translation keys, and the locale bond adds those keys in every language.
+
 ## 4.0.1
 
 ### Patch Changes

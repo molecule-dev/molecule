@@ -1,5 +1,11 @@
 # @molecule/app-rating-form-angular
 
+## 1.1.1
+
+### Patch Changes
+
+- Make the stars a radio group with one tab stop that the arrow keys move, and translate the comment field's label, as the React package does.
+
 ## 1.1.0
 
 ### Minor Changes
