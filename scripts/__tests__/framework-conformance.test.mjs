@@ -890,6 +890,58 @@ describe('export parity', () => {
     ])
   })
 
+  it('counts a name exported with export type as a type even when its target does not resolve', () => {
+    const react = reactRouter('export const StateProvider = (): number => 1\n')
+    const port = vueRouter("export type { StateProvider } from '@molecule/app-not-in-this-tree'\n")
+    expect(check(exportTree({ ...react, ...port }))).toEqual([
+      `${ROUTING}/vue-router: exports StateProvider only as a type, but ${ROUTING_REFERENCE} exports StateProvider as a value; export the value under that name`,
+    ])
+    // So an exemption for that gap is still needed, not reported as one the port outgrew.
+    const exempt = { [VUE_ROUTER]: { StateProvider: { use: [], why: 'the port has none' } } }
+    expect(
+      check(exportTree({ ...react, ...port }), { exportExempt: {}, portExportExempt: exempt }),
+    ).toEqual([])
+  })
+
+  it("reads @molecule imports from each package's source, built or not", () => {
+    // No dist and no node_modules: the export kinds come from the core package's src.
+    const core = {
+      'packages/app/core/fixture-core': {
+        pkg: { name: '@molecule/app-fixture-core' },
+        files: index(
+          'export const useFixture = (): number => 1\nexport interface FixtureProvider { id: string }\n',
+        ),
+      },
+    }
+    const react = reactRouter(
+      "export { useFixture } from '@molecule/app-fixture-core'\nexport type { FixtureProvider } from '@molecule/app-fixture-core'\n",
+    )
+    expect(
+      check(
+        exportTree({
+          ...core,
+          ...react,
+          ...vueRouter(
+            "export type { FixtureProvider, useFixture } from '@molecule/app-fixture-core'\n",
+          ),
+        }),
+      ),
+    ).toEqual([
+      `${ROUTING}/vue-router: exports useFixture only as a type, but ${ROUTING_REFERENCE} exports useFixture as a value; export the value under that name`,
+    ])
+    expect(
+      check(
+        exportTree({
+          ...core,
+          ...react,
+          ...vueRouter(
+            "export { useFixture } from '@molecule/app-fixture-core'\nexport type { FixtureProvider } from '@molecule/app-fixture-core'\n",
+          ),
+        }),
+      ),
+    ).toEqual([])
+  })
+
   it('fails a counterpart without a subpath React has, and checks the names under it', () => {
     const exports = { '.': './dist/index.js', './hooks': './dist/hooks.js' }
     const react = reactRouter(REACT_ROUTING)

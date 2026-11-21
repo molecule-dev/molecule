@@ -1021,17 +1021,55 @@ export const PORT_EXPORT_EXEMPT = {
 export const EXPORT_PARITY_PENDING = 'scripts/export-parity-pending.json'
 
 /**
+ * Every `@molecule/*` package's entry sources in the tree: its name (and each subpath, as
+ * `name/sub`) to the TypeScript file {@link entrySource} maps it to.
+ *
+ * @param root - The molecule repository root.
+ * @returns A resolver from a module specifier to its source file, `undefined` for any other.
+ */
+export function moleculeSourceResolver(root) {
+  const sources = new Map()
+  /**
+   * Records the package at `rel`, or walks into its directories until one holds a package.json.
+   *
+   * @param rel - A repo-relative directory under `packages/`.
+   */
+  const walk = (rel) => {
+    const abs = join(root, rel)
+    if (rel !== 'packages' && existsSync(join(abs, 'package.json'))) {
+      const pkg = readJson(join(abs, 'package.json'))
+      if (typeof pkg.name !== 'string' || !pkg.name.startsWith('@molecule/')) return
+      for (const key of ['.', ...subpathKeys(pkg)]) {
+        const file = entrySource(root, { dir: rel, pkg }, key)
+        if (file) sources.set(key === '.' ? pkg.name : pkg.name + key.slice(1), file)
+      }
+      return
+    }
+    for (const e of readdirSync(abs, { withFileTypes: true }))
+      if (e.isDirectory() && e.name !== 'node_modules' && !e.name.startsWith('.'))
+        walk(`${rel}/${e.name}`)
+  }
+  if (existsSync(join(root, 'packages'))) walk('packages')
+  return (specifier) => sources.get(specifier)
+}
+
+/**
  * The names each module exports and their kinds, as TypeScript resolves them (`export *`
  * chains, re-exports from other packages, a `.svelte` component's default re-export).
  *
  * @param files - Absolute paths of the entry modules (`src/index.ts`).
+ * @param [options] - How to resolve imports.
+ * @param [options.resolve] - The source file of a module specifier, or `undefined` to resolve
+ *   it as Node does ({@link moleculeSourceResolver}: every `@molecule/*` import is read from
+ *   its package's source, so the answer does not depend on which packages are built).
  * @returns Per file, each export name and its kinds (`value`, `type`, and `class` for a class
  *   with no other type declaration), or `null` when the export cannot be resolved without a
- *   framework's own tooling (a `.svelte` component).
+ *   framework's own tooling (a `.svelte` component). A name exported with `export type` is a
+ *   type whether or not its target resolves.
  */
-export function moduleExports(files) {
+export function moduleExports(files, { resolve } = {}) {
   const ts = createRequire(import.meta.url)('typescript')
-  const program = ts.createProgram(files, {
+  const options = {
     module: ts.ModuleKind.NodeNext,
     moduleResolution: ts.ModuleResolutionKind.NodeNext,
     target: ts.ScriptTarget.ES2022,
@@ -1040,7 +1078,30 @@ export function moduleExports(files) {
     noEmit: true,
     skipLibCheck: true,
     types: [],
-  })
+  }
+  const host = ts.createCompilerHost(options)
+  if (resolve)
+    host.resolveModuleNameLiterals = (literals, containingFile, redirected, opts, sourceFile) =>
+      literals.map((literal) => {
+        const file = resolve(literal.text)
+        if (!file) {
+          const mode = ts.getModeForUsageLocation(sourceFile, literal, opts)
+          return ts.resolveModuleName(
+            literal.text,
+            containingFile,
+            opts,
+            host,
+            undefined,
+            redirected,
+            mode,
+          )
+        }
+        const extension = file.endsWith('.tsx') ? ts.Extension.Tsx : ts.Extension.Ts
+        return {
+          resolvedModule: { resolvedFileName: file, extension, isExternalLibraryImport: false },
+        }
+      })
+  const program = ts.createProgram({ rootNames: files, options, host })
   const checker = program.getTypeChecker()
   return files.map((file) => {
     const out = new Map()
@@ -1049,14 +1110,15 @@ export function moduleExports(files) {
     if (!moduleSymbol) return out
     for (const symbol of checker.getExportsOfModule(moduleSymbol)) {
       const target = symbol.flags & ts.SymbolFlags.Alias ? checker.getAliasedSymbol(symbol) : symbol
-      // An unresolved re-export has no declarations (TypeScript's stand-in symbol).
-      if (!target.declarations?.length) {
-        out.set(symbol.name, null)
-        continue
-      }
       // A value reached through `export type` is a type to the importer: it has no runtime binding.
       const typeOnly =
         symbol.declarations?.some((d) => ts.isTypeOnlyImportOrExportDeclaration(d)) === true
+      // An unresolved re-export has no declarations (TypeScript's stand-in symbol); through
+      // `export type` it is still a type, whatever it names.
+      if (!target.declarations?.length) {
+        out.set(symbol.name, typeOnly ? new Set(['type']) : null)
+        continue
+      }
       const kinds = new Set()
       if (target.flags & ts.SymbolFlags.Value && !typeOnly) kinds.add('value')
       if (target.flags & ts.SymbolFlags.Type || !kinds.size) kinds.add('type')
@@ -1185,7 +1247,9 @@ export function exportParityViolations(
         if (file) files.add(file)
       }
   const list = [...files]
-  const exportsOfFile = new Map(moduleExports(list).map((m, i) => [list[i], m]))
+  const exportsOfFile = new Map(
+    moduleExports(list, { resolve: moleculeSourceResolver(root) }).map((m, i) => [list[i], m]),
+  )
   const exportsOf = (p, key) => {
     const file = entrySource(root, p, key)
     return file ? exportsOfFile.get(file) : undefined
