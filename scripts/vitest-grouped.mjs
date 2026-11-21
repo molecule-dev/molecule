@@ -29,6 +29,9 @@
  * In projects mode Vitest copies that flag into each project, so it replaces each project's own
  * `testTimeout` (a timeout written on the test itself still wins). It is for a machine that runs
  * tests slower than CI, where CI stays the judge of test timing; CI does not set it.
+ * Every run also prints the tests that used at least half of their time limit
+ * (`scripts/vitest-budget-reporter.mjs`), beside the reporters Vitest picks on its own; in CI those
+ * lines are the timing a release reads before it pushes. A caller that names a reporter gets only that.
  * By default every group runs even when an earlier one fails; the exit code is the lowest-numbered
  * failing group's. A signal stops the run: no further group starts. Groups are balanced (sizes
  * differ by at most one), so a run that fits in one group is exactly one Vitest run, as before.
@@ -50,6 +53,7 @@
 import { spawn } from 'node:child_process'
 import console from 'node:console'
 import fs from 'node:fs'
+import { createRequire } from 'node:module'
 import { availableParallelism, tmpdir } from 'node:os'
 import { dirname, join, posix, relative, resolve } from 'node:path'
 import process from 'node:process'
@@ -204,6 +208,46 @@ export function testTimeoutArgs(value) {
   return [`--testTimeout=${ms}`]
 }
 
+/** The reporter that names tests near their time limit (scripts/vitest-budget-reporter.mjs). */
+export const BUDGET_REPORTER = join(
+  dirname(fileURLToPath(import.meta.url)),
+  'vitest-budget-reporter.mjs',
+)
+
+/**
+ * Whether Vitest treats this environment as an AI agent, read from the std-env module Vitest itself
+ * reads, so the choice below is the one Vitest would make.
+ *
+ * @param root - Repository root, where Vitest is installed.
+ * @returns True under an agent.
+ */
+async function vitestSeesAgent(root) {
+  const vitest = createRequire(join(root, 'package.json')).resolve('vitest/package.json')
+  const stdEnv = createRequire(vitest).resolve('std-env')
+  return Boolean((await import(pathToFileURL(stdEnv).href)).isAgent)
+}
+
+/**
+ * The reporter arguments for every Vitest run this starts: the reporters Vitest picks on its own
+ * (`agent` under an AI agent, else `default`, plus `github-actions` in GitHub Actions), and then
+ * {@link BUDGET_REPORTER}. Vitest picks its own only when no reporter is named, so naming the budget
+ * reporter alone would drop them. A caller that names a reporter keeps exactly its choice.
+ *
+ * @param args - The caller's Vitest arguments.
+ * @param options - All optional; the defaults are the real environment.
+ * @param options.agent - Whether Vitest sees an AI agent.
+ * @param options.env - The environment.
+ * @returns The `--reporter` arguments, or `[]`.
+ */
+export function reporterArgs(args, { agent, env = process.env } = {}) {
+  if (args.some((arg) => arg === '--reporter' || arg.startsWith('--reporter='))) return []
+  return [
+    `--reporter=${agent ? 'agent' : 'default'}`,
+    ...(env.GITHUB_ACTIONS === 'true' ? ['--reporter=github-actions'] : []),
+    `--reporter=${BUDGET_REPORTER}`,
+  ]
+}
+
 /**
  * Run tasks with at most `limit` in flight, in order, until all have run or `stop()` says no
  * more may start.
@@ -313,10 +357,11 @@ export async function runGrouped(args, options = {}) {
   if (!Number.isInteger(concurrency) || concurrency < 1)
     throw new Error(`group concurrency must be a positive integer, got ${concurrency}`)
   const timeoutArgs = testTimeoutArgs(testTimeout)
+  const reporters = reporterArgs(args, { agent: options.agent ?? (await vitestSeesAgent(root)) })
   const unchanged = () => {
     if (shard)
       throw new Error('test sharding requires project path filters, not flags or unknown paths')
-    return run(['run', ...timeoutArgs, ...args])
+    return run(['run', ...timeoutArgs, ...reporters, ...args])
   }
   if (args.some((arg) => arg.startsWith('-'))) return unchanged()
   const paths = args.map((arg) => repoPath(arg, root))
@@ -388,6 +433,7 @@ export async function runGrouped(args, options = {}) {
             ...workers,
             ...(failFast ? ['--bail=1'] : []),
             ...timeoutArgs,
+            ...reporters,
             ...filters,
           ],
           { output },

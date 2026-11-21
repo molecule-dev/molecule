@@ -30,6 +30,7 @@ function fixture() {
   for (const file of [
     'scripts/affected-projects.mjs',
     'scripts/vitest-grouped.mjs',
+    'scripts/vitest-budget-reporter.mjs',
     'scripts/vitest-with-tmp-root.mjs',
     'scripts/vitest.config.ts',
     'vitest.config.ts',

@@ -13,6 +13,8 @@ import { vitestBin } from '../vitest-with-tmp-root.mjs'
 const {
   absoluteFilter,
   balancedGroups,
+  BUDGET_REPORTER,
+  reporterArgs,
   runPool,
   selectProjects,
   shardProjects,
@@ -27,7 +29,8 @@ const fixtures = []
 /**
  * A repository with six packages (any red or slow when asked), the real runner and the real
  * root config. A package named in `timed` sets `testTimeout: 50` in its own config and its test
- * passes no limit of its own: `'sleep'` takes 200 ms, `'hang'` never settles. With `nested`, a
+ * passes no limit of its own: `'sleep'` takes 200 ms, `'hang'` never settles; `'half'` sets
+ * `testTimeout: 4000` instead and takes 2.6 s, which passes but uses more than half of its limit. With `nested`, a
  * seventh package's config declares two projects of its own (`one`, `two`), each with its own
  * `dir` and provided value, as the SvelteKit routing bond's three kit apps do.
  */
@@ -41,6 +44,7 @@ function fixture({ red = [], slow = [], timed = {}, nested = false } = {}) {
   }
   for (const file of [
     'scripts/vitest-grouped.mjs',
+    'scripts/vitest-budget-reporter.mjs',
     'scripts/vitest-with-tmp-root.mjs',
     'scripts/vitest.config.ts',
     'vitest.config.ts',
@@ -56,16 +60,18 @@ function fixture({ red = [], slow = [], timed = {}, nested = false } = {}) {
     const timing = timed[name]
     write(
       `${pkg}/vitest.config.ts`,
-      `import {defineConfig} from 'vitest/config';export default defineConfig({test:{name:${JSON.stringify(name)},root:import.meta.dirname,include:['src/__tests__/*.test.ts'],environment:'node',maxWorkers:1${timing ? ',testTimeout:50' : ''}}})\n`,
+      `import {defineConfig} from 'vitest/config';export default defineConfig({test:{name:${JSON.stringify(name)},root:import.meta.dirname,include:['src/__tests__/*.test.ts'],environment:'node',maxWorkers:1${timing ? `,testTimeout:${timing === 'half' ? 4000 : 50}` : ''}}})\n`,
     )
     const wait =
       timing === 'hang'
         ? 'await new Promise(()=>{});'
         : timing === 'sleep'
           ? 'await new Promise((r)=>setTimeout(r,200));'
-          : slow.includes(name)
-            ? 'await new Promise((r)=>setTimeout(r,12000));'
-            : ''
+          : timing === 'half'
+            ? 'await new Promise((r)=>setTimeout(r,2600));'
+            : slow.includes(name)
+              ? 'await new Promise((r)=>setTimeout(r,12000));'
+              : ''
     write(
       `${pkg}/src/__tests__/sample.test.ts`,
       `import {it,expect} from 'vitest';it('package ${name} test',async()=>{${wait}expect(1).toBe(${red.includes(name) ? 2 : 1})}${timing ? '' : ',20000'})\n`,
@@ -295,6 +301,33 @@ describe('grouped Vitest runs', () => {
     expect(result.stderr).not.toContain('[vitest-grouped] group')
   }, 60000)
 
+  // 2026-11-21: the locale placeholder sweep failed molecule CI at 6.1 s of its 5 s default (run
+  // 44930204843) after green runs had taken 2.5 s and 3.2 s of it, and nothing read those times.
+  it('names a test that used more than half of its time limit, and no other', () => {
+    const result = fixture({ timed: { a: 'half' } }).run(
+      ['packages/api/core/a', 'packages/api/core/b'],
+      2,
+      1,
+    )
+    expect(result.status, result.stdout + result.stderr).toBe(0)
+    const lines = result.stdout.split('\n').filter((line) => line.startsWith('[vitest-budget]'))
+    expect(lines, result.stdout).toHaveLength(1)
+    expect(lines[0]).toMatch(
+      /^\[vitest-budget\] \d+ of 4000 ms \(\d+%\): packages\/api\/core\/a\/src\/__tests__\/sample\.test\.ts > package a test$/,
+    )
+  }, 60000)
+
+  it('prints no budget lines when the caller names its reporter', () => {
+    const result = fixture({ timed: { a: 'half' } }).run(
+      ['--reporter=verbose', 'packages/api/core/a'],
+      2,
+      1,
+    )
+    expect(result.status, result.stdout + result.stderr).toBe(0)
+    expect(result.stdout).toContain('package a test')
+    expect(result.stdout).not.toContain('[vitest-budget]')
+  }, 60000)
+
   it('runs a config that declares projects of its own as those projects, in a run of its own', () => {
     // 2026-11-19: listed in a group config, such a config ran as one plain project, so its
     // projects' plugins, provided values and `dir` never applied and the kit tests failed in CI.
@@ -404,5 +437,22 @@ describe('selection and grouping rules', () => {
     expect(balancedGroups([1, 2, 3, 4, 5, 6, 7], 3).map((g) => g.length)).toEqual([3, 2, 2])
     expect(balancedGroups([1, 2], 150)).toEqual([[1, 2]])
     expect(() => balancedGroups([1], 0)).toThrow(/positive integer/)
+  })
+})
+
+describe('reporterArgs', () => {
+  it('keeps the reporters Vitest picks on its own, then adds the budget reporter', () => {
+    expect(reporterArgs([], { agent: false, env: {} })).toEqual([
+      '--reporter=default',
+      `--reporter=${BUDGET_REPORTER}`,
+    ])
+    expect(
+      reporterArgs(['packages/api'], { agent: true, env: { GITHUB_ACTIONS: 'true' } }),
+    ).toEqual(['--reporter=agent', '--reporter=github-actions', `--reporter=${BUDGET_REPORTER}`])
+  })
+
+  it('adds nothing when the caller names a reporter, in either spelling', () => {
+    expect(reporterArgs(['--reporter=verbose'], { agent: false, env: {} })).toEqual([])
+    expect(reporterArgs(['--reporter', 'dot', 'x'], { agent: false, env: {} })).toEqual([])
   })
 })
