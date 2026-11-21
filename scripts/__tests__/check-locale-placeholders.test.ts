@@ -60,7 +60,9 @@ function hookIndexCommands(hook: string): string[] {
 }
 
 describe('locale placeholder gate', () => {
-  it('reports no placeholder drift anywhere in the fleet', () => {
+  // Reads every locale file of every bond (17,702 files in 227 bonds on 2026-11-21): about 0.6 s
+  // here, and 6 s on a CI runner that runs the other scripts tests beside it, past the 5 s default.
+  it('reports no placeholder drift anywhere in the fleet', { timeout: 60_000 }, () => {
     const { problems, filesScanned, packagesScanned } = analyzeLocalePlaceholders()
     expect(problems).toEqual([])
     // Guard the sweep itself: a bug that scanned nothing would also report
