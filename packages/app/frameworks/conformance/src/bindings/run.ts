@@ -14,6 +14,7 @@ import { describe, expect, it, vi } from 'vitest'
 
 import { assertConformanceRunBuilt } from '../build-freshness.js'
 import { watchConformanceEventLoop } from '../stall-watchdog-vitest.js'
+import { withinCaseDeadline } from '../ui/case-deadline.js'
 import { advanceClock, installCaseClock } from '../ui/clock.js'
 import { writeLocalStorageFromOtherTab } from '../ui/environment.js'
 import { installRandomSources } from '../ui/globals.js'
@@ -365,151 +366,163 @@ export async function runHookCase(
       return { fn, self: value }
     }
     try {
-      await state.mounted.flush()
-      snap()
-      for (const step of testCase.steps ?? []) {
-        switch (step.type) {
-          case 'call': {
-            if (state.unmounted) throw new Error('conformance: a call step after unmount')
-            const label = `=> ${step.on === undefined ? '' : `${step.on}.`}${step.method ?? '()'}`
-            const { fn, self } = target(step)
-            const args = materializeArgs(step.args ?? [], recorder, fns, controls.refs)
-            await run(() => {
-              let returned: unknown
-              try {
-                returned = fn.apply(self, args)
-              } catch (error) {
-                recorder.calls.push({
-                  name: label,
-                  args: [{ threw: (error as Error)?.message ?? String(error) }],
-                })
-                return
-              }
-              if (returned && typeof (returned as { then?: unknown }).then === 'function') {
-                ;(returned as Promise<unknown>).then(
-                  (value) => {
-                    if (step.as !== undefined) kept.set(step.as, value)
-                    recorder.calls.push({
-                      name: label,
-                      args: [{ resolved: normalizeValue(value) }],
-                    })
-                  },
-                  (error: unknown) =>
-                    recorder.calls.push({
-                      name: label,
-                      args: [{ rejected: (error as Error)?.message ?? String(error) }],
-                    }),
-                )
-              } else {
-                if (step.as !== undefined) kept.set(step.as, returned)
-                recorder.calls.push({ name: label, args: [{ returned: normalizeValue(returned) }] })
-              }
-            })
-            break
-          }
-          case 'stable': {
-            if (state.unmounted) throw new Error('conformance: a stable step after unmount')
-            const outcome: Record<string, string> = {}
-            for (const method of step.methods ?? [undefined]) {
-              const { fn } = methodOf(state.mounted, resolvedShape!, method)
-              const key = method ?? '$result'
-              outcome[key] = !stableBefore.has(key)
-                ? 'first'
-                : Object.is(stableBefore.get(key), fn)
-                  ? 'same'
-                  : 'rebuilt'
-              stableBefore.set(key, fn)
+      // A step that never settles fails the case here, so the `finally` below still unmounts.
+      await withinCaseDeadline(testCase.name, async (progress) => {
+        await state.mounted.flush()
+        snap()
+        for (const [index, step] of (testCase.steps ?? []).entries()) {
+          if (progress.abandoned) return
+          progress.at = `step ${index + 1} (${step.type})`
+          switch (step.type) {
+            case 'call': {
+              if (state.unmounted) throw new Error('conformance: a call step after unmount')
+              const label = `=> ${step.on === undefined ? '' : `${step.on}.`}${step.method ?? '()'}`
+              const { fn, self } = target(step)
+              const args = materializeArgs(step.args ?? [], recorder, fns, controls.refs)
+              await run(() => {
+                let returned: unknown
+                try {
+                  returned = fn.apply(self, args)
+                } catch (error) {
+                  recorder.calls.push({
+                    name: label,
+                    args: [{ threw: (error as Error)?.message ?? String(error) }],
+                  })
+                  return
+                }
+                if (returned && typeof (returned as { then?: unknown }).then === 'function') {
+                  ;(returned as Promise<unknown>).then(
+                    (value) => {
+                      if (step.as !== undefined) kept.set(step.as, value)
+                      recorder.calls.push({
+                        name: label,
+                        args: [{ resolved: normalizeValue(value) }],
+                      })
+                    },
+                    (error: unknown) =>
+                      recorder.calls.push({
+                        name: label,
+                        args: [{ rejected: (error as Error)?.message ?? String(error) }],
+                      }),
+                  )
+                } else {
+                  if (step.as !== undefined) kept.set(step.as, returned)
+                  recorder.calls.push({
+                    name: label,
+                    args: [{ returned: normalizeValue(returned) }],
+                  })
+                }
+              })
+              break
             }
-            recorder.calls.push({ name: 'stable', args: [outcome] })
-            break
-          }
-          case 'args':
-            if (state.unmounted) throw new Error('conformance: an args step after unmount')
-            if (state.mounted.result() instanceof HookThrew) {
-              // A hook that threw leaves no component behind in an app (React's error
-              // boundary discards it; a setup that throws mounts nothing), so the app's next
-              // render mounts a fresh one. Re-rendering the host instead would give React's
-              // fiber a different number of hooks than its last render (the host catches the
-              // throw), which React reports as an internal error.
-              await state.mounted.unmount()
+            case 'stable': {
+              if (state.unmounted) throw new Error('conformance: a stable step after unmount')
+              const outcome: Record<string, string> = {}
+              for (const method of step.methods ?? [undefined]) {
+                const { fn } = methodOf(state.mounted, resolvedShape!, method)
+                const key = method ?? '$result'
+                outcome[key] = !stableBefore.has(key)
+                  ? 'first'
+                  : Object.is(stableBefore.get(key), fn)
+                    ? 'same'
+                    : 'rebuilt'
+                stableBefore.set(key, fn)
+              }
+              recorder.calls.push({ name: 'stable', args: [outcome] })
+              break
+            }
+            case 'args':
+              if (state.unmounted) throw new Error('conformance: an args step after unmount')
+              if (state.mounted.result() instanceof HookThrew) {
+                // A hook that threw leaves no component behind in an app (React's error
+                // boundary discards it; a setup that throws mounts nothing), so the app's next
+                // render mounts a fresh one. Re-rendering the host instead would give React's
+                // fiber a different number of hooks than its last render (the host catches the
+                // throw), which React reports as an internal error.
+                await state.mounted.unmount()
+                state.unmounted = true
+                await settle()
+                state.mounted = await mountHost(step.args ?? [])
+                state.unmounted = false
+                stableBefore.clear()
+              } else {
+                await state.mounted.setArgs(
+                  materializeArgs(step.args, recorder, fns, controls.refs),
+                )
+              }
+              break
+            case 'advance':
+              // One timer callback at a time, each in the framework's scope (`ui/clock.ts`).
+              await advanceClock(step.ms, (work) => run(work))
+              break
+            case 'settle':
+              await run(() => recorder.settle(step.fn, step.value, step.error))
+              break
+            case 'http':
+              await run(() => controls.answerHttp(step))
+              break
+            case 'auth':
+              await outside(step.type, () => controls.setAuth(step.status, step.user))
+              break
+            case 'locale':
+              await outside(step.type, () => services.i18n.setLocale(step.locale))
+              break
+            case 'theme':
+              await outside(step.type, () => controls.setThemeMode(step.mode))
+              break
+            case 'navigate':
+              await outside(step.type, () => services.router.navigate(step.to))
+              break
+            case 'back':
+              await outside(step.type, () => services.router.back())
+              break
+            case 'storage':
+              await outside(step.type, () => controls.writeStorage(step.key, step.value))
+              break
+            case 'control':
+              await run(() => controls.control(step.name, step.args ?? []))
+              break
+            case 'keydown':
+              await run(() => {
+                recorder.calls.push({ name: '@keydown', args: [pressKey(step)] })
+              })
+              break
+            case 'media':
+              await run(() => media?.set(step.query, step.matches))
+              break
+            case 'localStorage':
+              await run(() => {
+                if (!step.sameTab) writeLocalStorageFromOtherTab(step.key, step.value)
+                else if (step.value === null) localStorage.removeItem(step.key)
+                else localStorage.setItem(step.key, step.value)
+              })
+              break
+            case 'event':
+              await run(() => {
+                ;(step.selector === 'window' ? window : document).dispatchEvent(
+                  new Event(step.event),
+                )
+              })
+              break
+            case 'unmount':
+              if (!state.unmounted) await state.mounted.unmount()
+              state.unmounted = true
+              break
+            case 'remount':
+              if (!state.unmounted) await state.mounted.unmount()
               state.unmounted = true
               await settle()
-              state.mounted = await mountHost(step.args ?? [])
+              state.mounted = await mountHost(step.args ?? testCase.args ?? [])
               state.unmounted = false
+              // A fresh host's functions are new; identity checks start over.
               stableBefore.clear()
-            } else {
-              await state.mounted.setArgs(materializeArgs(step.args, recorder, fns, controls.refs))
-            }
-            break
-          case 'advance':
-            // One timer callback at a time, each in the framework's scope (`ui/clock.ts`).
-            await advanceClock(step.ms, (work) => run(work))
-            break
-          case 'settle':
-            await run(() => recorder.settle(step.fn, step.value, step.error))
-            break
-          case 'http':
-            await run(() => controls.answerHttp(step))
-            break
-          case 'auth':
-            await outside(step.type, () => controls.setAuth(step.status, step.user))
-            break
-          case 'locale':
-            await outside(step.type, () => services.i18n.setLocale(step.locale))
-            break
-          case 'theme':
-            await outside(step.type, () => controls.setThemeMode(step.mode))
-            break
-          case 'navigate':
-            await outside(step.type, () => services.router.navigate(step.to))
-            break
-          case 'back':
-            await outside(step.type, () => services.router.back())
-            break
-          case 'storage':
-            await outside(step.type, () => controls.writeStorage(step.key, step.value))
-            break
-          case 'control':
-            await run(() => controls.control(step.name, step.args ?? []))
-            break
-          case 'keydown':
-            await run(() => {
-              recorder.calls.push({ name: '@keydown', args: [pressKey(step)] })
-            })
-            break
-          case 'media':
-            await run(() => media?.set(step.query, step.matches))
-            break
-          case 'localStorage':
-            await run(() => {
-              if (!step.sameTab) writeLocalStorageFromOtherTab(step.key, step.value)
-              else if (step.value === null) localStorage.removeItem(step.key)
-              else localStorage.setItem(step.key, step.value)
-            })
-            break
-          case 'event':
-            await run(() => {
-              ;(step.selector === 'window' ? window : document).dispatchEvent(new Event(step.event))
-            })
-            break
-          case 'unmount':
-            if (!state.unmounted) await state.mounted.unmount()
-            state.unmounted = true
-            break
-          case 'remount':
-            if (!state.unmounted) await state.mounted.unmount()
-            state.unmounted = true
-            await settle()
-            state.mounted = await mountHost(step.args ?? testCase.args ?? [])
-            state.unmounted = false
-            // A fresh host's functions are new; identity checks start over.
-            stableBefore.clear()
-            break
+              break
+          }
+          if (state.unmounted) await settle()
+          else await state.mounted.flush()
+          snap()
         }
-        if (state.unmounted) await settle()
-        else await state.mounted.flush()
-        snap()
-      }
+      })
     } finally {
       if (!state.unmounted) await state.mounted.unmount()
       state.unmounted = true

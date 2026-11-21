@@ -11,6 +11,7 @@ import { getProvider as getI18nProvider, type I18nProvider } from '@molecule/app
 import { createMemoryRouter, type Router } from '@molecule/app-routing'
 import type { ThemeProvider } from '@molecule/app-theme'
 
+import { withinCaseDeadline } from './case-deadline.js'
 import { advanceClock, type ClockScope, installCaseClock } from './clock.js'
 import {
   freshContainer,
@@ -30,6 +31,7 @@ import {
   resetCasePage,
 } from './page.js'
 import { capturePage, pixelCaptureDir } from './pixel-capture.js'
+import { isLeftOut, shownChildren } from './shown-children.js'
 import type {
   AppComposition,
   AppServices,
@@ -269,26 +271,6 @@ export function focusPath(): string | null {
 }
 
 /**
- * Whether the snapshot leaves this element out: a mount wrapper or a framework's host element
- * (`data-parity-unwrap`, which the normalizer drops and replaces by its children).
- *
- * @param el - The element.
- * @returns Whether it is left out.
- */
-const unwrapped = (el: Element): boolean => el.hasAttribute('data-parity-unwrap')
-
-/**
- * An element's element children as the snapshot shows them: a left-out child is replaced by its own.
- *
- * @param parent - The element.
- * @returns Its shown children, in order.
- */
-const shownChildren = (parent: Element): Element[] =>
-  Array.from(parent.children).flatMap((child) =>
-    unwrapped(child) ? shownChildren(child) : [child],
-  )
-
-/**
  * A stable path to an element in the body (`body>div:0>button:1`: tag and index among element
  * siblings), the form `@focus` and `@ref` lines use. It follows the tree the snapshot shows, so a
  * host element one framework adds and the normalizer drops does not add a level.
@@ -301,7 +283,7 @@ export function elementPath(element: Element): string {
   let el: Element | null = element
   while (el && el !== document.body) {
     let parent: Element | null = el.parentElement
-    while (parent && parent !== document.body && unwrapped(parent)) parent = parent.parentElement
+    while (parent && parent !== document.body && isLeftOut(parent)) parent = parent.parentElement
     const index = parent ? shownChildren(parent).indexOf(el) : 0
     parts.unshift(`${el.tagName.toLowerCase()}:${index}`)
     el = parent
@@ -547,6 +529,7 @@ export async function runSteps(
   const state: { unmounted: boolean; location?: string; locationState?: unknown } = {
     unmounted: false,
   }
+  let failed: { error: unknown } | null = null
   try {
     if (testCase.ref && !mounted.refElement)
       throw new Error(
@@ -576,23 +559,68 @@ export async function runSteps(
       }
       pages?.push(capturePage(document))
     }
-    await mounted.flush()
-    snap()
-    for (const step of testCase.interactions ?? []) {
-      applyLayout()
-      snap(await runStep(step, mounted, recorder, app, page, state))
-    }
-  } finally {
-    if (!state.unmounted) await mounted.unmount()
-    await mounted.dispose?.()
-    globals.restore()
-    page.restore()
-    setCaseTranslations(null)
-    setCaseIcons(null)
-    if (testCase.fakeTimers || testCase.now !== undefined) vi.useRealTimers()
-    document.body.innerHTML = ''
+    // A step that never settles fails the case here, so the `finally` below still tears down.
+    await withinCaseDeadline(testCase.name, async (progress) => {
+      await mounted.flush()
+      snap()
+      for (const [index, step] of (testCase.interactions ?? []).entries()) {
+        if (progress.abandoned) return
+        progress.at = `step ${index + 1} (${step.type})`
+        applyLayout()
+        snap(await runStep(step, mounted, recorder, app, page, state))
+      }
+    })
+  } catch (error) {
+    failed = { error }
   }
+  await tearDownCase(failed, [
+    () => (state.unmounted ? undefined : mounted.unmount()),
+    () => mounted.dispose?.(),
+    () => globals.restore(),
+    () => page.restore(),
+    () => setCaseTranslations(null),
+    () => setCaseIcons(null),
+    () => {
+      if (testCase.fakeTimers || testCase.now !== undefined) vi.useRealTimers()
+    },
+    () => {
+      document.body.innerHTML = ''
+    },
+  ])
   return { snapshots, readable, ...(pages ? { pages } : {}), calls: recorder.calls }
+}
+
+/**
+ * Runs every teardown step of a case even when one throws, then fails with what went wrong.
+ * A step skipped here leaves its part of the case (the mounted app, the fake clock, the page
+ * globals) in place for the cases after it, which then record its work as their own.
+ *
+ * @param failed - The error the case's steps failed with, if they did.
+ * @param steps - The teardown steps, in order.
+ * @returns Once every step ran, when neither the case nor its teardown failed.
+ */
+async function tearDownCase(
+  failed: { error: unknown } | null,
+  steps: readonly (() => unknown)[],
+): Promise<void> {
+  const errors: unknown[] = []
+  for (const step of steps) {
+    try {
+      await step()
+    } catch (error) {
+      errors.push(error)
+    }
+  }
+  if (failed && errors.length === 0) throw failed.error
+  if (failed || errors.length > 1) {
+    throw new AggregateError(
+      failed ? [failed.error, ...errors] : errors,
+      failed
+        ? `${(failed.error as Error)?.message ?? String(failed.error)} (and the case's teardown failed too)`
+        : "conformance: the case's teardown failed",
+    )
+  }
+  if (errors.length === 1) throw errors[0]
 }
 
 /** The fields a UI case takes. */

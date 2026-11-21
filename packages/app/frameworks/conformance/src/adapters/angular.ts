@@ -627,7 +627,15 @@ export function createAngularAdapter({
               appRef.tick()
               return created
             }
-            let ref = show(initialProps)
+            let ref: ReturnType<typeof show>
+            try {
+              ref = show(initialProps)
+            } catch (error) {
+              // A first render that throws hands the runner no case to tear down: destroy the
+              // application here, or its effects and listeners run on into the cases after it.
+              appRef.destroy()
+              throw error
+            }
             return {
               flush: async () => {
                 appRef.tick()

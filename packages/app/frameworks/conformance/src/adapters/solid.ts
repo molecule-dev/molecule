@@ -18,9 +18,9 @@
  * @module
  */
 
-import { type Component, createComponent, createRenderEffect, type JSX } from 'solid-js'
+import { type Component, createComponent, createRenderEffect, createRoot, type JSX } from 'solid-js'
 import { createStore, produce } from 'solid-js/store'
-import { render } from 'solid-js/web'
+import { insert } from 'solid-js/web'
 
 import type { AuthClient } from '@molecule/app-auth'
 import type { I18nProvider } from '@molecule/app-i18n'
@@ -50,6 +50,33 @@ import {
   settle,
   type UICase,
 } from '../ui/index.js'
+
+/**
+ * Solid's `render`, keeping the root's disposer when the component throws while it first
+ * renders: `render` hands the disposer back only on success, so a throw left the root (its
+ * effects and listeners) running into the cases after it.
+ *
+ * @param code - Builds the tree.
+ * @param element - Where it renders.
+ * @returns Disposes the root and empties the element.
+ */
+function renderDisposably(code: () => JSX.Element, element: HTMLElement): () => void {
+  let disposeRoot: (() => void) | undefined
+  const dispose = (): void => {
+    disposeRoot?.()
+    element.textContent = ''
+  }
+  try {
+    createRoot((rootDispose) => {
+      disposeRoot = rootDispose
+      insert(element, code(), element.firstChild ? null : undefined)
+    })
+  } catch (error) {
+    dispose()
+    throw error
+  }
+  return dispose
+}
 
 /**
  * The services a case runs against, in the shape the adapter hands the provider:
@@ -273,7 +300,7 @@ export function createSolidAdapter({
             let refElement: Element | null = null
             container.appendChild(mountPoint)
             const show = (): (() => void) =>
-              render(
+              renderDisposably(
                 () =>
                   createComponent(MoleculeProvider, {
                     config,

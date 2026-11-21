@@ -23,6 +23,7 @@
     slots,
     children,
     captureRef,
+    firstRender,
   }: {
     component: Component<Record<string, unknown>>
     /** Every component and composable the cases may render or call. */
@@ -38,7 +39,23 @@
     children?: NodeSpec[]
     /** Set for a ref case: receives what the component's bindable `ref` prop holds (`bind:ref`). */
     captureRef?: (el: unknown) => void
+    /**
+     * Set while the adapter first mounts the case: an error the component throws then is held
+     * here instead of escaping `mount` half-way, which would leave the tree it had set up
+     * running into the cases after it. The adapter unmounts the host and rethrows it.
+     */
+    firstRender?: { mounting: boolean; errors: unknown[] }
   } = $props()
+
+  /**
+   * Holds an error thrown while the case first mounts; later errors propagate as before.
+   *
+   * @param error - What the component threw.
+   */
+  const onTargetError = (error: unknown): void => {
+    if (!firstRender?.mounting) throw error
+    firstRender.errors.push(error)
+  }
 
   // What the component's `ref` holds, read back by the component itself through the binding.
   let boundRef = $state.raw<unknown>(null)
@@ -101,12 +118,14 @@
      data-parity-unwrap div within the harness container; the normalizer drops
      the wrapper, but the focused-element path sees the real DOM nesting. -->
 <div data-parity-unwrap>
-  {#if sessionDecided}
-    <!-- Only a ref case binds `ref`: binding a prop a component does not declare bindable throws. -->
-    {#if captureRef}
-      <Target {...shown} {...nodeProps} bind:ref={() => boundRef, setBoundRef} />
-    {:else}
-      <Target {...shown} {...nodeProps} />
+  <svelte:boundary onerror={onTargetError}>
+    {#if sessionDecided}
+      <!-- Only a ref case binds `ref`: binding a prop a component does not declare bindable throws. -->
+      {#if captureRef}
+        <Target {...shown} {...nodeProps} bind:ref={() => boundRef, setBoundRef} />
+      {:else}
+        <Target {...shown} {...nodeProps} />
+      {/if}
     {/if}
-  {/if}
+  </svelte:boundary>
 </div>

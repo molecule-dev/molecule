@@ -24,6 +24,7 @@ import {
   defineComponent,
   h,
   nextTick,
+  onErrorCaptured,
   type Plugin,
   type PropType,
   reactive,
@@ -199,7 +200,19 @@ export function createVueAdapter({
         return await runSteps(
           testCase,
           async (container) => {
+            // While the app first mounts, an error a component throws is held here instead of
+            // escaping `app.mount` half-way: Vue unmounts only an app that finished mounting, so the
+            // app's plugins and the components it had set up would run on into the cases after it.
+            let mounting = true
+            const firstRenderErrors: unknown[] = []
             const app = createApp({
+              setup() {
+                onErrorCaptured((error) => {
+                  if (!mounting) return undefined
+                  firstRenderErrors.push(error)
+                  return false
+                })
+              },
               // The same `div[data-parity-unwrap]` mount wrapper the kit's React
               // reference adapter uses (react-adapter.ts): it disappears from the
               // normalized DOM snapshot but IS counted by the kit's focus path, so
@@ -235,6 +248,11 @@ export function createVueAdapter({
               if (services.auth) app.use(createAuthPlugin(services.auth))
             }
             app.mount(container)
+            mounting = false
+            if (firstRenderErrors.length > 0) {
+              app.unmount()
+              throw firstRenderErrors[0]
+            }
             return {
               flush: async () => {
                 await nextTick()

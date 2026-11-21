@@ -119,6 +119,7 @@ export function createSvelteAdapter({
         return await runSteps(
           testCase,
           async (container) => {
+            const firstRender = { mounting: true, errors: [] as unknown[] }
             const show = (): ReturnType<typeof mount> =>
               mount(Host, {
                 target: container,
@@ -135,10 +136,18 @@ export function createSvelteAdapter({
                   slots: testCase.slots ?? {},
                   children: testCase.children,
                   captureRef,
+                  firstRender,
                 },
               })
             let instance = show()
             flushSync()
+            firstRender.mounting = false
+            if (firstRender.errors.length > 0) {
+              // The host mounted with the failed component held by its boundary: unmount it, so
+              // nothing the component or the host set up runs on, and fail the case.
+              await unmount(instance)
+              throw firstRender.errors[0]
+            }
             return {
               flush: async () => {
                 flushSync()

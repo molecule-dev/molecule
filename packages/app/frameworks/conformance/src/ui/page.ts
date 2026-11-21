@@ -8,6 +8,7 @@
  */
 
 import { installFocusVisible, resetFocusVisible } from './focus-visible.js'
+import { shownChildren } from './shown-children.js'
 import type { LayoutStub, TransferFile } from './spec.js'
 
 /** The time zone every case runs in. */
@@ -439,8 +440,10 @@ export function setLayoutStubs(stubs: LayoutStub[]): void {
  */
 function stubElement(el: Element, stub: LayoutStub): void {
   const { childHeight, clientHeight, rect } = stub
+  // Rows count as the snapshot shows them: a framework host element around them (`data-parity-unwrap`)
+  // is not a row, or a port that wraps its rows would clamp every scroll offset to 0.
   const scrollHeight = (): number | undefined =>
-    childHeight === undefined ? undefined : el.children.length * childHeight
+    childHeight === undefined ? undefined : shownChildren(el).length * childHeight
   if (childHeight !== undefined)
     Object.defineProperty(el, 'scrollHeight', {
       configurable: true,

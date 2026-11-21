@@ -263,6 +263,34 @@ describe('layout', () => {
     expect(readable[2]).toContain('@scroll [role="log"] 1100')
   })
 
+  it('counts rows inside a host element the snapshot leaves out, as the snapshot shows them', async () => {
+    // An Angular port renders its rows inside component hosts (`data-parity-unwrap`): 12 rows
+    // in 3 hosts are still 12 rows of 100px, so a scroll to the bottom reaches 800.
+    const { readable } = await run(
+      {
+        name: 'hosted rows',
+        layout: [{ selector: '[role="log"]', childHeight: 100, clientHeight: 400, scrollTop: 0 }],
+        interactions: [{ type: 'click', selector: 'button' }],
+      },
+      (container) => {
+        const log = document.createElement('div')
+        log.setAttribute('role', 'log')
+        for (let host = 0; host < 3; host++) {
+          const wrapper = document.createElement('div')
+          wrapper.setAttribute('data-parity-unwrap', '')
+          for (let i = 0; i < 4; i++) wrapper.appendChild(document.createElement('p'))
+          log.appendChild(wrapper)
+        }
+        const bottom = document.createElement('button')
+        bottom.textContent = 'bottom'
+        bottom.addEventListener('click', () => log.scrollTo({ top: log.scrollHeight }))
+        container.append(log, bottom)
+        return () => undefined
+      },
+    )
+    expect(readable[1]).toContain('@scroll [role="log"] 800')
+  })
+
   it('serves a rect to getBoundingClientRect and the offset sizes', async () => {
     const { readable } = await run(
       {
