@@ -12,10 +12,17 @@
 
 import { describe, expect, it, vi } from 'vitest'
 
+import { assertConformanceRunBuilt } from '../build-freshness.js'
 import { watchConformanceEventLoop } from '../stall-watchdog-vitest.js'
 import { advanceClock, installCaseClock } from '../ui/clock.js'
 import { writeLocalStorageFromOtherTab } from '../ui/environment.js'
-import { type CaseLocalStorage, installLocalStorage, resetCasePage } from '../ui/page.js'
+import { installRandomSources } from '../ui/globals.js'
+import {
+  type CaseLocalStorage,
+  installDomGaps,
+  installLocalStorage,
+  resetCasePage,
+} from '../ui/page.js'
 import { checkFields, checkStepFields, type FieldsOf, type StepFields } from '../ui/step-fields.js'
 import { CallRecorder, settle } from '../ui/steps.js'
 import * as allCases from './cases/index.js'
@@ -70,10 +77,10 @@ export const bindingGoldens = goldensJson as unknown as BindingGoldens
 /**
  * The `@molecule/app-react` exports every framework binding exports under the
  * same name: everything except React's composition-root pieces, the
- * `*Context` objects and `*Provider` components. Those are where a framework
- * wires services in its own idiom (Vue plugins, Solid `MoleculeProvider`,
- * Svelte `setMoleculeContext`, Angular `provide*`), the one place an app
- * changes when it swaps framework.
+ * `*Context` objects and `*Provider` components. Their names are judged by the
+ * export-parity check (`molecule/scripts/check-framework-conformance.mjs`), which
+ * lets Angular use `provideMolecule` / `provide*` in their place, and what the
+ * root does is judged by the `MoleculeProvider` cases (`render: 'root'`).
  *
  * @param names - `Object.keys(await import('@molecule/app-react'))`.
  * @returns The names each framework must export, sorted.
@@ -239,6 +246,12 @@ export async function runHookCase(
   // patches over the pinned one and restores it.
   const restoreBonds = isolateBondRegistry()
   const restoreEnvironment = pinBrowserEnvironment()
+  // Math.random, crypto.randomUUID and crypto.getRandomValues start from the same state in every
+  // case, as in a UI case, so an id a hook mints is the same in every framework.
+  const randomSources = installRandomSources()
+  // The page a UI case mounts on: a hook that probes a canvas (useDevice's WebGL check) gets
+  // no context, quietly, instead of jsdom's "not implemented" report.
+  installDomGaps()
   // A case that names media queries, or changes one, answers them from its own set.
   const media: MediaQueryControl | null =
     testCase.media || (testCase.steps ?? []).some((s) => s.type === 'media')
@@ -516,6 +529,7 @@ export async function runHookCase(
     await disposeControls?.()
     media?.restore()
     local?.restore()
+    randomSources.restore()
     restoreEnvironment()
     restoreBonds()
   }
@@ -546,6 +560,7 @@ export function runBindingConformance(
   adapter: BindingAdapter,
   options: BindingConformanceOptions = {},
 ): void {
+  assertConformanceRunBuilt(adapter.name, expect.getState().testPath)
   const gaps = options.knownGaps ?? {}
   const filter = only('CONFORMANCE_HOOKS')
   const families = bindingCaseFamilies.filter((f) => !filter || filter.includes(f.hook))

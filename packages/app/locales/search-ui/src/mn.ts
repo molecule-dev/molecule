@@ -14,4 +14,8 @@ export const mn: Partial<SearchUiTranslations> = {
   'searchUi.relatedTitle': 'Хайлтын үгстэй нь биш, харин таны хайлтын утгатай тохирч байна',
   'searchUi.related': 'холбоотой',
   'searchUi.help': 'Хайлтын зөвлөмжүүд',
+  'searchUi.examplePhrase': '"яг хэллэг"',
+  'searchUi.exampleExcluded': '-үг',
+  'searchUi.activeResult': '{{title}}, {{count}}-аас {{position}}',
+  'searchUi.dialogLabel': 'Хайх',
 }

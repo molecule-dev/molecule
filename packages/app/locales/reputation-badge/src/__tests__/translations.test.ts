@@ -19,6 +19,7 @@ const REQUIRED_KEYS: ReputationBadgeTranslationKey[] = [
   'reputationBadge.level.trusted',
   'reputationBadge.level.veteran',
   'reputationBadge.level.legend',
+  'reputationBadge.level.fallback',
   'badgeShelf.aria',
   'badgeShelf.overflow.aria',
 ]

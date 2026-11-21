@@ -35,17 +35,17 @@ vi.mock('@molecule/app-ui', () => ({
 
 import { createApp, defineComponent, h, type VNodeChild } from 'vue'
 
+import { inlineStyleMismatch } from '@molecule/app-framework-conformance/ui'
+
 import { SlideThumbnail } from '../SlideThumbnail.js'
+import type { SlideThumbnailProps } from '../types.js'
 
 afterEach(() => {
   document.body.innerHTML = ''
 })
 
 /** Renders a {@link SlideThumbnail} and returns the markup it produced. */
-const render = (
-  props: Record<string, unknown>,
-  slots?: Record<string, () => VNodeChild[]>,
-): string => {
+const render = (props: SlideThumbnailProps, slots?: Record<string, () => VNodeChild[]>): string => {
   const host = document.createElement('div')
   document.body.appendChild(host)
   const app = createApp(defineComponent({ render: () => h(SlideThumbnail, props, slots) }))
@@ -72,7 +72,7 @@ describe('SlideThumbnail', () => {
   it('applies an active outline + aria-current only when active', () => {
     const active = render({ index: 1, active: true })
     expect(active).toContain('aria-current="true"')
-    expect(active).toContain('outline: 2px solid currentColor')
+    expect(inlineStyleMismatch(active, { outline: '2px solid currentColor' })).toBeNull()
     const inactive = render({ index: 1 })
     expect(inactive).not.toContain('aria-current="true"')
   })

@@ -6,6 +6,7 @@
 
 import { type Component, createMemo, createSignal } from 'solid-js'
 
+import { useLocale, useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-solid'
 
@@ -52,7 +53,9 @@ function isSameDay(a: Date, b: Date): boolean {
 /**
  * Compact month-view calendar. Supports controlled `selected` + `month`
  * props or runs uncontrolled. Weekday / month names come from
- * `Intl.DateTimeFormat` so locales render correctly without extra data.
+ * `Intl.DateTimeFormat` in the `locale` prop, or the app's active locale when
+ * it is omitted. The prev/next buttons' aria-labels go through `t()`
+ * (`miniCalendar.aria.*`, English `defaultValue`s).
  *
  * This is the Solid counterpart of `@molecule/app-mini-calendar-react`: the
  * same props (React names), the same ClassMap tokens, and the same DOM for the
@@ -62,6 +65,10 @@ function isSameDay(a: Date, b: Date): boolean {
  * @returns The rendered calendar.
  */
 export const MiniCalendar: Component<MiniCalendarProps> = (props) => {
+  const { t } = useTranslation()
+  // Read in the JSX and formatters, so the names follow a locale switch. An
+  // explicit `locale` prop still wins.
+  const activeLocale = useLocale()
   const cm = getClassMap()
   const selectedDate = (): Date | undefined => toDate(props.selected)
   const [internalMonth, setInternalMonth] = createSignal(
@@ -81,10 +88,13 @@ export const MiniCalendar: Component<MiniCalendarProps> = (props) => {
     props.onMonthChange?.(next)
   }
 
+  const resolvedLocale = (): string => props.locale ?? activeLocale()
   const monthFmt = createMemo(
-    () => new Intl.DateTimeFormat(props.locale, { month: 'long', year: 'numeric' }),
+    () => new Intl.DateTimeFormat(resolvedLocale(), { month: 'long', year: 'numeric' }),
   )
-  const weekdayFmt = createMemo(() => new Intl.DateTimeFormat(props.locale, { weekday: 'narrow' }))
+  const weekdayFmt = createMemo(
+    () => new Intl.DateTimeFormat(resolvedLocale(), { weekday: 'narrow' }),
+  )
 
   // Build grid: 6 rows × 7 cols, starting from the Sunday before the 1st.
   const days = createMemo((): Date[] => {
@@ -117,7 +127,9 @@ export const MiniCalendar: Component<MiniCalendarProps> = (props) => {
           onClick={() => {
             navigate(-1)
           }}
-          aria-label="Previous month"
+          aria-label={t('miniCalendar.aria.previousMonth', undefined, {
+            defaultValue: 'Previous month',
+          })}
         >
           ‹
         </Button>
@@ -130,7 +142,7 @@ export const MiniCalendar: Component<MiniCalendarProps> = (props) => {
           onClick={() => {
             navigate(1)
           }}
-          aria-label="Next month"
+          aria-label={t('miniCalendar.aria.nextMonth', undefined, { defaultValue: 'Next month' })}
         >
           ›
         </Button>

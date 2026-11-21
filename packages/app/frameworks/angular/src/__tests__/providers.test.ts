@@ -19,6 +19,7 @@ vi.mock('@angular/core', () => ({
     }
   },
   provideEnvironmentInitializer: (initializer: () => void) => ({ _initializer: initializer }),
+  provideAppInitializer: (initializer: () => unknown) => ({ _appInitializer: initializer }),
   makeEnvironmentProviders: function mockMakeEnvProviders(providers: unknown[]): unknown {
     makeEnvProvidersCalls.push(providers)
     return { _providers: providers, ɵproviders: providers }
@@ -207,8 +208,10 @@ describe('providers', () => {
 
       expect(makeEnvProvidersCalls).toHaveLength(1)
       const providersArg = makeEnvProvidersCalls[0]
-      // 8 value providers + 1 environment initializer for i18n locale reactivity
-      expect(providersArg).toHaveLength(9)
+      // 8 value providers, the environment initializer for i18n locale reactivity and the
+      // app initializer that holds bootstrap for the session (the default with `auth`)
+      expect(providersArg).toHaveLength(10)
+      expect(providersArg).toContainEqual({ _appInitializer: expect.any(Function) })
       expect(providersArg).toContainEqual({ provide: STATE_PROVIDER, useValue: config.state })
       expect(providersArg).toContainEqual({ provide: AUTH_CLIENT, useValue: config.auth })
       expect(providersArg).toContainEqual({ provide: THEME_PROVIDER, useValue: config.theme })
@@ -228,9 +231,17 @@ describe('providers', () => {
       provideMolecule(config)
 
       const providersArg = makeEnvProvidersCalls[0]
-      expect(providersArg).toHaveLength(2)
+      // The two value providers and the session hold `auth` brings by default.
+      expect(providersArg).toHaveLength(3)
       expect(providersArg).toContainEqual({ provide: STATE_PROVIDER, useValue: config.state })
       expect(providersArg).toContainEqual({ provide: AUTH_CLIENT, useValue: config.auth })
+      expect(providersArg).toContainEqual({ _appInitializer: expect.any(Function) })
+    })
+
+    it('holds bootstrap for the session only while awaitSession is not false', () => {
+      const auth = createTestAuthClient()
+      provideMolecule({ auth, awaitSession: false })
+      expect(makeEnvProvidersCalls[0]).toEqual([{ provide: AUTH_CLIENT, useValue: auth }])
     })
 
     it('should handle empty configuration', () => {
@@ -274,8 +285,9 @@ describe('providers', () => {
       provideMolecule(config)
 
       const providersArg = makeEnvProvidersCalls[0]
-      expect(providersArg).toHaveLength(1)
+      expect(providersArg).toHaveLength(2)
       expect(providersArg[0]).toEqual({ provide: AUTH_CLIENT, useValue: config.auth })
+      expect(providersArg[1]).toEqual({ _appInitializer: expect.any(Function) })
     })
   })
 })

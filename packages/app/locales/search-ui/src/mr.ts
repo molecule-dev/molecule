@@ -15,4 +15,8 @@ export const mr: Partial<SearchUiTranslations> = {
   'searchUi.relatedTitle': 'तुमच्या शोधाच्या शब्दांशी नव्हे, तर त्याच्या अर्थाशी जुळते.',
   'searchUi.related': 'संबंधित',
   'searchUi.help': 'शोध टिपा',
+  'searchUi.examplePhrase': '"नेमका वाक्यांश"',
+  'searchUi.exampleExcluded': '-शब्द',
+  'searchUi.activeResult': '{{title}}, {{count}} पैकी {{position}}',
+  'searchUi.dialogLabel': 'शोधा',
 }

@@ -7,16 +7,20 @@
  * flushes streamed deltas on a 50ms throttle and paces status labels with a
  * 650ms dwell, so a snapshot between an event and its flush is only
  * deterministic when the clock is fake. The chat fakes also pin `Date` at the
- * epoch and make `crypto.randomUUID()` a counter, so local message ids and
- * timestamps are identical in every framework.
+ * epoch and the kit counts `crypto.randomUUID()` in every case, so local message
+ * ids and timestamps are identical in every framework.
  *
  * @module
  */
 
 import type { ChatMessage } from '@molecule/app-ai-chat'
 
+import { kitUuid } from '../../ui/globals.js'
 import type { ChatSeed } from '../fakes/chat.js'
 import type { BindingContext, HookCases } from '../spec.js'
+
+/** The id of the second message a queue case sends (the case's second mint; the first send took the first). */
+const QUEUED_ID = kitUuid(1)
 
 /** Chat options that do NOT load history on mount (isolates the send path). */
 const noHistory = (extra: Record<string, unknown> = {}): unknown[] => [
@@ -1373,7 +1377,7 @@ export const useChatCases: HookCases = {
           args: [
             {
               type: 'message',
-              message: { id: 'uuid-2', role: 'user', content: 'b', queued: true, timestamp: 7 },
+              message: { id: QUEUED_ID, role: 'user', content: 'b', queued: true, timestamp: 7 },
             },
           ],
         },
@@ -1391,7 +1395,7 @@ export const useChatCases: HookCases = {
           args: [
             {
               type: 'message',
-              message: { id: 'uuid-2', role: 'user', content: 'b', timestamp: 8 },
+              message: { id: QUEUED_ID, role: 'user', content: 'b', timestamp: 8 },
             },
           ],
         },
@@ -1440,8 +1444,8 @@ export const useChatCases: HookCases = {
       steps: [
         { type: 'call', method: 'sendMessage', args: ['a'] },
         { type: 'call', method: 'sendMessage', args: ['b'] },
-        { type: 'call', method: 'editQueuedMessage', args: ['uuid-2', 'b edited'] },
-        { type: 'call', method: 'deleteQueuedMessage', args: ['uuid-2'] },
+        { type: 'call', method: 'editQueuedMessage', args: [QUEUED_ID, 'b edited'] },
+        { type: 'call', method: 'deleteQueuedMessage', args: [QUEUED_ID] },
         { type: 'control', name: 'chat.emit', args: [{ type: 'done' }] },
         { type: 'control', name: 'chat.finish' },
       ],
@@ -1454,8 +1458,8 @@ export const useChatCases: HookCases = {
       steps: [
         { type: 'call', method: 'sendMessage', args: ['a'] },
         { type: 'call', method: 'sendMessage', args: ['b'] },
-        { type: 'call', method: 'editQueuedMessage', args: ['uuid-2', 'b edited'] },
-        { type: 'call', method: 'deleteQueuedMessage', args: ['uuid-2'] },
+        { type: 'call', method: 'editQueuedMessage', args: [QUEUED_ID, 'b edited'] },
+        { type: 'call', method: 'deleteQueuedMessage', args: [QUEUED_ID] },
         { type: 'control', name: 'chat.queueAccept' },
         { type: 'control', name: 'chat.emit', args: [{ type: 'done' }] },
         { type: 'control', name: 'chat.finish' },
@@ -1472,7 +1476,7 @@ export const useChatCases: HookCases = {
         {
           type: 'control',
           name: 'chat.emit',
-          args: [{ type: 'queue_removed', messageId: 'uuid-2' }],
+          args: [{ type: 'queue_removed', messageId: QUEUED_ID }],
         },
         { type: 'control', name: 'chat.emit', args: [{ type: 'done' }] },
         { type: 'control', name: 'chat.finish' },

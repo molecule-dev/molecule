@@ -9,6 +9,7 @@ export const lv: ReputationBadgeTranslations = {
   'reputationBadge.level.trusted': 'Uzticams',
   'reputationBadge.level.veteran': 'Veterāns',
   'reputationBadge.level.legend': 'Leģenda',
+  'reputationBadge.level.fallback': '{{level}}',
   'badgeShelf.aria': 'Iegūtas {{count}} nozīmes',
   'badgeShelf.overflow.aria': 'Rādīt vēl {{count}} nozīmes',
 }

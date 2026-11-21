@@ -9,6 +9,8 @@ import type { UIComponentCases } from '../../spec.js'
 /** Progress: values, clamping, max, sizes, colors, label/value display and indeterminate mode. */
 export const progressCases: UIComponentCases = {
   component: 'Progress',
+  ref: {},
+  declaredProps: { props: 'base' },
   cases: [
     { name: 'zero', props: { value: 0 } },
     { name: 'half', props: { value: 50 } },

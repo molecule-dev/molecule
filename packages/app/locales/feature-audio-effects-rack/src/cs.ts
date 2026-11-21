@@ -49,4 +49,5 @@ export const cs: Partial<AudioEffectsRackTranslations> = {
   'audioEffectsRack.param.phaser.rate': 'Hodnotit',
   'audioEffectsRack.param.phaser.depth': 'Hloubka',
   'audioEffectsRack.param.phaser.feedback': 'Zpětná vazba',
+  'audioEffectsRack.param.fallback': 'Parametr',
 }

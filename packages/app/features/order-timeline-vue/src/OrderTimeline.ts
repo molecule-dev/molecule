@@ -11,7 +11,7 @@
 
 import { defineComponent, h, type PropType, type VNode, type VNodeChild } from 'vue'
 
-import { getClassMap } from '@molecule/app-ui'
+import { getClassMap, type UIClassMap } from '@molecule/app-ui'
 
 import type { OrderMilestone } from './types.js'
 
@@ -35,17 +35,26 @@ const slotOrProp = (
 }
 
 /**
- * The status node's color: current wins over completed, and every other
- * milestone is pending.
+ * The status node's class: current wins over completed (its semantic tone),
+ * and every other milestone is de-emphasis chrome — the theme's border colour
+ * rather than a status tone.
  *
+ * @param cm - The class map.
  * @param milestone - The milestone.
- * @returns The node color.
+ * @returns The node's class.
  */
-const dotColor = (milestone: OrderMilestone): string =>
-  milestone.current ? '#60a5fa' : milestone.completed ? '#22c55e' : '#d1d5db'
+const dotClass = (cm: UIClassMap, milestone: OrderMilestone): string =>
+  cm.cn(
+    milestone.current
+      ? cm.bgTone('info')
+      : milestone.completed
+        ? cm.bgTone('success')
+        : cm.bgBorder,
+  )
 
 /**
- * The status node's inline style, exactly React's object.
+ * The status node's inline style, exactly React's object: sizing only — the
+ * fill colour is a ClassMap tone class (see {@link dotClass}).
  *
  * @param milestone - The milestone.
  * @returns The style declarations (React's camelCase keys).
@@ -54,35 +63,39 @@ const dotStyle = (milestone: OrderMilestone): Record<string, string | undefined>
   width: '14px',
   height: '14px',
   borderRadius: '50%',
-  background: dotColor(milestone),
   border: milestone.current ? '3px solid currentColor' : undefined,
 })
 
 /**
- * The connector line's inline style, exactly React's object: horizontal lines
- * stretch between nodes, vertical ones run below the node.
+ * The connector line's class: a completed leg takes the success tone; an
+ * un-reached one is de-emphasis chrome in the theme's border colour.
  *
+ * @param cm - The class map.
  * @param milestone - The milestone the connector belongs to.
+ * @returns The connector's class.
+ */
+const connectorClass = (cm: UIClassMap, milestone: OrderMilestone): string =>
+  cm.cn(milestone.completed ? cm.bgTone('success') : cm.bgBorder)
+
+/**
+ * The connector line's inline style, exactly React's object: horizontal lines
+ * stretch between nodes, vertical ones run below the node — sizing and flow
+ * only, the fill colour is a ClassMap class (see {@link connectorClass}).
+ *
  * @param vertical - Whether the layout is vertical.
  * @returns The style declarations (React's camelCase keys).
  */
-const connectorStyle = (
-  milestone: OrderMilestone,
-  vertical: boolean,
-): Record<string, string | number | undefined> => {
-  const background = milestone.completed ? '#22c55e' : '#d1d5db'
-  return vertical
-    ? { height: '24px', width: '2px', background, display: 'inline-block' }
+const connectorStyle = (vertical: boolean): Record<string, string | number | undefined> =>
+  vertical
+    ? { height: '24px', width: '2px', display: 'inline-block' }
     : {
         width: '100%',
         height: '2px',
-        background,
         display: 'inline-block',
         flex: 1,
         marginLeft: '4px',
         marginRight: '4px',
       }
-}
 
 /**
  * Order / shipment progress timeline — typical e-commerce flow:
@@ -128,12 +141,17 @@ export const OrderTimeline = defineComponent({
         },
         [
           h('div', { class: cm.flex({ align: 'center', justify: 'center' }) }, [
-            h('span', { 'aria-hidden': 'true', style: dotStyle(milestone) }),
+            h('span', {
+              'aria-hidden': 'true',
+              class: dotClass(cm, milestone),
+              style: dotStyle(milestone),
+            }),
             isLast
               ? null
               : h('span', {
                   'aria-hidden': 'true',
-                  style: connectorStyle(milestone, vertical),
+                  class: connectorClass(cm, milestone),
+                  style: connectorStyle(vertical),
                 }),
           ]),
           h('div', { class: cm.cn(cm.stack(0)) }, [

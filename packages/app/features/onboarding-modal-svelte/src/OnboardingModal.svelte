@@ -28,6 +28,12 @@
   const cm = $derived(getClassMap())
   const { t } = useTranslation()
 
+  // Names the dialog after the current step's title (React's `useId()`): the
+  // h2's id, handed to `Modal` as `aria-labelledby` — a `role="dialog"` without
+  // an accessible name is an axe `aria-dialog-name` violation, and the name
+  // must follow the step.
+  const titleId = $props.id()
+
   // React's `useState(defaultStep)`: read once, then owned by the component.
   let step = $state(untrack(() => defaultStep))
 
@@ -80,7 +86,11 @@
 <!-- React returns null before its `<Modal>` renders when there are no steps.
      The Modal component itself stays mounted (its body portal is torn down by
      `open` going false, not by this component unmounting) and is closed. -->
-<Modal open={open && total > 0} onClose={(event?: unknown) => close(event)}>
+<Modal
+  open={open && total > 0}
+  onClose={(event?: unknown) => close(event)}
+  aria-labelledby={titleId}
+>
   {#if total > 0}
     <div class={cm.stack(4)}>
       {#if current.media}
@@ -88,7 +98,9 @@
           {@render node(current.media)}
         </div>
       {/if}
-      <h2 class={cm.cn(cm.textSize('xl'), cm.fontWeight('bold'))}>{@render node(current.title)}</h2>
+      <h2 id={titleId} class={cm.cn(cm.textSize('xl'), cm.fontWeight('bold'))}>
+        {@render node(current.title)}
+      </h2>
       <div class={cm.textSize('sm')}>{@render node(current.body)}</div>
       <footer class={cm.flex({ align: 'center', justify: 'between', gap: 'sm' })}>
         <div class={cm.flex({ align: 'center', gap: 'xs' })}>

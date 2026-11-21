@@ -8,6 +8,7 @@
 export * from './clock.js'
 export * from './environment.js'
 export * from './fakes.js'
+export * from './inline-style.js'
 export * from './normalize.js'
 export * from './pixel-capture.js'
 export * from './run.js'

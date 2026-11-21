@@ -3,9 +3,7 @@
  * Unit tests for the Solid `StatusSummary` — a port of
  * `@molecule/app-status-summary-react/src/__tests__/status-summary.test.tsx`:
  * the same behavioral assertions, rendered with Solid in jsdom and asserted on
- * the markup the component produces. Inline colors are set through the CSSOM,
- * so jsdom serializes them as `rgb(...)` (the same values React's runtime
- * mount produces).
+ * the markup the component produces.
  *
  * @module
  */
@@ -30,17 +28,23 @@ vi.mock('@molecule/app-ui', () => ({
               .join(' ')
         }
         const token = String(prop)
-        return (..._args: unknown[]) => token
+        // Tone resolvers echo their argument, so assertions can tell which
+        // semantic tone (`bgTone-warning`) the summary picked.
+        return (...args: unknown[]) => (args.length > 0 ? `${token}-${String(args[0])}` : token)
       },
     }
     return new Proxy({}, handler)
   },
 }))
 
+/** When set, `t` delegates here — the marker test swaps it in per test. */
+let tOverride:
+  ((key: string, values: unknown, opts?: { defaultValue?: string }) => string) | undefined
+
 vi.mock('@molecule/app-solid', () => ({
   useTranslation: () => ({
-    t: (_key: string, _values: unknown, opts?: { defaultValue?: string }) =>
-      opts?.defaultValue ?? _key,
+    t: (key: string, values: unknown, opts?: { defaultValue?: string }) =>
+      tOverride ? tOverride(key, values, opts) : (opts?.defaultValue ?? key),
   }),
 }))
 
@@ -50,6 +54,7 @@ import type { StatusGroup } from '../types.js'
 const disposers: Array<() => void> = []
 
 afterEach(() => {
+  tOverride = undefined
   for (const dispose of disposers.splice(0)) dispose()
 })
 
@@ -84,19 +89,45 @@ describe('StatusSummary', () => {
     const container = mount(() => <StatusSummary groups={groups} />)
     // worst of operational + degraded => degraded
     expect(container.innerHTML).toContain('Degraded performance')
-    expect(container.innerHTML).toContain('rgb(234, 179, 8)')
+    expect(container.innerHTML).toContain('bgTone-warning')
+    expect(container.innerHTML).toContain('textOnTone')
   })
 
   it('honours an explicit overallStatus override', () => {
     const container = mount(() => <StatusSummary groups={groups} overallStatus="major-outage" />)
     expect(container.innerHTML).toContain('Major outage')
-    expect(container.innerHTML).toContain('rgb(239, 68, 68)')
+    expect(container.innerHTML).toContain('bgTone-error')
   })
 
   it('renders a colored badge for each component status', () => {
     const container = mount(() => <StatusSummary groups={groups} />)
     expect(container.innerHTML).toContain('Operational')
     expect(container.innerHTML).toContain('Degraded performance')
+  })
+
+  it('translates every status through its literal i18n key', () => {
+    // A provider whose `t` returns a marker: the key must be the literal the
+    // component names, so a locale bond can resolve every status.
+    tOverride = (key, _values, opts) => `[${key}] ${opts?.defaultValue ?? ''}`
+    const everyStatus: StatusGroup[] = [
+      {
+        id: 'all',
+        name: 'Everything',
+        components: [
+          { id: 'a', name: 'Alpha', status: 'operational' },
+          { id: 'b', name: 'Beta', status: 'degraded' },
+          { id: 'c', name: 'Gamma', status: 'partial-outage' },
+          { id: 'd', name: 'Delta', status: 'major-outage' },
+          { id: 'e', name: 'Epsilon', status: 'maintenance' },
+        ],
+      },
+    ]
+    const container = mount(() => <StatusSummary groups={everyStatus} />)
+    expect(container.innerHTML).toContain('[status.operational] Operational')
+    expect(container.innerHTML).toContain('[status.degraded] Degraded performance')
+    expect(container.innerHTML).toContain('[status.partial-outage] Partial outage')
+    expect(container.innerHTML).toContain('[status.major-outage] Major outage')
+    expect(container.innerHTML).toContain('[status.maintenance] Under maintenance')
   })
 
   it('renders the header and footer slots', () => {

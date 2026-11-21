@@ -33,7 +33,10 @@ export interface TopNavLayoutProps {
   navItems: ReadonlyArray<TopNavItem>
   /** User menu, projected as `[slot=userMenu]` content. */
   userMenu?: unknown
-  /** Aria-label for the primary `<nav>`. Defaults to `'Primary navigation'`. */
+  /**
+   * Aria-label for the primary `<nav>`. Overrides the translated /
+   * `defaultValue` `'Primary navigation'` (prop > `t()` > default).
+   */
   navAriaLabel?: string
   /** Extra classes on the outer wrapper. */
   className?: string

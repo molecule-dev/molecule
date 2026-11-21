@@ -12,7 +12,7 @@ import { promiseFields } from './live-store.js'
 import { usePromise, type UsePromiseState, type UsePromiseStore } from './usePromise.js'
 
 /** What {@link useChangePassword} returns. */
-export interface UseChangePasswordResult {
+export interface UseChangePasswordReturn {
   /** The latest call's status. */
   status: Readable<UsePromiseState<void>['status']>
   /** The latest call's rejection. */
@@ -22,6 +22,13 @@ export interface UseChangePasswordResult {
   /** Returns the tracker to idle. */
   reset: () => void
 }
+
+/**
+ * The former name of {@link UseChangePasswordReturn}.
+ *
+ * @deprecated Renamed to {@link UseChangePasswordReturn}, `@molecule/app-react`'s name for it.
+ */
+export type UseChangePasswordResult = UseChangePasswordReturn
 
 /**
  * Password change with async state tracking, React's `useChangePassword` in
@@ -43,7 +50,7 @@ export interface UseChangePasswordResult {
  * {#if $error}<p>{$error.message}</p>{/if}
  * ```
  */
-export function useChangePassword(): UseChangePasswordResult {
+export function useChangePassword(): UseChangePasswordReturn {
   const client = useAuthClient()
   const tracker: UsePromiseStore<void, [string, string]> = usePromise((oldPassword, newPassword) =>
     client.changePassword(oldPassword, newPassword),

@@ -9,4 +9,5 @@ export const gu: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.note':
     'નોંધ {{pitch}} બીટથી શરૂ કરીને {{startBeat}} માટે {{durationBeats}} ધબકારા',
   'pianoRoll.aria.cursor': 'કર્સર {{pitch}} પર, બીટ {{beat}} પર',
+  'pianoRoll.aria.gridHelp': 'એરો કી સેલ કર્સર ખસેડે છે, Enter અથવા Space કર્સર પર નોટ દોરે છે.',
 }

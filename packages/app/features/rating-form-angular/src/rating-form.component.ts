@@ -5,7 +5,15 @@
  */
 
 import { NgTemplateOutlet } from '@angular/common'
-import { Component, type OnInit, signal, type TemplateRef } from '@angular/core'
+import {
+  Component,
+  type ElementRef,
+  type OnInit,
+  type QueryList,
+  signal,
+  type TemplateRef,
+  ViewChildren,
+} from '@angular/core'
 
 import { useTranslation } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
@@ -89,7 +97,7 @@ const truthyNode = (value: unknown): boolean => {
   // The template's whitespace is semantic: Angular keeps whitespace-only text
   // nodes, so the DOM React renders is reproduced by gluing the tags.
   // prettier-ignore
-  template: `@if (showTitle()) {<h3 [class]="titleClasses()">@if (titleTemplate(); as tpl) {<ng-container [ngTemplateOutlet]="tpl" />}@else {<ng-container>{{ textOf(title) }}</ng-container>}</h3>}<div role="radiogroup" [attr.aria-label]="ratingLabel()" [class]="groupClasses()" (mouseleave)="clearHover()">@for (n of stars(); track n) {<button type="button" role="radio" data-mol-id="rating-form-star" [attr.aria-checked]="rating() === n" [attr.aria-label]="starLabel(n)" (click)="select(n)" (mouseenter)="preview(n)" [class]="starClasses()" [style.background]="'none'" [style.border]="'none'" [style.font-size]="'28px'" [style.color]="starColor(n)">★</button>}</div><div mol-textarea [value]="comment()" (change)="onCommentChange($event)" [placeholder]="placeholderText()" [rows]="4" aria-label="Comment"></div><button mol-button [type]="'submit'" [variant]="'solid'" [color]="'primary'" [disabled]="submitting() || !rating()">@if (submitting()) {<ng-container>{{ submittingText() }}</ng-container>}@else if (submitLabelTemplate(); as tpl) {<ng-container [ngTemplateOutlet]="tpl" />}@else if (hasSubmitLabel()) {<ng-container>{{ textOf(submitLabel) }}</ng-container>}@else {<ng-container>{{ submitText() }}</ng-container>}</button>`,
+  template: `@if (showTitle()) {<h3 [class]="titleClasses()">@if (titleTemplate(); as tpl) {<ng-container [ngTemplateOutlet]="tpl" />}@else {<ng-container>{{ textOf(title) }}</ng-container>}</h3>}<div role="radiogroup" tabindex="-1" [attr.aria-label]="ratingLabel()" [class]="groupClasses()" (mouseleave)="clearHover()">@for (n of stars(); track n) {<button #star type="button" role="radio" data-mol-id="rating-form-star" [attr.tabindex]="starTab(n)" [attr.aria-checked]="rating() === n" [attr.aria-label]="starLabel(n)" (click)="select(n)" (keydown)="onStarKey($event)" (mouseenter)="preview(n)" [class]="starClasses()" [style.background]="'none'" [style.border]="'none'" [style.font-size]="'28px'" [style.color]="starColor(n)">★</button>}</div><div mol-textarea [value]="comment()" (change)="onCommentChange($event)" [placeholder]="placeholderText()" [rows]="4" [attr.aria-label]="commentLabel()"></div><button mol-button [type]="'submit'" [variant]="'solid'" [color]="'primary'" [disabled]="submitting() || !rating()">@if (submitting()) {<ng-container>{{ submittingText() }}</ng-container>}@else if (submitLabelTemplate(); as tpl) {<ng-container [ngTemplateOutlet]="tpl" />}@else if (hasSubmitLabel()) {<ng-container>{{ textOf(submitLabel) }}</ng-container>}@else {<ng-container>{{ submitText() }}</ng-container>}</button>`,
 })
 export class RatingForm implements OnInit {
   /** Called with the submitted rating + optional comment (React's `onSubmit`). */
@@ -123,6 +131,9 @@ export class RatingForm implements OnInit {
   protected readonly comment = signal('')
   /** Whether a submit is in flight. */
   protected readonly submitting = signal(false)
+  /** The star buttons, in DOM order (React's `starRefs` map). */
+  @ViewChildren('star')
+  protected readonly starRefs?: QueryList<ElementRef<HTMLButtonElement>>
 
   /**
    * Seeds the rating from the `defaultRating` input once, after Angular has
@@ -208,6 +219,74 @@ export class RatingForm implements OnInit {
   }
 
   /**
+   * A star's tab stop (React's `tabIndex={n === tabStop ? 0 : -1}`): the APG
+   * radio group's roving tabindex makes the checked star the group's one tab
+   * stop; when no star is checked — no rating yet, or a `defaultRating`
+   * outside 1..max — the first star is, so the group stays reachable from the
+   * keyboard.
+   * @param n - The star number.
+   * @returns The star's `tabindex`.
+   */
+  starTab(n: number): number {
+    return n === this.tabStop() ? 0 : -1
+  }
+
+  /**
+   * The star holding the group's one tab stop (React's `tabStop`): the
+   * selected star when it is one of 1..max, else the first.
+   * @returns The star number that is tabbable.
+   */
+  tabStop(): number {
+    const selected = this.rating()
+    return selected >= 1 && selected <= this.maxValue() ? selected : 1
+  }
+
+  /**
+   * Selects a star and moves focus with it — the APG radio group's roving
+   * tabindex, where the checked star is the group's one keyboard stop (React's
+   * `selectAndFocus`).
+   * @param n - The star number.
+   */
+  selectAndFocus(n: number): void {
+    this.rating.set(n)
+    this.starRefs?.get(n - 1)?.nativeElement.focus()
+  }
+
+  /**
+   * Handles the radio keys on a star (the APG radio group pattern):
+   * ArrowRight / ArrowDown select and focus the next star, ArrowLeft / ArrowUp
+   * the previous one, both wrapping; Home and End jump to the first and last.
+   * The handled keys are prevented (they would otherwise scroll or move
+   * focus); Space and Enter stay the native button click, and any other key is
+   * ignored (React's `onStarKeyDown`).
+   * @param event - The key event on a star button.
+   */
+  onStarKey(event: KeyboardEvent): void {
+    const current = this.tabStop()
+    let next: number
+    switch (event.key) {
+      case 'ArrowRight':
+      case 'ArrowDown':
+        next = current >= this.maxValue() ? 1 : current + 1
+        break
+      case 'ArrowLeft':
+      case 'ArrowUp':
+        next = current <= 1 ? this.maxValue() : current - 1
+        break
+      case 'Home':
+        next = 1
+        break
+      case 'End':
+        next = this.maxValue()
+        break
+      default:
+        return
+    }
+    event.preventDefault()
+    this.selectAndFocus(next)
+  }
+
+  /**
    * The radiogroup's accessible label (React's `rating.label`).
    * @returns The label text.
    */
@@ -243,6 +322,14 @@ export class RatingForm implements OnInit {
         },
       )
     )
+  }
+
+  /**
+   * The comment field's accessible label (React's `rating.comment`).
+   * @returns The label text.
+   */
+  commentLabel(): string {
+    return this.i18n.t('rating.comment', {}, { defaultValue: 'Comment' })
   }
 
   /**

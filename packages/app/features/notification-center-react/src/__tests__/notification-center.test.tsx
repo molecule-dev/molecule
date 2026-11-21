@@ -69,8 +69,39 @@ describe('NotificationCenter', () => {
 
   it('renders the unread dot + tint only on unread items', () => {
     const markup = html(createElement(NotificationCenter, { items }))
-    // one unread item → one tinted background
-    expect(markup.split('rgba(96,165,250,0.08)').length - 1).toBe(1)
+    // one unread item → one tinted row and one dot
+    expect(markup.split('bgPrimarySubtle').length - 1).toBe(1)
+    expect(markup.split('roundedFull').length - 1).toBe(1)
+    expect(markup).not.toContain('rgba(96')
+  })
+
+  it("an unread row is tinted with the theme's primary, not a fixed colour", () => {
+    const markup = html(createElement(NotificationCenter, { items }))
+    // the theme token, not an inline background
+    expect(markup).toContain('bgPrimarySubtle')
+    expect(markup).not.toContain('background:')
+    // a read row is unchanged: no tint
+    const read = html(
+      createElement(NotificationCenter, {
+        items: [{ id: '2', title: 'Build passed', read: true }],
+      }),
+    )
+    expect(read).not.toContain('bgPrimarySubtle')
+  })
+
+  it('an unread row announces Unread to screen readers', () => {
+    const markup = html(createElement(NotificationCenter, { items }))
+    // the sr-only label through t(), announced before the title
+    expect(markup).toContain('srOnly')
+    expect(markup).toContain('Unread')
+    // absent on a read row
+    const read = html(
+      createElement(NotificationCenter, {
+        items: [{ id: '2', title: 'Build passed', read: true }],
+      }),
+    )
+    expect(read).not.toContain('srOnly')
+    expect(read).not.toContain('Unread')
   })
 
   it('renders the default empty message when there are no items', () => {

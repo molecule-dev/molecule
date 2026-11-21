@@ -7,4 +7,8 @@ export const cs: Partial<HttpInspectorTranslations> = {
   'httpInspector.body': 'Tělo zprávy',
   'httpInspector.headers': 'Záhlaví',
   'httpInspector.addHeader': 'Přidat záhlaví',
+  'httpInspector.methodLabel': 'HTTP metoda',
+  'httpInspector.urlLabel': 'URL',
+  'httpInspector.headerPlaceholder': 'Záhlaví',
+  'httpInspector.valuePlaceholder': 'Hodnota',
 }

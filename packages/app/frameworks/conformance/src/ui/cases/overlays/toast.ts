@@ -9,6 +9,8 @@ import type { UIComponentCases } from '../../spec.js'
 /** Toast: statuses and roles, dismiss paths, auto-dismiss countdown with hover/focus pause. */
 export const toastCases: UIComponentCases = {
   component: 'Toast',
+  ref: {},
+  declaredProps: { props: 'element' },
   cases: [
     {
       name: 'defaults',
@@ -124,6 +126,7 @@ export const toastCases: UIComponentCases = {
 /** ToastContainer: portal positions, className, hosting Toast children. */
 export const toastContainerCases: UIComponentCases = {
   component: 'ToastContainer',
+  ref: {},
   cases: [
     { name: 'defaults (empty)' },
     ...(['top', 'top-right', 'top-left', 'bottom', 'bottom-left'] as const).map((position) => ({

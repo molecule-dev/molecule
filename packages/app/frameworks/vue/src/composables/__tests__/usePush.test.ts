@@ -10,7 +10,7 @@ import type {
   TokenChangeListener,
 } from '@molecule/app-push'
 
-import type { UsePushReturn } from '../usePush.js'
+import type { UsePushResult } from '../usePush.js'
 import { usePush } from '../usePush.js'
 
 const loggerMocks = vi.hoisted(() => ({ warn: vi.fn() }))
@@ -66,7 +66,7 @@ describe('usePush', () => {
 
   it('returns initial state with null permission and token', () => {
     const scope = effectScope()
-    let result!: UsePushReturn
+    let result!: UsePushResult
 
     scope.run(() => {
       result = usePush()
@@ -80,7 +80,7 @@ describe('usePush', () => {
 
   it('checks permission on mount when checkOnMount is true', async () => {
     const scope = effectScope()
-    let result!: UsePushReturn
+    let result!: UsePushResult
 
     scope.run(() => {
       result = usePush({ checkOnMount: true })
@@ -98,7 +98,7 @@ describe('usePush', () => {
       new Error('permission API unavailable'),
     )
     const scope = effectScope()
-    let result!: UsePushReturn
+    let result!: UsePushResult
 
     scope.run(() => {
       result = usePush({ checkOnMount: true })
@@ -129,7 +129,7 @@ describe('usePush', () => {
 
   it('checkPermission updates permission state', async () => {
     const scope = effectScope()
-    let result!: UsePushReturn
+    let result!: UsePushResult
 
     scope.run(() => {
       result = usePush()
@@ -148,7 +148,7 @@ describe('usePush', () => {
 
   it('requestPermission updates permission state', async () => {
     const scope = effectScope()
-    let result!: UsePushReturn
+    let result!: UsePushResult
 
     scope.run(() => {
       result = usePush()
@@ -165,7 +165,7 @@ describe('usePush', () => {
 
   it('register updates token state', async () => {
     const scope = effectScope()
-    let result!: UsePushReturn
+    let result!: UsePushResult
 
     scope.run(() => {
       result = usePush()
@@ -184,7 +184,7 @@ describe('usePush', () => {
 
   it('register forwards options (runtime VAPID public key) to the provider', async () => {
     const scope = effectScope()
-    let result!: UsePushReturn
+    let result!: UsePushResult
 
     scope.run(() => {
       result = usePush()
@@ -199,7 +199,7 @@ describe('usePush', () => {
 
   it('unregister clears token state', async () => {
     const scope = effectScope()
-    let result!: UsePushReturn
+    let result!: UsePushResult
 
     scope.run(() => {
       result = usePush()
@@ -220,7 +220,7 @@ describe('usePush', () => {
 
   it('onNotificationReceived delegates to provider', () => {
     const scope = effectScope()
-    let result!: UsePushReturn
+    let result!: UsePushResult
 
     scope.run(() => {
       result = usePush()
@@ -236,7 +236,7 @@ describe('usePush', () => {
 
   it('onNotificationAction delegates to provider', () => {
     const scope = effectScope()
-    let result!: UsePushReturn
+    let result!: UsePushResult
 
     scope.run(() => {
       result = usePush()
@@ -254,7 +254,7 @@ describe('usePush', () => {
     const unsub = vi.fn()
     vi.mocked(mockProvider.onTokenChange).mockReturnValue(unsub)
     const scope = effectScope()
-    let result!: UsePushReturn
+    let result!: UsePushResult
 
     scope.run(() => {
       result = usePush()
@@ -269,7 +269,7 @@ describe('usePush', () => {
 
   it('setBadge delegates to provider', async () => {
     const scope = effectScope()
-    let result!: UsePushReturn
+    let result!: UsePushResult
 
     scope.run(() => {
       result = usePush()
@@ -284,7 +284,7 @@ describe('usePush', () => {
 
   it('clearBadge delegates to provider', async () => {
     const scope = effectScope()
-    let result!: UsePushReturn
+    let result!: UsePushResult
 
     scope.run(() => {
       result = usePush()
@@ -314,7 +314,7 @@ describe('usePush', () => {
 
   it('checkOnMount reads the permission once on mount', async () => {
     const scope = effectScope()
-    let result!: UsePushReturn
+    let result!: UsePushResult
 
     scope.run(() => {
       result = usePush({ checkOnMount: true })
@@ -329,7 +329,7 @@ describe('usePush', () => {
   it('a failing checkOnMount leaves permission unset and warns', async () => {
     vi.mocked(mockProvider.checkPermission).mockRejectedValue(new Error('permission API blocked'))
     const scope = effectScope()
-    let result!: UsePushReturn
+    let result!: UsePushResult
 
     scope.run(() => {
       result = usePush({ checkOnMount: true })

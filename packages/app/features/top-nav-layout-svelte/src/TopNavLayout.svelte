@@ -5,7 +5,7 @@
   its router's `<Outlet />` there). Same props, same DOM for the same input.
 -->
 <script lang="ts">
-  import { Link, useLocation } from '@molecule/app-svelte'
+  import { Link, useLocation, useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
   import type { TopNavItem, TopNavLayoutProps } from './types.js'
@@ -15,15 +15,23 @@
     logoTo = '/',
     navItems,
     userMenu,
-    navAriaLabel = 'Primary navigation',
+    navAriaLabel,
     className,
     dataMolId,
     children,
   }: TopNavLayoutProps = $props()
 
+  const { t } = useTranslation()
+
   const cm = $derived(getClassMap())
   const location = useLocation()
   const pathname = $derived($location.pathname)
+  // The nav region's aria-label: prop > `t()` > default. A `$derived` over the
+  // locale-reactive `t`, so a locale switch re-renders it, as React's does.
+  const navLabel = $derived(
+    navAriaLabel ??
+      t('topNavLayout.aria.primaryNavigation', undefined, { defaultValue: 'Primary navigation' }),
+  )
 
   /**
    * Whether react-router's `<NavLink>` would mark `to` active at `pathname`:
@@ -77,7 +85,7 @@
       <Link to={logoTo} class={cm.cn(cm.textSize('2xl'), cm.fontWeight('bold'))}>
         {appName}
       </Link>
-      <nav class={cm.flex({ align: 'center', gap: 'md' })} aria-label={navAriaLabel}>
+      <nav class={cm.flex({ align: 'center', gap: 'md' })} aria-label={navLabel}>
         {#each navItems as item (item.key)}
           <Link
             to={item.to}

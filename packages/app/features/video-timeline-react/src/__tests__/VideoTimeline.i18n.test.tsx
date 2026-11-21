@@ -54,7 +54,7 @@ describe('<VideoTimeline> literal locale keys', () => {
       <VideoTimeline tracks={[]} currentTime={0} duration={60} mode="ripple" />,
     )
     expect(container.querySelector('[data-mol-id="video-timeline-mode"]')?.textContent).toBe(
-      '«videoTimeline.mode.ripple»',
+      '«videoTimeline.aria.mode»«videoTimeline.mode.ripple»',
     )
     unmount()
   })
@@ -64,7 +64,7 @@ describe('<VideoTimeline> literal locale keys', () => {
       <VideoTimeline tracks={[]} currentTime={0} duration={60} mode="insert" />,
     )
     expect(container.querySelector('[data-mol-id="video-timeline-mode"]')?.textContent).toBe(
-      '«videoTimeline.mode.insert»',
+      '«videoTimeline.aria.mode»«videoTimeline.mode.insert»',
     )
   })
 
@@ -86,14 +86,29 @@ describe('<VideoTimeline> literal locale keys', () => {
     expect(
       container.querySelector('[data-mol-id="video-timeline-ruler"]')?.getAttribute('aria-label'),
     ).toBe('«videoTimeline.aria.ruler»')
+    // The playhead time is the ruler slider's value text; the playhead line
+    // itself is decorative and the mode span carries no aria-label.
+    expect(
+      container
+        .querySelector('[data-mol-id="video-timeline-ruler"]')
+        ?.getAttribute('aria-valuetext'),
+    ).toBe('«videoTimeline.aria.playhead»')
     expect(
       container
         .querySelector('[data-mol-id="video-timeline-playhead"]')
         ?.getAttribute('aria-label'),
-    ).toBe('«videoTimeline.aria.playhead»')
+    ).toBeNull()
+    expect(
+      container
+        .querySelector('[data-mol-id="video-timeline-playhead"]')
+        ?.getAttribute('aria-hidden'),
+    ).toBe('true')
     expect(
       container.querySelector('[data-mol-id="video-timeline-mode"]')?.getAttribute('aria-label'),
-    ).toBe('«videoTimeline.aria.mode»')
+    ).toBeNull()
+    expect(container.querySelector('[data-mol-id="video-timeline-mode"]')?.textContent).toBe(
+      '«videoTimeline.aria.mode»«videoTimeline.mode.ripple»',
+    )
     expect(
       container.querySelector('[data-mol-id="video-timeline"]')?.getAttribute('aria-label'),
     ).toBe('«videoTimeline.aria.root»')

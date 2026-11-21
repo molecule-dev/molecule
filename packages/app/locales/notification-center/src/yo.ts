@@ -8,4 +8,5 @@ export const yo: Partial<NotificationCenterTranslations> = {
   'notifications.viewAll': 'Wo gbogbo',
   'notifications.loadError': 'Kò le gbé àwọn ìfitónilétí jáde.',
   'notifications.retry': 'Tún gbìyànjú lẹ́ẹ̀kan síi',
+  'notifications.unread': 'Àìkà',
 }

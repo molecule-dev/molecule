@@ -49,4 +49,5 @@ export const eu: Partial<AudioEffectsRackTranslations> = {
   'audioEffectsRack.param.phaser.rate': 'Baloratu',
   'audioEffectsRack.param.phaser.depth': 'Sakonera',
   'audioEffectsRack.param.phaser.feedback': 'Iritzia',
+  'audioEffectsRack.param.fallback': 'Parametroa',
 }

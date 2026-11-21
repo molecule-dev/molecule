@@ -16,4 +16,11 @@ export const pl: Partial<BillingTranslations> = {
     'Anuluj w dowolnym momencie · Do rozpoczęcia nie jest wymagana karta kredytowa',
   'billing.pricing.perSeat': 'za miejsce',
   'billing.pricing.currentCta': 'Aktualny plan',
+  'billing.pricing.period.month': 'miesięcznie',
+  'billing.pricing.period.year': 'rocznie',
+  'billing.pricing.billed.month': 'Rozliczane miesięcznie',
+  'billing.pricing.billed.year': 'Rozliczane rocznie',
+  'billing.pricing.unlimited': 'Bez limitu',
+  'billing.pricing.limit.maxProjects': 'Maks. liczba projektów',
+  'billing.pricing.limit.canExport': 'Eksport dostępny',
 }

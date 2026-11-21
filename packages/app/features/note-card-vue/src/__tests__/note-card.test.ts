@@ -36,11 +36,15 @@ vi.mock('@molecule/app-ui', () => ({
   },
 }))
 
-import { createApp, defineComponent, h, type VNodeChild } from 'vue'
+import { type App, createApp, defineComponent, h, type VNodeChild } from 'vue'
 
 import { NoteCard } from '../NoteCard.js'
 
+/** Mounted apps, unmounted after each test. */
+const apps: App[] = []
+
 afterEach(() => {
+  for (const app of apps.splice(0)) app.unmount()
   document.body.innerHTML = ''
 })
 
@@ -48,16 +52,32 @@ afterEach(() => {
 const render = (
   props: Record<string, unknown>,
   slots?: Record<string, () => VNodeChild[]>,
-): string => {
+): string => renderHost(props, slots).markup
+
+/** Renders a {@link NoteCard} and returns its host element (for events). */
+const renderHost = (
+  props: Record<string, unknown>,
+  slots?: Record<string, () => VNodeChild[]>,
+): { host: HTMLElement; markup: string } => {
   const host = document.createElement('div')
   document.body.appendChild(host)
   const app = createApp(defineComponent({ render: () => h(NoteCard, props, slots) }))
   app.mount(host)
-  const markup = host.innerHTML
-  app.unmount()
-  host.remove()
-  return markup
+  apps.push(app)
+  return { host, markup: host.innerHTML }
 }
+
+/** The card's transparent open button over the whole row. */
+const openButton = (host: HTMLElement): HTMLButtonElement =>
+  host.querySelector('[data-mol-id="note-card-open"]')!
+
+/**
+ * The element inside `host` whose id is the button's `aria-labelledby`
+ * target — scoped to the card so concurrently mounted instances' generated
+ * ids never collide (Vue numbers `useId()` per app).
+ */
+const labelledBy = (host: HTMLElement, button: HTMLButtonElement): Element | undefined =>
+  [...host.querySelectorAll('[id]')].find((el) => el.id === button.getAttribute('aria-labelledby'))
 
 describe('NoteCard', () => {
   it('renders the body text', () => {
@@ -70,9 +90,15 @@ describe('NoteCard', () => {
     expect(render({ body: 'b' })).not.toContain('<h3')
   })
 
-  it('uses the supplied color as the background, falling back to a default', () => {
-    expect(render({ body: 'b', color: '#ffcc00' })).toContain('background: rgb(255, 204, 0)')
-    expect(render({ body: 'b' })).toContain('background: rgb(254, 243, 199)')
+  it('renders the theme tint for known note colours and keeps an unknown colour as data', () => {
+    const known = render({ body: 'b', color: '#dbeafe' })
+    expect(known).toContain('bgTone')
+    expect(known).not.toContain('background')
+    const unknown = render({ body: 'b', color: '#ffcc00' })
+    expect(unknown).toContain('background: rgb(255, 204, 0)')
+    const plain = render({ body: 'b' })
+    expect(plain).toContain('bgTone')
+    expect(plain).not.toContain('background')
   })
 
   it('renders the pinned indicator only when pinned', () => {
@@ -97,5 +123,39 @@ describe('NoteCard', () => {
     const plain = render({ body: 'b', className: 'nc-cls' })
     expect(plain).not.toContain('cursorPointer')
     expect(plain).toContain('nc-cls')
+  })
+
+  it('without onClick there is no open button', () => {
+    const plain = render({ body: 'b' })
+    expect(plain).not.toContain('<button')
+    const clickable = render({ body: 'b', onClick: () => {} })
+    expect(clickable).toContain('data-mol-id="note-card-open"')
+  })
+
+  it('clicking the open button calls onClick', () => {
+    const onClick = vi.fn()
+    const { host } = renderHost({ body: 'b', onClick })
+    openButton(host).click()
+    expect(onClick).toHaveBeenCalledTimes(1)
+  })
+
+  it('clicking an inner control does not call onClick', () => {
+    const onClick = vi.fn()
+    const { host } = renderHost(
+      { body: 'b', onClick },
+      { actions: () => [h('button', { 'data-actions': '' }, 'Edit')] },
+    )
+    host.querySelector<HTMLButtonElement>('[data-actions]')!.click()
+    expect(onClick).not.toHaveBeenCalled()
+  })
+
+  it('the open button is named by the label', () => {
+    const titled = renderHost({ title: 'Groceries', body: 'Milk, eggs', onClick: () => {} })
+    const button = openButton(titled.host)
+    expect(labelledBy(titled.host, button)?.textContent).toBe('Groceries')
+
+    const untitled = renderHost({ body: 'Remember the milk', onClick: () => {} })
+    const fallback = openButton(untitled.host)
+    expect(labelledBy(untitled.host, fallback)?.textContent).toBe('Remember the milk')
   })
 })

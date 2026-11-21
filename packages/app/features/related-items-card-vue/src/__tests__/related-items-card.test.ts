@@ -57,11 +57,15 @@ afterEach(() => {
   document.body.innerHTML = ''
 })
 
+/**
+ * The props of {@link RelatedItemsCard}: the component declares its runtime
+ * props inline (each node prop may also arrive as a same-named slot), so
+ * derive them from its public instance rather than restating the contract.
+ */
+type CardProps = InstanceType<typeof RelatedItemsCard>['$props']
+
 /** Renders a {@link RelatedItemsCard} and returns the markup it produced. */
-const render = (
-  props: Record<string, unknown>,
-  slots?: Record<string, () => VNodeChild[]>,
-): string => {
+const render = (props: CardProps, slots?: Record<string, () => VNodeChild[]>): string => {
   const host = document.createElement('div')
   document.body.appendChild(host)
   const app = createApp(defineComponent({ render: () => h(RelatedItemsCard, props, slots) }))

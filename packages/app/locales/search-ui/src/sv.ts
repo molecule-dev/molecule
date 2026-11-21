@@ -14,4 +14,8 @@ export const sv: Partial<SearchUiTranslations> = {
   'searchUi.relatedTitle': 'Matchar betydelsen av din sökning, inte dess ord',
   'searchUi.related': 'släkt',
   'searchUi.help': 'Söktips',
+  'searchUi.examplePhrase': '"exakt fras"',
+  'searchUi.exampleExcluded': '-ord',
+  'searchUi.activeResult': '{{title}}, {{position}} av {{count}}',
+  'searchUi.dialogLabel': 'Sök',
 }

@@ -321,6 +321,60 @@ export function writeLocalStorageFromOtherTab(key: string, value: string | null)
   window.dispatchEvent(event)
 }
 
+/** Elements a focus step could not focus and dispatched `focusin` on: their blur step dispatches `focusout`. */
+const dispatchedFocus = new WeakSet<HTMLElement>()
+
+/**
+ * Moves focus to or off an element the way a browser does: `focus()` / `blur()`, which fire
+ * `focusin` / `focusout` once. Only an element focus cannot reach (a `div` with no
+ * `tabindex`), where they fire nothing, gets the event dispatched, so a case that focuses one
+ * still reaches its handler, and its blur step then dispatches `focusout`.
+ *
+ * A step that would move no focus throws, naming the fix, instead of passing while it does
+ * nothing: a focus step on an element that already has focus or is disabled, and a blur step on
+ * an element without focus (a user types into a field only after focusing it, so a case that
+ * types and then blurs focuses the field first).
+ *
+ * @param el - The element.
+ * @param type - `focusin` for a focus step, `focusout` for a blur step.
+ * @param selector - The step's selector, for the error.
+ * @throws {Error} When the step would move no focus.
+ */
+const focusOnce = (el: HTMLElement, type: 'focusin' | 'focusout', selector: string): void => {
+  const hasFocus = document.activeElement === el || dispatchedFocus.has(el)
+  if (type === 'focusin' && hasFocus)
+    throw new Error(
+      `focus: "${selector}" already has focus, so a browser fires no focusin; remove the step`,
+    )
+  if (type === 'focusin' && el.matches(':disabled'))
+    throw new Error(
+      `focus: "${selector}" is disabled, so a browser moves no focus to it; remove the step`,
+    )
+  if (type === 'focusout' && !hasFocus)
+    throw new Error(
+      `blur: "${selector}" does not have focus, so a browser fires no focusout; add { type: 'focus', selector: ${JSON.stringify(selector)} } before the step that needs it`,
+    )
+  if (type === 'focusout' && dispatchedFocus.delete(el)) {
+    el.dispatchEvent(new FocusEvent('focusout', { bubbles: true }))
+    return
+  }
+  let fired = false
+  const mark = (): void => {
+    fired = true
+  }
+  el.addEventListener(type, mark)
+  try {
+    if (type === 'focusin') el.focus()
+    else el.blur()
+  } finally {
+    el.removeEventListener(type, mark)
+  }
+  if (!fired && type === 'focusin') {
+    dispatchedFocus.add(el)
+    el.dispatchEvent(new FocusEvent('focusin', { bubbles: true }))
+  }
+}
+
 /**
  * Performs one DOM interaction exactly the same way for every framework.
  * `props`, `advance`, `settle`, `navigate`, `locale`, `http`, `auth`, `fetch` and `unmount`
@@ -346,12 +400,10 @@ export function performDomInteraction(step: Interaction): string | undefined {
       return undefined
     }
     case 'focus':
-      query(step.selector).focus()
-      query(step.selector).dispatchEvent(new FocusEvent('focusin', { bubbles: true }))
+      focusOnce(query(step.selector), 'focusin', step.selector)
       return
     case 'blur':
-      query(step.selector).blur()
-      query(step.selector).dispatchEvent(new FocusEvent('focusout', { bubbles: true }))
+      focusOnce(query(step.selector), 'focusout', step.selector)
       return
     case 'mouseenter':
       query(step.selector).dispatchEvent(new MouseEvent('mouseover', { bubbles: true }))

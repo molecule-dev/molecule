@@ -32,7 +32,7 @@ import {
 } from '@molecule/app-routing'
 
 import { getRouter, RouterContext } from '../context.js'
-import type { RouterPrimitives } from '../types.js'
+import type { UseRouterResult } from '../types.js'
 import { useSyncExternalStore } from './external-store.js'
 import { access, type MaybeAccessor } from './maybe-accessor.js'
 import { liveStateTuple } from './reactive-tuple.js'
@@ -67,7 +67,7 @@ export function useRouterInstance(): Router {
  * <span>Current path: {location().pathname}</span>
  * ```
  */
-export function useRouter(): RouterPrimitives {
+export function useRouter(): UseRouterResult {
   const router = useRouterInstance()
 
   const [location, setLocation] = createSignal<RouteLocation>(router.getLocation())
@@ -376,7 +376,7 @@ export function useConsumedSearchParam(name: string): [string, (value: string) =
  * }
  * ```
  */
-export function createRouter(): RouterPrimitives {
+export function createRouter(): UseRouterResult {
   const router = getRouter()
 
   const [location, setLocation] = createSignal<RouteLocation>(router.getLocation())
@@ -527,7 +527,7 @@ export function createRouterHelpers(): {
  * @param router - Router instance
  * @returns Router primitives
  */
-export function createRouterFromInstance(router: Router): RouterPrimitives {
+export function createRouterFromInstance(router: Router): UseRouterResult {
   const [location, setLocation] = createSignal<RouteLocation>(router.getLocation())
   const [params, setParams] = createSignal<RouteParams>(router.getParams())
   const [query, setQuery] = createSignal<QueryParams>(router.getQuery())

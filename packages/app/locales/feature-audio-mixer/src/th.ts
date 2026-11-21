@@ -8,6 +8,8 @@ export const th: Partial<AudioMixerTranslations> = {
   'audioMixer.aria.send': '{{channel}} ส่งไปยัง {{send}}',
   'audioMixer.button.mute': 'ปิดเสียง',
   'audioMixer.button.solo': 'โซโล',
+  'audioMixer.button.muteInitial': 'ป',
+  'audioMixer.button.soloInitial': 'โ',
   'audioMixer.master': 'ผู้เชี่ยวชาญ',
   'audioMixer.sends': 'ส่ง',
 }

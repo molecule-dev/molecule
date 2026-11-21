@@ -9,4 +9,6 @@ export const es: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.note':
     'Nota {{pitch}} comenzando en el ritmo {{startBeat}} para {{durationBeats}} ritmos',
   'pianoRoll.aria.cursor': 'Cursor en {{pitch}} en el ritmo {{beat}}',
+  'pianoRoll.aria.gridHelp':
+    'Las flechas mueven el cursor de celda, Enter o Espacio dibuja una nota en el cursor.',
 }

@@ -16,4 +16,11 @@ export const fil: Partial<BillingTranslations> = {
   'billing.pricing.tierEyebrow': 'Antas',
   'billing.pricing.perSeat': 'bawat upuan',
   'billing.pricing.currentCta': 'Kasalukuyang plano',
+  'billing.pricing.period.month': 'kada buwan',
+  'billing.pricing.period.year': 'kada taon',
+  'billing.pricing.billed.month': 'Buwanang singil',
+  'billing.pricing.billed.year': 'Taunang singil',
+  'billing.pricing.unlimited': 'Walang limitasyon',
+  'billing.pricing.limit.maxProjects': 'Pinakamaraming proyekto',
+  'billing.pricing.limit.canExport': 'Maaaring i-export',
 }

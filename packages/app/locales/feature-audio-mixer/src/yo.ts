@@ -8,6 +8,8 @@ export const yo: Partial<AudioMixerTranslations> = {
   'audioMixer.aria.send': '{{channel}} fi ranṣẹ si {{send}}',
   'audioMixer.button.mute': 'Mu odi',
   'audioMixer.button.solo': 'Dá nìkan',
+  'audioMixer.button.muteInitial': 'M',
+  'audioMixer.button.soloInitial': 'D',
   'audioMixer.master': 'Ọ̀gá',
   'audioMixer.sends': 'Àwọn olùránṣẹ́',
 }

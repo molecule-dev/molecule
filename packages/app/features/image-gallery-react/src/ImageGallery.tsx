@@ -1,5 +1,6 @@
 import { type JSX, useState } from 'react'
 
+import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 /**
@@ -38,7 +39,10 @@ export interface ImageGalleryProps {
   onSelect?: (index: number) => void
   /** Max thumbnails shown. Extra are summarised as "+N". */
   maxThumbnails?: number
-  /** Alt-text for screen readers. Applied per-image; falls back to `'Image N'`. */
+  /**
+   * Alt-text for screen readers. Applied per-image; falls back through i18n to
+   * `'Image {{number}}'` (`imageGallery.alt.fallback`).
+   */
   alts?: string[]
   /** Extra classes on the outer wrapper. */
   className?: string
@@ -60,6 +64,7 @@ export function ImageGallery({
   className,
 }: ImageGalleryProps): JSX.Element | null {
   const cm = getClassMap()
+  const { t } = useTranslation()
   const [internalIndex, setInternalIndex] = useState(0)
   const idx = selectedIndex ?? internalIndex
   const setIdx = (i: number): void => {
@@ -74,7 +79,14 @@ export function ImageGallery({
       <div style={{ aspectRatio: '4 / 3' }}>
         <img
           src={images[idx]}
-          alt={alts?.[idx] ?? `Image ${idx + 1}`}
+          alt={
+            alts?.[idx] ??
+            t(
+              'imageGallery.alt.fallback',
+              { number: idx + 1 },
+              { defaultValue: 'Image {{number}}' },
+            )
+          }
           style={{ width: '100%', height: '100%', objectFit: 'cover' }}
         />
       </div>
@@ -86,7 +98,14 @@ export function ImageGallery({
               type="button"
               onClick={() => setIdx(i)}
               aria-current={i === idx ? 'true' : undefined}
-              aria-label={alts?.[i] ?? `Image ${i + 1}`}
+              aria-label={
+                alts?.[i] ??
+                t(
+                  'imageGallery.alt.fallback',
+                  { number: i + 1 },
+                  { defaultValue: 'Image {{number}}' },
+                )
+              }
               style={{ aspectRatio: '1 / 1' }}
             >
               <img src={src} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -101,7 +120,7 @@ export function ImageGallery({
               )}
               style={{ aspectRatio: '1 / 1' }}
             >
-              +{overflow}
+              {t('imageGallery.overflow.more', { count: overflow }, { defaultValue: '+{{count}}' })}
             </div>
           )}
         </div>

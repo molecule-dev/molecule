@@ -99,4 +99,10 @@ describe('PhotoLightbox', () => {
     const markup = html(createElement(PhotoLightbox, { photos, open: true, onClose: () => {} }))
     expect(markup).toContain('aria-label="Close"')
   })
+
+  it('wraps the dialog in a presentation backdrop that closes on its own click', () => {
+    const markup = html(createElement(PhotoLightbox, { photos, open: true, onClose: () => {} }))
+    expect(markup).toContain('role="presentation"')
+    expect(markup.indexOf('role="dialog"')).toBeGreaterThan(markup.indexOf('role="presentation"'))
+  })
 })

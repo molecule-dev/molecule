@@ -14,4 +14,8 @@ export const kn: Partial<SearchUiTranslations> = {
   'searchUi.relatedTitle': 'ನಿಮ್ಮ ಹುಡುಕಾಟದ ಅರ್ಥಕ್ಕೆ ಹೊಂದಿಕೆಯಾಗುತ್ತದೆ, ಅದರ ಪದಗಳಿಗಲ್ಲ.',
   'searchUi.related': 'ಸಂಬಂಧಿತ',
   'searchUi.help': 'ಹುಡುಕಾಟ ಸಲಹೆಗಳು',
+  'searchUi.examplePhrase': '"ನಿಖರ ಪದಗುಚ್ಛ"',
+  'searchUi.exampleExcluded': '-ಪದ',
+  'searchUi.activeResult': '{{title}}, {{count}} ರಲ್ಲಿ {{position}}',
+  'searchUi.dialogLabel': 'ಹುಡುಕಿ',
 }

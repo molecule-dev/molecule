@@ -430,6 +430,11 @@ export interface CommonTranslations {
   'status.new'?: string
   'status.member'?: string
   'status.monthly'?: string
+  'status.operational'?: string
+  'status.degraded'?: string
+  'status.partial-outage'?: string
+  'status.major-outage'?: string
+  'status.maintenance'?: string
   'nav.settings'?: string
   'nav.settingsSections'?: string
   'nav.profile'?: string

@@ -100,6 +100,7 @@ import { setProvider as setVersionProvider, type VersionProvider } from '@molecu
 import { createI18nPlugin, createRouterPlugin } from '@molecule/app-vue'
 
 import { AppFooter } from '../AppFooter.js'
+import type { AppFooterProps } from '../types.js'
 
 // The real Icon needs the bonded icon set; the version composable reads the
 // bonded version provider (any fixed state will do here).
@@ -160,7 +161,7 @@ afterEach(() => {
  */
 async function openLegalModal(
   label: 'Privacy Policy' | 'Terms of Service',
-  props: Record<string, unknown> = {},
+  props: Partial<AppFooterProps> = {},
 ): Promise<HTMLElement> {
   const host = document.createElement('div')
   document.body.appendChild(host)
@@ -172,7 +173,7 @@ async function openLegalModal(
   app.use(createI18nPlugin(i18n))
   app.use(createRouterPlugin(createMemoryRouter({ initialEntries: ['/'] })))
   app.mount(host)
-  const button = Array.from(host.querySelectorAll('footer button')).find((b) =>
+  const button = Array.from(host.querySelectorAll<HTMLButtonElement>('footer button')).find((b) =>
     b.textContent?.includes(label),
   )
   if (!button) throw new Error(`${label} button not found`)

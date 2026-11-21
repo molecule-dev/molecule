@@ -16,4 +16,11 @@ export const hi: Partial<BillingTranslations> = {
     'कभी भी रद्द करें · शुरू करने के लिए क्रेडिट कार्ड की आवश्यकता नहीं है',
   'billing.pricing.perSeat': 'प्रति सीट',
   'billing.pricing.currentCta': 'वर्तमान योजना',
+  'billing.pricing.period.month': 'प्रति माह',
+  'billing.pricing.period.year': 'प्रति वर्ष',
+  'billing.pricing.billed.month': 'मासिक बिलिंग',
+  'billing.pricing.billed.year': 'वार्षिक बिलिंग',
+  'billing.pricing.unlimited': 'असीमित',
+  'billing.pricing.limit.maxProjects': 'अधिकतम प्रोजेक्ट',
+  'billing.pricing.limit.canExport': 'निर्यात उपलब्ध',
 }

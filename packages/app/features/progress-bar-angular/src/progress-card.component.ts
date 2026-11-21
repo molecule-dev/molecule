@@ -48,6 +48,9 @@ const hasProjection = (el: HTMLElement, ownText: boolean): boolean =>
  * `children`) are projected content (`[slot=<name>]`, or the default
  * projection) or plain string inputs.
  *
+ * The bar is named by the title (`aria-labelledby`) and, when a description
+ * renders, described by it (`aria-describedby`).
+ *
  * This is the Angular counterpart of `@molecule/app-progress-bar-react`: the
  * same props (React names), the same ClassMap tokens, and the same DOM for the
  * same input.
@@ -67,7 +70,7 @@ const hasProjection = (el: HTMLElement, ownText: boolean): boolean =>
     '[class]': 'classes()',
   },
   // prettier-ignore
-  template: `<div [class]="stackClasses()"><div [class]="headerClasses()"><div [class]="leftClasses()">@if (hasIcon) {{{ icon }}}<ng-content select="[slot=icon]"></ng-content><div><h3 [class]="titleClasses()">@if (hasTitle) {{{ title }}}<ng-content select="[slot=title]"></ng-content></h3>@if (showDescription) {<p #descriptionEl [class]="descriptionClasses()">@if (hasDescription) {{{ description }}}<ng-content select="[slot=description]"></ng-content></p>}</div></div>@if (showValueLabel) {<span #valueLabelEl [class]="valueLabelClasses()">@if (hasValueLabel) {{{ valueLabel }}}<ng-content select="[slot=valueLabel]"></ng-content></span>}</div><div mol-progress-bar [value]="value" [max]="maxValue()" [color]="colorValue()"></div><ng-content></ng-content></div>`,
+  template: `<div [class]="stackClasses()"><div [class]="headerClasses()"><div [class]="leftClasses()">@if (hasIcon) {{{ icon }}}<ng-content select="[slot=icon]"></ng-content><div><h3 [attr.id]="titleId" [class]="titleClasses()">@if (hasTitle) {{{ title }}}<ng-content select="[slot=title]"></ng-content></h3>@if (showDescription) {<p #descriptionEl [attr.id]="descriptionId" [class]="descriptionClasses()">@if (hasDescription) {{{ description }}}<ng-content select="[slot=description]"></ng-content></p>}</div></div>@if (showValueLabel) {<span #valueLabelEl [class]="valueLabelClasses()">@if (hasValueLabel) {{{ valueLabel }}}<ng-content select="[slot=valueLabel]"></ng-content></span>}</div><div mol-progress-bar [value]="value" [max]="maxValue()" [color]="colorValue()" [labelledBy]="titleId" [describedBy]="describedById ?? undefined"></div><ng-content></ng-content></div>`,
 })
 export class ProgressCard implements AfterViewInit {
   /** Card title — a string input, or `[slot=title]` projected content. */
@@ -86,6 +89,13 @@ export class ProgressCard implements AfterViewInit {
   color?: 'primary' | 'success' | 'warning' | 'error' | 'info'
   /** Extra classes on the Card wrapper. */
   className?: string
+
+  /** Per-instance counter backing the title/description ids (React numbers `useId()` ids). */
+  private static nextId = 0
+  /** The id the bar's `aria-labelledby` points at (on the title heading). */
+  readonly titleId = `mol-progress-card-title-${ProgressCard.nextId++}`
+  /** The id the bar's `aria-describedby` points at (on the description paragraph). */
+  readonly descriptionId = `mol-progress-card-description-${ProgressCard.nextId++}`
 
   /** The optional description paragraph (projected content lands here; read once). */
   @ViewChild('descriptionEl') private descriptionEl?: ElementRef<HTMLParagraphElement>
@@ -173,6 +183,15 @@ export class ProgressCard implements AfterViewInit {
    */
   get showValueLabel(): boolean {
     return this.hasValueLabel || this.valueLabelProjected()
+  }
+
+  /**
+   * The bar's `aria-describedby`: the description paragraph's id while the
+   * paragraph renders (React passes it only when a description is present).
+   * @returns The described-by id, or `null` (React omits the attribute).
+   */
+  get describedById(): string | null {
+    return this.showDescription ? this.descriptionId : null
   }
 
   /**

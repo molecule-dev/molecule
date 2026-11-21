@@ -15,6 +15,8 @@ const UNLABELLED_FIELD: CaseA11y = {
 /** FormField: label association and the aria-describedby/aria-invalid injection onto a single child. */
 export const formFieldCases: UIComponentCases = {
   component: 'FormField',
+  ref: {},
+  declaredProps: { props: 'element' },
   cases: [
     {
       name: 'label and input child',

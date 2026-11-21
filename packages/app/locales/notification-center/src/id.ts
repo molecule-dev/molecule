@@ -8,4 +8,5 @@ export const id: Partial<NotificationCenterTranslations> = {
   'notifications.empty': 'Tidak ada pemberitahuan',
   'notifications.loadError': 'Notifikasi tidak dapat dimuat.',
   'notifications.retry': 'Mencoba kembali',
+  'notifications.unread': 'Belum dibaca',
 }

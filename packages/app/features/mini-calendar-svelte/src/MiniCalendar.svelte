@@ -8,6 +8,7 @@
 <script lang="ts">
   import { untrack } from 'svelte'
 
+  import { useLocale, useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
   import { Button } from '@molecule/app-ui-svelte'
 
@@ -22,6 +23,11 @@
     isDisabled,
     className,
   }: MiniCalendarProps = $props()
+
+  const { t } = useTranslation()
+  // Read through `$activeLocale` in the deriveds, so the names follow a locale
+  // switch. An explicit `locale` prop still wins.
+  const activeLocale = useLocale()
 
   const cm = $derived(getClassMap())
 
@@ -66,8 +72,11 @@
   let internalMonth = $state(untrack(() => startOfMonth(month ?? selectedDate ?? new Date())))
   const visibleMonth = $derived(month ? startOfMonth(month) : internalMonth)
 
-  const monthFmt = $derived(new Intl.DateTimeFormat(locale, { month: 'long', year: 'numeric' }))
-  const weekdayFmt = $derived(new Intl.DateTimeFormat(locale, { weekday: 'narrow' }))
+  const resolvedLocale = $derived(locale ?? $activeLocale)
+  const monthFmt = $derived(
+    new Intl.DateTimeFormat(resolvedLocale, { month: 'long', year: 'numeric' }),
+  )
+  const weekdayFmt = $derived(new Intl.DateTimeFormat(resolvedLocale, { weekday: 'narrow' }))
 
   // Build grid: 6 rows × 7 cols, starting from the Sunday before the 1st.
   // Each cell is built at its own calendar day (React's grid start offset plus
@@ -111,7 +120,9 @@
       onClick={() => {
         navigate(-1)
       }}
-      aria-label="Previous month">‹</Button
+      aria-label={t('miniCalendar.aria.previousMonth', undefined, {
+        defaultValue: 'Previous month',
+      })}>‹</Button
     >
     <span class={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>
       {monthFmt.format(visibleMonth)}
@@ -122,7 +133,8 @@
       onClick={() => {
         navigate(1)
       }}
-      aria-label="Next month">›</Button
+      aria-label={t('miniCalendar.aria.nextMonth', undefined, { defaultValue: 'Next month' })}
+      >›</Button
     >
   </header>
   <div class={cm.grid({ cols: 7, gap: 'xs' })}>

@@ -3,8 +3,9 @@ import type { RatingFormTranslations } from './types.js'
 /** RatingForm translations for cs. */
 export const cs: Partial<RatingFormTranslations> = {
   'rating.submitting': 'Odesílání…',
-  'rating.star': '{{n}} of {{max}}',
+  'rating.star': '{{n}} z {{max}}',
   'rating.label': 'Hodnocení',
   'rating.commentPlaceholder': 'Podělte se o své myšlenky (volitelné)',
   'rating.submit': 'Odeslat recenzi',
+  'rating.comment': 'Komentář',
 }

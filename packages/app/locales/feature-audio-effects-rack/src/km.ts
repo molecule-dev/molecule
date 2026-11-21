@@ -49,4 +49,5 @@ export const km: Partial<AudioEffectsRackTranslations> = {
   'audioEffectsRack.param.phaser.rate': 'វាយតម្លៃ',
   'audioEffectsRack.param.phaser.depth': 'ជម្រៅ',
   'audioEffectsRack.param.phaser.feedback': 'មតិប្រតិកម្ម',
+  'audioEffectsRack.param.fallback': 'ប៉ារ៉ាមេត្រ',
 }

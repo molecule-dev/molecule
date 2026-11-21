@@ -185,6 +185,7 @@ const account: FeatureCases['families'][number] = {
       name: 'edited name saves on blur',
       context: authed,
       interactions: [
+        { type: 'focus', selector: '#settings-name' },
         { type: 'input', selector: '#settings-name', value: 'Ada Edited' },
         { type: 'blur', selector: '#settings-name' },
       ],
@@ -193,6 +194,7 @@ const account: FeatureCases['families'][number] = {
       name: 'edited email saves on blur',
       context: authed,
       interactions: [
+        { type: 'focus', selector: '#settings-email' },
         { type: 'input', selector: '#settings-email', value: 'ada@new.example.test' },
         { type: 'blur', selector: '#settings-email' },
       ],
@@ -201,6 +203,7 @@ const account: FeatureCases['families'][number] = {
       name: 'malformed email shows a field error and saves nothing',
       context: authed,
       interactions: [
+        { type: 'focus', selector: '#settings-email' },
         { type: 'input', selector: '#settings-email', value: 'not-an-email' },
         { type: 'blur', selector: '#settings-email' },
       ],
@@ -209,6 +212,7 @@ const account: FeatureCases['families'][number] = {
       name: 'a rejected save keeps the edits and shows the error',
       context: { ...authed, authErrors: { updateProfile: 'Save rejected' } },
       interactions: [
+        { type: 'focus', selector: '#settings-name' },
         { type: 'input', selector: '#settings-name', value: 'Ada Edited' },
         { type: 'blur', selector: '#settings-name' },
       ],
@@ -217,7 +221,9 @@ const account: FeatureCases['families'][number] = {
       name: 'clearing the email saves only the name',
       context: authed,
       interactions: [
+        { type: 'focus', selector: '#settings-email' },
         { type: 'input', selector: '#settings-email', value: '' },
+        { type: 'focus', selector: '#settings-name' },
         { type: 'input', selector: '#settings-name', value: 'Ada Renamed' },
         { type: 'blur', selector: '#settings-name' },
       ],

@@ -9,6 +9,7 @@ export const ky: ReputationBadgeTranslations = {
   'reputationBadge.level.trusted': 'Ишеничтүү',
   'reputationBadge.level.veteran': 'Ардагер',
   'reputationBadge.level.legend': 'Легенда',
+  'reputationBadge.level.fallback': '{{level}}',
   'badgeShelf.aria': '{{count}} төш белги алынды',
   'badgeShelf.overflow.aria': 'Дагы {{count}} төш белги көрсөтүү',
 }

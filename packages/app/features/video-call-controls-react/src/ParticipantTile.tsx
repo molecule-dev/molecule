@@ -1,5 +1,6 @@
 import type { JSX, ReactNode } from 'react'
 
+import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 /** Props for the {@link ParticipantTile} component. */
@@ -39,16 +40,25 @@ export function ParticipantTile({
   className,
 }: ParticipantTileProps): JSX.Element {
   const cm = getClassMap()
+  const { t } = useTranslation()
   return (
     <div
-      className={cm.cn(cm.position('relative'), className)}
+      className={cm.cn(
+        cm.position('relative'),
+        cm.surface,
+        speaking ? cm.textTone('success') : undefined,
+        className,
+      )}
+      /* mol-bespoke-tile: the tile's canvas, not theme chrome — the caller
+         fills it with a `<video>`; the background/ink come from `cm.surface`
+         and the theme, and the speaking ring is a status outline whose colour
+         rides the success tone (`cm.textTone('success')` sets the element's
+         ink; `currentColor` paints the ring with it). */
       style={{
         aspectRatio: '16 / 9',
-        background: '#111',
-        color: '#fff',
         borderRadius: 8,
         overflow: 'hidden',
-        outline: speaking ? '3px solid #22c55e' : undefined,
+        outline: speaking ? '3px solid currentColor' : undefined,
       }}
     >
       <div
@@ -63,6 +73,7 @@ export function ParticipantTile({
         {videoSlot ?? avatarSlot}
       </div>
       <div
+        className={cm.cn(cm.bgScrim, cm.textOnTone)}
         style={{
           position: 'absolute',
           left: 8,
@@ -70,21 +81,25 @@ export function ParticipantTile({
           padding: '2px 6px',
           borderRadius: 4,
           fontSize: 12,
-          background: 'rgba(0,0,0,0.6)',
-          color: '#fff',
         }}
       >
         {name}
-        {isLocal ? ' (you)' : ''}
+        {isLocal ? ` ${t('call.label.you', {}, { defaultValue: '(you)' })}` : ''}
       </div>
       <div style={{ position: 'absolute', right: 8, bottom: 8, display: 'flex', gap: 6 }}>
         {!audioEnabled && (
-          <span aria-label="Muted" style={{ fontSize: 12 }}>
+          <span
+            aria-label={t('call.aria.muted', {}, { defaultValue: 'Muted' })}
+            style={{ fontSize: 12 }}
+          >
             🔇
           </span>
         )}
         {handRaised && (
-          <span aria-label="Hand raised" style={{ fontSize: 12 }}>
+          <span
+            aria-label={t('call.aria.handRaised', {}, { defaultValue: 'Hand raised' })}
+            style={{ fontSize: 12 }}
+          >
             ✋
           </span>
         )}

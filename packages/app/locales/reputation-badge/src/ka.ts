@@ -9,6 +9,7 @@ export const ka: ReputationBadgeTranslations = {
   'reputationBadge.level.trusted': 'სანდო',
   'reputationBadge.level.veteran': 'ვეტერანი',
   'reputationBadge.level.legend': 'ლეგენდა',
+  'reputationBadge.level.fallback': '{{level}}',
   'badgeShelf.aria': 'მოპოვებულია {{count}} სამკერდე ნიშანი',
   'badgeShelf.overflow.aria': 'კიდევ {{count}} ნიშნის ჩვენება',
 }

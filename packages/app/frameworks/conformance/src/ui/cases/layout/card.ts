@@ -7,9 +7,17 @@
 
 import type { UIComponentCases } from '../../spec.js'
 
+/** The propagation cases nest a button in a clickable card, the arrangement they test. */
+const BUTTON_IN_CLICKABLE_CARD = {
+  expect: ['nested-interactive'],
+  reason: 'the case nests a button inside a clickable card to show how its events propagate',
+}
+
 /** Card: variants, padding scale, interactive, passthrough and click behavior. */
 export const cardCases: UIComponentCases = {
   component: 'Card',
+  ref: {},
+  declaredProps: { props: 'element' },
   cases: [
     { name: 'defaults', children: ['Body text'] },
     ...(['elevated', 'outlined', 'filled'] as const).map((variant) => ({
@@ -50,6 +58,23 @@ export const cardCases: UIComponentCases = {
       callbacks: ['onClick'],
       children: ['Plain card'],
       interactions: [{ type: 'keydown', selector: '[data-testid="plain-card"]', key: 'Enter' }],
+    },
+    {
+      name: 'a disabled interactive card is announced disabled and a click and Enter never call onClick',
+      props: { interactive: true, disabled: true },
+      callbacks: ['onClick'],
+      children: ['Clickable card'],
+      interactions: [
+        { type: 'click', selector: '[role="button"]' },
+        { type: 'keydown', selector: '[role="button"]', key: 'Enter' },
+      ],
+    },
+    {
+      name: 'a disabled plain card never calls onClick',
+      props: { testId: 'plain-card', disabled: true },
+      callbacks: ['onClick'],
+      children: ['Plain card'],
+      interactions: [{ type: 'click', selector: '[data-testid="plain-card"]' }],
     },
     {
       name: 'Enter inside an interactive card belongs to the inner element',
@@ -99,12 +124,57 @@ export const cardCases: UIComponentCases = {
       children: ['Clickable card'],
       interactions: [{ type: 'props', props: { interactive: false } }],
     },
+    {
+      name: 'a button that stops propagation keeps its click from the card',
+      a11y: BUTTON_IN_CLICKABLE_CARD,
+      props: { interactive: true },
+      callbacks: ['onClick'],
+      callbackResults: { 'button onClick': { effects: ['stopPropagation'] } },
+      children: [
+        {
+          component: 'Button',
+          props: { onClick: { $callback: 'button onClick' } },
+          children: ['Delete'],
+        },
+      ],
+      interactions: [{ type: 'click', selector: 'button' }],
+    },
+    {
+      name: 'counterexample: a button click reaches the clickable card',
+      a11y: BUTTON_IN_CLICKABLE_CARD,
+      props: { interactive: true },
+      callbacks: ['onClick'],
+      children: [
+        {
+          component: 'Button',
+          props: { onClick: { $callback: 'button onClick' } },
+          children: ['Delete'],
+        },
+      ],
+      interactions: [{ type: 'click', selector: 'button' }],
+    },
+    {
+      name: 'focus handler on the card hears focus moving onto a child',
+      a11y: BUTTON_IN_CLICKABLE_CARD,
+      props: { interactive: true },
+      callbacks: ['onFocus', 'onBlur'],
+      callbackResults: {
+        onFocus: { read: ['currentTarget'] },
+        onBlur: { read: ['currentTarget'] },
+      },
+      children: [{ component: 'Button', children: ['Edit'] }],
+      interactions: [
+        { type: 'focus', selector: 'button' },
+        { type: 'blur', selector: 'button' },
+      ],
+    },
   ],
 }
 
 /** CardHeader: header row of a card, class/style/passthrough and events. */
 export const cardHeaderCases: UIComponentCases = {
   component: 'CardHeader',
+  ref: {},
   cases: [
     { name: 'defaults', children: ['Header'] },
     {
@@ -137,6 +207,7 @@ export const cardHeaderCases: UIComponentCases = {
 /** CardTitle: the h3 title of a card. */
 export const cardTitleCases: UIComponentCases = {
   component: 'CardTitle',
+  ref: {},
   cases: [
     { name: 'defaults', children: ['Title'] },
     {
@@ -162,6 +233,7 @@ export const cardTitleCases: UIComponentCases = {
 /** CardDescription: the muted description paragraph of a card. */
 export const cardDescriptionCases: UIComponentCases = {
   component: 'CardDescription',
+  ref: {},
   cases: [
     { name: 'defaults', children: ['A short description.'] },
     {
@@ -181,6 +253,7 @@ export const cardDescriptionCases: UIComponentCases = {
 /** CardContent: the body region of a card. */
 export const cardContentCases: UIComponentCases = {
   component: 'CardContent',
+  ref: {},
   cases: [
     { name: 'defaults', children: ['Content'] },
     {
@@ -218,6 +291,7 @@ export const cardContentCases: UIComponentCases = {
 /** CardFooter: the footer row of a card. */
 export const cardFooterCases: UIComponentCases = {
   component: 'CardFooter',
+  ref: {},
   cases: [
     { name: 'defaults', children: ['Footer'] },
     {

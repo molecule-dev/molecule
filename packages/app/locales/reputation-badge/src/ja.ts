@@ -9,6 +9,7 @@ export const ja: ReputationBadgeTranslations = {
   'reputationBadge.level.trusted': '信頼済み',
   'reputationBadge.level.veteran': 'ベテラン',
   'reputationBadge.level.legend': 'レジェンド',
+  'reputationBadge.level.fallback': '{{level}}',
   'badgeShelf.aria': '{{count}} 個のバッジを獲得',
   'badgeShelf.overflow.aria': '他 {{count}} 個のバッジを表示',
 }

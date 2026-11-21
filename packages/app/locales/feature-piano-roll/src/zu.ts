@@ -9,4 +9,6 @@ export const zu: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.note':
     'Inothi {{pitch}} ukuqala ngesikhathi sokushaya {{startBeat}} ngoba {{durationBeats}} amabhithi',
   'pianoRoll.aria.cursor': 'Isikhombi ku-{{pitch}} esikhathini sokushaya {{beat}}',
+  'pianoRoll.aria.gridHelp':
+    'Izinkinobho zoclwilu zihambisa i-cursor yeselula, futhi Enter noma Space zidweba inothi lapho.',
 }

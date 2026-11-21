@@ -6,7 +6,7 @@
  * @module
  */
 
-import { defineComponent, h, type PropType, type VNode, type VNodeChild } from 'vue'
+import { defineComponent, h, type PropType, useId, type VNode, type VNodeChild } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
 import { Card } from '@molecule/app-ui-vue'
@@ -49,6 +49,9 @@ const renders = (
  * the progress bar itself, and an optional extras slot below. Useful for
  * budget/goal cards, storage-used panels, onboarding progress, etc.
  *
+ * The bar is named by the title (`aria-labelledby`) and, when a description
+ * renders, described by it (`aria-describedby`).
+ *
  * @param props - Component props (see {@link ProgressCardProps}).
  * @returns The progress card component.
  */
@@ -69,6 +72,8 @@ export const ProgressCard = defineComponent({
   },
   setup(props, { slots }) {
     const cm = getClassMap()
+    const titleId = useId()
+    const descriptionId = useId()
 
     return (): VNode => {
       const iconNodes = slotOrProp(slots.icon, props.icon)
@@ -90,10 +95,15 @@ export const ProgressCard = defineComponent({
                   h('div', null, [
                     h(
                       'h3',
-                      { class: cm.cn(cm.textSize('base'), cm.fontWeight('semibold')) },
+                      {
+                        id: titleId,
+                        class: cm.cn(cm.textSize('base'), cm.fontWeight('semibold')),
+                      },
                       titleNodes,
                     ),
-                    hasDescription ? h('p', { class: cm.textSize('sm') }, descriptionNodes) : null,
+                    hasDescription
+                      ? h('p', { id: descriptionId, class: cm.textSize('sm') }, descriptionNodes)
+                      : null,
                   ]),
                 ]),
                 hasValueLabel
@@ -104,7 +114,13 @@ export const ProgressCard = defineComponent({
                     )
                   : null,
               ]),
-              h(ProgressBar, { value: props.value, max: props.max, color: props.color }),
+              h(ProgressBar, {
+                value: props.value,
+                max: props.max,
+                color: props.color,
+                labelledBy: titleId,
+                describedBy: hasDescription ? descriptionId : undefined,
+              }),
               ...slotOrProp(slots.default, null),
             ]),
           ],

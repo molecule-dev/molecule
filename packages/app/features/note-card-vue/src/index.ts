@@ -33,14 +33,16 @@
  * @remarks
  * Requires a wired ClassMap bond — `getClassMap()` throws before wiring.
  *
- * The card intentionally keeps a paper-sticky-note look in BOTH themes:
- * its text color is fixed near-black, so `color` must be a LIGHT pastel
- * (`#fef9c3`, `#dbeafe`, `#dcfce7`, ...) — a dark `color` value makes
- * the body unreadable. The card does not re-tint with the app theme.
+ * The card's paper is a theme tone: the documented note tints (yellow
+ * `#fef9c3`, green `#dcfce7`, blue `#dbeafe`, red `#fee2e2`, amber
+ * `#fef3c7`) render as the theme's light tint of the matching tone, so the
+ * card and its text (the theme's ink) follow the app theme. A `color` with
+ * no tone is data: it is applied as given, over the tone's paper.
  *
- * `onClick` makes the whole card clickable but renders no button
- * semantics — supply your own focus/keyboard affordance (or wrap the
- * card in a button/link) when click-to-open matters for a11y.
+ * `onClick` makes the whole card clickable through a transparent native
+ * button over it — Enter and Space included, natively — named by the title
+ * when there is one, else the body; the card's inner controls (the `actions`
+ * slot) sit above it and keep their own clicks.
  *
  * Node-valued props (`title`, `body`, `modifiedAt`, `actions`) arrive as a
  * prop AND a same-named slot; components accept either.

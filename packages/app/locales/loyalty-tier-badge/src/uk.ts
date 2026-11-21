@@ -6,4 +6,8 @@ export const uk: Partial<LoyaltyTierBadgeTranslations> = {
   'loyaltyTierBadge.progress': 'Прогрес до {{next}}',
   'loyaltyTierBadge.topTier': 'Досягнуто найвищого рівня',
   'loyaltyTierBadge.remaining': '{{remaining}} до {{next}}',
+  'loyaltyTierBadge.tier.bronze': 'Бронза',
+  'loyaltyTierBadge.tier.silver': 'Срібло',
+  'loyaltyTierBadge.tier.gold': 'Золото',
+  'loyaltyTierBadge.tier.platinum': 'Платина',
 }

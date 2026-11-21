@@ -9,4 +9,6 @@ export const be: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.note':
     'Заўвага {{pitch}} пачынаючы з такту {{startBeat}} для {{durationBeats}} рытмы',
   'pianoRoll.aria.cursor': 'Курсор на {{pitch}} на такце {{beat}}',
+  'pianoRoll.aria.gridHelp':
+    'Стрэлкі перамяшчаюць курсор ячэйкі, Enter або Space малюе на ім ноту.',
 }

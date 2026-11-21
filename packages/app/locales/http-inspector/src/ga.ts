@@ -7,4 +7,8 @@ export const ga: Partial<HttpInspectorTranslations> = {
   'httpInspector.headers': 'Ceanntásca',
   'httpInspector.addHeader': 'Cuir ceanntásc leis',
   'httpInspector.body': 'Corp',
+  'httpInspector.methodLabel': 'Modh HTTP',
+  'httpInspector.urlLabel': 'URL',
+  'httpInspector.headerPlaceholder': 'Ceanntásc',
+  'httpInspector.valuePlaceholder': 'Luach',
 }

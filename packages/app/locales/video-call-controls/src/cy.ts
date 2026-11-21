@@ -8,4 +8,7 @@ export const cy: Partial<VideoCallControlsTranslations> = {
   'call.cameraOff': '🚫',
   'call.share': '🖥',
   'call.leave': 'Gadael',
+  'call.aria.muted': 'Wedi tewi',
+  'call.aria.handRaised': "Llaw wedi'i chodi",
+  'call.label.you': '(chi)',
 }

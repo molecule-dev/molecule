@@ -14,4 +14,8 @@ export const el: Partial<SearchUiTranslations> = {
   'searchUi.relatedTitle': 'Αντιστοιχεί στο νόημα της αναζήτησής σας, όχι στις λέξεις της',
   'searchUi.related': 'συγγενεύων',
   'searchUi.help': 'Συμβουλές αναζήτησης',
+  'searchUi.examplePhrase': '"ακριβής φράση"',
+  'searchUi.exampleExcluded': '-λέξη',
+  'searchUi.activeResult': '{{title}}, {{position}} από {{count}}',
+  'searchUi.dialogLabel': 'Αναζήτηση',
 }

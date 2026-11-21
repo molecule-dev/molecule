@@ -8,4 +8,5 @@ export const my: Partial<NotificationCenterTranslations> = {
   'notifications.viewAll': 'အားလုံးကြည့်ရန်',
   'notifications.loadError': 'အကြောင်းကြားချက်များကို တင်၍မရပါ။',
   'notifications.retry': 'ပြန်ကြိုးစားပါ',
+  'notifications.unread': 'မဖတ်ရသေးသော',
 }

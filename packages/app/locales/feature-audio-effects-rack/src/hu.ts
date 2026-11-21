@@ -49,4 +49,5 @@ export const hu: Partial<AudioEffectsRackTranslations> = {
   'audioEffectsRack.param.phaser.rate': 'Arány',
   'audioEffectsRack.param.phaser.depth': 'Mélység',
   'audioEffectsRack.param.phaser.feedback': 'Visszacsatolás',
+  'audioEffectsRack.param.fallback': 'Paraméter',
 }

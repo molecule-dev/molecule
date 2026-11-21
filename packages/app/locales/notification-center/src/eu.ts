@@ -8,4 +8,5 @@ export const eu: Partial<NotificationCenterTranslations> = {
   'notifications.viewAll': 'Ikusi guztiak',
   'notifications.loadError': 'Ezin izan dira jakinarazpenak kargatu.',
   'notifications.retry': 'Saiatu berriro',
+  'notifications.unread': 'Irakurri gabe',
 }

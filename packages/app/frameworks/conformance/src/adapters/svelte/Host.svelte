@@ -22,6 +22,7 @@
     bag,
     slots,
     children,
+    captureRef,
   }: {
     component: Component<Record<string, unknown>>
     /** Every component and composable the cases may render or call. */
@@ -35,7 +36,16 @@
     bag: { props: Record<string, unknown> }
     slots: Record<string, NodeSpec[]>
     children?: NodeSpec[]
+    /** Set for a ref case: receives what the component's bindable `ref` prop holds (`bind:ref`). */
+    captureRef?: (el: unknown) => void
   } = $props()
+
+  // What the component's `ref` holds, read back by the component itself through the binding.
+  let boundRef = $state.raw<unknown>(null)
+  const setBoundRef = (el: unknown): void => {
+    boundRef = el
+    captureRef?.(el)
+  }
 
   // The case's services, the binding's context setter and the callback spy are
   // fixed for its whole run.
@@ -92,6 +102,11 @@
      the wrapper, but the focused-element path sees the real DOM nesting. -->
 <div data-parity-unwrap>
   {#if sessionDecided}
-    <Target {...shown} {...nodeProps} />
+    <!-- Only a ref case binds `ref`: binding a prop a component does not declare bindable throws. -->
+    {#if captureRef}
+      <Target {...shown} {...nodeProps} bind:ref={() => boundRef, setBoundRef} />
+    {:else}
+      <Target {...shown} {...nodeProps} />
+    {/if}
   {/if}
 </div>

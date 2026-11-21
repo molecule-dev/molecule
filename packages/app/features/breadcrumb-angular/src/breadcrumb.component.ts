@@ -17,6 +17,7 @@ import {
   ViewChildren,
 } from '@angular/core'
 
+import { useTranslation } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -58,6 +59,9 @@ const defaultSeparator = (): HTMLSpanElement => {
  * content when given (cloned into every gap — Angular projects a node once,
  * React renders the same element in every gap), else the default
  * `<span aria-hidden>/</span>`.
+ *
+ * The nav's accessible name flows through `t()` with the English default
+ * `'Breadcrumb'`, so it follows the app's locale.
  */
 @Component({
   selector: 'nav[mol-breadcrumb]',
@@ -66,7 +70,7 @@ const defaultSeparator = (): HTMLSpanElement => {
   inputs: ['items', 'onNavigate', 'className', 'dataMolId'],
   host: {
     '[class]': 'classes()',
-    'aria-label': 'Breadcrumb',
+    '[attr.aria-label]': 'navLabel()',
     '[attr.data-mol-id]': 'dataMolId ?? null',
   },
   template: `@for (item of items; track $index) {
@@ -129,6 +133,9 @@ export class Breadcrumb implements AfterViewInit, AfterViewChecked {
   /** One empty span per gap, filled with the projected separator clones. */
   @ViewChildren('gapSep') private gapSeps?: QueryList<ElementRef<HTMLSpanElement>>
 
+  /** The i18n handle (locale-reactive), read in an injection context. */
+  private readonly i18n = useTranslation()
+
   /** The projected separator nodes, cloned into every gap but the first. */
   private originals: Node[] = []
 
@@ -154,6 +161,17 @@ export class Breadcrumb implements AfterViewInit, AfterViewChecked {
       this.cm().textSize('sm'),
       this.className,
     )
+  }
+
+  /**
+   * The nav's accessible name (React's `aria-label`): prop-less `t()` with
+   * the English default `'Breadcrumb'`, re-read on a locale switch (the `t`
+   * call reads the locale notifications signal, so the host binding
+   * re-evaluates on one).
+   * @returns The translated nav label.
+   */
+  navLabel(): string {
+    return this.i18n.t('breadcrumb.aria.breadcrumb', undefined, { defaultValue: 'Breadcrumb' })
   }
 
   /**

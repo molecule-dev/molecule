@@ -16,4 +16,11 @@ export const mk: Partial<BillingTranslations> = {
   'billing.pricing.perSeat': 'по седиште',
   'billing.pricing.upgradeCta': 'Надгради на {{tierName}}',
   'billing.pricing.currentCta': 'Тековен план',
+  'billing.pricing.period.month': 'месечно',
+  'billing.pricing.period.year': 'годишно',
+  'billing.pricing.billed.month': 'Наплатува се месечно',
+  'billing.pricing.billed.year': 'Наплатува се годишно',
+  'billing.pricing.unlimited': 'Неограничено',
+  'billing.pricing.limit.maxProjects': 'Максимален број проекти',
+  'billing.pricing.limit.canExport': 'Извозот е достапен',
 }

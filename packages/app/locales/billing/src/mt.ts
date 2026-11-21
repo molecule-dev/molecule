@@ -16,4 +16,11 @@ export const mt: Partial<BillingTranslations> = {
   'billing.pricing.perSeat': 'għal kull siġġu',
   'billing.pricing.upgradeCta': 'Aġġorna għal {{tierName}}',
   'billing.pricing.currentCta': 'Pjan attwali',
+  'billing.pricing.period.month': 'kull xahar',
+  'billing.pricing.period.year': 'kull sena',
+  'billing.pricing.billed.month': 'Tiħlas kull xahar',
+  'billing.pricing.billed.year': 'Tiħlas kull sena',
+  'billing.pricing.unlimited': 'Illimitat',
+  'billing.pricing.limit.maxProjects': "Numru massimu ta' proġetti",
+  'billing.pricing.limit.canExport': 'Esportazzjoni disponibbli',
 }

@@ -40,9 +40,12 @@
  * `@molecule/app-locales-video-call-controls` (on disk, not yet registered
  * in mlcl's registry — register it or supply the `call.*` keys in app
  * translations). In `<ParticipantTile>` the ' (you)' suffix and the
- * 'Muted' / 'Hand raised' indicator labels are hardcoded English. Tiles
- * are fixed 16:9 dark surfaces (#111, white text, green speaking ring)
- * regardless of theme; supply your `<video>` element via `videoSlot` and a
+ * 'Muted' / 'Hand raised' indicator labels are translated too
+ * (`call.label.you`, `call.aria.muted`, `call.aria.handRaised`). Tiles
+ * are fixed 16:9 theme surfaces (`cm.surface` background, theme ink) with a
+ * scrim name badge (`cm.bgScrim`, inverse text) and a success-tone speaking
+ * ring (`cm.textTone('success')` ink, `currentColor` outline); supply your
+ * `<video>` element via `videoSlot` and a
  * fallback via `avatarSlot`. The screen-share button renders only when
  * `onToggleScreenShare` is provided; `extraControls` slots more buttons
  * before Leave. Props (documented on the exported `VideoCallControlsProps`

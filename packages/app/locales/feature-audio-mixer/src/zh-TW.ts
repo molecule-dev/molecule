@@ -8,6 +8,8 @@ export const zhTW: Partial<AudioMixerTranslations> = {
   'audioMixer.aria.send': '{{channel}}發送至{{send}}',
   'audioMixer.button.mute': '沉默的',
   'audioMixer.button.solo': '獨奏',
+  'audioMixer.button.muteInitial': '沉',
+  'audioMixer.button.soloInitial': '獨',
   'audioMixer.master': '掌握',
   'audioMixer.sends': '傳送',
 }

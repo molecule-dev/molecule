@@ -51,7 +51,9 @@ import RatingForm from '../RatingForm.svelte'
 import type { RatingFormProps } from '../types.js'
 
 interface Mounted {
-  component: ReturnType<typeof mount<RatingFormProps, Record<string, never>>>
+  // The mount() return as Svelte infers it from this component, not through
+  // explicit generics: a props-only parameterization names the wrong type.
+  component: ReturnType<typeof mount>
   target: HTMLElement
 }
 
@@ -90,6 +92,14 @@ describe('RatingForm', () => {
     const markup = render({ max: 5 }).target.innerHTML
     expect(markup).toContain('role="radiogroup"')
     expect(markup.match(/role="radio"/g) ?? []).toHaveLength(5)
+  })
+
+  it('renders a focusable radiogroup', () => {
+    const group = render().target.innerHTML.match(/<div[^>]*role="radiogroup"[^>]*>/)?.[0] ?? ''
+    // Focusable so jsx-a11y's interactive-supports-focus is satisfied (the
+    // group carries onmouseleave), but never a tab stop: -1 keeps it out of
+    // the tab order, and the stars carry the keyboard instead.
+    expect(group).toContain('tabindex="-1"')
   })
 
   it('marks the defaultRating star aria-checked', () => {

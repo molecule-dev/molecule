@@ -6,6 +6,7 @@
 
 import { Component } from '@angular/core'
 
+import { useTranslation } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -99,6 +100,9 @@ export class Sparkline {
   /** Extra classes. */
   className?: string
 
+  /** The i18n handle (locale-reactive), read in an injection context. */
+  private readonly i18n = useTranslation()
+
   /**
    * The current class map.
    * @returns The UIClassMap.
@@ -181,11 +185,15 @@ export class Sparkline {
   }
 
   /**
-   * The accessible label (React's default parameter).
+   * The accessible label (React's default parameter): the prop when given,
+   * otherwise the translated default.
    * @returns The label text.
    */
   label(): string {
-    return this.ariaLabel ?? 'Trend sparkline'
+    return (
+      this.ariaLabel ??
+      this.i18n.t('sparkline.aria.trendSparkline', undefined, { defaultValue: 'Trend sparkline' })
+    )
   }
 
   /**

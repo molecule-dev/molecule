@@ -9,4 +9,6 @@ export const ms: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.note':
     'Nota {{pitch}} bermula pada rentak {{startBeat}} untuk {{durationBeats}} rentak',
   'pianoRoll.aria.cursor': 'Kursor pada {{pitch}} pada rentak {{beat}}',
+  'pianoRoll.aria.gridHelp':
+    'Kekunci anak panah menggerakkan kursor sel, Enter atau Space melukis nota di situ.',
 }

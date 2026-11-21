@@ -89,7 +89,7 @@ describe('OAuthButtons', () => {
     document.body.appendChild(container)
     instance = mount(OAuthButtons, { target: container, props: { oauthConfig: {} } })
     flushSync()
-    const buttons = [...container.querySelectorAll('button[data-provider]')]
+    const buttons = [...container.querySelectorAll<HTMLButtonElement>('button[data-provider]')]
     expect(buttons.map((b) => b.dataset.provider)).toEqual(['github', 'google'])
     expect(buttons).toHaveLength(2)
     expect(container.querySelector('svg[data-logo]')).not.toBeNull()

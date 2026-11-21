@@ -1,0 +1,227 @@
+/**
+ * Stepper component (React parity).
+ *
+ * @module
+ */
+
+import { NgTemplateOutlet } from '@angular/common'
+import { Component, TemplateRef } from '@angular/core'
+
+import type { UIClassMap } from '@molecule/app-ui'
+import { getClassMap } from '@molecule/app-ui'
+
+import type { StepperStep, StepStatus } from './types.js'
+
+/**
+ * Stepper component.
+ *
+ * Multi-step progress indicator with `dots` / `bar` / `cards` variants and
+ * horizontal / vertical orientations. The host IS the root `<div>`
+ * (`div[mol-stepper]`), matching React's root exactly. Same props (React
+ * names), same DOM, same `onStepClick(stepId, index)` calls as
+ * `@molecule/app-stepper-react`'s `Stepper`. Node-valued `label`/`description`
+ * on a step arrive as templates and render through `NgTemplateOutlet`.
+ */
+@Component({
+  selector: 'div[mol-stepper]',
+  standalone: true,
+  imports: [NgTemplateOutlet],
+  inputs: ['steps', 'currentStep', 'variant', 'orientation', 'onStepClick', 'className'],
+  host: {
+    '[class]': 'classes()',
+  },
+  // prettier-ignore
+  template: `@if (variantName() === 'bar') {<div [class]="cm().cn(cm().progress(), cm().progressHeight('sm'))"><div [class]="cm().cn(cm().progressBar(), cm().progressColor('primary'))" [style.width]="barPct() + '%'"></div></div><div [class]="cm().flex({ justify: 'between' })">@for (s of steps; track s.id; let i = $index) {<span [class]="barLabelClasses(i)">@if (isText(s.label)) {<ng-container>{{ s.label }}</ng-container>}@else {<ng-container [ngTemplateOutlet]="templateOf(s.label)"></ng-container>}</span>}</div>} @else if (variantName() === 'cards') {@for (s of steps; track s.id; let i = $index) {<button type="button" [attr.data-mol-id]="'stepper-step-' + s.id" (click)="clickCard(s, i)" [attr.aria-current]="statusOf(i, s.status) === 'current' ? 'step' : null" [disabled]="!onStepClick || statusOf(i, s.status) !== 'completed'" [class]="cardClasses()"><span [class]="cm().cn(cm().textSize('xs'), cm().fontWeight('semibold'))">{{ i + 1 }}. @if (isText(s.label)) {<ng-container>{{ s.label }}</ng-container>}@else {<ng-container [ngTemplateOutlet]="templateOf(s.label)"></ng-container>}</span>@if (s.description) {<span [class]="cm().textSize('xs')">@if (isText(s.description)) {<ng-container>{{ s.description }}</ng-container>}@else {<ng-container [ngTemplateOutlet]="templateOf(s.description)"></ng-container>}</span>}</button>}} @else {@for (s of steps; track s.id; let i = $index) {<div [class]="dotItemClasses(i)"><button type="button" [attr.data-mol-id]="'stepper-step-' + s.id" (click)="clickDot(s, i)" [disabled]="!onStepClick" [attr.aria-current]="statusOf(i, s.status) === 'current' ? 'step' : null" [class]="dotButtonClasses()">{{ statusOf(i, s.status) === 'completed' ? '✓' : i + 1 }}</button><span [class]="dotLabelClasses(i)">@if (isText(s.label)) {<ng-container>{{ s.label }}</ng-container>}@else {<ng-container [ngTemplateOutlet]="templateOf(s.label)"></ng-container>}</span>@if (i !== steps.length - 1 && orientationName() === 'horizontal') {<span aria-hidden="true" [class]="cm().cn(cm().flex1, cm().h(0))" [style.border-top]="'1px solid'" [style.opacity]="0.2"></span>}</div>}}`,
+})
+export class Stepper {
+  /** Steps to render. */
+  steps: StepperStep[] = []
+  /** Index of the current step (0-based). */
+  currentStep = 0
+  /** Visual variant (defaults to `'dots'` at read time). */
+  variant?: 'dots' | 'bar' | 'cards'
+  /** Layout orientation (defaults to `'horizontal'` at read time). */
+  orientation?: 'horizontal' | 'vertical'
+  /** Optional navigation click handler. */
+  onStepClick?: (stepId: string, index: number) => void
+  /** Extra classes. */
+  className?: string
+
+  /**
+   * The current class map.
+   * @returns The UIClassMap.
+   */
+  cm(): UIClassMap {
+    return getClassMap()
+  }
+
+  /**
+   * The visual variant (React's `variant = 'dots'` default).
+   * @returns The variant name.
+   */
+  variantName(): 'dots' | 'bar' | 'cards' {
+    return this.variant ?? 'dots'
+  }
+
+  /**
+   * The layout orientation (React's `orientation = 'horizontal'` default).
+   * @returns The orientation name.
+   */
+  orientationName(): 'horizontal' | 'vertical' {
+    return this.orientation ?? 'horizontal'
+  }
+
+  /**
+   * Derives the display status for the step at index `i`.
+   * @param i - The step index.
+   * @param explicit - The step's explicit status, when it has one.
+   * @returns The status to render.
+   */
+  statusOf(i: number, explicit?: StepStatus): StepStatus {
+    if (explicit) return explicit
+    if (i < this.currentStep) return 'completed'
+    if (i === this.currentStep) return 'current'
+    return 'pending'
+  }
+
+  /**
+   * Computes the host class list for the current variant.
+   * @returns The class string.
+   */
+  classes(): string {
+    if (this.variantName() === 'bar') return this.cm().cn(this.cm().stack(2), this.className)
+    return this.variantName() === 'cards' ? this.cardsClasses() : this.dotsClasses()
+  }
+
+  /**
+   * The cards container's class list.
+   * @returns The class string.
+   */
+  cardsClasses(): string {
+    return this.cm().cn(
+      this.orientationName() === 'vertical'
+        ? this.cm().stack(2)
+        : this.cm().flex({ align: 'stretch', gap: 'sm' }),
+      this.className,
+    )
+  }
+
+  /**
+   * The dots container's class list.
+   * @returns The class string.
+   */
+  dotsClasses(): string {
+    return this.cm().cn(
+      this.orientationName() === 'vertical'
+        ? this.cm().stack(2)
+        : this.cm().flex({ align: 'center', gap: 'sm' }),
+      this.className,
+    )
+  }
+
+  /**
+   * One dots row's class list (the last row takes no remaining space).
+   * @param i - The step index.
+   * @returns The class string.
+   */
+  dotItemClasses(i: number): string {
+    return this.cm().cn(
+      this.cm().flex({ align: 'center', gap: 'sm' }),
+      i !== this.steps.length - 1 ? this.cm().flex1 : undefined,
+    )
+  }
+
+  /**
+   * A dots button's class list.
+   * @returns The class string.
+   */
+  dotButtonClasses(): string {
+    return this.cm().cn(
+      this.cm().w(8),
+      this.cm().h(8),
+      this.cm().roundedFull,
+      this.cm().flex({ align: 'center', justify: 'center' }),
+      this.cm().cn(this.cm().textSize('xs'), this.cm().fontWeight('bold')),
+    )
+  }
+
+  /**
+   * A dots label's class list (React's weight switch).
+   * @param i - The step index.
+   * @returns The class string.
+   */
+  dotLabelClasses(i: number): string {
+    return this.cm().cn(
+      this.cm().textSize('xs'),
+      this.statusOf(i, this.steps[i]?.status) === 'current'
+        ? this.cm().fontWeight('semibold')
+        : this.cm().fontWeight('medium'),
+    )
+  }
+
+  /**
+   * A card's class list.
+   * @returns The class string.
+   */
+  cardClasses(): string {
+    return this.cm().cn(this.cm().flex1, this.cm().sp('p', 3), this.cm().stack(1))
+  }
+
+  /**
+   * A bar label's class list (React's weight switch).
+   * @param i - The step index.
+   * @returns The class string.
+   */
+  barLabelClasses(i: number): string {
+    return this.cm().cn(
+      this.cm().textSize('xs'),
+      i === this.currentStep ? this.cm().fontWeight('semibold') : this.cm().fontWeight('medium'),
+    )
+  }
+
+  /**
+   * The filled-bar percentage: a single step is full, otherwise the current
+   * index over the last index.
+   * @returns The percentage (React's exact arithmetic).
+   */
+  barPct(): number {
+    return this.steps.length === 1 ? 100 : (this.currentStep / (this.steps.length - 1)) * 100
+  }
+
+  /**
+   * Whether a value is plain text (React renders it as text, not as nodes).
+   * @param value - A step label or description.
+   * @returns True when the value is a string.
+   */
+  isText(value: unknown): value is string {
+    return typeof value === 'string'
+  }
+
+  /**
+   * Narrows a value to an embedded template.
+   * @param value - A step label or description.
+   * @returns The template, or null.
+   */
+  templateOf(value: unknown): TemplateRef<unknown> | null {
+    return value instanceof TemplateRef ? value : null
+  }
+
+  /**
+   * React's dots contract: the handler fires for ANY step.
+   * @param step - The clicked step.
+   * @param index - Its index.
+   */
+  clickDot(step: StepperStep, index: number): void {
+    this.onStepClick?.(step.id, index)
+  }
+
+  /**
+   * React's cards contract: only completed steps fire the handler.
+   * @param step - The clicked step.
+   * @param index - Its index.
+   */
+  clickCard(step: StepperStep, index: number): void {
+    if (this.statusOf(index, step.status) !== 'completed') return
+    this.onStepClick?.(step.id, index)
+  }
+}

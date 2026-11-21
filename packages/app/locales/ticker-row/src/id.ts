@@ -1,0 +1,8 @@
+import type { TickerRowTranslations } from './types.js'
+
+/** TickerRow translations for id. */
+export const id: TickerRowTranslations = {
+  'tickerRow.change.up': 'Naik',
+  'tickerRow.change.down': 'Turun',
+  'tickerRow.change.flat': 'Tidak berubah',
+}

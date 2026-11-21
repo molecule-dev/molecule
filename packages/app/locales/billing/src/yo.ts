@@ -15,4 +15,11 @@ export const yo: Partial<BillingTranslations> = {
   'billing.pricing.perSeat': 'fún ìjókòó kọ̀ọ̀kan',
   'billing.pricing.upgradeCta': 'Ṣe igbesoke si {{tierName}}',
   'billing.pricing.currentCta': 'Ètò lọ́wọ́lọ́wọ́',
+  'billing.pricing.period.month': 'ní oṣù kọ̀ọ̀kan',
+  'billing.pricing.period.year': 'ní ọdún kọ̀ọ̀kan',
+  'billing.pricing.billed.month': 'A ń gbowó ní oṣù kọ̀ọ̀kan',
+  'billing.pricing.billed.year': 'A ń gbowó ní ọdún kọ̀ọ̀kan',
+  'billing.pricing.unlimited': 'Kò ní àlà',
+  'billing.pricing.limit.maxProjects': 'Iye àwọn iṣẹ́ tí ó ga jùlọ',
+  'billing.pricing.limit.canExport': 'Lé gbé jáde',
 }

@@ -8,6 +8,8 @@ export const ha: Partial<AudioMixerTranslations> = {
   'audioMixer.aria.send': '{{channel}} aika zuwa {{send}}',
   'audioMixer.button.mute': 'shiru',
   'audioMixer.button.solo': 'Solo',
+  'audioMixer.button.muteInitial': 'S',
+  'audioMixer.button.soloInitial': 'S',
   'audioMixer.master': 'Jagora',
   'audioMixer.sends': 'Ana aika',
 }

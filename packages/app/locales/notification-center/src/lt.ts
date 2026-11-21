@@ -8,4 +8,5 @@ export const lt: Partial<NotificationCenterTranslations> = {
   'notifications.viewAll': 'Žiūrėti visus',
   'notifications.loadError': 'Nepavyko įkelti pranešimų.',
   'notifications.retry': 'Bandyti dar kartą',
+  'notifications.unread': 'Neskaityta',
 }

@@ -49,4 +49,5 @@ export const sk: Partial<AudioEffectsRackTranslations> = {
   'audioEffectsRack.param.phaser.rate': 'Sadzba',
   'audioEffectsRack.param.phaser.depth': 'Hĺbka',
   'audioEffectsRack.param.phaser.feedback': 'Spätná väzba',
+  'audioEffectsRack.param.fallback': 'Parameter',
 }

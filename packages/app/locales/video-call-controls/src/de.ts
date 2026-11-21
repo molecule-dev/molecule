@@ -8,4 +8,7 @@ export const de: Partial<VideoCallControlsTranslations> = {
   'call.cameraOn': '📹',
   'call.cameraOff': '🚫',
   'call.share': '🖥',
+  'call.aria.muted': 'Stumm',
+  'call.aria.handRaised': 'Hand gehoben',
+  'call.label.you': '(du)',
 }

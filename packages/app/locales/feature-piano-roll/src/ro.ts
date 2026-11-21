@@ -9,4 +9,6 @@ export const ro: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.note':
     'Nota {{pitch}} începând din ritm {{startBeat}} pentru {{durationBeats}} bătăi',
   'pianoRoll.aria.cursor': 'Cursor pe {{pitch}} la ritmul {{beat}}',
+  'pianoRoll.aria.gridHelp':
+    'Săgețile mută cursorul celulei, Enter sau bara de spațiu desenează acolo o notă.',
 }

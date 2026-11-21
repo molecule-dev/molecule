@@ -9,4 +9,6 @@ export const tr: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.note':
     'Not {{pitch}} vuruştan başlayarak {{startBeat}} için {{durationBeats}} vuruşlar',
   'pianoRoll.aria.cursor': 'İmleç {{pitch}} üzerinde, {{beat}} vuruşunda',
+  'pianoRoll.aria.gridHelp':
+    'Ok tuşları hücre imlecini taşır, Enter veya Boşluk tuşu oraya bir nota çizer.',
 }

@@ -9,6 +9,7 @@ export const gu: ReputationBadgeTranslations = {
   'reputationBadge.level.trusted': 'વિશ્વસનીય',
   'reputationBadge.level.veteran': 'અનુભવી',
   'reputationBadge.level.legend': 'દંતકથા',
+  'reputationBadge.level.fallback': '{{level}}',
   'badgeShelf.aria': '{{count}} બેજ મેળવ્યા',
   'badgeShelf.overflow.aria': 'વધુ {{count}} બેજ બતાવો',
 }

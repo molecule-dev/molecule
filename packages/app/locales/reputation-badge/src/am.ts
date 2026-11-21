@@ -9,6 +9,7 @@ export const am: ReputationBadgeTranslations = {
   'reputationBadge.level.trusted': 'የታመነ',
   'reputationBadge.level.veteran': 'አንጋፋ',
   'reputationBadge.level.legend': 'አፈ ታሪክ',
+  'reputationBadge.level.fallback': '{{level}}',
   'badgeShelf.aria': '{{count}} ባጆች ተገኝተዋል',
   'badgeShelf.overflow.aria': 'ተጨማሪ {{count}} ባጆች አሳይ',
 }

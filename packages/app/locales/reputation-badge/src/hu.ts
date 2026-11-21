@@ -9,6 +9,7 @@ export const hu: ReputationBadgeTranslations = {
   'reputationBadge.level.trusted': 'Megbízható',
   'reputationBadge.level.veteran': 'Veterán',
   'reputationBadge.level.legend': 'Legenda',
+  'reputationBadge.level.fallback': '{{level}}',
   'badgeShelf.aria': '{{count}} jelvény megszerezve',
   'badgeShelf.overflow.aria': 'További {{count}} jelvény megjelenítése',
 }

@@ -22,9 +22,11 @@
  * ```
  *
  * @remarks
- * The default aria-label is the English string "Presence: <status>" — pass
- * `ariaLabel` (e.g. from `t()`) in localized apps; the package has no locale
- * bond. `position="overlay"` positions absolutely, so the dot must sit inside
+ * The default aria-label resolves through `t('presenceIndicator.aria.presence',
+ * { status })` with the status word translated per `presenceIndicator.status.*`
+ * key (companion bond `@molecule/app-locales-presence-indicator`), so it follows
+ * the active locale; pass `ariaLabel` (e.g. from `t()`) to override it.
+ * `position="overlay"` positions absolutely, so the dot must sit inside
  * a relatively-positioned parent — `<AvatarWithPresence>` provides that
  * wrapper. Status colors are fixed semantic hues (green/yellow/red/gray),
  * identical in both themes; the overlay ring color follows

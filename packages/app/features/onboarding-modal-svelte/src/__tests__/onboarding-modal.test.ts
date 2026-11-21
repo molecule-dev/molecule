@@ -8,7 +8,7 @@
  * @module
  */
 
-import { createRawSnippet, flushSync, mount, unmount } from 'svelte'
+import { type ComponentProps, createRawSnippet, flushSync, mount, unmount } from 'svelte'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 // `getClassMap()` → a Proxy: `cn(...)` joins tokens, calling function-valued
@@ -62,7 +62,7 @@ const raw = (html: string): ReturnType<typeof createRawSnippet> =>
   createRawSnippet(() => ({ render: () => html }))
 
 /** Renders an {@link OnboardingModal} and returns the markup and text it produced. */
-const render = (props: Record<string, unknown>): { html: string; text: string } => {
+const render = (props: ComponentProps<typeof OnboardingModal>): { html: string; text: string } => {
   const target = document.createElement('div')
   document.body.appendChild(target)
   const component = mount(OnboardingModal, { target, props })
@@ -76,7 +76,7 @@ const render = (props: Record<string, unknown>): { html: string; text: string } 
 }
 
 /** Renders an {@link OnboardingModal} and returns the markup it produced. */
-const renderMarkup = (props: Record<string, unknown>): string => render(props).html
+const renderMarkup = (props: ComponentProps<typeof OnboardingModal>): string => render(props).html
 
 const steps = [
   { id: 's1', title: 'Welcome', body: 'Step one body' },
@@ -134,5 +134,23 @@ describe('OnboardingModal', () => {
 
   it('renders nothing visible when the modal is closed', () => {
     expect(render({ open: false, onClose: noop, steps }).text).toBe('')
+  })
+
+  it('the dialog is named by the current step title', () => {
+    const markup = renderMarkup({ open: true, onClose: noop, steps })
+    const label = markup.match(/aria-labelledby="([^"]*)"/)?.[1]
+    expect(label).toBeTruthy()
+    const heading = markup.match(new RegExp(`<h2[^>]*id="${label}"[^>]*>([\\s\\S]*?)</h2>`))
+    expect(heading).toBeTruthy()
+    expect(heading?.[1]).toContain('Welcome')
+
+    // The name follows the step: on the second step the labelled heading
+    // carries that step's title.
+    const second = renderMarkup({ open: true, onClose: noop, steps, defaultStep: 1 })
+    const secondLabel = second.match(/aria-labelledby="([^"]*)"/)?.[1]
+    const secondHeading = second.match(
+      new RegExp(`<h2[^>]*id="${secondLabel}"[^>]*>([\\s\\S]*?)</h2>`),
+    )
+    expect(secondHeading?.[1]).toContain('Connect')
   })
 })

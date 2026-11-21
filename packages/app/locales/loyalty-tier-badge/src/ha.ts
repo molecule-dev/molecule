@@ -6,4 +6,8 @@ export const ha: Partial<LoyaltyTierBadgeTranslations> = {
   'loyaltyTierBadge.progress': 'Ci gaba zuwa {{next}}',
   'loyaltyTierBadge.topTier': 'An kai matakin sama',
   'loyaltyTierBadge.remaining': '{{remaining}} zuwa {{next}}',
+  'loyaltyTierBadge.tier.bronze': 'Taguwaye',
+  'loyaltyTierBadge.tier.silver': 'Azurfa',
+  'loyaltyTierBadge.tier.gold': 'Zinariya',
+  'loyaltyTierBadge.tier.platinum': 'Platinam',
 }

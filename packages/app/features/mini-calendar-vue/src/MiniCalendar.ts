@@ -13,6 +13,7 @@ import { computed, defineComponent, h, type PropType, ref, type VNode } from 'vu
 
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-vue'
+import { useLocale, useTranslation } from '@molecule/app-vue'
 
 /**
  * Coerces a Date or ISO string to a Date, returning undefined for invalid values.
@@ -55,7 +56,9 @@ function isSameDay(a: Date, b: Date): boolean {
 /**
  * Compact month-view calendar. Supports controlled `selected` + `month`
  * props or runs uncontrolled. Weekday / month names come from
- * `Intl.DateTimeFormat` so locales render correctly without extra data.
+ * `Intl.DateTimeFormat` in the `locale` prop, or the app's active locale when
+ * it is omitted. The prev/next buttons' aria-labels go through `t()`
+ * (`miniCalendar.aria.*`, English `defaultValue`s).
  */
 export const MiniCalendar = defineComponent({
   name: 'MiniCalendar',
@@ -69,6 +72,10 @@ export const MiniCalendar = defineComponent({
     className: String,
   },
   setup(props) {
+    const { t } = useTranslation()
+    // Read in the render function, so the formatted names follow a locale
+    // switch. An explicit `locale` prop still wins.
+    const activeLocale = useLocale()
     const cm = getClassMap()
     const selectedDate = computed(() => toDate(props.selected))
     const internalMonth = ref(startOfMonth(props.month ?? selectedDate.value ?? new Date()))
@@ -92,8 +99,9 @@ export const MiniCalendar = defineComponent({
     }
 
     return (): VNode => {
-      const monthFmt = new Intl.DateTimeFormat(props.locale, { month: 'long', year: 'numeric' })
-      const weekdayFmt = new Intl.DateTimeFormat(props.locale, { weekday: 'narrow' })
+      const resolvedLocale = props.locale ?? activeLocale.value
+      const monthFmt = new Intl.DateTimeFormat(resolvedLocale, { month: 'long', year: 'numeric' })
+      const weekdayFmt = new Intl.DateTimeFormat(resolvedLocale, { weekday: 'narrow' })
 
       // Build grid: 6 rows × 7 cols, starting from the Sunday before the 1st.
       const first = startOfMonth(visibleMonth.value)
@@ -118,7 +126,9 @@ export const MiniCalendar = defineComponent({
               onClick: () => {
                 navigate(-1)
               },
-              'aria-label': 'Previous month',
+              'aria-label': t('miniCalendar.aria.previousMonth', undefined, {
+                defaultValue: 'Previous month',
+              }),
             },
             () => '‹',
           ),
@@ -135,7 +145,9 @@ export const MiniCalendar = defineComponent({
               onClick: () => {
                 navigate(1)
               },
-              'aria-label': 'Next month',
+              'aria-label': t('miniCalendar.aria.nextMonth', undefined, {
+                defaultValue: 'Next month',
+              }),
             },
             () => '›',
           ),

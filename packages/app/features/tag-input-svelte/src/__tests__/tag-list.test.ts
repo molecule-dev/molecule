@@ -87,6 +87,24 @@ describe('saved tags on a destination screen', () => {
     expect(markup).toContain('class="inventory-label"')
   })
 
+  it('puts the consumer’s id, accessible name and testing hook on the list itself', () => {
+    const markup = renderMarkup({
+      value: ['cold storage'],
+      id: 'stock-conditions',
+      'aria-label': 'Stock conditions',
+      'data-mol-id': 'stock-conditions-list',
+      className: 'stock-labels',
+      renderTag: createRawSnippet((tag: () => string) => ({
+        render: () => `<span>${tag()}</span>`,
+      })),
+    })
+    expect(markup).toMatch(/<ul[^>]* id="stock-conditions"/)
+    expect(markup).toMatch(/<ul[^>]* aria-label="Stock conditions"/)
+    expect(markup).toMatch(/<ul[^>]* data-mol-id="stock-conditions-list"/)
+    expect(markup).toMatch(/<ul[^>]* class="[^"]*stock-labels"/)
+    expect(markup).toContain('cold storage')
+  })
+
   it('counterexample: removing every saved tag leaves no stale tag items', () => {
     expect(renderMarkup({ value: ['removed'] })).toContain('removed')
     const empty = renderMarkup({ value: [] })

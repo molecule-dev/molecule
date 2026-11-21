@@ -8,6 +8,8 @@ export const am: Partial<AudioMixerTranslations> = {
   'audioMixer.aria.send': '{{channel}} ወደ ላክ {{send}}',
   'audioMixer.button.mute': 'ድምጸ-ከል አድርግ',
   'audioMixer.button.solo': 'ብቸኛ',
+  'audioMixer.button.muteInitial': 'ድ',
+  'audioMixer.button.soloInitial': 'ብ',
   'audioMixer.master': 'ማስተር',
   'audioMixer.sends': 'ይልካል',
 }

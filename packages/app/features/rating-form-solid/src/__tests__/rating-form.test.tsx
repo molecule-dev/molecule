@@ -46,7 +46,11 @@ vi.mock('@molecule/app-solid', () => ({
 // The UI markers the React suite mocks `@molecule/app-ui-react` with: a
 // `data-button` button and a `data-textarea` field.
 vi.mock('@molecule/app-ui-solid', () => ({
-  Button: (props: { children?: JSX.Element; disabled?: boolean; type?: string }) => (
+  Button: (props: {
+    children?: JSX.Element
+    disabled?: boolean
+    type?: 'button' | 'submit' | 'reset' | 'menu'
+  }) => (
     <button data-button="" type={props.type ?? 'button'} disabled={props.disabled}>
       {props.children}
     </button>
@@ -82,6 +86,14 @@ describe('RatingForm', () => {
     const markup = mount({ max: 5 }).innerHTML
     expect(markup).toContain('role="radiogroup"')
     expect(markup.match(/role="radio"/g) ?? []).toHaveLength(5)
+  })
+
+  it('renders a focusable radiogroup', () => {
+    const group = mount().innerHTML.match(/<div[^>]*role="radiogroup"[^>]*>/)?.[0] ?? ''
+    // Focusable so jsx-a11y's interactive-supports-focus is satisfied (the
+    // group carries onMouseLeave), but never a tab stop: -1 keeps it out of
+    // the tab order, and the stars carry the keyboard instead.
+    expect(group).toContain('tabindex="-1"')
   })
 
   it('marks the defaultRating star aria-checked', () => {

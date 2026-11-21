@@ -49,4 +49,5 @@ export const gl: Partial<AudioEffectsRackTranslations> = {
   'audioEffectsRack.param.phaser.rate': 'Tarifa',
   'audioEffectsRack.param.phaser.depth': 'Profundidade',
   'audioEffectsRack.param.phaser.feedback': 'Comentarios',
+  'audioEffectsRack.param.fallback': 'Parámetro',
 }

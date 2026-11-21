@@ -15,4 +15,11 @@ export const af: Partial<BillingTranslations> = {
   'billing.pricing.perSeat': 'per sitplek',
   'billing.pricing.upgradeCta': 'Gradeer op na {{tierName}}',
   'billing.pricing.currentCta': 'Huidige plan',
+  'billing.pricing.period.month': 'per maand',
+  'billing.pricing.period.year': 'per jaar',
+  'billing.pricing.billed.month': 'Maandeliks gefaktuur',
+  'billing.pricing.billed.year': 'Jaarliks gefaktuur',
+  'billing.pricing.unlimited': 'Onbeperk',
+  'billing.pricing.limit.maxProjects': 'Maks. projekte',
+  'billing.pricing.limit.canExport': 'Kan uitvoer',
 }

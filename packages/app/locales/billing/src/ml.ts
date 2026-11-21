@@ -16,4 +16,11 @@ export const ml: Partial<BillingTranslations> = {
   'billing.pricing.perSeat': 'സീറ്റ് അനുസരിച്ച്',
   'billing.pricing.upgradeCta': 'ഇതിലേക്ക് അപ്‌ഗ്രേഡ് ചെയ്യുക {{tierName}}',
   'billing.pricing.currentCta': 'നിലവിലെ പ്ലാൻ',
+  'billing.pricing.period.month': 'പ്രതിമാസം',
+  'billing.pricing.period.year': 'പ്രതിവർഷം',
+  'billing.pricing.billed.month': 'പ്രതിമാസ ബില്ലിംഗ്',
+  'billing.pricing.billed.year': 'പ്രതിവർഷ ബില്ലിംഗ്',
+  'billing.pricing.unlimited': 'പരിധിയില്ല',
+  'billing.pricing.limit.maxProjects': 'പരമാവധി പ്രോജക്റ്റുകൾ',
+  'billing.pricing.limit.canExport': 'എക്സ്പോർട്ട് സാധ്യമാണ്',
 }

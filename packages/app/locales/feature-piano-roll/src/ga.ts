@@ -9,4 +9,6 @@ export const ga: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.note':
     'Nóta {{pitch}} ag tosú ag buille {{startBeat}} do {{durationBeats}} buillí',
   'pianoRoll.aria.cursor': 'Cúrsóir ar {{pitch}} ag buille {{beat}}',
+  'pianoRoll.aria.gridHelp':
+    'Bogann na saigheada cúrsóir na cille, agus péinteálann Enter nó Spás nóta ann.',
 }

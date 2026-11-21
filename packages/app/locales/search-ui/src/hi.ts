@@ -16,4 +16,8 @@ export const hi: Partial<SearchUiTranslations> = {
   'searchUi.relatedTitle': 'यह आपके खोज के अर्थ से मेल खाता है, शब्दों से नहीं।',
   'searchUi.related': 'संबंधित',
   'searchUi.help': 'युक्तियां खोजें',
+  'searchUi.examplePhrase': '"सटीक वाक्यांश"',
+  'searchUi.exampleExcluded': '-शब्द',
+  'searchUi.activeResult': '{{title}}, {{count}} में से {{position}}',
+  'searchUi.dialogLabel': 'खोजें',
 }

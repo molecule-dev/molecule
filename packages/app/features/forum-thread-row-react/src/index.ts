@@ -24,12 +24,16 @@
  * @remarks
  * - Styling routes through `getClassMap()` — a ClassMap bond
  *   (e.g. `@molecule/app-ui-tailwind`) must be wired or rendering throws.
- * - KNOWN GAP: the counter labels ("votes", "replies", "views") and the
- *   pin/lock aria-labels are hardcoded English (there is no companion locale
- *   bond yet). For localized apps, pass pre-formatted content via `tags` /
- *   `voteControls` or wrap the row until the package routes text through `t()`.
- * - The row has no `data-mol-id` support yet; add your own wrapper attribute
- *   if AI-agent/e2e selectors need to target it.
+ * - The row's own text — the "Pinned" / "Locked" marker labels (announced
+ *   through `role="img"` + `aria-label`), the "votes" label and the
+ *   "{{count}} replies" / "{{count}} views" counters — goes through `t()`
+ *   with those English defaults. Register the companion bond
+ *   `@molecule/app-locales-forum-thread-row` to localize it; everything the
+ *   caller passes (`title`, `excerpt`, `author`, `createdAt`, `tags`,
+ *   `voteControls`) renders as given.
+ * - The row's open button carries `data-mol-id="forum-thread-row-open"`; the
+ *   root has no `data-mol-id` prop yet — add your own wrapper attribute if
+ *   AI-agent/e2e selectors need to target the row itself.
  *
  * @module
  */

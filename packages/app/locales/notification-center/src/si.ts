@@ -8,4 +8,5 @@ export const si: Partial<NotificationCenterTranslations> = {
   'notifications.viewAll': 'සියල්ල බලන්න',
   'notifications.loadError': 'දැනුම්දීම් පූරණය කළ නොහැකි විය.',
   'notifications.retry': 'නැවත උත්සාහ කරන්න',
+  'notifications.unread': 'නොකියවූ',
 }

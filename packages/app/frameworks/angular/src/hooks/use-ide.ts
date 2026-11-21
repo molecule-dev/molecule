@@ -33,13 +33,8 @@ export function useWorkspaceProvider(): WorkspaceProvider {
   return injectProvider(WORKSPACE_PROVIDER, 'useWorkspaceOutsideProvider')
 }
 
-/**
- * IDE workspace layout management. Call it in an injection context (a
- * component field initializer or constructor).
- *
- * @returns The workspace state as signals and the layout actions.
- */
-export function useWorkspace(): {
+/** What {@link useWorkspace} returns: the workspace state as signals and the layout actions. */
+export interface UseWorkspaceResult {
   /** The current panel layout. */
   readonly layout: Signal<WorkspaceState['layout']>
   /** The active panel id, or `null`. */
@@ -67,7 +62,15 @@ export function useWorkspace(): {
   setActivePanel: (panelId: PanelId) => void
   /** Restores the default layout. */
   resetLayout: () => void
-} {
+}
+
+/**
+ * IDE workspace layout management. Call it in an injection context (a
+ * component field initializer or constructor).
+ *
+ * @returns The workspace state as signals and the layout actions.
+ */
+export function useWorkspace(): UseWorkspaceResult {
   const provider = useWorkspaceProvider()
 
   // Snapshot cache: a bond without getState builds its answers fresh, and the

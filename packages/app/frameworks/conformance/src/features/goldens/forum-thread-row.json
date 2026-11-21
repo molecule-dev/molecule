@@ -19,7 +19,7 @@
    },
    "pinned and locked badges": {
     "snapshots": [
-     "<article class=\"c42740ba6 c9566e21c c9cd623cf cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span aria-label=\"Pinned\" title=\"Pinned\">\n📌\n</span>\n<span aria-label=\"Locked\" title=\"Locked\">\n🔒\n</span>\n<h3 class=\"c504afaf4 c7f74399a\">\nT\n</h3>\n</header>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n</div>\n</div>\n</article>\n@route /"
+     "<article class=\"c42740ba6 c9566e21c c9cd623cf cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span aria-label=\"Pinned\" role=\"img\" title=\"Pinned\">\n📌\n</span>\n<span aria-label=\"Locked\" role=\"img\" title=\"Locked\">\n🔒\n</span>\n<h3 class=\"c504afaf4 c7f74399a\">\nT\n</h3>\n</header>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n</div>\n</div>\n</article>\n@route /"
     ],
     "calls": []
    },
@@ -67,30 +67,32 @@
    },
    "everything together with className": {
     "snapshots": [
-     "<article class=\"c42740ba6 c9566e21c c9cd623cf cc2d72006 ccae02ff2 cd75bbd18 cd9b20003 cf322c086\">\n<div class=\"c16e96f28 c2cbb8333 c9766e542 ca596e575 cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c445db9b9\">\n11\n</span>\n<span class=\"c4647f690\">\nvotes\n</span>\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span aria-label=\"Pinned\" title=\"Pinned\">\n📌\n</span>\n<span aria-label=\"Locked\" title=\"Locked\">\n🔒\n</span>\n<h3 class=\"c504afaf4 c7f74399a\">\nThread title\n</h3>\n</header>\n<p class=\"c445db9b9\">\nBody excerpt\n</p>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span class=\"c4647f690 c7f74399a\">\ncarol\n</span>\n<span class=\"c4647f690\">\n· 3 days ago\n</span>\n<span class=\"c4647f690\">\n· 3 replies\n</span>\n<span class=\"c4647f690\">\n· 88 views\n</span>\n</div>\n<div class=\"c1e8176ab c9866e6d5 cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span data-tag>\nhelp\n</span>\n<span data-tag>\naccount\n</span>\n</div>\n</div>\n</article>\n@route /"
+     "<article class=\"c42740ba6 c9566e21c c9cd623cf cc2d72006 ccae02ff2 cd75bbd18 cd9b20003 cf322c086\">\n<div class=\"c16e96f28 c2cbb8333 c9766e542 ca596e575 cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c445db9b9\">\n11\n</span>\n<span class=\"c4647f690\">\nvotes\n</span>\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span aria-label=\"Pinned\" role=\"img\" title=\"Pinned\">\n📌\n</span>\n<span aria-label=\"Locked\" role=\"img\" title=\"Locked\">\n🔒\n</span>\n<h3 class=\"c504afaf4 c7f74399a\">\nThread title\n</h3>\n</header>\n<p class=\"c445db9b9\">\nBody excerpt\n</p>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span class=\"c4647f690 c7f74399a\">\ncarol\n</span>\n<span class=\"c4647f690\">\n· 3 days ago\n</span>\n<span class=\"c4647f690\">\n· 3 replies\n</span>\n<span class=\"c4647f690\">\n· 88 views\n</span>\n</div>\n<div class=\"c1e8176ab c9866e6d5 cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span data-tag>\nhelp\n</span>\n<span data-tag>\naccount\n</span>\n</div>\n</div>\n</article>\n@route /"
     ],
     "calls": []
    },
    "click calls onClick": {
     "snapshots": [
-     "<article class=\"c13d4ff0f c42740ba6 c9566e21c c9cd623cf cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<h3 class=\"c504afaf4 c7f74399a\">\nT\n</h3>\n</header>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n</div>\n</div>\n</article>\n@route /",
-     "<article class=\"c13d4ff0f c42740ba6 c9566e21c c9cd623cf cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<h3 class=\"c504afaf4 c7f74399a\">\nT\n</h3>\n</header>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n</div>\n</div>\n</article>\n@route /"
+     "<article class=\"c42740ba6 c9566e21c c9cd623cf cc2d72006 ccae02ff2 cd9b20003 cf322c086 cfc82911d\">\n<button aria-labelledby=\"#id0\" class=\"c0dd268bc c13d4ff0f c63a6bab3\" data-mol-id=\"forum-thread-row-open\" style=\"background: transparent; border: medium; padding: 0px\" type=\"button\">\n</button>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<h3 class=\"c504afaf4 c7f74399a\" id=\"#id0\">\nT\n</h3>\n</header>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n</div>\n</div>\n</article>\n@route /",
+     "<article class=\"c42740ba6 c9566e21c c9cd623cf cc2d72006 ccae02ff2 cd9b20003 cf322c086 cfc82911d\">\n<button aria-labelledby=\"#id0\" class=\"c0dd268bc c13d4ff0f c63a6bab3\" data-mol-id=\"forum-thread-row-open\" style=\"background: transparent; border: medium; padding: 0px\" type=\"button\">\n</button>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<h3 class=\"c504afaf4 c7f74399a\" id=\"#id0\">\nT\n</h3>\n</header>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n</div>\n</div>\n</article>\n@route /"
     ],
     "calls": [
      {
       "name": "onClick",
-      "args": [
-       {
-        "event": "click",
-        "target": "article"
-       }
-      ]
+      "args": []
      }
     ]
    },
+   "clicking voteControls does not call onClick": {
+    "snapshots": [
+     "<article class=\"c42740ba6 c9566e21c c9cd623cf cc2d72006 ccae02ff2 cd9b20003 cf322c086 cfc82911d\">\n<button aria-labelledby=\"#id0\" class=\"c0dd268bc c13d4ff0f c63a6bab3\" data-mol-id=\"forum-thread-row-open\" style=\"background: transparent; border: medium; padding: 0px\" type=\"button\">\n</button>\n<div class=\"ca596e575 cfc82911d\">\n<button data-votes type=\"button\">\n▲\n</button>\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<h3 class=\"c504afaf4 c7f74399a\" id=\"#id0\">\nT\n</h3>\n</header>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n</div>\n</div>\n</article>\n@route /",
+     "<article class=\"c42740ba6 c9566e21c c9cd623cf cc2d72006 ccae02ff2 cd9b20003 cf322c086 cfc82911d\">\n<button aria-labelledby=\"#id0\" class=\"c0dd268bc c13d4ff0f c63a6bab3\" data-mol-id=\"forum-thread-row-open\" style=\"background: transparent; border: medium; padding: 0px\" type=\"button\">\n</button>\n<div class=\"ca596e575 cfc82911d\">\n<button data-votes type=\"button\">\n▲\n</button>\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<h3 class=\"c504afaf4 c7f74399a\" id=\"#id0\">\nT\n</h3>\n</header>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n</div>\n</div>\n</article>\n@route /"
+    ],
+    "calls": []
+   },
    "clickable row forwards className": {
     "snapshots": [
-     "<article class=\"c13d4ff0f c42740ba6 c9566e21c c9cd623cf cc2d72006 ccae02ff2 cd75bbd18 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<h3 class=\"c504afaf4 c7f74399a\">\nT\n</h3>\n</header>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n</div>\n</div>\n</article>\n@route /"
+     "<article class=\"c42740ba6 c9566e21c c9cd623cf cc2d72006 ccae02ff2 cd75bbd18 cd9b20003 cf322c086 cfc82911d\">\n<button aria-labelledby=\"#id0\" class=\"c0dd268bc c13d4ff0f c63a6bab3\" data-mol-id=\"forum-thread-row-open\" style=\"background: transparent; border: medium; padding: 0px\" type=\"button\">\n</button>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<h3 class=\"c504afaf4 c7f74399a\" id=\"#id0\">\nT\n</h3>\n</header>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n</div>\n</div>\n</article>\n@route /"
     ],
     "calls": []
    },
@@ -102,8 +104,8 @@
    },
    "props change score, badges and counts": {
     "snapshots": [
-     "<article class=\"c42740ba6 c9566e21c c9cd623cf cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c16e96f28 c2cbb8333 c9766e542 ca596e575 cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c445db9b9\">\n3\n</span>\n<span class=\"c4647f690\">\nvotes\n</span>\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span aria-label=\"Pinned\" title=\"Pinned\">\n📌\n</span>\n<h3 class=\"c504afaf4 c7f74399a\">\nT\n</h3>\n</header>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n</div>\n</div>\n</article>\n@route /",
-     "<article class=\"c42740ba6 c9566e21c c9cd623cf cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c16e96f28 c2cbb8333 c9766e542 ca596e575 cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c445db9b9\">\n9\n</span>\n<span class=\"c4647f690\">\nvotes\n</span>\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span aria-label=\"Locked\" title=\"Locked\">\n🔒\n</span>\n<h3 class=\"c504afaf4 c7f74399a\">\nT\n</h3>\n</header>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span class=\"c4647f690\">\n· 4 replies\n</span>\n</div>\n</div>\n</article>\n@route /"
+     "<article class=\"c42740ba6 c9566e21c c9cd623cf cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c16e96f28 c2cbb8333 c9766e542 ca596e575 cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c445db9b9\">\n3\n</span>\n<span class=\"c4647f690\">\nvotes\n</span>\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span aria-label=\"Pinned\" role=\"img\" title=\"Pinned\">\n📌\n</span>\n<h3 class=\"c504afaf4 c7f74399a\">\nT\n</h3>\n</header>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n</div>\n</div>\n</article>\n@route /",
+     "<article class=\"c42740ba6 c9566e21c c9cd623cf cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c16e96f28 c2cbb8333 c9766e542 ca596e575 cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c445db9b9\">\n9\n</span>\n<span class=\"c4647f690\">\nvotes\n</span>\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span aria-label=\"Locked\" role=\"img\" title=\"Locked\">\n🔒\n</span>\n<h3 class=\"c504afaf4 c7f74399a\">\nT\n</h3>\n</header>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span class=\"c4647f690\">\n· 4 replies\n</span>\n</div>\n</div>\n</article>\n@route /"
     ],
     "calls": []
    },

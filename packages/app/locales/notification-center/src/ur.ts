@@ -8,4 +8,5 @@ export const ur: Partial<NotificationCenterTranslations> = {
   'notifications.viewAll': 'تمام دیکھیں',
   'notifications.loadError': 'اطلاعات کو لوڈ نہیں کیا جا سکا۔',
   'notifications.retry': 'دوبارہ کوشش کریں۔',
+  'notifications.unread': 'ان پڑھ',
 }

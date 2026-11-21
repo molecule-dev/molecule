@@ -8,4 +8,5 @@ export const fil: Partial<NotificationCenterTranslations> = {
   'notifications.empty': 'Walang mga abiso',
   'notifications.loadError': 'Hindi ma-load ang mga notification.',
   'notifications.retry': 'Subukan muli',
+  'notifications.unread': 'Hindi pa nababasa',
 }

@@ -49,4 +49,5 @@ export const fr: Partial<AudioEffectsRackTranslations> = {
   'audioEffectsRack.param.flanger.feedback': 'Retour',
   'audioEffectsRack.param.phaser.depth': 'Profondeur',
   'audioEffectsRack.param.phaser.feedback': 'Retour',
+  'audioEffectsRack.param.fallback': 'Paramètre',
 }

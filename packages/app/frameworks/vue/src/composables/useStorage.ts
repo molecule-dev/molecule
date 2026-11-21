@@ -21,8 +21,8 @@ import { getPreferenceStore, type StorageProvider } from '@molecule/app-storage'
 import { StorageKey } from '../injection-keys.js'
 import type {
   UseStoragePreferenceOptions,
-  UseStoragePreferenceReturn,
-  UseStorageValueReturn,
+  UseStoragePreferenceResult,
+  UseStorageValueResult,
 } from '../types.js'
 
 /**
@@ -99,7 +99,7 @@ export interface UseStorageValueOptions<T> {
 export function useStorageValue<T>(
   key: MaybeRefOrGetter<string>,
   options?: MaybeRefOrGetter<UseStorageValueOptions<T> | undefined>,
-): UseStorageValueReturn<T> {
+): UseStorageValueResult<T> {
   const storage = useStorageProvider()
 
   // The latest `defaultValue`, read at the moment it is used — React's ref
@@ -265,7 +265,7 @@ export function useStorageValue<T>(
 export function useStoragePreference<T = unknown>(
   key: MaybeRefOrGetter<string | null | undefined>,
   options?: MaybeRefOrGetter<UseStoragePreferenceOptions<T> | undefined>,
-): UseStoragePreferenceReturn<T> {
+): UseStoragePreferenceResult<T> {
   const store = getPreferenceStore()
 
   const read = (currentKey: string | null | undefined): T | undefined => {

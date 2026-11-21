@@ -1,5 +1,6 @@
 import { type Component, Index, type JSX } from 'solid-js'
 
+import { useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { BreadcrumbItem, BreadcrumbProps } from './types.js'
@@ -32,6 +33,7 @@ const isDomNode = (value: unknown): value is Node =>
  */
 export const Breadcrumb: Component<BreadcrumbProps> = (props) => {
   const cm = getClassMap()
+  const { t } = useTranslation()
   const items = (): BreadcrumbItem[] => props.items ?? []
 
   /**
@@ -64,7 +66,9 @@ export const Breadcrumb: Component<BreadcrumbProps> = (props) => {
 
   return (
     <nav
-      aria-label="Breadcrumb"
+      // The nav's accessible name: `t()` with the English default `'Breadcrumb'`,
+      // so it follows the app's locale (React's source of truth).
+      aria-label={t('breadcrumb.aria.breadcrumb', undefined, { defaultValue: 'Breadcrumb' })}
       data-mol-id={props.dataMolId}
       class={cm.cn(
         cm.flex({ align: 'center', gap: 'xs', wrap: 'wrap' }),

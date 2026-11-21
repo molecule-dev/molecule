@@ -1,5 +1,6 @@
 import type { JSX, ReactNode } from 'react'
 
+import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { NavGroup, NavItem } from './types.js'
@@ -36,6 +37,7 @@ export function AppShellSideNav({
   footer,
   className,
 }: AppShellSideNavProps): JSX.Element {
+  const { t } = useTranslation()
   const cm = getClassMap()
   /**
    * Renders a single nav item as a button with icon, label, and optional badge.
@@ -68,7 +70,10 @@ export function AppShellSideNav({
   return (
     <aside className={cm.cn(cm.stack(4), className)}>
       {header}
-      <nav aria-label="Sidebar" className={cm.stack(4)}>
+      <nav
+        aria-label={t('navChrome.aria.sidebar', undefined, { defaultValue: 'Sidebar' })}
+        className={cm.stack(4)}
+      >
         {items && items.map(renderItem)}
         {groups &&
           groups.map((g) => (

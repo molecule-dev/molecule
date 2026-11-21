@@ -8,4 +8,5 @@ export const lo: Partial<NotificationCenterTranslations> = {
   'notifications.viewAll': 'ເບິ່ງທັງໝົດ',
   'notifications.loadError': 'ບໍ່ສາມາດໂຫຼດການແຈ້ງເຕືອນໄດ້.',
   'notifications.retry': 'ລອງໃໝ່',
+  'notifications.unread': 'ຍັງບໍ່ໄດ້ອ່ານ',
 }

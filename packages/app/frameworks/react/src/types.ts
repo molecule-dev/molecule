@@ -72,6 +72,13 @@ export interface AuthProviderProps<T = unknown> extends ProviderProps {
  */
 export interface ThemeProviderProps extends ProviderProps {
   provider: ThemeProvider
+  /**
+   * Not read: the theme a page starts on comes from the theme provider itself (`defaultTheme` and the
+   * saved choice in `@molecule/app-theme-css-variables`), and setting one here would overwrite a
+   * visitor's saved theme on every load.
+   *
+   * @deprecated Ignored. Pass `defaultTheme` to the theme provider (`createCSSVariablesThemeProvider({ defaultTheme })`) instead.
+   */
   initialTheme?: string
 }
 

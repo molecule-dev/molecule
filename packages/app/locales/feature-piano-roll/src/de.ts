@@ -8,4 +8,6 @@ export const de: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.resize': 'Größenänderungshinweis',
   'pianoRoll.aria.note': 'Notiz {{pitch}} ab Takt {{startBeat}} für {{durationBeats}} Beats',
   'pianoRoll.aria.cursor': 'Cursor auf {{pitch}} bei Beat {{beat}}',
+  'pianoRoll.aria.gridHelp':
+    'Die Pfeiltasten bewegen den Zellcursor, Enter oder die Leertaste zeichnet dort eine Note.',
 }

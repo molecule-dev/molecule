@@ -1,4 +1,4 @@
-import type { JSX, ReactNode } from 'react'
+import type { JSX, KeyboardEvent, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 import { Card } from '@molecule/app-ui-react'
@@ -49,6 +49,20 @@ export function RelatedItemsCard<T>({
   dataMolId,
 }: RelatedItemsCardProps<T>): JSX.Element {
   const cm = getClassMap()
+
+  /**
+   * Keyboard activation for a clickable row — the same call the mouse click
+   * makes. The row control is a `role="button"` div (an `<li>` may not carry
+   * button semantics), so it activates Enter and Space itself;
+   * `preventDefault` keeps the browser's own key-driven click from firing the
+   * handler a second time.
+   */
+  const handleRowKeyDown = (event: KeyboardEvent<HTMLDivElement>, item: T, index: number): void => {
+    if (event.key !== 'Enter' && event.key !== ' ') return
+    event.preventDefault()
+    onItemClick?.(item, index)
+  }
+
   return (
     <Card className={className} data-mol-id={dataMolId}>
       <div className={cm.stack(3)}>
@@ -71,12 +85,20 @@ export function RelatedItemsCard<T>({
         ) : (
           <ul className={cm.stack(2)}>
             {items.map((item, i) => (
-              <li
-                key={i}
-                onClick={onItemClick ? () => onItemClick(item, i) : undefined}
-                className={onItemClick ? cm.cursorPointer : undefined}
-              >
-                {renderItem(item, i)}
+              <li key={i}>
+                {onItemClick ? (
+                  <div
+                    role="button"
+                    tabIndex={0}
+                    className={cm.cursorPointer}
+                    onClick={() => onItemClick(item, i)}
+                    onKeyDown={(event) => handleRowKeyDown(event, item, i)}
+                  >
+                    {renderItem(item, i)}
+                  </div>
+                ) : (
+                  renderItem(item, i)
+                )}
               </li>
             ))}
           </ul>

@@ -30,7 +30,7 @@ import {
 import { useEditor } from '../composables/useEditor.js'
 import { useStoragePreference, useStorageValue } from '../composables/useStorage.js'
 import { moleculePlugin } from '../plugin.js'
-import type { UseEditorReturn, UseStorageValueReturn } from '../types.js'
+import type { UseEditorResult, UseStorageValueResult } from '../types.js'
 
 /**
  * A synchronous storage provider — the browser localStorage shape.
@@ -237,7 +237,7 @@ describe('useAIModels across a project scope change', () => {
 describe('useEditor across a provider replacement', () => {
   it('renders the new provider tabs in the first commit', () => {
     const committed: string[] = []
-    let tabs!: UseEditorReturn['tabs']
+    let tabs!: UseEditorResult['tabs']
     const Probe = defineComponent({
       setup() {
         const editor = useEditor()
@@ -273,7 +273,7 @@ describe('useStorageValue removeValue', () => {
   it('keeps one identity and removes the key it is showing', async () => {
     const provider = syncProvider({ a: 'one', b: 'two' })
     const key = ref('a')
-    let storage!: UseStorageValueReturn<string>
+    let storage!: UseStorageValueResult<string>
     const Probe = defineComponent({
       setup() {
         storage = useStorageValue<string>(key)

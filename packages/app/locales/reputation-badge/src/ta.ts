@@ -9,6 +9,7 @@ export const ta: ReputationBadgeTranslations = {
   'reputationBadge.level.trusted': 'நம்பகமானவர்',
   'reputationBadge.level.veteran': 'அனுபவசாலி',
   'reputationBadge.level.legend': 'புராணக் கதாபாத்திரம்',
+  'reputationBadge.level.fallback': '{{level}}',
   'badgeShelf.aria': '{{count}} பேட்ஜ்கள் பெறப்பட்டன',
   'badgeShelf.overflow.aria': 'மேலும் {{count}} பேட்ஜ்களைக் காட்டு',
 }

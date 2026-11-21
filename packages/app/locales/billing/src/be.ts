@@ -15,4 +15,11 @@ export const be: Partial<BillingTranslations> = {
   'billing.pricing.perSeat': 'на месца',
   'billing.pricing.upgradeCta': 'Абнавіць да {{tierName}}',
   'billing.pricing.currentCta': 'Бягучы план',
+  'billing.pricing.period.month': 'у месяц',
+  'billing.pricing.period.year': 'у год',
+  'billing.pricing.billed.month': 'Аплата штомесяц',
+  'billing.pricing.billed.year': 'Аплата штогод',
+  'billing.pricing.unlimited': 'Неабмежавана',
+  'billing.pricing.limit.maxProjects': 'Максімальная колькасць праектаў',
+  'billing.pricing.limit.canExport': 'Экспарт даступны',
 }

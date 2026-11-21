@@ -37,8 +37,9 @@ import { BareSlot } from './slot-dom.js'
  * header (icon first, then the `<h3>`), `headerActions` inside the right-hand
  * header row before the "View all" link, and `emptyState` in the list's place
  * when `items` is empty — bare, as React renders it. String inputs render as
- * text instead. `onItemClick` makes the rows clickable (React's mouse-only
- * `<li>` rows: no button semantics, no keyboard handler).
+ * text instead. `onItemClick` makes the rows clickable: the `<li>` stays a
+ * list item and the card wraps the row content in an inner `role="button"`
+ * div — focusable, with Enter/Space running the same handler the click does.
  */
 @Component({
   selector: 'div[mol-related-items-card]',
@@ -76,11 +77,29 @@ import { BareSlot } from './slot-dom.js'
     @if (items.length > 0) {
       <ul [class]="listClasses()">
         @for (item of items; track $index) {
-          <li [class]="rowClasses()" (click)="clickRow(item, $index)">
-            <ng-container
-              [ngTemplateOutlet]="renderItem ?? null"
-              [ngTemplateOutletContext]="rowContext(item, $index)"
-            ></ng-container>
+          <li>
+            @if (onItemClick) {
+              <!-- The row's clickable surface: the li stays a list item and
+                this role="button" control carries the click and the
+                Enter/Space activation, the way React's inner div does. -->
+              <div
+                role="button"
+                tabindex="0"
+                [class]="rowClasses()"
+                (click)="clickRow(item, $index)"
+                (keydown)="keydownRow(item, $index, $event)"
+              >
+                <ng-container
+                  [ngTemplateOutlet]="renderItem ?? null"
+                  [ngTemplateOutletContext]="rowContext(item, $index)"
+                ></ng-container>
+              </div>
+            } @else {
+              <ng-container
+                [ngTemplateOutlet]="renderItem ?? null"
+                [ngTemplateOutletContext]="rowContext(item, $index)"
+              ></ng-container>
+            }
           </li>
         }
       </ul>
@@ -187,7 +206,8 @@ export class RelatedItemsCard<T = unknown> implements AfterViewInit, DoCheck {
   }
 
   /**
-   * The rows' class: React adds `cm.cursorPointer` only when a row is clickable.
+   * The row controls' class: React puts `cm.cursorPointer` on the inner
+   * button-role div only when a row is clickable.
    * @returns The class string, or null for no class attribute.
    */
   rowClasses(): string | null {
@@ -231,6 +251,22 @@ export class RelatedItemsCard<T = unknown> implements AfterViewInit, DoCheck {
    * @param index - The row's index.
    */
   clickRow(item: T, index: number): void {
+    this.onItemClick?.(item, index)
+  }
+
+  /**
+   * Keyboard activation for a clickable row — the same call the mouse click
+   * makes. The row control is a `role="button"` div (an `<li>` may not carry
+   * button semantics), so it activates Enter and Space itself;
+   * `preventDefault` keeps the browser's own key-driven click from firing the
+   * handler a second time.
+   * @param item - The row's item.
+   * @param index - The row's index.
+   * @param event - The keydown event on the row control.
+   */
+  keydownRow(item: T, index: number, event: KeyboardEvent): void {
+    if (event.key !== 'Enter' && event.key !== ' ') return
+    event.preventDefault()
     this.onItemClick?.(item, index)
   }
 

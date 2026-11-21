@@ -13,4 +13,8 @@ export const et: Partial<SearchUiTranslations> = {
   'searchUi.relatedTitle': 'Vastab teie otsingu tähendusele, mitte selle sõnadele',
   'searchUi.related': 'seotud',
   'searchUi.help': 'Otsinguvihjed',
+  'searchUi.examplePhrase': '"täpne fraas"',
+  'searchUi.exampleExcluded': '-sõna',
+  'searchUi.activeResult': '{{title}}, {{count}} tulemusest {{position}}',
+  'searchUi.dialogLabel': 'Otsi',
 }

@@ -162,6 +162,11 @@ export function AudioMixer(props: AudioMixerProps): JSX.Element {
   const masterLabel = t('audioMixer.master', {}, { defaultValue: 'Master' })
   const muteLabel = t('audioMixer.button.mute', {}, { defaultValue: 'Mute' })
   const soloLabel = t('audioMixer.button.solo', {}, { defaultValue: 'Solo' })
+  // The compact buttons show one letter; a locale's letter is its own key, not
+  // the label's `charAt(0)` — which under a translated label is an arbitrary
+  // slice of that string (and under the en-XA pseudo-locale a lone `⟦`).
+  const muteInitial = t('audioMixer.button.muteInitial', {}, { defaultValue: 'M' })
+  const soloInitial = t('audioMixer.button.soloInitial', {}, { defaultValue: 'S' })
   const faderAria = (channelName: string): string =>
     t('audioMixer.aria.fader', { name: channelName }, { defaultValue: '{{name}} fader' })
   const panAria = (channelName: string): string =>
@@ -197,6 +202,8 @@ export function AudioMixer(props: AudioMixerProps): JSX.Element {
           faderHeight={faderHeight}
           muteLabel={muteLabel}
           soloLabel={soloLabel}
+          muteInitial={muteInitial}
+          soloInitial={soloInitial}
           sendsLabel={sendsLabel}
           faderAria={faderAria(channel.name)}
           panAria={panAria(channel.name)}
@@ -223,6 +230,8 @@ export function AudioMixer(props: AudioMixerProps): JSX.Element {
             faderHeight={faderHeight}
             muteLabel={muteLabel}
             soloLabel={soloLabel}
+            muteInitial={muteInitial}
+            soloInitial={soloInitial}
             sendsLabel={sendsLabel}
             faderAria={faderAria(master.name || masterLabel)}
             panAria={panAria(master.name || masterLabel)}
@@ -241,6 +250,10 @@ interface ChannelStripProps {
   faderHeight: number
   muteLabel: string
   soloLabel: string
+  /** Translated letter the mute button shows (`audioMixer.button.muteInitial`). */
+  muteInitial: string
+  /** Translated letter the solo button shows (`audioMixer.button.soloInitial`). */
+  soloInitial: string
   sendsLabel: string
   faderAria: string
   panAria: string
@@ -263,6 +276,8 @@ function ChannelStrip(props: ChannelStripProps): JSX.Element {
     faderHeight,
     muteLabel,
     soloLabel,
+    muteInitial,
+    soloInitial,
     sendsLabel,
     faderAria,
     panAria,
@@ -438,7 +453,7 @@ function ChannelStrip(props: ChannelStripProps): JSX.Element {
           className={toggleClass(channel.muted === true)}
           onClick={handleMute}
         >
-          {muteLabel.charAt(0).toUpperCase()}
+          {muteInitial}
         </button>
         <button
           type="button"
@@ -448,7 +463,7 @@ function ChannelStrip(props: ChannelStripProps): JSX.Element {
           className={toggleClass(channel.solo === true)}
           onClick={handleSolo}
         >
-          {soloLabel.charAt(0).toUpperCase()}
+          {soloInitial}
         </button>
       </div>
 

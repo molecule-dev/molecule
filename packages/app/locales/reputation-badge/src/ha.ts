@@ -9,6 +9,7 @@ export const ha: ReputationBadgeTranslations = {
   'reputationBadge.level.trusted': 'Amintacce',
   'reputationBadge.level.veteran': 'Tsohon soja',
   'reputationBadge.level.legend': 'Almara',
+  'reputationBadge.level.fallback': '{{level}}',
   'badgeShelf.aria': 'An sami bajoji {{count}}',
   'badgeShelf.overflow.aria': 'Nuna ƙarin bajoji {{count}}',
 }

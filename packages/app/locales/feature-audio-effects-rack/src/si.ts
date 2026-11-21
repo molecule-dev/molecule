@@ -49,4 +49,5 @@ export const si: Partial<AudioEffectsRackTranslations> = {
   'audioEffectsRack.param.phaser.rate': 'අනුපාතය',
   'audioEffectsRack.param.phaser.depth': 'ගැඹුර',
   'audioEffectsRack.param.phaser.feedback': 'ප්‍රතිපෝෂණ',
+  'audioEffectsRack.param.fallback': 'පැරාමිතිය',
 }

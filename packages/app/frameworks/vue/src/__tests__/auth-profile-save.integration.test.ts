@@ -17,7 +17,7 @@ import { createJWTAuthClient } from '@molecule/app-auth'
 import { useAuth } from '../composables/useAuth.js'
 import { useProfileForm } from '../composables/useProfileForm.js'
 import { moleculePlugin } from '../plugin.js'
-import type { UseAuthReturn } from '../types.js'
+import type { UseAuthResult } from '../types.js'
 
 interface Account {
   memberKey: string
@@ -196,7 +196,7 @@ afterEach(() => {
 describe('signed-in account edits', () => {
   it('useAuth saves through the configured profile transport before a form remount', async () => {
     const { client, writes, items } = setup()
-    let auth!: UseAuthReturn<Account>
+    let auth!: UseAuthResult<Account>
     const Probe = defineComponent({
       setup() {
         auth = useAuth<Account>()
@@ -228,7 +228,7 @@ describe('signed-in account edits', () => {
       'fetch',
       vi.fn(async () => Response.json({ error: 'Invalid name' }, { status: 422 })),
     )
-    let auth!: UseAuthReturn<Account>
+    let auth!: UseAuthResult<Account>
     const Probe = defineComponent({
       setup() {
         auth = useAuth<Account>()
@@ -243,7 +243,7 @@ describe('signed-in account edits', () => {
 
   it('counterexample: a custom save followed by setUser keeps the next form correct', async () => {
     const { client } = setup()
-    let auth!: UseAuthReturn<Account>
+    let auth!: UseAuthResult<Account>
     const Probe = defineComponent({
       setup() {
         auth = useAuth<Account>()

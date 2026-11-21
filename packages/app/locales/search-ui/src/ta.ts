@@ -16,4 +16,8 @@ export const ta: Partial<SearchUiTranslations> = {
   'searchUi.relatedTitle': 'உங்கள் தேடலின் வார்த்தைகளுடன் அல்ல, அதன் பொருளுடன் பொருந்துகிறது.',
   'searchUi.related': 'தொடர்புடைய',
   'searchUi.help': 'தேடல் குறிப்புகள்',
+  'searchUi.examplePhrase': '"சரியான சொற்றொடர்"',
+  'searchUi.exampleExcluded': '-சொல்',
+  'searchUi.activeResult': '{{title}}, {{count}} இல் {{position}}',
+  'searchUi.dialogLabel': 'தேடு',
 }

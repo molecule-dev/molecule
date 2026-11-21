@@ -51,10 +51,11 @@
  * - The viewport is FIXED-PIXEL: `viewportWidth`/`viewportHeight`
  *   (defaults 720×360) — the grid does not auto-size to its container.
  *   Measure the container and pass px if you need it to fill.
- * - Copy (Ctrl/Cmd+C) writes TSV via `navigator.clipboard` — secure
- *   contexts only (HTTPS/localhost). Paste is handled through the native
- *   paste event, so the grid container must have focus (click a cell
- *   first). Keyboard support is Enter/F2 (edit) + copy/paste only; there
+ * - Copy (Ctrl/Cmd+C) writes TSV through `copyTextWithFallback()` from
+ *   `@molecule/app-clipboard`, which uses the bonded clipboard provider with
+ *   a selection-and-copy fallback and never throws. Paste is handled through
+ *   the native paste event, so the grid container must have focus (click a
+ *   cell first). Keyboard support is Enter/F2 (edit) + copy/paste only; there
  *   is NO arrow-key cell navigation.
  * - Committed edits and pasted cells auto-coerce number-like strings to
  *   numbers (`'42'` → `42`); empty string clears the cell (`null`).

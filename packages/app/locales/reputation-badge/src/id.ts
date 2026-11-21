@@ -9,6 +9,7 @@ export const id: ReputationBadgeTranslations = {
   'reputationBadge.level.trusted': 'Tepercaya',
   'reputationBadge.level.veteran': 'Veteran',
   'reputationBadge.level.legend': 'Legenda',
+  'reputationBadge.level.fallback': '{{level}}',
   'badgeShelf.aria': '{{count}} lencana diraih',
   'badgeShelf.overflow.aria': 'Tampilkan {{count}} lencana lagi',
 }

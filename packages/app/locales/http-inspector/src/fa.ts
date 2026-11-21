@@ -7,4 +7,8 @@ export const fa: Partial<HttpInspectorTranslations> = {
   'httpInspector.headers': 'سربرگ‌ها',
   'httpInspector.addHeader': 'اضافه کردن هدر',
   'httpInspector.body': 'بدن',
+  'httpInspector.methodLabel': 'متد HTTP',
+  'httpInspector.urlLabel': 'URL',
+  'httpInspector.headerPlaceholder': 'هدر',
+  'httpInspector.valuePlaceholder': 'مقدار',
 }

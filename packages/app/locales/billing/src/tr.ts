@@ -16,4 +16,11 @@ export const tr: Partial<BillingTranslations> = {
     'İstediğiniz zaman iptal edebilirsiniz · Başlamak için kredi kartı gerekmez',
   'billing.pricing.perSeat': 'koltuk başına',
   'billing.pricing.currentCta': 'Mevcut plan',
+  'billing.pricing.period.month': 'aylık',
+  'billing.pricing.period.year': 'yıllık',
+  'billing.pricing.billed.month': 'Aylık faturalandırılır',
+  'billing.pricing.billed.year': 'Yıllık faturalandırılır',
+  'billing.pricing.unlimited': 'Sınırsız',
+  'billing.pricing.limit.maxProjects': 'Maksimum proje sayısı',
+  'billing.pricing.limit.canExport': 'Dışa aktarma mevcut',
 }

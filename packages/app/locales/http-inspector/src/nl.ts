@@ -7,4 +7,8 @@ export const nl: Partial<HttpInspectorTranslations> = {
   'httpInspector.body': 'Bericht',
   'httpInspector.headers': 'Kopteksten',
   'httpInspector.addHeader': 'Koptekst toevoegen',
+  'httpInspector.methodLabel': 'HTTP-methode',
+  'httpInspector.urlLabel': 'URL',
+  'httpInspector.headerPlaceholder': 'Koptekst',
+  'httpInspector.valuePlaceholder': 'Waarde',
 }

@@ -8,6 +8,8 @@ export const sq: Partial<AudioMixerTranslations> = {
   'audioMixer.aria.send': '{{channel}} dërgo te {{send}}',
   'audioMixer.button.mute': 'Hesht',
   'audioMixer.button.solo': 'Solo',
+  'audioMixer.button.muteInitial': 'H',
+  'audioMixer.button.soloInitial': 'S',
   'audioMixer.master': 'Mjeshtër',
   'audioMixer.sends': 'Dërgon',
 }

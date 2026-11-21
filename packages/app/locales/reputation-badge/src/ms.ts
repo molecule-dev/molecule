@@ -9,6 +9,7 @@ export const ms: ReputationBadgeTranslations = {
   'reputationBadge.level.trusted': 'Dipercayai',
   'reputationBadge.level.veteran': 'Veteran',
   'reputationBadge.level.legend': 'Lagenda',
+  'reputationBadge.level.fallback': '{{level}}',
   'badgeShelf.aria': '{{count}} lencana diperoleh',
   'badgeShelf.overflow.aria': 'Tunjukkan {{count}} lencana lagi',
 }

@@ -8,4 +8,5 @@ export const bn: Partial<NotificationCenterTranslations> = {
   'notifications.viewAll': 'সব দেখুন',
   'notifications.loadError': 'নোটিফিকেশনগুলো লোড করা যায়নি।',
   'notifications.retry': 'পুনরায় চেষ্টা করুন',
+  'notifications.unread': 'অপঠিত',
 }

@@ -16,4 +16,8 @@ export const ml: Partial<SearchUiTranslations> = {
     'നിങ്ങളുടെ തിരയലിന്റെ അർത്ഥവുമായി പൊരുത്തപ്പെടുന്നു, വാക്കുകളുമായിട്ടല്ല.',
   'searchUi.related': 'ബന്ധപ്പെട്ട',
   'searchUi.help': 'തിരയൽ നുറുങ്ങുകൾ',
+  'searchUi.examplePhrase': '"കൃത്യമായ വാക്യം"',
+  'searchUi.exampleExcluded': '-വാക്ക്',
+  'searchUi.activeResult': '{{title}}, {{count}}-ൽ {{position}}',
+  'searchUi.dialogLabel': 'തിരയുക',
 }

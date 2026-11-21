@@ -1,6 +1,15 @@
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+
+// The mocked `t()`'s behavior, switchable per test: 'defaults' resolves the
+// inline English default (the provider's behavior for an unloaded key),
+// 'marker' renders `«key»` (so any text that bypassed t() would show up as
+// plain English), and 'fr' renders the French the locale switch delivered.
+const tMock = vi.hoisted(() => ({
+  mode: 'defaults' as 'defaults' | 'marker' | 'fr',
+  calls: [] as Array<{ key: string; values: Record<string, unknown> | undefined }>,
+}))
 
 vi.mock('@molecule/app-ui', () => ({
   getClassMap: () => {
@@ -24,8 +33,16 @@ vi.mock('@molecule/app-ui', () => ({
 
 vi.mock('@molecule/app-react', () => ({
   useTranslation: () => ({
-    t: (_key: string, _values: unknown, opts?: { defaultValue?: string }) =>
-      opts?.defaultValue ?? _key,
+    t: (
+      key: string,
+      values: Record<string, unknown> | undefined,
+      opts?: { defaultValue?: string },
+    ) => {
+      tMock.calls.push({ key, values })
+      if (tMock.mode === 'marker') return `«${key}»`
+      if (tMock.mode === 'fr') return `fr: ${opts?.defaultValue ?? key}`
+      return opts?.defaultValue ?? key
+    },
   }),
 }))
 
@@ -44,6 +61,11 @@ const { FeatureFlagRow } = await import('../FeatureFlagRow.js')
 import type { FeatureFlag, FlagType } from '../FeatureFlagRow.js'
 
 const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
+
+afterEach(() => {
+  tMock.mode = 'defaults'
+  tMock.calls.length = 0
+})
 
 const flag: FeatureFlag = {
   key: 'new-checkout',
@@ -110,5 +132,40 @@ describe('FeatureFlagRow', () => {
       createElement(FeatureFlagRow, { flag, onToggle: () => {}, className: 'ffr-cls' }),
     )
     expect(markup).toContain('ffr-cls')
+  })
+})
+
+describe('FeatureFlagRow i18n', () => {
+  it('renders the switch aria-label through t with its key and values', () => {
+    tMock.mode = 'marker'
+    const markup = html(createElement(FeatureFlagRow, { flag, onToggle: () => {} }))
+    expect(markup).toContain('aria-label="«featureFlagRow.aria.flagInEnvironment»"')
+    expect(tMock.calls.some((c) => c.key === 'featureFlagRow.aria.flagInEnvironment')).toBe(true)
+    expect(tMock.calls.some((c) => c.values?.['flag'] === 'new-checkout')).toBe(true)
+    expect(tMock.calls.some((c) => c.values?.['environment'] === 'production')).toBe(true)
+  })
+
+  it('renders the flag type badge through t with a literal key per type', () => {
+    tMock.mode = 'marker'
+    const cases: FlagType[] = ['boolean', 'multivariate', 'percentage', 'string']
+    for (const type of cases) {
+      const markup = html(
+        createElement(FeatureFlagRow, { flag: { ...flag, type }, onToggle: () => {} }),
+      )
+      expect(markup).toContain(`«flagType.${type}»`)
+    }
+    for (const type of cases)
+      expect(tMock.calls.some((c) => c.key === `flagType.${type}`)).toBe(true)
+  })
+
+  it('switching the locale changes the switch label and the badge', () => {
+    expect(html(createElement(FeatureFlagRow, { flag, onToggle: () => {} }))).toContain(
+      'aria-label="{{flag}} in {{environment}}"',
+    )
+    tMock.mode = 'fr'
+    const markup = html(createElement(FeatureFlagRow, { flag, onToggle: () => {} }))
+    expect(markup).toContain('aria-label="fr: {{flag}} in {{environment}}"')
+    expect(markup).toContain('fr: Percentage')
+    expect(markup).not.toContain('aria-label="{{flag}} in {{environment}}"')
   })
 })

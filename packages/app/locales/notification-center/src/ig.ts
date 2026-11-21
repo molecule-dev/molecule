@@ -8,4 +8,5 @@ export const ig: Partial<NotificationCenterTranslations> = {
   'notifications.viewAll': 'Lee ihe niile',
   'notifications.loadError': 'Enweghị ike ibuli ọkwa.',
   'notifications.retry': 'Nwaa ọzọ',
+  'notifications.unread': 'Agụghị ya',
 }

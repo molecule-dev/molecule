@@ -20,8 +20,8 @@ import type { SessionReadyProps } from './types.js'
  * public page that renders a
  * signed-in action at once lets that action run against "signed out": a Follow button whose
  * handler starts with `if (!user()) return` ignores the click, one that redirects to `/login`
- * signs the visitor out of the flow. Wrapping the routes (or passing `awaitSession` in the
- * `MoleculeProvider` config) makes every page's first render read the restored user when
+ * signs the visitor out of the flow. `MoleculeProvider` given `auth` renders this around the
+ * app by default (`awaitSession`), so every page's first render reads the restored user when
  * restoration succeeds.
  *
  * A visitor with no session candidate settles synchronously without a request. Must render
@@ -37,7 +37,7 @@ import type { SessionReadyProps } from './types.js'
  * @returns The children once the session is decided, otherwise the fallback.
  * @example
  * ```tsx
- * <MoleculeProvider config={{ auth: authClient, awaitSession: true }}>
+ * <MoleculeProvider auth={authClient} sessionFallback={<p>Restoring your session…</p>}>
  *   <Routes>…</Routes>
  * </MoleculeProvider>
  * ```

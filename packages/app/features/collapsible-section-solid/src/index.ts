@@ -17,7 +17,7 @@
  *
  * render(
  *   () => (
- *     <MoleculeProvider config={{ i18n: i18nProvider }}>
+ *     <MoleculeProvider i18n={i18nProvider}>
  *       <CollapsibleSection title="Key concepts" defaultExpanded={true}>
  *         <p>Content revealed when expanded.</p>
  *       </CollapsibleSection>

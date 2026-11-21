@@ -83,6 +83,25 @@ describe('<AnimationCanvas>', () => {
     expect(root?.getAttribute('role')).toBe('img')
   })
 
+  it('labels the canvas root only (shape groups carry no aria-label)', () => {
+    const keyframes: AnimationKeyframe[] = [
+      { time: 0, state: [oneShape('a', 0, 0)] },
+      { time: 1, state: [oneShape('a', 100, 0)] },
+    ]
+    const { container } = render(
+      <Wrap>
+        <AnimationCanvas keyframes={keyframes} currentTime={0} width={400} height={200} />
+      </Wrap>,
+    )
+    // The root `<svg role="img">` names the whole picture…
+    const root = container.querySelector('[data-mol-id="animation-canvas"]') as SVGSVGElement
+    expect(root.getAttribute('aria-label')).toBe('Animation canvas')
+    // …and the shape groups inside it are presentational, so they expose no
+    // label of their own (axe's aria-prohibited-attr).
+    const shape = container.querySelector('[data-mol-id="animation-canvas-shape-a"]') as SVGGElement
+    expect(shape.getAttribute('aria-label')).toBeNull()
+  })
+
   it('renders one visible shape group per shape', () => {
     const keyframes: AnimationKeyframe[] = [
       { time: 0, state: [oneShape('a', 0, 0), oneShape('b', 50, 50)] },

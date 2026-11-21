@@ -6,4 +6,8 @@ export const bn: Partial<LoyaltyTierBadgeTranslations> = {
   'loyaltyTierBadge.progress': 'অগ্রগতি {{next}}',
   'loyaltyTierBadge.topTier': 'শীর্ষ স্তরে পৌঁছেছে',
   'loyaltyTierBadge.remaining': '{{remaining}} থেকে {{next}}',
+  'loyaltyTierBadge.tier.bronze': 'ব্রোঞ্জ',
+  'loyaltyTierBadge.tier.silver': 'রুপো',
+  'loyaltyTierBadge.tier.gold': 'সোনা',
+  'loyaltyTierBadge.tier.platinum': 'প্লাটিনাম',
 }

@@ -105,7 +105,14 @@ export const forumThreadRowFeature: FeatureCases = {
           name: 'click calls onClick',
           props: { title: 'T' },
           callbacks: ['onClick'],
-          interactions: [{ type: 'click', selector: 'article' }],
+          interactions: [{ type: 'click', selector: '[data-mol-id="forum-thread-row-open"]' }],
+        },
+        {
+          name: 'clicking voteControls does not call onClick',
+          props: { title: 'T' },
+          callbacks: ['onClick'],
+          slots: { voteControls },
+          interactions: [{ type: 'click', selector: '[data-votes]' }],
         },
         {
           name: 'clickable row forwards className',

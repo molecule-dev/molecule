@@ -57,6 +57,10 @@ const slotOrProp = (
  * Articles", "Post → Related Posts". Apps supply the item data and a renderer;
  * the card provides consistent header + list + empty-state + view-all chrome.
  *
+ * Clickable rows (`onItemClick`): the `<li>` stays a list item and the card
+ * wraps the row content in an inner `role="button"` div — focusable, with
+ * Enter/Space running the same handler the click does.
+ *
  * @param props - Component props (`RelatedItemsCardProps`).
  * @returns The related items card component.
  */
@@ -136,17 +140,25 @@ export const RelatedItemsCard = defineComponent({
                 'ul',
                 { class: cm.stack(2) },
                 props.items.map((item, i) =>
-                  h(
-                    'li',
-                    {
-                      key: i,
-                      onClick: props.onItemClick
-                        ? (): void => props.onItemClick?.(item, i)
-                        : undefined,
-                      class: props.onItemClick ? cm.cursorPointer : undefined,
-                    },
-                    [renderRow(props.renderItem, item, i)],
-                  ),
+                  h('li', { key: i }, [
+                    props.onItemClick
+                      ? h(
+                          'div',
+                          {
+                            role: 'button',
+                            tabindex: 0,
+                            class: cm.cursorPointer,
+                            onClick: (): void => props.onItemClick?.(item, i),
+                            onKeydown: (event: KeyboardEvent): void => {
+                              if (event.key !== 'Enter' && event.key !== ' ') return
+                              event.preventDefault()
+                              props.onItemClick?.(item, i)
+                            },
+                          },
+                          [renderRow(props.renderItem, item, i)],
+                        )
+                      : renderRow(props.renderItem, item, i),
+                  ]),
                 ),
               ),
             ]

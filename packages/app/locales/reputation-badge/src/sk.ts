@@ -9,6 +9,7 @@ export const sk: ReputationBadgeTranslations = {
   'reputationBadge.level.trusted': 'Dôveryhodný',
   'reputationBadge.level.veteran': 'Veterán',
   'reputationBadge.level.legend': 'Legenda',
+  'reputationBadge.level.fallback': '{{level}}',
   'badgeShelf.aria': 'Získaných {{count}} odznakov',
   'badgeShelf.overflow.aria': 'Zobraziť ďalších {{count}} odznakov',
 }

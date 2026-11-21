@@ -4,7 +4,7 @@ import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 import { FileIcon, type FileKind } from './FileIcon.js'
-import { bytes, relativeBucket } from './format.js'
+import { relativeBucket, type SizeParts, sizeParts } from './format.js'
 
 /**
  * Minimal description of a file shown in a `<FileCard>`. Apps map their own
@@ -110,6 +110,64 @@ function relativeText(at: string | number | Date, t: TFn, now: Date | undefined)
 }
 
 /**
+ * Resolve the human-readable kind label via `t()`. One literal key per
+ * `FileKind` so the i18n gate can verify every key exists in the locale
+ * bond (a runtime-built `` `file-card.kind.${kind}` `` cannot be checked).
+ *
+ * @param kind - File kind.
+ * @param t - The `useTranslation()` `t` function.
+ * @returns The localized kind label.
+ */
+function kindText(kind: FileKind, t: TFn): string {
+  switch (kind) {
+    case 'image':
+      return t('file-card.kind.image', {}, { defaultValue: 'Image file' })
+    case 'video':
+      return t('file-card.kind.video', {}, { defaultValue: 'Video file' })
+    case 'audio':
+      return t('file-card.kind.audio', {}, { defaultValue: 'Audio file' })
+    case 'document':
+      return t('file-card.kind.document', {}, { defaultValue: 'Document' })
+    case 'archive':
+      return t('file-card.kind.archive', {}, { defaultValue: 'Archive' })
+    case 'code':
+      return t('file-card.kind.code', {}, { defaultValue: 'Code file' })
+    case 'folder':
+      return t('file-card.kind.folder', {}, { defaultValue: 'Folder' })
+    case 'other':
+      return t('file-card.kind.other', {}, { defaultValue: 'File' })
+  }
+}
+
+/**
+ * Resolve the size's unit word via `t()`, with the number {@link sizeParts}
+ * already displayed: one literal key per `SizeUnit` — the same pattern as
+ * {@link kindText} — so the i18n gate can verify every key exists in the
+ * locale bond, and the `{{n}}` placeholder lets a translation move the number
+ * or rename the token (French octets, Russian КБ).
+ *
+ * @param size - The size's displayed number and unit (`sizeParts(file.size)`).
+ * @param t - The `useTranslation()` `t` function.
+ * @returns The localized size text.
+ */
+function sizeUnitText(size: SizeParts, t: TFn): string {
+  switch (size.unit) {
+    case 'B':
+      return t('file-card.size.b', { n: size.n }, { defaultValue: '{{n}} B' })
+    case 'KB':
+      return t('file-card.size.kb', { n: size.n }, { defaultValue: '{{n}} KB' })
+    case 'MB':
+      return t('file-card.size.mb', { n: size.n }, { defaultValue: '{{n}} MB' })
+    case 'GB':
+      return t('file-card.size.gb', { n: size.n }, { defaultValue: '{{n}} GB' })
+    case 'TB':
+      return t('file-card.size.tb', { n: size.n }, { defaultValue: '{{n}} TB' })
+    case 'PB':
+      return t('file-card.size.pb', { n: size.n }, { defaultValue: '{{n}} PB' })
+  }
+}
+
+/**
  * File representation card — icon (or thumbnail), filename, formatted size,
  * relative modified date, and optional trailing actions slot. Used by
  * cloud-file-manager grids/lists, social-media + email-client attachment
@@ -152,17 +210,9 @@ export function FileCard({
   const cm = getClassMap()
   const { t } = useTranslation()
 
-  const kindLabel = t(
-    `file-card.kind.${file.kind}`,
-    {},
-    {
-      defaultValue:
-        file.kind === 'folder'
-          ? 'Folder'
-          : `${file.kind.charAt(0).toUpperCase() + file.kind.slice(1)} file`,
-    },
-  )
-  const sizeText = file.kind === 'folder' ? '' : bytes(file.size)
+  const kindLabel = kindText(file.kind, t)
+  const size = file.kind === 'folder' ? undefined : sizeParts(file.size)
+  const sizeText = size ? sizeUnitText(size, t) : ''
   const sizeLabel = sizeText
     ? t('file-card.aria.size', { size: sizeText }, { defaultValue: 'Size {{size}}' })
     : ''

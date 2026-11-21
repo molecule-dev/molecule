@@ -13,4 +13,8 @@ export const mt: Partial<SearchUiTranslations> = {
   'searchUi.relatedTitle': 'Jaqbel mat-tifsira tat-tfittxija tiegħek, mhux mal-kliem tagħha',
   'searchUi.related': 'relatat',
   'searchUi.help': 'Pariri dwar it-tiftix',
+  'searchUi.examplePhrase': '"frażi eżatta"',
+  'searchUi.exampleExcluded': '-kelma',
+  'searchUi.activeResult': '{{title}}, {{position}} minn {{count}}',
+  'searchUi.dialogLabel': 'Fittex',
 }

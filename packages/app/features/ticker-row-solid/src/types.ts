@@ -22,9 +22,14 @@ export interface TickerRowProps {
   changeDisplay?: JSX.Element
   /** Optional sparkline node (pass `<Sparkline values={...} />` from `app-sparkline-solid`). */
   sparkline?: JSX.Element
-  /** Optional volume / market-cap display. */
+  /** Optional volume / market-cap display. May hold a control; it keeps its own clicks. */
   meta?: JSX.Element
-  /** Click handler. */
+  /**
+   * Click handler. While it is set the whole row is clickable through a
+   * transparent native button laid over it, named by the symbol; the inner
+   * controls (the `meta` slot) sit above that button and keep their own
+   * clicks.
+   */
   onClick?: () => void
   /** Extra classes. */
   className?: string

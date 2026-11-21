@@ -6,18 +6,11 @@
 
 import { Component } from '@angular/core'
 
+import { useTranslation } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { PresenceStatus } from './types.js'
-
-/** The fixed semantic hue of each presence state. */
-const STATUS_COLOR: Record<PresenceStatus, string> = {
-  online: '#22c55e',
-  away: '#eab308',
-  busy: '#ef4444',
-  offline: '#94a3b8',
-}
 
 /**
  * PresenceDot component.
@@ -29,8 +22,10 @@ const STATUS_COLOR: Record<PresenceStatus, string> = {
  * as react-dom does). Same props, same DOM as
  * `@molecule/app-presence-indicator-react`'s `PresenceDot`.
  *
- * The default aria-label is the English string `Presence: <status>` — pass
- * `ariaLabel` (e.g. from `t()`) in localized apps.
+ * The default aria-label resolves through `t()` with the
+ * `presenceIndicator.aria.presence` key (an explicitly translated status word
+ * per `presenceIndicator.status.*` key), so it follows the active locale;
+ * `ariaLabel` overrides it.
  */
 @Component({
   selector: 'span[mol-presence-dot]',
@@ -44,8 +39,7 @@ const STATUS_COLOR: Record<PresenceStatus, string> = {
     '[style.width]': 'sizePx()',
     '[style.height]': 'sizePx()',
     '[style.border-radius]': '"50%"',
-    '[style.background]': 'background()',
-    '[style.box-shadow]': 'overlayValue("0 0 0 2px var(--color-surface, #fff)")',
+    '[style.box-shadow]': 'overlayValue("0 0 0 2px var(--color-surface)")',
     '[style.position]': 'overlayValue("absolute")',
     '[style.top]': 'cornerValue("top")',
     '[style.bottom]': 'cornerValue("bottom")',
@@ -63,10 +57,13 @@ export class PresenceDot {
   position?: 'inline' | 'overlay'
   /** Overlay corner when `position="overlay"`. Defaults to `'bottom-right'`. */
   corner?: 'top-right' | 'bottom-right' | 'top-left' | 'bottom-left'
-  /** Accessible label override. Defaults to `Presence: <status>`. */
+  /** Accessible label override; defaults to `t('presenceIndicator.aria.presence', …)`. */
   ariaLabel?: string
   /** Extra classes. */
   className?: string
+
+  /** The i18n provider access (locale-reactive through the notifications signal). */
+  private readonly i18n = useTranslation()
 
   /**
    * The current class map.
@@ -81,15 +78,71 @@ export class PresenceDot {
    * @returns The class string.
    */
   classes(): string {
-    return this.cm().cn(this.className)
+    return this.cm().cn(this.statusClass(), this.className)
   }
 
   /**
-   * The accessible label (React's `ariaLabel ?? \`Presence: ${status}\``).
+   * The class that fills the dot for the current status (React's tone
+   * mapping): the theme's solid success/warning/error tone for
+   * online/away/busy, the theme's neutral border grey for offline — never a
+   * hardcoded hex. An absent status adds no class, matching React's missing
+   * background declaration.
+   * @returns The tone class, or null when no status is bound.
+   */
+  statusClass(): string | null {
+    const cm = this.cm()
+    switch (this.status) {
+      case 'online':
+        return cm.progressColor('success')
+      case 'away':
+        return cm.progressColor('warning')
+      case 'busy':
+        return cm.progressColor('error')
+      case 'offline':
+        return cm.bgBorder
+      default:
+        return null
+    }
+  }
+
+  /**
+   * The translated word for one presence state (React's `statusLabel`): one
+   * literal `t()` call per value of {@link PresenceStatus}, so molecule's i18n
+   * gate sees each key exist. Every `presenceIndicator.status.*` key ships in
+   * the `@molecule/app-locales-presence-indicator` bond. An absent status keeps
+   * React's `Presence: undefined` shape for the label built from it.
+   * @returns The status's word in the active locale.
+   */
+  statusLabel(): string {
+    const t = this.i18n.t
+    switch (this.status) {
+      case 'online':
+        return t('presenceIndicator.status.online', undefined, { defaultValue: 'online' })
+      case 'away':
+        return t('presenceIndicator.status.away', undefined, { defaultValue: 'away' })
+      case 'busy':
+        return t('presenceIndicator.status.busy', undefined, { defaultValue: 'busy' })
+      case 'offline':
+        return t('presenceIndicator.status.offline', undefined, { defaultValue: 'offline' })
+      default:
+        return `${this.status}`
+    }
+  }
+
+  /**
+   * The accessible label (React's
+   * `ariaLabel ?? t('presenceIndicator.aria.presence', …)`).
    * @returns The label text.
    */
   label(): string {
-    return this.ariaLabel ?? `Presence: ${this.status}`
+    return (
+      this.ariaLabel ??
+      this.i18n.t(
+        'presenceIndicator.aria.presence',
+        { status: this.statusLabel() },
+        { defaultValue: 'Presence: {{status}}' },
+      )
+    )
   }
 
   /**
@@ -98,15 +151,6 @@ export class PresenceDot {
    */
   sizePx(): string {
     return `${this.size ?? 10}px`
-  }
-
-  /**
-   * The dot's fill for the current status (React's `STATUS_COLOR[status]`;
-   * an absent status clears the declaration rather than throwing).
-   * @returns The hex color, or null when no status is bound.
-   */
-  background(): string | null {
-    return this.status ? STATUS_COLOR[this.status] : null
   }
 
   /**

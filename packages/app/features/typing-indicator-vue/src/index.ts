@@ -23,12 +23,12 @@
  * @remarks
  * Dots use `currentColor`, so the indicator inherits the surrounding text
  * color — wrap it in a muted-text container to dim it. The default
- * `ariaLabel` is hardcoded English 'Typing…' (React parity) and there is no
- * companion locale bond: pass a translated `ariaLabel` in non-English apps.
- * Each instance injects its own `<style>` tag for the keyframes (fine for a
- * chat view; avoid hundreds at once). Props (documented on the exported
- * `TypingIndicatorProps` interface): visible (default true), dotSize (px,
- * default 6), durationMs (default 1200), ariaLabel, className.
+ * `ariaLabel` is the translated `typingIndicator.aria.label` (English
+ * `'Typing…'`, via `@molecule/app-locales-typing-indicator`); the `ariaLabel`
+ * prop overrides it. Each instance injects its own `<style>` tag for the
+ * keyframes (fine for a chat view; avoid hundreds at once). Props (documented
+ * on the exported `TypingIndicatorProps` interface): visible (default true),
+ * dotSize (px, default 6), durationMs (default 1200), ariaLabel, className.
  *
  * @module
  */

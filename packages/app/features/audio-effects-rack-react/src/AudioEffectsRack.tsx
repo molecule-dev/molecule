@@ -253,10 +253,158 @@ export function AudioEffectsRack(props: AudioEffectsRackProps): JSX.Element {
     {},
     { defaultValue: 'No effects in chain — add one to get started.' },
   )
-  const kindLabel = (kind: EffectKind): string =>
-    t(`audioEffectsRack.kind.${kind}`, {}, { defaultValue: defaultKindLabel(kind) })
-  const paramLabel = (kind: EffectKind, paramId: string): string =>
-    t(`audioEffectsRack.param.${kind}.${paramId}`, {}, { defaultValue: defaultParamLabel(paramId) })
+  /**
+   * Localized label for an effect kind — one literal key per kind in the
+   * closed {@link EffectKind} union, so the i18n gate can verify every key
+   * this call can produce exists in the locale bond.
+   *
+   * @param kind - The effect kind.
+   * @returns The localized kind label.
+   */
+  const kindLabel = (kind: EffectKind): string => {
+    switch (kind) {
+      case 'eq':
+        return t('audioEffectsRack.kind.eq', {}, { defaultValue: 'EQ' })
+      case 'compressor':
+        return t('audioEffectsRack.kind.compressor', {}, { defaultValue: 'Compressor' })
+      case 'reverb':
+        return t('audioEffectsRack.kind.reverb', {}, { defaultValue: 'Reverb' })
+      case 'delay':
+        return t('audioEffectsRack.kind.delay', {}, { defaultValue: 'Delay' })
+      case 'distortion':
+        return t('audioEffectsRack.kind.distortion', {}, { defaultValue: 'Distortion' })
+      case 'gate':
+        return t('audioEffectsRack.kind.gate', {}, { defaultValue: 'Gate' })
+      case 'limiter':
+        return t('audioEffectsRack.kind.limiter', {}, { defaultValue: 'Limiter' })
+      case 'chorus':
+        return t('audioEffectsRack.kind.chorus', {}, { defaultValue: 'Chorus' })
+      case 'flanger':
+        return t('audioEffectsRack.kind.flanger', {}, { defaultValue: 'Flanger' })
+      case 'phaser':
+        return t('audioEffectsRack.kind.phaser', {}, { defaultValue: 'Phaser' })
+    }
+  }
+
+  /**
+   * Localized label for one param of one effect kind — one literal key per
+   * known (kind, param) pair from {@link EFFECT_PARAM_SCHEMAS}. A param id
+   * outside the built-in schemas falls back to one literal catch-all key
+   * (never a runtime-built key).
+   *
+   * @param kind - The effect kind.
+   * @param paramId - The param id.
+   * @returns The localized param label.
+   */
+  const paramLabel = (kind: EffectKind, paramId: string): string => {
+    switch (kind) {
+      case 'eq':
+        switch (paramId) {
+          case 'low':
+            return t('audioEffectsRack.param.eq.low', {}, { defaultValue: 'Low' })
+          case 'mid':
+            return t('audioEffectsRack.param.eq.mid', {}, { defaultValue: 'Mid' })
+          case 'high':
+            return t('audioEffectsRack.param.eq.high', {}, { defaultValue: 'High' })
+        }
+        break
+      case 'compressor':
+        switch (paramId) {
+          case 'threshold':
+            return t(
+              'audioEffectsRack.param.compressor.threshold',
+              {},
+              { defaultValue: 'Threshold' },
+            )
+          case 'ratio':
+            return t('audioEffectsRack.param.compressor.ratio', {}, { defaultValue: 'Ratio' })
+          case 'attack':
+            return t('audioEffectsRack.param.compressor.attack', {}, { defaultValue: 'Attack' })
+          case 'release':
+            return t('audioEffectsRack.param.compressor.release', {}, { defaultValue: 'Release' })
+        }
+        break
+      case 'reverb':
+        switch (paramId) {
+          case 'mix':
+            return t('audioEffectsRack.param.reverb.mix', {}, { defaultValue: 'Mix' })
+          case 'decay':
+            return t('audioEffectsRack.param.reverb.decay', {}, { defaultValue: 'Decay' })
+          case 'predelay':
+            return t('audioEffectsRack.param.reverb.predelay', {}, { defaultValue: 'Pre-delay' })
+        }
+        break
+      case 'delay':
+        switch (paramId) {
+          case 'time':
+            return t('audioEffectsRack.param.delay.time', {}, { defaultValue: 'Time' })
+          case 'feedback':
+            return t('audioEffectsRack.param.delay.feedback', {}, { defaultValue: 'Feedback' })
+          case 'mix':
+            return t('audioEffectsRack.param.delay.mix', {}, { defaultValue: 'Mix' })
+        }
+        break
+      case 'distortion':
+        switch (paramId) {
+          case 'drive':
+            return t('audioEffectsRack.param.distortion.drive', {}, { defaultValue: 'Drive' })
+          case 'tone':
+            return t('audioEffectsRack.param.distortion.tone', {}, { defaultValue: 'Tone' })
+          case 'mix':
+            return t('audioEffectsRack.param.distortion.mix', {}, { defaultValue: 'Mix' })
+        }
+        break
+      case 'gate':
+        switch (paramId) {
+          case 'threshold':
+            return t('audioEffectsRack.param.gate.threshold', {}, { defaultValue: 'Threshold' })
+          case 'attack':
+            return t('audioEffectsRack.param.gate.attack', {}, { defaultValue: 'Attack' })
+          case 'release':
+            return t('audioEffectsRack.param.gate.release', {}, { defaultValue: 'Release' })
+        }
+        break
+      case 'limiter':
+        switch (paramId) {
+          case 'threshold':
+            return t('audioEffectsRack.param.limiter.threshold', {}, { defaultValue: 'Threshold' })
+          case 'release':
+            return t('audioEffectsRack.param.limiter.release', {}, { defaultValue: 'Release' })
+        }
+        break
+      case 'chorus':
+        switch (paramId) {
+          case 'rate':
+            return t('audioEffectsRack.param.chorus.rate', {}, { defaultValue: 'Rate' })
+          case 'depth':
+            return t('audioEffectsRack.param.chorus.depth', {}, { defaultValue: 'Depth' })
+          case 'mix':
+            return t('audioEffectsRack.param.chorus.mix', {}, { defaultValue: 'Mix' })
+        }
+        break
+      case 'flanger':
+        switch (paramId) {
+          case 'rate':
+            return t('audioEffectsRack.param.flanger.rate', {}, { defaultValue: 'Rate' })
+          case 'depth':
+            return t('audioEffectsRack.param.flanger.depth', {}, { defaultValue: 'Depth' })
+          case 'feedback':
+            return t('audioEffectsRack.param.flanger.feedback', {}, { defaultValue: 'Feedback' })
+        }
+        break
+      case 'phaser':
+        switch (paramId) {
+          case 'rate':
+            return t('audioEffectsRack.param.phaser.rate', {}, { defaultValue: 'Rate' })
+          case 'depth':
+            return t('audioEffectsRack.param.phaser.depth', {}, { defaultValue: 'Depth' })
+          case 'feedback':
+            return t('audioEffectsRack.param.phaser.feedback', {}, { defaultValue: 'Feedback' })
+        }
+        break
+    }
+    return t('audioEffectsRack.param.fallback', {}, { defaultValue: 'Parameter' })
+  }
 
   // Track which panel (if any) is currently being dragged. We only
   // store the index — the actual re-order is computed against the
@@ -628,48 +776,4 @@ function EffectPanel(props: EffectPanelProps): JSX.Element {
       </div>
     </div>
   )
-}
-
-/**
- * Fallback (non-localized) human label for an effect kind, used as the
- * `defaultValue` for the locale-bond key. Locale bonds override.
- *
- * @param kind - The effect kind.
- * @returns The English fallback label.
- */
-function defaultKindLabel(kind: EffectKind): string {
-  switch (kind) {
-    case 'eq':
-      return 'EQ'
-    case 'compressor':
-      return 'Compressor'
-    case 'reverb':
-      return 'Reverb'
-    case 'delay':
-      return 'Delay'
-    case 'distortion':
-      return 'Distortion'
-    case 'gate':
-      return 'Gate'
-    case 'limiter':
-      return 'Limiter'
-    case 'chorus':
-      return 'Chorus'
-    case 'flanger':
-      return 'Flanger'
-    case 'phaser':
-      return 'Phaser'
-  }
-}
-
-/**
- * Fallback (non-localized) human label for a param id, derived by
- * title-casing the id. Locale bonds override.
- *
- * @param paramId - The param id.
- * @returns The English fallback label.
- */
-function defaultParamLabel(paramId: string): string {
-  if (paramId.length === 0) return paramId
-  return paramId.charAt(0).toUpperCase() + paramId.slice(1)
 }

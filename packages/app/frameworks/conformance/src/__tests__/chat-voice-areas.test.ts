@@ -1,5 +1,5 @@
 /**
- * The `chatCards` and `voice` area fakes: what a case seeds reaches the component through the
+ * The `chat`, `chatCards` and `voice` area fakes: what a case seeds reaches the component through the
  * same registries and globals a real app fills, each operation the component starts is recorded,
  * the controls play the other side, and after the case everything is as it was before.
  *
@@ -18,6 +18,7 @@ import {
 import { bond } from '@molecule/app-bond'
 import { getCustomEventCardFactory, registerCustomEventCard } from '@molecule/app-ide-panel-logic'
 
+import { createChatFakes } from '../bindings/fakes/chat.js'
 import { createChatCardsFakes } from '../bindings/fakes/chat-cards.js'
 import { createVoiceFakes } from '../bindings/fakes/voice.js'
 import type { AreaFakes } from '../bindings/spec.js'
@@ -57,6 +58,33 @@ const factory = (name: string) => {
   if (!found) throw new Error(`no factory for ${name}`)
   return found
 }
+
+describe('chat area', () => {
+  it('answers each history load with the seeded streaming flag, until a case sets the server state', async () => {
+    const { record } = recorder()
+    const fakes = createChatFakes({ areas: { chat: { serverStreaming: [true, false] } } }, record)
+    const provider = fakes.services?.chat
+    if (!provider) throw new Error('the chat area bonds no provider')
+    // The flag the session reads after each load (not part of ChatProvider's type).
+    const flag = (): unknown => Reflect.get(provider, 'isServerStreaming')
+    const load = async (): Promise<unknown> => {
+      await provider.loadHistory({ endpoint: '/chat' })
+      return flag()
+    }
+    try {
+      expect(await load()).toBe(true)
+      expect(await load()).toBe(false)
+      // A pushed turn starts: the server reports it live on every later load, past the script.
+      control(fakes, 'chat.serverStreaming', true)
+      expect(flag()).toBe(true)
+      expect([await load(), await load(), await load()]).toEqual([true, true, true])
+      control(fakes, 'chat.serverStreaming', false)
+      expect(await load()).toBe(false)
+    } finally {
+      fakes.dispose?.()
+    }
+  })
+})
 
 describe('chatCards area', () => {
   it("renders each seed as the app's factory would, recording action clicks by name", async () => {

@@ -8,4 +8,5 @@ export const hy: Partial<NotificationCenterTranslations> = {
   'notifications.viewAll': 'Դիտել բոլորը',
   'notifications.loadError': 'Չհաջողվեց բեռնել ծանուցումները։',
   'notifications.retry': 'Կրկին փորձել',
+  'notifications.unread': 'Չկարդացված',
 }

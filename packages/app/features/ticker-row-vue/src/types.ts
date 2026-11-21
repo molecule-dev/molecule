@@ -22,9 +22,14 @@ export interface TickerRowProps {
   changeDisplay?: VNodeChild
   /** Optional sparkline node (pass `<Sparkline values={...} />` from `app-sparkline-vue`). A prop or the same-named slot — both work. */
   sparkline?: VNodeChild
-  /** Optional volume / market-cap display. A prop or the same-named slot — both work. */
+  /** Optional volume / market-cap display. May hold a control; it keeps its own clicks. A prop or the same-named slot — both work. */
   meta?: VNodeChild
-  /** Click handler. */
+  /**
+   * Click handler. While it is set the whole row is clickable through a
+   * transparent native button laid over it, named by the symbol; the inner
+   * controls (the `meta` slot) sit above that button and keep their own
+   * clicks.
+   */
   onClick?: () => void
   /** Extra classes. */
   className?: string

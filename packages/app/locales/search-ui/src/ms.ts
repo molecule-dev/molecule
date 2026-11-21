@@ -14,4 +14,8 @@ export const ms: Partial<SearchUiTranslations> = {
   'searchUi.relatedTitle': 'Memadankan maksud carian anda, bukan perkataannya',
   'searchUi.related': 'berkaitan',
   'searchUi.help': 'Petua carian',
+  'searchUi.examplePhrase': '"frasa tepat"',
+  'searchUi.exampleExcluded': '-perkataan',
+  'searchUi.activeResult': '{{title}}, {{position}} daripada {{count}}',
+  'searchUi.dialogLabel': 'Cari',
 }

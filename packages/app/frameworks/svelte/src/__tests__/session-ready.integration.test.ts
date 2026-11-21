@@ -31,12 +31,13 @@ import type { MoleculeConfig } from '../types.js'
 import { mountInContext } from './context-host.js'
 import FollowButton from './session-ready/FollowButton.svelte'
 import GatedFollow from './session-ready/GatedFollow.svelte'
-import GatedInventoryAction from './session-ready/GatedInventoryAction.svelte'
 import GatedName from './session-ready/GatedName.svelte'
-import GatedProfileDraft from './session-ready/GatedProfileDraft.svelte'
 import GatedSession from './session-ready/GatedSession.svelte'
 import GatedState from './session-ready/GatedState.svelte'
+import InventoryAction from './session-ready/InventoryAction.svelte'
 import PlainPage from './session-ready/PlainPage.svelte'
+import ProfileDraft from './session-ready/ProfileDraft.svelte'
+import ProviderRoot from './session-ready/ProviderRoot.svelte'
 import ServerShellGate from './session-ready/ServerShellGate.svelte'
 import SessionHeading from './session-ready/SessionHeading.svelte'
 import ThemeFallbackGate from './session-ready/ThemeFallbackGate.svelte'
@@ -150,6 +151,51 @@ function mountTree<Props extends Record<string, unknown>>(
 }
 
 /**
+ * Mounts `component` inside the real `AuthProvider` or `MoleculeProvider` component with no
+ * `awaitSession`, as an app root renders it, so the provider's default decides the hold.
+ *
+ * @param provider - Which provider component the root renders.
+ * @param client - The auth client.
+ * @param component - The page.
+ * @param props - The page's props.
+ * @param fallback - The `sessionFallback` text, if any.
+ * @returns The container and the tree's unmount.
+ */
+function mountRoot<Props extends Record<string, unknown>>(
+  provider: 'auth' | 'molecule',
+  client: AuthClient<UserProfile>,
+  component: Component<Props>,
+  props: Props,
+  fallback?: string,
+): { container: HTMLDivElement; stop: () => Promise<void> } {
+  const container = document.createElement('div')
+  document.body.appendChild(container)
+  const { auth: _auth, ...services } = providerServices(provider, client)
+  // Explicit type arguments, as in mountInContext: the root's props vary with `Props`.
+  const app = mount<
+    {
+      kind: 'auth' | 'molecule'
+      client: AuthClient<UserProfile>
+      services?: MoleculeConfig
+      component: Component<Props>
+      props: Props
+      fallback?: string
+    },
+    Record<never, never>
+  >(ProviderRoot, {
+    target: container,
+    props: { kind: provider, client, services, component, props, fallback },
+  })
+  flushSync()
+  const stop = async (): Promise<void> => {
+    await unmount(app)
+    container.remove()
+  }
+  hosts.push(stop)
+  return { container, stop }
+}
+
+/**
  * Mounts a component with no molecule context at all (an ungated shell).
  *
  * @param component - The component to render.
@@ -217,7 +263,7 @@ describe('the session hold', () => {
     async (provider) => {
       const { client, answer } = returningVisitor(false)
       const changed = vi.fn<(by: string) => void>()
-      const view = mountTree(providerServices(provider, client), GatedInventoryAction, { changed })
+      const view = mountRoot(provider, client, InventoryAction, { changed })
       expect(view.container.querySelector('button')).toBeNull()
       await answer()
       view.container.querySelector('button')?.dispatchEvent(new Event('click', { bubbles: true }))
@@ -229,7 +275,7 @@ describe('the session hold', () => {
     '%s provider seeds a mounted profile form from the restored user by default',
     async (provider) => {
       const { client, answer } = returningVisitor(false)
-      const view = mountTree(providerServices(provider, client), GatedProfileDraft, {})
+      const view = mountRoot(provider, client, ProfileDraft, {}, 'Restoring profile')
       expect(view.container.querySelector('input')).toBeNull()
       expect(view.container.textContent).toContain('Restoring profile')
       await answer()
@@ -245,7 +291,7 @@ describe('the session hold', () => {
       const client = cachedVisitor(validToken)
       // Svelte has no StrictMode: the observable fact is that the FIRST render
       // already shows the stored session and starts no request.
-      const view = mountTree(providerServices(provider, client), SessionHeading, {})
+      const view = mountRoot(provider, client, SessionHeading, {})
       expect(view.container.querySelector('h1')?.textContent).toBe('Signed in as Reader')
       expect(fetchSpy).not.toHaveBeenCalled()
     },

@@ -47,6 +47,7 @@ export type AudioEffectsRackTranslationKey =
   | 'audioEffectsRack.param.phaser.rate'
   | 'audioEffectsRack.param.phaser.depth'
   | 'audioEffectsRack.param.phaser.feedback'
+  | 'audioEffectsRack.param.fallback'
 
 /** Translation record mapping audio-effects-rack keys to translated strings. */
 export type AudioEffectsRackTranslations = Record<AudioEffectsRackTranslationKey, string>

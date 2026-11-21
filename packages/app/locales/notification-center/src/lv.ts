@@ -8,4 +8,5 @@ export const lv: Partial<NotificationCenterTranslations> = {
   'notifications.viewAll': 'Skatīt visu',
   'notifications.loadError': 'Nevarēja ielādēt paziņojumus.',
   'notifications.retry': 'Mēģināt vēlreiz',
+  'notifications.unread': 'Nelasīts',
 }

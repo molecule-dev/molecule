@@ -8,4 +8,6 @@ export const af: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.resize': 'Verander notagrootte',
   'pianoRoll.aria.note': 'Nota {{pitch}} begin by maat {{startBeat}} vir {{durationBeats}} slae',
   'pianoRoll.aria.cursor': 'Wyser op {{pitch}} by maat {{beat}}',
+  'pianoRoll.aria.gridHelp':
+    'Die pylsleutels beweeg die sel-kurser, Enter of Spasie teken daar ’n noot.',
 }

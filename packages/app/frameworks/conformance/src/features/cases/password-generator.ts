@@ -3,43 +3,16 @@
  * password generator (length slider, six character-class toggles, copy /
  * regenerate / "Use this password" buttons).
  *
- * Every password the component draws is random, so no committed reference
- * could ever match it. Pin `crypto.getRandomValues` to a deterministic stream
- * while these cases are loaded: the reference recording, every later
- * comparison and every framework port then generate the same password from
- * the same length and charset. The stream depends only on a value's index
- * inside the array being filled, so a password depends only on its length and
- * charset — not on how many passwords were generated before it — and the
- * `generatePassword` value checks stay stable wherever they run in the file.
- * Only the bytes of the caller's own view are written; `randomUUID` and the
- * rest of `crypto` are left alone.
+ * Every password the component draws comes from `crypto.getRandomValues`,
+ * which the kit fills with a deterministic stream in every case and value check
+ * (`installRandomSources`): the stream depends only on a value's index inside
+ * the array being filled, so a password depends only on its length and charset,
+ * and the reference recording and every framework port generate the same one.
  *
  * @module
  */
 
 import type { FeatureCases } from '../spec.js'
-
-/**
- * Fills the caller's view with a deterministic, index-derived stream.
- *
- * @param array - The view to fill (a `Uint32Array` from the generator).
- * @returns The same view.
- */
-function deterministicRandomBytes<T extends ArrayBufferView | null>(array: T): T {
-  if (array && !(array instanceof DataView)) {
-    const bytes = new Uint8Array(array.buffer, array.byteOffset, array.byteLength)
-    for (let i = 0; i < bytes.length; i += 4) {
-      const value = Math.imul(i / 4 + 1, 2654435761) >>> 0
-      bytes[i] = value & 0xff
-      if (i + 1 < bytes.length) bytes[i + 1] = (value >>> 8) & 0xff
-      if (i + 2 < bytes.length) bytes[i + 2] = (value >>> 16) & 0xff
-      if (i + 3 < bytes.length) bytes[i + 3] = (value >>> 24) & 0xff
-    }
-  }
-  return array
-}
-
-globalThis.crypto.getRandomValues = deterministicRandomBytes
 
 /** Every character class on, both "skip" filters off — the shipped default. */
 const defaultCharset = {

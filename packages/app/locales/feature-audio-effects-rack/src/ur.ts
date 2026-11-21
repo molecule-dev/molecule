@@ -49,4 +49,5 @@ export const ur: Partial<AudioEffectsRackTranslations> = {
   'audioEffectsRack.param.phaser.rate': 'شرح',
   'audioEffectsRack.param.phaser.depth': 'گہرائی',
   'audioEffectsRack.param.phaser.feedback': 'تاثرات',
+  'audioEffectsRack.param.fallback': 'پیرامیٹر',
 }

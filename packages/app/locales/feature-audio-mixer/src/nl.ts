@@ -9,5 +9,7 @@ export const nl: Partial<AudioMixerTranslations> = {
   'audioMixer.aria.pan': '{{name}} pan',
   'audioMixer.aria.send': '{{channel}} verzenden naar {{send}}',
   'audioMixer.button.solo': 'Solo',
+  'audioMixer.button.muteInitial': 'D',
+  'audioMixer.button.soloInitial': 'S',
   'audioMixer.master': 'Meester',
 }

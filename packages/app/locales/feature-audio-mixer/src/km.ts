@@ -8,6 +8,8 @@ export const km: Partial<AudioMixerTranslations> = {
   'audioMixer.aria.send': '{{channel}} ផ្ញើទៅ {{send}}',
   'audioMixer.button.mute': 'បិទសំឡេង',
   'audioMixer.button.solo': 'ទោល',
+  'audioMixer.button.muteInitial': 'ប',
+  'audioMixer.button.soloInitial': 'ទ',
   'audioMixer.master': 'មេ',
   'audioMixer.sends': 'ផ្ញើ',
 }

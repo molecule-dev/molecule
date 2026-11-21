@@ -1,4 +1,4 @@
-import type { Component } from 'solid-js'
+import { type Component, createUniqueId } from 'solid-js'
 
 import { getClassMap } from '@molecule/app-ui'
 import { Card } from '@molecule/app-ui-solid'
@@ -11,6 +11,9 @@ import type { ProgressCardProps } from './types.js'
  * the progress bar itself, and an optional extras slot below. Useful for
  * budget/goal cards, storage-used panels, onboarding progress, etc.
  *
+ * The bar is named by the title (`aria-labelledby`) and, when a description
+ * renders, described by it (`aria-describedby`).
+ *
  * This is the Solid counterpart of `@molecule/app-progress-bar-react`: the
  * same props (React names), the same ClassMap tokens, and the same DOM for
  * the same input.
@@ -20,6 +23,8 @@ import type { ProgressCardProps } from './types.js'
  */
 export const ProgressCard: Component<ProgressCardProps> = (props) => {
   const cm = getClassMap()
+  const titleId = createUniqueId()
+  const descriptionId = createUniqueId()
   const max = (): number => props.max ?? 100
   const color = (): 'primary' | 'success' | 'warning' | 'error' | 'info' => props.color ?? 'primary'
 
@@ -30,8 +35,14 @@ export const ProgressCard: Component<ProgressCardProps> = (props) => {
           <div class={cm.flex({ align: 'center', gap: 'sm' })}>
             {props.icon}
             <div>
-              <h3 class={cm.cn(cm.textSize('base'), cm.fontWeight('semibold'))}>{props.title}</h3>
-              {props.description && <p class={cm.textSize('sm')}>{props.description}</p>}
+              <h3 id={titleId} class={cm.cn(cm.textSize('base'), cm.fontWeight('semibold'))}>
+                {props.title}
+              </h3>
+              {props.description && (
+                <p id={descriptionId} class={cm.textSize('sm')}>
+                  {props.description}
+                </p>
+              )}
             </div>
           </div>
           {props.valueLabel && (
@@ -40,7 +51,13 @@ export const ProgressCard: Component<ProgressCardProps> = (props) => {
             </span>
           )}
         </div>
-        <ProgressBar value={props.value} max={max()} color={color()} />
+        <ProgressBar
+          value={props.value}
+          max={max()}
+          color={color()}
+          labelledBy={titleId}
+          describedBy={props.description ? descriptionId : undefined}
+        />
         {props.children}
       </div>
     </Card>

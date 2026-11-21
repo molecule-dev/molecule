@@ -16,4 +16,11 @@ export const it: Partial<BillingTranslations> = {
     'Annulla in qualsiasi momento · Non è richiesta alcuna carta di credito per iniziare',
   'billing.pricing.perSeat': 'per posto a sedere',
   'billing.pricing.currentCta': 'Piano attuale',
+  'billing.pricing.period.month': 'al mese',
+  'billing.pricing.period.year': 'per anno',
+  'billing.pricing.billed.month': 'Fatturazione mensile',
+  'billing.pricing.billed.year': 'Fatturazione annuale',
+  'billing.pricing.unlimited': 'Illimitato',
+  'billing.pricing.limit.maxProjects': 'Progetti max',
+  'billing.pricing.limit.canExport': 'Esportazione disponibile',
 }

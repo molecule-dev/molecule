@@ -15,6 +15,7 @@ import {
   EFFECT_KINDS,
   EFFECT_PARAM_SCHEMAS,
   type EffectChangePatch,
+  type EffectKind,
   reorderEffects,
   resolveParamValue,
 } from '../AudioEffectsRack.js'
@@ -191,7 +192,7 @@ describe('<AudioEffectsRack>', () => {
   })
 
   it('emits onChange with an enabled-flip patch when the bypass button is clicked', () => {
-    const onChange = vi.fn<[EffectChangePatch], void>()
+    const onChange = vi.fn<(patch: EffectChangePatch) => void>()
     const { container } = render(
       <Wrap>
         <AudioEffectsRack effects={baseEffects} onChange={onChange} />
@@ -209,7 +210,7 @@ describe('<AudioEffectsRack>', () => {
   })
 
   it('emits onChange with a paramId/paramValue patch when a param slider moves', () => {
-    const onChange = vi.fn<[EffectChangePatch], void>()
+    const onChange = vi.fn<(patch: EffectChangePatch) => void>()
     const { container } = render(
       <Wrap>
         <AudioEffectsRack effects={baseEffects} onChange={onChange} />
@@ -224,7 +225,7 @@ describe('<AudioEffectsRack>', () => {
   })
 
   it('clamps param values to the schema [min, max] interval before emitting', () => {
-    const onChange = vi.fn<[EffectChangePatch], void>()
+    const onChange = vi.fn<(patch: EffectChangePatch) => void>()
     const { container } = render(
       <Wrap>
         <AudioEffectsRack effects={baseEffects} onChange={onChange} />
@@ -276,7 +277,7 @@ describe('<AudioEffectsRack>', () => {
   })
 
   it('emits onAdd with the chosen kind when the add-effect select changes', () => {
-    const onAdd = vi.fn<[string], void>()
+    const onAdd = vi.fn<(kind: EffectKind) => void>()
     const { container } = render(
       <Wrap>
         <AudioEffectsRack effects={baseEffects} onAdd={onAdd} />
@@ -290,7 +291,7 @@ describe('<AudioEffectsRack>', () => {
   })
 
   it('emits onRemove with the effect id when the remove button is clicked', () => {
-    const onRemove = vi.fn<[string], void>()
+    const onRemove = vi.fn<(id: string) => void>()
     const { container } = render(
       <Wrap>
         <AudioEffectsRack effects={baseEffects} onRemove={onRemove} />
@@ -304,7 +305,7 @@ describe('<AudioEffectsRack>', () => {
   })
 
   it('reorders panels via pointer drag-and-drop and emits the new order', () => {
-    const onReorder = vi.fn<[Effect[]], void>()
+    const onReorder = vi.fn<(nextOrder: Effect[]) => void>()
     const { container } = render(
       <Wrap>
         <AudioEffectsRack effects={baseEffects} onReorder={onReorder} />
@@ -329,7 +330,7 @@ describe('<AudioEffectsRack>', () => {
   })
 
   it('does not call onReorder when a drag drops on its origin panel', () => {
-    const onReorder = vi.fn<[Effect[]], void>()
+    const onReorder = vi.fn<(nextOrder: Effect[]) => void>()
     const { container } = render(
       <Wrap>
         <AudioEffectsRack effects={baseEffects} onReorder={onReorder} />

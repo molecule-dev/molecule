@@ -1,6 +1,6 @@
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('@molecule/app-ui', () => ({
   getClassMap: () => {
@@ -15,17 +15,27 @@ vi.mock('@molecule/app-ui', () => ({
               .join(' ')
         }
         const token = String(prop)
-        return (..._args: unknown[]) => token
+        // Tone resolvers echo their argument, so assertions can tell which
+        // semantic tone (`bgTone-warning`) the summary picked.
+        return (...args: unknown[]) => (args.length > 0 ? `${token}-${String(args[0])}` : token)
       },
     }
     return new Proxy({}, handler)
   },
 }))
 
+/** When set, `t` delegates here — the marker test swaps it in per test. */
+let tOverride:
+  ((key: string, values: unknown, opts?: { defaultValue?: string }) => string) | undefined
+
+afterEach(() => {
+  tOverride = undefined
+})
+
 vi.mock('@molecule/app-react', () => ({
   useTranslation: () => ({
-    t: (_key: string, _values: unknown, opts?: { defaultValue?: string }) =>
-      opts?.defaultValue ?? _key,
+    t: (key: string, values: unknown, opts?: { defaultValue?: string }) =>
+      tOverride ? tOverride(key, values, opts) : (opts?.defaultValue ?? key),
   }),
 }))
 
@@ -57,19 +67,45 @@ describe('StatusSummary', () => {
     const markup = html(createElement(StatusSummary, { groups }))
     // worst of operational + degraded => degraded
     expect(markup).toContain('Degraded performance')
-    expect(markup).toContain('#eab308')
+    expect(markup).toContain('bgTone-warning')
+    expect(markup).toContain('textOnTone')
   })
 
   it('honours an explicit overallStatus override', () => {
     const markup = html(createElement(StatusSummary, { groups, overallStatus: 'major-outage' }))
     expect(markup).toContain('Major outage')
-    expect(markup).toContain('#ef4444')
+    expect(markup).toContain('bgTone-error')
   })
 
   it('renders a colored badge for each component status', () => {
     const markup = html(createElement(StatusSummary, { groups }))
     expect(markup).toContain('Operational')
     expect(markup).toContain('Degraded performance')
+  })
+
+  it('translates every status through its literal i18n key', () => {
+    // A provider whose `t` returns a marker: the key must be the literal the
+    // component names, so a locale bond can resolve every status.
+    tOverride = (key, _values, opts) => `[${key}] ${opts?.defaultValue ?? ''}`
+    const everyStatus: StatusGroup[] = [
+      {
+        id: 'all',
+        name: 'Everything',
+        components: [
+          { id: 'a', name: 'Alpha', status: 'operational' },
+          { id: 'b', name: 'Beta', status: 'degraded' },
+          { id: 'c', name: 'Gamma', status: 'partial-outage' },
+          { id: 'd', name: 'Delta', status: 'major-outage' },
+          { id: 'e', name: 'Epsilon', status: 'maintenance' },
+        ],
+      },
+    ]
+    const markup = html(createElement(StatusSummary, { groups: everyStatus }))
+    expect(markup).toContain('[status.operational] Operational')
+    expect(markup).toContain('[status.degraded] Degraded performance')
+    expect(markup).toContain('[status.partial-outage] Partial outage')
+    expect(markup).toContain('[status.major-outage] Major outage')
+    expect(markup).toContain('[status.maintenance] Under maintenance')
   })
 
   it('renders the header and footer slots', () => {

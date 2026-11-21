@@ -7,7 +7,7 @@
   be plain strings or snippets.
 -->
 <script lang="ts">
-  import { getClassMap } from '@molecule/app-ui'
+  import { getClassMap, type UIClassMap } from '@molecule/app-ui'
 
   import { reactStyle } from './style.js'
   import type { OrderMilestone, OrderTimelineProps } from './types.js'
@@ -18,18 +18,28 @@
   const vertical = $derived(orientation === 'vertical')
 
   /**
-   * The status node's color: current wins over completed, and every other
-   * milestone is pending.
+   * The status node's class: current wins over completed (its semantic tone),
+   * and every other milestone is de-emphasis chrome — the theme's border
+   * colour rather than a status tone.
    *
+   * @param cm - The class map.
    * @param milestone - The milestone.
-   * @returns The node color.
+   * @returns The node's class.
    */
-  const dotColor = (milestone: OrderMilestone): string =>
-    milestone.current ? '#60a5fa' : milestone.completed ? '#22c55e' : '#d1d5db'
+  const dotClass = (cm: UIClassMap, milestone: OrderMilestone): string =>
+    cm.cn(
+      milestone.current
+        ? cm.bgTone('info')
+        : milestone.completed
+          ? cm.bgTone('success')
+          : cm.bgBorder,
+    )
 
   /**
    * The status node's inline style, exactly React's declarations (Svelte adds
-   * no `px`, so the units are spelled out; `''` clears a property React omits).
+   * no `px`, so the units are spelled out; `''` clears a property React
+   * omits): sizing only — the fill colour is a ClassMap tone class (see
+   * {@link dotClass}).
    *
    * @param milestone - The milestone.
    * @returns The style declarations.
@@ -38,28 +48,34 @@
     width: '14px',
     height: '14px',
     'border-radius': '50%',
-    background: dotColor(milestone),
     border: milestone.current ? '3px solid currentColor' : '',
   })
 
   /**
-   * The connector line's inline style, exactly React's declarations:
-   * horizontal lines stretch between nodes, vertical ones run below the node.
+   * The connector line's class: a completed leg takes the success tone; an
+   * un-reached one is de-emphasis chrome in the theme's border colour.
    *
+   * @param cm - The class map.
    * @param milestone - The milestone the connector belongs to.
+   * @returns The connector's class.
+   */
+  const connectorClass = (cm: UIClassMap, milestone: OrderMilestone): string =>
+    cm.cn(milestone.completed ? cm.bgTone('success') : cm.bgBorder)
+
+  /**
+   * The connector line's inline style, exactly React's declarations:
+   * horizontal lines stretch between nodes, vertical ones run below the node
+   * — sizing and flow only, the fill colour is a ClassMap class (see
+   * {@link connectorClass}).
+   *
    * @param isVertical - Whether the layout is vertical.
    * @returns The style declarations.
    */
-  const connectorStyle = (
-    milestone: OrderMilestone,
-    isVertical: boolean,
-  ): Record<string, string> => {
-    const background = milestone.completed ? '#22c55e' : '#d1d5db'
-    return isVertical
+  const connectorStyle = (isVertical: boolean): Record<string, string> =>
+    isVertical
       ? {
           height: '24px',
           width: '2px',
-          background,
           display: 'inline-block',
           flex: '',
           'margin-left': '',
@@ -68,13 +84,11 @@
       : {
           width: '100%',
           height: '2px',
-          background,
           display: 'inline-block',
           flex: '1',
           'margin-left': '4px',
           'margin-right': '4px',
         }
-  }
 </script>
 
 <div class={cm.cn(cm.stack(3), className)}>
@@ -86,9 +100,17 @@
           : cm.cn(cm.stack(1), cm.flex1, cm.textCenter)}
       >
         <div class={cm.flex({ align: 'center', justify: 'center' })}>
-          <span aria-hidden="true" use:reactStyle={dotStyle(milestone)}></span>
+          <span
+            aria-hidden="true"
+            class={dotClass(cm, milestone)}
+            use:reactStyle={dotStyle(milestone)}
+          ></span>
           {#if i < milestones.length - 1}
-            <span aria-hidden="true" use:reactStyle={connectorStyle(milestone, vertical)}></span>
+            <span
+              aria-hidden="true"
+              class={connectorClass(cm, milestone)}
+              use:reactStyle={connectorStyle(vertical)}
+            ></span>
           {/if}
         </div>
         <div class={cm.cn(cm.stack(0))}>

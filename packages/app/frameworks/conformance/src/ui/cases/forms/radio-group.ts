@@ -15,6 +15,8 @@ const flavors = [
 /** RadioGroup: direction, labels, selection, disabled options and per-option change events. */
 export const radioGroupCases: UIComponentCases = {
   component: 'RadioGroup',
+  ref: {},
+  declaredProps: { props: 'base' },
   keyedLists: [{ prop: 'options', selector: 'input[type="radio"]' }],
   cases: [
     { name: 'defaults vertical', props: { options: flavors, name: 'flavor' } },

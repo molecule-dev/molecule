@@ -15,4 +15,11 @@ export const ga: Partial<BillingTranslations> = {
   'billing.pricing.perSeat': 'in aghaidh an tsuíocháin',
   'billing.pricing.upgradeCta': 'Uasghrádaigh go {{tierName}}',
   'billing.pricing.currentCta': 'Plean reatha',
+  'billing.pricing.period.month': 'sa mhí',
+  'billing.pricing.period.year': 'sa bhliain',
+  'billing.pricing.billed.month': 'Bile gach mí',
+  'billing.pricing.billed.year': 'Bile gach bliain',
+  'billing.pricing.unlimited': 'Gan teorainn',
+  'billing.pricing.limit.maxProjects': 'Uaslíon na dtionscadal',
+  'billing.pricing.limit.canExport': 'Onnmhairiú ar fáil',
 }

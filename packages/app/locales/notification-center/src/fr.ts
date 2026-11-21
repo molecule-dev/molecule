@@ -8,4 +8,5 @@ export const fr: Partial<NotificationCenterTranslations> = {
   'notifications.empty': 'Aucune notification',
   'notifications.loadError': 'Impossible de charger les notifications.',
   'notifications.retry': 'Réessayer',
+  'notifications.unread': 'Non lu',
 }

@@ -2,6 +2,6 @@ import type { SpreadsheetGridTranslations } from './types.js'
 
 /** Spreadsheet Grid translations for Urdu. Stub — uses English copy. */
 export const ur: SpreadsheetGridTranslations = {
-  'spreadsheetGrid.label': 'Spreadsheet',
-  'spreadsheetGrid.cellEditor': 'Edit cell {{ref}}',
+  'spreadsheetGrid.label': 'اسپریڈ شیٹ',
+  'spreadsheetGrid.cellEditor': 'سیل {{ref}} میں ترمیم کریں',
 }

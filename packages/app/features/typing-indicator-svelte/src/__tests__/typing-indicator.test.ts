@@ -88,6 +88,14 @@ describe('TypingIndicator', () => {
     expect(document.body.innerHTML).toContain('@keyframes molecule-typing-pulse')
   })
 
+  it('stops the pulse when motion is reduced', () => {
+    const m = render({})
+    mounted.push(m)
+    expect(document.body.innerHTML).toContain('@media (prefers-reduced-motion: reduce)')
+    expect(document.body.innerHTML).toContain('[data-typing-dot] { animation: none !important; }')
+    expect(document.body.innerHTML.match(/data-typing-dot=""/g) ?? []).toHaveLength(3)
+  })
+
   it('forwards className', () => {
     const m = render({ className: 'ti-cls' })
     mounted.push(m)

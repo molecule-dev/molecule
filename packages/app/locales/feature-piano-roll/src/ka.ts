@@ -9,4 +9,5 @@ export const ka: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.note':
     'შენიშვნა {{pitch}} რიტმიდან დაწყებული {{startBeat}} ამისთვის {{durationBeats}} რიტმები',
   'pianoRoll.aria.cursor': 'კურსორი {{pitch}}-ზე, {{beat}} რიტმზე',
+  'pianoRoll.aria.gridHelp': 'ისრები გადააადგილებენ უჯრის კურსორს, Enter ან Space იქ ნოტას ხატავს.',
 }

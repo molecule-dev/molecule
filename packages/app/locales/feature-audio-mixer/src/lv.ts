@@ -8,6 +8,8 @@ export const lv: Partial<AudioMixerTranslations> = {
   'audioMixer.aria.send': '{{channel}} nosūtīt uz {{send}}',
   'audioMixer.button.mute': 'Izslēgt skaņu',
   'audioMixer.button.solo': 'Solo',
+  'audioMixer.button.muteInitial': 'I',
+  'audioMixer.button.soloInitial': 'S',
   'audioMixer.master': 'Meistars',
   'audioMixer.sends': 'Nosūta',
 }

@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react'
 
+import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 /** Props for the {@link Sparkline} component. */
@@ -14,7 +15,10 @@ export interface SparklineProps {
   height?: number
   /** Stroke / fill color. Defaults to currentColor. */
   color?: string
-  /** Optional accessible label. */
+  /**
+   * Optional accessible label. Overrides the translated / `defaultValue`
+   * `'Trend sparkline'` (prop > `t()` > default).
+   */
   ariaLabel?: string
   /** Extra classes. */
   className?: string
@@ -36,6 +40,7 @@ export function Sparkline({
   className,
 }: SparklineProps): ReactElement | null {
   const cm = getClassMap()
+  const { t } = useTranslation()
   if (values.length === 0) return null
   const min = Math.min(...values)
   const max = Math.max(...values)
@@ -48,7 +53,10 @@ export function Sparkline({
       height={height}
       viewBox={`0 0 ${width} ${height}`}
       role="img"
-      aria-label={ariaLabel ?? 'Trend sparkline'}
+      aria-label={
+        ariaLabel ??
+        t('sparkline.aria.trendSparkline', undefined, { defaultValue: 'Trend sparkline' })
+      }
       className={cm.cn(className)}
     >
       {variant === 'line' && (

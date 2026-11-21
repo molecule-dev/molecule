@@ -15,4 +15,11 @@ export const is: Partial<BillingTranslations> = {
   'billing.pricing.perSeat': 'á sæti',
   'billing.pricing.upgradeCta': 'Uppfæra í {{tierName}}',
   'billing.pricing.currentCta': 'Núverandi áætlun',
+  'billing.pricing.period.month': 'á mánuði',
+  'billing.pricing.period.year': 'á ári',
+  'billing.pricing.billed.month': 'Mánaðarlegt gjald',
+  'billing.pricing.billed.year': 'Árlegt gjald',
+  'billing.pricing.unlimited': 'Ótakmarkað',
+  'billing.pricing.limit.maxProjects': 'Hámarksfjöldi verkefna',
+  'billing.pricing.limit.canExport': 'Útflutningur í boði',
 }

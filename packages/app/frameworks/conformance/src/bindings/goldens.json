@@ -563,6 +563,160 @@
     }
    }
   },
+  "MoleculeProvider": {
+   "a loading session shows the fallback by default": {
+    "shape": {
+     "kind": "value"
+    },
+    "snapshots": [
+     {
+      "result": "Restoring session",
+      "route": "/"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "a loading session without a fallback shows nothing": {
+    "shape": {
+     "kind": "value"
+    },
+    "snapshots": [
+     {
+      "result": "",
+      "route": "/"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "the app replaces the fallback once the session is decided": {
+    "shape": {
+     "kind": "value"
+    },
+    "snapshots": [
+     {
+      "result": "Restoring session",
+      "route": "/"
+     },
+     {
+      "result": "App content",
+      "route": "/"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "a signed-in session shows the app at once": {
+    "shape": {
+     "kind": "value"
+    },
+    "snapshots": [
+     {
+      "result": "App content",
+      "route": "/"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "a signed-out session shows the app at once": {
+    "shape": {
+     "kind": "value"
+    },
+    "snapshots": [
+     {
+      "result": "App content",
+      "route": "/"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "an unavailable session releases the hold": {
+    "shape": {
+     "kind": "value"
+    },
+    "snapshots": [
+     {
+      "result": "Restoring session",
+      "route": "/"
+     },
+     {
+      "result": "App content",
+      "route": "/"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "awaitSession false shows the app while the session loads": {
+    "shape": {
+     "kind": "value"
+    },
+    "snapshots": [
+     {
+      "result": "App content",
+      "route": "/"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "without an auth client the app shows at once": {
+    "shape": {
+     "kind": "value"
+    },
+    "snapshots": [
+     {
+      "result": "App content",
+      "route": "/"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   }
+  },
   "resetAIModelsCache": {
    "clearing the caches returns nothing": {
     "shape": {
@@ -7369,7 +7523,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -7406,52 +7560,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
-         "queued": false,
-         "role": "user",
-         "timestamp": 0
-        },
-        {
-         "blocks": [],
-         "content": "",
-         "id": "a1",
-         "isStreaming": true,
-         "role": "assistant",
-         "timestamp": 1000
-        }
-       ],
-       "mode": "execute",
-       "noteRemoteStreamEvent": "[method]",
-       "reconcileHistory": "[method]",
-       "retryCountdown": null,
-       "sendMessage": "[method]",
-       "setFastMode": "[method]",
-       "setMode": "[method]",
-       "streamingStatus": null
-      },
-      "route": "/"
-     },
-     {
-      "result": {
-       "abort": "[method]",
-       "appendCardMessage": "[method]",
-       "appendCompleteMessage": "[method]",
-       "applyRemoteEvent": "[method]",
-       "backgroundTasks": [],
-       "cancelRetry": "[method]",
-       "clearHistory": "[method]",
-       "clearQueuedForFile": "[method]",
-       "deleteQueuedMessage": "[method]",
-       "editQueuedMessage": "[method]",
-       "error": null,
-       "errorMeta": null,
-       "fastMode": false,
-       "isLoading": true,
-       "isRemoteStreaming": false,
-       "messages": [
-        {
-         "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -7496,7 +7605,52 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
+         "queued": false,
+         "role": "user",
+         "timestamp": 0
+        },
+        {
+         "blocks": [],
+         "content": "",
+         "id": "a1",
+         "isStreaming": true,
+         "role": "assistant",
+         "timestamp": 1000
+        }
+       ],
+       "mode": "execute",
+       "noteRemoteStreamEvent": "[method]",
+       "reconcileHistory": "[method]",
+       "retryCountdown": null,
+       "sendMessage": "[method]",
+       "setFastMode": "[method]",
+       "setMode": "[method]",
+       "streamingStatus": null
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "abort": "[method]",
+       "appendCardMessage": "[method]",
+       "appendCompleteMessage": "[method]",
+       "applyRemoteEvent": "[method]",
+       "backgroundTasks": [],
+       "cancelRetry": "[method]",
+       "clearHistory": "[method]",
+       "clearQueuedForFile": "[method]",
+       "deleteQueuedMessage": "[method]",
+       "editQueuedMessage": "[method]",
+       "error": null,
+       "errorMeta": null,
+       "fastMode": false,
+       "isLoading": true,
+       "isRemoteStreaming": false,
+       "messages": [
+        {
+         "content": "hi",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -7546,7 +7700,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -7596,7 +7750,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -7647,7 +7801,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -7686,7 +7840,7 @@
        "hi",
        {
         "endpoint": "/projects/p1/chat",
-        "messageId": "uuid-1",
+        "messageId": "00000000-0000-4000-8000-000000000000",
         "projectId": "p1"
        }
       ]
@@ -7831,7 +7985,7 @@
           }
          ],
          "content": "look at this",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -7875,7 +8029,7 @@
           }
          ],
          "content": "look at this",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -7927,7 +8081,7 @@
           }
          ],
          "content": "look at this",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -7971,7 +8125,7 @@
           }
          ],
          "content": "look at this",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -7996,7 +8150,7 @@
        "look at this",
        {
         "endpoint": "/projects/p1/chat",
-        "messageId": "uuid-1",
+        "messageId": "00000000-0000-4000-8000-000000000000",
         "projectId": "p1"
        },
        [
@@ -8106,7 +8260,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -8143,7 +8297,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -8188,7 +8342,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -8271,7 +8425,7 @@
        "hi",
        {
         "endpoint": "/projects/p1/chat",
-        "messageId": "uuid-1",
+        "messageId": "00000000-0000-4000-8000-000000000000",
         "projectId": "p1"
        }
       ]
@@ -8382,7 +8536,7 @@
        "messages": [
         {
          "content": "first",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -8419,14 +8573,14 @@
        "messages": [
         {
          "content": "first",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
         },
         {
          "content": "second",
-         "id": "uuid-2",
+         "id": "00000000-0000-4000-8000-000000000001",
          "queued": true,
          "role": "user",
          "timestamp": 0
@@ -8463,66 +8617,14 @@
        "messages": [
         {
          "content": "first",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
         },
         {
          "content": "second",
-         "id": "uuid-2",
-         "queued": true,
-         "role": "user",
-         "timestamp": 0
-        },
-        {
-         "blocks": [],
-         "content": "",
-         "id": "a1",
-         "isStreaming": true,
-         "role": "assistant",
-         "timestamp": 1000
-        }
-       ],
-       "mode": "execute",
-       "noteRemoteStreamEvent": "[method]",
-       "reconcileHistory": "[method]",
-       "retryCountdown": null,
-       "sendMessage": "[method]",
-       "setFastMode": "[method]",
-       "setMode": "[method]",
-       "streamingStatus": null
-      },
-      "route": "/"
-     },
-     {
-      "result": {
-       "abort": "[method]",
-       "appendCardMessage": "[method]",
-       "appendCompleteMessage": "[method]",
-       "applyRemoteEvent": "[method]",
-       "backgroundTasks": [],
-       "cancelRetry": "[method]",
-       "clearHistory": "[method]",
-       "clearQueuedForFile": "[method]",
-       "deleteQueuedMessage": "[method]",
-       "editQueuedMessage": "[method]",
-       "error": null,
-       "errorMeta": null,
-       "fastMode": false,
-       "isLoading": true,
-       "isRemoteStreaming": false,
-       "messages": [
-        {
-         "content": "first",
-         "id": "uuid-1",
-         "queued": false,
-         "role": "user",
-         "timestamp": 0
-        },
-        {
-         "content": "second",
-         "id": "uuid-2",
+         "id": "00000000-0000-4000-8000-000000000001",
          "queued": true,
          "role": "user",
          "timestamp": 0
@@ -8567,14 +8669,66 @@
        "messages": [
         {
          "content": "first",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
         },
         {
          "content": "second",
-         "id": "uuid-2",
+         "id": "00000000-0000-4000-8000-000000000001",
+         "queued": true,
+         "role": "user",
+         "timestamp": 0
+        },
+        {
+         "blocks": [],
+         "content": "",
+         "id": "a1",
+         "isStreaming": true,
+         "role": "assistant",
+         "timestamp": 1000
+        }
+       ],
+       "mode": "execute",
+       "noteRemoteStreamEvent": "[method]",
+       "reconcileHistory": "[method]",
+       "retryCountdown": null,
+       "sendMessage": "[method]",
+       "setFastMode": "[method]",
+       "setMode": "[method]",
+       "streamingStatus": null
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "abort": "[method]",
+       "appendCardMessage": "[method]",
+       "appendCompleteMessage": "[method]",
+       "applyRemoteEvent": "[method]",
+       "backgroundTasks": [],
+       "cancelRetry": "[method]",
+       "clearHistory": "[method]",
+       "clearQueuedForFile": "[method]",
+       "deleteQueuedMessage": "[method]",
+       "editQueuedMessage": "[method]",
+       "error": null,
+       "errorMeta": null,
+       "fastMode": false,
+       "isLoading": true,
+       "isRemoteStreaming": false,
+       "messages": [
+        {
+         "content": "first",
+         "id": "00000000-0000-4000-8000-000000000000",
+         "queued": false,
+         "role": "user",
+         "timestamp": 0
+        },
+        {
+         "content": "second",
+         "id": "00000000-0000-4000-8000-000000000001",
          "queued": true,
          "role": "user",
          "timestamp": 0
@@ -8625,14 +8779,14 @@
        "messages": [
         {
          "content": "first",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
         },
         {
          "content": "second",
-         "id": "uuid-2",
+         "id": "00000000-0000-4000-8000-000000000001",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -8683,14 +8837,14 @@
        "messages": [
         {
          "content": "first",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
         },
         {
          "content": "second",
-         "id": "uuid-2",
+         "id": "00000000-0000-4000-8000-000000000001",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -8749,14 +8903,14 @@
        "messages": [
         {
          "content": "first",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
         },
         {
          "content": "second",
-         "id": "uuid-2",
+         "id": "00000000-0000-4000-8000-000000000001",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -8815,14 +8969,14 @@
        "messages": [
         {
          "content": "first",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
         },
         {
          "content": "second",
-         "id": "uuid-2",
+         "id": "00000000-0000-4000-8000-000000000001",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -8887,14 +9041,14 @@
        "messages": [
         {
          "content": "first",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
         },
         {
          "content": "second",
-         "id": "uuid-2",
+         "id": "00000000-0000-4000-8000-000000000001",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -8947,7 +9101,7 @@
        "first",
        {
         "endpoint": "/projects/p1/chat",
-        "messageId": "uuid-1",
+        "messageId": "00000000-0000-4000-8000-000000000000",
         "projectId": "p1"
        }
       ]
@@ -8966,7 +9120,7 @@
        "second",
        {
         "endpoint": "/projects/p1/chat",
-        "messageId": "uuid-2",
+        "messageId": "00000000-0000-4000-8000-000000000001",
         "projectId": "p1"
        }
       ]
@@ -9798,7 +9952,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -9835,7 +9989,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -9880,7 +10034,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -9925,7 +10079,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -9964,7 +10118,7 @@
        "hi",
        {
         "endpoint": "/projects/p1/chat",
-        "messageId": "uuid-1",
+        "messageId": "00000000-0000-4000-8000-000000000000",
         "projectId": "p1"
        }
       ]
@@ -10066,7 +10220,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -10103,7 +10257,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -10148,7 +10302,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -10185,7 +10339,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -10210,7 +10364,7 @@
        "hi",
        {
         "endpoint": "/projects/p1/chat",
-        "messageId": "uuid-1",
+        "messageId": "00000000-0000-4000-8000-000000000000",
         "projectId": "p1"
        }
       ]
@@ -10312,7 +10466,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -10349,52 +10503,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
-         "queued": false,
-         "role": "user",
-         "timestamp": 0
-        },
-        {
-         "blocks": [],
-         "content": "",
-         "id": "a1",
-         "isStreaming": true,
-         "role": "assistant",
-         "timestamp": 1000
-        }
-       ],
-       "mode": "execute",
-       "noteRemoteStreamEvent": "[method]",
-       "reconcileHistory": "[method]",
-       "retryCountdown": null,
-       "sendMessage": "[method]",
-       "setFastMode": "[method]",
-       "setMode": "[method]",
-       "streamingStatus": null
-      },
-      "route": "/"
-     },
-     {
-      "result": {
-       "abort": "[method]",
-       "appendCardMessage": "[method]",
-       "appendCompleteMessage": "[method]",
-       "applyRemoteEvent": "[method]",
-       "backgroundTasks": [],
-       "cancelRetry": "[method]",
-       "clearHistory": "[method]",
-       "clearQueuedForFile": "[method]",
-       "deleteQueuedMessage": "[method]",
-       "editQueuedMessage": "[method]",
-       "error": null,
-       "errorMeta": null,
-       "fastMode": false,
-       "isLoading": true,
-       "isRemoteStreaming": false,
-       "messages": [
-        {
-         "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -10439,7 +10548,52 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
+         "queued": false,
+         "role": "user",
+         "timestamp": 0
+        },
+        {
+         "blocks": [],
+         "content": "",
+         "id": "a1",
+         "isStreaming": true,
+         "role": "assistant",
+         "timestamp": 1000
+        }
+       ],
+       "mode": "execute",
+       "noteRemoteStreamEvent": "[method]",
+       "reconcileHistory": "[method]",
+       "retryCountdown": null,
+       "sendMessage": "[method]",
+       "setFastMode": "[method]",
+       "setMode": "[method]",
+       "streamingStatus": null
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "abort": "[method]",
+       "appendCardMessage": "[method]",
+       "appendCompleteMessage": "[method]",
+       "applyRemoteEvent": "[method]",
+       "backgroundTasks": [],
+       "cancelRetry": "[method]",
+       "clearHistory": "[method]",
+       "clearQueuedForFile": "[method]",
+       "deleteQueuedMessage": "[method]",
+       "editQueuedMessage": "[method]",
+       "error": null,
+       "errorMeta": null,
+       "fastMode": false,
+       "isLoading": true,
+       "isRemoteStreaming": false,
+       "messages": [
+        {
+         "content": "hi",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -10489,7 +10643,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -10528,7 +10682,7 @@
        "hi",
        {
         "endpoint": "/projects/p1/chat",
-        "messageId": "uuid-1",
+        "messageId": "00000000-0000-4000-8000-000000000000",
         "projectId": "p1"
        }
       ]
@@ -10643,7 +10797,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -10680,52 +10834,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
-         "queued": false,
-         "role": "user",
-         "timestamp": 0
-        },
-        {
-         "blocks": [],
-         "content": "",
-         "id": "a1",
-         "isStreaming": true,
-         "role": "assistant",
-         "timestamp": 1000
-        }
-       ],
-       "mode": "execute",
-       "noteRemoteStreamEvent": "[method]",
-       "reconcileHistory": "[method]",
-       "retryCountdown": null,
-       "sendMessage": "[method]",
-       "setFastMode": "[method]",
-       "setMode": "[method]",
-       "streamingStatus": null
-      },
-      "route": "/"
-     },
-     {
-      "result": {
-       "abort": "[method]",
-       "appendCardMessage": "[method]",
-       "appendCompleteMessage": "[method]",
-       "applyRemoteEvent": "[method]",
-       "backgroundTasks": [],
-       "cancelRetry": "[method]",
-       "clearHistory": "[method]",
-       "clearQueuedForFile": "[method]",
-       "deleteQueuedMessage": "[method]",
-       "editQueuedMessage": "[method]",
-       "error": null,
-       "errorMeta": null,
-       "fastMode": false,
-       "isLoading": true,
-       "isRemoteStreaming": false,
-       "messages": [
-        {
-         "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -10770,7 +10879,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -10815,7 +10924,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -10860,7 +10969,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -10905,7 +11014,52 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
+         "queued": false,
+         "role": "user",
+         "timestamp": 0
+        },
+        {
+         "blocks": [],
+         "content": "",
+         "id": "a1",
+         "isStreaming": true,
+         "role": "assistant",
+         "timestamp": 1000
+        }
+       ],
+       "mode": "execute",
+       "noteRemoteStreamEvent": "[method]",
+       "reconcileHistory": "[method]",
+       "retryCountdown": null,
+       "sendMessage": "[method]",
+       "setFastMode": "[method]",
+       "setMode": "[method]",
+       "streamingStatus": null
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "abort": "[method]",
+       "appendCardMessage": "[method]",
+       "appendCompleteMessage": "[method]",
+       "applyRemoteEvent": "[method]",
+       "backgroundTasks": [],
+       "cancelRetry": "[method]",
+       "clearHistory": "[method]",
+       "clearQueuedForFile": "[method]",
+       "deleteQueuedMessage": "[method]",
+       "editQueuedMessage": "[method]",
+       "error": null,
+       "errorMeta": null,
+       "fastMode": false,
+       "isLoading": true,
+       "isRemoteStreaming": false,
+       "messages": [
+        {
+         "content": "hi",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -10965,7 +11119,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -11026,7 +11180,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -11075,7 +11229,7 @@
        "hi",
        {
         "endpoint": "/projects/p1/chat",
-        "messageId": "uuid-1",
+        "messageId": "00000000-0000-4000-8000-000000000000",
         "projectId": "p1"
        }
       ]
@@ -11177,7 +11331,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -11214,52 +11368,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
-         "queued": false,
-         "role": "user",
-         "timestamp": 0
-        },
-        {
-         "blocks": [],
-         "content": "",
-         "id": "a1",
-         "isStreaming": true,
-         "role": "assistant",
-         "timestamp": 1000
-        }
-       ],
-       "mode": "execute",
-       "noteRemoteStreamEvent": "[method]",
-       "reconcileHistory": "[method]",
-       "retryCountdown": null,
-       "sendMessage": "[method]",
-       "setFastMode": "[method]",
-       "setMode": "[method]",
-       "streamingStatus": null
-      },
-      "route": "/"
-     },
-     {
-      "result": {
-       "abort": "[method]",
-       "appendCardMessage": "[method]",
-       "appendCompleteMessage": "[method]",
-       "applyRemoteEvent": "[method]",
-       "backgroundTasks": [],
-       "cancelRetry": "[method]",
-       "clearHistory": "[method]",
-       "clearQueuedForFile": "[method]",
-       "deleteQueuedMessage": "[method]",
-       "editQueuedMessage": "[method]",
-       "error": null,
-       "errorMeta": null,
-       "fastMode": false,
-       "isLoading": true,
-       "isRemoteStreaming": false,
-       "messages": [
-        {
-         "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -11304,7 +11413,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -11349,7 +11458,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -11394,7 +11503,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -11439,7 +11548,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -11484,7 +11593,52 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
+         "queued": false,
+         "role": "user",
+         "timestamp": 0
+        },
+        {
+         "blocks": [],
+         "content": "",
+         "id": "a1",
+         "isStreaming": true,
+         "role": "assistant",
+         "timestamp": 1000
+        }
+       ],
+       "mode": "execute",
+       "noteRemoteStreamEvent": "[method]",
+       "reconcileHistory": "[method]",
+       "retryCountdown": null,
+       "sendMessage": "[method]",
+       "setFastMode": "[method]",
+       "setMode": "[method]",
+       "streamingStatus": null
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "abort": "[method]",
+       "appendCardMessage": "[method]",
+       "appendCompleteMessage": "[method]",
+       "applyRemoteEvent": "[method]",
+       "backgroundTasks": [],
+       "cancelRetry": "[method]",
+       "clearHistory": "[method]",
+       "clearQueuedForFile": "[method]",
+       "deleteQueuedMessage": "[method]",
+       "editQueuedMessage": "[method]",
+       "error": null,
+       "errorMeta": null,
+       "fastMode": false,
+       "isLoading": true,
+       "isRemoteStreaming": false,
+       "messages": [
+        {
+         "content": "hi",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -11544,7 +11698,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -11609,7 +11763,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -11662,7 +11816,7 @@
        "hi",
        {
         "endpoint": "/projects/p1/chat",
-        "messageId": "uuid-1",
+        "messageId": "00000000-0000-4000-8000-000000000000",
         "projectId": "p1"
        }
       ]
@@ -11764,7 +11918,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -11801,52 +11955,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
-         "queued": false,
-         "role": "user",
-         "timestamp": 0
-        },
-        {
-         "blocks": [],
-         "content": "",
-         "id": "a1",
-         "isStreaming": true,
-         "role": "assistant",
-         "timestamp": 1000
-        }
-       ],
-       "mode": "execute",
-       "noteRemoteStreamEvent": "[method]",
-       "reconcileHistory": "[method]",
-       "retryCountdown": null,
-       "sendMessage": "[method]",
-       "setFastMode": "[method]",
-       "setMode": "[method]",
-       "streamingStatus": null
-      },
-      "route": "/"
-     },
-     {
-      "result": {
-       "abort": "[method]",
-       "appendCardMessage": "[method]",
-       "appendCompleteMessage": "[method]",
-       "applyRemoteEvent": "[method]",
-       "backgroundTasks": [],
-       "cancelRetry": "[method]",
-       "clearHistory": "[method]",
-       "clearQueuedForFile": "[method]",
-       "deleteQueuedMessage": "[method]",
-       "editQueuedMessage": "[method]",
-       "error": null,
-       "errorMeta": null,
-       "fastMode": false,
-       "isLoading": true,
-       "isRemoteStreaming": false,
-       "messages": [
-        {
-         "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -11891,7 +12000,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -11936,7 +12045,52 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
+         "queued": false,
+         "role": "user",
+         "timestamp": 0
+        },
+        {
+         "blocks": [],
+         "content": "",
+         "id": "a1",
+         "isStreaming": true,
+         "role": "assistant",
+         "timestamp": 1000
+        }
+       ],
+       "mode": "execute",
+       "noteRemoteStreamEvent": "[method]",
+       "reconcileHistory": "[method]",
+       "retryCountdown": null,
+       "sendMessage": "[method]",
+       "setFastMode": "[method]",
+       "setMode": "[method]",
+       "streamingStatus": null
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "abort": "[method]",
+       "appendCardMessage": "[method]",
+       "appendCompleteMessage": "[method]",
+       "applyRemoteEvent": "[method]",
+       "backgroundTasks": [],
+       "cancelRetry": "[method]",
+       "clearHistory": "[method]",
+       "clearQueuedForFile": "[method]",
+       "deleteQueuedMessage": "[method]",
+       "editQueuedMessage": "[method]",
+       "error": null,
+       "errorMeta": null,
+       "fastMode": false,
+       "isLoading": true,
+       "isRemoteStreaming": false,
+       "messages": [
+        {
+         "content": "hi",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -11994,7 +12148,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -12057,7 +12211,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -12108,7 +12262,7 @@
        "hi",
        {
         "endpoint": "/projects/p1/chat",
-        "messageId": "uuid-1",
+        "messageId": "00000000-0000-4000-8000-000000000000",
         "projectId": "p1"
        }
       ]
@@ -12243,7 +12397,7 @@
         },
         {
          "content": "next",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -12297,7 +12451,7 @@
         },
         {
          "content": "next",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -12351,7 +12505,7 @@
         },
         {
          "content": "next",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -12413,7 +12567,7 @@
         },
         {
          "content": "next",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -12467,7 +12621,7 @@
         },
         {
          "content": "next",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -12501,7 +12655,7 @@
        "next",
        {
         "endpoint": "/projects/p1/chat",
-        "messageId": "uuid-1",
+        "messageId": "00000000-0000-4000-8000-000000000000",
         "projectId": "p1"
        }
       ]
@@ -12603,7 +12757,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -12640,52 +12794,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
-         "queued": false,
-         "role": "user",
-         "timestamp": 0
-        },
-        {
-         "blocks": [],
-         "content": "",
-         "id": "a1",
-         "isStreaming": true,
-         "role": "assistant",
-         "timestamp": 1000
-        }
-       ],
-       "mode": "execute",
-       "noteRemoteStreamEvent": "[method]",
-       "reconcileHistory": "[method]",
-       "retryCountdown": null,
-       "sendMessage": "[method]",
-       "setFastMode": "[method]",
-       "setMode": "[method]",
-       "streamingStatus": null
-      },
-      "route": "/"
-     },
-     {
-      "result": {
-       "abort": "[method]",
-       "appendCardMessage": "[method]",
-       "appendCompleteMessage": "[method]",
-       "applyRemoteEvent": "[method]",
-       "backgroundTasks": [],
-       "cancelRetry": "[method]",
-       "clearHistory": "[method]",
-       "clearQueuedForFile": "[method]",
-       "deleteQueuedMessage": "[method]",
-       "editQueuedMessage": "[method]",
-       "error": null,
-       "errorMeta": null,
-       "fastMode": false,
-       "isLoading": true,
-       "isRemoteStreaming": false,
-       "messages": [
-        {
-         "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -12730,7 +12839,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -12775,7 +12884,52 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
+         "queued": false,
+         "role": "user",
+         "timestamp": 0
+        },
+        {
+         "blocks": [],
+         "content": "",
+         "id": "a1",
+         "isStreaming": true,
+         "role": "assistant",
+         "timestamp": 1000
+        }
+       ],
+       "mode": "execute",
+       "noteRemoteStreamEvent": "[method]",
+       "reconcileHistory": "[method]",
+       "retryCountdown": null,
+       "sendMessage": "[method]",
+       "setFastMode": "[method]",
+       "setMode": "[method]",
+       "streamingStatus": null
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "abort": "[method]",
+       "appendCardMessage": "[method]",
+       "appendCompleteMessage": "[method]",
+       "applyRemoteEvent": "[method]",
+       "backgroundTasks": [],
+       "cancelRetry": "[method]",
+       "clearHistory": "[method]",
+       "clearQueuedForFile": "[method]",
+       "deleteQueuedMessage": "[method]",
+       "editQueuedMessage": "[method]",
+       "error": null,
+       "errorMeta": null,
+       "fastMode": false,
+       "isLoading": true,
+       "isRemoteStreaming": false,
+       "messages": [
+        {
+         "content": "hi",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -12834,7 +12988,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -12898,7 +13052,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -12950,7 +13104,7 @@
        "hi",
        {
         "endpoint": "/projects/p1/chat",
-        "messageId": "uuid-1",
+        "messageId": "00000000-0000-4000-8000-000000000000",
         "projectId": "p1"
        }
       ]
@@ -13059,7 +13213,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -13096,52 +13250,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
-         "queued": false,
-         "role": "user",
-         "timestamp": 0
-        },
-        {
-         "blocks": [],
-         "content": "",
-         "id": "a1",
-         "isStreaming": true,
-         "role": "assistant",
-         "timestamp": 1000
-        }
-       ],
-       "mode": "execute",
-       "noteRemoteStreamEvent": "[method]",
-       "reconcileHistory": "[method]",
-       "retryCountdown": null,
-       "sendMessage": "[method]",
-       "setFastMode": "[method]",
-       "setMode": "[method]",
-       "streamingStatus": null
-      },
-      "route": "/"
-     },
-     {
-      "result": {
-       "abort": "[method]",
-       "appendCardMessage": "[method]",
-       "appendCompleteMessage": "[method]",
-       "applyRemoteEvent": "[method]",
-       "backgroundTasks": [],
-       "cancelRetry": "[method]",
-       "clearHistory": "[method]",
-       "clearQueuedForFile": "[method]",
-       "deleteQueuedMessage": "[method]",
-       "editQueuedMessage": "[method]",
-       "error": null,
-       "errorMeta": null,
-       "fastMode": false,
-       "isLoading": true,
-       "isRemoteStreaming": false,
-       "messages": [
-        {
-         "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -13186,7 +13295,52 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
+         "queued": false,
+         "role": "user",
+         "timestamp": 0
+        },
+        {
+         "blocks": [],
+         "content": "",
+         "id": "a1",
+         "isStreaming": true,
+         "role": "assistant",
+         "timestamp": 1000
+        }
+       ],
+       "mode": "execute",
+       "noteRemoteStreamEvent": "[method]",
+       "reconcileHistory": "[method]",
+       "retryCountdown": null,
+       "sendMessage": "[method]",
+       "setFastMode": "[method]",
+       "setMode": "[method]",
+       "streamingStatus": null
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "abort": "[method]",
+       "appendCardMessage": "[method]",
+       "appendCompleteMessage": "[method]",
+       "applyRemoteEvent": "[method]",
+       "backgroundTasks": [],
+       "cancelRetry": "[method]",
+       "clearHistory": "[method]",
+       "clearQueuedForFile": "[method]",
+       "deleteQueuedMessage": "[method]",
+       "editQueuedMessage": "[method]",
+       "error": null,
+       "errorMeta": null,
+       "fastMode": false,
+       "isLoading": true,
+       "isRemoteStreaming": false,
+       "messages": [
+        {
+         "content": "hi",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -13223,7 +13377,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -13248,7 +13402,7 @@
        "hi",
        {
         "endpoint": "/projects/p1/chat",
-        "messageId": "uuid-1",
+        "messageId": "00000000-0000-4000-8000-000000000000",
         "projectId": "p1"
        }
       ]
@@ -13357,7 +13511,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -13394,52 +13548,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
-         "queued": false,
-         "role": "user",
-         "timestamp": 0
-        },
-        {
-         "blocks": [],
-         "content": "",
-         "id": "a1",
-         "isStreaming": true,
-         "role": "assistant",
-         "timestamp": 1000
-        }
-       ],
-       "mode": "execute",
-       "noteRemoteStreamEvent": "[method]",
-       "reconcileHistory": "[method]",
-       "retryCountdown": null,
-       "sendMessage": "[method]",
-       "setFastMode": "[method]",
-       "setMode": "[method]",
-       "streamingStatus": null
-      },
-      "route": "/"
-     },
-     {
-      "result": {
-       "abort": "[method]",
-       "appendCardMessage": "[method]",
-       "appendCompleteMessage": "[method]",
-       "applyRemoteEvent": "[method]",
-       "backgroundTasks": [],
-       "cancelRetry": "[method]",
-       "clearHistory": "[method]",
-       "clearQueuedForFile": "[method]",
-       "deleteQueuedMessage": "[method]",
-       "editQueuedMessage": "[method]",
-       "error": null,
-       "errorMeta": null,
-       "fastMode": false,
-       "isLoading": true,
-       "isRemoteStreaming": false,
-       "messages": [
-        {
-         "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -13484,7 +13593,52 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
+         "queued": false,
+         "role": "user",
+         "timestamp": 0
+        },
+        {
+         "blocks": [],
+         "content": "",
+         "id": "a1",
+         "isStreaming": true,
+         "role": "assistant",
+         "timestamp": 1000
+        }
+       ],
+       "mode": "execute",
+       "noteRemoteStreamEvent": "[method]",
+       "reconcileHistory": "[method]",
+       "retryCountdown": null,
+       "sendMessage": "[method]",
+       "setFastMode": "[method]",
+       "setMode": "[method]",
+       "streamingStatus": null
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "abort": "[method]",
+       "appendCardMessage": "[method]",
+       "appendCompleteMessage": "[method]",
+       "applyRemoteEvent": "[method]",
+       "backgroundTasks": [],
+       "cancelRetry": "[method]",
+       "clearHistory": "[method]",
+       "clearQueuedForFile": "[method]",
+       "deleteQueuedMessage": "[method]",
+       "editQueuedMessage": "[method]",
+       "error": null,
+       "errorMeta": null,
+       "fastMode": false,
+       "isLoading": true,
+       "isRemoteStreaming": false,
+       "messages": [
+        {
+         "content": "hi",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -13536,7 +13690,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -13573,7 +13727,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -13598,7 +13752,7 @@
        "hi",
        {
         "endpoint": "/projects/p1/chat",
-        "messageId": "uuid-1",
+        "messageId": "00000000-0000-4000-8000-000000000000",
         "projectId": "p1"
        }
       ]
@@ -13700,7 +13854,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -13737,52 +13891,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
-         "queued": false,
-         "role": "user",
-         "timestamp": 0
-        },
-        {
-         "blocks": [],
-         "content": "",
-         "id": "a1",
-         "isStreaming": true,
-         "role": "assistant",
-         "timestamp": 1000
-        }
-       ],
-       "mode": "execute",
-       "noteRemoteStreamEvent": "[method]",
-       "reconcileHistory": "[method]",
-       "retryCountdown": null,
-       "sendMessage": "[method]",
-       "setFastMode": "[method]",
-       "setMode": "[method]",
-       "streamingStatus": null
-      },
-      "route": "/"
-     },
-     {
-      "result": {
-       "abort": "[method]",
-       "appendCardMessage": "[method]",
-       "appendCompleteMessage": "[method]",
-       "applyRemoteEvent": "[method]",
-       "backgroundTasks": [],
-       "cancelRetry": "[method]",
-       "clearHistory": "[method]",
-       "clearQueuedForFile": "[method]",
-       "deleteQueuedMessage": "[method]",
-       "editQueuedMessage": "[method]",
-       "error": null,
-       "errorMeta": null,
-       "fastMode": false,
-       "isLoading": true,
-       "isRemoteStreaming": false,
-       "messages": [
-        {
-         "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -13827,7 +13936,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -13872,7 +13981,52 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
+         "queued": false,
+         "role": "user",
+         "timestamp": 0
+        },
+        {
+         "blocks": [],
+         "content": "",
+         "id": "a1",
+         "isStreaming": true,
+         "role": "assistant",
+         "timestamp": 1000
+        }
+       ],
+       "mode": "execute",
+       "noteRemoteStreamEvent": "[method]",
+       "reconcileHistory": "[method]",
+       "retryCountdown": null,
+       "sendMessage": "[method]",
+       "setFastMode": "[method]",
+       "setMode": "[method]",
+       "streamingStatus": null
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "abort": "[method]",
+       "appendCardMessage": "[method]",
+       "appendCompleteMessage": "[method]",
+       "applyRemoteEvent": "[method]",
+       "backgroundTasks": [],
+       "cancelRetry": "[method]",
+       "clearHistory": "[method]",
+       "clearQueuedForFile": "[method]",
+       "deleteQueuedMessage": "[method]",
+       "editQueuedMessage": "[method]",
+       "error": null,
+       "errorMeta": null,
+       "fastMode": false,
+       "isLoading": true,
+       "isRemoteStreaming": false,
+       "messages": [
+        {
+         "content": "hi",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -13933,7 +14087,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -13995,7 +14149,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -14045,7 +14199,7 @@
        "hi",
        {
         "endpoint": "/projects/p1/chat",
-        "messageId": "uuid-1",
+        "messageId": "00000000-0000-4000-8000-000000000000",
         "projectId": "p1"
        }
       ]
@@ -14147,7 +14301,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -14184,52 +14338,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
-         "queued": false,
-         "role": "user",
-         "timestamp": 0
-        },
-        {
-         "blocks": [],
-         "content": "",
-         "id": "a1",
-         "isStreaming": true,
-         "role": "assistant",
-         "timestamp": 1000
-        }
-       ],
-       "mode": "execute",
-       "noteRemoteStreamEvent": "[method]",
-       "reconcileHistory": "[method]",
-       "retryCountdown": null,
-       "sendMessage": "[method]",
-       "setFastMode": "[method]",
-       "setMode": "[method]",
-       "streamingStatus": null
-      },
-      "route": "/"
-     },
-     {
-      "result": {
-       "abort": "[method]",
-       "appendCardMessage": "[method]",
-       "appendCompleteMessage": "[method]",
-       "applyRemoteEvent": "[method]",
-       "backgroundTasks": [],
-       "cancelRetry": "[method]",
-       "clearHistory": "[method]",
-       "clearQueuedForFile": "[method]",
-       "deleteQueuedMessage": "[method]",
-       "editQueuedMessage": "[method]",
-       "error": null,
-       "errorMeta": null,
-       "fastMode": false,
-       "isLoading": true,
-       "isRemoteStreaming": false,
-       "messages": [
-        {
-         "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -14274,7 +14383,52 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
+         "queued": false,
+         "role": "user",
+         "timestamp": 0
+        },
+        {
+         "blocks": [],
+         "content": "",
+         "id": "a1",
+         "isStreaming": true,
+         "role": "assistant",
+         "timestamp": 1000
+        }
+       ],
+       "mode": "execute",
+       "noteRemoteStreamEvent": "[method]",
+       "reconcileHistory": "[method]",
+       "retryCountdown": null,
+       "sendMessage": "[method]",
+       "setFastMode": "[method]",
+       "setMode": "[method]",
+       "streamingStatus": null
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "abort": "[method]",
+       "appendCardMessage": "[method]",
+       "appendCompleteMessage": "[method]",
+       "applyRemoteEvent": "[method]",
+       "backgroundTasks": [],
+       "cancelRetry": "[method]",
+       "clearHistory": "[method]",
+       "clearQueuedForFile": "[method]",
+       "deleteQueuedMessage": "[method]",
+       "editQueuedMessage": "[method]",
+       "error": null,
+       "errorMeta": null,
+       "fastMode": false,
+       "isLoading": true,
+       "isRemoteStreaming": false,
+       "messages": [
+        {
+         "content": "hi",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -14324,7 +14478,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -14375,7 +14529,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -14414,7 +14568,7 @@
        "hi",
        {
         "endpoint": "/projects/p1/chat",
-        "messageId": "uuid-1",
+        "messageId": "00000000-0000-4000-8000-000000000000",
         "projectId": "p1"
        }
       ]
@@ -14516,7 +14670,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -14553,52 +14707,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
-         "queued": false,
-         "role": "user",
-         "timestamp": 0
-        },
-        {
-         "blocks": [],
-         "content": "",
-         "id": "a1",
-         "isStreaming": true,
-         "role": "assistant",
-         "timestamp": 1000
-        }
-       ],
-       "mode": "execute",
-       "noteRemoteStreamEvent": "[method]",
-       "reconcileHistory": "[method]",
-       "retryCountdown": null,
-       "sendMessage": "[method]",
-       "setFastMode": "[method]",
-       "setMode": "[method]",
-       "streamingStatus": null
-      },
-      "route": "/"
-     },
-     {
-      "result": {
-       "abort": "[method]",
-       "appendCardMessage": "[method]",
-       "appendCompleteMessage": "[method]",
-       "applyRemoteEvent": "[method]",
-       "backgroundTasks": [],
-       "cancelRetry": "[method]",
-       "clearHistory": "[method]",
-       "clearQueuedForFile": "[method]",
-       "deleteQueuedMessage": "[method]",
-       "editQueuedMessage": "[method]",
-       "error": null,
-       "errorMeta": null,
-       "fastMode": false,
-       "isLoading": true,
-       "isRemoteStreaming": false,
-       "messages": [
-        {
-         "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -14643,7 +14752,52 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
+         "queued": false,
+         "role": "user",
+         "timestamp": 0
+        },
+        {
+         "blocks": [],
+         "content": "",
+         "id": "a1",
+         "isStreaming": true,
+         "role": "assistant",
+         "timestamp": 1000
+        }
+       ],
+       "mode": "execute",
+       "noteRemoteStreamEvent": "[method]",
+       "reconcileHistory": "[method]",
+       "retryCountdown": null,
+       "sendMessage": "[method]",
+       "setFastMode": "[method]",
+       "setMode": "[method]",
+       "streamingStatus": null
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "abort": "[method]",
+       "appendCardMessage": "[method]",
+       "appendCompleteMessage": "[method]",
+       "applyRemoteEvent": "[method]",
+       "backgroundTasks": [],
+       "cancelRetry": "[method]",
+       "clearHistory": "[method]",
+       "clearQueuedForFile": "[method]",
+       "deleteQueuedMessage": "[method]",
+       "editQueuedMessage": "[method]",
+       "error": null,
+       "errorMeta": null,
+       "fastMode": false,
+       "isLoading": true,
+       "isRemoteStreaming": false,
+       "messages": [
+        {
+         "content": "hi",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -14689,7 +14843,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -14736,7 +14890,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -14771,7 +14925,7 @@
        "hi",
        {
         "endpoint": "/projects/p1/chat",
-        "messageId": "uuid-1",
+        "messageId": "00000000-0000-4000-8000-000000000000",
         "projectId": "p1"
        }
       ]
@@ -14873,7 +15027,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -14910,54 +15064,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
-         "queued": false,
-         "role": "user",
-         "timestamp": 0
-        },
-        {
-         "cardEvent": {
-          "kind": "mode",
-          "mode": "plan"
-         },
-         "content": "",
-         "id": "c1",
-         "role": "system",
-         "timestamp": 3000
-        }
-       ],
-       "mode": "execute",
-       "noteRemoteStreamEvent": "[method]",
-       "reconcileHistory": "[method]",
-       "retryCountdown": null,
-       "sendMessage": "[method]",
-       "setFastMode": "[method]",
-       "setMode": "[method]",
-       "streamingStatus": null
-      },
-      "route": "/"
-     },
-     {
-      "result": {
-       "abort": "[method]",
-       "appendCardMessage": "[method]",
-       "appendCompleteMessage": "[method]",
-       "applyRemoteEvent": "[method]",
-       "backgroundTasks": [],
-       "cancelRetry": "[method]",
-       "clearHistory": "[method]",
-       "clearQueuedForFile": "[method]",
-       "deleteQueuedMessage": "[method]",
-       "editQueuedMessage": "[method]",
-       "error": null,
-       "errorMeta": null,
-       "fastMode": false,
-       "isLoading": true,
-       "isRemoteStreaming": false,
-       "messages": [
-        {
-         "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -15004,7 +15111,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -15051,7 +15158,54 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
+         "queued": false,
+         "role": "user",
+         "timestamp": 0
+        },
+        {
+         "cardEvent": {
+          "kind": "mode",
+          "mode": "plan"
+         },
+         "content": "",
+         "id": "c1",
+         "role": "system",
+         "timestamp": 3000
+        }
+       ],
+       "mode": "execute",
+       "noteRemoteStreamEvent": "[method]",
+       "reconcileHistory": "[method]",
+       "retryCountdown": null,
+       "sendMessage": "[method]",
+       "setFastMode": "[method]",
+       "setMode": "[method]",
+       "streamingStatus": null
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "abort": "[method]",
+       "appendCardMessage": "[method]",
+       "appendCompleteMessage": "[method]",
+       "applyRemoteEvent": "[method]",
+       "backgroundTasks": [],
+       "cancelRetry": "[method]",
+       "clearHistory": "[method]",
+       "clearQueuedForFile": "[method]",
+       "deleteQueuedMessage": "[method]",
+       "editQueuedMessage": "[method]",
+       "error": null,
+       "errorMeta": null,
+       "fastMode": false,
+       "isLoading": true,
+       "isRemoteStreaming": false,
+       "messages": [
+        {
+         "content": "hi",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -15098,7 +15252,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -15133,7 +15287,7 @@
        "hi",
        {
         "endpoint": "/projects/p1/chat",
-        "messageId": "uuid-1",
+        "messageId": "00000000-0000-4000-8000-000000000000",
         "projectId": "p1"
        }
       ]
@@ -15243,7 +15397,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -15280,55 +15434,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
-         "queued": false,
-         "role": "user",
-         "timestamp": 0
-        },
-        {
-         "author": {
-          "id": "t1",
-          "name": "Teammate"
-         },
-         "content": "a team note",
-         "id": "n1",
-         "role": "system",
-         "teamOnly": true,
-         "timestamp": 9
-        }
-       ],
-       "mode": "execute",
-       "noteRemoteStreamEvent": "[method]",
-       "reconcileHistory": "[method]",
-       "retryCountdown": null,
-       "sendMessage": "[method]",
-       "setFastMode": "[method]",
-       "setMode": "[method]",
-       "streamingStatus": null
-      },
-      "route": "/"
-     },
-     {
-      "result": {
-       "abort": "[method]",
-       "appendCardMessage": "[method]",
-       "appendCompleteMessage": "[method]",
-       "applyRemoteEvent": "[method]",
-       "backgroundTasks": [],
-       "cancelRetry": "[method]",
-       "clearHistory": "[method]",
-       "clearQueuedForFile": "[method]",
-       "deleteQueuedMessage": "[method]",
-       "editQueuedMessage": "[method]",
-       "error": null,
-       "errorMeta": null,
-       "fastMode": false,
-       "isLoading": true,
-       "isRemoteStreaming": false,
-       "messages": [
-        {
-         "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -15376,7 +15482,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -15424,7 +15530,55 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
+         "queued": false,
+         "role": "user",
+         "timestamp": 0
+        },
+        {
+         "author": {
+          "id": "t1",
+          "name": "Teammate"
+         },
+         "content": "a team note",
+         "id": "n1",
+         "role": "system",
+         "teamOnly": true,
+         "timestamp": 9
+        }
+       ],
+       "mode": "execute",
+       "noteRemoteStreamEvent": "[method]",
+       "reconcileHistory": "[method]",
+       "retryCountdown": null,
+       "sendMessage": "[method]",
+       "setFastMode": "[method]",
+       "setMode": "[method]",
+       "streamingStatus": null
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "abort": "[method]",
+       "appendCardMessage": "[method]",
+       "appendCompleteMessage": "[method]",
+       "applyRemoteEvent": "[method]",
+       "backgroundTasks": [],
+       "cancelRetry": "[method]",
+       "clearHistory": "[method]",
+       "clearQueuedForFile": "[method]",
+       "deleteQueuedMessage": "[method]",
+       "editQueuedMessage": "[method]",
+       "error": null,
+       "errorMeta": null,
+       "fastMode": false,
+       "isLoading": true,
+       "isRemoteStreaming": false,
+       "messages": [
+        {
+         "content": "hi",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -15472,7 +15626,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -15508,7 +15662,7 @@
        "hi",
        {
         "endpoint": "/projects/p1/chat",
-        "messageId": "uuid-1",
+        "messageId": "00000000-0000-4000-8000-000000000000",
         "projectId": "p1"
        }
       ]
@@ -15610,7 +15764,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -15647,52 +15801,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
-         "queued": false,
-         "role": "user",
-         "timestamp": 0
-        },
-        {
-         "blocks": [],
-         "content": "",
-         "id": "a1",
-         "isStreaming": true,
-         "role": "assistant",
-         "timestamp": 1000
-        }
-       ],
-       "mode": "execute",
-       "noteRemoteStreamEvent": "[method]",
-       "reconcileHistory": "[method]",
-       "retryCountdown": null,
-       "sendMessage": "[method]",
-       "setFastMode": "[method]",
-       "setMode": "[method]",
-       "streamingStatus": null
-      },
-      "route": "/"
-     },
-     {
-      "result": {
-       "abort": "[method]",
-       "appendCardMessage": "[method]",
-       "appendCompleteMessage": "[method]",
-       "applyRemoteEvent": "[method]",
-       "backgroundTasks": [],
-       "cancelRetry": "[method]",
-       "clearHistory": "[method]",
-       "clearQueuedForFile": "[method]",
-       "deleteQueuedMessage": "[method]",
-       "editQueuedMessage": "[method]",
-       "error": null,
-       "errorMeta": null,
-       "fastMode": false,
-       "isLoading": true,
-       "isRemoteStreaming": false,
-       "messages": [
-        {
-         "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -15737,7 +15846,52 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
+         "queued": false,
+         "role": "user",
+         "timestamp": 0
+        },
+        {
+         "blocks": [],
+         "content": "",
+         "id": "a1",
+         "isStreaming": true,
+         "role": "assistant",
+         "timestamp": 1000
+        }
+       ],
+       "mode": "execute",
+       "noteRemoteStreamEvent": "[method]",
+       "reconcileHistory": "[method]",
+       "retryCountdown": null,
+       "sendMessage": "[method]",
+       "setFastMode": "[method]",
+       "setMode": "[method]",
+       "streamingStatus": null
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "abort": "[method]",
+       "appendCardMessage": "[method]",
+       "appendCompleteMessage": "[method]",
+       "applyRemoteEvent": "[method]",
+       "backgroundTasks": [],
+       "cancelRetry": "[method]",
+       "clearHistory": "[method]",
+       "clearQueuedForFile": "[method]",
+       "deleteQueuedMessage": "[method]",
+       "editQueuedMessage": "[method]",
+       "error": null,
+       "errorMeta": null,
+       "fastMode": false,
+       "isLoading": true,
+       "isRemoteStreaming": false,
+       "messages": [
+        {
+         "content": "hi",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -15787,66 +15941,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
-         "queued": false,
-         "role": "user",
-         "timestamp": 0
-        },
-        {
-         "blocks": [
-          {
-           "content": "first ",
-           "type": "text"
-          }
-         ],
-         "content": "first ",
-         "id": "a1",
-         "isStreaming": false,
-         "role": "assistant",
-         "timestamp": 1000,
-         "toolCalls": []
-        },
-        {
-         "blocks": [],
-         "content": "",
-         "id": "a2",
-         "isStreaming": true,
-         "role": "assistant",
-         "timestamp": 2000
-        }
-       ],
-       "mode": "execute",
-       "noteRemoteStreamEvent": "[method]",
-       "reconcileHistory": "[method]",
-       "retryCountdown": null,
-       "sendMessage": "[method]",
-       "setFastMode": "[method]",
-       "setMode": "[method]",
-       "streamingStatus": null
-      },
-      "route": "/"
-     },
-     {
-      "result": {
-       "abort": "[method]",
-       "appendCardMessage": "[method]",
-       "appendCompleteMessage": "[method]",
-       "applyRemoteEvent": "[method]",
-       "backgroundTasks": [],
-       "cancelRetry": "[method]",
-       "clearHistory": "[method]",
-       "clearQueuedForFile": "[method]",
-       "deleteQueuedMessage": "[method]",
-       "editQueuedMessage": "[method]",
-       "error": null,
-       "errorMeta": null,
-       "fastMode": false,
-       "isLoading": true,
-       "isRemoteStreaming": false,
-       "messages": [
-        {
-         "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -15905,7 +16000,66 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
+         "queued": false,
+         "role": "user",
+         "timestamp": 0
+        },
+        {
+         "blocks": [
+          {
+           "content": "first ",
+           "type": "text"
+          }
+         ],
+         "content": "first ",
+         "id": "a1",
+         "isStreaming": false,
+         "role": "assistant",
+         "timestamp": 1000,
+         "toolCalls": []
+        },
+        {
+         "blocks": [],
+         "content": "",
+         "id": "a2",
+         "isStreaming": true,
+         "role": "assistant",
+         "timestamp": 2000
+        }
+       ],
+       "mode": "execute",
+       "noteRemoteStreamEvent": "[method]",
+       "reconcileHistory": "[method]",
+       "retryCountdown": null,
+       "sendMessage": "[method]",
+       "setFastMode": "[method]",
+       "setMode": "[method]",
+       "streamingStatus": null
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "abort": "[method]",
+       "appendCardMessage": "[method]",
+       "appendCompleteMessage": "[method]",
+       "applyRemoteEvent": "[method]",
+       "backgroundTasks": [],
+       "cancelRetry": "[method]",
+       "clearHistory": "[method]",
+       "clearQueuedForFile": "[method]",
+       "deleteQueuedMessage": "[method]",
+       "editQueuedMessage": "[method]",
+       "error": null,
+       "errorMeta": null,
+       "fastMode": false,
+       "isLoading": true,
+       "isRemoteStreaming": false,
+       "messages": [
+        {
+         "content": "hi",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -15970,7 +16124,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -16023,7 +16177,7 @@
        "hi",
        {
         "endpoint": "/projects/p1/chat",
-        "messageId": "uuid-1",
+        "messageId": "00000000-0000-4000-8000-000000000000",
         "projectId": "p1"
        }
       ]
@@ -16125,7 +16279,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -16162,7 +16316,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -16199,7 +16353,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -16236,7 +16390,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -16273,7 +16427,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -16298,7 +16452,7 @@
        "hi",
        {
         "endpoint": "/projects/p1/chat",
-        "messageId": "uuid-1",
+        "messageId": "00000000-0000-4000-8000-000000000000",
         "projectId": "p1"
        }
       ]
@@ -16412,7 +16566,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -16449,7 +16603,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -16486,7 +16640,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -16523,7 +16677,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -16548,7 +16702,7 @@
        "hi",
        {
         "endpoint": "/projects/p1/chat",
-        "messageId": "uuid-1",
+        "messageId": "00000000-0000-4000-8000-000000000000",
         "projectId": "p1"
        }
       ]
@@ -16656,7 +16810,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -16693,277 +16847,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
-         "queued": false,
-         "role": "user",
-         "timestamp": 0
-        },
-        {
-         "blocks": [],
-         "content": "",
-         "id": "a1",
-         "isStreaming": true,
-         "role": "assistant",
-         "timestamp": 1000
-        }
-       ],
-       "mode": "execute",
-       "noteRemoteStreamEvent": "[method]",
-       "reconcileHistory": "[method]",
-       "retryCountdown": null,
-       "sendMessage": "[method]",
-       "setFastMode": "[method]",
-       "setMode": "[method]",
-       "streamingStatus": null
-      },
-      "route": "/"
-     },
-     {
-      "result": {
-       "abort": "[method]",
-       "appendCardMessage": "[method]",
-       "appendCompleteMessage": "[method]",
-       "applyRemoteEvent": "[method]",
-       "backgroundTasks": [],
-       "cancelRetry": "[method]",
-       "clearHistory": "[method]",
-       "clearQueuedForFile": "[method]",
-       "deleteQueuedMessage": "[method]",
-       "editQueuedMessage": "[method]",
-       "error": null,
-       "errorMeta": null,
-       "fastMode": false,
-       "isLoading": true,
-       "isRemoteStreaming": false,
-       "messages": [
-        {
-         "content": "hi",
-         "id": "uuid-1",
-         "queued": false,
-         "role": "user",
-         "timestamp": 0
-        },
-        {
-         "blocks": [],
-         "content": "",
-         "id": "a1",
-         "isStreaming": true,
-         "role": "assistant",
-         "timestamp": 1000
-        }
-       ],
-       "mode": "execute",
-       "noteRemoteStreamEvent": "[method]",
-       "reconcileHistory": "[method]",
-       "retryCountdown": null,
-       "sendMessage": "[method]",
-       "setFastMode": "[method]",
-       "setMode": "[method]",
-       "streamingStatus": "Type-checking the API"
-      },
-      "route": "/"
-     },
-     {
-      "result": {
-       "abort": "[method]",
-       "appendCardMessage": "[method]",
-       "appendCompleteMessage": "[method]",
-       "applyRemoteEvent": "[method]",
-       "backgroundTasks": [],
-       "cancelRetry": "[method]",
-       "clearHistory": "[method]",
-       "clearQueuedForFile": "[method]",
-       "deleteQueuedMessage": "[method]",
-       "editQueuedMessage": "[method]",
-       "error": null,
-       "errorMeta": null,
-       "fastMode": false,
-       "isLoading": true,
-       "isRemoteStreaming": false,
-       "messages": [
-        {
-         "content": "hi",
-         "id": "uuid-1",
-         "queued": false,
-         "role": "user",
-         "timestamp": 0
-        },
-        {
-         "blocks": [],
-         "content": "",
-         "id": "a1",
-         "isStreaming": true,
-         "role": "assistant",
-         "timestamp": 1000
-        }
-       ],
-       "mode": "execute",
-       "noteRemoteStreamEvent": "[method]",
-       "reconcileHistory": "[method]",
-       "retryCountdown": null,
-       "sendMessage": "[method]",
-       "setFastMode": "[method]",
-       "setMode": "[method]",
-       "streamingStatus": "Type-checking the API"
-      },
-      "route": "/"
-     },
-     {
-      "result": {
-       "abort": "[method]",
-       "appendCardMessage": "[method]",
-       "appendCompleteMessage": "[method]",
-       "applyRemoteEvent": "[method]",
-       "backgroundTasks": [],
-       "cancelRetry": "[method]",
-       "clearHistory": "[method]",
-       "clearQueuedForFile": "[method]",
-       "deleteQueuedMessage": "[method]",
-       "editQueuedMessage": "[method]",
-       "error": null,
-       "errorMeta": null,
-       "fastMode": false,
-       "isLoading": true,
-       "isRemoteStreaming": false,
-       "messages": [
-        {
-         "content": "hi",
-         "id": "uuid-1",
-         "queued": false,
-         "role": "user",
-         "timestamp": 0
-        },
-        {
-         "blocks": [],
-         "content": "",
-         "id": "a1",
-         "isStreaming": true,
-         "role": "assistant",
-         "timestamp": 1000
-        }
-       ],
-       "mode": "execute",
-       "noteRemoteStreamEvent": "[method]",
-       "reconcileHistory": "[method]",
-       "retryCountdown": null,
-       "sendMessage": "[method]",
-       "setFastMode": "[method]",
-       "setMode": "[method]",
-       "streamingStatus": "Type-checking the API"
-      },
-      "route": "/"
-     },
-     {
-      "result": {
-       "abort": "[method]",
-       "appendCardMessage": "[method]",
-       "appendCompleteMessage": "[method]",
-       "applyRemoteEvent": "[method]",
-       "backgroundTasks": [],
-       "cancelRetry": "[method]",
-       "clearHistory": "[method]",
-       "clearQueuedForFile": "[method]",
-       "deleteQueuedMessage": "[method]",
-       "editQueuedMessage": "[method]",
-       "error": null,
-       "errorMeta": null,
-       "fastMode": false,
-       "isLoading": true,
-       "isRemoteStreaming": false,
-       "messages": [
-        {
-         "content": "hi",
-         "id": "uuid-1",
-         "queued": false,
-         "role": "user",
-         "timestamp": 0
-        },
-        {
-         "blocks": [],
-         "content": "",
-         "id": "a1",
-         "isStreaming": true,
-         "role": "assistant",
-         "timestamp": 1000
-        }
-       ],
-       "mode": "execute",
-       "noteRemoteStreamEvent": "[method]",
-       "reconcileHistory": "[method]",
-       "retryCountdown": null,
-       "sendMessage": "[method]",
-       "setFastMode": "[method]",
-       "setMode": "[method]",
-       "streamingStatus": "Type-checking the API"
-      },
-      "route": "/"
-     },
-     {
-      "result": {
-       "abort": "[method]",
-       "appendCardMessage": "[method]",
-       "appendCompleteMessage": "[method]",
-       "applyRemoteEvent": "[method]",
-       "backgroundTasks": [],
-       "cancelRetry": "[method]",
-       "clearHistory": "[method]",
-       "clearQueuedForFile": "[method]",
-       "deleteQueuedMessage": "[method]",
-       "editQueuedMessage": "[method]",
-       "error": null,
-       "errorMeta": null,
-       "fastMode": false,
-       "isLoading": true,
-       "isRemoteStreaming": false,
-       "messages": [
-        {
-         "content": "hi",
-         "id": "uuid-1",
-         "queued": false,
-         "role": "user",
-         "timestamp": 0
-        },
-        {
-         "blocks": [],
-         "content": "",
-         "id": "a1",
-         "isStreaming": true,
-         "role": "assistant",
-         "timestamp": 1000
-        }
-       ],
-       "mode": "execute",
-       "noteRemoteStreamEvent": "[method]",
-       "reconcileHistory": "[method]",
-       "retryCountdown": null,
-       "sendMessage": "[method]",
-       "setFastMode": "[method]",
-       "setMode": "[method]",
-       "streamingStatus": "Type-checking the API"
-      },
-      "route": "/"
-     },
-     {
-      "result": {
-       "abort": "[method]",
-       "appendCardMessage": "[method]",
-       "appendCompleteMessage": "[method]",
-       "applyRemoteEvent": "[method]",
-       "backgroundTasks": [],
-       "cancelRetry": "[method]",
-       "clearHistory": "[method]",
-       "clearQueuedForFile": "[method]",
-       "deleteQueuedMessage": "[method]",
-       "editQueuedMessage": "[method]",
-       "error": null,
-       "errorMeta": null,
-       "fastMode": false,
-       "isLoading": true,
-       "isRemoteStreaming": false,
-       "messages": [
-        {
-         "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -17008,7 +16892,277 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
+         "queued": false,
+         "role": "user",
+         "timestamp": 0
+        },
+        {
+         "blocks": [],
+         "content": "",
+         "id": "a1",
+         "isStreaming": true,
+         "role": "assistant",
+         "timestamp": 1000
+        }
+       ],
+       "mode": "execute",
+       "noteRemoteStreamEvent": "[method]",
+       "reconcileHistory": "[method]",
+       "retryCountdown": null,
+       "sendMessage": "[method]",
+       "setFastMode": "[method]",
+       "setMode": "[method]",
+       "streamingStatus": "Type-checking the API"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "abort": "[method]",
+       "appendCardMessage": "[method]",
+       "appendCompleteMessage": "[method]",
+       "applyRemoteEvent": "[method]",
+       "backgroundTasks": [],
+       "cancelRetry": "[method]",
+       "clearHistory": "[method]",
+       "clearQueuedForFile": "[method]",
+       "deleteQueuedMessage": "[method]",
+       "editQueuedMessage": "[method]",
+       "error": null,
+       "errorMeta": null,
+       "fastMode": false,
+       "isLoading": true,
+       "isRemoteStreaming": false,
+       "messages": [
+        {
+         "content": "hi",
+         "id": "00000000-0000-4000-8000-000000000000",
+         "queued": false,
+         "role": "user",
+         "timestamp": 0
+        },
+        {
+         "blocks": [],
+         "content": "",
+         "id": "a1",
+         "isStreaming": true,
+         "role": "assistant",
+         "timestamp": 1000
+        }
+       ],
+       "mode": "execute",
+       "noteRemoteStreamEvent": "[method]",
+       "reconcileHistory": "[method]",
+       "retryCountdown": null,
+       "sendMessage": "[method]",
+       "setFastMode": "[method]",
+       "setMode": "[method]",
+       "streamingStatus": "Type-checking the API"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "abort": "[method]",
+       "appendCardMessage": "[method]",
+       "appendCompleteMessage": "[method]",
+       "applyRemoteEvent": "[method]",
+       "backgroundTasks": [],
+       "cancelRetry": "[method]",
+       "clearHistory": "[method]",
+       "clearQueuedForFile": "[method]",
+       "deleteQueuedMessage": "[method]",
+       "editQueuedMessage": "[method]",
+       "error": null,
+       "errorMeta": null,
+       "fastMode": false,
+       "isLoading": true,
+       "isRemoteStreaming": false,
+       "messages": [
+        {
+         "content": "hi",
+         "id": "00000000-0000-4000-8000-000000000000",
+         "queued": false,
+         "role": "user",
+         "timestamp": 0
+        },
+        {
+         "blocks": [],
+         "content": "",
+         "id": "a1",
+         "isStreaming": true,
+         "role": "assistant",
+         "timestamp": 1000
+        }
+       ],
+       "mode": "execute",
+       "noteRemoteStreamEvent": "[method]",
+       "reconcileHistory": "[method]",
+       "retryCountdown": null,
+       "sendMessage": "[method]",
+       "setFastMode": "[method]",
+       "setMode": "[method]",
+       "streamingStatus": "Type-checking the API"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "abort": "[method]",
+       "appendCardMessage": "[method]",
+       "appendCompleteMessage": "[method]",
+       "applyRemoteEvent": "[method]",
+       "backgroundTasks": [],
+       "cancelRetry": "[method]",
+       "clearHistory": "[method]",
+       "clearQueuedForFile": "[method]",
+       "deleteQueuedMessage": "[method]",
+       "editQueuedMessage": "[method]",
+       "error": null,
+       "errorMeta": null,
+       "fastMode": false,
+       "isLoading": true,
+       "isRemoteStreaming": false,
+       "messages": [
+        {
+         "content": "hi",
+         "id": "00000000-0000-4000-8000-000000000000",
+         "queued": false,
+         "role": "user",
+         "timestamp": 0
+        },
+        {
+         "blocks": [],
+         "content": "",
+         "id": "a1",
+         "isStreaming": true,
+         "role": "assistant",
+         "timestamp": 1000
+        }
+       ],
+       "mode": "execute",
+       "noteRemoteStreamEvent": "[method]",
+       "reconcileHistory": "[method]",
+       "retryCountdown": null,
+       "sendMessage": "[method]",
+       "setFastMode": "[method]",
+       "setMode": "[method]",
+       "streamingStatus": "Type-checking the API"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "abort": "[method]",
+       "appendCardMessage": "[method]",
+       "appendCompleteMessage": "[method]",
+       "applyRemoteEvent": "[method]",
+       "backgroundTasks": [],
+       "cancelRetry": "[method]",
+       "clearHistory": "[method]",
+       "clearQueuedForFile": "[method]",
+       "deleteQueuedMessage": "[method]",
+       "editQueuedMessage": "[method]",
+       "error": null,
+       "errorMeta": null,
+       "fastMode": false,
+       "isLoading": true,
+       "isRemoteStreaming": false,
+       "messages": [
+        {
+         "content": "hi",
+         "id": "00000000-0000-4000-8000-000000000000",
+         "queued": false,
+         "role": "user",
+         "timestamp": 0
+        },
+        {
+         "blocks": [],
+         "content": "",
+         "id": "a1",
+         "isStreaming": true,
+         "role": "assistant",
+         "timestamp": 1000
+        }
+       ],
+       "mode": "execute",
+       "noteRemoteStreamEvent": "[method]",
+       "reconcileHistory": "[method]",
+       "retryCountdown": null,
+       "sendMessage": "[method]",
+       "setFastMode": "[method]",
+       "setMode": "[method]",
+       "streamingStatus": "Type-checking the API"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "abort": "[method]",
+       "appendCardMessage": "[method]",
+       "appendCompleteMessage": "[method]",
+       "applyRemoteEvent": "[method]",
+       "backgroundTasks": [],
+       "cancelRetry": "[method]",
+       "clearHistory": "[method]",
+       "clearQueuedForFile": "[method]",
+       "deleteQueuedMessage": "[method]",
+       "editQueuedMessage": "[method]",
+       "error": null,
+       "errorMeta": null,
+       "fastMode": false,
+       "isLoading": true,
+       "isRemoteStreaming": false,
+       "messages": [
+        {
+         "content": "hi",
+         "id": "00000000-0000-4000-8000-000000000000",
+         "queued": false,
+         "role": "user",
+         "timestamp": 0
+        },
+        {
+         "blocks": [],
+         "content": "",
+         "id": "a1",
+         "isStreaming": true,
+         "role": "assistant",
+         "timestamp": 1000
+        }
+       ],
+       "mode": "execute",
+       "noteRemoteStreamEvent": "[method]",
+       "reconcileHistory": "[method]",
+       "retryCountdown": null,
+       "sendMessage": "[method]",
+       "setFastMode": "[method]",
+       "setMode": "[method]",
+       "streamingStatus": null
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "abort": "[method]",
+       "appendCardMessage": "[method]",
+       "appendCompleteMessage": "[method]",
+       "applyRemoteEvent": "[method]",
+       "backgroundTasks": [],
+       "cancelRetry": "[method]",
+       "clearHistory": "[method]",
+       "clearQueuedForFile": "[method]",
+       "deleteQueuedMessage": "[method]",
+       "editQueuedMessage": "[method]",
+       "error": null,
+       "errorMeta": null,
+       "fastMode": false,
+       "isLoading": true,
+       "isRemoteStreaming": false,
+       "messages": [
+        {
+         "content": "hi",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -17045,7 +17199,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -17070,7 +17224,7 @@
        "hi",
        {
         "endpoint": "/projects/p1/chat",
-        "messageId": "uuid-1",
+        "messageId": "00000000-0000-4000-8000-000000000000",
         "projectId": "p1"
        }
       ]
@@ -17172,7 +17326,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -17209,7 +17363,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -17254,7 +17408,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -17299,7 +17453,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -17344,7 +17498,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -17389,7 +17543,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -17434,7 +17588,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -17479,7 +17633,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -17524,7 +17678,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -17561,7 +17715,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -17586,7 +17740,7 @@
        "hi",
        {
         "endpoint": "/projects/p1/chat",
-        "messageId": "uuid-1",
+        "messageId": "00000000-0000-4000-8000-000000000000",
         "projectId": "p1"
        }
       ]
@@ -17688,7 +17842,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -17734,7 +17888,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -17782,7 +17936,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -17830,7 +17984,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -17878,7 +18032,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -17926,7 +18080,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -17951,7 +18105,7 @@
        "hi",
        {
         "endpoint": "/projects/p1/chat",
-        "messageId": "uuid-1",
+        "messageId": "00000000-0000-4000-8000-000000000000",
         "projectId": "p1"
        }
       ]
@@ -18053,7 +18207,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -18090,52 +18244,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
-         "queued": false,
-         "role": "user",
-         "timestamp": 0
-        },
-        {
-         "blocks": [],
-         "content": "",
-         "id": "a1",
-         "isStreaming": true,
-         "role": "assistant",
-         "timestamp": 1000
-        }
-       ],
-       "mode": "execute",
-       "noteRemoteStreamEvent": "[method]",
-       "reconcileHistory": "[method]",
-       "retryCountdown": null,
-       "sendMessage": "[method]",
-       "setFastMode": "[method]",
-       "setMode": "[method]",
-       "streamingStatus": null
-      },
-      "route": "/"
-     },
-     {
-      "result": {
-       "abort": "[method]",
-       "appendCardMessage": "[method]",
-       "appendCompleteMessage": "[method]",
-       "applyRemoteEvent": "[method]",
-       "backgroundTasks": [],
-       "cancelRetry": "[method]",
-       "clearHistory": "[method]",
-       "clearQueuedForFile": "[method]",
-       "deleteQueuedMessage": "[method]",
-       "editQueuedMessage": "[method]",
-       "error": null,
-       "errorMeta": null,
-       "fastMode": false,
-       "isLoading": true,
-       "isRemoteStreaming": false,
-       "messages": [
-        {
-         "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -18180,7 +18289,52 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
+         "queued": false,
+         "role": "user",
+         "timestamp": 0
+        },
+        {
+         "blocks": [],
+         "content": "",
+         "id": "a1",
+         "isStreaming": true,
+         "role": "assistant",
+         "timestamp": 1000
+        }
+       ],
+       "mode": "execute",
+       "noteRemoteStreamEvent": "[method]",
+       "reconcileHistory": "[method]",
+       "retryCountdown": null,
+       "sendMessage": "[method]",
+       "setFastMode": "[method]",
+       "setMode": "[method]",
+       "streamingStatus": null
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "abort": "[method]",
+       "appendCardMessage": "[method]",
+       "appendCompleteMessage": "[method]",
+       "applyRemoteEvent": "[method]",
+       "backgroundTasks": [],
+       "cancelRetry": "[method]",
+       "clearHistory": "[method]",
+       "clearQueuedForFile": "[method]",
+       "deleteQueuedMessage": "[method]",
+       "editQueuedMessage": "[method]",
+       "error": null,
+       "errorMeta": null,
+       "fastMode": false,
+       "isLoading": true,
+       "isRemoteStreaming": false,
+       "messages": [
+        {
+         "content": "hi",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -18217,7 +18371,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -18242,7 +18396,7 @@
        "hi",
        {
         "endpoint": "/projects/p1/chat",
-        "messageId": "uuid-1",
+        "messageId": "00000000-0000-4000-8000-000000000000",
         "projectId": "p1"
        }
       ]
@@ -18344,7 +18498,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -18381,52 +18535,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
-         "queued": false,
-         "role": "user",
-         "timestamp": 0
-        },
-        {
-         "blocks": [],
-         "content": "",
-         "id": "a1",
-         "isStreaming": true,
-         "role": "assistant",
-         "timestamp": 1000
-        }
-       ],
-       "mode": "execute",
-       "noteRemoteStreamEvent": "[method]",
-       "reconcileHistory": "[method]",
-       "retryCountdown": null,
-       "sendMessage": "[method]",
-       "setFastMode": "[method]",
-       "setMode": "[method]",
-       "streamingStatus": null
-      },
-      "route": "/"
-     },
-     {
-      "result": {
-       "abort": "[method]",
-       "appendCardMessage": "[method]",
-       "appendCompleteMessage": "[method]",
-       "applyRemoteEvent": "[method]",
-       "backgroundTasks": [],
-       "cancelRetry": "[method]",
-       "clearHistory": "[method]",
-       "clearQueuedForFile": "[method]",
-       "deleteQueuedMessage": "[method]",
-       "editQueuedMessage": "[method]",
-       "error": null,
-       "errorMeta": null,
-       "fastMode": false,
-       "isLoading": true,
-       "isRemoteStreaming": false,
-       "messages": [
-        {
-         "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -18471,7 +18580,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -18516,7 +18625,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -18561,7 +18670,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -18606,7 +18715,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -18651,7 +18760,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -18696,7 +18805,52 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
+         "queued": false,
+         "role": "user",
+         "timestamp": 0
+        },
+        {
+         "blocks": [],
+         "content": "",
+         "id": "a1",
+         "isStreaming": true,
+         "role": "assistant",
+         "timestamp": 1000
+        }
+       ],
+       "mode": "execute",
+       "noteRemoteStreamEvent": "[method]",
+       "reconcileHistory": "[method]",
+       "retryCountdown": null,
+       "sendMessage": "[method]",
+       "setFastMode": "[method]",
+       "setMode": "[method]",
+       "streamingStatus": null
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "abort": "[method]",
+       "appendCardMessage": "[method]",
+       "appendCompleteMessage": "[method]",
+       "applyRemoteEvent": "[method]",
+       "backgroundTasks": [],
+       "cancelRetry": "[method]",
+       "clearHistory": "[method]",
+       "clearQueuedForFile": "[method]",
+       "deleteQueuedMessage": "[method]",
+       "editQueuedMessage": "[method]",
+       "error": null,
+       "errorMeta": null,
+       "fastMode": false,
+       "isLoading": true,
+       "isRemoteStreaming": false,
+       "messages": [
+        {
+         "content": "hi",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -18733,7 +18887,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -18758,7 +18912,7 @@
        "hi",
        {
         "endpoint": "/projects/p1/chat",
-        "messageId": "uuid-1",
+        "messageId": "00000000-0000-4000-8000-000000000000",
         "projectId": "p1"
        }
       ]
@@ -18860,7 +19014,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -19120,7 +19274,7 @@
        "hi",
        {
         "endpoint": "/projects/p1/chat",
-        "messageId": "uuid-1",
+        "messageId": "00000000-0000-4000-8000-000000000000",
         "projectId": "p1"
        }
       ]
@@ -19240,7 +19394,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -19277,7 +19431,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -19314,52 +19468,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
-         "queued": false,
-         "role": "user",
-         "timestamp": 0
-        },
-        {
-         "blocks": [],
-         "content": "",
-         "id": "a9",
-         "isStreaming": true,
-         "role": "assistant",
-         "timestamp": 700
-        }
-       ],
-       "mode": "execute",
-       "noteRemoteStreamEvent": "[method]",
-       "reconcileHistory": "[method]",
-       "retryCountdown": null,
-       "sendMessage": "[method]",
-       "setFastMode": "[method]",
-       "setMode": "[method]",
-       "streamingStatus": null
-      },
-      "route": "/"
-     },
-     {
-      "result": {
-       "abort": "[method]",
-       "appendCardMessage": "[method]",
-       "appendCompleteMessage": "[method]",
-       "applyRemoteEvent": "[method]",
-       "backgroundTasks": [],
-       "cancelRetry": "[method]",
-       "clearHistory": "[method]",
-       "clearQueuedForFile": "[method]",
-       "deleteQueuedMessage": "[method]",
-       "editQueuedMessage": "[method]",
-       "error": null,
-       "errorMeta": null,
-       "fastMode": false,
-       "isLoading": true,
-       "isRemoteStreaming": false,
-       "messages": [
-        {
-         "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -19404,7 +19513,52 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
+         "queued": false,
+         "role": "user",
+         "timestamp": 0
+        },
+        {
+         "blocks": [],
+         "content": "",
+         "id": "a9",
+         "isStreaming": true,
+         "role": "assistant",
+         "timestamp": 700
+        }
+       ],
+       "mode": "execute",
+       "noteRemoteStreamEvent": "[method]",
+       "reconcileHistory": "[method]",
+       "retryCountdown": null,
+       "sendMessage": "[method]",
+       "setFastMode": "[method]",
+       "setMode": "[method]",
+       "streamingStatus": null
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "abort": "[method]",
+       "appendCardMessage": "[method]",
+       "appendCompleteMessage": "[method]",
+       "applyRemoteEvent": "[method]",
+       "backgroundTasks": [],
+       "cancelRetry": "[method]",
+       "clearHistory": "[method]",
+       "clearQueuedForFile": "[method]",
+       "deleteQueuedMessage": "[method]",
+       "editQueuedMessage": "[method]",
+       "error": null,
+       "errorMeta": null,
+       "fastMode": false,
+       "isLoading": true,
+       "isRemoteStreaming": false,
+       "messages": [
+        {
+         "content": "hi",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -19454,7 +19608,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -19505,7 +19659,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -19544,7 +19698,7 @@
        "hi",
        {
         "endpoint": "/projects/p1/chat",
-        "messageId": "uuid-1",
+        "messageId": "00000000-0000-4000-8000-000000000000",
         "projectId": "p1"
        }
       ]
@@ -19673,7 +19827,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -19714,7 +19868,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -19755,7 +19909,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -19780,7 +19934,7 @@
        "hi",
        {
         "endpoint": "/projects/p1/chat",
-        "messageId": "uuid-1",
+        "messageId": "00000000-0000-4000-8000-000000000000",
         "projectId": "p1"
        }
       ]
@@ -19882,7 +20036,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -19919,7 +20073,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -19956,7 +20110,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -19981,7 +20135,7 @@
        "hi",
        {
         "endpoint": "/projects/p1/chat",
-        "messageId": "uuid-1",
+        "messageId": "00000000-0000-4000-8000-000000000000",
         "projectId": "p1"
        }
       ]
@@ -20083,7 +20237,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -20124,7 +20278,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -20165,7 +20319,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -20190,7 +20344,7 @@
        "hi",
        {
         "endpoint": "/projects/p1/chat",
-        "messageId": "uuid-1",
+        "messageId": "00000000-0000-4000-8000-000000000000",
         "projectId": "p1"
        }
       ]
@@ -20292,7 +20446,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -20329,7 +20483,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -20366,7 +20520,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -20391,7 +20545,7 @@
        "hi",
        {
         "endpoint": "/projects/p1/chat",
-        "messageId": "uuid-1",
+        "messageId": "00000000-0000-4000-8000-000000000000",
         "projectId": "p1"
        }
       ]
@@ -20493,7 +20647,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -20530,7 +20684,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -20567,52 +20721,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
-         "queued": false,
-         "role": "user",
-         "timestamp": 0
-        },
-        {
-         "blocks": [],
-         "content": "",
-         "id": "a1",
-         "isStreaming": true,
-         "role": "assistant",
-         "timestamp": 1000
-        }
-       ],
-       "mode": "execute",
-       "noteRemoteStreamEvent": "[method]",
-       "reconcileHistory": "[method]",
-       "retryCountdown": null,
-       "sendMessage": "[method]",
-       "setFastMode": "[method]",
-       "setMode": "[method]",
-       "streamingStatus": null
-      },
-      "route": "/"
-     },
-     {
-      "result": {
-       "abort": "[method]",
-       "appendCardMessage": "[method]",
-       "appendCompleteMessage": "[method]",
-       "applyRemoteEvent": "[method]",
-       "backgroundTasks": [],
-       "cancelRetry": "[method]",
-       "clearHistory": "[method]",
-       "clearQueuedForFile": "[method]",
-       "deleteQueuedMessage": "[method]",
-       "editQueuedMessage": "[method]",
-       "error": null,
-       "errorMeta": null,
-       "fastMode": false,
-       "isLoading": true,
-       "isRemoteStreaming": false,
-       "messages": [
-        {
-         "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -20657,7 +20766,52 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
+         "queued": false,
+         "role": "user",
+         "timestamp": 0
+        },
+        {
+         "blocks": [],
+         "content": "",
+         "id": "a1",
+         "isStreaming": true,
+         "role": "assistant",
+         "timestamp": 1000
+        }
+       ],
+       "mode": "execute",
+       "noteRemoteStreamEvent": "[method]",
+       "reconcileHistory": "[method]",
+       "retryCountdown": null,
+       "sendMessage": "[method]",
+       "setFastMode": "[method]",
+       "setMode": "[method]",
+       "streamingStatus": null
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "abort": "[method]",
+       "appendCardMessage": "[method]",
+       "appendCompleteMessage": "[method]",
+       "applyRemoteEvent": "[method]",
+       "backgroundTasks": [],
+       "cancelRetry": "[method]",
+       "clearHistory": "[method]",
+       "clearQueuedForFile": "[method]",
+       "deleteQueuedMessage": "[method]",
+       "editQueuedMessage": "[method]",
+       "error": null,
+       "errorMeta": null,
+       "fastMode": false,
+       "isLoading": true,
+       "isRemoteStreaming": false,
+       "messages": [
+        {
+         "content": "hi",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -20711,7 +20865,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -20765,7 +20919,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -20816,7 +20970,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -20867,66 +21021,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
-         "queued": false,
-         "role": "user",
-         "timestamp": 0
-        },
-        {
-         "blocks": [
-          {
-           "content": "Par",
-           "type": "text"
-          }
-         ],
-         "content": "Par",
-         "id": "a1",
-         "isStreaming": false,
-         "role": "assistant",
-         "timestamp": 1000,
-         "toolCalls": []
-        },
-        {
-         "blocks": [],
-         "content": "",
-         "id": "a2",
-         "isStreaming": true,
-         "role": "assistant",
-         "timestamp": 2000
-        }
-       ],
-       "mode": "execute",
-       "noteRemoteStreamEvent": "[method]",
-       "reconcileHistory": "[method]",
-       "retryCountdown": null,
-       "sendMessage": "[method]",
-       "setFastMode": "[method]",
-       "setMode": "[method]",
-       "streamingStatus": null
-      },
-      "route": "/"
-     },
-     {
-      "result": {
-       "abort": "[method]",
-       "appendCardMessage": "[method]",
-       "appendCompleteMessage": "[method]",
-       "applyRemoteEvent": "[method]",
-       "backgroundTasks": [],
-       "cancelRetry": "[method]",
-       "clearHistory": "[method]",
-       "clearQueuedForFile": "[method]",
-       "deleteQueuedMessage": "[method]",
-       "editQueuedMessage": "[method]",
-       "error": null,
-       "errorMeta": null,
-       "fastMode": false,
-       "isLoading": true,
-       "isRemoteStreaming": false,
-       "messages": [
-        {
-         "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -20985,7 +21080,66 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
+         "queued": false,
+         "role": "user",
+         "timestamp": 0
+        },
+        {
+         "blocks": [
+          {
+           "content": "Par",
+           "type": "text"
+          }
+         ],
+         "content": "Par",
+         "id": "a1",
+         "isStreaming": false,
+         "role": "assistant",
+         "timestamp": 1000,
+         "toolCalls": []
+        },
+        {
+         "blocks": [],
+         "content": "",
+         "id": "a2",
+         "isStreaming": true,
+         "role": "assistant",
+         "timestamp": 2000
+        }
+       ],
+       "mode": "execute",
+       "noteRemoteStreamEvent": "[method]",
+       "reconcileHistory": "[method]",
+       "retryCountdown": null,
+       "sendMessage": "[method]",
+       "setFastMode": "[method]",
+       "setMode": "[method]",
+       "streamingStatus": null
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "abort": "[method]",
+       "appendCardMessage": "[method]",
+       "appendCompleteMessage": "[method]",
+       "applyRemoteEvent": "[method]",
+       "backgroundTasks": [],
+       "cancelRetry": "[method]",
+       "clearHistory": "[method]",
+       "clearQueuedForFile": "[method]",
+       "deleteQueuedMessage": "[method]",
+       "editQueuedMessage": "[method]",
+       "error": null,
+       "errorMeta": null,
+       "fastMode": false,
+       "isLoading": true,
+       "isRemoteStreaming": false,
+       "messages": [
+        {
+         "content": "hi",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -21050,7 +21204,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -21103,7 +21257,7 @@
        "hi",
        {
         "endpoint": "/projects/p1/chat",
-        "messageId": "uuid-1",
+        "messageId": "00000000-0000-4000-8000-000000000000",
         "projectId": "p1"
        }
       ]
@@ -21225,7 +21379,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -21262,7 +21416,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -21299,7 +21453,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -21339,7 +21493,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -21376,7 +21530,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -21401,7 +21555,7 @@
        "hi",
        {
         "endpoint": "/projects/p1/chat",
-        "messageId": "uuid-1",
+        "messageId": "00000000-0000-4000-8000-000000000000",
         "projectId": "p1"
        }
       ]
@@ -21511,7 +21665,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -21548,7 +21702,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -21588,7 +21742,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -21628,7 +21782,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 5000
@@ -21665,52 +21819,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
-         "queued": false,
-         "role": "user",
-         "timestamp": 5000
-        },
-        {
-         "blocks": [],
-         "content": "",
-         "id": "a1",
-         "isStreaming": true,
-         "role": "assistant",
-         "timestamp": 1000
-        }
-       ],
-       "mode": "execute",
-       "noteRemoteStreamEvent": "[method]",
-       "reconcileHistory": "[method]",
-       "retryCountdown": null,
-       "sendMessage": "[method]",
-       "setFastMode": "[method]",
-       "setMode": "[method]",
-       "streamingStatus": null
-      },
-      "route": "/"
-     },
-     {
-      "result": {
-       "abort": "[method]",
-       "appendCardMessage": "[method]",
-       "appendCompleteMessage": "[method]",
-       "applyRemoteEvent": "[method]",
-       "backgroundTasks": [],
-       "cancelRetry": "[method]",
-       "clearHistory": "[method]",
-       "clearQueuedForFile": "[method]",
-       "deleteQueuedMessage": "[method]",
-       "editQueuedMessage": "[method]",
-       "error": null,
-       "errorMeta": null,
-       "fastMode": false,
-       "isLoading": true,
-       "isRemoteStreaming": false,
-       "messages": [
-        {
-         "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 5000
@@ -21755,7 +21864,52 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
+         "queued": false,
+         "role": "user",
+         "timestamp": 5000
+        },
+        {
+         "blocks": [],
+         "content": "",
+         "id": "a1",
+         "isStreaming": true,
+         "role": "assistant",
+         "timestamp": 1000
+        }
+       ],
+       "mode": "execute",
+       "noteRemoteStreamEvent": "[method]",
+       "reconcileHistory": "[method]",
+       "retryCountdown": null,
+       "sendMessage": "[method]",
+       "setFastMode": "[method]",
+       "setMode": "[method]",
+       "streamingStatus": null
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "abort": "[method]",
+       "appendCardMessage": "[method]",
+       "appendCompleteMessage": "[method]",
+       "applyRemoteEvent": "[method]",
+       "backgroundTasks": [],
+       "cancelRetry": "[method]",
+       "clearHistory": "[method]",
+       "clearQueuedForFile": "[method]",
+       "deleteQueuedMessage": "[method]",
+       "editQueuedMessage": "[method]",
+       "error": null,
+       "errorMeta": null,
+       "fastMode": false,
+       "isLoading": true,
+       "isRemoteStreaming": false,
+       "messages": [
+        {
+         "content": "hi",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 5000
@@ -21806,7 +21960,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 5000
@@ -21845,7 +21999,7 @@
        "hi",
        {
         "endpoint": "/projects/p1/chat",
-        "messageId": "uuid-1",
+        "messageId": "00000000-0000-4000-8000-000000000000",
         "projectId": "p1"
        }
       ]
@@ -21864,7 +22018,7 @@
        "hi",
        {
         "endpoint": "/projects/p1/chat",
-        "messageId": "uuid-1",
+        "messageId": "00000000-0000-4000-8000-000000000000",
         "projectId": "p1"
        }
       ]
@@ -21958,7 +22112,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -21995,7 +22149,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -22032,7 +22186,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -22072,7 +22226,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -22112,7 +22266,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -22149,7 +22303,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -22189,7 +22343,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -22229,7 +22383,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -22266,7 +22420,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -22306,7 +22460,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -22346,7 +22500,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -22383,7 +22537,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -22423,7 +22577,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -22463,7 +22617,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -22500,7 +22654,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -22540,7 +22694,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -22580,7 +22734,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -22617,7 +22771,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -22657,7 +22811,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -22697,7 +22851,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -22734,7 +22888,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -22774,7 +22928,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -22814,7 +22968,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -22851,7 +23005,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -22891,7 +23045,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -22931,7 +23085,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -22968,7 +23122,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -23005,7 +23159,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -23030,7 +23184,7 @@
        "hi",
        {
         "endpoint": "/projects/p1/chat",
-        "messageId": "uuid-1",
+        "messageId": "00000000-0000-4000-8000-000000000000",
         "projectId": "p1"
        }
       ]
@@ -23292,7 +23446,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -23329,7 +23483,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -23369,7 +23523,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -23409,7 +23563,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 5000
@@ -23446,7 +23600,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 5000
@@ -23486,7 +23640,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 5000
@@ -23526,7 +23680,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 16000
@@ -23563,7 +23717,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 16000
@@ -23603,7 +23757,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 16000
@@ -23643,7 +23797,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 37000
@@ -23680,7 +23834,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 37000
@@ -23725,7 +23879,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 37000
@@ -23770,7 +23924,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 37000
@@ -23821,7 +23975,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 37000
@@ -23860,7 +24014,7 @@
        "hi",
        {
         "endpoint": "/projects/p1/chat",
-        "messageId": "uuid-1",
+        "messageId": "00000000-0000-4000-8000-000000000000",
         "projectId": "p1"
        }
       ]
@@ -23879,7 +24033,7 @@
        "hi",
        {
         "endpoint": "/projects/p1/chat",
-        "messageId": "uuid-1",
+        "messageId": "00000000-0000-4000-8000-000000000000",
         "projectId": "p1"
        }
       ]
@@ -23890,7 +24044,7 @@
        "hi",
        {
         "endpoint": "/projects/p1/chat",
-        "messageId": "uuid-1",
+        "messageId": "00000000-0000-4000-8000-000000000000",
         "projectId": "p1"
        }
       ]
@@ -23901,7 +24055,7 @@
        "hi",
        {
         "endpoint": "/projects/p1/chat",
-        "messageId": "uuid-1",
+        "messageId": "00000000-0000-4000-8000-000000000000",
         "projectId": "p1"
        }
       ]
@@ -23995,7 +24149,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -24032,52 +24186,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
-         "queued": false,
-         "role": "user",
-         "timestamp": 0
-        },
-        {
-         "blocks": [],
-         "content": "",
-         "id": "a1",
-         "isStreaming": true,
-         "role": "assistant",
-         "timestamp": 1000
-        }
-       ],
-       "mode": "execute",
-       "noteRemoteStreamEvent": "[method]",
-       "reconcileHistory": "[method]",
-       "retryCountdown": null,
-       "sendMessage": "[method]",
-       "setFastMode": "[method]",
-       "setMode": "[method]",
-       "streamingStatus": null
-      },
-      "route": "/"
-     },
-     {
-      "result": {
-       "abort": "[method]",
-       "appendCardMessage": "[method]",
-       "appendCompleteMessage": "[method]",
-       "applyRemoteEvent": "[method]",
-       "backgroundTasks": [],
-       "cancelRetry": "[method]",
-       "clearHistory": "[method]",
-       "clearQueuedForFile": "[method]",
-       "deleteQueuedMessage": "[method]",
-       "editQueuedMessage": "[method]",
-       "error": null,
-       "errorMeta": null,
-       "fastMode": false,
-       "isLoading": true,
-       "isRemoteStreaming": false,
-       "messages": [
-        {
-         "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -24122,7 +24231,52 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
+         "queued": false,
+         "role": "user",
+         "timestamp": 0
+        },
+        {
+         "blocks": [],
+         "content": "",
+         "id": "a1",
+         "isStreaming": true,
+         "role": "assistant",
+         "timestamp": 1000
+        }
+       ],
+       "mode": "execute",
+       "noteRemoteStreamEvent": "[method]",
+       "reconcileHistory": "[method]",
+       "retryCountdown": null,
+       "sendMessage": "[method]",
+       "setFastMode": "[method]",
+       "setMode": "[method]",
+       "streamingStatus": null
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "abort": "[method]",
+       "appendCardMessage": "[method]",
+       "appendCompleteMessage": "[method]",
+       "applyRemoteEvent": "[method]",
+       "backgroundTasks": [],
+       "cancelRetry": "[method]",
+       "clearHistory": "[method]",
+       "clearQueuedForFile": "[method]",
+       "deleteQueuedMessage": "[method]",
+       "editQueuedMessage": "[method]",
+       "error": null,
+       "errorMeta": null,
+       "fastMode": false,
+       "isLoading": true,
+       "isRemoteStreaming": false,
+       "messages": [
+        {
+         "content": "hi",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -24172,7 +24326,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -24211,7 +24365,7 @@
        "hi",
        {
         "endpoint": "/projects/p1/chat",
-        "messageId": "uuid-1",
+        "messageId": "00000000-0000-4000-8000-000000000000",
         "projectId": "p1"
        }
       ]
@@ -24338,7 +24492,7 @@
        "messages": [
         {
          "content": "first",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -24375,7 +24529,7 @@
        "messages": [
         {
          "content": "first",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -24412,7 +24566,7 @@
        "messages": [
         {
          "content": "first",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -24449,7 +24603,7 @@
        "messages": [
         {
          "content": "first",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -24457,7 +24611,7 @@
         {
          "automatic": true,
          "content": "Fix these issues: app.ts",
-         "id": "uuid-2",
+         "id": "00000000-0000-4000-8000-000000000001",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -24494,7 +24648,7 @@
        "messages": [
         {
          "content": "first",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -24502,7 +24656,7 @@
         {
          "automatic": true,
          "content": "Fix these issues: app.ts",
-         "id": "uuid-2",
+         "id": "00000000-0000-4000-8000-000000000001",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -24547,7 +24701,7 @@
        "messages": [
         {
          "content": "first",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -24555,7 +24709,7 @@
         {
          "automatic": true,
          "content": "Fix these issues: app.ts",
-         "id": "uuid-2",
+         "id": "00000000-0000-4000-8000-000000000001",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -24592,7 +24746,7 @@
        "messages": [
         {
          "content": "first",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -24600,7 +24754,7 @@
         {
          "automatic": true,
          "content": "Fix these issues: app.ts",
-         "id": "uuid-2",
+         "id": "00000000-0000-4000-8000-000000000001",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -24625,7 +24779,7 @@
        "first",
        {
         "endpoint": "/projects/p1/chat",
-        "messageId": "uuid-1",
+        "messageId": "00000000-0000-4000-8000-000000000000",
         "projectId": "p1"
        }
       ]
@@ -24678,7 +24832,7 @@
        {
         "automatic": true,
         "endpoint": "/projects/p1/chat",
-        "messageId": "uuid-2",
+        "messageId": "00000000-0000-4000-8000-000000000001",
         "projectId": "p1",
         "userInitiated": true
        }
@@ -24781,7 +24935,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -24818,7 +24972,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -24863,7 +25017,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -24900,7 +25054,7 @@
        "hi",
        {
         "endpoint": "/projects/p1/chat",
-        "messageId": "uuid-1",
+        "messageId": "00000000-0000-4000-8000-000000000000",
         "projectId": "p1"
        }
       ]
@@ -25038,7 +25192,7 @@
        "messages": [
         {
          "content": "a",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -25075,14 +25229,14 @@
        "messages": [
         {
          "content": "a",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
         },
         {
          "content": "b",
-         "id": "uuid-2",
+         "id": "00000000-0000-4000-8000-000000000001",
          "queued": true,
          "role": "user",
          "timestamp": 0
@@ -25119,58 +25273,14 @@
        "messages": [
         {
          "content": "a",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
         },
         {
          "content": "b",
-         "id": "uuid-2",
-         "queued": true,
-         "role": "user",
-         "timestamp": 7
-        }
-       ],
-       "mode": "execute",
-       "noteRemoteStreamEvent": "[method]",
-       "reconcileHistory": "[method]",
-       "retryCountdown": null,
-       "sendMessage": "[method]",
-       "setFastMode": "[method]",
-       "setMode": "[method]",
-       "streamingStatus": null
-      },
-      "route": "/"
-     },
-     {
-      "result": {
-       "abort": "[method]",
-       "appendCardMessage": "[method]",
-       "appendCompleteMessage": "[method]",
-       "applyRemoteEvent": "[method]",
-       "backgroundTasks": [],
-       "cancelRetry": "[method]",
-       "clearHistory": "[method]",
-       "clearQueuedForFile": "[method]",
-       "deleteQueuedMessage": "[method]",
-       "editQueuedMessage": "[method]",
-       "error": null,
-       "errorMeta": null,
-       "fastMode": false,
-       "isLoading": true,
-       "isRemoteStreaming": false,
-       "messages": [
-        {
-         "content": "a",
-         "id": "uuid-1",
-         "queued": false,
-         "role": "user",
-         "timestamp": 0
-        },
-        {
-         "content": "b",
-         "id": "uuid-2",
+         "id": "00000000-0000-4000-8000-000000000001",
          "queued": true,
          "role": "user",
          "timestamp": 7
@@ -25207,14 +25317,58 @@
        "messages": [
         {
          "content": "a",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
         },
         {
          "content": "b",
-         "id": "uuid-2",
+         "id": "00000000-0000-4000-8000-000000000001",
+         "queued": true,
+         "role": "user",
+         "timestamp": 7
+        }
+       ],
+       "mode": "execute",
+       "noteRemoteStreamEvent": "[method]",
+       "reconcileHistory": "[method]",
+       "retryCountdown": null,
+       "sendMessage": "[method]",
+       "setFastMode": "[method]",
+       "setMode": "[method]",
+       "streamingStatus": null
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "abort": "[method]",
+       "appendCardMessage": "[method]",
+       "appendCompleteMessage": "[method]",
+       "applyRemoteEvent": "[method]",
+       "backgroundTasks": [],
+       "cancelRetry": "[method]",
+       "clearHistory": "[method]",
+       "clearQueuedForFile": "[method]",
+       "deleteQueuedMessage": "[method]",
+       "editQueuedMessage": "[method]",
+       "error": null,
+       "errorMeta": null,
+       "fastMode": false,
+       "isLoading": true,
+       "isRemoteStreaming": false,
+       "messages": [
+        {
+         "content": "a",
+         "id": "00000000-0000-4000-8000-000000000000",
+         "queued": false,
+         "role": "user",
+         "timestamp": 0
+        },
+        {
+         "content": "b",
+         "id": "00000000-0000-4000-8000-000000000001",
          "queued": true,
          "role": "user",
          "timestamp": 7
@@ -25259,14 +25413,14 @@
        "messages": [
         {
          "content": "a",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
         },
         {
          "content": "b",
-         "id": "uuid-2",
+         "id": "00000000-0000-4000-8000-000000000001",
          "queued": true,
          "role": "user",
          "timestamp": 7
@@ -25303,14 +25457,14 @@
        "messages": [
         {
          "content": "a",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
         },
         {
          "content": "b",
-         "id": "uuid-2",
+         "id": "00000000-0000-4000-8000-000000000001",
          "queued": true,
          "role": "user",
          "timestamp": 7
@@ -25347,14 +25501,14 @@
        "messages": [
         {
          "content": "a",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
         },
         {
          "content": "b",
-         "id": "uuid-2",
+         "id": "00000000-0000-4000-8000-000000000001",
          "role": "user",
          "timestamp": 8
         }
@@ -25390,14 +25544,14 @@
        "messages": [
         {
          "content": "a",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
         },
         {
          "content": "b",
-         "id": "uuid-2",
+         "id": "00000000-0000-4000-8000-000000000001",
          "role": "user",
          "timestamp": 8
         },
@@ -25441,14 +25595,14 @@
        "messages": [
         {
          "content": "a",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
         },
         {
          "content": "b",
-         "id": "uuid-2",
+         "id": "00000000-0000-4000-8000-000000000001",
          "role": "user",
          "timestamp": 8
         }
@@ -25484,14 +25638,14 @@
        "messages": [
         {
          "content": "a",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
         },
         {
          "content": "b",
-         "id": "uuid-2",
+         "id": "00000000-0000-4000-8000-000000000001",
          "role": "user",
          "timestamp": 8
         }
@@ -25515,7 +25669,7 @@
        "a",
        {
         "endpoint": "/projects/p1/chat",
-        "messageId": "uuid-1",
+        "messageId": "00000000-0000-4000-8000-000000000000",
         "projectId": "p1"
        }
       ]
@@ -25527,12 +25681,12 @@
        {
         "automatic": false,
         "endpoint": "/projects/p1/chat",
-        "messageId": "uuid-2",
+        "messageId": "00000000-0000-4000-8000-000000000001",
         "projectId": "p1",
         "suppressUserMessage": false,
         "viaDictation": false
        },
-       "uuid-2"
+       "00000000-0000-4000-8000-000000000001"
       ]
      },
      {
@@ -25549,7 +25703,7 @@
        "b",
        {
         "endpoint": "/projects/p1/chat",
-        "messageId": "uuid-2",
+        "messageId": "00000000-0000-4000-8000-000000000001",
         "projectId": "p1"
        }
       ]
@@ -25902,7 +26056,7 @@
        "messages": [
         {
          "content": "a",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -25939,14 +26093,14 @@
        "messages": [
         {
          "content": "a",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
         },
         {
          "content": "b",
-         "id": "uuid-2",
+         "id": "00000000-0000-4000-8000-000000000001",
          "queued": true,
          "role": "user",
          "timestamp": 0
@@ -25983,14 +26137,14 @@
        "messages": [
         {
          "content": "a",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
         },
         {
          "content": "b edited",
-         "id": "uuid-2",
+         "id": "00000000-0000-4000-8000-000000000001",
          "queued": true,
          "role": "user",
          "timestamp": 0
@@ -26027,7 +26181,7 @@
        "messages": [
         {
          "content": "a",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -26064,7 +26218,7 @@
        "messages": [
         {
          "content": "a",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -26101,7 +26255,7 @@
        "messages": [
         {
          "content": "a",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -26126,7 +26280,7 @@
        "a",
        {
         "endpoint": "/projects/p1/chat",
-        "messageId": "uuid-1",
+        "messageId": "00000000-0000-4000-8000-000000000000",
         "projectId": "p1"
        }
       ]
@@ -26252,7 +26406,7 @@
        "messages": [
         {
          "content": "a",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -26289,14 +26443,14 @@
        "messages": [
         {
          "content": "a",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
         },
         {
          "content": "b",
-         "id": "uuid-2",
+         "id": "00000000-0000-4000-8000-000000000001",
          "queued": true,
          "role": "user",
          "timestamp": 0
@@ -26333,14 +26487,14 @@
        "messages": [
         {
          "content": "a",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
         },
         {
          "content": "b edited",
-         "id": "uuid-2",
+         "id": "00000000-0000-4000-8000-000000000001",
          "queued": true,
          "role": "user",
          "timestamp": 0
@@ -26377,7 +26531,7 @@
        "messages": [
         {
          "content": "a",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -26414,7 +26568,7 @@
        "messages": [
         {
          "content": "a",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -26451,7 +26605,7 @@
        "messages": [
         {
          "content": "a",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -26488,7 +26642,7 @@
        "messages": [
         {
          "content": "a",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -26513,7 +26667,7 @@
        "a",
        {
         "endpoint": "/projects/p1/chat",
-        "messageId": "uuid-1",
+        "messageId": "00000000-0000-4000-8000-000000000000",
         "projectId": "p1"
        }
       ]
@@ -26525,18 +26679,18 @@
        {
         "automatic": false,
         "endpoint": "/projects/p1/chat",
-        "messageId": "uuid-2",
+        "messageId": "00000000-0000-4000-8000-000000000001",
         "projectId": "p1",
         "suppressUserMessage": false,
         "viaDictation": false
        },
-       "uuid-2"
+       "00000000-0000-4000-8000-000000000001"
       ]
      },
      {
       "name": "chat.editQueuedMessage",
       "args": [
-       "uuid-2",
+       "00000000-0000-4000-8000-000000000001",
        "b edited",
        {
         "endpoint": "/projects/p1/chat",
@@ -26555,7 +26709,7 @@
      {
       "name": "chat.deleteQueuedMessage",
       "args": [
-       "uuid-2",
+       "00000000-0000-4000-8000-000000000001",
        {
         "endpoint": "/projects/p1/chat",
         "projectId": "p1"
@@ -26675,7 +26829,7 @@
        "messages": [
         {
          "content": "a",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -26712,14 +26866,14 @@
        "messages": [
         {
          "content": "a",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
         },
         {
          "content": "b",
-         "id": "uuid-2",
+         "id": "00000000-0000-4000-8000-000000000001",
          "queued": true,
          "role": "user",
          "timestamp": 0
@@ -26756,7 +26910,7 @@
        "messages": [
         {
          "content": "a",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -26793,7 +26947,7 @@
        "messages": [
         {
          "content": "a",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -26830,7 +26984,7 @@
        "messages": [
         {
          "content": "a",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -26855,7 +27009,7 @@
        "a",
        {
         "endpoint": "/projects/p1/chat",
-        "messageId": "uuid-1",
+        "messageId": "00000000-0000-4000-8000-000000000000",
         "projectId": "p1"
        }
       ]
@@ -26965,7 +27119,7 @@
        "messages": [
         {
          "content": "first",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -27002,14 +27156,14 @@
        "messages": [
         {
          "content": "first",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
         },
         {
          "content": "Fix these issues: app.ts fails typecheck",
-         "id": "uuid-2",
+         "id": "00000000-0000-4000-8000-000000000001",
          "queued": true,
          "role": "user",
          "timestamp": 0
@@ -27046,14 +27200,14 @@
        "messages": [
         {
          "content": "first",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
         },
         {
          "content": "Fix these issues: app.ts fails typecheck",
-         "id": "uuid-2",
+         "id": "00000000-0000-4000-8000-000000000001",
          "queued": true,
          "role": "user",
          "timestamp": 0
@@ -27090,7 +27244,7 @@
        "messages": [
         {
          "content": "first",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -27127,7 +27281,7 @@
        "messages": [
         {
          "content": "first",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -27164,7 +27318,7 @@
        "messages": [
         {
          "content": "first",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -27189,7 +27343,7 @@
        "first",
        {
         "endpoint": "/projects/p1/chat",
-        "messageId": "uuid-1",
+        "messageId": "00000000-0000-4000-8000-000000000000",
         "projectId": "p1"
        }
       ]
@@ -27795,7 +27949,7 @@
        "messages": [
         {
          "content": "mine",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -27832,7 +27986,7 @@
        "messages": [
         {
          "content": "mine",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -27869,7 +28023,7 @@
        "messages": [
         {
          "content": "mine",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -27906,7 +28060,7 @@
        "messages": [
         {
          "content": "mine",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -27943,7 +28097,7 @@
        "messages": [
         {
          "content": "mine",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -27974,7 +28128,7 @@
        "mine",
        {
         "endpoint": "/projects/p1/chat",
-        "messageId": "uuid-1",
+        "messageId": "00000000-0000-4000-8000-000000000000",
         "projectId": "p1"
        }
       ]
@@ -28261,7 +28415,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -28298,52 +28452,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
-         "queued": false,
-         "role": "user",
-         "timestamp": 0
-        },
-        {
-         "blocks": [],
-         "content": "",
-         "id": "a1",
-         "isStreaming": true,
-         "role": "assistant",
-         "timestamp": 1000
-        }
-       ],
-       "mode": "execute",
-       "noteRemoteStreamEvent": "[method]",
-       "reconcileHistory": "[method]",
-       "retryCountdown": null,
-       "sendMessage": "[method]",
-       "setFastMode": "[method]",
-       "setMode": "[method]",
-       "streamingStatus": null
-      },
-      "route": "/"
-     },
-     {
-      "result": {
-       "abort": "[method]",
-       "appendCardMessage": "[method]",
-       "appendCompleteMessage": "[method]",
-       "applyRemoteEvent": "[method]",
-       "backgroundTasks": [],
-       "cancelRetry": "[method]",
-       "clearHistory": "[method]",
-       "clearQueuedForFile": "[method]",
-       "deleteQueuedMessage": "[method]",
-       "editQueuedMessage": "[method]",
-       "error": null,
-       "errorMeta": null,
-       "fastMode": false,
-       "isLoading": true,
-       "isRemoteStreaming": false,
-       "messages": [
-        {
-         "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -28388,7 +28497,52 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
+         "queued": false,
+         "role": "user",
+         "timestamp": 0
+        },
+        {
+         "blocks": [],
+         "content": "",
+         "id": "a1",
+         "isStreaming": true,
+         "role": "assistant",
+         "timestamp": 1000
+        }
+       ],
+       "mode": "execute",
+       "noteRemoteStreamEvent": "[method]",
+       "reconcileHistory": "[method]",
+       "retryCountdown": null,
+       "sendMessage": "[method]",
+       "setFastMode": "[method]",
+       "setMode": "[method]",
+       "streamingStatus": null
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "abort": "[method]",
+       "appendCardMessage": "[method]",
+       "appendCompleteMessage": "[method]",
+       "applyRemoteEvent": "[method]",
+       "backgroundTasks": [],
+       "cancelRetry": "[method]",
+       "clearHistory": "[method]",
+       "clearQueuedForFile": "[method]",
+       "deleteQueuedMessage": "[method]",
+       "editQueuedMessage": "[method]",
+       "error": null,
+       "errorMeta": null,
+       "fastMode": false,
+       "isLoading": true,
+       "isRemoteStreaming": false,
+       "messages": [
+        {
+         "content": "hi",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -28438,7 +28592,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -28488,7 +28642,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -28539,7 +28693,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -28578,7 +28732,7 @@
        "hi",
        {
         "endpoint": "/projects/p1/chat",
-        "messageId": "uuid-1",
+        "messageId": "00000000-0000-4000-8000-000000000000",
         "projectId": "p1"
        }
       ]
@@ -28811,7 +28965,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -28848,52 +29002,7 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
-         "queued": false,
-         "role": "user",
-         "timestamp": 0
-        },
-        {
-         "blocks": [],
-         "content": "",
-         "id": "a1",
-         "isStreaming": true,
-         "role": "assistant",
-         "timestamp": 1000
-        }
-       ],
-       "mode": "execute",
-       "noteRemoteStreamEvent": "[method]",
-       "reconcileHistory": "[method]",
-       "retryCountdown": null,
-       "sendMessage": "[method]",
-       "setFastMode": "[method]",
-       "setMode": "[method]",
-       "streamingStatus": null
-      },
-      "route": "/"
-     },
-     {
-      "result": {
-       "abort": "[method]",
-       "appendCardMessage": "[method]",
-       "appendCompleteMessage": "[method]",
-       "applyRemoteEvent": "[method]",
-       "backgroundTasks": [],
-       "cancelRetry": "[method]",
-       "clearHistory": "[method]",
-       "clearQueuedForFile": "[method]",
-       "deleteQueuedMessage": "[method]",
-       "editQueuedMessage": "[method]",
-       "error": null,
-       "errorMeta": null,
-       "fastMode": false,
-       "isLoading": true,
-       "isRemoteStreaming": false,
-       "messages": [
-        {
-         "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -28938,7 +29047,52 @@
        "messages": [
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
+         "queued": false,
+         "role": "user",
+         "timestamp": 0
+        },
+        {
+         "blocks": [],
+         "content": "",
+         "id": "a1",
+         "isStreaming": true,
+         "role": "assistant",
+         "timestamp": 1000
+        }
+       ],
+       "mode": "execute",
+       "noteRemoteStreamEvent": "[method]",
+       "reconcileHistory": "[method]",
+       "retryCountdown": null,
+       "sendMessage": "[method]",
+       "setFastMode": "[method]",
+       "setMode": "[method]",
+       "streamingStatus": null
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "abort": "[method]",
+       "appendCardMessage": "[method]",
+       "appendCompleteMessage": "[method]",
+       "applyRemoteEvent": "[method]",
+       "backgroundTasks": [],
+       "cancelRetry": "[method]",
+       "clearHistory": "[method]",
+       "clearQueuedForFile": "[method]",
+       "deleteQueuedMessage": "[method]",
+       "editQueuedMessage": "[method]",
+       "error": null,
+       "errorMeta": null,
+       "fastMode": false,
+       "isLoading": true,
+       "isRemoteStreaming": false,
+       "messages": [
+        {
+         "content": "hi",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -28995,7 +29149,7 @@
         },
         {
          "content": "hi",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -29345,7 +29499,7 @@
        "hi",
        {
         "endpoint": "/projects/p1/chat?conversationId=c1",
-        "messageId": "uuid-1",
+        "messageId": "00000000-0000-4000-8000-000000000000",
         "projectId": "p1"
        }
       ]
@@ -29496,7 +29650,7 @@
        "messages": [
         {
          "content": "one",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -29533,7 +29687,7 @@
        "messages": [
         {
          "content": "one",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -29578,7 +29732,7 @@
        "messages": [
         {
          "content": "one",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -29681,7 +29835,7 @@
        "messages": [
         {
          "content": "after switch",
-         "id": "uuid-2",
+         "id": "00000000-0000-4000-8000-000000000001",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -29718,7 +29872,7 @@
        "messages": [
         {
          "content": "after switch",
-         "id": "uuid-2",
+         "id": "00000000-0000-4000-8000-000000000001",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -29743,7 +29897,7 @@
        "one",
        {
         "endpoint": "/projects/p1/chat?conversationId=c1",
-        "messageId": "uuid-1",
+        "messageId": "00000000-0000-4000-8000-000000000000",
         "projectId": "p1"
        }
       ]
@@ -29754,7 +29908,7 @@
        "after switch",
        {
         "endpoint": "/projects/p1/chat?conversationId=c2",
-        "messageId": "uuid-2",
+        "messageId": "00000000-0000-4000-8000-000000000001",
         "projectId": "p1"
        }
       ]
@@ -30966,7 +31120,7 @@
        "messages": [
         {
          "content": "a note",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -31003,7 +31157,7 @@
        "messages": [
         {
          "content": "a note",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -31040,7 +31194,7 @@
        "messages": [
         {
          "content": "a note",
-         "id": "uuid-1",
+         "id": "00000000-0000-4000-8000-000000000000",
          "queued": false,
          "role": "user",
          "timestamp": 0
@@ -31065,7 +31219,7 @@
        "a note",
        {
         "endpoint": "/projects/p1/chat",
-        "messageId": "uuid-1",
+        "messageId": "00000000-0000-4000-8000-000000000000",
         "projectId": "p1"
        }
       ]

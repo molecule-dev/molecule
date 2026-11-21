@@ -8,4 +8,7 @@ export const en: VideoCallControlsTranslations = {
   'call.cameraOff': '🚫',
   'call.share': '🖥',
   'call.leave': 'Leave',
+  'call.aria.muted': 'Muted',
+  'call.aria.handRaised': 'Hand raised',
+  'call.label.you': '(you)',
 }

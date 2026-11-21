@@ -9,4 +9,6 @@ export const vi: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.note':
     'Ghi chú {{pitch}} bắt đầu từ nhịp {{startBeat}} vì {{durationBeats}} nhịp điệu',
   'pianoRoll.aria.cursor': 'Con trỏ tại {{pitch}} ở nhịp {{beat}}',
+  'pianoRoll.aria.gridHelp':
+    'Các phím mũi tên di chuyển con trỏ ô, Enter hoặc Space vẽ một nốt tại con trỏ.',
 }

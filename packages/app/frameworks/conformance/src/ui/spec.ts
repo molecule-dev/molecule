@@ -190,7 +190,14 @@ export interface ClickModifiers {
 export type Interaction =
   | { type: 'click'; selector: string; modifiers?: ClickModifiers }
   | { type: 'dblclick'; selector: string }
+  /**
+   * Moves focus to the element, firing `focusin` once. Focus moves only through a `focus` or
+   * `blur` step or the component's own `focus()`; every other step (`click`, `input`, …) fires
+   * exactly the events it names, so a case that types into a field and then blurs it focuses
+   * the field first. Throws on an element that already has focus or is disabled.
+   */
   | { type: 'focus'; selector: string }
+  /** Moves focus off the element, firing `focusout` once. Throws on an element without focus. */
   | { type: 'blur'; selector: string }
   | { type: 'mouseenter'; selector: string }
   | { type: 'mouseleave'; selector: string }
@@ -482,6 +489,13 @@ export interface FetchAnswer {
 export interface UICase {
   /** Short unique name within the component (`solid primary`, `loading with text`). */
   name: string
+  /**
+   * Read the component's ref element through the kit's own ref API (React and Solid `ref`, Vue a
+   * template ref's `$el`, Svelte `bind:ref`, Angular `element()`; see `BaseProps` in
+   * `@molecule/app-ui`). Every snapshot then ends with `@ref <path>`, or `@ref none` while the
+   * element is not rendered. Derived by {@link UIComponentCases.ref}; a case rarely sets it itself.
+   */
+  ref?: true
   /** Neutral props. Callback props are listed in {@link UICase.callbacks}, not here. */
   props?: Record<string, unknown>
   /** Default children. */
@@ -519,7 +533,10 @@ export interface UICase {
    * Pins `Math.random` for the case: it returns these values in order and then repeats the
    * last one, and the real function is back after the case (also when the mount throws).
    * A component that mints an id, adds jitter or shuffles a list then renders the same text
-   * on every run.
+   * on every run. A case that names none draws `kitRandom` 0, 1, 2 … (the first is
+   * 0.123456789; no two are equal). Naming the field hands the case every draw, repeats
+   * included, so ids and router keys minted after its list ends are equal.
+   * `crypto.randomUUID` and `crypto.getRandomValues` are deterministic in every case.
    */
   random?: number[]
   /**
@@ -562,9 +579,20 @@ export interface CaseA11y {
   reason: string
 }
 
+/** A method a recorded callback calls on the event it receives. */
+export type EventEffect = 'stopPropagation' | 'preventDefault'
+
 /**
  * What a recorded callback returns. `pick` returns part of its arguments
  * (`[0, 'count']` is `args[0].count`; a missing step gives `undefined`).
+ *
+ * `effects` and `read` act on the event the callback receives (its first argument), the
+ * way a handler written against `@molecule/app-ui`'s event types does: each effect is
+ * called on it in order, then each `read` path (`target.value`, `currentTarget`,
+ * `defaultPrevented`, `metaKey`) is read from it and recorded as a call `<name> read`
+ * with one `{ path: value }` argument. Both happen during the call, while
+ * `currentTarget` is still the element the handler is bound to. The callback returns
+ * `undefined`.
  */
 export type CallbackResult =
   | { returns: unknown }
@@ -572,6 +600,7 @@ export type CallbackResult =
   | { reject: string }
   | { defer: true }
   | { pick: (string | number)[] }
+  | { effects?: EventEffect[]; read?: string[] }
 
 /** All cases of one component, keyed by its React export name. */
 export interface UIComponentCases {
@@ -586,6 +615,37 @@ export interface UIComponentCases {
    * every row on equal data) or by position (where React keys by value) fails.
    */
   keyedLists?: KeyedList[]
+  /**
+   * The props the component's core type declares through `BaseProps` (`automationId`,
+   * rendered as `data-mol-id` where the component puts `testId`) or `HTMLElementProps` (also
+   * `id`, `title` and the DOM event handlers). The kit derives one case from the named case
+   * (default: the first) that adds them; for `'element'` it also double-clicks the element
+   * `automationId` marks. A framework that drops a declared prop, or spells one so it does
+   * nothing, fails. Every family whose core props extend `BaseProps` names this.
+   */
+  declaredProps?: DeclaredProps
+  /**
+   * The component gives callers its ref element (React's export forwards a ref). The kit derives
+   * one case from the named case (default: the first) that reads it after mount and after every
+   * step ({@link UICase.ref}); name a case that opens the element when it is not rendered at
+   * first (a Tooltip, Dropdown or Modal). A framework that hands over another element, or none,
+   * fails. Every family whose React export is a `forwardRef` component names this.
+   */
+  ref?: ElementRefCase
+}
+
+/** The case a family's ref case is derived from; see {@link UIComponentCases.ref}. */
+export interface ElementRefCase {
+  /** The case to derive from (default: the family's first case). */
+  caseName?: string
+}
+
+/** Which declared props a family's derived case adds; see {@link UIComponentCases.declaredProps}. */
+export interface DeclaredProps {
+  /** `'base'` for `BaseProps` (`automationId`); `'element'` for `HTMLElementProps`. */
+  props: 'base' | 'element'
+  /** The case to derive from (default: the family's first case). */
+  caseName?: string
 }
 
 /** One keyed list of a component; see {@link UIComponentCases.keyedLists}. */

@@ -15,4 +15,11 @@ export const th: Partial<BillingTranslations> = {
   'billing.pricing.perSeat': 'ต่อที่นั่ง',
   'billing.pricing.upgradeCta': 'อัปเกรดเป็น {{tierName}}',
   'billing.pricing.currentCta': 'แผนปัจจุบัน',
+  'billing.pricing.period.month': 'ต่อเดือน',
+  'billing.pricing.period.year': 'ต่อปี',
+  'billing.pricing.billed.month': 'เรียกเก็บรายเดือน',
+  'billing.pricing.billed.year': 'เรียกเก็บรายปี',
+  'billing.pricing.unlimited': 'ไม่จำกัด',
+  'billing.pricing.limit.maxProjects': 'จำนวนโปรเจกต์สูงสุด',
+  'billing.pricing.limit.canExport': 'ส่งออกได้',
 }

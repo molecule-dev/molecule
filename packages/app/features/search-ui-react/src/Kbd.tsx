@@ -11,12 +11,18 @@ export interface KbdProps {
 }
 
 /**
- * A key cap, for shortcut hints (`/` to focus, `↵` to open).
+ * A key cap, for shortcut hints (`/` to focus, `↵` to open). The cap shows a
+ * key name, not prose (a physical key such as `esc` reads the same in every
+ * language), so it carries HTML's own `translate="no"`.
  *
  * @param props - The key label.
  * @returns A `<kbd>` styled by the ClassMap.
  */
 export function Kbd({ children, className }: KbdProps): React.JSX.Element {
   const cm = getClassMap()
-  return <kbd className={cm.cn(cm.kbd, className)}>{children}</kbd>
+  return (
+    <kbd className={cm.cn(cm.kbd, className)} translate="no">
+      {children}
+    </kbd>
+  )
 }

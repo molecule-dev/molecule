@@ -9,4 +9,6 @@ export const ru: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.note':
     'Примечание {{pitch}} начиная с ритма {{startBeat}} для {{durationBeats}} ритмы',
   'pianoRoll.aria.cursor': 'Курсор на {{pitch}} на ритме {{beat}}',
+  'pianoRoll.aria.gridHelp':
+    'Клавиши со стрелками перемещают курсор ячейки, Enter или пробел рисует на нём ноту.',
 }

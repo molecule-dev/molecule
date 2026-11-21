@@ -1,0 +1,834 @@
+{
+ "exports": [
+  "WhiteboardCanvas",
+  "applyEraserStrokes",
+  "buildShapePath",
+  "buildStrokePath",
+  "defaultShapeStyle",
+  "defaultStickyNoteStyle",
+  "defaultStrokeColor",
+  "defaultStrokeWidth",
+  "generateWhiteboardId",
+  "segmentsIntersect",
+  "shapeBounds",
+  "strokeIntersectsPath"
+ ],
+ "values": {
+  "generateWhiteboardId": [
+   "00000000-0000-4000-8000-000000000000",
+   "00000000-0000-4000-8000-000000000001",
+   "00000000-0000-4000-8000-000000000002"
+  ],
+  "buildStrokePath": [
+   "",
+   "M 1 2",
+   "M 0 0 L 10 10",
+   "M 0 0 Q 10 0 15 5 L 20 10",
+   "M 0 0 Q 10 0 15 5 Q 20 10 25 5 L 30 0"
+  ],
+  "defaultStrokeWidth": [
+   2,
+   14,
+   24
+  ],
+  "defaultStrokeColor": [
+   "#1f2937",
+   "rgba(250, 204, 21, 0.55)",
+   "rgba(255, 255, 255, 0.6)"
+  ],
+  "shapeBounds": [
+   {
+    "x": 50,
+    "y": 70,
+    "width": 50,
+    "height": 30
+   },
+   {
+    "x": 0,
+    "y": 0,
+    "width": 10,
+    "height": 10
+   },
+   {
+    "x": -10,
+    "y": -20,
+    "width": 20,
+    "height": 40
+   }
+  ],
+  "buildShapePath": [
+   "M 0 0 L 10 10",
+   "M 0 0 L 10 10 M 6.036651256537995 -1.32659996370041 L 10 10 L -1.32659996370041 6.036651256537995",
+   "M 100 100 L 0 0 M 3.9633487434620047 11.32659996370041 L 0 0 L 11.32659996370041 3.9633487434620047",
+   "M 0 0 h 10 v 10 h -10 Z",
+   "M -5 5 h 10 v 20 h -10 Z",
+   "M 0 5 a 5 5 0 1 0 10 0 a 5 5 0 1 0 -10 0 Z",
+   "M 0 0 a 0 0 0 1 0 0 0 a 0 0 0 1 0 0 0 Z"
+  ],
+  "defaultShapeStyle": [
+   {
+    "stroke": "#1f2937",
+    "strokeWidth": 2
+   },
+   {
+    "stroke": "#1f2937",
+    "strokeWidth": 2
+   },
+   {
+    "stroke": "#1f2937",
+    "strokeWidth": 2,
+    "fill": "rgba(255, 255, 255, 0.0)"
+   },
+   {
+    "stroke": "#1f2937",
+    "strokeWidth": 2,
+    "fill": "rgba(255, 255, 255, 0.0)"
+   }
+  ],
+  "defaultStickyNoteStyle": [
+   {
+    "width": 160,
+    "height": 120,
+    "background": "#fef08a",
+    "color": "#1f2937"
+   }
+  ],
+  "segmentsIntersect": [
+   true,
+   false,
+   true,
+   false,
+   true
+  ],
+  "strokeIntersectsPath": [
+   true,
+   false,
+   false,
+   false
+  ],
+  "applyEraserStrokes": [
+   [],
+   [
+    {
+     "id": "pen-2",
+     "kind": "pen",
+     "points": [
+      {
+       "x": 0,
+       "y": 50
+      },
+      {
+       "x": 100,
+       "y": 50
+      }
+     ],
+     "color": "#111827",
+     "width": 2
+    }
+   ],
+   [
+    {
+     "id": "pen-1",
+     "kind": "pen",
+     "points": [
+      {
+       "x": 0,
+       "y": 0
+      },
+      {
+       "x": 100,
+       "y": 0
+      }
+     ],
+     "color": "#111827",
+     "width": 2
+    }
+   ],
+   []
+  ]
+ },
+ "cases": {
+  "WhiteboardCanvas": {
+   "an empty board": {
+    "snapshots": [
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"pen\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n</svg>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "every committed element renders": {
+    "snapshots": [
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"pen\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n<path d=\"M 0 40 L 60 70\" data-mol-id=\"whiteboard-canvas-shape\" data-shape-kind=\"line\" fill=\"none\" stroke=\"#334155\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"3\">\n</path>\n<path d=\"M 0 100 L 40 140 M 36.03665125653799 128.6734000362996 L 40 140 L 28.67340003629959 136.036651256538\" data-mol-id=\"whiteboard-canvas-shape\" data-shape-kind=\"arrow\" fill=\"none\" stroke=\"#334155\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"3\">\n</path>\n<rect data-mol-id=\"whiteboard-canvas-shape\" data-shape-kind=\"rect\" fill=\"#dbeafe\" height=\"40\" stroke=\"#334155\" stroke-width=\"3\" width=\"40\" x=\"5\" y=\"160\">\n</rect>\n<rect data-mol-id=\"whiteboard-canvas-shape\" data-shape-kind=\"rect\" fill=\"none\" height=\"40\" stroke=\"#334155\" stroke-width=\"3\" width=\"40\" x=\"50\" y=\"160\">\n</rect>\n<ellipse cx=\"120\" cy=\"180\" data-mol-id=\"whiteboard-canvas-shape\" data-shape-kind=\"ellipse\" fill=\"rgba(255, 255, 255, 0.0)\" rx=\"20\" ry=\"20\" stroke=\"#334155\" stroke-width=\"3\">\n</ellipse>\n<path d=\"M 0 0 L 20 10\" data-mol-id=\"whiteboard-canvas-stroke\" data-stroke-kind=\"pen\" fill=\"none\" opacity=\"1\" stroke=\"#111827\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\">\n</path>\n<path d=\"M 40 0 L 60 10\" data-mol-id=\"whiteboard-canvas-stroke\" data-stroke-kind=\"marker\" fill=\"none\" opacity=\"1\" stroke=\"rgba(250, 204, 21, 0.55)\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"14\">\n</path>\n<path d=\"M 80 0 L 100 10\" data-mol-id=\"whiteboard-canvas-stroke\" data-stroke-kind=\"eraser\" fill=\"none\" opacity=\"0.4\" stroke=\"rgba(255, 255, 255, 0.6)\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"24\">\n</path>\n</svg>\n<div class=\"c0dd268bc\" data-mol-id=\"whiteboard-canvas-sticky\" style=\"background: rgb(254, 240, 138); box-sizing: border-box; color: rgb(31, 41, 55); height: 80px; left: 30px; overflow: hidden; padding: 8px; pointer-events: none; position: absolute; top: 30px; white-space: pre-wrap; width: 100px\">\nIdeas\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "classes, a label override and another size": {
+    "snapshots": [
+     "<div aria-label=\"Board\" class=\"cd75bbd18 cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 240px; overflow: hidden; position: relative; touch-action: none; width: 320px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"pen\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"240\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"320\">\n</svg>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "an initial viewport maps gestures into canvas space": {
+    "snapshots": [
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"40\" data-canvas-y=\"-20\" data-canvas-zoom=\"2\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(2) translate(-40px, 20px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"pen\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n</svg>\n</div>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"40\" data-canvas-y=\"-20\" data-canvas-zoom=\"2\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(2) translate(-40px, 20px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"pen\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n<path d=\"M 90 30\" data-mol-id=\"whiteboard-canvas-stroke\" data-stroke-kind=\"pen\" fill=\"none\" opacity=\"1\" stroke=\"#1f2937\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\">\n</path>\n</svg>\n</div>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"40\" data-canvas-y=\"-20\" data-canvas-zoom=\"2\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(2) translate(-40px, 20px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"pen\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n<path d=\"M 90 30 L 110 30\" data-mol-id=\"whiteboard-canvas-stroke\" data-stroke-kind=\"pen\" fill=\"none\" opacity=\"1\" stroke=\"#1f2937\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\">\n</path>\n</svg>\n</div>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"40\" data-canvas-y=\"-20\" data-canvas-zoom=\"2\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(2) translate(-40px, 20px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"pen\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n</svg>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onChange",
+      "args": [
+       {
+        "shapes": [],
+        "stickyNotes": [],
+        "strokes": [
+         {
+          "color": "#1f2937",
+          "id": "00000000-0000-4000-8000-000000000000",
+          "kind": "pen",
+          "points": [
+           {
+            "x": 90,
+            "y": 30
+           },
+           {
+            "x": 110,
+            "y": 30
+           }
+          ],
+          "width": 2
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   "viewport limits clamp a background pan": {
+    "snapshots": [
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"select\" style=\"inset: 0px; pointer-events: none; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n</svg>\n</div>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"select\" style=\"inset: 0px; pointer-events: none; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n</svg>\n</div>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"select\" style=\"inset: 0px; pointer-events: none; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n</svg>\n</div>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"select\" style=\"inset: 0px; pointer-events: none; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n</svg>\n</div>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"select\" style=\"inset: 0px; pointer-events: none; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n</svg>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a pen stroke commits on pointer up": {
+    "snapshots": [
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"pen\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n</svg>\n</div>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"pen\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n<path d=\"M 100 100\" data-mol-id=\"whiteboard-canvas-stroke\" data-stroke-kind=\"pen\" fill=\"none\" opacity=\"1\" stroke=\"#1f2937\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\">\n</path>\n</svg>\n</div>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"pen\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n<path d=\"M 100 100 L 110 120\" data-mol-id=\"whiteboard-canvas-stroke\" data-stroke-kind=\"pen\" fill=\"none\" opacity=\"1\" stroke=\"#1f2937\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\">\n</path>\n</svg>\n</div>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"pen\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n<path d=\"M 100 100 Q 110 120 120 130 L 130 140\" data-mol-id=\"whiteboard-canvas-stroke\" data-stroke-kind=\"pen\" fill=\"none\" opacity=\"1\" stroke=\"#1f2937\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\">\n</path>\n</svg>\n</div>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"pen\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n</svg>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onChange",
+      "args": [
+       {
+        "shapes": [],
+        "stickyNotes": [],
+        "strokes": [
+         {
+          "color": "#1f2937",
+          "id": "00000000-0000-4000-8000-000000000000",
+          "kind": "pen",
+          "points": [
+           {
+            "x": 100,
+            "y": 100
+           },
+           {
+            "x": 110,
+            "y": 120
+           },
+           {
+            "x": 130,
+            "y": 140
+           }
+          ],
+          "width": 2
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   "a marker stroke uses the marker defaults": {
+    "snapshots": [
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"marker\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n</svg>\n</div>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"marker\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n<path d=\"M 0 0\" data-mol-id=\"whiteboard-canvas-stroke\" data-stroke-kind=\"marker\" fill=\"none\" opacity=\"1\" stroke=\"rgba(250, 204, 21, 0.55)\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"14\">\n</path>\n</svg>\n</div>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"marker\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n<path d=\"M 0 0 L 30 40\" data-mol-id=\"whiteboard-canvas-stroke\" data-stroke-kind=\"marker\" fill=\"none\" opacity=\"1\" stroke=\"rgba(250, 204, 21, 0.55)\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"14\">\n</path>\n</svg>\n</div>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"marker\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n</svg>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onChange",
+      "args": [
+       {
+        "shapes": [],
+        "stickyNotes": [],
+        "strokes": [
+         {
+          "color": "rgba(250, 204, 21, 0.55)",
+          "id": "00000000-0000-4000-8000-000000000000",
+          "kind": "marker",
+          "points": [
+           {
+            "x": 0,
+            "y": 0
+           },
+           {
+            "x": 30,
+            "y": 40
+           }
+          ],
+          "width": 14
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   "an eraser stroke commits at its halo defaults": {
+    "snapshots": [
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"eraser\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n</svg>\n</div>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"eraser\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n<path d=\"M 50 50\" data-mol-id=\"whiteboard-canvas-stroke\" data-stroke-kind=\"eraser\" fill=\"none\" opacity=\"0.4\" stroke=\"rgba(255, 255, 255, 0.6)\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"24\">\n</path>\n</svg>\n</div>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"eraser\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n<path d=\"M 50 50 L 60 50\" data-mol-id=\"whiteboard-canvas-stroke\" data-stroke-kind=\"eraser\" fill=\"none\" opacity=\"0.4\" stroke=\"rgba(255, 255, 255, 0.6)\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"24\">\n</path>\n</svg>\n</div>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"eraser\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n</svg>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onChange",
+      "args": [
+       {
+        "shapes": [],
+        "stickyNotes": [],
+        "strokes": [
+         {
+          "color": "rgba(255, 255, 255, 0.6)",
+          "id": "00000000-0000-4000-8000-000000000000",
+          "kind": "eraser",
+          "points": [
+           {
+            "x": 50,
+            "y": 50
+           },
+           {
+            "x": 60,
+            "y": 50
+           }
+          ],
+          "width": 24
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   "stroke overrides reach a stroke": {
+    "snapshots": [
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"pen\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n</svg>\n</div>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"pen\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n<path d=\"M 10 10\" data-mol-id=\"whiteboard-canvas-stroke\" data-stroke-kind=\"pen\" fill=\"none\" opacity=\"1\" stroke=\"#ff0000\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"5\">\n</path>\n</svg>\n</div>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"pen\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n<path d=\"M 10 10 L 50 30\" data-mol-id=\"whiteboard-canvas-stroke\" data-stroke-kind=\"pen\" fill=\"none\" opacity=\"1\" stroke=\"#ff0000\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"5\">\n</path>\n</svg>\n</div>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"pen\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n</svg>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onChange",
+      "args": [
+       {
+        "shapes": [],
+        "stickyNotes": [],
+        "strokes": [
+         {
+          "color": "#ff0000",
+          "id": "00000000-0000-4000-8000-000000000000",
+          "kind": "pen",
+          "points": [
+           {
+            "x": 10,
+            "y": 10
+           },
+           {
+            "x": 50,
+            "y": 30
+           }
+          ],
+          "width": 5
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   "stroke overrides reach a shape": {
+    "snapshots": [
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"line\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n</svg>\n</div>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"line\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n<path d=\"M 10 10 L 10 10\" data-mol-id=\"whiteboard-canvas-shape\" data-shape-kind=\"line\" fill=\"none\" stroke=\"#0ea5e9\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"6\">\n</path>\n</svg>\n</div>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"line\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n<path d=\"M 10 10 L 80 60\" data-mol-id=\"whiteboard-canvas-shape\" data-shape-kind=\"line\" fill=\"none\" stroke=\"#0ea5e9\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"6\">\n</path>\n</svg>\n</div>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"line\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n</svg>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onChange",
+      "args": [
+       {
+        "shapes": [
+         {
+          "fill": null,
+          "from": {
+           "x": 10,
+           "y": 10
+          },
+          "id": "00000000-0000-4000-8000-000000000000",
+          "kind": "line",
+          "stroke": "#0ea5e9",
+          "strokeWidth": 6,
+          "to": {
+           "x": 80,
+           "y": 60
+          }
+         }
+        ],
+        "stickyNotes": [],
+        "strokes": []
+       }
+      ]
+     }
+    ]
+   },
+   "a line commits from a drag": {
+    "snapshots": [
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"line\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n</svg>\n</div>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"line\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n<path d=\"M 10 10 L 10 10\" data-mol-id=\"whiteboard-canvas-shape\" data-shape-kind=\"line\" fill=\"none\" stroke=\"#1f2937\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\">\n</path>\n</svg>\n</div>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"line\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n<path d=\"M 10 10 L 50 40\" data-mol-id=\"whiteboard-canvas-shape\" data-shape-kind=\"line\" fill=\"none\" stroke=\"#1f2937\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\">\n</path>\n</svg>\n</div>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"line\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n</svg>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onChange",
+      "args": [
+       {
+        "shapes": [
+         {
+          "fill": null,
+          "from": {
+           "x": 10,
+           "y": 10
+          },
+          "id": "00000000-0000-4000-8000-000000000000",
+          "kind": "line",
+          "stroke": "#1f2937",
+          "strokeWidth": 2,
+          "to": {
+           "x": 50,
+           "y": 40
+          }
+         }
+        ],
+        "stickyNotes": [],
+        "strokes": []
+       }
+      ]
+     }
+    ]
+   },
+   "an arrow commits with its barbs": {
+    "snapshots": [
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"arrow\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n</svg>\n</div>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"arrow\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n<path d=\"M 0 0 L 0 0 M 0 0 L 0 0 L 0 0\" data-mol-id=\"whiteboard-canvas-shape\" data-shape-kind=\"arrow\" fill=\"none\" stroke=\"#1f2937\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\">\n</path>\n</svg>\n</div>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"arrow\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n<path d=\"M 0 0 L 60 30 M 52.65825183964073 20.5079647098285 L 60 30 L 48.00132287164723 29.821822645815484\" data-mol-id=\"whiteboard-canvas-shape\" data-shape-kind=\"arrow\" fill=\"none\" stroke=\"#1f2937\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\">\n</path>\n</svg>\n</div>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"arrow\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n</svg>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onChange",
+      "args": [
+       {
+        "shapes": [
+         {
+          "fill": null,
+          "from": {
+           "x": 0,
+           "y": 0
+          },
+          "id": "00000000-0000-4000-8000-000000000000",
+          "kind": "arrow",
+          "stroke": "#1f2937",
+          "strokeWidth": 2,
+          "to": {
+           "x": 60,
+           "y": 30
+          }
+         }
+        ],
+        "stickyNotes": [],
+        "strokes": []
+       }
+      ]
+     }
+    ]
+   },
+   "a rect commits with its default fill": {
+    "snapshots": [
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"rect\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n</svg>\n</div>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"rect\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n<rect data-mol-id=\"whiteboard-canvas-shape\" data-shape-kind=\"rect\" fill=\"rgba(255, 255, 255, 0.0)\" height=\"0\" stroke=\"#1f2937\" stroke-width=\"2\" width=\"0\" x=\"20\" y=\"20\">\n</rect>\n</svg>\n</div>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"rect\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n<rect data-mol-id=\"whiteboard-canvas-shape\" data-shape-kind=\"rect\" fill=\"rgba(255, 255, 255, 0.0)\" height=\"40\" stroke=\"#1f2937\" stroke-width=\"2\" width=\"50\" x=\"20\" y=\"20\">\n</rect>\n</svg>\n</div>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"rect\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n</svg>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onChange",
+      "args": [
+       {
+        "shapes": [
+         {
+          "fill": "rgba(255, 255, 255, 0.0)",
+          "from": {
+           "x": 20,
+           "y": 20
+          },
+          "id": "00000000-0000-4000-8000-000000000000",
+          "kind": "rect",
+          "stroke": "#1f2937",
+          "strokeWidth": 2,
+          "to": {
+           "x": 70,
+           "y": 60
+          }
+         }
+        ],
+        "stickyNotes": [],
+        "strokes": []
+       }
+      ]
+     }
+    ]
+   },
+   "an ellipse commits with its default fill": {
+    "snapshots": [
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"ellipse\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n</svg>\n</div>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"ellipse\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n<ellipse cx=\"10\" cy=\"10\" data-mol-id=\"whiteboard-canvas-shape\" data-shape-kind=\"ellipse\" fill=\"rgba(255, 255, 255, 0.0)\" rx=\"0\" ry=\"0\" stroke=\"#1f2937\" stroke-width=\"2\">\n</ellipse>\n</svg>\n</div>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"ellipse\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n<ellipse cx=\"25\" cy=\"20\" data-mol-id=\"whiteboard-canvas-shape\" data-shape-kind=\"ellipse\" fill=\"rgba(255, 255, 255, 0.0)\" rx=\"15\" ry=\"10\" stroke=\"#1f2937\" stroke-width=\"2\">\n</ellipse>\n</svg>\n</div>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"ellipse\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n</svg>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onChange",
+      "args": [
+       {
+        "shapes": [
+         {
+          "fill": "rgba(255, 255, 255, 0.0)",
+          "from": {
+           "x": 10,
+           "y": 10
+          },
+          "id": "00000000-0000-4000-8000-000000000000",
+          "kind": "ellipse",
+          "stroke": "#1f2937",
+          "strokeWidth": 2,
+          "to": {
+           "x": 40,
+           "y": 30
+          }
+         }
+        ],
+        "stickyNotes": [],
+        "strokes": []
+       }
+      ]
+     }
+    ]
+   },
+   "a click without a drag commits no shape": {
+    "snapshots": [
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"rect\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n</svg>\n</div>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"rect\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n<rect data-mol-id=\"whiteboard-canvas-shape\" data-shape-kind=\"rect\" fill=\"rgba(255, 255, 255, 0.0)\" height=\"0\" stroke=\"#1f2937\" stroke-width=\"2\" width=\"0\" x=\"50\" y=\"50\">\n</rect>\n</svg>\n</div>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"rect\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n</svg>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a sticky note places centered under the pointer": {
+    "snapshots": [
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"sticky\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n</svg>\n</div>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"sticky\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n</svg>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onChange",
+      "args": [
+       {
+        "shapes": [],
+        "stickyNotes": [
+         {
+          "background": "#fef08a",
+          "color": "#1f2937",
+          "height": 120,
+          "id": "00000000-0000-4000-8000-000000000000",
+          "position": {
+           "x": 120,
+           "y": 140
+          },
+          "text": "New note",
+          "width": 160
+         }
+        ],
+        "strokes": []
+       }
+      ]
+     }
+    ]
+   },
+   "the text tool places a transparent text box": {
+    "snapshots": [
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"text\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n</svg>\n</div>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"text\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n</svg>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onChange",
+      "args": [
+       {
+        "shapes": [],
+        "stickyNotes": [
+         {
+          "background": "transparent",
+          "color": "#1f2937",
+          "height": 120,
+          "id": "00000000-0000-4000-8000-000000000000",
+          "position": {
+           "x": 70,
+           "y": 90
+          },
+          "text": "New note",
+          "width": 160
+         }
+        ],
+        "strokes": []
+       }
+      ]
+     }
+    ]
+   },
+   "a sticky background override reaches the note": {
+    "snapshots": [
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"sticky\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n</svg>\n</div>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"sticky\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n</svg>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onChange",
+      "args": [
+       {
+        "shapes": [],
+        "stickyNotes": [
+         {
+          "background": "#aabbcc",
+          "color": "#1f2937",
+          "height": 120,
+          "id": "00000000-0000-4000-8000-000000000000",
+          "position": {
+           "x": 70,
+           "y": 90
+          },
+          "text": "New note",
+          "width": 160
+         }
+        ],
+        "strokes": []
+       }
+      ]
+     }
+    ]
+   },
+   "the select tool draws nothing": {
+    "snapshots": [
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"select\" style=\"inset: 0px; pointer-events: none; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n</svg>\n</div>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"select\" style=\"inset: 0px; pointer-events: none; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n</svg>\n</div>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"select\" style=\"inset: 0px; pointer-events: none; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n</svg>\n</div>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"select\" style=\"inset: 0px; pointer-events: none; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n</svg>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "readOnly disables every tool but keeps the background pan": {
+    "snapshots": [
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"pen\" style=\"inset: 0px; pointer-events: none; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n<path d=\"M 0 0 L 10 10\" data-mol-id=\"whiteboard-canvas-stroke\" data-stroke-kind=\"pen\" fill=\"none\" opacity=\"1\" stroke=\"#111827\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\">\n</path>\n</svg>\n</div>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"pen\" style=\"inset: 0px; pointer-events: none; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n<path d=\"M 0 0 L 10 10\" data-mol-id=\"whiteboard-canvas-stroke\" data-stroke-kind=\"pen\" fill=\"none\" opacity=\"1\" stroke=\"#111827\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\">\n</path>\n</svg>\n</div>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"pen\" style=\"inset: 0px; pointer-events: none; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n<path d=\"M 0 0 L 10 10\" data-mol-id=\"whiteboard-canvas-stroke\" data-stroke-kind=\"pen\" fill=\"none\" opacity=\"1\" stroke=\"#111827\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\">\n</path>\n</svg>\n</div>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"pen\" style=\"inset: 0px; pointer-events: none; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n<path d=\"M 0 0 L 10 10\" data-mol-id=\"whiteboard-canvas-stroke\" data-stroke-kind=\"pen\" fill=\"none\" opacity=\"1\" stroke=\"#111827\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\">\n</path>\n</svg>\n</div>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"pen\" style=\"inset: 0px; pointer-events: none; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n<path d=\"M 0 0 L 10 10\" data-mol-id=\"whiteboard-canvas-stroke\" data-stroke-kind=\"pen\" fill=\"none\" opacity=\"1\" stroke=\"#111827\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\">\n</path>\n</svg>\n</div>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"-20\" data-canvas-y=\"-20\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(20px, 20px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"pen\" style=\"inset: 0px; pointer-events: none; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n<path d=\"M 0 0 L 10 10\" data-mol-id=\"whiteboard-canvas-stroke\" data-stroke-kind=\"pen\" fill=\"none\" opacity=\"1\" stroke=\"#111827\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\">\n</path>\n</svg>\n</div>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"-20\" data-canvas-y=\"-20\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(20px, 20px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"pen\" style=\"inset: 0px; pointer-events: none; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n<path d=\"M 0 0 L 10 10\" data-mol-id=\"whiteboard-canvas-stroke\" data-stroke-kind=\"pen\" fill=\"none\" opacity=\"1\" stroke=\"#111827\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\">\n</path>\n</svg>\n</div>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"-20\" data-canvas-y=\"-20\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(20px, 20px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"pen\" style=\"inset: 0px; pointer-events: none; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n<path d=\"M 0 0 L 10 10\" data-mol-id=\"whiteboard-canvas-stroke\" data-stroke-kind=\"pen\" fill=\"none\" opacity=\"1\" stroke=\"#111827\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\">\n</path>\n</svg>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a cancelled pointer commits the in-flight stroke": {
+    "snapshots": [
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"pen\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n</svg>\n</div>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"pen\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n<path d=\"M 10 10\" data-mol-id=\"whiteboard-canvas-stroke\" data-stroke-kind=\"pen\" fill=\"none\" opacity=\"1\" stroke=\"#1f2937\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\">\n</path>\n</svg>\n</div>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"pen\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n<path d=\"M 10 10 L 20 10\" data-mol-id=\"whiteboard-canvas-stroke\" data-stroke-kind=\"pen\" fill=\"none\" opacity=\"1\" stroke=\"#1f2937\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\">\n</path>\n</svg>\n</div>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"pen\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n</svg>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onChange",
+      "args": [
+       {
+        "shapes": [],
+        "stickyNotes": [],
+        "strokes": [
+         {
+          "color": "#1f2937",
+          "id": "00000000-0000-4000-8000-000000000000",
+          "kind": "pen",
+          "points": [
+           {
+            "x": 10,
+            "y": 10
+           },
+           {
+            "x": 20,
+            "y": 10
+           }
+          ],
+          "width": 2
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   "a tool change keeps the in-flight stroke": {
+    "snapshots": [
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"pen\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n</svg>\n</div>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"pen\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n<path d=\"M 10 10\" data-mol-id=\"whiteboard-canvas-stroke\" data-stroke-kind=\"pen\" fill=\"none\" opacity=\"1\" stroke=\"#1f2937\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\">\n</path>\n</svg>\n</div>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"marker\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n<path d=\"M 10 10\" data-mol-id=\"whiteboard-canvas-stroke\" data-stroke-kind=\"pen\" fill=\"none\" opacity=\"1\" stroke=\"#1f2937\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\">\n</path>\n</svg>\n</div>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"marker\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n<path d=\"M 10 10 L 30 10\" data-mol-id=\"whiteboard-canvas-stroke\" data-stroke-kind=\"pen\" fill=\"none\" opacity=\"1\" stroke=\"#1f2937\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\">\n</path>\n</svg>\n</div>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"marker\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n</svg>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onChange",
+      "args": [
+       {
+        "shapes": [],
+        "stickyNotes": [],
+        "strokes": [
+         {
+          "color": "#1f2937",
+          "id": "00000000-0000-4000-8000-000000000000",
+          "kind": "pen",
+          "points": [
+           {
+            "x": 10,
+            "y": 10
+           },
+           {
+            "x": 30,
+            "y": 10
+           }
+          ],
+          "width": 2
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   "later props replace the board contents": {
+    "snapshots": [
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"pen\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n<path d=\"M 0 0 L 10 0\" data-mol-id=\"whiteboard-canvas-stroke\" data-stroke-kind=\"pen\" fill=\"none\" opacity=\"1\" stroke=\"#111827\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\">\n</path>\n</svg>\n</div>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"pen\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n<path d=\"M 0 0 L 10 0\" data-mol-id=\"whiteboard-canvas-stroke\" data-stroke-kind=\"pen\" fill=\"none\" opacity=\"1\" stroke=\"#111827\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\">\n</path>\n<path d=\"M 20 0 L 30 0\" data-mol-id=\"whiteboard-canvas-stroke\" data-stroke-kind=\"marker\" fill=\"none\" opacity=\"1\" stroke=\"rgba(250, 204, 21, 0.55)\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"14\">\n</path>\n</svg>\n</div>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"pen\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n<rect data-mol-id=\"whiteboard-canvas-shape\" data-shape-kind=\"rect\" fill=\"none\" height=\"20\" stroke=\"#334155\" stroke-width=\"3\" width=\"30\" x=\"0\" y=\"0\">\n</rect>\n</svg>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a later initial viewport keeps the viewport": {
+    "snapshots": [
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"5\" data-canvas-y=\"5\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(-5px, -5px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"pen\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n</svg>\n</div>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"5\" data-canvas-y=\"5\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(-5px, -5px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"pen\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n</svg>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "width and height changes resize the surface": {
+    "snapshots": [
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"pen\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n</svg>\n</div>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 200px; overflow: hidden; position: relative; touch-action: none; width: 300px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"pen\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"200\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"300\">\n</svg>\n</div>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 100px; overflow: hidden; position: relative; touch-action: none; width: 150px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"pen\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"100\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"150\">\n</svg>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "readOnly follows a props change": {
+    "snapshots": [
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"pen\" style=\"inset: 0px; pointer-events: none; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n</svg>\n</div>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"pen\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n</svg>\n</div>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"pen\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n<path d=\"M 20 20\" data-mol-id=\"whiteboard-canvas-stroke\" data-stroke-kind=\"pen\" fill=\"none\" opacity=\"1\" stroke=\"#1f2937\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\">\n</path>\n</svg>\n</div>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"pen\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n<path d=\"M 20 20 L 40 40\" data-mol-id=\"whiteboard-canvas-stroke\" data-stroke-kind=\"pen\" fill=\"none\" opacity=\"1\" stroke=\"#1f2937\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\">\n</path>\n</svg>\n</div>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"pen\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n</svg>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onChange",
+      "args": [
+       {
+        "shapes": [],
+        "stickyNotes": [],
+        "strokes": [
+         {
+          "color": "#1f2937",
+          "id": "00000000-0000-4000-8000-000000000000",
+          "kind": "pen",
+          "points": [
+           {
+            "x": 20,
+            "y": 20
+           },
+           {
+            "x": 40,
+            "y": 40
+           }
+          ],
+          "width": 2
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   "an empty board, then a locale switch": {
+    "snapshots": [
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"pen\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n</svg>\n</div>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"⟦Whiteboard canvas⟧\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"pen\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n</svg>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "every committed element renders, then strokes again as equal new objects": {
+    "snapshots": [
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"pen\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n<path d=\"M 0 40 L 60 70\" data-mol-id=\"whiteboard-canvas-shape\" data-shape-kind=\"line\" fill=\"none\" stroke=\"#334155\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"3\">\n</path>\n<path d=\"M 0 100 L 40 140 M 36.03665125653799 128.6734000362996 L 40 140 L 28.67340003629959 136.036651256538\" data-mol-id=\"whiteboard-canvas-shape\" data-shape-kind=\"arrow\" fill=\"none\" stroke=\"#334155\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"3\">\n</path>\n<rect data-mol-id=\"whiteboard-canvas-shape\" data-shape-kind=\"rect\" fill=\"#dbeafe\" height=\"40\" stroke=\"#334155\" stroke-width=\"3\" width=\"40\" x=\"5\" y=\"160\">\n</rect>\n<rect data-mol-id=\"whiteboard-canvas-shape\" data-shape-kind=\"rect\" fill=\"none\" height=\"40\" stroke=\"#334155\" stroke-width=\"3\" width=\"40\" x=\"50\" y=\"160\">\n</rect>\n<ellipse cx=\"120\" cy=\"180\" data-mol-id=\"whiteboard-canvas-shape\" data-shape-kind=\"ellipse\" fill=\"rgba(255, 255, 255, 0.0)\" rx=\"20\" ry=\"20\" stroke=\"#334155\" stroke-width=\"3\">\n</ellipse>\n<path d=\"M 0 0 L 20 10\" data-mol-id=\"whiteboard-canvas-stroke\" data-stroke-kind=\"pen\" fill=\"none\" opacity=\"1\" stroke=\"#111827\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\">\n</path>\n<path d=\"M 40 0 L 60 10\" data-mol-id=\"whiteboard-canvas-stroke\" data-stroke-kind=\"marker\" fill=\"none\" opacity=\"1\" stroke=\"rgba(250, 204, 21, 0.55)\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"14\">\n</path>\n<path d=\"M 80 0 L 100 10\" data-mol-id=\"whiteboard-canvas-stroke\" data-stroke-kind=\"eraser\" fill=\"none\" opacity=\"0.4\" stroke=\"rgba(255, 255, 255, 0.6)\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"24\">\n</path>\n</svg>\n<div class=\"c0dd268bc\" data-mol-id=\"whiteboard-canvas-sticky\" style=\"background: rgb(254, 240, 138); box-sizing: border-box; color: rgb(31, 41, 55); height: 80px; left: 30px; overflow: hidden; padding: 8px; pointer-events: none; position: absolute; top: 30px; white-space: pre-wrap; width: 100px\">\nIdeas\n</div>\n</div>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"pen\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n<path d=\"M 0 40 L 60 70\" data-mol-id=\"whiteboard-canvas-shape\" data-shape-kind=\"line\" fill=\"none\" stroke=\"#334155\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"3\">\n</path>\n<path d=\"M 0 100 L 40 140 M 36.03665125653799 128.6734000362996 L 40 140 L 28.67340003629959 136.036651256538\" data-mol-id=\"whiteboard-canvas-shape\" data-shape-kind=\"arrow\" fill=\"none\" stroke=\"#334155\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"3\">\n</path>\n<rect data-mol-id=\"whiteboard-canvas-shape\" data-shape-kind=\"rect\" fill=\"#dbeafe\" height=\"40\" stroke=\"#334155\" stroke-width=\"3\" width=\"40\" x=\"5\" y=\"160\">\n</rect>\n<rect data-mol-id=\"whiteboard-canvas-shape\" data-shape-kind=\"rect\" fill=\"none\" height=\"40\" stroke=\"#334155\" stroke-width=\"3\" width=\"40\" x=\"50\" y=\"160\">\n</rect>\n<ellipse cx=\"120\" cy=\"180\" data-mol-id=\"whiteboard-canvas-shape\" data-shape-kind=\"ellipse\" fill=\"rgba(255, 255, 255, 0.0)\" rx=\"20\" ry=\"20\" stroke=\"#334155\" stroke-width=\"3\">\n</ellipse>\n<path d=\"M 0 0 L 20 10\" data-conformance-mark=\"0\" data-mol-id=\"whiteboard-canvas-stroke\" data-stroke-kind=\"pen\" fill=\"none\" opacity=\"1\" stroke=\"#111827\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\">\n</path>\n<path d=\"M 40 0 L 60 10\" data-conformance-mark=\"1\" data-mol-id=\"whiteboard-canvas-stroke\" data-stroke-kind=\"marker\" fill=\"none\" opacity=\"1\" stroke=\"rgba(250, 204, 21, 0.55)\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"14\">\n</path>\n<path d=\"M 80 0 L 100 10\" data-conformance-mark=\"2\" data-mol-id=\"whiteboard-canvas-stroke\" data-stroke-kind=\"eraser\" fill=\"none\" opacity=\"0.4\" stroke=\"rgba(255, 255, 255, 0.6)\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"24\">\n</path>\n</svg>\n<div class=\"c0dd268bc\" data-mol-id=\"whiteboard-canvas-sticky\" style=\"background: rgb(254, 240, 138); box-sizing: border-box; color: rgb(31, 41, 55); height: 80px; left: 30px; overflow: hidden; padding: 8px; pointer-events: none; position: absolute; top: 30px; white-space: pre-wrap; width: 100px\">\nIdeas\n</div>\n</div>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"pen\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n<path d=\"M 0 40 L 60 70\" data-mol-id=\"whiteboard-canvas-shape\" data-shape-kind=\"line\" fill=\"none\" stroke=\"#334155\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"3\">\n</path>\n<path d=\"M 0 100 L 40 140 M 36.03665125653799 128.6734000362996 L 40 140 L 28.67340003629959 136.036651256538\" data-mol-id=\"whiteboard-canvas-shape\" data-shape-kind=\"arrow\" fill=\"none\" stroke=\"#334155\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"3\">\n</path>\n<rect data-mol-id=\"whiteboard-canvas-shape\" data-shape-kind=\"rect\" fill=\"#dbeafe\" height=\"40\" stroke=\"#334155\" stroke-width=\"3\" width=\"40\" x=\"5\" y=\"160\">\n</rect>\n<rect data-mol-id=\"whiteboard-canvas-shape\" data-shape-kind=\"rect\" fill=\"none\" height=\"40\" stroke=\"#334155\" stroke-width=\"3\" width=\"40\" x=\"50\" y=\"160\">\n</rect>\n<ellipse cx=\"120\" cy=\"180\" data-mol-id=\"whiteboard-canvas-shape\" data-shape-kind=\"ellipse\" fill=\"rgba(255, 255, 255, 0.0)\" rx=\"20\" ry=\"20\" stroke=\"#334155\" stroke-width=\"3\">\n</ellipse>\n<path d=\"M 0 0 L 20 10\" data-conformance-mark=\"0\" data-mol-id=\"whiteboard-canvas-stroke\" data-stroke-kind=\"pen\" fill=\"none\" opacity=\"1\" stroke=\"#111827\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\">\n</path>\n<path d=\"M 40 0 L 60 10\" data-conformance-mark=\"1\" data-mol-id=\"whiteboard-canvas-stroke\" data-stroke-kind=\"marker\" fill=\"none\" opacity=\"1\" stroke=\"rgba(250, 204, 21, 0.55)\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"14\">\n</path>\n<path d=\"M 80 0 L 100 10\" data-conformance-mark=\"2\" data-mol-id=\"whiteboard-canvas-stroke\" data-stroke-kind=\"eraser\" fill=\"none\" opacity=\"0.4\" stroke=\"rgba(255, 255, 255, 0.6)\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"24\">\n</path>\n</svg>\n<div class=\"c0dd268bc\" data-mol-id=\"whiteboard-canvas-sticky\" style=\"background: rgb(254, 240, 138); box-sizing: border-box; color: rgb(31, 41, 55); height: 80px; left: 30px; overflow: hidden; padding: 8px; pointer-events: none; position: absolute; top: 30px; white-space: pre-wrap; width: 100px\">\nIdeas\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "every committed element renders, then strokes reversed": {
+    "snapshots": [
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"pen\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n<path d=\"M 0 40 L 60 70\" data-mol-id=\"whiteboard-canvas-shape\" data-shape-kind=\"line\" fill=\"none\" stroke=\"#334155\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"3\">\n</path>\n<path d=\"M 0 100 L 40 140 M 36.03665125653799 128.6734000362996 L 40 140 L 28.67340003629959 136.036651256538\" data-mol-id=\"whiteboard-canvas-shape\" data-shape-kind=\"arrow\" fill=\"none\" stroke=\"#334155\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"3\">\n</path>\n<rect data-mol-id=\"whiteboard-canvas-shape\" data-shape-kind=\"rect\" fill=\"#dbeafe\" height=\"40\" stroke=\"#334155\" stroke-width=\"3\" width=\"40\" x=\"5\" y=\"160\">\n</rect>\n<rect data-mol-id=\"whiteboard-canvas-shape\" data-shape-kind=\"rect\" fill=\"none\" height=\"40\" stroke=\"#334155\" stroke-width=\"3\" width=\"40\" x=\"50\" y=\"160\">\n</rect>\n<ellipse cx=\"120\" cy=\"180\" data-mol-id=\"whiteboard-canvas-shape\" data-shape-kind=\"ellipse\" fill=\"rgba(255, 255, 255, 0.0)\" rx=\"20\" ry=\"20\" stroke=\"#334155\" stroke-width=\"3\">\n</ellipse>\n<path d=\"M 0 0 L 20 10\" data-mol-id=\"whiteboard-canvas-stroke\" data-stroke-kind=\"pen\" fill=\"none\" opacity=\"1\" stroke=\"#111827\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\">\n</path>\n<path d=\"M 40 0 L 60 10\" data-mol-id=\"whiteboard-canvas-stroke\" data-stroke-kind=\"marker\" fill=\"none\" opacity=\"1\" stroke=\"rgba(250, 204, 21, 0.55)\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"14\">\n</path>\n<path d=\"M 80 0 L 100 10\" data-mol-id=\"whiteboard-canvas-stroke\" data-stroke-kind=\"eraser\" fill=\"none\" opacity=\"0.4\" stroke=\"rgba(255, 255, 255, 0.6)\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"24\">\n</path>\n</svg>\n<div class=\"c0dd268bc\" data-mol-id=\"whiteboard-canvas-sticky\" style=\"background: rgb(254, 240, 138); box-sizing: border-box; color: rgb(31, 41, 55); height: 80px; left: 30px; overflow: hidden; padding: 8px; pointer-events: none; position: absolute; top: 30px; white-space: pre-wrap; width: 100px\">\nIdeas\n</div>\n</div>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"pen\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n<path d=\"M 0 40 L 60 70\" data-mol-id=\"whiteboard-canvas-shape\" data-shape-kind=\"line\" fill=\"none\" stroke=\"#334155\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"3\">\n</path>\n<path d=\"M 0 100 L 40 140 M 36.03665125653799 128.6734000362996 L 40 140 L 28.67340003629959 136.036651256538\" data-mol-id=\"whiteboard-canvas-shape\" data-shape-kind=\"arrow\" fill=\"none\" stroke=\"#334155\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"3\">\n</path>\n<rect data-mol-id=\"whiteboard-canvas-shape\" data-shape-kind=\"rect\" fill=\"#dbeafe\" height=\"40\" stroke=\"#334155\" stroke-width=\"3\" width=\"40\" x=\"5\" y=\"160\">\n</rect>\n<rect data-mol-id=\"whiteboard-canvas-shape\" data-shape-kind=\"rect\" fill=\"none\" height=\"40\" stroke=\"#334155\" stroke-width=\"3\" width=\"40\" x=\"50\" y=\"160\">\n</rect>\n<ellipse cx=\"120\" cy=\"180\" data-mol-id=\"whiteboard-canvas-shape\" data-shape-kind=\"ellipse\" fill=\"rgba(255, 255, 255, 0.0)\" rx=\"20\" ry=\"20\" stroke=\"#334155\" stroke-width=\"3\">\n</ellipse>\n<path d=\"M 0 0 L 20 10\" data-conformance-mark=\"0\" data-mol-id=\"whiteboard-canvas-stroke\" data-stroke-kind=\"pen\" fill=\"none\" opacity=\"1\" stroke=\"#111827\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\">\n</path>\n<path d=\"M 40 0 L 60 10\" data-conformance-mark=\"1\" data-mol-id=\"whiteboard-canvas-stroke\" data-stroke-kind=\"marker\" fill=\"none\" opacity=\"1\" stroke=\"rgba(250, 204, 21, 0.55)\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"14\">\n</path>\n<path d=\"M 80 0 L 100 10\" data-conformance-mark=\"2\" data-mol-id=\"whiteboard-canvas-stroke\" data-stroke-kind=\"eraser\" fill=\"none\" opacity=\"0.4\" stroke=\"rgba(255, 255, 255, 0.6)\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"24\">\n</path>\n</svg>\n<div class=\"c0dd268bc\" data-mol-id=\"whiteboard-canvas-sticky\" style=\"background: rgb(254, 240, 138); box-sizing: border-box; color: rgb(31, 41, 55); height: 80px; left: 30px; overflow: hidden; padding: 8px; pointer-events: none; position: absolute; top: 30px; white-space: pre-wrap; width: 100px\">\nIdeas\n</div>\n</div>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Whiteboard canvas\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0 0; transform: scale(1) translate(0px, 0px); width: 0px\">\n<div data-mol-id=\"whiteboard-canvas-tool-layer\" data-whiteboard-tool=\"pen\" style=\"inset: 0px; pointer-events: auto; position: absolute\">\n<svg data-mol-id=\"whiteboard-canvas-svg\" height=\"300\" style=\"left: 0px; overflow: visible; pointer-events: none; position: absolute; top: 0px\" width=\"400\">\n<path d=\"M 0 40 L 60 70\" data-mol-id=\"whiteboard-canvas-shape\" data-shape-kind=\"line\" fill=\"none\" stroke=\"#334155\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"3\">\n</path>\n<path d=\"M 0 100 L 40 140 M 36.03665125653799 128.6734000362996 L 40 140 L 28.67340003629959 136.036651256538\" data-mol-id=\"whiteboard-canvas-shape\" data-shape-kind=\"arrow\" fill=\"none\" stroke=\"#334155\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"3\">\n</path>\n<rect data-mol-id=\"whiteboard-canvas-shape\" data-shape-kind=\"rect\" fill=\"#dbeafe\" height=\"40\" stroke=\"#334155\" stroke-width=\"3\" width=\"40\" x=\"5\" y=\"160\">\n</rect>\n<rect data-mol-id=\"whiteboard-canvas-shape\" data-shape-kind=\"rect\" fill=\"none\" height=\"40\" stroke=\"#334155\" stroke-width=\"3\" width=\"40\" x=\"50\" y=\"160\">\n</rect>\n<ellipse cx=\"120\" cy=\"180\" data-mol-id=\"whiteboard-canvas-shape\" data-shape-kind=\"ellipse\" fill=\"rgba(255, 255, 255, 0.0)\" rx=\"20\" ry=\"20\" stroke=\"#334155\" stroke-width=\"3\">\n</ellipse>\n<path d=\"M 80 0 L 100 10\" data-conformance-mark=\"2\" data-mol-id=\"whiteboard-canvas-stroke\" data-stroke-kind=\"eraser\" fill=\"none\" opacity=\"0.4\" stroke=\"rgba(255, 255, 255, 0.6)\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"24\">\n</path>\n<path d=\"M 40 0 L 60 10\" data-conformance-mark=\"1\" data-mol-id=\"whiteboard-canvas-stroke\" data-stroke-kind=\"marker\" fill=\"none\" opacity=\"1\" stroke=\"rgba(250, 204, 21, 0.55)\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"14\">\n</path>\n<path d=\"M 0 0 L 20 10\" data-conformance-mark=\"0\" data-mol-id=\"whiteboard-canvas-stroke\" data-stroke-kind=\"pen\" fill=\"none\" opacity=\"1\" stroke=\"#111827\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\">\n</path>\n</svg>\n<div class=\"c0dd268bc\" data-mol-id=\"whiteboard-canvas-sticky\" style=\"background: rgb(254, 240, 138); box-sizing: border-box; color: rgb(31, 41, 55); height: 80px; left: 30px; overflow: hidden; padding: 8px; pointer-events: none; position: absolute; top: 30px; white-space: pre-wrap; width: 100px\">\nIdeas\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   }
+  }
+ }
+}

@@ -13,4 +13,8 @@ export const sq: Partial<SearchUiTranslations> = {
   'searchUi.relatedTitle': 'Përputhet me kuptimin e kërkimit tuaj, jo me fjalët e tij',
   'searchUi.related': 'i lidhur',
   'searchUi.help': 'Këshilla për kërkim',
+  'searchUi.examplePhrase': '"frazë e saktë"',
+  'searchUi.exampleExcluded': '-fjalë',
+  'searchUi.activeResult': '{{title}}, {{position}} nga {{count}}',
+  'searchUi.dialogLabel': 'Kërko',
 }

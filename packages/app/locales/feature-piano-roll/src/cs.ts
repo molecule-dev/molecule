@@ -9,4 +9,6 @@ export const cs: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.note':
     'Poznámka {{pitch}} začíná v rytmu {{startBeat}} pro {{durationBeats}} beaty',
   'pianoRoll.aria.cursor': 'Kurzor na {{pitch}} v rytmu {{beat}}',
+  'pianoRoll.aria.gridHelp':
+    'Šipky posouvají kurzor buňky, Enter nebo mezerník na něm nakreslí notu.',
 }

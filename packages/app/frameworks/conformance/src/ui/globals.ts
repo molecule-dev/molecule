@@ -1,8 +1,14 @@
 /**
  * Global objects jsdom lacks, or that cannot be the same on every run, installed
- * for one case and removed after it: a pinned `Math.random`, a recording
+ * for one case and removed after it: a pinned `Math.random`, a counting
+ * `crypto.randomUUID` and a deterministic `crypto.getRandomValues`, a recording
  * `ResizeObserver`, deterministic object URLs and a `FileReader` whose reads
  * finish before the snapshot after the step that started them.
+ *
+ * The kit owns every random source. A cases file never pins one itself: a pin
+ * written at import lasts for the whole test file, so its value would depend on
+ * which other cases files were loaded and in what order
+ * (`case-modules-globals.test.ts` refuses one).
  *
  * Every framework adapter runs its cases through the same step runner
  * (`runSteps`), so a component that resizes, reads a file or mints an object URL
@@ -80,6 +86,161 @@ export function installPinnedRandom(values: number[]): CaseGlobals {
   return {
     restore: () => {
       Math.random = previous
+    },
+  }
+}
+
+/*
+ * K12 — random sources that start from the same state in every case.
+ */
+
+/** The first value `Math.random` returns in a case that names no {@link UICase.random} ({@link kitRandom} 0). */
+export const DEFAULT_RANDOM = 0.123456789
+
+/**
+ * The value `Math.random` returns at this draw of a case that names no {@link UICase.random}:
+ * the fractional part of {@link DEFAULT_RANDOM} plus the draw index times the golden ratio. No two
+ * draws of a case are equal (an id or a router key minted from one stays unique, as in a
+ * browser), and the values are the same on every machine.
+ *
+ * @param index - How many draws the case made before this one (0: the first).
+ * @returns A number in [0, 1).
+ */
+export function kitRandom(index: number): number {
+  const value = DEFAULT_RANDOM + index * 0.6180339887498949
+  return value - Math.floor(value)
+}
+
+/**
+ * Makes `Math.random` return {@link kitRandom} 0, 1, 2 … for one case.
+ *
+ * @returns What puts the real `Math.random` back.
+ */
+export function installSequencedRandom(): CaseGlobals {
+  const previous = Math.random
+  let next = 0
+  Math.random = (): number => kitRandom(next++)
+  return {
+    restore: () => {
+      Math.random = previous
+    },
+  }
+}
+
+/** The `crypto` objects a component can reach: `globalThis.crypto`, and `window.crypto` when it is another object. */
+const cryptoTargets = (): Crypto[] => {
+  const targets: Crypto[] = [globalThis.crypto]
+  if (typeof window !== 'undefined' && window.crypto !== globalThis.crypto)
+    targets.push(window.crypto)
+  return targets
+}
+
+/**
+ * Gives one object its own value for a property, for one case.
+ *
+ * @param target - The object (a `crypto`).
+ * @param key - The property.
+ * @param value - What it holds for the case.
+ * @returns What puts the previous own property back, or removes the case's one when there was none.
+ */
+function replaceOwn<T extends object, K extends keyof T>(
+  target: T,
+  key: K,
+  value: T[K],
+): () => void {
+  const previous = Object.getOwnPropertyDescriptor(target, key)
+  Object.defineProperty(target, key, { configurable: true, writable: true, value })
+  return () => {
+    if (previous) Object.defineProperty(target, key, previous)
+    else Reflect.deleteProperty(target, key)
+  }
+}
+
+/**
+ * The id the kit's `crypto.randomUUID` returns for a case's mint at this index, for a
+ * case that names a minted id in its steps or expectations.
+ *
+ * @param index - How many ids the case minted before this one (0: the first).
+ * @returns `00000000-0000-4000-8000-` and the index in twelve digits.
+ */
+export function kitUuid(index: number): `${string}-${string}-${string}-${string}-${string}` {
+  return `00000000-0000-4000-8000-${String(index).padStart(12, '0')}`
+}
+
+/**
+ * Makes `crypto.randomUUID` count for one case: {@link kitUuid} 0, then 1, and so on. An
+ * id a component mints then depends only on how many ids the case minted before it, so
+ * React's recording and every port mint the same ones.
+ *
+ * @returns What puts the real `randomUUID` back.
+ */
+export function installCountedUuids(): CaseGlobals {
+  let next = 0
+  const randomUUID: Crypto['randomUUID'] = () => kitUuid(next++)
+  const restores = cryptoTargets().map((target) => replaceOwn(target, 'randomUUID', randomUUID))
+  return {
+    restore: () => {
+      for (const restore of restores.reverse()) restore()
+    },
+  }
+}
+
+/**
+ * Fills the caller's view with a stream that depends only on each value's index in it, so
+ * a value drawn from it (a password, a token) depends only on its length and charset, not
+ * on how many were drawn before it.
+ *
+ * @param array - The view to fill.
+ * @returns The same view.
+ */
+function deterministicRandomBytes<T extends Exclude<BufferSource, ArrayBuffer>>(array: T): T {
+  if (!(array instanceof DataView)) {
+    const bytes = new Uint8Array(array.buffer, array.byteOffset, array.byteLength)
+    for (let i = 0; i < bytes.length; i += 4) {
+      const value = Math.imul(i / 4 + 1, 2654435761) >>> 0
+      bytes[i] = value & 0xff
+      if (i + 1 < bytes.length) bytes[i + 1] = (value >>> 8) & 0xff
+      if (i + 2 < bytes.length) bytes[i + 2] = (value >>> 16) & 0xff
+      if (i + 3 < bytes.length) bytes[i + 3] = (value >>> 24) & 0xff
+    }
+  }
+  return array
+}
+
+/**
+ * Makes `crypto.getRandomValues` fill a deterministic stream for one case.
+ *
+ * @returns What puts the real `getRandomValues` back.
+ */
+export function installDeterministicRandomBytes(): CaseGlobals {
+  const restores = cryptoTargets().map((target) =>
+    replaceOwn(target, 'getRandomValues', deterministicRandomBytes),
+  )
+  return {
+    restore: () => {
+      for (const restore of restores.reverse()) restore()
+    },
+  }
+}
+
+/**
+ * Installs every random source the kit owns for one case or value check: `Math.random`
+ * (the case's {@link UICase.random}, else {@link installSequencedRandom}), the counting
+ * `randomUUID` and the deterministic `getRandomValues`. The UI step runner, the hook
+ * runner and the feature value checks all call it, so each one starts from the same state.
+ *
+ * @param random - The values `Math.random` returns ({@link UICase.random}).
+ * @returns What puts the real sources back.
+ */
+export function installRandomSources(random?: number[]): CaseGlobals {
+  const installed = [
+    random ? installPinnedRandom(random) : installSequencedRandom(),
+    installCountedUuids(),
+    installDeterministicRandomBytes(),
+  ]
+  return {
+    restore: () => {
+      for (const entry of installed.reverse()) entry.restore()
     },
   }
 }
@@ -462,9 +623,9 @@ export function installFileReader(record: PageRecord): CaseGlobals {
 }
 
 /**
- * Installs every global the kit replaces for one case ({@link UICase.random}, the
- * recording `ResizeObserver`, the deterministic object URLs and the recording
- * `FileReader`).
+ * Installs every global the kit replaces for one case (the random sources of
+ * {@link installRandomSources}, the recording `ResizeObserver`, the deterministic object
+ * URLs and the recording `FileReader`).
  *
  * @param testCase - The case about to run.
  * @param record - Receives the object-URL and file-read calls.
@@ -472,11 +633,11 @@ export function installFileReader(record: PageRecord): CaseGlobals {
  */
 export function installCaseGlobals(testCase: UICase, record: PageRecord): CaseGlobals {
   const installed = [
-    testCase.random ? installPinnedRandom(testCase.random) : null,
+    installRandomSources(testCase.random),
     installResizeObserver(),
     installObjectUrls(record),
     installFileReader(record),
-  ].filter((entry): entry is CaseGlobals => entry !== null)
+  ]
   return {
     restore: () => {
       for (const entry of installed.reverse()) entry.restore()

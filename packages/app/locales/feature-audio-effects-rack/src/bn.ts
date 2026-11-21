@@ -49,4 +49,5 @@ export const bn: Partial<AudioEffectsRackTranslations> = {
   'audioEffectsRack.param.phaser.rate': 'রেট',
   'audioEffectsRack.param.phaser.depth': 'গভীরতা',
   'audioEffectsRack.param.phaser.feedback': 'প্রতিক্রিয়া',
+  'audioEffectsRack.param.fallback': 'প্যারামিটার',
 }

@@ -92,22 +92,95 @@ const escapeAttr = (s: string): string =>
  */
 const STYLE_ALIASES: ReadonlyMap<string, string> = new Map([['-webkit-filter', 'filter']])
 
-const normalizeStyle = (value: string): string =>
-  value
-    .split(';')
-    .map((d) => d.trim())
-    .filter(Boolean)
-    .map((d) => {
+/**
+ * The declarations of a style attribute, split at the semicolons outside quotes and brackets, so
+ * a `url("data:…;base64,…")` stays one declaration.
+ *
+ * @param value - A style attribute.
+ * @returns Its trimmed, non-empty declarations.
+ */
+const styleDeclarations = (value: string): string[] => {
+  const out: string[] = []
+  let depth = 0
+  let quote = ''
+  let start = 0
+  for (let i = 0; i < value.length; i++) {
+    const c = value[i]
+    if (quote) {
+      if (c === '\\') i++
+      else if (c === quote) quote = ''
+    } else if (c === '"' || c === "'") quote = c
+    else if (c === '(') depth++
+    else if (c === ')') depth = Math.max(0, depth - 1)
+    else if (c === ';' && depth === 0) {
+      out.push(value.slice(start, i))
+      start = i + 1
+    }
+  }
+  out.push(value.slice(start))
+  return out.map((d) => d.trim()).filter(Boolean)
+}
+
+/** A declaration with its property name lower-cased and aliased and its whitespace collapsed. */
+const writtenDeclaration = (d: string): string => {
+  const i = d.indexOf(':')
+  if (i < 0) return d
+  const name = d.slice(0, i).trim().toLowerCase()
+  return `${STYLE_ALIASES.get(name) ?? name}: ${d
+    .slice(i + 1)
+    .trim()
+    .replace(/\s+/g, ' ')}`
+}
+
+/** One detached element per document, whose CSSOM parses declaration lists. */
+const styleParsers = new WeakMap<Document, HTMLElement>()
+
+/** Normalized style attributes by their written text (the same few thousand repeat in every case). */
+const styleCache = new Map<string, string>()
+const STYLE_CACHE_LIMIT = 20_000
+
+/**
+ * A style attribute as the sorted declarations a browser's CSSOM reads from it, so two styles
+ * that draw the same compare equal however they were written. React sets each property through
+ * the CSSOM, which records `flex: 1` as `flex: 1 1 0%`, `border: none` as `border: medium` and
+ * `#d4a017` as `rgb(212, 160, 23)`; Solid writes a static style object into its template HTML,
+ * where the attribute keeps the text as written. A declaration the CSSOM does not read (an
+ * invalid value, or a property jsdom does not implement) is kept as written, so it still counts.
+ *
+ * @param value - The style attribute.
+ * @param doc - The document whose CSSOM parses it.
+ * @returns The normalized declarations, `; `-joined.
+ */
+const normalizeStyle = (value: string, doc: Document): string => {
+  const cached = styleCache.get(value)
+  if (cached !== undefined) return cached
+  let parser = styleParsers.get(doc)
+  if (!parser) {
+    parser = doc.createElement('div')
+    styleParsers.set(doc, parser)
+  }
+  const style = parser.style
+  // One property at a time, in order, as React's style object sets them: assigning the list
+  // to `cssText` at once loses declarations in jsdom (`background: transparent` before
+  // `border: medium` is dropped).
+  const read = (declarations: string[]): string => {
+    style.cssText = ''
+    for (const d of declarations) {
       const i = d.indexOf(':')
-      if (i < 0) return d
-      const name = d.slice(0, i).trim().toLowerCase()
-      return `${STYLE_ALIASES.get(name) ?? name}: ${d
-        .slice(i + 1)
-        .trim()
-        .replace(/\s+/g, ' ')}`
-    })
-    .sort()
-    .join('; ')
+      if (i < 0) continue
+      const important = /\s*!\s*important$/i.exec(d)
+      const end = important ? important.index : d.length
+      style.setProperty(d.slice(0, i), d.slice(i + 1, end).trim(), important ? 'important' : '')
+    }
+    return style.cssText
+  }
+  const written = styleDeclarations(value).map(writtenDeclaration)
+  const unread = written.filter((d) => !read([d]))
+  const normalized = [...styleDeclarations(read(written)), ...unread].sort().join('; ')
+  if (styleCache.size >= STYLE_CACHE_LIMIT) styleCache.clear()
+  styleCache.set(value, normalized)
+  return normalized
+}
 
 /**
  * FNV-1a 32-bit hash of a class token, as `c` + 8 hex digits.
@@ -340,7 +413,7 @@ const serializeElement = (
       value = normalizeClass(value, hash)
       if (!value) continue
     } else if (name === 'style') {
-      value = normalizeStyle(value)
+      value = normalizeStyle(value, el.ownerDocument)
       if (!value) continue
     } else if (name === 'id') {
       value = ids.map.get(value) ?? value

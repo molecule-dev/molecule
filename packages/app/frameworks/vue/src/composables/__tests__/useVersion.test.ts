@@ -3,7 +3,7 @@ import { effectScope } from 'vue'
 
 import type { VersionState } from '@molecule/app-version'
 
-import type { UseVersionReturn } from '../useVersion.js'
+import type { UseVersionResult } from '../useVersion.js'
 import { useVersion } from '../useVersion.js'
 
 vi.mock('@molecule/app-version', () => ({
@@ -43,7 +43,7 @@ describe('useVersion', () => {
 
   it('returns initial state from provider', () => {
     const scope = effectScope()
-    let result!: UseVersionReturn
+    let result!: UseVersionResult
 
     scope.run(() => {
       result = useVersion()
@@ -84,7 +84,7 @@ describe('useVersion', () => {
 
   it('updates state reactively when events fire', () => {
     const scope = effectScope()
-    let result!: UseVersionReturn
+    let result!: UseVersionResult
 
     // Capture the event callback
     const eventCallbacks: Array<() => void> = []
@@ -146,7 +146,7 @@ describe('useVersion', () => {
 
   it('delegates checkForUpdates to provider', async () => {
     const scope = effectScope()
-    let result!: UseVersionReturn
+    let result!: UseVersionResult
 
     mockProvider.checkForUpdates.mockResolvedValue(true)
 
@@ -163,7 +163,7 @@ describe('useVersion', () => {
 
   it('delegates applyUpdate to provider', () => {
     const scope = effectScope()
-    let result!: UseVersionReturn
+    let result!: UseVersionResult
 
     scope.run(() => {
       result = useVersion()
@@ -177,7 +177,7 @@ describe('useVersion', () => {
 
   it('delegates dismissUpdate to provider', () => {
     const scope = effectScope()
-    let result!: UseVersionReturn
+    let result!: UseVersionResult
 
     scope.run(() => {
       result = useVersion()
@@ -191,7 +191,7 @@ describe('useVersion', () => {
 
   it('delegates startPeriodicChecks to provider', () => {
     const scope = effectScope()
-    let result!: UseVersionReturn
+    let result!: UseVersionResult
 
     scope.run(() => {
       result = useVersion()
@@ -208,7 +208,7 @@ describe('useVersion', () => {
 
   it('delegates stopPeriodicChecks to provider', () => {
     const scope = effectScope()
-    let result!: UseVersionReturn
+    let result!: UseVersionResult
 
     scope.run(() => {
       result = useVersion()
@@ -222,7 +222,7 @@ describe('useVersion', () => {
 
   it('reflects isChecking state changes', () => {
     const scope = effectScope()
-    let result!: UseVersionReturn
+    let result!: UseVersionResult
 
     const eventCallbacks: Array<() => void> = []
     mockProvider.on.mockImplementation((_event: string, cb: () => void) => {
@@ -274,7 +274,7 @@ describe('useVersion', () => {
 
   it('updates state when events fire', () => {
     const scope = effectScope()
-    let result!: UseVersionReturn
+    let result!: UseVersionResult
     const eventCallbacks: Array<() => void> = []
     mockProvider.on.mockImplementation((_event: string, cb: () => void) => {
       eventCallbacks.push(cb)
@@ -306,7 +306,7 @@ describe('useVersion', () => {
 
   it('caches snapshot for referential stability', () => {
     const scope = effectScope()
-    let result!: UseVersionReturn
+    let result!: UseVersionResult
     const eventCallbacks: Array<() => void> = []
     // The provider hands out a NEW object per read, exactly like the real one;
     // equal fields must still resolve to the object the composable already has.

@@ -64,7 +64,7 @@ export interface SearchResultsProps<T> {
   action?: (doc: T) => ReactNode
   /** Shown when there are no hits. */
   emptyText: string
-  /** `data-mol-id` prefix: `<molId>-results`, `-hit`, `-link`, `-related`, `-empty`. */
+  /** `data-mol-id` prefix: `<molId>-results`, `-hit`, `-link`, `-related`, `-empty`, `-active`. */
   molId?: string
   /** Extra classes composed onto the list. */
   className?: string
@@ -83,11 +83,14 @@ function defaultLink(props: SearchResultLinkProps): ReactNode {
 
 /**
  * The ranked hits: title and description with the matched terms marked, the
- * meta line, the active row marked for keyboard users, hover making a row
- * active and warming its page. The whole row is the link.
+ * meta line, hover making a row active and warming its page. The whole row is
+ * the link, so the list is a plain list of links (no listbox roles: an
+ * option's children are presentational and would hide the row's link and
+ * action); the active row is marked with `aria-current` on its `<li>` and
+ * announced through a polite, visually hidden status region after the list.
  *
  * @param props - See {@link SearchResultsProps}.
- * @returns The list, or the empty state.
+ * @returns The list and the status region, or the empty state and the (empty) region.
  */
 export function SearchResults<T>({
   hits,
@@ -115,82 +118,104 @@ export function SearchResults<T>({
 
   if (!hits.length) {
     return (
-      <p className={cm.resultEmpty} data-mol-id={`${molId}-empty`}>
-        {emptyText}
-      </p>
+      <>
+        <p className={cm.resultEmpty} data-mol-id={`${molId}-empty`}>
+          {emptyText}
+        </p>
+        <p role="status" className={cm.srOnly} data-mol-id={`${molId}-active`} />
+      </>
     )
   }
 
+  // The active row's announcement; empty when no row is keyboard-active.
+  const activeHit = activeIndex >= 0 ? hits[activeIndex] : undefined
+  const activeText = activeHit
+    ? t(
+        'searchUi.activeResult',
+        {
+          title: view(activeHit.doc).title,
+          position: activeIndex + 1,
+          count: hits.length,
+        },
+        { defaultValue: '{{title}}, {{position}} of {{count}}' },
+      )
+    : ''
+
   return (
-    <ul
-      ref={listRef}
-      role="listbox"
-      aria-label={t('searchUi.results', undefined, { defaultValue: 'Search results' })}
-      className={cm.cn(cm.resultList, className)}
-      data-mol-id={`${molId}-results`}
-    >
-      {hits.map((hit, i) => {
-        const v = view(hit.doc)
-        const active = i === activeIndex
-        const meta = [...(v.meta ?? [])]
-        return (
-          <li
-            key={hit.id}
-            role="option"
-            aria-selected={active}
-            data-index={i}
-            data-mol-id={`${molId}-hit`}
-            data-hit-id={hit.id}
-            className={cm.cn(cm.resultItem, active && cm.resultItemActive)}
-            onPointerEnter={() => {
-              onActivate?.(i)
-              onPrefetch?.(hit.doc)
-            }}
-            onFocus={() => onPrefetch?.(hit.doc)}
-            onTouchStart={() => onPrefetch?.(hit.doc)}
-          >
-            {renderLink({
-              href: v.href,
-              state: v.state,
-              className: cm.resultBody,
-              'data-mol-id': `${molId}-link`,
-              onClick: (e) => {
-                // A modified click opens a new tab; the router handles the rest.
-                if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return
-                e.preventDefault()
-                onOpen(hit.doc)
-              },
-              children: (
-                <>
-                  <span className={cm.flex({ align: 'baseline', wrap: 'wrap', gap: 2 })}>
-                    <span className={cm.cn(cm.resultTitle, v.mono && cm.resultTitleMono)}>
-                      <Highlight text={v.title} terms={hit.terms} />
+    <>
+      <ul
+        ref={listRef}
+        aria-label={t('searchUi.results', undefined, { defaultValue: 'Search results' })}
+        className={cm.cn(cm.resultList, className)}
+        data-mol-id={`${molId}-results`}
+      >
+        {hits.map((hit, i) => {
+          const v = view(hit.doc)
+          const active = i === activeIndex
+          const meta = [...(v.meta ?? [])]
+          return (
+            <li
+              key={hit.id}
+              aria-current={active ? true : undefined}
+              data-index={i}
+              data-mol-id={`${molId}-hit`}
+              data-hit-id={hit.id}
+              className={cm.cn(cm.resultItem, active && cm.resultItemActive)}
+              onPointerEnter={() => {
+                onActivate?.(i)
+                onPrefetch?.(hit.doc)
+              }}
+              onFocus={() => onPrefetch?.(hit.doc)}
+              onTouchStart={() => onPrefetch?.(hit.doc)}
+            >
+              {renderLink({
+                href: v.href,
+                state: v.state,
+                className: cm.resultBody,
+                'data-mol-id': `${molId}-link`,
+                onClick: (e) => {
+                  // A modified click opens a new tab; the router handles the rest.
+                  if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return
+                  e.preventDefault()
+                  onOpen(hit.doc)
+                },
+                children: (
+                  <>
+                    <span className={cm.flex({ align: 'baseline', wrap: 'wrap', gap: 2 })}>
+                      <span className={cm.cn(cm.resultTitle, v.mono && cm.resultTitleMono)}>
+                        <Highlight text={v.title} terms={hit.terms} />
+                      </span>
+                      {meta.length ? (
+                        <span className={cm.resultMeta}>{meta.join(' · ')}</span>
+                      ) : null}
+                      {hit.related ? (
+                        <span
+                          className={cm.resultMeta}
+                          data-mol-id={`${molId}-related`}
+                          title={t('searchUi.relatedTitle', undefined, {
+                            defaultValue: 'Matches the meaning of your search, not its words',
+                          })}
+                        >
+                          {t('searchUi.related', undefined, { defaultValue: 'related' })}
+                        </span>
+                      ) : null}
                     </span>
-                    {meta.length ? <span className={cm.resultMeta}>{meta.join(' · ')}</span> : null}
-                    {hit.related ? (
-                      <span
-                        className={cm.resultMeta}
-                        data-mol-id={`${molId}-related`}
-                        title={t('searchUi.relatedTitle', undefined, {
-                          defaultValue: 'Matches the meaning of your search, not its words',
-                        })}
-                      >
-                        {t('searchUi.related', undefined, { defaultValue: 'related' })}
+                    {v.description ? (
+                      <span className={cm.cn(cm.resultDescription, cm.displayBlock)}>
+                        <Highlight text={v.description} terms={hit.terms} />
                       </span>
                     ) : null}
-                  </span>
-                  {v.description ? (
-                    <span className={cm.cn(cm.resultDescription, cm.displayBlock)}>
-                      <Highlight text={v.description} terms={hit.terms} />
-                    </span>
-                  ) : null}
-                </>
-              ),
-            })}
-            {action ? <span className={cm.resultAction}>{action(hit.doc)}</span> : null}
-          </li>
-        )
-      })}
-    </ul>
+                  </>
+                ),
+              })}
+              {action ? <span className={cm.resultAction}>{action(hit.doc)}</span> : null}
+            </li>
+          )
+        })}
+      </ul>
+      <p role="status" className={cm.srOnly} data-mol-id={`${molId}-active`}>
+        {activeText}
+      </p>
+    </>
   )
 }

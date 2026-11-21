@@ -49,4 +49,5 @@ export const ta: Partial<AudioEffectsRackTranslations> = {
   'audioEffectsRack.param.phaser.rate': 'விகிதம்',
   'audioEffectsRack.param.phaser.depth': 'ஆழம்',
   'audioEffectsRack.param.phaser.feedback': 'பின்னூட்டம்',
+  'audioEffectsRack.param.fallback': 'அளவுரு',
 }

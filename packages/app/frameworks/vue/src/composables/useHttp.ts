@@ -20,7 +20,7 @@ import type { HttpClient, HttpResponse } from '@molecule/app-http'
 import { t } from '@molecule/app-i18n'
 
 import { HttpKey } from '../injection-keys.js'
-import type { UseHttpOptions, UseHttpReturn } from '../types.js'
+import type { UseHttpOptions, UseHttpResult } from '../types.js'
 
 /**
  * Composable to access the HTTP client from injection.
@@ -89,7 +89,7 @@ export function useHttp<T>(
   method: MaybeRefOrGetter<'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'>,
   url: MaybeRefOrGetter<string>,
   options?: MaybeRefOrGetter<UseHttpOptions<T> | undefined>,
-): UseHttpReturn<T> {
+): UseHttpResult<T> {
   const client = useHttpClient()
   const immediate = toValue(options)?.immediate ?? false
 
@@ -217,7 +217,7 @@ export function useHttp<T>(
  * @param options - HTTP request options including callbacks and request config.
  * @returns Reactive request state (data, loading, error) and execute/reset methods.
  */
-export function useGet<T>(url: string, options?: UseHttpOptions<T>): UseHttpReturn<T> {
+export function useGet<T>(url: string, options?: UseHttpOptions<T>): UseHttpResult<T> {
   return useHttp<T>('GET', url, options)
 }
 
@@ -228,7 +228,7 @@ export function useGet<T>(url: string, options?: UseHttpOptions<T>): UseHttpRetu
  * @param options - HTTP request options including body data, headers and callbacks.
  * @returns Reactive request state (data, loading, error) and execute/reset methods.
  */
-export function usePost<T>(url: string, options?: UseHttpOptions<T>): UseHttpReturn<T> {
+export function usePost<T>(url: string, options?: UseHttpOptions<T>): UseHttpResult<T> {
   return useHttp<T>('POST', url, options)
 }
 
@@ -239,7 +239,7 @@ export function usePost<T>(url: string, options?: UseHttpOptions<T>): UseHttpRet
  * @param options - HTTP request options including body data, headers and callbacks.
  * @returns Reactive request state (data, loading, error) and execute/reset methods.
  */
-export function usePut<T>(url: string, options?: UseHttpOptions<T>): UseHttpReturn<T> {
+export function usePut<T>(url: string, options?: UseHttpOptions<T>): UseHttpResult<T> {
   return useHttp<T>('PUT', url, options)
 }
 
@@ -250,7 +250,7 @@ export function usePut<T>(url: string, options?: UseHttpOptions<T>): UseHttpRetu
  * @param options - HTTP request options including body data, headers and callbacks.
  * @returns Reactive request state (data, loading, error) and execute/reset methods.
  */
-export function usePatch<T>(url: string, options?: UseHttpOptions<T>): UseHttpReturn<T> {
+export function usePatch<T>(url: string, options?: UseHttpOptions<T>): UseHttpResult<T> {
   return useHttp<T>('PATCH', url, options)
 }
 
@@ -261,6 +261,6 @@ export function usePatch<T>(url: string, options?: UseHttpOptions<T>): UseHttpRe
  * @param options - HTTP request options including callbacks.
  * @returns Reactive request state (data, loading, error) and execute/reset methods.
  */
-export function useDelete<T>(url: string, options?: UseHttpOptions<T>): UseHttpReturn<T> {
+export function useDelete<T>(url: string, options?: UseHttpOptions<T>): UseHttpResult<T> {
   return useHttp<T>('DELETE', url, options)
 }

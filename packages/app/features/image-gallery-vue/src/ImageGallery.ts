@@ -11,6 +11,7 @@
 import { computed, defineComponent, h, type PropType, ref, type VNode } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
+import { useTranslation } from '@molecule/app-vue'
 
 /**
  * Column counts the ClassMap `cm.grid()` resolver can actually render. The
@@ -65,6 +66,7 @@ export const ImageGallery = defineComponent({
   },
   setup(props) {
     const cm = getClassMap()
+    const { t } = useTranslation()
     const internalIndex = ref(0)
     const idx = computed(() => props.selectedIndex ?? internalIndex.value)
 
@@ -87,7 +89,13 @@ export const ImageGallery = defineComponent({
         h('div', { style: { aspectRatio: '4 / 3' } }, [
           h('img', {
             src: props.images[idx.value],
-            alt: props.alts?.[idx.value] ?? `Image ${idx.value + 1}`,
+            alt:
+              props.alts?.[idx.value] ??
+              t(
+                'imageGallery.alt.fallback',
+                { number: idx.value + 1 },
+                { defaultValue: 'Image {{number}}' },
+              ),
             style: { width: '100%', height: '100%', objectFit: 'cover' },
           }),
         ]),
@@ -102,7 +110,13 @@ export const ImageGallery = defineComponent({
                       type: 'button',
                       onClick: () => setIdx(i),
                       'aria-current': i === idx.value ? 'true' : undefined,
-                      'aria-label': props.alts?.[i] ?? `Image ${i + 1}`,
+                      'aria-label':
+                        props.alts?.[i] ??
+                        t(
+                          'imageGallery.alt.fallback',
+                          { number: i + 1 },
+                          { defaultValue: 'Image {{number}}' },
+                        ),
                       style: { aspectRatio: '1 / 1' },
                     },
                     [
@@ -126,7 +140,11 @@ export const ImageGallery = defineComponent({
                           ),
                           style: { aspectRatio: '1 / 1' },
                         },
-                        `+${overflow}`,
+                        t(
+                          'imageGallery.overflow.more',
+                          { count: overflow },
+                          { defaultValue: '+{{count}}' },
+                        ),
                       ),
                     ]
                   : []),

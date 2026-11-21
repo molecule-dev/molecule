@@ -107,6 +107,19 @@ export const RatingForm = defineComponent({
     const hover = ref(0)
     const comment = ref('')
     const submitting = ref(false)
+    /** The star buttons by number, for the keyboard handler's focus moves. */
+    const starEls = new Map<number, HTMLButtonElement>()
+
+    /**
+     * The star holding the group's one tab stop: the selected one, or the first
+     * when no star is selected — no rating yet, or a `defaultRating` outside
+     * 1..max, which marks no star (an out-of-range value must still leave the
+     * group reachable from the keyboard).
+     *
+     * @returns The star number that is tabbable.
+     */
+    const tabStop = (): number =>
+      rating.value >= 1 && rating.value <= props.max ? rating.value : 1
 
     /**
      * Handles form submission: validates state, delegates to onSubmit, and
@@ -126,6 +139,52 @@ export const RatingForm = defineComponent({
       }
     }
 
+    /**
+     * Selects a star and moves focus with it — the APG radio group's roving
+     * tabindex, where the checked star is the group's one keyboard stop.
+     *
+     * @param n - The star to select.
+     */
+    const selectAndFocus = (n: number): void => {
+      rating.value = n
+      starEls.get(n)?.focus()
+    }
+
+    /**
+     * Handles the radio keys on a star (the APG radio group pattern):
+     * ArrowRight / ArrowDown select and focus the next star, ArrowLeft /
+     * ArrowUp the previous one, both wrapping; Home and End jump to the first
+     * and last. The handled keys are prevented (they would otherwise scroll or
+     * move focus); Space and Enter stay the native button click, and any other
+     * key is ignored.
+     *
+     * @param event - The key event on a star button.
+     */
+    const onStarKeydown = (event: KeyboardEvent): void => {
+      const current = tabStop()
+      let next: number
+      switch (event.key) {
+        case 'ArrowRight':
+        case 'ArrowDown':
+          next = current >= props.max ? 1 : current + 1
+          break
+        case 'ArrowLeft':
+        case 'ArrowUp':
+          next = current <= 1 ? props.max : current - 1
+          break
+        case 'Home':
+          next = 1
+          break
+        case 'End':
+          next = props.max
+          break
+        default:
+          return
+      }
+      event.preventDefault()
+      selectAndFocus(next)
+    }
+
     return (): VNode => {
       const display = hover.value || rating.value
       const stars: VNode[] = Array.from({ length: props.max }, (_v, i) => i + 1).map((n) =>
@@ -133,9 +192,14 @@ export const RatingForm = defineComponent({
           'button',
           {
             key: n,
+            ref: (el) => {
+              if (el instanceof HTMLButtonElement) starEls.set(n, el)
+              else starEls.delete(n)
+            },
             type: 'button',
             role: 'radio',
             'data-mol-id': 'rating-form-star',
+            tabindex: n === tabStop() ? 0 : -1,
             'aria-checked': rating.value === n,
             'aria-label': t(
               'rating.star',
@@ -145,6 +209,7 @@ export const RatingForm = defineComponent({
             onClick: () => {
               rating.value = n
             },
+            onKeydown: onStarKeydown,
             onMouseenter: () => {
               hover.value = n
             },
@@ -165,6 +230,12 @@ export const RatingForm = defineComponent({
           'div',
           {
             role: 'radiogroup',
+            // jsx-a11y's interactive-supports-focus asks the group (it carries
+            // onMouseleave) to be focusable, so it keeps a tabindex — but at
+            // -1 the group is only ever focused through script, never a tab
+            // stop. The stars carry the keyboard instead (React's
+            // `tabIndex={-1}`, the APG radio group's roving tabindex).
+            tabindex: -1,
             'aria-label': t('rating.label', {}, { defaultValue: 'Rating' }),
             class: cm.flex({ align: 'center', gap: 'xs' }),
             onMouseleave: () => {
@@ -188,7 +259,7 @@ export const RatingForm = defineComponent({
               },
             ),
           rows: 4,
-          'aria-label': 'Comment',
+          'aria-label': t('rating.comment', {}, { defaultValue: 'Comment' }),
         }),
         h(
           Button,

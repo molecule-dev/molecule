@@ -9,6 +9,8 @@ import type { UIComponentCases } from '../../spec.js'
 /** ConfirmButton: arm/commit phases, auto-disarm, escape disarm, button variants, callbacks. */
 export const confirmButtonCases: UIComponentCases = {
   component: 'ConfirmButton',
+  ref: {},
+  declaredProps: { props: 'base' },
   cases: [
     { name: 'defaults', callbacks: ['onConfirm'], slots: { label: ['Delete'] } },
     {

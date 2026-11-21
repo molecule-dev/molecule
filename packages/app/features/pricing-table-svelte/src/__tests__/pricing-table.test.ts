@@ -35,6 +35,8 @@ vi.mock('@molecule/app-ui', () => ({
   },
 }))
 
+import { inlineStyleMismatch } from '@molecule/app-framework-conformance/ui'
+
 import PricingTable from '../PricingTable.svelte'
 import type { PricingFeature, PricingPlan, PricingTableProps } from '../types.js'
 
@@ -95,7 +97,7 @@ describe('PricingTable', () => {
 
   it('highlights the recommended plan via an outline style', () => {
     const markup = render({ plans, features })
-    expect(markup).toContain('outline: 2px solid currentColor')
+    expect(inlineStyleMismatch(markup, { outline: '2px solid currentColor' })).toBeNull()
   })
 
   it('renders each feature row label and per-plan values', () => {

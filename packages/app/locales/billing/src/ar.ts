@@ -15,4 +15,11 @@ export const ar: Partial<BillingTranslations> = {
   'billing.pricing.reassurance': 'يمكنك الإلغاء في أي وقت · لا يلزم وجود بطاقة ائتمان للبدء',
   'billing.pricing.perSeat': 'لكل مقعد',
   'billing.pricing.currentCta': 'الخطة الحالية',
+  'billing.pricing.period.month': 'شهريًا',
+  'billing.pricing.period.year': 'سنويًا',
+  'billing.pricing.billed.month': 'يُفوتر شهريًا',
+  'billing.pricing.billed.year': 'يُفوتر سنويًا',
+  'billing.pricing.unlimited': 'غير محدود',
+  'billing.pricing.limit.maxProjects': 'أقصى عدد للمشاريع',
+  'billing.pricing.limit.canExport': 'التصدير متاح',
 }

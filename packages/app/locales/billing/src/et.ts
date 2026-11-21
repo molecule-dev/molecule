@@ -15,4 +15,11 @@ export const et: Partial<BillingTranslations> = {
   'billing.pricing.perSeat': 'istekoha kohta',
   'billing.pricing.upgradeCta': 'Uuenda versioonile {{tierName}}',
   'billing.pricing.currentCta': 'Praegune plaan',
+  'billing.pricing.period.month': 'kuus',
+  'billing.pricing.period.year': 'aastas',
+  'billing.pricing.billed.month': 'Arve esitatakse igakuiselt',
+  'billing.pricing.billed.year': 'Arve esitatakse kord aastas',
+  'billing.pricing.unlimited': 'Piiramatu',
+  'billing.pricing.limit.maxProjects': 'Maksimaalne projektide arv',
+  'billing.pricing.limit.canExport': 'Eksport on saadaval',
 }

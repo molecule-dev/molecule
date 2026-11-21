@@ -9,4 +9,6 @@ export const nb: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.note':
     'Note {{pitch}} starter på taktslag {{startBeat}} til {{durationBeats}} taktslag',
   'pianoRoll.aria.cursor': 'Markør på {{pitch}} ved taktslag {{beat}}',
+  'pianoRoll.aria.gridHelp':
+    'Piltastene flytter cellemarkøren, Enter eller mellomromstasten tegner en node der.',
 }

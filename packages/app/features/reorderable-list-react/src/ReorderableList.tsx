@@ -1,5 +1,5 @@
 import type { DragEvent, KeyboardEvent, ReactElement, ReactNode } from 'react'
-import { useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
@@ -31,8 +31,15 @@ export interface ReorderableListProps<T> {
  *
  * Use the optional `renderHandle` slot to limit drag to a specific
  * element (e.g. a "≡" handle on the left). Every row also ships explicit
- * move-up/move-down buttons and supports Alt+ArrowUp / Alt+ArrowDown on the
- * focused row, so the list is fully reorderable without a mouse.
+ * move-up/move-down buttons; Alt+ArrowUp / Alt+ArrowDown on a focused move
+ * button reorders too, and focus follows the item: when a move disables the
+ * button that was used (the item reached the top or the bottom), focus moves
+ * to the same row's other button. The list is fully reorderable without a
+ * mouse.
+ *
+ * Each row renders its position ("Item 2 of 3") in a screen-reader-only span
+ * that both of its move buttons reference through `aria-describedby`, so the
+ * buttons announce where the item sits.
  * @param props - Component props (see {@link ReorderableListProps}).
  */
 export function ReorderableList<T>({
@@ -46,6 +53,14 @@ export function ReorderableList<T>({
   const { t } = useTranslation()
   const [draggingId, setDraggingId] = useState<string | null>(null)
   const [overId, setOverId] = useState<string | null>(null)
+  /** The list's id prefix; each row's position span is `${baseId}-position-${index}`. */
+  const baseId = useId()
+  /** The rows' move buttons, keyed by item id — the focus effect's targets. */
+  const moveButtons = useRef(
+    new Map<string, { up: HTMLButtonElement | null; down: HTMLButtonElement | null }>(),
+  )
+  /** The move whose focus settles once `items` changes: the item id and the button used. */
+  const focusRequest = useRef<{ id: string; button: 'up' | 'down' } | null>(null)
 
   /**
    * Moves the item at `index` by `delta` positions and emits the new order.
@@ -79,6 +94,79 @@ export function ReorderableList<T>({
       moveItem(index, 1)
     }
   }
+
+  /**
+   * Registers one move button under its item id (a `ref` callback), so the
+   * focus effect can reach either button of that row.
+   * @param id - The row's item id.
+   * @param button - Which button of the row this is.
+   * @returns The `ref` callback for the button.
+   */
+  function registerMoveButton(
+    id: string,
+    button: 'up' | 'down',
+  ): (el: HTMLButtonElement | null) => void {
+    return (el) => {
+      const row = moveButtons.current.get(id) ?? { up: null, down: null }
+      row[button] = el
+      moveButtons.current.set(id, row)
+    }
+  }
+
+  /**
+   * Moves the item with a move button, recording which button was used so the
+   * focus effect can settle focus after the new order lands.
+   * @param id - The moved item's id.
+   * @param index - Current position of the item to move.
+   * @param delta - -1 to move up, 1 to move down.
+   * @param button - The button the move came from.
+   */
+  function moveFromButton(id: string, index: number, delta: -1 | 1, button: 'up' | 'down'): void {
+    focusRequest.current = { id, button }
+    moveItem(index, delta)
+  }
+
+  /**
+   * Keyboard reordering for a focused move button: Alt+ArrowUp / Alt+ArrowDown
+   * move its item. A key that moves also records the button used, for the same
+   * focus settling a click gets.
+   * @param id - The row's item id.
+   * @param index - Current position of the row's item.
+   * @param button - Which button of the row this is.
+   * @param e - The keyboard event.
+   */
+  function onButtonKeyDown(
+    id: string,
+    index: number,
+    button: 'up' | 'down',
+    e: KeyboardEvent,
+  ): void {
+    if (e.altKey && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
+      focusRequest.current = { id, button }
+    }
+    onItemKeyDown(index, e)
+  }
+
+  /**
+   * Focus settles after a move: when the button that was used is disabled by
+   * the new order (the item reached the top or the bottom), focus moves to the
+   * same row's other move button; otherwise it stays (the row is keyed by item
+   * id, so the focused button moves with its row). Runs after `items` changes
+   * and consumes the request the move recorded.
+   */
+  useEffect(() => {
+    const request = focusRequest.current
+    focusRequest.current = null
+    if (!request) return
+    const index = items.findIndex((item) => item.id === request.id)
+    if (index < 0) return
+    const row = moveButtons.current.get(request.id)
+    if (!row) return
+    const usedDisabled = request.button === 'up' ? index === 0 : index === items.length - 1
+    if (!usedDisabled) return
+    const other = request.button === 'up' ? row.down : row.up
+    other?.focus()
+  }, [items])
 
   /**
    * Initiates a drag operation, storing the dragged item id in the transfer payload.
@@ -133,10 +221,11 @@ export function ReorderableList<T>({
   }
 
   return (
-    <ul className={cm.cn(cm.stack(1 as const), className)} role="list">
+    <ul className={cm.cn(cm.stack(1 as const), className)}>
       {items.map((item, index) => {
         const isDragging = draggingId === item.id
         const isOver = overId === item.id && draggingId !== item.id
+        const positionId = `${baseId}-position-${index}`
         const position = t(
           'reorderableList.position',
           { index: index + 1, total: items.length },
@@ -150,9 +239,6 @@ export function ReorderableList<T>({
             onDragEnd={reset}
             onDragOver={(e) => onDragOver(item.id, e)}
             onDrop={(e) => onDrop(item.id, e)}
-            onKeyDown={(e) => onItemKeyDown(index, e)}
-            tabIndex={0}
-            aria-label={position}
             className={cm.cn(cm.flex({ align: 'center', gap: 'sm' }))}
             style={{
               opacity: isDragging ? 0.4 : 1,
@@ -179,9 +265,12 @@ export function ReorderableList<T>({
               <button
                 type="button"
                 data-mol-id={`reorderable-move-up-${item.id}`}
-                onClick={() => moveItem(index, -1)}
+                ref={registerMoveButton(item.id, 'up')}
+                onClick={() => moveFromButton(item.id, index, -1, 'up')}
+                onKeyDown={(e) => onButtonKeyDown(item.id, index, 'up', e)}
                 disabled={index === 0}
                 aria-label={t('reorderableList.moveUp', {}, { defaultValue: 'Move up' })}
+                aria-describedby={positionId}
                 className={cm.cn(cm.cursorPointer, cm.sp('p', 1))}
               >
                 <span aria-hidden="true">↑</span>
@@ -189,14 +278,20 @@ export function ReorderableList<T>({
               <button
                 type="button"
                 data-mol-id={`reorderable-move-down-${item.id}`}
-                onClick={() => moveItem(index, 1)}
+                ref={registerMoveButton(item.id, 'down')}
+                onClick={() => moveFromButton(item.id, index, 1, 'down')}
+                onKeyDown={(e) => onButtonKeyDown(item.id, index, 'down', e)}
                 disabled={index === items.length - 1}
                 aria-label={t('reorderableList.moveDown', {}, { defaultValue: 'Move down' })}
+                aria-describedby={positionId}
                 className={cm.cn(cm.cursorPointer, cm.sp('p', 1))}
               >
                 <span aria-hidden="true">↓</span>
               </button>
             </div>
+            <span id={positionId} className={cm.srOnly}>
+              {position}
+            </span>
           </li>
         )
       })}

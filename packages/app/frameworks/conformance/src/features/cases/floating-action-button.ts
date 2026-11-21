@@ -6,7 +6,14 @@
  * @module
  */
 
+import type { CaseA11y } from '../../ui/spec.js'
 import type { FeatureCases } from '../spec.js'
+
+/** The case passes an empty label. */
+const EMPTY_LABEL: CaseA11y = {
+  expect: ['button-name'],
+  reason: 'The case passes an empty label',
+}
 
 const icon = [{ tag: 'span', attrs: { 'data-icon': '' }, children: ['+'] }]
 const svgIcon = [{ tag: 'svg', attrs: { 'data-icon': '', viewBox: '0 0 24 24' } }]
@@ -34,7 +41,7 @@ export const floatingActionButtonFeature: FeatureCases = {
         { name: 'large size', props: { label: 'Add', size: 'lg' } },
         { name: 'tooltip shown', props: { label: 'Add', showTooltip: true } },
         { name: 'tooltip hidden', props: { label: 'Add', showTooltip: false } },
-        { name: 'empty label', props: { label: '' } },
+        { name: 'empty label', a11y: EMPTY_LABEL, props: { label: '' } },
         {
           name: 'label resolved through i18n',
           props: { label: 'fab.add' },

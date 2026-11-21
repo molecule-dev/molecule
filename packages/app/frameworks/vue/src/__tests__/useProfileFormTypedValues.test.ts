@@ -26,7 +26,7 @@ import { defineComponent, h } from 'vue'
 
 import type { FormValuesConstraint } from '@molecule/app-forms'
 
-import { useForm, type UseFormOptions, type UseFormReturn } from '../composables/useForms.js'
+import { useForm, type UseFormOptions, type UseFormResult } from '../composables/useForms.js'
 
 /**
  * Compiles `source` as if it were a file in this package and returns the
@@ -97,8 +97,8 @@ afterEach(() => {
  */
 function openForm<T extends FormValuesConstraint<T>>(
   options: () => UseFormOptions<T>,
-): UseFormReturn<T> {
-  let form!: UseFormReturn<T>
+): UseFormResult<T> {
+  let form!: UseFormResult<T>
   const Page = defineComponent({
     setup() {
       form = useForm<T>(options())

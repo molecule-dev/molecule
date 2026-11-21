@@ -73,8 +73,8 @@ export interface SolidBindingConfig extends Partial<BindingServices> {
 export interface SolidBindingProps {
   /** The case's services, built by the kit's `buildServices`. */
   config: SolidBindingConfig
-  /** The component tree the provider wraps. */
-  children?: JSX.Element
+  /** The component tree the provider wraps (the adapter always passes one). */
+  children: JSX.Element
 }
 
 /** What the adapter needs from `@molecule/app-solid` (the package under test passes the module). */
@@ -269,6 +269,8 @@ export function createSolidAdapter({
             // framework.
             const mountPoint = document.createElement('div')
             mountPoint.setAttribute('data-parity-unwrap', '')
+            // A ref case hands the component a ref callback, as a caller's `ref={el}` compiles to.
+            let refElement: Element | null = null
             container.appendChild(mountPoint)
             const show = (): (() => void) =>
               render(
@@ -294,6 +296,11 @@ export function createSolidAdapter({
                           enumerable: true,
                           get: () => single(toSolidNodes(testCase.children)),
                         })
+                      }
+                      if (testCase.ref) {
+                        merged.ref = (el: unknown): void => {
+                          refElement = el instanceof Element ? el : null
+                        }
                       }
                       return createComponent(Comp, merged)
                     },
@@ -324,6 +331,7 @@ export function createSolidAdapter({
               navigate: (to) => {
                 router.navigate(to)
               },
+              refElement: () => refElement,
               unmount: async () => {
                 dispose()
               },

@@ -47,18 +47,16 @@ export function SlideThumbnail({
       data-mol-id="slide-thumbnail"
       data-slide-index={index}
       aria-label={t('slideThumbnail.label', { index }, { defaultValue: 'Slide {{index}}' })}
-      className={cm.cn(cm.position('relative'), cm.cursorPointer, className)}
+      className={cm.cn(cm.position('relative'), cm.cursorPointer, cm.surface, className)}
       /* mol-bespoke-button: slide thumbnail CARD, not a CTA — the caller sizes
          it and its whole face is the live preview, so the inline
-         background/border/padding are the card's canvas, not button chrome.
-         The canvas colour is a theme token now; the old hardcoded `#fff`
-         stayed white in dark mode. */
+         border/padding are the card's canvas, not button chrome; the canvas
+         colour comes from `cm.surface` (the theme's surface token). */
       style={{
         width,
         aspectRatio: aspect.replace('/', ' / '),
         outline: active ? '2px solid currentColor' : 'none',
         outlineOffset: 2,
-        background: 'var(--mol-color-surface, #fff)',
         overflow: 'hidden',
         border: 'none',
         padding: 0,
@@ -66,6 +64,7 @@ export function SlideThumbnail({
     >
       {children}
       <span
+        className={cm.cn(cm.bgScrim, cm.textOnTone)}
         style={{
           position: 'absolute',
           left: 4,
@@ -73,8 +72,6 @@ export function SlideThumbnail({
           padding: '0 4px',
           fontSize: 10,
           fontWeight: 700,
-          background: 'rgba(0,0,0,0.6)',
-          color: '#fff',
           borderRadius: 3,
         }}
       >

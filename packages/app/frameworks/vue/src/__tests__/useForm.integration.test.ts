@@ -32,7 +32,7 @@ import {
   useFieldState,
   useForm,
   type UseFormOptions,
-  type UseFormReturn,
+  type UseFormResult,
   useWatch,
 } from '../composables/useForms.js'
 
@@ -85,8 +85,8 @@ function mountProbe(capture: () => void): VueWrapper {
  */
 function openForm<T extends FormValuesConstraint<T>>(
   options: UseFormOptions<T> | (() => UseFormOptions<T>),
-): UseFormReturn<T> {
-  let form!: UseFormReturn<T>
+): UseFormResult<T> {
+  let form!: UseFormResult<T>
   mountProbe(() => {
     form = useForm(typeof options === 'function' ? options : () => options)
   })

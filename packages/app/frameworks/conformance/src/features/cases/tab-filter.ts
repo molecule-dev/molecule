@@ -6,7 +6,14 @@
  * @module
  */
 
+import type { CaseA11y } from '../../ui/spec.js'
 import type { FeatureCases } from '../spec.js'
+
+/** The case passes a tab with an empty label. */
+const EMPTY_LABEL: CaseA11y = {
+  expect: ['button-name'],
+  reason: 'The case passes a tab with an empty label',
+}
 
 const tabs = [
   { id: 'all', label: 'All', count: 42 },
@@ -66,6 +73,7 @@ export const tabFilterFeature: FeatureCases = {
         },
         {
           name: 'an empty label',
+          a11y: EMPTY_LABEL,
           props: {
             tabs: [
               { id: 'blank', label: '' },

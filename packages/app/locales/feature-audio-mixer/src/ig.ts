@@ -8,6 +8,8 @@ export const ig: Partial<AudioMixerTranslations> = {
   'audioMixer.aria.send': '{{channel}} ziga na {{send}}',
   'audioMixer.button.mute': 'Ogbi',
   'audioMixer.button.solo': 'Naanị ya',
+  'audioMixer.button.muteInitial': 'O',
+  'audioMixer.button.soloInitial': 'N',
   'audioMixer.master': 'Nna ukwu',
   'audioMixer.sends': 'Zipu',
 }

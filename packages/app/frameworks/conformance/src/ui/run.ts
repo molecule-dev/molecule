@@ -15,6 +15,7 @@ import { fileURLToPath } from 'node:url'
 
 import { describe, expect, it } from 'vitest'
 
+import { assertConformanceRunBuilt } from '../build-freshness.js'
 import { watchConformanceEventLoop } from '../stall-watchdog-vitest.js'
 import * as allCases from './cases/index.js'
 import { PSEUDO_LOCALE } from './environment.js'
@@ -24,6 +25,8 @@ import { writePixelCapture } from './pixel-capture.js'
 import type {
   AppComposition,
   CaseResult,
+  DeclaredProps,
+  ElementRefCase,
   FrameworkAdapter,
   UICase,
   UIComponentCases,
@@ -87,11 +90,101 @@ export const withKeyedLists = (family: UIComponentCases): UIComponentCases => {
   return derived.length ? { ...family, cases: [...family.cases, ...derived] } : family
 }
 
+/**
+ * A case without its a11y declaration.
+ *
+ * @param testCase - The case.
+ * @returns The same case, declaring no rule its input breaks.
+ */
+const withoutA11y = ({ a11y: _a11y, ...rest }: UICase): UICase => rest
+
+/** The `automationId` a declared-props case passes; its element is `[data-mol-id="parity-auto"]`. */
+export const DECLARED_AUTOMATION_ID = 'parity-auto'
+
+/**
+ * The family's declared-props case: its base case with `automationId` added, and for element
+ * props `id`, `title` and `onDoubleClick` too, then a double-click on the element
+ * `automationId` marks ({@link UIComponentCases.declaredProps}).
+ *
+ * @param family - One component's cases.
+ * @returns The family with that case added.
+ */
+export const withDeclaredProps = (family: UIComponentCases): UIComponentCases => {
+  const declared: DeclaredProps | undefined = family.declaredProps
+  if (!declared) return family
+  const base = declared.caseName
+    ? family.cases.find((c) => c.name === declared.caseName)
+    : family.cases[0]
+  if (!base)
+    throw new Error(`${family.component}: declared-props case "${declared.caseName}" not found`)
+  const element = declared.props === 'element'
+  const added: UICase = {
+    // The element props add a `title`, which names the element, so the base case's a11y
+    // declaration (written for its own input) does not carry over; a derived case that breaks
+    // a rule anyway names another base case (`caseName`).
+    ...(element ? withoutA11y(base) : base),
+    name: `${base.name}, with the declared ${element ? 'element' : 'base'} props`,
+    props: {
+      ...base.props,
+      automationId: DECLARED_AUTOMATION_ID,
+      ...(element ? { id: 'parity-id', title: 'Parity title' } : {}),
+    },
+    ...(element
+      ? {
+          callbacks: [...(base.callbacks ?? []), 'onDoubleClick'],
+          interactions: [
+            ...(base.interactions ?? []),
+            { type: 'dblclick', selector: `[data-mol-id="${DECLARED_AUTOMATION_ID}"]` },
+          ],
+        }
+      : {}),
+  }
+  return { ...family, cases: [...family.cases, added] }
+}
+
+/**
+ * The family's ref case: its base case reading the component's ref element after mount and
+ * after every step ({@link UIComponentCases.ref}).
+ *
+ * @param family - One component's cases.
+ * @returns The family with that case added.
+ */
+export const withRef = (family: UIComponentCases): UIComponentCases => {
+  const wanted: ElementRefCase | undefined = family.ref
+  if (!wanted) return family
+  const base = wanted.caseName
+    ? family.cases.find((c) => c.name === wanted.caseName)
+    : family.cases[0]
+  if (!base) throw new Error(`${family.component}: ref case "${wanted.caseName}" not found`)
+  const added: UICase = { ...base, name: `${base.name}, with a caller's ref`, ref: true }
+  return { ...family, cases: [...family.cases, added] }
+}
+
+/**
+ * The family, after checking that no case names a goldens group: the UI kit's goldens are one
+ * file, so a group would store nothing anywhere ({@link UICase.goldensGroup}).
+ *
+ * @param family - One component's cases.
+ * @returns The same family.
+ * @throws {Error} When a case names a group.
+ */
+export const withoutGoldensGroups = (family: UIComponentCases): UIComponentCases => {
+  const grouped = family.cases.find((c) => c.goldensGroup !== undefined)
+  if (grouped)
+    throw new Error(
+      `${family.component} "${grouped.name}": the UI kit's goldens are one file; goldensGroup is for feature components stored per component`,
+    )
+  return family
+}
+
 /** Every case family, in a stable order, each with its locale-switch and keyed-list cases. */
 export const uiCaseFamilies: UIComponentCases[] = (Object.values(allCases) as UIComponentCases[])
   .sort((a, b) => a.component.localeCompare(b.component))
+  .map(withoutGoldensGroups)
   .map(withLocaleSwitch)
   .map(withKeyedLists)
+  .map(withDeclaredProps)
+  .map(withRef)
 
 /** The React reference results every framework must reproduce. */
 export const uiGoldens: UIGoldens = goldensJson
@@ -170,6 +263,11 @@ export interface CaseSuite {
   reference: string
   /** Every runtime name the reference exports. */
   exports: readonly string[]
+  /**
+   * The unexported components the cases render (a feature's `parts`), which may hold known
+   * gaps as an export does.
+   */
+  parts?: readonly string[]
   /** Case families, each with its derived cases. */
   families: UIComponentCases[]
   /** Component → case name → React result. */
@@ -197,10 +295,13 @@ export function runCaseSuite(suite: CaseSuite, adapter: FrameworkAdapter, gaps: 
     it('lists only components and cases that exist', () => {
       for (const [component, names] of Object.entries(gaps)) {
         expect(
-          suite.exports,
-          `known gap names ${component}, which ${suite.reference} does not export`,
+          [...suite.exports, ...(suite.parts ?? [])],
+          `known gap names ${component}, which ${suite.reference} neither exports nor renders as a part`,
         ).toContain(component)
         const family = suite.families.find((f) => f.component === component)
+        // A narrowed run holds only the families it names, so a gap of another component names
+        // cases this run never loaded; the full run checks those.
+        if (!family && suite.narrowed) continue
         for (const name of names) {
           if (name === '(export)') continue
           expect(
@@ -297,6 +398,7 @@ export function runUIConformance(
   adapter: FrameworkAdapter,
   options: UIConformanceOptions = {},
 ): void {
+  assertConformanceRunBuilt(adapter.name, expect.getState().testPath)
   const filter = onlyFromEnv('CONFORMANCE_COMPONENTS')
   runCaseSuite(
     {

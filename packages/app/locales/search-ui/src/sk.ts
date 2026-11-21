@@ -14,4 +14,8 @@ export const sk: Partial<SearchUiTranslations> = {
   'searchUi.relatedTitle': 'Zodpovedá významu vášho vyhľadávania, nie jeho slovám',
   'searchUi.related': 'súvisiace',
   'searchUi.help': 'Tipy na vyhľadávanie',
+  'searchUi.examplePhrase': '"presná fráza"',
+  'searchUi.exampleExcluded': '-slovo',
+  'searchUi.activeResult': '{{title}}, {{position}} z {{count}}',
+  'searchUi.dialogLabel': 'Hľadať',
 }

@@ -17,4 +17,11 @@ export const ru: Partial<BillingTranslations> = {
   'billing.pricing.perSeat': 'за место',
   'billing.pricing.upgradeCta': 'Обновить до {{tierName}}',
   'billing.pricing.currentCta': 'Текущий план',
+  'billing.pricing.period.month': 'в месяц',
+  'billing.pricing.period.year': 'в год',
+  'billing.pricing.billed.month': 'Ежемесячная оплата',
+  'billing.pricing.billed.year': 'Ежегодная оплата',
+  'billing.pricing.unlimited': 'Без ограничений',
+  'billing.pricing.limit.maxProjects': 'Максимум проектов',
+  'billing.pricing.limit.canExport': 'Экспорт доступен',
 }

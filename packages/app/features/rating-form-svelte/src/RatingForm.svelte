@@ -5,12 +5,9 @@
   input; node props are snippets (or plain strings) and every visible string
   goes through `t()` so a locale switch re-renders it.
 
-  The `svelte-ignore` lines below mark two deliberate trade-offs React's package
+  The `svelte-ignore` line below marks a deliberate trade-off React's package
   documents: `rating` captures the initial `defaultRating` prop value once (a
-  later prop write must not move the selection), and the radiogroup `<div>`
-  carries no `tabindex` — React renders none, and the star `<button>`s are the
-  focusable controls, so adding one would change the DOM this package must
-  reproduce exactly.
+  later prop write must not move the selection).
 -->
 <script lang="ts">
   import { useTranslation } from '@molecule/app-svelte'
@@ -45,6 +42,14 @@
 
   const display = $derived(hover || rating)
   const stars = $derived(Array.from({ length: max }, (_value, index) => index + 1))
+  // The star holding the group's one tab stop: the selected one, or the first
+  // when no star is selected — no rating yet, or a defaultRating outside
+  // 1..max, which marks no star (an out-of-range value must still leave the
+  // group reachable from the keyboard).
+  const tabStop = $derived(rating >= 1 && rating <= max ? rating : 1)
+
+  // The star buttons by number, for the keyboard handler's focus moves.
+  let starEls: Record<number, HTMLButtonElement> = {}
 
   // Every `t(…)` runs inside a `$derived`: it reads the i18n version under the
   // hood, so these re-run on a locale switch the way React's render-time `t`
@@ -54,6 +59,7 @@
     commentPlaceholder ??
       t('rating.commentPlaceholder', {}, { defaultValue: 'Share your thoughts (optional)' }),
   )
+  const commentLabel = $derived(t('rating.comment', {}, { defaultValue: 'Comment' }))
   const submittingText = $derived(t('rating.submitting', {}, { defaultValue: 'Submitting…' }))
   const submitText = $derived(t('rating.submit', {}, { defaultValue: 'Submit review' }))
 
@@ -74,6 +80,71 @@
       submitting = false
     }
   }
+
+  /**
+   * A capture action for a star button: records the node under its star
+   * number, so the keyboard handler can move focus with `focus()`. An action
+   * runs at mount with the node itself, which `bind:this` to a plain object
+   * member does not guarantee.
+   *
+   * @param node - The star button.
+   * @param n - The star number.
+   * @returns An update hook, so a re-keyed button re-registers under its new number.
+   */
+  function captureStar(node: HTMLButtonElement, n: number): { update: (next: number) => void } {
+    starEls[n] = node
+    return {
+      update: (next) => {
+        starEls[next] = node
+      },
+    }
+  }
+
+  /**
+   * Selects a star and moves focus with it — the APG radio group's roving
+   * tabindex, where the checked star is the group's one keyboard stop.
+   *
+   * @param n - The star to select.
+   */
+  function selectAndFocus(n: number): void {
+    rating = n
+    starEls[n]?.focus()
+  }
+
+  /**
+   * Handles the radio keys on a star (the APG radio group pattern):
+   * ArrowRight / ArrowDown select and focus the next star, ArrowLeft / ArrowUp
+   * the previous one, both wrapping; Home and End jump to the first and last.
+   * The handled keys are prevented (they would otherwise scroll or move
+   * focus); Space and Enter stay the native button click, and any other key is
+   * ignored (React's `onStarKeyDown`).
+   *
+   * @param event - The key event on a star button.
+   */
+  function onStarKeyDown(event: KeyboardEvent): void {
+    const current = tabStop
+    let next: number
+    switch (event.key) {
+      case 'ArrowRight':
+      case 'ArrowDown':
+        next = current >= max ? 1 : current + 1
+        break
+      case 'ArrowLeft':
+      case 'ArrowUp':
+        next = current <= 1 ? max : current - 1
+        break
+      case 'Home':
+        next = 1
+        break
+      case 'End':
+        next = max
+        break
+      default:
+        return
+    }
+    event.preventDefault()
+    selectAndFocus(next)
+  }
 </script>
 
 <form class={cm.cn(cm.stack(3), className)} onsubmit={handle}>
@@ -82,9 +153,14 @@
       {#if typeof title === 'function'}{@render title()}{:else}{title}{/if}
     </h3>
   {/if}
-  <!-- svelte-ignore a11y_interactive_supports_focus -->
+  <!-- jsx-a11y's interactive-supports-focus asks the group (it carries
+       onmouseleave) to be focusable, so it keeps a tabindex — but at -1 the
+       group is only ever focused through script, never a tab stop. The stars
+       carry the keyboard instead (React's `tabIndex={-1}`, the APG radio
+       group's roving tabindex). -->
   <div
     role="radiogroup"
+    tabindex="-1"
     aria-label={ratingLabel}
     class={cm.flex({ align: 'center', gap: 'xs' })}
     onmouseleave={() => (hover = 0)}
@@ -94,11 +170,14 @@
         type="button"
         role="radio"
         data-mol-id="rating-form-star"
+        tabindex={n === tabStop ? 0 : -1}
         aria-checked={rating === n}
         aria-label={t('rating.star', { n, max }, { defaultValue: '{{n}} of {{max}}' })}
         onclick={() => (rating = n)}
+        onkeydown={onStarKeyDown}
         onmouseenter={() => (hover = n)}
         class={cm.cn(cm.cursorPointer, cm.touchTarget)}
+        use:captureStar={n}
         use:starStyle={n <= display}
       >
         ★
@@ -110,7 +189,7 @@
     onChange={(event: Event) => (comment = (event.target as HTMLTextAreaElement).value)}
     placeholder={placeholderText}
     rows={4}
-    aria-label="Comment"
+    aria-label={commentLabel}
   />
   <Button type="submit" variant="solid" color="primary" disabled={submitting || !rating}>
     {#if submitting}

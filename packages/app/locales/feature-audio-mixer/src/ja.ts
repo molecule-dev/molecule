@@ -9,5 +9,7 @@ export const ja: Partial<AudioMixerTranslations> = {
   'audioMixer.aria.pan': '{{name}}パン',
   'audioMixer.aria.send': '{{channel}}送信先{{send}}',
   'audioMixer.button.solo': 'ソロ',
+  'audioMixer.button.muteInitial': 'ミ',
+  'audioMixer.button.soloInitial': 'ソ',
   'audioMixer.master': 'マスター',
 }

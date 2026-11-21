@@ -9,4 +9,5 @@ export const he: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.note':
     'פֶּתֶק {{pitch}} מתחיל בקצב {{startBeat}} עֲבוּר {{durationBeats}} פעימות',
   'pianoRoll.aria.cursor': 'סמן על {{pitch}} בקצב {{beat}}',
+  'pianoRoll.aria.gridHelp': 'מקשי החצים מזיזים את סמן התא, Enter או רווח מציירים תו במקום.',
 }

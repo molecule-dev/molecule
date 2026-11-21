@@ -15,4 +15,11 @@ export const sv: Partial<BillingTranslations> = {
   'billing.pricing.reassurance': 'Avbryt när som helst · Inget kreditkort krävs för att starta',
   'billing.pricing.perSeat': 'per säte',
   'billing.pricing.currentCta': 'Nuvarande plan',
+  'billing.pricing.period.month': 'per månad',
+  'billing.pricing.period.year': 'per år',
+  'billing.pricing.billed.month': 'Faktureras månadsvis',
+  'billing.pricing.billed.year': 'Faktureras årligen',
+  'billing.pricing.unlimited': 'Obegränsat',
+  'billing.pricing.limit.maxProjects': 'Max. antal projekt',
+  'billing.pricing.limit.canExport': 'Export möjlig',
 }

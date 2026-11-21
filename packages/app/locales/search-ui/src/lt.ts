@@ -14,4 +14,8 @@ export const lt: Partial<SearchUiTranslations> = {
   'searchUi.relatedTitle': 'Atitinka jūsų paieškos reikšmę, o ne jos žodžius',
   'searchUi.related': 'susijęs',
   'searchUi.help': 'Paieškos patarimai',
+  'searchUi.examplePhrase': '"tiksli frazė"',
+  'searchUi.exampleExcluded': '-žodis',
+  'searchUi.activeResult': '{{title}}, {{position}} iš {{count}}',
+  'searchUi.dialogLabel': 'Ieškoti',
 }

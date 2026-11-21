@@ -9,4 +9,6 @@ export const mk: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.note':
     'Забелешка {{pitch}} почнувајќи од ритам {{startBeat}} за {{durationBeats}} ритмови',
   'pianoRoll.aria.cursor': 'Курсор на {{pitch}} на ритам {{beat}}',
+  'pianoRoll.aria.gridHelp':
+    'Стрелките го поместуваат курсорот на клетката, Enter или Space црта нота таму.',
 }

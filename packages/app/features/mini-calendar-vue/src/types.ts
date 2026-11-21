@@ -14,7 +14,10 @@ export interface MiniCalendarProps {
   month?: Date
   /** Called when the user navigates months. */
   onMonthChange?: (date: Date) => void
-  /** Locale for weekday + month name formatting. */
+  /**
+   * Locale for weekday + month name formatting. Defaults to the app's active
+   * locale, which follows a locale switch; an explicit `locale` still wins.
+   */
   locale?: string
   /** Optional day-disabled predicate. */
   isDisabled?: (date: Date) => boolean

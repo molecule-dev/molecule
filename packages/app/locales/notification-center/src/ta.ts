@@ -8,4 +8,5 @@ export const ta: Partial<NotificationCenterTranslations> = {
   'notifications.viewAll': 'அனைத்தையும் காண்க',
   'notifications.loadError': 'அறிவிப்புகளை ஏற்ற முடியவில்லை.',
   'notifications.retry': 'மீண்டும் முயற்சி',
+  'notifications.unread': 'படிக்காத',
 }

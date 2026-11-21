@@ -7,4 +7,8 @@ export const ig: Partial<HttpInspectorTranslations> = {
   'httpInspector.headers': 'Isi okwu',
   'httpInspector.addHeader': 'Tinye isi okwu',
   'httpInspector.body': 'Ahụ',
+  'httpInspector.methodLabel': 'Usoro HTTP',
+  'httpInspector.urlLabel': 'URL',
+  'httpInspector.headerPlaceholder': 'Isi okwu',
+  'httpInspector.valuePlaceholder': 'Uru',
 }

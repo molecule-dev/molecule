@@ -7,4 +7,8 @@ export const hu: Partial<HttpInspectorTranslations> = {
   'httpInspector.body': 'Üzenettörzs',
   'httpInspector.headers': 'Fejlécek',
   'httpInspector.addHeader': 'Fejléc hozzáadása',
+  'httpInspector.methodLabel': 'HTTP-metódus',
+  'httpInspector.urlLabel': 'URL',
+  'httpInspector.headerPlaceholder': 'Fejléc',
+  'httpInspector.valuePlaceholder': 'Érték',
 }

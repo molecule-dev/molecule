@@ -16,4 +16,11 @@ export const hy: Partial<BillingTranslations> = {
   'billing.pricing.perSeat': 'մեկ տեղի համար',
   'billing.pricing.upgradeCta': 'Թարմացնել մինչև {{tierName}}',
   'billing.pricing.currentCta': 'Ընթացիկ պլան',
+  'billing.pricing.period.month': 'ամսական',
+  'billing.pricing.period.year': 'տարեկան',
+  'billing.pricing.billed.month': 'Ամսական հաշվարկ',
+  'billing.pricing.billed.year': 'Տարեկան հաշվարկ',
+  'billing.pricing.unlimited': 'Անսահմանափակ',
+  'billing.pricing.limit.maxProjects': 'Առավելագույն նախագծերի թիվ',
+  'billing.pricing.limit.canExport': 'Արտահանումը հասանելի է',
 }

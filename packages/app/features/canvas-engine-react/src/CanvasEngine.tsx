@@ -123,7 +123,13 @@ export const CanvasEngine = forwardRef(function CanvasEngine(
 
   const isSelectionControlled = onSelectionChange != null
   const [internalSelection, setInternalSelection] = useState<CanvasSelection>(selectionProp ?? [])
-  const selection = isSelectionControlled ? (selectionProp ?? []) : internalSelection
+  // One stable identity per real selection: a controlled engine without a
+  // `selection` prop would otherwise hand the handle and the pointer callbacks
+  // below a fresh `[]` on every render, churning their dependencies.
+  const selection = useMemo<CanvasSelection>(
+    () => (isSelectionControlled ? (selectionProp ?? []) : internalSelection),
+    [isSelectionControlled, selectionProp, internalSelection],
+  )
 
   const [viewport, setViewport] = useState<CanvasViewport>({ x: 0, y: 0, zoom: 1 })
 

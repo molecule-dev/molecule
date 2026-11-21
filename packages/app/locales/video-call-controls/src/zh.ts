@@ -8,4 +8,7 @@ export const zh: Partial<VideoCallControlsTranslations> = {
   'call.cameraOn': '📹',
   'call.cameraOff': '🚫',
   'call.share': '🖥',
+  'call.aria.muted': '已静音',
+  'call.aria.handRaised': '已举手',
+  'call.label.you': '(你)',
 }

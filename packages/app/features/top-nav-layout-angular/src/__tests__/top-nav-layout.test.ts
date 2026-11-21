@@ -12,6 +12,7 @@
 
 import '@angular/compiler'
 import {
+  type ApplicationRef,
   ChangeDetectionStrategy,
   Component,
   type ComponentRef,
@@ -19,7 +20,7 @@ import {
   provideZonelessChangeDetection,
   type Type,
 } from '@angular/core'
-import { type ApplicationRef, createApplication } from '@angular/platform-browser'
+import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
@@ -82,6 +83,12 @@ vi.mock('@molecule/app-angular', async () => {
     useRouterInstance: () => ({
       getLocation: () => ({ pathname: '/', search: '', hash: '' }),
       subscribe: () => () => undefined,
+    }),
+    // The component's own text renders through `t`; without a bonded provider
+    // the translation falls back to the call's `defaultValue`.
+    useTranslation: () => ({
+      t: (_key: string, _values?: unknown, options?: { defaultValue?: string }): string =>
+        options?.defaultValue ?? _key,
     }),
   }
 })

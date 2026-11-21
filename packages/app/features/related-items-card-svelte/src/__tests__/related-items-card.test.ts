@@ -39,9 +39,10 @@ vi.mock('@molecule/app-ui-svelte', async () => {
   return { Card }
 })
 
-import { createRawSnippet, flushSync, mount, type Snippet, unmount } from 'svelte'
+import { type Component, createRawSnippet, flushSync, mount, type Snippet, unmount } from 'svelte'
 
 import RelatedItemsCard from '../RelatedItemsCard.svelte'
+import type { RelatedItemsCardProps } from '../types.js'
 
 afterEach(() => {
   document.body.innerHTML = ''
@@ -51,10 +52,10 @@ afterEach(() => {
 const raw = (html: string): Snippet => createRawSnippet(() => ({ render: () => html }))
 
 /** Renders a {@link RelatedItemsCard} and returns the markup it produced. */
-const render = (props: Record<string, unknown>): string => {
+const render = (props: RelatedItemsCardProps<Item>): string => {
   const target = document.createElement('div')
   document.body.appendChild(target)
-  const component = mount(RelatedItemsCard, { target, props })
+  const component = mount(Subject, { target, props })
   flushSync()
   const markup = target.innerHTML
   void unmount(component)
@@ -65,6 +66,9 @@ const render = (props: Record<string, unknown>): string => {
 interface Item {
   name: string
 }
+
+/** The component bound to this suite's concrete item type, so `mount` checks its props. */
+const Subject: Component<RelatedItemsCardProps<Item>> = RelatedItemsCard
 
 /** The React tests' item list and renderer (a snippet taking the item and its index). */
 const items: Item[] = [{ name: 'Deal A' }, { name: 'Deal B' }]

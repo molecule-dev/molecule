@@ -1,11 +1,15 @@
 import type { CSSProperties, JSX } from 'react'
 
+import type { TranslateFunction } from '@molecule/app-i18n'
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { MuscleGroup, MuscleGroupBadgeProps } from './types.js'
 
-/** Hex accent color per group — overridable via `accentColor`. */
+/**
+ * Hex accent color per group — the group's own category palette (data), not a
+ * theme tone; overridable via `accentColor`.
+ */
 const ACCENT: Record<MuscleGroup, string> = {
   chest: '#ef4444',
   back: '#3b82f6',
@@ -28,10 +32,9 @@ const SIZE_PX: Record<NonNullable<MuscleGroupBadgeProps['size']>, number> = {
 }
 
 /**
- * Default English label for a muscle group, used when no `label` is given
- * and the i18n bond doesn't have a translation. Returns the same string
- * the `t()` `defaultValue` would surface — exposed for tests and downstream
- * consumers that need to label buttons / menus / search filters by group.
+ * Default English label for a muscle group — the same string each group's
+ * literal `t()` default surfaces. Exposed for tests and downstream consumers
+ * that need to label buttons / menus / search filters by group.
  *
  * @param group - The muscle group.
  * @returns A short, capitalized English label.
@@ -62,6 +65,45 @@ export function defaultLabelFor(group: MuscleGroup): string {
       return 'Calves'
     case 'fullBody':
       return 'Full body'
+  }
+}
+
+/**
+ * Translated label for a muscle group — one literal `t()` call per group, so
+ * the i18n gate can verify every key this lookup can produce against the
+ * `@molecule/app-locales-muscle-group-badge` bond; a key built at runtime from
+ * the group value would be invisible to it.
+ *
+ * @param t - The translation function from `useTranslation()`.
+ * @param group - The muscle group to label.
+ * @returns The label in the active locale, or the group's English default.
+ */
+function translatedLabel(t: TranslateFunction, group: MuscleGroup): string {
+  switch (group) {
+    case 'chest':
+      return t('muscleGroupBadge.group.chest', {}, { defaultValue: 'Chest' })
+    case 'back':
+      return t('muscleGroupBadge.group.back', {}, { defaultValue: 'Back' })
+    case 'shoulders':
+      return t('muscleGroupBadge.group.shoulders', {}, { defaultValue: 'Shoulders' })
+    case 'biceps':
+      return t('muscleGroupBadge.group.biceps', {}, { defaultValue: 'Biceps' })
+    case 'triceps':
+      return t('muscleGroupBadge.group.triceps', {}, { defaultValue: 'Triceps' })
+    case 'forearms':
+      return t('muscleGroupBadge.group.forearms', {}, { defaultValue: 'Forearms' })
+    case 'core':
+      return t('muscleGroupBadge.group.core', {}, { defaultValue: 'Core' })
+    case 'glutes':
+      return t('muscleGroupBadge.group.glutes', {}, { defaultValue: 'Glutes' })
+    case 'quads':
+      return t('muscleGroupBadge.group.quads', {}, { defaultValue: 'Quads' })
+    case 'hamstrings':
+      return t('muscleGroupBadge.group.hamstrings', {}, { defaultValue: 'Hamstrings' })
+    case 'calves':
+      return t('muscleGroupBadge.group.calves', {}, { defaultValue: 'Calves' })
+    case 'fullBody':
+      return t('muscleGroupBadge.group.fullBody', {}, { defaultValue: 'Full body' })
   }
 }
 
@@ -193,21 +235,21 @@ export function MuscleGroupBadge({
 
   const accent = accentColor ?? ACCENT[group]
   const px = SIZE_PX[size]
-  const resolvedLabel =
-    label ?? t(`muscleGroupBadge.group.${group}`, {}, { defaultValue: defaultLabelFor(group) })
+  const resolvedLabel = label ?? translatedLabel(t, group)
 
   const wrapperClass = cm.cn(
     cm.flex({ align: 'center', gap: variant === 'compact' ? 'xs' : 'sm' }),
+    // The pill's recessed surface, from the theme.
+    cm.surfaceSecondary,
     className,
   )
 
   const wrapperStyle: CSSProperties = {
     padding: variant === 'compact' ? '0.2rem 0.5rem' : '0.4rem 0.7rem',
     borderRadius: 999,
-    background: 'var(--mol-color-surface-variant, rgba(0,0,0,0.04))',
+    // The accent ring carries the group's palette color (data), not a theme tone.
     border: `1px solid ${accent}`,
     display: 'inline-flex',
-    color: 'var(--mol-color-on-surface, #222)',
   }
 
   return (

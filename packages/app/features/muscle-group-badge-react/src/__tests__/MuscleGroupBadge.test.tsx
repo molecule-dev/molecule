@@ -18,9 +18,14 @@ vi.mock('@molecule/app-ui', () => ({
   }),
 }))
 
+// Flipped on by the literal-key test: the mock's `t` then answers with the
+// key itself, so the test sees exactly which key the component asked for.
+const marker = vi.hoisted(() => ({ on: false }))
+
 vi.mock('@molecule/app-react', () => ({
   useTranslation: () => ({
     t: (_key: string, values?: Record<string, unknown>, opts?: { defaultValue?: string }) => {
+      if (marker.on) return `[${_key}]`
       let s = opts?.defaultValue ?? _key
       if (values) {
         for (const [k, v] of Object.entries(values)) {
@@ -129,6 +134,37 @@ describe('<MuscleGroupBadge>', () => {
       const { container, unmount } = render(<MuscleGroupBadge group={g} />)
       expect(container.querySelector(`[data-group="${g}"]`)).not.toBeNull()
       unmount()
+    }
+  })
+
+  it('translates every group through its own literal key', () => {
+    // A provider whose `t` answers with the key itself: the rendered label
+    // names the exact key the component asked for — `muscleGroupBadge.group.<value>`,
+    // never a runtime-built variant.
+    const groups: MuscleGroup[] = [
+      'chest',
+      'back',
+      'shoulders',
+      'biceps',
+      'triceps',
+      'forearms',
+      'core',
+      'glutes',
+      'quads',
+      'hamstrings',
+      'calves',
+      'fullBody',
+    ]
+    marker.on = true
+    try {
+      for (const g of groups) {
+        const { container, unmount } = render(<MuscleGroupBadge group={g} />)
+        const label = container.querySelector('[data-mol-id="muscle-group-label"]')
+        expect(label?.textContent).toBe(`[muscleGroupBadge.group.${g}]`)
+        unmount()
+      }
+    } finally {
+      marker.on = false
     }
   })
 

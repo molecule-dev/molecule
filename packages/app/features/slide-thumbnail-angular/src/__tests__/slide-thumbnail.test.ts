@@ -12,6 +12,7 @@
 
 import '@angular/compiler'
 import {
+  type ApplicationRef,
   ChangeDetectionStrategy,
   Component,
   type ComponentRef,
@@ -19,8 +20,10 @@ import {
   provideZonelessChangeDetection,
   type Type,
 } from '@angular/core'
-import { type ApplicationRef, createApplication } from '@angular/platform-browser'
+import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+
+import { inlineStyleMismatch } from '@molecule/app-framework-conformance/ui'
 
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
 // `position`), so tests can assert which cm.* class was applied without a real
@@ -145,7 +148,7 @@ describe('SlideThumbnail', () => {
   it('applies an active outline + aria-current only when active', async () => {
     const active = (await render({ index: 1, active: true })).host.innerHTML
     expect(active).toContain('aria-current="true"')
-    expect(active).toContain('outline: 2px solid currentColor')
+    expect(inlineStyleMismatch(active, { outline: '2px solid currentColor' })).toBeNull()
     const inactive = (await render({ index: 1 })).host.innerHTML
     expect(inactive).not.toContain('aria-current="true"')
   })

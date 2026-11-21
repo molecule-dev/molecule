@@ -16,4 +16,11 @@ export const ne: Partial<BillingTranslations> = {
   'billing.pricing.perSeat': 'प्रति सिट',
   'billing.pricing.upgradeCta': 'स्तरोन्नति गर्नुहोस् {{tierName}}',
   'billing.pricing.currentCta': 'हालको योजना',
+  'billing.pricing.period.month': 'प्रति महिना',
+  'billing.pricing.period.year': 'प्रति वर्ष',
+  'billing.pricing.billed.month': 'मासिक बिलिङ',
+  'billing.pricing.billed.year': 'वार्षिक बिलिङ',
+  'billing.pricing.unlimited': 'असीमित',
+  'billing.pricing.limit.maxProjects': 'अधिकतम परियोजना संख्या',
+  'billing.pricing.limit.canExport': 'निर्यात गर्न सकिन्छ',
 }

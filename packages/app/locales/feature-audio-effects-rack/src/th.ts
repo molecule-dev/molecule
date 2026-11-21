@@ -49,4 +49,5 @@ export const th: Partial<AudioEffectsRackTranslations> = {
   'audioEffectsRack.param.phaser.rate': 'ประเมิน',
   'audioEffectsRack.param.phaser.depth': 'ความลึก',
   'audioEffectsRack.param.phaser.feedback': 'ข้อเสนอแนะ',
+  'audioEffectsRack.param.fallback': 'พารามิเตอร์',
 }

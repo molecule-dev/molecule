@@ -6,7 +6,7 @@ import { defineComponent, h, nextTick, onMounted } from 'vue'
 import type { FormValuesConstraint } from '@molecule/app-forms'
 import { nativeProvider } from '@molecule/app-forms'
 
-import type { UseFormOptions, UseFormReturn } from '../useForms.js'
+import type { UseFormOptions, UseFormResult } from '../useForms.js'
 import { useForm } from '../useForms.js'
 
 const wrappers: VueWrapper[] = []
@@ -24,8 +24,8 @@ afterEach(() => {
  */
 function mountForm<T extends FormValuesConstraint<T>>(
   options: UseFormOptions<T> | (() => UseFormOptions<T>),
-): UseFormReturn<T> {
-  let form!: UseFormReturn<T>
+): UseFormResult<T> {
+  let form!: UseFormResult<T>
   const Page = defineComponent({
     setup() {
       form = useForm<T>(typeof options === 'function' ? options : () => options)

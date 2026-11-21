@@ -14,6 +14,9 @@ import { Button, Modal } from '@molecule/app-ui-angular'
 
 import type { OnboardingStep } from './types.js'
 
+/** Next value of the module-wide instance counter (React `useId()`'s counterpart). */
+let nextTitleId = 0
+
 /**
  * OnboardingModal component.
  *
@@ -39,7 +42,7 @@ import type { OnboardingStep } from './types.js'
     style: 'display: contents',
   },
   // prettier-ignore
-  template: `<mol-modal [open]="open && total() > 0" (close)="close($event)">@if (total() > 0) {<div [class]="cm().stack(4)">@if (hasMedia()) {<div [class]="mediaClasses()">@if (mediaTemplate(); as tpl) {<ng-container [ngTemplateOutlet]="tpl"></ng-container>} @else {{{ mediaText() }}}</div>}<h2 [class]="titleClasses()">@if (titleTemplate(); as tpl) {<ng-container [ngTemplateOutlet]="tpl"></ng-container>} @else {{{ titleText() }}}</h2><div [class]="bodyClasses()">@if (bodyTemplate(); as tpl) {<ng-container [ngTemplateOutlet]="tpl"></ng-container>} @else {{{ bodyText() }}}</div><footer [class]="footerClasses()"><div [class]="dotsClasses()">@for (s of steps; track s.id; let i = $index) {<span aria-hidden="true" [style.width]="'6px'" [style.height]="'6px'" [style.border-radius]="'50%'" [style.background]="dotBackground(i)"></span>}</div><div [class]="buttonsClasses()">@if (allowSkipEnabled() && !isLastStep()) {<button mol-button [variant]="'ghost'" [size]="'sm'" (click)="close($event)">{{ skipLabel() }}</button>}@if (stepIndex() > 0) {<button mol-button [variant]="'ghost'" [size]="'sm'" (click)="back()">{{ backLabel() }}</button>}<button mol-button [variant]="'solid'" [color]="'primary'" (click)="next()">{{ primaryLabel() }}</button></div></footer></div>}</mol-modal>`,
+  template: `<mol-modal [open]="open && total() > 0" (close)="close($event)" [attr.aria-labelledby]="titleId">@if (total() > 0) {<div [class]="cm().stack(4)">@if (hasMedia()) {<div [class]="mediaClasses()">@if (mediaTemplate(); as tpl) {<ng-container [ngTemplateOutlet]="tpl"></ng-container>} @else {{{ mediaText() }}}</div>}<h2 [id]="titleId" [class]="titleClasses()">@if (titleTemplate(); as tpl) {<ng-container [ngTemplateOutlet]="tpl"></ng-container>} @else {{{ titleText() }}}</h2><div [class]="bodyClasses()">@if (bodyTemplate(); as tpl) {<ng-container [ngTemplateOutlet]="tpl"></ng-container>} @else {{{ bodyText() }}}</div><footer [class]="footerClasses()"><div [class]="dotsClasses()">@for (s of steps; track s.id; let i = $index) {<span aria-hidden="true" [style.width]="'6px'" [style.height]="'6px'" [style.border-radius]="'50%'" [style.background]="dotBackground(i)"></span>}</div><div [class]="buttonsClasses()">@if (allowSkipEnabled() && !isLastStep()) {<button mol-button [variant]="'ghost'" [size]="'sm'" (click)="close($event)">{{ skipLabel() }}</button>}@if (stepIndex() > 0) {<button mol-button [variant]="'ghost'" [size]="'sm'" (click)="back()">{{ backLabel() }}</button>}<button mol-button [variant]="'solid'" [color]="'primary'" (click)="next()">{{ primaryLabel() }}</button></div></footer></div>}</mol-modal>`,
 })
 export class OnboardingModal implements OnInit {
   /** Whether the modal is open. */
@@ -54,6 +57,15 @@ export class OnboardingModal implements OnInit {
   allowSkip?: boolean
   /** Initial step index (React's `useState` initial value). */
   defaultStep?: number
+
+  /**
+   * The title heading's id, also the dialog's accessible name through
+   * `aria-labelledby` on the `Modal` host (`Modal` moves it onto the dialog
+   * element, React's `...rest` lands it there directly). A `role="dialog"`
+   * without a name is an axe `aria-dialog-name` violation; the name follows
+   * the current step because the id sits on the step's heading.
+   */
+  readonly titleId = `mol-onboarding-modal-title-${++nextTitleId}`
 
   /** The current step index (React's `useState(defaultStep)`), written after the inputs bind. */
   private readonly step = signal(0)

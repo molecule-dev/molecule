@@ -9,6 +9,7 @@ export const mt: ReputationBadgeTranslations = {
   'reputationBadge.level.trusted': 'Fdat',
   'reputationBadge.level.veteran': 'Veteran',
   'reputationBadge.level.legend': 'Leġġenda',
+  'reputationBadge.level.fallback': '{{level}}',
   'badgeShelf.aria': '{{count}} badges miksuba',
   'badgeShelf.overflow.aria': 'Uri {{count}} badges oħra',
 }

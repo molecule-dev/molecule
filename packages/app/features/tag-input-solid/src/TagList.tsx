@@ -8,7 +8,7 @@
  * @module
  */
 
-import { type Component, For } from 'solid-js'
+import { type Component, For, splitProps } from 'solid-js'
 
 import { getClassMap } from '@molecule/app-ui'
 
@@ -17,20 +17,34 @@ import type { TagListProps } from './types.js'
 
 /**
  * Display all saved tags on a detail or preview screen, without an editor or
- * remove controls. The component owns iteration; the app can supply each tag's
- * content and list classes.
+ * remove controls. The component owns iteration. List attributes such as id
+ * and aria-label go on the list itself.
  *
  * @param props - Component props (see {@link TagListProps}).
  * @returns The rendered tag list.
  */
 export const TagList: Component<TagListProps> = (props) => {
   const cm = getClassMap()
+  const [local, listProps] = splitProps(props, [
+    'value',
+    'className',
+    'class',
+    'itemClassName',
+    'renderTag',
+  ])
   return (
-    <ul class={cm.cn(cm.flex({ align: 'center', gap: 'xs', wrap: 'wrap' }), props.className)}>
-      <For each={props.value}>
+    <ul
+      {...listProps}
+      class={cm.cn(
+        cm.flex({ align: 'center', gap: 'xs', wrap: 'wrap' }),
+        local.className,
+        local.class,
+      )}
+    >
+      <For each={local.value}>
         {(tag, index) => (
-          <li class={props.itemClassName}>
-            {props.renderTag ? props.renderTag(tag, index()) : <TagChip>{tag}</TagChip>}
+          <li class={local.itemClassName}>
+            {local.renderTag ? local.renderTag(tag, index()) : <TagChip>{tag}</TagChip>}
           </li>
         )}
       </For>

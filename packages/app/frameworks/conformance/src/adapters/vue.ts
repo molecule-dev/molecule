@@ -28,6 +28,7 @@ import {
   type PropType,
   reactive,
   ref,
+  shallowRef,
   unref,
   type VNode,
   type VNodeChild,
@@ -188,7 +189,11 @@ export function createVueAdapter({
       const listeners: Record<string, unknown> = {}
       for (const name of testCase.callbacks ?? []) listeners[name] = recorder.spy(name)
       /** The case component with its props, slots and listeners — what the mount wrapper hosts. */
-      const hostTree = (): VNode => h(Comp, { ...state.props, ...nodeProps, ...listeners }, slots)
+      // A ref case puts a template ref on the component, as a caller does; the element is its `$el`.
+      const componentRef = shallowRef<unknown>(null)
+      const refProp = testCase.ref ? { ref: componentRef } : {}
+      const hostTree = (): VNode =>
+        h(Comp, { ...state.props, ...nodeProps, ...listeners, ...refProp }, slots)
 
       try {
         return await runSteps(
@@ -247,6 +252,14 @@ export function createVueAdapter({
               locationState: () => router.getLocation().state,
               navigate: (to) => {
                 router.navigate(to)
+              },
+              refElement: () => {
+                const instance = componentRef.value
+                const element: unknown =
+                  instance && typeof instance === 'object' && '$el' in instance
+                    ? instance.$el
+                    : null
+                return element instanceof Element ? element : null
               },
               // A page leaving unmounts its component; the app lives on, so work
               // tied to the app (not the component) still runs after an `unmount` step.

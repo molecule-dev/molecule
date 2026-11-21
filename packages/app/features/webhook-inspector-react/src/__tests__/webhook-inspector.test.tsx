@@ -15,6 +15,10 @@ vi.mock('@molecule/app-ui', () => ({
               .join(' ')
         }
         const token = String(prop)
+        // A tone class carries its tone, so a test can tell `bgTone('success')`
+        // from `bgTone('error')` — the real ClassMap gives each its own class.
+        if (token === 'bgTone' || token === 'textTone' || token === 'borderTone')
+          return (tone: unknown) => `${token}-${String(tone)}`
         return (..._args: unknown[]) => token
       },
     }
@@ -58,10 +62,21 @@ describe('WebhookInspector', () => {
     expect(markup).toContain('500')
   })
 
-  it('colors the status code badge by status', () => {
-    const markup = html(createElement(WebhookInspector, { deliveries }))
-    expect(markup).toContain('#22c55e') // success
-    expect(markup).toContain('#ef4444') // failure
+  it('tones the status code badge by status', () => {
+    const pending: WebhookDelivery = {
+      id: '3',
+      eventType: 'invoice.pending',
+      timestamp: '10:07',
+      statusCode: 202,
+      status: 'pending',
+    }
+    const markup = html(createElement(WebhookInspector, { deliveries: [...deliveries, pending] }))
+    expect(markup).toContain('bgTone-success') // success
+    expect(markup).toContain('bgTone-error') // failure
+    expect(markup).toContain('bgTone-warning') // pending
+    // The colour is the theme's (a ClassMap class), never a literal in a style.
+    expect(markup).toContain('textOnTone')
+    expect(markup).not.toContain('background')
   })
 
   it('renders attempt number and duration when present', () => {

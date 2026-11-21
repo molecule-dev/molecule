@@ -7,4 +7,8 @@ export const gl: Partial<HttpInspectorTranslations> = {
   'httpInspector.headers': 'Cabeceiras',
   'httpInspector.addHeader': 'Engadir cabeceira',
   'httpInspector.body': 'Corpo',
+  'httpInspector.methodLabel': 'Método HTTP',
+  'httpInspector.urlLabel': 'URL',
+  'httpInspector.headerPlaceholder': 'Cabeceira',
+  'httpInspector.valuePlaceholder': 'Valor',
 }

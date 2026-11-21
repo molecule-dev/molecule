@@ -12,6 +12,8 @@ import type { JSX } from 'solid-js'
 import { render } from 'solid-js/web'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { inlineStyleMismatch } from '@molecule/app-framework-conformance/ui'
+
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
 // `position`), so tests can assert which cm.* class was applied without a real
 // bond — the same mock the React tests use.
@@ -72,7 +74,7 @@ describe('SlideThumbnail', () => {
   it('applies an active outline + aria-current only when active', () => {
     const active = mount(() => <SlideThumbnail index={1} active />).innerHTML
     expect(active).toContain('aria-current="true"')
-    expect(active).toContain('outline: 2px solid currentColor')
+    expect(inlineStyleMismatch(active, { outline: '2px solid currentColor' })).toBeNull()
     const inactive = mount(() => <SlideThumbnail index={1} />).innerHTML
     expect(inactive).not.toContain('aria-current="true"')
   })

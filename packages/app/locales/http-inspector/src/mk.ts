@@ -7,4 +7,8 @@ export const mk: Partial<HttpInspectorTranslations> = {
   'httpInspector.headers': 'Заглавија',
   'httpInspector.addHeader': 'Додај заглавие',
   'httpInspector.body': 'Тело',
+  'httpInspector.methodLabel': 'HTTP метод',
+  'httpInspector.urlLabel': 'URL',
+  'httpInspector.headerPlaceholder': 'Заглавие',
+  'httpInspector.valuePlaceholder': 'Вредност',
 }

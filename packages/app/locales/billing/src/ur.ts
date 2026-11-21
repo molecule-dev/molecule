@@ -16,4 +16,11 @@ export const ur: Partial<BillingTranslations> = {
   'billing.pricing.perSeat': 'فی سیٹ',
   'billing.pricing.upgradeCta': 'میں اپ گریڈ کریں۔ {{tierName}}',
   'billing.pricing.currentCta': 'موجودہ منصوبہ',
+  'billing.pricing.period.month': 'فی ماہ',
+  'billing.pricing.period.year': 'فی سال',
+  'billing.pricing.billed.month': 'ماہانہ بلنگ',
+  'billing.pricing.billed.year': 'سالانہ بلنگ',
+  'billing.pricing.unlimited': 'بلا حد',
+  'billing.pricing.limit.maxProjects': 'زیادہ سے زیادہ منصوبے',
+  'billing.pricing.limit.canExport': 'برآمد کیا جا سکتا ہے',
 }

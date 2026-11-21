@@ -7,4 +7,8 @@ export const et: Partial<HttpInspectorTranslations> = {
   'httpInspector.headers': 'Päised',
   'httpInspector.addHeader': 'Lisa päis',
   'httpInspector.body': 'Keha',
+  'httpInspector.methodLabel': 'HTTP-meetod',
+  'httpInspector.urlLabel': 'URL',
+  'httpInspector.headerPlaceholder': 'Päis',
+  'httpInspector.valuePlaceholder': 'Väärtus',
 }

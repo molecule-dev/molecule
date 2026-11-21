@@ -49,4 +49,5 @@ export const lo: Partial<AudioEffectsRackTranslations> = {
   'audioEffectsRack.param.phaser.rate': 'ໃຫ້ຄະແນນ',
   'audioEffectsRack.param.phaser.depth': 'ຄວາມເລິກ',
   'audioEffectsRack.param.phaser.feedback': 'ຄຳຕິຊົມ',
+  'audioEffectsRack.param.fallback': 'ພາລາມິເຕີ',
 }

@@ -91,6 +91,20 @@ describe('saved tags on a destination screen', () => {
     expect(markup).toContain('class="inventory-label"')
   })
 
+  it('puts the consumer’s id, accessible name and testing hook on the list itself', async () => {
+    // The host IS the list, so its native attributes are the list's own.
+    const markup = await render(
+      `<ng-template #label let-tag><span>{{ tag }}</span></ng-template>
+        <ul mol-tag-list id="stock-conditions" aria-label="Stock conditions" data-mol-id="stock-conditions-list" [value]="p['value']" [className]="p['className']" [renderTag]="label"></ul>`,
+      { value: ['cold storage'], className: 'stock-labels' },
+    )
+    expect(markup).toMatch(/<ul[^>]* id="stock-conditions"/)
+    expect(markup).toMatch(/<ul[^>]* aria-label="Stock conditions"/)
+    expect(markup).toMatch(/<ul[^>]* data-mol-id="stock-conditions-list"/)
+    expect(markup).toMatch(/<ul[^>]* class="[^"]*stock-labels"/)
+    expect(markup).toContain('cold storage')
+  })
+
   it('counterexample: removing every saved tag leaves no stale tag items', async () => {
     const item = await mountHost(list(`[value]="p['value']"`), [TagList], { value: ['removed'] })
     mounted.push(item)

@@ -8,6 +8,8 @@ export const en: AudioMixerTranslations = {
   'audioMixer.aria.send': '{{channel}} send to {{send}}',
   'audioMixer.button.mute': 'Mute',
   'audioMixer.button.solo': 'Solo',
+  'audioMixer.button.muteInitial': 'M',
+  'audioMixer.button.soloInitial': 'S',
   'audioMixer.master': 'Master',
   'audioMixer.sends': 'Sends',
 }

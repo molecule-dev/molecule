@@ -1,6 +1,7 @@
 import type { Component } from 'solid-js'
 import { createSignal, For, Show } from 'solid-js'
 
+import { useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { ImageGalleryProps } from './types.js'
@@ -46,6 +47,7 @@ function toGridCols(desired: number): number {
  */
 export const ImageGallery: Component<ImageGalleryProps> = (props) => {
   const cm = getClassMap()
+  const { t } = useTranslation()
   const [internalIndex, setInternalIndex] = createSignal(0)
 
   /** The selected index (the controlled prop, else the component's own). */
@@ -77,7 +79,14 @@ export const ImageGallery: Component<ImageGalleryProps> = (props) => {
         <div style="aspect-ratio: 4 / 3">
           <img
             src={props.images[idx()]}
-            alt={props.alts?.[idx()] ?? `Image ${idx() + 1}`}
+            alt={
+              props.alts?.[idx()] ??
+              t(
+                'imageGallery.alt.fallback',
+                { number: idx() + 1 },
+                { defaultValue: 'Image {{number}}' },
+              )
+            }
             style="width: 100%; height: 100%; object-fit: cover"
           />
         </div>
@@ -89,7 +98,14 @@ export const ImageGallery: Component<ImageGalleryProps> = (props) => {
                   type="button"
                   onClick={() => setIdx(i())}
                   aria-current={i() === idx() ? 'true' : undefined}
-                  aria-label={props.alts?.[i()] ?? `Image ${i() + 1}`}
+                  aria-label={
+                    props.alts?.[i()] ??
+                    t(
+                      'imageGallery.alt.fallback',
+                      { number: i() + 1 },
+                      { defaultValue: 'Image {{number}}' },
+                    )
+                  }
                   style="aspect-ratio: 1 / 1"
                 >
                   <img src={src} alt="" style="width: 100%; height: 100%; object-fit: cover" />
@@ -105,7 +121,11 @@ export const ImageGallery: Component<ImageGalleryProps> = (props) => {
                 )}
                 style="aspect-ratio: 1 / 1"
               >
-                +{overflow()}
+                {t(
+                  'imageGallery.overflow.more',
+                  { count: overflow() },
+                  { defaultValue: '+{{count}}' },
+                )}
               </div>
             </Show>
           </div>

@@ -7,4 +7,8 @@ export const fi: Partial<HttpInspectorTranslations> = {
   'httpInspector.body': 'Viesti',
   'httpInspector.headers': 'Ylätunnisteet',
   'httpInspector.addHeader': 'Lisää otsikko',
+  'httpInspector.methodLabel': 'HTTP-metodi',
+  'httpInspector.urlLabel': 'URL',
+  'httpInspector.headerPlaceholder': 'Ylätunniste',
+  'httpInspector.valuePlaceholder': 'Arvo',
 }

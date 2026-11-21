@@ -9,4 +9,6 @@ export const kk: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.note':
     'Ескерту {{pitch}} соғудан бастап {{startBeat}} үшін {{durationBeats}} соққылар',
   'pianoRoll.aria.cursor': 'Курсор {{pitch}} үстінде, {{beat}} соғуда',
+  'pianoRoll.aria.gridHelp':
+    'Көрсеткі пернелер ұяшық курсорын жылжытады, Enter немесе Space сол жерге нота сызады.',
 }

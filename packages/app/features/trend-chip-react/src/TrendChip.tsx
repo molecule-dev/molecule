@@ -1,6 +1,7 @@
 import type React from 'react'
 import type { ReactNode } from 'react'
 
+import type { ColorVariant } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 /** Props for the {@link TrendChip} component. */
@@ -22,7 +23,16 @@ export interface TrendChipProps {
 }
 
 const ARROW = { up: '▲', down: '▼', flat: '–' } as const
-const COLOR = { up: '#22c55e', down: '#ef4444', flat: '#94a3b8' } as const
+
+/**
+ * The semantic tone colouring each direction: the theme's success green for a
+ * rise, its error red for a fall, its muted secondary grey for no change.
+ */
+const TONE: Record<'up' | 'down' | 'flat', ColorVariant> = {
+  up: 'success',
+  down: 'error',
+  flat: 'secondary',
+} as const
 
 /**
  * Standalone trend delta chip — `▲ 12%` style display for inline
@@ -41,7 +51,7 @@ export function TrendChip({
 }: TrendChipProps): React.JSX.Element {
   const cm = getClassMap()
   const dir = direction ?? (delta > 0 ? 'up' : delta < 0 ? 'down' : 'flat')
-  const color = COLOR[dir]
+  const tone = TONE[dir]
   return (
     <span
       aria-label={ariaLabel ?? `${prefix ?? ''}${ARROW[dir]} ${Math.abs(delta)}${suffix}`}
@@ -49,13 +59,10 @@ export function TrendChip({
         cm.flex({ align: 'center', gap: 'xs' }),
         cm.textSize('xs'),
         cm.fontWeight('semibold'),
+        variant === 'pill' ? cm.cn(cm.bgTone(tone), cm.textOnTone) : cm.textTone(tone),
         className,
       )}
-      style={
-        variant === 'pill'
-          ? { padding: '2px 6px', borderRadius: 999, background: color, color: '#fff' }
-          : { color }
-      }
+      style={variant === 'pill' ? { padding: '2px 6px', borderRadius: 999 } : undefined}
     >
       {prefix}
       <span aria-hidden>{ARROW[dir]}</span>

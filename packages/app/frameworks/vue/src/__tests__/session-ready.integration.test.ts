@@ -29,7 +29,8 @@ import { useAuth } from '../composables/useAuth.js'
 import { useTheme } from '../composables/useTheme.js'
 import { useTranslation } from '../composables/useTranslation.js'
 import { I18nKey } from '../injection-keys.js'
-import { createAuthPlugin, moleculePlugin } from '../plugin.js'
+import { moleculePlugin } from '../plugin.js'
+import { AuthProvider, MoleculeProvider } from '../providers.js'
 import { SessionReady } from '../session-ready.js'
 
 const reader: UserProfile = { id: 'reader', name: 'Reader' }
@@ -340,23 +341,89 @@ function sessionPage() {
   })
 }
 
+/** What {@link rootOf} passes the provider component besides the client. */
+interface RootOptions {
+  /** The `sessionFallback` slot. */
+  fallback?: () => VNode
+  awaitSession?: boolean
+  theme?: ThemeProviderType
+  i18n?: ReturnType<typeof createSimpleI18nProvider>
+}
+
 /**
- * Server-renders a component with the molecule plugin installed, as `main.ts` wires it.
+ * An app root that wraps `page` in a provider component, as an app's `App.vue` wraps its routes.
  *
- * @param component - The component to render.
- * @param client - The auth client to install.
+ * @param provider - `'auth'` renders `AuthProvider`, `'molecule'` renders `MoleculeProvider`.
+ * @param client - The auth client.
+ * @param page - The page the root renders.
+ * @param options - The fallback slot and the other props.
+ * @returns The root component.
+ */
+function rootOf(
+  provider: 'auth' | 'molecule',
+  client: AuthClient<UserProfile> | undefined,
+  page: () => VNode,
+  options: RootOptions = {},
+) {
+  const fallback = options.fallback
+  const slots = {
+    default: () => [page()],
+    ...(fallback ? { sessionFallback: () => [fallback()] } : {}),
+  }
+  return defineComponent({
+    setup: () => () =>
+      provider === 'auth' && client
+        ? h(AuthProvider, { client, awaitSession: options.awaitSession }, slots)
+        : h(
+            MoleculeProvider,
+            {
+              auth: client,
+              awaitSession: options.awaitSession,
+              theme: options.theme,
+              i18n: options.i18n,
+            },
+            slots,
+          ),
+  })
+}
+
+/**
+ * Mounts {@link rootOf}'s root.
+ *
+ * @param provider - Which provider component the root renders.
+ * @param client - The auth client.
+ * @param page - The page.
+ * @param options - The fallback slot and the other props.
+ * @returns The mounted wrapper.
+ */
+function mountRoot(
+  provider: 'auth' | 'molecule',
+  client: AuthClient<UserProfile> | undefined,
+  page: () => VNode,
+  options: RootOptions = {},
+): VueWrapper {
+  const wrapper = mount(rootOf(provider, client, page, options))
+  wrappers.push(wrapper)
+  return wrapper
+}
+
+/**
+ * Server-renders {@link rootOf}'s `MoleculeProvider` root.
+ *
+ * @param page - The page.
+ * @param client - The auth client.
+ * @param options - The fallback slot and the other props.
  * @returns The rendered markup.
  */
 function serverRender(
-  component: ReturnType<typeof defineComponent>,
+  page: () => VNode,
   client: AuthClient<UserProfile>,
+  options: RootOptions = {},
 ): Promise<string> {
-  const app = createSSRApp(component)
-  app.use(moleculePlugin, { auth: client })
-  return renderToString(app)
+  return renderToString(createSSRApp(rootOf('molecule', client, page, options)))
 }
 
-describe('session hold parity', () => {
+describe('MoleculeProvider awaitSession', () => {
   it('waits for one current-user read when the previous document stored only the token', async () => {
     let respond!: (response: Response) => void
     const fetchSpy = vi.fn(
@@ -370,13 +437,9 @@ describe('session hold parity', () => {
     storage.setItem('molecule:auth:accessToken', validToken)
     const client = createJWTAuthClient<UserProfile>({ storage, autoRefresh: false })
     clients.push(client)
-    const wrapper = mountApp(
-      client,
-      gatedPage(
-        () => h(sessionPage()),
-        () => h('p', 'Restoring'),
-      ),
-    )
+    const wrapper = mountRoot('molecule', client, () => h(sessionPage()), {
+      fallback: () => h('p', 'Restoring'),
+    })
     expect(wrapper.find('h1').exists()).toBe(false)
     expect(wrapper.text()).toContain('Restoring')
     expect(fetchSpy).toHaveBeenCalledTimes(1)
@@ -399,13 +462,9 @@ describe('session hold parity', () => {
     const fetchSpy = vi.fn(async () => Response.json({ user: reader }))
     vi.stubGlobal('fetch', fetchSpy)
     const client = cachedVisitor('opaque-token')
-    const wrapper = mountApp(
-      client,
-      gatedPage(
-        () => h(sessionPage()),
-        () => h('p', 'Restoring'),
-      ),
-    )
+    const wrapper = mountRoot('molecule', client, () => h(sessionPage()), {
+      fallback: () => h('p', 'Restoring'),
+    })
     expect(wrapper.find('h1').text()).toBe('Signed in as Reader')
     expect(fetchSpy).not.toHaveBeenCalled()
 
@@ -436,14 +495,11 @@ describe('session hold parity', () => {
         return () => h('p', `${theme.value.name}: ${t('restoring')}`)
       },
     })
-    const wrapper = mount(
-      gatedPage(
-        () => h('p', 'Public page'),
-        () => h(Fallback),
-      ),
-      { global: { plugins: [[moleculePlugin, { auth: client, theme, i18n }]] } },
-    )
-    wrappers.push(wrapper)
+    const wrapper = mountRoot('molecule', client, () => h('p', 'Public page'), {
+      fallback: () => h(Fallback),
+      theme,
+      i18n,
+    })
     expect(wrapper.text()).toBe(`${lightTheme.name}: Translated restore`)
     await answer()
     expect(wrapper.text()).toBe('Public page')
@@ -458,29 +514,25 @@ describe('session hold parity', () => {
       autoRefresh: false,
     })
     clients.push(client)
-    const shell = defineComponent({ setup: () => () => h('p', 'Server page') })
-    expect(await serverRender(shell, client)).toContain('Server page')
+    expect(
+      await serverRender(() => h('p', 'Server page'), client, { awaitSession: false }),
+    ).toContain('Server page')
     expect(fetchSpy).not.toHaveBeenCalled()
   })
 
   it('server-renders the fallback while a cookie restore is pending', async () => {
     const { client, answer } = returningVisitor(false)
-    const page = gatedPage(
-      () => h('p', 'Server page'),
-      () => h('p', 'Restoring'),
-    )
-    expect(await serverRender(page, client)).toContain('Restoring')
+    const page = (): VNode => h('p', 'Server page')
+    const fallback = (): VNode => h('p', 'Restoring')
+    expect(await serverRender(page, client, { fallback })).toContain('Restoring')
     await answer()
-    expect(await serverRender(page, client)).toContain('Server page')
+    expect(await serverRender(page, client, { fallback })).toContain('Server page')
     expect(fetch).toHaveBeenCalledTimes(1)
   })
 
   it('lazily restores exactly once under StrictMode without initialize()', async () => {
     const { client, answer } = returningVisitor(false)
-    const wrapper = mountApp(
-      client,
-      gatedPage(() => h('p', 'Public page')),
-    )
+    const wrapper = mountRoot('molecule', client, () => h('p', 'Public page'))
     expect(wrapper.text()).not.toContain('Public page')
     expect(fetch).toHaveBeenCalledTimes(1)
     await answer()
@@ -490,10 +542,7 @@ describe('session hold parity', () => {
 
   it('releases a sign-out during the hold and ignores the late restored user', async () => {
     const { client, answer } = returningVisitor()
-    const wrapper = mountApp(
-      client,
-      gatedPage(() => h('p', 'Public page')),
-    )
+    const wrapper = mountRoot('molecule', client, () => h('p', 'Public page'))
     expect(wrapper.text()).not.toContain('Public page')
     await client.logout()
     await nextTick()
@@ -505,10 +554,7 @@ describe('session hold parity', () => {
   it('releases a hung restore instead of leaving a blank page forever', async () => {
     vi.useFakeTimers()
     const { client } = returningVisitor()
-    const wrapper = mountApp(
-      client,
-      gatedPage(() => h('p', 'Public page')),
-    )
+    const wrapper = mountRoot('molecule', client, () => h('p', 'Public page'))
     expect(wrapper.text()).not.toContain('Public page')
     await vi.advanceTimersByTimeAsync(10_000)
     await nextTick()
@@ -520,7 +566,9 @@ describe('session hold parity', () => {
   it('an explicit opt-out permits an early click, so the shell owns its action readiness', async () => {
     const { client, answer } = returningVisitor()
     const onFollow = vi.fn()
-    const wrapper = mountApp(client, followButton(onFollow))
+    const wrapper = mountRoot('molecule', client, () => h(followButton(onFollow)), {
+      awaitSession: false,
+    })
     await wrapper.find('button').trigger('click')
     await answer()
     expect(onFollow).not.toHaveBeenCalled()
@@ -534,49 +582,21 @@ describe('session hold parity', () => {
       autoRefresh: false,
     })
     clients.push(client)
-    const wrapper = mountApp(
-      client,
-      gatedPage(
-        () => h(sessionPage()),
-        () => h('p', 'Restoring'),
-      ),
-    )
+    const wrapper = mountRoot('molecule', client, () => h(sessionPage()), {
+      fallback: () => h('p', 'Restoring'),
+    })
     expect(wrapper.text()).not.toContain('Restoring')
     expect(wrapper.find('h1').text()).toBe('Signed out')
     expect(fetchSpy).not.toHaveBeenCalled()
   })
 
   it('renders at once when no auth client is given', () => {
-    const plain = mount(defineComponent({ setup: () => () => h('p', 'Public page') }))
-    wrappers.push(plain)
+    const plain = mountRoot('molecule', undefined, () => h('p', 'Public page'))
     expect(plain.text()).toContain('Public page')
   })
 })
 
-/**
- * Mounts through either provider form: the auth-only plugin (`auth`) or the
- * full molecule plugin (`molecule`). Both install the auth client the session
- * hold reads.
- *
- * @param provider - Which provider form installs the client.
- * @param client - The auth client to install.
- * @param component - The component to mount.
- * @returns The mounted wrapper.
- */
-function mountThrough(
-  provider: 'auth' | 'molecule',
-  client: AuthClient<UserProfile>,
-  component: ReturnType<typeof defineComponent>,
-): VueWrapper {
-  const wrapper =
-    provider === 'auth'
-      ? mount(component, { global: { plugins: [createAuthPlugin(client)] } })
-      : mount(component, { global: { plugins: [[moleculePlugin, { auth: client }]] } })
-  wrappers.push(wrapper)
-  return wrapper
-}
-
-describe('session provider defaults', () => {
+describe('AuthProvider and MoleculeProvider awaitSession defaults', () => {
   it.each(['auth', 'molecule'] as const)(
     '%s provider waits by default so a returning inventory operator can use the first action',
     async (provider) => {
@@ -598,11 +618,7 @@ describe('session provider defaults', () => {
             )
         },
       })
-      const wrapper = mountThrough(
-        provider,
-        client,
-        gatedPage(() => h(inventoryAction)),
-      )
+      const wrapper = mountRoot(provider, client, () => h(inventoryAction))
       expect(wrapper.find('button').exists()).toBe(false)
       await answer()
       await wrapper.find('button').trigger('click')
@@ -620,14 +636,9 @@ describe('session provider defaults', () => {
           return () => h('input', { 'aria-label': 'Display name', value: user.value?.name ?? '' })
         },
       })
-      const wrapper = mountThrough(
-        provider,
-        client,
-        gatedPage(
-          () => h(profileDraft),
-          () => h('p', 'Restoring profile'),
-        ),
-      )
+      const wrapper = mountRoot(provider, client, () => h(profileDraft), {
+        fallback: () => h('p', 'Restoring profile'),
+      })
       expect(wrapper.find('input').exists()).toBe(false)
       expect(wrapper.text()).toContain('Restoring profile')
       await answer()
@@ -641,11 +652,7 @@ describe('session provider defaults', () => {
       const fetchSpy = vi.fn()
       vi.stubGlobal('fetch', fetchSpy)
       const client = cachedVisitor(validToken)
-      const wrapper = mountThrough(
-        provider,
-        client,
-        gatedPage(() => h(sessionPage())),
-      )
+      const wrapper = mountRoot(provider, client, () => h(sessionPage()))
       expect(wrapper.get('h1').text()).toBe('Signed in as Reader')
       expect(fetchSpy).not.toHaveBeenCalled()
     },
@@ -666,11 +673,7 @@ describe('session provider defaults', () => {
           return () => h('input', { ref: element, 'aria-label': 'Profile name' })
         },
       })
-      const wrapper = mountThrough(
-        'molecule',
-        client,
-        gatedPage(() => h(nameInput)),
-      )
+      const wrapper = mountRoot('molecule', client, () => h(nameInput))
       await client[method]({ email: 'new@example.test', password: 'password' })
       await nextTick()
       const input = wrapper.get('[aria-label="Profile name"]').element as HTMLInputElement

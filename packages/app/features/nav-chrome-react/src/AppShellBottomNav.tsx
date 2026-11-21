@@ -1,5 +1,6 @@
 import type { JSX } from 'react'
 
+import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { NavItem } from './types.js'
@@ -25,9 +26,13 @@ export function AppShellBottomNav({
   onItemClick,
   className,
 }: AppShellBottomNavProps): JSX.Element {
+  const { t } = useTranslation()
   const cm = getClassMap()
   return (
-    <nav aria-label="Bottom" className={cm.cn(cm.flex({ align: 'stretch' }), className)}>
+    <nav
+      aria-label={t('navChrome.aria.bottom', undefined, { defaultValue: 'Bottom' })}
+      className={cm.cn(cm.flex({ align: 'stretch' }), className)}
+    >
       {items.map((it) => (
         <button
           key={it.id}

@@ -25,7 +25,8 @@
  *
  * @remarks
  * - Requires a wired ClassMap bond (`getClassMap()` throws before
- *   bonding); no i18n dependency.
+ *   bonding). The default `aria-label` reads through `useTranslation()`, so
+ *   it follows the active locale.
  * - The SVG is fixed-pixel (`width`/`height` props, defaults 80×24) —
  *   it does not stretch to its container. Compute px from layout if you
  *   need responsiveness.
@@ -34,8 +35,9 @@
  *   a parent (e.g. success/error) to theme it.
  * - Values are min-max normalized per series; a constant series renders
  *   as a line along the bottom edge, and `values: []` renders nothing.
- * - Pass `ariaLabel` with a translated string — the built-in fallback
- *   ("Trend sparkline") is English-only.
+ * - Pass `ariaLabel` with your own translated string to override the
+ *   built-in one (`t('sparkline.aria.trendSparkline', …,
+ *   { defaultValue: 'Trend sparkline' })`).
  * - The package ships preserved JSX (`jsx: preserve`); consumers compile it
  *   with vite-plugin-solid (or their own Solid toolchain).
  *

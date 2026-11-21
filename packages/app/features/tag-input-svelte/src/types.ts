@@ -7,6 +7,7 @@
  */
 
 import type { Snippet } from 'svelte'
+import type { HTMLAttributes } from 'svelte/elements'
 import type { Readable } from 'svelte/store'
 
 /** Props for the {@link TagChip} component. */
@@ -28,11 +29,13 @@ export interface TagChipProps {
 }
 
 /** Props for the {@link TagList} component. */
-export interface TagListProps {
+export interface TagListProps extends Omit<HTMLAttributes<HTMLUListElement>, 'children' | 'class'> {
   /** Every saved tag, in display order. Empty arrays render an empty list. */
   value: readonly string[]
   /** Additional classes for the list. */
   className?: string
+  /** Additional classes for the list (the native Svelte spelling). */
+  class?: string
   /** Additional classes for each list item. */
   itemClassName?: string
   /** Optional tag content; the component still renders every value. */

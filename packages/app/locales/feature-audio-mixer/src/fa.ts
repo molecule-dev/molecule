@@ -8,6 +8,8 @@ export const fa: Partial<AudioMixerTranslations> = {
   'audioMixer.aria.send': '{{channel}} ارسال به {{send}}',
   'audioMixer.button.mute': 'بی‌صدا کردن',
   'audioMixer.button.solo': 'انفرادی',
+  'audioMixer.button.muteInitial': 'ب',
+  'audioMixer.button.soloInitial': 'ا',
   'audioMixer.master': 'استاد',
   'audioMixer.sends': 'ارسال می‌کند',
 }

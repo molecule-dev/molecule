@@ -12,6 +12,7 @@
 
 import '@angular/compiler'
 import {
+  type ApplicationRef,
   ChangeDetectionStrategy,
   Component,
   type ComponentRef,
@@ -19,7 +20,7 @@ import {
   provideZonelessChangeDetection,
   type Type,
 } from '@angular/core'
-import { type ApplicationRef, createApplication } from '@angular/platform-browser'
+import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 // Proxy ClassMap echoing each accessed member back as its token (e.g. `flex`),
@@ -139,6 +140,14 @@ describe('TypingIndicator', () => {
     mounted.push(m)
     expect(m.host.querySelector('style')).not.toBeNull()
     expect(m.host.innerHTML).toContain('@keyframes molecule-typing-pulse')
+  })
+
+  it('stops the pulse when motion is reduced', async () => {
+    const m = await mount({})
+    mounted.push(m)
+    expect(m.host.innerHTML).toContain('@media (prefers-reduced-motion: reduce)')
+    expect(m.host.innerHTML).toContain('[data-typing-dot] { animation: none !important; }')
+    expect(m.host.innerHTML.match(/data-typing-dot=""/g) ?? []).toHaveLength(3)
   })
 
   it('forwards className', async () => {

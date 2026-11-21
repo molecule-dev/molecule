@@ -16,7 +16,7 @@ import type { DeviceFrame, PreviewProvider, PreviewState } from '@molecule/app-l
 
 import { usePreview } from '../composables/usePreview.js'
 import { moleculePlugin } from '../plugin.js'
-import type { UsePreviewReturn } from '../types.js'
+import type { UsePreviewResult } from '../types.js'
 
 /**
  * Minimal in-memory PreviewProvider mock.
@@ -125,10 +125,10 @@ afterEach(() => {
  * @returns The composable result and the mounted wrapper.
  */
 function openPreview(provider: PreviewProvider): {
-  preview: UsePreviewReturn
+  preview: UsePreviewResult
   wrapper: VueWrapper
 } {
-  let preview!: UsePreviewReturn
+  let preview!: UsePreviewResult
   const Page = defineComponent({
     setup() {
       preview = usePreview()

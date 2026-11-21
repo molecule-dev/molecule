@@ -7,4 +7,8 @@ export const uz: Partial<HttpInspectorTranslations> = {
   'httpInspector.headers': 'Sarlavhalar',
   'httpInspector.addHeader': "Sarlavha qo'shish",
   'httpInspector.body': 'Kuzov',
+  'httpInspector.methodLabel': 'HTTP usuli',
+  'httpInspector.urlLabel': 'URL',
+  'httpInspector.headerPlaceholder': 'Sarlavha',
+  'httpInspector.valuePlaceholder': 'Qiymat',
 }

@@ -8,6 +8,7 @@
  * @module
  */
 
+import type { JSX } from 'solid-js'
 import { render } from 'solid-js/web'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
@@ -44,7 +45,7 @@ afterEach(() => {
 })
 
 /** Renders with Solid's browser renderer and disposes after the test. */
-const mountView = (view: () => typeof Breadcrumb): HTMLElement => {
+const mountView = (view: () => JSX.Element): HTMLElement => {
   const container = document.createElement('div')
   document.body.appendChild(container)
   disposers.push(render(view, container))

@@ -11,13 +11,15 @@
 
 import '@angular/compiler'
 import {
+  type ApplicationRef,
   ChangeDetectionStrategy,
   Component,
   type ComponentRef,
   createComponent,
+  type ElementRef,
   provideZonelessChangeDetection,
 } from '@angular/core'
-import { type ApplicationRef, createApplication } from '@angular/platform-browser'
+import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 // A ClassMap mock echoing each accessed member back as its token (e.g.
@@ -47,7 +49,35 @@ vi.mock('@molecule/app-ui', () => {
 // `<button data-button>` and a `<div data-modal>` that renders its content
 // only while `open`.
 vi.mock('@molecule/app-ui-angular', async () => {
-  const { Component, EventEmitter } = await import('@angular/core')
+  const { Component, ElementRef, EventEmitter, inject } = await import('@angular/core')
+  // No decorators here: this package's tsconfig excludes `src/**/__tests__/**`,
+  // so vitest transforms test files without `experimentalDecorators`. The
+  // dialog div is found through the DOM instead of a view query.
+  class MockModal {
+    /** Whether the dialog shows its content. */
+    open?: boolean
+    /** The close output the metadata declares (Angular reads it by name). */
+    readonly close = new EventEmitter<unknown>()
+    /** The host element — rest attributes land here first. */
+    private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
+
+    /**
+     * Moves the host's `data-*`/`aria-*` attributes onto the dialog div —
+     * the real `Modal`'s rest-attribute contract (React forwards its rest
+     * props onto the dialog element directly).
+     */
+    ngAfterViewInit(): void {
+      const hostEl = this.host.nativeElement
+      const dialog = hostEl.querySelector<HTMLElement>('[data-modal]')
+      if (!dialog) return
+      for (const attr of Array.from(hostEl.attributes)) {
+        if (attr.name.startsWith('aria-') || attr.name.startsWith('data-')) {
+          dialog.setAttribute(attr.name, attr.value)
+          hostEl.removeAttribute(attr.name)
+        }
+      }
+    }
+  }
   return {
     Button: Component({
       selector: 'button[mol-button]',
@@ -71,14 +101,7 @@ vi.mock('@molecule/app-ui-angular', async () => {
       inputs: ['open'],
       outputs: ['close'],
       template: `@if (open) {<div data-modal=""><ng-content></ng-content></div>}`,
-    })(
-      class MockModal {
-        /** Whether the dialog shows its content. */
-        open?: boolean
-        /** The close output the metadata declares (Angular reads it by name). */
-        readonly close = new EventEmitter<unknown>()
-      },
-    ),
+    })(MockModal),
   }
 })
 
@@ -216,5 +239,25 @@ describe('OnboardingModal', () => {
   it('renders nothing visible when the modal is closed', async () => {
     const m = await render({ open: false, onClose: () => {}, steps })
     expect(m.host.textContent).toBe('')
+  })
+
+  it('the dialog is named by the current step title', async () => {
+    const m = await render({ open: true, onClose: () => {}, steps })
+    const label = m.host.innerHTML.match(/aria-labelledby="([^"]*)"/)?.[1]
+    expect(label).toBeTruthy()
+    const heading = m.host.innerHTML.match(
+      new RegExp(`<h2[^>]*id="${label}"[^>]*>([\\s\\S]*?)</h2>`),
+    )
+    expect(heading).toBeTruthy()
+    expect(heading?.[1]).toContain('Welcome')
+
+    // The name follows the step: on the second step the labelled heading
+    // carries that step's title.
+    const second = await render({ open: true, onClose: () => {}, steps, defaultStep: 1 })
+    const secondLabel = second.host.innerHTML.match(/aria-labelledby="([^"]*)"/)?.[1]
+    const secondHeading = second.host.innerHTML.match(
+      new RegExp(`<h2[^>]*id="${secondLabel}"[^>]*>([\\s\\S]*?)</h2>`),
+    )
+    expect(secondHeading?.[1]).toContain('Connect')
   })
 })

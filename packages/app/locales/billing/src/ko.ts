@@ -15,4 +15,11 @@ export const ko: Partial<BillingTranslations> = {
   'billing.pricing.reassurance': '언제든지 취소 가능 · 신용카드 없이 시작 가능',
   'billing.pricing.perSeat': '좌석당',
   'billing.pricing.currentCta': '현재 계획',
+  'billing.pricing.period.month': '매월',
+  'billing.pricing.period.year': '매년',
+  'billing.pricing.billed.month': '월별 청구',
+  'billing.pricing.billed.year': '연간 청구',
+  'billing.pricing.unlimited': '무제한',
+  'billing.pricing.limit.maxProjects': '최대 프로젝트 수',
+  'billing.pricing.limit.canExport': '내보내기 가능',
 }

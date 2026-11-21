@@ -17,6 +17,13 @@ export interface ProgressBarProps {
   label?: VNodeChild
   /** Optional value display on the right of the label row (a node, or its same-named slot). */
   valueLabel?: VNodeChild
+  /**
+   * Element id the track is named by (`aria-labelledby`). Wins over `label`
+   * and the default accessible name — `ProgressCard` points it at its title.
+   */
+  labelledBy?: string
+  /** Element id the track is described by (`aria-describedby`). */
+  describedBy?: string
   /** Size preset — maps to ClassMap `progressHeight`. */
   size?: 'sm' | 'md' | 'lg'
   /** Color variant — maps to ClassMap `progressColor`. */

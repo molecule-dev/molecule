@@ -6,4 +6,8 @@ export const it: Partial<LoyaltyTierBadgeTranslations> = {
   'loyaltyTierBadge.progress': 'Progresso verso {{next}}',
   'loyaltyTierBadge.topTier': 'Livello più alto raggiunto',
   'loyaltyTierBadge.remaining': '{{remaining}} a {{next}}',
+  'loyaltyTierBadge.tier.bronze': 'Bronzo',
+  'loyaltyTierBadge.tier.silver': 'Argento',
+  'loyaltyTierBadge.tier.gold': 'Oro',
+  'loyaltyTierBadge.tier.platinum': 'Platino',
 }

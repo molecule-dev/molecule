@@ -34,6 +34,18 @@ const headerActions = [
 /** The empty state, the way a caller fills the `emptyState` slot. */
 const emptyState = [{ tag: 'p', attrs: { 'data-empty': '' }, children: ['No related deals yet.'] }]
 
+/**
+ * A clickable row's inner control: React keeps the `<li>` a list item and
+ * wraps the row content in a `role="button"` div when `onItemClick` is given
+ * (Enter/Space activate it, and a click anywhere on the row's content lands on
+ * it), and every framework does the same. The row content IS the control's
+ * surface, so the steps target it, not the bare `<li>`.
+ *
+ * @param n - The row's 1-based position in the list.
+ * @returns The CSS selector for that row's control.
+ */
+const rowControl = (n: number): string => `li:nth-child(${n}) [role="button"]`
+
 /** `@molecule/app-related-items-card-react`. */
 export const relatedItemsCardFeature: FeatureCases = {
   package: '@molecule/app-related-items-card-react',
@@ -71,8 +83,29 @@ export const relatedItemsCardFeature: FeatureCases = {
           props: { title: 'Deals', items, renderItem },
           callbacks: ['onItemClick'],
           interactions: [
-            { type: 'click', selector: 'li:nth-child(1)' },
-            { type: 'click', selector: 'li:nth-child(2)' },
+            { type: 'click', selector: rowControl(1) },
+            { type: 'click', selector: rowControl(2) },
+          ],
+        },
+        {
+          name: 'enter key activates the row',
+          props: { title: 'Deals', items, renderItem },
+          callbacks: ['onItemClick'],
+          interactions: [{ type: 'keydown', selector: rowControl(1), key: 'Enter' }],
+        },
+        {
+          name: 'space key activates the row',
+          props: { title: 'Deals', items, renderItem },
+          callbacks: ['onItemClick'],
+          interactions: [{ type: 'keydown', selector: rowControl(1), key: ' ' }],
+        },
+        {
+          name: 'other keys are ignored',
+          props: { title: 'Deals', items, renderItem },
+          callbacks: ['onItemClick'],
+          interactions: [
+            { type: 'keydown', selector: rowControl(1), key: 'a' },
+            { type: 'keydown', selector: rowControl(1), key: 'Tab' },
           ],
         },
         {
@@ -125,7 +158,7 @@ export const relatedItemsCardFeature: FeatureCases = {
           callbacks: ['onItemClick'],
           interactions: [
             { type: 'props', props: { onItemClick: { $callback: 'onItemClick' } } },
-            { type: 'click', selector: 'li:nth-child(1)' },
+            { type: 'click', selector: rowControl(1) },
           ],
         },
       ],

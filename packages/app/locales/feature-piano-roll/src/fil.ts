@@ -9,4 +9,6 @@ export const fil: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.note':
     'Tala {{pitch}} nagsisimula sa beat {{startBeat}} para sa {{durationBeats}} mga ritmo',
   'pianoRoll.aria.cursor': 'Cursor sa {{pitch}} sa beat {{beat}}',
+  'pianoRoll.aria.gridHelp':
+    'Ginagalaw ng mga arrow key ang cursor ng cell, iginuhit ng Enter o Space ang isang nota doon.',
 }

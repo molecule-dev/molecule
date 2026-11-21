@@ -7,4 +7,8 @@ export const km: Partial<HttpInspectorTranslations> = {
   'httpInspector.headers': 'បឋមកថា',
   'httpInspector.addHeader': 'បន្ថែម​បឋមកថា',
   'httpInspector.body': 'រាងកាយ',
+  'httpInspector.methodLabel': 'វិធីសាស្ត្រ HTTP',
+  'httpInspector.urlLabel': 'URL',
+  'httpInspector.headerPlaceholder': 'បឋមកថា',
+  'httpInspector.valuePlaceholder': 'តម្លៃ',
 }

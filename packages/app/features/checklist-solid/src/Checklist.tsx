@@ -102,7 +102,7 @@ export const Checklist: Component<ChecklistProps> = (props) => {
                   <Checkbox
                     checked={item().completed}
                     disabled={item().disabled}
-                    onChange={(event: Event) => {
+                    onChange={(event) => {
                       const target = event.target as HTMLInputElement
                       props.onToggle?.(item().id, target.checked)
                     }}

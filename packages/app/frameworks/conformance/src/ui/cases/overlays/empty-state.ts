@@ -9,6 +9,8 @@ import type { UIComponentCases } from '../../spec.js'
 /** EmptyState: title/description, icon, action slot, automationId, passthrough. */
 export const emptyStateCases: UIComponentCases = {
   component: 'EmptyState',
+  ref: {},
+  declaredProps: { props: 'base' },
   cases: [
     { name: 'defaults', props: { title: 'No projects yet' } },
     {

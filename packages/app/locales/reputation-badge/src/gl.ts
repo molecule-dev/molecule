@@ -9,6 +9,7 @@ export const gl: ReputationBadgeTranslations = {
   'reputationBadge.level.trusted': 'De confianza',
   'reputationBadge.level.veteran': 'Veterano',
   'reputationBadge.level.legend': 'Lenda',
+  'reputationBadge.level.fallback': '{{level}}',
   'badgeShelf.aria': '{{count}} insignias obtidas',
   'badgeShelf.overflow.aria': 'Amosar {{count}} insignias máis',
 }

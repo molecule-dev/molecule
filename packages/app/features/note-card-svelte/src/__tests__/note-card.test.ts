@@ -51,13 +51,28 @@ afterEach(async () => {
 })
 
 /** Renders a {@link NoteCard} and returns the markup it produced. */
-const render = (props: NoteCardProps): string => {
+const render = (props: NoteCardProps): string => renderTarget(props).innerHTML
+
+/** Renders a {@link NoteCard} and returns its target element (for events). */
+const renderTarget = (props: NoteCardProps): HTMLElement => {
   const target = document.createElement('div')
   document.body.appendChild(target)
   instances.push(mount(NoteCard, { target, props }))
   flushSync()
-  return target.innerHTML
+  return target
 }
+
+/** The card's transparent open button over the whole row. */
+const openButton = (host: HTMLElement): HTMLButtonElement =>
+  host.querySelector('[data-mol-id="note-card-open"]')!
+
+/**
+ * The element inside `host` whose id is the button's `aria-labelledby`
+ * target — scoped to the card so concurrently mounted instances' generated
+ * ids never collide.
+ */
+const labelledBy = (host: HTMLElement, button: HTMLButtonElement): Element | undefined =>
+  [...host.querySelectorAll('[id]')].find((el) => el.id === button.getAttribute('aria-labelledby'))
 
 describe('NoteCard', () => {
   it('renders the body text', () => {
@@ -69,9 +84,15 @@ describe('NoteCard', () => {
     expect(render({ body: 'b' })).not.toContain('<h3')
   })
 
-  it('uses the supplied color as the background, falling back to a default', () => {
-    expect(render({ body: 'b', color: '#ffcc00' })).toContain('background: rgb(255, 204, 0)')
-    expect(render({ body: 'b' })).toContain('background: rgb(254, 243, 199)')
+  it('renders the theme tint for known note colours and keeps an unknown colour as data', () => {
+    const known = render({ body: 'b', color: '#dbeafe' })
+    expect(known).toContain('bgTone')
+    expect(known).not.toContain('background')
+    const unknown = render({ body: 'b', color: '#ffcc00' })
+    expect(unknown).toContain('background: rgb(255, 204, 0)')
+    const plain = render({ body: 'b' })
+    expect(plain).toContain('bgTone')
+    expect(plain).not.toContain('background')
   })
 
   it('renders the pinned indicator only when pinned', () => {
@@ -96,5 +117,40 @@ describe('NoteCard', () => {
     const plain = render({ body: 'b', className: 'nc-cls' })
     expect(plain).not.toContain('cursorPointer')
     expect(plain).toContain('nc-cls')
+  })
+
+  it('without onClick there is no open button', () => {
+    const plain = render({ body: 'b' })
+    expect(plain).not.toContain('<button')
+    const clickable = render({ body: 'b', onClick: () => {} })
+    expect(clickable).toContain('data-mol-id="note-card-open"')
+  })
+
+  it('clicking the open button calls onClick', () => {
+    const onClick = vi.fn()
+    const target = renderTarget({ body: 'b', onClick })
+    openButton(target).click()
+    expect(onClick).toHaveBeenCalledTimes(1)
+  })
+
+  it('clicking an inner control does not call onClick', () => {
+    const onClick = vi.fn()
+    const target = renderTarget({
+      body: 'b',
+      onClick,
+      actions: raw('<button data-actions="">Edit</button>'),
+    })
+    target.querySelector<HTMLButtonElement>('[data-actions]')!.click()
+    expect(onClick).not.toHaveBeenCalled()
+  })
+
+  it('the open button is named by the label', () => {
+    const titled = renderTarget({ title: 'Groceries', body: 'Milk, eggs', onClick: () => {} })
+    const button = openButton(titled)
+    expect(labelledBy(titled, button)?.textContent).toBe('Groceries')
+
+    const untitled = renderTarget({ body: 'Remember the milk', onClick: () => {} })
+    const fallback = openButton(untitled)
+    expect(labelledBy(untitled, fallback)?.textContent).toBe('Remember the milk')
   })
 })

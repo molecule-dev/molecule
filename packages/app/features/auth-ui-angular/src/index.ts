@@ -54,3 +54,4 @@
  */
 
 export * from './oauth-buttons.component.js'
+export * from './types.js'

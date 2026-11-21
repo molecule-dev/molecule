@@ -1,6 +1,6 @@
 import { type Component, For, type JSX, Show } from 'solid-js'
 
-import { Link, useLocation } from '@molecule/app-solid'
+import { Link, useLocation, useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { TopNavItem, TopNavLayoutProps } from './types.js'
@@ -39,8 +39,13 @@ const navItemActive = (pathname: string, to: string): boolean => {
 export const TopNavLayout: Component<TopNavLayoutProps> = (props) => {
   const cm = getClassMap()
   const location = useLocation()
+  const { t } = useTranslation()
   const logoTo = (): string => props.logoTo ?? '/'
-  const navAriaLabel = (): string => props.navAriaLabel ?? 'Primary navigation'
+  // The nav region's aria-label: prop > `t()` > default. Read in an accessor,
+  // so a locale switch re-renders it, as React's does.
+  const navLabel = (): string =>
+    props.navAriaLabel ??
+    t('topNavLayout.aria.primaryNavigation', undefined, { defaultValue: 'Primary navigation' })
 
   /**
    * The link classes for one item: the shared nav-item treatment plus the
@@ -80,7 +85,7 @@ export const TopNavLayout: Component<TopNavLayoutProps> = (props) => {
           <Link to={logoTo()} class={cm.cn(cm.textSize('2xl'), cm.fontWeight('bold'))}>
             {props.appName}
           </Link>
-          <nav class={cm.flex({ align: 'center', gap: 'md' })} aria-label={navAriaLabel()}>
+          <nav class={cm.flex({ align: 'center', gap: 'md' })} aria-label={navLabel()}>
             <For each={props.navItems}>
               {(item): JSX.Element => (
                 <Link

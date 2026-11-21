@@ -16,4 +16,11 @@ export const id: Partial<BillingTranslations> = {
     'Batalkan kapan saja · Tidak diperlukan kartu kredit untuk memulai',
   'billing.pricing.perSeat': 'per kursi',
   'billing.pricing.currentCta': 'Rencana saat ini',
+  'billing.pricing.period.month': 'per bulan',
+  'billing.pricing.period.year': 'per tahun',
+  'billing.pricing.billed.month': 'Ditagih bulanan',
+  'billing.pricing.billed.year': 'Ditagih tahunan',
+  'billing.pricing.unlimited': 'Tanpa batas',
+  'billing.pricing.limit.maxProjects': 'Maks. proyek',
+  'billing.pricing.limit.canExport': 'Ekspor tersedia',
 }

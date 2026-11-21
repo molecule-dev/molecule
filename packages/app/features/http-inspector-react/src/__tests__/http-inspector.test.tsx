@@ -16,6 +16,10 @@ vi.mock('@molecule/app-ui', () => ({
               .join(' ')
         }
         const token = String(prop)
+        // A tone class carries its tone, so a test can tell `bgTone('success')`
+        // from `bgTone('error')` — the real ClassMap gives each its own class.
+        if (token === 'bgTone' || token === 'textTone' || token === 'borderTone')
+          return (tone: unknown) => `${token}-${String(tone)}`
         return (..._args: unknown[]) => token
       },
     }
@@ -96,21 +100,21 @@ describe('HttpInspector', () => {
     expect(markup).toContain('{&quot;ok&quot;:true}')
   })
 
-  it('colors the status badge by status class', () => {
-    const ok = html(
-      createElement(HttpInspector, {
-        ...base,
-        response: { statusCode: 204, body: '' },
-      }),
-    )
-    expect(ok).toContain('#22c55e')
-    const err = html(
-      createElement(HttpInspector, {
-        ...base,
-        response: { statusCode: 500, body: '' },
-      }),
-    )
-    expect(err).toContain('#ef4444')
+  it('tones the status badge by status class', () => {
+    const badge = (statusCode: number): string =>
+      html(
+        createElement(HttpInspector, {
+          ...base,
+          response: { statusCode, body: '' },
+        }),
+      )
+    expect(badge(204)).toContain('bgTone-success')
+    expect(badge(302)).toContain('bgTone-info')
+    expect(badge(404)).toContain('bgTone-warning')
+    expect(badge(500)).toContain('bgTone-error')
+    // The colour is the theme's (a ClassMap class), never a literal in a style.
+    expect(badge(204)).toContain('textOnTone')
+    expect(badge(204)).not.toContain('background')
   })
 
   it('forwards className', () => {

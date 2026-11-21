@@ -14,4 +14,8 @@ export const lv: Partial<SearchUiTranslations> = {
   'searchUi.relatedTitle': 'Atbilst jūsu meklēšanas vaicājuma nozīmei, nevis tā vārdiem',
   'searchUi.related': 'saistīts',
   'searchUi.help': 'Meklēšanas padomi',
+  'searchUi.examplePhrase': '"precīza frāze"',
+  'searchUi.exampleExcluded': '-vārds',
+  'searchUi.activeResult': '{{title}}, {{position}} no {{count}}',
+  'searchUi.dialogLabel': 'Meklēt',
 }

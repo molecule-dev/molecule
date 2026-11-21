@@ -14,70 +14,70 @@
    },
    "online with a text child": {
     "snapshots": [
-     "<span class=\"cfc82911d\" style=\"display: inline-block\">\nAda\n<span aria-label=\"Presence: online\" role=\"status\" style=\"background: rgb(34, 197, 94); border-radius: 50%; bottom: 0px; box-shadow: 0 0 0 2px var(--color-surface, #fff); display: inline-block; height: 10px; position: absolute; right: 0px; width: 10px\">\n</span>\n</span>\n@route /"
+     "<span class=\"cfc82911d\" style=\"display: inline-block\">\nAda\n<span aria-label=\"Presence: online\" class=\"cef6f5494\" role=\"status\" style=\"border-radius: 50%; bottom: 0px; box-shadow: 0 0 0 2px var(--color-surface); display: inline-block; height: 10px; position: absolute; right: 0px; width: 10px\">\n</span>\n</span>\n@route /"
     ],
     "calls": []
    },
    "online with an image child": {
     "snapshots": [
-     "<span class=\"cfc82911d\" style=\"display: inline-block\">\n<img alt=\"Ada\" height=\"40\" src=\"/avatar.png\" width=\"40\">\n</img>\n<span aria-label=\"Presence: online\" role=\"status\" style=\"background: rgb(34, 197, 94); border-radius: 50%; bottom: 0px; box-shadow: 0 0 0 2px var(--color-surface, #fff); display: inline-block; height: 10px; position: absolute; right: 0px; width: 10px\">\n</span>\n</span>\n@route /"
+     "<span class=\"cfc82911d\" style=\"display: inline-block\">\n<img alt=\"Ada\" height=\"40\" src=\"/avatar.png\" width=\"40\">\n</img>\n<span aria-label=\"Presence: online\" class=\"cef6f5494\" role=\"status\" style=\"border-radius: 50%; bottom: 0px; box-shadow: 0 0 0 2px var(--color-surface); display: inline-block; height: 10px; position: absolute; right: 0px; width: 10px\">\n</span>\n</span>\n@route /"
     ],
     "calls": []
    },
    "no children, dot only": {
     "snapshots": [
-     "<span class=\"cfc82911d\" style=\"display: inline-block\">\n<span aria-label=\"Presence: offline\" role=\"status\" style=\"background: rgb(148, 163, 184); border-radius: 50%; bottom: 0px; box-shadow: 0 0 0 2px var(--color-surface, #fff); display: inline-block; height: 10px; position: absolute; right: 0px; width: 10px\">\n</span>\n</span>\n@route /"
+     "<span class=\"cfc82911d\" style=\"display: inline-block\">\n<span aria-label=\"Presence: offline\" class=\"cfde19efb\" role=\"status\" style=\"border-radius: 50%; bottom: 0px; box-shadow: 0 0 0 2px var(--color-surface); display: inline-block; height: 10px; position: absolute; right: 0px; width: 10px\">\n</span>\n</span>\n@route /"
     ],
     "calls": []
    },
    "away at the top left": {
     "snapshots": [
-     "<span class=\"cfc82911d\" style=\"display: inline-block\">\n<img alt=\"Ada\" height=\"40\" src=\"/avatar.png\" width=\"40\">\n</img>\n<span aria-label=\"Presence: away\" role=\"status\" style=\"background: rgb(234, 179, 8); border-radius: 50%; box-shadow: 0 0 0 2px var(--color-surface, #fff); display: inline-block; height: 10px; left: 0px; position: absolute; top: 0px; width: 10px\">\n</span>\n</span>\n@route /"
+     "<span class=\"cfc82911d\" style=\"display: inline-block\">\n<img alt=\"Ada\" height=\"40\" src=\"/avatar.png\" width=\"40\">\n</img>\n<span aria-label=\"Presence: away\" class=\"c04255343\" role=\"status\" style=\"border-radius: 50%; box-shadow: 0 0 0 2px var(--color-surface); display: inline-block; height: 10px; left: 0px; position: absolute; top: 0px; width: 10px\">\n</span>\n</span>\n@route /"
     ],
     "calls": []
    },
    "busy at the top right": {
     "snapshots": [
-     "<span class=\"cfc82911d\" style=\"display: inline-block\">\n<img alt=\"Ada\" height=\"40\" src=\"/avatar.png\" width=\"40\">\n</img>\n<span aria-label=\"Presence: busy\" role=\"status\" style=\"background: rgb(239, 68, 68); border-radius: 50%; box-shadow: 0 0 0 2px var(--color-surface, #fff); display: inline-block; height: 10px; position: absolute; right: 0px; top: 0px; width: 10px\">\n</span>\n</span>\n@route /"
+     "<span class=\"cfc82911d\" style=\"display: inline-block\">\n<img alt=\"Ada\" height=\"40\" src=\"/avatar.png\" width=\"40\">\n</img>\n<span aria-label=\"Presence: busy\" class=\"c0d4608b5\" role=\"status\" style=\"border-radius: 50%; box-shadow: 0 0 0 2px var(--color-surface); display: inline-block; height: 10px; position: absolute; right: 0px; top: 0px; width: 10px\">\n</span>\n</span>\n@route /"
     ],
     "calls": []
    },
    "offline at the bottom left": {
     "snapshots": [
-     "<span class=\"cfc82911d\" style=\"display: inline-block\">\nAda\n<span aria-label=\"Presence: offline\" role=\"status\" style=\"background: rgb(148, 163, 184); border-radius: 50%; bottom: 0px; box-shadow: 0 0 0 2px var(--color-surface, #fff); display: inline-block; height: 10px; left: 0px; position: absolute; width: 10px\">\n</span>\n</span>\n@route /"
+     "<span class=\"cfc82911d\" style=\"display: inline-block\">\nAda\n<span aria-label=\"Presence: offline\" class=\"cfde19efb\" role=\"status\" style=\"border-radius: 50%; bottom: 0px; box-shadow: 0 0 0 2px var(--color-surface); display: inline-block; height: 10px; left: 0px; position: absolute; width: 10px\">\n</span>\n</span>\n@route /"
     ],
     "calls": []
    },
    "sized dot": {
     "snapshots": [
-     "<span class=\"cfc82911d\" style=\"display: inline-block\">\n<img alt=\"Ada\" height=\"40\" src=\"/avatar.png\" width=\"40\">\n</img>\n<span aria-label=\"Presence: online\" role=\"status\" style=\"background: rgb(34, 197, 94); border-radius: 50%; bottom: 0px; box-shadow: 0 0 0 2px var(--color-surface, #fff); display: inline-block; height: 16px; position: absolute; right: 0px; width: 16px\">\n</span>\n</span>\n@route /"
+     "<span class=\"cfc82911d\" style=\"display: inline-block\">\n<img alt=\"Ada\" height=\"40\" src=\"/avatar.png\" width=\"40\">\n</img>\n<span aria-label=\"Presence: online\" class=\"cef6f5494\" role=\"status\" style=\"border-radius: 50%; bottom: 0px; box-shadow: 0 0 0 2px var(--color-surface); display: inline-block; height: 16px; position: absolute; right: 0px; width: 16px\">\n</span>\n</span>\n@route /"
     ],
     "calls": []
    },
    "classes and a status": {
     "snapshots": [
-     "<span class=\"cd75bbd18 cfc82911d\" style=\"display: inline-block\">\nAda\n<span aria-label=\"Presence: online\" role=\"status\" style=\"background: rgb(34, 197, 94); border-radius: 50%; bottom: 0px; box-shadow: 0 0 0 2px var(--color-surface, #fff); display: inline-block; height: 10px; position: absolute; right: 0px; width: 10px\">\n</span>\n</span>\n@route /"
+     "<span class=\"cd75bbd18 cfc82911d\" style=\"display: inline-block\">\nAda\n<span aria-label=\"Presence: online\" class=\"cef6f5494\" role=\"status\" style=\"border-radius: 50%; bottom: 0px; box-shadow: 0 0 0 2px var(--color-surface); display: inline-block; height: 10px; position: absolute; right: 0px; width: 10px\">\n</span>\n</span>\n@route /"
     ],
     "calls": []
    },
    "status appears": {
     "snapshots": [
      "<span class=\"cfc82911d\" style=\"display: inline-block\">\nAda\n</span>\n@route /",
-     "<span class=\"cfc82911d\" style=\"display: inline-block\">\nAda\n<span aria-label=\"Presence: busy\" role=\"status\" style=\"background: rgb(239, 68, 68); border-radius: 50%; bottom: 0px; box-shadow: 0 0 0 2px var(--color-surface, #fff); display: inline-block; height: 10px; position: absolute; right: 0px; width: 10px\">\n</span>\n</span>\n@route /"
+     "<span class=\"cfc82911d\" style=\"display: inline-block\">\nAda\n<span aria-label=\"Presence: busy\" class=\"c0d4608b5\" role=\"status\" style=\"border-radius: 50%; bottom: 0px; box-shadow: 0 0 0 2px var(--color-surface); display: inline-block; height: 10px; position: absolute; right: 0px; width: 10px\">\n</span>\n</span>\n@route /"
     ],
     "calls": []
    },
    "status removed": {
     "snapshots": [
-     "<span class=\"cfc82911d\" style=\"display: inline-block\">\nAda\n<span aria-label=\"Presence: online\" role=\"status\" style=\"background: rgb(34, 197, 94); border-radius: 50%; bottom: 0px; box-shadow: 0 0 0 2px var(--color-surface, #fff); display: inline-block; height: 10px; position: absolute; right: 0px; width: 10px\">\n</span>\n</span>\n@route /",
+     "<span class=\"cfc82911d\" style=\"display: inline-block\">\nAda\n<span aria-label=\"Presence: online\" class=\"cef6f5494\" role=\"status\" style=\"border-radius: 50%; bottom: 0px; box-shadow: 0 0 0 2px var(--color-surface); display: inline-block; height: 10px; position: absolute; right: 0px; width: 10px\">\n</span>\n</span>\n@route /",
      "<span class=\"cfc82911d\" style=\"display: inline-block\">\nAda\n</span>\n@route /"
     ],
     "calls": []
    },
    "corner and dot size change": {
     "snapshots": [
-     "<span class=\"cfc82911d\" style=\"display: inline-block\">\n<img alt=\"Ada\" height=\"40\" src=\"/avatar.png\" width=\"40\">\n</img>\n<span aria-label=\"Presence: online\" role=\"status\" style=\"background: rgb(34, 197, 94); border-radius: 50%; bottom: 0px; box-shadow: 0 0 0 2px var(--color-surface, #fff); display: inline-block; height: 10px; position: absolute; right: 0px; width: 10px\">\n</span>\n</span>\n@route /",
-     "<span class=\"cfc82911d\" style=\"display: inline-block\">\n<img alt=\"Ada\" height=\"40\" src=\"/avatar.png\" width=\"40\">\n</img>\n<span aria-label=\"Presence: online\" role=\"status\" style=\"background: rgb(34, 197, 94); border-radius: 50%; box-shadow: 0 0 0 2px var(--color-surface, #fff); display: inline-block; height: 8px; left: 0px; position: absolute; top: 0px; width: 8px\">\n</span>\n</span>\n@route /"
+     "<span class=\"cfc82911d\" style=\"display: inline-block\">\n<img alt=\"Ada\" height=\"40\" src=\"/avatar.png\" width=\"40\">\n</img>\n<span aria-label=\"Presence: online\" class=\"cef6f5494\" role=\"status\" style=\"border-radius: 50%; bottom: 0px; box-shadow: 0 0 0 2px var(--color-surface); display: inline-block; height: 10px; position: absolute; right: 0px; width: 10px\">\n</span>\n</span>\n@route /",
+     "<span class=\"cfc82911d\" style=\"display: inline-block\">\n<img alt=\"Ada\" height=\"40\" src=\"/avatar.png\" width=\"40\">\n</img>\n<span aria-label=\"Presence: online\" class=\"cef6f5494\" role=\"status\" style=\"border-radius: 50%; box-shadow: 0 0 0 2px var(--color-surface); display: inline-block; height: 8px; left: 0px; position: absolute; top: 0px; width: 8px\">\n</span>\n</span>\n@route /"
     ],
     "calls": []
    },
@@ -92,107 +92,107 @@
   "PresenceDot": {
    "online default": {
     "snapshots": [
-     "<span aria-label=\"Presence: online\" role=\"status\" style=\"background: rgb(34, 197, 94); border-radius: 50%; display: inline-block; height: 10px; width: 10px\">\n</span>\n@route /"
+     "<span aria-label=\"Presence: online\" class=\"cef6f5494\" role=\"status\" style=\"border-radius: 50%; display: inline-block; height: 10px; width: 10px\">\n</span>\n@route /"
     ],
     "calls": []
    },
    "away": {
     "snapshots": [
-     "<span aria-label=\"Presence: away\" role=\"status\" style=\"background: rgb(234, 179, 8); border-radius: 50%; display: inline-block; height: 10px; width: 10px\">\n</span>\n@route /"
+     "<span aria-label=\"Presence: away\" class=\"c04255343\" role=\"status\" style=\"border-radius: 50%; display: inline-block; height: 10px; width: 10px\">\n</span>\n@route /"
     ],
     "calls": []
    },
    "busy": {
     "snapshots": [
-     "<span aria-label=\"Presence: busy\" role=\"status\" style=\"background: rgb(239, 68, 68); border-radius: 50%; display: inline-block; height: 10px; width: 10px\">\n</span>\n@route /"
+     "<span aria-label=\"Presence: busy\" class=\"c0d4608b5\" role=\"status\" style=\"border-radius: 50%; display: inline-block; height: 10px; width: 10px\">\n</span>\n@route /"
     ],
     "calls": []
    },
    "offline": {
     "snapshots": [
-     "<span aria-label=\"Presence: offline\" role=\"status\" style=\"background: rgb(148, 163, 184); border-radius: 50%; display: inline-block; height: 10px; width: 10px\">\n</span>\n@route /"
+     "<span aria-label=\"Presence: offline\" class=\"cfde19efb\" role=\"status\" style=\"border-radius: 50%; display: inline-block; height: 10px; width: 10px\">\n</span>\n@route /"
     ],
     "calls": []
    },
    "custom aria label": {
     "snapshots": [
-     "<span aria-label=\"Do not disturb\" role=\"status\" style=\"background: rgb(239, 68, 68); border-radius: 50%; display: inline-block; height: 10px; width: 10px\">\n</span>\n@route /"
+     "<span aria-label=\"Do not disturb\" class=\"c0d4608b5\" role=\"status\" style=\"border-radius: 50%; display: inline-block; height: 10px; width: 10px\">\n</span>\n@route /"
     ],
     "calls": []
    },
    "larger size": {
     "snapshots": [
-     "<span aria-label=\"Presence: online\" role=\"status\" style=\"background: rgb(34, 197, 94); border-radius: 50%; display: inline-block; height: 24px; width: 24px\">\n</span>\n@route /"
+     "<span aria-label=\"Presence: online\" class=\"cef6f5494\" role=\"status\" style=\"border-radius: 50%; display: inline-block; height: 24px; width: 24px\">\n</span>\n@route /"
     ],
     "calls": []
    },
    "explicit inline position": {
     "snapshots": [
-     "<span aria-label=\"Presence: online\" role=\"status\" style=\"background: rgb(34, 197, 94); border-radius: 50%; display: inline-block; height: 10px; width: 10px\">\n</span>\n@route /"
+     "<span aria-label=\"Presence: online\" class=\"cef6f5494\" role=\"status\" style=\"border-radius: 50%; display: inline-block; height: 10px; width: 10px\">\n</span>\n@route /"
     ],
     "calls": []
    },
    "corner is ignored inline": {
     "snapshots": [
-     "<span aria-label=\"Presence: online\" role=\"status\" style=\"background: rgb(34, 197, 94); border-radius: 50%; display: inline-block; height: 10px; width: 10px\">\n</span>\n@route /"
+     "<span aria-label=\"Presence: online\" class=\"cef6f5494\" role=\"status\" style=\"border-radius: 50%; display: inline-block; height: 10px; width: 10px\">\n</span>\n@route /"
     ],
     "calls": []
    },
    "overlay with the default corner": {
     "snapshots": [
-     "<span aria-label=\"Presence: online\" role=\"status\" style=\"background: rgb(34, 197, 94); border-radius: 50%; bottom: 0px; box-shadow: 0 0 0 2px var(--color-surface, #fff); display: inline-block; height: 10px; position: absolute; right: 0px; width: 10px\">\n</span>\n@route /"
+     "<span aria-label=\"Presence: online\" class=\"cef6f5494\" role=\"status\" style=\"border-radius: 50%; bottom: 0px; box-shadow: 0 0 0 2px var(--color-surface); display: inline-block; height: 10px; position: absolute; right: 0px; width: 10px\">\n</span>\n@route /"
     ],
     "calls": []
    },
    "overlay at the top right": {
     "snapshots": [
-     "<span aria-label=\"Presence: away\" role=\"status\" style=\"background: rgb(234, 179, 8); border-radius: 50%; box-shadow: 0 0 0 2px var(--color-surface, #fff); display: inline-block; height: 10px; position: absolute; right: 0px; top: 0px; width: 10px\">\n</span>\n@route /"
+     "<span aria-label=\"Presence: away\" class=\"c04255343\" role=\"status\" style=\"border-radius: 50%; box-shadow: 0 0 0 2px var(--color-surface); display: inline-block; height: 10px; position: absolute; right: 0px; top: 0px; width: 10px\">\n</span>\n@route /"
     ],
     "calls": []
    },
    "overlay at the top left": {
     "snapshots": [
-     "<span aria-label=\"Presence: busy\" role=\"status\" style=\"background: rgb(239, 68, 68); border-radius: 50%; box-shadow: 0 0 0 2px var(--color-surface, #fff); display: inline-block; height: 10px; left: 0px; position: absolute; top: 0px; width: 10px\">\n</span>\n@route /"
+     "<span aria-label=\"Presence: busy\" class=\"c0d4608b5\" role=\"status\" style=\"border-radius: 50%; box-shadow: 0 0 0 2px var(--color-surface); display: inline-block; height: 10px; left: 0px; position: absolute; top: 0px; width: 10px\">\n</span>\n@route /"
     ],
     "calls": []
    },
    "overlay at the bottom left": {
     "snapshots": [
-     "<span aria-label=\"Presence: offline\" role=\"status\" style=\"background: rgb(148, 163, 184); border-radius: 50%; bottom: 0px; box-shadow: 0 0 0 2px var(--color-surface, #fff); display: inline-block; height: 10px; left: 0px; position: absolute; width: 10px\">\n</span>\n@route /"
+     "<span aria-label=\"Presence: offline\" class=\"cfde19efb\" role=\"status\" style=\"border-radius: 50%; bottom: 0px; box-shadow: 0 0 0 2px var(--color-surface); display: inline-block; height: 10px; left: 0px; position: absolute; width: 10px\">\n</span>\n@route /"
     ],
     "calls": []
    },
    "classes and a custom label": {
     "snapshots": [
-     "<span aria-label=\"Online now\" class=\"cd75bbd18\" role=\"status\" style=\"background: rgb(34, 197, 94); border-radius: 50%; display: inline-block; height: 10px; width: 10px\">\n</span>\n@route /"
+     "<span aria-label=\"Online now\" class=\"cd75bbd18 cef6f5494\" role=\"status\" style=\"border-radius: 50%; display: inline-block; height: 10px; width: 10px\">\n</span>\n@route /"
     ],
     "calls": []
    },
    "status changes": {
     "snapshots": [
-     "<span aria-label=\"Presence: online\" role=\"status\" style=\"background: rgb(34, 197, 94); border-radius: 50%; display: inline-block; height: 10px; width: 10px\">\n</span>\n@route /",
-     "<span aria-label=\"Presence: busy\" role=\"status\" style=\"background: rgb(239, 68, 68); border-radius: 50%; display: inline-block; height: 10px; width: 10px\">\n</span>\n@route /"
+     "<span aria-label=\"Presence: online\" class=\"cef6f5494\" role=\"status\" style=\"border-radius: 50%; display: inline-block; height: 10px; width: 10px\">\n</span>\n@route /",
+     "<span aria-label=\"Presence: busy\" class=\"c0d4608b5\" role=\"status\" style=\"border-radius: 50%; display: inline-block; height: 10px; width: 10px\">\n</span>\n@route /"
     ],
     "calls": []
    },
    "position changes to overlay": {
     "snapshots": [
-     "<span aria-label=\"Presence: online\" role=\"status\" style=\"background: rgb(34, 197, 94); border-radius: 50%; display: inline-block; height: 10px; width: 10px\">\n</span>\n@route /",
-     "<span aria-label=\"Presence: online\" role=\"status\" style=\"background: rgb(34, 197, 94); border-radius: 50%; box-shadow: 0 0 0 2px var(--color-surface, #fff); display: inline-block; height: 10px; left: 0px; position: absolute; top: 0px; width: 10px\">\n</span>\n@route /"
+     "<span aria-label=\"Presence: online\" class=\"cef6f5494\" role=\"status\" style=\"border-radius: 50%; display: inline-block; height: 10px; width: 10px\">\n</span>\n@route /",
+     "<span aria-label=\"Presence: online\" class=\"cef6f5494\" role=\"status\" style=\"border-radius: 50%; box-shadow: 0 0 0 2px var(--color-surface); display: inline-block; height: 10px; left: 0px; position: absolute; top: 0px; width: 10px\">\n</span>\n@route /"
     ],
     "calls": []
    },
    "size and label change": {
     "snapshots": [
-     "<span aria-label=\"Presence: away\" role=\"status\" style=\"background: rgb(234, 179, 8); border-radius: 50%; display: inline-block; height: 12px; width: 12px\">\n</span>\n@route /",
-     "<span aria-label=\"Away\" role=\"status\" style=\"background: rgb(234, 179, 8); border-radius: 50%; display: inline-block; height: 20px; width: 20px\">\n</span>\n@route /"
+     "<span aria-label=\"Presence: away\" class=\"c04255343\" role=\"status\" style=\"border-radius: 50%; display: inline-block; height: 12px; width: 12px\">\n</span>\n@route /",
+     "<span aria-label=\"Away\" class=\"c04255343\" role=\"status\" style=\"border-radius: 50%; display: inline-block; height: 20px; width: 20px\">\n</span>\n@route /"
     ],
     "calls": []
    },
    "online default, then a locale switch": {
     "snapshots": [
-     "<span aria-label=\"Presence: online\" role=\"status\" style=\"background: rgb(34, 197, 94); border-radius: 50%; display: inline-block; height: 10px; width: 10px\">\n</span>\n@route /",
-     "<span aria-label=\"Presence: online\" role=\"status\" style=\"background: rgb(34, 197, 94); border-radius: 50%; display: inline-block; height: 10px; width: 10px\">\n</span>\n@route /"
+     "<span aria-label=\"Presence: online\" class=\"cef6f5494\" role=\"status\" style=\"border-radius: 50%; display: inline-block; height: 10px; width: 10px\">\n</span>\n@route /",
+     "<span aria-label=\"⟦Presence: ⟦online⟧⟧\" class=\"cef6f5494\" role=\"status\" style=\"border-radius: 50%; display: inline-block; height: 10px; width: 10px\">\n</span>\n@route /"
     ],
     "calls": []
    }

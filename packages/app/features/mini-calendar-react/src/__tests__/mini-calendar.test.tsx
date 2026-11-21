@@ -33,6 +33,13 @@ vi.mock('@molecule/app-ui-react', () => ({
   }) => createElement('button', { 'data-button': '', 'aria-label': ariaLabel }, children),
 }))
 
+// Translations the bonded i18n provider would supply: each key maps to a marked string, so a
+// default that bypassed t() would show up as plain English.
+vi.mock('@molecule/app-react', () => ({
+  useTranslation: () => ({ t: (key: string) => `«${key}»` }),
+  useLocale: () => 'en-US',
+}))
+
 const { MiniCalendar } = await import('../MiniCalendar.js')
 
 const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
@@ -48,15 +55,22 @@ describe('MiniCalendar', () => {
 
   it('renders previous/next month navigation buttons', () => {
     const markup = html(createElement(MiniCalendar, { month: march2026 }))
-    expect(markup).toContain('aria-label="Previous month"')
-    expect(markup).toContain('aria-label="Next month"')
+    expect(markup.match(/<button[^>]*aria-label="[^"]+"/g) ?? []).toHaveLength(2)
+  })
+
+  it('takes the previous-month button aria-label through i18n by default', () => {
+    const markup = html(createElement(MiniCalendar, { month: march2026 }))
+    expect(markup).toContain('aria-label="«miniCalendar.aria.previousMonth»"')
+  })
+
+  it('takes the next-month button aria-label through i18n by default', () => {
+    const markup = html(createElement(MiniCalendar, { month: march2026 }))
+    expect(markup).toContain('aria-label="«miniCalendar.aria.nextMonth»"')
   })
 
   it('renders a 6×7 day grid (42 day buttons)', () => {
     const markup = html(createElement(MiniCalendar, { month: march2026 }))
-    expect(markup.match(/<button(?![^>]*aria-label="(Previous|Next) month")/g) ?? []).toHaveLength(
-      42,
-    )
+    expect(markup.match(/<button(?![^>]*aria-label=)/g) ?? []).toHaveLength(42)
   })
 
   it('marks the selected day with aria-current="date"', () => {

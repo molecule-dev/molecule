@@ -7,4 +7,8 @@ export const id: Partial<HttpInspectorTranslations> = {
   'httpInspector.headers': 'Header',
   'httpInspector.body': 'Isi',
   'httpInspector.addHeader': 'Tambahkan header',
+  'httpInspector.methodLabel': 'Metode HTTP',
+  'httpInspector.urlLabel': 'URL',
+  'httpInspector.headerPlaceholder': 'Header',
+  'httpInspector.valuePlaceholder': 'Nilai',
 }

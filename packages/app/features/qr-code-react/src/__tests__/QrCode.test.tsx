@@ -185,7 +185,43 @@ describe('<QrCode>', () => {
     const logo = container.querySelector('[data-mol-id="qr-code-logo"]')
     expect(logo).not.toBeNull()
     expect(logo?.getAttribute('href')).toBe('data:image/png;base64,iVBORw0KGgo=')
-    expect(logo?.getAttribute('aria-label')).toBe('Brand')
+  })
+
+  it('the logo alt text becomes the QR code description', () => {
+    const { container } = render(
+      <Wrap>
+        <QrCode
+          value="x"
+          errorCorrection="H"
+          logo={{ src: 'data:image/png;base64,iVBORw0KGgo=', alt: 'Brand' }}
+        />
+      </Wrap>,
+    )
+    const svg = container.querySelector('svg')!
+    // The subtle part: the alt text describes the whole code, not the image —
+    // an `<image>` in a `role="img"` SVG is presentational, so its own
+    // `aria-label` would never be read.
+    const describedBy = svg.getAttribute('aria-describedby')
+    expect(describedBy).toBeTruthy()
+    const desc = container.querySelector('desc')
+    expect(desc).not.toBeNull()
+    expect(desc?.getAttribute('id')).toBe(describedBy)
+    expect(desc?.textContent).toBe('Brand')
+    expect(svg.firstElementChild?.tagName.toLowerCase()).toBe('desc')
+    expect(
+      container.querySelector('[data-mol-id="qr-code-logo"]')?.getAttribute('aria-label'),
+    ).toBeNull()
+  })
+
+  it('omits the QR code description when the logo has no alt text', () => {
+    const { container } = render(
+      <Wrap>
+        <QrCode value="x" logo={{ src: '/logo.png' }} />
+      </Wrap>,
+    )
+    const svg = container.querySelector('svg')!
+    expect(svg.hasAttribute('aria-describedby')).toBe(false)
+    expect(container.querySelector('desc')).toBeNull()
   })
 
   it('omits the logo overlay by default', () => {

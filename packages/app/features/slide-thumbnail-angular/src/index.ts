@@ -53,9 +53,9 @@
  * @remarks
  * - Requires a bonded ClassMap (frame uses `cm.position('relative')` +
  *   `cm.cursorPointer`) — rendering throws otherwise.
- * - The tile surface is a theme token (`var(--mol-color-surface, #fff)`) so
- *   light slide content stays readable, even in dark themes — render your own
- *   themed preview inside the button if that is wrong for your app.
+ * - The tile canvas is the theme's surface token (`cm.surface`) and the index
+ *   badge sits on a theme scrim (`cm.bgScrim` + `cm.textOnTone`), so both
+ *   follow the app's theme — render your own themed preview inside the button.
  * - The active outline uses `currentColor`; set a text color on a parent
  *   to control it.
  * - The index label's aria-label comes from `t('slideThumbnail.label')` with

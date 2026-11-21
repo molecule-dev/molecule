@@ -8,10 +8,8 @@ import '@molecule/app-framework-conformance/ui/setup'
 import { flushSync, mount, unmount } from 'svelte'
 import { afterEach, describe, expect, it } from 'vitest'
 
-import Host from '@molecule/app-framework-conformance/adapters/svelte-bindings/Host.svelte'
-import { setMoleculeContext } from '@molecule/app-svelte'
-
 import Sparkline from '../Sparkline.svelte'
+import type { SparklineProps } from '../types.js'
 
 afterEach(() => {
   document.body.innerHTML = ''
@@ -23,18 +21,10 @@ afterEach(() => {
  * @param props - The sparkline props.
  * @returns The markup of the mounted sparkline.
  */
-function render(props: Record<string, unknown> = {}): string {
+function render(props: SparklineProps): string {
   const host = document.createElement('div')
   document.body.appendChild(host)
-  const instance = mount(Host, {
-    target: host,
-    props: {
-      config: {},
-      setMoleculeContext,
-      component: Sparkline,
-      props,
-    },
-  })
+  const instance = mount(Sparkline, { target: host, props })
   flushSync()
   const markup = host.innerHTML
   unmount(instance)

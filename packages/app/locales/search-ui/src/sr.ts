@@ -14,4 +14,8 @@ export const sr: Partial<SearchUiTranslations> = {
   'searchUi.relatedTitle': 'Подудара се са значењем ваше претраге, а не са речима које она садржи',
   'searchUi.related': 'повезано',
   'searchUi.help': 'Савети за претрагу',
+  'searchUi.examplePhrase': '"тачна фраза"',
+  'searchUi.exampleExcluded': '-реч',
+  'searchUi.activeResult': '{{title}}, {{position}} од {{count}}',
+  'searchUi.dialogLabel': 'Претрага',
 }

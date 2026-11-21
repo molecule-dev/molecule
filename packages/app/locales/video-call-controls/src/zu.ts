@@ -8,4 +8,7 @@ export const zu: Partial<VideoCallControlsTranslations> = {
   'call.cameraOff': '🚫',
   'call.share': '🖥',
   'call.leave': 'Shiya',
+  'call.aria.muted': 'Kuthulisiwe',
+  'call.aria.handRaised': 'Isandla siphakanyisiwe',
+  'call.label.you': '(wena)',
 }

@@ -34,14 +34,33 @@ const hasRenderableContent = (node: Node): boolean =>
   )
 
 /**
- * The status node's color: current wins over completed, and every other
- * milestone is pending.
+ * The status node's class: current wins over completed (its semantic tone),
+ * and every other milestone is de-emphasis chrome — the theme's border colour
+ * rather than a status tone.
  *
+ * @param cm - The class map.
  * @param milestone - The milestone.
- * @returns The node color.
+ * @returns The node's class.
  */
-const dotColor = (milestone: OrderMilestone): string =>
-  milestone.current ? '#60a5fa' : milestone.completed ? '#22c55e' : '#d1d5db'
+const dotClass = (cm: UIClassMap, milestone: OrderMilestone): string =>
+  cm.cn(
+    milestone.current
+      ? cm.bgTone('info')
+      : milestone.completed
+        ? cm.bgTone('success')
+        : cm.bgBorder,
+  )
+
+/**
+ * The connector line's class: a completed leg takes the success tone; an
+ * un-reached one is de-emphasis chrome in the theme's border colour.
+ *
+ * @param cm - The class map.
+ * @param milestone - The milestone the connector belongs to.
+ * @returns The connector's class.
+ */
+const connectorClass = (cm: UIClassMap, milestone: OrderMilestone): string =>
+  milestone.completed ? cm.bgTone('success') : cm.bgBorder
 
 /**
  * OrderTimeline component.
@@ -67,7 +86,7 @@ const dotColor = (milestone: OrderMilestone): string =>
     '[class]': 'classes()',
   },
   // prettier-ignore
-  template: `<div [class]="listClasses()">@for (milestone of milestones; track milestone.id; let i = $index) {<div [class]="rowClasses()"><div [class]="cm().flex({ align: 'center', justify: 'center' })"><span aria-hidden="true" [style]="dotStyle(milestone)"></span>@if (i < milestones.length - 1) {<span aria-hidden="true" [style]="connectorStyle(milestone)"></span>}</div><div [class]="cm().cn(cm().stack(0))"><span [class]="labelClasses(milestone)">@if (isText(milestone.label)) {<ng-container>{{ milestone.label }}</ng-container>}@else {<ng-container [ngTemplateOutlet]="templateOf(milestone.label)"></ng-container>}</span>@if (milestone.detail) {<span [class]="cm().textSize('xs')">@if (isText(milestone.detail)) {<ng-container>{{ milestone.detail }}</ng-container>}@else {<ng-container [ngTemplateOutlet]="templateOf(milestone.detail)"></ng-container>}</span>}</div></div>}</div>@if (showEta()) {<div #etaEl [class]="cm().cn(cm().textSize('sm'), cm().fontWeight('semibold'))">@if (hasTextEta()) {<ng-container>{{ eta }}</ng-container>}<ng-content select="[slot=eta]"></ng-content></div>}`,
+  template: `<div [class]="listClasses()">@for (milestone of milestones; track milestone.id; let i = $index) {<div [class]="rowClasses()"><div [class]="cm().flex({ align: 'center', justify: 'center' })"><span aria-hidden="true" [class]="nodeClass(milestone)" [style]="dotStyle(milestone)"></span>@if (i < milestones.length - 1) {<span aria-hidden="true" [class]="lineClass(milestone)" [style]="connectorStyle()"></span>}</div><div [class]="cm().cn(cm().stack(0))"><span [class]="labelClasses(milestone)">@if (isText(milestone.label)) {<ng-container>{{ milestone.label }}</ng-container>}@else {<ng-container [ngTemplateOutlet]="templateOf(milestone.label)"></ng-container>}</span>@if (milestone.detail) {<span [class]="cm().textSize('xs')">@if (isText(milestone.detail)) {<ng-container>{{ milestone.detail }}</ng-container>}@else {<ng-container [ngTemplateOutlet]="templateOf(milestone.detail)"></ng-container>}</span>}</div></div>}</div>@if (showEta()) {<div #etaEl [class]="cm().cn(cm().textSize('sm'), cm().fontWeight('semibold'))">@if (hasTextEta()) {<ng-container>{{ eta }}</ng-container>}<ng-content select="[slot=eta]"></ng-content></div>}`,
 })
 export class OrderTimeline implements AfterViewInit {
   /** The milestones, rendered in order from earliest to latest. */
@@ -140,8 +159,29 @@ export class OrderTimeline implements AfterViewInit {
   }
 
   /**
-   * The status node's inline style, exactly React's declarations. A property
-   * React omits is passed as `''`, which clears it.
+   * The status node's class (see {@link dotClass}): current wins over
+   * completed, every other milestone is de-emphasis chrome.
+   * @param milestone - The milestone.
+   * @returns The node's class.
+   */
+  nodeClass(milestone: OrderMilestone): string {
+    return dotClass(this.cm(), milestone)
+  }
+
+  /**
+   * The connector line's class (see {@link connectorClass}): a completed leg
+   * takes the success tone, an un-reached one the theme's border colour.
+   * @param milestone - The milestone the connector belongs to.
+   * @returns The connector's class.
+   */
+  lineClass(milestone: OrderMilestone): string {
+    return connectorClass(this.cm(), milestone)
+  }
+
+  /**
+   * The status node's inline style, exactly React's declarations: sizing only
+   * — the fill colour is a ClassMap class (`nodeClass`). A property React
+   * omits is passed as `''`, which clears it.
    * @param milestone - The milestone.
    * @returns The style map.
    */
@@ -150,24 +190,22 @@ export class OrderTimeline implements AfterViewInit {
       width: '14px',
       height: '14px',
       'border-radius': '50%',
-      background: dotColor(milestone),
       border: milestone.current ? '3px solid currentColor' : '',
     }
   }
 
   /**
    * The connector line's inline style, exactly React's declarations:
-   * horizontal lines stretch between nodes, vertical ones run below the node.
-   * @param milestone - The milestone the connector belongs to.
+   * horizontal lines stretch between nodes, vertical ones run below the node
+   * — sizing and flow only, the fill colour is a ClassMap class
+   * (`lineClass`).
    * @returns The style map.
    */
-  connectorStyle(milestone: OrderMilestone): Record<string, string> {
-    const background = milestone.completed ? '#22c55e' : '#d1d5db'
+  connectorStyle(): Record<string, string> {
     return this.vertical()
       ? {
           height: '24px',
           width: '2px',
-          background,
           display: 'inline-block',
           flex: '',
           'margin-left': '',
@@ -176,7 +214,6 @@ export class OrderTimeline implements AfterViewInit {
       : {
           width: '100%',
           height: '2px',
-          background,
           display: 'inline-block',
           flex: '1',
           'margin-left': '4px',

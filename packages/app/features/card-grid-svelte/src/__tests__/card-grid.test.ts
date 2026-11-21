@@ -12,6 +12,8 @@ import '@molecule/app-framework-conformance/ui/setup'
 import { createRawSnippet, flushSync, mount, type Snippet, unmount } from 'svelte'
 import { afterEach, describe, expect, it } from 'vitest'
 
+import { inlineStyleMismatch } from '@molecule/app-framework-conformance/ui'
+
 import BentoGrid from '../BentoGrid.svelte'
 import CardGrid from '../CardGrid.svelte'
 import type { BentoGridProps, CardGridProps } from '../types.js'
@@ -83,14 +85,12 @@ describe('BentoGrid', () => {
     const markup = await renderBentoGrid({
       items: [{ id: 'a', content: 'x', colSpan: 6, rowSpan: 2 }],
     })
-    expect(markup).toContain('grid-column: span 6')
-    expect(markup).toContain('grid-row: span 2')
+    expect(inlineStyleMismatch(markup, { gridColumn: 'span 6', gridRow: 'span 2' })).toBeNull()
   })
 
   it('defaults col-span to 4 and row-span to 1 when unspecified', async () => {
     const markup = await renderBentoGrid({ items: [{ id: 'a', content: 'x' }] })
-    expect(markup).toContain('grid-column: span 4')
-    expect(markup).toContain('grid-row: span 1')
+    expect(inlineStyleMismatch(markup, { gridColumn: 'span 4', gridRow: 'span 1' })).toBeNull()
   })
 
   it('uses grid-template-areas + per-item grid-area in areas mode', async () => {
@@ -99,8 +99,8 @@ describe('BentoGrid', () => {
       items: [{ id: 'a', content: 'x', area: 'a' }],
     })
     expect(markup).toContain('grid-template-areas')
-    expect(markup).toContain('grid-area: a')
-    expect(markup).not.toContain('grid-column: span')
+    expect(inlineStyleMismatch(markup, { gridArea: 'a' })).toBeNull()
+    expect(inlineStyleMismatch(markup, { gridColumn: 'span 4' })).not.toBeNull()
   })
 
   it('forwards className', async () => {

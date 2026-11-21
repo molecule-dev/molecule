@@ -97,7 +97,7 @@ export const NewsletterSignup: Component<NewsletterSignupProps> = (props) => {
           <Input
             type="email"
             value={email()}
-            onChange={(event: Event) => setEmail((event.target as HTMLInputElement).value)}
+            onChange={(event) => setEmail((event.target as HTMLInputElement).value)}
             placeholder={
               props.placeholder ?? t('newsletter.placeholder', {}, { defaultValue: 'Your email' })
             }

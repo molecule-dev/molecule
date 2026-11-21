@@ -7,4 +7,8 @@ export const da: Partial<HttpInspectorTranslations> = {
   'httpInspector.send': 'Sende',
   'httpInspector.headers': 'Overskrifter',
   'httpInspector.addHeader': 'Tilføj overskrift',
+  'httpInspector.methodLabel': 'HTTP-metode',
+  'httpInspector.urlLabel': 'URL',
+  'httpInspector.headerPlaceholder': 'Overskrift',
+  'httpInspector.valuePlaceholder': 'Værdi',
 }

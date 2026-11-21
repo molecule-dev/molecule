@@ -1,0 +1,647 @@
+{
+ "exports": [
+  "NodeEditorPanel",
+  "NodeEditorRadioGroup",
+  "NodeEditorSection",
+  "NodeEditorSlider",
+  "NodeEditorToggle"
+ ],
+ "values": {},
+ "cases": {
+  "NodeEditorPanel": {
+   "title only": {
+    "snapshots": [
+     "<aside class=\"c2cbb8333 c42740ba6 c7c5cf88b c82d97ef1 cbaac6b89 cc2d72006 ccae02ff2 cd682d951 cd8ca46a6\">\n<div class=\"c1e8176ab c42740ba6 c7c5cf88b c937ba156 c97d61bf0 ccae02ff2 cd9b20003 ce2ca5664\">\n<h2 class=\"c0d99ed10 ce6c94376 cf0c106ef\">\nNode Properties\n</h2>\n</div>\n<div class=\"c2cbb8333 c97d61bf0 c9f66f1da cb5823274 cbaac6b89 ccae02ff2 cd4bf1eb3\">\n</div>\n</aside>\n@route /"
+    ],
+    "calls": []
+   },
+   "string title": {
+    "snapshots": [
+     "<aside class=\"c2cbb8333 c42740ba6 c7c5cf88b c82d97ef1 cbaac6b89 cc2d72006 ccae02ff2 cd682d951 cd8ca46a6\">\n<div class=\"c1e8176ab c42740ba6 c7c5cf88b c937ba156 c97d61bf0 ccae02ff2 cd9b20003 ce2ca5664\">\n<h2 class=\"c0d99ed10 ce6c94376 cf0c106ef\">\nNode Properties\n</h2>\n</div>\n<div class=\"c2cbb8333 c97d61bf0 c9f66f1da cb5823274 cbaac6b89 ccae02ff2 cd4bf1eb3\">\n</div>\n</aside>\n@route /"
+    ],
+    "calls": []
+   },
+   "title, body, footer and close button": {
+    "snapshots": [
+     "<aside class=\"c2cbb8333 c42740ba6 c7c5cf88b c82d97ef1 cbaac6b89 cc2d72006 ccae02ff2 cd682d951 cd8ca46a6\">\n<div class=\"c1e8176ab c42740ba6 c7c5cf88b c937ba156 c97d61bf0 ccae02ff2 cd9b20003 ce2ca5664\">\n<h2 class=\"c0d99ed10 ce6c94376 cf0c106ef\">\nNode Properties\n</h2>\n<button aria-label=\"Close panel\" class=\"c13d4ff0f c37109e1c c3c3e366d c4a6e980a c7552104c c760a8915 c7d370ab9 c86f9ad24 c9f45aa9d ca210f89e ce823b5bf\" data-mol-id=\"node-editor-panel-close\" type=\"button\">\n<span class=\"caeede141\">\nclose\n</span>\n</button>\n</div>\n<div class=\"c2cbb8333 c97d61bf0 c9f66f1da cb5823274 cbaac6b89 ccae02ff2 cd4bf1eb3\">\nBody content\n</div>\n<div class=\"c7c5cf88b c97d61bf0 cf0ca6c6e\">\n<div data-footer>\nSave\n<span>\nSaved\n</span>\n</div>\n</div>\n</aside>\n@route /"
+    ],
+    "calls": []
+   },
+   "close button keeps the default aria label": {
+    "snapshots": [
+     "<aside class=\"c2cbb8333 c42740ba6 c7c5cf88b c82d97ef1 cbaac6b89 cc2d72006 ccae02ff2 cd682d951 cd8ca46a6\">\n<div class=\"c1e8176ab c42740ba6 c7c5cf88b c937ba156 c97d61bf0 ccae02ff2 cd9b20003 ce2ca5664\">\n<h2 class=\"c0d99ed10 ce6c94376 cf0c106ef\">\nNode Properties\n</h2>\n<button aria-label=\"Close panel\" class=\"c13d4ff0f c37109e1c c3c3e366d c4a6e980a c7552104c c760a8915 c7d370ab9 c86f9ad24 c9f45aa9d ca210f89e ce823b5bf\" data-mol-id=\"node-editor-panel-close\" type=\"button\">\n<span class=\"caeede141\">\nclose\n</span>\n</button>\n</div>\n<div class=\"c2cbb8333 c97d61bf0 c9f66f1da cb5823274 cbaac6b89 ccae02ff2 cd4bf1eb3\">\n</div>\n</aside>\n@route /"
+    ],
+    "calls": []
+   },
+   "close aria label override": {
+    "snapshots": [
+     "<aside class=\"c2cbb8333 c42740ba6 c7c5cf88b c82d97ef1 cbaac6b89 cc2d72006 ccae02ff2 cd682d951 cd8ca46a6\">\n<div class=\"c1e8176ab c42740ba6 c7c5cf88b c937ba156 c97d61bf0 ccae02ff2 cd9b20003 ce2ca5664\">\n<h2 class=\"c0d99ed10 ce6c94376 cf0c106ef\">\nNode Properties\n</h2>\n<button aria-label=\"Hide properties\" class=\"c13d4ff0f c37109e1c c3c3e366d c4a6e980a c7552104c c760a8915 c7d370ab9 c86f9ad24 c9f45aa9d ca210f89e ce823b5bf\" data-mol-id=\"node-editor-panel-close\" type=\"button\">\n<span class=\"caeede141\">\nclose\n</span>\n</button>\n</div>\n<div class=\"c2cbb8333 c97d61bf0 c9f66f1da cb5823274 cbaac6b89 ccae02ff2 cd4bf1eb3\">\n</div>\n</aside>\n@route /"
+    ],
+    "calls": []
+   },
+   "empty close aria label": {
+    "snapshots": [
+     "<aside class=\"c2cbb8333 c42740ba6 c7c5cf88b c82d97ef1 cbaac6b89 cc2d72006 ccae02ff2 cd682d951 cd8ca46a6\">\n<div class=\"c1e8176ab c42740ba6 c7c5cf88b c937ba156 c97d61bf0 ccae02ff2 cd9b20003 ce2ca5664\">\n<h2 class=\"c0d99ed10 ce6c94376 cf0c106ef\">\nNode Properties\n</h2>\n<button aria-label class=\"c13d4ff0f c37109e1c c3c3e366d c4a6e980a c7552104c c760a8915 c7d370ab9 c86f9ad24 c9f45aa9d ca210f89e ce823b5bf\" data-mol-id=\"node-editor-panel-close\" type=\"button\">\n<span class=\"caeede141\">\nclose\n</span>\n</button>\n</div>\n<div class=\"c2cbb8333 c97d61bf0 c9f66f1da cb5823274 cbaac6b89 ccae02ff2 cd4bf1eb3\">\n</div>\n</aside>\n@route /"
+    ],
+    "calls": []
+   },
+   "width class override": {
+    "snapshots": [
+     "<aside class=\"c2cbb8333 c42740ba6 c7c5cf88b c82d97ef1 cbaac6b89 cc2d72006 ccae02ff2 cd6809aba cd8ca46a6\">\n<div class=\"c1e8176ab c42740ba6 c7c5cf88b c937ba156 c97d61bf0 ccae02ff2 cd9b20003 ce2ca5664\">\n<h2 class=\"c0d99ed10 ce6c94376 cf0c106ef\">\nNode Properties\n</h2>\n</div>\n<div class=\"c2cbb8333 c97d61bf0 c9f66f1da cb5823274 cbaac6b89 ccae02ff2 cd4bf1eb3\">\n</div>\n</aside>\n@route /"
+    ],
+    "calls": []
+   },
+   "default width": {
+    "snapshots": [
+     "<aside class=\"c2cbb8333 c42740ba6 c7c5cf88b c82d97ef1 cbaac6b89 cc2d72006 ccae02ff2 cd682d951 cd8ca46a6\">\n<div class=\"c1e8176ab c42740ba6 c7c5cf88b c937ba156 c97d61bf0 ccae02ff2 cd9b20003 ce2ca5664\">\n<h2 class=\"c0d99ed10 ce6c94376 cf0c106ef\">\nNode Properties\n</h2>\n</div>\n<div class=\"c2cbb8333 c97d61bf0 c9f66f1da cb5823274 cbaac6b89 ccae02ff2 cd4bf1eb3\">\n</div>\n</aside>\n@route /"
+    ],
+    "calls": []
+   },
+   "string footer renders in the footer row": {
+    "snapshots": [
+     "<aside class=\"c2cbb8333 c42740ba6 c7c5cf88b c82d97ef1 cbaac6b89 cc2d72006 ccae02ff2 cd682d951 cd8ca46a6\">\n<div class=\"c1e8176ab c42740ba6 c7c5cf88b c937ba156 c97d61bf0 ccae02ff2 cd9b20003 ce2ca5664\">\n<h2 class=\"c0d99ed10 ce6c94376 cf0c106ef\">\nNode Properties\n</h2>\n</div>\n<div class=\"c2cbb8333 c97d61bf0 c9f66f1da cb5823274 cbaac6b89 ccae02ff2 cd4bf1eb3\">\n</div>\n<div class=\"c7c5cf88b c97d61bf0 cf0ca6c6e\">\nSaved\n</div>\n</aside>\n@route /"
+    ],
+    "calls": []
+   },
+   "empty footer renders no footer row": {
+    "snapshots": [
+     "<aside class=\"c2cbb8333 c42740ba6 c7c5cf88b c82d97ef1 cbaac6b89 cc2d72006 ccae02ff2 cd682d951 cd8ca46a6\">\n<div class=\"c1e8176ab c42740ba6 c7c5cf88b c937ba156 c97d61bf0 ccae02ff2 cd9b20003 ce2ca5664\">\n<h2 class=\"c0d99ed10 ce6c94376 cf0c106ef\">\nNode Properties\n</h2>\n</div>\n<div class=\"c2cbb8333 c97d61bf0 c9f66f1da cb5823274 cbaac6b89 ccae02ff2 cd4bf1eb3\">\n</div>\n</aside>\n@route /"
+    ],
+    "calls": []
+   },
+   "node children": {
+    "snapshots": [
+     "<aside class=\"c2cbb8333 c42740ba6 c7c5cf88b c82d97ef1 cbaac6b89 cc2d72006 ccae02ff2 cd682d951 cd8ca46a6\">\n<div class=\"c1e8176ab c42740ba6 c7c5cf88b c937ba156 c97d61bf0 ccae02ff2 cd9b20003 ce2ca5664\">\n<h2 class=\"c0d99ed10 ce6c94376 cf0c106ef\">\nNode Properties\n</h2>\n</div>\n<div class=\"c2cbb8333 c97d61bf0 c9f66f1da cb5823274 cbaac6b89 ccae02ff2 cd4bf1eb3\">\n<p data-body>\nBody\n</p>\n<span>\nMore\n</span>\n</div>\n</aside>\n@route /"
+    ],
+    "calls": []
+   },
+   "clicking close calls onClose": {
+    "snapshots": [
+     "<aside class=\"c2cbb8333 c42740ba6 c7c5cf88b c82d97ef1 cbaac6b89 cc2d72006 ccae02ff2 cd682d951 cd8ca46a6\">\n<div class=\"c1e8176ab c42740ba6 c7c5cf88b c937ba156 c97d61bf0 ccae02ff2 cd9b20003 ce2ca5664\">\n<h2 class=\"c0d99ed10 ce6c94376 cf0c106ef\">\nNode Properties\n</h2>\n<button aria-label=\"Close panel\" class=\"c13d4ff0f c37109e1c c3c3e366d c4a6e980a c7552104c c760a8915 c7d370ab9 c86f9ad24 c9f45aa9d ca210f89e ce823b5bf\" data-mol-id=\"node-editor-panel-close\" type=\"button\">\n<span class=\"caeede141\">\nclose\n</span>\n</button>\n</div>\n<div class=\"c2cbb8333 c97d61bf0 c9f66f1da cb5823274 cbaac6b89 ccae02ff2 cd4bf1eb3\">\n</div>\n</aside>\n@route /",
+     "<aside class=\"c2cbb8333 c42740ba6 c7c5cf88b c82d97ef1 cbaac6b89 cc2d72006 ccae02ff2 cd682d951 cd8ca46a6\">\n<div class=\"c1e8176ab c42740ba6 c7c5cf88b c937ba156 c97d61bf0 ccae02ff2 cd9b20003 ce2ca5664\">\n<h2 class=\"c0d99ed10 ce6c94376 cf0c106ef\">\nNode Properties\n</h2>\n<button aria-label=\"Close panel\" class=\"c13d4ff0f c37109e1c c3c3e366d c4a6e980a c7552104c c760a8915 c7d370ab9 c86f9ad24 c9f45aa9d ca210f89e ce823b5bf\" data-mol-id=\"node-editor-panel-close\" type=\"button\">\n<span class=\"caeede141\">\nclose\n</span>\n</button>\n</div>\n<div class=\"c2cbb8333 c97d61bf0 c9f66f1da cb5823274 cbaac6b89 ccae02ff2 cd4bf1eb3\">\n</div>\n</aside>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onClose",
+      "args": [
+       {
+        "event": "click",
+        "target": "button"
+       }
+      ]
+     }
+    ]
+   },
+   "clicking close with a custom aria label": {
+    "snapshots": [
+     "<aside class=\"c2cbb8333 c42740ba6 c7c5cf88b c82d97ef1 cbaac6b89 cc2d72006 ccae02ff2 cd682d951 cd8ca46a6\">\n<div class=\"c1e8176ab c42740ba6 c7c5cf88b c937ba156 c97d61bf0 ccae02ff2 cd9b20003 ce2ca5664\">\n<h2 class=\"c0d99ed10 ce6c94376 cf0c106ef\">\nNode Properties\n</h2>\n<button aria-label=\"Hide properties\" class=\"c13d4ff0f c37109e1c c3c3e366d c4a6e980a c7552104c c760a8915 c7d370ab9 c86f9ad24 c9f45aa9d ca210f89e ce823b5bf\" data-mol-id=\"node-editor-panel-close\" type=\"button\">\n<span class=\"caeede141\">\nclose\n</span>\n</button>\n</div>\n<div class=\"c2cbb8333 c97d61bf0 c9f66f1da cb5823274 cbaac6b89 ccae02ff2 cd4bf1eb3\">\n</div>\n</aside>\n@route /",
+     "<aside class=\"c2cbb8333 c42740ba6 c7c5cf88b c82d97ef1 cbaac6b89 cc2d72006 ccae02ff2 cd682d951 cd8ca46a6\">\n<div class=\"c1e8176ab c42740ba6 c7c5cf88b c937ba156 c97d61bf0 ccae02ff2 cd9b20003 ce2ca5664\">\n<h2 class=\"c0d99ed10 ce6c94376 cf0c106ef\">\nNode Properties\n</h2>\n<button aria-label=\"Hide properties\" class=\"c13d4ff0f c37109e1c c3c3e366d c4a6e980a c7552104c c760a8915 c7d370ab9 c86f9ad24 c9f45aa9d ca210f89e ce823b5bf\" data-mol-id=\"node-editor-panel-close\" type=\"button\">\n<span class=\"caeede141\">\nclose\n</span>\n</button>\n</div>\n<div class=\"c2cbb8333 c97d61bf0 c9f66f1da cb5823274 cbaac6b89 ccae02ff2 cd4bf1eb3\">\n</div>\n</aside>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onClose",
+      "args": [
+       {
+        "event": "click",
+        "target": "button"
+       }
+      ]
+     }
+    ]
+   },
+   "footer is added and removed": {
+    "snapshots": [
+     "<aside class=\"c2cbb8333 c42740ba6 c7c5cf88b c82d97ef1 cbaac6b89 cc2d72006 ccae02ff2 cd682d951 cd8ca46a6\">\n<div class=\"c1e8176ab c42740ba6 c7c5cf88b c937ba156 c97d61bf0 ccae02ff2 cd9b20003 ce2ca5664\">\n<h2 class=\"c0d99ed10 ce6c94376 cf0c106ef\">\nNode Properties\n</h2>\n</div>\n<div class=\"c2cbb8333 c97d61bf0 c9f66f1da cb5823274 cbaac6b89 ccae02ff2 cd4bf1eb3\">\n</div>\n</aside>\n@route /",
+     "<aside class=\"c2cbb8333 c42740ba6 c7c5cf88b c82d97ef1 cbaac6b89 cc2d72006 ccae02ff2 cd682d951 cd8ca46a6\">\n<div class=\"c1e8176ab c42740ba6 c7c5cf88b c937ba156 c97d61bf0 ccae02ff2 cd9b20003 ce2ca5664\">\n<h2 class=\"c0d99ed10 ce6c94376 cf0c106ef\">\nNode Properties\n</h2>\n</div>\n<div class=\"c2cbb8333 c97d61bf0 c9f66f1da cb5823274 cbaac6b89 ccae02ff2 cd4bf1eb3\">\n</div>\n<div class=\"c7c5cf88b c97d61bf0 cf0ca6c6e\">\nSaved\n</div>\n</aside>\n@route /",
+     "<aside class=\"c2cbb8333 c42740ba6 c7c5cf88b c82d97ef1 cbaac6b89 cc2d72006 ccae02ff2 cd682d951 cd8ca46a6\">\n<div class=\"c1e8176ab c42740ba6 c7c5cf88b c937ba156 c97d61bf0 ccae02ff2 cd9b20003 ce2ca5664\">\n<h2 class=\"c0d99ed10 ce6c94376 cf0c106ef\">\nNode Properties\n</h2>\n</div>\n<div class=\"c2cbb8333 c97d61bf0 c9f66f1da cb5823274 cbaac6b89 ccae02ff2 cd4bf1eb3\">\n</div>\n</aside>\n@route /"
+    ],
+    "calls": []
+   },
+   "the title changes": {
+    "snapshots": [
+     "<aside class=\"c2cbb8333 c42740ba6 c7c5cf88b c82d97ef1 cbaac6b89 cc2d72006 ccae02ff2 cd682d951 cd8ca46a6\">\n<div class=\"c1e8176ab c42740ba6 c7c5cf88b c937ba156 c97d61bf0 ccae02ff2 cd9b20003 ce2ca5664\">\n<h2 class=\"c0d99ed10 ce6c94376 cf0c106ef\">\nNode Properties\n</h2>\n</div>\n<div class=\"c2cbb8333 c97d61bf0 c9f66f1da cb5823274 cbaac6b89 ccae02ff2 cd4bf1eb3\">\n</div>\n</aside>\n@route /",
+     "<aside class=\"c2cbb8333 c42740ba6 c7c5cf88b c82d97ef1 cbaac6b89 cc2d72006 ccae02ff2 cd682d951 cd8ca46a6\">\n<div class=\"c1e8176ab c42740ba6 c7c5cf88b c937ba156 c97d61bf0 ccae02ff2 cd9b20003 ce2ca5664\">\n<h2 class=\"c0d99ed10 ce6c94376 cf0c106ef\">\nEdge Properties\n</h2>\n</div>\n<div class=\"c2cbb8333 c97d61bf0 c9f66f1da cb5823274 cbaac6b89 ccae02ff2 cd4bf1eb3\">\n</div>\n</aside>\n@route /"
+    ],
+    "calls": []
+   },
+   "the width class changes": {
+    "snapshots": [
+     "<aside class=\"c2cbb8333 c42740ba6 c7c5cf88b c82d97ef1 cbaac6b89 cc2d72006 ccae02ff2 cd6809aba cd8ca46a6\">\n<div class=\"c1e8176ab c42740ba6 c7c5cf88b c937ba156 c97d61bf0 ccae02ff2 cd9b20003 ce2ca5664\">\n<h2 class=\"c0d99ed10 ce6c94376 cf0c106ef\">\nNode Properties\n</h2>\n</div>\n<div class=\"c2cbb8333 c97d61bf0 c9f66f1da cb5823274 cbaac6b89 ccae02ff2 cd4bf1eb3\">\n</div>\n</aside>\n@route /",
+     "<aside class=\"c2cbb8333 c42740ba6 c7c5cf88b c82d97ef1 cbaac6b89 cc2d72006 cc67e42f3 ccae02ff2 cd8ca46a6\">\n<div class=\"c1e8176ab c42740ba6 c7c5cf88b c937ba156 c97d61bf0 ccae02ff2 cd9b20003 ce2ca5664\">\n<h2 class=\"c0d99ed10 ce6c94376 cf0c106ef\">\nNode Properties\n</h2>\n</div>\n<div class=\"c2cbb8333 c97d61bf0 c9f66f1da cb5823274 cbaac6b89 ccae02ff2 cd4bf1eb3\">\n</div>\n</aside>\n@route /"
+    ],
+    "calls": []
+   },
+   "title only, then a locale switch": {
+    "snapshots": [
+     "<aside class=\"c2cbb8333 c42740ba6 c7c5cf88b c82d97ef1 cbaac6b89 cc2d72006 ccae02ff2 cd682d951 cd8ca46a6\">\n<div class=\"c1e8176ab c42740ba6 c7c5cf88b c937ba156 c97d61bf0 ccae02ff2 cd9b20003 ce2ca5664\">\n<h2 class=\"c0d99ed10 ce6c94376 cf0c106ef\">\nNode Properties\n</h2>\n</div>\n<div class=\"c2cbb8333 c97d61bf0 c9f66f1da cb5823274 cbaac6b89 ccae02ff2 cd4bf1eb3\">\n</div>\n</aside>\n@route /",
+     "<aside class=\"c2cbb8333 c42740ba6 c7c5cf88b c82d97ef1 cbaac6b89 cc2d72006 ccae02ff2 cd682d951 cd8ca46a6\">\n<div class=\"c1e8176ab c42740ba6 c7c5cf88b c937ba156 c97d61bf0 ccae02ff2 cd9b20003 ce2ca5664\">\n<h2 class=\"c0d99ed10 ce6c94376 cf0c106ef\">\nNode Properties\n</h2>\n</div>\n<div class=\"c2cbb8333 c97d61bf0 c9f66f1da cb5823274 cbaac6b89 ccae02ff2 cd4bf1eb3\">\n</div>\n</aside>\n@route /"
+    ],
+    "calls": []
+   }
+  },
+  "NodeEditorRadioGroup": {
+   "three options, middle selected": {
+    "snapshots": [
+     "<div class=\"c9566e21c ca216a595 caf871a91\" role=\"radiogroup\">\n<label class=\"c13d4ff0f c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003 cf0129ab1\" data-mol-id=\"node-editor-radio-conversational\">\n<input class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"conversational\" {checked=false}>\n</input>\n<span class=\"c052585d2 c4647f690\">\nConversational\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c28ce3678 c32cad454 c9052b18c c9773cd2b cc3672a4e ccae02ff2 cd14f11ef\">\n</div>\n</label>\n<label class=\"c13d4ff0f c1723ea4b c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c5fb91e8c c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003\" data-mol-id=\"node-editor-radio-structured\">\n<input checked class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"structured\" {checked=true}>\n</input>\n<span class=\"c4647f690 ce6c94376\">\nStructured\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c32cad454 c9052b18c c9773cd2b cb33f6c80 cc3672a4e ccae02ff2 cd14f11ef\">\n<div class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</div>\n</div>\n</label>\n<label class=\"c13d4ff0f c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003 cf0129ab1\" data-mol-id=\"node-editor-radio-hybrid\">\n<input class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"hybrid\" {checked=false}>\n</input>\n<span class=\"c052585d2 c4647f690\">\nHybrid\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c28ce3678 c32cad454 c9052b18c c9773cd2b cc3672a4e ccae02ff2 cd14f11ef\">\n</div>\n</label>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "first option selected": {
+    "snapshots": [
+     "<div class=\"c9566e21c ca216a595 caf871a91\" role=\"radiogroup\">\n<label class=\"c13d4ff0f c1723ea4b c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c5fb91e8c c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003\" data-mol-id=\"node-editor-radio-conversational\">\n<input checked class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"conversational\" {checked=true}>\n</input>\n<span class=\"c4647f690 ce6c94376\">\nConversational\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c32cad454 c9052b18c c9773cd2b cb33f6c80 cc3672a4e ccae02ff2 cd14f11ef\">\n<div class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</div>\n</div>\n</label>\n<label class=\"c13d4ff0f c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003 cf0129ab1\" data-mol-id=\"node-editor-radio-structured\">\n<input class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"structured\" {checked=false}>\n</input>\n<span class=\"c052585d2 c4647f690\">\nStructured\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c28ce3678 c32cad454 c9052b18c c9773cd2b cc3672a4e ccae02ff2 cd14f11ef\">\n</div>\n</label>\n<label class=\"c13d4ff0f c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003 cf0129ab1\" data-mol-id=\"node-editor-radio-hybrid\">\n<input class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"hybrid\" {checked=false}>\n</input>\n<span class=\"c052585d2 c4647f690\">\nHybrid\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c28ce3678 c32cad454 c9052b18c c9773cd2b cc3672a4e ccae02ff2 cd14f11ef\">\n</div>\n</label>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "no option selected": {
+    "snapshots": [
+     "<div class=\"c9566e21c ca216a595 caf871a91\" role=\"radiogroup\">\n<label class=\"c13d4ff0f c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003 cf0129ab1\" data-mol-id=\"node-editor-radio-conversational\">\n<input class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"conversational\" {checked=false}>\n</input>\n<span class=\"c052585d2 c4647f690\">\nConversational\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c28ce3678 c32cad454 c9052b18c c9773cd2b cc3672a4e ccae02ff2 cd14f11ef\">\n</div>\n</label>\n<label class=\"c13d4ff0f c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003 cf0129ab1\" data-mol-id=\"node-editor-radio-structured\">\n<input class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"structured\" {checked=false}>\n</input>\n<span class=\"c052585d2 c4647f690\">\nStructured\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c28ce3678 c32cad454 c9052b18c c9773cd2b cc3672a4e ccae02ff2 cd14f11ef\">\n</div>\n</label>\n<label class=\"c13d4ff0f c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003 cf0129ab1\" data-mol-id=\"node-editor-radio-hybrid\">\n<input class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"hybrid\" {checked=false}>\n</input>\n<span class=\"c052585d2 c4647f690\">\nHybrid\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c28ce3678 c32cad454 c9052b18c c9773cd2b cc3672a4e ccae02ff2 cd14f11ef\">\n</div>\n</label>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "single option": {
+    "snapshots": [
+     "<div class=\"c9566e21c ca216a595 caf871a91\" role=\"radiogroup\">\n<label class=\"c13d4ff0f c1723ea4b c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c5fb91e8c c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003\" data-mol-id=\"node-editor-radio-only\">\n<input checked class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"only\" {checked=true}>\n</input>\n<span class=\"c4647f690 ce6c94376\">\nOnly\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c32cad454 c9052b18c c9773cd2b cb33f6c80 cc3672a4e ccae02ff2 cd14f11ef\">\n<div class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</div>\n</div>\n</label>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "empty options": {
+    "snapshots": [
+     "<div class=\"c9566e21c ca216a595 caf871a91\" role=\"radiogroup\">\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "node labels": {
+    "snapshots": [
+     "<div class=\"c9566e21c ca216a595 caf871a91\" role=\"radiogroup\">\n<label class=\"c13d4ff0f c1723ea4b c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c5fb91e8c c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003\" data-mol-id=\"node-editor-radio-conversational\">\n<input checked class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"conversational\" {checked=true}>\n</input>\n<span class=\"c4647f690 ce6c94376\">\n<em>\nConversational\n</em>\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c32cad454 c9052b18c c9773cd2b cb33f6c80 cc3672a4e ccae02ff2 cd14f11ef\">\n<div class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</div>\n</div>\n</label>\n<label class=\"c13d4ff0f c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003 cf0129ab1\" data-mol-id=\"node-editor-radio-structured\">\n<input class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"structured\" {checked=false}>\n</input>\n<span class=\"c052585d2 c4647f690\">\n<strong>\nStructured\n</strong>\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c28ce3678 c32cad454 c9052b18c c9773cd2b cc3672a4e ccae02ff2 cd14f11ef\">\n</div>\n</label>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "clicking an option tile selects it": {
+    "snapshots": [
+     "<div class=\"c9566e21c ca216a595 caf871a91\" role=\"radiogroup\">\n<label class=\"c13d4ff0f c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003 cf0129ab1\" data-mol-id=\"node-editor-radio-conversational\">\n<input class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"conversational\" {checked=false}>\n</input>\n<span class=\"c052585d2 c4647f690\">\nConversational\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c28ce3678 c32cad454 c9052b18c c9773cd2b cc3672a4e ccae02ff2 cd14f11ef\">\n</div>\n</label>\n<label class=\"c13d4ff0f c1723ea4b c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c5fb91e8c c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003\" data-mol-id=\"node-editor-radio-structured\">\n<input checked class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"structured\" {checked=true}>\n</input>\n<span class=\"c4647f690 ce6c94376\">\nStructured\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c32cad454 c9052b18c c9773cd2b cb33f6c80 cc3672a4e ccae02ff2 cd14f11ef\">\n<div class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</div>\n</div>\n</label>\n<label class=\"c13d4ff0f c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003 cf0129ab1\" data-mol-id=\"node-editor-radio-hybrid\">\n<input class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"hybrid\" {checked=false}>\n</input>\n<span class=\"c052585d2 c4647f690\">\nHybrid\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c28ce3678 c32cad454 c9052b18c c9773cd2b cc3672a4e ccae02ff2 cd14f11ef\">\n</div>\n</label>\n</div>\n@route /",
+     "<div class=\"c9566e21c ca216a595 caf871a91\" role=\"radiogroup\">\n<label class=\"c13d4ff0f c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003 cf0129ab1\" data-mol-id=\"node-editor-radio-conversational\">\n<input class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"conversational\" {checked=false}>\n</input>\n<span class=\"c052585d2 c4647f690\">\nConversational\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c28ce3678 c32cad454 c9052b18c c9773cd2b cc3672a4e ccae02ff2 cd14f11ef\">\n</div>\n</label>\n<label class=\"c13d4ff0f c1723ea4b c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c5fb91e8c c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003\" data-mol-id=\"node-editor-radio-structured\">\n<input checked class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"structured\" {checked=true}>\n</input>\n<span class=\"c4647f690 ce6c94376\">\nStructured\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c32cad454 c9052b18c c9773cd2b cb33f6c80 cc3672a4e ccae02ff2 cd14f11ef\">\n<div class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</div>\n</div>\n</label>\n<label class=\"c13d4ff0f c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003 cf0129ab1\" data-mol-id=\"node-editor-radio-hybrid\">\n<input class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"hybrid\" {checked=false}>\n</input>\n<span class=\"c052585d2 c4647f690\">\nHybrid\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c28ce3678 c32cad454 c9052b18c c9773cd2b cc3672a4e ccae02ff2 cd14f11ef\">\n</div>\n</label>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onChange",
+      "args": [
+       "hybrid"
+      ]
+     }
+    ]
+   },
+   "clicking a radio selects it": {
+    "snapshots": [
+     "<div class=\"c9566e21c ca216a595 caf871a91\" role=\"radiogroup\">\n<label class=\"c13d4ff0f c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003 cf0129ab1\" data-mol-id=\"node-editor-radio-conversational\">\n<input class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"conversational\" {checked=false}>\n</input>\n<span class=\"c052585d2 c4647f690\">\nConversational\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c28ce3678 c32cad454 c9052b18c c9773cd2b cc3672a4e ccae02ff2 cd14f11ef\">\n</div>\n</label>\n<label class=\"c13d4ff0f c1723ea4b c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c5fb91e8c c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003\" data-mol-id=\"node-editor-radio-structured\">\n<input checked class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"structured\" {checked=true}>\n</input>\n<span class=\"c4647f690 ce6c94376\">\nStructured\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c32cad454 c9052b18c c9773cd2b cb33f6c80 cc3672a4e ccae02ff2 cd14f11ef\">\n<div class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</div>\n</div>\n</label>\n<label class=\"c13d4ff0f c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003 cf0129ab1\" data-mol-id=\"node-editor-radio-hybrid\">\n<input class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"hybrid\" {checked=false}>\n</input>\n<span class=\"c052585d2 c4647f690\">\nHybrid\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c28ce3678 c32cad454 c9052b18c c9773cd2b cc3672a4e ccae02ff2 cd14f11ef\">\n</div>\n</label>\n</div>\n@route /",
+     "<div class=\"c9566e21c ca216a595 caf871a91\" role=\"radiogroup\">\n<label class=\"c13d4ff0f c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003 cf0129ab1\" data-mol-id=\"node-editor-radio-conversational\">\n<input class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"conversational\" {checked=false}>\n</input>\n<span class=\"c052585d2 c4647f690\">\nConversational\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c28ce3678 c32cad454 c9052b18c c9773cd2b cc3672a4e ccae02ff2 cd14f11ef\">\n</div>\n</label>\n<label class=\"c13d4ff0f c1723ea4b c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c5fb91e8c c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003\" data-mol-id=\"node-editor-radio-structured\">\n<input checked class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"structured\" {checked=true}>\n</input>\n<span class=\"c4647f690 ce6c94376\">\nStructured\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c32cad454 c9052b18c c9773cd2b cb33f6c80 cc3672a4e ccae02ff2 cd14f11ef\">\n<div class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</div>\n</div>\n</label>\n<label class=\"c13d4ff0f c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003 cf0129ab1\" data-mol-id=\"node-editor-radio-hybrid\">\n<input class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"hybrid\" {checked=false}>\n</input>\n<span class=\"c052585d2 c4647f690\">\nHybrid\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c28ce3678 c32cad454 c9052b18c c9773cd2b cc3672a4e ccae02ff2 cd14f11ef\">\n</div>\n</label>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onChange",
+      "args": [
+       "conversational"
+      ]
+     }
+    ]
+   },
+   "clicking the selected option reports it again": {
+    "snapshots": [
+     "<div class=\"c9566e21c ca216a595 caf871a91\" role=\"radiogroup\">\n<label class=\"c13d4ff0f c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003 cf0129ab1\" data-mol-id=\"node-editor-radio-conversational\">\n<input class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"conversational\" {checked=false}>\n</input>\n<span class=\"c052585d2 c4647f690\">\nConversational\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c28ce3678 c32cad454 c9052b18c c9773cd2b cc3672a4e ccae02ff2 cd14f11ef\">\n</div>\n</label>\n<label class=\"c13d4ff0f c1723ea4b c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c5fb91e8c c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003\" data-mol-id=\"node-editor-radio-structured\">\n<input checked class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"structured\" {checked=true}>\n</input>\n<span class=\"c4647f690 ce6c94376\">\nStructured\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c32cad454 c9052b18c c9773cd2b cb33f6c80 cc3672a4e ccae02ff2 cd14f11ef\">\n<div class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</div>\n</div>\n</label>\n<label class=\"c13d4ff0f c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003 cf0129ab1\" data-mol-id=\"node-editor-radio-hybrid\">\n<input class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"hybrid\" {checked=false}>\n</input>\n<span class=\"c052585d2 c4647f690\">\nHybrid\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c28ce3678 c32cad454 c9052b18c c9773cd2b cc3672a4e ccae02ff2 cd14f11ef\">\n</div>\n</label>\n</div>\n@route /",
+     "<div class=\"c9566e21c ca216a595 caf871a91\" role=\"radiogroup\">\n<label class=\"c13d4ff0f c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003 cf0129ab1\" data-mol-id=\"node-editor-radio-conversational\">\n<input class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"conversational\" {checked=false}>\n</input>\n<span class=\"c052585d2 c4647f690\">\nConversational\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c28ce3678 c32cad454 c9052b18c c9773cd2b cc3672a4e ccae02ff2 cd14f11ef\">\n</div>\n</label>\n<label class=\"c13d4ff0f c1723ea4b c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c5fb91e8c c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003\" data-mol-id=\"node-editor-radio-structured\">\n<input checked class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"structured\" {checked=true}>\n</input>\n<span class=\"c4647f690 ce6c94376\">\nStructured\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c32cad454 c9052b18c c9773cd2b cb33f6c80 cc3672a4e ccae02ff2 cd14f11ef\">\n<div class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</div>\n</div>\n</label>\n<label class=\"c13d4ff0f c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003 cf0129ab1\" data-mol-id=\"node-editor-radio-hybrid\">\n<input class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"hybrid\" {checked=false}>\n</input>\n<span class=\"c052585d2 c4647f690\">\nHybrid\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c28ce3678 c32cad454 c9052b18c c9773cd2b cc3672a4e ccae02ff2 cd14f11ef\">\n</div>\n</label>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "two selections report both": {
+    "snapshots": [
+     "<div class=\"c9566e21c ca216a595 caf871a91\" role=\"radiogroup\">\n<label class=\"c13d4ff0f c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003 cf0129ab1\" data-mol-id=\"node-editor-radio-conversational\">\n<input class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"conversational\" {checked=false}>\n</input>\n<span class=\"c052585d2 c4647f690\">\nConversational\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c28ce3678 c32cad454 c9052b18c c9773cd2b cc3672a4e ccae02ff2 cd14f11ef\">\n</div>\n</label>\n<label class=\"c13d4ff0f c1723ea4b c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c5fb91e8c c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003\" data-mol-id=\"node-editor-radio-structured\">\n<input checked class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"structured\" {checked=true}>\n</input>\n<span class=\"c4647f690 ce6c94376\">\nStructured\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c32cad454 c9052b18c c9773cd2b cb33f6c80 cc3672a4e ccae02ff2 cd14f11ef\">\n<div class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</div>\n</div>\n</label>\n<label class=\"c13d4ff0f c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003 cf0129ab1\" data-mol-id=\"node-editor-radio-hybrid\">\n<input class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"hybrid\" {checked=false}>\n</input>\n<span class=\"c052585d2 c4647f690\">\nHybrid\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c28ce3678 c32cad454 c9052b18c c9773cd2b cc3672a4e ccae02ff2 cd14f11ef\">\n</div>\n</label>\n</div>\n@route /",
+     "<div class=\"c9566e21c ca216a595 caf871a91\" role=\"radiogroup\">\n<label class=\"c13d4ff0f c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003 cf0129ab1\" data-mol-id=\"node-editor-radio-conversational\">\n<input class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"conversational\" {checked=false}>\n</input>\n<span class=\"c052585d2 c4647f690\">\nConversational\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c28ce3678 c32cad454 c9052b18c c9773cd2b cc3672a4e ccae02ff2 cd14f11ef\">\n</div>\n</label>\n<label class=\"c13d4ff0f c1723ea4b c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c5fb91e8c c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003\" data-mol-id=\"node-editor-radio-structured\">\n<input checked class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"structured\" {checked=true}>\n</input>\n<span class=\"c4647f690 ce6c94376\">\nStructured\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c32cad454 c9052b18c c9773cd2b cb33f6c80 cc3672a4e ccae02ff2 cd14f11ef\">\n<div class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</div>\n</div>\n</label>\n<label class=\"c13d4ff0f c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003 cf0129ab1\" data-mol-id=\"node-editor-radio-hybrid\">\n<input class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"hybrid\" {checked=false}>\n</input>\n<span class=\"c052585d2 c4647f690\">\nHybrid\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c28ce3678 c32cad454 c9052b18c c9773cd2b cc3672a4e ccae02ff2 cd14f11ef\">\n</div>\n</label>\n</div>\n@route /",
+     "<div class=\"c9566e21c ca216a595 caf871a91\" role=\"radiogroup\">\n<label class=\"c13d4ff0f c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003 cf0129ab1\" data-mol-id=\"node-editor-radio-conversational\">\n<input class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"conversational\" {checked=false}>\n</input>\n<span class=\"c052585d2 c4647f690\">\nConversational\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c28ce3678 c32cad454 c9052b18c c9773cd2b cc3672a4e ccae02ff2 cd14f11ef\">\n</div>\n</label>\n<label class=\"c13d4ff0f c1723ea4b c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c5fb91e8c c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003\" data-mol-id=\"node-editor-radio-structured\">\n<input checked class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"structured\" {checked=true}>\n</input>\n<span class=\"c4647f690 ce6c94376\">\nStructured\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c32cad454 c9052b18c c9773cd2b cb33f6c80 cc3672a4e ccae02ff2 cd14f11ef\">\n<div class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</div>\n</div>\n</label>\n<label class=\"c13d4ff0f c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003 cf0129ab1\" data-mol-id=\"node-editor-radio-hybrid\">\n<input class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"hybrid\" {checked=false}>\n</input>\n<span class=\"c052585d2 c4647f690\">\nHybrid\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c28ce3678 c32cad454 c9052b18c c9773cd2b cc3672a4e ccae02ff2 cd14f11ef\">\n</div>\n</label>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onChange",
+      "args": [
+       "hybrid"
+      ]
+     },
+     {
+      "name": "onChange",
+      "args": [
+       "conversational"
+      ]
+     }
+    ]
+   },
+   "the value changes from the parent": {
+    "snapshots": [
+     "<div class=\"c9566e21c ca216a595 caf871a91\" role=\"radiogroup\">\n<label class=\"c13d4ff0f c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003 cf0129ab1\" data-mol-id=\"node-editor-radio-conversational\">\n<input class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"conversational\" {checked=false}>\n</input>\n<span class=\"c052585d2 c4647f690\">\nConversational\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c28ce3678 c32cad454 c9052b18c c9773cd2b cc3672a4e ccae02ff2 cd14f11ef\">\n</div>\n</label>\n<label class=\"c13d4ff0f c1723ea4b c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c5fb91e8c c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003\" data-mol-id=\"node-editor-radio-structured\">\n<input checked class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"structured\" {checked=true}>\n</input>\n<span class=\"c4647f690 ce6c94376\">\nStructured\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c32cad454 c9052b18c c9773cd2b cb33f6c80 cc3672a4e ccae02ff2 cd14f11ef\">\n<div class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</div>\n</div>\n</label>\n<label class=\"c13d4ff0f c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003 cf0129ab1\" data-mol-id=\"node-editor-radio-hybrid\">\n<input class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"hybrid\" {checked=false}>\n</input>\n<span class=\"c052585d2 c4647f690\">\nHybrid\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c28ce3678 c32cad454 c9052b18c c9773cd2b cc3672a4e ccae02ff2 cd14f11ef\">\n</div>\n</label>\n</div>\n@route /",
+     "<div class=\"c9566e21c ca216a595 caf871a91\" role=\"radiogroup\">\n<label class=\"c13d4ff0f c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003 cf0129ab1\" data-mol-id=\"node-editor-radio-conversational\">\n<input class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"conversational\" {checked=false}>\n</input>\n<span class=\"c052585d2 c4647f690\">\nConversational\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c28ce3678 c32cad454 c9052b18c c9773cd2b cc3672a4e ccae02ff2 cd14f11ef\">\n</div>\n</label>\n<label class=\"c13d4ff0f c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003 cf0129ab1\" data-mol-id=\"node-editor-radio-structured\">\n<input checked class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"structured\" {checked=false}>\n</input>\n<span class=\"c052585d2 c4647f690\">\nStructured\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c28ce3678 c32cad454 c9052b18c c9773cd2b cc3672a4e ccae02ff2 cd14f11ef\">\n</div>\n</label>\n<label class=\"c13d4ff0f c1723ea4b c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c5fb91e8c c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003\" data-mol-id=\"node-editor-radio-hybrid\">\n<input class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"hybrid\" {checked=true}>\n</input>\n<span class=\"c4647f690 ce6c94376\">\nHybrid\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c32cad454 c9052b18c c9773cd2b cb33f6c80 cc3672a4e ccae02ff2 cd14f11ef\">\n<div class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</div>\n</div>\n</label>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "the options are replaced": {
+    "snapshots": [
+     "<div class=\"c9566e21c ca216a595 caf871a91\" role=\"radiogroup\">\n<label class=\"c13d4ff0f c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003 cf0129ab1\" data-mol-id=\"node-editor-radio-conversational\">\n<input class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"conversational\" {checked=false}>\n</input>\n<span class=\"c052585d2 c4647f690\">\nConversational\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c28ce3678 c32cad454 c9052b18c c9773cd2b cc3672a4e ccae02ff2 cd14f11ef\">\n</div>\n</label>\n<label class=\"c13d4ff0f c1723ea4b c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c5fb91e8c c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003\" data-mol-id=\"node-editor-radio-structured\">\n<input checked class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"structured\" {checked=true}>\n</input>\n<span class=\"c4647f690 ce6c94376\">\nStructured\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c32cad454 c9052b18c c9773cd2b cb33f6c80 cc3672a4e ccae02ff2 cd14f11ef\">\n<div class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</div>\n</div>\n</label>\n<label class=\"c13d4ff0f c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003 cf0129ab1\" data-mol-id=\"node-editor-radio-hybrid\">\n<input class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"hybrid\" {checked=false}>\n</input>\n<span class=\"c052585d2 c4647f690\">\nHybrid\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c28ce3678 c32cad454 c9052b18c c9773cd2b cc3672a4e ccae02ff2 cd14f11ef\">\n</div>\n</label>\n</div>\n@route /",
+     "<div class=\"c9566e21c ca216a595 caf871a91\" role=\"radiogroup\">\n<label class=\"c13d4ff0f c1723ea4b c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c5fb91e8c c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003\" data-mol-id=\"node-editor-radio-json\">\n<input checked class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"json\" {checked=true}>\n</input>\n<span class=\"c4647f690 ce6c94376\">\nJSON\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c32cad454 c9052b18c c9773cd2b cb33f6c80 cc3672a4e ccae02ff2 cd14f11ef\">\n<div class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</div>\n</div>\n</label>\n<label class=\"c13d4ff0f c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003 cf0129ab1\" data-mol-id=\"node-editor-radio-text\">\n<input class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"text\" {checked=false}>\n</input>\n<span class=\"c052585d2 c4647f690\">\nText\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c28ce3678 c32cad454 c9052b18c c9773cd2b cc3672a4e ccae02ff2 cd14f11ef\">\n</div>\n</label>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "the options grow from two to four": {
+    "snapshots": [
+     "<div class=\"c9566e21c ca216a595 caf871a91\" role=\"radiogroup\">\n<label class=\"c13d4ff0f c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003 cf0129ab1\" data-mol-id=\"node-editor-radio-conversational\">\n<input class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"conversational\" {checked=false}>\n</input>\n<span class=\"c052585d2 c4647f690\">\nConversational\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c28ce3678 c32cad454 c9052b18c c9773cd2b cc3672a4e ccae02ff2 cd14f11ef\">\n</div>\n</label>\n<label class=\"c13d4ff0f c1723ea4b c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c5fb91e8c c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003\" data-mol-id=\"node-editor-radio-structured\">\n<input checked class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"structured\" {checked=true}>\n</input>\n<span class=\"c4647f690 ce6c94376\">\nStructured\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c32cad454 c9052b18c c9773cd2b cb33f6c80 cc3672a4e ccae02ff2 cd14f11ef\">\n<div class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</div>\n</div>\n</label>\n</div>\n@route /",
+     "<div class=\"c9566e21c ca216a595 caf871a91\" role=\"radiogroup\">\n<label class=\"c13d4ff0f c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003 cf0129ab1\" data-mol-id=\"node-editor-radio-conversational\">\n<input class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"conversational\" {checked=false}>\n</input>\n<span class=\"c052585d2 c4647f690\">\nConversational\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c28ce3678 c32cad454 c9052b18c c9773cd2b cc3672a4e ccae02ff2 cd14f11ef\">\n</div>\n</label>\n<label class=\"c13d4ff0f c1723ea4b c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c5fb91e8c c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003\" data-mol-id=\"node-editor-radio-structured\">\n<input checked class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"structured\" {checked=true}>\n</input>\n<span class=\"c4647f690 ce6c94376\">\nStructured\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c32cad454 c9052b18c c9773cd2b cb33f6c80 cc3672a4e ccae02ff2 cd14f11ef\">\n<div class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</div>\n</div>\n</label>\n<label class=\"c13d4ff0f c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003 cf0129ab1\" data-mol-id=\"node-editor-radio-hybrid\">\n<input class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"hybrid\" {checked=false}>\n</input>\n<span class=\"c052585d2 c4647f690\">\nHybrid\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c28ce3678 c32cad454 c9052b18c c9773cd2b cc3672a4e ccae02ff2 cd14f11ef\">\n</div>\n</label>\n<label class=\"c13d4ff0f c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003 cf0129ab1\" data-mol-id=\"node-editor-radio-markdown\">\n<input class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"markdown\" {checked=false}>\n</input>\n<span class=\"c052585d2 c4647f690\">\nMarkdown\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c28ce3678 c32cad454 c9052b18c c9773cd2b cc3672a4e ccae02ff2 cd14f11ef\">\n</div>\n</label>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "three options, middle selected, then a locale switch": {
+    "snapshots": [
+     "<div class=\"c9566e21c ca216a595 caf871a91\" role=\"radiogroup\">\n<label class=\"c13d4ff0f c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003 cf0129ab1\" data-mol-id=\"node-editor-radio-conversational\">\n<input class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"conversational\" {checked=false}>\n</input>\n<span class=\"c052585d2 c4647f690\">\nConversational\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c28ce3678 c32cad454 c9052b18c c9773cd2b cc3672a4e ccae02ff2 cd14f11ef\">\n</div>\n</label>\n<label class=\"c13d4ff0f c1723ea4b c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c5fb91e8c c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003\" data-mol-id=\"node-editor-radio-structured\">\n<input checked class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"structured\" {checked=true}>\n</input>\n<span class=\"c4647f690 ce6c94376\">\nStructured\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c32cad454 c9052b18c c9773cd2b cb33f6c80 cc3672a4e ccae02ff2 cd14f11ef\">\n<div class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</div>\n</div>\n</label>\n<label class=\"c13d4ff0f c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003 cf0129ab1\" data-mol-id=\"node-editor-radio-hybrid\">\n<input class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"hybrid\" {checked=false}>\n</input>\n<span class=\"c052585d2 c4647f690\">\nHybrid\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c28ce3678 c32cad454 c9052b18c c9773cd2b cc3672a4e ccae02ff2 cd14f11ef\">\n</div>\n</label>\n</div>\n@route /",
+     "<div class=\"c9566e21c ca216a595 caf871a91\" role=\"radiogroup\">\n<label class=\"c13d4ff0f c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003 cf0129ab1\" data-mol-id=\"node-editor-radio-conversational\">\n<input class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"conversational\" {checked=false}>\n</input>\n<span class=\"c052585d2 c4647f690\">\nConversational\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c28ce3678 c32cad454 c9052b18c c9773cd2b cc3672a4e ccae02ff2 cd14f11ef\">\n</div>\n</label>\n<label class=\"c13d4ff0f c1723ea4b c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c5fb91e8c c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003\" data-mol-id=\"node-editor-radio-structured\">\n<input checked class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"structured\" {checked=true}>\n</input>\n<span class=\"c4647f690 ce6c94376\">\nStructured\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c32cad454 c9052b18c c9773cd2b cb33f6c80 cc3672a4e ccae02ff2 cd14f11ef\">\n<div class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</div>\n</div>\n</label>\n<label class=\"c13d4ff0f c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003 cf0129ab1\" data-mol-id=\"node-editor-radio-hybrid\">\n<input class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"hybrid\" {checked=false}>\n</input>\n<span class=\"c052585d2 c4647f690\">\nHybrid\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c28ce3678 c32cad454 c9052b18c c9773cd2b cc3672a4e ccae02ff2 cd14f11ef\">\n</div>\n</label>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "three options, middle selected, then options again as equal new objects": {
+    "snapshots": [
+     "<div class=\"c9566e21c ca216a595 caf871a91\" role=\"radiogroup\">\n<label class=\"c13d4ff0f c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003 cf0129ab1\" data-mol-id=\"node-editor-radio-conversational\">\n<input class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"conversational\" {checked=false}>\n</input>\n<span class=\"c052585d2 c4647f690\">\nConversational\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c28ce3678 c32cad454 c9052b18c c9773cd2b cc3672a4e ccae02ff2 cd14f11ef\">\n</div>\n</label>\n<label class=\"c13d4ff0f c1723ea4b c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c5fb91e8c c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003\" data-mol-id=\"node-editor-radio-structured\">\n<input checked class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"structured\" {checked=true}>\n</input>\n<span class=\"c4647f690 ce6c94376\">\nStructured\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c32cad454 c9052b18c c9773cd2b cb33f6c80 cc3672a4e ccae02ff2 cd14f11ef\">\n<div class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</div>\n</div>\n</label>\n<label class=\"c13d4ff0f c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003 cf0129ab1\" data-mol-id=\"node-editor-radio-hybrid\">\n<input class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"hybrid\" {checked=false}>\n</input>\n<span class=\"c052585d2 c4647f690\">\nHybrid\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c28ce3678 c32cad454 c9052b18c c9773cd2b cc3672a4e ccae02ff2 cd14f11ef\">\n</div>\n</label>\n</div>\n@route /",
+     "<div class=\"c9566e21c ca216a595 caf871a91\" role=\"radiogroup\">\n<label class=\"c13d4ff0f c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003 cf0129ab1\" data-conformance-mark=\"0\" data-mol-id=\"node-editor-radio-conversational\">\n<input class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"conversational\" {checked=false}>\n</input>\n<span class=\"c052585d2 c4647f690\">\nConversational\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c28ce3678 c32cad454 c9052b18c c9773cd2b cc3672a4e ccae02ff2 cd14f11ef\">\n</div>\n</label>\n<label class=\"c13d4ff0f c1723ea4b c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c5fb91e8c c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003\" data-conformance-mark=\"1\" data-mol-id=\"node-editor-radio-structured\">\n<input checked class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"structured\" {checked=true}>\n</input>\n<span class=\"c4647f690 ce6c94376\">\nStructured\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c32cad454 c9052b18c c9773cd2b cb33f6c80 cc3672a4e ccae02ff2 cd14f11ef\">\n<div class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</div>\n</div>\n</label>\n<label class=\"c13d4ff0f c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003 cf0129ab1\" data-conformance-mark=\"2\" data-mol-id=\"node-editor-radio-hybrid\">\n<input class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"hybrid\" {checked=false}>\n</input>\n<span class=\"c052585d2 c4647f690\">\nHybrid\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c28ce3678 c32cad454 c9052b18c c9773cd2b cc3672a4e ccae02ff2 cd14f11ef\">\n</div>\n</label>\n</div>\n@route /",
+     "<div class=\"c9566e21c ca216a595 caf871a91\" role=\"radiogroup\">\n<label class=\"c13d4ff0f c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003 cf0129ab1\" data-conformance-mark=\"0\" data-mol-id=\"node-editor-radio-conversational\">\n<input class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"conversational\" {checked=false}>\n</input>\n<span class=\"c052585d2 c4647f690\">\nConversational\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c28ce3678 c32cad454 c9052b18c c9773cd2b cc3672a4e ccae02ff2 cd14f11ef\">\n</div>\n</label>\n<label class=\"c13d4ff0f c1723ea4b c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c5fb91e8c c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003\" data-conformance-mark=\"1\" data-mol-id=\"node-editor-radio-structured\">\n<input checked class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"structured\" {checked=true}>\n</input>\n<span class=\"c4647f690 ce6c94376\">\nStructured\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c32cad454 c9052b18c c9773cd2b cb33f6c80 cc3672a4e ccae02ff2 cd14f11ef\">\n<div class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</div>\n</div>\n</label>\n<label class=\"c13d4ff0f c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003 cf0129ab1\" data-conformance-mark=\"2\" data-mol-id=\"node-editor-radio-hybrid\">\n<input class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"hybrid\" {checked=false}>\n</input>\n<span class=\"c052585d2 c4647f690\">\nHybrid\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c28ce3678 c32cad454 c9052b18c c9773cd2b cc3672a4e ccae02ff2 cd14f11ef\">\n</div>\n</label>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "three options, middle selected, then options reversed": {
+    "snapshots": [
+     "<div class=\"c9566e21c ca216a595 caf871a91\" role=\"radiogroup\">\n<label class=\"c13d4ff0f c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003 cf0129ab1\" data-mol-id=\"node-editor-radio-conversational\">\n<input class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"conversational\" {checked=false}>\n</input>\n<span class=\"c052585d2 c4647f690\">\nConversational\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c28ce3678 c32cad454 c9052b18c c9773cd2b cc3672a4e ccae02ff2 cd14f11ef\">\n</div>\n</label>\n<label class=\"c13d4ff0f c1723ea4b c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c5fb91e8c c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003\" data-mol-id=\"node-editor-radio-structured\">\n<input checked class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"structured\" {checked=true}>\n</input>\n<span class=\"c4647f690 ce6c94376\">\nStructured\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c32cad454 c9052b18c c9773cd2b cb33f6c80 cc3672a4e ccae02ff2 cd14f11ef\">\n<div class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</div>\n</div>\n</label>\n<label class=\"c13d4ff0f c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003 cf0129ab1\" data-mol-id=\"node-editor-radio-hybrid\">\n<input class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"hybrid\" {checked=false}>\n</input>\n<span class=\"c052585d2 c4647f690\">\nHybrid\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c28ce3678 c32cad454 c9052b18c c9773cd2b cc3672a4e ccae02ff2 cd14f11ef\">\n</div>\n</label>\n</div>\n@route /",
+     "<div class=\"c9566e21c ca216a595 caf871a91\" role=\"radiogroup\">\n<label class=\"c13d4ff0f c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003 cf0129ab1\" data-conformance-mark=\"0\" data-mol-id=\"node-editor-radio-conversational\">\n<input class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"conversational\" {checked=false}>\n</input>\n<span class=\"c052585d2 c4647f690\">\nConversational\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c28ce3678 c32cad454 c9052b18c c9773cd2b cc3672a4e ccae02ff2 cd14f11ef\">\n</div>\n</label>\n<label class=\"c13d4ff0f c1723ea4b c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c5fb91e8c c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003\" data-conformance-mark=\"1\" data-mol-id=\"node-editor-radio-structured\">\n<input checked class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"structured\" {checked=true}>\n</input>\n<span class=\"c4647f690 ce6c94376\">\nStructured\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c32cad454 c9052b18c c9773cd2b cb33f6c80 cc3672a4e ccae02ff2 cd14f11ef\">\n<div class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</div>\n</div>\n</label>\n<label class=\"c13d4ff0f c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003 cf0129ab1\" data-conformance-mark=\"2\" data-mol-id=\"node-editor-radio-hybrid\">\n<input class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"hybrid\" {checked=false}>\n</input>\n<span class=\"c052585d2 c4647f690\">\nHybrid\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c28ce3678 c32cad454 c9052b18c c9773cd2b cc3672a4e ccae02ff2 cd14f11ef\">\n</div>\n</label>\n</div>\n@route /",
+     "<div class=\"c9566e21c ca216a595 caf871a91\" role=\"radiogroup\">\n<label class=\"c13d4ff0f c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003 cf0129ab1\" data-conformance-mark=\"2\" data-mol-id=\"node-editor-radio-hybrid\">\n<input class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"hybrid\" {checked=false}>\n</input>\n<span class=\"c052585d2 c4647f690\">\nHybrid\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c28ce3678 c32cad454 c9052b18c c9773cd2b cc3672a4e ccae02ff2 cd14f11ef\">\n</div>\n</label>\n<label class=\"c13d4ff0f c1723ea4b c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c5fb91e8c c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003\" data-conformance-mark=\"1\" data-mol-id=\"node-editor-radio-structured\">\n<input checked class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"structured\" {checked=true}>\n</input>\n<span class=\"c4647f690 ce6c94376\">\nStructured\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c32cad454 c9052b18c c9773cd2b cb33f6c80 cc3672a4e ccae02ff2 cd14f11ef\">\n<div class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</div>\n</div>\n</label>\n<label class=\"c13d4ff0f c19136480 c1e8176ab c2bf204c1 c42740ba6 c5687932f c7d370ab9 c937ba156 c982680a4 c9cd623cf ccae02ff2 cd9b20003 cf0129ab1\" data-conformance-mark=\"0\" data-mol-id=\"node-editor-radio-conversational\">\n<input class=\"cb542d3c9\" name=\"radio0\" type=\"radio\" value=\"conversational\" {checked=false}>\n</input>\n<span class=\"c052585d2 c4647f690\">\nConversational\n</span>\n<div aria-hidden=\"true\" class=\"c1e8176ab c28ce3678 c32cad454 c9052b18c c9773cd2b cc3672a4e ccae02ff2 cd14f11ef\">\n</div>\n</label>\n</div>\n@route /"
+    ],
+    "calls": []
+   }
+  },
+  "NodeEditorSection": {
+   "label and children": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 ccae02ff2 cd9b20003\">\n<label class=\"c052585d2 c0d99ed10 c267fcecb cdf83deeb cffc79a0b\">\nResponse Format\n</label>\n</div>\nBody\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "trailing content": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 ccae02ff2 cd9b20003\">\n<label class=\"c052585d2 c0d99ed10 c267fcecb cdf83deeb cffc79a0b\">\nResponse Format\n</label>\n<span>\nValue\n</span>\n</div>\nBody\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "text label and trailing": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 ccae02ff2 cd9b20003\">\n<label class=\"c052585d2 c0d99ed10 c267fcecb cdf83deeb cffc79a0b\">\nResponse Format\n</label>\n0.7\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "string label with no children": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 ccae02ff2 cd9b20003\">\n<label class=\"c052585d2 c0d99ed10 c267fcecb cdf83deeb cffc79a0b\">\nResponse Format\n</label>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "node label": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 ccae02ff2 cd9b20003\">\n<label class=\"c052585d2 c0d99ed10 c267fcecb cdf83deeb cffc79a0b\">\n<strong data-label>\nResponse Format\n</strong>\n</label>\n</div>\nBody\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "default gap": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 ccae02ff2 cd9b20003\">\n<label class=\"c052585d2 c0d99ed10 c267fcecb cdf83deeb cffc79a0b\">\nResponse Format\n</label>\n</div>\nBody\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "gap 1": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 ccae02ff2 cd9b20003\">\n<label class=\"c052585d2 c0d99ed10 c267fcecb cdf83deeb cffc79a0b\">\nResponse Format\n</label>\n</div>\nBody\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "gap 2": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 ccae02ff2 cd9b20003\">\n<label class=\"c052585d2 c0d99ed10 c267fcecb cdf83deeb cffc79a0b\">\nResponse Format\n</label>\n</div>\nBody\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "gap 3": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 ccae02ff2 cd9b20003\">\n<label class=\"c052585d2 c0d99ed10 c267fcecb cdf83deeb cffc79a0b\">\nResponse Format\n</label>\n</div>\nBody\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "gap 4": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 ccae02ff2 cd9b20003\">\n<label class=\"c052585d2 c0d99ed10 c267fcecb cdf83deeb cffc79a0b\">\nResponse Format\n</label>\n</div>\nBody\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "gap 5": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9466e089 cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 ccae02ff2 cd9b20003\">\n<label class=\"c052585d2 c0d99ed10 c267fcecb cdf83deeb cffc79a0b\">\nResponse Format\n</label>\n</div>\nBody\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "gap 6": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9166dbd0 cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 ccae02ff2 cd9b20003\">\n<label class=\"c052585d2 c0d99ed10 c267fcecb cdf83deeb cffc79a0b\">\nResponse Format\n</label>\n</div>\nBody\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "gap 8": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9f66f1da cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 ccae02ff2 cd9b20003\">\n<label class=\"c052585d2 c0d99ed10 c267fcecb cdf83deeb cffc79a0b\">\nResponse Format\n</label>\n</div>\nBody\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "trailing is added and removed": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 ccae02ff2 cd9b20003\">\n<label class=\"c052585d2 c0d99ed10 c267fcecb cdf83deeb cffc79a0b\">\nResponse Format\n</label>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 ccae02ff2 cd9b20003\">\n<label class=\"c052585d2 c0d99ed10 c267fcecb cdf83deeb cffc79a0b\">\nResponse Format\n</label>\n0.7\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 ccae02ff2 cd9b20003\">\n<label class=\"c052585d2 c0d99ed10 c267fcecb cdf83deeb cffc79a0b\">\nResponse Format\n</label>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "the gap and label change": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 ccae02ff2 cd9b20003\">\n<label class=\"c052585d2 c0d99ed10 c267fcecb cdf83deeb cffc79a0b\">\nResponse Format\n</label>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9166dbd0 cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 ccae02ff2 cd9b20003\">\n<label class=\"c052585d2 c0d99ed10 c267fcecb cdf83deeb cffc79a0b\">\nFormat\n</label>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "label and children, then a locale switch": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 ccae02ff2 cd9b20003\">\n<label class=\"c052585d2 c0d99ed10 c267fcecb cdf83deeb cffc79a0b\">\nResponse Format\n</label>\n</div>\nBody\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 ccae02ff2 cd9b20003\">\n<label class=\"c052585d2 c0d99ed10 c267fcecb cdf83deeb cffc79a0b\">\nResponse Format\n</label>\n</div>\nBody\n</div>\n@route /"
+    ],
+    "calls": []
+   }
+  },
+  "NodeEditorSlider": {
+   "defaults": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 ccae02ff2 cd9b20003\">\n<label class=\"c052585d2 c0d99ed10 c267fcecb cdf83deeb cffc79a0b\" for=\"#id0\">\nTemperature\n</label>\n<span class=\"c388af5c7 c4647f690 c727c13ba c8d3cd30e cceecd988 cda72d38d\">\n0.7\n</span>\n</div>\n<input class=\"c092eaa64 c13d4ff0f c1723ea4b c311021b4 c54a09400 cbeb3edfc cbf033fe8\" id=\"#id0\" max=\"1\" min=\"0\" step=\"0.1\" type=\"range\" value=\"0.7\" {value=\"0.7\"}>\n</input>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "zero value": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 ccae02ff2 cd9b20003\">\n<label class=\"c052585d2 c0d99ed10 c267fcecb cdf83deeb cffc79a0b\" for=\"#id0\">\nTemperature\n</label>\n<span class=\"c388af5c7 c4647f690 c727c13ba c8d3cd30e cceecd988 cda72d38d\">\n0\n</span>\n</div>\n<input class=\"c092eaa64 c13d4ff0f c1723ea4b c311021b4 c54a09400 cbeb3edfc cbf033fe8\" id=\"#id0\" max=\"1\" min=\"0\" step=\"0.1\" type=\"range\" value=\"0\" {value=\"0\"}>\n</input>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "custom range": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 ccae02ff2 cd9b20003\">\n<label class=\"c052585d2 c0d99ed10 c267fcecb cdf83deeb cffc79a0b\" for=\"#id0\">\nMax tokens\n</label>\n<span class=\"c388af5c7 c4647f690 c727c13ba c8d3cd30e cceecd988 cda72d38d\">\n5\n</span>\n</div>\n<input class=\"c092eaa64 c13d4ff0f c1723ea4b c311021b4 c54a09400 cbeb3edfc cbf033fe8\" id=\"#id0\" max=\"10\" min=\"0\" step=\"1\" type=\"range\" value=\"5\" {value=\"5\"}>\n</input>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "fractional step": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 ccae02ff2 cd9b20003\">\n<label class=\"c052585d2 c0d99ed10 c267fcecb cdf83deeb cffc79a0b\" for=\"#id0\">\nTop P\n</label>\n<span class=\"c388af5c7 c4647f690 c727c13ba c8d3cd30e cceecd988 cda72d38d\">\n0.15\n</span>\n</div>\n<input class=\"c092eaa64 c13d4ff0f c1723ea4b c311021b4 c54a09400 cbeb3edfc cbf033fe8\" id=\"#id0\" max=\"1\" min=\"0\" step=\"0.05\" type=\"range\" value=\"0.15\" {value=\"0.15\"}>\n</input>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "negative range": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 ccae02ff2 cd9b20003\">\n<label class=\"c052585d2 c0d99ed10 c267fcecb cdf83deeb cffc79a0b\" for=\"#id0\">\nOffset\n</label>\n<span class=\"c388af5c7 c4647f690 c727c13ba c8d3cd30e cceecd988 cda72d38d\">\n-2\n</span>\n</div>\n<input class=\"c092eaa64 c13d4ff0f c1723ea4b c311021b4 c54a09400 cbeb3edfc cbf033fe8\" id=\"#id0\" max=\"5\" min=\"-5\" step=\"0.5\" type=\"range\" value=\"-2\" {value=\"-2\"}>\n</input>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "node value display": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 ccae02ff2 cd9b20003\">\n<label class=\"c052585d2 c0d99ed10 c267fcecb cdf83deeb cffc79a0b\" for=\"#id0\">\nTemperature\n</label>\n<span class=\"c388af5c7 c4647f690 c727c13ba c8d3cd30e cceecd988 cda72d38d\">\n<em>\n70%\n</em>\n</span>\n</div>\n<input class=\"c092eaa64 c13d4ff0f c1723ea4b c311021b4 c54a09400 cbeb3edfc cbf033fe8\" id=\"#id0\" max=\"1\" min=\"0\" step=\"0.1\" type=\"range\" value=\"0.7\" {value=\"0.7\"}>\n</input>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "string value display": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 ccae02ff2 cd9b20003\">\n<label class=\"c052585d2 c0d99ed10 c267fcecb cdf83deeb cffc79a0b\" for=\"#id0\">\nTemperature\n</label>\n<span class=\"c388af5c7 c4647f690 c727c13ba c8d3cd30e cceecd988 cda72d38d\">\n70%\n</span>\n</div>\n<input aria-valuetext=\"70%\" class=\"c092eaa64 c13d4ff0f c1723ea4b c311021b4 c54a09400 cbeb3edfc cbf033fe8\" id=\"#id0\" max=\"1\" min=\"0\" step=\"0.1\" type=\"range\" value=\"0.7\" {value=\"0.7\"}>\n</input>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "empty string value display": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 ccae02ff2 cd9b20003\">\n<label class=\"c052585d2 c0d99ed10 c267fcecb cdf83deeb cffc79a0b\" for=\"#id0\">\nTemperature\n</label>\n<span class=\"c388af5c7 c4647f690 c727c13ba c8d3cd30e cceecd988 cda72d38d\">\n</span>\n</div>\n<input aria-valuetext class=\"c092eaa64 c13d4ff0f c1723ea4b c311021b4 c54a09400 cbeb3edfc cbf033fe8\" id=\"#id0\" max=\"1\" min=\"0\" step=\"0.1\" type=\"range\" value=\"0.7\" {value=\"0.7\"}>\n</input>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "text label and value display": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 ccae02ff2 cd9b20003\">\n<label class=\"c052585d2 c0d99ed10 c267fcecb cdf83deeb cffc79a0b\" for=\"#id0\">\nTemperature\n</label>\n<span class=\"c388af5c7 c4647f690 c727c13ba c8d3cd30e cceecd988 cda72d38d\">\nLow\n</span>\n</div>\n<input aria-valuetext=\"Low\" class=\"c092eaa64 c13d4ff0f c1723ea4b c311021b4 c54a09400 cbeb3edfc cbf033fe8\" id=\"#id0\" max=\"1\" min=\"0\" step=\"0.1\" type=\"range\" value=\"0.3\" {value=\"0.3\"}>\n</input>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "typing a new value reports it": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 ccae02ff2 cd9b20003\">\n<label class=\"c052585d2 c0d99ed10 c267fcecb cdf83deeb cffc79a0b\" for=\"#id0\">\nTemperature\n</label>\n<span class=\"c388af5c7 c4647f690 c727c13ba c8d3cd30e cceecd988 cda72d38d\">\n0.5\n</span>\n</div>\n<input class=\"c092eaa64 c13d4ff0f c1723ea4b c311021b4 c54a09400 cbeb3edfc cbf033fe8\" id=\"#id0\" max=\"1\" min=\"0\" step=\"0.1\" type=\"range\" value=\"0.5\" {value=\"0.5\"}>\n</input>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 ccae02ff2 cd9b20003\">\n<label class=\"c052585d2 c0d99ed10 c267fcecb cdf83deeb cffc79a0b\" for=\"#id0\">\nTemperature\n</label>\n<span class=\"c388af5c7 c4647f690 c727c13ba c8d3cd30e cceecd988 cda72d38d\">\n0.5\n</span>\n</div>\n<input class=\"c092eaa64 c13d4ff0f c1723ea4b c311021b4 c54a09400 cbeb3edfc cbf033fe8\" id=\"#id0\" max=\"1\" min=\"0\" step=\"0.1\" type=\"range\" value=\"0.5\" {value=\"0.5\"}>\n</input>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onChange",
+      "args": [
+       0.4
+      ]
+     }
+    ]
+   },
+   "typing the maximum reports it": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 ccae02ff2 cd9b20003\">\n<label class=\"c052585d2 c0d99ed10 c267fcecb cdf83deeb cffc79a0b\" for=\"#id0\">\nTemperature\n</label>\n<span class=\"c388af5c7 c4647f690 c727c13ba c8d3cd30e cceecd988 cda72d38d\">\n0.5\n</span>\n</div>\n<input class=\"c092eaa64 c13d4ff0f c1723ea4b c311021b4 c54a09400 cbeb3edfc cbf033fe8\" id=\"#id0\" max=\"1\" min=\"0\" step=\"0.1\" type=\"range\" value=\"0.5\" {value=\"0.5\"}>\n</input>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 ccae02ff2 cd9b20003\">\n<label class=\"c052585d2 c0d99ed10 c267fcecb cdf83deeb cffc79a0b\" for=\"#id0\">\nTemperature\n</label>\n<span class=\"c388af5c7 c4647f690 c727c13ba c8d3cd30e cceecd988 cda72d38d\">\n0.5\n</span>\n</div>\n<input class=\"c092eaa64 c13d4ff0f c1723ea4b c311021b4 c54a09400 cbeb3edfc cbf033fe8\" id=\"#id0\" max=\"1\" min=\"0\" step=\"0.1\" type=\"range\" value=\"0.5\" {value=\"0.5\"}>\n</input>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onChange",
+      "args": [
+       1
+      ]
+     }
+    ]
+   },
+   "typing into a fractional step reports it": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 ccae02ff2 cd9b20003\">\n<label class=\"c052585d2 c0d99ed10 c267fcecb cdf83deeb cffc79a0b\" for=\"#id0\">\nTop P\n</label>\n<span class=\"c388af5c7 c4647f690 c727c13ba c8d3cd30e cceecd988 cda72d38d\">\n0.15\n</span>\n</div>\n<input class=\"c092eaa64 c13d4ff0f c1723ea4b c311021b4 c54a09400 cbeb3edfc cbf033fe8\" id=\"#id0\" max=\"1\" min=\"0\" step=\"0.05\" type=\"range\" value=\"0.15\" {value=\"0.15\"}>\n</input>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 ccae02ff2 cd9b20003\">\n<label class=\"c052585d2 c0d99ed10 c267fcecb cdf83deeb cffc79a0b\" for=\"#id0\">\nTop P\n</label>\n<span class=\"c388af5c7 c4647f690 c727c13ba c8d3cd30e cceecd988 cda72d38d\">\n0.15\n</span>\n</div>\n<input class=\"c092eaa64 c13d4ff0f c1723ea4b c311021b4 c54a09400 cbeb3edfc cbf033fe8\" id=\"#id0\" max=\"1\" min=\"0\" step=\"0.05\" type=\"range\" value=\"0.15\" {value=\"0.15\"}>\n</input>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onChange",
+      "args": [
+       0.35
+      ]
+     }
+    ]
+   },
+   "two value changes report both": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 ccae02ff2 cd9b20003\">\n<label class=\"c052585d2 c0d99ed10 c267fcecb cdf83deeb cffc79a0b\" for=\"#id0\">\nTemperature\n</label>\n<span class=\"c388af5c7 c4647f690 c727c13ba c8d3cd30e cceecd988 cda72d38d\">\n0.5\n</span>\n</div>\n<input class=\"c092eaa64 c13d4ff0f c1723ea4b c311021b4 c54a09400 cbeb3edfc cbf033fe8\" id=\"#id0\" max=\"1\" min=\"0\" step=\"0.1\" type=\"range\" value=\"0.5\" {value=\"0.5\"}>\n</input>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 ccae02ff2 cd9b20003\">\n<label class=\"c052585d2 c0d99ed10 c267fcecb cdf83deeb cffc79a0b\" for=\"#id0\">\nTemperature\n</label>\n<span class=\"c388af5c7 c4647f690 c727c13ba c8d3cd30e cceecd988 cda72d38d\">\n0.5\n</span>\n</div>\n<input class=\"c092eaa64 c13d4ff0f c1723ea4b c311021b4 c54a09400 cbeb3edfc cbf033fe8\" id=\"#id0\" max=\"1\" min=\"0\" step=\"0.1\" type=\"range\" value=\"0.5\" {value=\"0.5\"}>\n</input>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 ccae02ff2 cd9b20003\">\n<label class=\"c052585d2 c0d99ed10 c267fcecb cdf83deeb cffc79a0b\" for=\"#id0\">\nTemperature\n</label>\n<span class=\"c388af5c7 c4647f690 c727c13ba c8d3cd30e cceecd988 cda72d38d\">\n0.5\n</span>\n</div>\n<input class=\"c092eaa64 c13d4ff0f c1723ea4b c311021b4 c54a09400 cbeb3edfc cbf033fe8\" id=\"#id0\" max=\"1\" min=\"0\" step=\"0.1\" type=\"range\" value=\"0.5\" {value=\"0.5\"}>\n</input>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onChange",
+      "args": [
+       0.2
+      ]
+     },
+     {
+      "name": "onChange",
+      "args": [
+       0.8
+      ]
+     }
+    ]
+   },
+   "the value changes from the parent": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 ccae02ff2 cd9b20003\">\n<label class=\"c052585d2 c0d99ed10 c267fcecb cdf83deeb cffc79a0b\" for=\"#id0\">\nTemperature\n</label>\n<span class=\"c388af5c7 c4647f690 c727c13ba c8d3cd30e cceecd988 cda72d38d\">\n0.1\n</span>\n</div>\n<input class=\"c092eaa64 c13d4ff0f c1723ea4b c311021b4 c54a09400 cbeb3edfc cbf033fe8\" id=\"#id0\" max=\"1\" min=\"0\" step=\"0.1\" type=\"range\" value=\"0.1\" {value=\"0.1\"}>\n</input>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 ccae02ff2 cd9b20003\">\n<label class=\"c052585d2 c0d99ed10 c267fcecb cdf83deeb cffc79a0b\" for=\"#id0\">\nTemperature\n</label>\n<span class=\"c388af5c7 c4647f690 c727c13ba c8d3cd30e cceecd988 cda72d38d\">\n0.9\n</span>\n</div>\n<input class=\"c092eaa64 c13d4ff0f c1723ea4b c311021b4 c54a09400 cbeb3edfc cbf033fe8\" id=\"#id0\" max=\"1\" min=\"0\" step=\"0.1\" type=\"range\" value=\"0.9\" {value=\"0.9\"}>\n</input>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "the range changes from the parent": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 ccae02ff2 cd9b20003\">\n<label class=\"c052585d2 c0d99ed10 c267fcecb cdf83deeb cffc79a0b\" for=\"#id0\">\nTemperature\n</label>\n<span class=\"c388af5c7 c4647f690 c727c13ba c8d3cd30e cceecd988 cda72d38d\">\n5\n</span>\n</div>\n<input class=\"c092eaa64 c13d4ff0f c1723ea4b c311021b4 c54a09400 cbeb3edfc cbf033fe8\" id=\"#id0\" max=\"10\" min=\"0\" step=\"1\" type=\"range\" value=\"5\" {value=\"5\"}>\n</input>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 ccae02ff2 cd9b20003\">\n<label class=\"c052585d2 c0d99ed10 c267fcecb cdf83deeb cffc79a0b\" for=\"#id0\">\nTemperature\n</label>\n<span class=\"c388af5c7 c4647f690 c727c13ba c8d3cd30e cceecd988 cda72d38d\">\n7\n</span>\n</div>\n<input class=\"c092eaa64 c13d4ff0f c1723ea4b c311021b4 c54a09400 cbeb3edfc cbf033fe8\" id=\"#id0\" max=\"20\" min=\"1\" step=\"2\" type=\"range\" value=\"7\" {value=\"7\"}>\n</input>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "defaults, then a locale switch": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 ccae02ff2 cd9b20003\">\n<label class=\"c052585d2 c0d99ed10 c267fcecb cdf83deeb cffc79a0b\" for=\"#id0\">\nTemperature\n</label>\n<span class=\"c388af5c7 c4647f690 c727c13ba c8d3cd30e cceecd988 cda72d38d\">\n0.7\n</span>\n</div>\n<input class=\"c092eaa64 c13d4ff0f c1723ea4b c311021b4 c54a09400 cbeb3edfc cbf033fe8\" id=\"#id0\" max=\"1\" min=\"0\" step=\"0.1\" type=\"range\" value=\"0.7\" {value=\"0.7\"}>\n</input>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 ccae02ff2 cd9b20003\">\n<label class=\"c052585d2 c0d99ed10 c267fcecb cdf83deeb cffc79a0b\" for=\"#id0\">\nTemperature\n</label>\n<span class=\"c388af5c7 c4647f690 c727c13ba c8d3cd30e cceecd988 cda72d38d\">\n0.7\n</span>\n</div>\n<input class=\"c092eaa64 c13d4ff0f c1723ea4b c311021b4 c54a09400 cbeb3edfc cbf033fe8\" id=\"#id0\" max=\"1\" min=\"0\" step=\"0.1\" type=\"range\" value=\"0.7\" {value=\"0.7\"}>\n</input>\n</div>\n@route /"
+    ],
+    "calls": []
+   }
+  },
+  "NodeEditorToggle": {
+   "unchecked, title only": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c1f523237 c1f5b4e97 c2bf204c1 c42740ba6 c937ba156 c99d61f16 ccae02ff2 ccd4e633a cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9666e3af cc2d72006 ccae02ff2 cd9b20003\">\n<div>\n<p class=\"c4647f690 c7f74399a ce6c94376\" id=\"#id0\">\nKnowledge Base\n</p>\n</div>\n</div>\n<input aria-hidden=\"true\" class=\"cb542d3c9\" tabindex=\"-1\" type=\"checkbox\" {checked=false}>\n</input>\n<label class=\"c13d4ff0f c1e8176ab c9566e21c ccae02ff2\">\n<button aria-checked=\"false\" aria-labelledby=\"#id0\" class=\"c13d4ff0f c141d8a54 c1e8176ab c32cad454 c3a0ad6eb c3e7dcfd4 c4e17296e c5494c1c8 c6079f2c7 c6c0a5ed8 c7371f437 c7d370ab9 c8b197f7c c9052b18c c990a7ec2 ca171edb3 ca596e575 cb8150f49 cbe9b7ae9 cc06b624c cc386cd15 cc4672be1 cd44f16a8 cdccefb20 cee061da5 cf891dc93 cfc82911d cfe89757b cfeafb93f\" data-mol-id=\"node-editor-toggle\" data-state=\"unchecked\" role=\"switch\" type=\"button\">\n<span class=\"c2883f28d c432f8f52 c5e7000ad c7e9e3f93 c9052b18c ca1dc886e cc3672a4e cd14f11ef ceb0cbd62 cee369fdd cfa9c2026\" data-state=\"unchecked\">\n</span>\n</button>\n</label>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "checked with subtitle and icon": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c1f523237 c1f5b4e97 c2bf204c1 c42740ba6 c937ba156 c99d61f16 ccae02ff2 ccd4e633a cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9666e3af cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c311021b4 c388af5c7 c9bd6223c cda72d38d\">\n<span class=\"c445db9b9 caeede141\">\ndatabase\n</span>\n</div>\n<div>\n<p class=\"c4647f690 c7f74399a ce6c94376\" id=\"#id0\">\nStructured mode\n</p>\n<p class=\"c052585d2 c20f5df36\" id=\"#id1\">\nReturn JSON\n</p>\n</div>\n</div>\n<input aria-hidden=\"true\" checked class=\"cb542d3c9\" tabindex=\"-1\" type=\"checkbox\" {checked=true}>\n</input>\n<label class=\"c13d4ff0f c1e8176ab c9566e21c ccae02ff2\">\n<button aria-checked=\"true\" aria-describedby=\"#id1\" aria-labelledby=\"#id0\" class=\"c13d4ff0f c141d8a54 c1e8176ab c32cad454 c3a0ad6eb c3e7dcfd4 c4e17296e c5494c1c8 c6079f2c7 c6c0a5ed8 c7371f437 c7d370ab9 c8b197f7c c9052b18c c990a7ec2 ca171edb3 ca596e575 cb8150f49 cbe9b7ae9 cc06b624c cc386cd15 cc4672be1 cd44f16a8 cdccefb20 cee061da5 cf891dc93 cfc82911d cfe89757b cfeafb93f\" data-mol-id=\"node-editor-toggle\" data-state=\"checked\" role=\"switch\" type=\"button\">\n<span class=\"c2883f28d c432f8f52 c5e7000ad c7e9e3f93 c9052b18c ca1dc886e cc3672a4e cd14f11ef ceb0cbd62 cee369fdd cfa9c2026\" data-state=\"checked\">\n</span>\n</button>\n</label>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "node title and subtitle": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c1f523237 c1f5b4e97 c2bf204c1 c42740ba6 c937ba156 c99d61f16 ccae02ff2 ccd4e633a cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9666e3af cc2d72006 ccae02ff2 cd9b20003\">\n<div>\n<p class=\"c4647f690 c7f74399a ce6c94376\" id=\"#id0\">\n<strong>\nStructured mode\n</strong>\n</p>\n<p class=\"c052585d2 c20f5df36\" id=\"#id1\">\n<em>\nReturn JSON\n</em>\n</p>\n</div>\n</div>\n<input aria-hidden=\"true\" checked class=\"cb542d3c9\" tabindex=\"-1\" type=\"checkbox\" {checked=true}>\n</input>\n<label class=\"c13d4ff0f c1e8176ab c9566e21c ccae02ff2\">\n<button aria-checked=\"true\" aria-describedby=\"#id1\" aria-labelledby=\"#id0\" class=\"c13d4ff0f c141d8a54 c1e8176ab c32cad454 c3a0ad6eb c3e7dcfd4 c4e17296e c5494c1c8 c6079f2c7 c6c0a5ed8 c7371f437 c7d370ab9 c8b197f7c c9052b18c c990a7ec2 ca171edb3 ca596e575 cb8150f49 cbe9b7ae9 cc06b624c cc386cd15 cc4672be1 cd44f16a8 cdccefb20 cee061da5 cf891dc93 cfc82911d cfe89757b cfeafb93f\" data-mol-id=\"node-editor-toggle\" data-state=\"checked\" role=\"switch\" type=\"button\">\n<span class=\"c2883f28d c432f8f52 c5e7000ad c7e9e3f93 c9052b18c ca1dc886e cc3672a4e cd14f11ef ceb0cbd62 cee369fdd cfa9c2026\" data-state=\"checked\">\n</span>\n</button>\n</label>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "aria label override": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c1f523237 c1f5b4e97 c2bf204c1 c42740ba6 c937ba156 c99d61f16 ccae02ff2 ccd4e633a cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9666e3af cc2d72006 ccae02ff2 cd9b20003\">\n<div>\n<p class=\"c4647f690 c7f74399a ce6c94376\" id=\"#id0\">\nKB\n</p>\n</div>\n</div>\n<input aria-hidden=\"true\" checked class=\"cb542d3c9\" tabindex=\"-1\" type=\"checkbox\" {checked=true}>\n</input>\n<label class=\"c13d4ff0f c1e8176ab c9566e21c ccae02ff2\">\n<button aria-checked=\"true\" aria-label=\"Toggle knowledge base\" class=\"c13d4ff0f c141d8a54 c1e8176ab c32cad454 c3a0ad6eb c3e7dcfd4 c4e17296e c5494c1c8 c6079f2c7 c6c0a5ed8 c7371f437 c7d370ab9 c8b197f7c c9052b18c c990a7ec2 ca171edb3 ca596e575 cb8150f49 cbe9b7ae9 cc06b624c cc386cd15 cc4672be1 cd44f16a8 cdccefb20 cee061da5 cf891dc93 cfc82911d cfe89757b cfeafb93f\" data-mol-id=\"node-editor-toggle\" data-state=\"checked\" role=\"switch\" type=\"button\">\n<span class=\"c2883f28d c432f8f52 c5e7000ad c7e9e3f93 c9052b18c ca1dc886e cc3672a4e cd14f11ef ceb0cbd62 cee369fdd cfa9c2026\" data-state=\"checked\">\n</span>\n</button>\n</label>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "empty aria label is kept": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c1f523237 c1f5b4e97 c2bf204c1 c42740ba6 c937ba156 c99d61f16 ccae02ff2 ccd4e633a cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9666e3af cc2d72006 ccae02ff2 cd9b20003\">\n<div>\n<p class=\"c4647f690 c7f74399a ce6c94376\" id=\"#id0\">\nKB\n</p>\n</div>\n</div>\n<input aria-hidden=\"true\" class=\"cb542d3c9\" tabindex=\"-1\" type=\"checkbox\" {checked=false}>\n</input>\n<label class=\"c13d4ff0f c1e8176ab c9566e21c ccae02ff2\">\n<button aria-checked=\"false\" aria-label class=\"c13d4ff0f c141d8a54 c1e8176ab c32cad454 c3a0ad6eb c3e7dcfd4 c4e17296e c5494c1c8 c6079f2c7 c6c0a5ed8 c7371f437 c7d370ab9 c8b197f7c c9052b18c c990a7ec2 ca171edb3 ca596e575 cb8150f49 cbe9b7ae9 cc06b624c cc386cd15 cc4672be1 cd44f16a8 cdccefb20 cee061da5 cf891dc93 cfc82911d cfe89757b cfeafb93f\" data-mol-id=\"node-editor-toggle\" data-state=\"unchecked\" role=\"switch\" type=\"button\">\n<span class=\"c2883f28d c432f8f52 c5e7000ad c7e9e3f93 c9052b18c ca1dc886e cc3672a4e cd14f11ef ceb0cbd62 cee369fdd cfa9c2026\" data-state=\"unchecked\">\n</span>\n</button>\n</label>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "node title has no default aria label": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c1f523237 c1f5b4e97 c2bf204c1 c42740ba6 c937ba156 c99d61f16 ccae02ff2 ccd4e633a cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9666e3af cc2d72006 ccae02ff2 cd9b20003\">\n<div>\n<p class=\"c4647f690 c7f74399a ce6c94376\" id=\"#id0\">\n<strong>\nKnowledge Base\n</strong>\n</p>\n</div>\n</div>\n<input aria-hidden=\"true\" class=\"cb542d3c9\" tabindex=\"-1\" type=\"checkbox\" {checked=false}>\n</input>\n<label class=\"c13d4ff0f c1e8176ab c9566e21c ccae02ff2\">\n<button aria-checked=\"false\" aria-labelledby=\"#id0\" class=\"c13d4ff0f c141d8a54 c1e8176ab c32cad454 c3a0ad6eb c3e7dcfd4 c4e17296e c5494c1c8 c6079f2c7 c6c0a5ed8 c7371f437 c7d370ab9 c8b197f7c c9052b18c c990a7ec2 ca171edb3 ca596e575 cb8150f49 cbe9b7ae9 cc06b624c cc386cd15 cc4672be1 cd44f16a8 cdccefb20 cee061da5 cf891dc93 cfc82911d cfe89757b cfeafb93f\" data-mol-id=\"node-editor-toggle\" data-state=\"unchecked\" role=\"switch\" type=\"button\">\n<span class=\"c2883f28d c432f8f52 c5e7000ad c7e9e3f93 c9052b18c ca1dc886e cc3672a4e cd14f11ef ceb0cbd62 cee369fdd cfa9c2026\" data-state=\"unchecked\">\n</span>\n</button>\n</label>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "the subtitle is added and removed": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c1f523237 c1f5b4e97 c2bf204c1 c42740ba6 c937ba156 c99d61f16 ccae02ff2 ccd4e633a cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9666e3af cc2d72006 ccae02ff2 cd9b20003\">\n<div>\n<p class=\"c4647f690 c7f74399a ce6c94376\" id=\"#id0\">\nKnowledge Base\n</p>\n</div>\n</div>\n<input aria-hidden=\"true\" class=\"cb542d3c9\" tabindex=\"-1\" type=\"checkbox\" {checked=false}>\n</input>\n<label class=\"c13d4ff0f c1e8176ab c9566e21c ccae02ff2\">\n<button aria-checked=\"false\" aria-labelledby=\"#id0\" class=\"c13d4ff0f c141d8a54 c1e8176ab c32cad454 c3a0ad6eb c3e7dcfd4 c4e17296e c5494c1c8 c6079f2c7 c6c0a5ed8 c7371f437 c7d370ab9 c8b197f7c c9052b18c c990a7ec2 ca171edb3 ca596e575 cb8150f49 cbe9b7ae9 cc06b624c cc386cd15 cc4672be1 cd44f16a8 cdccefb20 cee061da5 cf891dc93 cfc82911d cfe89757b cfeafb93f\" data-mol-id=\"node-editor-toggle\" data-state=\"unchecked\" role=\"switch\" type=\"button\">\n<span class=\"c2883f28d c432f8f52 c5e7000ad c7e9e3f93 c9052b18c ca1dc886e cc3672a4e cd14f11ef ceb0cbd62 cee369fdd cfa9c2026\" data-state=\"unchecked\">\n</span>\n</button>\n</label>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c1f523237 c1f5b4e97 c2bf204c1 c42740ba6 c937ba156 c99d61f16 ccae02ff2 ccd4e633a cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9666e3af cc2d72006 ccae02ff2 cd9b20003\">\n<div>\n<p class=\"c4647f690 c7f74399a ce6c94376\" id=\"#id0\">\nKnowledge Base\n</p>\n<p class=\"c052585d2 c20f5df36\" id=\"#id1\">\nUses your documents\n</p>\n</div>\n</div>\n<input aria-hidden=\"true\" class=\"cb542d3c9\" tabindex=\"-1\" type=\"checkbox\" {checked=false}>\n</input>\n<label class=\"c13d4ff0f c1e8176ab c9566e21c ccae02ff2\">\n<button aria-checked=\"false\" aria-describedby=\"#id1\" aria-labelledby=\"#id0\" class=\"c13d4ff0f c141d8a54 c1e8176ab c32cad454 c3a0ad6eb c3e7dcfd4 c4e17296e c5494c1c8 c6079f2c7 c6c0a5ed8 c7371f437 c7d370ab9 c8b197f7c c9052b18c c990a7ec2 ca171edb3 ca596e575 cb8150f49 cbe9b7ae9 cc06b624c cc386cd15 cc4672be1 cd44f16a8 cdccefb20 cee061da5 cf891dc93 cfc82911d cfe89757b cfeafb93f\" data-mol-id=\"node-editor-toggle\" data-state=\"unchecked\" role=\"switch\" type=\"button\">\n<span class=\"c2883f28d c432f8f52 c5e7000ad c7e9e3f93 c9052b18c ca1dc886e cc3672a4e cd14f11ef ceb0cbd62 cee369fdd cfa9c2026\" data-state=\"unchecked\">\n</span>\n</button>\n</label>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c1f523237 c1f5b4e97 c2bf204c1 c42740ba6 c937ba156 c99d61f16 ccae02ff2 ccd4e633a cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9666e3af cc2d72006 ccae02ff2 cd9b20003\">\n<div>\n<p class=\"c4647f690 c7f74399a ce6c94376\" id=\"#id0\">\nKnowledge Base\n</p>\n</div>\n</div>\n<input aria-hidden=\"true\" class=\"cb542d3c9\" tabindex=\"-1\" type=\"checkbox\" {checked=false}>\n</input>\n<label class=\"c13d4ff0f c1e8176ab c9566e21c ccae02ff2\">\n<button aria-checked=\"false\" aria-labelledby=\"#id0\" class=\"c13d4ff0f c141d8a54 c1e8176ab c32cad454 c3a0ad6eb c3e7dcfd4 c4e17296e c5494c1c8 c6079f2c7 c6c0a5ed8 c7371f437 c7d370ab9 c8b197f7c c9052b18c c990a7ec2 ca171edb3 ca596e575 cb8150f49 cbe9b7ae9 cc06b624c cc386cd15 cc4672be1 cd44f16a8 cdccefb20 cee061da5 cf891dc93 cfc82911d cfe89757b cfeafb93f\" data-mol-id=\"node-editor-toggle\" data-state=\"unchecked\" role=\"switch\" type=\"button\">\n<span class=\"c2883f28d c432f8f52 c5e7000ad c7e9e3f93 c9052b18c ca1dc886e cc3672a4e cd14f11ef ceb0cbd62 cee369fdd cfa9c2026\" data-state=\"unchecked\">\n</span>\n</button>\n</label>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "the icon is added and removed": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c1f523237 c1f5b4e97 c2bf204c1 c42740ba6 c937ba156 c99d61f16 ccae02ff2 ccd4e633a cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9666e3af cc2d72006 ccae02ff2 cd9b20003\">\n<div>\n<p class=\"c4647f690 c7f74399a ce6c94376\" id=\"#id0\">\nKnowledge Base\n</p>\n</div>\n</div>\n<input aria-hidden=\"true\" class=\"cb542d3c9\" tabindex=\"-1\" type=\"checkbox\" {checked=false}>\n</input>\n<label class=\"c13d4ff0f c1e8176ab c9566e21c ccae02ff2\">\n<button aria-checked=\"false\" aria-labelledby=\"#id0\" class=\"c13d4ff0f c141d8a54 c1e8176ab c32cad454 c3a0ad6eb c3e7dcfd4 c4e17296e c5494c1c8 c6079f2c7 c6c0a5ed8 c7371f437 c7d370ab9 c8b197f7c c9052b18c c990a7ec2 ca171edb3 ca596e575 cb8150f49 cbe9b7ae9 cc06b624c cc386cd15 cc4672be1 cd44f16a8 cdccefb20 cee061da5 cf891dc93 cfc82911d cfe89757b cfeafb93f\" data-mol-id=\"node-editor-toggle\" data-state=\"unchecked\" role=\"switch\" type=\"button\">\n<span class=\"c2883f28d c432f8f52 c5e7000ad c7e9e3f93 c9052b18c ca1dc886e cc3672a4e cd14f11ef ceb0cbd62 cee369fdd cfa9c2026\" data-state=\"unchecked\">\n</span>\n</button>\n</label>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c1f523237 c1f5b4e97 c2bf204c1 c42740ba6 c937ba156 c99d61f16 ccae02ff2 ccd4e633a cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9666e3af cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c311021b4 c388af5c7 c9bd6223c cda72d38d\">\n<span class=\"c445db9b9 caeede141\">\ndatabase\n</span>\n</div>\n<div>\n<p class=\"c4647f690 c7f74399a ce6c94376\" id=\"#id0\">\nKnowledge Base\n</p>\n</div>\n</div>\n<input aria-hidden=\"true\" class=\"cb542d3c9\" tabindex=\"-1\" type=\"checkbox\" {checked=false}>\n</input>\n<label class=\"c13d4ff0f c1e8176ab c9566e21c ccae02ff2\">\n<button aria-checked=\"false\" aria-labelledby=\"#id0\" class=\"c13d4ff0f c141d8a54 c1e8176ab c32cad454 c3a0ad6eb c3e7dcfd4 c4e17296e c5494c1c8 c6079f2c7 c6c0a5ed8 c7371f437 c7d370ab9 c8b197f7c c9052b18c c990a7ec2 ca171edb3 ca596e575 cb8150f49 cbe9b7ae9 cc06b624c cc386cd15 cc4672be1 cd44f16a8 cdccefb20 cee061da5 cf891dc93 cfc82911d cfe89757b cfeafb93f\" data-mol-id=\"node-editor-toggle\" data-state=\"unchecked\" role=\"switch\" type=\"button\">\n<span class=\"c2883f28d c432f8f52 c5e7000ad c7e9e3f93 c9052b18c ca1dc886e cc3672a4e cd14f11ef ceb0cbd62 cee369fdd cfa9c2026\" data-state=\"unchecked\">\n</span>\n</button>\n</label>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c1f523237 c1f5b4e97 c2bf204c1 c42740ba6 c937ba156 c99d61f16 ccae02ff2 ccd4e633a cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9666e3af cc2d72006 ccae02ff2 cd9b20003\">\n<div>\n<p class=\"c4647f690 c7f74399a ce6c94376\" id=\"#id0\">\nKnowledge Base\n</p>\n</div>\n</div>\n<input aria-hidden=\"true\" class=\"cb542d3c9\" tabindex=\"-1\" type=\"checkbox\" {checked=false}>\n</input>\n<label class=\"c13d4ff0f c1e8176ab c9566e21c ccae02ff2\">\n<button aria-checked=\"false\" aria-labelledby=\"#id0\" class=\"c13d4ff0f c141d8a54 c1e8176ab c32cad454 c3a0ad6eb c3e7dcfd4 c4e17296e c5494c1c8 c6079f2c7 c6c0a5ed8 c7371f437 c7d370ab9 c8b197f7c c9052b18c c990a7ec2 ca171edb3 ca596e575 cb8150f49 cbe9b7ae9 cc06b624c cc386cd15 cc4672be1 cd44f16a8 cdccefb20 cee061da5 cf891dc93 cfc82911d cfe89757b cfeafb93f\" data-mol-id=\"node-editor-toggle\" data-state=\"unchecked\" role=\"switch\" type=\"button\">\n<span class=\"c2883f28d c432f8f52 c5e7000ad c7e9e3f93 c9052b18c ca1dc886e cc3672a4e cd14f11ef ceb0cbd62 cee369fdd cfa9c2026\" data-state=\"unchecked\">\n</span>\n</button>\n</label>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "clicking an unchecked toggle reports on": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c1f523237 c1f5b4e97 c2bf204c1 c42740ba6 c937ba156 c99d61f16 ccae02ff2 ccd4e633a cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9666e3af cc2d72006 ccae02ff2 cd9b20003\">\n<div>\n<p class=\"c4647f690 c7f74399a ce6c94376\" id=\"#id0\">\nKnowledge Base\n</p>\n</div>\n</div>\n<input aria-hidden=\"true\" class=\"cb542d3c9\" tabindex=\"-1\" type=\"checkbox\" {checked=false}>\n</input>\n<label class=\"c13d4ff0f c1e8176ab c9566e21c ccae02ff2\">\n<button aria-checked=\"false\" aria-labelledby=\"#id0\" class=\"c13d4ff0f c141d8a54 c1e8176ab c32cad454 c3a0ad6eb c3e7dcfd4 c4e17296e c5494c1c8 c6079f2c7 c6c0a5ed8 c7371f437 c7d370ab9 c8b197f7c c9052b18c c990a7ec2 ca171edb3 ca596e575 cb8150f49 cbe9b7ae9 cc06b624c cc386cd15 cc4672be1 cd44f16a8 cdccefb20 cee061da5 cf891dc93 cfc82911d cfe89757b cfeafb93f\" data-mol-id=\"node-editor-toggle\" data-state=\"unchecked\" role=\"switch\" type=\"button\">\n<span class=\"c2883f28d c432f8f52 c5e7000ad c7e9e3f93 c9052b18c ca1dc886e cc3672a4e cd14f11ef ceb0cbd62 cee369fdd cfa9c2026\" data-state=\"unchecked\">\n</span>\n</button>\n</label>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c1f523237 c1f5b4e97 c2bf204c1 c42740ba6 c937ba156 c99d61f16 ccae02ff2 ccd4e633a cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9666e3af cc2d72006 ccae02ff2 cd9b20003\">\n<div>\n<p class=\"c4647f690 c7f74399a ce6c94376\" id=\"#id0\">\nKnowledge Base\n</p>\n</div>\n</div>\n<input aria-hidden=\"true\" class=\"cb542d3c9\" tabindex=\"-1\" type=\"checkbox\" {checked=false}>\n</input>\n<label class=\"c13d4ff0f c1e8176ab c9566e21c ccae02ff2\">\n<button aria-checked=\"false\" aria-labelledby=\"#id0\" class=\"c13d4ff0f c141d8a54 c1e8176ab c32cad454 c3a0ad6eb c3e7dcfd4 c4e17296e c5494c1c8 c6079f2c7 c6c0a5ed8 c7371f437 c7d370ab9 c8b197f7c c9052b18c c990a7ec2 ca171edb3 ca596e575 cb8150f49 cbe9b7ae9 cc06b624c cc386cd15 cc4672be1 cd44f16a8 cdccefb20 cee061da5 cf891dc93 cfc82911d cfe89757b cfeafb93f\" data-mol-id=\"node-editor-toggle\" data-state=\"unchecked\" role=\"switch\" type=\"button\">\n<span class=\"c2883f28d c432f8f52 c5e7000ad c7e9e3f93 c9052b18c ca1dc886e cc3672a4e cd14f11ef ceb0cbd62 cee369fdd cfa9c2026\" data-state=\"unchecked\">\n</span>\n</button>\n</label>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onChange",
+      "args": [
+       true
+      ]
+     }
+    ]
+   },
+   "clicking a checked toggle reports off": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c1f523237 c1f5b4e97 c2bf204c1 c42740ba6 c937ba156 c99d61f16 ccae02ff2 ccd4e633a cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9666e3af cc2d72006 ccae02ff2 cd9b20003\">\n<div>\n<p class=\"c4647f690 c7f74399a ce6c94376\" id=\"#id0\">\nKnowledge Base\n</p>\n</div>\n</div>\n<input aria-hidden=\"true\" checked class=\"cb542d3c9\" tabindex=\"-1\" type=\"checkbox\" {checked=true}>\n</input>\n<label class=\"c13d4ff0f c1e8176ab c9566e21c ccae02ff2\">\n<button aria-checked=\"true\" aria-labelledby=\"#id0\" class=\"c13d4ff0f c141d8a54 c1e8176ab c32cad454 c3a0ad6eb c3e7dcfd4 c4e17296e c5494c1c8 c6079f2c7 c6c0a5ed8 c7371f437 c7d370ab9 c8b197f7c c9052b18c c990a7ec2 ca171edb3 ca596e575 cb8150f49 cbe9b7ae9 cc06b624c cc386cd15 cc4672be1 cd44f16a8 cdccefb20 cee061da5 cf891dc93 cfc82911d cfe89757b cfeafb93f\" data-mol-id=\"node-editor-toggle\" data-state=\"checked\" role=\"switch\" type=\"button\">\n<span class=\"c2883f28d c432f8f52 c5e7000ad c7e9e3f93 c9052b18c ca1dc886e cc3672a4e cd14f11ef ceb0cbd62 cee369fdd cfa9c2026\" data-state=\"checked\">\n</span>\n</button>\n</label>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c1f523237 c1f5b4e97 c2bf204c1 c42740ba6 c937ba156 c99d61f16 ccae02ff2 ccd4e633a cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9666e3af cc2d72006 ccae02ff2 cd9b20003\">\n<div>\n<p class=\"c4647f690 c7f74399a ce6c94376\" id=\"#id0\">\nKnowledge Base\n</p>\n</div>\n</div>\n<input aria-hidden=\"true\" checked class=\"cb542d3c9\" tabindex=\"-1\" type=\"checkbox\" {checked=true}>\n</input>\n<label class=\"c13d4ff0f c1e8176ab c9566e21c ccae02ff2\">\n<button aria-checked=\"true\" aria-labelledby=\"#id0\" class=\"c13d4ff0f c141d8a54 c1e8176ab c32cad454 c3a0ad6eb c3e7dcfd4 c4e17296e c5494c1c8 c6079f2c7 c6c0a5ed8 c7371f437 c7d370ab9 c8b197f7c c9052b18c c990a7ec2 ca171edb3 ca596e575 cb8150f49 cbe9b7ae9 cc06b624c cc386cd15 cc4672be1 cd44f16a8 cdccefb20 cee061da5 cf891dc93 cfc82911d cfe89757b cfeafb93f\" data-mol-id=\"node-editor-toggle\" data-state=\"checked\" role=\"switch\" type=\"button\">\n<span class=\"c2883f28d c432f8f52 c5e7000ad c7e9e3f93 c9052b18c ca1dc886e cc3672a4e cd14f11ef ceb0cbd62 cee369fdd cfa9c2026\" data-state=\"checked\">\n</span>\n</button>\n</label>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onChange",
+      "args": [
+       false
+      ]
+     }
+    ]
+   },
+   "clicking twice reports both changes": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c1f523237 c1f5b4e97 c2bf204c1 c42740ba6 c937ba156 c99d61f16 ccae02ff2 ccd4e633a cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9666e3af cc2d72006 ccae02ff2 cd9b20003\">\n<div>\n<p class=\"c4647f690 c7f74399a ce6c94376\" id=\"#id0\">\nKnowledge Base\n</p>\n</div>\n</div>\n<input aria-hidden=\"true\" class=\"cb542d3c9\" tabindex=\"-1\" type=\"checkbox\" {checked=false}>\n</input>\n<label class=\"c13d4ff0f c1e8176ab c9566e21c ccae02ff2\">\n<button aria-checked=\"false\" aria-labelledby=\"#id0\" class=\"c13d4ff0f c141d8a54 c1e8176ab c32cad454 c3a0ad6eb c3e7dcfd4 c4e17296e c5494c1c8 c6079f2c7 c6c0a5ed8 c7371f437 c7d370ab9 c8b197f7c c9052b18c c990a7ec2 ca171edb3 ca596e575 cb8150f49 cbe9b7ae9 cc06b624c cc386cd15 cc4672be1 cd44f16a8 cdccefb20 cee061da5 cf891dc93 cfc82911d cfe89757b cfeafb93f\" data-mol-id=\"node-editor-toggle\" data-state=\"unchecked\" role=\"switch\" type=\"button\">\n<span class=\"c2883f28d c432f8f52 c5e7000ad c7e9e3f93 c9052b18c ca1dc886e cc3672a4e cd14f11ef ceb0cbd62 cee369fdd cfa9c2026\" data-state=\"unchecked\">\n</span>\n</button>\n</label>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c1f523237 c1f5b4e97 c2bf204c1 c42740ba6 c937ba156 c99d61f16 ccae02ff2 ccd4e633a cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9666e3af cc2d72006 ccae02ff2 cd9b20003\">\n<div>\n<p class=\"c4647f690 c7f74399a ce6c94376\" id=\"#id0\">\nKnowledge Base\n</p>\n</div>\n</div>\n<input aria-hidden=\"true\" class=\"cb542d3c9\" tabindex=\"-1\" type=\"checkbox\" {checked=false}>\n</input>\n<label class=\"c13d4ff0f c1e8176ab c9566e21c ccae02ff2\">\n<button aria-checked=\"false\" aria-labelledby=\"#id0\" class=\"c13d4ff0f c141d8a54 c1e8176ab c32cad454 c3a0ad6eb c3e7dcfd4 c4e17296e c5494c1c8 c6079f2c7 c6c0a5ed8 c7371f437 c7d370ab9 c8b197f7c c9052b18c c990a7ec2 ca171edb3 ca596e575 cb8150f49 cbe9b7ae9 cc06b624c cc386cd15 cc4672be1 cd44f16a8 cdccefb20 cee061da5 cf891dc93 cfc82911d cfe89757b cfeafb93f\" data-mol-id=\"node-editor-toggle\" data-state=\"unchecked\" role=\"switch\" type=\"button\">\n<span class=\"c2883f28d c432f8f52 c5e7000ad c7e9e3f93 c9052b18c ca1dc886e cc3672a4e cd14f11ef ceb0cbd62 cee369fdd cfa9c2026\" data-state=\"unchecked\">\n</span>\n</button>\n</label>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c1f523237 c1f5b4e97 c2bf204c1 c42740ba6 c937ba156 c99d61f16 ccae02ff2 ccd4e633a cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9666e3af cc2d72006 ccae02ff2 cd9b20003\">\n<div>\n<p class=\"c4647f690 c7f74399a ce6c94376\" id=\"#id0\">\nKnowledge Base\n</p>\n</div>\n</div>\n<input aria-hidden=\"true\" class=\"cb542d3c9\" tabindex=\"-1\" type=\"checkbox\" {checked=false}>\n</input>\n<label class=\"c13d4ff0f c1e8176ab c9566e21c ccae02ff2\">\n<button aria-checked=\"false\" aria-labelledby=\"#id0\" class=\"c13d4ff0f c141d8a54 c1e8176ab c32cad454 c3a0ad6eb c3e7dcfd4 c4e17296e c5494c1c8 c6079f2c7 c6c0a5ed8 c7371f437 c7d370ab9 c8b197f7c c9052b18c c990a7ec2 ca171edb3 ca596e575 cb8150f49 cbe9b7ae9 cc06b624c cc386cd15 cc4672be1 cd44f16a8 cdccefb20 cee061da5 cf891dc93 cfc82911d cfe89757b cfeafb93f\" data-mol-id=\"node-editor-toggle\" data-state=\"unchecked\" role=\"switch\" type=\"button\">\n<span class=\"c2883f28d c432f8f52 c5e7000ad c7e9e3f93 c9052b18c ca1dc886e cc3672a4e cd14f11ef ceb0cbd62 cee369fdd cfa9c2026\" data-state=\"unchecked\">\n</span>\n</button>\n</label>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onChange",
+      "args": [
+       true
+      ]
+     },
+     {
+      "name": "onChange",
+      "args": [
+       true
+      ]
+     }
+    ]
+   },
+   "the checked state changes from the parent": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c1f523237 c1f5b4e97 c2bf204c1 c42740ba6 c937ba156 c99d61f16 ccae02ff2 ccd4e633a cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9666e3af cc2d72006 ccae02ff2 cd9b20003\">\n<div>\n<p class=\"c4647f690 c7f74399a ce6c94376\" id=\"#id0\">\nKnowledge Base\n</p>\n</div>\n</div>\n<input aria-hidden=\"true\" class=\"cb542d3c9\" tabindex=\"-1\" type=\"checkbox\" {checked=false}>\n</input>\n<label class=\"c13d4ff0f c1e8176ab c9566e21c ccae02ff2\">\n<button aria-checked=\"false\" aria-labelledby=\"#id0\" class=\"c13d4ff0f c141d8a54 c1e8176ab c32cad454 c3a0ad6eb c3e7dcfd4 c4e17296e c5494c1c8 c6079f2c7 c6c0a5ed8 c7371f437 c7d370ab9 c8b197f7c c9052b18c c990a7ec2 ca171edb3 ca596e575 cb8150f49 cbe9b7ae9 cc06b624c cc386cd15 cc4672be1 cd44f16a8 cdccefb20 cee061da5 cf891dc93 cfc82911d cfe89757b cfeafb93f\" data-mol-id=\"node-editor-toggle\" data-state=\"unchecked\" role=\"switch\" type=\"button\">\n<span class=\"c2883f28d c432f8f52 c5e7000ad c7e9e3f93 c9052b18c ca1dc886e cc3672a4e cd14f11ef ceb0cbd62 cee369fdd cfa9c2026\" data-state=\"unchecked\">\n</span>\n</button>\n</label>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c1f523237 c1f5b4e97 c2bf204c1 c42740ba6 c937ba156 c99d61f16 ccae02ff2 ccd4e633a cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9666e3af cc2d72006 ccae02ff2 cd9b20003\">\n<div>\n<p class=\"c4647f690 c7f74399a ce6c94376\" id=\"#id0\">\nKnowledge Base\n</p>\n</div>\n</div>\n<input aria-hidden=\"true\" class=\"cb542d3c9\" tabindex=\"-1\" type=\"checkbox\" {checked=true}>\n</input>\n<label class=\"c13d4ff0f c1e8176ab c9566e21c ccae02ff2\">\n<button aria-checked=\"true\" aria-labelledby=\"#id0\" class=\"c13d4ff0f c141d8a54 c1e8176ab c32cad454 c3a0ad6eb c3e7dcfd4 c4e17296e c5494c1c8 c6079f2c7 c6c0a5ed8 c7371f437 c7d370ab9 c8b197f7c c9052b18c c990a7ec2 ca171edb3 ca596e575 cb8150f49 cbe9b7ae9 cc06b624c cc386cd15 cc4672be1 cd44f16a8 cdccefb20 cee061da5 cf891dc93 cfc82911d cfe89757b cfeafb93f\" data-mol-id=\"node-editor-toggle\" data-state=\"checked\" role=\"switch\" type=\"button\">\n<span class=\"c2883f28d c432f8f52 c5e7000ad c7e9e3f93 c9052b18c ca1dc886e cc3672a4e cd14f11ef ceb0cbd62 cee369fdd cfa9c2026\" data-state=\"checked\">\n</span>\n</button>\n</label>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "the title and aria label change": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c1f523237 c1f5b4e97 c2bf204c1 c42740ba6 c937ba156 c99d61f16 ccae02ff2 ccd4e633a cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9666e3af cc2d72006 ccae02ff2 cd9b20003\">\n<div>\n<p class=\"c4647f690 c7f74399a ce6c94376\" id=\"#id0\">\nKnowledge Base\n</p>\n</div>\n</div>\n<input aria-hidden=\"true\" class=\"cb542d3c9\" tabindex=\"-1\" type=\"checkbox\" {checked=false}>\n</input>\n<label class=\"c13d4ff0f c1e8176ab c9566e21c ccae02ff2\">\n<button aria-checked=\"false\" aria-labelledby=\"#id0\" class=\"c13d4ff0f c141d8a54 c1e8176ab c32cad454 c3a0ad6eb c3e7dcfd4 c4e17296e c5494c1c8 c6079f2c7 c6c0a5ed8 c7371f437 c7d370ab9 c8b197f7c c9052b18c c990a7ec2 ca171edb3 ca596e575 cb8150f49 cbe9b7ae9 cc06b624c cc386cd15 cc4672be1 cd44f16a8 cdccefb20 cee061da5 cf891dc93 cfc82911d cfe89757b cfeafb93f\" data-mol-id=\"node-editor-toggle\" data-state=\"unchecked\" role=\"switch\" type=\"button\">\n<span class=\"c2883f28d c432f8f52 c5e7000ad c7e9e3f93 c9052b18c ca1dc886e cc3672a4e cd14f11ef ceb0cbd62 cee369fdd cfa9c2026\" data-state=\"unchecked\">\n</span>\n</button>\n</label>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c1f523237 c1f5b4e97 c2bf204c1 c42740ba6 c937ba156 c99d61f16 ccae02ff2 ccd4e633a cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9666e3af cc2d72006 ccae02ff2 cd9b20003\">\n<div>\n<p class=\"c4647f690 c7f74399a ce6c94376\" id=\"#id0\">\nStructured mode\n</p>\n</div>\n</div>\n<input aria-hidden=\"true\" class=\"cb542d3c9\" tabindex=\"-1\" type=\"checkbox\" {checked=false}>\n</input>\n<label class=\"c13d4ff0f c1e8176ab c9566e21c ccae02ff2\">\n<button aria-checked=\"false\" aria-label=\"Structured\" class=\"c13d4ff0f c141d8a54 c1e8176ab c32cad454 c3a0ad6eb c3e7dcfd4 c4e17296e c5494c1c8 c6079f2c7 c6c0a5ed8 c7371f437 c7d370ab9 c8b197f7c c9052b18c c990a7ec2 ca171edb3 ca596e575 cb8150f49 cbe9b7ae9 cc06b624c cc386cd15 cc4672be1 cd44f16a8 cdccefb20 cee061da5 cf891dc93 cfc82911d cfe89757b cfeafb93f\" data-mol-id=\"node-editor-toggle\" data-state=\"unchecked\" role=\"switch\" type=\"button\">\n<span class=\"c2883f28d c432f8f52 c5e7000ad c7e9e3f93 c9052b18c ca1dc886e cc3672a4e cd14f11ef ceb0cbd62 cee369fdd cfa9c2026\" data-state=\"unchecked\">\n</span>\n</button>\n</label>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "unchecked, title only, then a locale switch": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c1f523237 c1f5b4e97 c2bf204c1 c42740ba6 c937ba156 c99d61f16 ccae02ff2 ccd4e633a cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9666e3af cc2d72006 ccae02ff2 cd9b20003\">\n<div>\n<p class=\"c4647f690 c7f74399a ce6c94376\" id=\"#id0\">\nKnowledge Base\n</p>\n</div>\n</div>\n<input aria-hidden=\"true\" class=\"cb542d3c9\" tabindex=\"-1\" type=\"checkbox\" {checked=false}>\n</input>\n<label class=\"c13d4ff0f c1e8176ab c9566e21c ccae02ff2\">\n<button aria-checked=\"false\" aria-labelledby=\"#id0\" class=\"c13d4ff0f c141d8a54 c1e8176ab c32cad454 c3a0ad6eb c3e7dcfd4 c4e17296e c5494c1c8 c6079f2c7 c6c0a5ed8 c7371f437 c7d370ab9 c8b197f7c c9052b18c c990a7ec2 ca171edb3 ca596e575 cb8150f49 cbe9b7ae9 cc06b624c cc386cd15 cc4672be1 cd44f16a8 cdccefb20 cee061da5 cf891dc93 cfc82911d cfe89757b cfeafb93f\" data-mol-id=\"node-editor-toggle\" data-state=\"unchecked\" role=\"switch\" type=\"button\">\n<span class=\"c2883f28d c432f8f52 c5e7000ad c7e9e3f93 c9052b18c ca1dc886e cc3672a4e cd14f11ef ceb0cbd62 cee369fdd cfa9c2026\" data-state=\"unchecked\">\n</span>\n</button>\n</label>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c1f523237 c1f5b4e97 c2bf204c1 c42740ba6 c937ba156 c99d61f16 ccae02ff2 ccd4e633a cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9666e3af cc2d72006 ccae02ff2 cd9b20003\">\n<div>\n<p class=\"c4647f690 c7f74399a ce6c94376\" id=\"#id0\">\nKnowledge Base\n</p>\n</div>\n</div>\n<input aria-hidden=\"true\" class=\"cb542d3c9\" tabindex=\"-1\" type=\"checkbox\" {checked=false}>\n</input>\n<label class=\"c13d4ff0f c1e8176ab c9566e21c ccae02ff2\">\n<button aria-checked=\"false\" aria-labelledby=\"#id0\" class=\"c13d4ff0f c141d8a54 c1e8176ab c32cad454 c3a0ad6eb c3e7dcfd4 c4e17296e c5494c1c8 c6079f2c7 c6c0a5ed8 c7371f437 c7d370ab9 c8b197f7c c9052b18c c990a7ec2 ca171edb3 ca596e575 cb8150f49 cbe9b7ae9 cc06b624c cc386cd15 cc4672be1 cd44f16a8 cdccefb20 cee061da5 cf891dc93 cfc82911d cfe89757b cfeafb93f\" data-mol-id=\"node-editor-toggle\" data-state=\"unchecked\" role=\"switch\" type=\"button\">\n<span class=\"c2883f28d c432f8f52 c5e7000ad c7e9e3f93 c9052b18c ca1dc886e cc3672a4e cd14f11ef ceb0cbd62 cee369fdd cfa9c2026\" data-state=\"unchecked\">\n</span>\n</button>\n</label>\n</div>\n@route /"
+    ],
+    "calls": []
+   }
+  }
+ }
+}

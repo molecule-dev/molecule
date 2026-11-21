@@ -7,6 +7,7 @@
  * @module
  */
 
+import { installFocusVisible, resetFocusVisible } from './focus-visible.js'
 import type { LayoutStub, TransferFile } from './spec.js'
 
 /** The time zone every case runs in. */
@@ -38,10 +39,11 @@ pinCaseTimeZone()
  * Puts the page back where every case starts, before the case mounts: at the document root (`/`,
  * no query, no hash), so no case starts on an address an earlier case left behind (a hook that
  * mirrors its state to `location.hash` while its debounce is still pending when the case ends),
- * and with the window focused.
+ * with the same `:focus-visible` state ({@link resetFocusVisible}), and with the window focused.
  */
 export function resetCasePage(): void {
   history.replaceState(null, '', '/')
+  resetFocusVisible()
   setWindowFocus(true)
 }
 
@@ -709,16 +711,34 @@ export function reachCues(element: HTMLTrackElement, texts: string[]): void {
   textTrackOf(element).reach(texts)
 }
 
+/**
+ * The canvas `getContext` of a page without a renderer: no context of any kind.
+ *
+ * @returns `null`.
+ */
+const noCanvasContext = (): null => null
+
 /** Pointer ids each element captured (`setPointerCapture`). */
 const captures = new WeakMap<Element, Set<number>>()
 
 /**
  * Fills DOM methods jsdom does not implement with ones that do what a page
  * without layout would: pointer capture is tracked, `scrollIntoView` does
- * nothing, a `<track>` element has a text track (`cues` steps drive it).
- * Methods jsdom has are left alone.
+ * nothing, a `<track>` element has a text track (`cues` steps drive it), and a
+ * `<canvas>` has no drawing context. Other methods jsdom has are left alone. Every UI case,
+ * hook case and value check installs them, so each runs on the same page. It also installs the
+ * kit's `:focus-visible` judgement ({@link installFocusVisible}), which jsdom gets wrong.
  */
 export function installDomGaps(): void {
+  installFocusVisible()
+  // jsdom answers getContext with null too, after reporting "not implemented" to the
+  // console; a component that draws then takes its no-context path quietly.
+  if (HTMLCanvasElement.prototype.getContext !== noCanvasContext)
+    Object.defineProperty(HTMLCanvasElement.prototype, 'getContext', {
+      configurable: true,
+      writable: true,
+      value: noCanvasContext,
+    })
   if (!('track' in HTMLTrackElement.prototype))
     Object.defineProperty(HTMLTrackElement.prototype, 'track', {
       configurable: true,

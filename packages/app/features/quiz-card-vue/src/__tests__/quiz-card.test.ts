@@ -63,6 +63,7 @@ vi.mock('@molecule/app-ui-vue', async () => {
 import { createApp, defineComponent, h } from 'vue'
 
 import { QuizCard } from '../QuizCard.js'
+import type { QuizCardProps } from '../types.js'
 
 afterEach(() => {
   document.body.innerHTML = ''
@@ -75,7 +76,7 @@ afterEach(() => {
  * @param props - The card's props.
  * @returns The markup.
  */
-const render = (props: Record<string, unknown>): string => {
+const render = (props: QuizCardProps): string => {
   const host = document.createElement('div')
   document.body.appendChild(host)
   const app = createApp(defineComponent({ render: () => h(QuizCard, props) }))

@@ -6,7 +6,7 @@ import { defineComponent, h, nextTick, type PropType, ref, shallowRef } from 'vu
 import type { FormValuesConstraint } from '@molecule/app-forms'
 import { nativeProvider } from '@molecule/app-forms'
 
-import type { UseFormOptions, UseFormReturn } from '../useForms.js'
+import type { UseFormOptions, UseFormResult } from '../useForms.js'
 import { useForm } from '../useForms.js'
 
 interface InventoryValues {
@@ -36,8 +36,8 @@ afterEach(() => {
  */
 function mountForm<T extends FormValuesConstraint<T>>(
   options: UseFormOptions<T> | (() => UseFormOptions<T>),
-): { form: UseFormReturn<T>; rerender: () => Promise<void> } {
-  let form!: UseFormReturn<T>
+): { form: UseFormResult<T>; rerender: () => Promise<void> } {
+  let form!: UseFormResult<T>
   const tick = ref(0)
   const Page = defineComponent({
     setup() {
@@ -385,7 +385,7 @@ describe('useForm asynchronous disposal', () => {
     const gate = new Promise<Record<string, string>>((resolve) => {
       release = resolve
     })
-    let form!: UseFormReturn<{ title: string }>
+    let form!: UseFormResult<{ title: string }>
     const Page = defineComponent({
       setup() {
         form = useForm<{ title: string }>({

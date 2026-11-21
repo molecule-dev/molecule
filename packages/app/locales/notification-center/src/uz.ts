@@ -8,4 +8,5 @@ export const uz: Partial<NotificationCenterTranslations> = {
   'notifications.viewAll': "Barchasini ko'rish",
   'notifications.loadError': 'Bildirishnomalar yuklanmadi.',
   'notifications.retry': 'Qayta urinish',
+  'notifications.unread': "O'qilmagan",
 }

@@ -14,13 +14,14 @@
 
 import '@angular/compiler'
 import {
+  type ApplicationRef,
   ChangeDetectionStrategy,
   Component,
   createComponent,
   provideZonelessChangeDetection,
   type Type,
 } from '@angular/core'
-import { type ApplicationRef, createApplication } from '@angular/platform-browser'
+import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
@@ -39,7 +40,8 @@ vi.mock('@molecule/app-ui', () => ({
               .join(' ')
         }
         const token = String(prop)
-        return (..._args: unknown[]) => token
+        return (...args: unknown[]) =>
+          args.length > 0 ? `${token}-${args.map(String).join('-')}` : token
       },
     }
     return new Proxy({}, handler)
@@ -136,11 +138,14 @@ describe('PresenceDot', () => {
     expect(markup).toContain('aria-label="User is away"')
   })
 
-  it('colors the dot by status', async () => {
-    expect((await renderDot({ status: 'online' })).host.innerHTML).toContain('rgb(34, 197, 94)')
-    expect((await renderDot({ status: 'away' })).host.innerHTML).toContain('rgb(234, 179, 8)')
-    expect((await renderDot({ status: 'busy' })).host.innerHTML).toContain('rgb(239, 68, 68)')
-    expect((await renderDot({ status: 'offline' })).host.innerHTML).toContain('rgb(148, 163, 184)')
+  it('colors the dot by status through theme tone classes, never a hardcoded hex', async () => {
+    const online = (await renderDot({ status: 'online' })).host.innerHTML
+    expect(online).toContain('progressColor-success')
+    expect((await renderDot({ status: 'away' })).host.innerHTML).toContain('progressColor-warning')
+    expect((await renderDot({ status: 'busy' })).host.innerHTML).toContain('progressColor-error')
+    expect((await renderDot({ status: 'offline' })).host.innerHTML).toContain('bgBorder')
+    expect(online).not.toMatch(/#[0-9a-fA-F]{3,8}\b/)
+    expect(online).not.toContain('background:')
   })
 
   it('positions absolutely at the given corner when position="overlay"', async () => {

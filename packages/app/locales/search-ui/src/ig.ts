@@ -14,4 +14,8 @@ export const ig: Partial<SearchUiTranslations> = {
   'searchUi.relatedTitle': 'Dakọtara ihe ọchụchọ gị pụtara, ọ bụghị okwu ya',
   'searchUi.related': 'metụtara',
   'searchUi.help': 'Ndụmọdụ ọchụchọ',
+  'searchUi.examplePhrase': '"nkebi okwu ziri ezi"',
+  'searchUi.exampleExcluded': '-okwu',
+  'searchUi.activeResult': "{{title}}, {{position}} n'ime {{count}}",
+  'searchUi.dialogLabel': 'Chọọ',
 }

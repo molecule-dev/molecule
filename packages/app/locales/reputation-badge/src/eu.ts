@@ -9,6 +9,7 @@ export const eu: ReputationBadgeTranslations = {
   'reputationBadge.level.trusted': 'Fidagarria',
   'reputationBadge.level.veteran': 'Beteranoa',
   'reputationBadge.level.legend': 'Kondaira',
+  'reputationBadge.level.fallback': '{{level}}',
   'badgeShelf.aria': '{{count}} domina lortuta',
   'badgeShelf.overflow.aria': 'Erakutsi beste {{count}} domina',
 }

@@ -26,7 +26,16 @@ describe('@molecule/app-settings-panel-angular', () => {
     expect(typeof panel.useSettingsPanelContext).toBe('function')
   })
 
-  it('exports the container context under its React name', () => {
-    expect(panel.SettingsPanelContext).toBeTruthy()
+  it('exports the SettingsPanelContext and the shared push helpers', () => {
+    expect(panel.SettingsPanelContext).toBeDefined()
+    for (const name of [
+      'disablePushOnCurrentDevice',
+      'enablePushOnCurrentDevice',
+      'findCurrentDevice',
+      'readCurrentDevicePushEnabled',
+      'subscriptionFromToken',
+    ]) {
+      expect(panel, name).toHaveProperty(name, expect.any(Function))
+    }
   })
 })

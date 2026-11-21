@@ -9,6 +9,7 @@ export const kn: ReputationBadgeTranslations = {
   'reputationBadge.level.trusted': 'ವಿಶ್ವಾಸಾರ್ಹ',
   'reputationBadge.level.veteran': 'ಅನುಭವಿ',
   'reputationBadge.level.legend': 'ದಂತಕಥೆ',
+  'reputationBadge.level.fallback': '{{level}}',
   'badgeShelf.aria': '{{count}} ಬ್ಯಾಡ್ಜ್‌ಗಳನ್ನು ಗಳಿಸಲಾಗಿದೆ',
   'badgeShelf.overflow.aria': 'ಇನ್ನೂ {{count}} ಬ್ಯಾಡ್ಜ್‌ಗಳನ್ನು ತೋರಿಸಿ',
 }

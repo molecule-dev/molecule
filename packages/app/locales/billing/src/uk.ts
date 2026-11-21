@@ -15,4 +15,11 @@ export const uk: Partial<BillingTranslations> = {
   'billing.pricing.tierEyebrow': 'Рівень',
   'billing.pricing.perSeat': 'за місце',
   'billing.pricing.currentCta': 'Поточний план',
+  'billing.pricing.period.month': 'на місяць',
+  'billing.pricing.period.year': 'на рік',
+  'billing.pricing.billed.month': 'Щомісячна оплата',
+  'billing.pricing.billed.year': 'Щорічна оплата',
+  'billing.pricing.unlimited': 'Без обмежень',
+  'billing.pricing.limit.maxProjects': 'Максимум проєктів',
+  'billing.pricing.limit.canExport': 'Експорт доступний',
 }

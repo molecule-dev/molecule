@@ -14,10 +14,46 @@ import {
   ViewChild,
 } from '@angular/core'
 
-import type { UIClassMap } from '@molecule/app-ui'
+import { useTranslation } from '@molecule/app-angular'
+import type { ColorVariant, UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 import { hasNodes, SlotGuard } from './slot-dom.js'
+
+/**
+ * The open button's overlay reset: an empty, transparent native button over
+ * the whole card (the same inline style React applies).
+ *
+ * @returns The inline style object.
+ */
+const openButtonStyle = (): Record<string, string> => ({
+  background: 'transparent',
+  border: 'none',
+  padding: '0px',
+})
+
+/**
+ * The note tints the theme covers, and the tone each one is: a note's colour
+ * is chosen by the user, so a tint from this table renders as the theme's
+ * light tint of its tone (`bgTone(tone, { subtle: true })`) and follows the
+ * app theme. A colour not listed has no tone — it is data, applied as given.
+ */
+const TINT_TONES: Record<string, ColorVariant> = {
+  '#fef9c3': 'warning', // yellow note
+  '#fef3c7': 'warning', // amber note (the tint this card originally shipped with)
+  '#dcfce7': 'success', // green note
+  '#dbeafe': 'info', // blue note
+  '#fee2e2': 'error', // red note
+}
+
+/**
+ * Resolves a note tint to the tone whose light tint the theme renders for it.
+ *
+ * @param color - The `color` input (any CSS colour).
+ * @returns The tone, or undefined when the colour has no tone (data).
+ */
+const tintTone = (color: string | undefined): ColorVariant | undefined =>
+  color === undefined ? undefined : TINT_TONES[color.trim().toLowerCase()]
 
 /**
  * NoteCard component.
@@ -25,15 +61,26 @@ import { hasNodes, SlotGuard } from './slot-dom.js'
  * Sticky-note style card with optional color tint, pinned indicator, and
  * bottom-right actions. Use for note-taking apps, digital post-its,
  * dashboard quick-notes. The host IS the root `<article>`
- * (`article[mol-note-card]`), matching React's root exactly; the tint and
- * the fixed near-black text color are applied inline through host style
- * bindings (the CSSOM, as react-dom does).
+ * (`article[mol-note-card]`), matching React's root exactly; the paper
+ * colour of a tint with no tone is applied inline through a host style
+ * binding (the CSSOM, as react-dom does).
  *
- * The card intentionally keeps a paper-sticky-note look in BOTH themes: its
- * text color is fixed near-black, so `color` must be a LIGHT pastel — a dark
- * `color` value makes the body unreadable. The accessible label of the pin
- * indicator is the same literal React renders (`aria-label="Pinned"`); the
- * React package does not route it through i18n.
+ * With an `onClick`, an empty, transparent native button covers the whole
+ * card — React's overlay shape. It is named by the title when there is one,
+ * else the body (the per-instance {@link NoteCard.nameId} sits on whichever
+ * element carries the label). The template mounts the button through
+ * `@if (onClick)`, so the rendered DOM follows the input exactly as React's
+ * conditional renders.
+ *
+ * The card's paper is a theme tone: the documented note tints (yellow
+ * `#fef9c3`, green `#dcfce7`, blue `#dbeafe`, red `#fee2e2`, amber
+ * `#fef3c7`) render as the theme's light tint of the matching tone, so the
+ * card and its text (the theme's ink) follow the app theme. A `color` with
+ * no tone is data: it is applied as given, over the tone's paper. The
+ * accessible label of the pin
+ * indicator is the string React renders (`t('noteCard.aria.pinned', undefined,
+ * { defaultValue: 'Pinned' })`), read through `useTranslation()` so it follows
+ * a locale switch.
  *
  * The node props are projected slots: `title` renders inside the `<h3>`,
  * `body` inside the body `<div>`, `modifiedAt` inside its `<span>`, and
@@ -48,23 +95,35 @@ import { hasNodes, SlotGuard } from './slot-dom.js'
   inputs: ['title', 'body', 'color', 'pinned', 'modifiedAt', 'actions', 'onClick', 'className'],
   host: {
     '[class]': 'classes()',
-    '[style.background]': 'styleBackground()',
-    '[style.color]': "'#1f2937'",
+    '[style.background]': 'dataTint()',
     '[style.border-radius]': "'8px'",
-    '[style.box-shadow]': "'0 1px 3px rgba(0,0,0,0.08)'",
-    '[style.position]': "'relative'",
-    '(click)': 'handleClick($event)',
+    '[style.position]': 'rootPosition()',
   },
-  template: `@if (pinned) {
-      <span aria-label="Pinned" style="position: absolute; top: 6px; right: 6px">&#128204;</span>
+  template: `@if (onClick) {
+      <button
+        type="button"
+        (click)="handleClick()"
+        [attr.aria-labelledby]="nameId"
+        data-mol-id="note-card-open"
+        [class]="openClasses()"
+        [style]="openStyle()"
+      ></button>
     }
-    <h3 #titleWrap [class]="titleClasses()">
+    @if (pinned) {
+      <span
+        role="img"
+        [attr.aria-label]="pinnedLabel()"
+        style="position: absolute; top: 6px; right: 6px"
+        >📌</span
+      >
+    }
+    <h3 #titleWrap [attr.id]="titleId()" [class]="titleClasses()">
       @if (titleText()) {
         <ng-container>{{ titleText() }}</ng-container>
       }
       <ng-content select="[slot=title]"></ng-content>
     </h3>
-    <div [class]="bodyClass()" style="white-space: pre-wrap">
+    <div #bodyWrap [attr.id]="bodyId()" [class]="bodyClass()" style="white-space: pre-wrap">
       @if (bodyText()) {
         <ng-container>{{ bodyText() }}</ng-container>
       }
@@ -85,7 +144,12 @@ export class NoteCard implements AfterViewInit, DoCheck {
   title?: unknown
   /** Note body text (string/number renders as text; nodes are `[slot=body]` content). */
   body?: unknown
-  /** Background tint (CSS color). */
+  /**
+   * Background tint (CSS colour). The documented note tints (yellow
+   * `#fef9c3`, green `#dcfce7`, blue `#dbeafe`, red `#fee2e2`, amber
+   * `#fef3c7`) render as the theme's light tint of their tone; a colour
+   * with no tone is data, applied as given.
+   */
   color?: string
   /** Optional pin / starred indicator. */
   pinned?: boolean
@@ -93,13 +157,15 @@ export class NoteCard implements AfterViewInit, DoCheck {
   modifiedAt?: unknown
   /** Optional right-side actions (`[slot=actions]` content; React renders them bare). */
   actions?: unknown
-  /** Click handler; receives the DOM click event (React's `onClick`). */
-  onClick?: (event: Event) => void
+  /** Click handler; called with no arguments (React's `onClick`). */
+  onClick?: () => void
   /** Extra classes. */
   className?: string
 
   /** The title's `<h3>` (detached when no title input and the slot is empty). */
   @ViewChild('titleWrap') titleWrap?: ElementRef<HTMLElement>
+  /** The body `<div>`. */
+  @ViewChild('bodyWrap') bodyWrap?: ElementRef<HTMLElement>
   /** The footer (detached when neither modifiedAt nor actions exist). */
   @ViewChild('footerWrap') footerWrap?: ElementRef<HTMLElement>
   /** The modified-at `<span>` (detached when no modifiedAt input and the slot is empty). */
@@ -107,6 +173,12 @@ export class NoteCard implements AfterViewInit, DoCheck {
   /** The actions capture wrapper (revealed bare once; React renders the slot bare). */
   @ViewChild('actionsWrap') actionsWrap?: ElementRef<HTMLElement>
 
+  /** Per-instance counter backing {@link NoteCard.nameId} (React numbers `useId()` ids). */
+  private static nextId = 0
+  /** The id the open button's `aria-labelledby` points at (on the title, else the body). */
+  readonly nameId = `mol-note-card-name-${NoteCard.nextId++}`
+  /** The i18n handle (locale-reactive), read in an injection context. */
+  private readonly i18n = useTranslation()
   /** Whether the projected slots' presence has been read (read once: the reveal empties the wrapper). */
   private slotsRead = false
   /** Whether the title slot holds projected content (read once with the slots). */
@@ -118,6 +190,7 @@ export class NoteCard implements AfterViewInit, DoCheck {
   /** Whether the actions' bare reveal has run. */
   private actionsRevealed = false
 
+  private readonly renderer = inject(Renderer2)
   private readonly guard = new SlotGuard(inject(ElementRef), inject(Renderer2))
 
   /**
@@ -129,17 +202,36 @@ export class NoteCard implements AfterViewInit, DoCheck {
   }
 
   /**
-   * Computes the card's class list (`cm.stack(2)` + `cm.sp('p', 3)` +
-   * `cm.cursorPointer` only with an `onClick` + `className`).
+   * Computes the card's class list (`cm.stack(2)` + `cm.sp('p', 3)` + the
+   * paper's tone tint + `cm.shadowLifted` + `className`; React's cursor
+   * pointer lives on the open button).
    * @returns The class string.
    */
   classes(): string {
     return this.cm().cn(
       this.cm().stack(2),
       this.cm().sp('p', 3),
-      this.onClick ? this.cm().cursorPointer : undefined,
+      this.cm().bgTone(this.tone(), { subtle: true }),
+      this.cm().shadowLifted,
       this.className,
     )
+  }
+
+  /**
+   * The open button's classes: positioned over the whole card and pointer
+   * (React's overlay button).
+   * @returns The class string.
+   */
+  openClasses(): string {
+    return this.cm().cn(this.cm().position('absolute'), this.cm().inset0, this.cm().cursorPointer)
+  }
+
+  /**
+   * The open button's overlay reset (React's style object).
+   * @returns The inline style object.
+   */
+  openStyle(): Record<string, string> {
+    return openButtonStyle()
   }
 
   /**
@@ -159,11 +251,17 @@ export class NoteCard implements AfterViewInit, DoCheck {
   }
 
   /**
-   * Computes the footer's class (`cm.flex({ align: 'center', justify: 'between', gap: 'sm' })`).
+   * Computes the footer's class (`cm.flex({ align: 'center', justify:
+   * 'between', gap: 'sm' })`, plus `cm.position('relative')` with an
+   * `onClick` — the footer paints above the open button and keeps its own
+   * clicks, as React applies).
    * @returns The class string.
    */
   footerClasses(): string {
-    return this.cm().flex({ align: 'center', justify: 'between', gap: 'sm' })
+    return this.cm().cn(
+      this.cm().flex({ align: 'center', justify: 'between', gap: 'sm' }),
+      this.onClick ? this.cm().position('relative') : undefined,
+    )
   }
 
   /**
@@ -175,11 +273,69 @@ export class NoteCard implements AfterViewInit, DoCheck {
   }
 
   /**
-   * The card's background tint (React's `color ?? '#fef3c7'`).
-   * @returns The CSS color.
+   * The tone whose light tint is the card's paper: the `color` input's tone,
+   * or warning when none is given (the default paper).
+   * @returns The tone.
    */
-  styleBackground(): string {
-    return this.color ?? '#fef3c7'
+  tone(): ColorVariant {
+    return tintTone(this.color) ?? 'warning'
+  }
+
+  /**
+   * The card's inline background for a `color` with no tone (data, applied
+   * as given over the tone's paper); undefined for a tone-mapped tint, so
+   * the tone's class carries the paper and the binding is removed.
+   * @returns The CSS colour, or undefined when the tint is tone-mapped.
+   */
+  dataTint(): string | undefined {
+    return tintTone(this.color) === undefined ? this.color : undefined
+  }
+
+  /**
+   * The pinned marker's accessible label (React's
+   * `t('noteCard.aria.pinned', undefined, { defaultValue: 'Pinned' })`),
+   * re-read every pass so a locale switch changes it.
+   * @returns The translated label.
+   */
+  pinnedLabel(): string {
+    return this.i18n.t('noteCard.aria.pinned', undefined, { defaultValue: 'Pinned' })
+  }
+
+  /**
+   * The card's root position: relative, so the card owns its absolute
+   * children — the open button's overlay and the pinned indicator.
+   * @returns `'relative'`.
+   */
+  rootPosition(): string {
+    return 'relative'
+  }
+
+  /**
+   * Whether the title carries the open button's label: a text title, or a
+   * projected `[slot=title]` (read at view init — before that a slot-only
+   * title's id lands on the body for a pass, then moves with the next one).
+   * @returns True when a title renders.
+   */
+  private get hasLabel(): boolean {
+    return this.titleText() !== '' || this.hasTitleSlot
+  }
+
+  /**
+   * The title `<h3>`'s id (the open button's `aria-labelledby` target when a
+   * title renders; React's `useId()` placement).
+   * @returns The id, or undefined when no `onClick` or no title.
+   */
+  titleId(): string | undefined {
+    return this.onClick && this.hasLabel ? this.nameId : undefined
+  }
+
+  /**
+   * The body `<div>`'s id (the open button's `aria-labelledby` target when no
+   * title renders; React's `useId()` placement).
+   * @returns The id, or undefined when a title renders or no `onClick`.
+   */
+  bodyId(): string | undefined {
+    return this.onClick && !this.hasLabel ? this.nameId : undefined
   }
 
   /**
@@ -211,9 +367,9 @@ export class NoteCard implements AfterViewInit, DoCheck {
       : ''
   }
 
-  /** Runs the click handler the way React forwards the DOM event. */
-  handleClick(event: Event): void {
-    this.onClick?.(event)
+  /** Runs the click handler the way React's overlay button forwards it (no event). */
+  handleClick(): void {
+    this.onClick?.()
   }
 
   /**
@@ -226,7 +382,7 @@ export class NoteCard implements AfterViewInit, DoCheck {
 
   /**
    * Re-reconciles on later passes (a props step may add a title or a
-   * modified-at value, or flip `pinned`, which React re-renders).
+   * modified-at value, or flip `pinned` or `onClick`, which React re-renders).
    */
   ngDoCheck(): void {
     this.reconcile()
@@ -238,7 +394,8 @@ export class NoteCard implements AfterViewInit, DoCheck {
    * actions exist (the modified-at `<span>` only for a modifiedAt value; the
    * actions bare). The slots' presence is read once — the projected content
    * never changes for this component's lifetime, and the bare reveal empties
-   * the actions capture wrapper, so a per-pass re-read would lose it.
+   * the actions capture wrapper, so a per-pass re-read would lose it. The
+   * open button is the template's own `@if (onClick)` block.
    */
   private reconcile(): void {
     const title = this.titleWrap?.nativeElement

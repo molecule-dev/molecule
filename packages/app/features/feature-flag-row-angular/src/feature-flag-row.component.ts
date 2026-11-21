@@ -14,14 +14,6 @@ import { Switch } from '@molecule/app-ui-angular'
 
 import type { FeatureFlag, FlagType } from './types.js'
 
-/** Human-readable English fallback label for each flag type (React's values). */
-const FLAG_TYPE_LABELS: Record<FlagType, string> = {
-  boolean: 'Boolean',
-  multivariate: 'Multivariate',
-  percentage: 'Percentage',
-  string: 'String',
-}
-
 /**
  * Whether a value is one of the cases' projected node templates (a
  * `{ $nodes }` value inside a data prop becomes a `TemplateRef`).
@@ -93,22 +85,39 @@ export class FeatureFlagRow {
   }
 
   /**
-   * The translated type-badge label (React's `t('flagType.<type>')` call).
+   * The translated type-badge label: one literal `t('flagType.<type>')` call
+   * per flag type, exactly as React does (a runtime-built key such as
+   * `` t(`flagType.${type}`) `` is invisible to molecule's i18n gate).
    * @param type - The flag type.
    * @returns The badge text.
    */
   typeLabel(type: FlagType): string {
-    return this.t(`flagType.${type}`, {}, { defaultValue: FLAG_TYPE_LABELS[type] })
+    switch (type) {
+      case 'boolean':
+        return this.t('flagType.boolean', {}, { defaultValue: 'Boolean' })
+      case 'multivariate':
+        return this.t('flagType.multivariate', {}, { defaultValue: 'Multivariate' })
+      case 'percentage':
+        return this.t('flagType.percentage', {}, { defaultValue: 'Percentage' })
+      case 'string':
+        return this.t('flagType.string', {}, { defaultValue: 'String' })
+    }
   }
 
   /**
-   * The switch's `aria-label` (`"<flagKey> in <envId>"`, as React sets it).
+   * The switch's translated `aria-label` (React's
+   * `featureFlagRow.aria.flagInEnvironment` call, whose English default is
+   * `"<flagKey> in <envId>"`).
    * @param flagKey - The flag's machine key.
    * @param envId - The environment id.
    * @returns The label text.
    */
   ariaLabel(flagKey: string, envId: string): string {
-    return `${flagKey} in ${envId}`
+    return this.t(
+      'featureFlagRow.aria.flagInEnvironment',
+      { flag: flagKey, environment: envId },
+      { defaultValue: '{{flag}} in {{environment}}' },
+    )
   }
 
   /**

@@ -7,4 +7,8 @@ export const th: Partial<HttpInspectorTranslations> = {
   'httpInspector.headers': 'ส่วนหัว',
   'httpInspector.addHeader': 'เพิ่มส่วนหัว',
   'httpInspector.body': 'ร่างกาย',
+  'httpInspector.methodLabel': 'เมธอด HTTP',
+  'httpInspector.urlLabel': 'URL',
+  'httpInspector.headerPlaceholder': 'ส่วนหัว',
+  'httpInspector.valuePlaceholder': 'ค่า',
 }

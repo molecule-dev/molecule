@@ -9,5 +9,7 @@ export const vi: Partial<AudioMixerTranslations> = {
   'audioMixer.aria.pan': '{{name}} chảo',
   'audioMixer.aria.send': '{{channel}} gửi tới {{send}}',
   'audioMixer.button.solo': 'Độc lập',
+  'audioMixer.button.muteInitial': 'T',
+  'audioMixer.button.soloInitial': 'Đ',
   'audioMixer.master': 'Bậc thầy',
 }

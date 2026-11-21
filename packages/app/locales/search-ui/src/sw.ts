@@ -13,4 +13,8 @@ export const sw: Partial<SearchUiTranslations> = {
   'searchUi.relatedTitle': 'Inalingana na maana ya utafutaji wako, si maneno yake',
   'searchUi.related': 'inayohusiana',
   'searchUi.help': 'Vidokezo vya utafutaji',
+  'searchUi.examplePhrase': '"kifungu kamili cha maneno"',
+  'searchUi.exampleExcluded': '-neno',
+  'searchUi.activeResult': '{{title}}, {{position}} kati ya {{count}}',
+  'searchUi.dialogLabel': 'Tafuta',
 }

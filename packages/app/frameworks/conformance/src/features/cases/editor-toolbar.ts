@@ -8,7 +8,14 @@
  * @module
  */
 
+import type { CaseA11y } from '../../ui/spec.js'
 import type { FeatureCases } from '../spec.js'
+
+/** The case passes an item with an empty label. */
+const EMPTY_LABEL: CaseA11y = {
+  expect: ['button-name'],
+  reason: 'The case passes an item with an empty label',
+}
 
 const saveClick = { $callback: 'saveClick' }
 const publishClick = { $callback: 'publishClick' }
@@ -76,6 +83,7 @@ export const editorToolbarFeature: FeatureCases = {
         },
         {
           name: 'icons, a node label and an empty label',
+          a11y: EMPTY_LABEL,
           slots: { title: ['Draft'] },
           props: {
             primaryActions: [
@@ -204,6 +212,7 @@ export const editorToolbarFeature: FeatureCases = {
         },
         {
           name: 'an icon and a label appear on a later render',
+          a11y: EMPTY_LABEL,
           slots: { title: ['Draft'] },
           props: { primaryActions: [{ id: 'late', onClick: lateClick }] },
           interactions: [

@@ -18,6 +18,7 @@ import {
 } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
+import { useTranslation } from '@molecule/app-vue'
 
 import type { BreadcrumbItem } from './types.js'
 
@@ -47,6 +48,7 @@ export const Breadcrumb = defineComponent({
   },
   setup(props, { slots }) {
     const cm = getClassMap()
+    const { t } = useTranslation()
 
     /** One crumb's icon + label, wrapped in the flex row React wraps them in. */
     const content = (item: BreadcrumbItem): VNode =>
@@ -70,7 +72,9 @@ export const Breadcrumb = defineComponent({
       h(
         'nav',
         {
-          'aria-label': 'Breadcrumb',
+          // The nav's accessible name: `t()` with the English default
+          // `'Breadcrumb'`, so it follows the app's locale (React's source of truth).
+          'aria-label': t('breadcrumb.aria.breadcrumb', undefined, { defaultValue: 'Breadcrumb' }),
           'data-mol-id': props.dataMolId,
           class: cm.cn(
             cm.flex({ align: 'center', gap: 'xs', wrap: 'wrap' }),

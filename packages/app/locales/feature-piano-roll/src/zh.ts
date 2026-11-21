@@ -8,4 +8,5 @@ export const zh: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.resize': '调整大小注释',
   'pianoRoll.aria.note': '笔记{{pitch}}从节拍开始{{startBeat}}为了{{durationBeats}}节拍',
   'pianoRoll.aria.cursor': '光标位于 {{pitch}}，节拍 {{beat}}',
+  'pianoRoll.aria.gridHelp': '使用方向键移动单元格光标，按 Enter 或空格在光标处绘制音符。',
 }

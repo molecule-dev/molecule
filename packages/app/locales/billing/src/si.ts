@@ -16,4 +16,11 @@ export const si: Partial<BillingTranslations> = {
   'billing.pricing.perSeat': 'ආසනයකට',
   'billing.pricing.upgradeCta': 'උත්ශ්‍රේණි කරන්න {{tierName}}',
   'billing.pricing.currentCta': 'වත්මන් සැලැස්ම',
+  'billing.pricing.period.month': 'මසකට',
+  'billing.pricing.period.year': 'වසරකට',
+  'billing.pricing.billed.month': 'මාසිකව අය කෙරේ',
+  'billing.pricing.billed.year': 'වාර්ෂිකව අය කෙරේ',
+  'billing.pricing.unlimited': 'අසීමිත',
+  'billing.pricing.limit.maxProjects': 'උපරිම ව්‍යාපෘති ගණන',
+  'billing.pricing.limit.canExport': 'අපනයනය කළ හැක',
 }

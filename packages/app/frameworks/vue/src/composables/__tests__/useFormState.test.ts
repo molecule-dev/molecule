@@ -6,7 +6,7 @@ import { defineComponent, h, nextTick, type PropType, ref, shallowRef, watch } f
 import type { FormValuesConstraint } from '@molecule/app-forms'
 import { createNativeFormProvider, nativeProvider } from '@molecule/app-forms'
 
-import type { UseFormOptions, UseFormReturn } from '../useForms.js'
+import type { UseFormOptions, UseFormResult } from '../useForms.js'
 import { useForm } from '../useForms.js'
 
 interface PreferencesValues {
@@ -29,8 +29,8 @@ afterEach(() => {
  */
 function mountForm<T extends FormValuesConstraint<T>>(
   options: UseFormOptions<T> | (() => UseFormOptions<T>),
-): { form: UseFormReturn<T>; rerender: () => Promise<void> } {
-  let form!: UseFormReturn<T>
+): { form: UseFormResult<T>; rerender: () => Promise<void> } {
+  let form!: UseFormResult<T>
   const tick = ref(0)
   const Page = defineComponent({
     setup() {

@@ -7,4 +7,8 @@ export const ko: Partial<HttpInspectorTranslations> = {
   'httpInspector.headers': '헤더',
   'httpInspector.body': '본문',
   'httpInspector.addHeader': '헤더 추가',
+  'httpInspector.methodLabel': 'HTTP 메서드',
+  'httpInspector.urlLabel': 'URL',
+  'httpInspector.headerPlaceholder': '헤더',
+  'httpInspector.valuePlaceholder': '값',
 }

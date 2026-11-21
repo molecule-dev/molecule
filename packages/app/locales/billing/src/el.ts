@@ -17,4 +17,11 @@ export const el: Partial<BillingTranslations> = {
   'billing.pricing.tierEyebrow': 'Κερκίδα',
   'billing.pricing.perSeat': 'ανά θέση',
   'billing.pricing.currentCta': 'Τρέχον πρόγραμμα',
+  'billing.pricing.period.month': 'ανά μήνα',
+  'billing.pricing.period.year': 'ανά έτος',
+  'billing.pricing.billed.month': 'Μηνιαία χρέωση',
+  'billing.pricing.billed.year': 'Ετήσια χρέωση',
+  'billing.pricing.unlimited': 'Απεριόριστα',
+  'billing.pricing.limit.maxProjects': 'Μέγιστος αριθμός έργων',
+  'billing.pricing.limit.canExport': 'Διαθέσιμη εξαγωγή',
 }

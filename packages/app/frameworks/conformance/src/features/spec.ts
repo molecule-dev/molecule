@@ -79,6 +79,9 @@ export interface FeatureCases {
    * `index.json`) instead of in one file, for a package with many components: a
    * recording narrowed with `CONFORMANCE_COMPONENTS=<Component>,…` then rewrites only
    * those components' files, so ports of different components record side by side.
+   * A component whose cases name a `goldensGroup` is stored one file per group
+   * (`goldens/<feature>/<Component>/<group>.json`): no file grows past what git
+   * hosts take, and recording one group's change rewrites only its file.
    */
   goldensPerComponent?: boolean
   /** Plain exports compared by value. */

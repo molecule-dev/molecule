@@ -7,13 +7,19 @@
 import type { ChatProvider } from '@molecule/app-ai-chat'
 import type { AuthClient, AuthState } from '@molecule/app-auth'
 import type { EditorProvider } from '@molecule/app-code-editor'
-import type { FormController, FormOptions } from '@molecule/app-forms'
+import type { FormController, FormOptions, FormResetOptions } from '@molecule/app-forms'
 import type { HttpClient } from '@molecule/app-http'
 import type { I18nProvider } from '@molecule/app-i18n'
 import type { WorkspaceProvider } from '@molecule/app-ide'
 import type { PreviewProvider } from '@molecule/app-live-preview'
 import type { Logger, LoggerProvider } from '@molecule/app-logger'
-import type { QueryParams, RouteLocation, RouteParams, Router } from '@molecule/app-routing'
+import type {
+  QueryParams,
+  RouteLocation,
+  RouteParams,
+  Router,
+  RouterConfig,
+} from '@molecule/app-routing'
 import type { StateProvider, Store, StoreConfig } from '@molecule/app-state'
 import type { StorageProvider } from '@molecule/app-storage'
 import type { Theme, ThemeProvider } from '@molecule/app-theme'
@@ -26,13 +32,15 @@ export interface MoleculeModuleConfig {
   auth?: AuthClient<unknown>
   /**
    * Hold bootstrap (and so every page's first render) until `auth` has decided the
-   * session. A token-only or cookie-only restore makes a current-user request.
-   * Until it answers, a public page's signed-in action (`if (!user) return`, a
-   * redirect to `/login`) can treat a signed-in visitor as signed out. Angular's app initializer
-   * waits only while status is `'loading'`, so a cached session can render while its
-   * verification continues in the background. `'unavailable'` also renders and may have a
-   * null user. A visitor with no session candidate settles synchronously without
-   * a request. Ignored without `auth`.
+   * session. Defaults to true, as React's `MoleculeProvider` does. A token-only or
+   * cookie-only restore makes a current-user request. Until it answers, a public page's
+   * signed-in action (`if (!user) return`, a redirect to `/login`) treats a signed-in
+   * visitor as signed out. Angular's app initializer waits only while status is
+   * `'loading'`, so a cached session renders while its verification continues in the
+   * background. `'unavailable'` also renders and may have a null user. A visitor with no
+   * session candidate settles synchronously without a request. While the initializer
+   * waits, the page shows whatever the app root holds in `index.html` (Angular has no
+   * `sessionFallback`). Set false to render at once. Ignored without `auth`.
    */
   awaitSession?: boolean
   theme?: ThemeProvider
@@ -76,6 +84,7 @@ export type {
   EditorProvider,
   FormController,
   FormOptions,
+  FormResetOptions,
   HttpClient,
   I18nProvider,
   Logger,
@@ -85,6 +94,7 @@ export type {
   RouteLocation,
   RouteParams,
   Router,
+  RouterConfig,
   StateProvider,
   StorageProvider,
   Store,

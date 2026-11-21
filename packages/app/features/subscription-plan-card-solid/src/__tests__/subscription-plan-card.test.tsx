@@ -12,6 +12,8 @@ import type { JSX } from 'solid-js'
 import { render } from 'solid-js/web'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { inlineStyleMismatch } from '@molecule/app-framework-conformance/ui'
+
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
 // `stack`), so tests can assert which cm.* class was applied without a real
 // bond — the same mock the React tests use.
@@ -139,7 +141,9 @@ describe('SubscriptionPlanCard', () => {
       <SubscriptionPlanCard name="P" price="$1" features={[]} recommended />
     ))
     expect(container.innerHTML).toContain('Recommended')
-    expect(container.innerHTML).toContain('outline: 2px solid currentColor')
+    expect(
+      inlineStyleMismatch(container.innerHTML, { outline: '2px solid currentColor' }),
+    ).toBeNull()
   })
 
   it('renders a custom badge', () => {

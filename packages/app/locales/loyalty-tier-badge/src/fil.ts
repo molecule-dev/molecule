@@ -6,4 +6,8 @@ export const fil: Partial<LoyaltyTierBadgeTranslations> = {
   'loyaltyTierBadge.progress': 'Pag-unlad sa {{next}}',
   'loyaltyTierBadge.topTier': 'Naabot ang pinakamataas na antas',
   'loyaltyTierBadge.remaining': '{{remaining}} hanggang {{next}}',
+  'loyaltyTierBadge.tier.bronze': 'Tanso',
+  'loyaltyTierBadge.tier.silver': 'Pilak',
+  'loyaltyTierBadge.tier.gold': 'Ginto',
+  'loyaltyTierBadge.tier.platinum': 'Platino',
 }

@@ -10,7 +10,7 @@ import { t } from '@molecule/app-i18n'
 import type { DeviceFrame, PreviewProvider, PreviewState } from '@molecule/app-live-preview'
 
 import { PreviewKey } from '../injection-keys.js'
-import type { UsePreviewReturn } from '../types.js'
+import type { UsePreviewResult } from '../types.js'
 import { subscribeExternalSnapshot } from './external-snapshot.js'
 
 /**
@@ -54,7 +54,7 @@ export function usePreviewProvider(): PreviewProvider {
  * </template>
  * ```
  */
-export function usePreview(): UsePreviewReturn {
+export function usePreview(): UsePreviewResult {
   const provider = usePreviewProvider()
   // The snapshot cache React keeps: the provider returns a new object per
   // read, so equality is decided field by field.

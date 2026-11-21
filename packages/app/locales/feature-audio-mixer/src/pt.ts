@@ -9,5 +9,7 @@ export const pt: Partial<AudioMixerTranslations> = {
   'audioMixer.aria.pan': '{{name}} frigideira',
   'audioMixer.aria.send': '{{channel}} enviar para {{send}}',
   'audioMixer.button.solo': 'Solo',
+  'audioMixer.button.muteInitial': 'S',
+  'audioMixer.button.soloInitial': 'S',
   'audioMixer.master': 'Mestre',
 }

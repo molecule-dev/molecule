@@ -13,6 +13,13 @@ export const en: BillingTranslations = {
   'billing.pricing.mostPopular': 'Most popular',
   'billing.pricing.tierEyebrow': 'Tier',
   'billing.pricing.perSeat': 'per seat',
+  'billing.pricing.period.month': 'per month',
+  'billing.pricing.period.year': 'per year',
+  'billing.pricing.billed.month': 'Billed monthly',
+  'billing.pricing.billed.year': 'Billed annually',
   'billing.pricing.upgradeCta': 'Upgrade to {{tierName}}',
   'billing.pricing.currentCta': 'Current plan',
+  'billing.pricing.unlimited': 'Unlimited',
+  'billing.pricing.limit.maxProjects': 'Max projects',
+  'billing.pricing.limit.canExport': 'Can export',
 }

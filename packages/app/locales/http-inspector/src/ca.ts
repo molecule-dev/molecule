@@ -7,4 +7,8 @@ export const ca: Partial<HttpInspectorTranslations> = {
   'httpInspector.headers': 'Capçaleres',
   'httpInspector.addHeader': 'Afegeix una capçalera',
   'httpInspector.body': 'Cos',
+  'httpInspector.methodLabel': 'Mètode HTTP',
+  'httpInspector.urlLabel': 'URL',
+  'httpInspector.headerPlaceholder': 'Capçalera',
+  'httpInspector.valuePlaceholder': 'Valor',
 }

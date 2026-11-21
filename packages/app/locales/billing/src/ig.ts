@@ -15,4 +15,11 @@ export const ig: Partial<BillingTranslations> = {
   'billing.pricing.perSeat': 'kwa oche',
   'billing.pricing.upgradeCta': 'Kwalite na {{tierName}}',
   'billing.pricing.currentCta': 'Atụmatụ dị ugbu a',
+  'billing.pricing.period.month': 'kwa ọnwa',
+  'billing.pricing.period.year': 'kwa afọ',
+  'billing.pricing.billed.month': 'A na-echaji ụgwọ kwa ọnwa',
+  'billing.pricing.billed.year': 'A na-echaji ụgwọ kwa afọ',
+  'billing.pricing.unlimited': 'Enweghị oke',
+  'billing.pricing.limit.maxProjects': 'Ọnụ ọgụgụ ọrụ kachasị',
+  'billing.pricing.limit.canExport': 'Enwere ike ibupụ',
 }

@@ -8,4 +8,5 @@ export const he: Partial<NotificationCenterTranslations> = {
   'notifications.viewAll': 'הצג הכל',
   'notifications.loadError': 'לא ניתן היה לטעון את ההתראות.',
   'notifications.retry': 'נסה שוב',
+  'notifications.unread': 'לא נקרא',
 }

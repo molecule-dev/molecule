@@ -8,6 +8,8 @@ export const te: Partial<AudioMixerTranslations> = {
   'audioMixer.aria.send': '{{channel}} పంపండి {{send}}',
   'audioMixer.button.mute': 'మ్యూట్',
   'audioMixer.button.solo': 'సోలో',
+  'audioMixer.button.muteInitial': 'మ',
+  'audioMixer.button.soloInitial': 'స',
   'audioMixer.master': 'మాస్టర్',
   'audioMixer.sends': 'పంపుతుంది',
 }

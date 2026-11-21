@@ -16,4 +16,11 @@ export const bg: Partial<BillingTranslations> = {
   'billing.pricing.perSeat': 'на място',
   'billing.pricing.upgradeCta': 'Надстройте до {{tierName}}',
   'billing.pricing.currentCta': 'Текущ план',
+  'billing.pricing.period.month': 'месечно',
+  'billing.pricing.period.year': 'годишно',
+  'billing.pricing.billed.month': 'Месечно таксуване',
+  'billing.pricing.billed.year': 'Годишно таксуване',
+  'billing.pricing.unlimited': 'Неограничено',
+  'billing.pricing.limit.maxProjects': 'Максимален брой проекти',
+  'billing.pricing.limit.canExport': 'Експортът е наличен',
 }

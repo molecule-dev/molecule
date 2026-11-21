@@ -15,4 +15,8 @@ export const zu: Partial<SearchUiTranslations> = {
   'searchUi.relatedTitle': 'Kuhambisana nencazelo yosesho lwakho, hhayi amagama alo',
   'searchUi.related': 'okuhlobene',
   'searchUi.help': 'Amathiphu okusesha',
+  'searchUi.examplePhrase': '"umusho oqondile"',
+  'searchUi.exampleExcluded': '-igama',
+  'searchUi.activeResult': '{{title}}, {{position}} kwengu-{{count}}',
+  'searchUi.dialogLabel': 'Sesha',
 }

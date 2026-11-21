@@ -49,4 +49,5 @@ export const am: Partial<AudioEffectsRackTranslations> = {
   'audioEffectsRack.param.phaser.rate': 'ደረጃ ይስጡ',
   'audioEffectsRack.param.phaser.depth': 'ጥልቀት',
   'audioEffectsRack.param.phaser.feedback': 'ግብረመልስ',
+  'audioEffectsRack.param.fallback': 'ፓራሜትር',
 }

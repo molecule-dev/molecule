@@ -11,7 +11,7 @@
  * @module
  */
 
-import { type Component, createSignal, For, type JSX, Show } from 'solid-js'
+import { type Component, createSignal, createUniqueId, For, type JSX, Show } from 'solid-js'
 
 import { useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
@@ -35,6 +35,11 @@ import type { OnboardingModalProps, OnboardingStep } from './types.js'
 export const OnboardingModal: Component<OnboardingModalProps> = (props) => {
   const cm = getClassMap()
   const { t } = useTranslation()
+  // Names the dialog after the current step's title (React's `useId()`): the
+  // h2's id, handed to `Modal` as `aria-labelledby` — a `role="dialog"`
+  // without an accessible name is an axe `aria-dialog-name` violation, and the
+  // name must follow the step.
+  const titleId = createUniqueId()
   // React's `useState(defaultStep)`: read once, then owned by the component.
   const [step, setStep] = createSignal(props.defaultStep ?? 0)
 
@@ -92,12 +97,14 @@ export const OnboardingModal: Component<OnboardingModalProps> = (props) => {
 
   return (
     <Show when={props.steps.length > 0}>
-      <Modal open={props.open} onClose={close}>
+      <Modal open={props.open} onClose={close} aria-labelledby={titleId}>
         <div class={cm.stack(4)}>
           <Show when={hasMedia()}>
             <div class={cm.flex({ align: 'center', justify: 'center' })}>{current().media}</div>
           </Show>
-          <h2 class={cm.cn(cm.textSize('xl'), cm.fontWeight('bold'))}>{current().title}</h2>
+          <h2 id={titleId} class={cm.cn(cm.textSize('xl'), cm.fontWeight('bold'))}>
+            {current().title}
+          </h2>
           <div class={cm.textSize('sm')}>{current().body}</div>
           <footer class={cm.flex({ align: 'center', justify: 'between', gap: 'sm' })}>
             <div class={cm.flex({ align: 'center', gap: 'xs' })}>

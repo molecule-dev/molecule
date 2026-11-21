@@ -6,4 +6,8 @@ export const kk: Partial<LoyaltyTierBadgeTranslations> = {
   'loyaltyTierBadge.progress': 'Прогресс {{next}}',
   'loyaltyTierBadge.topTier': 'Жоғарғы деңгейге жетті',
   'loyaltyTierBadge.remaining': '{{remaining}} {{next}} дейін',
+  'loyaltyTierBadge.tier.bronze': 'Қола',
+  'loyaltyTierBadge.tier.silver': 'Күміс',
+  'loyaltyTierBadge.tier.gold': 'Алтын',
+  'loyaltyTierBadge.tier.platinum': 'Платина',
 }

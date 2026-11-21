@@ -199,6 +199,38 @@ describe('normalizeDom style attribute', () => {
       root.append(el)
     })
 
+  it('reads a style written as text the way the CSSOM records the same properties', () => {
+    const viaCssom = container((root) => {
+      const el = h('div', ['x'])
+      el.style.flex = '1'
+      el.style.border = 'none'
+      el.style.padding = '6px 6px 6px 0'
+      el.style.color = '#d4a017'
+      el.style.minWidth = '0'
+      root.append(el)
+    })
+    const written = styled(
+      'flex: 1; border: none; padding: 6px 6px 6px 0; color: #d4a017; min-width: 0',
+    )
+    expect(norm(written)).toBe(norm(viaCssom))
+    expect(norm(written)).toContain('flex: 1 1 0%')
+    expect(norm(written)).not.toBe(
+      norm(styled('flex: 2; border: none; padding: 6px; color: #d4a017')),
+    )
+  })
+
+  it('keeps a declaration the CSSOM does not read, as written', () => {
+    expect(norm(styled('width: nonsense; opacity: 0.5'))).toContain('width: nonsense')
+    expect(norm(styled('width: nonsense; opacity: 0.5'))).not.toBe(norm(styled('opacity: 0.5')))
+  })
+
+  it('keeps a semicolon inside a quoted url() in its declaration', () => {
+    const url = 'url("data:image/svg+xml;base64,PHN2Zy8+")'
+    const out = norm(styled(`background-image: ${url}; opacity: 0.5`))
+    expect(out).toContain('base64,PHN2Zy8+')
+    expect(out).toContain('opacity: 0.5')
+  })
+
   it("reads Vue's -webkit-filter as the filter a browser serializes", () => {
     expect(norm(styled('-webkit-filter: grayscale(0.6); opacity: 0.5'))).toBe(
       norm(styled('filter: grayscale(0.6); opacity: 0.5')),

@@ -30,8 +30,13 @@ export interface ForumThreadRowProps {
   tags?: JSX.Element
   /** Right-side voting controls slot. */
   voteControls?: JSX.Element
-  /** Click handler; receives the DOM click event. */
-  onClick?: (event: MouseEvent) => void
+  /**
+   * Activates the row: the whole row is clickable through a transparent native
+   * button laid over it (Enter and Space activate it natively), named by the
+   * title — the `<h3>` itself takes the generated id. The `voteControls` and
+   * `tags` slots sit above that button and keep their own clicks.
+   */
+  onClick?: () => void
   /** Extra classes. */
   className?: string
 }

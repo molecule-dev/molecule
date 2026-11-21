@@ -8,4 +8,5 @@ export const sr: Partial<NotificationCenterTranslations> = {
   'notifications.viewAll': 'Прикажи све',
   'notifications.loadError': 'Није могуће учитати обавештења.',
   'notifications.retry': 'Покушај поново',
+  'notifications.unread': 'Непрочитано',
 }

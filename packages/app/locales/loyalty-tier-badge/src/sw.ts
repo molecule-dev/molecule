@@ -6,4 +6,8 @@ export const sw: Partial<LoyaltyTierBadgeTranslations> = {
   'loyaltyTierBadge.progress': 'Maendeleo hadi {{next}}',
   'loyaltyTierBadge.topTier': 'Daraja la juu limefikiwa',
   'loyaltyTierBadge.remaining': '{{remaining}} hadi {{next}}',
+  'loyaltyTierBadge.tier.bronze': 'Shaba',
+  'loyaltyTierBadge.tier.silver': 'Fedha',
+  'loyaltyTierBadge.tier.gold': 'Dhahabu',
+  'loyaltyTierBadge.tier.platinum': 'Platini',
 }

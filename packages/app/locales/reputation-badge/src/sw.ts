@@ -9,6 +9,7 @@ export const sw: ReputationBadgeTranslations = {
   'reputationBadge.level.trusted': 'Anayeaminika',
   'reputationBadge.level.veteran': 'Mkongwe',
   'reputationBadge.level.legend': 'Hadithi',
+  'reputationBadge.level.fallback': '{{level}}',
   'badgeShelf.aria': 'Beji {{count}} zimepatikana',
   'badgeShelf.overflow.aria': 'Onyesha beji {{count}} zaidi',
 }

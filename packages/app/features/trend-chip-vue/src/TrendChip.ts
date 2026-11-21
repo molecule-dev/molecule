@@ -9,10 +9,20 @@
 
 import { defineComponent, h, type PropType, type VNode, type VNodeChild } from 'vue'
 
+import type { ColorVariant } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 const ARROW = { up: '▲', down: '▼', flat: '–' } as const
-const COLOR = { up: '#22c55e', down: '#ef4444', flat: '#94a3b8' } as const
+
+/**
+ * The semantic tone colouring each direction: the theme's success green for a
+ * rise, its error red for a fall, its muted secondary grey for no change.
+ */
+const TONE: Record<'up' | 'down' | 'flat', ColorVariant> = {
+  up: 'success',
+  down: 'error',
+  flat: 'secondary',
+} as const
 
 /**
  * Resolves a node-valued prop that may also arrive as a same-named slot: the
@@ -42,9 +52,10 @@ const prefixText = (prefix: VNodeChild | null | undefined): string =>
 
 /**
  * Standalone trend delta chip — `▲ 12%` style display for inline placement in
- * row/header/cell contexts. The trend color is applied inline; the layout and
- * type classes come from the ClassMap bond. Same props, same DOM as
- * `@molecule/app-trend-chip-react`'s `TrendChip`.
+ * row/header/cell contexts. Colors come from the ClassMap bond's semantic
+ * tones and follow the app theme; only the pill's padding and radius are
+ * inline. Same props, same DOM as `@molecule/app-trend-chip-react`'s
+ * `TrendChip`.
  *
  * @param props - Component props (see {@link TrendChipProps}).
  * @returns The trend chip component.
@@ -71,7 +82,7 @@ export const TrendChip = defineComponent({
 
     return (): VNode => {
       const dir = props.direction ?? (props.delta > 0 ? 'up' : props.delta < 0 ? 'down' : 'flat')
-      const color = COLOR[dir]
+      const tone = TONE[dir]
       const abs = Math.abs(props.delta)
       return h(
         'span',
@@ -82,12 +93,11 @@ export const TrendChip = defineComponent({
             cm.flex({ align: 'center', gap: 'xs' }),
             cm.textSize('xs'),
             cm.fontWeight('semibold'),
+            props.variant === 'pill' ? cm.cn(cm.bgTone(tone), cm.textOnTone) : cm.textTone(tone),
             props.className,
           ),
           style:
-            props.variant === 'pill'
-              ? { padding: '2px 6px', borderRadius: '999px', background: color, color: '#fff' }
-              : { color },
+            props.variant === 'pill' ? { padding: '2px 6px', borderRadius: '999px' } : undefined,
         },
         [
           ...slotOrProp(slots.prefix, props.prefix),

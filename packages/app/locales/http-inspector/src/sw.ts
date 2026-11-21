@@ -7,4 +7,8 @@ export const sw: Partial<HttpInspectorTranslations> = {
   'httpInspector.headers': 'Vichwa vya habari',
   'httpInspector.addHeader': 'Ongeza kichwa cha habari',
   'httpInspector.body': 'Mwili',
+  'httpInspector.methodLabel': 'Njia ya HTTP',
+  'httpInspector.urlLabel': 'URL',
+  'httpInspector.headerPlaceholder': 'Kichwa cha habari',
+  'httpInspector.valuePlaceholder': 'Thamani',
 }

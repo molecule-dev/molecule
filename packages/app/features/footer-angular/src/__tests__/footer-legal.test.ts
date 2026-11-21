@@ -12,6 +12,7 @@
 
 import '@angular/compiler'
 import {
+  type ApplicationRef,
   ChangeDetectionStrategy,
   Component,
   type ComponentRef,
@@ -20,7 +21,7 @@ import {
   provideZonelessChangeDetection,
   type Type,
 } from '@angular/core'
-import { type ApplicationRef, createApplication } from '@angular/platform-browser'
+import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import type * as AngularBinding from '@molecule/app-angular'
@@ -218,7 +219,7 @@ async function openLegalModal(
     aboutHref: '/about',
   })
   mounted.push(m)
-  const button = [...m.host.querySelectorAll('footer button')].find(
+  const button = [...m.host.querySelectorAll<HTMLButtonElement>('footer button')].find(
     (candidate) => candidate.textContent?.trim() === label,
   )
   if (!button) throw new Error(`${label} button did not render`)

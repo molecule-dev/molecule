@@ -224,22 +224,29 @@ export function createSvelteBindingAdapter({
       const config = { ...services }
       const start = (current: unknown[]): void => {
         stores = new StoreReader(serviceObjects)
-        if (options.render === 'text') {
+        if (options.render) {
           const props = Object.fromEntries(
             Object.entries((current[0] as Record<string, unknown>) ?? {}).map(([name, value]) => [
               name,
               typeof value === 'string' ? textSnippet(value) : value,
             ]),
           )
-          instance = mount(Host, {
-            target: container,
-            props: {
-              config,
-              setMoleculeContext,
-              component: exportsOf[hook] as Component<Record<string, unknown>>,
-              props,
-            },
-          })
+          if (options.render === 'root') {
+            // The composition root as an app mounts it: the services are its props, nothing around it.
+            instance = mount(exportsOf[hook] as Component<Record<string, unknown>>, {
+              target: container,
+              props: { ...services, ...props },
+            })
+          } else
+            instance = mount(Host, {
+              target: container,
+              props: {
+                config,
+                setMoleculeContext,
+                component: exportsOf[hook] as Component<Record<string, unknown>>,
+                props,
+              },
+            })
         } else {
           instance = mount(Host, {
             target: container,
@@ -267,7 +274,7 @@ export function createSvelteBindingAdapter({
       }
       start(args)
       return {
-        result: () => (options.render === 'text' ? (container.textContent ?? '') : result),
+        result: () => (options.render ? (container.textContent ?? '') : result),
         read: (value) => stores.read(value),
         setArgs: async (next) => {
           for (const [index, source] of requireSources(hook, sources).entries())

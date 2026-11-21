@@ -1,5 +1,6 @@
 import type { JSX, ReactNode } from 'react'
 
+import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 /** A single navigable link rendered in the footer link row. */
@@ -34,6 +35,7 @@ export function AppShellFooter({
   right,
   className,
 }: AppShellFooterProps): JSX.Element {
+  const { t } = useTranslation()
   const cm = getClassMap()
   return (
     <footer
@@ -49,7 +51,10 @@ export function AppShellFooter({
         {copyright && <span className={cm.textSize('xs')}>{copyright}</span>}
       </div>
       {links && links.length > 0 && (
-        <nav aria-label="Footer" className={cm.flex({ align: 'center', gap: 'md', wrap: 'wrap' })}>
+        <nav
+          aria-label={t('navChrome.aria.footer', undefined, { defaultValue: 'Footer' })}
+          className={cm.flex({ align: 'center', gap: 'md', wrap: 'wrap' })}
+        >
           {links.map((l, i) => (
             <a key={i} href={l.to ?? '#'} className={cm.cn(cm.textSize('sm'), cm.link)}>
               {l.label}

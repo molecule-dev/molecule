@@ -16,7 +16,7 @@
  *
  * render(
  *   () => (
- *     <MoleculeProvider config={{ i18n: i18nProvider }}>
+ *     <MoleculeProvider i18n={i18nProvider}>
  *       <SocialShareButtons
  *         url="https://example.com/blog/my-post"
  *         title="Check out this article"

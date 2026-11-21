@@ -16,6 +16,7 @@ vi.mock('@molecule/app-react', () => ({
   useTranslation: () => ({
     t: (_k: string, _v: unknown, opts: { defaultValue?: string }) => opts?.defaultValue ?? '',
   }),
+  useLocale: () => 'en',
 }))
 vi.mock('react-router', () => ({
   Link: ({ children }: { children: unknown }) => children,

@@ -8,4 +8,5 @@ export const cy: Partial<NotificationCenterTranslations> = {
   'notifications.viewAll': 'Gweld y cyfan',
   'notifications.loadError': 'Methwyd llwytho hysbysiadau.',
   'notifications.retry': 'Ail-geisio',
+  'notifications.unread': 'Heb ei ddarllen',
 }

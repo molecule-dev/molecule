@@ -8,4 +8,5 @@ export const fi: Partial<NotificationCenterTranslations> = {
   'notifications.empty': 'Ei ilmoituksia',
   'notifications.loadError': 'Ilmoitusten lataaminen epäonnistui.',
   'notifications.retry': 'Yritä uudelleen',
+  'notifications.unread': 'Lukematon',
 }

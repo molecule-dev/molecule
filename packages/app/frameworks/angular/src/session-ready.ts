@@ -10,6 +10,19 @@ import { Component } from '@angular/core'
 import { useAuth } from './hooks/use-auth.js'
 
 /**
+ * The content {@link SessionReady} takes. React passes these nodes as the
+ * `children` and `fallback` props; an Angular component takes nodes as
+ * projected content, so `children` is the content and `fallback` is the
+ * element marked `slot="fallback"`.
+ */
+export interface SessionReadyProps {
+  /** What renders once the initial restore settles (projected content). */
+  children?: unknown
+  /** What renders while the session restore is still undecided (the `[slot=fallback]` element). */
+  fallback?: unknown
+}
+
+/**
  * Renders its content once `useAuth().status` has left `'loading'` (signed in,
  * signed out, or `'unavailable'`), and the `[slot=fallback]` content until
  * then. It never redirects. An unavailable session is unconfirmed and may
@@ -21,8 +34,9 @@ import { useAuth } from './hooks/use-auth.js'
  * public page that renders a signed-in action at once lets that action run
  * against "signed out": a Follow button whose handler starts with
  * `if (!user) return` ignores the click, one that redirects to `/login` signs
- * the visitor out of the flow. Wrapping the routes (or passing `awaitSession`
- * to `provideMolecule`) makes every page's first render read the restored user
+ * the visitor out of the flow. `provideMolecule({ auth })` holds bootstrap for
+ * that by default; wrap the routes in this component where an app passes
+ * `awaitSession: false`, so every page's first render reads the restored user
  * when restoration succeeds.
  *
  * A visitor with no session candidate settles synchronously without a

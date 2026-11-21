@@ -7,4 +7,8 @@ export const be: Partial<HttpInspectorTranslations> = {
   'httpInspector.headers': 'Загалоўкі',
   'httpInspector.addHeader': 'Дадаць загаловак',
   'httpInspector.body': 'Цела',
+  'httpInspector.methodLabel': 'HTTP-метад',
+  'httpInspector.urlLabel': 'URL',
+  'httpInspector.headerPlaceholder': 'Загаловак',
+  'httpInspector.valuePlaceholder': 'Значэнне',
 }

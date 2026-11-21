@@ -5,22 +5,21 @@
  * component with a mocked ClassMap and asserts the markup; this port mounts
  * the same tree through Angular's real renderer (the same `createApplication`
  * + JIT host approach the conformance kit's Angular adapter uses) and asserts
- * the same markup strings. Inline colors are set through the CSSOM, so jsdom
- * serializes them as `rgb(...)` (the same values React's runtime mount
- * produces).
+ * the same markup strings.
  *
  * @module
  */
 
 import '@angular/compiler'
 import {
+  type ApplicationRef,
   ChangeDetectionStrategy,
   Component,
   createComponent,
   provideZonelessChangeDetection,
   type Type,
 } from '@angular/core'
-import { type ApplicationRef, createApplication } from '@angular/platform-browser'
+import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
@@ -39,7 +38,9 @@ vi.mock('@molecule/app-ui', () => ({
               .join(' ')
         }
         const token = String(prop)
-        return (..._args: unknown[]) => token
+        // Tone resolvers echo their argument, so assertions can tell which
+        // semantic tone (`textTone-success`) the chip picked.
+        return (...args: unknown[]) => (args.length > 0 ? `${token}-${String(args[0])}` : token)
       },
     }
     return new Proxy({}, handler)
@@ -103,32 +104,35 @@ afterEach(async () => {
 })
 
 describe('TrendChip', () => {
-  it('renders an up arrow + green for a positive delta', async () => {
+  it('renders the success tone for a positive delta', async () => {
     const m = await render({ delta: 12 })
     const markup = m.host.innerHTML
     expect(markup).toContain('▲')
     expect(markup).toContain('12%')
-    expect(markup).toContain('rgb(34, 197, 94)')
+    expect(markup).toContain('textTone-success')
+    expect(markup).not.toContain('style=')
   })
 
-  it('renders a down arrow + red for a negative delta', async () => {
+  it('renders the error tone for a negative delta', async () => {
     const m = await render({ delta: -8 })
     const markup = m.host.innerHTML
     expect(markup).toContain('▼')
     expect(markup).toContain('8%')
-    expect(markup).toContain('rgb(239, 68, 68)')
+    expect(markup).toContain('textTone-error')
   })
 
-  it('renders the neutral dash for a zero delta', async () => {
+  it('renders the secondary tone for a zero delta', async () => {
     const m = await render({ delta: 0 })
     const markup = m.host.innerHTML
     expect(markup).toContain('–')
-    expect(markup).toContain('rgb(148, 163, 184)')
+    expect(markup).toContain('textTone-secondary')
   })
 
   it('honours an explicit direction override', async () => {
     const m = await render({ delta: 5, direction: 'down' })
-    expect(m.host.innerHTML).toContain('▼')
+    const markup = m.host.innerHTML
+    expect(markup).toContain('▼')
+    expect(markup).toContain('textTone-error')
   })
 
   it('uses the default "%" suffix and a custom suffix', async () => {
@@ -136,12 +140,14 @@ describe('TrendChip', () => {
     expect((await render({ delta: 3, suffix: 'pts' })).host.innerHTML).toContain('3pts')
   })
 
-  it('renders a colored pill background for the pill variant', async () => {
+  it('renders the tonal pill fill for the pill variant', async () => {
     const m = await render({ delta: 4, variant: 'pill' })
     const markup = m.host.innerHTML
+    expect(markup).toContain('bgTone-success')
+    expect(markup).toContain('textOnTone')
     expect(markup).toContain('border-radius: 999px')
-    expect(markup).toContain('background: rgb(34, 197, 94)')
-    expect(markup).toContain('color: rgb(255, 255, 255)')
+    expect(markup).not.toContain('background:')
+    expect(markup).not.toContain('color:')
   })
 
   it('honours a custom ariaLabel and forwards className', async () => {

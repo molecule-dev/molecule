@@ -9,6 +9,7 @@ export const ko: ReputationBadgeTranslations = {
   'reputationBadge.level.trusted': '신뢰함',
   'reputationBadge.level.veteran': '베테랑',
   'reputationBadge.level.legend': '전설',
+  'reputationBadge.level.fallback': '{{level}}',
   'badgeShelf.aria': '{{count}} 개의 배지를 획득했습니다.',
   'badgeShelf.overflow.aria': '배지를 {{count}} 개 더 보여주세요',
 }

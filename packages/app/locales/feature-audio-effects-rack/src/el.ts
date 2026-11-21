@@ -49,4 +49,5 @@ export const el: Partial<AudioEffectsRackTranslations> = {
   'audioEffectsRack.param.phaser.rate': 'Τιμή',
   'audioEffectsRack.param.phaser.depth': 'Βάθος',
   'audioEffectsRack.param.phaser.feedback': 'Ανατροφοδότηση',
+  'audioEffectsRack.param.fallback': 'Παράμετρος',
 }

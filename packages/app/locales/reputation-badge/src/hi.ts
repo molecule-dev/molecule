@@ -9,6 +9,7 @@ export const hi: ReputationBadgeTranslations = {
   'reputationBadge.level.trusted': 'विश्वसनीय',
   'reputationBadge.level.veteran': 'अनुभवी',
   'reputationBadge.level.legend': 'दिग्गज',
+  'reputationBadge.level.fallback': '{{level}}',
   'badgeShelf.aria': '{{count}} बैज अर्जित',
   'badgeShelf.overflow.aria': '{{count}} और बैज दिखाएं',
 }

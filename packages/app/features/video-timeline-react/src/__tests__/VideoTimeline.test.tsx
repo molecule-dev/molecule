@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { render } from '@testing-library/react'
+import { act, render } from '@testing-library/react'
 import type { ReactNode } from 'react'
 import React from 'react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -30,7 +30,11 @@ function buildStubClassMap(): UIClassMap {
     get(_target, prop): unknown {
       if (prop === 'cn') {
         return (...classes: unknown[]) =>
-          classes.filter((c) => typeof c === 'string' && c.length > 0).join(' ')
+          classes
+            .flat(Infinity)
+            .map((c) => (typeof c === 'function' ? c() : c))
+            .filter((c) => typeof c === 'string' && c.length > 0)
+            .join(' ')
       }
       const token = String(prop)
       const fn = (..._args: unknown[]): string => token
@@ -267,6 +271,65 @@ describe('<VideoTimeline>', () => {
     const ruler = container.querySelector('[data-mol-id="video-timeline-ruler"]')
     expect(ruler?.getAttribute('aria-valuenow')).toBe('3.5')
     expect(ruler?.getAttribute('aria-valuemax')).toBe('60')
+  })
+
+  it('the ruler announces the playhead time as aria-valuetext', async () => {
+    const provider = createSimpleI18nProvider('en')
+    provider.addTranslations('de', {
+      videoTimeline: { aria: { playhead: 'Abspielkopf bei {{time}}s' } },
+    })
+    const { container, rerender } = render(
+      <I18nProvider provider={provider}>
+        <VideoTimeline tracks={baseTracks} currentTime={3.2} duration={60} />
+      </I18nProvider>,
+    )
+    const ruler = () => container.querySelector('[data-mol-id="video-timeline-ruler"]')
+    expect(ruler()?.getAttribute('aria-valuetext')).toBe('Playhead at 3.20s')
+    // Follows currentTime.
+    rerender(
+      <I18nProvider provider={provider}>
+        <VideoTimeline tracks={baseTracks} currentTime={7.5} duration={60} />
+      </I18nProvider>,
+    )
+    expect(ruler()?.getAttribute('aria-valuetext')).toBe('Playhead at 7.50s')
+    // Follows the locale.
+    await act(() => provider.setLocale('de'))
+    expect(ruler()?.getAttribute('aria-valuetext')).toBe('Abspielkopf bei 7.50s')
+  })
+
+  it('the playhead line is decorative (aria-hidden, no label)', () => {
+    const { container } = render(
+      <Wrap>
+        <VideoTimeline tracks={baseTracks} currentTime={2} duration={60} />
+      </Wrap>,
+    )
+    const playhead = container.querySelector('[data-mol-id="video-timeline-playhead"]')
+    expect(playhead?.getAttribute('aria-hidden')).toBe('true')
+    expect(playhead?.getAttribute('aria-label')).toBeNull()
+    // The in-ruler marker is decorative the same way.
+    const inRuler = container.querySelector('[data-mol-id="video-timeline-playhead-ruler"]')
+    expect(inRuler?.getAttribute('aria-hidden')).toBe('true')
+    expect(inRuler?.getAttribute('aria-label')).toBeNull()
+  })
+
+  it('the mode span reads as label + mode through hidden text', () => {
+    const { container } = render(
+      <Wrap>
+        <VideoTimeline tracks={baseTracks} currentTime={0} duration={60} />
+      </Wrap>,
+    )
+    const mode = container.querySelector('[data-mol-id="video-timeline-mode"]')
+    // A generic span may not carry aria-label.
+    expect(mode?.getAttribute('aria-label')).toBeNull()
+    // The label is a visually hidden run (cm.srOnly) before the visible mode word.
+    const hidden = mode?.querySelector('span')
+    expect(hidden?.className).toContain('srOnly')
+    expect(mode?.textContent).toContain('Edit mode')
+    expect(mode?.textContent).toContain('Ripple')
+    const label = mode?.textContent?.indexOf('Edit mode') ?? -1
+    const word = mode?.textContent?.indexOf('Ripple') ?? -1
+    expect(label).toBeGreaterThanOrEqual(0)
+    expect(word).toBeGreaterThan(label)
   })
 
   it('fires onSeek with the clicked time on ruler pointerdown', () => {

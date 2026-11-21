@@ -245,7 +245,9 @@ export function provideMolecule(config: MoleculeModuleConfig): EnvironmentProvid
   if (config.preview) {
     providers.push({ provide: PREVIEW_PROVIDER, useValue: config.preview })
   }
-  if (config.awaitSession && config.auth) {
+  // Held by default, as React's MoleculeProvider is: a page's first render reads the
+  // restored session unless the app opts out with `awaitSession: false`.
+  if (config.awaitSession !== false && config.auth) {
     const client = config.auth
     providers.push(
       // The idiomatic hold: Angular creates no component (so no page renders) until
@@ -260,6 +262,10 @@ export function provideMolecule(config: MoleculeModuleConfig): EnvironmentProvid
         if (client.getState().status !== 'loading') return
 
         let unsubscribe: (() => void) | undefined
+        const stop = (): void => {
+          unsubscribe?.()
+          unsubscribe = undefined
+        }
         const ready = new Promise<void>((resolve) => {
           const check = (): void => {
             if (client.getState().status !== 'loading') resolve()
@@ -270,7 +276,10 @@ export function provideMolecule(config: MoleculeModuleConfig): EnvironmentProvid
           check()
           void joined.then(check)
         })
-        return ready.finally(() => unsubscribe?.())
+        // An app destroyed while it still holds (torn down mid-restore) leaves no listener on
+        // the client, as React's SessionReady unsubscribes when it unmounts.
+        inject(DestroyRef).onDestroy(stop)
+        return ready.finally(stop)
       }),
     )
   }

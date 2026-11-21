@@ -15,4 +15,8 @@ export const ar: Partial<SearchUiTranslations> = {
   'searchUi.relatedTitle': 'يطابق معنى بحثك، وليس كلماته.',
   'searchUi.related': 'متعلق ب',
   'searchUi.help': 'نصائح البحث',
+  'searchUi.examplePhrase': '"عبارة دقيقة"',
+  'searchUi.exampleExcluded': '-كلمة',
+  'searchUi.activeResult': '{{title}}، {{position}} من {{count}}',
+  'searchUi.dialogLabel': 'بحث',
 }

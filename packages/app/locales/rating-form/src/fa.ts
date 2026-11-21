@@ -2,9 +2,10 @@ import type { RatingFormTranslations } from './types.js'
 
 /** RatingForm translations for fa. */
 export const fa: Partial<RatingFormTranslations> = {
-  'rating.star': '{{n}} of {{max}}',
+  'rating.star': '{{n}} از {{max}}',
   'rating.label': 'رتبه‌بندی',
   'rating.commentPlaceholder': 'نظرات خود را به اشتراک بگذارید (اختیاری)',
   'rating.submitting': 'ارسال…',
   'rating.submit': 'ارسال نقد و بررسی',
+  'rating.comment': 'نظر',
 }

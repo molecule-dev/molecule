@@ -7,6 +7,7 @@
 import type { AfterViewInit, ElementRef } from '@angular/core'
 import { Component, signal, ViewChild } from '@angular/core'
 
+import { useTranslation } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { styleText } from '@molecule/app-ui-angular'
@@ -47,6 +48,11 @@ const hasProjection = (el: HTMLElement, ownText: boolean): boolean =>
  * matching React's root exactly. Node props (`label`, `valueLabel`) are
  * projected content (`[slot=<name>]`) or plain string inputs.
  *
+ * The track always carries an accessible name (`aria-progressbar-name`):
+ * `labelledBy` when given, else the rendered `label`, else
+ * `t('progressBar.label', undefined, { defaultValue: 'Progress' })`, read
+ * through `useTranslation()` so it follows a locale switch.
+ *
  * This is the Angular counterpart of `@molecule/app-progress-bar-react`: the
  * same props (React names), the same ClassMap tokens, and the same DOM for the
  * same input.
@@ -60,12 +66,22 @@ const hasProjection = (el: HTMLElement, ownText: boolean): boolean =>
 @Component({
   selector: 'div[mol-progress-bar]',
   standalone: true,
-  inputs: ['value', 'max', 'label', 'valueLabel', 'size', 'color', 'className'],
+  inputs: [
+    'value',
+    'max',
+    'label',
+    'valueLabel',
+    'labelledBy',
+    'describedBy',
+    'size',
+    'color',
+    'className',
+  ],
   host: {
     '[class]': 'classes()',
   },
   // prettier-ignore
-  template: `@if (showHeader) {<div [class]="headerClasses()">@if (showLabel) {<span #labelEl [class]="labelClasses()">@if (hasLabel) {{{ label }}}<ng-content select="[slot=label]" /></span>}@if (showValueLabel) {<span #valueLabelEl [class]="valueLabelClasses()">@if (hasValueLabel) {{{ valueLabel }}}<ng-content select="[slot=valueLabel]" /></span>}</div>}<div [class]="trackClasses()" role="progressbar" [attr.aria-valuenow]="value" [attr.aria-valuemin]="0" [attr.aria-valuemax]="maxValue()"><div [class]="fillClasses()" [style]="fillStyleText()"></div></div>`,
+  template: `@if (showHeader) {<div [class]="headerClasses()">@if (showLabel) {<span #labelEl [attr.id]="nameByLabel ? labelId : null" [class]="labelClasses()">@if (hasLabel) {{{ label }}}<ng-content select="[slot=label]" /></span>}@if (showValueLabel) {<span #valueLabelEl [class]="valueLabelClasses()">@if (hasValueLabel) {{{ valueLabel }}}<ng-content select="[slot=valueLabel]" /></span>}</div>}<div [class]="trackClasses()" role="progressbar" [attr.aria-valuenow]="value" [attr.aria-valuemin]="0" [attr.aria-valuemax]="maxValue()" [attr.aria-labelledby]="trackLabelledBy" [attr.aria-label]="trackAriaLabel" [attr.aria-describedby]="describedBy"><div [class]="fillClasses()" [style]="fillStyleText()"></div></div>`,
 })
 export class ProgressBar implements AfterViewInit {
   /** Current numeric value. */
@@ -76,12 +92,23 @@ export class ProgressBar implements AfterViewInit {
   label?: ProgressBarProps['label']
   /** Optional value display on the right of the label row — a string input, or `[slot=valueLabel]` content. */
   valueLabel?: ProgressBarProps['valueLabel']
+  /** Element id the track is named by — wins over `label` and the default name. */
+  labelledBy?: string
+  /** Element id the track is described by (`aria-describedby`). */
+  describedBy?: string
   /** Size preset — maps to ClassMap `progressHeight` (defaults to `'md'`). */
   size?: 'sm' | 'md' | 'lg'
   /** Color variant — maps to ClassMap `progressColor` (defaults to `'primary'`). */
   color?: 'primary' | 'success' | 'warning' | 'error' | 'info'
   /** Extra classes on the outer wrapper. */
   className?: string
+
+  /** Per-instance counter backing {@link ProgressBar.labelId} (React numbers `useId()` ids). */
+  private static nextId = 0
+  /** The id the track's `aria-labelledby` points at when the rendered label names it. */
+  readonly labelId = `mol-progress-bar-name-${ProgressBar.nextId++}`
+  /** The i18n handle (locale-reactive), read in an injection context. */
+  private readonly i18n = useTranslation()
 
   /** The optional label span (projected content lands here; read once). */
   @ViewChild('labelEl') private labelEl?: ElementRef<HTMLSpanElement>
@@ -151,6 +178,36 @@ export class ProgressBar implements AfterViewInit {
    */
   get showHeader(): boolean {
     return this.showLabel || this.showValueLabel
+  }
+
+  /**
+   * Whether the rendered label is the track's name (React names the track with
+   * the `label` unless an explicit `labelledBy` wins).
+   * @returns True when the label span carries the track's `aria-labelledby` id.
+   */
+  get nameByLabel(): boolean {
+    return this.labelledBy === undefined && this.showLabel
+  }
+
+  /**
+   * The track's `aria-labelledby`: the `labelledBy` input when given, else the
+   * rendered label's id, else `null` (React omits the attribute).
+   * @returns The labelled-by id, or `null`.
+   */
+  get trackLabelledBy(): string | null {
+    return this.labelledBy ?? (this.nameByLabel ? this.labelId : null)
+  }
+
+  /**
+   * The track's `aria-label`: the `t('progressBar.label')` default when no
+   * `labelledBy` input and no rendered label names it, else `null` (React
+   * omits the attribute).
+   * @returns The fallback name, or `null`.
+   */
+  get trackAriaLabel(): string | null {
+    return this.labelledBy === undefined && !this.showLabel
+      ? this.i18n.t('progressBar.label', undefined, { defaultValue: 'Progress' })
+      : null
   }
 
   /**

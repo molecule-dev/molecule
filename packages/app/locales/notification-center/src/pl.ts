@@ -8,4 +8,5 @@ export const pl: Partial<NotificationCenterTranslations> = {
   'notifications.empty': 'Brak powiadomień',
   'notifications.loadError': 'Nie można załadować powiadomień.',
   'notifications.retry': 'Spróbować ponownie',
+  'notifications.unread': 'Nieprzeczytane',
 }

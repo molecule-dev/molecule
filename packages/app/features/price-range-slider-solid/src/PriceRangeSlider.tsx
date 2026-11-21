@@ -6,6 +6,7 @@
 
 import type { Component } from 'solid-js'
 
+import { useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { PriceRangeSliderProps } from './types.js'
@@ -26,6 +27,7 @@ import type { PriceRangeSliderProps } from './types.js'
  */
 export const PriceRangeSlider: Component<PriceRangeSliderProps> = (props) => {
   const cm = getClassMap()
+  const { t } = useTranslation()
   const low = (): number => props.value[0]
   const high = (): number => props.value[1]
   /**
@@ -66,7 +68,7 @@ export const PriceRangeSlider: Component<PriceRangeSliderProps> = (props) => {
           attr:value={low()}
           onInput={onMinInput}
           class={cm.flex1}
-          aria-label="Minimum"
+          aria-label={t('priceRangeSlider.aria.minimum', undefined, { defaultValue: 'Minimum' })}
         />
         <input
           type="range"
@@ -76,7 +78,7 @@ export const PriceRangeSlider: Component<PriceRangeSliderProps> = (props) => {
           attr:value={high()}
           onInput={onMaxInput}
           class={cm.flex1}
-          aria-label="Maximum"
+          aria-label={t('priceRangeSlider.aria.maximum', undefined, { defaultValue: 'Maximum' })}
         />
         <span class={cm.textSize('sm')}>{fmt(high())}</span>
       </div>

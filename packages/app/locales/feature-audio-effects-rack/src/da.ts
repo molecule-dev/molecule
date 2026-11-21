@@ -49,4 +49,5 @@ export const da: Partial<AudioEffectsRackTranslations> = {
   'audioEffectsRack.param.phaser.rate': 'Sats',
   'audioEffectsRack.param.phaser.depth': 'Dybde',
   'audioEffectsRack.param.phaser.feedback': 'Feedback',
+  'audioEffectsRack.param.fallback': 'Parameter',
 }

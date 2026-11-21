@@ -7,4 +7,8 @@ export const am: Partial<HttpInspectorTranslations> = {
   'httpInspector.headers': 'ራስጌዎች',
   'httpInspector.addHeader': 'ራስጌ ያክሉ',
   'httpInspector.body': 'አካል',
+  'httpInspector.methodLabel': 'የHTTP ዘዴ',
+  'httpInspector.urlLabel': 'URL',
+  'httpInspector.headerPlaceholder': 'ራስጌ',
+  'httpInspector.valuePlaceholder': 'እሴት',
 }

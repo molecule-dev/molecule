@@ -9,5 +9,7 @@ export const hu: Partial<AudioMixerTranslations> = {
   'audioMixer.aria.send': '{{channel}} küldés ide {{send}}',
   'audioMixer.button.mute': 'Néma',
   'audioMixer.button.solo': 'Szóló',
+  'audioMixer.button.muteInitial': 'N',
+  'audioMixer.button.soloInitial': 'S',
   'audioMixer.master': 'Fő',
 }

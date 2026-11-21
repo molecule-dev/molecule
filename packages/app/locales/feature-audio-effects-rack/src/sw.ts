@@ -49,4 +49,5 @@ export const sw: Partial<AudioEffectsRackTranslations> = {
   'audioEffectsRack.param.phaser.rate': 'Kiwango',
   'audioEffectsRack.param.phaser.depth': 'Kina',
   'audioEffectsRack.param.phaser.feedback': 'Maoni',
+  'audioEffectsRack.param.fallback': 'Kigezo',
 }

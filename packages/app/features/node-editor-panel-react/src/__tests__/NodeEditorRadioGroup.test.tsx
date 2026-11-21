@@ -13,7 +13,7 @@ import { NodeEditorRadioGroup } from '../NodeEditorRadioGroup.js'
  * @returns A stub UIClassMap suitable for tests.
  */
 function buildStubClassMap(): UIClassMap {
-  const handler: ProxyHandler<Record<string, unknown>> = {
+  const handler: ProxyHandler<UIClassMap> = {
     get(_target, prop): unknown {
       if (prop === 'cn') {
         return (...classes: unknown[]) =>
@@ -30,7 +30,7 @@ function buildStubClassMap(): UIClassMap {
       })
     },
   }
-  return new Proxy({}, handler) as unknown as UIClassMap
+  return new Proxy({} as UIClassMap, handler)
 }
 
 const OPTIONS = [

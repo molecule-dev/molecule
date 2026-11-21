@@ -37,7 +37,7 @@ afterEach(() => {
  * @param chunks SSE-encoded payloads to emit (raw delta strings).
  */
 function makeStreamingFetch(chunks: string[]): typeof fetch {
-  return vi.fn(async () => {
+  return vi.fn<typeof fetch>(async () => {
     const stream = new ReadableStream<Uint8Array>({
       start(controller) {
         const encoder = new TextEncoder()
@@ -51,14 +51,14 @@ function makeStreamingFetch(chunks: string[]): typeof fetch {
       },
     })
     return new Response(stream, { status: 200, headers: { 'Content-Type': 'text/event-stream' } })
-  }) as unknown as typeof fetch
+  })
 }
 
 /**
  * Build a fake fetch that fails the HTTP request.
  */
 function makeErrorFetch(): typeof fetch {
-  return vi.fn(async () => new Response('boom', { status: 500 })) as unknown as typeof fetch
+  return vi.fn<typeof fetch>(async () => new Response('boom', { status: 500 }))
 }
 
 /** Build a config with a mocked fetch impl. */
@@ -123,8 +123,7 @@ describe('<EmbeddableChatWidget>', () => {
       expect(screen.getByText('Hello, world!')).toBeDefined()
     })
     expect(fetchImpl).toHaveBeenCalledTimes(1)
-    const [url, init] = (fetchImpl as unknown as { mock: { calls: [string, RequestInit][] } }).mock
-      .calls[0]
+    const [url, init = {}] = vi.mocked(fetchImpl).mock.calls[0]
     expect(url).toBe('https://api.example.com/chat')
     expect(init.method).toBe('POST')
     // Wire contract: only the latest user message is posted (no history/id/auth).

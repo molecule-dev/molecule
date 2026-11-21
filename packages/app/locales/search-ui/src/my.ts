@@ -17,4 +17,8 @@ export const my: Partial<SearchUiTranslations> = {
     'သင့်ရှာဖွေမှု၏ အဓိပ္ပာယ်နှင့် ကိုက်ညီပြီး ၎င်း၏စကားလုံးများနှင့် ကိုက်ညီသည်',
   'searchUi.related': 'ဆက်စပ်သော',
   'searchUi.help': 'ရှာဖွေမှု အကြံပြုချက်များ',
+  'searchUi.examplePhrase': '"တိကျသော စကားစု"',
+  'searchUi.exampleExcluded': '-စကားလုံး',
+  'searchUi.activeResult': '{{title}}၊ {{count}} ခုအနက် {{position}}',
+  'searchUi.dialogLabel': 'ရှာဖွေ',
 }

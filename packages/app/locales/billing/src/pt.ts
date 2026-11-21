@@ -16,4 +16,11 @@ export const pt: Partial<BillingTranslations> = {
     'Cancele quando quiser · Não é necessário cartão de crédito para começar',
   'billing.pricing.perSeat': 'por assento',
   'billing.pricing.currentCta': 'Plano atual',
+  'billing.pricing.period.month': 'por mês',
+  'billing.pricing.period.year': 'por ano',
+  'billing.pricing.billed.month': 'Cobrança mensal',
+  'billing.pricing.billed.year': 'Cobrança anual',
+  'billing.pricing.unlimited': 'Ilimitado',
+  'billing.pricing.limit.maxProjects': 'Máx. de projetos',
+  'billing.pricing.limit.canExport': 'Exportação disponível',
 }

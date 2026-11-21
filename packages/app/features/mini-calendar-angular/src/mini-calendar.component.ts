@@ -6,6 +6,7 @@
 
 import { Component, type OnInit, signal } from '@angular/core'
 
+import { useLocale, useTranslation } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-angular'
@@ -57,10 +58,12 @@ function isSameDay(a: Date, b: Date): boolean {
  * stack class plus `className`. Supports controlled `selected` + `month`
  * props or runs uncontrolled: the visible month is read once at init and
  * tracked internally when `month` is omitted. Weekday / month names come from
- * `Intl.DateTimeFormat` so locales render correctly without extra data. The
- * 6×7 grid starts on the Sunday before the 1st; days outside the visible month
- * render dimmed through the inline `opacity` style and stay clickable unless
- * `isDisabled` filters them.
+ * `Intl.DateTimeFormat` in the `locale` input, or the app's active locale when
+ * it is omitted. The prev/next buttons' aria-labels go through `t()`
+ * (`miniCalendar.aria.*`, English `defaultValue`s). The 6×7 grid starts on the
+ * Sunday before the 1st; days outside the visible month render dimmed through
+ * the inline `opacity` style and stay clickable unless `isDisabled` filters
+ * them.
  */
 @Component({
   selector: 'div[mol-mini-calendar]',
@@ -71,7 +74,7 @@ function isSameDay(a: Date, b: Date): boolean {
     '[class]': 'classes()',
   },
   // prettier-ignore
-  template: `<header [class]="headerClasses()"><button mol-button [variant]="'ghost'" [size]="'sm'" aria-label="Previous month" (click)="navigate(-1)">‹</button><span [class]="monthClasses()">{{ monthLabel() }}</span><button mol-button [variant]="'ghost'" [size]="'sm'" aria-label="Next month" (click)="navigate(1)">›</button></header><div [class]="gridClasses()">@for (d of weekdayHeader(); track $index) {<span [class]="weekdayClasses()">{{ weekdayLabel(d) }}</span>}@for (d of days(); track $index) {<button type="button" (click)="selectDay(d)" [disabled]="disabled(d)" [attr.aria-current]="isSelected(d) ? 'date' : null" [class]="dayClasses(d)" [attr.style]="outOfMonth(d) ? 'opacity: 0.3' : null">{{ d.getDate() }}</button>}</div>`,
+  template: `<header [class]="headerClasses()"><button mol-button [variant]="'ghost'" [size]="'sm'" [attr.aria-label]="previousLabel()" (click)="navigate(-1)">‹</button><span [class]="monthClasses()">{{ monthLabel() }}</span><button mol-button [variant]="'ghost'" [size]="'sm'" [attr.aria-label]="nextLabel()" (click)="navigate(1)">›</button></header><div [class]="gridClasses()">@for (d of weekdayHeader(); track $index) {<span [class]="weekdayClasses()">{{ weekdayLabel(d) }}</span>}@for (d of days(); track $index) {<button type="button" (click)="selectDay(d)" [disabled]="disabled(d)" [attr.aria-current]="isSelected(d) ? 'date' : null" [class]="dayClasses(d)" [attr.style]="outOfMonth(d) ? 'opacity: 0.3' : null">{{ d.getDate() }}</button>}</div>`,
 })
 export class MiniCalendar implements OnInit, MiniCalendarProps {
   /** Controlled selected date (ISO yyyy-mm-dd or Date). */
@@ -82,7 +85,7 @@ export class MiniCalendar implements OnInit, MiniCalendarProps {
   month?: Date
   /** Called when the user navigates months. */
   onMonthChange?: (date: Date) => void
-  /** Locale for weekday + month name formatting. */
+  /** Locale for weekday + month name formatting (see {@link MiniCalendarProps.locale}). */
   locale?: string
   /** Optional day-disabled predicate. */
   isDisabled?: (date: Date) => boolean
@@ -91,6 +94,12 @@ export class MiniCalendar implements OnInit, MiniCalendarProps {
 
   /** The internally tracked visible month (uncontrolled mode). */
   private readonly internalMonth = signal<Date | null>(null)
+
+  /** The i18n handle (locale-reactive), read in an injection context. */
+  private readonly i18n = useTranslation()
+
+  /** The app's active locale — the default when the `locale` input is unset. */
+  private readonly activeLocale = useLocale()
 
   /**
    * Reads the initial visible month once — React's `useState` semantics.
@@ -185,13 +194,23 @@ export class MiniCalendar implements OnInit, MiniCalendarProps {
   }
 
   /**
+   * The locale the names format in: the `locale` input, else the app's active
+   * locale (which follows a locale switch).
+   * @returns The locale code.
+   */
+  resolvedLocale(): string {
+    return this.locale ?? this.activeLocale()
+  }
+
+  /**
    * The visible month's formatted name.
    * @returns The month and year text (`March 2026`).
    */
   monthLabel(): string {
-    return new Intl.DateTimeFormat(this.locale, { month: 'long', year: 'numeric' }).format(
-      this.visibleMonth(),
-    )
+    return new Intl.DateTimeFormat(this.resolvedLocale(), {
+      month: 'long',
+      year: 'numeric',
+    }).format(this.visibleMonth())
   }
 
   /**
@@ -200,7 +219,25 @@ export class MiniCalendar implements OnInit, MiniCalendarProps {
    * @returns The narrow weekday text.
    */
   weekdayLabel(d: Date): string {
-    return new Intl.DateTimeFormat(this.locale, { weekday: 'narrow' }).format(d)
+    return new Intl.DateTimeFormat(this.resolvedLocale(), { weekday: 'narrow' }).format(d)
+  }
+
+  /**
+   * The previous-month button's aria-label (prop > `t()` > default).
+   * @returns The label text.
+   */
+  previousLabel(): string {
+    return this.i18n.t('miniCalendar.aria.previousMonth', undefined, {
+      defaultValue: 'Previous month',
+    })
+  }
+
+  /**
+   * The next-month button's aria-label (prop > `t()` > default).
+   * @returns The label text.
+   */
+  nextLabel(): string {
+    return this.i18n.t('miniCalendar.aria.nextMonth', undefined, { defaultValue: 'Next month' })
   }
 
   /**

@@ -75,13 +75,12 @@ export const SlideThumbnail = defineComponent({
             { index: props.index },
             { defaultValue: 'Slide {{index}}' },
           ),
-          class: cm.cn(cm.position('relative'), cm.cursorPointer, props.className),
+          class: cm.cn(cm.position('relative'), cm.cursorPointer, cm.surface, props.className),
           style: {
             width: `${props.width}px`,
             aspectRatio: props.aspect.replace('/', ' / '),
             outline: props.active ? '2px solid currentColor' : 'none',
             outlineOffset: '2px',
-            background: 'var(--mol-color-surface, #fff)',
             overflow: 'hidden',
             border: 'none',
             padding: '0',
@@ -92,6 +91,7 @@ export const SlideThumbnail = defineComponent({
           h(
             'span',
             {
+              class: cm.cn(cm.bgScrim, cm.textOnTone),
               style: {
                 position: 'absolute',
                 left: '4px',
@@ -99,8 +99,6 @@ export const SlideThumbnail = defineComponent({
                 padding: '0 4px',
                 fontSize: '10px',
                 fontWeight: '700',
-                background: 'rgba(0,0,0,0.6)',
-                color: '#fff',
                 borderRadius: '3px',
               },
             },

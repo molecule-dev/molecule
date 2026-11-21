@@ -1,6 +1,7 @@
 import type { JSX, ReactNode } from 'react'
 import { Link, NavLink, Outlet } from 'react-router'
 
+import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 /** A single navigation item rendered in the top nav bar. */
@@ -25,7 +26,10 @@ export interface TopNavLayoutProps {
   navItems: ReadonlyArray<TopNavItem>
   /** Slot rendered at the right of the header (typically a `<UserMenu />`). */
   userMenu?: ReactNode
-  /** Aria-label for the primary <nav>. */
+  /**
+   * Aria-label for the primary `<nav>`. Overrides the translated /
+   * `defaultValue` `'Primary navigation'` (prop > `t()` > default).
+   */
   navAriaLabel?: string
   /** Extra classes on the outer wrapper. */
   className?: string
@@ -43,11 +47,15 @@ export function TopNavLayout({
   logoTo = '/',
   navItems,
   userMenu,
-  navAriaLabel = 'Primary navigation',
+  navAriaLabel,
   className,
   dataMolId,
 }: TopNavLayoutProps): JSX.Element {
+  const { t } = useTranslation()
   const cm = getClassMap()
+  const navLabel =
+    navAriaLabel ??
+    t('topNavLayout.aria.primaryNavigation', undefined, { defaultValue: 'Primary navigation' })
   return (
     <div
       className={cm.cn(cm.minH('screen'), cm.topNavLayoutRoot, className)}
@@ -66,7 +74,7 @@ export function TopNavLayout({
           <Link to={logoTo} className={cm.cn(cm.textSize('2xl'), cm.fontWeight('bold'))}>
             {appName}
           </Link>
-          <nav className={cm.flex({ align: 'center', gap: 'md' })} aria-label={navAriaLabel}>
+          <nav className={cm.flex({ align: 'center', gap: 'md' })} aria-label={navLabel}>
             {navItems.map((item) => (
               <NavLink
                 key={item.key}

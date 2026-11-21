@@ -28,7 +28,10 @@ export interface TopNavLayoutProps {
   navItems: ReadonlyArray<TopNavItem>
   /** Node rendered at the right of the header (typically a user menu). */
   userMenu?: JSX.Element
-  /** Aria-label for the primary `<nav>`. Defaults to `'Primary navigation'`. */
+  /**
+   * Aria-label for the primary `<nav>`. Overrides the translated /
+   * `defaultValue` `'Primary navigation'` (prop > `t()` > default).
+   */
   navAriaLabel?: string
   /** Extra classes on the outer wrapper. */
   className?: string

@@ -9,4 +9,6 @@ export const ha: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.note':
     'Bayani {{pitch}} farawa daga kida {{startBeat}} don {{durationBeats}} bugu',
   'pianoRoll.aria.cursor': 'Alamar nuni a {{pitch}} a kida {{beat}}',
+  'pianoRoll.aria.gridHelp':
+    'Maballan kibiyoyi suna motsar mai nuna sel, kuma Enter ko Space suna zana nota a can.',
 }

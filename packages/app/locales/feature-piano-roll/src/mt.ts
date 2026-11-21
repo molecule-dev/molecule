@@ -9,4 +9,6 @@ export const mt: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.note':
     'Nota {{pitch}} tibda bit-taħbita {{startBeat}} għal {{durationBeats}} taħbitiet',
   'pianoRoll.aria.cursor': 'Il-kursor fuq {{pitch}} fit-taħbita {{beat}}',
+  'pianoRoll.aria.gridHelp':
+    'It-tasti tal-vleġġi jimmovaw l-kursur taċ-ċella, Enter jew Spazju jpinġi nota hemm.',
 }

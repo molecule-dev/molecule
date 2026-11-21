@@ -86,7 +86,7 @@ export function ProfilePage() {
   const bio = form.register('bio')
 
   return (
-    <MoleculeProvider config={{ auth: client }}>
+    <MoleculeProvider auth={client}>
       <form onSubmit={form.formProps.onSubmit}>
         <input value={form.formState().values.bio} onInput={bio.onChange} />
       </form>

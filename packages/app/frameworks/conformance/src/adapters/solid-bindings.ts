@@ -6,7 +6,8 @@
  *
  * Mapping (the contract this package follows; see the conformance kit README):
  * - Every `@molecule/app-react` hook is a primitive of the same name, called in a component
- *   under `MoleculeProvider` (Solid's composition root, `config` = the services).
+ *   under `MoleculeProvider` (Solid's composition root, given the services as props and
+ *   `awaitSession: false`, as the React reference adapter mounts it).
  * - A value field may be an accessor (a function returning the value); a method is a plain
  *   function. React's result shape tells which is which, so an accessor is never a method.
  * - A hook whose arguments change (a `reactiveArgs` family) gets every argument as an accessor
@@ -19,13 +20,7 @@
  * @module
  */
 
-import {
-  type Component,
-  createComponent,
-  createSignal,
-  type JSX,
-  type ParentComponent,
-} from 'solid-js'
+import { type Component, createComponent, createSignal, type JSX } from 'solid-js'
 import { render } from 'solid-js/web'
 
 import {
@@ -40,11 +35,15 @@ import { settle } from '../ui/index.js'
 
 /** What the adapter needs from `@molecule/app-solid` (the package under test passes the module). */
 export interface SolidBinding {
-  /** Solid's composition root: the case's services become its `config` providers. */
-  MoleculeProvider: ParentComponent<{
-    /** The case's services (`MoleculeConfig` holds the same providers). */
-    config: Partial<BindingServices>
-  }>
+  /** Solid's composition root: the case's services are its props (`MoleculeProviderProps`). */
+  MoleculeProvider: Component<
+    Partial<BindingServices> & {
+      /** Hold the tree until the session is decided; the adapter turns it off, as React's does. */
+      awaitSession?: boolean
+      /** The tree the provider wraps. */
+      children: JSX.Element
+    }
+  >
   /** Clears the chat stores' module-level state between cases. */
   resetChatStoresForTests(): void
 }
@@ -98,15 +97,23 @@ export function createSolidBindingAdapter({
           result = callHook(target, sources ? sources.map(([read]) => read) : current)
           return null
         }
-        const config: Partial<BindingServices> = { ...services }
         dispose = render(
           () =>
-            createComponent(MoleculeProvider, {
-              config,
-              get children(): JSX.Element {
-                return createComponent(Host, {})
-              },
-            }),
+            options.render === 'root'
+              ? // The composition root as an app mounts it: its own defaults, nothing around it.
+                createComponent(exportsOf[hook] as Component<Record<string, unknown>>, {
+                  ...services,
+                  ...(current[0] as Record<string, unknown>),
+                })
+              : createComponent(MoleculeProvider, {
+                  ...services,
+                  // React's reference adapter renders its MoleculeProvider with `awaitSession: false`,
+                  // so a hook case under a loading client mounts at once.
+                  awaitSession: false,
+                  get children(): JSX.Element {
+                    return createComponent(Host, {})
+                  },
+                }),
           container,
         )
       }
@@ -115,7 +122,7 @@ export function createSolidBindingAdapter({
       }
       start(args)
       return {
-        result: () => (options.render === 'text' ? (container.textContent ?? '') : result),
+        result: () => (options.render ? (container.textContent ?? '') : result),
         // Solid's reactive value is an accessor; the shape only asks `read` for value fields.
         read: (value) => (typeof value === 'function' ? (value as () => unknown)() : value),
         setArgs: async (next) => {

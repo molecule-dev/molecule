@@ -15,4 +15,11 @@ export const gu: Partial<BillingTranslations> = {
   'billing.pricing.perSeat': 'પ્રતિ સીટ',
   'billing.pricing.upgradeCta': 'અપગ્રેડ કરો {{tierName}}',
   'billing.pricing.currentCta': 'વર્તમાન યોજના',
+  'billing.pricing.period.month': 'દર મહિને',
+  'billing.pricing.period.year': 'દર વર્ષે',
+  'billing.pricing.billed.month': 'માસિક બિલિંગ',
+  'billing.pricing.billed.year': 'વાર્ષિક બિલિંગ',
+  'billing.pricing.unlimited': 'અમર્યાદ',
+  'billing.pricing.limit.maxProjects': 'મહત્તમ પ્રોજેક્ટ',
+  'billing.pricing.limit.canExport': 'એક્સપોર્ટ શક્ય',
 }

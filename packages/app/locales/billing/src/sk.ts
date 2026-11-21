@@ -15,4 +15,11 @@ export const sk: Partial<BillingTranslations> = {
   'billing.pricing.perSeat': 'na sedadlo',
   'billing.pricing.upgradeCta': 'Inovovať na {{tierName}}',
   'billing.pricing.currentCta': 'Aktuálny plán',
+  'billing.pricing.period.month': 'mesačne',
+  'billing.pricing.period.year': 'ročne',
+  'billing.pricing.billed.month': 'Účtované mesačne',
+  'billing.pricing.billed.year': 'Účtované ročne',
+  'billing.pricing.unlimited': 'Neobmedzené',
+  'billing.pricing.limit.maxProjects': 'Maximálny počet projektov',
+  'billing.pricing.limit.canExport': 'Export k dispozícii',
 }

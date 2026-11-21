@@ -1,6 +1,7 @@
 import type { JSX, ReactNode } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
+import type { ColorVariant } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 /** Union of possible component health states. */
@@ -37,19 +38,17 @@ export interface StatusSummaryProps {
   className?: string
 }
 
-const STATUS_LABEL: Record<ComponentStatus, string> = {
-  operational: 'Operational',
-  degraded: 'Degraded performance',
-  'partial-outage': 'Partial outage',
-  'major-outage': 'Major outage',
-  maintenance: 'Under maintenance',
-}
-const STATUS_COLOR: Record<ComponentStatus, string> = {
-  operational: '#22c55e',
-  degraded: '#eab308',
-  'partial-outage': '#f97316',
-  'major-outage': '#ef4444',
-  maintenance: '#60a5fa',
+/**
+ * The semantic tone colouring each status: the theme's success green for
+ * operational, its warning amber for degraded and partial outage, its error
+ * red for a major outage and its info blue for maintenance.
+ */
+const STATUS_TONE: Record<ComponentStatus, ColorVariant> = {
+  operational: 'success',
+  degraded: 'warning',
+  'partial-outage': 'warning',
+  'major-outage': 'error',
+  maintenance: 'info',
 }
 
 /**
@@ -84,6 +83,28 @@ export function StatusSummary({
 }: StatusSummaryProps): JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
+
+  /**
+   * The label for one status, through its literal i18n key with the English
+   * fallback (the same text the `common` locale bond's en.ts ships).
+   * @param status - The status to label.
+   * @returns The translated label.
+   */
+  const statusLabel = (status: ComponentStatus): string => {
+    switch (status) {
+      case 'operational':
+        return t('status.operational', {}, { defaultValue: 'Operational' })
+      case 'degraded':
+        return t('status.degraded', {}, { defaultValue: 'Degraded performance' })
+      case 'partial-outage':
+        return t('status.partial-outage', {}, { defaultValue: 'Partial outage' })
+      case 'major-outage':
+        return t('status.major-outage', {}, { defaultValue: 'Major outage' })
+      case 'maintenance':
+        return t('status.maintenance', {}, { defaultValue: 'Under maintenance' })
+    }
+  }
+
   const allStatuses = groups.flatMap((g) => g.components.map((c) => c.status))
   const overall = overallStatus ?? worst(allStatuses)
   return (
@@ -92,11 +113,13 @@ export function StatusSummary({
         className={cm.cn(
           cm.flex({ align: 'center', justify: 'between', gap: 'md' }),
           cm.sp('p', 3),
+          cm.bgTone(STATUS_TONE[overall]),
+          cm.textOnTone,
         )}
-        style={{ background: STATUS_COLOR[overall], color: '#fff', borderRadius: 8 }}
+        style={{ borderRadius: 8 }}
       >
         <span className={cm.cn(cm.textSize('lg'), cm.fontWeight('bold'))}>
-          {t(`status.${overall}`, {}, { defaultValue: STATUS_LABEL[overall] })}
+          {statusLabel(overall)}
         </span>
         {header}
       </div>
@@ -118,10 +141,16 @@ export function StatusSummary({
                   )}
                 </div>
                 <span
-                  className={cm.cn(cm.sp('px', 2), cm.textSize('xs'), cm.fontWeight('semibold'))}
-                  style={{ borderRadius: 4, background: STATUS_COLOR[c.status], color: '#fff' }}
+                  className={cm.cn(
+                    cm.sp('px', 2),
+                    cm.textSize('xs'),
+                    cm.fontWeight('semibold'),
+                    cm.bgTone(STATUS_TONE[c.status]),
+                    cm.textOnTone,
+                  )}
+                  style={{ borderRadius: 4 }}
                 >
-                  {t(`status.${c.status}`, {}, { defaultValue: STATUS_LABEL[c.status] })}
+                  {statusLabel(c.status)}
                 </span>
               </li>
             ))}

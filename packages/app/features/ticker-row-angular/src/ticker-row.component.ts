@@ -6,11 +6,27 @@
 
 import { type AfterViewInit, Component, type ElementRef, signal, ViewChild } from '@angular/core'
 
+import { useLocale, useTranslation } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
-const POSITIVE_COLOR = '#22c55e'
-const NEGATIVE_COLOR = '#ef4444'
+/**
+ * Next value of the module-wide row-id counter.
+ *
+ * React derives the open button's naming id from `useId()`, which numbers ids
+ * from one process-wide counter (`_r_<base32>_`). The id appears in `id` and
+ * `aria-labelledby`, which the conformance normalizer renumbers in order of
+ * appearance, so the port generates ids from the same kind of counter —
+ * unique per instance, exactly React's format.
+ */
+let nextNameId = 0
+
+/**
+ * A fresh row id, in React `useId()`'s `_r_<base32>_` shape.
+ *
+ * @returns The id this instance's open button is named by.
+ */
+const nameId = (): string => `_r_${(nextNameId++).toString(32)}_`
 
 /**
  * Whether a projected node renders anything (an element, or text with
@@ -38,14 +54,18 @@ const hasRenderableContent = (el: HTMLElement): boolean =>
  *
  * Financial ticker row — symbol + price + change% + optional icon, sparkline
  * and meta. The host IS the root `<div>` (`div[mol-ticker-row]`), matching
- * React's root exactly. `onClick` is an input the host's native click calls
- * (React's row is a clickable div WITHOUT button semantics — wrap it in your
- * own button/link where keyboard access matters). The change color is applied
- * inline through a style binding (the CSSOM, as react-dom does); the layout
- * and type classes come from the ClassMap bond. Same props, same DOM as
- * `@molecule/app-ticker-row-react`'s `TickerRow`. Node-valued `symbol`, `name`,
- * `icon`, `price`, `sparkline` and `meta` content is projected
- * (`[slot=<name>]`); a string or number input renders as text.
+ * React's root exactly. While `onClick` is set the whole row is clickable
+ * through a transparent native button laid over it — the row's open action,
+ * named by the symbol — and the row's inner control (the `meta` slot, which
+ * may hold a control) is raised into a positioned wrapper so it paints above
+ * the open button and keeps its own clicks. A native button turns Enter and
+ * Space into the same click itself. The direction color comes from the theme
+ * success/error text tokens (`cm.textSuccess` / `cm.textError`); the default
+ * percentage text comes from `Intl.NumberFormat` in the app's active locale.
+ * The layout and type classes come from the ClassMap bond. Same props, same
+ * DOM as `@molecule/app-ticker-row-react`'s `TickerRow`. Node-valued
+ * `symbol`, `name`, `icon`, `price`, `sparkline` and `meta` content is
+ * projected (`[slot=<name>]`); a string or number input renders as text.
  */
 @Component({
   selector: 'div[mol-ticker-row]',
@@ -64,10 +84,9 @@ const hasRenderableContent = (el: HTMLElement): boolean =>
   ],
   host: {
     '[class]': 'classes()',
-    '(click)': 'callClick($event)',
   },
   // prettier-ignore
-  template: `@if (showIcon) {<div #iconDiv [class]="iconClasses()">@if (hasIcon) {<ng-container>{{ icon }}</ng-container>}<ng-content select="[slot=icon]" /></div>}<div [class]="symbolClasses()"><span [class]="symbolTextClasses()">@if (hasSymbol) {<ng-container>{{ symbol }}</ng-container>}<ng-content select="[slot=symbol]" /></span>@if (showName) {<span #nameSpan [class]="nameClasses()">@if (hasName) {<ng-container>{{ name }}</ng-container>}<ng-content select="[slot=name]" /></span>}</div>@if (showSparkline) {<div #sparkDiv [class]="sparkClasses()">@if (hasSparkline) {<ng-container>{{ sparkline }}</ng-container>}<ng-content select="[slot=sparkline]" /></div>}<div [class]="priceClasses()"><span [class]="priceTextClasses()">@if (hasPrice) {<ng-container>{{ price }}</ng-container>}<ng-content select="[slot=price]" /></span>@if (showChange) {<span [class]="changeTextClasses()" [style.color]="styleColor()">{{ arrow() + ' ' }}@if (hasChangeDisplay) {<ng-container>{{ changeDisplay }}</ng-container>}@else {<ng-container>{{ formattedChange() }}</ng-container>}</span>}</div>@if (showMeta) {<div #metaDiv [class]="metaClasses()">@if (hasMeta) {<ng-container>{{ meta }}</ng-container>}<ng-content select="[slot=meta]" /></div>}`,
+  template: `@if (onClick) {<button type="button" [attr.aria-labelledby]="instanceNameId" data-mol-id="ticker-row-open" (click)="handleClick()" [class]="openButtonClasses()" [style.background]="'transparent'" [style.border]="'none'" [style.padding]="'0px'"></button>}@if (showIcon) {<div #iconDiv [class]="iconClasses()">@if (hasIcon) {<ng-container>{{ icon }}</ng-container>}<ng-content select="[slot=icon]" /></div>}<div [class]="symbolClasses()"><span [attr.id]="symbolId()" [class]="symbolTextClasses()">@if (hasSymbol) {<ng-container>{{ symbol }}</ng-container>}<ng-content select="[slot=symbol]" /></span>@if (showName) {<span #nameSpan [class]="nameClasses()">@if (hasName) {<ng-container>{{ name }}</ng-container>}<ng-content select="[slot=name]" /></span>}</div>@if (showSparkline) {<div #sparkDiv [class]="sparkClasses()">@if (hasSparkline) {<ng-container>{{ sparkline }}</ng-container>}<ng-content select="[slot=sparkline]" /></div>}<div [class]="priceClasses()"><span [class]="priceTextClasses()">@if (hasPrice) {<ng-container>{{ price }}</ng-container>}<ng-content select="[slot=price]" /></span>@if (showChange) {<span [class]="changeTextClasses()"><span aria-hidden="true">{{ arrow() }}</span><span [class]="srOnlyClasses()">{{ directionLabel() }}</span>{{ ' ' }}@if (hasChangeDisplay) {<ng-container>{{ changeDisplay }}</ng-container>}@else {<ng-container>{{ formattedChange() }}</ng-container>}</span>}</div>@if (showMeta) {<div #metaDiv [class]="metaClasses()">@if (hasMeta) {<ng-container>{{ meta }}</ng-container>}<ng-content select="[slot=meta]" /></div>}`,
 })
 export class TickerRow implements AfterViewInit {
   /** Symbol / ticker display ("BTC", "AAPL"): text, or `[slot=symbol]` content. */
@@ -84,12 +103,19 @@ export class TickerRow implements AfterViewInit {
   changeDisplay?: string
   /** Optional sparkline node: text, or `[slot=sparkline]` content. */
   sparkline?: unknown
-  /** Optional volume / market-cap display: text, or `[slot=meta]` content. */
+  /** Optional volume / market-cap display: text, or `[slot=meta]` content. May hold a control; it keeps its own clicks. */
   meta?: unknown
   /** Extra classes. */
   className?: string
-  /** Click handler (React's `onClick`); the host's native click calls it. */
-  onClick?: (event: MouseEvent) => void
+  /**
+   * Click handler (React's `onClick`). While it is set the whole row is
+   * clickable through the transparent open button laid over it; the handler
+   * runs with no arguments, as React's does.
+   */
+  onClick?: () => void
+
+  /** This instance's name id (the open button's `aria-labelledby`). */
+  private readonly instanceNameId = nameId()
 
   /** The optional icon wrapper div (projected content lands here; read once). */
   @ViewChild('iconDiv') private iconDiv?: ElementRef<HTMLDivElement>
@@ -147,28 +173,63 @@ export class TickerRow implements AfterViewInit {
   }
 
   /**
+   * The reactive translation handle (a locale switch re-renders the
+   * direction words), read in the injection context.
+   */
+  private readonly i18n = useTranslation()
+
+  /** The app's active locale (React's `useLocale()`), for number formatting. */
+  private readonly locale = useLocale()
+
+  /**
    * Computes the root class list (React's
-   * `cm.flex({align:'center',gap:'sm'})`, `cm.sp('py',2)`, `cm.cursorPointer`
-   * when clickable, and `className`).
+   * `cm.flex({align:'center',gap:'sm'})`, `cm.sp('py',2)`, plus
+   * `cm.position('relative')` — the open button's positioning context — and
+   * `cm.cursorPointer` while clickable, and `className`).
    * @returns The class string.
    */
   classes(): string {
     return this.cm().cn(
       this.cm().flex({ align: 'center', gap: 'sm' }),
       this.cm().sp('py', 2),
+      this.onClick != null ? this.cm().position('relative') : undefined,
       this.onClick != null ? this.cm().cursorPointer : undefined,
       this.className,
     )
   }
 
   /**
-   * Forwards the host's native click to the `onClick` handler (React's
-   * `onClick={onClick}` on the row div) with the native event.
-   *
-   * @param event - The native click event.
+   * The open button's class (React's
+   * `cm.cn(cm.position('absolute'), cm.inset0, cm.cursorPointer)`).
+   * @returns The class string.
    */
-  callClick(event: MouseEvent): void {
-    this.onClick?.(event)
+  openButtonClasses(): string {
+    return this.cm().cn(this.cm().position('absolute'), this.cm().inset0, this.cm().cursorPointer)
+  }
+
+  /**
+   * The screen-reader-only direction span's class (`cm.cn(cm.srOnly)`).
+   * @returns The class string.
+   */
+  srOnlyClasses(): string {
+    return this.cm().cn(this.cm().srOnly)
+  }
+
+  /**
+   * The symbol span's id (the open button's `aria-labelledby`), while
+   * `onClick` is set.
+   * @returns The id, or null (React renders no id without `onClick`).
+   */
+  symbolId(): string | null {
+    return this.onClick ? this.instanceNameId : null
+  }
+
+  /**
+   * Runs the open button's action, as React's `onClick` does (no arguments;
+   * a native button turns Enter and Space into this click itself).
+   */
+  handleClick(): void {
+    this.onClick?.()
   }
 
   /**
@@ -231,19 +292,39 @@ export class TickerRow implements AfterViewInit {
 
   /**
    * The change span's class list (React's
-   * `cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))`).
+   * `cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'), colorClass)` — the
+   * theme's success/error text token of the current direction).
    * @returns The class string.
    */
   changeTextClasses(): string {
-    return this.cm().cn(this.cm().textSize('xs'), this.cm().fontWeight('semibold'))
+    return this.cm().cn(
+      this.cm().textSize('xs'),
+      this.cm().fontWeight('semibold'),
+      this.colorClass(),
+    )
   }
 
   /**
-   * The meta div's class (React's `cm.cn(cm.textSize('xs'), cm.shrink0)`).
+   * The change span's theme text token of the current direction (undefined
+   * for a flat direction — React then applies none).
+   * @returns `cm.textSuccess`, `cm.textError`, or undefined.
+   */
+  colorClass(): string | undefined {
+    return this.positive ? this.cm().textSuccess : this.negative ? this.cm().textError : undefined
+  }
+
+  /**
+   * The meta div's class (React's `cm.cn(cm.textSize('xs'), cm.shrink0)`,
+   * plus `cm.position('relative')` while `onClick` is set — the wrapper paints
+   * above the open button and keeps the slot's clicks).
    * @returns The class string.
    */
   metaClasses(): string {
-    return this.cm().cn(this.cm().textSize('xs'), this.cm().shrink0)
+    return this.cm().cn(
+      this.cm().textSize('xs'),
+      this.cm().shrink0,
+      this.onClick ? this.cm().position('relative') : undefined,
+    )
   }
 
   /**
@@ -289,15 +370,6 @@ export class TickerRow implements AfterViewInit {
   }
 
   /**
-   * The change span's inline color of the current direction (undefined for a
-   * flat direction — React then writes no style).
-   * @returns The hex color, or null to clear the property.
-   */
-  styleColor(): string | null {
-    return this.positive ? POSITIVE_COLOR : this.negative ? NEGATIVE_COLOR : null
-  }
-
-  /**
    * The direction arrow.
    * @returns `'▲'`, `'▼'` or `'–'`.
    */
@@ -306,12 +378,30 @@ export class TickerRow implements AfterViewInit {
   }
 
   /**
+   * The change direction in words for screen readers (React's
+   * `t('tickerRow.change.up' | 'down' | 'flat')`).
+   * @returns The translated direction.
+   */
+  directionLabel(): string {
+    return this.positive
+      ? this.i18n.t('tickerRow.change.up', {}, { defaultValue: 'Up' })
+      : this.negative
+        ? this.i18n.t('tickerRow.change.down', {}, { defaultValue: 'Down' })
+        : this.i18n.t('tickerRow.change.flat', {}, { defaultValue: 'Unchanged' })
+  }
+
+  /**
    * The formatted percentage fallback (React's
-   * `` `${changePct?.toFixed(2)}%` ``).
+   * `Intl.NumberFormat(locale, { style: 'percent', … }).format(changePct / 100)`),
+   * in the app's active locale.
    * @returns The formatted change.
    */
   formattedChange(): string {
-    return `${this.changePct?.toFixed(2)}%`
+    return new Intl.NumberFormat(this.locale(), {
+      style: 'percent',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(this.changePct! / 100)
   }
 
   /**

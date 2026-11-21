@@ -19,31 +19,31 @@
    },
    "positive change": {
     "snapshots": [
-     "<div class=\"c1e8176ab c42740ba6 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c445db9b9\">\nX\n</span>\n</div>\n<div class=\"c16e96f28 c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c7f74399a\">\n$1\n</span>\n<span class=\"c4647f690 c7f74399a\" style=\"color: rgb(34, 197, 94)\">\n▲ 3.21%\n</span>\n</div>\n</div>\n@route /"
+     "<div class=\"c1e8176ab c42740ba6 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c445db9b9\">\nX\n</span>\n</div>\n<div class=\"c16e96f28 c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c7f74399a\">\n$1\n</span>\n<span class=\"c311bf57c c4647f690 c7f74399a\">\n<span aria-hidden=\"true\">\n▲\n</span>\n<span class=\"cb542d3c9\">\nUp\n</span>\n 3.21%\n</span>\n</div>\n</div>\n@route /"
     ],
     "calls": []
    },
    "negative change": {
     "snapshots": [
-     "<div class=\"c1e8176ab c42740ba6 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c445db9b9\">\nX\n</span>\n</div>\n<div class=\"c16e96f28 c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c7f74399a\">\n$1\n</span>\n<span class=\"c4647f690 c7f74399a\" style=\"color: rgb(239, 68, 68)\">\n▼ -1.50%\n</span>\n</div>\n</div>\n@route /"
+     "<div class=\"c1e8176ab c42740ba6 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c445db9b9\">\nX\n</span>\n</div>\n<div class=\"c16e96f28 c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c7f74399a\">\n$1\n</span>\n<span class=\"c4647f690 c7f74399a cab1062ad\">\n<span aria-hidden=\"true\">\n▼\n</span>\n<span class=\"cb542d3c9\">\nDown\n</span>\n -1.50%\n</span>\n</div>\n</div>\n@route /"
     ],
     "calls": []
    },
    "zero change": {
     "snapshots": [
-     "<div class=\"c1e8176ab c42740ba6 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c445db9b9\">\nX\n</span>\n</div>\n<div class=\"c16e96f28 c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c7f74399a\">\n$1\n</span>\n<span class=\"c4647f690 c7f74399a\">\n– 0.00%\n</span>\n</div>\n</div>\n@route /"
+     "<div class=\"c1e8176ab c42740ba6 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c445db9b9\">\nX\n</span>\n</div>\n<div class=\"c16e96f28 c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c7f74399a\">\n$1\n</span>\n<span class=\"c4647f690 c7f74399a\">\n<span aria-hidden=\"true\">\n–\n</span>\n<span class=\"cb542d3c9\">\nUnchanged\n</span>\n 0.00%\n</span>\n</div>\n</div>\n@route /"
     ],
     "calls": []
    },
    "changeDisplay without changePct": {
     "snapshots": [
-     "<div class=\"c1e8176ab c42740ba6 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c445db9b9\">\nX\n</span>\n</div>\n<div class=\"c16e96f28 c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c7f74399a\">\n$1\n</span>\n<span class=\"c4647f690 c7f74399a\">\n– +$0.50\n</span>\n</div>\n</div>\n@route /"
+     "<div class=\"c1e8176ab c42740ba6 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c445db9b9\">\nX\n</span>\n</div>\n<div class=\"c16e96f28 c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c7f74399a\">\n$1\n</span>\n<span class=\"c4647f690 c7f74399a\">\n<span aria-hidden=\"true\">\n–\n</span>\n<span class=\"cb542d3c9\">\nUnchanged\n</span>\n +$0.50\n</span>\n</div>\n</div>\n@route /"
     ],
     "calls": []
    },
    "changeDisplay overrides the formatted percentage": {
     "snapshots": [
-     "<div class=\"c1e8176ab c42740ba6 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c445db9b9\">\nX\n</span>\n</div>\n<div class=\"c16e96f28 c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c7f74399a\">\n$1\n</span>\n<span class=\"c4647f690 c7f74399a\" style=\"color: rgb(34, 197, 94)\">\n▲ +$0.50\n</span>\n</div>\n</div>\n@route /"
+     "<div class=\"c1e8176ab c42740ba6 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c445db9b9\">\nX\n</span>\n</div>\n<div class=\"c16e96f28 c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c7f74399a\">\n$1\n</span>\n<span class=\"c311bf57c c4647f690 c7f74399a\">\n<span aria-hidden=\"true\">\n▲\n</span>\n<span class=\"cb542d3c9\">\nUp\n</span>\n +$0.50\n</span>\n</div>\n</div>\n@route /"
     ],
     "calls": []
    },
@@ -55,38 +55,40 @@
    },
    "full row with className": {
     "snapshots": [
-     "<div class=\"c1e8176ab c42740ba6 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd75bbd18 cd9b20003\">\n<div class=\"ca596e575\">\n<span data-icon>\n</span>\n</div>\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c445db9b9\">\nSOL\n</span>\n<span class=\"c4647f690\">\nSolana\n</span>\n</div>\n<div class=\"ca596e575\">\n<svg data-spark>\n</svg>\n</div>\n<div class=\"c16e96f28 c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c7f74399a\">\n$142.10\n</span>\n<span class=\"c4647f690 c7f74399a\" style=\"color: rgb(239, 68, 68)\">\n▼ -0.75%\n</span>\n</div>\n<div class=\"c4647f690 ca596e575\">\n<span data-meta>\n$68B vol\n</span>\n</div>\n</div>\n@route /"
+     "<div class=\"c1e8176ab c42740ba6 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd75bbd18 cd9b20003\">\n<div class=\"ca596e575\">\n<span data-icon>\n</span>\n</div>\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c445db9b9\">\nSOL\n</span>\n<span class=\"c4647f690\">\nSolana\n</span>\n</div>\n<div class=\"ca596e575\">\n<svg data-spark>\n</svg>\n</div>\n<div class=\"c16e96f28 c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c7f74399a\">\n$142.10\n</span>\n<span class=\"c4647f690 c7f74399a cab1062ad\">\n<span aria-hidden=\"true\">\n▼\n</span>\n<span class=\"cb542d3c9\">\nDown\n</span>\n -0.75%\n</span>\n</div>\n<div class=\"c4647f690 ca596e575\">\n<span data-meta>\n$68B vol\n</span>\n</div>\n</div>\n@route /"
     ],
     "calls": []
    },
-   "click calls onClick": {
+   "clicking the open button calls onClick": {
     "snapshots": [
-     "<div class=\"c13d4ff0f c1e8176ab c42740ba6 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c445db9b9\">\nX\n</span>\n</div>\n<div class=\"c16e96f28 c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c7f74399a\">\n$1\n</span>\n</div>\n</div>\n@route /",
-     "<div class=\"c13d4ff0f c1e8176ab c42740ba6 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c445db9b9\">\nX\n</span>\n</div>\n<div class=\"c16e96f28 c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c7f74399a\">\n$1\n</span>\n</div>\n</div>\n@route /"
+     "<div class=\"c13d4ff0f c1e8176ab c42740ba6 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003 cfc82911d\">\n<button aria-labelledby=\"#id0\" class=\"c0dd268bc c13d4ff0f c63a6bab3\" data-mol-id=\"ticker-row-open\" style=\"background: transparent; border: medium; padding: 0px\" type=\"button\">\n</button>\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c445db9b9\" id=\"#id0\">\nX\n</span>\n</div>\n<div class=\"c16e96f28 c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c7f74399a\">\n$1\n</span>\n</div>\n</div>\n@route /",
+     "<div class=\"c13d4ff0f c1e8176ab c42740ba6 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003 cfc82911d\">\n<button aria-labelledby=\"#id0\" class=\"c0dd268bc c13d4ff0f c63a6bab3\" data-mol-id=\"ticker-row-open\" style=\"background: transparent; border: medium; padding: 0px\" type=\"button\">\n</button>\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c445db9b9\" id=\"#id0\">\nX\n</span>\n</div>\n<div class=\"c16e96f28 c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c7f74399a\">\n$1\n</span>\n</div>\n</div>\n@route /"
     ],
     "calls": [
      {
       "name": "onClick",
-      "args": [
-       {
-        "event": "click",
-        "target": "span"
-       }
-      ]
+      "args": []
      }
     ]
    },
+   "clicking an inner control does not call onClick": {
+    "snapshots": [
+     "<div class=\"c13d4ff0f c1e8176ab c42740ba6 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003 cfc82911d\">\n<button aria-labelledby=\"#id0\" class=\"c0dd268bc c13d4ff0f c63a6bab3\" data-mol-id=\"ticker-row-open\" style=\"background: transparent; border: medium; padding: 0px\" type=\"button\">\n</button>\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c445db9b9\" id=\"#id0\">\nX\n</span>\n</div>\n<div class=\"c16e96f28 c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c7f74399a\">\n$1\n</span>\n</div>\n<div class=\"c4647f690 ca596e575 cfc82911d\">\n<span data-meta role=\"button\" tabindex=\"0\">\n$68B vol\n</span>\n</div>\n</div>\n@route /",
+     "<div class=\"c13d4ff0f c1e8176ab c42740ba6 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003 cfc82911d\">\n<button aria-labelledby=\"#id0\" class=\"c0dd268bc c13d4ff0f c63a6bab3\" data-mol-id=\"ticker-row-open\" style=\"background: transparent; border: medium; padding: 0px\" type=\"button\">\n</button>\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c445db9b9\" id=\"#id0\">\nX\n</span>\n</div>\n<div class=\"c16e96f28 c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c7f74399a\">\n$1\n</span>\n</div>\n<div class=\"c4647f690 ca596e575 cfc82911d\">\n<span data-meta role=\"button\" tabindex=\"0\">\n$68B vol\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
    "change changePct flips arrow and color": {
     "snapshots": [
-     "<div class=\"c1e8176ab c42740ba6 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c445db9b9\">\nX\n</span>\n</div>\n<div class=\"c16e96f28 c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c7f74399a\">\n$1\n</span>\n<span class=\"c4647f690 c7f74399a\" style=\"color: rgb(34, 197, 94)\">\n▲ 3.21%\n</span>\n</div>\n</div>\n@route /",
-     "<div class=\"c1e8176ab c42740ba6 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c445db9b9\">\nX\n</span>\n</div>\n<div class=\"c16e96f28 c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c7f74399a\">\n$1\n</span>\n<span class=\"c4647f690 c7f74399a\" style=\"color: rgb(239, 68, 68)\">\n▼ -1.50%\n</span>\n</div>\n</div>\n@route /"
+     "<div class=\"c1e8176ab c42740ba6 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c445db9b9\">\nX\n</span>\n</div>\n<div class=\"c16e96f28 c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c7f74399a\">\n$1\n</span>\n<span class=\"c311bf57c c4647f690 c7f74399a\">\n<span aria-hidden=\"true\">\n▲\n</span>\n<span class=\"cb542d3c9\">\nUp\n</span>\n 3.21%\n</span>\n</div>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c42740ba6 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c445db9b9\">\nX\n</span>\n</div>\n<div class=\"c16e96f28 c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c7f74399a\">\n$1\n</span>\n<span class=\"c4647f690 c7f74399a cab1062ad\">\n<span aria-hidden=\"true\">\n▼\n</span>\n<span class=\"cb542d3c9\">\nDown\n</span>\n -1.50%\n</span>\n</div>\n</div>\n@route /"
     ],
     "calls": []
    },
    "changeDisplay appears on a later render": {
     "snapshots": [
-     "<div class=\"c1e8176ab c42740ba6 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c445db9b9\">\nX\n</span>\n</div>\n<div class=\"c16e96f28 c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c7f74399a\">\n$1\n</span>\n<span class=\"c4647f690 c7f74399a\" style=\"color: rgb(34, 197, 94)\">\n▲ 2.00%\n</span>\n</div>\n</div>\n@route /",
-     "<div class=\"c1e8176ab c42740ba6 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c445db9b9\">\nX\n</span>\n</div>\n<div class=\"c16e96f28 c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c7f74399a\">\n$1\n</span>\n<span class=\"c4647f690 c7f74399a\" style=\"color: rgb(34, 197, 94)\">\n▲ +$0.50\n</span>\n</div>\n</div>\n@route /"
+     "<div class=\"c1e8176ab c42740ba6 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c445db9b9\">\nX\n</span>\n</div>\n<div class=\"c16e96f28 c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c7f74399a\">\n$1\n</span>\n<span class=\"c311bf57c c4647f690 c7f74399a\">\n<span aria-hidden=\"true\">\n▲\n</span>\n<span class=\"cb542d3c9\">\nUp\n</span>\n 2.00%\n</span>\n</div>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c42740ba6 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c445db9b9\">\nX\n</span>\n</div>\n<div class=\"c16e96f28 c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c7f74399a\">\n$1\n</span>\n<span class=\"c311bf57c c4647f690 c7f74399a\">\n<span aria-hidden=\"true\">\n▲\n</span>\n<span class=\"cb542d3c9\">\nUp\n</span>\n +$0.50\n</span>\n</div>\n</div>\n@route /"
     ],
     "calls": []
    },

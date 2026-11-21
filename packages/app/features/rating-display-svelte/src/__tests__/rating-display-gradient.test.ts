@@ -9,10 +9,8 @@ import '@molecule/app-framework-conformance/ui/setup'
 import { flushSync, mount, unmount } from 'svelte'
 import { afterEach, describe, expect, it } from 'vitest'
 
-import Host from '@molecule/app-framework-conformance/adapters/svelte-bindings/Host.svelte'
-import { setMoleculeContext } from '@molecule/app-svelte'
-
 import RatingDisplay from '../RatingDisplay.svelte'
+import type { RatingDisplayProps } from '../types.js'
 
 afterEach(() => {
   document.body.innerHTML = ''
@@ -24,18 +22,10 @@ afterEach(() => {
  * @param props - The rating-display props.
  * @returns The markup of the mounted display.
  */
-function render(props: Record<string, unknown>): string {
+function render(props: RatingDisplayProps): string {
   const host = document.createElement('div')
   document.body.appendChild(host)
-  const instance = mount(Host, {
-    target: host,
-    props: {
-      config: {},
-      setMoleculeContext,
-      component: RatingDisplay,
-      props,
-    },
-  })
+  const instance = mount(RatingDisplay, { target: host, props })
   flushSync()
   const markup = host.innerHTML
   unmount(instance)

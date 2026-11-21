@@ -16,4 +16,11 @@ export const eu: Partial<BillingTranslations> = {
   'billing.pricing.perSeat': 'eserleku bakoitzeko',
   'billing.pricing.upgradeCta': 'Berritu honetara {{tierName}}',
   'billing.pricing.currentCta': 'Uneko plana',
+  'billing.pricing.period.month': 'hilabeteroko',
+  'billing.pricing.period.year': 'urteroko',
+  'billing.pricing.billed.month': 'Hilabetero fakturatzen da',
+  'billing.pricing.billed.year': 'Urtero fakturatzen da',
+  'billing.pricing.unlimited': 'Mugagabea',
+  'billing.pricing.limit.maxProjects': 'Gehienezko proiektu kopurua',
+  'billing.pricing.limit.canExport': 'Esportazioa erabilgarri',
 }

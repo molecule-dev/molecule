@@ -13,4 +13,8 @@ export const km: Partial<SearchUiTranslations> = {
   'searchUi.relatedTitle': 'ត្រូវគ្នានឹងអត្ថន័យនៃការស្វែងរករបស់អ្នក មិនមែនពាក្យរបស់វាទេ',
   'searchUi.related': 'ពាក់ព័ន្ធ',
   'searchUi.help': 'គន្លឹះស្វែងរក',
+  'searchUi.examplePhrase': '"ឃ្លាពិតប្រាកដ"',
+  'searchUi.exampleExcluded': '-ពាក្យ',
+  'searchUi.activeResult': '{{title}}, {{position}} ក្នុងចំណោម {{count}}',
+  'searchUi.dialogLabel': 'ស្វែងរក',
 }

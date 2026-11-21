@@ -7,4 +7,8 @@ export const zu: Partial<HttpInspectorTranslations> = {
   'httpInspector.headers': 'Izihloko',
   'httpInspector.addHeader': 'Engeza isihloko',
   'httpInspector.body': 'Umzimba',
+  'httpInspector.methodLabel': 'Indlela ye-HTTP',
+  'httpInspector.urlLabel': 'URL',
+  'httpInspector.headerPlaceholder': 'Isihloko',
+  'httpInspector.valuePlaceholder': 'Inani',
 }

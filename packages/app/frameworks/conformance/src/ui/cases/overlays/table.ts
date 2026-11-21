@@ -20,6 +20,8 @@ const COLUMNS = [
 /** Table: borders, stripes, hover, loading overlay, empty state, sorting, alignment, widths, row clicks. */
 export const tableCases: UIComponentCases = {
   component: 'Table',
+  ref: {},
+  declaredProps: { props: 'element' },
   keyedLists: [
     { prop: 'data', selector: 'tbody tr' },
     { prop: 'data', selector: 'tbody tr', caseName: 'rowKey from a data field' },

@@ -11,6 +11,7 @@
 
 import type { JSX, ReactNode } from 'react'
 
+import { useLocale, useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { CategoryStyle, TransactionRowData } from './types.js'
@@ -21,16 +22,40 @@ export interface TransactionsTableProps {
   loading?: boolean
   error?: ReactNode
   onRetry?: () => void
+  /**
+   * Label of the retry button. Overrides the translated default
+   * (`transactionsTable.label.retry`, English `'Try again'`).
+   */
   retryLabel?: ReactNode
-  /** Map a category key (lowercased automatically) to a style; falls back to neutral grey. */
+  /**
+   * Map a category key (lowercased automatically) to a style; a key without an
+   * entry falls back to the theme's neutral chip (`cm.surfaceSecondary` +
+   * `cm.textMuted`, the `receipt` icon).
+   */
   categoryStyles?: Record<string, CategoryStyle>
-  /** Localised currency formatter; defaults to en-US USD. */
+  /**
+   * ISO 4217 code the default amount formatter formats in (`'USD'` when
+   * omitted); a `formatAmount` prop wins over it.
+   */
+  currency?: string
+  /**
+   * Localised currency formatter; defaults to the app's active locale
+   * (`useLocale()`) and the `currency` prop, so a locale switch re-formats at
+   * once. An explicit formatter still wins.
+   */
   formatAmount?: (amount: number) => string
-  /** Localised date formatter; defaults to "MMM d, yyyy". */
+  /**
+   * Localised date formatter ("MMM d, yyyy"); defaults to the app's active
+   * locale (`useLocale()`), so a locale switch re-formats at once. An explicit
+   * formatter still wins.
+   */
   formatDate?: (date: string | Date) => string
   /** Click handler for each row (typically navigates to a detail page). */
   onRowClick?: (row: TransactionRowData) => void
-  /** Column header labels (pre-translated). */
+  /**
+   * Column header labels (pre-translated). Each overrides the translated
+   * default (`transactionsTable.header.*`).
+   */
   headers?: {
     date?: ReactNode
     description?: ReactNode
@@ -45,19 +70,12 @@ export interface TransactionsTableProps {
   className?: string
 }
 
-const NEUTRAL_STYLE: CategoryStyle = { bg: '#f3f4f6', color: '#374151', icon: 'receipt' }
-
-const DEFAULT_AMOUNT_FORMAT = (n: number): string =>
-  new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(Math.abs(n))
-
-const DEFAULT_DATE_FORMAT = (d: string | Date): string => {
-  if (!d) return ''
-  return new Date(d).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  })
-}
+/**
+ * The icon a category key without a style falls back to. The neutral chip's
+ * colours are theme chrome, not data: its tile and chip take
+ * `cm.surfaceSecondary` + `cm.textMuted` instead of hardcoded hex.
+ */
+const NEUTRAL_ICON = 'receipt'
 
 /** Renders a pageable financial transactions table with loading, error, and empty states. */
 export function TransactionsTable({
@@ -65,17 +83,37 @@ export function TransactionsTable({
   loading,
   error,
   onRetry,
-  retryLabel = 'Try again',
+  retryLabel,
   categoryStyles,
-  formatAmount = DEFAULT_AMOUNT_FORMAT,
-  formatDate = DEFAULT_DATE_FORMAT,
+  currency = 'USD',
+  formatAmount,
+  formatDate,
   onRowClick,
   headers,
   emptyState,
   footer,
   className,
 }: TransactionsTableProps): JSX.Element {
+  const { t } = useTranslation()
+  // Re-renders on a locale switch, so the default formatters re-format at once.
+  // An explicit `formatAmount` / `formatDate` prop still wins.
+  const activeLocale = useLocale()
   const cm = getClassMap()
+
+  const defaultAmountFormat = (n: number): string =>
+    new Intl.NumberFormat(activeLocale, { style: 'currency', currency }).format(Math.abs(n))
+
+  const defaultDateFormat = (d: string | Date): string => {
+    if (!d) return ''
+    return new Date(d).toLocaleDateString(activeLocale, {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    })
+  }
+
+  const amountFormatter = formatAmount ?? defaultAmountFormat
+  const dateFormatter = formatDate ?? defaultDateFormat
 
   if (loading) {
     return (
@@ -114,7 +152,8 @@ export function TransactionsTable({
               cm.touchTargetCompact,
             )}
           >
-            {retryLabel}
+            {retryLabel ??
+              t('transactionsTable.label.retry', undefined, { defaultValue: 'Try again' })}
           </button>
         ) : null}
       </div>
@@ -146,15 +185,45 @@ export function TransactionsTable({
             <tr className={cm.cn(cm.transactionsTableHeadRow)}>
               {(
                 [
-                  { key: 'date', label: headers?.date ?? 'Date', right: false },
                   {
-                    key: 'description',
-                    label: headers?.description ?? 'Description',
+                    key: 'date',
+                    label:
+                      headers?.date ??
+                      t('transactionsTable.header.date', undefined, { defaultValue: 'Date' }),
                     right: false,
                   },
-                  { key: 'category', label: headers?.category ?? 'Category', right: false },
-                  { key: 'account', label: headers?.account ?? 'Account', right: false },
-                  { key: 'amount', label: headers?.amount ?? 'Amount', right: true },
+                  {
+                    key: 'description',
+                    label:
+                      headers?.description ??
+                      t('transactionsTable.header.description', undefined, {
+                        defaultValue: 'Description',
+                      }),
+                    right: false,
+                  },
+                  {
+                    key: 'category',
+                    label:
+                      headers?.category ??
+                      t('transactionsTable.header.category', undefined, {
+                        defaultValue: 'Category',
+                      }),
+                    right: false,
+                  },
+                  {
+                    key: 'account',
+                    label:
+                      headers?.account ??
+                      t('transactionsTable.header.account', undefined, { defaultValue: 'Account' }),
+                    right: false,
+                  },
+                  {
+                    key: 'amount',
+                    label:
+                      headers?.amount ??
+                      t('transactionsTable.header.amount', undefined, { defaultValue: 'Amount' }),
+                    right: true,
+                  },
                 ] as const
               ).map((h) => (
                 <th
@@ -176,7 +245,12 @@ export function TransactionsTable({
           <tbody className={cm.cn(cm.transactionsTableBody)}>
             {transactions.map((tx) => {
               const catKey = tx.categoryKey.toLowerCase()
-              const catStyle = categoryStyles?.[catKey] ?? NEUTRAL_STYLE
+              // A caller-supplied style is the caller's colour data, applied
+              // inline; a key without one falls back to the theme's neutral
+              // chip (`cm.surfaceSecondary` + `cm.textMuted`), so no inline
+              // colour overrides those classes.
+              const catStyle = categoryStyles?.[catKey]
+              const neutralChip = !catStyle
               const isIncome = tx.isIncome ?? tx.amount >= 0
               return (
                 <tr
@@ -193,7 +267,7 @@ export function TransactionsTable({
                       cm.transactionsTableDateCell,
                     )}
                   >
-                    {formatDate(tx.date)}
+                    {dateFormatter(tx.date)}
                   </td>
                   <td className={cm.cn(cm.sp('px', 6), cm.sp('py', 5))}>
                     <div
@@ -208,10 +282,18 @@ export function TransactionsTable({
                           cm.h(10),
                           cm.roundedFull,
                           cm.flex({ align: 'center', justify: 'center' }),
+                          neutralChip && [cm.surfaceSecondary, cm.textMuted],
                         )}
-                        style={{ backgroundColor: catStyle.bg, color: catStyle.color }}
+                        style={
+                          catStyle
+                            ? { backgroundColor: catStyle.bg, color: catStyle.color }
+                            : undefined
+                        }
                       >
-                        <span className={cm.iconGlyphFont}>{catStyle.icon}</span>
+                        {/* The ligature name is font data, not text; the chip names the category. */}
+                        <span aria-hidden="true" className={cm.iconGlyphFont}>
+                          {catStyle?.icon ?? NEUTRAL_ICON}
+                        </span>
                       </div>
                       <span
                         className={cm.cn(cm.fontWeight('bold'), cm.transactionsTableDescription)}
@@ -228,8 +310,13 @@ export function TransactionsTable({
                         cm.fontWeight('bold'),
                         cm.roundedFull,
                         cm.transactionsTableCategoryChip,
+                        neutralChip && [cm.surfaceSecondary, cm.textMuted],
                       )}
-                      style={{ backgroundColor: catStyle.bg, color: catStyle.color }}
+                      style={
+                        catStyle
+                          ? { backgroundColor: catStyle.bg, color: catStyle.color }
+                          : undefined
+                      }
                     >
                       {tx.categoryLabel}
                     </span>
@@ -255,7 +342,7 @@ export function TransactionsTable({
                     )}
                   >
                     {isIncome ? '+' : '-'}
-                    {formatAmount(tx.amount)}
+                    {amountFormatter(tx.amount)}
                   </td>
                 </tr>
               )

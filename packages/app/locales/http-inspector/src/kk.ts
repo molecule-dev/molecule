@@ -7,4 +7,8 @@ export const kk: Partial<HttpInspectorTranslations> = {
   'httpInspector.headers': 'Тақырыптар',
   'httpInspector.addHeader': 'Тақырып қосу',
   'httpInspector.body': 'Дене',
+  'httpInspector.methodLabel': 'HTTP әдісі',
+  'httpInspector.urlLabel': 'URL',
+  'httpInspector.headerPlaceholder': 'Тақырып',
+  'httpInspector.valuePlaceholder': 'Мән',
 }

@@ -9,6 +9,7 @@ export const yo: ReputationBadgeTranslations = {
   'reputationBadge.level.trusted': 'Olùgbẹ́kẹ̀lé',
   'reputationBadge.level.veteran': 'Akọ́nimọ̀ọ́gbá',
   'reputationBadge.level.legend': 'Ìtàn àròsọ',
+  'reputationBadge.level.fallback': '{{level}}',
   'badgeShelf.aria': 'Àwọn àmì {{count}} ti jẹ́',
   'badgeShelf.overflow.aria': 'Fi àwọn àmì {{count}} síi hàn',
 }

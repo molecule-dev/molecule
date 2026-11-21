@@ -7,6 +7,7 @@
 import { defineComponent, h, type PropType, type VNode, type VNodeChild } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
+import { useTranslation } from '@molecule/app-vue'
 
 /**
  * Resolves a node-valued prop that may also arrive as a same-named slot: the
@@ -58,6 +59,7 @@ export const PriceRangeSlider = defineComponent({
   },
   setup(props, { emit, slots }) {
     const cm = getClassMap()
+    const { t } = useTranslation()
     const low = (): number => props.value[0]
     const high = (): number => props.value[1]
     /**
@@ -99,7 +101,9 @@ export const PriceRangeSlider = defineComponent({
             value: low(),
             onInput: onMinInput,
             class: cm.flex1,
-            'aria-label': 'Minimum',
+            'aria-label': t('priceRangeSlider.aria.minimum', undefined, {
+              defaultValue: 'Minimum',
+            }),
           }),
           h('input', {
             type: 'range',
@@ -109,7 +113,9 @@ export const PriceRangeSlider = defineComponent({
             value: high(),
             onInput: onMaxInput,
             class: cm.flex1,
-            'aria-label': 'Maximum',
+            'aria-label': t('priceRangeSlider.aria.maximum', undefined, {
+              defaultValue: 'Maximum',
+            }),
           }),
           h('span', { class: cm.textSize('sm') }, [fmt(high())]),
         ]),

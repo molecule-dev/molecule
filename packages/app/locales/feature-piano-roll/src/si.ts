@@ -9,4 +9,5 @@ export const si: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.note':
     'සටහන {{pitch}} වේගයෙන් ආරම්භ කිරීම {{startBeat}} සඳහා {{durationBeats}} පහරවල්',
   'pianoRoll.aria.cursor': 'කර්සරය {{pitch}} හි {{beat}} පහරේදී',
+  'pianoRoll.aria.gridHelp': 'ඊතල යතුරු සෛල කර්සරය ගෙන යනවා, Enter හෝ Space එතැන සටහනක් අඳිනවා.',
 }

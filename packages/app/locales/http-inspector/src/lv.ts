@@ -7,4 +7,8 @@ export const lv: Partial<HttpInspectorTranslations> = {
   'httpInspector.headers': 'Galvenes',
   'httpInspector.addHeader': 'Pievienot galveni',
   'httpInspector.body': 'Ķermenis',
+  'httpInspector.methodLabel': 'HTTP metode',
+  'httpInspector.urlLabel': 'URL',
+  'httpInspector.headerPlaceholder': 'Galvene',
+  'httpInspector.valuePlaceholder': 'Vērtība',
 }

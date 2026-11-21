@@ -27,7 +27,8 @@ describe('@molecule/app-settings-panel-solid', () => {
     expect(typeof panel.useSettingsPanelContext).toBe('function')
   })
 
-  it('re-exports the push device-toggle helpers from @molecule/app-push', () => {
+  it('exports the SettingsPanelContext and the shared push helpers', () => {
+    expect(panel.SettingsPanelContext).toBeDefined()
     for (const name of [
       'disablePushOnCurrentDevice',
       'enablePushOnCurrentDevice',
@@ -35,7 +36,7 @@ describe('@molecule/app-settings-panel-solid', () => {
       'readCurrentDevicePushEnabled',
       'subscriptionFromToken',
     ]) {
-      expect(typeof (panel as Record<string, unknown>)[name], name).toBe('function')
+      expect(panel, name).toHaveProperty(name, expect.any(Function))
     }
   })
 })

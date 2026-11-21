@@ -49,4 +49,5 @@ export const id: Partial<AudioEffectsRackTranslations> = {
   'audioEffectsRack.param.flanger.feedback': 'Masukan',
   'audioEffectsRack.param.phaser.depth': 'Kedalaman',
   'audioEffectsRack.param.phaser.feedback': 'Masukan',
+  'audioEffectsRack.param.fallback': 'Parameter',
 }

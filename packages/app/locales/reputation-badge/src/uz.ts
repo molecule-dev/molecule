@@ -9,6 +9,7 @@ export const uz: ReputationBadgeTranslations = {
   'reputationBadge.level.trusted': 'Ishonchli',
   'reputationBadge.level.veteran': 'Faxriy',
   'reputationBadge.level.legend': 'Afsona',
+  'reputationBadge.level.fallback': '{{level}}',
   'badgeShelf.aria': '{{count}} ta nishon olindi',
   'badgeShelf.overflow.aria': 'Yana {{count}} ta nishonni korsatish',
 }

@@ -12,6 +12,21 @@ import { followRouterLink, routerLinkHref } from '@molecule/app-routing'
 import { useRouterInstance } from './hooks/use-router.js'
 
 /**
+ * The inputs {@link Link} takes: `@molecule/app-react`'s `LinkProps` for an
+ * Angular directive. React's `to` is the directive's own attribute,
+ * `molLink`; every other anchor attribute (`class`, `target`, `rel`) is
+ * written on the `<a>` as usual.
+ */
+export interface LinkProps {
+  /** The destination: an app path or a URL (React's `to`). */
+  molLink: string
+  /** Replace the current history entry instead of pushing one. */
+  replace?: boolean
+  /** State stored with the new history entry. */
+  state?: unknown
+}
+
+/**
  * `<a molLink="/settings">`: sets the anchor's `href` and navigates in-app
  * through the molecule router, with react-router `<Link>`'s rules
  * (`followRouterLink` from `@molecule/app-routing`): a plain primary click
@@ -51,7 +66,7 @@ import { useRouterInstance } from './hooks/use-router.js'
   inputs: ['molLink', 'replace', 'state'],
   host: { '[attr.href]': 'href' },
 })
-export class Link implements OnInit {
+export class Link implements OnInit, LinkProps {
   /**
    * The destination: an app path (`/settings?tab=billing#plan`) or a URL. An app path's `href` is
    * the one the router writes for it (`routerLinkHref`), base path included.

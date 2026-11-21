@@ -15,6 +15,8 @@ const ITEMS = [
 /** Accordion: single vs multiple expansion, collapsible, controlled value, disabled items, onChange. */
 export const accordionCases: UIComponentCases = {
   component: 'Accordion',
+  ref: {},
+  declaredProps: { props: 'base' },
   keyedLists: [{ prop: 'items', selector: 'button' }],
   cases: [
     { name: 'defaults (all collapsed)', props: { items: ITEMS } },
@@ -70,6 +72,12 @@ export const accordionCases: UIComponentCases = {
     {
       name: 'click calls onChange with the value',
       props: { items: ITEMS },
+      callbacks: ['onChange'],
+      interactions: [{ type: 'click', selector: 'button' }],
+    },
+    {
+      name: 'disabled disables every header: a click opens nothing',
+      props: { items: ITEMS, disabled: true },
       callbacks: ['onChange'],
       interactions: [{ type: 'click', selector: 'button' }],
     },

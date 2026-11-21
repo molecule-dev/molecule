@@ -9,6 +9,7 @@ export const si: ReputationBadgeTranslations = {
   'reputationBadge.level.trusted': 'විශ්වාසනීය',
   'reputationBadge.level.veteran': 'ප්‍රවීණයා',
   'reputationBadge.level.legend': 'පුරාවෘත්තය',
+  'reputationBadge.level.fallback': '{{level}}',
   'badgeShelf.aria': '{{count}} ලාංඡන ලබා ඇත',
   'badgeShelf.overflow.aria': 'තවත් {{count}} ලාංඡන පෙන්වන්න',
 }

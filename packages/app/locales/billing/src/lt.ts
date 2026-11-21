@@ -16,4 +16,11 @@ export const lt: Partial<BillingTranslations> = {
   'billing.pricing.perSeat': 'vienai vietai',
   'billing.pricing.upgradeCta': 'Atnaujinti į {{tierName}}',
   'billing.pricing.currentCta': 'Dabartinis planas',
+  'billing.pricing.period.month': 'per mėnesį',
+  'billing.pricing.period.year': 'per metus',
+  'billing.pricing.billed.month': 'Sąskaita išrašoma kas mėnesį',
+  'billing.pricing.billed.year': 'Sąskaita išrašoma kasmet',
+  'billing.pricing.unlimited': 'Neribota',
+  'billing.pricing.limit.maxProjects': 'Didžiausias projektų skaičius',
+  'billing.pricing.limit.canExport': 'Eksportas prieinamas',
 }

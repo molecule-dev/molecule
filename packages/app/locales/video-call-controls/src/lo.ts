@@ -8,4 +8,7 @@ export const lo: Partial<VideoCallControlsTranslations> = {
   'call.cameraOff': '🚫',
   'call.share': '🖥',
   'call.leave': 'ອອກໄປ',
+  'call.aria.muted': 'ປິດສຽງ',
+  'call.aria.handRaised': 'ຍົກມື',
+  'call.label.you': '(ເຈົ້າ)',
 }

@@ -7,6 +7,7 @@ export const en: NpsDistributionTranslations = {
   'nps-distribution.tier.promoter': 'Promoter',
   'nps-distribution.aria-label': 'NPS distribution chart, {{total}} responses',
   'nps-distribution.row.aria': 'Score {{score}} ({{tier}}): {{count}}',
+  // keep-english: NPS (Net Promoter Score) is a fixed metric name
   'nps-distribution.score.label': 'NPS',
   'nps-distribution.score.responses': '{{total}} responses',
 }

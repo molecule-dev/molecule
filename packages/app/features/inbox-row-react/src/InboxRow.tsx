@@ -1,5 +1,5 @@
 import type * as React from 'react'
-import type { ReactNode } from 'react'
+import { type ReactNode, useId } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
@@ -27,7 +27,13 @@ export interface InboxRowProps {
   labels?: ReactNode
   /** Right-side selection slot (checkbox). */
   selectionSlot?: ReactNode
-  /** Click handler — typically opens the message. */
+  /**
+   * Click handler — typically opens the message. While it is set, the whole
+   * row is clickable through a transparent native button laid over it, named
+   * by the sender and the subject (two ids, `aria-labelledby="<senderId>
+   * <subjectId>"`); the inner controls — the star toggle, the selection slot
+   * and the labels slot — sit above that button and keep their own clicks.
+   */
   onClick?: () => void
   /** Star toggle. */
   onToggleStar?: () => void
@@ -58,69 +64,143 @@ export function InboxRow({
 }: InboxRowProps): React.JSX.Element {
   const { t } = useTranslation()
   const cm = getClassMap()
+  /** Base of the two ids that name the open button (React's `useId`). */
+  const nameId = useId()
+  const senderId = onClick ? `${nameId}-sender` : undefined
+  const subjectId = onClick ? `${nameId}-subject` : undefined
+  const openLabelledBy = senderId && subjectId ? `${senderId} ${subjectId}` : undefined
   const senderName =
     typeof sender === 'string'
       ? sender
       : t('inboxRow.sender', undefined, { defaultValue: 'Sender' })
+
+  /**
+   * The row's open action: an empty, transparent native button covering the
+   * whole row (Enter / Space activate it natively), named by the sender and
+   * the subject. A sibling of the row's other controls, not their wrapper, so
+   * a button may carry it.
+   */
+  const openButton = onClick ? (
+    <button
+      type="button"
+      aria-labelledby={openLabelledBy}
+      data-mol-id="inbox-row-open"
+      onClick={() => onClick()}
+      /* mol-bespoke-button: the whole row is the hit area, not a CTA — an empty,
+         transparent button over the row; the inline background/border/padding are
+         native resets. */
+      className={cm.cn(cm.position('absolute'), cm.inset0, cm.cursorPointer)}
+      style={{ background: 'transparent', border: 'none', padding: 0 }}
+    />
+  ) : null
+
+  /**
+   * The star toggle. It paints above the open button in its positioned
+   * wrapper (see `starControl`) and keeps its own clicks.
+   */
+  const starButton =
+    onToggleStar !== undefined ? (
+      <button
+        type="button"
+        onClick={() => onToggleStar()}
+        aria-pressed={starred}
+        data-mol-id="inbox-row-star"
+        aria-label={
+          starred
+            ? t('inboxRow.unstar', undefined, { defaultValue: 'Unstar' })
+            : t('inboxRow.star', undefined, { defaultValue: 'Star' })
+        }
+        /* mol-bespoke-button: icon-only star toggle inside a list row, no
+           label and no button surface — the glyph is the control. The colour
+           is a ClassMap tone (warning when starred, muted text otherwise) so
+           it follows the theme; 44px touch floor from the ClassMap. The
+           inline declarations are the native resets. */
+        className={cm.cn(
+          cm.cursorPointer,
+          cm.touchTarget,
+          starred ? cm.textTone('warning') : cm.textMuted,
+        )}
+        style={{ background: 'none', border: 'none', fontSize: 16 }}
+      >
+        ★
+      </button>
+    ) : null
+
+  /**
+   * The star toggle as React renders it: inside a positioned wrapper while
+   * the open button exists (the wrapper paints above it, so a click lands on
+   * the toggle and never reaches the open button), bare otherwise.
+   */
+  const starControl =
+    starButton && onClick ? (
+      <span className={cm.cn(cm.position('relative'))}>{starButton}</span>
+    ) : (
+      starButton
+    )
+
+  /**
+   * The selection slot as React renders it: inside a positioned wrapper while
+   * the open button exists, bare otherwise.
+   */
+  const selectionControl = selectionSlot ? (
+    onClick ? (
+      <span className={cm.cn(cm.position('relative'))}>{selectionSlot}</span>
+    ) : (
+      selectionSlot
+    )
+  ) : null
+
+  /**
+   * The row's label text: sender + labels, subject + preview. The sender and
+   * the subject carry the two ids that name the open button.
+   */
+  const labelRows = (
+    <>
+      <div className={cm.flex({ align: 'baseline', gap: 'sm' })}>
+        <span id={senderId} className={cm.textSize('sm')}>
+          {sender}
+        </span>
+        {labels && (
+          <span
+            className={cm.cn(
+              cm.flex({ align: 'center', gap: 'xs' }),
+              onClick ? cm.position('relative') : undefined,
+            )}
+          >
+            {labels}
+          </span>
+        )}
+      </div>
+      <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+        <span id={subjectId} className={cm.textSize('sm')}>
+          {subject}
+        </span>
+        {preview && (
+          <span className={cm.cn(cm.textSize('sm'), cm.sp('ml', 2))} style={{ opacity: 0.6 }}>
+            — {preview}
+          </span>
+        )}
+      </div>
+    </>
+  )
+
   return (
     <div
-      onClick={onClick}
       className={cm.cn(
         cm.flex({ align: 'center', gap: 'sm' }),
         cm.sp('px', 3),
         cm.sp('py', 2),
-        onClick ? cm.cursorPointer : undefined,
+        onClick ? cm.position('relative') : undefined,
         className,
       )}
       style={unread ? { fontWeight: 600 } : undefined}
     >
-      {selectionSlot}
-      {onToggleStar !== undefined && (
-        <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation()
-            onToggleStar()
-          }}
-          aria-pressed={starred}
-          data-mol-id="inbox-row-star"
-          aria-label={
-            starred
-              ? t('inboxRow.unstar', undefined, { defaultValue: 'Unstar' })
-              : t('inboxRow.star', undefined, { defaultValue: 'Star' })
-          }
-          /* mol-bespoke-button: icon-only star toggle inside a list row, no
-             label and no button surface — the glyph is the control. The
-             inline colour is now a theme token (`#facc15` /
-             `rgba(0,0,0,0.3)` ignored the theme and the unstarred glyph
-             disappeared on a dark row); 44px touch floor from the ClassMap. */
-          className={cm.cn(cm.cursorPointer, cm.touchTarget)}
-          style={{
-            background: 'none',
-            border: 'none',
-            fontSize: 16,
-            color: starred
-              ? 'var(--mol-color-warning, #facc15)'
-              : 'var(--mol-color-border, rgba(128,128,128,0.5))',
-          }}
-        >
-          ★
-        </button>
-      )}
+      {openButton}
+      {selectionControl}
+      {starControl}
       <Avatar src={senderAvatarSrc} alt={senderName} name={senderName} size="sm" />
       <div className={cm.cn(cm.flex1, cm.stack(0 as const))} style={{ minWidth: 0 }}>
-        <div className={cm.flex({ align: 'baseline', gap: 'sm' })}>
-          <span className={cm.textSize('sm')}>{sender}</span>
-          {labels && <span className={cm.flex({ align: 'center', gap: 'xs' })}>{labels}</span>}
-        </div>
-        <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-          <span className={cm.textSize('sm')}>{subject}</span>
-          {preview && (
-            <span className={cm.cn(cm.textSize('sm'), cm.sp('ml', 2))} style={{ opacity: 0.6 }}>
-              — {preview}
-            </span>
-          )}
-        </div>
+        {labelRows}
       </div>
       {hasAttachment && (
         <span
@@ -132,7 +212,8 @@ export function InboxRow({
       {unread && (
         <span
           aria-hidden
-          style={{ width: 8, height: 8, borderRadius: '50%', background: '#60a5fa' }}
+          className={cm.bgTone('info')}
+          style={{ width: 8, height: 8, borderRadius: '50%' }}
         />
       )}
       {timestamp && <span className={cm.cn(cm.textSize('xs'), cm.shrink0)}>{timestamp}</span>}

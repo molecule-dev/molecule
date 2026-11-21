@@ -8,6 +8,8 @@ export const ky: Partial<AudioMixerTranslations> = {
   'audioMixer.aria.send': '{{channel}} жөнөтүү {{send}}',
   'audioMixer.button.mute': 'Үнсүз',
   'audioMixer.button.solo': 'Жалгыз',
+  'audioMixer.button.muteInitial': 'Ү',
+  'audioMixer.button.soloInitial': 'Ж',
   'audioMixer.master': 'Мастер',
   'audioMixer.sends': 'Жөнөтөт',
 }

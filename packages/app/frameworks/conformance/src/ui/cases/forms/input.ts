@@ -19,6 +19,8 @@ const adornment = (name: string): NodeSpec[] => [
 /** Input: types, sizes, alignment, label/error/hint, adornments, clearable, control and events. */
 export const inputCases: UIComponentCases = {
   component: 'Input',
+  ref: {},
+  declaredProps: { props: 'element' },
   cases: [
     { name: 'defaults', a11y: UNLABELLED, props: { name: 'plain' } },
     ...(
@@ -167,6 +169,32 @@ export const inputCases: UIComponentCases = {
       name: 'error appears on re-render',
       props: { label: 'Email', name: 'email' },
       interactions: [{ type: 'props', props: { error: 'Invalid address.' } }],
+    },
+    {
+      name: 'change handler reads the typed value from target and the input as currentTarget',
+      props: { label: 'Email address', name: 'email' },
+      callbacks: ['onChange'],
+      callbackResults: { onChange: { read: ['target.value', 'currentTarget'] } },
+      interactions: [{ type: 'input', selector: 'input', value: 'ada@example.com' }],
+    },
+    {
+      name: 'focus handler gets the input as currentTarget',
+      props: { label: 'Email address', name: 'email' },
+      callbacks: ['onFocus'],
+      callbackResults: { onFocus: { read: ['currentTarget'] } },
+      interactions: [{ type: 'focus', selector: 'input' }],
+    },
+    {
+      name: 'keydown handler reads key and modifier keys',
+      props: { label: 'Search', name: 'q' },
+      callbacks: ['onKeyDown'],
+      callbackResults: {
+        onKeyDown: { read: ['key', 'metaKey', 'ctrlKey', 'shiftKey', 'altKey', 'currentTarget'] },
+      },
+      interactions: [
+        { type: 'keydown', selector: 'input', key: 'k', metaKey: true },
+        { type: 'keydown', selector: 'input', key: 'Enter', ctrlKey: true },
+      ],
     },
   ],
 }

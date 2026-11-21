@@ -27,7 +27,9 @@ vi.mock('@molecule/app-ui', () => ({
               .join(' ')
         }
         const token = String(prop)
-        return (..._args: unknown[]) => token
+        // Tone resolvers echo their argument, so assertions can tell which
+        // semantic tone (`bgTone-success`) a node picked.
+        return (...args: unknown[]) => (args.length > 0 ? `${token}-${String(args[0])}` : token)
       },
     }
     return new Proxy({}, handler)
@@ -35,14 +37,14 @@ vi.mock('@molecule/app-ui', () => ({
 }))
 
 const { default: OrderTimeline } = await import('../OrderTimeline.svelte')
-import type { OrderMilestone } from '../types.js'
+import type { OrderMilestone, OrderTimelineProps } from '../types.js'
 
 afterEach(async () => {
   document.body.innerHTML = ''
 })
 
 /** Mounts an {@link OrderTimeline} into a fresh host and returns its markup. */
-const render = (props: Record<string, unknown>): string => {
+const render = (props: OrderTimelineProps): string => {
   const host = document.createElement('div')
   document.body.appendChild(host)
   const instance = mount(OrderTimeline, { target: host, props })
@@ -76,11 +78,10 @@ describe('OrderTimeline', () => {
 
   it('colors completed, current, and pending nodes differently', () => {
     const markup = render({ milestones })
-    // The mounted tree writes colors through the CSSOM, which serializes the
-    // hex values as `rgb(…)` — the same values React's runtime mount writes.
-    expect(markup).toContain('rgb(34, 197, 94)') // completed
-    expect(markup).toContain('rgb(96, 165, 250)') // current
-    expect(markup).toContain('rgb(209, 213, 219)') // pending
+    expect(markup).toContain('bgTone-info') // current
+    expect(markup).toContain('bgTone-success') // completed
+    expect(markup).toContain('bgBorder') // pending: the theme's border colour
+    expect(markup).not.toContain('background')
   })
 
   it('renders the ETA line when present', () => {

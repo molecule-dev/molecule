@@ -49,4 +49,5 @@ export const vi: Partial<AudioEffectsRackTranslations> = {
   'audioEffectsRack.param.flanger.feedback': 'Nhận xét',
   'audioEffectsRack.param.phaser.depth': 'Độ sâu',
   'audioEffectsRack.param.phaser.feedback': 'Nhận xét',
+  'audioEffectsRack.param.fallback': 'Tham số',
 }

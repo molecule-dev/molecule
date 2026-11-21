@@ -9,6 +9,7 @@ export const pa: ReputationBadgeTranslations = {
   'reputationBadge.level.trusted': 'ਭਰੋਸੇਯੋਗ',
   'reputationBadge.level.veteran': 'ਤਜਰਬੇਕਾਰ',
   'reputationBadge.level.legend': 'ਦੰਤਕਥਾ',
+  'reputationBadge.level.fallback': '{{level}}',
   'badgeShelf.aria': '{{count}} ਬੈਜ ਕਮਾਏ',
   'badgeShelf.overflow.aria': '{{count}} ਹੋਰ ਬੈਜ ਦਿਖਾਓ',
 }

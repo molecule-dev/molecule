@@ -11,6 +11,8 @@ const cell = (label: string): NodeSpec[] => [{ tag: 'span', children: [label] }]
 /** Container: max-width scale, centering, passthrough and the ignored paddingX. */
 export const containerCases: UIComponentCases = {
   component: 'Container',
+  ref: {},
+  declaredProps: { props: 'element' },
   cases: [
     { name: 'defaults', children: ['Contained'] },
     ...(['sm', 'md', 'lg', 'xl', '2xl', 'full'] as const).map((maxWidth) => ({
@@ -64,6 +66,8 @@ export const containerCases: UIComponentCases = {
 /** Flex: direction, justify, align, wrap, named and raw gaps, passthrough, click. */
 export const flexCases: UIComponentCases = {
   component: 'Flex',
+  ref: {},
+  declaredProps: { props: 'element' },
   cases: [
     { name: 'defaults', children: ['One', 'Two'] },
     ...(['row', 'column', 'row-reverse', 'column-reverse'] as const).map((direction) => ({
@@ -129,6 +133,8 @@ export const flexCases: UIComponentCases = {
 /** Grid: column counts and templates, row templates, gaps, passthrough. */
 export const gridCases: UIComponentCases = {
   component: 'Grid',
+  ref: {},
+  declaredProps: { props: 'element' },
   cases: [
     { name: 'defaults', children: cell('A').concat(cell('B')) },
     ...([1, 2, 3, 4, 12] as const).map((columns) => ({
@@ -172,6 +178,20 @@ export const gridCases: UIComponentCases = {
       children: cell('A').concat(cell('B')),
     },
     {
+      // A gap or template the Grid does not set leaves the caller's own: Grid once wrote
+      // `undefined` for each one, which erased these from the caller's style.
+      name: "the caller's style keeps the gaps and tracks no prop sets",
+      props: {
+        style: {
+          gap: '9px',
+          columnGap: '3px',
+          gridTemplateColumns: '1fr 2fr',
+          gridTemplateRows: 'auto',
+        },
+      },
+      children: cell('A').concat(cell('B')),
+    },
+    {
       name: 'columns, gap and children combined',
       props: { columns: 3, gap: 'md' },
       children: cell('A').concat(cell('B'), cell('C')),
@@ -192,6 +212,8 @@ export const gridCases: UIComponentCases = {
 /** Spacer: named and raw sizes, vertical and horizontal. */
 export const spacerCases: UIComponentCases = {
   component: 'Spacer',
+  ref: {},
+  declaredProps: { props: 'base' },
   cases: [
     { name: 'defaults' },
     ...(['xs', 'sm', 'md', 'lg', 'xl'] as const).map((size) => ({

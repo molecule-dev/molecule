@@ -7,4 +7,8 @@ export const az: Partial<HttpInspectorTranslations> = {
   'httpInspector.headers': 'Başlıqlar',
   'httpInspector.addHeader': 'Başlıq əlavə edin',
   'httpInspector.body': 'Bədən',
+  'httpInspector.methodLabel': 'HTTP metodu',
+  'httpInspector.urlLabel': 'URL',
+  'httpInspector.headerPlaceholder': 'Başlıq',
+  'httpInspector.valuePlaceholder': 'Dəyər',
 }

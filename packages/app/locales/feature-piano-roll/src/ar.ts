@@ -8,4 +8,5 @@ export const ar: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.resize': 'ملاحظة تغيير الحجم',
   'pianoRoll.aria.note': 'ملحوظة {{pitch}} بدء الإيقاع {{startBeat}} ل {{durationBeats}} إيقاعات',
   'pianoRoll.aria.cursor': 'المؤشر على {{pitch}} في الإيقاع {{beat}}',
+  'pianoRoll.aria.gridHelp': 'مفاتيح الأسهم تحرّك مؤشر الخلية، وEnter أو Space يرسم نوتة عنده.',
 }

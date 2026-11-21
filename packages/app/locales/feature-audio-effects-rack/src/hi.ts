@@ -49,4 +49,5 @@ export const hi: Partial<AudioEffectsRackTranslations> = {
   'audioEffectsRack.param.flanger.feedback': 'प्रतिक्रिया',
   'audioEffectsRack.param.phaser.depth': 'गहराई',
   'audioEffectsRack.param.phaser.feedback': 'प्रतिक्रिया',
+  'audioEffectsRack.param.fallback': 'पैरामीटर',
 }

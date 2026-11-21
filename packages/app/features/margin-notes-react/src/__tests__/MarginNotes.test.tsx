@@ -88,6 +88,30 @@ describe('<MarginNotes>', () => {
     expect(document.querySelector('[data-mol-id="margin-notes-pin-p4"]')).toBeNull()
   })
 
+  it('a marked block with a markLabel exposes an image named by it', () => {
+    render(withI18n(<MarginNotes {...doc} markLabel="Written with AI" />))
+    const mark = byMol('margin-notes-mark-p2')
+    expect(mark.getAttribute('role')).toBe('img')
+    expect(mark.getAttribute('aria-label')).toBe('Written with AI')
+    expect(mark.getAttribute('aria-hidden')).toBeNull()
+  })
+
+  it('without a markLabel the mark is aria-hidden and has no role', () => {
+    render(withI18n(<MarginNotes {...doc} />))
+    const mark = byMol('margin-notes-mark-p2')
+    expect(mark.getAttribute('aria-hidden')).toBe('true')
+    expect(mark.getAttribute('role')).toBeNull()
+    expect(mark.getAttribute('aria-label')).toBeNull()
+  })
+
+  it('a blank markLabel hides the mark too', () => {
+    render(withI18n(<MarginNotes {...doc} markLabel="   " />))
+    const mark = byMol('margin-notes-mark-p2')
+    expect(mark.getAttribute('aria-hidden')).toBe('true')
+    expect(mark.getAttribute('role')).toBeNull()
+    expect(mark.getAttribute('aria-label')).toBeNull()
+  })
+
   it('a tap kind switched ON follows the reader in the phone panel, without a pin', () => {
     render(withI18n(<MarginNotes {...doc} />))
     expect(document.querySelector('[data-mol-id="margin-note-panel-q1"]')).toBeNull()

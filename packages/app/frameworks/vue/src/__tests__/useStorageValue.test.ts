@@ -20,7 +20,7 @@ import type { StorageProvider } from '@molecule/app-storage'
 
 import { useStorageValue, type UseStorageValueOptions } from '../composables/useStorage.js'
 import { moleculePlugin } from '../plugin.js'
-import type { UseStorageValueReturn } from '../types.js'
+import type { UseStorageValueResult } from '../types.js'
 
 /**
  * A storage provider whose reads stay pending until the test answers them.
@@ -79,8 +79,8 @@ function runStorageValue<T>(
   key: string,
   options: UseStorageValueOptions<T> | (() => UseStorageValueOptions<T>),
   provider: StorageProvider,
-): UseStorageValueReturn<T> {
-  let captured: UseStorageValueReturn<T> | null = null
+): UseStorageValueResult<T> {
+  let captured: UseStorageValueResult<T> | null = null
   const Probe = defineComponent({
     setup() {
       captured = useStorageValue<T>(key, options)
@@ -114,7 +114,7 @@ describe('useStorageValue', () => {
   it('starts over when the key changes', async () => {
     const storage = heldStorage({ a: 'value of a', b: 'value of b' })
     const key = ref('a')
-    let result!: UseStorageValueReturn<string>
+    let result!: UseStorageValueResult<string>
     const Probe = defineComponent({
       setup() {
         result = useStorageValue<string>(key, { defaultValue: 'default' })
@@ -149,7 +149,7 @@ describe('useStorageValue', () => {
   it('reads once for an object defaultValue written inline', async () => {
     const storage = heldStorage()
     const tick = ref(0)
-    let result!: UseStorageValueReturn<{ size: number }>
+    let result!: UseStorageValueResult<{ size: number }>
     const Probe = defineComponent({
       setup() {
         // A getter returns a fresh options object on every read, like React's

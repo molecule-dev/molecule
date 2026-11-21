@@ -10,7 +10,7 @@ import type { FieldRegistration, FormValuesConstraint } from '@molecule/app-form
 import { formValuesEqual, snapshotFormValue } from '@molecule/app-forms'
 
 import { useAuth, useAuthClient } from './useAuth.js'
-import { useForm, type UseFormOptions, type UseFormReturn } from './useForms.js'
+import { useForm, type UseFormOptions, type UseFormResult } from './useForms.js'
 
 /**
  * Detaches the value snapshot the composable keeps as its baseline.
@@ -62,10 +62,10 @@ export interface UseProfileFormOptions<
 }
 
 /** Controlled profile form state and native form bindings. */
-export interface UseProfileFormReturn<
+export interface UseProfileFormResult<
   TUser,
   TValues extends FormValuesConstraint<TValues>,
-> extends Omit<UseFormReturn<TValues>, 'register' | 'handleSubmit' | 'reset' | 'formState'> {
+> extends Omit<UseFormResult<TValues>, 'register' | 'handleSubmit' | 'reset' | 'formState'> {
   /** The shared auth user's current profile. */
   user: Ref<TUser | null>
   /** A user has been loaded; disable submission until this is true. */
@@ -76,11 +76,11 @@ export interface UseProfileFormReturn<
    */
   error: Ref<unknown>
   /** The form state with the save-in-progress flag merged into isSubmitting. */
-  formState: UseFormReturn<TValues>['formState']
+  formState: UseFormResult<TValues>['formState']
   /** Native input/textarea bindings with the field's concrete value type. */
   register: <K extends keyof TValues>(
     name: K,
-    options?: Parameters<UseFormReturn<TValues>['register']>[1],
+    options?: Parameters<UseFormResult<TValues>['register']>[1],
   ) => Omit<FieldRegistration, 'value'> & { value: TValues[K] }
   /** Bind to the native form, with a type="submit" button inside it. */
   formProps: { onSubmit: (event?: { preventDefault?: () => void }) => void }
@@ -92,6 +92,16 @@ export interface UseProfileFormReturn<
   /** Discards edits and restores the newest loaded/saved profile baseline. */
   reset: () => void
 }
+
+/**
+ * The former name of {@link UseProfileFormResult}.
+ *
+ * @deprecated Renamed to {@link UseProfileFormResult}, `@molecule/app-react`'s name for it.
+ */
+export type UseProfileFormReturn<
+  TUser,
+  TValues extends FormValuesConstraint<TValues>,
+> = UseProfileFormResult<TUser, TValues>
 
 /**
  * Owns load → edit → submit → publish for the signed-in user's profile.
@@ -110,7 +120,7 @@ export interface UseProfileFormReturn<
  */
 export function useProfileForm<TUser, TValues extends FormValuesConstraint<TValues>>(
   options: UseProfileFormOptions<TUser, TValues>,
-): UseProfileFormReturn<TUser, TValues> {
+): UseProfileFormResult<TUser, TValues> {
   const { defaultValues, getIdentity, toValues, toPatch, onSaved, ...formOptions } = options
   const form = useForm<TValues>({ ...formOptions, defaultValues })
   const client = useAuthClient<TUser>()
@@ -281,7 +291,7 @@ export function useProfileForm<TUser, TValues extends FormValuesConstraint<TValu
 
   const register = <K extends keyof TValues>(
     name: K,
-    registerOptions?: Parameters<UseFormReturn<TValues>['register']>[1],
+    registerOptions?: Parameters<UseFormResult<TValues>['register']>[1],
   ): Omit<FieldRegistration, 'value'> & { value: TValues[K] } => {
     const registration = form.register(name, registerOptions)
     return {

@@ -15,4 +15,11 @@ export const lv: Partial<BillingTranslations> = {
   'billing.pricing.perSeat': 'uz vienu vietu',
   'billing.pricing.upgradeCta': 'Jaunināt uz {{tierName}}',
   'billing.pricing.currentCta': 'Pašreizējais plāns',
+  'billing.pricing.period.month': 'mēnesī',
+  'billing.pricing.period.year': 'gadā',
+  'billing.pricing.billed.month': 'Iekasē ik mēnesi',
+  'billing.pricing.billed.year': 'Iekasē ik gadu',
+  'billing.pricing.unlimited': 'Neierobežots',
+  'billing.pricing.limit.maxProjects': 'Maksimālais projektu skaits',
+  'billing.pricing.limit.canExport': 'Eksports pieejams',
 }

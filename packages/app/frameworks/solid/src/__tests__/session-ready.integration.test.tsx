@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 /**
- * `MoleculeProvider config.awaitSession` / `SessionReady` against the real restoring auth
+ * `MoleculeProvider awaitSession` / `SessionReady` against the real restoring auth
  * client.
  *
  * A returning visitor's session comes back from one cookie-restore request after a page
@@ -204,9 +204,9 @@ function renderProvider(
           },
         })
       : createComponent(MoleculeProvider, {
-          // React's combined provider holds by default; Solid's combined provider
-          // takes the hold explicitly, so the case asks for it here.
-          config: { auth: client, awaitSession: true, sessionFallback },
+          // No `awaitSession`: both providers hold by default, as React's do.
+          auth: client,
+          sessionFallback,
           get children() {
             return children()
           },
@@ -221,7 +221,7 @@ afterEach(() => {
   document.cookie = 'mol_auth=; Max-Age=0; path=/'
 })
 
-describe('MoleculeProvider config.awaitSession', () => {
+describe('MoleculeProvider awaitSession', () => {
   it.each(['auth', 'molecule'] as const)(
     '%s provider waits by default so a returning inventory operator can use the first action',
     async (provider) => {
@@ -325,7 +325,8 @@ describe('MoleculeProvider config.awaitSession', () => {
     // is what keeps the page unrendered until the providers — and SessionReady — allow it.
     const container = mount(() =>
       createComponent(MoleculeProvider, {
-        config: { auth: client, awaitSession: true },
+        auth: client,
+        awaitSession: true,
         get children() {
           return createComponent(FollowButton, { onFollow })
         },
@@ -348,7 +349,8 @@ describe('MoleculeProvider config.awaitSession', () => {
     const onFollow = vi.fn()
     const container = mount(() =>
       createComponent(MoleculeProvider, {
-        config: { auth: client, awaitSession: false },
+        auth: client,
+        awaitSession: false,
         get children() {
           return createComponent(FollowButton, { onFollow })
         },
@@ -370,7 +372,8 @@ describe('MoleculeProvider config.awaitSession', () => {
     clients.push(client)
     const container = mount(() =>
       createComponent(MoleculeProvider, {
-        config: { auth: client, awaitSession: true },
+        auth: client,
+        awaitSession: true,
         get children() {
           return <p>Public page</p>
         },
@@ -404,11 +407,9 @@ describe('MoleculeProvider config.awaitSession', () => {
     void client.initialize()
     const container = mount(() =>
       createComponent(MoleculeProvider, {
-        config: {
-          auth: client,
-          awaitSession: true,
-          sessionFallback: <p>Restoring</p>,
-        },
+        auth: client,
+        awaitSession: true,
+        sessionFallback: <p>Restoring</p>,
         get children() {
           return <p>Public page</p>
         },
@@ -428,13 +429,28 @@ describe('MoleculeProvider config.awaitSession', () => {
   it('renders at once when no auth client is given', async () => {
     const container = mount(() =>
       createComponent(MoleculeProvider, {
-        config: { awaitSession: true },
+        awaitSession: true,
         get children() {
           return <p>Public page</p>
         },
       }),
     )
     expect(container.textContent).toContain('Public page')
+  })
+
+  it('holds by default in the deprecated config form, as with the flat props', async () => {
+    const { client, answer } = returningVisitor(false)
+    const container = mount(() =>
+      createComponent(MoleculeProvider, {
+        config: { auth: client, sessionFallback: <p>Restoring</p> },
+        get children() {
+          return <p>Public page</p>
+        },
+      }),
+    )
+    expect(container.textContent).toBe('Restoring')
+    await answer()
+    expect(container.textContent).toBe('Public page')
   })
 
   it('provides every service to the session fallback', async () => {
@@ -462,19 +478,17 @@ describe('MoleculeProvider config.awaitSession', () => {
     }
     const container = mount(() =>
       createComponent(MoleculeProvider, {
-        config: {
-          auth: client,
-          awaitSession: true,
-          state,
-          theme,
-          router,
-          i18n,
-          http,
-          storage,
-          logger,
-          get sessionFallback() {
-            return createComponent(Fallback, {})
-          },
+        auth: client,
+        awaitSession: true,
+        state,
+        theme,
+        router,
+        i18n,
+        http,
+        storage,
+        logger,
+        get sessionFallback() {
+          return createComponent(Fallback, {})
         },
         get children() {
           return <p>Public page</p>
@@ -502,7 +516,8 @@ describe('MoleculeProvider config.awaitSession', () => {
     clients.push(client)
     const container = mount(() =>
       createComponent(MoleculeProvider, {
-        config: { auth: client, awaitSession: true },
+        auth: client,
+        awaitSession: true,
         get children() {
           return <Name />
         },
@@ -528,7 +543,8 @@ describe('MoleculeProvider config.awaitSession', () => {
     clients.push(client)
     const container = mount(() =>
       createComponent(MoleculeProvider, {
-        config: { auth: client, awaitSession: true },
+        auth: client,
+        awaitSession: true,
         get children() {
           return <p>Public page</p>
         },
@@ -566,7 +582,8 @@ describe('SessionReady', () => {
     const { client, answer } = returningVisitor()
     const container = mount(() =>
       createComponent(MoleculeProvider, {
-        config: { auth: client, awaitSession: false },
+        auth: client,
+        awaitSession: false,
         get children() {
           return (
             <SessionReady fallback={<p>Restoring</p>}>
@@ -600,7 +617,9 @@ describe('returning visitors, cached sessions and the hold', () => {
     clients.push(client)
     const container = mount(() =>
       createComponent(MoleculeProvider, {
-        config: { auth: client, awaitSession: true, sessionFallback: <p>Restoring</p> },
+        auth: client,
+        awaitSession: true,
+        sessionFallback: <p>Restoring</p>,
         get children() {
           return <SessionPage />
         },
@@ -629,7 +648,9 @@ describe('returning visitors, cached sessions and the hold', () => {
     const client = cachedVisitor('opaque-token')
     const container = mount(() =>
       createComponent(MoleculeProvider, {
-        config: { auth: client, awaitSession: true, sessionFallback: <p>Restoring</p> },
+        auth: client,
+        awaitSession: true,
+        sessionFallback: <p>Restoring</p>,
         get children() {
           return <SessionPage />
         },
@@ -668,14 +689,12 @@ describe('returning visitors, cached sessions and the hold', () => {
     }
     const container = mount(() =>
       createComponent(MoleculeProvider, {
-        config: {
-          auth: client,
-          theme,
-          i18n,
-          awaitSession: true,
-          get sessionFallback() {
-            return createComponent(Fallback, {})
-          },
+        auth: client,
+        theme,
+        i18n,
+        awaitSession: true,
+        get sessionFallback() {
+          return createComponent(Fallback, {})
         },
         get children() {
           return <p>Public page</p>
@@ -694,7 +713,8 @@ describe('returning visitors, cached sessions and the hold', () => {
     const { client, answer } = returningVisitor(false)
     const container = mount(() =>
       createComponent(MoleculeProvider, {
-        config: { auth: client, awaitSession: true },
+        auth: client,
+        awaitSession: true,
         get children() {
           return <p>Public page</p>
         },
@@ -712,7 +732,8 @@ describe('returning visitors, cached sessions and the hold', () => {
     const { client, answer } = returningVisitor()
     const container = mount(() =>
       createComponent(MoleculeProvider, {
-        config: { auth: client, awaitSession: true },
+        auth: client,
+        awaitSession: true,
         get children() {
           return <p>Public page</p>
         },
@@ -743,7 +764,8 @@ describe('returning visitors, cached sessions and the hold', () => {
     clients.push(client)
     const container = mount(() =>
       createComponent(MoleculeProvider, {
-        config: { auth: client, awaitSession: true },
+        auth: client,
+        awaitSession: true,
         get children() {
           return <p>Public page</p>
         },
@@ -761,7 +783,8 @@ describe('returning visitors, cached sessions and the hold', () => {
     const onFollow = vi.fn()
     const container = mount(() =>
       createComponent(MoleculeProvider, {
-        config: { auth: client, awaitSession: false },
+        auth: client,
+        awaitSession: false,
         get children() {
           return createComponent(FollowButton, { onFollow })
         },
@@ -782,7 +805,9 @@ describe('returning visitors, cached sessions and the hold', () => {
     clients.push(client)
     const container = mount(() =>
       createComponent(MoleculeProvider, {
-        config: { auth: client, awaitSession: true, sessionFallback: <p>Restoring</p> },
+        auth: client,
+        awaitSession: true,
+        sessionFallback: <p>Restoring</p>,
         get children() {
           return <SessionPage />
         },

@@ -8,4 +8,5 @@ export const hu: Partial<NotificationCenterTranslations> = {
   'notifications.empty': 'Nincsenek értesítések',
   'notifications.loadError': 'Nem sikerült betölteni az értesítéseket.',
   'notifications.retry': 'Újrapróbálkozás',
+  'notifications.unread': 'Nem olvasott',
 }

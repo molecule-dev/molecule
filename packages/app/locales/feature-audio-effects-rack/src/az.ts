@@ -49,4 +49,5 @@ export const az: Partial<AudioEffectsRackTranslations> = {
   'audioEffectsRack.param.phaser.rate': 'Qiymətləndirmə',
   'audioEffectsRack.param.phaser.depth': 'Dərinlik',
   'audioEffectsRack.param.phaser.feedback': 'Rəy',
+  'audioEffectsRack.param.fallback': 'Parametr',
 }

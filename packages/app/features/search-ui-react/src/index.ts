@@ -6,8 +6,10 @@
  * clear button and shortcut cap, a help icon whose tooltip shows the search
  * syntax, an `afterField` slot for the consumer's own tabs, the active
  * filter chips and the hit count), {@link SearchResults} (ranked rows with the matched terms
- * marked, keyboard-active row, hover prefetch, an optional action per row),
- * and {@link QuickSearchDialog} (both in a `mod+k` dialog). Every class comes
+ * marked, hover prefetch, an optional action per row; the keyboard-active row
+ * is marked with `aria-current` and announced through a polite status
+ * region), and {@link QuickSearchDialog} (both in a `mod+k` dialog named for
+ * screen readers by its `label`, "Search" by default). Every class comes
  * from the ClassMap's search tokens (`searchField`, `resultList`, …), so a
  * UI bond restyles all of it at once.
  *

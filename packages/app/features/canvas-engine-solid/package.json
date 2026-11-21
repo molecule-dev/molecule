@@ -1,0 +1,69 @@
+{
+  "name": "@molecule/app-canvas-engine-solid",
+  "version": "1.0.0",
+  "description": "Vector design-tool canvas engine — rect/ellipse/line/path/text/group, multi-select + alignment + group/ungroup, snap-to-grid, undo/redo, blend modes. Thin wrapper consuming @molecule/app-feature-canvas-solid.",
+  "homepage": "https://www.molecule.dev/packages/app-canvas-engine-solid",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "keywords": [
+    "molecule",
+    "canvas",
+    "vector",
+    "design-canvas",
+    "design-tool",
+    "solid"
+  ],
+  "author": "Molecule Dev, Inc. (https://molecule.dev)",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/app/features/canvas-engine-solid"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
+  },
+  "peerDependencies": {
+    "@molecule/app-feature-canvas-solid": "^1.0.0",
+    "@molecule/app-solid": "^3.5.0",
+    "@molecule/app-ui": "^1.0.1",
+    "@molecule/app-ui-solid": "^1.1.0",
+    "solid-js": "^1.8.0"
+  },
+  "devDependencies": {
+    "@molecule/app-feature-canvas-solid": "1.0.0",
+    "@molecule/app-framework-conformance": "0.0.0",
+    "@molecule/app-i18n": "1.2.2",
+    "@molecule/app-icons": "1.0.4",
+    "@molecule/app-solid": "3.8.0",
+    "@molecule/app-ui": "1.5.0",
+    "@molecule/app-ui-solid": "1.2.1",
+    "@types/node": "26.6.5",
+    "jsdom": "30.1.3",
+    "solid-js": "1.9.17",
+    "typescript": "6.0.3",
+    "vite-plugin-solid": "2.11.15",
+    "vitest": "4.1.12"
+  }
+}

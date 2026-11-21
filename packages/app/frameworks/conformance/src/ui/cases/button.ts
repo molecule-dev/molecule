@@ -13,6 +13,8 @@ const icon = (name: string): NodeSpec[] => [
 /** Button: every variant, color, size, loading, icons, disabled, type and click behavior. */
 export const buttonCases: UIComponentCases = {
   component: 'Button',
+  ref: {},
+  declaredProps: { props: 'element' },
   cases: [
     { name: 'defaults', children: ['Save'] },
     ...(['solid', 'outline', 'ghost', 'link'] as const).map((variant) => ({
@@ -78,6 +80,25 @@ export const buttonCases: UIComponentCases = {
       props: { loading: true, loadingText: 'Saving…' },
       children: ['Save'],
       interactions: [{ type: 'props', props: { loading: false } }],
+    },
+    {
+      name: 'double-click handler fires on dblclick',
+      callbacks: ['onDoubleClick'],
+      children: ['Open'],
+      interactions: [{ type: 'dblclick', selector: 'button' }],
+    },
+    {
+      name: 'focus and blur handlers get the button as currentTarget',
+      callbacks: ['onFocus', 'onBlur'],
+      callbackResults: {
+        onFocus: { read: ['currentTarget'] },
+        onBlur: { read: ['currentTarget'] },
+      },
+      children: ['Save'],
+      interactions: [
+        { type: 'focus', selector: 'button' },
+        { type: 'blur', selector: 'button' },
+      ],
     },
   ],
 }

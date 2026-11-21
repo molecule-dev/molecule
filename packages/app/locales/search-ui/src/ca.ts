@@ -14,4 +14,8 @@ export const ca: Partial<SearchUiTranslations> = {
   'searchUi.relatedTitle': 'Coincideix amb el significat de la cerca, no amb les paraules',
   'searchUi.related': 'relacionat',
   'searchUi.help': 'Consells de cerca',
+  'searchUi.examplePhrase': '"frase exacta"',
+  'searchUi.exampleExcluded': '-paraula',
+  'searchUi.activeResult': '{{title}}, {{position}} de {{count}}',
+  'searchUi.dialogLabel': 'Cerca',
 }

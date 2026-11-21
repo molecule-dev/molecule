@@ -174,6 +174,7 @@ export const colorPickerFeature: FeatureCases = {
           props: { value: '#000000' },
           callbacks: ['onChange'],
           interactions: [
+            { type: 'focus', selector: hex },
             { type: 'input', selector: hex, value: '#112233' },
             { type: 'blur', selector: hex },
           ],
@@ -210,6 +211,7 @@ export const colorPickerFeature: FeatureCases = {
           props: { value: '#000000' },
           callbacks: ['onChange'],
           interactions: [
+            { type: 'focus', selector: hex },
             { type: 'input', selector: hex, value: 'zzzzzz' },
             { type: 'blur', selector: hex },
           ],
@@ -219,6 +221,7 @@ export const colorPickerFeature: FeatureCases = {
           props: { value: '#3366ff' },
           callbacks: ['onChange'],
           interactions: [
+            { type: 'focus', selector: hex },
             { type: 'input', selector: hex, value: '' },
             { type: 'blur', selector: hex },
           ],

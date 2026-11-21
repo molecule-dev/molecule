@@ -107,6 +107,13 @@ export function createSvelteAdapter({
       const initial: Record<string, unknown> = { ...(testCase.props ?? {}) }
       for (const name of testCase.callbacks ?? []) initial[name] = recorder.spy(name)
       const bag = createPropBag(initial)
+      // A ref case binds the component's `ref` prop, as a caller's `bind:ref` does.
+      let refElement: Element | null = null
+      const captureRef = testCase.ref
+        ? (el: unknown): void => {
+            refElement = el instanceof Element ? el : null
+          }
+        : undefined
 
       try {
         return await runSteps(
@@ -127,6 +134,7 @@ export function createSvelteAdapter({
                   bag,
                   slots: testCase.slots ?? {},
                   children: testCase.children,
+                  captureRef,
                 },
               })
             let instance = show()
@@ -149,6 +157,7 @@ export function createSvelteAdapter({
               navigate: (to) => {
                 router.navigate(to)
               },
+              refElement: () => refElement,
               unmount: async () => {
                 await unmount(instance)
                 // The binding's same-turn handoff lanes (`useForm`/`useHttp`)

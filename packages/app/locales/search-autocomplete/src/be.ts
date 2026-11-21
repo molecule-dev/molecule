@@ -3,4 +3,5 @@ import type { SearchAutocompleteTranslations } from './types.js'
 /** SearchAutocomplete translations for be. */
 export const be: Partial<SearchAutocompleteTranslations> = {
   'search.placeholder': 'Пошук…',
+  'search.aria.label': 'Пошук',
 }

@@ -8,4 +8,5 @@ export const am: Partial<NotificationCenterTranslations> = {
   'notifications.viewAll': 'ሁሉንም ይመልከቱ',
   'notifications.loadError': 'ማሳወቂያዎችን መጫን አልተቻለም።',
   'notifications.retry': 'እንደገና ሞክር',
+  'notifications.unread': 'ያልተነበበ',
 }

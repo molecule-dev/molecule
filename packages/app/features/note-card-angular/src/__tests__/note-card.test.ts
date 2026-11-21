@@ -15,6 +15,7 @@
 
 import '@angular/compiler'
 import {
+  type ApplicationRef,
   ChangeDetectionStrategy,
   Component,
   type ComponentRef,
@@ -22,7 +23,7 @@ import {
   provideZonelessChangeDetection,
   type Type,
 } from '@angular/core'
-import { type ApplicationRef, createApplication } from '@angular/platform-browser'
+import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 // Proxy ClassMap echoing each accessed member back as its token (e.g.
@@ -115,6 +116,18 @@ const render = async (props: Record<string, unknown> = {}): Promise<Mounted> => 
   return m
 }
 
+/** The card's transparent open button over the whole row. */
+const openButton = (host: HTMLElement): HTMLButtonElement =>
+  host.querySelector('[data-mol-id="note-card-open"]')!
+
+/**
+ * The element inside `host` whose id is the button's `aria-labelledby`
+ * target — scoped to the card so concurrently mounted instances' generated
+ * ids never collide.
+ */
+const labelledBy = (host: HTMLElement, button: HTMLButtonElement): Element | undefined =>
+  [...host.querySelectorAll('[id]')].find((el) => el.id === button.getAttribute('aria-labelledby'))
+
 afterEach(async () => {
   for (const m of mounted.splice(0)) await m.destroy()
 })
@@ -132,15 +145,17 @@ describe('NoteCard', () => {
     expect(plain.host.innerHTML).not.toContain('<h3')
   })
 
-  it('uses the supplied color as the background, falling back to a default', async () => {
-    const custom = await render({ body: 'b', color: '#ffcc00' })
-    expect(custom.host.querySelector('article')?.getAttribute('style')).toContain(
+  it('renders the theme tint for known note colours and keeps an unknown colour as data', async () => {
+    const known = await render({ body: 'b', color: '#dbeafe' })
+    expect(known.host.querySelector('article')?.getAttribute('class')).toContain('bgTone')
+    expect(known.host.querySelector('article')?.getAttribute('style')).not.toContain('background')
+    const unknown = await render({ body: 'b', color: '#ffcc00' })
+    expect(unknown.host.querySelector('article')?.getAttribute('style')).toContain(
       'background: rgb(255, 204, 0)',
     )
     const plain = await render({ body: 'b' })
-    expect(plain.host.querySelector('article')?.getAttribute('style')).toContain(
-      'background: rgb(254, 243, 199)',
-    )
+    expect(plain.host.querySelector('article')?.getAttribute('class')).toContain('bgTone')
+    expect(plain.host.querySelector('article')?.getAttribute('style')).not.toContain('background')
   })
 
   it('renders the pinned indicator only when pinned', async () => {
@@ -165,13 +180,47 @@ describe('NoteCard', () => {
 
   it('marks the card clickable only when onClick is supplied and forwards className', async () => {
     const clickable = await render({ body: 'b', onClick: () => {} })
-    expect(clickable.host.querySelector('article')?.getAttribute('class')).toContain(
-      'cursorPointer',
-    )
+    expect(clickable.host.querySelector('button')?.getAttribute('class')).toContain('cursorPointer')
     const plain = await render({ body: 'b', className: 'nc-cls' })
     expect(plain.host.querySelector('article')?.getAttribute('class')).not.toContain(
       'cursorPointer',
     )
     expect(plain.host.querySelector('article')?.getAttribute('class')).toContain('nc-cls')
+  })
+
+  it('without onClick there is no open button', async () => {
+    const plain = await render({ body: 'b' })
+    expect(plain.host.querySelector('article button')).toBeNull()
+    const clickable = await render({ body: 'b', onClick: () => {} })
+    expect(openButton(clickable.host)).not.toBeNull()
+  })
+
+  it('clicking the open button calls onClick', async () => {
+    const onClick = vi.fn()
+    const m = await render({ body: 'b', onClick })
+    openButton(m.host).click()
+    expect(onClick).toHaveBeenCalledTimes(1)
+  })
+
+  it('clicking an inner control does not call onClick', async () => {
+    const onClick = vi.fn()
+    const m = await mount(
+      `<article mol-note-card [body]="p['body']" [onClick]="p['onClick']"><button slot="actions" data-actions>Edit</button></article>`,
+      NoteCard as Type<unknown>,
+      { body: 'b', onClick },
+    )
+    mounted.push(m)
+    m.host.querySelector<HTMLButtonElement>('[data-actions]')!.click()
+    expect(onClick).not.toHaveBeenCalled()
+  })
+
+  it('the open button is named by the label', async () => {
+    const titled = await render({ title: 'Groceries', body: 'Milk, eggs', onClick: () => {} })
+    const button = openButton(titled.host)
+    expect(labelledBy(titled.host, button)?.textContent).toBe('Groceries')
+
+    const untitled = await render({ body: 'Remember the milk', onClick: () => {} })
+    const fallback = openButton(untitled.host)
+    expect(labelledBy(untitled.host, fallback)?.textContent).toBe('Remember the milk')
   })
 })

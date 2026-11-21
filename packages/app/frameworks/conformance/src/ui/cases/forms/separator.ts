@@ -9,6 +9,8 @@ import type { UIComponentCases } from '../../spec.js'
 /** Separator: orientations and the decorative vs semantic (role=separator) modes. */
 export const separatorCases: UIComponentCases = {
   component: 'Separator',
+  ref: {},
+  declaredProps: { props: 'base' },
   cases: [
     { name: 'defaults horizontal decorative' },
     { name: 'vertical', props: { orientation: 'vertical' } },

@@ -7,4 +7,8 @@ export const ne: Partial<HttpInspectorTranslations> = {
   'httpInspector.headers': 'हेडरहरू',
   'httpInspector.addHeader': 'हेडर थप्नुहोस्',
   'httpInspector.body': 'शरीर',
+  'httpInspector.methodLabel': 'HTTP विधि',
+  'httpInspector.urlLabel': 'URL',
+  'httpInspector.headerPlaceholder': 'हेडर',
+  'httpInspector.valuePlaceholder': 'मान',
 }

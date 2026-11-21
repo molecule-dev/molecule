@@ -13,4 +13,8 @@ export const zhTW: Partial<SearchUiTranslations> = {
   'searchUi.relatedTitle': '匹配搜尋詞的含義，而非搜尋內容本身。',
   'searchUi.related': '有關的',
   'searchUi.help': '搜尋技巧',
+  'searchUi.examplePhrase': '"精確短語"',
+  'searchUi.exampleExcluded': '-單字',
+  'searchUi.activeResult': '{{title}}，第 {{position}} 個，共 {{count}} 個',
+  'searchUi.dialogLabel': '搜尋',
 }

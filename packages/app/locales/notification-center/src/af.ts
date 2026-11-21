@@ -8,4 +8,5 @@ export const af: Partial<NotificationCenterTranslations> = {
   'notifications.viewAll': 'Bekyk alles',
   'notifications.loadError': 'Kon nie kennisgewings laai nie.',
   'notifications.retry': 'Probeer weer',
+  'notifications.unread': 'Ongelees',
 }

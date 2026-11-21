@@ -12,6 +12,8 @@ const AVATAR_PNG =
 /** Avatar: image vs fallback initials vs icon, sizes, square corners and custom fallback content. */
 export const avatarCases: UIComponentCases = {
   component: 'Avatar',
+  ref: {},
+  declaredProps: { props: 'element' },
   cases: [
     { name: 'defaults icon fallback' },
     { name: 'name initials', props: { name: 'Ada Lovelace' } },

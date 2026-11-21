@@ -70,37 +70,17 @@ const everyKind = [
 ]
 
 /**
- * `MapDrawing` mints each new shape's id with `crypto.randomUUID()` (falling
- * back to `Math.random()` + `Date.now()`), so a shape an interaction creates
- * would carry a different id in every run and no committed reference could
- * match it. Pin both sources while these cases are loaded, as `rating-display`
- * and `feature-piano-roll` pin theirs. The counter keeps ids unique for every
- * other feature that mints one; each case here that creates a shape passes
- * {@link drawingBackend}, whose `unproject` restarts the counter just before
- * the mint, so the reference recording and every port mint the same id.
- */
-let mintedId = 0
-Object.defineProperty(globalThis.crypto, 'randomUUID', {
-  configurable: true,
-  writable: true,
-  value: () => `00000000-0000-4000-8000-${String(mintedId++).padStart(12, '0')}`,
-})
-Math.random = () => 0.123456789
-
-/**
- * The identity projection React uses when `mapBackend` is omitted, that also
- * restarts the pinned id sequence: the shape a case creates then has the same
- * id in the reference recording and in every framework.
+ * The identity projection React uses when `mapBackend` is omitted, with a plane
+ * distance, so a drawn shape's coordinates and a circle's radius are the
+ * pointer's own numbers in every framework. (`MapDrawing` mints each shape's id
+ * with `crypto.randomUUID()`, which the kit counts in every case.)
  */
 const drawingBackend = {
   project: (coordinates: [number, number]): { x: number; y: number } => ({
     x: coordinates[0],
     y: coordinates[1],
   }),
-  unproject: (point: { x: number; y: number }): [number, number] => {
-    mintedId = 0
-    return [point.x, point.y]
-  },
+  unproject: (point: { x: number; y: number }): [number, number] => [point.x, point.y],
   distanceMeters: (a: [number, number], b: [number, number]): number => {
     const dx = a[0] - b[0]
     const dy = a[1] - b[1]

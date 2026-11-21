@@ -30,7 +30,7 @@ export interface UsePushOptions {
 /**
  * Return type for the usePush composable.
  */
-export interface UsePushReturn {
+export interface UsePushResult {
   permission: ShallowRef<PermissionStatus | null>
   token: ShallowRef<PushToken | null>
   checkPermission: () => Promise<PermissionStatus>
@@ -43,6 +43,13 @@ export interface UsePushReturn {
   setBadge: (count: number) => Promise<void>
   clearBadge: () => Promise<void>
 }
+
+/**
+ * The former name of {@link UsePushResult}.
+ *
+ * @deprecated Renamed to {@link UsePushResult}, `@molecule/app-react`'s name for it.
+ */
+export type UsePushReturn = UsePushResult
 
 /**
  * Composable for push notifications.
@@ -80,7 +87,7 @@ export interface UsePushReturn {
  * </template>
  * ```
  */
-export function usePush(options?: MaybeRefOrGetter<UsePushOptions | undefined>): UsePushReturn {
+export function usePush(options?: MaybeRefOrGetter<UsePushOptions | undefined>): UsePushResult {
   const provider = getProvider()
 
   const permission = shallowRef<PermissionStatus | null>(null)

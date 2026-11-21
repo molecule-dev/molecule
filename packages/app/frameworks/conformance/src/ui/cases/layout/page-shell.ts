@@ -11,6 +11,8 @@ const nav = [{ tag: 'a', attrs: { href: '/projects' }, children: ['Projects'] }]
 /** PageShell: sidebar/topbar slots, collapsed state, toggle callback, overrides. */
 export const pageShellCases: UIComponentCases = {
   component: 'PageShell',
+  ref: {},
+  declaredProps: { props: 'base' },
   cases: [
     { name: 'content only', children: ['Main content'] },
     { name: 'with sidebar', slots: { sidebar: nav }, children: ['Main content'] },

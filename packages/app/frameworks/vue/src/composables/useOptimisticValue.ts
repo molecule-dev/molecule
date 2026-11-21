@@ -17,7 +17,7 @@ import {
 import type { OptimisticValue, OptimisticValueOptions } from '@molecule/app-state'
 import { createOptimisticValue, shallowEqual } from '@molecule/app-state'
 
-import type { UseOptimisticValueReturn } from '../types.js'
+import type { UseOptimisticValueResult } from '../types.js'
 
 /**
  * A server-backed value — a favorite, follow, like or bookmark button, a rating, a quantity, a
@@ -83,7 +83,7 @@ import type { UseOptimisticValueReturn } from '../types.js'
  */
 export function useOptimisticValue<T>(
   options: MaybeRefOrGetter<OptimisticValueOptions<T>>,
-): UseOptimisticValueReturn<T> {
+): UseOptimisticValueResult<T> {
   // The controller is created once and never replaced: it owns the save queue,
   // and its wrappers read the options source when each save runs — the newest
   // commit/equals/onError drive every save, exactly like React's latest-options

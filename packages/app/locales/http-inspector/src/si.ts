@@ -7,4 +7,8 @@ export const si: Partial<HttpInspectorTranslations> = {
   'httpInspector.headers': 'ශීර්ෂක',
   'httpInspector.addHeader': 'ශීර්ෂකය එක් කරන්න',
   'httpInspector.body': 'ශරීරය',
+  'httpInspector.methodLabel': 'HTTP ක්‍රමය',
+  'httpInspector.urlLabel': 'URL',
+  'httpInspector.headerPlaceholder': 'ශීර්ෂක',
+  'httpInspector.valuePlaceholder': 'අගය',
 }

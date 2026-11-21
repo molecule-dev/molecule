@@ -7,4 +7,8 @@ export const ms: Partial<HttpInspectorTranslations> = {
   'httpInspector.body': 'Isi mesej',
   'httpInspector.headers': 'Pengepala',
   'httpInspector.addHeader': 'Tambah pengepala',
+  'httpInspector.methodLabel': 'Kaedah HTTP',
+  'httpInspector.urlLabel': 'URL',
+  'httpInspector.headerPlaceholder': 'Pengepala',
+  'httpInspector.valuePlaceholder': 'Nilai',
 }

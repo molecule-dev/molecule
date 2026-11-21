@@ -16,4 +16,8 @@ export const te: Partial<SearchUiTranslations> = {
   'searchUi.relatedTitle': 'మీ శోధనలోని పదాలకు కాకుండా, దాని అర్థానికి సరిపోలుతుంది',
   'searchUi.related': 'సంబంధిత',
   'searchUi.help': 'శోధన చిట్కాలు',
+  'searchUi.examplePhrase': '"ఖచ్చితమైన పదబంధం"',
+  'searchUi.exampleExcluded': '-పదం',
+  'searchUi.activeResult': '{{title}}, {{count}}లో {{position}}',
+  'searchUi.dialogLabel': 'వెతకండి',
 }

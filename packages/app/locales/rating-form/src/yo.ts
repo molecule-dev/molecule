@@ -2,9 +2,10 @@ import type { RatingFormTranslations } from './types.js'
 
 /** RatingForm translations for yo. */
 export const yo: Partial<RatingFormTranslations> = {
-  'rating.star': '{{n}} of {{max}}',
+  'rating.star': '{{n}} nínú {{max}}',
   'rating.label': 'Idiyele',
   'rating.commentPlaceholder': 'Pin awọn ero rẹ (aṣayan)',
   'rating.submitting': 'N firánṣẹ́…',
   'rating.submit': 'Fi àtúnyẹ̀wò ránṣẹ́',
+  'rating.comment': 'Ọ̀rọ̀',
 }

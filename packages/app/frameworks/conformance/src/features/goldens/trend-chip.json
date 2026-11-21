@@ -7,106 +7,106 @@
   "TrendChip": {
    "positive delta": {
     "snapshots": [
-     "<span aria-label=\"▲ 12%\" class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" style=\"color: rgb(34, 197, 94)\">\n<span aria-hidden=\"true\">\n▲\n</span>\n<span>\n12%\n</span>\n</span>\n@route /"
+     "<span aria-label=\"▲ 12%\" class=\"c1e8176ab c311bf57c c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\">\n▲\n</span>\n<span>\n12%\n</span>\n</span>\n@route /"
     ],
     "calls": []
    },
    "negative delta": {
     "snapshots": [
-     "<span aria-label=\"▼ 8%\" class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" style=\"color: rgb(239, 68, 68)\">\n<span aria-hidden=\"true\">\n▼\n</span>\n<span>\n8%\n</span>\n</span>\n@route /"
+     "<span aria-label=\"▼ 8%\" class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cab1062ad cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\">\n▼\n</span>\n<span>\n8%\n</span>\n</span>\n@route /"
     ],
     "calls": []
    },
    "zero delta": {
     "snapshots": [
-     "<span aria-label=\"– 0%\" class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" style=\"color: rgb(148, 163, 184)\">\n<span aria-hidden=\"true\">\n–\n</span>\n<span>\n0%\n</span>\n</span>\n@route /"
+     "<span aria-label=\"– 0%\" class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 ca1579aed cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\">\n–\n</span>\n<span>\n0%\n</span>\n</span>\n@route /"
     ],
     "calls": []
    },
    "direction overrides a positive delta": {
     "snapshots": [
-     "<span aria-label=\"▼ 5%\" class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" style=\"color: rgb(239, 68, 68)\">\n<span aria-hidden=\"true\">\n▼\n</span>\n<span>\n5%\n</span>\n</span>\n@route /"
+     "<span aria-label=\"▼ 5%\" class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cab1062ad cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\">\n▼\n</span>\n<span>\n5%\n</span>\n</span>\n@route /"
     ],
     "calls": []
    },
    "direction overrides a negative delta": {
     "snapshots": [
-     "<span aria-label=\"▲ 5%\" class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" style=\"color: rgb(34, 197, 94)\">\n<span aria-hidden=\"true\">\n▲\n</span>\n<span>\n5%\n</span>\n</span>\n@route /"
+     "<span aria-label=\"▲ 5%\" class=\"c1e8176ab c311bf57c c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\">\n▲\n</span>\n<span>\n5%\n</span>\n</span>\n@route /"
     ],
     "calls": []
    },
    "direction flat": {
     "snapshots": [
-     "<span aria-label=\"– 3%\" class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" style=\"color: rgb(148, 163, 184)\">\n<span aria-hidden=\"true\">\n–\n</span>\n<span>\n3%\n</span>\n</span>\n@route /"
+     "<span aria-label=\"– 3%\" class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 ca1579aed cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\">\n–\n</span>\n<span>\n3%\n</span>\n</span>\n@route /"
     ],
     "calls": []
    },
    "custom suffix": {
     "snapshots": [
-     "<span aria-label=\"▲ 3pts\" class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" style=\"color: rgb(34, 197, 94)\">\n<span aria-hidden=\"true\">\n▲\n</span>\n<span>\n3pts\n</span>\n</span>\n@route /"
+     "<span aria-label=\"▲ 3pts\" class=\"c1e8176ab c311bf57c c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\">\n▲\n</span>\n<span>\n3pts\n</span>\n</span>\n@route /"
     ],
     "calls": []
    },
    "empty suffix": {
     "snapshots": [
-     "<span aria-label=\"▲ 3\" class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" style=\"color: rgb(34, 197, 94)\">\n<span aria-hidden=\"true\">\n▲\n</span>\n<span>\n3\n</span>\n</span>\n@route /"
+     "<span aria-label=\"▲ 3\" class=\"c1e8176ab c311bf57c c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\">\n▲\n</span>\n<span>\n3\n</span>\n</span>\n@route /"
     ],
     "calls": []
    },
    "string prefix feeds the default aria label": {
     "snapshots": [
-     "<span aria-label=\"$▲ 2%\" class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" style=\"color: rgb(34, 197, 94)\">\n$\n<span aria-hidden=\"true\">\n▲\n</span>\n<span>\n2%\n</span>\n</span>\n@route /"
+     "<span aria-label=\"$▲ 2%\" class=\"c1e8176ab c311bf57c c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n$\n<span aria-hidden=\"true\">\n▲\n</span>\n<span>\n2%\n</span>\n</span>\n@route /"
     ],
     "calls": []
    },
    "element prefix with an explicit aria label": {
     "snapshots": [
-     "<span aria-label=\"up four percent\" class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" style=\"background: rgb(34, 197, 94); border-radius: 999px; color: rgb(255, 255, 255); padding: 2px 6px\">\n<strong>\n+\n</strong>\n<span aria-hidden=\"true\">\n▲\n</span>\n<span>\n4%\n</span>\n</span>\n@route /"
+     "<span aria-label=\"up four percent\" class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 cc63f2c4d ccae02ff2 cd9b20003 cef6f5494\" style=\"border-radius: 999px; padding: 2px 6px\">\n<strong>\n+\n</strong>\n<span aria-hidden=\"true\">\n▲\n</span>\n<span>\n4%\n</span>\n</span>\n@route /"
     ],
     "calls": []
    },
    "pill variant": {
     "snapshots": [
-     "<span aria-label=\"▲ 4%\" class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" style=\"background: rgb(34, 197, 94); border-radius: 999px; color: rgb(255, 255, 255); padding: 2px 6px\">\n<span aria-hidden=\"true\">\n▲\n</span>\n<span>\n4%\n</span>\n</span>\n@route /"
+     "<span aria-label=\"▲ 4%\" class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 cc63f2c4d ccae02ff2 cd9b20003 cef6f5494\" style=\"border-radius: 999px; padding: 2px 6px\">\n<span aria-hidden=\"true\">\n▲\n</span>\n<span>\n4%\n</span>\n</span>\n@route /"
     ],
     "calls": []
    },
    "pill variant with a fractional delta": {
     "snapshots": [
-     "<span aria-label=\"▼ 4.5%\" class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" style=\"background: rgb(239, 68, 68); border-radius: 999px; color: rgb(255, 255, 255); padding: 2px 6px\">\n<span aria-hidden=\"true\">\n▼\n</span>\n<span>\n4.5%\n</span>\n</span>\n@route /"
+     "<span aria-label=\"▼ 4.5%\" class=\"c0d4608b5 c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 cc63f2c4d ccae02ff2 cd9b20003\" style=\"border-radius: 999px; padding: 2px 6px\">\n<span aria-hidden=\"true\">\n▼\n</span>\n<span>\n4.5%\n</span>\n</span>\n@route /"
     ],
     "calls": []
    },
    "aria label override": {
     "snapshots": [
-     "<span aria-label=\"Up one percent\" class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" style=\"color: rgb(34, 197, 94)\">\n<span aria-hidden=\"true\">\n▲\n</span>\n<span>\n1%\n</span>\n</span>\n@route /"
+     "<span aria-label=\"Up one percent\" class=\"c1e8176ab c311bf57c c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\">\n▲\n</span>\n<span>\n1%\n</span>\n</span>\n@route /"
     ],
     "calls": []
    },
    "className passthrough": {
     "snapshots": [
-     "<span aria-label=\"▲ 1%\" class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd75bbd18 cd9b20003\" style=\"color: rgb(34, 197, 94)\">\n<span aria-hidden=\"true\">\n▲\n</span>\n<span>\n1%\n</span>\n</span>\n@route /"
+     "<span aria-label=\"▲ 1%\" class=\"c1e8176ab c311bf57c c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd75bbd18 cd9b20003\">\n<span aria-hidden=\"true\">\n▲\n</span>\n<span>\n1%\n</span>\n</span>\n@route /"
     ],
     "calls": []
    },
    "delta change flips arrow and color": {
     "snapshots": [
-     "<span aria-label=\"▲ 12%\" class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" style=\"color: rgb(34, 197, 94)\">\n<span aria-hidden=\"true\">\n▲\n</span>\n<span>\n12%\n</span>\n</span>\n@route /",
-     "<span aria-label=\"▼ 3%\" class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" style=\"color: rgb(239, 68, 68)\">\n<span aria-hidden=\"true\">\n▼\n</span>\n<span>\n3%\n</span>\n</span>\n@route /"
+     "<span aria-label=\"▲ 12%\" class=\"c1e8176ab c311bf57c c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\">\n▲\n</span>\n<span>\n12%\n</span>\n</span>\n@route /",
+     "<span aria-label=\"▼ 3%\" class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cab1062ad cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\">\n▼\n</span>\n<span>\n3%\n</span>\n</span>\n@route /"
     ],
     "calls": []
    },
    "variant and direction change": {
     "snapshots": [
-     "<span aria-label=\"▲ 4%\" class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" style=\"color: rgb(34, 197, 94)\">\n<span aria-hidden=\"true\">\n▲\n</span>\n<span>\n4%\n</span>\n</span>\n@route /",
-     "<span aria-label=\"▼ 4%\" class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" style=\"background: rgb(239, 68, 68); border-radius: 999px; color: rgb(255, 255, 255); padding: 2px 6px\">\n<span aria-hidden=\"true\">\n▼\n</span>\n<span>\n4%\n</span>\n</span>\n@route /"
+     "<span aria-label=\"▲ 4%\" class=\"c1e8176ab c311bf57c c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\">\n▲\n</span>\n<span>\n4%\n</span>\n</span>\n@route /",
+     "<span aria-label=\"▼ 4%\" class=\"c0d4608b5 c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 cc63f2c4d ccae02ff2 cd9b20003\" style=\"border-radius: 999px; padding: 2px 6px\">\n<span aria-hidden=\"true\">\n▼\n</span>\n<span>\n4%\n</span>\n</span>\n@route /"
     ],
     "calls": []
    },
    "positive delta, then a locale switch": {
     "snapshots": [
-     "<span aria-label=\"▲ 12%\" class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" style=\"color: rgb(34, 197, 94)\">\n<span aria-hidden=\"true\">\n▲\n</span>\n<span>\n12%\n</span>\n</span>\n@route /",
-     "<span aria-label=\"▲ 12%\" class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" style=\"color: rgb(34, 197, 94)\">\n<span aria-hidden=\"true\">\n▲\n</span>\n<span>\n12%\n</span>\n</span>\n@route /"
+     "<span aria-label=\"▲ 12%\" class=\"c1e8176ab c311bf57c c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\">\n▲\n</span>\n<span>\n12%\n</span>\n</span>\n@route /",
+     "<span aria-label=\"▲ 12%\" class=\"c1e8176ab c311bf57c c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\">\n▲\n</span>\n<span>\n12%\n</span>\n</span>\n@route /"
     ],
     "calls": []
    }

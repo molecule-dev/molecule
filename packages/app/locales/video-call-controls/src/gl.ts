@@ -8,4 +8,7 @@ export const gl: Partial<VideoCallControlsTranslations> = {
   'call.cameraOff': '🚫',
   'call.share': '🖥',
   'call.leave': 'Deixar',
+  'call.aria.muted': 'Silenciado',
+  'call.aria.handRaised': 'Man levantada',
+  'call.label.you': '(ti)',
 }

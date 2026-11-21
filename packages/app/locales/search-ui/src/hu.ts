@@ -16,4 +16,8 @@ export const hu: Partial<SearchUiTranslations> = {
   'searchUi.relatedTitle': 'A keresés jelentésével egyezik, nem a benne szereplő szavakkal',
   'searchUi.related': 'összefüggő',
   'searchUi.help': 'Keresési tippek',
+  'searchUi.examplePhrase': '"pontos kifejezés"',
+  'searchUi.exampleExcluded': '-szó',
+  'searchUi.activeResult': '{{title}}, {{position}} / {{count}}',
+  'searchUi.dialogLabel': 'Keresés',
 }

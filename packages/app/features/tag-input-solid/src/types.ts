@@ -26,8 +26,14 @@ export interface TagChipProps {
   className?: string
 }
 
-/** Props for the {@link TagList} component. */
-export interface TagListProps {
+/**
+ * Props for the {@link TagList} component. List attributes such as `id`,
+ * `aria-label` and `data-mol-id` go on the list itself.
+ */
+export interface TagListProps extends Omit<
+  JSX.HTMLAttributes<HTMLUListElement>,
+  'children' | 'innerHTML' | 'textContent' | 'innerText'
+> {
   /** Every saved tag, in display order. Empty arrays render an empty list. */
   value: readonly string[]
   /** Additional classes for the list. */

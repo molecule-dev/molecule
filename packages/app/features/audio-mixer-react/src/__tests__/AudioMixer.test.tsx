@@ -150,8 +150,37 @@ describe('<AudioMixer>', () => {
     expect(container.querySelectorAll('[data-mol-id="audio-mixer-channel-strip"]').length).toBe(0)
   })
 
+  it('renders the mute button initial through t()', () => {
+    // A marker per key: a letter that bypassed t() would show as plain 'M'.
+    const provider = createSimpleI18nProvider('en')
+    provider.addTranslations('en', {
+      audioMixer: { button: { muteInitial: '«audioMixer.button.muteInitial»' } },
+    })
+    const { container } = render(
+      <I18nProvider provider={provider}>
+        <AudioMixer channels={[baseChannels[0]]} />
+      </I18nProvider>,
+    )
+    const mute = container.querySelector('[data-mol-id="audio-mixer-mute"]')
+    expect(mute?.textContent?.trim()).toBe('«audioMixer.button.muteInitial»')
+  })
+
+  it('renders the solo button initial through t()', () => {
+    const provider = createSimpleI18nProvider('en')
+    provider.addTranslations('en', {
+      audioMixer: { button: { soloInitial: '«audioMixer.button.soloInitial»' } },
+    })
+    const { container } = render(
+      <I18nProvider provider={provider}>
+        <AudioMixer channels={[baseChannels[0]]} />
+      </I18nProvider>,
+    )
+    const solo = container.querySelector('[data-mol-id="audio-mixer-solo"]')
+    expect(solo?.textContent?.trim()).toBe('«audioMixer.button.soloInitial»')
+  })
+
   it('emits onChannelChange with a level patch when the fader moves', () => {
-    const onChannelChange = vi.fn<[ChannelChangePatch], void>()
+    const onChannelChange = vi.fn<(patch: ChannelChangePatch) => void>()
     const { container } = render(
       <Wrap>
         <AudioMixer channels={baseChannels} onChannelChange={onChannelChange} />
@@ -166,7 +195,7 @@ describe('<AudioMixer>', () => {
   })
 
   it('clamps fader values to [0, 1] before emitting', () => {
-    const onChannelChange = vi.fn<[ChannelChangePatch], void>()
+    const onChannelChange = vi.fn<(patch: ChannelChangePatch) => void>()
     const { container } = render(
       <Wrap>
         <AudioMixer channels={baseChannels} onChannelChange={onChannelChange} />
@@ -185,7 +214,7 @@ describe('<AudioMixer>', () => {
   })
 
   it('emits onChannelChange with a pan patch when the pan knob moves', () => {
-    const onChannelChange = vi.fn<[ChannelChangePatch], void>()
+    const onChannelChange = vi.fn<(patch: ChannelChangePatch) => void>()
     const { container } = render(
       <Wrap>
         <AudioMixer channels={baseChannels} onChannelChange={onChannelChange} />
@@ -197,7 +226,7 @@ describe('<AudioMixer>', () => {
   })
 
   it('toggles mute on click and emits the new state', () => {
-    const onChannelChange = vi.fn<[ChannelChangePatch], void>()
+    const onChannelChange = vi.fn<(patch: ChannelChangePatch) => void>()
     const { container } = render(
       <Wrap>
         <AudioMixer channels={baseChannels} onChannelChange={onChannelChange} />
@@ -231,7 +260,7 @@ describe('<AudioMixer>', () => {
   })
 
   it('toggles solo on click and emits the new state', () => {
-    const onChannelChange = vi.fn<[ChannelChangePatch], void>()
+    const onChannelChange = vi.fn<(patch: ChannelChangePatch) => void>()
     const { container } = render(
       <Wrap>
         <AudioMixer channels={baseChannels} onChannelChange={onChannelChange} />
@@ -245,7 +274,7 @@ describe('<AudioMixer>', () => {
   })
 
   it('renders a sends row for channels with sends and emits send patches', () => {
-    const onChannelChange = vi.fn<[ChannelChangePatch], void>()
+    const onChannelChange = vi.fn<(patch: ChannelChangePatch) => void>()
     const { container } = render(
       <Wrap>
         <AudioMixer channels={baseChannels} onChannelChange={onChannelChange} />
@@ -284,7 +313,7 @@ describe('<AudioMixer>', () => {
       muted: false,
       solo: false,
     }
-    const onMasterChange = vi.fn<[ChannelChangePatch], void>()
+    const onMasterChange = vi.fn<(patch: ChannelChangePatch) => void>()
     const { container } = render(
       <Wrap>
         <AudioMixer channels={baseChannels} master={master} onMasterChange={onMasterChange} />
@@ -332,7 +361,7 @@ describe('<AudioMixer>', () => {
       muted: false,
       solo: false,
     }
-    const onMasterChange = vi.fn<[ChannelChangePatch], void>()
+    const onMasterChange = vi.fn<(patch: ChannelChangePatch) => void>()
     const { container } = render(
       <Wrap>
         <AudioMixer channels={baseChannels} master={master} onMasterChange={onMasterChange} />

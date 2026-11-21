@@ -61,9 +61,11 @@
  *   `profileImageUrl`. The avatar image is an optional enhancement: with
  *   no URL the trigger shows `profileInitials`, else a default avatar
  *   icon — reachability is never gated on the image.
- * - `signOutLabel`, `profileImageAlt` and `accountMenuLabel` default to
- *   English strings; pass translated values (no companion locale bond
- *   ships).
+ * - `signOutLabel`, `profileImageAlt` and `accountMenuLabel` fall back to
+ *   translated defaults through `useTranslation()` (`storefrontChrome.nav.*`,
+ *   English fallbacks "Sign Out", "User profile", "Account menu"); pass a
+ *   value to override. Translations ship in the companion locale bond
+ *   `@molecule/app-locales-storefront-chrome`.
  * - Styling is the flagship palette hardcoded with raw utilities
  *   (`bg-white dark:bg-slate-900`, slate-900 footer, GREEN link-hover
  *   accents, `max-w-[1280px]`), not ClassMap tokens: it will not follow

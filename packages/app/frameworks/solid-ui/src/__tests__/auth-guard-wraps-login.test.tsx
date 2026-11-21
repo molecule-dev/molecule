@@ -72,7 +72,7 @@ function renderWrapped(initial: string, loginPath?: string): ReturnType<typeof v
   disposers.push(
     render(
       () => (
-        <MoleculeProvider config={{ router, i18n: createSimpleI18nProvider() }}>
+        <MoleculeProvider router={router} i18n={createSimpleI18nProvider()}>
           <AuthGuard loginPath={loginPath}>
             <>
               <Routed />

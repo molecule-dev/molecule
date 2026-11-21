@@ -15,4 +15,8 @@ export const uk: Partial<SearchUiTranslations> = {
   'searchUi.relatedTitle': 'Відповідає значенню вашого пошукового запиту, а не його словам',
   'searchUi.related': "пов'язані",
   'searchUi.help': 'Поради щодо пошуку',
+  'searchUi.examplePhrase': '"точна фраза"',
+  'searchUi.exampleExcluded': '-слово',
+  'searchUi.activeResult': '{{title}}, {{position}} з {{count}}',
+  'searchUi.dialogLabel': 'Пошук',
 }

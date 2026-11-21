@@ -16,4 +16,11 @@ export const ky: Partial<BillingTranslations> = {
   'billing.pricing.perSeat': 'бир орунга',
   'billing.pricing.upgradeCta': 'Жаңыртуу {{tierName}}',
   'billing.pricing.currentCta': 'Учурдагы план',
+  'billing.pricing.period.month': 'айына',
+  'billing.pricing.period.year': 'жылына',
+  'billing.pricing.billed.month': 'Ай сайын эсептелет',
+  'billing.pricing.billed.year': 'Жыл сайын эсептелет',
+  'billing.pricing.unlimited': 'Чексиз',
+  'billing.pricing.limit.maxProjects': 'Максимум долбоор',
+  'billing.pricing.limit.canExport': 'Экспорттоо мүмкүн',
 }

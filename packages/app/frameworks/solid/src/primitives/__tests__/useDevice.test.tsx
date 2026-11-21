@@ -17,7 +17,7 @@ vi.mock('@molecule/app-device', () => ({
 
 import { getProvider } from '@molecule/app-device'
 
-import { type DevicePrimitives, useDevice } from '../device.js'
+import { useDevice, type UseDeviceResult } from '../device.js'
 
 const mockDeviceInfo: DeviceInfo = {
   name: 'macOS Chrome',
@@ -174,8 +174,8 @@ describe('useDevice', () => {
     // Solid runs a component body once; the hook's memoized result is the
     // one object the component keeps while its reactive DOM updates.
     const [tick, setTick] = createSignal(0)
-    let first: DevicePrimitives | undefined
-    let latest: DevicePrimitives | undefined
+    let first: UseDeviceResult | undefined
+    let latest: UseDeviceResult | undefined
     mount(() => {
       const device = useDevice()
       first ??= device

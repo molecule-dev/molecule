@@ -15,4 +15,8 @@ export const ko: Partial<SearchUiTranslations> = {
   'searchUi.relatedTitle': '검색어의 단어가 아닌, 검색어의 의미와 일치하는 결과를 보여줍니다.',
   'searchUi.related': '관련된',
   'searchUi.help': '검색 팁',
+  'searchUi.examplePhrase': '"정확한 구절"',
+  'searchUi.exampleExcluded': '-단어',
+  'searchUi.activeResult': '{{title}}, {{count}}개 중 {{position}}번째',
+  'searchUi.dialogLabel': '검색',
 }

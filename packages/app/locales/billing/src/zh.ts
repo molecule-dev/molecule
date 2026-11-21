@@ -15,4 +15,11 @@ export const zh: Partial<BillingTranslations> = {
   'billing.pricing.reassurance': '随时取消 · 无需信用卡即可开始',
   'billing.pricing.perSeat': '每座位',
   'billing.pricing.currentCta': '当前计划',
+  'billing.pricing.period.month': '每月',
+  'billing.pricing.period.year': '每年',
+  'billing.pricing.billed.month': '按月计费',
+  'billing.pricing.billed.year': '按年计费',
+  'billing.pricing.unlimited': '无限制',
+  'billing.pricing.limit.maxProjects': '最大项目数',
+  'billing.pricing.limit.canExport': '可导出',
 }

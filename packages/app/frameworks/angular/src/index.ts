@@ -75,11 +75,10 @@
  * `user` can be null. A restore failure other than 401/403 never signs out.
  * `provideMolecule({ auth })` starts the bundled client's restore when a
  * consumer first reads the session, so the app entry can mount its root without
- * calling `initialize()`. A cached token and user render signed-in content
- * immediately, and a visitor without a session candidate renders signed-out
- * content immediately. Set `awaitSession: true` to hold bootstrap — and so
- * every page's first render — while a token-only or cookie-only restore is
- * undecided.
+ * calling `initialize()`. It holds bootstrap — and so every page's first
+ * render — while a token-only or cookie-only restore is undecided; a cached
+ * token and user, and a visitor without a session candidate, settle at once.
+ * Pass `awaitSession: false` to render before the restore settles.
  *
  * @remarks
  * - Peer requirements: Angular 22 (`@angular/core` is pinned to 22.0.0) and

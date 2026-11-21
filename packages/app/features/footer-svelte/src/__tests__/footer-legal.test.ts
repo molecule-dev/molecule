@@ -6,16 +6,15 @@
  * entering the raw-HTML body, and app-registered content renders as HTML.
  */
 import '@molecule/app-framework-conformance/ui/setup'
-import { type Component, flushSync, mount, unmount } from 'svelte'
+import { type ComponentProps, flushSync, mount, unmount } from 'svelte'
 import { afterEach, describe, expect, it } from 'vitest'
 
-import Host from '@molecule/app-framework-conformance/adapters/svelte-bindings/Host.svelte'
 import { createSimpleI18nProvider } from '@molecule/app-i18n'
 import { createMemoryRouter, type Router } from '@molecule/app-routing'
-import { setMoleculeContext } from '@molecule/app-svelte'
 import { createWebVersionProvider, setProvider as setVersionProvider } from '@molecule/app-version'
 
-import AppFooter from '../AppFooter.svelte'
+import type AppFooter from '../AppFooter.svelte'
+import AppFooterHost from './AppFooterHost.svelte'
 
 // A mutable i18n catalog the tests seed to simulate an app that registered
 // real legal HTML — read through the provider at `t()` time (the provider
@@ -47,13 +46,12 @@ setVersionProvider(versionProvider)
  * @param appName - The app name interpolated into the legal HTML.
  */
 function mountFooter(appName = 'Acme'): void {
-  instance = mount(Host, {
+  const props: ComponentProps<typeof AppFooter> = { appName, aboutHref: '/about' }
+  instance = mount(AppFooterHost, {
     target: document.body,
     props: {
       config: { router, i18n },
-      setMoleculeContext,
-      component: AppFooter as Component<Record<string, unknown>>,
-      props: { appName, aboutHref: '/about' },
+      props,
     },
   })
   flushSync()

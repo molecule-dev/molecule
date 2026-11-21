@@ -16,4 +16,8 @@ export const nl: Partial<SearchUiTranslations> = {
     'Komt overeen met de betekenis van je zoekopdracht, niet met de woorden ervan.',
   'searchUi.related': 'verwant',
   'searchUi.help': 'Zoektips',
+  'searchUi.examplePhrase': '"exacte zin"',
+  'searchUi.exampleExcluded': '-woord',
+  'searchUi.activeResult': '{{title}}, {{position}} van {{count}}',
+  'searchUi.dialogLabel': 'Zoeken',
 }

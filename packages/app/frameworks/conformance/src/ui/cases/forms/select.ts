@@ -22,6 +22,8 @@ const plans = [
 /** Select: sizes, placeholder, clearable, option groups, control and value-change events. */
 export const selectCases: UIComponentCases = {
   component: 'Select',
+  ref: {},
+  declaredProps: { props: 'element' },
   keyedLists: [{ prop: 'options', selector: 'option' }],
   cases: [
     { name: 'defaults', a11y: UNLABELLED, props: { options: plans, name: 'plan' } },
@@ -155,6 +157,20 @@ export const selectCases: UIComponentCases = {
         'data-mol-id': 'plan-select',
         name: 'plan',
       },
+    },
+    {
+      name: 'change handler reads the chosen value from target',
+      props: { options: plans, label: 'Plan', name: 'plan' },
+      callbacks: ['onChange'],
+      callbackResults: { onChange: { read: ['target.value', 'currentTarget'] } },
+      interactions: [{ type: 'input', selector: 'select', value: 'pro' }],
+    },
+    {
+      name: 'focus handler gets the select as currentTarget',
+      props: { options: plans, label: 'Plan', name: 'plan' },
+      callbacks: ['onFocus'],
+      callbackResults: { onFocus: { read: ['currentTarget'] } },
+      interactions: [{ type: 'focus', selector: 'select' }],
     },
   ],
 }

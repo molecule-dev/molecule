@@ -9,6 +9,7 @@ export const hy: ReputationBadgeTranslations = {
   'reputationBadge.level.trusted': 'Վստահելի',
   'reputationBadge.level.veteran': 'Վետերան',
   'reputationBadge.level.legend': 'Լեգենդ',
+  'reputationBadge.level.fallback': '{{level}}',
   'badgeShelf.aria': 'Վաստակել եք {{count}} կրծքանշան',
   'badgeShelf.overflow.aria': 'Ցույց տալ ևս {{count}} կրծքանշան',
 }

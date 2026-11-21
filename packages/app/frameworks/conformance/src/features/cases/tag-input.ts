@@ -217,6 +217,16 @@ export const tagInputFeature: FeatureCases = {
           props: { value: ['a', 'b'], className: 'tags-cls', itemClassName: 'tag-item' },
         },
         {
+          name: 'list attributes go on the list itself',
+          props: {
+            value: ['cold storage'],
+            id: 'stock-conditions',
+            'aria-label': 'Stock conditions',
+            'data-mol-id': 'stock-conditions-list',
+            className: 'stock-labels',
+          },
+        },
+        {
           name: 'app-owned tag content',
           props: {
             value: ['react', 'vue'],
@@ -298,6 +308,7 @@ export const tagInputFeature: FeatureCases = {
           props: { value: [] },
           callbacks: ['onChange'],
           interactions: [
+            { type: 'focus', selector: 'input' },
             { type: 'input', selector: 'input', value: 'angular' },
             { type: 'blur', selector: 'input' },
           ],

@@ -59,8 +59,16 @@ vi.mock('@molecule/app-svelte', async () => {
   return {
     Link,
     useLocation: () => readable({ pathname: '/', search: '', hash: '' }),
+    // The component's own text renders through `t`; without a bonded provider
+    // the translation falls back to the call's `defaultValue`.
+    useTranslation: () => ({
+      t: (_key: string, _values?: unknown, options?: { defaultValue?: string }): string =>
+        options?.defaultValue ?? _key,
+    }),
   }
 })
+
+import type { TopNavLayoutProps } from '../types.js'
 
 const { TopNavLayout } = await import('../components.js')
 
@@ -80,7 +88,7 @@ afterEach(() => {
 })
 
 /** Mounts a {@link TopNavLayout} with the given props and returns its markup. */
-const render = (props: Record<string, unknown>): string => {
+const render = (props: Omit<TopNavLayoutProps, 'navItems'>): string => {
   const target = document.createElement('div')
   document.body.appendChild(target)
   mounted.push(

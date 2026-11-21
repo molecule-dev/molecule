@@ -9,4 +9,5 @@ export const ne: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.note':
     'नोट {{pitch}} तालबाट सुरु गर्दै {{startBeat}} को लागि {{durationBeats}} धड्कनहरू',
   'pianoRoll.aria.cursor': '{{pitch}} मा {{beat}} तालमा कर्सर',
+  'pianoRoll.aria.gridHelp': 'एरो कीहरूले सेल कर्सर सार्छन्, Enter वा Space त्यहाँ नोट कोर्छ।',
 }

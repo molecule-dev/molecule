@@ -10,7 +10,7 @@ import { t } from '@molecule/app-i18n'
 import type { Theme, ThemeColors, ThemeProvider } from '@molecule/app-theme'
 
 import { ThemeKey } from '../injection-keys.js'
-import type { UseThemeReturn } from '../types.js'
+import type { UseThemeResult } from '../types.js'
 
 /**
  * Composable to access the theme provider from injection.
@@ -118,7 +118,7 @@ function readThemeName(provider: ThemeProvider): string {
  * </template>
  * ```
  */
-export function useTheme(): UseThemeReturn {
+export function useTheme(): UseThemeResult {
   const provider = useThemeProvider()
 
   // A render with no browser (a server or build-time render) has no storage and

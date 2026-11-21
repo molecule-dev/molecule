@@ -26,7 +26,7 @@ import { useForm } from '../composables/useForms.js'
 import { useHttp } from '../composables/useHttp.js'
 import { usePush } from '../composables/usePush.js'
 import { moleculePlugin } from '../plugin.js'
-import type { UseHttpReturn } from '../types.js'
+import type { UseHttpResult } from '../types.js'
 
 interface ScriptedClient {
   get: ReturnType<typeof vi.fn>
@@ -76,7 +76,7 @@ describe('reactive hook arguments', () => {
     const client = scriptedClient()
     const method = ref<'GET' | 'POST'>('GET')
     const url = ref('/first')
-    let result!: UseHttpReturn<{ who: string }>
+    let result!: UseHttpResult<{ who: string }>
     const wrapper = mountComposable(
       () => {
         result = useHttp(method, url)
@@ -108,7 +108,7 @@ describe('reactive hook arguments', () => {
           }),
     )
     const url = ref('/first')
-    let result!: UseHttpReturn<{ who: string }>
+    let result!: UseHttpResult<{ who: string }>
     const wrapper = mountComposable(
       () => {
         result = useHttp('GET', url)

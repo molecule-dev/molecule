@@ -6,4 +6,8 @@ export const lv: Partial<LoyaltyTierBadgeTranslations> = {
   'loyaltyTierBadge.progress': 'Virzība uz {{next}}',
   'loyaltyTierBadge.topTier': 'Sasniegts augstākais līmenis',
   'loyaltyTierBadge.remaining': '{{remaining}} līdz {{next}}',
+  'loyaltyTierBadge.tier.bronze': 'Bronza',
+  'loyaltyTierBadge.tier.silver': 'Sudrabs',
+  'loyaltyTierBadge.tier.gold': 'Zelts',
+  'loyaltyTierBadge.tier.platinum': 'Platīns',
 }

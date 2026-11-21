@@ -7,4 +7,8 @@ export const ro: Partial<HttpInspectorTranslations> = {
   'httpInspector.body': 'Conținut',
   'httpInspector.headers': 'Anteturi',
   'httpInspector.addHeader': 'Adăugați antet',
+  'httpInspector.methodLabel': 'Metodă HTTP',
+  'httpInspector.urlLabel': 'URL',
+  'httpInspector.headerPlaceholder': 'Antet',
+  'httpInspector.valuePlaceholder': 'Valoare',
 }

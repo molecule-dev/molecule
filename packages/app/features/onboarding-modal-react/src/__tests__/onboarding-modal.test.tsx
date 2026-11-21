@@ -33,8 +33,25 @@ vi.mock('@molecule/app-react', () => ({
 vi.mock('@molecule/app-ui-react', () => ({
   Button: ({ children }: { children?: ReactNode }) =>
     createElement('button', { 'data-button': '' }, children),
-  Modal: ({ open, children }: { open: boolean; children?: ReactNode }) =>
-    open ? createElement('div', { 'data-modal': '' }, children) : null,
+  Modal: ({
+    open,
+    children,
+    ...rest
+  }: { open: boolean; children?: ReactNode } & Record<string, unknown>) =>
+    open
+      ? createElement(
+          'div',
+          {
+            'data-modal': '',
+            // The real `Modal` forwards its `data-*`/`aria-*` rest props onto
+            // the dialog element; the stub mirrors that contract.
+            ...Object.fromEntries(
+              Object.entries(rest).filter(([k]) => k.startsWith('aria-') || k.startsWith('data-')),
+            ),
+          },
+          children,
+        )
+      : null,
 }))
 
 const { OnboardingModal } = await import('../OnboardingModal.js')
@@ -107,5 +124,25 @@ describe('OnboardingModal', () => {
 
   it('renders nothing visible when the modal is closed', () => {
     expect(html(createElement(OnboardingModal, { open: false, onClose: () => {}, steps }))).toBe('')
+  })
+
+  it('the dialog is named by the current step title', () => {
+    const markup = html(createElement(OnboardingModal, { open: true, onClose: () => {}, steps }))
+    const label = markup.match(/aria-labelledby="([^"]*)"/)?.[1]
+    expect(label).toBeTruthy()
+    const heading = markup.match(new RegExp(`<h2[^>]*id="${label}"[^>]*>([\\s\\S]*?)</h2>`))
+    expect(heading).toBeTruthy()
+    expect(heading?.[1]).toContain('Welcome')
+
+    // The name follows the step: on the second step the labelled heading
+    // carries that step's title.
+    const second = html(
+      createElement(OnboardingModal, { open: true, onClose: () => {}, steps, defaultStep: 1 }),
+    )
+    const secondLabel = second.match(/aria-labelledby="([^"]*)"/)?.[1]
+    const secondHeading = second.match(
+      new RegExp(`<h2[^>]*id="${secondLabel}"[^>]*>([\\s\\S]*?)</h2>`),
+    )
+    expect(secondHeading?.[1]).toContain('Connect')
   })
 })

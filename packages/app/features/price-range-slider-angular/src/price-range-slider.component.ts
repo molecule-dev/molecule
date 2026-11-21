@@ -13,6 +13,7 @@ import {
   ViewChild,
 } from '@angular/core'
 
+import { useTranslation } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -60,8 +61,9 @@ const hasNodes = (el: Element | undefined | null): boolean => {
     <div [class]="rowClasses()">
       <span [class]="endpointClasses()">{{ fmt(low()) }}</span
       ><input
+        #minInput
         type="range"
-        aria-label="Minimum"
+        [attr.aria-label]="minLabel()"
         [attr.min]="min"
         [attr.max]="max"
         [attr.step]="stepValue()"
@@ -69,8 +71,9 @@ const hasNodes = (el: Element | undefined | null): boolean => {
         (input)="onMinInput($event)"
         [class]="endpointInputClasses()"
       /><input
+        #maxInput
         type="range"
-        aria-label="Maximum"
+        [attr.aria-label]="maxLabel()"
         [attr.min]="min"
         [attr.max]="max"
         [attr.step]="stepValue()"
@@ -101,7 +104,16 @@ export class PriceRangeSlider implements AfterViewInit, DoCheck {
   /** The label capture wrapper, detached when there is no label. */
   @ViewChild('labelWrap') labelWrap?: ElementRef<HTMLElement>
 
+  /** The minimum handle's input (found by template ref, never by translated label). */
+  @ViewChild('minInput') minInput?: ElementRef<HTMLInputElement>
+
+  /** The maximum handle's input. */
+  @ViewChild('maxInput') maxInput?: ElementRef<HTMLInputElement>
+
   private readonly host: HTMLElement = inject(ElementRef).nativeElement
+
+  /** The i18n provider, read at label time so the labels follow a locale switch. */
+  private readonly i18n = useTranslation()
 
   /**
    * The current class map.
@@ -189,6 +201,22 @@ export class PriceRangeSlider implements AfterViewInit, DoCheck {
   }
 
   /**
+   * The minimum handle's label, through `t()` so it follows the locale.
+   * @returns The translated label.
+   */
+  minLabel(): string {
+    return this.i18n.t('priceRangeSlider.aria.minimum', undefined, { defaultValue: 'Minimum' })
+  }
+
+  /**
+   * The maximum handle's label, through `t()` so it follows the locale.
+   * @returns The translated label.
+   */
+  maxLabel(): string {
+    return this.i18n.t('priceRangeSlider.aria.maximum', undefined, { defaultValue: 'Maximum' })
+  }
+
+  /**
    * The label input's text (a string input renders as text; a projected node
    * label renders through the capture point instead).
    * @returns The label text, or `''` when absent.
@@ -215,8 +243,8 @@ export class PriceRangeSlider implements AfterViewInit, DoCheck {
    * edit, and React re-writes the property on every re-render.
    */
   private syncInputs(): void {
-    const minEl = this.host.querySelector<HTMLInputElement>('input[aria-label="Minimum"]')
-    const maxEl = this.host.querySelector<HTMLInputElement>('input[aria-label="Maximum"]')
+    const minEl = this.minInput?.nativeElement
+    const maxEl = this.maxInput?.nativeElement
     if (minEl && minEl.value !== String(this.low())) minEl.value = String(this.low())
     if (maxEl && maxEl.value !== String(this.high())) maxEl.value = String(this.high())
   }

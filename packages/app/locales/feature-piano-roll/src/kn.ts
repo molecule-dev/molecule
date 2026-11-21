@@ -9,4 +9,6 @@ export const kn: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.note':
     'ಸೂಚನೆ {{pitch}} ಬಡಿತದಿಂದ ಪ್ರಾರಂಭಿಸುವುದು {{startBeat}} ಫಾರ್ {{durationBeats}} ಬೀಟ್ಸ್',
   'pianoRoll.aria.cursor': 'ಕರ್ಸರ್ {{pitch}} ನಲ್ಲಿ, ಬಡಿತ {{beat}} ನಲ್ಲಿ',
+  'pianoRoll.aria.gridHelp':
+    'ಬಾಣದ ಕೀಗಳು ಸೆಲ್ ಕರ್ಸರ್ ಅನ್ನು ಸರಿಸುತ್ತವೆ, Enter ಅಥವಾ Space ಅಲ್ಲಿ ಒಂದು ನೋಟ್ ಬರೆಯುತ್ತದೆ.',
 }

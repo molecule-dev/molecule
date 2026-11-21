@@ -11,26 +11,35 @@
 
 import { type Component, For, Show } from 'solid-js'
 
-import { getClassMap } from '@molecule/app-ui'
+import { getClassMap, type UIClassMap } from '@molecule/app-ui'
 
 import type { OrderMilestone, OrderTimelineProps } from './types.js'
 
 /**
- * The status node's color: current wins over completed, and every other
- * milestone is pending.
+ * The status node's class: current wins over completed (its semantic tone),
+ * and every other milestone is de-emphasis chrome — the theme's border colour
+ * rather than a status tone.
  *
+ * @param cm - The class map.
  * @param milestone - The milestone.
- * @returns The node color.
+ * @returns The node's class.
  */
-const dotColor = (milestone: OrderMilestone): string =>
-  milestone.current ? '#60a5fa' : milestone.completed ? '#22c55e' : '#d1d5db'
+const dotClass = (cm: UIClassMap, milestone: OrderMilestone): string =>
+  cm.cn(
+    milestone.current
+      ? cm.bgTone('info')
+      : milestone.completed
+        ? cm.bgTone('success')
+        : cm.bgBorder,
+  )
 
 /**
  * The status node's inline style, exactly React's object (Solid writes CSS
  * property names in kebab case and does not add `px`, so the units are
- * spelled out). A property React omits is passed as `''`, which clears it:
- * Solid's own update path removes a dropped key with `removeProperty`, which
- * leaves a shorthand's longhands behind.
+ * spelled out): sizing only — the fill colour is a ClassMap tone class (see
+ * {@link dotClass}). A property React omits is passed as `''`, which clears
+ * it: Solid's own update path removes a dropped key with `removeProperty`,
+ * which leaves a shorthand's longhands behind.
  *
  * @param milestone - The milestone.
  * @returns The style declarations.
@@ -39,26 +48,34 @@ const dotStyle = (milestone: OrderMilestone): Record<string, string> => ({
   width: '14px',
   height: '14px',
   'border-radius': '50%',
-  background: dotColor(milestone),
   border: milestone.current ? '3px solid currentColor' : '',
 })
 
 /**
+ * The connector line's class: a completed leg takes the success tone; an
+ * un-reached one is de-emphasis chrome in the theme's border colour.
+ *
+ * @param cm - The class map.
+ * @param milestone - The milestone the connector belongs to.
+ * @returns The connector's class.
+ */
+const connectorClass = (cm: UIClassMap, milestone: OrderMilestone): string =>
+  cm.cn(milestone.completed ? cm.bgTone('success') : cm.bgBorder)
+
+/**
  * The connector line's inline style, exactly React's object: horizontal lines
- * stretch between nodes, vertical ones run below the node (see
+ * stretch between nodes, vertical ones run below the node — sizing and flow
+ * only, the fill colour is a ClassMap class (see {@link connectorClass}; see
  * {@link dotStyle} for the `''` entries).
  *
- * @param milestone - The milestone the connector belongs to.
  * @param vertical - Whether the layout is vertical.
  * @returns The style declarations.
  */
-const connectorStyle = (milestone: OrderMilestone, vertical: boolean): Record<string, string> => {
-  const background = milestone.completed ? '#22c55e' : '#d1d5db'
-  return vertical
+const connectorStyle = (vertical: boolean): Record<string, string> =>
+  vertical
     ? {
         height: '24px',
         width: '2px',
-        background,
         display: 'inline-block',
         flex: '',
         'margin-left': '',
@@ -67,13 +84,11 @@ const connectorStyle = (milestone: OrderMilestone, vertical: boolean): Record<st
     : {
         width: '100%',
         height: '2px',
-        background,
         display: 'inline-block',
         flex: '1',
         'margin-left': '4px',
         'margin-right': '4px',
       }
-}
 
 /**
  * Order / shipment progress timeline — typical e-commerce flow:
@@ -135,9 +150,17 @@ export const OrderTimeline: Component<OrderTimelineProps> = (props) => {
                 }
               >
                 <div class={cm.flex({ align: 'center', justify: 'center' })}>
-                  <span aria-hidden="true" style={dotStyle(milestone())} />
+                  <span
+                    aria-hidden="true"
+                    class={dotClass(cm, milestone())}
+                    style={dotStyle(milestone())}
+                  />
                   <Show when={!isLast()}>
-                    <span aria-hidden="true" style={connectorStyle(milestone(), vertical())} />
+                    <span
+                      aria-hidden="true"
+                      class={connectorClass(cm, milestone())}
+                      style={connectorStyle(vertical())}
+                    />
                   </Show>
                 </div>
                 <div class={cm.cn(cm.stack(0))}>

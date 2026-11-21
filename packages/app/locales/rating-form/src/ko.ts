@@ -2,9 +2,10 @@ import type { RatingFormTranslations } from './types.js'
 
 /** RatingForm translations for ko. */
 export const ko: Partial<RatingFormTranslations> = {
-  'rating.star': '{{n}} of {{max}}',
+  'rating.star': '{{max}}개 중 {{n}}개',
   'rating.label': '평점',
   'rating.submitting': '제출 중…',
   'rating.submit': '리뷰 제출',
   'rating.commentPlaceholder': '의견을 공유해 주세요 (선택 사항)',
+  'rating.comment': '코멘트',
 }

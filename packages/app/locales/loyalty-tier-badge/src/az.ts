@@ -6,4 +6,8 @@ export const az: Partial<LoyaltyTierBadgeTranslations> = {
   'loyaltyTierBadge.progress': 'Tərəqqi {{next}}',
   'loyaltyTierBadge.topTier': 'Ən yüksək səviyyəyə çatıldı',
   'loyaltyTierBadge.remaining': '{{remaining}} - {{next}}',
+  'loyaltyTierBadge.tier.bronze': 'Bürünc',
+  'loyaltyTierBadge.tier.silver': 'Gümüş',
+  'loyaltyTierBadge.tier.gold': 'Qızıl',
+  'loyaltyTierBadge.tier.platinum': 'Platin',
 }

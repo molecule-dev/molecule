@@ -33,11 +33,13 @@ vi.mock('@molecule/app-ui-react', () => ({
   Input: ({
     value,
     placeholder,
+    ['aria-label']: ariaLabel,
     ['aria-autocomplete']: ariaAutocomplete,
     ['aria-expanded']: ariaExpanded,
   }: {
     value?: string
     placeholder?: string
+    'aria-label'?: string
     'aria-autocomplete'?: string
     'aria-expanded'?: boolean
   }) =>
@@ -45,6 +47,7 @@ vi.mock('@molecule/app-ui-react', () => ({
       'data-input': '',
       value,
       placeholder,
+      'aria-label': ariaLabel,
       'aria-autocomplete': ariaAutocomplete,
       'aria-expanded': ariaExpanded,
       readOnly: true,
@@ -81,6 +84,31 @@ describe('SearchAutocomplete (closed state)', () => {
       }),
     )
     expect(custom).toContain('placeholder="Find a project"')
+  })
+
+  it('names the input with an aria-label and honours a custom one', () => {
+    // The input's only name must never rest on its placeholder (an empty one
+    // leaves it nameless): the translated default names it either way.
+    expect(
+      html(
+        createElement(SearchAutocomplete, {
+          value: '',
+          onChange: () => {},
+          onSelect: () => {},
+          placeholder: '',
+        }),
+      ),
+    ).toContain('aria-label="Search"')
+    expect(
+      html(
+        createElement(SearchAutocomplete, {
+          value: '',
+          onChange: () => {},
+          onSelect: () => {},
+          ariaLabel: 'Find a project',
+        }),
+      ),
+    ).toContain('aria-label="Find a project"')
   })
 
   it('exposes autocomplete a11y attributes with the popover collapsed', () => {

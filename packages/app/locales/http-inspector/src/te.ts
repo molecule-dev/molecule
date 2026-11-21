@@ -7,4 +7,8 @@ export const te: Partial<HttpInspectorTranslations> = {
   'httpInspector.headers': 'హెడర్లు',
   'httpInspector.addHeader': 'హెడర్‌ను జోడించండి',
   'httpInspector.body': 'శరీరం',
+  'httpInspector.methodLabel': 'HTTP పద్ధతి',
+  'httpInspector.urlLabel': 'URL',
+  'httpInspector.headerPlaceholder': 'హెడర్',
+  'httpInspector.valuePlaceholder': 'విలువ',
 }

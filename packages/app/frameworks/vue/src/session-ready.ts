@@ -4,9 +4,10 @@
  * @module
  */
 
-import { defineComponent, renderSlot, type VNode } from 'vue'
+import { defineComponent, renderSlot, type SlotsType, type VNode } from 'vue'
 
 import { useAuth } from './composables/useAuth.js'
+import type { SessionReadyProps } from './types.js'
 
 /**
  * Renders its default slot once `useAuth().status` has left `'loading'` — the session is
@@ -48,11 +49,16 @@ import { useAuth } from './composables/useAuth.js'
  * </template>
  * ```
  */
-export const SessionReady = defineComponent({
-  name: 'SessionReady',
-  setup(_, { slots }): () => VNode {
+export const SessionReady = defineComponent<
+  Record<never, never>,
+  Record<never, never>,
+  string,
+  SlotsType<SessionReadyProps>
+>(
+  (_props, { slots }) => {
     const { status } = useAuth()
-    return () =>
+    return (): VNode =>
       status.value === 'loading' ? renderSlot(slots, 'fallback') : renderSlot(slots, 'default')
   },
-})
+  { name: 'SessionReady' },
+)

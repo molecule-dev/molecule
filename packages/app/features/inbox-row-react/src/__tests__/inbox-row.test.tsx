@@ -52,7 +52,8 @@ describe('InboxRow', () => {
   it('applies bold styling and an unread dot when unread', () => {
     const unread = html(createElement(InboxRow, { sender: 'A', subject: 'S', unread: true }))
     expect(unread).toContain('font-weight:600')
-    expect(unread).toContain('#60a5fa')
+    // The dot's colour is the ClassMap's info tone (theme-owned), not a hex literal.
+    expect(unread).toContain('class="bgTone"')
     const read = html(createElement(InboxRow, { sender: 'A', subject: 'S' }))
     expect(read).not.toContain('font-weight:600')
   })

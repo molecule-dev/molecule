@@ -133,7 +133,7 @@ export const ContactForm: Component<ContactFormProps> = (props) => {
         <Input
           type="text"
           value={name()}
-          onChange={(event: Event) => setName((event.target as HTMLInputElement).value)}
+          onChange={(event) => setName((event.target as HTMLInputElement).value)}
           placeholder={t('contactForm.name', {}, { defaultValue: 'Your name' })}
           required
           aria-label={t('contactForm.label.name', {}, { defaultValue: 'Name' })}
@@ -141,7 +141,7 @@ export const ContactForm: Component<ContactFormProps> = (props) => {
         <Input
           type="email"
           value={email()}
-          onChange={(event: Event) => setEmail((event.target as HTMLInputElement).value)}
+          onChange={(event) => setEmail((event.target as HTMLInputElement).value)}
           placeholder={t('contactForm.email', {}, { defaultValue: 'you@example.com' })}
           required
           aria-label={t('contactForm.label.email', {}, { defaultValue: 'Email' })}
@@ -149,7 +149,7 @@ export const ContactForm: Component<ContactFormProps> = (props) => {
         {props.extraFields}
         <Textarea
           value={message()}
-          onChange={(event: Event) => setMessage((event.target as HTMLTextAreaElement).value)}
+          onChange={(event) => setMessage((event.target as HTMLTextAreaElement).value)}
           placeholder={t('contactForm.message', {}, { defaultValue: 'How can we help?' })}
           required
           rows={5}

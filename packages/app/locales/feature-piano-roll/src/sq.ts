@@ -9,4 +9,6 @@ export const sq: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.note':
     'Shënim {{pitch}} duke filluar me ritëm {{startBeat}} për {{durationBeats}} ritme',
   'pianoRoll.aria.cursor': 'Kursori në {{pitch}} në ritmin {{beat}}',
+  'pianoRoll.aria.gridHelp':
+    'Shigjetat e lëvizin kursorin e qelisë, Enter ose Space vizaton një notë atje.',
 }

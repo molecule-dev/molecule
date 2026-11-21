@@ -22,4 +22,17 @@ describe('@molecule/app-settings-panel-react', () => {
   it('exports useSettingsPanelContext for sections that need onClose', () => {
     expect(typeof panel.useSettingsPanelContext).toBe('function')
   })
+
+  it('exports the SettingsPanelContext and the shared push helpers', () => {
+    expect(panel.SettingsPanelContext).toBeDefined()
+    for (const name of [
+      'disablePushOnCurrentDevice',
+      'enablePushOnCurrentDevice',
+      'findCurrentDevice',
+      'readCurrentDevicePushEnabled',
+      'subscriptionFromToken',
+    ]) {
+      expect(panel, name).toHaveProperty(name, expect.any(Function))
+    }
+  })
 })

@@ -8,4 +8,7 @@ export const sw: Partial<VideoCallControlsTranslations> = {
   'call.cameraOff': '🚫',
   'call.share': '🖥',
   'call.leave': 'Ondoka',
+  'call.aria.muted': 'Imezimwa sauti',
+  'call.aria.handRaised': 'Mkono umeinuliwa',
+  'call.label.you': '(wewe)',
 }

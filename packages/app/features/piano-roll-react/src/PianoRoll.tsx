@@ -5,7 +5,7 @@ import type {
   PointerEvent as ReactPointerEvent,
   ReactElement,
 } from 'react'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useId, useRef, useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
@@ -251,6 +251,18 @@ interface DragState {
 }
 
 /**
+ * Produce a fresh note id, `note-<time>-<random>` in base 36 (the format every
+ * framework's piano roll mints). Module-level because only the paint handlers
+ * call it: reading the clock or `Math.random` while rendering would make a
+ * render unrepeatable.
+ *
+ * @returns A new note id.
+ */
+function nextNoteId(): string {
+  return `note-${Date.now().toString(36)}-${Math.floor(Math.random() * 1e6).toString(36)}`
+}
+
+/**
  * MIDI piano-roll editor. Renders a vertical piano keyboard on the
  * left, a horizontal time grid on the right, and draggable / resizable
  * note rectangles on top. Click an empty cell to paint a new note,
@@ -287,6 +299,11 @@ export function PianoRoll(props: PianoRollProps): ReactElement {
 
   const cm = getClassMap()
   const { t } = useTranslation()
+
+  // The id of the visually hidden element that describes the grid's keyboard
+  // interface (`aria-describedby` below). `useId()` keeps it unique per
+  // instance, never derived from data.
+  const gridHelpId = useId()
 
   const gridRef = useRef<HTMLDivElement | null>(null)
   const dragRef = useRef<DragState | null>(null)
@@ -330,6 +347,11 @@ export function PianoRoll(props: PianoRollProps): ReactElement {
   const rollLabel = t('pianoRoll.aria.roll', {}, { defaultValue: 'Piano roll' })
   const keysLabel = t('pianoRoll.aria.keys', {}, { defaultValue: 'Piano keys' })
   const gridLabel = t('pianoRoll.aria.grid', {}, { defaultValue: 'Note grid' })
+  const gridHelpLabel = t(
+    'pianoRoll.aria.gridHelp',
+    {},
+    { defaultValue: 'The arrow keys move the cell cursor, Enter or Space paints a note at it.' },
+  )
   const resizeLabel = t('pianoRoll.aria.resize', {}, { defaultValue: 'Resize note' })
   const cursorLabel = t(
     'pianoRoll.aria.cursor',
@@ -454,7 +476,7 @@ export function PianoRoll(props: PianoRollProps): ReactElement {
    */
   function paintNoteAt(startBeat: number, pitch: number): void {
     if (!onNoteAdd) return
-    const id = `note-${Date.now().toString(36)}-${Math.floor(Math.random() * 1e6).toString(36)}`
+    const id = nextNoteId()
     onNoteAdd({
       id,
       pitch,
@@ -624,11 +646,14 @@ export function PianoRoll(props: PianoRollProps): ReactElement {
         })}
       </div>
 
-      {/* Note grid + drawn notes. */}
+      {/* Note grid + drawn notes. A free two-dimensional surface driven by
+          the keyboard cell cursor, so it is an `application`, not a `grid`:
+          it holds no `row`s of `gridcell`s. */}
       <div
         ref={gridRef}
-        role="grid"
+        role="application"
         aria-label={gridLabel}
+        aria-describedby={gridHelpId}
         data-mol-id="piano-roll-grid"
         data-snap={snap}
         style={gridSurfaceStyle}
@@ -704,6 +729,12 @@ export function PianoRoll(props: PianoRollProps): ReactElement {
             }}
           />
         )}
+
+        {/* Describes the grid's keyboard interface to assistive technology.
+            Rendered unconditionally so `aria-describedby` always resolves. */}
+        <div id={gridHelpId} className={cm.srOnly}>
+          {gridHelpLabel}
+        </div>
 
         {/* Announces keyboard cursor moves to assistive technology. */}
         {onNoteAdd && (

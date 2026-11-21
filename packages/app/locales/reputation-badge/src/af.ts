@@ -9,6 +9,7 @@ export const af: ReputationBadgeTranslations = {
   'reputationBadge.level.trusted': 'Vertrou',
   'reputationBadge.level.veteran': 'Veteraan',
   'reputationBadge.level.legend': 'Legende',
+  'reputationBadge.level.fallback': '{{level}}',
   'badgeShelf.aria': '{{count}} kentekens verdien',
   'badgeShelf.overflow.aria': 'Wys {{count}} meer kentekens',
 }

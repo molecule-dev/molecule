@@ -14,4 +14,8 @@ export const nb: Partial<SearchUiTranslations> = {
   'searchUi.relatedTitle': 'Samsvarer med betydningen av søket ditt, ikke ordene',
   'searchUi.related': 'relatert',
   'searchUi.help': 'Søketips',
+  'searchUi.examplePhrase': '"nøyaktig frase"',
+  'searchUi.exampleExcluded': '-ord',
+  'searchUi.activeResult': '{{title}}, {{position}} av {{count}}',
+  'searchUi.dialogLabel': 'Søk',
 }

@@ -48,6 +48,9 @@ export function MarginNotes(props: MarginNotesProps): JSX.Element {
   const pinLabel = t('marginNotes.aria.pin', undefined, {
     defaultValue: 'Pin the notes for this section',
   })
+  // A named mark is an image named by `markLabel`; an unnamed one is
+  // decorative (axe-core rejects an image with no name).
+  const markNamed = typeof markLabel === 'string' && markLabel.trim().length > 0
 
   const rows = useMemo(() => buildRows(blocks, notes), [blocks, notes])
   const notesById = useMemo(() => new Map(notes.map((n) => [n.id, n])), [notes])
@@ -261,8 +264,9 @@ export function MarginNotes(props: MarginNotesProps): JSX.Element {
                   >
                     {block.marked && (
                       <span
-                        role="img"
-                        aria-label={markLabel}
+                        role={markNamed ? 'img' : undefined}
+                        aria-label={markNamed ? markLabel : undefined}
+                        aria-hidden={markNamed ? undefined : 'true'}
                         data-mol-id={`margin-notes-mark-${block.id}`}
                         className={cm.cn(
                           cm.position('absolute'),

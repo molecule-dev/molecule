@@ -15,4 +15,11 @@ export const zhTW: Partial<BillingTranslations> = {
   'billing.pricing.perSeat': '每座位',
   'billing.pricing.upgradeCta': '升級到{{tierName}}',
   'billing.pricing.currentCta': '目前計劃',
+  'billing.pricing.period.month': '每月',
+  'billing.pricing.period.year': '每年',
+  'billing.pricing.billed.month': '按月計費',
+  'billing.pricing.billed.year': '按年計費',
+  'billing.pricing.unlimited': '無限制',
+  'billing.pricing.limit.maxProjects': '最大專案數',
+  'billing.pricing.limit.canExport': '可匯出',
 }

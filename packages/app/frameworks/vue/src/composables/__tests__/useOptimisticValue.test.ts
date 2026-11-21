@@ -13,7 +13,7 @@ import { flushPromises, mount, type VueWrapper } from '@vue/test-utils'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { defineComponent, effectScope, h, nextTick, onUpdated, type PropType, ref } from 'vue'
 
-import type { UseOptimisticValueReturn } from '../../types.js'
+import type { UseOptimisticValueResult } from '../../types.js'
 import { useOptimisticValue } from '../useOptimisticValue.js'
 
 interface Deferred<T> {
@@ -221,7 +221,7 @@ describe('useOptimisticValue', () => {
   it('uses the committed callback when a layout effect makes a change', async () => {
     const first = vi.fn(async (next: number) => next)
     const second = vi.fn(async (next: number) => next)
-    let value!: UseOptimisticValueReturn<number>
+    let value!: UseOptimisticValueResult<number>
     const Page = defineComponent({
       props: {
         commit: {
@@ -297,7 +297,7 @@ describe('useOptimisticValue', () => {
 
   it('does not duplicate saves or replace saved props in StrictMode with an inline comparator', async () => {
     const commit = vi.fn(async (next: Favorite) => next)
-    let value!: UseOptimisticValueReturn<Favorite>
+    let value!: UseOptimisticValueResult<Favorite>
     let rerender!: () => Promise<void>
     const Page = defineComponent({
       setup() {

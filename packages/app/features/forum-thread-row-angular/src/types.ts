@@ -36,8 +36,14 @@ export interface ForumThreadRowProps {
   tags?: unknown
   /** Right-side voting controls; projected as `[slot=voteControls]` content. */
   voteControls?: unknown
-  /** Click handler; receives the DOM click event. */
-  onClick?: (event: Event) => void
+  /**
+   * Activates the row: the whole row is clickable through a transparent native
+   * button laid over it (Enter and Space activate it natively), named by the
+   * title — the `<h3>` itself takes the generated id. The `voteControls` and
+   * `tags` slots sit above that button and keep their own clicks. Called with
+   * no arguments, the way React's transparent button calls it.
+   */
+  onClick?: () => void
   /** Extra classes. */
   className?: string
 }

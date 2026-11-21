@@ -14,6 +14,12 @@ export interface VideoPlayerProps {
   captionsSrc?: string
   /** Caption language code. */
   captionsLang?: string
+  /**
+   * Human-readable name of the captions track (the track's `label`, which
+   * screen readers and the browser's caption menu announce). Defaults
+   * through i18n (`video.captions`, English "Captions").
+   */
+  captionsLabel?: string
   /** Autoplay (must be muted to work in most browsers). */
   autoPlay?: boolean
   /** Initial muted state. */
@@ -40,7 +46,9 @@ function fmtTime(s: number): string {
 /**
  * HTML5 video player with custom chrome — play/pause, scrub bar,
  * elapsed/total time, mute, fullscreen. Native controls are hidden so
- * the bar styles match the rest of the app (via ClassMap).
+ * the bar styles match the rest of the app (via ClassMap). The `<video>`
+ * always carries a captions `<track>` (the `captionsSrc`/`captionsLang`
+ * WebVTT file, named through `captionsLabel`).
  * @param props - Component props (see {@link VideoPlayerProps}).
  */
 export function VideoPlayer({
@@ -48,6 +56,7 @@ export function VideoPlayer({
   poster,
   captionsSrc,
   captionsLang = 'en',
+  captionsLabel,
   autoPlay,
   defaultMuted,
   onPlay,
@@ -57,6 +66,10 @@ export function VideoPlayer({
 }: VideoPlayerProps): ReactElement {
   const cm = getClassMap()
   const { t } = useTranslation()
+  // The captions track renders on every <video> (a media element needs a
+  // captions <track> for keyboard and screen-reader users); without a
+  // `captionsSrc` it is a captions track with no source yet.
+  const captionsText = captionsLabel ?? t('video.captions', {}, { defaultValue: 'Captions' })
   const ref = useRef<HTMLVideoElement>(null)
   const [playing, setPlaying] = useState(!!autoPlay)
   const [muted, setMuted] = useState(!!defaultMuted || !!autoPlay)
@@ -136,8 +149,8 @@ export function VideoPlayer({
 
   return (
     <div
-      className={cm.cn(cm.position('relative'), className)}
-      style={{ background: '#000', borderRadius: 8, overflow: 'hidden' }}
+      className={cm.cn(cm.position('relative'), cm.bgScrim, className)}
+      style={{ borderRadius: 8, overflow: 'hidden' }}
     >
       <video
         ref={ref}
@@ -147,18 +160,25 @@ export function VideoPlayer({
         muted={muted}
         style={{ display: 'block', width: '100%', height: 'auto' }}
       >
-        {captionsSrc && <track kind="captions" src={captionsSrc} srcLang={captionsLang} default />}
+        {/* An empty captionsSrc is no source at all (an empty `src` makes the
+            browser fetch the page itself), so it renders without one. */}
+        <track
+          kind="captions"
+          src={captionsSrc || undefined}
+          srcLang={captionsLang}
+          label={captionsText}
+          default
+        />
       </video>
       <div
-        className={cm.cn(cm.flex({ align: 'center', gap: 'sm' }), cm.sp('px', 3), cm.sp('py', 2))}
-        style={{
-          position: 'absolute',
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'linear-gradient(transparent, rgba(0,0,0,0.6))',
-          color: '#fff',
-        }}
+        className={cm.cn(
+          cm.flex({ align: 'center', gap: 'sm' }),
+          cm.bgScrim,
+          cm.textOnTone,
+          cm.sp('px', 3),
+          cm.sp('py', 2),
+        )}
+        style={{ position: 'absolute', left: 0, right: 0, bottom: 0 }}
       >
         <Button
           variant="ghost"
@@ -182,18 +202,27 @@ export function VideoPlayer({
           step={0.1}
           value={current}
           onChange={(e) => seek(Number(e.target.value))}
-          aria-label="Seek"
+          aria-label={t('video.seek', {}, { defaultValue: 'Seek' })}
           className={cm.flex1}
         />
         <Button
           variant="ghost"
           size="sm"
           onClick={toggleMute}
-          aria-label={muted ? 'Unmute' : 'Mute'}
+          aria-label={
+            muted
+              ? t('video.unmute', {}, { defaultValue: 'Unmute' })
+              : t('video.mute', {}, { defaultValue: 'Mute' })
+          }
         >
           {muted ? '🔇' : '🔊'}
         </Button>
-        <Button variant="ghost" size="sm" onClick={toggleFullscreen} aria-label="Fullscreen">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={toggleFullscreen}
+          aria-label={t('video.fullscreen', {}, { defaultValue: 'Fullscreen' })}
+        >
           ⛶
         </Button>
       </div>

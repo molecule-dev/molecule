@@ -15,6 +15,7 @@ import { vi } from 'vitest'
 import type {
   ErrorInterceptor,
   FullRequestConfig,
+  HttpAuthErrorEvent,
   HttpClient,
   RequestConfig,
   RequestInterceptor,
@@ -41,7 +42,7 @@ export function fakeHttpClient(): FakeHttpClient {
   const get = vi.fn()
   const patch = vi.fn()
   let authToken: string | null = null
-  const authErrorHandlers = new Set<() => void>()
+  const authErrorHandlers = new Set<(event: HttpAuthErrorEvent) => void>()
   const noop = (): void => undefined
 
   const client: HttpClient = {
@@ -64,7 +65,7 @@ export function fakeHttpClient(): FakeHttpClient {
       authToken = token
     },
     getAuthToken: () => authToken,
-    onAuthError: (handler: () => void) => {
+    onAuthError: (handler: (event: HttpAuthErrorEvent) => void) => {
       authErrorHandlers.add(handler)
       return () => {
         authErrorHandlers.delete(handler)

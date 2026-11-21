@@ -31,6 +31,18 @@ vi.mock('@molecule/app-ui', () => ({
   },
 }))
 
+// The bonded i18n provider resolves a key's inline English default; the nav
+// label's own test file exercises a marking provider.
+vi.mock('@molecule/app-react', () => ({
+  useTranslation: () => ({
+    t: (
+      key: string,
+      _values: Record<string, unknown> | undefined,
+      opts?: { defaultValue?: string },
+    ) => opts?.defaultValue ?? key,
+  }),
+}))
+
 vi.mock('react-router', () => ({
   Link: ({
     to,

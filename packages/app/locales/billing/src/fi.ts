@@ -15,4 +15,11 @@ export const fi: Partial<BillingTranslations> = {
   'billing.pricing.tierEyebrow': 'Taso',
   'billing.pricing.perSeat': 'istuinta kohden',
   'billing.pricing.currentCta': 'Nykyinen suunnitelma',
+  'billing.pricing.period.month': 'kuukausittain',
+  'billing.pricing.period.year': 'vuosittain',
+  'billing.pricing.billed.month': 'Laskutetaan kuukausittain',
+  'billing.pricing.billed.year': 'Laskutetaan vuosittain',
+  'billing.pricing.unlimited': 'Rajoittamaton',
+  'billing.pricing.limit.maxProjects': 'Projektien enimmäismäärä',
+  'billing.pricing.limit.canExport': 'Vienti mahdollinen',
 }

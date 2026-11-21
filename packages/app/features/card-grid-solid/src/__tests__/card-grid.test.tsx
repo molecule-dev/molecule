@@ -12,6 +12,8 @@ import type { JSX } from 'solid-js'
 import { render } from 'solid-js/web'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { inlineStyleMismatch } from '@molecule/app-framework-conformance/ui'
+
 // `getClassMap()` → a Proxy: every access yields its key as a token — callable
 // for method-style props (`cm.grid({...})`). `cn(...)` joins tokens, calling
 // any function-valued args first.
@@ -84,14 +86,12 @@ describe('BentoGrid', () => {
     const markup = mount(() => (
       <BentoGrid items={[{ id: 'a', content: 'x', colSpan: 6, rowSpan: 2 }]} />
     ))
-    expect(markup).toContain('grid-column: span 6')
-    expect(markup).toContain('grid-row: span 2')
+    expect(inlineStyleMismatch(markup, { gridColumn: 'span 6', gridRow: 'span 2' })).toBeNull()
   })
 
   it('defaults col-span to 4 and row-span to 1 when unspecified', () => {
     const markup = mount(() => <BentoGrid items={[{ id: 'a', content: 'x' }]} />)
-    expect(markup).toContain('grid-column: span 4')
-    expect(markup).toContain('grid-row: span 1')
+    expect(inlineStyleMismatch(markup, { gridColumn: 'span 4', gridRow: 'span 1' })).toBeNull()
   })
 
   it('uses grid-template-areas + per-item grid-area in areas mode', () => {
@@ -99,8 +99,8 @@ describe('BentoGrid', () => {
       <BentoGrid areas="'a a b'" items={[{ id: 'a', content: 'x', area: 'a' }]} />
     ))
     expect(markup).toContain('grid-template-areas')
-    expect(markup).toContain('grid-area: a')
-    expect(markup).not.toContain('grid-column: span')
+    expect(inlineStyleMismatch(markup, { gridArea: 'a' })).toBeNull()
+    expect(inlineStyleMismatch(markup, { gridColumn: 'span 4' })).not.toBeNull()
   })
 
   it('forwards className', () => {

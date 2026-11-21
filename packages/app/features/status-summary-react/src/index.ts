@@ -32,9 +32,9 @@
  *   (green/yellow/orange/red/blue with white text) — they ignore the
  *   app theme and cannot be restyled via ClassMap; acceptable for
  *   status pages, but know they will not follow a rebrand.
- * - Status labels use `status.operational` … `status.maintenance` i18n
- *   keys with English fallbacks; no locale bond currently ships these
- *   keys, so register your own translations if the app is multilingual.
+ * - Status labels use the `status.operational` … `status.maintenance` i18n
+ *   keys, which the `common` locale bond ships in every language; the
+ *   English fallbacks in code match its en.ts.
  * - `header` renders inside the overall banner (last-updated stamp,
  *   subscribe button); `footer` renders below the grid (incident list).
  *

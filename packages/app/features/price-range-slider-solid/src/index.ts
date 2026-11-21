@@ -31,9 +31,10 @@
  *
  * @remarks
  * The default `formatValue` renders US-style dollars (`$1,000`) — always pass
- * your own formatter for non-USD apps. The two sliders carry fixed English
- * aria-labels ("Minimum"/"Maximum"); there is no locale bond. Requires a
- * wired ClassMap bond (`getClassMap()`).
+ * your own formatter for non-USD apps. The two sliders' aria-labels
+ * ("Minimum"/"Maximum") translate through `t()`
+ * (`priceRangeSlider.aria.minimum`/`priceRangeSlider.aria.maximum`), so they
+ * follow the active locale. Requires a wired ClassMap bond (`getClassMap()`).
  *
  * @module
  */

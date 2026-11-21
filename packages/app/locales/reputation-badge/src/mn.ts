@@ -9,6 +9,7 @@ export const mn: ReputationBadgeTranslations = {
   'reputationBadge.level.trusted': 'Итгэмжтэй',
   'reputationBadge.level.veteran': 'Ахмад',
   'reputationBadge.level.legend': 'Домог',
+  'reputationBadge.level.fallback': '{{level}}',
   'badgeShelf.aria': '{{count}} тэмдэг хүртсэн',
   'badgeShelf.overflow.aria': 'Өөр {{count}} тэмдэг харуулах',
 }

@@ -8,4 +8,5 @@ export const vi: Partial<NotificationCenterTranslations> = {
   'notifications.empty': 'Không có thông báo',
   'notifications.loadError': 'Không thể tải thông báo.',
   'notifications.retry': 'Thử lại',
+  'notifications.unread': 'Chưa đọc',
 }

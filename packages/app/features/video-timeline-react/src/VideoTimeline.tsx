@@ -468,7 +468,9 @@ export function VideoTimeline(props: VideoTimelineProps): JSX.Element {
         data-mol-id="video-timeline-controls"
         className={cm.cn(cm.flex({ align: 'center', gap: 'sm' }), cm.sp('p', 2))}
       >
-        <span data-mol-id="video-timeline-mode" aria-label={modeLabel}>
+        <span data-mol-id="video-timeline-mode">
+          {/* A generic span may not carry aria-label; the label is visually hidden text. */}
+          <span className={cm.cn(cm.srOnly)}>{modeLabel}</span>
           {mode === 'ripple'
             ? t('videoTimeline.mode.ripple', {}, { defaultValue: 'Ripple' })
             : t('videoTimeline.mode.insert', {}, { defaultValue: 'Insert' })}
@@ -514,6 +516,7 @@ export function VideoTimeline(props: VideoTimelineProps): JSX.Element {
           aria-valuemin={0}
           aria-valuemax={safeDuration}
           aria-valuenow={currentTime}
+          aria-valuetext={playheadLabel}
           data-mol-id="video-timeline-ruler"
           style={rulerBodyStyle}
           onPointerDown={onRulerPointerDown}
@@ -585,11 +588,7 @@ export function VideoTimeline(props: VideoTimelineProps): JSX.Element {
               </div>
             )
           })}
-          <div
-            data-mol-id="video-timeline-playhead"
-            aria-label={playheadLabel}
-            style={playheadStyle}
-          />
+          <div data-mol-id="video-timeline-playhead" aria-hidden="true" style={playheadStyle} />
         </div>
       </div>
     </div>

@@ -49,4 +49,5 @@ export const ig: Partial<AudioEffectsRackTranslations> = {
   'audioEffectsRack.param.phaser.rate': 'Nye ọnụego',
   'audioEffectsRack.param.phaser.depth': 'Omimi',
   'audioEffectsRack.param.phaser.feedback': 'Nzaghachi',
+  'audioEffectsRack.param.fallback': 'Paramịta',
 }

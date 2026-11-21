@@ -8,4 +8,5 @@ export const fa: Partial<NotificationCenterTranslations> = {
   'notifications.viewAll': 'مشاهده همه',
   'notifications.loadError': 'نتوانست اعلان‌ها را بارگیری کند.',
   'notifications.retry': 'دوباره امتحان کنید',
+  'notifications.unread': 'خوانده نشده',
 }

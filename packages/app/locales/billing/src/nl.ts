@@ -15,4 +15,11 @@ export const nl: Partial<BillingTranslations> = {
   'billing.pricing.reassurance': 'Annuleer op elk moment · Geen creditcard nodig om te beginnen',
   'billing.pricing.perSeat': 'per stoel',
   'billing.pricing.currentCta': 'Huidig plan',
+  'billing.pricing.period.month': 'per maand',
+  'billing.pricing.period.year': 'per jaar',
+  'billing.pricing.billed.month': 'Maandelijks gefactureerd',
+  'billing.pricing.billed.year': 'Jaarlijks gefactureerd',
+  'billing.pricing.unlimited': 'Onbeperkt',
+  'billing.pricing.limit.maxProjects': 'Max. projecten',
+  'billing.pricing.limit.canExport': 'Export mogelijk',
 }

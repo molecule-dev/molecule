@@ -13,6 +13,7 @@
 
 import '@angular/compiler'
 import {
+  type ApplicationRef,
   ChangeDetectionStrategy,
   Component,
   type ComponentRef,
@@ -20,7 +21,7 @@ import {
   provideZonelessChangeDetection,
   type Type,
 } from '@angular/core'
-import { type ApplicationRef, createApplication } from '@angular/platform-browser'
+import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
@@ -64,6 +65,13 @@ vi.mock('@molecule/app-ui-angular', async () => {
 })
 
 const { MiniCalendar } = await import('../mini-calendar.component.js')
+
+// Translations the bonded i18n provider would supply: each key maps to a marked string, so a
+// default that bypassed t() would show up as plain English.
+vi.mock('@molecule/app-angular', () => ({
+  useTranslation: () => ({ t: (key: string) => `«${key}»` }),
+  useLocale: () => () => 'en-US',
+}))
 
 /** Hosts mounted so far: each gets its own id, so their definitions never collide (NG0912). */
 let hostCount = 0
@@ -149,15 +157,22 @@ describe('MiniCalendar', () => {
 
   it('renders previous/next month navigation buttons', async () => {
     const markup = await render({ month: march2026 })
-    expect(markup).toContain('aria-label="Previous month"')
-    expect(markup).toContain('aria-label="Next month"')
+    expect(markup.match(/<button[^>]*aria-label="[^"]+"/g) ?? []).toHaveLength(2)
+  })
+
+  it('takes the previous-month button aria-label through i18n by default', async () => {
+    const markup = await render({ month: march2026 })
+    expect(markup).toContain('aria-label="«miniCalendar.aria.previousMonth»"')
+  })
+
+  it('takes the next-month button aria-label through i18n by default', async () => {
+    const markup = await render({ month: march2026 })
+    expect(markup).toContain('aria-label="«miniCalendar.aria.nextMonth»"')
   })
 
   it('renders a 6×7 day grid (42 day buttons)', async () => {
     const markup = await render({ month: march2026 })
-    expect(markup.match(/<button(?![^>]*aria-label="(Previous|Next) month")/g) ?? []).toHaveLength(
-      42,
-    )
+    expect(markup.match(/<button(?![^>]*aria-label=)/g) ?? []).toHaveLength(42)
   })
 
   it('marks the selected day with aria-current="date"', async () => {

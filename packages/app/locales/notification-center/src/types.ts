@@ -6,6 +6,7 @@ export type NotificationCenterTranslationKey =
   | 'notifications.viewAll'
   | 'notifications.loadError'
   | 'notifications.retry'
+  | 'notifications.unread'
 
 /** Translation record mapping notification-center-react keys to translated strings. */
 export type NotificationCenterTranslations = Record<NotificationCenterTranslationKey, string>

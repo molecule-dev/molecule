@@ -12,6 +12,7 @@
 
 import '@angular/compiler'
 import {
+  type ApplicationRef,
   ChangeDetectionStrategy,
   Component,
   type ComponentRef,
@@ -19,8 +20,10 @@ import {
   provideZonelessChangeDetection,
   type Type,
 } from '@angular/core'
-import { type ApplicationRef, createApplication } from '@angular/platform-browser'
+import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+
+import { inlineStyleMismatch } from '@molecule/app-framework-conformance/ui'
 
 // Proxy ClassMap echoing each accessed member back as its token (e.g. `grid`),
 // so tests can assert which cm.* class was applied without a real bond.
@@ -151,8 +154,9 @@ describe('BentoGrid', () => {
       `<div mol-bento-grid [items]="[{ id: 'a', content: 'x', colSpan: 6, rowSpan: 2 }]"></div>`,
       BentoGrid as Type<unknown>,
     )
-    expect(m.host.innerHTML).toContain('grid-column: span 6')
-    expect(m.host.innerHTML).toContain('grid-row: span 2')
+    expect(
+      inlineStyleMismatch(m.host.innerHTML, { gridColumn: 'span 6', gridRow: 'span 2' }),
+    ).toBeNull()
   })
 
   it('defaults col-span to 4 and row-span to 1 when unspecified', async () => {
@@ -160,8 +164,9 @@ describe('BentoGrid', () => {
       `<div mol-bento-grid [items]="[{ id: 'a', content: 'x' }]"></div>`,
       BentoGrid as Type<unknown>,
     )
-    expect(m.host.innerHTML).toContain('grid-column: span 4')
-    expect(m.host.innerHTML).toContain('grid-row: span 1')
+    expect(
+      inlineStyleMismatch(m.host.innerHTML, { gridColumn: 'span 4', gridRow: 'span 1' }),
+    ).toBeNull()
   })
 
   it('uses grid-template-areas + per-item grid-area in areas mode', async () => {
@@ -172,8 +177,8 @@ describe('BentoGrid', () => {
       { areas: "'a a b'" },
     )
     expect(m.host.innerHTML).toContain('grid-template-areas')
-    expect(m.host.innerHTML).toContain('grid-area: a')
-    expect(m.host.innerHTML).not.toContain('grid-column: span')
+    expect(inlineStyleMismatch(m.host.innerHTML, { gridArea: 'a' })).toBeNull()
+    expect(inlineStyleMismatch(m.host.innerHTML, { gridColumn: 'span 4' })).not.toBeNull()
   })
 
   it('forwards className', async () => {

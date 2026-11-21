@@ -84,7 +84,7 @@
    "line by default, then a locale switch": {
     "snapshots": [
      "<svg aria-label=\"Trend sparkline\" height=\"24\" role=\"img\" viewbox=\"0 0 80 24\" width=\"80\">\n<polyline fill=\"none\" points=\"0,24 13.333333333333334,17.73913043478261 26.666666666666668,20.869565217391305 40,13.565217391304348 53.333333333333336,5.217391304347824 66.66666666666667,8.347826086956522 80,0\" stroke=\"currentColor\" stroke-width=\"1.5\">\n</polyline>\n</svg>\n@route /",
-     "<svg aria-label=\"Trend sparkline\" height=\"24\" role=\"img\" viewbox=\"0 0 80 24\" width=\"80\">\n<polyline fill=\"none\" points=\"0,24 13.333333333333334,17.73913043478261 26.666666666666668,20.869565217391305 40,13.565217391304348 53.333333333333336,5.217391304347824 66.66666666666667,8.347826086956522 80,0\" stroke=\"currentColor\" stroke-width=\"1.5\">\n</polyline>\n</svg>\n@route /"
+     "<svg aria-label=\"⟦Trend sparkline⟧\" height=\"24\" role=\"img\" viewbox=\"0 0 80 24\" width=\"80\">\n<polyline fill=\"none\" points=\"0,24 13.333333333333334,17.73913043478261 26.666666666666668,20.869565217391305 40,13.565217391304348 53.333333333333336,5.217391304347824 66.66666666666667,8.347826086956522 80,0\" stroke=\"currentColor\" stroke-width=\"1.5\">\n</polyline>\n</svg>\n@route /"
     ],
     "calls": []
    },

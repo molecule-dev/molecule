@@ -1,5 +1,6 @@
 import type { ReactElement, ReactNode } from 'react'
 
+import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 /** Describes a single crumb entry in a breadcrumb trail. */
@@ -39,6 +40,9 @@ export interface BreadcrumbProps {
  * Each item before the last is rendered as a link; the last item is
  * rendered as plain text (the "current page"). Pass `onNavigate` to
  * intercept clicks (e.g. hand off to `useNavigate()` from react-router).
+ *
+ * The nav's accessible name flows through `t()` with the English default
+ * `'Breadcrumb'`, so it follows the app's locale.
  * @param props - Component props (see {@link BreadcrumbProps}).
  */
 export function Breadcrumb({
@@ -49,10 +53,11 @@ export function Breadcrumb({
   dataMolId,
 }: BreadcrumbProps): ReactElement {
   const cm = getClassMap()
+  const { t } = useTranslation()
   const sep = separator ?? <span aria-hidden>/</span>
   return (
     <nav
-      aria-label="Breadcrumb"
+      aria-label={t('breadcrumb.aria.breadcrumb', undefined, { defaultValue: 'Breadcrumb' })}
       data-mol-id={dataMolId}
       className={cm.cn(
         cm.flex({ align: 'center', gap: 'xs', wrap: 'wrap' }),

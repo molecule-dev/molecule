@@ -11,6 +11,8 @@ const triggerButton = [{ tag: 'button', attrs: { type: 'button' }, children: ['H
 /** Tooltip: show/hide on hover, dismiss paths, placements with arrow, delay, cloneable vs plain triggers. */
 export const tooltipCases: UIComponentCases = {
   component: 'Tooltip',
+  ref: { caseName: 'mouseleave grace delay elapses and hides' },
+  declaredProps: { props: 'element', caseName: 'hover shows the tooltip and associates it' },
   cases: [
     {
       name: 'defaults (hidden)',
@@ -94,13 +96,27 @@ export const tooltipCases: UIComponentCases = {
       interactions: [{ type: 'focus', selector: 'button' }],
     },
     {
-      // The blur interaction dispatches focusout on the trigger child; it
-      // bubbles to the wrapper, whose onBlur hides a visible tooltip.
+      // A Tab press on the page, then focus on the trigger: keyboard focus, which a browser draws
+      // as focus-visible, so the tooltip shows; blur hides it again.
+      name: 'keyboard focus shows the tooltip, and blur hides it',
+      slots: { content: ['Helpful text'] },
+      children: triggerButton,
+      interactions: [
+        { type: 'keydown', selector: 'body', key: 'Tab' },
+        { type: 'focus', selector: 'button' },
+        { type: 'blur', selector: 'button' },
+      ],
+    },
+    {
+      // Hover shows the tooltip; the trigger then takes focus (a pointer focus, which shows
+      // nothing on its own) and loses it. Its focusout bubbles to the wrapper, whose onBlur
+      // hides the visible tooltip.
       name: 'blur hides a visible tooltip',
       slots: { content: ['Helpful text'] },
       children: triggerButton,
       interactions: [
         { type: 'mouseenter', selector: 'button' },
+        { type: 'focus', selector: 'button' },
         { type: 'blur', selector: 'button' },
       ],
     },

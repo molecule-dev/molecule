@@ -6,9 +6,10 @@
  *   Two layouts: `'grid'` (square tile, default) and `'row'` (horizontal list line).
  * - `<FileIcon>` — stroke-currentColor SVG glyph keyed by `FileKind`.
  * - `bytes(value)` — pure helper that formats a byte count as `420 B` / `1.4 KB` / `2.3 MB` / etc.
+ * - `sizeParts(value)` — the same split as `{ n, unit }`, for rendering the unit through `t()`.
  * - `relativeBucket(at, now?)` — pure helper that buckets a timestamp into `just-now` / `minutes` /
  *   `hours` / `days` / `weeks` / `months` / `absolute`.
- * - `FileSummary` / `FileKind` types — stable shape for the consumer's domain model.
+ * - `FileSummary` / `FileKind` / `SizeParts` types — stable shape for the consumer's domain model.
  *
  * Used by cloud-file-manager (grid + list views), social-media + email-client
  * (attachment previews), and document-collaboration (sidebars).

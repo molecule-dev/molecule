@@ -2,6 +2,7 @@ import type { JSX, ReactNode } from 'react'
 import { useEffect, useId, useRef, useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
+import type { KitKeyboardEvent } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { Input } from '@molecule/app-ui-react'
 
@@ -31,6 +32,13 @@ export interface SearchAutocompleteProps<T = unknown> {
   onSelect: (item: SuggestionItem<T>) => void
   /** Placeholder. */
   placeholder?: string
+  /**
+   * Accessible name for the input, rendered as `aria-label`. Defaults to the
+   * translated `search.aria.label`: a placeholder is not a label, so an input
+   * named only by its placeholder (let alone an empty one) is nameless for
+   * assistive technology.
+   */
+  ariaLabel?: string
   /** Debounce ms for `onSearch`. Defaults to 200. */
   debounceMs?: number
   /** Min chars before suggestions appear. Defaults to 1. */
@@ -51,6 +59,7 @@ export function SearchAutocomplete<T = unknown>({
   suggestions: controlledSuggestions,
   onSelect,
   placeholder,
+  ariaLabel,
   debounceMs = 200,
   minChars = 1,
   className,
@@ -72,15 +81,30 @@ export function SearchAutocomplete<T = unknown>({
    * @param index - Option position.
    */
   const optionId = (index: number): string => `${baseId}-option-${index}`
+  // Both resets happen during render (React's "adjust state when a prop changes"
+  // pattern), so no committed frame shows what they remove. A new query resets
+  // the keyboard highlight (for the internal and the controlled `suggestions`
+  // data modes alike). A query that cannot search (no searcher, or shorter than
+  // minChars) drops the fetched results; one that can keeps the previous
+  // query's results until its own search answers, as the other frameworks do.
+  const [previousValue, setPreviousValue] = useState(value)
+  if (previousValue !== value) {
+    setPreviousValue(value)
+    setActiveIndex(-1)
+  }
+  const canSearch = Boolean(onSearch) && value.length >= minChars
+  if (!canSearch && internal.length > 0) setInternal([])
   const list = controlledSuggestions ?? internal
   // The popover is only visible with open + at least one suggestion.
   const isExpanded = open && list.length > 0
+  // The highlight clamped to the current list: a list that shrinks below the
+  // highlighted index leaves the old option id pointing at nothing, so every
+  // read of the index (activedescendant, the highlighted option, Enter) sees
+  // -1 — nothing highlighted — instead of naming an option that is gone.
+  const active = activeIndex < list.length ? activeIndex : -1
 
   useEffect(() => {
-    if (!onSearch || value.length < minChars) {
-      setInternal([])
-      return
-    }
+    if (!onSearch || value.length < minChars) return
     const id = setTimeout(() => {
       const token = ++requestRef.current
       Promise.resolve(onSearch(value))
@@ -98,12 +122,6 @@ export function SearchAutocomplete<T = unknown>({
     }, debounceMs)
     return () => clearTimeout(id)
   }, [value, onSearch, debounceMs, minChars])
-
-  // A new query resets the keyboard highlight (works for both the internal and
-  // the controlled `suggestions` data modes).
-  useEffect(() => {
-    setActiveIndex(-1)
-  }, [value])
 
   useEffect(() => {
     if (!open) return
@@ -137,7 +155,7 @@ export function SearchAutocomplete<T = unknown>({
    * option, Escape closes.
    * @param e - The keyboard event from the input.
    */
-  function onKeyDown(e: KeyboardEvent): void {
+  function onKeyDown(e: KitKeyboardEvent): void {
     if (e.key === 'ArrowDown') {
       e.preventDefault()
       if (!open) {
@@ -155,9 +173,9 @@ export function SearchAutocomplete<T = unknown>({
       if (list.length === 0) return
       setActiveIndex((i) => (i <= 0 ? list.length - 1 : i - 1))
     } else if (e.key === 'Enter') {
-      if (isExpanded && activeIndex >= 0 && activeIndex < list.length) {
+      if (isExpanded && active >= 0) {
         e.preventDefault()
-        select(list[activeIndex])
+        select(list[active])
       }
     } else if (e.key === 'Escape') {
       if (open) {
@@ -181,10 +199,11 @@ export function SearchAutocomplete<T = unknown>({
         onKeyDown={onKeyDown}
         placeholder={placeholder ?? t('search.placeholder', {}, { defaultValue: 'Search…' })}
         role="combobox"
+        aria-label={ariaLabel ?? t('search.aria.label', undefined, { defaultValue: 'Search' })}
         aria-autocomplete="list"
         aria-expanded={isExpanded}
         aria-controls={listId}
-        aria-activedescendant={isExpanded && activeIndex >= 0 ? optionId(activeIndex) : undefined}
+        aria-activedescendant={isExpanded && active >= 0 ? optionId(active) : undefined}
       />
       {isExpanded && (
         <ul
@@ -210,7 +229,7 @@ export function SearchAutocomplete<T = unknown>({
               key={s.id}
               id={optionId(index)}
               role="option"
-              aria-selected={index === activeIndex}
+              aria-selected={index === active}
               tabIndex={-1}
               data-mol-id="search-autocomplete-option"
               onMouseEnter={() => setActiveIndex(index)}

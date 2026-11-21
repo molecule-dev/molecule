@@ -100,7 +100,7 @@ export function BadgeShelf({
                 {content}
               </button>
             ) : (
-              <span title={tooltip} aria-label={badge.name}>
+              <span title={tooltip} aria-label={badge.name} role="img">
                 {content}
               </span>
             )}

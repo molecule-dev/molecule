@@ -9,7 +9,7 @@ import {
   useFieldState,
   useForm,
   type UseFormOptions,
-  type UseFormReturn,
+  type UseFormResult,
   useWatch,
 } from '../composables/useForms.js'
 
@@ -20,7 +20,7 @@ interface ArticleValues {
 
 describe('Vue late form values', () => {
   it('refreshes form, watch and field views after delivery before mount', async () => {
-    let form!: UseFormReturn<ArticleValues>
+    let form!: UseFormResult<ArticleValues>
     let watched!: ReturnType<typeof useWatch<ArticleValues, 'title'>>
     let field!: ReturnType<typeof useFieldState<ArticleValues>>
     const wrapper = mount(
@@ -52,7 +52,7 @@ describe('Vue late form values', () => {
       values: { title: '', body: '' },
       resetOptions: { keepDirtyValues: true },
     })
-    let form!: UseFormReturn<ArticleValues>
+    let form!: UseFormResult<ArticleValues>
     const wrapper = mount(
       defineComponent({
         setup() {
@@ -83,7 +83,7 @@ describe('Vue late form values', () => {
       values: { title: 'Server title', tags: ['old'], body: '' },
       resetOptions: { keepDirtyValues: true },
     })
-    let form!: UseFormReturn<EditorValues>
+    let form!: UseFormResult<EditorValues>
     const wrapper = mount(
       defineComponent({
         setup() {
@@ -113,7 +113,7 @@ describe('Vue late form values', () => {
       values: { title: '', body: '' },
       resetOptions: { keepDirtyValues: true },
     })
-    let form!: UseFormReturn<ArticleValues>
+    let form!: UseFormResult<ArticleValues>
     const wrapper = mount(
       defineComponent({
         setup() {
@@ -155,7 +155,7 @@ describe('Vue late form values', () => {
         return {}
       },
     })
-    let form!: UseFormReturn<NestedValues>
+    let form!: UseFormResult<NestedValues>
     const wrapper = mount(
       defineComponent({
         setup() {
@@ -196,7 +196,7 @@ describe('Vue late form values', () => {
         return {}
       },
     })
-    let form!: UseFormReturn<NestedValues>
+    let form!: UseFormResult<NestedValues>
     const wrapper = mount(
       defineComponent({
         setup() {

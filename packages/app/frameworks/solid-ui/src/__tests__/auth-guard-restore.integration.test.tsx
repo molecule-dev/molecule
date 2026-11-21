@@ -106,7 +106,7 @@ function renderGuard(client: AuthClient<UserProfile>): void {
   disposers.push(
     render(
       () => (
-        <MoleculeProvider config={{ auth: client, router, i18n: createSimpleI18nProvider() }}>
+        <MoleculeProvider auth={client} router={router} i18n={createSimpleI18nProvider()}>
           <AuthStateReadout />
           <AuthGuard>
             <Routed />

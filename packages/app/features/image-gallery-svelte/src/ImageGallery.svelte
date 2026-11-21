@@ -5,6 +5,7 @@
   Same props, same DOM for the same input.
 -->
 <script lang="ts">
+  import { useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
   import type { ImageGalleryProps } from './types.js'
@@ -17,6 +18,8 @@
     alts,
     className,
   }: ImageGalleryProps = $props()
+
+  const { t } = useTranslation()
 
   const cm = $derived(getClassMap())
 
@@ -67,7 +70,8 @@
     <div style="aspect-ratio: 4 / 3">
       <img
         src={images[idx]}
-        alt={alts?.[idx] ?? `Image ${idx + 1}`}
+        alt={alts?.[idx] ??
+          t('imageGallery.alt.fallback', { number: idx + 1 }, { defaultValue: 'Image {{number}}' })}
         style="width: 100%; height: 100%; object-fit: cover"
       />
     </div>
@@ -78,7 +82,12 @@
             type="button"
             onclick={() => setIdx(i)}
             aria-current={i === idx ? 'true' : undefined}
-            aria-label={alts?.[i] ?? `Image ${i + 1}`}
+            aria-label={alts?.[i] ??
+              t(
+                'imageGallery.alt.fallback',
+                { number: i + 1 },
+                { defaultValue: 'Image {{number}}' },
+              )}
             style="aspect-ratio: 1 / 1"
           >
             <img {src} alt="" style="width: 100%; height: 100%; object-fit: cover" />
@@ -93,7 +102,7 @@
             )}
             style="aspect-ratio: 1 / 1"
           >
-            +{overflow}
+            {t('imageGallery.overflow.more', { count: overflow }, { defaultValue: '+{{count}}' })}
           </div>
         {/if}
       </div>

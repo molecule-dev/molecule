@@ -6,4 +6,8 @@ export const zu: Partial<LoyaltyTierBadgeTranslations> = {
   'loyaltyTierBadge.progress': 'Inqubekela phambili eya {{next}}',
   'loyaltyTierBadge.topTier': 'Izinga eliphezulu lifinyelelwe',
   'loyaltyTierBadge.remaining': '{{remaining}} kuya ku- {{next}}',
+  'loyaltyTierBadge.tier.bronze': 'Ubhronzi',
+  'loyaltyTierBadge.tier.silver': 'Isiliva',
+  'loyaltyTierBadge.tier.gold': 'Igolide',
+  'loyaltyTierBadge.tier.platinum': 'Iplatinamu',
 }

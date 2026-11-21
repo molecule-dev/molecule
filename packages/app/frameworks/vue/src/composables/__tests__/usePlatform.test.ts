@@ -3,7 +3,7 @@ import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { defineComponent, effectScope, h, nextTick, ref } from 'vue'
 
-import type { UsePlatformReturn } from '../usePlatform.js'
+import type { UsePlatformResult } from '../usePlatform.js'
 import { usePlatform } from '../usePlatform.js'
 
 vi.mock('@molecule/app-platform', () => ({
@@ -31,7 +31,7 @@ describe('usePlatform', () => {
 
   it('returns platform info fields', () => {
     const scope = effectScope()
-    let result!: UsePlatformReturn
+    let result!: UsePlatformResult
 
     scope.run(() => {
       result = usePlatform()
@@ -52,7 +52,7 @@ describe('usePlatform', () => {
     vi.mocked(isPlatform).mockImplementation((...platforms) => platforms.includes('web'))
 
     const scope = effectScope()
-    let result!: UsePlatformReturn
+    let result!: UsePlatformResult
 
     scope.run(() => {
       result = usePlatform()
@@ -107,7 +107,7 @@ describe('usePlatform', () => {
     vi.mocked(isPlatform).mockImplementation((...platforms) => platforms.includes('ios'))
 
     const scope = effectScope()
-    let result!: UsePlatformReturn
+    let result!: UsePlatformResult
 
     scope.run(() => {
       result = usePlatform()
@@ -136,7 +136,7 @@ describe('usePlatform', () => {
     })
 
     const scope = effectScope()
-    let result!: UsePlatformReturn
+    let result!: UsePlatformResult
 
     scope.run(() => {
       result = usePlatform()
@@ -154,7 +154,7 @@ describe('usePlatform', () => {
     vi.mocked(isPlatform).mockReturnValue(false)
 
     const scope = effectScope()
-    let result!: UsePlatformReturn
+    let result!: UsePlatformResult
 
     scope.run(() => {
       result = usePlatform()
@@ -167,7 +167,7 @@ describe('usePlatform', () => {
 
   it('returns static values (not reactive)', () => {
     const scope = effectScope()
-    let result!: UsePlatformReturn
+    let result!: UsePlatformResult
 
     scope.run(() => {
       result = usePlatform()

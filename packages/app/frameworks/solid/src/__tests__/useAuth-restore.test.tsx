@@ -139,7 +139,7 @@ function LibraryPage(): JSX.Element {
  */
 function renderPage(client: AuthClient<UserProfile>): HTMLElement {
   return mount(() => (
-    <MoleculeProvider config={{ auth: client, awaitSession: false }}>
+    <MoleculeProvider auth={client} awaitSession={false}>
       <LibraryPage />
     </MoleculeProvider>
   ))

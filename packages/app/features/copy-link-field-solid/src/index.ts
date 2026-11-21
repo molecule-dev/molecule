@@ -14,7 +14,7 @@
  *
  * render(
  *   () => (
- *     <MoleculeProvider config={{ i18n: i18nProvider }}>
+ *     <MoleculeProvider i18n={i18nProvider}>
  *       <CopyLinkField
  *         label="Share link"
  *         value="https://example.com/invite/abc123"

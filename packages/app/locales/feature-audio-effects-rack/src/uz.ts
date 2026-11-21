@@ -49,4 +49,5 @@ export const uz: Partial<AudioEffectsRackTranslations> = {
   'audioEffectsRack.param.phaser.rate': 'Narx',
   'audioEffectsRack.param.phaser.depth': 'Chuqurlik',
   'audioEffectsRack.param.phaser.feedback': 'Fikr-mulohaza',
+  'audioEffectsRack.param.fallback': 'Parametr',
 }

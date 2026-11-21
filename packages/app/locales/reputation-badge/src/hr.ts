@@ -9,6 +9,7 @@ export const hr: ReputationBadgeTranslations = {
   'reputationBadge.level.trusted': 'Pouzdan',
   'reputationBadge.level.veteran': 'Veteran',
   'reputationBadge.level.legend': 'Legenda',
+  'reputationBadge.level.fallback': '{{level}}',
   'badgeShelf.aria': 'Osvojeno {{count}} značaka',
   'badgeShelf.overflow.aria': 'Prikaži još {{count}} značaka',
 }

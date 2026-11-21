@@ -9,6 +9,7 @@ export const ig: ReputationBadgeTranslations = {
   'reputationBadge.level.trusted': 'A tụkwasịrị obi',
   'reputationBadge.level.veteran': 'Onye ahụ tọrọ ahụ',
   'reputationBadge.level.legend': 'Akụkọ ifo',
+  'reputationBadge.level.fallback': '{{level}}',
   'badgeShelf.aria': 'Enwetara baajị {{count}}',
   'badgeShelf.overflow.aria': 'Gosi baajị {{count}} ọzọ',
 }

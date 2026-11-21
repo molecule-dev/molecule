@@ -9,5 +9,7 @@ export const fil: Partial<AudioMixerTranslations> = {
   'audioMixer.aria.send': '{{channel}} ipadala sa {{send}}',
   'audioMixer.button.mute': 'I-mute',
   'audioMixer.button.solo': 'Nag-iisa',
+  'audioMixer.button.muteInitial': 'I',
+  'audioMixer.button.soloInitial': 'N',
   'audioMixer.master': 'Guro',
 }

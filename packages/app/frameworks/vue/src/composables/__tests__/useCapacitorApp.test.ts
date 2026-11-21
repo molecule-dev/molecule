@@ -5,7 +5,7 @@ import { defineComponent, effectScope, h, nextTick } from 'vue'
 
 import type { CapacitorApp, CapacitorAppState } from '@molecule/app-platform'
 
-import type { UseCapacitorAppReturn } from '../useCapacitorApp.js'
+import type { UseCapacitorAppResult } from '../useCapacitorApp.js'
 
 // Mock @molecule/app-platform
 const mockSubscribe = vi.fn<(cb: (state: CapacitorAppState) => void) => () => void>()
@@ -43,8 +43,8 @@ afterEach(() => {
  *
  * @returns The mounted wrapper and the composable result.
  */
-function mountApp(): { wrapper: VueWrapper; result: UseCapacitorAppReturn } {
-  let captured: UseCapacitorAppReturn | null = null
+function mountApp(): { wrapper: VueWrapper; result: UseCapacitorAppResult } {
+  let captured: UseCapacitorAppResult | null = null
   const Probe = defineComponent({
     setup() {
       captured = useCapacitorApp()

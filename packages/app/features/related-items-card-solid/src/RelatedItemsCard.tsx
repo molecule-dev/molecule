@@ -24,6 +24,10 @@ import type { RelatedItemsCardProps } from './types.js'
  * Articles", "Post → Related Posts". Apps supply the item data and a renderer;
  * the card provides consistent header + list + empty-state + view-all chrome.
  *
+ * Clickable rows (`onItemClick`): the `<li>` stays a list item and the card
+ * wraps the row content in an inner `role="button"` div — focusable, with
+ * Enter/Space running the same handler the click does.
+ *
  * Rows keep their DOM node while the item at their index changes, as React's
  * index-keyed rows do: `<Index>` reconciles by position and the memo rebuilds
  * the rendered content for the new item.
@@ -58,11 +62,28 @@ export function RelatedItemsCard<T>(props: RelatedItemsCardProps<T>): JSX.Elemen
               {(item, i) => {
                 const content = createMemo(() => props.renderItem(item(), i))
                 return (
-                  <li
-                    onClick={props.onItemClick ? () => props.onItemClick?.(item(), i) : undefined}
-                    class={props.onItemClick ? cm.cursorPointer : undefined}
-                  >
-                    {content()}
+                  <li>
+                    {props.onItemClick ? (
+                      // Keyboard activation for a clickable row — the same call
+                      // the mouse click makes. The row control is a
+                      // `role="button"` div (an `<li>` may not carry button
+                      // semantics), so it activates Enter and Space itself.
+                      <div
+                        role="button"
+                        tabIndex={0}
+                        class={cm.cursorPointer}
+                        onClick={() => props.onItemClick?.(item(), i)}
+                        onKeyDown={(event: KeyboardEvent): void => {
+                          if (event.key !== 'Enter' && event.key !== ' ') return
+                          event.preventDefault()
+                          props.onItemClick?.(item(), i)
+                        }}
+                      >
+                        {content()}
+                      </div>
+                    ) : (
+                      content()
+                    )}
                   </li>
                 )
               }}

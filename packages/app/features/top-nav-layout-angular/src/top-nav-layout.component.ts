@@ -6,7 +6,7 @@
 
 import { Component, type OnDestroy, signal } from '@angular/core'
 
-import { Link, useRouterInstance } from '@molecule/app-angular'
+import { Link, useRouterInstance, useTranslation } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -81,7 +81,10 @@ export class TopNavLayout implements OnDestroy {
   logoTo?: string
   /** Horizontal nav items rendered in the header. */
   navItems: ReadonlyArray<TopNavItem> = []
-  /** Aria-label for the primary `<nav>` (defaults to `'Primary navigation'` at read time). */
+  /**
+   * Aria-label for the primary `<nav>`. Overrides the translated /
+   * `defaultValue` `'Primary navigation'` (prop > `t()` > default).
+   */
   navAriaLabel?: string
   /** Extra classes on the outer wrapper. */
   className?: string
@@ -89,6 +92,9 @@ export class TopNavLayout implements OnDestroy {
   dataMolId?: string
 
   private readonly router = useRouterInstance()
+
+  /** The i18n handle (locale-reactive), read in an injection context. */
+  private readonly i18n = useTranslation()
 
   /** The current location, kept current so active items follow navigation. */
   private readonly location = signal(this.router.getLocation())
@@ -181,11 +187,17 @@ export class TopNavLayout implements OnDestroy {
   }
 
   /**
-   * The nav region's aria-label (React's default parameter).
+   * The nav region's aria-label: prop > `t()` > default. Read in the template,
+   * so a locale switch re-renders it, as React's does.
    * @returns The aria-label.
    */
   navLabel(): string {
-    return this.navAriaLabel ?? 'Primary navigation'
+    return (
+      this.navAriaLabel ??
+      this.i18n.t('topNavLayout.aria.primaryNavigation', undefined, {
+        defaultValue: 'Primary navigation',
+      })
+    )
   }
 
   /**

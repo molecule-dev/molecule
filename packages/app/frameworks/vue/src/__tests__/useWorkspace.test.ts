@@ -18,7 +18,7 @@ import type { PanelId, WorkspaceLayout, WorkspaceProvider, WorkspaceState } from
 
 import { useWorkspace } from '../composables/useWorkspace.js'
 import { moleculePlugin } from '../plugin.js'
-import type { UseWorkspaceReturn } from '../types.js'
+import type { UseWorkspaceResult } from '../types.js'
 
 const wrappers: VueWrapper[] = []
 
@@ -75,8 +75,8 @@ function workspace(withGetState: boolean): WorkspaceProvider {
  * @param provider - The workspace provider the plugin injects.
  * @returns The composable result.
  */
-function mountWorkspace(provider: WorkspaceProvider): UseWorkspaceReturn {
-  let captured: UseWorkspaceReturn | null = null
+function mountWorkspace(provider: WorkspaceProvider): UseWorkspaceResult {
+  let captured: UseWorkspaceResult | null = null
   const Probe = defineComponent({
     setup() {
       captured = useWorkspace()

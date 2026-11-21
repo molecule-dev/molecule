@@ -49,4 +49,5 @@ export const hy: Partial<AudioEffectsRackTranslations> = {
   'audioEffectsRack.param.phaser.rate': 'Գնահատել',
   'audioEffectsRack.param.phaser.depth': 'Խորություն',
   'audioEffectsRack.param.phaser.feedback': 'Հետադարձ կապ',
+  'audioEffectsRack.param.fallback': 'Պարամետր',
 }

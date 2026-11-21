@@ -54,9 +54,14 @@ export function PhotoLightbox({
     [total, onIndexChange],
   )
 
-  useEffect(() => {
+  // Opening the lightbox (or a new `initialIndex`) rewinds to the start photo.
+  // Adjusted during render — React's pattern for state derived from previous
+  // props — so the first open frame already shows `initialIndex`.
+  const [prevEntry, setPrevEntry] = useState({ open, initialIndex })
+  if (prevEntry.open !== open || prevEntry.initialIndex !== initialIndex) {
+    setPrevEntry({ open, initialIndex })
     if (open) setIndex(initialIndex)
-  }, [open, initialIndex])
+  }
 
   useEffect(() => {
     if (!open) return
@@ -77,81 +82,88 @@ export function PhotoLightbox({
   const photo = photos[index]
 
   return (
+    // The overlay is a click-to-dismiss screen (role="presentation"): clicking
+    // it directly closes; clicks on the controls inside do not. The dialog
+    // itself is the element inside it, so Escape (handled on `document`
+    // below) stays the keyboard path.
     <div
-      role="dialog"
-      aria-modal="true"
-      aria-label={photo.alt ?? `Image ${index + 1} of ${total}`}
+      role="presentation"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose()
       }}
-      className={cm.cn(cm.position('fixed'))}
+      className={cm.cn(cm.position('fixed'), cm.bgScrim)}
       style={{
         position: 'fixed',
         inset: 0,
-        background: 'rgba(0,0,0,0.92)',
         zIndex: 100,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
       }}
     >
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={onClose}
-        aria-label={t('lightbox.close', {}, { defaultValue: 'Close' })}
-        className={cm.position('absolute')}
-      >
-        ✕
-      </Button>
-      {total > 1 && (
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => setIdx(index - 1)}
-          aria-label={t('lightbox.previous', {}, { defaultValue: 'Previous' })}
-          className={cm.position('absolute')}
-          style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)' }}
-        >
-          ‹
-        </Button>
-      )}
-      <figure style={{ margin: 0, maxWidth: '90vw', maxHeight: '90vh', textAlign: 'center' }}>
-        <img
-          src={photo.src}
-          alt={photo.alt ?? `Image ${index + 1}`}
-          style={{ maxWidth: '100%', maxHeight: '80vh', objectFit: 'contain' }}
-        />
-        {photo.caption && (
-          <figcaption style={{ color: '#fff', padding: 12, fontSize: 14 }}>
-            {photo.caption}
-          </figcaption>
-        )}
-      </figure>
-      {total > 1 && (
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => setIdx(index + 1)}
-          aria-label={t('lightbox.next', {}, { defaultValue: 'Next' })}
-          className={cm.position('absolute')}
-          style={{ position: 'absolute', right: 16, top: '50%', transform: 'translateY(-50%)' }}
-        >
-          ›
-        </Button>
-      )}
       <div
-        style={{
-          position: 'absolute',
-          bottom: 16,
-          left: 0,
-          right: 0,
-          textAlign: 'center',
-          color: '#fff',
-          fontSize: 12,
-        }}
+        role="dialog"
+        aria-modal="true"
+        aria-label={photo.alt ?? `Image ${index + 1} of ${total}`}
       >
-        {index + 1} / {total}
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onClose}
+          aria-label={t('lightbox.close', {}, { defaultValue: 'Close' })}
+          className={cm.position('absolute')}
+        >
+          ✕
+        </Button>
+        {total > 1 && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setIdx(index - 1)}
+            aria-label={t('lightbox.previous', {}, { defaultValue: 'Previous' })}
+            className={cm.position('absolute')}
+            style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)' }}
+          >
+            ‹
+          </Button>
+        )}
+        <figure style={{ margin: 0, maxWidth: '90vw', maxHeight: '90vh', textAlign: 'center' }}>
+          <img
+            src={photo.src}
+            alt={photo.alt ?? `Image ${index + 1}`}
+            style={{ maxWidth: '100%', maxHeight: '80vh', objectFit: 'contain' }}
+          />
+          {photo.caption && (
+            <figcaption className={cm.textOnTone} style={{ padding: 12, fontSize: 14 }}>
+              {photo.caption}
+            </figcaption>
+          )}
+        </figure>
+        {total > 1 && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setIdx(index + 1)}
+            aria-label={t('lightbox.next', {}, { defaultValue: 'Next' })}
+            className={cm.position('absolute')}
+            style={{ position: 'absolute', right: 16, top: '50%', transform: 'translateY(-50%)' }}
+          >
+            ›
+          </Button>
+        )}
+        <div
+          className={cm.textOnTone}
+          style={{
+            position: 'absolute',
+            bottom: 16,
+            left: 0,
+            right: 0,
+            textAlign: 'center',
+            fontSize: 12,
+          }}
+        >
+          {index + 1} / {total}
+        </div>
       </div>
     </div>
   )

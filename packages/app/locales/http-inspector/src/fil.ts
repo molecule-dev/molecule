@@ -7,4 +7,8 @@ export const fil: Partial<HttpInspectorTranslations> = {
   'httpInspector.body': 'Katawan ng mensahe',
   'httpInspector.headers': 'Mga Header',
   'httpInspector.addHeader': 'Magdagdag ng header',
+  'httpInspector.methodLabel': 'Paraan ng HTTP',
+  'httpInspector.urlLabel': 'URL',
+  'httpInspector.headerPlaceholder': 'Header',
+  'httpInspector.valuePlaceholder': 'Halaga',
 }

@@ -16,4 +16,8 @@ export const vi: Partial<SearchUiTranslations> = {
     'Khớp với ý nghĩa của từ khóa tìm kiếm, chứ không phải là nội dung từ ngữ.',
   'searchUi.related': 'có liên quan',
   'searchUi.help': 'Mẹo tìm kiếm',
+  'searchUi.examplePhrase': '"cụm từ chính xác"',
+  'searchUi.exampleExcluded': '-từ',
+  'searchUi.activeResult': '{{title}}, {{position}} trên {{count}}',
+  'searchUi.dialogLabel': 'Tìm kiếm',
 }

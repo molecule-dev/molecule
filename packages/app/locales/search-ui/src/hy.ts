@@ -15,4 +15,8 @@ export const hy: Partial<SearchUiTranslations> = {
   'searchUi.relatedTitle': 'Համապատասխանում է ձեր որոնման իմաստին, այլ ոչ թե բառերին',
   'searchUi.related': 'կապված',
   'searchUi.help': 'Որոնման խորհուրդներ',
+  'searchUi.examplePhrase': '"ճշգրիտ արտահայտություն"',
+  'searchUi.exampleExcluded': '-բառ',
+  'searchUi.activeResult': '{{title}}, {{position}}՝ {{count}}-ից',
+  'searchUi.dialogLabel': 'Որոնում',
 }

@@ -7,4 +7,8 @@ export const he: Partial<HttpInspectorTranslations> = {
   'httpInspector.headers': 'כותרות',
   'httpInspector.addHeader': 'הוסף כותרת',
   'httpInspector.body': 'גוּף',
+  'httpInspector.methodLabel': 'שיטת HTTP',
+  'httpInspector.urlLabel': 'URL',
+  'httpInspector.headerPlaceholder': 'כותרת',
+  'httpInspector.valuePlaceholder': 'ערך',
 }

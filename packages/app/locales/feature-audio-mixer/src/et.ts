@@ -8,6 +8,8 @@ export const et: Partial<AudioMixerTranslations> = {
   'audioMixer.aria.send': '{{channel}} saada {{send}}',
   'audioMixer.button.mute': 'Vaigista',
   'audioMixer.button.solo': 'Soolo',
+  'audioMixer.button.muteInitial': 'V',
+  'audioMixer.button.soloInitial': 'S',
   'audioMixer.master': 'Meister',
   'audioMixer.sends': 'Saadab',
 }

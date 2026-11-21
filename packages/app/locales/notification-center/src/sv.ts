@@ -8,4 +8,5 @@ export const sv: Partial<NotificationCenterTranslations> = {
   'notifications.empty': 'Inga aviseringar',
   'notifications.loadError': 'Kunde inte ladda aviseringar.',
   'notifications.retry': 'Försöka igen',
+  'notifications.unread': 'Oläst',
 }

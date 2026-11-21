@@ -9,6 +9,7 @@
 
 import { type Component, Index, Show } from 'solid-js'
 
+import { useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { SparklineProps } from './types.js'
@@ -26,11 +27,14 @@ import type { SparklineProps } from './types.js'
  */
 export const Sparkline: Component<SparklineProps> = (props) => {
   const cm = getClassMap()
+  const { t } = useTranslation()
   const variant = (): 'line' | 'bar' | 'dot' => props.variant ?? 'line'
   const svgWidth = (): number => props.width ?? 80
   const svgHeight = (): number => props.height ?? 24
   const color = (): string => props.color ?? 'currentColor'
-  const ariaLabel = (): string => props.ariaLabel ?? 'Trend sparkline'
+  const ariaLabel = (): string =>
+    props.ariaLabel ??
+    t('sparkline.aria.trendSparkline', undefined, { defaultValue: 'Trend sparkline' })
   const min = (): number => Math.min(...props.values)
   const max = (): number => Math.max(...props.values)
   const range = (): number => max() - min() || 1

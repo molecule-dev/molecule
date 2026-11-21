@@ -8,6 +8,8 @@ export const gl: Partial<AudioMixerTranslations> = {
   'audioMixer.aria.send': '{{channel}} enviar a {{send}}',
   'audioMixer.button.mute': 'Silenciar',
   'audioMixer.button.solo': 'Só',
+  'audioMixer.button.muteInitial': 'S',
+  'audioMixer.button.soloInitial': 'S',
   'audioMixer.master': 'Mestre',
   'audioMixer.sends': 'Envía',
 }

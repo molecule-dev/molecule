@@ -8,4 +8,5 @@ export const hi: Partial<NotificationCenterTranslations> = {
   'notifications.empty': 'कोई सूचना नहीं',
   'notifications.loadError': 'सूचनाएं लोड नहीं हो सकीं।',
   'notifications.retry': 'पुन: प्रयास करें',
+  'notifications.unread': 'अपठित',
 }

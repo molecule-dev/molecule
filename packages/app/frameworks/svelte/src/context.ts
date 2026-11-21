@@ -16,7 +16,11 @@ import type { WorkspaceProvider } from '@molecule/app-ide'
 import type { PreviewProvider } from '@molecule/app-live-preview'
 import type { LoggerProvider } from '@molecule/app-logger'
 import type { Router } from '@molecule/app-routing'
-import type { StateProvider } from '@molecule/app-state'
+import {
+  getProvider as getBondedStateProvider,
+  hasProvider as hasBondedStateProvider,
+  type StateProvider,
+} from '@molecule/app-state'
 import type { StorageProvider } from '@molecule/app-storage'
 import type { ThemeProvider } from '@molecule/app-theme'
 
@@ -39,7 +43,11 @@ const PREVIEW_KEY = Symbol('molecule-preview')
 /**
  * Set all molecule providers in Svelte context.
  *
- * Call this in your root layout/component.
+ * Call this in your root layout/component. Only the services passed are set, except `state`,
+ * which falls back to the state provider bonded under `@molecule/app-state` (as
+ * `MoleculeProvider` does), so `useStore()` works without a `state` option. To hold the app
+ * until the session is decided, render `MoleculeProvider` (its `awaitSession`) or
+ * `SessionReady` instead.
  *
  * @example
  * ```svelte
@@ -59,7 +67,10 @@ const PREVIEW_KEY = Symbol('molecule-preview')
  * @param config - Provider instances to register (state, auth, theme, router, i18n, http, storage, logger, chat, workspace, editor, preview).
  */
 export function setMoleculeContext(config: MoleculeConfig): void {
-  if (config.state) setContext(STATE_KEY, config.state)
+  // A `state` option wins; otherwise the BONDED state provider, the singleton every
+  // `createStore()` reads, as React's `MoleculeProvider` falls back to it.
+  const state = config.state ?? (hasBondedStateProvider() ? getBondedStateProvider() : undefined)
+  if (state) setContext(STATE_KEY, state)
   if (config.auth) setContext(AUTH_KEY, config.auth)
   if (config.theme) setContext(THEME_KEY, config.theme)
   if (config.router) setContext(ROUTER_KEY, config.router)

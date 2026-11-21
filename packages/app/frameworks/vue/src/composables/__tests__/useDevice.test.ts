@@ -3,7 +3,7 @@ import { mount, type VueWrapper } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { defineComponent, type EffectScope, effectScope, h, nextTick, ref, shallowRef } from 'vue'
 
-import type { UseDeviceReturn } from '../useDevice.js'
+import type { UseDeviceResult } from '../useDevice.js'
 import { useDevice } from '../useDevice.js'
 
 vi.mock('@molecule/app-device', () => ({
@@ -97,9 +97,9 @@ describe('useDevice', () => {
   })
 
   /** Runs the composable inside an effect scope, the way a component setup runs it. */
-  function open(): UseDeviceReturn {
+  function open(): UseDeviceResult {
     const scope = effectScope()
-    let result!: UseDeviceReturn
+    let result!: UseDeviceResult
     scope.run(() => {
       result = useDevice()
     })
@@ -114,8 +114,8 @@ describe('useDevice', () => {
    *
    * @returns The last result the composable produced and an update trigger.
    */
-  function mountDevice(): { current: () => UseDeviceReturn; update: () => Promise<void> } {
-    const holder = shallowRef<UseDeviceReturn | null>(null)
+  function mountDevice(): { current: () => UseDeviceResult; update: () => Promise<void> } {
+    const holder = shallowRef<UseDeviceResult | null>(null)
     const tick = ref(0)
     const Page = defineComponent({
       setup() {
@@ -138,7 +138,7 @@ describe('useDevice', () => {
 
   it('returns device info from provider', () => {
     const scope = effectScope()
-    let result!: UseDeviceReturn
+    let result!: UseDeviceResult
 
     scope.run(() => {
       result = useDevice()
@@ -152,7 +152,7 @@ describe('useDevice', () => {
 
   it('returns screen info from provider', () => {
     const scope = effectScope()
-    let result!: UseDeviceReturn
+    let result!: UseDeviceResult
 
     scope.run(() => {
       result = useDevice()
@@ -166,7 +166,7 @@ describe('useDevice', () => {
 
   it('returns hardware info from provider', () => {
     const scope = effectScope()
-    let result!: UseDeviceReturn
+    let result!: UseDeviceResult
 
     scope.run(() => {
       result = useDevice()
@@ -180,7 +180,7 @@ describe('useDevice', () => {
 
   it('returns feature support from provider', () => {
     const scope = effectScope()
-    let result!: UseDeviceReturn
+    let result!: UseDeviceResult
 
     scope.run(() => {
       result = useDevice()
@@ -194,7 +194,7 @@ describe('useDevice', () => {
 
   it('delegates supports() to provider', () => {
     const scope = effectScope()
-    let result!: UseDeviceReturn
+    let result!: UseDeviceResult
 
     scope.run(() => {
       result = useDevice()
@@ -210,7 +210,7 @@ describe('useDevice', () => {
 
   it('delegates isOnline() to provider', () => {
     const scope = effectScope()
-    let result!: UseDeviceReturn
+    let result!: UseDeviceResult
 
     scope.run(() => {
       result = useDevice()
@@ -226,7 +226,7 @@ describe('useDevice', () => {
 
   it('delegates isStandalone() to provider', () => {
     const scope = effectScope()
-    let result!: UseDeviceReturn
+    let result!: UseDeviceResult
 
     scope.run(() => {
       result = useDevice()
@@ -242,7 +242,7 @@ describe('useDevice', () => {
 
   it('returns language and languages from provider', () => {
     const scope = effectScope()
-    let result!: UseDeviceReturn
+    let result!: UseDeviceResult
 
     scope.run(() => {
       result = useDevice()
@@ -256,7 +256,7 @@ describe('useDevice', () => {
 
   it('returns static values (not reactive)', () => {
     const scope = effectScope()
-    let result!: UseDeviceReturn
+    let result!: UseDeviceResult
 
     scope.run(() => {
       result = useDevice()

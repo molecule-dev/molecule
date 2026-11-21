@@ -9,6 +9,7 @@ export const de: ReputationBadgeTranslations = {
   'reputationBadge.level.trusted': 'Vertrauenswürdig',
   'reputationBadge.level.veteran': 'Veteran',
   'reputationBadge.level.legend': 'Legende',
+  'reputationBadge.level.fallback': '{{level}}',
   'badgeShelf.aria': '{{count}} Abzeichen verdient',
   'badgeShelf.overflow.aria': '{{count}} weitere Abzeichen anzeigen',
 }

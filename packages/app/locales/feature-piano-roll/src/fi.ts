@@ -9,4 +9,6 @@ export const fi: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.note':
     'Huomautus {{pitch}} alkaen tahdista {{startBeat}} varten {{durationBeats}} biitit',
   'pianoRoll.aria.cursor': 'Kohdistin {{pitch}} kohdalla, tahdilla {{beat}}',
+  'pianoRoll.aria.gridHelp':
+    'Nuolinäppäimet siirtävät solun kohdistinta, Enter tai välilyönti piirtää siihen nuotin.',
 }

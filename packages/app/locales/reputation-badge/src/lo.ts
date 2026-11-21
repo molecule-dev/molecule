@@ -9,6 +9,7 @@ export const lo: ReputationBadgeTranslations = {
   'reputationBadge.level.trusted': 'ເຊື່ອຖືໄດ້',
   'reputationBadge.level.veteran': 'ຜູ້ມີປະສົບການ',
   'reputationBadge.level.legend': 'ตำนาน',
+  'reputationBadge.level.fallback': '{{level}}',
   'badgeShelf.aria': 'ໄດ້ຮັບ {{count}} ກາໝາຍ',
   'badgeShelf.overflow.aria': 'ສະແດງ {{count}} ກາໝາຍເພີ່ມເຕີມ',
 }

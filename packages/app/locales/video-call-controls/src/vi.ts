@@ -8,4 +8,7 @@ export const vi: Partial<VideoCallControlsTranslations> = {
   'call.cameraOn': '📹',
   'call.cameraOff': '🚫',
   'call.share': '🖥',
+  'call.aria.muted': 'Đã tắt tiếng',
+  'call.aria.handRaised': 'Đã giơ tay',
+  'call.label.you': '(bạn)',
 }

@@ -21,7 +21,7 @@
  *
  * render(
  *   () => (
- *     <MoleculeProvider config={{ router }}>
+ *     <MoleculeProvider router={router}>
  *       <AnalyticsRouteListener />
  *       <Home />
  *     </MoleculeProvider>

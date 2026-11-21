@@ -76,9 +76,10 @@
  *   const starts = new Set(sectionStarts(provenance.spans))
  *   const notes: MarginNote[] = []
  *   const promptNoteIds = new Map<string, string>()
- *   let summaryId: string | undefined
  *
  *   const blocks: MarginNotesBlock[] = provenance.spans.map((span, i) => {
+ *     // The section summary, if this span starts one; only this iteration reads it.
+ *     let summaryId: string | undefined
  *     if (starts.has(i)) {
  *       summaryId = summaries[i] ? `summary-${i}` : undefined
  *       if (summaryId) {

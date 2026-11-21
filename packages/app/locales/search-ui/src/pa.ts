@@ -15,4 +15,8 @@ export const pa: Partial<SearchUiTranslations> = {
   'searchUi.relatedTitle': 'ਤੁਹਾਡੀ ਖੋਜ ਦੇ ਅਰਥ ਨਾਲ ਮੇਲ ਖਾਂਦਾ ਹੈ, ਨਾ ਕਿ ਇਸਦੇ ਸ਼ਬਦਾਂ ਨਾਲ।',
   'searchUi.related': 'ਸੰਬੰਧਿਤ',
   'searchUi.help': 'ਖੋਜ ਸੁਝਾਅ',
+  'searchUi.examplePhrase': '"ਸਹੀ ਵਾਕੰਸ਼"',
+  'searchUi.exampleExcluded': '-ਸ਼ਬਦ',
+  'searchUi.activeResult': '{{title}}, {{count}} ਵਿੱਚੋਂ {{position}}',
+  'searchUi.dialogLabel': 'ਖੋਜੋ',
 }

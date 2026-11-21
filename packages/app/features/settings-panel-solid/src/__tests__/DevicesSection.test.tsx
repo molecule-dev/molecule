@@ -84,7 +84,7 @@ function mountSection(client: HttpClient): () => void {
   const dispose = render(
     () =>
       (
-        <MoleculeProvider config={{ http: client }}>
+        <MoleculeProvider http={client}>
           <DevicesSection />
         </MoleculeProvider>
       ) as JSX.Element,

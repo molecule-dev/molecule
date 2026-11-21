@@ -16,7 +16,7 @@
  *
  * render(
  *   () => (
- *     <MoleculeProvider config={{ i18n: i18nProvider }}>
+ *     <MoleculeProvider i18n={i18nProvider}>
  *       <AnnouncementBar
  *         kind="promo"
  *         icon={<span>🎉</span>}

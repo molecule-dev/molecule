@@ -33,11 +33,7 @@ import type { BentoItem } from './types.js'
     '[style.grid-template-areas]': 'gridTemplateAreas()',
   },
   template: `@for (item of items; track item.id) {
-    <div
-      [style.grid-column]="columnSpan(item)"
-      [style.grid-row]="rowSpan(item)"
-      [style.grid-area]="areaOf(item)"
-    >
+    <div [attr.style]="itemStyle(item)">
       @if (isNode(item.content)) {
         <ng-container [ngTemplateOutlet]="item.content" />
       } @else {
@@ -93,31 +89,21 @@ export class BentoGrid {
   }
 
   /**
-   * An item's `grid-column` in span mode (React's `span ${colSpan ?? 4}`).
+   * An item's whole style attribute: React's `{ gridColumn, gridRow }` in span mode, its
+   * `{ gridArea }` in areas mode, and none for an item that sets no area.
+   *
+   * One attribute binding rather than `[style.grid-column]`, `[style.grid-row]` and
+   * `[style.grid-area]`: `grid-area` is the shorthand of the other two, so Angular removing the
+   * null `grid-area` binding also removed both spans, and a browser laid every item out at span 1.
+   * A `[style]` map binding has the same fault on a span-to-areas switch, because Angular applies
+   * map changes in key order (it sets `grid-area`, then removes `grid-column` from it).
    * @param item - The item.
-   * @returns The CSS value, or null in areas mode.
+   * @returns The style text, or null for no style attribute.
    */
-  columnSpan(item: BentoItem): string | null {
-    return this.areas ? null : `span ${item.colSpan ?? 4}`
-  }
-
-  /**
-   * An item's `grid-row` in span mode (React's `span ${rowSpan ?? 1}`).
-   * @param item - The item.
-   * @returns The CSS value, or null in areas mode.
-   */
-  rowSpan(item: BentoItem): string | null {
-    return this.areas ? null : `span ${item.rowSpan ?? 1}`
-  }
-
-  /**
-   * An item's `grid-area` in areas mode; absent in span mode and when the item
-   * sets no area (React renders no declaration).
-   * @param item - The item.
-   * @returns The CSS value, or null for no declaration.
-   */
-  areaOf(item: BentoItem): string | null {
-    return this.areas ? (item.area ?? null) : null
+  itemStyle(item: BentoItem): string | null {
+    if (!this.areas)
+      return `grid-column: span ${item.colSpan ?? 4}; grid-row: span ${item.rowSpan ?? 1}`
+    return item.area ? `grid-area: ${item.area}` : null
   }
 
   /**

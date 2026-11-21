@@ -8,4 +8,7 @@ export const ig: Partial<VideoCallControlsTranslations> = {
   'call.cameraOff': '🚫',
   'call.share': '🖥',
   'call.leave': 'Hapụ',
+  'call.aria.muted': 'Agbanyụrụ olu',
+  'call.aria.handRaised': 'Ewelitere aka',
+  'call.label.you': '(gị)',
 }

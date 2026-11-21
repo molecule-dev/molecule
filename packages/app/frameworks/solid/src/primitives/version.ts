@@ -14,7 +14,7 @@ import { useSyncExternalStore } from './external-store.js'
 /**
  * Version primitives return type.
  */
-export interface VersionPrimitives {
+export interface UseVersionResult {
   state: Accessor<VersionState>
   isUpdateAvailable: Accessor<boolean>
   isChecking: Accessor<boolean>
@@ -26,6 +26,13 @@ export interface VersionPrimitives {
   startPeriodicChecks: (options?: UpdateCheckOptions) => void
   stopPeriodicChecks: () => void
 }
+
+/**
+ * The former name of {@link UseVersionResult}.
+ *
+ * @deprecated Renamed to {@link UseVersionResult}, `@molecule/app-react`'s name for it.
+ */
+export type VersionPrimitives = UseVersionResult
 
 /**
  * Create version primitives for tracking app updates.
@@ -51,7 +58,7 @@ export interface VersionPrimitives {
  * }
  * ```
  */
-export function createVersion(): VersionPrimitives {
+export function createVersion(): UseVersionResult {
   return useVersion()
 }
 
@@ -72,7 +79,7 @@ export function createVersion(): VersionPrimitives {
  * </Show>
  * ```
  */
-export function useVersion(): VersionPrimitives {
+export function useVersion(): UseVersionResult {
   const provider = getProvider()
 
   // Cached snapshot for stability (React's cachedStateRef): a state whose

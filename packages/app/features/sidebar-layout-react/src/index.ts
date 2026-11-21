@@ -50,9 +50,11 @@
  * - Active-nav highlighting picks the longest prefix-match of the current
  *   path; same-path clicks get a `#top` fragment appended (same behavior as
  *   `@molecule/app-safe-link-react`).
- * - `navAriaLabel` defaults to English "Primary navigation" — pass a
- *   translated string in localized apps (nav `label`s are plain strings;
- *   translate them upstream).
+ * - `navAriaLabel` overrides the translated nav region name; without it the
+ *   label comes from `t('sidebarLayout.aria.primaryNavigation')` (English
+ *   default `'Primary navigation'`), so it follows a locale switch through its
+ *   companion locale bond (`@molecule/app-locales-sidebar-layout`). Nav item
+ *   `label`s stay plain caller strings — translate them upstream.
  * - Requires a bonded ClassMap. Sibling: `@molecule/app-shell-layout-react`
  *   is the top header/footer shell (router-free).
  *

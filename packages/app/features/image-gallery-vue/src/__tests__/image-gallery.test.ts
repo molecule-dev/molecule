@@ -40,13 +40,14 @@ vi.mock('@molecule/app-ui', () => ({
 import { createApp, defineComponent, h } from 'vue'
 
 import { ImageGallery } from '../ImageGallery.js'
+import type { ImageGalleryProps } from '../types.js'
 
 afterEach(() => {
   document.body.innerHTML = ''
 })
 
 /** Renders an {@link ImageGallery} and returns the markup it produced. */
-const render = (props: Record<string, unknown>): string => {
+const render = (props: ImageGalleryProps): string => {
   const host = document.createElement('div')
   document.body.appendChild(host)
   const app = createApp(defineComponent({ render: () => h(ImageGallery, props) }))

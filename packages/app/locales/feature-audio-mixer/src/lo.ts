@@ -8,6 +8,8 @@ export const lo: Partial<AudioMixerTranslations> = {
   'audioMixer.aria.send': '{{channel}} ສົ່ງໄປຫາ {{send}}',
   'audioMixer.button.mute': 'ປິດສຽງ',
   'audioMixer.button.solo': 'ດ່ຽວ',
+  'audioMixer.button.muteInitial': 'ປ',
+  'audioMixer.button.soloInitial': 'ດ',
   'audioMixer.master': 'ອາຈານ',
   'audioMixer.sends': 'ສົ່ງ',
 }

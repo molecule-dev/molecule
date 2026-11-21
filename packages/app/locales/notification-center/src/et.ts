@@ -8,4 +8,5 @@ export const et: Partial<NotificationCenterTranslations> = {
   'notifications.viewAll': 'Kuva kõik',
   'notifications.loadError': 'Teavituste laadimine ebaõnnestus.',
   'notifications.retry': 'Proovi uuesti',
+  'notifications.unread': 'Lugemata',
 }

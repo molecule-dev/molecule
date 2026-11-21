@@ -23,12 +23,33 @@ vi.mock('@molecule/app-ui', () => ({
   },
 }))
 
-vi.mock('@molecule/app-react', () => ({
-  useTranslation: () => ({
-    t: (_key: string, _values: unknown, opts?: { defaultValue?: string }) =>
-      opts?.defaultValue ?? _key,
-  }),
+// The bonded i18n provider's `t`: by default it returns the call's own English
+// fallback (the suite asserts the rendered English); a test swaps in a marker
+// implementation to prove a string really goes through `t`, key and all.
+const i18n = vi.hoisted(() => ({
+  t: (_key: string, _values: unknown, opts?: { defaultValue?: string }) =>
+    opts?.defaultValue ?? _key,
 }))
+
+vi.mock('@molecule/app-react', () => ({
+  useTranslation: () => ({ t: i18n.t }),
+}))
+
+/**
+ * Runs `assert` with `t` replaced by a marker implementation that renders each
+ * key as `«key»`, then restores the English fallback implementation.
+ *
+ * @param assert - The assertions to run.
+ */
+const withMarkedTranslations = (assert: () => void): void => {
+  const original = i18n.t
+  i18n.t = (key: string) => `«${key}»`
+  try {
+    assert()
+  } finally {
+    i18n.t = original
+  }
+}
 
 vi.mock('@molecule/app-ui-react', () => ({
   Button: ({
@@ -93,11 +114,34 @@ describe('ParticipantTile', () => {
     )
   })
 
-  it('applies the speaking outline only when speaking is set', () => {
+  it('renders the muted indicator label through t', () => {
+    withMarkedTranslations(() => {
+      const markup = html(createElement(ParticipantTile, { name: 'A', audioEnabled: false }))
+      expect(markup).toContain('aria-label="«call.aria.muted»"')
+    })
+  })
+
+  it('renders the hand-raised indicator label through t', () => {
+    withMarkedTranslations(() => {
+      const markup = html(createElement(ParticipantTile, { name: 'A', handRaised: true }))
+      expect(markup).toContain('aria-label="«call.aria.handRaised»"')
+    })
+  })
+
+  it('renders the local suffix through t', () => {
+    withMarkedTranslations(() => {
+      const markup = html(createElement(ParticipantTile, { name: 'Alice', isLocal: true }))
+      expect(markup).toContain('«call.label.you»')
+    })
+  })
+
+  it('applies the success-tone speaking ring only when speaking is set', () => {
     const speaking = html(createElement(ParticipantTile, { name: 'A', speaking: true }))
-    expect(speaking).toContain('outline:3px solid #22c55e')
+    expect(speaking).toContain('outline:3px solid currentColor')
+    expect(speaking).toContain('textTone')
     const quiet = html(createElement(ParticipantTile, { name: 'A' }))
-    expect(quiet).not.toContain('outline:3px solid')
+    expect(quiet).not.toContain('outline:3px')
+    expect(quiet).not.toContain('textTone')
   })
 
   it('forwards className', () => {

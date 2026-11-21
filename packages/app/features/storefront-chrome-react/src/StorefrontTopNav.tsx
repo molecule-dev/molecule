@@ -12,6 +12,7 @@
 import { type JSX, type ReactNode, useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router'
 
+import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { NavActionSpec, NavLinkSpec, ProfileMenuItem } from './types.js'
@@ -34,14 +35,23 @@ export interface StorefrontTopNavProps {
    * given (e.g. "JD"). Falls back to a default avatar icon when omitted.
    */
   profileInitials?: string
-  /** Avatar alt text. Defaults to English "User profile" — pass a translated string. */
+  /**
+   * Avatar alt text. Falls back to the translated "User profile"
+   * (`storefrontChrome.nav.userProfile`) when omitted.
+   */
   profileImageAlt?: string
-  /** Accessible name for the account-menu trigger. Defaults to English "Account menu". */
+  /**
+   * Accessible name for the account-menu trigger. Falls back to the translated
+   * "Account menu" (`storefrontChrome.nav.accountMenu`) when omitted.
+   */
   accountMenuLabel?: string
   authedMenu?: ProfileMenuItem[]
   unauthedMenu?: ProfileMenuItem[]
   onSignOut?: () => void
-  /** Sign-out button label. Defaults to English "Sign Out" — pass a translated string. */
+  /**
+   * Sign-out button label. Falls back to the translated "Sign Out"
+   * (`storefrontChrome.nav.signOut`) when omitted.
+   */
   signOutLabel?: ReactNode
   className?: string
 }
@@ -55,14 +65,15 @@ export function StorefrontTopNav({
   isAuthenticated,
   profileImageUrl,
   profileInitials,
-  profileImageAlt = 'User profile',
-  accountMenuLabel = 'Account menu',
+  profileImageAlt,
+  accountMenuLabel,
   authedMenu = [],
   unauthedMenu = [],
   onSignOut,
-  signOutLabel = 'Sign Out',
+  signOutLabel,
   className,
 }: StorefrontTopNavProps): JSX.Element {
+  const { t } = useTranslation()
   const cm = getClassMap()
   const [profileOpen, setProfileOpen] = useState(false)
   const profileRef = useRef<HTMLDivElement>(null)
@@ -162,7 +173,10 @@ export function StorefrontTopNav({
           >
             <button
               type="button"
-              aria-label={accountMenuLabel}
+              aria-label={
+                accountMenuLabel ??
+                t('storefrontChrome.nav.accountMenu', undefined, { defaultValue: 'Account menu' })
+              }
               aria-haspopup="menu"
               aria-expanded={profileOpen}
               className={cm.cn(
@@ -182,7 +196,12 @@ export function StorefrontTopNav({
             >
               {profileImageUrl ? (
                 <img
-                  alt={profileImageAlt}
+                  alt={
+                    profileImageAlt ??
+                    t('storefrontChrome.nav.userProfile', undefined, {
+                      defaultValue: 'User profile',
+                    })
+                  }
                   className={cm.cn(cm.w('full'), cm.h('full'), cm.objectCover)}
                   src={profileImageUrl}
                 />
@@ -191,7 +210,14 @@ export function StorefrontTopNav({
                   {profileInitials}
                 </span>
               ) : (
-                <span className={cm.cn(cm.iconGlyphFont, cm.textMuted)} data-icon="person">
+                // A Material Symbols ligature: the font paints the name as a
+                // glyph, so the word stays out of the accessibility tree and
+                // the button's aria-label names the control.
+                <span
+                  aria-hidden="true"
+                  className={cm.cn(cm.iconGlyphFont, cm.textMuted)}
+                  data-icon="person"
+                >
                   person
                 </span>
               )}
@@ -242,7 +268,10 @@ export function StorefrontTopNav({
                         onSignOut()
                       }}
                     >
-                      {signOutLabel}
+                      {signOutLabel ??
+                        t('storefrontChrome.nav.signOut', undefined, {
+                          defaultValue: 'Sign Out',
+                        })}
                     </button>
                   </>
                 ) : null}

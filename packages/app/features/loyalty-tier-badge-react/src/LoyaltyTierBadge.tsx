@@ -14,7 +14,10 @@ const TIER_ORDER: Record<LoyaltyTier, number> = {
   platinum: 3,
 }
 
-/** Default accent color per tier — overridable by callers via theme tokens. */
+/**
+ * Accent color per tier — the metallic color IS the tier's identity (data), so
+ * it never follows the theme; the badge's neutral chrome comes from the ClassMap.
+ */
 const TIER_COLOR: Record<LoyaltyTier, string> = {
   bronze: '#b87333',
   silver: '#c0c0c0',
@@ -61,9 +64,10 @@ export function nextTierOf(tier: LoyaltyTier): LoyaltyTier | null {
  * and travel-booking flagship loyalty programs.
  *
  * Tier glyph colors are always the standard metallic accents (fixed per-tier
- * hex values — theme tokens are not consulted for the glyph); pass
- * `tierLabel` / `nextTierLabel` to override the translated defaults for
- * branded programs (e.g. "Member" / "Elite").
+ * hex values — theme tokens are not consulted for the glyph); the badge's
+ * neutral chrome (glyph border, progress track, secondary text) follows the
+ * theme through the ClassMap. Pass `tierLabel` / `nextTierLabel` to override
+ * the translated defaults for branded programs (e.g. "Member" / "Elite").
  *
  * @param props - Component props.
  * @returns The rendered tier badge.
@@ -100,34 +104,30 @@ export function LoyaltyTierBadge({
     nextTierThreshold > 0 &&
     next !== null
 
-  const tierName =
-    tierLabel ??
-    t(
-      `loyaltyTierBadge.tier.${tier}`,
-      {},
-      {
-        defaultValue:
-          tier === 'bronze'
-            ? 'Bronze'
-            : tier === 'silver'
-              ? 'Silver'
-              : tier === 'gold'
-                ? 'Gold'
-                : 'Platinum',
-      },
-    )
+  /**
+   * The translated name of a tier rung. Every rung is a literal key (the
+   * locale bond owns `loyaltyTierBadge.tier.<rung>`), so the i18n gate can
+   * check each one exists in the bond.
+   *
+   * @param rung - The tier to name.
+   * @returns The tier's translated name.
+   */
+  const translatedTierName = (rung: LoyaltyTier): string => {
+    switch (rung) {
+      case 'bronze':
+        return t('loyaltyTierBadge.tier.bronze', {}, { defaultValue: 'Bronze' })
+      case 'silver':
+        return t('loyaltyTierBadge.tier.silver', {}, { defaultValue: 'Silver' })
+      case 'gold':
+        return t('loyaltyTierBadge.tier.gold', {}, { defaultValue: 'Gold' })
+      case 'platinum':
+        return t('loyaltyTierBadge.tier.platinum', {}, { defaultValue: 'Platinum' })
+    }
+  }
 
-  const nextName =
-    nextTierLabel ??
-    (next
-      ? t(
-          `loyaltyTierBadge.tier.${next}`,
-          {},
-          {
-            defaultValue: next === 'silver' ? 'Silver' : next === 'gold' ? 'Gold' : 'Platinum',
-          },
-        )
-      : '')
+  const tierName = tierLabel ?? translatedTierName(tier)
+
+  const nextName = nextTierLabel ?? (next ? translatedTierName(next) : '')
 
   const remaining = showProgress ? Math.max(0, (nextTierThreshold ?? 0) - (points ?? 0)) : 0
 
@@ -137,13 +137,12 @@ export function LoyaltyTierBadge({
     width: px,
     height: px,
     borderRadius: '50%',
+    // The tier's metallic accent is data (the tier's identity), not a theme tone.
     background: `radial-gradient(circle at 30% 30%, ${accent} 0%, ${accent}99 60%, ${accent}66 100%)`,
-    border: '2px solid var(--mol-color-on-surface, rgba(0,0,0,0.12))',
     display: 'inline-flex',
     alignItems: 'center',
     justifyContent: 'center',
     flexShrink: 0,
-    color: 'var(--mol-color-on-surface, #222)',
     fontWeight: 700,
     fontSize: Math.round(px * 0.45),
   }
@@ -152,13 +151,13 @@ export function LoyaltyTierBadge({
     position: 'relative',
     height: 6,
     borderRadius: 3,
-    background: 'var(--mol-color-surface-variant, rgba(0,0,0,0.08))',
     overflow: 'hidden',
     width: '100%',
   }
   const progressInner: CSSProperties = {
     width: `${Math.round(progress * 100)}%`,
     height: '100%',
+    // The fill carries the tier's accent (data).
     background: accent,
     transition: 'width 200ms ease',
   }
@@ -175,7 +174,12 @@ export function LoyaltyTierBadge({
         { defaultValue: '{{tier}} tier' },
       )}
     >
-      <span aria-hidden style={glyphStyle} data-mol-id="loyalty-tier-glyph">
+      <span
+        aria-hidden
+        className={cm.borderAll}
+        style={glyphStyle}
+        data-mol-id="loyalty-tier-glyph"
+      >
         {tierName.charAt(0)}
       </span>
       <div className={cm.flex({ direction: 'col', gap: 'xs' })} style={{ flex: 1 }}>
@@ -193,14 +197,14 @@ export function LoyaltyTierBadge({
                 { defaultValue: 'Progress to {{next}}' },
               )}
               data-mol-id="loyalty-tier-progress"
+              className={cm.surfaceSecondary}
               style={progressOuter}
             >
               <div style={progressInner} />
             </div>
             <span
-              className={cm.textSize('xs')}
+              className={cm.cn(cm.textSize('xs'), cm.textMuted)}
               data-mol-id="loyalty-tier-progress-label"
-              style={{ color: 'var(--mol-color-on-surface-variant, #666)' }}
             >
               {t(
                 'loyaltyTierBadge.remaining',
@@ -211,11 +215,7 @@ export function LoyaltyTierBadge({
           </>
         ) : (
           next === null && (
-            <span
-              className={cm.textSize('xs')}
-              data-mol-id="loyalty-tier-top"
-              style={{ color: 'var(--mol-color-on-surface-variant, #666)' }}
-            >
+            <span className={cm.cn(cm.textSize('xs'), cm.textMuted)} data-mol-id="loyalty-tier-top">
               {t('loyaltyTierBadge.topTier', {}, { defaultValue: 'Top tier reached' })}
             </span>
           )

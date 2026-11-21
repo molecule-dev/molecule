@@ -35,7 +35,7 @@
  *
  * render(
  *   () => (
- *     <MoleculeProvider config={{ i18n: i18nProvider }}>
+ *     <MoleculeProvider i18n={i18nProvider}>
  *       <App />
  *     </MoleculeProvider>
  *   ),

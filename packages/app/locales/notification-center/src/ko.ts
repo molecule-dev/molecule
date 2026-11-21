@@ -8,4 +8,5 @@ export const ko: Partial<NotificationCenterTranslations> = {
   'notifications.empty': '알림 없음',
   'notifications.loadError': '알림을 불러올 수 없습니다.',
   'notifications.retry': '다시 해 보다',
+  'notifications.unread': '읽지 않음',
 }

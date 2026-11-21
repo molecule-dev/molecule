@@ -10,13 +10,46 @@
 
 import '@molecule/app-framework-conformance/ui/setup'
 import { flushSync, mount, unmount } from 'svelte'
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import Host from '@molecule/app-framework-conformance/adapters/svelte-bindings/Host.svelte'
-import { setMoleculeContext } from '@molecule/app-svelte'
+import type * as SvelteBinding from '@molecule/app-svelte'
 
 import FeatureFlagRow from '../FeatureFlagRow.svelte'
-import type { FeatureFlag, FlagType } from '../types.js'
+import type { FeatureFlag, FeatureFlagRowProps, FlagType } from '../types.js'
+import Host from './Host.svelte'
+
+// The mocked `t()`'s behavior, switchable per test: 'defaults' resolves the
+// inline English default (the provider's behavior for an unloaded key),
+// 'marker' renders `«key»` (so any text that bypassed t() would show up as
+// plain English), and 'fr' renders the French the locale switch delivered.
+const tMock = vi.hoisted(() => {
+  const state: {
+    mode: 'defaults' | 'marker' | 'fr'
+    calls: { key: string; values: Record<string, unknown> | undefined }[]
+  } = { mode: 'defaults', calls: [] }
+  return state
+})
+
+// The real binding keeps `setMoleculeContext` (the Host adapter needs it);
+// only `useTranslation`'s `t` is the test's own.
+vi.mock('@molecule/app-svelte', async (importOriginal) => {
+  const actual = await importOriginal<typeof SvelteBinding>()
+  return {
+    ...actual,
+    useTranslation: () => ({
+      t: (
+        key: string,
+        values: Record<string, unknown> | undefined,
+        opts?: { defaultValue?: string },
+      ) => {
+        tMock.calls.push({ key, values })
+        if (tMock.mode === 'marker') return `«${key}»`
+        if (tMock.mode === 'fr') return `fr: ${opts?.defaultValue ?? key}`
+        return opts?.defaultValue ?? key
+      },
+    }),
+  }
+})
 
 /** The instances mounted during one test, unmounted in `afterEach`. */
 const mounted: ReturnType<typeof mount>[] = []
@@ -27,13 +60,13 @@ const mounted: ReturnType<typeof mount>[] = []
  * @param props - The row's props.
  * @returns The outer wrapper div (React's root element).
  */
-function render(props: Record<string, unknown> = {}): HTMLElement {
+function render(props: FeatureFlagRowProps): HTMLElement {
   const host = document.createElement('div')
   document.body.appendChild(host)
   mounted.push(
-    mount(Host, {
+    mount(Host<FeatureFlagRowProps>, {
       target: host,
-      props: { config: {}, setMoleculeContext, component: FeatureFlagRow, props },
+      props: { config: {}, component: FeatureFlagRow, props },
     }),
   )
   flushSync()
@@ -45,6 +78,8 @@ function render(props: Record<string, unknown> = {}): HTMLElement {
 afterEach(async () => {
   for (const instance of mounted.splice(0)) await unmount(instance)
   document.body.innerHTML = ''
+  tMock.mode = 'defaults'
+  tMock.calls.length = 0
 })
 
 const flag: FeatureFlag = {
@@ -104,5 +139,46 @@ describe('FeatureFlagRow', () => {
   it('forwards className', () => {
     const className = render({ flag, onToggle: () => {}, className: 'ffr-cls' }).className
     expect(className.split(' ')).toContain('ffr-cls')
+  })
+})
+
+describe('FeatureFlagRow i18n', () => {
+  it('renders the switch aria-label through t with its key and values', () => {
+    tMock.mode = 'marker'
+    const wrapper = render({ flag, onToggle: () => {} })
+    expect(wrapper.querySelector('button[role="switch"]')?.getAttribute('aria-label')).toBe(
+      '«featureFlagRow.aria.flagInEnvironment»',
+    )
+    expect(tMock.calls.some((c) => c.key === 'featureFlagRow.aria.flagInEnvironment')).toBe(true)
+    expect(tMock.calls.some((c) => c.values?.['flag'] === 'new-checkout')).toBe(true)
+    expect(tMock.calls.some((c) => c.values?.['environment'] === 'production')).toBe(true)
+  })
+
+  it('renders the flag type badge through t with a literal key per type', () => {
+    tMock.mode = 'marker'
+    const cases: FlagType[] = ['boolean', 'multivariate', 'percentage', 'string']
+    for (const type of cases) {
+      const wrapper = render({ flag: { ...flag, type }, onToggle: () => {} })
+      expect(wrapper.textContent).toContain(`«flagType.${type}»`)
+    }
+    for (const type of cases)
+      expect(tMock.calls.some((c) => c.key === `flagType.${type}`)).toBe(true)
+  })
+
+  it('switching the locale changes the switch label and the badge', () => {
+    expect(
+      render({ flag, onToggle: () => {} })
+        .querySelector('button[role="switch"]')
+        ?.getAttribute('aria-label'),
+    ).toBe('{{flag}} in {{environment}}')
+    tMock.mode = 'fr'
+    const wrapper = render({ flag, onToggle: () => {} })
+    expect(wrapper.querySelector('button[role="switch"]')?.getAttribute('aria-label')).toBe(
+      'fr: {{flag}} in {{environment}}',
+    )
+    expect(wrapper.textContent).toContain('fr: Percentage')
+    expect(wrapper.querySelector('button[role="switch"]')?.getAttribute('aria-label')).not.toBe(
+      '{{flag}} in {{environment}}',
+    )
   })
 })

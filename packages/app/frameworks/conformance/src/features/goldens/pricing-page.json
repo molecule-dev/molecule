@@ -1,0 +1,953 @@
+{
+ "exports": [
+  "PlanUpdatedPage",
+  "PricingPage"
+ ],
+ "values": {},
+ "cases": {
+  "PlanUpdatedPage": {
+   "generic heading without a CTA": {
+    "snapshots": [
+     "<section data-mol-id=\"plan-updated-page\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h1 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nYour plan has been updated\n</h1>\n<p class=\"c445db9b9 ce823b5bf\">\nThanks for upgrading. Your new plan is active immediately and a receipt has been emailed to you.\n</p>\n</header>\n</section>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     }
+    ]
+   },
+   "the plan name reaches the heading": {
+    "snapshots": [
+     "<section data-mol-id=\"plan-updated-page\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h1 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nYou're now on the Pro plan\n</h1>\n<p class=\"c445db9b9 ce823b5bf\">\nThanks for upgrading. Your new plan is active immediately and a receipt has been emailed to you.\n</p>\n</header>\n</section>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     }
+    ]
+   },
+   "a className reaches the section": {
+    "snapshots": [
+     "<section class=\"cd75bbd18\" data-mol-id=\"plan-updated-page\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h1 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nYour plan has been updated\n</h1>\n<p class=\"c445db9b9 ce823b5bf\">\nThanks for upgrading. Your new plan is active immediately and a receipt has been emailed to you.\n</p>\n</header>\n</section>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     }
+    ]
+   },
+   "a CTA button calls back on click": {
+    "snapshots": [
+     "<section data-mol-id=\"plan-updated-page\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h1 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nYour plan has been updated\n</h1>\n<p class=\"c445db9b9 ce823b5bf\">\nThanks for upgrading. Your new plan is active immediately and a receipt has been emailed to you.\n</p>\n</header>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"plan-updated-cta\" type=\"button\">\nContinue to dashboard\n</button>\n</footer>\n</section>\n@route /",
+     "<section data-mol-id=\"plan-updated-page\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h1 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nYour plan has been updated\n</h1>\n<p class=\"c445db9b9 ce823b5bf\">\nThanks for upgrading. Your new plan is active immediately and a receipt has been emailed to you.\n</p>\n</header>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"plan-updated-cta\" type=\"button\">\nContinue to dashboard\n</button>\n</footer>\n</section>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     },
+     {
+      "name": "onCta",
+      "args": [
+       {
+        "event": "click",
+        "target": "button"
+       }
+      ]
+     }
+    ]
+   },
+   "a CTA anchor follows its href and keeps a plain click": {
+    "snapshots": [
+     "<section data-mol-id=\"plan-updated-page\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h1 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nYour plan has been updated\n</h1>\n<p class=\"c445db9b9 ce823b5bf\">\nThanks for upgrading. Your new plan is active immediately and a receipt has been emailed to you.\n</p>\n</header>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<a class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"plan-updated-cta\" href=\"/dashboard\">\nGo to dashboard\n</a>\n</footer>\n</section>\n@route /",
+     "<section data-mol-id=\"plan-updated-page\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h1 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nYour plan has been updated\n</h1>\n<p class=\"c445db9b9 ce823b5bf\">\nThanks for upgrading. Your new plan is active immediately and a receipt has been emailed to you.\n</p>\n</header>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<a class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"plan-updated-cta\" href=\"/dashboard\">\nGo to dashboard\n</a>\n</footer>\n</section>\n@route /\n@click default kept"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     }
+    ]
+   },
+   "a node CTA label renders inside the anchor": {
+    "snapshots": [
+     "<section data-mol-id=\"plan-updated-page\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h1 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nYour plan has been updated\n</h1>\n<p class=\"c445db9b9 ce823b5bf\">\nThanks for upgrading. Your new plan is active immediately and a receipt has been emailed to you.\n</p>\n</header>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<a class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"plan-updated-cta\" href=\"/pro\">\n<strong>\nGo pro\n</strong>\n</a>\n</footer>\n</section>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     }
+    ]
+   },
+   "a planName change updates the heading": {
+    "snapshots": [
+     "<section data-mol-id=\"plan-updated-page\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h1 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nYou're now on the Pro plan\n</h1>\n<p class=\"c445db9b9 ce823b5bf\">\nThanks for upgrading. Your new plan is active immediately and a receipt has been emailed to you.\n</p>\n</header>\n</section>\n@route /",
+     "<section data-mol-id=\"plan-updated-page\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h1 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nYou're now on the Team plan\n</h1>\n<p class=\"c445db9b9 ce823b5bf\">\nThanks for upgrading. Your new plan is active immediately and a receipt has been emailed to you.\n</p>\n</header>\n</section>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     }
+    ]
+   },
+   "a removed href swaps the anchor for the button": {
+    "snapshots": [
+     "<section data-mol-id=\"plan-updated-page\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h1 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nYour plan has been updated\n</h1>\n<p class=\"c445db9b9 ce823b5bf\">\nThanks for upgrading. Your new plan is active immediately and a receipt has been emailed to you.\n</p>\n</header>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<a class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"plan-updated-cta\" href=\"/dashboard\">\nContinue\n</a>\n</footer>\n</section>\n@route /",
+     "<section data-mol-id=\"plan-updated-page\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h1 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nYour plan has been updated\n</h1>\n<p class=\"c445db9b9 ce823b5bf\">\nThanks for upgrading. Your new plan is active immediately and a receipt has been emailed to you.\n</p>\n</header>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"plan-updated-cta\" type=\"button\">\nContinue\n</button>\n</footer>\n</section>\n@route /",
+     "<section data-mol-id=\"plan-updated-page\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h1 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nYour plan has been updated\n</h1>\n<p class=\"c445db9b9 ce823b5bf\">\nThanks for upgrading. Your new plan is active immediately and a receipt has been emailed to you.\n</p>\n</header>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"plan-updated-cta\" type=\"button\">\nContinue\n</button>\n</footer>\n</section>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     },
+     {
+      "name": "onCta",
+      "args": [
+       {
+        "event": "click",
+        "target": "button"
+       }
+      ]
+     }
+    ]
+   },
+   "the headings follow the locale bond and a locale switch": {
+    "snapshots": [
+     "<section data-mol-id=\"plan-updated-page\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h1 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nYou are now on the Pro plan\n</h1>\n<p class=\"c445db9b9 ce823b5bf\">\nThanks for upgrading.\n</p>\n</header>\n</section>\n@route /",
+     "<section data-mol-id=\"plan-updated-page\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h1 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nVous êtes maintenant sur le forfait Pro\n</h1>\n<p class=\"c445db9b9 ce823b5bf\">\nMerci pour la mise à niveau.\n</p>\n</header>\n</section>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     },
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "fr"
+      ]
+     }
+    ]
+   },
+   "generic heading without a CTA, then a locale switch": {
+    "snapshots": [
+     "<section data-mol-id=\"plan-updated-page\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h1 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nYour plan has been updated\n</h1>\n<p class=\"c445db9b9 ce823b5bf\">\nThanks for upgrading. Your new plan is active immediately and a receipt has been emailed to you.\n</p>\n</header>\n</section>\n@route /",
+     "<section data-mol-id=\"plan-updated-page\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h1 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\n⟦Your plan has been updated⟧\n</h1>\n<p class=\"c445db9b9 ce823b5bf\">\n⟦Thanks for upgrading. Your new plan is active immediately and a receipt has been emailed to you.⟧\n</p>\n</header>\n</section>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     },
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en-XA"
+      ]
+     }
+    ]
+   }
+  },
+  "PricingPage": {
+   "explicit tiers render one card per tier": {
+    "snapshots": [
+     "<section data-mol-id=\"pricing-page\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h1 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nChoose your plan\n</h1>\n</header>\n<div aria-label=\"Billing period\" class=\"c2cbb8333 c42740ba6 c9566e21c c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"pricing-page-period-toggle\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"pricing-page-period-month\" role=\"tab\" type=\"button\">\nMonthly\n</button>\n<button aria-selected=\"false\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c9773cd2b c9866e6d5 cc06b624c cd6fe318b ced81e367 cee061da5 ceea44117 cf0915c40 cf8701dd1 cf9a2eaba\" data-mol-id=\"pricing-page-period-year\" role=\"tab\" type=\"button\">\nYearly\n</button>\n</div>\n<div class=\"c2cbb8333 c9366def6 c9773cd2b ccae02ff2 cd9b20003 ceacde2ad\" data-mol-id=\"pricing-page-grid\">\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-free\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nFree\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$0\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n3\n</dd>\n</div>\n<div>\n<dt>\ncanExport\n</dt>\n<dd>\n—\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-free\" disabled type=\"button\">\nCurrent plan\n</button>\n</footer>\n</article>\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-pro\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nPro\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$19/mo\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n100\n</dd>\n</div>\n<div>\n<dt>\ncanExport\n</dt>\n<dd>\n✓\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-pro\" type=\"button\">\nUpgrade to Pro\n</button>\n</footer>\n</article>\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-team\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nTeam\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$49/mo\n<span>\nper seat\n</span>\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n1,000\n</dd>\n</div>\n<div>\n<dt>\ncanExport\n</dt>\n<dd>\n✓\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-team\" type=\"button\">\nUpgrade to Team\n</button>\n</footer>\n</article>\n</div>\n</section>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     },
+     {
+      "name": "http.get",
+      "args": [
+       {
+        "url": "/api/billing/tiers"
+       }
+      ]
+     }
+    ]
+   },
+   "fetched tiers render one card per tier": {
+    "snapshots": [
+     "<section data-mol-id=\"pricing-page\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h1 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nChoose your plan\n</h1>\n</header>\n<div aria-label=\"Billing period\" class=\"c2cbb8333 c42740ba6 c9566e21c c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"pricing-page-period-toggle\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"pricing-page-period-month\" role=\"tab\" type=\"button\">\nMonthly\n</button>\n<button aria-selected=\"false\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c9773cd2b c9866e6d5 cc06b624c cd6fe318b ced81e367 cee061da5 ceea44117 cf0915c40 cf8701dd1 cf9a2eaba\" data-mol-id=\"pricing-page-period-year\" role=\"tab\" type=\"button\">\nYearly\n</button>\n</div>\n<div class=\"c2cbb8333 c9366def6 c9773cd2b ccae02ff2 cd9b20003 ceacde2ad\" data-mol-id=\"pricing-page-grid\">\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-free\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nFree\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$0\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n3\n</dd>\n</div>\n<div>\n<dt>\ncanExport\n</dt>\n<dd>\n—\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-free\" disabled type=\"button\">\nCurrent plan\n</button>\n</footer>\n</article>\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-pro\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nPro\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$19/mo\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n100\n</dd>\n</div>\n<div>\n<dt>\ncanExport\n</dt>\n<dd>\n✓\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-pro\" type=\"button\">\nUpgrade to Pro\n</button>\n</footer>\n</article>\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-team\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nTeam\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$49/mo\n<span>\nper seat\n</span>\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n1,000\n</dd>\n</div>\n<div>\n<dt>\ncanExport\n</dt>\n<dd>\n✓\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-team\" type=\"button\">\nUpgrade to Team\n</button>\n</footer>\n</article>\n</div>\n</section>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     },
+     {
+      "name": "http.get",
+      "args": [
+       {
+        "url": "/api/billing/tiers"
+       }
+      ]
+     }
+    ]
+   },
+   "a pending tiers load shows the loading line until it answers": {
+    "snapshots": [
+     "<section data-mol-id=\"pricing-page-loading\">\n<p>\nLoading plans…\n</p>\n</section>\n@route /",
+     "<section data-mol-id=\"pricing-page\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h1 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nChoose your plan\n</h1>\n</header>\n<div class=\"c2cbb8333 c9366def6 c9773cd2b ccae02ff2 cd9b20003 ceacde2ad\" data-mol-id=\"pricing-page-grid\">\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-free\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nFree\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$0\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n3\n</dd>\n</div>\n<div>\n<dt>\ncanExport\n</dt>\n<dd>\n—\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-free\" disabled type=\"button\">\nCurrent plan\n</button>\n</footer>\n</article>\n</div>\n</section>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     },
+     {
+      "name": "http.get",
+      "args": [
+       {
+        "url": "/api/billing/tiers"
+       }
+      ]
+     }
+    ]
+   },
+   "a refused tiers endpoint shows the error line": {
+    "snapshots": [
+     "<section data-mol-id=\"pricing-page-error\">\n<p class=\"c445db9b9 c99fc28ae cab1062ad\" role=\"alert\">\nCould not load pricing. Try again later.\n</p>\n</section>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     },
+     {
+      "name": "http.get",
+      "args": [
+       {
+        "url": "/api/billing/tiers"
+       }
+      ]
+     }
+    ]
+   },
+   "an unreachable tiers endpoint shows the error line": {
+    "snapshots": [
+     "<section data-mol-id=\"pricing-page-error\">\n<p class=\"c445db9b9 c99fc28ae cab1062ad\" role=\"alert\">\nCould not load pricing. Try again later.\n</p>\n</section>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     },
+     {
+      "name": "http.get",
+      "args": [
+       {
+        "url": "/api/billing/tiers"
+       }
+      ]
+     }
+    ]
+   },
+   "fetched empty tiers render a heading over an empty grid": {
+    "snapshots": [
+     "<section data-mol-id=\"pricing-page\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h1 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nChoose your plan\n</h1>\n</header>\n<div class=\"c2cbb8333 c9366def6 c9773cd2b ccae02ff2 cd9b20003 ceacde2ad\" data-mol-id=\"pricing-page-grid\">\n</div>\n</section>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     },
+     {
+      "name": "http.get",
+      "args": [
+       {
+        "url": "/api/billing/tiers"
+       }
+      ]
+     }
+    ]
+   },
+   "showPeriodToggle false hides the toggle": {
+    "snapshots": [
+     "<section data-mol-id=\"pricing-page\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h1 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nChoose your plan\n</h1>\n</header>\n<div class=\"c2cbb8333 c9366def6 c9773cd2b ccae02ff2 cd9b20003 ceacde2ad\" data-mol-id=\"pricing-page-grid\">\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-free\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nFree\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$0\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n3\n</dd>\n</div>\n<div>\n<dt>\ncanExport\n</dt>\n<dd>\n—\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-free\" disabled type=\"button\">\nCurrent plan\n</button>\n</footer>\n</article>\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-pro\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nPro\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$19/mo\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n100\n</dd>\n</div>\n<div>\n<dt>\ncanExport\n</dt>\n<dd>\n✓\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-pro\" type=\"button\">\nUpgrade to Pro\n</button>\n</footer>\n</article>\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-team\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nTeam\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$49/mo\n<span>\nper seat\n</span>\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n1,000\n</dd>\n</div>\n<div>\n<dt>\ncanExport\n</dt>\n<dd>\n✓\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-team\" type=\"button\">\nUpgrade to Team\n</button>\n</footer>\n</article>\n</div>\n</section>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     },
+     {
+      "name": "http.get",
+      "args": [
+       {
+        "url": "/api/billing/tiers"
+       }
+      ]
+     }
+    ]
+   },
+   "tiers without a yearly price hide the toggle": {
+    "snapshots": [
+     "<section data-mol-id=\"pricing-page\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h1 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nChoose your plan\n</h1>\n</header>\n<div class=\"c2cbb8333 c9366def6 c9773cd2b ccae02ff2 cd9b20003 ceacde2ad\" data-mol-id=\"pricing-page-grid\">\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-free\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nFree\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$0\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n3\n</dd>\n</div>\n<div>\n<dt>\ncanExport\n</dt>\n<dd>\n—\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-free\" disabled type=\"button\">\nCurrent plan\n</button>\n</footer>\n</article>\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-solo\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nSolo\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$9/mo\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n10\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-solo\" type=\"button\">\nUpgrade to Solo\n</button>\n</footer>\n</article>\n</div>\n</section>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     },
+     {
+      "name": "http.get",
+      "args": [
+       {
+        "url": "/api/billing/tiers"
+       }
+      ]
+     }
+    ]
+   },
+   "defaultPeriod year selects the yearly prices and shows savings": {
+    "snapshots": [
+     "<section data-mol-id=\"pricing-page\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h1 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nChoose your plan\n</h1>\n</header>\n<div aria-label=\"Billing period\" class=\"c2cbb8333 c42740ba6 c9566e21c c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"pricing-page-period-toggle\" role=\"tablist\">\n<button aria-selected=\"false\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c9773cd2b c9866e6d5 cc06b624c cd6fe318b ced81e367 cee061da5 ceea44117 cf0915c40 cf8701dd1 cf9a2eaba\" data-mol-id=\"pricing-page-period-month\" role=\"tab\" type=\"button\">\nMonthly\n</button>\n<button aria-selected=\"true\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"pricing-page-period-year\" role=\"tab\" type=\"button\">\nYearly\n</button>\n</div>\n<div class=\"c2cbb8333 c9366def6 c9773cd2b ccae02ff2 cd9b20003 ceacde2ad\" data-mol-id=\"pricing-page-grid\">\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-free\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nFree\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$0\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n3\n</dd>\n</div>\n<div>\n<dt>\ncanExport\n</dt>\n<dd>\n—\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-free\" disabled type=\"button\">\nCurrent plan\n</button>\n</footer>\n</article>\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-pro\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nPro\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$190/yr\n</p>\n<p class=\"c445db9b9 ce823b5bf\">\n2 months free\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n100\n</dd>\n</div>\n<div>\n<dt>\ncanExport\n</dt>\n<dd>\n✓\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-pro\" type=\"button\">\nUpgrade to Pro\n</button>\n</footer>\n</article>\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-team\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nTeam\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$490/yr\n<span>\nper seat\n</span>\n</p>\n<p class=\"c445db9b9 ce823b5bf\">\n2 months free\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n1,000\n</dd>\n</div>\n<div>\n<dt>\ncanExport\n</dt>\n<dd>\n✓\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-team\" type=\"button\">\nUpgrade to Team\n</button>\n</footer>\n</article>\n</div>\n</section>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     },
+     {
+      "name": "http.get",
+      "args": [
+       {
+        "url": "/api/billing/tiers"
+       }
+      ]
+     }
+    ]
+   },
+   "a defaultPeriod change after mount keeps the mounted period": {
+    "snapshots": [
+     "<section data-mol-id=\"pricing-page\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h1 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nChoose your plan\n</h1>\n</header>\n<div aria-label=\"Billing period\" class=\"c2cbb8333 c42740ba6 c9566e21c c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"pricing-page-period-toggle\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"pricing-page-period-month\" role=\"tab\" type=\"button\">\nMonthly\n</button>\n<button aria-selected=\"false\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c9773cd2b c9866e6d5 cc06b624c cd6fe318b ced81e367 cee061da5 ceea44117 cf0915c40 cf8701dd1 cf9a2eaba\" data-mol-id=\"pricing-page-period-year\" role=\"tab\" type=\"button\">\nYearly\n</button>\n</div>\n<div class=\"c2cbb8333 c9366def6 c9773cd2b ccae02ff2 cd9b20003 ceacde2ad\" data-mol-id=\"pricing-page-grid\">\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-free\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nFree\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$0\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n3\n</dd>\n</div>\n<div>\n<dt>\ncanExport\n</dt>\n<dd>\n—\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-free\" disabled type=\"button\">\nCurrent plan\n</button>\n</footer>\n</article>\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-pro\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nPro\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$19/mo\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n100\n</dd>\n</div>\n<div>\n<dt>\ncanExport\n</dt>\n<dd>\n✓\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-pro\" type=\"button\">\nUpgrade to Pro\n</button>\n</footer>\n</article>\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-team\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nTeam\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$49/mo\n<span>\nper seat\n</span>\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n1,000\n</dd>\n</div>\n<div>\n<dt>\ncanExport\n</dt>\n<dd>\n✓\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-team\" type=\"button\">\nUpgrade to Team\n</button>\n</footer>\n</article>\n</div>\n</section>\n@route /",
+     "<section data-mol-id=\"pricing-page\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h1 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nChoose your plan\n</h1>\n</header>\n<div aria-label=\"Billing period\" class=\"c2cbb8333 c42740ba6 c9566e21c c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"pricing-page-period-toggle\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"pricing-page-period-month\" role=\"tab\" type=\"button\">\nMonthly\n</button>\n<button aria-selected=\"false\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c9773cd2b c9866e6d5 cc06b624c cd6fe318b ced81e367 cee061da5 ceea44117 cf0915c40 cf8701dd1 cf9a2eaba\" data-mol-id=\"pricing-page-period-year\" role=\"tab\" type=\"button\">\nYearly\n</button>\n</div>\n<div class=\"c2cbb8333 c9366def6 c9773cd2b ccae02ff2 cd9b20003 ceacde2ad\" data-mol-id=\"pricing-page-grid\">\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-free\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nFree\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$0\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n3\n</dd>\n</div>\n<div>\n<dt>\ncanExport\n</dt>\n<dd>\n—\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-free\" disabled type=\"button\">\nCurrent plan\n</button>\n</footer>\n</article>\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-pro\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nPro\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$19/mo\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n100\n</dd>\n</div>\n<div>\n<dt>\ncanExport\n</dt>\n<dd>\n✓\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-pro\" type=\"button\">\nUpgrade to Pro\n</button>\n</footer>\n</article>\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-team\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nTeam\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$49/mo\n<span>\nper seat\n</span>\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n1,000\n</dd>\n</div>\n<div>\n<dt>\ncanExport\n</dt>\n<dd>\n✓\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-team\" type=\"button\">\nUpgrade to Team\n</button>\n</footer>\n</article>\n</div>\n</section>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     },
+     {
+      "name": "http.get",
+      "args": [
+       {
+        "url": "/api/billing/tiers"
+       }
+      ]
+     }
+    ]
+   },
+   "the period toggle switches between monthly and yearly": {
+    "snapshots": [
+     "<section data-mol-id=\"pricing-page\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h1 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nChoose your plan\n</h1>\n</header>\n<div aria-label=\"Billing period\" class=\"c2cbb8333 c42740ba6 c9566e21c c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"pricing-page-period-toggle\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"pricing-page-period-month\" role=\"tab\" type=\"button\">\nMonthly\n</button>\n<button aria-selected=\"false\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c9773cd2b c9866e6d5 cc06b624c cd6fe318b ced81e367 cee061da5 ceea44117 cf0915c40 cf8701dd1 cf9a2eaba\" data-mol-id=\"pricing-page-period-year\" role=\"tab\" type=\"button\">\nYearly\n</button>\n</div>\n<div class=\"c2cbb8333 c9366def6 c9773cd2b ccae02ff2 cd9b20003 ceacde2ad\" data-mol-id=\"pricing-page-grid\">\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-free\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nFree\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$0\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n3\n</dd>\n</div>\n<div>\n<dt>\ncanExport\n</dt>\n<dd>\n—\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-free\" disabled type=\"button\">\nCurrent plan\n</button>\n</footer>\n</article>\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-pro\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nPro\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$19/mo\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n100\n</dd>\n</div>\n<div>\n<dt>\ncanExport\n</dt>\n<dd>\n✓\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-pro\" type=\"button\">\nUpgrade to Pro\n</button>\n</footer>\n</article>\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-team\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nTeam\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$49/mo\n<span>\nper seat\n</span>\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n1,000\n</dd>\n</div>\n<div>\n<dt>\ncanExport\n</dt>\n<dd>\n✓\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-team\" type=\"button\">\nUpgrade to Team\n</button>\n</footer>\n</article>\n</div>\n</section>\n@route /",
+     "<section data-mol-id=\"pricing-page\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h1 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nChoose your plan\n</h1>\n</header>\n<div aria-label=\"Billing period\" class=\"c2cbb8333 c42740ba6 c9566e21c c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"pricing-page-period-toggle\" role=\"tablist\">\n<button aria-selected=\"false\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c9773cd2b c9866e6d5 cc06b624c cd6fe318b ced81e367 cee061da5 ceea44117 cf0915c40 cf8701dd1 cf9a2eaba\" data-mol-id=\"pricing-page-period-month\" role=\"tab\" type=\"button\">\nMonthly\n</button>\n<button aria-selected=\"true\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"pricing-page-period-year\" role=\"tab\" type=\"button\">\nYearly\n</button>\n</div>\n<div class=\"c2cbb8333 c9366def6 c9773cd2b ccae02ff2 cd9b20003 ceacde2ad\" data-mol-id=\"pricing-page-grid\">\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-free\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nFree\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$0\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n3\n</dd>\n</div>\n<div>\n<dt>\ncanExport\n</dt>\n<dd>\n—\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-free\" disabled type=\"button\">\nCurrent plan\n</button>\n</footer>\n</article>\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-pro\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nPro\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$190/yr\n</p>\n<p class=\"c445db9b9 ce823b5bf\">\n2 months free\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n100\n</dd>\n</div>\n<div>\n<dt>\ncanExport\n</dt>\n<dd>\n✓\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-pro\" type=\"button\">\nUpgrade to Pro\n</button>\n</footer>\n</article>\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-team\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nTeam\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$490/yr\n<span>\nper seat\n</span>\n</p>\n<p class=\"c445db9b9 ce823b5bf\">\n2 months free\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n1,000\n</dd>\n</div>\n<div>\n<dt>\ncanExport\n</dt>\n<dd>\n✓\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-team\" type=\"button\">\nUpgrade to Team\n</button>\n</footer>\n</article>\n</div>\n</section>\n@route /",
+     "<section data-mol-id=\"pricing-page\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h1 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nChoose your plan\n</h1>\n</header>\n<div aria-label=\"Billing period\" class=\"c2cbb8333 c42740ba6 c9566e21c c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"pricing-page-period-toggle\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"pricing-page-period-month\" role=\"tab\" type=\"button\">\nMonthly\n</button>\n<button aria-selected=\"false\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c9773cd2b c9866e6d5 cc06b624c cd6fe318b ced81e367 cee061da5 ceea44117 cf0915c40 cf8701dd1 cf9a2eaba\" data-mol-id=\"pricing-page-period-year\" role=\"tab\" type=\"button\">\nYearly\n</button>\n</div>\n<div class=\"c2cbb8333 c9366def6 c9773cd2b ccae02ff2 cd9b20003 ceacde2ad\" data-mol-id=\"pricing-page-grid\">\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-free\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nFree\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$0\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n3\n</dd>\n</div>\n<div>\n<dt>\ncanExport\n</dt>\n<dd>\n—\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-free\" disabled type=\"button\">\nCurrent plan\n</button>\n</footer>\n</article>\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-pro\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nPro\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$19/mo\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n100\n</dd>\n</div>\n<div>\n<dt>\ncanExport\n</dt>\n<dd>\n✓\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-pro\" type=\"button\">\nUpgrade to Pro\n</button>\n</footer>\n</article>\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-team\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nTeam\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$49/mo\n<span>\nper seat\n</span>\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n1,000\n</dd>\n</div>\n<div>\n<dt>\ncanExport\n</dt>\n<dd>\n✓\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-team\" type=\"button\">\nUpgrade to Team\n</button>\n</footer>\n</article>\n</div>\n</section>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     },
+     {
+      "name": "http.get",
+      "args": [
+       {
+        "url": "/api/billing/tiers"
+       }
+      ]
+     }
+    ]
+   },
+   "a custom renderLimits replaces the default rows": {
+    "snapshots": [
+     "<section data-mol-id=\"pricing-page\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h1 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nChoose your plan\n</h1>\n</header>\n<div aria-label=\"Billing period\" class=\"c2cbb8333 c42740ba6 c9566e21c c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"pricing-page-period-toggle\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"pricing-page-period-month\" role=\"tab\" type=\"button\">\nMonthly\n</button>\n<button aria-selected=\"false\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c9773cd2b c9866e6d5 cc06b624c cd6fe318b ced81e367 cee061da5 ceea44117 cf0915c40 cf8701dd1 cf9a2eaba\" data-mol-id=\"pricing-page-period-year\" role=\"tab\" type=\"button\">\nYearly\n</button>\n</div>\n<div class=\"c2cbb8333 c9366def6 c9773cd2b ccae02ff2 cd9b20003 ceacde2ad\" data-mol-id=\"pricing-page-grid\">\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-free\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nFree\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$0\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<ul>\n<li>\nProjects: 3\n</li>\n<li>\nExport: false\n</li>\n</ul>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-free\" disabled type=\"button\">\nCurrent plan\n</button>\n</footer>\n</article>\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-pro\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nPro\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$19/mo\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<ul>\n<li>\nProjects: 100\n</li>\n<li>\nExport: true\n</li>\n</ul>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-pro\" type=\"button\">\nUpgrade to Pro\n</button>\n</footer>\n</article>\n</div>\n</section>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     },
+     {
+      "name": "http.get",
+      "args": [
+       {
+        "url": "/api/billing/tiers"
+       }
+      ]
+     }
+    ]
+   },
+   "a renderLimits swapped in on the same mount": {
+    "snapshots": [
+     "<section data-mol-id=\"pricing-page\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h1 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nChoose your plan\n</h1>\n</header>\n<div aria-label=\"Billing period\" class=\"c2cbb8333 c42740ba6 c9566e21c c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"pricing-page-period-toggle\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"pricing-page-period-month\" role=\"tab\" type=\"button\">\nMonthly\n</button>\n<button aria-selected=\"false\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c9773cd2b c9866e6d5 cc06b624c cd6fe318b ced81e367 cee061da5 ceea44117 cf0915c40 cf8701dd1 cf9a2eaba\" data-mol-id=\"pricing-page-period-year\" role=\"tab\" type=\"button\">\nYearly\n</button>\n</div>\n<div class=\"c2cbb8333 c9366def6 c9773cd2b ccae02ff2 cd9b20003 ceacde2ad\" data-mol-id=\"pricing-page-grid\">\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-pro\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nPro\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$19/mo\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<p>\nFirst\n</p>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-pro\" type=\"button\">\nUpgrade to Pro\n</button>\n</footer>\n</article>\n</div>\n</section>\n@route /",
+     "<section data-mol-id=\"pricing-page\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h1 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nChoose your plan\n</h1>\n</header>\n<div aria-label=\"Billing period\" class=\"c2cbb8333 c42740ba6 c9566e21c c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"pricing-page-period-toggle\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"pricing-page-period-month\" role=\"tab\" type=\"button\">\nMonthly\n</button>\n<button aria-selected=\"false\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c9773cd2b c9866e6d5 cc06b624c cd6fe318b ced81e367 cee061da5 ceea44117 cf0915c40 cf8701dd1 cf9a2eaba\" data-mol-id=\"pricing-page-period-year\" role=\"tab\" type=\"button\">\nYearly\n</button>\n</div>\n<div class=\"c2cbb8333 c9366def6 c9773cd2b ccae02ff2 cd9b20003 ceacde2ad\" data-mol-id=\"pricing-page-grid\">\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-pro\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nPro\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$19/mo\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<p>\nSecond\n</p>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-pro\" type=\"button\">\nUpgrade to Pro\n</button>\n</footer>\n</article>\n</div>\n</section>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     },
+     {
+      "name": "http.get",
+      "args": [
+       {
+        "url": "/api/billing/tiers"
+       }
+      ]
+     }
+    ]
+   },
+   "default limits render numbers, booleans, strings, objects and dashes": {
+    "snapshots": [
+     "<section data-mol-id=\"pricing-page\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h1 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nChoose your plan\n</h1>\n</header>\n<div class=\"c2cbb8333 c9366def6 c9773cd2b ccae02ff2 cd9b20003 ceacde2ad\" data-mol-id=\"pricing-page-grid\">\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-pro\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nPro\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$19/mo\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxAccounts\n</dt>\n<dd>\n3\n</dd>\n</div>\n<div>\n<dt>\nmaxTransactionsPerMonth\n</dt>\n<dd>\n12,500\n</dd>\n</div>\n<div>\n<dt>\nmaxApiCalls\n</dt>\n<dd>\n∞\n</dd>\n</div>\n<div>\n<dt>\ncanExport\n</dt>\n<dd>\n✓\n</dd>\n</div>\n<div>\n<dt>\ncan_invite\n</dt>\n<dd>\n—\n</dd>\n</div>\n<div>\n<dt>\nsupportTier\n</dt>\n<dd>\npriority\n</dd>\n</div>\n<div>\n<dt>\nextras\n</dt>\n<dd>\n{\"audit\":true}\n</dd>\n</div>\n<div>\n<dt>\nstorage\n</dt>\n<dd>\n—\n</dd>\n</div>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n∞\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-pro\" type=\"button\">\nUpgrade to Pro\n</button>\n</footer>\n</article>\n</div>\n</section>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     },
+     {
+      "name": "http.get",
+      "args": [
+       {
+        "url": "/api/billing/tiers"
+       }
+      ]
+     }
+    ]
+   },
+   "a circular limits value falls back to its string form": {
+    "snapshots": [
+     "<section data-mol-id=\"pricing-page\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h1 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nChoose your plan\n</h1>\n</header>\n<div class=\"c2cbb8333 c9366def6 c9773cd2b ccae02ff2 cd9b20003 ceacde2ad\" data-mol-id=\"pricing-page-grid\">\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-free\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nFree\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$0\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n3\n</dd>\n</div>\n<div>\n<dt>\nself\n</dt>\n<dd>\n[object Object]\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-free\" disabled type=\"button\">\nCurrent plan\n</button>\n</footer>\n</article>\n</div>\n</section>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     },
+     {
+      "name": "http.get",
+      "args": [
+       {
+        "url": "/api/billing/tiers"
+       }
+      ]
+     }
+    ]
+   },
+   "string limits render no list": {
+    "snapshots": [
+     "<section data-mol-id=\"pricing-page\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h1 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nChoose your plan\n</h1>\n</header>\n<div class=\"c2cbb8333 c9366def6 c9773cd2b ccae02ff2 cd9b20003 ceacde2ad\" data-mol-id=\"pricing-page-grid\">\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-free\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nFree\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$0\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-free\" disabled type=\"button\">\nCurrent plan\n</button>\n</footer>\n</article>\n</div>\n</section>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     },
+     {
+      "name": "http.get",
+      "args": [
+       {
+        "url": "/api/billing/tiers"
+       }
+      ]
+     }
+    ]
+   },
+   "null limits render no list": {
+    "snapshots": [
+     "<section data-mol-id=\"pricing-page\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h1 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nChoose your plan\n</h1>\n</header>\n<div class=\"c2cbb8333 c9366def6 c9773cd2b ccae02ff2 cd9b20003 ceacde2ad\" data-mol-id=\"pricing-page-grid\">\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-free\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nFree\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$0\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-free\" disabled type=\"button\">\nCurrent plan\n</button>\n</footer>\n</article>\n</div>\n</section>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     },
+     {
+      "name": "http.get",
+      "args": [
+       {
+        "url": "/api/billing/tiers"
+       }
+      ]
+     }
+    ]
+   },
+   "a tier without prices renders a dash and a disabled CTA": {
+    "snapshots": [
+     "<section data-mol-id=\"pricing-page\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h1 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nChoose your plan\n</h1>\n</header>\n<div class=\"c2cbb8333 c9366def6 c9773cd2b ccae02ff2 cd9b20003 ceacde2ad\" data-mol-id=\"pricing-page-grid\">\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-free\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nFree\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$0\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n3\n</dd>\n</div>\n<div>\n<dt>\ncanExport\n</dt>\n<dd>\n—\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-free\" disabled type=\"button\">\nCurrent plan\n</button>\n</footer>\n</article>\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-priceless\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nPriceless\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n—\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-priceless\" disabled type=\"button\">\nCurrent plan\n</button>\n</footer>\n</article>\n</div>\n</section>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     },
+     {
+      "name": "http.get",
+      "args": [
+       {
+        "url": "/api/billing/tiers"
+       }
+      ]
+     }
+    ]
+   },
+   "a className reaches the section": {
+    "snapshots": [
+     "<section class=\"cd75bbd18\" data-mol-id=\"pricing-page\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h1 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nChoose your plan\n</h1>\n</header>\n<div class=\"c2cbb8333 c9366def6 c9773cd2b ccae02ff2 cd9b20003 ceacde2ad\" data-mol-id=\"pricing-page-grid\">\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-free\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nFree\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$0\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n3\n</dd>\n</div>\n<div>\n<dt>\ncanExport\n</dt>\n<dd>\n—\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-free\" disabled type=\"button\">\nCurrent plan\n</button>\n</footer>\n</article>\n</div>\n</section>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     },
+     {
+      "name": "http.get",
+      "args": [
+       {
+        "url": "/api/billing/tiers"
+       }
+      ]
+     }
+    ]
+   },
+   "headingKey and headingDefault override the heading": {
+    "snapshots": [
+     "<section data-mol-id=\"pricing-page\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h1 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nPick a plan\n</h1>\n</header>\n<div class=\"c2cbb8333 c9366def6 c9773cd2b ccae02ff2 cd9b20003 ceacde2ad\" data-mol-id=\"pricing-page-grid\">\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-free\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nFree\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$0\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n3\n</dd>\n</div>\n<div>\n<dt>\ncanExport\n</dt>\n<dd>\n—\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-free\" disabled type=\"button\">\nCurrent plan\n</button>\n</footer>\n</article>\n</div>\n</section>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     },
+     {
+      "name": "http.get",
+      "args": [
+       {
+        "url": "/api/billing/tiers"
+       }
+      ]
+     }
+    ]
+   },
+   "the heading follows the locale bond and a locale switch": {
+    "snapshots": [
+     "<section data-mol-id=\"pricing-page\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h1 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nChoose your plan today\n</h1>\n</header>\n<div class=\"c2cbb8333 c9366def6 c9773cd2b ccae02ff2 cd9b20003 ceacde2ad\" data-mol-id=\"pricing-page-grid\">\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-free\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nFree\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$0\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n3\n</dd>\n</div>\n<div>\n<dt>\ncanExport\n</dt>\n<dd>\n—\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-free\" disabled type=\"button\">\nCurrent plan\n</button>\n</footer>\n</article>\n</div>\n</section>\n@route /",
+     "<section data-mol-id=\"pricing-page\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h1 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nChoisissez votre forfait\n</h1>\n</header>\n<div class=\"c2cbb8333 c9366def6 c9773cd2b ccae02ff2 cd9b20003 ceacde2ad\" data-mol-id=\"pricing-page-grid\">\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-free\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nFree\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$0\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n3\n</dd>\n</div>\n<div>\n<dt>\ncanExport\n</dt>\n<dd>\n—\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-free\" disabled type=\"button\">\nCurrent plan\n</button>\n</footer>\n</article>\n</div>\n</section>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     },
+     {
+      "name": "http.get",
+      "args": [
+       {
+        "url": "/api/billing/tiers"
+       }
+      ]
+     },
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "fr"
+      ]
+     }
+    ]
+   },
+   "onCheckout receives the clicked tier and its price": {
+    "snapshots": [
+     "<section data-mol-id=\"pricing-page\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h1 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nChoose your plan\n</h1>\n</header>\n<div aria-label=\"Billing period\" class=\"c2cbb8333 c42740ba6 c9566e21c c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"pricing-page-period-toggle\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"pricing-page-period-month\" role=\"tab\" type=\"button\">\nMonthly\n</button>\n<button aria-selected=\"false\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c9773cd2b c9866e6d5 cc06b624c cd6fe318b ced81e367 cee061da5 ceea44117 cf0915c40 cf8701dd1 cf9a2eaba\" data-mol-id=\"pricing-page-period-year\" role=\"tab\" type=\"button\">\nYearly\n</button>\n</div>\n<div class=\"c2cbb8333 c9366def6 c9773cd2b ccae02ff2 cd9b20003 ceacde2ad\" data-mol-id=\"pricing-page-grid\">\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-free\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nFree\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$0\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n3\n</dd>\n</div>\n<div>\n<dt>\ncanExport\n</dt>\n<dd>\n—\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-free\" disabled type=\"button\">\nCurrent plan\n</button>\n</footer>\n</article>\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-pro\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nPro\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$19/mo\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n100\n</dd>\n</div>\n<div>\n<dt>\ncanExport\n</dt>\n<dd>\n✓\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-pro\" type=\"button\">\nUpgrade to Pro\n</button>\n</footer>\n</article>\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-team\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nTeam\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$49/mo\n<span>\nper seat\n</span>\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n1,000\n</dd>\n</div>\n<div>\n<dt>\ncanExport\n</dt>\n<dd>\n✓\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-team\" type=\"button\">\nUpgrade to Team\n</button>\n</footer>\n</article>\n</div>\n</section>\n@route /",
+     "<section data-mol-id=\"pricing-page\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h1 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nChoose your plan\n</h1>\n</header>\n<div aria-label=\"Billing period\" class=\"c2cbb8333 c42740ba6 c9566e21c c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"pricing-page-period-toggle\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"pricing-page-period-month\" role=\"tab\" type=\"button\">\nMonthly\n</button>\n<button aria-selected=\"false\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c9773cd2b c9866e6d5 cc06b624c cd6fe318b ced81e367 cee061da5 ceea44117 cf0915c40 cf8701dd1 cf9a2eaba\" data-mol-id=\"pricing-page-period-year\" role=\"tab\" type=\"button\">\nYearly\n</button>\n</div>\n<div class=\"c2cbb8333 c9366def6 c9773cd2b ccae02ff2 cd9b20003 ceacde2ad\" data-mol-id=\"pricing-page-grid\">\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-free\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nFree\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$0\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n3\n</dd>\n</div>\n<div>\n<dt>\ncanExport\n</dt>\n<dd>\n—\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-free\" disabled type=\"button\">\nCurrent plan\n</button>\n</footer>\n</article>\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-pro\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nPro\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$19/mo\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n100\n</dd>\n</div>\n<div>\n<dt>\ncanExport\n</dt>\n<dd>\n✓\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-pro\" type=\"button\">\nUpgrade to Pro\n</button>\n</footer>\n</article>\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-team\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nTeam\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$49/mo\n<span>\nper seat\n</span>\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n1,000\n</dd>\n</div>\n<div>\n<dt>\ncanExport\n</dt>\n<dd>\n✓\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-team\" type=\"button\">\nUpgrade to Team\n</button>\n</footer>\n</article>\n</div>\n</section>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     },
+     {
+      "name": "http.get",
+      "args": [
+       {
+        "url": "/api/billing/tiers"
+       }
+      ]
+     },
+     {
+      "name": "onCheckout",
+      "args": [
+       {
+        "key": "pro",
+        "limits": {
+         "canExport": true,
+         "maxProjects": 100
+        },
+        "name": "Pro",
+        "prices": [
+         {
+          "period": "month",
+          "price": "$19/mo",
+          "stripePriceId": "price_pro_m"
+         },
+         {
+          "period": "year",
+          "price": "$190/yr",
+          "savings": "2 months free",
+          "stripePriceId": "price_pro_y"
+         }
+        ]
+       },
+       {
+        "period": "month",
+        "price": "$19/mo",
+        "stripePriceId": "price_pro_m"
+       }
+      ]
+     }
+    ]
+   },
+   "a tier without a stripe price never calls onCheckout": {
+    "snapshots": [
+     "<section data-mol-id=\"pricing-page\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h1 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nChoose your plan\n</h1>\n</header>\n<div aria-label=\"Billing period\" class=\"c2cbb8333 c42740ba6 c9566e21c c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"pricing-page-period-toggle\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"pricing-page-period-month\" role=\"tab\" type=\"button\">\nMonthly\n</button>\n<button aria-selected=\"false\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c9773cd2b c9866e6d5 cc06b624c cd6fe318b ced81e367 cee061da5 ceea44117 cf0915c40 cf8701dd1 cf9a2eaba\" data-mol-id=\"pricing-page-period-year\" role=\"tab\" type=\"button\">\nYearly\n</button>\n</div>\n<div class=\"c2cbb8333 c9366def6 c9773cd2b ccae02ff2 cd9b20003 ceacde2ad\" data-mol-id=\"pricing-page-grid\">\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-free\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nFree\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$0\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n3\n</dd>\n</div>\n<div>\n<dt>\ncanExport\n</dt>\n<dd>\n—\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-free\" disabled type=\"button\">\nCurrent plan\n</button>\n</footer>\n</article>\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-pro\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nPro\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$19/mo\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n100\n</dd>\n</div>\n<div>\n<dt>\ncanExport\n</dt>\n<dd>\n✓\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-pro\" type=\"button\">\nUpgrade to Pro\n</button>\n</footer>\n</article>\n</div>\n</section>\n@route /",
+     "<section data-mol-id=\"pricing-page\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h1 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nChoose your plan\n</h1>\n</header>\n<div aria-label=\"Billing period\" class=\"c2cbb8333 c42740ba6 c9566e21c c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"pricing-page-period-toggle\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"pricing-page-period-month\" role=\"tab\" type=\"button\">\nMonthly\n</button>\n<button aria-selected=\"false\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c9773cd2b c9866e6d5 cc06b624c cd6fe318b ced81e367 cee061da5 ceea44117 cf0915c40 cf8701dd1 cf9a2eaba\" data-mol-id=\"pricing-page-period-year\" role=\"tab\" type=\"button\">\nYearly\n</button>\n</div>\n<div class=\"c2cbb8333 c9366def6 c9773cd2b ccae02ff2 cd9b20003 ceacde2ad\" data-mol-id=\"pricing-page-grid\">\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-free\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nFree\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$0\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n3\n</dd>\n</div>\n<div>\n<dt>\ncanExport\n</dt>\n<dd>\n—\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-free\" disabled type=\"button\">\nCurrent plan\n</button>\n</footer>\n</article>\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-pro\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nPro\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$19/mo\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n100\n</dd>\n</div>\n<div>\n<dt>\ncanExport\n</dt>\n<dd>\n✓\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-pro\" type=\"button\">\nUpgrade to Pro\n</button>\n</footer>\n</article>\n</div>\n</section>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     },
+     {
+      "name": "http.get",
+      "args": [
+       {
+        "url": "/api/billing/tiers"
+       }
+      ]
+     }
+    ]
+   },
+   "the default checkout posts the price id and hands the page to the provider": {
+    "snapshots": [
+     "<section data-mol-id=\"pricing-page\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h1 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nChoose your plan\n</h1>\n</header>\n<div aria-label=\"Billing period\" class=\"c2cbb8333 c42740ba6 c9566e21c c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"pricing-page-period-toggle\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"pricing-page-period-month\" role=\"tab\" type=\"button\">\nMonthly\n</button>\n<button aria-selected=\"false\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c9773cd2b c9866e6d5 cc06b624c cd6fe318b ced81e367 cee061da5 ceea44117 cf0915c40 cf8701dd1 cf9a2eaba\" data-mol-id=\"pricing-page-period-year\" role=\"tab\" type=\"button\">\nYearly\n</button>\n</div>\n<div class=\"c2cbb8333 c9366def6 c9773cd2b ccae02ff2 cd9b20003 ceacde2ad\" data-mol-id=\"pricing-page-grid\">\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-free\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nFree\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$0\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n3\n</dd>\n</div>\n<div>\n<dt>\ncanExport\n</dt>\n<dd>\n—\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-free\" disabled type=\"button\">\nCurrent plan\n</button>\n</footer>\n</article>\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-pro\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nPro\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$19/mo\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n100\n</dd>\n</div>\n<div>\n<dt>\ncanExport\n</dt>\n<dd>\n✓\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-pro\" type=\"button\">\nUpgrade to Pro\n</button>\n</footer>\n</article>\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-team\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nTeam\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$49/mo\n<span>\nper seat\n</span>\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n1,000\n</dd>\n</div>\n<div>\n<dt>\ncanExport\n</dt>\n<dd>\n✓\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-team\" type=\"button\">\nUpgrade to Team\n</button>\n</footer>\n</article>\n</div>\n</section>\n@route /",
+     "<section data-mol-id=\"pricing-page\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h1 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nChoose your plan\n</h1>\n</header>\n<div aria-label=\"Billing period\" class=\"c2cbb8333 c42740ba6 c9566e21c c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"pricing-page-period-toggle\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"pricing-page-period-month\" role=\"tab\" type=\"button\">\nMonthly\n</button>\n<button aria-selected=\"false\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c9773cd2b c9866e6d5 cc06b624c cd6fe318b ced81e367 cee061da5 ceea44117 cf0915c40 cf8701dd1 cf9a2eaba\" data-mol-id=\"pricing-page-period-year\" role=\"tab\" type=\"button\">\nYearly\n</button>\n</div>\n<div class=\"c2cbb8333 c9366def6 c9773cd2b ccae02ff2 cd9b20003 ceacde2ad\" data-mol-id=\"pricing-page-grid\">\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-free\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nFree\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$0\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n3\n</dd>\n</div>\n<div>\n<dt>\ncanExport\n</dt>\n<dd>\n—\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-free\" disabled type=\"button\">\nCurrent plan\n</button>\n</footer>\n</article>\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-pro\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nPro\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$19/mo\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n100\n</dd>\n</div>\n<div>\n<dt>\ncanExport\n</dt>\n<dd>\n✓\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-pro\" type=\"button\">\nUpgrade to Pro\n</button>\n</footer>\n</article>\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-team\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nTeam\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$49/mo\n<span>\nper seat\n</span>\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n1,000\n</dd>\n</div>\n<div>\n<dt>\ncanExport\n</dt>\n<dd>\n✓\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-team\" type=\"button\">\nUpgrade to Team\n</button>\n</footer>\n</article>\n</div>\n</section>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     },
+     {
+      "name": "http.get",
+      "args": [
+       {
+        "url": "/api/billing/tiers"
+       }
+      ]
+     },
+     {
+      "name": "http.post",
+      "args": [
+       {
+        "data": {
+         "priceId": "price_pro_m"
+        },
+        "url": "/api/billing/checkout"
+       }
+      ]
+     }
+    ]
+   },
+   "an in-place subscription update reloads the page": {
+    "snapshots": [
+     "<section data-mol-id=\"pricing-page\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h1 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nChoose your plan\n</h1>\n</header>\n<div aria-label=\"Billing period\" class=\"c2cbb8333 c42740ba6 c9566e21c c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"pricing-page-period-toggle\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"pricing-page-period-month\" role=\"tab\" type=\"button\">\nMonthly\n</button>\n<button aria-selected=\"false\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c9773cd2b c9866e6d5 cc06b624c cd6fe318b ced81e367 cee061da5 ceea44117 cf0915c40 cf8701dd1 cf9a2eaba\" data-mol-id=\"pricing-page-period-year\" role=\"tab\" type=\"button\">\nYearly\n</button>\n</div>\n<div class=\"c2cbb8333 c9366def6 c9773cd2b ccae02ff2 cd9b20003 ceacde2ad\" data-mol-id=\"pricing-page-grid\">\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-free\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nFree\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$0\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n3\n</dd>\n</div>\n<div>\n<dt>\ncanExport\n</dt>\n<dd>\n—\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-free\" disabled type=\"button\">\nCurrent plan\n</button>\n</footer>\n</article>\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-pro\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nPro\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$19/mo\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n100\n</dd>\n</div>\n<div>\n<dt>\ncanExport\n</dt>\n<dd>\n✓\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-pro\" type=\"button\">\nUpgrade to Pro\n</button>\n</footer>\n</article>\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-team\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nTeam\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$49/mo\n<span>\nper seat\n</span>\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n1,000\n</dd>\n</div>\n<div>\n<dt>\ncanExport\n</dt>\n<dd>\n✓\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-team\" type=\"button\">\nUpgrade to Team\n</button>\n</footer>\n</article>\n</div>\n</section>\n@route /",
+     "<section data-mol-id=\"pricing-page\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h1 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nChoose your plan\n</h1>\n</header>\n<div aria-label=\"Billing period\" class=\"c2cbb8333 c42740ba6 c9566e21c c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"pricing-page-period-toggle\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"pricing-page-period-month\" role=\"tab\" type=\"button\">\nMonthly\n</button>\n<button aria-selected=\"false\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c9773cd2b c9866e6d5 cc06b624c cd6fe318b ced81e367 cee061da5 ceea44117 cf0915c40 cf8701dd1 cf9a2eaba\" data-mol-id=\"pricing-page-period-year\" role=\"tab\" type=\"button\">\nYearly\n</button>\n</div>\n<div class=\"c2cbb8333 c9366def6 c9773cd2b ccae02ff2 cd9b20003 ceacde2ad\" data-mol-id=\"pricing-page-grid\">\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-free\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nFree\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$0\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n3\n</dd>\n</div>\n<div>\n<dt>\ncanExport\n</dt>\n<dd>\n—\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-free\" disabled type=\"button\">\nCurrent plan\n</button>\n</footer>\n</article>\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-pro\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nPro\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$19/mo\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n100\n</dd>\n</div>\n<div>\n<dt>\ncanExport\n</dt>\n<dd>\n✓\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-pro\" type=\"button\">\nUpgrade to Pro\n</button>\n</footer>\n</article>\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-team\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nTeam\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$49/mo\n<span>\nper seat\n</span>\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n1,000\n</dd>\n</div>\n<div>\n<dt>\ncanExport\n</dt>\n<dd>\n✓\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-team\" type=\"button\">\nUpgrade to Team\n</button>\n</footer>\n</article>\n</div>\n</section>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     },
+     {
+      "name": "http.get",
+      "args": [
+       {
+        "url": "/api/billing/tiers"
+       }
+      ]
+     },
+     {
+      "name": "http.post",
+      "args": [
+       {
+        "data": {
+         "priceId": "price_pro_m"
+        },
+        "url": "/api/billing/checkout"
+       }
+      ]
+     }
+    ]
+   },
+   "a failed checkout shows the page alert": {
+    "snapshots": [
+     "<section data-mol-id=\"pricing-page\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h1 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nChoose your plan\n</h1>\n</header>\n<div aria-label=\"Billing period\" class=\"c2cbb8333 c42740ba6 c9566e21c c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"pricing-page-period-toggle\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"pricing-page-period-month\" role=\"tab\" type=\"button\">\nMonthly\n</button>\n<button aria-selected=\"false\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c9773cd2b c9866e6d5 cc06b624c cd6fe318b ced81e367 cee061da5 ceea44117 cf0915c40 cf8701dd1 cf9a2eaba\" data-mol-id=\"pricing-page-period-year\" role=\"tab\" type=\"button\">\nYearly\n</button>\n</div>\n<div class=\"c2cbb8333 c9366def6 c9773cd2b ccae02ff2 cd9b20003 ceacde2ad\" data-mol-id=\"pricing-page-grid\">\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-free\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nFree\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$0\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n3\n</dd>\n</div>\n<div>\n<dt>\ncanExport\n</dt>\n<dd>\n—\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-free\" disabled type=\"button\">\nCurrent plan\n</button>\n</footer>\n</article>\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-pro\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nPro\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$19/mo\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n100\n</dd>\n</div>\n<div>\n<dt>\ncanExport\n</dt>\n<dd>\n✓\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-pro\" type=\"button\">\nUpgrade to Pro\n</button>\n</footer>\n</article>\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-team\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nTeam\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$49/mo\n<span>\nper seat\n</span>\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n1,000\n</dd>\n</div>\n<div>\n<dt>\ncanExport\n</dt>\n<dd>\n✓\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-team\" type=\"button\">\nUpgrade to Team\n</button>\n</footer>\n</article>\n</div>\n</section>\n@route /",
+     "<section data-mol-id=\"pricing-page\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h1 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nChoose your plan\n</h1>\n</header>\n<div aria-label=\"Billing period\" class=\"c2cbb8333 c42740ba6 c9566e21c c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"pricing-page-period-toggle\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"pricing-page-period-month\" role=\"tab\" type=\"button\">\nMonthly\n</button>\n<button aria-selected=\"false\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c9773cd2b c9866e6d5 cc06b624c cd6fe318b ced81e367 cee061da5 ceea44117 cf0915c40 cf8701dd1 cf9a2eaba\" data-mol-id=\"pricing-page-period-year\" role=\"tab\" type=\"button\">\nYearly\n</button>\n</div>\n<div class=\"c2cbb8333 c9366def6 c9773cd2b ccae02ff2 cd9b20003 ceacde2ad\" data-mol-id=\"pricing-page-grid\">\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-free\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nFree\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$0\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n3\n</dd>\n</div>\n<div>\n<dt>\ncanExport\n</dt>\n<dd>\n—\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-free\" disabled type=\"button\">\nCurrent plan\n</button>\n</footer>\n</article>\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-pro\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nPro\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$19/mo\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n100\n</dd>\n</div>\n<div>\n<dt>\ncanExport\n</dt>\n<dd>\n✓\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-pro\" type=\"button\">\nUpgrade to Pro\n</button>\n</footer>\n</article>\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-team\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nTeam\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$49/mo\n<span>\nper seat\n</span>\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n1,000\n</dd>\n</div>\n<div>\n<dt>\ncanExport\n</dt>\n<dd>\n✓\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-team\" type=\"button\">\nUpgrade to Team\n</button>\n</footer>\n</article>\n</div>\n<p class=\"c445db9b9 c99fc28ae cab1062ad\" data-mol-id=\"pricing-page-checkout-error\" role=\"alert\">\nCould not start checkout. Please try again.\n</p>\n</section>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     },
+     {
+      "name": "http.get",
+      "args": [
+       {
+        "url": "/api/billing/tiers"
+       }
+      ]
+     },
+     {
+      "name": "http.post",
+      "args": [
+       {
+        "data": {
+         "priceId": "price_pro_m"
+        },
+        "url": "/api/billing/checkout"
+       }
+      ]
+     }
+    ]
+   },
+   "a pending checkout disables the CTA until the provider answers": {
+    "snapshots": [
+     "<section data-mol-id=\"pricing-page\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h1 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nChoose your plan\n</h1>\n</header>\n<div aria-label=\"Billing period\" class=\"c2cbb8333 c42740ba6 c9566e21c c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"pricing-page-period-toggle\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"pricing-page-period-month\" role=\"tab\" type=\"button\">\nMonthly\n</button>\n<button aria-selected=\"false\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c9773cd2b c9866e6d5 cc06b624c cd6fe318b ced81e367 cee061da5 ceea44117 cf0915c40 cf8701dd1 cf9a2eaba\" data-mol-id=\"pricing-page-period-year\" role=\"tab\" type=\"button\">\nYearly\n</button>\n</div>\n<div class=\"c2cbb8333 c9366def6 c9773cd2b ccae02ff2 cd9b20003 ceacde2ad\" data-mol-id=\"pricing-page-grid\">\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-free\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nFree\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$0\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n3\n</dd>\n</div>\n<div>\n<dt>\ncanExport\n</dt>\n<dd>\n—\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-free\" disabled type=\"button\">\nCurrent plan\n</button>\n</footer>\n</article>\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-pro\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nPro\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$19/mo\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n100\n</dd>\n</div>\n<div>\n<dt>\ncanExport\n</dt>\n<dd>\n✓\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-pro\" type=\"button\">\nUpgrade to Pro\n</button>\n</footer>\n</article>\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-team\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nTeam\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$49/mo\n<span>\nper seat\n</span>\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n1,000\n</dd>\n</div>\n<div>\n<dt>\ncanExport\n</dt>\n<dd>\n✓\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-team\" type=\"button\">\nUpgrade to Team\n</button>\n</footer>\n</article>\n</div>\n</section>\n@route /",
+     "<section data-mol-id=\"pricing-page\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h1 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nChoose your plan\n</h1>\n</header>\n<div aria-label=\"Billing period\" class=\"c2cbb8333 c42740ba6 c9566e21c c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"pricing-page-period-toggle\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"pricing-page-period-month\" role=\"tab\" type=\"button\">\nMonthly\n</button>\n<button aria-selected=\"false\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c9773cd2b c9866e6d5 cc06b624c cd6fe318b ced81e367 cee061da5 ceea44117 cf0915c40 cf8701dd1 cf9a2eaba\" data-mol-id=\"pricing-page-period-year\" role=\"tab\" type=\"button\">\nYearly\n</button>\n</div>\n<div class=\"c2cbb8333 c9366def6 c9773cd2b ccae02ff2 cd9b20003 ceacde2ad\" data-mol-id=\"pricing-page-grid\">\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-free\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nFree\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$0\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n3\n</dd>\n</div>\n<div>\n<dt>\ncanExport\n</dt>\n<dd>\n—\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-free\" disabled type=\"button\">\nCurrent plan\n</button>\n</footer>\n</article>\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-pro\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nPro\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$19/mo\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n100\n</dd>\n</div>\n<div>\n<dt>\ncanExport\n</dt>\n<dd>\n✓\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-pro\" disabled type=\"button\">\nUpgrade to Pro\n</button>\n</footer>\n</article>\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-team\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nTeam\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$49/mo\n<span>\nper seat\n</span>\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n1,000\n</dd>\n</div>\n<div>\n<dt>\ncanExport\n</dt>\n<dd>\n✓\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-team\" disabled type=\"button\">\nUpgrade to Team\n</button>\n</footer>\n</article>\n</div>\n</section>\n@route /",
+     "<section data-mol-id=\"pricing-page\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h1 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nChoose your plan\n</h1>\n</header>\n<div aria-label=\"Billing period\" class=\"c2cbb8333 c42740ba6 c9566e21c c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"pricing-page-period-toggle\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"pricing-page-period-month\" role=\"tab\" type=\"button\">\nMonthly\n</button>\n<button aria-selected=\"false\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c9773cd2b c9866e6d5 cc06b624c cd6fe318b ced81e367 cee061da5 ceea44117 cf0915c40 cf8701dd1 cf9a2eaba\" data-mol-id=\"pricing-page-period-year\" role=\"tab\" type=\"button\">\nYearly\n</button>\n</div>\n<div class=\"c2cbb8333 c9366def6 c9773cd2b ccae02ff2 cd9b20003 ceacde2ad\" data-mol-id=\"pricing-page-grid\">\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-free\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nFree\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$0\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n3\n</dd>\n</div>\n<div>\n<dt>\ncanExport\n</dt>\n<dd>\n—\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-free\" disabled type=\"button\">\nCurrent plan\n</button>\n</footer>\n</article>\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-pro\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nPro\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$19/mo\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n100\n</dd>\n</div>\n<div>\n<dt>\ncanExport\n</dt>\n<dd>\n✓\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-pro\" type=\"button\">\nUpgrade to Pro\n</button>\n</footer>\n</article>\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-team\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nTeam\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$49/mo\n<span>\nper seat\n</span>\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n1,000\n</dd>\n</div>\n<div>\n<dt>\ncanExport\n</dt>\n<dd>\n✓\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-team\" type=\"button\">\nUpgrade to Team\n</button>\n</footer>\n</article>\n</div>\n</section>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     },
+     {
+      "name": "http.get",
+      "args": [
+       {
+        "url": "/api/billing/tiers"
+       }
+      ]
+     },
+     {
+      "name": "http.post",
+      "args": [
+       {
+        "data": {
+         "priceId": "price_pro_m"
+        },
+        "url": "/api/billing/checkout"
+       }
+      ]
+     }
+    ]
+   },
+   "explicit tiers render one card per tier, then a locale switch": {
+    "snapshots": [
+     "<section data-mol-id=\"pricing-page\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h1 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nChoose your plan\n</h1>\n</header>\n<div aria-label=\"Billing period\" class=\"c2cbb8333 c42740ba6 c9566e21c c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"pricing-page-period-toggle\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"pricing-page-period-month\" role=\"tab\" type=\"button\">\nMonthly\n</button>\n<button aria-selected=\"false\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c9773cd2b c9866e6d5 cc06b624c cd6fe318b ced81e367 cee061da5 ceea44117 cf0915c40 cf8701dd1 cf9a2eaba\" data-mol-id=\"pricing-page-period-year\" role=\"tab\" type=\"button\">\nYearly\n</button>\n</div>\n<div class=\"c2cbb8333 c9366def6 c9773cd2b ccae02ff2 cd9b20003 ceacde2ad\" data-mol-id=\"pricing-page-grid\">\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-free\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nFree\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$0\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n3\n</dd>\n</div>\n<div>\n<dt>\ncanExport\n</dt>\n<dd>\n—\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-free\" disabled type=\"button\">\nCurrent plan\n</button>\n</footer>\n</article>\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-pro\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nPro\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$19/mo\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n100\n</dd>\n</div>\n<div>\n<dt>\ncanExport\n</dt>\n<dd>\n✓\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-pro\" type=\"button\">\nUpgrade to Pro\n</button>\n</footer>\n</article>\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-team\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nTeam\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$49/mo\n<span>\nper seat\n</span>\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n1,000\n</dd>\n</div>\n<div>\n<dt>\ncanExport\n</dt>\n<dd>\n✓\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-team\" type=\"button\">\nUpgrade to Team\n</button>\n</footer>\n</article>\n</div>\n</section>\n@route /",
+     "<section data-mol-id=\"pricing-page\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h1 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\n⟦Choose your plan⟧\n</h1>\n</header>\n<div aria-label=\"⟦Billing period⟧\" class=\"c2cbb8333 c42740ba6 c9566e21c c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"pricing-page-period-toggle\" role=\"tablist\">\n<button aria-selected=\"true\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"pricing-page-period-month\" role=\"tab\" type=\"button\">\n⟦Monthly⟧\n</button>\n<button aria-selected=\"false\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c9773cd2b c9866e6d5 cc06b624c cd6fe318b ced81e367 cee061da5 ceea44117 cf0915c40 cf8701dd1 cf9a2eaba\" data-mol-id=\"pricing-page-period-year\" role=\"tab\" type=\"button\">\n⟦Yearly⟧\n</button>\n</div>\n<div class=\"c2cbb8333 c9366def6 c9773cd2b ccae02ff2 cd9b20003 ceacde2ad\" data-mol-id=\"pricing-page-grid\">\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-free\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nFree\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$0\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n3\n</dd>\n</div>\n<div>\n<dt>\ncanExport\n</dt>\n<dd>\n—\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-free\" disabled type=\"button\">\n⟦Current plan⟧\n</button>\n</footer>\n</article>\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-pro\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nPro\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$19/mo\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n100\n</dd>\n</div>\n<div>\n<dt>\ncanExport\n</dt>\n<dd>\n✓\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-pro\" type=\"button\">\n⟦Upgrade to Pro⟧\n</button>\n</footer>\n</article>\n<article class=\"c1af9479c c1f523237 c311021b4 c4b92e3a8 c5494c1c8 cc26cbf54\" data-mol-id=\"pricing-page-tier-team\">\n<header class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\n<h2 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nTeam\n</h2>\n<p class=\"c445db9b9 ce823b5bf\">\n$49/mo\n<span>\n⟦per seat⟧\n</span>\n</p>\n</header>\n<div class=\"c378a0a9c c97d61bf0\">\n<dl>\n<div>\n<dt>\nmaxProjects\n</dt>\n<dd>\n1,000\n</dd>\n</div>\n<div>\n<dt>\ncanExport\n</dt>\n<dd>\n✓\n</dd>\n</div>\n</dl>\n</div>\n<footer class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cbf033fe8 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"pricing-page-cta-team\" type=\"button\">\n⟦Upgrade to Team⟧\n</button>\n</footer>\n</article>\n</div>\n</section>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     },
+     {
+      "name": "http.get",
+      "args": [
+       {
+        "url": "/api/billing/tiers"
+       }
+      ]
+     },
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en-XA"
+      ]
+     }
+    ]
+   }
+  }
+ }
+}

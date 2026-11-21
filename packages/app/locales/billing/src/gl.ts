@@ -16,4 +16,11 @@ export const gl: Partial<BillingTranslations> = {
   'billing.pricing.perSeat': 'por asento',
   'billing.pricing.upgradeCta': 'Actualizar a {{tierName}}',
   'billing.pricing.currentCta': 'Plan actual',
+  'billing.pricing.period.month': 'ao mes',
+  'billing.pricing.period.year': 'ao ano',
+  'billing.pricing.billed.month': 'Facturación mensual',
+  'billing.pricing.billed.year': 'Facturación anual',
+  'billing.pricing.unlimited': 'Ilimitado',
+  'billing.pricing.limit.maxProjects': 'Máximo de proxectos',
+  'billing.pricing.limit.canExport': 'Exportación dispoñible',
 }

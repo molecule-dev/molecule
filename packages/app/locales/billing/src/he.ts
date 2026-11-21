@@ -15,4 +15,11 @@ export const he: Partial<BillingTranslations> = {
   'billing.pricing.perSeat': 'לכל מושב',
   'billing.pricing.upgradeCta': 'שדרג ל {{tierName}}',
   'billing.pricing.currentCta': 'התוכנית הנוכחית',
+  'billing.pricing.period.month': 'לחודש',
+  'billing.pricing.period.year': 'לשנה',
+  'billing.pricing.billed.month': 'חיוב חודשי',
+  'billing.pricing.billed.year': 'חיוב שנתי',
+  'billing.pricing.unlimited': 'ללא הגבלה',
+  'billing.pricing.limit.maxProjects': 'מקסימום פרויקטים',
+  'billing.pricing.limit.canExport': 'ייצוא זמין',
 }

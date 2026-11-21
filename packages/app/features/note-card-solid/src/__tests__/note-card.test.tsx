@@ -46,13 +46,27 @@ afterEach(() => {
 })
 
 /** Render with Solid's browser renderer and return the markup. */
-const mount = (view: () => Parameters<typeof render>[0]): string => {
+const mount = (view: Parameters<typeof render>[0]): string => mountEl(view).innerHTML
+
+/** Render with Solid's browser renderer and return the host container. */
+const mountEl = (view: Parameters<typeof render>[0]): HTMLElement => {
   const container = document.createElement('div')
   document.body.appendChild(container)
   disposers.push(render(view, container))
-  const markup = container.innerHTML
-  return markup
+  return container
 }
+
+/** The card's transparent open button over the whole row. */
+const openButton = (host: HTMLElement): HTMLButtonElement =>
+  host.querySelector('[data-mol-id="note-card-open"]')!
+
+/**
+ * The element inside `host` whose id is the button's `aria-labelledby`
+ * target — scoped to the card so concurrently mounted instances' generated
+ * ids never collide.
+ */
+const labelledBy = (host: HTMLElement, button: HTMLButtonElement): Element | undefined =>
+  [...host.querySelectorAll('[id]')].find((el) => el.id === button.getAttribute('aria-labelledby'))
 
 describe('NoteCard', () => {
   it('renders the body text', () => {
@@ -64,11 +78,15 @@ describe('NoteCard', () => {
     expect(mount(() => <NoteCard body="b" />)).not.toContain('<h3')
   })
 
-  it('uses the supplied color as the background, falling back to a default', () => {
-    expect(mount(() => <NoteCard body="b" color="#ffcc00" />)).toContain(
-      'background: rgb(255, 204, 0)',
-    )
-    expect(mount(() => <NoteCard body="b" />)).toContain('background: rgb(254, 243, 199)')
+  it('renders the theme tint for known note colours and keeps an unknown colour as data', () => {
+    const known = mount(() => <NoteCard body="b" color="#dbeafe" />)
+    expect(known).toContain('bgTone')
+    expect(known).not.toContain('background')
+    const unknown = mount(() => <NoteCard body="b" color="#ffcc00" />)
+    expect(unknown).toContain('background: rgb(255, 204, 0)')
+    const plain = mount(() => <NoteCard body="b" />)
+    expect(plain).toContain('bgTone')
+    expect(plain).not.toContain('background')
   })
 
   it('renders the pinned indicator only when pinned', () => {
@@ -91,5 +109,40 @@ describe('NoteCard', () => {
     const plain = mount(() => <NoteCard body="b" className="nc-cls" />)
     expect(plain).not.toContain('cursorPointer')
     expect(plain).toContain('nc-cls')
+  })
+
+  it('without onClick there is no open button', () => {
+    const plain = mount(() => <NoteCard body="b" />)
+    expect(plain).not.toContain('<button')
+    const clickable = mount(() => <NoteCard body="b" onClick={() => {}} />)
+    expect(clickable).toContain('data-mol-id="note-card-open"')
+  })
+
+  it('clicking the open button calls onClick', () => {
+    const onClick = vi.fn()
+    const host = mountEl(() => <NoteCard body="b" onClick={onClick} />)
+    openButton(host).click()
+    expect(onClick).toHaveBeenCalledTimes(1)
+  })
+
+  it('clicking an inner control does not call onClick', () => {
+    const onClick = vi.fn()
+    const host = mountEl(() => (
+      <NoteCard body="b" onClick={onClick} actions={<button data-actions="" />} />
+    ))
+    host.querySelector<HTMLButtonElement>('[data-actions]')!.click()
+    expect(onClick).not.toHaveBeenCalled()
+  })
+
+  it('the open button is named by the label', () => {
+    const titled = mountEl(() => (
+      <NoteCard title="Groceries" body="Milk, eggs" onClick={() => {}} />
+    ))
+    const button = openButton(titled)
+    expect(labelledBy(titled, button)?.textContent).toBe('Groceries')
+
+    const untitled = mountEl(() => <NoteCard body="Remember the milk" onClick={() => {}} />)
+    const fallback = openButton(untitled)
+    expect(labelledBy(untitled, fallback)?.textContent).toBe('Remember the milk')
   })
 })

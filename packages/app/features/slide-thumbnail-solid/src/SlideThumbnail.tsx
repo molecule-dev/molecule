@@ -17,7 +17,7 @@ import type { SlideThumbnailProps } from './types.js'
 
 /**
  * The inline style React puts on the tile: the caller's width, the aspect
- * ratio, the active outline, and the theme-token canvas.
+ * ratio, and the active outline. The canvas colour comes from `cm.surface`.
  *
  * @param width - The tile width in pixels.
  * @param aspect - The aspect ratio (`16/9`, `4/3`, `1/1`).
@@ -29,13 +29,15 @@ const rootStyle = (width: number, aspect: string, active: boolean): Record<strin
   'aspect-ratio': aspect.replace('/', ' / '),
   outline: active ? '2px solid currentColor' : 'none',
   'outline-offset': '2px',
-  background: 'var(--mol-color-surface, #fff)',
   overflow: 'hidden',
   border: 'none',
   padding: '0',
 })
 
-/** The index badge's inline style (absolute top-left, translucent black). */
+/**
+ * The index badge's inline style (absolute top-left). Its colours come from
+ * the theme scrim (`cm.bgScrim`) with the theme's inverse text (`cm.textOnTone`).
+ */
 const badgeStyle: Record<string, string> = {
   position: 'absolute',
   left: '4px',
@@ -43,8 +45,6 @@ const badgeStyle: Record<string, string> = {
   padding: '0 4px',
   'font-size': '10px',
   'font-weight': '700',
-  background: 'rgba(0,0,0,0.6)',
-  color: '#fff',
   'border-radius': '3px',
 }
 
@@ -72,11 +72,13 @@ export const SlideThumbnail: Component<SlideThumbnailProps> = (props) => {
         { index: props.index },
         { defaultValue: 'Slide {{index}}' },
       )}
-      class={cm.cn(cm.position('relative'), cm.cursorPointer, props.className)}
+      class={cm.cn(cm.position('relative'), cm.cursorPointer, cm.surface, props.className)}
       style={rootStyle(props.width ?? 160, props.aspect ?? '16/9', props.active ?? false)}
     >
       {props.children}
-      <span style={badgeStyle}>{props.index}</span>
+      <span class={cm.cn(cm.bgScrim, cm.textOnTone)} style={badgeStyle}>
+        {props.index}
+      </span>
     </button>
   )
 }

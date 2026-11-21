@@ -14,4 +14,8 @@ export const is: Partial<SearchUiTranslations> = {
   'searchUi.relatedTitle': 'Samsvarar merkingu leitarorðanna, ekki orðunum.',
   'searchUi.related': 'tengd',
   'searchUi.help': 'Leitarráð',
+  'searchUi.examplePhrase': '"nákvæmt orðasamband"',
+  'searchUi.exampleExcluded': '-orð',
+  'searchUi.activeResult': '{{title}}, {{position}} af {{count}}',
+  'searchUi.dialogLabel': 'Leita',
 }

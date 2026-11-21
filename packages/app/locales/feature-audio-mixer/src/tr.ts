@@ -9,5 +9,7 @@ export const tr: Partial<AudioMixerTranslations> = {
   'audioMixer.aria.pan': '{{name}} tava',
   'audioMixer.aria.send': '{{channel}} gönder {{send}}',
   'audioMixer.button.solo': 'Solo',
+  'audioMixer.button.muteInitial': 'S',
+  'audioMixer.button.soloInitial': 'S',
   'audioMixer.master': 'Usta',
 }

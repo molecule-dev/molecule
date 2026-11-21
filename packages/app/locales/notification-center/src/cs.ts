@@ -8,4 +8,5 @@ export const cs: Partial<NotificationCenterTranslations> = {
   'notifications.empty': 'Žádná oznámení',
   'notifications.loadError': 'Nepodařilo se načíst oznámení.',
   'notifications.retry': 'Zkusit znovu',
+  'notifications.unread': 'Nepřečtený',
 }

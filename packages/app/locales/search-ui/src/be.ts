@@ -14,4 +14,8 @@ export const be: Partial<SearchUiTranslations> = {
   'searchUi.relatedTitle': 'Адпавядае значэнню вашага пошукавага запыту, а не яго словам',
   'searchUi.related': 'звязаныя',
   'searchUi.help': 'Парады па пошуку',
+  'searchUi.examplePhrase': '"дакладная фраза"',
+  'searchUi.exampleExcluded': '-слова',
+  'searchUi.activeResult': '{{title}}, {{position}} з {{count}}',
+  'searchUi.dialogLabel': 'Пошук',
 }

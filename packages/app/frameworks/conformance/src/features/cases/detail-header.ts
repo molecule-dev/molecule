@@ -6,7 +6,14 @@
  * @module
  */
 
+import type { CaseA11y } from '../../ui/spec.js'
 import type { FeatureCases } from '../spec.js'
+
+/** The case's slot holds a bare input without a label. */
+const BARE_SLOT_INPUT: CaseA11y = {
+  expect: ['label'],
+  reason: "The case's slot holds a bare input without a label",
+}
 
 /** `@molecule/app-detail-header-react`. */
 export const detailHeaderFeature: FeatureCases = {
@@ -48,6 +55,7 @@ export const detailHeaderFeature: FeatureCases = {
         },
         {
           name: 'every slot, the meta row and stickiness',
+          a11y: BARE_SLOT_INPUT,
           props: {
             title: 'Order #7',
             subtitle: 'Placed yesterday',

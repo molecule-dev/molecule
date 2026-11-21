@@ -14,4 +14,8 @@ export const eu: Partial<SearchUiTranslations> = {
   'searchUi.relatedTitle': 'Bilaketaren esanahiarekin bat dator, ez hitzekin',
   'searchUi.related': 'erlazionatuta',
   'searchUi.help': 'Bilaketa aholkuak',
+  'searchUi.examplePhrase': '"esaldi zehatza"',
+  'searchUi.exampleExcluded': '-hitza',
+  'searchUi.activeResult': '{{title}}, {{count}}-tik {{position}}',
+  'searchUi.dialogLabel': 'Bilatu',
 }

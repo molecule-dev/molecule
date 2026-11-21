@@ -14,4 +14,8 @@ export const fa: Partial<SearchUiTranslations> = {
   'searchUi.relatedTitle': 'با معنی جستجوی شما مطابقت دارد، نه با کلمات آن',
   'searchUi.related': 'مرتبط',
   'searchUi.help': 'نکات جستجو',
+  'searchUi.examplePhrase': '"عبارت دقیق"',
+  'searchUi.exampleExcluded': '-کلمه',
+  'searchUi.activeResult': '{{title}}، {{position}} از {{count}}',
+  'searchUi.dialogLabel': 'جستجو',
 }

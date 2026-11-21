@@ -6,7 +6,7 @@
  * @module
  */
 
-import type { ComputedRef, Ref, VNodeChild } from 'vue'
+import type { ComputedRef, HTMLAttributes, Ref, VNodeChild } from 'vue'
 
 /** Props for the {@link TagChip} component. */
 export interface TagChipProps {
@@ -26,8 +26,13 @@ export interface TagChipProps {
   className?: string
 }
 
-/** Props for the {@link TagList} component. */
-export interface TagListProps {
+/**
+ * Props for the {@link TagList} component. List attributes such as `id`,
+ * `aria-label` and `data-mol-id` go on the list itself.
+ */
+export interface TagListProps extends Omit<HTMLAttributes, 'innerHTML' | 'textContent'> {
+  /** `data-*` attributes (a `data-mol-id` testing hook among them), put on the list itself. */
+  [attribute: `data-${string}`]: string | number | boolean | undefined
   /** Every saved tag, in display order. Empty arrays render an empty list. */
   value: readonly string[]
   /** Additional classes for the list. */

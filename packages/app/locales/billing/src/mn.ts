@@ -15,4 +15,11 @@ export const mn: Partial<BillingTranslations> = {
   'billing.pricing.perSeat': 'суудал тутамд',
   'billing.pricing.upgradeCta': 'Шинэчлэх {{tierName}}',
   'billing.pricing.currentCta': 'Одоогийн төлөвлөгөө',
+  'billing.pricing.period.month': 'сар бүрт',
+  'billing.pricing.period.year': 'жил бүрт',
+  'billing.pricing.billed.month': 'Сар бүр төлбөр тооцно',
+  'billing.pricing.billed.year': 'Жил бүр төлбөр тооцно',
+  'billing.pricing.unlimited': 'Хязгааргүй',
+  'billing.pricing.limit.maxProjects': 'Хамгийн их төслийн тоо',
+  'billing.pricing.limit.canExport': 'Экспортлох боломжтой',
 }

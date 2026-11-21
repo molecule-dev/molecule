@@ -15,4 +15,11 @@ export const my: Partial<BillingTranslations> = {
   'billing.pricing.perSeat': 'ထိုင်ခုံတစ်ခုလျှင်',
   'billing.pricing.upgradeCta': 'အဆင့်မြှင့်တင်ရန် {{tierName}}',
   'billing.pricing.currentCta': 'လက်ရှိအစီအစဉ်',
+  'billing.pricing.period.month': 'တစ်လလျှင်',
+  'billing.pricing.period.year': 'တစ်နှစ်လျှင်',
+  'billing.pricing.billed.month': 'လစဉ် ဘီလ်တင်သည်',
+  'billing.pricing.billed.year': 'နှစ်စဉ် ဘီလ်တင်သည်',
+  'billing.pricing.unlimited': 'အကန့်အသတ်မရှိ',
+  'billing.pricing.limit.maxProjects': 'ပရောဂျက် အများဆုံး',
+  'billing.pricing.limit.canExport': 'တင်ပို့နိုင်သည်',
 }

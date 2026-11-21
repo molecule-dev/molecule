@@ -84,6 +84,9 @@ function mount(): ComponentFixture<OAuthUnmountProbeComponent> {
   })
   const fixture = TestBed.createComponent(OAuthUnmountProbeComponent)
   fixture.detectChanges()
+  // Bootstrap's session hold (provideMolecule's default with `auth`) starts the restore once;
+  // the assertions count what the OAuth result itself does.
+  vi.mocked(client.initialize).mockClear()
   return fixture
 }
 

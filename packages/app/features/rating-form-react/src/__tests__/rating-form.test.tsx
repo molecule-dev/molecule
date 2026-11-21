@@ -60,6 +60,15 @@ describe('RatingForm', () => {
     expect(markup.match(/role="radio"/g) ?? []).toHaveLength(5)
   })
 
+  it('renders a focusable radiogroup', () => {
+    const markup = html(createElement(RatingForm, { onSubmit: () => {} }))
+    const group = markup.match(/<div[^>]*role="radiogroup"[^>]*>/)?.[0] ?? ''
+    // Focusable so jsx-a11y's interactive-supports-focus is satisfied (the
+    // group carries onMouseLeave), but never a tab stop: -1 keeps it out of
+    // the tab order, and the stars carry the keyboard instead.
+    expect(group).toContain('tabindex="-1"')
+  })
+
   it('marks the defaultRating star aria-checked', () => {
     const markup = html(createElement(RatingForm, { onSubmit: () => {}, defaultRating: 3 }))
     expect(markup.match(/aria-checked="true"/g) ?? []).toHaveLength(1)

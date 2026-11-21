@@ -8,4 +8,5 @@ export const mt: Partial<NotificationCenterTranslations> = {
   'notifications.viewAll': 'Ara kollox',
   'notifications.loadError': 'Ma setgħux jitgħabbew in-notifiki.',
   'notifications.retry': "Erġa' pprova",
+  'notifications.unread': 'Mhux moqri',
 }

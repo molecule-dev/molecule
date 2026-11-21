@@ -9,6 +9,7 @@ export const cy: ReputationBadgeTranslations = {
   'reputationBadge.level.trusted': 'Dibynadwy',
   'reputationBadge.level.veteran': 'Hen law',
   'reputationBadge.level.legend': 'Chwedl',
+  'reputationBadge.level.fallback': '{{level}}',
   'badgeShelf.aria': '{{count}} bathodyn wedi eu hennill',
   'badgeShelf.overflow.aria': 'Dangos {{count}} bathodyn arall',
 }

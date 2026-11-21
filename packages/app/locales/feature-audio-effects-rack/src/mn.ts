@@ -50,4 +50,5 @@ export const mn: Partial<AudioEffectsRackTranslations> = {
   'audioEffectsRack.param.phaser.rate': 'Үнэлгээ',
   'audioEffectsRack.param.phaser.depth': 'Гүн',
   'audioEffectsRack.param.phaser.feedback': 'Санал хүсэлт',
+  'audioEffectsRack.param.fallback': 'Параметр',
 }

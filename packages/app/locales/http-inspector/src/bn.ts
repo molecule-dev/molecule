@@ -7,4 +7,8 @@ export const bn: Partial<HttpInspectorTranslations> = {
   'httpInspector.headers': 'হেডার',
   'httpInspector.addHeader': 'হেডার যোগ করুন',
   'httpInspector.body': 'শরীর',
+  'httpInspector.methodLabel': 'HTTP মেথড',
+  'httpInspector.urlLabel': 'URL',
+  'httpInspector.headerPlaceholder': 'হেডার',
+  'httpInspector.valuePlaceholder': 'মান',
 }

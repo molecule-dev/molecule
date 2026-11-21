@@ -13,8 +13,13 @@
  * @module
  */
 
-import type { I18nProvider, ThemeProvider } from '@molecule/app-svelte'
 import { getI18nProvider, getThemeProvider } from '@molecule/app-svelte'
+
+/** The theme service the binding provides (`@molecule/app-theme`'s `ThemeProvider`). */
+type ThemeProvider = ReturnType<typeof getThemeProvider>
+
+/** The i18n service the binding provides (`@molecule/app-i18n`'s `I18nProvider`). */
+type I18nProvider = ReturnType<typeof getI18nProvider>
 
 /**
  * Probes for the theme provider without throwing when it is absent.

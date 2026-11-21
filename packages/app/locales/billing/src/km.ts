@@ -15,4 +15,11 @@ export const km: Partial<BillingTranslations> = {
   'billing.pricing.perSeat': 'ក្នុងមួយកៅអី',
   'billing.pricing.upgradeCta': 'ធ្វើឱ្យប្រសើរឡើងទៅ {{tierName}}',
   'billing.pricing.currentCta': 'ផែនការបច្ចុប្បន្ន',
+  'billing.pricing.period.month': 'ក្នុងមួយខែ',
+  'billing.pricing.period.year': 'ក្នុងមួយឆ្នាំ',
+  'billing.pricing.billed.month': 'គិតតម្លៃរាល់ខែ',
+  'billing.pricing.billed.year': 'គិតតម្លៃរាល់ឆ្នាំ',
+  'billing.pricing.unlimited': 'គ្មានដែនកំណត់',
+  'billing.pricing.limit.maxProjects': 'ចំនួនគម្រោងអតិបរមា',
+  'billing.pricing.limit.canExport': 'នាំចេញបាន',
 }

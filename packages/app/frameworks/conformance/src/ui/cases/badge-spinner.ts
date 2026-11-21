@@ -12,6 +12,8 @@ const SIZES = ['xs', 'sm', 'md', 'lg', 'xl'] as const
 /** Badge: colors, sizes, square corners, passthrough. */
 export const badgeCases: UIComponentCases = {
   component: 'Badge',
+  ref: {},
+  declaredProps: { props: 'element' },
   cases: [
     { name: 'defaults', children: ['New'] },
     ...COLORS.map((color) => ({ name: `color ${color}`, props: { color }, children: ['3'] })),
@@ -29,6 +31,8 @@ export const badgeCases: UIComponentCases = {
 /** Spinner: sizes, custom color, label, passthrough of data-/aria- attributes. */
 export const spinnerCases: UIComponentCases = {
   component: 'Spinner',
+  ref: {},
+  declaredProps: { props: 'base' },
   cases: [
     { name: 'defaults' },
     ...SIZES.map((size) => ({ name: `size ${size}`, props: { size } })),

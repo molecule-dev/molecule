@@ -6,6 +6,7 @@
 
 import { Component, EventEmitter, Output } from '@angular/core'
 
+import { useTranslation } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -84,7 +85,7 @@ function toGridCols(desired: number): number {
             </button>
           }
           @if (overflow() > 0) {
-            <div [class]="overflowClasses()" style="aspect-ratio: 1 / 1">+{{ overflow() }}</div>
+            <div [class]="overflowClasses()" style="aspect-ratio: 1 / 1">{{ overflowText() }}</div>
           }
         </div>
       }
@@ -98,7 +99,10 @@ export class ImageGallery {
   selectedIndex?: number
   /** Max thumbnails shown (defaults to `4` at read time; extra are "+N"). */
   maxThumbnails?: number
-  /** Alt-text for screen readers, per image (falls back to `'Image N'`). */
+  /**
+   * Alt-text for screen readers, per image (falls back through i18n to
+   * `'Image {{number}}'`, `imageGallery.alt.fallback`).
+   */
   alts?: string[]
   /** Extra classes on the outer wrapper. */
   className?: string
@@ -108,6 +112,9 @@ export class ImageGallery {
 
   /** The component's own selection while it is uncontrolled. */
   private internalIndex = 0
+
+  /** The i18n binding the alt fallback and overflow chip read. */
+  private readonly i18n = useTranslation()
 
   /**
    * The current class map.
@@ -161,21 +168,49 @@ export class ImageGallery {
   }
 
   /**
-   * The main image's alt text (React's `alts?.[idx] ?? \`Image ${idx + 1}\``).
+   * The main image's alt text (React's `alts?.[idx] ?? t(…)` with the
+   * `imageGallery.alt.fallback` fallback).
    * @returns The alt text.
    */
   mainAlt(): string {
-    return this.alts?.[this.idx()] ?? `Image ${this.idx() + 1}`
+    return (
+      this.alts?.[this.idx()] ??
+      this.i18n.t(
+        'imageGallery.alt.fallback',
+        { number: this.idx() + 1 },
+        { defaultValue: 'Image {{number}}' },
+      )
+    )
   }
 
   /**
-   * One thumbnail's aria-label (React's `alts?.[i] ?? \`Image ${i + 1}\``).
+   * One thumbnail's aria-label (React's `alts?.[i] ?? t(…)` with the
+   * `imageGallery.alt.fallback` fallback).
    *
    * @param index - The thumbnail's index.
    * @returns The label text.
    */
   thumbAlt(index: number): string {
-    return this.alts?.[index] ?? `Image ${index + 1}`
+    return (
+      this.alts?.[index] ??
+      this.i18n.t(
+        'imageGallery.alt.fallback',
+        { number: index + 1 },
+        { defaultValue: 'Image {{number}}' },
+      )
+    )
+  }
+
+  /**
+   * The "+N" chip's text (React's `t('imageGallery.overflow.more', …)`).
+   * @returns The chip text, e.g. `+2`.
+   */
+  overflowText(): string {
+    return this.i18n.t(
+      'imageGallery.overflow.more',
+      { count: this.overflow() },
+      { defaultValue: '+{{count}}' },
+    )
   }
 
   /**

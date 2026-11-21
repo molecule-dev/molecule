@@ -9,4 +9,6 @@ export const sl: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.note':
     'Opomba {{pitch}} začenši na ritmu {{startBeat}} za {{durationBeats}} ritmi',
   'pianoRoll.aria.cursor': 'Kazalec na {{pitch}} v ritmu {{beat}}',
+  'pianoRoll.aria.gridHelp':
+    'Puščice premikajo kazalek celice, Enter ali presledek nariše na njem noto.',
 }

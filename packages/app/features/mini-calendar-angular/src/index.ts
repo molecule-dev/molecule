@@ -36,9 +36,12 @@
  * `getClassMap()` throws before wiring, and the prev/next buttons come
  * from `@molecule/app-ui-angular`.
  *
- * Weekday and month names localize automatically through
- * `Intl.DateTimeFormat(locale)` — no locale bond involved. The prev/next
- * button aria-labels are currently English-only.
+ * Weekday and month names come from `Intl.DateTimeFormat(locale)` — an
+ * explicit `locale` input wins, otherwise the app's active locale, so they
+ * follow a locale switch. The prev/next buttons' aria-labels go through
+ * `t()` (`miniCalendar.aria.previousMonth` / `miniCalendar.aria.nextMonth`,
+ * English `defaultValue`s); translations live in the
+ * `@molecule/app-locales-mini-calendar` bond.
  *
  * When `month` is supplied the visible month is fully controlled —
  * wire `onMonthChange` too or the arrows will appear dead. The grid

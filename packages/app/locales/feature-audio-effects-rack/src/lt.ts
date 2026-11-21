@@ -49,4 +49,5 @@ export const lt: Partial<AudioEffectsRackTranslations> = {
   'audioEffectsRack.param.phaser.rate': 'Įvertinkite',
   'audioEffectsRack.param.phaser.depth': 'Gylis',
   'audioEffectsRack.param.phaser.feedback': 'Atsiliepimai',
+  'audioEffectsRack.param.fallback': 'Parametras',
 }

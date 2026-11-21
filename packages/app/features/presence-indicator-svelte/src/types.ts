@@ -19,7 +19,7 @@ export interface PresenceDotProps {
   position?: 'inline' | 'overlay'
   /** Overlay corner when `position="overlay"`. Defaults to `'bottom-right'`. */
   corner?: 'top-right' | 'bottom-right' | 'top-left' | 'bottom-left'
-  /** Accessible label override. Defaults to `Presence: <status>`. */
+  /** Accessible label override; defaults to `t('presenceIndicator.aria.presence', …)`. */
   ariaLabel?: string
   /** Extra classes. */
   className?: string

@@ -30,6 +30,7 @@ import {
   requiredBindingExports,
   runHookCase,
 } from '../bindings/index.js'
+import { assertBuiltFromSource } from '../build-freshness.js'
 import { watchConformanceEventLoop } from '../stall-watchdog-vitest.js'
 import { reactBindingAdapter } from './react-bindings-adapter.js'
 import { assertCompleteRecording, missingRecordings } from './recording.js'
@@ -48,6 +49,8 @@ const FILTER =
 if (RECORD && FILTER) throw new Error('RECORD_GOLDENS records every hook; unset CONFORMANCE_HOOKS')
 const families = bindingCaseFamilies.filter((f) => !FILTER || FILTER.includes(f.hook))
 const here = dirname(fileURLToPath(import.meta.url))
+// A recording reads React's binding from its dist/: refuse one older than its source.
+assertBuiltFromSource(['@molecule/app-react'], here)
 const GOLDENS_FILE = join(here, '..', 'bindings', 'goldens.json')
 
 const exportNames = requiredBindingExports(Object.keys(ReactBindings))
@@ -68,9 +71,13 @@ describe.skipIf(FILTER !== null)('React binding coverage', () => {
     expect(hooks.filter((hook, i) => hooks.indexOf(hook) !== i)).toEqual([])
   })
   it('every case family names a required export', () => {
-    expect(bindingCaseFamilies.map((f) => f.hook).filter((h) => !exportNames.includes(h))).toEqual(
-      [],
-    )
+    // The composition root's family names React's `MoleculeProvider`, which is not a required
+    // export (Angular's root is `provideMolecule`; check-framework-conformance judges the names).
+    const names = (f: (typeof bindingCaseFamilies)[number]): boolean =>
+      f.render === 'root'
+        ? f.hook === 'MoleculeProvider' && f.hook in ReactBindings
+        : exportNames.includes(f.hook)
+    expect(bindingCaseFamilies.filter((f) => !names(f)).map((f) => f.hook)).toEqual([])
   })
 })
 

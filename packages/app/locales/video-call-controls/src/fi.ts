@@ -8,4 +8,7 @@ export const fi: Partial<VideoCallControlsTranslations> = {
   'call.cameraOff': '🚫',
   'call.share': '🖥',
   'call.leave': 'Lähtö',
+  'call.aria.muted': 'Mykistetty',
+  'call.aria.handRaised': 'Käsi ylhäällä',
+  'call.label.you': '(sinä)',
 }

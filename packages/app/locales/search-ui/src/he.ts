@@ -13,4 +13,8 @@ export const he: Partial<SearchUiTranslations> = {
   'searchUi.relatedTitle': 'תואם את משמעות החיפוש שלך, לא את המילים שלו',
   'searchUi.related': 'קָשׁוּר',
   'searchUi.help': 'טיפים לחיפוש',
+  'searchUi.examplePhrase': '"ביטוי מדויק"',
+  'searchUi.exampleExcluded': '-מילה',
+  'searchUi.activeResult': '{{title}}, {{position}} מתוך {{count}}',
+  'searchUi.dialogLabel': 'חיפוש',
 }

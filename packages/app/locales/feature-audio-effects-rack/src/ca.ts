@@ -49,4 +49,5 @@ export const ca: Partial<AudioEffectsRackTranslations> = {
   'audioEffectsRack.param.phaser.rate': 'Tarifa',
   'audioEffectsRack.param.phaser.depth': 'Profunditat',
   'audioEffectsRack.param.phaser.feedback': 'Comentaris',
+  'audioEffectsRack.param.fallback': 'Paràmetre',
 }

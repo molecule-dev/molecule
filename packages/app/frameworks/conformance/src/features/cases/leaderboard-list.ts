@@ -5,7 +5,14 @@
  * @module
  */
 
+import type { CaseA11y } from '../../ui/spec.js'
 import type { FeatureCases } from '../spec.js'
+
+/** The case's actions slot is an empty button. */
+const EMPTY_ACTION: CaseA11y = {
+  expect: ['button-name'],
+  reason: "The case's actions slot is an empty button",
+}
 
 const rows = [
   { tag: 'div', attrs: { 'data-row': 'a' } },
@@ -27,11 +34,12 @@ export const leaderboardListFeature: FeatureCases = {
         { name: 'a single child', children: singleRow },
         {
           name: 'title and actions',
+          a11y: EMPTY_ACTION,
           slots: { title, actions },
           children: rows,
         },
         { name: 'title only', slots: { title }, children: rows },
-        { name: 'actions only', slots: { actions }, children: rows },
+        { name: 'actions only', a11y: EMPTY_ACTION, slots: { actions }, children: rows },
         {
           name: 'title as a node',
           slots: { title: [{ tag: 'strong', children: ['Top'] }] },

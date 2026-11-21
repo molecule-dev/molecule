@@ -6,7 +6,7 @@
  * @module
  */
 
-import { act, createElement, type ReactElement, type ReactNode } from 'react'
+import { act, createElement, createRef, type ReactElement, type ReactNode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { MemoryRouter, type NavigateFunction, useLocation, useNavigate } from 'react-router'
 
@@ -164,10 +164,13 @@ async function runReactCase(
   const slots: Record<string, unknown> = {}
   for (const [slot, nodes] of Object.entries(testCase.slots ?? {}))
     slots[slot] = toReactNodes(nodes)
+  // A ref case hands the component a ref, as a caller does (`ref={r}`).
+  const refObject = createRef<Element>()
   let props: Record<string, unknown> = {
     ...reactProps(testCase.props ?? {}),
     ...slots,
     ...callbacks,
+    ...(testCase.ref ? { ref: refObject } : {}),
   }
 
   const route: RouteSnapshot = { path: testCase.context?.route ?? '/' }
@@ -221,6 +224,7 @@ async function runReactCase(
           },
           location: () => route.path,
           locationState: () => route.state,
+          refElement: () => refObject.current,
           navigate: (to) => {
             if (!route.navigate) throw new Error('conformance: the router has not rendered yet')
             void route.navigate(to)

@@ -14,4 +14,8 @@ export const yo: Partial<SearchUiTranslations> = {
   'searchUi.relatedTitle': 'Ó bá ìtumọ̀ ìwákiri rẹ mu, kìí ṣe ọ̀rọ̀ rẹ̀.',
   'searchUi.related': 'ti o jọmọ',
   'searchUi.help': 'Àwọn ìmọ̀ràn ìwákiri',
+  'searchUi.examplePhrase': '"gbólóhùn gangan"',
+  'searchUi.exampleExcluded': '-ọ̀rọ̀',
+  'searchUi.activeResult': '{{title}}, {{position}} nínú {{count}}',
+  'searchUi.dialogLabel': 'Wá',
 }

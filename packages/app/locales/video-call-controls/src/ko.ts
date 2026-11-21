@@ -8,4 +8,7 @@ export const ko: Partial<VideoCallControlsTranslations> = {
   'call.cameraOn': '📹',
   'call.cameraOff': '🚫',
   'call.share': '🖥',
+  'call.aria.muted': '음소거됨',
+  'call.aria.handRaised': '손 들었음',
+  'call.label.you': '(나)',
 }

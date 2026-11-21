@@ -57,7 +57,7 @@ export interface UseFormOptions<T extends FormValuesConstraint<T>> extends FormO
 /**
  * Return type for useForm composable.
  */
-export interface UseFormReturn<T extends FormValuesConstraint<T>> {
+export interface UseFormResult<T extends FormValuesConstraint<T>> {
   // State
   formState: ComputedRef<FormState<T>>
   isValid: ComputedRef<boolean>
@@ -102,6 +102,13 @@ export interface UseFormReturn<T extends FormValuesConstraint<T>> {
   // change to the fresh controller.
   form: FormController<T>
 }
+
+/**
+ * The former name of {@link UseFormResult}.
+ *
+ * @deprecated Renamed to {@link UseFormResult}, `@molecule/app-react`'s name for it.
+ */
+export type UseFormReturn<T extends FormValuesConstraint<T>> = UseFormResult<T>
 
 /**
  * Composable for form state management.
@@ -149,7 +156,7 @@ export interface UseFormReturn<T extends FormValuesConstraint<T>> {
  */
 export function useForm<T extends FormValuesConstraint<T> = Record<string, unknown>>(
   options: MaybeRefOrGetter<UseFormOptions<T>> = {},
-): UseFormReturn<T> {
+): UseFormResult<T> {
   const initial = toValue(options)
   const { createForm = createBondedForm, resetKey, ...formOptions } = initial
 
@@ -344,7 +351,7 @@ export function useForm<T extends FormValuesConstraint<T> = Record<string, unkno
     handleSubmit,
     reset,
     updateValues,
-    asState: asState as UseFormReturn<T>['asState'],
+    asState: asState as UseFormResult<T>['asState'],
     validate,
     get form(): FormController<T> {
       // A live view: a resetKey change replaces the controller, and this

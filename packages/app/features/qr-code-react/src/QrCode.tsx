@@ -1,5 +1,5 @@
 import qrcode from 'qrcode-generator'
-import type { JSX } from 'react'
+import { type JSX, useId } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
@@ -17,7 +17,13 @@ export interface QrCodeLogo {
    * use `errorCorrection='H'` when overlaying a logo.
    */
   size?: number
-  /** Alt text for the logo image (decorative if omitted). */
+  /**
+   * Accessible description of the QR code. The logo image itself is
+   * decorative (`<image>` sits inside the `role="img"` SVG, whose children are
+   * presentational, so its own label would never be read): when this is set,
+   * the text becomes the SVG's `<desc>`, named by the SVG's
+   * `aria-describedby`. Omit it for a purely decorative logo.
+   */
   alt?: string
 }
 
@@ -29,9 +35,16 @@ export interface QrCodeProps {
   size?: number
   /** Error-correction level. Defaults to `'M'`. Use `'H'` if overlaying a logo. */
   errorCorrection?: QrErrorCorrectionLevel
-  /** Foreground (dark module) color. Defaults to `'#000'`. */
+  /**
+   * Foreground (dark module) color. Defaults to `'#000'`. Data, not theme: a QR
+   * code must be dark modules on a light background whatever the theme, because
+   * scanners need that contrast.
+   */
   fgColor?: string
-  /** Background color. Defaults to `'#fff'`. */
+  /**
+   * Background color. Defaults to `'#fff'`. Data, for the same reason as
+   * {@link QrCodeProps.fgColor}.
+   */
   bgColor?: string
   /** Quiet-zone margin in modules. Defaults to 2. */
   margin?: number
@@ -86,7 +99,10 @@ export function buildQrPath(
  * Styling routes through `@molecule/app-ui`'s `getClassMap()` for the
  * container; the only inline color attributes are the SVG `fill`s on the
  * background rect and the dark-modules path (real SVG attributes — not
- * Tailwind classes). Translations come from `@molecule/app-locales-qr-code`.
+ * Tailwind classes). Those two colours are data, not theme: a QR code must be
+ * dark modules on a light background whatever the theme (scanners need the
+ * contrast), so `fgColor`/`bgColor` keep their literal black-and-white
+ * defaults. Translations come from `@molecule/app-locales-qr-code`.
  *
  * Used by coupon-deals-platform (redemption codes), restaurant-ordering
  * (table tokens), event-ticketing (tickets), voting-polling (ballot links).
@@ -107,6 +123,7 @@ export function QrCode({
 }: QrCodeProps): JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
+  const descId = useId()
 
   // typeNumber=0 lets the library pick the smallest type that fits.
   const qr = qrcode(0, errorCorrection)
@@ -125,6 +142,15 @@ export function QrCode({
   const logoModuleSize = logo?.size ? (logo.size / size) * totalModules : totalModules * 0.2
   const logoOffset = (totalModules - logoModuleSize) / 2
 
+  // The logo's alt text describes the whole code, not the overlay: an
+  // `<image>` inside the `role="img"` SVG is presentational, so its own
+  // `aria-label` would never reach the accessibility tree. It becomes the
+  // SVG's `<desc>` instead, named by `aria-describedby`.
+  const description = logo?.alt ? logo.alt : undefined
+
+  // The module fills are data, not theme: a QR code must be dark modules on a
+  // light background whatever the theme, because scanners need the contrast.
+  // That is why `fgColor`/`bgColor` default to literal black and white.
   return (
     <svg
       width={size}
@@ -132,10 +158,12 @@ export function QrCode({
       viewBox={`0 0 ${totalModules} ${totalModules}`}
       role="img"
       aria-label={label}
+      aria-describedby={description ? descId : undefined}
       data-mol-id="qr-code"
       className={cm.cn(className)}
       shapeRendering="crispEdges"
     >
+      {description ? <desc id={descId}>{description}</desc> : null}
       <rect
         x={0}
         y={0}
@@ -154,7 +182,6 @@ export function QrCode({
           height={logoModuleSize}
           preserveAspectRatio="xMidYMid meet"
           data-mol-id="qr-code-logo"
-          aria-label={logo.alt}
         />
       ) : null}
     </svg>

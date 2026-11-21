@@ -9,6 +9,7 @@ export const vi: ReputationBadgeTranslations = {
   'reputationBadge.level.trusted': 'Đáng tin cậy',
   'reputationBadge.level.veteran': 'Kỳ cựu',
   'reputationBadge.level.legend': 'Huyền thoại',
+  'reputationBadge.level.fallback': '{{level}}',
   'badgeShelf.aria': 'Đã nhận {{count}} huy hiệu',
   'badgeShelf.overflow.aria': 'Hiển thị thêm {{count}} huy hiệu',
 }

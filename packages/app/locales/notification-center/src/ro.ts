@@ -8,4 +8,5 @@ export const ro: Partial<NotificationCenterTranslations> = {
   'notifications.empty': 'Nicio notificare',
   'notifications.loadError': 'Nu s-au putut încărca notificările.',
   'notifications.retry': 'Reîncercați',
+  'notifications.unread': 'Necitit',
 }

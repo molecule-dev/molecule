@@ -7,4 +7,8 @@ export const ar: Partial<HttpInspectorTranslations> = {
   'httpInspector.headers': 'الترويسات',
   'httpInspector.body': 'النص',
   'httpInspector.addHeader': 'أضف رأس الصفحة',
+  'httpInspector.methodLabel': 'طريقة HTTP',
+  'httpInspector.urlLabel': 'URL',
+  'httpInspector.headerPlaceholder': 'الترويسة',
+  'httpInspector.valuePlaceholder': 'القيمة',
 }

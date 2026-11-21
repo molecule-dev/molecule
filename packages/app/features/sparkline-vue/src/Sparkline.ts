@@ -10,6 +10,7 @@
 import { defineComponent, h, type PropType, type VNode } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
+import { useTranslation } from '@molecule/app-vue'
 
 /**
  * Tiny inline trend chart — line, bar, or dot variants. Uses SVG with no
@@ -33,6 +34,7 @@ export const Sparkline = defineComponent({
   },
   setup(props) {
     const cm = getClassMap()
+    const { t } = useTranslation()
 
     return (): VNode | null => {
       const values = props.values
@@ -82,7 +84,9 @@ export const Sparkline = defineComponent({
           height,
           viewBox: `0 0 ${width} ${height}`,
           role: 'img',
-          'aria-label': props.ariaLabel ?? 'Trend sparkline',
+          'aria-label':
+            props.ariaLabel ??
+            t('sparkline.aria.trendSparkline', undefined, { defaultValue: 'Trend sparkline' }),
           class: cm.cn(props.className),
         },
         children,

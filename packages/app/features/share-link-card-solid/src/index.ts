@@ -26,7 +26,7 @@
  *   )
  * }
  *
- * render(() => <MoleculeProvider config={{ i18n: i18nProvider }}><SharePanel /></MoleculeProvider>, document.getElementById('root')!)
+ * render(() => <MoleculeProvider i18n={i18nProvider}><SharePanel /></MoleculeProvider>, document.getElementById('root')!)
  * ```
  *
  * @remarks

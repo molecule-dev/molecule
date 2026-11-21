@@ -15,4 +15,8 @@ export const uz: Partial<SearchUiTranslations> = {
   'searchUi.relatedTitle': "Qidiruvingizning so'zlari emas, balki ma'nosi bilan mos keladi",
   'searchUi.related': "bog'liq",
   'searchUi.help': "Qidiruv bo'yicha maslahatlar",
+  'searchUi.examplePhrase': '"aniq ibora"',
+  'searchUi.exampleExcluded': '-soʻz',
+  'searchUi.activeResult': '{{title}}, {{count}} dan {{position}}',
+  'searchUi.dialogLabel': 'Qidirish',
 }

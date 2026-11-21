@@ -61,6 +61,7 @@ export interface WordCloudProps {
   className?: string
 }
 
+// Category palette (data): a word's hue is its own identity, not a theme status tone.
 const DEFAULT_PALETTE = ['#2563eb', '#16a34a', '#dc2626', '#9333ea', '#f59e0b'] as const
 
 /** Average glyph-width-to-fontSize ratio for collision math. Approximate. */

@@ -258,9 +258,10 @@ export interface HookCases {
   hook: string
   /**
    * `'text'` when the export is a component (`SessionReady`) rather than a
-   * hook. See {@link MountOptions.render}.
+   * hook; `'root'` when it is the composition root itself (`MoleculeProvider`).
+   * See {@link MountOptions.render}.
    */
-  render?: 'text'
+  render?: 'text' | 'root'
   /**
    * `true` when the hook's arguments change between renders without a remount,
    * the way an app re-renders `useChat` with a new `endpoint` to switch
@@ -279,8 +280,20 @@ export interface MountOptions {
    * where each string prop is a text slot (`children` is the default slot,
    * any other name a named slot), and make `result()` the text it renders
    * (`''` when it renders nothing).
+   *
+   * `'root'`: the export is React's `MoleculeProvider`. Mount the framework's
+   * own composition root AS the app's root, the way an app does: the case's
+   * services as its inputs, `args[0]`'s `children` text as the app,
+   * `sessionFallback` text as what shows while the root holds, and
+   * `awaitSession` only when `args[0]` sets it. Nothing of the adapter's own
+   * (no `awaitSession: false`, no hand-built session hold) goes around it, so
+   * the root's default is what the case judges. `result()` is the text the
+   * container shows. Vue, Svelte and Solid mount their `MoleculeProvider`
+   * component; Angular, whose providers are fixed at bootstrap, starts the app
+   * with `provideMolecule` and shows `sessionFallback` as the root element's
+   * own content until bootstrap ends, as an app's `index.html` does.
    */
-  render?: 'text'
+  render?: 'text' | 'root'
   /**
    * `true`: the hook takes each argument as a plain value or as the framework's
    * reactive source (Vue a ref, Solid an accessor, Svelte a readable store,

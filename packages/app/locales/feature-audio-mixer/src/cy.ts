@@ -8,6 +8,8 @@ export const cy: Partial<AudioMixerTranslations> = {
   'audioMixer.aria.send': '{{channel}} anfon at {{send}}',
   'audioMixer.button.mute': 'Mud',
   'audioMixer.button.solo': 'Solo',
+  'audioMixer.button.muteInitial': 'M',
+  'audioMixer.button.soloInitial': 'S',
   'audioMixer.master': 'Meistr',
   'audioMixer.sends': 'Anfoniadau',
 }

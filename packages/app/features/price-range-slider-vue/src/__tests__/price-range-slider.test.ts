@@ -36,6 +36,7 @@ vi.mock('@molecule/app-ui', () => ({
 import { createApp, defineComponent, h, type VNodeChild } from 'vue'
 
 import { PriceRangeSlider } from '../PriceRangeSlider.js'
+import type { PriceRangeSliderProps } from '../types.js'
 
 afterEach(() => {
   document.body.innerHTML = ''
@@ -43,7 +44,7 @@ afterEach(() => {
 
 /** Renders a {@link PriceRangeSlider} and returns the markup it produced. */
 const render = (
-  props: Record<string, unknown>,
+  props: PriceRangeSliderProps,
   slots?: Record<string, () => VNodeChild[]>,
 ): string => {
   const host = document.createElement('div')

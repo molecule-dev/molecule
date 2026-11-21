@@ -12,6 +12,7 @@
 
 import '@angular/compiler'
 import {
+  type ApplicationRef,
   ChangeDetectionStrategy,
   Component,
   type ComponentRef,
@@ -19,7 +20,7 @@ import {
   provideZonelessChangeDetection,
   type Type,
 } from '@angular/core'
-import { type ApplicationRef, createApplication } from '@angular/platform-browser'
+import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
@@ -210,6 +211,14 @@ describe('RatingForm', () => {
     const markup = (await render({ max: 5 })).markup
     expect(markup).toContain('role="radiogroup"')
     expect(markup.match(/role="radio"/g) ?? []).toHaveLength(5)
+  })
+
+  it('renders a focusable radiogroup', async () => {
+    const group = (await render()).markup.match(/<div[^>]*role="radiogroup"[^>]*>/)?.[0] ?? ''
+    // Focusable so jsx-a11y's interactive-supports-focus is satisfied (the
+    // group carries mouseleave), but never a tab stop: -1 keeps it out of
+    // the tab order, and the stars carry the keyboard instead.
+    expect(group).toContain('tabindex="-1"')
   })
 
   it('marks the defaultRating star aria-checked', async () => {

@@ -49,4 +49,5 @@ export const be: Partial<AudioEffectsRackTranslations> = {
   'audioEffectsRack.param.phaser.rate': 'Ацаніць',
   'audioEffectsRack.param.phaser.depth': 'Глыбіня',
   'audioEffectsRack.param.phaser.feedback': 'Зваротная сувязь',
+  'audioEffectsRack.param.fallback': 'Параметр',
 }

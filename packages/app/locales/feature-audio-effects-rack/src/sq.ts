@@ -49,4 +49,5 @@ export const sq: Partial<AudioEffectsRackTranslations> = {
   'audioEffectsRack.param.phaser.rate': 'Vlerëso',
   'audioEffectsRack.param.phaser.depth': 'Thellësia',
   'audioEffectsRack.param.phaser.feedback': 'Reagime',
+  'audioEffectsRack.param.fallback': 'Parametri',
 }

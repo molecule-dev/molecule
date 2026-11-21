@@ -9,4 +9,6 @@ export const lt: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.note':
     'Pastaba {{pitch}} pradedant nuo ritmo {{startBeat}} už {{durationBeats}} ritmai',
   'pianoRoll.aria.cursor': 'Žymeklis ant {{pitch}} ritme {{beat}}',
+  'pianoRoll.aria.gridHelp':
+    'Rodyklės klavišai perkelia langelio žymeklį, Enter arba tarpalas piešia ten natą.',
 }

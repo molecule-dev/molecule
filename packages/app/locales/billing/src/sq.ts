@@ -15,4 +15,11 @@ export const sq: Partial<BillingTranslations> = {
   'billing.pricing.perSeat': 'për vend',
   'billing.pricing.upgradeCta': 'Përmirëso në {{tierName}}',
   'billing.pricing.currentCta': 'Plani aktual',
+  'billing.pricing.period.month': 'në muaj',
+  'billing.pricing.period.year': 'në vit',
+  'billing.pricing.billed.month': 'Faturohet çdo muaj',
+  'billing.pricing.billed.year': 'Faturohet çdo vit',
+  'billing.pricing.unlimited': 'Pa kufi',
+  'billing.pricing.limit.maxProjects': 'Numri maksimal i projekteve',
+  'billing.pricing.limit.canExport': 'Eksportimi është i disponueshëm',
 }

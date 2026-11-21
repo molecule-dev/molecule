@@ -8,6 +8,8 @@ export const ga: Partial<AudioMixerTranslations> = {
   'audioMixer.aria.send': '{{channel}} seol chuig {{send}}',
   'audioMixer.button.mute': 'Balbhaigh',
   'audioMixer.button.solo': 'Aonair',
+  'audioMixer.button.muteInitial': 'B',
+  'audioMixer.button.soloInitial': 'A',
   'audioMixer.master': 'Máistir',
   'audioMixer.sends': 'Seoltaí',
 }

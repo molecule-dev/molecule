@@ -7,4 +7,5 @@ export const en: RatingFormTranslations = {
   'rating.commentPlaceholder': 'Share your thoughts (optional)',
   'rating.submitting': 'Submitting…',
   'rating.submit': 'Submit review',
+  'rating.comment': 'Comment',
 }

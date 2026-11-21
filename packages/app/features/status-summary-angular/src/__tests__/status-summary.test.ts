@@ -5,15 +5,14 @@
  * the component with mocked UI dependencies and asserts the markup; this port
  * mounts the same mocked tree through Angular's real renderer (the same
  * `createApplication` + JIT host approach the conformance kit's Angular
- * adapter uses) and asserts the same markup strings. Inline colors are set
- * through the CSSOM, so jsdom serializes them as `rgb(...)` (the same values
- * React's runtime mount produces).
+ * adapter uses) and asserts the same markup strings.
  *
  * @module
  */
 
 import '@angular/compiler'
 import {
+  type ApplicationRef,
   ChangeDetectionStrategy,
   Component,
   type ComponentRef,
@@ -21,7 +20,7 @@ import {
   provideZonelessChangeDetection,
   type Type,
 } from '@angular/core'
-import { type ApplicationRef, createApplication } from '@angular/platform-browser'
+import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
@@ -40,17 +39,23 @@ vi.mock('@molecule/app-ui', () => ({
               .join(' ')
         }
         const token = String(prop)
-        return (..._args: unknown[]) => token
+        // Tone resolvers echo their argument, so assertions can tell which
+        // semantic tone (`bgTone-warning`) the summary picked.
+        return (...args: unknown[]) => (args.length > 0 ? `${token}-${String(args[0])}` : token)
       },
     }
     return new Proxy({}, handler)
   },
 }))
 
+/** When set, `t` delegates here — the marker test swaps it in per test. */
+let tOverride:
+  ((key: string, values: unknown, opts?: { defaultValue?: string }) => string) | undefined
+
 vi.mock('@molecule/app-angular', () => ({
   useTranslation: () => ({
-    t: (_key: string, _values: unknown, opts?: { defaultValue?: string }) =>
-      opts?.defaultValue ?? _key,
+    t: (key: string, values: unknown, opts?: { defaultValue?: string }) =>
+      tOverride ? tOverride(key, values, opts) : (opts?.defaultValue ?? key),
   }),
 }))
 
@@ -140,6 +145,7 @@ const render = async (props: Record<string, unknown> = {}, projected = ''): Prom
 }
 
 afterEach(async () => {
+  tOverride = undefined
   for (const m of mounted.splice(0)) await m.destroy()
 })
 
@@ -155,19 +161,45 @@ describe('StatusSummary', () => {
     const m = await render({ groups })
     // worst of operational + degraded => degraded
     expect(m.host.innerHTML).toContain('Degraded performance')
-    expect(m.host.innerHTML).toContain('rgb(234, 179, 8)')
+    expect(m.host.innerHTML).toContain('bgTone-warning')
+    expect(m.host.innerHTML).toContain('textOnTone')
   })
 
   it('honours an explicit overallStatus override', async () => {
     const m = await render({ groups, overallStatus: 'major-outage' })
     expect(m.host.innerHTML).toContain('Major outage')
-    expect(m.host.innerHTML).toContain('rgb(239, 68, 68)')
+    expect(m.host.innerHTML).toContain('bgTone-error')
   })
 
   it('renders a colored badge for each component status', async () => {
     const m = await render({ groups })
     expect(m.host.innerHTML).toContain('Operational')
     expect(m.host.innerHTML).toContain('Degraded performance')
+  })
+
+  it('translates every status through its literal i18n key', async () => {
+    // A provider whose `t` returns a marker: the key must be the literal the
+    // component names, so a locale bond can resolve every status.
+    tOverride = (key, _values, opts) => `[${key}] ${opts?.defaultValue ?? ''}`
+    const everyStatus = [
+      {
+        id: 'all',
+        name: 'Everything',
+        components: [
+          { id: 'a', name: 'Alpha', status: 'operational' },
+          { id: 'b', name: 'Beta', status: 'degraded' },
+          { id: 'c', name: 'Gamma', status: 'partial-outage' },
+          { id: 'd', name: 'Delta', status: 'major-outage' },
+          { id: 'e', name: 'Epsilon', status: 'maintenance' },
+        ],
+      },
+    ]
+    const m = await render({ groups: everyStatus })
+    expect(m.host.innerHTML).toContain('[status.operational] Operational')
+    expect(m.host.innerHTML).toContain('[status.degraded] Degraded performance')
+    expect(m.host.innerHTML).toContain('[status.partial-outage] Partial outage')
+    expect(m.host.innerHTML).toContain('[status.major-outage] Major outage')
+    expect(m.host.innerHTML).toContain('[status.maintenance] Under maintenance')
   })
 
   it('renders the header and footer slots', async () => {

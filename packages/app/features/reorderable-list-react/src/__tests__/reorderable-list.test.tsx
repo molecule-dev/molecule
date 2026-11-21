@@ -15,7 +15,13 @@ vi.mock('@molecule/app-ui', () => ({
               .join(' ')
         }
         const token = String(prop)
-        return (..._args: unknown[]) => token
+        // At runtime a ClassMap value IS a string (`cm.srOnly` = 'sr-only');
+        // parametrized tokens stay callable (`cm.stack(1)`) but stringify to
+        // their token, so frameworks that write class through String(fn)
+        // (Solid, Svelte, Angular) render the token, not the function source.
+        const value = (..._args: unknown[]) => token
+        value.toString = () => token
+        return value
       },
     }
     return new Proxy({}, handler)
@@ -55,11 +61,23 @@ describe('ReorderableList', () => {
     const markup = html(
       createElement(ReorderableList<{ label: string }>, { items, onReorder: () => {}, renderItem }),
     )
-    expect(markup).toContain('role="list"')
     expect(markup).toContain('data-item="a"')
     expect(markup).toContain('data-item="b"')
     expect(markup).toContain('Alpha')
     expect(markup).toContain('Beta')
+  })
+
+  it('renders a plain list: no role on the ul, no role or tabindex on the rows', () => {
+    const markup = html(
+      createElement(ReorderableList<{ label: string }>, { items, onReorder: () => {}, renderItem }),
+    )
+    // A `ul` already is a list (role="list" would be redundant) and a row is a
+    // plain `li`: the drag handlers live on it, but it is not a focusable
+    // widget — the move buttons are.
+    expect(markup.match(/<ul[^>]*role=/g)).toBeNull()
+    expect(markup.match(/<li[^>]*role=/g)).toBeNull()
+    expect(markup.match(/<li[^>]*tabindex=/g)).toBeNull()
+    expect(markup.match(/<li[^>]*aria-selected=/g)).toBeNull()
   })
 
   it('makes the whole row draggable when no renderHandle is supplied', () => {
@@ -106,11 +124,30 @@ describe('ReorderableList', () => {
     expect(markup).toContain('data-mol-id="reorderable-move-down-b"')
     expect(markup).toContain('aria-label="Move up"')
     expect(markup).toContain('aria-label="Move down"')
-    // Rows carry a focusable tabindex + a position label for screen readers.
-    expect(markup).toMatch(/<li[^>]*tabindex="0"/)
-    expect(markup).toContain('aria-label="Item 1 of 2"')
     // First row's up + last row's down are disabled (boundary guards).
     expect(markup).toMatch(/data-mol-id="reorderable-move-up-a"[^>]*disabled/)
     expect(markup).toMatch(/data-mol-id="reorderable-move-down-b"[^>]*disabled/)
+  })
+
+  it('describes each move button with its row position, rendered in an sr-only span', () => {
+    const markup = html(
+      createElement(ReorderableList<{ label: string }>, { items, onReorder: () => {}, renderItem }),
+    )
+    // The row's position text ("Item 1 of 2") sits in a screen-reader-only
+    // span as the row's last child; both of the row's move buttons point at it
+    // through aria-describedby, and each row references its own span.
+    const described = [...markup.matchAll(/aria-describedby="([^"]*)"/g)].map((m) => m[1])
+    expect(described).toHaveLength(4)
+    expect(new Set(described).size).toBe(2)
+    const spans = [...markup.matchAll(/<span id="([^"]*)"[^>]*>Item (\d) of \d<\/span>/g)]
+    expect(spans.map((m) => [m[1], Number(m[2])])).toEqual([
+      [described[0], 1],
+      [described[2], 2],
+    ])
+    // The position span is the row's last child.
+    const rows = markup.match(/<li[\s\S]*?<\/li>/g) ?? []
+    expect(rows).toHaveLength(2)
+    for (const row of rows)
+      expect(row).toMatch(/<span id="[^"]*"[^>]*>Item \d of \d<\/span><\/li>$/)
   })
 })

@@ -9,4 +9,6 @@ export const gl: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.note':
     'Nota {{pitch}} comezando ao compás {{startBeat}} para {{durationBeats}} ritmos',
   'pianoRoll.aria.cursor': 'Cursor en {{pitch}} no compás {{beat}}',
+  'pianoRoll.aria.gridHelp':
+    'As frechas moven o cursor de cela, Intro ou Espazo debuxa alí unha nota.',
 }

@@ -49,4 +49,5 @@ export const gu: Partial<AudioEffectsRackTranslations> = {
   'audioEffectsRack.param.phaser.rate': 'દર',
   'audioEffectsRack.param.phaser.depth': 'ઊંડાઈ',
   'audioEffectsRack.param.phaser.feedback': 'પ્રતિસાદ',
+  'audioEffectsRack.param.fallback': 'પેરામીટર',
 }

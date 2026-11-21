@@ -9,6 +9,7 @@ export const ga: ReputationBadgeTranslations = {
   'reputationBadge.level.trusted': 'Iontaofa',
   'reputationBadge.level.veteran': 'Seanfhondúir',
   'reputationBadge.level.legend': 'Finscéal',
+  'reputationBadge.level.fallback': '{{level}}',
   'badgeShelf.aria': '{{count}} suaitheantas tuillte',
   'badgeShelf.overflow.aria': 'Taispeáin {{count}} suaitheantas eile',
 }

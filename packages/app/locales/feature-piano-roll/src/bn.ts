@@ -9,4 +9,6 @@ export const bn: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.note':
     '{{startBeat}} বিট থেকে শুরু করে {{durationBeats}} বিট পর্যন্ত নোট {{pitch}}',
   'pianoRoll.aria.cursor': 'কার্সার {{pitch}} এ, বিট {{beat}} এ',
+  'pianoRoll.aria.gridHelp':
+    'তীর কীগুলি সেল কার্সার সরায়, Enter বা Space কার্সারের জায়গায় একটি নোট আঁকে।',
 }

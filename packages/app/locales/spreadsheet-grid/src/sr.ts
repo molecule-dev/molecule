@@ -2,6 +2,6 @@ import type { SpreadsheetGridTranslations } from './types.js'
 
 /** Spreadsheet Grid translations for Serbian. Stub — uses English copy. */
 export const sr: SpreadsheetGridTranslations = {
-  'spreadsheetGrid.label': 'Spreadsheet',
-  'spreadsheetGrid.cellEditor': 'Edit cell {{ref}}',
+  'spreadsheetGrid.label': 'Табела',
+  'spreadsheetGrid.cellEditor': 'Уреди ћелију {{ref}}',
 }

@@ -7,105 +7,107 @@
   "NoteCard": {
    "body only": {
     "snapshots": [
-     "<article class=\"c2cbb8333 c9566e21c c9cd623cf cbaac6b89 ccae02ff2\" style=\"background: rgb(254, 243, 199); border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); color: rgb(31, 41, 55); position: relative\">\n<div class=\"c445db9b9\" style=\"white-space: pre-wrap\">\nRemember the milk\n</div>\n</article>\n@route /"
+     "<article class=\"c1b5cbda6 c290ae666 c2cbb8333 c5224b8ce c9566e21c c9cd623cf cbaac6b89 ccae02ff2\" style=\"border-radius: 8px; position: relative\">\n<div class=\"c445db9b9\" style=\"white-space: pre-wrap\">\nRemember the milk\n</div>\n</article>\n@route /"
     ],
     "calls": []
    },
    "title and body": {
     "snapshots": [
-     "<article class=\"c2cbb8333 c9566e21c c9cd623cf cbaac6b89 ccae02ff2\" style=\"background: rgb(254, 243, 199); border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); color: rgb(31, 41, 55); position: relative\">\n<h3 class=\"c0d99ed10 c445db9b9\">\nGroceries\n</h3>\n<div class=\"c445db9b9\" style=\"white-space: pre-wrap\">\nMilk, eggs, coffee\n</div>\n</article>\n@route /"
+     "<article class=\"c1b5cbda6 c290ae666 c2cbb8333 c5224b8ce c9566e21c c9cd623cf cbaac6b89 ccae02ff2\" style=\"border-radius: 8px; position: relative\">\n<h3 class=\"c0d99ed10 c445db9b9\">\nGroceries\n</h3>\n<div class=\"c445db9b9\" style=\"white-space: pre-wrap\">\nMilk, eggs, coffee\n</div>\n</article>\n@route /"
     ],
     "calls": []
    },
    "custom color": {
     "snapshots": [
-     "<article class=\"c2cbb8333 c9566e21c c9cd623cf cbaac6b89 ccae02ff2\" style=\"background: rgb(219, 234, 254); border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); color: rgb(31, 41, 55); position: relative\">\n<div class=\"c445db9b9\" style=\"white-space: pre-wrap\">\nb\n</div>\n</article>\n@route /"
+     "<article class=\"c1b5cbda6 c290ae666 c2cbb8333 c9566e21c c9cd623cf cbaac6b89 ccae02ff2 cf974fdf0\" style=\"border-radius: 8px; position: relative\">\n<div class=\"c445db9b9\" style=\"white-space: pre-wrap\">\nb\n</div>\n</article>\n@route /"
     ],
     "calls": []
    },
    "pinned": {
     "snapshots": [
-     "<article class=\"c2cbb8333 c9566e21c c9cd623cf cbaac6b89 ccae02ff2\" style=\"background: rgb(254, 243, 199); border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); color: rgb(31, 41, 55); position: relative\">\n<span aria-label=\"Pinned\" style=\"position: absolute; right: 6px; top: 6px\">\n📌\n</span>\n<div class=\"c445db9b9\" style=\"white-space: pre-wrap\">\nb\n</div>\n</article>\n@route /"
+     "<article class=\"c1b5cbda6 c290ae666 c2cbb8333 c5224b8ce c9566e21c c9cd623cf cbaac6b89 ccae02ff2\" style=\"border-radius: 8px; position: relative\">\n<span aria-label=\"Pinned\" role=\"img\" style=\"position: absolute; right: 6px; top: 6px\">\n📌\n</span>\n<div class=\"c445db9b9\" style=\"white-space: pre-wrap\">\nb\n</div>\n</article>\n@route /"
     ],
     "calls": []
    },
    "modified at": {
     "snapshots": [
-     "<article class=\"c2cbb8333 c9566e21c c9cd623cf cbaac6b89 ccae02ff2\" style=\"background: rgb(254, 243, 199); border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); color: rgb(31, 41, 55); position: relative\">\n<div class=\"c445db9b9\" style=\"white-space: pre-wrap\">\nb\n</div>\n<footer class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c4647f690\">\nedited 2h ago\n</span>\n</footer>\n</article>\n@route /"
+     "<article class=\"c1b5cbda6 c290ae666 c2cbb8333 c5224b8ce c9566e21c c9cd623cf cbaac6b89 ccae02ff2\" style=\"border-radius: 8px; position: relative\">\n<div class=\"c445db9b9\" style=\"white-space: pre-wrap\">\nb\n</div>\n<footer class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c4647f690\">\nedited 2h ago\n</span>\n</footer>\n</article>\n@route /"
     ],
     "calls": []
    },
    "actions only": {
     "snapshots": [
-     "<article class=\"c2cbb8333 c9566e21c c9cd623cf cbaac6b89 ccae02ff2\" style=\"background: rgb(254, 243, 199); border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); color: rgb(31, 41, 55); position: relative\">\n<div class=\"c445db9b9\" style=\"white-space: pre-wrap\">\nb\n</div>\n<footer class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<button data-actions>\nEdit\n</button>\n</footer>\n</article>\n@route /"
+     "<article class=\"c1b5cbda6 c290ae666 c2cbb8333 c5224b8ce c9566e21c c9cd623cf cbaac6b89 ccae02ff2\" style=\"border-radius: 8px; position: relative\">\n<div class=\"c445db9b9\" style=\"white-space: pre-wrap\">\nb\n</div>\n<footer class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<button data-actions>\nEdit\n</button>\n</footer>\n</article>\n@route /"
     ],
     "calls": []
    },
    "modified at and actions": {
     "snapshots": [
-     "<article class=\"c2cbb8333 c9566e21c c9cd623cf cbaac6b89 ccae02ff2\" style=\"background: rgb(254, 243, 199); border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); color: rgb(31, 41, 55); position: relative\">\n<div class=\"c445db9b9\" style=\"white-space: pre-wrap\">\nb\n</div>\n<footer class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c4647f690\">\nJun 5, 2026\n</span>\n<button data-actions>\nEdit\n</button>\n</footer>\n</article>\n@route /"
+     "<article class=\"c1b5cbda6 c290ae666 c2cbb8333 c5224b8ce c9566e21c c9cd623cf cbaac6b89 ccae02ff2\" style=\"border-radius: 8px; position: relative\">\n<div class=\"c445db9b9\" style=\"white-space: pre-wrap\">\nb\n</div>\n<footer class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c4647f690\">\nJun 5, 2026\n</span>\n<button data-actions>\nEdit\n</button>\n</footer>\n</article>\n@route /"
     ],
     "calls": []
    },
    "node title and node body": {
     "snapshots": [
-     "<article class=\"c2cbb8333 c9566e21c c9cd623cf cbaac6b89 ccae02ff2\" style=\"background: rgb(254, 243, 199); border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); color: rgb(31, 41, 55); position: relative\">\n<h3 class=\"c0d99ed10 c445db9b9\">\n<strong>\nShip it\n</strong>\n</h3>\n<div class=\"c445db9b9\" style=\"white-space: pre-wrap\">\n<span data-rich>\nRich body\n</span>\n</div>\n</article>\n@route /"
+     "<article class=\"c1b5cbda6 c290ae666 c2cbb8333 c5224b8ce c9566e21c c9cd623cf cbaac6b89 ccae02ff2\" style=\"border-radius: 8px; position: relative\">\n<h3 class=\"c0d99ed10 c445db9b9\">\n<strong>\nShip it\n</strong>\n</h3>\n<div class=\"c445db9b9\" style=\"white-space: pre-wrap\">\n<span data-rich>\nRich body\n</span>\n</div>\n</article>\n@route /"
     ],
     "calls": []
    },
    "everything together": {
     "snapshots": [
-     "<article class=\"c2cbb8333 c9566e21c c9cd623cf cbaac6b89 ccae02ff2 cd75bbd18\" style=\"background: rgb(220, 252, 231); border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); color: rgb(31, 41, 55); position: relative\">\n<span aria-label=\"Pinned\" style=\"position: absolute; right: 6px; top: 6px\">\n📌\n</span>\n<h3 class=\"c0d99ed10 c445db9b9\">\nMeeting notes\n</h3>\n<div class=\"c445db9b9\" style=\"white-space: pre-wrap\">\nFollow up with design team on the new dashboard layout.\n</div>\n<footer class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c4647f690\">\nJun 5, 2026\n</span>\n<button data-actions>\nEdit\n</button>\n</footer>\n</article>\n@route /"
+     "<article class=\"c1b5cbda6 c290ae666 c2cbb8333 c9566e21c c9cd623cf cbaac6b89 ccae02ff2 cd75bbd18 ce2d58fc5\" style=\"border-radius: 8px; position: relative\">\n<span aria-label=\"Pinned\" role=\"img\" style=\"position: absolute; right: 6px; top: 6px\">\n📌\n</span>\n<h3 class=\"c0d99ed10 c445db9b9\">\nMeeting notes\n</h3>\n<div class=\"c445db9b9\" style=\"white-space: pre-wrap\">\nFollow up with design team on the new dashboard layout.\n</div>\n<footer class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c4647f690\">\nJun 5, 2026\n</span>\n<button data-actions>\nEdit\n</button>\n</footer>\n</article>\n@route /"
     ],
     "calls": []
    },
    "falsy strings omit their branches": {
     "snapshots": [
-     "<article class=\"c2cbb8333 c9566e21c c9cd623cf cbaac6b89 ccae02ff2\" style=\"background: rgb(254, 243, 199); border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); color: rgb(31, 41, 55); position: relative\">\n<div class=\"c445db9b9\" style=\"white-space: pre-wrap\">\nb\n</div>\n</article>\n@route /"
+     "<article class=\"c1b5cbda6 c290ae666 c2cbb8333 c5224b8ce c9566e21c c9cd623cf cbaac6b89 ccae02ff2\" style=\"border-radius: 8px; position: relative\">\n<div class=\"c445db9b9\" style=\"white-space: pre-wrap\">\nb\n</div>\n</article>\n@route /"
     ],
     "calls": []
    },
    "click calls onClick": {
     "snapshots": [
-     "<article class=\"c13d4ff0f c2cbb8333 c9566e21c c9cd623cf cbaac6b89 ccae02ff2\" style=\"background: rgb(254, 243, 199); border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); color: rgb(31, 41, 55); position: relative\">\n<div class=\"c445db9b9\" style=\"white-space: pre-wrap\">\nb\n</div>\n</article>\n@route /",
-     "<article class=\"c13d4ff0f c2cbb8333 c9566e21c c9cd623cf cbaac6b89 ccae02ff2\" style=\"background: rgb(254, 243, 199); border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); color: rgb(31, 41, 55); position: relative\">\n<div class=\"c445db9b9\" style=\"white-space: pre-wrap\">\nb\n</div>\n</article>\n@route /"
+     "<article class=\"c1b5cbda6 c290ae666 c2cbb8333 c5224b8ce c9566e21c c9cd623cf cbaac6b89 ccae02ff2\" style=\"border-radius: 8px; position: relative\">\n<button aria-labelledby=\"#id0\" class=\"c0dd268bc c13d4ff0f c63a6bab3\" data-mol-id=\"note-card-open\" style=\"background: transparent; border: medium; padding: 0px\" type=\"button\">\n</button>\n<h3 class=\"c0d99ed10 c445db9b9\" id=\"#id0\">\nGroceries\n</h3>\n<div class=\"c445db9b9\" style=\"white-space: pre-wrap\">\nb\n</div>\n</article>\n@route /",
+     "<article class=\"c1b5cbda6 c290ae666 c2cbb8333 c5224b8ce c9566e21c c9cd623cf cbaac6b89 ccae02ff2\" style=\"border-radius: 8px; position: relative\">\n<button aria-labelledby=\"#id0\" class=\"c0dd268bc c13d4ff0f c63a6bab3\" data-mol-id=\"note-card-open\" style=\"background: transparent; border: medium; padding: 0px\" type=\"button\">\n</button>\n<h3 class=\"c0d99ed10 c445db9b9\" id=\"#id0\">\nGroceries\n</h3>\n<div class=\"c445db9b9\" style=\"white-space: pre-wrap\">\nb\n</div>\n</article>\n@route /"
     ],
     "calls": [
      {
       "name": "onClick",
-      "args": [
-       {
-        "event": "click",
-        "target": "article"
-       }
-      ]
+      "args": []
      }
     ]
    },
    "clickable card forwards className": {
     "snapshots": [
-     "<article class=\"c13d4ff0f c2cbb8333 c9566e21c c9cd623cf cbaac6b89 ccae02ff2 cd75bbd18\" style=\"background: rgb(254, 243, 199); border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); color: rgb(31, 41, 55); position: relative\">\n<div class=\"c445db9b9\" style=\"white-space: pre-wrap\">\nb\n</div>\n</article>\n@route /"
+     "<article class=\"c1b5cbda6 c290ae666 c2cbb8333 c5224b8ce c9566e21c c9cd623cf cbaac6b89 ccae02ff2 cd75bbd18\" style=\"border-radius: 8px; position: relative\">\n<button aria-labelledby=\"#id0\" class=\"c0dd268bc c13d4ff0f c63a6bab3\" data-mol-id=\"note-card-open\" style=\"background: transparent; border: medium; padding: 0px\" type=\"button\">\n</button>\n<div class=\"c445db9b9\" id=\"#id0\" style=\"white-space: pre-wrap\">\nb\n</div>\n</article>\n@route /"
+    ],
+    "calls": []
+   },
+   "an inner control click records no onClick": {
+    "snapshots": [
+     "<article class=\"c1b5cbda6 c290ae666 c2cbb8333 c5224b8ce c9566e21c c9cd623cf cbaac6b89 ccae02ff2\" style=\"border-radius: 8px; position: relative\">\n<button aria-labelledby=\"#id0\" class=\"c0dd268bc c13d4ff0f c63a6bab3\" data-mol-id=\"note-card-open\" style=\"background: transparent; border: medium; padding: 0px\" type=\"button\">\n</button>\n<div class=\"c445db9b9\" id=\"#id0\" style=\"white-space: pre-wrap\">\nb\n</div>\n<footer class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003 cfc82911d\">\n<button data-actions>\nEdit\n</button>\n</footer>\n</article>\n@route /",
+     "<article class=\"c1b5cbda6 c290ae666 c2cbb8333 c5224b8ce c9566e21c c9cd623cf cbaac6b89 ccae02ff2\" style=\"border-radius: 8px; position: relative\">\n<button aria-labelledby=\"#id0\" class=\"c0dd268bc c13d4ff0f c63a6bab3\" data-mol-id=\"note-card-open\" style=\"background: transparent; border: medium; padding: 0px\" type=\"button\">\n</button>\n<div class=\"c445db9b9\" id=\"#id0\" style=\"white-space: pre-wrap\">\nb\n</div>\n<footer class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003 cfc82911d\">\n<button data-actions>\nEdit\n</button>\n</footer>\n</article>\n@route /"
     ],
     "calls": []
    },
    "props change unpins and retints": {
     "snapshots": [
-     "<article class=\"c2cbb8333 c9566e21c c9cd623cf cbaac6b89 ccae02ff2\" style=\"background: rgb(219, 234, 254); border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); color: rgb(31, 41, 55); position: relative\">\n<span aria-label=\"Pinned\" style=\"position: absolute; right: 6px; top: 6px\">\n📌\n</span>\n<div class=\"c445db9b9\" style=\"white-space: pre-wrap\">\nb\n</div>\n</article>\n@route /",
-     "<article class=\"c2cbb8333 c9566e21c c9cd623cf cbaac6b89 ccae02ff2\" style=\"background: rgb(254, 226, 226); border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); color: rgb(31, 41, 55); position: relative\">\n<div class=\"c445db9b9\" style=\"white-space: pre-wrap\">\nb\n</div>\n</article>\n@route /"
+     "<article class=\"c1b5cbda6 c290ae666 c2cbb8333 c9566e21c c9cd623cf cbaac6b89 ccae02ff2 cf974fdf0\" style=\"border-radius: 8px; position: relative\">\n<span aria-label=\"Pinned\" role=\"img\" style=\"position: absolute; right: 6px; top: 6px\">\n📌\n</span>\n<div class=\"c445db9b9\" style=\"white-space: pre-wrap\">\nb\n</div>\n</article>\n@route /",
+     "<article class=\"c1b5cbda6 c290ae666 c2cbb8333 c9566e21c c9cd623cf cbaac6b89 cbbe0661c ccae02ff2\" style=\"border-radius: 8px; position: relative\">\n<div class=\"c445db9b9\" style=\"white-space: pre-wrap\">\nb\n</div>\n</article>\n@route /"
     ],
     "calls": []
    },
    "props change adds a footer and updates the body": {
     "snapshots": [
-     "<article class=\"c2cbb8333 c9566e21c c9cd623cf cbaac6b89 ccae02ff2\" style=\"background: rgb(254, 243, 199); border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); color: rgb(31, 41, 55); position: relative\">\n<div class=\"c445db9b9\" style=\"white-space: pre-wrap\">\nFirst draft\n</div>\n</article>\n@route /",
-     "<article class=\"c2cbb8333 c9566e21c c9cd623cf cbaac6b89 ccae02ff2\" style=\"background: rgb(254, 243, 199); border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); color: rgb(31, 41, 55); position: relative\">\n<div class=\"c445db9b9\" style=\"white-space: pre-wrap\">\nSecond draft\n</div>\n<footer class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c4647f690\">\njust now\n</span>\n</footer>\n</article>\n@route /"
+     "<article class=\"c1b5cbda6 c290ae666 c2cbb8333 c5224b8ce c9566e21c c9cd623cf cbaac6b89 ccae02ff2\" style=\"border-radius: 8px; position: relative\">\n<div class=\"c445db9b9\" style=\"white-space: pre-wrap\">\nFirst draft\n</div>\n</article>\n@route /",
+     "<article class=\"c1b5cbda6 c290ae666 c2cbb8333 c5224b8ce c9566e21c c9cd623cf cbaac6b89 ccae02ff2\" style=\"border-radius: 8px; position: relative\">\n<div class=\"c445db9b9\" style=\"white-space: pre-wrap\">\nSecond draft\n</div>\n<footer class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c4647f690\">\njust now\n</span>\n</footer>\n</article>\n@route /"
     ],
     "calls": []
    },
    "body only, then a locale switch": {
     "snapshots": [
-     "<article class=\"c2cbb8333 c9566e21c c9cd623cf cbaac6b89 ccae02ff2\" style=\"background: rgb(254, 243, 199); border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); color: rgb(31, 41, 55); position: relative\">\n<div class=\"c445db9b9\" style=\"white-space: pre-wrap\">\nRemember the milk\n</div>\n</article>\n@route /",
-     "<article class=\"c2cbb8333 c9566e21c c9cd623cf cbaac6b89 ccae02ff2\" style=\"background: rgb(254, 243, 199); border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); color: rgb(31, 41, 55); position: relative\">\n<div class=\"c445db9b9\" style=\"white-space: pre-wrap\">\nRemember the milk\n</div>\n</article>\n@route /"
+     "<article class=\"c1b5cbda6 c290ae666 c2cbb8333 c5224b8ce c9566e21c c9cd623cf cbaac6b89 ccae02ff2\" style=\"border-radius: 8px; position: relative\">\n<div class=\"c445db9b9\" style=\"white-space: pre-wrap\">\nRemember the milk\n</div>\n</article>\n@route /",
+     "<article class=\"c1b5cbda6 c290ae666 c2cbb8333 c5224b8ce c9566e21c c9cd623cf cbaac6b89 ccae02ff2\" style=\"border-radius: 8px; position: relative\">\n<div class=\"c445db9b9\" style=\"white-space: pre-wrap\">\nRemember the milk\n</div>\n</article>\n@route /"
     ],
     "calls": []
    }

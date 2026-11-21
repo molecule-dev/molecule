@@ -9,6 +9,7 @@ export const ml: ReputationBadgeTranslations = {
   'reputationBadge.level.trusted': 'വിശ്വസ്തൻ',
   'reputationBadge.level.veteran': 'പരിചയസമ്പന്നൻ',
   'reputationBadge.level.legend': 'ഇതിഹാസം',
+  'reputationBadge.level.fallback': '{{level}}',
   'badgeShelf.aria': '{{count}} ബാഡ്ജുകൾ നേടി',
   'badgeShelf.overflow.aria': '{{count}} ബാഡ്ജുകൾ കൂടി കാണിക്കുക',
 }

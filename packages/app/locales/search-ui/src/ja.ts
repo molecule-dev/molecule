@@ -15,4 +15,8 @@ export const ja: Partial<SearchUiTranslations> = {
   'searchUi.relatedTitle': '検索語句ではなく、検索語句の意味に一致します。',
   'searchUi.related': '関連している',
   'searchUi.help': '検索のヒント',
+  'searchUi.examplePhrase': '"正確なフレーズ"',
+  'searchUi.exampleExcluded': '-単語',
+  'searchUi.activeResult': '{{title}}、{{count}}件中{{position}}件目',
+  'searchUi.dialogLabel': '検索',
 }

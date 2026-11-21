@@ -9,4 +9,6 @@ export const sr: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.note':
     'Напомена {{pitch}} почевши од такта {{startBeat}} за {{durationBeats}} ритамови',
   'pianoRoll.aria.cursor': 'Курсор на {{pitch}} на такту {{beat}}',
+  'pianoRoll.aria.gridHelp':
+    'Стрелице померају курсор ћелије, Enter или размакница на њему црта ноту.',
 }

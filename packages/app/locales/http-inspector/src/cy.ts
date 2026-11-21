@@ -7,4 +7,8 @@ export const cy: Partial<HttpInspectorTranslations> = {
   'httpInspector.headers': 'Penawdau',
   'httpInspector.addHeader': 'Ychwanegu pennawd',
   'httpInspector.body': 'Corff',
+  'httpInspector.methodLabel': 'Dull HTTP',
+  'httpInspector.urlLabel': 'URL',
+  'httpInspector.headerPlaceholder': 'Pennawd',
+  'httpInspector.valuePlaceholder': 'Gwerth',
 }

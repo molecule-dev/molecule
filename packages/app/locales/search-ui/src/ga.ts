@@ -14,4 +14,8 @@ export const ga: Partial<SearchUiTranslations> = {
   'searchUi.relatedTitle': 'Meaitseálann sé brí do chuardaigh, ní na focail atá leis',
   'searchUi.related': 'gaolmhar',
   'searchUi.help': 'Leideanna cuardaigh',
+  'searchUi.examplePhrase': '"frása cruinn"',
+  'searchUi.exampleExcluded': '-focal',
+  'searchUi.activeResult': '{{title}}, {{position}} as {{count}}',
+  'searchUi.dialogLabel': 'Cuardaigh',
 }

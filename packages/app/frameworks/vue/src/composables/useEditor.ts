@@ -16,7 +16,7 @@ import type {
 import { t } from '@molecule/app-i18n'
 
 import { EditorKey } from '../injection-keys.js'
-import type { UseEditorReturn } from '../types.js'
+import type { UseEditorResult } from '../types.js'
 
 /**
  * Access the editor provider from injection.
@@ -61,7 +61,7 @@ export function useEditorProvider(): EditorProvider {
  * </template>
  * ```
  */
-export function useEditor(): UseEditorReturn {
+export function useEditor(): UseEditorResult {
   const provider = useEditorProvider()
   const tabs = shallowRef<EditorTab[]>(provider.getTabs())
   const activeFile = computed(() => tabs.value.find((tab) => tab.isActive)?.path ?? null)

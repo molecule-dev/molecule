@@ -14,4 +14,8 @@ export const tr: Partial<SearchUiTranslations> = {
   'searchUi.relatedTitle': 'Arama sorgunuzun anlamıyla eşleşir, kelimeleriyle değil.',
   'searchUi.related': 'ilgili',
   'searchUi.help': 'Arama ipuçları',
+  'searchUi.examplePhrase': '"tam ifade"',
+  'searchUi.exampleExcluded': '-kelime',
+  'searchUi.activeResult': '{{title}}, {{count}} sonuçtan {{position}}',
+  'searchUi.dialogLabel': 'Ara',
 }

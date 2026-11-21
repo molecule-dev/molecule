@@ -11,6 +11,15 @@
 import { render } from 'solid-js/web'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+// The mocked `t()`'s behavior, switchable per test: 'defaults' resolves the
+// inline English default (the provider's behavior for an unloaded key),
+// 'marker' renders `«key»` (so any text that bypassed t() would show up as
+// plain English), and 'fr' renders the French the locale switch delivered.
+const tMock = vi.hoisted(() => ({
+  mode: 'defaults' as 'defaults' | 'marker' | 'fr',
+  calls: [] as Array<{ key: string; values: Record<string, unknown> | undefined }>,
+}))
+
 // Proxy ClassMap echoing each accessed member back as its token (e.g. `flex1`),
 // so tests can assert which cm.* call was applied without a real bond — the
 // same mock the React package's own tests use.
@@ -36,8 +45,16 @@ vi.mock('@molecule/app-ui', () => ({
 
 vi.mock('@molecule/app-solid', () => ({
   useTranslation: () => ({
-    t: (_key: string, _values: unknown, opts?: { defaultValue?: string }) =>
-      opts?.defaultValue ?? _key,
+    t: (
+      key: string,
+      values: Record<string, unknown> | undefined,
+      opts?: { defaultValue?: string },
+    ) => {
+      tMock.calls.push({ key, values })
+      if (tMock.mode === 'marker') return `«${key}»`
+      if (tMock.mode === 'fr') return `fr: ${opts?.defaultValue ?? key}`
+      return opts?.defaultValue ?? key
+    },
   }),
 }))
 
@@ -56,19 +73,21 @@ vi.mock('@molecule/app-ui-solid', () => ({
 }))
 
 import { FeatureFlagRow } from '../FeatureFlagRow.jsx'
-import type { FeatureFlag, FlagType } from '../types.js'
+import type { FeatureFlag, FeatureFlagRowProps, FlagType } from '../types.js'
 
 const disposers: Array<() => void> = []
 
 afterEach(() => {
   for (const dispose of disposers.splice(0)) dispose()
+  tMock.mode = 'defaults'
+  tMock.calls.length = 0
 })
 
 /** Renders a `FeatureFlagRow` with Solid's browser renderer and returns its markup. */
-const html = (props: Record<string, unknown>): string => {
+const html = (props: FeatureFlagRowProps): string => {
   const container = document.createElement('div')
   document.body.appendChild(container)
-  disposers.push(render(() => <FeatureFlagRow {...(props as never)} />, container))
+  disposers.push(render(() => <FeatureFlagRow {...props} />, container))
   return container.innerHTML
 }
 
@@ -129,5 +148,36 @@ describe('FeatureFlagRow', () => {
   it('forwards className', () => {
     const markup = html({ flag, onToggle: () => {}, className: 'ffr-cls' })
     expect(markup).toContain('ffr-cls')
+  })
+})
+
+describe('FeatureFlagRow i18n', () => {
+  it('renders the switch aria-label through t with its key and values', () => {
+    tMock.mode = 'marker'
+    const markup = html({ flag, onToggle: () => {} })
+    expect(markup).toContain('aria-label="«featureFlagRow.aria.flagInEnvironment»"')
+    expect(tMock.calls.some((c) => c.key === 'featureFlagRow.aria.flagInEnvironment')).toBe(true)
+    expect(tMock.calls.some((c) => c.values?.['flag'] === 'new-checkout')).toBe(true)
+    expect(tMock.calls.some((c) => c.values?.['environment'] === 'production')).toBe(true)
+  })
+
+  it('renders the flag type badge through t with a literal key per type', () => {
+    tMock.mode = 'marker'
+    const cases: FlagType[] = ['boolean', 'multivariate', 'percentage', 'string']
+    for (const type of cases) {
+      const markup = html({ flag: { ...flag, type }, onToggle: () => {} })
+      expect(markup).toContain(`«flagType.${type}»`)
+    }
+    for (const type of cases)
+      expect(tMock.calls.some((c) => c.key === `flagType.${type}`)).toBe(true)
+  })
+
+  it('switching the locale changes the switch label and the badge', () => {
+    expect(html({ flag, onToggle: () => {} })).toContain('aria-label="{{flag}} in {{environment}}"')
+    tMock.mode = 'fr'
+    const markup = html({ flag, onToggle: () => {} })
+    expect(markup).toContain('aria-label="fr: {{flag}} in {{environment}}"')
+    expect(markup).toContain('fr: Percentage')
+    expect(markup).not.toContain('aria-label="{{flag}} in {{environment}}"')
   })
 })

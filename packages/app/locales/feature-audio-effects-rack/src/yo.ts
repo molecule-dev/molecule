@@ -49,4 +49,5 @@ export const yo: Partial<AudioEffectsRackTranslations> = {
   'audioEffectsRack.param.phaser.rate': 'Ṣe oṣuwọn',
   'audioEffectsRack.param.phaser.depth': 'Ijinle',
   'audioEffectsRack.param.phaser.feedback': 'Àbájáde',
+  'audioEffectsRack.param.fallback': 'Àyípadà',
 }

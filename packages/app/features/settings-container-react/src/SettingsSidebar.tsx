@@ -1,5 +1,6 @@
 import type { JSX, ReactNode } from 'react'
 
+import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 /** A single navigable item in the settings sidebar. */
@@ -16,12 +17,22 @@ export interface SettingsSidebarProps {
   onSelect: (id: string) => void
   /** Optional footer inside the sidebar (sign-out, plan indicator). */
   footer?: ReactNode
+  /**
+   * Accessible name for the `<nav>` region. Overrides the translated /
+   * `defaultValue` `'Settings'` (prop > `t()` > default).
+   */
+  ariaLabel?: string
   /** Extra classes. */
   className?: string
 }
 
 /**
  * Vertical side-nav for Settings pages. Controlled — caller owns `activeId`.
+ *
+ * The nav region's accessible name resolves through `t()` with the
+ * `settingsContainer.aria.settings` key, so it follows the active locale;
+ * `ariaLabel` overrides it.
+ *
  * @param props - Component props (see {@link SettingsSidebarProps}).
  */
 export function SettingsSidebar({
@@ -29,11 +40,18 @@ export function SettingsSidebar({
   activeId,
   onSelect,
   footer,
+  ariaLabel,
   className,
 }: SettingsSidebarProps): JSX.Element {
+  const { t } = useTranslation()
   const cm = getClassMap()
   return (
-    <nav className={cm.cn(cm.stack(1 as const), className)} aria-label="Settings">
+    <nav
+      className={cm.cn(cm.stack(1 as const), className)}
+      aria-label={
+        ariaLabel ?? t('settingsContainer.aria.settings', undefined, { defaultValue: 'Settings' })
+      }
+    >
       {items.map((item) => {
         const active = item.id === activeId
         return (

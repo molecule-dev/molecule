@@ -49,4 +49,5 @@ export const pa: Partial<AudioEffectsRackTranslations> = {
   'audioEffectsRack.param.phaser.rate': 'ਰੇਟ ਕਰੋ',
   'audioEffectsRack.param.phaser.depth': 'ਡੂੰਘਾਈ',
   'audioEffectsRack.param.phaser.feedback': 'ਫੀਡਬੈਕ',
+  'audioEffectsRack.param.fallback': 'ਪੈਰਾਮੀਟਰ',
 }

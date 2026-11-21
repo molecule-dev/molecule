@@ -15,6 +15,8 @@ const UNNAMED: CaseA11y = {
 /** Modal: sizes, title/footer, close behaviors (button, overlay, escape), passthrough. */
 export const modalCases: UIComponentCases = {
   component: 'Modal',
+  ref: { caseName: 'focus moves into the dialog on open' },
+  declaredProps: { props: 'element' },
   cases: [
     {
       name: 'defaults',

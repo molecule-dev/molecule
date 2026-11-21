@@ -275,7 +275,7 @@
    "defaults, then a locale switch": {
     "snapshots": [
      "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div style=\"aspect-ratio: 4 / 3\">\n<img alt=\"Image 1\" src=\"/only.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</div>\n</div>\n@route /",
-     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div style=\"aspect-ratio: 4 / 3\">\n<img alt=\"Image 1\" src=\"/only.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</div>\n</div>\n@route /"
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div style=\"aspect-ratio: 4 / 3\">\n<img alt=\"⟦Image 1⟧\" src=\"/only.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</div>\n</div>\n@route /"
     ],
     "calls": []
    }

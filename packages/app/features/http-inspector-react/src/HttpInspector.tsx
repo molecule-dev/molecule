@@ -1,6 +1,7 @@
 import type { JSX } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
+import type { ColorVariant } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Input, Select, Textarea } from '@molecule/app-ui-react'
 
@@ -39,14 +40,24 @@ export interface HttpInspectorProps {
 const METHODS: HttpMethod[] = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS']
 
 /**
- * Returns a hex color representing the severity of an HTTP status code.
+ * HTML's own marker for text that stays as written in every language — a
+ * protocol token, an example URL. The UI components forward it through their
+ * rest props onto the native element; it covers the element's text and its
+ * placeholder, so a translator (machine or human) never touches them.
+ */
+const NOT_TRANSLATED = { translate: 'no' } as const
+
+/**
+ * Returns the semantic tone representing the severity of an HTTP status code:
+ * the theme's success green below 300, info blue for a redirect, warning amber
+ * for a client error, error red for a server error.
  * @param code
  */
-function statusColor(code: number): string {
-  if (code < 300) return '#22c55e'
-  if (code < 400) return '#60a5fa'
-  if (code < 500) return '#eab308'
-  return '#ef4444'
+function statusTone(code: number): ColorVariant {
+  if (code < 300) return 'success'
+  if (code < 400) return 'info'
+  if (code < 500) return 'warning'
+  return 'error'
 }
 
 /**
@@ -87,19 +98,24 @@ export function HttpInspector({
   return (
     <div className={cm.cn(cm.stack(3), className)}>
       <div className={cm.flex({ align: 'center', gap: 'sm' })}>
+        {/* The options are protocol tokens (GET, POST, …): never translated,
+            so the element carries HTML's own `translate="no"`. */}
         <Select
+          {...NOT_TRANSLATED}
           value={method}
           onValueChange={(v) => onMethodChange(v as HttpMethod)}
           options={METHODS.map((m) => ({ value: m, label: m }))}
-          aria-label="HTTP method"
+          aria-label={t('httpInspector.methodLabel', {}, { defaultValue: 'HTTP method' })}
         />
+        {/* The placeholder is an example URL — input, not prose: never translated. */}
         <Input
+          {...NOT_TRANSLATED}
           type="text"
           value={url}
           onChange={(e) => onUrlChange((e.target as HTMLInputElement).value)}
           placeholder="https://api.example.com/v1/resources"
           className={cm.flex1}
-          aria-label="URL"
+          aria-label={t('httpInspector.urlLabel', {}, { defaultValue: 'URL' })}
         />
         <Button variant="solid" color="primary" onClick={() => void onSend()} disabled={sending}>
           {sending
@@ -117,13 +133,13 @@ export function HttpInspector({
               type="text"
               value={h.key}
               onChange={(e) => setHeader(i, (e.target as HTMLInputElement).value, h.value)}
-              placeholder="Header"
+              placeholder={t('httpInspector.headerPlaceholder', {}, { defaultValue: 'Header' })}
             />
             <Input
               type="text"
               value={h.value}
               onChange={(e) => setHeader(i, h.key, (e.target as HTMLInputElement).value)}
-              placeholder="Value"
+              placeholder={t('httpInspector.valuePlaceholder', {}, { defaultValue: 'Value' })}
               className={cm.flex1}
             />
             <Button
@@ -148,7 +164,9 @@ export function HttpInspector({
           <span className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>
             {t('httpInspector.body', {}, { defaultValue: 'Body' })}
           </span>
+          {/* The placeholder is a JSON example — input, not prose: never translated. */}
           <Textarea
+            {...NOT_TRANSLATED}
             value={body}
             onChange={(e) => onBodyChange((e.target as HTMLTextAreaElement).value)}
             rows={6}
@@ -160,11 +178,10 @@ export function HttpInspector({
         <div className={cm.stack(2)}>
           <div className={cm.flex({ align: 'center', gap: 'sm' })}>
             <span
+              className={cm.cn(cm.bgTone(statusTone(response.statusCode)), cm.textOnTone)}
               style={{
                 padding: '2px 8px',
                 borderRadius: 4,
-                background: statusColor(response.statusCode),
-                color: '#fff',
                 fontWeight: 700,
               }}
             >

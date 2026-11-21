@@ -6,7 +6,14 @@
  * @module
  */
 
+import type { CaseA11y } from '../../ui/spec.js'
 import type { FeatureCases } from '../spec.js'
+
+/** The case renders the link with no children. */
+const NO_CHILDREN: CaseA11y = {
+  expect: ['link-name'],
+  reason: 'The case renders the link with no children',
+}
 
 /** `@molecule/app-safe-link-react`. */
 export const safeLinkFeature: FeatureCases = {
@@ -29,6 +36,7 @@ export const safeLinkFeature: FeatureCases = {
         },
         {
           name: 'no children renders an empty anchor',
+          a11y: NO_CHILDREN,
           props: { to: '/settings' },
           context: { route: '/dashboard' },
         },

@@ -9,4 +9,6 @@ export const sv: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.note':
     'Notera {{pitch}} börjar på taktslag {{startBeat}} för {{durationBeats}} taktslag',
   'pianoRoll.aria.cursor': 'Markör på {{pitch}} vid taktslag {{beat}}',
+  'pianoRoll.aria.gridHelp':
+    'Piltangenterna flyttar cellmarkören, Enter eller mellanslag ritar en not där.',
 }

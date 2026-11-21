@@ -9,6 +9,7 @@ export const ro: ReputationBadgeTranslations = {
   'reputationBadge.level.trusted': 'De încredere',
   'reputationBadge.level.veteran': 'Veteran',
   'reputationBadge.level.legend': 'Legendă',
+  'reputationBadge.level.fallback': '{{level}}',
   'badgeShelf.aria': '{{count}} insigne obținute',
   'badgeShelf.overflow.aria': 'Afișează încă {{count}} insigne',
 }

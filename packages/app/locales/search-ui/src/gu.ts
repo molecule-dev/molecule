@@ -13,4 +13,8 @@ export const gu: Partial<SearchUiTranslations> = {
   'searchUi.relatedTitle': 'તમારી શોધના અર્થ સાથે મેળ ખાય છે, તેના શબ્દો સાથે નહીં',
   'searchUi.related': 'સંબંધિત',
   'searchUi.help': 'શોધ ટિપ્સ',
+  'searchUi.examplePhrase': '"ચોક્કસ શબ્દસમૂહ"',
+  'searchUi.exampleExcluded': '-શબ્દ',
+  'searchUi.activeResult': '{{title}}, {{count}}માંથી {{position}}',
+  'searchUi.dialogLabel': 'શોધો',
 }

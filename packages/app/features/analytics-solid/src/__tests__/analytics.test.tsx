@@ -52,7 +52,7 @@ const mountListener = (initialRoute: string): Mounted => {
   document.body.appendChild(host)
   const dispose = render(
     () => (
-      <MoleculeProvider config={{ router }}>
+      <MoleculeProvider router={router}>
         <AnalyticsRouteListener />
       </MoleculeProvider>
     ),

@@ -6,4 +6,8 @@ export const ms: Partial<LoyaltyTierBadgeTranslations> = {
   'loyaltyTierBadge.progress': 'Kemajuan ke {{next}}',
   'loyaltyTierBadge.topTier': 'Peringkat teratas dicapai',
   'loyaltyTierBadge.remaining': '{{remaining}} hingga {{next}}',
+  'loyaltyTierBadge.tier.bronze': 'Gangsa',
+  'loyaltyTierBadge.tier.silver': 'Perak',
+  'loyaltyTierBadge.tier.gold': 'Emas',
+  'loyaltyTierBadge.tier.platinum': 'Platinum',
 }

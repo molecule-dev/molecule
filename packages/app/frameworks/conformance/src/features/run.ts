@@ -9,8 +9,8 @@
  * to the package, the cases or the goldens re-runs its conformance in CI.
  *
  * Each React feature package has one cases file (`cases/<feature>.ts`) and one
- * goldens file (`goldens/<feature>.json`), so recording or editing one feature
- * never rewrites another's.
+ * goldens file (`goldens/<feature>.json`) or directory (`goldens/<feature>/`), so
+ * recording or editing one feature never rewrites another's.
  *
  * @module
  */
@@ -34,6 +34,9 @@ import { getProvider as getI18nProvider, setProvider as setI18nProvider } from '
 import { registerHookFamilies } from '../bindings/run.js'
 import { buildBindingServices } from '../bindings/services.js'
 import type { BindingAdapter, BindingContext } from '../bindings/spec.js'
+import { assertConformanceRunBuilt } from '../build-freshness.js'
+import { installRandomSources } from '../ui/globals.js'
+import { installDomGaps } from '../ui/page.js'
 import {
   goldensCachePath,
   onlyFromEnv,
@@ -113,7 +116,62 @@ export const featureGoldensDir = (reactPackage: string): string =>
 export const FEATURE_GOLDENS_INDEX = 'index.json'
 
 /**
- * Reads goldens stored either as one file or per component in a directory.
+ * How a recording stores one feature's goldens.
+ */
+export interface FeatureGoldensForm {
+  /** One file per component (the feature's {@link FeatureCases.goldensPerComponent}). */
+  perComponent: boolean
+  /** The components the run was narrowed to, or null for all. */
+  components: string[] | null
+  /**
+   * Component → case name → the case's goldens group, for each component whose cases
+   * name one ({@link featureGoldensGroups}): its results are stored one file per group.
+   */
+  groups?: Record<string, Record<string, string>>
+}
+
+/** A goldens group's name is a file name. */
+const GROUP_NAME = /^[\w-]+$/
+
+/**
+ * The goldens groups of a feature's components (each case's `goldensGroup`): for each
+ * component whose cases name one, each case's group.
+ *
+ * @param feature - The feature's cases as every runner sees them ({@link featureCaseSet}).
+ * @returns Component → case name → group.
+ * @throws {Error} When some but not all of a component's cases name a group, a group is not a
+ *   file name, or the feature is not stored per component.
+ */
+export function featureGoldensGroups(
+  feature: FeatureCases,
+): Record<string, Record<string, string>> {
+  const groups: Record<string, Record<string, string>> = {}
+  for (const family of feature.families) {
+    if (family.cases.every((c) => c.goldensGroup === undefined)) continue
+    const unnamed = family.cases.find((c) => c.goldensGroup === undefined)
+    if (unnamed)
+      throw new Error(
+        `framework-conformance: ${feature.package} ${family.component} "${unnamed.name}" names no goldensGroup, but other cases of the component do; name one for every case or for none`,
+      )
+    if (!feature.goldensPerComponent)
+      throw new Error(
+        `framework-conformance: ${feature.package} ${family.component} names goldens groups, which need goldensPerComponent`,
+      )
+    const bad = family.cases.find((c) => !GROUP_NAME.test(c.goldensGroup!))
+    if (bad)
+      throw new Error(
+        `framework-conformance: ${feature.package} ${family.component} "${bad.name}": goldensGroup "${bad.goldensGroup}" must be letters, digits, - and _ only (it names a file)`,
+      )
+    groups[family.component] = Object.fromEntries(
+      family.cases.map((c) => [c.name, c.goldensGroup!]),
+    )
+  }
+  return groups
+}
+
+/**
+ * Reads goldens stored either as one file or per component in a directory, where a
+ * component stored per group is a directory of group files.
  *
  * @param file - The one-file form.
  * @param dir - The per-component form.
@@ -125,28 +183,41 @@ export function readFeatureGoldensAt(file: string, dir: string): FeatureGoldens 
   if (!existsSync(index)) return null
   const goldens = JSON.parse(readFileSync(index, 'utf8')) as Omit<FeatureGoldens, 'cases'>
   const cases: FeatureGoldens['cases'] = {}
-  for (const name of readdirSync(dir).sort())
-    if (name.endsWith('.json') && name !== FEATURE_GOLDENS_INDEX)
-      cases[name.slice(0, -'.json'.length)] = JSON.parse(readFileSync(join(dir, name), 'utf8'))
+  for (const entry of readdirSync(dir, { withFileTypes: true }).sort((a, b) =>
+    a.name.localeCompare(b.name),
+  )) {
+    if (entry.isFile() && entry.name.endsWith('.json') && entry.name !== FEATURE_GOLDENS_INDEX)
+      cases[entry.name.slice(0, -'.json'.length)] = JSON.parse(
+        readFileSync(join(dir, entry.name), 'utf8'),
+      )
+    else if (entry.isDirectory()) {
+      const results: FeatureGoldens['cases'][string] = {}
+      for (const group of readdirSync(join(dir, entry.name)).sort())
+        if (group.endsWith('.json'))
+          Object.assign(results, JSON.parse(readFileSync(join(dir, entry.name, group), 'utf8')))
+      cases[entry.name] = results
+    }
+  }
   return { ...goldens, cases }
 }
 
 /**
- * Writes goldens in one file, or per component when the feature asks for it. A run
- * narrowed to some components writes only theirs and leaves every other file as it is.
+ * Writes goldens in one file, or per component when the feature asks for it, and a
+ * component whose cases name goldens groups as one file per group. A run narrowed to some
+ * components writes only theirs and leaves every other file as it is.
  *
  * @param file - The one-file form.
  * @param dir - The per-component form.
  * @param goldens - What the run recorded.
- * @param options - `perComponent` (the feature's {@link FeatureCases.goldensPerComponent}),
- *   `components` (the components the run was narrowed to, or null for all) and the
- *   JSON indent.
+ * @param options - The form ({@link FeatureGoldensForm}) and the JSON indent.
+ * @throws {Error} When a narrowed run would rewrite the one file, or a recorded case of a
+ *   grouped component has no group.
  */
 export function writeFeatureGoldensAt(
   file: string,
   dir: string,
   goldens: FeatureGoldens,
-  options: { perComponent: boolean; components: string[] | null; indent?: number },
+  options: FeatureGoldensForm & { indent?: number },
 ): void {
   const json = (value: unknown): string => `${JSON.stringify(value, null, options.indent)}\n`
   if (!options.perComponent) {
@@ -165,14 +236,45 @@ export function writeFeatureGoldensAt(
   const { cases, ...rest } = goldens
   if (!options.components) {
     writeFileSync(join(dir, FEATURE_GOLDENS_INDEX), json(rest))
-    // A component no family renders any more leaves no file behind.
-    for (const name of readdirSync(dir))
-      if (name.endsWith('.json') && name !== FEATURE_GOLDENS_INDEX && !(name.slice(0, -5) in cases))
-        rmSync(join(dir, name))
+    // A component no family renders any more leaves no file or directory behind.
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      const component = entry.isDirectory() ? entry.name : entry.name.slice(0, -'.json'.length)
+      const stored =
+        entry.isDirectory() ||
+        (entry.name.endsWith('.json') && entry.name !== FEATURE_GOLDENS_INDEX)
+      if (stored && !(component in cases))
+        rmSync(join(dir, entry.name), { recursive: true, force: true })
+    }
   }
-  for (const [component, results] of Object.entries(cases))
-    if (!options.components || options.components.includes(component))
-      writeFileSync(join(dir, `${component}.json`), json(results))
+  for (const [component, results] of Object.entries(cases)) {
+    if (options.components && !options.components.includes(component)) continue
+    const one = join(dir, `${component}.json`)
+    const grouped = join(dir, component)
+    const groupOf = options.groups?.[component]
+    if (!groupOf) {
+      // The other form of this component, left by an earlier recording, would be read too.
+      rmSync(grouped, { recursive: true, force: true })
+      writeFileSync(one, json(results))
+      continue
+    }
+    const byGroup: Record<string, FeatureGoldens['cases'][string]> = {}
+    for (const [name, result] of Object.entries(results)) {
+      const group = groupOf[name]
+      if (group === undefined)
+        throw new Error(
+          `framework-conformance: ${component} stores its goldens per group, but its recorded case "${name}" has none`,
+        )
+      ;(byGroup[group] ??= {})[name] = result
+    }
+    rmSync(one, { force: true })
+    mkdirSync(grouped, { recursive: true })
+    // A group no case names any more leaves no file behind.
+    for (const name of readdirSync(grouped))
+      if (name.endsWith('.json') && !(name.slice(0, -'.json'.length) in byGroup))
+        rmSync(join(grouped, name))
+    for (const [group, groupResults] of Object.entries(byGroup))
+      writeFileSync(join(grouped, `${group}.json`), json(groupResults))
+  }
 }
 
 /**
@@ -196,7 +298,7 @@ export function loadFeatureGoldens(reactPackage: string): FeatureGoldens | null 
 export function writeFeatureGoldens(
   reactPackage: string,
   goldens: FeatureGoldens,
-  options: { perComponent: boolean; components: string[] | null },
+  options: FeatureGoldensForm,
 ): void {
   writeFeatureGoldensAt(
     featureGoldensFile(reactPackage),
@@ -257,7 +359,7 @@ export function loadFeatureReadableGoldens(reactPackage: string): FeatureGoldens
 export function writeFeatureReadableGoldens(
   reactPackage: string,
   goldens: FeatureGoldens,
-  options: { perComponent: boolean; components: string[] | null },
+  options: FeatureGoldensForm,
 ): void {
   writeFeatureGoldensAt(
     featureReadableGoldensFile(reactPackage),
@@ -278,7 +380,16 @@ export function featureValue(check: FeatureValueCheck, value: unknown): unknown 
   const plain = (v: unknown): unknown => (v === undefined ? null : JSON.parse(JSON.stringify(v)))
   if (!check.calls) return plain(value)
   if (typeof value !== 'function') throw new Error(`${check.export} is not a function`)
-  return check.calls.map((args) => plain((value as (...a: unknown[]) => unknown)(...args)))
+  // Each check starts from the same random state wherever it runs (before React's cases in
+  // the recording, after a port's own), so a minted id depends only on the calls before it.
+  const sources = installRandomSources()
+  // The page a UI case mounts on, so a value that probes the DOM sees the same one.
+  installDomGaps()
+  try {
+    return check.calls.map((args) => plain((value as (...a: unknown[]) => unknown)(...args)))
+  } finally {
+    sources.restore()
+  }
 }
 
 /**
@@ -448,6 +559,7 @@ export function runFeatureConformance(
     throw new Error(
       `framework-conformance: the cases passed for ${reactPackage} are ${options.cases.package}'s`,
     )
+  assertConformanceRunBuilt(adapter.name, expect.getState().testPath)
   const feature = featureCaseSet(options.cases)
   const goldens = loadFeatureGoldens(reactPackage)
   if (!goldens)
@@ -462,6 +574,7 @@ export function runFeatureConformance(
       title: `${adapter.name} ${reactPackage} conformance`,
       reference: reactPackage,
       exports: goldens.exports,
+      parts: feature.parts ?? [],
       families: feature.families.filter((f) => !filter || filter.includes(f.component)),
       goldens: goldens.cases,
       readable: readable?.cases ?? null,

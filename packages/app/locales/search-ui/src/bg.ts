@@ -14,4 +14,8 @@ export const bg: Partial<SearchUiTranslations> = {
   'searchUi.relatedTitle': 'Съвпада със значението на вашето търсене, а не с думите в него',
   'searchUi.related': 'свързани',
   'searchUi.help': 'Съвети за търсене',
+  'searchUi.examplePhrase': '"точна фраза"',
+  'searchUi.exampleExcluded': '-дума',
+  'searchUi.activeResult': '{{title}}, {{position}} от {{count}}',
+  'searchUi.dialogLabel': 'Търсене',
 }

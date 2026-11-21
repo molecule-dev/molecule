@@ -44,6 +44,7 @@ vi.mock('@molecule/app-svelte', () => ({
 }))
 
 import RatingDisplay from '../RatingDisplay.svelte'
+import type { RatingDisplayProps } from '../types.js'
 
 const mounted: Array<ReturnType<typeof mount>> = []
 
@@ -58,10 +59,10 @@ afterEach(async () => {
  * @param props - The RatingDisplay props.
  * @returns The rendered markup.
  */
-const render = (props: Record<string, unknown>): string => {
+const render = (props: RatingDisplayProps): string => {
   const target = document.createElement('div')
   document.body.appendChild(target)
-  mounted.push(mount(RatingDisplay, { target, props: props as never }))
+  mounted.push(mount(RatingDisplay, { target, props }))
   flushSync()
   return target.innerHTML
 }

@@ -17,8 +17,10 @@ import { getClassMap } from '@molecule/app-ui'
  * host IS the `<button>` (`button[mol-slide-thumbnail]`), matching React's
  * root exactly: the live scaled-down preview is projected as the element's
  * default content, and the index badge follows it. Styling routes through
- * ClassMap tokens (`cm.position('relative')` + `cm.cursorPointer`), with the
- * same inline style React sets for the tile canvas and the badge.
+ * ClassMap tokens (`cm.position('relative')` + `cm.cursorPointer`, the tile
+ * canvas through `cm.surface`), with the same inline style React sets for the
+ * tile canvas and the badge; the badge's colours come from the theme scrim
+ * (`cm.bgScrim`) with the theme's inverse text (`cm.textOnTone`).
  *
  * The translated aria-label is read through the binding's reactive
  * `useTranslation()`, so a locale switch refreshes it (React's components
@@ -39,13 +41,13 @@ import { getClassMap } from '@molecule/app-ui'
     '[style.aspect-ratio]': 'aspectText()',
     '[style.outline]': 'outlineText()',
     '[style.outline-offset]': "'2px'",
-    '[style.background]': "'var(--mol-color-surface, #fff)'",
     '[style.overflow]': "'hidden'",
     '[style.border]': "'none'",
     '[style.padding]': "'0'",
     '(click)': 'handleClick($event)',
   },
-  template: `<ng-content></ng-content> <span [style]="badgeStyle()">{{ index }}</span>`,
+  template: `<ng-content></ng-content>
+    <span [class]="badgeClasses()" [style]="badgeStyle()">{{ index }}</span>`,
 })
 export class SlideThumbnail {
   /** Slide index (1-based). */
@@ -78,11 +80,26 @@ export class SlideThumbnail {
 
   /**
    * Computes the wrapper class list (React's
-   * `cm.cn(cm.position('relative'), cm.cursorPointer, className)`).
+   * `cm.cn(cm.position('relative'), cm.cursorPointer, cm.surface, className)`).
    * @returns The class string.
    */
   classes(): string {
-    return this.cm().cn(this.cm().position('relative'), this.cm().cursorPointer, this.className)
+    return this.cm().cn(
+      this.cm().position('relative'),
+      this.cm().cursorPointer,
+      this.cm().surface,
+      this.className,
+    )
+  }
+
+  /**
+   * The index badge's class list (React's
+   * `cm.cn(cm.bgScrim, cm.textOnTone)` — the theme scrim under the theme's
+   * inverse text).
+   * @returns The class string.
+   */
+  badgeClasses(): string {
+    return this.cm().cn(this.cm().bgScrim, this.cm().textOnTone)
   }
 
   /**
@@ -123,7 +140,8 @@ export class SlideThumbnail {
 
   /**
    * The index badge's inline style (React's absolute top-left badge, applied
-   * as a style map so each declaration lands through the CSSOM as React's do).
+   * as a style map so each declaration lands through the CSSOM as React's do;
+   * the colours live on {@link SlideThumbnail.badgeClasses}).
    * @returns The style map.
    */
   badgeStyle(): Record<string, string> {
@@ -134,8 +152,6 @@ export class SlideThumbnail {
       padding: '0 4px',
       'font-size': '10px',
       'font-weight': '700',
-      background: 'rgba(0,0,0,0.6)',
-      color: '#fff',
       'border-radius': '3px',
     }
   }

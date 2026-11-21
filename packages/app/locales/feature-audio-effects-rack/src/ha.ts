@@ -49,4 +49,5 @@ export const ha: Partial<AudioEffectsRackTranslations> = {
   'audioEffectsRack.param.phaser.rate': 'Ƙimar',
   'audioEffectsRack.param.phaser.depth': 'Zurfi',
   'audioEffectsRack.param.phaser.feedback': "Ra'ayi",
+  'audioEffectsRack.param.fallback': 'Siga',
 }

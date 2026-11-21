@@ -324,10 +324,15 @@ export const ImageCanvas = forwardRef<ImageCanvasExportHandle, ImageCanvasProps>
     const [loadError, setLoadError] = useState<string | null>(null)
 
     const safeZoom = Number.isFinite(zoom) && zoom > 0 ? zoom : 1
-    const safePan: PanOffset = {
-      x: Number.isFinite(pan.x) ? pan.x : 0,
-      y: Number.isFinite(pan.y) ? pan.y : 0,
-    }
+    // One identity per pan position: a fresh object each render would churn
+    // the dependencies of the callbacks that capture it.
+    const safePan: PanOffset = useMemo(
+      () => ({
+        x: Number.isFinite(pan.x) ? pan.x : 0,
+        y: Number.isFinite(pan.y) ? pan.y : 0,
+      }),
+      [pan.x, pan.y],
+    )
 
     const filterString = useMemo(() => composeFilterString(filters), [filters])
 

@@ -35,6 +35,7 @@ import type {
   AppServices,
   CallbackResult,
   CaseResult,
+  EventEffect,
   Interaction,
   RecordedCall,
   UICase,
@@ -142,12 +143,48 @@ export class CallRecorder {
           args,
         )
       }
+      if ('effects' in result || 'read' in result) {
+        this.actOnEvent(name, args[0], result.effects ?? [], result.read ?? [])
+        return undefined
+      }
       return new Promise((resolve, reject) => {
         const queue = this.pending.get(name) ?? []
         queue.push({ resolve, reject })
         this.pending.set(name, queue)
       })
     }
+  }
+
+  /**
+   * Calls `effects` on the event a callback received, then records the `read` paths as a
+   * call `<name> read` (see {@link CallbackResult}).
+   *
+   * @param name - The callback.
+   * @param event - The callback's first argument.
+   * @param effects - The event methods to call, in order.
+   * @param read - Dotted paths to read from the event afterwards.
+   * @throws {Error} When the argument has no such method: the case names an effect the
+   * component's event does not support.
+   */
+  private actOnEvent(name: string, event: unknown, effects: EventEffect[], read: string[]): void {
+    for (const effect of effects) {
+      const method: unknown =
+        typeof event === 'object' && event !== null ? Reflect.get(event, effect) : undefined
+      if (typeof method !== 'function') {
+        throw new Error(`conformance: ${name} received no event with ${effect}()`)
+      }
+      Reflect.apply(method, event, [])
+    }
+    if (read.length === 0) return
+    const values: Record<string, unknown> = {}
+    for (const path of read) {
+      let value: unknown = event
+      for (const key of path.split('.')) {
+        value = typeof value === 'object' && value !== null ? Reflect.get(value, key) : undefined
+      }
+      values[path] = this.normalize(value)
+    }
+    this.calls.push({ name: `${name} read`, args: [values] })
   }
 
   /**
@@ -228,11 +265,44 @@ export class CallRecorder {
 export function focusPath(): string | null {
   const active = document.activeElement
   if (!active || active === document.body || !document.body.contains(active)) return null
+  return elementPath(active)
+}
+
+/**
+ * Whether the snapshot leaves this element out: a mount wrapper or a framework's host element
+ * (`data-parity-unwrap`, which the normalizer drops and replaces by its children).
+ *
+ * @param el - The element.
+ * @returns Whether it is left out.
+ */
+const unwrapped = (el: Element): boolean => el.hasAttribute('data-parity-unwrap')
+
+/**
+ * An element's element children as the snapshot shows them: a left-out child is replaced by its own.
+ *
+ * @param parent - The element.
+ * @returns Its shown children, in order.
+ */
+const shownChildren = (parent: Element): Element[] =>
+  Array.from(parent.children).flatMap((child) =>
+    unwrapped(child) ? shownChildren(child) : [child],
+  )
+
+/**
+ * A stable path to an element in the body (`body>div:0>button:1`: tag and index among element
+ * siblings), the form `@focus` and `@ref` lines use. It follows the tree the snapshot shows, so a
+ * host element one framework adds and the normalizer drops does not add a level.
+ *
+ * @param element - An element inside `document.body`.
+ * @returns The path.
+ */
+export function elementPath(element: Element): string {
   const parts: string[] = []
-  let el: Element | null = active
+  let el: Element | null = element
   while (el && el !== document.body) {
-    const parent: Element | null = el.parentElement
-    const index = parent ? Array.prototype.indexOf.call(parent.children, el) : 0
+    let parent: Element | null = el.parentElement
+    while (parent && parent !== document.body && unwrapped(parent)) parent = parent.parentElement
+    const index = parent ? shownChildren(parent).indexOf(el) : 0
     parts.unshift(`${el.tagName.toLowerCase()}:${index}`)
     el = parent
   }
@@ -421,6 +491,11 @@ export interface MountedCase {
    * framework renders and runs its effects before it returns. Without it the work runs directly.
    */
   wrap?(step: () => Promise<void>): Promise<void>
+  /**
+   * The element the component handed a caller's ref through the kit's ref API, or null (see
+   * {@link UICase.ref}). Required by a case that sets `ref`.
+   */
+  refElement?(): Element | null
 }
 
 /**
@@ -473,6 +548,10 @@ export async function runSteps(
     unmounted: false,
   }
   try {
+    if (testCase.ref && !mounted.refElement)
+      throw new Error(
+        `conformance: "${testCase.name}" reads the component's ref element, and this adapter has no refElement`,
+      )
     const snap = (note?: string): void => {
       applyLayout()
       const scroll = layoutNote()
@@ -482,7 +561,11 @@ export async function runSteps(
       const route = routeStateText(
         state.unmounted ? state.locationState : mounted.locationState?.(),
       )
-      const tail = `\n@route ${where}${route ? ` state=${route}` : ''}${focus ? `\n@focus ${focus}` : ''}${note ? `\n${note}` : ''}`
+      const refElement = testCase.ref ? (mounted.refElement?.() ?? null) : null
+      const refLine = testCase.ref
+        ? `\n@ref ${refElement?.isConnected ? elementPath(refElement) : 'none'}`
+        : ''
+      const tail = `\n@route ${where}${route ? ` state=${route}` : ''}${focus ? `\n@focus ${focus}` : ''}${refLine}${note ? `\n${note}` : ''}`
       const styles = referenceStyles(document)
       try {
         const options = { keepReferences, computedStyle: styles.computedStyle }
@@ -515,6 +598,7 @@ export async function runSteps(
 /** The fields a UI case takes. */
 const CASE_FIELDS: FieldsOf<UICase> = {
   name: 'required',
+  ref: 'optional',
   props: 'optional',
   children: 'optional',
   slots: 'optional',

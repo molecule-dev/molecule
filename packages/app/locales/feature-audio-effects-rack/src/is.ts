@@ -49,4 +49,5 @@ export const is: Partial<AudioEffectsRackTranslations> = {
   'audioEffectsRack.param.phaser.rate': 'Gefðu einkunn',
   'audioEffectsRack.param.phaser.depth': 'Dýpt',
   'audioEffectsRack.param.phaser.feedback': 'Ábendingar',
+  'audioEffectsRack.param.fallback': 'Færibreyta',
 }

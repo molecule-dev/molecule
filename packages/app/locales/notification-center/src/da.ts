@@ -8,4 +8,5 @@ export const da: Partial<NotificationCenterTranslations> = {
   'notifications.empty': 'Ingen notifikationer',
   'notifications.loadError': 'Kunne ikke indlæse notifikationer.',
   'notifications.retry': 'Prøv igen',
+  'notifications.unread': 'Ulæst',
 }

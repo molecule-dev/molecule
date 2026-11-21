@@ -9,6 +9,7 @@ export const is: ReputationBadgeTranslations = {
   'reputationBadge.level.trusted': 'Treyst',
   'reputationBadge.level.veteran': 'Reynslubolti',
   'reputationBadge.level.legend': 'Goðsögn',
+  'reputationBadge.level.fallback': '{{level}}',
   'badgeShelf.aria': '{{count}} merki áunnin',
   'badgeShelf.overflow.aria': 'Sýna {{count}} merki til viðbótar',
 }

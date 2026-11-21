@@ -15,4 +15,11 @@ export const sl: Partial<BillingTranslations> = {
   'billing.pricing.perSeat': 'na sedež',
   'billing.pricing.upgradeCta': 'Nadgradi na {{tierName}}',
   'billing.pricing.currentCta': 'Trenutni načrt',
+  'billing.pricing.period.month': 'mesečno',
+  'billing.pricing.period.year': 'letno',
+  'billing.pricing.billed.month': 'Zaračunava se mesečno',
+  'billing.pricing.billed.year': 'Zaračunava se letno',
+  'billing.pricing.unlimited': 'Neomejeno',
+  'billing.pricing.limit.maxProjects': 'Največje število projektov',
+  'billing.pricing.limit.canExport': 'Izvoz na voljo',
 }

@@ -3,10 +3,12 @@ import type { JSX } from 'solid-js'
 import { render } from 'solid-js/web'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { createSimpleI18nProvider } from '@molecule/app-i18n'
+import { createSimpleI18nProvider, type I18nProvider } from '@molecule/app-i18n'
 import { createMemoryRouter } from '@molecule/app-routing'
 import type * as SolidBinding from '@molecule/app-solid'
-import type { I18nProvider, ThemeProvider } from '@molecule/app-solid'
+
+/** The theme service `ThemeContext` carries (`@molecule/app-theme`'s `ThemeProvider`). */
+type ThemeProvider = ReturnType<typeof SolidBinding.getThemeProvider>
 
 // Proxy ClassMap echoing each accessed member back as its token (e.g.
 // `headerBar`), so tests can assert which cm.* call was applied without a

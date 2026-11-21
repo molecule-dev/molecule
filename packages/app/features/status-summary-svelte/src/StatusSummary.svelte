@@ -3,34 +3,30 @@
   `StatusSummary` — grouped component list with colored badges and an overall
   banner derived from the worst child status. Same props, same DOM for the
   same input; `header` and `footer` are snippet slots, and a group or component
-  name may be plain text or a snippet. The banner and badge colors are inline
-  styles (React's fixed palette), and every label comes from the same i18n keys
+  name may be plain text or a snippet. The banner and badge colors come from
+  the ClassMap's semantic tones, and every label comes from the same i18n keys
   with the same English fallbacks.
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte'
 
   import { useTranslation } from '@molecule/app-svelte'
+  import type { ColorVariant } from '@molecule/app-ui'
   import { getClassMap } from '@molecule/app-ui'
 
   import type { ComponentStatus, StatusSummaryProps } from './types.js'
 
-  /** English label rendered for each status when no locale bond supplies the key. */
-  const STATUS_LABEL: Record<ComponentStatus, string> = {
-    operational: 'Operational',
-    degraded: 'Degraded performance',
-    'partial-outage': 'Partial outage',
-    'major-outage': 'Major outage',
-    maintenance: 'Under maintenance',
-  }
-
-  /** The fixed semantic hue of each status (React's inline-style palette). */
-  const STATUS_COLOR: Record<ComponentStatus, string> = {
-    operational: '#22c55e',
-    degraded: '#eab308',
-    'partial-outage': '#f97316',
-    'major-outage': '#ef4444',
-    maintenance: '#60a5fa',
+  /**
+   * The semantic tone colouring each status: the theme's success green for
+   * operational, its warning amber for degraded and partial outage, its error
+   * red for a major outage and its info blue for maintenance.
+   */
+  const STATUS_TONE: Record<ComponentStatus, ColorVariant> = {
+    operational: 'success',
+    degraded: 'warning',
+    'partial-outage': 'warning',
+    'major-outage': 'error',
+    maintenance: 'info',
   }
 
   /** The statuses from most to least severe (React's `worst` order). */
@@ -46,6 +42,28 @@
 
   const cm = $derived(getClassMap())
   const { t } = useTranslation()
+
+  /**
+   * The label for one status, through its literal i18n key with the English
+   * fallback (the same text the `common` locale bond's en.ts ships).
+   *
+   * @param status - The status to label.
+   * @returns The translated label.
+   */
+  function statusLabel(status: ComponentStatus): string {
+    switch (status) {
+      case 'operational':
+        return t('status.operational', {}, { defaultValue: 'Operational' })
+      case 'degraded':
+        return t('status.degraded', {}, { defaultValue: 'Degraded performance' })
+      case 'partial-outage':
+        return t('status.partial-outage', {}, { defaultValue: 'Partial outage' })
+      case 'major-outage':
+        return t('status.major-outage', {}, { defaultValue: 'Major outage' })
+      case 'maintenance':
+        return t('status.maintenance', {}, { defaultValue: 'Under maintenance' })
+    }
+  }
 
   /**
    * Returns the most severe status from an array of ComponentStatus values.
@@ -75,20 +93,11 @@
     overallStatus ?? worst(groups.flatMap((group) => group.components.map((c) => c.status))),
   )
 
-  /** The banner's inline style, in React's declaration order. */
-  const bannerStyle = $derived(
-    `background: ${STATUS_COLOR[overall]}; color: #fff; border-radius: 8px`,
-  )
+  /** The banner's rounded corners, in React's declaration order. */
+  const bannerStyle = 'border-radius: 8px'
 
-  /**
-   * One badge's inline style, in React's declaration order.
-   *
-   * @param status - The component's status.
-   * @returns The style attribute text.
-   */
-  function badgeStyle(status: ComponentStatus): string {
-    return `border-radius: 4px; background: ${STATUS_COLOR[status]}; color: #fff`
-  }
+  /** One badge's rounded corners, in React's declaration order. */
+  const badgeStyle = 'border-radius: 4px'
 </script>
 
 {#snippet field(value: Snippet | string | undefined)}
@@ -97,12 +106,15 @@
 
 <div class={cm.cn(cm.stack(4), className)}>
   <div
-    class={cm.cn(cm.flex({ align: 'center', justify: 'between', gap: 'md' }), cm.sp('p', 3))}
+    class={cm.cn(
+      cm.flex({ align: 'center', justify: 'between', gap: 'md' }),
+      cm.sp('p', 3),
+      cm.bgTone(STATUS_TONE[overall]),
+      cm.textOnTone,
+    )}
     style={bannerStyle}
   >
-    <span class={cm.cn(cm.textSize('lg'), cm.fontWeight('bold'))}
-      >{t(`status.${overall}`, {}, { defaultValue: STATUS_LABEL[overall] })}</span
-    >
+    <span class={cm.cn(cm.textSize('lg'), cm.fontWeight('bold'))}>{statusLabel(overall)}</span>
     {#if header}{@render header()}{/if}
   </div>
   {#each groups as group (group.id)}
@@ -121,15 +133,14 @@
                 >{/if}
             </div>
             <span
-              class={cm.cn(cm.sp('px', 2), cm.textSize('xs'), cm.fontWeight('semibold'))}
-              style={badgeStyle(component.status)}
-              >{t(
-                `status.${component.status}`,
-                {},
-                {
-                  defaultValue: STATUS_LABEL[component.status],
-                },
-              )}</span
+              class={cm.cn(
+                cm.sp('px', 2),
+                cm.textSize('xs'),
+                cm.fontWeight('semibold'),
+                cm.bgTone(STATUS_TONE[component.status]),
+                cm.textOnTone,
+              )}
+              style={badgeStyle}>{statusLabel(component.status)}</span
             >
           </li>
         {/each}

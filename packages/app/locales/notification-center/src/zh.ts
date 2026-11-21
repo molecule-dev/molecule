@@ -8,4 +8,5 @@ export const zh: Partial<NotificationCenterTranslations> = {
   'notifications.empty': '无通知',
   'notifications.loadError': '无法加载通知。',
   'notifications.retry': '重试',
+  'notifications.unread': '未读',
 }

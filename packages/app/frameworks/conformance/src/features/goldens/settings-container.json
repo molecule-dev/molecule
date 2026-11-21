@@ -1,0 +1,301 @@
+{
+ "exports": [
+  "SettingsContent",
+  "SettingsLayout",
+  "SettingsSection",
+  "SettingsSidebar"
+ ],
+ "values": {},
+ "cases": {
+  "SettingsContent": {
+   "children": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9166dbd0 cbaac6b89 ccae02ff2\">\n<p data-body>\nForm fields\n</p>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "no children": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9166dbd0 cbaac6b89 ccae02ff2\">\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "className": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9166dbd0 cbaac6b89 ccae02ff2 cd75bbd18\">\n<p data-body>\nForm fields\n</p>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "className changes on a later props step": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9166dbd0 cbaac6b89 ccae02ff2 cd75bbd18\">\n<p data-body>\nForm fields\n</p>\n</div>\n@route /",
+     "<div class=\"c0dc2ec34 c2cbb8333 c9166dbd0 cbaac6b89 ccae02ff2\">\n<p data-body>\nForm fields\n</p>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "children, then a locale switch": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9166dbd0 cbaac6b89 ccae02ff2\">\n<p data-body>\nForm fields\n</p>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9166dbd0 cbaac6b89 ccae02ff2\">\n<p data-body>\nForm fields\n</p>\n</div>\n@route /"
+    ],
+    "calls": []
+   }
+  },
+  "SettingsLayout": {
+   "sidebar and content": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<aside class=\"ca596e575\">\n<nav data-sidebar>\nProfile\n</nav>\n</aside>\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9166dbd0 cbaac6b89 ccae02ff2\">\n<p data-body>\nForm fields\n</p>\n</div>\n</main>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "header, sidebar and content": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<header data-header>\nSettings\n</header>\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<aside class=\"ca596e575\">\n<nav data-sidebar>\nProfile\n</nav>\n</aside>\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9166dbd0 cbaac6b89 ccae02ff2\">\n<p data-body>\nForm fields\n</p>\n</div>\n</main>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "classes and a data-mol-id": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2 cd75bbd18\" data-mol-id=\"settings-x\">\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<aside class=\"ca596e575\">\n<nav data-sidebar>\nProfile\n</nav>\n</aside>\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9166dbd0 cbaac6b89 ccae02ff2\">\n<p data-body>\nForm fields\n</p>\n</div>\n</main>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "no header and no sidebar node": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<aside class=\"ca596e575\">\n</aside>\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9166dbd0 cbaac6b89 ccae02ff2\">\n<p data-body>\nForm fields\n</p>\n</div>\n</main>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "header as a node prop": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<strong data-header>\nSettings\n</strong>\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<aside class=\"ca596e575\">\n<nav data-sidebar>\nProfile\n</nav>\n</aside>\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9166dbd0 cbaac6b89 ccae02ff2\">\n<p data-body>\nForm fields\n</p>\n</div>\n</main>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "classes change on a later props step": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2 cd75bbd18\" data-mol-id=\"settings-x\">\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<aside class=\"ca596e575\">\n<nav data-sidebar>\nProfile\n</nav>\n</aside>\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9166dbd0 cbaac6b89 ccae02ff2\">\n<p data-body>\nForm fields\n</p>\n</div>\n</main>\n</div>\n</div>\n@route /",
+     "<div class=\"c0dc2ec34 c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\" data-mol-id=\"y\">\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<aside class=\"ca596e575\">\n<nav data-sidebar>\nProfile\n</nav>\n</aside>\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9166dbd0 cbaac6b89 ccae02ff2\">\n<p data-body>\nForm fields\n</p>\n</div>\n</main>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "sidebar and content, then a locale switch": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<aside class=\"ca596e575\">\n<nav data-sidebar>\nProfile\n</nav>\n</aside>\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9166dbd0 cbaac6b89 ccae02ff2\">\n<p data-body>\nForm fields\n</p>\n</div>\n</main>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<aside class=\"ca596e575\">\n<nav data-sidebar>\nProfile\n</nav>\n</aside>\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9166dbd0 cbaac6b89 ccae02ff2\">\n<p data-body>\nForm fields\n</p>\n</div>\n</main>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   }
+  },
+  "SettingsSection": {
+   "title only": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<header class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<h2 class=\"c6a2a1a28 c7f74399a\">\nProfile\n</h2>\n</header>\n<div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "title and description": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<header class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<h2 class=\"c6a2a1a28 c7f74399a\">\nProfile\n</h2>\n<p class=\"c445db9b9\">\nUpdate your display name.\n</p>\n</header>\n<div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "title, description, body and a footer action": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<header class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<h2 class=\"c6a2a1a28 c7f74399a\">\nProfile\n</h2>\n<p class=\"c445db9b9\">\nUpdate your display name.\n</p>\n</header>\n<div>\n<p data-body>\nForm fields\n</p>\n</div>\n<footer class=\"c117f3063 c1e8176ab c42740ba6 c9566e21c ccae02ff2 cd9b20003\">\n<button data-save type=\"button\">\nSave\n</button>\n</footer>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "node title and description": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<header class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<h2 class=\"c6a2a1a28 c7f74399a\">\n<strong data-title>\nProfile\n</strong>\n</h2>\n<p class=\"c445db9b9\">\n<em data-desc>\nPublic\n</em>\n</p>\n</header>\n<div>\n<p data-body>\nForm fields\n</p>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "title as a node prop": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<header class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<h2 class=\"c6a2a1a28 c7f74399a\">\n<span data-title>\nProfile\n</span>\n</h2>\n</header>\n<div>\n<p data-body>\nForm fields\n</p>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "footer as text": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<header class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<h2 class=\"c6a2a1a28 c7f74399a\">\nProfile\n</h2>\n</header>\n<div>\n</div>\n<footer class=\"c117f3063 c1e8176ab c42740ba6 c9566e21c ccae02ff2 cd9b20003\">\nSaved\n</footer>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "className and a data-mol-id": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cd75bbd18 cdccefb20\" data-mol-id=\"section-x\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<header class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<h2 class=\"c6a2a1a28 c7f74399a\">\nProfile\n</h2>\n</header>\n<div>\n<p data-body>\nForm fields\n</p>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "an empty title still renders the heading": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<header class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<h2 class=\"c6a2a1a28 c7f74399a\">\n</h2>\n</header>\n<div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a description appears on a later props step": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<header class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<h2 class=\"c6a2a1a28 c7f74399a\">\nProfile\n</h2>\n</header>\n<div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<header class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<h2 class=\"c6a2a1a28 c7f74399a\">\nProfile\n</h2>\n<p class=\"c445db9b9\">\nNow described.\n</p>\n</header>\n<div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a description disappears on a later props step": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<header class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<h2 class=\"c6a2a1a28 c7f74399a\">\nProfile\n</h2>\n<p class=\"c445db9b9\">\nDescribed.\n</p>\n</header>\n<div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<header class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<h2 class=\"c6a2a1a28 c7f74399a\">\nProfile\n</h2>\n</header>\n<div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a footer disappears on a later props step": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<header class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<h2 class=\"c6a2a1a28 c7f74399a\">\nProfile\n</h2>\n</header>\n<div>\n</div>\n<footer class=\"c117f3063 c1e8176ab c42740ba6 c9566e21c ccae02ff2 cd9b20003\">\nSaved\n</footer>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<header class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<h2 class=\"c6a2a1a28 c7f74399a\">\nProfile\n</h2>\n</header>\n<div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "classes change on a later props step": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cd75bbd18 cdccefb20\" data-mol-id=\"section-x\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<header class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<h2 class=\"c6a2a1a28 c7f74399a\">\nProfile\n</h2>\n</header>\n<div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c0dc2ec34 c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\" data-mol-id=\"y\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<header class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<h2 class=\"c6a2a1a28 c7f74399a\">\nProfile\n</h2>\n</header>\n<div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "title only, then a locale switch": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<header class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<h2 class=\"c6a2a1a28 c7f74399a\">\nProfile\n</h2>\n</header>\n<div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<header class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<h2 class=\"c6a2a1a28 c7f74399a\">\nProfile\n</h2>\n</header>\n<div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   }
+  },
+  "SettingsSidebar": {
+   "two items with the first active": {
+    "snapshots": [
+     "<nav aria-label=\"Settings\" class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<button aria-current=\"page\" class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span>\nProfile\n</span>\n</button>\n<button class=\"c1e8176ab c42740ba6 c445db9b9 c80b1c428 c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span>\nBilling\n</span>\n</button>\n</nav>\n@route /"
+    ],
+    "calls": []
+   },
+   "the active item moves with activeId": {
+    "snapshots": [
+     "<nav aria-label=\"Settings\" class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<button aria-current=\"page\" class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span>\nProfile\n</span>\n</button>\n<button class=\"c1e8176ab c42740ba6 c445db9b9 c80b1c428 c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span>\nBilling\n</span>\n</button>\n</nav>\n@route /",
+     "<nav aria-label=\"Settings\" class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<button class=\"c1e8176ab c42740ba6 c445db9b9 c80b1c428 c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span>\nProfile\n</span>\n</button>\n<button aria-current=\"page\" class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span>\nBilling\n</span>\n</button>\n</nav>\n@route /"
+    ],
+    "calls": []
+   },
+   "node labels and icons": {
+    "snapshots": [
+     "<nav aria-label=\"Settings\" class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<button class=\"c1e8176ab c42740ba6 c445db9b9 c80b1c428 c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<i data-icon=\"user\">\n</i>\n<span>\n<strong data-label=\"profile\">\nProfile\n</strong>\n</span>\n</button>\n<button aria-current=\"page\" class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<i data-icon=\"card\">\n</i>\n<span>\n<em data-label=\"billing\">\nBilling\n</em>\n</span>\n</button>\n</nav>\n@route /"
+    ],
+    "calls": []
+   },
+   "a footer inside the sidebar": {
+    "snapshots": [
+     "<nav aria-label=\"Settings\" class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<button aria-current=\"page\" class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span>\nProfile\n</span>\n</button>\n<button class=\"c1e8176ab c42740ba6 c445db9b9 c80b1c428 c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span>\nBilling\n</span>\n</button>\n<div class=\"c9efc308d\">\n<button data-signout type=\"button\">\nSign out\n</button>\n</div>\n</nav>\n@route /"
+    ],
+    "calls": []
+   },
+   "className": {
+    "snapshots": [
+     "<nav aria-label=\"Settings\" class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2 cd75bbd18\">\n<button aria-current=\"page\" class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span>\nProfile\n</span>\n</button>\n<button class=\"c1e8176ab c42740ba6 c445db9b9 c80b1c428 c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span>\nBilling\n</span>\n</button>\n</nav>\n@route /"
+    ],
+    "calls": []
+   },
+   "no items": {
+    "snapshots": [
+     "<nav aria-label=\"Settings\" class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n</nav>\n@route /"
+    ],
+    "calls": []
+   },
+   "items change on a later props step": {
+    "snapshots": [
+     "<nav aria-label=\"Settings\" class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<button aria-current=\"page\" class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span>\nProfile\n</span>\n</button>\n<button class=\"c1e8176ab c42740ba6 c445db9b9 c80b1c428 c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span>\nBilling\n</span>\n</button>\n</nav>\n@route /",
+     "<nav aria-label=\"Settings\" class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<button class=\"c1e8176ab c42740ba6 c445db9b9 c80b1c428 c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span>\nSecurity\n</span>\n</button>\n</nav>\n@route /"
+    ],
+    "calls": []
+   },
+   "each item calls onSelect with its id": {
+    "snapshots": [
+     "<nav aria-label=\"Settings\" class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<button aria-current=\"page\" class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span>\nProfile\n</span>\n</button>\n<button class=\"c1e8176ab c42740ba6 c445db9b9 c80b1c428 c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span>\nBilling\n</span>\n</button>\n</nav>\n@route /",
+     "<nav aria-label=\"Settings\" class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<button aria-current=\"page\" class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span>\nProfile\n</span>\n</button>\n<button class=\"c1e8176ab c42740ba6 c445db9b9 c80b1c428 c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span>\nBilling\n</span>\n</button>\n</nav>\n@route /",
+     "<nav aria-label=\"Settings\" class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<button aria-current=\"page\" class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span>\nProfile\n</span>\n</button>\n<button class=\"c1e8176ab c42740ba6 c445db9b9 c80b1c428 c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span>\nBilling\n</span>\n</button>\n</nav>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onSelect",
+      "args": [
+       "billing"
+      ]
+     },
+     {
+      "name": "onSelect",
+      "args": [
+       "profile"
+      ]
+     }
+    ]
+   },
+   "clicking the active item still calls onSelect": {
+    "snapshots": [
+     "<nav aria-label=\"Settings\" class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<button aria-current=\"page\" class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span>\nProfile\n</span>\n</button>\n<button class=\"c1e8176ab c42740ba6 c445db9b9 c80b1c428 c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span>\nBilling\n</span>\n</button>\n</nav>\n@route /",
+     "<nav aria-label=\"Settings\" class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<button aria-current=\"page\" class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span>\nProfile\n</span>\n</button>\n<button class=\"c1e8176ab c42740ba6 c445db9b9 c80b1c428 c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span>\nBilling\n</span>\n</button>\n</nav>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onSelect",
+      "args": [
+       "profile"
+      ]
+     }
+    ]
+   },
+   "an item click does not change the active item by itself": {
+    "snapshots": [
+     "<nav aria-label=\"Settings\" class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<button aria-current=\"page\" class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span>\nProfile\n</span>\n</button>\n<button class=\"c1e8176ab c42740ba6 c445db9b9 c80b1c428 c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span>\nBilling\n</span>\n</button>\n</nav>\n@route /",
+     "<nav aria-label=\"Settings\" class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<button aria-current=\"page\" class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span>\nProfile\n</span>\n</button>\n<button class=\"c1e8176ab c42740ba6 c445db9b9 c80b1c428 c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span>\nBilling\n</span>\n</button>\n</nav>\n@route /",
+     "<nav aria-label=\"Settings\" class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<button aria-current=\"page\" class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span>\nProfile\n</span>\n</button>\n<button class=\"c1e8176ab c42740ba6 c445db9b9 c80b1c428 c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span>\nBilling\n</span>\n</button>\n</nav>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onSelect",
+      "args": [
+       "billing"
+      ]
+     },
+     {
+      "name": "onSelect",
+      "args": [
+       "billing"
+      ]
+     }
+    ]
+   },
+   "two items with the first active, then a locale switch": {
+    "snapshots": [
+     "<nav aria-label=\"Settings\" class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<button aria-current=\"page\" class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span>\nProfile\n</span>\n</button>\n<button class=\"c1e8176ab c42740ba6 c445db9b9 c80b1c428 c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span>\nBilling\n</span>\n</button>\n</nav>\n@route /",
+     "<nav aria-label=\"⟦Settings⟧\" class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<button aria-current=\"page\" class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span>\nProfile\n</span>\n</button>\n<button class=\"c1e8176ab c42740ba6 c445db9b9 c80b1c428 c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span>\nBilling\n</span>\n</button>\n</nav>\n@route /"
+    ],
+    "calls": []
+   },
+   "two items with the first active, then items again as equal new objects": {
+    "snapshots": [
+     "<nav aria-label=\"Settings\" class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<button aria-current=\"page\" class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span>\nProfile\n</span>\n</button>\n<button class=\"c1e8176ab c42740ba6 c445db9b9 c80b1c428 c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span>\nBilling\n</span>\n</button>\n</nav>\n@route /",
+     "<nav aria-label=\"Settings\" class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<button aria-current=\"page\" class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\" data-conformance-mark=\"0\" type=\"button\">\n<span>\nProfile\n</span>\n</button>\n<button class=\"c1e8176ab c42740ba6 c445db9b9 c80b1c428 c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\" data-conformance-mark=\"1\" type=\"button\">\n<span>\nBilling\n</span>\n</button>\n</nav>\n@route /",
+     "<nav aria-label=\"Settings\" class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<button aria-current=\"page\" class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\" data-conformance-mark=\"0\" type=\"button\">\n<span>\nProfile\n</span>\n</button>\n<button class=\"c1e8176ab c42740ba6 c445db9b9 c80b1c428 c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\" data-conformance-mark=\"1\" type=\"button\">\n<span>\nBilling\n</span>\n</button>\n</nav>\n@route /"
+    ],
+    "calls": []
+   },
+   "two items with the first active, then items reversed": {
+    "snapshots": [
+     "<nav aria-label=\"Settings\" class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<button aria-current=\"page\" class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span>\nProfile\n</span>\n</button>\n<button class=\"c1e8176ab c42740ba6 c445db9b9 c80b1c428 c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span>\nBilling\n</span>\n</button>\n</nav>\n@route /",
+     "<nav aria-label=\"Settings\" class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<button aria-current=\"page\" class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\" data-conformance-mark=\"0\" type=\"button\">\n<span>\nProfile\n</span>\n</button>\n<button class=\"c1e8176ab c42740ba6 c445db9b9 c80b1c428 c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\" data-conformance-mark=\"1\" type=\"button\">\n<span>\nBilling\n</span>\n</button>\n</nav>\n@route /",
+     "<nav aria-label=\"Settings\" class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<button class=\"c1e8176ab c42740ba6 c445db9b9 c80b1c428 c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\" data-conformance-mark=\"1\" type=\"button\">\n<span>\nBilling\n</span>\n</button>\n<button aria-current=\"page\" class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\" data-conformance-mark=\"0\" type=\"button\">\n<span>\nProfile\n</span>\n</button>\n</nav>\n@route /"
+    ],
+    "calls": []
+   }
+  }
+ }
+}

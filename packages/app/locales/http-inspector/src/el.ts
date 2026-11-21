@@ -7,4 +7,8 @@ export const el: Partial<HttpInspectorTranslations> = {
   'httpInspector.body': 'Κείμενο μηνύματος',
   'httpInspector.headers': 'Κεφαλίδες',
   'httpInspector.addHeader': 'Προσθήκη κεφαλίδας',
+  'httpInspector.methodLabel': 'Μέθοδος HTTP',
+  'httpInspector.urlLabel': 'URL',
+  'httpInspector.headerPlaceholder': 'Κεφαλίδα',
+  'httpInspector.valuePlaceholder': 'Τιμή',
 }

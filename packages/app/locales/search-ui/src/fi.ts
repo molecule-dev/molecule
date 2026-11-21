@@ -14,4 +14,8 @@ export const fi: Partial<SearchUiTranslations> = {
   'searchUi.relatedTitle': 'Vastaa hakusi merkitystä, ei sen sanoja',
   'searchUi.related': 'liittyvä',
   'searchUi.help': 'Hakuvinkkejä',
+  'searchUi.examplePhrase': '"tarkka lause"',
+  'searchUi.exampleExcluded': '-sana',
+  'searchUi.activeResult': '{{title}}, {{position}} / {{count}}',
+  'searchUi.dialogLabel': 'Haku',
 }

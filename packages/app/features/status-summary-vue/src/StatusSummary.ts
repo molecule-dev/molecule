@@ -11,27 +11,23 @@
 
 import { defineComponent, h, type PropType, type VNode, type VNodeChild } from 'vue'
 
+import type { ColorVariant } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { useTranslation } from '@molecule/app-vue'
 
 import type { ComponentStatus, StatusGroup } from './types.js'
 
-/** English label rendered for each status when no locale bond supplies the key. */
-const STATUS_LABEL: Record<ComponentStatus, string> = {
-  operational: 'Operational',
-  degraded: 'Degraded performance',
-  'partial-outage': 'Partial outage',
-  'major-outage': 'Major outage',
-  maintenance: 'Under maintenance',
-}
-
-/** The fixed semantic hue of each status (React's inline-style palette). */
-const STATUS_COLOR: Record<ComponentStatus, string> = {
-  operational: '#22c55e',
-  degraded: '#eab308',
-  'partial-outage': '#f97316',
-  'major-outage': '#ef4444',
-  maintenance: '#60a5fa',
+/**
+ * The semantic tone colouring each status: the theme's success green for
+ * operational, its warning amber for degraded and partial outage, its error
+ * red for a major outage and its info blue for maintenance.
+ */
+const STATUS_TONE: Record<ComponentStatus, ColorVariant> = {
+  operational: 'success',
+  degraded: 'warning',
+  'partial-outage': 'warning',
+  'major-outage': 'error',
+  maintenance: 'info',
 }
 
 /** The statuses from most to least severe (React's `worst` order). */
@@ -96,6 +92,28 @@ export const StatusSummary = defineComponent({
     const cm = getClassMap()
     const { t } = useTranslation()
 
+    /**
+     * The label for one status, through its literal i18n key with the English
+     * fallback (the same text the `common` locale bond's en.ts ships).
+     *
+     * @param status - The status to label.
+     * @returns The translated label.
+     */
+    const statusLabel = (status: ComponentStatus): string => {
+      switch (status) {
+        case 'operational':
+          return t('status.operational', {}, { defaultValue: 'Operational' })
+        case 'degraded':
+          return t('status.degraded', {}, { defaultValue: 'Degraded performance' })
+        case 'partial-outage':
+          return t('status.partial-outage', {}, { defaultValue: 'Partial outage' })
+        case 'major-outage':
+          return t('status.major-outage', {}, { defaultValue: 'Major outage' })
+        case 'maintenance':
+          return t('status.maintenance', {}, { defaultValue: 'Under maintenance' })
+      }
+    }
+
     return (): VNode => {
       const allStatuses = props.groups.flatMap((group) =>
         group.components.map((component) => component.status),
@@ -108,12 +126,14 @@ export const StatusSummary = defineComponent({
             class: cm.cn(
               cm.flex({ align: 'center', justify: 'between', gap: 'md' }),
               cm.sp('p', 3),
+              cm.bgTone(STATUS_TONE[overall]),
+              cm.textOnTone,
             ),
-            style: { background: STATUS_COLOR[overall], color: '#fff', borderRadius: '8px' },
+            style: { borderRadius: '8px' },
           },
           [
             h('span', { class: cm.cn(cm.textSize('lg'), cm.fontWeight('bold')) }, [
-              t(`status.${overall}`, {}, { defaultValue: STATUS_LABEL[overall] }),
+              statusLabel(overall),
             ]),
             ...nodeValue(props.header, slots.header),
           ],
@@ -153,22 +173,16 @@ export const StatusSummary = defineComponent({
                     h(
                       'span',
                       {
-                        class: cm.cn(cm.sp('px', 2), cm.textSize('xs'), cm.fontWeight('semibold')),
-                        style: {
-                          borderRadius: '4px',
-                          background: STATUS_COLOR[component.status],
-                          color: '#fff',
-                        },
-                      },
-                      [
-                        t(
-                          `status.${component.status}`,
-                          {},
-                          {
-                            defaultValue: STATUS_LABEL[component.status],
-                          },
+                        class: cm.cn(
+                          cm.sp('px', 2),
+                          cm.textSize('xs'),
+                          cm.fontWeight('semibold'),
+                          cm.bgTone(STATUS_TONE[component.status]),
+                          cm.textOnTone,
                         ),
-                      ],
+                        style: { borderRadius: '4px' },
+                      },
+                      [statusLabel(component.status)],
                     ),
                   ],
                 ),

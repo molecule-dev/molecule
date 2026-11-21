@@ -31,7 +31,10 @@ export interface TopNavLayoutProps {
    * as a prop or as the same-named slot — both work.
    */
   userMenu?: VNodeChild
-  /** Aria-label for the primary `<nav>`. Defaults to `'Primary navigation'`. */
+  /**
+   * Aria-label for the primary `<nav>`. Overrides the translated /
+   * `defaultValue` `'Primary navigation'` (prop > `t()` > default).
+   */
   navAriaLabel?: string
   /** Extra classes on the outer wrapper. */
   className?: string

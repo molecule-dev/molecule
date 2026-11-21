@@ -18,6 +18,8 @@ const ITEMS = [
 /** Dropdown: menu-button pattern — trigger cloning, controlled/uncontrolled open, roving tabindex, selection. */
 export const dropdownCases: UIComponentCases = {
   component: 'Dropdown',
+  ref: { caseName: 'click opens the menu' },
+  declaredProps: { props: 'base' },
   keyedLists: [
     {
       prop: 'items',
@@ -37,6 +39,50 @@ export const dropdownCases: UIComponentCases = {
       props: { items: ITEMS },
       slots: { trigger: triggerButton },
       interactions: [{ type: 'click', selector: 'button' }],
+    },
+    {
+      name: 'disabled never opens: the trigger is disabled and a click and Enter do nothing',
+      fakeTimers: true,
+      props: { items: ITEMS, disabled: true },
+      slots: { trigger: triggerButton },
+      callbacks: ['onOpenChange'],
+      interactions: [
+        { type: 'click', selector: 'button' },
+        { type: 'keydown', selector: 'button', key: 'Enter' },
+      ],
+    },
+    {
+      name: 'disabled with a text trigger: the trigger is announced disabled and leaves the tab order',
+      fakeTimers: true,
+      props: { items: ITEMS, disabled: true },
+      slots: { trigger: ['Options'] },
+      callbacks: ['onOpenChange'],
+      interactions: [
+        { type: 'click', selector: '[role="button"]' },
+        { type: 'keydown', selector: '[role="button"]', key: 'Enter' },
+      ],
+    },
+    {
+      name: 'enabled again: the trigger is back to its own state and a click opens the menu',
+      fakeTimers: true,
+      props: { items: ITEMS, disabled: true },
+      slots: { trigger: triggerButton },
+      callbacks: ['onOpenChange'],
+      interactions: [
+        { type: 'props', props: { disabled: false } },
+        { type: 'click', selector: 'button' },
+      ],
+    },
+    {
+      name: 'enabled again with a text trigger: the trigger is back in the tab order and a click opens the menu',
+      fakeTimers: true,
+      props: { items: ITEMS, disabled: true },
+      slots: { trigger: ['Options'] },
+      callbacks: ['onOpenChange'],
+      interactions: [
+        { type: 'props', props: { disabled: false } },
+        { type: 'click', selector: '[role="button"]' },
+      ],
     },
     {
       // Nothing is reported on mount: an owner that follows onOpenChange keeps
@@ -298,6 +344,7 @@ export const dropdownCases: UIComponentCases = {
 /** DropdownLabel: group label inside a dropdown menu. */
 export const dropdownLabelCases: UIComponentCases = {
   component: 'DropdownLabel',
+  ref: {},
   cases: [
     { name: 'defaults', children: ['Actions'] },
     { name: 'element children', children: [{ tag: 'strong', children: ['Danger'] }, ' zone'] },
@@ -308,5 +355,6 @@ export const dropdownLabelCases: UIComponentCases = {
 /** DropdownSeparator: dividing rule inside a dropdown menu. */
 export const dropdownSeparatorCases: UIComponentCases = {
   component: 'DropdownSeparator',
+  ref: {},
   cases: [{ name: 'defaults' }, { name: 'className', props: { className: 'parity-token' } }],
 }

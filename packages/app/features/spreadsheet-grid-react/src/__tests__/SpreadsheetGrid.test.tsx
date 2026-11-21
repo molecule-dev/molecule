@@ -5,6 +5,7 @@ import type { ReactNode } from 'react'
 import React, { useState } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { copyTextWithFallback } from '@molecule/app-clipboard'
 import { createSimpleI18nProvider } from '@molecule/app-i18n'
 import { I18nProvider } from '@molecule/app-react'
 import { setClassMap, type UIClassMap } from '@molecule/app-ui'
@@ -22,6 +23,8 @@ import {
   SpreadsheetGrid,
   type SpreadsheetSelection,
 } from '../index.js'
+
+vi.mock('@molecule/app-clipboard', () => ({ copyTextWithFallback: vi.fn(async () => true) }))
 
 /**
  * Build a UIClassMap stub via Proxy: `cn(...)` joins truthy strings,
@@ -62,6 +65,8 @@ function Wrap({ children }: { children: ReactNode }): React.ReactElement {
 
 beforeEach(() => {
   setClassMap(buildStubClassMap())
+  vi.mocked(copyTextWithFallback).mockReset()
+  vi.mocked(copyTextWithFallback).mockResolvedValue(true)
 })
 
 afterEach(() => {
@@ -221,13 +226,13 @@ describe('<SpreadsheetGrid> rendering', () => {
   })
 
   it('renders cell values from the cells map', () => {
-    const cells = new Map([
+    const cells: CellMap = new Map<string, string | number | boolean | null>([
       ['A1', 'apple'],
       ['B2', 42],
     ])
     const { container } = render(
       <Wrap>
-        <Harness rows={3} columns={3} initialCells={cells as CellMap} />
+        <Harness rows={3} columns={3} initialCells={cells} />
       </Wrap>,
     )
     expect(container.textContent).toContain('apple')
@@ -324,6 +329,57 @@ describe('<SpreadsheetGrid> clipboard', () => {
       ['B2', 'd'],
     ])
     expect(serializeSelectionTsv(cells, { r1: 0, c1: 0, r2: 1, c2: 1 })).toBe('a\tb\nc\td')
+  })
+
+  it('copies the selection as TSV when Ctrl+C is pressed', async () => {
+    const cells: CellMap = new Map<string, string | number | boolean | null>([
+      ['A1', 'a'],
+      ['B1', 'b'],
+      ['A2', 'c'],
+      ['B2', 'd'],
+    ])
+    const { container } = render(
+      <Wrap>
+        <Harness rows={4} columns={4} initialCells={cells} />
+      </Wrap>,
+    )
+    const a1 = container.querySelector('[data-mol-id="spreadsheet-grid-cell-A1"]')!
+    const b2 = container.querySelector('[data-mol-id="spreadsheet-grid-cell-B2"]')!
+    fireEvent.mouseDown(a1)
+    fireEvent.mouseDown(b2, { shiftKey: true })
+    const grid = container.querySelector('[role="grid"]')!
+    fireEvent.keyDown(grid, { key: 'c', ctrlKey: true })
+    await vi.waitFor(() => {
+      expect(vi.mocked(copyTextWithFallback)).toHaveBeenCalledWith('a\tb\nc\td')
+    })
+  })
+
+  it('leaves the grid unchanged when the copy reports failure', async () => {
+    vi.mocked(copyTextWithFallback).mockResolvedValue(false)
+    const cells: CellMap = new Map<string, string | number | boolean | null>([
+      ['A1', 'a'],
+      ['B1', 'b'],
+      ['A2', 'c'],
+      ['B2', 'd'],
+    ])
+    const onCellChange = vi.fn()
+    const { container } = render(
+      <Wrap>
+        <Harness rows={4} columns={4} initialCells={cells} onCellChangeSpy={onCellChange} />
+      </Wrap>,
+    )
+    const a1 = container.querySelector('[data-mol-id="spreadsheet-grid-cell-A1"]')!
+    const b2 = container.querySelector('[data-mol-id="spreadsheet-grid-cell-B2"]')!
+    fireEvent.mouseDown(a1)
+    fireEvent.mouseDown(b2, { shiftKey: true })
+    const grid = container.querySelector('[role="grid"]')!
+    const before = grid.innerHTML
+    fireEvent.keyDown(grid, { key: 'c', metaKey: true })
+    await vi.waitFor(() => {
+      expect(vi.mocked(copyTextWithFallback)).toHaveBeenCalledWith('a\tb\nc\td')
+    })
+    expect(grid.innerHTML).toBe(before)
+    expect(onCellChange).not.toHaveBeenCalled()
   })
 
   it('paste event writes pasted TSV into cells starting at the anchor', () => {

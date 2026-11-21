@@ -3,4 +3,5 @@ import type { SearchAutocompleteTranslations } from './types.js'
 /** SearchAutocomplete translations for sv. */
 export const sv: Partial<SearchAutocompleteTranslations> = {
   'search.placeholder': 'Sök…',
+  'search.aria.label': 'Sök',
 }

@@ -18,14 +18,30 @@ import { useTranslation } from '@molecule/app-vue'
 import type { FeatureFlag, FeatureFlagRowProps, FlagType } from './types.js'
 
 /**
- * Human-readable English fallback label for each flag type. Used as the
- * `defaultValue` for the `t('flagType.<type>')` badge, exactly as React does.
+ * The translation function `useTranslation()` hands back.
  */
-const FLAG_TYPE_LABELS: Record<FlagType, string> = {
-  boolean: 'Boolean',
-  multivariate: 'Multivariate',
-  percentage: 'Percentage',
-  string: 'String',
+type Translate = ReturnType<typeof useTranslation>['t']
+
+/**
+ * The translated type-badge label for each flag type: one literal
+ * `t('flagType.<type>')` call per value of {@link FlagType}, exactly as React
+ * does (a runtime-built key would be invisible to molecule's i18n gate).
+ *
+ * @param type - The flag type.
+ * @param t - The translation function from `useTranslation()`.
+ * @returns The badge's label.
+ */
+function flagTypeLabel(type: FlagType, t: Translate): string {
+  switch (type) {
+    case 'boolean':
+      return t('flagType.boolean', {}, { defaultValue: 'Boolean' })
+    case 'multivariate':
+      return t('flagType.multivariate', {}, { defaultValue: 'Multivariate' })
+    case 'percentage':
+      return t('flagType.percentage', {}, { defaultValue: 'Percentage' })
+    case 'string':
+      return t('flagType.string', {}, { defaultValue: 'String' })
+  }
 }
 
 /**
@@ -90,13 +106,7 @@ export const FeatureFlagRow = defineComponent({
               h(
                 'span',
                 { class: cm.cn(cm.textSize('xs'), cm.fontWeight('medium')) },
-                t(
-                  `flagType.${props.flag.type}`,
-                  {},
-                  {
-                    defaultValue: FLAG_TYPE_LABELS[props.flag.type],
-                  },
-                ),
+                flagTypeLabel(props.flag.type, t),
               ),
             ]),
             h('span', { class: cm.cn(cm.textSize('xs')) }, props.flag.key),
@@ -130,7 +140,11 @@ export const FeatureFlagRow = defineComponent({
                           (event.target as HTMLInputElement).checked,
                         )
                       },
-                      'aria-label': `${props.flag.key} in ${env.id}`,
+                      'aria-label': t(
+                        'featureFlagRow.aria.flagInEnvironment',
+                        { flag: props.flag.key, environment: env.id },
+                        { defaultValue: '{{flag}} in {{environment}}' },
+                      ),
                     }),
                     props.flag.type === 'percentage' && env.rolloutPct !== undefined
                       ? h('span', { class: cm.textSize('xs') }, `${env.rolloutPct}%`)

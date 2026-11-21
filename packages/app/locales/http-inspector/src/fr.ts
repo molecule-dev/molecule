@@ -7,4 +7,8 @@ export const fr: Partial<HttpInspectorTranslations> = {
   'httpInspector.headers': 'En-têtes',
   'httpInspector.body': 'Corps',
   'httpInspector.addHeader': 'Ajouter un en-tête',
+  'httpInspector.methodLabel': 'Méthode HTTP',
+  'httpInspector.urlLabel': 'URL',
+  'httpInspector.headerPlaceholder': 'En-tête',
+  'httpInspector.valuePlaceholder': 'Valeur',
 }

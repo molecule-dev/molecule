@@ -13,14 +13,17 @@
 import '@molecule/app-framework-conformance/ui/setup'
 import '@angular/compiler'
 import {
+  type ApplicationRef,
   ChangeDetectionStrategy,
   Component,
   type ComponentRef,
   createComponent,
   provideZonelessChangeDetection,
 } from '@angular/core'
-import { type ApplicationRef, createApplication } from '@angular/platform-browser'
+import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it } from 'vitest'
+
+import { inlineStyleMismatch } from '@molecule/app-framework-conformance/ui'
 
 import { SubscriptionPlanCard } from '../subscription-plan-card.component.js'
 
@@ -138,7 +141,7 @@ describe('SubscriptionPlanCard', () => {
   it('highlights a recommended plan with the default badge and outline style', async () => {
     const m = await render({ name: 'P', price: '$1', features: [], recommended: true })
     expect(m.host.innerHTML).toContain('Recommended')
-    expect(m.host.innerHTML).toContain('outline: 2px solid currentColor')
+    expect(inlineStyleMismatch(m.host.innerHTML, { outline: '2px solid currentColor' })).toBeNull()
   })
 
   it('renders a custom badge', async () => {

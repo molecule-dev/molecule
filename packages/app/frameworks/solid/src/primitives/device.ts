@@ -10,7 +10,7 @@ import { getProvider } from '@molecule/app-device'
 /**
  * Device primitives return type.
  */
-export interface DevicePrimitives {
+export interface UseDeviceResult {
   deviceInfo: DeviceInfo
   screenInfo: ScreenInfo
   hardwareInfo: HardwareInfo
@@ -21,6 +21,13 @@ export interface DevicePrimitives {
   language: string
   languages: string[]
 }
+
+/**
+ * The former name of {@link UseDeviceResult}.
+ *
+ * @deprecated Renamed to {@link UseDeviceResult}, `@molecule/app-react`'s name for it.
+ */
+export type DevicePrimitives = UseDeviceResult
 
 /**
  * Create device primitives for accessing device information.
@@ -48,7 +55,7 @@ export interface DevicePrimitives {
  * }
  * ```
  */
-export function createDevice(): DevicePrimitives {
+export function createDevice(): UseDeviceResult {
   const provider = getProvider()
 
   return {
@@ -79,4 +86,4 @@ export function createDevice(): DevicePrimitives {
  * }
  * ```
  */
-export const useDevice: () => DevicePrimitives = createDevice
+export const useDevice: () => UseDeviceResult = createDevice

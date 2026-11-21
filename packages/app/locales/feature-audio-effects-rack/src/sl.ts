@@ -49,4 +49,5 @@ export const sl: Partial<AudioEffectsRackTranslations> = {
   'audioEffectsRack.param.phaser.rate': 'Stopnja',
   'audioEffectsRack.param.phaser.depth': 'Globina',
   'audioEffectsRack.param.phaser.feedback': 'Povratne informacije',
+  'audioEffectsRack.param.fallback': 'Parameter',
 }

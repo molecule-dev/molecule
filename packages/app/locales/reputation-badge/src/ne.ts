@@ -9,6 +9,7 @@ export const ne: ReputationBadgeTranslations = {
   'reputationBadge.level.trusted': 'भरपर्दो',
   'reputationBadge.level.veteran': 'अनुभवी',
   'reputationBadge.level.legend': 'दन्त्यकथा',
+  'reputationBadge.level.fallback': '{{level}}',
   'badgeShelf.aria': '{{count}} ब्याज प्राप्त',
   'badgeShelf.overflow.aria': 'थप {{count}} ब्याज देखाउनुहोस्',
 }

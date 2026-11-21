@@ -13,4 +13,8 @@ export const bs: Partial<SearchUiTranslations> = {
   'searchUi.relatedTitle': 'Odgovara značenju vaše pretrage, a ne njenim riječima',
   'searchUi.related': 'povezano',
   'searchUi.help': 'Savjeti za pretragu',
+  'searchUi.examplePhrase': '"tačna fraza"',
+  'searchUi.exampleExcluded': '-riječ',
+  'searchUi.activeResult': '{{title}}, {{position}} od {{count}}',
+  'searchUi.dialogLabel': 'Pretraga',
 }

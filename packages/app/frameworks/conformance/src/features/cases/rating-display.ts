@@ -7,15 +7,6 @@
 
 import type { FeatureCases } from '../spec.js'
 
-// `RatingDisplay` mints each star's SVG gradient id with `Math.random()`, so
-// the DOM it renders differs on every run and no committed reference could
-// ever match it. Pin `Math.random` to one constant while these cases are
-// loaded: the reference recording, every later comparison and every framework
-// port then mint the same id. The id is internal to the SVG — the DOM
-// normalizer renumbers `id` attributes — so pinning it changes no rendered
-// pixel and no compared attribute except that shared token.
-Math.random = () => 0.123456789
-
 /** `@molecule/app-rating-display-react`. */
 export const ratingDisplayFeature: FeatureCases = {
   package: '@molecule/app-rating-display-react',

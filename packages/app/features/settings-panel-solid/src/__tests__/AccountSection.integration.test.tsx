@@ -99,7 +99,7 @@ function mount(app: () => JSX.Element): void {
 function withProvider(client: AuthClient<unknown>, app: () => JSX.Element): () => JSX.Element {
   return () =>
     (
-      <MoleculeProvider config={{ auth: client as AuthClient<Record<string, unknown>> }}>
+      <MoleculeProvider auth={client as AuthClient<Record<string, unknown>>}>
         {app()}
       </MoleculeProvider>
     ) as JSX.Element

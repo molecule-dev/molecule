@@ -29,14 +29,15 @@ export interface TickerRowProps {
   changeDisplay?: string
   /** Optional sparkline node: text, or `[slot=sparkline]` content. */
   sparkline?: unknown
-  /** Optional volume / market-cap display: text, or `[slot=meta]` content. */
+  /** Optional volume / market-cap display: text, or `[slot=meta]` content. May hold a control; it keeps its own clicks. */
   meta?: unknown
   /**
-   * Click handler (React's `onClick`). Passed as `[onClick]`; the host's
-   * native click calls it, and a passed handler also applies the
-   * `cm.cursorPointer` class, exactly as React's truthy `onClick` does.
+   * Click handler (React's `onClick`). While it is set the whole row is
+   * clickable through a transparent native button laid over it, named by the
+   * symbol; the inner controls (the `meta` slot) sit above that button and
+   * keep their own clicks. The handler runs with no arguments.
    */
-  onClick?: (event: MouseEvent) => void
+  onClick?: () => void
   /** Extra classes. */
   className?: string
 }

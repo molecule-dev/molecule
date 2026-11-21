@@ -151,6 +151,42 @@ describe('SearchAutocomplete keyboard navigation (L115a-a)', () => {
     fireEvent.keyDown(input, { key: 'Enter' })
     expect(onSelect).not.toHaveBeenCalled()
   })
+
+  it('keeps aria-activedescendant valid when the list shrinks below the highlight', () => {
+    const onSelect = vi.fn()
+    const view = render(
+      createElement(SearchAutocomplete, {
+        value: 'o',
+        onChange: () => {},
+        suggestions,
+        onSelect,
+      }),
+    )
+    const input = screen.getByRole('combobox')
+    fireEvent.focus(input)
+    fireEvent.keyDown(input, { key: 'ArrowDown' })
+    fireEvent.keyDown(input, { key: 'ArrowDown' })
+    fireEvent.keyDown(input, { key: 'ArrowDown' })
+    expect(screen.getAllByRole('option')[2].getAttribute('aria-selected')).toBe('true')
+
+    // The list shrinks past the highlight: the old option id no longer exists,
+    // so the combobox names no option instead of naming a gone one.
+    view.rerender(
+      createElement(SearchAutocomplete, {
+        value: 'o',
+        onChange: () => {},
+        suggestions: suggestions.slice(0, 1),
+        onSelect,
+      }),
+    )
+    expect(screen.getAllByRole('option')).toHaveLength(1)
+    expect(input.getAttribute('aria-activedescendant')).toBeNull()
+    expect(screen.getAllByRole('option')[0].getAttribute('aria-selected')).toBe('false')
+
+    // Enter over a highlight that names nothing selects nothing.
+    fireEvent.keyDown(input, { key: 'Enter' })
+    expect(onSelect).not.toHaveBeenCalled()
+  })
 })
 
 describe('SearchAutocomplete option rows', () => {

@@ -3,6 +3,8 @@ import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import type { PlanUpdatedPageProps } from '../PlanUpdatedPage.js'
+
 // `useAuth` is hoisted so individual tests can flip `initialized`.
 const { mockUseAuth, mockUseVerifyPaymentReturn } = vi.hoisted(() => ({
   mockUseAuth: vi.fn(),
@@ -234,13 +236,15 @@ describe('PlanUpdatedPage', () => {
   })
 
   it('honours a custom actionHref', () => {
-    const markup = html(createElement(PlanUpdatedPage, { actionHref: '/dashboard' }))
+    const markup = html(
+      createElement<PlanUpdatedPageProps>(PlanUpdatedPage, { actionHref: '/dashboard' }),
+    )
     expect(markup).toContain('href="/dashboard"')
   })
 
   it('honours custom message / thankYou / action default text', () => {
     const markup = html(
-      createElement(PlanUpdatedPage, {
+      createElement<PlanUpdatedPageProps>(PlanUpdatedPage, {
         messageDefault: 'Subscription changed.',
         thankYouDefault: 'Cheers!',
         actionDefault: 'Go back',

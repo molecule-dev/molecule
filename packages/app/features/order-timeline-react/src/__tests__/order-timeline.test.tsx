@@ -15,7 +15,9 @@ vi.mock('@molecule/app-ui', () => ({
               .join(' ')
         }
         const token = String(prop)
-        return (..._args: unknown[]) => token
+        // Tone resolvers echo their argument, so assertions can tell which
+        // semantic tone (`bgTone-success`) a node picked.
+        return (...args: unknown[]) => (args.length > 0 ? `${token}-${String(args[0])}` : token)
       },
     }
     return new Proxy({}, handler)
@@ -49,9 +51,10 @@ describe('OrderTimeline', () => {
 
   it('colors completed, current, and pending nodes differently', () => {
     const markup = html(createElement(OrderTimeline, { milestones }))
-    expect(markup).toContain('#22c55e') // completed
-    expect(markup).toContain('#60a5fa') // current
-    expect(markup).toContain('#d1d5db') // pending
+    expect(markup).toContain('bgTone-info') // current
+    expect(markup).toContain('bgTone-success') // completed
+    expect(markup).toContain('bgBorder') // pending: the theme's border colour
+    expect(markup).not.toContain('background')
   })
 
   it('renders the ETA line when present', () => {

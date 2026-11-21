@@ -15,4 +15,8 @@ export const bn: Partial<SearchUiTranslations> = {
   'searchUi.relatedTitle': 'আপনার অনুসন্ধানের অর্থের সাথে মেলে, এর শব্দগুলোর সাথে নয়।',
   'searchUi.related': 'সম্পর্কিত',
   'searchUi.help': 'অনুসন্ধানের টিপস',
+  'searchUi.examplePhrase': '"সঠিক বাক্যাংশ"',
+  'searchUi.exampleExcluded': '-শব্দ',
+  'searchUi.activeResult': '{{title}}, {{count}}-এর মধ্যে {{position}}',
+  'searchUi.dialogLabel': 'অনুসন্ধান',
 }

@@ -33,9 +33,12 @@
  * ```
  *
  * @remarks
- * All text (`label`, `valueLabel`, `title`, `description`) is pass-through —
- * supply already-translated strings; the package renders no text of its own.
- * Requires a wired ClassMap bond: the track/fill styles come from the
+ * All visible text (`label`, `valueLabel`, `title`, `description`) is
+ * pass-through — supply already-translated strings. The track's fallback
+ * accessible name resolves through `t('progressBar.label', undefined,
+ * { defaultValue: 'Progress' })` (read through `useTranslation()`, so it
+ * follows a locale switch); a rendered `label` or a `labelledBy` id names it
+ * instead. Requires a wired ClassMap bond: the track/fill styles come from the
  * `progress*` ClassMap tokens, so colors follow the active theme. Node-valued
  * props arrive as a prop AND a same-named slot; components accept either.
  *

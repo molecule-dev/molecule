@@ -60,6 +60,22 @@ describe('VideoPlayer', () => {
     expect(markup).toContain('<track')
     expect(markup).toContain('src="caps.vtt"')
     expect(markup).toContain('srcLang="fr"')
+    expect(markup).toContain('label="Captions"')
+  })
+
+  it('renders a captions track without a captionsSrc, named through i18n', () => {
+    const markup = html(createElement(VideoPlayer, { src: 's' }))
+    expect(markup).toContain('<track')
+    expect(markup).toContain('kind="captions"')
+    expect(markup).toContain('srcLang="en"')
+    expect(markup).toContain('label="Captions"')
+  })
+
+  it('names the captions track through captionsLabel', () => {
+    const markup = html(
+      createElement(VideoPlayer, { src: 's', captionsSrc: 'caps.vtt', captionsLabel: 'English' }),
+    )
+    expect(markup).toContain('label="English"')
   })
 
   it('shows the play glyph and a 0:00 / 0:00 time display initially', () => {

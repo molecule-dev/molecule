@@ -35,6 +35,8 @@ vi.mock('@molecule/app-ui', () => ({
 
 import { createApp, defineComponent, h, type VNodeChild } from 'vue'
 
+import { inlineStyleMismatch } from '@molecule/app-framework-conformance/ui'
+
 import { BentoGrid } from '../BentoGrid.js'
 import { CardGrid } from '../CardGrid.js'
 
@@ -84,14 +86,12 @@ describe('BentoGrid', () => {
 
   it('uses column-span styles in the default (non-areas) mode', () => {
     const markup = render(BentoGrid, { items: [{ id: 'a', content: 'x', colSpan: 6, rowSpan: 2 }] })
-    expect(markup).toContain('grid-column: span 6')
-    expect(markup).toContain('grid-row: span 2')
+    expect(inlineStyleMismatch(markup, { gridColumn: 'span 6', gridRow: 'span 2' })).toBeNull()
   })
 
   it('defaults col-span to 4 and row-span to 1 when unspecified', () => {
     const markup = render(BentoGrid, { items: [{ id: 'a', content: 'x' }] })
-    expect(markup).toContain('grid-column: span 4')
-    expect(markup).toContain('grid-row: span 1')
+    expect(inlineStyleMismatch(markup, { gridColumn: 'span 4', gridRow: 'span 1' })).toBeNull()
   })
 
   it('uses grid-template-areas + per-item grid-area in areas mode', () => {
@@ -100,8 +100,8 @@ describe('BentoGrid', () => {
       items: [{ id: 'a', content: 'x', area: 'a' }],
     })
     expect(markup).toContain('grid-template-areas')
-    expect(markup).toContain('grid-area: a')
-    expect(markup).not.toContain('grid-column: span')
+    expect(inlineStyleMismatch(markup, { gridArea: 'a' })).toBeNull()
+    expect(inlineStyleMismatch(markup, { gridColumn: 'span 4' })).not.toBeNull()
   })
 
   it('forwards className', () => {

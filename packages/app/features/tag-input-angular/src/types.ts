@@ -44,7 +44,11 @@ export interface TagInputProps {
   className?: string
 }
 
-/** Props for the {@link TagList} component (React names). */
+/**
+ * Props for the {@link TagList} component (React names). List attributes such
+ * as `id`, `aria-label` and `data-mol-id` are written on the host, which is
+ * the list itself (`<ul mol-tag-list id="…">`).
+ */
 export interface TagListProps {
   /** Every saved tag, in display order. Empty arrays render an empty list. */
   value: readonly string[]

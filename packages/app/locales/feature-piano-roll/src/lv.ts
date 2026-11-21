@@ -9,4 +9,6 @@ export const lv: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.note':
     'Piezīme {{pitch}} sākot no sitiena {{startBeat}} priekš {{durationBeats}} ritmi',
   'pianoRoll.aria.cursor': 'Kursors uz {{pitch}} ritmā {{beat}}',
+  'pianoRoll.aria.gridHelp':
+    'Bulttaustiņi pārvieto šūnas kursoru, Enter vai atstarpes taustiņš tur uzzīmē notu.',
 }

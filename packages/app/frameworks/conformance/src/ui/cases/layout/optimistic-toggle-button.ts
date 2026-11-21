@@ -14,6 +14,8 @@ import type { UIComponentCases } from '../../spec.js'
 /** OptimisticToggleButton: labels, button props, optimistic clicks, value sync. */
 export const optimisticToggleButtonCases: UIComponentCases = {
   component: 'OptimisticToggleButton',
+  ref: {},
+  declaredProps: { props: 'element' },
   cases: [
     {
       name: 'inactive value shows the inactive label',

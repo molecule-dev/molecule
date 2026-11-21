@@ -130,7 +130,7 @@ export function createTestHttpClient(): HttpClient {
     addErrorInterceptor: vi.fn((_interceptor: ErrorInterceptor): (() => void) => () => {}),
     setAuthToken: vi.fn((_token: string | null): void => {}),
     getAuthToken: vi.fn((): string | null => null),
-    onAuthError: vi.fn((_handler: () => void): (() => void) => () => {}),
+    onAuthError: vi.fn<HttpClient['onAuthError']>(() => () => {}),
   }
 }
 

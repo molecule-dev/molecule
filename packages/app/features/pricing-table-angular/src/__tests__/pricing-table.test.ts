@@ -83,6 +83,8 @@ vi.mock('@molecule/app-ui-angular', async () => {
 })
 
 const { PricingTable } = await import('../pricing-table.component.js')
+import { inlineStyleMismatch } from '@molecule/app-framework-conformance/ui'
+
 import type { PricingFeature, PricingPlan } from '../types.js'
 
 /** A mounted spec host: its DOM and teardown. */
@@ -188,7 +190,7 @@ describe('PricingTable', () => {
 
   it('highlights the recommended plan via an outline style', async () => {
     const markup = await render({ plans, features })
-    expect(markup).toContain('outline: 2px solid currentColor')
+    expect(inlineStyleMismatch(markup, { outline: '2px solid currentColor' })).toBeNull()
   })
 
   it('renders each feature row label and per-plan values', async () => {

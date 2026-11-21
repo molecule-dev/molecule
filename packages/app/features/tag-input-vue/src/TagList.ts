@@ -16,8 +16,8 @@ import { TagChip } from './TagChip.js'
 
 /**
  * Display all saved tags on a detail or preview screen, without an editor or
- * remove controls. The component owns iteration; the app can supply each
- * tag's content and list classes.
+ * remove controls. The component owns iteration. List attributes such as id
+ * and aria-label are not props: Vue puts them on the list itself.
  *
  * @param props - Component props (see {@link TagListProps}).
  * @returns The tag list component.

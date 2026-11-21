@@ -9,6 +9,8 @@ import type { UIComponentCases } from '../../spec.js'
 /** Alert: statuses, variants, live politeness, title, custom icon, dismiss paths. */
 export const alertCases: UIComponentCases = {
   component: 'Alert',
+  ref: {},
+  declaredProps: { props: 'element' },
   cases: [
     { name: 'defaults', children: ['Something happened.'] },
     ...(['primary', 'secondary', 'success', 'warning', 'error'] as const).map((status) => ({

@@ -8,4 +8,5 @@ export const ja: Partial<NotificationCenterTranslations> = {
   'notifications.empty': '通知なし',
   'notifications.loadError': '通知を読み込めませんでした。',
   'notifications.retry': 'リトライ',
+  'notifications.unread': '未読',
 }

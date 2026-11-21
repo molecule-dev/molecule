@@ -1,0 +1,407 @@
+{
+ "exports": [
+  "PlanUpdated"
+ ],
+ "values": {},
+ "cases": {
+  "PlanUpdated": {
+   "confirmation for a signed-in visitor": {
+    "snapshots": [
+     "<section class=\"c16e96f28 c85408cf6 c913cd95a cd07866b8 cd5d4be14\" data-mol-id=\"plan-updated-page\">\n<div class=\"c1e8176ab c388af5c7 c42740ba6 c837212d3 c9052b18c c9773cd2b ccae02ff2 cd5d4be14 cd9b20003 cda72d38d\" style=\"height: 7rem; width: 7rem\">\n<svg aria-hidden=\"true\" data-mol-id=\"plan-updated-icon\" fill=\"currentColor\" focusable=\"false\" height=\"64\" viewbox=\"0 0 16 16\" width=\"64\">\n<path d=\"M8 16A8 8 0 1 1 8 0a8 8 0 0 1 0 16Zm3.78-9.72a.751.751 0 0 0-.018-1.042.751.751 0 0 0-1.042-.018L6.75 9.19 5.28 7.72a.751.751 0 0 0-1.042.018.751.751 0 0 0-.018 1.042l2 2a.75.75 0 0 0 1.06 0Z\">\n</path>\n</svg>\n</div>\n<h2 class=\"c0d99ed10 c60e9fb6d c8f7225b7 cd542c1f3\" data-mol-id=\"plan-updated-heading\" style=\"font-family: var(--font-headline, inherit)\">\nYour plan has been updated.\n</h2>\n<h2 class=\"c0e303770 c6a2a1a28 cd9a51438 ce823b5bf\" data-mol-id=\"plan-updated-subheading\">\nThank you!\n</h2>\n<a href=\"/\">\n<button aria-busy=\"false\" class=\"c04c34dac c05d40814 c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c267fcecb c2f011182 c45cfc6cf c4b0fcccf c59ea18b6 c5f36903e c677549bc c6ee653d4 c7fa4cf55 c8b197f7c c973b6d5b c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cdf83deeb cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"plan-updated-return-home\" type=\"button\">\nReturn home\n</button>\n</a>\n<div class=\"c9cfc2d67\">\n<a class=\"c1477cccf c267fcecb c3e193c79 c4647f690 c7f74399a cdf83deeb\" data-mol-id=\"plan-updated-view-receipt\" href=\"/billing\">\nView receipt\n</a>\n</div>\n</section>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     }
+    ]
+   },
+   "confirmation while signed out": {
+    "snapshots": [
+     "<section class=\"c16e96f28 c85408cf6 c913cd95a cd07866b8 cd5d4be14\" data-mol-id=\"plan-updated-page\">\n<div class=\"c1e8176ab c388af5c7 c42740ba6 c837212d3 c9052b18c c9773cd2b ccae02ff2 cd5d4be14 cd9b20003 cda72d38d\" style=\"height: 7rem; width: 7rem\">\n<svg aria-hidden=\"true\" data-mol-id=\"plan-updated-icon\" fill=\"currentColor\" focusable=\"false\" height=\"64\" viewbox=\"0 0 16 16\" width=\"64\">\n<path d=\"M8 16A8 8 0 1 1 8 0a8 8 0 0 1 0 16Zm3.78-9.72a.751.751 0 0 0-.018-1.042.751.751 0 0 0-1.042-.018L6.75 9.19 5.28 7.72a.751.751 0 0 0-1.042.018.751.751 0 0 0-.018 1.042l2 2a.75.75 0 0 0 1.06 0Z\">\n</path>\n</svg>\n</div>\n<h2 class=\"c0d99ed10 c60e9fb6d c8f7225b7 cd542c1f3\" data-mol-id=\"plan-updated-heading\" style=\"font-family: var(--font-headline, inherit)\">\nYour plan has been updated.\n</h2>\n<h2 class=\"c0e303770 c6a2a1a28 cd9a51438 ce823b5bf\" data-mol-id=\"plan-updated-subheading\">\nThank you!\n</h2>\n<a href=\"/\">\n<button aria-busy=\"false\" class=\"c04c34dac c05d40814 c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c267fcecb c2f011182 c45cfc6cf c4b0fcccf c59ea18b6 c5f36903e c677549bc c6ee653d4 c7fa4cf55 c8b197f7c c973b6d5b c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cdf83deeb cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"plan-updated-return-home\" type=\"button\">\nReturn home\n</button>\n</a>\n<div class=\"c9cfc2d67\">\n<a class=\"c1477cccf c267fcecb c3e193c79 c4647f690 c7f74399a cdf83deeb\" data-mol-id=\"plan-updated-view-receipt\" href=\"/billing\">\nView receipt\n</a>\n</div>\n</section>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     }
+    ]
+   },
+   "confirmation while the session is unavailable": {
+    "snapshots": [
+     "<section class=\"c16e96f28 c85408cf6 c913cd95a cd07866b8 cd5d4be14\" data-mol-id=\"plan-updated-page\">\n<div class=\"c1e8176ab c388af5c7 c42740ba6 c837212d3 c9052b18c c9773cd2b ccae02ff2 cd5d4be14 cd9b20003 cda72d38d\" style=\"height: 7rem; width: 7rem\">\n<svg aria-hidden=\"true\" data-mol-id=\"plan-updated-icon\" fill=\"currentColor\" focusable=\"false\" height=\"64\" viewbox=\"0 0 16 16\" width=\"64\">\n<path d=\"M8 16A8 8 0 1 1 8 0a8 8 0 0 1 0 16Zm3.78-9.72a.751.751 0 0 0-.018-1.042.751.751 0 0 0-1.042-.018L6.75 9.19 5.28 7.72a.751.751 0 0 0-1.042.018.751.751 0 0 0-.018 1.042l2 2a.75.75 0 0 0 1.06 0Z\">\n</path>\n</svg>\n</div>\n<h2 class=\"c0d99ed10 c60e9fb6d c8f7225b7 cd542c1f3\" data-mol-id=\"plan-updated-heading\" style=\"font-family: var(--font-headline, inherit)\">\nYour plan has been updated.\n</h2>\n<h2 class=\"c0e303770 c6a2a1a28 cd9a51438 ce823b5bf\" data-mol-id=\"plan-updated-subheading\">\nThank you!\n</h2>\n<a href=\"/\">\n<button aria-busy=\"false\" class=\"c04c34dac c05d40814 c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c267fcecb c2f011182 c45cfc6cf c4b0fcccf c59ea18b6 c5f36903e c677549bc c6ee653d4 c7fa4cf55 c8b197f7c c973b6d5b c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cdf83deeb cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"plan-updated-return-home\" type=\"button\">\nReturn home\n</button>\n</a>\n<div class=\"c9cfc2d67\">\n<a class=\"c1477cccf c267fcecb c3e193c79 c4647f690 c7f74399a cdf83deeb\" data-mol-id=\"plan-updated-view-receipt\" href=\"/billing\">\nView receipt\n</a>\n</div>\n</section>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     }
+    ]
+   },
+   "spinner while the session is still hydrating": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c89409342 c9773cd2b ccae02ff2 cd9b20003\">\n<div aria-label=\"Loading\" class=\"c32cad454 c52893105 c7a36cfa7 c9052b18c cc1672728 cd34f1515 ce99acf9b\" role=\"status\">\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     }
+    ]
+   },
+   "follows the session finishing its hydration": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c89409342 c9773cd2b ccae02ff2 cd9b20003\">\n<div aria-label=\"Loading\" class=\"c32cad454 c52893105 c7a36cfa7 c9052b18c cc1672728 cd34f1515 ce99acf9b\" role=\"status\">\n</div>\n</div>\n@route /",
+     "<section class=\"c16e96f28 c85408cf6 c913cd95a cd07866b8 cd5d4be14\" data-mol-id=\"plan-updated-page\">\n<div class=\"c1e8176ab c388af5c7 c42740ba6 c837212d3 c9052b18c c9773cd2b ccae02ff2 cd5d4be14 cd9b20003 cda72d38d\" style=\"height: 7rem; width: 7rem\">\n<svg aria-hidden=\"true\" data-mol-id=\"plan-updated-icon\" fill=\"currentColor\" focusable=\"false\" height=\"64\" viewbox=\"0 0 16 16\" width=\"64\">\n<path d=\"M8 16A8 8 0 1 1 8 0a8 8 0 0 1 0 16Zm3.78-9.72a.751.751 0 0 0-.018-1.042.751.751 0 0 0-1.042-.018L6.75 9.19 5.28 7.72a.751.751 0 0 0-1.042.018.751.751 0 0 0-.018 1.042l2 2a.75.75 0 0 0 1.06 0Z\">\n</path>\n</svg>\n</div>\n<h2 class=\"c0d99ed10 c60e9fb6d c8f7225b7 cd542c1f3\" data-mol-id=\"plan-updated-heading\" style=\"font-family: var(--font-headline, inherit)\">\nYour plan has been updated.\n</h2>\n<h2 class=\"c0e303770 c6a2a1a28 cd9a51438 ce823b5bf\" data-mol-id=\"plan-updated-subheading\">\nThank you!\n</h2>\n<a href=\"/\">\n<button aria-busy=\"false\" class=\"c04c34dac c05d40814 c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c267fcecb c2f011182 c45cfc6cf c4b0fcccf c59ea18b6 c5f36903e c677549bc c6ee653d4 c7fa4cf55 c8b197f7c c973b6d5b c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cdf83deeb cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"plan-updated-return-home\" type=\"button\">\nReturn home\n</button>\n</a>\n<div class=\"c9cfc2d67\">\n<a class=\"c1477cccf c267fcecb c3e193c79 c4647f690 c7f74399a cdf83deeb\" data-mol-id=\"plan-updated-view-receipt\" href=\"/billing\">\nView receipt\n</a>\n</div>\n</section>\n@route /",
+     "<div class=\"c1e8176ab c42740ba6 c89409342 c9773cd2b ccae02ff2 cd9b20003\">\n<div aria-label=\"Loading\" class=\"c32cad454 c52893105 c7a36cfa7 c9052b18c cc1672728 cd34f1515 ce99acf9b\" role=\"status\">\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     }
+    ]
+   },
+   "spinner while the purchase is confirmed, then the confirmation": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c89409342 c9773cd2b ccae02ff2 cd9b20003\">\n<div aria-label=\"Loading\" class=\"c32cad454 c52893105 c7a36cfa7 c9052b18c cc1672728 cd34f1515 ce99acf9b\" role=\"status\">\n</div>\n</div>\n@route /",
+     "<section class=\"c16e96f28 c85408cf6 c913cd95a cd07866b8 cd5d4be14\" data-mol-id=\"plan-updated-page\">\n<div class=\"c1e8176ab c388af5c7 c42740ba6 c837212d3 c9052b18c c9773cd2b ccae02ff2 cd5d4be14 cd9b20003 cda72d38d\" style=\"height: 7rem; width: 7rem\">\n<svg aria-hidden=\"true\" data-mol-id=\"plan-updated-icon\" fill=\"currentColor\" focusable=\"false\" height=\"64\" viewbox=\"0 0 16 16\" width=\"64\">\n<path d=\"M8 16A8 8 0 1 1 8 0a8 8 0 0 1 0 16Zm3.78-9.72a.751.751 0 0 0-.018-1.042.751.751 0 0 0-1.042-.018L6.75 9.19 5.28 7.72a.751.751 0 0 0-1.042.018.751.751 0 0 0-.018 1.042l2 2a.75.75 0 0 0 1.06 0Z\">\n</path>\n</svg>\n</div>\n<h2 class=\"c0d99ed10 c60e9fb6d c8f7225b7 cd542c1f3\" data-mol-id=\"plan-updated-heading\" style=\"font-family: var(--font-headline, inherit)\">\nYour plan has been updated.\n</h2>\n<h2 class=\"c0e303770 c6a2a1a28 cd9a51438 ce823b5bf\" data-mol-id=\"plan-updated-subheading\">\nThank you!\n</h2>\n<a href=\"/\">\n<button aria-busy=\"false\" class=\"c04c34dac c05d40814 c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c267fcecb c2f011182 c45cfc6cf c4b0fcccf c59ea18b6 c5f36903e c677549bc c6ee653d4 c7fa4cf55 c8b197f7c c973b6d5b c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cdf83deeb cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"plan-updated-return-home\" type=\"button\">\nReturn home\n</button>\n</a>\n<div class=\"c9cfc2d67\">\n<a class=\"c1477cccf c267fcecb c3e193c79 c4647f690 c7f74399a cdf83deeb\" data-mol-id=\"plan-updated-view-receipt\" href=\"/billing\">\nView receipt\n</a>\n</div>\n</section>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     },
+     {
+      "name": "http.post",
+      "args": [
+       {
+        "data": {
+         "subscriptionId": "cs_live_1"
+        },
+        "url": "/users/u1/verify-payment/stripe"
+       }
+      ]
+     },
+     {
+      "name": "auth.refresh",
+      "args": []
+     },
+     {
+      "name": "window.location",
+      "args": [
+       "/plan-updated"
+      ]
+     }
+    ]
+   },
+   "offers a retry when the confirmation fails": {
+    "snapshots": [
+     "<section class=\"c16e96f28 c85408cf6 c913cd95a cd07866b8 cd5d4be14\" data-mol-id=\"plan-updated-page\">\n<h2 class=\"c0d99ed10 c201466f5 c8f7225b7\" data-mol-id=\"plan-updated-error\">\nWe could not confirm your payment yet.\n</h2>\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"plan-updated-retry\" type=\"button\">\nTry again\n</button>\n</section>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     },
+     {
+      "name": "http.post",
+      "args": [
+       {
+        "data": {
+         "subscriptionId": "cs_live_1"
+        },
+        "url": "/users/u1/verify-payment/stripe"
+       }
+      ]
+     },
+     {
+      "name": "window.location",
+      "args": [
+       "/plan-updated?provider=stripe&sessionId=cs_live_1"
+      ]
+     }
+    ]
+   },
+   "retries the confirmation and then confirms": {
+    "snapshots": [
+     "<section class=\"c16e96f28 c85408cf6 c913cd95a cd07866b8 cd5d4be14\" data-mol-id=\"plan-updated-page\">\n<h2 class=\"c0d99ed10 c201466f5 c8f7225b7\" data-mol-id=\"plan-updated-error\">\nWe could not confirm your payment yet.\n</h2>\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c5f36903e c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"plan-updated-retry\" type=\"button\">\nTry again\n</button>\n</section>\n@route /",
+     "<div class=\"c1e8176ab c42740ba6 c89409342 c9773cd2b ccae02ff2 cd9b20003\">\n<div aria-label=\"Loading\" class=\"c32cad454 c52893105 c7a36cfa7 c9052b18c cc1672728 cd34f1515 ce99acf9b\" role=\"status\">\n</div>\n</div>\n@route /",
+     "<section class=\"c16e96f28 c85408cf6 c913cd95a cd07866b8 cd5d4be14\" data-mol-id=\"plan-updated-page\">\n<div class=\"c1e8176ab c388af5c7 c42740ba6 c837212d3 c9052b18c c9773cd2b ccae02ff2 cd5d4be14 cd9b20003 cda72d38d\" style=\"height: 7rem; width: 7rem\">\n<svg aria-hidden=\"true\" data-mol-id=\"plan-updated-icon\" fill=\"currentColor\" focusable=\"false\" height=\"64\" viewbox=\"0 0 16 16\" width=\"64\">\n<path d=\"M8 16A8 8 0 1 1 8 0a8 8 0 0 1 0 16Zm3.78-9.72a.751.751 0 0 0-.018-1.042.751.751 0 0 0-1.042-.018L6.75 9.19 5.28 7.72a.751.751 0 0 0-1.042.018.751.751 0 0 0-.018 1.042l2 2a.75.75 0 0 0 1.06 0Z\">\n</path>\n</svg>\n</div>\n<h2 class=\"c0d99ed10 c60e9fb6d c8f7225b7 cd542c1f3\" data-mol-id=\"plan-updated-heading\" style=\"font-family: var(--font-headline, inherit)\">\nYour plan has been updated.\n</h2>\n<h2 class=\"c0e303770 c6a2a1a28 cd9a51438 ce823b5bf\" data-mol-id=\"plan-updated-subheading\">\nThank you!\n</h2>\n<a href=\"/\">\n<button aria-busy=\"false\" class=\"c04c34dac c05d40814 c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c267fcecb c2f011182 c45cfc6cf c4b0fcccf c59ea18b6 c5f36903e c677549bc c6ee653d4 c7fa4cf55 c8b197f7c c973b6d5b c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cdf83deeb cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"plan-updated-return-home\" type=\"button\">\nReturn home\n</button>\n</a>\n<div class=\"c9cfc2d67\">\n<a class=\"c1477cccf c267fcecb c3e193c79 c4647f690 c7f74399a cdf83deeb\" data-mol-id=\"plan-updated-view-receipt\" href=\"/billing\">\nView receipt\n</a>\n</div>\n</section>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     },
+     {
+      "name": "http.post",
+      "args": [
+       {
+        "data": {
+         "subscriptionId": "cs_live_1"
+        },
+        "url": "/users/u1/verify-payment/stripe"
+       }
+      ]
+     },
+     {
+      "name": "http.post",
+      "args": [
+       {
+        "data": {
+         "subscriptionId": "cs_live_1"
+        },
+        "url": "/users/u1/verify-payment/stripe"
+       }
+      ]
+     },
+     {
+      "name": "auth.refresh",
+      "args": []
+     },
+     {
+      "name": "window.location",
+      "args": [
+       "/plan-updated"
+      ]
+     }
+    ]
+   },
+   "skips the confirmation when the app opts out": {
+    "snapshots": [
+     "<section class=\"c16e96f28 c85408cf6 c913cd95a cd07866b8 cd5d4be14\" data-mol-id=\"plan-updated-page\">\n<div class=\"c1e8176ab c388af5c7 c42740ba6 c837212d3 c9052b18c c9773cd2b ccae02ff2 cd5d4be14 cd9b20003 cda72d38d\" style=\"height: 7rem; width: 7rem\">\n<svg aria-hidden=\"true\" data-mol-id=\"plan-updated-icon\" fill=\"currentColor\" focusable=\"false\" height=\"64\" viewbox=\"0 0 16 16\" width=\"64\">\n<path d=\"M8 16A8 8 0 1 1 8 0a8 8 0 0 1 0 16Zm3.78-9.72a.751.751 0 0 0-.018-1.042.751.751 0 0 0-1.042-.018L6.75 9.19 5.28 7.72a.751.751 0 0 0-1.042.018.751.751 0 0 0-.018 1.042l2 2a.75.75 0 0 0 1.06 0Z\">\n</path>\n</svg>\n</div>\n<h2 class=\"c0d99ed10 c60e9fb6d c8f7225b7 cd542c1f3\" data-mol-id=\"plan-updated-heading\" style=\"font-family: var(--font-headline, inherit)\">\nYour plan has been updated.\n</h2>\n<h2 class=\"c0e303770 c6a2a1a28 cd9a51438 ce823b5bf\" data-mol-id=\"plan-updated-subheading\">\nThank you!\n</h2>\n<a href=\"/\">\n<button aria-busy=\"false\" class=\"c04c34dac c05d40814 c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c267fcecb c2f011182 c45cfc6cf c4b0fcccf c59ea18b6 c5f36903e c677549bc c6ee653d4 c7fa4cf55 c8b197f7c c973b6d5b c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cdf83deeb cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"plan-updated-return-home\" type=\"button\">\nReturn home\n</button>\n</a>\n<div class=\"c9cfc2d67\">\n<a class=\"c1477cccf c267fcecb c3e193c79 c4647f690 c7f74399a cdf83deeb\" data-mol-id=\"plan-updated-view-receipt\" href=\"/billing\">\nView receipt\n</a>\n</div>\n</section>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     },
+     {
+      "name": "window.location",
+      "args": [
+       "/plan-updated?provider=stripe&sessionId=cs_live_1"
+      ]
+     }
+    ]
+   },
+   "confirms with the provider the app names": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c89409342 c9773cd2b ccae02ff2 cd9b20003\">\n<div aria-label=\"Loading\" class=\"c32cad454 c52893105 c7a36cfa7 c9052b18c cc1672728 cd34f1515 ce99acf9b\" role=\"status\">\n</div>\n</div>\n@route /",
+     "<section class=\"c16e96f28 c85408cf6 c913cd95a cd07866b8 cd5d4be14\" data-mol-id=\"plan-updated-page\">\n<div class=\"c1e8176ab c388af5c7 c42740ba6 c837212d3 c9052b18c c9773cd2b ccae02ff2 cd5d4be14 cd9b20003 cda72d38d\" style=\"height: 7rem; width: 7rem\">\n<svg aria-hidden=\"true\" data-mol-id=\"plan-updated-icon\" fill=\"currentColor\" focusable=\"false\" height=\"64\" viewbox=\"0 0 16 16\" width=\"64\">\n<path d=\"M8 16A8 8 0 1 1 8 0a8 8 0 0 1 0 16Zm3.78-9.72a.751.751 0 0 0-.018-1.042.751.751 0 0 0-1.042-.018L6.75 9.19 5.28 7.72a.751.751 0 0 0-1.042.018.751.751 0 0 0-.018 1.042l2 2a.75.75 0 0 0 1.06 0Z\">\n</path>\n</svg>\n</div>\n<h2 class=\"c0d99ed10 c60e9fb6d c8f7225b7 cd542c1f3\" data-mol-id=\"plan-updated-heading\" style=\"font-family: var(--font-headline, inherit)\">\nYour plan has been updated.\n</h2>\n<h2 class=\"c0e303770 c6a2a1a28 cd9a51438 ce823b5bf\" data-mol-id=\"plan-updated-subheading\">\nThank you!\n</h2>\n<a href=\"/\">\n<button aria-busy=\"false\" class=\"c04c34dac c05d40814 c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c267fcecb c2f011182 c45cfc6cf c4b0fcccf c59ea18b6 c5f36903e c677549bc c6ee653d4 c7fa4cf55 c8b197f7c c973b6d5b c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cdf83deeb cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"plan-updated-return-home\" type=\"button\">\nReturn home\n</button>\n</a>\n<div class=\"c9cfc2d67\">\n<a class=\"c1477cccf c267fcecb c3e193c79 c4647f690 c7f74399a cdf83deeb\" data-mol-id=\"plan-updated-view-receipt\" href=\"/billing\">\nView receipt\n</a>\n</div>\n</section>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     },
+     {
+      "name": "http.post",
+      "args": [
+       {
+        "data": {
+         "subscriptionId": "cs_live_1"
+        },
+        "url": "/users/u1/verify-payment/stripe"
+       }
+      ]
+     },
+     {
+      "name": "auth.refresh",
+      "args": []
+     },
+     {
+      "name": "window.location",
+      "args": [
+       "/plan-updated"
+      ]
+     }
+    ]
+   },
+   "custom copy and action path": {
+    "snapshots": [
+     "<section class=\"c16e96f28 c85408cf6 c913cd95a cd07866b8 cd5d4be14\" data-mol-id=\"plan-updated-page\">\n<div class=\"c1e8176ab c388af5c7 c42740ba6 c837212d3 c9052b18c c9773cd2b ccae02ff2 cd5d4be14 cd9b20003 cda72d38d\" style=\"height: 7rem; width: 7rem\">\n<svg aria-hidden=\"true\" data-mol-id=\"plan-updated-icon\" fill=\"currentColor\" focusable=\"false\" height=\"64\" viewbox=\"0 0 16 16\" width=\"64\">\n<path d=\"M8 16A8 8 0 1 1 8 0a8 8 0 0 1 0 16Zm3.78-9.72a.751.751 0 0 0-.018-1.042.751.751 0 0 0-1.042-.018L6.75 9.19 5.28 7.72a.751.751 0 0 0-1.042.018.751.751 0 0 0-.018 1.042l2 2a.75.75 0 0 0 1.06 0Z\">\n</path>\n</svg>\n</div>\n<h2 class=\"c0d99ed10 c60e9fb6d c8f7225b7 cd542c1f3\" data-mol-id=\"plan-updated-heading\" style=\"font-family: var(--font-headline, inherit)\">\nYou are on Pro.\n</h2>\n<h2 class=\"c0e303770 c6a2a1a28 cd9a51438 ce823b5bf\" data-mol-id=\"plan-updated-subheading\">\nEnjoy the upgrade.\n</h2>\n<a href=\"/dashboard\">\n<button aria-busy=\"false\" class=\"c04c34dac c05d40814 c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c267fcecb c2f011182 c45cfc6cf c4b0fcccf c59ea18b6 c5f36903e c677549bc c6ee653d4 c7fa4cf55 c8b197f7c c973b6d5b c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cdf83deeb cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"plan-updated-return-home\" type=\"button\">\nGo to dashboard\n</button>\n</a>\n<div class=\"c9cfc2d67\">\n<a class=\"c1477cccf c267fcecb c3e193c79 c4647f690 c7f74399a cdf83deeb\" data-mol-id=\"plan-updated-view-receipt\" href=\"/billing\">\nView receipt\n</a>\n</div>\n</section>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     }
+    ]
+   },
+   "renders the copy the locale bond serves": {
+    "snapshots": [
+     "<section class=\"c16e96f28 c85408cf6 c913cd95a cd07866b8 cd5d4be14\" data-mol-id=\"plan-updated-page\">\n<div class=\"c1e8176ab c388af5c7 c42740ba6 c837212d3 c9052b18c c9773cd2b ccae02ff2 cd5d4be14 cd9b20003 cda72d38d\" style=\"height: 7rem; width: 7rem\">\n<svg aria-hidden=\"true\" data-mol-id=\"plan-updated-icon\" fill=\"currentColor\" focusable=\"false\" height=\"64\" viewbox=\"0 0 16 16\" width=\"64\">\n<path d=\"M8 16A8 8 0 1 1 8 0a8 8 0 0 1 0 16Zm3.78-9.72a.751.751 0 0 0-.018-1.042.751.751 0 0 0-1.042-.018L6.75 9.19 5.28 7.72a.751.751 0 0 0-1.042.018.751.751 0 0 0-.018 1.042l2 2a.75.75 0 0 0 1.06 0Z\">\n</path>\n</svg>\n</div>\n<h2 class=\"c0d99ed10 c60e9fb6d c8f7225b7 cd542c1f3\" data-mol-id=\"plan-updated-heading\" style=\"font-family: var(--font-headline, inherit)\">\nYou are on Pro.\n</h2>\n<h2 class=\"c0e303770 c6a2a1a28 cd9a51438 ce823b5bf\" data-mol-id=\"plan-updated-subheading\">\nEnjoy the upgrade.\n</h2>\n<a href=\"/\">\n<button aria-busy=\"false\" class=\"c04c34dac c05d40814 c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c267fcecb c2f011182 c45cfc6cf c4b0fcccf c59ea18b6 c5f36903e c677549bc c6ee653d4 c7fa4cf55 c8b197f7c c973b6d5b c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cdf83deeb cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"plan-updated-return-home\" type=\"button\">\nReturn home\n</button>\n</a>\n<div class=\"c9cfc2d67\">\n<a class=\"c1477cccf c267fcecb c3e193c79 c4647f690 c7f74399a cdf83deeb\" data-mol-id=\"plan-updated-view-receipt\" href=\"/billing\">\nView receipt\n</a>\n</div>\n</section>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     }
+    ]
+   },
+   "follows a locale switch": {
+    "snapshots": [
+     "<section class=\"c16e96f28 c85408cf6 c913cd95a cd07866b8 cd5d4be14\" data-mol-id=\"plan-updated-page\">\n<div class=\"c1e8176ab c388af5c7 c42740ba6 c837212d3 c9052b18c c9773cd2b ccae02ff2 cd5d4be14 cd9b20003 cda72d38d\" style=\"height: 7rem; width: 7rem\">\n<svg aria-hidden=\"true\" data-mol-id=\"plan-updated-icon\" fill=\"currentColor\" focusable=\"false\" height=\"64\" viewbox=\"0 0 16 16\" width=\"64\">\n<path d=\"M8 16A8 8 0 1 1 8 0a8 8 0 0 1 0 16Zm3.78-9.72a.751.751 0 0 0-.018-1.042.751.751 0 0 0-1.042-.018L6.75 9.19 5.28 7.72a.751.751 0 0 0-1.042.018.751.751 0 0 0-.018 1.042l2 2a.75.75 0 0 0 1.06 0Z\">\n</path>\n</svg>\n</div>\n<h2 class=\"c0d99ed10 c60e9fb6d c8f7225b7 cd542c1f3\" data-mol-id=\"plan-updated-heading\" style=\"font-family: var(--font-headline, inherit)\">\nYou are on Pro.\n</h2>\n<h2 class=\"c0e303770 c6a2a1a28 cd9a51438 ce823b5bf\" data-mol-id=\"plan-updated-subheading\">\nThank you!\n</h2>\n<a href=\"/\">\n<button aria-busy=\"false\" class=\"c04c34dac c05d40814 c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c267fcecb c2f011182 c45cfc6cf c4b0fcccf c59ea18b6 c5f36903e c677549bc c6ee653d4 c7fa4cf55 c8b197f7c c973b6d5b c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cdf83deeb cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"plan-updated-return-home\" type=\"button\">\nGo to dashboard\n</button>\n</a>\n<div class=\"c9cfc2d67\">\n<a class=\"c1477cccf c267fcecb c3e193c79 c4647f690 c7f74399a cdf83deeb\" data-mol-id=\"plan-updated-view-receipt\" href=\"/billing\">\nView receipt\n</a>\n</div>\n</section>\n@route /",
+     "<section class=\"c16e96f28 c85408cf6 c913cd95a cd07866b8 cd5d4be14\" data-mol-id=\"plan-updated-page\">\n<div class=\"c1e8176ab c388af5c7 c42740ba6 c837212d3 c9052b18c c9773cd2b ccae02ff2 cd5d4be14 cd9b20003 cda72d38d\" style=\"height: 7rem; width: 7rem\">\n<svg aria-hidden=\"true\" data-mol-id=\"plan-updated-icon\" fill=\"currentColor\" focusable=\"false\" height=\"64\" viewbox=\"0 0 16 16\" width=\"64\">\n<path d=\"M8 16A8 8 0 1 1 8 0a8 8 0 0 1 0 16Zm3.78-9.72a.751.751 0 0 0-.018-1.042.751.751 0 0 0-1.042-.018L6.75 9.19 5.28 7.72a.751.751 0 0 0-1.042.018.751.751 0 0 0-.018 1.042l2 2a.75.75 0 0 0 1.06 0Z\">\n</path>\n</svg>\n</div>\n<h2 class=\"c0d99ed10 c60e9fb6d c8f7225b7 cd542c1f3\" data-mol-id=\"plan-updated-heading\" style=\"font-family: var(--font-headline, inherit)\">\nVous êtes sur Pro.\n</h2>\n<h2 class=\"c0e303770 c6a2a1a28 cd9a51438 ce823b5bf\" data-mol-id=\"plan-updated-subheading\">\nThank you!\n</h2>\n<a href=\"/\">\n<button aria-busy=\"false\" class=\"c04c34dac c05d40814 c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c267fcecb c2f011182 c45cfc6cf c4b0fcccf c59ea18b6 c5f36903e c677549bc c6ee653d4 c7fa4cf55 c8b197f7c c973b6d5b c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cdf83deeb cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"plan-updated-return-home\" type=\"button\">\nTableau de bord\n</button>\n</a>\n<div class=\"c9cfc2d67\">\n<a class=\"c1477cccf c267fcecb c3e193c79 c4647f690 c7f74399a cdf83deeb\" data-mol-id=\"plan-updated-view-receipt\" href=\"/billing\">\nView receipt\n</a>\n</div>\n</section>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     },
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "fr"
+      ]
+     }
+    ]
+   },
+   "follows a prop change": {
+    "snapshots": [
+     "<section class=\"c16e96f28 c85408cf6 c913cd95a cd07866b8 cd5d4be14\" data-mol-id=\"plan-updated-page\">\n<div class=\"c1e8176ab c388af5c7 c42740ba6 c837212d3 c9052b18c c9773cd2b ccae02ff2 cd5d4be14 cd9b20003 cda72d38d\" style=\"height: 7rem; width: 7rem\">\n<svg aria-hidden=\"true\" data-mol-id=\"plan-updated-icon\" fill=\"currentColor\" focusable=\"false\" height=\"64\" viewbox=\"0 0 16 16\" width=\"64\">\n<path d=\"M8 16A8 8 0 1 1 8 0a8 8 0 0 1 0 16Zm3.78-9.72a.751.751 0 0 0-.018-1.042.751.751 0 0 0-1.042-.018L6.75 9.19 5.28 7.72a.751.751 0 0 0-1.042.018.751.751 0 0 0-.018 1.042l2 2a.75.75 0 0 0 1.06 0Z\">\n</path>\n</svg>\n</div>\n<h2 class=\"c0d99ed10 c60e9fb6d c8f7225b7 cd542c1f3\" data-mol-id=\"plan-updated-heading\" style=\"font-family: var(--font-headline, inherit)\">\nYour plan has been updated.\n</h2>\n<h2 class=\"c0e303770 c6a2a1a28 cd9a51438 ce823b5bf\" data-mol-id=\"plan-updated-subheading\">\nThank you!\n</h2>\n<a href=\"/\">\n<button aria-busy=\"false\" class=\"c04c34dac c05d40814 c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c267fcecb c2f011182 c45cfc6cf c4b0fcccf c59ea18b6 c5f36903e c677549bc c6ee653d4 c7fa4cf55 c8b197f7c c973b6d5b c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cdf83deeb cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"plan-updated-return-home\" type=\"button\">\nReturn home\n</button>\n</a>\n<div class=\"c9cfc2d67\">\n<a class=\"c1477cccf c267fcecb c3e193c79 c4647f690 c7f74399a cdf83deeb\" data-mol-id=\"plan-updated-view-receipt\" href=\"/billing\">\nView receipt\n</a>\n</div>\n</section>\n@route /",
+     "<section class=\"c16e96f28 c85408cf6 c913cd95a cd07866b8 cd5d4be14\" data-mol-id=\"plan-updated-page\">\n<div class=\"c1e8176ab c388af5c7 c42740ba6 c837212d3 c9052b18c c9773cd2b ccae02ff2 cd5d4be14 cd9b20003 cda72d38d\" style=\"height: 7rem; width: 7rem\">\n<svg aria-hidden=\"true\" data-mol-id=\"plan-updated-icon\" fill=\"currentColor\" focusable=\"false\" height=\"64\" viewbox=\"0 0 16 16\" width=\"64\">\n<path d=\"M8 16A8 8 0 1 1 8 0a8 8 0 0 1 0 16Zm3.78-9.72a.751.751 0 0 0-.018-1.042.751.751 0 0 0-1.042-.018L6.75 9.19 5.28 7.72a.751.751 0 0 0-1.042.018.751.751 0 0 0-.018 1.042l2 2a.75.75 0 0 0 1.06 0Z\">\n</path>\n</svg>\n</div>\n<h2 class=\"c0d99ed10 c60e9fb6d c8f7225b7 cd542c1f3\" data-mol-id=\"plan-updated-heading\" style=\"font-family: var(--font-headline, inherit)\">\nYour plan has been updated.\n</h2>\n<h2 class=\"c0e303770 c6a2a1a28 cd9a51438 ce823b5bf\" data-mol-id=\"plan-updated-subheading\">\nThank you!\n</h2>\n<a href=\"/dashboard\">\n<button aria-busy=\"false\" class=\"c04c34dac c05d40814 c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c267fcecb c2f011182 c45cfc6cf c4b0fcccf c59ea18b6 c5f36903e c677549bc c6ee653d4 c7fa4cf55 c8b197f7c c973b6d5b c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cdf83deeb cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"plan-updated-return-home\" type=\"button\">\nReturn home\n</button>\n</a>\n<div class=\"c9cfc2d67\">\n<a class=\"c1477cccf c267fcecb c3e193c79 c4647f690 c7f74399a cdf83deeb\" data-mol-id=\"plan-updated-view-receipt\" href=\"/billing\">\nView receipt\n</a>\n</div>\n</section>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     }
+    ]
+   },
+   "the return-home action navigates": {
+    "snapshots": [
+     "<section class=\"c16e96f28 c85408cf6 c913cd95a cd07866b8 cd5d4be14\" data-mol-id=\"plan-updated-page\">\n<div class=\"c1e8176ab c388af5c7 c42740ba6 c837212d3 c9052b18c c9773cd2b ccae02ff2 cd5d4be14 cd9b20003 cda72d38d\" style=\"height: 7rem; width: 7rem\">\n<svg aria-hidden=\"true\" data-mol-id=\"plan-updated-icon\" fill=\"currentColor\" focusable=\"false\" height=\"64\" viewbox=\"0 0 16 16\" width=\"64\">\n<path d=\"M8 16A8 8 0 1 1 8 0a8 8 0 0 1 0 16Zm3.78-9.72a.751.751 0 0 0-.018-1.042.751.751 0 0 0-1.042-.018L6.75 9.19 5.28 7.72a.751.751 0 0 0-1.042.018.751.751 0 0 0-.018 1.042l2 2a.75.75 0 0 0 1.06 0Z\">\n</path>\n</svg>\n</div>\n<h2 class=\"c0d99ed10 c60e9fb6d c8f7225b7 cd542c1f3\" data-mol-id=\"plan-updated-heading\" style=\"font-family: var(--font-headline, inherit)\">\nYour plan has been updated.\n</h2>\n<h2 class=\"c0e303770 c6a2a1a28 cd9a51438 ce823b5bf\" data-mol-id=\"plan-updated-subheading\">\nThank you!\n</h2>\n<a href=\"/\">\n<button aria-busy=\"false\" class=\"c04c34dac c05d40814 c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c267fcecb c2f011182 c45cfc6cf c4b0fcccf c59ea18b6 c5f36903e c677549bc c6ee653d4 c7fa4cf55 c8b197f7c c973b6d5b c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cdf83deeb cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"plan-updated-return-home\" type=\"button\">\nReturn home\n</button>\n</a>\n<div class=\"c9cfc2d67\">\n<a class=\"c1477cccf c267fcecb c3e193c79 c4647f690 c7f74399a cdf83deeb\" data-mol-id=\"plan-updated-view-receipt\" href=\"/billing\">\nView receipt\n</a>\n</div>\n</section>\n@route /plan-updated",
+     "<section class=\"c16e96f28 c85408cf6 c913cd95a cd07866b8 cd5d4be14\" data-mol-id=\"plan-updated-page\">\n<div class=\"c1e8176ab c388af5c7 c42740ba6 c837212d3 c9052b18c c9773cd2b ccae02ff2 cd5d4be14 cd9b20003 cda72d38d\" style=\"height: 7rem; width: 7rem\">\n<svg aria-hidden=\"true\" data-mol-id=\"plan-updated-icon\" fill=\"currentColor\" focusable=\"false\" height=\"64\" viewbox=\"0 0 16 16\" width=\"64\">\n<path d=\"M8 16A8 8 0 1 1 8 0a8 8 0 0 1 0 16Zm3.78-9.72a.751.751 0 0 0-.018-1.042.751.751 0 0 0-1.042-.018L6.75 9.19 5.28 7.72a.751.751 0 0 0-1.042.018.751.751 0 0 0-.018 1.042l2 2a.75.75 0 0 0 1.06 0Z\">\n</path>\n</svg>\n</div>\n<h2 class=\"c0d99ed10 c60e9fb6d c8f7225b7 cd542c1f3\" data-mol-id=\"plan-updated-heading\" style=\"font-family: var(--font-headline, inherit)\">\nYour plan has been updated.\n</h2>\n<h2 class=\"c0e303770 c6a2a1a28 cd9a51438 ce823b5bf\" data-mol-id=\"plan-updated-subheading\">\nThank you!\n</h2>\n<a href=\"/\">\n<button aria-busy=\"false\" class=\"c04c34dac c05d40814 c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c267fcecb c2f011182 c45cfc6cf c4b0fcccf c59ea18b6 c5f36903e c677549bc c6ee653d4 c7fa4cf55 c8b197f7c c973b6d5b c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cdf83deeb cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"plan-updated-return-home\" type=\"button\">\nReturn home\n</button>\n</a>\n<div class=\"c9cfc2d67\">\n<a class=\"c1477cccf c267fcecb c3e193c79 c4647f690 c7f74399a cdf83deeb\" data-mol-id=\"plan-updated-view-receipt\" href=\"/billing\">\nView receipt\n</a>\n</div>\n</section>\n@route /\n@click default prevented"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     }
+    ]
+   },
+   "the view-receipt link navigates to billing": {
+    "snapshots": [
+     "<section class=\"c16e96f28 c85408cf6 c913cd95a cd07866b8 cd5d4be14\" data-mol-id=\"plan-updated-page\">\n<div class=\"c1e8176ab c388af5c7 c42740ba6 c837212d3 c9052b18c c9773cd2b ccae02ff2 cd5d4be14 cd9b20003 cda72d38d\" style=\"height: 7rem; width: 7rem\">\n<svg aria-hidden=\"true\" data-mol-id=\"plan-updated-icon\" fill=\"currentColor\" focusable=\"false\" height=\"64\" viewbox=\"0 0 16 16\" width=\"64\">\n<path d=\"M8 16A8 8 0 1 1 8 0a8 8 0 0 1 0 16Zm3.78-9.72a.751.751 0 0 0-.018-1.042.751.751 0 0 0-1.042-.018L6.75 9.19 5.28 7.72a.751.751 0 0 0-1.042.018.751.751 0 0 0-.018 1.042l2 2a.75.75 0 0 0 1.06 0Z\">\n</path>\n</svg>\n</div>\n<h2 class=\"c0d99ed10 c60e9fb6d c8f7225b7 cd542c1f3\" data-mol-id=\"plan-updated-heading\" style=\"font-family: var(--font-headline, inherit)\">\nYour plan has been updated.\n</h2>\n<h2 class=\"c0e303770 c6a2a1a28 cd9a51438 ce823b5bf\" data-mol-id=\"plan-updated-subheading\">\nThank you!\n</h2>\n<a href=\"/\">\n<button aria-busy=\"false\" class=\"c04c34dac c05d40814 c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c267fcecb c2f011182 c45cfc6cf c4b0fcccf c59ea18b6 c5f36903e c677549bc c6ee653d4 c7fa4cf55 c8b197f7c c973b6d5b c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cdf83deeb cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"plan-updated-return-home\" type=\"button\">\nReturn home\n</button>\n</a>\n<div class=\"c9cfc2d67\">\n<a class=\"c1477cccf c267fcecb c3e193c79 c4647f690 c7f74399a cdf83deeb\" data-mol-id=\"plan-updated-view-receipt\" href=\"/billing\">\nView receipt\n</a>\n</div>\n</section>\n@route /plan-updated",
+     "<section class=\"c16e96f28 c85408cf6 c913cd95a cd07866b8 cd5d4be14\" data-mol-id=\"plan-updated-page\">\n<div class=\"c1e8176ab c388af5c7 c42740ba6 c837212d3 c9052b18c c9773cd2b ccae02ff2 cd5d4be14 cd9b20003 cda72d38d\" style=\"height: 7rem; width: 7rem\">\n<svg aria-hidden=\"true\" data-mol-id=\"plan-updated-icon\" fill=\"currentColor\" focusable=\"false\" height=\"64\" viewbox=\"0 0 16 16\" width=\"64\">\n<path d=\"M8 16A8 8 0 1 1 8 0a8 8 0 0 1 0 16Zm3.78-9.72a.751.751 0 0 0-.018-1.042.751.751 0 0 0-1.042-.018L6.75 9.19 5.28 7.72a.751.751 0 0 0-1.042.018.751.751 0 0 0-.018 1.042l2 2a.75.75 0 0 0 1.06 0Z\">\n</path>\n</svg>\n</div>\n<h2 class=\"c0d99ed10 c60e9fb6d c8f7225b7 cd542c1f3\" data-mol-id=\"plan-updated-heading\" style=\"font-family: var(--font-headline, inherit)\">\nYour plan has been updated.\n</h2>\n<h2 class=\"c0e303770 c6a2a1a28 cd9a51438 ce823b5bf\" data-mol-id=\"plan-updated-subheading\">\nThank you!\n</h2>\n<a href=\"/\">\n<button aria-busy=\"false\" class=\"c04c34dac c05d40814 c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c267fcecb c2f011182 c45cfc6cf c4b0fcccf c59ea18b6 c5f36903e c677549bc c6ee653d4 c7fa4cf55 c8b197f7c c973b6d5b c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cdf83deeb cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"plan-updated-return-home\" type=\"button\">\nReturn home\n</button>\n</a>\n<div class=\"c9cfc2d67\">\n<a class=\"c1477cccf c267fcecb c3e193c79 c4647f690 c7f74399a cdf83deeb\" data-mol-id=\"plan-updated-view-receipt\" href=\"/billing\">\nView receipt\n</a>\n</div>\n</section>\n@route /billing\n@click default prevented"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     }
+    ]
+   },
+   "modified clicks on the links are left to the browser": {
+    "snapshots": [
+     "<section class=\"c16e96f28 c85408cf6 c913cd95a cd07866b8 cd5d4be14\" data-mol-id=\"plan-updated-page\">\n<div class=\"c1e8176ab c388af5c7 c42740ba6 c837212d3 c9052b18c c9773cd2b ccae02ff2 cd5d4be14 cd9b20003 cda72d38d\" style=\"height: 7rem; width: 7rem\">\n<svg aria-hidden=\"true\" data-mol-id=\"plan-updated-icon\" fill=\"currentColor\" focusable=\"false\" height=\"64\" viewbox=\"0 0 16 16\" width=\"64\">\n<path d=\"M8 16A8 8 0 1 1 8 0a8 8 0 0 1 0 16Zm3.78-9.72a.751.751 0 0 0-.018-1.042.751.751 0 0 0-1.042-.018L6.75 9.19 5.28 7.72a.751.751 0 0 0-1.042.018.751.751 0 0 0-.018 1.042l2 2a.75.75 0 0 0 1.06 0Z\">\n</path>\n</svg>\n</div>\n<h2 class=\"c0d99ed10 c60e9fb6d c8f7225b7 cd542c1f3\" data-mol-id=\"plan-updated-heading\" style=\"font-family: var(--font-headline, inherit)\">\nYour plan has been updated.\n</h2>\n<h2 class=\"c0e303770 c6a2a1a28 cd9a51438 ce823b5bf\" data-mol-id=\"plan-updated-subheading\">\nThank you!\n</h2>\n<a href=\"/\">\n<button aria-busy=\"false\" class=\"c04c34dac c05d40814 c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c267fcecb c2f011182 c45cfc6cf c4b0fcccf c59ea18b6 c5f36903e c677549bc c6ee653d4 c7fa4cf55 c8b197f7c c973b6d5b c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cdf83deeb cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"plan-updated-return-home\" type=\"button\">\nReturn home\n</button>\n</a>\n<div class=\"c9cfc2d67\">\n<a class=\"c1477cccf c267fcecb c3e193c79 c4647f690 c7f74399a cdf83deeb\" data-mol-id=\"plan-updated-view-receipt\" href=\"/billing\">\nView receipt\n</a>\n</div>\n</section>\n@route /plan-updated",
+     "<section class=\"c16e96f28 c85408cf6 c913cd95a cd07866b8 cd5d4be14\" data-mol-id=\"plan-updated-page\">\n<div class=\"c1e8176ab c388af5c7 c42740ba6 c837212d3 c9052b18c c9773cd2b ccae02ff2 cd5d4be14 cd9b20003 cda72d38d\" style=\"height: 7rem; width: 7rem\">\n<svg aria-hidden=\"true\" data-mol-id=\"plan-updated-icon\" fill=\"currentColor\" focusable=\"false\" height=\"64\" viewbox=\"0 0 16 16\" width=\"64\">\n<path d=\"M8 16A8 8 0 1 1 8 0a8 8 0 0 1 0 16Zm3.78-9.72a.751.751 0 0 0-.018-1.042.751.751 0 0 0-1.042-.018L6.75 9.19 5.28 7.72a.751.751 0 0 0-1.042.018.751.751 0 0 0-.018 1.042l2 2a.75.75 0 0 0 1.06 0Z\">\n</path>\n</svg>\n</div>\n<h2 class=\"c0d99ed10 c60e9fb6d c8f7225b7 cd542c1f3\" data-mol-id=\"plan-updated-heading\" style=\"font-family: var(--font-headline, inherit)\">\nYour plan has been updated.\n</h2>\n<h2 class=\"c0e303770 c6a2a1a28 cd9a51438 ce823b5bf\" data-mol-id=\"plan-updated-subheading\">\nThank you!\n</h2>\n<a href=\"/\">\n<button aria-busy=\"false\" class=\"c04c34dac c05d40814 c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c267fcecb c2f011182 c45cfc6cf c4b0fcccf c59ea18b6 c5f36903e c677549bc c6ee653d4 c7fa4cf55 c8b197f7c c973b6d5b c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cdf83deeb cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"plan-updated-return-home\" type=\"button\">\nReturn home\n</button>\n</a>\n<div class=\"c9cfc2d67\">\n<a class=\"c1477cccf c267fcecb c3e193c79 c4647f690 c7f74399a cdf83deeb\" data-mol-id=\"plan-updated-view-receipt\" href=\"/billing\">\nView receipt\n</a>\n</div>\n</section>\n@route /plan-updated\n@click default kept",
+     "<section class=\"c16e96f28 c85408cf6 c913cd95a cd07866b8 cd5d4be14\" data-mol-id=\"plan-updated-page\">\n<div class=\"c1e8176ab c388af5c7 c42740ba6 c837212d3 c9052b18c c9773cd2b ccae02ff2 cd5d4be14 cd9b20003 cda72d38d\" style=\"height: 7rem; width: 7rem\">\n<svg aria-hidden=\"true\" data-mol-id=\"plan-updated-icon\" fill=\"currentColor\" focusable=\"false\" height=\"64\" viewbox=\"0 0 16 16\" width=\"64\">\n<path d=\"M8 16A8 8 0 1 1 8 0a8 8 0 0 1 0 16Zm3.78-9.72a.751.751 0 0 0-.018-1.042.751.751 0 0 0-1.042-.018L6.75 9.19 5.28 7.72a.751.751 0 0 0-1.042.018.751.751 0 0 0-.018 1.042l2 2a.75.75 0 0 0 1.06 0Z\">\n</path>\n</svg>\n</div>\n<h2 class=\"c0d99ed10 c60e9fb6d c8f7225b7 cd542c1f3\" data-mol-id=\"plan-updated-heading\" style=\"font-family: var(--font-headline, inherit)\">\nYour plan has been updated.\n</h2>\n<h2 class=\"c0e303770 c6a2a1a28 cd9a51438 ce823b5bf\" data-mol-id=\"plan-updated-subheading\">\nThank you!\n</h2>\n<a href=\"/\">\n<button aria-busy=\"false\" class=\"c04c34dac c05d40814 c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c267fcecb c2f011182 c45cfc6cf c4b0fcccf c59ea18b6 c5f36903e c677549bc c6ee653d4 c7fa4cf55 c8b197f7c c973b6d5b c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cdf83deeb cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"plan-updated-return-home\" type=\"button\">\nReturn home\n</button>\n</a>\n<div class=\"c9cfc2d67\">\n<a class=\"c1477cccf c267fcecb c3e193c79 c4647f690 c7f74399a cdf83deeb\" data-mol-id=\"plan-updated-view-receipt\" href=\"/billing\">\nView receipt\n</a>\n</div>\n</section>\n@route /plan-updated\n@click default kept",
+     "<section class=\"c16e96f28 c85408cf6 c913cd95a cd07866b8 cd5d4be14\" data-mol-id=\"plan-updated-page\">\n<div class=\"c1e8176ab c388af5c7 c42740ba6 c837212d3 c9052b18c c9773cd2b ccae02ff2 cd5d4be14 cd9b20003 cda72d38d\" style=\"height: 7rem; width: 7rem\">\n<svg aria-hidden=\"true\" data-mol-id=\"plan-updated-icon\" fill=\"currentColor\" focusable=\"false\" height=\"64\" viewbox=\"0 0 16 16\" width=\"64\">\n<path d=\"M8 16A8 8 0 1 1 8 0a8 8 0 0 1 0 16Zm3.78-9.72a.751.751 0 0 0-.018-1.042.751.751 0 0 0-1.042-.018L6.75 9.19 5.28 7.72a.751.751 0 0 0-1.042.018.751.751 0 0 0-.018 1.042l2 2a.75.75 0 0 0 1.06 0Z\">\n</path>\n</svg>\n</div>\n<h2 class=\"c0d99ed10 c60e9fb6d c8f7225b7 cd542c1f3\" data-mol-id=\"plan-updated-heading\" style=\"font-family: var(--font-headline, inherit)\">\nYour plan has been updated.\n</h2>\n<h2 class=\"c0e303770 c6a2a1a28 cd9a51438 ce823b5bf\" data-mol-id=\"plan-updated-subheading\">\nThank you!\n</h2>\n<a href=\"/\">\n<button aria-busy=\"false\" class=\"c04c34dac c05d40814 c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c267fcecb c2f011182 c45cfc6cf c4b0fcccf c59ea18b6 c5f36903e c677549bc c6ee653d4 c7fa4cf55 c8b197f7c c973b6d5b c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cdf83deeb cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"plan-updated-return-home\" type=\"button\">\nReturn home\n</button>\n</a>\n<div class=\"c9cfc2d67\">\n<a class=\"c1477cccf c267fcecb c3e193c79 c4647f690 c7f74399a cdf83deeb\" data-mol-id=\"plan-updated-view-receipt\" href=\"/billing\">\nView receipt\n</a>\n</div>\n</section>\n@route /plan-updated\n@click default kept"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     }
+    ]
+   },
+   "confirmation for a signed-in visitor, then a locale switch": {
+    "snapshots": [
+     "<section class=\"c16e96f28 c85408cf6 c913cd95a cd07866b8 cd5d4be14\" data-mol-id=\"plan-updated-page\">\n<div class=\"c1e8176ab c388af5c7 c42740ba6 c837212d3 c9052b18c c9773cd2b ccae02ff2 cd5d4be14 cd9b20003 cda72d38d\" style=\"height: 7rem; width: 7rem\">\n<svg aria-hidden=\"true\" data-mol-id=\"plan-updated-icon\" fill=\"currentColor\" focusable=\"false\" height=\"64\" viewbox=\"0 0 16 16\" width=\"64\">\n<path d=\"M8 16A8 8 0 1 1 8 0a8 8 0 0 1 0 16Zm3.78-9.72a.751.751 0 0 0-.018-1.042.751.751 0 0 0-1.042-.018L6.75 9.19 5.28 7.72a.751.751 0 0 0-1.042.018.751.751 0 0 0-.018 1.042l2 2a.75.75 0 0 0 1.06 0Z\">\n</path>\n</svg>\n</div>\n<h2 class=\"c0d99ed10 c60e9fb6d c8f7225b7 cd542c1f3\" data-mol-id=\"plan-updated-heading\" style=\"font-family: var(--font-headline, inherit)\">\nYour plan has been updated.\n</h2>\n<h2 class=\"c0e303770 c6a2a1a28 cd9a51438 ce823b5bf\" data-mol-id=\"plan-updated-subheading\">\nThank you!\n</h2>\n<a href=\"/\">\n<button aria-busy=\"false\" class=\"c04c34dac c05d40814 c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c267fcecb c2f011182 c45cfc6cf c4b0fcccf c59ea18b6 c5f36903e c677549bc c6ee653d4 c7fa4cf55 c8b197f7c c973b6d5b c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cdf83deeb cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"plan-updated-return-home\" type=\"button\">\nReturn home\n</button>\n</a>\n<div class=\"c9cfc2d67\">\n<a class=\"c1477cccf c267fcecb c3e193c79 c4647f690 c7f74399a cdf83deeb\" data-mol-id=\"plan-updated-view-receipt\" href=\"/billing\">\nView receipt\n</a>\n</div>\n</section>\n@route /",
+     "<section class=\"c16e96f28 c85408cf6 c913cd95a cd07866b8 cd5d4be14\" data-mol-id=\"plan-updated-page\">\n<div class=\"c1e8176ab c388af5c7 c42740ba6 c837212d3 c9052b18c c9773cd2b ccae02ff2 cd5d4be14 cd9b20003 cda72d38d\" style=\"height: 7rem; width: 7rem\">\n<svg aria-hidden=\"true\" data-mol-id=\"plan-updated-icon\" fill=\"currentColor\" focusable=\"false\" height=\"64\" viewbox=\"0 0 16 16\" width=\"64\">\n<path d=\"M8 16A8 8 0 1 1 8 0a8 8 0 0 1 0 16Zm3.78-9.72a.751.751 0 0 0-.018-1.042.751.751 0 0 0-1.042-.018L6.75 9.19 5.28 7.72a.751.751 0 0 0-1.042.018.751.751 0 0 0-.018 1.042l2 2a.75.75 0 0 0 1.06 0Z\">\n</path>\n</svg>\n</div>\n<h2 class=\"c0d99ed10 c60e9fb6d c8f7225b7 cd542c1f3\" data-mol-id=\"plan-updated-heading\" style=\"font-family: var(--font-headline, inherit)\">\n⟦Your plan has been updated.⟧\n</h2>\n<h2 class=\"c0e303770 c6a2a1a28 cd9a51438 ce823b5bf\" data-mol-id=\"plan-updated-subheading\">\n⟦Thank you!⟧\n</h2>\n<a href=\"/\">\n<button aria-busy=\"false\" class=\"c04c34dac c05d40814 c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c267fcecb c2f011182 c45cfc6cf c4b0fcccf c59ea18b6 c5f36903e c677549bc c6ee653d4 c7fa4cf55 c8b197f7c c973b6d5b c9773cd2b c9773e3a7 c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cdf83deeb cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"plan-updated-return-home\" type=\"button\">\n⟦Return home⟧\n</button>\n</a>\n<div class=\"c9cfc2d67\">\n<a class=\"c1477cccf c267fcecb c3e193c79 c4647f690 c7f74399a cdf83deeb\" data-mol-id=\"plan-updated-view-receipt\" href=\"/billing\">\n⟦View receipt⟧\n</a>\n</div>\n</section>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     },
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en-XA"
+      ]
+     }
+    ]
+   }
+  }
+ }
+}

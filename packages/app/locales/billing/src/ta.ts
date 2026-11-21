@@ -17,4 +17,11 @@ export const ta: Partial<BillingTranslations> = {
   'billing.pricing.perSeat': 'ஒரு இருக்கைக்கு',
   'billing.pricing.upgradeCta': 'மேம்படுத்த {{tierName}}',
   'billing.pricing.currentCta': 'தற்போதைய திட்டம்',
+  'billing.pricing.period.month': 'மாதத்திற்கு',
+  'billing.pricing.period.year': 'ஆண்டுக்கு',
+  'billing.pricing.billed.month': 'மாதாந்திர பில்லிங்',
+  'billing.pricing.billed.year': 'ஆண்டு பில்லிங்',
+  'billing.pricing.unlimited': 'வரம்பற்றது',
+  'billing.pricing.limit.maxProjects': 'அதிகபட்ச திட்டங்கள்',
+  'billing.pricing.limit.canExport': 'ஏற்றுமதி செய்யலாம்',
 }

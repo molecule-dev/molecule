@@ -11,8 +11,15 @@ export type BillingTranslationKey =
   | 'billing.pricing.mostPopular'
   | 'billing.pricing.tierEyebrow'
   | 'billing.pricing.perSeat'
+  | 'billing.pricing.period.month'
+  | 'billing.pricing.period.year'
+  | 'billing.pricing.billed.month'
+  | 'billing.pricing.billed.year'
   | 'billing.pricing.upgradeCta'
   | 'billing.pricing.currentCta'
+  | 'billing.pricing.unlimited'
+  | 'billing.pricing.limit.maxProjects'
+  | 'billing.pricing.limit.canExport'
 
 /** Translation record mapping billing-react keys to translated strings. */
 export type BillingTranslations = Record<BillingTranslationKey, string>

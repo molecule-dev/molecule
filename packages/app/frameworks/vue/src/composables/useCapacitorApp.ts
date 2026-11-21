@@ -19,13 +19,20 @@ import { createCapacitorApp } from '@molecule/app-platform'
 /**
  * Return type for the useCapacitorApp composable.
  */
-export interface UseCapacitorAppReturn {
+export interface UseCapacitorAppResult {
   ready: ComputedRef<boolean>
   deviceReady: ComputedRef<boolean>
   pushReady: ComputedRef<boolean>
   error: ComputedRef<Error | null>
   initialize: () => Promise<void>
 }
+
+/**
+ * The former name of {@link UseCapacitorAppResult}.
+ *
+ * @deprecated Renamed to {@link UseCapacitorAppResult}, `@molecule/app-react`'s name for it.
+ */
+export type UseCapacitorAppReturn = UseCapacitorAppResult
 
 /**
  * Composable for Capacitor app initialization.
@@ -57,7 +64,7 @@ export interface UseCapacitorAppReturn {
  * ```
  * @returns Reactive Capacitor app state including readiness flags, error, and an initialize method.
  */
-export function useCapacitorApp(options?: CapacitorAppOptions): UseCapacitorAppReturn {
+export function useCapacitorApp(options?: CapacitorAppOptions): UseCapacitorAppResult {
   const app: CapacitorApp = createCapacitorApp(options)
 
   const state = shallowRef<CapacitorAppState>(app.getState())

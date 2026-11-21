@@ -9,4 +9,6 @@ export const km: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.note':
     'កំណត់ចំណាំ {{pitch}} ចាប់ផ្តើមដោយចង្វាក់ {{startBeat}} សម្រាប់ {{durationBeats}} ចង្វាក់',
   'pianoRoll.aria.cursor': 'ទស្សន៍ទ្រនិចលើ {{pitch}} នៅចង្វាក់ {{beat}}',
+  'pianoRoll.aria.gridHelp':
+    'គ្រាប់ចុចព្រួញផ្លាស់ទី cursor របស់ cell ហើយ Enter ឬ Space គូរនោតមួយនៅទីនោះ។',
 }

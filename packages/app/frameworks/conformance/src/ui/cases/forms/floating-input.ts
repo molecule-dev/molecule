@@ -15,6 +15,7 @@ const NO_PLACEHOLDER: CaseA11y = {
 /** FloatingInput: placeholder-as-label association, controlled and uncontrolled typing, types and passthrough. */
 export const floatingInputCases: UIComponentCases = {
   component: 'FloatingInput',
+  ref: {},
   cases: [
     { name: 'defaults', props: { placeholder: 'Email address' } },
     { name: 'no placeholder', a11y: NO_PLACEHOLDER, props: { name: 'anon' } },
@@ -65,6 +66,13 @@ export const floatingInputCases: UIComponentCases = {
         { type: 'focus', selector: 'input' },
         { type: 'blur', selector: 'input' },
       ],
+    },
+    {
+      name: 'focus handler gets the input as currentTarget',
+      props: { placeholder: 'Email' },
+      callbacks: ['onFocus'],
+      callbackResults: { onFocus: { read: ['currentTarget'] } },
+      interactions: [{ type: 'focus', selector: 'input' }],
     },
   ],
 }

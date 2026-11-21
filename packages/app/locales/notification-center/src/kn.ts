@@ -8,4 +8,5 @@ export const kn: Partial<NotificationCenterTranslations> = {
   'notifications.viewAll': 'ಎಲ್ಲವನ್ನೂ ವೀಕ್ಷಿಸಿ',
   'notifications.loadError': 'ಅಧಿಸೂಚನೆಗಳನ್ನು ಲೋಡ್ ಮಾಡಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ.',
   'notifications.retry': 'ಮರುಪ್ರಯತ್ನಿಸಿ',
+  'notifications.unread': 'ಓದದಿರುವುದು',
 }

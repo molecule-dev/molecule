@@ -7,16 +7,15 @@
  * in-app through the router on an unmodified primary click.
  */
 import '@molecule/app-framework-conformance/ui/setup'
-import { type Component, flushSync, mount, unmount } from 'svelte'
+import { type ComponentProps, flushSync, mount, unmount } from 'svelte'
 import { afterEach, describe, expect, it } from 'vitest'
 
-import Host from '@molecule/app-framework-conformance/adapters/svelte-bindings/Host.svelte'
 import { createSimpleI18nProvider } from '@molecule/app-i18n'
 import { createMemoryRouter, type Router } from '@molecule/app-routing'
-import { setMoleculeContext } from '@molecule/app-svelte'
 import { createWebVersionProvider, setProvider as setVersionProvider } from '@molecule/app-version'
 
-import AppFooter from '../AppFooter.svelte'
+import type AppFooter from '../AppFooter.svelte'
+import AppFooterHost from './AppFooterHost.svelte'
 
 /** The i18n provider every footer mount sits inside (React's I18nProvider requirement). */
 const i18n = createSimpleI18nProvider('en', [
@@ -42,17 +41,15 @@ setVersionProvider(versionProvider)
  * @param props - The footer props.
  * @returns The rendered `<footer>` and the router backing the mount.
  */
-function render(props: Record<string, unknown> = {}): {
+function render(props: ComponentProps<typeof AppFooter>): {
   footer: HTMLElement | null
   router: Router
 } {
   router = createMemoryRouter({ initialEntries: ['/'] })
-  instance = mount(Host, {
+  instance = mount(AppFooterHost, {
     target: document.body,
     props: {
       config: { router, i18n },
-      setMoleculeContext,
-      component: AppFooter as Component<Record<string, unknown>>,
       props,
     },
   })

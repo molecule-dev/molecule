@@ -8,4 +8,5 @@ export const sk: Partial<NotificationCenterTranslations> = {
   'notifications.viewAll': 'Zobraziť všetko',
   'notifications.loadError': 'Nepodarilo sa načítať upozornenia.',
   'notifications.retry': 'Skúsiť znova',
+  'notifications.unread': 'Neprečítané',
 }

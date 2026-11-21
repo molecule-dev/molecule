@@ -14,4 +14,8 @@ export const ka: Partial<SearchUiTranslations> = {
   'searchUi.relatedTitle': 'შეესაბამება თქვენი ძიების მნიშვნელობას და არა მის სიტყვებს',
   'searchUi.related': 'დაკავშირებული',
   'searchUi.help': 'ძიების რჩევები',
+  'searchUi.examplePhrase': '"ზუსტი ფრაზა"',
+  'searchUi.exampleExcluded': '-სიტყვა',
+  'searchUi.activeResult': '{{title}}, {{position}} / {{count}}-დან',
+  'searchUi.dialogLabel': 'ძიება',
 }

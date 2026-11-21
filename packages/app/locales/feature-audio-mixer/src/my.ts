@@ -8,6 +8,8 @@ export const my: Partial<AudioMixerTranslations> = {
   'audioMixer.aria.send': '{{channel}} ပို့ရန် {{send}}',
   'audioMixer.button.mute': 'အသံတိတ်ပါ',
   'audioMixer.button.solo': 'တစ်ကိုယ်တော်',
+  'audioMixer.button.muteInitial': 'အ',
+  'audioMixer.button.soloInitial': 'တ',
   'audioMixer.master': 'မာစတာ',
   'audioMixer.sends': 'ပေးပို့သည်',
 }

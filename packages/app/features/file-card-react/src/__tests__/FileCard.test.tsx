@@ -10,7 +10,8 @@ import { I18nProvider } from '@molecule/app-react'
 import { setClassMap, type UIClassMap } from '@molecule/app-ui'
 
 import { FileCard, type FileSummary } from '../FileCard.js'
-import { bytes, relativeBucket } from '../format.js'
+import type { FileKind } from '../FileIcon.js'
+import { bytes, relativeBucket, sizeParts, type SizeUnit } from '../format.js'
 
 /**
  * Build a UIClassMap stub via Proxy: `cn(...)` joins truthy strings,
@@ -316,5 +317,176 @@ describe('<FileCard>', () => {
     )
     expect(container.querySelector('[data-mol-id="attachment-1"]')).not.toBeNull()
     expect(container.querySelector('[data-mol-id="file-card-f-1"]')).toBeNull()
+  })
+})
+
+describe('<FileCard> kind label keys', () => {
+  // The component resolves the kind label through ONE LITERAL t() key per
+  // FileKind (the i18n gate can only verify literal keys against the locale
+  // bond). Each case names the exact key the component must call, the marker
+  // the test catalog maps it to, and the English text in the bond's `en.ts`
+  // that the inline defaultValue must equal.
+  const KIND_CASES: ReadonlyArray<{
+    kind: FileKind
+    key: string
+    marker: string
+    english: string
+  }> = [
+    { kind: 'image', key: 'file-card.kind.image', marker: '[K:image]', english: 'Image file' },
+    { kind: 'video', key: 'file-card.kind.video', marker: '[K:video]', english: 'Video file' },
+    { kind: 'audio', key: 'file-card.kind.audio', marker: '[K:audio]', english: 'Audio file' },
+    {
+      kind: 'document',
+      key: 'file-card.kind.document',
+      marker: '[K:document]',
+      english: 'Document',
+    },
+    { kind: 'archive', key: 'file-card.kind.archive', marker: '[K:archive]', english: 'Archive' },
+    { kind: 'code', key: 'file-card.kind.code', marker: '[K:code]', english: 'Code file' },
+    { kind: 'folder', key: 'file-card.kind.folder', marker: '[K:folder]', english: 'Folder' },
+    { kind: 'other', key: 'file-card.kind.other', marker: '[K:other]', english: 'File' },
+  ]
+
+  /**
+   * Build an English provider whose catalog maps each literal kind key to its
+   * marker, so a rendered marker proves the literal key was called.
+   *
+   * @returns An `I18nProvider` with marker translations for the kind keys.
+   */
+  function buildMarkerProvider(): ReturnType<typeof createSimpleI18nProvider> {
+    const provider = createSimpleI18nProvider('en')
+    provider.addTranslations('en', Object.fromEntries(KIND_CASES.map((c) => [c.key, c.marker])))
+    return provider
+  }
+
+  it.each(KIND_CASES)(
+    'resolves the $kind label through the literal key "$key"',
+    ({ kind, key, marker }) => {
+      const { getByRole } = render(
+        <I18nProvider provider={buildMarkerProvider()}>
+          <FileCard file={{ ...baseFile, kind }} />
+        </I18nProvider>,
+      )
+      // The kind label reaches the DOM through the group's aria label
+      // ("{{name}}, {{kind}}"); the marker proves the literal key resolved.
+      expect(getByRole('group').getAttribute('aria-label')).toBe(`Q3-report.pdf, ${marker}`)
+      // The key itself stays out of the rendered text.
+      expect(getByRole('group').getAttribute('aria-label')).not.toContain(key)
+    },
+  )
+
+  it.each(KIND_CASES)(
+    'falls back to the "$english" bond text for $kind when no catalog is loaded',
+    ({ kind, english }) => {
+      const { getByRole } = render(
+        <Wrap>
+          <FileCard file={{ ...baseFile, kind }} />
+        </Wrap>,
+      )
+      expect(getByRole('group').getAttribute('aria-label')).toBe(`Q3-report.pdf, ${english}`)
+    },
+  )
+})
+
+describe('<FileCard> size unit keys', () => {
+  // The card resolves the size's unit word through ONE LITERAL t() key per
+  // SizeUnit (the i18n gate can only verify literal keys against the locale
+  // bond), with the displayed number in the {{n}} placeholder. Each case
+  // names a byte count, the exact key the component must call, the marker
+  // the test catalog maps it to, and the English text in the bond's `en.ts`
+  // that the inline defaultValue must equal.
+  const SIZE_CASES: ReadonlyArray<{
+    size: number
+    unit: SizeUnit
+    key: string
+    marker: string
+    english: string
+  }> = [
+    { size: 420, unit: 'B', key: 'file-card.size.b', marker: '[K:B]', english: '{{n}} B' },
+    { size: 1024, unit: 'KB', key: 'file-card.size.kb', marker: '[K:KB]', english: '{{n}} KB' },
+    {
+      size: 2.3 * 1024 * 1024,
+      unit: 'MB',
+      key: 'file-card.size.mb',
+      marker: '[K:MB]',
+      english: '{{n}} MB',
+    },
+    {
+      size: 4.7 * 1024 * 1024 * 1024,
+      unit: 'GB',
+      key: 'file-card.size.gb',
+      marker: '[K:GB]',
+      english: '{{n}} GB',
+    },
+    {
+      size: 1024 ** 4,
+      unit: 'TB',
+      key: 'file-card.size.tb',
+      marker: '[K:TB]',
+      english: '{{n}} TB',
+    },
+    {
+      size: 1.23 * 1024 ** 5,
+      unit: 'PB',
+      key: 'file-card.size.pb',
+      marker: '[K:PB]',
+      english: '{{n}} PB',
+    },
+  ]
+
+  /**
+   * Build an English provider whose catalog maps each literal size key to its
+   * marker, so a rendered marker proves the literal key was called.
+   *
+   * @returns An `I18nProvider` with marker translations for the size keys.
+   */
+  function buildMarkerProvider(): ReturnType<typeof createSimpleI18nProvider> {
+    const provider = createSimpleI18nProvider('en')
+    provider.addTranslations('en', Object.fromEntries(SIZE_CASES.map((c) => [c.key, c.marker])))
+    return provider
+  }
+
+  it.each(SIZE_CASES)(
+    'renders the $unit size through the literal key "$key"',
+    ({ size, marker }) => {
+      const { container } = render(
+        <I18nProvider provider={buildMarkerProvider()}>
+          <FileCard file={{ ...baseFile, size }} />
+        </I18nProvider>,
+      )
+      // The marker proves the literal key resolved and the span renders its
+      // text (not a hardcoded `471 KB`).
+      expect(container.querySelector('[data-mol-id="file-card-size"]')?.textContent).toBe(marker)
+    },
+  )
+
+  it.each(SIZE_CASES)(
+    'falls back to the "$english" bond text for $unit sizes when no catalog is loaded',
+    ({ size, english }) => {
+      const { container } = render(
+        <Wrap>
+          <FileCard file={{ ...baseFile, size }} />
+        </Wrap>,
+      )
+      expect(container.querySelector('[data-mol-id="file-card-size"]')?.textContent).toBe(
+        english.replace('{{n}}', sizeParts(size).n),
+      )
+    },
+  )
+
+  it('interpolates the displayed number into a translated unit word', () => {
+    // A catalog translation moves or renames the token through {{n}} — here
+    // the French octet convention — while the number stays the component's.
+    const provider = createSimpleI18nProvider('en')
+    provider.addTranslations('en', {
+      'file-card.size.kb': '{{n}} Ko',
+      'file-card.size.b': '{{n}} o',
+    })
+    const { container } = render(
+      <I18nProvider provider={provider}>
+        <FileCard file={{ ...baseFile, size: 482_137 }} />
+      </I18nProvider>,
+    )
+    expect(container.querySelector('[data-mol-id="file-card-size"]')?.textContent).toBe('471 Ko')
   })
 })

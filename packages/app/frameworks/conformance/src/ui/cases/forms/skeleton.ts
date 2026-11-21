@@ -9,6 +9,8 @@ import type { UIComponentCases } from '../../spec.js'
 /** Skeleton: dimensions, circle, border radius, animation variants and passthrough. */
 export const skeletonCases: UIComponentCases = {
   component: 'Skeleton',
+  ref: {},
+  declaredProps: { props: 'base' },
   cases: [
     { name: 'defaults' },
     { name: 'numeric width and height', props: { width: 120, height: 16 } },
@@ -30,6 +32,7 @@ export const skeletonCases: UIComponentCases = {
 /** SkeletonText: line counts and last-line tapering. */
 export const skeletonTextCases: UIComponentCases = {
   component: 'SkeletonText',
+  ref: {},
   cases: [
     { name: 'defaults three lines' },
     { name: 'single line', props: { lines: 1 } },
@@ -41,6 +44,7 @@ export const skeletonTextCases: UIComponentCases = {
 /** SkeletonCircle: default and custom avatar placeholder sizes. */
 export const skeletonCircleCases: UIComponentCases = {
   component: 'SkeletonCircle',
+  ref: {},
   cases: [
     { name: 'defaults' },
     { name: 'custom size', props: { size: 24 } },

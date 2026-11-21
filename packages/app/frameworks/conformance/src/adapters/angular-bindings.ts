@@ -15,18 +15,24 @@
  * - A component export (`SessionReady`) is a standalone component; React's `children` text is
  *   its default `<ng-content>` and any other string prop `foo` is content selected by
  *   `[slot=foo]`.
+ * - React's composition root (`MoleculeProvider`, the `'root'` cases) is `provideMolecule`: the
+ *   app starts with it, given the case's services and `awaitSession` only when the case sets it.
+ *   Its session hold delays bootstrap, and the root element shows `sessionFallback` as its own
+ *   content until bootstrap replaces it with the app (`children`), as an app's `index.html` does.
  *
  * @module
  */
 
 import '@angular/compiler'
 import {
-  type ApplicationRef,
+  ApplicationRef,
   Component,
   type ComponentRef,
   createComponent,
   type EnvironmentProviders,
+  inject,
   isSignal,
+  provideAppInitializer,
   provideZonelessChangeDetection,
   reflectComponentType,
   signal,
@@ -49,10 +55,12 @@ export interface AngularBinding {
   /**
    * The binding's composition root: registers the case's services with Angular's DI.
    *
-   * @param services - The case's services (without those the case omits).
+   * @param services - The case's services (without those the case omits), and `awaitSession`.
    * @returns The environment providers the host application starts with.
    */
-  provideMolecule(services: Partial<BindingServices>): EnvironmentProviders
+  provideMolecule(
+    services: Partial<BindingServices> & { awaitSession?: boolean },
+  ): EnvironmentProviders
 }
 
 /** Options for {@link createAngularBindingAdapter}. */
@@ -95,6 +103,87 @@ export function createAngularBindingAdapter({
     })
   }
 
+  /**
+   * Mounts a `'root'` case: Angular's root is `provideMolecule`, whose session hold delays
+   * bootstrap, so the app starts without being awaited.
+   *
+   * @param container - The root element; it shows `sessionFallback` until bootstrap ends.
+   * @param services - The case's services (without those the case omits).
+   * @param props - React's `MoleculeProvider` props: `children` and `sessionFallback` text, `awaitSession`.
+   * @returns The mounted root.
+   */
+  const mountRoot = (
+    container: HTMLElement,
+    services: Partial<BindingServices>,
+    props: Record<string, unknown>,
+  ): MountedHook => {
+    const { children, sessionFallback, awaitSession } = props
+    if (typeof sessionFallback === 'string') container.textContent = sessionFallback
+    const App = Component({
+      selector: `mol-binding-root-${++hostCount}`,
+      standalone: true,
+      template: '{{ text }}',
+    })(
+      class RootApp {
+        readonly text = typeof children === 'string' ? children : ''
+      },
+    ) as Type<unknown>
+    // The application, from the first initializer on: unmount destroys it even while bootstrap holds.
+    let appRef: ApplicationRef | null = null
+    let ready = false
+    let stopped = false
+    let failure: unknown = null
+    const started = createApplication({
+      providers: [
+        provideZonelessChangeDetection(),
+        provideMolecule({
+          ...services,
+          ...(typeof awaitSession === 'boolean' ? { awaitSession } : {}),
+        }),
+        provideAppInitializer(() => {
+          appRef = inject(ApplicationRef)
+        }),
+      ],
+    }).then(
+      (ref) => {
+        if (stopped) return
+        const component = createComponent(App, { environmentInjector: ref.injector })
+        // Bootstrap replaces the root element's own content, as it does an app's index.html content.
+        container.replaceChildren(component.location.nativeElement as HTMLElement)
+        ref.attachView(component.hostView)
+        ref.tick()
+        ready = true
+      },
+      (error: unknown) => {
+        // Rethrown by the next flush, so the case fails with the bootstrap error.
+        failure = error
+      },
+    )
+    return {
+      result: () => container.textContent ?? '',
+      read: (value) => (isSignal(value) ? value() : value),
+      setArgs: async () => {
+        throw new Error('conformance: a root case has no arguments to change')
+      },
+      flush: async () => {
+        if (ready) appRef?.tick()
+        await settle()
+        // Bootstrap that nothing holds ends within a settle; one still pending is held.
+        await Promise.race([started, settle()])
+        if (ready) {
+          await appRef?.whenStable()
+          appRef?.tick()
+        }
+        if (failure) throw failure
+      },
+      unmount: async () => {
+        stopped = true
+        appRef?.destroy()
+        appRef = null
+        container.remove()
+      },
+    }
+  }
   return {
     name: 'angular',
     reset: () => {
@@ -103,17 +192,25 @@ export function createAngularBindingAdapter({
       const resetModels = exportsOf.resetAIModelsCache
       if (typeof resetModels === 'function') resetModels()
     },
-    has: (name) => typeof exportsOf[name] !== 'undefined',
+    // React's MoleculeProvider is the binding's provideMolecule (see mountRoot).
+    has: (name) => name === 'MoleculeProvider' || typeof exportsOf[name] !== 'undefined',
     async mount(hook, args, services, _shape, options = {}): Promise<MountedHook> {
       const container = document.createElement('div')
       document.body.appendChild(container)
+      if (options.render === 'root')
+        return mountRoot(container, services, (args[0] as Record<string, unknown>) ?? {})
       let result: unknown
       let appRef: ApplicationRef | null = null
       // A reactiveArgs hook reads each argument from its signal for the life of the host.
       const sources = reactiveSources(hook, args, options, (value) => signal<unknown>(value))
       const start = async (current: unknown[]): Promise<void> => {
         appRef = await createApplication({
-          providers: [provideZonelessChangeDetection(), provideMolecule({ ...services })],
+          // As React's adapter mounts MoleculeProvider: `awaitSession: false`, no session hold
+          // (the SessionReady cases render the gate themselves).
+          providers: [
+            provideZonelessChangeDetection(),
+            provideMolecule({ ...services, awaitSession: false }),
+          ],
         })
         let ref: ComponentRef<unknown>
         if (options.render === 'text') {

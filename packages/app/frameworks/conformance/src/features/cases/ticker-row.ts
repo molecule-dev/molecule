@@ -2,10 +2,18 @@
  * `@molecule/app-ticker-row-react` cases: the financial ticker row — symbol +
  * price + change% + optional icon/sparkline/meta.
  *
+ * While `onClick` is set the whole row is clickable through a transparent
+ * native button laid over it (`data-mol-id="ticker-row-open"`, named by the
+ * symbol); the `meta` slot is raised above it, so a click on its content is
+ * the slot's own and `onClick` is not called.
+ *
  * @module
  */
 
 import type { FeatureCases } from '../spec.js'
+
+/** The row's open action: the transparent button React lays over the row while `onClick` is set. */
+const openSelector = 'button[data-mol-id="ticker-row-open"]'
 
 /** `@molecule/app-ticker-row-react`. */
 export const tickerRowFeature: FeatureCases = {
@@ -55,10 +63,25 @@ export const tickerRowFeature: FeatureCases = {
           },
         },
         {
-          name: 'click calls onClick',
+          name: 'clicking the open button calls onClick',
           props: { symbol: 'X', price: '$1' },
           callbacks: ['onClick'],
-          interactions: [{ type: 'click', selector: 'span' }],
+          interactions: [{ type: 'click', selector: openSelector }],
+        },
+        {
+          name: 'clicking an inner control does not call onClick',
+          props: { symbol: 'X', price: '$1' },
+          callbacks: ['onClick'],
+          slots: {
+            meta: [
+              {
+                tag: 'span',
+                attrs: { 'data-meta': '', role: 'button', tabindex: '0' },
+                children: ['$68B vol'],
+              },
+            ],
+          },
+          interactions: [{ type: 'click', selector: '[data-meta]' }],
         },
         {
           name: 'change changePct flips arrow and color',

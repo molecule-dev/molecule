@@ -14,4 +14,8 @@ export const th: Partial<SearchUiTranslations> = {
   'searchUi.relatedTitle': 'ตรงกับความหมายของการค้นหาของคุณ ไม่ใช่ตรงกับจำนวนคำ',
   'searchUi.related': 'ที่เกี่ยวข้อง',
   'searchUi.help': 'เคล็ดลับการค้นหา',
+  'searchUi.examplePhrase': '"วลีที่แม่นยำ"',
+  'searchUi.exampleExcluded': '-คำ',
+  'searchUi.activeResult': '{{title}}, {{position}} จาก {{count}}',
+  'searchUi.dialogLabel': 'ค้นหา',
 }

@@ -49,6 +49,8 @@ vi.mock('@molecule/app-oauth-logos-vue', async () => {
 
 import { createApp, defineComponent, h, type MaybeRefOrGetter, nextTick, toValue } from 'vue'
 
+import type { OAuthButtonsProps } from '../OAuthButtons.js'
+
 const { OAuthButtons } = await import('../OAuthButtons.js')
 
 afterEach(() => {
@@ -56,7 +58,7 @@ afterEach(() => {
 })
 
 /** Mounts {@link OAuthButtons} and returns its host and the markup it produced. */
-const render = (props: Record<string, unknown>) => {
+const render = (props: OAuthButtonsProps) => {
   const host = document.createElement('div')
   document.body.appendChild(host)
   const app = createApp(defineComponent({ render: () => h(OAuthButtons, props) }))
@@ -135,7 +137,7 @@ describe('OAuthButtons — callback outcome UI', () => {
    */
   type HookCfg = { onError?: (m: string) => void; onSuccess?: () => void }
   const renderLive = (
-    props: Record<string, unknown>,
+    props: Pick<OAuthButtonsProps, 'onError' | 'onSuccess'>,
   ): { host: HTMLDivElement; hookCfg: () => HookCfg | undefined; unmount: () => void } => {
     // The component passes a getter over its props, so its current value is read.
     let captured: MaybeRefOrGetter<HookCfg | undefined>
@@ -145,7 +147,9 @@ describe('OAuthButtons — callback outcome UI', () => {
     })
     const host = document.createElement('div')
     document.body.appendChild(host)
-    const app = createApp(defineComponent({ render: () => h(OAuthButtons, props) }))
+    const app = createApp(
+      defineComponent({ render: () => h(OAuthButtons, { oauthConfig: {}, ...props }) }),
+    )
     app.mount(host)
     return { host, hookCfg: () => toValue(captured), unmount: () => app.unmount() }
   }

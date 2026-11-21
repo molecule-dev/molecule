@@ -17,4 +17,11 @@ export const ka: Partial<BillingTranslations> = {
   'billing.pricing.perSeat': 'თითო ადგილზე',
   'billing.pricing.upgradeCta': 'განახლება {{tierName}}',
   'billing.pricing.currentCta': 'მიმდინარე გეგმა',
+  'billing.pricing.period.month': 'თვეში',
+  'billing.pricing.period.year': 'წელიწადში',
+  'billing.pricing.billed.month': 'ყოველთვიური გადახდა',
+  'billing.pricing.billed.year': 'ყოველწლიური გადახდა',
+  'billing.pricing.unlimited': 'შეუზღუდავი',
+  'billing.pricing.limit.maxProjects': 'მაქსიმალური პროექტების რაოდენობა',
+  'billing.pricing.limit.canExport': 'ექსპორტი შესაძლებელია',
 }

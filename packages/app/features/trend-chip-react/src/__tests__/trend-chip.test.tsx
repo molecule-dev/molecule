@@ -15,7 +15,9 @@ vi.mock('@molecule/app-ui', () => ({
               .join(' ')
         }
         const token = String(prop)
-        return (..._args: unknown[]) => token
+        // Tone resolvers echo their argument, so assertions can tell which
+        // semantic tone (`textTone-success`) the chip picked.
+        return (...args: unknown[]) => (args.length > 0 ? `${token}-${String(args[0])}` : token)
       },
     }
     return new Proxy({}, handler)
@@ -27,29 +29,31 @@ const { TrendChip } = await import('../TrendChip.js')
 const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
 
 describe('TrendChip', () => {
-  it('renders an up arrow + green for a positive delta', () => {
+  it('renders the success tone for a positive delta', () => {
     const markup = html(createElement(TrendChip, { delta: 12 }))
     expect(markup).toContain('▲')
     expect(markup).toContain('12%')
-    expect(markup).toContain('#22c55e')
+    expect(markup).toContain('textTone-success')
+    expect(markup).not.toContain('style=')
   })
 
-  it('renders a down arrow + red for a negative delta', () => {
+  it('renders the error tone for a negative delta', () => {
     const markup = html(createElement(TrendChip, { delta: -8 }))
     expect(markup).toContain('▼')
     expect(markup).toContain('8%')
-    expect(markup).toContain('#ef4444')
+    expect(markup).toContain('textTone-error')
   })
 
-  it('renders the neutral dash for a zero delta', () => {
+  it('renders the secondary tone for a zero delta', () => {
     const markup = html(createElement(TrendChip, { delta: 0 }))
     expect(markup).toContain('–')
-    expect(markup).toContain('#94a3b8')
+    expect(markup).toContain('textTone-secondary')
   })
 
   it('honours an explicit direction override', () => {
     const markup = html(createElement(TrendChip, { delta: 5, direction: 'down' }))
     expect(markup).toContain('▼')
+    expect(markup).toContain('textTone-error')
   })
 
   it('uses the default "%" suffix and a custom suffix', () => {
@@ -57,9 +61,13 @@ describe('TrendChip', () => {
     expect(html(createElement(TrendChip, { delta: 3, suffix: 'pts' }))).toContain('3pts')
   })
 
-  it('renders a colored pill background for the pill variant', () => {
+  it('renders the tonal pill fill for the pill variant', () => {
     const markup = html(createElement(TrendChip, { delta: 4, variant: 'pill' }))
+    expect(markup).toContain('bgTone-success')
+    expect(markup).toContain('textOnTone')
     expect(markup).toContain('border-radius:999px')
+    expect(markup).not.toContain('background:')
+    expect(markup).not.toContain('color:')
   })
 
   it('honours a custom ariaLabel and forwards className', () => {

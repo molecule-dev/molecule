@@ -15,4 +15,11 @@ export const ha: Partial<BillingTranslations> = {
   'billing.pricing.perSeat': 'a kowace kujera',
   'billing.pricing.upgradeCta': 'Haɓakawa zuwa {{tierName}}',
   'billing.pricing.currentCta': 'Tsarin yanzu',
+  'billing.pricing.period.month': 'a wata',
+  'billing.pricing.period.year': 'a shekara',
+  'billing.pricing.billed.month': 'Ana caji kowane wata',
+  'billing.pricing.billed.year': 'Ana caji kowace shekara',
+  'billing.pricing.unlimited': 'Babu iyaka',
+  'billing.pricing.limit.maxProjects': 'Mafi girman adadin ayyuka',
+  'billing.pricing.limit.canExport': 'Ana iya fitarwa',
 }

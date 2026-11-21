@@ -8,4 +8,7 @@ export const ga: Partial<VideoCallControlsTranslations> = {
   'call.cameraOff': '🚫',
   'call.share': '🖥',
   'call.leave': 'Fág',
+  'call.aria.muted': 'Balbhaithe',
+  'call.aria.handRaised': 'Lámh ardaithe',
+  'call.label.you': '(tú)',
 }

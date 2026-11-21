@@ -16,7 +16,7 @@ import {
 } from '@molecule/app-state'
 
 import { useStateProvider, useStore } from '../composables/useStore.js'
-import { moleculePlugin } from '../plugin.js'
+import { MoleculeProvider } from '../providers.js'
 
 /** The provider a scaffolded app ends up with (see the first test). */
 const scaffoldedProvider = (): typeof simpleProvider => {
@@ -24,7 +24,7 @@ const scaffoldedProvider = (): typeof simpleProvider => {
   return simpleProvider
 }
 
-describe('moleculePlugin supplies the bonded state provider by default (flash-m65)', () => {
+describe('MoleculeProvider supplies the bonded state provider by default (flash-m65)', () => {
   // FIRST: nothing bonds the state provider until a setup runs, so this test
   // can assert the pre-state the scaffold used to be stuck in.
   //
@@ -34,8 +34,8 @@ describe('moleculePlugin supplies the bonded state provider by default (flash-m6
   // tsc`), or this test runs against the previous build.
   it('makes the documented lazy-store pattern work in the scaffolded shape', async () => {
     // Exactly what a scaffolded app does: `setupProviders()` wires the default
-    // bonds, `app.use(moleculePlugin, …)` installs with no `state` option, and
-    // the page creates its store lazily (creating one at module scope throws
+    // bonds, `App.vue` wraps its tree in `<MoleculeProvider>` with no `state`
+    // prop, and the page creates its store lazily (creating one at module scope throws
     // before the providers are set, so the docs must not show it).
     expect(hasProvider()).toBe(false)
     setupAllDefaultBonds()
@@ -53,10 +53,10 @@ describe('moleculePlugin supplies the bonded state provider by default (flash-m6
         return () => h('div')
       },
     })
-    mount(Page, { global: { plugins: [[moleculePlugin, {}]] } })
+    mount(defineComponent({ setup: () => () => h(MoleculeProvider, null, () => [h(Page)]) }))
 
-    // The plugin supplied the provider every `createStore()` reads, with no
-    // `state` option — React's `MoleculeProvider` fallback.
+    // The component supplied the provider every `createStore()` reads, with no
+    // `state` prop, as React's `MoleculeProvider` does.
     expect(provider).toBe(getProvider())
     expect(state.value).toEqual({ sidebarOpen: false })
     getUiStore().setState({ sidebarOpen: true })
@@ -75,7 +75,7 @@ describe('moleculePlugin supplies the bonded state provider by default (flash-m6
         return () => h('div')
       },
     })
-    mount(Page, { global: { plugins: [[moleculePlugin, {}]] } })
+    mount(defineComponent({ setup: () => () => h(MoleculeProvider, null, () => [h(Page)]) }))
 
     expect(state.value).toEqual({ sidebarOpen: false })
   })
@@ -91,7 +91,11 @@ describe('moleculePlugin supplies the bonded state provider by default (flash-m6
         return () => h('div')
       },
     })
-    mount(Page, { global: { plugins: [[moleculePlugin, { state: explicitProvider }]] } })
+    mount(
+      defineComponent({
+        setup: () => () => h(MoleculeProvider, { state: explicitProvider }, () => [h(Page)]),
+      }),
+    )
 
     expect(provider).toBe(explicitProvider)
     expect(provider).not.toBe(simpleProvider)

@@ -3,8 +3,9 @@
  * an in-memory `sessionStorage` seeded and recorded like `localStorage` (K5), a
  * recording `ResizeObserver` driven by `resize` steps (K6), `isComposing` /
  * `keyCode` on a `keydown` step (K7), file sizes and deterministic object URLs
- * (K8), and a `FileReader` whose reads finish within the step that starts them
- * under fake timers (K11).
+ * (K8), a `FileReader` whose reads finish within the step that starts them
+ * under fake timers (K11), and a counting `crypto.randomUUID` with a deterministic
+ * `crypto.getRandomValues` in every case and value check (K12).
  *
  * A plain DOM "component" stands in for a framework here.
  *
@@ -14,6 +15,10 @@
 import '../ui/setup.js'
 import { describe, expect, it } from 'vitest'
 
+import { createMemoryRouter } from '@molecule/app-routing'
+
+import { featureValue } from '../features/run.js'
+import { DEFAULT_RANDOM, installRandomSources, kitRandom, kitUuid } from '../ui/globals.js'
 import { CallRecorder, type MountedCase, runSteps, settle, type UICase } from '../ui/index.js'
 
 /** The `ResizeObserver` and `FileReader` the environment had before any case ran. */
@@ -107,20 +112,102 @@ describe('a pinned Math.random (K2)', () => {
     ).rejects.toThrow('a case with `random` needs at least one value')
   })
 
-  it('leaves Math.random alone for a case without the field', async () => {
-    const sentinel = (): number => 0.123
+  it('draws the kit sequence in a case without the field, and puts the previous function back', async () => {
+    const sentinel = (): number => 0.5
     const real = Math.random
     Math.random = sentinel
     try {
-      const { readable } = await run({ name: 'unpinned' }, (container) => {
-        paragraph(container).textContent = String(Math.random())
+      const draws = (container: HTMLElement): (() => void) => {
+        paragraph(container).textContent = [1, 2].map(() => Math.random()).join(',')
         return () => undefined
-      })
-      expect(readable[0]).toContain('0.123')
+      }
+      const first = await run({ name: 'default' }, draws)
+      const second = await run({ name: 'again' }, draws)
+      expect(kitRandom(0)).toBe(DEFAULT_RANDOM)
+      expect(first.readable[0]).toContain(`${kitRandom(0)},${kitRandom(1)}`)
+      expect(second.readable[0]).toEqual(first.readable[0])
       expect(Math.random).toBe(sentinel)
     } finally {
       Math.random = real
     }
+  })
+
+  it('never draws the same value twice in a case without the field', () => {
+    const ids = new Set(
+      Array.from({ length: 10_000 }, (_, index) => kitRandom(index).toString(36).slice(2, 10)),
+    )
+    expect(ids.size).toBe(10_000)
+  })
+
+  it('gives every history entry its own key, as a browser does', () => {
+    // 2026-11-19: a constant default made every router key equal, so a value consumed on one
+    // history entry came back on another.
+    const keys = (random?: number[]): string[] => {
+      const sources = installRandomSources(random)
+      try {
+        const router = createMemoryRouter({ initialEntries: ['/'], routes: [] })
+        const seen = [router.getLocation().key]
+        router.navigate('/a')
+        seen.push(router.getLocation().key)
+        router.navigate('/b')
+        seen.push(router.getLocation().key)
+        return seen.map(String)
+      } finally {
+        sources.restore()
+      }
+    }
+    expect(new Set(keys()).size).toBe(3)
+    // Naming one value hands the case every draw, so the keys collide: the check can fail.
+    expect(new Set(keys([0.5])).size).toBe(1)
+  })
+})
+
+describe('random ids and bytes (K12)', () => {
+  /** A case that mints two ids and draws four bytes into its paragraph. */
+  const minting = (container: HTMLElement): (() => void) => {
+    const bytes = crypto.getRandomValues(new Uint8Array(4))
+    paragraph(container).textContent = [crypto.randomUUID(), crypto.randomUUID(), ...bytes].join(
+      ' ',
+    )
+    return () => undefined
+  }
+
+  it('counts randomUUID from the first kit id in every case', async () => {
+    const first = await run({ name: 'first' }, minting)
+    const second = await run({ name: 'second' }, minting)
+    expect(first.readable[0]).toContain(`${kitUuid(0)} ${kitUuid(1)}`)
+    expect(second.readable[0]).toEqual(first.readable[0])
+  })
+
+  it('fills getRandomValues with the same index-derived bytes in every case', async () => {
+    const { readable } = await run({ name: 'bytes' }, minting)
+    expect(readable[0]).toContain(`${kitUuid(1)} 177 121 55 158`)
+  })
+
+  it('starts each value check from the same state, wherever it runs', () => {
+    const check = { export: 'mint', calls: [[], [], []] }
+    const mint = (): string => crypto.randomUUID()
+    const once = featureValue(check, mint)
+    expect(once).toEqual([kitUuid(0), kitUuid(1), kitUuid(2)])
+    expect(featureValue(check, mint)).toEqual(once)
+  })
+
+  it('puts the real randomUUID and getRandomValues back, also when mount throws', async () => {
+    const { randomUUID, getRandomValues } = crypto
+    const failing = async (): Promise<MountedCase> => {
+      crypto.randomUUID()
+      throw new Error('mount failed')
+    }
+    await expect(runSteps({ name: 'throws' }, failing, new CallRecorder())).rejects.toThrow(
+      'mount failed',
+    )
+    expect(crypto.randomUUID).toBe(randomUUID)
+    expect(crypto.getRandomValues).toBe(getRandomValues)
+    expect(Object.getOwnPropertyNames(crypto)).not.toContain('randomUUID')
+    expect(featureValue({ export: 'mint', calls: [[]] }, () => crypto.randomUUID())).toEqual([
+      kitUuid(0),
+    ])
+    expect(crypto.randomUUID).toBe(randomUUID)
   })
 })
 

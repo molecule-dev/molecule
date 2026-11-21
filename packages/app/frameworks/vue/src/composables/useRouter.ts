@@ -34,7 +34,7 @@ import {
 } from '@molecule/app-routing'
 
 import { RouterKey } from '../injection-keys.js'
-import type { UseRouterReturn } from '../types.js'
+import type { UseRouterResult } from '../types.js'
 
 /**
  * Composable to access the router from injection.
@@ -80,7 +80,7 @@ export function useRouterInstance(): Router {
  * </template>
  * ```
  */
-export function useRouter(): UseRouterReturn {
+export function useRouter(): UseRouterResult {
   const router = useRouterInstance()
 
   // Reactive state

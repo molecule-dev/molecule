@@ -5,6 +5,10 @@ export type HttpInspectorTranslationKey =
   | 'httpInspector.headers'
   | 'httpInspector.addHeader'
   | 'httpInspector.body'
+  | 'httpInspector.methodLabel'
+  | 'httpInspector.urlLabel'
+  | 'httpInspector.headerPlaceholder'
+  | 'httpInspector.valuePlaceholder'
 
 /** Translation record mapping http-inspector-react keys to translated strings. */
 export type HttpInspectorTranslations = Record<HttpInspectorTranslationKey, string>

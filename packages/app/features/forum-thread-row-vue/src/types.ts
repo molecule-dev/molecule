@@ -30,7 +30,12 @@ export interface ForumThreadRowProps {
   tags?: VNodeChild
   /** Right-side voting controls slot. */
   voteControls?: VNodeChild
-  /** Click handler. */
+  /**
+   * Activates the row: the whole row is clickable through a transparent native
+   * button laid over it (Enter and Space activate it natively), named by the
+   * title — the `<h3>` itself takes the generated id. The `voteControls` and
+   * `tags` slots sit above that button and keep their own clicks.
+   */
   onClick?: () => void
   /** Extra classes. */
   className?: string

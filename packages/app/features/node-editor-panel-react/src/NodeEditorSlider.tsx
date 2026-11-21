@@ -5,7 +5,7 @@
  * @module
  */
 
-import type { JSX, ReactNode } from 'react'
+import { type JSX, type ReactNode, useId } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
@@ -34,9 +34,12 @@ export function NodeEditorSlider({
   valueDisplay,
 }: NodeEditorSliderProps): JSX.Element {
   const cm = getClassMap()
+  // Names the range input through the section's `<label for>`.
+  const inputId = useId()
   return (
     <NodeEditorSection
       label={label}
+      htmlFor={inputId}
       trailing={
         <span className={cm.cn(cm.textSize('xs'), cm.sp('px', 2), cm.nodeEditorPanelSliderValue)}>
           {valueDisplay ?? value}
@@ -44,6 +47,8 @@ export function NodeEditorSlider({
       }
     >
       <input
+        id={inputId}
+        aria-valuetext={typeof valueDisplay === 'string' ? valueDisplay : undefined}
         className={cm.cn(cm.w('full'), cm.h(1.5), cm.cursorPointer, cm.nodeEditorPanelSliderTrack)}
         min={min}
         max={max}

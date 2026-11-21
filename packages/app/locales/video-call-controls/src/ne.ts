@@ -8,4 +8,7 @@ export const ne: Partial<VideoCallControlsTranslations> = {
   'call.cameraOff': '🚫',
   'call.share': '🖥',
   'call.leave': 'छोड्नुहोस्',
+  'call.aria.muted': 'म्युट गरिएको',
+  'call.aria.handRaised': 'हात उठाइयो',
+  'call.label.you': '(तपाईं)',
 }

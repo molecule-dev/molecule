@@ -2,7 +2,7 @@ import type { GraphViewTranslations } from './types.js'
 
 /** Graph-view translations for th (stub — falls back to English). */
 export const th: GraphViewTranslations = {
-  'graphView.aria.canvas': 'Graph view',
-  'graphView.aria.node': 'Node {{label}}',
+  'graphView.aria.canvas': 'มุมมองกราฟ',
+  'graphView.aria.node': 'โหนด {{label}}',
   'graphView.empty': 'ไม่มีโหนดให้แสดง',
 }

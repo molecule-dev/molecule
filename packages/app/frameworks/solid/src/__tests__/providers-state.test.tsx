@@ -119,7 +119,6 @@ describe('MoleculeProvider supplies the bonded state provider by default (flash-
 
     const container = mount(() =>
       createComponent(MoleculeProvider, {
-        config: {},
         get children() {
           return createComponent(StateProbe, {
             get store() {
@@ -143,7 +142,6 @@ describe('MoleculeProvider supplies the bonded state provider by default (flash-
 
     const container = mount(() =>
       createComponent(MoleculeProvider, {
-        config: {},
         get children() {
           return createComponent(StateProbe, { store })
         },
@@ -160,7 +158,7 @@ describe('MoleculeProvider supplies the bonded state provider by default (flash-
 
     const container = mount(() =>
       createComponent(MoleculeProvider, {
-        config: { state: explicitProvider },
+        state: explicitProvider,
         get children() {
           return createComponent(ProviderProbe, {})
         },

@@ -16,6 +16,8 @@ const UNLABELLED: CaseA11y = {
 /** Textarea: sizes, label/error/hint, rows, autoResize heights, control and events. */
 export const textareaCases: UIComponentCases = {
   component: 'Textarea',
+  ref: {},
+  declaredProps: { props: 'element' },
   cases: [
     { name: 'defaults', a11y: UNLABELLED, props: { name: 'notes' } },
     ...(['xs', 'sm', 'md', 'lg', 'xl'] as const).map((size) => ({
@@ -98,6 +100,20 @@ export const textareaCases: UIComponentCases = {
     {
       name: 'passes through aria attributes',
       props: { 'aria-label': 'Free-form notes', name: 'bio' },
+    },
+    {
+      name: 'change handler reads the typed value from target and the textarea as currentTarget',
+      props: { label: 'Bio', name: 'bio' },
+      callbacks: ['onChange'],
+      callbackResults: { onChange: { read: ['target.value', 'currentTarget'] } },
+      interactions: [{ type: 'input', selector: 'textarea', value: 'Writes compilers.' }],
+    },
+    {
+      name: 'focus handler gets the textarea as currentTarget',
+      props: { label: 'Bio', name: 'bio' },
+      callbacks: ['onFocus'],
+      callbackResults: { onFocus: { read: ['currentTarget'] } },
+      interactions: [{ type: 'focus', selector: 'textarea' }],
     },
   ],
 }

@@ -16,4 +16,11 @@ export const ms: Partial<BillingTranslations> = {
   'billing.pricing.tierEyebrow': 'Peringkat',
   'billing.pricing.perSeat': 'setiap tempat duduk',
   'billing.pricing.currentCta': 'Pelan semasa',
+  'billing.pricing.period.month': 'sebulan',
+  'billing.pricing.period.year': 'setahun',
+  'billing.pricing.billed.month': 'Dibilkan bulanan',
+  'billing.pricing.billed.year': 'Dibilkan tahunan',
+  'billing.pricing.unlimited': 'Tanpa had',
+  'billing.pricing.limit.maxProjects': 'Projek maksimum',
+  'billing.pricing.limit.canExport': 'Eksport tersedia',
 }

@@ -1,6 +1,10 @@
-import { createElement } from 'react'
+// @vitest-environment jsdom
+import { act, createElement } from 'react'
+import { createRoot } from 'react-dom/client'
 import { renderToStaticMarkup } from 'react-dom/server'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+
+import type { ForumThreadRowProps } from '../ForumThreadRow.js'
 
 vi.mock('@molecule/app-ui', () => ({
   getClassMap: () => {
@@ -25,6 +29,33 @@ vi.mock('@molecule/app-ui', () => ({
 const { ForumThreadRow } = await import('../ForumThreadRow.js')
 
 const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
+
+/** Mounted roots, unmounted after each test. */
+const mounted: Array<() => void> = []
+
+afterEach(() => {
+  for (const unmount of mounted.splice(0)) unmount()
+})
+
+/**
+ * Mounts the component into the document (the string renderer cannot fire
+ * events) and returns its host element.
+ */
+const mount = (props: ForumThreadRowProps): HTMLElement => {
+  const host = document.createElement('div')
+  document.body.appendChild(host)
+  const root = createRoot(host)
+  act(() => {
+    root.render(createElement(ForumThreadRow, props))
+  })
+  mounted.push(() => {
+    act(() => {
+      root.unmount()
+    })
+    host.remove()
+  })
+  return host
+}
 
 describe('ForumThreadRow', () => {
   it('renders the title inside an <h3>', () => {
@@ -96,5 +127,46 @@ describe('ForumThreadRow', () => {
     const plain = html(createElement(ForumThreadRow, { title: 'T', className: 'ftr-cls' }))
     expect(plain).not.toContain('cursorPointer')
     expect(plain).toContain('ftr-cls')
+  })
+
+  it('clicking the open button calls onClick', () => {
+    const onClick = vi.fn()
+    const host = mount({ title: 'T', onClick })
+    host.querySelector<HTMLElement>('[data-mol-id="forum-thread-row-open"]')!.click()
+    expect(onClick).toHaveBeenCalledTimes(1)
+  })
+
+  it('clicking an inner control does not call onClick', () => {
+    const onClick = vi.fn()
+    const host = mount({
+      title: 'T',
+      onClick,
+      voteControls: createElement('div', { 'data-votes': '' }),
+    })
+    host.querySelector<HTMLElement>('[data-votes]')!.click()
+    expect(onClick).not.toHaveBeenCalled()
+  })
+
+  it('the open button is named by the label', () => {
+    const host = mount({ title: 'How do I reset my password?', onClick: () => {} })
+    const open = host.querySelector('[data-mol-id="forum-thread-row-open"]')!
+    const labelledby = open.getAttribute('aria-labelledby')
+    expect(labelledby).toBeTruthy()
+    const label = document.getElementById(labelledby!)
+    expect(label?.tagName.toLowerCase()).toBe('h3')
+    expect(label?.textContent).toBe('How do I reset my password?')
+  })
+
+  it('without onClick there is no open button', () => {
+    const host = mount({ title: 'T' })
+    expect(host.querySelector('[data-mol-id="forum-thread-row-open"]')).toBeNull()
+    expect(host.querySelector('article')!.querySelector('button')).toBeNull()
+  })
+
+  it('click elsewhere in the row does not call onClick', () => {
+    const onClick = vi.fn()
+    const host = mount({ title: 'T', onClick })
+    host.querySelector('article')!.click()
+    expect(onClick).not.toHaveBeenCalled()
   })
 })

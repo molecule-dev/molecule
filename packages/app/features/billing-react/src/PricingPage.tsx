@@ -5,6 +5,7 @@ import { getClassMap } from '@molecule/app-ui'
 import { Icon } from '@molecule/app-ui-react'
 
 import { usePricingTiers, useStartCheckout } from './hooks.js'
+import { billingBilledLabel, billingLimitLabel, billingLimitValue } from './labels.js'
 import type { PricingTierEntry, PricingTierPrice } from './types.js'
 
 /**
@@ -357,13 +358,6 @@ function TierCard<TLimits>({
   headlineStyle,
 }: TierCardProps<TLimits>): React.ReactElement {
   const price = tier.prices.find((p) => p.period === period) ?? tier.prices[0]
-  const periodLabel = price?.period
-    ? t(`billing.pricing.period.${price.period}`, undefined, {
-        defaultValue: price.period === 'year' ? 'per year' : 'per month',
-      })
-    : ''
-
-  void periodLabel
   return (
     <div
       // Outer wrapper keeps the popular tier physically larger (taller
@@ -484,9 +478,7 @@ function TierCard<TLimits>({
               cm.sp('mt', 2),
             )}
           >
-            {t(`billing.pricing.billed.${price?.period ?? 'month'}`, undefined, {
-              defaultValue: price?.period === 'year' ? 'Billed annually' : 'Billed monthly',
-            })}
+            {billingBilledLabel(price?.period ?? 'month', t)}
             {price?.savings && (
               <>
                 {' · '}
@@ -548,9 +540,12 @@ interface DefaultLimitsProps<TLimits> {
 
 /**
  * Default render for a tier's `limits` object — a stacked checklist
- * with a green check glyph per row. Numbers and booleans render
- * directly; objects/arrays JSON-stringify. Apps with richer limit
- * shapes should pass their own `renderLimits` prop to `<PricingPage />`.
+ * with a green check glyph per row. The row labels and the unlimited
+ * sentinel go through `t()` (`billing.pricing.limit.<key>`, with the
+ * humanized English as the fallback for a key the locale bond does not
+ * carry); numbers and booleans render directly; objects/arrays
+ * JSON-stringify. Apps with richer limit shapes should pass their own
+ * `renderLimits` prop to `<PricingPage />`.
  *
  * @param props - The component props.
  * @param props.limits - Tier-specific limits to render.
@@ -558,6 +553,7 @@ interface DefaultLimitsProps<TLimits> {
  * @returns A `<ul>` of check-prefixed limit rows.
  */
 function DefaultLimits<TLimits>({ limits, cm }: DefaultLimitsProps<TLimits>): React.ReactElement {
+  const { t } = useTranslation()
   if (limits == null || typeof limits !== 'object') {
     return <></>
   }
@@ -574,46 +570,13 @@ function DefaultLimits<TLimits>({ limits, cm }: DefaultLimitsProps<TLimits>): Re
         >
           <Icon name="check-circle" size={16} className={cm.textSuccess} aria-hidden="true" />
           <span>
-            <span className={cm.textMuted}>{humanizeKey(key)}: </span>
-            <span className={cm.fontWeight('medium')}>{formatLimitValue(value)}</span>
+            <span className={cm.textMuted}>{billingLimitLabel(key, t)}: </span>
+            <span className={cm.fontWeight('medium')}>{billingLimitValue(value, t)}</span>
           </span>
         </li>
       ))}
     </ul>
   )
-}
-
-/**
- * Converts a camelCase or snake_case key into a human-readable label (e.g. `maxBlocks` → `Max blocks`).
- */
-function humanizeKey(key: string): string {
-  // 'maxBlocks' → 'Max blocks'; 'canExport' → 'Can export';
-  // 'max_blocks' → 'Max blocks'. The PricingPage caller can always
-  // override with renderLimits for fully custom labels.
-  const spaced = key
-    .replace(/_/g, ' ')
-    .replace(/([a-z])([A-Z])/g, '$1 $2')
-    .toLowerCase()
-  return spaced.charAt(0).toUpperCase() + spaced.slice(1)
-}
-
-/**
- * Formats a raw limit value (boolean, number, string, or object) into a display string.
- */
-function formatLimitValue(value: unknown): string {
-  if (typeof value === 'boolean') return value ? '✓' : '—'
-  if (typeof value === 'number') {
-    if (value >= 999_999) return 'Unlimited'
-    return value.toLocaleString()
-  }
-  if (value == null) return '—'
-  if (typeof value === 'string') return value
-  try {
-    return JSON.stringify(value)
-  } catch (_error) {
-    // JSON.stringify can throw on circular references; String() is always safe.
-    return String(value)
-  }
 }
 
 /**

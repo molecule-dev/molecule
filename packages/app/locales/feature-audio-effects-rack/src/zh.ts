@@ -49,4 +49,5 @@ export const zh: Partial<AudioEffectsRackTranslations> = {
   'audioEffectsRack.param.flanger.feedback': '反馈',
   'audioEffectsRack.param.phaser.depth': '深度',
   'audioEffectsRack.param.phaser.feedback': '反馈',
+  'audioEffectsRack.param.fallback': '参数',
 }

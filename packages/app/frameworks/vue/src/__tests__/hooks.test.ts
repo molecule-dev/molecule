@@ -40,7 +40,7 @@ import {
   useTheme,
 } from '../composables/index.js'
 import { moleculePlugin } from '../plugin.js'
-import type { UseHttpReturn } from '../types.js'
+import type { UseHttpResult } from '../types.js'
 
 const mounted: Array<ReturnType<typeof mount>> = []
 
@@ -734,7 +734,7 @@ describe('useHttp', () => {
   it('keeps a committed action on committed options while a new render suspends', async () => {
     const httpClient = createMockHttpClient()
     const token = ref('committed')
-    let request!: UseHttpReturn<{ id: number }>
+    let request!: UseHttpResult<{ id: number }>
 
     mountComposable(
       () => {
@@ -758,7 +758,7 @@ describe('useHttp', () => {
   it('keeps execute stable across ordinary rerenders', async () => {
     const httpClient = createMockHttpClient()
     const nonce = ref(0)
-    let request!: UseHttpReturn<unknown>
+    let request!: UseHttpResult<unknown>
 
     mountComposable(
       () => {
@@ -777,7 +777,7 @@ describe('useHttp', () => {
   it('keeps execute stable through its own state updates and inline options', async () => {
     const httpClient = createMockHttpClient()
     const nonce = ref(0)
-    let request!: UseHttpReturn<{ id: number }>
+    let request!: UseHttpResult<{ id: number }>
 
     mountComposable(
       () => {
@@ -847,7 +847,7 @@ describe('useHttp', () => {
     const secondSuccess = vi.fn()
     const version = ref('one')
     let onSuccess = firstSuccess
-    let request!: UseHttpReturn<{ id: number }>
+    let request!: UseHttpResult<{ id: number }>
 
     mountComposable(
       () => {
@@ -892,7 +892,7 @@ describe('useHttp', () => {
     }
     const method = ref<'GET' | 'DELETE'>('GET')
     const url = ref('/api/one')
-    let request!: UseHttpReturn<{ id: number }>
+    let request!: UseHttpResult<{ id: number }>
 
     mountComposable(
       () => {
@@ -920,7 +920,7 @@ describe('useHttp', () => {
     const httpClient = createMockHttpClient()
     httpClient.get.mockRejectedValueOnce(new Error('nope'))
     const onError = vi.fn()
-    let request!: UseHttpReturn<unknown>
+    let request!: UseHttpResult<unknown>
 
     mountComposable(
       () => {
@@ -946,7 +946,7 @@ describe('useHttp', () => {
         resolveRequest = resolve
       }),
     )
-    let request!: UseHttpReturn<{ id: number }>
+    let request!: UseHttpResult<{ id: number }>
 
     const wrapper = mountComposable(
       () => {
@@ -966,7 +966,7 @@ describe('useHttp', () => {
 
   it('resets state without replacing execute', async () => {
     const httpClient = createMockHttpClient()
-    let request!: UseHttpReturn<{ id: number }>
+    let request!: UseHttpResult<{ id: number }>
 
     mountComposable(
       () => {
@@ -1022,7 +1022,7 @@ describe('useHttp', () => {
 
   it('should make GET request', async () => {
     const httpClient = createMockHttpClient()
-    let request!: UseHttpReturn<{ id: number }>
+    let request!: UseHttpResult<{ id: number }>
 
     mountComposable(
       () => {
@@ -1073,7 +1073,7 @@ describe('useHttp', () => {
   it('shows the newest request when an older one answers after it', async () => {
     const held = heldGets()
     const seen: unknown[] = []
-    let request!: UseHttpReturn<string>
+    let request!: UseHttpResult<string>
 
     mountComposable(
       () => {
@@ -1098,7 +1098,7 @@ describe('useHttp', () => {
 
   it('keeps loading while a newer request is in flight after an older one answers', async () => {
     const held = heldGets()
-    let request!: UseHttpReturn<string>
+    let request!: UseHttpResult<string>
 
     mountComposable(
       () => {
@@ -1119,7 +1119,7 @@ describe('useHttp', () => {
 
   it('does not let a request answered after reset repopulate the state', async () => {
     const held = heldGets()
-    let request!: UseHttpReturn<string>
+    let request!: UseHttpResult<string>
 
     mountComposable(
       () => {
@@ -1138,7 +1138,7 @@ describe('useHttp', () => {
 
   it('still shows a single request answered in order', async () => {
     const held = heldGets()
-    let request!: UseHttpReturn<string>
+    let request!: UseHttpResult<string>
 
     mountComposable(
       () => {
@@ -1158,7 +1158,7 @@ describe('useHttp', () => {
   it('returns each request outcome while only the newest request owns state', async () => {
     const held = heldGets()
     const onError = vi.fn()
-    let request!: UseHttpReturn<string>
+    let request!: UseHttpResult<string>
 
     mountComposable(
       () => {
@@ -1196,7 +1196,7 @@ describe('useHttp', () => {
       held.client.get('/api/items', config),
     )
     const navigate = vi.fn()
-    let request!: UseHttpReturn<string>
+    let request!: UseHttpResult<string>
 
     mountComposable(
       () => {
@@ -1219,7 +1219,7 @@ describe('useHttp', () => {
       const held = heldGets()
       const onSuccess = vi.fn()
       const onError = vi.fn()
-      let request!: UseHttpReturn<string>
+      let request!: UseHttpResult<string>
 
       mountComposable(
         () => {
@@ -1259,7 +1259,7 @@ describe('useHttp', () => {
       const held = heldGets()
       const onSuccess = vi.fn()
       const onError = vi.fn()
-      let request!: UseHttpReturn<string>
+      let request!: UseHttpResult<string>
 
       const wrapper = mountComposable(
         () => {
@@ -1288,7 +1288,7 @@ describe('useHttp', () => {
   it('shows the newest immediate request when StrictMode replays the mount effect', async () => {
     const held = heldGets()
     const onSuccess = vi.fn()
-    let request!: UseHttpReturn<string>
+    let request!: UseHttpResult<string>
 
     const Consumer = defineComponent({
       setup() {

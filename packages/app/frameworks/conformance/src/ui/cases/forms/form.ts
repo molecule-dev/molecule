@@ -26,6 +26,8 @@ const plans = [
 /** Form: fieldset wrapping, submit handling with FormData collection, submitting state and attributes. */
 export const formCases: UIComponentCases = {
   component: 'Form',
+  ref: {},
+  declaredProps: { props: 'element' },
   cases: [
     {
       name: 'defaults',

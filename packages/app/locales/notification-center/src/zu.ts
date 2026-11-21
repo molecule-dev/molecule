@@ -8,4 +8,5 @@ export const zu: Partial<NotificationCenterTranslations> = {
   'notifications.viewAll': 'Buka konke',
   'notifications.loadError': 'Ayikwazanga ukulayisha izaziso.',
   'notifications.retry': 'Zama futhi',
+  'notifications.unread': 'Akufundiwe',
 }

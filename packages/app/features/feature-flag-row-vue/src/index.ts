@@ -46,10 +46,12 @@
  * receives `(flagKey, envId, next)` and the caller persists the change and
  * re-renders with updated `flag` data.
  *
- * The type badge translates via `t('flagType.<type>')` with a capitalized
- * English label (`Boolean`, `Multivariate`, `Percentage`, `String`) as the
- * fallback. No locale bond currently ships `flagType.*` keys — add them to
- * your app's own locale resources for non-English UIs.
+ * The type badge translates via one literal `t('flagType.<type>')` call per
+ * flag type (a runtime-built key would be invisible to molecule's i18n gate),
+ * with a capitalized English label (`Boolean`, `Multivariate`, `Percentage`,
+ * `String`) as the fallback. The environment toggle's `aria-label` translates
+ * via `featureFlagRow.aria.flagInEnvironment`. All keys ship in the
+ * `@molecule/app-locales-feature-flag-row` companion bond (79 languages).
  *
  * @module
  */

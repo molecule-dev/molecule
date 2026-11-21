@@ -8,4 +8,5 @@ export const nb: Partial<NotificationCenterTranslations> = {
   'notifications.empty': 'Ingen varsler',
   'notifications.loadError': 'Kunne ikke laste inn varsler.',
   'notifications.retry': 'Prøv på nytt',
+  'notifications.unread': 'Ulest',
 }

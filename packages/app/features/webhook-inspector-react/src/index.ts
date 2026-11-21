@@ -27,11 +27,12 @@
  * `onRetry` only invokes your callback (the button renders per-row when
  * `status === 'failure'`). The 'Retry', 'Request' and 'Response' labels route
  * through `t()` under `webhookInspector.*`, translated by the
- * `@molecule/app-locales-webhook-inspector` companion bond. Status pills use hardcoded hex
- * (#22c55e success / #ef4444 failure / #eab308 pending) with white text,
- * independent of theme. Rows are native `<details>` elements and `onSelect`
- * fires on EVERY toggle — opening and closing alike. Non-string
- * request/response bodies render via JSON.stringify(v, null, 2). Props
+ * `@molecule/app-locales-webhook-inspector` companion bond. Status pills take
+ * their colour from the theme's semantic tones (success / error / warning)
+ * through the ClassMap, with the theme's on-tone text. Rows are native
+ * `<details>` elements and `onSelect` fires on EVERY toggle — opening and
+ * closing alike. Non-string request/response bodies render via
+ * JSON.stringify(v, null, 2). Props
  * (documented on the exported `WebhookInspectorProps` interface):
  * deliveries, onRetry, onSelect, selectedId, className.
  *

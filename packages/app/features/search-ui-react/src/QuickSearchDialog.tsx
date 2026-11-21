@@ -32,6 +32,12 @@ export interface QuickSearchDialogProps<T extends ClientSearchDocument> {
   idleText?: string
   /** Renders each row's link (a router link keeps navigation client-side). */
   renderLink?: (props: SearchResultLinkProps) => ReactNode
+  /**
+   * The dialog's accessible name, already translated (like `placeholder`, it
+   * names nothing visible). Defaults to `t('searchUi.dialogLabel')`
+   * ("Search"); the field's placeholder already names the field.
+   */
+  label?: string
   /** `data-mol-id` prefix. Defaults to `quick-search`. */
   molId?: string
 }
@@ -41,6 +47,8 @@ export interface QuickSearchDialogProps<T extends ClientSearchDocument> {
  * a scrolling pane, and the key hints in the footer. Before anything is
  * typed the pane shows `idleText` rather than a browse list. Enter opens the active
  * hit through the session (which closes the dialog by the caller's `onOpen`).
+ * The dialog is named for screen readers through `label` (or the translated
+ * "Search" default).
  *
  * @param props - See {@link QuickSearchDialogProps}.
  * @returns The dialog, or nothing while closed.
@@ -55,6 +63,7 @@ export function QuickSearchDialog<T extends ClientSearchDocument>({
   emptyText,
   idleText,
   renderLink,
+  label,
   molId = 'quick-search',
 }: QuickSearchDialogProps<T>): React.JSX.Element | null {
   const cm = getClassMap()
@@ -75,6 +84,7 @@ export function QuickSearchDialog<T extends ClientSearchDocument>({
       closeOnEscape={false}
       showCloseButton={false}
       closeLabel={t('searchUi.close', undefined, { defaultValue: 'Close' })}
+      aria-label={label ?? t('searchUi.dialogLabel', undefined, { defaultValue: 'Search' })}
       data-mol-id={molId}
     >
       <SearchBox

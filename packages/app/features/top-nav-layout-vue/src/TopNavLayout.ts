@@ -11,7 +11,7 @@
 import { defineComponent, h, type PropType, type VNode, type VNodeChild } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
-import { Link, useLocation } from '@molecule/app-vue'
+import { Link, useLocation, useTranslation } from '@molecule/app-vue'
 
 import type { TopNavItem } from './types.js'
 
@@ -70,13 +70,19 @@ export const TopNavLayout = defineComponent({
       required: true,
     },
     userMenu: null,
-    navAriaLabel: { type: String, default: 'Primary navigation' },
+    navAriaLabel: String,
     className: String,
     dataMolId: String,
   },
   setup(props, { slots }) {
     const cm = getClassMap()
     const location = useLocation()
+    const { t } = useTranslation()
+    // The nav region's aria-label: prop > `t()` > default. Read in the render
+    // function, so a locale switch re-renders it, as React's does.
+    const navLabel = (): string =>
+      props.navAriaLabel ??
+      t('topNavLayout.aria.primaryNavigation', undefined, { defaultValue: 'Primary navigation' })
 
     return (): VNode =>
       h(
@@ -111,7 +117,7 @@ export const TopNavLayout = defineComponent({
                   'nav',
                   {
                     class: cm.flex({ align: 'center', gap: 'md' }),
-                    'aria-label': props.navAriaLabel,
+                    'aria-label': navLabel(),
                   },
                   props.navItems.map((item) => {
                     const active = navItemActive(location.value.pathname, item.to)

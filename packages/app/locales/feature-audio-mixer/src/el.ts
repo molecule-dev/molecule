@@ -9,5 +9,7 @@ export const el: Partial<AudioMixerTranslations> = {
   'audioMixer.aria.send': '{{channel}} στείλε σε {{send}}',
   'audioMixer.button.mute': 'Βουβός',
   'audioMixer.button.solo': 'Μονοφωνία',
+  'audioMixer.button.muteInitial': 'Β',
+  'audioMixer.button.soloInitial': 'Μ',
   'audioMixer.master': 'Κύριος',
 }

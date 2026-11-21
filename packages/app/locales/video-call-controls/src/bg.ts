@@ -8,4 +8,7 @@ export const bg: Partial<VideoCallControlsTranslations> = {
   'call.cameraOff': '🚫',
   'call.share': '🖥',
   'call.leave': 'Оставете',
+  'call.aria.muted': 'Заглушен',
+  'call.aria.handRaised': 'Вдигната ръка',
+  'call.label.you': '(вие)',
 }

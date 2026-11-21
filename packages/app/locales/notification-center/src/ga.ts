@@ -8,4 +8,5 @@ export const ga: Partial<NotificationCenterTranslations> = {
   'notifications.viewAll': 'Féach ar gach rud',
   'notifications.loadError': 'Níorbh fhéidir fógraí a lódáil.',
   'notifications.retry': 'Déan iarracht eile',
+  'notifications.unread': 'Gan léamh',
 }

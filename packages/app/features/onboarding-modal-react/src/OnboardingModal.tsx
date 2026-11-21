@@ -1,5 +1,5 @@
 import type { JSX, ReactNode } from 'react'
-import { useState } from 'react'
+import { useId, useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
@@ -45,6 +45,10 @@ export function OnboardingModal({
 }: OnboardingModalProps): JSX.Element | null {
   const cm = getClassMap()
   const { t } = useTranslation()
+  // Names the dialog after the current step's title (the h2's id, handed to
+  // `Modal` as `aria-labelledby`): `role="dialog"` with no accessible name is
+  // an axe `aria-dialog-name` violation, and the name must follow the step.
+  const titleId = useId()
   const [step, setStep] = useState(defaultStep)
   const total = steps.length
   if (total === 0) return null
@@ -60,12 +64,14 @@ export function OnboardingModal({
   }
 
   return (
-    <Modal open={open} onClose={onClose}>
+    <Modal open={open} onClose={onClose} aria-labelledby={titleId}>
       <div className={cm.stack(4)}>
         {current.media && (
           <div className={cm.flex({ align: 'center', justify: 'center' })}>{current.media}</div>
         )}
-        <h2 className={cm.cn(cm.textSize('xl'), cm.fontWeight('bold'))}>{current.title}</h2>
+        <h2 id={titleId} className={cm.cn(cm.textSize('xl'), cm.fontWeight('bold'))}>
+          {current.title}
+        </h2>
         <div className={cm.textSize('sm')}>{current.body}</div>
         <footer className={cm.flex({ align: 'center', justify: 'between', gap: 'sm' })}>
           <div className={cm.flex({ align: 'center', gap: 'xs' })}>

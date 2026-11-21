@@ -1,5 +1,6 @@
 import type React from 'react'
 
+import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 /** Props for {@link PriceRangeSlider}. */
@@ -39,6 +40,7 @@ export function PriceRangeSlider({
   className,
 }: PriceRangeSliderProps): React.ReactElement {
   const cm = getClassMap()
+  const { t } = useTranslation()
   const [low, high] = value
   const fmt = formatValue ?? ((n: number) => `$${n.toLocaleString()}`)
   return (
@@ -56,7 +58,7 @@ export function PriceRangeSlider({
           value={low}
           onChange={(e) => onChange([Math.min(Number(e.target.value), high), high])}
           className={cm.flex1}
-          aria-label="Minimum"
+          aria-label={t('priceRangeSlider.aria.minimum', undefined, { defaultValue: 'Minimum' })}
         />
         <input
           type="range"
@@ -66,7 +68,7 @@ export function PriceRangeSlider({
           value={high}
           onChange={(e) => onChange([low, Math.max(Number(e.target.value), low)])}
           className={cm.flex1}
-          aria-label="Maximum"
+          aria-label={t('priceRangeSlider.aria.maximum', undefined, { defaultValue: 'Maximum' })}
         />
         <span className={cm.textSize('sm')}>{fmt(high)}</span>
       </div>

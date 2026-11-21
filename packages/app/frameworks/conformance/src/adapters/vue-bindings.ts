@@ -81,34 +81,33 @@ export function createVueBindingAdapter({
       // A reactiveArgs hook reads each argument from its ref for the life of the mount.
       const sources = reactiveSources(hook, args, options, (value) => shallowRef<unknown>(value))
       const start = (current: unknown[]): void => {
-        const Host =
-          options.render === 'text'
-            ? // A component export: each string prop is a text slot (`children` is the default slot).
-              defineComponent({
-                setup() {
-                  const props = { ...(current[0] as Record<string, unknown>) }
-                  const slots = Object.fromEntries(
-                    Object.entries(props)
-                      .filter(([, value]) => typeof value === 'string')
-                      .map(([name, value]) => [
-                        name === 'children' ? 'default' : name,
-                        () => value,
-                      ]),
-                  )
-                  const rest = Object.fromEntries(
-                    Object.entries(props).filter(([, value]) => typeof value !== 'string'),
-                  )
-                  return () => h(exportsOf[hook] as Component, rest, slots)
-                },
-              })
-            : defineComponent({
-                setup() {
-                  result = callHook(exportsOf[hook], sources ?? current)
-                  return () => null
-                },
-              })
+        const Host = options.render
+          ? // A component export: each string prop is a text slot (`children` is the default slot).
+            // The composition root (`'root'`) takes the case's services as its props as well.
+            defineComponent({
+              setup() {
+                const props = { ...(current[0] as Record<string, unknown>) }
+                const slots = Object.fromEntries(
+                  Object.entries(props)
+                    .filter(([, value]) => typeof value === 'string')
+                    .map(([name, value]) => [name === 'children' ? 'default' : name, () => value]),
+                )
+                const rest = Object.fromEntries(
+                  Object.entries(props).filter(([, value]) => typeof value !== 'string'),
+                )
+                const inputs = options.render === 'root' ? { ...services, ...rest } : rest
+                return () => h(exportsOf[hook] as Component, inputs, slots)
+              },
+            })
+          : defineComponent({
+              setup() {
+                result = callHook(exportsOf[hook], sources ?? current)
+                return () => null
+              },
+            })
         app = createApp(Host)
-        app.use(binding.moleculePlugin, services)
+        // The root case mounts MoleculeProvider as the app's root: no plugin around it.
+        if (options.render !== 'root') app.use(binding.moleculePlugin, services)
         app.mount(container)
       }
       const flush = async (): Promise<void> => {
@@ -118,7 +117,7 @@ export function createVueBindingAdapter({
       }
       start(args)
       return {
-        result: () => (options.render === 'text' ? (container.textContent ?? '') : result),
+        result: () => (options.render ? (container.textContent ?? '') : result),
         read: (value) => (isRef(value) ? value.value : value),
         setArgs: async (next) => {
           for (const [index, source] of requireSources(hook, sources).entries())

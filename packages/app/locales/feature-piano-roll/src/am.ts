@@ -8,4 +8,5 @@ export const am: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.resize': 'የማስታወሻ መጠን ቀይር',
   'pianoRoll.aria.note': 'ማስታወሻ {{pitch}} ከቢት ጀምሮ {{startBeat}} ለ {{durationBeats}} ምቶች',
   'pianoRoll.aria.cursor': 'ኢንዲኬተር በ {{pitch}} ላይ ቢት {{beat}} ላይ',
+  'pianoRoll.aria.gridHelp': 'የአሮዌ ቁልፎች የሴል አመላካችን ያንቀሳቅሳሉ፣ Enter ወይም Space እዚያ ላይ ኖት ይሠራሉ።',
 }

@@ -8,6 +8,8 @@ export const eu: Partial<AudioMixerTranslations> = {
   'audioMixer.aria.send': '{{channel}} bidali honera {{send}}',
   'audioMixer.button.mute': 'Isilarazi',
   'audioMixer.button.solo': 'Bakarrik',
+  'audioMixer.button.muteInitial': 'I',
+  'audioMixer.button.soloInitial': 'B',
   'audioMixer.master': 'Maisua',
   'audioMixer.sends': 'Bidalketak',
 }

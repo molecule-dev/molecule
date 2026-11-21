@@ -13,4 +13,8 @@ export const am: Partial<SearchUiTranslations> = {
   'searchUi.relatedTitle': 'ከፍለጋዎ ትርጉም ጋር ይዛመዳል፣ ከቃላቶቹ ጋር አይዛመድም።',
   'searchUi.related': 'ተዛማጅ',
   'searchUi.help': 'የፍለጋ ምክሮች',
+  'searchUi.examplePhrase': '"ትክክለኛ ሐረግ"',
+  'searchUi.exampleExcluded': '-ቃል',
+  'searchUi.activeResult': '{{title}}፣ {{position}} ከ{{count}}',
+  'searchUi.dialogLabel': 'ፍለጋ',
 }

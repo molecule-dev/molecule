@@ -9,4 +9,6 @@ export const hu: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.note':
     'Jegyzet {{pitch}} ütemtől kezdve {{startBeat}} mert {{durationBeats}} ütemek',
   'pianoRoll.aria.cursor': 'Kurzor {{pitch}} hangon, {{beat}} ütemnél',
+  'pianoRoll.aria.gridHelp':
+    'A nyílbillentyűk mozgatják a cellakurzort, az Enter vagy a szóköz ott hangjegyet rajzol.',
 }

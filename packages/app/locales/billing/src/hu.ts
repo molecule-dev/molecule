@@ -15,4 +15,11 @@ export const hu: Partial<BillingTranslations> = {
   'billing.pricing.tierEyebrow': 'Szint',
   'billing.pricing.perSeat': 'ülésenként',
   'billing.pricing.currentCta': 'Jelenlegi terv',
+  'billing.pricing.period.month': 'havonta',
+  'billing.pricing.period.year': 'évente',
+  'billing.pricing.billed.month': 'Havonta számlázva',
+  'billing.pricing.billed.year': 'Évente számlázva',
+  'billing.pricing.unlimited': 'Korlátlan',
+  'billing.pricing.limit.maxProjects': 'Maximális projektszám',
+  'billing.pricing.limit.canExport': 'Exportálás elérhető',
 }

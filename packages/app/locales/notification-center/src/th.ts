@@ -8,4 +8,5 @@ export const th: Partial<NotificationCenterTranslations> = {
   'notifications.viewAll': 'ดูทั้งหมด',
   'notifications.loadError': 'ไม่สามารถโหลดการแจ้งเตือนได้',
   'notifications.retry': 'ลองใหม่อีกครั้ง',
+  'notifications.unread': 'ยังไม่ได้อ่าน',
 }

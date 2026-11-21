@@ -14,7 +14,7 @@ import { subscribeExternalSnapshot } from './external-snapshot.js'
 /**
  * Return type for the useVersion composable.
  */
-export interface UseVersionReturn {
+export interface UseVersionResult {
   state: ComputedRef<VersionState>
   isUpdateAvailable: ComputedRef<boolean>
   isChecking: ComputedRef<boolean>
@@ -26,6 +26,13 @@ export interface UseVersionReturn {
   startPeriodicChecks: (options?: UpdateCheckOptions) => void
   stopPeriodicChecks: () => void
 }
+
+/**
+ * The former name of {@link UseVersionResult}.
+ *
+ * @deprecated Renamed to {@link UseVersionResult}, `@molecule/app-react`'s name for it.
+ */
+export type UseVersionReturn = UseVersionResult
 
 /**
  * All version events to subscribe to.
@@ -63,7 +70,7 @@ const VERSION_EVENTS: VersionEvent[] = [
  * ```
  * @returns The result.
  */
-export function useVersion(): UseVersionReturn {
+export function useVersion(): UseVersionResult {
   const provider = getProvider()
 
   // Cached snapshot: the provider hands out a new object per read, so equality

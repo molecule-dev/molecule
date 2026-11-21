@@ -15,4 +15,8 @@ export const pt: Partial<SearchUiTranslations> = {
   'searchUi.relatedTitle': 'Corresponde ao significado da sua pesquisa, não às suas palavras.',
   'searchUi.related': 'relacionado',
   'searchUi.help': 'Dicas de pesquisa',
+  'searchUi.examplePhrase': '"frase exata"',
+  'searchUi.exampleExcluded': '-palavra',
+  'searchUi.activeResult': '{{title}}, {{position}} de {{count}}',
+  'searchUi.dialogLabel': 'Pesquisar',
 }

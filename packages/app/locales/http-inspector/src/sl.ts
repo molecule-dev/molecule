@@ -7,4 +7,8 @@ export const sl: Partial<HttpInspectorTranslations> = {
   'httpInspector.headers': 'Glave',
   'httpInspector.addHeader': 'Dodaj glavo',
   'httpInspector.body': 'Telo',
+  'httpInspector.methodLabel': 'Metoda HTTP',
+  'httpInspector.urlLabel': 'URL',
+  'httpInspector.headerPlaceholder': 'Glava',
+  'httpInspector.valuePlaceholder': 'Vrednost',
 }

@@ -12,7 +12,14 @@
  * @module
  */
 
+import type { CaseA11y } from '../../ui/spec.js'
 import type { FeatureCases } from '../spec.js'
+
+/** The case hands the step a bare img as its media node. */
+const MEDIA_IMAGE_WITHOUT_ALT: CaseA11y = {
+  expect: ['image-alt'],
+  reason: 'The case hands the step a bare img as its media node',
+}
 
 /** The footer's primary button: Next on any step but the last, Get started on it. */
 const primarySelector = '[role="dialog"] footer button:last-child'
@@ -122,6 +129,7 @@ export const onboardingModalFeature: FeatureCases = {
         },
         {
           name: 'an image media node',
+          a11y: MEDIA_IMAGE_WITHOUT_ALT,
           props: { open: true, steps: [nodeStep] },
           callbacks: ['onClose', 'onComplete'],
         },

@@ -15,4 +15,11 @@ export const fa: Partial<BillingTranslations> = {
   'billing.pricing.perSeat': 'به ازای هر صندلی',
   'billing.pricing.upgradeCta': 'ارتقا به {{tierName}}',
   'billing.pricing.currentCta': 'طرح فعلی',
+  'billing.pricing.period.month': 'ماهانه',
+  'billing.pricing.period.year': 'سالانه',
+  'billing.pricing.billed.month': 'صورتحساب ماهانه',
+  'billing.pricing.billed.year': 'صورتحساب سالانه',
+  'billing.pricing.unlimited': 'نامحدود',
+  'billing.pricing.limit.maxProjects': 'حداکثر تعداد پروژه‌ها',
+  'billing.pricing.limit.canExport': 'امکان خروجی گرفتن',
 }

@@ -7,4 +7,8 @@ export const kn: Partial<HttpInspectorTranslations> = {
   'httpInspector.headers': 'ಹೆಡರ್‌ಗಳು',
   'httpInspector.addHeader': 'ಶಿರೋಲೇಖವನ್ನು ಸೇರಿಸಿ',
   'httpInspector.body': 'ದೇಹ',
+  'httpInspector.methodLabel': 'HTTP ವಿಧಾನ',
+  'httpInspector.urlLabel': 'URL',
+  'httpInspector.headerPlaceholder': 'ಹೆಡರ್',
+  'httpInspector.valuePlaceholder': 'ಮೌಲ್ಯ',
 }

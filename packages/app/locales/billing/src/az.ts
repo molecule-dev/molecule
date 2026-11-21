@@ -16,4 +16,11 @@ export const az: Partial<BillingTranslations> = {
   'billing.pricing.perSeat': 'hər oturacaq üçün',
   'billing.pricing.upgradeCta': 'Təkmilləşdirin {{tierName}}',
   'billing.pricing.currentCta': 'Cari plan',
+  'billing.pricing.period.month': 'ayda',
+  'billing.pricing.period.year': 'ildə',
+  'billing.pricing.billed.month': 'Aylıq fakturalanır',
+  'billing.pricing.billed.year': 'İllik fakturalanır',
+  'billing.pricing.unlimited': 'Qeyri-məhdud',
+  'billing.pricing.limit.maxProjects': 'Maksimum layihə sayı',
+  'billing.pricing.limit.canExport': 'Eksport mümkündür',
 }

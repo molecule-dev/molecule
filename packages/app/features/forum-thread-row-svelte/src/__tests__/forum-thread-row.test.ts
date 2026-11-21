@@ -56,6 +56,15 @@ const render = (props: ForumThreadRowProps): string => {
   return target.innerHTML
 }
 
+/** Mounts a {@link ForumThreadRow} and returns its target, for event tests. */
+const mountEl = (props: ForumThreadRowProps): HTMLElement => {
+  const target = document.createElement('div')
+  document.body.appendChild(target)
+  instances.push(mount(ForumThreadRow, { target, props }))
+  flushSync()
+  return target
+}
+
 describe('ForumThreadRow', () => {
   it('renders the title inside an <h3>', () => {
     const markup = render({ title: 'How do I X?' })
@@ -115,5 +124,46 @@ describe('ForumThreadRow', () => {
     const plain = render({ title: 'T', className: 'ftr-cls' })
     expect(plain).not.toContain('cursorPointer')
     expect(plain).toContain('ftr-cls')
+  })
+
+  it('clicking the open button calls onClick', () => {
+    const onClick = vi.fn()
+    const target = mountEl({ title: 'T', onClick })
+    target.querySelector<HTMLElement>('[data-mol-id="forum-thread-row-open"]')!.click()
+    expect(onClick).toHaveBeenCalledTimes(1)
+  })
+
+  it('clicking an inner control does not call onClick', () => {
+    const onClick = vi.fn()
+    const target = mountEl({
+      title: 'T',
+      onClick,
+      voteControls: raw('<div data-votes=""></div>'),
+    })
+    target.querySelector<HTMLElement>('[data-votes]')!.click()
+    expect(onClick).not.toHaveBeenCalled()
+  })
+
+  it('the open button is named by the label', () => {
+    const target = mountEl({ title: 'How do I reset my password?', onClick: () => {} })
+    const open = target.querySelector('[data-mol-id="forum-thread-row-open"]')!
+    const labelledby = open.getAttribute('aria-labelledby')
+    expect(labelledby).toBeTruthy()
+    const label = document.getElementById(labelledby!)
+    expect(label?.tagName.toLowerCase()).toBe('h3')
+    expect(label?.textContent).toBe('How do I reset my password?')
+  })
+
+  it('without onClick there is no open button', () => {
+    const target = mountEl({ title: 'T' })
+    expect(target.querySelector('[data-mol-id="forum-thread-row-open"]')).toBeNull()
+    expect(target.querySelector('article')!.querySelector('button')).toBeNull()
+  })
+
+  it('click elsewhere in the row does not call onClick', () => {
+    const onClick = vi.fn()
+    const target = mountEl({ title: 'T', onClick })
+    target.querySelector('article')!.click()
+    expect(onClick).not.toHaveBeenCalled()
   })
 })

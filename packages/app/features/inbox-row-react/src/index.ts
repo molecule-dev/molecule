@@ -22,6 +22,12 @@
  * ```
  *
  * @remarks
+ * - With `onClick` set, the whole row is clickable through a transparent
+ *   native button laid over it, named by the sender and the subject (two ids,
+ *   `aria-labelledby="<senderId> <subjectId>"`); the inner controls (the star
+ *   toggle, the selection slot, the labels slot) sit above it and keep their
+ *   own clicks. A native button turns Enter and Space into a click itself, so
+ *   the row's open action needs no key handler.
  * - Star/attachment indicators use fixed colors and emoji. Their aria-labels
  *   ("Star"/"Unstar"/"Has attachment") route through `t()` under `inboxRow.*`,
  *   translated by the `@molecule/app-locales-inbox-row` companion bond.

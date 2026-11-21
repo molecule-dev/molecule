@@ -41,7 +41,7 @@ function renderAt(
   document.body.appendChild(host)
   const dispose = render(
     () => (
-      <MoleculeProvider config={{ router }}>
+      <MoleculeProvider router={router}>
         <SafeLink {...props}>{children ?? 'link'}</SafeLink>
       </MoleculeProvider>
     ),

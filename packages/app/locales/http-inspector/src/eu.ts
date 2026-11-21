@@ -7,4 +7,8 @@ export const eu: Partial<HttpInspectorTranslations> = {
   'httpInspector.headers': 'Goiburuak',
   'httpInspector.addHeader': 'Gehitu goiburua',
   'httpInspector.body': 'Gorputza',
+  'httpInspector.methodLabel': 'HTTP metodoa',
+  'httpInspector.urlLabel': 'URL',
+  'httpInspector.headerPlaceholder': 'Goiburua',
+  'httpInspector.valuePlaceholder': 'Balioa',
 }

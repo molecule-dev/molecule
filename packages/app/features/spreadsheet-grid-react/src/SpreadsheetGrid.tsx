@@ -9,6 +9,7 @@ import {
   useState,
 } from 'react'
 
+import { copyTextWithFallback } from '@molecule/app-clipboard'
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -71,7 +72,7 @@ export interface SpreadsheetGridProps {
  *
  * Renders an `rows × columns` grid backed by a sparse `Map<cellRef, value>`,
  * with frozen rows/columns, range selection (click + drag, Shift+click),
- * copy/paste through the system clipboard as TSV, and in-cell editing
+ * copy/paste through `@molecule/app-clipboard` as TSV, and in-cell editing
  * (double-click → input; Enter commits, Escape cancels).
  *
  * Only the cells inside the visible viewport (plus a small overscan
@@ -233,13 +234,7 @@ export function SpreadsheetGrid(props: SpreadsheetGridProps): ReactElement {
 
   const handleCopy = useCallback(async () => {
     const tsv = serializeSelectionTsv(cells, selection)
-    if (typeof navigator !== 'undefined' && navigator.clipboard?.writeText) {
-      try {
-        await navigator.clipboard.writeText(tsv)
-      } catch (_error) {
-        /* clipboard may be unavailable in some contexts; ignore */
-      }
-    }
+    await copyTextWithFallback(tsv)
     return tsv
   }, [cells, selection])
 

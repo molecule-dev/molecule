@@ -6,4 +6,8 @@ export const gu: Partial<LoyaltyTierBadgeTranslations> = {
   'loyaltyTierBadge.progress': 'પ્રગતિ {{next}}',
   'loyaltyTierBadge.topTier': 'ટોચનું સ્તર પ્રાપ્ત થયું',
   'loyaltyTierBadge.remaining': '{{remaining}} થી {{next}}',
+  'loyaltyTierBadge.tier.bronze': 'કાંસું',
+  'loyaltyTierBadge.tier.silver': 'ચાંદી',
+  'loyaltyTierBadge.tier.gold': 'સોનું',
+  'loyaltyTierBadge.tier.platinum': 'પ્લેટિનમ',
 }

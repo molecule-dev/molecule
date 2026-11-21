@@ -9,4 +9,6 @@ export const mn: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.note':
     'Тэмдэглэл {{pitch}} хэмнэлээр эхлэх {{startBeat}} хувьд {{durationBeats}} цохилтууд',
   'pianoRoll.aria.cursor': 'Курсор {{pitch}} дээр, {{beat}} цохилтод',
+  'pianoRoll.aria.gridHelp':
+    'Сум түлхүүрүүд нүдний курсорыг зөөж, Enter эсвэл Space тэнд нот зурна.',
 }

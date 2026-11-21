@@ -206,7 +206,8 @@
    "blur commits a non-empty draft": {
     "snapshots": [
      "<div class=\"c1e8176ab c9866e6d5 c9bd6223c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<input class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cb5823274 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" placeholder=\"Add a tag…\" type=\"text\" value {value=\"\"}>\n</input>\n</div>\n@route /",
-     "<div class=\"c1e8176ab c9866e6d5 c9bd6223c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<input class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cb5823274 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" placeholder=\"Add a tag…\" type=\"text\" value=\"angular\" {value=\"angular\"}>\n</input>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c9866e6d5 c9bd6223c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<input class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cb5823274 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" placeholder=\"Add a tag…\" type=\"text\" value {value=\"\"}>\n</input>\n</div>\n@route /\n@focus body>div:0>input:0",
+     "<div class=\"c1e8176ab c9866e6d5 c9bd6223c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<input class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cb5823274 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" placeholder=\"Add a tag…\" type=\"text\" value=\"angular\" {value=\"angular\"}>\n</input>\n</div>\n@route /\n@focus body>div:0>input:0",
      "<div class=\"c1e8176ab c9866e6d5 c9bd6223c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<input class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cb5823274 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" placeholder=\"Add a tag…\" type=\"text\" value {value=\"\"}>\n</input>\n</div>\n@route /"
     ],
     "calls": [
@@ -308,6 +309,12 @@
    "list and item classes": {
     "snapshots": [
      "<ul class=\"c1c767af9 c1e8176ab c9866e6d5 cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<li class=\"c3d5a9671\">\n<span class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c8d3cd30e c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\na\n</span>\n</span>\n</li>\n<li class=\"c3d5a9671\">\n<span class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c8d3cd30e c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nb\n</span>\n</span>\n</li>\n</ul>\n@route /"
+    ],
+    "calls": []
+   },
+   "list attributes go on the list itself": {
+    "snapshots": [
+     "<ul aria-label=\"Stock conditions\" class=\"c1504b53f c1e8176ab c9866e6d5 cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\" data-mol-id=\"stock-conditions-list\" id=\"#id0\">\n<li>\n<span class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c8d3cd30e c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\ncold storage\n</span>\n</span>\n</li>\n</ul>\n@route /"
     ],
     "calls": []
    },

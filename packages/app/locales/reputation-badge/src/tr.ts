@@ -9,6 +9,7 @@ export const tr: ReputationBadgeTranslations = {
   'reputationBadge.level.trusted': 'Güvenilir',
   'reputationBadge.level.veteran': 'Veteran',
   'reputationBadge.level.legend': 'Efsane',
+  'reputationBadge.level.fallback': '{{level}}',
   'badgeShelf.aria': '{{count}} rozet kazanıldı',
   'badgeShelf.overflow.aria': '{{count}} rozet daha göster',
 }

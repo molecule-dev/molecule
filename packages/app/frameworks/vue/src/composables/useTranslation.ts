@@ -26,7 +26,7 @@ import type {
 import { getProvider, I18nError } from '@molecule/app-i18n'
 
 import { I18nKey } from '../injection-keys.js'
-import type { UseTranslationReturn } from '../types.js'
+import type { UseTranslationResult } from '../types.js'
 
 /**
  * Composable to access the i18n provider: the one the nearest provider supplies,
@@ -105,7 +105,7 @@ function useLocaleVersion(provider: I18nProvider): Ref<number> {
  * </template>
  * ```
  */
-export function useTranslation(): UseTranslationReturn {
+export function useTranslation(): UseTranslationResult {
   const provider = useI18nProvider()
 
   // Reactive state
@@ -193,15 +193,22 @@ export function useTranslation(): UseTranslationReturn {
 }
 
 /**
- * The translation function {@link useT} returns: the provider signature plus
- * the `t(key, fallback, options?)` shorthand whose string second argument is
- * the `defaultValue`.
+ * Options for the shorthand form of {@link UseTFunction}: the fallback text is
+ * passed positionally, so only `count` remains here.
  */
-export type UseTFunction = (
-  key: string,
-  valuesOrDefault?: InterpolationValues | string,
-  options?: TranslateOptions,
-) => string
+export type UseTShorthandOptions = Omit<TranslateOptions, 'defaultValue'>
+
+/**
+ * The translation function {@link useT} returns.
+ *
+ * Two compatible call forms:
+ * - `t(key, values?, options?)` — the {@link I18nProvider.t} signature.
+ * - `t(key, fallback, options?)` — a string second argument is the inline
+ *   English `defaultValue`, with optional `count` for pluralization.
+ */
+export type UseTFunction = I18nProvider['t'] & {
+  (key: string, fallback: string, options?: UseTShorthandOptions): string
+}
 
 /**
  * Composable to get just the translation function.
@@ -227,7 +234,11 @@ export type UseTFunction = (
 export function useT(): UseTFunction {
   const provider = useI18nProvider()
   const version = useLocaleVersion(provider)
-  return (key, valuesOrDefault, options) => {
+  return (
+    key: string,
+    valuesOrDefault?: InterpolationValues | string,
+    options?: TranslateOptions,
+  ): string => {
     // Reading the counter makes the calling template's render depend on locale
     // notifications, so text it prints updates after a locale switch.
     void version.value

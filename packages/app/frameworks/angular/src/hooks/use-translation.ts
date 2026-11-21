@@ -48,6 +48,24 @@ function useLocaleNotifications(provider: I18nProvider): Signal<number> {
 }
 
 /**
+ * Options for the shorthand form of {@link UseTFunction}: the fallback text is
+ * passed positionally, so only `count` remains here.
+ */
+export type UseTShorthandOptions = Omit<TranslateOptions, 'defaultValue'>
+
+/**
+ * The translation function {@link useT} returns.
+ *
+ * Two compatible call forms:
+ * - `t(key, values?, options?)` — the {@link I18nProvider.t} signature.
+ * - `t(key, fallback, options?)` — a string second argument is the inline
+ *   English `defaultValue`, with optional `count` for pluralization.
+ */
+export type UseTFunction = I18nProvider['t'] & {
+  (key: string, fallback: string, options?: UseTShorthandOptions): string
+}
+
+/**
  * What {@link useTranslation} returns.
  */
 export interface UseTranslationResult {
@@ -166,11 +184,7 @@ export function useTranslation(): UseTranslationResult {
  *
  * @returns The translation function.
  */
-export function useT(): (
-  key: string,
-  valuesOrDefault?: InterpolationValues | string,
-  options?: TranslateOptions,
-) => string {
+export function useT(): UseTFunction {
   const provider = useI18nProvider()
   const notifications = useLocaleNotifications(provider)
   return (

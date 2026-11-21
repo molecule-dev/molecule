@@ -8,6 +8,8 @@ export const be: Partial<AudioMixerTranslations> = {
   'audioMixer.aria.send': '{{channel}} адправіць {{send}}',
   'audioMixer.button.mute': 'Адключыць гук',
   'audioMixer.button.solo': 'Сола',
+  'audioMixer.button.muteInitial': 'А',
+  'audioMixer.button.soloInitial': 'С',
   'audioMixer.master': 'Майстар',
   'audioMixer.sends': 'Адпраўляе',
 }

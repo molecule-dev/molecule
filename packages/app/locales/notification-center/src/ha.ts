@@ -8,4 +8,5 @@ export const ha: Partial<NotificationCenterTranslations> = {
   'notifications.viewAll': 'Duba duk',
   'notifications.loadError': 'Ba za a iya loda sanarwa ba.',
   'notifications.retry': 'Sake Gwadawa',
+  'notifications.unread': 'Ba a karanta ba',
 }

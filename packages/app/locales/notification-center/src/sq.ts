@@ -8,4 +8,5 @@ export const sq: Partial<NotificationCenterTranslations> = {
   'notifications.viewAll': 'Shiko të gjitha',
   'notifications.loadError': 'Nuk mund të ngarkoheshin njoftimet.',
   'notifications.retry': 'Riprovo',
+  'notifications.unread': 'I palexuar',
 }

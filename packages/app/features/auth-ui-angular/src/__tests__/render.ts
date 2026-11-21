@@ -11,13 +11,14 @@
 // evaluating the decorators otherwise throws "needs the JIT compiler".
 import '@angular/compiler'
 import {
+  type ApplicationRef,
   Component,
   type ComponentRef,
   createComponent,
   provideZonelessChangeDetection,
   type Type,
 } from '@angular/core'
-import { type ApplicationRef, createApplication } from '@angular/platform-browser'
+import { createApplication } from '@angular/platform-browser'
 
 /** One rendered fixture. */
 export interface RenderedFixture {

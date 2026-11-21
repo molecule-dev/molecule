@@ -98,7 +98,11 @@ export function SearchBox({
       {t('searchUi.syntax', undefined, {
         defaultValue: 'Narrow with a field, quote a phrase, or exclude a word:',
       })}{' '}
-      {[...(examples ?? []), '"exact phrase"', '-word'].map((ex, i) => (
+      {[
+        ...(examples ?? []),
+        t('searchUi.examplePhrase', undefined, { defaultValue: '"exact phrase"' }),
+        t('searchUi.exampleExcluded', undefined, { defaultValue: '-word' }),
+      ].map((ex, i) => (
         <span key={ex}>
           {i > 0 ? ' · ' : ''}
           <code>{ex}</code>

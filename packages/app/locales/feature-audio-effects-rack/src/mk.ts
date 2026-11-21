@@ -49,4 +49,5 @@ export const mk: Partial<AudioEffectsRackTranslations> = {
   'audioEffectsRack.param.phaser.rate': 'Оцени',
   'audioEffectsRack.param.phaser.depth': 'Длабочина',
   'audioEffectsRack.param.phaser.feedback': 'Повратни информации',
+  'audioEffectsRack.param.fallback': 'Параметар',
 }

@@ -8,6 +8,8 @@ export const mt: Partial<AudioMixerTranslations> = {
   'audioMixer.aria.send': '{{channel}} ibgħat lil {{send}}',
   'audioMixer.button.mute': 'Mut',
   'audioMixer.button.solo': 'Solo',
+  'audioMixer.button.muteInitial': 'M',
+  'audioMixer.button.soloInitial': 'S',
   'audioMixer.master': 'Kaptan',
   'audioMixer.sends': 'Jibgħat',
 }

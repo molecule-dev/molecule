@@ -9,6 +9,7 @@ export const te: ReputationBadgeTranslations = {
   'reputationBadge.level.trusted': 'విశ్వసనీయుడు',
   'reputationBadge.level.veteran': 'అనుభవజ్ఞుడు',
   'reputationBadge.level.legend': 'దిగ్గజం',
+  'reputationBadge.level.fallback': '{{level}}',
   'badgeShelf.aria': '{{count}} బ్యాడ్జ్‌లు సంపాదించారు',
   'badgeShelf.overflow.aria': 'మరో {{count}} బ్యాడ్జ్‌లను చూపించు',
 }

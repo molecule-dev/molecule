@@ -99,6 +99,7 @@ import { setProvider as setVersionProvider, type VersionProvider } from '@molecu
 import { createI18nPlugin, createRouterPlugin } from '@molecule/app-vue'
 
 import { AppFooter } from '../AppFooter.js'
+import type { AppFooterProps } from '../types.js'
 
 // The real Icon needs the bonded icon set; the version composable reads the
 // bonded version provider, which the test bonds at 2.0.0 the way the React
@@ -151,7 +152,7 @@ const i18n: I18nProvider = createSimpleI18nProvider('en', [
  * @param props - The footer's props.
  * @returns The markup.
  */
-const render = (props: Record<string, unknown>): string => {
+const render = (props: AppFooterProps): string => {
   const host = document.createElement('div')
   document.body.appendChild(host)
   const app = createApp(defineComponent({ render: () => h(AppFooter, props) }))
@@ -230,8 +231,8 @@ describe('AppFooter', () => {
     app.use(createI18nPlugin(i18n))
     app.use(createRouterPlugin(createMemoryRouter({ initialEntries: ['/'] })))
     app.mount(host)
-    const privacy = Array.from(host.querySelectorAll('footer button')).find((b) =>
-      b.textContent?.includes('Privacy Policy'),
+    const privacy = Array.from(host.querySelectorAll<HTMLButtonElement>('footer button')).find(
+      (b) => b.textContent?.includes('Privacy Policy'),
     )
     privacy?.click()
     await new Promise((resolve) => setTimeout(resolve))

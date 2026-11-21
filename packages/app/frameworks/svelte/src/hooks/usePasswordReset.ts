@@ -13,7 +13,7 @@ import { promiseFields } from './live-store.js'
 import { usePromise, type UsePromiseState, type UsePromiseStore } from './usePromise.js'
 
 /** What {@link usePasswordReset} returns: two independent trackers plus a combined reset. */
-export interface UsePasswordResetResult {
+export interface UsePasswordResetReturn {
   /** The request step's status. */
   requestStatus: Readable<UsePromiseState<void>['status']>
   /** The request step's rejection. */
@@ -29,6 +29,13 @@ export interface UsePasswordResetResult {
   /** Returns BOTH trackers to idle. */
   reset: () => void
 }
+
+/**
+ * The former name of {@link UsePasswordResetReturn}.
+ *
+ * @deprecated Renamed to {@link UsePasswordResetReturn}, `@molecule/app-react`'s name for it.
+ */
+export type UsePasswordResetResult = UsePasswordResetReturn
 
 /**
  * The password-reset flow with separate tracking for the request and confirm
@@ -53,7 +60,7 @@ export interface UsePasswordResetResult {
  * {#if $requestError}<p>{$requestError.message}</p>{/if}
  * ```
  */
-export function usePasswordReset(): UsePasswordResetResult {
+export function usePasswordReset(): UsePasswordResetReturn {
   const client = useAuthClient()
   const request: UsePromiseStore<void, [PasswordResetRequest]> = usePromise((data) =>
     client.requestPasswordReset(data),

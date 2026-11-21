@@ -6,14 +6,15 @@
 
 import { type AfterViewInit, Component, Directive, ElementRef, inject } from '@angular/core'
 
+import { useTranslation } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 /** The name of the `@keyframes` rule the dots animate with. */
 const KEYFRAMES_NAME = 'molecule-typing-pulse'
 
-/** The injected `@keyframes` rule, written once per indicator. */
-const KEYFRAMES_CSS = `@keyframes ${KEYFRAMES_NAME} { 0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); } 40% { opacity: 1; transform: scale(1); } }`
+/** The injected stylesheet: the pulse and its reduced-motion opt-out, written once per indicator. */
+const KEYFRAMES_CSS = `@keyframes ${KEYFRAMES_NAME} { 0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); } 40% { opacity: 1; transform: scale(1); } } @media (prefers-reduced-motion: reduce) { [data-typing-dot] { animation: none !important; } }`
 
 /**
  * Injects the indicator's `<style>` element as the span's first child.
@@ -50,7 +51,8 @@ class TypingStatusSpan implements AfterViewInit {
  * visible and nothing when hidden, so the host is unwrapped
  * (`data-parity-unwrap`, `display: contents`) and the span is rendered inside
  * it. Each instance injects its own `<style>` tag with the shared keyframes
- * and renders three dots that pulse in sequence.
+ * (plus a `prefers-reduced-motion: reduce` rule that stops the pulse for users
+ * who ask for less motion) and renders three dots that pulse in sequence.
  *
  * The `<style>` element is not a template node (Angular's compiler strips
  * `<style>` elements from templates, and the rule's `@keyframes` text would
@@ -70,9 +72,9 @@ class TypingStatusSpan implements AfterViewInit {
   },
   template: `@if (isVisible()) {
     <span mol-typing-status role="status" [attr.aria-label]="labelText()" [class]="classes()">
-      <span aria-hidden="true" [style]="dotStyle(0)"></span>
-      <span aria-hidden="true" [style]="dotStyle(1)"></span>
-      <span aria-hidden="true" [style]="dotStyle(2)"></span>
+      <span aria-hidden="true" data-typing-dot [style]="dotStyle(0)"></span>
+      <span aria-hidden="true" data-typing-dot [style]="dotStyle(1)"></span>
+      <span aria-hidden="true" data-typing-dot [style]="dotStyle(2)"></span>
     </span>
   }`,
 })
@@ -83,10 +85,16 @@ export class TypingIndicator {
   dotSize?: number
   /** Animation duration in ms. Defaults to 1200 at read time. */
   durationMs?: number
-  /** Accessible label. Defaults to 'Typing…' at read time. */
+  /**
+   * Accessible label. Overrides the translated / `defaultValue` `'Typing…'`
+   * (prop > `t()` > default), read at read time.
+   */
   ariaLabel?: string
   /** Extra classes. */
   className?: string
+
+  /** The i18n binding the translated label reads through. */
+  private readonly i18n = useTranslation()
 
   /**
    * The current class map.
@@ -106,11 +114,15 @@ export class TypingIndicator {
   }
 
   /**
-   * The accessible label (React's default parameter).
+   * The accessible label: the prop when given, else the translated default,
+   * read in the template so a locale switch re-renders it.
    * @returns The label.
    */
   labelText(): string {
-    return this.ariaLabel ?? 'Typing…'
+    return (
+      this.ariaLabel ??
+      this.i18n.t('typingIndicator.aria.label', undefined, { defaultValue: 'Typing…' })
+    )
   }
 
   /**

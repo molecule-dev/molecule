@@ -12,6 +12,7 @@
 
 import '@angular/compiler'
 import {
+  type ApplicationRef,
   ChangeDetectionStrategy,
   Component,
   type ComponentRef,
@@ -19,7 +20,7 @@ import {
   provideZonelessChangeDetection,
   type Type,
 } from '@angular/core'
-import { type ApplicationRef, createApplication } from '@angular/platform-browser'
+import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 // Proxy ClassMap echoing each accessed member back as its token (e.g.
@@ -182,9 +183,48 @@ describe('ForumThreadRow', () => {
 
   it('marks the row clickable only when onClick is supplied and forwards className', async () => {
     const clickable = await render({ title: 'T', onClick: () => {} })
-    expect(openTag(clickable.host)).toContain('cursorPointer')
+    const open = clickable.host.querySelector('[data-mol-id="forum-thread-row-open"]')
+    expect(open?.getAttribute('class')).toContain('cursorPointer')
     const plain = await render({ title: 'T', className: 'ftr-cls' })
+    expect(plain.host.querySelector('[data-mol-id="forum-thread-row-open"]')).toBeNull()
     expect(openTag(plain.host)).not.toContain('cursorPointer')
     expect(openTag(plain.host)).toContain('ftr-cls')
+  })
+
+  it('clicking the open button calls onClick', async () => {
+    const onClick = vi.fn()
+    const m = await render({ title: 'T', onClick })
+    m.host.querySelector<HTMLElement>('[data-mol-id="forum-thread-row-open"]')!.click()
+    expect(onClick).toHaveBeenCalledTimes(1)
+  })
+
+  it('clicking an inner control does not call onClick', async () => {
+    const onClick = vi.fn()
+    const m = await render({ title: 'T', onClick }, '<div slot="voteControls" data-votes></div>')
+    m.host.querySelector<HTMLElement>('[data-votes]')!.click()
+    expect(onClick).not.toHaveBeenCalled()
+  })
+
+  it('the open button is named by the label', async () => {
+    const m = await render({ title: 'How do I reset my password?', onClick: () => {} })
+    const open = m.host.querySelector('[data-mol-id="forum-thread-row-open"]')!
+    const labelledby = open.getAttribute('aria-labelledby')
+    expect(labelledby).toBeTruthy()
+    const label = document.getElementById(labelledby!)
+    expect(label?.tagName.toLowerCase()).toBe('h3')
+    expect(label?.textContent?.trim()).toBe('How do I reset my password?')
+  })
+
+  it('without onClick there is no open button', async () => {
+    const m = await render({ title: 'T' })
+    expect(m.host.querySelector('[data-mol-id="forum-thread-row-open"]')).toBeNull()
+    expect(m.host.querySelector('article')!.querySelector('button')).toBeNull()
+  })
+
+  it('click elsewhere in the row does not call onClick', async () => {
+    const onClick = vi.fn()
+    const m = await render({ title: 'T', onClick })
+    m.host.querySelector('article')!.click()
+    expect(onClick).not.toHaveBeenCalled()
   })
 })

@@ -203,6 +203,7 @@ export const searchPanelCases: FeatureComponentCases = {
       callbacks: CALLBACKS,
       interactions: [
         { type: 'click', selector: '[data-mol-id="search-toggle-filters"]' },
+        { type: 'focus', selector: EXCLUDED_INPUT },
         { type: 'input', selector: EXCLUDED_INPUT, value: 'node_modules, docs , bad~name, docs' },
         { type: 'blur', selector: EXCLUDED_INPUT },
       ],
@@ -231,6 +232,7 @@ export const searchPanelCases: FeatureComponentCases = {
       callbacks: ['onResultClick'],
       interactions: [
         { type: 'click', selector: '[data-mol-id="search-toggle-filters"]' },
+        { type: 'focus', selector: EXCLUDED_INPUT },
         { type: 'input', selector: EXCLUDED_INPUT, value: 'docs' },
         { type: 'blur', selector: EXCLUDED_INPUT },
       ],

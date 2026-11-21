@@ -6,6 +6,7 @@
   `low <= high` always holds. The optional `label` is a snippet.
 -->
 <script lang="ts">
+  import { useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
   import type { PriceRangeSliderProps } from './types.js'
@@ -22,8 +23,15 @@
   }: PriceRangeSliderProps = $props()
 
   const cm = $derived(getClassMap())
+  const { t } = useTranslation()
   const low = $derived(value[0])
   const high = $derived(value[1])
+  const minLabel = $derived(
+    t('priceRangeSlider.aria.minimum', undefined, { defaultValue: 'Minimum' }),
+  )
+  const maxLabel = $derived(
+    t('priceRangeSlider.aria.maximum', undefined, { defaultValue: 'Maximum' }),
+  )
 
   /**
    * Formats an endpoint label: the caller's `formatValue`, else the USD
@@ -79,7 +87,7 @@
       use:rangeValue={low}
       oninput={handleMin}
       class={cm.flex1}
-      aria-label="Minimum"
+      aria-label={minLabel}
     />
     <input
       type="range"
@@ -89,7 +97,7 @@
       use:rangeValue={high}
       oninput={handleMax}
       class={cm.flex1}
-      aria-label="Maximum"
+      aria-label={maxLabel}
     />
     <span class={cm.textSize('sm')}>{fmt(high)}</span>
   </div>

@@ -1,0 +1,101 @@
+import { describe, expect, it } from 'vitest'
+
+import type { PlanUpdatedPageProps, PricingPagePeriod, PricingPageProps } from '../index.js'
+import * as PricingPageModule from '../index.js'
+
+describe('@molecule/app-pricing-page-vue module shape', () => {
+  it('exports both page components', () => {
+    // Vue's `defineComponent` returns an options object per component.
+    expect(PricingPageModule.PricingPage).toBeDefined()
+    expect(PricingPageModule.PlanUpdatedPage).toBeDefined()
+  })
+
+  it('PricingPage component has the expected display name', () => {
+    // The components declare their Vue `name` option; this catches
+    // accidental renames or default-export regressions.
+    expect((PricingPageModule.PricingPage as { name?: string }).name).toBe('PricingPage')
+    expect((PricingPageModule.PlanUpdatedPage as { name?: string }).name).toBe('PlanUpdatedPage')
+  })
+})
+
+describe('PricingPageProps typing', () => {
+  it('accepts a fully-specified props object', () => {
+    interface BlogLimits {
+      maxPosts: number
+    }
+    const props: PricingPageProps<BlogLimits> = {
+      tiers: [
+        {
+          key: 'free',
+          name: 'Free',
+          prices: [{ period: 'month', price: '$0', stripePriceId: null }],
+          limits: { maxPosts: 5 },
+        },
+        {
+          key: 'pro',
+          name: 'Pro',
+          prices: [
+            { period: 'month', price: '$8/mo', stripePriceId: 'price_m' },
+            {
+              period: 'year',
+              price: '$80/yr',
+              stripePriceId: 'price_y',
+              savings: '2 months free',
+            },
+          ],
+          limits: { maxPosts: 100 },
+        },
+      ],
+      onCheckout: async (tier, price) => {
+        expect(tier.key).toBeTypeOf('string')
+        expect(price.period).toBeTypeOf('string')
+      },
+      showPeriodToggle: true,
+      defaultPeriod: 'year',
+      headingKey: 'pricingPage.heading',
+      headingDefault: 'Pick a plan',
+      renderLimits: (limits) => `${limits.maxPosts} posts`,
+      className: 'pricing-page',
+    }
+    expect(props.tiers).toHaveLength(2)
+    expect(props.defaultPeriod).toBe('year')
+  })
+
+  it('PricingPagePeriod accepts month and year only', () => {
+    const monthly: PricingPagePeriod = 'month'
+    const yearly: PricingPagePeriod = 'year'
+    expect(monthly).toBe('month')
+    expect(yearly).toBe('year')
+  })
+
+  it('all PricingPageProps fields are optional', () => {
+    const props: PricingPageProps = {}
+    expect(Object.keys(props)).toHaveLength(0)
+  })
+})
+
+describe('PlanUpdatedPageProps typing', () => {
+  it('accepts a fully-specified props object', () => {
+    const props: PlanUpdatedPageProps = {
+      planName: 'Pro',
+      ctaLabel: 'Continue',
+      onCta: () => {},
+      className: 'plan-updated',
+    }
+    expect(props.planName).toBe('Pro')
+  })
+
+  it('accepts ctaHref instead of onCta', () => {
+    const props: PlanUpdatedPageProps = {
+      planName: 'Team',
+      ctaLabel: 'Go to dashboard',
+      ctaHref: '/dashboard',
+    }
+    expect(props.ctaHref).toBe('/dashboard')
+  })
+
+  it('all PlanUpdatedPageProps fields are optional', () => {
+    const props: PlanUpdatedPageProps = {}
+    expect(Object.keys(props)).toHaveLength(0)
+  })
+})

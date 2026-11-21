@@ -35,14 +35,15 @@
     aspectRatio: aspect.replace('/', ' / '),
     outline: active ? '2px solid currentColor' : 'none',
     outlineOffset: '2px',
-    background: 'var(--mol-color-surface, #fff)',
     overflow: 'hidden',
     border: 'none',
     padding: '0',
   })
 
   // Applied through the CSSOM like the tile's style, so the attribute
-  // serializes exactly as react-dom leaves it (rgb colors, `0px` paddings).
+  // serializes exactly as react-dom leaves it (`0px` paddings). The badge's
+  // colours come from the theme scrim (`cm.bgScrim`) with the theme's inverse
+  // text (`cm.textOnTone`).
   const badgeStyle = {
     position: 'absolute',
     left: '4px',
@@ -50,8 +51,6 @@
     padding: '0 4px',
     fontSize: '10px',
     fontWeight: '700',
-    background: 'rgba(0,0,0,0.6)',
-    color: '#fff',
     borderRadius: '3px',
   }
 </script>
@@ -63,9 +62,9 @@
   data-mol-id="slide-thumbnail"
   data-slide-index={index}
   aria-label={label}
-  class={cm.cn(cm.position('relative'), cm.cursorPointer, className)}
+  class={cm.cn(cm.position('relative'), cm.cursorPointer, cm.surface, className)}
   use:reactStyle={rootStyle}
 >
   {#if children}{@render children()}{/if}
-  <span use:reactStyle={badgeStyle}>{index}</span>
+  <span class={cm.cn(cm.bgScrim, cm.textOnTone)} use:reactStyle={badgeStyle}>{index}</span>
 </button>

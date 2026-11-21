@@ -15,4 +15,8 @@ export const ne: Partial<SearchUiTranslations> = {
   'searchUi.relatedTitle': 'तपाईंको खोजको अर्थसँग मेल खान्छ, शब्दहरूसँग होइन',
   'searchUi.related': 'सम्बन्धित',
   'searchUi.help': 'खोज सुझावहरू',
+  'searchUi.examplePhrase': '"ठ्याक्कै वाक्यांश"',
+  'searchUi.exampleExcluded': '-शब्द',
+  'searchUi.activeResult': '{{title}}, {{count}} मध्ये {{position}}',
+  'searchUi.dialogLabel': 'खोज्नुहोस्',
 }

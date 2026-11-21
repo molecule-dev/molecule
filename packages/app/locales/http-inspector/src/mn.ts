@@ -7,4 +7,8 @@ export const mn: Partial<HttpInspectorTranslations> = {
   'httpInspector.headers': 'Толгой хэсгүүд',
   'httpInspector.addHeader': 'Толгой хэсэг нэмэх',
   'httpInspector.body': 'Бие',
+  'httpInspector.methodLabel': 'HTTP арга',
+  'httpInspector.urlLabel': 'URL',
+  'httpInspector.headerPlaceholder': 'Толгой хэсэг',
+  'httpInspector.valuePlaceholder': 'Утга',
 }

@@ -1,4 +1,4 @@
-import type { ReactElement, ReactNode } from 'react'
+import type { KeyboardEvent, ReactElement, ReactNode } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
@@ -120,42 +120,62 @@ export function NotificationCenter({
       ) : (
         <ul className={cm.stack(0 as const)}>
           {items.map((it) => (
-            <li
-              key={it.id}
-              onClick={it.onClick}
-              className={cm.cn(
-                cm.flex({ align: 'start', gap: 'sm' }),
-                cm.sp('px', 3),
-                cm.sp('py', 2),
-                it.onClick ? cm.cursorPointer : undefined,
-              )}
-              style={!it.read ? { background: 'rgba(96,165,250,0.08)' } : undefined}
-            >
-              {it.leading && <div className={cm.shrink0}>{it.leading}</div>}
-              <div className={cm.cn(cm.flex1, cm.stack(0 as const))}>
-                <span
-                  className={cm.cn(
-                    cm.textSize('sm'),
-                    it.read ? cm.fontWeight('medium') : cm.fontWeight('semibold'),
+            <li key={it.id}>
+              {/* A `li` cannot take button semantics, so the row is a wrapper
+                around its content: when the item is clickable it is a button
+                in the a11y tree (role + tabIndex + Enter / Space activation,
+                matching native button keyboard semantics); otherwise it is the
+                plain row div. */}
+              <div
+                role={it.onClick ? 'button' : undefined}
+                tabIndex={it.onClick ? 0 : undefined}
+                onClick={it.onClick}
+                onKeyDown={
+                  it.onClick
+                    ? (event: KeyboardEvent<HTMLDivElement>) => {
+                        if (event.key === 'Enter' || event.key === ' ') {
+                          event.preventDefault()
+                          it.onClick?.()
+                        }
+                      }
+                    : undefined
+                }
+                className={cm.cn(
+                  cm.flex({ align: 'start', gap: 'sm' }),
+                  cm.sp('px', 3),
+                  cm.sp('py', 2),
+                  it.onClick ? cm.cursorPointer : undefined,
+                  it.read ? undefined : cm.bgPrimarySubtle,
+                )}
+              >
+                {it.leading && <div className={cm.shrink0}>{it.leading}</div>}
+                <div className={cm.cn(cm.flex1, cm.stack(0 as const))}>
+                  {/* The unread state is announced, not only shown: a screen
+                    reader reads "Unread" before the title (WCAG 1.3.1). */}
+                  {!it.read && (
+                    <span className={cm.cn(cm.srOnly)}>
+                      {t('notifications.unread', {}, { defaultValue: 'Unread' })}
+                    </span>
                   )}
-                >
-                  {it.title}
-                </span>
-                {it.body && <span className={cm.textSize('xs')}>{it.body}</span>}
-                {it.timestamp && <span className={cm.textSize('xs')}>{it.timestamp}</span>}
+                  <span
+                    className={cm.cn(
+                      cm.textSize('sm'),
+                      it.read ? cm.fontWeight('medium') : cm.fontWeight('semibold'),
+                    )}
+                  >
+                    {it.title}
+                  </span>
+                  {it.body && <span className={cm.textSize('xs')}>{it.body}</span>}
+                  {it.timestamp && <span className={cm.textSize('xs')}>{it.timestamp}</span>}
+                </div>
+                {!it.read && (
+                  <span
+                    aria-hidden
+                    className={cm.cn(cm.bgPrimary, cm.roundedFull)}
+                    style={{ width: 8, height: 8, marginTop: 6 }}
+                  />
+                )}
               </div>
-              {!it.read && (
-                <span
-                  aria-hidden
-                  style={{
-                    width: 8,
-                    height: 8,
-                    borderRadius: '50%',
-                    background: '#60a5fa',
-                    marginTop: 6,
-                  }}
-                />
-              )}
             </li>
           ))}
         </ul>

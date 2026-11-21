@@ -4,6 +4,9 @@
   and description, the bar, and an optional extras slot below. Same props,
   same DOM. Node props (`title`, `description`, `icon`, `valueLabel`,
   `children`) are snippets, or plain strings.
+
+  The bar is named by the title (`aria-labelledby`) and, when a description
+  renders, described by it (`aria-describedby`).
 -->
 <script lang="ts">
   import { getClassMap } from '@molecule/app-ui'
@@ -24,6 +27,13 @@
     children,
   }: ProgressCardProps = $props()
 
+  // Per-instance stable ids (React's `useId()` — Svelte allows one
+  // `$props.id()` per component, so the description's id is derived from it,
+  // never from data): the title names the bar, the description describes it.
+  const baseId = $props.id()
+  const titleId = `${baseId}-title`
+  const descriptionId = `${baseId}-description`
+
   const cm = $derived(getClassMap())
 </script>
 
@@ -35,11 +45,11 @@
           {#if typeof icon === 'function'}{@render icon()}{:else}{icon}{/if}
         {/if}
         <div>
-          <h3 class={cm.cn(cm.textSize('base'), cm.fontWeight('semibold'))}>
+          <h3 id={titleId} class={cm.cn(cm.textSize('base'), cm.fontWeight('semibold'))}>
             {#if typeof title === 'function'}{@render title()}{:else}{title}{/if}
           </h3>
           {#if description}
-            <p class={cm.textSize('sm')}>
+            <p id={descriptionId} class={cm.textSize('sm')}>
               {#if typeof description === 'function'}{@render description()}{:else}{description}{/if}
             </p>
           {/if}
@@ -51,7 +61,13 @@
         </span>
       {/if}
     </div>
-    <ProgressBar {value} {max} {color} />
+    <ProgressBar
+      {value}
+      {max}
+      {color}
+      labelledBy={titleId}
+      describedBy={description ? descriptionId : undefined}
+    />
     {#if children}{@render children()}{/if}
   </div>
 </Card>

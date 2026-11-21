@@ -7,6 +7,41 @@ import { Badge } from '@molecule/app-ui-react'
 import { colorForLevel, DEFAULT_THRESHOLDS, levelForScore } from './levels.js'
 import type { ReputationLevel, ReputationThresholds } from './types.js'
 
+/** The i18n translate function the bonded provider hands out. */
+type Translate = ReturnType<typeof useTranslation>['t']
+
+/**
+ * Resolve a level's translated label through one LITERAL i18n key per
+ * in-contract level, and the literal `reputationBadge.level.fallback` key (its
+ * English is the bare `{{level}}` placeholder, so an unknown id renders as
+ * itself) for anything else.
+ *
+ * Keys are literals, never built from the level id: the i18n gate
+ * (`scripts/check-i18n-parity.js`) can only see literal keys, so a key built at
+ * runtime that no locale bond carries leaves every non-English user on English
+ * with nothing reporting it.
+ *
+ * @param t - The bonded translate function.
+ * @param level - The level id (may be out of contract).
+ * @returns The translated label.
+ */
+function levelLabel(t: Translate, level: ReputationLevel): string {
+  switch (level) {
+    case 'newcomer':
+      return t('reputationBadge.level.newcomer', {}, { defaultValue: 'Newcomer' })
+    case 'contributor':
+      return t('reputationBadge.level.contributor', {}, { defaultValue: 'Contributor' })
+    case 'trusted':
+      return t('reputationBadge.level.trusted', {}, { defaultValue: 'Trusted' })
+    case 'veteran':
+      return t('reputationBadge.level.veteran', {}, { defaultValue: 'Veteran' })
+    case 'legend':
+      return t('reputationBadge.level.legend', {}, { defaultValue: 'Legend' })
+    default:
+      return t('reputationBadge.level.fallback', { level }, { defaultValue: '{{level}}' })
+  }
+}
+
 /** Props accepted by the {@link ReputationBadge} component. */
 export interface ReputationBadgeProps {
   /** Numeric reputation / karma score. */
@@ -54,24 +89,12 @@ export function ReputationBadge({
   const resolvedLevel: ReputationLevel = level ?? levelForScore(score, thresholds)
   const color = colorForLevel(resolvedLevel)
 
-  const levelLabel = t(
-    `reputationBadge.level.${resolvedLevel}`,
-    {},
-    {
-      defaultValue: {
-        newcomer: 'Newcomer',
-        contributor: 'Contributor',
-        trusted: 'Trusted',
-        veteran: 'Veteran',
-        legend: 'Legend',
-      }[resolvedLevel],
-    },
-  )
+  const levelLabelText = levelLabel(t, resolvedLevel)
 
   const formattedScore = formatScore(score)
   const ariaLabel = t(
     'reputationBadge.aria',
-    { score: formattedScore, level: levelLabel },
+    { score: formattedScore, level: levelLabelText },
     { defaultValue: '{{score}} reputation, {{level}}' },
   )
 
@@ -92,7 +115,7 @@ export function ReputationBadge({
           >
             {formattedScore}
           </span>
-          <Badge color={color}>{levelLabel}</Badge>
+          <Badge color={color}>{levelLabelText}</Badge>
         </div>
       </div>
     )
@@ -107,7 +130,7 @@ export function ReputationBadge({
       <span className={cm.fontWeight('semibold')} data-mol-id="reputation-badge-score">
         {formattedScore}
       </span>
-      <Badge color={color}>{levelLabel}</Badge>
+      <Badge color={color}>{levelLabelText}</Badge>
     </span>
   )
 }

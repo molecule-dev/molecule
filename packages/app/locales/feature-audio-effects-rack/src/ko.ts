@@ -49,4 +49,5 @@ export const ko: Partial<AudioEffectsRackTranslations> = {
   'audioEffectsRack.param.flanger.feedback': '피드백',
   'audioEffectsRack.param.phaser.depth': '깊이',
   'audioEffectsRack.param.phaser.feedback': '피드백',
+  'audioEffectsRack.param.fallback': '파라미터',
 }

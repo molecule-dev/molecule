@@ -95,7 +95,8 @@ it('allows an explicit ungated synchronous server shell without starting restora
   const html = String(
     renderToString(() =>
       createComponent(MoleculeProvider, {
-        config: { auth: client, awaitSession: false },
+        auth: client,
+        awaitSession: false,
         get children(): JSX.Element {
           return 'Server page'
         },
@@ -113,12 +114,10 @@ it('server-renders the fallback while a cookie restore is pending', async () => 
     String(
       renderToString(() =>
         createComponent(MoleculeProvider, {
-          config: {
-            auth: client,
-            awaitSession: true,
-            get sessionFallback(): JSX.Element {
-              return 'Restoring'
-            },
+          auth: client,
+          awaitSession: true,
+          get sessionFallback(): JSX.Element {
+            return 'Restoring'
           },
           get children(): JSX.Element {
             return 'Server page'

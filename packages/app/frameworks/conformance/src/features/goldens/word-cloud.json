@@ -1,0 +1,361 @@
+{
+ "exports": [
+  "WordCloud",
+  "bboxesIntersect",
+  "estimateBBox",
+  "packWords",
+  "scaleFontSize"
+ ],
+ "values": {
+  "estimateBBox": [
+   {
+    "x": 70.5,
+    "y": 88,
+    "w": 59.00000000000001,
+    "h": 24
+   },
+   {
+    "x": 88,
+    "y": 70.5,
+    "w": 24,
+    "h": 59.00000000000001
+   },
+   {
+    "x": -8.600000000000001,
+    "y": -8,
+    "w": 17.200000000000003,
+    "h": 16
+   },
+   {
+    "x": 48,
+    "y": 50,
+    "w": 4,
+    "h": 20
+   },
+   {
+    "x": 166,
+    "y": -10.400000000000006,
+    "w": 68,
+    "h": 320.8
+   }
+  ],
+  "bboxesIntersect": [
+   true,
+   false,
+   false,
+   true,
+   true
+  ],
+  "scaleFontSize": [
+   12,
+   64,
+   38,
+   38,
+   15,
+   17.4
+  ],
+  "packWords": [
+   [],
+   [
+    {
+     "word": {
+      "text": "solo",
+      "value": 5
+     },
+     "x": 200,
+     "y": 150,
+     "fontSize": 38,
+     "rotation": 0
+    }
+   ],
+   [
+    {
+     "word": {
+      "text": "big",
+      "value": 100
+     },
+     "x": 200,
+     "y": 150,
+     "fontSize": 64,
+     "rotation": 0
+    },
+    {
+     "word": {
+      "text": "mid",
+      "value": 50
+     },
+     "x": 183.13127239189902,
+     "y": 94.42363425984252,
+     "fontSize": 37.73737373737374,
+     "rotation": 0
+    },
+    {
+     "word": {
+      "text": "small",
+      "value": 1
+     },
+     "x": 216.8762117502433,
+     "y": 193.5225904210788,
+     "fontSize": 12,
+     "rotation": 0
+    }
+   ],
+   [
+    {
+     "word": {
+      "text": "a",
+      "value": 8
+     },
+     "x": 300,
+     "y": 200,
+     "fontSize": 32,
+     "rotation": 0
+    },
+    {
+     "word": {
+      "text": "b",
+      "value": 7
+     },
+     "x": 320.85745264121124,
+     "y": 192.39693026997446,
+     "fontSize": 27.5,
+     "rotation": 0
+    },
+    {
+     "word": {
+      "text": "c",
+      "value": 6
+     },
+     "x": 280.30565204696643,
+     "y": 216.2925215575995,
+     "fontSize": 23,
+     "rotation": 0
+    },
+    {
+     "word": {
+      "text": "d",
+      "value": 5
+     },
+     "x": 273.9388951545308,
+     "y": 194.47655775503472,
+     "fontSize": 18.5,
+     "rotation": 90
+    },
+    {
+     "word": {
+      "text": "e",
+      "value": 4
+     },
+     "x": 283.1093589505796,
+     "y": 178.32382310139454,
+     "fontSize": 14,
+     "rotation": 0
+    }
+   ],
+   [
+    {
+     "word": {
+      "text": "one",
+      "value": 10
+     },
+     "x": 200,
+     "y": 150,
+     "fontSize": 40,
+     "rotation": 0
+    },
+    {
+     "word": {
+      "text": "two",
+      "value": 10
+     },
+     "x": 212.47888923443233,
+     "y": 195.10562407809917,
+     "fontSize": 40,
+     "rotation": 0
+    },
+    {
+     "word": {
+      "text": "three",
+      "value": 2
+     },
+     "x": 181.7685051896253,
+     "y": 119.93609810787541,
+     "fontSize": 12,
+     "rotation": 0
+    }
+   ],
+   []
+  ]
+ },
+ "cases": {
+  "WordCloud": {
+   "defaults with one word": {
+    "snapshots": [
+     "<svg aria-label=\"Word cloud\" data-mol-id=\"word-cloud\" height=\"300\" role=\"img\" viewbox=\"0 0 400 300\" width=\"400\">\n<text data-mol-id=\"word-cloud-word-hello\" data-rotation=\"0\" data-value=\"1\" dominant-baseline=\"central\" fill=\"#2563eb\" font-size=\"38\" tabindex=\"-1\" text-anchor=\"middle\" x=\"200\" y=\"150\">\nhello\n</text>\n</svg>\n@route /"
+    ],
+    "calls": []
+   },
+   "three words sized by value": {
+    "snapshots": [
+     "<svg aria-label=\"Word cloud\" data-mol-id=\"word-cloud\" height=\"300\" role=\"img\" viewbox=\"0 0 400 300\" width=\"400\">\n<text data-mol-id=\"word-cloud-word-alpha\" data-rotation=\"0\" data-value=\"10\" dominant-baseline=\"central\" fill=\"#2563eb\" font-size=\"64\" tabindex=\"-1\" text-anchor=\"middle\" x=\"200\" y=\"150\">\nalpha\n</text>\n<text data-mol-id=\"word-cloud-word-beta\" data-rotation=\"0\" data-value=\"5\" dominant-baseline=\"central\" fill=\"#16a34a\" font-size=\"35.111111111111114\" tabindex=\"-1\" text-anchor=\"middle\" x=\"208.30799042649926\" y=\"203.84280541607436\">\nbeta\n</text>\n<text data-mol-id=\"word-cloud-word-gamma\" data-rotation=\"0\" data-value=\"1\" dominant-baseline=\"central\" fill=\"#dc2626\" font-size=\"12\" tabindex=\"-1\" text-anchor=\"middle\" x=\"194.47196860810644\" y=\"107.15515353125578\">\ngamma\n</text>\n</svg>\n@route /"
+    ],
+    "calls": []
+   },
+   "no words shows the empty label": {
+    "snapshots": [
+     "<svg aria-label=\"No words to display\" data-mol-id=\"word-cloud\" height=\"300\" role=\"img\" viewbox=\"0 0 400 300\" width=\"400\">\n</svg>\n@route /"
+    ],
+    "calls": []
+   },
+   "custom size, label and classes": {
+    "snapshots": [
+     "<svg aria-label=\"Topic cloud\" class=\"cd75bbd18\" data-mol-id=\"word-cloud\" height=\"400\" role=\"img\" viewbox=\"0 0 600 400\" width=\"600\">\n<text data-mol-id=\"word-cloud-word-alpha\" data-rotation=\"0\" data-value=\"10\" dominant-baseline=\"central\" fill=\"#2563eb\" font-size=\"64\" tabindex=\"-1\" text-anchor=\"middle\" x=\"300\" y=\"200\">\nalpha\n</text>\n<text data-mol-id=\"word-cloud-word-beta\" data-rotation=\"0\" data-value=\"5\" dominant-baseline=\"central\" fill=\"#16a34a\" font-size=\"35.111111111111114\" tabindex=\"-1\" text-anchor=\"middle\" x=\"308.30799042649926\" y=\"253.84280541607436\">\nbeta\n</text>\n<text data-mol-id=\"word-cloud-word-gamma\" data-rotation=\"0\" data-value=\"1\" dominant-baseline=\"central\" fill=\"#dc2626\" font-size=\"12\" tabindex=\"-1\" text-anchor=\"middle\" x=\"294.4719686081064\" y=\"157.1551535312558\">\ngamma\n</text>\n</svg>\n@route /"
+    ],
+    "calls": []
+   },
+   "an explicit per-word color overrides the palette": {
+    "snapshots": [
+     "<svg aria-label=\"Word cloud\" data-mol-id=\"word-cloud\" height=\"300\" role=\"img\" viewbox=\"0 0 400 300\" width=\"400\">\n<text data-mol-id=\"word-cloud-word-red\" data-rotation=\"0\" data-value=\"1\" dominant-baseline=\"central\" fill=\"#ff0000\" font-size=\"38\" tabindex=\"-1\" text-anchor=\"middle\" x=\"200\" y=\"150\">\nred\n</text>\n</svg>\n@route /"
+    ],
+    "calls": []
+   },
+   "the palette cycles and wraps": {
+    "snapshots": [
+     "<svg aria-label=\"Word cloud\" data-mol-id=\"word-cloud\" height=\"400\" role=\"img\" viewbox=\"0 0 600 400\" width=\"600\">\n<text data-mol-id=\"word-cloud-word-a\" data-rotation=\"0\" data-value=\"9\" dominant-baseline=\"central\" fill=\"#111111\" font-size=\"64\" tabindex=\"-1\" text-anchor=\"middle\" x=\"300\" y=\"200\">\na\n</text>\n<text data-mol-id=\"word-cloud-word-b\" data-rotation=\"0\" data-value=\"7\" dominant-baseline=\"central\" fill=\"#222222\" font-size=\"46.666666666666664\" tabindex=\"-1\" text-anchor=\"middle\" x=\"335.47299269878164\" y=\"188.404777320284\">\nb\n</text>\n<text data-mol-id=\"word-cloud-word-c\" data-rotation=\"0\" data-value=\"5\" dominant-baseline=\"central\" fill=\"#333333\" font-size=\"29.333333333333332\" tabindex=\"-1\" text-anchor=\"middle\" x=\"270.32303855771005\" y=\"215.23704563072664\">\nc\n</text>\n<text data-mol-id=\"word-cloud-word-d\" data-rotation=\"0\" data-value=\"3\" dominant-baseline=\"central\" fill=\"#111111\" font-size=\"12\" tabindex=\"-1\" text-anchor=\"middle\" x=\"267.4839340534054\" y=\"189.01966050812987\">\nd\n</text>\n</svg>\n@route /"
+    ],
+    "calls": []
+   },
+   "an empty palette leaves un-colored words unfilled": {
+    "snapshots": [
+     "<svg aria-label=\"Word cloud\" data-mol-id=\"word-cloud\" height=\"300\" role=\"img\" viewbox=\"0 0 400 300\" width=\"400\">\n<text data-mol-id=\"word-cloud-word-bare\" data-rotation=\"0\" data-value=\"2\" dominant-baseline=\"central\" font-size=\"38\" tabindex=\"-1\" text-anchor=\"middle\" x=\"200\" y=\"150\">\nbare\n</text>\n</svg>\n@route /"
+    ],
+    "calls": []
+   },
+   "mixed orientation rotates every fourth word": {
+    "snapshots": [
+     "<svg aria-label=\"Word cloud\" data-mol-id=\"word-cloud\" height=\"400\" role=\"img\" viewbox=\"0 0 600 400\" width=\"600\">\n<text data-mol-id=\"word-cloud-word-one\" data-rotation=\"0\" data-value=\"8\" dominant-baseline=\"central\" fill=\"#2563eb\" font-size=\"64\" tabindex=\"-1\" text-anchor=\"middle\" x=\"300\" y=\"200\">\none\n</text>\n<text data-mol-id=\"word-cloud-word-two\" data-rotation=\"0\" data-value=\"7\" dominant-baseline=\"central\" fill=\"#16a34a\" font-size=\"56.57142857142857\" tabindex=\"-1\" text-anchor=\"middle\" x=\"288.3647545998331\" y=\"135.2775258161589\">\ntwo\n</text>\n<text data-mol-id=\"word-cloud-word-three\" data-rotation=\"0\" data-value=\"6\" dominant-baseline=\"central\" fill=\"#dc2626\" font-size=\"49.142857142857146\" tabindex=\"-1\" text-anchor=\"middle\" x=\"308.42858996992317\" y=\"261.4647904992686\">\nthree\n</text>\n<text data-mol-id=\"word-cloud-word-four\" data-rotation=\"90\" data-value=\"5\" dominant-baseline=\"central\" fill=\"#9333ea\" font-size=\"41.71428571428571\" tabindex=\"-1\" text-anchor=\"middle\" transform=\"rotate(90 378.49676731072014 174.41853949113283)\" x=\"378.49676731072014\" y=\"174.41853949113283\">\nfour\n</text>\n<text data-mol-id=\"word-cloud-word-five\" data-rotation=\"0\" data-value=\"4\" dominant-baseline=\"central\" fill=\"#f59e0b\" font-size=\"34.285714285714285\" tabindex=\"-1\" text-anchor=\"middle\" x=\"199.12790747143413\" y=\"212.47038687885464\">\nfive\n</text>\n<text data-mol-id=\"word-cloud-word-six\" data-rotation=\"0\" data-value=\"3\" dominant-baseline=\"central\" fill=\"#2563eb\" font-size=\"26.857142857142854\" tabindex=\"-1\" text-anchor=\"middle\" x=\"208.62262990454116\" y=\"175.67368021180562\">\nsix\n</text>\n<text data-mol-id=\"word-cloud-word-seven\" data-rotation=\"0\" data-value=\"2\" dominant-baseline=\"central\" fill=\"#16a34a\" font-size=\"19.428571428571427\" tabindex=\"-1\" text-anchor=\"middle\" x=\"295.2242625127459\" y=\"299.8458508474575\">\nseven\n</text>\n<text data-mol-id=\"word-cloud-word-eight\" data-rotation=\"90\" data-value=\"1\" dominant-baseline=\"central\" fill=\"#dc2626\" font-size=\"12\" tabindex=\"-1\" text-anchor=\"middle\" transform=\"rotate(90 225.0098368314627 255.81205808744306)\" x=\"225.0098368314627\" y=\"255.81205808744306\">\neight\n</text>\n</svg>\n@route /"
+    ],
+    "calls": []
+   },
+   "horizontal orientation keeps every word flat": {
+    "snapshots": [
+     "<svg aria-label=\"Word cloud\" data-mol-id=\"word-cloud\" height=\"400\" role=\"img\" viewbox=\"0 0 600 400\" width=\"600\">\n<text data-mol-id=\"word-cloud-word-one\" data-rotation=\"0\" data-value=\"8\" dominant-baseline=\"central\" fill=\"#2563eb\" font-size=\"64\" tabindex=\"-1\" text-anchor=\"middle\" x=\"300\" y=\"200\">\none\n</text>\n<text data-mol-id=\"word-cloud-word-two\" data-rotation=\"0\" data-value=\"7\" dominant-baseline=\"central\" fill=\"#16a34a\" font-size=\"56.57142857142857\" tabindex=\"-1\" text-anchor=\"middle\" x=\"288.3647545998331\" y=\"135.2775258161589\">\ntwo\n</text>\n<text data-mol-id=\"word-cloud-word-three\" data-rotation=\"0\" data-value=\"6\" dominant-baseline=\"central\" fill=\"#dc2626\" font-size=\"49.142857142857146\" tabindex=\"-1\" text-anchor=\"middle\" x=\"308.42858996992317\" y=\"261.4647904992686\">\nthree\n</text>\n<text data-mol-id=\"word-cloud-word-four\" data-rotation=\"0\" data-value=\"5\" dominant-baseline=\"central\" fill=\"#9333ea\" font-size=\"41.71428571428571\" tabindex=\"-1\" text-anchor=\"middle\" x=\"403.93605024954206\" y=\"182.73653978703908\">\nfour\n</text>\n<text data-mol-id=\"word-cloud-word-five\" data-rotation=\"0\" data-value=\"4\" dominant-baseline=\"central\" fill=\"#f59e0b\" font-size=\"34.285714285714285\" tabindex=\"-1\" text-anchor=\"middle\" x=\"199.12790747143413\" y=\"212.47038687885464\">\nfive\n</text>\n<text data-mol-id=\"word-cloud-word-six\" data-rotation=\"0\" data-value=\"3\" dominant-baseline=\"central\" fill=\"#2563eb\" font-size=\"26.857142857142854\" tabindex=\"-1\" text-anchor=\"middle\" x=\"362.4831569845952\" y=\"135.8931712433189\">\nsix\n</text>\n<text data-mol-id=\"word-cloud-word-seven\" data-rotation=\"0\" data-value=\"2\" dominant-baseline=\"central\" fill=\"#16a34a\" font-size=\"19.428571428571427\" tabindex=\"-1\" text-anchor=\"middle\" x=\"215.56374630646326\" y=\"179.03529007592195\">\nseven\n</text>\n<text data-mol-id=\"word-cloud-word-eight\" data-rotation=\"0\" data-value=\"1\" dominant-baseline=\"central\" fill=\"#dc2626\" font-size=\"12\" tabindex=\"-1\" text-anchor=\"middle\" x=\"381.7415656251519\" y=\"215.29385658194343\">\neight\n</text>\n</svg>\n@route /"
+    ],
+    "calls": []
+   },
+   "custom font-size range": {
+    "snapshots": [
+     "<svg aria-label=\"Word cloud\" data-mol-id=\"word-cloud\" height=\"300\" role=\"img\" viewbox=\"0 0 400 300\" width=\"400\">\n<text data-mol-id=\"word-cloud-word-big\" data-rotation=\"0\" data-value=\"100\" dominant-baseline=\"central\" fill=\"#2563eb\" font-size=\"50\" tabindex=\"-1\" text-anchor=\"middle\" x=\"200\" y=\"150\">\nbig\n</text>\n<text data-mol-id=\"word-cloud-word-a\" data-rotation=\"0\" data-value=\"1\" dominant-baseline=\"central\" fill=\"#16a34a\" font-size=\"10\" tabindex=\"-1\" text-anchor=\"middle\" x=\"191.37991250491257\" y=\"115.54184433871932\">\na\n</text>\n</svg>\n@route /"
+    ],
+    "calls": []
+   },
+   "a too-small box drops words it cannot fit": {
+    "snapshots": [
+     "<svg aria-label=\"No words to display\" data-mol-id=\"word-cloud\" height=\"30\" role=\"img\" viewbox=\"0 0 40 30\" width=\"40\">\n</svg>\n@route /"
+    ],
+    "calls": []
+   },
+   "clickable words invoke onWordClick": {
+    "snapshots": [
+     "<svg aria-label=\"Word cloud\" data-mol-id=\"word-cloud\" height=\"300\" role=\"img\" viewbox=\"0 0 400 300\" width=\"400\">\n<text data-mol-id=\"word-cloud-word-click-me\" data-rotation=\"0\" data-value=\"9\" dominant-baseline=\"central\" fill=\"#2563eb\" font-size=\"38\" style=\"cursor: pointer\" tabindex=\"0\" text-anchor=\"middle\" x=\"200\" y=\"150\">\nclick-me\n</text>\n</svg>\n@route /",
+     "<svg aria-label=\"Word cloud\" data-mol-id=\"word-cloud\" height=\"300\" role=\"img\" viewbox=\"0 0 400 300\" width=\"400\">\n<text data-mol-id=\"word-cloud-word-click-me\" data-rotation=\"0\" data-value=\"9\" dominant-baseline=\"central\" fill=\"#2563eb\" font-size=\"38\" style=\"cursor: pointer\" tabindex=\"0\" text-anchor=\"middle\" x=\"200\" y=\"150\">\nclick-me\n</text>\n</svg>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onWordClick",
+      "args": [
+       {
+        "text": "click-me",
+        "value": 9
+       }
+      ]
+     }
+    ]
+   },
+   "onWordClick receives the source word, color included": {
+    "snapshots": [
+     "<svg aria-label=\"Word cloud\" data-mol-id=\"word-cloud\" height=\"300\" role=\"img\" viewbox=\"0 0 400 300\" width=\"400\">\n<text data-mol-id=\"word-cloud-word-tinted\" data-rotation=\"0\" data-value=\"4\" dominant-baseline=\"central\" fill=\"#123456\" font-size=\"38\" style=\"cursor: pointer\" tabindex=\"0\" text-anchor=\"middle\" x=\"200\" y=\"150\">\ntinted\n</text>\n</svg>\n@route /",
+     "<svg aria-label=\"Word cloud\" data-mol-id=\"word-cloud\" height=\"300\" role=\"img\" viewbox=\"0 0 400 300\" width=\"400\">\n<text data-mol-id=\"word-cloud-word-tinted\" data-rotation=\"0\" data-value=\"4\" dominant-baseline=\"central\" fill=\"#123456\" font-size=\"38\" style=\"cursor: pointer\" tabindex=\"0\" text-anchor=\"middle\" x=\"200\" y=\"150\">\ntinted\n</text>\n</svg>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onWordClick",
+      "args": [
+       {
+        "color": "#123456",
+        "text": "tinted",
+        "value": 4
+       }
+      ]
+     }
+    ]
+   },
+   "without a handler words are not clickable": {
+    "snapshots": [
+     "<svg aria-label=\"Word cloud\" data-mol-id=\"word-cloud\" height=\"300\" role=\"img\" viewbox=\"0 0 400 300\" width=\"400\">\n<text data-mol-id=\"word-cloud-word-static\" data-rotation=\"0\" data-value=\"3\" dominant-baseline=\"central\" fill=\"#2563eb\" font-size=\"38\" tabindex=\"-1\" text-anchor=\"middle\" x=\"200\" y=\"150\">\nstatic\n</text>\n</svg>\n@route /",
+     "<svg aria-label=\"Word cloud\" data-mol-id=\"word-cloud\" height=\"300\" role=\"img\" viewbox=\"0 0 400 300\" width=\"400\">\n<text data-mol-id=\"word-cloud-word-static\" data-rotation=\"0\" data-value=\"3\" dominant-baseline=\"central\" fill=\"#2563eb\" font-size=\"38\" tabindex=\"-1\" text-anchor=\"middle\" x=\"200\" y=\"150\">\nstatic\n</text>\n</svg>\n@route /"
+    ],
+    "calls": []
+   },
+   "keyboard on a clickable word changes nothing": {
+    "snapshots": [
+     "<svg aria-label=\"Word cloud\" data-mol-id=\"word-cloud\" height=\"300\" role=\"img\" viewbox=\"0 0 400 300\" width=\"400\">\n<text data-mol-id=\"word-cloud-word-focused\" data-rotation=\"0\" data-value=\"3\" dominant-baseline=\"central\" fill=\"#2563eb\" font-size=\"38\" style=\"cursor: pointer\" tabindex=\"0\" text-anchor=\"middle\" x=\"200\" y=\"150\">\nfocused\n</text>\n</svg>\n@route /",
+     "<svg aria-label=\"Word cloud\" data-mol-id=\"word-cloud\" height=\"300\" role=\"img\" viewbox=\"0 0 400 300\" width=\"400\">\n<text data-mol-id=\"word-cloud-word-focused\" data-rotation=\"0\" data-value=\"3\" dominant-baseline=\"central\" fill=\"#2563eb\" font-size=\"38\" style=\"cursor: pointer\" tabindex=\"0\" text-anchor=\"middle\" x=\"200\" y=\"150\">\nfocused\n</text>\n</svg>\n@route /\n@focus body>svg:0>text:0",
+     "<svg aria-label=\"Word cloud\" data-mol-id=\"word-cloud\" height=\"300\" role=\"img\" viewbox=\"0 0 400 300\" width=\"400\">\n<text data-mol-id=\"word-cloud-word-focused\" data-rotation=\"0\" data-value=\"3\" dominant-baseline=\"central\" fill=\"#2563eb\" font-size=\"38\" style=\"cursor: pointer\" tabindex=\"0\" text-anchor=\"middle\" x=\"200\" y=\"150\">\nfocused\n</text>\n</svg>\n@route /\n@focus body>svg:0>text:0"
+    ],
+    "calls": []
+   },
+   "words change reshapes the cloud": {
+    "snapshots": [
+     "<svg aria-label=\"Word cloud\" data-mol-id=\"word-cloud\" height=\"400\" role=\"img\" viewbox=\"0 0 600 400\" width=\"600\">\n<text data-mol-id=\"word-cloud-word-alpha\" data-rotation=\"0\" data-value=\"10\" dominant-baseline=\"central\" fill=\"#2563eb\" font-size=\"64\" tabindex=\"-1\" text-anchor=\"middle\" x=\"300\" y=\"200\">\nalpha\n</text>\n<text data-mol-id=\"word-cloud-word-beta\" data-rotation=\"0\" data-value=\"5\" dominant-baseline=\"central\" fill=\"#16a34a\" font-size=\"35.111111111111114\" tabindex=\"-1\" text-anchor=\"middle\" x=\"308.30799042649926\" y=\"253.84280541607436\">\nbeta\n</text>\n<text data-mol-id=\"word-cloud-word-gamma\" data-rotation=\"0\" data-value=\"1\" dominant-baseline=\"central\" fill=\"#dc2626\" font-size=\"12\" tabindex=\"-1\" text-anchor=\"middle\" x=\"294.4719686081064\" y=\"157.1551535312558\">\ngamma\n</text>\n</svg>\n@route /",
+     "<svg aria-label=\"Word cloud\" data-mol-id=\"word-cloud\" height=\"400\" role=\"img\" viewbox=\"0 0 600 400\" width=\"600\">\n<text data-mol-id=\"word-cloud-word-delta\" data-rotation=\"0\" data-value=\"12\" dominant-baseline=\"central\" fill=\"#2563eb\" font-size=\"64\" tabindex=\"-1\" text-anchor=\"middle\" x=\"300\" y=\"200\">\ndelta\n</text>\n<text data-mol-id=\"word-cloud-word-epsilon\" data-rotation=\"0\" data-value=\"4\" dominant-baseline=\"central\" fill=\"#16a34a\" font-size=\"12\" tabindex=\"-1\" text-anchor=\"middle\" x=\"294.4719686081064\" y=\"157.1551535312558\">\nepsilon\n</text>\n</svg>\n@route /"
+    ],
+    "calls": []
+   },
+   "size changes": {
+    "snapshots": [
+     "<svg aria-label=\"Word cloud\" data-mol-id=\"word-cloud\" height=\"300\" role=\"img\" viewbox=\"0 0 400 300\" width=\"400\">\n<text data-mol-id=\"word-cloud-word-alpha\" data-rotation=\"0\" data-value=\"10\" dominant-baseline=\"central\" fill=\"#2563eb\" font-size=\"64\" tabindex=\"-1\" text-anchor=\"middle\" x=\"200\" y=\"150\">\nalpha\n</text>\n<text data-mol-id=\"word-cloud-word-beta\" data-rotation=\"0\" data-value=\"5\" dominant-baseline=\"central\" fill=\"#16a34a\" font-size=\"35.111111111111114\" tabindex=\"-1\" text-anchor=\"middle\" x=\"208.30799042649926\" y=\"203.84280541607436\">\nbeta\n</text>\n<text data-mol-id=\"word-cloud-word-gamma\" data-rotation=\"0\" data-value=\"1\" dominant-baseline=\"central\" fill=\"#dc2626\" font-size=\"12\" tabindex=\"-1\" text-anchor=\"middle\" x=\"194.47196860810644\" y=\"107.15515353125578\">\ngamma\n</text>\n</svg>\n@route /",
+     "<svg aria-label=\"Word cloud\" data-mol-id=\"word-cloud\" height=\"400\" role=\"img\" viewbox=\"0 0 600 400\" width=\"600\">\n<text data-mol-id=\"word-cloud-word-alpha\" data-rotation=\"0\" data-value=\"10\" dominant-baseline=\"central\" fill=\"#2563eb\" font-size=\"64\" tabindex=\"-1\" text-anchor=\"middle\" x=\"300\" y=\"200\">\nalpha\n</text>\n<text data-mol-id=\"word-cloud-word-beta\" data-rotation=\"0\" data-value=\"5\" dominant-baseline=\"central\" fill=\"#16a34a\" font-size=\"35.111111111111114\" tabindex=\"-1\" text-anchor=\"middle\" x=\"308.30799042649926\" y=\"253.84280541607436\">\nbeta\n</text>\n<text data-mol-id=\"word-cloud-word-gamma\" data-rotation=\"0\" data-value=\"1\" dominant-baseline=\"central\" fill=\"#dc2626\" font-size=\"12\" tabindex=\"-1\" text-anchor=\"middle\" x=\"294.4719686081064\" y=\"157.1551535312558\">\ngamma\n</text>\n</svg>\n@route /"
+    ],
+    "calls": []
+   },
+   "orientation changes from horizontal to mixed": {
+    "snapshots": [
+     "<svg aria-label=\"Word cloud\" data-mol-id=\"word-cloud\" height=\"400\" role=\"img\" viewbox=\"0 0 600 400\" width=\"600\">\n<text data-mol-id=\"word-cloud-word-one\" data-rotation=\"0\" data-value=\"8\" dominant-baseline=\"central\" fill=\"#2563eb\" font-size=\"64\" tabindex=\"-1\" text-anchor=\"middle\" x=\"300\" y=\"200\">\none\n</text>\n<text data-mol-id=\"word-cloud-word-two\" data-rotation=\"0\" data-value=\"7\" dominant-baseline=\"central\" fill=\"#16a34a\" font-size=\"56.57142857142857\" tabindex=\"-1\" text-anchor=\"middle\" x=\"288.3647545998331\" y=\"135.2775258161589\">\ntwo\n</text>\n<text data-mol-id=\"word-cloud-word-three\" data-rotation=\"0\" data-value=\"6\" dominant-baseline=\"central\" fill=\"#dc2626\" font-size=\"49.142857142857146\" tabindex=\"-1\" text-anchor=\"middle\" x=\"308.42858996992317\" y=\"261.4647904992686\">\nthree\n</text>\n<text data-mol-id=\"word-cloud-word-four\" data-rotation=\"0\" data-value=\"5\" dominant-baseline=\"central\" fill=\"#9333ea\" font-size=\"41.71428571428571\" tabindex=\"-1\" text-anchor=\"middle\" x=\"403.93605024954206\" y=\"182.73653978703908\">\nfour\n</text>\n<text data-mol-id=\"word-cloud-word-five\" data-rotation=\"0\" data-value=\"4\" dominant-baseline=\"central\" fill=\"#f59e0b\" font-size=\"34.285714285714285\" tabindex=\"-1\" text-anchor=\"middle\" x=\"199.12790747143413\" y=\"212.47038687885464\">\nfive\n</text>\n<text data-mol-id=\"word-cloud-word-six\" data-rotation=\"0\" data-value=\"3\" dominant-baseline=\"central\" fill=\"#2563eb\" font-size=\"26.857142857142854\" tabindex=\"-1\" text-anchor=\"middle\" x=\"362.4831569845952\" y=\"135.8931712433189\">\nsix\n</text>\n<text data-mol-id=\"word-cloud-word-seven\" data-rotation=\"0\" data-value=\"2\" dominant-baseline=\"central\" fill=\"#16a34a\" font-size=\"19.428571428571427\" tabindex=\"-1\" text-anchor=\"middle\" x=\"215.56374630646326\" y=\"179.03529007592195\">\nseven\n</text>\n<text data-mol-id=\"word-cloud-word-eight\" data-rotation=\"0\" data-value=\"1\" dominant-baseline=\"central\" fill=\"#dc2626\" font-size=\"12\" tabindex=\"-1\" text-anchor=\"middle\" x=\"381.7415656251519\" y=\"215.29385658194343\">\neight\n</text>\n</svg>\n@route /",
+     "<svg aria-label=\"Word cloud\" data-mol-id=\"word-cloud\" height=\"400\" role=\"img\" viewbox=\"0 0 600 400\" width=\"600\">\n<text data-mol-id=\"word-cloud-word-one\" data-rotation=\"0\" data-value=\"8\" dominant-baseline=\"central\" fill=\"#2563eb\" font-size=\"64\" tabindex=\"-1\" text-anchor=\"middle\" x=\"300\" y=\"200\">\none\n</text>\n<text data-mol-id=\"word-cloud-word-two\" data-rotation=\"0\" data-value=\"7\" dominant-baseline=\"central\" fill=\"#16a34a\" font-size=\"56.57142857142857\" tabindex=\"-1\" text-anchor=\"middle\" x=\"288.3647545998331\" y=\"135.2775258161589\">\ntwo\n</text>\n<text data-mol-id=\"word-cloud-word-three\" data-rotation=\"0\" data-value=\"6\" dominant-baseline=\"central\" fill=\"#dc2626\" font-size=\"49.142857142857146\" tabindex=\"-1\" text-anchor=\"middle\" x=\"308.42858996992317\" y=\"261.4647904992686\">\nthree\n</text>\n<text data-mol-id=\"word-cloud-word-four\" data-rotation=\"90\" data-value=\"5\" dominant-baseline=\"central\" fill=\"#9333ea\" font-size=\"41.71428571428571\" tabindex=\"-1\" text-anchor=\"middle\" transform=\"rotate(90 378.49676731072014 174.41853949113283)\" x=\"378.49676731072014\" y=\"174.41853949113283\">\nfour\n</text>\n<text data-mol-id=\"word-cloud-word-five\" data-rotation=\"0\" data-value=\"4\" dominant-baseline=\"central\" fill=\"#f59e0b\" font-size=\"34.285714285714285\" tabindex=\"-1\" text-anchor=\"middle\" x=\"199.12790747143413\" y=\"212.47038687885464\">\nfive\n</text>\n<text data-mol-id=\"word-cloud-word-six\" data-rotation=\"0\" data-value=\"3\" dominant-baseline=\"central\" fill=\"#2563eb\" font-size=\"26.857142857142854\" tabindex=\"-1\" text-anchor=\"middle\" x=\"208.62262990454116\" y=\"175.67368021180562\">\nsix\n</text>\n<text data-mol-id=\"word-cloud-word-seven\" data-rotation=\"0\" data-value=\"2\" dominant-baseline=\"central\" fill=\"#16a34a\" font-size=\"19.428571428571427\" tabindex=\"-1\" text-anchor=\"middle\" x=\"295.2242625127459\" y=\"299.8458508474575\">\nseven\n</text>\n<text data-mol-id=\"word-cloud-word-eight\" data-rotation=\"90\" data-value=\"1\" dominant-baseline=\"central\" fill=\"#dc2626\" font-size=\"12\" tabindex=\"-1\" text-anchor=\"middle\" transform=\"rotate(90 225.0098368314627 255.81205808744306)\" x=\"225.0098368314627\" y=\"255.81205808744306\">\neight\n</text>\n</svg>\n@route /"
+    ],
+    "calls": []
+   },
+   "label changes and clears": {
+    "snapshots": [
+     "<svg aria-label=\"First\" data-mol-id=\"word-cloud\" height=\"300\" role=\"img\" viewbox=\"0 0 400 300\" width=\"400\">\n<text data-mol-id=\"word-cloud-word-alpha\" data-rotation=\"0\" data-value=\"10\" dominant-baseline=\"central\" fill=\"#2563eb\" font-size=\"64\" tabindex=\"-1\" text-anchor=\"middle\" x=\"200\" y=\"150\">\nalpha\n</text>\n<text data-mol-id=\"word-cloud-word-beta\" data-rotation=\"0\" data-value=\"5\" dominant-baseline=\"central\" fill=\"#16a34a\" font-size=\"35.111111111111114\" tabindex=\"-1\" text-anchor=\"middle\" x=\"208.30799042649926\" y=\"203.84280541607436\">\nbeta\n</text>\n<text data-mol-id=\"word-cloud-word-gamma\" data-rotation=\"0\" data-value=\"1\" dominant-baseline=\"central\" fill=\"#dc2626\" font-size=\"12\" tabindex=\"-1\" text-anchor=\"middle\" x=\"194.47196860810644\" y=\"107.15515353125578\">\ngamma\n</text>\n</svg>\n@route /",
+     "<svg aria-label=\"Second\" data-mol-id=\"word-cloud\" height=\"300\" role=\"img\" viewbox=\"0 0 400 300\" width=\"400\">\n<text data-mol-id=\"word-cloud-word-alpha\" data-rotation=\"0\" data-value=\"10\" dominant-baseline=\"central\" fill=\"#2563eb\" font-size=\"64\" tabindex=\"-1\" text-anchor=\"middle\" x=\"200\" y=\"150\">\nalpha\n</text>\n<text data-mol-id=\"word-cloud-word-beta\" data-rotation=\"0\" data-value=\"5\" dominant-baseline=\"central\" fill=\"#16a34a\" font-size=\"35.111111111111114\" tabindex=\"-1\" text-anchor=\"middle\" x=\"208.30799042649926\" y=\"203.84280541607436\">\nbeta\n</text>\n<text data-mol-id=\"word-cloud-word-gamma\" data-rotation=\"0\" data-value=\"1\" dominant-baseline=\"central\" fill=\"#dc2626\" font-size=\"12\" tabindex=\"-1\" text-anchor=\"middle\" x=\"194.47196860810644\" y=\"107.15515353125578\">\ngamma\n</text>\n</svg>\n@route /",
+     "<svg aria-label=\"Word cloud\" data-mol-id=\"word-cloud\" height=\"300\" role=\"img\" viewbox=\"0 0 400 300\" width=\"400\">\n<text data-mol-id=\"word-cloud-word-alpha\" data-rotation=\"0\" data-value=\"10\" dominant-baseline=\"central\" fill=\"#2563eb\" font-size=\"64\" tabindex=\"-1\" text-anchor=\"middle\" x=\"200\" y=\"150\">\nalpha\n</text>\n<text data-mol-id=\"word-cloud-word-beta\" data-rotation=\"0\" data-value=\"5\" dominant-baseline=\"central\" fill=\"#16a34a\" font-size=\"35.111111111111114\" tabindex=\"-1\" text-anchor=\"middle\" x=\"208.30799042649926\" y=\"203.84280541607436\">\nbeta\n</text>\n<text data-mol-id=\"word-cloud-word-gamma\" data-rotation=\"0\" data-value=\"1\" dominant-baseline=\"central\" fill=\"#dc2626\" font-size=\"12\" tabindex=\"-1\" text-anchor=\"middle\" x=\"194.47196860810644\" y=\"107.15515353125578\">\ngamma\n</text>\n</svg>\n@route /"
+    ],
+    "calls": []
+   },
+   "palette changes": {
+    "snapshots": [
+     "<svg aria-label=\"Word cloud\" data-mol-id=\"word-cloud\" height=\"300\" role=\"img\" viewbox=\"0 0 400 300\" width=\"400\">\n<text data-mol-id=\"word-cloud-word-alpha\" data-rotation=\"0\" data-value=\"10\" dominant-baseline=\"central\" fill=\"#111111\" font-size=\"64\" tabindex=\"-1\" text-anchor=\"middle\" x=\"200\" y=\"150\">\nalpha\n</text>\n<text data-mol-id=\"word-cloud-word-beta\" data-rotation=\"0\" data-value=\"5\" dominant-baseline=\"central\" fill=\"#111111\" font-size=\"35.111111111111114\" tabindex=\"-1\" text-anchor=\"middle\" x=\"208.30799042649926\" y=\"203.84280541607436\">\nbeta\n</text>\n<text data-mol-id=\"word-cloud-word-gamma\" data-rotation=\"0\" data-value=\"1\" dominant-baseline=\"central\" fill=\"#111111\" font-size=\"12\" tabindex=\"-1\" text-anchor=\"middle\" x=\"194.47196860810644\" y=\"107.15515353125578\">\ngamma\n</text>\n</svg>\n@route /",
+     "<svg aria-label=\"Word cloud\" data-mol-id=\"word-cloud\" height=\"300\" role=\"img\" viewbox=\"0 0 400 300\" width=\"400\">\n<text data-mol-id=\"word-cloud-word-alpha\" data-rotation=\"0\" data-value=\"10\" dominant-baseline=\"central\" fill=\"#222222\" font-size=\"64\" tabindex=\"-1\" text-anchor=\"middle\" x=\"200\" y=\"150\">\nalpha\n</text>\n<text data-mol-id=\"word-cloud-word-beta\" data-rotation=\"0\" data-value=\"5\" dominant-baseline=\"central\" fill=\"#333333\" font-size=\"35.111111111111114\" tabindex=\"-1\" text-anchor=\"middle\" x=\"208.30799042649926\" y=\"203.84280541607436\">\nbeta\n</text>\n<text data-mol-id=\"word-cloud-word-gamma\" data-rotation=\"0\" data-value=\"1\" dominant-baseline=\"central\" fill=\"#222222\" font-size=\"12\" tabindex=\"-1\" text-anchor=\"middle\" x=\"194.47196860810644\" y=\"107.15515353125578\">\ngamma\n</text>\n</svg>\n@route /"
+    ],
+    "calls": []
+   },
+   "className is added and removed": {
+    "snapshots": [
+     "<svg aria-label=\"Word cloud\" class=\"cd75bbd18\" data-mol-id=\"word-cloud\" height=\"300\" role=\"img\" viewbox=\"0 0 400 300\" width=\"400\">\n<text data-mol-id=\"word-cloud-word-alpha\" data-rotation=\"0\" data-value=\"10\" dominant-baseline=\"central\" fill=\"#2563eb\" font-size=\"64\" tabindex=\"-1\" text-anchor=\"middle\" x=\"200\" y=\"150\">\nalpha\n</text>\n<text data-mol-id=\"word-cloud-word-beta\" data-rotation=\"0\" data-value=\"5\" dominant-baseline=\"central\" fill=\"#16a34a\" font-size=\"35.111111111111114\" tabindex=\"-1\" text-anchor=\"middle\" x=\"208.30799042649926\" y=\"203.84280541607436\">\nbeta\n</text>\n<text data-mol-id=\"word-cloud-word-gamma\" data-rotation=\"0\" data-value=\"1\" dominant-baseline=\"central\" fill=\"#dc2626\" font-size=\"12\" tabindex=\"-1\" text-anchor=\"middle\" x=\"194.47196860810644\" y=\"107.15515353125578\">\ngamma\n</text>\n</svg>\n@route /",
+     "<svg aria-label=\"Word cloud\" class=\"ccaded727\" data-mol-id=\"word-cloud\" height=\"300\" role=\"img\" viewbox=\"0 0 400 300\" width=\"400\">\n<text data-mol-id=\"word-cloud-word-alpha\" data-rotation=\"0\" data-value=\"10\" dominant-baseline=\"central\" fill=\"#2563eb\" font-size=\"64\" tabindex=\"-1\" text-anchor=\"middle\" x=\"200\" y=\"150\">\nalpha\n</text>\n<text data-mol-id=\"word-cloud-word-beta\" data-rotation=\"0\" data-value=\"5\" dominant-baseline=\"central\" fill=\"#16a34a\" font-size=\"35.111111111111114\" tabindex=\"-1\" text-anchor=\"middle\" x=\"208.30799042649926\" y=\"203.84280541607436\">\nbeta\n</text>\n<text data-mol-id=\"word-cloud-word-gamma\" data-rotation=\"0\" data-value=\"1\" dominant-baseline=\"central\" fill=\"#dc2626\" font-size=\"12\" tabindex=\"-1\" text-anchor=\"middle\" x=\"194.47196860810644\" y=\"107.15515353125578\">\ngamma\n</text>\n</svg>\n@route /",
+     "<svg aria-label=\"Word cloud\" data-mol-id=\"word-cloud\" height=\"300\" role=\"img\" viewbox=\"0 0 400 300\" width=\"400\">\n<text data-mol-id=\"word-cloud-word-alpha\" data-rotation=\"0\" data-value=\"10\" dominant-baseline=\"central\" fill=\"#2563eb\" font-size=\"64\" tabindex=\"-1\" text-anchor=\"middle\" x=\"200\" y=\"150\">\nalpha\n</text>\n<text data-mol-id=\"word-cloud-word-beta\" data-rotation=\"0\" data-value=\"5\" dominant-baseline=\"central\" fill=\"#16a34a\" font-size=\"35.111111111111114\" tabindex=\"-1\" text-anchor=\"middle\" x=\"208.30799042649926\" y=\"203.84280541607436\">\nbeta\n</text>\n<text data-mol-id=\"word-cloud-word-gamma\" data-rotation=\"0\" data-value=\"1\" dominant-baseline=\"central\" fill=\"#dc2626\" font-size=\"12\" tabindex=\"-1\" text-anchor=\"middle\" x=\"194.47196860810644\" y=\"107.15515353125578\">\ngamma\n</text>\n</svg>\n@route /"
+    ],
+    "calls": []
+   },
+   "defaults with one word, then a locale switch": {
+    "snapshots": [
+     "<svg aria-label=\"Word cloud\" data-mol-id=\"word-cloud\" height=\"300\" role=\"img\" viewbox=\"0 0 400 300\" width=\"400\">\n<text data-mol-id=\"word-cloud-word-hello\" data-rotation=\"0\" data-value=\"1\" dominant-baseline=\"central\" fill=\"#2563eb\" font-size=\"38\" tabindex=\"-1\" text-anchor=\"middle\" x=\"200\" y=\"150\">\nhello\n</text>\n</svg>\n@route /",
+     "<svg aria-label=\"⟦Word cloud⟧\" data-mol-id=\"word-cloud\" height=\"300\" role=\"img\" viewbox=\"0 0 400 300\" width=\"400\">\n<text data-mol-id=\"word-cloud-word-hello\" data-rotation=\"0\" data-value=\"1\" dominant-baseline=\"central\" fill=\"#2563eb\" font-size=\"38\" tabindex=\"-1\" text-anchor=\"middle\" x=\"200\" y=\"150\">\nhello\n</text>\n</svg>\n@route /"
+    ],
+    "calls": []
+   }
+  }
+ }
+}

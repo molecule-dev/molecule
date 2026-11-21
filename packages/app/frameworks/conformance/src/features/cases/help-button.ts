@@ -4,7 +4,14 @@
  * @module
  */
 
+import type { CaseA11y } from '../../ui/spec.js'
 import type { FeatureCases } from '../spec.js'
+
+/** The case passes an empty label. */
+const EMPTY_LABEL: CaseA11y = {
+  expect: ['button-name'],
+  reason: 'The case passes an empty label',
+}
 
 const icon = [{ tag: 'span', attrs: { 'data-icon': '' }, children: ['!'] }]
 
@@ -25,7 +32,7 @@ export const helpButtonFeature: FeatureCases = {
         { name: 'notification dot', props: { hasNotification: true } },
         { name: 'no notification dot', props: { hasNotification: false } },
         { name: 'custom label', props: { label: 'Get support' } },
-        { name: 'empty label', props: { label: '' } },
+        { name: 'empty label', a11y: EMPTY_LABEL, props: { label: '' } },
         { name: 'custom icon', slots: { icon } },
         { name: 'className passthrough', props: { className: 'hb-cls' } },
         {

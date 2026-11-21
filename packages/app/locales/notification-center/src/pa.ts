@@ -8,4 +8,5 @@ export const pa: Partial<NotificationCenterTranslations> = {
   'notifications.viewAll': 'ਸਾਰੇ ਵੇਖੋ',
   'notifications.loadError': 'ਸੂਚਨਾਵਾਂ ਲੋਡ ਨਹੀਂ ਕੀਤੀਆਂ ਜਾ ਸਕੀਆਂ।',
   'notifications.retry': 'ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ',
+  'notifications.unread': 'ਨਾ ਪੜ੍ਹਿਆ ਹੋਇਆ',
 }

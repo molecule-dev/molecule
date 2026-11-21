@@ -8,4 +8,5 @@ export const tr: Partial<NotificationCenterTranslations> = {
   'notifications.empty': 'Bildirim yok',
   'notifications.loadError': 'Bildirimler yüklenemedi.',
   'notifications.retry': 'Tekrar dene',
+  'notifications.unread': 'Okunmamış',
 }

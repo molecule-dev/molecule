@@ -8,4 +8,7 @@ export const km: Partial<VideoCallControlsTranslations> = {
   'call.cameraOff': '🚫',
   'call.share': '🖥',
   'call.leave': 'ចាកចេញ',
+  'call.aria.muted': 'បិទសំឡេង',
+  'call.aria.handRaised': 'លើកដៃ',
+  'call.label.you': '(អ្នក)',
 }

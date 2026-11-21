@@ -12,6 +12,7 @@
 
 import '@angular/compiler'
 import {
+  type ApplicationRef,
   ChangeDetectionStrategy,
   Component,
   type ComponentRef,
@@ -19,8 +20,17 @@ import {
   provideZonelessChangeDetection,
   type Type,
 } from '@angular/core'
-import { type ApplicationRef, createApplication } from '@angular/platform-browser'
+import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+
+// The mocked `t()`'s behavior, switchable per test: 'defaults' resolves the
+// inline English default (the provider's behavior for an unloaded key),
+// 'marker' renders `«key»` (so any text that bypassed t() would show up as
+// plain English), and 'fr' renders the French the locale switch delivered.
+const tMock = vi.hoisted(() => ({
+  mode: 'defaults' as 'defaults' | 'marker' | 'fr',
+  calls: [] as Array<{ key: string; values: Record<string, unknown> | undefined }>,
+}))
 
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
 // `flex1`), so tests can assert which cm.* class was applied without a real
@@ -46,11 +56,20 @@ vi.mock('@molecule/app-ui', () => ({
 }))
 
 // The i18n mock the React tests install for `@molecule/app-react`: `t`
-// resolves to the inline English default.
+// resolves to the inline English default, or to the test's marker/French when
+// one is set.
 vi.mock('@molecule/app-angular', () => ({
   useTranslation: () => ({
-    t: (_key: string, _values: unknown, opts?: { defaultValue?: string }) =>
-      opts?.defaultValue ?? _key,
+    t: (
+      key: string,
+      values: Record<string, unknown> | undefined,
+      opts?: { defaultValue?: string },
+    ) => {
+      tMock.calls.push({ key, values })
+      if (tMock.mode === 'marker') return `«${key}»`
+      if (tMock.mode === 'fr') return `fr: ${opts?.defaultValue ?? key}`
+      return opts?.defaultValue ?? key
+    },
   }),
 }))
 
@@ -161,6 +180,8 @@ const rowEl = (host: HTMLElement): HTMLElement => {
 
 afterEach(async () => {
   for (const m of mounted.splice(0)) await m.destroy()
+  tMock.mode = 'defaults'
+  tMock.calls.length = 0
 })
 
 const flag: FeatureFlag = {
@@ -222,5 +243,45 @@ describe('FeatureFlagRow', () => {
   it('forwards className', async () => {
     const m = await render({ flag, onToggle: () => {}, className: 'ffr-cls' })
     expect(rowEl(m.host).className.split(' ')).toContain('ffr-cls')
+  })
+})
+
+describe('FeatureFlagRow i18n', () => {
+  it('renders the switch aria-label through t with its key and values', async () => {
+    tMock.mode = 'marker'
+    const m = await render({ flag, onToggle: () => {} })
+    expect(rowEl(m.host).querySelector('mol-switch')?.getAttribute('aria-label')).toBe(
+      '«featureFlagRow.aria.flagInEnvironment»',
+    )
+    expect(tMock.calls.some((c) => c.key === 'featureFlagRow.aria.flagInEnvironment')).toBe(true)
+    expect(tMock.calls.some((c) => c.values?.['flag'] === 'new-checkout')).toBe(true)
+    expect(tMock.calls.some((c) => c.values?.['environment'] === 'production')).toBe(true)
+  })
+
+  it('renders the flag type badge through t with a literal key per type', async () => {
+    tMock.mode = 'marker'
+    const cases: FlagType[] = ['boolean', 'multivariate', 'percentage', 'string']
+    for (const type of cases) {
+      const m = await render({ flag: { ...flag, type }, onToggle: () => {} })
+      expect(m.host.innerHTML).toContain(`«flagType.${type}»`)
+    }
+    for (const type of cases)
+      expect(tMock.calls.some((c) => c.key === `flagType.${type}`)).toBe(true)
+  })
+
+  it('switching the locale changes the switch label and the badge', async () => {
+    const english = await render({ flag, onToggle: () => {} })
+    expect(rowEl(english.host).querySelector('mol-switch')?.getAttribute('aria-label')).toBe(
+      '{{flag}} in {{environment}}',
+    )
+    tMock.mode = 'fr'
+    const m = await render({ flag, onToggle: () => {} })
+    expect(rowEl(m.host).querySelector('mol-switch')?.getAttribute('aria-label')).toBe(
+      'fr: {{flag}} in {{environment}}',
+    )
+    expect(m.host.innerHTML).toContain('fr: Percentage')
+    expect(rowEl(m.host).querySelector('mol-switch')?.getAttribute('aria-label')).not.toBe(
+      '{{flag}} in {{environment}}',
+    )
   })
 })

@@ -49,4 +49,5 @@ export const en: AudioEffectsRackTranslations = {
   'audioEffectsRack.param.phaser.rate': 'Rate',
   'audioEffectsRack.param.phaser.depth': 'Depth',
   'audioEffectsRack.param.phaser.feedback': 'Feedback',
+  'audioEffectsRack.param.fallback': 'Parameter',
 }

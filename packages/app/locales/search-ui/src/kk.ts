@@ -14,4 +14,8 @@ export const kk: Partial<SearchUiTranslations> = {
   'searchUi.relatedTitle': 'Іздеу сұрауыңыздың сөздеріне емес, мағынасына сәйкес келеді',
   'searchUi.related': 'байланысты',
   'searchUi.help': 'Іздеу бойынша кеңестер',
+  'searchUi.examplePhrase': '"дәл сөз тіркесі"',
+  'searchUi.exampleExcluded': '-сөз',
+  'searchUi.activeResult': '{{title}}, {{count}} ішінен {{position}}',
+  'searchUi.dialogLabel': 'Іздеу',
 }

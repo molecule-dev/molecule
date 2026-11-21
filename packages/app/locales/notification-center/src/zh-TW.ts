@@ -8,4 +8,5 @@ export const zhTW: Partial<NotificationCenterTranslations> = {
   'notifications.viewAll': '看全部',
   'notifications.loadError': '無法載入通知。',
   'notifications.retry': '重試',
+  'notifications.unread': '未讀',
 }

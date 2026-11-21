@@ -15,4 +15,11 @@ export const sw: Partial<BillingTranslations> = {
   'billing.pricing.perSeat': 'kwa kila kiti',
   'billing.pricing.upgradeCta': 'Boresha hadi {{tierName}}',
   'billing.pricing.currentCta': 'Mpango wa sasa',
+  'billing.pricing.period.month': 'kwa mwezi',
+  'billing.pricing.period.year': 'kwa mwaka',
+  'billing.pricing.billed.month': 'Inatozwa kila mwezi',
+  'billing.pricing.billed.year': 'Inatozwa kila mwaka',
+  'billing.pricing.unlimited': 'Bila kikomo',
+  'billing.pricing.limit.maxProjects': 'Idadi ya juu ya miradi',
+  'billing.pricing.limit.canExport': 'Inaweza kuhamishwa nje',
 }

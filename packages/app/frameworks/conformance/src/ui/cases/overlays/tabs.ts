@@ -15,6 +15,8 @@ const ITEMS = [
 /** Tabs: variants, sizes, fitted, controlled/uncontrolled selection, roving-tabindex keyboard model. */
 export const tabsCases: UIComponentCases = {
   component: 'Tabs',
+  ref: {},
+  declaredProps: { props: 'base' },
   keyedLists: [{ prop: 'items', selector: '[role="tab"]' }],
   cases: [
     { name: 'defaults', props: { items: ITEMS } },
@@ -62,6 +64,15 @@ export const tabsCases: UIComponentCases = {
       props: { items: ITEMS },
       callbacks: ['onChange'],
       interactions: [{ type: 'click', selector: '[role="tab"]:nth-of-type(3)' }],
+    },
+    {
+      name: 'disabled disables every tab: a click and an arrow key change nothing',
+      props: { items: ITEMS, disabled: true },
+      callbacks: ['onChange'],
+      interactions: [
+        { type: 'click', selector: '[role="tab"]:nth-of-type(3)' },
+        { type: 'keydown', selector: '[role="tab"][aria-selected="true"]', key: 'ArrowRight' },
+      ],
     },
     {
       name: 'controlled click fires onChange but keeps the value',

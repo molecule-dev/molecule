@@ -7,4 +7,8 @@ export const vi: Partial<HttpInspectorTranslations> = {
   'httpInspector.headers': 'Tiêu đề',
   'httpInspector.body': 'Nội dung',
   'httpInspector.addHeader': 'Thêm tiêu đề',
+  'httpInspector.methodLabel': 'Phương thức HTTP',
+  'httpInspector.urlLabel': 'URL',
+  'httpInspector.headerPlaceholder': 'Tiêu đề',
+  'httpInspector.valuePlaceholder': 'Giá trị',
 }

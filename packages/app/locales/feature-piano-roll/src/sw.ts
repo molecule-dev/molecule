@@ -9,4 +9,6 @@ export const sw: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.note':
     'Dokezo {{pitch}} kuanzia kwenye mdundo {{startBeat}} kwa {{durationBeats}} midundo',
   'pianoRoll.aria.cursor': 'Kielekezi kwenye {{pitch}} kwenye mdundo {{beat}}',
+  'pianoRoll.aria.gridHelp':
+    'Vifunguo vya mishale huhamisha kielelezo cha seli, Enter au Space huchora nota hapo.',
 }

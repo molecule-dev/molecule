@@ -15,4 +15,8 @@ export const af: Partial<SearchUiTranslations> = {
     'Stem ooreen met die betekenis van jou soektog, nie die woorde daarvan nie',
   'searchUi.related': 'verwant',
   'searchUi.help': 'Soekwenke',
+  'searchUi.examplePhrase': '"presiese frase"',
+  'searchUi.exampleExcluded': '-woord',
+  'searchUi.activeResult': '{{title}}, {{position}} van {{count}}',
+  'searchUi.dialogLabel': 'Soek',
 }

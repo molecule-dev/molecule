@@ -6,4 +6,8 @@ export const et: Partial<LoyaltyTierBadgeTranslations> = {
   'loyaltyTierBadge.progress': 'Edasijõudmine {{next}}',
   'loyaltyTierBadge.topTier': 'Kõrgeim tase saavutatud',
   'loyaltyTierBadge.remaining': '{{remaining}} kuni {{next}}',
+  'loyaltyTierBadge.tier.bronze': 'Pronks',
+  'loyaltyTierBadge.tier.silver': 'Hõbe',
+  'loyaltyTierBadge.tier.gold': 'Kuld',
+  'loyaltyTierBadge.tier.platinum': 'Platiin',
 }

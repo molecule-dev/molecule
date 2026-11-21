@@ -14,4 +14,8 @@ export const ur: Partial<SearchUiTranslations> = {
   'searchUi.relatedTitle': 'آپ کی تلاش کے معنی سے میل کھاتا ہے، اس کے الفاظ سے نہیں۔',
   'searchUi.related': 'متعلقہ',
   'searchUi.help': 'تلاش کی تجاویز',
+  'searchUi.examplePhrase': '"عین مطابق جملہ"',
+  'searchUi.exampleExcluded': '-لفظ',
+  'searchUi.activeResult': '{{title}}، {{count}} میں سے {{position}}',
+  'searchUi.dialogLabel': 'تلاش کریں',
 }

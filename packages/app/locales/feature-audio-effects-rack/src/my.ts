@@ -49,4 +49,5 @@ export const my: Partial<AudioEffectsRackTranslations> = {
   'audioEffectsRack.param.phaser.rate': 'အဆင့်သတ်မှတ်ပါ',
   'audioEffectsRack.param.phaser.depth': 'အနက်',
   'audioEffectsRack.param.phaser.feedback': 'တုံ့ပြန်ချက်',
+  'audioEffectsRack.param.fallback': 'ပါရာမီတာ',
 }

@@ -8,7 +8,14 @@
  * @module
  */
 
-import { createRawSnippet, flushSync, mount, type Snippet, unmount } from 'svelte'
+import {
+  type ComponentProps,
+  createRawSnippet,
+  flushSync,
+  mount,
+  type Snippet,
+  unmount,
+} from 'svelte'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
@@ -34,6 +41,8 @@ vi.mock('@molecule/app-ui', () => ({
   },
 }))
 
+import { inlineStyleMismatch } from '@molecule/app-framework-conformance/ui'
+
 import SlideThumbnail from '../SlideThumbnail.svelte'
 
 /** A snippet rendering the given markup, the way a caller fills the slot. */
@@ -47,7 +56,7 @@ afterEach(async () => {
 })
 
 /** Mounts a {@link SlideThumbnail} with the given props and returns its markup. */
-const render = (props: Record<string, unknown>): string => {
+const render = (props: ComponentProps<typeof SlideThumbnail>): string => {
   const target = document.createElement('div')
   document.body.appendChild(target)
   const instance = mount(SlideThumbnail, { target, props })
@@ -72,7 +81,7 @@ describe('SlideThumbnail', () => {
   it('applies an active outline + aria-current only when active', () => {
     const active = render({ index: 1, active: true })
     expect(active).toContain('aria-current="true"')
-    expect(active).toContain('outline: 2px solid currentColor')
+    expect(inlineStyleMismatch(active, { outline: '2px solid currentColor' })).toBeNull()
     const inactive = render({ index: 1 })
     expect(inactive).not.toContain('aria-current="true"')
   })

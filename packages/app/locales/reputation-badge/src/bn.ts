@@ -9,6 +9,7 @@ export const bn: ReputationBadgeTranslations = {
   'reputationBadge.level.trusted': 'বিশ্বস্ত',
   'reputationBadge.level.veteran': 'অভিজ্ঞ',
   'reputationBadge.level.legend': 'কিংবদন্তি',
+  'reputationBadge.level.fallback': '{{level}}',
   'badgeShelf.aria': '{{count}} টি ব্যাজ অর্জন করা হয়েছে',
   'badgeShelf.overflow.aria': 'আরও {{count}} টি ব্যাজ দেখান',
 }

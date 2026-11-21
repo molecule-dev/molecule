@@ -14,4 +14,8 @@ export const cy: Partial<SearchUiTranslations> = {
   'searchUi.relatedTitle': 'Yn cyfateb i ystyr eich chwiliad, nid ei eiriau',
   'searchUi.related': 'cysylltiedig',
   'searchUi.help': 'Awgrymiadau chwilio',
+  'searchUi.examplePhrase': '"ymadrodd union"',
+  'searchUi.exampleExcluded': '-gair',
+  'searchUi.activeResult': '{{title}}, {{position}} o {{count}}',
+  'searchUi.dialogLabel': 'Chwilio',
 }

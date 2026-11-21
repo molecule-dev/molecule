@@ -167,6 +167,19 @@ describe('<BadgeShelf>', () => {
     expect(container.querySelectorAll('[data-mol-id="badge-shelf-button"]')).toHaveLength(0)
   })
 
+  it('labels each non-interactive badge as an image', () => {
+    const { container } = render(<BadgeShelf badges={sampleBadges.slice(0, 2)} />)
+    const icons = container.querySelectorAll('[data-mol-id="badge-shelf-item"] span[role="img"]')
+    expect(icons).toHaveLength(2)
+    expect(icons[0]?.getAttribute('aria-label')).toBe('First Post')
+    expect(icons[1]?.getAttribute('aria-label')).toBe('Helpful')
+    expect(
+      icons[0]
+        ?.querySelector('[data-mol-id="badge-shelf-icon-glyph"]')
+        ?.getAttribute('aria-hidden'),
+    ).toBe('true')
+  })
+
   it('emits an aria-label summarising the total number of badges', () => {
     const { container } = render(<BadgeShelf badges={sampleBadges} />)
     const root = container.querySelector('[data-mol-id="badge-shelf"]')

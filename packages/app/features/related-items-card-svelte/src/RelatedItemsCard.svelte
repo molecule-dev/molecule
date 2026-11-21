@@ -3,17 +3,17 @@
   `@molecule/app-related-items-card-react`'s `RelatedItemsCard` — a titled Card
   with header + list + empty state + "View all" link. Same props (React
   names), same DOM for the same input: the header always renders both of its
-  inner rows, `items.length === 0` swaps the list for `emptyState`, and the
-  rows are mouse-only `<li>` elements when `onItemClick` is supplied (React's
-  own JSDoc asks callers to render a real button/link inside `renderItem` when
-  keyboard access matters). The "View all" label is the same literal English
-  the React package renders; it does not route that label through i18n.
+  inner rows, `items.length === 0` swaps the list for `emptyState`, and a
+  clickable row (`onItemClick`) keeps its `<li>` and wraps the row content in
+  an inner `role="button"` div the way React does — focusable, with Enter and
+  Space running the same handler the click does. The "View all" label is the
+  same literal English the React package renders; it does not route that label
+  through i18n.
 -->
 <script lang="ts" generics="T">
   import { getClassMap } from '@molecule/app-ui'
   import { Card } from '@molecule/app-ui-svelte'
 
-  import { rowClick } from './dom.js'
   import type { ReactNodeProp } from './node-prop.js'
   import type { RelatedItemsCardProps } from './types.js'
 
@@ -56,11 +56,28 @@
     {:else}
       <ul class={cm.stack(2)}>
         {#each items as item, i (i)}
-          <li
-            class={onItemClick ? cm.cursorPointer : undefined}
-            use:rowClick={{ onItemClick, item, index: i }}
-          >
-            {@render renderItem(item, i)}
+          <li>
+            {#if onItemClick}
+              <!-- Keyboard activation for a clickable row — the same call the
+                mouse click makes. The row control is a `role="button"` div (an
+                `<li>` may not carry button semantics), so it activates Enter
+                and Space itself. -->
+              <div
+                role="button"
+                tabindex="0"
+                class={cm.cursorPointer}
+                onclick={() => onItemClick?.(item, i)}
+                onkeydown={(event) => {
+                  if (event.key !== 'Enter' && event.key !== ' ') return
+                  event.preventDefault()
+                  onItemClick?.(item, i)
+                }}
+              >
+                {@render renderItem(item, i)}
+              </div>
+            {:else}
+              {@render renderItem(item, i)}
+            {/if}
           </li>
         {/each}
       </ul>

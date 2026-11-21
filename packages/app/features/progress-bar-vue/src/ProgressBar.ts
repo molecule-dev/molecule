@@ -6,9 +6,10 @@
  * @module
  */
 
-import { defineComponent, h, type PropType, type VNode, type VNodeChild } from 'vue'
+import { defineComponent, h, type PropType, useId, type VNode, type VNodeChild } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
+import { useTranslation } from '@molecule/app-vue'
 
 import type { ProgressBarProps } from './types.js'
 
@@ -52,6 +53,11 @@ const fillPercent = (value: number, max: number): number =>
  * itself uses the wired ClassMap progress tokens — swap the ClassMap bond
  * to restyle without touching this component.
  *
+ * The track always carries an accessible name (`aria-progressbar-name`):
+ * `labelledBy` when given, else the rendered `label`, else
+ * `t('progressBar.label', undefined, { defaultValue: 'Progress' })`, read
+ * through `useTranslation()` so it follows a locale switch.
+ *
  * @param props - Component props (see {@link ProgressBarProps}).
  * @returns The progress bar component.
  */
@@ -62,6 +68,8 @@ export const ProgressBar = defineComponent({
     max: { type: Number, default: 100 },
     label: null,
     valueLabel: null,
+    labelledBy: String,
+    describedBy: String,
     size: {
       type: String as PropType<ProgressBarProps['size']>,
       default: 'md',
@@ -74,12 +82,17 @@ export const ProgressBar = defineComponent({
   },
   setup(props, { slots }) {
     const cm = getClassMap()
+    const { t } = useTranslation()
+    const nameId = useId()
 
     return (): VNode => {
       const labelNodes = slotOrProp(slots.label, props.label)
       const valueLabelNodes = slotOrProp(slots.valueLabel, props.valueLabel)
       const hasLabel = renders(slots.label, props.label)
       const hasValueLabel = renders(slots.valueLabel, props.valueLabel)
+      // The rendered label is the track's name unless an explicit labelledBy wins.
+      const namedByLabel = props.labelledBy === undefined && hasLabel
+      const labelId = namedByLabel ? nameId : undefined
 
       return h('div', { class: cm.cn(cm.stack(2), props.className) }, [
         hasLabel || hasValueLabel
@@ -87,7 +100,7 @@ export const ProgressBar = defineComponent({
               hasLabel
                 ? h(
                     'span',
-                    { class: cm.cn(cm.textSize('sm'), cm.fontWeight('medium')) },
+                    { id: labelId, class: cm.cn(cm.textSize('sm'), cm.fontWeight('medium')) },
                     labelNodes,
                   )
                 : null,
@@ -102,6 +115,12 @@ export const ProgressBar = defineComponent({
             'aria-valuenow': props.value,
             'aria-valuemin': 0,
             'aria-valuemax': props.max,
+            'aria-labelledby': props.labelledBy ?? labelId,
+            'aria-label':
+              props.labelledBy === undefined && !hasLabel
+                ? t('progressBar.label', undefined, { defaultValue: 'Progress' })
+                : undefined,
+            'aria-describedby': props.describedBy,
           },
           [
             h('div', {

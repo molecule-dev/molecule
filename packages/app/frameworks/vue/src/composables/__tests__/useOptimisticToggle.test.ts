@@ -87,7 +87,7 @@ describe('useOptimisticToggle', () => {
   })
 
   it('accepts no current-state argument and requires a server-confirmed boolean', () => {
-    expectTypeOf<bindings.UseOptimisticToggleReturn['toggle']>().parameters.toEqualTypeOf<[]>()
+    expectTypeOf<bindings.UseOptimisticToggleResult['toggle']>().parameters.toEqualTypeOf<[]>()
     expectTypeOf<bindings.UseOptimisticToggleOptions['commit']>().returns.toEqualTypeOf<
       Promise<boolean>
     >()

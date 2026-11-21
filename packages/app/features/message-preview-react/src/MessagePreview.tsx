@@ -1,4 +1,4 @@
-import type { JSX, ReactNode } from 'react'
+import type { JSX, KeyboardEvent, ReactNode } from 'react'
 import { Link } from 'react-router'
 
 import { getClassMap } from '@molecule/app-ui'
@@ -40,7 +40,9 @@ function deriveInitials(value: ReactNode): string {
 /**
  * Conversation / thread preview row. Renders as a `<Link>` when `to` is
  * provided (requires a react-router `<Router>` ancestor), otherwise as a
- * `<div>`.
+ * `<div>` — a focusable button in the a11y tree (`role="button"`,
+ * `tabIndex={0}`) when `onClick` is given, with Enter / Space activating it,
+ * matching native button keyboard semantics.
  * @param props - Component props (see {@link MessagePreviewProps}).
  */
 export function MessagePreview({
@@ -153,8 +155,25 @@ export function MessagePreview({
       </Link>
     )
   }
+  // When the row is interactive, promote the <div> to a real button in the
+  // a11y tree: role/tabIndex make it focusable and Enter/Space activate it,
+  // matching native button keyboard semantics.
+  const handleKeyDown = onClick
+    ? (event: KeyboardEvent<HTMLDivElement>): void => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault()
+          onClick()
+        }
+      }
+    : undefined
   return (
-    <div role={onClick ? 'button' : undefined} onClick={onClick} className={wrapperClass}>
+    <div
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onClick={onClick}
+      onKeyDown={handleKeyDown}
+      className={wrapperClass}
+    >
       {body}
     </div>
   )

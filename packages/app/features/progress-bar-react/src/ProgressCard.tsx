@@ -1,4 +1,4 @@
-import type { JSX, ReactNode } from 'react'
+import { type JSX, type ReactNode, useId } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 import { Card } from '@molecule/app-ui-react'
@@ -30,6 +30,9 @@ export interface ProgressCardProps {
  * `<Card>`-wrapped progress display with title, optional icon and description,
  * the progress bar itself, and an optional extras slot below. Useful for
  * budget/goal cards, storage-used panels, onboarding progress, etc.
+ *
+ * The bar is named by the title (`aria-labelledby`) and, when a description
+ * renders, described by it (`aria-describedby`).
  * @param props - Component props (see {@link ProgressCardProps}).
  */
 export function ProgressCard({
@@ -44,6 +47,8 @@ export function ProgressCard({
   children,
 }: ProgressCardProps): JSX.Element {
   const cm = getClassMap()
+  const titleId = useId()
+  const descriptionId = useId()
   return (
     <Card className={className}>
       <div className={cm.stack(3)}>
@@ -51,8 +56,14 @@ export function ProgressCard({
           <div className={cm.flex({ align: 'center', gap: 'sm' })}>
             {icon}
             <div>
-              <h3 className={cm.cn(cm.textSize('base'), cm.fontWeight('semibold'))}>{title}</h3>
-              {description && <p className={cm.textSize('sm')}>{description}</p>}
+              <h3 id={titleId} className={cm.cn(cm.textSize('base'), cm.fontWeight('semibold'))}>
+                {title}
+              </h3>
+              {description && (
+                <p id={descriptionId} className={cm.textSize('sm')}>
+                  {description}
+                </p>
+              )}
             </div>
           </div>
           {valueLabel && (
@@ -61,7 +72,13 @@ export function ProgressCard({
             </span>
           )}
         </div>
-        <ProgressBar value={value} max={max} color={color} />
+        <ProgressBar
+          value={value}
+          max={max}
+          color={color}
+          labelledBy={titleId}
+          describedBy={description ? descriptionId : undefined}
+        />
         {children}
       </div>
     </Card>

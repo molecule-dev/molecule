@@ -7,4 +7,8 @@ export const ky: Partial<HttpInspectorTranslations> = {
   'httpInspector.headers': 'Баш саптар',
   'httpInspector.addHeader': 'Башкы сап кошуу',
   'httpInspector.body': 'Дене',
+  'httpInspector.methodLabel': 'HTTP ыкмасы',
+  'httpInspector.urlLabel': 'URL',
+  'httpInspector.headerPlaceholder': 'Баш сап',
+  'httpInspector.valuePlaceholder': 'Маани',
 }

@@ -8,6 +8,8 @@ export const ka: Partial<AudioMixerTranslations> = {
   'audioMixer.aria.send': '{{channel}} გაგზავნა {{send}}',
   'audioMixer.button.mute': 'დადუმება',
   'audioMixer.button.solo': 'სოლო',
+  'audioMixer.button.muteInitial': 'Დ',
+  'audioMixer.button.soloInitial': 'Ს',
   'audioMixer.master': 'ოსტატი',
   'audioMixer.sends': 'აგზავნის',
 }

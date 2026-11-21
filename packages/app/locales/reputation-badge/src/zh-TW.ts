@@ -9,6 +9,7 @@ export const zhTW: ReputationBadgeTranslations = {
   'reputationBadge.level.trusted': '受信任',
   'reputationBadge.level.veteran': '資深用戶',
   'reputationBadge.level.legend': '傳奇',
+  'reputationBadge.level.fallback': '{{level}}',
   'badgeShelf.aria': '已獲得 {{count}} 個徽章',
   'badgeShelf.overflow.aria': '顯示另外 {{count}} 個徽章',
 }

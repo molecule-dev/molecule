@@ -15,4 +15,11 @@ export const de: Partial<BillingTranslations> = {
   'billing.pricing.reassurance': 'Jederzeit kündbar · Keine Kreditkarte für den Start erforderlich',
   'billing.pricing.perSeat': 'pro Sitzplatz',
   'billing.pricing.currentCta': 'Aktueller Plan',
+  'billing.pricing.period.month': 'pro Monat',
+  'billing.pricing.period.year': 'pro Jahr',
+  'billing.pricing.billed.month': 'Monatlich abgerechnet',
+  'billing.pricing.billed.year': 'Jährlich abgerechnet',
+  'billing.pricing.unlimited': 'Unbegrenzt',
+  'billing.pricing.limit.maxProjects': 'Max. Projekte',
+  'billing.pricing.limit.canExport': 'Export möglich',
 }

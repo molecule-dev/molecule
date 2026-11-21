@@ -12,10 +12,8 @@ import '@molecule/app-framework-conformance/ui/setup'
 import { createRawSnippet, flushSync, mount, type Snippet, unmount } from 'svelte'
 import { afterEach, describe, expect, it } from 'vitest'
 
-import Host from '@molecule/app-framework-conformance/adapters/svelte-bindings/Host.svelte'
-import { setMoleculeContext } from '@molecule/app-svelte'
-
 import Breadcrumb from '../Breadcrumb.svelte'
+import type { BreadcrumbProps } from '../types.js'
 
 /** A snippet rendering the given markup, the way a caller fills a node prop. */
 const raw = (html: string): Snippet => createRawSnippet(() => ({ render: () => html }))
@@ -26,19 +24,11 @@ const raw = (html: string): Snippet => createRawSnippet(() => ({ render: () => h
  * @param props - The breadcrumb props.
  * @returns The mounted instance and the rendered `<nav>`.
  */
-function render(props: Record<string, unknown> = {}): {
+function render(props: BreadcrumbProps): {
   instance: ReturnType<typeof mount>
   nav: HTMLElement | null
 } {
-  const instance = mount(Host, {
-    target: document.body,
-    props: {
-      config: {},
-      setMoleculeContext,
-      component: Breadcrumb,
-      props,
-    },
-  })
+  const instance = mount(Breadcrumb, { target: document.body, props })
   flushSync()
   const nav = document.body.querySelector('nav')
   mounted.push(instance)
@@ -93,7 +83,7 @@ describe('Breadcrumb', () => {
   it('renders the default "/" separator between crumbs', () => {
     const { nav } = render({ items })
     // two separators for three items
-    expect(nav?.innerHTML.split('aria-hidden="true">/').length - 1).toBe(2)
+    expect(nav!.innerHTML.split('aria-hidden="true">/').length - 1).toBe(2)
   })
 
   it('renders a custom separator node', () => {

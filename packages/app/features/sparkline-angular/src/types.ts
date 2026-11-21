@@ -21,7 +21,10 @@ export interface SparklineProps {
   height?: number
   /** Stroke / fill color. Defaults to currentColor. */
   color?: string
-  /** Optional accessible label. */
+  /**
+   * Optional accessible label. Overrides the translated / `defaultValue`
+   * `'Trend sparkline'` (prop > `t()` > default).
+   */
   ariaLabel?: string
   /** Extra classes. */
   className?: string

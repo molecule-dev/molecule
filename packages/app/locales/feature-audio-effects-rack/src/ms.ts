@@ -49,4 +49,5 @@ export const ms: Partial<AudioEffectsRackTranslations> = {
   'audioEffectsRack.param.phaser.rate': 'Kadar',
   'audioEffectsRack.param.phaser.depth': 'Kedalaman',
   'audioEffectsRack.param.phaser.feedback': 'Maklum balas',
+  'audioEffectsRack.param.fallback': 'Parameter',
 }

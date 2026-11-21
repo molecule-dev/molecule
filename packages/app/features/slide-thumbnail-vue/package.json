@@ -43,7 +43,7 @@
   },
   "peerDependencies": {
     "@molecule/app-i18n": "^1.0.1",
-    "@molecule/app-ui": "^1.0.1",
+    "@molecule/app-ui": "^1.4.0",
     "@molecule/app-ui-vue": "^1.1.0",
     "@molecule/app-vue": "^3.5.0",
     "vue": "^3.4.0"

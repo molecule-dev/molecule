@@ -7,4 +7,8 @@ export const sv: Partial<HttpInspectorTranslations> = {
   'httpInspector.body': 'Brödtext',
   'httpInspector.headers': 'Rubriker',
   'httpInspector.addHeader': 'Lägg till rubrik',
+  'httpInspector.methodLabel': 'HTTP-metod',
+  'httpInspector.urlLabel': 'URL',
+  'httpInspector.headerPlaceholder': 'Rubrik',
+  'httpInspector.valuePlaceholder': 'Värde',
 }

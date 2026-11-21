@@ -6,11 +6,11 @@
  * makes on these fakes goes to `record`, so it is compared like any other call.
  *
  * Determinism: `useChat` stamps every local user message with `Date.now()` and
- * `crypto.randomUUID()`. The factory pins the clock at the epoch and replaces
- * `randomUUID` with a per-case counter (both restored in `dispose`), so the
- * React recording and every later framework run see identical ids and
- * timestamps. The clock pin is why a chat case may use `advance` steps without
- * wall-clock time leaking into snapshots.
+ * `crypto.randomUUID()`. The factory pins the clock at the epoch (restored in
+ * `dispose`), and the kit counts `randomUUID` for every case
+ * (`installRandomSources`), so the React recording and every later framework run
+ * see identical ids and timestamps. The clock pin is why a chat case may use
+ * `advance` steps without wall-clock time leaking into snapshots.
  *
  * @module
  */
@@ -31,7 +31,12 @@ import type { AreaFakesFactory } from '../spec.js'
 export interface ChatSeed {
   /** Each `loadHistory` call answers the next list (deep-copied); the last repeats. Default: one empty list. */
   readonly history?: readonly ChatMessage[][]
-  /** `provider.isServerStreaming` after each `loadHistory` call (last repeats; default `false`). */
+  /**
+   * `provider.isServerStreaming` after each `loadHistory` call (last repeats; default `false`).
+   * A case that drives a turn through pushed frames sets the server's state with the
+   * `chat.serverStreaming` control instead: a set value answers every later load, as a real
+   * server reports a live turn until it ends.
+   */
   readonly serverStreaming?: readonly boolean[]
   /** `provider.lastMeta` after each `loadHistory` call (last repeats; default `null`). */
   readonly meta?: readonly Record<string, unknown>[]
@@ -65,28 +70,17 @@ export const createChatFakes: AreaFakesFactory = (context, record) => {
   const seed = context.areas?.chat
   if (!seed) return {}
 
-  // ── Deterministic time and ids ──────────────────────────────────────────────
+  // ── Deterministic time ──────────────────────────────────────────────────────
   // Pin the system clock at the epoch: the hook stamps local messages with
   // `Date.now()`, and fake timers installed later (run.ts) inherit this start
   // time, so timestamps are `0` in every framework and every recording.
   vi.setSystemTime(0)
-  // A per-case deterministic uuid counter replaces `crypto.randomUUID()` (the
-  // id a local user message gets when the caller passes no `messageId`).
-  const realCrypto = globalThis.crypto
-  const uuidCounter = { n: 0 }
-  const fakeCrypto = Object.create(realCrypto) as Crypto
-  Object.defineProperty(fakeCrypto, 'randomUUID', {
-    value: (): string => `uuid-${++uuidCounter.n}`,
-  })
-  Object.defineProperty(globalThis, 'crypto', {
-    value: fakeCrypto,
-    writable: true,
-    configurable: true,
-  })
 
   // ── Scripted server state ───────────────────────────────────────────────────
   const histories = (seed.history ?? [[]]).map((list) => list)
   let loadCount = 0
+  // Set by the `chat.serverStreaming` control; once set, it answers every later load.
+  let serverStreaming: boolean | undefined
   const clone = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T
 
   // ── Open (pending) provider calls ───────────────────────────────────────────
@@ -158,9 +152,11 @@ export const createChatFakes: AreaFakesFactory = (context, record) => {
       // list advances on its own counter (a one-entry history must not pin the
       // streaming flag to its first value).
       const load = loadCount++
-      provider.isServerStreaming = seed.serverStreaming
-        ? (seed.serverStreaming[Math.min(load, seed.serverStreaming.length - 1)] ?? false)
-        : false
+      provider.isServerStreaming =
+        serverStreaming ??
+        (seed.serverStreaming
+          ? (seed.serverStreaming[Math.min(load, seed.serverStreaming.length - 1)] ?? false)
+          : false)
       provider.lastMeta = seed.meta
         ? clone(seed.meta[Math.min(load, seed.meta.length - 1)] ?? null)
         : null
@@ -236,9 +232,13 @@ export const createChatFakes: AreaFakesFactory = (context, record) => {
       'chat.sideFinish': () => finish('side'),
       /** Make the oldest open `sendSideMessage` call reject with `Error(message)`. */
       'chat.sideFail': (...args: unknown[]) => fail('side', args[0] as string),
-      /** Set the provider's `isServerStreaming` flag (what a history load reports). */
+      /**
+       * Set whether the server has a live turn: the provider's `isServerStreaming` flag now and
+       * after every later history load, until set again (it replaces the seed's per-load script).
+       */
       'chat.serverStreaming': (...args: unknown[]) => {
-        provider.isServerStreaming = args[0] === true
+        serverStreaming = args[0] === true
+        provider.isServerStreaming = serverStreaming
       },
       /** Fire `beforeunload` on the window (the page-unload path). */
       'chat.pageUnload': () => {
@@ -247,13 +247,8 @@ export const createChatFakes: AreaFakesFactory = (context, record) => {
     },
     listeners: () => ({ 'chat.openStreams': open.filter((call) => !call.settled).length }),
     dispose: () => {
-      // Release every stream the case left open, restore crypto and the clock.
+      // Release every stream the case left open and restore the clock.
       for (const call of open) if (!call.settled) call.settle()
-      Object.defineProperty(globalThis, 'crypto', {
-        value: realCrypto,
-        writable: true,
-        configurable: true,
-      })
       vi.useRealTimers()
     },
   }

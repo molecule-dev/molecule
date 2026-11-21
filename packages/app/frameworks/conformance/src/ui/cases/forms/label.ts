@@ -9,6 +9,7 @@ import type { UIComponentCases } from '../../spec.js'
 /** Label: required marker, htmlFor association, children and class passthrough. */
 export const labelCases: UIComponentCases = {
   component: 'Label',
+  ref: {},
   cases: [
     { name: 'defaults', children: ['Email address'] },
     { name: 'required', props: { required: true }, children: ['Email address'] },

@@ -8,6 +8,8 @@ export const ur: Partial<AudioMixerTranslations> = {
   'audioMixer.aria.send': '{{channel}} کو بھیجیں {{send}}',
   'audioMixer.button.mute': 'خاموش',
   'audioMixer.button.solo': 'سولو',
+  'audioMixer.button.muteInitial': 'خ',
+  'audioMixer.button.soloInitial': 'س',
   'audioMixer.master': 'ماسٹر',
   'audioMixer.sends': 'بھیجتا ہے۔',
 }

@@ -48,12 +48,22 @@ vi.mock('@molecule/app-solid', () => ({
 
 // The markers the React tests mock `@molecule/app-ui-react` with: a `<button
 // data-button>` and a `<div data-modal>` that renders its content only while
-// `open`.
-vi.mock('@molecule/app-ui-solid', () => ({
-  Button: (props: { children?: JSX.Element }) => <button data-button="">{props.children}</button>,
-  Modal: (props: { open: boolean; children?: JSX.Element }) =>
-    props.open ? <div data-modal="">{props.children}</div> : null,
-}))
+// `open`. The Modal stub spreads its `data-*`/`aria-*` rest props onto that
+// div, the real `Modal`'s passthrough contract.
+vi.mock('@molecule/app-ui-solid', async () => {
+  const { splitProps } = await import('solid-js')
+  return {
+    Button: (props: { children?: JSX.Element }) => <button data-button="">{props.children}</button>,
+    Modal: (owned: { open: boolean; children?: JSX.Element }) => {
+      const [, rest] = splitProps(owned, ['open', 'children'])
+      return owned.open ? (
+        <div data-modal="" {...rest}>
+          {owned.children}
+        </div>
+      ) : null
+    },
+  }
+})
 
 const { OnboardingModal } = await import('../OnboardingModal.jsx')
 
@@ -148,5 +158,23 @@ describe('OnboardingModal', () => {
 
   it('renders nothing visible when the modal is closed', () => {
     expect(draw({ open: false, steps })).toBe('')
+  })
+
+  it('the dialog is named by the current step title', () => {
+    const markup = draw({ open: true, steps })
+    const label = markup.match(/aria-labelledby="([^"]*)"/)?.[1]
+    expect(label).toBeTruthy()
+    const heading = markup.match(new RegExp(`<h2[^>]*id="${label}"[^>]*>([\\s\\S]*?)</h2>`))
+    expect(heading).toBeTruthy()
+    expect(heading?.[1]).toContain('Welcome')
+
+    // The name follows the step: on the second step the labelled heading
+    // carries that step's title.
+    const second = draw({ open: true, steps, defaultStep: 1 })
+    const secondLabel = second.match(/aria-labelledby="([^"]*)"/)?.[1]
+    const secondHeading = second.match(
+      new RegExp(`<h2[^>]*id="${secondLabel}"[^>]*>([\\s\\S]*?)</h2>`),
+    )
+    expect(secondHeading?.[1]).toContain('Connect')
   })
 })

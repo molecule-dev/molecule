@@ -56,9 +56,19 @@ vi.mock('@molecule/app-ui-vue', async () => {
     }),
     Modal: defineComponent({
       name: 'Modal',
+      // Vue's automatic attribute inheritance cannot apply with a conditional
+      // root, so the stub applies the real `Modal`'s passthrough itself: its
+      // `data-*`/`aria-*` attrs land on the rendered div.
+      inheritAttrs: false,
       props: { open: { type: Boolean, default: false } },
-      setup(props, { slots }) {
-        return () => (props.open ? h('div', { 'data-modal': '' }, slots.default?.()) : null)
+      setup(props, { attrs, slots }) {
+        return () => {
+          const pass: Record<string, unknown> = {}
+          for (const [k, v] of Object.entries(attrs)) {
+            if (k.startsWith('data-') || k.startsWith('aria-')) pass[k] = v
+          }
+          return props.open ? h('div', { 'data-modal': '', ...pass }, slots.default?.()) : null
+        }
       },
     }),
   }
@@ -67,13 +77,14 @@ vi.mock('@molecule/app-ui-vue', async () => {
 import { createApp, defineComponent, h, type VNodeChild } from 'vue'
 
 import { OnboardingModal } from '../OnboardingModal.js'
+import type { OnboardingModalProps } from '../types.js'
 
 afterEach(() => {
   document.body.innerHTML = ''
 })
 
 /** Renders an {@link OnboardingModal} and returns the markup and text it produced. */
-const render = (props: Record<string, unknown>): { html: string; text: string } => {
+const render = (props: OnboardingModalProps): { html: string; text: string } => {
   const host = document.createElement('div')
   document.body.appendChild(host)
   const app = createApp(defineComponent({ render: () => h(OnboardingModal, props) }))
@@ -140,5 +151,23 @@ describe('OnboardingModal', () => {
 
   it('renders nothing visible when the modal is closed', () => {
     expect(render({ open: false, onClose: () => {}, steps }).text).toBe('')
+  })
+
+  it('the dialog is named by the current step title', () => {
+    const markup = render({ open: true, onClose: () => {}, steps }).html
+    const label = markup.match(/aria-labelledby="([^"]*)"/)?.[1]
+    expect(label).toBeTruthy()
+    const heading = markup.match(new RegExp(`<h2[^>]*id="${label}"[^>]*>([\\s\\S]*?)</h2>`))
+    expect(heading).toBeTruthy()
+    expect(heading?.[1]).toContain('Welcome')
+
+    // The name follows the step: on the second step the labelled heading
+    // carries that step's title.
+    const second = render({ open: true, onClose: () => {}, steps, defaultStep: 1 }).html
+    const secondLabel = second.match(/aria-labelledby="([^"]*)"/)?.[1]
+    const secondHeading = second.match(
+      new RegExp(`<h2[^>]*id="${secondLabel}"[^>]*>([\\s\\S]*?)</h2>`),
+    )
+    expect(secondHeading?.[1]).toContain('Connect')
   })
 })

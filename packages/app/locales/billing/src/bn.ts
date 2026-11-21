@@ -16,4 +16,11 @@ export const bn: Partial<BillingTranslations> = {
   'billing.pricing.perSeat': 'প্রতি আসন',
   'billing.pricing.upgradeCta': 'আপগ্রেড করুন {{tierName}}',
   'billing.pricing.currentCta': 'বর্তমান পরিকল্পনা',
+  'billing.pricing.period.month': 'প্রতি মাসে',
+  'billing.pricing.period.year': 'প্রতি বছরে',
+  'billing.pricing.billed.month': 'প্রতি মাসে বিল করা হয়',
+  'billing.pricing.billed.year': 'প্রতি বছরে বিল করা হয়',
+  'billing.pricing.unlimited': 'সীমাহীন',
+  'billing.pricing.limit.maxProjects': 'সর্বোচ্চ প্রজেক্ট সংখ্যা',
+  'billing.pricing.limit.canExport': 'এক্সপোর্ট করা যাবে',
 }

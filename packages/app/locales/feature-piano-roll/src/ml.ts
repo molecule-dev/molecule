@@ -9,4 +9,6 @@ export const ml: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.note':
     'കുറിപ്പ് {{pitch}} താളത്തിൽ ആരംഭിക്കുന്നു {{startBeat}} വേണ്ടി {{durationBeats}} ബീറ്റുകൾ',
   'pianoRoll.aria.cursor': '{{pitch}} എന്നതിൽ, താളം {{beat}} എന്നതിൽ കഴ്സർ',
+  'pianoRoll.aria.gridHelp':
+    'അമ്പടയാള കീകൾ സെൽ കഴ്സർ നീക്കുന്നു, Enter അല്ലെങ്കിൽ Space അവിടെ ഒരു നോട്ട് വരയ്ക്കുന്നു.',
 }

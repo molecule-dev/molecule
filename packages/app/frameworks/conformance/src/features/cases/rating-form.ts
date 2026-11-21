@@ -11,7 +11,14 @@
  * @module
  */
 
+import type { CaseA11y } from '../../ui/spec.js'
 import type { FeatureCases } from '../spec.js'
+
+/** The case passes an empty submitLabel, which the button shows as given. */
+const EMPTY_SUBMIT_LABEL: CaseA11y = {
+  expect: ['button-name'],
+  reason: 'The case passes an empty submitLabel, which the button shows as given',
+}
 
 const titleNode = [{ tag: 'strong', children: ['Rate us'] }]
 const submitLabelNode = [{ tag: 'em', children: ['Post review'] }]
@@ -64,6 +71,7 @@ export const ratingFormFeature: FeatureCases = {
         },
         {
           name: 'an empty submit label still wins over the default',
+          a11y: EMPTY_SUBMIT_LABEL,
           props: { submitLabel: '' },
           callbacks: ['onSubmit'],
         },
@@ -117,6 +125,65 @@ export const ratingFormFeature: FeatureCases = {
           props: { defaultRating: 2 },
           callbacks: ['onSubmit'],
           interactions: [{ type: 'keydown', selector: 'form', key: 'ArrowRight' }],
+        },
+        {
+          name: 'the radiogroup is a focusable tab stop',
+          props: { defaultRating: 2 },
+          callbacks: ['onSubmit'],
+          interactions: [
+            { type: 'focus', selector: '[role="radiogroup"]' },
+            { type: 'keydown', selector: '[role="radiogroup"]', key: 'ArrowRight' },
+          ],
+        },
+        {
+          name: 'an ArrowRight on the checked star moves the selection and focus',
+          props: { defaultRating: 2 },
+          callbacks: ['onSubmit'],
+          interactions: [
+            { type: 'focus', selector: '[data-mol-id="rating-form-star"]:nth-of-type(2)' },
+            {
+              type: 'keydown',
+              selector: '[data-mol-id="rating-form-star"]:nth-of-type(2)',
+              key: 'ArrowRight',
+            },
+          ],
+        },
+        {
+          name: 'an ArrowLeft from the first star wraps to the last',
+          callbacks: ['onSubmit'],
+          interactions: [
+            { type: 'focus', selector: '[data-mol-id="rating-form-star"]:nth-of-type(1)' },
+            {
+              type: 'keydown',
+              selector: '[data-mol-id="rating-form-star"]:nth-of-type(1)',
+              key: 'ArrowLeft',
+            },
+          ],
+        },
+        {
+          name: 'Home selects and focuses the first star',
+          props: { defaultRating: 3 },
+          callbacks: ['onSubmit'],
+          interactions: [
+            { type: 'focus', selector: '[data-mol-id="rating-form-star"]:nth-of-type(3)' },
+            {
+              type: 'keydown',
+              selector: '[data-mol-id="rating-form-star"]:nth-of-type(3)',
+              key: 'Home',
+            },
+          ],
+        },
+        {
+          name: 'End selects and focuses the last star',
+          callbacks: ['onSubmit'],
+          interactions: [
+            { type: 'focus', selector: '[data-mol-id="rating-form-star"]:nth-of-type(1)' },
+            {
+              type: 'keydown',
+              selector: '[data-mol-id="rating-form-star"]:nth-of-type(1)',
+              key: 'End',
+            },
+          ],
         },
         {
           name: 'typing a comment',

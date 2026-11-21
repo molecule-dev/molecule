@@ -62,14 +62,21 @@ export const noteCardFeature: FeatureCases = {
         },
         {
           name: 'click calls onClick',
-          props: { body: 'b' },
+          props: { title: 'Groceries', body: 'b' },
           callbacks: ['onClick'],
-          interactions: [{ type: 'click', selector: 'article' }],
+          interactions: [{ type: 'click', selector: '[data-mol-id="note-card-open"]' }],
         },
         {
           name: 'clickable card forwards className',
           props: { body: 'b', className: 'parity-token' },
           callbacks: ['onClick'],
+        },
+        {
+          name: 'an inner control click records no onClick',
+          props: { body: 'b' },
+          slots: { actions },
+          callbacks: ['onClick'],
+          interactions: [{ type: 'click', selector: '[data-actions]' }],
         },
         {
           name: 'props change unpins and retints',

@@ -4,8 +4,9 @@
  * @module
  */
 
-import type { ComputedRef, Ref } from 'vue'
+import type { ComputedRef, Ref, VNode } from 'vue'
 
+import type { ChatProvider } from '@molecule/app-ai-chat'
 import type { AuthClient, AuthState, RegisterExtraShape } from '@molecule/app-auth'
 import type {
   DiffFile,
@@ -14,11 +15,11 @@ import type {
   EditorTab,
   FixWithAIRequest,
 } from '@molecule/app-code-editor'
-import type { FormController, FormOptions } from '@molecule/app-forms'
+import type { FormController, FormOptions, FormResetOptions } from '@molecule/app-forms'
 import type { HttpClient, RequestConfig } from '@molecule/app-http'
 import type { I18nProvider } from '@molecule/app-i18n'
-import type { PanelId, WorkspaceLayout } from '@molecule/app-ide'
-import type { DeviceFrame, PreviewState } from '@molecule/app-live-preview'
+import type { PanelId, WorkspaceLayout, WorkspaceProvider } from '@molecule/app-ide'
+import type { DeviceFrame, PreviewProvider, PreviewState } from '@molecule/app-live-preview'
 import type { LoggerProvider } from '@molecule/app-logger'
 import type { QueryParams, RouteParams, Router, RouterConfig } from '@molecule/app-routing'
 import type { StateProvider, Store, StoreConfig } from '@molecule/app-state'
@@ -49,14 +50,6 @@ export interface SelectingStoreOptions<T, S> extends UseStoreOptions<T, S> {
 }
 
 /**
- * Return type for useAuth composable.
- *
- * @template T - The user profile the API returns.
- * @template TRegister - The app's own registration fields (the second generic
- *   of `createJWTAuthClient<T, TRegister>`), so `register()` is typed like the
- *   client's.
- */
-/**
  * Options for useAuth composable.
  */
 export interface UseAuthOptions {
@@ -68,9 +61,165 @@ export interface UseAuthOptions {
 }
 
 /**
- * Return type for the useAuth composable.
+ * The `SessionReady` component's slots. React passes these nodes as the
+ * `children` and `fallback` props; a Vue component takes nodes as slots, so
+ * they are its `default` and `fallback` slots.
  */
-export interface UseAuthReturn<
+export interface SessionReadyProps {
+  /** What renders once the initial restore settles — signed in, signed out, or unavailable. */
+  default?: () => VNode[]
+  /** What renders while the session restore is still undecided; default nothing. */
+  fallback?: () => VNode[]
+}
+
+/**
+ * What every provider component takes besides its service. React passes the
+ * tree as `children`; a Vue component takes it as its default slot.
+ */
+export interface ProviderProps {
+  /** The tree that reads the provided service (the default slot). */
+  default?: () => VNode[]
+}
+
+/**
+ * Props for the {@link StateProvider} component.
+ */
+export interface StateProviderProps extends ProviderProps {
+  provider: StateProvider
+}
+
+/**
+ * Props for the {@link AuthProvider} component.
+ */
+export interface AuthProviderProps<T = unknown> extends ProviderProps {
+  client: AuthClient<T>
+  /** Wait for initial session restoration by default. Set false for a deliberately ungated shell or synchronous SSR. */
+  awaitSession?: boolean
+  /** Content shown while the initial session status is loading (the `sessionFallback` slot); default nothing. */
+  sessionFallback?: () => VNode[]
+}
+
+/**
+ * Props for the {@link ThemeProvider} component.
+ */
+export interface ThemeProviderProps extends ProviderProps {
+  provider: ThemeProvider
+  /**
+   * Not read: the theme a page starts on comes from the theme provider itself (`defaultTheme` and the
+   * saved choice in `@molecule/app-theme-css-variables`), and setting one here would overwrite a
+   * visitor's saved theme on every load.
+   *
+   * @deprecated Ignored. Pass `defaultTheme` to the theme provider (`createCSSVariablesThemeProvider({ defaultTheme })`) instead.
+   */
+  initialTheme?: string
+}
+
+/**
+ * Props for the {@link RouterProvider} component.
+ */
+export interface RouterProviderProps extends ProviderProps {
+  router: Router
+}
+
+/**
+ * Props for the {@link I18nProvider} component.
+ */
+export interface I18nProviderProps extends ProviderProps {
+  provider: I18nProvider
+}
+
+/**
+ * Props for the {@link HttpProvider} component.
+ */
+export interface HttpProviderProps extends ProviderProps {
+  client: HttpClient
+}
+
+/**
+ * Props for the {@link StorageProvider} component.
+ */
+export interface StorageProviderProps extends ProviderProps {
+  provider: StorageProvider
+}
+
+/**
+ * Props for the {@link LoggerProvider} component.
+ */
+export interface LoggerProviderProps extends ProviderProps {
+  provider: LoggerProvider
+}
+
+/**
+ * Props for the {@link ChatProvider} component.
+ */
+export interface ChatProviderProps extends ProviderProps {
+  provider: ChatProvider
+}
+
+/**
+ * Props for the {@link WorkspaceProvider} component.
+ */
+export interface WorkspaceProviderProps extends ProviderProps {
+  provider: WorkspaceProvider
+}
+
+/**
+ * Props for the {@link EditorProvider} component.
+ */
+export interface EditorProviderProps extends ProviderProps {
+  provider: EditorProvider
+}
+
+/**
+ * Props for the {@link PreviewProvider} component.
+ */
+export interface PreviewProviderProps extends ProviderProps {
+  provider: PreviewProvider
+}
+
+/**
+ * Props for the {@link MoleculeProvider} component: each service is optional,
+ * and only the services passed are provided (`state` falls back to the bonded
+ * state provider).
+ */
+export interface MoleculeProviderProps extends ProviderProps {
+  state?: StateProvider
+  auth?: AuthClient<unknown>
+  /**
+   * Render the app only once `auth` leaves its initial loading status ({@link SessionReadyProps}). Defaults to true.
+   * With the bundled JWT client, a stored token AND cached user restore synchronously.
+   * Token-only and cookie-only sessions need an asynchronous current-user request;
+   * until it answers `useAuth().user.value` is `null` — a public page's signed-in action
+   * (`if (!user.value) return`, a redirect to `/login`) then treats a signed-in visitor as signed out.
+   * When restoration succeeds, every page's first render reads the restored user. An
+   * `'unavailable'` session also renders, but remains unconfirmed and may have a null user.
+   * A visitor with no session candidate settles synchronously without a request.
+   * Ignored without `auth`.
+   */
+  awaitSession?: boolean
+  /** Rendered instead of the app while {@link MoleculeProviderProps.awaitSession} waits (the `sessionFallback` slot); default nothing. */
+  sessionFallback?: () => VNode[]
+  theme?: ThemeProvider
+  router?: Router
+  i18n?: I18nProvider
+  http?: HttpClient
+  storage?: StorageProvider
+  logger?: LoggerProvider
+  chat?: ChatProvider
+  workspace?: WorkspaceProvider
+  editor?: EditorProvider
+  preview?: PreviewProvider
+}
+
+/**
+ * Return type for the useAuth composable.
+ *
+ * @template T - The user profile the API returns.
+ * @template TRegister - The app's own registration fields (the second generic
+ *   of `createJWTAuthClient<T, TRegister>`), so `register()` is typed like the
+ *   client's.
+ */
+export interface UseAuthResult<
   T = unknown,
   TRegister extends RegisterExtraShape<TRegister> = Record<never, never>,
 > {
@@ -108,9 +257,19 @@ export interface UseAuthReturn<
 }
 
 /**
+ * The former name of {@link UseAuthResult}.
+ *
+ * @deprecated Renamed to {@link UseAuthResult}, `@molecule/app-react`'s name for it.
+ */
+export type UseAuthReturn<
+  T = unknown,
+  TRegister extends RegisterExtraShape<TRegister> = Record<never, never>,
+> = UseAuthResult<T, TRegister>
+
+/**
  * Return type for useTheme composable.
  */
-export interface UseThemeReturn {
+export interface UseThemeResult {
   theme: ComputedRef<Theme>
   themeName: ComputedRef<string>
   mode: ComputedRef<'light' | 'dark'>
@@ -119,9 +278,16 @@ export interface UseThemeReturn {
 }
 
 /**
+ * The former name of {@link UseThemeResult}.
+ *
+ * @deprecated Renamed to {@link UseThemeResult}, `@molecule/app-react`'s name for it.
+ */
+export type UseThemeReturn = UseThemeResult
+
+/**
  * Return type for useRouter composable.
  */
-export interface UseRouterReturn {
+export interface UseRouterResult {
   location: ComputedRef<ReturnType<Router['getLocation']>>
   params: ComputedRef<RouteParams>
   query: ComputedRef<QueryParams>
@@ -133,9 +299,16 @@ export interface UseRouterReturn {
 }
 
 /**
+ * The former name of {@link UseRouterResult}.
+ *
+ * @deprecated Renamed to {@link UseRouterResult}, `@molecule/app-react`'s name for it.
+ */
+export type UseRouterReturn = UseRouterResult
+
+/**
  * Return type for useTranslation composable.
  */
-export interface UseTranslationReturn {
+export interface UseTranslationResult {
   t: I18nProvider['t']
   locale: ComputedRef<string>
   direction: ComputedRef<'ltr' | 'rtl'>
@@ -144,6 +317,13 @@ export interface UseTranslationReturn {
   formatNumber: I18nProvider['formatNumber']
   formatDate: I18nProvider['formatDate']
 }
+
+/**
+ * The former name of {@link UseTranslationResult}.
+ *
+ * @deprecated Renamed to {@link UseTranslationResult}, `@molecule/app-react`'s name for it.
+ */
+export type UseTranslationReturn = UseTranslationResult
 
 /**
  * State for async HTTP operations.
@@ -157,10 +337,17 @@ export interface UseHttpState<T> {
 /**
  * Return type for useHttp composable.
  */
-export interface UseHttpReturn<T> extends UseHttpState<T> {
+export interface UseHttpResult<T> extends UseHttpState<T> {
   execute: () => Promise<T | null>
   reset: () => void
 }
+
+/**
+ * The former name of {@link UseHttpResult}.
+ *
+ * @deprecated Renamed to {@link UseHttpResult}, `@molecule/app-react`'s name for it.
+ */
+export type UseHttpReturn<T> = UseHttpResult<T>
 
 /**
  * Options for useHttp composable: every request option, plus the hook's own.
@@ -181,13 +368,20 @@ export interface UseHttpOptions<T> extends RequestConfig {
 /**
  * Return type for useStorageValue composable.
  */
-export interface UseStorageValueReturn<T> {
+export interface UseStorageValueResult<T> {
   value: Ref<T | undefined>
   loading: Ref<boolean>
   error: Ref<Error | null>
   setValue: (value: T) => Promise<void>
   removeValue: () => Promise<void>
 }
+
+/**
+ * The former name of {@link UseStorageValueResult}.
+ *
+ * @deprecated Renamed to {@link UseStorageValueResult}, `@molecule/app-react`'s name for it.
+ */
+export type UseStorageValueReturn<T> = UseStorageValueResult<T>
 
 /**
  * Options for useStoragePreference composable.
@@ -203,7 +397,7 @@ export interface UseStoragePreferenceOptions<T> {
 /**
  * Return type for useStoragePreference composable.
  */
-export interface UseStoragePreferenceReturn<T> {
+export interface UseStoragePreferenceResult<T> {
   /** The persisted value, or `defaultValue` while none is known. */
   value: Ref<T | undefined>
   /**
@@ -220,6 +414,13 @@ export interface UseStoragePreferenceReturn<T> {
   ready: Ref<boolean>
 }
 
+/**
+ * The former name of {@link UseStoragePreferenceResult}.
+ *
+ * @deprecated Renamed to {@link UseStoragePreferenceResult}, `@molecule/app-react`'s name for it.
+ */
+export type UseStoragePreferenceReturn<T> = UseStoragePreferenceResult<T>
+
 /** Options for {@link useOptimisticToggle}. */
 export interface UseOptimisticToggleOptions {
   /** The loaded server value. Mount the control only after its record exists. */
@@ -231,7 +432,7 @@ export interface UseOptimisticToggleOptions {
 }
 
 /** What {@link useOptimisticToggle} returns: the boolean to render and an argument-free action. */
-export interface UseOptimisticToggleReturn {
+export interface UseOptimisticToggleResult {
   /** The newest value the person chose, or the server's value when nothing is being saved. */
   value: Ref<boolean>
   /** Whether a save is running or waiting to run. */
@@ -243,9 +444,16 @@ export interface UseOptimisticToggleReturn {
 }
 
 /**
+ * The former name of {@link UseOptimisticToggleResult}.
+ *
+ * @deprecated Renamed to {@link UseOptimisticToggleResult}, `@molecule/app-react`'s name for it.
+ */
+export type UseOptimisticToggleReturn = UseOptimisticToggleResult
+
+/**
  * What {@link useOptimisticValue} returns: the state to render and the two ways to change it.
  */
-export interface UseOptimisticValueReturn<T> {
+export interface UseOptimisticValueResult<T> {
   /** The newest value the person chose, or the server's value when nothing is being saved. */
   value: Ref<T>
   /** Whether a save is running or waiting to run. */
@@ -267,9 +475,16 @@ export interface UseOptimisticValueReturn<T> {
 }
 
 /**
+ * The former name of {@link UseOptimisticValueResult}.
+ *
+ * @deprecated Renamed to {@link UseOptimisticValueResult}, `@molecule/app-react`'s name for it.
+ */
+export type UseOptimisticValueReturn<T> = UseOptimisticValueResult<T>
+
+/**
  * Return type for useWorkspace composable.
  */
-export interface UseWorkspaceReturn {
+export interface UseWorkspaceResult {
   /** The panel layout: the panel list and the sizes per position. */
   layout: ComputedRef<WorkspaceLayout>
   /** The panel with keyboard focus, if any. */
@@ -300,9 +515,16 @@ export interface UseWorkspaceReturn {
 }
 
 /**
+ * The former name of {@link UseWorkspaceResult}.
+ *
+ * @deprecated Renamed to {@link UseWorkspaceResult}, `@molecule/app-react`'s name for it.
+ */
+export type UseWorkspaceReturn = UseWorkspaceResult
+
+/**
  * Return type for useEditor composable.
  */
-export interface UseEditorReturn {
+export interface UseEditorResult {
   /** The provider's tab list, refreshed on every change event and tab action. */
   tabs: Ref<EditorTab[]>
   /** The path of the tab marked `isActive`, or `null` when none is. */
@@ -371,9 +593,16 @@ export interface UseEditorReturn {
 }
 
 /**
+ * The former name of {@link UseEditorResult}.
+ *
+ * @deprecated Renamed to {@link UseEditorResult}, `@molecule/app-react`'s name for it.
+ */
+export type UseEditorReturn = UseEditorResult
+
+/**
  * Return type for usePreview composable.
  */
-export interface UsePreviewReturn {
+export interface UsePreviewResult {
   /** The provider's preview state (url, device, loading, connection, history flags). */
   state: ComputedRef<PreviewState>
   /**
@@ -407,21 +636,26 @@ export interface UsePreviewReturn {
   forward: () => void
 }
 
-// Re-export core types for convenience
+/**
+ * The former name of {@link UsePreviewResult}.
+ *
+ * @deprecated Renamed to {@link UsePreviewResult}, `@molecule/app-react`'s name for it.
+ */
+export type UsePreviewReturn = UsePreviewResult
+
+// Re-export core types for convenience. StateProvider, ThemeProvider, I18nProvider, StorageProvider and
+// LoggerProvider are the provider components here, as in @molecule/app-react (providers.ts keeps a deprecated
+// type alias under each name).
 export type {
   AuthClient,
   AuthState,
   FormController,
   FormOptions,
+  FormResetOptions,
   HttpClient,
-  I18nProvider,
-  LoggerProvider,
   Router,
   RouterConfig,
-  StateProvider,
-  StorageProvider,
   Store,
   StoreConfig,
   Theme,
-  ThemeProvider,
 }

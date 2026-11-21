@@ -16,6 +16,11 @@ export interface NodeEditorSectionProps {
   children?: ReactNode
   /** Optional content rendered on the right side of the label row (value chip, numeric input). */
   trailing?: ReactNode
+  /**
+   * Id of the form control this label names (`<label for>`). Set it when the
+   * section holds a single labelable control, so the control gets a name.
+   */
+  htmlFor?: string
   /** Stack gap between section header and children (default 3). */
   gap?: 1 | 2 | 3 | 4 | 5 | 6 | 8
 }
@@ -25,13 +30,17 @@ export function NodeEditorSection({
   label,
   children,
   trailing,
+  htmlFor,
   gap = 3,
 }: NodeEditorSectionProps): JSX.Element {
   const cm = getClassMap()
   return (
     <div className={cm.stack(gap)}>
       <div className={cm.flex({ justify: 'between', align: 'center' })}>
-        <label className={cm.cn(cm.fontWeight('bold'), cm.nodeEditorPanelSectionLabel)}>
+        <label
+          htmlFor={htmlFor}
+          className={cm.cn(cm.fontWeight('bold'), cm.nodeEditorPanelSectionLabel)}
+        >
           {label}
         </label>
         {trailing ?? null}

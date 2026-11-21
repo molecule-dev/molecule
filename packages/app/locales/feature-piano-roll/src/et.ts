@@ -9,4 +9,6 @@ export const et: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.note':
     'Märkus {{pitch}} alustades löögist {{startBeat}} eest {{durationBeats}} rütmid',
   'pianoRoll.aria.cursor': 'Kursor {{pitch}} peal löögil {{beat}}',
+  'pianoRoll.aria.gridHelp':
+    'Noolted liigutavad lahtri kursorit, Enter või tühik joonistab sellele noodi.',
 }

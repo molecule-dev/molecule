@@ -3,6 +3,7 @@ export type PianoRollTranslationKey =
   | 'pianoRoll.aria.roll'
   | 'pianoRoll.aria.keys'
   | 'pianoRoll.aria.grid'
+  | 'pianoRoll.aria.gridHelp'
   | 'pianoRoll.aria.resize'
   | 'pianoRoll.aria.note'
   | 'pianoRoll.aria.cursor'

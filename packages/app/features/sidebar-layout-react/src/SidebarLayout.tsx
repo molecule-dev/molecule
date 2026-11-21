@@ -1,6 +1,7 @@
 import type { CSSProperties, ReactElement, ReactNode } from 'react'
 import { Link, Outlet, useLocation } from 'react-router'
 
+import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 /** Describes a single item in the sidebar's vertical navigation list. */
@@ -68,7 +69,11 @@ export interface SidebarLayoutProps {
   userMenu?: ReactNode
   /** Optional slot rendered next to the user menu (typically a `<ThemeToggle />`). */
   themeToggle?: ReactNode
-  /** Aria-label for the primary <nav>. */
+  /**
+   * Aria-label for the primary <nav>. Overrides the translated default
+   * (`sidebarLayout.aria.primaryNavigation`, English `'Primary navigation'`);
+   * prop > `t()` > default.
+   */
   navAriaLabel?: string
   /**
    * Sidebar width — a stack-agnostic preset (`'sm'` | `'md'` | `'lg'`) or an
@@ -104,14 +109,24 @@ export function SidebarLayout({
   navItems,
   userMenu,
   themeToggle,
-  navAriaLabel = 'Primary navigation',
+  navAriaLabel,
   sidebarWidth,
   sidebarWidthClass,
   className,
   dataMolId,
 }: SidebarLayoutProps): ReactElement {
   const cm = getClassMap()
+  const { t } = useTranslation()
   const { pathname } = useLocation()
+
+  // The nav's accessible name: an explicit prop wins, otherwise the translated
+  // default (the inline English keeps the DOM identical until a locale bond
+  // supplies the key).
+  const navLabel =
+    navAriaLabel ??
+    t('sidebarLayout.aria.primaryNavigation', undefined, {
+      defaultValue: 'Primary navigation',
+    })
 
   // Width is a "specific value" a swappable ClassMap can't express as a token,
   // so it is applied inline (Rule 5's documented exception) — keeping the
@@ -165,7 +180,7 @@ export function SidebarLayout({
           {appName}
         </Link>
 
-        <nav className={cm.cn(cm.flex1, cm.stack(1))} aria-label={navAriaLabel}>
+        <nav className={cm.cn(cm.flex1, cm.stack(1))} aria-label={navLabel}>
           {navItems.map((item) => {
             const isActive = item.key === activeKey
             return (

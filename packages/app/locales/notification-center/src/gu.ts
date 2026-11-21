@@ -8,4 +8,5 @@ export const gu: Partial<NotificationCenterTranslations> = {
   'notifications.viewAll': 'બધા જુઓ',
   'notifications.loadError': 'સૂચનાઓ લોડ કરી શકાઈ નથી.',
   'notifications.retry': 'ફરી પ્રયાસ કરો',
+  'notifications.unread': 'વાંચ્યા વગરનું',
 }

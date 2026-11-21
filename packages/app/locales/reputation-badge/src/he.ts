@@ -9,6 +9,7 @@ export const he: ReputationBadgeTranslations = {
   'reputationBadge.level.trusted': 'מהימן',
   'reputationBadge.level.veteran': 'ותיק',
   'reputationBadge.level.legend': 'אגדה',
+  'reputationBadge.level.fallback': '{{level}}',
   'badgeShelf.aria': '{{count}} תגים הושגו',
   'badgeShelf.overflow.aria': 'הצג עוד {{count}} תגים',
 }

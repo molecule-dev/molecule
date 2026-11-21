@@ -8,4 +8,5 @@ export const ne: Partial<NotificationCenterTranslations> = {
   'notifications.viewAll': 'सबै हेर्नुहोस्',
   'notifications.loadError': 'सूचनाहरू लोड गर्न सकिएन।',
   'notifications.retry': 'पुन: प्रयास गर्नुहोस्',
+  'notifications.unread': 'नपढिएको',
 }

@@ -7,4 +7,8 @@ export const ha: Partial<HttpInspectorTranslations> = {
   'httpInspector.headers': 'Kanun labarai',
   'httpInspector.addHeader': 'Ƙara kan kai',
   'httpInspector.body': 'Jiki',
+  'httpInspector.methodLabel': 'Hanyar HTTP',
+  'httpInspector.urlLabel': 'URL',
+  'httpInspector.headerPlaceholder': 'Kanun labarai',
+  'httpInspector.valuePlaceholder': 'Daraja',
 }

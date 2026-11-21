@@ -6,4 +6,8 @@ export const hu: Partial<LoyaltyTierBadgeTranslations> = {
   'loyaltyTierBadge.progress': 'Haladás a következőhöz: {{next}}',
   'loyaltyTierBadge.topTier': 'Elérte a legfelső szintet',
   'loyaltyTierBadge.remaining': '{{remaining}} - {{next}}',
+  'loyaltyTierBadge.tier.bronze': 'Bronz',
+  'loyaltyTierBadge.tier.silver': 'Ezüst',
+  'loyaltyTierBadge.tier.gold': 'Arany',
+  'loyaltyTierBadge.tier.platinum': 'Platina',
 }

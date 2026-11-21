@@ -17,4 +17,11 @@ export const pa: Partial<BillingTranslations> = {
   'billing.pricing.perSeat': 'ਪ੍ਰਤੀ ਸੀਟ',
   'billing.pricing.upgradeCta': 'ਇਸ ਵਿੱਚ ਅੱਪਗ੍ਰੇਡ ਕਰੋ {{tierName}}',
   'billing.pricing.currentCta': 'ਮੌਜੂਦਾ ਯੋਜਨਾ',
+  'billing.pricing.period.month': 'ਪ੍ਰਤੀ ਮਹੀਨਾ',
+  'billing.pricing.period.year': 'ਪ੍ਰਤੀ ਸਾਲ',
+  'billing.pricing.billed.month': 'ਮਾਸਿਕ ਬਿੱਲਿੰਗ',
+  'billing.pricing.billed.year': 'ਸਾਲਾਨਾ ਬਿੱਲਿੰਗ',
+  'billing.pricing.unlimited': 'ਬੇਅੰਤ',
+  'billing.pricing.limit.maxProjects': 'ਵੱਧ ਤੋਂ ਵੱਧ ਪ੍ਰੋਜੈਕਟ',
+  'billing.pricing.limit.canExport': 'ਨਿਰਯਾਤ ਸੰਭਵ',
 }

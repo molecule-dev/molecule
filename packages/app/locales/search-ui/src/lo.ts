@@ -13,4 +13,8 @@ export const lo: Partial<SearchUiTranslations> = {
   'searchUi.relatedTitle': 'ກົງກັບຄວາມໝາຍຂອງການຄົ້ນຫາຂອງທ່ານ, ບໍ່ແມ່ນຄຳສັບຂອງມັນ',
   'searchUi.related': 'ທີ່ກ່ຽວຂ້ອງ',
   'searchUi.help': 'ເຄັດລັບໃນການຄົ້ນຫາ',
+  'searchUi.examplePhrase': '"ປະໂຫຍກທີ່ແນ່ນອນ"',
+  'searchUi.exampleExcluded': '-ຄຳ',
+  'searchUi.activeResult': '{{title}}, {{position}} ຈາກ {{count}}',
+  'searchUi.dialogLabel': 'ຄົ້ນຫາ',
 }

@@ -1,0 +1,117 @@
+// @vitest-environment jsdom
+
+/**
+ * Locale-default behaviour of MiniCalendar's formatted names.
+ *
+ * Without a `locale` prop the month title used to format in the BROWSER's
+ * language — `Intl.DateTimeFormat(undefined, …)` — so a switch of the app's
+ * i18n locale left it behind. Now the component defaults to the app's active
+ * locale (`useLocale()`), so the title follows a locale switch at once. This
+ * test bonds a provider with an `en` and a `de` locale, renders the calendar
+ * in `en`, switches to `de` through `act`, and asserts the title re-formats —
+ * and that an explicit `locale` prop still wins over the app locale.
+ *
+ * @module
+ */
+
+import { act, createElement } from 'react'
+import { createRoot, type Root } from 'react-dom/client'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+
+import type { I18nProvider } from '@molecule/app-i18n'
+import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
+
+vi.mock('@molecule/app-ui', () => ({
+  getClassMap: () => {
+    const handler: ProxyHandler<Record<string, unknown>> = {
+      get(_t, prop) {
+        if (prop === 'cn') {
+          return (...cls: unknown[]) =>
+            cls
+              .flat(Infinity)
+              .map((c) => (typeof c === 'function' ? c() : c))
+              .filter((c) => typeof c === 'string' && c.length > 0)
+              .join(' ')
+        }
+        const token = String(prop)
+        return (..._args: unknown[]) => token
+      },
+    }
+    return new Proxy({}, handler)
+  },
+}))
+
+vi.mock('@molecule/app-ui-react', () => ({
+  Button: ({ children }: { children?: React.ReactNode }) =>
+    createElement('button', { 'data-button': '' }, children),
+}))
+
+const { MiniCalendar } = await import('../MiniCalendar.js')
+
+/** The bonded provider from {@link beforeEach}, so the switch drives the exact provider the component's `useLocale()` reads. */
+let provider: I18nProvider
+
+let root: Root | null = null
+let host: HTMLElement | null = null
+
+beforeEach(() => {
+  provider = createSimpleI18nProvider('en', [
+    { code: 'en', name: 'English', translations: {} },
+    { code: 'de', name: 'German', translations: {} },
+  ])
+  setProvider(provider)
+})
+
+afterEach(async () => {
+  if (root) await act(async () => root?.unmount())
+  host?.remove()
+  root = null
+  host = null
+  // Reset the global i18n singleton to a clean English provider so a locale
+  // switch registered in one test can't bleed into the next.
+  setProvider(createSimpleI18nProvider('en'))
+})
+
+/**
+ * Mounts the calendar in jsdom.
+ *
+ * @param props - Props over the calendar.
+ */
+async function mount(props: Record<string, unknown>): Promise<HTMLElement> {
+  host = document.createElement('div')
+  document.body.appendChild(host)
+  root = createRoot(host)
+  await act(async () => {
+    root?.render(createElement(MiniCalendar, props))
+  })
+  return host
+}
+
+/** The calendar's month title. */
+const title = (el: HTMLElement): string => el.querySelector('header span')?.textContent ?? ''
+
+// Pin the visible month to March 2026 for deterministic output.
+const march2026 = new Date(2026, 2, 15)
+
+describe('MiniCalendar locale default', () => {
+  it('switching the provider locale reformats the month title', async () => {
+    const container = await mount({ month: march2026 })
+    expect(title(container)).toBe('March 2026')
+
+    // The switch itself: the title must re-format in German. Against the
+    // browser-language default this stayed 'March 2026' — nothing tied the
+    // formatter to the provider's locale.
+    await act(async () => {
+      await provider.setLocale('de')
+    })
+    expect(title(container)).toBe('März 2026')
+  })
+
+  it('an explicit locale prop still wins over the app locale', async () => {
+    const container = await mount({ month: march2026, locale: 'en-US' })
+    await act(async () => {
+      await provider.setLocale('de')
+    })
+    expect(title(container)).toBe('March 2026')
+  })
+})

@@ -8,4 +8,5 @@ export const nl: Partial<NotificationCenterTranslations> = {
   'notifications.empty': 'Geen meldingen',
   'notifications.loadError': 'Kon de meldingen niet laden.',
   'notifications.retry': 'Opnieuw proberen',
+  'notifications.unread': 'Ongelezen',
 }

@@ -9,6 +9,7 @@ export const sq: ReputationBadgeTranslations = {
   'reputationBadge.level.trusted': 'I besuar',
   'reputationBadge.level.veteran': 'Veteran',
   'reputationBadge.level.legend': 'Legjendë',
+  'reputationBadge.level.fallback': '{{level}}',
   'badgeShelf.aria': '{{count}} stema të fituara',
   'badgeShelf.overflow.aria': 'Shfaq {{count}} stema të tjera',
 }

@@ -10,7 +10,7 @@ import { getProvider } from '@molecule/app-device'
 /**
  * Return type for the useDevice composable.
  */
-export interface UseDeviceReturn {
+export interface UseDeviceResult {
   deviceInfo: DeviceInfo
   screenInfo: ScreenInfo
   hardwareInfo: HardwareInfo
@@ -21,6 +21,13 @@ export interface UseDeviceReturn {
   language: string
   languages: string[]
 }
+
+/**
+ * The former name of {@link UseDeviceResult}.
+ *
+ * @deprecated Renamed to {@link UseDeviceResult}, `@molecule/app-react`'s name for it.
+ */
+export type UseDeviceReturn = UseDeviceResult
 
 /**
  * Composable for device information.
@@ -45,7 +52,7 @@ export interface UseDeviceReturn {
  * </template>
  * ```
  */
-export function useDevice(): UseDeviceReturn {
+export function useDevice(): UseDeviceResult {
   const provider = getProvider()
 
   return {

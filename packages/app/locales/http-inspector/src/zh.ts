@@ -7,4 +7,8 @@ export const zh: Partial<HttpInspectorTranslations> = {
   'httpInspector.headers': '请求头',
   'httpInspector.body': '正文',
   'httpInspector.addHeader': '添加标题',
+  'httpInspector.methodLabel': 'HTTP 方法',
+  'httpInspector.urlLabel': 'URL',
+  'httpInspector.headerPlaceholder': '请求头',
+  'httpInspector.valuePlaceholder': '值',
 }

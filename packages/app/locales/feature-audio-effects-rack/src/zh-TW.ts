@@ -49,4 +49,5 @@ export const zhTW: Partial<AudioEffectsRackTranslations> = {
   'audioEffectsRack.param.phaser.rate': '速度',
   'audioEffectsRack.param.phaser.depth': '深度',
   'audioEffectsRack.param.phaser.feedback': '回饋',
+  'audioEffectsRack.param.fallback': '參數',
 }

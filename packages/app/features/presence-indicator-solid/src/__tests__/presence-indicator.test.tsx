@@ -29,7 +29,8 @@ vi.mock('@molecule/app-ui', () => ({
               .join(' ')
         }
         const token = String(prop)
-        return (..._args: unknown[]) => token
+        return (...args: unknown[]) =>
+          args.length > 0 ? `${token}-${args.map(String).join('-')}` : token
       },
     }
     return new Proxy({}, handler)
@@ -67,11 +68,14 @@ describe('PresenceDot', () => {
     expect(markup).toContain('aria-label="User is away"')
   })
 
-  it('colors the dot by status', () => {
-    expect(mount(() => <PresenceDot status="online" />).innerHTML).toContain('rgb(34, 197, 94)')
-    expect(mount(() => <PresenceDot status="away" />).innerHTML).toContain('rgb(234, 179, 8)')
-    expect(mount(() => <PresenceDot status="busy" />).innerHTML).toContain('rgb(239, 68, 68)')
-    expect(mount(() => <PresenceDot status="offline" />).innerHTML).toContain('rgb(148, 163, 184)')
+  it('colors the dot by status through theme tone classes, never a hardcoded hex', () => {
+    const online = mount(() => <PresenceDot status="online" />).innerHTML
+    expect(online).toContain('progressColor-success')
+    expect(mount(() => <PresenceDot status="away" />).innerHTML).toContain('progressColor-warning')
+    expect(mount(() => <PresenceDot status="busy" />).innerHTML).toContain('progressColor-error')
+    expect(mount(() => <PresenceDot status="offline" />).innerHTML).toContain('bgBorder')
+    expect(online).not.toMatch(/#[0-9a-fA-F]{3,8}\b/)
+    expect(online).not.toContain('background:')
   })
 
   it('positions absolutely at the given corner when position="overlay"', () => {

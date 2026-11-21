@@ -9,5 +9,7 @@ export const ko: Partial<AudioMixerTranslations> = {
   'audioMixer.aria.pan': '{{name}} 팬',
   'audioMixer.aria.send': '{{channel}} 보내다 {{send}}',
   'audioMixer.button.solo': '독주',
+  'audioMixer.button.muteInitial': '음',
+  'audioMixer.button.soloInitial': '독',
   'audioMixer.master': '주인',
 }

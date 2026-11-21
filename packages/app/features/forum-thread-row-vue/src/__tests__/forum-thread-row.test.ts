@@ -37,9 +37,29 @@ import { createApp, defineComponent, h, type VNodeChild } from 'vue'
 
 import { ForumThreadRow } from '../ForumThreadRow.js'
 
+/** Apps still mounted, unmounted after each test. */
+const apps: Array<{ unmount: () => void; host: HTMLElement }> = []
+
 afterEach(() => {
+  for (const app of apps.splice(0)) {
+    app.unmount()
+    app.host.remove()
+  }
   document.body.innerHTML = ''
 })
+
+/** Mounts a {@link ForumThreadRow} and returns its host element. */
+const mount = (
+  props: Record<string, unknown>,
+  slots?: Record<string, () => VNodeChild[]>,
+): HTMLElement => {
+  const host = document.createElement('div')
+  document.body.appendChild(host)
+  const app = createApp(defineComponent({ render: () => h(ForumThreadRow, props, slots) }))
+  app.mount(host)
+  apps.push({ unmount: () => app.unmount(), host })
+  return host
+}
 
 /** Renders a {@link ForumThreadRow} and returns the markup it produced. */
 const render = (
@@ -114,5 +134,45 @@ describe('ForumThreadRow', () => {
     const plain = render({ title: 'T', className: 'ftr-cls' })
     expect(plain).not.toContain('cursorPointer')
     expect(plain).toContain('ftr-cls')
+  })
+
+  it('clicking the open button calls onClick', () => {
+    const onClick = vi.fn()
+    const host = mount({ title: 'T', onClick })
+    host.querySelector<HTMLElement>('[data-mol-id="forum-thread-row-open"]')!.click()
+    expect(onClick).toHaveBeenCalledTimes(1)
+  })
+
+  it('clicking an inner control does not call onClick', () => {
+    const onClick = vi.fn()
+    const host = mount(
+      { title: 'T', onClick },
+      { voteControls: () => [h('div', { 'data-votes': '' })] },
+    )
+    host.querySelector<HTMLElement>('[data-votes]')!.click()
+    expect(onClick).not.toHaveBeenCalled()
+  })
+
+  it('the open button is named by the label', () => {
+    const host = mount({ title: 'How do I reset my password?', onClick: () => {} })
+    const open = host.querySelector('[data-mol-id="forum-thread-row-open"]')!
+    const labelledby = open.getAttribute('aria-labelledby')
+    expect(labelledby).toBeTruthy()
+    const label = document.getElementById(labelledby!)
+    expect(label?.tagName.toLowerCase()).toBe('h3')
+    expect(label?.textContent).toBe('How do I reset my password?')
+  })
+
+  it('without onClick there is no open button', () => {
+    const host = mount({ title: 'T' })
+    expect(host.querySelector('[data-mol-id="forum-thread-row-open"]')).toBeNull()
+    expect(host.querySelector('article')!.querySelector('button')).toBeNull()
+  })
+
+  it('click elsewhere in the row does not call onClick', () => {
+    const onClick = vi.fn()
+    const host = mount({ title: 'T', onClick })
+    host.querySelector('article')!.click()
+    expect(onClick).not.toHaveBeenCalled()
   })
 })

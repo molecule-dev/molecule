@@ -8,4 +8,5 @@ export const be: Partial<NotificationCenterTranslations> = {
   'notifications.viewAll': 'Паглядзець усе',
   'notifications.loadError': 'Не атрымалася загрузіць апавяшчэнні.',
   'notifications.retry': 'Паўтарыць спробу',
+  'notifications.unread': 'Непрачытанае',
 }

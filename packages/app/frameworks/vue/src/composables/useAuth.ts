@@ -20,7 +20,7 @@ import type { AuthClient, AuthState, RegisterExtraShape } from '@molecule/app-au
 import { t } from '@molecule/app-i18n'
 
 import { AuthKey } from '../injection-keys.js'
-import type { UseAuthOptions, UseAuthReturn } from '../types.js'
+import type { UseAuthOptions, UseAuthResult } from '../types.js'
 
 /**
  * Composable to access the auth client from injection.
@@ -94,7 +94,7 @@ export function useAuthClient<
 export function useAuth<
   T = unknown,
   TRegister extends RegisterExtraShape<TRegister> = Record<never, never>,
->(options?: MaybeRefOrGetter<UseAuthOptions | undefined>): UseAuthReturn<T, TRegister> {
+>(options?: MaybeRefOrGetter<UseAuthOptions | undefined>): UseAuthResult<T, TRegister> {
   const client = useAuthClient<T, TRegister>()
 
   // Reactive state (shallowRef avoids Vue's UnwrapRef issues with generic AuthState<T>)

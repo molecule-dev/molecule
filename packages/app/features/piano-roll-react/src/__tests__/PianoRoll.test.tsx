@@ -37,6 +37,9 @@ function buildStubClassMap(): UIClassMap {
           classes.filter((c) => typeof c === 'string' && c.length > 0).join(' ')
       }
       const token = String(prop)
+      // `srOnly` is read as a property (a class string), never called — the
+      // grid's description element and the cursor announcer carry it.
+      if (prop === 'srOnly') return token
       const fn = (..._args: unknown[]): string => token
       return new Proxy(fn, {
         get(_t, key) {
@@ -545,5 +548,29 @@ describe('<PianoRoll>', () => {
     expect(grid?.getAttribute('aria-label')).toBe('Note grid')
     const keys = container.querySelector('[data-mol-id="piano-roll-keys"]')
     expect(keys?.getAttribute('aria-label')).toBe('Piano keys')
+  })
+
+  it('describes the grid keyboard interface via aria-describedby', () => {
+    const { container } = render(
+      <Wrap>
+        <PianoRoll notes={[]} />
+      </Wrap>,
+    )
+    // The grid is a free two-dimensional surface, so it is an application,
+    // not a grid: it holds no rows of gridcells.
+    const grid = container.querySelector('[data-mol-id="piano-roll-grid"]') as HTMLElement
+    expect(grid.getAttribute('role')).toBe('application')
+    // Its keyboard interface is described by a visually hidden element the
+    // aria-describedby attribute resolves to.
+    const describedBy = grid.getAttribute('aria-describedby')
+    expect(describedBy).toBeTruthy()
+    const help = document.getElementById(describedBy as string)
+    expect(help).not.toBeNull()
+    expect(help?.getAttribute('class')).toContain('srOnly')
+    // The description names exactly the keys the grid's keydown handler
+    // handles — the arrow keys move the cell cursor, Enter or Space paints.
+    expect(help?.textContent).toContain('arrow keys')
+    expect(help?.textContent).toContain('Enter')
+    expect(help?.textContent).toContain('Space')
   })
 })

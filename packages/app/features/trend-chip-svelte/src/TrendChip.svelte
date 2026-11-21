@@ -2,10 +2,12 @@
   TrendChip: the Svelte counterpart of `@molecule/app-trend-chip-react`'s
   `TrendChip` — a standalone trend delta chip (`▲ 12%`) for inline placement
   in row/header/cell contexts. Same props (React names), same DOM for the
-  same input; the trend color is applied inline via the CSSOM and the layout
-  and type classes come from the ClassMap bond.
+  same input; colors come from the ClassMap bond's semantic tones and follow
+  the app theme, with only the pill's padding and radius applied inline via
+  the CSSOM.
 -->
 <script lang="ts">
+  import type { ColorVariant } from '@molecule/app-ui'
   import { getClassMap } from '@molecule/app-ui'
 
   import { reactStyle } from './style.js'
@@ -22,16 +24,26 @@
   }: TrendChipProps = $props()
 
   const ARROW = { up: '▲', down: '▼', flat: '–' } as const
-  const COLOR = { up: '#22c55e', down: '#ef4444', flat: '#94a3b8' } as const
+
+  /**
+   * The semantic tone colouring each direction: the theme's success green for
+   * a rise, its error red for a fall, its muted secondary grey for no change.
+   */
+  const TONE: Record<'up' | 'down' | 'flat', ColorVariant> = {
+    up: 'success',
+    down: 'error',
+    flat: 'secondary',
+  } as const
 
   const cm = $derived(getClassMap())
   const dir = $derived(direction ?? (delta > 0 ? 'up' : delta < 0 ? 'down' : 'flat'))
-  const color = $derived(COLOR[dir])
+  const tone = $derived(TONE[dir])
   const abs = $derived(Math.abs(delta))
+  const toneClass = $derived(
+    variant === 'pill' ? cm.cn(cm.bgTone(tone), cm.textOnTone) : cm.textTone(tone),
+  )
   const style = $derived(
-    variant === 'pill'
-      ? { padding: '2px 6px', borderRadius: '999px', background: color, color: '#fff' }
-      : { color },
+    variant === 'pill' ? { padding: '2px 6px', borderRadius: '999px' } : undefined,
   )
   const label = $derived(
     ariaLabel ??
@@ -45,6 +57,7 @@
     cm.flex({ align: 'center', gap: 'xs' }),
     cm.textSize('xs'),
     cm.fontWeight('semibold'),
+    toneClass,
     className,
   )}
   use:reactStyle={style}

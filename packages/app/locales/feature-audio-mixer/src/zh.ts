@@ -9,5 +9,7 @@ export const zh: Partial<AudioMixerTranslations> = {
   'audioMixer.aria.pan': '{{name}}平底锅',
   'audioMixer.aria.send': '{{channel}}发送至{{send}}',
   'audioMixer.button.solo': '独奏',
+  'audioMixer.button.muteInitial': '静',
+  'audioMixer.button.soloInitial': '独',
   'audioMixer.master': '掌握',
 }

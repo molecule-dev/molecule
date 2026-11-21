@@ -9,4 +9,6 @@ export const uk: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.note':
     'Примітка {{pitch}} починаючи з такту {{startBeat}} для {{durationBeats}} ритми',
   'pianoRoll.aria.cursor': 'Курсор на {{pitch}} на такті {{beat}}',
+  'pianoRoll.aria.gridHelp':
+    'Клавіші зі стрілками переміщують курсор комірки, Enter або пробіл малює на ньому ноту.',
 }

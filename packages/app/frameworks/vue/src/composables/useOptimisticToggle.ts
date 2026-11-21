@@ -5,7 +5,7 @@
  */
 import { type MaybeRefOrGetter, toValue } from 'vue'
 
-import type { UseOptimisticToggleOptions, UseOptimisticToggleReturn } from '../types.js'
+import type { UseOptimisticToggleOptions, UseOptimisticToggleResult } from '../types.js'
 import { useOptimisticValue } from './useOptimisticValue.js'
 
 /**
@@ -56,7 +56,7 @@ import { useOptimisticValue } from './useOptimisticValue.js'
  */
 export function useOptimisticToggle(
   options: MaybeRefOrGetter<UseOptimisticToggleOptions>,
-): UseOptimisticToggleReturn {
+): UseOptimisticToggleResult {
   // `commit` gets only the desired boolean, never the previous value or a confirm callback.
   const { value, pending, error, update } = useOptimisticValue<boolean>(() => {
     const current = toValue(options)

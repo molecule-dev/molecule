@@ -12,7 +12,10 @@ export interface TypingIndicatorProps {
   dotSize?: number
   /** Animation duration in ms. Defaults to 1200. */
   durationMs?: number
-  /** Accessible label. */
+  /**
+   * Accessible label. Overrides the translated / `defaultValue` `'Typing…'`
+   * (prop > `t()` > default).
+   */
   ariaLabel?: string
   /** Extra classes. */
   className?: string

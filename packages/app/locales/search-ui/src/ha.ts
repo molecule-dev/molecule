@@ -14,4 +14,8 @@ export const ha: Partial<SearchUiTranslations> = {
   'searchUi.relatedTitle': "Ya dace da ma'anar bincikenka, ba kalmominsa ba",
   'searchUi.related': 'mai alaƙa',
   'searchUi.help': 'Nasihu kan Bincike',
+  'searchUi.examplePhrase': '"daidaitaccen jimla"',
+  'searchUi.exampleExcluded': '-kalma',
+  'searchUi.activeResult': '{{title}}, {{position}} cikin {{count}}',
+  'searchUi.dialogLabel': 'Bincika',
 }

@@ -12,6 +12,7 @@ export type ReputationBadgeTranslationKey =
   | 'reputationBadge.level.trusted'
   | 'reputationBadge.level.veteran'
   | 'reputationBadge.level.legend'
+  | 'reputationBadge.level.fallback'
   | 'badgeShelf.aria'
   | 'badgeShelf.overflow.aria'
 

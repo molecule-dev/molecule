@@ -2,9 +2,10 @@ import type { RatingFormTranslations } from './types.js'
 
 /** RatingForm translations for fr. */
 export const fr: Partial<RatingFormTranslations> = {
-  'rating.star': '{{n}} of {{max}}',
+  'rating.star': '{{n}} sur {{max}}',
   'rating.label': 'Note',
   'rating.submitting': 'Envoi…',
   'rating.commentPlaceholder': 'Partagez vos réflexions (facultatif)',
   'rating.submit': 'Soumettre un avis',
+  'rating.comment': 'Commentaire',
 }

@@ -8,4 +8,5 @@ export const is: Partial<NotificationCenterTranslations> = {
   'notifications.viewAll': 'Skoða allt',
   'notifications.loadError': 'Ekki tókst að hlaða tilkynningum.',
   'notifications.retry': 'Reyna aftur',
+  'notifications.unread': 'Ólesið',
 }

@@ -16,6 +16,8 @@ const UNLABELLED: CaseA11y = {
 /** Checkbox: label, checked/indeterminate states, error, disabled and change events. */
 export const checkboxCases: UIComponentCases = {
   component: 'Checkbox',
+  ref: {},
+  declaredProps: { props: 'element' },
   cases: [
     { name: 'defaults', a11y: UNLABELLED, props: { name: 'agree' } },
     { name: 'label', props: { label: 'Accept terms', name: 'agree' } },
@@ -110,6 +112,27 @@ export const checkboxCases: UIComponentCases = {
       props: { label: 'All items', indeterminate: true, checked: false, name: 'bulk' },
       callbacks: ['onChange'],
       interactions: [{ type: 'props', props: { indeterminate: false, checked: true } }],
+    },
+    {
+      name: 'change handler reads checked from target',
+      props: { label: 'Subscribe', name: 'news' },
+      callbacks: ['onChange'],
+      callbackResults: { onChange: { read: ['target.checked', 'currentTarget'] } },
+      interactions: [{ type: 'click', selector: 'input[type="checkbox"]' }],
+    },
+    {
+      name: 'preventDefault in onClick vetoes the toggle',
+      props: { label: 'Subscribe', name: 'news' },
+      callbacks: ['onClick', 'onChange'],
+      callbackResults: { onClick: { effects: ['preventDefault'], read: ['defaultPrevented'] } },
+      interactions: [{ type: 'click', selector: 'input[type="checkbox"]' }],
+    },
+    {
+      name: 'focus handler gets the checkbox as currentTarget',
+      props: { label: 'Subscribe', name: 'news' },
+      callbacks: ['onFocus'],
+      callbackResults: { onFocus: { read: ['currentTarget'] } },
+      interactions: [{ type: 'focus', selector: 'input[type="checkbox"]' }],
     },
   ],
 }

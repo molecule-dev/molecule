@@ -6,6 +6,8 @@ export type AudioMixerTranslationKey =
   | 'audioMixer.aria.send'
   | 'audioMixer.button.mute'
   | 'audioMixer.button.solo'
+  | 'audioMixer.button.muteInitial'
+  | 'audioMixer.button.soloInitial'
   | 'audioMixer.master'
   | 'audioMixer.sends'
 

@@ -14,4 +14,8 @@ export const si: Partial<SearchUiTranslations> = {
   'searchUi.relatedTitle': 'ඔබගේ සෙවුමේ වචන නොව, එහි අර්ථයට ගැළපේ.',
   'searchUi.related': 'අදාළ',
   'searchUi.help': 'සෙවුම් ඉඟි',
+  'searchUi.examplePhrase': '"නිවැරදි වාක්‍ය ඛණ්ඩය"',
+  'searchUi.exampleExcluded': '-වචනය',
+  'searchUi.activeResult': '{{title}}, {{count}} න් {{position}}',
+  'searchUi.dialogLabel': 'සොයන්න',
 }

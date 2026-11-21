@@ -70,6 +70,8 @@ vi.mock('@molecule/app-ui-vue', async () => {
 
 import { createApp, defineComponent, h } from 'vue'
 
+import { inlineStyleMismatch } from '@molecule/app-framework-conformance/ui'
+
 import { SubscriptionPlanCard } from '../SubscriptionPlanCard.js'
 import type { SubscriptionPlanCardProps } from '../types.js'
 
@@ -147,7 +149,7 @@ describe('SubscriptionPlanCard', () => {
       recommended: true,
     })
     expect(markup).toContain('Recommended')
-    expect(markup).toContain('outline: 2px solid currentColor')
+    expect(inlineStyleMismatch(markup, { outline: '2px solid currentColor' })).toBeNull()
   })
 
   it('renders a custom badge', () => {

@@ -29,8 +29,8 @@ import {
 import { moleculePlugin } from '../plugin.js'
 import type {
   UseStoragePreferenceOptions,
-  UseStoragePreferenceReturn,
-  UseStorageValueReturn,
+  UseStoragePreferenceResult,
+  UseStorageValueResult,
 } from '../types.js'
 
 const wrappers: VueWrapper[] = []
@@ -149,8 +149,8 @@ function deferredProvider(initial: Record<string, unknown> = {}): {
 function runPreference<T>(
   key: string | null,
   options?: UseStoragePreferenceOptions<T>,
-): UseStoragePreferenceReturn<T> {
-  let captured: UseStoragePreferenceReturn<T> | null = null
+): UseStoragePreferenceResult<T> {
+  let captured: UseStoragePreferenceResult<T> | null = null
   const Probe = defineComponent({
     setup() {
       captured = useStoragePreference<T>(key, options)
@@ -205,8 +205,8 @@ function runStorageValue<T>(
   key: string,
   options: UseStorageValueOptions<T>,
   provider: StorageProvider,
-): UseStorageValueReturn<T> {
-  let captured: UseStorageValueReturn<T> | null = null
+): UseStorageValueResult<T> {
+  let captured: UseStorageValueResult<T> | null = null
   const Probe = defineComponent({
     setup() {
       captured = useStorageValue<T>(key, options)

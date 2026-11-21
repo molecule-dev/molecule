@@ -373,23 +373,13 @@ function ModerationQueueRow({
           className={cm.cn(cm.flex({ align: 'center', gap: 'sm' }), cm.textSize('xs'))}
           data-mol-id="moderation-queue-row-meta"
         >
-          <span className={cm.fontWeight('semibold')}>
-            {t(
-              `moderationQueue.kind.${item.kind}`,
-              {},
-              { defaultValue: defaultKindLabel(item.kind) },
-            )}
-          </span>
+          <span className={cm.fontWeight('semibold')}>{kindLabel(item.kind, t)}</span>
           {item.severity && (
             <span
               data-mol-id="moderation-queue-row-severity"
               className={cm.cn(cm.fontWeight('semibold'), sevToken[sevColor])}
             >
-              {t(
-                `moderationQueue.severity.${item.severity}`,
-                {},
-                { defaultValue: defaultSeverityLabel(item.severity) },
-              )}
+              {severityLabel(item.severity, t)}
             </span>
           )}
           {item.reportedBy && (
@@ -470,39 +460,50 @@ function ModerationQueueRow({
 }
 
 /**
- * English fallback for kind labels (used when no translation is present).
+ * The translation function shape `useTranslation()` returns. The label helpers
+ * below take it as a parameter so every key this package requests is a
+ * LITERAL: the i18n parity gate (`scripts/check-i18n-parity.js`) can only see
+ * literal keys and refuses runtime-built ones — a missing key would otherwise
+ * silently render English for every non-English user.
+ */
+type TranslateFn = ReturnType<typeof useTranslation>['t']
+
+/**
+ * Kind label — one literal `t()` call per `ModerationItemKind` value.
  *
  * @param kind - Item kind.
- * @returns English label.
+ * @param t - Translate function from `useTranslation()`.
+ * @returns The translated kind label.
  */
-function defaultKindLabel(kind: ModerationItemKind): string {
+function kindLabel(kind: ModerationItemKind, t: TranslateFn): string {
   switch (kind) {
     case 'post':
-      return 'Post'
+      return t('moderationQueue.kind.post', {}, { defaultValue: 'Post' })
     case 'comment':
-      return 'Comment'
+      return t('moderationQueue.kind.comment', {}, { defaultValue: 'Comment' })
     case 'image':
-      return 'Image'
+      return t('moderationQueue.kind.image', {}, { defaultValue: 'Image' })
     case 'message':
-      return 'Message'
+      return t('moderationQueue.kind.message', {}, { defaultValue: 'Message' })
     case 'profile':
-      return 'Profile'
+      return t('moderationQueue.kind.profile', {}, { defaultValue: 'Profile' })
   }
 }
 
 /**
- * English fallback for severity labels.
+ * Severity label — one literal `t()` call per `ModerationItemSeverity` value.
  *
  * @param severity - Severity bucket.
- * @returns English label.
+ * @param t - Translate function from `useTranslation()`.
+ * @returns The translated severity label.
  */
-function defaultSeverityLabel(severity: ModerationItemSeverity): string {
+function severityLabel(severity: ModerationItemSeverity, t: TranslateFn): string {
   switch (severity) {
     case 'low':
-      return 'Low'
+      return t('moderationQueue.severity.low', {}, { defaultValue: 'Low' })
     case 'medium':
-      return 'Medium'
+      return t('moderationQueue.severity.medium', {}, { defaultValue: 'Medium' })
     case 'high':
-      return 'High'
+      return t('moderationQueue.severity.high', {}, { defaultValue: 'High' })
   }
 }

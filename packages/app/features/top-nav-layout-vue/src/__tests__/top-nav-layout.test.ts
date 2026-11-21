@@ -64,6 +64,12 @@ vi.mock('@molecule/app-vue', async () => {
       },
     }),
     useLocation: () => computed(() => ({ pathname: '/', search: '', hash: '' })),
+    // The component's own text renders through `t`; without a bonded provider
+    // the translation falls back to the call's `defaultValue`.
+    useTranslation: () => ({
+      t: (_key: string, _values?: unknown, options?: { defaultValue?: string }): string =>
+        options?.defaultValue ?? _key,
+    }),
   }
 })
 

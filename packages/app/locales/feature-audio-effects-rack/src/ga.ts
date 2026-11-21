@@ -49,4 +49,5 @@ export const ga: Partial<AudioEffectsRackTranslations> = {
   'audioEffectsRack.param.phaser.rate': 'Ráta',
   'audioEffectsRack.param.phaser.depth': 'Doimhneacht',
   'audioEffectsRack.param.phaser.feedback': 'Aiseolas',
+  'audioEffectsRack.param.fallback': 'Paraiméadar',
 }

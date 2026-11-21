@@ -6,17 +6,25 @@
   `separator` snippet/string when passed, else the default `/`.
 -->
 <script lang="ts">
+  import { useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
   import type { BreadcrumbProps } from './types.js'
 
   let { items = [], onNavigate, separator, className, dataMolId }: BreadcrumbProps = $props()
 
+  const { t } = useTranslation()
+
   const cm = $derived(getClassMap())
+  // The nav's accessible name: `t()` with the English default `'Breadcrumb'`,
+  // so it follows the app's locale (React's source of truth).
+  const navLabel = $derived(
+    t('breadcrumb.aria.breadcrumb', undefined, { defaultValue: 'Breadcrumb' }),
+  )
 </script>
 
 <nav
-  aria-label="Breadcrumb"
+  aria-label={navLabel}
   data-mol-id={dataMolId}
   class={cm.cn(cm.flex({ align: 'center', gap: 'xs', wrap: 'wrap' }), cm.textSize('sm'), className)}
 >

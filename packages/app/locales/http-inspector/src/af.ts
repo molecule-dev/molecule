@@ -7,4 +7,8 @@ export const af: Partial<HttpInspectorTranslations> = {
   'httpInspector.headers': 'Kopskrifte',
   'httpInspector.addHeader': 'Voeg koptekst by',
   'httpInspector.body': 'Liggaam',
+  'httpInspector.methodLabel': 'HTTP-metode',
+  'httpInspector.urlLabel': 'URL',
+  'httpInspector.headerPlaceholder': 'Kopskrif',
+  'httpInspector.valuePlaceholder': 'Waarde',
 }

@@ -9,6 +9,8 @@ import type { UIComponentCases } from '../../spec.js'
 /** Pagination: page windows with ellipses, siblings/boundaries, nav buttons, labels, sizes, onChange. */
 export const paginationCases: UIComponentCases = {
   component: 'Pagination',
+  ref: {},
+  declaredProps: { props: 'base' },
   cases: [
     { name: 'defaults (first page)', props: { page: 1, totalPages: 10 }, callbacks: ['onChange'] },
     {

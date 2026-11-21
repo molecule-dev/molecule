@@ -38,17 +38,32 @@ export interface FeatureFlagRowProps {
 }
 
 /**
- * Human-readable English fallback label for each flag type. Used as the
- * `defaultValue` for the `t('flagType.<type>')` badge so every type renders a
- * proper label out of the box. There is no dedicated `flagType` locale bond —
- * apps translate by shipping `flagType.*` keys in their own locale resources
- * (see the module `@remarks`).
+ * The translation function `useTranslation()` hands back.
  */
-const FLAG_TYPE_LABELS: Record<FlagType, string> = {
-  boolean: 'Boolean',
-  multivariate: 'Multivariate',
-  percentage: 'Percentage',
-  string: 'String',
+type Translate = ReturnType<typeof useTranslation>['t']
+
+/**
+ * The translated type-badge label for each flag type: one literal
+ * `t('flagType.<type>')` call per value of {@link FlagType}, so molecule's
+ * i18n gate can see each key exist (a runtime-built key such as
+ * `` t(`flagType.${type}`) `` is invisible to it). Every `flagType.*` key
+ * ships in the `@molecule/app-locales-feature-flag-row` bond.
+ *
+ * @param type - The flag type.
+ * @param t - The translation function from `useTranslation()`.
+ * @returns The badge's label.
+ */
+function flagTypeLabel(type: FlagType, t: Translate): string {
+  switch (type) {
+    case 'boolean':
+      return t('flagType.boolean', {}, { defaultValue: 'Boolean' })
+    case 'multivariate':
+      return t('flagType.multivariate', {}, { defaultValue: 'Multivariate' })
+    case 'percentage':
+      return t('flagType.percentage', {}, { defaultValue: 'Percentage' })
+    case 'string':
+      return t('flagType.string', {}, { defaultValue: 'String' })
+  }
 }
 
 /**
@@ -71,7 +86,7 @@ export function FeatureFlagRow({ flag, onToggle, className }: FeatureFlagRowProp
         <div className={cm.flex({ align: 'center', gap: 'sm' })}>
           <span className={cm.cn(cm.fontWeight('semibold'))}>{flag.name}</span>
           <span className={cm.cn(cm.textSize('xs'), cm.fontWeight('medium'))}>
-            {t(`flagType.${flag.type}`, {}, { defaultValue: FLAG_TYPE_LABELS[flag.type] })}
+            {flagTypeLabel(flag.type, t)}
           </span>
         </div>
         <span className={cm.cn(cm.textSize('xs'))}>{flag.key}</span>
@@ -85,7 +100,11 @@ export function FeatureFlagRow({ flag, onToggle, className }: FeatureFlagRowProp
               <Switch
                 checked={env.enabled}
                 onChange={(e) => onToggle(flag.key, env.id, (e.target as HTMLInputElement).checked)}
-                aria-label={`${flag.key} in ${env.id}`}
+                aria-label={t(
+                  'featureFlagRow.aria.flagInEnvironment',
+                  { flag: flag.key, environment: env.id },
+                  { defaultValue: '{{flag}} in {{environment}}' },
+                )}
               />
               {flag.type === 'percentage' && env.rolloutPct !== undefined && (
                 <span className={cm.textSize('xs')}>{env.rolloutPct}%</span>

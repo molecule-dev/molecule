@@ -14,4 +14,8 @@ export const az: Partial<SearchUiTranslations> = {
   'searchUi.relatedTitle': 'Axtarışınızın sözləri ilə deyil, mənası ilə uyğun gəlir',
   'searchUi.related': 'əlaqəli',
   'searchUi.help': 'Axtarış məsləhətləri',
+  'searchUi.examplePhrase': '"dəqiq ifadə"',
+  'searchUi.exampleExcluded': '-söz',
+  'searchUi.activeResult': '{{title}}, {{count}} nəticədən {{position}}',
+  'searchUi.dialogLabel': 'Axtarış',
 }

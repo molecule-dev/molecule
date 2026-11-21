@@ -19,7 +19,7 @@ runLinkConformance('@molecule/app-solid', async (container, router, props) => {
   const [to, setTo] = createSignal(props.to)
   const dispose = render(
     () => (
-      <MoleculeProvider config={{ router }}>
+      <MoleculeProvider router={router}>
         <Link
           to={to()}
           replace={props.replace}

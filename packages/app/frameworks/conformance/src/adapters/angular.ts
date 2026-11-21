@@ -53,6 +53,7 @@ import {
   type Signal,
   type TemplateRef,
   type Type,
+  ViewChild,
 } from '@angular/core'
 import { createApplication } from '@angular/platform-browser'
 
@@ -120,6 +121,21 @@ const VOID_ELEMENTS = new Set([
 
 /** Most arguments a render function template exposes (`a0`…`a2`). */
 const RENDER_ARGS = 3
+
+/**
+ * The element a component instance hands a caller's ref: its `element()` signal (see `BaseProps` in
+ * `@molecule/app-ui`), or null.
+ *
+ * @param instance - The component instance a template variable names.
+ * @returns The element, or null.
+ */
+const refElementOf = (instance: unknown): Element | null => {
+  if (!instance || typeof instance !== 'object' || !('element' in instance)) return null
+  const read = instance.element
+  if (!isSignal(read)) return null
+  const element: unknown = read()
+  return element instanceof Element ? element : null
+}
 
 /** Hosts mounted so far: each gets its own id (see the host's `data-parity-host`). */
 let hostCount = 0
@@ -218,7 +234,9 @@ export interface AngularBinding extends BindingCaseResets {
   /** Auth state; the session gate holds its content until `status` leaves `'loading'`. */
   useAuth(): { status: Signal<AuthStatus> }
   /** The full composition root, for feature cases that mount with every service (`RunOptions.app`). */
-  provideMolecule(services: Partial<BindingServices>): EnvironmentProviders
+  provideMolecule(
+    services: Partial<BindingServices> & { awaitSession?: boolean },
+  ): EnvironmentProviders
 }
 
 /** Options for {@link createAngularAdapter}. */
@@ -321,6 +339,8 @@ export function createAngularAdapter({
     scope: Scope,
     /** Props later `props` steps will merge in (their node values must swap too). */
     laterProps: Record<string, unknown>[] = [],
+    /** A template variable on the component, for the host's ref query (a ref case). */
+    templateVariable?: string,
   ): string => {
     const Comp = exportsOf[name]
     if (!isComponent(Comp))
@@ -330,7 +350,7 @@ export function createAngularAdapter({
     const inputs = new Set(mirror.inputs.map((i) => i.templateName))
     const outputs = new Set(mirror.outputs.map((o) => o.templateName))
     const { tag, attrs } = parseSelector(mirror.selector)
-    const bindings: string[] = [...attrs]
+    const bindings: string[] = [...attrs, ...(templateVariable ? [`#${templateVariable}`] : [])]
     for (const key of Object.keys(props)) {
       const raw = `${propsExpr}['${key}']`
       // A node value may arrive in the initial props OR in a later `props` step;
@@ -338,8 +358,15 @@ export function createAngularAdapter({
       const templated =
         hasTemplates(props[key]) || laterProps.some((lp) => key in lp && hasTemplates(lp[key]))
       const value = templated ? `r(${raw}, tpls)` : raw
+      const handlerOutput = key.replace(/^on([A-Z])/, (_m, c: string) => c.toLowerCase())
       if (inputs.has(key)) bindings.push(`[${key}]="${value}"`)
-      else if (key === 'className') bindings.push(`[class]="${value}"`)
+      else if (typeof props[key] === 'function' && /^on[A-Z]/.test(key)) {
+        // A nested component's handler prop (`{ $callback }`) is wired the way a case's own
+        // `callbacks` are: the component's output of that name, else the DOM event.
+        if (outputs.has(handlerOutput)) bindings.push(`(${handlerOutput})="${raw}($event)"`)
+        else if (DOM_EVENTS[key]) bindings.push(`(${DOM_EVENTS[key]})="${raw}($event)"`)
+        else throw new Error(`angular: ${name} has no output ${handlerOutput} for ${key}`)
+      } else if (key === 'className') bindings.push(`[class]="${value}"`)
       else if (key === 'style') bindings.push(`[style]="${value}"`)
       else if (props[key] !== null && typeof props[key] === 'object') {
         throw new Error(`angular: ${name} has no input "${key}" for an object value`)
@@ -482,6 +509,7 @@ export function createAngularAdapter({
         built,
         'static',
         laterProps,
+        testCase.ref ? 'parityRef' : undefined,
       )
       const templates = [...built.templates.values()].sort((a, b) => a.id - b.id)
       // Template refs are visible across the whole view, so `tpls` may name templates defined after it.
@@ -514,6 +542,8 @@ export function createAngularAdapter({
       })(
         class ConformanceHost {
           p: Record<string, unknown> = initialProps
+          /** The case component's instance, for a ref case. */
+          parityRef: unknown = undefined
           np = built.nested
           s = built.strings
           /** Recording spies bound as function inputs (`callbacks` inputs). */
@@ -547,8 +577,13 @@ export function createAngularAdapter({
       ) as Type<{
         p: Record<string, unknown>
         cbFns: Record<string, (...args: unknown[]) => unknown>
+        parityRef: unknown
       }>
 
+      // A ref case reads the component instance its template variable names (a caller's `#ref` or
+      // `viewChild`), then that instance's `element()`. The query is registered the way the decorator
+      // registers it, before the host is first compiled: JIT ignores `queries` in `Component()` metadata.
+      if (testCase.ref) ViewChild('parityRef')(host.prototype, 'parityRef')
       let stepProps = 0
       try {
         return await runSteps(
@@ -556,7 +591,11 @@ export function createAngularAdapter({
           async (container) => {
             const appRef: ApplicationRef = await createApplication({
               providers: full
-                ? [provideZonelessChangeDetection(), provideMolecule({ ...full.services })]
+                ? [
+                    provideZonelessChangeDetection(),
+                    // React's MoleculeProvider renders with `awaitSession: false` here too.
+                    provideMolecule({ ...full.services, awaitSession: false }),
+                  ]
                 : [
                     provideZonelessChangeDetection(),
                     provideI18n(services.i18n),
@@ -576,6 +615,7 @@ export function createAngularAdapter({
             ): ComponentRef<{
               p: Record<string, unknown>
               cbFns: Record<string, (...args: unknown[]) => unknown>
+              parityRef: unknown
             }> => {
               const created = createComponent(host, {
                 environmentInjector: appRef.injector,
@@ -617,6 +657,7 @@ export function createAngularAdapter({
               navigate: (to) => {
                 router.navigate(to)
               },
+              refElement: () => refElementOf(ref.instance.parityRef),
               // A page leaving destroys its component; the application and its
               // environment injector live on, so a hook bound to them (instead of
               // the component's own injector) still runs after an `unmount` step.

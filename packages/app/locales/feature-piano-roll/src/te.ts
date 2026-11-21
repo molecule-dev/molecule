@@ -9,4 +9,6 @@ export const te: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.note':
     'గమనిక {{pitch}} బీట్ వద్ద ప్రారంభం {{startBeat}} కోసం {{durationBeats}} బీట్స్',
   'pianoRoll.aria.cursor': 'కర్సర్ {{pitch}} వద్ద, బీట్ {{beat}} వద్ద',
+  'pianoRoll.aria.gridHelp':
+    'బాణం కీలు సెల్ కర్సర్‌ను కదిలిస్తాయి, Enter లేదా Space కర్సర్ వద్ద ఒక నోట్‌ను గీస్తాయి.',
 }

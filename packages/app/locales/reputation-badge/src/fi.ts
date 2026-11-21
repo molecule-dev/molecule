@@ -9,6 +9,7 @@ export const fi: ReputationBadgeTranslations = {
   'reputationBadge.level.trusted': 'Luotettu',
   'reputationBadge.level.veteran': 'Veteraani',
   'reputationBadge.level.legend': 'Legenda',
+  'reputationBadge.level.fallback': '{{level}}',
   'badgeShelf.aria': '{{count}} merkkiä ansaittu',
   'badgeShelf.overflow.aria': 'Näytä {{count}} merkkiä lisää',
 }

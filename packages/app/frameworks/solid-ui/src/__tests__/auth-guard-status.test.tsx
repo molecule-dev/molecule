@@ -89,7 +89,7 @@ function renderGuard(): void {
   disposers.push(
     render(
       () => (
-        <MoleculeProvider config={{ router, i18n: createSimpleI18nProvider() }}>
+        <MoleculeProvider router={router} i18n={createSimpleI18nProvider()}>
           <AuthGuard>
             <Routed />
           </AuthGuard>

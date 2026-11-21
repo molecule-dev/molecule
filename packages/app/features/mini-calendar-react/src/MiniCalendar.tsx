@@ -1,5 +1,6 @@
 import { type JSX, useState } from 'react'
 
+import { useLocale, useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-react'
 
@@ -13,7 +14,11 @@ export interface MiniCalendarProps {
   month?: Date
   /** Called when the user navigates months. */
   onMonthChange?: (date: Date) => void
-  /** Locale for weekday + month name formatting. */
+  /**
+   * Locale for weekday + month name formatting. Defaults to the app's active
+   * locale (`useLocale()`), so the names follow a locale switch; an explicit
+   * `locale` still wins.
+   */
   locale?: string
   /** Optional day-disabled predicate. */
   isDisabled?: (date: Date) => boolean
@@ -56,7 +61,9 @@ function isSameDay(a: Date, b: Date): boolean {
 /**
  * Compact month-view calendar. Supports controlled `selected` + `month`
  * props or runs uncontrolled. Weekday / month names come from
- * `Intl.DateTimeFormat` so locales render correctly without extra data.
+ * `Intl.DateTimeFormat` in the `locale` prop, or the app's active locale when
+ * it is omitted. The prev/next buttons' aria-labels go through `t()`
+ * (`miniCalendar.aria.*`, English `defaultValue`s).
  * @param props - Component props (see {@link MiniCalendarProps}).
  */
 export function MiniCalendar({
@@ -68,6 +75,10 @@ export function MiniCalendar({
   isDisabled,
   className,
 }: MiniCalendarProps): JSX.Element {
+  const { t } = useTranslation()
+  // Re-renders on a locale switch, so the formatted names change language at
+  // once. An explicit `locale` prop still wins.
+  const activeLocale = useLocale()
   const cm = getClassMap()
   const selectedDate = toDate(selected)
   const [internalMonth, setInternalMonth] = useState(
@@ -85,8 +96,9 @@ export function MiniCalendar({
     onMonthChange?.(next)
   }
 
-  const monthFmt = new Intl.DateTimeFormat(locale, { month: 'long', year: 'numeric' })
-  const weekdayFmt = new Intl.DateTimeFormat(locale, { weekday: 'narrow' })
+  const resolvedLocale = locale ?? activeLocale
+  const monthFmt = new Intl.DateTimeFormat(resolvedLocale, { month: 'long', year: 'numeric' })
+  const weekdayFmt = new Intl.DateTimeFormat(resolvedLocale, { weekday: 'narrow' })
 
   // Build grid: 6 rows × 7 cols, starting from the Sunday before the 1st.
   const first = startOfMonth(visibleMonth)
@@ -104,13 +116,25 @@ export function MiniCalendar({
   return (
     <div className={cm.cn(cm.stack(2), className)}>
       <header className={cm.flex({ justify: 'between', align: 'center', gap: 'sm' })}>
-        <Button variant="ghost" size="sm" onClick={() => navigate(-1)} aria-label="Previous month">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => navigate(-1)}
+          aria-label={t('miniCalendar.aria.previousMonth', undefined, {
+            defaultValue: 'Previous month',
+          })}
+        >
           ‹
         </Button>
         <span className={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>
           {monthFmt.format(visibleMonth)}
         </span>
-        <Button variant="ghost" size="sm" onClick={() => navigate(1)} aria-label="Next month">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => navigate(1)}
+          aria-label={t('miniCalendar.aria.nextMonth', undefined, { defaultValue: 'Next month' })}
+        >
           ›
         </Button>
       </header>

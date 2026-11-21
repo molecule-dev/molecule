@@ -49,4 +49,5 @@ export const fi: Partial<AudioEffectsRackTranslations> = {
   'audioEffectsRack.param.phaser.rate': 'Arvostele',
   'audioEffectsRack.param.phaser.depth': 'Syvyys',
   'audioEffectsRack.param.phaser.feedback': 'Palaute',
+  'audioEffectsRack.param.fallback': 'Parametri',
 }

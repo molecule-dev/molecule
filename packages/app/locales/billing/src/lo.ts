@@ -15,4 +15,11 @@ export const lo: Partial<BillingTranslations> = {
   'billing.pricing.perSeat': 'ຕໍ່ບ່ອນນັ່ງ',
   'billing.pricing.upgradeCta': 'ອັບເກຣດເປັນ {{tierName}}',
   'billing.pricing.currentCta': 'ແຜນການປັດຈຸບັນ',
+  'billing.pricing.period.month': 'ຕໍ່ເດືອນ',
+  'billing.pricing.period.year': 'ຕໍ່ປີ',
+  'billing.pricing.billed.month': 'ເກັບເງິນລາຍເດືອນ',
+  'billing.pricing.billed.year': 'ເກັບເງິນລາຍປີ',
+  'billing.pricing.unlimited': 'ບໍ່ຈຳກັດ',
+  'billing.pricing.limit.maxProjects': 'ຈຳນວນໂຄງການສູງສຸດ',
+  'billing.pricing.limit.canExport': 'ສົ່ງອອກໄດ້',
 }

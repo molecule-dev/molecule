@@ -1,0 +1,561 @@
+{
+ "exports": [
+  "FileCard",
+  "FileIcon",
+  "bytes",
+  "relativeBucket",
+  "sizeParts"
+ ],
+ "values": {
+  "bytes": [
+   "0 B",
+   "1 B",
+   "420 B",
+   "1023 B",
+   "1 KB",
+   "1.5 KB",
+   "50 KB",
+   "99.5 KB",
+   "2 MB",
+   "2.3 MB",
+   "4.7 GB",
+   "1 TB",
+   "1.2 PB",
+   "3072 PB",
+   "150 KB",
+   "999 KB",
+   "0 B",
+   "0 B",
+   "0 B"
+  ],
+  "sizeParts": [
+   {
+    "n": "0",
+    "unit": "B"
+   },
+   {
+    "n": "1",
+    "unit": "B"
+   },
+   {
+    "n": "420",
+    "unit": "B"
+   },
+   {
+    "n": "1023",
+    "unit": "B"
+   },
+   {
+    "n": "1",
+    "unit": "KB"
+   },
+   {
+    "n": "1.5",
+    "unit": "KB"
+   },
+   {
+    "n": "50",
+    "unit": "KB"
+   },
+   {
+    "n": "99.5",
+    "unit": "KB"
+   },
+   {
+    "n": "2",
+    "unit": "MB"
+   },
+   {
+    "n": "2.3",
+    "unit": "MB"
+   },
+   {
+    "n": "4.7",
+    "unit": "GB"
+   },
+   {
+    "n": "1",
+    "unit": "TB"
+   },
+   {
+    "n": "1.2",
+    "unit": "PB"
+   },
+   {
+    "n": "3072",
+    "unit": "PB"
+   },
+   {
+    "n": "150",
+    "unit": "KB"
+   },
+   {
+    "n": "999",
+    "unit": "KB"
+   },
+   {
+    "n": "0",
+    "unit": "B"
+   },
+   {
+    "n": "0",
+    "unit": "B"
+   },
+   {
+    "n": "0",
+    "unit": "B"
+   }
+  ],
+  "relativeBucket": [
+   {
+    "kind": "just-now"
+   },
+   {
+    "kind": "just-now"
+   },
+   {
+    "kind": "minutes",
+    "n": 1
+   },
+   {
+    "kind": "minutes",
+    "n": 5
+   },
+   {
+    "kind": "minutes",
+    "n": 59
+   },
+   {
+    "kind": "hours",
+    "n": 1
+   },
+   {
+    "kind": "hours",
+    "n": 3
+   },
+   {
+    "kind": "hours",
+    "n": 23
+   },
+   {
+    "kind": "days",
+    "n": 1
+   },
+   {
+    "kind": "days",
+    "n": 2
+   },
+   {
+    "kind": "days",
+    "n": 6
+   },
+   {
+    "kind": "weeks",
+    "n": 1
+   },
+   {
+    "kind": "weeks",
+    "n": 2
+   },
+   {
+    "kind": "months",
+    "n": 1
+   },
+   {
+    "kind": "months",
+    "n": 2
+   },
+   {
+    "kind": "absolute",
+    "iso": "2025-04-08"
+   },
+   {
+    "kind": "minutes",
+    "n": 5
+   },
+   {
+    "kind": "minutes",
+    "n": 5
+   },
+   {
+    "kind": "minutes",
+    "n": 5
+   },
+   {
+    "kind": "minutes",
+    "n": 1
+   },
+   {
+    "kind": "hours",
+    "n": 1
+   },
+   {
+    "kind": "days",
+    "n": 1
+   },
+   {
+    "kind": "weeks",
+    "n": 1
+   },
+   {
+    "kind": "months",
+    "n": 1
+   },
+   {
+    "kind": "absolute",
+    "iso": "2025-05-13"
+   },
+   {
+    "kind": "just-now"
+   },
+   {
+    "kind": "absolute",
+    "iso": "not-a-date"
+   }
+  ]
+ },
+ "cases": {
+  "FileCard": {
+   "grid tile with defaults": {
+    "snapshots": [
+     "<div aria-label=\"Q3-report.pdf, Document\" class=\"c2cbb8333 c9866e6d5 c9cd623cf cbaac6b89 ccae02ff2\" data-mol-id=\"file-card-f-1\" role=\"group\">\n<div class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"file-card-icon\" style=\"aspect-ratio: 1 / 1; width: 100%\">\n<svg aria-hidden=\"true\" data-mol-id=\"file-icon-document\" fill=\"none\" height=\"48\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.75\" viewbox=\"0 0 24 24\" width=\"48\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z\">\n</path>\n<path d=\"M14 3v6h6\">\n</path>\n</svg>\n</div>\n<div class=\"c445db9b9 c7f74399a\" data-mol-id=\"file-card-name\" style=\"overflow: hidden; text-overflow: ellipsis; white-space: nowrap\">\nQ3-report.pdf\n</div>\n<div class=\"c1e8176ab c42740ba6 c4647f690 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"file-card-meta\">\n<span aria-label=\"Size 471 KB\" data-mol-id=\"file-card-size\">\n471 KB\n</span>\n<span aria-hidden=\"true\">\n·\n</span>\n<span aria-label=\"Modified 5 min ago\" data-mol-id=\"file-card-modified\">\n5 min ago\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "row layout": {
+    "snapshots": [
+     "<div aria-label=\"Q3-report.pdf, Document\" class=\"c1e8176ab c42740ba6 c9366def6 c9bd6223c cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"file-card-f-1\" role=\"group\">\n<div class=\"ca596e575\" data-mol-id=\"file-card-icon\">\n<svg aria-hidden=\"true\" data-mol-id=\"file-icon-document\" fill=\"none\" height=\"28\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.75\" viewbox=\"0 0 24 24\" width=\"28\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z\">\n</path>\n<path d=\"M14 3v6h6\">\n</path>\n</svg>\n</div>\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\" style=\"flex: 1 1 0%; min-width: 0px\">\n<div class=\"c445db9b9 c7f74399a\" data-mol-id=\"file-card-name\" style=\"overflow: hidden; text-overflow: ellipsis; white-space: nowrap\">\nQ3-report.pdf\n</div>\n<div class=\"c1e8176ab c42740ba6 c4647f690 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"file-card-meta\">\n<span aria-label=\"Size 471 KB\" data-mol-id=\"file-card-size\">\n471 KB\n</span>\n<span aria-hidden=\"true\">\n·\n</span>\n<span aria-label=\"Modified 5 min ago\" data-mol-id=\"file-card-modified\">\n5 min ago\n</span>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a thumbnail replaces the icon in a grid tile": {
+    "snapshots": [
+     "<div aria-label=\"Q3-report.pdf, Image file\" class=\"c2cbb8333 c9866e6d5 c9cd623cf cbaac6b89 ccae02ff2\" data-mol-id=\"file-card-f-1\" role=\"group\">\n<div class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"file-card-icon\" style=\"aspect-ratio: 1 / 1; width: 100%\">\n<img alt src=\"https://example.test/q3.png\" style=\"border-radius: 4px; height: 100%; object-fit: cover; width: 100%\">\n</img>\n</div>\n<div class=\"c445db9b9 c7f74399a\" data-mol-id=\"file-card-name\" style=\"overflow: hidden; text-overflow: ellipsis; white-space: nowrap\">\nQ3-report.pdf\n</div>\n<div class=\"c1e8176ab c42740ba6 c4647f690 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"file-card-meta\">\n<span aria-label=\"Size 471 KB\" data-mol-id=\"file-card-size\">\n471 KB\n</span>\n<span aria-hidden=\"true\">\n·\n</span>\n<span aria-label=\"Modified 5 min ago\" data-mol-id=\"file-card-modified\">\n5 min ago\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a thumbnail replaces the icon in a row": {
+    "snapshots": [
+     "<div aria-label=\"Q3-report.pdf, Image file\" class=\"c1e8176ab c42740ba6 c9366def6 c9bd6223c cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"file-card-f-1\" role=\"group\">\n<div class=\"ca596e575\" data-mol-id=\"file-card-icon\">\n<img alt src=\"https://example.test/q3.png\" style=\"border-radius: 4px; height: 40px; object-fit: cover; width: 40px\">\n</img>\n</div>\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\" style=\"flex: 1 1 0%; min-width: 0px\">\n<div class=\"c445db9b9 c7f74399a\" data-mol-id=\"file-card-name\" style=\"overflow: hidden; text-overflow: ellipsis; white-space: nowrap\">\nQ3-report.pdf\n</div>\n<div class=\"c1e8176ab c42740ba6 c4647f690 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"file-card-meta\">\n<span aria-label=\"Size 471 KB\" data-mol-id=\"file-card-size\">\n471 KB\n</span>\n<span aria-hidden=\"true\">\n·\n</span>\n<span aria-label=\"Modified 5 min ago\" data-mol-id=\"file-card-modified\">\n5 min ago\n</span>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a folder omits the size": {
+    "snapshots": [
+     "<div aria-label=\"Designs, Folder\" class=\"c2cbb8333 c9866e6d5 c9cd623cf cbaac6b89 ccae02ff2\" data-mol-id=\"file-card-d-1\" role=\"group\">\n<div class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"file-card-icon\" style=\"aspect-ratio: 1 / 1; width: 100%\">\n<svg aria-hidden=\"true\" data-mol-id=\"file-icon-folder\" fill=\"none\" height=\"48\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.75\" viewbox=\"0 0 24 24\" width=\"48\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\">\n</path>\n</svg>\n</div>\n<div class=\"c445db9b9 c7f74399a\" data-mol-id=\"file-card-name\" style=\"overflow: hidden; text-overflow: ellipsis; white-space: nowrap\">\nDesigns\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a folder in a row still shows its modified date": {
+    "snapshots": [
+     "<div aria-label=\"Archive, Folder\" class=\"c1e8176ab c42740ba6 c9366def6 c9bd6223c cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"file-card-d-2\" role=\"group\">\n<div class=\"ca596e575\" data-mol-id=\"file-card-icon\">\n<svg aria-hidden=\"true\" data-mol-id=\"file-icon-folder\" fill=\"none\" height=\"28\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.75\" viewbox=\"0 0 24 24\" width=\"28\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\">\n</path>\n</svg>\n</div>\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\" style=\"flex: 1 1 0%; min-width: 0px\">\n<div class=\"c445db9b9 c7f74399a\" data-mol-id=\"file-card-name\" style=\"overflow: hidden; text-overflow: ellipsis; white-space: nowrap\">\nArchive\n</div>\n<div class=\"c1e8176ab c42740ba6 c4647f690 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"file-card-meta\">\n<span aria-label=\"Modified 2 days ago\" data-mol-id=\"file-card-modified\">\n2 days ago\n</span>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "just now": {
+    "snapshots": [
+     "<div aria-label=\"Q3-report.pdf, Document\" class=\"c2cbb8333 c9866e6d5 c9cd623cf cbaac6b89 ccae02ff2\" data-mol-id=\"file-card-f-1\" role=\"group\">\n<div class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"file-card-icon\" style=\"aspect-ratio: 1 / 1; width: 100%\">\n<svg aria-hidden=\"true\" data-mol-id=\"file-icon-document\" fill=\"none\" height=\"48\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.75\" viewbox=\"0 0 24 24\" width=\"48\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z\">\n</path>\n<path d=\"M14 3v6h6\">\n</path>\n</svg>\n</div>\n<div class=\"c445db9b9 c7f74399a\" data-mol-id=\"file-card-name\" style=\"overflow: hidden; text-overflow: ellipsis; white-space: nowrap\">\nQ3-report.pdf\n</div>\n<div class=\"c1e8176ab c42740ba6 c4647f690 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"file-card-meta\">\n<span aria-label=\"Size 471 KB\" data-mol-id=\"file-card-size\">\n471 KB\n</span>\n<span aria-hidden=\"true\">\n·\n</span>\n<span aria-label=\"Modified just now\" data-mol-id=\"file-card-modified\">\njust now\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "one minute ago": {
+    "snapshots": [
+     "<div aria-label=\"Q3-report.pdf, Document\" class=\"c2cbb8333 c9866e6d5 c9cd623cf cbaac6b89 ccae02ff2\" data-mol-id=\"file-card-f-1\" role=\"group\">\n<div class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"file-card-icon\" style=\"aspect-ratio: 1 / 1; width: 100%\">\n<svg aria-hidden=\"true\" data-mol-id=\"file-icon-document\" fill=\"none\" height=\"48\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.75\" viewbox=\"0 0 24 24\" width=\"48\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z\">\n</path>\n<path d=\"M14 3v6h6\">\n</path>\n</svg>\n</div>\n<div class=\"c445db9b9 c7f74399a\" data-mol-id=\"file-card-name\" style=\"overflow: hidden; text-overflow: ellipsis; white-space: nowrap\">\nQ3-report.pdf\n</div>\n<div class=\"c1e8176ab c42740ba6 c4647f690 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"file-card-meta\">\n<span aria-label=\"Size 471 KB\" data-mol-id=\"file-card-size\">\n471 KB\n</span>\n<span aria-hidden=\"true\">\n·\n</span>\n<span aria-label=\"Modified 1 min ago\" data-mol-id=\"file-card-modified\">\n1 min ago\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "one hour ago": {
+    "snapshots": [
+     "<div aria-label=\"Q3-report.pdf, Document\" class=\"c2cbb8333 c9866e6d5 c9cd623cf cbaac6b89 ccae02ff2\" data-mol-id=\"file-card-f-1\" role=\"group\">\n<div class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"file-card-icon\" style=\"aspect-ratio: 1 / 1; width: 100%\">\n<svg aria-hidden=\"true\" data-mol-id=\"file-icon-document\" fill=\"none\" height=\"48\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.75\" viewbox=\"0 0 24 24\" width=\"48\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z\">\n</path>\n<path d=\"M14 3v6h6\">\n</path>\n</svg>\n</div>\n<div class=\"c445db9b9 c7f74399a\" data-mol-id=\"file-card-name\" style=\"overflow: hidden; text-overflow: ellipsis; white-space: nowrap\">\nQ3-report.pdf\n</div>\n<div class=\"c1e8176ab c42740ba6 c4647f690 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"file-card-meta\">\n<span aria-label=\"Size 471 KB\" data-mol-id=\"file-card-size\">\n471 KB\n</span>\n<span aria-hidden=\"true\">\n·\n</span>\n<span aria-label=\"Modified 1 hr ago\" data-mol-id=\"file-card-modified\">\n1 hr ago\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "three hours ago": {
+    "snapshots": [
+     "<div aria-label=\"Q3-report.pdf, Document\" class=\"c2cbb8333 c9866e6d5 c9cd623cf cbaac6b89 ccae02ff2\" data-mol-id=\"file-card-f-1\" role=\"group\">\n<div class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"file-card-icon\" style=\"aspect-ratio: 1 / 1; width: 100%\">\n<svg aria-hidden=\"true\" data-mol-id=\"file-icon-document\" fill=\"none\" height=\"48\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.75\" viewbox=\"0 0 24 24\" width=\"48\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z\">\n</path>\n<path d=\"M14 3v6h6\">\n</path>\n</svg>\n</div>\n<div class=\"c445db9b9 c7f74399a\" data-mol-id=\"file-card-name\" style=\"overflow: hidden; text-overflow: ellipsis; white-space: nowrap\">\nQ3-report.pdf\n</div>\n<div class=\"c1e8176ab c42740ba6 c4647f690 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"file-card-meta\">\n<span aria-label=\"Size 471 KB\" data-mol-id=\"file-card-size\">\n471 KB\n</span>\n<span aria-hidden=\"true\">\n·\n</span>\n<span aria-label=\"Modified 3 hr ago\" data-mol-id=\"file-card-modified\">\n3 hr ago\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "yesterday": {
+    "snapshots": [
+     "<div aria-label=\"Q3-report.pdf, Document\" class=\"c2cbb8333 c9866e6d5 c9cd623cf cbaac6b89 ccae02ff2\" data-mol-id=\"file-card-f-1\" role=\"group\">\n<div class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"file-card-icon\" style=\"aspect-ratio: 1 / 1; width: 100%\">\n<svg aria-hidden=\"true\" data-mol-id=\"file-icon-document\" fill=\"none\" height=\"48\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.75\" viewbox=\"0 0 24 24\" width=\"48\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z\">\n</path>\n<path d=\"M14 3v6h6\">\n</path>\n</svg>\n</div>\n<div class=\"c445db9b9 c7f74399a\" data-mol-id=\"file-card-name\" style=\"overflow: hidden; text-overflow: ellipsis; white-space: nowrap\">\nQ3-report.pdf\n</div>\n<div class=\"c1e8176ab c42740ba6 c4647f690 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"file-card-meta\">\n<span aria-label=\"Size 471 KB\" data-mol-id=\"file-card-size\">\n471 KB\n</span>\n<span aria-hidden=\"true\">\n·\n</span>\n<span aria-label=\"Modified yesterday\" data-mol-id=\"file-card-modified\">\nyesterday\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "two days ago": {
+    "snapshots": [
+     "<div aria-label=\"Q3-report.pdf, Document\" class=\"c2cbb8333 c9866e6d5 c9cd623cf cbaac6b89 ccae02ff2\" data-mol-id=\"file-card-f-1\" role=\"group\">\n<div class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"file-card-icon\" style=\"aspect-ratio: 1 / 1; width: 100%\">\n<svg aria-hidden=\"true\" data-mol-id=\"file-icon-document\" fill=\"none\" height=\"48\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.75\" viewbox=\"0 0 24 24\" width=\"48\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z\">\n</path>\n<path d=\"M14 3v6h6\">\n</path>\n</svg>\n</div>\n<div class=\"c445db9b9 c7f74399a\" data-mol-id=\"file-card-name\" style=\"overflow: hidden; text-overflow: ellipsis; white-space: nowrap\">\nQ3-report.pdf\n</div>\n<div class=\"c1e8176ab c42740ba6 c4647f690 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"file-card-meta\">\n<span aria-label=\"Size 471 KB\" data-mol-id=\"file-card-size\">\n471 KB\n</span>\n<span aria-hidden=\"true\">\n·\n</span>\n<span aria-label=\"Modified 2 days ago\" data-mol-id=\"file-card-modified\">\n2 days ago\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "one week ago": {
+    "snapshots": [
+     "<div aria-label=\"Q3-report.pdf, Document\" class=\"c2cbb8333 c9866e6d5 c9cd623cf cbaac6b89 ccae02ff2\" data-mol-id=\"file-card-f-1\" role=\"group\">\n<div class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"file-card-icon\" style=\"aspect-ratio: 1 / 1; width: 100%\">\n<svg aria-hidden=\"true\" data-mol-id=\"file-icon-document\" fill=\"none\" height=\"48\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.75\" viewbox=\"0 0 24 24\" width=\"48\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z\">\n</path>\n<path d=\"M14 3v6h6\">\n</path>\n</svg>\n</div>\n<div class=\"c445db9b9 c7f74399a\" data-mol-id=\"file-card-name\" style=\"overflow: hidden; text-overflow: ellipsis; white-space: nowrap\">\nQ3-report.pdf\n</div>\n<div class=\"c1e8176ab c42740ba6 c4647f690 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"file-card-meta\">\n<span aria-label=\"Size 471 KB\" data-mol-id=\"file-card-size\">\n471 KB\n</span>\n<span aria-hidden=\"true\">\n·\n</span>\n<span aria-label=\"Modified 1 wk ago\" data-mol-id=\"file-card-modified\">\n1 wk ago\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "two weeks ago": {
+    "snapshots": [
+     "<div aria-label=\"Q3-report.pdf, Document\" class=\"c2cbb8333 c9866e6d5 c9cd623cf cbaac6b89 ccae02ff2\" data-mol-id=\"file-card-f-1\" role=\"group\">\n<div class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"file-card-icon\" style=\"aspect-ratio: 1 / 1; width: 100%\">\n<svg aria-hidden=\"true\" data-mol-id=\"file-icon-document\" fill=\"none\" height=\"48\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.75\" viewbox=\"0 0 24 24\" width=\"48\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z\">\n</path>\n<path d=\"M14 3v6h6\">\n</path>\n</svg>\n</div>\n<div class=\"c445db9b9 c7f74399a\" data-mol-id=\"file-card-name\" style=\"overflow: hidden; text-overflow: ellipsis; white-space: nowrap\">\nQ3-report.pdf\n</div>\n<div class=\"c1e8176ab c42740ba6 c4647f690 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"file-card-meta\">\n<span aria-label=\"Size 471 KB\" data-mol-id=\"file-card-size\">\n471 KB\n</span>\n<span aria-hidden=\"true\">\n·\n</span>\n<span aria-label=\"Modified 2 wk ago\" data-mol-id=\"file-card-modified\">\n2 wk ago\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "one month ago": {
+    "snapshots": [
+     "<div aria-label=\"Q3-report.pdf, Document\" class=\"c2cbb8333 c9866e6d5 c9cd623cf cbaac6b89 ccae02ff2\" data-mol-id=\"file-card-f-1\" role=\"group\">\n<div class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"file-card-icon\" style=\"aspect-ratio: 1 / 1; width: 100%\">\n<svg aria-hidden=\"true\" data-mol-id=\"file-icon-document\" fill=\"none\" height=\"48\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.75\" viewbox=\"0 0 24 24\" width=\"48\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z\">\n</path>\n<path d=\"M14 3v6h6\">\n</path>\n</svg>\n</div>\n<div class=\"c445db9b9 c7f74399a\" data-mol-id=\"file-card-name\" style=\"overflow: hidden; text-overflow: ellipsis; white-space: nowrap\">\nQ3-report.pdf\n</div>\n<div class=\"c1e8176ab c42740ba6 c4647f690 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"file-card-meta\">\n<span aria-label=\"Size 471 KB\" data-mol-id=\"file-card-size\">\n471 KB\n</span>\n<span aria-hidden=\"true\">\n·\n</span>\n<span aria-label=\"Modified 1 mo ago\" data-mol-id=\"file-card-modified\">\n1 mo ago\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "two months ago": {
+    "snapshots": [
+     "<div aria-label=\"Q3-report.pdf, Document\" class=\"c2cbb8333 c9866e6d5 c9cd623cf cbaac6b89 ccae02ff2\" data-mol-id=\"file-card-f-1\" role=\"group\">\n<div class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"file-card-icon\" style=\"aspect-ratio: 1 / 1; width: 100%\">\n<svg aria-hidden=\"true\" data-mol-id=\"file-icon-document\" fill=\"none\" height=\"48\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.75\" viewbox=\"0 0 24 24\" width=\"48\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z\">\n</path>\n<path d=\"M14 3v6h6\">\n</path>\n</svg>\n</div>\n<div class=\"c445db9b9 c7f74399a\" data-mol-id=\"file-card-name\" style=\"overflow: hidden; text-overflow: ellipsis; white-space: nowrap\">\nQ3-report.pdf\n</div>\n<div class=\"c1e8176ab c42740ba6 c4647f690 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"file-card-meta\">\n<span aria-label=\"Size 471 KB\" data-mol-id=\"file-card-size\">\n471 KB\n</span>\n<span aria-hidden=\"true\">\n·\n</span>\n<span aria-label=\"Modified 2 mo ago\" data-mol-id=\"file-card-modified\">\n2 mo ago\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "an older timestamp renders an absolute date": {
+    "snapshots": [
+     "<div aria-label=\"Q3-report.pdf, Document\" class=\"c2cbb8333 c9866e6d5 c9cd623cf cbaac6b89 ccae02ff2\" data-mol-id=\"file-card-f-1\" role=\"group\">\n<div class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"file-card-icon\" style=\"aspect-ratio: 1 / 1; width: 100%\">\n<svg aria-hidden=\"true\" data-mol-id=\"file-icon-document\" fill=\"none\" height=\"48\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.75\" viewbox=\"0 0 24 24\" width=\"48\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z\">\n</path>\n<path d=\"M14 3v6h6\">\n</path>\n</svg>\n</div>\n<div class=\"c445db9b9 c7f74399a\" data-mol-id=\"file-card-name\" style=\"overflow: hidden; text-overflow: ellipsis; white-space: nowrap\">\nQ3-report.pdf\n</div>\n<div class=\"c1e8176ab c42740ba6 c4647f690 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"file-card-meta\">\n<span aria-label=\"Size 471 KB\" data-mol-id=\"file-card-size\">\n471 KB\n</span>\n<span aria-hidden=\"true\">\n·\n</span>\n<span aria-label=\"Modified 2025-04-08\" data-mol-id=\"file-card-modified\">\n2025-04-08\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "an absent modified date omits the meta row": {
+    "snapshots": [
+     "<div aria-label=\"Q3-report.pdf, Document\" class=\"c2cbb8333 c9866e6d5 c9cd623cf cbaac6b89 ccae02ff2\" data-mol-id=\"file-card-f-1\" role=\"group\">\n<div class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"file-card-icon\" style=\"aspect-ratio: 1 / 1; width: 100%\">\n<svg aria-hidden=\"true\" data-mol-id=\"file-icon-document\" fill=\"none\" height=\"48\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.75\" viewbox=\"0 0 24 24\" width=\"48\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z\">\n</path>\n<path d=\"M14 3v6h6\">\n</path>\n</svg>\n</div>\n<div class=\"c445db9b9 c7f74399a\" data-mol-id=\"file-card-name\" style=\"overflow: hidden; text-overflow: ellipsis; white-space: nowrap\">\nQ3-report.pdf\n</div>\n<div class=\"c1e8176ab c42740ba6 c4647f690 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"file-card-meta\">\n<span aria-label=\"Size 471 KB\" data-mol-id=\"file-card-size\">\n471 KB\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "an explicit now Date pins the relative text": {
+    "snapshots": [
+     "<div aria-label=\"Q3-report.pdf, Document\" class=\"c2cbb8333 c9866e6d5 c9cd623cf cbaac6b89 ccae02ff2\" data-mol-id=\"file-card-f-1\" role=\"group\">\n<div class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"file-card-icon\" style=\"aspect-ratio: 1 / 1; width: 100%\">\n<svg aria-hidden=\"true\" data-mol-id=\"file-icon-document\" fill=\"none\" height=\"48\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.75\" viewbox=\"0 0 24 24\" width=\"48\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z\">\n</path>\n<path d=\"M14 3v6h6\">\n</path>\n</svg>\n</div>\n<div class=\"c445db9b9 c7f74399a\" data-mol-id=\"file-card-name\" style=\"overflow: hidden; text-overflow: ellipsis; white-space: nowrap\">\nQ3-report.pdf\n</div>\n<div class=\"c1e8176ab c42740ba6 c4647f690 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"file-card-meta\">\n<span aria-label=\"Size 471 KB\" data-mol-id=\"file-card-size\">\n471 KB\n</span>\n<span aria-hidden=\"true\">\n·\n</span>\n<span aria-label=\"Modified 3 min ago\" data-mol-id=\"file-card-modified\">\n3 min ago\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a clickable grid card": {
+    "snapshots": [
+     "<div aria-label=\"Q3-report.pdf, Document\" class=\"c2cbb8333 c9866e6d5 c9cd623cf cbaac6b89 ccae02ff2 cfc82911d\" data-mol-id=\"file-card-f-1\" data-selected=\"true\" role=\"group\">\n<div class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"file-card-icon\" style=\"aspect-ratio: 1 / 1; width: 100%\">\n<svg aria-hidden=\"true\" data-mol-id=\"file-icon-document\" fill=\"none\" height=\"48\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.75\" viewbox=\"0 0 24 24\" width=\"48\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z\">\n</path>\n<path d=\"M14 3v6h6\">\n</path>\n</svg>\n</div>\n<div class=\"c445db9b9 c7f74399a\" data-mol-id=\"file-card-name\" style=\"overflow: hidden; text-overflow: ellipsis; white-space: nowrap\">\nQ3-report.pdf\n</div>\n<div class=\"c1e8176ab c42740ba6 c4647f690 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"file-card-meta\">\n<span aria-label=\"Size 471 KB\" data-mol-id=\"file-card-size\">\n471 KB\n</span>\n<span aria-hidden=\"true\">\n·\n</span>\n<span aria-label=\"Modified 5 min ago\" data-mol-id=\"file-card-modified\">\n5 min ago\n</span>\n</div>\n<button aria-label=\"Q3-report.pdf, Document\" aria-pressed=\"true\" class=\"c0dd268bc c13d4ff0f c63a6bab3\" data-mol-id=\"file-card-select\" style=\"background: transparent; border: medium; padding: 0px\" type=\"button\">\n</button>\n</div>\n@route /",
+     "<div aria-label=\"Q3-report.pdf, Document\" class=\"c2cbb8333 c9866e6d5 c9cd623cf cbaac6b89 ccae02ff2 cfc82911d\" data-mol-id=\"file-card-f-1\" data-selected=\"true\" role=\"group\">\n<div class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"file-card-icon\" style=\"aspect-ratio: 1 / 1; width: 100%\">\n<svg aria-hidden=\"true\" data-mol-id=\"file-icon-document\" fill=\"none\" height=\"48\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.75\" viewbox=\"0 0 24 24\" width=\"48\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z\">\n</path>\n<path d=\"M14 3v6h6\">\n</path>\n</svg>\n</div>\n<div class=\"c445db9b9 c7f74399a\" data-mol-id=\"file-card-name\" style=\"overflow: hidden; text-overflow: ellipsis; white-space: nowrap\">\nQ3-report.pdf\n</div>\n<div class=\"c1e8176ab c42740ba6 c4647f690 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"file-card-meta\">\n<span aria-label=\"Size 471 KB\" data-mol-id=\"file-card-size\">\n471 KB\n</span>\n<span aria-hidden=\"true\">\n·\n</span>\n<span aria-label=\"Modified 5 min ago\" data-mol-id=\"file-card-modified\">\n5 min ago\n</span>\n</div>\n<button aria-label=\"Q3-report.pdf, Document\" aria-pressed=\"true\" class=\"c0dd268bc c13d4ff0f c63a6bab3\" data-mol-id=\"file-card-select\" style=\"background: transparent; border: medium; padding: 0px\" type=\"button\">\n</button>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onClick",
+      "args": [
+       {
+        "id": "f-1",
+        "kind": "document",
+        "modifiedAt": "2026-05-13T11:55:00.000Z",
+        "name": "Q3-report.pdf",
+        "size": 482137
+       },
+       {
+        "event": "click",
+        "target": "button"
+       }
+      ]
+     }
+    ]
+   },
+   "a clickable unselected card reports aria-pressed false": {
+    "snapshots": [
+     "<div aria-label=\"Q3-report.pdf, Document\" class=\"c2cbb8333 c9866e6d5 c9cd623cf cbaac6b89 ccae02ff2 cfc82911d\" data-mol-id=\"file-card-f-1\" role=\"group\">\n<div class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"file-card-icon\" style=\"aspect-ratio: 1 / 1; width: 100%\">\n<svg aria-hidden=\"true\" data-mol-id=\"file-icon-document\" fill=\"none\" height=\"48\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.75\" viewbox=\"0 0 24 24\" width=\"48\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z\">\n</path>\n<path d=\"M14 3v6h6\">\n</path>\n</svg>\n</div>\n<div class=\"c445db9b9 c7f74399a\" data-mol-id=\"file-card-name\" style=\"overflow: hidden; text-overflow: ellipsis; white-space: nowrap\">\nQ3-report.pdf\n</div>\n<div class=\"c1e8176ab c42740ba6 c4647f690 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"file-card-meta\">\n<span aria-label=\"Size 471 KB\" data-mol-id=\"file-card-size\">\n471 KB\n</span>\n<span aria-hidden=\"true\">\n·\n</span>\n<span aria-label=\"Modified 5 min ago\" data-mol-id=\"file-card-modified\">\n5 min ago\n</span>\n</div>\n<button aria-label=\"Q3-report.pdf, Document\" aria-pressed=\"false\" class=\"c0dd268bc c13d4ff0f c63a6bab3\" data-mol-id=\"file-card-select\" style=\"background: transparent; border: medium; padding: 0px\" type=\"button\">\n</button>\n</div>\n@route /",
+     "<div aria-label=\"Q3-report.pdf, Document\" class=\"c2cbb8333 c9866e6d5 c9cd623cf cbaac6b89 ccae02ff2 cfc82911d\" data-mol-id=\"file-card-f-1\" role=\"group\">\n<div class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"file-card-icon\" style=\"aspect-ratio: 1 / 1; width: 100%\">\n<svg aria-hidden=\"true\" data-mol-id=\"file-icon-document\" fill=\"none\" height=\"48\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.75\" viewbox=\"0 0 24 24\" width=\"48\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z\">\n</path>\n<path d=\"M14 3v6h6\">\n</path>\n</svg>\n</div>\n<div class=\"c445db9b9 c7f74399a\" data-mol-id=\"file-card-name\" style=\"overflow: hidden; text-overflow: ellipsis; white-space: nowrap\">\nQ3-report.pdf\n</div>\n<div class=\"c1e8176ab c42740ba6 c4647f690 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"file-card-meta\">\n<span aria-label=\"Size 471 KB\" data-mol-id=\"file-card-size\">\n471 KB\n</span>\n<span aria-hidden=\"true\">\n·\n</span>\n<span aria-label=\"Modified 5 min ago\" data-mol-id=\"file-card-modified\">\n5 min ago\n</span>\n</div>\n<button aria-label=\"Q3-report.pdf, Document\" aria-pressed=\"false\" class=\"c0dd268bc c13d4ff0f c63a6bab3\" data-mol-id=\"file-card-select\" style=\"background: transparent; border: medium; padding: 0px\" type=\"button\">\n</button>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onClick",
+      "args": [
+       {
+        "id": "f-1",
+        "kind": "document",
+        "modifiedAt": "2026-05-13T11:55:00.000Z",
+        "name": "Q3-report.pdf",
+        "size": 482137
+       },
+       {
+        "event": "click",
+        "target": "button"
+       }
+      ]
+     }
+    ]
+   },
+   "a clickable row card keeps the actions outside the select button": {
+    "snapshots": [
+     "<div aria-label=\"Q3-report.pdf, Document\" class=\"c1e8176ab c42740ba6 c9366def6 c9bd6223c cc2d72006 ccae02ff2 cd9b20003 cfc82911d\" data-mol-id=\"file-card-f-1\" role=\"group\">\n<div class=\"ca596e575\" data-mol-id=\"file-card-icon\">\n<svg aria-hidden=\"true\" data-mol-id=\"file-icon-document\" fill=\"none\" height=\"28\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.75\" viewbox=\"0 0 24 24\" width=\"28\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z\">\n</path>\n<path d=\"M14 3v6h6\">\n</path>\n</svg>\n</div>\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\" style=\"flex: 1 1 0%; min-width: 0px\">\n<div class=\"c445db9b9 c7f74399a\" data-mol-id=\"file-card-name\" style=\"overflow: hidden; text-overflow: ellipsis; white-space: nowrap\">\nQ3-report.pdf\n</div>\n<div class=\"c1e8176ab c42740ba6 c4647f690 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"file-card-meta\">\n<span aria-label=\"Size 471 KB\" data-mol-id=\"file-card-size\">\n471 KB\n</span>\n<span aria-hidden=\"true\">\n·\n</span>\n<span aria-label=\"Modified 5 min ago\" data-mol-id=\"file-card-modified\">\n5 min ago\n</span>\n</div>\n</div>\n<button aria-label=\"Q3-report.pdf, Document\" aria-pressed=\"false\" class=\"c0dd268bc c13d4ff0f c63a6bab3\" data-mol-id=\"file-card-select\" style=\"background: transparent; border: medium; padding: 0px\" type=\"button\">\n</button>\n<div class=\"ca596e575 cfc82911d\" data-mol-id=\"file-card-actions\">\n<button data-mol-id=\"card-kebab\" type=\"button\">\n…\n</button>\n<span data-mol-id=\"row-action\">\nx\n</span>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Q3-report.pdf, Document\" class=\"c1e8176ab c42740ba6 c9366def6 c9bd6223c cc2d72006 ccae02ff2 cd9b20003 cfc82911d\" data-mol-id=\"file-card-f-1\" role=\"group\">\n<div class=\"ca596e575\" data-mol-id=\"file-card-icon\">\n<svg aria-hidden=\"true\" data-mol-id=\"file-icon-document\" fill=\"none\" height=\"28\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.75\" viewbox=\"0 0 24 24\" width=\"28\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z\">\n</path>\n<path d=\"M14 3v6h6\">\n</path>\n</svg>\n</div>\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\" style=\"flex: 1 1 0%; min-width: 0px\">\n<div class=\"c445db9b9 c7f74399a\" data-mol-id=\"file-card-name\" style=\"overflow: hidden; text-overflow: ellipsis; white-space: nowrap\">\nQ3-report.pdf\n</div>\n<div class=\"c1e8176ab c42740ba6 c4647f690 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"file-card-meta\">\n<span aria-label=\"Size 471 KB\" data-mol-id=\"file-card-size\">\n471 KB\n</span>\n<span aria-hidden=\"true\">\n·\n</span>\n<span aria-label=\"Modified 5 min ago\" data-mol-id=\"file-card-modified\">\n5 min ago\n</span>\n</div>\n</div>\n<button aria-label=\"Q3-report.pdf, Document\" aria-pressed=\"false\" class=\"c0dd268bc c13d4ff0f c63a6bab3\" data-mol-id=\"file-card-select\" style=\"background: transparent; border: medium; padding: 0px\" type=\"button\">\n</button>\n<div class=\"ca596e575 cfc82911d\" data-mol-id=\"file-card-actions\">\n<button data-mol-id=\"card-kebab\" type=\"button\">\n…\n</button>\n<span data-mol-id=\"row-action\">\nx\n</span>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Q3-report.pdf, Document\" class=\"c1e8176ab c42740ba6 c9366def6 c9bd6223c cc2d72006 ccae02ff2 cd9b20003 cfc82911d\" data-mol-id=\"file-card-f-1\" role=\"group\">\n<div class=\"ca596e575\" data-mol-id=\"file-card-icon\">\n<svg aria-hidden=\"true\" data-mol-id=\"file-icon-document\" fill=\"none\" height=\"28\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.75\" viewbox=\"0 0 24 24\" width=\"28\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z\">\n</path>\n<path d=\"M14 3v6h6\">\n</path>\n</svg>\n</div>\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\" style=\"flex: 1 1 0%; min-width: 0px\">\n<div class=\"c445db9b9 c7f74399a\" data-mol-id=\"file-card-name\" style=\"overflow: hidden; text-overflow: ellipsis; white-space: nowrap\">\nQ3-report.pdf\n</div>\n<div class=\"c1e8176ab c42740ba6 c4647f690 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"file-card-meta\">\n<span aria-label=\"Size 471 KB\" data-mol-id=\"file-card-size\">\n471 KB\n</span>\n<span aria-hidden=\"true\">\n·\n</span>\n<span aria-label=\"Modified 5 min ago\" data-mol-id=\"file-card-modified\">\n5 min ago\n</span>\n</div>\n</div>\n<button aria-label=\"Q3-report.pdf, Document\" aria-pressed=\"false\" class=\"c0dd268bc c13d4ff0f c63a6bab3\" data-mol-id=\"file-card-select\" style=\"background: transparent; border: medium; padding: 0px\" type=\"button\">\n</button>\n<div class=\"ca596e575 cfc82911d\" data-mol-id=\"file-card-actions\">\n<button data-mol-id=\"card-kebab\" type=\"button\">\n…\n</button>\n<span data-mol-id=\"row-action\">\nx\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onClick",
+      "args": [
+       {
+        "id": "f-1",
+        "kind": "document",
+        "modifiedAt": "2026-05-13T11:55:00.000Z",
+        "name": "Q3-report.pdf",
+        "size": 482137
+       },
+       {
+        "event": "click",
+        "target": "button"
+       }
+      ]
+     }
+    ]
+   },
+   "actions in a grid card do not fire onClick": {
+    "snapshots": [
+     "<div aria-label=\"Q3-report.pdf, Document\" class=\"c2cbb8333 c9866e6d5 c9cd623cf cbaac6b89 ccae02ff2 cfc82911d\" data-mol-id=\"file-card-f-1\" role=\"group\">\n<div class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"file-card-icon\" style=\"aspect-ratio: 1 / 1; width: 100%\">\n<svg aria-hidden=\"true\" data-mol-id=\"file-icon-document\" fill=\"none\" height=\"48\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.75\" viewbox=\"0 0 24 24\" width=\"48\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z\">\n</path>\n<path d=\"M14 3v6h6\">\n</path>\n</svg>\n</div>\n<div class=\"c445db9b9 c7f74399a\" data-mol-id=\"file-card-name\" style=\"overflow: hidden; text-overflow: ellipsis; white-space: nowrap\">\nQ3-report.pdf\n</div>\n<div class=\"c1e8176ab c42740ba6 c4647f690 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"file-card-meta\">\n<span aria-label=\"Size 471 KB\" data-mol-id=\"file-card-size\">\n471 KB\n</span>\n<span aria-hidden=\"true\">\n·\n</span>\n<span aria-label=\"Modified 5 min ago\" data-mol-id=\"file-card-modified\">\n5 min ago\n</span>\n</div>\n<button aria-label=\"Q3-report.pdf, Document\" aria-pressed=\"false\" class=\"c0dd268bc c13d4ff0f c63a6bab3\" data-mol-id=\"file-card-select\" style=\"background: transparent; border: medium; padding: 0px\" type=\"button\">\n</button>\n<div class=\"c117f3063 c1e8176ab c42740ba6 c9566e21c ccae02ff2 cd9b20003 cfc82911d\" data-mol-id=\"file-card-actions\">\n<button data-mol-id=\"card-kebab\" type=\"button\">\n…\n</button>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Q3-report.pdf, Document\" class=\"c2cbb8333 c9866e6d5 c9cd623cf cbaac6b89 ccae02ff2 cfc82911d\" data-mol-id=\"file-card-f-1\" role=\"group\">\n<div class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"file-card-icon\" style=\"aspect-ratio: 1 / 1; width: 100%\">\n<svg aria-hidden=\"true\" data-mol-id=\"file-icon-document\" fill=\"none\" height=\"48\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.75\" viewbox=\"0 0 24 24\" width=\"48\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z\">\n</path>\n<path d=\"M14 3v6h6\">\n</path>\n</svg>\n</div>\n<div class=\"c445db9b9 c7f74399a\" data-mol-id=\"file-card-name\" style=\"overflow: hidden; text-overflow: ellipsis; white-space: nowrap\">\nQ3-report.pdf\n</div>\n<div class=\"c1e8176ab c42740ba6 c4647f690 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"file-card-meta\">\n<span aria-label=\"Size 471 KB\" data-mol-id=\"file-card-size\">\n471 KB\n</span>\n<span aria-hidden=\"true\">\n·\n</span>\n<span aria-label=\"Modified 5 min ago\" data-mol-id=\"file-card-modified\">\n5 min ago\n</span>\n</div>\n<button aria-label=\"Q3-report.pdf, Document\" aria-pressed=\"false\" class=\"c0dd268bc c13d4ff0f c63a6bab3\" data-mol-id=\"file-card-select\" style=\"background: transparent; border: medium; padding: 0px\" type=\"button\">\n</button>\n<div class=\"c117f3063 c1e8176ab c42740ba6 c9566e21c ccae02ff2 cd9b20003 cfc82911d\" data-mol-id=\"file-card-actions\">\n<button data-mol-id=\"card-kebab\" type=\"button\">\n…\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "actions render without a select button when there is no onClick": {
+    "snapshots": [
+     "<div aria-label=\"Q3-report.pdf, Document\" class=\"c1e8176ab c42740ba6 c9366def6 c9bd6223c cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"file-card-f-1\" role=\"group\">\n<div class=\"ca596e575\" data-mol-id=\"file-card-icon\">\n<svg aria-hidden=\"true\" data-mol-id=\"file-icon-document\" fill=\"none\" height=\"28\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.75\" viewbox=\"0 0 24 24\" width=\"28\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z\">\n</path>\n<path d=\"M14 3v6h6\">\n</path>\n</svg>\n</div>\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\" style=\"flex: 1 1 0%; min-width: 0px\">\n<div class=\"c445db9b9 c7f74399a\" data-mol-id=\"file-card-name\" style=\"overflow: hidden; text-overflow: ellipsis; white-space: nowrap\">\nQ3-report.pdf\n</div>\n<div class=\"c1e8176ab c42740ba6 c4647f690 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"file-card-meta\">\n<span aria-label=\"Size 471 KB\" data-mol-id=\"file-card-size\">\n471 KB\n</span>\n<span aria-hidden=\"true\">\n·\n</span>\n<span aria-label=\"Modified 5 min ago\" data-mol-id=\"file-card-modified\">\n5 min ago\n</span>\n</div>\n</div>\n<div class=\"ca596e575 cfc82911d\" data-mol-id=\"file-card-actions\">\n<button data-mol-id=\"card-kebab\" type=\"button\">\n…\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a right click fires onContextMenu": {
+    "snapshots": [
+     "<div aria-label=\"Q3-report.pdf, Document\" class=\"c2cbb8333 c9866e6d5 c9cd623cf cbaac6b89 ccae02ff2\" data-mol-id=\"file-card-f-1\" role=\"group\">\n<div class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"file-card-icon\" style=\"aspect-ratio: 1 / 1; width: 100%\">\n<svg aria-hidden=\"true\" data-mol-id=\"file-icon-document\" fill=\"none\" height=\"48\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.75\" viewbox=\"0 0 24 24\" width=\"48\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z\">\n</path>\n<path d=\"M14 3v6h6\">\n</path>\n</svg>\n</div>\n<div class=\"c445db9b9 c7f74399a\" data-mol-id=\"file-card-name\" style=\"overflow: hidden; text-overflow: ellipsis; white-space: nowrap\">\nQ3-report.pdf\n</div>\n<div class=\"c1e8176ab c42740ba6 c4647f690 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"file-card-meta\">\n<span aria-label=\"Size 471 KB\" data-mol-id=\"file-card-size\">\n471 KB\n</span>\n<span aria-hidden=\"true\">\n·\n</span>\n<span aria-label=\"Modified 5 min ago\" data-mol-id=\"file-card-modified\">\n5 min ago\n</span>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Q3-report.pdf, Document\" class=\"c2cbb8333 c9866e6d5 c9cd623cf cbaac6b89 ccae02ff2\" data-mol-id=\"file-card-f-1\" role=\"group\">\n<div class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"file-card-icon\" style=\"aspect-ratio: 1 / 1; width: 100%\">\n<svg aria-hidden=\"true\" data-mol-id=\"file-icon-document\" fill=\"none\" height=\"48\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.75\" viewbox=\"0 0 24 24\" width=\"48\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z\">\n</path>\n<path d=\"M14 3v6h6\">\n</path>\n</svg>\n</div>\n<div class=\"c445db9b9 c7f74399a\" data-mol-id=\"file-card-name\" style=\"overflow: hidden; text-overflow: ellipsis; white-space: nowrap\">\nQ3-report.pdf\n</div>\n<div class=\"c1e8176ab c42740ba6 c4647f690 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"file-card-meta\">\n<span aria-label=\"Size 471 KB\" data-mol-id=\"file-card-size\">\n471 KB\n</span>\n<span aria-hidden=\"true\">\n·\n</span>\n<span aria-label=\"Modified 5 min ago\" data-mol-id=\"file-card-modified\">\n5 min ago\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onContextMenu",
+      "args": [
+       {
+        "id": "f-1",
+        "kind": "document",
+        "modifiedAt": "2026-05-13T11:55:00.000Z",
+        "name": "Q3-report.pdf",
+        "size": 482137
+       },
+       {
+        "event": "contextmenu",
+        "target": "div"
+       }
+      ]
+     }
+    ]
+   },
+   "className merges onto the root": {
+    "snapshots": [
+     "<div aria-label=\"Q3-report.pdf, Document\" class=\"c2cbb8333 c9866e6d5 c9cd623cf cbaac6b89 ccae02ff2 cd75bbd18\" data-mol-id=\"file-card-f-1\" role=\"group\">\n<div class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"file-card-icon\" style=\"aspect-ratio: 1 / 1; width: 100%\">\n<svg aria-hidden=\"true\" data-mol-id=\"file-icon-document\" fill=\"none\" height=\"48\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.75\" viewbox=\"0 0 24 24\" width=\"48\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z\">\n</path>\n<path d=\"M14 3v6h6\">\n</path>\n</svg>\n</div>\n<div class=\"c445db9b9 c7f74399a\" data-mol-id=\"file-card-name\" style=\"overflow: hidden; text-overflow: ellipsis; white-space: nowrap\">\nQ3-report.pdf\n</div>\n<div class=\"c1e8176ab c42740ba6 c4647f690 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"file-card-meta\">\n<span aria-label=\"Size 471 KB\" data-mol-id=\"file-card-size\">\n471 KB\n</span>\n<span aria-hidden=\"true\">\n·\n</span>\n<span aria-label=\"Modified 5 min ago\" data-mol-id=\"file-card-modified\">\n5 min ago\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "dataMolId overrides the root marker": {
+    "snapshots": [
+     "<div aria-label=\"Q3-report.pdf, Document\" class=\"c2cbb8333 c9866e6d5 c9cd623cf cbaac6b89 ccae02ff2\" data-mol-id=\"attachment-1\" role=\"group\">\n<div class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"file-card-icon\" style=\"aspect-ratio: 1 / 1; width: 100%\">\n<svg aria-hidden=\"true\" data-mol-id=\"file-icon-document\" fill=\"none\" height=\"48\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.75\" viewbox=\"0 0 24 24\" width=\"48\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z\">\n</path>\n<path d=\"M14 3v6h6\">\n</path>\n</svg>\n</div>\n<div class=\"c445db9b9 c7f74399a\" data-mol-id=\"file-card-name\" style=\"overflow: hidden; text-overflow: ellipsis; white-space: nowrap\">\nQ3-report.pdf\n</div>\n<div class=\"c1e8176ab c42740ba6 c4647f690 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"file-card-meta\">\n<span aria-label=\"Size 471 KB\" data-mol-id=\"file-card-size\">\n471 KB\n</span>\n<span aria-hidden=\"true\">\n·\n</span>\n<span aria-label=\"Modified 5 min ago\" data-mol-id=\"file-card-modified\">\n5 min ago\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "switching the layout re-renders": {
+    "snapshots": [
+     "<div aria-label=\"Q3-report.pdf, Document\" class=\"c2cbb8333 c9866e6d5 c9cd623cf cbaac6b89 ccae02ff2\" data-mol-id=\"file-card-f-1\" role=\"group\">\n<div class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"file-card-icon\" style=\"aspect-ratio: 1 / 1; width: 100%\">\n<svg aria-hidden=\"true\" data-mol-id=\"file-icon-document\" fill=\"none\" height=\"48\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.75\" viewbox=\"0 0 24 24\" width=\"48\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z\">\n</path>\n<path d=\"M14 3v6h6\">\n</path>\n</svg>\n</div>\n<div class=\"c445db9b9 c7f74399a\" data-mol-id=\"file-card-name\" style=\"overflow: hidden; text-overflow: ellipsis; white-space: nowrap\">\nQ3-report.pdf\n</div>\n<div class=\"c1e8176ab c42740ba6 c4647f690 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"file-card-meta\">\n<span aria-label=\"Size 471 KB\" data-mol-id=\"file-card-size\">\n471 KB\n</span>\n<span aria-hidden=\"true\">\n·\n</span>\n<span aria-label=\"Modified 5 min ago\" data-mol-id=\"file-card-modified\">\n5 min ago\n</span>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Q3-report.pdf, Document\" class=\"c1e8176ab c42740ba6 c9366def6 c9bd6223c cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"file-card-f-1\" role=\"group\">\n<div class=\"ca596e575\" data-mol-id=\"file-card-icon\">\n<svg aria-hidden=\"true\" data-mol-id=\"file-icon-document\" fill=\"none\" height=\"28\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.75\" viewbox=\"0 0 24 24\" width=\"28\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z\">\n</path>\n<path d=\"M14 3v6h6\">\n</path>\n</svg>\n</div>\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\" style=\"flex: 1 1 0%; min-width: 0px\">\n<div class=\"c445db9b9 c7f74399a\" data-mol-id=\"file-card-name\" style=\"overflow: hidden; text-overflow: ellipsis; white-space: nowrap\">\nQ3-report.pdf\n</div>\n<div class=\"c1e8176ab c42740ba6 c4647f690 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"file-card-meta\">\n<span aria-label=\"Size 471 KB\" data-mol-id=\"file-card-size\">\n471 KB\n</span>\n<span aria-hidden=\"true\">\n·\n</span>\n<span aria-label=\"Modified 5 min ago\" data-mol-id=\"file-card-modified\">\n5 min ago\n</span>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "selecting re-renders": {
+    "snapshots": [
+     "<div aria-label=\"Q3-report.pdf, Document\" class=\"c2cbb8333 c9866e6d5 c9cd623cf cbaac6b89 ccae02ff2 cfc82911d\" data-mol-id=\"file-card-f-1\" role=\"group\">\n<div class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"file-card-icon\" style=\"aspect-ratio: 1 / 1; width: 100%\">\n<svg aria-hidden=\"true\" data-mol-id=\"file-icon-document\" fill=\"none\" height=\"48\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.75\" viewbox=\"0 0 24 24\" width=\"48\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z\">\n</path>\n<path d=\"M14 3v6h6\">\n</path>\n</svg>\n</div>\n<div class=\"c445db9b9 c7f74399a\" data-mol-id=\"file-card-name\" style=\"overflow: hidden; text-overflow: ellipsis; white-space: nowrap\">\nQ3-report.pdf\n</div>\n<div class=\"c1e8176ab c42740ba6 c4647f690 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"file-card-meta\">\n<span aria-label=\"Size 471 KB\" data-mol-id=\"file-card-size\">\n471 KB\n</span>\n<span aria-hidden=\"true\">\n·\n</span>\n<span aria-label=\"Modified 5 min ago\" data-mol-id=\"file-card-modified\">\n5 min ago\n</span>\n</div>\n<button aria-label=\"Q3-report.pdf, Document\" aria-pressed=\"false\" class=\"c0dd268bc c13d4ff0f c63a6bab3\" data-mol-id=\"file-card-select\" style=\"background: transparent; border: medium; padding: 0px\" type=\"button\">\n</button>\n</div>\n@route /",
+     "<div aria-label=\"Q3-report.pdf, Document\" class=\"c2cbb8333 c9866e6d5 c9cd623cf cbaac6b89 ccae02ff2 cfc82911d\" data-mol-id=\"file-card-f-1\" data-selected=\"true\" role=\"group\">\n<div class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"file-card-icon\" style=\"aspect-ratio: 1 / 1; width: 100%\">\n<svg aria-hidden=\"true\" data-mol-id=\"file-icon-document\" fill=\"none\" height=\"48\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.75\" viewbox=\"0 0 24 24\" width=\"48\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z\">\n</path>\n<path d=\"M14 3v6h6\">\n</path>\n</svg>\n</div>\n<div class=\"c445db9b9 c7f74399a\" data-mol-id=\"file-card-name\" style=\"overflow: hidden; text-overflow: ellipsis; white-space: nowrap\">\nQ3-report.pdf\n</div>\n<div class=\"c1e8176ab c42740ba6 c4647f690 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"file-card-meta\">\n<span aria-label=\"Size 471 KB\" data-mol-id=\"file-card-size\">\n471 KB\n</span>\n<span aria-hidden=\"true\">\n·\n</span>\n<span aria-label=\"Modified 5 min ago\" data-mol-id=\"file-card-modified\">\n5 min ago\n</span>\n</div>\n<button aria-label=\"Q3-report.pdf, Document\" aria-pressed=\"true\" class=\"c0dd268bc c13d4ff0f c63a6bab3\" data-mol-id=\"file-card-select\" style=\"background: transparent; border: medium; padding: 0px\" type=\"button\">\n</button>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "swapping the file re-renders": {
+    "snapshots": [
+     "<div aria-label=\"Q3-report.pdf, Document\" class=\"c2cbb8333 c9866e6d5 c9cd623cf cbaac6b89 ccae02ff2\" data-mol-id=\"file-card-f-1\" role=\"group\">\n<div class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"file-card-icon\" style=\"aspect-ratio: 1 / 1; width: 100%\">\n<svg aria-hidden=\"true\" data-mol-id=\"file-icon-document\" fill=\"none\" height=\"48\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.75\" viewbox=\"0 0 24 24\" width=\"48\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z\">\n</path>\n<path d=\"M14 3v6h6\">\n</path>\n</svg>\n</div>\n<div class=\"c445db9b9 c7f74399a\" data-mol-id=\"file-card-name\" style=\"overflow: hidden; text-overflow: ellipsis; white-space: nowrap\">\nQ3-report.pdf\n</div>\n<div class=\"c1e8176ab c42740ba6 c4647f690 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"file-card-meta\">\n<span aria-label=\"Size 471 KB\" data-mol-id=\"file-card-size\">\n471 KB\n</span>\n<span aria-hidden=\"true\">\n·\n</span>\n<span aria-label=\"Modified 5 min ago\" data-mol-id=\"file-card-modified\">\n5 min ago\n</span>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"photo.jpg, Image file\" class=\"c2cbb8333 c9866e6d5 c9cd623cf cbaac6b89 ccae02ff2\" data-mol-id=\"file-card-f-2\" role=\"group\">\n<div class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"file-card-icon\" style=\"aspect-ratio: 1 / 1; width: 100%\">\n<svg aria-hidden=\"true\" data-mol-id=\"file-icon-image\" fill=\"none\" height=\"48\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.75\" viewbox=\"0 0 24 24\" width=\"48\" xmlns=\"http://www.w3.org/2000/svg\">\n<rect height=\"14\" rx=\"2\" width=\"18\" x=\"3\" y=\"5\">\n</rect>\n<circle cx=\"8.5\" cy=\"10.5\" r=\"1.5\">\n</circle>\n<path d=\"m21 15-5-5L5 21\">\n</path>\n</svg>\n</div>\n<div class=\"c445db9b9 c7f74399a\" data-mol-id=\"file-card-name\" style=\"overflow: hidden; text-overflow: ellipsis; white-space: nowrap\">\nphoto.jpg\n</div>\n<div class=\"c1e8176ab c42740ba6 c4647f690 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"file-card-meta\">\n<span aria-label=\"Size 2 KB\" data-mol-id=\"file-card-size\">\n2 KB\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "removing className re-renders": {
+    "snapshots": [
+     "<div aria-label=\"Q3-report.pdf, Document\" class=\"c2cbb8333 c9866e6d5 c9cd623cf cbaac6b89 ccae02ff2 cd75bbd18\" data-mol-id=\"file-card-f-1\" role=\"group\">\n<div class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"file-card-icon\" style=\"aspect-ratio: 1 / 1; width: 100%\">\n<svg aria-hidden=\"true\" data-mol-id=\"file-icon-document\" fill=\"none\" height=\"48\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.75\" viewbox=\"0 0 24 24\" width=\"48\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z\">\n</path>\n<path d=\"M14 3v6h6\">\n</path>\n</svg>\n</div>\n<div class=\"c445db9b9 c7f74399a\" data-mol-id=\"file-card-name\" style=\"overflow: hidden; text-overflow: ellipsis; white-space: nowrap\">\nQ3-report.pdf\n</div>\n<div class=\"c1e8176ab c42740ba6 c4647f690 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"file-card-meta\">\n<span aria-label=\"Size 471 KB\" data-mol-id=\"file-card-size\">\n471 KB\n</span>\n<span aria-hidden=\"true\">\n·\n</span>\n<span aria-label=\"Modified 5 min ago\" data-mol-id=\"file-card-modified\">\n5 min ago\n</span>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Q3-report.pdf, Document\" class=\"c2cbb8333 c9866e6d5 c9cd623cf cbaac6b89 ccae02ff2\" data-mol-id=\"file-card-f-1\" role=\"group\">\n<div class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"file-card-icon\" style=\"aspect-ratio: 1 / 1; width: 100%\">\n<svg aria-hidden=\"true\" data-mol-id=\"file-icon-document\" fill=\"none\" height=\"48\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.75\" viewbox=\"0 0 24 24\" width=\"48\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z\">\n</path>\n<path d=\"M14 3v6h6\">\n</path>\n</svg>\n</div>\n<div class=\"c445db9b9 c7f74399a\" data-mol-id=\"file-card-name\" style=\"overflow: hidden; text-overflow: ellipsis; white-space: nowrap\">\nQ3-report.pdf\n</div>\n<div class=\"c1e8176ab c42740ba6 c4647f690 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"file-card-meta\">\n<span aria-label=\"Size 471 KB\" data-mol-id=\"file-card-size\">\n471 KB\n</span>\n<span aria-hidden=\"true\">\n·\n</span>\n<span aria-label=\"Modified 5 min ago\" data-mol-id=\"file-card-modified\">\n5 min ago\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "grid tile with defaults, then a locale switch": {
+    "snapshots": [
+     "<div aria-label=\"Q3-report.pdf, Document\" class=\"c2cbb8333 c9866e6d5 c9cd623cf cbaac6b89 ccae02ff2\" data-mol-id=\"file-card-f-1\" role=\"group\">\n<div class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"file-card-icon\" style=\"aspect-ratio: 1 / 1; width: 100%\">\n<svg aria-hidden=\"true\" data-mol-id=\"file-icon-document\" fill=\"none\" height=\"48\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.75\" viewbox=\"0 0 24 24\" width=\"48\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z\">\n</path>\n<path d=\"M14 3v6h6\">\n</path>\n</svg>\n</div>\n<div class=\"c445db9b9 c7f74399a\" data-mol-id=\"file-card-name\" style=\"overflow: hidden; text-overflow: ellipsis; white-space: nowrap\">\nQ3-report.pdf\n</div>\n<div class=\"c1e8176ab c42740ba6 c4647f690 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"file-card-meta\">\n<span aria-label=\"Size 471 KB\" data-mol-id=\"file-card-size\">\n471 KB\n</span>\n<span aria-hidden=\"true\">\n·\n</span>\n<span aria-label=\"Modified 5 min ago\" data-mol-id=\"file-card-modified\">\n5 min ago\n</span>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"⟦Q3-report.pdf, ⟦Document⟧⟧\" class=\"c2cbb8333 c9866e6d5 c9cd623cf cbaac6b89 ccae02ff2\" data-mol-id=\"file-card-f-1\" role=\"group\">\n<div class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"file-card-icon\" style=\"aspect-ratio: 1 / 1; width: 100%\">\n<svg aria-hidden=\"true\" data-mol-id=\"file-icon-document\" fill=\"none\" height=\"48\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.75\" viewbox=\"0 0 24 24\" width=\"48\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z\">\n</path>\n<path d=\"M14 3v6h6\">\n</path>\n</svg>\n</div>\n<div class=\"c445db9b9 c7f74399a\" data-mol-id=\"file-card-name\" style=\"overflow: hidden; text-overflow: ellipsis; white-space: nowrap\">\nQ3-report.pdf\n</div>\n<div class=\"c1e8176ab c42740ba6 c4647f690 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"file-card-meta\">\n<span aria-label=\"⟦Size ⟦471 KB⟧⟧\" data-mol-id=\"file-card-size\">\n⟦471 KB⟧\n</span>\n<span aria-hidden=\"true\">\n·\n</span>\n<span aria-label=\"⟦Modified ⟦5 min ago⟧⟧\" data-mol-id=\"file-card-modified\">\n⟦5 min ago⟧\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   }
+  },
+  "FileIcon": {
+   "defaults to 24px and hides from assistive tech": {
+    "snapshots": [
+     "<svg aria-hidden=\"true\" data-mol-id=\"file-icon-image\" fill=\"none\" height=\"24\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.75\" viewbox=\"0 0 24 24\" width=\"24\" xmlns=\"http://www.w3.org/2000/svg\">\n<rect height=\"14\" rx=\"2\" width=\"18\" x=\"3\" y=\"5\">\n</rect>\n<circle cx=\"8.5\" cy=\"10.5\" r=\"1.5\">\n</circle>\n<path d=\"m21 15-5-5L5 21\">\n</path>\n</svg>\n@route /"
+    ],
+    "calls": []
+   },
+   "video glyph": {
+    "snapshots": [
+     "<svg aria-hidden=\"true\" data-mol-id=\"file-icon-video\" fill=\"none\" height=\"24\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.75\" viewbox=\"0 0 24 24\" width=\"24\" xmlns=\"http://www.w3.org/2000/svg\">\n<rect height=\"14\" rx=\"2\" width=\"18\" x=\"3\" y=\"5\">\n</rect>\n<path d=\"m10 9 5 3-5 3z\" fill=\"currentColor\">\n</path>\n</svg>\n@route /"
+    ],
+    "calls": []
+   },
+   "audio glyph": {
+    "snapshots": [
+     "<svg aria-hidden=\"true\" data-mol-id=\"file-icon-audio\" fill=\"none\" height=\"24\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.75\" viewbox=\"0 0 24 24\" width=\"24\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M9 18V5l12-2v13\">\n</path>\n<circle cx=\"6\" cy=\"18\" r=\"3\">\n</circle>\n<circle cx=\"18\" cy=\"16\" r=\"3\">\n</circle>\n</svg>\n@route /"
+    ],
+    "calls": []
+   },
+   "document glyph": {
+    "snapshots": [
+     "<svg aria-hidden=\"true\" data-mol-id=\"file-icon-document\" fill=\"none\" height=\"24\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.75\" viewbox=\"0 0 24 24\" width=\"24\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z\">\n</path>\n<path d=\"M14 3v6h6\">\n</path>\n</svg>\n@route /"
+    ],
+    "calls": []
+   },
+   "archive glyph": {
+    "snapshots": [
+     "<svg aria-hidden=\"true\" data-mol-id=\"file-icon-archive\" fill=\"none\" height=\"24\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.75\" viewbox=\"0 0 24 24\" width=\"24\" xmlns=\"http://www.w3.org/2000/svg\">\n<rect height=\"6\" rx=\"1\" width=\"18\" x=\"3\" y=\"3\">\n</rect>\n<path d=\"M3 9v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9\">\n</path>\n<path d=\"M10 13h4\">\n</path>\n</svg>\n@route /"
+    ],
+    "calls": []
+   },
+   "code glyph": {
+    "snapshots": [
+     "<svg aria-hidden=\"true\" data-mol-id=\"file-icon-code\" fill=\"none\" height=\"24\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.75\" viewbox=\"0 0 24 24\" width=\"24\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"m9 8-5 4 5 4\">\n</path>\n<path d=\"m15 8 5 4-5 4\">\n</path>\n<path d=\"m13 5-2 14\">\n</path>\n</svg>\n@route /"
+    ],
+    "calls": []
+   },
+   "folder glyph": {
+    "snapshots": [
+     "<svg aria-hidden=\"true\" data-mol-id=\"file-icon-folder\" fill=\"none\" height=\"24\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.75\" viewbox=\"0 0 24 24\" width=\"24\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\">\n</path>\n</svg>\n@route /"
+    ],
+    "calls": []
+   },
+   "other glyph": {
+    "snapshots": [
+     "<svg aria-hidden=\"true\" data-mol-id=\"file-icon-other\" fill=\"none\" height=\"24\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.75\" viewbox=\"0 0 24 24\" width=\"24\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z\">\n</path>\n<path d=\"M14 3v6h6\">\n</path>\n<path d=\"M9 14h6\">\n</path>\n<path d=\"M9 17h4\">\n</path>\n</svg>\n@route /"
+    ],
+    "calls": []
+   },
+   "a custom size": {
+    "snapshots": [
+     "<svg aria-hidden=\"true\" data-mol-id=\"file-icon-folder\" fill=\"none\" height=\"48\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.75\" viewbox=\"0 0 24 24\" width=\"48\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\">\n</path>\n</svg>\n@route /"
+    ],
+    "calls": []
+   },
+   "an aria label names the icon": {
+    "snapshots": [
+     "<svg aria-label=\"Voice memo\" data-mol-id=\"file-icon-audio\" fill=\"none\" height=\"24\" role=\"img\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.75\" viewbox=\"0 0 24 24\" width=\"24\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M9 18V5l12-2v13\">\n</path>\n<circle cx=\"6\" cy=\"18\" r=\"3\">\n</circle>\n<circle cx=\"18\" cy=\"16\" r=\"3\">\n</circle>\n</svg>\n@route /"
+    ],
+    "calls": []
+   },
+   "defaults to 24px and hides from assistive tech, then a locale switch": {
+    "snapshots": [
+     "<svg aria-hidden=\"true\" data-mol-id=\"file-icon-image\" fill=\"none\" height=\"24\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.75\" viewbox=\"0 0 24 24\" width=\"24\" xmlns=\"http://www.w3.org/2000/svg\">\n<rect height=\"14\" rx=\"2\" width=\"18\" x=\"3\" y=\"5\">\n</rect>\n<circle cx=\"8.5\" cy=\"10.5\" r=\"1.5\">\n</circle>\n<path d=\"m21 15-5-5L5 21\">\n</path>\n</svg>\n@route /",
+     "<svg aria-hidden=\"true\" data-mol-id=\"file-icon-image\" fill=\"none\" height=\"24\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.75\" viewbox=\"0 0 24 24\" width=\"24\" xmlns=\"http://www.w3.org/2000/svg\">\n<rect height=\"14\" rx=\"2\" width=\"18\" x=\"3\" y=\"5\">\n</rect>\n<circle cx=\"8.5\" cy=\"10.5\" r=\"1.5\">\n</circle>\n<path d=\"m21 15-5-5L5 21\">\n</path>\n</svg>\n@route /"
+    ],
+    "calls": []
+   }
+  }
+ }
+}

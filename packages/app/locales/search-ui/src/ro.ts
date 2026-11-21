@@ -14,4 +14,8 @@ export const ro: Partial<SearchUiTranslations> = {
   'searchUi.relatedTitle': 'Se potrivește cu sensul căutării tale, nu cu cuvintele acesteia',
   'searchUi.related': 'înrudit',
   'searchUi.help': 'Sfaturi de căutare',
+  'searchUi.examplePhrase': '"frază exactă"',
+  'searchUi.exampleExcluded': '-cuvânt',
+  'searchUi.activeResult': '{{title}}, {{position}} din {{count}}',
+  'searchUi.dialogLabel': 'Căutare',
 }

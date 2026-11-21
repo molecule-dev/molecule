@@ -17,7 +17,8 @@
  */
 
 import { existsSync, readdirSync } from 'node:fs'
-import { join } from 'node:path'
+import { dirname, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 
 import '../ui/setup.js'
 import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -26,7 +27,7 @@ import * as ReactBindings from '@molecule/app-react'
 import * as ReactUI from '@molecule/app-ui-react'
 
 import { type HookCaseResult, runHookCase } from '../bindings/index.js'
-import { featureCaseFileNames, loadFeatureCases } from '../features/all.js'
+import { assertBuiltFromSource } from '../build-freshness.js'
 import {
   FEATURE_GOLDENS_DIR,
   FEATURE_GOLDENS_INDEX,
@@ -36,6 +37,7 @@ import {
   featureCasesName,
   type FeatureGoldens,
   featureGoldensFile,
+  featureGoldensGroups,
   featurePartProblems,
   featureValue,
   loadFeatureGoldens,
@@ -45,6 +47,7 @@ import {
   writeFeatureGoldensAt,
   writeFeatureReadableGoldens,
 } from '../features/index.js'
+import { featureCaseFileNames, loadFeatureCases } from '../features/load.js'
 import { watchConformanceEventLoop } from '../stall-watchdog-vitest.js'
 import { caseExports, type CaseResult, onlyFromEnv, writePixelCapture } from '../ui/index.js'
 import { createReactAdapter } from './react-adapter.js'
@@ -94,6 +97,17 @@ const featureCases: Record<string, FeatureCases> = Object.fromEntries(
   )
     .sort((a, b) => a.package.localeCompare(b.package))
     .map((feature) => [feature.package, featureCaseSet(feature)]),
+)
+
+// A recording reads each package's dist/: refuse one older than its source.
+assertBuiltFromSource(
+  [
+    ...Object.keys(featureCases),
+    ...Object.values(featureCases).flatMap((f) => Object.values(f.shared ?? {})),
+    '@molecule/app-react',
+    '@molecule/app-ui-react',
+  ],
+  dirname(fileURLToPath(import.meta.url)),
 )
 
 /** Each React feature package, by name. */
@@ -337,7 +351,11 @@ afterAll(() => {
     // A package without hook cases records no `hooks` key.
     for (const golden of [recorded[name]!, recordedReadable[name]!])
       if (golden.hooks && Object.keys(golden.hooks).length === 0) delete golden.hooks
-    const form = { perComponent: feature.goldensPerComponent === true, components: COMPONENTS }
+    const form = {
+      perComponent: feature.goldensPerComponent === true,
+      components: COMPONENTS,
+      groups: featureGoldensGroups(feature),
+    }
     if (OUT) {
       const base = join(OUT, featureCasesName(name))
       writeFeatureGoldensAt(`${base}.json`, base, recorded[name]!, { ...form, indent: 1 })

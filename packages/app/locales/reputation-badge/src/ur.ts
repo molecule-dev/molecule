@@ -9,6 +9,7 @@ export const ur: ReputationBadgeTranslations = {
   'reputationBadge.level.trusted': 'قابل اعتماد',
   'reputationBadge.level.veteran': 'تجربہ کار',
   'reputationBadge.level.legend': 'لیجنڈ',
+  'reputationBadge.level.fallback': '{{level}}',
   'badgeShelf.aria': '{{count}} بیجز حاصل کیے',
   'badgeShelf.overflow.aria': '{{count}} مزید بیجز دکھائیں',
 }

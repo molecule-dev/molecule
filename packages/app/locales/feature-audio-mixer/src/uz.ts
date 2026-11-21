@@ -8,6 +8,8 @@ export const uz: Partial<AudioMixerTranslations> = {
   'audioMixer.aria.send': '{{channel}} yuborish {{send}}',
   'audioMixer.button.mute': 'Ovozsiz',
   'audioMixer.button.solo': 'Yakkaxon',
+  'audioMixer.button.muteInitial': 'O',
+  'audioMixer.button.soloInitial': 'Y',
   'audioMixer.master': 'Usta',
   'audioMixer.sends': 'Yuboradi',
 }

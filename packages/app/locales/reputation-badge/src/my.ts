@@ -9,6 +9,7 @@ export const my: ReputationBadgeTranslations = {
   'reputationBadge.level.trusted': 'ယုံကြည်ရသော',
   'reputationBadge.level.veteran': 'အတွေ့အကြုံရှိသူ',
   'reputationBadge.level.legend': 'ဒဏ္ဍာရီ',
+  'reputationBadge.level.fallback': '{{level}}',
   'badgeShelf.aria': '{{count}} တံဆိပ် ရရှိ',
   'badgeShelf.overflow.aria': 'နောက်ထပ် {{count}} တံဆိပ် ပြရန်',
 }

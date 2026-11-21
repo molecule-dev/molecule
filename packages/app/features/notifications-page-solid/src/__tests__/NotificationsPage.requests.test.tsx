@@ -138,7 +138,9 @@ async function renderPage(client: HttpClient, props: NotificationsPageProps = {}
   document.body.appendChild(container)
   const router = createMemoryRouter({ initialEntries: ['/'] })
   const Wrapper = (inner: ParentProps): JSX.Element => (
-    <MoleculeProvider config={{ http: client, router }}>{inner.children}</MoleculeProvider>
+    <MoleculeProvider http={client} router={router}>
+      {inner.children}
+    </MoleculeProvider>
   )
   const dispose = render(
     () => (

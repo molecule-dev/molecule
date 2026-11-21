@@ -8,4 +8,7 @@ export const mn: Partial<VideoCallControlsTranslations> = {
   'call.cameraOff': '🚫',
   'call.share': '🖥',
   'call.leave': 'Явах',
+  'call.aria.muted': 'Дуугүй',
+  'call.aria.handRaised': 'Гар өргөсөн',
+  'call.label.you': '(та)',
 }

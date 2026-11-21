@@ -49,4 +49,5 @@ export const mr: Partial<AudioEffectsRackTranslations> = {
   'audioEffectsRack.param.phaser.rate': 'दर',
   'audioEffectsRack.param.phaser.depth': 'खोली',
   'audioEffectsRack.param.phaser.feedback': 'अभिप्राय',
+  'audioEffectsRack.param.fallback': 'पॅरामीटर',
 }

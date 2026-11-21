@@ -15,4 +15,8 @@ export const fil: Partial<SearchUiTranslations> = {
   'searchUi.relatedTitle': 'Tumutugma sa kahulugan ng iyong paghahanap, hindi sa mga salita nito',
   'searchUi.related': 'kaugnay',
   'searchUi.help': 'Mga tip sa paghahanap',
+  'searchUi.examplePhrase': '"eksaktong parirala"',
+  'searchUi.exampleExcluded': '-salita',
+  'searchUi.activeResult': '{{title}}, {{position}} ng {{count}}',
+  'searchUi.dialogLabel': 'Maghanap',
 }

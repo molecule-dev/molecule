@@ -14,7 +14,10 @@ export interface ImageGalleryProps {
   onSelect?: (index: number) => void
   /** Max thumbnails shown. Extra are summarised as "+N". */
   maxThumbnails?: number
-  /** Alt-text for screen readers. Applied per-image; falls back to `'Image N'`. */
+  /**
+   * Alt-text for screen readers. Applied per-image; falls back through i18n to
+   * `'Image {{number}}'` (`imageGallery.alt.fallback`).
+   */
   alts?: string[]
   /** Extra classes on the outer wrapper. */
   className?: string

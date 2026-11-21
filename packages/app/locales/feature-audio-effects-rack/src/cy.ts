@@ -49,4 +49,5 @@ export const cy: Partial<AudioEffectsRackTranslations> = {
   'audioEffectsRack.param.phaser.rate': 'Cyfradd',
   'audioEffectsRack.param.phaser.depth': 'Dyfnder',
   'audioEffectsRack.param.phaser.feedback': 'Adborth',
+  'audioEffectsRack.param.fallback': 'Paramedr',
 }

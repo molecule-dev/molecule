@@ -15,4 +15,8 @@ export const mk: Partial<SearchUiTranslations> = {
     'Се совпаѓа со значењето на вашето пребарување, а не со неговите зборови',
   'searchUi.related': 'поврзано',
   'searchUi.help': 'Совети за пребарување',
+  'searchUi.examplePhrase': '"точна фраза"',
+  'searchUi.exampleExcluded': '-збор',
+  'searchUi.activeResult': '{{title}}, {{position}} од {{count}}',
+  'searchUi.dialogLabel': 'Пребарај',
 }

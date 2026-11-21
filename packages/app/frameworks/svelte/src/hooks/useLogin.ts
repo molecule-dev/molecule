@@ -13,7 +13,7 @@ import { promiseFields } from './live-store.js'
 import { usePromise, type UsePromiseState, type UsePromiseStore } from './usePromise.js'
 
 /** What {@link useLogin} returns: the promise state's value fields as stores plus the action. */
-export interface UseLoginResult<T = unknown> {
+export interface UseLoginReturn<T = unknown> {
   /** The latest call's status. */
   status: Readable<UsePromiseState<AuthResult<T>>['status']>
   /** The latest call's resolved value. */
@@ -25,6 +25,13 @@ export interface UseLoginResult<T = unknown> {
   /** Returns the tracker to idle. */
   reset: () => void
 }
+
+/**
+ * The former name of {@link UseLoginReturn}.
+ *
+ * @deprecated Renamed to {@link UseLoginReturn}, `@molecule/app-react`'s name for it.
+ */
+export type UseLoginResult<T = unknown> = UseLoginReturn<T>
 
 /**
  * Login with async state tracking, React's `useLogin` in Svelte's idiom:
@@ -50,7 +57,7 @@ export interface UseLoginResult<T = unknown> {
  * {#if $error}<p>{$error.message}</p>{/if}
  * ```
  */
-export function useLogin<T = unknown>(): UseLoginResult<T> {
+export function useLogin<T = unknown>(): UseLoginReturn<T> {
   const client = useAuthClient<T>()
   const tracker: UsePromiseStore<AuthResult<T>, [LoginCredentials]> = usePromise((credentials) =>
     client.login(credentials),

@@ -8,4 +8,7 @@ export const ro: Partial<VideoCallControlsTranslations> = {
   'call.cameraOff': '🚫',
   'call.share': '🖥',
   'call.leave': 'Pleacă',
+  'call.aria.muted': 'Fără sunet',
+  'call.aria.handRaised': 'Mână ridicată',
+  'call.label.you': '(tu)',
 }

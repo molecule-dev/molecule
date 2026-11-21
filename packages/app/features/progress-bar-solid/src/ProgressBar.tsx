@@ -1,5 +1,6 @@
-import type { Component } from 'solid-js'
+import { type Component, createUniqueId } from 'solid-js'
 
+import { useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { ProgressBarProps } from './types.js'
@@ -15,6 +16,11 @@ const fillPercent = (value: number, max: number): number =>
  * itself uses the wired ClassMap progress tokens — swap the ClassMap bond
  * to restyle without touching this component.
  *
+ * The track always carries an accessible name (`aria-progressbar-name`):
+ * `labelledBy` when given, else the rendered `label`, else
+ * `t('progressBar.label', undefined, { defaultValue: 'Progress' })`, read
+ * through `useTranslation()` so it follows a locale switch.
+ *
  * This is the Solid counterpart of `@molecule/app-progress-bar-react`: the
  * same props (React names), the same ClassMap tokens, and the same DOM for
  * the same input.
@@ -24,16 +30,25 @@ const fillPercent = (value: number, max: number): number =>
  */
 export const ProgressBar: Component<ProgressBarProps> = (props) => {
   const cm = getClassMap()
+  const { t } = useTranslation()
+  const nameId = createUniqueId()
   const max = (): number => props.max ?? 100
   const size = (): 'sm' | 'md' | 'lg' => props.size ?? 'md'
   const color = (): 'primary' | 'success' | 'warning' | 'error' | 'info' => props.color ?? 'primary'
+  // The rendered label is the track's name unless an explicit labelledBy wins.
+  const namedByLabel = (): boolean => props.labelledBy === undefined && !!props.label
 
   return (
     <div class={cm.cn(cm.stack(2), props.className)}>
       {(props.label || props.valueLabel) && (
         <div class={cm.flex({ justify: 'between', align: 'center' })}>
           {props.label && (
-            <span class={cm.cn(cm.textSize('sm'), cm.fontWeight('medium'))}>{props.label}</span>
+            <span
+              id={namedByLabel() ? nameId : undefined}
+              class={cm.cn(cm.textSize('sm'), cm.fontWeight('medium'))}
+            >
+              {props.label}
+            </span>
           )}
           {props.valueLabel && <span class={cm.textSize('sm')}>{props.valueLabel}</span>}
         </div>
@@ -44,6 +59,13 @@ export const ProgressBar: Component<ProgressBarProps> = (props) => {
         aria-valuenow={props.value}
         aria-valuemin={0}
         aria-valuemax={max()}
+        aria-labelledby={props.labelledBy ?? (namedByLabel() ? nameId : undefined)}
+        aria-label={
+          props.labelledBy === undefined && !props.label
+            ? t('progressBar.label', undefined, { defaultValue: 'Progress' })
+            : undefined
+        }
+        aria-describedby={props.describedBy}
       >
         <div
           class={cm.cn(cm.progressBar(), cm.progressColor(color()))}

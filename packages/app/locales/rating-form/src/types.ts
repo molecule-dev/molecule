@@ -1,6 +1,7 @@
 /** Translation keys for the rating-form locale package. */
 export type RatingFormTranslationKey =
   | 'rating.label'
+  | 'rating.comment'
   | 'rating.commentPlaceholder'
   | 'rating.submitting'
   | 'rating.submit'

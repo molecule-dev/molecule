@@ -9,7 +9,14 @@
  */
 
 import '@molecule/app-framework-conformance/ui/setup'
-import { createRawSnippet, flushSync, mount, type Snippet, unmount } from 'svelte'
+import {
+  type ComponentProps,
+  createRawSnippet,
+  flushSync,
+  mount,
+  type Snippet,
+  unmount,
+} from 'svelte'
 import { afterEach, describe, expect, it } from 'vitest'
 
 import PriceRangeSlider from '../PriceRangeSlider.svelte'
@@ -23,7 +30,7 @@ const raw = (html: string): Snippet => createRawSnippet(() => ({ render: () => h
  * @param props - The slider props.
  * @returns The markup it produced.
  */
-function render(props: Record<string, unknown>): string {
+function render(props: ComponentProps<typeof PriceRangeSlider>): string {
   const target = document.createElement('div')
   document.body.appendChild(target)
   const instance = mount(PriceRangeSlider, { target, props })

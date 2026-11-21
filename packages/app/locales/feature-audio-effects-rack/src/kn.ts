@@ -49,4 +49,5 @@ export const kn: Partial<AudioEffectsRackTranslations> = {
   'audioEffectsRack.param.phaser.rate': 'ದರ',
   'audioEffectsRack.param.phaser.depth': 'ಆಳ',
   'audioEffectsRack.param.phaser.feedback': 'ಪ್ರತಿಕ್ರಿಯೆ',
+  'audioEffectsRack.param.fallback': 'ಪ್ಯಾರಾಮೀಟರ್',
 }

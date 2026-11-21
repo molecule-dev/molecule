@@ -2,9 +2,10 @@ import type { RatingFormTranslations } from './types.js'
 
 /** RatingForm translations for vi. */
 export const vi: Partial<RatingFormTranslations> = {
-  'rating.star': '{{n}} of {{max}}',
+  'rating.star': '{{n}} trên {{max}}',
   'rating.label': 'Đánh giá',
   'rating.submitting': 'Đang gửi…',
   'rating.submit': 'Gửi đánh giá',
   'rating.commentPlaceholder': 'Hãy chia sẻ suy nghĩ của bạn (tùy chọn)',
+  'rating.comment': 'Nhận xét',
 }

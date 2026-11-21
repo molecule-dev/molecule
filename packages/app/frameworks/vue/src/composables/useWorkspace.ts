@@ -10,7 +10,7 @@ import { t } from '@molecule/app-i18n'
 import type { PanelId, WorkspaceProvider, WorkspaceState } from '@molecule/app-ide'
 
 import { WorkspaceKey } from '../injection-keys.js'
-import type { UseWorkspaceReturn } from '../types.js'
+import type { UseWorkspaceResult } from '../types.js'
 import { subscribeExternalSnapshot } from './external-snapshot.js'
 
 /**
@@ -55,7 +55,7 @@ export function useWorkspaceProvider(): WorkspaceProvider {
  * </template>
  * ```
  */
-export function useWorkspace(): UseWorkspaceReturn {
+export function useWorkspace(): UseWorkspaceResult {
   const provider = useWorkspaceProvider()
   // The lightweight cache React keeps: with getState the provider answers the
   // same object until it changes; without it the synthesized state is reused

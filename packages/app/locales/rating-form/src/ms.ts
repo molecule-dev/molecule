@@ -3,8 +3,9 @@ import type { RatingFormTranslations } from './types.js'
 /** RatingForm translations for ms. */
 export const ms: Partial<RatingFormTranslations> = {
   'rating.submitting': 'Menghantar…',
-  'rating.star': '{{n}} of {{max}}',
+  'rating.star': '{{n}} daripada {{max}}',
   'rating.label': 'Penilaian',
   'rating.commentPlaceholder': 'Kongsikan pendapat anda (pilihan)',
   'rating.submit': 'Hantar ulasan',
+  'rating.comment': 'Komen',
 }

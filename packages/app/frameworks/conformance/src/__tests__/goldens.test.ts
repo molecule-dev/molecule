@@ -23,6 +23,7 @@ import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from 'vites
 
 import * as ReactUI from '@molecule/app-ui-react'
 
+import { assertBuiltFromSource } from '../build-freshness.js'
 import { watchConformanceEventLoop } from '../stall-watchdog-vitest.js'
 import {
   caseExports,
@@ -48,6 +49,8 @@ if (RECORD && FILTER)
   throw new Error('RECORD_GOLDENS records every component; unset CONFORMANCE_COMPONENTS')
 const families = uiCaseFamilies.filter((f) => !FILTER || FILTER.includes(f.component))
 const here = dirname(fileURLToPath(import.meta.url))
+// A recording reads React's UI kit from its dist/: refuse one older than its source.
+assertBuiltFromSource(['@molecule/app-ui-react'], here)
 const GOLDENS_FILE = join(here, '..', 'ui', 'goldens.json')
 const READABLE_FILE = join(
   here,

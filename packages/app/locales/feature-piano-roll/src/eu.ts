@@ -9,4 +9,6 @@ export const eu: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.note':
     'Oharra {{pitch}} erritmoan hasita {{startBeat}}-rako {{durationBeats}} taupadak',
   'pianoRoll.aria.cursor': 'Kurtsorea {{pitch}} gainean, {{beat}} taupadan',
+  'pianoRoll.aria.gridHelp':
+    'Geiak gelako kurtsorea mugitzen dute, Enter edo Zuriunea kurtsorearen lekuan nota marrazten du.',
 }

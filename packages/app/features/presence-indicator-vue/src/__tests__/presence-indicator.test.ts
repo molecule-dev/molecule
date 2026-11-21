@@ -28,14 +28,15 @@ vi.mock('@molecule/app-ui', () => ({
               .join(' ')
         }
         const token = String(prop)
-        return (..._args: unknown[]) => token
+        return (...args: unknown[]) =>
+          args.length > 0 ? `${token}-${args.map(String).join('-')}` : token
       },
     }
     return new Proxy({}, handler)
   },
 }))
 
-import { createApp, defineComponent, h, type VNodeChild } from 'vue'
+import { type Component, createApp, defineComponent, h, type VNodeChild } from 'vue'
 
 import { AvatarWithPresence } from '../AvatarWithPresence.js'
 import { PresenceDot } from '../PresenceDot.js'
@@ -46,7 +47,7 @@ afterEach(() => {
 
 /** Renders one component and returns the markup it produced. */
 const render = (
-  component: unknown,
+  component: Component,
   props: Record<string, unknown>,
   slots?: Record<string, () => VNodeChild[]>,
 ): string => {
@@ -72,11 +73,14 @@ describe('PresenceDot', () => {
     expect(markup).toContain('aria-label="User is away"')
   })
 
-  it('colors the dot by status', () => {
-    expect(render(PresenceDot, { status: 'online' })).toContain('rgb(34, 197, 94)')
-    expect(render(PresenceDot, { status: 'away' })).toContain('rgb(234, 179, 8)')
-    expect(render(PresenceDot, { status: 'busy' })).toContain('rgb(239, 68, 68)')
-    expect(render(PresenceDot, { status: 'offline' })).toContain('rgb(148, 163, 184)')
+  it('colors the dot by status through theme tone classes, never a hardcoded hex', () => {
+    const online = render(PresenceDot, { status: 'online' })
+    expect(online).toContain('progressColor-success')
+    expect(render(PresenceDot, { status: 'away' })).toContain('progressColor-warning')
+    expect(render(PresenceDot, { status: 'busy' })).toContain('progressColor-error')
+    expect(render(PresenceDot, { status: 'offline' })).toContain('bgBorder')
+    expect(online).not.toMatch(/#[0-9a-fA-F]{3,8}\b/)
+    expect(online).not.toContain('background:')
   })
 
   it('positions absolutely at the given corner when position="overlay"', () => {

@@ -49,4 +49,5 @@ export const zu: Partial<AudioEffectsRackTranslations> = {
   'audioEffectsRack.param.phaser.rate': 'Isilinganiso',
   'audioEffectsRack.param.phaser.depth': 'Ukujula',
   'audioEffectsRack.param.phaser.feedback': 'Impendulo',
+  'audioEffectsRack.param.fallback': 'Ipharamitha',
 }

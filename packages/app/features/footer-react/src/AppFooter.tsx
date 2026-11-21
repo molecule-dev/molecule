@@ -5,6 +5,13 @@ import { useTranslation, useVersion } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Icon, Modal } from '@molecule/app-ui-react'
 
+/**
+ * The preloader `loadContent` takes: called immediately before the
+ * privacy/terms modals open, so an app can lazy-load its legal HTML into the
+ * i18n catalog. Only used when `legalMode === 'modal'`.
+ */
+export type AppFooterLoadContent = (key: 'privacyPolicy' | 'termsOfService') => Promise<void> | void
+
 /** Props for the AppFooter component. */
 export interface AppFooterProps {
   /** Display name interpolated into the "About {{appName}}" link. */
@@ -30,7 +37,7 @@ export interface AppFooterProps {
    * legal HTML pass `loadContent` from their config; apps that ship the
    * content statically can omit this.
    */
-  loadContent?: (key: 'privacyPolicy' | 'termsOfService') => Promise<void> | void
+  loadContent?: AppFooterLoadContent
   /** Path for the Privacy Policy route. Only used when `legalMode === 'route'`. Default: `/privacy`. */
   privacyTo?: string
   /** Path for the Terms of Service route. Only used when `legalMode === 'route'`. Default: `/terms`. */

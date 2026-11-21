@@ -11,7 +11,16 @@
  * @module
  */
 
-import { computed, defineComponent, h, type PropType, ref, type VNode, type VNodeChild } from 'vue'
+import {
+  computed,
+  defineComponent,
+  h,
+  type PropType,
+  ref,
+  useId,
+  type VNode,
+  type VNodeChild,
+} from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Modal } from '@molecule/app-ui-vue'
@@ -88,6 +97,11 @@ export const OnboardingModal = defineComponent({
   setup(props) {
     const cm = getClassMap()
     const { t } = useTranslation()
+    // Names the dialog after the current step's title (React's `useId()`): the
+    // h2's id, handed to `Modal` as `aria-labelledby` — a `role="dialog"`
+    // without an accessible name is an axe `aria-dialog-name` violation, and
+    // the name must follow the step.
+    const titleId = useId()
     // React's `useState(defaultStep)`: read once, then owned by the component.
     const step = ref(props.defaultStep)
 
@@ -132,7 +146,7 @@ export const OnboardingModal = defineComponent({
 
       return h(
         Modal,
-        { open: props.open, onClose: close },
+        { open: props.open, onClose: close, 'aria-labelledby': titleId },
         {
           default: () => [
             h('div', { class: cm.stack(4) }, [
@@ -145,7 +159,7 @@ export const OnboardingModal = defineComponent({
                 : null,
               h(
                 'h2',
-                { class: cm.cn(cm.textSize('xl'), cm.fontWeight('bold')) },
+                { id: titleId, class: cm.cn(cm.textSize('xl'), cm.fontWeight('bold')) },
                 nodesOf(shown.title),
               ),
               h('div', { class: cm.textSize('sm') }, nodesOf(shown.body)),

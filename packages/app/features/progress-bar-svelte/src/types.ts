@@ -17,6 +17,13 @@ export interface ProgressBarProps {
   label?: Snippet | string
   /** Optional value display on the right of the label row: a snippet, or a plain string. */
   valueLabel?: Snippet | string
+  /**
+   * Element id the track is named by (`aria-labelledby`). Wins over `label`
+   * and the default accessible name — `ProgressCard` points it at its title.
+   */
+  labelledBy?: string
+  /** Element id the track is described by (`aria-describedby`). */
+  describedBy?: string
   /** Size preset — maps to ClassMap `progressHeight`. */
   size?: 'sm' | 'md' | 'lg'
   /** Color variant — maps to ClassMap `progressColor`. */

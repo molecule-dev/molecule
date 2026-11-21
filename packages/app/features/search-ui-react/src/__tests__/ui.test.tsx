@@ -2,19 +2,32 @@ import { act, createElement } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 
+import { parseQuery } from '@molecule/app-client-search'
+import type { SearchSession } from '@molecule/app-client-search-react'
 import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
 
 vi.mock('@molecule/app-react', () => ({
   useTranslation: () => ({
-    t: (_key: string, values?: Record<string, unknown>, opts?: { defaultValue?: string }) =>
-      (opts?.defaultValue ?? _key).replace(/\{\{(\w+)\}\}/g, (_m, k) => String(values?.[k] ?? '')),
+    t: (key: string, values?: Record<string, unknown>, opts?: { defaultValue?: string }) =>
+      key === 'searchUi.examplePhrase' || key === 'searchUi.exampleExcluded'
+        ? `«${key}»`
+        : (opts?.defaultValue ?? key).replace(/\{\{(\w+)\}\}/g, (_m, k) =>
+            String(values?.[k] ?? ''),
+          ),
   }),
 }))
 vi.mock('@molecule/app-ui-react', () => ({
   Icon: ({ name }: { name: string }) => createElement('svg', { 'data-icon': name }),
-  Modal: ({ open, children }: { open: boolean; children: React.ReactNode }) =>
-    open ? createElement('div', { role: 'dialog' }, children) : null,
+  Modal: ({
+    open,
+    children,
+    'aria-label': ariaLabel,
+  }: {
+    open: boolean
+    children: React.ReactNode
+    'aria-label'?: string
+  }) => (open ? createElement('div', { role: 'dialog', 'aria-label': ariaLabel }, children) : null),
   Tooltip: ({ content, children }: { content: React.ReactNode; children: React.ReactNode }) =>
     createElement('span', null, children, createElement('span', { 'data-tooltip': '' }, content)),
 }))
@@ -23,6 +36,7 @@ const { SearchBox } = await import('../SearchBox.js')
 const { SearchResults } = await import('../SearchResults.js')
 const { QuickSearchDialog } = await import('../QuickSearchDialog.js')
 const { Highlight } = await import('../Highlight.js')
+const { Kbd } = await import('../Kbd.js')
 
 beforeAll(() => setClassMap(classMap))
 
@@ -97,14 +111,32 @@ describe('SearchBox', () => {
     expect(onClear).toHaveBeenCalled()
     expect(q('[data-mol-id="cat-tips"]')).toBeNull()
   })
+
+  it('takes the two built-in example tokens through i18n with their keys', () => {
+    render(
+      createElement(SearchBox, {
+        value: '',
+        onChange: vi.fn(),
+        placeholder: 'Search packages',
+        examples: ['category:auth'],
+        molId: 'cat',
+      }),
+    )
+    const tips = q('[data-tooltip]')?.textContent ?? ''
+    expect(tips).toContain('«searchUi.examplePhrase»')
+    expect(tips).toContain('«searchUi.exampleExcluded»')
+  })
 })
+
+/** The document the result tests index (a type alias, so it is a `ClientSearchDocument`). */
+type PackageDoc = { name: string; d: string }
 
 describe('SearchResults', () => {
   const hits = [
     { id: 'a', doc: { name: 'api-auth', d: 'Sign in and sessions' }, terms: ['auth'] },
     { id: 'b', doc: { name: 'app-auth', d: 'Client auth' }, terms: ['auth'], related: true },
   ]
-  const view = (doc: { name: string; d: string }) => ({
+  const view = (doc: PackageDoc) => ({
     href: `/packages/${doc.name}`,
     title: doc.name,
     description: doc.d,
@@ -117,7 +149,7 @@ describe('SearchResults', () => {
     const onActivate = vi.fn()
     const onPrefetch = vi.fn()
     render(
-      createElement(SearchResults, {
+      createElement(SearchResults<PackageDoc>, {
         hits,
         view,
         activeIndex: 1,
@@ -130,8 +162,15 @@ describe('SearchResults', () => {
     )
     const rows = container.querySelectorAll('[data-mol-id="cat-hit"]')
     expect(rows.length).toBe(2)
-    expect(rows[1].getAttribute('aria-selected')).toBe('true')
-    expect(rows[0].getAttribute('aria-selected')).toBe('false')
+    // The rows are a plain list of links: the active row is marked with
+    // aria-current (absent when inactive), and no option/listbox roles remain.
+    expect(rows[1].getAttribute('aria-current')).toBe('true')
+    expect(rows[0].getAttribute('aria-current')).toBeNull()
+    expect(container.querySelectorAll('[role="listbox"], [role="option"]')).toHaveLength(0)
+    expect(container.querySelectorAll('[aria-selected]')).toHaveLength(0)
+    // The active row is announced through the status region: title, position, count.
+    expect(q('[data-mol-id="cat-active"]')?.getAttribute('role')).toBe('status')
+    expect(q('[data-mol-id="cat-active"]')?.textContent).toBe('app-auth, 2 of 2')
     expect(container.querySelectorAll('mark').length).toBeGreaterThan(0)
     expect(q('[data-mol-id="cat-related"]')?.textContent).toBe('related')
     expect(rows[0].textContent).toContain('core · auth')
@@ -158,7 +197,7 @@ describe('SearchResults', () => {
       createElement('span', { 'data-custom': p.href }, p.children),
     )
     render(
-      createElement(SearchResults, {
+      createElement(SearchResults<PackageDoc>, {
         hits,
         view,
         activeIndex: -1,
@@ -168,9 +207,12 @@ describe('SearchResults', () => {
       }),
     )
     expect(container.querySelectorAll('[data-custom]').length).toBe(2)
+    // No row is active, so the status region is there but silent.
+    expect(q('[data-mol-id="search-active"]')?.getAttribute('role')).toBe('status')
+    expect(q('[data-mol-id="search-active"]')?.textContent).toBe('')
     act(() =>
       root!.render(
-        createElement(SearchResults, {
+        createElement(SearchResults<PackageDoc>, {
           hits: [],
           view,
           activeIndex: -1,
@@ -180,19 +222,25 @@ describe('SearchResults', () => {
       ),
     )
     expect(container.textContent).toBe('Nothing')
+    // The status region exists in the empty state too, so it is live before results arrive.
+    expect(q('[data-mol-id="search-active"]')?.getAttribute('role')).toBe('status')
+    expect(q('[data-mol-id="search-active"]')?.textContent).toBe('')
   })
 })
+
+/** The document the quick-search test indexes. */
+type QuickDoc = { name: string }
 
 describe('QuickSearchDialog', () => {
   it('moves focus into the field through its ref when it opens, and renders hits as anchors with content', () => {
     const inputRef = { current: null as HTMLInputElement | null }
-    const session = {
+    const session: SearchSession<QuickDoc> = {
       inputRef,
       query: 'auth',
       setQuery: () => {},
       clear: () => {},
-      parsed: { filters: [] },
-      hits: [{ id: 'a', doc: { name: 'api-auth' }, terms: ['auth'] }],
+      parsed: parseQuery('auth'),
+      hits: [{ id: 'a', score: 1, doc: { name: 'api-auth' }, terms: ['auth'], fields: ['name'] }],
       active: true,
       ranked: true,
       activeIndex: 0,
@@ -203,9 +251,9 @@ describe('QuickSearchDialog', () => {
       prefetch: () => {},
       focus: () => {},
     }
-    const view = (doc: { name: string }) => ({ href: `/packages/${doc.name}`, title: doc.name })
+    const view = (doc: QuickDoc) => ({ href: `/packages/${doc.name}`, title: doc.name })
     render(
-      createElement(QuickSearchDialog, {
+      createElement(QuickSearchDialog<QuickDoc>, {
         open: true,
         onClose: () => {},
         session,
@@ -215,9 +263,27 @@ describe('QuickSearchDialog', () => {
       }),
     )
     expect(q('[role="dialog"]')).not.toBeNull()
+    // The dialog is named for screen readers: "Search" by default, the
+    // caller's `label` when one is passed.
+    expect(q('[role="dialog"]')?.getAttribute('aria-label')).toBe('Search')
     expect(inputRef.current).toBe(q('[data-mol-id="quick-search-input"]'))
     expect(document.activeElement).toBe(inputRef.current)
     expect(q('[data-mol-id="quick-search-link"]')?.textContent).toBe('api-auth')
+
+    act(() =>
+      root!.render(
+        createElement(QuickSearchDialog<QuickDoc>, {
+          open: true,
+          onClose: () => {},
+          session,
+          view,
+          placeholder: 'Search packages',
+          emptyText: 'Nothing',
+          label: 'Find a package',
+        }),
+      ),
+    )
+    expect(q('[role="dialog"]')?.getAttribute('aria-label')).toBe('Find a package')
   })
 })
 
@@ -226,5 +292,12 @@ describe('Highlight', () => {
     render(createElement(Highlight, { text: 'User feedback', terms: ['feedback'] }))
     expect(container.innerHTML).toContain('<mark')
     expect(container.textContent).toBe('User feedback')
+  })
+})
+
+describe('Kbd', () => {
+  it('marks a key cap with translate="no" so a key name is never translated', () => {
+    render(createElement(Kbd, { children: 'esc' }))
+    expect(q('kbd')?.getAttribute('translate')).toBe('no')
   })
 })

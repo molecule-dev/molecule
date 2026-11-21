@@ -97,7 +97,6 @@ export function AnimationCanvas(props: AnimationCanvasProps): ReactElement {
   )
 
   const ariaLabel = t('animationCanvas.aria.canvas', {}, { defaultValue: 'Animation canvas' })
-  const ariaShape = t('animationCanvas.aria.shape', {}, { defaultValue: 'Animated shape' })
 
   const wrapperStyle: CSSProperties = {
     overflow: 'hidden',
@@ -129,7 +128,6 @@ export function AnimationCanvas(props: AnimationCanvasProps): ReactElement {
             data-shape-id={shape.id}
             transform={transform}
             opacity={shape.opacity}
-            aria-label={ariaShape}
           >
             <rect
               x={-size / 2}

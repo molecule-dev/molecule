@@ -15,4 +15,11 @@ export const nb: Partial<BillingTranslations> = {
   'billing.pricing.tierEyebrow': 'Nivå',
   'billing.pricing.perSeat': 'per sete',
   'billing.pricing.currentCta': 'Nåværende plan',
+  'billing.pricing.period.month': 'per måned',
+  'billing.pricing.period.year': 'per år',
+  'billing.pricing.billed.month': 'Faktureres månedlig',
+  'billing.pricing.billed.year': 'Faktureres årlig',
+  'billing.pricing.unlimited': 'Ubegrenset',
+  'billing.pricing.limit.maxProjects': 'Maks. antall prosjekter',
+  'billing.pricing.limit.canExport': 'Eksport tilgjengelig',
 }

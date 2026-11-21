@@ -8,4 +8,5 @@ export const en: NotificationCenterTranslations = {
   'notifications.viewAll': 'View all',
   'notifications.loadError': 'Could not load notifications.',
   'notifications.retry': 'Retry',
+  'notifications.unread': 'Unread',
 }

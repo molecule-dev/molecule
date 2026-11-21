@@ -42,17 +42,24 @@ const tree = (
   into: Slot,
   options: MountOptions,
 ): ReactElement =>
-  createElement(ReactBindings.MoleculeProvider, {
-    ...services,
-    awaitSession: false,
-    children:
-      options.render === 'text'
-        ? // A component export renders with args[0] as props; its string props are text slots.
-          createElement(exportsOf[hook] as (props: object) => ReactElement, {
-            ...(args[0] as object),
-          })
-        : createElement(Host, { fn: exportsOf[hook], args, into }),
-  })
+  options.render === 'root'
+    ? // The composition root itself, as an app mounts it: its own defaults, nothing around it.
+      // A root case's first argument is the provider's props, its children among them.
+      createElement(ReactBindings.MoleculeProvider, {
+        ...services,
+        ...(args[0] as ReactBindings.MoleculeProviderProps),
+      })
+    : createElement(ReactBindings.MoleculeProvider, {
+        ...services,
+        awaitSession: false,
+        children:
+          options.render === 'text'
+            ? // A component export renders with args[0] as props; its string props are text slots.
+              createElement(exportsOf[hook] as (props: object) => ReactElement, {
+                ...(args[0] as object),
+              })
+            : createElement(Host, { fn: exportsOf[hook], args, into }),
+      })
 
 /**
  * Builds a React binding adapter over an export map.
@@ -78,7 +85,7 @@ export function createReactBindingAdapter(exportsOf: Record<string, unknown>): B
         root.render(tree(exportsOf, hook, current, services, slot, options))
       })
       return {
-        result: () => (options.render === 'text' ? (container.textContent ?? '') : slot.result),
+        result: () => (options.render ? (container.textContent ?? '') : slot.result),
         read: (value) => value,
         setArgs: async (next) => {
           current = next

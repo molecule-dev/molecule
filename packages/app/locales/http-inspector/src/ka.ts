@@ -7,4 +7,8 @@ export const ka: Partial<HttpInspectorTranslations> = {
   'httpInspector.headers': 'სათაურები',
   'httpInspector.addHeader': 'სათაურის დამატება',
   'httpInspector.body': 'სხეული',
+  'httpInspector.methodLabel': 'HTTP მეთოდი',
+  'httpInspector.urlLabel': 'URL',
+  'httpInspector.headerPlaceholder': 'სათაური',
+  'httpInspector.valuePlaceholder': 'მნიშვნელობა',
 }

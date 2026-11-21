@@ -16,4 +16,8 @@ export const id: Partial<SearchUiTranslations> = {
   'searchUi.relatedTitle': 'Sesuai dengan arti pencarian Anda, bukan kata-katanya.',
   'searchUi.related': 'terkait',
   'searchUi.help': 'Tips pencarian',
+  'searchUi.examplePhrase': '"frasa persis"',
+  'searchUi.exampleExcluded': '-kata',
+  'searchUi.activeResult': '{{title}}, {{position}} dari {{count}}',
+  'searchUi.dialogLabel': 'Cari',
 }

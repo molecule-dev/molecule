@@ -13,12 +13,29 @@
 
   import type { FeatureFlagRowProps, FlagType } from './types.js'
 
-  /** Human-readable English fallback label for each flag type (React's values). */
-  const FLAG_TYPE_LABELS: Record<FlagType, string> = {
-    boolean: 'Boolean',
-    multivariate: 'Multivariate',
-    percentage: 'Percentage',
-    string: 'String',
+  /** The translation function `useTranslation()` hands back. */
+  type Translate = ReturnType<typeof useTranslation>['t']
+
+  /**
+   * The translated type-badge label for each flag type: one literal
+   * `t('flagType.<type>')` call per value of `FlagType`, exactly as React does
+   * (a runtime-built key would be invisible to molecule's i18n gate).
+   *
+   * @param type - The flag type.
+   * @param t - The translation function from `useTranslation()`.
+   * @returns The badge's label.
+   */
+  function flagTypeLabel(type: FlagType, t: Translate): string {
+    switch (type) {
+      case 'boolean':
+        return t('flagType.boolean', {}, { defaultValue: 'Boolean' })
+      case 'multivariate':
+        return t('flagType.multivariate', {}, { defaultValue: 'Multivariate' })
+      case 'percentage':
+        return t('flagType.percentage', {}, { defaultValue: 'Percentage' })
+      case 'string':
+        return t('flagType.string', {}, { defaultValue: 'String' })
+    }
   }
 
   let { flag, onToggle, className }: FeatureFlagRowProps = $props()
@@ -40,7 +57,7 @@
         {#if typeof flag.name === 'function'}{@render flag.name()}{:else}{flag.name}{/if}
       </span>
       <span class={cm.cn(cm.textSize('xs'), cm.fontWeight('medium'))}>
-        {t(`flagType.${flag.type}`, {}, { defaultValue: FLAG_TYPE_LABELS[flag.type] })}
+        {flagTypeLabel(flag.type, t)}
       </span>
     </div>
     <span class={cm.cn(cm.textSize('xs'))}>{flag.key}</span>
@@ -61,7 +78,11 @@
             checked={env.enabled}
             onChange={(event) =>
               onToggle(flag.key, env.id, (event.target as HTMLInputElement).checked)}
-            aria-label={`${flag.key} in ${env.id}`}
+            aria-label={t(
+              'featureFlagRow.aria.flagInEnvironment',
+              { flag: flag.key, environment: env.id },
+              { defaultValue: '{{flag}} in {{environment}}' },
+            )}
           />
           {#if flag.type === 'percentage' && env.rolloutPct !== undefined}
             <span class={cm.textSize('xs')}>{env.rolloutPct}%</span>

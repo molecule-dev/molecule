@@ -8,6 +8,8 @@ export const sk: Partial<AudioMixerTranslations> = {
   'audioMixer.aria.send': '{{channel}} poslať komu {{send}}',
   'audioMixer.button.mute': 'Stlmiť',
   'audioMixer.button.solo': 'Sólo',
+  'audioMixer.button.muteInitial': 'S',
+  'audioMixer.button.soloInitial': 'S',
   'audioMixer.master': 'Majster',
   'audioMixer.sends': 'Odosiela',
 }

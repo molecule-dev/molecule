@@ -7,4 +7,8 @@ export const is: Partial<HttpInspectorTranslations> = {
   'httpInspector.headers': 'Fyrirsagnir',
   'httpInspector.addHeader': 'Bæta við haus',
   'httpInspector.body': 'Líkami',
+  'httpInspector.methodLabel': 'HTTP-aðferð',
+  'httpInspector.urlLabel': 'URL',
+  'httpInspector.headerPlaceholder': 'Fyrirsögn',
+  'httpInspector.valuePlaceholder': 'Gildi',
 }

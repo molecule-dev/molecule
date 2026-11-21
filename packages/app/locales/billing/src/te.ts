@@ -16,4 +16,11 @@ export const te: Partial<BillingTranslations> = {
   'billing.pricing.perSeat': 'ఒక్కో సీటుకు',
   'billing.pricing.upgradeCta': 'అప్‌గ్రేడ్ చేయండి {{tierName}}',
   'billing.pricing.currentCta': 'ప్రస్తుత ప్రణాళిక',
+  'billing.pricing.period.month': 'నెలకు',
+  'billing.pricing.period.year': 'సంవత్సరానికి',
+  'billing.pricing.billed.month': 'నెలవారీ బిల్లింగ్',
+  'billing.pricing.billed.year': 'వార్షిక బిల్లింగ్',
+  'billing.pricing.unlimited': 'అపరిమితం',
+  'billing.pricing.limit.maxProjects': 'గరిష్ఠ ప్రాజెక్టులు',
+  'billing.pricing.limit.canExport': 'ఎగుమతి చేయవచ్చు',
 }

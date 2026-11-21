@@ -6,4 +6,8 @@ export const hy: Partial<LoyaltyTierBadgeTranslations> = {
   'loyaltyTierBadge.progress': 'Առաջընթաց դեպի {{next}}',
   'loyaltyTierBadge.topTier': 'Հասել է ամենաբարձր մակարդակին',
   'loyaltyTierBadge.remaining': '{{remaining}} մինչև {{next}}',
+  'loyaltyTierBadge.tier.bronze': 'Բրոնզ',
+  'loyaltyTierBadge.tier.silver': 'Արծաթ',
+  'loyaltyTierBadge.tier.gold': 'Ոսկի',
+  'loyaltyTierBadge.tier.platinum': 'Պլատին',
 }

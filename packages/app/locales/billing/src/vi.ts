@@ -15,4 +15,11 @@ export const vi: Partial<BillingTranslations> = {
   'billing.pricing.reassurance': 'Hủy bất cứ lúc nào · Không cần thẻ tín dụng để bắt đầu',
   'billing.pricing.perSeat': 'mỗi chỗ ngồi',
   'billing.pricing.currentCta': 'Kế hoạch hiện tại',
+  'billing.pricing.period.month': 'mỗi tháng',
+  'billing.pricing.period.year': 'mỗi năm',
+  'billing.pricing.billed.month': 'Thanh toán hàng tháng',
+  'billing.pricing.billed.year': 'Thanh toán hàng năm',
+  'billing.pricing.unlimited': 'Không giới hạn',
+  'billing.pricing.limit.maxProjects': 'Số dự án tối đa',
+  'billing.pricing.limit.canExport': 'Có thể xuất dữ liệu',
 }

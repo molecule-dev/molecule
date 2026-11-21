@@ -5,6 +5,17 @@
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./link": {
+      "types": "./dist/link.d.ts",
+      "default": "./dist/link.js"
+    },
+    "./package.json": "./package.json"
+  },
   "files": [
     "dist",
     "README.md"
@@ -41,7 +52,7 @@
     "@molecule/app-ui": "^1.0.1",
     "@molecule/app-utilities": "^1.0.1",
     "@molecule/app-version": "^1.0.1",
-    "vue": "^3.4.0"
+    "vue": "^3.4.20"
   },
   "peerDependenciesMeta": {
     "@molecule/app-code-editor": {

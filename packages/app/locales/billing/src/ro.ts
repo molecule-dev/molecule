@@ -16,4 +16,11 @@ export const ro: Partial<BillingTranslations> = {
   'billing.pricing.tierEyebrow': 'Nivel',
   'billing.pricing.perSeat': 'per loc',
   'billing.pricing.currentCta': 'Planul actual',
+  'billing.pricing.period.month': 'pe lună',
+  'billing.pricing.period.year': 'pe an',
+  'billing.pricing.billed.month': 'Facturat lunar',
+  'billing.pricing.billed.year': 'Facturat anual',
+  'billing.pricing.unlimited': 'Nelimitat',
+  'billing.pricing.limit.maxProjects': 'Număr maxim de proiecte',
+  'billing.pricing.limit.canExport': 'Export disponibil',
 }

@@ -7,4 +7,8 @@ export const ur: Partial<HttpInspectorTranslations> = {
   'httpInspector.headers': 'ہیڈرز',
   'httpInspector.addHeader': 'ہیڈر شامل کریں۔',
   'httpInspector.body': 'جسم',
+  'httpInspector.methodLabel': 'HTTP طریقہ',
+  'httpInspector.urlLabel': 'URL',
+  'httpInspector.headerPlaceholder': 'ہیڈر',
+  'httpInspector.valuePlaceholder': 'ویلیو',
 }

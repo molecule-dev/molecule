@@ -12,7 +12,7 @@ import type { MarginNote, MarginNoteKind, MarginNotesBlock } from '../types.js'
  * assert which member a node used without a real styling bond.
  */
 export function installStubClassMap(): void {
-  const handler: ProxyHandler<Record<string, unknown>> = {
+  const handler: ProxyHandler<UIClassMap> = {
     get(_target, prop): unknown {
       if (prop === 'cn')
         return (...classes: unknown[]) =>
@@ -28,7 +28,8 @@ export function installStubClassMap(): void {
       })
     },
   }
-  setClassMap(new Proxy({}, handler) as UIClassMap)
+  // An empty target: every member comes from the handler.
+  setClassMap(new Proxy({} as UIClassMap, handler))
 }
 
 /**

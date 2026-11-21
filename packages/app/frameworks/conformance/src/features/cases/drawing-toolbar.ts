@@ -7,7 +7,14 @@
  * @module
  */
 
+import type { CaseA11y } from '../../ui/spec.js'
 import type { FeatureCases } from '../spec.js'
+
+/** The case passes a tool with an empty label. */
+const EMPTY_TOOL_LABEL: CaseA11y = {
+  expect: ['button-name'],
+  reason: 'The case passes a tool with an empty label',
+}
 
 const selectTool = { id: 'select', label: 'Select', icon: '↖' }
 const penTool = { id: 'pen', label: 'Pen', icon: '✎' }
@@ -56,6 +63,7 @@ export const drawingToolbarFeature: FeatureCases = {
         },
         {
           name: 'an iconless tool falls back to its first character',
+          a11y: EMPTY_TOOL_LABEL,
           props: {
             tools: [
               { id: 'text', label: 'Text' },

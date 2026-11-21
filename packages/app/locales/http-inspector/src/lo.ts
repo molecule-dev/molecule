@@ -7,4 +7,8 @@ export const lo: Partial<HttpInspectorTranslations> = {
   'httpInspector.headers': 'ຫົວຂໍ້',
   'httpInspector.addHeader': 'ເພີ່ມຫົວຂໍ້',
   'httpInspector.body': 'ຮ່າງກາຍ',
+  'httpInspector.methodLabel': 'ວິທີ HTTP',
+  'httpInspector.urlLabel': 'URL',
+  'httpInspector.headerPlaceholder': 'ຫົວຂໍ້',
+  'httpInspector.valuePlaceholder': 'ຄ່າ',
 }

@@ -1,5 +1,6 @@
 import type { JSX, ReactNode } from 'react'
 
+import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { NavItem } from './types.js'
@@ -34,6 +35,7 @@ export function AppShellTopNav({
   right,
   className,
 }: AppShellTopNavProps): JSX.Element {
+  const { t } = useTranslation()
   const cm = getClassMap()
   return (
     <header
@@ -47,7 +49,10 @@ export function AppShellTopNav({
       <div className={cm.flex({ align: 'center', gap: 'lg' })}>
         {logo}
         {items && items.length > 0 && (
-          <nav className={cm.flex({ align: 'center', gap: 'sm' })} aria-label="Main">
+          <nav
+            className={cm.flex({ align: 'center', gap: 'sm' })}
+            aria-label={t('navChrome.aria.main', undefined, { defaultValue: 'Main' })}
+          >
             {items.map((it) => (
               <button
                 key={it.id}

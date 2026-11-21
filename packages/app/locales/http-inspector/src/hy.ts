@@ -7,4 +7,8 @@ export const hy: Partial<HttpInspectorTranslations> = {
   'httpInspector.headers': 'Վերնագրեր',
   'httpInspector.addHeader': 'Ավելացնել վերնագիր',
   'httpInspector.body': 'Մարմին',
+  'httpInspector.methodLabel': 'HTTP մեթոդ',
+  'httpInspector.urlLabel': 'URL',
+  'httpInspector.headerPlaceholder': 'Վերնագիր',
+  'httpInspector.valuePlaceholder': 'Արժեք',
 }

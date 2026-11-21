@@ -40,10 +40,22 @@ const disposers: Array<() => void> = []
 
 afterEach(() => {
   for (const dispose of disposers.splice(0)) dispose()
+  document.body.innerHTML = ''
 })
 
-/** Render with Solid's browser renderer and return the markup. */
-const mount = (view: () => Parameters<typeof render>[0]): string => {
+/**
+ * Mounts with Solid's browser renderer and returns the container, for tests
+ * that fire events on the rendered DOM.
+ */
+const mountEl = (view: Parameters<typeof render>[0]): HTMLElement => {
+  const container = document.createElement('div')
+  document.body.appendChild(container)
+  disposers.push(render(view, container))
+  return container
+}
+
+/** Mounts with Solid's browser renderer and returns the markup. */
+const mount = (view: Parameters<typeof render>[0]): string => {
   const container = document.createElement('div')
   document.body.appendChild(container)
   disposers.push(render(view, container))
@@ -104,5 +116,46 @@ describe('ForumThreadRow', () => {
     const plain = mount(() => <ForumThreadRow title="T" className="ftr-cls" />)
     expect(plain).not.toContain('cursorPointer')
     expect(plain).toContain('ftr-cls')
+  })
+
+  it('clicking the open button calls onClick', () => {
+    const onClick = vi.fn()
+    const container = mountEl(() => <ForumThreadRow title="T" onClick={onClick} />)
+    container.querySelector<HTMLElement>('[data-mol-id="forum-thread-row-open"]')!.click()
+    expect(onClick).toHaveBeenCalledTimes(1)
+  })
+
+  it('clicking an inner control does not call onClick', () => {
+    const onClick = vi.fn()
+    const container = mountEl(() => (
+      <ForumThreadRow title="T" onClick={onClick} voteControls={<div data-votes="" />} />
+    ))
+    container.querySelector<HTMLElement>('[data-votes]')!.click()
+    expect(onClick).not.toHaveBeenCalled()
+  })
+
+  it('the open button is named by the label', () => {
+    const container = mountEl(() => (
+      <ForumThreadRow title="How do I reset my password?" onClick={() => {}} />
+    ))
+    const open = container.querySelector('[data-mol-id="forum-thread-row-open"]')!
+    const labelledby = open.getAttribute('aria-labelledby')
+    expect(labelledby).toBeTruthy()
+    const label = document.getElementById(labelledby!)
+    expect(label?.tagName.toLowerCase()).toBe('h3')
+    expect(label?.textContent).toBe('How do I reset my password?')
+  })
+
+  it('without onClick there is no open button', () => {
+    const container = mountEl(() => <ForumThreadRow title="T" />)
+    expect(container.querySelector('[data-mol-id="forum-thread-row-open"]')).toBeNull()
+    expect(container.querySelector('article')!.querySelector('button')).toBeNull()
+  })
+
+  it('click elsewhere in the row does not call onClick', () => {
+    const onClick = vi.fn()
+    const container = mountEl(() => <ForumThreadRow title="T" onClick={onClick} />)
+    container.querySelector('article')!.click()
+    expect(onClick).not.toHaveBeenCalled()
   })
 })

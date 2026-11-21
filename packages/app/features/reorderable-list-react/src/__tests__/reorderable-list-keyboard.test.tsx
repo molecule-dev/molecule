@@ -3,13 +3,15 @@
 /**
  * Keyboard-reordering behavior (the L115b fix): the list must be reorderable
  * without a mouse. These render into jsdom and drive the real move controls +
- * the Alt+Arrow key path, asserting `onReorder` fires with the reordered array.
+ * the Alt+Arrow key path, asserting `onReorder` fires with the reordered array,
+ * that every move button announces its row's position, and that focus follows
+ * the item after a move.
  *
  * @module
  */
 
 import { cleanup, fireEvent, render } from '@testing-library/react'
-import { createElement } from 'react'
+import { createElement, type ReactElement, useState } from 'react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('@molecule/app-ui', () => ({
@@ -25,7 +27,13 @@ vi.mock('@molecule/app-ui', () => ({
               .join(' ')
         }
         const token = String(prop)
-        return (..._args: unknown[]) => token
+        // At runtime a ClassMap value IS a string (`cm.srOnly` = 'sr-only');
+        // parametrized tokens stay callable (`cm.stack(1)`) but stringify to
+        // their token, so frameworks that write class through String(fn)
+        // (Solid, Svelte, Angular) render the token, not the function source.
+        const value = (..._args: unknown[]) => token
+        value.toString = () => token
+        return value
       },
     }
     return new Proxy({}, handler)
@@ -96,7 +104,7 @@ describe('ReorderableList keyboard reordering (L115b)', () => {
     expect(order(onReorder.mock.calls[0][0])).toEqual(['a', 'c', 'b'])
   })
 
-  it('reorders via Alt+ArrowDown / Alt+ArrowUp on the focused row; plain arrows do NOT', () => {
+  it('reorders via Alt+ArrowDown / Alt+ArrowUp on a move button; plain arrows do NOT', () => {
     const onReorder = vi.fn()
     const { container } = render(
       createElement(ReorderableList<Row>, {
@@ -105,17 +113,51 @@ describe('ReorderableList keyboard reordering (L115b)', () => {
         renderItem: renderRow,
       }),
     )
-    const rows = container.querySelectorAll('li')
-    fireEvent.keyDown(rows[0], { key: 'ArrowDown', altKey: true })
+    const downA = container.querySelector(
+      '[data-mol-id="reorderable-move-down-a"]',
+    ) as HTMLButtonElement
+    fireEvent.keyDown(downA, { key: 'ArrowDown', altKey: true })
     expect(order(onReorder.mock.calls[0][0])).toEqual(['b', 'a', 'c'])
 
-    fireEvent.keyDown(rows[2], { key: 'ArrowUp', altKey: true })
+    const upC = container.querySelector(
+      '[data-mol-id="reorderable-move-up-c"]',
+    ) as HTMLButtonElement
+    fireEvent.keyDown(upC, { key: 'ArrowUp', altKey: true })
     expect(order(onReorder.mock.calls[1][0])).toEqual(['a', 'c', 'b'])
 
-    // A plain arrow (no Alt) must not reorder — it stays a normal key.
+    // A plain arrow (no Alt) and an unrelated Alt+letter must not reorder —
+    // the shortcut is Alt+Arrow on the button, nothing else.
     onReorder.mockClear()
-    fireEvent.keyDown(rows[0], { key: 'ArrowDown' })
+    fireEvent.keyDown(downA, { key: 'ArrowDown' })
+    fireEvent.keyDown(downA, { key: 'a', altKey: true })
     expect(onReorder).not.toHaveBeenCalled()
+  })
+
+  it('describes each move button with its row position', () => {
+    const { getByRole } = render(
+      createElement(ReorderableList<Row>, {
+        items: makeItems(),
+        onReorder: () => {},
+        renderItem: renderRow,
+      }),
+    )
+    // The accessible description of a row's move buttons is that row's
+    // position ("Item 2 of 3"), taken from the row's sr-only position span.
+    expect(
+      getByRole('button', { name: 'Move down', description: 'Item 2 of 3' }).getAttribute(
+        'data-mol-id',
+      ),
+    ).toBe('reorderable-move-down-b')
+    expect(
+      getByRole('button', { name: 'Move up', description: 'Item 2 of 3' }).getAttribute(
+        'data-mol-id',
+      ),
+    ).toBe('reorderable-move-up-b')
+    expect(
+      getByRole('button', { name: 'Move up', description: 'Item 3 of 3' }).getAttribute(
+        'data-mol-id',
+      ),
+    ).toBe('reorderable-move-up-c')
   })
 
   it('disables and does not fire from the boundary buttons', () => {
@@ -138,5 +180,45 @@ describe('ReorderableList keyboard reordering (L115b)', () => {
     fireEvent.click(firstUp)
     fireEvent.click(lastDown)
     expect(onReorder).not.toHaveBeenCalled()
+  })
+})
+
+/** Feeds `onReorder`'s result back into `items`, the way an app owns the order. */
+function StatefulList(): ReactElement {
+  const [items, setItems] = useState(makeItems())
+  return createElement(ReorderableList<Row>, { items, onReorder: setItems, renderItem: renderRow })
+}
+
+describe('ReorderableList focus follows the item', () => {
+  it('a move that disables the used button leaves focus on that item’s other button', () => {
+    const { container } = render(createElement(StatefulList))
+    // Row 2 of 3's "Move down" moves `b` to the end: its move-down disables,
+    // and focus settles on the same item's move-up.
+    const down = container.querySelector(
+      '[data-mol-id="reorderable-move-down-b"]',
+    ) as HTMLButtonElement
+    down.focus()
+    expect(document.activeElement).toBe(down)
+    fireEvent.click(down)
+    const up = container.querySelector('[data-mol-id="reorderable-move-up-b"]') as HTMLButtonElement
+    expect(up.disabled).toBe(false)
+    expect(document.activeElement).toBe(up)
+  })
+
+  it('a move that keeps the used button enabled keeps focus on it', () => {
+    const { container } = render(createElement(StatefulList))
+    // Row 1 of 3's "Move down" moves `a` into the middle: the same button stays
+    // enabled (the row is keyed by item id, so it moves with its row).
+    const down = container.querySelector(
+      '[data-mol-id="reorderable-move-down-a"]',
+    ) as HTMLButtonElement
+    down.focus()
+    expect(document.activeElement).toBe(down)
+    fireEvent.click(down)
+    const downAfter = container.querySelector(
+      '[data-mol-id="reorderable-move-down-a"]',
+    ) as HTMLButtonElement
+    expect(downAfter.disabled).toBe(false)
+    expect(document.activeElement).toBe(downAfter)
   })
 })

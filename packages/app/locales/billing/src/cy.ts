@@ -15,4 +15,11 @@ export const cy: Partial<BillingTranslations> = {
   'billing.pricing.perSeat': 'fesul sedd',
   'billing.pricing.upgradeCta': 'Uwchraddio i {{tierName}}',
   'billing.pricing.currentCta': 'Cynllun cyfredol',
+  'billing.pricing.period.month': 'y mis',
+  'billing.pricing.period.year': 'y flwyddyn',
+  'billing.pricing.billed.month': 'Yn bilio yn misol',
+  'billing.pricing.billed.year': 'Yn bilio yn flynyddol',
+  'billing.pricing.unlimited': 'Diderfyn',
+  'billing.pricing.limit.maxProjects': 'Uchafswd prosiectau',
+  'billing.pricing.limit.canExport': 'Allforio ar gael',
 }

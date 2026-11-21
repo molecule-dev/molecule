@@ -1,0 +1,223 @@
+{
+ "exports": [
+  "ThreeViewer",
+  "disposeObject3D",
+  "resolveFormat"
+ ],
+ "values": {
+  "resolveFormat": [
+   "gltf",
+   "glb",
+   "obj",
+   "stl",
+   "stl",
+   "glb",
+   "stl",
+   "gltf",
+   "glb"
+  ],
+  "disposeObject3D": [
+   null,
+   null
+  ]
+ },
+ "cases": {
+  "ThreeViewer": {
+   "defaults": {
+    "snapshots": [
+     "<div data-mol-id=\"three-viewer\" style=\"height: 100%; min-height: 240px; position: relative; width: 100%\">\n<div aria-label=\"3D model viewer\" data-mol-id=\"three-viewer-canvas\" role=\"img\" style=\"height: 100%; width: 100%\">\n<canvas>\n</canvas>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"three-viewer-loading\" style=\"display: grid; inset: 0px; place-items: center; pointer-events: none; position: absolute\">\n<div aria-label=\"Loading 3D model…\" class=\"c32cad454 c52893105 c7a36cfa7 c9052b18c cc1672728 cd34f1515 ce99acf9b\" role=\"status\">\n<span class=\"cb542d3c9\">\nLoading 3D model…\n</span>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "explicit gltf format for an extension-less source": {
+    "snapshots": [
+     "<div data-mol-id=\"three-viewer\" style=\"height: 100%; min-height: 240px; position: relative; width: 100%\">\n<div aria-label=\"3D model viewer\" data-mol-id=\"three-viewer-canvas\" role=\"img\" style=\"height: 100%; width: 100%\">\n<canvas>\n</canvas>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"three-viewer-loading\" style=\"display: grid; inset: 0px; place-items: center; pointer-events: none; position: absolute\">\n<div aria-label=\"Loading 3D model…\" class=\"c32cad454 c52893105 c7a36cfa7 c9052b18c cc1672728 cd34f1515 ce99acf9b\" role=\"status\">\n<span class=\"cb542d3c9\">\nLoading 3D model…\n</span>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "explicit glb format over an stl extension": {
+    "snapshots": [
+     "<div data-mol-id=\"three-viewer\" style=\"height: 100%; min-height: 240px; position: relative; width: 100%\">\n<div aria-label=\"3D model viewer\" data-mol-id=\"three-viewer-canvas\" role=\"img\" style=\"height: 100%; width: 100%\">\n<canvas>\n</canvas>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"three-viewer-loading\" style=\"display: grid; inset: 0px; place-items: center; pointer-events: none; position: absolute\">\n<div aria-label=\"Loading 3D model…\" class=\"c32cad454 c52893105 c7a36cfa7 c9052b18c cc1672728 cd34f1515 ce99acf9b\" role=\"status\">\n<span class=\"cb542d3c9\">\nLoading 3D model…\n</span>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "obj source": {
+    "snapshots": [
+     "<div data-mol-id=\"three-viewer\" style=\"height: 100%; min-height: 240px; position: relative; width: 100%\">\n<div aria-label=\"3D model viewer\" data-mol-id=\"three-viewer-canvas\" role=\"img\" style=\"height: 100%; width: 100%\">\n<canvas>\n</canvas>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"three-viewer-loading\" style=\"display: grid; inset: 0px; place-items: center; pointer-events: none; position: absolute\">\n<div aria-label=\"Loading 3D model…\" class=\"c32cad454 c52893105 c7a36cfa7 c9052b18c cc1672728 cd34f1515 ce99acf9b\" role=\"status\">\n<span class=\"cb542d3c9\">\nLoading 3D model…\n</span>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "stl source": {
+    "snapshots": [
+     "<div data-mol-id=\"three-viewer\" style=\"height: 100%; min-height: 240px; position: relative; width: 100%\">\n<div aria-label=\"3D model viewer\" data-mol-id=\"three-viewer-canvas\" role=\"img\" style=\"height: 100%; width: 100%\">\n<canvas>\n</canvas>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"three-viewer-loading\" style=\"display: grid; inset: 0px; place-items: center; pointer-events: none; position: absolute\">\n<div aria-label=\"Loading 3D model…\" class=\"c32cad454 c52893105 c7a36cfa7 c9052b18c cc1672728 cd34f1515 ce99acf9b\" role=\"status\">\n<span class=\"cb542d3c9\">\nLoading 3D model…\n</span>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "source with a query string and a fragment": {
+    "snapshots": [
+     "<div data-mol-id=\"three-viewer\" style=\"height: 100%; min-height: 240px; position: relative; width: 100%\">\n<div aria-label=\"3D model viewer\" data-mol-id=\"three-viewer-canvas\" role=\"img\" style=\"height: 100%; width: 100%\">\n<canvas>\n</canvas>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"three-viewer-loading\" style=\"display: grid; inset: 0px; place-items: center; pointer-events: none; position: absolute\">\n<div aria-label=\"Loading 3D model…\" class=\"c32cad454 c52893105 c7a36cfa7 c9052b18c cc1672728 cd34f1515 ce99acf9b\" role=\"status\">\n<span class=\"cb542d3c9\">\nLoading 3D model…\n</span>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "unknown extension falls back to gltf": {
+    "snapshots": [
+     "<div data-mol-id=\"three-viewer\" style=\"height: 100%; min-height: 240px; position: relative; width: 100%\">\n<div aria-label=\"3D model viewer\" data-mol-id=\"three-viewer-canvas\" role=\"img\" style=\"height: 100%; width: 100%\">\n<canvas>\n</canvas>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"three-viewer-loading\" style=\"display: grid; inset: 0px; place-items: center; pointer-events: none; position: absolute\">\n<div aria-label=\"Loading 3D model…\" class=\"c32cad454 c52893105 c7a36cfa7 c9052b18c cc1672728 cd34f1515 ce99acf9b\" role=\"status\">\n<span class=\"cb542d3c9\">\nLoading 3D model…\n</span>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "studio lighting": {
+    "snapshots": [
+     "<div data-mol-id=\"three-viewer\" style=\"height: 100%; min-height: 240px; position: relative; width: 100%\">\n<div aria-label=\"3D model viewer\" data-mol-id=\"three-viewer-canvas\" role=\"img\" style=\"height: 100%; width: 100%\">\n<canvas>\n</canvas>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"three-viewer-loading\" style=\"display: grid; inset: 0px; place-items: center; pointer-events: none; position: absolute\">\n<div aria-label=\"Loading 3D model…\" class=\"c32cad454 c52893105 c7a36cfa7 c9052b18c cc1672728 cd34f1515 ce99acf9b\" role=\"status\">\n<span class=\"cb542d3c9\">\nLoading 3D model…\n</span>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "sunset lighting": {
+    "snapshots": [
+     "<div data-mol-id=\"three-viewer\" style=\"height: 100%; min-height: 240px; position: relative; width: 100%\">\n<div aria-label=\"3D model viewer\" data-mol-id=\"three-viewer-canvas\" role=\"img\" style=\"height: 100%; width: 100%\">\n<canvas>\n</canvas>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"three-viewer-loading\" style=\"display: grid; inset: 0px; place-items: center; pointer-events: none; position: absolute\">\n<div aria-label=\"Loading 3D model…\" class=\"c32cad454 c52893105 c7a36cfa7 c9052b18c cc1672728 cd34f1515 ce99acf9b\" role=\"status\">\n<span class=\"cb542d3c9\">\nLoading 3D model…\n</span>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "flat lighting": {
+    "snapshots": [
+     "<div data-mol-id=\"three-viewer\" style=\"height: 100%; min-height: 240px; position: relative; width: 100%\">\n<div aria-label=\"3D model viewer\" data-mol-id=\"three-viewer-canvas\" role=\"img\" style=\"height: 100%; width: 100%\">\n<canvas>\n</canvas>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"three-viewer-loading\" style=\"display: grid; inset: 0px; place-items: center; pointer-events: none; position: absolute\">\n<div aria-label=\"Loading 3D model…\" class=\"c32cad454 c52893105 c7a36cfa7 c9052b18c cc1672728 cd34f1515 ce99acf9b\" role=\"status\">\n<span class=\"cb542d3c9\">\nLoading 3D model…\n</span>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "background colour": {
+    "snapshots": [
+     "<div data-mol-id=\"three-viewer\" style=\"height: 100%; min-height: 240px; position: relative; width: 100%\">\n<div aria-label=\"3D model viewer\" data-mol-id=\"three-viewer-canvas\" role=\"img\" style=\"height: 100%; width: 100%\">\n<canvas>\n</canvas>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"three-viewer-loading\" style=\"display: grid; inset: 0px; place-items: center; pointer-events: none; position: absolute\">\n<div aria-label=\"Loading 3D model…\" class=\"c32cad454 c52893105 c7a36cfa7 c9052b18c cc1672728 cd34f1515 ce99acf9b\" role=\"status\">\n<span class=\"cb542d3c9\">\nLoading 3D model…\n</span>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "background colour and flat lighting": {
+    "snapshots": [
+     "<div data-mol-id=\"three-viewer\" style=\"height: 100%; min-height: 240px; position: relative; width: 100%\">\n<div aria-label=\"3D model viewer\" data-mol-id=\"three-viewer-canvas\" role=\"img\" style=\"height: 100%; width: 100%\">\n<canvas>\n</canvas>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"three-viewer-loading\" style=\"display: grid; inset: 0px; place-items: center; pointer-events: none; position: absolute\">\n<div aria-label=\"Loading 3D model…\" class=\"c32cad454 c52893105 c7a36cfa7 c9052b18c cc1672728 cd34f1515 ce99acf9b\" role=\"status\">\n<span class=\"cb542d3c9\">\nLoading 3D model…\n</span>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "auto rotate": {
+    "snapshots": [
+     "<div data-mol-id=\"three-viewer\" style=\"height: 100%; min-height: 240px; position: relative; width: 100%\">\n<div aria-label=\"3D model viewer\" data-mol-id=\"three-viewer-canvas\" role=\"img\" style=\"height: 100%; width: 100%\">\n<canvas>\n</canvas>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"three-viewer-loading\" style=\"display: grid; inset: 0px; place-items: center; pointer-events: none; position: absolute\">\n<div aria-label=\"Loading 3D model…\" class=\"c32cad454 c52893105 c7a36cfa7 c9052b18c cc1672728 cd34f1515 ce99acf9b\" role=\"status\">\n<span class=\"cb542d3c9\">\nLoading 3D model…\n</span>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "camera target": {
+    "snapshots": [
+     "<div data-mol-id=\"three-viewer\" style=\"height: 100%; min-height: 240px; position: relative; width: 100%\">\n<div aria-label=\"3D model viewer\" data-mol-id=\"three-viewer-canvas\" role=\"img\" style=\"height: 100%; width: 100%\">\n<canvas>\n</canvas>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"three-viewer-loading\" style=\"display: grid; inset: 0px; place-items: center; pointer-events: none; position: absolute\">\n<div aria-label=\"Loading 3D model…\" class=\"c32cad454 c52893105 c7a36cfa7 c9052b18c cc1672728 cd34f1515 ce99acf9b\" role=\"status\">\n<span class=\"cb542d3c9\">\nLoading 3D model…\n</span>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "extra class": {
+    "snapshots": [
+     "<div class=\"cd75bbd18\" data-mol-id=\"three-viewer\" style=\"height: 100%; min-height: 240px; position: relative; width: 100%\">\n<div aria-label=\"3D model viewer\" data-mol-id=\"three-viewer-canvas\" role=\"img\" style=\"height: 100%; width: 100%\">\n<canvas>\n</canvas>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"three-viewer-loading\" style=\"display: grid; inset: 0px; place-items: center; pointer-events: none; position: absolute\">\n<div aria-label=\"Loading 3D model…\" class=\"c32cad454 c52893105 c7a36cfa7 c9052b18c cc1672728 cd34f1515 ce99acf9b\" role=\"status\">\n<span class=\"cb542d3c9\">\nLoading 3D model…\n</span>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "every prop at once": {
+    "snapshots": [
+     "<div class=\"cd75bbd18\" data-mol-id=\"three-viewer\" style=\"height: 100%; min-height: 240px; position: relative; width: 100%\">\n<div aria-label=\"3D model viewer\" data-mol-id=\"three-viewer-canvas\" role=\"img\" style=\"height: 100%; width: 100%\">\n<canvas>\n</canvas>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"three-viewer-loading\" style=\"display: grid; inset: 0px; place-items: center; pointer-events: none; position: absolute\">\n<div aria-label=\"Loading 3D model…\" class=\"c32cad454 c52893105 c7a36cfa7 c9052b18c cc1672728 cd34f1515 ce99acf9b\" role=\"status\">\n<span class=\"cb542d3c9\">\nLoading 3D model…\n</span>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "model loaded": {
+    "snapshots": [
+     "<div data-mol-id=\"three-viewer\" style=\"height: 100%; min-height: 240px; position: relative; width: 100%\">\n<div aria-label=\"3D model viewer\" data-mol-id=\"three-viewer-canvas\" role=\"img\" style=\"height: 100%; width: 100%\">\n<canvas>\n</canvas>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onLoad",
+      "args": []
+     }
+    ]
+   },
+   "load fails": {
+    "snapshots": [
+     "<div data-mol-id=\"three-viewer\" style=\"height: 100%; min-height: 240px; position: relative; width: 100%\">\n<div aria-label=\"3D model viewer\" data-mol-id=\"three-viewer-canvas\" role=\"img\" style=\"height: 100%; width: 100%\">\n<canvas>\n</canvas>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9773cd2b c9cd623cf ccae02ff2 cd9b20003\" data-mol-id=\"three-viewer-error\" role=\"alert\" style=\"display: grid; inset: 0px; place-items: center; pointer-events: none; position: absolute\">\n<span class=\"c445db9b9\">\nFailed to load 3D model.\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onError",
+      "args": [
+       {}
+      ]
+     }
+    ]
+   },
+   "model loaded, then the source changes": {
+    "snapshots": [
+     "<div data-mol-id=\"three-viewer\" style=\"height: 100%; min-height: 240px; position: relative; width: 100%\">\n<div aria-label=\"3D model viewer\" data-mol-id=\"three-viewer-canvas\" role=\"img\" style=\"height: 100%; width: 100%\">\n<canvas>\n</canvas>\n</div>\n</div>\n@route /",
+     "<div data-mol-id=\"three-viewer\" style=\"height: 100%; min-height: 240px; position: relative; width: 100%\">\n<div aria-label=\"3D model viewer\" data-mol-id=\"three-viewer-canvas\" role=\"img\" style=\"height: 100%; width: 100%\">\n<canvas>\n</canvas>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"three-viewer-loading\" style=\"display: grid; inset: 0px; place-items: center; pointer-events: none; position: absolute\">\n<div aria-label=\"Loading 3D model…\" class=\"c32cad454 c52893105 c7a36cfa7 c9052b18c cc1672728 cd34f1515 ce99acf9b\" role=\"status\">\n<span class=\"cb542d3c9\">\nLoading 3D model…\n</span>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onLoad",
+      "args": []
+     }
+    ]
+   },
+   "source changes while loading": {
+    "snapshots": [
+     "<div data-mol-id=\"three-viewer\" style=\"height: 100%; min-height: 240px; position: relative; width: 100%\">\n<div aria-label=\"3D model viewer\" data-mol-id=\"three-viewer-canvas\" role=\"img\" style=\"height: 100%; width: 100%\">\n<canvas>\n</canvas>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"three-viewer-loading\" style=\"display: grid; inset: 0px; place-items: center; pointer-events: none; position: absolute\">\n<div aria-label=\"Loading 3D model…\" class=\"c32cad454 c52893105 c7a36cfa7 c9052b18c cc1672728 cd34f1515 ce99acf9b\" role=\"status\">\n<span class=\"cb542d3c9\">\nLoading 3D model…\n</span>\n</div>\n</div>\n</div>\n@route /",
+     "<div data-mol-id=\"three-viewer\" style=\"height: 100%; min-height: 240px; position: relative; width: 100%\">\n<div aria-label=\"3D model viewer\" data-mol-id=\"three-viewer-canvas\" role=\"img\" style=\"height: 100%; width: 100%\">\n<canvas>\n</canvas>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"three-viewer-loading\" style=\"display: grid; inset: 0px; place-items: center; pointer-events: none; position: absolute\">\n<div aria-label=\"Loading 3D model…\" class=\"c32cad454 c52893105 c7a36cfa7 c9052b18c cc1672728 cd34f1515 ce99acf9b\" role=\"status\">\n<span class=\"cb542d3c9\">\nLoading 3D model…\n</span>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "format changes while loading": {
+    "snapshots": [
+     "<div data-mol-id=\"three-viewer\" style=\"height: 100%; min-height: 240px; position: relative; width: 100%\">\n<div aria-label=\"3D model viewer\" data-mol-id=\"three-viewer-canvas\" role=\"img\" style=\"height: 100%; width: 100%\">\n<canvas>\n</canvas>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"three-viewer-loading\" style=\"display: grid; inset: 0px; place-items: center; pointer-events: none; position: absolute\">\n<div aria-label=\"Loading 3D model…\" class=\"c32cad454 c52893105 c7a36cfa7 c9052b18c cc1672728 cd34f1515 ce99acf9b\" role=\"status\">\n<span class=\"cb542d3c9\">\nLoading 3D model…\n</span>\n</div>\n</div>\n</div>\n@route /",
+     "<div data-mol-id=\"three-viewer\" style=\"height: 100%; min-height: 240px; position: relative; width: 100%\">\n<div aria-label=\"3D model viewer\" data-mol-id=\"three-viewer-canvas\" role=\"img\" style=\"height: 100%; width: 100%\">\n<canvas>\n</canvas>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"three-viewer-loading\" style=\"display: grid; inset: 0px; place-items: center; pointer-events: none; position: absolute\">\n<div aria-label=\"Loading 3D model…\" class=\"c32cad454 c52893105 c7a36cfa7 c9052b18c cc1672728 cd34f1515 ce99acf9b\" role=\"status\">\n<span class=\"cb542d3c9\">\nLoading 3D model…\n</span>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "lighting changes": {
+    "snapshots": [
+     "<div data-mol-id=\"three-viewer\" style=\"height: 100%; min-height: 240px; position: relative; width: 100%\">\n<div aria-label=\"3D model viewer\" data-mol-id=\"three-viewer-canvas\" role=\"img\" style=\"height: 100%; width: 100%\">\n<canvas>\n</canvas>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"three-viewer-loading\" style=\"display: grid; inset: 0px; place-items: center; pointer-events: none; position: absolute\">\n<div aria-label=\"Loading 3D model…\" class=\"c32cad454 c52893105 c7a36cfa7 c9052b18c cc1672728 cd34f1515 ce99acf9b\" role=\"status\">\n<span class=\"cb542d3c9\">\nLoading 3D model…\n</span>\n</div>\n</div>\n</div>\n@route /",
+     "<div data-mol-id=\"three-viewer\" style=\"height: 100%; min-height: 240px; position: relative; width: 100%\">\n<div aria-label=\"3D model viewer\" data-mol-id=\"three-viewer-canvas\" role=\"img\" style=\"height: 100%; width: 100%\">\n<canvas>\n</canvas>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"three-viewer-loading\" style=\"display: grid; inset: 0px; place-items: center; pointer-events: none; position: absolute\">\n<div aria-label=\"Loading 3D model…\" class=\"c32cad454 c52893105 c7a36cfa7 c9052b18c cc1672728 cd34f1515 ce99acf9b\" role=\"status\">\n<span class=\"cb542d3c9\">\nLoading 3D model…\n</span>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "background appears": {
+    "snapshots": [
+     "<div data-mol-id=\"three-viewer\" style=\"height: 100%; min-height: 240px; position: relative; width: 100%\">\n<div aria-label=\"3D model viewer\" data-mol-id=\"three-viewer-canvas\" role=\"img\" style=\"height: 100%; width: 100%\">\n<canvas>\n</canvas>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"three-viewer-loading\" style=\"display: grid; inset: 0px; place-items: center; pointer-events: none; position: absolute\">\n<div aria-label=\"Loading 3D model…\" class=\"c32cad454 c52893105 c7a36cfa7 c9052b18c cc1672728 cd34f1515 ce99acf9b\" role=\"status\">\n<span class=\"cb542d3c9\">\nLoading 3D model…\n</span>\n</div>\n</div>\n</div>\n@route /",
+     "<div data-mol-id=\"three-viewer\" style=\"height: 100%; min-height: 240px; position: relative; width: 100%\">\n<div aria-label=\"3D model viewer\" data-mol-id=\"three-viewer-canvas\" role=\"img\" style=\"height: 100%; width: 100%\">\n<canvas>\n</canvas>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"three-viewer-loading\" style=\"display: grid; inset: 0px; place-items: center; pointer-events: none; position: absolute\">\n<div aria-label=\"Loading 3D model…\" class=\"c32cad454 c52893105 c7a36cfa7 c9052b18c cc1672728 cd34f1515 ce99acf9b\" role=\"status\">\n<span class=\"cb542d3c9\">\nLoading 3D model…\n</span>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "auto rotate toggles": {
+    "snapshots": [
+     "<div data-mol-id=\"three-viewer\" style=\"height: 100%; min-height: 240px; position: relative; width: 100%\">\n<div aria-label=\"3D model viewer\" data-mol-id=\"three-viewer-canvas\" role=\"img\" style=\"height: 100%; width: 100%\">\n<canvas>\n</canvas>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"three-viewer-loading\" style=\"display: grid; inset: 0px; place-items: center; pointer-events: none; position: absolute\">\n<div aria-label=\"Loading 3D model…\" class=\"c32cad454 c52893105 c7a36cfa7 c9052b18c cc1672728 cd34f1515 ce99acf9b\" role=\"status\">\n<span class=\"cb542d3c9\">\nLoading 3D model…\n</span>\n</div>\n</div>\n</div>\n@route /",
+     "<div data-mol-id=\"three-viewer\" style=\"height: 100%; min-height: 240px; position: relative; width: 100%\">\n<div aria-label=\"3D model viewer\" data-mol-id=\"three-viewer-canvas\" role=\"img\" style=\"height: 100%; width: 100%\">\n<canvas>\n</canvas>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"three-viewer-loading\" style=\"display: grid; inset: 0px; place-items: center; pointer-events: none; position: absolute\">\n<div aria-label=\"Loading 3D model…\" class=\"c32cad454 c52893105 c7a36cfa7 c9052b18c cc1672728 cd34f1515 ce99acf9b\" role=\"status\">\n<span class=\"cb542d3c9\">\nLoading 3D model…\n</span>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "camera target changes": {
+    "snapshots": [
+     "<div data-mol-id=\"three-viewer\" style=\"height: 100%; min-height: 240px; position: relative; width: 100%\">\n<div aria-label=\"3D model viewer\" data-mol-id=\"three-viewer-canvas\" role=\"img\" style=\"height: 100%; width: 100%\">\n<canvas>\n</canvas>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"three-viewer-loading\" style=\"display: grid; inset: 0px; place-items: center; pointer-events: none; position: absolute\">\n<div aria-label=\"Loading 3D model…\" class=\"c32cad454 c52893105 c7a36cfa7 c9052b18c cc1672728 cd34f1515 ce99acf9b\" role=\"status\">\n<span class=\"cb542d3c9\">\nLoading 3D model…\n</span>\n</div>\n</div>\n</div>\n@route /",
+     "<div data-mol-id=\"three-viewer\" style=\"height: 100%; min-height: 240px; position: relative; width: 100%\">\n<div aria-label=\"3D model viewer\" data-mol-id=\"three-viewer-canvas\" role=\"img\" style=\"height: 100%; width: 100%\">\n<canvas>\n</canvas>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"three-viewer-loading\" style=\"display: grid; inset: 0px; place-items: center; pointer-events: none; position: absolute\">\n<div aria-label=\"Loading 3D model…\" class=\"c32cad454 c52893105 c7a36cfa7 c9052b18c cc1672728 cd34f1515 ce99acf9b\" role=\"status\">\n<span class=\"cb542d3c9\">\nLoading 3D model…\n</span>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "callbacks change without reloading": {
+    "snapshots": [
+     "<div data-mol-id=\"three-viewer\" style=\"height: 100%; min-height: 240px; position: relative; width: 100%\">\n<div aria-label=\"3D model viewer\" data-mol-id=\"three-viewer-canvas\" role=\"img\" style=\"height: 100%; width: 100%\">\n<canvas>\n</canvas>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9773cd2b c9cd623cf ccae02ff2 cd9b20003\" data-mol-id=\"three-viewer-error\" role=\"alert\" style=\"display: grid; inset: 0px; place-items: center; pointer-events: none; position: absolute\">\n<span class=\"c445db9b9\">\nFailed to load 3D model.\n</span>\n</div>\n</div>\n@route /",
+     "<div data-mol-id=\"three-viewer\" style=\"height: 100%; min-height: 240px; position: relative; width: 100%\">\n<div aria-label=\"3D model viewer\" data-mol-id=\"three-viewer-canvas\" role=\"img\" style=\"height: 100%; width: 100%\">\n<canvas>\n</canvas>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9773cd2b c9cd623cf ccae02ff2 cd9b20003\" data-mol-id=\"three-viewer-error\" role=\"alert\" style=\"display: grid; inset: 0px; place-items: center; pointer-events: none; position: absolute\">\n<span class=\"c445db9b9\">\nFailed to load 3D model.\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onError",
+      "args": [
+       {}
+      ]
+     }
+    ]
+   },
+   "defaults, then a locale switch": {
+    "snapshots": [
+     "<div data-mol-id=\"three-viewer\" style=\"height: 100%; min-height: 240px; position: relative; width: 100%\">\n<div aria-label=\"3D model viewer\" data-mol-id=\"three-viewer-canvas\" role=\"img\" style=\"height: 100%; width: 100%\">\n<canvas>\n</canvas>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"three-viewer-loading\" style=\"display: grid; inset: 0px; place-items: center; pointer-events: none; position: absolute\">\n<div aria-label=\"Loading 3D model…\" class=\"c32cad454 c52893105 c7a36cfa7 c9052b18c cc1672728 cd34f1515 ce99acf9b\" role=\"status\">\n<span class=\"cb542d3c9\">\nLoading 3D model…\n</span>\n</div>\n</div>\n</div>\n@route /",
+     "<div data-mol-id=\"three-viewer\" style=\"height: 100%; min-height: 240px; position: relative; width: 100%\">\n<div aria-label=\"⟦3D model viewer⟧\" data-mol-id=\"three-viewer-canvas\" role=\"img\" style=\"height: 100%; width: 100%\">\n<canvas>\n</canvas>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"three-viewer-loading\" style=\"display: grid; inset: 0px; place-items: center; pointer-events: none; position: absolute\">\n<div aria-label=\"⟦Loading 3D model…⟧\" class=\"c32cad454 c52893105 c7a36cfa7 c9052b18c cc1672728 cd34f1515 ce99acf9b\" role=\"status\">\n<span class=\"cb542d3c9\">\n⟦Loading 3D model…⟧\n</span>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   }
+  }
+ }
+}

@@ -1,0 +1,433 @@
+{
+ "exports": [
+  "BadgeShelf",
+  "DEFAULT_THRESHOLDS",
+  "ReputationBadge",
+  "colorForLevel",
+  "levelForScore"
+ ],
+ "values": {
+  "DEFAULT_THRESHOLDS": {
+   "contributor": 100,
+   "trusted": 500,
+   "veteran": 2000,
+   "legend": 10000
+  },
+  "levelForScore": [
+   "newcomer",
+   "newcomer",
+   "newcomer",
+   "contributor",
+   "contributor",
+   "contributor",
+   "trusted",
+   "trusted",
+   "veteran",
+   "veteran",
+   "legend",
+   "legend",
+   "newcomer",
+   "contributor",
+   "trusted",
+   "veteran",
+   "legend"
+  ],
+  "colorForLevel": [
+   "secondary",
+   "info",
+   "primary",
+   "success",
+   "warning",
+   "secondary"
+  ]
+ },
+ "cases": {
+  "BadgeShelf": {
+   "no badges renders nothing": {
+    "snapshots": [
+     "\n@route /"
+    ],
+    "calls": []
+   },
+   "below the default limit": {
+    "snapshots": [
+     "<ul aria-label=\"3 badges earned\" class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"badge-shelf\">\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"b1\" data-mol-id=\"badge-shelf-item\">\n<span aria-label=\"First Post\" role=\"img\" title=\"First Post — Made your first post\">\n<span aria-hidden=\"true\" data-mol-id=\"badge-shelf-icon-glyph\">\n*\n</span>\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"b2\" data-mol-id=\"badge-shelf-item\">\n<span aria-label=\"Helpful\" role=\"img\" title=\"Helpful\">\n<span aria-hidden=\"true\" data-mol-id=\"badge-shelf-icon-glyph\">\n+\n</span>\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"b3\" data-mol-id=\"badge-shelf-item\">\n<span aria-label=\"Veteran\" role=\"img\" title=\"Veteran\">\n<span aria-hidden=\"true\" data-mol-id=\"badge-shelf-icon-glyph\">\nV\n</span>\n</span>\n</li>\n</ul>\n@route /"
+    ],
+    "calls": []
+   },
+   "exactly the default limit": {
+    "snapshots": [
+     "<ul aria-label=\"5 badges earned\" class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"badge-shelf\">\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"b1\" data-mol-id=\"badge-shelf-item\">\n<span aria-label=\"First Post\" role=\"img\" title=\"First Post — Made your first post\">\n<span aria-hidden=\"true\" data-mol-id=\"badge-shelf-icon-glyph\">\n*\n</span>\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"b2\" data-mol-id=\"badge-shelf-item\">\n<span aria-label=\"Helpful\" role=\"img\" title=\"Helpful\">\n<span aria-hidden=\"true\" data-mol-id=\"badge-shelf-icon-glyph\">\n+\n</span>\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"b3\" data-mol-id=\"badge-shelf-item\">\n<span aria-label=\"Veteran\" role=\"img\" title=\"Veteran\">\n<span aria-hidden=\"true\" data-mol-id=\"badge-shelf-icon-glyph\">\nV\n</span>\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"b4\" data-mol-id=\"badge-shelf-item\">\n<span aria-label=\"Editor\" role=\"img\" title=\"Editor\">\n<span aria-hidden=\"true\" data-mol-id=\"badge-shelf-icon-glyph\">\nE\n</span>\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"b5\" data-mol-id=\"badge-shelf-item\">\n<span aria-label=\"Marathoner\" role=\"img\" title=\"Marathoner\">\n<span aria-hidden=\"true\" data-mol-id=\"badge-shelf-icon-glyph\">\nM\n</span>\n</span>\n</li>\n</ul>\n@route /"
+    ],
+    "calls": []
+   },
+   "over the default limit shows the overflow chip": {
+    "snapshots": [
+     "<ul aria-label=\"7 badges earned\" class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"badge-shelf\">\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"b1\" data-mol-id=\"badge-shelf-item\">\n<span aria-label=\"First Post\" role=\"img\" title=\"First Post — Made your first post\">\n<span aria-hidden=\"true\" data-mol-id=\"badge-shelf-icon-glyph\">\n*\n</span>\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"b2\" data-mol-id=\"badge-shelf-item\">\n<span aria-label=\"Helpful\" role=\"img\" title=\"Helpful\">\n<span aria-hidden=\"true\" data-mol-id=\"badge-shelf-icon-glyph\">\n+\n</span>\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"b3\" data-mol-id=\"badge-shelf-item\">\n<span aria-label=\"Veteran\" role=\"img\" title=\"Veteran\">\n<span aria-hidden=\"true\" data-mol-id=\"badge-shelf-icon-glyph\">\nV\n</span>\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"b4\" data-mol-id=\"badge-shelf-item\">\n<span aria-label=\"Editor\" role=\"img\" title=\"Editor\">\n<span aria-hidden=\"true\" data-mol-id=\"badge-shelf-icon-glyph\">\nE\n</span>\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"b5\" data-mol-id=\"badge-shelf-item\">\n<span aria-label=\"Marathoner\" role=\"img\" title=\"Marathoner\">\n<span aria-hidden=\"true\" data-mol-id=\"badge-shelf-icon-glyph\">\nM\n</span>\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"badge-shelf-overflow\">\n<span aria-label=\"Show 2 more badges\" class=\"c4647f690 c7f74399a\">\n+2\n</span>\n</li>\n</ul>\n@route /"
+    ],
+    "calls": []
+   },
+   "custom limit": {
+    "snapshots": [
+     "<ul aria-label=\"7 badges earned\" class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"badge-shelf\">\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"b1\" data-mol-id=\"badge-shelf-item\">\n<span aria-label=\"First Post\" role=\"img\" title=\"First Post — Made your first post\">\n<span aria-hidden=\"true\" data-mol-id=\"badge-shelf-icon-glyph\">\n*\n</span>\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"b2\" data-mol-id=\"badge-shelf-item\">\n<span aria-label=\"Helpful\" role=\"img\" title=\"Helpful\">\n<span aria-hidden=\"true\" data-mol-id=\"badge-shelf-icon-glyph\">\n+\n</span>\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"badge-shelf-overflow\">\n<span aria-label=\"Show 5 more badges\" class=\"c4647f690 c7f74399a\">\n+5\n</span>\n</li>\n</ul>\n@route /"
+    ],
+    "calls": []
+   },
+   "a limit of zero shows only the overflow chip": {
+    "snapshots": [
+     "<ul aria-label=\"3 badges earned\" class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"badge-shelf\">\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"badge-shelf-overflow\">\n<span aria-label=\"Show 3 more badges\" class=\"c4647f690 c7f74399a\">\n+3\n</span>\n</li>\n</ul>\n@route /"
+    ],
+    "calls": []
+   },
+   "a limit above the count hides the overflow chip": {
+    "snapshots": [
+     "<ul aria-label=\"3 badges earned\" class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"badge-shelf\">\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"b1\" data-mol-id=\"badge-shelf-item\">\n<span aria-label=\"First Post\" role=\"img\" title=\"First Post — Made your first post\">\n<span aria-hidden=\"true\" data-mol-id=\"badge-shelf-icon-glyph\">\n*\n</span>\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"b2\" data-mol-id=\"badge-shelf-item\">\n<span aria-label=\"Helpful\" role=\"img\" title=\"Helpful\">\n<span aria-hidden=\"true\" data-mol-id=\"badge-shelf-icon-glyph\">\n+\n</span>\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"b3\" data-mol-id=\"badge-shelf-item\">\n<span aria-label=\"Veteran\" role=\"img\" title=\"Veteran\">\n<span aria-hidden=\"true\" data-mol-id=\"badge-shelf-icon-glyph\">\nV\n</span>\n</span>\n</li>\n</ul>\n@route /"
+    ],
+    "calls": []
+   },
+   "combined name and description tooltip": {
+    "snapshots": [
+     "<ul aria-label=\"1 badges earned\" class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"badge-shelf\">\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"b1\" data-mol-id=\"badge-shelf-item\">\n<span aria-label=\"First Post\" role=\"img\" title=\"First Post — Made your first post\">\n<span aria-hidden=\"true\" data-mol-id=\"badge-shelf-icon-glyph\">\n*\n</span>\n</span>\n</li>\n</ul>\n@route /"
+    ],
+    "calls": []
+   },
+   "name-only tooltip": {
+    "snapshots": [
+     "<ul aria-label=\"1 badges earned\" class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"badge-shelf\">\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"b2\" data-mol-id=\"badge-shelf-item\">\n<span aria-label=\"Helpful\" role=\"img\" title=\"Helpful\">\n<span aria-hidden=\"true\" data-mol-id=\"badge-shelf-icon-glyph\">\n+\n</span>\n</span>\n</li>\n</ul>\n@route /"
+    ],
+    "calls": []
+   },
+   "combined tooltip with an empty description": {
+    "snapshots": [
+     "<ul aria-label=\"1 badges earned\" class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"badge-shelf\">\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"e\" data-mol-id=\"badge-shelf-item\">\n<span aria-label=\"Empty\" role=\"img\" title=\"Empty\">\n<span aria-hidden=\"true\" data-mol-id=\"badge-shelf-icon-glyph\">\nE\n</span>\n</span>\n</li>\n</ul>\n@route /"
+    ],
+    "calls": []
+   },
+   "image icon": {
+    "snapshots": [
+     "<ul aria-label=\"1 badges earned\" class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"badge-shelf\">\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"b4\" data-mol-id=\"badge-shelf-item\">\n<span aria-label=\"Image Badge\" role=\"img\" title=\"Image Badge\">\n<img alt class=\"ca596e575\" data-mol-id=\"badge-shelf-icon-img\" src=\"data:image/png;base64,iVBORw0KGgo=\" style=\"height: 24px; width: 24px\">\n</img>\n</span>\n</li>\n</ul>\n@route /"
+    ],
+    "calls": []
+   },
+   "glyph fallback without an icon": {
+    "snapshots": [
+     "<ul aria-label=\"1 badges earned\" class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"badge-shelf\">\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"b3\" data-mol-id=\"badge-shelf-item\">\n<span aria-label=\"Glyph\" role=\"img\" title=\"Glyph\">\n<span aria-hidden=\"true\" data-mol-id=\"badge-shelf-icon-glyph\">\n*\n</span>\n</span>\n</li>\n</ul>\n@route /"
+    ],
+    "calls": []
+   },
+   "mixed icons": {
+    "snapshots": [
+     "<ul aria-label=\"3 badges earned\" class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"badge-shelf\">\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"b1\" data-mol-id=\"badge-shelf-item\">\n<span aria-label=\"First Post\" role=\"img\" title=\"First Post — Made your first post\">\n<span aria-hidden=\"true\" data-mol-id=\"badge-shelf-icon-glyph\">\n*\n</span>\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"b4\" data-mol-id=\"badge-shelf-item\">\n<span aria-label=\"Image Badge\" role=\"img\" title=\"Image Badge\">\n<img alt class=\"ca596e575\" data-mol-id=\"badge-shelf-icon-img\" src=\"data:image/png;base64,iVBORw0KGgo=\" style=\"height: 24px; width: 24px\">\n</img>\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"b3\" data-mol-id=\"badge-shelf-item\">\n<span aria-label=\"Glyph\" role=\"img\" title=\"Glyph\">\n<span aria-hidden=\"true\" data-mol-id=\"badge-shelf-icon-glyph\">\n*\n</span>\n</span>\n</li>\n</ul>\n@route /"
+    ],
+    "calls": []
+   },
+   "clickable badges invoke onClick with the badge": {
+    "snapshots": [
+     "<ul aria-label=\"3 badges earned\" class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"badge-shelf\">\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"b1\" data-mol-id=\"badge-shelf-item\">\n<button aria-label=\"First Post\" class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"badge-shelf-button\" title=\"First Post — Made your first post\" type=\"button\">\n<span aria-hidden=\"true\" data-mol-id=\"badge-shelf-icon-glyph\">\n*\n</span>\n</button>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"b2\" data-mol-id=\"badge-shelf-item\">\n<button aria-label=\"Helpful\" class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"badge-shelf-button\" title=\"Helpful\" type=\"button\">\n<span aria-hidden=\"true\" data-mol-id=\"badge-shelf-icon-glyph\">\n+\n</span>\n</button>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"b3\" data-mol-id=\"badge-shelf-item\">\n<button aria-label=\"Veteran\" class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"badge-shelf-button\" title=\"Veteran\" type=\"button\">\n<span aria-hidden=\"true\" data-mol-id=\"badge-shelf-icon-glyph\">\nV\n</span>\n</button>\n</li>\n</ul>\n@route /",
+     "<ul aria-label=\"3 badges earned\" class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"badge-shelf\">\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"b1\" data-mol-id=\"badge-shelf-item\">\n<button aria-label=\"First Post\" class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"badge-shelf-button\" title=\"First Post — Made your first post\" type=\"button\">\n<span aria-hidden=\"true\" data-mol-id=\"badge-shelf-icon-glyph\">\n*\n</span>\n</button>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"b2\" data-mol-id=\"badge-shelf-item\">\n<button aria-label=\"Helpful\" class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"badge-shelf-button\" title=\"Helpful\" type=\"button\">\n<span aria-hidden=\"true\" data-mol-id=\"badge-shelf-icon-glyph\">\n+\n</span>\n</button>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"b3\" data-mol-id=\"badge-shelf-item\">\n<button aria-label=\"Veteran\" class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"badge-shelf-button\" title=\"Veteran\" type=\"button\">\n<span aria-hidden=\"true\" data-mol-id=\"badge-shelf-icon-glyph\">\nV\n</span>\n</button>\n</li>\n</ul>\n@route /",
+     "<ul aria-label=\"3 badges earned\" class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"badge-shelf\">\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"b1\" data-mol-id=\"badge-shelf-item\">\n<button aria-label=\"First Post\" class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"badge-shelf-button\" title=\"First Post — Made your first post\" type=\"button\">\n<span aria-hidden=\"true\" data-mol-id=\"badge-shelf-icon-glyph\">\n*\n</span>\n</button>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"b2\" data-mol-id=\"badge-shelf-item\">\n<button aria-label=\"Helpful\" class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"badge-shelf-button\" title=\"Helpful\" type=\"button\">\n<span aria-hidden=\"true\" data-mol-id=\"badge-shelf-icon-glyph\">\n+\n</span>\n</button>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"b3\" data-mol-id=\"badge-shelf-item\">\n<button aria-label=\"Veteran\" class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"badge-shelf-button\" title=\"Veteran\" type=\"button\">\n<span aria-hidden=\"true\" data-mol-id=\"badge-shelf-icon-glyph\">\nV\n</span>\n</button>\n</li>\n</ul>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onClick",
+      "args": [
+       {
+        "icon": "+",
+        "id": "b2",
+        "name": "Helpful"
+       }
+      ]
+     },
+     {
+      "name": "onClick",
+      "args": [
+       {
+        "description": "Made your first post",
+        "icon": "*",
+        "id": "b1",
+        "name": "First Post"
+       }
+      ]
+     }
+    ]
+   },
+   "the overflow chip invokes onClick with null": {
+    "snapshots": [
+     "<ul aria-label=\"7 badges earned\" class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"badge-shelf\">\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"b1\" data-mol-id=\"badge-shelf-item\">\n<button aria-label=\"First Post\" class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"badge-shelf-button\" title=\"First Post — Made your first post\" type=\"button\">\n<span aria-hidden=\"true\" data-mol-id=\"badge-shelf-icon-glyph\">\n*\n</span>\n</button>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"b2\" data-mol-id=\"badge-shelf-item\">\n<button aria-label=\"Helpful\" class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"badge-shelf-button\" title=\"Helpful\" type=\"button\">\n<span aria-hidden=\"true\" data-mol-id=\"badge-shelf-icon-glyph\">\n+\n</span>\n</button>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"b3\" data-mol-id=\"badge-shelf-item\">\n<button aria-label=\"Veteran\" class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"badge-shelf-button\" title=\"Veteran\" type=\"button\">\n<span aria-hidden=\"true\" data-mol-id=\"badge-shelf-icon-glyph\">\nV\n</span>\n</button>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"b4\" data-mol-id=\"badge-shelf-item\">\n<button aria-label=\"Editor\" class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"badge-shelf-button\" title=\"Editor\" type=\"button\">\n<span aria-hidden=\"true\" data-mol-id=\"badge-shelf-icon-glyph\">\nE\n</span>\n</button>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"b5\" data-mol-id=\"badge-shelf-item\">\n<button aria-label=\"Marathoner\" class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"badge-shelf-button\" title=\"Marathoner\" type=\"button\">\n<span aria-hidden=\"true\" data-mol-id=\"badge-shelf-icon-glyph\">\nM\n</span>\n</button>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"badge-shelf-overflow\">\n<button aria-label=\"Show 2 more badges\" class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9052b18c c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"badge-shelf-overflow-button\" type=\"button\">\n+2\n</button>\n</li>\n</ul>\n@route /",
+     "<ul aria-label=\"7 badges earned\" class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"badge-shelf\">\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"b1\" data-mol-id=\"badge-shelf-item\">\n<button aria-label=\"First Post\" class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"badge-shelf-button\" title=\"First Post — Made your first post\" type=\"button\">\n<span aria-hidden=\"true\" data-mol-id=\"badge-shelf-icon-glyph\">\n*\n</span>\n</button>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"b2\" data-mol-id=\"badge-shelf-item\">\n<button aria-label=\"Helpful\" class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"badge-shelf-button\" title=\"Helpful\" type=\"button\">\n<span aria-hidden=\"true\" data-mol-id=\"badge-shelf-icon-glyph\">\n+\n</span>\n</button>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"b3\" data-mol-id=\"badge-shelf-item\">\n<button aria-label=\"Veteran\" class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"badge-shelf-button\" title=\"Veteran\" type=\"button\">\n<span aria-hidden=\"true\" data-mol-id=\"badge-shelf-icon-glyph\">\nV\n</span>\n</button>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"b4\" data-mol-id=\"badge-shelf-item\">\n<button aria-label=\"Editor\" class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"badge-shelf-button\" title=\"Editor\" type=\"button\">\n<span aria-hidden=\"true\" data-mol-id=\"badge-shelf-icon-glyph\">\nE\n</span>\n</button>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"b5\" data-mol-id=\"badge-shelf-item\">\n<button aria-label=\"Marathoner\" class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"badge-shelf-button\" title=\"Marathoner\" type=\"button\">\n<span aria-hidden=\"true\" data-mol-id=\"badge-shelf-icon-glyph\">\nM\n</span>\n</button>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"badge-shelf-overflow\">\n<button aria-label=\"Show 2 more badges\" class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9052b18c c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"badge-shelf-overflow-button\" type=\"button\">\n+2\n</button>\n</li>\n</ul>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onClick",
+      "args": [
+       null
+      ]
+     }
+    ]
+   },
+   "the overflow chip is not clickable without onClick": {
+    "snapshots": [
+     "<ul aria-label=\"7 badges earned\" class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"badge-shelf\">\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"b1\" data-mol-id=\"badge-shelf-item\">\n<span aria-label=\"First Post\" role=\"img\" title=\"First Post — Made your first post\">\n<span aria-hidden=\"true\" data-mol-id=\"badge-shelf-icon-glyph\">\n*\n</span>\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"b2\" data-mol-id=\"badge-shelf-item\">\n<span aria-label=\"Helpful\" role=\"img\" title=\"Helpful\">\n<span aria-hidden=\"true\" data-mol-id=\"badge-shelf-icon-glyph\">\n+\n</span>\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"b3\" data-mol-id=\"badge-shelf-item\">\n<span aria-label=\"Veteran\" role=\"img\" title=\"Veteran\">\n<span aria-hidden=\"true\" data-mol-id=\"badge-shelf-icon-glyph\">\nV\n</span>\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"b4\" data-mol-id=\"badge-shelf-item\">\n<span aria-label=\"Editor\" role=\"img\" title=\"Editor\">\n<span aria-hidden=\"true\" data-mol-id=\"badge-shelf-icon-glyph\">\nE\n</span>\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"b5\" data-mol-id=\"badge-shelf-item\">\n<span aria-label=\"Marathoner\" role=\"img\" title=\"Marathoner\">\n<span aria-hidden=\"true\" data-mol-id=\"badge-shelf-icon-glyph\">\nM\n</span>\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"badge-shelf-overflow\">\n<span aria-label=\"Show 2 more badges\" class=\"c4647f690 c7f74399a\">\n+2\n</span>\n</li>\n</ul>\n@route /"
+    ],
+    "calls": []
+   },
+   "non-interactive badges render no buttons": {
+    "snapshots": [
+     "<ul aria-label=\"3 badges earned\" class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"badge-shelf\">\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"b1\" data-mol-id=\"badge-shelf-item\">\n<span aria-label=\"First Post\" role=\"img\" title=\"First Post — Made your first post\">\n<span aria-hidden=\"true\" data-mol-id=\"badge-shelf-icon-glyph\">\n*\n</span>\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"b2\" data-mol-id=\"badge-shelf-item\">\n<span aria-label=\"Helpful\" role=\"img\" title=\"Helpful\">\n<span aria-hidden=\"true\" data-mol-id=\"badge-shelf-icon-glyph\">\n+\n</span>\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"b3\" data-mol-id=\"badge-shelf-item\">\n<span aria-label=\"Veteran\" role=\"img\" title=\"Veteran\">\n<span aria-hidden=\"true\" data-mol-id=\"badge-shelf-icon-glyph\">\nV\n</span>\n</span>\n</li>\n</ul>\n@route /"
+    ],
+    "calls": []
+   },
+   "className on the shelf row": {
+    "snapshots": [
+     "<ul aria-label=\"3 badges earned\" class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd75bbd18 cd9b20003\" data-mol-id=\"badge-shelf\">\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"b1\" data-mol-id=\"badge-shelf-item\">\n<span aria-label=\"First Post\" role=\"img\" title=\"First Post — Made your first post\">\n<span aria-hidden=\"true\" data-mol-id=\"badge-shelf-icon-glyph\">\n*\n</span>\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"b2\" data-mol-id=\"badge-shelf-item\">\n<span aria-label=\"Helpful\" role=\"img\" title=\"Helpful\">\n<span aria-hidden=\"true\" data-mol-id=\"badge-shelf-icon-glyph\">\n+\n</span>\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"b3\" data-mol-id=\"badge-shelf-item\">\n<span aria-label=\"Veteran\" role=\"img\" title=\"Veteran\">\n<span aria-hidden=\"true\" data-mol-id=\"badge-shelf-icon-glyph\">\nV\n</span>\n</span>\n</li>\n</ul>\n@route /"
+    ],
+    "calls": []
+   },
+   "badges change from empty to filled": {
+    "snapshots": [
+     "\n@route /",
+     "<ul aria-label=\"3 badges earned\" class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"badge-shelf\">\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"b1\" data-mol-id=\"badge-shelf-item\">\n<span aria-label=\"First Post\" role=\"img\" title=\"First Post — Made your first post\">\n<span aria-hidden=\"true\" data-mol-id=\"badge-shelf-icon-glyph\">\n*\n</span>\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"b2\" data-mol-id=\"badge-shelf-item\">\n<span aria-label=\"Helpful\" role=\"img\" title=\"Helpful\">\n<span aria-hidden=\"true\" data-mol-id=\"badge-shelf-icon-glyph\">\n+\n</span>\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"b3\" data-mol-id=\"badge-shelf-item\">\n<span aria-label=\"Veteran\" role=\"img\" title=\"Veteran\">\n<span aria-hidden=\"true\" data-mol-id=\"badge-shelf-icon-glyph\">\nV\n</span>\n</span>\n</li>\n</ul>\n@route /"
+    ],
+    "calls": []
+   },
+   "badges change from filled to empty": {
+    "snapshots": [
+     "<ul aria-label=\"3 badges earned\" class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"badge-shelf\">\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"b1\" data-mol-id=\"badge-shelf-item\">\n<span aria-label=\"First Post\" role=\"img\" title=\"First Post — Made your first post\">\n<span aria-hidden=\"true\" data-mol-id=\"badge-shelf-icon-glyph\">\n*\n</span>\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"b2\" data-mol-id=\"badge-shelf-item\">\n<span aria-label=\"Helpful\" role=\"img\" title=\"Helpful\">\n<span aria-hidden=\"true\" data-mol-id=\"badge-shelf-icon-glyph\">\n+\n</span>\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"b3\" data-mol-id=\"badge-shelf-item\">\n<span aria-label=\"Veteran\" role=\"img\" title=\"Veteran\">\n<span aria-hidden=\"true\" data-mol-id=\"badge-shelf-icon-glyph\">\nV\n</span>\n</span>\n</li>\n</ul>\n@route /",
+     "\n@route /"
+    ],
+    "calls": []
+   },
+   "the limit changes": {
+    "snapshots": [
+     "<ul aria-label=\"7 badges earned\" class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"badge-shelf\">\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"b1\" data-mol-id=\"badge-shelf-item\">\n<span aria-label=\"First Post\" role=\"img\" title=\"First Post — Made your first post\">\n<span aria-hidden=\"true\" data-mol-id=\"badge-shelf-icon-glyph\">\n*\n</span>\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"b2\" data-mol-id=\"badge-shelf-item\">\n<span aria-label=\"Helpful\" role=\"img\" title=\"Helpful\">\n<span aria-hidden=\"true\" data-mol-id=\"badge-shelf-icon-glyph\">\n+\n</span>\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"badge-shelf-overflow\">\n<span aria-label=\"Show 5 more badges\" class=\"c4647f690 c7f74399a\">\n+5\n</span>\n</li>\n</ul>\n@route /",
+     "<ul aria-label=\"7 badges earned\" class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"badge-shelf\">\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"b1\" data-mol-id=\"badge-shelf-item\">\n<span aria-label=\"First Post\" role=\"img\" title=\"First Post — Made your first post\">\n<span aria-hidden=\"true\" data-mol-id=\"badge-shelf-icon-glyph\">\n*\n</span>\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"b2\" data-mol-id=\"badge-shelf-item\">\n<span aria-label=\"Helpful\" role=\"img\" title=\"Helpful\">\n<span aria-hidden=\"true\" data-mol-id=\"badge-shelf-icon-glyph\">\n+\n</span>\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"b3\" data-mol-id=\"badge-shelf-item\">\n<span aria-label=\"Veteran\" role=\"img\" title=\"Veteran\">\n<span aria-hidden=\"true\" data-mol-id=\"badge-shelf-icon-glyph\">\nV\n</span>\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"b4\" data-mol-id=\"badge-shelf-item\">\n<span aria-label=\"Editor\" role=\"img\" title=\"Editor\">\n<span aria-hidden=\"true\" data-mol-id=\"badge-shelf-icon-glyph\">\nE\n</span>\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"b5\" data-mol-id=\"badge-shelf-item\">\n<span aria-label=\"Marathoner\" role=\"img\" title=\"Marathoner\">\n<span aria-hidden=\"true\" data-mol-id=\"badge-shelf-icon-glyph\">\nM\n</span>\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"b6\" data-mol-id=\"badge-shelf-item\">\n<span aria-label=\"Legend\" role=\"img\" title=\"Legend\">\n<span aria-hidden=\"true\" data-mol-id=\"badge-shelf-icon-glyph\">\nL\n</span>\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"badge-shelf-overflow\">\n<span aria-label=\"Show 1 more badges\" class=\"c4647f690 c7f74399a\">\n+1\n</span>\n</li>\n</ul>\n@route /",
+     "<ul aria-label=\"7 badges earned\" class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"badge-shelf\">\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"b1\" data-mol-id=\"badge-shelf-item\">\n<span aria-label=\"First Post\" role=\"img\" title=\"First Post — Made your first post\">\n<span aria-hidden=\"true\" data-mol-id=\"badge-shelf-icon-glyph\">\n*\n</span>\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"badge-shelf-overflow\">\n<span aria-label=\"Show 6 more badges\" class=\"c4647f690 c7f74399a\">\n+6\n</span>\n</li>\n</ul>\n@route /"
+    ],
+    "calls": []
+   },
+   "the badges change while clickable": {
+    "snapshots": [
+     "<ul aria-label=\"3 badges earned\" class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"badge-shelf\">\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"b1\" data-mol-id=\"badge-shelf-item\">\n<button aria-label=\"First Post\" class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"badge-shelf-button\" title=\"First Post — Made your first post\" type=\"button\">\n<span aria-hidden=\"true\" data-mol-id=\"badge-shelf-icon-glyph\">\n*\n</span>\n</button>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"b2\" data-mol-id=\"badge-shelf-item\">\n<button aria-label=\"Helpful\" class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"badge-shelf-button\" title=\"Helpful\" type=\"button\">\n<span aria-hidden=\"true\" data-mol-id=\"badge-shelf-icon-glyph\">\n+\n</span>\n</button>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"b3\" data-mol-id=\"badge-shelf-item\">\n<button aria-label=\"Veteran\" class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"badge-shelf-button\" title=\"Veteran\" type=\"button\">\n<span aria-hidden=\"true\" data-mol-id=\"badge-shelf-icon-glyph\">\nV\n</span>\n</button>\n</li>\n</ul>\n@route /",
+     "<ul aria-label=\"1 badges earned\" class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"badge-shelf\">\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"b2\" data-mol-id=\"badge-shelf-item\">\n<button aria-label=\"Helpful\" class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"badge-shelf-button\" title=\"Helpful\" type=\"button\">\n<span aria-hidden=\"true\" data-mol-id=\"badge-shelf-icon-glyph\">\n+\n</span>\n</button>\n</li>\n</ul>\n@route /",
+     "<ul aria-label=\"1 badges earned\" class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"badge-shelf\">\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"b2\" data-mol-id=\"badge-shelf-item\">\n<button aria-label=\"Helpful\" class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"badge-shelf-button\" title=\"Helpful\" type=\"button\">\n<span aria-hidden=\"true\" data-mol-id=\"badge-shelf-icon-glyph\">\n+\n</span>\n</button>\n</li>\n</ul>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onClick",
+      "args": [
+       {
+        "icon": "+",
+        "id": "b2",
+        "name": "Helpful"
+       }
+      ]
+     }
+    ]
+   },
+   "labels follow a locale switch": {
+    "snapshots": [
+     "<ul aria-label=\"7 badges earned\" class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"badge-shelf\">\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"b1\" data-mol-id=\"badge-shelf-item\">\n<span aria-label=\"First Post\" role=\"img\" title=\"First Post — Made your first post\">\n<span aria-hidden=\"true\" data-mol-id=\"badge-shelf-icon-glyph\">\n*\n</span>\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"b2\" data-mol-id=\"badge-shelf-item\">\n<span aria-label=\"Helpful\" role=\"img\" title=\"Helpful\">\n<span aria-hidden=\"true\" data-mol-id=\"badge-shelf-icon-glyph\">\n+\n</span>\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"badge-shelf-overflow\">\n<span aria-label=\"Show 5 more badges\" class=\"c4647f690 c7f74399a\">\n+5\n</span>\n</li>\n</ul>\n@route /",
+     "<ul aria-label=\"7 badges gagnés\" class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"badge-shelf\">\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"b1\" data-mol-id=\"badge-shelf-item\">\n<span aria-label=\"First Post\" role=\"img\" title=\"First Post — Made your first post\">\n<span aria-hidden=\"true\" data-mol-id=\"badge-shelf-icon-glyph\">\n*\n</span>\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-badge-id=\"b2\" data-mol-id=\"badge-shelf-item\">\n<span aria-label=\"Helpful\" role=\"img\" title=\"Helpful\">\n<span aria-hidden=\"true\" data-mol-id=\"badge-shelf-icon-glyph\">\n+\n</span>\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9773cd2b ccae02ff2 cd9b20003\" data-mol-id=\"badge-shelf-overflow\">\n<span aria-label=\"Afficher 5 badges de plus\" class=\"c4647f690 c7f74399a\">\n+5\n</span>\n</li>\n</ul>\n@route /"
+    ],
+    "calls": []
+   },
+   "no badges renders nothing, then a locale switch": {
+    "snapshots": [
+     "\n@route /",
+     "\n@route /"
+    ],
+    "calls": []
+   }
+  },
+  "ReputationBadge": {
+   "compact, newcomer score": {
+    "snapshots": [
+     "<span aria-label=\"42 reputation, Newcomer\" class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"reputation-badge\">\n<span class=\"c7f74399a\" data-mol-id=\"reputation-badge-score\">\n42\n</span>\n<span class=\"c046696ca c1e8176ab c1f523237 c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f74399a c9052b18c c92985a9a cb1b1fd95 cc06b624c cd037ccc6 cdccefb20\">\nNewcomer\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "compact, contributor score": {
+    "snapshots": [
+     "<span aria-label=\"250 reputation, Contributor\" class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"reputation-badge\">\n<span class=\"c7f74399a\" data-mol-id=\"reputation-badge-score\">\n250\n</span>\n<span class=\"c046696ca c1e8176ab c1f523237 c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f6faa75 c7f74399a c9052b18c c92985a9a cc06b624c cd037ccc6 cdccefb20\">\nContributor\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "compact, trusted score": {
+    "snapshots": [
+     "<span aria-label=\"1.5k reputation, Trusted\" class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"reputation-badge\">\n<span class=\"c7f74399a\" data-mol-id=\"reputation-badge-score\">\n1.5k\n</span>\n<span class=\"c046696ca c1e8176ab c1f523237 c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f6faa75 c7f74399a c9052b18c c92985a9a cc06b624c cd037ccc6 cdccefb20\">\nTrusted\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "compact, veteran score": {
+    "snapshots": [
+     "<span aria-label=\"2.5k reputation, Veteran\" class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"reputation-badge\">\n<span class=\"c7f74399a\" data-mol-id=\"reputation-badge-score\">\n2.5k\n</span>\n<span class=\"c046696ca c1e8176ab c1f523237 c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f74399a c9052b18c c92985a9a cc06b624c cd037ccc6 cdccefb20 cef6f5494\">\nVeteran\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "compact, legend score": {
+    "snapshots": [
+     "<span aria-label=\"50k reputation, Legend\" class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"reputation-badge\">\n<span class=\"c7f74399a\" data-mol-id=\"reputation-badge-score\">\n50k\n</span>\n<span class=\"c04255343 c046696ca c1e8176ab c1f523237 c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f74399a c9052b18c c92985a9a cc06b624c cd037ccc6 cdccefb20\">\nLegend\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "explicit level overrides the score": {
+    "snapshots": [
+     "<span aria-label=\"5 reputation, Veteran\" class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"reputation-badge\">\n<span class=\"c7f74399a\" data-mol-id=\"reputation-badge-score\">\n5\n</span>\n<span class=\"c046696ca c1e8176ab c1f523237 c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f74399a c9052b18c c92985a9a cc06b624c cd037ccc6 cdccefb20 cef6f5494\">\nVeteran\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "custom thresholds": {
+    "snapshots": [
+     "<span aria-label=\"12 reputation, Contributor\" class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"reputation-badge\">\n<span class=\"c7f74399a\" data-mol-id=\"reputation-badge-score\">\n12\n</span>\n<span class=\"c046696ca c1e8176ab c1f523237 c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f6faa75 c7f74399a c9052b18c c92985a9a cc06b624c cd037ccc6 cdccefb20\">\nContributor\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "out-of-contract level id": {
+    "snapshots": [
+     "<span aria-label=\"5 reputation, guru\" class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"reputation-badge\">\n<span class=\"c7f74399a\" data-mol-id=\"reputation-badge-score\">\n5\n</span>\n<span class=\"c046696ca c1e8176ab c1f523237 c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f74399a c9052b18c c92985a9a cb1b1fd95 cc06b624c cd037ccc6 cdccefb20\">\nguru\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "out-of-contract level id with separators": {
+    "snapshots": [
+     "<span aria-label=\"5 reputation, top_fan\" class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"reputation-badge\">\n<span class=\"c7f74399a\" data-mol-id=\"reputation-badge-score\">\n5\n</span>\n<span class=\"c046696ca c1e8176ab c1f523237 c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f74399a c9052b18c c92985a9a cb1b1fd95 cc06b624c cd037ccc6 cdccefb20\">\ntop_fan\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "plain integer score": {
+    "snapshots": [
+     "<span aria-label=\"42 reputation, Newcomer\" class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"reputation-badge\">\n<span class=\"c7f74399a\" data-mol-id=\"reputation-badge-score\">\n42\n</span>\n<span class=\"c046696ca c1e8176ab c1f523237 c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f74399a c9052b18c c92985a9a cb1b1fd95 cc06b624c cd037ccc6 cdccefb20\">\nNewcomer\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "thousands trimmed of a trailing zero": {
+    "snapshots": [
+     "<span aria-label=\"2k reputation, Veteran\" class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"reputation-badge\">\n<span class=\"c7f74399a\" data-mol-id=\"reputation-badge-score\">\n2k\n</span>\n<span class=\"c046696ca c1e8176ab c1f523237 c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f74399a c9052b18c c92985a9a cc06b624c cd037ccc6 cdccefb20 cef6f5494\">\nVeteran\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "millions rounded to one decimal": {
+    "snapshots": [
+     "<span aria-label=\"1.3m reputation, Legend\" class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"reputation-badge\">\n<span class=\"c7f74399a\" data-mol-id=\"reputation-badge-score\">\n1.3m\n</span>\n<span class=\"c04255343 c046696ca c1e8176ab c1f523237 c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f74399a c9052b18c c92985a9a cc06b624c cd037ccc6 cdccefb20\">\nLegend\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "millions trimmed of a trailing zero": {
+    "snapshots": [
+     "<span aria-label=\"2m reputation, Legend\" class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"reputation-badge\">\n<span class=\"c7f74399a\" data-mol-id=\"reputation-badge-score\">\n2m\n</span>\n<span class=\"c04255343 c046696ca c1e8176ab c1f523237 c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f74399a c9052b18c c92985a9a cc06b624c cd037ccc6 cdccefb20\">\nLegend\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "negative score": {
+    "snapshots": [
+     "<span aria-label=\"-1.5k reputation, Newcomer\" class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"reputation-badge\">\n<span class=\"c7f74399a\" data-mol-id=\"reputation-badge-score\">\n-1.5k\n</span>\n<span class=\"c046696ca c1e8176ab c1f523237 c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f74399a c9052b18c c92985a9a cb1b1fd95 cc06b624c cd037ccc6 cdccefb20\">\nNewcomer\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "negative million score": {
+    "snapshots": [
+     "<span aria-label=\"-1.3m reputation, Newcomer\" class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"reputation-badge\">\n<span class=\"c7f74399a\" data-mol-id=\"reputation-badge-score\">\n-1.3m\n</span>\n<span class=\"c046696ca c1e8176ab c1f523237 c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f74399a c9052b18c c92985a9a cb1b1fd95 cc06b624c cd037ccc6 cdccefb20\">\nNewcomer\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "non-finite score renders zero": {
+    "snapshots": [
+     "<span aria-label=\"0 reputation, Newcomer\" class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"reputation-badge\">\n<span class=\"c7f74399a\" data-mol-id=\"reputation-badge-score\">\n0\n</span>\n<span class=\"c046696ca c1e8176ab c1f523237 c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f74399a c9052b18c c92985a9a cb1b1fd95 cc06b624c cd037ccc6 cdccefb20\">\nNewcomer\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "infinite score renders zero": {
+    "snapshots": [
+     "<span aria-label=\"0 reputation, Legend\" class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"reputation-badge\">\n<span class=\"c7f74399a\" data-mol-id=\"reputation-badge-score\">\n0\n</span>\n<span class=\"c04255343 c046696ca c1e8176ab c1f523237 c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f74399a c9052b18c c92985a9a cc06b624c cd037ccc6 cdccefb20\">\nLegend\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "rounded fractional score": {
+    "snapshots": [
+     "<span aria-label=\"42 reputation, Newcomer\" class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"reputation-badge\">\n<span class=\"c7f74399a\" data-mol-id=\"reputation-badge-score\">\n42\n</span>\n<span class=\"c046696ca c1e8176ab c1f523237 c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f74399a c9052b18c c92985a9a cb1b1fd95 cc06b624c cd037ccc6 cdccefb20\">\nNewcomer\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "full variant": {
+    "snapshots": [
+     "<div aria-label=\"1.5k reputation, Trusted\" class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" data-mol-id=\"reputation-badge\">\n<span class=\"c4647f690 c80b1c428\">\nReputation\n</span>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"reputation-badge-row\">\n<span class=\"c0d99ed10 c6a2a1a28\" data-mol-id=\"reputation-badge-score\">\n1.5k\n</span>\n<span class=\"c046696ca c1e8176ab c1f523237 c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f6faa75 c7f74399a c9052b18c c92985a9a cc06b624c cd037ccc6 cdccefb20\">\nTrusted\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "full variant with an explicit level": {
+    "snapshots": [
+     "<div aria-label=\"0 reputation, Legend\" class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" data-mol-id=\"reputation-badge\">\n<span class=\"c4647f690 c80b1c428\">\nReputation\n</span>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"reputation-badge-row\">\n<span class=\"c0d99ed10 c6a2a1a28\" data-mol-id=\"reputation-badge-score\">\n0\n</span>\n<span class=\"c04255343 c046696ca c1e8176ab c1f523237 c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f74399a c9052b18c c92985a9a cc06b624c cd037ccc6 cdccefb20\">\nLegend\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "full variant with an out-of-contract level": {
+    "snapshots": [
+     "<div aria-label=\"0 reputation, guru\" class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" data-mol-id=\"reputation-badge\">\n<span class=\"c4647f690 c80b1c428\">\nReputation\n</span>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"reputation-badge-row\">\n<span class=\"c0d99ed10 c6a2a1a28\" data-mol-id=\"reputation-badge-score\">\n0\n</span>\n<span class=\"c046696ca c1e8176ab c1f523237 c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f74399a c9052b18c c92985a9a cb1b1fd95 cc06b624c cd037ccc6 cdccefb20\">\nguru\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "className on the compact root": {
+    "snapshots": [
+     "<span aria-label=\"1.5k reputation, Trusted\" class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd75bbd18 cd9b20003\" data-mol-id=\"reputation-badge\">\n<span class=\"c7f74399a\" data-mol-id=\"reputation-badge-score\">\n1.5k\n</span>\n<span class=\"c046696ca c1e8176ab c1f523237 c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f6faa75 c7f74399a c9052b18c c92985a9a cc06b624c cd037ccc6 cdccefb20\">\nTrusted\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "className on the full root": {
+    "snapshots": [
+     "<div aria-label=\"1.5k reputation, Trusted\" class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2 cd75bbd18\" data-mol-id=\"reputation-badge\">\n<span class=\"c4647f690 c80b1c428\">\nReputation\n</span>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"reputation-badge-row\">\n<span class=\"c0d99ed10 c6a2a1a28\" data-mol-id=\"reputation-badge-score\">\n1.5k\n</span>\n<span class=\"c046696ca c1e8176ab c1f523237 c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f6faa75 c7f74399a c9052b18c c92985a9a cc06b624c cd037ccc6 cdccefb20\">\nTrusted\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "variant changes from compact to full": {
+    "snapshots": [
+     "<span aria-label=\"1.5k reputation, Trusted\" class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"reputation-badge\">\n<span class=\"c7f74399a\" data-mol-id=\"reputation-badge-score\">\n1.5k\n</span>\n<span class=\"c046696ca c1e8176ab c1f523237 c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f6faa75 c7f74399a c9052b18c c92985a9a cc06b624c cd037ccc6 cdccefb20\">\nTrusted\n</span>\n</span>\n@route /",
+     "<div aria-label=\"1.5k reputation, Trusted\" class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" data-mol-id=\"reputation-badge\">\n<span class=\"c4647f690 c80b1c428\">\nReputation\n</span>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"reputation-badge-row\">\n<span class=\"c0d99ed10 c6a2a1a28\" data-mol-id=\"reputation-badge-score\">\n1.5k\n</span>\n<span class=\"c046696ca c1e8176ab c1f523237 c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f6faa75 c7f74399a c9052b18c c92985a9a cc06b624c cd037ccc6 cdccefb20\">\nTrusted\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "variant changes from full to compact": {
+    "snapshots": [
+     "<div aria-label=\"1.5k reputation, Trusted\" class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" data-mol-id=\"reputation-badge\">\n<span class=\"c4647f690 c80b1c428\">\nReputation\n</span>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"reputation-badge-row\">\n<span class=\"c0d99ed10 c6a2a1a28\" data-mol-id=\"reputation-badge-score\">\n1.5k\n</span>\n<span class=\"c046696ca c1e8176ab c1f523237 c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f6faa75 c7f74399a c9052b18c c92985a9a cc06b624c cd037ccc6 cdccefb20\">\nTrusted\n</span>\n</div>\n</div>\n@route /",
+     "<span aria-label=\"1.5k reputation, Trusted\" class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"reputation-badge\">\n<span class=\"c7f74399a\" data-mol-id=\"reputation-badge-score\">\n1.5k\n</span>\n<span class=\"c046696ca c1e8176ab c1f523237 c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f6faa75 c7f74399a c9052b18c c92985a9a cc06b624c cd037ccc6 cdccefb20\">\nTrusted\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "score changes re-derive the level": {
+    "snapshots": [
+     "<span aria-label=\"10 reputation, Newcomer\" class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"reputation-badge\">\n<span class=\"c7f74399a\" data-mol-id=\"reputation-badge-score\">\n10\n</span>\n<span class=\"c046696ca c1e8176ab c1f523237 c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f74399a c9052b18c c92985a9a cb1b1fd95 cc06b624c cd037ccc6 cdccefb20\">\nNewcomer\n</span>\n</span>\n@route /",
+     "<span aria-label=\"250 reputation, Contributor\" class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"reputation-badge\">\n<span class=\"c7f74399a\" data-mol-id=\"reputation-badge-score\">\n250\n</span>\n<span class=\"c046696ca c1e8176ab c1f523237 c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f6faa75 c7f74399a c9052b18c c92985a9a cc06b624c cd037ccc6 cdccefb20\">\nContributor\n</span>\n</span>\n@route /",
+     "<span aria-label=\"50k reputation, Legend\" class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"reputation-badge\">\n<span class=\"c7f74399a\" data-mol-id=\"reputation-badge-score\">\n50k\n</span>\n<span class=\"c04255343 c046696ca c1e8176ab c1f523237 c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f74399a c9052b18c c92985a9a cc06b624c cd037ccc6 cdccefb20\">\nLegend\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "explicit level clears back to the derived one": {
+    "snapshots": [
+     "<span aria-label=\"42 reputation, Legend\" class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"reputation-badge\">\n<span class=\"c7f74399a\" data-mol-id=\"reputation-badge-score\">\n42\n</span>\n<span class=\"c04255343 c046696ca c1e8176ab c1f523237 c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f74399a c9052b18c c92985a9a cc06b624c cd037ccc6 cdccefb20\">\nLegend\n</span>\n</span>\n@route /",
+     "<span aria-label=\"42 reputation, Newcomer\" class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"reputation-badge\">\n<span class=\"c7f74399a\" data-mol-id=\"reputation-badge-score\">\n42\n</span>\n<span class=\"c046696ca c1e8176ab c1f523237 c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f74399a c9052b18c c92985a9a cb1b1fd95 cc06b624c cd037ccc6 cdccefb20\">\nNewcomer\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "thresholds change re-derives the level": {
+    "snapshots": [
+     "<span aria-label=\"12 reputation, Newcomer\" class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"reputation-badge\">\n<span class=\"c7f74399a\" data-mol-id=\"reputation-badge-score\">\n12\n</span>\n<span class=\"c046696ca c1e8176ab c1f523237 c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f74399a c9052b18c c92985a9a cb1b1fd95 cc06b624c cd037ccc6 cdccefb20\">\nNewcomer\n</span>\n</span>\n@route /",
+     "<span aria-label=\"12 reputation, Contributor\" class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"reputation-badge\">\n<span class=\"c7f74399a\" data-mol-id=\"reputation-badge-score\">\n12\n</span>\n<span class=\"c046696ca c1e8176ab c1f523237 c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f6faa75 c7f74399a c9052b18c c92985a9a cc06b624c cd037ccc6 cdccefb20\">\nContributor\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "labels follow a locale switch": {
+    "snapshots": [
+     "<div aria-label=\"1.5k reputation, Trusted\" class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" data-mol-id=\"reputation-badge\">\n<span class=\"c4647f690 c80b1c428\">\nReputation\n</span>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"reputation-badge-row\">\n<span class=\"c0d99ed10 c6a2a1a28\" data-mol-id=\"reputation-badge-score\">\n1.5k\n</span>\n<span class=\"c046696ca c1e8176ab c1f523237 c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f6faa75 c7f74399a c9052b18c c92985a9a cc06b624c cd037ccc6 cdccefb20\">\nTrusted\n</span>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"1.5k points, De confiance\" class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" data-mol-id=\"reputation-badge\">\n<span class=\"c4647f690 c80b1c428\">\nRéputation\n</span>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"reputation-badge-row\">\n<span class=\"c0d99ed10 c6a2a1a28\" data-mol-id=\"reputation-badge-score\">\n1.5k\n</span>\n<span class=\"c046696ca c1e8176ab c1f523237 c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f6faa75 c7f74399a c9052b18c c92985a9a cc06b624c cd037ccc6 cdccefb20\">\nDe confiance\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "compact, newcomer score, then a locale switch": {
+    "snapshots": [
+     "<span aria-label=\"42 reputation, Newcomer\" class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"reputation-badge\">\n<span class=\"c7f74399a\" data-mol-id=\"reputation-badge-score\">\n42\n</span>\n<span class=\"c046696ca c1e8176ab c1f523237 c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f74399a c9052b18c c92985a9a cb1b1fd95 cc06b624c cd037ccc6 cdccefb20\">\nNewcomer\n</span>\n</span>\n@route /",
+     "<span aria-label=\"⟦42 reputation, ⟦Newcomer⟧⟧\" class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"reputation-badge\">\n<span class=\"c7f74399a\" data-mol-id=\"reputation-badge-score\">\n42\n</span>\n<span class=\"c046696ca c1e8176ab c1f523237 c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f74399a c9052b18c c92985a9a cb1b1fd95 cc06b624c cd037ccc6 cdccefb20\">\n⟦Newcomer⟧\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   }
+  }
+ }
+}

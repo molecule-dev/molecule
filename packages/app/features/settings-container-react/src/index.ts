@@ -49,8 +49,10 @@
  * - The two columns do not collapse responsively — swap the sidebar for a
  *   drawer on small screens yourself.
  * - Requires a bonded ClassMap. Labels are your own ReactNodes (translate
- *   upstream); the sidebar nav's `aria-label="Settings"` is hardcoded
- *   English.
+ *   upstream); the sidebar nav's `aria-label` resolves through
+ *   `t('settingsContainer.aria.settings')` (companion bond
+ *   `@molecule/app-locales-settings-container`), so it follows the active
+ *   locale; `ariaLabel` overrides it.
  * - Don't confuse with `@molecule/app-settings-panel-react`: that package is
  *   the batteries-included panel (prebuilt Account/Auth/Billing/… sections
  *   wired to molecule APIs). THIS package is empty layout chrome for

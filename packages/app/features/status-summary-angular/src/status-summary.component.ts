@@ -8,27 +8,22 @@ import { NgTemplateOutlet } from '@angular/common'
 import { Component, TemplateRef } from '@angular/core'
 
 import { useTranslation } from '@molecule/app-angular'
-import type { UIClassMap } from '@molecule/app-ui'
+import type { ColorVariant, UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { ComponentStatus, StatusGroup } from './types.js'
 
-/** English label rendered for each status when no locale bond supplies the key. */
-const STATUS_LABEL: Record<ComponentStatus, string> = {
-  operational: 'Operational',
-  degraded: 'Degraded performance',
-  'partial-outage': 'Partial outage',
-  'major-outage': 'Major outage',
-  maintenance: 'Under maintenance',
-}
-
-/** The fixed semantic hue of each status (React's inline-style palette). */
-const STATUS_COLOR: Record<ComponentStatus, string> = {
-  operational: '#22c55e',
-  degraded: '#eab308',
-  'partial-outage': '#f97316',
-  'major-outage': '#ef4444',
-  maintenance: '#60a5fa',
+/**
+ * The semantic tone colouring each status: the theme's success green for
+ * operational, its warning amber for degraded and partial outage, its error
+ * red for a major outage and its info blue for maintenance.
+ */
+const STATUS_TONE: Record<ComponentStatus, ColorVariant> = {
+  operational: 'success',
+  degraded: 'warning',
+  'partial-outage': 'warning',
+  'major-outage': 'error',
+  maintenance: 'info',
 }
 
 /** The statuses from most to least severe (React's `worst` order). */
@@ -60,7 +55,7 @@ const SEVERITY_ORDER: ComponentStatus[] = [
     '[class]': 'classes()',
   },
   // prettier-ignore
-  template: `<div [class]="bannerClasses()" [style]="bannerStyle()"><span [class]="labelClasses()">{{ overallLabel() }}</span><ng-content select="[slot=header]"></ng-content></div>@for (group of groups; track group.id) {<section [class]="sectionClasses()"><h3 [class]="groupNameClasses()">@if (isNode(group.name)) {<ng-container [ngTemplateOutlet]="group.name" />}@else {<ng-container>{{ textOf(group.name) }}</ng-container>}</h3><ul [class]="listClasses()">@for (component of group.components; track component.id) {<li [class]="rowClasses()"><div><span [class]="componentNameClasses()">@if (isNode(component.name)) {<ng-container [ngTemplateOutlet]="component.name" />}@else {<ng-container>{{ textOf(component.name) }}</ng-container>}</span>@if (component.subtitle) {<span [class]="subtitleClasses()">@if (isNode(component.subtitle)) {<ng-container [ngTemplateOutlet]="component.subtitle" />}@else {<ng-container>{{ textOf(component.subtitle) }}</ng-container>}</span>}</div><span [class]="badgeClasses()" [style]="badgeStyle(component.status)">{{ statusLabel(component.status) }}</span></li>}</ul></section>}<ng-content select="[slot=footer]"></ng-content>`,
+  template: `<div [class]="bannerClasses()" [style]="bannerStyle()"><span [class]="labelClasses()">{{ overallLabel() }}</span><ng-content select="[slot=header]"></ng-content></div>@for (group of groups; track group.id) {<section [class]="sectionClasses()"><h3 [class]="groupNameClasses()">@if (isNode(group.name)) {<ng-container [ngTemplateOutlet]="group.name" />}@else {<ng-container>{{ textOf(group.name) }}</ng-container>}</h3><ul [class]="listClasses()">@for (component of group.components; track component.id) {<li [class]="rowClasses()"><div><span [class]="componentNameClasses()">@if (isNode(component.name)) {<ng-container [ngTemplateOutlet]="component.name" />}@else {<ng-container>{{ textOf(component.name) }}</ng-container>}</span>@if (component.subtitle) {<span [class]="subtitleClasses()">@if (isNode(component.subtitle)) {<ng-container [ngTemplateOutlet]="component.subtitle" />}@else {<ng-container>{{ textOf(component.subtitle) }}</ng-container>}</span>}</div><span [class]="badgeClasses(component.status)" [style]="badgeStyle()">{{ statusLabel(component.status) }}</span></li>}</ul></section>}<ng-content select="[slot=footer]"></ng-content>`,
 })
 export class StatusSummary {
   /** Grouped components. */
@@ -94,12 +89,18 @@ export class StatusSummary {
   }
 
   /**
-   * The banner's class list (flex row + padding).
+   * The banner's class list (flex row + padding + the overall status's tone
+   * fill with the theme's inverse text on it).
    * @returns The class string.
    */
   bannerClasses(): string {
     const cm = this.cm()
-    return cm.cn(cm.flex({ align: 'center', justify: 'between', gap: 'md' }), cm.sp('p', 3))
+    return cm.cn(
+      cm.flex({ align: 'center', justify: 'between', gap: 'md' }),
+      cm.sp('p', 3),
+      cm.bgTone(STATUS_TONE[this.overall()]),
+      cm.textOnTone,
+    )
   }
 
   /** The banner label's class list. */
@@ -142,10 +143,21 @@ export class StatusSummary {
     return cm.cn(cm.sp('ml', 2), cm.textSize('xs'))
   }
 
-  /** One status badge's class list. */
-  badgeClasses(): string {
+  /**
+   * One status badge's class list (its status's tone fill with the theme's
+   * inverse text on it).
+   * @param status - The component's status.
+   * @returns The class string.
+   */
+  badgeClasses(status: ComponentStatus): string {
     const cm = this.cm()
-    return cm.cn(cm.sp('px', 2), cm.textSize('xs'), cm.fontWeight('semibold'))
+    return cm.cn(
+      cm.sp('px', 2),
+      cm.textSize('xs'),
+      cm.fontWeight('semibold'),
+      cm.bgTone(STATUS_TONE[status]),
+      cm.textOnTone,
+    )
   }
 
   /**
@@ -170,42 +182,48 @@ export class StatusSummary {
   }
 
   /**
-   * The banner label, translated through the status key with React's fallback.
+   * The banner label, translated through the status's literal key.
    * @returns The label text.
    */
   overallLabel(): string {
-    const status = this.overall()
-    return this.i18n.t(`status.${status}`, {}, { defaultValue: STATUS_LABEL[status] })
+    return this.statusLabel(this.overall())
   }
 
   /**
-   * One badge's label, translated through the status key with React's fallback.
+   * The label for one status, through its literal i18n key with the English
+   * fallback (the same text the `common` locale bond's en.ts ships).
    * @param status - The component's status.
    * @returns The label text.
    */
   statusLabel(status: ComponentStatus): string {
-    return this.i18n.t(`status.${status}`, {}, { defaultValue: STATUS_LABEL[status] })
-  }
-
-  /**
-   * The banner's inline style, in React's declaration order.
-   * @returns The style declarations.
-   */
-  bannerStyle(): Record<string, string> {
-    return {
-      background: STATUS_COLOR[this.overall()],
-      color: '#fff',
-      borderRadius: '8px',
+    switch (status) {
+      case 'operational':
+        return this.i18n.t('status.operational', {}, { defaultValue: 'Operational' })
+      case 'degraded':
+        return this.i18n.t('status.degraded', {}, { defaultValue: 'Degraded performance' })
+      case 'partial-outage':
+        return this.i18n.t('status.partial-outage', {}, { defaultValue: 'Partial outage' })
+      case 'major-outage':
+        return this.i18n.t('status.major-outage', {}, { defaultValue: 'Major outage' })
+      case 'maintenance':
+        return this.i18n.t('status.maintenance', {}, { defaultValue: 'Under maintenance' })
     }
   }
 
   /**
-   * One badge's inline style, in React's declaration order.
-   * @param status - The component's status.
+   * The banner's rounded corners, in React's declaration order.
    * @returns The style declarations.
    */
-  badgeStyle(status: ComponentStatus): Record<string, string> {
-    return { borderRadius: '4px', background: STATUS_COLOR[status], color: '#fff' }
+  bannerStyle(): Record<string, string> {
+    return { borderRadius: '8px' }
+  }
+
+  /**
+   * One badge's rounded corners, in React's declaration order.
+   * @returns The style declarations.
+   */
+  badgeStyle(): Record<string, string> {
+    return { borderRadius: '4px' }
   }
 
   /**

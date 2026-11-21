@@ -7,4 +7,8 @@ export const sq: Partial<HttpInspectorTranslations> = {
   'httpInspector.headers': 'Titujt',
   'httpInspector.addHeader': 'Shto kokën e faqes',
   'httpInspector.body': 'Trupi',
+  'httpInspector.methodLabel': 'Metoda HTTP',
+  'httpInspector.urlLabel': 'URL',
+  'httpInspector.headerPlaceholder': 'Titull',
+  'httpInspector.valuePlaceholder': 'Vlera',
 }

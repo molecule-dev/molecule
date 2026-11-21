@@ -7,8 +7,8 @@
  * load. Until it answers, the auth binding reports `user === null` everywhere, so a public
  * page's signed-in action (`if (!user) return`, a redirect to `/login`) treats a signed-in
  * visitor as signed out. Angular creates the root component — the first page — only after
- * app initializers settle, so the hold is an initializer: with `awaitSession` bootstrap
- * waits for the restore, and every component's first render reads the decided session.
+ * app initializers settle, so the hold is an initializer: given `auth`, bootstrap waits for
+ * the restore unless `awaitSession` is false, and every component's first render reads the decided session.
  *
  * @module
  */
@@ -153,12 +153,30 @@ describe('provideMolecule awaitSession', () => {
     expect(onFollow).toHaveBeenCalledWith(reader)
   })
 
-  it('without it, bootstrap finishes before the restore and the same click is lost', async () => {
+  it("holds bootstrap by default when given auth, as React's MoleculeProvider does", async () => {
+    const { client, answer } = returningVisitor()
+    TestBed.configureTestingModule({
+      imports: [FollowComponent],
+      providers: [provideMolecule({ auth: client })],
+    })
+    const initStatus = TestBed.inject(ApplicationInitStatus)
+    let done = false
+    void initStatus.donePromise.then(() => {
+      done = true
+    })
+    await tick()
+    expect(done).toBe(false)
+    await answer()
+    await initStatus.donePromise
+    expect(client.getState().status).toBe('authenticated')
+  })
+
+  it('with awaitSession false, bootstrap finishes before the restore and the same click is lost', async () => {
     const { client, answer } = returningVisitor()
     const onFollow = vi.fn()
     TestBed.configureTestingModule({
       imports: [FollowComponent],
-      providers: [provideMolecule({ auth: client })],
+      providers: [provideMolecule({ auth: client, awaitSession: false })],
     })
     // No hold: bootstrap completes while the restore is still in flight.
     await TestBed.inject(ApplicationInitStatus).donePromise

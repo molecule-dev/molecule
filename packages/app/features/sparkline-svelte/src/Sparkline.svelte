@@ -7,6 +7,7 @@
   keeps the rendered nodes.
 -->
 <script lang="ts">
+  import { useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
   import type { SparklineProps } from './types.js'
@@ -21,6 +22,7 @@
     className,
   }: SparklineProps = $props()
 
+  const { t } = useTranslation()
   const cm = $derived(getClassMap())
   const min = $derived(Math.min(...values))
   const max = $derived(Math.max(...values))
@@ -46,7 +48,8 @@
     {height}
     viewBox="0 0 {width} {height}"
     role="img"
-    aria-label={ariaLabel ?? 'Trend sparkline'}
+    aria-label={ariaLabel ??
+      t('sparkline.aria.trendSparkline', undefined, { defaultValue: 'Trend sparkline' })}
     class={cm.cn(className)}
   >
     {#if variant === 'line'}

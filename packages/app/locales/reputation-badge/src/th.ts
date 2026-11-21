@@ -9,6 +9,7 @@ export const th: ReputationBadgeTranslations = {
   'reputationBadge.level.trusted': 'น่าเชื่อถือ',
   'reputationBadge.level.veteran': 'ผู้มากประสบการณ์',
   'reputationBadge.level.legend': 'ตำนาน',
+  'reputationBadge.level.fallback': '{{level}}',
   'badgeShelf.aria': 'ได้รับ {{count}} เหรียญตรา',
   'badgeShelf.overflow.aria': 'แสดงเหรียญตราอีก {{count}} รายการ',
 }

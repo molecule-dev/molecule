@@ -45,9 +45,10 @@
  * - The "View all" label is hardcoded English in the React reference (not
  *   routed through i18n) and is the same literal here; pass a translated link
  *   via `headerActions` in localized apps.
- * - `onItemClick` rows are mouse-only `<li>` elements (no keyboard handler);
- *   render a real `<button>`/`<a>` inside `renderItem` when keyboard access
- *   matters.
+ * - `onItemClick` rows stay `<li>` list items: the card wraps each row's
+ *   content in an inner `role="button"` control (focusable, Enter/Space
+ *   activate it) so the click works from the keyboard too. A real
+ *   `<button>`/`<a>` inside `renderItem` still takes its own clicks and focus.
  * - `viewAllHref` renders a plain `<a href>` (full page load in SPA routers);
  *   use `headerActions` with your router's Link for client-side navigation.
  *

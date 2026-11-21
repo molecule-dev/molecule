@@ -9,6 +9,8 @@ import '@molecule/app-framework-conformance/ui/setup'
 import { flushSync, mount, unmount } from 'svelte'
 import { describe, expect, it } from 'vitest'
 
+import { inlineStyleMismatch } from '@molecule/app-framework-conformance/ui'
+
 import SubscriptionPlanCard from '../SubscriptionPlanCard.svelte'
 import type { SubscriptionPlanCardProps } from '../types.js'
 
@@ -76,7 +78,7 @@ describe('SubscriptionPlanCard', () => {
       recommended: true,
     })
     expect(markup).toContain('Recommended')
-    expect(markup).toContain('outline: 2px solid currentColor')
+    expect(inlineStyleMismatch(markup, { outline: '2px solid currentColor' })).toBeNull()
   })
 
   it('renders a custom badge', () => {

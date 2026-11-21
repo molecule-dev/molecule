@@ -8,4 +8,5 @@ export const el: Partial<NotificationCenterTranslations> = {
   'notifications.empty': 'Δεν υπάρχουν ειδοποιήσεις',
   'notifications.loadError': 'Δεν ήταν δυνατή η φόρτωση των ειδοποιήσεων.',
   'notifications.retry': 'Δοκιμάζω πάλι',
+  'notifications.unread': 'Αδιάβαστο',
 }

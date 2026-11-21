@@ -12,6 +12,7 @@
 
 import '@angular/compiler'
 import {
+  type ApplicationRef,
   ChangeDetectionStrategy,
   Component,
   type ComponentRef,
@@ -19,7 +20,7 @@ import {
   provideZonelessChangeDetection,
   type Type,
 } from '@angular/core'
-import { type ApplicationRef, createApplication } from '@angular/platform-browser'
+import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
@@ -38,7 +39,13 @@ vi.mock('@molecule/app-ui', () => ({
               .join(' ')
         }
         const token = String(prop)
-        return (..._args: unknown[]) => token
+        // Tone resolvers echo their argument, so assertions can tell which
+        // semantic tone (`bgTone-success`) a node picked. Bare members such as
+        // `bgBorder` are plain class strings in the real UIClassMap, and the
+        // component binds one straight into `[class]`, where Angular rejects
+        // anything but a string — so they come back as their token string.
+        if (prop === 'bgBorder') return token
+        return (...args: unknown[]) => (args.length > 0 ? `${token}-${String(args[0])}` : token)
       },
     }
     return new Proxy({}, handler)
@@ -115,7 +122,7 @@ async function mount(
 
 /** The rendered timeline host element. */
 const timelineEl = (host: HTMLElement): HTMLElement => {
-  const el = host.querySelector('div[mol-order-timeline]')
+  const el = host.querySelector<HTMLElement>('div[mol-order-timeline]')
   if (!el) throw new Error('no OrderTimeline rendered')
   return el
 }
@@ -158,11 +165,10 @@ describe('OrderTimeline', () => {
   it('colors completed, current, and pending nodes differently', async () => {
     const m = await render({ milestones })
     const markup = timelineEl(m.host).innerHTML
-    // The mounted tree writes colors through the CSSOM, which serializes the
-    // hex values as `rgb(…)` — the same values React's runtime mount writes.
-    expect(markup).toContain('rgb(34, 197, 94)') // completed
-    expect(markup).toContain('rgb(96, 165, 250)') // current
-    expect(markup).toContain('rgb(209, 213, 219)') // pending
+    expect(markup).toContain('bgTone-info') // current
+    expect(markup).toContain('bgTone-success') // completed
+    expect(markup).toContain('bgBorder') // pending: the theme's border colour
+    expect(markup).not.toContain('background')
   })
 
   it('renders the ETA line when present', async () => {

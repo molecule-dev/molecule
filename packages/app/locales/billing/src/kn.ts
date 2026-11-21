@@ -16,4 +16,11 @@ export const kn: Partial<BillingTranslations> = {
   'billing.pricing.perSeat': 'ಪ್ರತಿ ಸೀಟಿಗೆ',
   'billing.pricing.upgradeCta': 'ಅಪ್‌ಗ್ರೇಡ್ ಮಾಡಿ {{tierName}}',
   'billing.pricing.currentCta': 'ಪ್ರಸ್ತುತ ಯೋಜನೆ',
+  'billing.pricing.period.month': 'ಪ್ರತಿ ತಿಂಗಳಿಗೆ',
+  'billing.pricing.period.year': 'ಪ್ರತಿ ವರ್ಷಕ್ಕೆ',
+  'billing.pricing.billed.month': 'ಮಾಸಿಕ ಬಿಲ್ಲಿಂಗ್',
+  'billing.pricing.billed.year': 'ವಾರ್ಷಿಕ ಬಿಲ್ಲಿಂಗ್',
+  'billing.pricing.unlimited': 'ಅಮಿತ',
+  'billing.pricing.limit.maxProjects': 'ಗರಿಷ್ಠ ಯೋಜನೆಗಳು',
+  'billing.pricing.limit.canExport': 'ರಫ್ತು ಮಾಡಬಹುದು',
 }

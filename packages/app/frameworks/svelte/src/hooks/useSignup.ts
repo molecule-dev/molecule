@@ -21,7 +21,7 @@ import { usePromise, type UsePromiseState, type UsePromiseStore } from './usePro
  *   of `createJWTAuthClient<T, TRegister>`), so `signup()` is typed like the
  *   client's `register()`.
  */
-export interface UseSignupResult<
+export interface UseSignupReturn<
   T = unknown,
   TRegister extends RegisterExtraShape<TRegister> = Record<never, never>,
 > {
@@ -36,6 +36,16 @@ export interface UseSignupResult<
   /** Returns the tracker to idle. */
   reset: () => void
 }
+
+/**
+ * The former name of {@link UseSignupReturn}.
+ *
+ * @deprecated Renamed to {@link UseSignupReturn}, `@molecule/app-react`'s name for it.
+ */
+export type UseSignupResult<
+  T = unknown,
+  TRegister extends RegisterExtraShape<TRegister> = Record<never, never>,
+> = UseSignupReturn<T, TRegister>
 
 /**
  * User registration with async state tracking, React's `useSignup` in
@@ -61,7 +71,7 @@ export interface UseSignupResult<
 export function useSignup<
   T = unknown,
   TRegister extends RegisterExtraShape<TRegister> = Record<never, never>,
->(): UseSignupResult<T, TRegister> {
+>(): UseSignupReturn<T, TRegister> {
   const client = useAuthClient<T, TRegister>()
   const tracker: UsePromiseStore<AuthResult<T>, [RegisterData<TRegister>]> = usePromise((data) =>
     client.register(data),

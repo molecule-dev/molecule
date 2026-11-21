@@ -49,4 +49,5 @@ export const ne: Partial<AudioEffectsRackTranslations> = {
   'audioEffectsRack.param.phaser.rate': 'मूल्याङ्कन गर्नुहोस्',
   'audioEffectsRack.param.phaser.depth': 'गहिराई',
   'audioEffectsRack.param.phaser.feedback': 'प्रतिक्रिया',
+  'audioEffectsRack.param.fallback': 'प्यारामिटर',
 }

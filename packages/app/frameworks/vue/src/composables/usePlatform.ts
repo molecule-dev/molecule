@@ -10,7 +10,7 @@ import { isPlatform, platform } from '@molecule/app-platform'
 /**
  * Return type for the usePlatform composable.
  */
-export interface UsePlatformReturn {
+export interface UsePlatformResult {
   platform: Platform
   isNative: boolean
   isMobile: boolean
@@ -20,6 +20,13 @@ export interface UsePlatformReturn {
   isProduction: boolean
   isPlatform: (...platforms: Platform[]) => boolean
 }
+
+/**
+ * The former name of {@link UsePlatformResult}.
+ *
+ * @deprecated Renamed to {@link UsePlatformResult}, `@molecule/app-react`'s name for it.
+ */
+export type UsePlatformReturn = UsePlatformResult
 
 /**
  * Composable for platform detection.
@@ -44,7 +51,7 @@ export interface UsePlatformReturn {
  * </template>
  * ```
  */
-export function usePlatform(): UsePlatformReturn {
+export function usePlatform(): UsePlatformResult {
   const info: PlatformInfo = platform()
 
   return {

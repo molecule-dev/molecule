@@ -7,4 +7,8 @@ export const ml: Partial<HttpInspectorTranslations> = {
   'httpInspector.headers': 'തലക്കെട്ടുകൾ',
   'httpInspector.addHeader': 'തലക്കെട്ട് ചേർക്കുക',
   'httpInspector.body': 'ശരീരം',
+  'httpInspector.methodLabel': 'HTTP രീതി',
+  'httpInspector.urlLabel': 'URL',
+  'httpInspector.headerPlaceholder': 'തലക്കെട്ട്',
+  'httpInspector.valuePlaceholder': 'മൂല്യം',
 }

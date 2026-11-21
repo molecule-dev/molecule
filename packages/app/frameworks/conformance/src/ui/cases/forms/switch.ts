@@ -15,6 +15,8 @@ const UNLABELLED: CaseA11y = {
 /** Switch: sizes, colors, checked states, labels, disabled and the native change event it forwards. */
 export const switchCases: UIComponentCases = {
   component: 'Switch',
+  ref: {},
+  declaredProps: { props: 'element' },
   cases: [
     { name: 'defaults', a11y: UNLABELLED },
     ...(['xs', 'sm', 'md', 'lg', 'xl'] as const).map((size) => ({
@@ -108,6 +110,20 @@ export const switchCases: UIComponentCases = {
       props: { label: 'Sync' },
       callbacks: ['onKeyDown'],
       interactions: [{ type: 'keydown', selector: 'button[role="switch"]', key: ' ' }],
+    },
+    {
+      name: 'preventDefault in onClick vetoes the toggle',
+      props: { label: 'Notifications' },
+      callbacks: ['onClick', 'onChange'],
+      callbackResults: { onClick: { effects: ['preventDefault'], read: ['defaultPrevented'] } },
+      interactions: [{ type: 'click', selector: 'button[role="switch"]' }],
+    },
+    {
+      name: 'change handler reads checked from target',
+      props: { label: 'Notifications' },
+      callbacks: ['onChange'],
+      callbackResults: { onChange: { read: ['target.checked'] } },
+      interactions: [{ type: 'click', selector: 'button[role="switch"]' }],
     },
   ],
 }

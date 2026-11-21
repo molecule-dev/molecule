@@ -3,7 +3,7 @@
  *
  * Provides Solid-specific implementations of molecule.dev core interfaces
  * using Solid's reactive primitives (signals, effects, resources): wrap the
- * app in `MoleculeProvider` with a `config` of providers, then consume them
+ * app in `MoleculeProvider`, given its services as props, then consume them
  * through `createAuth`, `createTheme`, `createRouter`, `createI18n`, and the
  * other primitives.
  *
@@ -34,7 +34,7 @@
  *
  * function App() {
  *   return (
- *     <MoleculeProvider config={{ state: stateProvider, auth: authClient, theme: themeProvider }}>
+ *     <MoleculeProvider state={stateProvider} auth={authClient} theme={themeProvider}>
  *       <UserProfile />
  *     </MoleculeProvider>
  *   )
@@ -49,10 +49,10 @@
  * accessor where a component branches: `status()`.
  *
  * @remarks
- * - **Primitives throw outside `MoleculeProvider` — and per missing service.** `config` wires
- *   ONLY the services you pass; calling `createAuth()` in a tree whose config lacks `auth`
- *   throws "getAuthClient must be used within a MoleculeProvider with auth configured". Fix the
- *   config, don't catch the error.
+ * - **Primitives throw outside `MoleculeProvider` — and per missing service.** It provides
+ *   ONLY the services you pass; calling `createAuth()` in a tree whose provider has no `auth`
+ *   throws "getAuthClient must be used within a MoleculeProvider with auth configured". Pass the
+ *   service, don't catch the error.
  * - Primitive results are Solid accessors — call them (`isAuthenticated()`, `theme()`,
  *   `user()`), never read them bare; a bare `theme.colors` is a type error, and a bare
  *   `isAuthenticated` is always truthy.

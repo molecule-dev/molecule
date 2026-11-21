@@ -52,7 +52,13 @@ export function OrderTimeline({
       >
         {milestones.map((m, i) => {
           const isLast = i === milestones.length - 1
-          const color = m.current ? '#60a5fa' : m.completed ? '#22c55e' : '#d1d5db'
+          // Status nodes take their semantic tone (current = info, completed =
+          // success); an un-reached milestone is de-emphasis chrome, filled with
+          // the theme's border colour rather than a status tone.
+          const dotClass = cm.cn(
+            m.current ? cm.bgTone('info') : m.completed ? cm.bgTone('success') : cm.bgBorder,
+          )
+          const connectorClass = cm.cn(m.completed ? cm.bgTone('success') : cm.bgBorder)
           return (
             <div
               key={m.id}
@@ -65,22 +71,22 @@ export function OrderTimeline({
               <div className={cm.flex({ align: 'center', justify: 'center' })}>
                 <span
                   aria-hidden
+                  className={dotClass}
                   style={{
                     width: 14,
                     height: 14,
                     borderRadius: '50%',
-                    background: color,
                     border: m.current ? '3px solid currentColor' : undefined,
                   }}
                 />
                 {!isLast && (
                   <span
                     aria-hidden
+                    className={connectorClass}
                     style={{
                       [orientation === 'vertical' ? 'height' : 'width']:
                         orientation === 'vertical' ? 24 : '100%',
                       [orientation === 'vertical' ? 'width' : 'height']: 2,
-                      background: m.completed ? '#22c55e' : '#d1d5db',
                       display: 'inline-block',
                       ...(orientation === 'vertical'
                         ? {}

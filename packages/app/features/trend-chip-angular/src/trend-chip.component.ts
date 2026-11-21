@@ -6,23 +6,33 @@
 
 import { Component } from '@angular/core'
 
-import type { UIClassMap } from '@molecule/app-ui'
+import type { ColorVariant, UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 const ARROW = { up: '▲', down: '▼', flat: '–' } as const
-const COLOR = { up: '#22c55e', down: '#ef4444', flat: '#94a3b8' } as const
+
+/**
+ * The semantic tone colouring each direction: the theme's success green for a
+ * rise, its error red for a fall, its muted secondary grey for no change.
+ */
+const TONE: Record<'up' | 'down' | 'flat', ColorVariant> = {
+  up: 'success',
+  down: 'error',
+  flat: 'secondary',
+} as const
 
 /**
  * TrendChip component.
  *
  * Standalone trend delta chip — `▲ 12%` style display for inline placement in
  * row/header/cell contexts. The host IS the root `<span>`
- * (`span[mol-trend-chip]`), matching React's root exactly. The trend color is
- * applied inline through host style bindings (the CSSOM, as react-dom does);
- * the layout and type classes come from the ClassMap bond. Same props, same
- * DOM as `@molecule/app-trend-chip-react`'s `TrendChip`. Node-valued
- * `prefix` content is projected from `[slot=prefix]`; a string or number
- * `prefix` input renders as text and feeds the default aria label.
+ * (`span[mol-trend-chip]`), matching React's root exactly. Colors come from
+ * the ClassMap bond's semantic tones and follow the app theme; only the
+ * pill's padding and radius are inline, through host style bindings (the
+ * CSSOM, as react-dom does). Same props, same DOM as
+ * `@molecule/app-trend-chip-react`'s `TrendChip`. Node-valued `prefix`
+ * content is projected from `[slot=prefix]`; a string or number `prefix`
+ * input renders as text and feeds the default aria label.
  */
 @Component({
   selector: 'span[mol-trend-chip]',
@@ -30,10 +40,8 @@ const COLOR = { up: '#22c55e', down: '#ef4444', flat: '#94a3b8' } as const
   inputs: ['delta', 'direction', 'suffix', 'prefix', 'variant', 'ariaLabel', 'className'],
   host: {
     '[class]': 'classes()',
-    '[style.color]': 'styleColor()',
     '[style.padding]': 'stylePadding()',
     '[style.border-radius]': 'styleRadius()',
-    '[style.background]': 'styleBackground()',
     '[attr.aria-label]': 'label()',
   },
   template: `@if (hasPrefix) {
@@ -83,11 +91,22 @@ export class TrendChip {
   }
 
   /**
-   * The trend color of the current direction.
-   * @returns The hex color.
+   * The semantic tone of the current direction.
+   * @returns The {@link ColorVariant} tone.
    */
-  trendColor(): string {
-    return COLOR[this.dir()]
+  tone(): ColorVariant {
+    return TONE[this.dir()]
+  }
+
+  /**
+   * The tone classes: the theme's inverse text on the tone's fill for the
+   * pill preset, the tone as text colour otherwise.
+   * @returns The class string.
+   */
+  toneClasses(): string {
+    return this.isPill()
+      ? this.cm().cn(this.cm().bgTone(this.tone()), this.cm().textOnTone)
+      : this.cm().textTone(this.tone())
   }
 
   /**
@@ -99,16 +118,9 @@ export class TrendChip {
       this.cm().flex({ align: 'center', gap: 'xs' }),
       this.cm().textSize('xs'),
       this.cm().fontWeight('semibold'),
+      this.toneClasses(),
       this.className,
     )
-  }
-
-  /**
-   * The inline text color: white on a pill, the trend color otherwise.
-   * @returns The color value.
-   */
-  styleColor(): string {
-    return this.isPill() ? '#fff' : this.trendColor()
   }
 
   /**
@@ -125,14 +137,6 @@ export class TrendChip {
    */
   styleRadius(): string | null {
     return this.isPill() ? '999px' : null
-  }
-
-  /**
-   * The pill's background (absent for the subtle preset).
-   * @returns The color, or null to clear the property.
-   */
-  styleBackground(): string | null {
-    return this.isPill() ? this.trendColor() : null
   }
 
   /**

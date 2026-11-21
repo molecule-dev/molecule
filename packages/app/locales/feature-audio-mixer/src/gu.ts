@@ -8,6 +8,8 @@ export const gu: Partial<AudioMixerTranslations> = {
   'audioMixer.aria.send': '{{channel}} મોકલો {{send}}',
   'audioMixer.button.mute': 'મ્યૂટ કરો',
   'audioMixer.button.solo': 'સોલો',
+  'audioMixer.button.muteInitial': 'મ',
+  'audioMixer.button.soloInitial': 'સ',
   'audioMixer.master': 'માસ્ટર',
   'audioMixer.sends': 'મોકલે છે',
 }

@@ -10,7 +10,9 @@
  *
  * Reordering works with a mouse (HTML5 drag) AND the keyboard: every row has
  * move-up/move-down buttons (`data-mol-id="reorderable-move-{up,down}-<id>"`),
- * and a focused row responds to Alt+ArrowUp / Alt+ArrowDown.
+ * and Alt+ArrowUp / Alt+ArrowDown on a focused move button reorders its row.
+ * Focus follows the item: a move that disables the used button (the item
+ * reached the top or the bottom) moves focus to the same row's other button.
  *
  * @example
  * ```tsx

@@ -5,15 +5,20 @@
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "svelte": "./dist/index.js",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "svelte": "./dist/index.js",
       "default": "./dist/index.js"
     },
+    "./link": {
+      "types": "./dist/link/index.d.ts",
+      "svelte": "./dist/link/index.js",
+      "default": "./dist/link/index.js"
+    },
     "./package.json": "./package.json"
   },
+  "svelte": "./dist/index.js",
   "files": [
     "dist",
     "!dist/**/__tests__",

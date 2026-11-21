@@ -14,20 +14,29 @@ import {
   ViewChild,
 } from '@angular/core'
 
+import { useTranslation } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 import { hasProjectedSlot, SlotGuard } from './slot-dom.js'
 
+/** Next value of the module-wide instance counter (React `useId()`'s counterpart). */
+let nextNameId = 0
+
 /**
  * ForumThreadRow component.
  *
  * Forum / discussion-board thread row. Shows the title, optional excerpt, vote
- * score + reply/view counts, pin/lock badges, author, and timestamp. The host
+ * score + reply/view counts, pin/lock badges, author, and timestamp. With an
+ * `onClick` the whole row is clickable through a transparent native button
+ * laid over it (Enter and Space activate it natively), named by the title —
+ * the `<h3>` itself takes the generated id; the `voteControls` and `tags`
+ * wrappers sit above that button and keep their own clicks. The host
  * IS the root `<article>` (`article[mol-forum-thread-row]`), matching React's
- * root exactly. The counter labels ("votes", "replies", "views") and the
- * pin/lock aria-labels are the same hardcoded English React renders (React has
- * no companion locale bond yet).
+ * root exactly. The marker labels ("Pinned" / "Locked", announced through
+ * `role="img"` + `aria-label`) and the counter labels ("votes",
+ * "{{count}} replies", "{{count}} views") go through `t()` with those English
+ * defaults — the same text, through the same keys, React renders.
  *
  * The node props are projected slots: `title`, `excerpt`, `author`,
  * `createdAt`, `tags` and `voteControls` each render inside the wrapper
@@ -55,25 +64,34 @@ import { hasProjectedSlot, SlotGuard } from './slot-dom.js'
   ],
   host: {
     '[class]': 'classes()',
-    '(click)': 'handleClick($event)',
   },
-  template: `<div #voteControlsWrap [class]="voteControlsClasses()">
+  template: `@if (onClick) {
+      <button
+        type="button"
+        [attr.aria-labelledby]="nameId"
+        data-mol-id="forum-thread-row-open"
+        (click)="handleClick()"
+        [class]="openButtonClasses()"
+        style="background: transparent; border: medium; padding: 0px"
+      ></button>
+    }
+    <div #voteControlsWrap [class]="voteControlsClasses()">
       {{ voteControlsText() }}
       <ng-content select="[slot=voteControls]"></ng-content>
     </div>
     <div #scoreWrap [class]="scoreClasses()">
       <span [class]="scoreValueClasses()">{{ voteScore }}</span>
-      <span [class]="scoreLabelClasses()">votes</span>
+      <span [class]="scoreLabelClasses()">{{ votesText() }}</span>
     </div>
     <div [class]="stackClasses()">
       <header [class]="headerClasses()">
         @if (pinned) {
-          <span aria-label="Pinned" title="Pinned">📌</span>
+          <span role="img" [attr.aria-label]="pinnedText()" [title]="pinnedText()">📌</span>
         }
         @if (locked) {
-          <span aria-label="Locked" title="Locked">🔒</span>
+          <span role="img" [attr.aria-label]="lockedText()" [title]="lockedText()">🔒</span>
         }
-        <h3 [class]="titleClasses()">
+        <h3 [attr.id]="onClick ? nameId : null" [class]="titleClasses()">
           {{ titleText() }}
           <ng-content select="[slot=title]"></ng-content>
         </h3>
@@ -91,11 +109,11 @@ import { hasProjectedSlot, SlotGuard } from './slot-dom.js'
           · {{ createdAtText() }}
           <ng-content select="[slot=createdAt]"></ng-content>
         </span>
-        @if (replyCount !== undefined) {
-          <span [class]="countClasses()">· {{ replyCount }} replies</span>
+        @if (repliesText() !== undefined) {
+          <span [class]="countClasses()">· {{ repliesText() }}</span>
         }
-        @if (viewCount !== undefined) {
-          <span [class]="countClasses()">· {{ viewCount }} views</span>
+        @if (viewsText() !== undefined) {
+          <span [class]="countClasses()">· {{ viewsText() }}</span>
         }
       </div>
       <div #tagsWrap [class]="tagsClasses()">
@@ -127,10 +145,23 @@ export class ForumThreadRow implements AfterViewInit, DoCheck {
   tags?: unknown
   /** Right-side voting controls (string as text; nodes are `[slot=voteControls]` content). */
   voteControls?: unknown
-  /** Click handler; receives the DOM click event (React's `onClick`). */
-  onClick?: (event: Event) => void
+  /**
+   * Activates the row: the whole row is clickable through a transparent native
+   * button laid over it (Enter and Space activate it natively), named by the
+   * title — the `<h3>` itself takes the generated id. The `voteControls` and
+   * `tags` slots sit above that button and keep their own clicks. Called with
+   * no arguments, the way React's transparent button calls it.
+   */
+  onClick?: () => void
   /** Extra classes. */
   className?: string
+
+  /**
+   * The row's generated id (React's `useId()`): the title `<h3>`'s `id`, and
+   * the open button's `aria-labelledby`, so the button's accessible name is
+   * the thread title.
+   */
+  readonly nameId = `forum-thread-row-${nextNameId++}`
 
   /** The vote-controls wrapper `<div>` (detached when the slot is empty). */
   @ViewChild('voteControlsWrap') voteControlsWrap?: ElementRef<HTMLElement>
@@ -145,7 +176,12 @@ export class ForumThreadRow implements AfterViewInit, DoCheck {
   /** The tags wrapper `<div>` (detached when no tags input and the slot is empty). */
   @ViewChild('tagsWrap') tagsWrap?: ElementRef<HTMLElement>
 
-  private readonly guard = new SlotGuard(inject(ElementRef), inject(Renderer2))
+  private readonly renderer = inject(Renderer2)
+
+  private readonly guard = new SlotGuard(inject(ElementRef), this.renderer)
+
+  /** The i18n bond (React's `useTranslation`): the row's own text reads through it. */
+  private readonly i18n = useTranslation()
 
   /**
    * The current class map.
@@ -157,25 +193,42 @@ export class ForumThreadRow implements AfterViewInit, DoCheck {
 
   /**
    * Computes the row's class list (`cm.flex({ align: 'start', gap: 'sm' })` +
-   * `cm.sp('p', 3)` + `cm.cursorPointer` only with an `onClick` +
-   * `className`).
+   * `cm.sp('p', 3)` + `cm.position('relative')` with an `onClick` — the open
+   * button overlays it — + `className`).
    * @returns The class string.
    */
   classes(): string {
     return this.cm().cn(
       this.cm().flex({ align: 'start', gap: 'sm' }),
       this.cm().sp('p', 3),
-      this.onClick ? this.cm().cursorPointer : undefined,
+      this.onClick ? this.cm().position('relative') : undefined,
       this.className,
     )
   }
 
   /**
-   * Computes the vote-controls wrapper's class (`cm.shrink0`).
+   * Computes the open button's class (`cm.position('absolute')` + `cm.inset0`
+   * + `cm.cursorPointer`): a transparent button over the whole row. Its style
+   * attribute carries the native resets in React's CSSOM-serialized form
+   * (`border: medium; padding: 0px` — React's shorthand `border: 'none'` and
+   * `padding: 0` serialize to exactly that), so the DOM matches.
+   * @returns The class string.
+   */
+  openButtonClasses(): string {
+    return this.cm().cn(this.cm().position('absolute'), this.cm().inset0, this.cm().cursorPointer)
+  }
+
+  /**
+   * Computes the vote-controls wrapper's class (`cm.shrink0`, plus
+   * `cm.position('relative')` with an `onClick` so it paints above the open
+   * button and keeps its own clicks).
    * @returns The class string.
    */
   voteControlsClasses(): string {
-    return this.cm().cn(this.cm().shrink0)
+    return this.cm().cn(
+      this.cm().shrink0,
+      this.onClick ? this.cm().position('relative') : undefined,
+    )
   }
 
   /**
@@ -202,6 +255,62 @@ export class ForumThreadRow implements AfterViewInit, DoCheck {
    */
   scoreLabelClasses(): string {
     return this.cm().cn(this.cm().textSize('xs'))
+  }
+
+  /**
+   * The pinned marker's label (aria-label and title), through `t()`.
+   * @returns The translated label.
+   */
+  pinnedText(): string {
+    return this.i18n.t('forumThreadRow.aria.pinned', undefined, { defaultValue: 'Pinned' })
+  }
+
+  /**
+   * The locked marker's label (aria-label and title), through `t()`.
+   * @returns The translated label.
+   */
+  lockedText(): string {
+    return this.i18n.t('forumThreadRow.aria.locked', undefined, { defaultValue: 'Locked' })
+  }
+
+  /**
+   * The vote score's label, through `t()`.
+   * @returns The translated label.
+   */
+  votesText(): string {
+    return this.i18n.t('forumThreadRow.label.votes', undefined, { defaultValue: 'votes' })
+  }
+
+  /**
+   * The reply count's text (`{{count}} replies`), through `t()`.
+   * @returns The translated text, or `undefined` when `replyCount` is absent.
+   */
+  repliesText(): string | undefined {
+    return this.replyCount === undefined
+      ? undefined
+      : this.i18n.t(
+          'forumThreadRow.label.replies',
+          { count: this.replyCount },
+          {
+            defaultValue: '{{count}} replies',
+          },
+        )
+  }
+
+  /**
+   * The view count's text (`{{count}} views`), through `t()`.
+   * @returns The translated text, or `undefined` when `viewCount` is absent.
+   */
+  viewsText(): string | undefined {
+    return this.viewCount === undefined
+      ? undefined
+      : this.i18n.t(
+          'forumThreadRow.label.views',
+          { count: this.viewCount },
+          {
+            defaultValue: '{{count}} views',
+          },
+        )
   }
 
   /**
@@ -274,11 +383,15 @@ export class ForumThreadRow implements AfterViewInit, DoCheck {
 
   /**
    * Computes the tags row's class (`cm.flex({ align: 'center', gap: 'xs',
-   * wrap: 'wrap' })`).
+   * wrap: 'wrap' })`, plus `cm.position('relative')` with an `onClick` so it
+   * paints above the open button and keeps its own clicks).
    * @returns The class string.
    */
   tagsClasses(): string {
-    return this.cm().flex({ align: 'center', gap: 'xs', wrap: 'wrap' })
+    return this.cm().cn(
+      this.cm().flex({ align: 'center', gap: 'xs', wrap: 'wrap' }),
+      this.onClick ? this.cm().position('relative') : undefined,
+    )
   }
 
   /**
@@ -348,9 +461,9 @@ export class ForumThreadRow implements AfterViewInit, DoCheck {
     return this.voteControlsText() !== '' || hasProjectedSlot(this.voteControlsWrap?.nativeElement)
   }
 
-  /** Runs the click handler the way React forwards the DOM event. */
-  handleClick(event: Event): void {
-    this.onClick?.(event)
+  /** Opens the row: calls `onClick` with no arguments, as React's button does. */
+  handleClick(): void {
+    this.onClick?.()
   }
 
   /**
