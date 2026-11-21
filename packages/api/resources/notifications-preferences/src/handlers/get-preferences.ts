@@ -18,11 +18,11 @@ import { getPreferences } from '../service.js'
 /**
  * Returns the current user's notification preferences map.
  *
- * @param req - The authenticated request.
+ * @param _req - The unused request.
  * @param res - The response object.
  */
 export async function getPreferencesHandler(
-  req: MoleculeRequest,
+  _req: MoleculeRequest,
   res: MoleculeResponse,
 ): Promise<void> {
   const userId = (res.locals.session as { userId?: string } | undefined)?.userId

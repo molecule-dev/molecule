@@ -13,10 +13,10 @@ import { getTotalUnreadCount } from '../service.js'
 /**
  * Returns the authenticated user's total unread message count.
  *
- * @param req - The request.
+ * @param _req - The unused request.
  * @param res - The response object.
  */
-export async function unreadCount(req: MoleculeRequest, res: MoleculeResponse): Promise<void> {
+export async function unreadCount(_req: MoleculeRequest, res: MoleculeResponse): Promise<void> {
   const userId = (res.locals.session as { userId?: string } | undefined)?.userId
   if (!userId) {
     res.status(401).json({
