@@ -300,9 +300,14 @@ for (const pkg of untrusted)
   console.log(
     `  ${pkg.name}${pkg.relink ? '  (on npm, never published over OIDC: its link is re-made)' : ''}`,
   )
+// What scripts/release.mjs does with them: holdPublishFailures holds a name npm
+// already has, and awaitTrustSetup (lib/release-trust-wait.mjs) makes publish
+// wait for a name npm has never had.
 console.log(
-  `\nUntil they are trusted, npm rejects their OIDC publish and the release\n` +
-    `skips them silently. This is a one-time step per package.\n`,
+  `\nUntil they are trusted, npm refuses their OIDC publish. A release holds a name\n` +
+    `npm already has at its published version and ships the rest; for a name npm\n` +
+    `has never had, its publish stage waits up to 3 h for the trust record, then\n` +
+    `refuses. This is a one-time step per package.\n`,
 )
 
 if (LIST_ONLY) process.exit(1)
