@@ -54,6 +54,7 @@
     "@molecule/api-resource-follow": "^1.0.5",
     "@molecule/api-resource-reaction": "^1.0.3",
     "@molecule/api-slug": "^1.0.0",
+    "express": "^5.0.0",
     "zod": "^4.0.0"
   },
   "repository": {
