@@ -67,6 +67,12 @@
  *   a bond can be swapped to. Titles not ported yet are listed in {@link TITLE_PARITY_PENDING},
  *   which may only shrink; a React test of something only React has is exempt, with the
  *   reason, in {@link TITLE_PARITY_EXEMPT};
+ * - every counterpart exports each name, kind (value or type) and subpath its React package
+ *   exports ({@link exportParityViolations}): feature and infrastructure counterparts, UI bonds,
+ *   framework bindings and routing bonds alike. Exports only React has are in
+ *   {@link EXPORT_EXEMPT}, ones a counterpart's framework does another way (naming the
+ *   counterpart's own export) in {@link PORT_EXPORT_EXEMPT}, and ones still being ported in
+ *   {@link EXPORT_PARITY_PENDING}, which may only shrink;
  * - its conformance test passes its React package's cases
  *   (`${KIT}/features/cases/<x>`), and the kit has that cases file and its
  *   recorded goldens (`src/features/cases/<x>.ts`, `src/features/goldens/<x>.json` or, stored
@@ -81,6 +87,7 @@
 import { execFileSync } from 'node:child_process'
 import console from 'node:console'
 import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { createRequire } from 'node:module'
 import { dirname, join } from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
@@ -469,9 +476,11 @@ function buildTsconfigViolations(root, { dir, pkg }) {
  * Finds every way the tree breaks the conformance contract.
  *
  * @param root - The molecule repository root.
+ * @param [ledgers] - The export exemptions to hold the tree to (see {@link exportParityViolations});
+ *   a fixture tree passes its own.
  * @returns One line per violation; empty when the tree conforms.
  */
-export function findConformanceViolations(root = ROOT) {
+export function findConformanceViolations(root = ROOT, ledgers = {}) {
   const out = []
   const packages = frameworkPackages(root)
   const kit = packages.find((p) => p.pkg.name === KIT)
@@ -522,6 +531,7 @@ export function findConformanceViolations(root = ROOT) {
 
   out.push(...featureParityViolations(root, kit))
   out.push(...titleParityViolations(root))
+  out.push(...exportParityViolations(root, ledgers))
 
   // Component markup of every UI bond and every feature bond takes its classes from the ClassMap.
   for (const { dir, pkg } of [...packages, ...featureBonds]) {
@@ -804,6 +814,473 @@ export function titleParityViolations(root = ROOT) {
   return out
 }
 
+/** Each framework's word for `React` in a counterpart's export names (`ReactRouter` is tried first). */
+export const FRAMEWORK_WORDS = {
+  vue: { ReactRouter: 'VueRouter', React: 'Vue' },
+  solid: { ReactRouter: 'SolidRouter', React: 'Solid' },
+  svelte: { ReactRouter: 'SvelteKit', React: 'Svelte' },
+  angular: { ReactRouter: 'AngularRouter', React: 'Angular' },
+}
+
+/**
+ * The names a counterpart may export in place of a React package's export: the same name, or
+ * the name with its framework's word for `React` (`createReactRouter` → `createVueRouter`).
+ *
+ * @param name - The React package's export name.
+ * @param framework - One of {@link FEATURE_FRAMEWORKS}, or undefined for a package without one.
+ * @returns The accepted names, the React name first.
+ */
+export const counterpartNames = (name, framework) => {
+  const words = FRAMEWORK_WORDS[framework]
+  if (!words) return [name]
+  return [
+    ...new Set([
+      name,
+      name.replace('ReactRouter', words.ReactRouter),
+      name.replace('React', words.React),
+    ]),
+  ]
+}
+
+/**
+ * A counterpart's framework, read from its package name (`-vue`, `app-ui-svelte`,
+ * `routing-sveltekit`).
+ *
+ * @param name - A package name.
+ * @returns One of {@link FEATURE_FRAMEWORKS}, or undefined.
+ */
+const portFramework = (name) =>
+  FEATURE_FRAMEWORKS.find((f) => new RegExp(`-${f}(?:-|kit|$)`).test(name ?? ''))
+
+/**
+ * Exports only a React package has, per React package, and why: names and subpaths for a React
+ * mechanism that no other framework has. No counterpart has to export them. `Name (value)` or
+ * `Name (type)` exempts one kind of a name React exports as both.
+ */
+export const EXPORT_EXEMPT = {
+  '@molecule/app-react': {
+    './render':
+      "React render-cycle helpers (committed refs, effect events, stable callbacks) for code written to React's render model; the other frameworks' reactivity has no render to stabilize against",
+  },
+  [ROUTING_REFERENCE]: {
+    BrowserRouter: "React Router's router component (each port mounts its native router's own)",
+    BrowserRouterProps: "props of React Router's router component",
+    HashRouter: "React Router's router component (each port mounts its native router's own)",
+    HashRouterProps: "props of React Router's router component",
+    HistoryRouterProps: "props of React Router's router component",
+    MemoryRouter: "React Router's router component (each port mounts its native router's own)",
+    MemoryRouterProps: "props of React Router's router component",
+    RouterProps: "props of React Router's router component",
+    RouterProvider:
+      "React Router's data-router component (each port mounts its native router's own)",
+    RouterProviderProps: "props of React Router's data-router component",
+    unstable_HistoryRouter:
+      "React Router's router component (each port mounts its native router's own)",
+    'Router (value)':
+      "React Router's low-level router component; the Router type (the molecule router) is still owed",
+    createReactRouter:
+      'builds the molecule Router over React Router; each port has its own (createVueRouter, …)',
+    ReactRouterConfig: "createReactRouter's options; each port has its own constructor's",
+    ReactRouterHooks:
+      "React Router's hooks createReactRouter reads; each port reads its own router",
+    './dom':
+      "React Router DOM's data routers (RouterProvider, HydratedRouter); each port mounts its native router's own",
+    './dist':
+      'the build folder as an older import path of the root entry; import the package itself',
+  },
+}
+
+/**
+ * The twelve services a framework binding provides, by React's context and component names, with
+ * each port's own way to provide and read that service. React's `<XContext>` objects and
+ * `<XProvider>` components are React mechanisms: Vue reads a service through its injection key,
+ * Svelte through its context functions, Angular through its DI token and `provideX()`.
+ */
+const BINDING_SERVICES = [
+  ['State', 'state', 'STATE_PROVIDER', 'StateProvider'],
+  ['Auth', 'auth', 'AUTH_CLIENT', 'AuthClient'],
+  ['Theme', 'theme', 'THEME_PROVIDER', 'ThemeProvider'],
+  ['Router', 'router', 'ROUTER', 'Router'],
+  ['I18n', 'i18n', 'I18N_PROVIDER', 'I18nProvider'],
+  ['Http', 'http', 'HTTP_CLIENT', 'HttpClient'],
+  ['Storage', 'storage', 'STORAGE_PROVIDER', 'StorageProvider'],
+  ['Logger', 'logger', 'LOGGER_PROVIDER', 'LoggerProvider'],
+  ['Chat', 'chat', 'CHAT_PROVIDER', 'ChatProvider'],
+  ['Workspace', 'workspace', 'WORKSPACE_PROVIDER', 'WorkspaceProvider'],
+  ['Editor', 'editor', 'EDITOR_PROVIDER', 'EditorProvider'],
+  ['Preview', 'preview', 'PREVIEW_PROVIDER', 'PreviewProvider'],
+]
+
+/** Svelte's reader of each service's context ({@link BINDING_SERVICES} order). */
+const SVELTE_READERS = {
+  State: 'useStateProvider',
+  Auth: 'useAuthClient',
+  Theme: 'useThemeProvider',
+  Router: 'getRouter',
+  I18n: 'useI18nProvider',
+  Http: 'useHttpClient',
+  Storage: 'useStorageProvider',
+  Logger: 'useLoggerProvider',
+  Chat: 'useChatProvider',
+  Workspace: 'useWorkspaceProvider',
+  Editor: 'useEditorProvider',
+  Preview: 'usePreviewProvider',
+}
+
+/**
+ * Exports of a React package that one counterpart does not have, per counterpart, and why: each
+ * entry names the counterpart's own exports that do that job (`use`, which the gate checks it
+ * exports) and the reason its framework has no such export. Only a mechanism the counterpart's
+ * framework lacks belongs here; a hook, a hook's result type, a prop or option type, or a
+ * component the framework can express does not, and a name not ported yet goes in
+ * {@link EXPORT_PARITY_PENDING}.
+ */
+export const PORT_EXPORT_EXEMPT = {
+  '@molecule/app-vue': Object.fromEntries(
+    BINDING_SERVICES.map(([s]) => [
+      `${s}Context`,
+      {
+        use: [`${s}Key`],
+        why: `a React context object; Vue reads the service with inject(${s}Key)`,
+      },
+    ]),
+  ),
+  '@molecule/app-svelte': Object.fromEntries(
+    BINDING_SERVICES.map(([s]) => [
+      `${s}Context`,
+      {
+        use: [`set${s}Context`, SVELTE_READERS[s]],
+        why: `a React context object; Svelte sets the service with set${s}Context() and reads it with ${SVELTE_READERS[s]}()`,
+      },
+    ]),
+  ),
+  '@molecule/app-angular': {
+    ...Object.fromEntries(
+      BINDING_SERVICES.flatMap(([s, key, token]) => [
+        [
+          `${s}Context`,
+          {
+            use: [token],
+            why: `a React context object; Angular reads the service with inject(${token})`,
+          },
+        ],
+        [
+          `${s}Provider`,
+          {
+            use: [`provide${s}`],
+            why: `a React provider component; Angular DI providers are fixed at bootstrap, so provide${s}() (or provideMolecule({ ${key} })) supplies the service`,
+          },
+        ],
+        [
+          `${s}ProviderProps`,
+          { use: [`provide${s}`], why: `props of a React provider component (see ${s}Provider)` },
+        ],
+      ]),
+    ),
+    MoleculeProvider: {
+      use: ['provideMolecule'],
+      why: "a React provider component; Angular DI providers are fixed at bootstrap, so provideMolecule() takes MoleculeProvider's keys, and while the session restores the page shows the app root's index.html content (Angular has no sessionFallback)",
+    },
+    MoleculeProviderProps: {
+      use: ['provideMolecule', 'MoleculeModuleConfig'],
+      why: "props of a React provider component; provideMolecule's MoleculeModuleConfig takes the same keys",
+    },
+    ProviderProps: {
+      use: ['provideMolecule'],
+      why: "the children prop every React provider component takes; Angular's providers have no children",
+    },
+  },
+  '@molecule/app-routing-angular-router': {
+    MoleculeRouterProvider: {
+      use: ['provideMoleculeRouter'],
+      why: 'Angular wires the router through DI at bootstrap',
+    },
+    MoleculeRouterProviderProps: {
+      use: ['provideMoleculeRouter', 'AngularRouterOptions'],
+      why: "provideMoleculeRouter's AngularRouterOptions are the counterpart",
+    },
+  },
+  '@molecule/app-routing-sveltekit': {
+    defineRoute: {
+      use: [],
+      why: 'SvelteKit declares a route by its file path under src/routes, not in code',
+    },
+    lazyPage: {
+      use: [],
+      why: 'SvelteKit loads every page lazily from its route file; there is no page to wrap',
+    },
+    LazyPageOptions: { use: [], why: "lazyPage's options (lazyPage is exempt)" },
+    LazyLoadableComponent: { use: [], why: "lazyPage's loader type (lazyPage is exempt)" },
+  },
+}
+
+/**
+ * Ledger of React exports a counterpart has not ported yet (counterpart → names and subpaths);
+ * it may only shrink.
+ */
+export const EXPORT_PARITY_PENDING = 'scripts/export-parity-pending.json'
+
+/**
+ * The names each module exports and their kinds, as TypeScript resolves them (`export *`
+ * chains, re-exports from other packages, a `.svelte` component's default re-export).
+ *
+ * @param files - Absolute paths of the entry modules (`src/index.ts`).
+ * @returns Per file, each export name and its kinds (`value`, `type`, and `class` for a class
+ *   with no other type declaration), or `null` when the export cannot be resolved without a
+ *   framework's own tooling (a `.svelte` component).
+ */
+export function moduleExports(files) {
+  const ts = createRequire(import.meta.url)('typescript')
+  const program = ts.createProgram(files, {
+    module: ts.ModuleKind.NodeNext,
+    moduleResolution: ts.ModuleResolutionKind.NodeNext,
+    target: ts.ScriptTarget.ES2022,
+    jsx: ts.JsxEmit.Preserve,
+    noLib: true,
+    noEmit: true,
+    skipLibCheck: true,
+    types: [],
+  })
+  const checker = program.getTypeChecker()
+  return files.map((file) => {
+    const out = new Map()
+    const source = program.getSourceFile(file)
+    const moduleSymbol = source && checker.getSymbolAtLocation(source)
+    if (!moduleSymbol) return out
+    for (const symbol of checker.getExportsOfModule(moduleSymbol)) {
+      const target = symbol.flags & ts.SymbolFlags.Alias ? checker.getAliasedSymbol(symbol) : symbol
+      // An unresolved re-export has no declarations (TypeScript's stand-in symbol).
+      if (!target.declarations?.length) {
+        out.set(symbol.name, null)
+        continue
+      }
+      // A value reached through `export type` is a type to the importer: it has no runtime binding.
+      const typeOnly =
+        symbol.declarations?.some((d) => ts.isTypeOnlyImportOrExportDeclaration(d)) === true
+      const kinds = new Set()
+      if (target.flags & ts.SymbolFlags.Value && !typeOnly) kinds.add('value')
+      if (target.flags & ts.SymbolFlags.Type || !kinds.size) kinds.add('type')
+      // A class's instance type comes with the class syntax, not as an export of its own: a
+      // counterpart owes its value (a class still serves as a type wherever it is exported).
+      if (
+        kinds.has('value') &&
+        target.flags & ts.SymbolFlags.Class &&
+        !(target.flags & (ts.SymbolFlags.Interface | ts.SymbolFlags.TypeAlias))
+      )
+        kinds.add('class')
+      out.set(symbol.name, kinds)
+    }
+    return out
+  })
+}
+
+/**
+ * The names each module exports, types included ({@link moduleExports} without the kinds).
+ *
+ * @param files - Absolute paths of the entry modules.
+ * @returns Each file's export names, sorted.
+ */
+export function moduleExportNames(files) {
+  return moduleExports(files).map((m) => [...m.keys()].sort())
+}
+
+/**
+ * A package's subpath entries: its `exports` keys other than `.`, `./package.json` and patterns
+ * (a `*` key exposes files, not a named entry).
+ *
+ * @param pkg - A package.json.
+ * @returns The subpath keys.
+ */
+const subpathKeys = (pkg) =>
+  pkg.exports && typeof pkg.exports === 'object' && !Array.isArray(pkg.exports)
+    ? Object.keys(pkg.exports).filter(
+        (k) => k.startsWith('./') && k !== './package.json' && !k.includes('*'),
+      )
+    : []
+
+/**
+ * The TypeScript source of one entry: `src/index.ts` for `.`, and for a subpath the file its
+ * `exports` target names under `dist/`, mapped back into `src/`.
+ *
+ * @param root - The molecule repository root.
+ * @param entry - A package's dir and package.json.
+ * @param key - `.` or a subpath key.
+ * @returns The absolute source path, or undefined when it is not a TypeScript module.
+ */
+const entrySource = (root, { dir, pkg }, key) => {
+  if (key === '.') {
+    const index = join(root, dir, 'src', 'index.ts')
+    return existsSync(index) ? index : undefined
+  }
+  const target = pkg.exports[key]
+  const file =
+    typeof target === 'string' ? target : (target?.types ?? target?.import ?? target?.default)
+  if (typeof file !== 'string' || !file.startsWith('./dist/')) return undefined
+  const stem = file.slice('./dist/'.length).replace(/(\.d\.ts|\.js)$/, '')
+  return ['.ts', '.tsx', '/index.ts', '/index.tsx']
+    .map((ext) => join(root, dir, 'src', `${stem}${ext}`))
+    .find((p) => existsSync(p))
+}
+
+/**
+ * Finds exports of a React package its counterparts lack: each name (types included) of each
+ * entry, under the same name or with the framework's word for `React`
+ * ({@link counterpartNames}), as the same kind (a value where React's is a value, a type where
+ * React's is a type), and each subpath. An app swaps a React package for its counterpart package
+ * for package, so the counterpart exports what the React one does. Covers every pair
+ * {@link titleParityPairs} measures: feature and infrastructure packages, UI bonds, framework
+ * bindings and routing bonds. Exports only React has are in {@link EXPORT_EXEMPT}, ones one
+ * counterpart has another way to do in {@link PORT_EXPORT_EXEMPT}, and ones still being ported in
+ * {@link EXPORT_PARITY_PENDING}, which may only shrink.
+ *
+ * @param root - The molecule repository root.
+ * @param [ledgers] - The exemptions: `exportExempt` defaults to {@link EXPORT_EXEMPT} and
+ *   `portExportExempt` to {@link PORT_EXPORT_EXEMPT}. Each entry must name a package the tree
+ *   measures, so a fixture tree that holds none of them passes its own.
+ * @returns One line per violation.
+ */
+export function exportParityViolations(
+  root = ROOT,
+  { exportExempt = EXPORT_EXEMPT, portExportExempt = PORT_EXPORT_EXEMPT } = {},
+) {
+  const out = []
+  const ledgerFile = join(root, EXPORT_PARITY_PENDING)
+  let ledger = {}
+  if (existsSync(ledgerFile)) {
+    try {
+      ledger = readJson(ledgerFile)
+    } catch (error) {
+      return [`${EXPORT_PARITY_PENDING}: not valid JSON (${error.message})`]
+    }
+  }
+  const groups = titleParityPairs(root)
+    .map(({ react, ports }) => ({
+      react,
+      ports: ports.filter((p) => entrySource(root, p, '.')),
+    }))
+    .filter(({ react, ports }) => ports.length && entrySource(root, react, '.'))
+  const measured = new Set(groups.flatMap((g) => g.ports.map((p) => p.pkg.name)))
+  for (const name of Object.keys(ledger))
+    if (!measured.has(name))
+      out.push(
+        `${EXPORT_PARITY_PENDING}: ${name} is not a counterpart measured against a React package; remove it`,
+      )
+  for (const name of Object.keys(portExportExempt))
+    if (!measured.has(name))
+      out.push(
+        `PORT_EXPORT_EXEMPT names ${name}, which is not a counterpart measured against a React package; remove it`,
+      )
+  for (const name of Object.keys(exportExempt))
+    if (!groups.some((g) => g.react.pkg.name === name))
+      out.push(
+        `EXPORT_EXEMPT names ${name}, which is not a React package with counterparts; remove it`,
+      )
+
+  // Every entry of every package, type-checked in one program.
+  const files = new Set()
+  for (const { react, ports } of groups)
+    for (const p of [react, ...ports])
+      for (const key of ['.', ...subpathKeys(p.pkg)]) {
+        const file = entrySource(root, p, key)
+        if (file) files.add(file)
+      }
+  const list = [...files]
+  const exportsOfFile = new Map(moduleExports(list).map((m, i) => [list[i], m]))
+  const exportsOf = (p, key) => {
+    const file = entrySource(root, p, key)
+    return file ? exportsOfFile.get(file) : undefined
+  }
+
+  for (const { react, ports } of groups) {
+    const reactName = react.pkg.name
+    const reactKeys = ['.', ...subpathKeys(react.pkg)]
+    const reactExempt = exportExempt[reactName] ?? {}
+    const reactAll = new Set(reactKeys.flatMap((k) => [k, ...(exportsOf(react, k)?.keys() ?? [])]))
+    // `Name (kind)` exempts one kind of a name React exports as both (a value and a type).
+    const reactKinds = new Map(reactKeys.flatMap((k) => [...(exportsOf(react, k) ?? [])]))
+    for (const name of Object.keys(reactExempt))
+      if (
+        !reactAll.has(name) &&
+        !(
+          /^(\S+) \((value|type)\)$/.test(name) &&
+          reactKinds.get(name.split(' ')[0])?.has(name.split(' ')[1].slice(1, -1))
+        )
+      )
+        out.push(
+          `${react.dir}: EXPORT_EXEMPT names ${name}, which it does not export; remove the entry`,
+        )
+    for (const port of ports) {
+      const framework = portFramework(port.pkg.name)
+      const portKeys = new Set(['.', ...subpathKeys(port.pkg)])
+      // Every gap, by React name, before the exemptions and the ledger are applied.
+      const gaps = new Map()
+      const gap = (name, message) => gaps.set(name, [...(gaps.get(name) ?? []), message])
+      for (const key of reactKeys) {
+        if (key in reactExempt) continue
+        if (key !== '.' && !portKeys.has(key)) {
+          gap(
+            key,
+            `${port.dir}: package.json "exports" has no "${key}", which ${reactName} has; add that subpath`,
+          )
+          continue
+        }
+        const reactExports = exportsOf(react, key)
+        const portExports = exportsOf(port, key)
+        if (!reactExports || !portExports) continue
+        const where = key === '.' ? '' : ` from "${key}"`
+        for (const [name, kinds] of reactExports) {
+          if (name in reactExempt) continue
+          const match = counterpartNames(name, framework).find((c) => portExports.has(c))
+          if (!match) {
+            gap(
+              name,
+              `${port.dir}: does not export ${name}${where}, which ${reactName} exports; export it under the same name (an app swaps the package for its counterpart)`,
+            )
+            continue
+          }
+          const theirs = portExports.get(match)
+          const owed = !kinds ? [] : kinds.has('class') ? ['value'] : [...kinds]
+          if (theirs)
+            for (const kind of owed)
+              if (!theirs.has(kind) && !(`${name} (${kind})` in reactExempt))
+                gap(
+                  name,
+                  `${port.dir}: exports ${match}${where} only as a ${[...theirs].filter((k) => k !== 'class').join(' and ')}, but ${reactName} exports ${name} as a ${kind}; export the ${kind} under that name`,
+                )
+        }
+      }
+      const exempt = portExportExempt[port.pkg.name] ?? {}
+      const pending = new Set(Array.isArray(ledger[port.pkg.name]) ? ledger[port.pkg.name] : [])
+      for (const [name, messages] of gaps)
+        if (!(name in exempt) && !pending.has(name)) out.push(...messages)
+      const portRoot = exportsOf(port, '.')
+      for (const [name, entry] of Object.entries(exempt)) {
+        if (!reactAll.has(name) || name in reactExempt)
+          out.push(
+            `${port.dir}: PORT_EXPORT_EXEMPT names ${name}, which ${reactName} ${name in reactExempt ? 'lists in EXPORT_EXEMPT' : 'does not export'}; remove the entry`,
+          )
+        else if (!gaps.has(name))
+          out.push(
+            `${port.dir}: PORT_EXPORT_EXEMPT names ${name}, which it now exports; remove the entry`,
+          )
+        for (const use of entry.use ?? [])
+          if (!portRoot?.has(use))
+            out.push(
+              `${port.dir}: PORT_EXPORT_EXEMPT names ${use} as the counterpart of ${name}, but it does not export ${use}`,
+            )
+      }
+      for (const name of pending) {
+        const needNot = !reactAll.has(name) || name in reactExempt || name in exempt
+        if (needNot || !gaps.has(name))
+          out.push(
+            `${EXPORT_PARITY_PENDING}: ${port.pkg.name} ${needNot ? 'need not export' : 'now exports'} ${name}; remove it from the ledger`,
+          )
+      }
+    }
+  }
+  return out
+}
+
 /**
  * The title ledger with every entry removed that {@link titleParityViolations} reports as out
  * of date: titles a counterpart now declares, titles its React package no longer declares, and
@@ -852,8 +1329,8 @@ export function shrinkOnlyLedgers(root = ROOT) {
   const gaps = [...frameworkPackages(root), ...featurePackages(root), ...routingPackages(root)].map(
     ({ dir }) => `${dir}${KNOWN_GAPS_SUFFIX}`,
   )
-  return [FEATURE_PARITY_PENDING, TITLE_PARITY_PENDING, ...gaps].filter((path) =>
-    existsSync(join(root, path)),
+  return [FEATURE_PARITY_PENDING, TITLE_PARITY_PENDING, EXPORT_PARITY_PENDING, ...gaps].filter(
+    (path) => existsSync(join(root, path)),
   )
 }
 

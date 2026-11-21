@@ -18,7 +18,11 @@ import {
   BINDING_REFERENCE,
   BUILD_TESTS_EXCLUDE,
   ciBase,
+  counterpartNames,
   EXEMPT,
+  EXPORT_EXEMPT,
+  EXPORT_PARITY_PENDING,
+  exportParityViolations,
   FEATURE_FRAMEWORKS,
   FEATURE_PARITY_PENDING,
   featureCasesName,
@@ -28,6 +32,7 @@ import {
   gitFileReader,
   KIT,
   ledgerGrowthViolations,
+  PORT_EXPORT_EXEMPT,
   prunedTitlePending,
   REFERENCE,
   ROUTING_EXEMPT,
@@ -40,6 +45,20 @@ import {
 } from '../check-framework-conformance.mjs'
 
 const roots = []
+
+/**
+ * The export exemptions of a fixture tree: none. The real ones each name a package of the real
+ * tree, and a fixture holds none of those.
+ */
+const NO_EXPORT_EXEMPTIONS = { exportExempt: {}, portExportExempt: {} }
+
+/**
+ * The gate over a fixture tree, held to the fixture's own (empty) export exemptions.
+ *
+ * @param root - The fixture root.
+ * @returns The violations.
+ */
+const check = (root) => findConformanceViolations(root, NO_EXPORT_EXEMPTIONS)
 
 afterEach(() => {
   for (const root of roots.splice(0)) rmSync(root, { recursive: true, force: true })
@@ -125,19 +144,19 @@ function tree(overrides = {}) {
 
 describe('check-framework-conformance', () => {
   it('passes a tree where every UI bond and framework binding runs the kit', () => {
-    expect(findConformanceViolations(tree())).toEqual([])
+    expect(check(tree())).toEqual([])
   })
 
   it('accepts a known-gaps ratchet that lists cases', () => {
     const root = tree({
       bond: { gaps: JSON.stringify({ Button: ['loading'], Modal: ['(export)'] }) },
     })
-    expect(findConformanceViolations(root)).toEqual([])
+    expect(check(root)).toEqual([])
   })
 
   it('fails a new UI bond that has no conformance test, no gaps file and no kit dependency', () => {
     const root = tree({ bond: { pkg: { devDependencies: {} }, test: null, gaps: null } })
-    const violations = findConformanceViolations(root)
+    const violations = check(root)
     expect(violations).toHaveLength(3)
     expect(violations.join('\n')).toMatch(
       /foo-ui: src\/__tests__\/conformance\.test\.ts \(or \.tsx\) is missing/,
@@ -152,14 +171,14 @@ describe('check-framework-conformance', () => {
 
   it('fails a conformance test that never calls the kit', () => {
     const root = tree({ bond: { test: `import '${KIT}/ui'\nit('skipped', () => {})\n` } })
-    expect(findConformanceViolations(root)).toEqual([
+    expect(check(root)).toEqual([
       'packages/app/frameworks/foo-ui: conformance.test.ts does not call runUIConformance(',
     ])
   })
 
   it('fails a conformance test that does not import the kit', () => {
     const root = tree({ bond: { test: 'const runUIConformance = () => {}\nrunUIConformance()\n' } })
-    expect(findConformanceViolations(root)).toEqual([
+    expect(check(root)).toEqual([
       `packages/app/frameworks/foo-ui: conformance.test.ts does not import '${KIT}/ui'`,
     ])
   })
@@ -174,14 +193,14 @@ describe('check-framework-conformance', () => {
     ],
     ['a non-string case', '{"Button":[1]}', /must map component names to arrays of case names/],
   ])('fails a known-gaps file that is %s', (_label, gaps, message) => {
-    const violations = findConformanceViolations(tree({ bond: { gaps } }))
+    const violations = check(tree({ bond: { gaps } }))
     expect(violations).toHaveLength(1)
     expect(violations[0]).toMatch(message)
   })
 
   it('fails a kit that is publishable or does not depend on the React references', () => {
     const root = tree({ kit: { private: false, devDependencies: {} } })
-    expect(findConformanceViolations(root)).toEqual([
+    expect(check(root)).toEqual([
       'packages/app/frameworks/conformance: the kit must be "private": true (it is never published)',
       `packages/app/frameworks/conformance: must depend on ${REFERENCE} so a React change re-checks the goldens`,
       `packages/app/frameworks/conformance: must depend on ${BINDING_REFERENCE} so a React change re-checks the goldens`,
@@ -190,7 +209,7 @@ describe('check-framework-conformance', () => {
 
   it('fails a kit without a goldens test for each group', () => {
     const root = tree({ kitTests: { goldens: null, bindings: null } })
-    expect(findConformanceViolations(root)).toEqual([
+    expect(check(root)).toEqual([
       'packages/app/frameworks/conformance: src/__tests__/goldens.test.ts is missing (it keeps the goldens equal to React)',
       'packages/app/frameworks/conformance: src/__tests__/bindings-goldens.test.ts is missing (it keeps the goldens equal to React)',
     ])
@@ -198,7 +217,7 @@ describe('check-framework-conformance', () => {
 
   it('fails a new framework binding that has no conformance test, no gaps file and no kit dependency', () => {
     const root = tree({ binding: { pkg: { devDependencies: {} }, test: null, gaps: null } })
-    expect(findConformanceViolations(root)).toEqual([
+    expect(check(root)).toEqual([
       'packages/app/frameworks/vue: src/__tests__/conformance.test.ts (or .tsx) is missing; it must call runBindingConformance(adapter, { knownGaps })',
       'packages/app/frameworks/vue: src/__tests__/conformance/known-gaps.json is missing (use {} when nothing is known to differ)',
       'packages/app/frameworks/vue: devDependencies must list @molecule/app-framework-conformance',
@@ -207,16 +226,14 @@ describe('check-framework-conformance', () => {
 
   it('fails a framework binding that runs the UI suite instead of the binding suite', () => {
     const root = tree({ binding: { test: TEST_FILE } })
-    expect(findConformanceViolations(root)).toEqual([
+    expect(check(root)).toEqual([
       `packages/app/frameworks/vue: conformance.test.ts does not import '${KIT}/bindings'`,
       'packages/app/frameworks/vue: conformance.test.ts does not call runBindingConformance(',
     ])
   })
 
   it('fails a binding known-gaps file that does not map export names to case lists', () => {
-    const violations = findConformanceViolations(
-      tree({ binding: { gaps: '{"useAuth":"signed in"}' } }),
-    )
+    const violations = check(tree({ binding: { gaps: '{"useAuth":"signed in"}' } }))
     expect(violations).toEqual([
       'packages/app/frameworks/vue: known-gaps.json must map export names to arrays of case names',
     ])
@@ -232,7 +249,7 @@ describe('check-framework-conformance', () => {
         },
       },
     })
-    expect(findConformanceViolations(root)).toEqual([
+    expect(check(root)).toEqual([
       'packages/app/frameworks/foo-ui/src/Badge.vue:1: class="badge" is a raw class list; use a ClassMap token (class={cm.…})',
       'packages/app/frameworks/foo-ui/src/Card.svelte:1: class="flex gap-2" is a raw class list; use a ClassMap token (class={cm.…})',
       'packages/app/frameworks/foo-ui/src/Card.svelte:1: class:active names a raw class; compose a ClassMap token into class={…} instead',
@@ -250,7 +267,7 @@ describe('check-framework-conformance', () => {
         },
       },
     })
-    expect(findConformanceViolations(root)).toEqual([])
+    expect(check(root)).toEqual([])
   })
 
   it('never asks the reference or the native UI bond to run DOM conformance', () => {
@@ -315,12 +332,12 @@ runRouterConformance('foo-router', createHarness)
     }
 
     it('passes the routing core and a bond that run the router suite', () => {
-      expect(findConformanceViolations(routingTree())).toEqual([])
+      expect(check(routingTree())).toEqual([])
     })
 
     it('fails a routing bond that has no conformance test and no kit dependency', () => {
       const root = routingTree({ pkg: { devDependencies: {} }, test: null })
-      expect(findConformanceViolations(root)).toEqual([
+      expect(check(root)).toEqual([
         "packages/app/bonds/routing/foo-router: src/__tests__/conformance.test.ts (or .tsx) is missing; it must call runRouterConformance('<bond>', createHarness)",
         'packages/app/bonds/routing/foo-router: devDependencies must list @molecule/app-framework-conformance',
       ])
@@ -328,21 +345,19 @@ runRouterConformance('foo-router', createHarness)
 
     it('fails a routing bond whose test runs another suite', () => {
       const root = routingTree({ test: BINDING_TEST_FILE })
-      expect(findConformanceViolations(root)).toEqual([
+      expect(check(root)).toEqual([
         `packages/app/bonds/routing/foo-router: conformance.test.ts does not import '${KIT}/routing'`,
         'packages/app/bonds/routing/foo-router: conformance.test.ts does not call runRouterConformance(',
       ])
     })
 
     it('accepts a conformance test named conformance.test.tsx (a JSX harness)', () => {
-      expect(findConformanceViolations(routingTree({ testName: 'conformance.test.tsx' }))).toEqual(
-        [],
-      )
+      expect(check(routingTree({ testName: 'conformance.test.tsx' }))).toEqual([])
     })
 
     it('checks a conformance.test.tsx the same way', () => {
       const root = routingTree({ testName: 'conformance.test.tsx', test: BINDING_TEST_FILE })
-      expect(findConformanceViolations(root)).toEqual([
+      expect(check(root)).toEqual([
         `packages/app/bonds/routing/foo-router: conformance.test.tsx does not import '${KIT}/routing'`,
         'packages/app/bonds/routing/foo-router: conformance.test.tsx does not call runRouterConformance(',
       ])
@@ -352,7 +367,7 @@ runRouterConformance('foo-router', createHarness)
       const root = routingTree({
         files: { 'src/__tests__/conformance/known-gaps.json': '{"router":["destroy"]}' },
       })
-      expect(findConformanceViolations(root)).toEqual([
+      expect(check(root)).toEqual([
         'packages/app/bonds/routing/foo-router: src/__tests__/conformance/known-gaps.json must not exist (runRouterConformance has no known gaps)',
       ])
     })
@@ -453,7 +468,7 @@ runFeatureConformance('${REACT_FEATURE}', adapter, { module, cases: widgetFeatur
           pkg,
           files: { 'tsconfig.json': tsconfig(['node_modules', 'dist']) },
         })
-        expect(findConformanceViolations(root)).toEqual([
+        expect(check(root)).toEqual([
           expect.stringContaining(
             `packages/app/features/widget-vue: ./tsconfig.json must exclude the tests ("${BUILD_TESTS_EXCLUDE}")`,
           ),
@@ -467,7 +482,7 @@ runFeatureConformance('${REACT_FEATURE}', adapter, { module, cases: widgetFeatur
             'tsconfig.json': tsconfig(['node_modules', 'dist', BUILD_TESTS_EXCLUDE]),
           },
         })
-        expect(findConformanceViolations(root)).toEqual([])
+        expect(check(root)).toEqual([])
       })
 
       it('reads the tsconfig the build names', () => {
@@ -481,7 +496,7 @@ runFeatureConformance('${REACT_FEATURE}', adapter, { module, cases: widgetFeatur
             'tsconfig.build.json': tsconfig([BUILD_TESTS_EXCLUDE]),
           },
         })
-        expect(findConformanceViolations(root)).toEqual([])
+        expect(check(root)).toEqual([])
       })
 
       it.each([
@@ -492,7 +507,7 @@ runFeatureConformance('${REACT_FEATURE}', adapter, { module, cases: widgetFeatur
           pkg: { ...pkg, scripts: { build } },
           files: { 'tsconfig.json': tsconfig(['dist']) },
         })
-        expect(findConformanceViolations(root)).toEqual([
+        expect(check(root)).toEqual([
           expect.stringContaining('tsconfig.json must exclude the tests'),
         ])
       })
@@ -502,7 +517,7 @@ runFeatureConformance('${REACT_FEATURE}', adapter, { module, cases: widgetFeatur
           pkg: { ...pkg, scripts: {} },
           files: { 'tsconfig.json': tsconfig(['dist']) },
         })
-        expect(findConformanceViolations(root)).toEqual([])
+        expect(check(root)).toEqual([])
       })
     })
 
@@ -516,11 +531,11 @@ runFeatureConformance('${REACT_FEATURE}', adapter, { module, cases: widgetFeatur
     })
 
     it('passes a feature package that runs the feature suite against its React package', () => {
-      expect(findConformanceViolations(featureTree())).toEqual([])
+      expect(check(featureTree())).toEqual([])
     })
 
     it('fails a new feature package with no conformance test, no gaps file and no kit dependency', () => {
-      const violations = findConformanceViolations(
+      const violations = check(
         featureTree({ pkg: { devDependencies: {} }, test: null, gaps: null }),
       ).join('\n')
       expect(violations).toMatch(
@@ -538,11 +553,11 @@ runFeatureConformance('${REACT_FEATURE}', adapter, { module, cases: widgetFeatur
       const other = featureTree({
         test: FEATURE_TEST_FILE.replace(REACT_FEATURE, '@molecule/app-gadget-react'),
       })
-      expect(findConformanceViolations(other).join('\n')).toMatch(
+      expect(check(other).join('\n')).toMatch(
         /widget-vue: conformance\.test\.ts must measure the package against '@molecule\/app-widget-react'/,
       )
       const ui = featureTree({ test: TEST_FILE })
-      expect(findConformanceViolations(ui).join('\n')).toMatch(
+      expect(check(ui).join('\n')).toMatch(
         /widget-vue: conformance\.test\.ts does not import '@molecule\/app-framework-conformance\/features'/,
       )
     })
@@ -551,10 +566,10 @@ runFeatureConformance('${REACT_FEATURE}', adapter, { module, cases: widgetFeatur
       const noDep = featureTree({
         kit: { devDependencies: { [REFERENCE]: '4.0.0', [BINDING_REFERENCE]: '4.0.0' } },
       })
-      expect(findConformanceViolations(noDep)).toEqual([
+      expect(check(noDep)).toEqual([
         'packages/app/frameworks/conformance: must depend on @molecule/app-widget-react so a React change re-checks the goldens',
       ])
-      expect(findConformanceViolations(featureTree({ goldens: false }))).toEqual([
+      expect(check(featureTree({ goldens: false }))).toEqual([
         'packages/app/frameworks/conformance: src/__tests__/features-goldens.test.ts is missing (it keeps the goldens equal to React)',
       ])
     })
@@ -563,7 +578,7 @@ runFeatureConformance('${REACT_FEATURE}', adapter, { module, cases: widgetFeatur
       const root = featureTree({
         files: { 'src/AppWidget.vue': '<template><div class="flex">x</div></template>\n' },
       })
-      expect(findConformanceViolations(root)).toEqual([
+      expect(check(root)).toEqual([
         'packages/app/features/widget-vue/src/AppWidget.vue:1: class="flex" is a raw class list; use a ClassMap token (class={cm.…})',
       ])
     })
@@ -573,7 +588,7 @@ runFeatureConformance('${REACT_FEATURE}', adapter, { module, cases: widgetFeatur
     })
 
     it('fails a React package with no counterparts and no ledger entry', () => {
-      const violations = findConformanceViolations(featureTree({ ledger: null }))
+      const violations = check(featureTree({ ledger: null }))
       expect(violations).toEqual(
         ['solid', 'svelte', 'angular'].map(
           (fw) =>
@@ -589,7 +604,7 @@ runFeatureConformance('${REACT_FEATURE}', adapter, { module, cases: widgetFeatur
         join(root, 'packages/app/infrastructure/defaults-react/package.json'),
         JSON.stringify({ name: '@molecule/app-defaults-react', dependencies: { react: '19.0.0' } }),
       )
-      expect(findConformanceViolations(root)).toHaveLength(4)
+      expect(check(root)).toHaveLength(4)
       writeFileSync(
         join(root, FEATURE_PARITY_PENDING),
         JSON.stringify({
@@ -597,11 +612,11 @@ runFeatureConformance('${REACT_FEATURE}', adapter, { module, cases: widgetFeatur
           '@molecule/app-defaults-react': FEATURE_FRAMEWORKS,
         }),
       )
-      expect(findConformanceViolations(root)).toEqual([])
+      expect(check(root)).toEqual([])
     })
 
     it('fails a ledger entry that is out of date, names an unknown package or framework', () => {
-      const violations = findConformanceViolations(
+      const violations = check(
         featureTree({
           ledger: {
             [REACT_FEATURE]: ['vue', 'solid', 'svelte', 'angular', 'qwik'],
@@ -645,7 +660,7 @@ runFeatureConformance('${REACT_FEATURE}', adapter, { module, cases: widgetFeatur
           peerDependencies: { react: '^19.0.0' },
         }),
       )
-      expect(findConformanceViolations(root)).toEqual(
+      expect(check(root)).toEqual(
         FEATURE_FRAMEWORKS.map(
           (fw) =>
             `packages/app/features/chat-widget: has no ${fw} counterpart (@molecule/app-chat-widget-${fw} in packages/app/features/chat-widget-${fw}); every React package ships with its vue, solid, svelte, angular counterparts`,
@@ -671,7 +686,7 @@ runFeatureConformance('${REACT_FEATURE}', adapter, { module, cases: widgetFeatur
           '@molecule/app-chat-widget': ['solid', 'svelte', 'angular'],
         }),
       )
-      const violations = findConformanceViolations(root).join('\n')
+      const violations = check(root).join('\n')
       expect(violations).toMatch(
         /chat-widget-vue: conformance\.test\.ts must measure the package against '@molecule\/app-chat-widget'/,
       )
@@ -708,7 +723,7 @@ runFeatureConformance('${REACT_FEATURE}', adapter, { module, cases: widgetFeatur
           peerDependencies: { react: '^19.0.0' },
         }),
       )
-      expect(findConformanceViolations(root)).toEqual([])
+      expect(check(root)).toEqual([])
     })
 
     it('needs no counterparts for a framework-neutral -react package (no react dependency)', () => {
@@ -721,19 +736,17 @@ runFeatureConformance('${REACT_FEATURE}', adapter, { module, cases: widgetFeatur
           peerDependencies: { '@molecule/app-i18n': '^1.0.0' },
         }),
       )
-      expect(findConformanceViolations(root)).toEqual([])
+      expect(check(root)).toEqual([])
     })
 
     it('fails a ledger that is not JSON', () => {
       const root = featureTree()
       writeFileSync(join(root, FEATURE_PARITY_PENDING), '{')
-      expect(findConformanceViolations(root).join('\n')).toMatch(
-        /feature-parity-pending\.json: not valid JSON/,
-      )
+      expect(check(root).join('\n')).toMatch(/feature-parity-pending\.json: not valid JSON/)
     })
 
     it('fails a feature bond with known gaps: feature bonds match React in every case', () => {
-      expect(findConformanceViolations(featureTree({ gaps: '{"AppWidget":["empty"]}' }))).toEqual([
+      expect(check(featureTree({ gaps: '{"AppWidget":["empty"]}' }))).toEqual([
         'packages/app/features/widget-vue: known-gaps.json must be {} (a feature bond matches its React package in every case): AppWidget',
       ])
     })
@@ -743,31 +756,311 @@ runFeatureConformance('${REACT_FEATURE}', adapter, { module, cases: widgetFeatur
         `import { widgetFeature } from '${KIT}/features/cases/widget'\n`,
         '',
       )
-      expect(findConformanceViolations(featureTree({ test }))).toEqual([
+      expect(check(featureTree({ test }))).toEqual([
         `packages/app/features/widget-vue: conformance.test.ts must pass @molecule/app-widget-react's cases, imported from '${KIT}/features/cases/widget'`,
       ])
     })
 
     it("fails a kit without the feature's cases or goldens file", () => {
-      expect(findConformanceViolations(featureTree({ kitFiles: false }))).toEqual([
+      expect(check(featureTree({ kitFiles: false }))).toEqual([
         'packages/app/frameworks/conformance: src/features/cases/widget.ts is missing (@molecule/app-widget-vue is measured against @molecule/app-widget-react)',
         'packages/app/frameworks/conformance: src/features/goldens/widget.json is missing (@molecule/app-widget-vue is measured against @molecule/app-widget-react)',
       ])
     })
 
     it('accepts goldens stored per component (a directory with index.json)', () => {
-      expect(findConformanceViolations(featureTree({ kitFiles: 'per-component' }))).toEqual([])
+      expect(check(featureTree({ kitFiles: 'per-component' }))).toEqual([])
     })
 
     it('leaves a framework package without a React counterpart alone', () => {
-      expect(
-        findConformanceViolations(featureTree({ react: false, test: null, gaps: null, kit: {} })),
-      ).toEqual([])
+      expect(check(featureTree({ react: false, test: null, gaps: null, kit: {} }))).toEqual([])
     })
   })
 
+  // The routing export rule type-checks five bond entries (a few seconds).
   it('finds no violations in the real tree', () => {
     expect(findConformanceViolations()).toEqual([])
+  }, 120_000)
+})
+
+describe('export parity', () => {
+  const VUE_ROUTER = '@molecule/app-routing-vue-router'
+  const SVELTEKIT = '@molecule/app-routing-sveltekit'
+  const ROUTING = 'packages/app/bonds/routing'
+
+  /**
+   * A tree holding packages and their source files, with the dirs the gate reads.
+   *
+   * @param packages - Dir → `{ pkg, files }` (src-relative files).
+   * @param [ledger] - The pending ledger.
+   * @returns The tree's root.
+   */
+  const exportTree = (packages, ledger) => {
+    const root = mkdtempSync(join(tmpdir(), 'export-parity-'))
+    roots.push(root)
+    const write = (file, text) => {
+      mkdirSync(dirname(join(root, file)), { recursive: true })
+      writeFileSync(join(root, file), text)
+    }
+    mkdirSync(join(root, 'packages/app/frameworks'), { recursive: true })
+    for (const [dir, { pkg, files = {} }] of Object.entries(packages)) {
+      write(`${dir}/package.json`, JSON.stringify(pkg))
+      for (const [file, text] of Object.entries(files)) write(`${dir}/src/${file}`, text)
+    }
+    if (ledger) write(EXPORT_PARITY_PENDING, JSON.stringify(ledger))
+    return root
+  }
+  const index = (text) => ({ 'index.ts': text })
+  const reactRouter = (text) => ({
+    [`${ROUTING}/react-router`]: {
+      pkg: { name: ROUTING_REFERENCE, peerDependencies: { react: '^19.0.0' } },
+      files: index(text),
+    },
+  })
+  const vueRouter = (text, pkg = {}) => ({
+    [`${ROUTING}/vue-router`]: { pkg: { name: VUE_ROUTER, ...pkg }, files: index(text) },
+  })
+  const REACT_ROUTING =
+    'export const useListRoute = (): number => 1\nexport interface ListRouteResult { page: number }\n'
+  const check = (root, ledgers = NO_EXPORT_EXEMPTIONS) => exportParityViolations(root, ledgers)
+
+  it('fails a routing bond that lacks a React Router bond export, naming it', () => {
+    const root = exportTree({
+      ...reactRouter(REACT_ROUTING),
+      ...vueRouter('export interface ListRouteResult { page: number }\n'),
+    })
+    expect(check(root)).toEqual([
+      `${ROUTING}/vue-router: does not export useListRoute, which ${ROUTING_REFERENCE} exports; export it under the same name (an app swaps the package for its counterpart)`,
+    ])
+  })
+
+  it("counterexample: passes a bond exporting React's names through export * chains", () => {
+    const root = exportTree({
+      ...reactRouter(REACT_ROUTING),
+      [`${ROUTING}/vue-router`]: {
+        pkg: { name: VUE_ROUTER },
+        files: {
+          'index.ts': "export * from './hooks.js'\nexport * from './types.js'\n",
+          'hooks.ts': 'export const useListRoute = (): number => 1\n',
+          'types.ts': 'export interface ListRouteResult { page: number }\n',
+        },
+      },
+    })
+    expect(check(root)).toEqual([])
+  })
+
+  it("accepts the framework's word for React in a counterpart's name", () => {
+    expect(counterpartNames('createReactRouter', 'vue')).toEqual(
+      ['createReactRouter', 'createVueRouter', 'createVueRouter'].filter(
+        (n, i, a) => a.indexOf(n) === i,
+      ),
+    )
+    const root = exportTree({
+      ...reactRouter('export const createReactRouter = (): number => 1\n'),
+      ...vueRouter('export const createVueRouter = (): number => 1\n'),
+    })
+    expect(check(root)).toEqual([])
+  })
+
+  it('fails a type exported where React exports a value, naming the kind owed', () => {
+    const root = exportTree({
+      ...reactRouter(REACT_ROUTING),
+      ...vueRouter(
+        'export type useListRoute = () => number\nexport interface ListRouteResult { page: number }\n',
+      ),
+    })
+    expect(check(root)).toEqual([
+      `${ROUTING}/vue-router: exports useListRoute only as a type, but ${ROUTING_REFERENCE} exports useListRoute as a value; export the value under that name`,
+    ])
+  })
+
+  it('counts a class as its value and a value reached through export type as a type', () => {
+    const root = exportTree({
+      ...reactRouter('export class RouteError extends Error {}\n'),
+      [`${ROUTING}/vue-router`]: {
+        pkg: { name: VUE_ROUTER },
+        files: {
+          'index.ts': "export type { RouteError } from './errors.js'\n",
+          'errors.ts': 'export class RouteError extends Error {}\n',
+        },
+      },
+    })
+    expect(check(root)).toEqual([
+      `${ROUTING}/vue-router: exports RouteError only as a type, but ${ROUTING_REFERENCE} exports RouteError as a value; export the value under that name`,
+    ])
+  })
+
+  it('fails a counterpart without a subpath React has, and checks the names under it', () => {
+    const exports = { '.': './dist/index.js', './hooks': './dist/hooks.js' }
+    const react = reactRouter(REACT_ROUTING)
+    react[`${ROUTING}/react-router`].pkg.exports = exports
+    react[`${ROUTING}/react-router`].files['hooks.ts'] =
+      'export const useBlocker = (): number => 1\n'
+    expect(check(exportTree({ ...react, ...vueRouter(REACT_ROUTING) }))).toEqual([
+      `${ROUTING}/vue-router: package.json "exports" has no "./hooks", which ${ROUTING_REFERENCE} has; add that subpath`,
+    ])
+    const vue = vueRouter(REACT_ROUTING, { exports })
+    vue[`${ROUTING}/vue-router`].files['hooks.ts'] = 'export {}\n'
+    expect(check(exportTree({ ...react, ...vue }))).toEqual([
+      `${ROUTING}/vue-router: does not export useBlocker from "./hooks", which ${ROUTING_REFERENCE} exports; export it under the same name (an app swaps the package for its counterpart)`,
+    ])
+  })
+
+  it('does not measure a counterpart that depends on React', () => {
+    const root = exportTree({
+      ...reactRouter(REACT_ROUTING),
+      [`${ROUTING}/next`]: {
+        pkg: { name: '@molecule/app-routing-next', peerDependencies: { react: '^19.0.0' } },
+        files: index('export {}\n'),
+      },
+    })
+    expect(check(root)).toEqual([])
+  })
+
+  it('measures a feature package and a framework binding against their React packages', () => {
+    const root = exportTree({
+      'packages/app/features/widget-react': {
+        pkg: { name: '@molecule/app-widget-react', peerDependencies: { react: '^19.0.0' } },
+        files: index('export const Widget = (): number => 1\n'),
+      },
+      'packages/app/features/widget-solid': {
+        pkg: { name: '@molecule/app-widget-solid' },
+        files: index('export {}\n'),
+      },
+      'packages/app/frameworks/react': {
+        pkg: { name: BINDING_REFERENCE, peerDependencies: { react: '^19.0.0' } },
+        files: index('export const useTranslation = (): number => 1\n'),
+      },
+      'packages/app/frameworks/svelte': {
+        pkg: { name: '@molecule/app-svelte' },
+        files: index('export {}\n'),
+      },
+    })
+    expect(check(root)).toEqual([
+      `packages/app/features/widget-solid: does not export Widget, which @molecule/app-widget-react exports; export it under the same name (an app swaps the package for its counterpart)`,
+      `packages/app/frameworks/svelte: does not export useTranslation, which ${BINDING_REFERENCE} exports; export it under the same name (an app swaps the package for its counterpart)`,
+    ])
+  })
+
+  describe('the pending ledger', () => {
+    const lacking = () => ({
+      ...reactRouter(REACT_ROUTING),
+      ...vueRouter('export interface ListRouteResult { page: number }\n'),
+    })
+
+    it('holds a name the counterpart has not ported yet', () => {
+      expect(check(exportTree(lacking(), { [VUE_ROUTER]: ['useListRoute'] }))).toEqual([])
+    })
+
+    it('fails an entry for a name the counterpart now exports, so the ledger only shrinks', () => {
+      const root = exportTree(
+        { ...reactRouter(REACT_ROUTING), ...vueRouter(REACT_ROUTING) },
+        { [VUE_ROUTER]: ['useListRoute'] },
+      )
+      expect(check(root)).toEqual([
+        `${EXPORT_PARITY_PENDING}: ${VUE_ROUTER} now exports useListRoute; remove it from the ledger`,
+      ])
+    })
+
+    it('fails an entry for a name React does not export', () => {
+      const root = exportTree(lacking(), { [VUE_ROUTER]: ['useListRoute', 'useGone'] })
+      expect(check(root)).toEqual([
+        `${EXPORT_PARITY_PENDING}: ${VUE_ROUTER} need not export useGone; remove it from the ledger`,
+      ])
+    })
+
+    it('fails an entry for a package it does not measure, and a ledger that is not JSON', () => {
+      expect(
+        check(exportTree(lacking(), { [VUE_ROUTER]: ['useListRoute'], '@molecule/app-gone': [] })),
+      ).toEqual([
+        `${EXPORT_PARITY_PENDING}: @molecule/app-gone is not a counterpart measured against a React package; remove it`,
+      ])
+      const root = exportTree(lacking(), {})
+      writeFileSync(join(root, EXPORT_PARITY_PENDING), '{')
+      expect(check(root)[0]).toMatch(new RegExp(`^${EXPORT_PARITY_PENDING}: not valid JSON`))
+    })
+  })
+
+  describe('the exemptions', () => {
+    const sveltekit = (text) => ({
+      [`${ROUTING}/sveltekit`]: {
+        pkg: { name: SVELTEKIT },
+        files: {
+          'index.ts': `${REACT_ROUTING}export { default as ListRouteNav } from './ListRouteNav.svelte'\n${text}`,
+          'ListRouteNav.svelte': '<nav></nav>\n',
+        },
+      },
+    })
+    const react = reactRouter(
+      `${REACT_ROUTING}export const ListRouteNav = 1\nexport const lazyPage = 1\nexport const BrowserRouter = 1\n`,
+    )
+    const ledgers = {
+      exportExempt: { [ROUTING_REFERENCE]: { BrowserRouter: "React Router's router component" } },
+      portExportExempt: { [SVELTEKIT]: { lazyPage: { use: [], why: 'route files load lazily' } } },
+    }
+
+    it("passes a .svelte component's re-export and the names each exemption covers", () => {
+      expect(check(exportTree({ ...react, ...sveltekit('') }), ledgers)).toEqual([])
+    })
+
+    it('fails each exemption the tree has outgrown, naming its entry', () => {
+      const root = exportTree({ ...react, ...sveltekit('export const lazyPage = 1\n') })
+      expect(
+        check(root, {
+          exportExempt: { ...ledgers.exportExempt, '@molecule/app-gone-react': {} },
+          portExportExempt: {
+            [SVELTEKIT]: {
+              ...ledgers.portExportExempt[SVELTEKIT],
+              useListRoute: { use: [], why: 'covered' },
+              useGone: { use: [], why: 'covered' },
+            },
+          },
+        }),
+      ).toEqual([
+        'EXPORT_EXEMPT names @molecule/app-gone-react, which is not a React package with counterparts; remove it',
+        `${ROUTING}/sveltekit: PORT_EXPORT_EXEMPT names lazyPage, which it now exports; remove the entry`,
+        `${ROUTING}/sveltekit: PORT_EXPORT_EXEMPT names useListRoute, which it now exports; remove the entry`,
+        `${ROUTING}/sveltekit: PORT_EXPORT_EXEMPT names useGone, which ${ROUTING_REFERENCE} does not export; remove the entry`,
+      ])
+    })
+
+    it('fails an exemption whose counterpart export (use) the port does not export', () => {
+      const root = exportTree({ ...react, ...sveltekit('') })
+      expect(
+        check(root, {
+          ...ledgers,
+          portExportExempt: {
+            [SVELTEKIT]: { lazyPage: { use: ['loadPage'], why: 'route files load lazily' } },
+          },
+        }),
+      ).toEqual([
+        `${ROUTING}/sveltekit: PORT_EXPORT_EXEMPT names loadPage as the counterpart of lazyPage, but it does not export loadPage`,
+      ])
+    })
+
+    it('fails a React exemption that names an export React no longer has', () => {
+      const root = exportTree({ ...react, ...sveltekit('') })
+      expect(
+        check(root, {
+          ...ledgers,
+          exportExempt: {
+            [ROUTING_REFERENCE]: { ...ledgers.exportExempt[ROUTING_REFERENCE], Gone: '' },
+          },
+        }),
+      ).toEqual([
+        `${ROUTING}/react-router: EXPORT_EXEMPT names Gone, which it does not export; remove the entry`,
+      ])
+    })
+
+    it('every real exemption names a package and gives its reason', () => {
+      for (const entries of Object.values(EXPORT_EXEMPT))
+        for (const why of Object.values(entries)) expect(why).toMatch(/\S/)
+      for (const entries of Object.values(PORT_EXPORT_EXEMPT))
+        for (const entry of Object.values(entries)) {
+          expect(entry.why).toMatch(/\S/)
+          expect(Array.isArray(entry.use)).toBe(true)
+        }
+    })
   })
 })
 
