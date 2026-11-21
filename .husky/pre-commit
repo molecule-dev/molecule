@@ -160,9 +160,96 @@ elif [ -n "$STAGED" ]; then
   MOL_RUN_ON_INDEX=changed node scripts/run-on-index.mjs "scripts/check-index-files.mjs"
 fi
 
+# The gates below that read package SOURCE read the source this commit carries:
+# one export of the index (`git checkout-index`, which honours a private
+# GIT_INDEX_FILE and a pathspec commit's temporary index), made once, on first
+# use. The worktree is the wrong input in a shared checkout: another session's
+# uncommitted export in the same package made this registry check refuse a
+# commit that did not touch it (2026-10-17, ai-tools), and made the README regen
+# below document code no commit had. It lives under the workspace root so
+# packages resolve the same node_modules the checkout does (prepareDocsCheckTree
+# in ../scripts/lib/release-ci-gates.mjs).
+INDEX_TREE=""
+index_tree() {
+  if [ -z "$INDEX_TREE" ]; then
+    INDEX_TREE="$(cd .. && pwd)/.precommit-docs-$$"
+    rm -rf "$INDEX_TREE"
+    # set -e exits on a failed gate; the 190 MB export must not outlive the hook.
+    trap 'rm -rf "$INDEX_TREE"' EXIT
+    git checkout-index -a --prefix="$INDEX_TREE/"
+    node -e "import('../scripts/lib/release-ci-gates.mjs').then((m) => m.prepareDocsCheckTree({ moleculeDir: process.cwd(), treeDir: process.argv[1] }))" "$INDEX_TREE"
+  fi
+}
+
+# Which packages this commit changes a doc input of (used by the README check and the README regen).
+# A staged package.json selects its package only when the edit can reach a
+# generation input (name / peerDependencies / an @types mirror — see
+# mlcl/src/lib/doc-inputs.ts). A test-tool pin cannot, and selecting on ANY
+# manifest change made a fleet-wide vitest bump regenerate/check all ~1030
+# packages — over ten minutes per attempt (2026-10-22). The decision reads the
+# BASE blob and the INDEX blob (doc-manifest-scope.mjs --staged); a helper
+# failure keeps every manifest in scope, never narrows it.
+DOC_SRC=$(staged_diff --name-only --diff-filter=ACMRD -- 'packages/**/src/**' 'packages/**/README.md' || true)
+DOC_MANIFEST_STATUS=$(staged_diff --name-status --no-renames --diff-filter=ACMRD -- 'packages/**/package.json' || true)
+DOC_MANIFEST_DIRS=""
+DOC_MANIFEST_PATHS=""
+if [ -n "$DOC_MANIFEST_STATUS" ]; then
+  DOC_MANIFEST_SPLIT=$(echo "$DOC_MANIFEST_STATUS" | while IFS="$(printf '\t')" read -r status file; do
+    [ -n "$file" ] || continue
+    if [ "$status" = "M" ]; then
+      echo "path $file"
+    else
+      # Added/deleted/renamed/type-changed: no comparable pair, keep the package.
+      echo "dir ${file%/package.json}"
+    fi
+  done)
+  DOC_MANIFEST_DIRS=$(echo "$DOC_MANIFEST_SPLIT" | grep '^dir ' | cut -d' ' -f2- || true)
+  DOC_MANIFEST_PATHS=$(echo "$DOC_MANIFEST_SPLIT" | grep '^path ' | cut -d' ' -f2- || true)
+fi
+if [ -n "$DOC_MANIFEST_PATHS" ] && [ -n "$MLCL_TSX" ]; then
+  MOLECULE_REPO=$(pwd)
+  # Word-split on purpose (package paths carry no whitespace). On failure the
+  # helper prints nothing, so keep EVERY manifest rather than silently narrowing.
+  # shellcheck disable=SC2086
+  if DOC_MANIFEST_KEEP=$( cd ../mlcl && node --import tsx scripts/doc-manifest-scope.mjs \
+      --staged --base="${DIFF_BASE:-HEAD}" --repo="$MOLECULE_REPO" $DOC_MANIFEST_PATHS ); then
+    # `|| true`: an empty keep-list would otherwise leave the substitution's
+    # while-loop status at 1 and `set -e` would fail the commit.
+    DOC_MANIFEST_DIRS="${DOC_MANIFEST_DIRS}
+$(echo "$DOC_MANIFEST_KEEP" | while IFS= read -r f; do [ -n "$f" ] && echo "${f%/package.json}"; done || true)"
+  else
+    DOC_MANIFEST_DIRS="${DOC_MANIFEST_DIRS}
+$(echo "$DOC_MANIFEST_PATHS" | while IFS= read -r f; do echo "${f%/package.json}"; done)"
+  fi
+fi
+DOC_SRC_DIRS=$(echo "$DOC_SRC" | while IFS= read -r f; do [ -n "$f" ] || continue; d="${f%%/src/*}"; echo "${d%/README.md}"; done || true)
+DOC_DIRS=$(printf '%s\n%s\n' "$DOC_SRC_DIRS" "$DOC_MANIFEST_DIRS" | grep -v '^$' | sort -u || true)
+
+# A producer index owns its own generated files, so the README regen further down does not run
+# for it. Check instead that every package whose doc inputs this commit changes already carries
+# a matching README.md (2026-11-21: a private-index commit gave two packages an express peer and
+# left both READMEs stale; the release refused at its docs gate, 27 minutes into its run).
+# mlcl's working-tree registry holds other sessions' uncommitted entries, so a README also passes
+# when it matches mlcl HEAD's registry, the rule the registry-export check below follows.
+if [ "${1:-}" = --index-only ]; then
+  if [ -n "$DOC_DIRS" ] && [ -n "$MLCL_TSX" ]; then
+    index_tree
+    # Word-split on purpose: package paths carry no whitespace.
+    # shellcheck disable=SC2086
+    if ! ( cd ../mlcl && MOLECULE_PACKAGES_DIR="$INDEX_TREE/packages" node --import tsx scripts/regen-molecule-docs.mjs --check $DOC_DIRS >/dev/null ); then
+      if ! env -u GIT_DIR -u GIT_INDEX_FILE -u GIT_WORK_TREE git -C ../mlcl show HEAD:registry.json > "$INDEX_TREE/.mlcl-head-registry.json" 2>/dev/null ||
+        ! ( cd ../mlcl && MLCL_REGISTRY_PATH="$INDEX_TREE/.mlcl-head-registry.json" MOLECULE_PACKAGES_DIR="$INDEX_TREE/packages" node --import tsx scripts/regen-molecule-docs.mjs --check $DOC_DIRS >/dev/null 2>&1 ); then
+        echo 'pre-commit: README.md is stale for a package this commit changes. Regenerate it and add it to this commit:' >&2
+        echo "  (cd ../mlcl && node --import tsx scripts/regen-molecule-docs.mjs $(echo $DOC_DIRS))" >&2
+        exit 1
+      fi
+    fi
+  fi
+  exit 0
+fi
+
 # The remaining steps read sibling worktrees, dispatch live probes, or generate
 # and publish README files. A producer index owns its own generated files.
-if [ "${1:-}" = --index-only ]; then exit 0; fi
 
 # Secret-scanner drift (cross-repo). scripts/precommit-secret-scan.mjs here is a
 # VENDORED copy of the workspace canonical (../scripts/precommit-secret-scan.mjs).
@@ -208,26 +295,6 @@ fi
 # returns, e.g. Article in src/types.ts): mlcl types the app module it writes
 # for a resource from the registry's copy, so a returned field that changes
 # here without `sync-registry --scan-records` types every new app wrong.
-# The gates below that read package SOURCE read the source this commit carries:
-# one export of the index (`git checkout-index`, which honours a private
-# GIT_INDEX_FILE and a pathspec commit's temporary index), made once, on first
-# use. The worktree is the wrong input in a shared checkout: another session's
-# uncommitted export in the same package made this registry check refuse a
-# commit that did not touch it (2026-10-17, ai-tools), and made the README regen
-# below document code no commit had. It lives under the workspace root so
-# packages resolve the same node_modules the checkout does (prepareDocsCheckTree
-# in ../scripts/lib/release-ci-gates.mjs).
-INDEX_TREE=""
-index_tree() {
-  if [ -z "$INDEX_TREE" ]; then
-    INDEX_TREE="$(cd .. && pwd)/.precommit-docs-$$"
-    rm -rf "$INDEX_TREE"
-    # set -e exits on a failed gate; the 190 MB export must not outlive the hook.
-    trap 'rm -rf "$INDEX_TREE"' EXIT
-    git checkout-index -a --prefix="$INDEX_TREE/"
-    node -e "import('../scripts/lib/release-ci-gates.mjs').then((m) => m.prepareDocsCheckTree({ moleculeDir: process.cwd(), treeDir: process.argv[1] }))" "$INDEX_TREE"
-  fi
-}
 
 # A package.json counts too: its required @molecule peers are recorded in the registry
 # (`moleculePeers`), and a peer change with no src edit drifted it unseen until the
@@ -287,48 +354,6 @@ fi
 # diff-filter (incl. D): a deleted src file changes the public API and thus the
 # doc, which --diff-filter=AM would miss.
 #
-# A staged package.json selects its package only when the edit can reach a
-# generation input (name / peerDependencies / an @types mirror — see
-# mlcl/src/lib/doc-inputs.ts). A test-tool pin cannot, and selecting on ANY
-# manifest change made a fleet-wide vitest bump regenerate/check all ~1030
-# packages — over ten minutes per attempt (2026-10-22). The decision reads the
-# BASE blob and the INDEX blob (doc-manifest-scope.mjs --staged); a helper
-# failure keeps every manifest in scope, never narrows it.
-DOC_SRC=$(staged_diff --name-only --diff-filter=ACMRD -- 'packages/**/src/**' 'packages/**/README.md' || true)
-DOC_MANIFEST_STATUS=$(staged_diff --name-status --no-renames --diff-filter=ACMRD -- 'packages/**/package.json' || true)
-DOC_MANIFEST_DIRS=""
-DOC_MANIFEST_PATHS=""
-if [ -n "$DOC_MANIFEST_STATUS" ]; then
-  DOC_MANIFEST_SPLIT=$(echo "$DOC_MANIFEST_STATUS" | while IFS="$(printf '\t')" read -r status file; do
-    [ -n "$file" ] || continue
-    if [ "$status" = "M" ]; then
-      echo "path $file"
-    else
-      # Added/deleted/renamed/type-changed: no comparable pair, keep the package.
-      echo "dir ${file%/package.json}"
-    fi
-  done)
-  DOC_MANIFEST_DIRS=$(echo "$DOC_MANIFEST_SPLIT" | grep '^dir ' | cut -d' ' -f2- || true)
-  DOC_MANIFEST_PATHS=$(echo "$DOC_MANIFEST_SPLIT" | grep '^path ' | cut -d' ' -f2- || true)
-fi
-if [ -n "$DOC_MANIFEST_PATHS" ] && [ -n "$MLCL_TSX" ]; then
-  MOLECULE_REPO=$(pwd)
-  # Word-split on purpose (package paths carry no whitespace). On failure the
-  # helper prints nothing, so keep EVERY manifest rather than silently narrowing.
-  # shellcheck disable=SC2086
-  if DOC_MANIFEST_KEEP=$( cd ../mlcl && node --import tsx scripts/doc-manifest-scope.mjs \
-      --staged --base="${DIFF_BASE:-HEAD}" --repo="$MOLECULE_REPO" $DOC_MANIFEST_PATHS ); then
-    # `|| true`: an empty keep-list would otherwise leave the substitution's
-    # while-loop status at 1 and `set -e` would fail the commit.
-    DOC_MANIFEST_DIRS="${DOC_MANIFEST_DIRS}
-$(echo "$DOC_MANIFEST_KEEP" | while IFS= read -r f; do [ -n "$f" ] && echo "${f%/package.json}"; done || true)"
-  else
-    DOC_MANIFEST_DIRS="${DOC_MANIFEST_DIRS}
-$(echo "$DOC_MANIFEST_PATHS" | while IFS= read -r f; do echo "${f%/package.json}"; done)"
-  fi
-fi
-DOC_SRC_DIRS=$(echo "$DOC_SRC" | while IFS= read -r f; do [ -n "$f" ] || continue; d="${f%%/src/*}"; echo "${d%/README.md}"; done || true)
-DOC_DIRS=$(printf '%s\n%s\n' "$DOC_SRC_DIRS" "$DOC_MANIFEST_DIRS" | grep -v '^$' | sort -u || true)
 if [ -n "$DOC_DIRS" ]; then
   if [ -n "$MLCL_TSX" ]; then
     index_tree
