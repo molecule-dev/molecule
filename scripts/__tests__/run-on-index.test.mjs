@@ -167,6 +167,71 @@ describe('run-on-index', () => {
     expect(result.stdout).not.toContain('ran')
   })
 
+  describe('the undeclared-imports check the pre-commit hook runs', () => {
+    /**
+     * The fixture plus molecule's real import check and the TypeScript parser it loads.
+     *
+     * @returns The repo root.
+     */
+    function importFixture() {
+      const root = fixture()
+      copyFileSync(
+        join(SCRIPTS, 'check-undeclared-imports.mjs'),
+        join(root, 'scripts/check-undeclared-imports.mjs'),
+      )
+      copyFileSync(
+        join(SCRIPTS, 'lib/module-imports.mjs'),
+        join(root, 'scripts/lib/module-imports.mjs'),
+      )
+      git(root, ['add', 'scripts'])
+      git(root, ['-c', 'user.name=t', '-c', 'user.email=t@t', 'commit', '-qm', 'import check'])
+      // The check's parser, resolved through the export's node_modules link like semver.
+      symlinkSync(
+        join(SCRIPTS, '../node_modules/typescript'),
+        join(root, 'node_modules/typescript'),
+        'dir',
+      )
+      return root
+    }
+    const ROUTER = "import { Router } from 'express'\n\nexport const router = Router()\n"
+
+    it('refuses a staged package whose shipped source imports a runtime dependency it does not declare', () => {
+      const root = importFixture()
+      write(root, 'packages/b/package.json', { name: 'b', version: '1.0.0' })
+      write(root, 'packages/b/src/router.ts', ROUTER)
+      git(root, ['add', 'packages/b'])
+
+      const result = run(root, ['scripts/check-undeclared-imports.mjs'])
+      expect(result.stderr).toContain('b imports express without declaring it — src/router.ts')
+      expect(result.status).toBe(1)
+    })
+
+    it('does not judge an untracked package in the worktree', () => {
+      const root = importFixture()
+      write(root, 'packages/b/package.json', { name: 'b', version: '1.0.0' })
+      write(root, 'packages/b/src/router.ts', ROUTER)
+
+      const result = run(root, ['scripts/check-undeclared-imports.mjs'])
+      expect(result.stdout).toContain('every package declares what its source imports')
+      expect(result.status).toBe(0)
+    })
+
+    it('accepts the import once the package declares express as a peer', () => {
+      const root = importFixture()
+      write(root, 'packages/b/package.json', {
+        name: 'b',
+        version: '1.0.0',
+        peerDependencies: { express: '^5.0.0' },
+      })
+      write(root, 'packages/b/src/router.ts', ROUTER)
+      git(root, ['add', 'packages/b'])
+
+      const result = run(root, ['scripts/check-undeclared-imports.mjs'])
+      expect(result.stdout).toContain('every package declares what its source imports')
+      expect(result.status).toBe(0)
+    })
+  })
+
   it('tells each command the repository the export came from', () => {
     const root = fixture()
     write(root, 'scripts/repo.mjs', 'console.log(process.env.MOL_INDEX_REPO)\n')

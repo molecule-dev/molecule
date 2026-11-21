@@ -130,6 +130,10 @@ fi
 #   package or bond carries each of its React test titles, and the parity ledgers and
 #   known-gaps files hold no entry the commit's parent lacks. Only the scripts suite ran
 #   it, so a commit adding a React test without its ports passed this hook.
+# - check-undeclared-imports: every runtime import in a package's shipped source is
+#   declared in that package's own package.json. Only CI and the release ran it, so two
+#   commits adding Express routers to packages that listed express only as a
+#   devDependency passed this hook and stopped the next release (2026-11-21).
 # The fleet checks read package/configuration inputs and their own scripts.
 # Everything else needs only the staged file checks, including formatting docs.
 if printf '%s\n' "$ALL_STAGED" | grep -qE '^packages/.+/src/' ||
@@ -150,6 +154,7 @@ if printf '%s\n' "$ALL_STAGED" | grep -qE '^packages/.+/src/' ||
     "scripts/check-locale-placeholders.js" \
     "scripts/check-jsx-specifiers.mjs" \
     "scripts/check-published-tests.mjs" \
+    "scripts/check-undeclared-imports.mjs" \
     "scripts/check-framework-conformance.mjs --base=${DIFF_BASE:-HEAD}"
 elif [ -n "$STAGED" ]; then
   MOL_RUN_ON_INDEX=changed node scripts/run-on-index.mjs "scripts/check-index-files.mjs"
