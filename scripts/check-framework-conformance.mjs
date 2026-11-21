@@ -679,8 +679,6 @@ export const TITLE_PARITY_EXEMPT = {
   '@molecule/app-routing-react-router': {
     'src/__tests__/main-entry-without-react-dom.test.ts':
       'keeps the main entry loadable without react-dom, which only the react-router/dom split has',
-    'src/__tests__/oldest-react-router-dom-exports.test.ts':
-      'pins the /dom entry to the names react-router/dom 7.0.0 exports',
     'src/__tests__/routers.test.tsx':
       "turns off React Router's `useTransitions` (a React concurrent-rendering prop); the pages it guards are covered by every bond's lazy-page tests",
   },
