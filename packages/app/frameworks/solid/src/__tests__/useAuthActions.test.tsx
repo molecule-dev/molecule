@@ -170,8 +170,11 @@ function createMockAuthClient(): AuthClient<AuthUser> {
   }
 }
 
+// The redirect stores `oauth_provider` in session storage. Clear it after every test, or a
+// callback test that expects none reads the value an earlier test left.
 afterEach(() => {
   for (const dispose of disposers.splice(0)) dispose()
+  sessionStorage.clear()
 })
 
 describe('useLogin', () => {
@@ -397,6 +400,13 @@ describe('useOAuth', () => {
     })
   })
 
+  afterEach(() => {
+    Object.defineProperty(window, 'location', {
+      writable: true,
+      value: originalLocation,
+    })
+  })
+
   it('should return providers from config', () => {
     const result = renderPrimitive(client, () =>
       useOAuth({ oauthProviders: ['github', 'google', 'gitlab'] }),
@@ -465,6 +475,7 @@ describe('useOAuth callback detection', () => {
   let client: ReturnType<typeof createMockAuthClient>
   let replaceStateSpy: ReturnType<typeof vi.spyOn>
   let fetchSpy: ReturnType<typeof vi.spyOn>
+  const originalLocation = window.location
 
   beforeEach(() => {
     client = createMockAuthClient()
@@ -480,10 +491,9 @@ describe('useOAuth callback detection', () => {
   afterEach(() => {
     replaceStateSpy.mockRestore()
     fetchSpy.mockRestore()
-    sessionStorage.clear()
     Object.defineProperty(window, 'location', {
       writable: true,
-      value: new URL('http://localhost/'),
+      value: originalLocation,
     })
   })
 

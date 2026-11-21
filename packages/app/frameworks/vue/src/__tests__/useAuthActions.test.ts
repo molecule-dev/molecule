@@ -128,9 +128,12 @@ const mountComposable = <T>(
   return { result, wrapper }
 }
 
+// The redirect stores `oauth_provider` in session storage. Clear it after every test, or a
+// callback test that expects none reads the value an earlier test left.
 afterEach(() => {
   wrappers.splice(0).forEach((wrapper) => wrapper.unmount())
   vi.restoreAllMocks()
+  sessionStorage.clear()
 })
 
 describe('useLogin', () => {
@@ -458,7 +461,6 @@ describe('useOAuth callback detection', () => {
   afterEach(() => {
     replaceStateSpy.mockRestore()
     fetchSpy.mockRestore()
-    sessionStorage.clear()
     Object.defineProperty(window, 'location', {
       writable: true,
       configurable: true,

@@ -108,6 +108,12 @@ function createWrapper(client: AuthClient<{ id: string; email: string }>) {
   }
 }
 
+// The redirect stores `oauth_provider` in session storage. Clear it after every test, or a
+// callback test that expects none reads the value an earlier test left.
+afterEach(() => {
+  sessionStorage.clear()
+})
+
 describe('useLogin', () => {
   let client: ReturnType<typeof createMockAuthClient>
 
@@ -384,6 +390,13 @@ describe('useOAuth', () => {
     })
   })
 
+  afterEach(() => {
+    Object.defineProperty(window, 'location', {
+      writable: true,
+      value: originalLocation,
+    })
+  })
+
   it('should return providers from config', () => {
     const { result } = renderHook(
       () => useOAuth({ oauthProviders: ['github', 'google', 'gitlab'] }),
@@ -467,6 +480,7 @@ describe('useOAuth callback detection', () => {
   let client: ReturnType<typeof createMockAuthClient>
   let replaceStateSpy: ReturnType<typeof vi.spyOn>
   let fetchSpy: ReturnType<typeof vi.spyOn>
+  const originalLocation = window.location
 
   beforeEach(() => {
     client = createMockAuthClient()
@@ -482,11 +496,9 @@ describe('useOAuth callback detection', () => {
   afterEach(() => {
     replaceStateSpy.mockRestore()
     fetchSpy.mockRestore()
-    sessionStorage.clear()
-    // Reset location back to a clean state
     Object.defineProperty(window, 'location', {
       writable: true,
-      value: window.location,
+      value: originalLocation,
     })
   })
 

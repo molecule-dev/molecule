@@ -150,8 +150,11 @@ afterAll(() => {
   TestBed.resetTestEnvironment()
 })
 
+// The redirect stores `oauth_provider` in session storage. Clear it after every test, or a
+// callback test that expects none reads the value an earlier test left.
 afterEach(() => {
   TestBed.resetTestingModule()
+  sessionStorage.clear()
 })
 
 describe('useLogin', () => {
@@ -591,7 +594,6 @@ describe('useOAuth callback detection', () => {
   afterEach(() => {
     replaceStateSpy.mockRestore()
     fetchSpy.mockRestore()
-    sessionStorage.clear()
     Object.defineProperty(window, 'location', {
       writable: true,
       configurable: true,
