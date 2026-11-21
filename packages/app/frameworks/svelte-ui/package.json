@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-ui-svelte",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Svelte UI components for molecule.dev",
   "type": "module",
   "sideEffects": false,

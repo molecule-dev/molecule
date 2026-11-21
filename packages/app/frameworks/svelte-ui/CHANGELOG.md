@@ -1,5 +1,11 @@
 # @molecule/app-ui-svelte
 
+## 1.2.1
+
+### Patch Changes
+
+- `Grid` sets only the gap and template properties it is given, so `columnGap` and `rowGap` no longer clear the `gap` it set or erase the same property from the caller's `style`.
+
 ## 1.2.0
 
 ### Minor Changes

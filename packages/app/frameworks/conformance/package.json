@@ -253,7 +253,7 @@
     "@molecule/app-trend-chip-react": "4.0.1",
     "@molecule/app-typing-indicator-react": "4.0.1",
     "@molecule/app-ui": "1.5.0",
-    "@molecule/app-ui-react": "4.1.7",
+    "@molecule/app-ui-react": "4.2.0",
     "@molecule/app-ui-tailwind": "1.3.0",
     "@molecule/app-utilities": "1.0.7",
     "@molecule/app-vendor-card-react": "4.0.0",

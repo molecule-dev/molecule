@@ -1,5 +1,11 @@
 # @molecule/app-ui-solid
 
+## 1.2.1
+
+### Patch Changes
+
+- `Grid` sets only the gap and template properties it is given, so an unset one no longer erases the same property from the caller's `style`.
+
 ## 1.2.0
 
 ### Minor Changes

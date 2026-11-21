@@ -1,5 +1,11 @@
 # @molecule/app-ui-angular
 
+## 1.3.1
+
+### Patch Changes
+
+- Modal, Dropdown, PromptDialog and ResponsiveAppShell move focus after Angular renders, the open drawer returns focus when it is destroyed, `Grid` no longer erases the caller's style properties, Table moves `id`, `title` and other rest attributes onto its `<table>`, and Alert, EmptyState, PageHeader, Toast and OptimisticToggleButton leave no `title` or `value` attribute on their host.
+
 ## 1.3.0
 
 ### Minor Changes
