@@ -16,6 +16,8 @@ import { afterEach, describe, expect, it } from 'vitest'
 
 import { createMemoryRouter, type Router } from '@molecule/app-routing'
 
+import { nextMillisecond } from '../ui/user-input-time.js'
+
 /** The props a case renders a `Link` with, in React's spelling. */
 export interface LinkMountProps {
   /** The link's destination. */
@@ -107,6 +109,8 @@ const click = (anchor: HTMLAnchorElement, init: ClickInit = {}): boolean => {
     event.preventDefault()
   }
   window.addEventListener('click', observe)
+  // Never in the millisecond the link rendered in: Vue would drop the click at an outer listener.
+  nextMillisecond()
   try {
     anchor.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, ...init }))
   } finally {

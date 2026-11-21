@@ -20,6 +20,7 @@ import {
   afterRenderMillisecond,
   CallRecorder,
   type MountedCase,
+  nextMillisecond,
   RENDER_MILLISECOND_LIMIT_MS,
   runSteps,
   settle,
@@ -84,7 +85,7 @@ describe('steps after a render', () => {
   })
 })
 
-describe('afterRenderMillisecond', () => {
+describe('the input-time helpers', () => {
   it('returns once Date.now() has moved past the render', () => {
     clockStuckFor(500)
     const renderedAt = Date.now()
@@ -104,6 +105,13 @@ describe('afterRenderMillisecond', () => {
     afterRenderMillisecond(1_000)
     expect(performance.now() - started).toBeLessThan(RENDER_MILLISECOND_LIMIT_MS / 2)
     expect(Date.now()).toBe(1_000)
+  })
+
+  it('nextMillisecond returns in a later millisecond than it was called in', () => {
+    clockStuckFor(500)
+    const calledAt = Date.now()
+    nextMillisecond()
+    expect(Date.now()).toBeGreaterThan(calledAt)
   })
 
   it('gives up on a clock that never moves', () => {

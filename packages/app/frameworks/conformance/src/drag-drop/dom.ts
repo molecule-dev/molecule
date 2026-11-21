@@ -15,6 +15,8 @@
 
 import { expect, vi } from 'vitest'
 
+import { nextMillisecond } from '../ui/user-input-time.js'
+
 /**
  * A finished, inert `Animation`, which is all `@dnd-kit/dom`'s feedback waits on.
  * jsdom has no `Animation` class to construct, so this test double carries only
@@ -171,6 +173,8 @@ export function installDndKitDom(): void {
  */
 export function pressKey(element: Element, code: string): void {
   const key = code === 'Space' ? ' ' : code
+  // Never in the millisecond the list rendered in: Vue would drop the key at an outer listener.
+  nextMillisecond()
   element.dispatchEvent(
     new KeyboardEvent('keydown', { key, code, bubbles: true, cancelable: true }),
   )

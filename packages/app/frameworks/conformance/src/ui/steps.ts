@@ -45,6 +45,7 @@ import type {
 } from './spec.js'
 import { checkFields, checkStepFields, type FieldsOf, type StepFields } from './step-fields.js'
 import { loadReferenceStylesheet, referenceStyles } from './stylesheet.js'
+import { afterRenderMillisecond } from './user-input-time.js'
 
 /** The services one case runs against, identical for every adapter. */
 export interface CaseServices {
@@ -806,36 +807,6 @@ const runStep = async (
   }
   await mounted.flush()
   return note
-}
-
-/** How long {@link afterRenderMillisecond} waits for `Date.now()` to move before it gives up. */
-export const RENDER_MILLISECOND_LIMIT_MS = 100
-
-/**
- * Returns once `Date.now()` is past `renderedAt`, the millisecond the case last rendered in.
- *
- * A user acts on a page after it has painted, so their input never lands in the millisecond
- * the page's listeners were attached in. A step that does can lose part of its event: Vue
- * ignores an event that a handler first saw no later than the moment the next handler was
- * attached (its guard against a handler added during the event's own dispatch), so a click
- * that bubbles from a button to a clickable card reaches only the button. `settle()`'s
- * `setTimeout(0)` waits for one tick of the event loop's millisecond clock, which does not
- * line up with `Date.now()`'s, so a quick case could reach its first step in the mount's
- * millisecond.
- *
- * It polls without yielding, so no timer or promise runs in between and the case sees the
- * same order of work as before. Under fake timers the case's own clock decides, so it returns
- * at once; a `Date.now()` that never moves (a test's stub) is left after
- * {@link RENDER_MILLISECOND_LIMIT_MS}.
- *
- * @param renderedAt - `Date.now()` when the case last rendered.
- */
-export function afterRenderMillisecond(renderedAt: number): void {
-  if (vi.isFakeTimers()) return
-  const giveUpAt = performance.now() + RENDER_MILLISECOND_LIMIT_MS
-  while (Date.now() <= renderedAt && performance.now() < giveUpAt) {
-    // Polls the clock; see above for why this does not yield.
-  }
 }
 
 /**

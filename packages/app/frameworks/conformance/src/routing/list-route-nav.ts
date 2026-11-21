@@ -26,6 +26,7 @@ import { afterAll, describe, expect, it } from 'vitest'
 import type { QueryParams, RouteParams } from '@molecule/app-routing'
 
 import { normalizeDom } from '../ui/normalize.js'
+import { nextMillisecond } from '../ui/user-input-time.js'
 
 /** One declared choice, in React's `ListRouteNavItem` spelling with a text label. */
 export interface ListRouteNavCaseItem {
@@ -343,6 +344,8 @@ const clickAndObserve = (element: Element, ctrlKey: boolean): boolean => {
     event.preventDefault()
   }
   window.addEventListener('click', observe)
+  // Never in the millisecond the list rendered in: Vue would drop the click at an outer listener.
+  nextMillisecond()
   try {
     element.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, ctrlKey }))
   } finally {
