@@ -76,7 +76,11 @@ async function settle(): Promise<void> {
   flushSync()
 }
 
-describe('the Svelte composition root supplies the bonded state provider by default', () => {
+const suite = 'the Svelte composition root supplies the bonded state provider by default'
+
+// In file order even under `--sequence.shuffle`: the first test asserts that nothing has
+// bonded the state provider yet, which holds only before the later tests bond one.
+describe(suite, { shuffle: false }, () => {
   it('makes the documented lazy-store pattern work in the scaffolded shape', async () => {
     // Nothing bonds the state provider until a setup runs: `createStore()` at
     // module scope throws before the scaffold's bonds are wired.

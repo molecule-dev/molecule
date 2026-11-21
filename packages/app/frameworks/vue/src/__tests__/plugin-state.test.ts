@@ -31,7 +31,11 @@ const scaffoldedProvider = (): typeof simpleProvider => {
   return simpleProvider
 }
 
-describe('moleculePlugin supplies the bonded state provider by default (flash-m65)', () => {
+const suite = 'moleculePlugin supplies the bonded state provider by default (flash-m65)'
+
+// In file order even under `--sequence.shuffle`: the first test asserts that nothing has
+// bonded the state provider yet, which holds only before the later tests bond one.
+describe(suite, { shuffle: false }, () => {
   // FIRST: nothing bonds the state provider until a setup runs, so this test
   // can assert the pre-state the scaffold used to be stuck in.
   //
