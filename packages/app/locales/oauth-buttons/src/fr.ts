@@ -3,7 +3,7 @@ import type { OAuthButtonsTranslations } from './types.js'
 /** OAuth Buttons translations for French. */
 export const fr: OAuthButtonsTranslations = {
   'oauthButtons.groupLabel': 'Continuer avec un autre compte',
-  'oauthButtons.continueWith': 'Continue with {{provider}}',
+  'oauthButtons.continueWith': 'Continuer avec {{provider}}',
   'oauthButtons.provider.github': 'GitHub',
   'oauthButtons.provider.gitlab': 'GitLab',
   'oauthButtons.provider.google': 'Google',

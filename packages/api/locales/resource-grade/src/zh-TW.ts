@@ -2,7 +2,7 @@ import type { GradeTranslations } from './types.js'
 
 /** Grade translations for Chinese (Traditional). */
 export const zhTW: GradeTranslations = {
-  'grade.error.forbidden': 'Access denied',
+  'grade.error.forbidden': '拒絕存取',
   'grade.error.foreignKeysRequired': '需要提供 enrollmentId、assignmentId、userId 和 courseId。',
   'grade.error.scoreNumeric': 'scorePoints 和 maxPoints 必須是數字。',
   'grade.error.maxPointsPositive': 'maxPoints 必須大於零',

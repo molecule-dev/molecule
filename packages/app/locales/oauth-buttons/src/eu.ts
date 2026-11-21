@@ -3,7 +3,7 @@ import type { OAuthButtonsTranslations } from './types.js'
 /** OAuth Buttons translations for Basque. */
 export const eu: OAuthButtonsTranslations = {
   'oauthButtons.groupLabel': 'Jarraitu beste kontu batekin',
-  'oauthButtons.continueWith': 'Continue with {{provider}}',
+  'oauthButtons.continueWith': 'Jarraitu {{provider}} bidez',
   'oauthButtons.provider.github': 'GitHub',
   'oauthButtons.provider.gitlab': 'GitLab',
   'oauthButtons.provider.google': 'Google',

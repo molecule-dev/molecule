@@ -2,7 +2,7 @@ import type { GradeTranslations } from './types.js'
 
 /** Grade translations for Yoruba. */
 export const yo: GradeTranslations = {
-  'grade.error.forbidden': 'Access denied',
+  'grade.error.forbidden': 'Wọle ti di',
   'grade.error.foreignKeysRequired': 'A nílò ID ìforúkọsílẹ̀, ID iṣẹ́-àṣẹ, ID olùlò, àti ID ẹ̀kọ́',
   'grade.error.scoreNumeric': 'Àwọn nọ́mbà àmì àti àwọn àmì tó pọ̀jù gbọ́dọ̀ jẹ́ nọ́mbà',
   'grade.error.maxPointsPositive': 'Àwọn maxPoints gbọ́dọ̀ tóbi ju odo lọ',

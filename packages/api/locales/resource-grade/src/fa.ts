@@ -2,7 +2,7 @@ import type { GradeTranslations } from './types.js'
 
 /** Grade translations for Persian. */
 export const fa: GradeTranslations = {
-  'grade.error.forbidden': 'Access denied',
+  'grade.error.forbidden': 'دسترسی رد شد',
   'grade.error.foreignKeysRequired':
     'شناسه‌های ثبت نام (enrollmentId)، شناسه تخصیص (assignmentId)، شناسه کاربر (userId) و شناسه دوره (courseId) الزامی هستند.',
   'grade.error.scoreNumeric':

@@ -6,7 +6,7 @@ export const eu: TraceWaterfallTranslations = {
   'traceWaterfall.empty': 'Ez dago tarterik bistaratzeko.',
   'traceWaterfall.totalDuration': 'Guztira: {{duration}}',
   'traceWaterfall.row.aria': '{{service}} · {{name}} · {{duration}}',
-  'traceWaterfall.duration.us': '{{value}}µs',
-  'traceWaterfall.duration.ms': '{{value}}ms',
+  'traceWaterfall.duration.us': '{{value}} µs',
+  'traceWaterfall.duration.ms': '{{value}} ms',
   'traceWaterfall.duration.s': '{{value}}s',
 }

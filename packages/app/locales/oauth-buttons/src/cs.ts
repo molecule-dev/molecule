@@ -3,7 +3,7 @@ import type { OAuthButtonsTranslations } from './types.js'
 /** OAuth Buttons translations for Czech. */
 export const cs: OAuthButtonsTranslations = {
   'oauthButtons.groupLabel': 'Pokračovat s jiným účtem',
-  'oauthButtons.continueWith': 'Continue with {{provider}}',
+  'oauthButtons.continueWith': 'Pokračovat s {{provider}}',
   'oauthButtons.provider.github': 'GitHub',
   'oauthButtons.provider.gitlab': 'GitLab',
   'oauthButtons.provider.google': 'Google',

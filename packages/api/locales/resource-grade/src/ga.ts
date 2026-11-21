@@ -2,7 +2,7 @@ import type { GradeTranslations } from './types.js'
 
 /** Grade translations for Irish. */
 export const ga: GradeTranslations = {
-  'grade.error.forbidden': 'Access denied',
+  'grade.error.forbidden': 'Rochtain diúltaithe',
   'grade.error.foreignKeysRequired':
     'Tá aitheantas clárúcháin, aitheantas sannadh, aitheantas úsáideora, agus aitheantas cúrsa riachtanach',
   'grade.error.scoreNumeric': 'Ní mór do scórphointí agus uasphointí a bheith ina n-uimhreacha',

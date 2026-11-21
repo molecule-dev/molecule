@@ -2,7 +2,7 @@ import type { GradeTranslations } from './types.js'
 
 /** Grade translations for Burmese. */
 export const my: GradeTranslations = {
-  'grade.error.forbidden': 'Access denied',
+  'grade.error.forbidden': 'ဝင်ရောက်ခွင့် ငြင်းပယ်ထားသည်',
   'grade.error.foreignKeysRequired':
     'enrollmentId၊ assignmentId၊ userId နှင့် courseId တို့ကို လိုအပ်သည်',
   'grade.error.scoreNumeric': 'scorePoints နှင့် maxPoints များသည် ဂဏန်းများဖြစ်ရမည်',

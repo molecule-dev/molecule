@@ -3,7 +3,7 @@ import type { OAuthButtonsTranslations } from './types.js'
 /** OAuth Buttons translations for Danish. */
 export const da: OAuthButtonsTranslations = {
   'oauthButtons.groupLabel': 'Fortsæt med en anden konto',
-  'oauthButtons.continueWith': 'Continue with {{provider}}',
+  'oauthButtons.continueWith': 'Fortsæt med {{provider}}',
   'oauthButtons.provider.github': 'GitHub',
   'oauthButtons.provider.gitlab': 'GitLab',
   'oauthButtons.provider.google': 'Google',

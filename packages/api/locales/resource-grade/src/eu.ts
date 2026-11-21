@@ -2,7 +2,7 @@ import type { GradeTranslations } from './types.js'
 
 /** Grade translations for Basque. */
 export const eu: GradeTranslations = {
-  'grade.error.forbidden': 'Access denied',
+  'grade.error.forbidden': 'Sarbidea ukatu egin da',
   'grade.error.foreignKeysRequired':
     'enrollmentId, assignmentId, userId eta courseId beharrezkoak dira',
   'grade.error.scoreNumeric': 'scorePoints eta maxPoints zenbakiak izan behar dira',

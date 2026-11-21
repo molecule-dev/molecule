@@ -6,7 +6,7 @@ export const sl: TraceWaterfallTranslations = {
   'traceWaterfall.empty': 'Ni razponov za prikaz.',
   'traceWaterfall.totalDuration': 'Skupaj: {{duration}}',
   'traceWaterfall.row.aria': '{{service}} · {{name}} · {{duration}}',
-  'traceWaterfall.duration.us': '{{value}}µs',
-  'traceWaterfall.duration.ms': '{{value}}ms',
+  'traceWaterfall.duration.us': '{{value}} µs',
+  'traceWaterfall.duration.ms': '{{value}} ms',
   'traceWaterfall.duration.s': '{{value}}s',
 }

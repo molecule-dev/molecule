@@ -2,7 +2,7 @@ import type { GradeTranslations } from './types.js'
 
 /** Grade translations for Bengali. */
 export const bn: GradeTranslations = {
-  'grade.error.forbidden': 'Access denied',
+  'grade.error.forbidden': 'অ্যাক্সেস প্রত্যাখ্যাত',
   'grade.error.foreignKeysRequired': 'enrollmentId, assignmentId, userId, এবং courseId আবশ্যক।',
   'grade.error.scoreNumeric': 'scorePoints এবং maxPoints অবশ্যই সংখ্যা হতে হবে।',
   'grade.error.maxPointsPositive': 'সর্বোচ্চ পয়েন্ট অবশ্যই শূন্যের চেয়ে বেশি হতে হবে।',

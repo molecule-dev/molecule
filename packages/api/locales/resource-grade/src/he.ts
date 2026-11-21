@@ -2,7 +2,7 @@ import type { GradeTranslations } from './types.js'
 
 /** Grade translations for Hebrew. */
 export const he: GradeTranslations = {
-  'grade.error.forbidden': 'Access denied',
+  'grade.error.forbidden': 'הגישה נדחתה',
   'grade.error.foreignKeysRequired': 'מזהה רישום, מזהה משימה, מזהה משתמש ומזהה קורס נדרשים',
   'grade.error.scoreNumeric': 'נקודות scorePoint ו-maxPoints חייבות להיות מספרים',
   'grade.error.maxPointsPositive': 'maxPoints חייב להיות גדול מאפס',

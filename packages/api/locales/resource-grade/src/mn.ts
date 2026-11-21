@@ -2,7 +2,7 @@ import type { GradeTranslations } from './types.js'
 
 /** Grade translations for Mongolian. */
 export const mn: GradeTranslations = {
-  'grade.error.forbidden': 'Access denied',
+  'grade.error.forbidden': 'Хандалт хориглогдсон',
   'grade.error.foreignKeysRequired':
     'enrollmentId, assignmentId, userId болон courseId шаардлагатай',
   'grade.error.scoreNumeric': 'scorePoints болон maxPoints нь тоо байх ёстой',

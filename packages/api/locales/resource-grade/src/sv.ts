@@ -2,7 +2,7 @@ import type { GradeTranslations } from './types.js'
 
 /** Grade translations for Swedish. */
 export const sv: GradeTranslations = {
-  'grade.error.forbidden': 'Access denied',
+  'grade.error.forbidden': 'Åtkomst nekad',
   'grade.error.foreignKeysRequired':
     'registrerings-ID, uppgifts-ID, användar-ID och kurs-ID är obligatoriska',
   'grade.error.scoreNumeric': 'scorePoints och maxPoints måste vara siffror',

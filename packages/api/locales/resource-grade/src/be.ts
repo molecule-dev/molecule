@@ -2,7 +2,7 @@ import type { GradeTranslations } from './types.js'
 
 /** Grade translations for Belarusian. */
 export const be: GradeTranslations = {
-  'grade.error.forbidden': 'Access denied',
+  'grade.error.forbidden': 'Доступ забаронены',
   'grade.error.foreignKeysRequired':
     'Абавязковыя палі enrollmentId, assignmentId, userId і courseId',
   'grade.error.scoreNumeric': 'scorePoints і maxPoints павінны быць лічбамі',

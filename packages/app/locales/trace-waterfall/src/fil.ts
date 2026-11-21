@@ -6,7 +6,7 @@ export const fil: TraceWaterfallTranslations = {
   'traceWaterfall.empty': 'Walang mga span na maipapakita.',
   'traceWaterfall.totalDuration': 'Kabuuan: {{duration}}',
   'traceWaterfall.row.aria': '{{service}} · {{name}} · {{duration}}',
-  'traceWaterfall.duration.us': '{{value}}µs',
-  'traceWaterfall.duration.ms': '{{value}}ms',
+  'traceWaterfall.duration.us': '{{value}} µs',
+  'traceWaterfall.duration.ms': '{{value}} ms',
   'traceWaterfall.duration.s': '{{value}}s',
 }

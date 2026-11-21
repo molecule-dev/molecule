@@ -2,7 +2,7 @@ import type { GradeTranslations } from './types.js'
 
 /** Grade translations for Kannada. */
 export const kn: GradeTranslations = {
-  'grade.error.forbidden': 'Access denied',
+  'grade.error.forbidden': 'ಪ್ರವೇಶ ನಿರಾಕರಿಸಲಾಗಿದೆ',
   'grade.error.foreignKeysRequired':
     'enrollmentId, assignmentId, userId, ಮತ್ತು courseId ಗಳು ಕಡ್ಡಾಯವಾಗಿವೆ.',
   'grade.error.scoreNumeric': 'ಅಂಕ ಬಿಂದುಗಳು ಮತ್ತು ಗರಿಷ್ಠ ಬಿಂದುಗಳು ಸಂಖ್ಯೆಗಳಾಗಿರಬೇಕು.',

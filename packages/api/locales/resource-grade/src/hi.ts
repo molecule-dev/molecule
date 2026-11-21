@@ -2,7 +2,7 @@ import type { GradeTranslations } from './types.js'
 
 /** Grade translations for Hindi. */
 export const hi: GradeTranslations = {
-  'grade.error.forbidden': 'Access denied',
+  'grade.error.forbidden': 'पहुँच अस्वीकृत',
   'grade.error.foreignKeysRequired': 'enrollmentId, assignmentId, userId और courseId आवश्यक हैं।',
   'grade.error.scoreNumeric': 'scorePoints और maxPoints दोनों संख्याएँ होनी चाहिए।',
   'grade.error.maxPointsPositive': 'अधिकतम अंक शून्य से अधिक होने चाहिए',

@@ -2,7 +2,7 @@ import type { GradeTranslations } from './types.js'
 
 /** Grade translations for Afrikaans. */
 export const af: GradeTranslations = {
-  'grade.error.forbidden': 'Access denied',
+  'grade.error.forbidden': 'Toegang geweier',
   'grade.error.foreignKeysRequired':
     'inskrywings-ID, opdrag-ID, gebruikers-ID en kursus-ID word vereis',
   'grade.error.scoreNumeric': 'puntetelling en maksimum punte moet getalle wees',

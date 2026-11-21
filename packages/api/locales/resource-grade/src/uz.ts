@@ -2,7 +2,7 @@ import type { GradeTranslations } from './types.js'
 
 /** Grade translations for Uzbek. */
 export const uz: GradeTranslations = {
-  'grade.error.forbidden': 'Access denied',
+  'grade.error.forbidden': 'Kirish taqiqlangan',
   'grade.error.foreignKeysRequired':
     'enrollmentId, assignmentId, userId va courseId talab qilinadi',
   'grade.error.scoreNumeric': "scorePoints va maxPoints raqamlar bo'lishi kerak",

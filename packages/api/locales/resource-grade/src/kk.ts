@@ -2,7 +2,7 @@ import type { GradeTranslations } from './types.js'
 
 /** Grade translations for Kazakh. */
 export const kk: GradeTranslations = {
-  'grade.error.forbidden': 'Access denied',
+  'grade.error.forbidden': 'Қатынауға тыйым салынды',
   'grade.error.foreignKeysRequired':
     'enrollmentId, assignmentId, userId және courseId міндетті түрде болуы керек',
   'grade.error.scoreNumeric': 'scorePoints және maxPoints сандар болуы керек',

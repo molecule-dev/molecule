@@ -3,7 +3,7 @@ import type { OAuthButtonsTranslations } from './types.js'
 /** OAuth Buttons translations for Thai. */
 export const th: OAuthButtonsTranslations = {
   'oauthButtons.groupLabel': 'ดำเนินการต่อด้วยบัญชีอื่น',
-  'oauthButtons.continueWith': 'Continue with {{provider}}',
+  'oauthButtons.continueWith': 'ดำเนินการต่อด้วย {{provider}}',
   'oauthButtons.provider.github': 'GitHub',
   'oauthButtons.provider.gitlab': 'GitLab',
   'oauthButtons.provider.google': 'Google',

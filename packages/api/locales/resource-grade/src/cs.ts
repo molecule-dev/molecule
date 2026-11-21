@@ -2,7 +2,7 @@ import type { GradeTranslations } from './types.js'
 
 /** Grade translations for Czech. */
 export const cs: GradeTranslations = {
-  'grade.error.forbidden': 'Access denied',
+  'grade.error.forbidden': 'Přístup odepřen',
   'grade.error.foreignKeysRequired':
     'Položky enrollmentId, assignmentId, userId a courseId jsou povinné.',
   'grade.error.scoreNumeric': 'Hodnoty scorePoints a maxPoints musí být čísla.',

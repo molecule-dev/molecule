@@ -2,7 +2,7 @@ import type { GradeTranslations } from './types.js'
 
 /** Grade translations for Sinhala. */
 export const si: GradeTranslations = {
-  'grade.error.forbidden': 'Access denied',
+  'grade.error.forbidden': 'ප්‍රවේශය ප්‍රතික්ෂේප විය',
   'grade.error.foreignKeysRequired': 'enrollmentId, assignmentId, userId, සහ courseId අවශ්‍ය වේ.',
   'grade.error.scoreNumeric': 'ලකුණු ලකුණු සහ උපරිම ලකුණු සංඛ්‍යා විය යුතුය.',
   'grade.error.maxPointsPositive': 'උපරිම ලක්ෂ්‍ය බිංදුවට වඩා වැඩි විය යුතුය.',

@@ -6,7 +6,7 @@ export const pa: TraceWaterfallTranslations = {
   'traceWaterfall.empty': 'ਦਿਖਾਉਣ ਲਈ ਕੋਈ ਸਪੈਨ ਨਹੀਂ।',
   'traceWaterfall.totalDuration': 'ਕੁੱਲ: {{duration}}',
   'traceWaterfall.row.aria': '{{service}} · {{name}} · {{duration}}',
-  'traceWaterfall.duration.us': '{{value}}µs',
-  'traceWaterfall.duration.ms': '{{value}}ms',
+  'traceWaterfall.duration.us': '{{value}} µs',
+  'traceWaterfall.duration.ms': '{{value}} ms',
   'traceWaterfall.duration.s': '{{value}}s',
 }

@@ -2,7 +2,7 @@ import type { GradeTranslations } from './types.js'
 
 /** Grade translations for Igbo. */
 export const ig: GradeTranslations = {
-  'grade.error.forbidden': 'Access denied',
+  'grade.error.forbidden': 'Enyeghị ikike',
   'grade.error.foreignKeysRequired': 'A chọrọ ID ndebanye aha, ID ọrụ, ID onye ọrụ, na ID nkuzi',
   'grade.error.scoreNumeric': 'Akara Points na maxPoints ga-abụrịrị ọnụọgụgụ',
   'grade.error.maxPointsPositive': 'isi ihe kachasị ga-abụrịrị ihe karịrị efu',

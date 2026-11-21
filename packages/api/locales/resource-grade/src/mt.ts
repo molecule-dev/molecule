@@ -2,7 +2,7 @@ import type { GradeTranslations } from './types.js'
 
 /** Grade translations for Maltese. */
 export const mt: GradeTranslations = {
-  'grade.error.forbidden': 'Access denied',
+  'grade.error.forbidden': 'Aċċess miċħud',
   'grade.error.foreignKeysRequired': 'enrollmentId, assignmentId, userId, u courseId huma meħtieġa',
   'grade.error.scoreNumeric': 'scorePoints u maxPoints iridu jkunu numri',
   'grade.error.maxPointsPositive': 'maxPoints irid ikun akbar minn żero',

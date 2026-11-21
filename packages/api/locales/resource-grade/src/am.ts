@@ -2,7 +2,7 @@ import type { GradeTranslations } from './types.js'
 
 /** Grade translations for Amharic. */
 export const am: GradeTranslations = {
-  'grade.error.forbidden': 'Access denied',
+  'grade.error.forbidden': 'መዳረሻ ተከልክሏል',
   'grade.error.foreignKeysRequired':
     'የምዝገባ መታወቂያ፣ የተግባር መለያ መታወቂያ፣ የተጠቃሚ መለያ መታወቂያ እና የኮርስ መለያ ቁጥር ያስፈልጋሉ',
   'grade.error.scoreNumeric': 'የውጤት ነጥቦች እና ከፍተኛ ነጥቦች ቁጥሮች መሆን አለባቸው',

@@ -6,7 +6,7 @@ export const am: TraceWaterfallTranslations = {
   'traceWaterfall.empty': 'ለማሳየት ምንም ስፔኖች የሉም።',
   'traceWaterfall.totalDuration': 'ጠቅላላ: {{duration}}',
   'traceWaterfall.row.aria': '{{service}} · {{name}} · {{duration}}',
-  'traceWaterfall.duration.us': '{{value}}µs',
-  'traceWaterfall.duration.ms': '{{value}}ms',
+  'traceWaterfall.duration.us': '{{value}} µs',
+  'traceWaterfall.duration.ms': '{{value}} ms',
   'traceWaterfall.duration.s': '{{value}}s',
 }

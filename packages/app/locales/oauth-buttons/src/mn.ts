@@ -3,7 +3,7 @@ import type { OAuthButtonsTranslations } from './types.js'
 /** OAuth Buttons translations for Mongolian. */
 export const mn: OAuthButtonsTranslations = {
   'oauthButtons.groupLabel': 'Өөр бүртгэлээр үргэлжлүүлэх',
-  'oauthButtons.continueWith': 'Continue with {{provider}}',
+  'oauthButtons.continueWith': '{{provider}}-р үргэлжлүүлэх',
   'oauthButtons.provider.github': 'GitHub',
   'oauthButtons.provider.gitlab': 'GitLab',
   'oauthButtons.provider.google': 'Google',

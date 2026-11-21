@@ -2,7 +2,7 @@ import type { GradeTranslations } from './types.js'
 
 /** Grade translations for Slovak. */
 export const sk: GradeTranslations = {
-  'grade.error.forbidden': 'Access denied',
+  'grade.error.forbidden': 'Prístup zamietnutý',
   'grade.error.foreignKeysRequired':
     'Položky enrollmentId, assignmentId, userId a courseId sú povinné.',
   'grade.error.scoreNumeric': 'scorePoints a maxPoints musia byť čísla',

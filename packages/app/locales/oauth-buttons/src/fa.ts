@@ -3,7 +3,7 @@ import type { OAuthButtonsTranslations } from './types.js'
 /** OAuth Buttons translations for Persian. */
 export const fa: OAuthButtonsTranslations = {
   'oauthButtons.groupLabel': 'با یک حساب دیگر ادامه دهید',
-  'oauthButtons.continueWith': 'Continue with {{provider}}',
+  'oauthButtons.continueWith': 'با {{provider}} ادامه دهید',
   'oauthButtons.provider.github': 'GitHub',
   'oauthButtons.provider.gitlab': 'GitLab',
   'oauthButtons.provider.google': 'Google',

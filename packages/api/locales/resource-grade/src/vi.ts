@@ -2,7 +2,7 @@ import type { GradeTranslations } from './types.js'
 
 /** Grade translations for Vietnamese. */
 export const vi: GradeTranslations = {
-  'grade.error.forbidden': 'Access denied',
+  'grade.error.forbidden': 'Truy cập bị từ chối',
   'grade.error.foreignKeysRequired':
     'enrollmentId, assignmentId, userId và courseId là các thông tin bắt buộc.',
   'grade.error.scoreNumeric': 'scorePoints và maxPoints phải là các số.',

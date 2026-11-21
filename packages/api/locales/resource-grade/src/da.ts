@@ -2,7 +2,7 @@ import type { GradeTranslations } from './types.js'
 
 /** Grade translations for Danish. */
 export const da: GradeTranslations = {
-  'grade.error.forbidden': 'Access denied',
+  'grade.error.forbidden': 'Adgang nægtet',
   'grade.error.foreignKeysRequired':
     'tilmeldings-ID, opgave-ID, bruger-ID og kursus-ID er påkrævede',
   'grade.error.scoreNumeric': 'scorePoints og maxPoints skal være tal',

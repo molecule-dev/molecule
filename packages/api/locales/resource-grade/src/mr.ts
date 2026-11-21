@@ -2,7 +2,7 @@ import type { GradeTranslations } from './types.js'
 
 /** Grade translations for Marathi. */
 export const mr: GradeTranslations = {
-  'grade.error.forbidden': 'Access denied',
+  'grade.error.forbidden': 'प्रवेश नाकारला',
   'grade.error.foreignKeysRequired':
     'नोंदणी आयडी, असाइनमेंट आयडी, वापरकर्ता आयडी आणि कोर्स आयडी आवश्यक आहेत.',
   'grade.error.scoreNumeric': 'स्कोरपॉइंट्स आणि मॅक्सपॉइंट्स हे अंकच असले पाहिजेत.',

@@ -3,7 +3,7 @@ import type { OAuthButtonsTranslations } from './types.js'
 /** OAuth Buttons translations for Uzbek. */
 export const uz: OAuthButtonsTranslations = {
   'oauthButtons.groupLabel': 'Boshqa hisob bilan davom eting',
-  'oauthButtons.continueWith': 'Continue with {{provider}}',
+  'oauthButtons.continueWith': '{{provider}} bilan davom eting',
   'oauthButtons.provider.github': 'GitHub',
   'oauthButtons.provider.gitlab': 'GitLab',
   'oauthButtons.provider.google': 'Google',

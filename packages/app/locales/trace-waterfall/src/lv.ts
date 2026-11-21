@@ -6,7 +6,7 @@ export const lv: TraceWaterfallTranslations = {
   'traceWaterfall.empty': 'Nav attēlojamu diapazonu.',
   'traceWaterfall.totalDuration': 'Kopā: {{duration}}',
   'traceWaterfall.row.aria': '{{service}} · {{name}} · {{duration}}',
-  'traceWaterfall.duration.us': '{{value}}µs',
-  'traceWaterfall.duration.ms': '{{value}}ms',
+  'traceWaterfall.duration.us': '{{value}} µs',
+  'traceWaterfall.duration.ms': '{{value}} ms',
   'traceWaterfall.duration.s': '{{value}}s',
 }

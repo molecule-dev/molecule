@@ -6,7 +6,7 @@ export const mk: TraceWaterfallTranslations = {
   'traceWaterfall.empty': 'Нема распони за прикажување.',
   'traceWaterfall.totalDuration': 'Вкупно: {{duration}}',
   'traceWaterfall.row.aria': '{{service}} · {{name}} · {{duration}}',
-  'traceWaterfall.duration.us': '{{value}}µs',
-  'traceWaterfall.duration.ms': '{{value}}ms',
+  'traceWaterfall.duration.us': '{{value}} мкс',
+  'traceWaterfall.duration.ms': '{{value}} мс',
   'traceWaterfall.duration.s': '{{value}}s',
 }

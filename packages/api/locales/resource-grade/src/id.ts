@@ -2,7 +2,7 @@ import type { GradeTranslations } from './types.js'
 
 /** Grade translations for Indonesian. */
 export const id: GradeTranslations = {
-  'grade.error.forbidden': 'Access denied',
+  'grade.error.forbidden': 'Akses ditolak',
   'grade.error.foreignKeysRequired':
     'enrollmentId, assignmentId, userId, dan courseId wajib diisi.',
   'grade.error.scoreNumeric': 'scorePoints dan maxPoints harus berupa angka.',

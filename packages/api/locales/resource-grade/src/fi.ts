@@ -2,7 +2,7 @@ import type { GradeTranslations } from './types.js'
 
 /** Grade translations for Finnish. */
 export const fi: GradeTranslations = {
-  'grade.error.forbidden': 'Access denied',
+  'grade.error.forbidden': 'Käyttö estetty',
   'grade.error.foreignKeysRequired':
     'ilmoittautumistunnus, tehtävätunnus, käyttäjätunnus ja kurssin tunnus ovat pakollisia.',
   'grade.error.scoreNumeric': 'scorePoints- ja maxPoints-arvojen on oltava numeroita',

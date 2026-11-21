@@ -3,7 +3,7 @@ import type { OAuthButtonsTranslations } from './types.js'
 /** OAuth Buttons translations for Burmese. */
 export const my: OAuthButtonsTranslations = {
   'oauthButtons.groupLabel': 'အခြားအကောင့်ဖြင့် ဆက်လုပ်ပါ',
-  'oauthButtons.continueWith': 'Continue with {{provider}}',
+  'oauthButtons.continueWith': '{{provider}} ဖြင့် ဆက်လုပ်ပါ',
   'oauthButtons.provider.github': 'GitHub',
   'oauthButtons.provider.gitlab': 'GitLab',
   'oauthButtons.provider.google': 'Google',

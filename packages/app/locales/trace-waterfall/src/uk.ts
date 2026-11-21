@@ -6,7 +6,7 @@ export const uk: TraceWaterfallTranslations = {
   'traceWaterfall.empty': 'Немає проміжків для відображення.',
   'traceWaterfall.totalDuration': 'Разом: {{duration}}',
   'traceWaterfall.row.aria': '{{service}} · {{name}} · {{duration}}',
-  'traceWaterfall.duration.us': '{{value}}µs',
-  'traceWaterfall.duration.ms': '{{value}}ms',
+  'traceWaterfall.duration.us': '{{value}} мкс',
+  'traceWaterfall.duration.ms': '{{value}} мс',
   'traceWaterfall.duration.s': '{{value}}s',
 }

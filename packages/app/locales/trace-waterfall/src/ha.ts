@@ -6,7 +6,7 @@ export const ha: TraceWaterfallTranslations = {
   'traceWaterfall.empty': 'Babu wani yanki da za a nuna.',
   'traceWaterfall.totalDuration': 'Jimilla: {{duration}}',
   'traceWaterfall.row.aria': '{{service}} · {{name}} · {{duration}}',
-  'traceWaterfall.duration.us': '{{value}}µs',
-  'traceWaterfall.duration.ms': '{{value}}ms',
+  'traceWaterfall.duration.us': '{{value}} µs',
+  'traceWaterfall.duration.ms': '{{value}} ms',
   'traceWaterfall.duration.s': '{{value}}s',
 }

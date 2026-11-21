@@ -6,7 +6,7 @@ export const sv: TraceWaterfallTranslations = {
   'traceWaterfall.empty': 'Inga intervall att visa.',
   'traceWaterfall.totalDuration': 'Totalt: {{duration}}',
   'traceWaterfall.row.aria': '{{service}} · {{name}} · {{duration}}',
-  'traceWaterfall.duration.us': '{{value}}µs',
-  'traceWaterfall.duration.ms': '{{value}}ms',
+  'traceWaterfall.duration.us': '{{value}} µs',
+  'traceWaterfall.duration.ms': '{{value}} ms',
   'traceWaterfall.duration.s': '{{value}}s',
 }

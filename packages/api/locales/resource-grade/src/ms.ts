@@ -2,7 +2,7 @@ import type { GradeTranslations } from './types.js'
 
 /** Grade translations for Malay. */
 export const ms: GradeTranslations = {
-  'grade.error.forbidden': 'Access denied',
+  'grade.error.forbidden': 'Akses ditolak',
   'grade.error.foreignKeysRequired':
     'ID pendaftaran, ID tugasan, ID pengguna dan ID kursus diperlukan',
   'grade.error.scoreNumeric': 'Mata skor dan Mata maksimum mestilah nombor',

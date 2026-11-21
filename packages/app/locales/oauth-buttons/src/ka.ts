@@ -3,7 +3,7 @@ import type { OAuthButtonsTranslations } from './types.js'
 /** OAuth Buttons translations for Georgian. */
 export const ka: OAuthButtonsTranslations = {
   'oauthButtons.groupLabel': 'გააგრძელეთ სხვა ანგარიშით',
-  'oauthButtons.continueWith': 'Continue with {{provider}}',
+  'oauthButtons.continueWith': 'გააგრძელეთ {{provider}}-ით',
   'oauthButtons.provider.github': 'GitHub',
   'oauthButtons.provider.gitlab': 'GitLab',
   'oauthButtons.provider.google': 'Google',

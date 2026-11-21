@@ -2,7 +2,7 @@ import type { GradeTranslations } from './types.js'
 
 /** Grade translations for Kyrgyz. */
 export const ky: GradeTranslations = {
-  'grade.error.forbidden': 'Access denied',
+  'grade.error.forbidden': 'Кирүүгө уруксат жок',
   'grade.error.foreignKeysRequired':
     'enrollmentId, assignmentId, userId жана courseId талап кылынат',
   'grade.error.scoreNumeric': 'scorePoints жана maxPoints сандар болушу керек',

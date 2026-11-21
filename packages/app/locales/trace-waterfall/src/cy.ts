@@ -6,7 +6,7 @@ export const cy: TraceWaterfallTranslations = {
   'traceWaterfall.empty': "Dim rhychwantau i'w harddangos.",
   'traceWaterfall.totalDuration': 'Cyfanswm: {{duration}}',
   'traceWaterfall.row.aria': '{{service}} · {{name}} · {{duration}}',
-  'traceWaterfall.duration.us': '{{value}}µs',
-  'traceWaterfall.duration.ms': '{{value}}ms',
+  'traceWaterfall.duration.us': '{{value}} µs',
+  'traceWaterfall.duration.ms': '{{value}} ms',
   'traceWaterfall.duration.s': '{{value}}s',
 }

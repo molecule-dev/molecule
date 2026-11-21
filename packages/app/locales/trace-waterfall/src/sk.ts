@@ -6,7 +6,7 @@ export const sk: TraceWaterfallTranslations = {
   'traceWaterfall.empty': 'Žiadne rozsahy na zobrazenie.',
   'traceWaterfall.totalDuration': 'Celkom: {{duration}}',
   'traceWaterfall.row.aria': '{{service}} · {{name}} · {{duration}}',
-  'traceWaterfall.duration.us': '{{value}}µs',
-  'traceWaterfall.duration.ms': '{{value}}ms',
+  'traceWaterfall.duration.us': '{{value}} µs',
+  'traceWaterfall.duration.ms': '{{value}} ms',
   'traceWaterfall.duration.s': '{{value}}s',
 }

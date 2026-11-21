@@ -2,7 +2,7 @@ import type { GradeTranslations } from './types.js'
 
 /** Grade translations for Norwegian Bokmål. */
 export const nb: GradeTranslations = {
-  'grade.error.forbidden': 'Access denied',
+  'grade.error.forbidden': 'Tilgang nektet',
   'grade.error.foreignKeysRequired':
     'registrerings-ID, oppgave-ID, bruker-ID og kurs-ID er obligatoriske',
   'grade.error.scoreNumeric': 'scorePoints og maxPoints må være tall',

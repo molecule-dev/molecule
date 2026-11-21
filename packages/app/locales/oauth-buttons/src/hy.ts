@@ -3,7 +3,7 @@ import type { OAuthButtonsTranslations } from './types.js'
 /** OAuth Buttons translations for Armenian. */
 export const hy: OAuthButtonsTranslations = {
   'oauthButtons.groupLabel': 'Շարունակել մեկ այլ հաշվով',
-  'oauthButtons.continueWith': 'Continue with {{provider}}',
+  'oauthButtons.continueWith': 'Շարունակել {{provider}}-ով',
   'oauthButtons.provider.github': 'GitHub',
   'oauthButtons.provider.gitlab': 'GitLab',
   'oauthButtons.provider.google': 'Google',

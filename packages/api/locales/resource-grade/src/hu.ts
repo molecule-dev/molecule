@@ -2,7 +2,7 @@ import type { GradeTranslations } from './types.js'
 
 /** Grade translations for Hungarian. */
 export const hu: GradeTranslations = {
-  'grade.error.forbidden': 'Access denied',
+  'grade.error.forbidden': 'Hozzáférés megtagadva',
   'grade.error.foreignKeysRequired':
     'A regisztrációs azonosító, a feladatazonosító, a felhasználói azonosító és a kurzusazonosító megadása kötelező.',
   'grade.error.scoreNumeric': 'A scorePoints és maxPoints értékeknek számoknak kell lenniük.',

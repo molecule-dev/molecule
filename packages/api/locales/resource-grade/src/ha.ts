@@ -2,7 +2,7 @@ import type { GradeTranslations } from './types.js'
 
 /** Grade translations for Hausa. */
 export const ha: GradeTranslations = {
-  'grade.error.forbidden': 'Access denied',
+  'grade.error.forbidden': 'An hana shiga',
   'grade.error.foreignKeysRequired':
     'Ana buƙatar ID na rajista, ID na aiki, ID na mai amfani, da ID na kwas',
   'grade.error.scoreNumeric': 'Dole ne maki maki da matsakaicin maki su zama lambobi',

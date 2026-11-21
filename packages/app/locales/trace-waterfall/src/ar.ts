@@ -6,7 +6,7 @@ export const ar: TraceWaterfallTranslations = {
   'traceWaterfall.empty': 'لا توجد عناصر لعرضها.',
   'traceWaterfall.totalDuration': 'الإجمالي: {{duration}}',
   'traceWaterfall.row.aria': '{{service}} · {{name}} · {{duration}}',
-  'traceWaterfall.duration.us': '{{value}}µs',
-  'traceWaterfall.duration.ms': '{{value}}ms',
+  'traceWaterfall.duration.us': '{{value}} µs',
+  'traceWaterfall.duration.ms': '{{value}} ms',
   'traceWaterfall.duration.s': '{{value}}s',
 }

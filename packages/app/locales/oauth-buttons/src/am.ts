@@ -3,7 +3,7 @@ import type { OAuthButtonsTranslations } from './types.js'
 /** OAuth Buttons translations for Amharic. */
 export const am: OAuthButtonsTranslations = {
   'oauthButtons.groupLabel': 'በሌላ መለያ ይቀጥሉ',
-  'oauthButtons.continueWith': 'Continue with {{provider}}',
+  'oauthButtons.continueWith': 'በ{{provider}} ይቀጥሉ',
   'oauthButtons.provider.github': 'GitHub',
   'oauthButtons.provider.gitlab': 'GitLab',
   'oauthButtons.provider.google': 'Google',

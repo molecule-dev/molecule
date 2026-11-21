@@ -3,7 +3,7 @@ import type { OAuthButtonsTranslations } from './types.js'
 /** OAuth Buttons translations for Lao. */
 export const lo: OAuthButtonsTranslations = {
   'oauthButtons.groupLabel': 'ສືບຕໍ່ດ້ວຍບັນຊີອື່ນ',
-  'oauthButtons.continueWith': 'Continue with {{provider}}',
+  'oauthButtons.continueWith': 'ສືບຕໍ່ດ້ວຍ {{provider}}',
   'oauthButtons.provider.github': 'GitHub',
   'oauthButtons.provider.gitlab': 'GitLab',
   'oauthButtons.provider.google': 'Google',

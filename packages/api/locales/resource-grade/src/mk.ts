@@ -2,7 +2,7 @@ import type { GradeTranslations } from './types.js'
 
 /** Grade translations for Macedonian. */
 export const mk: GradeTranslations = {
-  'grade.error.forbidden': 'Access denied',
+  'grade.error.forbidden': 'Пристапот е одбиен',
   'grade.error.foreignKeysRequired':
     'задолжителни се enrollmentId, assignmentId, userId и courseId',
   'grade.error.scoreNumeric': 'scorePoints и maxPoints мора да бидат броеви',

@@ -3,7 +3,7 @@ import type { OAuthButtonsTranslations } from './types.js'
 /** OAuth Buttons translations for Nepali. */
 export const ne: OAuthButtonsTranslations = {
   'oauthButtons.groupLabel': 'अर्को खाता प्रयोग गरी जारी राख्नुहोस्',
-  'oauthButtons.continueWith': 'Continue with {{provider}}',
+  'oauthButtons.continueWith': '{{provider}} प्रयोग गरी जारी राख्नुहोस्',
   'oauthButtons.provider.github': 'GitHub',
   'oauthButtons.provider.gitlab': 'GitLab',
   'oauthButtons.provider.google': 'Google',

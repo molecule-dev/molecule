@@ -3,7 +3,7 @@ import type { OAuthButtonsTranslations } from './types.js'
 /** OAuth Buttons translations for Kannada. */
 export const kn: OAuthButtonsTranslations = {
   'oauthButtons.groupLabel': 'ಬೇರೆ ಖಾತೆಯೊಂದಿಗೆ ಮುಂದುವರಿಸಿ',
-  'oauthButtons.continueWith': 'Continue with {{provider}}',
+  'oauthButtons.continueWith': '{{provider}} ನೊಂದಿಗೆ ಮುಂದುವರಿಸಿ',
   'oauthButtons.provider.github': 'GitHub',
   'oauthButtons.provider.gitlab': 'GitLab',
   'oauthButtons.provider.google': 'Google',

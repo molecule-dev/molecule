@@ -2,7 +2,7 @@ import type { GradeTranslations } from './types.js'
 
 /** Grade translations for Malayalam. */
 export const ml: GradeTranslations = {
-  'grade.error.forbidden': 'Access denied',
+  'grade.error.forbidden': 'ആക്സസ് നിഷേധിച്ചു',
   'grade.error.foreignKeysRequired':
     'enrollmentId, assignmentId, userId, courseId എന്നിവ ആവശ്യമാണ്.',
   'grade.error.scoreNumeric': 'സ്കോർപോയിന്റുകളും മാക്സ്പോയിന്റുകളും സംഖ്യകളായിരിക്കണം.',

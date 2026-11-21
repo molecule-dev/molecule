@@ -2,7 +2,7 @@ import type { GradeTranslations } from './types.js'
 
 /** Grade translations for Galician. */
 export const gl: GradeTranslations = {
-  'grade.error.forbidden': 'Access denied',
+  'grade.error.forbidden': 'Acceso denegado',
   'grade.error.foreignKeysRequired':
     'Son obrigatorios os valores enrollmentId, assignmentId, userId e courseId',
   'grade.error.scoreNumeric': 'scorePoints e maxPoints deben ser números',

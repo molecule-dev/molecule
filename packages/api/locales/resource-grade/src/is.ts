@@ -2,7 +2,7 @@ import type { GradeTranslations } from './types.js'
 
 /** Grade translations for Icelandic. */
 export const is: GradeTranslations = {
-  'grade.error.forbidden': 'Access denied',
+  'grade.error.forbidden': 'Aðgangur neitað',
   'grade.error.foreignKeysRequired':
     'Skráningarkenni, verkefniskenni, notandakenni og námskeiðskenni eru nauðsynleg',
   'grade.error.scoreNumeric': 'ScorePoints og maxPoints verða að vera tölur',

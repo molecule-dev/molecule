@@ -2,7 +2,7 @@ import type { GradeTranslations } from './types.js'
 
 /** Grade translations for Urdu. */
 export const ur: GradeTranslations = {
-  'grade.error.forbidden': 'Access denied',
+  'grade.error.forbidden': 'رسائی مسترد',
   'grade.error.foreignKeysRequired': 'enrollmentId، assignmentId، userId، اور courseId درکار ہیں۔',
   'grade.error.scoreNumeric': 'سکور پوائنٹس اور میکس پوائنٹس نمبرز ہونے چاہئیں',
   'grade.error.maxPointsPositive': 'maxPoints صفر سے زیادہ ہونا چاہیے۔',

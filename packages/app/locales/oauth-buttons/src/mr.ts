@@ -3,7 +3,7 @@ import type { OAuthButtonsTranslations } from './types.js'
 /** OAuth Buttons translations for Marathi. */
 export const mr: OAuthButtonsTranslations = {
   'oauthButtons.groupLabel': 'दुसऱ्या खात्याद्वारे सुरू ठेवा',
-  'oauthButtons.continueWith': 'Continue with {{provider}}',
+  'oauthButtons.continueWith': '{{provider}} सह सुरू ठेवा',
   'oauthButtons.provider.github': 'GitHub',
   'oauthButtons.provider.gitlab': 'GitLab',
   'oauthButtons.provider.google': 'Google',

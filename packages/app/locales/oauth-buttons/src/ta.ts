@@ -3,7 +3,7 @@ import type { OAuthButtonsTranslations } from './types.js'
 /** OAuth Buttons translations for Tamil. */
 export const ta: OAuthButtonsTranslations = {
   'oauthButtons.groupLabel': 'மற்றொரு கணக்குடன் தொடரவும்',
-  'oauthButtons.continueWith': 'Continue with {{provider}}',
+  'oauthButtons.continueWith': '{{provider}} உடன் தொடரவும்',
   'oauthButtons.provider.github': 'GitHub',
   'oauthButtons.provider.gitlab': 'GitLab',
   'oauthButtons.provider.google': 'Google',

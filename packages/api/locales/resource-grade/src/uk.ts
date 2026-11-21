@@ -2,7 +2,7 @@ import type { GradeTranslations } from './types.js'
 
 /** Grade translations for Ukrainian. */
 export const uk: GradeTranslations = {
-  'grade.error.forbidden': 'Access denied',
+  'grade.error.forbidden': 'Доступ заборонено',
   'grade.error.foreignKeysRequired':
     "Обов'язкові поля enrollmentId, assignmentId, userId та courseId",
   'grade.error.scoreNumeric': 'scorePoints та maxPoints мають бути числами',

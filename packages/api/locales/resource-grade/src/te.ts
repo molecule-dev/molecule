@@ -2,7 +2,7 @@ import type { GradeTranslations } from './types.js'
 
 /** Grade translations for Telugu. */
 export const te: GradeTranslations = {
-  'grade.error.forbidden': 'Access denied',
+  'grade.error.forbidden': 'యాక్సెస్ నిరాకరించబడింది',
   'grade.error.foreignKeysRequired': 'enrollmentId, assignmentId, userId, మరియు courseId తప్పనిసరి',
   'grade.error.scoreNumeric':
     'స్కోర్‌పాయింట్స్ మరియు మాక్స్‌పాయింట్స్ తప్పనిసరిగా సంఖ్యలు అయి ఉండాలి',

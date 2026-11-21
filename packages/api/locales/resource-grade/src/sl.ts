@@ -2,7 +2,7 @@ import type { GradeTranslations } from './types.js'
 
 /** Grade translations for Slovenian. */
 export const sl: GradeTranslations = {
-  'grade.error.forbidden': 'Access denied',
+  'grade.error.forbidden': 'Dostop zavrnjen',
   'grade.error.foreignKeysRequired':
     'Polja za vpis (enrollmentId), nalogo (assignmentId), uporabniško ime (userId) in predmet (courseId) so obvezna.',
   'grade.error.scoreNumeric': 'scorePoints in maxPoints morata biti številki',

@@ -2,7 +2,7 @@ import type { GradeTranslations } from './types.js'
 
 /** Grade translations for Greek. */
 export const el: GradeTranslations = {
-  'grade.error.forbidden': 'Access denied',
+  'grade.error.forbidden': 'Η πρόσβαση απορρίφθηκε',
   'grade.error.foreignKeysRequired':
     'Απαιτούνται τα enrollmentId, assignmentId, userId και courseId',
   'grade.error.scoreNumeric': 'Τα scorePoints και τα maxPoints πρέπει να είναι αριθμοί',

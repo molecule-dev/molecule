@@ -2,7 +2,7 @@ import type { GradeTranslations } from './types.js'
 
 /** Grade translations for Azerbaijani. */
 export const az: GradeTranslations = {
-  'grade.error.forbidden': 'Access denied',
+  'grade.error.forbidden': 'Giriş qadağandır',
   'grade.error.foreignKeysRequired': 'enrollmentId, assignmentId, userId və courseId tələb olunur',
   'grade.error.scoreNumeric': 'scorePoints və maxPoints ədəd olmalıdır',
   'grade.error.maxPointsPositive': 'maxPoints sıfırdan böyük olmalıdır',

@@ -2,7 +2,7 @@ import type { GradeTranslations } from './types.js'
 
 /** Grade translations for Bosnian. */
 export const bs: GradeTranslations = {
-  'grade.error.forbidden': 'Access denied',
+  'grade.error.forbidden': 'Pristup odbijen',
   'grade.error.foreignKeysRequired': 'Obavezni su ID upisa, ID zadatka, ID korisnika i ID kursa',
   'grade.error.scoreNumeric': 'scorePoints i maxPoints moraju biti brojevi',
   'grade.error.maxPointsPositive': 'maxPoints mora biti veći od nule',

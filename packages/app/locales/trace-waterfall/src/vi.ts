@@ -6,7 +6,7 @@ export const vi: TraceWaterfallTranslations = {
   'traceWaterfall.empty': 'Không có thẻ span nào để hiển thị.',
   'traceWaterfall.totalDuration': 'Tổng cộng: {{duration}}',
   'traceWaterfall.row.aria': '{{service}} · {{name}} · {{duration}}',
-  'traceWaterfall.duration.us': '{{value}}µs',
-  'traceWaterfall.duration.ms': '{{value}}ms',
+  'traceWaterfall.duration.us': '{{value}} µs',
+  'traceWaterfall.duration.ms': '{{value}} ms',
   'traceWaterfall.duration.s': '{{value}}s',
 }

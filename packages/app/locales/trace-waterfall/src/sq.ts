@@ -6,7 +6,7 @@ export const sq: TraceWaterfallTranslations = {
   'traceWaterfall.empty': "Nuk ka hapësira për t'u shfaqur.",
   'traceWaterfall.totalDuration': 'Totali: {{duration}}',
   'traceWaterfall.row.aria': '{{service}} · {{name}} · {{duration}}',
-  'traceWaterfall.duration.us': '{{value}}µs',
-  'traceWaterfall.duration.ms': '{{value}}ms',
+  'traceWaterfall.duration.us': '{{value}} µs',
+  'traceWaterfall.duration.ms': '{{value}} ms',
   'traceWaterfall.duration.s': '{{value}}s',
 }

@@ -2,7 +2,7 @@ import type { GradeTranslations } from './types.js'
 
 /** Grade translations for Latvian. */
 export const lv: GradeTranslations = {
-  'grade.error.forbidden': 'Access denied',
+  'grade.error.forbidden': 'Piekļuve liegta',
   'grade.error.foreignKeysRequired':
     'Obligāti jānorāda reģistrācijas Id, uzdevuma Id, lietotāja Id un kursa Id.',
   'grade.error.scoreNumeric': 'Vērtībām scorePoints un maxPoints jābūt skaitļiem.',

@@ -2,7 +2,7 @@ import type { GradeTranslations } from './types.js'
 
 /** Grade translations for Khmer. */
 export const km: GradeTranslations = {
-  'grade.error.forbidden': 'Access denied',
+  'grade.error.forbidden': 'ការចូលប្រើត្រូវបានបដិសេធ',
   'grade.error.foreignKeysRequired':
     'តម្រូវ​ឲ្យ​មាន enrollmentId, assignmentId, userId និង courseId',
   'grade.error.scoreNumeric': 'ពិន្ទុ​ពិន្ទុ និង​ពិន្ទុ​អតិបរមា​ត្រូវតែ​ជា​លេខ',

@@ -2,7 +2,7 @@ import type { GradeTranslations } from './types.js'
 
 /** Grade translations for Swahili. */
 export const sw: GradeTranslations = {
-  'grade.error.forbidden': 'Access denied',
+  'grade.error.forbidden': 'Ufikiaji umekataliwa',
   'grade.error.foreignKeysRequired':
     'Kitambulisho cha usajili, Kitambulisho cha kazi, Kitambulisho cha mtumiaji, na Kitambulisho cha kozi vinahitajika',
   'grade.error.scoreNumeric': 'Pointi za alama na Pointi za juu lazima ziwe nambari',

@@ -6,7 +6,7 @@ export const el: TraceWaterfallTranslations = {
   'traceWaterfall.empty': 'Δεν υπάρχουν διαστήματα προς εμφάνιση.',
   'traceWaterfall.totalDuration': 'Σύνολο: {{duration}}',
   'traceWaterfall.row.aria': '{{service}} · {{name}} · {{duration}}',
-  'traceWaterfall.duration.us': '{{value}}µs',
-  'traceWaterfall.duration.ms': '{{value}}ms',
+  'traceWaterfall.duration.us': '{{value}} μs',
+  'traceWaterfall.duration.ms': '{{value}} ms',
   'traceWaterfall.duration.s': '{{value}}s',
 }

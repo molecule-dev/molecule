@@ -2,7 +2,7 @@ import type { GradeTranslations } from './types.js'
 
 /** Grade translations for Armenian. */
 export const hy: GradeTranslations = {
-  'grade.error.forbidden': 'Access denied',
+  'grade.error.forbidden': 'Մուտքը մերժված է',
   'grade.error.foreignKeysRequired':
     'գրանցման նույնականացուցիչը, հանձնարարության նույնականացուցիչը, օգտատիրոջ նույնականացուցիչը և դասընթացի նույնականացուցիչը պարտադիր են',
   'grade.error.scoreNumeric': 'scorePoints-ը և maxPoints-ը պետք է թվեր լինեն',

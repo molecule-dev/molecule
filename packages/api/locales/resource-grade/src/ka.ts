@@ -2,7 +2,7 @@ import type { GradeTranslations } from './types.js'
 
 /** Grade translations for Georgian. */
 export const ka: GradeTranslations = {
-  'grade.error.forbidden': 'Access denied',
+  'grade.error.forbidden': 'წვდომა უარყოფილია',
   'grade.error.foreignKeysRequired':
     'საჭიროა რეგისტრაციის ID, დავალების ID, მომხმარებლის ID და კურსის ID',
   'grade.error.scoreNumeric': 'scorePoints და maxPoints რიცხვები უნდა იყოს',

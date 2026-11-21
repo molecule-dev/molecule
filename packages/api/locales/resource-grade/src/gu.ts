@@ -2,7 +2,7 @@ import type { GradeTranslations } from './types.js'
 
 /** Grade translations for Gujarati. */
 export const gu: GradeTranslations = {
-  'grade.error.forbidden': 'Access denied',
+  'grade.error.forbidden': 'ઍક્સેસ નકારી',
   'grade.error.foreignKeysRequired': 'enrollmentId, assignmentId, userId, અને courseId જરૂરી છે',
   'grade.error.scoreNumeric': 'સ્કોરપોઇન્ટ્સ અને મેક્સપોઇન્ટ્સ સંખ્યાઓ હોવા જોઈએ.',
   'grade.error.maxPointsPositive': 'મહત્તમ બિંદુઓ શૂન્ય કરતા વધારે હોવા જોઈએ.',

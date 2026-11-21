@@ -2,7 +2,7 @@ import type { GradeTranslations } from './types.js'
 
 /** Grade translations for Nepali. */
 export const ne: GradeTranslations = {
-  'grade.error.forbidden': 'Access denied',
+  'grade.error.forbidden': 'पहुँच अस्वीकृत',
   'grade.error.foreignKeysRequired': 'enrollmentId, assignmentId, userId, र courseId आवश्यक छ।',
   'grade.error.scoreNumeric': 'स्कोरपोइन्ट र अधिकतमपोइन्टहरू संख्याहरू हुनुपर्छ।',
   'grade.error.maxPointsPositive': 'अधिकतम बिन्दुहरू शून्य भन्दा ठूलो हुनुपर्छ।',

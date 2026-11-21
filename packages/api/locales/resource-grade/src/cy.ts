@@ -2,7 +2,7 @@ import type { GradeTranslations } from './types.js'
 
 /** Grade translations for Welsh. */
 export const cy: GradeTranslations = {
-  'grade.error.forbidden': 'Access denied',
+  'grade.error.forbidden': "Mynediad wedi'i wrthod",
   'grade.error.foreignKeysRequired':
     'Mae angen ID cofrestru, ID aseiniad, ID defnyddiwr, ac ID cwrs',
   'grade.error.scoreNumeric': 'Rhaid i sgôrPwyntiau ac uchafswmPwyntiau fod yn rhifau',

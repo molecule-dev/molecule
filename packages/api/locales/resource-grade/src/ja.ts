@@ -2,7 +2,7 @@ import type { GradeTranslations } from './types.js'
 
 /** Grade translations for Japanese. */
 export const ja: GradeTranslations = {
-  'grade.error.forbidden': 'Access denied',
+  'grade.error.forbidden': 'アクセスが拒否されました',
   'grade.error.foreignKeysRequired':
     'enrollmentId、assignmentId、userId、およびcourseIdは必須です。',
   'grade.error.scoreNumeric': 'scorePointsとmaxPointsは数値でなければなりません。',

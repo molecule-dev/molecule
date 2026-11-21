@@ -3,7 +3,7 @@ import type { OAuthButtonsTranslations } from './types.js'
 /** OAuth Buttons translations for Urdu. */
 export const ur: OAuthButtonsTranslations = {
   'oauthButtons.groupLabel': 'دوسرے اکاؤنٹ کے ساتھ جاری رکھیں',
-  'oauthButtons.continueWith': 'Continue with {{provider}}',
+  'oauthButtons.continueWith': '{{provider}} کے ساتھ جاری رکھیں',
   'oauthButtons.provider.github': 'GitHub',
   'oauthButtons.provider.gitlab': 'GitLab',
   'oauthButtons.provider.google': 'Google',

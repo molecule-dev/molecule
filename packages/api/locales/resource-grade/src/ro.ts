@@ -2,7 +2,7 @@ import type { GradeTranslations } from './types.js'
 
 /** Grade translations for Romanian. */
 export const ro: GradeTranslations = {
-  'grade.error.forbidden': 'Access denied',
+  'grade.error.forbidden': 'Acces refuzat',
   'grade.error.foreignKeysRequired':
     'enrollmentId, assignmentId, userId și courseId sunt obligatorii',
   'grade.error.scoreNumeric': 'scorePoints și maxPoints trebuie să fie numere',

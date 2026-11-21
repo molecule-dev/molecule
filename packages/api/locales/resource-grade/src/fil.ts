@@ -2,7 +2,7 @@ import type { GradeTranslations } from './types.js'
 
 /** Grade translations for Filipino. */
 export const fil: GradeTranslations = {
-  'grade.error.forbidden': 'Access denied',
+  'grade.error.forbidden': 'Tinanggihan ang pag-access',
   'grade.error.foreignKeysRequired':
     'Kinakailangan ang enrollmentId, assignmentId, userId, at courseId',
   'grade.error.scoreNumeric': 'Dapat mga numero ang scorePoints at maxPoints',

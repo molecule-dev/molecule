@@ -6,7 +6,7 @@ export const bg: TraceWaterfallTranslations = {
   'traceWaterfall.empty': 'Няма диапазони за показване.',
   'traceWaterfall.totalDuration': 'Общо: {{duration}}',
   'traceWaterfall.row.aria': '{{service}} · {{name}} · {{duration}}',
-  'traceWaterfall.duration.us': '{{value}}µs',
-  'traceWaterfall.duration.ms': '{{value}}ms',
+  'traceWaterfall.duration.us': '{{value}} мкс',
+  'traceWaterfall.duration.ms': '{{value}} мс',
   'traceWaterfall.duration.s': '{{value}}s',
 }

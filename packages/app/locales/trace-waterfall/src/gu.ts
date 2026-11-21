@@ -6,7 +6,7 @@ export const gu: TraceWaterfallTranslations = {
   'traceWaterfall.empty': 'પ્રદર્શિત કરવા માટે કોઈ સ્પાન્સ નથી.',
   'traceWaterfall.totalDuration': 'કુલ: {{duration}}',
   'traceWaterfall.row.aria': '{{service}} · {{name}} · {{duration}}',
-  'traceWaterfall.duration.us': '{{value}}µs',
-  'traceWaterfall.duration.ms': '{{value}}ms',
+  'traceWaterfall.duration.us': '{{value}} µs',
+  'traceWaterfall.duration.ms': '{{value}} ms',
   'traceWaterfall.duration.s': '{{value}}s',
 }

@@ -2,7 +2,7 @@ import type { GradeTranslations } from './types.js'
 
 /** Grade translations for Tamil. */
 export const ta: GradeTranslations = {
-  'grade.error.forbidden': 'Access denied',
+  'grade.error.forbidden': 'அணுகல் மறுக்கப்பட்டது',
   'grade.error.foreignKeysRequired':
     'enrollmentId, assignmentId, userId மற்றும் courseId ஆகியவை தேவைப்படுகின்றன.',
   'grade.error.scoreNumeric': 'scorePoints மற்றும் maxPoints ஆகியவை எண்களாக இருக்க வேண்டும்.',

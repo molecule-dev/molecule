@@ -2,7 +2,7 @@ import type { GradeTranslations } from './types.js'
 
 /** Grade translations for Punjabi. */
 export const pa: GradeTranslations = {
-  'grade.error.forbidden': 'Access denied',
+  'grade.error.forbidden': 'ਪਹੁੰਚ ਅਸਵੀਕਾਰ ਕੀਤੀ ਗਈ',
   'grade.error.foreignKeysRequired': 'enrollmentId, assignmentId, userId, ਅਤੇ courseId ਲੋੜੀਂਦੇ ਹਨ',
   'grade.error.scoreNumeric': 'ਸਕੋਰਪੁਆਇੰਟ ਅਤੇ ਮੈਕਸਪੁਆਇੰਟ ਨੰਬਰ ਹੋਣੇ ਚਾਹੀਦੇ ਹਨ',
   'grade.error.maxPointsPositive': 'ਵੱਧ ਤੋਂ ਵੱਧ ਬਿੰਦੂ ਜ਼ੀਰੋ ਤੋਂ ਵੱਧ ਹੋਣੇ ਚਾਹੀਦੇ ਹਨ।',

@@ -6,7 +6,7 @@ export const ml: TraceWaterfallTranslations = {
   'traceWaterfall.empty': 'പ്രദർശിപ്പിക്കാൻ സ്പാനുകളൊന്നുമില്ല.',
   'traceWaterfall.totalDuration': 'ആകെ: {{duration}}',
   'traceWaterfall.row.aria': '{{service}} · {{name}} · {{duration}}',
-  'traceWaterfall.duration.us': '{{value}}µs',
-  'traceWaterfall.duration.ms': '{{value}}ms',
+  'traceWaterfall.duration.us': '{{value}} µs',
+  'traceWaterfall.duration.ms': '{{value}} ms',
   'traceWaterfall.duration.s': '{{value}}s',
 }

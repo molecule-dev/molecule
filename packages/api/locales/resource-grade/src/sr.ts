@@ -2,7 +2,7 @@ import type { GradeTranslations } from './types.js'
 
 /** Grade translations for Serbian. */
 export const sr: GradeTranslations = {
-  'grade.error.forbidden': 'Access denied',
+  'grade.error.forbidden': 'Приступ одбијен',
   'grade.error.foreignKeysRequired': 'Потребни су ИД уписа, ИД задатка, ИД корисника и ИД курса',
   'grade.error.scoreNumeric': 'scorePoints и maxPoints морају бити бројеви',
   'grade.error.maxPointsPositive': 'максимални број поена мора бити већи од нуле',

@@ -2,7 +2,7 @@ import type { GradeTranslations } from './types.js'
 
 /** Grade translations for Russian. */
 export const ru: GradeTranslations = {
-  'grade.error.forbidden': 'Access denied',
+  'grade.error.forbidden': 'Доступ запрещён',
   'grade.error.foreignKeysRequired':
     'Идентификаторы enrollmentId, assignmentId, userId и courseId обязательны для заполнения.',
   'grade.error.scoreNumeric': 'Параметры scorePoints и maxPoints должны быть числами.',

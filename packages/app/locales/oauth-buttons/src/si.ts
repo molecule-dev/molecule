@@ -3,7 +3,7 @@ import type { OAuthButtonsTranslations } from './types.js'
 /** OAuth Buttons translations for Sinhala. */
 export const si: OAuthButtonsTranslations = {
   'oauthButtons.groupLabel': 'වෙනත් ගිණුමක් සමඟ ඉදිරියට යන්න',
-  'oauthButtons.continueWith': 'Continue with {{provider}}',
+  'oauthButtons.continueWith': '{{provider}} සමඟ ඉදිරියට යන්න',
   'oauthButtons.provider.github': 'GitHub',
   'oauthButtons.provider.gitlab': 'GitLab',
   'oauthButtons.provider.google': 'Google',

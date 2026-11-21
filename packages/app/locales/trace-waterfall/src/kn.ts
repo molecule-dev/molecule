@@ -6,7 +6,7 @@ export const kn: TraceWaterfallTranslations = {
   'traceWaterfall.empty': 'ಪ್ರದರ್ಶಿಸಲು ಯಾವುದೇ ಸ್ಪ್ಯಾನ್‌ಗಳಿಲ್ಲ.',
   'traceWaterfall.totalDuration': 'ಒಟ್ಟು: {{duration}}',
   'traceWaterfall.row.aria': '{{service}} · {{name}} · {{duration}}',
-  'traceWaterfall.duration.us': '{{value}}µs',
-  'traceWaterfall.duration.ms': '{{value}}ms',
+  'traceWaterfall.duration.us': '{{value}} µs',
+  'traceWaterfall.duration.ms': '{{value}} ms',
   'traceWaterfall.duration.s': '{{value}}s',
 }

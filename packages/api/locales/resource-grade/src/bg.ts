@@ -2,7 +2,7 @@ import type { GradeTranslations } from './types.js'
 
 /** Grade translations for Bulgarian. */
 export const bg: GradeTranslations = {
-  'grade.error.forbidden': 'Access denied',
+  'grade.error.forbidden': 'Достъпът е отказан',
   'grade.error.foreignKeysRequired':
     'Задължителни са enrollmentId, assignmentId, userId и courseId',
   'grade.error.scoreNumeric': 'scorePoints и maxPoints трябва да са числа',

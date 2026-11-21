@@ -2,7 +2,7 @@ import type { GradeTranslations } from './types.js'
 
 /** Grade translations for Lao. */
 export const lo: GradeTranslations = {
-  'grade.error.forbidden': 'Access denied',
+  'grade.error.forbidden': 'ປະຕິເສດການເຂົ້າເຖິງ',
   'grade.error.foreignKeysRequired': 'ຕ້ອງມີ enrollmentId, assignmentId, userId ແລະ courseId',
   'grade.error.scoreNumeric': 'scorePoints ແລະ maxPoints ຕ້ອງເປັນຕົວເລກ',
   'grade.error.maxPointsPositive': 'maxPoints ຕ້ອງຫຼາຍກວ່າສູນ',

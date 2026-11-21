@@ -2,7 +2,7 @@ import type { GradeTranslations } from './types.js'
 
 /** Grade translations for German. */
 export const de: GradeTranslations = {
-  'grade.error.forbidden': 'Access denied',
+  'grade.error.forbidden': 'Zugriff verweigert',
   'grade.error.foreignKeysRequired':
     'enrollmentId, assignmentId, userId und courseId sind erforderlich.',
   'grade.error.scoreNumeric': 'scorePoints und maxPoints müssen Zahlen sein.',

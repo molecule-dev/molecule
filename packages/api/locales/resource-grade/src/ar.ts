@@ -2,7 +2,7 @@ import type { GradeTranslations } from './types.js'
 
 /** Grade translations for Arabic. */
 export const ar: GradeTranslations = {
-  'grade.error.forbidden': 'Access denied',
+  'grade.error.forbidden': 'تم رفض الوصول',
   'grade.error.foreignKeysRequired': 'مطلوب كل من enrollmentId و assignmentId و userId و courseId',
   'grade.error.scoreNumeric': 'يجب أن تكون قيمتا scorePoints و maxPoints أرقامًا.',
   'grade.error.maxPointsPositive': 'يجب أن تكون قيمة maxPoints أكبر من الصفر',

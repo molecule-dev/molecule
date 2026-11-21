@@ -2,7 +2,7 @@ import type { GradeTranslations } from './types.js'
 
 /** Grade translations for Thai. */
 export const th: GradeTranslations = {
-  'grade.error.forbidden': 'Access denied',
+  'grade.error.forbidden': 'การเข้าถึงถูกปฏิเสธ',
   'grade.error.foreignKeysRequired':
     'enrollmentId, assignmentId, userId และ courseId เป็นข้อมูลที่จำเป็น',
   'grade.error.scoreNumeric': 'scorePoints และ maxPoints ต้องเป็นตัวเลข',

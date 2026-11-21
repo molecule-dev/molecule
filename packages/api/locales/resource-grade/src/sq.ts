@@ -2,7 +2,7 @@ import type { GradeTranslations } from './types.js'
 
 /** Grade translations for Albanian. */
 export const sq: GradeTranslations = {
-  'grade.error.forbidden': 'Access denied',
+  'grade.error.forbidden': 'Aksesi u refuzua',
   'grade.error.foreignKeysRequired':
     'ID e regjistrimit, ID e detyrës, ID e përdoruesit dhe ID e kursit janë të detyrueshme',
   'grade.error.scoreNumeric': 'ScorePoints dhe maxPoints duhet të jenë numra',

@@ -2,7 +2,7 @@ import type { GradeTranslations } from './types.js'
 
 /** Grade translations for Estonian. */
 export const et: GradeTranslations = {
-  'grade.error.forbidden': 'Access denied',
+  'grade.error.forbidden': 'Juurdepääs keelatud',
   'grade.error.foreignKeysRequired':
     'RegistreerimiseId, ülesandeId, kasutajaId ja kursuseId on kohustuslikud.',
   'grade.error.scoreNumeric': 'scorePoints ja maxPoints peavad olema numbrid',

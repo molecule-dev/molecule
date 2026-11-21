@@ -2,7 +2,7 @@ import type { GradeTranslations } from './types.js'
 
 /** Grade translations for Zulu. */
 export const zu: GradeTranslations = {
-  'grade.error.forbidden': 'Access denied',
+  'grade.error.forbidden': 'Ukufinyelela kunqatshiwe',
   'grade.error.foreignKeysRequired':
     'i-enrollmentId, i-assignmentId, i-userId, kanye ne-courseId kuyadingeka',
   'grade.error.scoreNumeric': 'Amaphuzu kanye namaphoyinti aphezulu kumele kube izinombolo',

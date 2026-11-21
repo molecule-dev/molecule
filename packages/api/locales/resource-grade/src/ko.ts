@@ -2,7 +2,7 @@ import type { GradeTranslations } from './types.js'
 
 /** Grade translations for Korean. */
 export const ko: GradeTranslations = {
-  'grade.error.forbidden': 'Access denied',
+  'grade.error.forbidden': '액세스가 거부되었습니다',
   'grade.error.foreignKeysRequired':
     '등록 ID, 과제 ID, 사용자 ID 및 코스 ID는 필수 입력 사항입니다.',
   'grade.error.scoreNumeric': 'scorePoints와 maxPoints는 숫자여야 합니다.',

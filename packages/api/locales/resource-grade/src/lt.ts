@@ -2,7 +2,7 @@ import type { GradeTranslations } from './types.js'
 
 /** Grade translations for Lithuanian. */
 export const lt: GradeTranslations = {
-  'grade.error.forbidden': 'Access denied',
+  'grade.error.forbidden': 'Prieiga uždrausta',
   'grade.error.foreignKeysRequired':
     'Privalomi registracijos ID, užduoties ID, vartotojo ID ir kurso ID.',
   'grade.error.scoreNumeric': '„scorePoints“ ir „maxPoints“ turi būti skaičiai',

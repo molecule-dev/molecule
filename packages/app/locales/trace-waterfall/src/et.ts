@@ -6,7 +6,7 @@ export const et: TraceWaterfallTranslations = {
   'traceWaterfall.empty': 'Kuvatavaid ulatusi pole.',
   'traceWaterfall.totalDuration': 'Kokku: {{duration}}',
   'traceWaterfall.row.aria': '{{service}} · {{name}} · {{duration}}',
-  'traceWaterfall.duration.us': '{{value}}µs',
-  'traceWaterfall.duration.ms': '{{value}}ms',
+  'traceWaterfall.duration.us': '{{value}} µs',
+  'traceWaterfall.duration.ms': '{{value}} ms',
   'traceWaterfall.duration.s': '{{value}}s',
 }

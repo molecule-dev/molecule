@@ -6,7 +6,7 @@ export const be: TraceWaterfallTranslations = {
   'traceWaterfall.empty': 'Няма прамежкаў для адлюстравання.',
   'traceWaterfall.totalDuration': 'Усяго: {{duration}}',
   'traceWaterfall.row.aria': '{{service}} · {{name}} · {{duration}}',
-  'traceWaterfall.duration.us': '{{value}}µs',
-  'traceWaterfall.duration.ms': '{{value}}ms',
+  'traceWaterfall.duration.us': '{{value}} мкс',
+  'traceWaterfall.duration.ms': '{{value}} мс',
   'traceWaterfall.duration.s': '{{value}}s',
 }
