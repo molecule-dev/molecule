@@ -18,9 +18,9 @@ export const bg: AngularTranslations = {
   'angular.error.usePreviewOutsideProvider':
     'usePreviewProvider трябва да се използва в PreviewProvider',
   'angular.error.useRouterOutsideProvider':
-    'Няма рутер тук. Добавете `provideMoleculeRouter()` от връзката за рутиране (`@molecule/app-routing-angular-router`) към доставчиците на приложението, след `provideRouter(routes)` на Angular, или предайте `router` на `provideMolecule`.',
+    'Няма рутер тук. Добавете `provideMoleculeRouter()` от връзката за рутиране (`@molecule/app-routing-angular-router`) към доставчиците на приложението, след `provideRouter(routes)` на Angular, или предайте `router` на `provideMolecule`. Ако приложението вече прави това, неговата връзка за рутиране е по-стара от тази връзка: актуализирайте я (`npm install @molecule/app-routing-angular-router@latest`).',
   'angular.error.noRoutedView':
-    'Тази маршрутизираща връзка няма маршрутизиран изглед за рендиране тук: вместо това предайте страницата като деца.',
+    'Тази маршрутизираща връзка няма маршрутизиран изглед за рендиране тук: вместо това предайте страницата като деца. Ако приложението маршрутизира с `@molecule/app-routing-angular-router`, тази връзка е по-стара от това обвързване: актуализирайте я (`npm install @molecule/app-routing-angular-router@latest`).',
   'angular.error.useStorageOutsideProvider':
     'useStorageProvider трябва да се използва в StorageProvider',
   'angular.error.useThemeOutsideProvider': 'useThemeProvider трябва да се използва в ThemeProvider',

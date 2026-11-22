@@ -3,9 +3,9 @@ import type { VueTranslations } from './types.js'
 /** Vue translations for Zulu. */
 export const zu: VueTranslations = {
   'vue.error.useRouterOutsideProvider':
-    'Ayikho i-router lapha. Songa uhlelo lokusebenza ku `MoleculeRouterProvider` kusuka ku-routing bond (`@molecule/app-routing-vue-router`), noma udlulisele `router` ku `moleculePlugin`.',
+    'Ayikho i-router lapha. Songa uhlelo lokusebenza ku `MoleculeRouterProvider` kusuka ku-routing bond (`@molecule/app-routing-vue-router`), noma udlulisele `router` ku `moleculePlugin`. Uma uhlelo lokusebenza seluvele lukwenza lokhu, i-routing bond yalo indala kunalokhu kubopha: lubuyekeze (`npm install @molecule/app-routing-vue-router@latest`).',
   'vue.error.noRoutedView':
-    'Lesi sibopho sokuqondisa asinawo umbono oqondisiwe ongawubonisa lapha: dlulisa ikhasi njengezingane esikhundleni salokho.',
+    'Lesi sibopho sokuqondisa asinawo umbono oqondiswe lapha: dlulisa ikhasi njengezingane esikhundleni salokho. Uma uhlelo lokusebenza lusebenzisa i `@molecule/app-routing-vue-router`, leso sibopho sidala kunalesi sibopho: sibuyekeze (`npm install @molecule/app-routing-vue-router@latest`).',
   'vue.error.useStoreOutsideProvider':
     'useStateProvider kumele isetshenziswe ngaphakathi kwe-StateProvider',
   'vue.error.useThemeOutsideProvider':

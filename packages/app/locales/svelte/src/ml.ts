@@ -9,7 +9,7 @@ export const ml: SvelteTranslations = {
   'svelte.error.noThemeProvider':
     '\u0d25\u0d40\u0d02 \u0d2a\u0d4d\u0d30\u0d4a\u0d35\u0d48\u0d21\u0d7c \u0d15\u0d23\u0d4d\u0d1f\u0d15\u0d4d\u0d38\u0d4d\u0d31\u0d4d\u0d31\u0d3f\u0d7d \u0d15\u0d23\u0d4d\u0d1f\u0d46\u0d24\u0d4d\u0d24\u0d3f\u0d2f\u0d3f\u0d32\u0d4d\u0d32',
   'svelte.error.noRouter':
-    'ഇവിടെ റൂട്ടർ ഇല്ല. `+layout.svelte` എന്ന റൂട്ടിലെ റൂട്ടിംഗ് ബോണ്ടിൽ നിന്ന് (`@molecule/app-routing-sveltekit`) `MoleculeRouterProvider` മൗണ്ട് ചെയ്യുക, അല്ലെങ്കിൽ അവിടെ `setMoleculeContext({ router })` എന്ന് വിളിക്കുക.',
+    'ഇവിടെ റൂട്ടർ ഇല്ല. `+layout.svelte` എന്ന റൂട്ടിലെ റൂട്ടിംഗ് ബോണ്ടിൽ നിന്ന് (`@molecule/app-routing-sveltekit`) `MoleculeRouterProvider` മൗണ്ട് ചെയ്യുക, അല്ലെങ്കിൽ അവിടെ `setMoleculeContext({ router })` എന്ന് വിളിക്കുക. ആപ്പ് ഇതിനകം ഇത് ചെയ്യുന്നുണ്ടെങ്കിൽ, അതിന്റെ റൂട്ടിംഗ് ബോണ്ട് ഈ ബൈൻഡിംഗിനേക്കാൾ പഴയതാണ്: അത് അപ്ഡേറ്റ് ചെയ്യുക (`npm install @molecule/app-routing-sveltekit@latest`).',
   'svelte.error.noI18nProvider':
     'I18n \u0d2a\u0d4d\u0d30\u0d4a\u0d35\u0d48\u0d21\u0d7c \u0d15\u0d23\u0d4d\u0d1f\u0d15\u0d4d\u0d38\u0d4d\u0d31\u0d4d\u0d31\u0d3f\u0d7d \u0d15\u0d23\u0d4d\u0d1f\u0d46\u0d24\u0d4d\u0d24\u0d3f\u0d2f\u0d3f\u0d32\u0d4d\u0d32',
   'svelte.error.noHttpClient':
@@ -32,7 +32,7 @@ export const ml: SvelteTranslations = {
   'svelte.error.useThemeOutsideProvider':
     'useThemeProvider ഒരു ThemeProvider-നുള്ളിൽ തന്നെ ഉപയോഗിക്കണം.',
   'svelte.error.useRouterOutsideProvider':
-    'ഇവിടെ റൂട്ടർ ഇല്ല. `+layout.svelte` എന്ന റൂട്ടിലെ റൂട്ടിംഗ് ബോണ്ടിൽ നിന്ന് (`@molecule/app-routing-sveltekit`) `MoleculeRouterProvider` മൗണ്ട് ചെയ്യുക, അല്ലെങ്കിൽ അവിടെ `setMoleculeContext({ router })` എന്ന് വിളിക്കുക.',
+    'ഇവിടെ റൂട്ടർ ഇല്ല. `+layout.svelte` എന്ന റൂട്ടിലെ റൂട്ടിംഗ് ബോണ്ടിൽ നിന്ന് (`@molecule/app-routing-sveltekit`) `MoleculeRouterProvider` മൗണ്ട് ചെയ്യുക, അല്ലെങ്കിൽ അവിടെ `setMoleculeContext({ router })` എന്ന് വിളിക്കുക. ആപ്പ് ഇതിനകം ഇത് ചെയ്യുന്നുണ്ടെങ്കിൽ, അതിന്റെ റൂട്ടിംഗ് ബോണ്ട് ഈ ബൈൻഡിംഗിനേക്കാൾ പഴയതാണ്: അത് അപ്ഡേറ്റ് ചെയ്യുക (`npm install @molecule/app-routing-sveltekit@latest`).',
   'svelte.error.noRoutedView':
     'ഇവിടെ റൂട്ട് ചെയ്ത കാഴ്ചയില്ല. SvelteKit അതിന്റെ പേജിന് `children` എന്ന് ലേഔട്ട് നൽകുന്നു: ഈ ഘടകത്തിനുള്ളിൽ `{@render children()}` നൽകുക.',
   'svelte.error.useHttpOutsideProvider': 'useHttpClient ഒരു HttpProvider-ൽ തന്നെ ഉപയോഗിക്കണം.',

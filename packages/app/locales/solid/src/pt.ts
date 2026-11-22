@@ -36,7 +36,7 @@ export const pt: SolidTranslations = {
     'O parâmetro useLoggerProvider deve ser usado dentro de um LoggerProvider.',
   'solid.error.oauthFailed': 'Falha no login OAuth',
   'solid.error.useRouterOutsideProvider':
-    'Não há roteador aqui. Use `MoleculeRouterProvider` do vínculo de roteamento (`@molecule/app-routing-solid-router`) como a `root` do roteador, ou passe `router` para `MoleculeProvider`.',
+    'Não há roteador aqui. Use `MoleculeRouterProvider` do pacote de roteamento (`@molecule/app-routing-solid-router`) como a `root` do roteador ou passe `router` para `MoleculeProvider`. Se o aplicativo já faz isso, seu pacote de roteamento é mais antigo que este: atualize-o (`npm install @molecule/app-routing-solid-router@latest`).',
   'solid.error.noRoutedView':
     'Aqui não há nenhuma visualização roteada. O Solid Router atribui a rota aninhada a um componente de rota como `props.children`: use isso como o `component` da rota ou passe a página como filhos.',
   'solid.error.useStoreOutsideProvider':

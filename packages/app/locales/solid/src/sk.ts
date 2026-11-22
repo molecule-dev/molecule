@@ -33,7 +33,7 @@ export const sk: SolidTranslations = {
   'solid.error.useLoggerOutsideProvider': 'useLoggerProvider sa musí použiť v rámci LoggerProvider',
   'solid.error.oauthFailed': 'Prihlásenie cez OAuth zlyhalo',
   'solid.error.useRouterOutsideProvider':
-    'Žiadny router tu nie je. Ako `root` routera použite `MoleculeRouterProvider` zo smerovacej väzby (`@molecule/app-routing-solid-router`) alebo odovzdajte `router` do `MoleculeProvider`.',
+    'Žiadny smerovač tu nie je. Ako `root` smerovača použite `MoleculeRouterProvider` z routing bond (`@molecule/app-routing-solid-router`) alebo odovzdajte `router` do `MoleculeProvider`. Ak to aplikácia už robí, jej routing bond je starší ako tento binding: aktualizujte ho (`npm install @molecule/app-routing-solid-router@latest`).',
   'solid.error.noRoutedView':
     'Tu nie je žiadny smerovaný pohľad. Solid Router priradí komponentu trasy jej vnorenú trasu ako `props.children`: použite to ako `component` trasy alebo odovzdajte stránku ako deti.',
   'solid.error.useStoreOutsideProvider': 'useStateProvider sa musí použiť v rámci StateProvider',

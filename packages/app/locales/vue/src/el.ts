@@ -3,9 +3,9 @@ import type { VueTranslations } from './types.js'
 /** Vue translations for Greek. */
 export const el: VueTranslations = {
   'vue.error.useRouterOutsideProvider':
-    'Δεν υπάρχει δρομολογητής εδώ. Τυλίξτε την εφαρμογή στο `MoleculeRouterProvider` από το routing bond (`@molecule/app-routing-vue-router`) ή περάστε `router` στο `moleculePlugin`.',
+    'Δεν υπάρχει δρομολογητής εδώ. Τυλίξτε την εφαρμογή στο `MoleculeRouterProvider` από τον δεσμό δρομολόγησης (`@molecule/app-routing-vue-router`) ή περάστε `router` στο `moleculePlugin`. Εάν η εφαρμογή το κάνει ήδη αυτό, ο δεσμός δρομολόγησής της είναι παλαιότερος από αυτόν τον δεσμό: ενημερώστε τον (`npm install @molecule/app-routing-vue-router@latest`).',
   'vue.error.noRoutedView':
-    'Αυτός ο δεσμός δρομολόγησης δεν έχει δρομολογημένη προβολή για απόδοση εδώ: μεταβιβάστε τη σελίδα ως θυγατρικές σελίδες.',
+    'Αυτός ο δεσμός δρομολόγησης δεν έχει δρομολογημένη προβολή για απόδοση εδώ: μεταβιβάστε τη σελίδα ως θυγατρική. Εάν η εφαρμογή δρομολογείται με `@molecule/app-routing-vue-router`, αυτός ο δεσμός είναι παλαιότερος από αυτόν τον δεσμό: ενημερώστε τον (`npm install @molecule/app-routing-vue-router@latest`).',
   'vue.error.useStoreOutsideProvider':
     'Το useStateProvider πρέπει να χρησιμοποιείται εντός ενός StateProvider',
   'vue.error.useThemeOutsideProvider':

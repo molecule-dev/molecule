@@ -14,9 +14,9 @@ export const vi: ReactTranslations = {
   'react.error.usePreviewOutsideProvider':
     'usePreviewProvider phải được sử dụng bên trong PreviewProvider',
   'react.error.useRouterOutsideProvider':
-    'Không có bộ định tuyến ở đây. Hãy gắn một thành phần bộ định tuyến từ liên kết định tuyến của ứng dụng (`BrowserRouter` từ `@molecule/app-routing-react-router`), hoặc truyền `router` cho `MoleculeProvider`.',
+    'Không có bộ định tuyến ở đây. Hãy gắn một thành phần bộ định tuyến từ liên kết định tuyến của ứng dụng (`BrowserRouter` từ `@molecule/app-routing-react-router`), hoặc truyền `router` cho `MoleculeProvider`. Nếu ứng dụng đã làm điều này, liên kết định tuyến của nó cũ hơn liên kết này: hãy cập nhật nó (`npm install @molecule/app-routing-react-router@latest`).',
   'react.error.noRoutedView':
-    'Liên kết định tuyến này không có chế độ xem được định tuyến để hiển thị ở đây: thay vào đó hãy truyền trang đó dưới dạng các phần tử con.',
+    'Liên kết định tuyến này không có chế độ xem được định tuyến để hiển thị ở đây: thay vào đó hãy truyền trang dưới dạng các phần tử con. Nếu ứng dụng định tuyến bằng `@molecule/app-routing-react-router`, liên kết đó cũ hơn liên kết này: hãy cập nhật nó (`npm install @molecule/app-routing-react-router@latest`).',
   'react.error.useStoreOutsideProvider':
     'useStateProvider phải được sử dụng bên trong StateProvider',
   'react.error.useStorageOutsideProvider':

@@ -3,9 +3,9 @@ import type { VueTranslations } from './types.js'
 /** Vue translations for Gujarati. */
 export const gu: VueTranslations = {
   'vue.error.useRouterOutsideProvider':
-    'અહીં કોઈ રાઉટર નથી. રૂટીંગ બોન્ડ (`@molecule/app-routing-vue-router`) માંથી એપ્લિકેશનને `MoleculeRouterProvider` માં લપેટો, અથવા `router` ને `moleculePlugin` માં પાસ કરો.',
+    'અહીં કોઈ રાઉટર નથી. રૂટીંગ બોન્ડ (`@molecule/app-routing-vue-router`) માંથી એપને `MoleculeRouterProvider` માં લપેટો, અથવા `router` ને `moleculePlugin` માં પાસ કરો. જો એપ પહેલાથી જ આ કરે છે, તો તેનું રૂટીંગ બોન્ડ આ બાઇન્ડિંગ કરતા જૂનું છે: તેને અપડેટ કરો (`npm install @molecule/app-routing-vue-router@latest`).',
   'vue.error.noRoutedView':
-    'આ રૂટીંગ બોન્ડમાં અહીં રેન્ડર કરવા માટે કોઈ રૂટેડ વ્યૂ નથી: તેના બદલે પેજને ચિલ્ડ્રન તરીકે પાસ કરો.',
+    'આ રૂટીંગ બોન્ડમાં અહીં રેન્ડર કરવા માટે કોઈ રૂટેડ વ્યૂ નથી: તેના બદલે પેજને ચિલ્ડ્રન તરીકે પાસ કરો. જો એપ `@molecule/app-routing-vue-router` સાથે રૂટ કરે છે, તો તે બોન્ડ આ બાઈન્ડિંગ કરતા જૂનું છે: તેને અપડેટ કરો (`npm install @molecule/app-routing-vue-router@latest`).',
   'vue.error.useStoreOutsideProvider': 'useStateProvider StateProvider ની અંદર વાપરવું આવશ્યક છે',
   'vue.error.useThemeOutsideProvider': 'useThemeProvider ThemeProvider ની અંદર વાપરવું આવશ્યક છે',
   'vue.error.useAuthOutsideProvider': 'useAuthClient AuthProvider ની અંદર વાપરવું આવશ્યક છે',

@@ -10,9 +10,9 @@ export const et: ReactTranslations = {
   'react.error.useLoggerOutsideProvider': 'useLoggerProvider tuleb kasutada LoggerProvider sees',
   'react.error.usePreviewOutsideProvider': 'usePreviewProvider tuleb kasutada PreviewProvider sees',
   'react.error.useRouterOutsideProvider':
-    'Siin pole ruuterit. Ühenda ruuteri komponent rakenduse marsruutimissidemega (`BrowserRouter` saidilt `@molecule/app-routing-react-router`) või edasta `router` `MoleculeProvider` ile.',
+    'Siin pole ruuterit. Ühenda ruuteri komponent rakenduse marsruutimissidemest (`BrowserRouter` failist `@molecule/app-routing-react-router`) või edasta `router` kasutajale `MoleculeProvider`. Kui rakendus seda juba teeb, on selle marsruutimisside sellest sidemest vanem: uuenda seda (`npm install @molecule/app-routing-react-router@latest`).',
   'react.error.noRoutedView':
-    'Sellel marsruutimissidemel pole siin renderdamiseks marsruutitud vaadet: edastage leht hoopis alamlehtedena.',
+    'Sellel marsruutimissidemel pole siin renderdamiseks marsruutitud vaadet: edasta leht hoopis lastena. Kui rakendus marsruutib `@molecule/app-routing-react-router` abil, on see side sellest sidumisest vanem: uuenda seda (`npm install @molecule/app-routing-react-router@latest`).',
   'react.error.useStoreOutsideProvider': 'useStateProvider tuleb kasutada StateProvider sees',
   'react.error.useStorageOutsideProvider': 'useStorageProvider tuleb kasutada StorageProvider sees',
   'react.error.useThemeOutsideProvider': 'useThemeProvider tuleb kasutada ThemeProvider sees',

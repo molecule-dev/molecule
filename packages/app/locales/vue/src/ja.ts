@@ -3,9 +3,9 @@ import type { VueTranslations } from './types.js'
 /** Vue translations for Japanese. */
 export const ja: VueTranslations = {
   'vue.error.useRouterOutsideProvider':
-    'ルーターは不要です。ルーティングボンド（`@molecule/app-routing-vue-router`）の`MoleculeRouterProvider`でアプリをラップするか、`router`を`moleculePlugin`に渡してください。',
+    'ルーターは不要です。ルーティングボンド（`@molecule/app-routing-vue-router`）の`MoleculeRouterProvider`でアプリをラップするか、`router` `moleculePlugin`に渡してください。アプリが既にこの操作を行っている場合、そのルーティングボンドはこのバインディングよりも古いため、更新してください（`npm install @molecule/app-routing-vue-router@latest`）。',
   'vue.error.noRoutedView':
-    'このルーティングボンドには、ここにレンダリングするルーティングビューがありません。代わりにページを子要素として渡してください。',
+    'このルーティング ボンドには、ここにレンダリングするルーティング ビューがありません。代わりにページを子要素として渡してください。アプリが`@molecule/app-routing-vue-router`を使用してルーティングしている場合、そのボンドはこのバインディングよりも古いため、更新してください (`npm install @molecule/app-routing-vue-router@latest`)。',
   'vue.error.useStoreOutsideProvider': 'useStateProviderはStateProvider内で使用する必要があります',
   'vue.error.useThemeOutsideProvider': 'useThemeProviderはThemeProvider内で使用する必要があります',
   'vue.error.useAuthOutsideProvider': 'useAuthClientはAuthProvider内で使用する必要があります',

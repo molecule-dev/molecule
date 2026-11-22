@@ -14,9 +14,9 @@ export const ga: ReactTranslations = {
   'react.error.usePreviewOutsideProvider':
     'Ní mór usePreviewProvider a úsáid laistigh de PreviewProvider',
   'react.error.useRouterOutsideProvider':
-    'Níl aon ródaire anseo. Suiteáil comhpháirt ródaire ó nasc ródaithe an aip (`BrowserRouter` ó `@molecule/app-routing-react-router`), nó cuir `router` chuig `MoleculeProvider`.',
+    'Níl aon ródaire anseo. Suiteáil comhpháirt ródaire ó nasc ródaithe an aip (`BrowserRouter` ó `@molecule/app-routing-react-router`), nó cuir `router` chuig `MoleculeProvider`. Má dhéanann an aip é seo cheana féin, tá a nasc ródaithe níos sine ná an ceangal seo: nuashraigh é (`npm install @molecule/app-routing-react-router@latest`).',
   'react.error.noRoutedView':
-    'Níl aon radharc ródaithe ag an nasc ródaithe seo le rindreáil anseo: cuir an leathanach ar aghaidh mar pháistí ina ionad.',
+    'Níl aon radharc ródaithe ag an nasc ródaithe seo le rindreáil anseo: cuir an leathanach ar aghaidh mar pháistí ina ionad. Má ródaíonn an aip le `@molecule/app-routing-react-router`, tá an nasc sin níos sine ná an ceangal seo: nuashraigh é (`npm install @molecule/app-routing-react-router@latest`).',
   'react.error.useStoreOutsideProvider':
     'Ní mór useStateProvider a úsáid laistigh de StateProvider',
   'react.error.useStorageOutsideProvider':

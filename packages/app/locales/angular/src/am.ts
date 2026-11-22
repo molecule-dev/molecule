@@ -13,8 +13,9 @@ export const am: AngularTranslations = {
   'angular.error.useLoggerOutsideProvider': 'useLoggerProvider በLoggerProvider ውስጥ መጠቀም አለበት',
   'angular.error.usePreviewOutsideProvider': 'usePreviewProvider በPreviewProvider ውስጥ መጠቀም አለበት',
   'angular.error.useRouterOutsideProvider':
-    'እዚህ ራውተር የለም። ከአንጉላር `provideRouter(routes)` በኋላ `provideMoleculeRouter()` ከሩቲንግ ቦንድ (`@molecule/app-routing-angular-router`) ወደ አፕሊኬሽኑ አቅራቢዎች ያክሉ ወይም `router` እስከ `provideMolecule` ያልፉ።',
-  'angular.error.noRoutedView': 'ይህ የማዞሪያ ቦንድ እዚህ ለማሳየት ምንም የማዞሪያ እይታ የለውም፡ ገጹን እንደ ልጆች ያስተላልፉ።',
+    'እዚህ ራውተር የለም። ከ Angular `provideRouter(routes)` በኋላ `provideMoleculeRouter()` ን ከራውቲንግ ቦንድ (`@molecule/app-routing-angular-router`) ወደ አፕሊኬሽኑ አቅራቢዎች ያክሉ፣ ወይም `router` ወደ `provideMolecule` ያስተላልፉ። አፕሊኬሽኑ ይህንን ካደረገ፣ የማዞሪያ ቦንዱ ከዚህ ማሰሪያ የቆየ ነው፡ ያዘምኑት (`npm install @molecule/app-routing-angular-router@latest`)።',
+  'angular.error.noRoutedView':
+    'ይህ የማዞሪያ ቦንድ እዚህ ለማሳየት ምንም የተዘዋወረ እይታ የለውም፡ ገጹን እንደ ልጆች ይለፉ። መተግበሪያው `@molecule/app-routing-angular-router` ን የሚያገናኝ ከሆነ፣ ያ ቦንድ ከዚህ ማሰሪያ የቆየ ነው፡ ያዘምኑት (`npm install @molecule/app-routing-angular-router@latest`)።',
   'angular.error.useStorageOutsideProvider': 'useStorageProvider በStorageProvider ውስጥ መጠቀም አለበት',
   'angular.error.useThemeOutsideProvider': 'useThemeProvider በThemeProvider ውስጥ መጠቀም አለበት',
   'angular.error.useWorkspaceOutsideProvider':

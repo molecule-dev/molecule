@@ -6,7 +6,7 @@ export const ig: SvelteTranslations = {
   'svelte.error.noAuthClient': 'A choghi klayenti ikike na kontekst',
   'svelte.error.noThemeProvider': 'A choghi onye na-enye isiokwu na kontekst',
   'svelte.error.noRouter':
-    'Enweghị rawụta ebe a. Debe `MoleculeRouterProvider` site na njikọ routing (`@molecule/app-routing-sveltekit`) na mgbọrọgwụ `+layout.svelte`, ma ọ bụ kpọọ `setMoleculeContext({ router })` ebe ahụ.',
+    'Enweghị rawụta ebe a. Tinye `MoleculeRouterProvider` site na njikọ routing (`@molecule/app-routing-sveltekit`) na mgbọrọgwụ `+layout.svelte`, ma ọ bụ kpọọ `setMoleculeContext({ router })` ebe ahụ. Ọ bụrụ na ngwa ahụ emeela nke a, njikọ routing ya adịla ochie karịa njikọ a: melite ya (`npm install @molecule/app-routing-sveltekit@latest`).',
   'svelte.error.noI18nProvider': 'A choghi onye na-enye i18n na kontekst',
   'svelte.error.noHttpClient': 'A choghi klayenti HTTP na kontekst',
   'svelte.error.noStorageProvider': 'A choghi onye na-enye nchekwa na kontekst',
@@ -21,7 +21,7 @@ export const ig: SvelteTranslations = {
   'svelte.error.useAuthOutsideProvider': "A ga-eji useAuthClient mee ihe n'ime Onye Na-enye ikike",
   'svelte.error.useThemeOutsideProvider': "A ga-eji useThemeProvider n'ime ThemeProvider",
   'svelte.error.useRouterOutsideProvider':
-    'Enweghị rawụta ebe a. Debe `MoleculeRouterProvider` site na njikọ routing (`@molecule/app-routing-sveltekit`) na mgbọrọgwụ `+layout.svelte`, ma ọ bụ kpọọ `setMoleculeContext({ router })` ebe ahụ.',
+    'Enweghị rawụta ebe a. Tinye `MoleculeRouterProvider` site na njikọ routing (`@molecule/app-routing-sveltekit`) na mgbọrọgwụ `+layout.svelte`, ma ọ bụ kpọọ `setMoleculeContext({ router })` ebe ahụ. Ọ bụrụ na ngwa ahụ emeela nke a, njikọ routing ya adịla ochie karịa njikọ a: melite ya (`npm install @molecule/app-routing-sveltekit@latest`).',
   'svelte.error.noRoutedView':
     "Enweghị echiche a na-agagharị ebe a. SvelteKit na-enye nhazi peeji ya dị ka `children`: gafere `{@render children()}` n'ime ihe a.",
   'svelte.error.useHttpOutsideProvider': "A ga-eji useHttpClient mee ihe n'ime HttpProvider",

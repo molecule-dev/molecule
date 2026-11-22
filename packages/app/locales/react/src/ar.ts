@@ -10,9 +10,9 @@ export const ar: ReactTranslations = {
   'react.error.useLoggerOutsideProvider': 'يجب استخدام useLoggerProvider داخل LoggerProvider',
   'react.error.usePreviewOutsideProvider': 'يجب استخدام usePreviewProvider داخل PreviewProvider',
   'react.error.useRouterOutsideProvider':
-    'لا يوجد موجه هنا. قم بتثبيت مكون موجه من رابط توجيه التطبيق (`BrowserRouter` من `@molecule/app-routing-react-router`)، أو مرر `router` إلى `MoleculeProvider`.',
+    'لا يوجد موجّه هنا. قم بتثبيت مكوّن الموجّه من رابط التوجيه الخاص بالتطبيق (`BrowserRouter` من `@molecule/app-routing-react-router`)، أو مرّر `router` إلى `MoleculeProvider`. إذا كان التطبيق يقوم بذلك بالفعل، فإن رابط التوجيه الخاص به أقدم من هذا الربط: قم بتحديثه (`npm install @molecule/app-routing-react-router@latest`).',
   'react.error.noRoutedView':
-    'لا يحتوي رابط التوجيه هذا على عرض موجه لعرضه هنا: مرر الصفحة كعناصر فرعية بدلاً من ذلك.',
+    'لا يحتوي هذا الربط التوجيهي على عرض مُوجَّه لعرضه هنا: مرِّر الصفحة كعناصر فرعية بدلاً من ذلك. إذا كان التطبيق يستخدم التوجيه باستخدام `@molecule/app-routing-react-router` ، فإن هذا الربط أقدم من هذا الربط: قم بتحديثه (`npm install @molecule/app-routing-react-router@latest`).',
   'react.error.useStoreOutsideProvider': 'يجب استخدام useStateProvider داخل StateProvider',
   'react.error.useStorageOutsideProvider': 'يجب استخدام useStorageProvider داخل StorageProvider',
   'react.error.useThemeOutsideProvider': 'يجب استخدام useThemeProvider داخل ThemeProvider',

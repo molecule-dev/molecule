@@ -31,7 +31,7 @@ export const km: SolidTranslations = {
   'solid.error.useLoggerOutsideProvider': 'useLoggerProvider ត្រូវតែប្រើនៅក្នុង LoggerProvider',
   'solid.error.oauthFailed': 'ការចូល OAuth បរាជ័យ',
   'solid.error.useRouterOutsideProvider':
-    'គ្មានរ៉ោតទ័រនៅទីនេះទេ។ ប្រើ `MoleculeRouterProvider` ពី​ចំណង​រ៉ោតទ័រ (`@molecule/app-routing-solid-router`) ជា `root` របស់រ៉ោតទ័រ ឬបញ្ជូន `router` ទៅ `MoleculeProvider` ។',
+    'គ្មានរ៉ោតទ័រនៅទីនេះទេ។ ប្រើ `MoleculeRouterProvider` ពីចំណងរ៉ោតទ័រ (`@molecule/app-routing-solid-router`) ជា `root` របស់រ៉ោតទ័រ ឬបញ្ជូន `router` ទៅ `MoleculeProvider` ។ ប្រសិនបើកម្មវិធីធ្វើបែបនេះរួចហើយ ចំណងរ៉ោតទ័ររបស់វាចាស់ជាងចំណងនេះ៖ ធ្វើបច្ចុប្បន្នភាពវា (`npm install @molecule/app-routing-solid-router@latest`)។',
   'solid.error.noRoutedView':
     'គ្មានទិដ្ឋភាពដែលបានកំណត់ផ្លូវនៅទីនេះទេ។ Solid Router ផ្តល់ឱ្យសមាសភាគផ្លូវមួយនូវផ្លូវដែលដាក់ជាសំណាញ់របស់វាជា `props.children` ៖ ប្រើនេះជា `component` របស់ផ្លូវ ឬបញ្ជូនទំព័រនេះជាកូន។',
   'solid.error.useStoreOutsideProvider': 'useStateProvider ត្រូវតែប្រើនៅក្នុង StateProvider',

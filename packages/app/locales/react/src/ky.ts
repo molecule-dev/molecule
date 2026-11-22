@@ -14,9 +14,9 @@ export const ky: ReactTranslations = {
   'react.error.usePreviewOutsideProvider':
     'usePreviewProvider PreviewProvider ичинде колдонулушу керек',
   'react.error.useRouterOutsideProvider':
-    'Бул жерде роутер жок. Колдонмонун маршруттоо байланышынан роутердин компонентин орнотуңуз (`BrowserRouter` from `@molecule/app-routing-react-router`) же `router` `MoleculeProvider` өткөрүп бериңиз.',
+    'Бул жерде роутер жок. Колдонмонун маршруттоо байланышынан роутердин компонентин орнотуңуз (`BrowserRouter` from `@molecule/app-routing-react-router`) же `router` `MoleculeProvider` өткөрүңүз. Эгер колдонмо муну мурунтан эле жасап жатса, анын маршруттоо байланышы бул байланыштан эски: аны жаңыртыңыз (`npm install @molecule/app-routing-react-router@latest`).',
   'react.error.noRoutedView':
-    'Бул маршруттоо байланышынын бул жерде көрсөтүү үчүн маршрутталган көрүнүшү жок: анын ордуна баракты балдар катары өткөрүп бериңиз.',
+    'Бул маршруттоо байланышынын бул жерде көрсөтүү үчүн маршрутталган көрүнүшү жок: анын ордуна баракты балдар катары өткөрүп бериңиз. Эгерде колдонмо `@molecule/app-routing-react-router` менен маршруттаса, ал байланыш бул байланыштан эски: аны жаңыртыңыз (`npm install @molecule/app-routing-react-router@latest`).',
   'react.error.useStoreOutsideProvider': 'useStateProvider StateProvider ичинде колдонулушу керек',
   'react.error.useStorageOutsideProvider':
     'useStorageProvider StorageProvider ичинде колдонулушу керек',

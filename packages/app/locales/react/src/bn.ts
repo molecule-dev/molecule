@@ -17,9 +17,9 @@ export const bn: ReactTranslations = {
   'react.error.usePreviewOutsideProvider':
     'usePreviewProvider অবশ্যই একটি PreviewProvider এর মধ্যে ব্যবহার করতে হবে',
   'react.error.useRouterOutsideProvider':
-    'এখানে কোনো রাউটার নেই। অ্যাপের রাউটিং বন্ড থেকে একটি রাউটার কম্পোনেন্ট মাউন্ট করুন ( `@molecule/app-routing-react-router` থেকে `BrowserRouter` ), অথবা `MoleculeProvider` এ `router` পাস করুন।',
+    'এখানে কোনো রাউটার নেই। অ্যাপের রাউটিং বন্ড থেকে একটি রাউটার কম্পোনেন্ট মাউন্ট করুন ( `@molecule/app-routing-react-router` থেকে `BrowserRouter` ), অথবা `MoleculeProvider` এ `router` পাস করুন। যদি অ্যাপটি ইতিমধ্যেই এটি করে থাকে, তাহলে এর রাউটিং বন্ডটি এই বাইন্ডিংয়ের চেয়ে পুরোনো: এটি আপডেট করুন (`npm install @molecule/app-routing-react-router@latest`)।',
   'react.error.noRoutedView':
-    'এই রাউটিং বন্ডে এখানে রেন্ডার করার জন্য কোনো রাউটেড ভিউ নেই: এর পরিবর্তে পেজটিকে চাইল্ড হিসেবে পাস করুন।',
+    'এই রাউটিং বন্ডে এখানে রেন্ডার করার জন্য কোনো রাউটেড ভিউ নেই: এর পরিবর্তে পেজটিকে চাইল্ড হিসেবে পাস করুন। যদি অ্যাপটি `@molecule/app-routing-react-router` দিয়ে রাউট করে, তাহলে সেই বন্ডটি এই বাইন্ডিংয়ের চেয়ে পুরোনো: এটি আপডেট করুন (`npm install @molecule/app-routing-react-router@latest`)।',
   'react.error.useStoreOutsideProvider':
     'useStateProvider অবশ্যই একটি StateProvider এর মধ্যে ব্যবহার করতে হবে',
   'react.error.useStorageOutsideProvider':

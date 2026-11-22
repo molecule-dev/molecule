@@ -9,7 +9,7 @@ export const kk: SvelteTranslations = {
   'svelte.error.noThemeProvider':
     '\u0422\u0430\u049b\u044b\u0440\u044b\u043f \u043f\u0440\u043e\u0432\u0430\u0439\u0434\u0435\u0440\u0456 \u043a\u043e\u043d\u0442\u0435\u043a\u0441\u0442\u0442\u0435 \u0442\u0430\u0431\u044b\u043b\u043c\u0430\u0434\u044b',
   'svelte.error.noRouter':
-    'Мұнда маршрутизатор жоқ. `+layout.svelte` түбіріндегі маршруттау байланысынан (`@molecule/app-routing-sveltekit`) `MoleculeRouterProvider` құрылғысын орнатыңыз немесе сол жерде `setMoleculeContext({ router })` шақырыңыз.',
+    'Мұнда маршрутизатор жоқ. `+layout.svelte` түбіріндегі маршруттау байланысынан (`@molecule/app-routing-sveltekit`) `MoleculeRouterProvider` құрылғысын орнатыңыз немесе сол жерде `setMoleculeContext({ router })` шақырыңыз. Егер қолданба мұны бұрыннан жасаса, оның маршруттау байланысы осы байланыстан ескі: оны жаңартыңыз (`npm install @molecule/app-routing-sveltekit@latest`).',
   'svelte.error.noI18nProvider':
     'I18n \u043f\u0440\u043e\u0432\u0430\u0439\u0434\u0435\u0440\u0456 \u043a\u043e\u043d\u0442\u0435\u043a\u0441\u0442\u0442\u0435 \u0442\u0430\u0431\u044b\u043b\u043c\u0430\u0434\u044b',
   'svelte.error.noHttpClient':
@@ -32,7 +32,7 @@ export const kk: SvelteTranslations = {
   'svelte.error.useThemeOutsideProvider':
     'useThemeProvider ThemeProvider ішінде пайдаланылуы керек',
   'svelte.error.useRouterOutsideProvider':
-    'Мұнда маршрутизатор жоқ. `+layout.svelte` түбіріндегі маршруттау байланысынан (`@molecule/app-routing-sveltekit`) `MoleculeRouterProvider` құрылғысын орнатыңыз немесе сол жерде `setMoleculeContext({ router })` шақырыңыз.',
+    'Мұнда маршрутизатор жоқ. `+layout.svelte` түбіріндегі маршруттау байланысынан (`@molecule/app-routing-sveltekit`) `MoleculeRouterProvider` құрылғысын орнатыңыз немесе сол жерде `setMoleculeContext({ router })` шақырыңыз. Егер қолданба мұны бұрыннан жасаса, оның маршруттау байланысы осы байланыстан ескі: оны жаңартыңыз (`npm install @molecule/app-routing-sveltekit@latest`).',
   'svelte.error.noRoutedView':
     'Мұнда бағыттау көрінісі жоқ. SvelteKit өз бетіне `children` ретінде орналасу береді: осы компоненттің ішіне `{@render children()}` жібереді.',
   'svelte.error.useHttpOutsideProvider': 'useHttpClient HttpProvider ішінде пайдаланылуы керек',

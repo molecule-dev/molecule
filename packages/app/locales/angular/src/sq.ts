@@ -18,9 +18,9 @@ export const sq: AngularTranslations = {
   'angular.error.usePreviewOutsideProvider':
     'usePreviewProvider duhet të përdoret brenda një PreviewProvider',
   'angular.error.useRouterOutsideProvider':
-    'Nuk ka router këtu. Shtoni `provideMoleculeRouter()` nga lidhja e routing-ut (`@molecule/app-routing-angular-router`) te ofruesit e aplikacionit, pas `provideRouter(routes)` të Angular, ose kaloni `router` te `provideMolecule`.',
+    'Nuk ka router këtu. Shtoni `provideMoleculeRouter()` nga lidhja e routing-ut (`@molecule/app-routing-angular-router`) te ofruesit e aplikacionit, pas `provideRouter(routes)` të Angular, ose kaloni `router` te `provideMolecule`. Nëse aplikacioni e bën tashmë këtë, lidhja e tij e routing-ut është më e vjetër se kjo lidhje: përditësojeni atë (`npm install @molecule/app-routing-angular-router@latest`).',
   'angular.error.noRoutedView':
-    "Kjo lidhje rrugëzimi nuk ka pamje të rrugëzuar për t'u paraqitur këtu: kalojeni faqen si fëmijë në vend të kësaj.",
+    "Kjo lidhje rrugëzimi nuk ka pamje të rrugëzuar për t'u paraqitur këtu: kalojeni faqen si fëmijë në vend të kësaj. Nëse aplikacioni rrugëzon me `@molecule/app-routing-angular-router`, ajo lidhje është më e vjetër se kjo lidhje: përditësojeni atë (`npm install @molecule/app-routing-angular-router@latest`).",
   'angular.error.useStorageOutsideProvider':
     'useStorageProvider duhet të përdoret brenda një StorageProvider',
   'angular.error.useThemeOutsideProvider':

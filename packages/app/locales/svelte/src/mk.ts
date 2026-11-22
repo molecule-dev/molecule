@@ -9,7 +9,7 @@ export const mk: SvelteTranslations = {
   'svelte.error.noThemeProvider':
     '\u041f\u0440\u043e\u0432\u0430\u0458\u0434\u0435\u0440\u043e\u0442 \u043d\u0430 \u0442\u0435\u043c\u0430\u0442\u0430 \u043d\u0435 \u0435 \u043d\u0430\u0458\u0434\u0435\u043d \u0432\u043e \u043a\u043e\u043d\u0442\u0435\u043a\u0441\u0442\u043e\u0442',
   'svelte.error.noRouter':
-    'Нема рутер овде. Монтирајте го `MoleculeRouterProvider` од врската за рутирање (`@molecule/app-routing-sveltekit`) во коренот `+layout.svelte` или повикајте го `setMoleculeContext({ router })` таму.',
+    'Нема рутер овде. Монтирајте го `MoleculeRouterProvider` од врската за рутирање (`@molecule/app-routing-sveltekit`) во коренот `+layout.svelte` или повикајте го `setMoleculeContext({ router })` таму. Ако апликацијата веќе го прави ова, нејзината врска за рутирање е постара од ова поврзување: ажурирајте го (`npm install @molecule/app-routing-sveltekit@latest`).',
   'svelte.error.noI18nProvider':
     'I18n \u043f\u0440\u043e\u0432\u0430\u0458\u0434\u0435\u0440\u043e\u0442 \u043d\u0435 \u0435 \u043d\u0430\u0458\u0434\u0435\u043d \u0432\u043e \u043a\u043e\u043d\u0442\u0435\u043a\u0441\u0442\u043e\u0442',
   'svelte.error.noHttpClient':
@@ -34,7 +34,7 @@ export const mk: SvelteTranslations = {
   'svelte.error.useThemeOutsideProvider':
     'useThemeProvider мора да се користи во рамките на ThemeProvider',
   'svelte.error.useRouterOutsideProvider':
-    'Нема рутер овде. Монтирајте го `MoleculeRouterProvider` од врската за рутирање (`@molecule/app-routing-sveltekit`) во коренот `+layout.svelte` или повикајте го `setMoleculeContext({ router })` таму.',
+    'Нема рутер овде. Монтирајте го `MoleculeRouterProvider` од врската за рутирање (`@molecule/app-routing-sveltekit`) во коренот `+layout.svelte` или повикајте го `setMoleculeContext({ router })` таму. Ако апликацијата веќе го прави ова, нејзината врска за рутирање е постара од ова поврзување: ажурирајте го (`npm install @molecule/app-routing-sveltekit@latest`).',
   'svelte.error.noRoutedView':
     'Нема рутиран приказ овде. SvelteKit му дава на распоредот на страницата како `children`: пренесе `{@render children()}` во оваа компонента.',
   'svelte.error.useHttpOutsideProvider':

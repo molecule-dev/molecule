@@ -20,9 +20,9 @@ export const hi: AngularTranslations = {
   'angular.error.usePreviewOutsideProvider':
     'usePreviewProvider का उपयोग PreviewProvider के अंदर किया जाना चाहिए',
   'angular.error.useRouterOutsideProvider':
-    'यहां कोई राउटर नहीं है। एंगुलर के `provideRouter(routes)` के बाद, ऐप के प्रदाताओं में रूटिंग बॉन्ड (`@molecule/app-routing-angular-router`) से `provideMoleculeRouter()` जोड़ें, या `provideMolecule` को `router` पास करें।',
+    'यहां कोई राउटर नहीं है। रूटिंग बॉन्ड (`@molecule/app-routing-angular-router`) से `provideMoleculeRouter()` ऐप के प्रोवाइडर्स में एंगुलर के `provideRouter(routes)` के बाद जोड़ें, या `router` को `provideMolecule` पर पास करें। यदि ऐप पहले से ही ऐसा करता है, तो इसका रूटिंग बॉन्ड इस बाइंडिंग से पुराना है: इसे अपडेट करें (`npm install @molecule/app-routing-angular-router@latest`)।',
   'angular.error.noRoutedView':
-    'इस राउटिंग बॉन्ड में यहां रेंडर करने के लिए कोई राउटेड व्यू नहीं है: इसके बजाय पेज को चाइल्ड के रूप में पास करें।',
+    'इस राउटिंग बॉन्ड में रेंडर करने के लिए कोई राउटेड व्यू नहीं है: इसके बजाय पेज को चाइल्ड के रूप में पास करें। यदि ऐप `@molecule/app-routing-angular-router` के साथ राउट करता है, तो वह बॉन्ड इस बाइंडिंग से पुराना है: इसे अपडेट करें (`npm install @molecule/app-routing-angular-router@latest`)।',
   'angular.error.useStorageOutsideProvider':
     'useStorageProvider का उपयोग StorageProvider के अंदर किया जाना चाहिए',
   'angular.error.useThemeOutsideProvider':

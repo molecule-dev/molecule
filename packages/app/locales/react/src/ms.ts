@@ -11,9 +11,9 @@ export const ms: ReactTranslations = {
   'react.error.usePreviewOutsideProvider':
     'usePreviewProvider mesti digunakan dalam PreviewProvider',
   'react.error.useRouterOutsideProvider':
-    'Tiada penghala di sini. Pasang komponen penghala daripada ikatan penghalaan aplikasi (`BrowserRouter` daripada `@molecule/app-routing-react-router`), atau hantarkan `router` kepada `MoleculeProvider`.',
+    'Tiada penghala di sini. Pasang komponen penghala daripada ikatan penghalaan aplikasi (`BrowserRouter` daripada `@molecule/app-routing-react-router`), atau serahkan `router` kepada `MoleculeProvider`. Jika aplikasi sudah melakukan ini, ikatan penghalaannya lebih lama daripada ikatan ini: kemas kininya (`npm install @molecule/app-routing-react-router@latest`).',
   'react.error.noRoutedView':
-    'Ikatan penghalaan ini tidak mempunyai paparan penghalaan untuk dipaparkan di sini: sebaliknya, lulus halaman sebagai anak.',
+    'Ikatan penghalaan ini tidak mempunyai paparan penghalaan untuk dipaparkan di sini: sebaliknya, luluskan halaman sebagai anak. Jika aplikasi menghalakan dengan `@molecule/app-routing-react-router`, ikatan tersebut lebih lama daripada pengikatan ini: kemas kininya (`npm install @molecule/app-routing-react-router@latest`).',
   'react.error.useStoreOutsideProvider': 'useStateProvider mesti digunakan dalam StateProvider',
   'react.error.useStorageOutsideProvider':
     'useStorageProvider mesti digunakan dalam StorageProvider',

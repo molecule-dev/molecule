@@ -17,9 +17,9 @@ export const ky: AngularTranslations = {
   'angular.error.usePreviewOutsideProvider':
     'usePreviewProvider PreviewProvider ичинде колдонулушу керек',
   'angular.error.useRouterOutsideProvider':
-    "Бул жерде роутер жок. Angular'дын `provideRouter(routes)` кийин, маршруттоо байланышынан (`@molecule/app-routing-angular-router`) `provideMoleculeRouter()` колдонмонун провайдерлерине кошуңуз же `router` `provideMolecule` өткөрүңүз.",
+    "Бул жерде роутер жок. Angular'дын `provideRouter(routes)` кийин, маршруттоо байланышынан (`@molecule/app-routing-angular-router`) `provideMoleculeRouter()` колдонмонун провайдерлерине кошуңуз же `router` `provideMolecule` өткөрүп бериңиз. Эгер колдонмо муну мурунтан эле жасаса, анын маршруттоо байланышы бул байланыштан эски: аны жаңыртыңыз (`npm install @molecule/app-routing-angular-router@latest`).",
   'angular.error.noRoutedView':
-    'Бул маршруттоо байланышынын бул жерде көрсөтүү үчүн маршрутталган көрүнүшү жок: анын ордуна баракты балдар катары өткөрүп бериңиз.',
+    'Бул маршруттоо байланышынын бул жерде көрсөтүү үчүн маршруттоо көрүнүшү жок: анын ордуна баракты балдар катары өткөрүп бериңиз. Эгерде колдонмо `@molecule/app-routing-angular-router` менен маршруттаса, ал байланыш бул байланыштан эски: аны жаңыртыңыз (`npm install @molecule/app-routing-angular-router@latest`).',
   'angular.error.useStorageOutsideProvider':
     'useStorageProvider StorageProvider ичинде колдонулушу керек',
   'angular.error.useThemeOutsideProvider':

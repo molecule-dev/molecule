@@ -3,9 +3,9 @@ import type { VueTranslations } from './types.js'
 /** Vue translations for Estonian. */
 export const et: VueTranslations = {
   'vue.error.useRouterOutsideProvider':
-    'Siin pole ruuterit. Mähi rakendus marsruutimissidemest (`@molecule/app-routing-vue-router`) `MoleculeRouterProvider`-i või anna `router` edasi `moleculePlugin`.',
+    'Siin pole ruuterit. Mähi rakendus marsruutimissidemest (`@molecule/app-routing-vue-router`) `MoleculeRouterProvider`-i või anna `router` edasi `moleculePlugin`. Kui rakendus seda juba teeb, on selle marsruutimisside sellest sidemest vanem: uuenda seda (`npm install @molecule/app-routing-vue-router@latest`).',
   'vue.error.noRoutedView':
-    'Sellel marsruutimissidemel pole siin renderdamiseks marsruutitud vaadet: edastage leht hoopis alamlehtedena.',
+    'Sellel marsruutimissidemel pole siin renderdamiseks marsruutitud vaadet: edasta leht hoopis lastena. Kui rakendus marsruutib `@molecule/app-routing-vue-router` abil, on see side sellest sidumisest vanem: uuenda seda (`npm install @molecule/app-routing-vue-router@latest`).',
   'vue.error.useStoreOutsideProvider': 'useStateProvider tuleb kasutada StateProvider sees',
   'vue.error.useThemeOutsideProvider': 'useThemeProvider tuleb kasutada ThemeProvider sees',
   'vue.error.useAuthOutsideProvider': 'useAuthClient tuleb kasutada AuthProvider sees',

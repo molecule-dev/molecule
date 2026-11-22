@@ -11,9 +11,9 @@ export const mt: ReactTranslations = {
   'react.error.useLoggerOutsideProvider': 'useLoggerProvider irid jintuża ġewwa LoggerProvider',
   'react.error.usePreviewOutsideProvider': 'usePreviewProvider irid jintuża ġewwa PreviewProvider',
   'react.error.useRouterOutsideProvider':
-    "M'hemm l-ebda router hawn. Immonta komponent tar-router mir-routing bond tal-app (`BrowserRouter` minn `@molecule/app-routing-react-router`), jew għaddi `router` lil `MoleculeProvider`.",
+    "M'hemm l-ebda router hawn. Immonta komponent tar-router mir-routing bond tal-app (`BrowserRouter` minn `@molecule/app-routing-react-router`), jew għaddi `router` lil `MoleculeProvider`. Jekk l-app diġà tagħmel dan, ir-routing bond tagħha huwa eqdem minn dan ir-rabta: aġġornah (`npm install @molecule/app-routing-react-router@latest`).",
   'react.error.noRoutedView':
-    "Din il-konnessjoni tar-rotta m'għandhiex veduta rottata biex tirrendi hawn: għaddi l-paġna bħala tfal minflok.",
+    "Din ir-rabta tar-rottaġġ m'għandhiex veduta rottata biex tirrendi hawn: għaddi l-paġna bħala tfal minflok. Jekk l-app tirrotta bi `@molecule/app-routing-react-router`, dik ir-rabta hija eqdem minn din ir-rabta: aġġornaha (`npm install @molecule/app-routing-react-router@latest`).",
   'react.error.useStoreOutsideProvider': 'useStateProvider irid jintuża ġewwa StateProvider',
   'react.error.useStorageOutsideProvider': 'useStorageProvider irid jintuża ġewwa StorageProvider',
   'react.error.useThemeOutsideProvider': 'useThemeProvider irid jintuża ġewwa ThemeProvider',

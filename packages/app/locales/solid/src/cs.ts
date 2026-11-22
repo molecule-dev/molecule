@@ -35,7 +35,7 @@ export const cs: SolidTranslations = {
     'useLoggerProvider musí být použit v rámci LoggerProvider',
   'solid.error.oauthFailed': 'Přihlášení přes OAuth se nezdařilo',
   'solid.error.useRouterOutsideProvider':
-    'Zde není žádný router. Použijte `MoleculeRouterProvider` z routing bond (`@molecule/app-routing-solid-router`) jako `root` routeru nebo předejte `router` do `MoleculeProvider`.',
+    'Žádný router zde není. Jako `root` routeru použijte `MoleculeRouterProvider` z routing bond (`@molecule/app-routing-solid-router`) nebo předejte `router` do `MoleculeProvider`. Pokud to aplikace již dělá, její routing bond je starší než tato vazba: aktualizujte ji (`npm install @molecule/app-routing-solid-router@latest`).',
   'solid.error.noRoutedView':
     'Zde není žádný směrovaný pohled. Solid Router přidělí komponentě trasy její vnořenou trasu jako `props.children`: použijte to jako `component` trasy nebo předejte stránku jako podřízené prvky.',
   'solid.error.useStoreOutsideProvider': 'useStateProvider musí být použit v rámci StateProvider.',

@@ -3,8 +3,9 @@ import type { VueTranslations } from './types.js'
 /** Vue translations for Chinese (Traditional). */
 export const zhTW: VueTranslations = {
   'vue.error.useRouterOutsideProvider':
-    '這裡沒有路由器。將應用程式包裝在路由綁定（`@molecule/app-routing-vue-router`）的`MoleculeRouterProvider`中，或將`router`傳遞給`moleculePlugin`。',
-  'vue.error.noRoutedView': '此路由綁定沒有要渲染的路由視圖：請將頁面作為子頁面傳遞。',
+    '這裡沒有路由器。請將應用程式包裝在路由綁定（`@molecule/app-routing-vue-router`）中的`MoleculeRouterProvider`中，或將`router`傳遞給`moleculePlugin`。如果應用程式已經這樣做了，則其路由綁定版本低於此綁定：請更新它（`npm install @molecule/app-routing-vue-router@latest`）。',
+  'vue.error.noRoutedView':
+    '此路由綁定中沒有要渲染的路由視圖：請將頁面作為子元素傳遞。如果應用程式路由使用了`@molecule/app-routing-vue-router` `npm install @molecule/app-routing-vue-router@latest`）。',
   'vue.error.useStoreOutsideProvider': 'useStateProvider 必須在 StateProvider 內使用',
   'vue.error.useThemeOutsideProvider': 'useThemeProvider 必須在 ThemeProvider 內使用',
   'vue.error.useAuthOutsideProvider': 'useAuthClient 必須在 AuthProvider 內使用',

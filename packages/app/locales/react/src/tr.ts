@@ -14,9 +14,9 @@ export const tr: ReactTranslations = {
   'react.error.usePreviewOutsideProvider':
     'usePreviewProvider bir PreviewProvider içinde kullanılmalıdır',
   'react.error.useRouterOutsideProvider':
-    'Burada yönlendirici yok. Uygulamanın yönlendirme bağından bir yönlendirici bileşeni ekleyin ( `@molecule/app-routing-react-router` `BrowserRouter` ) veya `router` `MoleculeProvider` iletin.',
+    'Burada yönlendirici yok. Uygulamanın yönlendirme bağından bir yönlendirici bileşeni ekleyin ( `@molecule/app-routing-react-router` `BrowserRouter` ) veya `router` `MoleculeProvider` iletin. Uygulama bunu zaten yapıyorsa, yönlendirme bağı bu bağlamadan daha eskidir: onu güncelleyin (`npm install @molecule/app-routing-react-router@latest`).',
   'react.error.noRoutedView':
-    'Bu yönlendirme bağlantısının burada görüntülenecek yönlendirilmiş bir görünümü yok: bunun yerine sayfayı alt öğeler olarak iletin.',
+    'Bu yönlendirme bağlantısında burada işlenecek yönlendirilmiş bir görünüm yok: bunun yerine sayfayı alt öğeler olarak geçirin. Uygulama `@molecule/app-routing-react-router` ile yönlendiriliyorsa, bu bağlantı bu bağlamadan daha eskidir: onu güncelleyin (`npm install @molecule/app-routing-react-router@latest`).',
   'react.error.useStoreOutsideProvider':
     'useStateProvider bir StateProvider içinde kullanılmalıdır',
   'react.error.useStorageOutsideProvider':

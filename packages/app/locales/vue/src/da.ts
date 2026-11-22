@@ -3,9 +3,9 @@ import type { VueTranslations } from './types.js'
 /** Vue translations for Danish. */
 export const da: VueTranslations = {
   'vue.error.useRouterOutsideProvider':
-    'Ingen router her. Pak appen ind i `MoleculeRouterProvider` fra routingbindingen (`@molecule/app-routing-vue-router`), eller send `router` til `moleculePlugin`.',
+    'Ingen router her. Pak appen ind i `MoleculeRouterProvider` fra routingbindingen (`@molecule/app-routing-vue-router`), eller send `router` til `moleculePlugin`. Hvis appen allerede gør dette, er dens routingbinding ældre end denne binding: opdater den (`npm install @molecule/app-routing-vue-router@latest`).',
   'vue.error.noRoutedView':
-    'Denne routing-binding har ingen routed view at gengive her: send siden som underordnede i stedet.',
+    'Denne routing-binding har ingen routed view at gengive her: send i stedet siden som underordnede. Hvis appen router med `@molecule/app-routing-vue-router`, er den binding ældre end denne binding: opdater den (`npm install @molecule/app-routing-vue-router@latest`).',
   'vue.error.useStoreOutsideProvider': 'useStateProvider skal bruges inden for en StateProvider',
   'vue.error.useThemeOutsideProvider': 'useThemeProvider skal bruges inden for en ThemeProvider',
   'vue.error.useAuthOutsideProvider': 'useAuthClient skal bruges inden for en AuthProvider',

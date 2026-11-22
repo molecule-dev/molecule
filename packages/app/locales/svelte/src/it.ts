@@ -6,7 +6,7 @@ export const it: SvelteTranslations = {
   'svelte.error.noAuthClient': 'Client di autenticazione non trovato nel contesto',
   'svelte.error.noThemeProvider': 'Provider del tema non trovato nel contesto',
   'svelte.error.noRouter':
-    'Nessun router qui. Monta `MoleculeRouterProvider` dal collegamento di routing (`@molecule/app-routing-sveltekit`) nella radice `+layout.svelte`, oppure chiama `setMoleculeContext({ router })` lì.',
+    "Nessun router qui. Monta `MoleculeRouterProvider` dal binding di routing (`@molecule/app-routing-sveltekit`) nella directory radice `+layout.svelte` oppure chiama `setMoleculeContext({ router })` lì. Se l'app lo fa già, il suo binding di routing è più vecchio di questo: aggiornalo (`npm install @molecule/app-routing-sveltekit@latest`).",
   'svelte.error.noI18nProvider': 'Provider i18n non trovato nel contesto',
   'svelte.error.noHttpClient': 'Client HTTP non trovato nel contesto',
   'svelte.error.noStorageProvider': 'Provider di archiviazione non trovato nel contesto',
@@ -28,7 +28,7 @@ export const it: SvelteTranslations = {
   'svelte.error.useThemeOutsideProvider':
     "useThemeProvider deve essere utilizzato all'interno di un ThemeProvider",
   'svelte.error.useRouterOutsideProvider':
-    'Nessun router qui. Monta `MoleculeRouterProvider` dal collegamento di routing (`@molecule/app-routing-sveltekit`) nella radice `+layout.svelte`, oppure chiama `setMoleculeContext({ router })` lì.',
+    "Nessun router qui. Monta `MoleculeRouterProvider` dal binding di routing (`@molecule/app-routing-sveltekit`) nella directory radice `+layout.svelte` oppure chiama `setMoleculeContext({ router })` lì. Se l'app lo fa già, il suo binding di routing è più vecchio di questo: aggiornalo (`npm install @molecule/app-routing-sveltekit@latest`).",
   'svelte.error.noRoutedView':
     "Nessuna vista instradata qui. SvelteKit assegna a un layout la sua pagina come `children`: passa `{@render children()}` all'interno di questo componente.",
   'svelte.error.useHttpOutsideProvider':

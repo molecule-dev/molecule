@@ -15,9 +15,9 @@ export const be: ReactTranslations = {
   'react.error.usePreviewOutsideProvider':
     'usePreviewProvider павінен выкарыстоўвацца ўнутры PreviewProvider',
   'react.error.useRouterOutsideProvider':
-    'Тут няма маршрутызатара. Падключыце кампанент маршрутызатара з маршрутызацыйнай сувязі праграмы (`BrowserRouter` з `@molecule/app-routing-react-router`) або перадайце `router` да `MoleculeProvider`.',
+    'Тут няма маршрутызатара. Падключыце кампанент маршрутызатара з маршрутызацыйнай сувязі праграмы (`BrowserRouter` з `@molecule/app-routing-react-router`) або перадайце `router` да `MoleculeProvider`. Калі праграма ўжо робіць гэта, яе маршрутызацыйная сувязь старэйшая за гэту прывязку: абнавіце яе (`npm install @molecule/app-routing-react-router@latest`).',
   'react.error.noRoutedView':
-    'Гэтая маршрутная сувязь не мае маршрутнага выгляду для рэндэрынгу: замест гэтага перадайце старонку як даччыныя элементы.',
+    'Гэтая прывязка маршрутызацыі не мае маршрутызаванага прадстаўлення для рэндэрынгу: замест гэтага перадайце старонку як даччыныя элементы. Калі праграма маршрутызуецца з `@molecule/app-routing-react-router`, гэтая прывязка старэйшая за гэту прывязку: абнавіце яе (`npm install @molecule/app-routing-react-router@latest`).',
   'react.error.useStoreOutsideProvider':
     'useStateProvider павінен выкарыстоўвацца ўнутры StateProvider',
   'react.error.useStorageOutsideProvider':

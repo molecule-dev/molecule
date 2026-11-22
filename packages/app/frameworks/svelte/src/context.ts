@@ -251,7 +251,7 @@ export function getRouter(): Router {
     throw new I18nError(
       'svelte.error.noRouter',
       undefined,
-      'No router here. Mount `MoleculeRouterProvider` from the routing bond (`@molecule/app-routing-sveltekit`) in the root `+layout.svelte`, or call `setMoleculeContext({ router })` there.',
+      'No router here. Mount `MoleculeRouterProvider` from the routing bond (`@molecule/app-routing-sveltekit`) in the root `+layout.svelte`, or call `setMoleculeContext({ router })` there. If the app already does this, its routing bond is older than this binding: update it (`npm install @molecule/app-routing-sveltekit@latest`).',
     )
   return router
 }
@@ -451,7 +451,7 @@ export function useRouterInstance(): Router {
     throw new I18nError(
       'svelte.error.useRouterOutsideProvider',
       undefined,
-      'No router here. Mount `MoleculeRouterProvider` from the routing bond (`@molecule/app-routing-sveltekit`) in the root `+layout.svelte`, or call `setMoleculeContext({ router })` there.',
+      'No router here. Mount `MoleculeRouterProvider` from the routing bond (`@molecule/app-routing-sveltekit`) in the root `+layout.svelte`, or call `setMoleculeContext({ router })` there. If the app already does this, its routing bond is older than this binding: update it (`npm install @molecule/app-routing-sveltekit@latest`).',
     )
   return router
 }

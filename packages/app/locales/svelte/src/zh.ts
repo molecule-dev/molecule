@@ -9,7 +9,7 @@ export const zh: SvelteTranslations = {
   'svelte.error.noThemeProvider':
     '\u5728\u4e0a\u4e0b\u6587\u4e2d\u672a\u627e\u5230\u4e3b\u9898\u63d0\u4f9b\u8005',
   'svelte.error.noRouter':
-    '这里没有路由器。从根目录`+layout.svelte`中的路由绑定（`@molecule/app-routing-sveltekit`）挂载`MoleculeRouterProvider`，或者在那里调用`setMoleculeContext({ router })`。',
+    '这里没有路由器。请从根目录`+layout.svelte`中的路由绑定（`@molecule/app-routing-sveltekit`）挂载`MoleculeRouterProvider`，或者在那里调用`setMoleculeContext({ router })`。如果应用已经这样做了，则其路由绑定版本低于此绑定：请更新它（`npm install @molecule/app-routing-sveltekit@latest`）。',
   'svelte.error.noI18nProvider':
     '\u5728\u4e0a\u4e0b\u6587\u4e2d\u672a\u627e\u5230I18n\u63d0\u4f9b\u8005',
   'svelte.error.noHttpClient':
@@ -29,7 +29,7 @@ export const zh: SvelteTranslations = {
   'svelte.error.useAuthOutsideProvider': 'useAuthClient 必须在 AuthProvider 中使用。',
   'svelte.error.useThemeOutsideProvider': 'useThemeProvider 必须在 ThemeProvider 中使用',
   'svelte.error.useRouterOutsideProvider':
-    '这里没有路由器。从根目录`+layout.svelte`中的路由绑定（`@molecule/app-routing-sveltekit`）挂载`MoleculeRouterProvider`，或者在那里调用`setMoleculeContext({ router })`。',
+    '这里没有路由器。请从根目录`+layout.svelte`中的路由绑定（`@molecule/app-routing-sveltekit`）挂载`MoleculeRouterProvider`，或者在那里调用`setMoleculeContext({ router })`。如果应用已经这样做了，则其路由绑定版本低于此绑定：请更新它（`npm install @molecule/app-routing-sveltekit@latest`）。',
   'svelte.error.noRoutedView':
     '这里没有路由视图。SvelteKit 将布局的页面作为`children`传递给组件：在该组件内部传递`{@render children()}`。',
   'svelte.error.useHttpOutsideProvider': 'useHttpClient 必须在 HttpProvider 中使用。',

@@ -3,9 +3,9 @@ import type { VueTranslations } from './types.js'
 /** Vue translations for Armenian. */
 export const hy: VueTranslations = {
   'vue.error.useRouterOutsideProvider':
-    'Այստեղ ռաութեր չկա։ Փաթեթավորեք հավելվածը `MoleculeRouterProvider` ում ռաութինգի կապից (`@molecule/app-routing-vue-router`) կամ փոխանցեք `router` `moleculePlugin` ին։',
+    'Այստեղ ռաութեր չկա։ Փաթեթավորեք հավելվածը `MoleculeRouterProvider` ում ռաութինգի կապից (`@molecule/app-routing-vue-router`) կամ փոխանցեք `router` `moleculePlugin` ին։ Եթե հավելվածն արդեն անում է սա, ապա դրա ռաութինգի կապը ավելի հին է, քան այս կապը. թարմացրեք այն (`npm install @molecule/app-routing-vue-router@latest`):',
   'vue.error.noRoutedView':
-    'Այս երթուղային կապը չունի երթուղային տեսք այստեղ ցուցադրելու համար. փոխարենը էջը փոխանցեք որպես դուստր էջեր։',
+    'Այս երթուղային կապը չունի երթուղային տեսք այստեղ ցուցադրելու համար. փոխարենը էջը փոխանցեք որպես դուստր։ Եթե հավելվածը երթուղայնացվում է `@molecule/app-routing-vue-router`, այդ կապը ավելի հին է, քան այս կապը. թարմացրեք այն (`npm install @molecule/app-routing-vue-router@latest`):',
   'vue.error.useStoreOutsideProvider':
     'useStateProvider-\u0568 \u057a\u0565\u057f\u0584 \u0567 \u0585\u0563\u057f\u0561\u0563\u0578\u0580\u056e\u057e\u056b StateProvider-\u056b \u0576\u0565\u0580\u057d\u0578\u0582\u0574',
   'vue.error.useThemeOutsideProvider':

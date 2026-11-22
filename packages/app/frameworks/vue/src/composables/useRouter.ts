@@ -50,7 +50,7 @@ export function useRouterInstance(): Router {
     throw new I18nError(
       'vue.error.useRouterOutsideProvider',
       undefined,
-      'No router here. Wrap the app in `MoleculeRouterProvider` from the routing bond (`@molecule/app-routing-vue-router`), or pass `router` to `moleculePlugin`.',
+      'No router here. Wrap the app in `MoleculeRouterProvider` from the routing bond (`@molecule/app-routing-vue-router`), or pass `router` to `moleculePlugin`. If the app already does this, its routing bond is older than this binding: update it (`npm install @molecule/app-routing-vue-router@latest`).',
     )
   }
   return router

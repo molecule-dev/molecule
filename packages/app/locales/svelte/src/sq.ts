@@ -6,7 +6,7 @@ export const sq: SvelteTranslations = {
   'svelte.error.noAuthClient': 'Klienti i autentikimit nuk u gjet n\u00eb kontekst',
   'svelte.error.noThemeProvider': 'Ofruesi i tem\u00ebs nuk u gjet n\u00eb kontekst',
   'svelte.error.noRouter':
-    'Nuk ka router këtu. Montoni `MoleculeRouterProvider` nga lidhja e routing (`@molecule/app-routing-sveltekit`) në rrënjën `+layout.svelte`, ose thirrni `setMoleculeContext({ router })` atje.',
+    'Nuk ka router këtu. Montoni `MoleculeRouterProvider` nga lidhja e routing-ut (`@molecule/app-routing-sveltekit`) në rrënjën `+layout.svelte`, ose thirrni `setMoleculeContext({ router })` atje. Nëse aplikacioni e bën tashmë këtë, lidhja e tij e routing-ut është më e vjetër se kjo lidhje: përditësojeni atë (`npm install @molecule/app-routing-sveltekit@latest`).',
   'svelte.error.noI18nProvider': 'Ofruesi i18n nuk u gjet n\u00eb kontekst',
   'svelte.error.noHttpClient': 'Klienti HTTP nuk u gjet n\u00eb kontekst',
   'svelte.error.noStorageProvider': 'Ofruesi i ruajtjes nuk u gjet n\u00eb kontekst',
@@ -25,7 +25,7 @@ export const sq: SvelteTranslations = {
   'svelte.error.useThemeOutsideProvider':
     'useThemeProvider duhet të përdoret brenda një ThemeProvider',
   'svelte.error.useRouterOutsideProvider':
-    'Nuk ka router këtu. Montoni `MoleculeRouterProvider` nga lidhja e routing (`@molecule/app-routing-sveltekit`) në rrënjën `+layout.svelte`, ose thirrni `setMoleculeContext({ router })` atje.',
+    'Nuk ka router këtu. Montoni `MoleculeRouterProvider` nga lidhja e routing-ut (`@molecule/app-routing-sveltekit`) në rrënjën `+layout.svelte`, ose thirrni `setMoleculeContext({ router })` atje. Nëse aplikacioni e bën tashmë këtë, lidhja e tij e routing-ut është më e vjetër se kjo lidhje: përditësojeni atë (`npm install @molecule/app-routing-sveltekit@latest`).',
   'svelte.error.noRoutedView':
     'Nuk ka pamje të drejtuar këtu. SvelteKit i jep një paraqitjeje faqes së saj si `children`: kalon `{@render children()}` brenda këtij komponenti.',
   'svelte.error.useHttpOutsideProvider': 'useHttpClient duhet të përdoret brenda një HttpProvider',

@@ -6,7 +6,7 @@ export const el: SvelteTranslations = {
   'svelte.error.noAuthClient': 'Πελάτης ελέγχου ταυτότητας δεν βρέθηκε στο πλαίσιο',
   'svelte.error.noThemeProvider': 'Πάροχος θέματος δεν βρέθηκε στο πλαίσιο',
   'svelte.error.noRouter':
-    'Δεν υπάρχει δρομολογητής εδώ. Τοποθετήστε `MoleculeRouterProvider` από τον δεσμό δρομολόγησης (`@molecule/app-routing-sveltekit`) στη ρίζα `+layout.svelte` ή καλέστε εκεί `setMoleculeContext({ router })` .',
+    'Δεν υπάρχει δρομολογητής εδώ. Τοποθετήστε `MoleculeRouterProvider` από τον δεσμό δρομολόγησης (`@molecule/app-routing-sveltekit`) στη ρίζα `+layout.svelte` ή καλέστε το `setMoleculeContext({ router })` εκεί. Εάν η εφαρμογή το κάνει ήδη αυτό, ο δεσμός δρομολόγησής της είναι παλαιότερος από αυτόν τον δεσμό: ενημερώστε τον (`npm install @molecule/app-routing-sveltekit@latest`).',
   'svelte.error.noI18nProvider': 'Πάροχος i18n δεν βρέθηκε στο πλαίσιο',
   'svelte.error.noHttpClient': 'Πελάτης HTTP δεν βρέθηκε στο πλαίσιο',
   'svelte.error.noStorageProvider': 'Πάροχος αποθήκευσης δεν βρέθηκε στο πλαίσιο',
@@ -27,7 +27,7 @@ export const el: SvelteTranslations = {
   'svelte.error.useThemeOutsideProvider':
     'Το useThemeProvider πρέπει να χρησιμοποιείται μέσα σε ένα ThemeProvider',
   'svelte.error.useRouterOutsideProvider':
-    'Δεν υπάρχει δρομολογητής εδώ. Τοποθετήστε `MoleculeRouterProvider` από τον δεσμό δρομολόγησης (`@molecule/app-routing-sveltekit`) στη ρίζα `+layout.svelte` ή καλέστε εκεί `setMoleculeContext({ router })` .',
+    'Δεν υπάρχει δρομολογητής εδώ. Τοποθετήστε `MoleculeRouterProvider` από τον δεσμό δρομολόγησης (`@molecule/app-routing-sveltekit`) στη ρίζα `+layout.svelte` ή καλέστε το `setMoleculeContext({ router })` εκεί. Εάν η εφαρμογή το κάνει ήδη αυτό, ο δεσμός δρομολόγησής της είναι παλαιότερος από αυτόν τον δεσμό: ενημερώστε τον (`npm install @molecule/app-routing-sveltekit@latest`).',
   'svelte.error.noRoutedView':
     'Δεν υπάρχει δρομολογημένη προβολή εδώ. Το SvelteKit δίνει σε μια διάταξη τη σελίδα της ως `children`: περνάει το `{@render children()}` μέσα σε αυτό το στοιχείο.',
   'svelte.error.useHttpOutsideProvider':

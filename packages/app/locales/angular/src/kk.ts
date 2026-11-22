@@ -17,9 +17,9 @@ export const kk: AngularTranslations = {
   'angular.error.usePreviewOutsideProvider':
     'usePreviewProvider PreviewProvider ішінде пайдаланылуы керек',
   'angular.error.useRouterOutsideProvider':
-    'Мұнда маршрутизатор жоқ. Angular-дың `provideRouter(routes)` кейін қолданба провайдерлеріне маршруттау байланысынан (`@molecule/app-routing-angular-router`) `provideMoleculeRouter()` қосыңыз немесе `router` ды `provideMolecule` ке беріңіз.',
+    'Мұнда маршрутизатор жоқ. Angular-дың `provideRouter(routes)` кейін қолданба провайдерлеріне бағыттау байланысынан (`@molecule/app-routing-angular-router`) `provideMoleculeRouter()` қосыңыз немесе `router` ды `provideMolecule` ке беріңіз. Егер қолданба мұны бұрыннан жасаса, оның бағыттау байланысы бұл байланыстырудан ескі: оны жаңартыңыз (`npm install @molecule/app-routing-angular-router@latest`).',
   'angular.error.noRoutedView':
-    'Бұл бағыттау байланысының мұнда көрсетуге болатын бағыттау көрінісі жоқ: оның орнына бетті бала ретінде беріңіз.',
+    'Бұл бағыттау байланысының мұнда көрсетуге арналған бағыттау көрінісі жоқ: оның орнына бетті бала ретінде беріңіз. Егер қолданба `@molecule/app-routing-angular-router` арқылы бағыттаса, бұл байланыс осы байланыстырудан ескірек: оны жаңартыңыз (`npm install @molecule/app-routing-angular-router@latest`).',
   'angular.error.useStorageOutsideProvider':
     'useStorageProvider StorageProvider ішінде пайдаланылуы керек',
   'angular.error.useThemeOutsideProvider':

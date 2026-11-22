@@ -6,7 +6,7 @@ export const eu: SvelteTranslations = {
   'svelte.error.noAuthClient': 'Autentifikazio-bezeroa ez da aurkitu testuinguruan',
   'svelte.error.noThemeProvider': 'Gai-hornitzailea ez da aurkitu testuinguruan',
   'svelte.error.noRouter':
-    'Ez dago bideratzailerik hemen. Muntatu `MoleculeRouterProvider` bideratze loturatik (`@molecule/app-routing-sveltekit`) `+layout.svelte` erroan, edo deitu `setMoleculeContext({ router })` han.',
+    'Ez dago bideratzailerik hemen. Muntatu `MoleculeRouterProvider` bideratze loturatik (`@molecule/app-routing-sveltekit`) `+layout.svelte` erroan, edo deitu `setMoleculeContext({ router })` han. Aplikazioak dagoeneko egiten badu hau, bere bideratze lotura lotura hau baino zaharragoa da: eguneratu (`npm install @molecule/app-routing-sveltekit@latest`).',
   'svelte.error.noI18nProvider': 'I18n hornitzailea ez da aurkitu testuinguruan',
   'svelte.error.noHttpClient': 'HTTP bezeroa ez da aurkitu testuinguruan',
   'svelte.error.noStorageProvider': 'Biltegiratze-hornitzailea ez da aurkitu testuinguruan',
@@ -26,7 +26,7 @@ export const eu: SvelteTranslations = {
   'svelte.error.useThemeOutsideProvider':
     'useThemeProvider ThemeProvider baten barruan erabili behar da',
   'svelte.error.useRouterOutsideProvider':
-    'Ez dago bideratzailerik hemen. Muntatu `MoleculeRouterProvider` bideratze loturatik (`@molecule/app-routing-sveltekit`) `+layout.svelte` erroan, edo deitu `setMoleculeContext({ router })` han.',
+    'Ez dago bideratzailerik hemen. Muntatu `MoleculeRouterProvider` bideratze loturatik (`@molecule/app-routing-sveltekit`) `+layout.svelte` erroan, edo deitu `setMoleculeContext({ router })` han. Aplikazioak dagoeneko egiten badu hau, bere bideratze lotura lotura hau baino zaharragoa da: eguneratu (`npm install @molecule/app-routing-sveltekit@latest`).',
   'svelte.error.noRoutedView':
     'Ez dago bideratutako ikuspegirik hemen. SvelteKit-ek diseinuari bere orrialdea `children` gisa ematen dio: pasa `{@render children()}` osagai honen barruan.',
   'svelte.error.useHttpOutsideProvider':

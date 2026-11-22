@@ -17,9 +17,9 @@ export const uz: AngularTranslations = {
   'angular.error.usePreviewOutsideProvider':
     'usePreviewProvider PreviewProvider ichida ishlatilishi kerak',
   'angular.error.useRouterOutsideProvider':
-    "Bu yerda router yo'q. Angular'ning `provideRouter(routes)` dan keyin marshrutizatsiya bog'lanishidan (`@molecule/app-routing-angular-router`) `provideMoleculeRouter()` ilova provayderlariga qo'shing yoki `router` ni `provideMolecule` ga o'tkazing.",
+    "Bu yerda marshrutizator yo'q. Angular'ning `provideRouter(routes)` dan keyin marshrutizator bog'lanishidan (`@molecule/app-routing-angular-router`) `provideMoleculeRouter()` ilova provayderlariga qo'shing yoki `router` ni `provideMolecule` ga o'tkazing. Agar ilova buni allaqachon amalga oshirgan bo'lsa, uning marshrutizator bog'lanishi ushbu bog'lanishdan eski: uni yangilang (`npm install @molecule/app-routing-angular-router@latest`).",
   'angular.error.noRoutedView':
-    "Ushbu marshrutlash bog'lanishida bu yerda ko'rsatish uchun marshrutlangan ko'rinish yo'q: buning o'rniga sahifani bolalar sifatida uzating.",
+    "Ushbu marshrutlash bog'lanishida bu yerda ko'rsatish uchun marshrutlash ko'rinishi yo'q: sahifani bolalar sifatida uzating. Agar ilova `@molecule/app-routing-angular-router` bilan marshrutlashsa, bu bog'lanish ushbu bog'lanishdan eskiroq: uni yangilang (`npm install @molecule/app-routing-angular-router@latest`).",
   'angular.error.useStorageOutsideProvider':
     'useStorageProvider StorageProvider ichida ishlatilishi kerak',
   'angular.error.useThemeOutsideProvider':

@@ -17,9 +17,9 @@ export const ka: AngularTranslations = {
   'angular.error.usePreviewOutsideProvider':
     'usePreviewProvider უნდა გამოიყენოთ PreviewProvider-ის შიგნით',
   'angular.error.useRouterOutsideProvider':
-    'აქ როუტერი არ არის. დაამატეთ `provideMoleculeRouter()` მარშრუტიზაციის ბმიდან (`@molecule/app-routing-angular-router`) აპლიკაციის პროვაიდერებს, Angular-ის `provideRouter(routes)` ის შემდეგ, ან გადაეცით `router` `provideMolecule` ს.',
+    'აქ როუტერი არ არის. დაამატეთ `provideMoleculeRouter()` მარშრუტიზაციის ბმიდან (`@molecule/app-routing-angular-router`) აპლიკაციის პროვაიდერებს, Angular-ის `provideRouter(routes)` ის შემდეგ, ან გადაეცით `router` `provideMolecule` ს. თუ აპლიკაცია უკვე აკეთებს ამას, მისი მარშრუტიზაციის ბმა უფრო ძველია, ვიდრე ეს ბმა: განაახლეთ იგი (`npm install @molecule/app-routing-angular-router@latest`).',
   'angular.error.noRoutedView':
-    'ამ მარშრუტიზაციის კავშირს არ აქვს მარშრუტიზებული ხედი აქ გამოსატანად: გვერდი გადაეცით, როგორც შვილობილი.',
+    'ამ მარშრუტიზაციის ბმას არ აქვს მარშრუტიზებული ხედი აქ გამოსატანად: გვერდი გადაეცით როგორც შვილობილი. თუ აპლიკაცია მარშრუტიზირდება `@molecule/app-routing-angular-router` ით, ეს ბმა უფრო ძველია, ვიდრე ეს ბმა: განაახლეთ იგი (`npm install @molecule/app-routing-angular-router@latest`).',
   'angular.error.useStorageOutsideProvider':
     'useStorageProvider უნდა გამოიყენოთ StorageProvider-ის შიგნით',
   'angular.error.useThemeOutsideProvider':

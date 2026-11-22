@@ -10,9 +10,9 @@ export const si: ReactTranslations = {
   'react.error.useLoggerOutsideProvider': 'useLoggerProvider LoggerProvider තුළ භාවිතා කළ යුතුය',
   'react.error.usePreviewOutsideProvider': 'usePreviewProvider PreviewProvider තුළ භාවිතා කළ යුතුය',
   'react.error.useRouterOutsideProvider':
-    'මෙහි රවුටරයක් නොමැත. යෙදුමේ රවුටින් බන්ධනයෙන් රවුටර සංරචකයක් සවි කරන්න ( `@molecule/app-routing-react-router` වෙතින් `BrowserRouter` ), නැතහොත් `router` `MoleculeProvider` වෙත යවන්න.',
+    'මෙහි රවුටරයක් නැත. යෙදුමේ රවුටින් බන්ධනයෙන් රවුටර සංරචකයක් සවි කරන්න ( `@molecule/app-routing-react-router` වෙතින් `BrowserRouter` ), නැතහොත් `router` `MoleculeProvider` වෙත යවන්න. යෙදුම දැනටමත් මෙය කරන්නේ නම්, එහි රවුටින් බන්ධනය මෙම බන්ධනයට වඩා පැරණි ය: එය යාවත්කාලීන කරන්න (`npm install @molecule/app-routing-react-router@latest`).',
   'react.error.noRoutedView':
-    'මෙම මාර්ගගත කිරීමේ බන්ධනයට මෙහි විදැහුම් කිරීමට මාර්ගගත දසුනක් නොමැත: ඒ වෙනුවට පිටුව ළමා ලෙස ලබා දෙන්න.',
+    'මෙම රවුටින් බන්ධනයට මෙහි විදැහුම් කිරීමට රවුටඩ් දසුනක් නොමැත: ඒ වෙනුවට පිටුව ළමා ලෙස යවන්න. යෙදුම `@molecule/app-routing-react-router` සමඟ රවුට් කරන්නේ නම්, එම බන්ධනය මෙම බන්ධනයට වඩා පැරණි ය: එය යාවත්කාලීන කරන්න (`npm install @molecule/app-routing-react-router@latest`).',
   'react.error.useStoreOutsideProvider': 'useStateProvider StateProvider තුළ භාවිතා කළ යුතුය',
   'react.error.useStorageOutsideProvider': 'useStorageProvider StorageProvider තුළ භාවිතා කළ යුතුය',
   'react.error.useThemeOutsideProvider': 'useThemeProvider ThemeProvider තුළ භාවිතා කළ යුතුය',

@@ -3,9 +3,9 @@ import type { VueTranslations } from './types.js'
 /** Vue translations for Maltese. */
 export const mt: VueTranslations = {
   'vue.error.useRouterOutsideProvider':
-    "M'hemm l-ebda router hawn. Daħħal l-app `MoleculeRouterProvider` mir-rottazzjoni (`@molecule/app-routing-vue-router`), jew għaddi `router` lil `moleculePlugin`.",
+    "M'hemm l-ebda router hawn. Daħħal l-app `MoleculeRouterProvider` mir-rabta tar-routing (`@molecule/app-routing-vue-router`), jew għaddi `router` lil `moleculePlugin`. Jekk l-app diġà tagħmel dan, ir-rabta tar-routing tagħha hija eqdem minn din ir-rabta: aġġornaha (`npm install @molecule/app-routing-vue-router@latest`).",
   'vue.error.noRoutedView':
-    "Din il-konnessjoni tar-rotta m'għandhiex veduta rottata biex tirrendi hawn: għaddi l-paġna bħala tfal minflok.",
+    "Din ir-rabta tar-rottaġġ m'għandhiex veduta rottata biex tirrendi hawn: għaddi l-paġna bħala tfal minflok. Jekk l-app tirrotta bi `@molecule/app-routing-vue-router`, dik ir-rabta hija eqdem minn din ir-rabta: aġġornaha (`npm install @molecule/app-routing-vue-router@latest`).",
   'vue.error.useStoreOutsideProvider': 'useStateProvider irid jintuza gewwa StateProvider',
   'vue.error.useThemeOutsideProvider': 'useThemeProvider irid jintuza gewwa ThemeProvider',
   'vue.error.useAuthOutsideProvider': 'useAuthClient irid jintuza gewwa AuthProvider',

@@ -14,9 +14,9 @@ export const lv: AngularTranslations = {
   'angular.error.usePreviewOutsideProvider':
     'usePreviewProvider jāizmanto PreviewProvider ietvaros',
   'angular.error.useRouterOutsideProvider':
-    'Šeit nav maršrutētāja. Pievienojiet `provideMoleculeRouter()` no maršrutēšanas saites (`@molecule/app-routing-angular-router`) lietotnes nodrošinātājiem pēc Angular `provideRouter(routes)` vai nododiet `router` funkcijai `provideMolecule`.',
+    'Šeit nav maršrutētāja. Pievienojiet `provideMoleculeRouter()` no maršrutēšanas saites (`@molecule/app-routing-angular-router`) lietotnes nodrošinātājiem pēc Angular `provideRouter(routes)` vai nododiet `router` lietotājam `provideMolecule`. Ja lietotne to jau dara, tās maršrutēšanas saite ir vecāka par šo saistījumu: atjauniniet to (`npm install @molecule/app-routing-angular-router@latest`).',
   'angular.error.noRoutedView':
-    'Šai maršrutēšanas saitei nav maršrutēta skata, ko šeit atveidot: tā vietā nododiet lapu kā apakšlapas.',
+    'Šai maršrutēšanas saitei nav maršrutēta skata, ko šeit renderēt: tā vietā nododiet lapu kā bērnlapas. Ja lietotne maršrutē ar `@molecule/app-routing-angular-router`, šī saite ir vecāka par šo saistīšanu: atjauniniet to (`npm install @molecule/app-routing-angular-router@latest`).',
   'angular.error.useStorageOutsideProvider':
     'useStorageProvider jāizmanto StorageProvider ietvaros',
   'angular.error.useThemeOutsideProvider': 'useThemeProvider jāizmanto ThemeProvider ietvaros',

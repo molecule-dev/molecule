@@ -3,9 +3,9 @@ import type { VueTranslations } from './types.js'
 /** Vue translations for Indonesian. */
 export const id: VueTranslations = {
   'vue.error.useRouterOutsideProvider':
-    'Tidak ada router di sini. Bungkus aplikasi dalam `MoleculeRouterProvider` dari ikatan perutean (`@molecule/app-routing-vue-router`), atau berikan `router` ke `moleculePlugin`.',
+    'Tidak ada router di sini. Bungkus aplikasi dalam `MoleculeRouterProvider` dari binding routing (`@molecule/app-routing-vue-router`), atau berikan `router` ke `moleculePlugin`. Jika aplikasi sudah melakukan ini, binding routing-nya lebih lama dari binding ini: perbarui (`npm install @molecule/app-routing-vue-router@latest`).',
   'vue.error.noRoutedView':
-    'Ikatan perutean ini tidak memiliki tampilan yang dirutekan untuk dirender di sini: teruskan halaman sebagai anak-anaknya saja.',
+    'Ikatan routing ini tidak memiliki tampilan yang di-routing untuk dirender di sini: berikan halaman sebagai children sebagai gantinya. Jika aplikasi melakukan routing dengan `@molecule/app-routing-vue-router`, ikatan tersebut lebih lama daripada binding ini: perbarui (`npm install @molecule/app-routing-vue-router@latest`).',
   'vue.error.useStoreOutsideProvider': 'useStateProvider harus digunakan di dalam StateProvider',
   'vue.error.useThemeOutsideProvider': 'useThemeProvider harus digunakan di dalam ThemeProvider',
   'vue.error.useAuthOutsideProvider': 'useAuthClient harus digunakan di dalam AuthProvider',

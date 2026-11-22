@@ -53,7 +53,7 @@ export function useRouterInstance(): Router {
     throw new I18nError(
       'solid.error.useRouterOutsideProvider',
       undefined,
-      "No router here. Use `MoleculeRouterProvider` from the routing bond (`@molecule/app-routing-solid-router`) as the router's `root`, or pass `router` to `MoleculeProvider`.",
+      "No router here. Use `MoleculeRouterProvider` from the routing bond (`@molecule/app-routing-solid-router`) as the router's `root`, or pass `router` to `MoleculeProvider`. If the app already does this, its routing bond is older than this binding: update it (`npm install @molecule/app-routing-solid-router@latest`).",
     )
   }
   return router

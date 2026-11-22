@@ -34,7 +34,7 @@ export const si: SolidTranslations = {
     'useLoggerProvider LoggerProvider එකක් තුළ භාවිතා කළ යුතුය.',
   'solid.error.oauthFailed': 'OAuth පුරනය වීම අසාර්ථක විය',
   'solid.error.useRouterOutsideProvider':
-    'මෙහි රවුටරයක් නොමැත. රවුටරයේ `root` ලෙස රවුටින් බන්ධනයෙන් (`@molecule/app-routing-solid-router`) `MoleculeRouterProvider` භාවිතා කරන්න, නැතහොත් `MoleculeProvider` වෙත `router` යවන්න.',
+    'මෙහි රවුටරයක් නොමැත. රවුටරයේ `root` ලෙස රවුටින් බන්ධනයෙන් (`@molecule/app-routing-solid-router`) `MoleculeRouterProvider` භාවිතා කරන්න, නැතහොත් `MoleculeProvider` වෙත `router` ලබා දෙන්න. යෙදුම දැනටමත් මෙය කරන්නේ නම්, එහි රවුටින් බන්ධනය මෙම බන්ධනයට වඩා පැරණි ය: එය යාවත්කාලීන කරන්න (`npm install @molecule/app-routing-solid-router@latest`).',
   'solid.error.noRoutedView':
     'මෙහි මාර්ගගත දසුනක් නොමැත. Solid Router මඟින් මාර්ගයක සංරචකයට එහි කැදලි මාර්ගය `props.children` ලෙස ලබා දෙයි: මෙය මාර්ගයක `component` ලෙස භාවිතා කරන්න, නැතහොත් පිටුව දරුවන් ලෙස ලබා දෙන්න.',
   'solid.error.useStoreOutsideProvider': 'useStateProvider StateProvider එකක් තුළ භාවිතා කළ යුතුය.',

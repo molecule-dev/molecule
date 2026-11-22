@@ -3,9 +3,9 @@ import type { VueTranslations } from './types.js'
 /** Vue translations for Hausa. */
 export const ha: VueTranslations = {
   'vue.error.useRouterOutsideProvider':
-    "Babu na'urar sadarwa ta zamani a nan. Naɗa manhajar a cikin `MoleculeRouterProvider` daga haɗin na'urar sadarwa (`@molecule/app-routing-vue-router`), ko kuma a wuce `router` zuwa `moleculePlugin`.",
+    "Babu na'urar sadarwa a nan. Naɗa manhajar a cikin `MoleculeRouterProvider` daga haɗin haɗin gwiwa (`@molecule/app-routing-vue-router`), ko kuma wuce `router` zuwa `moleculePlugin`. Idan manhajar ta riga ta yi haka, haɗin haɗin gwiwa ta tsufa fiye da wannan haɗin gwiwa: sabunta shi (`npm install @molecule/app-routing-vue-router@latest`).",
   'vue.error.noRoutedView':
-    "Wannan haɗin hanyar sadarwa ba shi da wani ra'ayi da za a nuna a nan: wuce shafin a matsayin yara maimakon haka.",
+    "Wannan haɗin hanyar sadarwa ba shi da wani ra'ayi da za a nuna a nan: wuce shafin a matsayin yara maimakon haka. Idan manhajar ta yi tafiya tare da `@molecule/app-routing-vue-router`, wannan haɗin ya girmi wannan haɗin: sabunta shi (`npm install @molecule/app-routing-vue-router@latest`).",
   'vue.error.useStoreOutsideProvider':
     'Dole ne a yi amfani da useStateProvider a cikin StateProvider',
   'vue.error.useThemeOutsideProvider':

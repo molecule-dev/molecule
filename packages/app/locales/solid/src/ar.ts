@@ -32,7 +32,7 @@ export const ar: SolidTranslations = {
   'solid.error.useLoggerOutsideProvider': 'يجب استخدام useLoggerProvider داخل LoggerProvider',
   'solid.error.oauthFailed': 'فشل تسجيل الدخول باستخدام OAuth',
   'solid.error.useRouterOutsideProvider':
-    'لا يوجد موجه هنا. استخدم `MoleculeRouterProvider` من رابط التوجيه (`@molecule/app-routing-solid-router`) كـ `root` للموجه، أو مرر `router` إلى `MoleculeProvider`.',
+    'لا يوجد موجّه هنا. استخدم `MoleculeRouterProvider` من رابط التوجيه (`@molecule/app-routing-solid-router`) كموجّه `root` ، أو مرّر `router` إلى `MoleculeProvider`. إذا كان التطبيق يستخدم هذا بالفعل، فإن رابط التوجيه الخاص به أقدم من هذا الربط: قم بتحديثه (`npm install @molecule/app-routing-solid-router@latest`).',
   'solid.error.noRoutedView':
     'لا يوجد عرض مُوجَّه هنا. يُعطي Solid Router مُكوِّن المسار مساره المُتداخل كـ `props.children`: استخدم هذا كـ `component` للمسار، أو مرِّر الصفحة كعناصر فرعية.',
   'solid.error.useStoreOutsideProvider': 'يجب استخدام useStateProvider داخل StateProvider',

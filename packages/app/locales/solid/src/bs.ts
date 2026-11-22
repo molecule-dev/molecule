@@ -35,7 +35,7 @@ export const bs: SolidTranslations = {
     'useLoggerProvider se mora koristiti unutar LoggerProvider-a',
   'solid.error.oauthFailed': 'Prijava putem OAuth-a nije uspjela',
   'solid.error.useRouterOutsideProvider':
-    'Ovdje nema rutera. Koristite `MoleculeRouterProvider` iz veze usmjeravanja (`@molecule/app-routing-solid-router`) kao `root` rutera ili proslijedite `router` `MoleculeProvider`.',
+    'Ovdje nema rutera. Koristite `MoleculeRouterProvider` iz veze usmjeravanja (`@molecule/app-routing-solid-router`) kao `root` rutera ili proslijedite `router` `MoleculeProvider`. Ako aplikacija već to radi, njena veza usmjeravanja je starija od ove veze: ažurirajte je (`npm install @molecule/app-routing-solid-router@latest`).',
   'solid.error.noRoutedView':
     'Ovdje nema usmjerenog prikaza. Solid Router daje komponenti rute njenu ugniježđenu rutu kao `props.children`: koristite ovo kao `component` rute ili proslijedite stranicu kao djecu.',
   'solid.error.useStoreOutsideProvider':

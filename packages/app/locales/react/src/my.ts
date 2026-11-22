@@ -15,9 +15,9 @@ export const my: ReactTranslations = {
   'react.error.usePreviewOutsideProvider':
     'usePreviewProvider ကို PreviewProvider အတွင်းတွင် အသုံးပြုရပါမည်',
   'react.error.useRouterOutsideProvider':
-    "ဤနေရာတွင် router မရှိပါ။ app's routing bond (`BrowserRouter` from `@molecule/app-routing-react-router`) မှ router component တစ်ခုကို mount လုပ်ပါ သို့မဟုတ် `router` ကို `MoleculeProvider` သို့ ပေးပို့ပါ။",
+    "ဤနေရာတွင် router မရှိပါ။ app's routing bond (`BrowserRouter` from `@molecule/app-routing-react-router`) မှ router component တစ်ခုကို mount လုပ်ပါ။ သို့မဟုတ် `router` `MoleculeProvider` သို့ ပေးပို့ပါ။ app သည် ဤသို့လုပ်ဆောင်ပြီးပါက ၎င်း၏ routing bond သည် ဤ binding ထက် ပိုဟောင်းနေပါက ၎င်းကို update လုပ်ပါ။ (`npm install @molecule/app-routing-react-router@latest`)။",
   'react.error.noRoutedView':
-    'ဤ routing bond တွင် ဤနေရာတွင် render လုပ်ရန် routed view မရှိပါ။ ယင်းအစား စာမျက်နှာကို children အဖြစ် pass လုပ်ပါ။',
+    'ဒီ routing bond မှာ render လုပ်ဖို့အတွက် routed view မရှိပါဘူး- စာမျက်နှာကို children အနေနဲ့ pass လုပ်ပါ။ app က `@molecule/app-routing-react-router` နဲ့ route လုပ်ရင်၊ အဲဒီ bond က ဒီ binding ထက် ပိုဟောင်းနေရင် update လုပ်ပါ။ (`npm install @molecule/app-routing-react-router@latest`)။',
   'react.error.useStoreOutsideProvider':
     'useStateProvider ကို StateProvider အတွင်းတွင် အသုံးပြုရပါမည်',
   'react.error.useStorageOutsideProvider':

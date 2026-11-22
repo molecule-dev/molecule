@@ -39,7 +39,7 @@ export const de: SolidTranslations = {
     'useLoggerProvider muss innerhalb eines LoggerProviders verwendet werden.',
   'solid.error.oauthFailed': 'OAuth-Anmeldung fehlgeschlagen',
   'solid.error.useRouterOutsideProvider':
-    'Hier gibt es keinen Router. Verwenden Sie `MoleculeRouterProvider` aus dem Routing-Bond (`@molecule/app-routing-solid-router`) als `root` des Routers oder übergeben Sie `router` an `MoleculeProvider`.',
+    'Hier ist kein Router vorhanden. Verwenden Sie `MoleculeRouterProvider` aus dem Routing-Bond (`@molecule/app-routing-solid-router`) als `root` des Routers oder übergeben Sie `router` an `MoleculeProvider`. Falls die App dies bereits tut, ist ihr Routing-Bond älter als diese Bindung: Aktualisieren Sie ihn (`npm install @molecule/app-routing-solid-router@latest`).',
   'solid.error.noRoutedView':
     'Hier gibt es keine geroutete Ansicht. Solid Router übergibt die verschachtelte Route einer Routenkomponente als `props.children`: Verwenden Sie dies als `component` einer Route oder übergeben Sie die Seite als Kinder.',
   'solid.error.useStoreOutsideProvider':

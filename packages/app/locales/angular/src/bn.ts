@@ -20,9 +20,9 @@ export const bn: AngularTranslations = {
   'angular.error.usePreviewOutsideProvider':
     'usePreviewProvider অবশ্যই একটি PreviewProvider এর মধ্যে ব্যবহার করতে হবে',
   'angular.error.useRouterOutsideProvider':
-    'এখানে কোনো রাউটার নেই। রাউটিং বন্ড (`@molecule/app-routing-angular-router`) থেকে `provideMoleculeRouter()` ফাংশনটিকে অ্যাপের প্রোভাইডারগুলিতে, Angular-এর `provideRouter(routes)` এর পরে যোগ করুন, অথবা `provideMolecule` এ `router` পাস করুন।',
+    'এখানে কোনো রাউটার নেই। রাউটিং বন্ড (`@molecule/app-routing-angular-router`) থেকে `provideMoleculeRouter()` ফাংশনটিকে অ্যাপের প্রোভাইডারগুলিতে, Angular-এর `provideRouter(routes)` পরে যোগ করুন, অথবা `provideMolecule` এ `router` পাস করুন। যদি অ্যাপটি ইতিমধ্যেই এটি করে থাকে, তাহলে এর রাউটিং বন্ডটি এই বাইন্ডিংয়ের চেয়ে পুরোনো: এটিকে আপডেট করুন (`npm install @molecule/app-routing-angular-router@latest`)।',
   'angular.error.noRoutedView':
-    'এই রাউটিং বন্ডে এখানে রেন্ডার করার জন্য কোনো রাউটেড ভিউ নেই: এর পরিবর্তে পেজটিকে চাইল্ড হিসেবে পাস করুন।',
+    'এই রাউটিং বন্ডে এখানে রেন্ডার করার জন্য কোনো রাউটেড ভিউ নেই: এর পরিবর্তে পেজটিকে চাইল্ড হিসেবে পাস করুন। যদি অ্যাপটি `@molecule/app-routing-angular-router` দিয়ে রাউট করে, তাহলে সেই বন্ডটি এই বাইন্ডিংয়ের চেয়ে পুরোনো: এটি আপডেট করুন (`npm install @molecule/app-routing-angular-router@latest`)।',
   'angular.error.useStorageOutsideProvider':
     'useStorageProvider অবশ্যই একটি StorageProvider এর মধ্যে ব্যবহার করতে হবে',
   'angular.error.useThemeOutsideProvider':

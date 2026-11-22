@@ -7,7 +7,7 @@ export const ca: Partial<SvelteTranslations> = {
   'svelte.error.noAuthClient': "Client d'autenticació no trobat en context",
   'svelte.error.noThemeProvider': 'Proveïdor de temes no trobat en context',
   'svelte.error.noRouter':
-    "Aquí no hi ha cap encaminador. Munta `MoleculeRouterProvider` des de l'enllaç d'encaminament (`@molecule/app-routing-sveltekit`) a l'arrel `+layout.svelte`, o crida `setMoleculeContext({ router })` allà.",
+    "Aquí no hi ha cap encaminador. Munteu `MoleculeRouterProvider` des de l'enllaç d'encaminament (`@molecule/app-routing-sveltekit`) a l'arrel `+layout.svelte`, o bé crideu `setMoleculeContext({ router })` allà. Si l'aplicació ja ho fa, el seu enllaç d'encaminament és més antic que aquest enllaç: actualitzeu-lo (`npm install @molecule/app-routing-sveltekit@latest`).",
   'svelte.error.noI18nProvider': 'Proveïdor I18n no trobat en context',
   'svelte.error.noHttpClient': 'Client HTTP no trobat en context',
   'svelte.error.noStorageProvider': "Proveïdor d'emmagatzematge no trobat en context",
@@ -24,7 +24,7 @@ export const ca: Partial<SvelteTranslations> = {
   'svelte.error.useThemeOutsideProvider':
     "useThemeProvider s'ha d'utilitzar dins d'un ThemeProvider.",
   'svelte.error.useRouterOutsideProvider':
-    "Aquí no hi ha cap encaminador. Munta `MoleculeRouterProvider` des de l'enllaç d'encaminament (`@molecule/app-routing-sveltekit`) a l'arrel `+layout.svelte`, o crida `setMoleculeContext({ router })` allà.",
+    "Aquí no hi ha cap encaminador. Munteu `MoleculeRouterProvider` des de l'enllaç d'encaminament (`@molecule/app-routing-sveltekit`) a l'arrel `+layout.svelte`, o bé crideu `setMoleculeContext({ router })` allà. Si l'aplicació ja ho fa, el seu enllaç d'encaminament és més antic que aquest enllaç: actualitzeu-lo (`npm install @molecule/app-routing-sveltekit@latest`).",
   'svelte.error.noRoutedView':
     "Aquí no hi ha cap vista enrutada. SvelteKit dóna a un disseny la seva pàgina com a `children`: passa `{@render children()}` dins d'aquest component.",
   'svelte.error.useHttpOutsideProvider': "useHttpClient s'ha d'utilitzar dins d'un HttpProvider.",

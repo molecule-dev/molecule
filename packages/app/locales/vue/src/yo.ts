@@ -3,9 +3,9 @@ import type { VueTranslations } from './types.js'
 /** Vue translations for Yoruba. */
 export const yo: VueTranslations = {
   'vue.error.useRouterOutsideProvider':
-    'Kò sí olùdarí níbí. Fi `MoleculeRouterProvider` wé àpù náà láti inú ìdè ìdarí (`@molecule/app-routing-vue-router`), tàbí kí o fi `router` sí `moleculePlugin`.',
+    'Kò sí olùdarí níbí. Fi `MoleculeRouterProvider` wé àpù náà láti inú ìdè ìdarí (`@molecule/app-routing-vue-router`), tàbí kí o fi `router` sí `moleculePlugin`. Tí àpù náà bá ti ṣe èyí tẹ́lẹ̀, ìdè ìdarí rẹ̀ ti dàgbà ju ìdè yìí lọ: ṣe àtúnṣe rẹ̀ (`npm install @molecule/app-routing-vue-router@latest`).',
   'vue.error.noRoutedView':
-    'Ìdè ìtọ́sọ́nà yìí kò ní ojú ìwòye ìtọ́sọ́nà láti fi hàn níbí: fi ojú ìwé náà sílẹ̀ gẹ́gẹ́ bí ọmọdé dípò.',
+    'Ìdè ìtọ́sọ́nà yìí kò ní ojú ìwòye tí a lè fi hàn níbí: kọjá ojú ìwé náà gẹ́gẹ́ bí ọmọdé dípò. Tí àpù náà bá ń lọ pẹ̀lú `@molecule/app-routing-vue-router`, ìdè náà ti dàgbà ju ìdè yìí lọ: ṣe àtúnṣe rẹ̀ (`npm install @molecule/app-routing-vue-router@latest`).',
   'vue.error.useStoreOutsideProvider':
     'useStateProvider gb\u1ecdd\u1ecd l\u00e1ti lo n\u00edn\u00fa StateProvider',
   'vue.error.useThemeOutsideProvider':

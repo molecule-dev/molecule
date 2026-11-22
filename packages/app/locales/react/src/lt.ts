@@ -14,9 +14,9 @@ export const lt: ReactTranslations = {
   'react.error.usePreviewOutsideProvider':
     'usePreviewProvider turi būti naudojamas PreviewProvider viduje',
   'react.error.useRouterOutsideProvider':
-    'Čia nėra maršrutizatoriaus. Prijunkite maršrutizatoriaus komponentą prie programos maršrutizavimo jungties (`BrowserRouter` iš `@molecule/app-routing-react-router`) arba perduokite `router` `MoleculeProvider`.',
+    'Čia nėra maršrutizatoriaus. Prijunkite maršrutizatoriaus komponentą prie programos maršrutizavimo jungties (`BrowserRouter` iš `@molecule/app-routing-react-router`) arba perduokite `router` `MoleculeProvider`. Jei programa jau tai daro, jos maršrutizavimo jungtis yra senesnė nei šis susiejimas: atnaujinkite jį (`npm install @molecule/app-routing-react-router@latest` “).',
   'react.error.noRoutedView':
-    'Šis maršruto ryšys neturi nukreipto rodinio, kurį būtų galima čia pateikti: perduokite puslapį kaip antrinius elementus.',
+    'Šis maršruto parinkimo ryšys neturi nukreipto rodinio, kurį būtų galima čia pateikti: verčiau perduokite puslapį kaip antrinį puslapį. Jei programa maršrutizuoja su `@molecule/app-routing-react-router`, tas ryšys yra senesnis nei šis sujungimas: atnaujinkite jį (`npm install @molecule/app-routing-react-router@latest`).',
   'react.error.useStoreOutsideProvider':
     'useStateProvider turi būti naudojamas StateProvider viduje',
   'react.error.useStorageOutsideProvider':

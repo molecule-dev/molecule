@@ -14,9 +14,9 @@ export const sw: ReactTranslations = {
   'react.error.usePreviewOutsideProvider':
     'usePreviewProvider lazima utumike ndani ya PreviewProvider',
   'react.error.useRouterOutsideProvider':
-    'Hakuna kipanga njia hapa. Pachika sehemu ya kipanga njia kutoka kwa kifungo cha uelekezaji cha programu (`BrowserRouter` kutoka `@molecule/app-routing-react-router`), au pitisha `router` hadi `MoleculeProvider`.',
+    'Hakuna kipanga njia hapa. Pachika sehemu ya kipanga njia kutoka kwa kifungo cha uelekezaji cha programu (`BrowserRouter` kutoka `@molecule/app-routing-react-router`), au pitisha `router` hadi `MoleculeProvider`. Ikiwa programu tayari inafanya hivi, kifungo chake cha uelekezaji ni cha zamani kuliko kifungo hiki: kisasishe (`npm install @molecule/app-routing-react-router@latest`).',
   'react.error.noRoutedView':
-    'Kifungo hiki cha uelekezaji hakina mwonekano wa uelekezaji wa kuonyesha hapa: pitisha ukurasa kama watoto badala yake.',
+    'Kifungo hiki cha uelekezaji hakina mwonekano wa kuelekeza hapa: pitisha ukurasa kama watoto badala yake. Ikiwa programu itaelekeza na `@molecule/app-routing-react-router`, kifungo hicho ni cha zamani kuliko kiunganisho hiki: kisasishe (`npm install @molecule/app-routing-react-router@latest`).',
   'react.error.useStoreOutsideProvider': 'useStateProvider lazima utumike ndani ya StateProvider',
   'react.error.useStorageOutsideProvider':
     'useStorageProvider lazima utumike ndani ya StorageProvider',

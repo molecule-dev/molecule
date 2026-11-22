@@ -19,9 +19,9 @@ export const lt: AngularTranslations = {
   'angular.error.usePreviewOutsideProvider':
     'usePreviewProvider turi būti naudojamas PreviewProvider viduje',
   'angular.error.useRouterOutsideProvider':
-    'Čia nėra maršrutizatoriaus. Pridėkite `provideMoleculeRouter()` iš maršrutizavimo jungties (`@molecule/app-routing-angular-router`) prie programos teikėjų, po „Angular“ `provideRouter(routes)`, arba perduokite `router` `provideMolecule`.',
+    'Čia nėra maršrutizatoriaus. Pridėkite `provideMoleculeRouter()` iš maršrutizavimo jungties (`@molecule/app-routing-angular-router`) prie programos teikėjų, po „Angular“ `provideRouter(routes)`, arba perduokite `router` programai `provideMolecule`. Jei programa jau tai daro, jos maršrutizavimo jungtis yra senesnė nei šis susiejimas: atnaujinkite jį (`npm install @molecule/app-routing-angular-router@latest`).',
   'angular.error.noRoutedView':
-    'Šis maršruto ryšys neturi nukreipto rodinio, kurį būtų galima čia pateikti: perduokite puslapį kaip antrinius elementus.',
+    'Šis maršruto sujungimas neturi nukreipto rodinio, kurį būtų galima čia pateikti: verčiau perduokite puslapį kaip antrinį puslapį. Jei programa maršrutizuoja su `@molecule/app-routing-angular-router`, tas sujungimas yra senesnis nei šis sujungimas: atnaujinkite jį (`npm install @molecule/app-routing-angular-router@latest`).',
   'angular.error.useStorageOutsideProvider':
     'useStorageProvider turi būti naudojamas StorageProvider viduje',
   'angular.error.useThemeOutsideProvider':

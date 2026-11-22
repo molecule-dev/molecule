@@ -3,9 +3,9 @@ import type { VueTranslations } from './types.js'
 /** Vue translations for Malay. */
 export const ms: VueTranslations = {
   'vue.error.useRouterOutsideProvider':
-    'Tiada penghala di sini. Balutkan aplikasi dalam `MoleculeRouterProvider` daripada ikatan penghalaan (`@molecule/app-routing-vue-router`), atau serahkan `router` kepada `moleculePlugin`.',
+    'Tiada penghala di sini. Balutkan aplikasi dalam `MoleculeRouterProvider` daripada ikatan penghalaan (`@molecule/app-routing-vue-router`), atau serahkan `router` kepada `moleculePlugin`. Jika aplikasi sudah melakukan ini, ikatan penghalaannya lebih lama daripada ikatan ini: kemas kini (`npm install @molecule/app-routing-vue-router@latest`).',
   'vue.error.noRoutedView':
-    'Ikatan penghalaan ini tidak mempunyai paparan penghalaan untuk dipaparkan di sini: sebaliknya, lulus halaman sebagai anak.',
+    'Ikatan penghalaan ini tidak mempunyai paparan penghalaan untuk dipaparkan di sini: luluskan halaman sebagai anak. Jika aplikasi menghalakan dengan `@molecule/app-routing-vue-router`, ikatan tersebut lebih lama daripada pengikatan ini: kemas kininya (`npm install @molecule/app-routing-vue-router@latest`).',
   'vue.error.useStoreOutsideProvider': 'useStateProvider mesti digunakan dalam StateProvider',
   'vue.error.useThemeOutsideProvider': 'useThemeProvider mesti digunakan dalam ThemeProvider',
   'vue.error.useAuthOutsideProvider': 'useAuthClient mesti digunakan dalam AuthProvider',

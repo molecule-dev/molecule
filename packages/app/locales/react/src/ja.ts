@@ -14,9 +14,9 @@ export const ja: ReactTranslations = {
   'react.error.usePreviewOutsideProvider':
     'usePreviewProviderはPreviewProvider内で使用する必要があります',
   'react.error.useRouterOutsideProvider':
-    'ルーターはここにはありません。アプリのルーティングボンドからルーターコンポーネントをマウントするか（`@molecule/app-routing-react-router`の`BrowserRouter`）、`router` `MoleculeProvider`に渡してください。',
+    'ルーターはここにはありません。アプリのルーティングボンドからルーターコンポーネントをマウントするか（`@molecule/app-routing-react-router`の`BrowserRouter`）、`MoleculeProvider`に`router`を渡してください。アプリが既にこれを行っている場合、そのルーティングボンドはこのバインディングよりも古いため、更新してください（`npm install @molecule/app-routing-react-router@latest`）。',
   'react.error.noRoutedView':
-    'このルーティングボンドには、ここにレンダリングするルーティングビューがありません。代わりにページを子要素として渡してください。',
+    'このルーティング ボンドには、ここにレンダリングするルーティング ビューがありません。代わりにページを子要素として渡してください。アプリが`@molecule/app-routing-react-router`を使用してルーティングしている場合、そのボンドはこのバインディングよりも古いため、更新してください (`npm install @molecule/app-routing-react-router@latest`)。',
   'react.error.useStoreOutsideProvider':
     'useStateProviderはStateProvider内で使用する必要があります',
   'react.error.useStorageOutsideProvider':

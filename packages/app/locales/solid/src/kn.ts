@@ -32,7 +32,7 @@ export const kn: SolidTranslations = {
   'solid.error.useLoggerOutsideProvider': 'useLoggerProvider ಅನ್ನು LoggerProvider ನ ಒಳಗೆ ಬಳಸಬೇಕು.',
   'solid.error.oauthFailed': 'OAuth ಲಾಗಿನ್ ವಿಫಲವಾಗಿದೆ',
   'solid.error.useRouterOutsideProvider':
-    'ಇಲ್ಲಿ ರೂಟರ್ ಇಲ್ಲ. ರೂಟಿಂಗ್ ಬಾಂಡ್‌ನಿಂದ (`@molecule/app-routing-solid-router`) `MoleculeRouterProvider` ರೂಟರ್‌ನ `root` ಆಗಿ ಬಳಸಿ, ಅಥವಾ `MoleculeProvider` ಗೆ `router` ರವಾನಿಸಿ.',
+    'ಇಲ್ಲಿ ರೂಟರ್ ಇಲ್ಲ. ರೂಟಿಂಗ್ ಬಾಂಡ್‌ನಿಂದ (`@molecule/app-routing-solid-router`) `MoleculeRouterProvider` ರೂಟರ್‌ನ `root` ಆಗಿ ಬಳಸಿ, ಅಥವಾ `router` ಅನ್ನು `MoleculeProvider` ಗೆ ರವಾನಿಸಿ. ಅಪ್ಲಿಕೇಶನ್ ಈಗಾಗಲೇ ಇದನ್ನು ಮಾಡುತ್ತಿದ್ದರೆ, ಅದರ ರೂಟಿಂಗ್ ಬಾಂಡ್ ಈ ಬೈಂಡಿಂಗ್‌ಗಿಂತ ಹಳೆಯದಾಗಿದೆ: ಅದನ್ನು ನವೀಕರಿಸಿ (`npm install @molecule/app-routing-solid-router@latest`).',
   'solid.error.noRoutedView':
     'ಇಲ್ಲಿ ರೂಟೆಡ್ ವೀಕ್ಷಣೆ ಇಲ್ಲ. ಸಾಲಿಡ್ ರೂಟರ್ ರೂಟ್‌ನ ಘಟಕಕ್ಕೆ ಅದರ ನೆಸ್ಟೆಡ್ ಮಾರ್ಗವನ್ನು `props.children` ಎಂದು ನೀಡುತ್ತದೆ: ಇದನ್ನು ರೂಟ್‌ನ `component` ಆಗಿ ಬಳಸಿ, ಅಥವಾ ಪುಟವನ್ನು ಮಕ್ಕಳಂತೆ ರವಾನಿಸಿ.',
   'solid.error.useStoreOutsideProvider': 'useStateProvider ಅನ್ನು StateProvider ನೊಳಗೆ ಬಳಸಬೇಕು.',

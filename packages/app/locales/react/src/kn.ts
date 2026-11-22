@@ -10,9 +10,9 @@ export const kn: ReactTranslations = {
   'react.error.useLoggerOutsideProvider': 'useLoggerProvider ಅನ್ನು LoggerProvider ಒಳಗೆ ಬಳಸಬೇಕು',
   'react.error.usePreviewOutsideProvider': 'usePreviewProvider ಅನ್ನು PreviewProvider ಒಳಗೆ ಬಳಸಬೇಕು',
   'react.error.useRouterOutsideProvider':
-    'ಇಲ್ಲಿ ರೂಟರ್ ಇಲ್ಲ. ಅಪ್ಲಿಕೇಶನ್‌ನ ರೂಟಿಂಗ್ ಬಾಂಡ್‌ನಿಂದ ರೂಟರ್ ಘಟಕವನ್ನು ಆರೋಹಿಸಿ ( `@molecule/app-routing-react-router` ನಿಂದ `BrowserRouter` ), ಅಥವಾ `router` `MoleculeProvider` ಗೆ ರವಾನಿಸಿ.',
+    'ಇಲ್ಲಿ ರೂಟರ್ ಇಲ್ಲ. ಅಪ್ಲಿಕೇಶನ್‌ನ ರೂಟಿಂಗ್ ಬಾಂಡ್‌ನಿಂದ ರೂಟರ್ ಘಟಕವನ್ನು ಆರೋಹಿಸಿ ( `@molecule/app-routing-react-router` ನಿಂದ `BrowserRouter` ), ಅಥವಾ `router` `MoleculeProvider` ಗೆ ರವಾನಿಸಿ. ಅಪ್ಲಿಕೇಶನ್ ಈಗಾಗಲೇ ಇದನ್ನು ಮಾಡುತ್ತಿದ್ದರೆ, ಅದರ ರೂಟಿಂಗ್ ಬಾಂಡ್ ಈ ಬೈಂಡಿಂಗ್‌ಗಿಂತ ಹಳೆಯದಾಗಿದೆ: ಅದನ್ನು ನವೀಕರಿಸಿ (`npm install @molecule/app-routing-react-router@latest`).',
   'react.error.noRoutedView':
-    'ಈ ರೂಟಿಂಗ್ ಬಾಂಡ್ ಇಲ್ಲಿ ರೆಂಡರ್ ಮಾಡಲು ಯಾವುದೇ ರೂಟೆಡ್ ವ್ಯೂ ಹೊಂದಿಲ್ಲ: ಬದಲಿಗೆ ಪುಟವನ್ನು ಚಿಲ್ಡ್ರನ್ ಆಗಿ ಪಾಸ್ ಮಾಡಿ.',
+    'ಈ ರೂಟಿಂಗ್ ಬಾಂಡ್ ಇಲ್ಲಿ ರೆಂಡರ್ ಮಾಡಲು ಯಾವುದೇ ರೂಟೆಡ್ ವ್ಯೂ ಹೊಂದಿಲ್ಲ: ಬದಲಿಗೆ ಪುಟವನ್ನು ಚಿಲ್ಡ್ರನ್ ಆಗಿ ಪಾಸ್ ಮಾಡಿ. ಅಪ್ಲಿಕೇಶನ್ `@molecule/app-routing-react-router` ನೊಂದಿಗೆ ರೂಟ್ ಮಾಡಿದರೆ, ಆ ಬಾಂಡ್ ಈ ಬೈಂಡಿಂಗ್‌ಗಿಂತ ಹಳೆಯದಾಗಿದೆ: ಅದನ್ನು ನವೀಕರಿಸಿ (`npm install @molecule/app-routing-react-router@latest`).',
   'react.error.useStoreOutsideProvider': 'useStateProvider ಅನ್ನು StateProvider ಒಳಗೆ ಬಳಸಬೇಕು',
   'react.error.useStorageOutsideProvider': 'useStorageProvider ಅನ್ನು StorageProvider ಒಳಗೆ ಬಳಸಬೇಕು',
   'react.error.useThemeOutsideProvider': 'useThemeProvider ಅನ್ನು ThemeProvider ಒಳಗೆ ಬಳಸಬೇಕು',

@@ -3,9 +3,9 @@ import type { VueTranslations } from './types.js'
 /** Vue translations for Slovak. */
 export const sk: VueTranslations = {
   'vue.error.useRouterOutsideProvider':
-    'Žiadny router tu nie je. Zabaľte aplikáciu do `MoleculeRouterProvider` z routing bond (`@molecule/app-routing-vue-router`) alebo odovzdajte `router` do `moleculePlugin`.',
+    'Žiadny smerovač tu nie je. Zabaľte aplikáciu do `MoleculeRouterProvider` z smerovacej väzby (`@molecule/app-routing-vue-router`) alebo odovzdajte `router` do `moleculePlugin`. Ak to aplikácia už robí, jej smerovacia väzba je staršia ako táto väzba: aktualizujte ju (`npm install @molecule/app-routing-vue-router@latest`).',
   'vue.error.noRoutedView':
-    'Táto smerovacia väzba nemá žiadny smerovaný pohľad na vykreslenie: namiesto toho odovzdajte stránku ako deti.',
+    'Toto smerovacie prepojenie nemá žiadny smerovaný pohľad na vykreslenie: namiesto toho odovzdajte stránku ako deti. Ak aplikácia smeruje s `@molecule/app-routing-vue-router`, toto prepojenie je staršie ako toto prepojenie: aktualizujte ho (`npm install @molecule/app-routing-vue-router@latest`).',
   'vue.error.useStoreOutsideProvider':
     'useStateProvider sa mus\u00ed pou\u017e\u00edva\u0165 v r\u00e1mci StateProvider',
   'vue.error.useThemeOutsideProvider':

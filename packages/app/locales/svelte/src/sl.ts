@@ -6,7 +6,7 @@ export const sl: SvelteTranslations = {
   'svelte.error.noAuthClient': 'Odjemalec za avtentikacijo ni bil najden v kontekstu',
   'svelte.error.noThemeProvider': 'Ponudnik teme ni bil najden v kontekstu',
   'svelte.error.noRouter':
-    'Tukaj ni usmerjevalnika. Priklopite `MoleculeRouterProvider` iz usmerjevalne vezi (`@molecule/app-routing-sveltekit`) v korenu `+layout.svelte` ali tam pokličite `setMoleculeContext({ router })` .',
+    'Tukaj ni usmerjevalnika. Priklopite `MoleculeRouterProvider` iz usmerjevalne vezi (`@molecule/app-routing-sveltekit`) v korenu `+layout.svelte` ali tam pokličite `setMoleculeContext({ router })` . Če aplikacija to že počne, je njena usmerjevalna vez starejša od te vezi: posodobite jo (`npm install @molecule/app-routing-sveltekit@latest`).',
   'svelte.error.noI18nProvider': 'I18n ponudnik ni bil najden v kontekstu',
   'svelte.error.noHttpClient': 'HTTP odjemalec ni bil najden v kontekstu',
   'svelte.error.noStorageProvider': 'Ponudnik shranjevanja ni bil najden v kontekstu',
@@ -25,7 +25,7 @@ export const sl: SvelteTranslations = {
   'svelte.error.useThemeOutsideProvider':
     'useThemeProvider se mora uporabljati znotraj ThemeProvider',
   'svelte.error.useRouterOutsideProvider':
-    'Tukaj ni usmerjevalnika. Priklopite `MoleculeRouterProvider` iz usmerjevalne vezi (`@molecule/app-routing-sveltekit`) v korenu `+layout.svelte` ali tam pokličite `setMoleculeContext({ router })` .',
+    'Tukaj ni usmerjevalnika. Priklopite `MoleculeRouterProvider` iz usmerjevalne vezi (`@molecule/app-routing-sveltekit`) v korenu `+layout.svelte` ali tam pokličite `setMoleculeContext({ router })` . Če aplikacija to že počne, je njena usmerjevalna vez starejša od te vezi: posodobite jo (`npm install @molecule/app-routing-sveltekit@latest`).',
   'svelte.error.noRoutedView':
     'Tukaj ni usmerjenega pogleda. SvelteKit postavitvi strani doda `children`: znotraj te komponente podajte `{@render children()}` .',
   'svelte.error.useHttpOutsideProvider': 'useHttpClient se mora uporabljati znotraj HttpProvider',

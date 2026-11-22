@@ -11,9 +11,9 @@ export const ig: Partial<ReactTranslations> = {
   'react.error.useLoggerOutsideProvider': "A ga-eji useLoggerProvider n'ime LoggerProvider",
   'react.error.usePreviewOutsideProvider': "A ga-eji usePreviewProvider n'ime PreviewProvider",
   'react.error.useRouterOutsideProvider':
-    'Enweghị rawụta ebe a. Tinye ihe nhazi rawụta site na njikọ nhazi nke ngwa ahụ (`BrowserRouter` site na `@molecule/app-routing-react-router`), ma ọ bụ nyefee `router` gaa na `MoleculeProvider`.',
+    'Enweghị rawụta ebe a. Tinye ihe nhazi rawụta site na njikọ rawụta nke ngwa ahụ (`BrowserRouter` site na `@molecule/app-routing-react-router`), ma ọ bụ nyefee `router` gaa na `MoleculeProvider`. Ọ bụrụ na ngwa ahụ emeela nke a, njikọ rawụta ya adịla ochie karịa njikọ a: melite ya (`npm install @molecule/app-routing-react-router@latest`).',
   'react.error.noRoutedView':
-    'Njikọ nhazi a enweghị echiche ngagharị iji gosi ebe a: gafere peeji ahụ dịka ụmụaka kama.',
+    'Njikọ nhazi a enweghị echiche ngagharị iji gosi ebe a: gafere peeji ahụ dịka ụmụaka kama. Ọ bụrụ na ngwa ahụ na-aga site na `@molecule/app-routing-react-router`, njikọ ahụ agafeela karịa njikọ a: melite ya (`npm install @molecule/app-routing-react-router@latest`).',
   'react.error.useStoreOutsideProvider': "A ga-eji useStateProvider n'ime Onye Na-enye Steeti",
   'react.error.useStorageOutsideProvider':
     "A ga-eji onye na-enye nchekwa data (useStorageProvider) n'ime onye na-enye nchekwa data",

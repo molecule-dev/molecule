@@ -14,9 +14,9 @@ export const mt: AngularTranslations = {
   'angular.error.usePreviewOutsideProvider':
     'usePreviewProvider irid jintuża ġewwa PreviewProvider',
   'angular.error.useRouterOutsideProvider':
-    "M'hemm l-ebda router hawn. Żid `provideMoleculeRouter()` mill-bond tar-routing (`@molecule/app-routing-angular-router`) mal-fornituri tal-app, wara `provideRouter(routes)` ta' Angular, jew għaddi `router` lil `provideMolecule`.",
+    "M'hemm l-ebda router hawn. Żid `provideMoleculeRouter()` mir-rabta tar-routing (`@molecule/app-routing-angular-router`) mal-fornituri tal-app, wara `provideRouter(routes)` ta' Angular, jew għaddi `router` lil `provideMolecule`. Jekk l-app diġà tagħmel dan, ir-rabta tar-routing tagħha hija eqdem minn din ir-rabta: aġġornaha (`npm install @molecule/app-routing-angular-router@latest`).",
   'angular.error.noRoutedView':
-    "Din il-konnessjoni tar-rotta m'għandhiex veduta rottata biex tirrendi hawn: għaddi l-paġna bħala tfal minflok.",
+    "Din ir-rabta tar-rottaġġ m'għandhiex veduta rottata biex tirrendi hawn: għaddi l-paġna bħala tfal minflok. Jekk l-app tirrotta bi `@molecule/app-routing-angular-router`, dik ir-rabta hija eqdem minn din ir-rabta: aġġornaha (`npm install @molecule/app-routing-angular-router@latest`).",
   'angular.error.useStorageOutsideProvider':
     'useStorageProvider irid jintuża ġewwa StorageProvider',
   'angular.error.useThemeOutsideProvider': 'useThemeProvider irid jintuża ġewwa ThemeProvider',

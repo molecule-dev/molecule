@@ -17,9 +17,9 @@ export const ur: ReactTranslations = {
   'react.error.usePreviewOutsideProvider':
     'usePreviewProvider کو PreviewProvider کے اندر استعمال کیا جانا چاہیے',
   'react.error.useRouterOutsideProvider':
-    'یہاں کوئی راؤٹر نہیں ہے۔ ایپ کے روٹنگ بانڈ (`BrowserRouter` سے `@molecule/app-routing-react-router`) سے راؤٹر کا جزو ماؤنٹ کریں، یا `router` کو `MoleculeProvider` پر منتقل کریں۔',
+    'یہاں کوئی راؤٹر نہیں ہے۔ ایپ کے روٹنگ بانڈ (`BrowserRouter` سے `@molecule/app-routing-react-router`) سے راؤٹر کا جزو ماؤنٹ کریں، یا `router` کو `MoleculeProvider` پر منتقل کریں۔ اگر ایپ پہلے سے ہی ایسا کرتی ہے تو اس کا روٹنگ بانڈ اس پابندی سے پرانا ہے: اسے اپ ڈیٹ کریں (`npm install @molecule/app-routing-react-router@latest`)۔',
   'react.error.noRoutedView':
-    'اس روٹنگ بانڈ کو یہاں پیش کرنے کے لیے کوئی روٹڈ ویو نہیں ہے: اس کے بجائے صفحہ بچوں کے طور پر پاس کریں۔',
+    'اس روٹنگ بانڈ کو یہاں پیش کرنے کے لیے کوئی روٹڈ ویو نہیں ہے: اس کے بجائے صفحہ بچوں کے طور پر پاس کریں۔ اگر ایپ `@molecule/app-routing-react-router` کے ساتھ روٹ کرتی ہے، تو وہ بانڈ اس بائنڈنگ سے پرانا ہے: اسے اپ ڈیٹ کریں (`npm install @molecule/app-routing-react-router@latest`)۔',
   'react.error.useStoreOutsideProvider':
     'useStateProvider کو StateProvider کے اندر استعمال کیا جانا چاہیے',
   'react.error.useStorageOutsideProvider':

@@ -37,7 +37,7 @@ export const ru: SolidTranslations = {
     'Параметр useLoggerProvider должен использоваться внутри LoggerProvider.',
   'solid.error.oauthFailed': 'Не удалось выполнить вход через OAuth.',
   'solid.error.useRouterOutsideProvider':
-    'Маршрутизатора здесь нет. Используйте `MoleculeRouterProvider` из маршрутного соединения (`@molecule/app-routing-solid-router`) в качестве `root` маршрутизатора или передайте `router` в `MoleculeProvider`.',
+    'Маршрутизатора здесь нет. Используйте `MoleculeRouterProvider` из маршрутной привязки (`@molecule/app-routing-solid-router`) в качестве `root` маршрутизатора или передайте `router` в `MoleculeProvider`. Если приложение уже использует этот механизм, его маршрутная привязка старше данной: обновите её (`npm install @molecule/app-routing-solid-router@latest`).',
   'solid.error.noRoutedView':
     'Здесь нет маршрутизированного представления. Solid Router передает компоненту маршрута его вложенный маршрут в качестве `props.children`: используйте это как `component` маршрута или передайте страницу в качестве дочерних элементов.',
   'solid.error.useStoreOutsideProvider':

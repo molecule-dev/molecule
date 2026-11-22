@@ -33,7 +33,7 @@ export const pl: SolidTranslations = {
   'solid.error.useLoggerOutsideProvider': 'useLoggerProvider musi być używany w LoggerProvider',
   'solid.error.oauthFailed': 'Nieudane logowanie OAuth',
   'solid.error.useRouterOutsideProvider':
-    'Brak routera. Użyj `MoleculeRouterProvider` z połączenia routingowego (`@molecule/app-routing-solid-router`) jako `root` routera lub przekaż `router` do `MoleculeProvider`.',
+    'Brak routera. Użyj `MoleculeRouterProvider` z powiązania routingowego (`@molecule/app-routing-solid-router`) jako `root` routera lub przekaż `router` do `MoleculeProvider`. Jeśli aplikacja już to robi, jej powiązanie routingowe jest starsze niż to powiązanie: zaktualizuj je (`npm install @molecule/app-routing-solid-router@latest`).',
   'solid.error.noRoutedView':
     'Brak widoku trasy. Solid Router przypisuje komponentowi trasy jego zagnieżdżoną trasę jako `props.children`: użyj tego jako `component` trasy lub przekaż stronę jako elementy podrzędne.',
   'solid.error.useStoreOutsideProvider':

@@ -20,9 +20,9 @@ export const zu: AngularTranslations = {
   'angular.error.usePreviewOutsideProvider':
     'usePreviewProvider kumele kusetshenziswe ngaphakathi kwe-PreviewProvider',
   'angular.error.useRouterOutsideProvider':
-    'Ayikho i-router lapha. Engeza `provideMoleculeRouter()` kusuka ku-routing bond (`@molecule/app-routing-angular-router`) kubahlinzeki bohlelo lokusebenza, ngemuva kwe `provideRouter(routes)` ka-Angular, noma udlulisele `router` ku `provideMolecule`.',
+    'Ayikho i-router lapha. Engeza `provideMoleculeRouter()` kusuka ku-routing bond (`@molecule/app-routing-angular-router`) kubahlinzeki bohlelo lokusebenza, ngemuva kwe `provideRouter(routes)` ka-Angular, noma udlulisele `router` ku `provideMolecule`. Uma uhlelo lokusebenza seluvele lukwenza lokhu, i-routing bond yalo indala kunalokhu kubopha: yibuyekeze (`npm install @molecule/app-routing-angular-router@latest`).',
   'angular.error.noRoutedView':
-    'Lesi sibopho sokuqondisa asinawo umbono oqondisiwe ongawubonisa lapha: dlulisa ikhasi njengezingane esikhundleni salokho.',
+    'Lesi sibopho sokuqondisa asinawo umbono oqondiswe lapha: dlulisa ikhasi njengezingane esikhundleni salokho. Uma uhlelo lokusebenza lusebenzisa i `@molecule/app-routing-angular-router`, leso sibopho sidala kunalesi sibopho: sibuyekeze (`npm install @molecule/app-routing-angular-router@latest`).',
   'angular.error.useStorageOutsideProvider':
     'useStorageProvider kumele kusetshenziswe ngaphakathi kwe-StorageProvider',
   'angular.error.useThemeOutsideProvider':

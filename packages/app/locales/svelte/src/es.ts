@@ -6,7 +6,7 @@ export const es: SvelteTranslations = {
   'svelte.error.noAuthClient': 'Cliente de autenticación no encontrado en el contexto',
   'svelte.error.noThemeProvider': 'Proveedor de temas no encontrado en el contexto',
   'svelte.error.noRouter':
-    'Aquí no hay enrutador. Monte `MoleculeRouterProvider` desde el enlace de enrutamiento (`@molecule/app-routing-sveltekit`) en la raíz `+layout.svelte`, o llame a `setMoleculeContext({ router })` allí.',
+    'Aquí no hay enrutador. Monta `MoleculeRouterProvider` desde el enlace de enrutamiento (`@molecule/app-routing-sveltekit`) en la raíz `+layout.svelte`, o llama a `setMoleculeContext({ router })` allí. Si la aplicación ya hace esto, su enlace de enrutamiento es anterior a este enlace: actualízalo (`npm install @molecule/app-routing-sveltekit@latest`).',
   'svelte.error.noI18nProvider': 'Proveedor i18n no encontrado en el contexto',
   'svelte.error.noHttpClient': 'Cliente HTTP no encontrado en el contexto',
   'svelte.error.noStorageProvider': 'Proveedor de almacenamiento no encontrado en el contexto',
@@ -23,7 +23,7 @@ export const es: SvelteTranslations = {
   'svelte.error.useAuthOutsideProvider': 'useAuthClient debe usarse dentro de un AuthProvider.',
   'svelte.error.useThemeOutsideProvider': 'useThemeProvider debe usarse dentro de un ThemeProvider',
   'svelte.error.useRouterOutsideProvider':
-    'Aquí no hay enrutador. Monte `MoleculeRouterProvider` desde el enlace de enrutamiento (`@molecule/app-routing-sveltekit`) en la raíz `+layout.svelte`, o llame a `setMoleculeContext({ router })` allí.',
+    'Aquí no hay enrutador. Monta `MoleculeRouterProvider` desde el enlace de enrutamiento (`@molecule/app-routing-sveltekit`) en la raíz `+layout.svelte`, o llama a `setMoleculeContext({ router })` allí. Si la aplicación ya hace esto, su enlace de enrutamiento es anterior a este enlace: actualízalo (`npm install @molecule/app-routing-sveltekit@latest`).',
   'svelte.error.noRoutedView':
     'Aquí no hay vista enrutada. SvelteKit le da a un diseño su página como `children`: pasa `{@render children()}` dentro de este componente.',
   'svelte.error.useHttpOutsideProvider': 'useHttpClient debe usarse dentro de un HttpProvider.',

@@ -6,7 +6,7 @@ export const yo: SvelteTranslations = {
   'svelte.error.noAuthClient': 'A ko rii onibara ifowosowopo ninu ipo-\u00f2r\u00f2',
   'svelte.error.noThemeProvider': 'A ko rii olupese akori ninu ipo-\u00f2r\u00f2',
   'svelte.error.noRouter':
-    'Kò sí olùdarí níbí. Gbé `MoleculeRouterProvider` kalẹ̀ láti inú ìsopọ̀ ìdarí (`@molecule/app-routing-sveltekit`) nínú gbòǹgbò `+layout.svelte`, tàbí kí o pe `setMoleculeContext({ router })` níbẹ̀.',
+    'Kò sí olùdarí níbí. Gbé `MoleculeRouterProvider` kalẹ̀ láti inú ìdè ìdarí (`@molecule/app-routing-sveltekit`) nínú gbòǹgbò `+layout.svelte`, tàbí kí o pe `setMoleculeContext({ router })` níbẹ̀. Tí àpù náà bá ti ṣe èyí tẹ́lẹ̀, ìdè ìdarí rẹ̀ ti dàgbà ju ìdè yìí lọ: ṣe àtúnṣe rẹ̀ (`npm install @molecule/app-routing-sveltekit@latest`).',
   'svelte.error.noI18nProvider': 'A ko rii olupese i18n ninu ipo-\u00f2r\u00f2',
   'svelte.error.noHttpClient': 'A ko rii onibara HTTP ninu ipo-\u00f2r\u00f2',
   'svelte.error.noStorageProvider': 'A ko rii olupese ibi-\u00ecpam\u00f3 ninu ipo-\u00f2r\u00f2',
@@ -23,7 +23,7 @@ export const yo: SvelteTranslations = {
   'svelte.error.useAuthOutsideProvider': 'a gbọ́dọ̀ lo useAuthClient láàrín Olùpèsè Auth',
   'svelte.error.useThemeOutsideProvider': 'a gbọ́dọ̀ lo useThemeProvider láàrín ThemeProvider kan',
   'svelte.error.useRouterOutsideProvider':
-    'Kò sí olùdarí níbí. Gbé `MoleculeRouterProvider` kalẹ̀ láti inú ìsopọ̀ ìdarí (`@molecule/app-routing-sveltekit`) nínú gbòǹgbò `+layout.svelte`, tàbí kí o pe `setMoleculeContext({ router })` níbẹ̀.',
+    'Kò sí olùdarí níbí. Gbé `MoleculeRouterProvider` kalẹ̀ láti inú ìdè ìdarí (`@molecule/app-routing-sveltekit`) nínú gbòǹgbò `+layout.svelte`, tàbí kí o pe `setMoleculeContext({ router })` níbẹ̀. Tí àpù náà bá ti ṣe èyí tẹ́lẹ̀, ìdè ìdarí rẹ̀ ti dàgbà ju ìdè yìí lọ: ṣe àtúnṣe rẹ̀ (`npm install @molecule/app-routing-sveltekit@latest`).',
   'svelte.error.noRoutedView':
     'Kò sí ìwòran tí a gbé kalẹ̀ níbí. SvelteKit fún wa ní ojú ìwé rẹ̀ gẹ́gẹ́ bí `children`: pass `{@render children()}` nínú apá yìí.',
   'svelte.error.useHttpOutsideProvider': 'a gbọ́dọ̀ lo userHttpClient nínú HttpProvider kan',

@@ -17,9 +17,9 @@ export const ta: ReactTranslations = {
   'react.error.usePreviewOutsideProvider':
     'usePreviewProvider ஒரு PreviewProvider க்குள் பயன்படுத்தப்பட வேண்டும்',
   'react.error.useRouterOutsideProvider':
-    'இங்கே ரௌட்டர் இல்லை. செயலியின் ரௌட்டிங் பாண்டிலிருந்து ( `@molecule/app-routing-react-router` இல் உள்ள `BrowserRouter` ) ஒரு ரௌட்டர் காம்பொனென்ட்டை மவுண்ட் செய்யவும், அல்லது `MoleculeProvider` க்கு `router` அனுப்பவும்.',
+    'இங்கே ரௌட்டர் இல்லை. செயலியின் ரௌட்டிங் பாண்டிலிருந்து ( `@molecule/app-routing-react-router` இலிருந்து `BrowserRouter` ) ஒரு ரௌட்டர் காம்பொனென்ட்டை மவுண்ட் செய்யவும், அல்லது `MoleculeProvider` க்கு `router` அனுப்பவும். செயலி ஏற்கனவே இதைச் செய்தால், அதன் ரௌட்டிங் பாண்ட் இந்த பைண்டிங்கை விடப் பழமையானது: அதை அப்டேட் செய்யவும் (`npm install @molecule/app-routing-react-router@latest`).',
   'react.error.noRoutedView':
-    'இந்த ரூட்டிங் பாண்டில் ரெண்டர் செய்வதற்கு ரூட் செய்யப்பட்ட வியூ எதுவும் இல்லை: அதற்குப் பதிலாக பக்கத்தை சில்ட்ரன்களாக அனுப்பவும்.',
+    'இந்த ரூட்டிங் பாண்டில் இங்கே ரெண்டர் செய்வதற்கு ரூட் செய்யப்பட்ட வியூ எதுவும் இல்லை: அதற்குப் பதிலாக, பக்கத்தை சில்ட்ரன்களாக அனுப்பவும். செயலியானது `@molecule/app-routing-react-router` மூலம் ரூட் செய்தால், அந்த பாண்ட் இந்த பைண்டிங்கை விடப் பழமையானது: அதை அப்டேட் செய்யவும் (`npm install @molecule/app-routing-react-router@latest`).',
   'react.error.useStoreOutsideProvider':
     'useStateProvider ஒரு StateProvider க்குள் பயன்படுத்தப்பட வேண்டும்',
   'react.error.useStorageOutsideProvider':

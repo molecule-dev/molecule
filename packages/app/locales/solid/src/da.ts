@@ -33,7 +33,7 @@ export const da: SolidTranslations = {
     'useLoggerProvider skal bruges inden for en LoggerProvider',
   'solid.error.oauthFailed': 'OAuth-login mislykkedes',
   'solid.error.useRouterOutsideProvider':
-    'Ingen router her. Brug `MoleculeRouterProvider` fra routingbindingen (`@molecule/app-routing-solid-router`) som routerens `root`, eller send `router` til `MoleculeProvider`.',
+    'Ingen router her. Brug `MoleculeRouterProvider` fra routingbindingen (`@molecule/app-routing-solid-router`) som routerens `root`, eller send `router` til `MoleculeProvider`. Hvis appen allerede gør dette, er dens routingbinding ældre end denne binding: opdater den (`npm install @molecule/app-routing-solid-router@latest`).',
   'solid.error.noRoutedView':
     'Ingen rutevisning her. Solid Router giver en rutes komponent sin indlejrede rute som `props.children`: brug dette som en rutes `component`, eller send siden som underordnede.',
   'solid.error.useStoreOutsideProvider': 'useStateProvider skal bruges inden for en StateProvider',

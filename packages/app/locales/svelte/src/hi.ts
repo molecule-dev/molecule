@@ -6,7 +6,7 @@ export const hi: SvelteTranslations = {
   'svelte.error.noAuthClient': 'ऑथ क्लाइंट कॉन्टेक्स्ट में नहीं मिला',
   'svelte.error.noThemeProvider': 'थीम प्रोवाइडर कॉन्टेक्स्ट में नहीं मिला',
   'svelte.error.noRouter':
-    'यहां कोई राउटर नहीं है। रूट `+layout.svelte` में राउटिंग बॉन्ड (`@molecule/app-routing-sveltekit`) से `MoleculeRouterProvider` माउंट करें, या वहां `setMoleculeContext({ router })` कॉल करें।',
+    'यहां कोई राउटर नहीं है। रूट `+layout.svelte` में राउटिंग बॉन्ड (`@molecule/app-routing-sveltekit`) से `MoleculeRouterProvider` माउंट करें, या वहां `setMoleculeContext({ router })` कॉल करें। यदि ऐप पहले से ही ऐसा कर रहा है, तो इसका राउटिंग बॉन्ड इस बाइंडिंग से पुराना है: इसे अपडेट करें (`npm install @molecule/app-routing-sveltekit@latest`)।',
   'svelte.error.noI18nProvider': 'I18n प्रोवाइडर कॉन्टेक्स्ट में नहीं मिला',
   'svelte.error.noHttpClient': 'HTTP क्लाइंट कॉन्टेक्स्ट में नहीं मिला',
   'svelte.error.noStorageProvider': 'स्टोरेज प्रोवाइडर कॉन्टेक्स्ट में नहीं मिला',
@@ -26,7 +26,7 @@ export const hi: SvelteTranslations = {
   'svelte.error.useThemeOutsideProvider':
     'useThemeProvider का उपयोग ThemeProvider के भीतर ही किया जाना चाहिए।',
   'svelte.error.useRouterOutsideProvider':
-    'यहां कोई राउटर नहीं है। रूट `+layout.svelte` में राउटिंग बॉन्ड (`@molecule/app-routing-sveltekit`) से `MoleculeRouterProvider` माउंट करें, या वहां `setMoleculeContext({ router })` कॉल करें।',
+    'यहां कोई राउटर नहीं है। रूट `+layout.svelte` में राउटिंग बॉन्ड (`@molecule/app-routing-sveltekit`) से `MoleculeRouterProvider` माउंट करें, या वहां `setMoleculeContext({ router })` कॉल करें। यदि ऐप पहले से ही ऐसा कर रहा है, तो इसका राउटिंग बॉन्ड इस बाइंडिंग से पुराना है: इसे अपडेट करें (`npm install @molecule/app-routing-sveltekit@latest`)।',
   'svelte.error.noRoutedView':
     'यहां कोई राउटेड व्यू नहीं है। SvelteKit लेआउट को उसका पेज `children` के रूप में देता है: इस कंपोनेंट के अंदर `{@render children()}` पास करें।',
   'svelte.error.useHttpOutsideProvider':

@@ -12,9 +12,9 @@ export const sv: ReactTranslations = {
   'react.error.usePreviewOutsideProvider':
     'usePreviewProvider måste användas inom en PreviewProvider',
   'react.error.useRouterOutsideProvider':
-    'Ingen router här. Montera en routerkomponent från appens routing bond (`BrowserRouter` från `@molecule/app-routing-react-router`), eller skicka `router` till `MoleculeProvider`.',
+    'Ingen router här. Montera en routerkomponent från appens routingbindning (`BrowserRouter` från `@molecule/app-routing-react-router`), eller skicka `router` till `MoleculeProvider`. Om appen redan gör detta är dess routingbindning äldre än denna bindning: uppdatera den (`npm install @molecule/app-routing-react-router@latest`).',
   'react.error.noRoutedView':
-    'Denna routing-bindning har ingen routad vy att rendera här: skicka sidan som underordnade istället.',
+    'Denna routing-bindning har ingen routad vy att rendera här: skicka sidan som underordnade istället. Om appen routar med `@molecule/app-routing-react-router` är den bindningen äldre än denna bindning: uppdatera den (`npm install @molecule/app-routing-react-router@latest`).',
   'react.error.useStoreOutsideProvider': 'useStateProvider måste användas inom en StateProvider',
   'react.error.useStorageOutsideProvider':
     'useStorageProvider måste användas inom en StorageProvider',

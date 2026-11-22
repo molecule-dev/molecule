@@ -195,5 +195,9 @@ describe('RoutedView', () => {
     expect(thrown).toBeInstanceOf(I18nError)
     expect((thrown as I18nError).i18nKey).toBe('solid.error.useRouterOutsideProvider')
     expect((thrown as Error).message).toMatch(/routing bond/)
+    // A router mounted by a bond older than this binding gives none: the message names the update.
+    expect((thrown as Error).message).toContain(
+      'older than this binding: update it (`npm install @molecule/app-routing-solid-router@latest`)',
+    )
   })
 })

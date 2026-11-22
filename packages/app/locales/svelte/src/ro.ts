@@ -6,7 +6,7 @@ export const ro: SvelteTranslations = {
   'svelte.error.noAuthClient': 'Clientul de autentificare nu a fost g\u0103sit \u00een context',
   'svelte.error.noThemeProvider': 'Furnizorul de tem\u0103 nu a fost g\u0103sit \u00een context',
   'svelte.error.noRouter':
-    'Nu există router aici. Montați `MoleculeRouterProvider` din legătura de rutare (`@molecule/app-routing-sveltekit`) în rădăcina `+layout.svelte` sau apelați `setMoleculeContext({ router })` acolo.',
+    'Nu există router aici. Montați `MoleculeRouterProvider` din legătura de rutare (`@molecule/app-routing-sveltekit`) în rădăcina `+layout.svelte` sau apelați `setMoleculeContext({ router })` acolo. Dacă aplicația face deja acest lucru, legătura sa de rutare este mai veche decât această legătură: actualizați-o (`npm install @molecule/app-routing-sveltekit@latest`).',
   'svelte.error.noI18nProvider': 'Furnizorul i18n nu a fost g\u0103sit \u00een context',
   'svelte.error.noHttpClient': 'Clientul HTTP nu a fost g\u0103sit \u00een context',
   'svelte.error.noStorageProvider': 'Furnizorul de stocare nu a fost g\u0103sit \u00een context',
@@ -29,7 +29,7 @@ export const ro: SvelteTranslations = {
   'svelte.error.useThemeOutsideProvider':
     'useThemeProvider trebuie utilizat în cadrul unui ThemeProvider',
   'svelte.error.useRouterOutsideProvider':
-    'Nu există router aici. Montați `MoleculeRouterProvider` din legătura de rutare (`@molecule/app-routing-sveltekit`) în rădăcina `+layout.svelte` sau apelați `setMoleculeContext({ router })` acolo.',
+    'Nu există router aici. Montați `MoleculeRouterProvider` din legătura de rutare (`@molecule/app-routing-sveltekit`) în rădăcina `+layout.svelte` sau apelați `setMoleculeContext({ router })` acolo. Dacă aplicația face deja acest lucru, legătura sa de rutare este mai veche decât această legătură: actualizați-o (`npm install @molecule/app-routing-sveltekit@latest`).',
   'svelte.error.noRoutedView':
     'Nu există o vizualizare rutată aici. SvelteKit atribuie unui layout pagina sa ca `children`: transmite `{@render children()}` în interiorul acestei componente.',
   'svelte.error.useHttpOutsideProvider':

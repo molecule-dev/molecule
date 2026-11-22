@@ -14,9 +14,9 @@ export const bs: ReactTranslations = {
   'react.error.usePreviewOutsideProvider':
     'usePreviewProvider se mora koristiti unutar PreviewProvider-a',
   'react.error.useRouterOutsideProvider':
-    'Ovdje nema rutera. Montirajte komponentu rutera iz veze usmjeravanja aplikacije (`BrowserRouter` iz `@molecule/app-routing-react-router`) ili proslijedite `router` do `MoleculeProvider`.',
+    'Ovdje nema rutera. Montirajte komponentu rutera iz veze usmjeravanja aplikacije (`BrowserRouter` iz `@molecule/app-routing-react-router`) ili proslijedite `router` do `MoleculeProvider`. Ako aplikacija već to radi, njena veza usmjeravanja je starija od ove veze: ažurirajte je (`npm install @molecule/app-routing-react-router@latest`).',
   'react.error.noRoutedView':
-    'Ova veza usmjeravanja nema usmjereni prikaz za renderiranje ovdje: umjesto toga, proslijedite stranicu kao potomke.',
+    'Ova veza usmjeravanja nema usmjerni prikaz za renderiranje ovdje: umjesto toga proslijedite stranicu kao potomke. Ako se aplikacija usmjerava sa `@molecule/app-routing-react-router`, ta veza je starija od ove veze: ažurirajte je (`npm install @molecule/app-routing-react-router@latest`).',
   'react.error.useStoreOutsideProvider':
     'useStateProvider se mora koristiti unutar StateProvider-a',
   'react.error.useStorageOutsideProvider':

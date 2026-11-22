@@ -52,7 +52,7 @@ export function useRouterInstance(): Router {
     throw new I18nError(
       'angular.error.useRouterOutsideProvider',
       undefined,
-      "No router here. Add `provideMoleculeRouter()` from the routing bond (`@molecule/app-routing-angular-router`) to the app's providers, after Angular's `provideRouter(routes)`, or pass `router` to `provideMolecule`.",
+      "No router here. Add `provideMoleculeRouter()` from the routing bond (`@molecule/app-routing-angular-router`) to the app's providers, after Angular's `provideRouter(routes)`, or pass `router` to `provideMolecule`. If the app already does this, its routing bond is older than this binding: update it (`npm install @molecule/app-routing-angular-router@latest`).",
     )
   }
   return router

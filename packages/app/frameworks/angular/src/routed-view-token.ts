@@ -25,7 +25,7 @@ export function routedViewOrThrow(): Type<unknown> {
     throw new I18nError(
       'angular.error.noRoutedView',
       undefined,
-      'This routing bond has no routed view to render here: pass the page as children instead.',
+      'This routing bond has no routed view to render here: pass the page as children instead. If the app routes with `@molecule/app-routing-angular-router`, that bond is older than this binding: update it (`npm install @molecule/app-routing-angular-router@latest`).',
     )
   }
   return view

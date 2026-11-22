@@ -38,7 +38,7 @@ export const fr: Partial<SolidTranslations> = {
     "La méthode useLoggerProvider doit être utilisée à l'intérieur d'un LoggerProvider.",
   'solid.error.oauthFailed': 'Échec de la connexion OAuth',
   'solid.error.useRouterOutsideProvider':
-    'Aucun routeur ici. Utilisez `MoleculeRouterProvider` de la liaison de routage (`@molecule/app-routing-solid-router`) comme `root` du routeur, ou transmettez `router` à `MoleculeProvider`.',
+    "Aucun routeur ici. Utilisez `MoleculeRouterProvider` du module de routage (`@molecule/app-routing-solid-router`) comme `root` du routeur, ou transmettez `router` à `MoleculeProvider`. Si l'application le fait déjà, son module de routage est plus ancien que cette liaison : mettez-le à jour (`npm install @molecule/app-routing-solid-router@latest`).",
   'solid.error.noRoutedView':
     'Aucune vue routée ici. Solid Router attribue à un composant de route sa route imbriquée sous forme de `props.children` : utilisez-la comme `component` de la route ou transmettez la page comme enfant.',
   'solid.error.useStoreOutsideProvider':

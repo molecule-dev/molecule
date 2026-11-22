@@ -214,6 +214,10 @@ describe('RoutedView', () => {
     expect(thrown).toBeInstanceOf(I18nError)
     expect((thrown as I18nError).i18nKey).toBe('react.error.noRoutedView')
     expect((thrown as Error).message).toMatch(/pass the page as children/)
+    // A router mounted by a bond older than this binding gives none: the message names the update.
+    expect((thrown as Error).message).toContain(
+      'older than this binding: update it (`npm install @molecule/app-routing-react-router@latest`)',
+    )
   })
 
   it('names the fix when a routing hook runs with no router', () => {
@@ -235,5 +239,9 @@ describe('RoutedView', () => {
     expect(thrown).toBeInstanceOf(I18nError)
     expect((thrown as I18nError).i18nKey).toBe('react.error.useRouterOutsideProvider')
     expect((thrown as Error).message).toMatch(/routing bond/)
+    // A router mounted by a bond older than this binding gives none: the message names the update.
+    expect((thrown as Error).message).toContain(
+      'older than this binding: update it (`npm install @molecule/app-routing-react-router@latest`)',
+    )
   })
 })

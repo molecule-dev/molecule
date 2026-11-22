@@ -20,9 +20,9 @@ export const de: AngularTranslations = {
   'angular.error.usePreviewOutsideProvider':
     'usePreviewProvider muss innerhalb eines PreviewProvider verwendet werden',
   'angular.error.useRouterOutsideProvider':
-    'Hier gibt es keinen Router. Fügen Sie `provideMoleculeRouter()` aus dem Routing-Bond (`@molecule/app-routing-angular-router`) zu den Providern der App hinzu, nach Angulars `provideRouter(routes)`, oder übergeben Sie `router` an `provideMolecule`.',
+    'Hier ist kein Router vorhanden. Fügen Sie `provideMoleculeRouter()` aus dem Routing-Binding (`@molecule/app-routing-angular-router`) zu den Providern der App hinzu, nach Angulars `provideRouter(routes)`, oder übergeben Sie `router` an `provideMolecule`. Falls die App dies bereits tut, ist ihr Routing-Binding älter als dieses: Aktualisieren Sie es (`npm install @molecule/app-routing-angular-router@latest`).',
   'angular.error.noRoutedView':
-    'Dieser Routing-Bond hat keine geroutete Ansicht, die hier gerendert werden kann: Übergeben Sie die Seite stattdessen als Kindseite.',
+    'Diese Routing-Bindung hat keine geroutete Ansicht, die hier gerendert werden kann: Übergeben Sie die Seite stattdessen als Kindelemente. Wenn die App mit `@molecule/app-routing-angular-router` routet, ist diese Bindung älter als diese: Aktualisieren Sie sie (`npm install @molecule/app-routing-angular-router@latest`).',
   'angular.error.useStorageOutsideProvider':
     'useStorageProvider muss innerhalb eines StorageProvider verwendet werden',
   'angular.error.useThemeOutsideProvider':

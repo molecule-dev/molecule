@@ -6,7 +6,7 @@ export const de: SvelteTranslations = {
   'svelte.error.noAuthClient': 'Authentifizierungsclient nicht im Kontext gefunden',
   'svelte.error.noThemeProvider': 'Theme-Anbieter nicht im Kontext gefunden',
   'svelte.error.noRouter':
-    'Hier ist kein Router vorhanden. Binden Sie `MoleculeRouterProvider` aus dem Routing-Bond (`@molecule/app-routing-sveltekit`) im Stammverzeichnis `+layout.svelte` ein oder rufen Sie dort `setMoleculeContext({ router })` auf.',
+    'Hier ist kein Router vorhanden. Binden Sie `MoleculeRouterProvider` aus dem Routing-Bond (`@molecule/app-routing-sveltekit`) in die Stammdatei `+layout.svelte` ein oder rufen Sie dort `setMoleculeContext({ router })` auf. Falls die Anwendung dies bereits tut, ist ihr Routing-Bond älter als diese Bindung: Aktualisieren Sie ihn (`npm install @molecule/app-routing-sveltekit@latest`).',
   'svelte.error.noI18nProvider': 'I18n-Anbieter nicht im Kontext gefunden',
   'svelte.error.noHttpClient': 'HTTP-Client nicht im Kontext gefunden',
   'svelte.error.noStorageProvider': 'Speicheranbieter nicht im Kontext gefunden',
@@ -27,7 +27,7 @@ export const de: SvelteTranslations = {
   'svelte.error.useThemeOutsideProvider':
     'useThemeProvider muss innerhalb eines ThemeProviders verwendet werden.',
   'svelte.error.useRouterOutsideProvider':
-    'Hier ist kein Router vorhanden. Binden Sie `MoleculeRouterProvider` aus dem Routing-Bond (`@molecule/app-routing-sveltekit`) im Stammverzeichnis `+layout.svelte` ein oder rufen Sie dort `setMoleculeContext({ router })` auf.',
+    'Hier ist kein Router vorhanden. Binden Sie `MoleculeRouterProvider` aus dem Routing-Bond (`@molecule/app-routing-sveltekit`) in die Stammdatei `+layout.svelte` ein oder rufen Sie dort `setMoleculeContext({ router })` auf. Falls die Anwendung dies bereits tut, ist ihr Routing-Bond älter als diese Bindung: Aktualisieren Sie ihn (`npm install @molecule/app-routing-sveltekit@latest`).',
   'svelte.error.noRoutedView':
     'Hier gibt es keine geroutete Ansicht. SvelteKit weist einem Layout seine Seite als `children` zu: Übergeben Sie `{@render children()}` innerhalb dieser Komponente.',
   'svelte.error.useHttpOutsideProvider':

@@ -170,7 +170,7 @@ export function RoutedView(): React.ReactElement {
     throw new I18nError(
       'react.error.noRoutedView',
       undefined,
-      'This routing bond has no routed view to render here: pass the page as children instead.',
+      'This routing bond has no routed view to render here: pass the page as children instead. If the app routes with `@molecule/app-routing-react-router`, that bond is older than this binding: update it (`npm install @molecule/app-routing-react-router@latest`).',
     )
   }
   return <View />

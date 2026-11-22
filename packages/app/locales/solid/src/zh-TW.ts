@@ -25,7 +25,7 @@ export const zhTW: SolidTranslations = {
   'solid.error.useLoggerOutsideProvider': 'useLoggerProvider 必須在 LoggerProvider 中使用',
   'solid.error.oauthFailed': 'OAuth登入失敗',
   'solid.error.useRouterOutsideProvider':
-    '這裡沒有路由器。使用路由綁定（`@molecule/app-routing-solid-router`）中的`MoleculeRouterProvider`作為路由器的`root`，或將`router`傳遞給`MoleculeProvider`。',
+    '這裡沒有路由器。請使用路由綁定（`@molecule/app-routing-solid-router`）中的`MoleculeRouterProvider`作為路由器的`root`，或將`router`傳遞給`MoleculeProvider`。如果應用程式已經這樣做了，則其路由綁定版本低於此綁定：請更新它（`npm install @molecule/app-routing-solid-router@latest`）。',
   'solid.error.noRoutedView':
     '這裡沒有路由視圖。 Solid Router 將路由元件的嵌套路由作為`props.children`傳遞給它：你可以將其用作路由的`component`，或將頁面作為子元素傳遞。',
   'solid.error.useStoreOutsideProvider': 'useStateProvider 必須在 StateProvider 中使用。',

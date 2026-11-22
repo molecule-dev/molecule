@@ -35,7 +35,7 @@ export const RoutedView = defineComponent({
       throw new I18nError(
         'vue.error.noRoutedView',
         undefined,
-        'This routing bond has no routed view to render here: pass the page as children instead.',
+        'This routing bond has no routed view to render here: pass the page as children instead. If the app routes with `@molecule/app-routing-vue-router`, that bond is older than this binding: update it (`npm install @molecule/app-routing-vue-router@latest`).',
       )
     }
     return (): VNode => h(view)

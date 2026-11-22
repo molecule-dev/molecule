@@ -14,9 +14,9 @@ export const da: ReactTranslations = {
   'react.error.usePreviewOutsideProvider':
     'usePreviewProvider skal bruges inden for en PreviewProvider',
   'react.error.useRouterOutsideProvider':
-    'Ingen router her. Monter en routerkomponent fra appens routingforbindelse (`BrowserRouter` fra `@molecule/app-routing-react-router`), eller send `router` til `MoleculeProvider`.',
+    'Ingen router her. Monter en routerkomponent fra appens routingbinding (`BrowserRouter` fra `@molecule/app-routing-react-router`), eller send `router` til `MoleculeProvider`. Hvis appen allerede gør dette, er dens routingbinding ældre end denne binding: opdater den (`npm install @molecule/app-routing-react-router@latest`).',
   'react.error.noRoutedView':
-    'Denne routing-binding har ingen routed view at gengive her: send siden som underordnede i stedet.',
+    'Denne routing-binding har ingen routed view at gengive her: send i stedet siden som underordnede. Hvis appen routerer med `@molecule/app-routing-react-router`, er den binding ældre end denne binding: opdater den (`npm install @molecule/app-routing-react-router@latest`).',
   'react.error.useStoreOutsideProvider': 'useStateProvider skal bruges inden for en StateProvider',
   'react.error.useStorageOutsideProvider':
     'useStorageProvider skal bruges inden for en StorageProvider',

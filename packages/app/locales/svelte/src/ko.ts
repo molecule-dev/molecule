@@ -9,7 +9,7 @@ export const ko: SvelteTranslations = {
   'svelte.error.noThemeProvider':
     '\ucee8\ud14d\uc2a4\ud2b8\uc5d0\uc11c \ud14c\ub9c8 \ud504\ub85c\ubc14\uc774\ub354\ub97c \ucc3e\uc744 \uc218 \uc5c6\uc2b5\ub2c8\ub2e4',
   'svelte.error.noRouter':
-    '여기에 라우터가 없습니다. 루트 `+layout.svelte` 의 라우팅 본드(`@molecule/app-routing-sveltekit`)에서 `MoleculeRouterProvider` 마운트하거나, 해당 위치에서 `setMoleculeContext({ router })` 호출하세요.',
+    '여기에 라우터가 없습니다. 루트 `+layout.svelte` 파일의 라우팅 본드(`@molecule/app-routing-sveltekit`)에서 `MoleculeRouterProvider` 마운트하거나, 해당 파일에서 `setMoleculeContext({ router })` 호출하세요. 앱에서 이미 이 작업을 수행하고 있다면, 해당 라우팅 본드가 이 바인딩보다 오래된 버전입니다. `npm install @molecule/app-routing-sveltekit@latest` 업데이트하세요.',
   'svelte.error.noI18nProvider':
     '\ucee8\ud14d\uc2a4\ud2b8\uc5d0\uc11c I18n \ud504\ub85c\ubc14\uc774\ub354\ub97c \ucc3e\uc744 \uc218 \uc5c6\uc2b5\ub2c8\ub2e4',
   'svelte.error.noHttpClient':
@@ -32,7 +32,7 @@ export const ko: SvelteTranslations = {
   'svelte.error.useThemeOutsideProvider':
     'useThemeProvider는 ThemeProvider 내에서 사용해야 합니다.',
   'svelte.error.useRouterOutsideProvider':
-    '여기에 라우터가 없습니다. 루트 `+layout.svelte` 의 라우팅 본드(`@molecule/app-routing-sveltekit`)에서 `MoleculeRouterProvider` 마운트하거나, 해당 위치에서 `setMoleculeContext({ router })` 호출하세요.',
+    '여기에 라우터가 없습니다. 루트 `+layout.svelte` 파일의 라우팅 본드(`@molecule/app-routing-sveltekit`)에서 `MoleculeRouterProvider` 마운트하거나, 해당 파일에서 `setMoleculeContext({ router })` 호출하세요. 앱에서 이미 이 작업을 수행하고 있다면, 해당 라우팅 본드가 이 바인딩보다 오래된 버전입니다. `npm install @molecule/app-routing-sveltekit@latest` 업데이트하세요.',
   'svelte.error.noRoutedView':
     '여기에는 라우팅된 뷰가 없습니다. SvelteKit은 레이아웃에 페이지를 `children` 으로 제공합니다. 따라서 이 컴포넌트 내부에 `{@render children()}` 전달해야 합니다.',
   'svelte.error.useHttpOutsideProvider': 'useHttpClient는 HttpProvider 내에서 사용해야 합니다.',

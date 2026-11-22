@@ -17,9 +17,9 @@ export const uk: ReactTranslations = {
   'react.error.usePreviewOutsideProvider':
     'usePreviewProvider повинен використовуватися всередині PreviewProvider',
   'react.error.useRouterOutsideProvider':
-    "Тут немає маршрутизатора. Змонтуйте компонент маршрутизатора з маршрутизаційного зв'язку програми (`BrowserRouter` з `@molecule/app-routing-react-router`) або передайте `router` до `MoleculeProvider`.",
+    "Тут немає маршрутизатора. Змонтуйте компонент маршрутизатора з маршрутизаційного зв'язку застосунку (`BrowserRouter` з `@molecule/app-routing-react-router`) або передайте `router` до `MoleculeProvider`. Якщо застосунок вже це робить, його маршрутизаційний зв'язок старший за цей зв'язок: оновіть його (`npm install @molecule/app-routing-react-router@latest`).",
   'react.error.noRoutedView':
-    "Цей зв'язок маршрутизації не має маршрутизованого представлення для відображення тут: натомість передайте сторінку як дочірні елементи.",
+    "Цей зв'язок маршрутизації не має маршрутизованого представлення для відображення тут: передайте сторінку як дочірні елементи. Якщо додаток маршрутизується з `@molecule/app-routing-react-router`, цей зв'язок старший за цей зв'язок: оновіть його (`npm install @molecule/app-routing-react-router@latest`).",
   'react.error.useStoreOutsideProvider':
     'useStateProvider повинен використовуватися всередині StateProvider',
   'react.error.useStorageOutsideProvider':

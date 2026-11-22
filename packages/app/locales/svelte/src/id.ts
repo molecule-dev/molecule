@@ -6,7 +6,7 @@ export const id: SvelteTranslations = {
   'svelte.error.noAuthClient': 'Klien auth tidak ditemukan dalam konteks',
   'svelte.error.noThemeProvider': 'Penyedia tema tidak ditemukan dalam konteks',
   'svelte.error.noRouter':
-    'Tidak ada router di sini. Pasang `MoleculeRouterProvider` dari routing bond (`@molecule/app-routing-sveltekit`) di root `+layout.svelte`, atau panggil `setMoleculeContext({ router })` di sana.',
+    'Tidak ada router di sini. Pasang `MoleculeRouterProvider` dari binding routing (`@molecule/app-routing-sveltekit`) di root `+layout.svelte`, atau panggil `setMoleculeContext({ router })` di sana. Jika aplikasi sudah melakukan ini, binding routing-nya lebih lama dari binding ini: perbarui (`npm install @molecule/app-routing-sveltekit@latest`).',
   'svelte.error.noI18nProvider': 'Penyedia i18n tidak ditemukan dalam konteks',
   'svelte.error.noHttpClient': 'Klien HTTP tidak ditemukan dalam konteks',
   'svelte.error.noStorageProvider': 'Penyedia penyimpanan tidak ditemukan dalam konteks',
@@ -24,7 +24,7 @@ export const id: SvelteTranslations = {
   'svelte.error.useThemeOutsideProvider':
     'useThemeProvider harus digunakan di dalam ThemeProvider.',
   'svelte.error.useRouterOutsideProvider':
-    'Tidak ada router di sini. Pasang `MoleculeRouterProvider` dari routing bond (`@molecule/app-routing-sveltekit`) di root `+layout.svelte`, atau panggil `setMoleculeContext({ router })` di sana.',
+    'Tidak ada router di sini. Pasang `MoleculeRouterProvider` dari binding routing (`@molecule/app-routing-sveltekit`) di root `+layout.svelte`, atau panggil `setMoleculeContext({ router })` di sana. Jika aplikasi sudah melakukan ini, binding routing-nya lebih lama dari binding ini: perbarui (`npm install @molecule/app-routing-sveltekit@latest`).',
   'svelte.error.noRoutedView':
     'Tidak ada tampilan yang dirutekan di sini. SvelteKit memberikan tata letak halamannya sebagai `children`: berikan `{@render children()}` di dalam komponen ini.',
   'svelte.error.useHttpOutsideProvider': 'useHttpClient harus digunakan di dalam HttpProvider.',

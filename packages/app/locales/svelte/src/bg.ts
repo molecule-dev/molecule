@@ -6,7 +6,7 @@ export const bg: SvelteTranslations = {
   'svelte.error.noAuthClient': 'Клиентът за удостоверяване не е намерен в контекста',
   'svelte.error.noThemeProvider': 'Доставчикът на тема не е намерен в контекста',
   'svelte.error.noRouter':
-    'Няма рутер тук. Монтирайте `MoleculeRouterProvider` от връзката за рутиране (`@molecule/app-routing-sveltekit`) в корена `+layout.svelte` или извикайте `setMoleculeContext({ router })` там.',
+    'Няма рутер тук. Монтирайте `MoleculeRouterProvider` от връзката за рутиране (`@molecule/app-routing-sveltekit`) в корена `+layout.svelte` или извикайте `setMoleculeContext({ router })` там. Ако приложението вече прави това, неговата връзка за рутиране е по-стара от тази връзка: актуализирайте я (`npm install @molecule/app-routing-sveltekit@latest`).',
   'svelte.error.noI18nProvider': 'Доставчикът на i18n не е намерен в контекста',
   'svelte.error.noHttpClient': 'HTTP клиентът не е намерен в контекста',
   'svelte.error.noStorageProvider': 'Доставчикът на хранилище не е намерен в контекста',
@@ -25,7 +25,7 @@ export const bg: SvelteTranslations = {
   'svelte.error.useThemeOutsideProvider':
     'useThemeProvider трябва да се използва в рамките на ThemeProvider',
   'svelte.error.useRouterOutsideProvider':
-    'Няма рутер тук. Монтирайте `MoleculeRouterProvider` от връзката за рутиране (`@molecule/app-routing-sveltekit`) в корена `+layout.svelte` или извикайте `setMoleculeContext({ router })` там.',
+    'Няма рутер тук. Монтирайте `MoleculeRouterProvider` от връзката за рутиране (`@molecule/app-routing-sveltekit`) в корена `+layout.svelte` или извикайте `setMoleculeContext({ router })` там. Ако приложението вече прави това, неговата връзка за рутиране е по-стара от тази връзка: актуализирайте я (`npm install @molecule/app-routing-sveltekit@latest`).',
   'svelte.error.noRoutedView':
     'Тук няма пренасочен изглед. SvelteKit дава оформление на страницата си като `children`: предава `{@render children()}` вътре в този компонент.',
   'svelte.error.useHttpOutsideProvider':

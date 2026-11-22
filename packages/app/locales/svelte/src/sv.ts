@@ -6,7 +6,7 @@ export const sv: SvelteTranslations = {
   'svelte.error.noAuthClient': 'Autentiseringsklient hittades inte i kontext',
   'svelte.error.noThemeProvider': 'Temaleverant\u00f6r hittades inte i kontext',
   'svelte.error.noRouter':
-    'Ingen router här. Montera `MoleculeRouterProvider` från routingbindningen (`@molecule/app-routing-sveltekit`) i roten `+layout.svelte`, eller anropa `setMoleculeContext({ router })` där.',
+    'Ingen router här. Montera `MoleculeRouterProvider` från routingbindningen (`@molecule/app-routing-sveltekit`) i roten `+layout.svelte`, eller anropa `setMoleculeContext({ router })` där. Om appen redan gör detta är dess routingbindning äldre än denna bindning: uppdatera den (`npm install @molecule/app-routing-sveltekit@latest`).',
   'svelte.error.noI18nProvider': 'I18n-leverant\u00f6r hittades inte i kontext',
   'svelte.error.noHttpClient': 'HTTP-klient hittades inte i kontext',
   'svelte.error.noStorageProvider': 'Lagringsleverant\u00f6r hittades inte i kontext',
@@ -23,7 +23,7 @@ export const sv: SvelteTranslations = {
   'svelte.error.useAuthOutsideProvider': 'useAuthClient måste användas inom en AuthProvider',
   'svelte.error.useThemeOutsideProvider': 'useThemeProvider måste användas inom en ThemeProvider',
   'svelte.error.useRouterOutsideProvider':
-    'Ingen router här. Montera `MoleculeRouterProvider` från routingbindningen (`@molecule/app-routing-sveltekit`) i roten `+layout.svelte`, eller anropa `setMoleculeContext({ router })` där.',
+    'Ingen router här. Montera `MoleculeRouterProvider` från routingbindningen (`@molecule/app-routing-sveltekit`) i roten `+layout.svelte`, eller anropa `setMoleculeContext({ router })` där. Om appen redan gör detta är dess routingbindning äldre än denna bindning: uppdatera den (`npm install @molecule/app-routing-sveltekit@latest`).',
   'svelte.error.noRoutedView':
     'Ingen routad vy här. SvelteKit ger en layout för sin sida som `children`: skicka `{@render children()}` inuti denna komponent.',
   'svelte.error.useHttpOutsideProvider': 'useHttpClient måste användas inom en HttpProvider',

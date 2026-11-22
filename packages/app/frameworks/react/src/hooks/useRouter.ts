@@ -40,7 +40,7 @@ export function useRouterInstance(): Router {
     throw new I18nError(
       'react.error.useRouterOutsideProvider',
       undefined,
-      "No router here. Mount a router component from the app's routing bond (`BrowserRouter` from `@molecule/app-routing-react-router`), or pass `router` to `MoleculeProvider`.",
+      "No router here. Mount a router component from the app's routing bond (`BrowserRouter` from `@molecule/app-routing-react-router`), or pass `router` to `MoleculeProvider`. If the app already does this, its routing bond is older than this binding: update it (`npm install @molecule/app-routing-react-router@latest`).",
     )
   }
   return router

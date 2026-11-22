@@ -3,9 +3,9 @@ import type { VueTranslations } from './types.js'
 /** Vue translations for Romanian. */
 export const ro: VueTranslations = {
   'vue.error.useRouterOutsideProvider':
-    'Nu există router aici. Includeți aplicația în `MoleculeRouterProvider` din legătura de rutare (`@molecule/app-routing-vue-router`) sau transmiteți `router` către `moleculePlugin`.',
+    'Nu există router aici. Includeți aplicația în `MoleculeRouterProvider` din legătura de rutare (`@molecule/app-routing-vue-router`) sau transmiteți `router` către `moleculePlugin`. Dacă aplicația face deja acest lucru, legătura sa de rutare este mai veche decât această legătură: actualizați-o (`npm install @molecule/app-routing-vue-router@latest`).',
   'vue.error.noRoutedView':
-    'Această legătură de rutare nu are o vedere rutată de redat aici: transmiteți pagina ca fiu în schimb.',
+    'Această legătură de rutare nu are o vizualizare rutată de redat aici: transmiteți pagina ca fiu în schimb. Dacă aplicația ruta cu `@molecule/app-routing-vue-router`, acea legătură este mai veche decât această legătură: actualizați-o (`npm install @molecule/app-routing-vue-router@latest`).',
   'vue.error.useStoreOutsideProvider':
     'useStateProvider trebuie utilizat \u00een interiorul unui StateProvider',
   'vue.error.useThemeOutsideProvider':

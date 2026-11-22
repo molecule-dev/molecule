@@ -6,7 +6,7 @@ export const zu: SvelteTranslations = {
   'svelte.error.noAuthClient': 'Iklayenti yokuqinisekisa ayitholakalanga esimweni',
   'svelte.error.noThemeProvider': 'Umhlinzeki wesihloko awutholakalanga esimweni',
   'svelte.error.noRouter':
-    'Ayikho i-router lapha. Faka `MoleculeRouterProvider` kusuka ku-routing bond (`@molecule/app-routing-sveltekit`) empandeni ethi `+layout.svelte`, noma ushayele `setMoleculeContext({ router })` lapho.',
+    'Ayikho i-router lapha. Faka `MoleculeRouterProvider` kusuka ku-routing bond (`@molecule/app-routing-sveltekit`) empandeni `+layout.svelte`, noma ushayele `setMoleculeContext({ router })` lapho. Uma uhlelo lokusebenza seluvele lukwenza lokhu, i-routing bond yalo indala kunalokhu kubopha: yibuyekeze (`npm install @molecule/app-routing-sveltekit@latest`).',
   'svelte.error.noI18nProvider': 'Umhlinzeki we-i18n awutholakalanga esimweni',
   'svelte.error.noHttpClient': 'Iklayenti ye-HTTP ayitholakalanga esimweni',
   'svelte.error.noStorageProvider': 'Umhlinzeki wesitoreji awutholakalanga esimweni',
@@ -28,7 +28,7 @@ export const zu: SvelteTranslations = {
   'svelte.error.useThemeOutsideProvider':
     'i-useThemeProvider kumele isetshenziswe ngaphakathi kwe-ThemeProvider',
   'svelte.error.useRouterOutsideProvider':
-    'Ayikho i-router lapha. Faka `MoleculeRouterProvider` kusuka ku-routing bond (`@molecule/app-routing-sveltekit`) empandeni ethi `+layout.svelte`, noma ushayele `setMoleculeContext({ router })` lapho.',
+    'Ayikho i-router lapha. Faka `MoleculeRouterProvider` kusuka ku-routing bond (`@molecule/app-routing-sveltekit`) empandeni `+layout.svelte`, noma ushayele `setMoleculeContext({ router })` lapho. Uma uhlelo lokusebenza seluvele lukwenza lokhu, i-routing bond yalo indala kunalokhu kubopha: yibuyekeze (`npm install @molecule/app-routing-sveltekit@latest`).',
   'svelte.error.noRoutedView':
     'Akukho ukubuka okuqondiswe lapha. I-SvelteKit inikeza isakhiwo ikhasi layo njenge- `children`: dlula `{@render children()}` ngaphakathi kwalesi sici.',
   'svelte.error.useHttpOutsideProvider':

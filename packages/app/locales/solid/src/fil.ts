@@ -39,7 +39,7 @@ export const fil: SolidTranslations = {
     'Dapat gamitin ang useLoggerProvider sa loob ng isang LoggerProvider',
   'solid.error.oauthFailed': 'Nabigo ang pag-login sa OAuth',
   'solid.error.useRouterOutsideProvider':
-    'Walang router dito. Gamitin `MoleculeRouterProvider` mula sa routing bond (`@molecule/app-routing-solid-router`) bilang `root` ng router, o ipasa `router` sa `MoleculeProvider`.',
+    'Walang router dito. Gamitin `MoleculeRouterProvider` mula sa routing bond (`@molecule/app-routing-solid-router`) bilang `root` ng router, o ipasa ang `router` sa `MoleculeProvider`. Kung ginagawa na ito ng app, ang routing bond nito ay mas luma kaysa sa binding na ito: i-update ito (`npm install @molecule/app-routing-solid-router@latest`).',
   'solid.error.noRoutedView':
     'Walang routed view dito. Binibigyan ng Solid Router ang component ng ruta ng nested route nito bilang `props.children`: gamitin ito bilang `component` ng ruta, o ipasa ang pahina bilang children.',
   'solid.error.useStoreOutsideProvider':

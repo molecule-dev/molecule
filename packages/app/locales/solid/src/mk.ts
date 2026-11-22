@@ -37,7 +37,7 @@ export const mk: SolidTranslations = {
     'useLoggerProvider мора да се користи во рамките на LoggerProvider',
   'solid.error.oauthFailed': 'Најавувањето со OAuth не успеа',
   'solid.error.useRouterOutsideProvider':
-    'Нема рутер овде. Користете го `MoleculeRouterProvider` од врската за рутирање (`@molecule/app-routing-solid-router`) како `root` на рутерот или предадете го `router` на `MoleculeProvider`.',
+    'Нема рутер овде. Користете го `MoleculeRouterProvider` од врската за рутирање (`@molecule/app-routing-solid-router`) како `root` на рутерот или предадете го `router` на `MoleculeProvider`. Ако апликацијата веќе го прави ова, нејзината врска за рутирање е постара од ова поврзување: ажурирајте го (`npm install @molecule/app-routing-solid-router@latest`).',
   'solid.error.noRoutedView':
     'Нема рутиран приказ овде. Solid Router ѝ ја дава на компонентата на рутата нејзината вгнездена рута како `props.children`: користете го ова како `component` на рутата или пренесете ја страницата како деца.',
   'solid.error.useStoreOutsideProvider':

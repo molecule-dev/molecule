@@ -6,7 +6,7 @@ export const mt: SvelteTranslations = {
   'svelte.error.noAuthClient': 'Il-klijent tal-awtentikazzjoni ma nstabx fil-kuntest',
   'svelte.error.noThemeProvider': 'Il-fornitur tat-tema ma nstabx fil-kuntest',
   'svelte.error.noRouter':
-    "M'hemm l-ebda router hawn. Immonta `MoleculeRouterProvider` mir-rottazzjoni (`@molecule/app-routing-sveltekit`) fl-għerq `+layout.svelte`, jew ċempel `setMoleculeContext({ router })` hemmhekk.",
+    "M'hemm l-ebda router hawn. Immonta `MoleculeRouterProvider` mir-rottazzjoni (`@molecule/app-routing-sveltekit`) fl-għerq `+layout.svelte`, jew ċempel `setMoleculeContext({ router })` hemmhekk. Jekk l-app diġà tagħmel dan, ir-rottazzjoni tagħha hija eqdem minn din ir-rabta: aġġornaha (`npm install @molecule/app-routing-sveltekit@latest`).",
   'svelte.error.noI18nProvider': 'Il-fornitur tal-i18n ma nstabx fil-kuntest',
   'svelte.error.noHttpClient': 'Il-klijent HTTP ma nstabx fil-kuntest',
   'svelte.error.noStorageProvider': 'Il-fornitur tal-hazna ma nstabx fil-kuntest',
@@ -23,7 +23,7 @@ export const mt: SvelteTranslations = {
   'svelte.error.useAuthOutsideProvider': 'useAuthClient irid jintuża fi ħdan AuthProvider',
   'svelte.error.useThemeOutsideProvider': 'useThemeProvider irid jintuża fi ħdan ThemeProvider',
   'svelte.error.useRouterOutsideProvider':
-    "M'hemm l-ebda router hawn. Immonta `MoleculeRouterProvider` mir-rottazzjoni (`@molecule/app-routing-sveltekit`) fl-għerq `+layout.svelte`, jew ċempel `setMoleculeContext({ router })` hemmhekk.",
+    "M'hemm l-ebda router hawn. Immonta `MoleculeRouterProvider` mir-rottazzjoni (`@molecule/app-routing-sveltekit`) fl-għerq `+layout.svelte`, jew ċempel `setMoleculeContext({ router })` hemmhekk. Jekk l-app diġà tagħmel dan, ir-rottazzjoni tagħha hija eqdem minn din ir-rabta: aġġornaha (`npm install @molecule/app-routing-sveltekit@latest`).",
   'svelte.error.noRoutedView':
     "M'hemm l-ebda veduta rottata hawn. SvelteKit jagħti l-paġna tiegħu lil-layout bħala `children`: għaddi `{@render children()}` ġewwa dan il-komponent.",
   'svelte.error.useHttpOutsideProvider': 'useHttpClient irid jintuża fi ħdan HttpProvider',

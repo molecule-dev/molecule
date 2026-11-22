@@ -17,9 +17,9 @@ export const ro: ReactTranslations = {
   'react.error.usePreviewOutsideProvider':
     'usePreviewProvider trebuie utilizat în interiorul unui PreviewProvider',
   'react.error.useRouterOutsideProvider':
-    'Nu există router aici. Montați o componentă de router din legătura de rutare a aplicației (`BrowserRouter` din `@molecule/app-routing-react-router`) sau transmiteți `router` către `MoleculeProvider`.',
+    'Nu există router aici. Montați o componentă de router din legătura de rutare a aplicației (`BrowserRouter` din `@molecule/app-routing-react-router`) sau transmiteți `router` către `MoleculeProvider`. Dacă aplicația face deja acest lucru, legătura sa de rutare este mai veche decât această legătură: actualizați-o (`npm install @molecule/app-routing-react-router@latest`).',
   'react.error.noRoutedView':
-    'Această legătură de rutare nu are o vedere rutată de redat aici: transmiteți pagina ca fiu în schimb.',
+    'Această legătură de rutare nu are o vizualizare rutată de redat aici: transmiteți pagina ca fiu în schimb. Dacă aplicația rutați cu `@molecule/app-routing-react-router`, acea legătură este mai veche decât această legătură: actualizați-o (`npm install @molecule/app-routing-react-router@latest`).',
   'react.error.useStoreOutsideProvider':
     'useStateProvider trebuie utilizat în interiorul unui StateProvider',
   'react.error.useStorageOutsideProvider':

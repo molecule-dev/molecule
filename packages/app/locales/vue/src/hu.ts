@@ -3,9 +3,9 @@ import type { VueTranslations } from './types.js'
 /** Vue translations for Hungarian. */
 export const hu: VueTranslations = {
   'vue.error.useRouterOutsideProvider':
-    'Nincs itt router. Csomagold be az alkalmazást `MoleculeRouterProvider`-be az útvonalválasztási kötelékből (`@molecule/app-routing-vue-router`), vagy add át `router` a `moleculePlugin`.',
+    'Nincs itt router. Csomagold be az alkalmazást `MoleculeRouterProvider`-be az útvonalválasztási kötvényből (`@molecule/app-routing-vue-router`), vagy add át `router` a `moleculePlugin`. Ha az alkalmazás már ezt teszi, akkor az útvonalválasztási kötvénye régebbi, mint ez a kötés: frissítsd (`npm install @molecule/app-routing-vue-router@latest`).',
   'vue.error.noRoutedView':
-    'Ennek az útvonalválasztási kötvénynek nincs útvonalnézete, amelyet itt megjeleníthetne: ehelyett adja át az oldalt gyermekként.',
+    'Ennek az útvonalválasztási köteléknek nincs útvonalnézete a megjelenítéshez: ehelyett add át az oldalakat gyermekként. Ha az alkalmazás `@molecule/app-routing-vue-router` paranccsal irányít, akkor ez a kötelék régebbi, mint ez a kötés: frissítsd (`npm install @molecule/app-routing-vue-router@latest`).',
   'vue.error.useStoreOutsideProvider': 'A useStateProvider-t StateProvider-en belül kell használni',
   'vue.error.useThemeOutsideProvider': 'A useThemeProvider-t ThemeProvider-en belül kell használni',
   'vue.error.useAuthOutsideProvider': 'A useAuthClient-et AuthProvider-en belül kell használni',

@@ -31,7 +31,7 @@ export const yo: SolidTranslations = {
   'solid.error.useLoggerOutsideProvider': 'a gbọ́dọ̀ lo useLoggerProvider nínú LoggerProvider',
   'solid.error.oauthFailed': 'Wíwọlé OAuth kùnà',
   'solid.error.useRouterOutsideProvider':
-    'Kò sí olùdarí `MoleculeProvider`. Lo `MoleculeRouterProvider` `router` `root` ìsopọ̀ ìdarí `@molecule/app-routing-solid-router`',
+    'Kò sí olùdarí níbí. Lo `MoleculeRouterProvider` láti inú ìdè ìdarí (`@molecule/app-routing-solid-router`) gẹ́gẹ́ bí `root` olùdarí, tàbí kí o fi `router` ránṣẹ́ sí `MoleculeProvider`. Tí àpù náà bá ti ṣe èyí tẹ́lẹ̀, ìdè ìdarí rẹ̀ ti dàgbà ju ìdè yìí lọ: ṣe àtúnṣe rẹ̀ (`npm install @molecule/app-routing-solid-router@latest`).',
   'solid.error.noRoutedView':
     'Kò sí ìwòran tí a lè fi ojú ọ̀nà hàn níbí. Solid Router fún apá ipa ọ̀nà kan ní ipa ọ̀nà tí ó wà ní ìsàlẹ̀ gẹ́gẹ́ bí `props.children`: lo èyí gẹ́gẹ́ bí `component` ọ̀nà kan, tàbí kí o fi ojú ìwé náà kọjá gẹ́gẹ́ bí ọmọdé.',
   'solid.error.useStoreOutsideProvider': 'a gbọ́dọ̀ lo useStateProvider láàrín Olùpèsè Ìpínlẹ̀ kan',

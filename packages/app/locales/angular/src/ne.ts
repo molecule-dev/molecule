@@ -17,9 +17,9 @@ export const ne: AngularTranslations = {
   'angular.error.usePreviewOutsideProvider':
     'usePreviewProvider PreviewProvider भित्र प्रयोग गर्नुपर्छ',
   'angular.error.useRouterOutsideProvider':
-    'यहाँ राउटर छैन। राउटिङ बन्ड (`@molecule/app-routing-angular-router`) बाट `provideMoleculeRouter()` थप्नुहोस्, Angular को `provideRouter(routes)` पछि, वा `router` लाई `provideMolecule` मा पास गर्नुहोस्।',
+    'यहाँ कुनै राउटर छैन। एङ्गुलरको `provideRouter(routes)` पछि, एपको प्रदायकहरूमा राउटिङ बन्ड (`@molecule/app-routing-angular-router`) बाट `provideMoleculeRouter()` थप्नुहोस्, वा `router` लाई `provideMolecule` मा पास गर्नुहोस्। यदि एपले पहिले नै यो गर्छ भने, यसको राउटिङ बन्ड यो बाइन्डिङ भन्दा पुरानो छ: यसलाई अपडेट गर्नुहोस् (`npm install @molecule/app-routing-angular-router@latest`)।',
   'angular.error.noRoutedView':
-    'यो राउटिङ बन्डमा यहाँ रेन्डर गर्न कुनै राउटेड भ्यू छैन: पृष्ठलाई बच्चाको रूपमा पास गर्नुहोस्।',
+    'यो राउटिङ बन्डमा यहाँ रेन्डर गर्न कुनै राउटेड भ्यू छैन: यसको सट्टा पृष्ठलाई बालबालिकाको रूपमा पास गर्नुहोस्। यदि एपले `@molecule/app-routing-angular-router` सँग राउट गर्छ भने, त्यो बन्ड यो बाइन्डिङ भन्दा पुरानो छ: यसलाई अपडेट गर्नुहोस् (`npm install @molecule/app-routing-angular-router@latest`)।',
   'angular.error.useStorageOutsideProvider':
     'useStorageProvider StorageProvider भित्र प्रयोग गर्नुपर्छ',
   'angular.error.useThemeOutsideProvider': 'useThemeProvider ThemeProvider भित्र प्रयोग गर्नुपर्छ',

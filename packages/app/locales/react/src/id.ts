@@ -14,9 +14,9 @@ export const id: ReactTranslations = {
   'react.error.usePreviewOutsideProvider':
     'usePreviewProvider harus digunakan di dalam PreviewProvider',
   'react.error.useRouterOutsideProvider':
-    'Tidak ada router di sini. Pasang komponen router dari routing bond aplikasi (`BrowserRouter` dari `@molecule/app-routing-react-router`), atau berikan `router` ke `MoleculeProvider`.',
+    'Tidak ada router di sini. Pasang komponen router dari binding routing aplikasi (`BrowserRouter` dari `@molecule/app-routing-react-router`), atau berikan `router` ke `MoleculeProvider`. Jika aplikasi sudah melakukan ini, binding routing-nya lebih lama dari binding ini: perbarui (`npm install @molecule/app-routing-react-router@latest`).',
   'react.error.noRoutedView':
-    'Ikatan perutean ini tidak memiliki tampilan yang dirutekan untuk dirender di sini: teruskan halaman sebagai anak-anaknya saja.',
+    'Ikatan routing ini tidak memiliki tampilan yang di-routing untuk dirender di sini: berikan halaman sebagai children sebagai gantinya. Jika aplikasi melakukan routing dengan `@molecule/app-routing-react-router`, ikatan tersebut lebih lama daripada ikatan ini: perbarui (`npm install @molecule/app-routing-react-router@latest`).',
   'react.error.useStoreOutsideProvider': 'useStateProvider harus digunakan di dalam StateProvider',
   'react.error.useStorageOutsideProvider':
     'useStorageProvider harus digunakan di dalam StorageProvider',

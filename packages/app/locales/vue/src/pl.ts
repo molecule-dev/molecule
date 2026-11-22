@@ -3,9 +3,9 @@ import type { VueTranslations } from './types.js'
 /** Vue translations for Polish. */
 export const pl: VueTranslations = {
   'vue.error.useRouterOutsideProvider':
-    'Brak routera. Umieść aplikację w `MoleculeRouterProvider` z powiązania routingu (`@molecule/app-routing-vue-router`) lub przekaż `router` do `moleculePlugin`.',
+    'Brak routera. Opakuj aplikację w `MoleculeRouterProvider` z powiązania routingu (`@molecule/app-routing-vue-router`) lub przekaż `router` do `moleculePlugin`. Jeśli aplikacja już to robi, jej powiązanie routingu jest starsze niż to powiązanie: zaktualizuj je (`npm install @molecule/app-routing-vue-router@latest`).',
   'vue.error.noRoutedView':
-    'To powiązanie routingu nie ma widoku routingu do renderowania w tym miejscu: zamiast tego przekaż stronę jako stronę potomną.',
+    'To powiązanie routingu nie ma widoku routingu do renderowania w tym miejscu. Zamiast tego przekaż stronę jako potomną. Jeśli aplikacja kieruje za pomocą `@molecule/app-routing-vue-router`, to powiązanie jest starsze niż to powiązanie: zaktualizuj je (`npm install @molecule/app-routing-vue-router@latest`).',
   'vue.error.useStoreOutsideProvider':
     'useStateProvider musi by\u0107 u\u017cywany wewn\u0105trz StateProvider',
   'vue.error.useThemeOutsideProvider':

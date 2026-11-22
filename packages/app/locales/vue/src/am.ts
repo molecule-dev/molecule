@@ -3,8 +3,9 @@ import type { VueTranslations } from './types.js'
 /** Vue translations for Amharic. */
 export const am: VueTranslations = {
   'vue.error.useRouterOutsideProvider':
-    'እዚህ ራውተር የለም። መተግበሪያውን ከራውቲንግ ቦንድ (`@molecule/app-routing-vue-router`) በ `MoleculeRouterProvider` ውስጥ ጠቅልለው ወይም `router` እስከ `moleculePlugin` ያልፉ።',
-  'vue.error.noRoutedView': 'ይህ የማዞሪያ ቦንድ እዚህ ለማሳየት ምንም የማዞሪያ እይታ የለውም፡ ገጹን እንደ ልጆች ያስተላልፉ።',
+    'እዚህ ራውተር የለም። መተግበሪያውን ከራውቲንግ ቦንድ (`@molecule/app-routing-vue-router`) በ `MoleculeRouterProvider` ይጠቅልሉት ወይም `router` እስከ `moleculePlugin` ያልፉ። መተግበሪያው ይህን ካደረገ፣ የማዞሪያ ቦንዱ ከዚህ ማሰሪያ የቆየ ነው፡ ያዘምኑት (`npm install @molecule/app-routing-vue-router@latest`)።',
+  'vue.error.noRoutedView':
+    'ይህ የማዞሪያ ቦንድ እዚህ ለማሳየት ምንም የተዘዋወረ እይታ የለውም፡ ገጹን እንደ ልጆች ይለፉ። መተግበሪያው `@molecule/app-routing-vue-router` ን የሚያገናኝ ከሆነ፣ ያ ቦንድ ከዚህ ማሰሪያ የቆየ ነው፡ ያዘምኑት (`npm install @molecule/app-routing-vue-router@latest`)።',
   'vue.error.useStoreOutsideProvider': 'useStateProvider በ StateProvider ውስጥ ጥቅም ላይ መዋል አለበት',
   'vue.error.useThemeOutsideProvider': 'useThemeProvider በ ThemeProvider ውስጥ ጥቅም ላይ መዋል አለበት',
   'vue.error.useAuthOutsideProvider': 'useAuthClient በ AuthProvider ውስጥ ጥቅም ላይ መዋል አለበት',

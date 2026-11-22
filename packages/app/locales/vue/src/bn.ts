@@ -3,9 +3,9 @@ import type { VueTranslations } from './types.js'
 /** Vue translations for Bengali. */
 export const bn: VueTranslations = {
   'vue.error.useRouterOutsideProvider':
-    'এখানে কোনো রাউটার নেই। রাউটিং বন্ড (`@molecule/app-routing-vue-router`) থেকে `MoleculeRouterProvider` এর মধ্যে অ্যাপটিকে র‍্যাপ করুন, অথবা `moleculePlugin` এ `router` পাস করুন।',
+    'এখানে কোনো রাউটার নেই। রাউটিং বন্ড (`@molecule/app-routing-vue-router`) থেকে অ্যাপটিকে `MoleculeRouterProvider` মধ্যে র‍্যাপ করুন, অথবা `moleculePlugin` এ `router` পাস করুন। যদি অ্যাপটি ইতিমধ্যেই এটি করে থাকে, তাহলে এর রাউটিং বন্ডটি এই বাইন্ডিংয়ের চেয়ে পুরোনো: এটি আপডেট করুন (`npm install @molecule/app-routing-vue-router@latest`)।',
   'vue.error.noRoutedView':
-    'এই রাউটিং বন্ডে এখানে রেন্ডার করার জন্য কোনো রাউটেড ভিউ নেই: এর পরিবর্তে পেজটিকে চাইল্ড হিসেবে পাস করুন।',
+    'এই রাউটিং বন্ডে এখানে রেন্ডার করার জন্য কোনো রাউটেড ভিউ নেই: এর পরিবর্তে পেজটিকে চাইল্ড হিসেবে পাস করুন। যদি অ্যাপটি `@molecule/app-routing-vue-router` দিয়ে রাউট করে, তাহলে সেই বন্ডটি এই বাইন্ডিংয়ের চেয়ে পুরোনো: এটি আপডেট করুন (`npm install @molecule/app-routing-vue-router@latest`)।',
   'vue.error.useStoreOutsideProvider':
     'useStateProvider অবশ্যই StateProvider এর মধ্যে ব্যবহার করতে হবে',
   'vue.error.useThemeOutsideProvider':

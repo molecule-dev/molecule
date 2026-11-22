@@ -4,9 +4,9 @@ import type { VueTranslations } from './types.js'
 export const fr: Partial<VueTranslations> = {
   'vue.error.unsupportedMethod': 'Méthode non prise en charge : {{method}}',
   'vue.error.useRouterOutsideProvider':
-    "Aucun routeur ici. Enveloppez l'application dans `MoleculeRouterProvider` à partir de la liaison de routage (`@molecule/app-routing-vue-router`), ou transmettez `router` à `moleculePlugin`.",
+    "Aucun routeur n'est configuré ici. Enveloppez l'application dans `MoleculeRouterProvider` depuis la liaison de routage (`@molecule/app-routing-vue-router`), ou transmettez `router` à `moleculePlugin`. Si l'application le fait déjà, sa liaison de routage est plus ancienne que cette liaison : mettez-la à jour (`npm install @molecule/app-routing-vue-router@latest`).",
   'vue.error.noRoutedView':
-    "Ce lien de routage n'a aucune vue routée à afficher ici : transmettez plutôt la page en tant qu'enfants.",
+    "Cette liaison de routage n'a aucune vue routée à afficher ici : transmettez plutôt la page en tant qu'enfant. Si l'application utilise `@molecule/app-routing-vue-router`, cette liaison est plus ancienne que cette liaison : mettez-la à jour (`npm install @molecule/app-routing-vue-router@latest`).",
   'vue.error.useStoreOutsideProvider':
     "useStateProvider doit être utilisé à l'intérieur d'un StateProvider.",
   'vue.error.useThemeOutsideProvider':

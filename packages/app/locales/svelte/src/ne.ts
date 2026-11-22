@@ -9,7 +9,7 @@ export const ne: SvelteTranslations = {
   'svelte.error.noThemeProvider':
     '\u0925\u093f\u092e \u092a\u094d\u0930\u094b\u092d\u093e\u0907\u0921\u0930 \u0938\u0928\u094d\u0926\u0930\u094d\u092d\u092e\u093e \u092d\u0947\u091f\u093f\u090f\u0928',
   'svelte.error.noRouter':
-    'यहाँ राउटर छैन। `+layout.svelte` रूटमा रहेको राउटिङ बन्ड (`@molecule/app-routing-sveltekit`) बाट `MoleculeRouterProvider` माउन्ट गर्नुहोस्, वा त्यहाँ `setMoleculeContext({ router })` कल गर्नुहोस्।',
+    'यहाँ राउटर छैन। `+layout.svelte` रूटमा रहेको राउटिङ बन्ड (`@molecule/app-routing-sveltekit`) बाट `MoleculeRouterProvider` माउन्ट गर्नुहोस्, वा त्यहाँ `setMoleculeContext({ router })` लाई कल गर्नुहोस्। यदि एपले पहिले नै यो गर्छ भने, यसको राउटिङ बन्ड यो बाइन्डिङ भन्दा पुरानो छ: यसलाई अपडेट गर्नुहोस् (`npm install @molecule/app-routing-sveltekit@latest`)।',
   'svelte.error.noI18nProvider':
     'I18n \u092a\u094d\u0930\u094b\u092d\u093e\u0907\u0921\u0930 \u0938\u0928\u094d\u0926\u0930\u094d\u092d\u092e\u093e \u092d\u0947\u091f\u093f\u090f\u0928',
   'svelte.error.noHttpClient':
@@ -32,7 +32,7 @@ export const ne: SvelteTranslations = {
   'svelte.error.useThemeOutsideProvider':
     'useThemeProvider लाई ThemeProvider भित्र प्रयोग गर्नुपर्छ।',
   'svelte.error.useRouterOutsideProvider':
-    'यहाँ राउटर छैन। `+layout.svelte` रूटमा रहेको राउटिङ बन्ड (`@molecule/app-routing-sveltekit`) बाट `MoleculeRouterProvider` माउन्ट गर्नुहोस्, वा त्यहाँ `setMoleculeContext({ router })` कल गर्नुहोस्।',
+    'यहाँ राउटर छैन। `+layout.svelte` रूटमा रहेको राउटिङ बन्ड (`@molecule/app-routing-sveltekit`) बाट `MoleculeRouterProvider` माउन्ट गर्नुहोस्, वा त्यहाँ `setMoleculeContext({ router })` लाई कल गर्नुहोस्। यदि एपले पहिले नै यो गर्छ भने, यसको राउटिङ बन्ड यो बाइन्डिङ भन्दा पुरानो छ: यसलाई अपडेट गर्नुहोस् (`npm install @molecule/app-routing-sveltekit@latest`)।',
   'svelte.error.noRoutedView':
     'यहाँ कुनै राउटेड दृश्य छैन। SvelteKit ले लेआउटलाई यसको पृष्ठ `children` को रूपमा दिन्छ: यस कम्पोनेन्ट भित्र `{@render children()}` पास गर्नुहोस्।',
   'svelte.error.useHttpOutsideProvider': 'useHttpClient HttpProvider भित्र प्रयोग गरिनु पर्छ।',

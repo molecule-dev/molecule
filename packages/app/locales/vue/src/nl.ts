@@ -3,9 +3,9 @@ import type { VueTranslations } from './types.js'
 /** Vue translations for Dutch. */
 export const nl: VueTranslations = {
   'vue.error.useRouterOutsideProvider':
-    'Geen router hier. Wikkel de app in `MoleculeRouterProvider` van de routing bond (`@molecule/app-routing-vue-router`), of geef `router` door aan `moleculePlugin`.',
+    'Geen router hier. Wikkel de app in `MoleculeRouterProvider` van de routing bond (`@molecule/app-routing-vue-router`), of geef `router` door aan `moleculePlugin`. Als de app dit al doet, is de routing bond ouder dan deze binding: update deze (`npm install @molecule/app-routing-vue-router@latest`).',
   'vue.error.noRoutedView':
-    'Deze routing bond heeft geen gerouteerde view om hier weer te geven: geef de pagina in plaats daarvan door als children.',
+    'Deze routing-binding heeft geen gerouteerde weergave om hier weer te geven: geef de pagina in plaats daarvan door als children. Als de app routeert met `@molecule/app-routing-vue-router`, is die binding ouder dan deze binding: update deze (`npm install @molecule/app-routing-vue-router@latest`).',
   'vue.error.useStoreOutsideProvider':
     'useStateProvider moet binnen een StateProvider worden gebruikt',
   'vue.error.useThemeOutsideProvider':

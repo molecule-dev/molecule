@@ -18,9 +18,9 @@ export const ca: AngularTranslations = {
   'angular.error.usePreviewOutsideProvider':
     "usePreviewProvider s'ha d'utilitzar dins d'un PreviewProvider.",
   'angular.error.useRouterOutsideProvider':
-    "Aquí no hi ha cap encaminador. Afegiu `provideMoleculeRouter()` des de l'enllaç d'encaminament (`@molecule/app-routing-angular-router`) als proveïdors de l'aplicació, després de `provideRouter(routes)` d'Angular, o passeu `router` a `provideMolecule`.",
+    "Aquí no hi ha cap encaminador. Afegiu `provideMoleculeRouter()` des del vincle d'encaminament (`@molecule/app-routing-angular-router`) als proveïdors de l'aplicació, després de `provideRouter(routes)` d'Angular, o passeu `router` a `provideMolecule`. Si l'aplicació ja ho fa, el seu vincle d'encaminament és més antic que aquest vincle: actualitzeu-lo (`npm install @molecule/app-routing-angular-router@latest`).",
   'angular.error.noRoutedView':
-    "Aquest enllaç d'encaminament no té cap vista encaminada per renderitzar aquí: passa la pàgina com a filla.",
+    "Aquest enllaç d'encaminament no té cap vista encaminada per renderitzar aquí: passeu la pàgina com a filla. Si l'aplicació encamina amb `@molecule/app-routing-angular-router`, aquest enllaç és més antic que aquest enllaç: actualitzeu-lo (`npm install @molecule/app-routing-angular-router@latest`).",
   'angular.error.useStorageOutsideProvider':
     "useStorageProvider s'ha d'utilitzar dins d'un StorageProvider.",
   'angular.error.useThemeOutsideProvider':

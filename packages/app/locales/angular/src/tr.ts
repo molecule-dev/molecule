@@ -17,9 +17,9 @@ export const tr: AngularTranslations = {
   'angular.error.usePreviewOutsideProvider':
     'usePreviewProvider bir PreviewProvider içinde kullanılmalıdır',
   'angular.error.useRouterOutsideProvider':
-    "Burada yönlendirici yok. Yönlendirme bağından (`@molecule/app-routing-angular-router`) `provideMoleculeRouter()` , Angular'ın `provideRouter(routes)` sonra uygulamanın sağlayıcılarına ekleyin veya `router` `provideMolecule` geçirin.",
+    "Burada yönlendirici yok. Yönlendirme bağından (`@molecule/app-routing-angular-router`) `provideMoleculeRouter()` , Angular'ın `provideRouter(routes)` sonra uygulamanın sağlayıcılarına ekleyin veya `router` `provideMolecule` geçirin. Uygulama bunu zaten yapıyorsa, yönlendirme bağı bu bağlamadan daha eskidir: onu güncelleyin (`npm install @molecule/app-routing-angular-router@latest`).",
   'angular.error.noRoutedView':
-    'Bu yönlendirme bağlantısının burada görüntülenecek yönlendirilmiş bir görünümü yok: bunun yerine sayfayı alt öğeler olarak iletin.',
+    'Bu yönlendirme bağlantısında burada işlenecek yönlendirilmiş bir görünüm yok: bunun yerine sayfayı alt öğeler olarak geçirin. Uygulama `@molecule/app-routing-angular-router` ile yönlendiriliyorsa, bu bağlantı bu bağlamadan daha eskidir: onu güncelleyin (`npm install @molecule/app-routing-angular-router@latest`).',
   'angular.error.useStorageOutsideProvider':
     'useStorageProvider bir StorageProvider içinde kullanılmalıdır',
   'angular.error.useThemeOutsideProvider':

@@ -29,7 +29,7 @@ export const th: SolidTranslations = {
   'solid.error.useLoggerOutsideProvider': 'ต้องใช้ useLoggerProvider ภายใน LoggerProvider',
   'solid.error.oauthFailed': 'การเข้าสู่ระบบ OAuth ล้มเหลว',
   'solid.error.useRouterOutsideProvider':
-    'ไม่มีเราเตอร์ในที่นี้ ให้ใช้ `MoleculeRouterProvider` จากพันธะการกำหนดเส้นทาง (`@molecule/app-routing-solid-router`) เป็น `root` ของเราเตอร์ หรือส่ง `router` ไปยัง `MoleculeProvider`',
+    'ไม่มีเราเตอร์ในที่นี้ ให้ใช้ `MoleculeRouterProvider` จาก routing bond (`@molecule/app-routing-solid-router`) เป็น `root` ของเราเตอร์ หรือส่งค่า `router` ไปยัง `MoleculeProvider` หากแอปของคุณทำเช่นนี้อยู่แล้ว แสดงว่า routing bond ของแอปนั้นเก่ากว่า binding นี้ โปรดอัปเดต (`npm install @molecule/app-routing-solid-router@latest`)',
   'solid.error.noRoutedView':
     'ไม่มีการกำหนดเส้นทางในมุมมองนี้ Solid Router จะส่งเส้นทางย่อยของคอมโพเนนต์ของเส้นทางหลักเป็น `props.children`: คุณสามารถใช้สิ่งนี้เป็น `component` ของเส้นทางหลัก หรือส่งหน้าเว็บเป็น children ได้',
   'solid.error.useStoreOutsideProvider': 'ต้องใช้ useStateProvider ภายใน StateProvider',

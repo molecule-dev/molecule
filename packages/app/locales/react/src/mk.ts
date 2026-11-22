@@ -14,9 +14,9 @@ export const mk: ReactTranslations = {
   'react.error.usePreviewOutsideProvider':
     'usePreviewProvider мора да се користи внатре во PreviewProvider',
   'react.error.useRouterOutsideProvider':
-    'Нема рутер овде. Монтирајте компонента на рутер од врската за рутирање на апликацијата (`BrowserRouter` од `@molecule/app-routing-react-router`) или предадете го `router` на `MoleculeProvider`.',
+    'Нема рутер овде. Монтирајте компонента на рутер од врската за рутирање на апликацијата (`BrowserRouter` од `@molecule/app-routing-react-router`), или предадете го `router` на `MoleculeProvider`. Ако апликацијата веќе го прави ова, нејзината врска за рутирање е постара од ова поврзување: ажурирајте го (`npm install @molecule/app-routing-react-router@latest`).',
   'react.error.noRoutedView':
-    'Оваа врска за насочување нема рутиран приказ за прикажување тука: наместо тоа, пренесете ја страницата како деца.',
+    'Оваа врска за насочување нема рутиран приказ за рендерирање тука: наместо тоа, пренесете ја страницата како деца. Ако апликацијата се насочува со `@molecule/app-routing-react-router`, таа врска е постара од ова врзување: ажурирајте го (`npm install @molecule/app-routing-react-router@latest`).',
   'react.error.useStoreOutsideProvider':
     'useStateProvider мора да се користи внатре во StateProvider',
   'react.error.useStorageOutsideProvider':

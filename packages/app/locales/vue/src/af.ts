@@ -4,9 +4,9 @@ import type { VueTranslations } from './types.js'
 export const af: Partial<VueTranslations> = {
   'vue.error.unsupportedMethod': 'Nie-ondersteunde metode: {{method}}',
   'vue.error.useRouterOutsideProvider':
-    'Geen router hier nie. Draai die toepassing in `MoleculeRouterProvider` toe vanaf die roeteringsbinding (`@molecule/app-routing-vue-router`), of gee `router` deur aan `moleculePlugin`.',
+    'Geen router hier nie. Draai die toepassing in `MoleculeRouterProvider` toe vanaf die roeteringsbinding (`@molecule/app-routing-vue-router`), of gee `router` deur aan `moleculePlugin`. As die toepassing dit reeds doen, is die roeteringsbinding ouer as hierdie binding: werk dit op (`npm install @molecule/app-routing-vue-router@latest`).',
   'vue.error.noRoutedView':
-    'Hierdie roeteringsbinding het geen gerouteerde aansig om hier te lewer nie: gee eerder die bladsy as kinders deur.',
+    'Hierdie roeteringsbinding het geen gerouteerde aansig om hier te lewer nie: gee die bladsy eerder as kinders deur. As die toepassing met `@molecule/app-routing-vue-router` roeteer, is daardie binding ouer as hierdie binding: werk dit op (`npm install @molecule/app-routing-vue-router@latest`).',
   'vue.error.useStoreOutsideProvider': "useStateProvider moet binne 'n StateProvider gebruik word.",
   'vue.error.useThemeOutsideProvider': "useThemeProvider moet binne 'n Temaverskaffer gebruik word",
   'vue.error.useAuthOutsideProvider': "useAuthClient moet binne 'n AuthProvider gebruik word",

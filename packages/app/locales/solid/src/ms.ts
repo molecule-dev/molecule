@@ -32,7 +32,7 @@ export const ms: SolidTranslations = {
   'solid.error.useLoggerOutsideProvider': 'useLoggerProvider mesti digunakan dalam LoggerProvider',
   'solid.error.oauthFailed': 'Log masuk OAuth gagal',
   'solid.error.useRouterOutsideProvider':
-    'Tiada penghala di sini. Gunakan `MoleculeRouterProvider` daripada ikatan penghalaan (`@molecule/app-routing-solid-router`) sebagai `root` penghala, atau serahkan `router` kepada `MoleculeProvider`.',
+    'Tiada penghala di sini. Gunakan `MoleculeRouterProvider` daripada ikatan penghalaan (`@molecule/app-routing-solid-router`) sebagai `root` penghala, atau serahkan `router` kepada `MoleculeProvider`. Jika aplikasi sudah melakukan ini, ikatan penghalaannya lebih lama daripada ikatan ini: kemas kininya (`npm install @molecule/app-routing-solid-router@latest`).',
   'solid.error.noRoutedView':
     'Tiada paparan penghalaan di sini. Penghala Pepejal memberikan komponen laluan laluan bersarangnya sebagai `props.children`: gunakan ini sebagai `component` laluan, atau lulus halaman sebagai anak.',
   'solid.error.useStoreOutsideProvider': 'useStateProvider mesti digunakan dalam StateProvider',

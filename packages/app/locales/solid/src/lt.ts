@@ -37,7 +37,7 @@ export const lt: SolidTranslations = {
     '„useLoggerProvider“ turi būti naudojamas „LoggerProvider“ viduje.',
   'solid.error.oauthFailed': 'OAuth prisijungimas nepavyko',
   'solid.error.useRouterOutsideProvider':
-    'Čia nėra maršrutizatoriaus. Naudokite `MoleculeRouterProvider` iš maršrutizavimo jungties (`@molecule/app-routing-solid-router`) kaip maršrutizatoriaus `root` arba perduokite `router` `MoleculeProvider`.',
+    'Čia nėra maršrutizatoriaus. Naudokite `MoleculeRouterProvider` iš maršrutizavimo jungties (`@molecule/app-routing-solid-router`) kaip maršrutizatoriaus `root` arba perduokite `router` `MoleculeProvider`. Jei programa jau tai daro, jos maršrutizavimo jungtis yra senesnė nei šis susiejimas: atnaujinkite jį (`npm install @molecule/app-routing-solid-router@latest`).',
   'solid.error.noRoutedView':
     'Čia nėra maršrutizuoto vaizdo. „Solid Router“ maršruto komponentui suteikia įdėtąjį maršrutą kaip `props.children`: naudokite jį kaip maršruto `component` arba perduokite puslapį kaip antrinį elementą.',
   'solid.error.useStoreOutsideProvider':

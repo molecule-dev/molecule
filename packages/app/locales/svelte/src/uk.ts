@@ -9,7 +9,7 @@ export const uk: SvelteTranslations = {
   'svelte.error.noThemeProvider':
     '\u041f\u0440\u043e\u0432\u0430\u0439\u0434\u0435\u0440 \u0442\u0435\u043c\u0438 \u043d\u0435 \u0437\u043d\u0430\u0439\u0434\u0435\u043d\u043e \u0432 \u043a\u043e\u043d\u0442\u0435\u043a\u0441\u0442\u0456',
   'svelte.error.noRouter':
-    "Тут немає маршрутизатора. Змонтуйте `MoleculeRouterProvider` з маршрутизаційного зв'язку (`@molecule/app-routing-sveltekit`) у кореневому каталозі `+layout.svelte` або викличте там `setMoleculeContext({ router })` .",
+    "Тут немає маршрутизатора. Змонтуйте `MoleculeRouterProvider` з маршрутизаційного зв'язку (`@molecule/app-routing-sveltekit`) у кореневому каталозі `+layout.svelte` або викличте там `setMoleculeContext({ router })` . Якщо застосунок вже це робить, його маршрутизаційний зв'язок старший за цей зв'язок: оновіть його (`npm install @molecule/app-routing-sveltekit@latest`).",
   'svelte.error.noI18nProvider':
     'I18n \u043f\u0440\u043e\u0432\u0430\u0439\u0434\u0435\u0440 \u043d\u0435 \u0437\u043d\u0430\u0439\u0434\u0435\u043d\u043e \u0432 \u043a\u043e\u043d\u0442\u0435\u043a\u0441\u0442\u0456',
   'svelte.error.noHttpClient':
@@ -34,7 +34,7 @@ export const uk: SvelteTranslations = {
   'svelte.error.useThemeOutsideProvider':
     'useThemeProvider має використовуватися всередині ThemeProvider',
   'svelte.error.useRouterOutsideProvider':
-    "Тут немає маршрутизатора. Змонтуйте `MoleculeRouterProvider` з маршрутизаційного зв'язку (`@molecule/app-routing-sveltekit`) у кореневому каталозі `+layout.svelte` або викличте там `setMoleculeContext({ router })` .",
+    "Тут немає маршрутизатора. Змонтуйте `MoleculeRouterProvider` з маршрутизаційного зв'язку (`@molecule/app-routing-sveltekit`) у кореневому каталозі `+layout.svelte` або викличте там `setMoleculeContext({ router })` . Якщо застосунок вже це робить, його маршрутизаційний зв'язок старший за цей зв'язок: оновіть його (`npm install @molecule/app-routing-sveltekit@latest`).",
   'svelte.error.noRoutedView':
     'Тут немає маршрутизованого перегляду. SvelteKit надає макету сторінки як `children`: передайте `{@render children()}` всередині цього компонента.',
   'svelte.error.useHttpOutsideProvider': 'useHttpClient має використовуватися в HttpProvider',

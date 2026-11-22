@@ -6,7 +6,7 @@ export const uz: SvelteTranslations = {
   'svelte.error.noAuthClient': 'Autentifikatsiya mijozi kontekstda topilmadi',
   'svelte.error.noThemeProvider': 'Mavzu provayderi kontekstda topilmadi',
   'svelte.error.noRouter':
-    "Bu yerda router yo'q. `+layout.svelte` ildizidagi marshrutizatsiya bog'lanishidan (`@molecule/app-routing-sveltekit`) `MoleculeRouterProvider` ni o'rnating yoki u yerda `setMoleculeContext({ router })` chaqiring.",
+    "Bu yerda router yo'q. `+layout.svelte` ildizidagi marshrutizatsiya bog'lanishidan (`@molecule/app-routing-sveltekit`) `MoleculeRouterProvider` o'rnating yoki u yerda `setMoleculeContext({ router })` chaqiring. Agar ilova buni allaqachon bajargan bo'lsa, uning marshrutizatsiya bog'lanishi ushbu bog'lanishdan eskiroq: uni yangilang (`npm install @molecule/app-routing-sveltekit@latest`).",
   'svelte.error.noI18nProvider': 'I18n provayderi kontekstda topilmadi',
   'svelte.error.noHttpClient': 'HTTP mijozi kontekstda topilmadi',
   'svelte.error.noStorageProvider': 'Saqlash provayderi kontekstda topilmadi',
@@ -24,7 +24,7 @@ export const uz: SvelteTranslations = {
   'svelte.error.useThemeOutsideProvider':
     'useThemeProvider ThemeProvider ichida ishlatilishi kerak',
   'svelte.error.useRouterOutsideProvider':
-    "Bu yerda router yo'q. `+layout.svelte` ildizidagi marshrutizatsiya bog'lanishidan (`@molecule/app-routing-sveltekit`) `MoleculeRouterProvider` ni o'rnating yoki u yerda `setMoleculeContext({ router })` chaqiring.",
+    "Bu yerda router yo'q. `+layout.svelte` ildizidagi marshrutizatsiya bog'lanishidan (`@molecule/app-routing-sveltekit`) `MoleculeRouterProvider` o'rnating yoki u yerda `setMoleculeContext({ router })` chaqiring. Agar ilova buni allaqachon bajargan bo'lsa, uning marshrutizatsiya bog'lanishi ushbu bog'lanishdan eskiroq: uni yangilang (`npm install @molecule/app-routing-sveltekit@latest`).",
   'svelte.error.noRoutedView':
     "Bu yerda marshrutlangan ko'rinish yo'q. SvelteKit o'z sahifasiga `children` sifatida maket beradi: ushbu komponent ichiga `{@render children()}` ni o'tkazadi.",
   'svelte.error.useHttpOutsideProvider': 'useHttpClient HttpProvider ichida ishlatilishi kerak',

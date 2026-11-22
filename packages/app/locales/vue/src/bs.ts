@@ -3,9 +3,9 @@ import type { VueTranslations } from './types.js'
 /** Vue translations for Bosnian. */
 export const bs: VueTranslations = {
   'vue.error.useRouterOutsideProvider':
-    'Ovdje nema rutera. Omotajte aplikaciju u `MoleculeRouterProvider` iz veze usmjeravanja (`@molecule/app-routing-vue-router`) ili proslijedite `router` u `moleculePlugin`.',
+    'Ovdje nema rutera. Omotajte aplikaciju u `MoleculeRouterProvider` iz veze usmjeravanja (`@molecule/app-routing-vue-router`) ili proslijedite `router` `moleculePlugin`. Ako aplikacija već to radi, njena veza usmjeravanja je starija od ove veze: ažurirajte je (`npm install @molecule/app-routing-vue-router@latest`).',
   'vue.error.noRoutedView':
-    'Ova veza usmjeravanja nema usmjereni prikaz za renderiranje ovdje: umjesto toga, proslijedite stranicu kao potomke.',
+    'Ova veza usmjeravanja nema usmjerni prikaz za prikaz ovdje: umjesto toga proslijedite stranicu kao potomke. Ako se aplikacija usmjerava sa `@molecule/app-routing-vue-router`, ta veza je starija od ove veze: ažurirajte je (`npm install @molecule/app-routing-vue-router@latest`).',
   'vue.error.useStoreOutsideProvider': 'useStateProvider mora se koristiti unutar StateProvider',
   'vue.error.useThemeOutsideProvider': 'useThemeProvider mora se koristiti unutar ThemeProvider',
   'vue.error.useAuthOutsideProvider': 'useAuthClient mora se koristiti unutar AuthProvider',

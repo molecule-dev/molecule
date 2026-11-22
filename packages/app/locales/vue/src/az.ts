@@ -3,9 +3,9 @@ import type { VueTranslations } from './types.js'
 /** Vue translations for Azerbaijani. */
 export const az: VueTranslations = {
   'vue.error.useRouterOutsideProvider':
-    'Burada router yoxdur. Tətbiqi router bağlantısından (`@molecule/app-routing-vue-router`) `MoleculeRouterProvider`-ə sarın və ya `router` `moleculePlugin` ə ötürün.',
+    'Burada router yoxdur. Tətbiqi marşrutlaşdırma bağlantısından (`@molecule/app-routing-vue-router`) `MoleculeRouterProvider`-ə sarın və ya `router` `moleculePlugin`-ə ötürün. Əgər tətbiq bunu artıq edirsə, onun marşrutlaşdırma bağlantısı bu bağlantıdan daha köhnədir: onu yeniləyin (`npm install @molecule/app-routing-vue-router@latest`).',
   'vue.error.noRoutedView':
-    'Bu marşrutlaşdırma bondunun burada göstərmək üçün marşrutlaşdırılmış görünüş yoxdur: səhifəni uşaq kimi ötürün.',
+    'Bu marşrutlaşdırma bağının burada göstəriləcək marşrutlaşdırılmış görünüşü yoxdur: səhifəni uşaq kimi ötürün. Əgər tətbiq `@molecule/app-routing-vue-router` ilə marşrutlaşdırırsa, həmin bağ bu bağlanmadan daha köhnədir: onu yeniləyin (`npm install @molecule/app-routing-vue-router@latest`).',
   'vue.error.useStoreOutsideProvider':
     'useStateProvider StateProvider daxilində istifadə olunmalıdır',
   'vue.error.useThemeOutsideProvider':

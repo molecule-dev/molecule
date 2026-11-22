@@ -35,7 +35,7 @@ export const ky: SolidTranslations = {
     'useLoggerProvider LoggerProvider ичинде колдонулушу керек',
   'solid.error.oauthFailed': 'OAuth кирүүсү ишке ашкан жок',
   'solid.error.useRouterOutsideProvider':
-    'Бул жерде роутер жок. Роутердин `root` катары маршрутизатор байланышынан (`@molecule/app-routing-solid-router`) `MoleculeRouterProvider` колдонуңуз же `router` `MoleculeProvider` өткөрүңүз.',
+    'Бул жерде роутер жок. Роутердин `root` катары маршруттоо байланышынан (`@molecule/app-routing-solid-router`) `MoleculeRouterProvider` колдонуңуз же `router` `MoleculeProvider` өткөрүп бериңиз. Эгер колдонмо муну мурунтан эле жасап жатса, анын маршруттоо байланышы бул байланыштан эски: аны жаңыртыңыз (`npm install @molecule/app-routing-solid-router@latest`).',
   'solid.error.noRoutedView':
     'Бул жерде маршрутталган көрүнүш жок. Solid Router маршруттун компонентине өзүнүн ички маршрутун `props.children` катары берет: муну маршруттун `component` катары колдонуңуз же баракты балдар катары өткөрүп бериңиз.',
   'solid.error.useStoreOutsideProvider': 'useStateProvider StateProvider ичинде колдонулушу керек',

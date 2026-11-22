@@ -15,9 +15,9 @@ export const et: AngularTranslations = {
   'angular.error.usePreviewOutsideProvider':
     'usePreviewProvider tuleb kasutada PreviewProvider sees',
   'angular.error.useRouterOutsideProvider':
-    'Siin pole ruuterit. Lisa `provideMoleculeRouter()` marsruutimissidemest (`@molecule/app-routing-angular-router`) rakenduse pakkujatega, pärast Angulari `provideRouter(routes)` või edasta `router` `provideMolecule` ile.',
+    'Siin pole ruuterit. Lisa `provideMoleculeRouter()` marsruutimissidemest (`@molecule/app-routing-angular-router`) rakenduse pakkujatele, pärast Angulari `provideRouter(routes)` või edasta `router` `provideMolecule` ile. Kui rakendus seda juba teeb, on selle marsruutimisside vanem kui see side: uuenda seda (`npm install @molecule/app-routing-angular-router@latest`).',
   'angular.error.noRoutedView':
-    'Sellel marsruutimissidemel pole siin renderdamiseks marsruutitud vaadet: edastage leht hoopis alamlehtedena.',
+    'Sellel marsruutimissidemel pole siin renderdamiseks marsruutitud vaadet: edasta leht hoopis lastena. Kui rakendus marsruutib `@molecule/app-routing-angular-router` abil, on see side vanem kui see side: uuenda seda (`npm install @molecule/app-routing-angular-router@latest`).',
   'angular.error.useStorageOutsideProvider':
     'useStorageProvider tuleb kasutada StorageProvider sees',
   'angular.error.useThemeOutsideProvider': 'useThemeProvider tuleb kasutada ThemeProvider sees',

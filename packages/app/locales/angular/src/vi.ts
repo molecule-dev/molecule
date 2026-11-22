@@ -18,9 +18,9 @@ export const vi: AngularTranslations = {
   'angular.error.usePreviewOutsideProvider':
     'usePreviewProvider phải được sử dụng bên trong PreviewProvider',
   'angular.error.useRouterOutsideProvider':
-    'Không có router ở đây. Thêm `provideMoleculeRouter()` từ liên kết định tuyến (`@molecule/app-routing-angular-router`) vào các provider của ứng dụng, sau `provideRouter(routes)` của Angular, hoặc truyền `router` cho `provideMolecule`.',
+    'Không có router ở đây. Thêm `provideMoleculeRouter()` từ liên kết định tuyến (`@molecule/app-routing-angular-router`) vào các provider của ứng dụng, sau `provideRouter(routes)` của Angular, hoặc truyền `router` cho `provideMolecule`. Nếu ứng dụng đã làm điều này, liên kết định tuyến của nó cũ hơn liên kết này: hãy cập nhật nó (`npm install @molecule/app-routing-angular-router@latest`).',
   'angular.error.noRoutedView':
-    'Liên kết định tuyến này không có chế độ xem được định tuyến để hiển thị ở đây: thay vào đó hãy truyền trang đó dưới dạng các phần tử con.',
+    'Liên kết định tuyến này không có chế độ xem được định tuyến để hiển thị ở đây: thay vào đó hãy truyền trang dưới dạng các phần tử con. Nếu ứng dụng định tuyến bằng `@molecule/app-routing-angular-router`, liên kết đó cũ hơn liên kết này: hãy cập nhật nó (`npm install @molecule/app-routing-angular-router@latest`).',
   'angular.error.useStorageOutsideProvider':
     'useStorageProvider phải được sử dụng bên trong StorageProvider',
   'angular.error.useThemeOutsideProvider':

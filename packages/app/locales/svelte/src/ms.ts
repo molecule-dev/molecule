@@ -6,7 +6,7 @@ export const ms: SvelteTranslations = {
   'svelte.error.noAuthClient': 'Klien pengesahan tidak ditemui dalam konteks',
   'svelte.error.noThemeProvider': 'Pembekal tema tidak ditemui dalam konteks',
   'svelte.error.noRouter':
-    'Tiada penghala di sini. Pasangkan `MoleculeRouterProvider` daripada ikatan penghalaan (`@molecule/app-routing-sveltekit`) dalam akar `+layout.svelte`, atau panggil `setMoleculeContext({ router })` di sana.',
+    'Tiada penghala di sini. Pasangkan `MoleculeRouterProvider` daripada ikatan penghalaan (`@molecule/app-routing-sveltekit`) dalam akar `+layout.svelte`, atau panggil `setMoleculeContext({ router })` di sana. Jika aplikasi sudah melakukan ini, ikatan penghalaannya lebih lama daripada ikatan ini: kemas kininya (`npm install @molecule/app-routing-sveltekit@latest`).',
   'svelte.error.noI18nProvider': 'Pembekal i18n tidak ditemui dalam konteks',
   'svelte.error.noHttpClient': 'Klien HTTP tidak ditemui dalam konteks',
   'svelte.error.noStorageProvider': 'Pembekal storan tidak ditemui dalam konteks',
@@ -23,7 +23,7 @@ export const ms: SvelteTranslations = {
   'svelte.error.useAuthOutsideProvider': 'useAuthClient mesti digunakan dalam AuthProvider',
   'svelte.error.useThemeOutsideProvider': 'useThemeProvider mesti digunakan dalam ThemeProvider',
   'svelte.error.useRouterOutsideProvider':
-    'Tiada penghala di sini. Pasangkan `MoleculeRouterProvider` daripada ikatan penghalaan (`@molecule/app-routing-sveltekit`) dalam akar `+layout.svelte`, atau panggil `setMoleculeContext({ router })` di sana.',
+    'Tiada penghala di sini. Pasangkan `MoleculeRouterProvider` daripada ikatan penghalaan (`@molecule/app-routing-sveltekit`) dalam akar `+layout.svelte`, atau panggil `setMoleculeContext({ router })` di sana. Jika aplikasi sudah melakukan ini, ikatan penghalaannya lebih lama daripada ikatan ini: kemas kininya (`npm install @molecule/app-routing-sveltekit@latest`).',
   'svelte.error.noRoutedView':
     'Tiada paparan berhala di sini. SvelteKit memberikan susun atur halamannya sebagai `children`: berikan `{@render children()}` di dalam komponen ini.',
   'svelte.error.useHttpOutsideProvider': 'useHttpClient mesti digunakan dalam HttpProvider',

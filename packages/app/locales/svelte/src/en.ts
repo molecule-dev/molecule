@@ -6,7 +6,7 @@ export const en: SvelteTranslations = {
   'svelte.error.noAuthClient': 'Auth client not found in context',
   'svelte.error.noThemeProvider': 'Theme provider not found in context',
   'svelte.error.noRouter':
-    'No router here. Mount `MoleculeRouterProvider` from the routing bond (`@molecule/app-routing-sveltekit`) in the root `+layout.svelte`, or call `setMoleculeContext({ router })` there.',
+    'No router here. Mount `MoleculeRouterProvider` from the routing bond (`@molecule/app-routing-sveltekit`) in the root `+layout.svelte`, or call `setMoleculeContext({ router })` there. If the app already does this, its routing bond is older than this binding: update it (`npm install @molecule/app-routing-sveltekit@latest`).',
   'svelte.error.noI18nProvider': 'I18n provider not found in context',
   'svelte.error.noHttpClient': 'HTTP client not found in context',
   'svelte.error.noStorageProvider': 'Storage provider not found in context',
@@ -23,7 +23,7 @@ export const en: SvelteTranslations = {
   'svelte.error.useAuthOutsideProvider': 'useAuthClient must be used within an AuthProvider',
   'svelte.error.useThemeOutsideProvider': 'useThemeProvider must be used within a ThemeProvider',
   'svelte.error.useRouterOutsideProvider':
-    'No router here. Mount `MoleculeRouterProvider` from the routing bond (`@molecule/app-routing-sveltekit`) in the root `+layout.svelte`, or call `setMoleculeContext({ router })` there.',
+    'No router here. Mount `MoleculeRouterProvider` from the routing bond (`@molecule/app-routing-sveltekit`) in the root `+layout.svelte`, or call `setMoleculeContext({ router })` there. If the app already does this, its routing bond is older than this binding: update it (`npm install @molecule/app-routing-sveltekit@latest`).',
   'svelte.error.noRoutedView':
     'No routed view here. SvelteKit gives a layout its page as `children`: pass `{@render children()}` inside this component.',
   'svelte.error.useHttpOutsideProvider': 'useHttpClient must be used within an HttpProvider',

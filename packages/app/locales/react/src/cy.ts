@@ -11,9 +11,9 @@ export const cy: ReactTranslations = {
   'react.error.usePreviewOutsideProvider':
     'Rhaid defnyddio usePreviewProvider o fewn PreviewProvider',
   'react.error.useRouterOutsideProvider':
-    "Dim llwybrydd yma. Mowntiwch gydran llwybrydd o fond llwybro'r ap (`BrowserRouter` o `@molecule/app-routing-react-router`), neu pasiwch `router` i `MoleculeProvider`.",
+    "Dim llwybrydd yma. Mowntiwch gydran llwybrydd o fond llwybro'r ap (`BrowserRouter` o `@molecule/app-routing-react-router`), neu pasiwch `router` i `MoleculeProvider`. Os yw'r ap eisoes yn gwneud hyn, mae ei fond llwybro yn hŷn na'r rhwymiad hwn: diweddarwch ef (`npm install @molecule/app-routing-react-router@latest`).",
   'react.error.noRoutedView':
-    "Nid oes gan y bond llwybro hwn olygfa llwybro i'w rendro yma: pasiwch y dudalen fel plant yn lle hynny.",
+    "Nid oes gan y bond llwybro hwn olygfa llwybro i'w rendro yma: pasiwch y dudalen fel plant yn lle. Os yw'r ap yn llwybro gyda `@molecule/app-routing-react-router`, mae'r bond hwnnw'n hŷn na'r rhwymiad hwn: diweddarwch ef (`npm install @molecule/app-routing-react-router@latest`).",
   'react.error.useStoreOutsideProvider': 'Rhaid defnyddio useStateProvider o fewn StateProvider',
   'react.error.useStorageOutsideProvider':
     'Rhaid defnyddio useStorageProvider o fewn StorageProvider',

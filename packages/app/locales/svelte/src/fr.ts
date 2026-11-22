@@ -4,7 +4,7 @@ import type { SvelteTranslations } from './types.js'
 export const fr: Partial<SvelteTranslations> = {
   'svelte.error.noThemeProvider': 'Fournisseur de thème introuvable dans le contexte',
   'svelte.error.noRouter':
-    'Aucun routeur ici. Montez `MoleculeRouterProvider` depuis le lien de routage (`@molecule/app-routing-sveltekit`) dans le fichier racine `+layout.svelte`, ou appelez `setMoleculeContext({ router })` à cet endroit.',
+    "Aucun routeur ici. Montez `MoleculeRouterProvider` depuis le module de routage (`@molecule/app-routing-sveltekit`) dans le fichier racine `+layout.svelte`, ou appelez `setMoleculeContext({ router })` à cet endroit. Si l'application effectue déjà cette opération, son module de routage est plus ancien que cette liaison : mettez-le à jour (`npm install @molecule/app-routing-sveltekit@latest`).",
   'svelte.error.noI18nProvider': 'Fournisseur i18n introuvable dans le contexte',
   'svelte.error.noHttpClient': 'Client HTTP introuvable dans le contexte',
   'svelte.error.noStorageProvider': 'Fournisseur de stockage introuvable dans le contexte',
@@ -27,7 +27,7 @@ export const fr: Partial<SvelteTranslations> = {
   'svelte.error.useThemeOutsideProvider':
     "La méthode useThemeProvider doit être utilisée à l'intérieur d'un ThemeProvider.",
   'svelte.error.useRouterOutsideProvider':
-    'Aucun routeur ici. Montez `MoleculeRouterProvider` depuis le lien de routage (`@molecule/app-routing-sveltekit`) dans le fichier racine `+layout.svelte`, ou appelez `setMoleculeContext({ router })` à cet endroit.',
+    "Aucun routeur ici. Montez `MoleculeRouterProvider` depuis le module de routage (`@molecule/app-routing-sveltekit`) dans le fichier racine `+layout.svelte`, ou appelez `setMoleculeContext({ router })` à cet endroit. Si l'application effectue déjà cette opération, son module de routage est plus ancien que cette liaison : mettez-le à jour (`npm install @molecule/app-routing-sveltekit@latest`).",
   'svelte.error.noRoutedView':
     "Aucune vue routée ici. SvelteKit attribue à une mise en page sa page sous le nom `children` : passez `{@render children()}` à l'intérieur de ce composant.",
   'svelte.error.useHttpOutsideProvider':

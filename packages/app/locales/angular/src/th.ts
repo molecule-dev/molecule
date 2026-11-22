@@ -13,9 +13,9 @@ export const th: AngularTranslations = {
   'angular.error.useLoggerOutsideProvider': 'useLoggerProvider ต้องใช้ภายใน LoggerProvider',
   'angular.error.usePreviewOutsideProvider': 'usePreviewProvider ต้องใช้ภายใน PreviewProvider',
   'angular.error.useRouterOutsideProvider':
-    'ไม่มีเราเตอร์ในที่นี้ เพิ่ม `provideMoleculeRouter()` จาก routing bond (`@molecule/app-routing-angular-router`) ลงใน providers ของแอป หลังจาก `provideRouter(routes)` ของ Angular หรือส่ง `router` ไปยัง `provideMolecule`',
+    'ไม่มีเราเตอร์ในที่นี้ เพิ่ม `provideMoleculeRouter()` จาก routing bond (`@molecule/app-routing-angular-router`) ลงใน providers ของแอป หลังจาก `provideRouter(routes)` ของ Angular หรือส่ง `router` ไปยัง `provideMolecule` หากแอปทำเช่นนี้อยู่แล้ว แสดงว่า routing bond ของแอปนั้นเก่ากว่า binding นี้: อัปเดต (`npm install @molecule/app-routing-angular-router@latest`)',
   'angular.error.noRoutedView':
-    'การกำหนดเส้นทางนี้ไม่มีมุมมองที่กำหนดไว้ให้แสดงผลที่นี่: โปรดส่งหน้าเว็บเป็นหน้าย่อยแทน',
+    'การกำหนดเส้นทางนี้ไม่มีมุมมองเส้นทางที่จะแสดงผลที่นี่: ให้ส่งหน้านั้นเป็นลูกแทน หากแอปกำหนดเส้นทางด้วย `@molecule/app-routing-angular-router` การกำหนดเส้นทางนั้นจะเก่ากว่าการผูกนี้: อัปเดต (`npm install @molecule/app-routing-angular-router@latest`)',
   'angular.error.useStorageOutsideProvider': 'useStorageProvider ต้องใช้ภายใน StorageProvider',
   'angular.error.useThemeOutsideProvider': 'useThemeProvider ต้องใช้ภายใน ThemeProvider',
   'angular.error.useWorkspaceOutsideProvider':

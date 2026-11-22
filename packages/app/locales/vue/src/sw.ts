@@ -3,9 +3,9 @@ import type { VueTranslations } from './types.js'
 /** Vue translations for Swahili. */
 export const sw: VueTranslations = {
   'vue.error.useRouterOutsideProvider':
-    'Hakuna kipanga njia hapa. Funga programu katika `MoleculeRouterProvider` kutoka kwa kifungo cha uelekezaji (`@molecule/app-routing-vue-router`), au pitisha `router` hadi `moleculePlugin`.',
+    'Hakuna kipanga njia hapa. Funga programu katika `MoleculeRouterProvider` kutoka kwa dhamana ya uelekezaji (`@molecule/app-routing-vue-router`), au pitisha `router` hadi `moleculePlugin`. Ikiwa programu tayari imefanya hivi, dhamana yake ya uelekezaji ni ya zamani kuliko dhamana hii: isasishe (`npm install @molecule/app-routing-vue-router@latest`).',
   'vue.error.noRoutedView':
-    'Kifungo hiki cha uelekezaji hakina mwonekano wa uelekezaji wa kuonyesha hapa: pitisha ukurasa kama watoto badala yake.',
+    'Kifungo hiki cha uelekezaji hakina mwonekano wa kuelekeza hapa: pitisha ukurasa kama watoto badala yake. Ikiwa programu itaelekeza na `@molecule/app-routing-vue-router`, kifungo hicho ni cha zamani kuliko kiunganisho hiki: kisasishe (`npm install @molecule/app-routing-vue-router@latest`).',
   'vue.error.useStoreOutsideProvider': 'useStateProvider lazima itumike ndani ya StateProvider',
   'vue.error.useThemeOutsideProvider': 'useThemeProvider lazima itumike ndani ya ThemeProvider',
   'vue.error.useAuthOutsideProvider': 'useAuthClient lazima itumike ndani ya AuthProvider',

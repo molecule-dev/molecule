@@ -13,9 +13,9 @@ export const gu: ReactTranslations = {
   'react.error.usePreviewOutsideProvider':
     'usePreviewProvider એ PreviewProvider ની અંદર વાપરવું આવશ્યક છે',
   'react.error.useRouterOutsideProvider':
-    'અહીં કોઈ રાઉટર નથી. એપ્લિકેશનના રૂટીંગ બોન્ડ (`BrowserRouter` from `@molecule/app-routing-react-router`), માંથી રાઉટર ઘટક માઉન્ટ કરો, અથવા `router` ને `MoleculeProvider` માં પાસ કરો.',
+    'અહીં કોઈ રાઉટર નથી. એપ્લિકેશનના રૂટીંગ બોન્ડ (`BrowserRouter` from `@molecule/app-routing-react-router`), માંથી રાઉટર ઘટક માઉન્ટ કરો, અથવા `router` ને `MoleculeProvider` માં પાસ કરો. જો એપ્લિકેશન પહેલાથી જ આ કરે છે, તો તેનું રૂટીંગ બોન્ડ આ બંધન કરતા જૂનું છે: તેને અપડેટ કરો (`npm install @molecule/app-routing-react-router@latest`).',
   'react.error.noRoutedView':
-    'આ રૂટીંગ બોન્ડમાં અહીં રેન્ડર કરવા માટે કોઈ રૂટેડ વ્યૂ નથી: તેના બદલે પેજને ચિલ્ડ્રન તરીકે પાસ કરો.',
+    'આ રૂટીંગ બોન્ડમાં અહીં રેન્ડર કરવા માટે કોઈ રૂટેડ વ્યૂ નથી: તેના બદલે પેજને ચિલ્ડ્રન તરીકે પાસ કરો. જો એપ `@molecule/app-routing-react-router` સાથે રૂટ કરે છે, તો તે બોન્ડ આ બાઈન્ડિંગ કરતા જૂનું છે: તેને અપડેટ કરો (`npm install @molecule/app-routing-react-router@latest`).',
   'react.error.useStoreOutsideProvider':
     'useStateProvider એ StateProvider ની અંદર વાપરવું આવશ્યક છે',
   'react.error.useStorageOutsideProvider':

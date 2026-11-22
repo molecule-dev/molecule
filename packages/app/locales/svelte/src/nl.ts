@@ -6,7 +6,7 @@ export const nl: SvelteTranslations = {
   'svelte.error.noAuthClient': 'Auth-client niet gevonden in context',
   'svelte.error.noThemeProvider': 'Thema-provider niet gevonden in context',
   'svelte.error.noRouter':
-    'Hier is geen router aanwezig. Monteer `MoleculeRouterProvider` vanuit de routing bond (`@molecule/app-routing-sveltekit`) in de root `+layout.svelte`, of roep daar `setMoleculeContext({ router })` aan.',
+    'Hier is geen router aanwezig. Monteer `MoleculeRouterProvider` vanuit de routing bond (`@molecule/app-routing-sveltekit`) in de root `+layout.svelte`, of roep daar `setMoleculeContext({ router })` aan. Als de app dit al doet, is de routing bond ouder dan deze binding: update deze (`npm install @molecule/app-routing-sveltekit@latest`).',
   'svelte.error.noI18nProvider': 'I18n-provider niet gevonden in context',
   'svelte.error.noHttpClient': 'HTTP-client niet gevonden in context',
   'svelte.error.noStorageProvider': 'Opslag-provider niet gevonden in context',
@@ -26,7 +26,7 @@ export const nl: SvelteTranslations = {
   'svelte.error.useThemeOutsideProvider':
     'useThemeProvider moet binnen een ThemeProvider worden gebruikt',
   'svelte.error.useRouterOutsideProvider':
-    'Hier is geen router aanwezig. Monteer `MoleculeRouterProvider` vanuit de routing bond (`@molecule/app-routing-sveltekit`) in de root `+layout.svelte`, of roep daar `setMoleculeContext({ router })` aan.',
+    'Hier is geen router aanwezig. Monteer `MoleculeRouterProvider` vanuit de routing bond (`@molecule/app-routing-sveltekit`) in de root `+layout.svelte`, of roep daar `setMoleculeContext({ router })` aan. Als de app dit al doet, is de routing bond ouder dan deze binding: update deze (`npm install @molecule/app-routing-sveltekit@latest`).',
   'svelte.error.noRoutedView':
     'Geen gerouteerde weergave hier. SvelteKit geeft een lay-out zijn pagina als `children`: geef `{@render children()}` door binnen dit component.',
   'svelte.error.useHttpOutsideProvider':

@@ -3,9 +3,9 @@ import type { VueTranslations } from './types.js'
 /** Vue translations for Belarusian. */
 export const be: VueTranslations = {
   'vue.error.useRouterOutsideProvider':
-    'Тут няма маршрутызатара. Абгарніце праграму ў `MoleculeRouterProvider` з маршрутызацыйнай сувязі (`@molecule/app-routing-vue-router`) або перадайце `router` у `moleculePlugin`.',
+    'Тут няма маршрутызатара. Абгарніце праграму ў `MoleculeRouterProvider` з маршрутызацыйнай сувязі (`@molecule/app-routing-vue-router`) або перадайце `router` у `moleculePlugin`. Калі праграма ўжо робіць гэта, яе маршрутызацыйная сувязь старэйшая за гэту прывязку: абнавіце яе (`npm install @molecule/app-routing-vue-router@latest`).',
   'vue.error.noRoutedView':
-    'Гэтая маршрутная сувязь не мае маршрутнага выгляду для рэндэрынгу: замест гэтага перадайце старонку як даччыныя элементы.',
+    'Гэтая сувязь маршрутызацыі не мае маршрутызаванага прадстаўлення для рэндэрынгу тут: замест гэтага перадайце старонку як даччыныя элементы. Калі праграма маршрутызуецца з `@molecule/app-routing-vue-router`, гэтая сувязь старэйшая за гэту прывязку: абнавіце яе (`npm install @molecule/app-routing-vue-router@latest`).',
   'vue.error.useStoreOutsideProvider':
     'useStateProvider павінен выкарыстоўвацца ўнутры StateProvider',
   'vue.error.useThemeOutsideProvider':

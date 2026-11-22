@@ -9,7 +9,7 @@ export const km: SvelteTranslations = {
   'svelte.error.noThemeProvider':
     '\u179a\u1780\u1798\u17b7\u1793\u1783\u17be\u1789\u17a2\u17d2\u1793\u1780\u1795\u17d2\u178f\u179b\u17cb\u179f\u17c6\u1794\u1780\u1793\u17c5\u1780\u17d2\u1793\u17bb\u1784\u1794\u179a\u17b7\u1794\u1791\u17d4',
   'svelte.error.noRouter':
-    'គ្មានរ៉ោតទ័រនៅទីនេះទេ។ ម៉ោន `MoleculeRouterProvider` ពីចំណងរ៉ោតទ័រ (`@molecule/app-routing-sveltekit`) នៅក្នុងថតឯកសារ root `+layout.svelte` ឬហៅ `setMoleculeContext({ router })` នៅទីនោះ។',
+    'គ្មានរ៉ោតទ័រនៅទីនេះទេ។ ម៉ោន `MoleculeRouterProvider` ពីចំណងរ៉ោតទ័រ (`@molecule/app-routing-sveltekit`) នៅក្នុងឫស `+layout.svelte` ឬហៅ `setMoleculeContext({ router })` នៅទីនោះ។ ប្រសិនបើកម្មវិធីធ្វើបែបនេះរួចហើយ ចំណងរ៉ោតទ័ររបស់វាចាស់ជាងចំណងនេះ៖ ធ្វើបច្ចុប្បន្នភាពវា (`npm install @molecule/app-routing-sveltekit@latest`)។',
   'svelte.error.noI18nProvider':
     '\u179a\u1780\u1798\u17b7\u1793\u1783\u17be\u1789\u17a2\u17d2\u1793\u1780\u1795\u17d2\u178f\u179b\u17cb I18n \u1793\u17c5\u1780\u17d2\u1793\u17bb\u1784\u1794\u179a\u17b7\u1794\u1791\u17d4',
   'svelte.error.noHttpClient':
@@ -29,7 +29,7 @@ export const km: SvelteTranslations = {
   'svelte.error.useAuthOutsideProvider': 'useAuthClient ត្រូវតែប្រើនៅក្នុង AuthProvider',
   'svelte.error.useThemeOutsideProvider': 'useThemeProvider ត្រូវតែប្រើនៅក្នុង ThemeProvider',
   'svelte.error.useRouterOutsideProvider':
-    'គ្មានរ៉ោតទ័រនៅទីនេះទេ។ ម៉ោន `MoleculeRouterProvider` ពីចំណងរ៉ោតទ័រ (`@molecule/app-routing-sveltekit`) នៅក្នុងថតឯកសារ root `+layout.svelte` ឬហៅ `setMoleculeContext({ router })` នៅទីនោះ។',
+    'គ្មានរ៉ោតទ័រនៅទីនេះទេ។ ម៉ោន `MoleculeRouterProvider` ពីចំណងរ៉ោតទ័រ (`@molecule/app-routing-sveltekit`) នៅក្នុងឫស `+layout.svelte` ឬហៅ `setMoleculeContext({ router })` នៅទីនោះ។ ប្រសិនបើកម្មវិធីធ្វើបែបនេះរួចហើយ ចំណងរ៉ោតទ័ររបស់វាចាស់ជាងចំណងនេះ៖ ធ្វើបច្ចុប្បន្នភាពវា (`npm install @molecule/app-routing-sveltekit@latest`)។',
   'svelte.error.noRoutedView':
     'គ្មានទិដ្ឋភាពដែលបានកំណត់ផ្លូវនៅទីនេះទេ។ SvelteKit ផ្តល់ប្លង់ទំព័ររបស់វាជា `children`: បញ្ជូន `{@render children()}` នៅខាងក្នុងសមាសភាគនេះ។',
   'svelte.error.useHttpOutsideProvider': 'useHttpClient ត្រូវតែប្រើនៅក្នុង HttpProvider',

@@ -4,9 +4,9 @@ import type { VueTranslations } from './types.js'
 export const ca: Partial<VueTranslations> = {
   'vue.error.unsupportedMethod': 'Mètode no compatible: {{method}}',
   'vue.error.useRouterOutsideProvider':
-    "Aquí no hi ha cap encaminador. Embolica l'aplicació a `MoleculeRouterProvider` des de l'enllaç d'encaminament (`@molecule/app-routing-vue-router`), o passa `router` a `moleculePlugin`.",
+    "Aquí no hi ha cap encaminador. Embolica l'aplicació a `MoleculeRouterProvider` des de l'enllaç d'encaminament (`@molecule/app-routing-vue-router`), o passa `router` a `moleculePlugin`. Si l'aplicació ja fa això, el seu enllaç d'encaminament és més antic que aquest enllaç: actualitza'l (`npm install @molecule/app-routing-vue-router@latest`).",
   'vue.error.noRoutedView':
-    "Aquest enllaç d'encaminament no té cap vista encaminada per renderitzar aquí: passa la pàgina com a filla.",
+    "Aquest enllaç d'encaminament no té cap vista encaminada per renderitzar aquí: passeu la pàgina com a filla. Si l'aplicació encamina amb `@molecule/app-routing-vue-router`, aquest enllaç és més antic que aquest enllaç: actualitzeu-lo (`npm install @molecule/app-routing-vue-router@latest`).",
   'vue.error.useStoreOutsideProvider': "useStateProvider s'ha d'utilitzar dins d'un StateProvider.",
   'vue.error.useThemeOutsideProvider': "useThemeProvider s'ha d'utilitzar dins d'un ThemeProvider.",
   'vue.error.useAuthOutsideProvider': "useAuthClient s'ha d'utilitzar dins d'un AuthProvider.",

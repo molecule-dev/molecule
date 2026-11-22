@@ -9,7 +9,7 @@ export const sr: SvelteTranslations = {
   'svelte.error.noThemeProvider':
     '\u041f\u0440\u043e\u0432\u0430\u0458\u0434\u0435\u0440 \u0442\u0435\u043c\u0435 \u043d\u0438\u0458\u0435 \u043f\u0440\u043e\u043d\u0430\u0452\u0435\u043d \u0443 \u043a\u043e\u043d\u0442\u0435\u043a\u0441\u0442\u0443',
   'svelte.error.noRouter':
-    'Овде нема рутера. Монтирајте `MoleculeRouterProvider` из везе рутирања (`@molecule/app-routing-sveltekit`) у корену `+layout.svelte`, или позовите `setMoleculeContext({ router })` тамо.',
+    'Овде нема рутера. Монтирајте `MoleculeRouterProvider` из везе рутирања (`@molecule/app-routing-sveltekit`) у корену `+layout.svelte`, или позовите `setMoleculeContext({ router })` тамо. Ако апликација већ ово ради, њена веза рутирања је старија од ове везе: ажурирајте је (`npm install @molecule/app-routing-sveltekit@latest`).',
   'svelte.error.noI18nProvider':
     'I18n \u043f\u0440\u043e\u0432\u0430\u0458\u0434\u0435\u0440 \u043d\u0438\u0458\u0435 \u043f\u0440\u043e\u043d\u0430\u0452\u0435\u043d \u0443 \u043a\u043e\u043d\u0442\u0435\u043a\u0441\u0442\u0443',
   'svelte.error.noHttpClient':
@@ -32,7 +32,7 @@ export const sr: SvelteTranslations = {
   'svelte.error.useThemeOutsideProvider':
     'useThemeProvider мора се користити унутар ThemeProvider-а',
   'svelte.error.useRouterOutsideProvider':
-    'Овде нема рутера. Монтирајте `MoleculeRouterProvider` из везе рутирања (`@molecule/app-routing-sveltekit`) у корену `+layout.svelte`, или позовите `setMoleculeContext({ router })` тамо.',
+    'Овде нема рутера. Монтирајте `MoleculeRouterProvider` из везе рутирања (`@molecule/app-routing-sveltekit`) у корену `+layout.svelte`, или позовите `setMoleculeContext({ router })` тамо. Ако апликација већ ово ради, њена веза рутирања је старија од ове везе: ажурирајте је (`npm install @molecule/app-routing-sveltekit@latest`).',
   'svelte.error.noRoutedView':
     'Овде нема усмереног приказа. SvelteKit даје распоред својој страници као `children`: проследите `{@render children()}` унутар ове компоненте.',
   'svelte.error.useHttpOutsideProvider': 'useHttpClient мора да се користи унутар HttpProvider-а',

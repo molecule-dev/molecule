@@ -3,9 +3,9 @@ import type { VueTranslations } from './types.js'
 /** Vue translations for Slovenian. */
 export const sl: VueTranslations = {
   'vue.error.useRouterOutsideProvider':
-    'Tukaj ni usmerjevalnika. Aplikacijo zavijte v `MoleculeRouterProvider` iz usmerjevalne vezi (`@molecule/app-routing-vue-router`) ali pa `router` podajte v `moleculePlugin`.',
+    'Tukaj ni usmerjevalnika. Aplikacijo zavijte v `MoleculeRouterProvider` iz usmerjevalne vezi (`@molecule/app-routing-vue-router`) ali pa `router` posredujte `moleculePlugin`. Če aplikacija to že počne, je njena usmerjevalna vez starejša od te vezi: posodobite jo (`npm install @molecule/app-routing-vue-router@latest`).',
   'vue.error.noRoutedView':
-    'Ta usmerjevalna vez nima usmerjenega pogleda za upodobitev: namesto tega posredujte stran kot podrejene elemente.',
+    'Ta usmerjevalna vez nima usmerjenega pogleda za upodobitev: namesto tega stran posredujte kot podrejene elemente. Če aplikacija usmerja z `@molecule/app-routing-vue-router`, je ta vez starejša od te vezi: posodobite jo (`npm install @molecule/app-routing-vue-router@latest`).',
   'vue.error.useStoreOutsideProvider': 'useStateProvider je treba uporabiti znotraj StateProvider',
   'vue.error.useThemeOutsideProvider': 'useThemeProvider je treba uporabiti znotraj ThemeProvider',
   'vue.error.useAuthOutsideProvider': 'useAuthClient je treba uporabiti znotraj AuthProvider',

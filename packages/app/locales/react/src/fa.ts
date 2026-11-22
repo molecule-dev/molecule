@@ -12,9 +12,9 @@ export const fa: ReactTranslations = {
   'react.error.usePreviewOutsideProvider':
     'usePreviewProvider باید درون PreviewProvider استفاده شود',
   'react.error.useRouterOutsideProvider':
-    'اینجا هیچ روتری وجود ندارد. یک کامپوننت روتر را از پیوند مسیریابی برنامه (`BrowserRouter` از `@molecule/app-routing-react-router`) نصب کنید، یا `router` به `MoleculeProvider` منتقل کنید.',
+    'اینجا هیچ روتری وجود ندارد. یک کامپوننت روتر را از پیوند مسیریابی برنامه (`BrowserRouter` از `@molecule/app-routing-react-router`) نصب کنید، یا `router` به `MoleculeProvider` منتقل کنید. اگر برنامه از قبل این کار را انجام می‌دهد، پیوند مسیریابی آن قدیمی‌تر از این اتصال است: آن را به‌روزرسانی کنید (`npm install @molecule/app-routing-react-router@latest`).',
   'react.error.noRoutedView':
-    'این پیوند مسیریابی هیچ نمای مسیریابی‌شده‌ای برای رندر کردن در اینجا ندارد: در عوض، صفحه را به عنوان فرزند ارسال کنید.',
+    'این پیوند مسیریابی هیچ نمای مسیریابی‌شده‌ای برای رندر شدن در اینجا ندارد: در عوض، صفحه را به عنوان فرزند ارسال کنید. اگر برنامه با `@molecule/app-routing-react-router` مسیریابی می‌کند، آن پیوند قدیمی‌تر از این اتصال است: آن را به‌روزرسانی کنید (`npm install @molecule/app-routing-react-router@latest`).',
   'react.error.useStoreOutsideProvider': 'useStateProvider باید درون StateProvider استفاده شود',
   'react.error.useStorageOutsideProvider':
     'useStorageProvider باید درون StorageProvider استفاده شود',

@@ -6,7 +6,7 @@ export const fi: SvelteTranslations = {
   'svelte.error.noAuthClient': 'Todennusasiakasta ei löytynyt kontekstista',
   'svelte.error.noThemeProvider': 'Teemapalveluntarjoajaa ei löytynyt kontekstista',
   'svelte.error.noRouter':
-    'Tässä ei ole reititintä. Liitä `MoleculeRouterProvider` reitityslinkistä (`@molecule/app-routing-sveltekit`) `+layout.svelte` -juureen tai kutsu `setMoleculeContext({ router })` siellä.',
+    'Tässä ei ole reititintä. Liitä `MoleculeRouterProvider` reitityslinkistä (`@molecule/app-routing-sveltekit`) `+layout.svelte` -juureen tai kutsu `setMoleculeContext({ router })` -funktiota siellä. Jos sovellus jo tekee tämän, sen reitityslinkki on vanhempi kuin tämä sidonta: päivitä se (`npm install @molecule/app-routing-sveltekit@latest`).',
   'svelte.error.noI18nProvider': 'I18n-palveluntarjoajaa ei löytynyt kontekstista',
   'svelte.error.noHttpClient': 'HTTP-asiakasta ei löytynyt kontekstista',
   'svelte.error.noStorageProvider': 'Tallennuspalveluntarjoajaa ei löytynyt kontekstista',
@@ -27,7 +27,7 @@ export const fi: SvelteTranslations = {
   'svelte.error.useThemeOutsideProvider':
     'useThemeProvider-muuttujaa on käytettävä ThemeProvider-muuttujassa.',
   'svelte.error.useRouterOutsideProvider':
-    'Tässä ei ole reititintä. Liitä `MoleculeRouterProvider` reitityslinkistä (`@molecule/app-routing-sveltekit`) `+layout.svelte` -juureen tai kutsu `setMoleculeContext({ router })` siellä.',
+    'Tässä ei ole reititintä. Liitä `MoleculeRouterProvider` reitityslinkistä (`@molecule/app-routing-sveltekit`) `+layout.svelte` -juureen tai kutsu `setMoleculeContext({ router })` -funktiota siellä. Jos sovellus jo tekee tämän, sen reitityslinkki on vanhempi kuin tämä sidonta: päivitä se (`npm install @molecule/app-routing-sveltekit@latest`).',
   'svelte.error.noRoutedView':
     'Ei reititettyä näkymää. SvelteKit antaa sivulleen asettelun `children` -muodossa: välitä `{@render children()}` -muuttuja tämän komponentin sisällä.',
   'svelte.error.useHttpOutsideProvider':

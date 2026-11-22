@@ -32,7 +32,7 @@ export const nb: SolidTranslations = {
   'solid.error.useLoggerOutsideProvider': 'useLoggerProvider må brukes i en LoggerProvider',
   'solid.error.oauthFailed': 'OAuth-pålogging mislyktes',
   'solid.error.useRouterOutsideProvider':
-    'Ingen ruter her. Bruk `MoleculeRouterProvider` fra rutingsbindingen (`@molecule/app-routing-solid-router`) som ruterens `root`, eller send `router` til `MoleculeProvider`.',
+    'Ingen ruter her. Bruk `MoleculeRouterProvider` fra rutingsbindingen (`@molecule/app-routing-solid-router`) som ruterens `root`, eller send `router` til `MoleculeProvider`. Hvis appen allerede gjør dette, er rutingsbindingen eldre enn denne bindingen: oppdater den (`npm install @molecule/app-routing-solid-router@latest`).',
   'solid.error.noRoutedView':
     'Ingen rutet visning her. Solid Router gir en rutes komponent sin nestede rute som `props.children`: bruk dette som en rutes `component`, eller send siden som barn.',
   'solid.error.useStoreOutsideProvider': 'useStateProvider må brukes i en StateProvider',

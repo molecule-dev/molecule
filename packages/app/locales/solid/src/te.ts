@@ -35,7 +35,7 @@ export const te: SolidTranslations = {
     'useLoggerProvider ను తప్పనిసరిగా LoggerProvider లోపల ఉపయోగించాలి',
   'solid.error.oauthFailed': 'OAuth లాగిన్ విఫలమైంది',
   'solid.error.useRouterOutsideProvider':
-    'ఇక్కడ రౌటర్ లేదు. రౌటర్ యొక్క `root` గా రౌటింగ్ బాండ్ (`@molecule/app-routing-solid-router`) నుండి `MoleculeRouterProvider` ఉపయోగించండి, లేదా `router` `MoleculeProvider` కు పంపండి.',
+    'ఇక్కడ రౌటర్ లేదు. రౌటర్ యొక్క `root` రౌటింగ్ బాండ్ (`@molecule/app-routing-solid-router`) నుండి `MoleculeRouterProvider` ఉపయోగించండి, లేదా `router` `MoleculeProvider` కు పంపండి. ఒకవేళ యాప్ ఇప్పటికే ఇలా చేస్తుంటే, దాని రౌటింగ్ బాండ్ ఈ బైండింగ్ కంటే పాతది: దానిని అప్‌డేట్ చేయండి (`npm install @molecule/app-routing-solid-router@latest`).',
   'solid.error.noRoutedView':
     'ఇక్కడ రూటెడ్ వ్యూ లేదు. సాలిడ్ రూటర్ ఒక రూట్ యొక్క కాంపోనెంట్‌కు దాని నెస్టెడ్ రూట్‌ను `props.children` గా ఇస్తుంది: దీనిని రూట్ యొక్క `component` గా ఉపయోగించండి, లేదా పేజీని చిల్డ్రన్‌గా పంపండి.',
   'solid.error.useStoreOutsideProvider':

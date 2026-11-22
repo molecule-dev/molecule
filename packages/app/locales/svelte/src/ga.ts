@@ -6,7 +6,7 @@ export const ga: SvelteTranslations = {
   'svelte.error.noAuthClient': 'Níor aimsíodh cliant fíordheimhnithe sa chomhthéacs',
   'svelte.error.noThemeProvider': 'Níor aimsíodh soláthraí téama sa chomhthéacs',
   'svelte.error.noRouter':
-    'Níl aon ródaire anseo. Suiteáil `MoleculeRouterProvider` ón nasc ródaithe (`@molecule/app-routing-sveltekit`) sa fhréamh `+layout.svelte`, nó glaoigh ar `setMoleculeContext({ router })` ansin.',
+    'Níl aon ródaire anseo. Suiteáil `MoleculeRouterProvider` ón nasc ródaithe (`@molecule/app-routing-sveltekit`) sa fhréamh `+layout.svelte`, nó glaoigh ar `setMoleculeContext({ router })` ansin. Má dhéanann an aip é seo cheana féin, tá a nasc ródaithe níos sine ná an ceangal seo: nuashonraigh é (`npm install @molecule/app-routing-sveltekit@latest`).',
   'svelte.error.noI18nProvider': 'Níor aimsíodh soláthraí i18n sa chomhthéacs',
   'svelte.error.noHttpClient': 'Níor aimsíodh cliant HTTP sa chomhthéacs',
   'svelte.error.noStorageProvider': 'Níor aimsíodh soláthraí stórála sa chomhthéacs',
@@ -24,7 +24,7 @@ export const ga: SvelteTranslations = {
   'svelte.error.useThemeOutsideProvider':
     'Ní mór useThemeProvider a úsáid laistigh de ThemeProvider',
   'svelte.error.useRouterOutsideProvider':
-    'Níl aon ródaire anseo. Suiteáil `MoleculeRouterProvider` ón nasc ródaithe (`@molecule/app-routing-sveltekit`) sa fhréamh `+layout.svelte`, nó glaoigh ar `setMoleculeContext({ router })` ansin.',
+    'Níl aon ródaire anseo. Suiteáil `MoleculeRouterProvider` ón nasc ródaithe (`@molecule/app-routing-sveltekit`) sa fhréamh `+layout.svelte`, nó glaoigh ar `setMoleculeContext({ router })` ansin. Má dhéanann an aip é seo cheana féin, tá a nasc ródaithe níos sine ná an ceangal seo: nuashonraigh é (`npm install @molecule/app-routing-sveltekit@latest`).',
   'svelte.error.noRoutedView':
     'Níl aon radharc ródaithe anseo. Tugann SvelteKit leagan amach dá leathanach mar `children`: cuir `{@render children()}` isteach sa chomhpháirt seo.',
   'svelte.error.useHttpOutsideProvider': 'Ní mór useHttpClient a úsáid laistigh de HttpProvider',

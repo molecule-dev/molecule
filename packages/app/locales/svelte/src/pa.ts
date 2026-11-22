@@ -9,7 +9,7 @@ export const pa: SvelteTranslations = {
   'svelte.error.noThemeProvider':
     '\u0a25\u0a40\u0a2e \u0a2a\u0a4d\u0a30\u0a4b\u0a35\u0a3e\u0a07\u0a21\u0a30 \u0a38\u0a70\u0a26\u0a30\u0a2d \u0a35\u0a3f\u0a71\u0a1a \u0a28\u0a39\u0a40\u0a02 \u0a2e\u0a3f\u0a32\u0a3f\u0a06',
   'svelte.error.noRouter':
-    'ਇੱਥੇ ਕੋਈ ਰਾਊਟਰ ਨਹੀਂ ਹੈ। ਰੂਟ `+layout.svelte` ਵਿੱਚ ਰੂਟਿੰਗ ਬਾਂਡ (`@molecule/app-routing-sveltekit`) ਤੋਂ `MoleculeRouterProvider` ਮਾਊਂਟ ਕਰੋ, ਜਾਂ ਉੱਥੇ `setMoleculeContext({ router })` ਕਾਲ ਕਰੋ।',
+    'ਇੱਥੇ ਕੋਈ ਰਾਊਟਰ ਨਹੀਂ ਹੈ। ਰੂਟ `+layout.svelte` ਵਿੱਚ ਰੂਟਿੰਗ ਬਾਂਡ (`@molecule/app-routing-sveltekit`) ਤੋਂ `MoleculeRouterProvider` ਮਾਊਂਟ ਕਰੋ, ਜਾਂ ਉੱਥੇ `setMoleculeContext({ router })` ਕਾਲ ਕਰੋ। ਜੇਕਰ ਐਪ ਪਹਿਲਾਂ ਹੀ ਅਜਿਹਾ ਕਰਦੀ ਹੈ, ਤਾਂ ਇਸਦਾ ਰਾਊਟਿੰਗ ਬਾਂਡ ਇਸ ਬਾਈਡਿੰਗ ਤੋਂ ਪੁਰਾਣਾ ਹੈ: ਇਸਨੂੰ ਅੱਪਡੇਟ ਕਰੋ (`npm install @molecule/app-routing-sveltekit@latest`)।',
   'svelte.error.noI18nProvider':
     'I18n \u0a2a\u0a4d\u0a30\u0a4b\u0a35\u0a3e\u0a07\u0a21\u0a30 \u0a38\u0a70\u0a26\u0a30\u0a2d \u0a35\u0a3f\u0a71\u0a1a \u0a28\u0a39\u0a40\u0a02 \u0a2e\u0a3f\u0a32\u0a3f\u0a06',
   'svelte.error.noHttpClient':
@@ -34,7 +34,7 @@ export const pa: SvelteTranslations = {
   'svelte.error.useThemeOutsideProvider':
     'useThemeProvider ਨੂੰ ThemeProvider ਦੇ ਅੰਦਰ ਵਰਤਿਆ ਜਾਣਾ ਚਾਹੀਦਾ ਹੈ',
   'svelte.error.useRouterOutsideProvider':
-    'ਇੱਥੇ ਕੋਈ ਰਾਊਟਰ ਨਹੀਂ ਹੈ। ਰੂਟ `+layout.svelte` ਵਿੱਚ ਰੂਟਿੰਗ ਬਾਂਡ (`@molecule/app-routing-sveltekit`) ਤੋਂ `MoleculeRouterProvider` ਮਾਊਂਟ ਕਰੋ, ਜਾਂ ਉੱਥੇ `setMoleculeContext({ router })` ਕਾਲ ਕਰੋ।',
+    'ਇੱਥੇ ਕੋਈ ਰਾਊਟਰ ਨਹੀਂ ਹੈ। ਰੂਟ `+layout.svelte` ਵਿੱਚ ਰੂਟਿੰਗ ਬਾਂਡ (`@molecule/app-routing-sveltekit`) ਤੋਂ `MoleculeRouterProvider` ਮਾਊਂਟ ਕਰੋ, ਜਾਂ ਉੱਥੇ `setMoleculeContext({ router })` ਕਾਲ ਕਰੋ। ਜੇਕਰ ਐਪ ਪਹਿਲਾਂ ਹੀ ਅਜਿਹਾ ਕਰਦੀ ਹੈ, ਤਾਂ ਇਸਦਾ ਰਾਊਟਿੰਗ ਬਾਂਡ ਇਸ ਬਾਈਡਿੰਗ ਤੋਂ ਪੁਰਾਣਾ ਹੈ: ਇਸਨੂੰ ਅੱਪਡੇਟ ਕਰੋ (`npm install @molecule/app-routing-sveltekit@latest`)।',
   'svelte.error.noRoutedView':
     'ਇੱਥੇ ਕੋਈ ਰੂਟਡ ਵਿਊ ਨਹੀਂ ਹੈ। SvelteKit ਇੱਕ ਲੇਆਉਟ ਨੂੰ ਆਪਣਾ ਪੰਨਾ `children` ਦੇ ਰੂਪ ਵਿੱਚ ਦਿੰਦਾ ਹੈ: ਇਸ ਕੰਪੋਨੈਂਟ ਦੇ ਅੰਦਰ `{@render children()}` ਪਾਸ ਕਰੋ।',
   'svelte.error.useHttpOutsideProvider':

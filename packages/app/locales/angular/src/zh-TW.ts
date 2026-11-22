@@ -13,8 +13,9 @@ export const zhTW: AngularTranslations = {
   'angular.error.useLoggerOutsideProvider': 'useLoggerProvider 必須在 LoggerProvider 內使用',
   'angular.error.usePreviewOutsideProvider': 'usePreviewProvider 必須在 PreviewProvider 內使用',
   'angular.error.useRouterOutsideProvider':
-    '這裡沒有路由器。將路由綁定（`@molecule/app-routing-angular-router`）中的`provideMoleculeRouter()`加入應用程式的 providers 中，在 Angular 的`provideRouter(routes)`之後，或將`router` `provideMolecule`。',
-  'angular.error.noRoutedView': '此路由綁定沒有要渲染的路由視圖：請將頁面作為子頁面傳遞。',
+    '這裡沒有路由器。將路由綁定（`@molecule/app-routing-angular-router`）中的`provideMoleculeRouter()`加入應用程式的 providers 中，放在 Angular 的`provideRouter(routes)`之後，或將`router` `provideMolecule`如果應用程式已經這樣做了，則其路由綁定版本低於此綁定：請更新它（`npm install @molecule/app-routing-angular-router@latest`）。',
+  'angular.error.noRoutedView':
+    '此路由綁定沒有要渲染的路由視圖：請將頁面作為子元素傳遞。如果應用程式使用`@molecule/app-routing-angular-router`路由，則該綁定比此綁定舊：請更新它（`npm install @molecule/app-routing-angular-router@latest`）。',
   'angular.error.useStorageOutsideProvider': 'useStorageProvider 必須在 StorageProvider 內使用',
   'angular.error.useThemeOutsideProvider': 'useThemeProvider 必須在 ThemeProvider 內使用',
   'angular.error.useWorkspaceOutsideProvider':

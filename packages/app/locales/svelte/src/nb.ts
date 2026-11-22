@@ -6,7 +6,7 @@ export const nb: SvelteTranslations = {
   'svelte.error.noAuthClient': 'Autentiseringsklient ikke funnet i kontekst',
   'svelte.error.noThemeProvider': 'Temaleverand\u00f8r ikke funnet i kontekst',
   'svelte.error.noRouter':
-    'Ingen ruter her. Monter `MoleculeRouterProvider` fra rutingsbindingen (`@molecule/app-routing-sveltekit`) i roten `+layout.svelte`, eller kall `setMoleculeContext({ router })` der.',
+    'Ingen ruter her. Monter `MoleculeRouterProvider` fra rutingsbindingen (`@molecule/app-routing-sveltekit`) i roten `+layout.svelte`, eller kall `setMoleculeContext({ router })` der. Hvis appen allerede gjør dette, er rutingsbindingen eldre enn denne bindingen: oppdater den (`npm install @molecule/app-routing-sveltekit@latest`).',
   'svelte.error.noI18nProvider': 'I18n-leverand\u00f8r ikke funnet i kontekst',
   'svelte.error.noHttpClient': 'HTTP-klient ikke funnet i kontekst',
   'svelte.error.noStorageProvider': 'Lagringsleverand\u00f8r ikke funnet i kontekst',
@@ -21,7 +21,7 @@ export const nb: SvelteTranslations = {
   'svelte.error.useAuthOutsideProvider': 'useAuthClient må brukes i en AuthProvider',
   'svelte.error.useThemeOutsideProvider': 'useThemeProvider må brukes i en ThemeProvider',
   'svelte.error.useRouterOutsideProvider':
-    'Ingen ruter her. Monter `MoleculeRouterProvider` fra rutingsbindingen (`@molecule/app-routing-sveltekit`) i roten `+layout.svelte`, eller kall `setMoleculeContext({ router })` der.',
+    'Ingen ruter her. Monter `MoleculeRouterProvider` fra rutingsbindingen (`@molecule/app-routing-sveltekit`) i roten `+layout.svelte`, eller kall `setMoleculeContext({ router })` der. Hvis appen allerede gjør dette, er rutingsbindingen eldre enn denne bindingen: oppdater den (`npm install @molecule/app-routing-sveltekit@latest`).',
   'svelte.error.noRoutedView':
     'Ingen rutet visning her. SvelteKit gir siden sin et oppsett som `children`: send `{@render children()}` inn i denne komponenten.',
   'svelte.error.useHttpOutsideProvider': 'useHttpClient må brukes i en HttpProvider',

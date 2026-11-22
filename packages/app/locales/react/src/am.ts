@@ -10,8 +10,9 @@ export const am: ReactTranslations = {
   'react.error.useLoggerOutsideProvider': 'useLoggerProvider በLoggerProvider ውስጥ መጠቀም አለበት',
   'react.error.usePreviewOutsideProvider': 'usePreviewProvider በPreviewProvider ውስጥ መጠቀም አለበት',
   'react.error.useRouterOutsideProvider':
-    'እዚህ ራውተር የለም። የራውተር አካልን ከመተግበሪያው የማዞሪያ ቦንድ (`BrowserRouter` ከ `@molecule/app-routing-react-router`) ይጫኑ ወይም `router` እስከ `MoleculeProvider` ያልፉ።',
-  'react.error.noRoutedView': 'ይህ የማዞሪያ ቦንድ እዚህ ለማሳየት ምንም የማዞሪያ እይታ የለውም፡ ገጹን እንደ ልጆች ያስተላልፉ።',
+    'እዚህ ራውተር የለም። የራውተር አካልን ከመተግበሪያው የማዞሪያ ቦንድ (`BrowserRouter` ከ `@molecule/app-routing-react-router`) ይጫኑ ወይም `router` እስከ `MoleculeProvider` ያልፉ። መተግበሪያው ይህን ካደረገ፣ የማዞሪያ ቦንዱ ከዚህ ማሰሪያ የቆየ ነው፡ ያዘምኑት (`npm install @molecule/app-routing-react-router@latest`)።',
+  'react.error.noRoutedView':
+    'ይህ የማዞሪያ ቦንድ እዚህ ለማሳየት ምንም የተዘዋወረ እይታ የለውም፡ ገጹን እንደ ልጆች ይለፉ። መተግበሪያው `@molecule/app-routing-react-router` የሚያገናኝ ከሆነ፣ ያ ቦንድ ከዚህ ማሰሪያ የቆየ ነው፡ ያዘምኑት (`npm install @molecule/app-routing-react-router@latest`)።',
   'react.error.useStoreOutsideProvider': 'useStateProvider በStateProvider ውስጥ መጠቀም አለበት',
   'react.error.useStorageOutsideProvider': 'useStorageProvider በStorageProvider ውስጥ መጠቀም አለበት',
   'react.error.useThemeOutsideProvider': 'useThemeProvider በThemeProvider ውስጥ መጠቀም አለበት',

@@ -6,7 +6,7 @@ export const cs: SvelteTranslations = {
   'svelte.error.noAuthClient': 'Autentizační klient nebyl nalezen v kontextu',
   'svelte.error.noThemeProvider': 'Poskytovatel motivu nebyl nalezen v kontextu',
   'svelte.error.noRouter':
-    'Zde není žádný router. Připojte `MoleculeRouterProvider` z routing bond (`@molecule/app-routing-sveltekit`) do kořenového adresáře `+layout.svelte`, nebo tam zavolejte `setMoleculeContext({ router })` .',
+    'Žádný router zde není. Připojte `MoleculeRouterProvider` z routing bond (`@molecule/app-routing-sveltekit`) do kořenového adresáře `+layout.svelte` nebo tam zavolejte `setMoleculeContext({ router })` . Pokud to aplikace již dělá, její routing bond je starší než tato vazba: aktualizujte ji (`npm install @molecule/app-routing-sveltekit@latest`).',
   'svelte.error.noI18nProvider': 'Poskytovatel i18n nebyl nalezen v kontextu',
   'svelte.error.noHttpClient': 'HTTP klient nebyl nalezen v kontextu',
   'svelte.error.noStorageProvider': 'Poskytovatel úložiště nebyl nalezen v kontextu',
@@ -23,7 +23,7 @@ export const cs: SvelteTranslations = {
   'svelte.error.useAuthOutsideProvider': 'useAuthClient musí být použit v rámci AuthProvider.',
   'svelte.error.useThemeOutsideProvider': 'useThemeProvider musí být použit v rámci ThemeProvider',
   'svelte.error.useRouterOutsideProvider':
-    'Zde není žádný router. Připojte `MoleculeRouterProvider` z routing bond (`@molecule/app-routing-sveltekit`) do kořenového adresáře `+layout.svelte`, nebo tam zavolejte `setMoleculeContext({ router })` .',
+    'Žádný router zde není. Připojte `MoleculeRouterProvider` z routing bond (`@molecule/app-routing-sveltekit`) do kořenového adresáře `+layout.svelte` nebo tam zavolejte `setMoleculeContext({ router })` . Pokud to aplikace již dělá, její routing bond je starší než tato vazba: aktualizujte ji (`npm install @molecule/app-routing-sveltekit@latest`).',
   'svelte.error.noRoutedView':
     'Žádné směrované zobrazení zde není. SvelteKit dává rozvržení své stránky jako `children`: předejte `{@render children()}` uvnitř této komponenty.',
   'svelte.error.useHttpOutsideProvider': 'useHttpClient musí být použit v rámci HttpProvider.',

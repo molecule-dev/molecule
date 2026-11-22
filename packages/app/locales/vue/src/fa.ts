@@ -3,9 +3,9 @@ import type { VueTranslations } from './types.js'
 /** Vue translations for Persian. */
 export const fa: VueTranslations = {
   'vue.error.useRouterOutsideProvider':
-    'اینجا روتری وجود ندارد. برنامه را در `MoleculeRouterProvider` از پیوند مسیریابی (`@molecule/app-routing-vue-router`) قرار دهید، یا `router` به `moleculePlugin` منتقل کنید.',
+    'اینجا هیچ روتری وجود ندارد. برنامه را در `MoleculeRouterProvider` از پیوند مسیریابی (`@molecule/app-routing-vue-router`) قرار دهید، یا `router` به `moleculePlugin` منتقل کنید. اگر برنامه از قبل این کار را انجام می‌دهد، پیوند مسیریابی آن قدیمی‌تر از این اتصال است: آن را به‌روزرسانی کنید (`npm install @molecule/app-routing-vue-router@latest`).',
   'vue.error.noRoutedView':
-    'این پیوند مسیریابی هیچ نمای مسیریابی‌شده‌ای برای رندر کردن در اینجا ندارد: در عوض، صفحه را به عنوان فرزند ارسال کنید.',
+    'این پیوند مسیریابی هیچ نمای مسیریابی‌شده‌ای برای رندر شدن در اینجا ندارد: در عوض، صفحه را به عنوان فرزند ارسال کنید. اگر برنامه با `@molecule/app-routing-vue-router` مسیریابی می‌کند، آن پیوند قدیمی‌تر از این اتصال است: آن را به‌روزرسانی کنید (`npm install @molecule/app-routing-vue-router@latest`).',
   'vue.error.useStoreOutsideProvider': 'useStateProvider باید درون StateProvider استفاده شود',
   'vue.error.useThemeOutsideProvider': 'useThemeProvider باید درون ThemeProvider استفاده شود',
   'vue.error.useAuthOutsideProvider': 'useAuthClient باید درون AuthProvider استفاده شود',

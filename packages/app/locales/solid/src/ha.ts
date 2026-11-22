@@ -39,7 +39,7 @@ export const ha: Partial<SolidTranslations> = {
     'Dole ne a yi amfani da useLoggerProvider a cikin Mai Ba da Lambobin Sadarwa',
   'solid.error.oauthFailed': 'Shiga OAuth ya gaza',
   'solid.error.useRouterOutsideProvider':
-    "Babu na'urar sadarwa a nan. Yi amfani da `MoleculeRouterProvider` daga haɗin na'urar sadarwa (`@molecule/app-routing-solid-router`) a matsayin `root` ' na na'urar sadarwa, ko kuma wuce `router` zuwa `MoleculeProvider`.",
+    "Babu na'urar sadarwa a nan. Yi amfani da `MoleculeRouterProvider` daga haɗin hanyar sadarwa (`@molecule/app-routing-solid-router`) a matsayin `root` ' na na'urar sadarwa, ko kuma wuce `router` zuwa `MoleculeProvider`. Idan manhajar ta riga ta yi haka, haɗin hanyar sadarwa ta girmi wannan haɗin: sabunta shi (`npm install @molecule/app-routing-solid-router@latest`).",
   'solid.error.noRoutedView':
     "Babu wani ra'ayi da aka yi amfani da shi a nan. Solid Router yana ba wa ɓangaren hanyar hanyar hanyar da aka haɗa a matsayin `props.children`: yi amfani da wannan a matsayin `component` na hanya, ko kuma wuce shafin a matsayin yara.",
   'solid.error.useStoreOutsideProvider':

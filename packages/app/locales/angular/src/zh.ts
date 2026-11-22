@@ -13,8 +13,9 @@ export const zh: AngularTranslations = {
   'angular.error.useLoggerOutsideProvider': 'useLoggerProvider 必须在 LoggerProvider 内使用',
   'angular.error.usePreviewOutsideProvider': 'usePreviewProvider 必须在 PreviewProvider 内使用',
   'angular.error.useRouterOutsideProvider':
-    '这里没有路由器。将路由绑定（`@molecule/app-routing-angular-router`）中的`provideMoleculeRouter()`添加到应用程序的 providers 中，在 Angular 的`provideRouter(routes)`之后，或者将`router`传递给`provideMolecule`。',
-  'angular.error.noRoutedView': '此路由绑定没有要渲染的路由视图：请将页面作为子页面传递。',
+    '这里没有路由器。将路由绑定（`@molecule/app-routing-angular-router`）中的`provideMoleculeRouter()`添加到应用程序的 providers 中，放在 Angular 的`provideRouter(routes)`之后，或者将`router`传递给`provideMolecule`。如果应用程序已经这样做了，则其路由绑定版本低于此绑定：请更新它（`npm install @molecule/app-routing-angular-router@latest`）。',
+  'angular.error.noRoutedView':
+    '此路由绑定没有要渲染的路由视图：请将页面作为子元素传递。如果应用程序使用`@molecule/app-routing-angular-router`路由，则该绑定比此绑定旧：请更新它（`npm install @molecule/app-routing-angular-router@latest`）。',
   'angular.error.useStorageOutsideProvider': 'useStorageProvider 必须在 StorageProvider 内使用',
   'angular.error.useThemeOutsideProvider': 'useThemeProvider 必须在 ThemeProvider 内使用',
   'angular.error.useWorkspaceOutsideProvider':

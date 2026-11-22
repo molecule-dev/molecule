@@ -17,9 +17,9 @@ export const zu: ReactTranslations = {
   'react.error.usePreviewOutsideProvider':
     'usePreviewProvider kumele kusetshenziswe ngaphakathi kwe-PreviewProvider',
   'react.error.useRouterOutsideProvider':
-    'Ayikho i-router lapha. Faka ingxenye ye-router kusuka ku-routing bond yohlelo lokusebenza (`BrowserRouter` kusuka ku `@molecule/app-routing-react-router`), noma udlulisele `router` ku `MoleculeProvider`.',
+    'Ayikho i-router lapha. Faka ingxenye ye-router kusuka ku-routing bond yohlelo lokusebenza (`BrowserRouter` kusuka ku `@molecule/app-routing-react-router`), noma udlulisele `router` ku `MoleculeProvider`. Uma uhlelo lokusebenza seluvele lukwenza lokhu, i-routing bond yalo indala kunalokhu kubopha: yibuyekeze (`npm install @molecule/app-routing-react-router@latest`).',
   'react.error.noRoutedView':
-    'Lesi sibopho sokuqondisa asinawo umbono oqondisiwe ongawubonisa lapha: dlulisa ikhasi njengezingane esikhundleni salokho.',
+    'Lesi sibopho sokuqondisa asinawo umbono oqondiswe lapha: dlulisa ikhasi njengezingane esikhundleni salokho. Uma uhlelo lokusebenza lusebenzisa i `@molecule/app-routing-react-router`, leso sibopho sidala kunalesi sibopho: sibuyekeze (`npm install @molecule/app-routing-react-router@latest`).',
   'react.error.useStoreOutsideProvider':
     'useStateProvider kumele kusetshenziswe ngaphakathi kwe-StateProvider',
   'react.error.useStorageOutsideProvider':

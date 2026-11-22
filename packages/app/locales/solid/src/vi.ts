@@ -35,7 +35,7 @@ export const vi: SolidTranslations = {
     'useLoggerProvider phải được sử dụng bên trong một LoggerProvider.',
   'solid.error.oauthFailed': 'Đăng nhập OAuth thất bại',
   'solid.error.useRouterOutsideProvider':
-    'Không có bộ định tuyến nào ở đây. Hãy sử dụng `MoleculeRouterProvider` từ liên kết định tuyến (`@molecule/app-routing-solid-router`) làm `root` của bộ định tuyến, hoặc truyền `router` cho `MoleculeProvider`.',
+    'Không có bộ định tuyến nào ở đây. Hãy sử dụng `MoleculeRouterProvider` từ liên kết định tuyến (`@molecule/app-routing-solid-router`) làm `root` của bộ định tuyến, hoặc truyền `router` cho `MoleculeProvider`. Nếu ứng dụng đã làm điều này, liên kết định tuyến của nó cũ hơn liên kết này: hãy cập nhật nó (`npm install @molecule/app-routing-solid-router@latest`).',
   'solid.error.noRoutedView':
     'Không có view định tuyến ở đây. Solid Router cung cấp cho component của một route route con của nó dưới dạng `props.children`: hãy sử dụng điều này như một `component` của route, hoặc truyền trang dưới dạng children.',
   'solid.error.useStoreOutsideProvider':

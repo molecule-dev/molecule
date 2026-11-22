@@ -14,9 +14,9 @@ export const sq: ReactTranslations = {
   'react.error.usePreviewOutsideProvider':
     'usePreviewProvider duhet të përdoret brenda një PreviewProvider',
   'react.error.useRouterOutsideProvider':
-    'Nuk ka router këtu. Montoni një komponent routeri nga lidhja e routing-ut të aplikacionit (`BrowserRouter` nga `@molecule/app-routing-react-router`), ose kaloni `router` te `MoleculeProvider`.',
+    'Nuk ka router këtu. Montoni një komponent routeri nga lidhja e routing-ut të aplikacionit (`BrowserRouter` nga `@molecule/app-routing-react-router`), ose kaloni `router` te `MoleculeProvider`. Nëse aplikacioni e bën tashmë këtë, lidhja e tij e routing-ut është më e vjetër se kjo lidhje: përditësojeni atë (`npm install @molecule/app-routing-react-router@latest`).',
   'react.error.noRoutedView':
-    "Kjo lidhje rrugëzimi nuk ka pamje të rrugëzuar për t'u paraqitur këtu: kalojeni faqen si fëmijë në vend të kësaj.",
+    "Kjo lidhje rrugëzimi nuk ka pamje të rrugëzuar për t'u paraqitur këtu: kalojeni faqen si fëmijë në vend të kësaj. Nëse aplikacioni rrugëzon me `@molecule/app-routing-react-router`, ajo lidhje është më e vjetër se kjo lidhje: përditësojeni atë (`npm install @molecule/app-routing-react-router@latest`).",
   'react.error.useStoreOutsideProvider':
     'useStateProvider duhet të përdoret brenda një StateProvider',
   'react.error.useStorageOutsideProvider':

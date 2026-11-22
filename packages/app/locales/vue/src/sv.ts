@@ -3,9 +3,9 @@ import type { VueTranslations } from './types.js'
 /** Vue translations for Swedish. */
 export const sv: VueTranslations = {
   'vue.error.useRouterOutsideProvider':
-    'Ingen router här. Linda in appen i `MoleculeRouterProvider` från routingbindningen (`@molecule/app-routing-vue-router`), eller skicka `router` till `moleculePlugin`.',
+    'Ingen router här. Slå in appen i `MoleculeRouterProvider` från routingbindningen (`@molecule/app-routing-vue-router`), eller skicka `router` till `moleculePlugin`. Om appen redan gör detta är dess routingbindning äldre än denna bindning: uppdatera den (`npm install @molecule/app-routing-vue-router@latest`).',
   'vue.error.noRoutedView':
-    'Denna routing-bindning har ingen routad vy att rendera här: skicka sidan som underordnade istället.',
+    'Denna routing-bindning har ingen routad vy att rendera här: skicka sidan som underordnade istället. Om appen routar med `@molecule/app-routing-vue-router` är den bindningen äldre än denna bindning: uppdatera den (`npm install @molecule/app-routing-vue-router@latest`).',
   'vue.error.useStoreOutsideProvider':
     'useStateProvider m\u00e5ste anv\u00e4ndas inom en StateProvider',
   'vue.error.useThemeOutsideProvider':

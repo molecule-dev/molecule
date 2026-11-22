@@ -14,9 +14,9 @@ export const km: AngularTranslations = {
   'angular.error.usePreviewOutsideProvider':
     'usePreviewProvider ត្រូវតែប្រើនៅក្នុង PreviewProvider',
   'angular.error.useRouterOutsideProvider':
-    'គ្មានរ៉ោតទ័រនៅទីនេះទេ។ បន្ថែម `provideMoleculeRouter()` ពីចំណង​រ៉ោតទ័រ (`@molecule/app-routing-angular-router`) ទៅ​អ្នកផ្តល់សេវា​របស់​កម្មវិធី បន្ទាប់ពី `provideRouter(routes)` របស់ Angular ឬ​បញ្ជូន `router` ទៅ `provideMolecule` ។',
+    'គ្មានរ៉ោតទ័រនៅទីនេះទេ។ បន្ថែម `provideMoleculeRouter()` ពីចំណង​រ៉ោតទ័រ (`@molecule/app-routing-angular-router`) ទៅកាន់អ្នកផ្តល់សេវារបស់កម្មវិធី បន្ទាប់ពី `provideRouter(routes)` របស់ Angular ឬបញ្ជូន `router` ទៅ `provideMolecule` ។ ប្រសិនបើកម្មវិធីធ្វើបែបនេះរួចហើយ ចំណងរ៉ោតទ័ររបស់វាចាស់ជាងចំណងនេះ៖ ធ្វើបច្ចុប្បន្នភាពវា (`npm install @molecule/app-routing-angular-router@latest`)។',
   'angular.error.noRoutedView':
-    'ការតភ្ជាប់​ផ្លូវ​នេះ​មិនមាន​ទិដ្ឋភាព​ផ្លូវ​ដើម្បី​បង្ហាញ​នៅទីនេះ​ទេ៖ សូម​បញ្ជូន​ទំព័រ​ជា​កូន​ជំនួសវិញ។',
+    'ចំណង​រ៉ោតទ័រ​នេះ​មិន​មាន​ទិដ្ឋភាព​រ៉ោតទ័រ​ដើម្បី​បង្ហាញ​នៅ​ទីនេះ​ទេ៖ សូម​បញ្ជូន​ទំព័រ​ជា​កូន​ជំនួស​វិញ។ ប្រសិនបើ​កម្មវិធី​រ៉ោតទ័រ​ជាមួយ `@molecule/app-routing-angular-router` នោះ​ចំណង​នោះ​ចាស់​ជាង​ចំណង​នេះ៖ ធ្វើ​បច្ចុប្បន្នភាព​វា (`npm install @molecule/app-routing-angular-router@latest`)។',
   'angular.error.useStorageOutsideProvider':
     'useStorageProvider ត្រូវតែប្រើនៅក្នុង StorageProvider',
   'angular.error.useThemeOutsideProvider': 'useThemeProvider ត្រូវតែប្រើនៅក្នុង ThemeProvider',

@@ -14,9 +14,9 @@ export const hu: ReactTranslations = {
   'react.error.usePreviewOutsideProvider':
     'A usePreviewProvider-t PreviewProvider-en belül kell használni',
   'react.error.useRouterOutsideProvider':
-    'Nincs itt router. Csatold fel a router komponenst az alkalmazás routing kötéséről (`BrowserRouter` a `@molecule/app-routing-react-router` ből), vagy add át `router` a `MoleculeProvider` nek.',
+    'Nincs itt router. Csatold fel a router komponenst az alkalmazás útvonalválasztási köteléből (`BrowserRouter` `@molecule/app-routing-react-router` ből), vagy add át `router` a `MoleculeProvider` nek. Ha az alkalmazás már ezt teszi, akkor az útvonalválasztási köteléke régebbi, mint ez a kötés: frissítsd (`npm install @molecule/app-routing-react-router@latest`).',
   'react.error.noRoutedView':
-    'Ennek az útvonalválasztási kötvénynek nincs útvonalnézete, amelyet itt megjeleníthetne: ehelyett adja át az oldalt gyermekként.',
+    'Ennek az útvonalválasztási köteléknek nincs útvonalnézete a megjelenítéshez: ehelyett add át az oldalakat gyermekként. Ha az alkalmazás `@molecule/app-routing-react-router` irányít, akkor ez a kötelék régebbi, mint ez a kötvény: frissítsd (`npm install @molecule/app-routing-react-router@latest`).',
   'react.error.useStoreOutsideProvider':
     'A useStateProvider-t StateProvider-en belül kell használni',
   'react.error.useStorageOutsideProvider':

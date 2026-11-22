@@ -12,9 +12,9 @@ export const cs: ReactTranslations = {
   'react.error.usePreviewOutsideProvider':
     'usePreviewProvider musí být použit uvnitř PreviewProvider',
   'react.error.useRouterOutsideProvider':
-    'Zde není žádný router. Připojte komponentu routeru z routing bond aplikace (`BrowserRouter` z `@molecule/app-routing-react-router`) nebo předejte `router` do `MoleculeProvider`.',
+    'Žádný router zde není. Připojte komponentu routeru z routing bond aplikace (`BrowserRouter` z `@molecule/app-routing-react-router`) nebo předejte `router` do `MoleculeProvider`. Pokud to aplikace již dělá, její routing bond je starší než tato vazba: aktualizujte ji (`npm install @molecule/app-routing-react-router@latest`).',
   'react.error.noRoutedView':
-    'Tato směrovací vazba nemá žádný směrovaný pohled k vykreslení: místo toho předejte stránku jako podřízené objekty.',
+    'Tato vazba směrování nemá žádný směrovaný pohled k vykreslení: předejte stránku jako podřízené objekty. Pokud aplikace směruje s `@molecule/app-routing-react-router`, je tato vazba starší než tato: aktualizujte ji (`npm install @molecule/app-routing-react-router@latest`).',
   'react.error.useStoreOutsideProvider': 'useStateProvider musí být použit uvnitř StateProvider',
   'react.error.useStorageOutsideProvider':
     'useStorageProvider musí být použit uvnitř StorageProvider',

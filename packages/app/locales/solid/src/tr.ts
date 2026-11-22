@@ -35,7 +35,7 @@ export const tr: SolidTranslations = {
     'useLoggerProvider, bir LoggerProvider içinde kullanılmalıdır.',
   'solid.error.oauthFailed': 'OAuth oturum açma işlemi başarısız oldu.',
   'solid.error.useRouterOutsideProvider':
-    'Burada yönlendirici yok. Yönlendiricinin `root` olarak yönlendirme bağından (`@molecule/app-routing-solid-router`) `MoleculeRouterProvider` kullanın veya `router` `MoleculeProvider` iletin.',
+    'Burada yönlendirici yok. Yönlendiricinin `root` olarak yönlendirme bağından (`@molecule/app-routing-solid-router`) `MoleculeRouterProvider` kullanın veya `router` `MoleculeProvider` iletin. Uygulama zaten bunu yapıyorsa, yönlendirme bağı bu bağlamadan daha eskidir: onu güncelleyin (`npm install @molecule/app-routing-solid-router@latest`).',
   'solid.error.noRoutedView':
     'Burada yönlendirilmiş bir görünüm yok. Solid Router, bir rotanın bileşenine iç içe geçmiş rotasını `props.children` olarak verir: bunu bir rotanın `component` olarak kullanın veya sayfayı children olarak iletin.',
   'solid.error.useStoreOutsideProvider':

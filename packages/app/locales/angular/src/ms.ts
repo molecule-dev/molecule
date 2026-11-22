@@ -16,9 +16,9 @@ export const ms: AngularTranslations = {
   'angular.error.usePreviewOutsideProvider':
     'usePreviewProvider mesti digunakan dalam PreviewProvider',
   'angular.error.useRouterOutsideProvider':
-    'Tiada penghala di sini. Tambahkan `provideMoleculeRouter()` daripada ikatan penghalaan (`@molecule/app-routing-angular-router`) kepada penyedia aplikasi, selepas `provideRouter(routes)` Angular, atau hantarkan `router` kepada `provideMolecule`.',
+    'Tiada penghala di sini. Tambahkan `provideMoleculeRouter()` daripada ikatan penghalaan (`@molecule/app-routing-angular-router`) kepada penyedia aplikasi, selepas `provideRouter(routes)` Angular, atau serahkan `router` kepada `provideMolecule`. Jika aplikasi sudah melakukan ini, ikatan penghalaannya lebih lama daripada ikatan ini: kemas kini (`npm install @molecule/app-routing-angular-router@latest`).',
   'angular.error.noRoutedView':
-    'Ikatan penghalaan ini tidak mempunyai paparan penghalaan untuk dipaparkan di sini: sebaliknya, lulus halaman sebagai anak.',
+    'Ikatan penghalaan ini tidak mempunyai paparan penghalaan untuk dipaparkan di sini: sebaliknya, luluskan halaman sebagai anak. Jika aplikasi menghalakan dengan `@molecule/app-routing-angular-router`, ikatan tersebut lebih lama daripada pengikatan ini: kemas kininya (`npm install @molecule/app-routing-angular-router@latest`).',
   'angular.error.useStorageOutsideProvider':
     'useStorageProvider mesti digunakan dalam StorageProvider',
   'angular.error.useThemeOutsideProvider': 'useThemeProvider mesti digunakan dalam ThemeProvider',
