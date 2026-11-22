@@ -1,5 +1,16 @@
 # @molecule/app-vue
 
+## 3.11.0
+
+### Minor Changes
+
+- Declares each routing bond as an optional peer from the first version that gives this binding its router, so npm refuses an older bond instead of installing one whose router never mounts.
+
+### Patch Changes
+
+- Fixes the code examples in the package docs so each one compiles as written.
+- The router errors also say when the app's routing bond is older than the binding, and how to update it.
+
 ## 3.10.0
 
 ### Minor Changes

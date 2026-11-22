@@ -1,5 +1,12 @@
 # @molecule/app-settings-panel-svelte
 
+## 1.1.2
+
+### Patch Changes
+
+- Requires a framework binding version that refuses a routing bond too old to give it a router.
+- Examples mount the binding's `MoleculeProvider` inside the routing bond's `MoleculeRouterProvider`.
+
 ## 1.1.1
 
 ### Patch Changes

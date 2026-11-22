@@ -1,5 +1,11 @@
 # @molecule/app-leaderboard-row-angular
 
+## 1.1.3
+
+### Patch Changes
+
+- Fixes the code examples in the package docs so each one compiles as written.
+
 ## 1.1.2
 
 ### Patch Changes

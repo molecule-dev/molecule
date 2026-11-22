@@ -1,5 +1,11 @@
 # @molecule/app-vite-config-default
 
+## 1.7.0
+
+### Minor Changes
+
+- Adds the `/dist-sourcemap` entry: `moleculeDistWithoutSourcemap()` for a custom Vite config, without loading the PWA, React or Tailwind plugins.
+
 ## 1.6.0
 
 ### Minor Changes

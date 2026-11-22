@@ -1,5 +1,11 @@
 # @molecule/app-ide-panel-logic
 
+## 1.4.0
+
+### Minor Changes
+
+- Adds the chat panel's timeline, composer, dictation, tests, undo, stream, card-event, formatting and context-usage history logic, so every framework's chat panel runs the same rules.
+
 ## 1.3.1
 
 ### Patch Changes

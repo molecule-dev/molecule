@@ -1,5 +1,11 @@
 # @molecule/app-routing-react-router
 
+## 1.10.0
+
+### Minor Changes
+
+- Add `StaticRouter` and `StaticRouterProvider`, which give a server render the molecule router.
+
 ## 1.9.0
 
 ### Minor Changes

@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-ide-angular",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Angular IDE components for molecule.dev workspace",
   "homepage": "https://www.molecule.dev/packages/app-ide-angular",
   "type": "module",
@@ -50,7 +50,7 @@
     "access": "public"
   },
   "dependencies": {
-    "@molecule/app-ide-panel-logic": "1.3.1",
+    "@molecule/app-ide-panel-logic": "1.4.0",
     "material-file-icons": "2.4.0"
   },
   "peerDependencies": {
@@ -83,7 +83,7 @@
     "@molecule/app-ai-chat": "1.8.1",
     "@molecule/app-ai-models": "1.4.4",
     "@molecule/app-ai-voice": "1.0.3",
-    "@molecule/app-angular": "3.10.0",
+    "@molecule/app-angular": "3.11.0",
     "@molecule/app-clipboard": "1.0.5",
     "@molecule/app-code-editor": "1.0.3",
     "@molecule/app-country-flags": "1.0.3",
@@ -92,11 +92,11 @@
     "@molecule/app-icons": "1.0.4",
     "@molecule/app-ide": "1.1.0",
     "@molecule/app-live-preview": "1.0.3",
-    "@molecule/app-locales-ide": "1.11.5",
+    "@molecule/app-locales-ide": "1.12.0",
     "@molecule/app-logger": "1.1.0",
     "@molecule/app-storage": "1.1.1",
     "@molecule/app-ui": "1.5.0",
-    "@molecule/app-ui-angular": "1.3.1",
+    "@molecule/app-ui-angular": "1.4.0",
     "@molecule/app-ui-tailwind": "1.3.0",
     "@testing-library/dom": "10.4.2",
     "@types/node": "26.6.5",

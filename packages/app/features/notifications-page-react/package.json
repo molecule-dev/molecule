@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-notifications-page-react",
-  "version": "4.1.0",
+  "version": "4.2.0",
   "description": "Drop-in Notifications page composing notification-feed/center components — header, filters, mark-all-read, paginated list, empty state.",
   "homepage": "https://www.molecule.dev/packages/app-notifications-page-react",
   "type": "module",
@@ -42,8 +42,8 @@
   },
   "devDependencies": {
     "@molecule/app-i18n": "1.2.2",
-    "@molecule/app-notification-feed-react": "4.0.2",
-    "@molecule/app-react": "4.11.0",
+    "@molecule/app-notification-feed-react": "4.1.0",
+    "@molecule/app-react": "4.12.0",
     "@molecule/app-ui": "1.5.0",
     "@testing-library/react": "16.3.3",
     "@types/node": "26.6.5",
@@ -53,6 +53,6 @@
     "react-dom": "19.3.1",
     "typescript": "6.0.3",
     "vitest": "4.1.12",
-    "@molecule/app-routing": "1.5.1"
+    "@molecule/app-routing": "1.5.2"
   }
 }

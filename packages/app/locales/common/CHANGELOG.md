@@ -1,5 +1,11 @@
 # @molecule/app-locales-common
 
+## 1.0.9
+
+### Patch Changes
+
+- Translates values that were still in English and keeps quoted placeholders and their suffixes intact.
+
 ## 1.0.8
 
 ### Patch Changes

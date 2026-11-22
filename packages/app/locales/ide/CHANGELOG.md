@@ -1,5 +1,15 @@
 # @molecule/app-locales-ide
 
+## 1.12.0
+
+### Minor Changes
+
+- Adds the chat panel's new labels in every language, translates the strings still in English, and removes three keys nothing reads.
+
+### Patch Changes
+
+- Translates values that were still in English and keeps quoted placeholders and their suffixes intact.
+
 ## 1.11.5
 
 ### Patch Changes

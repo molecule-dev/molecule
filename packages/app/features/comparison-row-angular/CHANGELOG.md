@@ -1,5 +1,11 @@
 # @molecule/app-comparison-row-angular
 
+## 1.1.2
+
+### Patch Changes
+
+- Fixes the code examples in the package docs so each one compiles as written.
+
 ## 1.1.1
 
 ### Patch Changes

@@ -1,5 +1,12 @@
 # @molecule/app-locales-react
 
+## 1.2.1
+
+### Patch Changes
+
+- Removes the space machine translation left between a code span and the full stop or comma after it.
+- The router errors also say when the app's routing bond is older than the binding, and how to update it.
+
 ## 1.2.0
 
 ### Minor Changes

@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-safe-link-react",
-  "version": "1.0.6",
+  "version": "1.1.0",
   "description": "SafeLink React router wrapper that appends a #top fragment when target matches current path. Avoids dead-link probes that return no URL/DOM mutation on same-path clicks.",
   "homepage": "https://www.molecule.dev/packages/app-safe-link-react",
   "type": "module",
@@ -34,8 +34,8 @@
     "directory": "packages/app/features/safe-link-react"
   },
   "devDependencies": {
-    "@molecule/app-react": "4.11.0",
-    "@molecule/app-routing": "1.5.1",
+    "@molecule/app-react": "4.12.0",
+    "@molecule/app-routing": "1.5.2",
     "@types/node": "26.6.5",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",

@@ -1,5 +1,11 @@
 # @molecule/app-locales-loyalty-tier-badge
 
+## 1.0.8
+
+### Patch Changes
+
+- Translates values that were still in English and keeps quoted placeholders and their suffixes intact.
+
 ## 1.0.7
 
 ### Patch Changes

@@ -1,5 +1,15 @@
 # @molecule/app-sidebar-layout-svelte
 
+## 1.2.0
+
+### Minor Changes
+
+- `AuthGuard`, `SidebarLayout` and `TopNavLayout` without children render the binding's `RoutedView` (the matched child route).
+
+### Patch Changes
+
+- Requires a framework binding version that refuses a routing bond too old to give it a router.
+
 ## 1.1.0
 
 ### Minor Changes

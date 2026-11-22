@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-routing-react-router",
-  "version": "1.9.0",
+  "version": "1.10.0",
   "description": "React Router provider with URL-backed list pagination, filters, path/query selections and auth readiness",
   "type": "module",
   "main": "dist/index.js",
@@ -69,8 +69,8 @@
     "@molecule/app-i18n": "1.2.2",
     "@molecule/app-query": "1.3.4",
     "@molecule/app-query-memory": "1.1.0",
-    "@molecule/app-query-react": "1.8.0",
-    "@molecule/app-react": "4.11.0",
+    "@molecule/app-query-react": "1.8.1",
+    "@molecule/app-react": "4.12.0",
     "@testing-library/react": "16.3.3",
     "@types/node": "26.6.5",
     "@types/react": "19.3.0",

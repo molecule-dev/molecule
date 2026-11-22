@@ -1,5 +1,16 @@
 # @molecule/app-ui-svelte
 
+## 1.3.0
+
+### Minor Changes
+
+- `AuthGuard`, `SidebarLayout` and `TopNavLayout` without children render the binding's `RoutedView` (the matched child route).
+
+### Patch Changes
+
+- Fixes the code examples in the package docs so each one compiles as written.
+- Requires a framework binding version that refuses a routing bond too old to give it a router.
+
 ## 1.2.1
 
 ### Patch Changes

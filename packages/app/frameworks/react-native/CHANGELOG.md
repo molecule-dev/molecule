@@ -1,5 +1,11 @@
 # @molecule/app-react-native
 
+## 4.3.1
+
+### Patch Changes
+
+- Requires a framework binding version that refuses a routing bond too old to give it a router.
+
 ## 4.3.0
 
 ### Minor Changes

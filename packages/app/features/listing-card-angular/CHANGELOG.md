@@ -1,5 +1,11 @@
 # @molecule/app-listing-card-angular
 
+## 1.2.1
+
+### Patch Changes
+
+- Fixes the code examples in the package docs so each one compiles as written.
+
 ## 1.2.0
 
 ### Minor Changes

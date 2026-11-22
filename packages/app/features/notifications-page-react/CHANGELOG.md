@@ -1,5 +1,11 @@
 # @molecule/app-notifications-page-react
 
+## 4.2.0
+
+### Minor Changes
+
+- Read the router through `@molecule/app-react` instead of React Router, so these components work under any routing bond; a guard or layout without children renders the binding's `RoutedView`.
+
 ## 4.1.0
 
 ### Minor Changes

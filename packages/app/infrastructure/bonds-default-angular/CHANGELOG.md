@@ -1,5 +1,11 @@
 # @molecule/app-bonds-default-angular
 
+## 1.2.1
+
+### Patch Changes
+
+- Examples read the router through the framework binding and the routing bond's providers.
+
 ## 1.2.0
 
 ### Minor Changes

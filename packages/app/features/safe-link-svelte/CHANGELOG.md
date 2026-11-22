@@ -1,5 +1,11 @@
 # @molecule/app-safe-link-svelte
 
+## 1.1.1
+
+### Patch Changes
+
+- Requires a framework binding version that refuses a routing bond too old to give it a router.
+
 ## 1.1.0
 
 ### Minor Changes

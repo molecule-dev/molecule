@@ -1,5 +1,11 @@
 # @molecule/api-locales-code-sandbox-docker
 
+## 1.0.4
+
+### Patch Changes
+
+- Translates values that were still in English and keeps quoted placeholders and their suffixes intact.
+
 ## 1.0.3
 
 ### Patch Changes

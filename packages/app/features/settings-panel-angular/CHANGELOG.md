@@ -1,5 +1,11 @@
 # @molecule/app-settings-panel-angular
 
+## 2.0.1
+
+### Patch Changes
+
+- Requires a framework binding version that refuses a routing bond too old to give it a router.
+
 ## 2.0.0
 
 ### Major Changes

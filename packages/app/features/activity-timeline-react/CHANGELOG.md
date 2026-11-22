@@ -1,5 +1,11 @@
 # @molecule/app-activity-timeline-react
 
+## 4.0.3
+
+### Patch Changes
+
+- Examples read the router through the framework binding and the routing bond's providers.
+
 ## 4.0.2
 
 ### Patch Changes

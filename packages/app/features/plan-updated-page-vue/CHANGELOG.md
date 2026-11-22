@@ -1,5 +1,11 @@
 # @molecule/app-plan-updated-page-vue
 
+## 1.1.1
+
+### Patch Changes
+
+- Examples mount the binding's `MoleculeProvider` inside the routing bond's `MoleculeRouterProvider`.
+
 ## 1.1.0
 
 ### Minor Changes

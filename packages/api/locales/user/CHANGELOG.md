@@ -1,5 +1,11 @@
 # @molecule/api-locales-user
 
+## 1.2.1
+
+### Patch Changes
+
+- Translates values that were still in English and keeps quoted placeholders and their suffixes intact.
+
 ## 1.2.0
 
 ### Minor Changes

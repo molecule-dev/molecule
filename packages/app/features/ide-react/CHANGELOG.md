@@ -1,5 +1,17 @@
 # @molecule/app-ide-react
 
+## 4.3.0
+
+### Minor Changes
+
+- ChatPanel runs its logic from `@molecule/app-ide-panel-logic`; the skill card is one translated sentence, a long message's expand strip is named and measures again as the message grows, and the untitled conversation is translated.
+
+### Patch Changes
+
+- Examples read the router through the framework binding and the routing bond's providers.
+- Updated dependencies
+  - @molecule/app-ide-panel-logic@1.4.0
+
 ## 4.2.2
 
 ### Patch Changes

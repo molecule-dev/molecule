@@ -1,5 +1,11 @@
 # @molecule/app-query-react
 
+## 1.8.1
+
+### Patch Changes
+
+- Examples read the router through the framework binding and the routing bond's providers.
+
 ## 1.8.0
 
 ### Minor Changes
