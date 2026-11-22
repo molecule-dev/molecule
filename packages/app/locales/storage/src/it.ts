@@ -9,5 +9,5 @@ export const it: StorageTranslations = {
   'storage.error.asyncStorageUnavailable':
     '`@react-native-async-storage/async-storage` non è installato. Installalo con: `npm install @react-native-async-storage/async-storage`',
   'storage.error.setFailed':
-    'Impossibile impostare il valore per la chiave " {{key}} " in AsyncStorage',
+    'Impossibile impostare il valore per la chiave "{{key}}" in AsyncStorage',
 }

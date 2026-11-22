@@ -3,11 +3,11 @@ import type { SurveyQuestionTranslations } from './types.js'
 /** Survey-question translations for Amharic. */
 export const am: SurveyQuestionTranslations = {
   'surveyQuestion.required': 'ይህ ጥያቄ መልስ ያስፈልገዋል።',
-  'surveyQuestion.requiredIndicator': 'required',
-  'surveyQuestion.submit': 'Submit',
-  'surveyQuestion.trueFalse.true': 'True',
-  'surveyQuestion.trueFalse.false': 'False',
+  'surveyQuestion.requiredIndicator': 'ያስፈልጋል',
+  'surveyQuestion.submit': 'አስገባ',
+  'surveyQuestion.trueFalse.true': 'ትሩ',
+  'surveyQuestion.trueFalse.false': 'የውሸት',
   'surveyQuestion.nps.low': 'በፍፁም አይሆንም',
-  'surveyQuestion.nps.high': 'Extremely likely',
+  'surveyQuestion.nps.high': 'እጅግ በጣም ዕድሉ ከፍተኛ ነው',
   'surveyQuestion.file.noFiles': 'ምንም ፋይሎች አልተመረጡም።',
 }

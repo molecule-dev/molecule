@@ -19,16 +19,20 @@ import { describe, expect, it } from 'vitest'
 
 import {
   analyzeLocalePlaceholders,
+  checkFile,
   checkValue,
   classify,
   commandSpans,
+  copiedEnglish,
   countPluralForms,
+  englishWords,
   isUntranslatedCopy,
   keptInEnglish,
   localePackages,
   missingPluralForms,
   placeholders,
   pluralBases,
+  splitHyphenSuffix,
   valuesByKey,
 } from '../check-locale-placeholders.js'
 
@@ -217,11 +221,203 @@ describe('classify', () => {
     ).toBeNull()
   })
 
+  it('catches a QUOTED token the translation moved its quotes away from', () => {
+    // Google's Afrikaans and Arabic, kept until 2026-11-22.
+    expect(
+      classify('Route "{{name}}" not found', 'Roete " {{name}} "nie gevind nie'),
+    ).toMatchObject({
+      klass: 'QUOTED',
+      detail: '"{{name}}" not kept verbatim',
+    })
+    expect(classify('Route "{{name}}" not found', 'طريق " {{name}} "غير موجود"')).toMatchObject({
+      klass: 'QUOTED',
+    })
+    expect(
+      classify(
+        'elementAttributes names <{{element}}>, which markdown does not produce',
+        'elementAttributes nennt < {{element}} >, das Markdown nicht erzeugt',
+      ),
+    ).toMatchObject({ klass: 'QUOTED', detail: '<{{element}}> not kept verbatim' })
+    expect(classify('Route "{{name}}" not found', 'Roete "{{name}}" nie gevind nie')).toBeNull()
+    // Quotes English does not pair with a token are prose the translation may change.
+    expect(
+      classify('Press "Save" to keep {{name}}', 'Drücken Sie „Speichern“, um {{name}} zu behalten'),
+    ).toBeNull()
+  })
+
+  it('catches a SPACING split between a token and the suffix English writes against it', () => {
+    // Google's Turkish for "{{name}}'s website".
+    expect(classify("{{name}}'s website", "{{name}} 'nin web sitesi")).toMatchObject({
+      klass: 'SPACING',
+      detail: 'a space splits {{name}} from the suffix English writes against it',
+    })
+    expect(classify("{{name}}'s website", "{{name}}'nin web sitesi")).toBeNull()
+    expect(classify("{{name}}'s website", 'Site web de {{name}}')).toBeNull()
+  })
+
+  it('catches a SPACING split before a hyphenated suffix, except in Finnish', () => {
+    // Google's German and Azerbaijani.
+    expect(
+      splitHyphenSuffix(
+        'Call `setProvider()` with a `NetworkProvider` implementation.',
+        'Rufen Sie `setProvider()` mit einer `NetworkProvider` -Implementierung auf.',
+        'de',
+      ),
+    ).toEqual({
+      klass: 'SPACING',
+      detail: 'a space splits `NetworkProvider` from its hyphenated suffix',
+    })
+    expect(
+      splitHyphenSuffix(
+        '{{done}} of {{total}} complete',
+        '{{total}} -dən {{done}} tamamlandı',
+        'az',
+      ),
+    ).toMatchObject({ klass: 'SPACING' })
+    expect(
+      splitHyphenSuffix(
+        '{{done}} of {{total}} complete',
+        '{{total}}-dən {{done}} tamamlandı',
+        'az',
+      ),
+    ).toBeNull()
+    expect(
+      splitHyphenSuffix('HTTP {{status}} response', 'HTTP {{status}} -vastaus', 'fi'),
+    ).toBeNull()
+    // A dash between words is not a suffix.
+    expect(splitHyphenSuffix('{{a}} - {{b}}', '{{a}} - {{b}}', 'de')).toBeNull()
+  })
+
   it('catches a CODE span the translation added — UI text shows the backticks', () => {
     // A machine translation's Polish for '{{count}} results in {{files}} files'.
     expect(
       classify('{{count}} results in {{files}} files', '{{count}} wyników w `{{files}}` plikach'),
     ).toMatchObject({ klass: 'CODE', detail: expect.stringContaining('gains `{{files}}`') })
+  })
+})
+
+describe('copied English', () => {
+  const values = (entries: Record<string, string>) => new Map(Object.entries(entries))
+
+  it('counts the words a translation would change: no acronym, unit, token, code, address or URL', () => {
+    expect(englishWords('Select all')).toEqual(['Select', 'all'])
+    expect(englishWords('Wi-Fi')).toEqual(['Wi-Fi'])
+    expect(englishWords('HTTP {{status}}: {{text}}')).toEqual([])
+    expect(englishWords('{{ms}}ms')).toEqual([])
+    expect(englishWords('{{value}} mm')).toEqual([])
+    expect(englishWords('{{count}} selected')).toEqual(['selected'])
+    expect(englishWords('Run `npm test` now')).toEqual(['Run', 'now'])
+    expect(englishWords('name@company.com')).toEqual([])
+    expect(englishWords('See https://example.com')).toEqual([])
+    expect(englishWords('{{label}}')).toEqual([])
+  })
+
+  it('catches a short label still in ENGLISH in a language not written in Latin script', () => {
+    const en = values({
+      all: 'Select all',
+      status: 'HTTP {{status}}',
+      unit: '{{value}} mm',
+      mail: 'you@example.com',
+    })
+    const ja = values({
+      all: 'Select all',
+      status: 'HTTP {{status}}',
+      unit: '{{value}} mm',
+      mail: 'you@example.com',
+    })
+    expect([...copiedEnglish(en, ja, 'ja')]).toEqual([
+      ['all', 'still English, in a language written in Jpan script'],
+    ])
+    expect(
+      copiedEnglish(en, values({ ...Object.fromEntries(ja), all: 'すべて選択' }), 'ja').size,
+    ).toBe(0)
+    // Serbian is written in Cyrillic, Russian too.
+    expect(copiedEnglish(en, ja, 'sr').has('all')).toBe(true)
+    expect(copiedEnglish(en, ja, 'ru').has('all')).toBe(true)
+  })
+
+  it('lets a key en.ts keeps in English read the same', () => {
+    const en = values({ github: 'GitHub' })
+    // Unmarked, a product name is English like any other word.
+    expect(copiedEnglish(en, en, 'ja').has('github')).toBe(true)
+    expect(copiedEnglish(en, en, 'ja', new Map([['github', 'a product name']])).size).toBe(0)
+    expect(
+      copiedEnglish(
+        values({ github: 'GitHub Pages' }),
+        values({ github: 'GitHub Pages' }),
+        'ja',
+        new Map([['github', 'a product name']]),
+      ).size,
+    ).toBe(0)
+  })
+
+  it('catches a Latin-script file that was copied, not translated (layer-panel Afrikaans, 7 of 7)', () => {
+    const en = values({
+      label: 'Layers',
+      show: 'Show layer',
+      hide: 'Hide layer',
+      lock: 'Lock layer',
+      unlock: 'Unlock layer',
+      rename: 'Rename layer',
+      metadata: 'Layer metadata',
+    })
+    const af = copiedEnglish(en, en, 'af')
+    expect([...af.keys()]).toEqual([
+      'label',
+      'show',
+      'hide',
+      'lock',
+      'unlock',
+      'rename',
+      'metadata',
+    ])
+    expect(af.get('label')).toBe(
+      "still English, like 7 of the file's 7 values: the file was copied, not translated",
+    )
+  })
+
+  it('counterexample: a translated Latin-script file keeps the labels that read the same', () => {
+    // exif-panel's Dutch: acronyms, units and two words Dutch shares with English.
+    const en = values({
+      heading: 'EXIF',
+      camera: 'Camera',
+      lens: 'Lens',
+      exposure: 'Exposure',
+      aperture: 'Aperture',
+      shutter: 'Shutter speed',
+      iso: 'ISO {{value}}',
+      focal: '{{value}} mm',
+      map: 'View on map',
+    })
+    const nl = values({
+      heading: 'EXIF',
+      camera: 'Camera',
+      lens: 'Lens',
+      exposure: 'Belichting',
+      aperture: 'Diafragma',
+      shutter: 'Sluitertijd',
+      iso: 'ISO {{value}}',
+      focal: '{{value}} mm',
+      map: 'Bekijk op de kaart',
+    })
+    expect(copiedEnglish(en, nl, 'nl').size).toBe(0)
+    // Two of two still English is not a copied file: German "Minimum", "Maximum".
+    const range = values({ min: 'Minimum', max: 'Maximum' })
+    expect(copiedEnglish(range, range, 'de').size).toBe(0)
+  })
+
+  it("skips a file that is not a language (a bond's own loadContent.ts)", () => {
+    const en = values({ all: 'Select all' })
+    expect(copiedEnglish(en, en, 'loadContent').size).toBe(0)
+  })
+
+  it('checkFile reports both kinds of verdict for one file', () => {
+    const en = values({ quoted: 'Route "{{name}}" not found', all: 'Select all' })
+    const ja = values({ quoted: 'ルート " {{name}} "が見つかりません', all: 'Select all' })
+    expect(Object.fromEntries(checkFile(en, ja, 'ja'))).toEqual({
+      quoted: { klass: 'QUOTED', detail: '"{{name}}" not kept verbatim' },
+      all: { klass: 'ENGLISH', detail: 'still English, in a language written in Jpan script' },
+    })
   })
 })
 

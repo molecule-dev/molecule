@@ -6,6 +6,5 @@ export const mt: CodeSandboxDockerTranslations = {
   'codeSandbox.docker.error.readDirFailed': 'Ma rnexxiex jiġi elenkat {{path}}: {{error}}',
   'codeSandbox.docker.error.writeFailed': "Falla fil-kitba ta' {{path}}: {{error}}",
   'codeSandbox.docker.error.deleteFailed': "Falla fit-thassir ta' {{path}}: {{error}}",
-  'codeSandbox.docker.error.apiError':
-    "Zball fl-API ta' Docker {{method}} {{path}}: {{status}} {{error}}",
+  'codeSandbox.docker.error.apiError': 'Docker API {{method}} {{path}}: {{status}} {{error}}',
 }

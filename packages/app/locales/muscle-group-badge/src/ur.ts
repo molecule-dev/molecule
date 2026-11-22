@@ -12,7 +12,7 @@ export const ur: MuscleGroupBadgeTranslations = {
   'muscleGroupBadge.group.fullBody': 'پورا جسم',
   'muscleGroupBadge.group.glutes': 'گلوٹس',
   'muscleGroupBadge.group.hamstrings': 'ہیمسٹرنگ',
-  'muscleGroupBadge.group.quads': 'Quads',
+  'muscleGroupBadge.group.quads': 'کواڈز',
   'muscleGroupBadge.group.shoulders': 'کندھے',
-  'muscleGroupBadge.group.triceps': 'Triceps',
+  'muscleGroupBadge.group.triceps': 'ٹرائی سیپس',
 }

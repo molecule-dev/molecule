@@ -4,10 +4,10 @@ import type { NetworkTranslations } from './types.js'
 export const ar: Partial<NetworkTranslations> = {
   'network.none': 'مفصول',
   'network.unknown': 'غير معروف',
-  'network.wifi': 'واي فاي',
+  'network.wifi': 'Wi-Fi',
   'network.cellular': 'خلوي',
   'network.ethernet': 'إيثرنت',
-  'network.bluetooth': 'بلوتوث',
+  'network.bluetooth': 'Bluetooth',
   'network.vpn': 'VPN',
   'network.other': 'آخر',
   'network.error.connectionTimeout': 'انقطع الاتصال بالشبكة',

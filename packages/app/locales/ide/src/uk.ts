@@ -170,7 +170,7 @@ export const uk: Partial<IdeTranslations> = {
   'ide.chat.autoFixPaused': 'Автоматичне виправлення призупинено',
   'ide.chat.selectModel': 'Виберіть модель',
   'ide.chat.currentBadge': 'поточний',
-  'ide.chat.proRequired': 'Професіонал',
+  'ide.chat.proRequired': 'Pro',
   'ide.chat.notificationSounds': 'Звуки сповіщень',
   'ide.chat.soundMode.mixed': 'змішаний',
   'ide.chat.openTab': 'ВІДЧИНЕНО',
@@ -236,7 +236,7 @@ export const uk: Partial<IdeTranslations> = {
   'ide.chat.placeholder': 'Надіслати повідомлення...',
   'ide.chat.placeholderViewer': 'Напишіть своїй команді',
   'ide.chat.emptyState': 'Опишіть, що ви хочете побудувати...',
-  'ide.chat.molecule': 'Молекула',
+  'ide.chat.molecule': 'Molecule',
   'ide.chat.automatic': 'Надіслано автоматично',
   'ide.chat.stop': 'СТІЙ',
   'ide.chat.code.copy': 'Копіювати',
@@ -264,7 +264,7 @@ export const uk: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.verification_result': 'Результат перевірки',
   'ide.chat.soundEvent.preview_error': 'Помилка попереднього перегляду',
   'ide.chat.soundEventDesc.message': 'Товариш по команді опублікував примітку лише для команди',
-  'ide.chat.soundEventDesc.done': '{{agentName}} finished responding',
+  'ide.chat.soundEventDesc.done': '{{agentName}} завершив відповідь',
   'ide.chat.soundEventDesc.error': 'Щось пішло не так під час відповіді',
   'ide.chat.soundEventDesc.tool_result':
     'Виклик інструменту (читання файлу, команда тощо) завершено',
@@ -408,9 +408,9 @@ export const uk: Partial<IdeTranslations> = {
   'ide.chat.modelInUse': 'Зараз використовується {{model}}',
   'ide.chat.cardBy': '{{text}} — {{name}}',
   'ide.chat.modelRemoved':
-    'Вибрана вами модель «{{removed}}» більше не доступна. Замість неї запропоновано «{{fallback}}». Введіть /model, щоб вибрати іншу.',
+    'Вибрана вами модель "{{removed}}" більше недоступна. Переключено на "{{fallback}}". Введіть /model , щоб вибрати іншу.',
   'ide.chat.modelRemovedNoFallback':
-    'Вибрана вами модель «{{removed}}» більше не доступна, і на сервері немає її замінника. Попросіть адміністратора підключити постачальника штучного інтелекту.',
+    'Вибрана вами модель "{{removed}}" більше недоступна, і на сервері не заплановано заміну. Попросіть свого адміністратора підключити постачальника послуг штучного інтелекту.',
   'ide.chat.olderModelsCollapse': 'Попередні моделі ⌃ ({{count}})',
   'ide.chat.olderModelsExpand': 'Старі моделі ⌄ ({{count}})',
   'ide.chat.selectExecuteModel': 'Вибрати модель у режимі виконання',

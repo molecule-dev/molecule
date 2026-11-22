@@ -2,11 +2,11 @@ import type { LayerPanelTranslations } from './types.js'
 
 /** Layer Panel translations for Belarusian. Stub — uses English copy. */
 export const be: LayerPanelTranslations = {
-  'layerPanel.label': 'Layers',
-  'layerPanel.show': 'Show layer',
-  'layerPanel.hide': 'Hide layer',
-  'layerPanel.lock': 'Lock layer',
-  'layerPanel.unlock': 'Unlock layer',
-  'layerPanel.renameInput': 'Rename layer',
-  'layerPanel.metadata': 'Layer metadata',
+  'layerPanel.label': 'Слаі',
+  'layerPanel.show': 'Паказаць пласт',
+  'layerPanel.hide': 'Схаваць пласт',
+  'layerPanel.lock': 'Заблакіраваць пласт',
+  'layerPanel.unlock': 'Разблакіраваць пласт',
+  'layerPanel.renameInput': 'Перайменаваць пласт',
+  'layerPanel.metadata': 'Метададзеныя слаёў',
 }

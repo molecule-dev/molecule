@@ -2,11 +2,11 @@ import type { LayerPanelTranslations } from './types.js'
 
 /** Layer Panel translations for Hausa. Stub — uses English copy. */
 export const ha: LayerPanelTranslations = {
-  'layerPanel.label': 'Layers',
-  'layerPanel.show': 'Show layer',
-  'layerPanel.hide': 'Hide layer',
-  'layerPanel.lock': 'Lock layer',
-  'layerPanel.unlock': 'Unlock layer',
-  'layerPanel.renameInput': 'Rename layer',
-  'layerPanel.metadata': 'Layer metadata',
+  'layerPanel.label': 'Layer',
+  'layerPanel.show': 'Nuna Layer',
+  'layerPanel.hide': 'Ɓoye layi',
+  'layerPanel.lock': 'Layer na kullewa',
+  'layerPanel.unlock': 'Buɗe Layer',
+  'layerPanel.renameInput': 'Sake suna Layer',
+  'layerPanel.metadata': 'Bayanan bayanai na Layer',
 }

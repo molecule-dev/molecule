@@ -3,15 +3,15 @@ import type { PricingPageTranslations } from './types.js'
 /** Pricing Page translations for Bengali. Stub — uses English copy. */
 export const bn: PricingPageTranslations = {
   'pricingPage.heading': 'আপনার প্ল্যান বেছে নিন',
-  'pricingPage.loading': 'Loading plans…',
+  'pricingPage.loading': 'পরিকল্পনা লোড হচ্ছে…',
   'pricingPage.error': 'মূল্যতালিকা লোড করা যায়নি। পরে আবার চেষ্টা করুন।',
   'pricingPage.checkoutError': 'চেকআউট শুরু করা যায়নি। অনুগ্রহ করে আবার চেষ্টা করুন।',
-  'pricingPage.perSeat': 'per seat',
-  'pricingPage.upgradeCta': 'Upgrade to {{tierName}}',
-  'pricingPage.currentCta': 'Current plan',
-  'pricingPage.periodToggle.label': 'Billing period',
-  'pricingPage.periodToggle.monthly': 'Monthly',
-  'pricingPage.periodToggle.yearly': 'Yearly',
+  'pricingPage.perSeat': 'প্রতি আসন',
+  'pricingPage.upgradeCta': '{{tierName}} এ আপগ্রেড করুন',
+  'pricingPage.currentCta': 'বর্তমান পরিকল্পনা',
+  'pricingPage.periodToggle.label': 'বিলিং সময়কাল',
+  'pricingPage.periodToggle.monthly': 'মাসিক',
+  'pricingPage.periodToggle.yearly': 'বার্ষিক',
   'pricingPage.planUpdated.heading': 'আপনার প্ল্যান আপডেট করা হয়েছে',
   'pricingPage.planUpdated.headingNamed': 'আপনি এখন {{planName}} প্ল্যানে আছেন।',
   'pricingPage.planUpdated.body':

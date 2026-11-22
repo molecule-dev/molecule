@@ -7,5 +7,5 @@ export const tr: StorageTranslations = {
   'storage.error.asyncStorageUnavailable':
     '`@react-native-async-storage/async-storage` yüklü değil. Şu komutla yükleyin: `npm install @react-native-async-storage/async-storage`',
   'storage.error.setFailed':
-    'AsyncStorage\'da " {{key}} " anahtarı için değer ayarlama başarısız oldu.',
+    'AsyncStorage\'da "{{key}}" anahtarı için değer ayarlama başarısız oldu.',
 }

@@ -11,7 +11,7 @@ export const ur: Partial<AudioEffectsRackTranslations> = {
   'audioEffectsRack.empty': 'سلسلہ میں کوئی اثر نہیں - شروع کرنے کے لیے ایک شامل کریں۔',
   'audioEffectsRack.kind.eq': 'EQ',
   'audioEffectsRack.kind.compressor': 'کمپریسر',
-  'audioEffectsRack.kind.reverb': 'Reverb',
+  'audioEffectsRack.kind.reverb': 'ریورب',
   'audioEffectsRack.kind.delay': 'تاخیر',
   'audioEffectsRack.kind.distortion': 'بگاڑ',
   'audioEffectsRack.kind.gate': 'گیٹ',

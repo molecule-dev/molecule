@@ -433,9 +433,9 @@ export const yo: Partial<IdeTranslations> = {
   'ide.chat.modelInUse': 'Now using {{model}}',
   'ide.chat.cardBy': '{{text}} — {{name}}',
   'ide.chat.modelRemoved':
-    'Àwòṣe tí o yàn " {{removed}} " kò sí mọ́. Ó yípadà sí " {{fallback}} ". Tẹ /model láti yan òmíràn.',
+    'Àwòṣe tí o yàn "{{removed}}" kò sí mọ́. Ó yípadà sí "{{fallback}}". Tẹ̀ /model láti yan òmíràn.',
   'ide.chat.modelRemovedNoFallback':
-    'Àwòṣe tí o yàn " {{removed}} " kò sí mọ́, kò sì sí ìyípadà kankan lórí olupin náà. Béèrè lọ́wọ́ olùdarí rẹ láti fi ẹ̀rọ ìbánisọ̀rọ̀ ránṣẹ́ sí olùpèsè AI kan.',
+    'Àwòṣe tí o yàn "{{removed}}" kò sí mọ́, kò sì sí ìyípadà kankan lórí olupin náà. Béèrè lọ́wọ́ olùdarí rẹ láti fi ẹ̀rọ ìbánisọ̀rọ̀ ránṣẹ́ sí olùpèsè AI kan.',
   'ide.chat.olderModelsCollapse': 'Older models ⌃ ({{count}})',
   'ide.chat.olderModelsExpand': 'Older models ⌄ ({{count}})',
   'ide.chat.selectExecuteModel': 'Yan awoṣe ipo ṣiṣe',

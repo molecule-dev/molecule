@@ -9,5 +9,5 @@ export const fr: Partial<StorageTranslations> = {
   'storage.error.asyncStorageUnavailable':
     "`@react-native-async-storage/async-storage` n'est pas installé. Installez-le avec : `npm install @react-native-async-storage/async-storage`",
   'storage.error.setFailed':
-    'Impossible de définir la valeur de la clé « {{key}} » dans AsyncStorage',
+    'Impossible de définir la valeur de la clé "{{key}}" dans AsyncStorage',
 }

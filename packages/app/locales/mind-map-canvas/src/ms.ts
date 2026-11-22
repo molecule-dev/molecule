@@ -4,8 +4,8 @@ import type { MindMapCanvasTranslations } from './types.js'
 export const ms: MindMapCanvasTranslations = {
   'mindMap.aria.canvas': 'Kanvas peta minda',
   'mindMap.aria.edit': 'Edit teks nod',
-  'mindMap.action.collapse': 'Collapse subtree',
-  'mindMap.action.expand': 'Expand subtree',
+  'mindMap.action.collapse': 'Lipat subpokok',
+  'mindMap.action.expand': 'Kembangkan subpokok',
   'mindMap.action.addChild': 'Tambah nod anak',
-  'mindMap.defaults.newChild': 'New idea',
+  'mindMap.defaults.newChild': 'Idea baharu',
 }

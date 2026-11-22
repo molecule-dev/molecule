@@ -4,8 +4,8 @@ import type { MindMapCanvasTranslations } from './types.js'
 export const et: MindMapCanvasTranslations = {
   'mindMap.aria.canvas': 'Mõttekaardi lõuend',
   'mindMap.aria.edit': 'Redigeeri sõlme teksti',
-  'mindMap.action.collapse': 'Collapse subtree',
-  'mindMap.action.expand': 'Expand subtree',
+  'mindMap.action.collapse': 'Alampuu kokkupakkimine',
+  'mindMap.action.expand': 'Laienda alampuud',
   'mindMap.action.addChild': 'Lisa alamsõlm',
-  'mindMap.defaults.newChild': 'New idea',
+  'mindMap.defaults.newChild': 'Uus idee',
 }

@@ -5,7 +5,7 @@ export const kn: NetworkTranslations = {
   'network.wifi': 'Wi-Fi',
   'network.cellular': 'ಸೆಲ್ಯುಲರ್',
   'network.ethernet': 'ಈಥರ್‌ನೆಟ್',
-  'network.bluetooth': 'ಬ್ಲೂಟೂತ್',
+  'network.bluetooth': 'Bluetooth',
   'network.vpn': 'VPN',
   'network.other': 'ಇತರೆ',
   'network.none': 'ಸಂಪರ್ಕ ಕಡಿತ',

@@ -2,6 +2,6 @@ import type { WordCloudTranslations } from './types.js'
 
 /** Word cloud translations for Serbian. */
 export const sr: WordCloudTranslations = {
-  'word-cloud.aria.cloud': 'Word cloud',
+  'word-cloud.aria.cloud': 'Облак речи',
   'word-cloud.aria.empty': 'Нема речи за приказ',
 }

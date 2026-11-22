@@ -4,8 +4,8 @@ import type { MindMapCanvasTranslations } from './types.js'
 export const fa: MindMapCanvasTranslations = {
   'mindMap.aria.canvas': 'بوم نقشه ذهنی',
   'mindMap.aria.edit': 'ویرایش متن گره',
-  'mindMap.action.collapse': 'Collapse subtree',
-  'mindMap.action.expand': 'Expand subtree',
+  'mindMap.action.collapse': 'فروپاشی زیردرخت',
+  'mindMap.action.expand': 'زیرشاخه را گسترش دهید',
   'mindMap.action.addChild': 'اضافه کردن گره فرزند',
-  'mindMap.defaults.newChild': 'New idea',
+  'mindMap.defaults.newChild': 'ایده جدید',
 }

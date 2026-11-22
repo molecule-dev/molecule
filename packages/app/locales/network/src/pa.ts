@@ -5,7 +5,7 @@ export const pa: NetworkTranslations = {
   'network.wifi': 'Wi-Fi',
   'network.cellular': 'ਸੈਲੂਲਰ',
   'network.ethernet': 'ਈਥਰਨੈੱਟ',
-  'network.bluetooth': 'ਬਲੂਟੁੱਥ',
+  'network.bluetooth': 'Bluetooth',
   'network.vpn': 'VPN',
   'network.other': 'ਹੋਰ',
   'network.none': 'ਡਿਸਕਨੈਕਟ',

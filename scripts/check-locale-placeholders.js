@@ -248,7 +248,13 @@ const sameMultiset = (a, b) =>
  *     `/kompakteer`, which does not exist.
  *   `NEWLINE` — the value has a different number of line breaks: the text
  *     renders as one run-on line, or breaks where English does not.
+ *   `QUOTED` — a token English writes inside quotes or angle brackets
+ *     (`"{{name}}"`, `<{{element}}>`, {@link quotedTokens}) is not kept as that
+ *     unit: the quotes no longer surround the value.
+ *   `SPACING` — a space splits a token from the suffix English writes against
+ *     it (`{{name}}'s` → `{{name}} 'nin`).
  *   `ENGLISH` — the value is still the English text ({@link isUntranslatedCopy}).
+ *     {@link copiedEnglish} adds the short values a whole file never translated.
  */
 export function classify(englishValue, value) {
   const want = placeholders(englishValue)
@@ -293,6 +299,19 @@ export function classify(englishValue, value) {
   if (lostCommand !== undefined) {
     return { klass: 'COMMAND', detail: `${lostCommand} not kept verbatim` }
   }
+  const lostQuoted = quotedTokens(englishValue).find((unit) => !value.includes(unit))
+  if (lostQuoted !== undefined) {
+    return { klass: 'QUOTED', detail: `${lostQuoted} not kept verbatim` }
+  }
+  const splitSuffix = [...englishValue.matchAll(/(\{\{[^{}]*\}\})['’]\p{L}/gu)].find(([, token]) =>
+    new RegExp(`${token.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')} +['’]\\p{L}`, 'u').test(value),
+  )
+  if (splitSuffix !== undefined) {
+    return {
+      klass: 'SPACING',
+      detail: `a space splits ${splitSuffix[1]} from the suffix English writes against it`,
+    }
+  }
   const breaks = (text) => text.split('\n').length - 1
   if (breaks(englishValue) !== breaks(value)) {
     return {
@@ -322,7 +341,12 @@ const KEEP_ENGLISH_RE = /^\s*\/\/\s*keep-english:(.*)$/
  * translation is not (2026-11-13: a pass gave French "Réfléchir pendant une
  * seconde", the infinitive, and "× 0 secondes" for "that many seconds").
  *
- * @param source - The text of an `en.ts`.
+ * The same marker in a language file keeps its key English in that language
+ * only: a name the language writes in Latin script (Russian and Greek write
+ * `Ethernet`, where Japanese writes `イーサネット`), which {@link copiedEnglish}
+ * would otherwise refuse there.
+ *
+ * @param source - The text of an `en.ts` or of one language file.
  * @returns `{ kept, problems }`: `kept` maps each key to its reason; `problems`
  *   names each marker with no reason or no key below it.
  */
@@ -440,6 +464,160 @@ export function codeSpans(value) {
 }
 
 /**
+ * A token English writes inside a pair of straight quotes or angle brackets:
+ * `"{{name}}"`, `'{{name}}'`, `<{{element}}>`.
+ */
+export const QUOTED_TOKEN_RE = /"\{\{[^{}]+\}\}"|'\{\{[^{}]+\}\}'|<\{\{[^{}]+\}\}>/g
+
+/**
+ * Every token a value writes inside quotes or angle brackets, with them, in order.
+ *
+ * The quotes mark where the value starts and ends (`Route "{{name}}" not found`),
+ * so a translation keeps them around it as one unit. Machine translation moved
+ * them: Afrikaans came back as `Roete " {{name}} "nie gevind nie`, Arabic as
+ * `طريق " {{name}} "غير موجود"` (680 values of 10 keys, 2026-11-22).
+ *
+ * @param value - A string value.
+ * @returns The quoted tokens.
+ */
+export function quotedTokens(value) {
+  return value.match(QUOTED_TOKEN_RE) ?? []
+}
+
+/**
+ * The English words in a value that a translation into another language would
+ * change: Latin-script words of two or more letters with a lowercase letter,
+ * outside its `{{tokens}}`, code spans and slash commands.
+ *
+ * An acronym (`HTTP`, `ISO`, `GPS`) is not counted, nor a unit written against a
+ * token (`{{ms}}ms`, `{{value}} mm`), nor an email address or URL: they read the
+ * same in every language. A product name does count (`GitHub`); en.ts marks it
+ * `// keep-english`.
+ *
+ * @param value - The English value.
+ * @returns The words.
+ */
+export function englishWords(value) {
+  if (/^\S+@\S+\.\S+$/.test(value) || value.includes('://')) return []
+  const words =
+    value
+      .replace(/`[^`\n]+`/g, ' ')
+      .replace(COMMAND_RE, ' ')
+      .replace(/\{\{[^{}]*\}\}(?:\p{L}{1,3}(?!\p{L})| \p{L}{1,2}(?!\p{L}))?/gu, ' ')
+      .match(/\p{Script=Latin}+(?:['’-]\p{Script=Latin}+)*/gu) ?? []
+  return words.filter((word) => word.length >= 2 && word !== word.toUpperCase())
+}
+
+/**
+ * The script a language is written in (`Latn`, `Cyrl`, `Jpan`, …), from its
+ * likely subtags.
+ *
+ * @param lang - A locale file's language code (`ja`, `sr`, `zh-TW`).
+ * @returns The ISO 15924 script code, or undefined when `lang` is not a
+ *   language tag (a bond's own `loadContent.ts`).
+ */
+export function writingScript(lang) {
+  try {
+    return new Intl.Locale(lang).maximize().script
+  } catch (_error) {
+    // Intentional: Intl.Locale throws RangeError on a string that is not a language tag.
+    return undefined
+  }
+}
+
+/**
+ * The keys of one language file whose value is still its English text, beyond
+ * the sentences {@link isUntranslatedCopy} finds.
+ *
+ * A short label can read the same in English and another language ("Email",
+ * "Status" in German), so a value is not judged alone. Two things settle it:
+ *
+ * - The language is not written in Latin script. An English word in a Japanese,
+ *   Russian or Arabic file is untranslated ("Select all" shown to a Japanese
+ *   reader). A product name is the exception, marked `// keep-english` in en.ts.
+ * - The file was copied, not translated: at least three of its values, and at
+ *   least half of those with English words, are still the English text.
+ *   Translation leaves a few labels the same; a file stubbed with English and
+ *   never translated holds almost nothing else (layer-panel's Afrikaans: 7 of 7).
+ *
+ * Before 2026-11-22 only sentences of three words counted, so 5,448 shorter
+ * values in non-Latin languages and 196 copied files passed (29 bonds).
+ *
+ * @param englishByKey - The bond's `en.ts` values.
+ * @param translated - The language file's values.
+ * @param lang - The language code.
+ * @param kept - The keys en.ts marks `keep-english` ({@link keptInEnglish}).
+ * @returns Each such key, with the reason.
+ */
+export function copiedEnglish(englishByKey, translated, lang, kept = new Map()) {
+  const out = new Map()
+  const script = writingScript(lang)
+  if (script === undefined) return out
+  const translatable = [...englishByKey].filter(
+    ([key, english]) => !kept.has(key) && translated.has(key) && englishWords(english).length > 0,
+  )
+  const copies = translatable.filter(([key, english]) => translated.get(key) === english)
+  if (script !== 'Latn') {
+    for (const [key] of copies)
+      out.set(key, `still English, in a language written in ${script} script`)
+  } else if (copies.length >= 3 && copies.length * 2 >= translatable.length) {
+    for (const [key] of copies)
+      out.set(
+        key,
+        `still English, like ${copies.length} of the file's ${translatable.length} values: the file was copied, not translated`,
+      )
+  }
+  return out
+}
+
+/** A token or code span, then a space, then a hyphenated suffix: `{{total}} -dən`. */
+const SPLIT_HYPHEN_RE = /(\{\{[^{}]*\}\}|`[^`\n]+`) +-\p{L}/u
+
+/**
+ * Whether a translation splits a token or code span from the hyphenated suffix
+ * its language writes against it. Azerbaijani writes `{{total}}-dən`, German
+ * ``\`NetworkProvider\`-Implementierung``; machine translation returned both with a
+ * space before the hyphen. Finnish is the exception: a compound whose first part
+ * has a space in it takes a spaced hyphen (`HTTP 500 -vastaus`).
+ *
+ * @param englishValue - The `en.ts` value for the same key.
+ * @param value - The translated value.
+ * @param lang - The language code.
+ * @returns A `SPACING` verdict, or null.
+ */
+export function splitHyphenSuffix(englishValue, value, lang) {
+  if (lang === 'fi' || SPLIT_HYPHEN_RE.test(englishValue)) return null
+  const split = SPLIT_HYPHEN_RE.exec(value)
+  return split
+    ? { klass: 'SPACING', detail: `a space splits ${split[1]} from its hyphenated suffix` }
+    : null
+}
+
+/**
+ * Every value of one language file the gate refuses, with its verdict.
+ *
+ * @param englishByKey - The bond's `en.ts` values.
+ * @param translated - The language file's values.
+ * @param lang - The language code.
+ * @param kept - The keys en.ts marks `keep-english` ({@link keptInEnglish}).
+ * @returns Each refused key's `{ klass, detail }` ({@link checkValue},
+ *   {@link splitHyphenSuffix}, {@link copiedEnglish}).
+ */
+export function checkFile(englishByKey, translated, lang, kept = new Map()) {
+  const verdicts = new Map()
+  for (const [key, value] of translated) {
+    const englishValue = englishByKey.get(key)
+    if (englishValue === undefined) continue
+    const verdict =
+      checkValue(englishValue, value, kept.get(key)) ?? splitHyphenSuffix(englishValue, value, lang)
+    if (verdict) verdicts.set(key, verdict)
+  }
+  for (const [key, detail] of copiedEnglish(englishByKey, translated, lang, kept))
+    if (!verdicts.has(key)) verdicts.set(key, { klass: 'ENGLISH', detail })
+  return verdicts
+}
+
+/**
  * Whole numbers a count can take, enough to reach every CLDR integer category.
  * 0 comes after the small numbers: "5 файлов" is a more natural sentence to
  * translate than "0 файлов", so 0 is the sample only for a category it alone
@@ -539,7 +717,12 @@ export function analyzeLocalePlaceholders() {
       if (!file.endsWith('.ts') || SKIP.has(file)) continue
       filesScanned += 1
       const where = `${label}/src/${file}`
-      const translated = valuesByKey(readFileSync(join(src, file), 'utf8'))
+      const fileSource = readFileSync(join(src, file), 'utf8')
+      const translated = valuesByKey(fileSource)
+      // A marker in the language file keeps its key English in that language only.
+      const own = keptInEnglish(fileSource)
+      for (const problem of own.problems) problems.push(`${where}: ${problem}`)
+      const keptHere = new Map([...kept, ...own.kept])
 
       for (const { base, category } of missingPluralForms(
         plurals,
@@ -561,21 +744,22 @@ export function analyzeLocalePlaceholders() {
       }
 
       for (const [key, value] of translated) {
-        const englishValue = englishByKey.get(key)
-        if (englishValue === undefined) {
-          // A key this bond's English does not define: every placeholder in it
-          // is unresolvable, because only en.ts's call sites supply values.
-          for (const name of placeholders(value)) {
-            if (!known.has(name)) {
-              problems.push(
-                `${where}: '${key}' is not in en.ts and uses {{${name}}} — it renders literally`,
-              )
-            }
+        if (englishByKey.has(key)) continue
+        // A key this bond's English does not define: every placeholder in it
+        // is unresolvable, because only en.ts's call sites supply values.
+        for (const name of placeholders(value)) {
+          if (!known.has(name)) {
+            problems.push(
+              `${where}: '${key}' is not in en.ts and uses {{${name}}} — it renders literally`,
+            )
           }
-          continue
         }
-        const verdict = checkValue(englishValue, value, kept.get(key))
-        if (!verdict) continue
+      }
+
+      const lang = file.slice(0, -'.ts'.length)
+      for (const [key, verdict] of checkFile(englishByKey, translated, lang, keptHere)) {
+        const englishValue = englishByKey.get(key)
+        const value = translated.get(key)
         drifts.push({
           where,
           key,
@@ -609,7 +793,11 @@ if (isMain) {
           `in every language, or the value never substitutes and the UI shows the raw token.\n` +
           `A KEPT value translates a key en.ts marks \`// keep-english: <reason>\`: restore the\n` +
           `English value (the translator below writes it).\n` +
-          `An ENGLISH value is a key that was never translated. Translate the bond (in the\n` +
+          `A QUOTED value lost the quotes or brackets English writes around a token; a SPACING\n` +
+          `value splits a token from its suffix. Both are retranslated by the command below.\n` +
+          `An ENGLISH value is a key that was never translated (a short label counts in a\n` +
+          `language not written in Latin script, or in a file still mostly English; a product\n` +
+          `name is marked \`// keep-english: <reason>\` in en.ts). Translate the bond (in the\n` +
           `workspace: node scripts/translate-bond-gaps.mjs --apply --pkg=<bond>, which fills\n` +
           `missing keys and plural forms and retranslates every value this check refuses)\n` +
           `and write by hand any value it still refuses —\n` +

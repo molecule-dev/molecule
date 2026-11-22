@@ -2,11 +2,11 @@ import type { LayerPanelTranslations } from './types.js'
 
 /** Layer Panel translations for Amharic. Stub — uses English copy. */
 export const am: LayerPanelTranslations = {
-  'layerPanel.label': 'Layers',
-  'layerPanel.show': 'Show layer',
-  'layerPanel.hide': 'Hide layer',
-  'layerPanel.lock': 'Lock layer',
-  'layerPanel.unlock': 'Unlock layer',
-  'layerPanel.renameInput': 'Rename layer',
-  'layerPanel.metadata': 'Layer metadata',
+  'layerPanel.label': 'ንብርብሮች',
+  'layerPanel.show': 'ንብርብር አሳይ',
+  'layerPanel.hide': 'ንብርብር ደብቅ',
+  'layerPanel.lock': 'የመቆለፊያ ንብርብር',
+  'layerPanel.unlock': 'ንብርብር ይክፈቱ',
+  'layerPanel.renameInput': 'ንብርብርን እንደገና ይሰይሙ',
+  'layerPanel.metadata': 'የንብርብር ሜታዳታ',
 }

@@ -4,7 +4,7 @@ import type { AudioMixerTranslations } from './types.js'
 export const el: Partial<AudioMixerTranslations> = {
   'audioMixer.sends': 'Αποστολές',
   'audioMixer.aria.console': 'Κονσόλα μίξης ήχου',
-  'audioMixer.aria.fader': '{{name}} fader',
+  'audioMixer.aria.fader': 'Ρυθμιστικό έντασης {{name}}',
   'audioMixer.aria.pan': '{{name}} τηγάνι',
   'audioMixer.aria.send': '{{channel}} στείλε σε {{send}}',
   'audioMixer.button.mute': 'Βουβός',

@@ -7,5 +7,5 @@ export const pt: StorageTranslations = {
   'storage.error.quotaExceeded': 'Cota de armazenamento excedida ao definir a chave "{{key}}"',
   'storage.error.asyncStorageUnavailable':
     'O pacote `@react-native-async-storage/async-storage` não está instalado. Instale-o com: `npm install @react-native-async-storage/async-storage`',
-  'storage.error.setFailed': 'Falha ao definir o valor para a chave " {{key}} " em AsyncStorage',
+  'storage.error.setFailed': 'Falha ao definir o valor para a chave "{{key}}" no AsyncStorage',
 }

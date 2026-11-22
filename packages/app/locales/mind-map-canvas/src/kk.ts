@@ -4,8 +4,8 @@ import type { MindMapCanvasTranslations } from './types.js'
 export const kk: MindMapCanvasTranslations = {
   'mindMap.aria.canvas': 'Ақыл-ой картасының кенебі',
   'mindMap.aria.edit': 'Түйін мәтінін өңдеу',
-  'mindMap.action.collapse': 'Collapse subtree',
-  'mindMap.action.expand': 'Expand subtree',
+  'mindMap.action.collapse': 'Ішкі ағашты жию',
+  'mindMap.action.expand': 'Ішкі ағашты жаю',
   'mindMap.action.addChild': 'Балама түйінді қосу',
-  'mindMap.defaults.newChild': 'New idea',
+  'mindMap.defaults.newChild': 'Жаңа идея',
 }

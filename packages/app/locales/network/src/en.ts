@@ -2,9 +2,11 @@ import type { NetworkTranslations } from './types.js'
 
 /** Network translations for English. */
 export const en: NetworkTranslations = {
+  // keep-english: a trademark, written as its owner writes it in every language
   'network.wifi': 'Wi-Fi',
   'network.cellular': 'Cellular',
   'network.ethernet': 'Ethernet',
+  // keep-english: a trademark, written as its owner writes it in every language
   'network.bluetooth': 'Bluetooth',
   'network.vpn': 'VPN',
   'network.other': 'Other',

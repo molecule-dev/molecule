@@ -4,7 +4,7 @@ import type { NetworkTranslations } from './types.js'
 export const km: NetworkTranslations = {
   'network.wifi': 'Wi-Fi',
   'network.cellular': 'បណ្តាញចល័ត',
-  'network.ethernet': 'Ethernet',
+  'network.ethernet': 'អ៊ីសឺរណិត',
   'network.bluetooth': 'Bluetooth',
   'network.vpn': 'VPN',
   'network.other': 'ផ្សេងទៀត',

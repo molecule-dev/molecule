@@ -6,5 +6,5 @@ export const zh: CodeSandboxDockerTranslations = {
   'codeSandbox.docker.error.readDirFailed': '列出{{path}}失败：{{error}}',
   'codeSandbox.docker.error.writeFailed': '写入 {{path}} 失败: {{error}}',
   'codeSandbox.docker.error.deleteFailed': '删除 {{path}} 失败: {{error}}',
-  'codeSandbox.docker.error.apiError': 'Docker API {{method}} {{path}}：{{status}} {{error}}',
+  'codeSandbox.docker.error.apiError': 'Docker API {{method}} {{path}}: {{status}} {{error}}',
 }

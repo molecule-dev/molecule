@@ -229,7 +229,7 @@ export const uz: Partial<IdeTranslations> = {
   'ide.chat.emptyState': 'Nimani qurmoqchi ekanligingizni tasvirlab bering...',
   'ide.chat.you': 'Siz',
   'ide.chat.itemRenderError': 'Bu xabarni koʻrsatib boʻlmadi.',
-  'ide.chat.molecule': 'Molekula',
+  'ide.chat.molecule': 'Molecule',
   'ide.chat.automatic': 'Avtomatik yuborildi',
   'ide.chat.stop': 'STOP',
   'ide.chat.send': 'Yuborish',
@@ -408,9 +408,9 @@ export const uz: Partial<IdeTranslations> = {
   'ide.chat.modelInUse': 'Now using {{model}}',
   'ide.chat.cardBy': '{{text}} — {{name}}',
   'ide.chat.modelRemoved':
-    'Siz tanlagan " {{removed}} " modeli endi mavjud emas. " {{fallback}} " ga o\'zgartirildi. Boshqasini tanlash uchun /model ni kiriting.',
+    'Siz tanlagan "{{removed}}" modeli endi mavjud emas. "{{fallback}}" ga o\'zgartirildi. Boshqasini tanlash uchun /model kiriting.',
   'ide.chat.modelRemovedNoFallback':
-    "Siz tanlagan \" {{removed}} \" modeli endi mavjud emas va serverda uning o'rnini bosuvchi qurilma yo'q. Administratoringizdan AI provayderiga pul o'tkazishini so'rang.",
+    "Siz tanlagan \"{{removed}}\" modeli endi mavjud emas va serverda uning o'rnini bosuvchi qurilma yo'q. Administratoringizdan AI provayderiga pul o'tkazishini so'rang.",
   'ide.chat.olderModelsCollapse': 'Older models ⌃ ({{count}})',
   'ide.chat.olderModelsExpand': 'Older models ⌄ ({{count}})',
   'ide.chat.selectExecuteModel': 'Ijro rejimi modelini tanlang',

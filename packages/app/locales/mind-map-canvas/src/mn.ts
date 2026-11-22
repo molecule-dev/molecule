@@ -4,8 +4,8 @@ import type { MindMapCanvasTranslations } from './types.js'
 export const mn: MindMapCanvasTranslations = {
   'mindMap.aria.canvas': 'Оюун санааны газрын зургийн зураг',
   'mindMap.aria.edit': 'Зангилааны текстийг засах',
-  'mindMap.action.collapse': 'Collapse subtree',
-  'mindMap.action.expand': 'Expand subtree',
+  'mindMap.action.collapse': 'Дэд модыг хумих',
+  'mindMap.action.expand': 'Дэд модыг дэлгэх',
   'mindMap.action.addChild': 'Хүүхдийн зангилаа нэмэх',
-  'mindMap.defaults.newChild': 'New idea',
+  'mindMap.defaults.newChild': 'Шинэ санаа',
 }

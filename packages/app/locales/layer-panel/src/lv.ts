@@ -2,11 +2,11 @@ import type { LayerPanelTranslations } from './types.js'
 
 /** Layer Panel translations for Latvian. Stub — uses English copy. */
 export const lv: LayerPanelTranslations = {
-  'layerPanel.label': 'Layers',
-  'layerPanel.show': 'Show layer',
-  'layerPanel.hide': 'Hide layer',
-  'layerPanel.lock': 'Lock layer',
-  'layerPanel.unlock': 'Unlock layer',
-  'layerPanel.renameInput': 'Rename layer',
-  'layerPanel.metadata': 'Layer metadata',
+  'layerPanel.label': 'Slāņi',
+  'layerPanel.show': 'Rādīt slāni',
+  'layerPanel.hide': 'Slēpt slāni',
+  'layerPanel.lock': 'Bloķēt slāni',
+  'layerPanel.unlock': 'Atbloķēt slāni',
+  'layerPanel.renameInput': 'Pārdēvēt slāni',
+  'layerPanel.metadata': 'Slāņa metadati',
 }

@@ -2,11 +2,11 @@ import type { LayerPanelTranslations } from './types.js'
 
 /** Layer Panel translations for Icelandic. Stub — uses English copy. */
 export const is: LayerPanelTranslations = {
-  'layerPanel.label': 'Layers',
-  'layerPanel.show': 'Show layer',
-  'layerPanel.hide': 'Hide layer',
-  'layerPanel.lock': 'Lock layer',
-  'layerPanel.unlock': 'Unlock layer',
-  'layerPanel.renameInput': 'Rename layer',
-  'layerPanel.metadata': 'Layer metadata',
+  'layerPanel.label': 'Lög',
+  'layerPanel.show': 'Sýna lag',
+  'layerPanel.hide': 'Fela lag',
+  'layerPanel.lock': 'Læsa lag',
+  'layerPanel.unlock': 'Opna lag',
+  'layerPanel.renameInput': 'Endurnefna lag',
+  'layerPanel.metadata': 'Lýsigögn lagsins',
 }

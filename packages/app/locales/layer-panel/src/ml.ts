@@ -2,11 +2,11 @@ import type { LayerPanelTranslations } from './types.js'
 
 /** Layer Panel translations for Malayalam. Stub — uses English copy. */
 export const ml: LayerPanelTranslations = {
-  'layerPanel.label': 'Layers',
-  'layerPanel.show': 'Show layer',
-  'layerPanel.hide': 'Hide layer',
-  'layerPanel.lock': 'Lock layer',
-  'layerPanel.unlock': 'Unlock layer',
-  'layerPanel.renameInput': 'Rename layer',
-  'layerPanel.metadata': 'Layer metadata',
+  'layerPanel.label': 'പാളികൾ',
+  'layerPanel.show': 'ലെയർ കാണിക്കുക',
+  'layerPanel.hide': 'ലെയർ മറയ്ക്കുക',
+  'layerPanel.lock': 'ലോക്ക് ലെയർ',
+  'layerPanel.unlock': 'ലെയർ അൺലോക്ക് ചെയ്യുക',
+  'layerPanel.renameInput': 'ലെയറിന്റെ പേരുമാറ്റുക',
+  'layerPanel.metadata': 'ലെയർ മെറ്റാഡാറ്റ',
 }

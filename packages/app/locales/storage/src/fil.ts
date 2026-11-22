@@ -8,6 +8,5 @@ export const fil: StorageTranslations = {
     'Lumampas na sa storage quota kapag itinatakda ang key na "{{key}}"',
   'storage.error.asyncStorageUnavailable':
     'Hindi naka-install ang `@react-native-async-storage/async-storage`. I-install ito gamit ang: `npm install @react-native-async-storage/async-storage`',
-  'storage.error.setFailed':
-    'Nabigong itakda ang halaga para sa key na " {{key}} " sa AsyncStorage',
+  'storage.error.setFailed': 'Nabigong itakda ang halaga para sa key na "{{key}}" sa AsyncStorage',
 }

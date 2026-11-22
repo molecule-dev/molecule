@@ -2,11 +2,11 @@ import type { LayerPanelTranslations } from './types.js'
 
 /** Layer Panel translations for Hebrew. Stub — uses English copy. */
 export const he: LayerPanelTranslations = {
-  'layerPanel.label': 'Layers',
-  'layerPanel.show': 'Show layer',
-  'layerPanel.hide': 'Hide layer',
-  'layerPanel.lock': 'Lock layer',
-  'layerPanel.unlock': 'Unlock layer',
-  'layerPanel.renameInput': 'Rename layer',
-  'layerPanel.metadata': 'Layer metadata',
+  'layerPanel.label': 'שכבות',
+  'layerPanel.show': 'הצג שכבה',
+  'layerPanel.hide': 'הסתר שכבה',
+  'layerPanel.lock': 'שכבת נעילה',
+  'layerPanel.unlock': 'נעילת שכבה',
+  'layerPanel.renameInput': 'שינוי שם השכבה',
+  'layerPanel.metadata': 'מטא-דאטה של שכבות',
 }

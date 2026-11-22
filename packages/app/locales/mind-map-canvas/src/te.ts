@@ -4,8 +4,8 @@ import type { MindMapCanvasTranslations } from './types.js'
 export const te: MindMapCanvasTranslations = {
   'mindMap.aria.canvas': 'మైండ్ మ్యాప్ కాన్వాస్',
   'mindMap.aria.edit': 'నోడ్ టెక్స్ట్‌ను సవరించండి',
-  'mindMap.action.collapse': 'Collapse subtree',
-  'mindMap.action.expand': 'Expand subtree',
+  'mindMap.action.collapse': 'ఉప వృక్షాన్ని కుదించు',
+  'mindMap.action.expand': 'ఉప వృక్షాన్ని విస్తరించండి',
   'mindMap.action.addChild': 'చైల్డ్ నోడ్‌ను జోడించండి',
-  'mindMap.defaults.newChild': 'New idea',
+  'mindMap.defaults.newChild': 'కొత్త ఆలోచన',
 }

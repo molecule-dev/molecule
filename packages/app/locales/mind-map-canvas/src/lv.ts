@@ -4,8 +4,8 @@ import type { MindMapCanvasTranslations } from './types.js'
 export const lv: MindMapCanvasTranslations = {
   'mindMap.aria.canvas': 'Prāta kartes audekls',
   'mindMap.aria.edit': 'Rediģēt mezgla tekstu',
-  'mindMap.action.collapse': 'Collapse subtree',
-  'mindMap.action.expand': 'Expand subtree',
+  'mindMap.action.collapse': 'Sakļaut apakškoku',
+  'mindMap.action.expand': 'Izvērst apakškoku',
   'mindMap.action.addChild': 'Pievienot apakšmezglu',
-  'mindMap.defaults.newChild': 'New idea',
+  'mindMap.defaults.newChild': 'Jauna ideja',
 }

@@ -4,7 +4,7 @@ import type { NetworkTranslations } from './types.js'
 export const it: Partial<NetworkTranslations> = {
   'network.none': 'Scollegato',
   'network.unknown': 'Sconosciuto',
-  'network.wifi': 'Wifi',
+  'network.wifi': 'Wi-Fi',
   'network.cellular': 'Cellulare',
   'network.ethernet': 'Ethernet',
   'network.bluetooth': 'Bluetooth',

@@ -228,7 +228,7 @@ export const az: Partial<IdeTranslations> = {
   'ide.chat.emptyState': 'Nə tikmək istədiyinizi təsvir edin...',
   'ide.chat.you': 'Sən',
   'ide.chat.itemRenderError': 'Bu mesajı göstərmək mümkün olmadı.',
-  'ide.chat.molecule': 'Molekul',
+  'ide.chat.molecule': 'Molecule',
   'ide.chat.automatic': 'Avtomatik göndərildi',
   'ide.chat.stop': 'Dayan',
   'ide.chat.send': 'Göndər',
@@ -404,9 +404,9 @@ export const az: Partial<IdeTranslations> = {
   'ide.chat.modelInUse': 'Now using {{model}}',
   'ide.chat.cardBy': '{{text}} — {{name}}',
   'ide.chat.modelRemoved':
-    'Seçdiyiniz " {{removed}} " modeli artıq mövcud deyil. " {{fallback}} " rejiminə keçdiniz. Başqa birini seçmək üçün /model yazın.',
+    'Seçdiyiniz "{{removed}}" modeli artıq mövcud deyil. "{{fallback}}" rejiminə keçdiniz. Başqasını seçmək üçün /model yazın.',
   'ide.chat.modelRemovedNoFallback':
-    'Seçdiyiniz " {{removed}} " modeli artıq mövcud deyil və serverdə heç bir əvəzedici yoxdur. Administratorunuzdan süni intellekt provayderinə zəng etməsini xahiş edin.',
+    'Seçdiyiniz "{{removed}}" modeli artıq mövcud deyil və serverdə əvəzedici yoxdur. Administratorunuzdan süni intellekt provayderinə zəng etməsini xahiş edin.',
   'ide.chat.olderModelsCollapse': 'Older models ⌃ ({{count}})',
   'ide.chat.olderModelsExpand': 'Older models ⌄ ({{count}})',
   'ide.chat.selectExecuteModel': 'İcra rejimi modelini seçin',

@@ -3,15 +3,15 @@ import type { PricingPageTranslations } from './types.js'
 /** Pricing Page translations for Kyrgyz. Stub — uses English copy. */
 export const ky: PricingPageTranslations = {
   'pricingPage.heading': 'Планыңызды тандаңыз',
-  'pricingPage.loading': 'Loading plans…',
+  'pricingPage.loading': 'Пландар жүктөлүүдө…',
   'pricingPage.error': 'Баалар жүктөлбөй койду. Кийинчерээк кайра аракет кылыңыз.',
   'pricingPage.checkoutError': 'Төлөм башталган жок. Кайра аракет кылып көрүңүз.',
-  'pricingPage.perSeat': 'per seat',
-  'pricingPage.upgradeCta': 'Upgrade to {{tierName}}',
-  'pricingPage.currentCta': 'Current plan',
-  'pricingPage.periodToggle.label': 'Billing period',
-  'pricingPage.periodToggle.monthly': 'Monthly',
-  'pricingPage.periodToggle.yearly': 'Yearly',
+  'pricingPage.perSeat': 'бир орунга',
+  'pricingPage.upgradeCta': '{{tierName}} кызматына жаңыртуу',
+  'pricingPage.currentCta': 'Учурдагы план',
+  'pricingPage.periodToggle.label': 'Эсептешүү мезгили',
+  'pricingPage.periodToggle.monthly': 'Ай сайын',
+  'pricingPage.periodToggle.yearly': 'Жыл сайын',
   'pricingPage.planUpdated.heading': 'Планыңыз жаңыртылды',
   'pricingPage.planUpdated.headingNamed': 'Сиз эми {{planName}} планындасыз',
   'pricingPage.planUpdated.body':

@@ -401,9 +401,9 @@ export const ig: Partial<IdeTranslations> = {
   'ide.chat.modelInUse': 'Now using {{model}}',
   'ide.chat.cardBy': '{{text}} — {{name}}',
   'ide.chat.modelRemoved':
-    'Ụdị " {{removed}} " ị họọrọ adịghịzi. Agbanwere m gaa na " {{fallback}} ". Pịnye /model ka ịhọrọ nke ọzọ.',
+    'Ụdị "{{removed}}" ị họọrọ adịghịzi. Agbanwere m gaa na "{{fallback}}". Pịnye /model ka ịhọrọ nke ọzọ.',
   'ide.chat.modelRemovedNoFallback':
-    'Ụdị " {{removed}} " ị họọrọ adịghịzi, ọ dịghịkwa ihe ga-anọchi ya na sava ahụ. Gwa onye nchịkwa gị ka o zitere gị ozi gbasara onye na-enye ọrụ AI.',
+    'Ụdị "{{removed}}" ị họọrọ adịghịzi, ọ dịghịkwa ihe ga-anọchi ya na sava ahụ. Gwa onye nchịkwa gị ka o zitere gị ozi gbasara onye na-enye ọrụ AI.',
   'ide.chat.olderModelsCollapse': 'Older models ⌃ ({{count}})',
   'ide.chat.olderModelsExpand': 'Older models ⌄ ({{count}})',
   'ide.chat.selectExecuteModel': 'Họrọ ụdị usoro ọrụ',

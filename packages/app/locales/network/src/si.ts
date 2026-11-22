@@ -5,7 +5,7 @@ export const si: NetworkTranslations = {
   'network.wifi': 'Wi-Fi',
   'network.cellular': 'සෙලියුලර්',
   'network.ethernet': 'ඊතර්නෙට්',
-  'network.bluetooth': 'බ්ලූටූත්',
+  'network.bluetooth': 'Bluetooth',
   'network.vpn': 'VPN',
   'network.other': 'වෙනත්',
   'network.none': 'විසන්ධි විය',

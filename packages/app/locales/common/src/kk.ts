@@ -2,7 +2,7 @@ import type { CommonTranslations } from './types.js'
 
 /** Common translations for kk. */
 export const kk: Partial<CommonTranslations> = {
-  'status.all': 'All',
+  'status.all': 'Барлығы',
   'status.overdue': 'Overdue Tasks',
   'common.close': 'Жабу',
   'common.continue': 'Жалғастыру',
@@ -35,7 +35,7 @@ export const kk: Partial<CommonTranslations> = {
   'auth.signup.password': 'Құпия сөз (міндетті)',
   'auth.signup.signUp': 'Тіркелу',
   'auth.signup.signingUp': 'Тіркелуде...',
-  'codeSandbox.docker.error.apiError': 'Docker API {{method}} {{path}} : {{status}} {{error}}',
+  'codeSandbox.docker.error.apiError': 'Docker API {{method}} {{path}}: {{status}} {{error}}',
   'codeSandbox.docker.error.deleteFailed': 'Жою сәтсіз аяқталды {{path}} : {{error}}',
   'codeSandbox.docker.error.readFailed': 'Оқылмады {{path}} : {{error}}',
   'codeSandbox.docker.error.writeFailed': 'Жазу сәтсіз аяқталды {{path}} : {{error}}',
@@ -97,8 +97,8 @@ export const kk: Partial<CommonTranslations> = {
   'resource.error.unableToUpdate': 'Жаңарту мүмкін емес {{name}} .',
   'resource.error.unauthorized': 'Рұқсат етілмеген.',
   'resource.error.unknownError': 'Белгісіз қате.',
-  'routing.error.missingParam': '"параметрі жоқ" {{name}} «жол үшін» {{pattern}} "',
-  'routing.error.routeNotFound': 'Бағыт " {{name}} « табылмады',
+  'routing.error.missingParam': '"{{name}}" "{{pattern}}" параметрі жоқ.',
+  'routing.error.routeNotFound': '"{{name}}" бағыты табылмады',
   'routing.error.useMoleculeRouterOutsideProvider':
     'useMoleculeRouter MoleculeRouterProvider ішінде пайдаланылуы керек',
   'settings.account': 'Тіркелгі',
@@ -170,7 +170,7 @@ export const kk: Partial<CommonTranslations> = {
     'Екі факторлы орнату күтілуде емес. Алдымен "орнату" әрекетін шақырыңыз.',
   'user.error.notFound': 'Табылмады.',
   'user.error.oauthLoginFailed': 'OAuth кіруі сәтсіз аяқталды.',
-  'user.error.oauthServerNotConfigured': 'OAuth сервері " {{server}} " конфигурацияланбаған.',
+  'user.error.oauthServerNotConfigured': '"{{server}}" OAuth сервері конфигурацияланбаған.',
   'user.error.oauthVerificationFailed': 'OAuth тексеруі сәтсіз аяқталды.',
   'user.error.passwordRequired': 'Құпия сөз қажет.',
   'user.error.planKeyRequired': 'planKey қажет.',

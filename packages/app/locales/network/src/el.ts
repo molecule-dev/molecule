@@ -5,6 +5,7 @@ export const el: Partial<NetworkTranslations> = {
   'network.none': 'Αποσυνδεδεμένο',
   'network.wifi': 'Wi-Fi',
   'network.cellular': 'Κυτταρικός',
+  // keep-english: Greek writes the name of the standard in Latin script
   'network.ethernet': 'Ethernet',
   'network.bluetooth': 'Bluetooth',
   'network.vpn': 'VPN',

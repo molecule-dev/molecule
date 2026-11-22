@@ -4,8 +4,8 @@ import type { MindMapCanvasTranslations } from './types.js'
 export const hy: MindMapCanvasTranslations = {
   'mindMap.aria.canvas': 'Մտքի քարտեզի կտավ',
   'mindMap.aria.edit': 'Խմբագրել հանգույցի տեքստը',
-  'mindMap.action.collapse': 'Collapse subtree',
-  'mindMap.action.expand': 'Expand subtree',
+  'mindMap.action.collapse': 'Ծալել ենթածառը',
+  'mindMap.action.expand': 'Ընդլայնել ենթածառը',
   'mindMap.action.addChild': 'Ավելացնել ենթահանգույց',
-  'mindMap.defaults.newChild': 'New idea',
+  'mindMap.defaults.newChild': 'Նոր գաղափար',
 }

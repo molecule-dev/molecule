@@ -2,11 +2,11 @@ import type { LayerPanelTranslations } from './types.js'
 
 /** Layer Panel translations for Mongolian. Stub — uses English copy. */
 export const mn: LayerPanelTranslations = {
-  'layerPanel.label': 'Layers',
-  'layerPanel.show': 'Show layer',
-  'layerPanel.hide': 'Hide layer',
-  'layerPanel.lock': 'Lock layer',
-  'layerPanel.unlock': 'Unlock layer',
-  'layerPanel.renameInput': 'Rename layer',
-  'layerPanel.metadata': 'Layer metadata',
+  'layerPanel.label': 'Давхаргууд',
+  'layerPanel.show': 'Давхаргыг харуулах',
+  'layerPanel.hide': 'Давхаргыг нуух',
+  'layerPanel.lock': 'Түгжих давхарга',
+  'layerPanel.unlock': 'Давхаргыг нээх',
+  'layerPanel.renameInput': 'Давхаргын нэрийг өөрчлөх',
+  'layerPanel.metadata': 'Давхаргын мета өгөгдөл',
 }

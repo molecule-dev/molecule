@@ -4,8 +4,8 @@ import type { MindMapCanvasTranslations } from './types.js'
 export const ca: MindMapCanvasTranslations = {
   'mindMap.aria.canvas': 'llenç de mapa mental',
   'mindMap.aria.edit': 'Edita el text del node',
-  'mindMap.action.collapse': 'Collapse subtree',
-  'mindMap.action.expand': 'Expand subtree',
+  'mindMap.action.collapse': 'Redueix el subarbre',
+  'mindMap.action.expand': 'Expandeix el subarbre',
   'mindMap.action.addChild': 'Afegeix un node fill',
-  'mindMap.defaults.newChild': 'New idea',
+  'mindMap.defaults.newChild': 'Nova idea',
 }

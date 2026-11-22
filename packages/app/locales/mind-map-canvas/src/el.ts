@@ -4,8 +4,8 @@ import type { MindMapCanvasTranslations } from './types.js'
 export const el: MindMapCanvasTranslations = {
   'mindMap.aria.canvas': 'Καμβάς νοητικού χάρτη',
   'mindMap.aria.edit': 'Επεξεργασία κειμένου κόμβου',
-  'mindMap.action.collapse': 'Collapse subtree',
-  'mindMap.action.expand': 'Expand subtree',
+  'mindMap.action.collapse': 'Σύμπτυξη υποδένδρου',
+  'mindMap.action.expand': 'Ανάπτυξη υποδένδρου',
   'mindMap.action.addChild': 'Προσθήκη θυγατρικού κόμβου',
-  'mindMap.defaults.newChild': 'New idea',
+  'mindMap.defaults.newChild': 'Νέα ιδέα',
 }

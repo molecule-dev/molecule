@@ -6,5 +6,5 @@ export const fr: CodeSandboxDockerTranslations = {
   'codeSandbox.docker.error.readDirFailed': 'Échec du listage de {{path}} : {{error}}',
   'codeSandbox.docker.error.writeFailed': "Échec d'écriture de {{path}} : {{error}}",
   'codeSandbox.docker.error.deleteFailed': 'Échec de suppression de {{path}} : {{error}}',
-  'codeSandbox.docker.error.apiError': 'Docker API {{method}} {{path}} : {{status}} {{error}}',
+  'codeSandbox.docker.error.apiError': 'Docker API {{method}} {{path}}: {{status}} {{error}}',
 }

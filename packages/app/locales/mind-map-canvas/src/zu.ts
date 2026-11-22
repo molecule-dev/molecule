@@ -4,8 +4,8 @@ import type { MindMapCanvasTranslations } from './types.js'
 export const zu: MindMapCanvasTranslations = {
   'mindMap.aria.canvas': 'Ikhanvasi yemephu yengqondo',
   'mindMap.aria.edit': 'Hlela umbhalo wenodi',
-  'mindMap.action.collapse': 'Collapse subtree',
-  'mindMap.action.expand': 'Expand subtree',
+  'mindMap.action.collapse': 'Goqa isihlahla esingaphansi',
+  'mindMap.action.expand': 'Nweba isihlahla esingaphansi',
   'mindMap.action.addChild': 'Engeza i-node yengane',
-  'mindMap.defaults.newChild': 'New idea',
+  'mindMap.defaults.newChild': 'Umbono omusha',
 }

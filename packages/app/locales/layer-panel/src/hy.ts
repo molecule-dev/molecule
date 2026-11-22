@@ -2,11 +2,11 @@ import type { LayerPanelTranslations } from './types.js'
 
 /** Layer Panel translations for Armenian. Stub — uses English copy. */
 export const hy: LayerPanelTranslations = {
-  'layerPanel.label': 'Layers',
-  'layerPanel.show': 'Show layer',
-  'layerPanel.hide': 'Hide layer',
-  'layerPanel.lock': 'Lock layer',
-  'layerPanel.unlock': 'Unlock layer',
-  'layerPanel.renameInput': 'Rename layer',
-  'layerPanel.metadata': 'Layer metadata',
+  'layerPanel.label': 'Շերտեր',
+  'layerPanel.show': 'Ցուցադրել շերտը',
+  'layerPanel.hide': 'Թաքցնել շերտը',
+  'layerPanel.lock': 'Կողպեք շերտը',
+  'layerPanel.unlock': 'Բացել շերտը',
+  'layerPanel.renameInput': 'Վերանվանել շերտը',
+  'layerPanel.metadata': 'Շերտի մետատվյալներ',
 }

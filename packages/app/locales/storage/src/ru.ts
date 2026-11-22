@@ -6,5 +6,5 @@ export const ru: StorageTranslations = {
   'storage.error.quotaExceeded': 'Квота хранилища превышена при установке ключа "{{key}}"',
   'storage.error.asyncStorageUnavailable':
     '`@react-native-async-storage/async-storage` не установлен. Установите его с помощью команды: `npm install @react-native-async-storage/async-storage`',
-  'storage.error.setFailed': 'Не удалось установить значение для ключа " {{key}} " в AsyncStorage.',
+  'storage.error.setFailed': 'Не удалось установить значение для ключа "{{key}}" в AsyncStorage.',
 }

@@ -4,8 +4,8 @@ import type { MindMapCanvasTranslations } from './types.js'
 export const uz: MindMapCanvasTranslations = {
   'mindMap.aria.canvas': 'Aql xaritasi tuvali',
   'mindMap.aria.edit': 'Tugun matnini tahrirlash',
-  'mindMap.action.collapse': 'Collapse subtree',
-  'mindMap.action.expand': 'Expand subtree',
+  'mindMap.action.collapse': "Pastki daraxtni yig'ish",
+  'mindMap.action.expand': 'Pastki daraxtni kengaytirish',
   'mindMap.action.addChild': "Chap tugunni qo'shish",
-  'mindMap.defaults.newChild': 'New idea',
+  'mindMap.defaults.newChild': "Yangi g'oya",
 }

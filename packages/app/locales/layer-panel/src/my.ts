@@ -2,11 +2,11 @@ import type { LayerPanelTranslations } from './types.js'
 
 /** Layer Panel translations for Burmese. Stub — uses English copy. */
 export const my: LayerPanelTranslations = {
-  'layerPanel.label': 'Layers',
-  'layerPanel.show': 'Show layer',
-  'layerPanel.hide': 'Hide layer',
-  'layerPanel.lock': 'Lock layer',
-  'layerPanel.unlock': 'Unlock layer',
-  'layerPanel.renameInput': 'Rename layer',
-  'layerPanel.metadata': 'Layer metadata',
+  'layerPanel.label': 'အလွှာများ',
+  'layerPanel.show': 'အလွှာပြပါ',
+  'layerPanel.hide': 'အလွှာကို ဝှက်ပါ',
+  'layerPanel.lock': 'လော့ခ်ချသည့်အလွှာ',
+  'layerPanel.unlock': 'အလွှာကို လော့ခ်ဖွင့်ပါ',
+  'layerPanel.renameInput': 'အလွှာကို အမည်ပြောင်းပါ',
+  'layerPanel.metadata': 'အလွှာ မက်တာဒေတာ',
 }

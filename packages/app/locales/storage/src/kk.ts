@@ -8,5 +8,5 @@ export const kk: StorageTranslations = {
   'storage.error.asyncStorageUnavailable':
     '`@react-native-async-storage/async-storage` орнатылмаған. Оны келесі жолмен орнатыңыз: `npm install @react-native-async-storage/async-storage`',
   'storage.error.setFailed':
-    'AsyncStorage ішіндегі " {{key}} " кілті үшін мән орнату сәтсіз аяқталды',
+    'AsyncStorage ішіндегі "{{key}}" кілті үшін мән орнату сәтсіз аяқталды',
 }

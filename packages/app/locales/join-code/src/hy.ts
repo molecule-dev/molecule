@@ -2,8 +2,8 @@ import type { JoinCodeTranslations } from './types.js'
 
 /** JoinCode translations for hy. */
 export const hy: Partial<JoinCodeTranslations> = {
-  'joinCode.label': 'Join code',
+  'joinCode.label': 'Միանալու կոդ',
   'joinCode.slotAriaLabel': 'Միացնել կոդի {{position}} նիշը',
   'joinCode.help': 'Մուտքագրեք {{length}} նիշանոց կոդը։',
-  'joinCode.errorAlphabet': 'Invalid character.',
+  'joinCode.errorAlphabet': 'Անվավեր նիշ։',
 }

@@ -2,7 +2,7 @@ import type { NotificationsPageTranslations } from './types.js'
 
 /** NotificationsPage translations for te. */
 export const te: Partial<NotificationsPageTranslations> = {
-  'notificationsPage.filterAll': 'All',
+  'notificationsPage.filterAll': 'అన్నీ',
   'notificationsPage.title': 'నోటిఫికేషన్లు',
   'notificationsPage.markAllRead': 'మార్క్ {{count}} చదివినట్లుగా',
   'notificationsPage.filterUnread': 'చదవని',

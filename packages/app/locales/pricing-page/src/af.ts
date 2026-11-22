@@ -3,15 +3,15 @@ import type { PricingPageTranslations } from './types.js'
 /** Pricing Page translations for Afrikaans. Stub — uses English copy. */
 export const af: PricingPageTranslations = {
   'pricingPage.heading': 'Kies jou plan',
-  'pricingPage.loading': 'Loading plans…',
+  'pricingPage.loading': 'Laai planne…',
   'pricingPage.error': 'Kon nie pryse laai nie. Probeer later weer.',
   'pricingPage.checkoutError': 'Kon nie met afhandeling begin nie. Probeer asseblief weer.',
-  'pricingPage.perSeat': 'per seat',
-  'pricingPage.upgradeCta': 'Upgrade to {{tierName}}',
-  'pricingPage.currentCta': 'Current plan',
-  'pricingPage.periodToggle.label': 'Billing period',
-  'pricingPage.periodToggle.monthly': 'Monthly',
-  'pricingPage.periodToggle.yearly': 'Yearly',
+  'pricingPage.perSeat': 'per sitplek',
+  'pricingPage.upgradeCta': 'Gradeer op na {{tierName}}',
+  'pricingPage.currentCta': 'Huidige plan',
+  'pricingPage.periodToggle.label': 'Faktuurperiode',
+  'pricingPage.periodToggle.monthly': 'Maandeliks',
+  'pricingPage.periodToggle.yearly': 'Jaarliks',
   'pricingPage.planUpdated.heading': 'Jou plan is opgedateer',
   'pricingPage.planUpdated.headingNamed': 'Jy is nou op die {{planName}}-plan',
   'pricingPage.planUpdated.body':

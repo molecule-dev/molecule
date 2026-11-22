@@ -7,7 +7,7 @@ export const nl: Partial<AuthorBioCardTranslations> = {
   'authorBioCard.social.twitter.label': 'Twitter',
   'authorBioCard.social.github.label': 'GitHub',
   'authorBioCard.social.linkedin.label': 'LinkedIn',
-  'authorBioCard.social.mastodon.label': 'Mastodont',
+  'authorBioCard.social.mastodon.label': 'Mastodon',
   'authorBioCard.social.website.label': 'Website',
   'authorBioCard.social.twitter': '{{name}} op Twitter',
   'authorBioCard.social.github': '{{name}} op GitHub',

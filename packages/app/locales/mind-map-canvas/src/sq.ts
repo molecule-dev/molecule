@@ -4,8 +4,8 @@ import type { MindMapCanvasTranslations } from './types.js'
 export const sq: MindMapCanvasTranslations = {
   'mindMap.aria.canvas': 'Kanavacë e hartës mendore',
   'mindMap.aria.edit': 'Redakto tekstin e nyjes',
-  'mindMap.action.collapse': 'Collapse subtree',
-  'mindMap.action.expand': 'Expand subtree',
+  'mindMap.action.collapse': 'Palos nënpemën',
+  'mindMap.action.expand': 'Zgjero nënpemën',
   'mindMap.action.addChild': 'Shto nyje fëmijë',
-  'mindMap.defaults.newChild': 'New idea',
+  'mindMap.defaults.newChild': 'Ide e re',
 }

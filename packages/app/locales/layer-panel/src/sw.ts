@@ -2,11 +2,11 @@ import type { LayerPanelTranslations } from './types.js'
 
 /** Layer Panel translations for Swahili. Stub — uses English copy. */
 export const sw: LayerPanelTranslations = {
-  'layerPanel.label': 'Layers',
-  'layerPanel.show': 'Show layer',
-  'layerPanel.hide': 'Hide layer',
-  'layerPanel.lock': 'Lock layer',
-  'layerPanel.unlock': 'Unlock layer',
-  'layerPanel.renameInput': 'Rename layer',
-  'layerPanel.metadata': 'Layer metadata',
+  'layerPanel.label': 'Tabaka',
+  'layerPanel.show': 'Onyesha safu',
+  'layerPanel.hide': 'Ficha safu',
+  'layerPanel.lock': 'Safu ya kufuli',
+  'layerPanel.unlock': 'Fungua safu',
+  'layerPanel.renameInput': 'Badilisha jina la safu',
+  'layerPanel.metadata': 'Metadata ya safu',
 }

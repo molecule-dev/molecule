@@ -7,7 +7,7 @@ export const ja: Partial<NetworkTranslations> = {
   'network.wifi': 'Wi-Fi',
   'network.cellular': 'セルラー',
   'network.ethernet': 'イーサネット',
-  'network.bluetooth': 'ブルートゥース',
+  'network.bluetooth': 'Bluetooth',
   'network.vpn': 'VPN',
   'network.other': '他の',
   'network.error.connectionTimeout': 'ネットワーク接続タイムアウト',

@@ -406,9 +406,9 @@ export const ha: Partial<IdeTranslations> = {
   'ide.chat.modelInUse': 'Now using {{model}}',
   'ide.chat.cardBy': '{{text}} — {{name}}',
   'ide.chat.modelRemoved':
-    'Tsarin da kuka zaɓa " {{removed}} " ba ya samuwa yanzu. An canza zuwa " {{fallback}} ". Rubuta /model don zaɓar wani.',
+    'Tsarin da kuka zaɓa "{{removed}}" ba ya samuwa yanzu. An canza zuwa "{{fallback}}". Rubuta /model don zaɓar wani.',
   'ide.chat.modelRemovedNoFallback':
-    'Tsarin da kuka zaɓa " {{removed}} " ba ya samuwa yanzu, kuma babu wani madadin da aka haɗa akan sabar. Tambayi mai kula da ku ya aika wa mai samar da AI waya.',
+    'Tsarin da kuka zaɓa "{{removed}}" ba ya samuwa yanzu, kuma babu wani madadin da aka haɗa akan sabar. Tambayi mai kula da ku ya aika wa mai samar da AI waya.',
   'ide.chat.olderModelsCollapse': 'Older models ⌃ ({{count}})',
   'ide.chat.olderModelsExpand': 'Older models ⌄ ({{count}})',
   'ide.chat.selectExecuteModel': 'Zaɓi samfurin yanayin aiwatarwa',

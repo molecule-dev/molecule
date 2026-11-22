@@ -3,15 +3,15 @@ import type { PricingPageTranslations } from './types.js'
 /** Pricing Page translations for Slovenian. Stub — uses English copy. */
 export const sl: PricingPageTranslations = {
   'pricingPage.heading': 'Izberite svoj paket',
-  'pricingPage.loading': 'Loading plans…',
+  'pricingPage.loading': 'Nalaganje načrtov …',
   'pricingPage.error': 'Cenika ni bilo mogoče naložiti. Poskusite znova pozneje.',
   'pricingPage.checkoutError': 'Blagajne ni bilo mogoče začeti. Poskusite znova.',
-  'pricingPage.perSeat': 'per seat',
-  'pricingPage.upgradeCta': 'Upgrade to {{tierName}}',
-  'pricingPage.currentCta': 'Current plan',
-  'pricingPage.periodToggle.label': 'Billing period',
-  'pricingPage.periodToggle.monthly': 'Monthly',
-  'pricingPage.periodToggle.yearly': 'Yearly',
+  'pricingPage.perSeat': 'na sedež',
+  'pricingPage.upgradeCta': 'Nadgradi na {{tierName}}',
+  'pricingPage.currentCta': 'Trenutni načrt',
+  'pricingPage.periodToggle.label': 'Obračunsko obdobje',
+  'pricingPage.periodToggle.monthly': 'Mesečno',
+  'pricingPage.periodToggle.yearly': 'Letno',
   'pricingPage.planUpdated.heading': 'Vaš paket je bil posodobljen',
   'pricingPage.planUpdated.headingNamed': 'Zdaj imate naročnino na paket {{planName}}',
   'pricingPage.planUpdated.body':

@@ -6,7 +6,7 @@ export const kk: Partial<MapDrawingTranslations> = {
   'mapDrawing.surface.aria': 'Карта сызу беті',
   'mapDrawing.tool.polygon': 'Көпбұрыш',
   'mapDrawing.tool.circle': 'Шеңбер',
-  'mapDrawing.tool.pin': 'Pin',
+  'mapDrawing.tool.pin': 'Белгі',
   'mapDrawing.tool.line': 'Сызық',
   'mapDrawing.tool.select': 'Таңдау',
   'mapDrawing.tool.delete': 'Жою',

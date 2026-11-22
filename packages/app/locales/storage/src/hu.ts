@@ -8,5 +8,5 @@ export const hu: StorageTranslations = {
   'storage.error.asyncStorageUnavailable':
     '`@react-native-async-storage/async-storage` nincs telepítve. Telepítse a következő paranccsal: `npm install @react-native-async-storage/async-storage`',
   'storage.error.setFailed':
-    'Nem sikerült beállítani a(z) " {{key}} " kulcs értékét az AsyncStorage-ban.',
+    'Nem sikerült beállítani a "{{key}}" kulcs értékét az AsyncStorage-ban.',
 }

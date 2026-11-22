@@ -8,5 +8,5 @@ export const sl: StorageTranslations = {
   'storage.error.asyncStorageUnavailable':
     '`@react-native-async-storage/async-storage` ni nameščen. Namestite ga z: `npm install @react-native-async-storage/async-storage`',
   'storage.error.setFailed':
-    'Vrednosti za ključ » {{key}} « v AsyncStorage ni bilo mogoče nastaviti.',
+    'Vrednosti za ključ "{{key}}" v AsyncStorage ni bilo mogoče nastaviti.',
 }

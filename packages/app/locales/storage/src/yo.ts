@@ -6,5 +6,5 @@ export const yo: StorageTranslations = {
   'storage.error.quotaExceeded': 'Iwọn ibi ipamọ ti kọja nigba ti o n ṣeto bọtini "{{key}}"',
   'storage.error.asyncStorageUnavailable':
     'A kò fi `@react-native-async-storage/async-storage` sori ẹrọ. Fi sori ẹrọ pẹlu: `npm install @react-native-async-storage/async-storage`',
-  'storage.error.setFailed': 'Kò ṣeé ṣe láti ṣètò iye fún kọ́kọ́rọ́ " {{key}} " nínú AsyncStorage',
+  'storage.error.setFailed': 'Kò ṣeé ṣe láti ṣètò iye fún kọ́kọ́rọ́ "{{key}}" nínú AsyncStorage',
 }

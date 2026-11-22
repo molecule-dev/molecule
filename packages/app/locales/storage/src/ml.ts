@@ -8,5 +8,5 @@ export const ml: StorageTranslations = {
   'storage.error.asyncStorageUnavailable':
     '`@react-native-async-storage/async-storage` ഇൻസ്റ്റാൾ ചെയ്തിട്ടില്ല. `npm install @react-native-async-storage/async-storage` ഉപയോഗിച്ച് ഇത് ഇൻസ്റ്റാൾ ചെയ്യുക.',
   'storage.error.setFailed':
-    'AsyncStorage-ൽ " {{key}} " കീയ്‌ക്ക് മൂല്യം സജ്ജമാക്കുന്നതിൽ പരാജയപ്പെട്ടു.',
+    'AsyncStorage-ൽ "{{key}}" കീയ്‌ക്കുള്ള മൂല്യം സജ്ജമാക്കുന്നതിൽ പരാജയപ്പെട്ടു.',
 }

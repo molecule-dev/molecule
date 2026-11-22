@@ -7,5 +7,5 @@ export const et: StorageTranslations = {
   'storage.error.quotaExceeded': 'Salvestuskvoot ületatud võtme "{{key}}" seadmisel',
   'storage.error.asyncStorageUnavailable':
     '`@react-native-async-storage/async-storage` pole installitud. Installige see käsuga: `npm install @react-native-async-storage/async-storage`',
-  'storage.error.setFailed': 'AsyncStorage\'is võtme " {{key}} " väärtuse määramine ebaõnnestus.',
+  'storage.error.setFailed': 'AsyncStorage\'is võtme "{{key}}" väärtuse määramine ebaõnnestus.',
 }

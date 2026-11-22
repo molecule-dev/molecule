@@ -5,8 +5,9 @@ export const uk: Partial<NetworkTranslations> = {
   'network.none': 'Відключено',
   'network.wifi': 'Wi-Fi',
   'network.cellular': "Стільниковий зв'язок",
+  // keep-english: Ukrainian writes the name of the standard in Latin script
   'network.ethernet': 'Ethernet',
-  'network.bluetooth': 'Блютуз',
+  'network.bluetooth': 'Bluetooth',
   'network.vpn': 'VPN',
   'network.other': 'Інше',
   'network.unknown': 'Невідомо',

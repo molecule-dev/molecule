@@ -13,7 +13,7 @@ export const bn: Partial<FileCardTranslations> = {
   'file-card.kind.other': 'ফাইল',
   'file-card.aria.root': '{{name}} , {{kind}}',
   'file-card.aria.size': 'আকার {{size}}',
-  'file-card.aria.modified': 'Modified {{when}}',
+  'file-card.aria.modified': 'পরিবর্তিত {{when}}',
   'file-card.size.b': '{{n}} B',
   'file-card.size.kb': '{{n}} KB',
   'file-card.size.mb': '{{n}} MB',

@@ -4,7 +4,7 @@ import type { FileUploadTranslations } from './types.js'
 export const nl: FileUploadTranslations = {
   'fileUpload.error.cancelled': 'Upload geannuleerd',
   'fileUpload.error.extensionNotAccepted':
-    'De bestandsextensie " {{extension}} " wordt niet geaccepteerd.',
+    'De bestandsextensie "{{extension}}" wordt niet geaccepteerd.',
   'fileUpload.error.maxFiles': 'Het maximale aantal bestanden ({{maxFiles}}) is bereikt.',
   'fileUpload.error.maxSize': 'Het bestand overschrijdt de maximale grootte van {{maxSize}} bytes.',
   'fileUpload.error.minSize':
@@ -12,7 +12,7 @@ export const nl: FileUploadTranslations = {
   'fileUpload.error.networkError': 'Het uploaden is mislukt vanwege een netwerkfout.',
   'fileUpload.error.noSource': 'Geen bronbestand beschikbaar',
   'fileUpload.error.timedOut': 'Upload is mislukt vanwege een time-out.',
-  'fileUpload.error.typeNotAccepted': 'Bestandstype " {{type}} " wordt niet geaccepteerd',
+  'fileUpload.error.typeNotAccepted': 'Bestandstype "{{type}}" wordt niet geaccepteerd.',
   'fileUpload.error.uploadFailed': 'Uploaden mislukt',
   'fileUpload.error.uploadFailedStatus': 'Uploaden mislukt met status {{status}}',
 }

@@ -22,8 +22,8 @@ export const ru: Partial<IdeTranslations> = {
     'У вас доступ только для просмотра, поэтому эта команда недоступна. Обратитесь к редактору для внесения изменений.',
   'ide.chat.viewerReadOnlyNote':
     'Доступ только для просмотра — читайте текст и /teamsay команде (или просто /t). Для запуска помощника и изменения модели или настроек необходимы права редактора.',
-  'ide.chat.soundAll': 'All',
-  'ide.search.replaceAllShort': 'All',
+  'ide.chat.soundAll': 'Все',
+  'ide.search.replaceAllShort': 'Все',
   'ide.chat.thoughtBriefly': 'Кратко подумал',
   'ide.chat.thinking': 'Мышление',
   'ide.chat.verificationPassed': 'Проверки пройдены',
@@ -110,7 +110,7 @@ export const ru: Partial<IdeTranslations> = {
   'ide.chat.autoFixCancel': 'Отмена',
   'ide.chat.selectModel': 'Выберите модель',
   'ide.chat.currentBadge': 'текущий',
-  'ide.chat.proRequired': 'Про',
+  'ide.chat.proRequired': 'Pro',
   'ide.chat.notificationSounds': 'Звуки уведомлений',
   'ide.chat.soundMode.mixed': 'смешанный',
   'ide.chat.activeFile': 'активный',
@@ -229,7 +229,7 @@ export const ru: Partial<IdeTranslations> = {
   'ide.chat.emptyState': 'Опишите, что вы хотите построить...',
   'ide.chat.you': 'Ты',
   'ide.chat.itemRenderError': 'Не удалось отобразить это сообщение.',
-  'ide.chat.molecule': 'Молекула',
+  'ide.chat.molecule': 'Molecule',
   'ide.chat.automatic': 'Отправлено автоматически',
   'ide.chat.stop': 'Останавливаться',
   'ide.chat.send': 'Отправлять',
@@ -262,7 +262,7 @@ export const ru: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.preview_error': 'Ошибка предварительного просмотра',
   'ide.chat.soundEventDesc.message':
     'Один из членов команды опубликовал сообщение, предназначенное только для всей команды.',
-  'ide.chat.soundEventDesc.done': '{{agentName}} finished responding',
+  'ide.chat.soundEventDesc.done': '{{agentName}} завершил ответ',
   'ide.chat.soundEventDesc.error': 'В процессе ответа произошла ошибка.',
   'ide.chat.soundEventDesc.tool_result':
     'Вызов инструмента (чтение файла, команда и т. д.) завершен.',
@@ -410,9 +410,9 @@ export const ru: Partial<IdeTranslations> = {
   'ide.chat.modelInUse': 'Теперь используется {{model}}',
   'ide.chat.cardBy': '{{text}} — {{name}}',
   'ide.chat.modelRemoved':
-    'Выбранная вами модель «{{removed}}» больше не доступна. Выбрана модель «{{fallback}}». Введите /model, чтобы выбрать другую.',
+    'Выбранная вами модель "{{removed}}" больше недоступна. Переключено на "{{fallback}}". Введите /model , чтобы выбрать другую.',
   'ide.chat.modelRemovedNoFallback':
-    'Выбранная вами модель «{{removed}}» больше не доступна, и на сервере не закреплена никакая замена. Попросите администратора подключить поставщика ИИ.',
+    'Выбранная вами модель "{{removed}}" больше недоступна, и на сервере нет подходящей замены. Обратитесь к администратору, чтобы он подключил поставщика ИИ.',
   'ide.chat.olderModelsCollapse': 'Предыдущие модели ⌃ ({{count}})',
   'ide.chat.olderModelsExpand': 'Предыдущие модели ⌄ ({{count}})',
   'ide.chat.selectExecuteModel': 'Выбрать модель в режиме выполнения',

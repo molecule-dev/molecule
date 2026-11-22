@@ -131,6 +131,7 @@ export const en: IdeTranslations = {
   'ide.chat.version': '{{productName}} v{{version}}',
   'ide.chat.selectModel': 'Select model',
   'ide.chat.currentBadge': 'current',
+  // keep-english: the name of the Pro plan, not an adjective (machine translation gave "Professional", Korean "찬성")
   'ide.chat.proRequired': 'Pro',
   'ide.chat.notificationSounds': 'Notification sounds',
   'ide.chat.soundMode.mixed': 'mixed',
@@ -325,6 +326,7 @@ export const en: IdeTranslations = {
   'ide.chat.viaDictation.badge': 'Dictated by voice',
   'ide.chat.itemRenderError': "This message couldn't be displayed.",
   'ide.chat.viewProfile': 'View profile',
+  // keep-english: the product name, not the noun (machine translation gave "分子", "Molekül")
   'ide.chat.molecule': 'Molecule',
   'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'Stop',

@@ -224,7 +224,7 @@ export const af: Partial<IdeTranslations> = {
   'ide.chat.emptyState': 'Beskryf wat jy wil bou...',
   'ide.chat.you': 'Jy',
   'ide.chat.itemRenderError': 'Hierdie boodskap kon nie gewys word nie.',
-  'ide.chat.molecule': 'Molekule',
+  'ide.chat.molecule': 'Molecule',
   'ide.chat.automatic': 'Outomaties gestuur',
   'ide.chat.stop': 'Stop',
   'ide.chat.send': 'Stuur',
@@ -400,9 +400,9 @@ export const af: Partial<IdeTranslations> = {
   'ide.chat.modelInUse': 'Now using {{model}}',
   'ide.chat.cardBy': '{{text}} — {{name}}',
   'ide.chat.modelRemoved':
-    'Jou gekose model " {{removed}} " is nie meer beskikbaar nie. Oorgeskakel na " {{fallback}} ". Tik /model om \'n ander een te kies.',
+    'Jou gekose model "{{removed}}" is nie meer beskikbaar nie. Oorgeskakel na "{{fallback}}". Tik /model om \'n ander een te kies.',
   'ide.chat.modelRemovedNoFallback':
-    'Jou gekose model " {{removed}} " is nie meer beskikbaar nie, en geen plaasvervanger is op die bediener gekoppel nie. Vra jou administrateur om \'n KI-verskaffer te koppel.',
+    'Jou gekose model "{{removed}}" is nie meer beskikbaar nie, en geen plaasvervanger is op die bediener gekoppel nie. Vra jou administrateur om \'n KI-verskaffer te koppel.',
   'ide.chat.olderModelsCollapse': 'Older models ⌃ ({{count}})',
   'ide.chat.olderModelsExpand': 'Older models ⌄ ({{count}})',
   'ide.chat.selectExecuteModel': 'Kies uitvoeringsmodusmodel',

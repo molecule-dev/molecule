@@ -53,7 +53,7 @@ export const ja: UserTranslations = {
   'user.error.invalidAction':
     '無効なアクションです。「setup」、「enable」、または「disable」を使用してください。',
   'user.error.twoFactorOperationFailed': '二要素認証の操作に失敗しました。',
-  'user.error.oauthServerNotConfigured': 'OAuthサーバー「{{server}}」が設定されていません。',
+  'user.error.oauthServerNotConfigured': 'OAuthサーバー"{{server}}"が設定されていません。',
   'user.error.oauthVerificationFailed': 'OAuth認証に失敗しました。',
   'user.error.failedToCreateUser': 'ユーザーの作成に失敗しました。',
   'user.error.oauthLoginFailed': 'OAuthログインに失敗しました。',

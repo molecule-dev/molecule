@@ -5,7 +5,7 @@ export const ur: NetworkTranslations = {
   'network.wifi': 'Wi-Fi',
   'network.cellular': 'سیلولر',
   'network.ethernet': 'ایتھرنیٹ',
-  'network.bluetooth': 'بلوٹوتھ',
+  'network.bluetooth': 'Bluetooth',
   'network.vpn': 'VPN',
   'network.other': 'دیگر',
   'network.none': 'منقطع',

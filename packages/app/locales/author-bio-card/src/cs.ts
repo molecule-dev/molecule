@@ -4,10 +4,10 @@ import type { AuthorBioCardTranslations } from './types.js'
 export const cs: Partial<AuthorBioCardTranslations> = {
   'authorBioCard.follow': 'Sledovat',
   'authorBioCard.following': 'Sledujete',
-  'authorBioCard.social.twitter.label': 'Cvrlikání',
+  'authorBioCard.social.twitter.label': 'Twitter',
   'authorBioCard.social.github.label': 'GitHub',
   'authorBioCard.social.linkedin.label': 'LinkedIn',
-  'authorBioCard.social.mastodon.label': 'Mastodont',
+  'authorBioCard.social.mastodon.label': 'Mastodon',
   'authorBioCard.social.website.label': 'Webové stránky',
   'authorBioCard.social.twitter': '{{name}} na Twitteru',
   'authorBioCard.social.github': '{{name}} na GitHubu',

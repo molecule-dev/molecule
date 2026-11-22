@@ -2,11 +2,11 @@ import type { LayerPanelTranslations } from './types.js'
 
 /** Layer Panel translations for Catalan. Stub — uses English copy. */
 export const ca: LayerPanelTranslations = {
-  'layerPanel.label': 'Layers',
-  'layerPanel.show': 'Show layer',
-  'layerPanel.hide': 'Hide layer',
-  'layerPanel.lock': 'Lock layer',
-  'layerPanel.unlock': 'Unlock layer',
-  'layerPanel.renameInput': 'Rename layer',
-  'layerPanel.metadata': 'Layer metadata',
+  'layerPanel.label': 'Capes',
+  'layerPanel.show': 'Mostra la capa',
+  'layerPanel.hide': 'Amaga la capa',
+  'layerPanel.lock': 'Bloqueja la capa',
+  'layerPanel.unlock': 'Desbloqueja la capa',
+  'layerPanel.renameInput': 'Canvia el nom de la capa',
+  'layerPanel.metadata': 'Metadades de la capa',
 }

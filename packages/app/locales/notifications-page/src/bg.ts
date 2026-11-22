@@ -2,7 +2,7 @@ import type { NotificationsPageTranslations } from './types.js'
 
 /** NotificationsPage translations for bg. */
 export const bg: Partial<NotificationsPageTranslations> = {
-  'notificationsPage.filterAll': 'All',
+  'notificationsPage.filterAll': 'Всички',
   'notificationsPage.title': 'Известия',
   'notificationsPage.markAllRead': 'Марк {{count}} както е прочетено',
   'notificationsPage.filterUnread': 'Непрочетено',

@@ -2,11 +2,11 @@ import type { LayerPanelTranslations } from './types.js'
 
 /** Layer Panel translations for Nepali. Stub — uses English copy. */
 export const ne: LayerPanelTranslations = {
-  'layerPanel.label': 'Layers',
-  'layerPanel.show': 'Show layer',
-  'layerPanel.hide': 'Hide layer',
-  'layerPanel.lock': 'Lock layer',
-  'layerPanel.unlock': 'Unlock layer',
-  'layerPanel.renameInput': 'Rename layer',
-  'layerPanel.metadata': 'Layer metadata',
+  'layerPanel.label': 'तहहरू',
+  'layerPanel.show': 'तह देखाउनुहोस्',
+  'layerPanel.hide': 'तह लुकाउनुहोस्',
+  'layerPanel.lock': 'तह लक गर्नुहोस्',
+  'layerPanel.unlock': 'तह अनलक गर्नुहोस्',
+  'layerPanel.renameInput': 'तहको नाम बदल्नुहोस्',
+  'layerPanel.metadata': 'तह मेटाडेटा',
 }

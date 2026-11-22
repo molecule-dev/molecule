@@ -2,11 +2,11 @@ import type { LayerPanelTranslations } from './types.js'
 
 /** Layer Panel translations for Afrikaans. Stub — uses English copy. */
 export const af: LayerPanelTranslations = {
-  'layerPanel.label': 'Layers',
-  'layerPanel.show': 'Show layer',
-  'layerPanel.hide': 'Hide layer',
-  'layerPanel.lock': 'Lock layer',
-  'layerPanel.unlock': 'Unlock layer',
-  'layerPanel.renameInput': 'Rename layer',
-  'layerPanel.metadata': 'Layer metadata',
+  'layerPanel.label': 'Lae',
+  'layerPanel.show': 'Wys laag',
+  'layerPanel.hide': 'Versteek laag',
+  'layerPanel.lock': 'Sluitlaag',
+  'layerPanel.unlock': 'Ontsluit laag',
+  'layerPanel.renameInput': 'Hernoem laag',
+  'layerPanel.metadata': 'Laagmetadata',
 }

@@ -6,5 +6,5 @@ export const af: StorageTranslations = {
   'storage.error.quotaExceeded': 'Bergingkwota oorskry by die instelling van sleutel "{{key}}"',
   'storage.error.asyncStorageUnavailable':
     '`@react-native-async-storage/async-storage` is nie geïnstalleer nie. Installeer dit met: `npm install @react-native-async-storage/async-storage`',
-  'storage.error.setFailed': 'Kon nie waarde vir sleutel " {{key}} " in AsyncStorage stel nie',
+  'storage.error.setFailed': 'Kon nie waarde vir sleutel "{{key}}" in AsyncStorage stel nie',
 }

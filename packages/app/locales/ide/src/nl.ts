@@ -239,7 +239,7 @@ export const nl: Partial<IdeTranslations> = {
   'ide.chat.placeholder': 'Stuur een bericht...',
   'ide.chat.placeholderViewer': 'Stuur een bericht naar je team.',
   'ide.chat.emptyState': 'Beschrijf wat je wilt bouwen...',
-  'ide.chat.molecule': 'Molecuul',
+  'ide.chat.molecule': 'Molecule',
   'ide.chat.automatic': 'Automatisch verzonden',
   'ide.chat.stop': 'Stop',
   'ide.chat.code.copy': 'Kopiëren',

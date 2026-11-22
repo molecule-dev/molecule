@@ -4,6 +4,7 @@ import type { NetworkTranslations } from './types.js'
 export const bg: NetworkTranslations = {
   'network.wifi': 'Wi-Fi',
   'network.cellular': 'Мобилна мрежа',
+  // keep-english: Bulgarian writes the name of the standard in Latin script
   'network.ethernet': 'Ethernet',
   'network.bluetooth': 'Bluetooth',
   'network.vpn': 'VPN',

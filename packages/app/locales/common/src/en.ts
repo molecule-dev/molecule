@@ -49,6 +49,7 @@ export const en: CommonTranslations = {
   // brand name renders through instead of being overridden by a fixed string.
   'authBrandHeader.appName': '{{appName}}',
   'authBrandHeader.tagline': '{{tagline}}',
+  // keep-english: a log line naming a Docker API request; nothing in it is prose
   'codeSandbox.docker.error.apiError': 'Docker API {{method}} {{path}}: {{status}} {{error}}',
   'codeSandbox.docker.error.deleteFailed': 'Failed to delete {{path}}: {{error}}',
   'codeSandbox.docker.error.readFailed': 'Failed to read {{path}}: {{error}}',
@@ -87,10 +88,14 @@ export const en: CommonTranslations = {
   'http.error.networkError': 'Network error.',
   'http.error.requestFailed': 'Request failed with status {{status}}.',
   'oauth.continueWith': 'Continue with {{provider}}',
+  // keep-english: a product name, written as its owner writes it in every language
   'oauth.github': 'GitHub',
+  // keep-english: a product name, written as its owner writes it in every language
   'oauth.gitlab': 'GitLab',
+  // keep-english: a product name, written as its owner writes it in every language
   'oauth.google': 'Google',
   'oauth.orContinueWith': 'Or continue with',
+  // keep-english: a product name, written as its owner writes it in every language
   'oauth.twitter': 'Twitter',
   'planUpdated.message': 'Your plan has been updated.',
   'planUpdated.returnHome': 'Return home',

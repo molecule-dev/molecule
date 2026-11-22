@@ -2,6 +2,6 @@ import type { WordCloudTranslations } from './types.js'
 
 /** Word cloud translations for Armenian. */
 export const hy: WordCloudTranslations = {
-  'word-cloud.aria.cloud': 'Word cloud',
+  'word-cloud.aria.cloud': 'Բառերի ամպ',
   'word-cloud.aria.empty': 'Բառեր չկան ցուցադրելու համար',
 }

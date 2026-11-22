@@ -4,8 +4,8 @@ import type { MindMapCanvasTranslations } from './types.js'
 export const ga: MindMapCanvasTranslations = {
   'mindMap.aria.canvas': 'Canbhás léarscáil intinne',
   'mindMap.aria.edit': 'Cuir téacs an nóid in eagar',
-  'mindMap.action.collapse': 'Collapse subtree',
-  'mindMap.action.expand': 'Expand subtree',
+  'mindMap.action.collapse': 'Laghdaigh fo-chrann',
+  'mindMap.action.expand': 'Leathnaigh an fo-chrann',
   'mindMap.action.addChild': 'Cuir nód linbh leis',
-  'mindMap.defaults.newChild': 'New idea',
+  'mindMap.defaults.newChild': 'Smaoineamh nua',
 }

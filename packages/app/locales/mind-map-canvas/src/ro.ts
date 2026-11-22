@@ -4,8 +4,8 @@ import type { MindMapCanvasTranslations } from './types.js'
 export const ro: MindMapCanvasTranslations = {
   'mindMap.aria.canvas': 'Pânză pentru harta mentală',
   'mindMap.aria.edit': 'Editați textul nodului',
-  'mindMap.action.collapse': 'Collapse subtree',
-  'mindMap.action.expand': 'Expand subtree',
+  'mindMap.action.collapse': 'Restrângere subarbore',
+  'mindMap.action.expand': 'Extindeți subarbore',
   'mindMap.action.addChild': 'Adăugați un nod copil',
-  'mindMap.defaults.newChild': 'New idea',
+  'mindMap.defaults.newChild': 'Idee nouă',
 }

@@ -2,6 +2,6 @@ import type { WordCloudTranslations } from './types.js'
 
 /** Word cloud translations for Nepali. */
 export const ne: WordCloudTranslations = {
-  'word-cloud.aria.cloud': 'Word cloud',
+  'word-cloud.aria.cloud': 'शब्द क्लाउड',
   'word-cloud.aria.empty': 'देखाउनको लागि कुनै शब्द छैन',
 }

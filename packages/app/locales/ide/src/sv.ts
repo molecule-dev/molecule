@@ -233,7 +233,7 @@ export const sv: Partial<IdeTranslations> = {
   'ide.chat.placeholder': 'Skicka ett meddelande...',
   'ide.chat.placeholderViewer': 'Skicka meddelande till ditt team',
   'ide.chat.emptyState': 'Beskriv vad du vill bygga...',
-  'ide.chat.molecule': 'Molekyl',
+  'ide.chat.molecule': 'Molecule',
   'ide.chat.automatic': 'Skickat automatiskt',
   'ide.chat.stop': 'Stopp',
   'ide.chat.code.copy': 'Kopiera',
@@ -400,9 +400,9 @@ export const sv: Partial<IdeTranslations> = {
   'ide.chat.modelInUse': 'Nu använder vi {{model}}',
   'ide.chat.cardBy': '{{text}} — {{name}}',
   'ide.chat.modelRemoved':
-    'Din valda modell " {{removed}} " är inte längre tillgänglig. Bytte till " {{fallback}} ". Skriv /model för att välja en annan.',
+    'Din valda modell "{{removed}}" är inte längre tillgänglig. Bytte till "{{fallback}}". Skriv /model för att välja en annan.',
   'ide.chat.modelRemovedNoFallback':
-    'Den modell du valt, ”{{removed}}”, finns inte längre tillgänglig och det finns ingen ersättningsmodell registrerad på servern. Be din administratör att ansluta en AI-leverantör.',
+    'Din valda modell "{{removed}}" är inte längre tillgänglig och ingen ersättningsmodell är kopplad till servern. Be din administratör att koppla en AI-leverantör.',
   'ide.chat.olderModelsCollapse': 'Äldre modeller ⌃ ({{count}})',
   'ide.chat.olderModelsExpand': 'Äldre modeller ⌄ ({{count}})',
   'ide.chat.selectExecuteModel': 'Välj modell i körläge',

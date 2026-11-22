@@ -7,6 +7,5 @@ export const mk: StorageTranslations = {
   'storage.error.quotaExceeded': 'Квотата за складирање е надмината при поставување клуч "{{key}}"',
   'storage.error.asyncStorageUnavailable':
     '`@react-native-async-storage/async-storage` не е инсталиран. Инсталирајте го со: `npm install @react-native-async-storage/async-storage`',
-  'storage.error.setFailed':
-    'Не успеа да се постави вредност за клучот „ {{key}} “ во AsyncStorage',
+  'storage.error.setFailed': 'Не успеа да се постави вредност за клучот "{{key}}" во AsyncStorage',
 }

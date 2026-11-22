@@ -4,7 +4,7 @@ import type { NetworkTranslations } from './types.js'
 export const he: NetworkTranslations = {
   'network.wifi': 'Wi-Fi',
   'network.cellular': 'סלולרי',
-  'network.ethernet': 'Ethernet',
+  'network.ethernet': 'אתרנט',
   'network.bluetooth': 'Bluetooth',
   'network.vpn': 'VPN',
   'network.other': 'אחר',

@@ -3,15 +3,15 @@ import type { PricingPageTranslations } from './types.js'
 /** Pricing Page translations for Zulu. Stub — uses English copy. */
 export const zu: PricingPageTranslations = {
   'pricingPage.heading': 'Khetha uhlelo lwakho',
-  'pricingPage.loading': 'Loading plans…',
+  'pricingPage.loading': 'Ilayisha izinhlelo…',
   'pricingPage.error': 'Ayikwazanga ukulayisha amanani. Zama futhi kamuva.',
   'pricingPage.checkoutError': 'Ayikwazanga ukuqala ukukhokha. Sicela uzame futhi.',
-  'pricingPage.perSeat': 'per seat',
-  'pricingPage.upgradeCta': 'Upgrade to {{tierName}}',
-  'pricingPage.currentCta': 'Current plan',
-  'pricingPage.periodToggle.label': 'Billing period',
-  'pricingPage.periodToggle.monthly': 'Monthly',
-  'pricingPage.periodToggle.yearly': 'Yearly',
+  'pricingPage.perSeat': 'ngesihlalo ngasinye',
+  'pricingPage.upgradeCta': 'Thuthukela ku- {{tierName}}',
+  'pricingPage.currentCta': 'Uhlelo lwamanje',
+  'pricingPage.periodToggle.label': 'Isikhathi sokukhokha',
+  'pricingPage.periodToggle.monthly': 'Nyanga zonke',
+  'pricingPage.periodToggle.yearly': 'Njalo ngonyaka',
   'pricingPage.planUpdated.heading': 'Uhlelo lwakho lubuyekeziwe',
   'pricingPage.planUpdated.headingNamed': 'Manje ususohlelweni lwe {{planName}}',
   'pricingPage.planUpdated.body':

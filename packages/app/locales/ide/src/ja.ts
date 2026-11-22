@@ -38,7 +38,7 @@ export const ja: Partial<IdeTranslations> = {
     '{{model}}はPro版でのみ利用可能です。アップグレードするとすべてのモデルにアクセスできます。',
   'ide.chat.autoFixPause': '一時停止',
   'ide.chat.autoFixCancel': 'キャンセル',
-  'ide.chat.proRequired': 'プロ',
+  'ide.chat.proRequired': 'Pro',
   'ide.chat.soundAll': 'すべて',
   'ide.chat.activeFile': 'アクティブ',
   'ide.chat.openTab': '開く',
@@ -239,7 +239,7 @@ export const ja: Partial<IdeTranslations> = {
   'ide.chat.placeholder': 'メッセージを送信する...',
   'ide.chat.placeholderViewer': 'チームにメッセージを送る',
   'ide.chat.emptyState': '構築したいものを説明してください...',
-  'ide.chat.molecule': '分子',
+  'ide.chat.molecule': 'Molecule',
   'ide.chat.automatic': '自動送信',
   'ide.chat.stop': '停止',
   'ide.chat.committed': '献身的',
@@ -264,7 +264,7 @@ export const ja: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.verification_result': '検証結果',
   'ide.chat.soundEvent.preview_error': 'プレビューエラー',
   'ide.chat.soundEventDesc.message': 'チームメイトがチーム限定のメモを投稿した',
-  'ide.chat.soundEventDesc.done': '{{agentName}} finished responding',
+  'ide.chat.soundEventDesc.done': '{{agentName}}応答が完了しました',
   'ide.chat.soundEventDesc.error': '応答中に問題が発生しました',
   'ide.chat.soundEventDesc.tool_result':
     'ツール呼び出し（ファイル読み込み、コマンドなど）が完了しました',
@@ -405,9 +405,9 @@ export const ja: Partial<IdeTranslations> = {
   'ide.chat.modelInUse': '現在、{{model}} を使用しています',
   'ide.chat.cardBy': '{{text}} — {{name}}',
   'ide.chat.modelRemoved':
-    '選択されたモデル「{{removed}}」は現在利用できません。「{{fallback}}」に切り替えました。別のモデルを選択するには、/model と入力してください。',
+    '選択されたモデル"{{removed}}"はご利用いただけなくなりました。"{{fallback}}"に切り替わりました。別のモデルを選択するには、「/modelと入力してください。',
   'ide.chat.modelRemovedNoFallback':
-    '選択されたモデル「{{removed}}」は利用できなくなっており、サーバーには代替モデルがバインドされていません。管理者にAIプロバイダーをバインドするよう依頼してください。',
+    '選択されたモデル"{{removed}}"は現在ご利用いただけません。サーバー上に代替モデルも登録されていません。管理者にAIプロバイダーの導入を依頼してください。',
   'ide.chat.olderModelsCollapse': '旧モデル ⌃ ({{count}})',
   'ide.chat.olderModelsExpand': '旧モデル ⌄ ({{count}})',
   'ide.chat.selectExecuteModel': '実行モードのモデルを選択',

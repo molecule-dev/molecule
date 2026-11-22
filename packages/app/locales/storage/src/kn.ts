@@ -6,6 +6,5 @@ export const kn: StorageTranslations = {
   'storage.error.quotaExceeded': '"{{key}}" ಕೀಲಿಯನ್ನು ಹೊಂದಿಸುವಾಗ ಸ್ಟೋರೇಜ್ ಕೋಟಾ ಮೀರಿದೆ',
   'storage.error.asyncStorageUnavailable':
     '`@react-native-async-storage/async-storage` ಸ್ಥಾಪಿಸಲಾಗಿಲ್ಲ. ಇದನ್ನು ಇದರೊಂದಿಗೆ ಸ್ಥಾಪಿಸಿ: `npm install @react-native-async-storage/async-storage`',
-  'storage.error.setFailed':
-    'AsyncStorage ನಲ್ಲಿ " {{key}} " ಕೀಲಿಗೆ ಮೌಲ್ಯವನ್ನು ಹೊಂದಿಸಲು ವಿಫಲವಾಗಿದೆ.',
+  'storage.error.setFailed': 'AsyncStorage ನಲ್ಲಿ "{{key}}" ಕೀಗೆ ಮೌಲ್ಯವನ್ನು ಹೊಂದಿಸಲು ವಿಫಲವಾಗಿದೆ.',
 }

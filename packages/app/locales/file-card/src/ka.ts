@@ -12,7 +12,7 @@ export const ka: Partial<FileCardTranslations> = {
   'file-card.kind.folder': 'საქაღალდე',
   'file-card.kind.other': 'ფაილი',
   'file-card.aria.root': '{{name}} , {{kind}}',
-  'file-card.aria.size': 'Size {{size}}',
+  'file-card.aria.size': 'ზომა {{size}}',
   'file-card.aria.modified': 'შეცვლილია {{when}}',
   'file-card.size.b': '{{n}} B',
   'file-card.size.kb': '{{n}} KB',

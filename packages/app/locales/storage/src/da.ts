@@ -6,5 +6,5 @@ export const da: StorageTranslations = {
   'storage.error.quotaExceeded': 'Lagringskvote overskredet ved indstilling af nøgle "{{key}}"',
   'storage.error.asyncStorageUnavailable':
     '`@react-native-async-storage/async-storage` er ikke installeret. Installer det med: `npm install @react-native-async-storage/async-storage`',
-  'storage.error.setFailed': 'Kunne ikke angive værdi for nøglen " {{key}} " i AsyncStorage',
+  'storage.error.setFailed': 'Kunne ikke angive værdi for nøglen "{{key}}" i AsyncStorage',
 }

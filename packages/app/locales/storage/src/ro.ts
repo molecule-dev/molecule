@@ -7,5 +7,5 @@ export const ro: StorageTranslations = {
   'storage.error.quotaExceeded': 'Cota de stocare depășită la setarea cheii "{{key}}"',
   'storage.error.asyncStorageUnavailable':
     '`@react-native-async-storage/async-storage` nu este instalat. Instalați-l cu: `npm install @react-native-async-storage/async-storage`',
-  'storage.error.setFailed': 'Nu s-a putut seta valoarea pentru cheia „ {{key}} ” în AsyncStorage',
+  'storage.error.setFailed': 'Nu s-a putut seta valoarea pentru cheia "{{key}}" în AsyncStorage',
 }

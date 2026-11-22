@@ -5,7 +5,7 @@ export const bn: NetworkTranslations = {
   'network.wifi': 'Wi-Fi',
   'network.cellular': 'সেলুলার',
   'network.ethernet': 'ইথারনেট',
-  'network.bluetooth': 'ব্লুটুথ',
+  'network.bluetooth': 'Bluetooth',
   'network.vpn': 'VPN',
   'network.other': 'অন্যান্য',
   'network.none': 'সংযোগ বিচ্ছিন্ন',

@@ -6,5 +6,5 @@ export const am: StorageTranslations = {
   'storage.error.quotaExceeded': 'ቁልፍ "{{key}}" ን ሲያስቀምጡ የማከማቻ ኮታ አልፏል',
   'storage.error.asyncStorageUnavailable':
     '`@react-native-async-storage/async-storage` አልተጫነም። በሚከተለው መንገድ ይጫኑት፦ `npm install @react-native-async-storage/async-storage`',
-  'storage.error.setFailed': 'በ AsyncStorage ውስጥ ለቁልፍ " {{key}} " እሴት ማዘጋጀት አልተሳካም',
+  'storage.error.setFailed': 'በ AsyncStorage ውስጥ ለቁልፍ "{{key}}" እሴት ማዘጋጀት አልተሳካም',
 }

@@ -2,11 +2,11 @@ import type { LayerPanelTranslations } from './types.js'
 
 /** Layer Panel translations for Urdu. Stub — uses English copy. */
 export const ur: LayerPanelTranslations = {
-  'layerPanel.label': 'Layers',
-  'layerPanel.show': 'Show layer',
-  'layerPanel.hide': 'Hide layer',
-  'layerPanel.lock': 'Lock layer',
-  'layerPanel.unlock': 'Unlock layer',
-  'layerPanel.renameInput': 'Rename layer',
-  'layerPanel.metadata': 'Layer metadata',
+  'layerPanel.label': 'تہیں',
+  'layerPanel.show': 'پرت دکھائیں۔',
+  'layerPanel.hide': 'پرت چھپائیں۔',
+  'layerPanel.lock': 'لاک پرت',
+  'layerPanel.unlock': 'پرت کو غیر مقفل کریں۔',
+  'layerPanel.renameInput': 'پرت کا نام تبدیل کریں۔',
+  'layerPanel.metadata': 'پرت میٹا ڈیٹا',
 }

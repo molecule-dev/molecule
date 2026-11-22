@@ -7,5 +7,5 @@ export const ig: StorageTranslations = {
   'storage.error.quotaExceeded': 'Oke nchekwa agafere mgbe \u1ECB na-edobe igodo "{{key}}"',
   'storage.error.asyncStorageUnavailable':
     'Awụnyebeghị `@react-native-async-storage/async-storage`. Wụnye ya na: `npm install @react-native-async-storage/async-storage`',
-  'storage.error.setFailed': 'Enweghị ike ịtọ uru maka igodo " {{key}} " na AsyncStorage',
+  'storage.error.setFailed': 'Enweghị ike ịtọ uru maka igodo "{{key}}" na AsyncStorage',
 }

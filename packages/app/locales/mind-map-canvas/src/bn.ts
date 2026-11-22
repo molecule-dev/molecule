@@ -4,8 +4,8 @@ import type { MindMapCanvasTranslations } from './types.js'
 export const bn: MindMapCanvasTranslations = {
   'mindMap.aria.canvas': 'মাইন্ড ম্যাপ ক্যানভাস',
   'mindMap.aria.edit': 'নোড টেক্সট সম্পাদনা করুন',
-  'mindMap.action.collapse': 'Collapse subtree',
-  'mindMap.action.expand': 'Expand subtree',
+  'mindMap.action.collapse': 'সাবট্রি সংকুচিত করুন',
+  'mindMap.action.expand': 'সাবট্রি প্রসারিত করুন',
   'mindMap.action.addChild': 'চাইল্ড নোড যোগ করুন',
-  'mindMap.defaults.newChild': 'New idea',
+  'mindMap.defaults.newChild': 'নতুন ধারণা',
 }

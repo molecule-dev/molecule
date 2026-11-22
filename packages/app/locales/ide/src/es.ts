@@ -241,7 +241,7 @@ export const es: Partial<IdeTranslations> = {
   'ide.chat.placeholder': 'Enviar un mensaje...',
   'ide.chat.placeholderViewer': 'Envía un mensaje a tu equipo',
   'ide.chat.emptyState': 'Describe lo que quieres construir...',
-  'ide.chat.molecule': 'Molécula',
+  'ide.chat.molecule': 'Molecule',
   'ide.chat.automatic': 'Enviado automáticamente',
   'ide.chat.stop': 'Detener',
   'ide.chat.code.copy': 'Copiar',
@@ -411,9 +411,9 @@ export const es: Partial<IdeTranslations> = {
   'ide.chat.modelInUse': 'Ahora utilizamos {{model}}',
   'ide.chat.cardBy': '{{text}} — {{name}}',
   'ide.chat.modelRemoved':
-    'El modelo seleccionado " {{removed}} " ya no está disponible. Se ha cambiado a " {{fallback}} ". Escriba /model para seleccionar otro.',
+    'El modelo seleccionado "{{removed}}" ya no está disponible. Se ha cambiado a "{{fallback}}". Escriba /model para seleccionar otro.',
   'ide.chat.modelRemovedNoFallback':
-    'El modelo que has seleccionado, «{{removed}}», ya no está disponible y no hay ningún sustituto registrado en el servidor. Pide a tu administrador que configure un proveedor de IA.',
+    'El modelo seleccionado "{{removed}}" ya no está disponible y no hay ningún modelo de reemplazo vinculado en el servidor. Solicite a su administrador que conecte un proveedor de IA.',
   'ide.chat.olderModelsCollapse': 'Modelos anteriores ⌃ ({{count}})',
   'ide.chat.olderModelsExpand': 'Modelos anteriores ⌄ ({{count}})',
   'ide.chat.selectExecuteModel': 'Seleccionar modelo en modo de ejecución',

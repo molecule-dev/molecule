@@ -229,7 +229,7 @@ export const mt: Partial<IdeTranslations> = {
   'ide.chat.emptyState': "Iddeskrivi x'tixtieq tibni...",
   'ide.chat.you': 'Int',
   'ide.chat.itemRenderError': 'Dan il-messaġġ ma setax jintwera.',
-  'ide.chat.molecule': 'Molekula',
+  'ide.chat.molecule': 'Molecule',
   'ide.chat.automatic': 'Mibgħut awtomatikament',
   'ide.chat.stop': 'Waqqaf',
   'ide.chat.send': 'Ibgħat',
@@ -408,9 +408,9 @@ export const mt: Partial<IdeTranslations> = {
   'ide.chat.modelInUse': 'Now using {{model}}',
   'ide.chat.cardBy': '{{text}} — {{name}}',
   'ide.chat.modelRemoved':
-    'Il-mudell li għażilt " {{removed}} " m\'għadux disponibbli. Biddel għal " {{fallback}} ". Ittajpja /model biex tagħżel ieħor.',
+    'Il-mudell li għażilt "{{removed}}" m\'għadux disponibbli. Biddel għal "{{fallback}}". Ittajpja /model biex tagħżel ieħor.',
   'ide.chat.modelRemovedNoFallback':
-    'Il-mudell li għażilt " {{removed}} " m\'għadux disponibbli, u l-ebda sostitut mhu marbut mas-server. Itlob lill-amministratur tiegħek biex jikkonnettja fornitur tal-AI.',
+    'Il-mudell li għażilt "{{removed}}" m\'għadux disponibbli, u l-ebda sostitut mhu marbut mas-server. Itlob lill-amministratur tiegħek biex jikkonnettja fornitur tal-AI.',
   'ide.chat.olderModelsCollapse': 'Older models ⌃ ({{count}})',
   'ide.chat.olderModelsExpand': 'Older models ⌄ ({{count}})',
   'ide.chat.selectExecuteModel': "Agħżel il-mudell tal-modalità ta' eżekuzzjoni",

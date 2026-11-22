@@ -229,7 +229,7 @@ export const sq: Partial<IdeTranslations> = {
   'ide.chat.emptyState': 'Përshkruani se çfarë doni të ndërtoni...',
   'ide.chat.you': 'Ti',
   'ide.chat.itemRenderError': 'Ky mesazh nuk mund të shfaqej.',
-  'ide.chat.molecule': 'Molekulë',
+  'ide.chat.molecule': 'Molecule',
   'ide.chat.automatic': 'Dërguar automatikisht',
   'ide.chat.stop': 'Ndalo',
   'ide.chat.send': 'Dërgo',
@@ -409,9 +409,9 @@ export const sq: Partial<IdeTranslations> = {
   'ide.chat.modelInUse': 'Now using {{model}}',
   'ide.chat.cardBy': '{{text}} — {{name}}',
   'ide.chat.modelRemoved':
-    'Modeli që keni zgjedhur " {{removed}} " nuk është më i disponueshëm. Kaloi në " {{fallback}} ". Shkruani /model për të zgjedhur një tjetër.',
+    'Modeli që keni zgjedhur "{{removed}}" nuk është më i disponueshëm. Kaloi në "{{fallback}}". Shkruani /model për të zgjedhur një tjetër.',
   'ide.chat.modelRemovedNoFallback':
-    'Modeli që keni zgjedhur " {{removed}} " nuk është më i disponueshëm dhe nuk ka asnjë garanci zëvendësimi në server. Kërkoji administratorit tënd të lidhësh një ofrues të inteligjencës artificiale.',
+    'Modeli që keni zgjedhur "{{removed}}" nuk është më i disponueshëm dhe nuk ka asnjë garanci zëvendësimi në server. Kërkoji administratorit tënd të lidhësh një ofrues të inteligjencës artificiale.',
   'ide.chat.olderModelsCollapse': 'Older models ⌃ ({{count}})',
   'ide.chat.olderModelsExpand': 'Older models ⌄ ({{count}})',
   'ide.chat.selectExecuteModel': 'Zgjidhni modelin e mënyrës së ekzekutimit',

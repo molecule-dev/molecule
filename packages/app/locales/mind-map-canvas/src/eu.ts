@@ -4,8 +4,8 @@ import type { MindMapCanvasTranslations } from './types.js'
 export const eu: MindMapCanvasTranslations = {
   'mindMap.aria.canvas': 'Mapa mentalaren mihisea',
   'mindMap.aria.edit': 'Editatu nodoaren testua',
-  'mindMap.action.collapse': 'Collapse subtree',
-  'mindMap.action.expand': 'Expand subtree',
+  'mindMap.action.collapse': 'Tolestu azpiarbola',
+  'mindMap.action.expand': 'Zabaldu azpiarbola',
   'mindMap.action.addChild': 'Gehitu haur nodoa',
-  'mindMap.defaults.newChild': 'New idea',
+  'mindMap.defaults.newChild': 'Ideia berria',
 }

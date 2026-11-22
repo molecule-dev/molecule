@@ -2,11 +2,11 @@ import type { LayerPanelTranslations } from './types.js'
 
 /** Layer Panel translations for Marathi. Stub — uses English copy. */
 export const mr: LayerPanelTranslations = {
-  'layerPanel.label': 'Layers',
-  'layerPanel.show': 'Show layer',
-  'layerPanel.hide': 'Hide layer',
-  'layerPanel.lock': 'Lock layer',
-  'layerPanel.unlock': 'Unlock layer',
-  'layerPanel.renameInput': 'Rename layer',
-  'layerPanel.metadata': 'Layer metadata',
+  'layerPanel.label': 'थर',
+  'layerPanel.show': 'लेयर दाखवा',
+  'layerPanel.hide': 'लेयर लपवा',
+  'layerPanel.lock': 'लॉक लेयर',
+  'layerPanel.unlock': 'लेयर अनलॉक करा',
+  'layerPanel.renameInput': 'लेयरचे नाव बदला',
+  'layerPanel.metadata': 'लेयर मेटाडेटा',
 }

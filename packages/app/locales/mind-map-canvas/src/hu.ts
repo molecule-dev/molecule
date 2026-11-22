@@ -4,8 +4,8 @@ import type { MindMapCanvasTranslations } from './types.js'
 export const hu: MindMapCanvasTranslations = {
   'mindMap.aria.canvas': 'Gondolattérkép vászon',
   'mindMap.aria.edit': 'Csomópont szövegének szerkesztése',
-  'mindMap.action.collapse': 'Collapse subtree',
-  'mindMap.action.expand': 'Expand subtree',
+  'mindMap.action.collapse': 'Alfa összecsukása',
+  'mindMap.action.expand': 'Részfa kibontása',
   'mindMap.action.addChild': 'Gyermekcsomópont hozzáadása',
-  'mindMap.defaults.newChild': 'New idea',
+  'mindMap.defaults.newChild': 'Új ötlet',
 }

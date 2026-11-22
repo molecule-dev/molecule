@@ -3,15 +3,15 @@ import type { PricingPageTranslations } from './types.js'
 /** Pricing Page translations for Gujarati. Stub — uses English copy. */
 export const gu: PricingPageTranslations = {
   'pricingPage.heading': 'તમારો પ્લાન પસંદ કરો',
-  'pricingPage.loading': 'Loading plans…',
+  'pricingPage.loading': 'યોજનાઓ લોડ કરી રહ્યું છે…',
   'pricingPage.error': 'કિંમત લોડ કરી શકાઈ નથી. પછીથી ફરી પ્રયાસ કરો.',
   'pricingPage.checkoutError': 'ચેકઆઉટ શરૂ કરી શકાયું નથી. કૃપા કરીને ફરી પ્રયાસ કરો.',
-  'pricingPage.perSeat': 'per seat',
-  'pricingPage.upgradeCta': 'Upgrade to {{tierName}}',
-  'pricingPage.currentCta': 'Current plan',
-  'pricingPage.periodToggle.label': 'Billing period',
-  'pricingPage.periodToggle.monthly': 'Monthly',
-  'pricingPage.periodToggle.yearly': 'Yearly',
+  'pricingPage.perSeat': 'પ્રતિ સીટ',
+  'pricingPage.upgradeCta': '{{tierName}} પર અપગ્રેડ કરો',
+  'pricingPage.currentCta': 'વર્તમાન યોજના',
+  'pricingPage.periodToggle.label': 'બિલિંગ અવધિ',
+  'pricingPage.periodToggle.monthly': 'માસિક',
+  'pricingPage.periodToggle.yearly': 'વાર્ષિક',
   'pricingPage.planUpdated.heading': 'તમારો પ્લાન અપડેટ કરવામાં આવ્યો છે.',
   'pricingPage.planUpdated.headingNamed': 'તમે હવે {{planName}} યોજના પર છો.',
   'pricingPage.planUpdated.body':

@@ -4,8 +4,8 @@ import type { MindMapCanvasTranslations } from './types.js'
 export const uk: MindMapCanvasTranslations = {
   'mindMap.aria.canvas': 'Полотно ментальної карти',
   'mindMap.aria.edit': 'Редагувати текст вузла',
-  'mindMap.action.collapse': 'Collapse subtree',
-  'mindMap.action.expand': 'Expand subtree',
+  'mindMap.action.collapse': 'Згорнути піддерево',
+  'mindMap.action.expand': 'Розгорнути піддерево',
   'mindMap.action.addChild': 'Додати дочірній вузол',
-  'mindMap.defaults.newChild': 'New idea',
+  'mindMap.defaults.newChild': 'Нова ідея',
 }

@@ -3,7 +3,7 @@ import type { LoyaltyTierBadgeTranslations } from './types.js'
 /** LoyaltyTierBadge translations for mr. */
 export const mr: Partial<LoyaltyTierBadgeTranslations> = {
   'loyaltyTierBadge.group': '{{tier}} स्तर',
-  'loyaltyTierBadge.progress': 'Progress to {{next}}',
+  'loyaltyTierBadge.progress': '{{next}} प्रगती करा',
   'loyaltyTierBadge.topTier': 'सर्वोच्च स्तर गाठला',
   'loyaltyTierBadge.remaining': '{{remaining}} ते {{next}}',
   'loyaltyTierBadge.tier.bronze': 'कांसे',

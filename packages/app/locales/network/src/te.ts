@@ -5,7 +5,7 @@ export const te: NetworkTranslations = {
   'network.wifi': 'Wi-Fi',
   'network.cellular': 'సెల్యులార్',
   'network.ethernet': 'ఈథర్‌నెట్',
-  'network.bluetooth': 'బ్లూటూత్',
+  'network.bluetooth': 'Bluetooth',
   'network.vpn': 'VPN',
   'network.other': 'ఇతరం',
   'network.none': 'డిస్‌కనెక్ట్',

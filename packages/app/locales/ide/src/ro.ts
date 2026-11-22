@@ -241,7 +241,7 @@ export const ro: Partial<IdeTranslations> = {
   'ide.chat.placeholder': 'Trimite un mesaj...',
   'ide.chat.placeholderViewer': 'Trimiteți un mesaj echipei dvs.',
   'ide.chat.emptyState': 'Descrie ce vrei să construiești...',
-  'ide.chat.molecule': 'Moleculă',
+  'ide.chat.molecule': 'Molecule',
   'ide.chat.automatic': 'Trimis automat',
   'ide.chat.stop': 'Stop',
   'ide.chat.code.copy': 'Copiază',
@@ -409,9 +409,9 @@ export const ro: Partial<IdeTranslations> = {
   'ide.chat.modelInUse': 'Acum folosim {{model}}',
   'ide.chat.cardBy': '{{text}} — {{name}}',
   'ide.chat.modelRemoved':
-    'Modelul selectat, „{{removed}}”, nu mai este disponibil. S-a trecut la „{{fallback}}”. Tastați /model pentru a alege altul.',
+    'Modelul selectat "{{removed}}" nu mai este disponibil. A fost comutat la "{{fallback}}". Tastați /model pentru a alege altul.',
   'ide.chat.modelRemovedNoFallback':
-    'Modelul selectat de tine, „{{removed}}”, nu mai este disponibil, iar pe server nu este configurat niciun înlocuitor. Roagă-l pe administratorul tău să configureze un furnizor AI.',
+    'Modelul selectat "{{removed}}" , nu mai este disponibil și niciun înlocuitor nu este înregistrat pe server. Rugați administratorul să conecteze un furnizor de inteligență artificială.',
   'ide.chat.olderModelsCollapse': 'Modele mai vechi ⌃ ({{count}})',
   'ide.chat.olderModelsExpand': 'Modele mai vechi ⌄ ({{count}})',
   'ide.chat.selectExecuteModel': 'Selectați modelul în modul de execuție',

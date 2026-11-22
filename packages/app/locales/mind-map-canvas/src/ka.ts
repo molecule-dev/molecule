@@ -4,8 +4,8 @@ import type { MindMapCanvasTranslations } from './types.js'
 export const ka: MindMapCanvasTranslations = {
   'mindMap.aria.canvas': 'გონებრივი რუკის ტილო',
   'mindMap.aria.edit': 'კვანძის ტექსტის რედაქტირება',
-  'mindMap.action.collapse': 'Collapse subtree',
-  'mindMap.action.expand': 'Expand subtree',
+  'mindMap.action.collapse': 'ქვეხის ჩაკეცვა',
+  'mindMap.action.expand': 'ქვეხის გაფართოება',
   'mindMap.action.addChild': 'შვილობილი კვანძის დამატება',
-  'mindMap.defaults.newChild': 'New idea',
+  'mindMap.defaults.newChild': 'ახალი იდეა',
 }

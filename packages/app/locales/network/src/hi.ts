@@ -4,10 +4,10 @@ import type { NetworkTranslations } from './types.js'
 export const hi: Partial<NetworkTranslations> = {
   'network.none': 'डिस्कनेक्ट किया गया',
   'network.unknown': 'अज्ञात',
-  'network.wifi': 'वाईफ़ाई',
+  'network.wifi': 'Wi-Fi',
   'network.cellular': 'सेलुलर',
   'network.ethernet': 'ईथरनेट',
-  'network.bluetooth': 'ब्लूटूथ',
+  'network.bluetooth': 'Bluetooth',
   'network.vpn': 'वीपीएन',
   'network.other': 'अन्य',
   'network.error.connectionTimeout': 'नेटवर्क कनेक्शन टाइमआउट',

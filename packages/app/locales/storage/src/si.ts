@@ -6,5 +6,5 @@ export const si: StorageTranslations = {
   'storage.error.quotaExceeded': '"{{key}}" යතුර සකසන විට ගබඩා ප්‍රමාණය ඉක්මවා ඇත',
   'storage.error.asyncStorageUnavailable':
     '`@react-native-async-storage/async-storage` ස්ථාපනය කර නැත. එය ස්ථාපනය කරන්න: `npm install @react-native-async-storage/async-storage`',
-  'storage.error.setFailed': 'AsyncStorage හි " {{key}} " යතුර සඳහා අගය සැකසීමට අසමත් විය.',
+  'storage.error.setFailed': 'AsyncStorage හි "{{key}}" යතුර සඳහා අගය සැකසීමට අසමත් විය.',
 }

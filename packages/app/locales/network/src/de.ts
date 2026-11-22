@@ -4,7 +4,7 @@ import type { NetworkTranslations } from './types.js'
 export const de: Partial<NetworkTranslations> = {
   'network.none': 'Getrennt',
   'network.unknown': 'Unbekannt',
-  'network.wifi': 'W-lan',
+  'network.wifi': 'Wi-Fi',
   'network.cellular': 'Mobilfunk',
   'network.ethernet': 'Ethernet',
   'network.bluetooth': 'Bluetooth',
@@ -15,5 +15,5 @@ export const de: Partial<NetworkTranslations> = {
   'network.error.missingDependency':
     '`{{library}}` wird benötigt, ist aber nicht installiert. Installieren Sie sie mit: `npm install {{library}}`',
   'network.error.noProvider':
-    '`@molecule/app-network`: Kein Provider festgelegt. Rufen Sie `setProvider()` mit einer `NetworkProvider` -Implementierung auf (z. B. von `@molecule/app-network-react-native`).',
+    '`@molecule/app-network`: Kein Provider festgelegt. Rufen Sie `setProvider()` mit einer `NetworkProvider`-Implementierung auf (z. B. von `@molecule/app-network-react-native`).',
 }

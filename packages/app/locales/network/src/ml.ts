@@ -5,7 +5,7 @@ export const ml: NetworkTranslations = {
   'network.wifi': 'Wi-Fi',
   'network.cellular': 'സെല്ലുലാർ',
   'network.ethernet': 'ഈഥർനെറ്റ്',
-  'network.bluetooth': 'ബ്ലൂടൂത്ത്',
+  'network.bluetooth': 'Bluetooth',
   'network.vpn': 'VPN',
   'network.other': 'മറ്റുള്ളവ',
   'network.none': 'വിച്ഛേദിച്ചു',

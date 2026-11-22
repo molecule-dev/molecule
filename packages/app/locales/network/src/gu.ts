@@ -5,7 +5,7 @@ export const gu: NetworkTranslations = {
   'network.wifi': 'Wi-Fi',
   'network.cellular': 'સેલ્યુલર',
   'network.ethernet': 'ઈથરનેટ',
-  'network.bluetooth': 'બ્લૂટૂથ',
+  'network.bluetooth': 'Bluetooth',
   'network.vpn': 'VPN',
   'network.other': 'અન્ય',
   'network.none': 'ડિસ્કનેક્ટેડ',

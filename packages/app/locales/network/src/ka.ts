@@ -4,6 +4,7 @@ import type { NetworkTranslations } from './types.js'
 export const ka: NetworkTranslations = {
   'network.wifi': 'Wi-Fi',
   'network.cellular': 'Pichuri',
+  // keep-english: Georgian writes the name of the standard in Latin script
   'network.ethernet': 'Ethernet',
   'network.bluetooth': 'Bluetooth',
   'network.vpn': 'VPN',

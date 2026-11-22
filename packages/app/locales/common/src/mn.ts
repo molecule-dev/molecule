@@ -2,7 +2,7 @@ import type { CommonTranslations } from './types.js'
 
 /** Common translations for mn. */
 export const mn: Partial<CommonTranslations> = {
-  'status.all': 'All',
+  'status.all': 'Бүгд',
   'status.overdue': 'Overdue Tasks',
   'common.close': 'Хаах',
   'common.continue': 'Үргэлжлүүлэх',
@@ -35,7 +35,7 @@ export const mn: Partial<CommonTranslations> = {
   'auth.signup.password': 'Нууц үг (Шаардлагатай)',
   'auth.signup.signUp': 'Бүртгүүлэх',
   'auth.signup.signingUp': 'Бүртгүүлж байна...',
-  'codeSandbox.docker.error.apiError': 'Docker API {{method}} {{path}} : {{status}} {{error}}',
+  'codeSandbox.docker.error.apiError': 'Docker API {{method}} {{path}}: {{status}} {{error}}',
   'codeSandbox.docker.error.deleteFailed': 'Устгаж чадсангүй {{path}} : {{error}}',
   'codeSandbox.docker.error.readFailed': 'Уншиж чадсангүй {{path}} : {{error}}',
   'codeSandbox.docker.error.writeFailed': 'Бичихэд алдаа гарлаа {{path}} : {{error}}',
@@ -78,7 +78,7 @@ export const mn: Partial<CommonTranslations> = {
   'oauth.gitlab': 'GitLab',
   'oauth.google': 'Google',
   'oauth.orContinueWith': 'Эсвэл үргэлжлүүлэх',
-  'oauth.twitter': 'Твиттер',
+  'oauth.twitter': 'Twitter',
   'planUpdated.message': 'Таны төлөвлөгөө шинэчлэгдсэн.',
   'planUpdated.returnHome': 'Гэртээ буцах',
   'planUpdated.thankYou': 'Баярлалаа!',
@@ -98,8 +98,8 @@ export const mn: Partial<CommonTranslations> = {
   'resource.error.unableToUpdate': 'Шинэчлэх боломжгүй байна {{name}} .',
   'resource.error.unauthorized': 'Зөвшөөрөлгүй.',
   'resource.error.unknownError': 'Үл мэдэгдэх алдаа.',
-  'routing.error.missingParam': '"Параметр дутуу байна" {{name}} "Замын төлөө" {{pattern}} "',
-  'routing.error.routeNotFound': 'Маршрут " {{name}} "олдсонгүй',
+  'routing.error.missingParam': '"{{name}}" замын "{{pattern}}" параметр дутуу байна',
+  'routing.error.routeNotFound': '"{{name}}" чиглэл олдсонгүй',
   'routing.error.useMoleculeRouterOutsideProvider':
     'useMoleculeRouter нь MoleculeRouterProvider дотор ашиглагдах ёстой',
   'settings.account': 'Бүртгэл',
@@ -172,7 +172,7 @@ export const mn: Partial<CommonTranslations> = {
     'Хоёр хүчин зүйлийн тохиргоо хүлээгдэж байна. Эхлээд "тохиргоо"-г үйлдэлтэйгээр дуудна уу.',
   'user.error.notFound': 'Олдсонгүй.',
   'user.error.oauthLoginFailed': 'OAuth нэвтрэх амжилтгүй боллоо.',
-  'user.error.oauthServerNotConfigured': 'OAuth сервер " {{server}} "тохиргоо хийгдээгүй байна.',
+  'user.error.oauthServerNotConfigured': '"{{server}}" OAuth сервер тохируулагдаагүй байна.',
   'user.error.oauthVerificationFailed': 'OAuth баталгаажуулалт амжилтгүй боллоо.',
   'user.error.passwordRequired': 'Нууц үг шаардлагатай.',
   'user.error.planKeyRequired': 'төлөвлөгөөний түлхүүр шаардлагатай.',

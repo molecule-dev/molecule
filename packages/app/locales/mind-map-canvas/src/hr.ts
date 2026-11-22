@@ -4,8 +4,8 @@ import type { MindMapCanvasTranslations } from './types.js'
 export const hr: MindMapCanvasTranslations = {
   'mindMap.aria.canvas': 'Platno za mentalnu mapu',
   'mindMap.aria.edit': 'Uredi tekst čvora',
-  'mindMap.action.collapse': 'Collapse subtree',
-  'mindMap.action.expand': 'Expand subtree',
+  'mindMap.action.collapse': 'Sažmi podstablo',
+  'mindMap.action.expand': 'Proširi podstablo',
   'mindMap.action.addChild': 'Dodaj podređeni čvor',
-  'mindMap.defaults.newChild': 'New idea',
+  'mindMap.defaults.newChild': 'Nova ideja',
 }

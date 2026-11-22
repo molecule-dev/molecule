@@ -3,16 +3,16 @@ import type { PricingPageTranslations } from './types.js'
 /** Pricing Page translations for Russian. Stub — uses English copy. */
 export const ru: PricingPageTranslations = {
   'pricingPage.heading': 'Выберите свой план',
-  'pricingPage.loading': 'Loading plans…',
+  'pricingPage.loading': 'Планы погрузки…',
   'pricingPage.error': 'Не удалось загрузить цены. Попробуйте позже.',
   'pricingPage.checkoutError':
     'Не удалось начать оформление заказа. Пожалуйста, попробуйте еще раз.',
-  'pricingPage.perSeat': 'per seat',
-  'pricingPage.upgradeCta': 'Upgrade to {{tierName}}',
-  'pricingPage.currentCta': 'Current plan',
-  'pricingPage.periodToggle.label': 'Billing period',
-  'pricingPage.periodToggle.monthly': 'Monthly',
-  'pricingPage.periodToggle.yearly': 'Yearly',
+  'pricingPage.perSeat': 'за место',
+  'pricingPage.upgradeCta': 'Перейти на уровень {{tierName}}',
+  'pricingPage.currentCta': 'Текущий план',
+  'pricingPage.periodToggle.label': 'Расчетный период',
+  'pricingPage.periodToggle.monthly': 'Ежемесячно',
+  'pricingPage.periodToggle.yearly': 'Ежегодно',
   'pricingPage.planUpdated.heading': 'Ваш тарифный план обновлен.',
   'pricingPage.planUpdated.headingNamed': 'Теперь вы подключены к тарифному плану {{planName}}',
   'pricingPage.planUpdated.body':

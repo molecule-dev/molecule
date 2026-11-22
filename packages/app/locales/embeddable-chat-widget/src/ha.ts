@@ -2,12 +2,12 @@ import type { EmbeddableChatWidgetTranslations } from './types.js'
 
 /** Embeddable Chat Widget translations for Hausa. */
 export const ha: EmbeddableChatWidgetTranslations = {
-  'embeddableChatWidget.launcher.openLabel': 'Open chat',
-  'embeddableChatWidget.panel.headerLabel': 'Chat with {{brandName}}',
-  'embeddableChatWidget.panel.closeLabel': 'Close chat',
+  'embeddableChatWidget.launcher.openLabel': 'Buɗe hira',
+  'embeddableChatWidget.panel.headerLabel': 'Yi hira da {{brandName}}',
+  'embeddableChatWidget.panel.closeLabel': 'Rufe hira',
   'embeddableChatWidget.panel.emptyState': 'Yi tambaya don farawa.',
   'embeddableChatWidget.panel.assistantTyping': 'Mataimakin yana rubutu…',
   'embeddableChatWidget.composer.placeholder': 'Rubuta saƙonka…',
-  'embeddableChatWidget.composer.send': 'Send',
+  'embeddableChatWidget.composer.send': 'Aika',
   'embeddableChatWidget.error.streamError': 'Akwai matsala. Da fatan za a sake gwadawa.',
 }

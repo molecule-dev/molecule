@@ -8,7 +8,7 @@ export const pt: Partial<AuthorBioCardTranslations> = {
   'authorBioCard.social.twitter.label': 'Twitter',
   'authorBioCard.social.github.label': 'GitHub',
   'authorBioCard.social.linkedin.label': 'LinkedIn',
-  'authorBioCard.social.mastodon.label': 'Mastodonte',
+  'authorBioCard.social.mastodon.label': 'Mastodon',
   'authorBioCard.social.twitter': '{{name}} no Twitter',
   'authorBioCard.social.github': '{{name}} no GitHub',
   'authorBioCard.social.linkedin': '{{name}} no LinkedIn',

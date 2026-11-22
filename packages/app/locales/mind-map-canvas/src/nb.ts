@@ -4,8 +4,8 @@ import type { MindMapCanvasTranslations } from './types.js'
 export const nb: MindMapCanvasTranslations = {
   'mindMap.aria.canvas': 'Tankekart-lerret',
   'mindMap.aria.edit': 'Rediger nodetekst',
-  'mindMap.action.collapse': 'Collapse subtree',
-  'mindMap.action.expand': 'Expand subtree',
+  'mindMap.action.collapse': 'Skjul undertre',
+  'mindMap.action.expand': 'Utvid undertreet',
   'mindMap.action.addChild': 'Legg til underordnet node',
-  'mindMap.defaults.newChild': 'New idea',
+  'mindMap.defaults.newChild': 'Ny idé',
 }

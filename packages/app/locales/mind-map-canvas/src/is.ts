@@ -4,8 +4,8 @@ import type { MindMapCanvasTranslations } from './types.js'
 export const is: MindMapCanvasTranslations = {
   'mindMap.aria.canvas': 'Hugarkort strigi',
   'mindMap.aria.edit': 'Breyta hnútatexta',
-  'mindMap.action.collapse': 'Collapse subtree',
-  'mindMap.action.expand': 'Expand subtree',
+  'mindMap.action.collapse': 'Fella saman undirtré',
+  'mindMap.action.expand': 'Stækka undirtré',
   'mindMap.action.addChild': 'Bæta við undirhnúti',
-  'mindMap.defaults.newChild': 'New idea',
+  'mindMap.defaults.newChild': 'Ný hugmynd',
 }

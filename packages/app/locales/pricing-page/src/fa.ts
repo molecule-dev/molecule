@@ -3,15 +3,15 @@ import type { PricingPageTranslations } from './types.js'
 /** Pricing Page translations for Persian. Stub — uses English copy. */
 export const fa: PricingPageTranslations = {
   'pricingPage.heading': 'طرح خود را انتخاب کنید',
-  'pricingPage.loading': 'Loading plans…',
+  'pricingPage.loading': 'در حال بارگذاری نقشه‌ها…',
   'pricingPage.error': 'قیمت‌گذاری بارگیری نشد. بعداً دوباره امتحان کنید.',
   'pricingPage.checkoutError': 'پرداخت شروع نشد. لطفا دوباره امتحان کنید.',
-  'pricingPage.perSeat': 'per seat',
-  'pricingPage.upgradeCta': 'Upgrade to {{tierName}}',
-  'pricingPage.currentCta': 'Current plan',
-  'pricingPage.periodToggle.label': 'Billing period',
-  'pricingPage.periodToggle.monthly': 'Monthly',
-  'pricingPage.periodToggle.yearly': 'Yearly',
+  'pricingPage.perSeat': 'به ازای هر صندلی',
+  'pricingPage.upgradeCta': 'ارتقا به {{tierName}}',
+  'pricingPage.currentCta': 'طرح فعلی',
+  'pricingPage.periodToggle.label': 'دوره صورتحساب',
+  'pricingPage.periodToggle.monthly': 'ماهانه',
+  'pricingPage.periodToggle.yearly': 'سالانه',
   'pricingPage.planUpdated.heading': 'طرح شما به‌روزرسانی شد',
   'pricingPage.planUpdated.headingNamed': 'شما اکنون در طرح {{planName}} هستید',
   'pricingPage.planUpdated.body':

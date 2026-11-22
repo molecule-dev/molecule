@@ -7,5 +7,5 @@ export const is: StorageTranslations = {
   'storage.error.quotaExceeded': 'Geymslukvóta farin yfir vi\u00F0 uppsetningu lykils "{{key}}"',
   'storage.error.asyncStorageUnavailable':
     '`@react-native-async-storage/async-storage` er ekki uppsett. Setjið það upp með: `npm install @react-native-async-storage/async-storage`',
-  'storage.error.setFailed': 'Mistókst að stilla gildi fyrir lykilinn " {{key}} " í AsyncStorage',
+  'storage.error.setFailed': 'Mistókst að stilla gildi fyrir lykilinn "{{key}}" í AsyncStorage',
 }

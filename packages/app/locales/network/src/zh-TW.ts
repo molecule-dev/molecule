@@ -4,7 +4,7 @@ import type { NetworkTranslations } from './types.js'
 export const zhTW: NetworkTranslations = {
   'network.wifi': 'Wi-Fi',
   'network.cellular': '行動數據',
-  'network.ethernet': 'Ethernet',
+  'network.ethernet': '乙太網路',
   'network.bluetooth': 'Bluetooth',
   'network.vpn': 'VPN',
   'network.other': '其他',

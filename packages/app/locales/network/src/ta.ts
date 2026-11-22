@@ -5,7 +5,7 @@ export const ta: NetworkTranslations = {
   'network.wifi': 'Wi-Fi',
   'network.cellular': 'செல்லுலார்',
   'network.ethernet': 'ஈதர்நெட்',
-  'network.bluetooth': 'புளூடூத்',
+  'network.bluetooth': 'Bluetooth',
   'network.vpn': 'VPN',
   'network.other': 'மற்றவை',
   'network.none': 'துண்டிக்கப்பட்டது',

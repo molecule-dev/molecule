@@ -4,8 +4,8 @@ import type { MindMapCanvasTranslations } from './types.js'
 export const ha: MindMapCanvasTranslations = {
   'mindMap.aria.canvas': 'Taswirar Mind Taswira',
   'mindMap.aria.edit': 'Gyara rubutun node',
-  'mindMap.action.collapse': 'Collapse subtree',
-  'mindMap.action.expand': 'Expand subtree',
+  'mindMap.action.collapse': 'Rufe ƙarƙashin bishiyar',
+  'mindMap.action.expand': 'Faɗaɗa ƙarƙashin bishiyar',
   'mindMap.action.addChild': 'Ƙara mahadar yara',
-  'mindMap.defaults.newChild': 'New idea',
+  'mindMap.defaults.newChild': "Sabuwar ra'ayi",
 }
