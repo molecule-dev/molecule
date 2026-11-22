@@ -6,6 +6,8 @@
  * `role=driver` (loopback only, with the hub's token). The hub forwards each
  * driver command to a page and the page's reply back, and broadcasts page
  * events (hello, navigated, console, pageerror, dialog, closed) to drivers.
+ * When `MOL_PREVIEW_BROWSER_LOG` names a file, the hub also appends the pages'
+ * console and pageerror events to it (`./preview-console-log.ts`).
  *
  * @module
  */
@@ -19,6 +21,7 @@ import type { Duplex } from 'node:stream'
 
 import { type WebSocket, WebSocketServer } from 'ws'
 
+import { createPreviewLogWriter, type PreviewLogWriter } from './preview-console-log.js'
 import { E2E_WS_PATH, type PagePeer, tokenFilePath } from './types.js'
 
 type Dict = Record<string, unknown>
@@ -55,15 +58,34 @@ export interface E2EHub {
 const LOOPBACK = new Set(['127.0.0.1', '::1', '::ffff:127.0.0.1'])
 const isLoopback = (address: string | undefined): boolean => !!address && LOOPBACK.has(address)
 
+/** Options for {@link attachE2EHub}. */
+export interface E2EHubOptions {
+  /** The driver token; defaults to `MOL_E2E_TOKEN`, else a random one. */
+  token?: string
+  /** The WebSocket path; defaults to `E2E_WS_PATH`. */
+  path?: string
+  /**
+   * Where the pages' console and pageerror events are written; defaults to the file
+   * `MOL_PREVIEW_BROWSER_LOG` names, and `null` writes nothing.
+   */
+  consoleLog?: PreviewLogWriter | null
+}
+
 /**
  * Attach the hub to an HTTP server (Vite's `server.httpServer`). Safe next to
  * Vite's own HMR upgrade listener: each ignores the other's path.
+ *
+ * @param httpServer - The dev or preview server's HTTP server.
+ * @param options - See {@link E2EHubOptions}.
+ * @returns The running hub.
  */
 export const attachE2EHub = (
   httpServer: UpgradeCapableServer,
-  options: { token?: string; path?: string } = {},
+  options: E2EHubOptions = {},
 ): E2EHub => {
   const path = options.path ?? E2E_WS_PATH
+  const consoleLog =
+    options.consoleLog === undefined ? createPreviewLogWriter() : options.consoleLog
   const token = options.token ?? process.env['MOL_E2E_TOKEN'] ?? randomUUID()
   const wss = new WebSocketServer({ noServer: true })
   const pages = new Map<string, PageConn>()
@@ -154,6 +176,7 @@ export const attachE2EHub = (
       if (typeof msg.event === 'string') {
         if (msg.event === 'visibility') peer.hidden = Boolean(msg.hidden)
         if (msg.event === 'navigated' && typeof msg.title === 'string') peer.title = msg.title
+        consoleLog?.(msg)
         broadcast({ ...msg, pageId: id })
       }
     })

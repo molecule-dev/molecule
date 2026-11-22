@@ -12,7 +12,11 @@
  * 1. A Vite plugin ({@link molE2EPreviewPlugin}) every scaffolded app carries.
  *    In `vite` dev and `vite preview` it serves a tiny page client, injects it
  *    into each document, and attaches a WebSocket hub to the dev server.
- *    `vite build` output is untouched.
+ *    `vite build` output is untouched. Apps add it through
+ *    `stripPreviewBridgePlugin()` from `@molecule/app-e2e-preview/vite`, which
+ *    also keeps the molecule.dev IDE preview bridges out of production builds.
+ *    When `MOL_PREVIEW_BROWSER_LOG` names a file (the platform sets it), the hub
+ *    appends the pages' console output and uncaught errors to it.
  * 2. The page client, which opens a same-origin WebSocket back to that hub
  *    (through whatever proxy serves the preview), runs `evaluate` requests,
  *    navigates on request, asks the framing IDE to resize on
@@ -31,8 +35,9 @@
  *
  * setProvider(resolveE2EProviderName() === 'preview' ? preview : playwright)
  *
- * // vite-preview-bridge-plugin.ts (scaffolded) — the plugin rides the existing molecule plugin
- * import { molE2EPreviewPlugin } from '@molecule/app-e2e-preview/vite'
+ * // vite.config.ts (scaffolded) — every molecule preview plugin in one entry
+ * import { stripPreviewBridgePlugin } from '@molecule/app-e2e-preview/vite'
+ * config.plugins = [...(config.plugins ?? []), stripPreviewBridgePlugin()]
  *
  * // any script — measure the live page without a test runner
  * import { connectPreview } from '@molecule/app-e2e-preview'

@@ -38,8 +38,14 @@ export const E2E_PREVIEW_CLIENT_SCRIPT = `${E2E_DRIVER_BANNER};(function () {
       return String(value)
     }
   }
+  // Console and error events from before the socket opens (a page that throws while it boots)
+  // wait here and go out right after hello; at most 200, so a page that never connects stays cheap.
+  var early = []
   var send = function (obj) {
-    try { if (ws && ws.readyState === 1) ws.send(JSON.stringify(obj)) } catch (e) {}
+    try {
+      if (ws && ws.readyState === 1) ws.send(JSON.stringify(obj))
+      else if ((obj.event === 'console' || obj.event === 'pageerror') && early.length < 200) early.push(obj)
+    } catch (e) {}
   }
   var describe = function (args) {
     var out = []
@@ -123,7 +129,12 @@ export const E2E_PREVIEW_CLIENT_SCRIPT = `${E2E_DRIVER_BANNER};(function () {
   var connect = function () {
     if (leaving) return
     try { ws = new WebSocket(proto + location.host + PATH + '?role=page&id=' + encodeURIComponent(pageId)) } catch (e) { setTimeout(connect, backoff); return }
-    ws.onopen = function () { backoff = 500; hello() }
+    ws.onopen = function () {
+      backoff = 500
+      hello()
+      var queued = early.splice(0, early.length)
+      for (var q = 0; q < queued.length; q++) send(queued[q])
+    }
     ws.onmessage = function (ev) {
       var msg = null
       try { msg = JSON.parse(ev.data) } catch (e) { return }

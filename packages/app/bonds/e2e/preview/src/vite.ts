@@ -23,9 +23,13 @@ import type { Plugin } from 'vite'
 import { E2E_RUNTIME_VERSION } from '@molecule/app-e2e-fixtures-default/runtime'
 
 import { E2E_PREVIEW_CLIENT_SCRIPT } from './client.js'
+import { previewBridgeBuildPlugins } from './preview-bridges.js'
 import { E2E_PREVIEW_RUNTIME_SCRIPT } from './runtime.js'
 import { attachE2EHub } from './server.js'
 import { E2E_CLIENT_PATH, E2E_RUNTIME_PATH } from './types.js'
+
+export * from './preview-bridges.js'
+export * from './preview-console-log.js'
 
 /** Options for {@link molE2EPreviewPlugin}. */
 export interface MolE2EPreviewPluginOptions {
@@ -200,9 +204,8 @@ const injectIntoHtmlResponses =
   }
 
 /**
- * The Vite plugin every scaffolded app carries (through its scaffold-owned
- * preview plugin file). Dev and preview servers get the hub and the client;
- * builds are untouched.
+ * The Vite plugin every scaffolded app carries (through {@link stripPreviewBridgePlugin}).
+ * Dev and preview servers get the hub and the client; builds are untouched.
  */
 export function molE2EPreviewPlugin(options: MolE2EPreviewPluginOptions = {}): Plugin {
   const enabled = options.enabled ?? process.env['MOL_E2E_PREVIEW_PLUGIN'] !== '0'
@@ -257,4 +260,33 @@ export function molE2EPreviewPlugin(options: MolE2EPreviewPluginOptions = {}): P
       },
     },
   }
+}
+
+/** Options for {@link stripPreviewBridgePlugin}. */
+export interface StripPreviewBridgePluginOptions {
+  /**
+   * A SvelteKit app: only the e2e transport is returned, without its `transformIndexHtml` hook.
+   * Kit writes its own HTML and its adapter writes the site after every bundle closes, so the
+   * strip, drop and assert run on the finished site instead
+   * (`svelteKitStaticSite` from `@molecule/app-vite-config-default/sveltekit`).
+   */
+  svelteKit?: boolean
+}
+
+/**
+ * Every molecule preview plugin as one `plugins: [...]` entry (Vite flattens nested arrays): the
+ * build-only bridge strip ({@link previewBridgeBuildPlugins}) and the e2e transport
+ * ({@link molE2EPreviewPlugin}), whose hub also writes the page console to the file
+ * `MOL_PREVIEW_BROWSER_LOG` names.
+ *
+ * @param options - See {@link StripPreviewBridgePluginOptions}.
+ * @returns The plugins.
+ */
+export const stripPreviewBridgePlugin = ({
+  svelteKit = false,
+}: StripPreviewBridgePluginOptions = {}): Plugin[] => {
+  const e2ePreview = molE2EPreviewPlugin()
+  if (!svelteKit) return [...previewBridgeBuildPlugins(), e2ePreview]
+  const { transformIndexHtml: _html, ...withoutHtml } = e2ePreview
+  return [withoutHtml]
 }
