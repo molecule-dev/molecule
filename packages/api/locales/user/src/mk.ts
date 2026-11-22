@@ -33,6 +33,7 @@ export const mk: UserTranslations = {
     '<p>Вашиот токен за ресетирање на лозинка е: <strong>{{token}}</strong></p>',
   'user.email.passwordResetHtmlLink': '<p><a href="{{url}}">Ресетирајте ја лозинката</a></p>',
   'user.error.failedToProcessPasswordReset': 'Неуспешна обработка на ресетирање на лозинка.',
+  'user.error.passwordResetUnavailable': 'Ресетирањето на лозинката не е достапно.',
   'user.error.newPasswordRequired': 'Новата лозинка е задолжителна.',
   'user.error.currentPasswordRequired': 'Тековната лозинка е задолжителна.',
   'user.error.currentPasswordIncorrect': 'Тековната лозинка е неточна.',

@@ -33,6 +33,7 @@ export const ar: UserTranslations = {
     '<p>رمز إعادة تعيين كلمة المرور الخاص بك هو: <strong>{{token}}</strong></p>',
   'user.email.passwordResetHtmlLink': '<p><a href="{{url}}">أعد تعيين كلمة المرور</a></p>',
   'user.error.failedToProcessPasswordReset': 'فشلت معالجة إعادة تعيين كلمة المرور.',
+  'user.error.passwordResetUnavailable': 'إعادة تعيين كلمة المرور غير متاحة.',
   'user.error.newPasswordRequired': 'كلمة المرور الجديدة مطلوبة.',
   'user.error.currentPasswordRequired': 'كلمة المرور الحالية مطلوبة.',
   'user.error.currentPasswordIncorrect': 'كلمة المرور الحالية غير صحيحة.',

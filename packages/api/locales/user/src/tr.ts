@@ -32,6 +32,7 @@ export const tr: UserTranslations = {
   'user.email.passwordResetHtml': '<p>Şifre sıfırlama jetonunuz: <strong>{{token}}</strong></p>',
   'user.email.passwordResetHtmlLink': '<p><a href="{{url}}">Şifrenizi sıfırlayın</a></p>',
   'user.error.failedToProcessPasswordReset': 'Şifre sıfırlama işlemi başarısız oldu.',
+  'user.error.passwordResetUnavailable': 'Şifre sıfırlama kullanılamıyor.',
   'user.error.newPasswordRequired': 'Yeni şifre gereklidir.',
   'user.error.currentPasswordRequired': 'Mevcut şifre gereklidir.',
   'user.error.currentPasswordIncorrect': 'Mevcut şifre yanlış.',

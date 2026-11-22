@@ -33,6 +33,7 @@ export const th: UserTranslations = {
     '<p>โทเค็นรีเซ็ตรหัสผ่านของคุณคือ: <strong>{{token}}</strong></p>',
   'user.email.passwordResetHtmlLink': '<p><a href="{{url}}">รีเซ็ตรหัสผ่านของคุณ</a></p>',
   'user.error.failedToProcessPasswordReset': 'ดำเนินการรีเซ็ตรหัสผ่านไม่สำเร็จ',
+  'user.error.passwordResetUnavailable': 'การรีเซ็ตรหัสผ่านไม่พร้อมใช้งาน',
   'user.error.newPasswordRequired': 'ต้องระบุรหัสผ่านใหม่',
   'user.error.currentPasswordRequired': 'ต้องระบุรหัสผ่านปัจจุบัน',
   'user.error.currentPasswordIncorrect': 'รหัสผ่านปัจจุบันไม่ถูกต้อง',

@@ -33,6 +33,7 @@ export const kk: UserTranslations = {
     '<p>Құпия сөзді қалпына келтіру токені: <strong>{{token}}</strong></p>',
   'user.email.passwordResetHtmlLink': '<p><a href="{{url}}">Құпия сөзді қалпына келтіру</a></p>',
   'user.error.failedToProcessPasswordReset': 'Құпия сөзді қалпына келтіруді өңдеу сәтсіз аяқталды.',
+  'user.error.passwordResetUnavailable': 'Құпия сөзді қалпына келтіру қолжетімсіз.',
   'user.error.newPasswordRequired': 'Жаңа құпия сөз қажет.',
   'user.error.currentPasswordRequired': 'Ағымдағы құпия сөз қажет.',
   'user.error.currentPasswordIncorrect': 'Ағымдағы құпия сөз дұрыс емес.',

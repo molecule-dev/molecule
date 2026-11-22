@@ -34,6 +34,7 @@ export const it: UserTranslations = {
   'user.email.passwordResetHtmlLink': '<p><a href="{{url}}">Reimposta la tua password</a></p>',
   'user.error.failedToProcessPasswordReset':
     'Impossibile elaborare la reimpostazione della password.',
+  'user.error.passwordResetUnavailable': 'Il ripristino della password non è disponibile.',
   'user.error.newPasswordRequired': 'Una nuova password è obbligatoria.',
   'user.error.currentPasswordRequired': 'La password attuale è obbligatoria.',
   'user.error.currentPasswordIncorrect': 'La password attuale non è corretta.',

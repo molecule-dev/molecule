@@ -34,6 +34,7 @@ export const nl: UserTranslations = {
     '<p>Uw token voor het opnieuw instellen van het wachtwoord is: <strong>{{token}}</strong></p>',
   'user.email.passwordResetHtmlLink': '<p><a href="{{url}}">Stel uw wachtwoord opnieuw in</a></p>',
   'user.error.failedToProcessPasswordReset': 'Kon wachtwoordherstel niet verwerken.',
+  'user.error.passwordResetUnavailable': 'Wachtwoord opnieuw instellen is niet beschikbaar.',
   'user.error.newPasswordRequired': 'Nieuw wachtwoord is vereist.',
   'user.error.currentPasswordRequired': 'Huidig wachtwoord is vereist.',
   'user.error.currentPasswordIncorrect': 'Huidig wachtwoord is onjuist.',

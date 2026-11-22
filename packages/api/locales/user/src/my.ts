@@ -35,6 +35,7 @@ export const my: UserTranslations = {
     '<p><a href="{{url}}">သင့်စကားဝှက်ကို ပြန်လည်သတ်မှတ်ပါ</a></p>',
   'user.error.failedToProcessPasswordReset':
     'စကားဝှက် ပြန်လည်သတ်မှတ်ခြင်း လုပ်ဆောင်ရန် မအောင်မြင်ပါ။',
+  'user.error.passwordResetUnavailable': 'စကားဝှက် ပြန်လည်သတ်မှတ်ခြင်း မရရှိနိုင်ပါ။',
   'user.error.newPasswordRequired': 'စကားဝှက်အသစ် လိုအပ်ပါသည်။',
   'user.error.currentPasswordRequired': 'လက်ရှိ စကားဝှက် လိုအပ်ပါသည်။',
   'user.error.currentPasswordIncorrect': 'လက်ရှိ စကားဝှက် မှားနေသည်။',

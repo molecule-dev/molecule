@@ -32,6 +32,7 @@ export const gu: UserTranslations = {
   'user.email.passwordResetHtml': '<p>તમારો પાસવર્ડ રિસેટ ટોકન: <strong>{{token}}</strong></p>',
   'user.email.passwordResetHtmlLink': '<p><a href="{{url}}">તમારો પાસવર્ડ રિસેટ કરો</a></p>',
   'user.error.failedToProcessPasswordReset': 'પાસવર્ડ રિસેટ પ્રક્રિયા કરવામાં નિષ્ફળ.',
+  'user.error.passwordResetUnavailable': 'પાસવર્ડ રીસેટ ઉપલબ્ધ નથી.',
   'user.error.newPasswordRequired': 'નવો પાસવર્ડ જરૂરી છે.',
   'user.error.currentPasswordRequired': 'વર્તમાન પાસવર્ડ જરૂરી છે.',
   'user.error.currentPasswordIncorrect': 'વર્તમાન પાસવર્ડ ખોટો છે.',

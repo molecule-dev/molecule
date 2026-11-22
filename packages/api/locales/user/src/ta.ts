@@ -34,6 +34,7 @@ export const ta: UserTranslations = {
   'user.email.passwordResetHtmlLink':
     '<p><a href="{{url}}">உங்கள் கடவுச்சொல்லை மீட்டமைக்கவும்</a></p>',
   'user.error.failedToProcessPasswordReset': 'கடவுச்சொல் மீட்டமைப்பு செயலாக்கத்தில் தோல்வி.',
+  'user.error.passwordResetUnavailable': 'கடவுச்சொல் மீட்டமைப்பு கிடைக்கவில்லை.',
   'user.error.newPasswordRequired': 'புதிய கடவுச்சொல் தேவை.',
   'user.error.currentPasswordRequired': 'தற்போதைய கடவுச்சொல் தேவை.',
   'user.error.currentPasswordIncorrect': 'தற்போதைய கடவுச்சொல் தவறானது.',

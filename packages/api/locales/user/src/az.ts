@@ -32,6 +32,7 @@ export const az: UserTranslations = {
   'user.email.passwordResetHtml': '<p>Parol sıfırlama tokeniniz: <strong>{{token}}</strong></p>',
   'user.email.passwordResetHtmlLink': '<p><a href="{{url}}">Parolunuzu sıfırlayın</a></p>',
   'user.error.failedToProcessPasswordReset': 'Parol sıfırlama əməliyyatı uğursuz oldu.',
+  'user.error.passwordResetUnavailable': 'Parolun sıfırlanması mövcud deyil.',
   'user.error.newPasswordRequired': 'Yeni parol tələb olunur.',
   'user.error.currentPasswordRequired': 'Cari parol tələb olunur.',
   'user.error.currentPasswordIncorrect': 'Cari parol yanlışdır.',

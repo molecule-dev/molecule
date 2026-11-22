@@ -32,6 +32,7 @@ export const uk: UserTranslations = {
   'user.email.passwordResetHtml': '<p>Ваш токен скидання пароля: <strong>{{token}}</strong></p>',
   'user.email.passwordResetHtmlLink': '<p><a href="{{url}}">Скинути пароль</a></p>',
   'user.error.failedToProcessPasswordReset': 'Не вдалося обробити скидання пароля.',
+  'user.error.passwordResetUnavailable': 'Скидання пароля недоступне.',
   'user.error.newPasswordRequired': "Новий пароль є обов'язковим.",
   'user.error.currentPasswordRequired': "Поточний пароль є обов'язковим.",
   'user.error.currentPasswordIncorrect': 'Поточний пароль неправильний.',

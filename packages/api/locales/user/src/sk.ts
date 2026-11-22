@@ -33,6 +33,7 @@ export const sk: UserTranslations = {
     '<p>Váš token na obnovenie hesla je: <strong>{{token}}</strong></p>',
   'user.email.passwordResetHtmlLink': '<p><a href="{{url}}">Obnovte svoje heslo</a></p>',
   'user.error.failedToProcessPasswordReset': 'Nepodarilo sa spracovať obnovenie hesla.',
+  'user.error.passwordResetUnavailable': 'Obnovenie hesla nie je dostupné.',
   'user.error.newPasswordRequired': 'Nové heslo je povinné.',
   'user.error.currentPasswordRequired': 'Aktuálne heslo je povinné.',
   'user.error.currentPasswordIncorrect': 'Aktuálne heslo je nesprávne.',

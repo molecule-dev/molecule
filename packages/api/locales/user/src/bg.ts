@@ -33,6 +33,7 @@ export const bg: UserTranslations = {
     '<p>Вашият токен за нулиране на парола е: <strong>{{token}}</strong></p>',
   'user.email.passwordResetHtmlLink': '<p><a href="{{url}}">Нулирайте паролата си</a></p>',
   'user.error.failedToProcessPasswordReset': 'Неуспешна обработка на нулиране на парола.',
+  'user.error.passwordResetUnavailable': 'Нулирането на паролата не е налично.',
   'user.error.newPasswordRequired': 'Новата парола е задължителна.',
   'user.error.currentPasswordRequired': 'Текущата парола е задължителна.',
   'user.error.currentPasswordIncorrect': 'Текущата парола е неправилна.',

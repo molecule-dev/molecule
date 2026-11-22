@@ -32,6 +32,7 @@ export const ur: UserTranslations = {
   'user.email.passwordResetHtml': '<p>آپ کا پاس ورڈ ری سیٹ ٹوکن: <strong>{{token}}</strong></p>',
   'user.email.passwordResetHtmlLink': '<p><a href="{{url}}">اپنا پاس ورڈ ری سیٹ کریں</a></p>',
   'user.error.failedToProcessPasswordReset': 'پاس ورڈ ری سیٹ عمل میں ناکامی۔',
+  'user.error.passwordResetUnavailable': 'پاس ورڈ ری سیٹ دستیاب نہیں ہے۔',
   'user.error.newPasswordRequired': 'نیا پاس ورڈ درکار ہے۔',
   'user.error.currentPasswordRequired': 'موجودہ پاس ورڈ درکار ہے۔',
   'user.error.currentPasswordIncorrect': 'موجودہ پاس ورڈ غلط ہے۔',

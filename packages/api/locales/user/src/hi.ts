@@ -32,6 +32,7 @@ export const hi: UserTranslations = {
   'user.email.passwordResetHtml': '<p>आपका पासवर्ड रीसेट टोकन है: <strong>{{token}}</strong></p>',
   'user.email.passwordResetHtmlLink': '<p><a href="{{url}}">अपना पासवर्ड रीसेट करें</a></p>',
   'user.error.failedToProcessPasswordReset': 'पासवर्ड रीसेट प्रक्रिया में विफल।',
+  'user.error.passwordResetUnavailable': 'पासवर्ड रीसेट उपलब्ध नहीं है।',
   'user.error.newPasswordRequired': 'नया पासवर्ड आवश्यक है।',
   'user.error.currentPasswordRequired': 'वर्तमान पासवर्ड आवश्यक है।',
   'user.error.currentPasswordIncorrect': 'वर्तमान पासवर्ड गलत है।',

@@ -33,6 +33,7 @@ export const et: UserTranslations = {
     '<p>Teie parooli lähtestamise token on: <strong>{{token}}</strong></p>',
   'user.email.passwordResetHtmlLink': '<p><a href="{{url}}">Lähtestage oma parool</a></p>',
   'user.error.failedToProcessPasswordReset': 'Parooli lähtestamise töötlemine ebaõnnestus.',
+  'user.error.passwordResetUnavailable': 'Parooli lähtestamine pole saadaval.',
   'user.error.newPasswordRequired': 'Uus parool on nõutav.',
   'user.error.currentPasswordRequired': 'Praegune parool on nõutav.',
   'user.error.currentPasswordIncorrect': 'Praegune parool on vale.',

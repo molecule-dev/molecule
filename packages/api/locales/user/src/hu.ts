@@ -33,6 +33,7 @@ export const hu: UserTranslations = {
     '<p>Az Ön jelszó visszaállítási tokenje: <strong>{{token}}</strong></p>',
   'user.email.passwordResetHtmlLink': '<p><a href="{{url}}">Jelszó visszaállítása</a></p>',
   'user.error.failedToProcessPasswordReset': 'A jelszó visszaállítás feldolgozása sikertelen.',
+  'user.error.passwordResetUnavailable': 'A jelszó-visszaállítás nem elérhető.',
   'user.error.newPasswordRequired': 'Az új jelszó megadása kötelező.',
   'user.error.currentPasswordRequired': 'A jelenlegi jelszó megadása kötelező.',
   'user.error.currentPasswordIncorrect': 'A jelenlegi jelszó helytelen.',

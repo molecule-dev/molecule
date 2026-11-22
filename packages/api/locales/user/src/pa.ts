@@ -32,6 +32,7 @@ export const pa: UserTranslations = {
   'user.email.passwordResetHtml': '<p>ਤੁਹਾਡਾ ਪਾਸਵਰਡ ਰੀਸੈੱਟ ਟੋਕਨ: <strong>{{token}}</strong></p>',
   'user.email.passwordResetHtmlLink': '<p><a href="{{url}}">ਆਪਣਾ ਪਾਸਵਰਡ ਰੀਸੈੱਟ ਕਰੋ</a></p>',
   'user.error.failedToProcessPasswordReset': 'ਪਾਸਵਰਡ ਰੀਸੈੱਟ ਪ੍ਰਕਿਰਿਆ ਵਿੱਚ ਅਸਫਲ।',
+  'user.error.passwordResetUnavailable': 'ਪਾਸਵਰਡ ਰੀਸੈੱਟ ਉਪਲਬਧ ਨਹੀਂ ਹੈ।',
   'user.error.newPasswordRequired': 'ਨਵਾਂ ਪਾਸਵਰਡ ਲੋੜੀਂਦਾ ਹੈ।',
   'user.error.currentPasswordRequired': 'ਮੌਜੂਦਾ ਪਾਸਵਰਡ ਲੋੜੀਂਦਾ ਹੈ।',
   'user.error.currentPasswordIncorrect': 'ਮੌਜੂਦਾ ਪਾਸਵਰਡ ਗ਼ਲਤ ਹੈ।',

@@ -33,6 +33,7 @@ export const lo: UserTranslations = {
     '<p>Token ຕັ້ງລະຫັດຜ່ານໃໝ່ຂອງທ່ານແມ່ນ: <strong>{{token}}</strong></p>',
   'user.email.passwordResetHtmlLink': '<p><a href="{{url}}">ຕັ້ງລະຫັດຜ່ານໃໝ່ຂອງທ່ານ</a></p>',
   'user.error.failedToProcessPasswordReset': 'ບໍ່ສາມາດດຳເນີນການຕັ້ງລະຫັດຜ່ານໃໝ່ໄດ້.',
+  'user.error.passwordResetUnavailable': 'ການຣີເຊັດລະຫັດຜ່ານບໍ່ພ້ອມໃຊ້ງານ.',
   'user.error.newPasswordRequired': 'ຕ້ອງການລະຫັດຜ່ານໃໝ່.',
   'user.error.currentPasswordRequired': 'ຕ້ອງການລະຫັດຜ່ານປັດຈຸບັນ.',
   'user.error.currentPasswordIncorrect': 'ລະຫັດຜ່ານປັດຈຸບັນບໍ່ຖືກຕ້ອງ.',

@@ -34,6 +34,7 @@ export type UserTranslationKey =
   | 'user.email.passwordResetHtml'
   | 'user.email.passwordResetHtmlLink'
   | 'user.error.failedToProcessPasswordReset'
+  | 'user.error.passwordResetUnavailable'
   | 'user.error.newPasswordRequired'
   | 'user.error.currentPasswordRequired'
   | 'user.error.currentPasswordIncorrect'

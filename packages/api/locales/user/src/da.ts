@@ -33,6 +33,7 @@ export const da: UserTranslations = {
     '<p>Dit token til nulstilling af adgangskode er: <strong>{{token}}</strong></p>',
   'user.email.passwordResetHtmlLink': '<p><a href="{{url}}">Nulstil din adgangskode</a></p>',
   'user.error.failedToProcessPasswordReset': 'Kunne ikke behandle nulstilling af adgangskode.',
+  'user.error.passwordResetUnavailable': 'Nulstilling af adgangskode er ikke tilgængelig.',
   'user.error.newPasswordRequired': 'Ny adgangskode er påkrævet.',
   'user.error.currentPasswordRequired': 'Nuværende adgangskode er påkrævet.',
   'user.error.currentPasswordIncorrect': 'Nuværende adgangskode er forkert.',

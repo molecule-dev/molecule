@@ -32,6 +32,7 @@ export const mn: UserTranslations = {
   'user.email.passwordResetHtml': '<p>Таны нууц үг шинэчлэх токен: <strong>{{token}}</strong></p>',
   'user.email.passwordResetHtmlLink': '<p><a href="{{url}}">Нууц үгээ шинэчлэх</a></p>',
   'user.error.failedToProcessPasswordReset': 'Нууц үг шинэчлэх процесс амжилтгүй.',
+  'user.error.passwordResetUnavailable': 'Нууц үг сэргээх боломжгүй.',
   'user.error.newPasswordRequired': 'Шинэ нууц үг шаардлагатай.',
   'user.error.currentPasswordRequired': 'Одоогийн нууц үг шаардлагатай.',
   'user.error.currentPasswordIncorrect': 'Одоогийн нууц үг буруу байна.',

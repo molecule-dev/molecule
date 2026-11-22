@@ -33,6 +33,7 @@ export const yo: UserTranslations = {
     '<p>Tokini atunto ọrọ igbaniwọle rẹ ni: <strong>{{token}}</strong></p>',
   'user.email.passwordResetHtmlLink': '<p><a href="{{url}}">Tun ọrọ igbaniwọle rẹ ṣe</a></p>',
   'user.error.failedToProcessPasswordReset': 'Ṣiṣe atunto ọrọ igbaniwọle kuna.',
+  'user.error.passwordResetUnavailable': 'Atunto ọrọ igbaniwọle ko si.',
   'user.error.newPasswordRequired': 'A nilo ọrọ igbaniwọle tuntun.',
   'user.error.currentPasswordRequired': 'A nilo ọrọ igbaniwọle lọwọlọwọ.',
   'user.error.currentPasswordIncorrect': 'Ọrọ igbaniwọle lọwọlọwọ ko tọ.',

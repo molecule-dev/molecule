@@ -274,7 +274,8 @@
  * login / signup / logout — do NOT hand-roll those against the raw routes. The rest have NO
  * client method; call them with raw `http.*`. Use these EXACT paths — a weak model guesses
  * `/api/auth/*` or `/api/user` (singular), and neither exists:
- * - `POST   /api/users/forgot-password` — request a reset email (body `{ email }`)
+ * - `POST   /api/users/forgot-password` — request a reset email (body `{ email }`); answers 501
+ *   `user.error.passwordResetUnavailable` until an email provider is bonded
  * - `POST   /api/users/reset-password` — confirm with the emailed token (body `{ token, password }`)
  * - `PATCH  /api/users/:id` — update profile fields (name, username, email, bio); NOT `PUT /api/user`
  * - `PATCH  /api/users/:id/password` — change password · `DELETE /api/users/:id` — delete account

@@ -32,6 +32,7 @@ export const ja: UserTranslations = {
   'user.email.passwordResetHtml': '<p>パスワードリセットトークン: <strong>{{token}}</strong></p>',
   'user.email.passwordResetHtmlLink': '<p><a href="{{url}}">パスワードをリセット</a></p>',
   'user.error.failedToProcessPasswordReset': 'パスワードリセットの処理に失敗しました。',
+  'user.error.passwordResetUnavailable': 'パスワードのリセットは利用できません。',
   'user.error.newPasswordRequired': '新しいパスワードは必須です。',
   'user.error.currentPasswordRequired': '現在のパスワードは必須です。',
   'user.error.currentPasswordIncorrect': '現在のパスワードが正しくありません。',

@@ -31,6 +31,7 @@ export const am: UserTranslations = {
   'user.email.passwordResetHtml': '<p>የይለፍ ቃል ዳግም ማስጀመሪያ ቶከንዎ: <strong>{{token}}</strong></p>',
   'user.email.passwordResetHtmlLink': '<p><a href="{{url}}">የይለፍ ቃልዎን ያስጀምሩ</a></p>',
   'user.error.failedToProcessPasswordReset': 'የይለፍ ቃል ዳግም ማስጀመርን ማስኬድ አልተሳካም።',
+  'user.error.passwordResetUnavailable': 'የይለፍ ቃል ዳግም ማስጀመር አይገኝም።',
   'user.error.newPasswordRequired': 'አዲስ የይለፍ ቃል ያስፈልጋል።',
   'user.error.currentPasswordRequired': 'የአሁኑ የይለፍ ቃል ያስፈልጋል።',
   'user.error.currentPasswordIncorrect': 'የአሁኑ የይለፍ ቃል ትክክል አይደለም።',

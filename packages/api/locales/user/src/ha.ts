@@ -33,6 +33,7 @@ export const ha: UserTranslations = {
     '<p>Token ɗin sake saita kalmar sirri ku shine: <strong>{{token}}</strong></p>',
   'user.email.passwordResetHtmlLink': '<p><a href="{{url}}">Sake saita kalmar sirri</a></p>',
   'user.error.failedToProcessPasswordReset': 'An kasa sarrafa sake saita kalmar sirri.',
+  'user.error.passwordResetUnavailable': 'Ba a samun sake saita kalmar sirri.',
   'user.error.newPasswordRequired': 'Ana buƙatar sabuwar kalmar sirri.',
   'user.error.currentPasswordRequired': 'Ana buƙatar kalmar sirri na yanzu.',
   'user.error.currentPasswordIncorrect': 'Kalmar sirri na yanzu ba ta dace ba.',

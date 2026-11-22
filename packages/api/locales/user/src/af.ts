@@ -32,6 +32,7 @@ export const af: UserTranslations = {
   'user.email.passwordResetHtml': '<p>Jou wagwoordherstelteken is: <strong>{{token}}</strong></p>',
   'user.email.passwordResetHtmlLink': '<p><a href="{{url}}">Herstel jou wagwoord</a></p>',
   'user.error.failedToProcessPasswordReset': 'Kon nie wagwoordherstel verwerk nie.',
+  'user.error.passwordResetUnavailable': 'Wagwoordherstel is nie beskikbaar nie.',
   'user.error.newPasswordRequired': 'Nuwe wagwoord word vereis.',
   'user.error.currentPasswordRequired': 'Huidige wagwoord word vereis.',
   'user.error.currentPasswordIncorrect': 'Huidige wagwoord is verkeerd.',

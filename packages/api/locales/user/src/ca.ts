@@ -35,6 +35,7 @@ export const ca: UserTranslations = {
     '<p><a href="{{url}}">Restabliu la vostra contrasenya</a></p>',
   'user.error.failedToProcessPasswordReset':
     "No s'ha pogut processar el restabliment de contrasenya.",
+  'user.error.passwordResetUnavailable': 'El restabliment de la contrasenya no està disponible.',
   'user.error.newPasswordRequired': 'Es requereix una contrasenya nova.',
   'user.error.currentPasswordRequired': 'Es requereix la contrasenya actual.',
   'user.error.currentPasswordIncorrect': 'La contrasenya actual és incorrecta.',

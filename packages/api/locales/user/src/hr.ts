@@ -33,6 +33,7 @@ export const hr: UserTranslations = {
     '<p>Vaš token za ponovno postavljanje lozinke je: <strong>{{token}}</strong></p>',
   'user.email.passwordResetHtmlLink': '<p><a href="{{url}}">Ponovno postavite lozinku</a></p>',
   'user.error.failedToProcessPasswordReset': 'Obrada ponovnog postavljanja lozinke nije uspjela.',
+  'user.error.passwordResetUnavailable': 'Ponovno postavljanje lozinke nije dostupno.',
   'user.error.newPasswordRequired': 'Nova lozinka je obavezna.',
   'user.error.currentPasswordRequired': 'Trenutna lozinka je obavezna.',
   'user.error.currentPasswordIncorrect': 'Trenutna lozinka je netočna.',

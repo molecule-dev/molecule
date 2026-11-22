@@ -33,6 +33,7 @@ export const sv: UserTranslations = {
     '<p>Din token för lösenordsåterställning är: <strong>{{token}}</strong></p>',
   'user.email.passwordResetHtmlLink': '<p><a href="{{url}}">Återställ ditt lösenord</a></p>',
   'user.error.failedToProcessPasswordReset': 'Kunde inte behandla lösenordsåterställning.',
+  'user.error.passwordResetUnavailable': 'Återställning av lösenord är inte tillgänglig.',
   'user.error.newPasswordRequired': 'Nytt lösenord krävs.',
   'user.error.currentPasswordRequired': 'Nuvarande lösenord krävs.',
   'user.error.currentPasswordIncorrect': 'Nuvarande lösenord är felaktigt.',

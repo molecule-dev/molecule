@@ -33,6 +33,7 @@ export const sw: UserTranslations = {
     '<p>Tokeni yako ya kuweka upya nenosiri ni: <strong>{{token}}</strong></p>',
   'user.email.passwordResetHtmlLink': '<p><a href="{{url}}">Weka upya nenosiri lako</a></p>',
   'user.error.failedToProcessPasswordReset': 'Imeshindwa kusindika kuweka upya nenosiri.',
+  'user.error.passwordResetUnavailable': 'Kuweka upya nenosiri hakupatikani.',
   'user.error.newPasswordRequired': 'Nenosiri jipya linahitajika.',
   'user.error.currentPasswordRequired': 'Nenosiri la sasa linahitajika.',
   'user.error.currentPasswordIncorrect': 'Nenosiri la sasa si sahihi.',

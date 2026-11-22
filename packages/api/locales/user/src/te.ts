@@ -32,6 +32,7 @@ export const te: UserTranslations = {
   'user.email.passwordResetHtml': '<p>మీ పాస్‌వర్డ్ రీసెట్ టోకన్: <strong>{{token}}</strong></p>',
   'user.email.passwordResetHtmlLink': '<p><a href="{{url}}">మీ పాస్‌వర్డ్ రీసెట్ చేయండి</a></p>',
   'user.error.failedToProcessPasswordReset': 'పాస్‌వర్డ్ రీసెట్ ప్రాసెస్ చేయడంలో విఫలమైంది.',
+  'user.error.passwordResetUnavailable': 'పాస్‌వర్డ్ రీసెట్ అందుబాటులో లేదు.',
   'user.error.newPasswordRequired': 'కొత్త పాస్‌వర్డ్ అవసరం.',
   'user.error.currentPasswordRequired': 'ప్రస్తుత పాస్‌వర్డ్ అవసరం.',
   'user.error.currentPasswordIncorrect': 'ప్రస్తుత పాస్‌వర్డ్ తప్పు.',

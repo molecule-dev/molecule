@@ -31,6 +31,7 @@ export const zhTW: UserTranslations = {
   'user.email.passwordResetHtml': '<p>您的密碼重設權杖是：<strong>{{token}}</strong></p>',
   'user.email.passwordResetHtmlLink': '<p><a href="{{url}}">重設密碼</a></p>',
   'user.error.failedToProcessPasswordReset': '密碼重設處理失敗。',
+  'user.error.passwordResetUnavailable': '密碼重設無法使用。',
   'user.error.newPasswordRequired': '新密碼為必填。',
   'user.error.currentPasswordRequired': '目前密碼為必填。',
   'user.error.currentPasswordIncorrect': '目前密碼不正確。',

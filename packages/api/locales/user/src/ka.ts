@@ -34,6 +34,7 @@ export const ka: UserTranslations = {
     '<p>Tqveni parolis ghhdgadgenis tokenia: <strong>{{token}}</strong></p>',
   'user.email.passwordResetHtmlLink': '<p><a href="{{url}}">Aaghhdginet Tqveni paroli</a></p>',
   'user.error.failedToProcessPasswordReset': 'Parolis ghhdgadgenies damamushaveba ver mokherkhda.',
+  'user.error.passwordResetUnavailable': 'პაროლის აღდგენა მიუწვდომელია.',
   'user.error.newPasswordRequired': 'Akhali paroli sachiroa.',
   'user.error.currentPasswordRequired': 'Mimdinare paroli sachiroa.',
   'user.error.currentPasswordIncorrect': 'Mimdinare paroli arastoria.',

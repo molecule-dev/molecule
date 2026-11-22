@@ -33,6 +33,7 @@ export const ga: UserTranslations = {
     '<p>Is é do chomhartha athshocrú pasfhocail: <strong>{{token}}</strong></p>',
   'user.email.passwordResetHtmlLink': '<p><a href="{{url}}">Athshocraigh do phasfhocal</a></p>',
   'user.error.failedToProcessPasswordReset': 'Theip ar phróiseáil athshocrú pasfhocail.',
+  'user.error.passwordResetUnavailable': 'Níl athshocrú pasfhocail ar fáil.',
   'user.error.newPasswordRequired': 'Tá pasfhocal nua ag teastáil.',
   'user.error.currentPasswordRequired': 'Tá pasfhocal reatha ag teastáil.',
   'user.error.currentPasswordIncorrect': 'Pasfhocal reatha mícheart.',

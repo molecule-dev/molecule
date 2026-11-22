@@ -35,6 +35,7 @@ export const zu: UserTranslations = {
   'user.email.passwordResetHtmlLink': '<p><a href="{{url}}">Setha kabusha iphasiwedi yakho</a></p>',
   'user.error.failedToProcessPasswordReset':
     'Yehlulekile ukucubungula ukusetha kabusha iphasiwedi.',
+  'user.error.passwordResetUnavailable': 'Ukusetha kabusha iphasiwedi akutholakali.',
   'user.error.newPasswordRequired': 'Iphasiwedi entsha iyadingeka.',
   'user.error.currentPasswordRequired': 'Iphasiwedi yamanje iyadingeka.',
   'user.error.currentPasswordIncorrect': 'Iphasiwedi yamanje ayilungile.',

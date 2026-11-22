@@ -33,6 +33,7 @@ export const ne: UserTranslations = {
   'user.email.passwordResetHtmlLink':
     '<p><a href="{{url}}">तपाईंको पासवर्ड रिसेट गर्नुहोस्</a></p>',
   'user.error.failedToProcessPasswordReset': 'पासवर्ड रिसेट प्रक्रिया गर्न असफल।',
+  'user.error.passwordResetUnavailable': 'पासवर्ड रिसेट उपलब्ध छैन।',
   'user.error.newPasswordRequired': 'नयाँ पासवर्ड आवश्यक छ।',
   'user.error.currentPasswordRequired': 'हालको पासवर्ड आवश्यक छ।',
   'user.error.currentPasswordIncorrect': 'हालको पासवर्ड गलत छ।',

@@ -32,6 +32,7 @@ export const fa: UserTranslations = {
   'user.email.passwordResetHtml': '<p>توکن بازنشانی رمز عبور شما: <strong>{{token}}</strong></p>',
   'user.email.passwordResetHtmlLink': '<p><a href="{{url}}">بازنشانی رمز عبور</a></p>',
   'user.error.failedToProcessPasswordReset': 'پردازش بازنشانی رمز عبور ناموفق بود.',
+  'user.error.passwordResetUnavailable': 'بازنشانی رمز عبور در دسترس نیست.',
   'user.error.newPasswordRequired': 'رمز عبور جدید الزامی است.',
   'user.error.currentPasswordRequired': 'رمز عبور فعلی الزامی است.',
   'user.error.currentPasswordIncorrect': 'رمز عبور فعلی نادرست است.',

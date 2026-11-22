@@ -33,6 +33,7 @@ export const sq: UserTranslations = {
     '<p>Token-i juaj i rivendosjes se fjalekalimit eshte: <strong>{{token}}</strong></p>',
   'user.email.passwordResetHtmlLink': '<p><a href="{{url}}">Rivendosni fjalekalimin tuaj</a></p>',
   'user.error.failedToProcessPasswordReset': 'Deshtoi perpunimi i rivendosjes se fjalekalimit.',
+  'user.error.passwordResetUnavailable': 'Rivendosja e fjalëkalimit nuk është e disponueshme.',
   'user.error.newPasswordRequired': 'Kerkohet fjalekalimi i ri.',
   'user.error.currentPasswordRequired': 'Kerkohet fjalekalimi aktual.',
   'user.error.currentPasswordIncorrect': 'Fjalekalimi aktual eshte i pasakte.',

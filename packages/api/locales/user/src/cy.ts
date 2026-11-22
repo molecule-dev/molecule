@@ -33,6 +33,7 @@ export const cy: UserTranslations = {
     '<p>Eich tocyn ailosod cyfrinair yw: <strong>{{token}}</strong></p>',
   'user.email.passwordResetHtmlLink': '<p><a href="{{url}}">Ailosodwch eich cyfrinair</a></p>',
   'user.error.failedToProcessPasswordReset': 'Methwyd prosesu ailosod cyfrinair.',
+  'user.error.passwordResetUnavailable': 'Nid yw ailosod cyfrinair ar gael.',
   'user.error.newPasswordRequired': 'Mae angen cyfrinair newydd.',
   'user.error.currentPasswordRequired': 'Mae angen cyfrinair presennol.',
   'user.error.currentPasswordIncorrect': 'Cyfrinair presennol yn anghywir.',

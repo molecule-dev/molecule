@@ -32,6 +32,7 @@ export const bn: UserTranslations = {
   'user.email.passwordResetHtml': '<p>আপনার পাসওয়ার্ড রিসেট টোকেন: <strong>{{token}}</strong></p>',
   'user.email.passwordResetHtmlLink': '<p><a href="{{url}}">আপনার পাসওয়ার্ড রিসেট করুন</a></p>',
   'user.error.failedToProcessPasswordReset': 'পাসওয়ার্ড রিসেট প্রক্রিয়া করতে ব্যর্থ।',
+  'user.error.passwordResetUnavailable': 'পাসওয়ার্ড রিসেট উপলব্ধ নয়।',
   'user.error.newPasswordRequired': 'নতুন পাসওয়ার্ড প্রয়োজন।',
   'user.error.currentPasswordRequired': 'বর্তমান পাসওয়ার্ড প্রয়োজন।',
   'user.error.currentPasswordIncorrect': 'বর্তমান পাসওয়ার্ড ভুল।',

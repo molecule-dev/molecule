@@ -33,6 +33,7 @@ export const el: UserTranslations = {
     '<p>Το token επαναφοράς κωδικού σας είναι: <strong>{{token}}</strong></p>',
   'user.email.passwordResetHtmlLink': '<p><a href="{{url}}">Επαναφέρετε τον κωδικό σας</a></p>',
   'user.error.failedToProcessPasswordReset': 'Αποτυχία επεξεργασίας επαναφοράς κωδικού.',
+  'user.error.passwordResetUnavailable': 'Η επαναφορά κωδικού πρόσβασης δεν είναι διαθέσιμη.',
   'user.error.newPasswordRequired': 'Απαιτείται νέος κωδικός.',
   'user.error.currentPasswordRequired': 'Απαιτείται τρέχων κωδικός.',
   'user.error.currentPasswordIncorrect': 'Ο τρέχων κωδικός είναι λανθασμένος.',

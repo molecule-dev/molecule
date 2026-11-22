@@ -35,6 +35,8 @@ export const fr: UserTranslations = {
     '<p><a href="{{url}}">Réinitialisez votre mot de passe</a></p>',
   'user.error.failedToProcessPasswordReset':
     'Impossible de traiter la réinitialisation du mot de passe.',
+  'user.error.passwordResetUnavailable':
+    "La réinitialisation du mot de passe n'est pas disponible.",
   'user.error.newPasswordRequired': 'Un nouveau mot de passe est requis.',
   'user.error.currentPasswordRequired': 'Le mot de passe actuel est requis.',
   'user.error.currentPasswordIncorrect': 'Le mot de passe actuel est incorrect.',

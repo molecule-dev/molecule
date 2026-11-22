@@ -33,6 +33,7 @@ export const ig: UserTranslations = {
     '<p>Token tọgharia okwuntughe gị bụ: <strong>{{token}}</strong></p>',
   'user.email.passwordResetHtmlLink': '<p><a href="{{url}}">Tọgharia okwuntughe gị</a></p>',
   'user.error.failedToProcessPasswordReset': 'Enweghị ike ịhazi tọgharia okwuntughe.',
+  'user.error.passwordResetUnavailable': 'Ntọgharị okwuntụghe adịghị.',
   'user.error.newPasswordRequired': 'A chọrọ okwuntughe ọhụrụ.',
   'user.error.currentPasswordRequired': 'A chọrọ okwuntughe ugbu a.',
   'user.error.currentPasswordIncorrect': 'Okwuntughe ugbu a ezighị ezi.',

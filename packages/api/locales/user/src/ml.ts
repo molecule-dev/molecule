@@ -35,6 +35,7 @@ export const ml: UserTranslations = {
     '<p><a href="{{url}}">നിങ്ങളുടെ പാസ്‌വേഡ് റീസെറ്റ് ചെയ്യുക</a></p>',
   'user.error.failedToProcessPasswordReset':
     'പാസ്‌വേഡ് റീസെറ്റ് പ്രോസസ്സ് ചെയ്യുന്നതിൽ പരാജയപ്പെട്ടു.',
+  'user.error.passwordResetUnavailable': 'പാസ്‌വേഡ് പുനഃസജ്ജീകരണം ലഭ്യമല്ല.',
   'user.error.newPasswordRequired': 'പുതിയ പാസ്‌വേഡ് ആവശ്യമാണ്.',
   'user.error.currentPasswordRequired': 'നിലവിലെ പാസ്‌വേഡ് ആവശ്യമാണ്.',
   'user.error.currentPasswordIncorrect': 'നിലവിലെ പാസ്‌വേഡ് തെറ്റാണ്.',

@@ -34,6 +34,7 @@ export const pt: UserTranslations = {
   'user.email.passwordResetHtmlLink': '<p><a href="{{url}}">Redefina a sua palavra-passe</a></p>',
   'user.error.failedToProcessPasswordReset':
     'Não foi possível processar a redefinição da palavra-passe.',
+  'user.error.passwordResetUnavailable': 'A redefinição de senha não está disponível.',
   'user.error.newPasswordRequired': 'Uma nova palavra-passe é obrigatória.',
   'user.error.currentPasswordRequired': 'A palavra-passe atual é obrigatória.',
   'user.error.currentPasswordIncorrect': 'A palavra-passe atual está incorreta.',

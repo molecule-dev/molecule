@@ -35,6 +35,7 @@ export const ky: UserTranslations = {
     '<p><a href="{{url}}">Сыр сөзүңүздү калыбына келтириңиз</a></p>',
   'user.error.failedToProcessPasswordReset':
     'Сыр сөздү калыбына келтирүүнү иштетүү ишке ашкан жок.',
+  'user.error.passwordResetUnavailable': 'Сырсөздү калыбына келтирүү жеткиликсиз.',
   'user.error.newPasswordRequired': 'Жаңы сыр сөз талап кылынат.',
   'user.error.currentPasswordRequired': 'Учурдагы сыр сөз талап кылынат.',
   'user.error.currentPasswordIncorrect': 'Учурдагы сыр сөз туура эмес.',

@@ -33,6 +33,7 @@ export const pl: UserTranslations = {
     '<p>Twój token resetowania hasła to: <strong>{{token}}</strong></p>',
   'user.email.passwordResetHtmlLink': '<p><a href="{{url}}">Zresetuj hasło</a></p>',
   'user.error.failedToProcessPasswordReset': 'Nie udało się przetworzyć resetowania hasła.',
+  'user.error.passwordResetUnavailable': 'Resetowanie hasła nie jest dostępne.',
   'user.error.newPasswordRequired': 'Nowe hasło jest wymagane.',
   'user.error.currentPasswordRequired': 'Obecne hasło jest wymagane.',
   'user.error.currentPasswordIncorrect': 'Obecne hasło jest nieprawidłowe.',

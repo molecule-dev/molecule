@@ -32,6 +32,7 @@ export const uz: UserTranslations = {
   'user.email.passwordResetHtml': '<p>Parolni tiklash tokeningiz: <strong>{{token}}</strong></p>',
   'user.email.passwordResetHtmlLink': '<p><a href="{{url}}">Parolingizni tiklang</a></p>',
   'user.error.failedToProcessPasswordReset': "Parolni tiklash jarayoni muvaffaqiyatsiz bo'ldi.",
+  'user.error.passwordResetUnavailable': 'Parolni tiklash mavjud emas.',
   'user.error.newPasswordRequired': 'Yangi parol talab qilinadi.',
   'user.error.currentPasswordRequired': 'Joriy parol talab qilinadi.',
   'user.error.currentPasswordIncorrect': "Joriy parol noto'g'ri.",

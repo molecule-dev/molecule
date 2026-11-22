@@ -33,6 +33,7 @@ export const is: UserTranslations = {
     '<p>Endurstillingarmerki lykilorðs þíns er: <strong>{{token}}</strong></p>',
   'user.email.passwordResetHtmlLink': '<p><a href="{{url}}">Endurstilltu lykilorðið þitt</a></p>',
   'user.error.failedToProcessPasswordReset': 'Mistókst að vinna úr endurstillingu lykilorðs.',
+  'user.error.passwordResetUnavailable': 'Endurstilling lykilorðs er ekki tiltæk.',
   'user.error.newPasswordRequired': 'Nýtt lykilorð er nauðsynlegt.',
   'user.error.currentPasswordRequired': 'Núverandi lykilorð er nauðsynlegt.',
   'user.error.currentPasswordIncorrect': 'Núverandi lykilorð er rangt.',

@@ -33,6 +33,7 @@ export const fi: UserTranslations = {
     '<p>Salasanan nollaustunnisteesi on: <strong>{{token}}</strong></p>',
   'user.email.passwordResetHtmlLink': '<p><a href="{{url}}">Nollaa salasanasi</a></p>',
   'user.error.failedToProcessPasswordReset': 'Salasanan nollauksen käsittely epäonnistui.',
+  'user.error.passwordResetUnavailable': 'Salasanan palautus ei ole käytettävissä.',
   'user.error.newPasswordRequired': 'Uusi salasana vaaditaan.',
   'user.error.currentPasswordRequired': 'Nykyinen salasana vaaditaan.',
   'user.error.currentPasswordIncorrect': 'Nykyinen salasana on väärä.',

@@ -33,6 +33,7 @@ export const bs: UserTranslations = {
     '<p>Vaš token za resetovanje lozinke je: <strong>{{token}}</strong></p>',
   'user.email.passwordResetHtmlLink': '<p><a href="{{url}}">Resetujte lozinku</a></p>',
   'user.error.failedToProcessPasswordReset': 'Neuspješna obrada resetovanja lozinke.',
+  'user.error.passwordResetUnavailable': 'Resetovanje lozinke nije dostupno.',
   'user.error.newPasswordRequired': 'Nova lozinka je obavezna.',
   'user.error.currentPasswordRequired': 'Trenutna lozinka je obavezna.',
   'user.error.currentPasswordIncorrect': 'Trenutna lozinka je netačna.',

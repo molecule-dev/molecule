@@ -33,6 +33,7 @@ export const lt: UserTranslations = {
     '<p>Jūsų slaptažodžio atkūrimo žetonas: <strong>{{token}}</strong></p>',
   'user.email.passwordResetHtmlLink': '<p><a href="{{url}}">Atkurkite slaptažodį</a></p>',
   'user.error.failedToProcessPasswordReset': 'Nepavyko apdoroti slaptažodžio atkūrimo.',
+  'user.error.passwordResetUnavailable': 'Slaptažodžio atkūrimas nepasiekiamas.',
   'user.error.newPasswordRequired': 'Būtinas naujas slaptažodis.',
   'user.error.currentPasswordRequired': 'Būtinas dabartinis slaptažodis.',
   'user.error.currentPasswordIncorrect': 'Dabartinis slaptažodis neteisingas.',

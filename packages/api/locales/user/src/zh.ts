@@ -31,6 +31,7 @@ export const zh: UserTranslations = {
   'user.email.passwordResetHtml': '<p>您的密码重置令牌是：<strong>{{token}}</strong></p>',
   'user.email.passwordResetHtmlLink': '<p><a href="{{url}}">重置密码</a></p>',
   'user.error.failedToProcessPasswordReset': '密码重置处理失败。',
+  'user.error.passwordResetUnavailable': '密码重置不可用。',
   'user.error.newPasswordRequired': '新密码为必填项。',
   'user.error.currentPasswordRequired': '当前密码为必填项。',
   'user.error.currentPasswordIncorrect': '当前密码不正确。',

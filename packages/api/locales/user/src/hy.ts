@@ -33,6 +33,7 @@ export const hy: UserTranslations = {
     '<p>Dzer gaghtnabari verakarumi tokenn e: <strong>{{token}}</strong></p>',
   'user.email.passwordResetHtmlLink': '<p><a href="{{url}}">Verakaruceq Dzer gaghtnabarry</a></p>',
   'user.error.failedToProcessPasswordReset': 'Gaghtnabari verakarumi mtacumy dzakhogvec.',
+  'user.error.passwordResetUnavailable': 'Գաղտնաբառի վերակայումը հասանելի չէ։',
   'user.error.newPasswordRequired': 'Nor gaghtnabarry pahanjvum e.',
   'user.error.currentPasswordRequired': 'Arka gaghtnabarry pahanjvum e.',
   'user.error.currentPasswordIncorrect': 'Arka gaghtnabarry sxal e.',

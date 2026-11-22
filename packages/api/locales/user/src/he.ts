@@ -32,6 +32,7 @@ export const he: UserTranslations = {
   'user.email.passwordResetHtml': '<p>אסימון איפוס הסיסמה שלך הוא: <strong>{{token}}</strong></p>',
   'user.email.passwordResetHtmlLink': '<p><a href="{{url}}">אפס את הסיסמה שלך</a></p>',
   'user.error.failedToProcessPasswordReset': 'עיבוד איפוס הסיסמה נכשל.',
+  'user.error.passwordResetUnavailable': 'איפוס סיסמה אינו זמין.',
   'user.error.newPasswordRequired': 'סיסמה חדשה נדרשת.',
   'user.error.currentPasswordRequired': 'הסיסמה הנוכחית נדרשת.',
   'user.error.currentPasswordIncorrect': 'הסיסמה הנוכחית שגויה.',

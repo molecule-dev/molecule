@@ -33,6 +33,7 @@ export const sl: UserTranslations = {
     '<p>Vaš žeton za ponastavitev gesla je: <strong>{{token}}</strong></p>',
   'user.email.passwordResetHtmlLink': '<p><a href="{{url}}">Ponastavite geslo</a></p>',
   'user.error.failedToProcessPasswordReset': 'Obdelava ponastavitve gesla ni uspela.',
+  'user.error.passwordResetUnavailable': 'Ponastavitev gesla ni na voljo.',
   'user.error.newPasswordRequired': 'Novo geslo je obvezno.',
   'user.error.currentPasswordRequired': 'Trenutno geslo je obvezno.',
   'user.error.currentPasswordIncorrect': 'Trenutno geslo je napačno.',

@@ -33,6 +33,7 @@ export const lv: UserTranslations = {
     '<p>Jūsu paroles atiestatīšanas žetons ir: <strong>{{token}}</strong></p>',
   'user.email.passwordResetHtmlLink': '<p><a href="{{url}}">Atiestatiet paroli</a></p>',
   'user.error.failedToProcessPasswordReset': 'Neizdevās apstrādāt paroles atiestatīšanu.',
+  'user.error.passwordResetUnavailable': 'Paroles atiestatīšana nav pieejama.',
   'user.error.newPasswordRequired': 'Nepieciešama jauna parole.',
   'user.error.currentPasswordRequired': 'Nepieciešama pašreizējā parole.',
   'user.error.currentPasswordIncorrect': 'Pašreizējā parole ir nepareiza.',

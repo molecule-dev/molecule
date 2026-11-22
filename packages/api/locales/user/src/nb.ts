@@ -33,6 +33,7 @@ export const nb: UserTranslations = {
     '<p>Ditt token for tilbakestilling av passord er: <strong>{{token}}</strong></p>',
   'user.email.passwordResetHtmlLink': '<p><a href="{{url}}">Tilbakestill passordet ditt</a></p>',
   'user.error.failedToProcessPasswordReset': 'Kunne ikke behandle tilbakestilling av passord.',
+  'user.error.passwordResetUnavailable': 'Tilbakestilling av passord er ikke tilgjengelig.',
   'user.error.newPasswordRequired': 'Nytt passord er påkrevd.',
   'user.error.currentPasswordRequired': 'Nåværende passord er påkrevd.',
   'user.error.currentPasswordIncorrect': 'Nåværende passord er feil.',

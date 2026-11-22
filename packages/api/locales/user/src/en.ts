@@ -43,6 +43,7 @@ export const en: UserTranslations = {
   'user.email.passwordResetHtml': '<p>Your password reset token is: <strong>{{token}}</strong></p>',
   'user.email.passwordResetHtmlLink': '<p><a href="{{url}}">Reset your password</a></p>',
   'user.error.failedToProcessPasswordReset': 'Failed to process password reset.',
+  'user.error.passwordResetUnavailable': 'Password reset is not available.',
   'user.error.newPasswordRequired': 'New password is required.',
   'user.error.currentPasswordRequired': 'Current password is required.',
   'user.error.currentPasswordIncorrect': 'Current password is incorrect.',

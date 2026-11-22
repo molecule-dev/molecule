@@ -32,6 +32,7 @@ export const ru: UserTranslations = {
   'user.email.passwordResetHtml': '<p>Ваш токен сброса пароля: <strong>{{token}}</strong></p>',
   'user.email.passwordResetHtmlLink': '<p><a href="{{url}}">Сбросить пароль</a></p>',
   'user.error.failedToProcessPasswordReset': 'Не удалось обработать сброс пароля.',
+  'user.error.passwordResetUnavailable': 'Сброс пароля недоступен.',
   'user.error.newPasswordRequired': 'Новый пароль обязателен.',
   'user.error.currentPasswordRequired': 'Текущий пароль обязателен.',
   'user.error.currentPasswordIncorrect': 'Текущий пароль неверен.',

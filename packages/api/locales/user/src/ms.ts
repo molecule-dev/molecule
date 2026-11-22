@@ -34,6 +34,7 @@ export const ms: UserTranslations = {
   'user.email.passwordResetHtmlLink':
     '<p><a href="{{url}}">Tetapkan semula kata laluan anda</a></p>',
   'user.error.failedToProcessPasswordReset': 'Gagal memproses tetapan semula kata laluan.',
+  'user.error.passwordResetUnavailable': 'Tetapan semula kata laluan tidak tersedia.',
   'user.error.newPasswordRequired': 'Kata laluan baharu diperlukan.',
   'user.error.currentPasswordRequired': 'Kata laluan semasa diperlukan.',
   'user.error.currentPasswordIncorrect': 'Kata laluan semasa tidak betul.',

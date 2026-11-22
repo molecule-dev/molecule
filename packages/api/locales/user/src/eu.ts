@@ -33,6 +33,7 @@ export const eu: UserTranslations = {
     '<p>Zure pasahitza berrezartzeko tokena hau da: <strong>{{token}}</strong></p>',
   'user.email.passwordResetHtmlLink': '<p><a href="{{url}}">Berrezarri zure pasahitza</a></p>',
   'user.error.failedToProcessPasswordReset': 'Ezin izan da pasahitzaren berrezarpena prozesatu.',
+  'user.error.passwordResetUnavailable': 'Pasahitza berrezartzea ez dago erabilgarri.',
   'user.error.newPasswordRequired': 'Pasahitz berria beharrezkoa da.',
   'user.error.currentPasswordRequired': 'Uneko pasahitza beharrezkoa da.',
   'user.error.currentPasswordIncorrect': 'Uneko pasahitza okerra da.',

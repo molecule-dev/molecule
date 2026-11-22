@@ -32,6 +32,7 @@ export const be: UserTranslations = {
   'user.email.passwordResetHtml': '<p>Ваш токен скіду пароля: <strong>{{token}}</strong></p>',
   'user.email.passwordResetHtmlLink': '<p><a href="{{url}}">Скінуць пароль</a></p>',
   'user.error.failedToProcessPasswordReset': 'Не ўдалося апрацаваць скід пароля.',
+  'user.error.passwordResetUnavailable': 'Скід пароля недаступны.',
   'user.error.newPasswordRequired': 'Новы пароль абавязковы.',
   'user.error.currentPasswordRequired': 'Бягучы пароль абавязковы.',
   'user.error.currentPasswordIncorrect': 'Бягучы пароль няправільны.',

@@ -33,6 +33,7 @@ export const id: UserTranslations = {
     '<p>Token reset password Anda adalah: <strong>{{token}}</strong></p>',
   'user.email.passwordResetHtmlLink': '<p><a href="{{url}}">Reset password Anda</a></p>',
   'user.error.failedToProcessPasswordReset': 'Gagal memproses reset password.',
+  'user.error.passwordResetUnavailable': 'Pengaturan ulang kata sandi tidak tersedia.',
   'user.error.newPasswordRequired': 'Password baru diperlukan.',
   'user.error.currentPasswordRequired': 'Password saat ini diperlukan.',
   'user.error.currentPasswordIncorrect': 'Password saat ini salah.',

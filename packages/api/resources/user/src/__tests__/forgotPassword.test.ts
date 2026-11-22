@@ -3,6 +3,9 @@
  * `APP_ORIGIN` when no separate `SITE_ORIGIN` is set (R140). The link used to depend on
  * `SITE_ORIGIN` alone, so a deployment that sets only `APP_ORIGIN` sent an email with the token
  * and no link at all.
+ *
+ * With no email provider bonded the reset email can never go out, so the handler says so (501)
+ * for every address instead of answering "success" (2026-11-22 smoke test review).
  */
 
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -69,5 +72,36 @@ describe('forgotPassword email link', () => {
     const mail = mockSendMail.mock.calls[0][0] as { text: string }
     expect(mail.text).toContain('user.email.passwordResetText')
     expect(mail.text).not.toContain('reset-password?token=')
+  })
+})
+
+describe('forgotPassword with no email provider bonded', () => {
+  beforeEach(() => {
+    mockGet.mockReset().mockReturnValue(undefined)
+    mockFindOne.mockReset()
+    mockUpdateById.mockReset()
+  })
+
+  it.each(['ada@example.com', 'nobody@example.com'])(
+    'answers 501 for %s, before any lookup, and stores no token',
+    async (email) => {
+      mockFindOne.mockResolvedValue(email === 'ada@example.com' ? { id: 'u1', email } : null)
+      const result = await handler({ body: { email } } as never)
+      expect(result).toEqual({
+        statusCode: 501,
+        body: {
+          error: 'user.error.passwordResetUnavailable',
+          errorKey: 'user.error.passwordResetUnavailable',
+        },
+      })
+      // The same answer for a known and an unknown address: nothing about accounts is revealed.
+      expect(mockFindOne).not.toHaveBeenCalled()
+      expect(mockUpdateById).not.toHaveBeenCalled()
+    },
+  )
+
+  it('still asks for the email first', async () => {
+    const result = await handler({ body: {} } as never)
+    expect(result.statusCode).toBe(400)
   })
 })

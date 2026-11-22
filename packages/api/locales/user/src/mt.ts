@@ -33,6 +33,7 @@ export const mt: UserTranslations = {
     '<p>It-token tar-reset tal-password tieghek huwa: <strong>{{token}}</strong></p>',
   'user.email.passwordResetHtmlLink': '<p><a href="{{url}}">Irresetja l-password tieghek</a></p>',
   'user.error.failedToProcessPasswordReset': 'Ma rnexxiex tipprocessa r-reset tal-password.',
+  'user.error.passwordResetUnavailable': 'L-issettjar mill-ġdid tal-password mhuwiex disponibbli.',
   'user.error.newPasswordRequired': 'Password gdida mehtiegha.',
   'user.error.currentPasswordRequired': 'Password attwali mehtiegha.',
   'user.error.currentPasswordIncorrect': 'Password attwali mhijiex korretta.',

@@ -33,6 +33,7 @@ export const km: UserTranslations = {
     '<p>Token កំណត់ពាក្យសម្ងាត់ឡើងវិញរបស់អ្នកគឺ: <strong>{{token}}</strong></p>',
   'user.email.passwordResetHtmlLink': '<p><a href="{{url}}">កំណត់ពាក្យសម្ងាត់ឡើងវិញ</a></p>',
   'user.error.failedToProcessPasswordReset': 'បរាជ័យក្នុងការដំណើរការកំណត់ពាក្យសម្ងាត់ឡើងវិញ។',
+  'user.error.passwordResetUnavailable': 'ការកំណត់ពាក្យសម្ងាត់ឡើងវិញមិនអាចប្រើបានទេ។',
   'user.error.newPasswordRequired': 'ត្រូវការពាក្យសម្ងាត់ថ្មី។',
   'user.error.currentPasswordRequired': 'ត្រូវការពាក្យសម្ងាត់បច្ចុប្បន្ន។',
   'user.error.currentPasswordIncorrect': 'ពាក្យសម្ងាត់បច្ចុប្បន្នមិនត្រឹមត្រូវ។',

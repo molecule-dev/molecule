@@ -33,6 +33,7 @@ export const si: UserTranslations = {
     '<p>ඔබේ මුරපද යළි පිහිටුවීම් ටෝකනය: <strong>{{token}}</strong></p>',
   'user.email.passwordResetHtmlLink': '<p><a href="{{url}}">ඔබේ මුරපදය යළි පිහිටුවන්න</a></p>',
   'user.error.failedToProcessPasswordReset': 'මුරපද යළි පිහිටුවීම සැකසීමට අසමත් විය.',
+  'user.error.passwordResetUnavailable': 'මුරපදය යළි සැකසීම ලබා ගත නොහැක.',
   'user.error.newPasswordRequired': 'නව මුරපදය අවශ්‍යයි.',
   'user.error.currentPasswordRequired': 'වත්මන් මුරපදය අවශ්‍යයි.',
   'user.error.currentPasswordIncorrect': 'වත්මන් මුරපදය වැරදිය.',

@@ -32,6 +32,7 @@ export const ko: UserTranslations = {
   'user.email.passwordResetHtml': '<p>비밀번호 재설정 토큰: <strong>{{token}}</strong></p>',
   'user.email.passwordResetHtmlLink': '<p><a href="{{url}}">비밀번호 재설정</a></p>',
   'user.error.failedToProcessPasswordReset': '비밀번호 재설정 처리에 실패했습니다.',
+  'user.error.passwordResetUnavailable': '비밀번호 재설정을 사용할 수 없습니다.',
   'user.error.newPasswordRequired': '새 비밀번호는 필수입니다.',
   'user.error.currentPasswordRequired': '현재 비밀번호는 필수입니다.',
   'user.error.currentPasswordIncorrect': '현재 비밀번호가 올바르지 않습니다.',

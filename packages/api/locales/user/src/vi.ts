@@ -33,6 +33,7 @@ export const vi: UserTranslations = {
     '<p>Token đặt lại mật khẩu của bạn là: <strong>{{token}}</strong></p>',
   'user.email.passwordResetHtmlLink': '<p><a href="{{url}}">Đặt lại mật khẩu của bạn</a></p>',
   'user.error.failedToProcessPasswordReset': 'Xử lý đặt lại mật khẩu thất bại.',
+  'user.error.passwordResetUnavailable': 'Đặt lại mật khẩu không khả dụng.',
   'user.error.newPasswordRequired': 'Yêu cầu mật khẩu mới.',
   'user.error.currentPasswordRequired': 'Yêu cầu mật khẩu hiện tại.',
   'user.error.currentPasswordIncorrect': 'Mật khẩu hiện tại không đúng.',

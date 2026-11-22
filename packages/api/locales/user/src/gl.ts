@@ -34,6 +34,7 @@ export const gl: UserTranslations = {
   'user.email.passwordResetHtmlLink': '<p><a href="{{url}}">Restableza o seu contrasinal</a></p>',
   'user.error.failedToProcessPasswordReset':
     'Non se puido procesar o restablecemento de contrasinal.',
+  'user.error.passwordResetUnavailable': 'O restablecemento do contrasinal non está dispoñible.',
   'user.error.newPasswordRequired': 'Requírese un contrasinal novo.',
   'user.error.currentPasswordRequired': 'Requírese o contrasinal actual.',
   'user.error.currentPasswordIncorrect': 'O contrasinal actual é incorrecto.',

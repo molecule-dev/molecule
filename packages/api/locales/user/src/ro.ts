@@ -33,6 +33,7 @@ export const ro: UserTranslations = {
     '<p>Token-ul dumneavoastră de resetare a parolei este: <strong>{{token}}</strong></p>',
   'user.email.passwordResetHtmlLink': '<p><a href="{{url}}">Resetați parola</a></p>',
   'user.error.failedToProcessPasswordReset': 'Nu s-a putut procesa resetarea parolei.',
+  'user.error.passwordResetUnavailable': 'Resetarea parolei nu este disponibilă.',
   'user.error.newPasswordRequired': 'O parolă nouă este obligatorie.',
   'user.error.currentPasswordRequired': 'Parola curentă este obligatorie.',
   'user.error.currentPasswordIncorrect': 'Parola curentă este incorectă.',

@@ -33,6 +33,7 @@ export const kn: UserTranslations = {
     '<p>ನಿಮ್ಮ ಪಾಸ್‌ವರ್ಡ್ ರೀಸೆಟ್ ಟೋಕನ್: <strong>{{token}}</strong></p>',
   'user.email.passwordResetHtmlLink': '<p><a href="{{url}}">ನಿಮ್ಮ ಪಾಸ್‌ವರ್ಡ್ ರೀಸೆಟ್ ಮಾಡಿ</a></p>',
   'user.error.failedToProcessPasswordReset': 'ಪಾಸ್‌ವರ್ಡ್ ರೀಸೆಟ್ ಪ್ರಕ್ರಿಯೆ ವಿಫಲ.',
+  'user.error.passwordResetUnavailable': 'ಪಾಸ್‌ವರ್ಡ್ ಮರುಹೊಂದಿಕೆ ಲಭ್ಯವಿಲ್ಲ.',
   'user.error.newPasswordRequired': 'ಹೊಸ ಪಾಸ್‌ವರ್ಡ್ ಅಗತ್ಯ.',
   'user.error.currentPasswordRequired': 'ಪ್ರಸ್ತುತ ಪಾಸ್‌ವರ್ಡ್ ಅಗತ್ಯ.',
   'user.error.currentPasswordIncorrect': 'ಪ್ರಸ್ತುತ ಪಾಸ್‌ವರ್ಡ್ ತಪ್ಪಾಗಿದೆ.',

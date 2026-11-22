@@ -33,6 +33,7 @@ export const fil: UserTranslations = {
     '<p>Ang iyong token para sa pag-reset ng password ay: <strong>{{token}}</strong></p>',
   'user.email.passwordResetHtmlLink': '<p><a href="{{url}}">I-reset ang iyong password</a></p>',
   'user.error.failedToProcessPasswordReset': 'Nabigo ang pagproseso ng pag-reset ng password.',
+  'user.error.passwordResetUnavailable': 'Hindi available ang pag-reset ng password.',
   'user.error.newPasswordRequired': 'Kailangan ang bagong password.',
   'user.error.currentPasswordRequired': 'Kailangan ang kasalukuyang password.',
   'user.error.currentPasswordIncorrect': 'Hindi tama ang kasalukuyang password.',
