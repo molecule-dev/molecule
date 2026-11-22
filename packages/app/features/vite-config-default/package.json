@@ -16,6 +16,10 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
+    "./framework": {
+      "types": "./dist/framework-config.d.ts",
+      "import": "./dist/framework-config.js"
+    },
     "./assets": {
       "types": "./dist/root-relative-assets.d.ts",
       "import": "./dist/root-relative-assets.js"

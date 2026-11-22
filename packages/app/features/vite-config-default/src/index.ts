@@ -9,6 +9,14 @@
  * `PUSH_SW_FILENAME` / `PUSH_SW_SOURCE` (the web-push half of the
  * generated service worker).
  *
+ * Any other UI framework uses the same config through
+ * `createFrameworkViteConfig(branding, { plugins })` from
+ * `@molecule/app-vite-config-default/framework`: pass the framework's plugin and,
+ * when the styling needs one, its build plugin (`[vue(), tailwindcss()]`). That entry
+ * loads neither `@vitejs/plugin-react` nor `@tailwindcss/vite` (the package root does,
+ * for `createDefaultViteConfig`). A SvelteKit app also passes `svelteKit` (its page and
+ * site hooks), and `warmup` names the files the dev server transforms first.
+ *
  * @example
  * ```ts
  * import { defineConfig } from 'vite'
@@ -118,6 +126,7 @@
  */
 
 export * from './config.js'
+export * from './framework-config.js'
 export * from './push-sw.js'
 export * from './root-relative-assets.js'
 export * from './sveltekit.js'

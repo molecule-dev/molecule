@@ -134,14 +134,29 @@ describe('@molecule/app-vite-config-default', () => {
     })
     const plugins = (cfg.plugins ?? []) as Array<{ name?: string; __options?: unknown }>
     const pwa = plugins.find((p) => p?.name === 'pwa')
-    const workbox = (pwa?.__options as { workbox?: { globPatterns?: string[] } })?.workbox
-    expect(workbox?.globPatterns).toEqual([
-      '**/*.{html,ico,png,svg}',
-      'assets/index-*.js',
-      'assets/index-*.css',
-    ])
+    type Entry = { url: string; revision: string | null }
+    const workbox = (
+      pwa?.__options as {
+        workbox?: {
+          globPatterns?: string[]
+          manifestTransforms?: Array<(entries: Entry[]) => { manifest: Entry[] }>
+        }
+      }
+    )?.workbox
+    expect(workbox?.globPatterns).toEqual(['**/*.{html,ico,png,svg}', 'assets/**/*.{js,css}'])
     // The old catch-all must not come back.
     expect(workbox?.globPatterns).not.toContain('**/*.{js,css,html,ico,png,svg,woff,woff2}')
+    // Of the bundle's scripts and styles, only those the first page load runs stay
+    // (recorded during the build; none here, so a route chunk is dropped).
+    const entries = [
+      { url: 'index.html', revision: '1' },
+      { url: 'icons/icon-192.svg', revision: '2' },
+      { url: 'assets/settings-page-abc123.js', revision: null },
+    ]
+    expect(workbox?.manifestTransforms?.[0](entries).manifest.map((entry) => entry.url)).toEqual([
+      'index.html',
+      'icons/icon-192.svg',
+    ])
   })
 
   it('keeps the Playwright e2e/ suite out of vitest collection', () => {

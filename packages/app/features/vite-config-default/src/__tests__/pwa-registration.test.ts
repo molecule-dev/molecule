@@ -45,6 +45,65 @@ describe('the flagship production build', () => {
     }
   }, 30_000)
 
+  it('precaches every script the first page load runs, and no lazily loaded chunk', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'flagship-page-load-'))
+    try {
+      // `shared.js` is imported by the entry and by a lazily loaded page, so the bundler
+      // gives it its own chunk, which the entry imports statically.
+      await writeFile(
+        join(root, 'index.html'),
+        '<head></head><body><script type="module" src="/entry.js"></script></body>',
+      )
+      await writeFile(
+        join(root, 'entry.js'),
+        "import { render } from './shared.js'\nrender('home')\nwindow.open = () => import('./lazy.js')\n",
+      )
+      await writeFile(
+        join(root, 'shared.js'),
+        'export function render(page) { document.body.dataset.page = page }\n',
+      )
+      await writeFile(
+        join(root, 'lazy.js'),
+        "import { render } from './shared.js'\nrender('lazy')\n",
+      )
+      const config = createDefaultViteConfig({
+        APP_NAME: 'Equipment console',
+        APP_DESCRIPTION: 'A maintenance dashboard',
+        BRAND_COLOR: '#332288',
+      })
+      await build({ ...config, configFile: false, root, logLevel: 'silent' })
+
+      const worker = await readFile(join(root, 'dist/sw.js'), 'utf8')
+      // Minified (`url:"…"`) or not (`"url": "…"`), as the build mode decides.
+      const precached = new Set(
+        [...worker.matchAll(/"?url"?:\s*"([^"]+)"/g)].map((match) => match[1]),
+      )
+      const html = await readFile(join(root, 'dist/index.html'), 'utf8')
+      const entry = html.match(/<script type="module"[^>]* src="\/([^"]+)"/)?.[1]
+      expect(entry).toBeDefined()
+      const pageLoad = new Set<string>()
+      const follow = async (file: string): Promise<void> => {
+        if (pageLoad.has(file)) return
+        pageLoad.add(file)
+        const source = await readFile(join(root, 'dist', file), 'utf8')
+        for (const match of source.matchAll(/(?:^|;|\n)import[^'"()]*["']\.\/([^"']+)["']/g)) {
+          await follow(`assets/${match[1]}`)
+        }
+      }
+      await follow(entry!)
+      // The entry, the shared chunk and the bundler's runtime chunk, at least.
+      expect(pageLoad.size).toBeGreaterThan(1)
+      expect([...pageLoad].filter((file) => !precached.has(file))).toEqual([])
+      const lazy = (await readdir(join(root, 'dist/assets'))).filter((name) =>
+        /^lazy-.*\.js$/.test(name),
+      )
+      expect(lazy).toHaveLength(1)
+      expect(precached.has(`assets/${lazy[0]}`)).toBe(false)
+    } finally {
+      await rm(root, { recursive: true, force: true })
+    }
+  }, 30_000)
+
   it.each([true, false])(
     'runs the app registrar only with VitePWA enabled (%s)',
     async (pwa) => {
