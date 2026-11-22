@@ -1,0 +1,48 @@
+{
+  "name": "@molecule/app-i18n-default",
+  "version": "1.0.0",
+  "description": "Default i18n bond setup with 80-language definitions, lazy-loading wrapper, and locale persistence via storage bond, for every app framework.",
+  "homepage": "https://www.molecule.dev/packages/app-i18n-default",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "keywords": [
+    "molecule",
+    "i18n",
+    "default"
+  ],
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/app/features/i18n-default"
+  },
+  "devDependencies": {
+    "@types/node": "26.6.5",
+    "typescript": "6.0.3",
+    "vitest": "4.1.12",
+    "@molecule/app-i18n": "1.2.2",
+    "@molecule/app-locales-common": "1.0.8",
+    "@molecule/app-storage": "1.1.1"
+  },
+  "peerDependencies": {
+    "@molecule/app-i18n": "^1.0.1",
+    "@molecule/app-locales-common": "^1.0.5",
+    "@molecule/app-storage": "^1.0.1"
+  }
+}
