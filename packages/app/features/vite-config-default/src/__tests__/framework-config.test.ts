@@ -52,6 +52,7 @@ describe('createFrameworkViteConfig', () => {
         'vite-plugin-pwa',
         'molecule:pwa-registration',
         'molecule:root-relative-assets',
+        'molecule-dist-without-sourcemap',
       ]),
     )
     expect(list).not.toContain('molecule:sveltekit-static-site')

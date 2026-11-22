@@ -127,6 +127,7 @@
 
 export * from './config.js'
 export * from './framework-config.js'
+export * from './molecule-dist-sourcemap.js'
 export * from './push-sw.js'
 export * from './root-relative-assets.js'
 export * from './sveltekit.js'

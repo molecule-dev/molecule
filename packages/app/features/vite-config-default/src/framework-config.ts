@@ -15,6 +15,7 @@ import { type VitePluginPWAAPI, VitePWA, type VitePWAOptions } from 'vite-plugin
 
 import { releaseNotesPlugin } from '@molecule/app-version/build'
 
+import { moleculeDistWithoutSourcemap } from './molecule-dist-sourcemap.js'
 import { moleculePushServiceWorkerPlugin, PUSH_SW_FILENAME } from './push-sw.js'
 import { rootRelativeAssetsPlugin } from './root-relative-assets.js'
 import {
@@ -63,6 +64,30 @@ type PrecacheEntry = Parameters<
 
 /** The dev server's default warmup: a React app's entry, root component and bonds. */
 const REACT_WARMUP = ['src/main.tsx', 'src/App.tsx', 'src/bonds/*.ts']
+
+/**
+ * The framework packages that hold state per module copy: two copies in one app split React's
+ * hook dispatcher and contexts, Vue's current instance and injections, Svelte's and Solid's
+ * reactive owners, and Angular's injector. Each is resolved from the app's root (`resolve.dedupe`),
+ * whichever install path an importer reaches it through. Listing one the app does not install
+ * changes nothing.
+ */
+const FRAMEWORK_RUNTIME_PACKAGES = [
+  'react',
+  'react-dom',
+  'react-router',
+  'react-router-dom',
+  'vue',
+  'vue-router',
+  'svelte',
+  'solid-js',
+  '@solidjs/router',
+  '@angular/core',
+  '@angular/common',
+  '@angular/router',
+  '@angular/platform-browser',
+  'rxjs',
+]
 
 const PWA_REGISTRATION = "import { registerPWA } from '@molecule/app-pwa-default'; registerPWA()"
 
@@ -513,6 +538,8 @@ export function createFrameworkViteConfig(
       // one-line summary of what a waiting update brings.
       releaseNotesPlugin(),
       rootRelativeAssetsPlugin(),
+      // @molecule dist files without the maps that name src files a package does not ship.
+      moleculeDistWithoutSourcemap(),
       ...(svelteKit
         ? [
             svelteKitStaticSite({
@@ -541,10 +568,10 @@ export function createFrameworkViteConfig(
       // `exports` maps, conditions and subpaths still apply (unlike an alias
       // that rewrites the specifier to a directory). Every installed @molecule
       // package is listed, not a hand-picked few: which one an app's bond
-      // packages import varies per app. React keeps an absolute alias below —
-      // dedupe alone did not stop an app-local React copy. Neither applies to an
-      // app without React.
-      dedupe: ['react', 'react-dom', 'react-router', 'react-router-dom', ...moleculePackages],
+      // packages import varies per app. The framework's own runtime packages
+      // are deduped the same way (FRAMEWORK_RUNTIME_PACKAGES). React keeps an
+      // absolute alias below — dedupe alone did not stop an app-local React copy.
+      dedupe: [...FRAMEWORK_RUNTIME_PACKAGES, ...moleculePackages],
       alias: singleReactAliases(appRoot),
     },
     optimizeDeps: {
@@ -631,6 +658,13 @@ export function createFrameworkViteConfig(
       // to jsdom otherwise, which no scaffold installs. A test file that needs a DOM
       // names its environment in a `@vitest-environment` comment.
       environment: 'node',
+      // A test resolves @molecule packages the way the build does. Left external, Node
+      // loads each one from its real path and takes the framework from whatever
+      // node_modules sits beside it (a workspace's nested install, a linked package's own
+      // copy), so `resolve.dedupe` and the React alias above never apply and a hook or an
+      // injection reads another copy's state ("Invalid hook call"). `preserveSymlinks` keeps
+      // the path an app reached the package through, so a linked package matches as well.
+      server: { deps: { inline: [/[\\/]node_modules[\\/]@molecule[\\/]/] } },
     },
   }
 }
