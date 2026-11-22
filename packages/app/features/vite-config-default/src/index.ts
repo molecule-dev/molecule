@@ -107,6 +107,12 @@
  * and public files are exempt. Prerender builds use the same plugin instance
  * for their client and server passes so files used by either pass count.
  *
+ * **A custom config imports the plugins it needs from their own entries.** The package root
+ * and `/framework` load `vite-plugin-pwa`; `@molecule/app-vite-config-default/assets`
+ * (`rootRelativeAssetsPlugin`) and `@molecule/app-vite-config-default/dist-sourcemap`
+ * (`moleculeDistWithoutSourcemap`, which serves each `@molecule` package's JavaScript without
+ * the sourcemaps that name source files the package does not ship) load only Vite and Node.
+ *
  * **A SvelteKit app deploys the same site.** `@molecule/app-vite-config-default/sveltekit`
  * finishes the static site `@sveltejs/adapter-static` writes to `dist/` (with
  * `fallback: 'index.html'`): `svelteKitStaticSite()` adds the web-manifest link, runs the

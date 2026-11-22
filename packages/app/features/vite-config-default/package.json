@@ -24,6 +24,10 @@
       "types": "./dist/root-relative-assets.d.ts",
       "import": "./dist/root-relative-assets.js"
     },
+    "./dist-sourcemap": {
+      "types": "./dist/molecule-dist-sourcemap.d.ts",
+      "import": "./dist/molecule-dist-sourcemap.js"
+    },
     "./sveltekit": {
       "types": "./dist/sveltekit.d.ts",
       "import": "./dist/sveltekit.js"
