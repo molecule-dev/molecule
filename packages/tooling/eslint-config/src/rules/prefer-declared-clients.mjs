@@ -4789,7 +4789,10 @@ export function scaffoldRules(parser) {
         }
       },
     },
-    // The bond owns the runtime setting, so this rule only moves router imports.
+    // The bond's router components give the app its molecule router (which
+    // @molecule/app-react's routing hooks, Link, RoutedView and the molecule layouts
+    // and guards read; React Router's own leave them without one), and the client
+    // ones own the transition setting, so this rule only moves router imports.
     // Type-only imports cannot render a router and are deliberately left alone.
     // `HydratedRouter` and the DOM `RouterProvider` (`react-router/dom`, re-exported by
     // `react-router-dom`) move to the bond's `/dom` entry, which keeps `react-dom` out
@@ -4801,11 +4804,11 @@ export function scaffoldRules(parser) {
         schema: [],
         messages: {
           synchronous:
-            "Import this router from '{{module}}', whose wrapper sets useTransitions={false} so the URL and rendered page change together.",
+            "Import this router from '{{module}}'. Its wrapper gives the app the molecule router that @molecule/app-react's routing hooks, Link and RoutedView read, and in the browser sets useTransitions={false} so the URL and rendered page change together.",
           namespace:
-            'This namespace renders a router component outside the declared routing provider wrapper. Import that router component from @molecule/app-routing-react-router to use its documented transition setting. Hook-only namespace imports remain supported.',
+            'This namespace renders a router component outside the declared routing provider wrapper. Import that router component from @molecule/app-routing-react-router, which gives the app the molecule router and its documented transition setting. Hook-only namespace imports remain supported.',
           dynamic:
-            "Import router components directly from '@molecule/app-routing-react-router' instead of a dynamic React Router import (dynamic module uses are not tracked), because its wrappers set useTransitions={false} so the URL and rendered page change together.",
+            "Import router components directly from '@molecule/app-routing-react-router' instead of a dynamic React Router import (dynamic module uses are not tracked), because its wrappers give the app the molecule router and, in the browser, set useTransitions={false} so the URL and rendered page change together.",
         },
       },
       create(context) {
@@ -4819,6 +4822,8 @@ export function scaffoldRules(parser) {
           'RouterProvider',
           'HydratedRouter',
           'unstable_HistoryRouter',
+          'StaticRouter',
+          'StaticRouterProvider',
         ])
         const bond = '@molecule/app-routing-react-router'
         const domEntries = new Set(['react-router/dom', 'react-router-dom'])

@@ -354,6 +354,27 @@ describe('the config', () => {
       }
     })
 
+    it.each(['StaticRouter', 'StaticRouterProvider'])(
+      'moves the server renderer %s to the bond main entry',
+      async (component) => {
+        for (const entryPoint of ['react-router', 'react-router-dom']) {
+          await expectFixed(
+            `import { ${component} } from '${entryPoint}'\nexport { ${component} }\n`,
+            `import { ${component} } from '${bond}'\nexport { ${component} }\n`,
+          )
+        }
+      },
+    )
+
+    it('says the bond gives the app its molecule router', async () => {
+      const [result] = await eslint.lintText(
+        'import { StaticRouter } from \'react-router\'\nexport const app = <StaticRouter location="/" />\n',
+        { filePath: 'app.tsx' },
+      )
+      const [message] = result.messages.filter((m) => m.ruleId === ruleId)
+      expect(message?.message).toContain('molecule router')
+    })
+
     it('names the /dom entry in the message for a DOM-only router', async () => {
       const [result] = await eslint.lintText(
         "import { HydratedRouter } from 'react-router/dom'\nexport const app = <HydratedRouter />\n",
