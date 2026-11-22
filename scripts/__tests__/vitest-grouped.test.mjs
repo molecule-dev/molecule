@@ -353,18 +353,43 @@ describe('grouped Vitest runs', () => {
   }, 60000)
 })
 
+/**
+ * The committed package Vitest configs. In a checkout, `git ls-files` names them. The release runs
+ * this suite in a committed-tree export (`git archive` output inside the workspace repo), where
+ * `git ls-files` answers for the workspace and lists none; the export holds exactly the committed
+ * files, so there the files on disk are the list.
+ *
+ * @returns Repository-relative paths.
+ */
+function committedPackageConfigs() {
+  const top = spawnSync('git', ['rev-parse', '--show-toplevel'], { cwd: ROOT, encoding: 'utf8' })
+  if (top.status === 0 && fs.realpathSync(top.stdout.trim()) === fs.realpathSync(ROOT)) {
+    const listed = spawnSync('git', ['ls-files', '--', 'packages/**/vitest.config.ts'], {
+      cwd: ROOT,
+      encoding: 'utf8',
+    })
+    expect(listed.status).toBe(0)
+    return listed.stdout.split('\n').filter(Boolean)
+  }
+  const found = []
+  const walk = (dir) => {
+    for (const entry of fs.readdirSync(path.join(ROOT, dir), { withFileTypes: true })) {
+      const rel = `${dir}/${entry.name}`
+      if (entry.isDirectory() && entry.name !== 'node_modules') walk(rel)
+      else if (entry.isFile() && entry.name === 'vitest.config.ts') found.push(rel)
+    }
+  }
+  walk('packages')
+  return found
+}
+
 describe('selection and grouping rules', () => {
   const dirs = ['packages/api/core/a', 'packages/api/core/ab', 'packages/app/x', 'scripts']
 
   it("makes every committed package's Vitest config a project of the root config", async () => {
     // A config no glob matches never runs in CI: @molecule/api-mock-server's tests sat outside
     // the run from April to 2026-11-22, and a new package family is the next one.
-    const committed = spawnSync('git', ['ls-files', '--', 'packages/**/vitest.config.ts'], {
-      cwd: ROOT,
-      encoding: 'utf8',
-    })
-    expect(committed.status).toBe(0)
-    const configs = committed.stdout.split('\n').filter(Boolean)
+    const configs = committedPackageConfigs()
     expect(configs.length).toBeGreaterThan(100)
     const projects = new Set(projectConfigs(await rootProjectPatterns(ROOT), ROOT).values())
     expect(configs.filter((file) => !projects.has(file))).toEqual([])
