@@ -10,7 +10,7 @@
 
 ## At a glance (humans and AI agents)
 
-- **What it is.** An AI-first, open-source ecosystem of 1,400+ composable `@molecule/*` packages (Apache-2.0, on npm, growing daily) and the tools that assemble them: [molecule.dev](https://www.molecule.dev) with Synthase, the `mlcl` CLI, and the molecule MCP server. The output is plain TypeScript you own and can run anywhere.
+- **What it is.** An AI-first, open-source ecosystem of 1,900+ composable `@molecule/*` packages (Apache-2.0, on npm, growing daily) and the tools that assemble them: [molecule.dev](https://www.molecule.dev) with Synthase, the `mlcl` CLI, and the molecule MCP server. The output is plain TypeScript you own and can run anywhere.
 - **How it works.** Describe the app. Synthase or `mlcl create` picks packages and wires them. Bonds connect providers behind core interfaces. A live sandbox previews it. Deploy with us, or export the code, a database dump and your `.env` files.
 - **Set up your coding agents once.** Run `npx mlcl setup`: it asks whether to set up every project on this machine or just this one, and which of your agents (Claude Code, Codex, Cursor, Gemini CLI, Copilot, …). Each one then gets the molecule MCP server, the Molecule skills and the conventions, so it reaches for `@molecule/*` packages before writing its own.
 - **Faster.** You start from a working, tested app (a library of flagship templates) instead of a blank prompt, and nothing common is written twice.
@@ -48,7 +48,7 @@ Try it: [www.molecule.dev](https://www.molecule.dev). Describe an app and Syntha
 ## How it works
 
 1. **Describe** the app at [www.molecule.dev](https://www.molecule.dev). Synthase asks a few questions before it plans.
-2. **Synthase composes packages** from this catalog (1,400+ packages, all Apache-2.0, all on npm) into a real TypeScript project: an Express API plus a React, Vue, Svelte, Solid, Angular, or React Native app.
+2. **Synthase composes packages** from this catalog (1,900+ packages, all Apache-2.0, all on npm) into a real TypeScript project: an Express API plus a React, Vue, Svelte, Solid, Angular, or React Native app.
 3. **Bonds wire providers** at startup. Application code only ever calls the core interface.
 4. **A live sandbox** runs the project with a preview while you work, and deploys it when you are ready.
 5. **Export anytime.** One archive with the project code, a database dump, and `.env` files holding the keys you own (`GET /projects/:id/export`). Unpack it and run it anywhere.
