@@ -438,6 +438,9 @@ async function loginPairOnceNpmAnswers({ fetchImpl, timeoutMs, pollMs, sleep }) 
  *   asked again until they answer.
  * @param [options.pollMs] - How often to check both sides (npm asks for 3 s).
  * @param [options.sleep] - Waits between checks (tests pass a fake).
+ * @param [options.signedInElsewhere] - Returns a session npm accepts that was made outside this
+ *   request (an `npm login` in any terminal here), or null. It ends the wait too.
+ * @param [options.elsewhereMs] - About how often to call `signedInElsewhere`.
  * @returns The npm session token.
  */
 export async function requestOwnerNpmLogin({
@@ -447,12 +450,23 @@ export async function requestOwnerNpmLogin({
   timeoutMs = Infinity,
   pollMs = 3_000,
   sleep = (ms) => delay(ms),
+  signedInElsewhere = async () => null,
+  elsewhereMs = 30_000,
 }) {
   let pair = await loginPairOnceNpmAnswers({ fetchImpl, timeoutMs, pollMs, sleep })
+  // npm hands this request's session over only when the owner signs in through its own page. A
+  // sign-in made any other way never reaches the done-check, so it is looked for separately
+  // (2026-11-22: a trust:new run waited 47 minutes on a request the owner never opened).
+  const elsewhereEvery = Math.max(1, Math.round(elsewhereMs / pollMs))
+  let checks = 0
   return askOwner({
     request: () => ({ purpose, kind: 'login', authUrl: pair.loginUrl }),
     fromPhone: () => null,
     fromNpm: async (id) => {
+      if (checks++ % elsewhereEvery === 0) {
+        const session = await signedInElsewhere()
+        if (session) return session
+      }
       const done = await fetchImpl(pair.doneUrl, {
         headers: { accept: 'application/json' },
         signal: AbortSignal.timeout(20_000),

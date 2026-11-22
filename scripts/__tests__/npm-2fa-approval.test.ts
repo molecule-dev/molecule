@@ -477,6 +477,59 @@ describe('requestOwnerNpmLogin', () => {
     expect(calls).toEqual([])
   })
 
+  // 2026-11-22: the owner signed in where npm did not tie the sign-in to the request, and a
+  // trust:new run waited 47 minutes on a done-check that could never answer.
+  it('ends the wait with a sign-in made outside the request (OLD MUSTFAIL: waited out the timeout)', async () => {
+    const { socketPath, calls } = await fakeService([{ status: 'pending' }])
+    let now = 0
+    const realNow = Date.now
+    Date.now = () => realNow() + now
+    const doneChecks: string[] = []
+    let elsewhere = 0
+    try {
+      const token = await requestOwnerNpmLogin({
+        purpose: 'p',
+        socketPath,
+        fetchImpl: async (url: string) => {
+          if (url.endsWith('/-/v1/login')) return json(LOGIN)
+          doneChecks.push(url)
+          return json({}, 202)
+        },
+        // Nothing at the first check; the owner's `npm login` lands before the second.
+        signedInElsewhere: async () => (elsewhere++ === 0 ? null : 'session-npmrc'),
+        timeoutMs: 120_000,
+        pollMs: 3_000,
+        sleep: async (ms) => {
+          now += ms
+        },
+      })
+      expect(token).toBe('session-npmrc')
+    } finally {
+      Date.now = realNow
+    }
+    // About every 30 s, not at each 3 s done-check.
+    expect(elsewhere).toBe(2)
+    expect(doneChecks).toHaveLength(10)
+    expect(calls).toContainEqual({
+      method: 'POST',
+      path: '/requests/req-1/resolve',
+      body: { status: 'approved' },
+    })
+  })
+
+  it("counterexample: with no sign-in elsewhere, the request's own sign-in is the one returned", async () => {
+    const { socketPath } = await fakeService([{ status: 'pending' }])
+    const answers = [json(LOGIN), json({}, 202), json({}, 202), json({ token: 'session-1' })]
+    const token = await requestOwnerNpmLogin({
+      purpose: 'p',
+      socketPath,
+      fetchImpl: async () => answers.shift() ?? json({}, 202),
+      signedInElsewhere: async () => null,
+      sleep: noSleep,
+    })
+    expect(token).toBe('session-1')
+  })
+
   it('gives up on an unanswering npm at the timeout', async () => {
     const { socketPath, calls } = await fakeService([{ status: 'pending' }])
     let now = 0

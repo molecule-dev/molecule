@@ -394,19 +394,58 @@ if (!CI && savedLoginStatus !== 200) {
 }
 
 /**
+ * A login saved to ~/.npmrc after this run last read it, when npm accepts it. The owner can sign
+ * in with `npm login` in any terminal here instead of through the phone's request, and that ends
+ * the wait for the request.
+ *
+ * @returns The session token, or null.
+ */
+const savedLoginElsewhere = async () => {
+  const saved = readNpmToken()
+  if (!saved || saved === token) return null
+  return (await whoamiStatus(saved)) === 200 ? saved : null
+}
+
+/**
+ * Makes a session this run's login. A session from the phone lives in a temporary npm config for
+ * this run only; one the owner saved to ~/.npmrc is read from there, as npm reads it.
+ *
+ * @param session - The session token.
+ * @param again - Whether it replaces this run's expired login.
+ */
+const adoptLogin = (session, again) => {
+  token = session
+  phoneLogin?.dispose()
+  phoneLogin = null
+  if (session === readNpmToken()) {
+    console.error(
+      `  using the new npm login in ~/.npmrc${again ? ' instead of the expired one' : ''}`,
+    )
+    return
+  }
+  phoneLogin = npmUserconfigWithToken(session)
+  console.error(
+    `  signed in to npm${again ? ' again' : ''} from the phone (kept for this run only)`,
+  )
+}
+
+/**
  * Asks the owner's phone to sign in to npm, and makes that login this run's.
  *
  * @param why - Why the saved login cannot be used.
  * @param names - The packages the run is about to trust.
  */
 const signInFromPhone = async (why, names) => {
-  console.error(`${why}; asked the owner's phone to sign in to npm…`)
+  console.error(
+    `${why}; asked the owner's phone to sign in to npm (an \`npm login\` in a terminal here works too)…`,
+  )
   try {
     token = await requestOwnerNpmLogin({
       purpose:
         `trust:new needs you to sign in to npm (the saved login has expired) to trust ` +
         `${names.length} package(s): ${names.slice(0, 3).join(', ')}` +
         (names.length > 3 ? ` and ${names.length - 3} more` : ''),
+      signedInElsewhere: savedLoginElsewhere,
     })
   } catch (error) {
     console.error(`Stopped: no npm sign-in from the phone: ${error.message}. Nothing was changed.`)
@@ -417,8 +456,7 @@ const signInFromPhone = async (why, names) => {
     console.error(`Stopped: npm does not accept the new sign-in (whoami -> ${status}).`)
     process.exit(1)
   }
-  phoneLogin = npmUserconfigWithToken(token)
-  console.error('  signed in to npm from the phone (kept for this run only)')
+  adoptLogin(token, false)
 }
 
 /**
@@ -453,6 +491,7 @@ const ensureLogin = async () => {
   try {
     fresh = await requestOwnerNpmLogin({
       purpose: `trust:new needs you to sign in to npm again (the login expired); ${left} of ${progress.names.length} package(s) left`,
+      signedInElsewhere: savedLoginElsewhere,
     })
   } catch (error) {
     throw new NoTwoFactorAnswer(`no npm sign-in from the phone: ${error.message}`, {
@@ -462,10 +501,7 @@ const ensureLogin = async () => {
   const after = await whoamiStatus(fresh)
   if (after !== 200)
     throw new NoTwoFactorAnswer(`npm does not accept the new sign-in (whoami -> ${after})`)
-  token = fresh
-  phoneLogin?.dispose()
-  phoneLogin = npmUserconfigWithToken(token)
-  console.error('  signed in to npm again from the phone (kept for this run only)')
+  adoptLogin(fresh, true)
 }
 
 /**
