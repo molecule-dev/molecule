@@ -162,10 +162,10 @@ export function usePromiseCore<Args extends unknown[], T>(
  *
  * @example
  * ```vue
- * <script setup>
+ * <script setup lang="ts">
  * import { usePromise } from '@molecule/app-vue'
  *
- * const [state, fetchUser] = usePromise((id: string) => {
+ * const [state, fetchUser] = usePromise(async (id: string) => {
  *   const response = await fetch(`/api/users/${id}`)
  *   return response.json()
  * })

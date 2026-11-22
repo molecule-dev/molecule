@@ -28,6 +28,13 @@
  *   `,
  * })
  * export class Grids {
+ *   readonly products = [
+ *     { id: 'p1', name: 'Mug' },
+ *     { id: 'p2', name: 'Lamp' },
+ *     { id: 'p3', name: 'Chair' },
+ *   ]
+ *   readonly hero = 'Hero card'
+ *   readonly stats = 'Stats card'
  *   bentoItems = [
  *     { id: 'hero', content: this.hero, colSpan: 8, rowSpan: 2 },
  *     { id: 'stats', content: this.stats, colSpan: 4 },

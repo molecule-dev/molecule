@@ -49,6 +49,7 @@ type AngularFormOptions<T extends FormValuesConstraint<T>> = Omit<
  * export class LoginFormComponent implements OnInit, OnDestroy {
  *   private form!: MoleculeFormInstance<{ email: string; password: string }>
  *   emailReg!: FieldRegistration
+ *   emailValue = ''
  *
  *   errors$ = new Observable<Partial<Record<string, string>>>()
  *   isSubmitting$ = new Observable<boolean>()

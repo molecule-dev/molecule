@@ -173,8 +173,13 @@ export class SearchResults<T extends ClientSearchDocument = ClientSearchDocument
 
   /** The list element, read to keep the active row in view. */
   @ViewChild('listEl') listEl?: ElementRef<HTMLUListElement>
-  /** The row body template, handed to a custom `renderLink` as its children. */
-  @ViewChild('rowBody') rowBodyTpl?: TemplateRef<{ $implicit: SearchResultHit<T> }>
+  /**
+   * The row body template, handed to a custom `renderLink` as its children. Static: it sits
+   * outside every block, so it exists before the first render builds the link props.
+   */
+  @ViewChild('rowBody', { static: true }) rowBodyTpl?: TemplateRef<{
+    $implicit: SearchResultHit<T>
+  }>
 
   /** i18n handle, read in an injection context. */
   readonly t = useTranslation().t
@@ -297,7 +302,7 @@ export class SearchResults<T extends ClientSearchDocument = ClientSearchDocument
 
   /**
    * The link props one row's link gets. `children` is the row body as a
-   * `TemplateRef`: render it with the hit as its `$implicit` context (the
+   * `TemplateRef` and `childrenContext` the context it renders with (the
    * ready node a React `renderLink` receives has no Angular equivalent).
    *
    * @param hit - The hit.
@@ -311,6 +316,7 @@ export class SearchResults<T extends ClientSearchDocument = ClientSearchDocument
       className: this.cm().resultBody,
       'data-mol-id': `${this.id()}-link`,
       children: this.rowBodyTpl,
+      childrenContext: { $implicit: hit },
       onClick: (event: MouseEvent) => {
         // A modified click opens a new tab; the router handles the rest.
         if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0)

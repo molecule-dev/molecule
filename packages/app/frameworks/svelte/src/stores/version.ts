@@ -16,17 +16,17 @@ import { getProvider } from '@molecule/app-version'
  *
  * @example
  * ```svelte
- * <script>
+ * <script lang="ts">
  *   import { createVersionStores } from '@molecule/app-svelte'
  *
- *   const { state, isUpdateAvailable, applyUpdate, dismissUpdate } = createVersionStores()
+ *   const { isUpdateAvailable, newVersion, applyUpdate, dismissUpdate } = createVersionStores()
  * </script>
  *
  * {#if $isUpdateAvailable}
  *   <div>
  *     <p>New version available: {$newVersion}</p>
- *     <button on:click={() => applyUpdate()}>Update</button>
- *     <button on:click={dismissUpdate}>Dismiss</button>
+ *     <button onclick={() => applyUpdate()}>Update</button>
+ *     <button onclick={dismissUpdate}>Dismiss</button>
  *   </div>
  * {/if}
  * ```

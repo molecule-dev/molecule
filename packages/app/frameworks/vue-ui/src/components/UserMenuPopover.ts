@@ -11,14 +11,28 @@
  * Compose it:
  *
  * ```vue
- * <UserMenuPopover :guest-name="t('userMenu.guest', {}, { defaultValue: 'Analyst' })">
- *   <UserMenuPopoverTrigger />
- *   <UserMenuPopoverPanel>
- *     <RouterLink to="/settings">Settings</RouterLink>
- *     <RouterLink to="/datasets">My datasets</RouterLink>
- *     <UserMenuPopoverSignOut />
- *   </UserMenuPopoverPanel>
- * </UserMenuPopover>
+ * <script setup lang="ts">
+ * import { Link, useTranslation } from '@molecule/app-vue'
+ * import {
+ *   UserMenuPopover,
+ *   UserMenuPopoverPanel,
+ *   UserMenuPopoverSignOut,
+ *   UserMenuPopoverTrigger,
+ * } from '@molecule/app-ui-vue'
+ *
+ * const { t } = useTranslation()
+ * </script>
+ *
+ * <template>
+ *   <UserMenuPopover :guest-name="t('userMenu.guestName', {}, { defaultValue: 'Analyst' })">
+ *     <UserMenuPopoverTrigger />
+ *     <UserMenuPopoverPanel>
+ *       <Link to="/settings">Settings</Link>
+ *       <Link to="/datasets">My datasets</Link>
+ *       <UserMenuPopoverSignOut />
+ *     </UserMenuPopoverPanel>
+ *   </UserMenuPopover>
+ * </template>
  * ```
  *
  * @module

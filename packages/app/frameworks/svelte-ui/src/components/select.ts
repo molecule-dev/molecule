@@ -26,14 +26,13 @@ export interface SelectClassOptions {
  *
  * Usage in Svelte:
  * ```svelte
- * <script>
+ * <script lang="ts">
  *   import { getSelectClasses } from '@molecule/app-ui-svelte'
- *   export let size = 'md'
- *   export let error = ''
- *   $: classes = getSelectClasses({ size, error })
+ *   let { size = 'md', error = '', children } = $props()
+ *   const classes = $derived(getSelectClasses({ size, error }))
  * </script>
  * <select class={classes}>
- *   <slot />
+ *   {@render children?.()}
  * </select>
  * ```
  * @param options - The options.

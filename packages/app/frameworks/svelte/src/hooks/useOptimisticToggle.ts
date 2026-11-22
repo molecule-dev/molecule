@@ -53,6 +53,8 @@ export interface UseOptimisticToggleResult {
  * @example
  * ```svelte
  * <script lang="ts">
+ *   import { useOptimisticToggle } from '@molecule/app-svelte'
+ *
  *   const subscription = useOptimisticToggle({
  *     value: thread.subscribed,
  *     commit: async (desired) => {
@@ -67,6 +69,8 @@ export interface UseOptimisticToggleResult {
  * </script>
  *
  * <button type="button" aria-pressed={$value} aria-busy={$pending} onclick={subscription.toggle}>
+ *   {$value ? 'Unsubscribe' : 'Subscribe'}
+ * </button>
  * ```
  */
 export const useOptimisticToggle = (

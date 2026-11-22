@@ -123,13 +123,17 @@ function localeValue<T>(version: Readable<string>, read: () => T): Readable<T> {
  * @returns The translation function and the locale values as stores.
  * @example
  * ```svelte
- * <script>
+ * <script lang="ts">
  *   import { useTranslation } from '@molecule/app-svelte'
- *   const { t, locale } = useTranslation()
+ *   const { t, locale, locales, setLocale } = useTranslation()
  * </script>
  *
  * <h1>{t('welcome.title', { name: 'User' })}</h1>
  * <select value={$locale} onchange={(e) => setLocale(e.currentTarget.value)}>
+ *   {#each $locales as option (option.code)}
+ *     <option value={option.code}>{option.name}</option>
+ *   {/each}
+ * </select>
  * ```
  */
 export function useTranslation(): UseTranslationResult {

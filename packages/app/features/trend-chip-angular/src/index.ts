@@ -17,8 +17,8 @@
  *   imports: [TrendChip],
  *   template: `
  *     <tr>
- *       <td><span mol-trend-chip [delta]="12" /></td>
- *       <td><span mol-trend-chip [delta]="-4.5" variant="pill" /></td>
+ *       <td><span mol-trend-chip [delta]="12"></span></td>
+ *       <td><span mol-trend-chip [delta]="-4.5" variant="pill"></span></td>
  *     </tr>
  *   `,
  * })

@@ -13,6 +13,7 @@
  */
 
 import '@angular/compiler'
+import { NgTemplateOutlet } from '@angular/common'
 import {
   type ApplicationRef,
   ChangeDetectionStrategy,
@@ -422,7 +423,7 @@ describe('SearchResults', () => {
     const Host = Component({
       selector: 'mol-spec-custom-host',
       standalone: true,
-      imports: [SearchResults as Type<unknown>],
+      imports: [SearchResults as Type<unknown>, NgTemplateOutlet],
       changeDetection: ChangeDetectionStrategy.Default,
       template: `<mol-search-results
           [hits]="hits"
@@ -432,7 +433,13 @@ describe('SearchResults', () => {
           [renderLink]="customLink"
           emptyText="Nothing"
         ></mol-search-results>
-        <ng-template #customLink let-p><span [attr.data-custom]="p.href">go</span></ng-template>`,
+        <ng-template #customLink let-p
+          ><span [attr.data-custom]="p.href"
+            ><ng-container
+              [ngTemplateOutlet]="p.children"
+              [ngTemplateOutletContext]="p.childrenContext"
+            ></ng-container></span
+        ></ng-template>`,
     })(SpecCustomHost)
     const appRef: ApplicationRef = await createApplication({
       providers: [provideZonelessChangeDetection()],
@@ -465,6 +472,11 @@ describe('SearchResults', () => {
     mounted.push(m)
     await m.flush()
     expect(host.querySelectorAll('[data-custom]').length).toBe(2)
+    // The link renders the row body it is handed, with that row's hit.
+    expect([...host.querySelectorAll('[data-custom]')].map((link) => link.textContent)).toEqual([
+      expect.stringContaining('api-auth'),
+      expect.stringContaining('app-auth'),
+    ])
     // No row is active, so the status region is there but silent.
     expect(host.querySelector('[data-mol-id="search-active"]')?.getAttribute('role')).toBe('status')
     expect(host.querySelector('[data-mol-id="search-active"]')?.textContent?.trim()).toBe('')

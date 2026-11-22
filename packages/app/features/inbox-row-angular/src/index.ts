@@ -29,7 +29,15 @@
  *     ></div>
  *   `,
  * })
- * export class Message {}
+ * export class Message {
+ *   readonly open = (): void => {
+ *     console.log('open message')
+ *   }
+ *
+ *   readonly toggleStar = (): void => {
+ *     console.log('toggle star')
+ *   }
+ * }
  * ```
  *
  * @remarks

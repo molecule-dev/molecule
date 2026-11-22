@@ -19,11 +19,10 @@ export interface SeparatorClassOptions {
  *
  * Usage in Svelte:
  * ```svelte
- * <script>
+ * <script lang="ts">
  *   import { getSeparatorClasses } from '@molecule/app-ui-svelte'
- *   export let orientation = 'horizontal'
- *   export let decorative = true
- *   $: classes = getSeparatorClasses({ orientation })
+ *   let { orientation = 'horizontal', decorative = true } = $props()
+ *   const classes = $derived(getSeparatorClasses({ orientation }))
  * </script>
  * <div
  *   role={decorative ? 'none' : 'separator'}

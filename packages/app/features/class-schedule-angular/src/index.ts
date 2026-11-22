@@ -11,7 +11,11 @@
  * @example
  * ```ts
  * import { Component } from '@angular/core'
- * import { ClassSchedule } from '@molecule/app-class-schedule-angular'
+ * import {
+ *   ClassSchedule,
+ *   type ScheduleEvent,
+ *   type ScheduleSlot,
+ * } from '@molecule/app-class-schedule-angular'
  *
  * @Component({
  *   selector: 'app-timetable',
@@ -26,7 +30,19 @@
  *     ></div>
  *   `,
  * })
- * export class Timetable {}
+ * export class Timetable {
+ *   readonly events: ScheduleEvent[] = [
+ *     { id: 'c1', weekday: 1, start: 540, end: 630, title: 'Yoga' },
+ *   ]
+ *
+ *   readonly onEvent = (event: ScheduleEvent): void => {
+ *     console.log('open event', event.id)
+ *   }
+ *
+ *   readonly onSlot = (slot: ScheduleSlot): void => {
+ *     console.log('book slot', slot.weekday, slot.start)
+ *   }
+ * }
  * ```
  *
  * @remarks

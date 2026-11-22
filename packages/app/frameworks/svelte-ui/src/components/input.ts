@@ -28,11 +28,10 @@ export interface InputClassOptions {
  *
  * Usage in Svelte:
  * ```svelte
- * <script>
+ * <script lang="ts">
  *   import { getInputClasses } from '@molecule/app-ui-svelte'
- *   export let size = 'md'
- *   export let error = ''
- *   $: classes = getInputClasses({ size, error })
+ *   let { size = 'md', error = '' } = $props()
+ *   const classes = $derived(getInputClasses({ size, error }))
  * </script>
  * <input class={classes} />
  * ```

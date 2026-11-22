@@ -10,6 +10,7 @@
  * ```svelte
  * <!-- +layout.svelte — wire providers ONCE, during component init -->
  * <script lang="ts">
+ *   import type { Snippet } from 'svelte'
  *   import { setMoleculeContext } from '@molecule/app-svelte'
  *   import { provider as stateProvider } from '@molecule/app-state-zustand'
  *   import { provider as themeProvider } from '@molecule/app-theme-css-variables'
@@ -20,10 +21,14 @@
  *     auth: createJWTAuthClient({ baseURL: '/api' }),
  *     theme: themeProvider,
  *   })
+ *
+ *   let { children }: { children: Snippet } = $props()
  * </script>
  *
- * <slot />
+ * {@render children()}
+ * ```
  *
+ * ```svelte
  * <!-- Component.svelte — consume via stores -->
  * <script lang="ts">
  *   import { createAuthStores, createThemeStores } from '@molecule/app-svelte'
@@ -35,8 +40,8 @@
  * {#if $isAuthenticated}
  *   <div style:background={$theme.colors.background}>
  *     <h1>Welcome, {$user?.name}!</h1>
- *     <button on:click={toggleTheme}>Toggle ({$mode})</button>
- *     <button on:click={() => logout()}>Logout</button>
+ *     <button onclick={toggleTheme}>Toggle ({$mode})</button>
+ *     <button onclick={() => logout()}>Logout</button>
  *   </div>
  * {/if}
  * ```

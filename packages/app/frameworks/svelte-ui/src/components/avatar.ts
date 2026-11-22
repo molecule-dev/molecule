@@ -24,17 +24,15 @@ export interface AvatarClassOptions {
  *
  * Usage in Svelte:
  * ```svelte
- * <script>
+ * <script lang="ts">
  *   import { getAvatarClasses, getAvatarImageClass, getAvatarFallbackClass, getAvatarCustomSize } from '@molecule/app-ui-svelte'
  *   import { getInitials } from '@molecule/app-ui-svelte'
  *   import { useTranslation } from '@molecule/app-svelte'
  *   const { t } = useTranslation()
- *   export let src = ''
- *   export let name = ''
- *   export let size = 'md'
- *   $: classes = getAvatarClasses({ size })
- *   $: customSize = getAvatarCustomSize(size)
- *   $: initials = name ? getInitials(name) : ''
+ *   let { src = '', name = '', size = 'md' } = $props()
+ *   const classes = $derived(getAvatarClasses({ size }))
+ *   const customSize = $derived(getAvatarCustomSize(size))
+ *   const initials = $derived(name ? getInitials(name) : '')
  * </script>
  * <div class={classes} style={customSize}>
  *   {#if src}

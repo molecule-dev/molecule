@@ -37,14 +37,14 @@ export interface AlertClassOptions {
  *
  * Usage in Svelte:
  * ```svelte
- * <script>
+ * <script lang="ts">
  *   import { getAlertClasses, getAlertTitleClass, getAlertDescriptionClass } from '@molecule/app-ui-svelte'
- *   export let status = 'info'
- *   $: classes = getAlertClasses({ status })
+ *   let { status = 'info', children } = $props()
+ *   const classes = $derived(getAlertClasses({ status }))
  * </script>
  * <div role="alert" class={classes}>
  *   {#if title}<h5 class={getAlertTitleClass()}>{title}</h5>{/if}
- *   <div class={getAlertDescriptionClass()}><slot /></div>
+ *   <div class={getAlertDescriptionClass()}>{@render children?.()}</div>
  * </div>
  * ```
  * @param options - The options.

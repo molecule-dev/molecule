@@ -26,14 +26,13 @@ export interface SpinnerClassOptions {
  *
  * Usage in Svelte:
  * ```svelte
- * <script>
+ * <script lang="ts">
  *   import { getSpinnerClasses, getSpinnerColorStyle } from '@molecule/app-ui-svelte'
  *   import { useTranslation } from '@molecule/app-svelte'
  *   const { t } = useTranslation()
- *   export let size = 'md'
- *   export let color = undefined
- *   $: classes = getSpinnerClasses({ size })
- *   $: colorStyle = getSpinnerColorStyle(color)
+ *   let { size = 'md', color = undefined } = $props()
+ *   const classes = $derived(getSpinnerClasses({ size }))
+ *   const colorStyle = $derived(getSpinnerColorStyle(color))
  * </script>
  * <div role="status" aria-label={label || t('ui.spinner.loading')} class={classes} style={colorStyle}>
  *   {#if label}<span class="sr-only">{label}</span>{/if}

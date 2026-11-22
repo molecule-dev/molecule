@@ -22,10 +22,10 @@ export interface TextareaClassOptions {
  *
  * Usage in Svelte:
  * ```svelte
- * <script>
+ * <script lang="ts">
  *   import { getTextareaClasses } from '@molecule/app-ui-svelte'
- *   export let error = ''
- *   $: classes = getTextareaClasses({ error })
+ *   let { error = '' } = $props()
+ *   const classes = $derived(getTextareaClasses({ error }))
  * </script>
  * <textarea class={classes} />
  * ```

@@ -27,7 +27,11 @@
  *     ></div>
  *   `,
  * })
- * export class Player {}
+ * export class Player {
+ *   readonly log = (message: string): void => {
+ *     console.log(message)
+ *   }
+ * }
  * ```
  *
  * @remarks

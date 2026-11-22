@@ -22,7 +22,7 @@
  *       [steps]="steps"
  *       [currentKey]="'shipped'"
  *       [ariaLabel]="'Order status'"
- *     />
+ *     ></ol>
  *   `,
  * })
  * export class OrderProgress {

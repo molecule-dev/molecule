@@ -25,15 +25,12 @@ export interface ButtonClassOptions {
  *
  * Usage in Svelte:
  * ```svelte
- * <script>
+ * <script lang="ts">
  *   import { getButtonClasses } from '@molecule/app-ui-svelte'
- *   export let variant = 'solid'
- *   export let color = 'primary'
- *   export let size = 'md'
- *   export let fullWidth = false
- *   $: classes = getButtonClasses({ variant, color, size, fullWidth })
+ *   let { variant = 'solid', color = 'primary', size = 'md', fullWidth = false, children, onclick } = $props()
+ *   const classes = $derived(getButtonClasses({ variant, color, size, fullWidth }))
  * </script>
- * <button class={classes} on:click><slot /></button>
+ * <button class={classes} onclick={onclick}>{@render children?.()}</button>
  * ```
  * @param options - The options.
  * @returns The resulting string.

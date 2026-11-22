@@ -55,12 +55,12 @@ export interface ToastClassOptions {
  *
  * Usage in Svelte:
  * ```svelte
- * <script>
+ * <script lang="ts">
  *   import { getToastClasses, getToastTitleClass, getToastDescriptionClass, getToastCloseClass } from '@molecule/app-ui-svelte'
  *   import { useTranslation } from '@molecule/app-svelte'
  *   const { t } = useTranslation()
- *   export let status = 'info'
- *   $: classes = getToastClasses({ status })
+ *   let { status = 'info', onDismiss = () => {} } = $props()
+ *   const classes = $derived(getToastClasses({ status }))
  * </script>
  * <div role="alert" data-state="open" class={classes}>
  *   <span class={cm.toastIconWrapper}>{@html icon}</span>
@@ -69,7 +69,7 @@ export interface ToastClassOptions {
  *     {#if description}<div class={getToastDescriptionClass()}>{description}</div>{/if}
  *   </div>
  *   {#if dismissible}
- *     <button class={getToastCloseClass()} on:click={onDismiss} aria-label={t('ui.toast.close')}>X</button>
+ *     <button class={getToastCloseClass()} onclick={onDismiss} aria-label={t('ui.toast.close')}>X</button>
  *   {/if}
  * </div>
  * ```

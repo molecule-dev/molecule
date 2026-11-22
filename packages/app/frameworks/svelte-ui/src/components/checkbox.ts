@@ -21,11 +21,10 @@ export interface CheckboxClassOptions {
  *
  * Usage in Svelte:
  * ```svelte
- * <script>
+ * <script lang="ts">
  *   import { getCheckboxClasses, checkboxLabelWrapperClass } from '@molecule/app-ui-svelte'
- *   export let error = ''
- *   export let checked = false
- *   $: classes = getCheckboxClasses({ error })
+ *   let { error = '', checked = $bindable(false) } = $props()
+ *   const classes = $derived(getCheckboxClasses({ error }))
  * </script>
  * <label class={checkboxLabelWrapperClass}>
  *   <input type="checkbox" bind:checked class={classes} data-state={checked ? 'checked' : 'unchecked'} />

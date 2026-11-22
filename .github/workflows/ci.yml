@@ -106,6 +106,9 @@ jobs:
       # Every app feature package must carry a module-level @example so its
       # auto-generated MOLECULE.md shows the AI executor how to use the component.
       - run: npm run check:feature-jsdocs
+      # Every Svelte, Vue and Angular example in a package's JSDoc compiles with
+      # its framework's own compiler: a model copies them from the README.
+      - run: node scripts/check-doc-examples.mjs --check
       # i18n parity (cross-cutting-i18n): a literal `t('ns.key')` whose namespace
       # is owned by a single locale bond must exist in that bond's en.ts — else
       # English speakers see the inline defaultValue but every other locale is

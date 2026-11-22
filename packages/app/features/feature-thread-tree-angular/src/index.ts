@@ -15,7 +15,7 @@
  * @example
  * ```ts
  * import { Component } from '@angular/core'
- * import { ThreadTree } from '@molecule/app-feature-thread-tree-angular'
+ * import { ThreadTree, type Comment } from '@molecule/app-feature-thread-tree-angular'
  *
  * @Component({
  *   selector: 'app-comments',
@@ -31,7 +31,19 @@
  *     ></ul>
  *   `,
  * })
- * export class Comments {}
+ * export class Comments {
+ *   readonly comments: Comment[] = [
+ *     { id: 'c1', author: 'Alice', body: 'First!', score: 3 },
+ *   ]
+ *
+ *   readonly openReplyForm = (commentId: string): void => {
+ *     console.log('reply to', commentId)
+ *   }
+ *
+ *   readonly upvote = (commentId: string, next: boolean): void => {
+ *     console.log('upvote', commentId, next)
+ *   }
+ * }
  * ```
  *
  * @remarks

@@ -13,10 +13,12 @@
  * </script>
  *
  * <table>
- *   <tr>
- *     <td><TrendChip delta={12} /></td>
- *     <td><TrendChip delta={-4.5} suffix="%" variant="pill" /></td>
- *   </tr>
+ *   <tbody>
+ *     <tr>
+ *       <td><TrendChip delta={12} /></td>
+ *       <td><TrendChip delta={-4.5} suffix="%" variant="pill" /></td>
+ *     </tr>
+ *   </tbody>
  * </table>
  * ```
  *

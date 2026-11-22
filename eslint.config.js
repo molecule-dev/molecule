@@ -431,33 +431,28 @@ export default tseslint.config(
     },
   },
   {
-    // Svelte UI docs show real Svelte template snippets, and `{@html …}` is
-    // Svelte syntax, not a JSDoc inline tag. Declaring it here beats mangling
-    // the snippet — an escaped `{\@html}` would document syntax that does not
-    // work. Scoped to this package so `{@html}` stays invalid everywhere else.
-    files: ['packages/app/frameworks/svelte-ui/**/*.ts'],
+    // A Svelte package's docs show real Svelte templates, and `{@render children()}`,
+    // `{@html …}`, `{@const …}`, `{@debug …}` and `{@attach …}` are Svelte syntax, not JSDoc
+    // inline tags. Declaring them beats mangling the example: an escaped `{\@render}` would
+    // document syntax that does not work, and scripts/check-doc-examples.mjs compiles each
+    // example as written. Scoped to Svelte packages so the tags stay invalid everywhere else.
+    files: ['packages/**/*svelte*/**/*.ts'],
     rules: {
       'jsdoc/check-tag-names': [
         'warn',
         {
           definedTags: ['module', 'remarks', 'defaultValue', 'e2e'],
-          inlineTags: ['link', 'linkcode', 'linkplain', 'tutorial', 'html'],
-        },
-      ],
-    },
-  },
-  {
-    // The SvelteKit routing bond's docs show real Svelte template snippets, and
-    // `{@render children()}` is Svelte syntax, not a JSDoc inline tag. Declaring it here
-    // beats mangling the snippet — an escaped `{\@render}` would document syntax that does
-    // not work. Scoped to this package so `{@render}` stays invalid everywhere else.
-    files: ['packages/app/bonds/routing/sveltekit/**/*.ts'],
-    rules: {
-      'jsdoc/check-tag-names': [
-        'warn',
-        {
-          definedTags: ['module', 'remarks', 'defaultValue', 'e2e'],
-          inlineTags: ['link', 'linkcode', 'linkplain', 'tutorial', 'render'],
+          inlineTags: [
+            'link',
+            'linkcode',
+            'linkplain',
+            'tutorial',
+            'render',
+            'html',
+            'const',
+            'debug',
+            'attach',
+          ],
         },
       ],
     },

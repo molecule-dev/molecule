@@ -47,6 +47,14 @@
  *   ListingGrid,
  * } from '@molecule/app-listing-card-angular'
  *
+ * interface Listing {
+ *   id: string
+ *   name: string
+ *   location: string
+ *   imageUrl: string
+ *   price: number
+ * }
+ *
  * @Component({
  *   selector: 'app-listings',
  *   standalone: true,
@@ -73,8 +81,18 @@
  * })
  * export class Listings {
  *   items: Listing[] = []
+ *   item: Listing = {
+ *     id: 'l1',
+ *     name: 'Sea-view loft',
+ *     location: 'Lisbon',
+ *     imageUrl: '/listings/loft.jpg',
+ *     price: 120,
+ *   }
  *   open(id: string): () => void {
- *     return () => this.navigate(`/listings/${id}`)
+ *     return () => console.log('open listing', id)
+ *   }
+ *   readonly save = (id: string): void => {
+ *     console.log('save listing', id)
  *   }
  * }
  * ```

@@ -30,7 +30,8 @@ import Kbd from '../Kbd.svelte'
 import QuickSearchDialog from '../QuickSearchDialog.svelte'
 import SearchBox from '../SearchBox.svelte'
 import SearchResults from '../SearchResults.svelte'
-import type { SearchResultLinkProps, SearchResultView } from '../types.js'
+import type { SearchResultView } from '../types.js'
+import CustomLinkResults from './CustomLinkResults.svelte'
 import Host from './Host.svelte'
 
 /** A snippet rendering the given markup, the way a caller fills a slot. */
@@ -217,18 +218,19 @@ describe('SearchResults', () => {
   })
 
   it('renders through a custom link and shows the empty text', () => {
-    const renderLink: Snippet<[SearchResultLinkProps]> = createRawSnippet((getProps) => ({
-      render: () => `<span data-custom="${getProps().href}">go</span>`,
-    }))
-    const mountedList = mountWith(SearchResults<PackageDoc>, {
+    // The host writes renderLink in markup, as a consumer does, and renders p.children.
+    const mountedList = mountWith(CustomLinkResults<PackageDoc>, {
       hits,
       view,
       activeIndex: -1,
       onOpen: () => {},
-      renderLink,
       emptyText: 'Nothing',
     })
     expect(container!.querySelectorAll('[data-custom]').length).toBe(2)
+    // The link renders the row body it is handed, with that row's hit.
+    expect(
+      [...container!.querySelectorAll('[data-custom]')].map((link) => link.textContent),
+    ).toEqual([expect.stringContaining('api-auth'), expect.stringContaining('app-auth')])
     // No row is active, so the status region is there but silent.
     expect(q('[data-mol-id="search-active"]')?.getAttribute('role')).toBe('status')
     expect(q('[data-mol-id="search-active"]')?.textContent).toBe('')

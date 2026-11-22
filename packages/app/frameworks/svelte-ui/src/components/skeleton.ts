@@ -22,14 +22,11 @@ export interface SkeletonClassOptions {
  *
  * Usage in Svelte:
  * ```svelte
- * <script>
+ * <script lang="ts">
  *   import { getSkeletonClasses, getSkeletonStyle } from '@molecule/app-ui-svelte'
- *   export let width = undefined
- *   export let height = undefined
- *   export let circle = false
- *   export let animation = 'pulse'
- *   $: classes = getSkeletonClasses({ circle, animation })
- *   $: style = getSkeletonStyle({ width, height, circle, borderRadius })
+ *   let { width = undefined, height = undefined, circle = false, animation = 'pulse' } = $props()
+ *   const classes = $derived(getSkeletonClasses({ circle, animation }))
+ *   const style = $derived(getSkeletonStyle({ width, height, circle, borderRadius }))
  * </script>
  * <div class={classes} style={style} />
  * ```

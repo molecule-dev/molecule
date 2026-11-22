@@ -103,11 +103,19 @@ export interface SearchResultView {
   state?: unknown
 }
 
-/** Props the row's link gets; `renderLink` turns them into markup. */
+/**
+ * Props the row's link gets; `renderLink` turns them into markup. Angular cannot hand over a
+ * ready node as React does, so `children` is the row body's `TemplateRef` and
+ * `childrenContext` the context it renders with:
+ * `<ng-container [ngTemplateOutlet]="p.children" [ngTemplateOutletContext]="p.childrenContext" />`.
+ */
 export interface SearchResultLinkProps {
   href: string
   className: string
+  /** The row body (title, description, meta), as a `TemplateRef`. */
   children: unknown
+  /** The context `children` renders with (the row's hit). */
+  childrenContext: { $implicit: unknown }
   onClick: (event: MouseEvent) => void
   state?: unknown
   'data-mol-id': string

@@ -25,7 +25,11 @@
  *     ></div>
  *   `,
  * })
- * export class Account {}
+ * export class Account {
+ *   readonly openConfirm = (): void => {
+ *     console.log('open delete-account confirmation')
+ *   }
+ * }
  * ```
  *
  * @remarks

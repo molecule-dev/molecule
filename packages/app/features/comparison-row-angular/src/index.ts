@@ -24,7 +24,7 @@
  *       previous="$21,300"
  *       [deltaPct]="16.4"
  *       periodLabel="vs. last month"
- *     />
+ *     ></div>
  *   `,
  * })
  * export class Stat {}

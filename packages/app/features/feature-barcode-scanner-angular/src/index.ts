@@ -16,7 +16,11 @@
  * ```ts
  * import { Component } from '@angular/core'
  *
- * import { BarcodeScanner } from '@molecule/app-feature-barcode-scanner-angular'
+ * import {
+ *   BarcodeScanner,
+ *   type BarcodeScanResult,
+ *   type BarcodeScannerError,
+ * } from '@molecule/app-feature-barcode-scanner-angular'
  *
  * @Component({
  *   selector: 'app-scan-panel',
@@ -31,7 +35,15 @@
  *     ></div>
  *   `,
  * })
- * export class ScanPanel {}
+ * export class ScanPanel {
+ *   readonly addLineItem = (result: BarcodeScanResult): void => {
+ *     console.log('scanned', result.value)
+ *   }
+ *
+ *   readonly showToast = (error: BarcodeScannerError): void => {
+ *     console.log(error.message)
+ *   }
+ * }
  * ```
  *
  * @remarks

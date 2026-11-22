@@ -23,13 +23,12 @@ export interface BadgeClassOptions {
  *
  * Usage in Svelte:
  * ```svelte
- * <script>
+ * <script lang="ts">
  *   import { getBadgeClasses } from '@molecule/app-ui-svelte'
- *   export let color = 'primary'
- *   export let variant = 'solid'
- *   $: classes = getBadgeClasses({ color, variant })
+ *   let { color = 'primary', variant = 'solid', children } = $props()
+ *   const classes = $derived(getBadgeClasses({ color, variant }))
  * </script>
- * <span class={classes}><slot /></span>
+ * <span class={classes}>{@render children?.()}</span>
  * ```
  * @param options - The options.
  * @returns The resulting string.

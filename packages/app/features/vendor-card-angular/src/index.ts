@@ -30,7 +30,15 @@
  *     </div>
  *   `,
  * })
- * export class VendorPage {}
+ * export class VendorPage {
+ *   readonly openVendorPage = (): void => {
+ *     console.log('open vendor page')
+ *   }
+ *
+ *   readonly follow = (): void => {
+ *     console.log('follow vendor')
+ *   }
+ * }
  * ```
  *
  * @remarks

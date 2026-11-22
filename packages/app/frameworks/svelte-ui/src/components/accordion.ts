@@ -22,21 +22,28 @@ export interface AccordionClassOptions {
  *
  * Usage in Svelte:
  * ```svelte
- * <script>
+ * <script lang="ts">
  *   import {
  *     getAccordionClasses, getAccordionItemClass,
  *     getAccordionTriggerClasses, getAccordionContentClass, getAccordionContentInnerClass,
  *   } from '@molecule/app-ui-svelte'
- *   export let items = []
- *   let expandedItems = []
- *   $: containerClass = getAccordionClasses()
+ *   let { items = [] } = $props()
+ *   let expandedItems = $state<string[]>([])
+ *   const containerClass = $derived(getAccordionClasses())
+ *   function toggle(value: string) {
+ *     expandedItems = expandedItems.includes(value)
+ *       ? expandedItems.filter((item) => item !== value)
+ *       : [...expandedItems, value]
+ *   }
  * </script>
  * <div class={containerClass}>
  *   {#each items as item}
  *     <div class={getAccordionItemClass()} data-state={expandedItems.includes(item.value) ? 'open' : 'closed'}>
- *       <button class={getAccordionTriggerClasses()} data-state={...} on:click={() => toggle(item.value)}>
+ *       <button class={getAccordionTriggerClasses()} data-state={expandedItems.includes(item.value) ? 'open' : 'closed'} onclick={() => toggle(item.value)}>
  *         {item.header}
- *         <svg class={cm.accordionChevron}>...</svg>
+ *         <svg class={cm.accordionChevron} viewBox="0 0 24 24" fill="none">
+ *           <path d="M6 9l6 6 6-6" />
+ *         </svg>
  *       </button>
  *       {#if expandedItems.includes(item.value)}
  *         <div class={getAccordionContentClass()}>

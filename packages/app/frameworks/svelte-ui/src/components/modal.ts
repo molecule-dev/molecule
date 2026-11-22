@@ -22,21 +22,26 @@ export interface ModalClassOptions {
  *
  * Usage in Svelte:
  * ```svelte
- * <script>
+ * <script lang="ts">
  *   import { getModalContentClasses, getModalOverlayClass, getModalWrapperClass, getModalHeaderClass, getModalTitleClass, getModalCloseClass, getModalBodyClass } from '@molecule/app-ui-svelte'
- *   export let open = false
- *   export let size = 'md'
- *   $: contentClass = getModalContentClasses({ size })
+ *   let { open = $bindable(false), size = 'md', children } = $props()
+ *   const contentClass = $derived(getModalContentClasses({ size }))
+ *   function onOverlayClick() {
+ *     open = false
+ *   }
+ *   function onClose() {
+ *     open = false
+ *   }
  * </script>
  * {#if open}
  *   <div class={getModalOverlayClass()} aria-hidden="true"></div>
- *   <div class={getModalWrapperClass()} on:click={onOverlayClick}>
- *     <div role="dialog" aria-modal="true" class={contentClass} on:click|stopPropagation>
+ *   <div class={getModalWrapperClass()} onclick={onOverlayClick}>
+ *     <div role="dialog" aria-modal="true" class={contentClass} onclick={(event: MouseEvent) => event.stopPropagation()}>
  *       <div class={getModalHeaderClass()}>
  *         <h2 class={getModalTitleClass()}>{title}</h2>
- *         <button class={getModalCloseClass()} on:click={onClose}>X</button>
+ *         <button class={getModalCloseClass()} onclick={onClose}>X</button>
  *       </div>
- *       <div class={getModalBodyClass()}><slot /></div>
+ *       <div class={getModalBodyClass()}>{@render children?.()}</div>
  *     </div>
  *   </div>
  * {/if}
@@ -120,13 +125,13 @@ export function getModalWrapperClass(): string {
  *
  * Usage in Svelte:
  * ```svelte
- * <script>
+ * <script lang="ts">
  *   import { getModalWrapperClass, getModalWrapperStyle } from '@molecule/app-ui-svelte'
- *   export let centered = true
- *   $: wrapperStyle = getModalWrapperStyle(centered)
+ *   let { centered = true, onOverlayClick = () => {}, children } = $props()
+ *   const wrapperStyle = $derived(getModalWrapperStyle(centered))
  * </script>
- * <div class={getModalWrapperClass()} style={wrapperStyle} on:click={onOverlayClick}>
- *   ...
+ * <div class={getModalWrapperClass()} style={wrapperStyle} onclick={onOverlayClick}>
+ *   {@render children?.()}
  * </div>
  * ```
  * @param centered - Whether the modal is vertically centered. Defaults to `true`.

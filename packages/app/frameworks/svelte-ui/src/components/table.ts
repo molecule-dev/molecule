@@ -23,15 +23,13 @@ export interface TableClassOptions {
  *
  * Usage in Svelte:
  * ```svelte
- * <script>
+ * <script lang="ts">
  *   import {
  *     getTableClasses, getTableHeaderClass, getTableBodyClass,
  *     getTableRowClasses, getTableHeadClasses, getTableCellClasses,
  *   } from '@molecule/app-ui-svelte'
- *   export let bordered = false
- *   export let striped = false
- *   export let hoverable = true
- *   $: tableClass = getTableClasses({ bordered })
+ *   let { bordered = false, striped = false, hoverable = true } = $props()
+ *   const tableClass = $derived(getTableClasses({ bordered }))
  * </script>
  * <div class={cm.tableWrapper}>
  *   <table class={tableClass}>

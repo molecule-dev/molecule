@@ -24,7 +24,7 @@
  * @example
  * ```ts
  * import { Component } from '@angular/core'
- * import { DataTableCard } from '@molecule/app-data-table-ui-angular'
+ * import { DataTableCard, type DataTableColumn } from '@molecule/app-data-table-ui-angular'
  *
  * interface Row {
  *   id: string
@@ -55,6 +55,7 @@
  *   `,
  * })
  * export class MembersTable {
+ *   columns: DataTableColumn<Row>[] = []
  *   members: Row[] = []
  *   rowKey = (row: Row): string => row.id
  *   open = (row: Row): void => {

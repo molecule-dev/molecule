@@ -28,10 +28,14 @@
  *         newValue: 'Sent',
  *       }"
  *       [onClick]="openDetail"
- *     />
+ *     ></div>
  *   `,
  * })
- * export class AuditLog {}
+ * export class AuditLog {
+ *   readonly openDetail = (): void => {
+ *     console.log('open audit entry')
+ *   }
+ * }
  * ```
  *
  * @remarks

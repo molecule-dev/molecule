@@ -21,12 +21,11 @@ export interface RadioClassOptions {
  *
  * Usage in Svelte:
  * ```svelte
- * <script>
+ * <script lang="ts">
  *   import { getRadioClasses, getRadioGroupClasses } from '@molecule/app-ui-svelte'
- *   export let direction = 'vertical'
- *   export let error = ''
- *   $: radioClass = getRadioClasses({ error })
- *   $: groupClass = getRadioGroupClasses(direction)
+ *   let { direction = 'vertical', error = '' } = $props()
+ *   const radioClass = $derived(getRadioClasses({ error }))
+ *   const groupClass = $derived(getRadioGroupClasses(direction))
  * </script>
  * ```
  * @param options - The options.

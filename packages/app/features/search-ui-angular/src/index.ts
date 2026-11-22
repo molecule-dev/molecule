@@ -17,6 +17,7 @@
  *
  * @example
  * ```ts
+ * import { NgTemplateOutlet } from '@angular/common'
  * import { Component } from '@angular/core'
  * import { Link } from '@molecule/app-angular'
  * import { useSearchSession } from '@molecule/app-client-search-angular'
@@ -26,7 +27,7 @@
  * @Component({
  *   selector: 'app-catalog',
  *   standalone: true,
- *   imports: [Link, SearchBox, SearchResults],
+ *   imports: [Link, NgTemplateOutlet, SearchBox, SearchResults],
  *   template: `
  *     <div mol-search-box
  *       [value]="session.query()"
@@ -52,7 +53,7 @@
  *     ></mol-search-results>
  *     <ng-template #link let-p>
  *       <a molLink [to]="p.href" [state]="p.state" [className]="p.className" (click)="p.onClick($event)">
- *         <ng-template [ngTemplateOutlet]="p.children" [ngTemplateOutletContext]="{ $implicit: hit }"></ng-template>
+ *         <ng-container [ngTemplateOutlet]="p.children" [ngTemplateOutletContext]="p.childrenContext"></ng-container>
  *       </a>
  *     </ng-template>
  *   `,
@@ -68,8 +69,6 @@
  *   readonly view = (p: Pkg) => ({ href: `/packages/${p.name}`, title: `@molecule/${p.name}`, description: p.description, meta: [p.type, p.category], mono: true })
  * }
  * ```
- *
- * (`searchPlaceholder` and `nothingMatches` are the app's own translated strings.)
  *
  * @remarks
  * - **Pass a router link through `renderLink`**, or every row is a full page

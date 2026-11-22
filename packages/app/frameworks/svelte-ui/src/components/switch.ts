@@ -24,18 +24,16 @@ export interface SwitchClassOptions {
  *
  * Usage in Svelte:
  * ```svelte
- * <script>
+ * <script lang="ts">
  *   import { getSwitchClasses, getSwitchThumbClasses, getSwitchWrapperClasses } from '@molecule/app-ui-svelte'
- *   export let checked = false
- *   export let size = 'md'
- *   export let disabled = false
- *   $: state = checked ? 'checked' : 'unchecked'
- *   $: trackClass = getSwitchClasses({ size })
- *   $: thumbClass = getSwitchThumbClasses({ size })
- *   $: wrapperClass = getSwitchWrapperClasses({ disabled })
+ *   let { checked = false, size = 'md', disabled = false, onclick } = $props()
+ *   const state = $derived(checked ? 'checked' : 'unchecked')
+ *   const trackClass = $derived(getSwitchClasses({ size }))
+ *   const thumbClass = $derived(getSwitchThumbClasses({ size }))
+ *   const wrapperClass = $derived(getSwitchWrapperClasses({ disabled }))
  * </script>
  * <label class={wrapperClass}>
- *   <button type="button" role="switch" aria-checked={checked} data-state={state} class={trackClass} on:click>
+ *   <button type="button" role="switch" aria-checked={checked} data-state={state} class={trackClass} onclick={onclick}>
  *     <span data-state={state} class={thumbClass} />
  *   </button>
  *   {#if label}<span class={cm.textSize('sm')}>{label}</span>{/if}

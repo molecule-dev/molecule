@@ -50,15 +50,13 @@ const variantMap: Record<string, 'default' | 'elevated' | 'outline' | 'ghost'> =
  *
  * Usage in Svelte:
  * ```svelte
- * <script>
+ * <script lang="ts">
  *   import { getCardClasses, getCardHeaderClass, getCardTitleClass, getCardContentClass, getCardFooterClass } from '@molecule/app-ui-svelte'
- *   export let variant = 'elevated'
- *   export let padding = 'md'
- *   export let interactive = false
- *   $: classes = getCardClasses({ variant, padding, interactive })
+ *   let { variant = 'elevated', padding = 'md', interactive = false, children } = $props()
+ *   const classes = $derived(getCardClasses({ variant, padding, interactive }))
  * </script>
  * <div class={classes} role={interactive ? 'button' : undefined} tabindex={interactive ? 0 : undefined}>
- *   <slot />
+ *   {@render children?.()}
  * </div>
  * ```
  * @param options - The options.

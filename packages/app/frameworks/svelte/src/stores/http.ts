@@ -50,14 +50,14 @@ interface HttpStoreFactory {
  *
  * @example
  * ```svelte
- * <script>
+ * <script lang="ts">
  *   import { createHttpStore } from '@molecule/app-svelte'
  *
- *   const users = createHttpStore('GET', '/api/users')
+ *   const users = createHttpStore<{ id: string; name: string }[]>('GET', '/api/users')
  *
- *   $: if ($users.loading) console.log('Loading...')
- *   $: if ($users.error) console.error($users.error)
- *   $: if ($users.data) console.log('Users:', $users.data)
+ *   $effect(() => {
+ *     if ($users.error) console.error($users.error)
+ *   })
  *
  *   users.execute()
  * </script>
@@ -68,7 +68,7 @@ interface HttpStoreFactory {
  *   <p>Error: {$users.error.message}</p>
  * {:else if $users.data}
  *   <ul>
- *     {#each $users.data as user}
+ *     {#each $users.data as user (user.id)}
  *       <li>{user.name}</li>
  *     {/each}
  *   </ul>

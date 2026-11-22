@@ -39,20 +39,25 @@ export interface DropdownContentClassOptions {
  *
  * Usage in Svelte:
  * ```svelte
- * <script>
+ * <script lang="ts">
  *   import {
  *     getDropdownContentClasses, getDropdownItemClasses, getDropdownSeparatorClass,
  *     calculateDropdownPosition, dropdownTriggerClass,
  *   } from '@molecule/app-ui-svelte'
- *   export let items = []
- *   export let placement = 'bottom-start'
- *   let open = false
+ *   let { items = [], placement = 'bottom-start', trigger } = $props()
+ *   let open = $state(false)
  *   let triggerEl, menuEl
  *   let position = { top: 0, left: 0 }
- *   $: contentClass = getDropdownContentClasses()
+ *   const contentClass = $derived(getDropdownContentClasses())
+ *   function toggleMenu() {
+ *     open = !open
+ *   }
+ *   function onSelect(_value: string) {
+ *     open = false
+ *   }
  * </script>
- * <div bind:this={triggerEl} class={dropdownTriggerClass} on:click={() => open = !open}>
- *   <slot name="trigger" />
+ * <div bind:this={triggerEl} class={dropdownTriggerClass} onclick={toggleMenu}>
+ *   {@render trigger?.()}
  * </div>
  * {#if open}
  *   <div bind:this={menuEl} role="menu" data-state="open" class={contentClass}
@@ -61,7 +66,7 @@ export interface DropdownContentClassOptions {
  *       {#if item.separator}
  *         <div class={getDropdownSeparatorClass()} role="separator" />
  *       {:else}
- *         <div role="menuitem" class={getDropdownItemClasses({ disabled: item.disabled })} on:click={() => onSelect(item.value)}>
+ *         <div role="menuitem" class={getDropdownItemClasses({ disabled: item.disabled })} onclick={() => onSelect(item.value)}>
  *           {item.label}
  *         </div>
  *       {/if}

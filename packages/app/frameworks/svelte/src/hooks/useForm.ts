@@ -128,16 +128,26 @@ export interface UseFormResult<T extends FormValuesConstraint<T>> {
  * @returns Form state stores and methods
  * @example
  * ```svelte
- * <script>
+ * <script lang="ts">
  *   import { useForm } from '@molecule/app-svelte'
  *   const { register, handleSubmit, formState, isSubmitting } = useForm({
  *     defaultValues: { email: '', password: '' },
  *   })
- *   const onSubmit = handleSubmit(async (values) => { await login(values) })
+ *   const onSubmit = handleSubmit(async (values) => {
+ *     await login(values)
+ *   })
  * </script>
  *
  * <form onsubmit={onSubmit}>
- *   <input {...$registerNotNeeded} />
+ *   <input {...register('email', { required: true, email: true })} />
+ *   {#if $formState.errors.email}<span>{$formState.errors.email}</span>{/if}
+ *
+ *   <input {...register('password', { required: true, minLength: 8 })} type="password" />
+ *   {#if $formState.errors.password}<span>{$formState.errors.password}</span>{/if}
+ *
+ *   <button type="submit" disabled={$isSubmitting}>
+ *     {$isSubmitting ? 'Logging in...' : 'Log In'}
+ *   </button>
  * </form>
  * ```
  */

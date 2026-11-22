@@ -9,7 +9,7 @@
  *
  * @example
  * ```ts
- * import { Component } from '@angular/core'
+ * import { Component, signal } from '@angular/core'
  * import { BulkActionToolbar } from '@molecule/app-bulk-action-toolbar-angular'
  *
  * @Component({
@@ -22,14 +22,24 @@
  *       mol-bulk-action-toolbar
  *       [count]="selected().length"
  *       [actions]="[
- *         { id: 'delete', label: deleteTpl, onClick: () => handleDelete(selected()), destructive: true },
+ *         { id: 'delete', label: deleteLabel, onClick: () => handleDelete(selected()), destructive: true },
  *         { id: 'export', label: 'Export', onClick: () => handleExport(selected()) },
  *       ]"
  *       [onClearSelection]="() => selected.set([])"
- *     />
+ *     ></div>
  *   `,
  * })
- * export class Table {}
+ * export class Table {
+ *   readonly selected = signal<string[]>([])
+ *
+ *   readonly handleDelete = (ids: string[]): void => {
+ *     console.log('delete rows', ids)
+ *   }
+ *
+ *   readonly handleExport = (ids: string[]): void => {
+ *     console.log('export rows', ids)
+ *   }
+ * }
  * ```
  *
  * @remarks

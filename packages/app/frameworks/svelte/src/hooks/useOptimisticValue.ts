@@ -57,16 +57,32 @@ export interface UseOptimisticValueResult<T> {
  *   and `set`/`update`.
  * @example
  * ```svelte
- * <script>
+ * <script lang="ts">
  *   import { useOptimisticValue } from '@molecule/app-svelte'
  *   // `value` is the store; the result itself is not, so take the store out to read it with `$`.
  *   const { value: star, update } = useOptimisticValue({
  *     value: { starred: repository.starred, stars: repository.stars },
- *     commit: async (next) => { /* save and return the server's value * },
+ *     equals: (a, b) => a.starred === b.starred && a.stars === b.stars,
+ *     commit: async (next) => {
+ *       const response = next.starred
+ *         ? await http.put(`/repositories/${repository.id}/star`)
+ *         : await http.delete(`/repositories/${repository.id}/star`)
+ *       return { starred: response.data.starred, stars: response.data.stars }
+ *     },
  *   })
  * </script>
  *
- * <button aria-pressed={$star.starred} onclick={() => update((on) => ({ ...on, starred: !on.starred }))}>
+ * <!-- Never disable the button while a save is pending. -->
+ * <button
+ *   aria-pressed={$star.starred}
+ *   onclick={() =>
+ *     update((current) => ({
+ *       starred: !current.starred,
+ *       stars: current.stars + (current.starred ? -1 : 1),
+ *     }))}
+ * >
+ *   {$star.stars}
+ * </button>
  * ```
  */
 export const useOptimisticValue = <T>(

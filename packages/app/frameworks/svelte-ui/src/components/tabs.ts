@@ -19,12 +19,13 @@ export interface TabsListClassOptions {
  *
  * Usage in Svelte:
  * ```svelte
- * <script>
+ * <script lang="ts">
  *   import { getTabsListClasses, getTabsTriggerClasses, getTabsContentClass } from '@molecule/app-ui-svelte'
- *   export let items = []
- *   export let value = ''
- *   export let fitted = false
- *   $: listClass = getTabsListClasses({ fitted })
+ *   let { items = [], value = $bindable(''), fitted = false } = $props()
+ *   const listClass = $derived(getTabsListClasses({ fitted }))
+ *   function onChange(next: string) {
+ *     value = next
+ *   }
  * </script>
  * <div class={listClass} role="tablist">
  *   {#each items as item}
@@ -34,7 +35,7 @@ export interface TabsListClassOptions {
  *       data-state={value === item.value ? 'active' : 'inactive'}
  *       disabled={item.disabled}
  *       class={getTabsTriggerClasses({ fitted })}
- *       on:click={() => onChange(item.value)}
+ *       onclick={() => onChange(item.value)}
  *     >
  *       {item.label}
  *     </button>

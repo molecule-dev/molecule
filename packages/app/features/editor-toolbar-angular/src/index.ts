@@ -29,7 +29,15 @@
  *     </div>
  *   `,
  * })
- * export class EditorPage {}
+ * export class EditorPage {
+ *   readonly save = (): void => {
+ *     console.log('save draft')
+ *   }
+ *
+ *   readonly publish = (): void => {
+ *     console.log('publish post')
+ *   }
+ * }
  * ```
  *
  * @remarks

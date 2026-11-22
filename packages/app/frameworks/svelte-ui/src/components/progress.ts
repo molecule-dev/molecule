@@ -57,15 +57,12 @@ export interface ProgressClassOptions {
  *
  * Usage in Svelte:
  * ```svelte
- * <script>
+ * <script lang="ts">
  *   import { getProgressClasses, getProgressIndicatorClasses, getProgressPercentage } from '@molecule/app-ui-svelte'
- *   export let value = 0
- *   export let max = 100
- *   export let size = 'md'
- *   export let color = 'primary'
- *   $: percentage = getProgressPercentage(value, max)
- *   $: trackClass = getProgressClasses({ size })
- *   $: indicatorClass = getProgressIndicatorClasses({ color })
+ *   let { value = 0, max = 100, size = 'md', color = 'primary' } = $props()
+ *   const percentage = $derived(getProgressPercentage(value, max))
+ *   const trackClass = $derived(getProgressClasses({ size }))
+ *   const indicatorClass = $derived(getProgressIndicatorClasses({ color }))
  * </script>
  * <div class={cm.w('full')}>
  *   <div class={trackClass} role="progressbar" aria-valuenow={value} aria-valuemin={0} aria-valuemax={max}>

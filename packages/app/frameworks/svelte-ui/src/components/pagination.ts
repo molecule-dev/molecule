@@ -24,19 +24,19 @@ export interface PaginationClassOptions {
  *
  * Usage in Svelte:
  * ```svelte
- * <script>
+ * <script lang="ts">
  *   import {
  *     getPaginationClasses, getPaginationContentClass, getPaginationItemClasses,
  *     getPaginationEllipsisClass, generatePaginationRange,
  *   } from '@molecule/app-ui-svelte'
  *   import { useTranslation } from '@molecule/app-svelte'
  *   const { t } = useTranslation()
- *   export let page = 1
- *   export let totalPages = 10
- *   export let siblings = 1
- *   export let boundaries = 1
- *   $: range = generatePaginationRange(page, totalPages, siblings, boundaries)
- *   $: navClass = getPaginationClasses()
+ *   let { page = $bindable(1), totalPages = 10, siblings = 1, boundaries = 1 } = $props()
+ *   const range = $derived(generatePaginationRange(page, totalPages, siblings, boundaries))
+ *   const navClass = $derived(getPaginationClasses())
+ *   function onChange(next: number) {
+ *     page = next
+ *   }
  * </script>
  * <nav role="navigation" aria-label={t('ui.pagination.nav')} class={navClass}>
  *   <ul class={getPaginationContentClass()}>
@@ -45,7 +45,7 @@ export interface PaginationClassOptions {
  *         <li><span class={getPaginationEllipsisClass()}>...</span></li>
  *       {:else}
  *         <li>
- *           <button class={getPaginationItemClasses({ active: item === page, size })} on:click={() => onChange(item)}>
+ *           <button class={getPaginationItemClasses({ active: item === page, size })} onclick={() => onChange(item)}>
  *             {item}
  *           </button>
  *         </li>

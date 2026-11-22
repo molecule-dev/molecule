@@ -28,7 +28,12 @@
  *     </div>
  *   `,
  * })
- * export class Faq {}
+ * export class Faq {
+ *   readonly items = [
+ *     { id: 'a1', label: 'What is Molecule?' },
+ *     { id: 'a2', label: 'How do bonds work?' },
+ *   ]
+ * }
  * ```
  *
  * @remarks

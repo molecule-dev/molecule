@@ -38,8 +38,8 @@
  *   standalone: true,
  *   imports: [PlanUpdatedPage, PricingPage],
  *   template: `
- *     <section mol-pricing-page />
- *     <section mol-plan-updated-page planName="Pro" ctaHref="/dashboard" ctaLabel="Go to dashboard" />
+ *     <section mol-pricing-page></section>
+ *     <section mol-plan-updated-page planName="Pro" ctaHref="/dashboard" ctaLabel="Go to dashboard"></section>
  *   `,
  * })
  * export class PricingRoute {}

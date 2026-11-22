@@ -30,7 +30,11 @@
  *     </div>
  *   `,
  * })
- * export class PriceFilter {}
+ * export class PriceFilter {
+ *   readonly setRange = (value: [number, number]): void => {
+ *     console.log('price range', value)
+ *   }
+ * }
  * ```
  *
  * @remarks

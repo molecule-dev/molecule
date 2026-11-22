@@ -9,13 +9,12 @@
  *
  * Use this in Svelte components to conditionally combine classes:
  * ```svelte
- * <script>
+ * <script lang="ts">
  *   import { cn } from '@molecule/app-ui-svelte'
- *   export let variant = 'solid'
- *   export let className = ''
- *   $: classes = cn('base-class', variant === 'solid' && 'solid-variant', className)
+ *   let { variant = 'solid', className = '', children } = $props()
+ *   const classes = $derived(cn('base-class', variant === 'solid' && 'solid-variant', className))
  * </script>
- * <button class={classes}><slot /></button>
+ * <button class={classes}>{@render children?.()}</button>
  * ```
  * @param inputs - Class name strings, or falsy values to be filtered out.
  * @returns A single space-separated class string with falsy values removed.

@@ -30,7 +30,7 @@
  *       [onEscalate]="escalate"
  *       [onMute]="mute"
  *       [onBulkAction]="bulk"
- *     />
+ *     ></div>
  *   `,
  * })
  * export class Moderation {

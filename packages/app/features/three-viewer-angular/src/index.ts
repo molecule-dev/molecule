@@ -31,7 +31,11 @@
  *     </div>
  *   `,
  * })
- * export class ModelPage {}
+ * export class ModelPage {
+ *   readonly loaded = (): void => {
+ *     console.log('model loaded')
+ *   }
+ * }
  * ```
  *
  * @remarks

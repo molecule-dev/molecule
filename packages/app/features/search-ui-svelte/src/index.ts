@@ -30,13 +30,13 @@
  *     rememberKey: 'catalog.search',
  *     onOpen: (p) => goto(`/packages/${p.name}`),
  *   })
- *
- *   {#snippet renderLink(p: SearchResultLinkProps)}
- *     <Link to={p.href} state={p.state} className={p.className} onClick={p.onClick} data-mol-id={p['data-mol-id']}>
- *       <!-- the row's body -->
- *     </Link>
- *   {/snippet}
  * </script>
+ *
+ * {#snippet renderLink(p: SearchResultLinkProps)}
+ *   <Link to={p.href} state={p.state} class={p.className} onclick={p.onClick} data-mol-id={p['data-mol-id']}>
+ *     {@render p.children()}
+ *   </Link>
+ * {/snippet}
  *
  * <SearchBox
  *   value={session.query}
@@ -61,8 +61,6 @@
  *   emptyText={t('catalog.empty', undefined, { defaultValue: 'Nothing matches' })}
  * />
  * ```
- *
- * (`searchPlaceholder` and `nothingMatches` are the app's own translated strings.)
  *
  * @remarks
  * - **Pass a router link through `renderLink`**, or every row is a full page

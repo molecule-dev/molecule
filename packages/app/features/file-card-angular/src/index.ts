@@ -19,7 +19,7 @@
  * @example
  * ```ts
  * import { Component } from '@angular/core'
- * import { FileCard } from '@molecule/app-file-card-angular'
+ * import { FileCard, type FileSummary } from '@molecule/app-file-card-angular'
  *
  * @Component({
  *   selector: 'app-attachment',
@@ -31,7 +31,22 @@
  *     </div>
  *   `,
  * })
- * export class Attachment {}
+ * export class Attachment {
+ *   readonly file: FileSummary = {
+ *     id: 'f1',
+ *     name: 'contract.pdf',
+ *     size: 42000,
+ *     kind: 'document',
+ *   }
+ *
+ *   readonly open = (id: string): void => {
+ *     console.log('open file', id)
+ *   }
+ *
+ *   readonly menu = (event: MouseEvent): void => {
+ *     console.log('open file menu', event)
+ *   }
+ * }
  * ```
  *
  * @remarks

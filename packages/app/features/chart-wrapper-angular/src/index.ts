@@ -20,7 +20,11 @@
  * @example
  * ```ts
  * import { Component } from '@angular/core'
- * import { ChartCard, ChartLegend } from '@molecule/app-chart-wrapper-angular'
+ * import {
+ *   ChartCard,
+ *   ChartLegend,
+ *   type ChartLegendItem,
+ * } from '@molecule/app-chart-wrapper-angular'
  *
  * @Component({
  *   selector: 'app-revenue-chart',
@@ -40,7 +44,16 @@
  *     </div>
  *   `,
  * })
- * export class RevenueChart {}
+ * export class RevenueChart {
+ *   readonly items: ChartLegendItem[] = [
+ *     { id: 'revenue', label: 'Revenue', color: 'var(--chart-1)' },
+ *     { id: 'costs', label: 'Costs', color: 'var(--chart-2)' },
+ *   ]
+ *
+ *   readonly toggle = (id: string): void => {
+ *     console.log('toggle series', id)
+ *   }
+ * }
  * ```
  *
  * @remarks

@@ -52,11 +52,11 @@
  * <script lang="ts">
  *   import { getButtonClasses } from '@molecule/app-ui-svelte'
  *
- *   export let variant: 'solid' | 'outline' = 'solid'
- *   $: classes = getButtonClasses({ variant, color: 'primary', size: 'md' })
+ *   let { variant = 'solid' as 'solid' | 'outline', children, onclick } = $props()
+ *   const classes = $derived(getButtonClasses({ variant, color: 'primary', size: 'md' }))
  * </script>
  *
- * <button class={classes} on:click><slot /></button>
+ * <button class={classes} onclick={onclick}>{@render children?.()}</button>
  * ```
  *
  * @remarks

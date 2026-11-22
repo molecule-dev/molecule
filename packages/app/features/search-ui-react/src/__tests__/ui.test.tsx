@@ -207,6 +207,10 @@ describe('SearchResults', () => {
       }),
     )
     expect(container.querySelectorAll('[data-custom]').length).toBe(2)
+    // The link renders the row body it is handed, with that row's hit.
+    expect(
+      [...container.querySelectorAll('[data-custom]')].map((link) => link.textContent),
+    ).toEqual([expect.stringContaining('api-auth'), expect.stringContaining('app-auth')])
     // No row is active, so the status region is there but silent.
     expect(q('[data-mol-id="search-active"]')?.getAttribute('role')).toBe('status')
     expect(q('[data-mol-id="search-active"]')?.textContent).toBe('')

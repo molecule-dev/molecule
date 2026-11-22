@@ -13,6 +13,11 @@
  * import { Breadcrumb } from '@molecule/app-breadcrumb-angular'
  * import { DetailHeader } from '@molecule/app-detail-header-angular'
  *
+ * interface Recipe {
+ *   title: string
+ *   relatedIds: string[]
+ * }
+ *
  * @Component({
  *   selector: 'recipe-page',
  *   standalone: true,
@@ -26,7 +31,13 @@
  *     </div>
  *   `,
  * })
- * export class RecipePage {}
+ * export class RecipePage {
+ *   readonly crumbs = [
+ *     { label: 'Recipes', href: '/recipes' },
+ *     { label: 'Tomato soup', href: '/recipes/tomato-soup' },
+ *   ]
+ *   readonly recipe: Recipe = { title: 'Tomato soup', relatedIds: ['r2', 'r3'] }
+ * }
  * ```
  *
  * @remarks

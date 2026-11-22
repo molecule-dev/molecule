@@ -29,7 +29,11 @@
  *     </div>
  *   `,
  * })
- * export class LeaderboardPage {}
+ * export class LeaderboardPage {
+ *   readonly openProfile = (id: string): void => {
+ *     console.log('open profile', id)
+ *   }
+ * }
  * ```
  *
  * @remarks

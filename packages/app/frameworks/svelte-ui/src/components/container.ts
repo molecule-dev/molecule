@@ -20,15 +20,14 @@ export interface ContainerClassOptions {
  *
  * Usage in Svelte:
  * ```svelte
- * <script>
+ * <script lang="ts">
  *   import { getContainerClasses, getContainerCustomStyle } from '@molecule/app-ui-svelte'
- *   export let maxWidth = 'lg'
- *   export let centered = true
- *   $: classes = getContainerClasses({ maxWidth, centered })
- *   $: customStyle = getContainerCustomStyle(maxWidth)
+ *   let { maxWidth = 'lg', centered = true, children } = $props()
+ *   const classes = $derived(getContainerClasses({ maxWidth, centered }))
+ *   const customStyle = $derived(getContainerCustomStyle(maxWidth))
  * </script>
  * <div class={classes} style={customStyle}>
- *   <slot />
+ *   {@render children?.()}
  * </div>
  * ```
  * @param options - The options.

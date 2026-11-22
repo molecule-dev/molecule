@@ -27,7 +27,11 @@
  *     </header>
  *   `,
  * })
- * export class OrderHeader {}
+ * export class OrderHeader {
+ *   readonly handleEdit = (): void => {
+ *     console.log('edit project')
+ *   }
+ * }
  * ```
  *
  * @remarks

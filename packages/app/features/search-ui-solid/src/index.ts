@@ -31,7 +31,7 @@
  *     onOpen: (p) => navigate(`/packages/${p.name}`),
  *   })
  *   const renderLink = (p: SearchResultLinkProps) => (
- *     <Link to={p.href} state={p.state} className={p.className} onClick={p.onClick} data-mol-id={p['data-mol-id']}>
+ *     <Link to={p.href} state={p.state} class={p.className} onClick={p.onClick} data-mol-id={p['data-mol-id']}>
  *       {p.children}
  *     </Link>
  *   )
@@ -63,8 +63,6 @@
  *   )
  * }
  * ```
- *
- * (`searchPlaceholder` and `nothingMatches` are the app's own translated strings.)
  *
  * @remarks
  * - **Pass a router link through `renderLink`**, or every row is a full page

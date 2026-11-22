@@ -14,7 +14,7 @@
  * @example
  * ```ts
  * import { Component } from '@angular/core'
- * import { SecretRow } from '@molecule/app-secret-row-angular'
+ * import { SecretRow, type SecretRowData } from '@molecule/app-secret-row-angular'
  *
  * @Component({
  *   selector: 'app-vault-row',
@@ -32,10 +32,18 @@
  *       }"
  *       [onRotate]="rotate"
  *       [onDelete]="remove"
- *     />
+ *     ></div>
  *   `,
  * })
- * export class VaultRow {}
+ * export class VaultRow {
+ *   readonly rotate = (secret: SecretRowData): void => {
+ *     console.log('rotate secret', secret.id)
+ *   }
+ *
+ *   readonly remove = (secret: SecretRowData): void => {
+ *     console.log('delete secret', secret.id)
+ *   }
+ * }
  * ```
  *
  * @remarks

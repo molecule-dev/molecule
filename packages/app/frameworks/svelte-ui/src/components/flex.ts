@@ -34,17 +34,14 @@ const directionToCm: Record<string, 'row' | 'col' | 'row-reverse' | 'col-reverse
  *
  * Usage in Svelte:
  * ```svelte
- * <script>
+ * <script lang="ts">
  *   import { getFlexClasses, getFlexGapStyle } from '@molecule/app-ui-svelte'
- *   export let direction = 'row'
- *   export let justify = undefined
- *   export let align = undefined
- *   export let gap = undefined
- *   $: classes = getFlexClasses({ direction, justify, align, gap })
- *   $: gapStyle = getFlexGapStyle(gap)
+ *   let { direction = 'row', justify = undefined, align = undefined, gap = undefined, children } = $props()
+ *   const classes = $derived(getFlexClasses({ direction, justify, align, gap }))
+ *   const gapStyle = $derived(getFlexGapStyle(gap))
  * </script>
  * <div class={classes} style={gapStyle}>
- *   <slot />
+ *   {@render children?.()}
  * </div>
  * ```
  * @param options - The options.

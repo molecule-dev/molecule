@@ -105,8 +105,8 @@ export function useChatProvider(): ChatProvider {
  * @returns Each state field as a computed ref, and the chat controls.
  * @example
  * ```vue
- * <script setup>
- * import { computed } from 'vue'
+ * <script setup lang="ts">
+ * import { ref } from 'vue'
  * import { useChat } from '@molecule/app-vue'
  *
  * const props = defineProps<{ conversationId: string }>()
@@ -114,7 +114,21 @@ export function useChatProvider(): ChatProvider {
  *   endpoint: `/projects/p1/chat?conversationId=${props.conversationId}`,
  *   projectId: 'p1',
  * }))
+ * const draft = ref('')
+ * const send = () => {
+ *   void sendMessage(draft.value)
+ *   draft.value = ''
+ * }
  * </script>
+ *
+ * <template>
+ *   <ul>
+ *     <li v-for="message in messages" :key="message.id">{{ message.content }}</li>
+ *   </ul>
+ *   <form @submit.prevent="send">
+ *     <input v-model="draft" :disabled="isLoading" />
+ *   </form>
+ * </template>
  * ```
  */
 export function useChat(options: MaybeRefOrGetter<UseChatOptions>): UseChatResult {

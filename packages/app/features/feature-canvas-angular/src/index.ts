@@ -53,7 +53,7 @@
  *       [width]="800"
  *       [height]="600"
  *     >
- *       <div mol-canvas-node id="a" [position]="{ x: 100, y: 100 }" [size]="{ width: 80, height: 40 }" />
+ *       <div mol-canvas-node id="a" [position]="{ x: 100, y: 100 }" [size]="{ width: 80, height: 40 }"></div>
  *       <svg mol-canvas-edge [from]="{ x: 180, y: 120 }" [to]="{ x: 280, y: 200 }" kind="bezier"></svg>
  *     </div>
  *   `,

@@ -22,7 +22,7 @@
  *       [label]="'Share link'"
  *       [feedbackMs]="2000"
  *       (copy)="onCopied()"
- *     />
+ *     ></div>
  *   `,
  * })
  * export class InviteCard {

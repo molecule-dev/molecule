@@ -53,10 +53,11 @@ export type UsePromiseStore<T, A extends unknown[]> = Readable<
  * @returns A readable store of the [state, wrappedFunction] tuple.
  * @example
  * ```svelte
- * <script>
+ * <script lang="ts">
  *   import { usePromise } from '@molecule/app-svelte'
  *   const fetchUser = usePromise((id: string) => api.getUser(id))
- *   const [state, call] = $fetchUser
+ *   // `$fetchUser` is the [state, call] tuple; `$derived` keeps it current.
+ *   const [state, call] = $derived($fetchUser)
  * </script>
  *
  * <button onclick={() => call('123')} disabled={state.status === 'pending'}>

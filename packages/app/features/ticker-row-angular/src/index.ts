@@ -21,7 +21,11 @@
  *     <div mol-ticker-row symbol="BTC" name="Bitcoin" price="$67,420" [changePct]="2.34" meta="$1.3T" [onClick]="() => openAsset('btc')"></div>
  *   `,
  * })
- * export class Watchlist {}
+ * export class Watchlist {
+ *   readonly openAsset = (symbol: string): void => {
+ *     console.log('open asset', symbol)
+ *   }
+ * }
  * ```
  *
  * @remarks

@@ -24,15 +24,14 @@ export interface GridClassOptions {
  *
  * Usage in Svelte:
  * ```svelte
- * <script>
+ * <script lang="ts">
  *   import { getGridClasses, getGridStyle } from '@molecule/app-ui-svelte'
- *   export let columns = 3
- *   export let gap = 'md'
- *   $: classes = getGridClasses({ columns, gap })
- *   $: style = getGridStyle({ columns, gap })
+ *   let { columns = 3, gap = 'md', children } = $props()
+ *   const classes = $derived(getGridClasses({ columns, gap }))
+ *   const style = $derived(getGridStyle({ columns, gap }))
  * </script>
  * <div class={classes} style={style}>
- *   <slot />
+ *   {@render children?.()}
  * </div>
  * ```
  * @param options - The options.

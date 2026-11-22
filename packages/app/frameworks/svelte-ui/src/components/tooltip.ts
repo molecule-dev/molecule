@@ -34,10 +34,9 @@ const ARROW_SIZE = 8
  *
  * Usage in Svelte:
  * ```svelte
- * <script>
+ * <script lang="ts">
  *   import { getTooltipClasses, getTooltipArrowStyle } from '@molecule/app-ui-svelte'
- *   export let placement = 'top'
- *   export let hasArrow = false
+ *   let { placement = 'top', hasArrow = false } = $props()
  * </script>
  * <div style="position:absolute;top:{position.top}px;left:{position.left}px;z-index:9999;">
  *   <div role="tooltip" class={getTooltipClasses()}>{content}</div>
@@ -112,16 +111,16 @@ export interface TooltipClassOptions {
  *
  * Usage in Svelte:
  * ```svelte
- * <script>
+ * <script lang="ts">
  *   import { getTooltipClasses, calculateTooltipPosition } from '@molecule/app-ui-svelte'
- *   export let placement = 'top'
+ *   let { placement = 'top', children } = $props()
  *   let triggerEl, tooltipEl
- *   let visible = false
+ *   let visible = $state(false)
  *   let position = { top: 0, left: 0 }
- *   $: classes = getTooltipClasses()
+ *   const classes = $derived(getTooltipClasses())
  * </script>
- * <div bind:this={triggerEl} on:mouseenter={() => visible = true} on:mouseleave={() => visible = false}>
- *   <slot />
+ * <div bind:this={triggerEl} onmouseenter={() => (visible = true)} onmouseleave={() => (visible = false)}>
+ *   {@render children?.()}
  * </div>
  * {#if visible}
  *   <div bind:this={tooltipEl} role="tooltip" class={classes} style="position:absolute;top:{position.top}px;left:{position.left}px;z-index:9999;">

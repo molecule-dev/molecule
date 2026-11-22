@@ -18,6 +18,7 @@
  * import {
  *   AdminTable,
  *   type AdminTableColumn,
+ *   type AdminTableRowAction,
  * } from '@molecule/app-admin-table-angular'
  *
  * interface Product {
@@ -43,7 +44,14 @@
  *   `,
  * })
  * export class Products {
+ *   readonly products: Product[] = [{ id: 'p1', name: 'Mug' }]
  *   readonly columns: AdminTableColumn<Product>[] = []
+ *   readonly rowKey = (product: Product): string => product.id
+ *   readonly loading = false
+ *   readonly actions: AdminTableRowAction<Product>[] = []
+ *   readonly open = (product: Product): void => {
+ *     console.log('open product', product.id)
+ *   }
  * }
  * ```
  *

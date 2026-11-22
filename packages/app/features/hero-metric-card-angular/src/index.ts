@@ -33,7 +33,11 @@
  *          (click)="goTo('/revenue')"></div>
  *   `,
  * })
- * export class Dashboard {}
+ * export class Dashboard {
+ *   readonly goTo = (path: string): void => {
+ *     console.log('navigate to', path)
+ *   }
+ * }
  * ```
  *
  * @remarks
