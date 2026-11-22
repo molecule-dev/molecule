@@ -1299,6 +1299,7 @@
   "@molecule/app-locales-network",
   "@molecule/app-locales-newsletter-signup",
   "@molecule/app-locales-nfc",
+  "@molecule/app-locales-node-editor-panel",
   "@molecule/app-locales-note-card",
   "@molecule/app-locales-notification-center",
   "@molecule/app-locales-notifications-page",
