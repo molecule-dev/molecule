@@ -734,15 +734,16 @@ describe('<BarcodeScanner> — literal t() error keys', () => {
           <BarcodeScanner onScan={vi.fn()} {...c.props} />
         </MarkerWrap>,
       )
-      const status = await waitFor(() => {
-        const el = container.querySelector('[data-mol-id="barcode-scanner-status"]')
-        expect(el).not.toBeNull()
-        return el as HTMLElement
-      })
       // The overlay text is exactly what the marker provider's `t`
       // returned for the LITERAL key — a locale bond can therefore
-      // translate every error state.
-      expect(status.textContent).toBe(c.marker)
+      // translate every error state. The status renders "starting" first
+      // and the error only once the failed start settles, so wait for the
+      // text itself, not for the element.
+      await waitFor(() =>
+        expect(container.querySelector('[data-mol-id="barcode-scanner-status"]')?.textContent).toBe(
+          c.marker,
+        ),
+      )
     })
   }
 
