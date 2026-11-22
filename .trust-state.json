@@ -1924,5 +1924,6 @@
   "@molecule/app-word-cloud-react",
   "@molecule/app-word-cloud-solid",
   "@molecule/app-word-cloud-svelte",
-  "@molecule/app-word-cloud-vue"
+  "@molecule/app-word-cloud-vue",
+  "@molecule/eslint-config"
 ]
