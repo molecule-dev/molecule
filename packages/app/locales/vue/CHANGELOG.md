@@ -1,5 +1,11 @@
 # @molecule/app-locales-vue
 
+## 1.1.0
+
+### Minor Changes
+
+- Add the routed-view error and the clearer missing-router error in every language.
+
 ## 1.0.6
 
 ### Patch Changes

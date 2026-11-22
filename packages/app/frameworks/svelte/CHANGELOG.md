@@ -1,5 +1,11 @@
 # @molecule/app-svelte
 
+## 3.10.0
+
+### Minor Changes
+
+- Add `RoutedView` and the router provider's `routedView` option for routing bonds; routing hooks show a new location with its params and query in the same update, and a missing router names the routing bond to mount.
+
 ## 3.9.0
 
 ### Minor Changes

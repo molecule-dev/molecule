@@ -1,5 +1,11 @@
 # @molecule/app-locales-angular
 
+## 1.2.0
+
+### Minor Changes
+
+- Add the routed-view error and the clearer missing-router error in every language.
+
 ## 1.1.3
 
 ### Patch Changes

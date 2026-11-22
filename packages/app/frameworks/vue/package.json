@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-vue",
-  "version": "3.9.0",
+  "version": "3.10.0",
   "description": "Vue framework bindings for molecule.dev",
   "type": "module",
   "main": "dist/index.js",

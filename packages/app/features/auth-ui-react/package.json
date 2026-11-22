@@ -41,7 +41,7 @@
   },
   "devDependencies": {
     "@molecule/app-oauth-buttons-react": "4.1.0",
-    "@molecule/app-react": "4.10.1",
+    "@molecule/app-react": "4.11.0",
     "@molecule/app-ui": "1.5.0",
     "@types/node": "26.6.5",
     "@types/react": "19.3.0",

@@ -60,7 +60,7 @@
     "@angular/compiler-cli": "22.2.3",
     "@angular/core": "22.2.3",
     "@angular/platform-browser": "22.2.3",
-    "@molecule/app-angular": "3.9.0",
+    "@molecule/app-angular": "3.10.0",
     "@molecule/app-client-search": "1.0.4",
     "@molecule/app-client-search-angular": "1.1.0",
     "@molecule/app-client-search-minisearch": "1.0.4",

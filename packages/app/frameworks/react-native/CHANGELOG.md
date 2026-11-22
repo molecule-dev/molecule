@@ -1,5 +1,11 @@
 # @molecule/app-react-native
 
+## 4.3.0
+
+### Minor Changes
+
+- Re-export `RoutedView` from `@molecule/app-react`.
+
 ## 4.2.0
 
 ### Minor Changes

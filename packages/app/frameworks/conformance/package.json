@@ -249,7 +249,7 @@
     "@molecule/app-quiz-card-react": "4.0.1",
     "@molecule/app-rating-display-react": "4.0.1",
     "@molecule/app-rating-form-react": "4.0.1",
-    "@molecule/app-react": "4.10.1",
+    "@molecule/app-react": "4.11.0",
     "@molecule/app-reading-progress-bar-react": "4.0.1",
     "@molecule/app-related-items-card-react": "4.0.1",
     "@molecule/app-relative-time-react": "4.0.1",
