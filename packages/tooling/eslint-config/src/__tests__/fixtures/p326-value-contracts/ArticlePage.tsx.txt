@@ -1,0 +1,339 @@
+import type { JSX } from 'react'
+import { useEffect, useState } from 'react'
+import { Link, useNavigate, useParams } from 'react-router'
+
+import { useAuth, useOptimisticValue } from '@molecule/app-react'
+
+import {
+  avatarOf,
+  deleteArticle,
+  deleteComment,
+  errorMessages,
+  formatDate,
+  getArticle,
+  listComments,
+  postComment,
+  setFavorite,
+  setFollowing,
+  type Article,
+  type ConduitComment,
+  type ConduitUser,
+} from '../lib/conduit.js'
+import { useTr } from '../lib/tr.js'
+
+/** Article body: the spec's markdown, rendered as paragraphs and headings. */
+function ArticleBody({ body }: { body: string }): JSX.Element {
+  const blocks = body.split(/\n\s*\n/)
+  return (
+    <>
+      {blocks.map((block, index) => {
+        const trimmed = block.trim()
+        if (trimmed.length === 0) return null
+        if (trimmed.startsWith('## ')) {
+          return <h2 key={index}>{trimmed.slice(3)}</h2>
+        }
+        if (trimmed.startsWith('# ')) {
+          return <h2 key={index}>{trimmed.slice(2)}</h2>
+        }
+        return <p key={index}>{trimmed}</p>
+      })}
+    </>
+  )
+}
+
+/** `/article/:slug` — the article, its actions and its comments. */
+export function ArticlePage(): JSX.Element {
+  const tr = useTr()
+  const { slug = '' } = useParams<{ slug: string }>()
+  const navigate = useNavigate()
+  const { status, user } = useAuth<ConduitUser>()
+  const signedIn = status === 'authenticated' && Boolean(user?.username)
+
+  const [article, setArticle] = useState<Article | null>(null)
+  const [comments, setComments] = useState<ConduitComment[]>([])
+  const [notFound, setNotFound] = useState(false)
+  const [draft, setDraft] = useState('')
+  const [errors, setErrors] = useState<string[]>([])
+  const [posting, setPosting] = useState(false)
+
+  const favorite = useOptimisticValue({
+    value: {
+      favorited: article?.favorited ?? false,
+      count: article?.favoritesCount ?? 0,
+    },
+    commit: async (desired) => {
+      const saved = await setFavorite(slug, desired.favorited)
+      return { favorited: saved.favorited, count: saved.favoritesCount }
+    },
+  })
+
+  const following = useOptimisticValue({
+    value: article?.author.following ?? false,
+    commit: async (desired) => (await setFollowing(article?.author.username ?? '', desired)).following,
+  })
+
+  useEffect(() => {
+    let cancelled = false
+    setArticle(null)
+    setNotFound(false)
+    getArticle(slug)
+      .then((loaded) => {
+        if (!cancelled) setArticle(loaded)
+      })
+      .catch(() => {
+        if (!cancelled) setNotFound(true)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [slug])
+
+  useEffect(() => {
+    let cancelled = false
+    setComments([])
+    listComments(slug)
+      .then((loaded) => {
+        if (!cancelled) setComments(loaded)
+      })
+      .catch(() => {
+        if (!cancelled) setComments([])
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [slug])
+
+  const isAuthor = Boolean(user?.username && article?.author.username === user.username)
+
+  const submitComment = async (event: React.FormEvent): Promise<void> => {
+    event.preventDefault()
+    if (draft.trim().length === 0) return
+    setPosting(true)
+    setErrors([])
+    try {
+      const created = await postComment(slug, draft)
+      setComments((current) => [...current, created])
+      setDraft('')
+    } catch (caught) {
+      setErrors(errorMessages(caught, 'Could not post the comment.'))
+    } finally {
+      setPosting(false)
+    }
+  }
+
+  const removeComment = async (id: number): Promise<void> => {
+    try {
+      await deleteComment(slug, id)
+      setComments((current) => current.filter((comment) => comment.id !== id))
+    } catch (caught) {
+      setErrors(errorMessages(caught, 'Could not delete the comment.'))
+    }
+  }
+
+  const removeArticle = async (): Promise<void> => {
+    try {
+      await deleteArticle(slug)
+      navigate('/')
+    } catch (caught) {
+      setErrors(errorMessages(caught, 'Could not delete the article.'))
+    }
+  }
+
+  if (notFound) {
+    return (
+      <div className="container page">
+        <div className="row">
+          <div className="col-md-12">
+            <h1>{tr('Article not found')}</h1>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (!article) {
+    return (
+      <div className="container page">
+        <div className="row">
+          <div className="col-md-12">{tr('Loading article...')}</div>
+        </div>
+      </div>
+    )
+  }
+
+  const authorActions = (
+    <>
+      {isAuthor ? (
+        <>
+          <Link className="btn btn-sm btn-outline-secondary" to={`/editor/${article.slug}`}>
+            <i className="ion-edit" /> {tr('Edit Article')}
+          </Link>
+          &nbsp;
+          <button type="button" className="btn btn-sm btn-outline-danger" onClick={removeArticle}>
+            <i className="ion-trash-a" /> {tr('Delete Article')}
+          </button>
+        </>
+      ) : (
+        <>
+          <button
+            type="button"
+            className="btn btn-sm btn-outline-secondary"
+            onClick={() => following.update((current) => !current)}
+          >
+            <i className="ion-plus-round" />
+            &nbsp; {following.value ? tr('Unfollow') : tr('Follow')} {article.author.username}
+          </button>
+          &nbsp;&nbsp;
+          <button
+            type="button"
+            className={
+              favorite.value.favorited
+                ? 'btn btn-sm btn-primary'
+                : 'btn btn-sm btn-outline-primary'
+            }
+            onClick={() => favorite.update((current) => ({ ...current }))}
+          >
+            <i className="ion-heart" />
+            &nbsp; {favorite.value.favorited ? tr('Unfavorite Article') : tr('Favorite Article')}{' '}
+            <span className="counter">({favorite.value.count})</span>
+          </button>
+        </>
+      )}
+    </>
+  )
+
+  return (
+    <div className="article-page">
+      <div className="banner">
+        <div className="container">
+          <h1>{article.title}</h1>
+          <div className="article-meta">
+            <Link to={`/profile/${article.author.username}`}>
+              <img src={avatarOf(article.author.image)} alt={article.author.username} />
+            </Link>
+            <div className="info">
+              <Link className="author" to={`/profile/${article.author.username}`}>
+                {article.author.username}
+              </Link>
+              <span className="date">{formatDate(article.createdAt)}</span>
+            </div>
+            {authorActions}
+          </div>
+        </div>
+      </div>
+
+      <div className="container page">
+        <div className="row article-content">
+          <div className="col-md-12">
+            <ArticleBody body={article.body ?? ''} />
+            <ul className="tag-list">
+              {article.tagList.map((tag) => (
+                <li key={tag} className="tag-default tag-pill tag-outline">
+                  {tag}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+
+        <hr />
+
+        <div className="article-actions">
+          <div className="article-meta">
+            <Link to={`/profile/${article.author.username}`}>
+              <img src={avatarOf(article.author.image)} alt={article.author.username} />
+            </Link>
+            <div className="info">
+              <Link className="author" to={`/profile/${article.author.username}`}>
+                {article.author.username}
+              </Link>
+              <span className="date">{formatDate(article.createdAt)}</span>
+            </div>
+            {isAuthor ? null : (
+              <button
+                type="button"
+                className="btn btn-sm btn-outline-secondary"
+                onClick={() => following.update((current) => !current)}
+              >
+                <i className="ion-plus-round" />
+                &nbsp; {following.value ? tr('Unfollow') : tr('Follow')} {article.author.username}
+              </button>
+            )}
+          </div>
+        </div>
+
+        <div className="row">
+          <div className="col-xs-12 col-md-8 offset-md-2">
+            {signedIn ? (
+              <form className="card comment-form" onSubmit={submitComment}>
+                <div className="card-block">
+                  <textarea
+                    className="form-control"
+                    placeholder={tr('Write a comment...')}
+                    rows={3}
+                    value={draft}
+                    onChange={(event) => setDraft(event.target.value)}
+                  />
+                </div>
+                <div className="card-footer">
+                  <img
+                    src={avatarOf(user?.image)}
+                    className="comment-author-img"
+                    alt={user?.username ?? ''}
+                  />
+                  <button type="submit" className="btn btn-sm btn-primary" disabled={posting}>
+                    {tr('Post Comment')}
+                  </button>
+                </div>
+              </form>
+            ) : (
+              <p>
+                <Link to="/login">{tr('Sign in')}</Link> {tr('or')}{' '}
+                <Link to="/register">{tr('sign up')}</Link> {tr('to add comments on this article.')}
+              </p>
+            )}
+
+            {errors.length > 0 ? (
+              <ul className="error-messages">
+                {errors.map((message) => (
+                  <li key={message}>{message}</li>
+                ))}
+              </ul>
+            ) : null}
+
+            {comments.map((comment) => (
+              <div className="card" key={comment.id}>
+                <div className="card-block">
+                  <p className="card-text">{comment.body}</p>
+                </div>
+                <div className="card-footer">
+                  <Link className="comment-author" to={`/profile/${comment.author.username}`}>
+                    <img
+                      src={avatarOf(comment.author.image)}
+                      className="comment-author-img"
+                      alt={comment.author.username}
+                    />
+                  </Link>
+                  &nbsp;
+                  <Link className="comment-author" to={`/profile/${comment.author.username}`}>
+                    {comment.author.username}
+                  </Link>
+                  <span className="date-posted">{formatDate(comment.createdAt)}</span>
+                  {comment.author.username === user?.username ? (
+                    <span
+                      className="mod-options"
+                      role="presentation"
+                      onClick={() => void removeComment(comment.id)}
+                    >
+                      <i className="ion-trash-a" />
+                    </span>
+                  ) : null}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}

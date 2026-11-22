@@ -1,0 +1,139 @@
+import type { JSX } from 'react'
+import { useState } from 'react'
+import { Link, useNavigate } from 'react-router'
+
+import { useAuth } from '@molecule/app-react'
+
+import type { Article, ConduitUser } from '../../lib/conduit.js'
+import { apiDelete, apiPost, avatarSrc, formatDate } from '../../lib/conduit.js'
+import { useLabel } from './NavBar.js'
+
+interface Props {
+  article: Article
+  onChanged?: (article: Article) => void
+  onDeleted?: () => void
+}
+
+/** Author block with the follow / favorite / author actions for one article. */
+export function ArticleMeta({ article, onChanged, onDeleted }: Props): JSX.Element {
+  const label = useLabel()
+  const navigate = useNavigate()
+  const { user } = useAuth<ConduitUser>()
+  const [following, setFollowing] = useState(article.author.following)
+  const [favorited, setFavorited] = useState(article.favorited)
+  const [count, setCount] = useState(article.favoritesCount)
+  const [busy, setBusy] = useState(false)
+
+  const isAuthor = Boolean(user && user.username === article.author.username)
+
+  const toggleFollow = async (): Promise<void> => {
+    if (!user || busy) return
+    const next = !following
+    setFollowing(next)
+    setBusy(true)
+    try {
+      const response = next
+        ? await apiPost<{ profile: { following: boolean } }>(
+            `/profiles/${article.author.username}/follow`,
+          )
+        : await apiDelete<{ profile: { following: boolean } }>(
+            `/profiles/${article.author.username}/follow`,
+          )
+      setFollowing(Boolean((response as { profile?: { following: boolean } })?.profile?.following))
+    } catch (_error) {
+      setFollowing(!next)
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const toggleFavorite = async (): Promise<void> => {
+    if (!user || busy) return
+    const next = !favorited
+    setFavorited(next)
+    setCount((current) => current + (next ? 1 : -1))
+    setBusy(true)
+    try {
+      const response = next
+        ? await apiPost<{ article: Article }>(`/articles/${article.slug}/favorite`)
+        : await apiDelete<{ article: Article }>(`/articles/${article.slug}/favorite`)
+      const saved = (response as { article?: Article } | null)?.article
+      if (saved) {
+        setFavorited(saved.favorited)
+        setCount(saved.favoritesCount)
+        onChanged?.(saved)
+      }
+    } catch (_error) {
+      setFavorited(!next)
+      setCount((current) => current + (next ? -1 : 1))
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const deleteArticle = async (): Promise<void> => {
+    try {
+      await apiDelete(`/articles/${article.slug}`)
+      onDeleted?.()
+      navigate('/')
+    } catch (_error) {
+      // Leave the page as it is; the article is still there.
+    }
+  }
+
+  return (
+    <div className="article-meta">
+      <Link to={`/profile/${article.author.username}`}>
+        <img alt="" src={avatarSrc(article.author.image)} />
+      </Link>
+      <div className="info">
+        <Link className="author" to={`/profile/${article.author.username}`}>
+          {article.author.username}
+        </Link>
+        <span className="date">{formatDate(article.createdAt)}</span>
+      </div>
+      {isAuthor ? (
+        <>
+          <Link className="btn btn-sm btn-outline-secondary" to={`/editor/${article.slug}`}>
+            <i className="ion-edit" /> {label('article.edit', 'Edit Article')}
+          </Link>
+          &nbsp;&nbsp;
+          <button className="btn btn-sm btn-outline-danger" onClick={deleteArticle} type="button">
+            <i className="ion-trash-a" /> {label('article.delete', 'Delete Article')}
+          </button>
+          &nbsp;&nbsp;
+        </>
+      ) : user ? (
+        <>
+          <button
+            className={following ? 'btn btn-sm btn-secondary' : 'btn btn-sm btn-outline-secondary'}
+            onClick={toggleFollow}
+            type="button"
+          >
+            <i className="ion-plus-round" />
+            &nbsp;
+            {following
+              ? label('profile.unfollow', 'Unfollow')
+              : label('profile.follow', 'Follow')}{' '}
+            {article.author.username}
+          </button>
+          &nbsp;&nbsp;
+        </>
+      ) : null}
+      {user ? (
+        <button
+          className={favorited ? 'btn btn-sm btn-primary' : 'btn btn-sm btn-outline-primary'}
+          onClick={toggleFavorite}
+          type="button"
+        >
+          <i className="ion-heart" />
+          &nbsp;
+          {favorited
+            ? label('article.unfavorite', 'Unfavorite')
+            : label('article.favorite', 'Favorite')}{' '}
+          {label('article.article', 'Article')} <span className="counter">({count})</span>
+        </button>
+      ) : null}
+    </div>
+  )
+}

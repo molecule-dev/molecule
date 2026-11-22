@@ -1,0 +1,202 @@
+import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router'
+
+import { useAuth } from '@molecule/app-react'
+
+import { type Article, avatarUrl, conduit, formatDate } from '../api/conduit.js'
+import type { SessionUser } from '../config.js'
+import { useT } from '../i18n.js'
+
+/** One `.article-preview` card. */
+export function ArticlePreview({
+  article,
+  onFavorite,
+}: {
+  article: Article
+  onFavorite: (article: Article) => void
+}) {
+  const t = useT()
+  return (
+    <div className="article-preview">
+      <div className="article-meta">
+        <a href={`/profile/${article.author.username}`}>
+          <img alt="" src={avatarUrl(article.author.image)} />
+        </a>
+        <div className="info">
+          <a href={`/profile/${article.author.username}`} className="author">
+            {article.author.username}
+          </a>
+          <span className="date">{formatDate(article.createdAt)}</span>
+        </div>
+        <button
+          type="button"
+          onClick={() => onFavorite(article)}
+          className={
+            article.favorited
+              ? 'btn btn-primary btn-sm pull-xs-right'
+              : 'btn btn-outline-primary btn-sm pull-xs-right'
+          }
+        >
+          <i className="ion-heart" /> {article.favoritesCount}
+        </button>
+      </div>
+      <a href={`/article/${article.slug}`} className="preview-link">
+        <h1>{article.title}</h1>
+        <p>{article.description}</p>
+        <span>{t('article.readMore', 'Read more...')}</span>
+        <ul className="tag-list">
+          {article.tagList.map((tag) => (
+            <li key={tag} className="tag-default tag-pill tag-outline">
+              {tag}
+            </li>
+          ))}
+        </ul>
+      </a>
+    </div>
+  )
+}
+
+/**
+ * A list of article previews that keeps its own favorite state, so a heart
+ * tapped in the feed updates in place.
+ */
+export function ArticleList({
+  articles,
+  loading = false,
+}: {
+  articles: Article[]
+  loading?: boolean
+}) {
+  const { status } = useAuth<SessionUser>()
+  const navigate = useNavigate()
+  const [rows, setRows] = useState<Article[]>(articles)
+
+  useEffect(() => {
+    setRows(articles)
+  }, [articles])
+
+  const toggleFavorite = async (article: Article): Promise<void> => {
+    if (status !== 'authenticated') {
+      navigate('/login')
+      return
+    }
+    try {
+      const saved = await conduit.setFavorite(article.slug, !article.favorited)
+      setRows((current) =>
+        current.map((row) =>
+          row.slug === saved.slug
+            ? { ...row, favorited: saved.favorited, favoritesCount: saved.favoritesCount }
+            : row,
+        ),
+      )
+    } catch {
+      // A failed favorite leaves the count as it was; the page stays usable.
+    }
+  }
+
+  if (loading && rows.length === 0) {
+    return <div className="article-preview">Loading articles...</div>
+  }
+
+  return (
+    <>
+      {rows.map((article) => (
+        <ArticlePreview key={article.slug} article={article} onFavorite={toggleFavorite} />
+      ))}
+    </>
+  )
+}
+
+/** The `.pagination` bar. Page one drops the `page` parameter. */
+export function Pagination({
+  page,
+  count,
+  pageSize,
+  search,
+  pathname,
+}: {
+  page: number
+  count: number
+  pageSize: number
+  search: string
+  pathname: string
+}) {
+  const navigate = useNavigate()
+  const pages = Math.ceil(count / pageSize)
+  if (pages <= 1) return null
+
+  const hrefFor = (target: number): string => {
+    const params = new URLSearchParams(search)
+    if (target <= 1) params.delete('page')
+    else params.set('page', String(target))
+    const query = params.toString()
+    return query ? `${pathname}?${query}` : pathname
+  }
+
+  return (
+    <ul className="pagination">
+      {Array.from({ length: pages }, (_, index) => index + 1).map((target) => (
+        <li key={target} className={target === page ? 'page-item active' : 'page-item'}>
+          <a
+            className="page-link"
+            href={hrefFor(target)}
+            onClick={(event) => {
+              event.preventDefault()
+              navigate(hrefFor(target))
+            }}
+          >
+            {target}
+          </a>
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+/** The home sidebar's popular tags. */
+export function PopularTags({ onError }: { onError?: () => void }) {
+  const t = useT()
+  const { status, data, errors } = useTags()
+  useEffect(() => {
+    if (errors) onError?.()
+  }, [errors, onError])
+
+  return (
+    <div className="col-md-3">
+      <div className="sidebar">
+        <p>{t('home.popularTags', 'Popular Tags')}</p>
+        <div className="tag-list">
+          {status === 'loading' && <span className="tag-pill tag-default">…</span>}
+          {(data ?? []).map((tag) => (
+            <a key={tag} className="tag-pill tag-default" href={`/tag/${encodeURIComponent(tag)}`}>
+              {tag}
+            </a>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function useTags() {
+  const [state, setState] = useState<{ status: string; data: string[] | null; errors: unknown }>({
+    status: 'loading',
+    data: null,
+    errors: null,
+  })
+  useEffect(() => {
+    let cancelled = false
+    conduit.tags().then(
+      (tags) => {
+        if (!cancelled) setState({ status: 'done', data: tags, errors: null })
+      },
+      (error: unknown) => {
+        if (!cancelled) setState({ status: 'done', data: [], errors: error })
+      },
+    )
+    return () => {
+      cancelled = true
+    }
+  }, [])
+  return state
+}

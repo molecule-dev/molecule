@@ -1,0 +1,275 @@
+import type { ReactNode } from 'react'
+import { useState } from 'react'
+import { Link, useNavigate, useParams } from 'react-router'
+
+import { requireProvider } from '@molecule/app-markdown'
+import { useQuery } from '@molecule/app-query-react'
+import { useAuth } from '@molecule/app-react'
+
+import { ErrorList } from '../components/ErrorList.js'
+import {
+  articleQuery,
+  avatarSrc,
+  commentsQuery,
+  createComment,
+  errorMessages,
+  formatDate,
+  removeArticle,
+  removeComment,
+  setFavorite,
+  setFollowing,
+  type Article,
+  type Comment,
+  type ConduitUser,
+} from '../lib/conduit.js'
+
+/**
+ * `/article/:slug` — the article, its tags, and the comment thread under it.
+ * A signed-out reader is offered the comment-free view and a link to sign in.
+ */
+export function ArticlePage(): ReactNode {
+  const { slug = '' } = useParams<{ slug: string }>()
+  const navigate = useNavigate()
+  const { user } = useAuth<ConduitUser>()
+  const viewer = user ? user.username : 'anonymous'
+  const article = useQuery<Article>(slug ? articleQuery(viewer, slug) : null)
+  const comments = useQuery<Comment[]>(slug ? commentsQuery(viewer, slug) : null)
+  const [errors, setErrors] = useState<string[]>([])
+  const [commentBody, setCommentBody] = useState('')
+  const [commentErrors, setCommentErrors] = useState<string[]>([])
+  const [busy, setBusy] = useState(false)
+
+  const data = article.data
+  const isAuthor = Boolean(user && data && data.author.username === user.username)
+
+  const onFavorite = (): void => {
+    if (!data) return
+    if (!user) {
+      navigate('/login')
+      return
+    }
+    void setFavorite(data.slug, !data.favorited)
+      .then((saved) => article.setData(saved))
+      .catch((error: unknown) => setErrors(errorMessages(error)))
+  }
+
+  const onFollow = (): void => {
+    if (!data) return
+    if (!user) {
+      navigate('/login')
+      return
+    }
+    void setFollowing(data.author.username, !data.author.following)
+      .then((profile) => article.setData({ ...data, author: profile }))
+      .catch((error: unknown) => setErrors(errorMessages(error)))
+  }
+
+  const onDelete = (): void => {
+    if (!data) return
+    void removeArticle(data.slug)
+      .then(() => navigate('/'))
+      .catch((error: unknown) => setErrors(errorMessages(error)))
+  }
+
+  const onPostComment = (): void => {
+    const text = commentBody.trim()
+    if (!text) return
+    setBusy(true)
+    setCommentErrors([])
+    createComment(slug, text)
+      .then(() => {
+        setCommentBody('')
+        return comments.refetch()
+      })
+      .catch((error: unknown) => setCommentErrors(errorMessages(error)))
+      .finally(() => setBusy(false))
+  }
+
+  const onDeleteComment = (comment: Comment): void => {
+    setCommentErrors([])
+    void removeComment(slug, comment.id)
+      .then(() => comments.refetch())
+      .catch((error: unknown) => setCommentErrors(errorMessages(error)))
+  }
+
+  // The bonded markdown provider sanitizes by default: raw HTML in a body is
+  // escaped and javascript:/data: URLs are dropped before it reaches the DOM.
+  const html = data?.body ? requireProvider().render(data.body).html : ''
+
+  return (
+    <div className="article-page">
+      {article.status === 'error' ? (
+        <div className="container page">
+          <p role="alert">This article could not be loaded.</p>
+        </div>
+      ) : null}
+
+      {data ? (
+        <>
+          <div className="banner">
+            <div className="container">
+              <h1>{data.title}</h1>
+              <div className="article-meta">
+                <Link to={`/profile/${encodeURIComponent(data.author.username)}`}>
+                  <img src={avatarSrc(data.author.image)} alt={data.author.username} />
+                </Link>
+                <div className="info">
+                  <Link
+                    className="author"
+                    to={`/profile/${encodeURIComponent(data.author.username)}`}
+                  >
+                    {data.author.username}
+                  </Link>
+                  <span className="date">{formatDate(data.createdAt)}</span>
+                </div>
+                {isAuthor ? (
+                  <>
+                    <Link
+                      className="btn btn-sm btn-outline-secondary"
+                      to={`/editor/${encodeURIComponent(data.slug)}`}
+                    >
+                      <i className="ion-edit" aria-hidden="true" /> Edit Article
+                    </Link>
+                    <button
+                      className="btn btn-sm btn-outline-danger"
+                      type="button"
+                      onClick={onDelete}
+                    >
+                      <i className="ion-trash-a" aria-hidden="true" /> Delete Article
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      className="btn btn-sm btn-outline-secondary"
+                      type="button"
+                      onClick={onFollow}
+                    >
+                      <i className="ion-plus-round" aria-hidden="true" />{' '}
+                      {data.author.following ? 'Unfollow' : 'Follow'} {data.author.username}
+                    </button>
+                    <button
+                      className={`btn btn-sm ${data.favorited ? 'btn-primary' : 'btn-outline-primary'}`}
+                      type="button"
+                      onClick={onFavorite}
+                    >
+                      <i className="ion-heart" aria-hidden="true" />{' '}
+                      {data.favorited ? 'Unfavorite' : 'Favorite'} Article{' '}
+                      <span className="counter">({data.favoritesCount})</span>
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className="container page">
+            <ErrorList messages={errors} />
+
+            <div className="article-content" dangerouslySetInnerHTML={{ __html: html }} />
+
+            <ul className="tag-list">
+              {data.tagList.map((tag) => (
+                <li key={tag} className="tag-default tag-pill">
+                  {tag}
+                </li>
+              ))}
+            </ul>
+
+            <div className="row">
+              <div className="col-md-8 offset-md-2">
+                <hr />
+                <ErrorList messages={commentErrors} />
+                {user ? (
+                  <div className="card comment-form">
+                    <div className="card-block">
+                      <textarea
+                        className="form-control"
+                        name="comment"
+                        rows={3}
+                        placeholder="Write a comment..."
+                        aria-label="Write a comment"
+                        value={commentBody}
+                        onChange={(event) => setCommentBody(event.target.value)}
+                      />
+                    </div>
+                    <div className="card-footer">
+                      <img
+                        className="comment-author-img"
+                        src={avatarSrc(user.image)}
+                        alt={user.username}
+                      />
+                      <button
+                        className="btn btn-sm btn-primary"
+                        type="button"
+                        onClick={onPostComment}
+                        disabled={busy}
+                      >
+                        Post Comment
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <p>
+                    <Link to="/login">Sign in</Link> or <Link to="/register">sign up</Link> to add
+                    comments on this article.
+                  </p>
+                )}
+
+                {(comments.data ?? []).map((comment) => (
+                  <div className="card" key={comment.id}>
+                    <div className="card-block">
+                      <p className="card-text">{comment.body}</p>
+                    </div>
+                    <div className="card-footer">
+                      <Link
+                        className="comment-author"
+                        to={`/profile/${encodeURIComponent(comment.author.username)}`}
+                      >
+                        <img
+                          className="comment-author-img"
+                          src={avatarSrc(comment.author.image)}
+                          alt={comment.author.username}
+                        />
+                      </Link>
+                      &nbsp;
+                      <Link
+                        className="comment-author"
+                        to={`/profile/${encodeURIComponent(comment.author.username)}`}
+                      >
+                        {comment.author.username}
+                      </Link>
+                      <span className="date-posted">{formatDate(comment.createdAt)}</span>
+                      {user && comment.author.username === user.username ? (
+                        <span className="mod-options">
+                          {/* eslint-disable-next-line molecule-local/no-empty-interactive-target -- the supplied Conduit theme draws .ion-trash-a from its icon font, and the e2e suite clicks this element by that class */}
+                          <i
+                            className="ion-trash-a"
+                            role="button"
+                            tabIndex={0}
+                            aria-label="Delete comment"
+                            onClick={() => onDeleteComment(comment)}
+                            onKeyDown={(event) => {
+                              if (event.key === 'Enter' || event.key === ' ') {
+                                event.preventDefault()
+                                onDeleteComment(comment)
+                              }
+                            }}
+                          />
+                        </span>
+                      ) : null}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </>
+      ) : article.status === 'loading' ? (
+        <div className="container page">
+          <p role="status">Loading article...</p>
+        </div>
+      ) : null}
+    </div>
+  )
+}

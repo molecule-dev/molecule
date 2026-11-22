@@ -1,0 +1,8 @@
+export function Profile({ username }: { username: string }) {
+  const { data: profile } = useQuery(profileQuery('anonymous', username))
+  return (
+    <div className="user-info">
+      {profile ? <><h4>{username}</h4><p>{profile.bio ?? ''}</p></> : <p role="status">Loading profile…</p>}
+    </div>
+  )
+}

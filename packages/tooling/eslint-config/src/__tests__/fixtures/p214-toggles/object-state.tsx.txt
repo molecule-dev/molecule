@@ -1,0 +1,65 @@
+import type { JSX } from 'react'
+import { useState } from 'react'
+import { useNavigate } from 'react-router'
+
+import { useAuth, useHttpClient } from '@molecule/app-react'
+
+import { favoriteArticle, unfavoriteArticle } from '../lib/api.js'
+import type { ConduitUser } from '../lib/conduit.js'
+
+interface FavoriteButtonProps {
+  slug: string
+  favorited: boolean
+  favoritesCount: number
+  onUpdated?: (next: { favorited: boolean; favoritesCount: number }) => void
+  compact?: boolean
+}
+
+/** The Favorite / Unfavorite control used by article previews and the article page. */
+export function FavoriteButton({
+  slug,
+  favorited,
+  favoritesCount,
+  onUpdated,
+  compact = false,
+}: FavoriteButtonProps): JSX.Element {
+  const http = useHttpClient()
+  const navigate = useNavigate()
+  const { user } = useAuth<ConduitUser>()
+  const [state, setState] = useState({ favorited, favoritesCount })
+  const [pending, setPending] = useState(false)
+
+  const handleClick = async (): Promise<void> => {
+    if (!user) {
+      navigate('/login')
+      return
+    }
+    if (pending) return
+    setPending(true)
+    const optimistic = {
+      favorited: !state.favorited,
+      favoritesCount: state.favoritesCount + (state.favorited ? -1 : 1),
+    }
+    setState(optimistic)
+    try {
+      const article = state.favorited
+        ? await unfavoriteArticle(http, slug)
+        : await favoriteArticle(http, slug)
+      setState({ favorited: article.favorited, favoritesCount: article.favoritesCount })
+      onUpdated?.({ favorited: article.favorited, favoritesCount: article.favoritesCount })
+    } catch (_error) {
+      setState({ favorited, favoritesCount })
+    } finally {
+      setPending(false)
+    }
+  }
+
+  const className = state.favorited ? 'btn btn-sm btn-primary' : 'btn btn-sm btn-outline-primary'
+
+  return (
+    <button className={className} type="button" onClick={handleClick} data-mol-id="favorite">
+      <i className="ion-heart" /> {state.favorited ? 'Unfavorite' : 'Favorite'}
+      {compact ? null : ' Article'} <span className="counter">({state.favoritesCount})</span>
+    </button>
+  )
+}

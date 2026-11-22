@@ -1,0 +1,181 @@
+import { useEffect, useMemo, useState } from 'react'
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router'
+
+import { useQuery } from '@molecule/app-query-react'
+import { useAuth, useHttpClient } from '@molecule/app-react'
+
+import { Banner } from '../components/Banner.js'
+import { ArticlePreview } from '../components/ArticlePreview.js'
+import { Pagination } from '../components/Pagination.js'
+import type { ConduitUser } from '../config.js'
+import { PAGE_SIZE, type Article, type ArticlesPage } from '../lib/conduit.js'
+
+/** Home: the global feed, the followed-authors feed and the tag-filtered feed. */
+export function Home() {
+  const http = useHttpClient()
+  const navigate = useNavigate()
+  const { status, user } = useAuth<ConduitUser>()
+  const { tag } = useParams<{ tag: string }>()
+  const [searchParams] = useSearchParams()
+  const [reload, setReload] = useState(0)
+
+  const feed = searchParams.get('feed') === 'following' ? 'following' : 'global'
+  const page = Math.max(1, Number.parseInt(searchParams.get('page') ?? '1', 10) || 1)
+  const signedIn = status === 'authenticated' && !!user
+
+  useEffect(() => {
+    // Your Feed needs a session: send anonymous visitors to sign in.
+    if (feed === 'following' && status === 'unauthenticated') {
+      navigate('/login', { replace: true })
+    }
+  }, [feed, status, navigate])
+
+  const viewer = signedIn ? String(user?.id ?? user?.username ?? 'user') : 'anonymous'
+  const ready = feed !== 'following' || signedIn
+
+  const articles = useQuery<ArticlesPage>(
+    ready
+      ? {
+          key: [http.baseURL, 'feed', feed, tag ?? '', page, viewer, reload],
+          principal: viewer,
+          fetch: async (signal: AbortSignal) =>
+            (
+              await http.get(feed === 'following' ? '/api/articles/feed' : '/api/articles', {
+                signal,
+                params: {
+                  limit: PAGE_SIZE,
+                  offset: (page - 1) * PAGE_SIZE,
+                  ...(tag ? { tag } : {}),
+                },
+              })
+            ).data as ArticlesPage,
+        }
+      : null,
+  )
+
+  const tags = useQuery<{ tags: string[] }>({
+    key: [http.baseURL, 'tags'],
+    fetch: async (signal: AbortSignal) =>
+      (await http.get('/api/tags', { signal })).data as { tags: string[] },
+  })
+
+  const rows = articles.data?.articles ?? []
+  const total = articles.data?.articlesCount ?? 0
+  const pageCount = Math.max(1, Math.ceil(total / PAGE_SIZE))
+  const loading = articles.status === 'loading' || articles.isFetching
+
+  const hrefFor = useMemo(
+    () =>
+      (target: number): string => {
+        const params = new URLSearchParams()
+        if (feed === 'following') params.set('feed', 'following')
+        if (target > 1) params.set('page', String(target))
+        const query = params.toString()
+        const path = tag ? `/tag/${encodeURIComponent(tag)}` : '/'
+        return query ? `${path}?${query}` : path
+      },
+    [feed, tag],
+  )
+
+  return (
+    <div className="home-page">
+      {tag ? null : <Banner />}
+      <div className="container page">
+        <div className="row">
+          <div className="col-md-9">
+            <div className="feed-toggle">
+              <ul className="nav nav-pills outline-active">
+                {signedIn ? (
+                  <li className="nav-item">
+                    <Link
+                      className={feed === 'following' ? 'nav-link active' : 'nav-link'}
+                      to="/?feed=following"
+                      data-mol-id="feed-following"
+                    >
+                      Your Feed
+                    </Link>
+                  </li>
+                ) : null}
+                <li className="nav-item">
+                  <Link
+                    className={feed !== 'following' && !tag ? 'nav-link active' : 'nav-link'}
+                    to="/"
+                    data-mol-id="feed-global"
+                  >
+                    Global Feed
+                  </Link>
+                </li>
+                {tag ? (
+                  <li className="nav-item">
+                    <Link className="nav-link active" to={`/tag/${tag}`} data-mol-id="feed-tag">
+                      <i className="ion-pound" /> {tag}
+                    </Link>
+                  </li>
+                ) : null}
+              </ul>
+            </div>
+
+            {loading ? (
+              <div className="article-preview" role="status">
+                Loading articles…
+              </div>
+            ) : null}
+
+            {!loading && articles.status === 'error' ? (
+              <div className="empty-feed-message" role="alert">
+                Could not load articles. Please try again.
+              </div>
+            ) : null}
+
+            {!loading &&
+              articles.status !== 'error' &&
+              rows.map((article: Article) => (
+                <ArticlePreview
+                  key={article.slug}
+                  article={article}
+                  onFavoriteChanged={() => setReload((value) => value + 1)}
+                />
+              ))}
+
+            {!loading && articles.status !== 'error' && rows.length === 0 ? (
+              <div className="empty-feed-message">
+                {feed === 'following' ? (
+                  <>
+                    Your feed is empty. Follow an author to see their articles here, or read the{' '}
+                    <Link to="/">Global Feed</Link>.
+                  </>
+                ) : tag ? (
+                  <>No articles are here… yet.</>
+                ) : (
+                  <>No articles here… yet.</>
+                )}
+              </div>
+            ) : null}
+
+            {!loading && rows.length > 0 ? (
+              <Pagination page={page} pageCount={pageCount} href={hrefFor} />
+            ) : null}
+          </div>
+
+          <div className="col-md-3">
+            <div className="sidebar">
+              <p>Popular Tags</p>
+              <div className="tag-list">
+                {(tags.data?.tags ?? []).map((name) => (
+                  <Link
+                    key={name}
+                    className="tag-pill tag-default"
+                    to={`/tag/${encodeURIComponent(name)}`}
+                    data-mol-id={`tag-${name}`}
+                  >
+                    {name}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}

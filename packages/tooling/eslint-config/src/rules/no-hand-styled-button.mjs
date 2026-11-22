@@ -1,13 +1,5 @@
 /**
- * CANONICAL copy of the `molecule-local/no-hand-styled-button` ESLint rule.
- *
- * Vendored into every repo that lints JSX (see `scripts/sync-eslint-rules.mjs`
- * for the target list and the drift gate). Edit THIS file, never a vendored
- * copy — the sibling repos build alone in CI (workspace AGENTS.md, "CI: each
- * sub-repo builds ALONE"), so an `import` across the polyrepo boundary is not
- * available to them and duplication is the only shape that works. What failed
- * on its own, for the secret scanner, is keeping the copies IDENTICAL; hence
- * the sync script.
+ * The `molecule-local/no-hand-styled-button` ESLint rule.
  *
  * ## What it enforces
  *

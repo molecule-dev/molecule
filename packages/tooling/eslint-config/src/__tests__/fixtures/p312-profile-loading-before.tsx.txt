@@ -1,0 +1,147 @@
+import { useState } from 'react'
+import { Link, useLocation, useNavigate, useParams } from 'react-router'
+
+import { useQuery } from '@molecule/app-query-react'
+import { useAuth, useHttpClient } from '@molecule/app-react'
+
+import { avatarSrc, type Article, type ArticleList, type Profile } from '../api.js'
+import { ArticlePreview } from '../components/ArticlePreview.js'
+import type { ConduitUser } from '../config.js'
+
+interface ProfileBody {
+  profile: Profile
+}
+
+const PAGE_SIZE = 10
+
+export function Profile() {
+  const http = useHttpClient()
+  const navigate = useNavigate()
+  const location = useLocation()
+  const { username = '' } = useParams<{ username: string }>()
+  const { status, user } = useAuth<ConduitUser>()
+  const favoritesTab = location.pathname.endsWith('/favorites')
+  const search = new URLSearchParams(location.search)
+  const page = Math.max(1, Number(search.get('page') ?? '1') || 1)
+  const viewer = user?.username ?? 'anonymous'
+
+  const [following, setFollowing] = useState<boolean | null>(null)
+
+  const profileQuery = useQuery<ProfileBody>({
+    key: [http.baseURL, 'profile', username, viewer],
+    principal: viewer,
+    fetch: async (signal: AbortSignal) => {
+      const response = await http.get<ProfileBody>(`/profiles/${encodeURIComponent(username)}`, {
+        signal,
+      })
+      return response.data
+    },
+  })
+
+  const articlesQuery = useQuery<ArticleList>({
+    key: [http.baseURL, 'profile-articles', username, favoritesTab ? 'favorites' : 'author', page, viewer],
+    principal: viewer,
+    keepPreviousData: true,
+    fetch: async (signal: AbortSignal) => {
+      const params: Record<string, string | number> = {
+        limit: PAGE_SIZE,
+        offset: (page - 1) * PAGE_SIZE,
+      }
+      if (favoritesTab) params.favorited = username
+      else params.author = username
+      const response = await http.get<ArticleList>('/articles', { signal, params })
+      return response.data
+    },
+  })
+
+  const profile = profileQuery.data?.profile ?? null
+  const isOwnProfile = user?.username === username
+  const isFollowing = following ?? profile?.following ?? false
+
+  const toggleFollow = async (): Promise<void> => {
+    if (status !== 'authenticated') {
+      navigate('/login')
+      return
+    }
+    const path = `/profiles/${encodeURIComponent(username)}/follow`
+    const response = isFollowing
+      ? await http.delete<ProfileBody>(path)
+      : await http.post<ProfileBody>(path)
+    setFollowing(response.data.profile.following)
+  }
+
+  const articles: Article[] = articlesQuery.data?.articles ?? []
+
+  return (
+    <div className="profile-page">
+      <div className="user-info">
+        <div className="container">
+          <div className="row">
+            <div className="col-xs-12 col-md-10 offset-md-1">
+              {profile ? (
+                <>
+                  <img className="user-img" src={avatarSrc(profile.image)} alt={profile.username} />
+                  <h4>{profile.username}</h4>
+                  <p>{profile.bio ?? ''}</p>
+                  {isOwnProfile ? (
+                    <Link className="btn btn-sm btn-outline-secondary" to="/settings">
+                      <i className="ion-gear-a" /> Edit Profile Settings
+                    </Link>
+                  ) : (
+                    <button
+                      className="btn btn-sm btn-outline-secondary"
+                      onClick={toggleFollow}
+                      type="button"
+                    >
+                      <i className="ion-plus-round" /> {isFollowing ? 'Unfollow' : 'Follow'}{' '}
+                      {profile.username}
+                    </button>
+                  )}
+                </>
+              ) : (
+                <p>{profileQuery.status === 'error' ? 'This profile does not exist.' : 'Loading...'}</p>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="container">
+        <div className="row">
+          <div className="col-xs-12 col-md-10 offset-md-1">
+            <div className="articles-toggle">
+              <ul className="nav nav-pills outline-active">
+                <li className="nav-item">
+                  <Link
+                    className={favoritesTab ? 'nav-link' : 'nav-link active'}
+                    to={`/profile/${username}`}
+                  >
+                    My Articles
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <Link
+                    className={favoritesTab ? 'nav-link active' : 'nav-link'}
+                    to={`/profile/${username}/favorites`}
+                  >
+                    Favorited Articles
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            {articles.map((article) => (
+              <ArticlePreview key={article.slug} article={article} />
+            ))}
+
+            {articlesQuery.status !== 'error' &&
+            articles.length === 0 &&
+            !articlesQuery.isFetching ? (
+              <div className="article-preview">No articles are here... yet.</div>
+            ) : null}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}

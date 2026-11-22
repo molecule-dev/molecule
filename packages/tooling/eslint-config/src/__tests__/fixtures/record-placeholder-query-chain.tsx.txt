@@ -1,0 +1,17 @@
+export function Profile({ username }: { username: string }) {
+  const profile = useQuery(profileQuery('anonymous', username))
+  return (
+    <div className="user-info">
+      {profile.data ? (
+        <>
+          <h4>{username}</h4>
+          <p>{profile.data.bio ?? ''}</p>
+        </>
+      ) : profile.status === 'error' ? (
+        <p role="alert">Unable to load this profile.</p>
+      ) : (
+        <Loading label="Loading profile…" />
+      )}
+    </div>
+  )
+}

@@ -1,0 +1,61 @@
+import type { JSX } from 'react'
+import { useState } from 'react'
+
+import { useTranslation } from '@molecule/app-react'
+
+import { setFavorite } from '../lib/api.js'
+
+/** The heart button: outline when not favorited, solid Primary when favorited. */
+export function FavoriteButton({
+  slug,
+  favorited,
+  favoritesCount,
+  variant = 'page',
+  onChange,
+}: {
+  slug: string
+  favorited: boolean
+  favoritesCount: number
+  variant?: 'page' | 'preview'
+  onChange?: (favorited: boolean, favoritesCount: number) => void
+}): JSX.Element {
+  const { t } = useTranslation()
+  const [pending, setPending] = useState(false)
+
+  const toggle = async (): Promise<void> => {
+    if (pending) return
+    setPending(true)
+    const desired = !favorited
+    onChange?.(desired, Math.max(0, favoritesCount + (desired ? 1 : -1)))
+    try {
+      const saved = await setFavorite(slug, desired)
+      onChange?.(saved.favorited, saved.favoritesCount)
+    } catch (_error) {
+      onChange?.(favorited, favoritesCount)
+    } finally {
+      setPending(false)
+    }
+  }
+
+  const classes =
+    variant === 'preview'
+      ? `btn btn-sm pull-xs-right ${favorited ? 'btn-primary' : 'btn-outline-primary'}`
+      : `btn btn-sm ${favorited ? 'btn-primary' : 'btn-outline-primary'}`
+
+  return (
+    <button type="button" className={classes} onClick={toggle} data-mol-id="favorite-button">
+      <i className="ion-heart" />
+      {variant === 'preview' ? (
+        <> {favoritesCount}</>
+      ) : (
+        <>
+          &nbsp;
+          {favorited
+            ? t('rw.article.unfavorite', undefined, { defaultValue: 'Unfavorite Article' })
+            : t('rw.article.favorite', undefined, { defaultValue: 'Favorite Article' })}
+          <span className="counter">({favoritesCount})</span>
+        </>
+      )}
+    </button>
+  )
+}

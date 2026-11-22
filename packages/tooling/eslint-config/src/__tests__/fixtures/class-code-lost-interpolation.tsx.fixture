@@ -1,0 +1,80 @@
+import { useEffect, useState } from 'react'
+import { Link, useNavigate } from 'react-router'
+
+import { useAuth } from '@molecule/app-react'
+
+import { api, avatarUrl, formatDate, type ConduitArticle, type ConduitUser } from '../conduit/api.js'
+
+/** An article card in a feed list. Favoriting is local to the card. */
+export function ArticlePreview({ article }: { article: ConduitArticle }) {
+  const { user } = useAuth<ConduitUser>()
+  const navigate = useNavigate()
+  const [favorited, setFavorited] = useState(article.favorited)
+  const [count, setCount] = useState(article.favoritesCount)
+  const [busy, setBusy] = useState(false)
+
+  useEffect(() => {
+    setFavorited(article.favorited)
+    setCount(article.favoritesCount)
+  }, [article.slug, article.favorited, article.favoritesCount])
+
+  async function toggleFavorite() {
+    if (!user) {
+      navigate('/login')
+      return
+    }
+    if (busy) return
+    setBusy(true)
+    const next = !favorited
+    setFavorited(next)
+    setCount((current) => Math.max(0, current + (next ? 1 : -1)))
+    try {
+      const updated = await api.favorite(article.slug, next)
+      setFavorited(updated.favorited)
+      setCount(updated.favoritesCount)
+    } catch (_error) {
+      setFavorited(!next)
+      setCount(article.favoritesCount)
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <div className="article-preview">
+      <div className="article-meta">
+        <Link to={`/profile/${article.author.username}`}>
+          <img src={avatarUrl(article.author.image)} alt={article.author.username} />
+        </Link>
+        <div className="info">
+          <Link className="author" to={`/profile/${article.author.username}`}>
+            {article.author.username}
+          </Link>
+          <span className="date">{formatDate(article.createdAt)}</span>
+        </div>
+        <button
+          type="button"
+          className={`btn btn-sm pull-xs-right $
+            favorited ? 'btn-primary' : 'btn-outline-primary'
+          }`}
+          onClick={toggleFavorite}
+        >
+          <i className="ion-heart" /> {favorited ? 'Unfavorite' : 'Favorite'} Article{' '}
+          <span className="counter">({count})</span>
+        </button>
+      </div>
+      <Link className="preview-link" to={`/article/${article.slug}`}>
+        <h1>{article.title}</h1>
+        <p>{article.description}</p>
+        <span>Read more...</span>
+        <ul className="tag-list">
+          {article.tagList.map((tag) => (
+            <li className="tag-default tag-pill tag-outline" key={tag}>
+              {tag}
+            </li>
+          ))}
+        </ul>
+      </Link>
+    </div>
+  )
+}

@@ -139,7 +139,7 @@ if (!changedDirs.length) full('changed files map to no package (cannot scope)')
 
 // ── dependency graph: dir → dirs that depend on it (transitive) ──────────────
 const pkgDirs = []
-for (const stack of ['api', 'app']) {
+for (const stack of ['api', 'app', 'tooling']) {
   const walk = (rel) => {
     const abs = join(ROOT, rel)
     if (!existsSync(abs)) return

@@ -1,0 +1,26 @@
+import type { JSX } from 'react'
+import { useMemo } from 'react'
+
+import { getProvider } from '@molecule/app-markdown'
+
+interface MarkdownProps {
+  source: string
+}
+
+/**
+ * Renders markdown through the bonded provider, which escapes raw HTML and only
+ * emits safe URLs by default — article bodies are user-authored, so its output is
+ * the sanitized HTML we hand to the browser.
+ */
+export function Markdown({ source }: MarkdownProps): JSX.Element {
+  const html = useMemo(() => {
+    try {
+      const provider = getProvider()
+      return provider ? provider.render(source ?? '') : ''
+    } catch {
+      return ''
+    }
+  }, [source])
+
+  return <div dangerouslySetInnerHTML={{ __html: html }} />
+}

@@ -1,0 +1,78 @@
+{
+  "name": "@molecule/eslint-config",
+  "version": "1.0.0",
+  "description": "The ESLint flat config every Molecule workspace runs: TypeScript, import order, accessibility and the molecule-local rules, switched on by the workspace's own package.json.",
+  "homepage": "https://www.molecule.dev/packages/eslint-config",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./rules/*.mjs": {
+      "types": "./dist/rules/*.d.mts",
+      "import": "./dist/rules/*.mjs"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "keywords": [
+    "molecule",
+    "eslint",
+    "eslintconfig",
+    "flat-config"
+  ],
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/tooling/eslint-config"
+  },
+  "dependencies": {
+    "@eslint/js": "10.0.1",
+    "eslint-config-prettier": "10.1.8",
+    "eslint-plugin-jsx-a11y": "6.10.2",
+    "eslint-plugin-react-hooks": "7.1.1",
+    "eslint-plugin-simple-import-sort": "14.0.0",
+    "typescript-eslint": "8.72.0"
+  },
+  "devDependencies": {
+    "@molecule/app-state": "1.2.0",
+    "@types/node": "26.6.5",
+    "eslint": "10.15.0",
+    "eslint-plugin-svelte": "3.23.1",
+    "eslint-plugin-vue": "10.12.0",
+    "eslint-plugin-vuejs-accessibility": "2.6.3",
+    "svelte": "5.57.2",
+    "typescript": "6.0.3",
+    "vitest": "4.1.12",
+    "vue-eslint-parser": "10.4.1"
+  },
+  "peerDependencies": {
+    "eslint": "^10.0.0",
+    "eslint-plugin-svelte": "^3.0.0",
+    "eslint-plugin-vue": "^10.0.0",
+    "eslint-plugin-vuejs-accessibility": "^2.0.0",
+    "typescript": ">=4.8.4 <6.1.0"
+  },
+  "peerDependenciesMeta": {
+    "eslint-plugin-svelte": {
+      "optional": true
+    },
+    "eslint-plugin-vue": {
+      "optional": true
+    },
+    "eslint-plugin-vuejs-accessibility": {
+      "optional": true
+    }
+  }
+}

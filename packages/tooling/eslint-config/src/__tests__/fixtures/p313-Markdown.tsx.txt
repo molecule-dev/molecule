@@ -1,0 +1,16 @@
+import { useMemo } from 'react'
+
+import { requireProvider } from '@molecule/app-markdown'
+
+interface Props {
+  markdown: string
+}
+
+/**
+ * Renders user-authored markdown through the bonded markdown provider, which sanitizes its
+ * HTML by default — that sanitized string is the only thing injected here.
+ */
+export function Markdown({ markdown }: Props) {
+  const html = useMemo(() => requireProvider().render(markdown).html, [markdown])
+  return <div dangerouslySetInnerHTML={{ __html: html }} />
+}

@@ -1,0 +1,33 @@
+import { Link } from 'react-router-dom'
+
+import { api } from '../api.js'
+import { useAsync } from '../hooks/useAsync.js'
+
+export function Home({ tag }: { tag?: string }) {
+  const articles = useAsync(`list:${tag ?? ''}`, () => api.listArticles({ tag, limit: 10, offset: 0 }))
+  const tags = useAsync('tags', () => api.tags())
+  const rows = articles.data?.articles ?? []
+  return (
+    <div className="home-page">
+      <div className="col-md-9">
+        {articles.loading ? <div className="empty-feed-message">Loading articles...</div> : null}
+        {rows.map((article) => (
+          <p key={article.slug}>{article.title}</p>
+        ))}
+      </div>
+      <div className="col-md-3">
+        <div className="sidebar">
+          <p>Popular Tags</p>
+          <div className="tag-list">
+            {tags.loading ? <span className="tag-pill tag-default">Loading...</span> : null}
+            {(tags.data ?? []).slice(0, 50).map((name) => (
+              <Link className="tag-pill tag-default" key={name} to={`/tag/${name}`}>
+                {name}
+              </Link>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}

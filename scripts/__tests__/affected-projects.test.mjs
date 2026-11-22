@@ -54,14 +54,20 @@ function fixture() {
     'scripts/__tests__/meta.test.ts',
     "import {it,expect} from 'vitest';it('meta guard',()=>expect(1).toBe(1))\n",
   )
-  for (const name of ['a', 'b', 'c', 'd', 'unrelated', 'testing']) {
-    const pkg = name === 'testing' ? 'packages/api/testing' : `packages/api/core/${name}`
+  for (const name of ['a', 'b', 'c', 'd', 'unrelated', 'testing', 'lint']) {
+    const pkg =
+      name === 'testing'
+        ? 'packages/api/testing'
+        : name === 'lint'
+          ? 'packages/tooling/lint'
+          : `packages/api/core/${name}`
+    const dependencies = { b: { '@molecule/a': '1.0.0' }, lint: { '@molecule/d': '1.0.0' } }[name]
     write(
       `${pkg}/package.json`,
       JSON.stringify({
         name: `@molecule/${name}`,
         version: '1.0.0',
-        ...(name === 'b' ? { dependencies: { '@molecule/a': '1.0.0' } } : {}),
+        ...(dependencies ? { dependencies } : {}),
       }),
     )
     write(
@@ -207,6 +213,14 @@ describe('trust-only affected scope', { timeout: 30000 }, () => {
 })
 
 describe('source-only affected scope', { timeout: 30000 }, () => {
+  it('selects a project tooling package that depends on a changed package', () => {
+    const f = fixture()
+    f.change({ 'packages/api/core/d/src/index.ts': 'export const value=2\n' })
+    expect(f.select().stdout).toBe('packages/api/core/d packages/tooling/lint scripts/__tests__')
+    f.change({ 'packages/tooling/lint/src/index.ts': 'export const value=2\n' })
+    expect(f.select().stdout).toBe('packages/tooling/lint scripts/__tests__')
+  })
+
   it('runs the repository guards with the affected packages', () => {
     const f = fixture()
     f.change({ 'packages/api/core/c/src/index.ts': 'export const value=2\n' })

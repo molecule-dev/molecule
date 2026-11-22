@@ -1,0 +1,151 @@
+import { Link, Navigate, useParams, useSearchParams } from 'react-router'
+
+import { useAuth, useTranslation } from '@molecule/app-react'
+
+import { ArticlePreview } from '../components/ArticlePreview.js'
+import { Pagination } from '../components/Pagination.js'
+import type { ConduitUser } from '../config.js'
+import { fetchArticles, fetchFeed, fetchTags, type ArticlesPage } from '../lib/api.js'
+import { useApiData } from '../lib/hooks.js'
+
+const PAGE_SIZE = 10
+
+function feedNavClass(active: boolean): string {
+  return active ? 'nav-link active' : 'nav-link'
+}
+
+/**
+ * The home feed: Your Feed / Global Feed / a tag filter, the article previews,
+ * page links, and the popular tags sidebar. The view is driven entirely by the
+ * URL (`?feed=following`, `/tag/:tag`, `?page=N`) so every state is linkable.
+ */
+export function Home() {
+  const { t } = useTranslation()
+  const { user, status } = useAuth<ConduitUser>()
+  const { tag } = useParams<{ tag?: string }>()
+  const [searchParams] = useSearchParams()
+
+  const following = searchParams.get('feed') === 'following'
+  const requestedPage = Number.parseInt(searchParams.get('page') ?? '1', 10)
+  const page = Number.isFinite(requestedPage) && requestedPage > 0 ? requestedPage : 1
+  const offset = (page - 1) * PAGE_SIZE
+
+  const articles = useApiData<ArticlesPage>(
+    async () => {
+      if (following && !user) return { articles: [], articlesCount: 0 }
+      if (following) return fetchFeed({ limit: PAGE_SIZE, offset })
+      return fetchArticles({ tag, limit: PAGE_SIZE, offset })
+    },
+    [following, Boolean(user), tag ?? '', page],
+  )
+
+  const tags = useApiData<string[]>(() => fetchTags(), [])
+
+  // A signed-out visitor asking for the followed-authors feed is sent to sign in.
+  if (following && status === 'unauthenticated') {
+    return <Navigate to="/login" replace />
+  }
+
+  const hrefFor = (target: number): string => {
+    const query = new URLSearchParams()
+    if (following) query.set('feed', 'following')
+    if (target > 1) query.set('page', String(target))
+    const search = query.toString()
+    const path = tag ? `/tag/${encodeURIComponent(tag)}` : '/'
+    return search ? `${path}?${search}` : path
+  }
+
+  const list = articles.data?.articles ?? []
+  const pageCount = Math.ceil((articles.data?.articlesCount ?? 0) / PAGE_SIZE)
+
+  return (
+    <div className="home-page">
+      <div className="banner">
+        <div className="container">
+          <h1 className="logo-font">
+            {t('conduit.nav.brand', undefined, { defaultValue: 'conduit' })}
+          </h1>
+          <p>
+            {t('conduit.home.tagline', undefined, {
+              defaultValue: 'A place to share your knowledge.',
+            })}
+          </p>
+        </div>
+      </div>
+
+      <div className="container page">
+        <div className="row">
+          <div className="col-md-9">
+            <div className="feed-toggle">
+              <ul className="nav nav-pills outline-active">
+                {user ? (
+                  <li className="nav-item">
+                    <Link className={feedNavClass(following)} to="/?feed=following">
+                      {t('conduit.home.yourFeed', undefined, { defaultValue: 'Your Feed' })}
+                    </Link>
+                  </li>
+                ) : null}
+                <li className="nav-item">
+                  <Link className={feedNavClass(!following && !tag)} to="/">
+                    {t('conduit.home.globalFeed', undefined, { defaultValue: 'Global Feed' })}
+                  </Link>
+                </li>
+                {tag ? (
+                  <li className="nav-item">
+                    <Link className={feedNavClass(true)} to={`/tag/${encodeURIComponent(tag)}`}>
+                      #{tag}
+                    </Link>
+                  </li>
+                ) : null}
+              </ul>
+            </div>
+
+            {list.map((article) => (
+              <ArticlePreview key={article.slug} article={article} />
+            ))}
+
+            {!articles.loading && list.length === 0 ? (
+              <div className="empty-feed-message">
+                {following ? (
+                  <>
+                    Your feed is empty — follow some authors, or{' '}
+                    <Link to="/">browse the Global Feed</Link>.
+                  </>
+                ) : (
+                  <>No articles are here... yet.</>
+                )}
+              </div>
+            ) : null}
+
+            {articles.error ? (
+              <ul className="error-messages">
+                {articles.error.map((message) => (
+                  <li key={message}>{message}</li>
+                ))}
+              </ul>
+            ) : null}
+
+            <Pagination page={page} pageCount={pageCount} hrefFor={hrefFor} />
+          </div>
+
+          <div className="col-md-3">
+            <div className="sidebar">
+              <p>{t('conduit.home.popularTags', undefined, { defaultValue: 'Popular Tags' })}</p>
+              <div className="tag-list">
+                {(tags.data ?? []).slice(0, 50).map((name) => (
+                  <Link
+                    key={name}
+                    className="tag-pill tag-default"
+                    to={`/tag/${encodeURIComponent(name)}`}
+                  >
+                    {name}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}

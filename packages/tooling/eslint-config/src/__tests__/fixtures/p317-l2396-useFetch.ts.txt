@@ -1,0 +1,53 @@
+import { useCallback, useEffect, useRef, useState } from 'react'
+
+export interface FetchResult<T> {
+  data: T | null
+  error: unknown
+  loading: boolean
+  reload: () => void
+}
+
+/**
+ * Load one resource for the current page. The request is aborted on unmount or
+ * when the dependency list changes, so a slow answer for a previous URL can
+ * never overwrite the current one.
+ */
+export function useFetch<T>(
+  load: (signal: AbortSignal) => Promise<T>,
+  deps: readonly unknown[],
+): FetchResult<T> {
+  const [data, setData] = useState<T | null>(null)
+  const [error, setError] = useState<unknown>(null)
+  const [loading, setLoading] = useState(true)
+  const [nonce, setNonce] = useState(0)
+  const loadRef = useRef(load)
+  loadRef.current = load
+
+  useEffect(() => {
+    const controller = new AbortController()
+    let active = true
+    setLoading(true)
+    loadRef.current(controller.signal)
+      .then((result) => {
+        if (!active) return
+        setData(result)
+        setError(null)
+        setLoading(false)
+      })
+      .catch((caught: unknown) => {
+        if (!active || controller.signal.aborted) return
+        setData(null)
+        setError(caught)
+        setLoading(false)
+      })
+    return () => {
+      active = false
+      controller.abort()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [...deps, nonce])
+
+  const reload = useCallback(() => setNonce((value) => value + 1), [])
+  return { data, error, loading, reload }
+}
+

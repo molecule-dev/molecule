@@ -1,0 +1,253 @@
+import type { JSX } from 'react'
+import { useState } from 'react'
+import type { FormEvent } from 'react'
+import { Link, useNavigate, useParams } from 'react-router'
+
+import { useQuery } from '@molecule/app-query-react'
+import { useAuth, useTranslation } from '@molecule/app-react'
+
+import { ArticleBody } from '../components/ArticleBody.js'
+import { ErrorList } from '../components/ErrorList.js'
+import { FavoriteButton } from '../components/FavoriteButton.js'
+import { FollowButton } from '../components/FollowButton.js'
+import {
+  avatarUrl,
+  type AppUser,
+  type Article as ArticleRecord,
+  type Comment,
+  createComment,
+  deleteArticle,
+  deleteComment,
+  formatDate,
+  getArticle,
+  listComments,
+  toErrorMessages,
+} from '../lib/api.js'
+
+/** One article: body, author actions, favorite/follow and its comments. */
+export function Article(): JSX.Element {
+  const { slug = '' } = useParams<{ slug: string }>()
+  const navigate = useNavigate()
+  const { status, user } = useAuth<AppUser>()
+  const { t } = useTranslation()
+  const label = (key: string, fallback: string) => t(key, {}, { defaultValue: fallback })
+  const viewer = user?.username ?? 'anonymous'
+
+  const articleQuery = useQuery<ArticleRecord>({
+    key: ['conduit', 'article', slug, viewer],
+    principal: viewer,
+    fetch: () => getArticle(slug),
+  })
+  const commentsQuery = useQuery<Comment[]>({
+    key: ['conduit', 'comments', slug, viewer],
+    principal: viewer,
+    fetch: () => listComments(slug),
+  })
+
+  const [commentBody, setCommentBody] = useState('')
+  const [errors, setErrors] = useState<string[]>([])
+  const [pending, setPending] = useState(false)
+
+  const article = articleQuery?.data
+  const comments = commentsQuery?.data ?? []
+  const isAuthor = Boolean(article && user && article.author.username === user.username)
+
+  const removeArticle = async (): Promise<void> => {
+    if (!article) return
+    try {
+      await deleteArticle(article.slug)
+      navigate('/')
+    } catch (error) {
+      setErrors(toErrorMessages(error))
+    }
+  }
+
+  const postComment = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
+    event.preventDefault()
+    if (!article) return
+    setErrors([])
+    setPending(true)
+    try {
+      await createComment(article.slug, commentBody)
+      setCommentBody('')
+      await commentsQuery?.refetch()
+    } catch (error) {
+      setErrors(toErrorMessages(error))
+    } finally {
+      setPending(false)
+    }
+  }
+
+  const removeComment = async (id: number): Promise<void> => {
+    if (!article) return
+    setErrors([])
+    try {
+      await deleteComment(article.slug, id)
+      await commentsQuery?.refetch()
+    } catch (error) {
+      setErrors(toErrorMessages(error))
+    }
+  }
+
+  const meta = (record: ArticleRecord): JSX.Element => (
+    <div className="article-meta">
+      <Link to={`/profile/${record.author.username}`}>
+        <img src={avatarUrl(record.author.image)} alt={record.author.username} />
+      </Link>
+      <div className="info">
+        <Link className="author" to={`/profile/${record.author.username}`}>
+          {record.author.username}
+        </Link>
+        <span className="date">{formatDate(record.createdAt)}</span>
+      </div>
+      {isAuthor ? (
+        <>
+          <Link className="btn btn-outline-secondary btn-sm" to={`/editor/${record.slug}`}>
+            <i className="ion-edit" /> {label('conduit.article.edit', 'Edit Article')}
+          </Link>
+          &nbsp;
+          <button type="button" className="btn btn-outline-danger btn-sm" onClick={removeArticle}>
+            <i className="ion-trash-a" /> {label('conduit.article.delete', 'Delete Article')}
+          </button>
+        </>
+      ) : (
+        <>
+          <FollowButton
+            profile={record.author}
+            onChange={(profile) =>
+              articleQuery?.setData((previous) =>
+                previous ? { ...previous, author: profile } : previous,
+              )
+            }
+          />
+          &nbsp;
+          <FavoriteButton
+            article={record}
+            onChange={(updated) =>
+              articleQuery?.setData((previous) =>
+                previous ? { ...previous, ...updated } : previous,
+              )
+            }
+          />
+        </>
+      )}
+    </div>
+  )
+
+  return (
+    <div className="article-page">
+      {article ? (
+        <>
+          <div className="banner">
+            <div className="container">
+              <h1>{article.title}</h1>
+              {meta(article)}
+            </div>
+          </div>
+
+          <div className="container page">
+            <div className="row article-content">
+              <div className="col-md-12">
+                <ArticleBody body={article.body} />
+                <ul className="tag-list">
+                  {article.tagList?.map((tag) => (
+                    <li key={tag} className="tag-default tag-pill tag-outline">
+                      {tag}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+
+            <hr />
+
+            <div className="article-actions">{meta(article)}</div>
+
+            <div className="row">
+              <div className="col-xs-12 col-md-8 offset-md-2">
+                {status === 'authenticated' && user ? (
+                  <form className="card comment-form" onSubmit={postComment}>
+                    <div className="card-block">
+                      <textarea
+                        className="form-control"
+                        name="comment"
+                        rows={3}
+                        placeholder={label('conduit.comment.placeholder', 'Write a comment...')}
+                        value={commentBody}
+                        onChange={(event) => setCommentBody(event.target.value)}
+                      />
+                    </div>
+                    <div className="card-footer">
+                      <img
+                        className="comment-author-img"
+                        src={avatarUrl(user.image)}
+                        alt={user.username}
+                      />
+                      <button className="btn btn-sm btn-primary" type="submit" disabled={pending}>
+                        {label('conduit.comment.post', 'Post Comment')}
+                      </button>
+                    </div>
+                  </form>
+                ) : (
+                  <p>
+                    <Link to="/login">{label('conduit.auth.signIn', 'Sign in')}</Link>{' '}
+                    {label('conduit.comment.or', 'or')}{' '}
+                    <Link to="/register">{label('conduit.auth.signUp', 'Sign up')}</Link>{' '}
+                    {label('conduit.comment.prompt', 'to add comments on this article.')}
+                  </p>
+                )}
+
+                <ErrorList messages={errors} />
+
+                {comments.map((comment) => (
+                  <div className="card" key={comment.id}>
+                    <div className="card-block">
+                      <p>{comment.body}</p>
+                    </div>
+                    <div className="card-footer">
+                      <Link
+                        className="comment-author"
+                        to={`/profile/${comment.author.username}`}
+                      >
+                        <img
+                          className="comment-author-img"
+                          src={avatarUrl(comment.author.image)}
+                          alt={comment.author.username}
+                        />
+                      </Link>
+                      &nbsp;
+                      <Link
+                        className="comment-author"
+                        to={`/profile/${comment.author.username}`}
+                      >
+                        {comment.author.username}
+                      </Link>
+                      <span className="date-posted">{formatDate(comment.createdAt)}</span>
+                      {user && comment.author.username === user.username ? (
+                        <span className="mod-options">
+                          <i
+                            className="ion-trash-a"
+                            aria-hidden="true"
+                            onClick={() => void removeComment(comment.id)}
+                          />
+                        </span>
+                      ) : null}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </>
+      ) : (
+        <div className="container page">
+          <p role="status">
+            {articleQuery?.status === 'error'
+              ? label('conduit.article.missing', 'This article is no longer available.')
+              : label('common.loading', 'Loading...')}
+          </p>
+        </div>
+      )}
+    </div>
+  )
+}

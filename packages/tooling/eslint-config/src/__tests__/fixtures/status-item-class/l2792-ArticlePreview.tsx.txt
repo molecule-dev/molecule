@@ -1,0 +1,75 @@
+import { Link, useNavigate } from 'react-router'
+
+import { useAuth, useHttpClient } from '@molecule/app-react'
+
+import type { ConduitUser } from '../config.js'
+import { avatarOf, formatDate, type Article } from '../lib/conduit.js'
+
+/**
+ * One row of a feed: `.article-preview` with its `.article-meta` (author, date,
+ * favorite) and a `.preview-link` wrapping the title, description and tags.
+ */
+export function ArticlePreview({
+  article,
+  onFavoriteChanged,
+}: {
+  article: Article
+  onFavoriteChanged?: () => void
+}) {
+  const http = useHttpClient()
+  const navigate = useNavigate()
+  const { user } = useAuth<ConduitUser>()
+
+  const toggleFavorite = async (): Promise<void> => {
+    if (!user) {
+      navigate('/login')
+      return
+    }
+    const method = article.favorited ? 'delete' : 'post'
+    await http[method](`/api/articles/${encodeURIComponent(article.slug)}/favorite`)
+    onFavoriteChanged?.()
+  }
+
+  return (
+    <div className="article-preview">
+      <div className="article-meta">
+        <Link to={`/profile/${article.author.username}`}>
+          <img src={avatarOf(article.author.image)} alt="" />
+        </Link>
+        <div className="info">
+          <Link className="author" to={`/profile/${article.author.username}`}>
+            {article.author.username}
+          </Link>
+          <span className="date">{formatDate(article.createdAt)}</span>
+        </div>
+        <button
+          type="button"
+          className={
+            article.favorited
+              ? 'btn btn-sm pull-xs-right btn-primary'
+              : 'btn btn-sm pull-xs-right btn-outline-primary'
+          }
+          onClick={() => void toggleFavorite()}
+          data-mol-id="preview-favorite"
+        >
+          <i className="ion-heart" /> {article.favorited ? 'Unfavorite' : 'Favorite'} Article{' '}
+          <span className="counter">{article.favoritesCount}</span>
+        </button>
+      </div>
+      <Link className="preview-link" to={`/article/${article.slug}`}>
+        <h1>{article.title}</h1>
+        <p>{article.description}</p>
+        <span>Read more...</span>
+        {article.tagList.length > 0 ? (
+          <ul className="tag-list">
+            {article.tagList.map((tag) => (
+              <li key={tag} className="tag-default tag-pill tag-outline">
+                {tag}
+              </li>
+            ))}
+          </ul>
+        ) : null}
+      </Link>
+    </div>
+  )
+}

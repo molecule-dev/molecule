@@ -1,0 +1,57 @@
+import { useState } from 'react'
+import { useNavigate } from 'react-router'
+
+import { useAuth } from '@molecule/app-react'
+
+import { setFollowing, type ConduitUser } from '../api.js'
+
+/** Follow / Unfollow for a username, saved through the API. */
+export function FollowButton({
+  username,
+  following,
+  className,
+  onChanged,
+}: {
+  username: string
+  following: boolean
+  className?: string
+  onChanged?: (following: boolean) => void
+}) {
+  const { user } = useAuth<ConduitUser>()
+  const navigate = useNavigate()
+  const [isFollowing, setIsFollowing] = useState(following)
+  const [saving, setSaving] = useState(false)
+
+  if (user?.username === username) return null
+
+  const toggle = async () => {
+    if (!user) {
+      navigate('/login')
+      return
+    }
+    if (saving) return
+    const next = !isFollowing
+    setSaving(true)
+    setIsFollowing(next)
+    try {
+      const profile = await setFollowing(username, next)
+      setIsFollowing(profile.following)
+      onChanged?.(profile.following)
+    } catch (_error) {
+      setIsFollowing(!next)
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <button
+      type="button"
+      className={className ?? 'btn btn-sm btn-outline-secondary'}
+      onClick={toggle}
+    >
+      <i className="ion-plus-round" />
+      &nbsp;{isFollowing ? 'Unfollow' : 'Follow'} {username}
+    </button>
+  )
+}

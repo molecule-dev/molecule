@@ -1,0 +1,46 @@
+import type { JSX } from 'react'
+import { Link } from 'react-router'
+
+import { useTranslation } from '@molecule/app-react'
+
+import { avatarSrc, formatDate } from '../lib/conduit.js'
+import type { Article } from '../types.js'
+
+interface ArticlePreviewProps {
+  article: Article
+}
+
+export function ArticlePreview({ article }: ArticlePreviewProps): JSX.Element {
+  const { t } = useTranslation()
+
+  return (
+    <div className="article-preview">
+      <div className="article-meta">
+        <Link to={`/profile/${article.author.username}`}>
+          <img src={avatarSrc(article.author.image)} alt={article.author.username} />
+        </Link>
+        <div className="info">
+          <Link className="author" to={`/profile/${article.author.username}`}>
+            {article.author.username}
+          </Link>
+          <span className="date">{formatDate(article.createdAt)}</span>
+        </div>
+        <button type="button" className="btn btn-sm pull-xs-right btn-outline-primary">
+          <i className="ion-heart" aria-hidden="true" /> {article.favoritesCount}
+        </button>
+      </div>
+      <Link className="preview-link" to={`/article/${article.slug}`}>
+        <h1>{article.title}</h1>
+        <p>{article.description}</p>
+        <span>{t('conduit.article.readMore', undefined, { defaultValue: 'Read more...' })}</span>
+        <ul className="tag-list">
+          {article.tagList.map((tag) => (
+            <li key={tag} className="tag-default tag-pill tag-outline">
+              {tag}
+            </li>
+          ))}
+        </ul>
+      </Link>
+    </div>
+  )
+}

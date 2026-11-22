@@ -120,6 +120,7 @@ breaks every consumer, so the bar is "exceedingly clear", not "clear to whoever
 wrote it this afternoon".
 
 - Backend: `@molecule/api-*`, Frontend: `@molecule/app-*`
+- Project dev tooling that both workspaces install as a devDependency and no app or api source imports is named by its tool's own convention and has stack `tooling` (`@molecule/eslint-config`, in `packages/tooling/`). Search, catalogs and the create UI never offer it as a capability; the scaffold declares it.
 - Names must be specific enough to be unambiguous. Ask: "Could this name mean something else?" If yes, add a qualifier (e.g., `app-ai-chat` not `app-chat`).
 
 **Before you name a new package, answer these three in writing.** Each one has
@@ -271,6 +272,7 @@ packages/
 │   ├── native/         # Device capabilities (camera, biometrics, etc.)
 │   ├── frameworks/     # Framework bindings + UI (react, vue, svelte, solid, angular, react-native)
 │   └── locales/        # i18n translation packages
+└── tooling/            # Project dev tooling both workspaces install (eslint-config)
 ```
 
 ---

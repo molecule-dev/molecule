@@ -1,0 +1,145 @@
+import { useState } from 'react'
+import { Link, useLocation, useParams } from 'react-router'
+
+import { useAuth, useOptimisticValue, useTranslation } from '@molecule/app-react'
+
+import type { SessionUser } from '../bonds/auth-default.js'
+import { ArticlePreview } from '../components/ArticlePreview.js'
+import {
+  type ArticleList,
+  avatar,
+  fetchArticles,
+  fetchProfile,
+  type Profile,
+  setFollow,
+} from '../lib/conduit.js'
+import { useApiData } from '../lib/useApi.js'
+
+export function ProfilePage() {
+  const { t } = useTranslation()
+  const { username = '' } = useParams<{ username: string }>()
+  const { pathname } = useLocation()
+  const favorites = pathname.endsWith('/favorites')
+  const { user, status } = useAuth<SessionUser>()
+  const [version, setVersion] = useState(0)
+
+  const profileQuery = useApiData<Profile>(
+    `profile|${username}|${user?.username ?? ''}|${version}`,
+    (signal) => fetchProfile(username, signal),
+  )
+
+  const articlesQuery = useApiData<ArticleList>(
+    `profile-articles|${username}|${favorites}|${version}`,
+    (signal) =>
+      fetchArticles(
+        favorites ? { favorited: username, limit: 10 } : { author: username, limit: 10 },
+        signal,
+      ),
+  )
+
+  const profile = profileQuery.data
+  const isSelf = Boolean(user && user.username === username)
+  const articles = articlesQuery.data?.articles ?? []
+
+  // Follow shows the click at once and saves it with one request per change.
+  const follow = useOptimisticValue<boolean>({
+    value: profile?.following ?? false,
+    commit: async (desired) => {
+      const updated = await setFollow(username, desired)
+      return updated.following
+    },
+  })
+  const isFollowing = follow.value
+
+  const toggleFollow = () => follow.update((current) => !current)
+
+  return (
+    <div className="profile-page">
+      <div className="user-info">
+        <div className="container">
+          <div className="row">
+            <div className="col-xs-12 col-md-10 offset-md-1">
+              <img className="user-img" src={avatar(profile?.image)} alt={username} />
+              <h4>{username}</h4>
+              <p>{profile?.bio ?? ''}</p>
+              {isSelf ? (
+                <Link className="btn btn-sm btn-outline-secondary action-btn" to="/settings">
+                  <i className="ion-gear-a"></i>
+                  {t('conduit.profile.editSettings', undefined, {
+                    defaultValue: 'Edit Profile Settings',
+                  })}
+                </Link>
+              ) : status === 'unauthenticated' || !user ? (
+                <Link className="btn btn-sm btn-outline-secondary action-btn" to="/login">
+                  {t('conduit.profile.signInToFollow', undefined, {
+                    defaultValue: 'Sign in to follow',
+                  })}
+                </Link>
+              ) : (
+                <button
+                  type="button"
+                  className={`btn btn-sm action-btn ${
+                    isFollowing ? 'btn-secondary' : 'btn-outline-secondary'
+                  }`}
+                  onClick={toggleFollow}
+                >
+                  <i className="ion-plus-round"></i>
+                  &nbsp; {isFollowing ? 'Unfollow' : 'Follow'} {username}
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="container">
+        <div className="row">
+          <div className="col-xs-12 col-md-10 offset-md-1">
+            <div className="articles-toggle">
+              <ul className="nav nav-pills outline-active">
+                <li className="nav-item">
+                  <Link
+                    className={`nav-link${!favorites ? ' active' : ''}`}
+                    to={`/profile/${username}`}
+                  >
+                    {t('conduit.profile.myArticles', undefined, { defaultValue: 'My Articles' })}
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <Link
+                    className={`nav-link${favorites ? ' active' : ''}`}
+                    to={`/profile/${username}/favorites`}
+                  >
+                    {t('conduit.profile.favorited', undefined, {
+                      defaultValue: 'Favorited Articles',
+                    })}
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            {articles.length === 0 && !articlesQuery.loading ? (
+              <div className="empty-feed-message">
+                {favorites
+                  ? t('conduit.profile.noFavorites', undefined, {
+                      defaultValue: 'No favorited articles yet.',
+                    })
+                  : t('conduit.profile.noArticles', undefined, {
+                      defaultValue: 'No articles here... yet.',
+                    })}
+              </div>
+            ) : null}
+
+            {articles.map((article) => (
+              <ArticlePreview
+                key={article.slug}
+                article={article}
+                onChanged={() => setVersion((value) => value + 1)}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}

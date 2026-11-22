@@ -1,0 +1,135 @@
+import { useEffect, useState } from 'react'
+import { Link, useLocation, useParams } from 'react-router'
+
+import { useQuery } from '@molecule/app-query-react'
+import { useAuth } from '@molecule/app-react'
+
+import { ArticlePreview } from '../components/ArticlePreview.js'
+import type { ConduitUser } from '../config.js'
+import { errorMessages, writes } from '../lib/api.js'
+import { avatarFor } from '../lib/format.js'
+import { articlesPage, profiles } from '../resources/articles.js'
+import { profiles as profileResource } from '../resources/profiles.js'
+
+const PAGE_SIZE = 10
+
+/** `/profile/:username` and `/profile/:username/favorites`. */
+export function Profile() {
+  const { username = '' } = useParams()
+  const { pathname } = useLocation()
+  const { user } = useAuth<ConduitUser>()
+  const viewer = user?.username ?? 'anonymous'
+  const favoritesView = pathname.endsWith('/favorites')
+
+  const profileQuery = useQuery(profileResource.detail(viewer, username || null))
+  const profile = profileQuery.data ?? null
+
+  const listQuery = useQuery(
+    profile
+      ? articlesPage(
+          viewer,
+          favoritesView
+            ? { favorited: username, limit: PAGE_SIZE }
+            : { author: username, limit: PAGE_SIZE },
+        )
+      : null,
+  )
+  const articles = listQuery.data?.articles ?? []
+
+  const [following, setFollowing] = useState(false)
+  useEffect(() => {
+    setFollowing(profile?.following ?? false)
+  }, [profile?.username, profile?.following])
+
+  const isSelf = viewer === username
+
+  const toggleFollow = async () => {
+    const next = !following
+    setFollowing(next)
+    try {
+      const saved = await writes.setFollow(username, next)
+      setFollowing(saved.following)
+    } catch (error) {
+      setFollowing(!next)
+      console.warn('Follow failed:', errorMessages(error).join(' '))
+    }
+  }
+
+  return (
+    <div className="profile-page">
+      <div className="user-info">
+        <div className="container">
+          <div className="row">
+            <div className="col-xs-12 col-md-10 offset-md-1">
+              {profile ? (
+                <>
+                  <img src={avatarFor(profile.image)} className="user-img" alt={profile.username} />
+                  <h4>{profile.username}</h4>
+                  <p>{profile.bio ?? ''}</p>
+                  {isSelf ? (
+                    <Link to="/settings" className="btn btn-sm btn-outline-secondary action-btn">
+                      <i className="ion-gear-a" aria-hidden="true" /> Edit Profile Settings
+                    </Link>
+                  ) : (
+                    <button
+                      type="button"
+                      className="btn btn-sm btn-outline-secondary action-btn"
+                      onClick={() => void toggleFollow()}
+                      data-mol-id="follow-profile"
+                    >
+                      <i className="ion-plus-round" aria-hidden="true" />
+                      &nbsp;{following ? 'Unfollow' : 'Follow'} {username}
+                    </button>
+                  )}
+                </>
+              ) : (
+                <p className="article-message">
+                  {profileQuery.error ? 'This profile could not be loaded.' : 'Loading profile…'}
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="container">
+        <div className="row">
+          <div className="col-xs-12 col-md-10 offset-md-1">
+            <div className="articles-toggle">
+              <ul className="nav nav-pills outline-active">
+                <li className="nav-item">
+                  <Link
+                    className={favoritesView ? 'nav-link' : 'nav-link active'}
+                    to={`/profile/${encodeURIComponent(username)}`}
+                  >
+                    My Articles
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <Link
+                    className={favoritesView ? 'nav-link active' : 'nav-link'}
+                    to={`/profile/${encodeURIComponent(username)}/favorites`}
+                  >
+                    Favorited Articles
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            {articles.map((article) => (
+              <ArticlePreview key={article.slug} article={article} />
+            ))}
+
+            {listQuery.data && articles.length === 0 ? (
+              <div className="empty-feed-message">
+                {favoritesView ? 'No favorited articles yet.' : 'No articles are here… yet.'}
+              </div>
+            ) : null}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export { articlesPage, profiles }

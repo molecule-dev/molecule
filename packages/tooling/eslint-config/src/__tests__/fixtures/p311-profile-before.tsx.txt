@@ -1,0 +1,168 @@
+import type { JSX } from 'react'
+import { useState } from 'react'
+import { Link, useLocation, useParams, useSearchParams } from 'react-router'
+
+import { useQuery } from '@molecule/app-query-react'
+import { useAuth, useHttpClient, useTranslation } from '@molecule/app-react'
+
+import { ArticlePreview } from '../components/ArticlePreview.js'
+import { Pagination } from '../components/Pagination.js'
+import type { ConduitUser } from '../config.js'
+import {
+  type Profile,
+  PAGE_SIZE,
+  avatarUrl,
+  errorMessages,
+  fetchArticles,
+  fetchProfile,
+  followProfile,
+} from '../lib/conduit.js'
+
+/** `/profile/:username` and `/profile/:username/favorites`. */
+export function ProfilePage(): JSX.Element {
+  const { username = '' } = useParams<{ username: string }>()
+  const location = useLocation()
+  const http = useHttpClient()
+  const { t } = useTranslation()
+  const { user } = useAuth<ConduitUser>()
+  const [searchParams] = useSearchParams()
+
+  const favorites = location.pathname.endsWith('/favorites')
+  const page = Math.max(1, Number(searchParams.get('page') ?? '1') || 1)
+  const offset = (page - 1) * PAGE_SIZE
+  const viewer = user?.username ?? 'anonymous'
+
+  const profileQuery = useQuery({
+    key: [http.baseURL, 'profile', username, viewer],
+    principal: viewer,
+    fetch: (signal: AbortSignal) => fetchProfile(http, username, signal),
+  })
+  const articlesQuery = useQuery({
+    key: [http.baseURL, 'profile-articles', username, favorites ? 'favorites' : 'author', page, viewer],
+    principal: viewer,
+    keepPreviousData: true,
+    fetch: (signal: AbortSignal) =>
+      fetchArticles(
+        http,
+        favorites
+          ? { favorited: username, offset, limit: PAGE_SIZE }
+          : { author: username, offset, limit: PAGE_SIZE },
+        signal,
+      ),
+  })
+
+  const [profileOverride, setProfileOverride] = useState<Profile | null>(null)
+  const [errors, setErrors] = useState<string[]>([])
+  const profile = profileOverride ?? profileQuery.data ?? null
+
+  const isOwner = user != null && user.username === username
+  const articles = articlesQuery.data?.articles ?? []
+  const total = articlesQuery.data?.articlesCount ?? 0
+
+  const toggleFollow = async (): Promise<void> => {
+    if (!profile) return
+    try {
+      const updated = await followProfile(http, profile.username, !profile.following)
+      if (updated) setProfileOverride(updated)
+    } catch (error) {
+      setErrors(errorMessages(error))
+    }
+  }
+
+  const pageHref = (target: number): string => {
+    const base = favorites ? `/profile/${username}/favorites` : `/profile/${username}`
+    return target > 1 ? `${base}?page=${target}` : base
+  }
+
+  return (
+    <div className="profile-page">
+      <div className="user-info">
+        <div className="container">
+          <div className="row">
+            <div className="col-xs-12 col-md-10 offset-md-1">
+              <img className="user-img" src={avatarUrl(profile?.image)} alt={username} />
+              <h4>{username}</h4>
+              <p>{profile?.bio ?? ''}</p>
+              {isOwner ? (
+                <Link className="btn btn-sm btn-outline-secondary action-btn" to="/settings">
+                  <i className="ion-gear-a" />
+                  &nbsp;
+                  {t('conduit.profile.editSettings', undefined, {
+                    defaultValue: 'Edit Profile Settings',
+                  })}
+                </Link>
+              ) : (
+                <button
+                  className="btn btn-sm btn-outline-secondary action-btn"
+                  type="button"
+                  onClick={toggleFollow}
+                  data-mol-id="profile-follow"
+                >
+                  <i className="ion-plus-round" />
+                  &nbsp;
+                  {profile?.following
+                    ? t('conduit.article.unfollow', undefined, { defaultValue: 'Unfollow' })
+                    : t('conduit.article.follow', undefined, { defaultValue: 'Follow' })}{' '}
+                  {username}
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="container">
+        {errors.length > 0 ? (
+          <ul className="error-messages">
+            {errors.map((message) => (
+              <li key={message}>{message}</li>
+            ))}
+          </ul>
+        ) : null}
+
+        <div className="row">
+          <div className="col-xs-12 col-md-10 offset-md-1">
+            <div className="articles-toggle">
+              <ul className="nav nav-pills outline-active">
+                <li className="nav-item">
+                  <Link
+                    className={favorites ? 'nav-link' : 'nav-link active'}
+                    to={`/profile/${username}`}
+                  >
+                    {t('conduit.profile.myArticles', undefined, { defaultValue: 'My Articles' })}
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <Link
+                    className={favorites ? 'nav-link active' : 'nav-link'}
+                    to={`/profile/${username}/favorites`}
+                  >
+                    {t('conduit.profile.favoritedArticles', undefined, {
+                      defaultValue: 'Favorited Articles',
+                    })}
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            {articlesQuery.status === 'success' && articles.length === 0 ? (
+              <div className="empty-feed-message">
+                <p>
+                  {t('conduit.profile.noArticles', undefined, {
+                    defaultValue: 'No articles are here... yet.',
+                  })}
+                </p>
+              </div>
+            ) : null}
+
+            {articles.map((article) => (
+              <ArticlePreview article={article} key={article.slug} />
+            ))}
+
+            <Pagination page={page} total={total} pageSize={PAGE_SIZE} href={pageHref} />
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}

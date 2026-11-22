@@ -1,0 +1,202 @@
+import { useAuth } from '@molecule/app-react'
+import { useCallback, useEffect, useState } from 'react'
+import { Link, useLocation, useNavigate, useParams } from 'react-router'
+
+import { ArticlePreview } from '../components/ArticlePreview.js'
+import { Pagination } from '../components/Pagination.js'
+import type { AppUser } from '../config.js'
+import {
+  PAGE_SIZE,
+  avatarFor,
+  errorMessages,
+  favoriteArticle,
+  followUser,
+  getProfile,
+  listArticles,
+  type ArticleSummary,
+  type Profile as ProfileData,
+} from '../lib/api.js'
+import { useText } from '../lib/text.js'
+
+export function Profile() {
+  const text = useText()
+  const { username = '' } = useParams()
+  const location = useLocation()
+  const navigate = useNavigate()
+  const { user, status } = useAuth<AppUser>()
+  const favorites = location.pathname.endsWith('/favorites')
+
+  const [profile, setProfile] = useState<ProfileData | null>(null)
+  const [articles, setArticles] = useState<ArticleSummary[]>([])
+  const [count, setCount] = useState(0)
+  const [, setErrors] = useState<string[]>([])
+  const [loading, setLoading] = useState(true)
+  const [failed, setFailed] = useState(false)
+
+  useEffect(() => {
+    let cancelled = false
+    setLoading(true)
+    Promise.all([
+      getProfile(username),
+      listArticles(
+        favorites
+          ? { favorited: username, limit: PAGE_SIZE, offset: 0 }
+          : { author: username, limit: PAGE_SIZE, offset: 0 },
+      ),
+    ])
+      .then(([loadedProfile, list]) => {
+        if (cancelled) return
+        setProfile(loadedProfile)
+        setArticles(list.articles)
+        setCount(list.articlesCount)
+        setErrors([])
+        setFailed(false)
+      })
+      .catch((error: unknown) => {
+        if (cancelled) return
+        setFailed(true)
+        setErrors(errorMessages(error))
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [username, favorites, user?.username])
+
+  const toggleFollow = useCallback(async () => {
+    if (!profile) return
+    if (status !== 'authenticated') {
+      navigate('/login')
+      return
+    }
+    try {
+      const saved = await followUser(profile.username, !profile.following)
+      setProfile(saved)
+    } catch (error) {
+      setErrors(errorMessages(error))
+    }
+  }, [navigate, profile, status])
+
+  const toggleFavorite = useCallback(
+    async (article: ArticleSummary) => {
+      if (status !== 'authenticated') {
+        navigate('/login')
+        return
+      }
+      try {
+        const saved = await favoriteArticle(article.slug, !article.favorited)
+        setArticles((current) =>
+          current.map((item) =>
+            item.slug === saved.slug
+              ? { ...item, favorited: saved.favorited, favoritesCount: saved.favoritesCount }
+              : item,
+          ),
+        )
+      } catch (error) {
+        setErrors(errorMessages(error))
+      }
+    },
+    [navigate, status],
+  )
+
+  const isSelf = status === 'authenticated' && user?.username === profile?.username
+
+  return (
+    <div className="profile-page">
+      <div className="user-info">
+        <div className="container">
+          <div className="row">
+            <div className="col-xs-12 col-md-10 offset-md-1">
+              {profile ? (
+                <>
+                  <img
+                    className="user-img"
+                    src={avatarFor(profile.image)}
+                    alt={profile.username}
+                  />
+                  <h4>{profile.username}</h4>
+                  <p>{profile.bio ?? ''}</p>
+                  {isSelf ? (
+                    <Link className="btn btn-sm btn-outline-secondary action-btn" to="/settings">
+                      <i className="ion-gear-a"></i>{' '}
+                      {text('profile.editSettings', 'Edit Profile Settings')}
+                    </Link>
+                  ) : (
+                    <button
+                      className="btn btn-sm btn-outline-secondary action-btn"
+                      type="button"
+                      onClick={toggleFollow}
+                    >
+                      <i className="ion-plus-round"></i>{' '}
+                      {profile.following
+                        ? `${text('article.unfollow', 'Unfollow')} ${profile.username}`
+                        : `${text('article.follow', 'Follow')} ${profile.username}`}
+                    </button>
+                  )}
+                </>
+              ) : (
+                <p role="status">
+                  {failed ? errorMessages(errors[0] ?? '') [0] : text('common.loading', 'Loading...')}
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="container">
+        <div className="row">
+          <div className="col-xs-12 col-md-10 offset-md-1">
+            <div className="articles-toggle">
+              <ul className="nav nav-pills outline-active">
+                <li className="nav-item">
+                  <Link
+                    className={`nav-link ${favorites ? '' : 'active'}`}
+                    to={`/profile/${username}`}
+                  >
+                    {text('profile.myArticles', 'My Articles')}
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <Link
+                    className={`nav-link ${favorites ? 'active' : ''}`}
+                    to={`/profile/${username}/favorites`}
+                  >
+                    {text('profile.favorited', 'Favorited')}
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            {errors.length > 0 && !profile ? null : null}
+
+            {loading ? (
+              <div className="article-preview" role="status">
+                {text('common.loading', 'Loading articles...')}
+              </div>
+            ) : (
+              articles.map((article) => (
+                <ArticlePreview key={article.slug} article={article} onFavorite={toggleFavorite} />
+              ))
+            )}
+
+            {!loading && articles.length === 0 && (
+              <div className="empty-feed-message">
+                {text('profile.noArticles', 'No articles are here... yet.')}
+              </div>
+            )}
+
+            <Pagination
+              count={count}
+              pageSize={PAGE_SIZE}
+              current={1}
+              hrefFor={() => location.pathname}
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}

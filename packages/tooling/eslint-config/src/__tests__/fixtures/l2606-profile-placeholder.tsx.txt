@@ -1,0 +1,112 @@
+import type { JSX } from 'react'
+import { Link, useParams, useSearchParams } from 'react-router'
+
+import { useAuth } from '@molecule/app-react'
+
+import {
+  PAGE_SIZE,
+  avatarFor,
+  useProfile,
+  useProfileArticles,
+} from '../api.js'
+import { ArticlePreview } from '../components/ArticlePreview.js'
+import { FollowButton } from '../components/FollowButton.js'
+import { Pagination } from '../components/Pagination.js'
+import type { AuthUser } from '../config.js'
+
+/** A user's profile: who they are, how to follow or edit, and the articles tabs. */
+export function ProfilePage(): JSX.Element {
+  const { username } = useParams()
+  const [searchParams] = useSearchParams()
+  const { user } = useAuth<AuthUser>()
+  const showFavorites = window.location.pathname.endsWith('/favorites')
+  const page = Math.max(1, Number(searchParams.get('page') ?? '1') || 1)
+
+  const profileQuery = useProfile(username)
+  const articlesQuery = useProfileArticles(username, showFavorites, page)
+
+  const profile = profileQuery.data?.profile
+  const isSelf = Boolean(user && username && user.username === username)
+  const list = articlesQuery.data
+
+  const hrefFor = (target: number): string => {
+    const base = showFavorites ? `/profile/${username}/favorites` : `/profile/${username}`
+    return target <= 1 ? base : `${base}?page=${target}`
+  }
+
+  if (profileQuery.status === 'error') {
+    return (
+      <div className="container page">
+        <h1>Profile not found</h1>
+        <p>
+          <Link to="/">Back to the home page</Link>
+        </p>
+      </div>
+    )
+  }
+
+  return (
+    <div className="profile-page">
+      <div className="user-info">
+        <div className="container">
+          <div className="row">
+            <div className="col-xs-12 col-md-10 offset-md-1">
+              {profile ? (
+                <>
+                  <img className="user-img" src={avatarFor(profile.image)} alt={profile.username} />
+                  <h4>{profile.username}</h4>
+                  <p>{profile.bio}</p>
+                  {isSelf ? (
+                    <Link className="btn btn-sm btn-outline-secondary action-btn" to="/settings">
+                      Edit Profile Settings
+                    </Link>
+                  ) : (
+                    <FollowButton username={profile.username} following={profile.following} />
+                  )}
+                </>
+              ) : (
+                <p>Loading profile...</p>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="container">
+        <div className="row">
+          <div className="col-xs-12 col-md-10 offset-md-1">
+            <div className="articles-toggle">
+              <ul className="nav nav-pills outline-active">
+                <li className="nav-item">
+                  <Link className="nav-link" to={`/profile/${username}`}>
+                    My Articles
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <Link className="nav-link" to={`/profile/${username}/favorites`}>
+                    Favorited Articles
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            {list && list.articles.length === 0 ? (
+              <div className="empty-feed-message">No articles are here... yet.</div>
+            ) : null}
+
+            {list?.articles.map((article) => (
+              <ArticlePreview key={article.slug} article={article} />
+            ))}
+
+            <Pagination
+              page={page}
+              total={list?.articlesCount ?? 0}
+              pageSize={PAGE_SIZE}
+              hrefFor={hrefFor}
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}

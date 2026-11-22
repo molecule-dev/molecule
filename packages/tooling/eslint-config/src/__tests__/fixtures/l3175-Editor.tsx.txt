@@ -1,0 +1,174 @@
+import type { FormEvent, KeyboardEvent, ReactNode } from 'react'
+import { useState } from 'react'
+import { useNavigate, useParams } from 'react-router'
+
+import { useQuery } from '@molecule/app-query-react'
+import { useAuth } from '@molecule/app-react'
+
+import { ErrorList } from '../components/ErrorList.js'
+import {
+  articleQuery,
+  createArticle,
+  errorMessages,
+  updateArticle,
+  type Article,
+  type ConduitUser,
+} from '../lib/conduit.js'
+
+/**
+ * `/editor` and `/editor/:slug` — write a new article, or edit one you wrote.
+ * The form is keyed by the slug, so opening another article never shows the
+ * previous one's text.
+ */
+export function Editor(): ReactNode {
+  const { slug } = useParams<{ slug?: string }>()
+  const { user } = useAuth<ConduitUser>()
+  const viewer = user ? user.username : 'anonymous'
+  const existing = useQuery<Article>(slug ? articleQuery(viewer, slug) : null)
+
+  if (slug && !existing.data) {
+    return (
+      <div className="editor-page">
+        <div className="container page">
+          {existing.status === 'error' ? (
+            <p role="alert">This article could not be loaded.</p>
+          ) : (
+            <p role="status">Loading article...</p>
+          )}
+        </div>
+      </div>
+    )
+  }
+
+  return <EditorForm key={slug ?? 'new'} slug={slug} article={existing.data ?? null} />
+}
+
+interface EditorFormProps {
+  slug?: string
+  article: Article | null
+}
+
+function EditorForm({ slug, article }: EditorFormProps): ReactNode {
+  const navigate = useNavigate()
+  const [title, setTitle] = useState(article?.title ?? '')
+  const [description, setDescription] = useState(article?.description ?? '')
+  const [body, setBody] = useState(article?.body ?? '')
+  const [tags, setTags] = useState<string[]>(article?.tagList ?? [])
+  const [tagInput, setTagInput] = useState('')
+  const [errors, setErrors] = useState<string[]>([])
+  const [busy, setBusy] = useState(false)
+
+  const addTag = (value: string): void => {
+    const tag = value.trim()
+    if (!tag || tags.includes(tag)) return
+    setTags([...tags, tag])
+  }
+
+  const onTagKeyDown = (event: KeyboardEvent<HTMLInputElement>): void => {
+    if (event.key === 'Enter' || event.key === ',') {
+      event.preventDefault()
+      addTag(tagInput)
+      setTagInput('')
+    }
+  }
+
+  const onSubmit = (event: FormEvent<HTMLFormElement>): void => {
+    event.preventDefault()
+    setBusy(true)
+    setErrors([])
+    const input = { title, description, body, tagList: tags }
+    const request = slug ? updateArticle(slug, input) : createArticle(input)
+    request
+      .then((saved) => navigate(`/article/${encodeURIComponent(saved.slug)}`))
+      .catch((error: unknown) => {
+        setErrors(errorMessages(error))
+        setBusy(false)
+      })
+  }
+
+  return (
+    <div className="editor-page">
+      <div className="container page">
+        <div className="row">
+          <div className="col-md-10 offset-md-1 col-xs-12">
+            <ErrorList messages={errors} />
+            <form onSubmit={onSubmit}>
+              <fieldset className="form-group">
+                <input
+                  className="form-control form-control-lg"
+                  type="text"
+                  name="title"
+                  placeholder="Article Title"
+                  aria-label="Article Title"
+                  value={title}
+                  onChange={(event) => setTitle(event.target.value)}
+                />
+              </fieldset>
+              <fieldset className="form-group">
+                <input
+                  className="form-control"
+                  type="text"
+                  name="description"
+                  placeholder="What's this article about?"
+                  aria-label="What's this article about?"
+                  value={description}
+                  onChange={(event) => setDescription(event.target.value)}
+                />
+              </fieldset>
+              <fieldset className="form-group">
+                <textarea
+                  className="form-control"
+                  name="body"
+                  rows={8}
+                  placeholder="Write your article (in markdown)"
+                  aria-label="Write your article"
+                  value={body}
+                  onChange={(event) => setBody(event.target.value)}
+                />
+              </fieldset>
+              <fieldset className="form-group">
+                <input
+                  className="form-control"
+                  type="text"
+                  placeholder="Enter tags"
+                  aria-label="Enter tags"
+                  value={tagInput}
+                  onChange={(event) => setTagInput(event.target.value)}
+                  onKeyDown={onTagKeyDown}
+                />
+                <div className="tag-list">
+                  {tags.map((tag) => (
+                    <span key={tag} className="tag-default tag-pill">
+                      {/* eslint-disable-next-line molecule-local/no-empty-interactive-target -- the supplied Conduit theme draws .ion-close-round from its icon font, and the e2e suite clicks this element by that class */}
+                      <i
+                        className="ion-close-round"
+                        role="button"
+                        tabIndex={0}
+                        aria-label={`Remove tag ${tag}`}
+                        onClick={() => setTags(tags.filter((entry) => entry !== tag))}
+                        onKeyDown={(event) => {
+                          if (event.key === 'Enter' || event.key === ' ') {
+                            event.preventDefault()
+                            setTags(tags.filter((entry) => entry !== tag))
+                          }
+                        }}
+                      />
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </fieldset>
+              <button
+                className="btn btn-lg pull-xs-right btn-primary"
+                type="submit"
+                disabled={busy}
+              >
+                Publish Article
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}

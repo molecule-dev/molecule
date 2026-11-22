@@ -1,0 +1,40 @@
+import { useEffect, useState } from 'react'
+
+import { useAuth } from '@molecule/app-react'
+
+import { http, errorMessages } from './http.js'
+import { useQuery } from './useQuery.js'
+
+export function Profile({ username }) {
+  const { user } = useAuth()
+  const encoded = encodeURIComponent(username)
+  const profileQuery = useQuery(`/profiles/${encoded}`)
+  const [profile, setProfile] = useState(null)
+  const [errors, setErrors] = useState(null)
+  useEffect(() => {
+    profileQuery.data?.profile && setProfile(profileQuery.data.profile)
+  }, [profileQuery.data])
+  const mine = !!(user && profile && user.username === profile.username)
+  const toggleFollow = async () => {
+    if (profile) try {
+      const path = `/profiles/${encoded}/follow`
+      const response = profile.following ? await http().delete(path) : await http().post(path)
+      setProfile(response.data.profile)
+    } catch (error) {
+      setErrors(errorMessages(error))
+    }
+  }
+  if (profileQuery.errors && !profile) return <p>{profileQuery.errors.join(', ')}</p>
+  return (
+    <header>
+      <h4>{username}</h4>
+      <p>{profile?.bio ?? ''}</p>
+      {errors && <p>{errors.join(', ')}</p>}
+      {mine ? <a href="/settings">Edit settings</a> : (
+        <button type="button" onClick={toggleFollow}>
+          {profile?.following ? 'Unfollow' : 'Follow'} {username}
+        </button>
+      )}
+    </header>
+  )
+}

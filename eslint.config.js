@@ -6,10 +6,8 @@ import svelte from 'eslint-plugin-svelte'
 import tseslint from 'typescript-eslint'
 
 import noCamelCaseNativeEventsInVueH from './eslint-rules/no-camel-case-native-events-in-vue-h.mjs'
-import noClassCode from './eslint-rules/no-class-code.mjs'
 import noDomEventsInAngularCheckHooks from './eslint-rules/no-dom-events-in-angular-check-hooks.mjs'
-import { noHandStyledButton } from './eslint-rules/no-hand-styled-button.mjs'
-import { noRawClassNames } from './eslint-rules/no-raw-class-names.mjs'
+import { moleculeLocalPlugin } from './packages/tooling/eslint-config/src/plugin.mjs'
 import {
   ROUTER_LIBRARY_FIX,
   ROUTER_LIBRARY_IMPORTS,
@@ -17,113 +15,42 @@ import {
 } from './scripts/router-libraries.mjs'
 
 /**
- * Local rules.
+ * Local rules: the `molecule-local` plugin of `@molecule/eslint-config`, read from the package's
+ * source so molecule lints with the rules it publishes, plus two rules only molecule's framework
+ * ports need.
  *
  * `require-catch-binding` enforces AGENTS.md Rule 14 (no silent error
- * swallows): it forbids bindingless `catch {` and parameterless `.catch(() => …)`
- * / `.then(…, () => …)` handlers so every error can be logged or explicitly
+ * swallows): it forbids bindingless `catch {` and, with `rejectionHandlers`, parameterless
+ * `.catch(() => …)` / `.then(…, () => …)` handlers so every error can be logged or explicitly
  * ignored; with no-unused-vars caughtErrors:'all' + caughtErrorsIgnorePattern
  * and argsIgnorePattern '^_', a catch must use the error or be a `catch
  * (_error)` / `(_error) =>` documented noop.
  *
  * `no-hand-styled-button` enforces Rule 5 / anti-pattern 12 at the one place
  * they leak: a `<button>` whose size, radius, typography or colour comes from a
- * hand-rolled inline `style` rather than `cm.button()`. It lives in
- * `eslint-rules/` rather than inline because molecule-dev/app needs the exact
- * same rule and is checked out alone in CI — see `scripts/sync-eslint-rules.mjs`
- * in the workspace root for the canonical copy and the drift gate.
+ * hand-rolled inline `style` rather than `cm.button()`.
  *
  * `no-raw-class-names` enforces Rule 5 itself (CSS class names only in ClassMap
  * bonds) where every framework must render the same classes: the framework UI
- * packages. Same canonical/sync arrangement.
+ * packages.
+ *
+ * `no-literal-ui-text` enforces Rule 8 for JSX attributes a user reads or hears (`aria-label`,
+ * `title`, `placeholder`, `alt`, …): their text goes through `t()` and a locale bond.
  *
  * `no-dom-events-in-angular-check-hooks` keeps `focus()`, `blur()`, `click()` and
  * `dispatchEvent()` out of Angular's change-detection hooks (and `ngOnDestroy`): their
  * listeners run while Angular is still checking the view, so a state change they make is
- * never rendered. molecule-only (no Angular code in molecule-dev/app), so it is not synced.
+ * never rendered. molecule-only, so it is not in the package.
  *
  * `no-camel-case-native-events-in-vue-h` keeps React's listener spelling (`onMouseEnter`) off native
  * elements in a Vue `h()` call: Vue hyphenates the key, so the listener waits for a `mouse-enter`
- * event no browser fires. molecule-only (no Vue code in molecule-dev/app), so it is not synced.
+ * event no browser fires. molecule-only, so it is not in the package.
  */
 const moleculeLocal = {
   rules: {
-    'no-class-code': noClassCode,
+    ...moleculeLocalPlugin.rules,
     'no-dom-events-in-angular-check-hooks': noDomEventsInAngularCheckHooks,
     'no-camel-case-native-events-in-vue-h': noCamelCaseNativeEventsInVueH,
-    'no-hand-styled-button': noHandStyledButton,
-    'no-raw-class-names': noRawClassNames,
-    'require-catch-binding': {
-      meta: {
-        type: 'problem',
-        fixable: 'code',
-        docs: {
-          description:
-            'Require a binding in catch clauses and promise rejection handlers so the error can be logged or explicitly ignored',
-        },
-        schema: [],
-        messages: {
-          missing:
-            'Bind the caught error: `catch (error)` to log it, or `catch (_error)` + a comment for an intentional noop (AGENTS Rule 14 — no silent error swallows).',
-          missingRejection:
-            'Bind the rejection: `.catch((error) => …)` to log it, or `.catch((_error) => …)` + a comment for an intentional noop (AGENTS Rule 14 — no silent error swallows).',
-        },
-      },
-      create(context) {
-        return {
-          // A rejection handler with no parameter cannot log what it caught. No autofix:
-          // inserting `_error` would satisfy the rule without anyone deciding the error is
-          // safe to drop.
-          CallExpression(node) {
-            const callee = node.callee
-            if (callee.type !== 'MemberExpression' || callee.computed) return
-            const method = callee.property.type === 'Identifier' ? callee.property.name : null
-            const handler =
-              method === 'catch' ? node.arguments[0] : method === 'then' ? node.arguments[1] : null
-            if (
-              handler &&
-              (handler.type === 'ArrowFunctionExpression' ||
-                handler.type === 'FunctionExpression') &&
-              handler.params.length === 0
-            ) {
-              context.report({ node: handler, messageId: 'missingRejection' })
-            }
-          },
-          CatchClause(node) {
-            if (node.param) return
-            context.report({
-              node,
-              messageId: 'missing',
-              fix(fixer) {
-                const source = context.sourceCode
-                const names = new Set(
-                  source.scopeManager.scopes.flatMap((scope) => [
-                    ...scope.variables.map((variable) => variable.name),
-                    ...scope.references.map((reference) => reference.identifier.name),
-                  ]),
-                )
-                // Scope names include escaped identifiers and references inside closures.
-                // Direct eval can read unknown names, so leave it for manual handling.
-                if (
-                  source.scopeManager.scopes.some((scope) =>
-                    scope.references.some(
-                      ({ identifier }) =>
-                        identifier.name === 'eval' &&
-                        identifier.range[0] >= node.body.range[0] &&
-                        identifier.range[1] <= node.body.range[1],
-                    ),
-                  )
-                )
-                  return null
-                let name = '_error'
-                for (let suffix = 1; names.has(name); suffix++) name = `_error${suffix}`
-                return fixer.insertTextAfter(source.getFirstToken(node), ` (${name})`)
-              },
-            })
-          },
-        }
-      },
-    },
   },
 }
 
@@ -242,7 +169,7 @@ export default tseslint.config(
     },
     rules: {
       'molecule-local/no-class-code': 'error',
-      'molecule-local/require-catch-binding': 'error',
+      'molecule-local/require-catch-binding': ['error', { rejectionHandlers: true }],
       'molecule-local/no-hand-styled-button': 'error',
       'jsdoc/require-jsdoc': [
         'warn',
@@ -491,6 +418,15 @@ export default tseslint.config(
     },
   },
   {
+    // Rule 8 for the components every app renders: an English literal in an attribute a user reads
+    // or a screen reader announces reaches every locale untranslated.
+    files: ['packages/app/**/src/**/*.tsx'],
+    ignores: ['**/__tests__/**', '**/*.test.tsx', '**/*.spec.tsx', '**/*.stories.tsx'],
+    rules: {
+      'molecule-local/no-literal-ui-text': 'error',
+    },
+  },
+  {
     // A synchronous DOM event in an Angular change-detection hook runs its listeners while the
     // view is still being checked, so what they change is never rendered (a Tooltip that hid on
     // focusout stays open). Defer the call past the render with afterNextRender/afterEveryRender.
@@ -511,7 +447,7 @@ export default tseslint.config(
     // The vendored lint rules are plain ESM JavaScript, typed through JSDoc
     // (`@param {object} node`): a TS annotation is not valid there, so the
     // return-type rule cannot be satisfied and JSDoc types are the only types.
-    files: ['eslint-rules/**/*.mjs'],
+    files: ['eslint-rules/**/*.mjs', 'packages/tooling/eslint-config/src/**/*.mjs'],
     rules: {
       '@typescript-eslint/explicit-function-return-type': 'off',
       'jsdoc/no-types': 'off',
@@ -528,7 +464,7 @@ export default tseslint.config(
     },
   },
   {
-    files: ['**/__tests__/**/*.{ts,tsx}', '**/*.test.{ts,tsx}', '**/*.spec.{ts,tsx}'],
+    files: ['**/__tests__/**/*.{ts,tsx,mjs}', '**/*.test.{ts,tsx,mjs}', '**/*.spec.{ts,tsx,mjs}'],
     rules: {
       '@typescript-eslint/explicit-function-return-type': 'off',
       'jsdoc/require-jsdoc': 'off',

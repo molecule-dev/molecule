@@ -1,0 +1,135 @@
+import { useState } from 'react'
+
+import { useAuth, useTranslation } from '@molecule/app-react'
+import { Link, useNavigate } from 'react-router'
+
+import type { SessionUser } from '../../config.js'
+import { ApiError, conduitApi } from '../../conduit/api.js'
+import type { Comment } from '../../conduit/types.js'
+import { avatarFor, formatDate } from '../../conduit/types.js'
+import { Markdown } from './Markdown.js'
+
+interface Props {
+  slug: string
+  comments: Comment[]
+  onChange: (comments: Comment[]) => void
+}
+
+/**
+ * The article page's comment section: a `.comment-form` card (shown only to signed-in
+ * readers) followed by one `.card` per comment, whose delete control
+ * (`span.mod-options i.ion-trash-a`) is rendered only for the comment's own author.
+ */
+export function CommentSection({ slug, comments, onChange }: Props) {
+  const { t } = useTranslation()
+  const navigate = useNavigate()
+  const { user } = useAuth<SessionUser>()
+  const [draft, setDraft] = useState('')
+  const [errors, setErrors] = useState<string[]>([])
+  const [pending, setPending] = useState(false)
+
+  async function post(event: React.FormEvent): Promise<void> {
+    event.preventDefault()
+    if (pending) return
+    if (!user) {
+      navigate('/login')
+      return
+    }
+    if (draft.trim().length === 0) return
+    setPending(true)
+    setErrors([])
+    try {
+      const created = await conduitApi.addComment(slug, draft)
+      onChange([...comments, created])
+      setDraft('')
+    } catch (error) {
+      setErrors(error instanceof ApiError ? error.messages() : ['Could not post the comment.'])
+    } finally {
+      setPending(false)
+    }
+  }
+
+  async function remove(id: number): Promise<void> {
+    try {
+      await conduitApi.deleteComment(slug, id)
+      onChange(comments.filter((comment) => comment.id !== id))
+    } catch (_error) {
+      // Leave the comment in place when the delete fails.
+    }
+  }
+
+  return (
+    <div className="row">
+      <div className="col-xs-12 col-md-8 offset-md-2">
+        {user ? (
+          <form className="card comment-form" onSubmit={post}>
+            <div className="card-block">
+              <textarea
+                className="form-control"
+                placeholder={t('conduit.comments.placeholder', undefined, {
+                  defaultValue: 'Write a comment...',
+                })}
+                rows={3}
+                value={draft}
+                onChange={(event) => setDraft(event.target.value)}
+              />
+            </div>
+            <div className="card-footer">
+              <img src={avatarFor(user.image)} className="comment-author-img" alt={user.username} />
+              <button className="btn btn-sm btn-primary" type="submit">
+                {t('conduit.comments.post', undefined, { defaultValue: 'Post Comment' })}
+              </button>
+            </div>
+            {errors.length > 0 && (
+              <ul className="error-messages">
+                {errors.map((message) => (
+                  <li key={message}>{message}</li>
+                ))}
+              </ul>
+            )}
+          </form>
+        ) : null}
+
+        {comments.map((comment) => (
+          <div className="card" key={comment.id}>
+            <div className="card-block">
+              <p className="card-text">
+                <Markdown markdown={comment.body} />
+              </p>
+            </div>
+            <div className="card-footer">
+              <Link to={`/profile/${comment.author.username}`} className="comment-author">
+                <img
+                  src={avatarFor(comment.author.image)}
+                  className="comment-author-img"
+                  alt={comment.author.username}
+                />
+              </Link>
+              &nbsp;
+              <Link to={`/profile/${comment.author.username}`} className="comment-author">
+                {comment.author.username}
+              </Link>
+              <span className="date-posted">{formatDate(comment.createdAt)}</span>
+              {user?.username === comment.author.username ? (
+                <span className="mod-options">
+                  <i
+                    className="ion-trash-a"
+                    role="button"
+                    tabIndex={0}
+                    aria-label={t('conduit.comments.delete', undefined, {
+                      defaultValue: 'Delete comment',
+                    })}
+                    onClick={() => void remove(comment.id)}
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter' || event.key === ' ') void remove(comment.id)
+                    }}
+                  />
+                </span>
+              ) : null}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}

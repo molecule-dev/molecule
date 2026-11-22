@@ -1,0 +1,180 @@
+import type { JSX } from 'react'
+import { useEffect, useState } from 'react'
+import type { FormEvent, KeyboardEvent } from 'react'
+import { useNavigate, useParams } from 'react-router'
+
+import { useQuery } from '@molecule/app-query-react'
+import { useTranslation } from '@molecule/app-react'
+
+import { ErrorList } from '../components/ErrorList.js'
+import {
+  type Article,
+  type ArticleInput,
+  createArticle,
+  getArticle,
+  toErrorMessages,
+  updateArticle,
+} from '../lib/api.js'
+
+const EMPTY_DRAFT: ArticleInput = { title: '', description: '', body: '', tagList: [] }
+
+/** The article editor: create a new article, or edit one you wrote. */
+export function Editor(): JSX.Element {
+  const { slug } = useParams<{ slug?: string }>()
+  const navigate = useNavigate()
+  const { t } = useTranslation()
+  const label = (key: string, fallback: string) => t(key, {}, { defaultValue: fallback })
+
+  const articleQuery = useQuery<Article>(
+    slug
+      ? { key: ['conduit', 'editor', slug], fetch: () => getArticle(slug) }
+      : null,
+  )
+
+  const [draft, setDraft] = useState<ArticleInput | null>(slug ? null : EMPTY_DRAFT)
+  const [tagDraft, setTagDraft] = useState('')
+  const [errors, setErrors] = useState<string[]>([])
+  const [pending, setPending] = useState(false)
+
+  useEffect(() => {
+    const article = articleQuery?.data
+    if (!slug || !article || draft !== null) return
+    setDraft({
+      title: article.title,
+      description: article.description,
+      body: article.body,
+      tagList: Array.isArray(article.tagList) ? [...article.tagList] : [],
+    })
+  }, [articleQuery?.data, draft, slug])
+
+  const field = (name: 'title' | 'description' | 'body') => ({
+    name,
+    value: draft?.[name] ?? '',
+    onChange: (event: { target: { value: string } }) =>
+      setDraft((current) => (current ? { ...current, [name]: event.target.value } : current)),
+  })
+
+  const addTag = (): void => {
+    const tag = tagDraft.trim()
+    if (!tag) return
+    setDraft((current) =>
+      current
+        ? {
+            ...current,
+            tagList: current.tagList.includes(tag) ? current.tagList : [...current.tagList, tag],
+          }
+        : current,
+    )
+    setTagDraft('')
+  }
+
+  const removeTag = (tag: string): void => {
+    setDraft((current) =>
+      current ? { ...current, tagList: current.tagList.filter((value) => value !== tag) } : current,
+    )
+  }
+
+  const onTagKeyDown = (event: KeyboardEvent<HTMLInputElement>): void => {
+    if (event.key !== 'Enter') return
+    event.preventDefault()
+    addTag()
+  }
+
+  const submit = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
+    event.preventDefault()
+    if (!draft) return
+    setErrors([])
+    setPending(true)
+    try {
+      const saved = slug ? await updateArticle(slug, draft) : await createArticle(draft)
+      navigate(`/article/${saved.slug}`)
+    } catch (error) {
+      setErrors(toErrorMessages(error))
+    } finally {
+      setPending(false)
+    }
+  }
+
+  if (!draft) {
+    return (
+      <div className="editor-page">
+        <div className="container page">
+          <div className="row">
+            <div className="col-md-10 offset-md-1 col-xs-12">
+              <p role="status">{label('common.loading', 'Loading...')}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="editor-page">
+      <div className="container page">
+        <div className="row">
+          <div className="col-md-10 offset-md-1 col-xs-12">
+            <ErrorList messages={errors} />
+            <form onSubmit={submit}>
+              <fieldset className="form-group">
+                <input
+                  className="form-control form-control-lg"
+                  type="text"
+                  placeholder={label('conduit.editor.title', 'Article Title')}
+                  {...field('title')}
+                />
+              </fieldset>
+              <fieldset className="form-group">
+                <input
+                  className="form-control"
+                  type="text"
+                  placeholder={label('conduit.editor.description', "What's this article about?")}
+                  {...field('description')}
+                />
+              </fieldset>
+              <fieldset className="form-group">
+                <textarea
+                  className="form-control"
+                  rows={8}
+                  placeholder={label('conduit.editor.body', 'Write your article (in markdown)')}
+                  {...field('body')}
+                />
+              </fieldset>
+              <fieldset className="form-group">
+                <input
+                  className="form-control"
+                  type="text"
+                  placeholder={label('conduit.editor.tags', 'Enter tags')}
+                  value={tagDraft}
+                  onChange={(event) => setTagDraft(event.target.value)}
+                  onKeyDown={onTagKeyDown}
+                  onBlur={addTag}
+                />
+                <div className="tag-list">
+                  {draft.tagList.map((tag) => (
+                    <span key={tag} className="tag-default tag-pill">
+                      {/* The Ionicons glyph is the affordance; the click removes the tag. */}
+                      <i
+                        className="ion-close-round"
+                        aria-hidden="true"
+                        onClick={() => removeTag(tag)}
+                      />
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </fieldset>
+              <button
+                className="btn btn-lg pull-xs-right btn-primary"
+                type="submit"
+                disabled={pending}
+              >
+                {label('conduit.editor.publish', 'Publish Article')}
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}

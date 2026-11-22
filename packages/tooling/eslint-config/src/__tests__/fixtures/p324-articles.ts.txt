@@ -1,0 +1,324 @@
+import { Router, type Request, type Response } from 'express'
+
+import {
+  createArticle,
+  deleteArticle,
+  getArticleBySlug,
+  getFeed,
+  listArticles,
+  setFavorite,
+  updateArticle,
+  type UpdateArticleInput,
+} from '@molecule/api-resource-article'
+import {
+  commentNumbers,
+  createComment,
+  deleteComment,
+  getCommentByNumber,
+  getCommentsByResource,
+} from '@molecule/api-resource-comment'
+
+import {
+  blankError,
+  errors,
+  findUserByUsername,
+  forbiddenError,
+  intParam,
+  notFoundError,
+  profileForId,
+  requireUserId,
+  shapeArticle,
+  shapeArticles,
+  toIso,
+} from '../lib/realworld.js'
+
+const router = Router()
+
+function readBody(req: Request): Record<string, unknown> {
+  const raw = (req.body as Record<string, unknown> | undefined)?.article
+  return raw && typeof raw === 'object' ? (raw as Record<string, unknown>) : {}
+}
+
+function readCommentBody(req: Request): Record<string, unknown> {
+  const raw = (req.body as Record<string, unknown> | undefined)?.comment
+  return raw && typeof raw === 'object' ? (raw as Record<string, unknown>) : {}
+}
+
+function currentViewer(res: Response): string | null {
+  return (res.locals.session?.userId as string | undefined) ?? null
+}
+
+/** `GET /articles` — newest first, filterable by tag, author and who favorited it. */
+router.get('/articles', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const viewerId = currentViewer(res)
+    const limit = intParam(req.query.limit, 20) || 20
+    const offset = intParam(req.query.offset, 0)
+
+    let authorId: string | undefined
+    if (typeof req.query.author === 'string' && req.query.author) {
+      const author = await findUserByUsername(req.query.author)
+      if (!author) {
+        res.json({ articles: [], articlesCount: 0 })
+        return
+      }
+      authorId = author.id
+    }
+
+    let favoritedBy: string | undefined
+    if (typeof req.query.favorited === 'string' && req.query.favorited) {
+      const favoriter = await findUserByUsername(req.query.favorited)
+      if (!favoriter) {
+        res.json({ articles: [], articlesCount: 0 })
+        return
+      }
+      favoritedBy = favoriter.id
+    }
+
+    const page = await listArticles({
+      tag: typeof req.query.tag === 'string' && req.query.tag ? req.query.tag : undefined,
+      authorId,
+      favoritedBy,
+      limit,
+      offset,
+      viewerId: viewerId ?? undefined,
+    })
+
+    res.json({
+      articles: await shapeArticles(page.data, viewerId, false),
+      articlesCount: page.total,
+    })
+  } catch (error) {
+    console.error('GET /articles failed:', error)
+    errors(res, 500, 'base', ['unexpected error'])
+  }
+})
+
+/** `GET /articles/feed` — articles by the users this session follows. */
+router.get('/articles/feed', async (req: Request, res: Response): Promise<void> => {
+  const viewerId = requireUserId(res)
+  if (!viewerId) return
+  try {
+    const page = await getFeed(viewerId, {
+      limit: intParam(req.query.limit, 20) || 20,
+      offset: intParam(req.query.offset, 0),
+    })
+    res.json({
+      articles: await shapeArticles(page.data, viewerId, false),
+      articlesCount: page.total,
+    })
+  } catch (error) {
+    console.error('GET /articles/feed failed:', error)
+    errors(res, 500, 'base', ['unexpected error'])
+  }
+})
+
+/** `GET /articles/:slug` */
+router.get('/articles/:slug', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const viewerId = currentViewer(res)
+    const article = await getArticleBySlug(String(req.params.slug), viewerId ?? undefined)
+    if (!article) return notFoundError(res, 'article')
+    res.json({ article: await shapeArticle(article, viewerId, true) })
+  } catch (error) {
+    console.error('GET /articles/:slug failed:', error)
+    errors(res, 500, 'base', ['unexpected error'])
+  }
+})
+
+/** `POST /articles` */
+router.post('/articles', async (req: Request, res: Response): Promise<void> => {
+  const userId = requireUserId(res)
+  if (!userId) return
+  const body = readBody(req)
+
+  if (typeof body.title !== 'string' || body.title.trim() === '') return blankError(res, 'title')
+  if (typeof body.description !== 'string' || body.description.trim() === '')
+    return blankError(res, 'description')
+  if (typeof body.body !== 'string' || body.body.trim() === '') return blankError(res, 'body')
+
+  const tagList = readTagList(body, res)
+  if (!tagList) return
+
+  try {
+    const article = await createArticle(userId, {
+      title: String(body.title),
+      description: String(body.description),
+      body: String(body.body),
+      tagList,
+    })
+    res.status(201).json({ article: await shapeArticle(article, userId, true) })
+  } catch (error) {
+    console.error('POST /articles failed:', error)
+    errors(res, 500, 'base', ['unexpected error'])
+  }
+})
+
+function readTagList(body: Record<string, unknown>, res: Response): string[] | undefined | null {
+  if (!Object.prototype.hasOwnProperty.call(body, 'tagList')) return undefined
+  const raw = body.tagList
+  if (!Array.isArray(raw) || raw.some((tag) => typeof tag !== 'string')) {
+    errors(res, 422, 'tagList', ['must be an array of strings'])
+    return null
+  }
+  return raw as string[]
+}
+
+/** `PUT /articles/:slug` */
+router.put('/articles/:slug', async (req: Request, res: Response): Promise<void> => {
+  const userId = requireUserId(res)
+  if (!userId) return
+  const body = readBody(req)
+  const input: UpdateArticleInput = {}
+
+  if (Object.prototype.hasOwnProperty.call(body, 'title')) {
+    if (typeof body.title !== 'string' || body.title.trim() === '') return blankError(res, 'title')
+    input.title = body.title
+  }
+  if (Object.prototype.hasOwnProperty.call(body, 'description')) {
+    if (typeof body.description !== 'string' || body.description.trim() === '')
+      return blankError(res, 'description')
+    input.description = body.description
+  }
+  if (Object.prototype.hasOwnProperty.call(body, 'body')) {
+    if (typeof body.body !== 'string' || body.body.trim() === '') return blankError(res, 'body')
+    input.body = body.body
+  }
+  const tagList = readTagList(body, res)
+  if (tagList === null) return
+  if (tagList !== undefined) input.tagList = tagList
+
+  try {
+    const result = await updateArticle(String(req.params.slug), userId, input)
+    if (result.status === 'not_found') return notFoundError(res, 'article')
+    if (result.status === 'forbidden') return forbiddenError(res, 'article')
+    res.json({ article: await shapeArticle(result.article, userId, true) })
+  } catch (error) {
+    console.error('PUT /articles/:slug failed:', error)
+    errors(res, 500, 'base', ['unexpected error'])
+  }
+})
+
+/** `DELETE /articles/:slug` */
+router.delete('/articles/:slug', async (req: Request, res: Response): Promise<void> => {
+  const userId = requireUserId(res)
+  if (!userId) return
+  try {
+    const result = await deleteArticle(String(req.params.slug), userId)
+    if (result.status === 'not_found') return notFoundError(res, 'article')
+    if (result.status === 'forbidden') return forbiddenError(res, 'article')
+    res.status(204).end()
+  } catch (error) {
+    console.error('DELETE /articles/:slug failed:', error)
+    errors(res, 500, 'base', ['unexpected error'])
+  }
+})
+
+async function toggleFavorite(req: Request, res: Response, favorite: boolean): Promise<void> {
+  const userId = requireUserId(res)
+  if (!userId) return
+  try {
+    const article = await setFavorite(String(req.params.slug), userId, favorite)
+    if (!article) return notFoundError(res, 'article')
+    res.json({ article: await shapeArticle(article, userId, true) })
+  } catch (error) {
+    console.error(`toggle favorite (${favorite}) failed:`, error)
+    errors(res, 500, 'base', ['unexpected error'])
+  }
+}
+
+/** `POST /articles/:slug/favorite` */
+router.post('/articles/:slug/favorite', (req: Request, res: Response) => toggleFavorite(req, res, true))
+
+/** `DELETE /articles/:slug/favorite` */
+router.delete('/articles/:slug/favorite', (req: Request, res: Response) =>
+  toggleFavorite(req, res, false),
+)
+
+/** The article a comment route addresses, or a 404 on `article`. */
+async function articleForComments(slug: string) {
+  return getArticleBySlug(slug)
+}
+
+async function shapeComment(
+  comment: { id: string; body: string; createdAt: unknown; updatedAt: unknown; userId: string },
+  number: number,
+  viewerId: string | null,
+) {
+  const author = await profileForId(comment.userId, viewerId)
+  return {
+    id: number,
+    createdAt: toIso(comment.createdAt),
+    updatedAt: toIso(comment.updatedAt),
+    body: comment.body,
+    author: author ?? { username: '', bio: null, image: null, following: false },
+  }
+}
+
+/** `GET /articles/:slug/comments` */
+router.get('/articles/:slug/comments', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const viewerId = currentViewer(res)
+    const article = await articleForComments(String(req.params.slug))
+    if (!article) return notFoundError(res, 'article')
+
+    const page = await getCommentsByResource('article', article.id, { limit: 100, offset: 0 })
+    const numbers = await commentNumbers(page.data.map((comment) => comment.id))
+    const comments = await Promise.all(
+      page.data.map((comment) =>
+        shapeComment(comment, numbers.get(comment.id) ?? 0, viewerId),
+      ),
+    )
+    res.json({ comments })
+  } catch (error) {
+    console.error('GET /articles/:slug/comments failed:', error)
+    errors(res, 500, 'base', ['unexpected error'])
+  }
+})
+
+/** `POST /articles/:slug/comments` */
+router.post('/articles/:slug/comments', async (req: Request, res: Response): Promise<void> => {
+  const userId = requireUserId(res)
+  if (!userId) return
+  try {
+    const article = await articleForComments(String(req.params.slug))
+    if (!article) return notFoundError(res, 'article')
+
+    const { body } = readCommentBody(req)
+    if (typeof body !== 'string' || body.trim() === '') return blankError(res, 'body')
+
+    const comment = await createComment('article', article.id, userId, { body: String(body) })
+    res.status(201).json({ comment: await shapeComment(comment, comment.number, userId) })
+  } catch (error) {
+    console.error('POST /articles/:slug/comments failed:', error)
+    errors(res, 500, 'base', ['unexpected error'])
+  }
+})
+
+/** `DELETE /articles/:slug/comments/:id` */
+router.delete(
+  '/articles/:slug/comments/:id',
+  async (req: Request, res: Response): Promise<void> => {
+    const userId = requireUserId(res)
+    if (!userId) return
+    try {
+      const article = await articleForComments(String(req.params.slug))
+      if (!article) return notFoundError(res, 'article')
+
+      const number = Number.parseInt(String(req.params.id), 10)
+      const comment = Number.isFinite(number) ? await getCommentByNumber(number) : null
+      if (!comment || comment.resourceType !== 'article' || comment.resourceId !== article.id) {
+        return notFoundError(res, 'comment')
+      }
+      if (comment.userId !== userId) return forbiddenError(res, 'comment')
+
+      await deleteComment(comment.id, userId)
+      res.status(204).end()
+    } catch (error) {
+      console.error('DELETE /articles/:slug/comments/:id failed:', error)
+      errors(res, 500, 'base', ['unexpected error'])
+    }
+  },
+)
+
+export default router

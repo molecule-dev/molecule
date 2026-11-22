@@ -23,7 +23,8 @@
     "packages/app/frameworks/*",
     "packages/app/infrastructure/*",
     "packages/app/locales/*",
-    "packages/app/native/*"
+    "packages/app/native/*",
+    "packages/tooling/*"
   ],
   "engines": {
     "node": ">=22"

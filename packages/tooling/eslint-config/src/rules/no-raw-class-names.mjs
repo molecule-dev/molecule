@@ -1,8 +1,5 @@
 /**
- * CANONICAL copy of the `molecule-local/no-raw-class-names` ESLint rule.
- *
- * Vendored into every repo that lints UI code (see `scripts/sync-eslint-rules.mjs`
- * for the target list and the drift gate). Edit THIS file, never a vendored copy.
+ * The `molecule-local/no-raw-class-names` ESLint rule.
  *
  * ## What it enforces
  *

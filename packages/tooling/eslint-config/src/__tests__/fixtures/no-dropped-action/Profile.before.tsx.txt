@@ -1,0 +1,156 @@
+import { useState } from 'react'
+import { Link, useNavigate, useParams } from 'react-router'
+
+import { useQuery } from '@molecule/app-query-react'
+import { useAuth } from '@molecule/app-react'
+
+import { ArticlePreview } from '../components/ArticlePreview.js'
+import { Pagination } from '../components/Pagination.js'
+import type { ConduitUser } from '../config.js'
+import {
+  api,
+  avatarUrl,
+  messagesOf,
+  type ArticlesPage,
+  type Profile,
+} from '../lib/api.js'
+import { ErrorMessages } from './Login.js'
+
+const PAGE_SIZE = 10
+
+/** `/profile/:username` and `/profile/:username/favorites`. */
+export function ProfilePage({ favorites = false }: { favorites?: boolean }): React.JSX.Element {
+  const { username = '' } = useParams()
+  const navigate = useNavigate()
+  const { user } = useAuth<ConduitUser>()
+  const viewer = user?.username ?? 'anon'
+  const [messages, setMessages] = useState<string[]>([])
+
+  const profileQuery = useQuery<{ profile: Profile }>({
+    key: ['profile', username, viewer],
+    principal: viewer,
+    fetch: async () => api.profile(username),
+  })
+
+  const articlesQuery = useQuery<ArticlesPage>({
+    key: ['profile-articles', username, favorites, viewer],
+    principal: viewer,
+    keepPreviousData: true,
+    fetch: async () =>
+      favorites
+        ? api.listArticles({ favorited: username, limit: PAGE_SIZE, offset: 0 })
+        : api.listArticles({ author: username, limit: PAGE_SIZE, offset: 0 }),
+  })
+
+  const profile = profileQuery.data?.profile
+  const isSelf = !!user && user.username === username
+
+  const toggleFollow = async (): Promise<void> => {
+    if (!profile) return
+    try {
+      const { profile: saved } = await api.follow(profile.username, !profile.following)
+      profileQuery.setData({ profile: saved })
+    } catch (error) {
+      setMessages(messagesOf(error))
+    }
+  }
+
+  const articles = articlesQuery.data?.articles ?? []
+  const total = articlesQuery.data?.articlesCount ?? 0
+  const tabClass = (active: boolean): string => (active ? 'nav-link active' : 'nav-link')
+
+  return (
+    <div className="profile-page">
+      <div className="user-info">
+        <div className="container">
+          <div className="row">
+            <div className="col-xs-12 col-md-10 offset-md-1">
+              <img
+                src={avatarUrl(profile?.image)}
+                className="user-img"
+                alt={username}
+              />
+              <h4>{username}</h4>
+              <p>{profile?.bio ?? ''}</p>
+              {isSelf ? (
+                <Link
+                  className="btn btn-sm btn-outline-secondary action-btn"
+                  to="/settings"
+                >
+                  <i className="ion-gear-a" /> Edit Profile Settings
+                </Link>
+              ) : (
+                <button
+                  type="button"
+                  className="btn btn-sm btn-outline-secondary action-btn"
+                  onClick={user ? toggleFollow : () => navigate('/login')}
+                >
+                  <i className="ion-plus-round" />{' '}
+                  {profile?.following ? `Unfollow ${username}` : `Follow ${username}`}
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="container">
+        <div className="row">
+          <div className="col-xs-12 col-md-10 offset-md-1">
+            <ErrorMessages messages={messages} />
+            <div className="articles-toggle">
+              <ul className="nav nav-pills outline-active">
+                <li className="nav-item">
+                  <Link className={tabClass(!favorites)} to={`/profile/${username}`}>
+                    My Articles
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <Link
+                    className={tabClass(favorites)}
+                    to={`/profile/${username}/favorites`}
+                  >
+                    Favorited Articles
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            {articlesQuery.status === 'success' && articles.length === 0 ? (
+              <div className="empty-feed-message">
+                <p>No articles are here... yet.</p>
+              </div>
+            ) : null}
+
+            {articles.map((article) => (
+              <ArticlePreview
+                key={article.slug}
+                article={article}
+                onFavoriteChange={(saved) => {
+                  articlesQuery.setData((current) =>
+                    current
+                      ? {
+                          ...current,
+                          articles: current.articles.map((item) =>
+                            item.slug === saved.slug ? saved : item,
+                          ),
+                        }
+                      : current,
+                  )
+                }}
+                onError={(message) => setMessages([message])}
+              />
+            ))}
+
+            <Pagination
+              path={favorites ? `/profile/${username}/favorites` : `/profile/${username}`}
+              total={total}
+              pageSize={PAGE_SIZE}
+              page={1}
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}

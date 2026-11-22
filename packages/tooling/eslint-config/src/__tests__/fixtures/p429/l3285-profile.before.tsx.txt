@@ -1,0 +1,139 @@
+import { Link, useLocation, useNavigate, useParams, useSearchParams } from 'react-router'
+
+import { errorMessages, getProfile, listArticles, type ArticlesPage } from '../api.js'
+import { avatarSrc } from '../components/Avatar.js'
+import { ArticlePreview } from '../components/ArticlePreview.js'
+import { FollowButton } from '../components/ArticleActions.js'
+import { ErrorMessages } from '../components/ErrorMessages.js'
+import { Pagination } from '../components/Pagination.js'
+import { useApiQuery } from '../hooks.js'
+import { useSession, viewerKey } from '../session.js'
+
+const PAGE_SIZE = 10
+
+/** A reader's profile, with their articles and the articles they favorited. */
+export function Profile() {
+  const { username = '' } = useParams()
+  const location = useLocation()
+  const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const { user } = useSession()
+
+  const favorites = location.pathname.endsWith('/favorites')
+  const requestedPage = Number(searchParams.get('page') ?? '1')
+  const page = Number.isFinite(requestedPage) && requestedPage > 0 ? Math.floor(requestedPage) : 1
+
+  const profileQuery = useApiQuery(['profile', username, viewerKey(user)], (signal) =>
+    getProfile(username, signal),
+  )
+  const articlesQuery = useApiQuery<ArticlesPage>(
+    ['articles', 'profile', username, favorites ? 'favorites' : 'authored', page, viewerKey(user)],
+    (signal) =>
+      listArticles(
+        {
+          ...(favorites ? { favorited: username } : { author: username }),
+          limit: PAGE_SIZE,
+          offset: (page - 1) * PAGE_SIZE,
+        },
+        signal,
+      ),
+  )
+
+  const profile = profileQuery.data
+  const failure = profileQuery.error
+    ? errorMessages(profileQuery.error)
+    : articlesQuery.error
+      ? errorMessages(articlesQuery.error)
+      : []
+
+  const hrefFor = (target: number): string => {
+    const base = favorites ? `/profile/${username}/favorites` : `/profile/${username}`
+    return target > 1 ? `${base}?page=${target}` : base
+  }
+
+  return (
+    <div className="profile-page">
+      <div className="user-info">
+        <div className="container">
+          <div className="row">
+            <div className="col-xs-12 col-md-10 offset-md-1">
+              {profile && (
+                <>
+                  <img className="user-img" src={avatarSrc(profile.image)} alt={profile.username} />
+                  <h4>{profile.username}</h4>
+                  <p>{profile.bio ?? ''}</p>
+                  {user?.username === profile.username ? (
+                    <Link className="btn btn-sm btn-outline-secondary action-btn" to="/settings">
+                      <i className="ion-gear-a" /> Edit Profile Settings
+                    </Link>
+                  ) : (
+                    <span className="action-btn">
+                      <FollowButton
+                        profile={profile}
+                        onChanged={() => void profileQuery.refetch()}
+                      />
+                    </span>
+                  )}
+                </>
+              )}
+              {!profile && profileQuery.status === 'loading' && <p>Loading profile…</p>}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="container">
+        <div className="row">
+          <div className="col-xs-12 col-md-10 offset-md-1">
+            <div className="articles-toggle">
+              <ul className="nav nav-pills outline-active">
+                <li className="nav-item">
+                  <Link
+                    className={favorites ? 'nav-link' : 'nav-link active'}
+                    to={`/profile/${username}`}
+                  >
+                    My Articles
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <Link
+                    className={favorites ? 'nav-link active' : 'nav-link'}
+                    to={`/profile/${username}/favorites`}
+                  >
+                    Favorited Articles
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            <ErrorMessages messages={failure} />
+
+            {(articlesQuery.data?.articles ?? []).map((article) => (
+              <ArticlePreview
+                key={article.slug}
+                article={article}
+                onChanged={() => void articlesQuery.refetch()}
+              />
+            ))}
+
+            {articlesQuery.status === 'success' &&
+              (articlesQuery.data?.articles.length ?? 0) === 0 && (
+                <div className="empty-feed-message">
+                  <p>No articles are here… yet.</p>
+                </div>
+              )}
+
+            <Pagination
+              page={page}
+              total={articlesQuery.data?.articlesCount ?? 0}
+              pageSize={PAGE_SIZE}
+              hrefFor={hrefFor}
+            />
+
+            <button type="button" className="btn btn-sm" hidden onClick={() => navigate('.')} />
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}

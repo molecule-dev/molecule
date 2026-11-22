@@ -1,0 +1,191 @@
+import { useMemo, useState } from 'react'
+import { Link, useLocation, useNavigate, useParams, useSearchParams } from 'react-router'
+
+import { useQuery } from '@molecule/app-query-react'
+import { useAuth, useHttpClient } from '@molecule/app-react'
+
+import { ArticlePreview } from '../components/ArticlePreview.js'
+import { Pagination } from '../components/Pagination.js'
+import type { ConduitUser } from '../config.js'
+import {
+  avatarOf,
+  PAGE_SIZE,
+  type Article,
+  type ArticlesPage,
+  type Profile as ProfileShape,
+} from '../lib/conduit.js'
+
+/** `/profile/:username` and `/profile/:username/favorites`. */
+export function Profile() {
+  const { username = '' } = useParams<{ username: string }>()
+  const { pathname } = useLocation()
+  const navigate = useNavigate()
+  const http = useHttpClient()
+  const { user } = useAuth<ConduitUser>()
+  const [searchParams] = useSearchParams()
+  const [reload, setReload] = useState(0)
+
+  const favorites = pathname.endsWith('/favorites')
+  const page = Math.max(1, Number.parseInt(searchParams.get('page') ?? '1', 10) || 1)
+  const viewer = user ? String(user.id ?? user.username) : 'anonymous'
+
+  const profile = useQuery<{ profile: ProfileShape }>({
+    key: [http.baseURL, 'profile', username, viewer, reload],
+    principal: viewer,
+    fetch: async (signal: AbortSignal) =>
+      (await http.get(`/api/profiles/${encodeURIComponent(username)}`, { signal })).data as {
+        profile: ProfileShape
+      },
+  })
+
+  const articles = useQuery<ArticlesPage>({
+    key: [http.baseURL, 'profile-articles', username, favorites ? 'favorited' : 'author', page, viewer, reload],
+    principal: viewer,
+    fetch: async (signal: AbortSignal) =>
+      (
+        await http.get('/api/articles', {
+          signal,
+          params: {
+            ...(favorites ? { favorited: username } : { author: username }),
+            limit: PAGE_SIZE,
+            offset: (page - 1) * PAGE_SIZE,
+          },
+        })
+      ).data as ArticlesPage,
+  })
+
+  const current = profile.data?.profile
+  const rows: Article[] = articles.data?.articles ?? []
+  const total = articles.data?.articlesCount ?? 0
+  const pageCount = Math.max(1, Math.ceil(total / PAGE_SIZE))
+  const isOwn = !!user && user.username === username
+  const loading = articles.status === 'loading' || articles.isFetching
+
+  const hrefFor = useMemo(
+    () =>
+      (target: number): string => {
+        const base = favorites ? `/profile/${username}/favorites` : `/profile/${username}`
+        return target > 1 ? `${base}?page=${target}` : base
+      },
+    [favorites, username],
+  )
+
+  const toggleFollow = async (): Promise<void> => {
+    if (!user) {
+      navigate('/login')
+      return
+    }
+    const path = `/api/profiles/${encodeURIComponent(username)}/follow`
+    if (current?.following) await http.delete(path)
+    else await http.post(path)
+    setReload((value) => value + 1)
+  }
+
+  if (profile.status === 'loading' && !current) {
+    return (
+      <div className="profile-page">
+        <div className="container page" role="status">
+          Loading profile…
+        </div>
+      </div>
+    )
+  }
+
+  if (!current) {
+    return (
+      <div className="profile-page">
+        <div className="container page">
+          <p>This profile does not exist.</p>
+          <Link to="/">Back to the home page</Link>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="profile-page">
+      <div className="user-info">
+        <div className="container">
+          <div className="row">
+            <div className="col-xs-12 col-md-10 offset-md-1">
+              <img className="user-img" src={avatarOf(current.image)} alt="" />
+              <h4>{current.username}</h4>
+              <p>{current.bio ?? ''}</p>
+              {isOwn ? (
+                <Link className="btn btn-sm btn-outline-secondary action-btn" to="/settings">
+                  <i className="ion-gear-a" /> Edit Profile Settings
+                </Link>
+              ) : (
+                <button
+                  type="button"
+                  className="btn btn-sm btn-outline-secondary action-btn"
+                  onClick={() => void toggleFollow()}
+                  data-mol-id="profile-follow"
+                >
+                  <i className="ion-plus-round" /> {current.following ? 'Unfollow' : 'Follow'}{' '}
+                  {current.username}
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="container">
+        <div className="row">
+          <div className="col-xs-12 col-md-10 offset-md-1">
+            <div className="articles-toggle">
+              <ul className="nav nav-pills outline-active">
+                <li className="nav-item">
+                  <Link
+                    className={favorites ? 'nav-link' : 'nav-link active'}
+                    to={`/profile/${username}`}
+                    data-mol-id="profile-articles"
+                  >
+                    My Articles
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <Link
+                    className={favorites ? 'nav-link active' : 'nav-link'}
+                    to={`/profile/${username}/favorites`}
+                    data-mol-id="profile-favorites"
+                  >
+                    Favorited Articles
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            {loading ? (
+              <div className="article-preview" role="status">
+                Loading articles…
+              </div>
+            ) : null}
+
+            {!loading &&
+              rows.map((article) => (
+                <ArticlePreview
+                  key={article.slug}
+                  article={article}
+                  onFavoriteChanged={() => setReload((value) => value + 1)}
+                />
+              ))}
+
+            {!loading && rows.length === 0 ? (
+              <div className="empty-feed-message">
+                {favorites
+                  ? 'No articles are here… yet. Favorite an article to see it here.'
+                  : 'No articles are here… yet.'}
+              </div>
+            ) : null}
+
+            {!loading && rows.length > 0 ? (
+              <Pagination page={page} pageCount={pageCount} href={hrefFor} />
+            ) : null}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}

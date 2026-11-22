@@ -1,0 +1,169 @@
+import type { JSX } from 'react'
+import { useState } from 'react'
+import { Link, useNavigate, useParams } from 'react-router'
+
+import { useQuery } from '@molecule/app-query-react'
+import { useAuth } from '@molecule/app-react'
+
+import { CommentSection } from '../components/CommentSection.js'
+import type { AppUser } from '../config.js'
+import { useLabels } from '../labels.js'
+import { articles } from '../resources/articles.js'
+import { profiles } from '../resources/profiles.js'
+import { avatarUrl, formatDate } from '../types.js'
+
+export function ArticlePage(): JSX.Element {
+  const label = useLabels()
+  const { slug = '' } = useParams<{ slug: string }>()
+  const navigate = useNavigate()
+  const { user, isAuthenticated } = useAuth<AppUser>()
+  const viewer = user?.username ?? 'anonymous'
+  const query = useQuery(slug ? articles.detail(viewer, slug) : null)
+  const [following, setFollowing] = useState<boolean | null>(null)
+  const [busy, setBusy] = useState(false)
+
+  const article = query.data
+
+  if (query.status === 'error') {
+    return (
+      <div className="container page">
+        <p role="alert">{label('article.loadFailed', 'Could not load this article.')}</p>
+      </div>
+    )
+  }
+
+  if (!article) {
+    return (
+      <div className="container page">
+        <p role="status">{label('common.loading', 'Loading...')}</p>
+      </div>
+    )
+  }
+
+  const isOwn = user?.username === article.author.username
+  const isFollowing = following ?? article.author.following
+
+  const toggleFollow = async (): Promise<void> => {
+    if (!isAuthenticated) {
+      navigate('/login')
+      return
+    }
+    if (busy) return
+    setBusy(true)
+    try {
+      const saved = await profiles.toggle(viewer, article.author.username, 'follow', !isFollowing)
+      setFollowing(saved.following)
+    } catch {
+      // The server's value is still the article's; nothing to restore locally.
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const toggleFavorite = async (): Promise<void> => {
+    if (!isAuthenticated) {
+      navigate('/login')
+      return
+    }
+    if (busy) return
+    setBusy(true)
+    try {
+      await articles.toggle(viewer, article.slug, 'favorite', !article.favorited)
+      await query.refetch()
+    } catch {
+      // The favorite count keeps the value the API last confirmed.
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const remove = async (): Promise<void> => {
+    if (busy) return
+    setBusy(true)
+    try {
+      await articles.remove(viewer, article.slug)
+      navigate('/')
+    } catch {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <div className="article-page">
+      <div className="banner">
+        <div className="container">
+          <h1>{article.title}</h1>
+          <div className="article-meta">
+            <Link to={`/profile/${article.author.username}`}>
+              <img src={avatarUrl(article.author.image)} alt={article.author.username} />
+            </Link>
+            <div className="info">
+              <Link className="author" to={`/profile/${article.author.username}`}>
+                {article.author.username}
+              </Link>
+              <span className="date">{formatDate(article.createdAt)}</span>
+            </div>
+            {isOwn ? (
+              <div className="article-actions">
+                <Link className="btn btn-outline-secondary btn-sm" to={`/editor/${article.slug}`}>
+                  <i className="ion-edit"></i>&nbsp;{label('article.edit', 'Edit Article')}
+                </Link>{' '}
+                <button className="btn btn-outline-danger btn-sm" type="button" onClick={remove}>
+                  <i className="ion-trash-a"></i>&nbsp;{label('article.delete', 'Delete Article')}
+                </button>
+              </div>
+            ) : (
+              <div className="article-actions">
+                <button
+                  className="btn btn-sm btn-outline-secondary"
+                  type="button"
+                  onClick={toggleFollow}
+                  data-mol-id="follow-author"
+                >
+                  <i className="ion-plus-round"></i>&nbsp;
+                  {isFollowing
+                    ? label('article.unfollow', `Unfollow ${article.author.username}`)
+                    : label('article.follow', `Follow ${article.author.username}`)}
+                </button>{' '}
+                <button
+                  className={article.favorited ? 'btn btn-sm btn-primary' : 'btn btn-sm btn-outline-primary'}
+                  type="button"
+                  onClick={toggleFavorite}
+                  data-mol-id="favorite-article"
+                >
+                  <i className="ion-heart"></i>&nbsp;
+                  {article.favorited
+                    ? label('article.unfavorite', 'Unfavorite Article')
+                    : label('article.favorite', 'Favorite Article')}{' '}
+                  <span className="counter">{article.favoritesCount}</span>
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="container page">
+        <div className="row article-content">
+          <div className="col-md-12">
+            <p>{article.body}</p>
+          </div>
+        </div>
+
+        <hr />
+
+        <ul className="tag-list">
+          {article.tagList.map((tag) => (
+            <li className="tag-default tag-pill tag-outline" key={tag}>
+              {tag}
+            </li>
+          ))}
+        </ul>
+
+        <hr />
+
+        <CommentSection slug={article.slug} />
+      </div>
+    </div>
+  )
+}

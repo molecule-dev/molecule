@@ -1,0 +1,41 @@
+import type { AuthClientConfig } from '@molecule/app-auth'
+
+/**
+ * Conduit's account as the API answers it (`{ user: { email, username, bio,
+ * image, token } }`). It has no `id`, so it is typed by this interface rather
+ * than `UserProfile` and nothing is invented for one.
+ */
+export interface ConduitUser {
+  username: string
+  email: string
+  bio: string | null
+  image: string | null
+}
+
+export const API_BASE_URL = import.meta.env?.VITE_API_URL || '/api'
+
+/**
+ * The RealWorld contract: the browser keeps the JWT in `localStorage.jwtToken`
+ * and sends it as `Authorization: Token <jwt>`; the session is verified through
+ * `GET /user` and updated with `PUT /user`, both wrapped in a `{ user: … }`
+ * envelope.
+ */
+export const authConfig: AuthClientConfig<ConduitUser> = {
+  baseURL: API_BASE_URL,
+  authScheme: 'Token',
+  tokenKey: 'jwtToken',
+  loginEndpoint: '/users/login',
+  registerEndpoint: '/users',
+  logoutEndpoint: '/users/logout',
+  currentUserEndpoint: '/user',
+  profileEndpoint: () => '/user',
+  profileUpdateMethod: 'PUT',
+  requestBody: (data) => ({ user: data }),
+  profileRequestBody: (data) => ({ user: data }),
+  mapAuthResponse: (data) => {
+    const { user } = data as { user: { token: string } & ConduitUser }
+    const { token, ...profile } = user
+    return { accessToken: token, user: profile }
+  },
+  autoRefresh: false,
+}

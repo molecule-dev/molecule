@@ -265,13 +265,13 @@ if staged_diff --name-only --diff-filter=ACM |
 fi
 
 # Shared-lint-rule drift (cross-repo), same shape as the scanner check above.
-# eslint-rules/*.mjs here are VENDORED copies of the workspace canonical
-# (../scripts/eslint-rules/). molecule-dev/app carries the same files, and a
-# rule that fires in one repo but not the other is worse than no rule — the
-# design inconsistency simply migrates to the repo whose copy fell behind.
-# Only checked when a copy is staged; skipped in a standalone clone.
-if staged_diff --name-only --diff-filter=ACM |
-  grep -q '^eslint-rules/.*\.mjs$'; then
+# @molecule/eslint-config's rules are the source of the copies in mlcl's templates
+# and molecule-dev/app, and its registry snapshot is generated with the template's.
+# A rule that fires in one place but not another is worse than no rule — the
+# design inconsistency simply migrates to the copy that fell behind. Only checked
+# when a rule or the snapshot is staged; skipped in a standalone clone.
+if staged_diff --name-only --diff-filter=ACMR |
+  grep -qE '^packages/tooling/eslint-config/src/(rules/.+|registry-snapshot)\.mjs$'; then
   if [ -f ../scripts/sync-eslint-rules.mjs ]; then
     (cd .. && node scripts/sync-eslint-rules.mjs --check)
   fi

@@ -1,0 +1,153 @@
+import type { JSX } from 'react'
+import { useState } from 'react'
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router'
+
+import { useAuth } from '@molecule/app-react'
+
+import { avatarUrl, conduit, type Profile as ProfileType } from '../api/conduit.js'
+import { useAsync } from '../api/useAsync.js'
+import { ArticlePreview } from '../components/ArticlePreview.js'
+import { FollowButton } from '../components/FollowButton.js'
+import { Pagination } from '../components/TagsSidebar.js'
+import { useMessages } from '../components/useMessages.js'
+import type { SessionUser } from '../config.js'
+
+const PAGE_SIZE = 10
+
+/** `/profile/:username` (their articles) and `/profile/:username/favorites`. */
+export function Profile(): JSX.Element {
+  const m = useMessages()
+  const { username = '' } = useParams<{ username: string }>()
+  const [searchParams] = useSearchParams()
+  const navigate = useNavigate()
+  const { user } = useAuth<SessionUser>()
+
+  const favorites = searchParams.get('tab') === 'favorites'
+  const page = Math.max(1, Math.floor(Number(searchParams.get('page') || '1')) || 1)
+  const offset = (page - 1) * PAGE_SIZE
+  const isSelf = Boolean(user && user.username.toLowerCase() === username.toLowerCase())
+
+  const [profile, setProfile] = useState<ProfileType | null>(null)
+
+  const detail = useAsync(async () => {
+    const value = await conduit.profile(username)
+    setProfile(value)
+    return value
+  }, [username])
+
+  const list = useAsync(async () => {
+    if (favorites) return conduit.articles({ favorited: username, limit: PAGE_SIZE, offset })
+    return conduit.articles({ author: username, limit: PAGE_SIZE, offset })
+  }, [username, favorites, offset, detail.data?.username])
+
+  const articles = list.data?.articles ?? []
+  const count = list.data?.count ?? 0
+  const shown = profile ?? detail.data
+
+  if (detail.error) {
+    return (
+      <div className="profile-page">
+        <div className="container page">
+          <p>{m('profile.notFound', 'This profile does not exist.')}</p>
+          <Link to="/">{m('article.backHome', 'Back to the home page')}</Link>
+        </div>
+      </div>
+    )
+  }
+
+  if (!shown) {
+    return (
+      <div className="profile-page">
+        <div className="container page">
+          <div className="profile-loading">{m('common.loading', 'Loading profile...')}</div>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="profile-page">
+      <div className="user-info">
+        <div className="container">
+          <div className="row">
+            <div className="col-xs-12 col-md-10 offset-md-1">
+              <img src={avatarUrl(shown.image)} className="user-img" alt={shown.username} />
+              <h4>{shown.username}</h4>
+              <p>{shown.bio ?? ''}</p>
+              {isSelf ? (
+                <Link className="btn btn-sm btn-outline-secondary action-btn" to="/settings">
+                  <i className="ion-gear-a" /> {m('profile.editSettings', 'Edit Profile Settings')}
+                </Link>
+              ) : (
+                <FollowButton profile={shown} onChange={setProfile} />
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="container">
+        <div className="row">
+          <div className="col-xs-12 col-md-10 offset-md-1">
+            <div className="articles-toggle">
+              <ul className="nav nav-pills outline-active">
+                <li className="nav-item">
+                  <Link
+                    className={`nav-link${favorites ? '' : ' active'}`}
+                    to={`/profile/${encodeURIComponent(username)}`}
+                  >
+                    {m('profile.myArticles', 'My Articles')}
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <Link
+                    className={`nav-link${favorites ? ' active' : ''}`}
+                    to={`/profile/${encodeURIComponent(username)}/favorites`}
+                  >
+                    {m('profile.favorited', 'Favorited Articles')}
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            {list.loading && articles.length === 0 ? (
+              <div className="article-list-loading">{m('common.loading', 'Loading articles...')}</div>
+            ) : null}
+
+            {!list.loading && articles.length === 0 ? (
+              <div className="empty-feed-message">
+                {m('profile.noArticles', 'No articles are here... yet.')}
+              </div>
+            ) : null}
+
+            {articles.map((article) => (
+              <ArticlePreview
+                key={article.slug}
+                article={article}
+                onFavoriteChange={(updated) => {
+                  list.setData({
+                    articles: (list.data?.articles ?? []).map((item) =>
+                      item.slug === updated.slug
+                        ? {
+                            ...item,
+                            favorited: updated.favorited,
+                            favoritesCount: updated.favoritesCount,
+                          }
+                        : item,
+                    ),
+                    count,
+                  })
+                }}
+              />
+            ))}
+
+            <Pagination page={page} pageSize={PAGE_SIZE} total={count} />
+          </div>
+        </div>
+      </div>
+      <button type="button" hidden onClick={() => navigate(-1)}>
+        {m('common.back', 'Back')}
+      </button>
+    </div>
+  )
+}

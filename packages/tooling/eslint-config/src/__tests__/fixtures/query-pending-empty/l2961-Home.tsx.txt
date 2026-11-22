@@ -1,0 +1,145 @@
+import { Link, Navigate, useLocation, useParams, useSearchParams } from 'react-router'
+
+import { useQuery } from '@molecule/app-query-react'
+import { useAuth } from '@molecule/app-react'
+
+import { fetchArticles, fetchFeed, fetchTags } from '../api.js'
+import { ArticlePreview } from '../components/ArticlePreview.js'
+import { ErrorMessages } from '../components/ErrorMessages.js'
+import { Pagination } from '../components/Pagination.js'
+import type { ConduitUser } from '../config.js'
+import { readErrors } from '../lib/conduit.js'
+
+/** The spec's feed page size: 15 articles are two pages of 10 plus 5. */
+const PAGE_SIZE = 10
+
+function TagSidebar() {
+  const tagsQuery = useQuery({ key: ['tags'], fetch: () => fetchTags() })
+  const tags = tagsQuery.data ?? []
+  return (
+    <div className="col-md-3">
+      <div className="sidebar">
+        <p>Popular Tags</p>
+        <div className="tag-list">
+          {tags.length === 0 ? <span className="tag-default tag-pill tag-outline">No tags yet</span> : null}
+          {tags.map((tag) => (
+            <Link className="tag-default tag-pill" key={tag} to={`/tag/${encodeURIComponent(tag)}`}>
+              {tag}
+            </Link>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/**
+ * `/`, `/?feed=following` and `/tag/:tag`: the feed the URL selects, its tags and its
+ * pager. The URL is the only source of the view, the tag and the page.
+ */
+export function Home() {
+  const { tag } = useParams()
+  const location = useLocation()
+  const [searchParams] = useSearchParams()
+  const { user, status } = useAuth<ConduitUser>()
+
+  const following = searchParams.get('feed') === 'following'
+  const page = Math.max(1, Number(searchParams.get('page') ?? '1') || 1)
+  const viewer = user ? user.username : 'anonymous'
+  const offset = (page - 1) * PAGE_SIZE
+
+  const listQuery = useQuery(
+    status === 'loading'
+      ? null
+      : following
+        ? { key: ['feed', viewer, page], fetch: () => fetchFeed({ limit: PAGE_SIZE, offset }) }
+        : {
+            key: ['articles', viewer, tag ?? 'all', page],
+            fetch: () => fetchArticles({ ...(tag ? { tag } : {}), limit: PAGE_SIZE, offset }),
+          },
+  )
+
+  if (following && status === 'unauthenticated') return <Navigate replace to="/login" />
+
+  const articles = listQuery.data?.articles ?? []
+  const total = listQuery.data?.articlesCount ?? 0
+
+  const hrefFor = (nextPage: number) => {
+    const params = new URLSearchParams(searchParams)
+    if (nextPage === 1) params.delete('page')
+    else params.set('page', String(nextPage))
+    const query = params.toString()
+    return query ? `${location.pathname}?${query}` : location.pathname
+  }
+
+  const tabClass = (active: boolean) => (active ? 'nav-link active' : 'nav-link')
+
+  return (
+    <div className="home-page">
+      {user ? null : (
+        <div className="banner">
+          <div className="container">
+            <h1 className="logo-font">Conduit</h1>
+            <p>A place to share your knowledge.</p>
+          </div>
+        </div>
+      )}
+
+      <div className="container page">
+        <div className="row">
+          <div className="col-md-9">
+            <div className="feed-toggle">
+              <ul className="nav nav-pills outline-active">
+                {user ? (
+                  <li className="nav-item">
+                    <Link className={tabClass(following)} to="/?feed=following">
+                      Your Feed
+                    </Link>
+                  </li>
+                ) : null}
+                <li className="nav-item">
+                  <Link className={tabClass(!following && !tag)} to="/">
+                    Global Feed
+                  </Link>
+                </li>
+                {tag ? (
+                  <li className="nav-item">
+                    <Link className={tabClass(true)} to={`/tag/${encodeURIComponent(tag)}`}>
+                      #{tag}
+                    </Link>
+                  </li>
+                ) : null}
+              </ul>
+            </div>
+
+            {listQuery.status === 'error' ? (
+              <ErrorMessages messages={readErrors(listQuery.error)} />
+            ) : null}
+
+            {listQuery.status === 'loading' ? <div className="article-preview">Loading articles...</div> : null}
+
+            {listQuery.status === 'success' && articles.length === 0 ? (
+              <div className="empty-feed-message">
+                {following ? (
+                  <>
+                    Your feed is empty. Follow some authors to see their articles here, or browse the{' '}
+                    <Link to="/">Global Feed</Link>.
+                  </>
+                ) : (
+                  <>No articles are here... yet.</>
+                )}
+              </div>
+            ) : null}
+
+            {articles.map((article) => (
+              <ArticlePreview article={article} key={article.slug} />
+            ))}
+
+            <Pagination hrefFor={hrefFor} limit={PAGE_SIZE} page={page} total={total} />
+          </div>
+          <TagSidebar />
+        </div>
+      </div>
+    </div>
+  )
+}

@@ -1,0 +1,131 @@
+import type { JSX } from 'react'
+import { Link, useLocation, useParams } from 'react-router'
+
+import { useQuery } from '@molecule/app-query-react'
+import { useAuth, useTranslation } from '@molecule/app-react'
+
+import { fetchArticles, fetchProfile } from '../api.js'
+import { ArticlePreview, FollowButton, Pagination } from '../components/Article.js'
+import { Avatar } from '../components/ConduitLayout.js'
+import type { ConduitUser } from '../config.js'
+
+const PAGE_SIZE = 10
+
+export function Profile(): JSX.Element {
+  const { t } = useTranslation()
+  const { username = '' } = useParams<{ username: string }>()
+  const location = useLocation()
+  const { user } = useAuth<ConduitUser>()
+  const viewer = user?.username ?? 'anonymous'
+  const label = (key: string, fallback: string) => t(key, undefined, { defaultValue: fallback })
+
+  const favoritesView = location.pathname.replace(/\/+$/, '').endsWith('/favorites')
+  const search = new URLSearchParams(location.search)
+  const rawPage = Number.parseInt(search.get('page') ?? '1', 10)
+  const page = Number.isFinite(rawPage) && rawPage > 0 ? rawPage : 1
+  const offset = (page - 1) * PAGE_SIZE
+
+  const profile = useQuery({
+    key: ['profile', username, viewer],
+    principal: viewer,
+    fetch: (signal: AbortSignal) => fetchProfile(username, signal),
+  })
+
+  const articles = useQuery({
+    key: ['profile-articles', username, favoritesView ? 'favorites' : 'authored', page, viewer],
+    principal: viewer,
+    keepPreviousData: true,
+    fetch: (signal: AbortSignal) =>
+      fetchArticles(
+        favoritesView
+          ? { favorited: username, limit: PAGE_SIZE, offset }
+          : { author: username, limit: PAGE_SIZE, offset },
+        signal,
+      ),
+  })
+
+  const isOwnProfile = Boolean(user && user.username === username)
+  const rows = articles.data?.articles ?? []
+  const totalPages = Math.max(1, Math.ceil((articles.data?.articlesCount ?? 0) / PAGE_SIZE))
+  const base = `/profile/${encodeURIComponent(username)}`
+  const hrefFor = (next: number): string => {
+    const path = favoritesView ? `${base}/favorites` : base
+    return next === 1 ? path : `${path}?page=${next}`
+  }
+
+  const item = profile.data
+
+  return (
+    <div className="profile-page">
+      <div className="user-info">
+        <div className="container">
+          <div className="row">
+            <div className="col-xs-12 col-md-10 offset-md-1">
+              {item ? (
+                <>
+                  <Avatar image={item.image} className="user-img" alt={item.username} />
+                  <h4>{item.username}</h4>
+                  <p>{item.bio ?? ''}</p>
+                  {isOwnProfile ? (
+                    <Link className="btn btn-sm btn-outline-secondary action-btn" to="/settings">
+                      <i className="ion-gear-a" />
+                      &nbsp;{label('conduit.profile.editSettings', 'Edit Profile Settings')}
+                    </Link>
+                  ) : (
+                    <FollowButton profile={item} size="sm" />
+                  )}
+                </>
+              ) : (
+                <p role="status">
+                  {profile.status === 'error'
+                    ? label('conduit.profile.notFound', 'This profile is not available.')
+                    : label('conduit.profile.loading', 'Loading profile...')}
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="container">
+        <div className="row">
+          <div className="col-xs-12 col-md-10 offset-md-1">
+            <div className="articles-toggle">
+              <ul className="nav nav-pills outline-active">
+                <li className="nav-item">
+                  <Link className={`nav-link${favoritesView ? '' : ' active'}`} to={base}>
+                    {label('conduit.profile.myArticles', 'My Articles')}
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <Link
+                    className={`nav-link${favoritesView ? ' active' : ''}`}
+                    to={`${base}/favorites`}
+                  >
+                    {label('conduit.profile.favoritedArticles', 'Favorited Articles')}
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            {articles.status === 'error' ? (
+              <p role="alert">{label('conduit.feed.loadFailed', 'Could not load articles.')}</p>
+            ) : null}
+
+            {articles.status === 'success' && rows.length === 0 ? (
+              <div className="article-preview">
+                {label('conduit.feed.empty', 'No articles are here... yet.')}
+              </div>
+            ) : null}
+
+            {rows.map((article) => (
+              <ArticlePreview key={article.slug} article={article} />
+            ))}
+
+            <Pagination page={page} totalPages={totalPages} hrefFor={hrefFor} />
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}

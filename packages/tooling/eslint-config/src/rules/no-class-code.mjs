@@ -1,5 +1,5 @@
 /**
- * CANONICAL static class-list check; sync with scripts/sync-eslint-rules.mjs.
+ * The `molecule-local/no-class-code` rule, a static class-list check.
  * JavaScript punctuation or quoted class names in a class string usually means a lost
  * template interpolation. This checks literal class values, never application selectors.
  */

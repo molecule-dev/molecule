@@ -1,0 +1,111 @@
+import { useEffect, useState } from 'react'
+import { Link, useNavigate } from 'react-router'
+
+import { useAuth } from '@molecule/app-react'
+
+import { formatDate, imageUrl, setFavorite, type Article } from '../api.js'
+import type { ConduitUser } from '../config.js'
+
+/**
+ * The heart/favorite control. Its class is the contract the app's tests read:
+ * `btn-outline-primary` while the article is not favorited, `btn-primary` once
+ * it is; its label toggles between "Favorite" and "Unfavorite".
+ */
+export function FavoriteButton({
+  article,
+  onChange,
+}: {
+  article: Article
+  onChange?: (article: Article) => void
+}) {
+  const { status } = useAuth<ConduitUser>()
+  const navigate = useNavigate()
+  const [favorited, setFavorited] = useState(article.favorited)
+  const [count, setCount] = useState(article.favoritesCount)
+  const [busy, setBusy] = useState(false)
+
+  useEffect(() => {
+    setFavorited(article.favorited)
+    setCount(article.favoritesCount)
+  }, [article.slug, article.favorited, article.favoritesCount])
+
+  async function toggle() {
+    if (status !== 'authenticated' && status !== 'unavailable') {
+      navigate('/login')
+      return
+    }
+    if (busy) return
+    setBusy(true)
+    const next = !favorited
+    setFavorited(next)
+    setCount((current) => Math.max(0, current + (next ? 1 : -1)))
+    try {
+      const saved = await setFavorite(article.slug, next)
+      setFavorited(saved.favorited)
+      setCount(saved.favoritesCount)
+      onChange?.(saved)
+    } catch {
+      setFavorited(!next)
+      setCount((current) => Math.max(0, current + (next ? -1 : 1)))
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={toggle}
+      data-mol-id="favorite-article"
+      className={`btn btn-sm ${favorited ? 'btn-primary' : 'btn-outline-primary'}`}
+    >
+      <i className="ion-heart" /> {favorited ? 'Unfavorite' : 'Favorite'} Article{' '}
+      <span className="counter">{count}</span>
+    </button>
+  )
+}
+
+/** Author line shared by article cards and the article page. */
+export function ArticleMeta({
+  article,
+  onChange,
+}: {
+  article: Article
+  onChange?: (article: Article) => void
+}) {
+  return (
+    <div className="article-meta">
+      <Link to={`/profile/${article.author.username}`}>
+        <img src={imageUrl(article.author.image)} alt={article.author.username} />
+      </Link>
+      <div className="info">
+        <Link className="author" to={`/profile/${article.author.username}`}>
+          {article.author.username}
+        </Link>
+        <span className="date">{formatDate(article.createdAt)}</span>
+      </div>
+      <FavoriteButton article={article} onChange={onChange} />
+    </div>
+  )
+}
+
+/** One card in a feed. */
+export function ArticlePreview({ article }: { article: Article }) {
+  return (
+    <div className="article-preview">
+      <ArticleMeta article={article} />
+      <Link className="preview-link" to={`/article/${article.slug}`}>
+        <h1>{article.title}</h1>
+        <p>{article.description}</p>
+        <span>Read more...</span>
+        <ul className="tag-list">
+          {article.tagList.map((tag) => (
+            <li key={tag} className="tag-default tag-pill tag-outline">
+              {tag}
+            </li>
+          ))}
+        </ul>
+      </Link>
+    </div>
+  )
+}

@@ -1,0 +1,97 @@
+import { useSearchParams, useParams, useLocation, Link } from 'react-router'
+
+import { useQuery } from '@molecule/app-query-react'
+import { useAuth } from '@molecule/app-react'
+
+import type { ArticleList, Profile as ProfileRecord } from '../lib/api.js'
+import { fetchArticles, fetchProfile } from '../lib/api.js'
+import { PAGE_SIZE, Pagination } from '../components/Pagination.js'
+import { ArticlePreview } from '../components/ArticlePreview.js'
+import { ProfileHeader } from '../components/ProfileHeader.js'
+import type { ConduitUser } from '../config.js'
+
+const EMPTY_PROFILE: ProfileRecord = { username: '', bio: null, image: null, following: false }
+
+/**
+ * `/profile/:username` and `/profile/:username/favorites` — the author's profile
+ * with their own articles or the ones they favorited.
+ */
+export function Profile() {
+  const { username = '' } = useParams<{ username: string }>()
+  const { pathname } = useLocation()
+  const [searchParams] = useSearchParams()
+  const { user } = useAuth<ConduitUser>()
+  const favorites = pathname.endsWith('/favorites')
+  const page = Math.max(1, Number(searchParams.get('page') ?? '1') || 1)
+  const offset = (page - 1) * PAGE_SIZE
+
+  const profile = useQuery<ProfileRecord>({
+    key: ['profile', username],
+    fetch: async () => fetchProfile(username),
+  })
+
+  const articles = useQuery<ArticleList>({
+    key: ['articles', favorites ? 'favorited' : 'author', username, page],
+    fetch: async () =>
+      favorites
+        ? fetchArticles({ favorited: username, limit: PAGE_SIZE, offset })
+        : fetchArticles({ author: username, limit: PAGE_SIZE, offset }),
+  })
+
+  const record = profile.data ?? { ...EMPTY_PROFILE, username }
+  const list = articles.data
+  const isOwnProfile = Boolean(user && user.username === username)
+  const base = `/profile/${encodeURIComponent(username)}`
+
+  return (
+    <div className="profile-page">
+      <ProfileHeader
+        profile={record}
+        isOwnProfile={isOwnProfile}
+        isAuthenticated={Boolean(user)}
+      />
+
+      <div className="container">
+        <div className="row">
+          <div className="col-xs-12 col-md-10 offset-md-1">
+            <div className="articles-toggle">
+              <ul className="nav nav-pills outline-active">
+                <li className="nav-item">
+                  <Link className={favorites ? 'nav-link' : 'nav-link active'} to={base}>
+                    My Articles
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <Link
+                    className={favorites ? 'nav-link active' : 'nav-link'}
+                    to={`${base}/favorites`}
+                  >
+                    Favorited
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            {(list?.articles ?? []).map((article) => (
+              <ArticlePreview article={article} key={article.slug} />
+            ))}
+
+            {list && list.articlesCount === 0 ? (
+              <div className="article-preview">
+                {favorites ? 'No favorited articles yet.' : 'No articles are here... yet.'}
+              </div>
+            ) : null}
+
+            {list ? (
+              <Pagination
+                count={list.articlesCount}
+                page={page}
+                href={(number) => (number === 1 ? base : `${base}?page=${number}`)}
+              />
+            ) : null}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}

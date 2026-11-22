@@ -1,0 +1,141 @@
+import { Link, useLocation, useParams, useSearchParams } from 'react-router'
+
+import { useAuth } from '@molecule/app-react'
+
+import { ArticlePreview } from '../components/ArticlePreview.js'
+import { FollowButton } from '../components/FollowButton.js'
+import { Pages } from '../components/Pagination.js'
+import type { SessionUser } from '../config.js'
+import { api } from '../lib/api.js'
+import { safeImage, text } from '../lib/format.js'
+import { useApiData } from '../lib/useApiData.js'
+
+const PAGE_SIZE = 10
+
+/** A user's profile with their articles, or the articles they favorited. */
+export function Profile() {
+  const { username = '' } = useParams()
+  const { pathname } = useLocation()
+  const [search] = useSearchParams()
+  const { user } = useAuth<SessionUser>()
+  const favorites = pathname.endsWith('/favorites')
+  const page = Math.max(1, Number(search.get('page')) || 1)
+  const offset = (page - 1) * PAGE_SIZE
+
+  const profileQuery = useApiData(`profile|${username}|${user?.username ?? ''}`, (signal) =>
+    api.getProfile(username, signal),
+  )
+  const list = useApiData(
+    `profile-articles|${username}|${favorites ? 'favorites' : 'authored'}|${page}|${user?.username ?? ''}`,
+    (signal) =>
+      favorites
+        ? api.listArticles({ favorited: username, limit: PAGE_SIZE, offset }, signal)
+        : api.listArticles({ author: username, limit: PAGE_SIZE, offset }, signal),
+  )
+
+  const profile = profileQuery.data?.profile ?? null
+
+  if (!profile) {
+    return (
+      <div className="profile-page">
+        <div className="user-info">
+          <div className="container">
+            <div className="row">
+              <div className="col-xs-12 col-md-10 offset-md-1">
+                <p className="empty-feed-message">
+                  {profileQuery.error?.[0] ?? 'Loading profile…'}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  const articles = list.data?.articles ?? []
+  const base = favorites ? `/profile/${username}/favorites` : `/profile/${username}`
+  const pageHref = (number: number) => (number === 1 ? base : `${base}?page=${number}`)
+
+  return (
+    <div className="profile-page">
+      <div className="user-info">
+        <div className="container">
+          <div className="row">
+            <div className="col-xs-12 col-md-10 offset-md-1">
+              <img className="user-img" src={safeImage(profile.image)} alt="" />
+              <h4>{profile.username}</h4>
+              <p>{text(profile.bio)}</p>
+              {user?.username === profile.username ? (
+                <Link to="/settings" className="btn btn-sm btn-outline-secondary action-btn">
+                  <i className="ion-gear-a" />
+                  &nbsp; Edit Profile Settings
+                </Link>
+              ) : (
+                <FollowButton
+                  profile={profile}
+                  className="btn btn-sm btn-outline-secondary action-btn"
+                  onChanged={() => profileQuery.reload()}
+                />
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="container">
+        <div className="row">
+          <div className="col-xs-12 col-md-10 offset-md-1">
+            <div className="articles-toggle">
+              <ul className="nav nav-pills outline-active">
+                <li className="nav-item">
+                  <Link
+                    className={favorites ? 'nav-link' : 'nav-link active'}
+                    to={`/profile/${username}`}
+                  >
+                    My Articles
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <Link
+                    className={favorites ? 'nav-link active' : 'nav-link'}
+                    to={`/profile/${username}/favorites`}
+                  >
+                    Favorited Articles
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            {list.error ? (
+              <div className="empty-feed-message">
+                {list.error.map((message) => (
+                  <p key={message}>{message}</p>
+                ))}
+              </div>
+            ) : null}
+
+            {articles.map((article) => (
+              <ArticlePreview key={article.slug} article={article} />
+            ))}
+
+            {!list.loading && !list.error && articles.length === 0 ? (
+              <div className="empty-feed-message">
+                <p>No articles are here... yet.</p>
+              </div>
+            ) : null}
+
+            {list.data ? (
+              <Pages
+                count={list.data.articlesCount}
+                page={page}
+                pageSize={PAGE_SIZE}
+                href={pageHref}
+              />
+            ) : null}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
