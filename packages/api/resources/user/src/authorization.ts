@@ -623,6 +623,63 @@ export interface VerifyMiddlewareOptions {
    * with (`createFetchClient({ baseURL, authScheme: 'Token' })`).
    */
   scheme?: string
+  /**
+   * Origins (`https://app.example.com`) that may send cookie-authenticated writes from another
+   * site, added to the `APP_ORIGIN` / `SITE_ORIGIN` values (comma-separated) the app already
+   * sets for CORS. See {@link verifyMiddleware} for the cross-site write rule they relax.
+   */
+  trustedOrigins?: readonly string[]
+}
+
+/** Methods a browser may send cross-site without changing state (RFC 9110 safe methods). */
+const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS'])
+
+/**
+ * Normalize an origin string to its `scheme://host[:port]` form, or `null` when it is not one.
+ * @param value - The origin or URL text.
+ * @returns The normalized origin, or `null`.
+ */
+const toOrigin = (value: string): string | null => {
+  try {
+    const origin = new URL(value.trim()).origin
+    return origin === 'null' ? null : origin
+  } catch (_error) {
+    // Not an absolute URL (an empty or malformed list entry): it trusts nothing.
+    return null
+  }
+}
+
+/**
+ * Whether a cookie-carried request is a write another site started (cross-site request forgery).
+ *
+ * Browsers label every request with `Sec-Fetch-Site`. A write the app's own page sends is
+ * `same-origin`; `none` is a request the user started (a typed URL). `same-site` and `cross-site`
+ * writes come from another page, which the `SameSite=Lax` session cookie does not stop when the
+ * two sites share a registrable domain (tenant apps under one parent domain), and the preview's
+ * `SameSite=None` cookie does not stop at all. Requests without the header (HTTP clients, test
+ * runners, older browsers) and safe methods keep today's behavior.
+ * @param req - The current request.
+ * @param trustedOrigins - Extra origins allowed to write with the cookie.
+ * @returns The rejected request's site and origin, or `null` when the cookie may be used.
+ */
+const crossSiteCookieWrite = (
+  req: MoleculeRequest,
+  trustedOrigins: readonly string[] | undefined,
+): { site: string; origin: string } | null => {
+  const method = (req as MoleculeRequest & { method?: string }).method?.toUpperCase()
+  if (!method || SAFE_METHODS.has(method)) return null
+  const rawSite = req.headers['sec-fetch-site']
+  const site = (Array.isArray(rawSite) ? rawSite[0] : rawSite)?.trim().toLowerCase()
+  if (!site || site === 'same-origin' || site === 'none') return null
+  const rawOrigin = req.headers.origin
+  const origin = toOrigin((Array.isArray(rawOrigin) ? rawOrigin[0] : rawOrigin) ?? '')
+  if (origin) {
+    const configured = [getConfig('APP_ORIGIN'), getConfig('SITE_ORIGIN')]
+      .flatMap((value) => (typeof value === 'string' ? value.split(',') : []))
+      .concat(trustedOrigins ?? [])
+    if (configured.some((entry) => toOrigin(entry) === origin)) return null
+  }
+  return { site, origin: origin ?? 'none' }
 }
 
 /**
@@ -641,7 +698,14 @@ export interface VerifyMiddlewareOptions {
  * optional viewer with `getUserId(res)` (from `@molecule/api-bonds-default-express`, `null`
  * when signed out), and a route that requires sign-in answers 401 itself when that is `null`,
  * in the app's own error shape. `authorizers.auth()` is the same check as route middleware.
- * @param options - {@link VerifyMiddlewareOptions} controlling the auto-refresh, cookie policy and scheme.
+ *
+ * **The cookie does not authenticate another site's writes.** A POST, PUT, PATCH or DELETE that
+ * carries only the session cookie, and that the browser labels `Sec-Fetch-Site: same-site` or
+ * `cross-site`, continues without a session (the request reaches the route signed out) unless
+ * its `Origin` is listed in `APP_ORIGIN`, `SITE_ORIGIN` or `trustedOrigins`. The app's own pages
+ * (`same-origin`), `Authorization` headers, safe methods and clients that send no
+ * `Sec-Fetch-Site` are unaffected.
+ * @param options - {@link VerifyMiddlewareOptions} controlling the auto-refresh, cookie policy, scheme and trusted origins.
  * @returns An Express-compatible middleware function.
  */
 export const verifyMiddleware =
@@ -689,9 +753,19 @@ export const verifyMiddleware =
         authMatch && acceptedSchemes.has(authMatch[1].toLowerCase()) ? authMatch[2].trim() : null
       const cookies = (req as unknown as { cookies?: Record<string, unknown> }).cookies
       const cookieToken = readAuthCookie(cookies, 'token')
-      const token =
-        headerToken ??
-        (allowCookieSession && typeof cookieToken === 'string' && cookieToken ? cookieToken : null)
+      let usableCookie =
+        !headerToken && allowCookieSession && typeof cookieToken === 'string' && cookieToken
+          ? cookieToken
+          : null
+      const forged = usableCookie ? crossSiteCookieWrite(req, options?.trustedOrigins) : null
+      if (forged) {
+        usableCookie = null
+        logger.warn(
+          `Ignored the session cookie on a ${forged.site} write from origin ${forged.origin}. ` +
+            'If that origin is this app, add it to APP_ORIGIN or verifyMiddleware({ trustedOrigins }).',
+        )
+      }
+      const token = headerToken ?? usableCookie
 
       if (!token) {
         return next()

@@ -208,6 +208,9 @@
  * Auth is ALREADY wired globally (the router's `verifyMiddleware` → `res.locals.session`),
  * so a handler reads the current user with `getUserId(res)` and does NOT add per-route auth
  * middleware (see the `auth` skill). Scope every custom user query by the authenticated id.
+ * The session cookie does not authenticate a write that another site started
+ * (`Sec-Fetch-Site: same-site`/`cross-site`); an app whose frontend is on another origin lists
+ * it in `APP_ORIGIN` (comma-separated) or `verifyMiddleware({ trustedOrigins })`.
  *
  * **A different wire format** (RealWorld's `{ user: { … } }`): the route handlers read a
  * FLAT body (`req.body.username`, `req.body.password`) and are not a wire-format adapter —

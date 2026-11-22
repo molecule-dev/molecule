@@ -637,6 +637,70 @@ describe('authorization', () => {
       expect(next).toHaveBeenCalled()
     })
 
+    // 2026-11-22 review: tenant apps share a parent domain that is not a public suffix, so a
+    // sibling app's page could send a body-less POST that the Lax session cookie authenticated.
+    describe('cookie writes started by another site', () => {
+      const session = { userId: 'u1', deviceId: 'd1' }
+      const request = (method: string, headers: Record<string, string>) => ({
+        ...makeReq({ method, headers }),
+        cookies: { token: 'cookie-token' },
+      })
+      const run = async (req: Record<string, unknown>, options?: { trustedOrigins?: string[] }) => {
+        const res = makeRes()
+        const next = vi.fn()
+        await verifyMiddleware(options)(req as never, res as never, next)
+        expect(next).toHaveBeenCalledTimes(1)
+        return res.locals.session
+      }
+      beforeEach(() => {
+        mockVerify.mockReturnValue(session)
+        mockDecode.mockReturnValue({ iat: Math.floor(Date.now() / 1000) })
+        mockGetConfig.mockImplementation((key: string) =>
+          key === 'APP_ORIGIN' ? 'https://app.example.com, https://admin.example.com' : '',
+        )
+      })
+
+      it('ignores the cookie on a same-site or cross-site POST/PATCH/DELETE', async () => {
+        const sibling = { 'sec-fetch-site': 'same-site', origin: 'https://other.example.com' }
+        expect(await run(request('POST', sibling))).toBeUndefined()
+        expect(await run(request('DELETE', sibling))).toBeUndefined()
+        const foreign = { 'sec-fetch-site': 'cross-site', origin: 'https://evil.test' }
+        expect(await run(request('PATCH', foreign))).toBeUndefined()
+        expect(mockVerify).not.toHaveBeenCalled()
+        expect(mockLogger.warn).toHaveBeenCalledWith(
+          expect.stringContaining('cross-site write from origin https://evil.test'),
+        )
+      })
+
+      it("keeps the cookie for the app's own pages, user-started requests, reads and non-browser clients", async () => {
+        expect(await run(request('POST', { 'sec-fetch-site': 'same-origin' }))).toBe(session)
+        expect(await run(request('POST', { 'sec-fetch-site': 'none' }))).toBe(session)
+        expect(await run(request('GET', { 'sec-fetch-site': 'cross-site' }))).toBe(session)
+        expect(await run(request('POST', {}))).toBe(session)
+      })
+
+      it('keeps the cookie for an origin in APP_ORIGIN or trustedOrigins', async () => {
+        const from = (origin: string) => ({ 'sec-fetch-site': 'same-site', origin })
+        expect(await run(request('POST', from('https://admin.example.com')))).toBe(session)
+        expect(await run(request('POST', from('https://ops.example.com')))).toBeUndefined()
+        expect(
+          await run(request('POST', from('https://ops.example.com')), {
+            trustedOrigins: ['https://ops.example.com/'],
+          }),
+        ).toBe(session)
+      })
+
+      it('never affects a header credential', async () => {
+        const headers = {
+          authorization: 'Bearer header-token',
+          'sec-fetch-site': 'cross-site',
+          origin: 'https://evil.test',
+        }
+        expect(await run(request('POST', headers))).toBe(session)
+        expect(mockVerify).toHaveBeenCalledWith('header-token')
+      })
+    })
+
     it('records the mount policy on res.locals even on a request that carries no token', async () => {
       // The sign-in request (POST /users/login) resolves no session — but the policy
       // must already be on the response, because THAT is the request `set()` writes
