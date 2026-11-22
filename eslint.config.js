@@ -1,6 +1,10 @@
+import { existsSync, readdirSync, readFileSync } from 'node:fs'
+import { join } from 'node:path'
+
 import eslint from '@eslint/js'
 import prettier from 'eslint-config-prettier'
 import jsdoc from 'eslint-plugin-jsdoc'
+import reactHooks from 'eslint-plugin-react-hooks'
 import simpleImportSort from 'eslint-plugin-simple-import-sort'
 import svelte from 'eslint-plugin-svelte'
 import tseslint from 'typescript-eslint'
@@ -107,6 +111,31 @@ const SOLID_TSX = [
   'packages/app/infrastructure/bonds-default-solid/**',
   'packages/app/bonds/routing/solid-router/**',
 ]
+
+/**
+ * The source globs of every app package whose package.json depends on React (in `dependencies` or
+ * `peerDependencies`), up to three directories below `packages/app`. Read from the manifests, not
+ * the names: a React package gets React's hook rules whatever it is called (`routing/react-router`,
+ * `embeddable-chat-widget`), and a Vue, Svelte, Solid or Angular package, whose `use*` functions
+ * follow their own framework's rules, never does.
+ */
+const REACT_SOURCES = []
+for (const pending = [['packages/app', 1]]; pending.length > 0;) {
+  const [dir, depth] = pending.pop()
+  for (const entry of readdirSync(join(import.meta.dirname, dir), { withFileTypes: true })) {
+    if (!entry.isDirectory() || entry.name === 'node_modules' || entry.name.startsWith('.'))
+      continue
+    const pkgDir = join(dir, entry.name)
+    const manifest = join(import.meta.dirname, pkgDir, 'package.json')
+    if (existsSync(manifest)) {
+      const { dependencies = {}, peerDependencies = {} } = JSON.parse(
+        readFileSync(manifest, 'utf8'),
+      )
+      if ('react' in dependencies || 'react' in peerDependencies)
+        REACT_SOURCES.push(`${pkgDir}/src/**/*.{ts,tsx}`)
+    } else if (depth < 3) pending.push([pkgDir, depth + 1])
+  }
+}
 
 /** The naming-convention rule entry: PascalCase only for types and const values. */
 const NAMING_CONVENTION = [
@@ -424,6 +453,19 @@ export default tseslint.config(
     ignores: ['**/__tests__/**', '**/*.test.tsx', '**/*.spec.tsx', '**/*.stories.tsx'],
     rules: {
       'molecule-local/no-literal-ui-text': 'error',
+    },
+  },
+  {
+    // React's hook rules on every React package. A hook that reads state its callback closed over
+    // in an earlier render acts on stale values: ChatPanel's `/undo` read the undone tool calls
+    // from the render its command callback was created in, so a second `/undo` reverted the same
+    // files again (2026-11-17).
+    files: REACT_SOURCES,
+    ignores: ['**/__tests__/**', '**/*.test.{ts,tsx}', '**/*.spec.{ts,tsx}'],
+    plugins: { 'react-hooks': reactHooks },
+    rules: {
+      'react-hooks/rules-of-hooks': 'error',
+      'react-hooks/exhaustive-deps': 'error',
     },
   },
   {
