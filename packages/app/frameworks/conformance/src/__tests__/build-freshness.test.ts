@@ -15,6 +15,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import {
   assertBuiltFromSource,
   buildStaleness,
+  conformanceRunRoots,
   packageRootOf,
   staleBuilds,
 } from '../build-freshness.js'
@@ -168,5 +169,65 @@ describe('build freshness', () => {
     expect(packageRootOf(join(root, 'packages', 'a', 'src', '__tests__', 'index.test.ts'))).toBe(
       join(root, 'packages', 'a'),
     )
+  })
+})
+
+describe('conformance run roots', () => {
+  const KIT = '@molecule/app-framework-conformance'
+
+  it('a binding run does not check the UI kit it never loads (OLD MUSTFAIL: refused app-ui-solid, never built)', () => {
+    workspace([
+      { name: KIT, source: EARLIER, built: null, buildScript: false },
+      { name: '@molecule/app-solid', source: LATER, built: BUILT },
+      { name: '@molecule/app-ui-solid', source: EARLIER, built: null },
+    ])
+    const binding = { name: '@molecule/app-solid', devDependencies: { [KIT]: '1.0.0' } }
+    const roots = conformanceRunRoots('solid', binding, KIT)
+    expect(roots).not.toContain('@molecule/app-ui-solid')
+    expect(staleBuilds(roots, root, ['@molecule/app-solid'])).toEqual([])
+  })
+
+  it('a port that declares the binding and UI kit checks both', () => {
+    workspace([
+      { name: KIT, source: EARLIER, built: null, buildScript: false },
+      { name: '@molecule/app-solid', source: LATER, built: BUILT },
+      { name: '@molecule/app-ui-solid', source: EARLIER, built: null },
+    ])
+    const port = {
+      name: '@molecule/app-ide-solid',
+      peerDependencies: { '@molecule/app-solid': '^3.0.0', '@molecule/app-ui-solid': '^1.0.0' },
+    }
+    expect(
+      staleBuilds(conformanceRunRoots('solid', port, KIT), root, ['@molecule/app-ide-solid']).map(
+        (s) => s.name,
+      ),
+    ).toEqual(['@molecule/app-solid', '@molecule/app-ui-solid'])
+  })
+
+  it('counterexample: a package that declares them only as devDependencies still checks them', () => {
+    workspace([
+      { name: KIT, source: EARLIER, built: null, buildScript: false },
+      { name: '@molecule/app-react', source: EARLIER, built: BUILT },
+      { name: '@molecule/app-ui-react', source: LATER, built: BUILT },
+    ])
+    const kit = {
+      name: KIT,
+      devDependencies: { '@molecule/app-react': '4.0.0', '@molecule/app-ui-react': '4.0.0' },
+    }
+    expect(staleBuilds(conformanceRunRoots('react', kit, KIT), root, [KIT])).toEqual([
+      {
+        name: '@molecule/app-ui-react',
+        dir: join(root, 'packages', 'app-ui-react'),
+        reason: 'src/ changed after its last build',
+      },
+    ])
+  })
+
+  it('with no package known, checks the binding and the UI kit', () => {
+    expect(conformanceRunRoots('vue', null, KIT)).toEqual([
+      KIT,
+      '@molecule/app-vue',
+      '@molecule/app-ui-vue',
+    ])
   })
 })

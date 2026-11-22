@@ -188,10 +188,53 @@ export function packageRootOf(file: string): string | null {
 const KIT_DIR = packageRootOf(fileURLToPath(import.meta.url))
 
 /**
+ * Whether a manifest names a package in any dependency field, devDependencies included.
+ *
+ * @param manifest - A parsed package.json.
+ * @param name - The package name.
+ * @returns True when the manifest declares it.
+ */
+function declares(manifest: Record<string, unknown>, name: string): boolean {
+  return ['dependencies', 'peerDependencies', 'optionalDependencies', 'devDependencies'].some(
+    (field) => {
+      const deps = manifest[field]
+      return typeof deps === 'object' && deps !== null && name in deps
+    },
+  )
+}
+
+/**
+ * The packages a framework package's conformance run imports from a build: the package's runtime
+ * `@molecule/*` dependencies, this kit, and the framework's binding and UI kit where the package
+ * declares them (in any field: a port declares them as peers, the kit's own React runs as
+ * devDependencies). A binding's run never loads the framework's UI kit, and the build of a
+ * package's dependencies leaves an undeclared one out, so only a declared one is checked
+ * (2026-11-22: the release refused every app-solid and app-svelte run on an app-ui-solid and
+ * app-ui-svelte it had correctly not built). With no package known, both are checked.
+ *
+ * @param framework - The adapter's framework name (`vue`, `solid`, `svelte`, `angular`, `react`).
+ * @param own - The manifest of the package under test, or null when the test file is unknown.
+ * @param kitName - This kit's package name.
+ * @returns The package names the run imports from a build.
+ */
+export function conformanceRunRoots(
+  framework: string,
+  own: Record<string, unknown> | null,
+  kitName: string,
+): string[] {
+  const frameworkPackages = [`@molecule/app-${framework}`, `@molecule/app-ui-${framework}`]
+  return [
+    ...(own ? runtimeMoleculeDeps(own) : []),
+    kitName,
+    ...frameworkPackages.filter((name) => !own || declares(own, name)),
+  ]
+}
+
+/**
  * Refuses a framework package's conformance run (a port, a UI kit, a binding) when what it
- * imports from a build is stale: the framework's binding and UI kit, this kit's own runtime
- * dependencies, and the package's runtime dependencies. The package under test is imported from
- * its source, so its own build is never checked.
+ * imports from a build is stale: the packages {@link conformanceRunRoots} names and what they
+ * need at runtime. The package under test is imported from its source, so its own build is never
+ * checked.
  *
  * @param framework - The adapter's framework name (`vue`, `solid`, `svelte`, `angular`, `react`).
  * @param testFile - The running test file (vitest's `expect.getState().testPath`), when known.
@@ -206,11 +249,6 @@ export function assertConformanceRunBuilt(framework: string, testFile: string | 
     ? JSON.parse(readFileSync(join(ownDir, 'package.json'), 'utf8'))
     : null
   const ownName = typeof own?.name === 'string' ? own.name : null
-  const roots = [
-    ...(own ? runtimeMoleculeDeps(own) : []),
-    String(kit.name),
-    `@molecule/app-${framework}`,
-    `@molecule/app-ui-${framework}`,
-  ]
+  const roots = conformanceRunRoots(framework, own, String(kit.name))
   assertBuiltFromSource(roots, ownDir ?? KIT_DIR, ownName ? [ownName] : [])
 }
