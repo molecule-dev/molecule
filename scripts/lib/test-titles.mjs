@@ -8,104 +8,125 @@
  * test is a table test with the same template. `.skip` and `.todo` titles declare no test that
  * runs and are not read; `describe` names are not read.
  *
+ * The file is parsed with TypeScript, so only real calls count: an "it (" or "test (" in a
+ * string, a comment or a fixture's source text declares nothing (a text scan read the assertion
+ * string "update it (`npm install …`)" as a test titled "npm install …").
+ *
  * @module
  */
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { join, relative } from 'node:path'
 
+import ts from 'typescript'
+
 /** A test file name: `x.test.ts`, `x.spec.tsx`, `x.svelte.test.ts`, `x.test.mjs`, … */
 const TEST_FILE = /\.(test|spec)\.[cm]?[jt]sx?$/
 
+/** The test functions whose calls declare titles. */
+const TEST_FUNCTIONS = new Set(['it', 'test'])
+
+/** Modifiers whose call takes a table first and returns the call that takes the title. */
+const TABLES = new Set(['each', 'for'])
+
+/** Modifiers whose call takes a condition first and returns the call that takes the title. */
+const CONDITIONS = new Set(['runIf', 'skipIf'])
+
 /**
- * The index just past the backtick closing a template literal, skipping escapes and the
- * strings, templates and brackets inside each `${…}`.
+ * The script kind TypeScript parses a file name as (`x.tsx` holds JSX, `x.ts` may hold `<T>x`).
  *
- * @param text - The source.
- * @param from - The index after the opening backtick.
- * @returns The index after the closing backtick, or -1 when it never closes.
+ * @param fileName - The file's name.
+ * @returns The kind.
  */
-const templateEnd = (text, from) => {
-  for (let i = from; i >= 0 && i < text.length; i++) {
-    if (text[i] === '\\') i++
-    else if (text[i] === '`') return i + 1
-    else if (text[i] === '$' && text[i + 1] === '{') {
-      const end = closeOf(text, i + 2)
-      if (end < 0) return -1
-      i = end - 1
-    }
+const scriptKindOf = (fileName) =>
+  /\.tsx$/.test(fileName)
+    ? ts.ScriptKind.TSX
+    : /\.jsx$/.test(fileName)
+      ? ts.ScriptKind.JSX
+      : /\.[cm]?js$/.test(fileName)
+        ? ts.ScriptKind.JS
+        : ts.ScriptKind.TS
+
+/**
+ * The modifiers of a test function reference (`it.concurrent.only` → `['concurrent', 'only']`).
+ *
+ * @param node - A callee or tag.
+ * @returns The modifiers, or null when the reference is not `it` or `test` (`cache.it` is not).
+ */
+const modifiersOf = (node) => {
+  const names = []
+  let n = node
+  while (ts.isPropertyAccessExpression(n)) {
+    names.unshift(n.name.text)
+    n = n.expression
   }
-  return -1
+  return ts.isIdentifier(n) && TEST_FUNCTIONS.has(n.text) ? names : null
 }
 
 /**
- * The index just past the bracket closing the one opened right before `from`, skipping
- * strings, template literals and comments.
+ * The modifiers of the test function a call declares a title with, when it does.
  *
- * @param text - The source.
- * @param from - The index after the opening bracket.
- * @returns The index after the closing bracket, or -1 when it never closes.
+ * @param call - A call expression.
+ * @returns The modifiers, or null when its first argument is not a test title.
  */
-const closeOf = (text, from) => {
-  let depth = 1
-  for (let i = from; i < text.length; i++) {
-    const c = text[i]
-    if (c === '`') {
-      const end = templateEnd(text, i + 1)
-      if (end < 0) return -1
-      i = end - 1
-    } else if (c === '"' || c === "'") {
-      for (i++; i < text.length && text[i] !== c; i++) if (text[i] === '\\') i++
-    } else if (c === '/' && text[i + 1] === '/') {
-      const end = text.indexOf('\n', i)
-      i = end === -1 ? text.length : end
-    } else if (c === '/' && text[i + 1] === '*') {
-      const end = text.indexOf('*/', i + 2)
-      i = end === -1 ? text.length : end + 1
-    } else if (c === '(' || c === '[' || c === '{') depth++
-    else if (c === ')' || c === ']' || c === '}') {
-      depth--
-      if (depth === 0) return i + 1
-    }
+const titleCallModifiers = (call) => {
+  const callee = call.expression
+  const direct = modifiersOf(callee)
+  // `it.each([...])` itself takes the table; the call it returns takes the title.
+  if (direct) return direct.some((m) => TABLES.has(m) || CONDITIONS.has(m)) ? null : direct
+  if (ts.isCallExpression(callee)) {
+    const first = modifiersOf(callee.expression)
+    return first?.some((m) => TABLES.has(m) || CONDITIONS.has(m)) ? first : null
   }
-  return -1
+  if (ts.isTaggedTemplateExpression(callee)) {
+    const first = modifiersOf(callee.tag)
+    return first?.some((m) => TABLES.has(m)) ? first : null
+  }
+  return null
 }
 
 /**
  * The titles one test file declares, in order.
  *
  * @param text - The file's source.
- * @returns The titles (a title declared twice is listed twice).
+ * @param [fileName] - Its name, which picks the parse (`.tsx` and `.jsx` hold JSX); `x.test.ts` by default.
+ * @returns The titles as written between their quotes, a `'a ' + 'b'` title joined (a title
+ *   declared twice is listed twice).
  */
-export const titlesIn = (text) => {
-  const out = []
-  for (const m of text.matchAll(/(?<![\w$.])(?:it|test)((?:\s*\.\s*[A-Za-z]+)*)\s*([(`])/g)) {
-    const modifiers = m[1]
-      .split('.')
-      .map((x) => x.trim())
-      .filter(Boolean)
-    if (modifiers.some((x) => x === 'skip' || x === 'todo')) continue
-    const table = modifiers.some((x) => ['each', 'for'].includes(x))
-    // A tagged template is a table (`it.each\`a | b\`(…)`), nothing else.
-    if (m[2] === '`' && !table) continue
-    let at = m.index + m[0].length
-    // A table or a condition comes first: skip its call (or template), then read the title of the
-    // call it returns.
-    if (m[2] === '`') {
-      at = templateEnd(text, at)
-      if (at < 0) continue
-      const next = /^\s*\(/.exec(text.slice(at))
-      if (!next) continue
-      at += next[0].length
-    } else if (table || modifiers.some((x) => ['runIf', 'skipIf'].includes(x))) {
-      at = closeOf(text, at)
-      if (at < 0) continue
-      const next = /^\s*\(/.exec(text.slice(at))
-      if (!next) continue
-      at += next[0].length
+export const titlesIn = (text, fileName = 'x.test.ts') => {
+  const source = ts.createSourceFile(
+    fileName,
+    text,
+    ts.ScriptTarget.Latest,
+    false,
+    scriptKindOf(fileName),
+  )
+  // A title as written between its quotes; a long one split with `+` reads as its pieces joined.
+  const titleOf = (node) => {
+    if (
+      ts.isStringLiteral(node) ||
+      ts.isNoSubstitutionTemplateLiteral(node) ||
+      ts.isTemplateExpression(node)
+    )
+      return text.slice(node.getStart(source) + 1, node.end - 1)
+    if (ts.isParenthesizedExpression(node)) return titleOf(node.expression)
+    if (ts.isBinaryExpression(node) && node.operatorToken.kind === ts.SyntaxKind.PlusToken) {
+      const left = titleOf(node.left)
+      const right = left === null ? null : titleOf(node.right)
+      return right === null ? null : left + right
     }
-    const title = /^\s*(['"`])((?:\\.|(?!\1)[^\\])*)\1/s.exec(text.slice(at))
-    if (title) out.push(title[2])
+    return null
   }
+  const out = []
+  const visit = (node) => {
+    if (ts.isCallExpression(node)) {
+      const modifiers = titleCallModifiers(node)
+      const title = node.arguments.length > 0 ? titleOf(node.arguments[0]) : null
+      if (modifiers && !modifiers.some((m) => m === 'skip' || m === 'todo') && title !== null)
+        out.push(title)
+    }
+    ts.forEachChild(node, visit)
+  }
+  visit(source)
   return out
 }
 
@@ -140,7 +161,7 @@ export const testFilesOf = (dir) => {
 export const testTitlesOf = (dir, keep = () => true) => {
   const out = new Map()
   for (const file of testFilesOf(dir).filter(keep))
-    for (const title of titlesIn(readFileSync(join(dir, file), 'utf8')))
+    for (const title of titlesIn(readFileSync(join(dir, file), 'utf8'), file))
       if (!out.has(title)) out.set(title, file)
   return out
 }

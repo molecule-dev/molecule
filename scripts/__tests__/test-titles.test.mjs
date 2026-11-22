@@ -28,6 +28,17 @@ it('it\\'s escaped', () => {})`),
     ).toEqual(['single', 'double', 'template', "it\\'s escaped"])
   })
 
+  it('reads a title split with + as its pieces joined', () => {
+    expect(
+      titlesIn(`it(
+  'form-encodes the request (was: an object, which ' +
+    'sent JSON)',
+  () => {},
+)
+it(label + ' computed', () => {})`),
+    ).toEqual(['form-encodes the request (was: an object, which sent JSON)'])
+  })
+
   it('reads a table title as its template, past a table holding brackets, strings and comments', () => {
     expect(
       titlesIn(`it.each([
@@ -72,6 +83,28 @@ xit('disabled', () => {})
 cache.it('a method', () => {})
 submit('a call', () => {})`),
     ).toEqual([])
+  })
+
+  it('counterexample: reads no title from a string, comment or fixture that mentions it or test', () => {
+    expect(
+      titlesIn(`it('the real one', () => {
+  expect(message).toContain('the bond is older: update it (\`npm install x@latest\`)')
+  expect(hint).toBe("or test ('a', 'b') again")
+})
+// it('commented out', () => {})
+/* test('in a block comment', () => {}) */
+const fixture = "it('in a fixture string', () => {})"
+const source = \`test('in a fixture template', () => {})\``),
+    ).toEqual(['the real one'])
+  })
+
+  it('parses a .tsx file as JSX and a .ts file with a type assertion', () => {
+    expect(
+      titlesIn(`it('renders', () => render(<p title="it (x)">{'test (y)'}</p>))`, 'a.test.tsx'),
+    ).toEqual(['renders'])
+    expect(titlesIn(`it('asserts', () => (<number>value).toFixed())`, 'a.test.ts')).toEqual([
+      'asserts',
+    ])
   })
 })
 
