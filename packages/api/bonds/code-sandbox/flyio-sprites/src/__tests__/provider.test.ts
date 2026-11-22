@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import { SPRITES_ACCESS_SHIM_PATH } from '../access-shim.js'
 import { spriteNameFor } from '../names.js'
@@ -451,8 +451,16 @@ describe('verifyEgress', () => {
       { defaultNetworkRules: rules, egressPropagationMs: 5_000 },
       client,
     )
-    const verdict = await provider.verifyEgress()
-    expect(verdict.state).toBe('filtered')
+    // The re-probe waits out a 3 s poll; fake timers run it at once instead of sleeping.
+    vi.useFakeTimers()
+    try {
+      const pending = provider.verifyEgress()
+      await vi.advanceTimersByTimeAsync(5_000)
+      const verdict = await pending
+      expect(verdict.state).toBe('filtered')
+    } finally {
+      vi.useRealTimers()
+    }
     expect(canaryProbes).toBeGreaterThan(1) // it re-probed after the first reachable result
   })
 

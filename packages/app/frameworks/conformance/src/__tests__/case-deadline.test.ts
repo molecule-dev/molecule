@@ -57,16 +57,20 @@ const twoClicks: UICase = {
   ],
 }
 
+/** The deadline the hung cases below run under: well inside their 1.5 s timeout. */
+const HUNG_DEADLINE_MS = 200
+
 describe('the case deadline', () => {
+  // These two give the steps a deadline of their own. Under the default one (this test's timeout
+  // less a fifth) a hung case spends 80% of its test's limit by design, whatever that limit is.
   it('fails a hung case at the step it hung on and still tears it down', async () => {
     const log: string[] = []
     const component = hangingComponent(log)
     const started = Date.now()
-    await expect(runSteps(twoClicks, component.mount, new CallRecorder({}))).rejects.toThrow(
-      '"a step that never settles" hung at step 1 (click)',
-    )
-    // Inside this test's own 1.5 s timeout: the deadline keeps a fifth of it for the teardown.
-    expect(Date.now() - started).toBeLessThan(1_300)
+    await expect(
+      runSteps(twoClicks, component.mount, new CallRecorder({}), null, HUNG_DEADLINE_MS),
+    ).rejects.toThrow('"a step that never settles" hung at step 1 (click)')
+    expect(Date.now() - started).toBeLessThan(1_000)
     expect(log).toEqual(['click', 'unmount', 'dispose'])
     // The hung step settling later runs no further step: the case is over.
     component.release()
@@ -78,7 +82,13 @@ describe('the case deadline', () => {
     const log: string[] = []
     const component = hangingComponent(log)
     await expect(
-      runSteps({ ...twoClicks, fakeTimers: true }, component.mount, new CallRecorder({})),
+      runSteps(
+        { ...twoClicks, fakeTimers: true },
+        component.mount,
+        new CallRecorder({}),
+        null,
+        HUNG_DEADLINE_MS,
+      ),
     ).rejects.toThrow('hung at step 1 (click)')
     expect(log).toEqual(['click', 'unmount', 'dispose'])
   }, 1_500)

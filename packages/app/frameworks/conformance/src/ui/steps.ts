@@ -490,6 +490,9 @@ export interface MountedCase {
  * @param recorder - The recorder the adapter wired into the callbacks.
  * @param app - The full service set, when the case mounts through the binding's
  *   composition root (`RunOptions.app`); its controls run `http`, `auth` and `control` steps.
+ * @param deadlineMs - Milliseconds the steps may run, or `null` for no deadline; by default the
+ *   current test's timeout less its teardown margin ({@link withinCaseDeadline}), read when the
+ *   steps start.
  * @returns Snapshots and calls.
  */
 export async function runSteps(
@@ -497,6 +500,7 @@ export async function runSteps(
   mount: (container: HTMLElement) => Promise<MountedCase>,
   recorder: CallRecorder,
   app: AppServices | null = null,
+  deadlineMs?: number | null,
 ): Promise<CaseResult> {
   checkCaseFields(testCase)
   installCaseClock(testCase)
@@ -561,19 +565,23 @@ export async function runSteps(
       pages?.push(capturePage(document))
     }
     // A step that never settles fails the case here, so the `finally` below still tears down.
-    await withinCaseDeadline(testCase.name, async (progress) => {
-      await mounted.flush()
-      snap()
-      let renderedAt = Date.now()
-      for (const [index, step] of (testCase.interactions ?? []).entries()) {
-        if (progress.abandoned) return
-        progress.at = `step ${index + 1} (${step.type})`
-        afterRenderMillisecond(renderedAt)
-        applyLayout()
-        snap(await runStep(step, mounted, recorder, app, page, state))
-        renderedAt = Date.now()
-      }
-    })
+    await withinCaseDeadline(
+      testCase.name,
+      async (progress) => {
+        await mounted.flush()
+        snap()
+        let renderedAt = Date.now()
+        for (const [index, step] of (testCase.interactions ?? []).entries()) {
+          if (progress.abandoned) return
+          progress.at = `step ${index + 1} (${step.type})`
+          afterRenderMillisecond(renderedAt)
+          applyLayout()
+          snap(await runStep(step, mounted, recorder, app, page, state))
+          renderedAt = Date.now()
+        }
+      },
+      deadlineMs,
+    )
   } catch (error) {
     failed = { error }
   }

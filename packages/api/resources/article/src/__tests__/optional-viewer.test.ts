@@ -34,7 +34,9 @@ function diagnostics(body: string): Array<{ code: number; message: string }> {
   }
 }
 
-describe('public article reads compose with optional auth identities', () => {
+// Each case builds a TypeScript program from cold (the lib files, @types/node, this package's
+// declarations): 2.6 s of the default 5 s in CI on 2026-11-21, so the limit is sized to that work.
+describe('public article reads compose with optional auth identities', { timeout: 20_000 }, () => {
   it('compiles a newsletter reader whose auth helper returns string or null', () => {
     expect(
       diagnostics(`
