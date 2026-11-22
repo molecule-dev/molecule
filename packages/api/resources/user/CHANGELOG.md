@@ -1,5 +1,15 @@
 # @molecule/api-resource-user
 
+## 1.11.0
+
+### Minor Changes
+
+- The session cookie no longer authenticates a write that another site started; `verifyMiddleware({ trustedOrigins })` and `APP_ORIGIN` list origins that may.
+
+### Patch Changes
+
+- Password reset answers 501 `user.error.passwordResetUnavailable` when no email provider is bonded, instead of reporting success.
+
 ## 1.10.4
 
 ### Patch Changes

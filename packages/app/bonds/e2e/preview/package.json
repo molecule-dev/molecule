@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-e2e-preview",
-  "version": "1.0.14",
+  "version": "1.1.0",
   "description": "Drives the live IDE preview page as a Playwright-shaped page over a same-origin WebSocket through the dev server — no browser binary in the sandbox",
   "type": "module",
   "main": "dist/index.js",

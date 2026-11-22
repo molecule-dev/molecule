@@ -1,5 +1,11 @@
 # @molecule/api-locales-user
 
+## 1.2.0
+
+### Minor Changes
+
+- Password reset answers 501 `user.error.passwordResetUnavailable` when no email provider is bonded, instead of reporting success.
+
 ## 1.1.4
 
 ### Patch Changes
