@@ -19,7 +19,7 @@ import { render } from 'solid-js/web'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { AuthState } from '@molecule/app-auth'
-import { createSimpleI18nProvider } from '@molecule/app-i18n'
+import { createSimpleI18nProvider, I18nError } from '@molecule/app-i18n'
 import { createMemoryRouter } from '@molecule/app-routing'
 import type * as AppSolidBinding from '@molecule/app-solid'
 
@@ -156,5 +156,39 @@ describe('AuthGuard reads the session status (xr-molecule-flash-m177)', () => {
 
     expect(bodyText()).toContain('login page')
     expect(bodyText()).not.toContain('protected page')
+  })
+
+  it('AuthGuard without children throws when there is no routed view', () => {
+    mockAuth.state = {
+      ...mockAuth.state,
+      status: 'authenticated',
+      initialized: false,
+      authenticated: true,
+      user: { id: 'ann' },
+    }
+    // A router with no routed view: the guard falls back to `RoutedView`.
+    const router = createMemoryRouter({ initialEntries: ['/'] })
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
+    let thrown: unknown
+    try {
+      disposers.push(
+        render(
+          () => (
+            <MoleculeProvider router={router} i18n={createSimpleI18nProvider()}>
+              <AuthGuard />
+            </MoleculeProvider>
+          ),
+          container,
+        ),
+      )
+    } catch (error) {
+      thrown = error
+    } finally {
+      consoleError.mockRestore()
+    }
+    expect(thrown).toBeInstanceOf(I18nError)
+    expect(thrown).toMatchObject({ i18nKey: 'solid.error.noRoutedView' })
   })
 })

@@ -1,10 +1,12 @@
 import type { JSX } from 'react'
-import { Link, useLocation } from 'react-router'
+
+import { useLocation } from '@molecule/app-react'
+import { Link } from '@molecule/app-react/link'
 
 import type { SafeLinkProps } from './types.js'
 
 /**
- * `<SafeLink>` renders a react-router `Link`, but if its destination
+ * `<SafeLink>` renders a `Link` from `@molecule/app-react/link`, but if its destination
  * matches the current path it appends a `#top` fragment so clicking
  * still produces an observable URL change.
  *

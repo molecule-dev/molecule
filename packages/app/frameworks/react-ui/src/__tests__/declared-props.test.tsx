@@ -13,10 +13,6 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import type * as AppReact from '@molecule/app-react'
 
-vi.mock('react-router', () => ({
-  useLocation: () => ({ pathname: '/', search: '' }),
-}))
-
 vi.mock('@molecule/app-ui', () => ({
   getClassMap: () =>
     new Proxy(
@@ -43,6 +39,7 @@ vi.mock('@molecule/app-icons', () => ({
 
 vi.mock('@molecule/app-react', async () => ({
   ...(await vi.importActual<typeof AppReact>('@molecule/app-react')),
+  useLocation: () => ({ pathname: '/', search: '' }),
   useTranslation: () => ({
     t: (key: string, _values: unknown, options?: { defaultValue?: string }) =>
       options?.defaultValue ?? key,

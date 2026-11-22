@@ -18,6 +18,10 @@ import {
 } from 'svelte'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+// The current location the `useLocation` fake reads, so a test can move the
+// active path before it renders.
+const locationState = vi.hoisted(() => ({ pathname: '/dashboard' }))
+
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
 // `pageShell`), so tests can assert which cm.* class was applied without a real
 // bond — the same mock the React tests use.
@@ -41,16 +45,18 @@ vi.mock('@molecule/app-ui', () => ({
   },
 }))
 
-// The router markers the React tests mock `react-router` with: `Link` renders
-// an anchor, and the location is a fixed page path. The binding's `t` resolves
-// a key's inline English default; the nav label's own test file exercises a
-// marking provider.
+// The router markers: `Link` renders an anchor, the location is the current
+// {@link locationState}, and `RoutedView` renders the routed page. The
+// binding's `t` resolves a key's inline English default; the nav label's own
+// test file exercises a marking provider.
 vi.mock('@molecule/app-svelte', async () => {
   const { default: Link } = await import('./LinkMock.svelte')
+  const { default: RoutedView } = await import('./RoutedViewMock.svelte')
   const { readable } = await import('svelte/store')
   return {
     Link,
-    useLocation: () => readable({ pathname: '/dashboard', search: '', hash: '' }),
+    RoutedView,
+    useLocation: () => readable({ pathname: locationState.pathname, search: '', hash: '' }),
     useTranslation: () => ({
       t: (
         key: string,
@@ -66,6 +72,15 @@ const { SidebarLayout } = await import('../components.js')
 /** A snippet rendering the given markup, the way a caller fills a slot. */
 const raw = (html: string): Snippet => createRawSnippet(() => ({ render: () => html }))
 
+/**
+ * The inner markup of the layout's `<main>`.
+ *
+ * @param markup - The rendered markup.
+ * @returns The main content.
+ */
+const mainContent = (markup: string): string =>
+  markup.match(/<main[^>]*>([\s\S]*)<\/main>/)?.[1] ?? ''
+
 const navItems = [
   { to: '/dashboard', key: 'dashboard', label: 'Dashboard' },
   { to: '/settings', key: 'settings', label: 'Settings' },
@@ -76,6 +91,7 @@ const mounted: Array<ReturnType<typeof mount>> = []
 afterEach(() => {
   for (const instance of mounted.splice(0)) void unmount(instance)
   document.body.innerHTML = ''
+  locationState.pathname = '/dashboard'
 })
 
 /**
@@ -120,12 +136,15 @@ describe('SidebarLayout', () => {
     expect(markup.match(/aria-current="page"/g) ?? []).toHaveLength(1)
   })
 
-  it('renders the Outlet for nested routes', () => {
-    const markup = render({
-      appName: 'Acme',
-      children: raw('<div data-outlet></div>'),
-    })
-    expect(markup).toContain('data-outlet')
+  it('renders the routed page in main when it has no children', () => {
+    const markup = render({ appName: 'Acme' })
+    expect(mainContent(markup)).toContain('<div data-outlet=""></div>')
+  })
+
+  it('renders its children instead of the routed page', () => {
+    const markup = render({ appName: 'Acme', children: raw('<p>Page body</p>') })
+    expect(mainContent(markup)).toContain('<p>Page body</p>')
+    expect(markup).not.toContain('data-outlet')
   })
 
   it('renders the userMenu and themeToggle slots', () => {

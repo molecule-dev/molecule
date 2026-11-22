@@ -5,10 +5,14 @@
   by Tree), and the reactive prop bag for prop updates.
 -->
 <script lang="ts">
-  import { type Component, untrack } from 'svelte'
+  import { type Component, setContext, untrack } from 'svelte'
+
+  import type { Router } from '@molecule/app-routing'
 
   import type { NodeSpec } from '../../ui/index.js'
   import type { SvelteMoleculeConfig } from '../svelte.js'
+  import { ROUTED_TEXT_KEY } from '../svelte-bindings/routed-text.js'
+  import RoutedText from '../svelte-bindings/RoutedText.svelte'
   import { snippetBuilders } from './snippets.js'
   import Tree from './Tree.svelte'
 
@@ -16,6 +20,8 @@
     component: Target,
     exports: exportsOf,
     setMoleculeContext,
+    setRouterContext,
+    routedPage,
     callback,
     config,
     awaitSession,
@@ -29,6 +35,10 @@
     /** Every component and composable the cases may render or call. */
     exports: Record<string, unknown>
     setMoleculeContext: (config: SvelteMoleculeConfig) => void
+    /** The binding's router setter, which also takes the routing bond's routed view. */
+    setRouterContext: (router: Router, options?: { routedView?: Component }) => void
+    /** The case's `context.routedPage`: the text the routed view renders. */
+    routedPage?: string
     /** Builds the recording spy for a nested `{ $callback }` in the running case. */
     callback?: (name: string) => (...args: unknown[]) => unknown
     config: SvelteMoleculeConfig
@@ -67,6 +77,12 @@
   // The case's services, the binding's context setter and the callback spy are
   // fixed for its whole run.
   untrack(() => setMoleculeContext(config))
+  // The routing bond's routed view, as an app's router component provides it: the case's
+  // `routedPage` text, or nothing.
+  untrack(() => {
+    setContext(ROUTED_TEXT_KEY, routedPage ?? '')
+    if (config.router) setRouterContext(config.router, { routedView: RoutedText })
+  })
 
   const builders = snippetBuilders(
     tree,

@@ -10,9 +10,9 @@
  */
 
 import { type JSX, type ReactNode, useEffect, useRef, useState } from 'react'
-import { Link } from 'react-router'
 
 import { useTranslation } from '@molecule/app-react'
+import { Link } from '@molecule/app-react/link'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { NavActionSpec, NavLinkSpec, ProfileMenuItem } from './types.js'

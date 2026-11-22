@@ -1,10 +1,10 @@
-import type { ReactNode } from 'react'
+import type { ReactElement, ReactNode } from 'react'
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
-// `useLocation` is hoisted so tests can vary the active pathname.
-const { mockUseLocation } = vi.hoisted(() => ({ mockUseLocation: vi.fn() }))
+import { RouterProvider } from '@molecule/app-react'
+import { createMemoryRouter } from '@molecule/app-routing'
 
 // The ClassMap mock echoes each accessed token as its member NAME (e.g.
 // `cm.surface` → "surface", `cm.sp('p', 4)` → "sp"). That lets the tests assert
@@ -32,8 +32,10 @@ vi.mock('@molecule/app-ui', () => ({
 }))
 
 // The bonded i18n provider resolves a key's inline English default; the nav
-// label's own test file exercises a marking provider.
-vi.mock('@molecule/app-react', () => ({
+// label's own test file exercises a marking provider. Everything else (the
+// real `RouterProvider`, `useLocation`, `RoutedView` and `Link`) stays real.
+vi.mock('@molecule/app-react', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useTranslation: () => ({
     t: (
       key: string,
@@ -43,38 +45,26 @@ vi.mock('@molecule/app-react', () => ({
   }),
 }))
 
-vi.mock('react-router', () => ({
-  Link: ({
-    to,
-    children,
-    className,
-    ['data-mol-id']: molId,
-    ['aria-current']: ariaCurrent,
-  }: {
-    to: string
-    children?: ReactNode
-    className?: string
-    'data-mol-id'?: string
-    'aria-current'?: string
-  }) =>
-    createElement(
-      'a',
-      {
-        href: to,
-        'data-link': '',
-        className,
-        'data-mol-id': molId,
-        'aria-current': ariaCurrent,
-      },
-      children,
-    ),
-  Outlet: () => createElement('div', { 'data-outlet': '' }),
-  useLocation: mockUseLocation,
-}))
-
 const { SidebarLayout } = await import('../SidebarLayout.js')
 
-const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
+/** The page the routing bond renders where the layout puts its routed view. */
+const RoutedPage = (): ReactElement => createElement('div', { 'data-outlet': '' })
+
+/**
+ * Renders a layout under a memory router at `path`, with {@link RoutedPage} as the routed view.
+ *
+ * @param el - The layout.
+ * @param path - The router's location.
+ * @returns The markup.
+ */
+const html = (el: ReactNode, path = '/dashboard'): string =>
+  renderToStaticMarkup(
+    createElement(RouterProvider, {
+      router: createMemoryRouter({ initialEntries: [path] }),
+      routedView: RoutedPage,
+      children: el,
+    }),
+  )
 
 const navItems = [
   { to: '/dashboard', key: 'dashboard', label: 'Dashboard' },
@@ -82,10 +72,6 @@ const navItems = [
 ]
 
 describe('SidebarLayout', () => {
-  beforeEach(() => {
-    mockUseLocation.mockReturnValue({ pathname: '/dashboard' })
-  })
-
   it('renders the brand link with the app name', () => {
     const markup = html(createElement(SidebarLayout, { appName: 'Acme', navItems }))
     expect(markup).toContain('Acme')
@@ -104,9 +90,21 @@ describe('SidebarLayout', () => {
     expect(markup.match(/aria-current="page"/g) ?? []).toHaveLength(1)
   })
 
-  it('renders the Outlet for nested routes', () => {
+  it('renders the routed page in main when it has no children', () => {
     const markup = html(createElement(SidebarLayout, { appName: 'Acme', navItems }))
-    expect(markup).toContain('data-outlet=""')
+    expect(markup).toMatch(/<main[^>]*><div data-outlet=""><\/div><\/main>/)
+  })
+
+  it('renders its children instead of the routed page', () => {
+    const markup = html(
+      createElement(
+        SidebarLayout,
+        { appName: 'Acme', navItems },
+        createElement('p', null, 'Page body'),
+      ),
+    )
+    expect(markup).toMatch(/<main[^>]*><p>Page body<\/p><\/main>/)
+    expect(markup).not.toContain('data-outlet')
   })
 
   it('renders the userMenu and themeToggle slots', () => {

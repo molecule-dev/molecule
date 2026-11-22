@@ -7,16 +7,29 @@
   flowing into each mount instead.
 -->
 <script lang="ts">
-  import type { ComponentProps } from 'svelte'
+  import { type Component, type ComponentProps, untrack } from 'svelte'
 
-  import { type MoleculeConfig, setMoleculeContext } from '@molecule/app-svelte'
+  import { type MoleculeConfig, setMoleculeContext, setRouterContext } from '@molecule/app-svelte'
 
   import SidebarLayout from '../SidebarLayout.svelte'
 
-  let { config, props }: { config: MoleculeConfig; props: ComponentProps<typeof SidebarLayout> } =
-    $props()
+  let {
+    config,
+    props,
+    routedView,
+  }: {
+    config: MoleculeConfig
+    props: ComponentProps<typeof SidebarLayout>
+    routedView?: Component
+  } = $props()
 
-  setMoleculeContext(config)
+  // The context is read once during init, so wire the initial values here.
+  untrack(() => {
+    setMoleculeContext(config)
+    // `setMoleculeContext` registers the router without a routed view; a test that renders the
+    // layout with no children passes one so the real `RoutedView` renders its page.
+    if (config.router) setRouterContext(config.router, { routedView })
+  })
 </script>
 
 <SidebarLayout {...props} />

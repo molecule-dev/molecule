@@ -52,10 +52,11 @@ vi.mock('@molecule/app-ui', () => ({
 // label).
 const i18n = vi.hoisted(() => ({ locale: 'en' }))
 
-vi.mock('@molecule/app-angular', async () => {
+vi.mock('@molecule/app-angular', async (importOriginal) => {
   const { signal } = await import('@angular/core')
   const locale = signal(i18n.locale)
   return {
+    ...(await importOriginal<Record<string, unknown>>()),
     useTranslation: (): { t: (key: string) => string } => ({
       // Reading the signal here (inside the template binding) tracks it, the
       // way the real hook reads its notifications signal.

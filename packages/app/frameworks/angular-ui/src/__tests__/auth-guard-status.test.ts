@@ -22,6 +22,7 @@ import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } 
 import type * as AppAngular from '@molecule/app-angular'
 import type { RouteLocation } from '@molecule/app-angular'
 import type { AuthState } from '@molecule/app-auth'
+import { I18nError } from '@molecule/app-i18n'
 
 /** Navigation options the guard passes (a subset of the routing contract). */
 interface NavigateOptions {
@@ -178,5 +179,36 @@ describe('AuthGuard reads the session status (xr-molecule-flash-m177)', () => {
     expect(controls.navigations.map((call) => call.path)).toEqual(['/login'])
     // React renders `<Navigate replace>`, keeping the attempted location in state.
     expect(controls.navigations[0]?.options?.replace).toBe(true)
+  })
+
+  it('AuthGuard without children throws when there is no routed view', () => {
+    /**
+     * Host with no projected content: the guard falls back to `RoutedView`, and
+     * the mocked binding provides no routed view, so it throws.
+     */
+    const NoChildrenHost = Component({
+      selector: 'div[data-no-children]',
+      standalone: true,
+      imports: [AuthGuard],
+      template: '<mol-auth-guard></mol-auth-guard>',
+    })(class NoChildrenHostComponent {})
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
+    let thrown: unknown
+    try {
+      TestBed.configureTestingModule({
+        imports: [NoChildrenHost],
+        providers: [provideZonelessChangeDetection()],
+      })
+      const fixture = TestBed.createComponent(NoChildrenHost)
+      fixture.detectChanges()
+      // The routed view is created once the guard's view-ready signal flips.
+      fixture.detectChanges()
+    } catch (error) {
+      thrown = error
+    } finally {
+      consoleError.mockRestore()
+    }
+    expect(thrown).toBeInstanceOf(I18nError)
+    expect(thrown).toMatchObject({ i18nKey: 'angular.error.noRoutedView' })
   })
 })

@@ -58,7 +58,8 @@
  *   client), `<AuthProvider>`, `<ThemeProvider>` (AppearanceSection), push +
  *   device providers (NotificationsSection/ThisDeviceSection) — plus a
  *   bonded ClassMap. `<BillingSection>` and `<LogOutDeleteSection>` also
- *   call react-router's `useNavigate()` and throw outside a `<Router>`.
+ *   call `useNavigate()` from `@molecule/app-react` and throw outside the
+ *   app's `RouterProvider`.
  * - Section components throw if rendered outside `<SettingsContainer>`
  *   (they read its context for `onClose`).
  * - Server contract: the molecule API surface from

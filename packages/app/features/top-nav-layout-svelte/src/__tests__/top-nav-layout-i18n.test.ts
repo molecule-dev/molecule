@@ -39,9 +39,11 @@ vi.mock('@molecule/app-ui', () => {
 // would show up as plain English.
 vi.mock('@molecule/app-svelte', async () => {
   const { default: Link } = await import('./LinkMock.svelte')
+  const { default: RoutedView } = await import('./RoutedViewMock.svelte')
   const { readable } = await import('svelte/store')
   return {
     Link,
+    RoutedView,
     useLocation: () => readable({ pathname: '/', search: '', hash: '' }),
     useTranslation: () => ({ t: (key: string) => `«${key}»` }),
   }

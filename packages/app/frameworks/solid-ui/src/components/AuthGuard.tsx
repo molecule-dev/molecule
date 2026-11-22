@@ -1,12 +1,12 @@
 import { createEffect, type JSX, on, Show } from 'solid-js'
 
-import { useAuth, useRouter, useTranslation } from '@molecule/app-solid'
+import { RoutedView, useAuth, useRouter, useTranslation } from '@molecule/app-solid'
 
 /**
  * Props for {@link AuthGuard}.
  *
  * All props are optional — the default behavior (loading tag → redirect
- * to `/login` → children) matches the bare-bones guard apps were
+ * to `/login` → the routed page) matches the bare-bones guard apps were
  * shipping locally. The props let apps customize per-call without
  * forking the component.
  */
@@ -44,10 +44,10 @@ export interface AuthGuardProps {
    */
   onAuthenticated?: () => void
   /**
-   * Children to render when authenticated. Defaults to nothing (the
-   * React reference renders its router `<Outlet />`; this package's
-   * router context has no outlet concept, and an outlet under the
-   * conformance router renders nothing).
+   * Children to render when authenticated. Without them the guard renders
+   * `<RoutedView />`: the matched child route, through whichever routing bond
+   * the app wired. That throws when the routing bond has no routed view: pass
+   * the page then.
    */
   children?: JSX.Element
 }
@@ -65,11 +65,12 @@ const loginPathname = (loginPath: string): string => loginPath.split(/[?#]/)[0] 
  *
  * - While the auth status is `'loading'` (no session decision yet), renders the
  *   `loadingFallback` (or the default `<div data-mol-id="auth-guard-loading">{t('common.loading')}</div>`).
- * - If the status is `'unauthenticated'`, redirects to `loginPath` carrying
- *   the attempted location in `state.from` for post-login restoration. On
- *   `loginPath` itself it renders its children instead, so a guard that wraps
- *   the whole route tree (login page included) does not redirect in a loop.
- * - Otherwise renders `children`.
+ * - If the status is `'unauthenticated'`, renders nothing and redirects to
+ *   `loginPath` (replacing the entry), carrying the attempted location in
+ *   `state.from` for post-login restoration. On `loginPath` itself it renders
+ *   its children instead, so a guard that wraps the whole route tree (login
+ *   page included) does not redirect in a loop.
+ * - Otherwise renders `children` (or `<RoutedView />` if none).
  *
  * The guard reads `status`, not `initialized`: a stored token AND user make the
  * FIRST render `'authenticated'`, so a protected page paints immediately instead
@@ -93,6 +94,10 @@ export function AuthGuard(props: AuthGuardProps): JSX.Element {
   const { location, navigate } = useRouter()
 
   const loginPath = (): string => props.loginPath ?? '/login'
+  // On the login path itself the guard renders its children: a guard wrapping
+  // the whole route tree contains the login page.
+  const redirecting = (): boolean =>
+    status() === 'unauthenticated' && location().pathname !== loginPathname(loginPath())
 
   let lastAuth = false
   createEffect(() => {
@@ -109,9 +114,7 @@ export function AuthGuard(props: AuthGuardProps): JSX.Element {
     on(
       () => [status(), location().pathname, loginPath()] as const,
       () => {
-        if (status() === 'unauthenticated' && location().pathname !== loginPathname(loginPath())) {
-          navigate(loginPath(), { replace: true, state: { from: location() } })
-        }
+        if (redirecting()) navigate(loginPath(), { replace: true, state: { from: location() } })
       },
     ),
   )
@@ -135,7 +138,9 @@ export function AuthGuard(props: AuthGuardProps): JSX.Element {
         )
       }
     >
-      {props.children ?? null}
+      {/* Nothing while redirecting, as React renders its redirect: a redirect that cannot land
+          (a guard refusing the login path) must not show the protected page. */}
+      <Show when={!redirecting()}>{props.children ?? <RoutedView />}</Show>
     </Show>
   )
 }

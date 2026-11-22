@@ -234,7 +234,8 @@ export interface Router {
   getHash(): string
 
   /**
-   * Navigates to a path.
+   * Navigates to a path. A path that is only a query or a hash (`'?tab=2'`, `'#top'`) stays on
+   * the current page, as React Router's `navigate` does; a hash alone drops the current query.
    */
   navigate(path: string, options?: NavigateOptions): void
 
@@ -301,7 +302,9 @@ export interface Router {
   /**
    * The `href` an anchor to the in-app `path` carries, as the native router's own link
    * writes it (its base path prefixed, or `#/…` under a hash history), so a middle-click,
-   * a new tab or a copied link opens the same page a click does.
+   * a new tab or a copied link opens the same page a click does. A `path` that is only a
+   * query or a hash (`'?tab=2'`, `'#top'`) is the current page's, as `navigate` reads it
+   * and as React Router's `<Link>` writes it: `'#top'` on `/docs?x=1` is `/docs#top`.
    *
    * @param path - Pathname with optional query string and hash, as passed to `navigate`.
    * @returns The `href`.

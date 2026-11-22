@@ -1,5 +1,5 @@
 /**
- * `@molecule/app-safe-link-react` — react-router `<Link>` wrapper that
+ * `@molecule/app-safe-link-react` — `<Link>` wrapper that
  * appends a `#top` fragment when the destination matches the current path,
  * so a same-path click still produces an observable URL change. Useful for
  * nav primitives exercised by behavioural verifiers / e2e probes.
@@ -18,12 +18,10 @@
  * ```
  *
  * @remarks
- * - Must render inside a react-router `<Router>` / `RouterProvider` —
- *   `useLocation()` throws otherwise. Imports from `react-router` and
- *   peer-depends on `react-router` `^7 || ^8` (v7's `react-router-dom`
- *   re-exports it, so an app on either package works as long as both resolve
- *   ONE `react-router` copy — dedupe it in the bundler). React Router v6 is
- *   not supported; do not use in apps on a different router.
+ * - Must render inside the app's router (`RouterProvider`) — `useLocation()`
+ *   throws otherwise. Imports its `Link` and `useLocation` from
+ *   `@molecule/app-react` / `@molecule/app-react/link`, so it works under every
+ *   routing bond and peer-depends on `@molecule/app-react`.
  * - `to` accepts a string path only (no partial-Path objects).
  * - Use the NAMED import (`import { SafeLink } from …`); the package barrel
  *   does not re-export the file's default export.

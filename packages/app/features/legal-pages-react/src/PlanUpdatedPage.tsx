@@ -1,7 +1,7 @@
 import type { JSX } from 'react'
-import { Link } from 'react-router'
 
 import { useAuth, useTranslation, useVerifyPaymentReturn } from '@molecule/app-react'
+import { Link } from '@molecule/app-react/link'
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Flex, Spinner } from '@molecule/app-ui-react'
 

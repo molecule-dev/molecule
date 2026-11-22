@@ -19,10 +19,9 @@
  * The menu is a minimal, accessible, fully themed popover built from ClassMap
  * tokens + bonded `<Icon>`s (keyboard navigable, outside-click + Escape close,
  * `role="menu"` / `role="menuitemradio"` with roving focus). It deliberately
- * does NOT use the framework `Dropdown`: that component imports
- * `react-router-dom` via `useLocation`, and this feature package is kept free
- * of that dependency (the same reason {@link Tooltip} is subpath-imported here,
- * never the package barrel).
+ * does NOT use the framework `Dropdown`: that component reads the router
+ * (`useLocation` from `@molecule/app-react`, to close on navigation), and
+ * this feature package renders without one.
  *
  * The trigger carries `cm.touchTarget`, so its compact `xs` desktop size grows
  * to a WCAG-compliant >=44×44px hit-area on touch (coarse-pointer) devices.

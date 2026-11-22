@@ -35,10 +35,10 @@
  *
  * @example
  * ```tsx
- * import { Link } from 'react-router'
  * import { getClient, isHttpError } from '@molecule/app-http'
  * import { intentPrefetchProps, useQuery } from '@molecule/app-query-react'
  * import { useTranslation } from '@molecule/app-react'
+ * import { Link } from '@molecule/app-react/link'
  *
  * interface PackageDocument {
  *   name: string
@@ -91,11 +91,10 @@
  * so restoring a session never swaps a key that already rendered rows.
  *
  * ```tsx
- * import { Link } from 'react-router'
  * import { unwrapList } from '@molecule/app-http'
  * import { useQuery } from '@molecule/app-query-react'
- * import { useAuth, useHttpClient, useTranslation } from '@molecule/app-react'
- * import { useListRoute } from '@molecule/app-routing-react-router'
+ * import { useAuth, useHttpClient, useListRoute, useTranslation } from '@molecule/app-react'
+ * import { Link } from '@molecule/app-react/link'
  *
  * interface Invoice {
  *   id: string

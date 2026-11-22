@@ -1,22 +1,24 @@
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
-import { MemoryRouter } from 'react-router'
 import { describe, expect, it } from 'vitest'
+
+import { RouterProvider } from '@molecule/app-react'
+import { createMemoryRouter } from '@molecule/app-routing'
 
 import { SafeLink } from '../SafeLink.js'
 
 /**
- * Render `<SafeLink>` inside a MemoryRouter seeded at `currentPath` and
+ * Render `<SafeLink>` inside a molecule memory router seeded at `currentPath` and
  * return the rendered HTML. Server-side rendering keeps the test free of
  * a jsdom dependency — we only need to assert the emitted `href`.
  */
 function renderAt(currentPath: string, props: { to: string; children?: string }): string {
+  const router = createMemoryRouter({ initialEntries: [currentPath] })
   return renderToStaticMarkup(
-    createElement(
-      MemoryRouter,
-      { initialEntries: [currentPath] },
-      createElement(SafeLink, props, props.children ?? 'link'),
-    ),
+    createElement(RouterProvider, {
+      router,
+      children: createElement(SafeLink, props, props.children ?? 'link'),
+    }),
   )
 }
 
@@ -61,12 +63,12 @@ describe('SafeLink', () => {
   })
 
   it('forwards arbitrary anchor props (className, etc.) to the underlying Link', () => {
+    const router = createMemoryRouter({ initialEntries: ['/x'] })
     const html = renderToStaticMarkup(
-      createElement(
-        MemoryRouter,
-        { initialEntries: ['/x'] },
-        createElement(SafeLink, { to: '/y', className: 'nav-item' }, 'Y'),
-      ),
+      createElement(RouterProvider, {
+        router,
+        children: createElement(SafeLink, { to: '/y', className: 'nav-item' }, 'Y'),
+      }),
     )
     expect(html).toContain('class="nav-item"')
   })

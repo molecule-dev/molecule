@@ -28,9 +28,10 @@
  * this package's dist plus a `primary-container` theme color, or expect
  * both to be invisible until the package is migrated to ClassMap.
  *
- * Rows WITH `href` render a react-router `<Link>` — they THROW outside a
- * `<Router>` context. In apps not using react-router, omit `href` (rows
- * render as plain divs) or handle navigation on a wrapping element.
+ * Rows WITH `href` render a `<Link>` from `@molecule/app-react/link` — they
+ * THROW outside the app's router (`RouterProvider`). In apps without a router
+ * bond, omit `href` (rows render as plain divs) or handle navigation on a
+ * wrapping element.
  * Requires a wired ClassMap bond — `getClassMap()` throws before wiring.
  *
  * `fmtRelativeShort` (exported) renders compact `12m` / `3h` / `5d`

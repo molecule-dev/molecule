@@ -11,11 +11,13 @@
  * @module
  */
 import { cleanup, render, screen } from '@testing-library/react'
-import { createElement } from 'react'
-import { MemoryRouter, Route, Routes } from 'react-router'
+import { createElement, type ReactElement } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { AuthState } from '@molecule/app-auth'
+import { I18nError } from '@molecule/app-i18n'
+import { RouterProvider, useLocation } from '@molecule/app-react'
+import { createMemoryRouter } from '@molecule/app-routing'
 
 const mockAuth = vi.hoisted(() => ({
   state: {
@@ -28,7 +30,8 @@ const mockAuth = vi.hoisted(() => ({
   } as AuthState,
 }))
 
-vi.mock('@molecule/app-react', () => ({
+vi.mock('@molecule/app-react', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useAuth: () => ({
     status: mockAuth.state.status,
     state: mockAuth.state,
@@ -42,6 +45,14 @@ vi.mock('@molecule/app-react', () => ({
 
 import { AuthGuard } from '../components/AuthGuard.js'
 
+/** The page for the current path, replacing React Router's `<Routes>` tree. */
+function Pages(): ReactElement | null {
+  const { pathname } = useLocation()
+  if (pathname === '/') return createElement('div', null, 'protected page')
+  if (pathname === '/login') return createElement('div', null, 'login page')
+  return null
+}
+
 /**
  * Renders the guard at `/` with a protected page and a login page.
  *
@@ -49,26 +60,11 @@ import { AuthGuard } from '../components/AuthGuard.js'
  */
 const renderGuard = () =>
   render(
-    createElement(
-      MemoryRouter,
-      { initialEntries: ['/'] },
-      createElement(
-        Routes,
-        null,
-        createElement(
-          Route,
-          { element: createElement(AuthGuard) },
-          createElement(Route, {
-            path: '/',
-            element: createElement('div', null, 'protected page'),
-          }),
-        ),
-        createElement(Route, {
-          path: '/login',
-          element: createElement('div', null, 'login page'),
-        }),
-      ),
-    ),
+    createElement(RouterProvider, {
+      router: createMemoryRouter({ initialEntries: ['/'] }),
+      routedView: Pages,
+      children: createElement(AuthGuard),
+    }),
   )
 
 describe('AuthGuard reads the session status (xr-molecule-flash-m177)', () => {
@@ -139,5 +135,31 @@ describe('AuthGuard reads the session status (xr-molecule-flash-m177)', () => {
 
     expect(screen.getByText('login page')).toBeTruthy()
     expect(screen.queryByText('protected page')).toBeNull()
+  })
+
+  it('AuthGuard without children throws when there is no routed view', () => {
+    mockAuth.state = {
+      ...mockAuth.state,
+      status: 'authenticated',
+      initialized: false,
+      authenticated: true,
+      user: { id: 'ann' },
+    }
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
+    let thrown: unknown
+    try {
+      render(
+        createElement(RouterProvider, {
+          router: createMemoryRouter({ initialEntries: ['/'] }),
+          children: createElement(AuthGuard),
+        }),
+      )
+    } catch (error) {
+      thrown = error
+    } finally {
+      consoleError.mockRestore()
+    }
+    expect(thrown).toBeInstanceOf(I18nError)
+    expect(thrown).toMatchObject({ i18nKey: 'react.error.noRoutedView' })
   })
 })

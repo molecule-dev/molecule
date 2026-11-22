@@ -23,12 +23,15 @@ export interface FeatureValueCheck {
 
 /**
  * A feature case's context: the binding kit's services (HTTP, auth, storage,
- * areas …) with the UI kit's translations. A feature component renders through
- * the UI kit's i18n provider, so its translations take any locale, the
- * pseudo-locale `en-XA` included, not only the binding provider's four.
+ * areas …) with the UI kit's translations and routed page. A feature component
+ * renders through the UI kit's i18n provider, so its translations take any
+ * locale, the pseudo-locale `en-XA` included, not only the binding provider's
+ * four; and it mounts through the UI adapters, which always provide a routed
+ * view (`routedPage`), so the binding kit's `routedView` does not apply.
  */
-export interface FeatureCaseContext extends Omit<BindingContext, 'translations'> {
+export interface FeatureCaseContext extends Omit<BindingContext, 'translations' | 'routedView'> {
   translations?: CaseContext['translations']
+  routedPage?: CaseContext['routedPage']
 }
 
 /** One feature case: a UI case whose context may also seed the binding kit's services. */

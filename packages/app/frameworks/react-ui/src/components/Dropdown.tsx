@@ -15,8 +15,8 @@ import React, {
   useState,
 } from 'react'
 import { createPortal } from 'react-dom'
-import { useLocation } from 'react-router'
 
+import { useLocation } from '@molecule/app-react'
 import type { DropdownItem, DropdownProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 

@@ -50,7 +50,7 @@ vi.mock('@molecule/app-ui-react', () => ({
   Spinner: () => createElement('span', { 'data-spinner': '' }),
 }))
 
-vi.mock('react-router', () => ({
+vi.mock('@molecule/app-react/link', () => ({
   Link: ({ to, children }: { to: string; children?: ReactNode }) =>
     createElement('a', { href: to }, children),
 }))

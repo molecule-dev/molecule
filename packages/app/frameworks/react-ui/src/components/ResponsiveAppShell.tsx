@@ -12,14 +12,15 @@
  * Compose it:
  *
  * ```tsx
+ * import { RoutedView } from '@molecule/app-react'
+ * import { Link } from '@molecule/app-react/link'
  * import { ResponsiveAppShell } from '@molecule/app-ui-react'
- * import { NavLink, Outlet } from 'react-router'
  *
  * const nav = (
  *   <>
- *     <NavLink to="/dashboard">Dashboard</NavLink>
- *     <NavLink to="/projects">Projects</NavLink>
- *     <NavLink to="/reports">Reports</NavLink>
+ *     <Link to="/dashboard">Dashboard</Link>
+ *     <Link to="/projects">Projects</Link>
+ *     <Link to="/reports">Reports</Link>
  *   </>
  * )
  *
@@ -27,13 +28,13 @@
  *   return (
  *     <ResponsiveAppShell>
  *       <ResponsiveAppShell.TopBar
- *         brand={<NavLink to="/dashboard">Timetrack</NavLink>}
+ *         brand={<Link to="/dashboard">Timetrack</Link>}
  *         actions={<UserMenu />}
  *       />
  *       <ResponsiveAppShell.Sidebar>{nav}</ResponsiveAppShell.Sidebar>
  *       <ResponsiveAppShell.Drawer>{nav}</ResponsiveAppShell.Drawer>
  *       <ResponsiveAppShell.Content>
- *         <Outlet />
+ *         <RoutedView />
  *       </ResponsiveAppShell.Content>
  *     </ResponsiveAppShell>
  *   )
@@ -66,12 +67,13 @@
  *   the `<main>` landmark. Marking the CURRENT nav item is the CONSUMER's job
  *   — pass `aria-current="page"` from your nav children (the shell renders
  *   them pass-through).
- * - **Behavior.** The drawer auto-closes on SPA navigation (react-router
- *   location change) so it never sticks over the next page, and when the
- *   viewport crosses to desktop while it is open. Apps need an
- *   `I18nProvider` (all visible labels go through `t(key, {}, {
- *   defaultValue })`) and a react-router context; without the router the
- *   shell still renders — it just cannot auto-close on navigation.
+ * - **Behavior.** The drawer auto-closes on SPA navigation (a location change
+ *   read through `@molecule/app-react`'s `useLocation`, under any routing
+ *   bond) so it never sticks over the next page, and when the viewport
+ *   crosses to desktop while it is open. Apps need an `I18nProvider` (all
+ *   visible labels go through `t(key, {}, { defaultValue })`) and the router
+ *   component of their routing bond above the shell; without a router it
+ *   throws an error naming that component.
  * - **Locators.** Every fixed element carries a `data-mol-id` default,
  *   overridable per sub-component: `shell-topbar`, `shell-drawer-open`
  *   (trigger), `shell-sidebar`, `shell-drawer` (panel), `shell-drawer-close`,
@@ -106,9 +108,8 @@ import {
   useState,
 } from 'react'
 import { createPortal } from 'react-dom'
-import { useLocation } from 'react-router'
 
-import { useTranslation } from '@molecule/app-react'
+import { useLocation, useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 import { renderIcon } from '../utilities/renderIcon.js'

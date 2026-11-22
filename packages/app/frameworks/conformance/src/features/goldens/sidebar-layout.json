@@ -11,6 +11,18 @@
     ],
     "calls": []
    },
+   "no children renders the routed page in main": {
+    "snapshots": [
+     "<div class=\"c2f1a3c22 c521316b1 c8f19053a cc26cbf54 ccae02ff2 cdde537c9\">\n<aside class=\"c1af9479c c2cbb8333 c42740ba6 c4b92e3a8 c99d61f16 ca596e575 cbaac6b89 cc2d72006 ccae02ff2 cf2ca6f94\" style=\"width: 240px\">\n<a class=\"c0d99ed10 c4547f4fd c917228dd ceb0cbd62\" href=\"/\">\nAcme\n</a>\n<nav aria-label=\"Primary navigation\" class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<a aria-current=\"page\" class=\"c1e8176ab c3d2b0d21 c42740ba6 c445db9b9 c80b1c428 c8e3cd4a1 c9052b18c c9566e21c caa01b65f caa6eb57d cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"nav-dashboard\" href=\"/dashboard#top\">\n<span>\nDashboard\n</span>\n</a>\n<a class=\"c1477cccf c1e8176ab c42740ba6 c445db9b9 c80b1c428 c8e3cd4a1 c9052b18c c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003 ce823b5bf\" data-mol-id=\"nav-settings\" href=\"/settings\">\n<span>\nSettings\n</span>\n</a>\n</nav>\n</aside>\n<main class=\"cb5823274 cd4bf1eb3\" style=\"min-width: 0px\">\nRouted page\n</main>\n</div>\n@route /dashboard"
+    ],
+    "calls": []
+   },
+   "children take the place of the routed page": {
+    "snapshots": [
+     "<div class=\"c2f1a3c22 c521316b1 c8f19053a cc26cbf54 ccae02ff2 cdde537c9\">\n<aside class=\"c1af9479c c2cbb8333 c42740ba6 c4b92e3a8 c99d61f16 ca596e575 cbaac6b89 cc2d72006 ccae02ff2 cf2ca6f94\" style=\"width: 240px\">\n<a class=\"c0d99ed10 c4547f4fd c917228dd ceb0cbd62\" href=\"/\">\nAcme\n</a>\n<nav aria-label=\"Primary navigation\" class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<a aria-current=\"page\" class=\"c1e8176ab c3d2b0d21 c42740ba6 c445db9b9 c80b1c428 c8e3cd4a1 c9052b18c c9566e21c caa01b65f caa6eb57d cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"nav-dashboard\" href=\"/dashboard#top\">\n<span>\nDashboard\n</span>\n</a>\n<a class=\"c1477cccf c1e8176ab c42740ba6 c445db9b9 c80b1c428 c8e3cd4a1 c9052b18c c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003 ce823b5bf\" data-mol-id=\"nav-settings\" href=\"/settings\">\n<span>\nSettings\n</span>\n</a>\n</nav>\n</aside>\n<main class=\"cb5823274 cd4bf1eb3\" style=\"min-width: 0px\">\n<p>\nPage body\n</p>\n</main>\n</div>\n@route /dashboard"
+    ],
+    "calls": []
+   },
    "icons and a nested route": {
     "snapshots": [
      "<div class=\"c2f1a3c22 c521316b1 c8f19053a cc26cbf54 ccae02ff2 cdde537c9\">\n<aside class=\"c1af9479c c2cbb8333 c42740ba6 c4b92e3a8 c99d61f16 ca596e575 cbaac6b89 cc2d72006 ccae02ff2 cf2ca6f94\" style=\"width: 240px\">\n<a class=\"c0d99ed10 c4547f4fd c917228dd ceb0cbd62\" href=\"/\">\nAcme\n</a>\n<nav aria-label=\"Primary navigation\" class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<a class=\"c1477cccf c1e8176ab c42740ba6 c445db9b9 c80b1c428 c8e3cd4a1 c9052b18c c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003 ce823b5bf\" data-mol-id=\"nav-dashboard\" href=\"/dashboard\">\n<span aria-hidden=\"true\" class=\"caeede141\">\ndashboard\n</span>\n<span>\nDashboard\n</span>\n</a>\n<a aria-current=\"page\" class=\"c1e8176ab c3d2b0d21 c42740ba6 c445db9b9 c80b1c428 c8e3cd4a1 c9052b18c c9566e21c caa01b65f caa6eb57d cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"nav-projects\" href=\"/projects\">\n<span aria-hidden=\"true\" class=\"caeede141\">\nfolder\n</span>\n<span>\nProjects\n</span>\n</a>\n<a class=\"c1477cccf c1e8176ab c42740ba6 c445db9b9 c80b1c428 c8e3cd4a1 c9052b18c c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003 ce823b5bf\" data-mol-id=\"nav-settings\" href=\"/settings\">\n<span aria-hidden=\"true\" class=\"caeede141\">\nsettings\n</span>\n<span>\nSettings\n</span>\n</a>\n</nav>\n</aside>\n<main class=\"cb5823274 cd4bf1eb3\" style=\"min-width: 0px\">\n</main>\n</div>\n@route /projects/settings"

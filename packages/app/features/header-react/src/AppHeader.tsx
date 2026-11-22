@@ -1,8 +1,8 @@
 import type { ReactElement, ReactNode } from 'react'
 import { useContext } from 'react'
-import { Link, type LinkProps } from 'react-router'
 
 import { I18nContext, ThemeContext } from '@molecule/app-react'
+import { Link, type LinkProps } from '@molecule/app-react/link'
 import { getClassMap } from '@molecule/app-ui'
 import { Flex, ThemeToggle } from '@molecule/app-ui-react'
 

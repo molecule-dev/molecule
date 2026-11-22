@@ -107,6 +107,15 @@ export interface SolidBindingProps {
 /** What the adapter needs from `@molecule/app-solid` (the package under test passes the module). */
 export interface SolidBinding extends BindingCaseResets {
   MoleculeProvider: Component<SolidBindingProps>
+  /** Provides the router and the routing bond's routed view (`routedView`) to its subtree. */
+  RouterProvider: Component<{
+    /** The case's router. */
+    router: Router
+    /** The view the routing bond renders for the matched child route. */
+    routedView?: Component
+    /** The tree it wraps. */
+    children: JSX.Element
+  }>
 }
 
 /** Options for {@link createSolidAdapter}. */
@@ -127,7 +136,7 @@ export function createSolidAdapter({
   exports: exportsOf,
   binding,
 }: SolidAdapterOptions): FrameworkAdapter {
-  const { MoleculeProvider } = binding
+  const { MoleculeProvider, RouterProvider } = binding
 
   /** One JSX value for a single node, an array otherwise (what a JSX-valued prop holds). */
   const single = <T>(list: T[]): T | T[] => (list.length === 1 ? list[0] : list)
@@ -284,6 +293,10 @@ export function createSolidAdapter({
       }
       const [props, setProps] = createStore<Record<string, unknown>>(initial)
       const slotNames = Object.keys(testCase.slots ?? {})
+      // The routing bond's routed view: the case's `routedPage` text, or nothing (an `Outlet`
+      // with no matched child), provided as a routing bond provides one.
+      const routedPage = testCase.context?.routedPage
+      const RoutedPage: Component = () => routedPage ?? null
 
       try {
         return await runSteps(
@@ -329,7 +342,13 @@ export function createSolidAdapter({
                           refElement = el instanceof Element ? el : null
                         }
                       }
-                      return createComponent(Comp, merged)
+                      return createComponent(RouterProvider, {
+                        router,
+                        routedView: RoutedPage,
+                        get children() {
+                          return createComponent(Comp, merged)
+                        },
+                      })
                     },
                   }),
                 mountPoint,

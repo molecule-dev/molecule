@@ -12,6 +12,10 @@ import type { JSX } from 'solid-js'
 import { render } from 'solid-js/web'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+// The current location the `useLocation` fake reads, so a test can move the
+// active path before it renders.
+const locationState = vi.hoisted(() => ({ pathname: '/dashboard' }))
+
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
 // `pageShell`), so tests can assert which cm.* class was applied without a real
 // bond — the same mock the React tests use.
@@ -35,10 +39,10 @@ vi.mock('@molecule/app-ui', () => ({
   },
 }))
 
-// The router markers the React tests mock `react-router` with: `Link` renders
-// an anchor, and the location is a fixed page path. The binding's `t` resolves
-// a key's inline English default; the nav label's own test file exercises a
-// marking provider.
+// The router markers: `Link` renders an anchor, `RoutedView` renders the
+// routed page, and the location is the current {@link locationState}. The
+// binding's `t` resolves a key's inline English default; the nav label's own
+// test file exercises a marking provider.
 vi.mock('@molecule/app-solid', () => ({
   Link: (props: { to: string; children?: JSX.Element } & Record<string, unknown>) => {
     const { to, children, ...anchor } = props
@@ -48,7 +52,8 @@ vi.mock('@molecule/app-solid', () => ({
       </a>
     )
   },
-  useLocation: () => () => ({ pathname: '/dashboard', search: '', hash: '' }),
+  RoutedView: () => <div data-outlet="" />,
+  useLocation: () => () => ({ pathname: locationState.pathname, search: '', hash: '' }),
   useTranslation: () => ({
     t: (
       key: string,
@@ -70,6 +75,7 @@ const disposers: Array<() => void> = []
 afterEach(() => {
   for (const dispose of disposers.splice(0)) dispose()
   document.body.innerHTML = ''
+  locationState.pathname = '/dashboard'
 })
 
 /** Renders a {@link SidebarLayout} and returns the markup it produced. */
@@ -99,13 +105,19 @@ describe('SidebarLayout', () => {
     expect(markup.match(/aria-current="page"/g) ?? []).toHaveLength(1)
   })
 
-  it('renders the Outlet for nested routes', () => {
+  it('renders the routed page in main when it has no children', () => {
+    const markup = mount(() => <SidebarLayout appName="Acme" navItems={navItems} />)
+    expect(markup).toMatch(/<main[^>]*><div data-outlet=""><\/div><\/main>/)
+  })
+
+  it('renders its children instead of the routed page', () => {
     const markup = mount(() => (
       <SidebarLayout appName="Acme" navItems={navItems}>
-        <div data-outlet="" />
+        <p>Page body</p>
       </SidebarLayout>
     ))
-    expect(markup).toContain('data-outlet=""')
+    expect(markup).toMatch(/<main[^>]*><p>Page body<\/p><\/main>/)
+    expect(markup).not.toContain('data-outlet')
   })
 
   it('renders the userMenu and themeToggle slots', () => {

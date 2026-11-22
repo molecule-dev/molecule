@@ -1,9 +1,8 @@
 import type { JSX, ReactNode } from 'react'
 import { useState } from 'react'
-import { useLocation } from 'react-router'
 
 import type { IconName } from '@molecule/app-icons'
-import { useTranslation } from '@molecule/app-react'
+import { useLocation, useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 import { Button } from './Button.js'

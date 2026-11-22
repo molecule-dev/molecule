@@ -169,6 +169,8 @@ export function createReactNavigationRouter(config: ReactNavigationConfig): Rout
       }
 
       const from = getCurrentLocation()
+      // A query or a hash alone stays on the current screen, as every molecule router reads it.
+      if (path.startsWith('?') || path.startsWith('#')) path = from.pathname + path
       const to: RouteLocation = {
         pathname: path.split('?')[0].split('#')[0],
         search: path.includes('?') ? `?${path.split('?')[1].split('#')[0]}` : '',
@@ -280,8 +282,9 @@ export function createReactNavigationRouter(config: ReactNavigationConfig): Rout
     },
 
     // React Navigation's links on the web write the linked path itself; there is no base path
-    // or hash history to add.
-    createHref: (path: string): string => path,
+    // or hash history to add. A query or a hash alone is the current screen's path with it.
+    createHref: (path: string): string =>
+      path.startsWith('?') || path.startsWith('#') ? getCurrentLocation().pathname + path : path,
 
     subscribe(listener: RouteChangeListener): () => void {
       listeners.add(listener)

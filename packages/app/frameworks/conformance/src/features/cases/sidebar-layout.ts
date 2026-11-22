@@ -41,6 +41,17 @@ export const sidebarLayoutFeature: FeatureCases = {
           props: { appName: 'Acme', navItems: plainItems },
         },
         {
+          name: 'no children renders the routed page in main',
+          props: { appName: 'Acme', navItems: plainItems },
+          context: { route: '/dashboard', routedPage: 'Routed page' },
+        },
+        {
+          name: 'children take the place of the routed page',
+          props: { appName: 'Acme', navItems: plainItems },
+          context: { route: '/dashboard', routedPage: 'Routed page' },
+          children: [{ tag: 'p', children: ['Page body'] }],
+        },
+        {
           name: 'icons and a nested route',
           props: { appName: 'Acme', navItems: withIcons },
           context: { route: '/projects/settings' },

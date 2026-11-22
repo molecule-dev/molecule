@@ -39,6 +39,7 @@ import { createSimpleI18nProvider, type I18nProvider, setProvider } from '@molec
 import { createMemoryRouter } from '@molecule/app-routing'
 
 import type SidebarLayout from '../SidebarLayout.svelte'
+import RoutedViewMock from './RoutedViewMock.svelte'
 import SidebarLayoutHost from './SidebarLayoutHost.svelte'
 
 /** The English values the real provider of the switch test carries. */
@@ -95,7 +96,7 @@ function mountHost(props: ComponentProps<typeof SidebarLayout>): Mounted {
   document.body.appendChild(host)
   const instance = mount(SidebarLayoutHost, {
     target: host,
-    props: { config: { router }, props },
+    props: { config: { router }, props, routedView: RoutedViewMock },
   })
   flushSync()
   return {

@@ -10,6 +10,10 @@
 
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+// The current location the `useLocation` fake reads, so a test can move the
+// active path before it renders.
+const locationState = vi.hoisted(() => ({ pathname: '/dashboard' }))
+
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
 // `pageShell`), so tests can assert which cm.* class was applied without a real
 // bond — the same mock the React tests use.
@@ -33,10 +37,10 @@ vi.mock('@molecule/app-ui', () => ({
   },
 }))
 
-// The router markers the React tests mock `react-router` with: `Link` renders
-// an anchor with `data-link`, and the location is a fixed page path. The
-// binding's `t` resolves a key's inline English default; the nav label's own
-// test file exercises a marking provider.
+// The router markers: `Link` renders an anchor with `data-link`, the location
+// is the current {@link locationState}, and `RoutedView` renders the routed
+// page. The binding's `t` resolves a key's inline English default; the nav
+// label's own test file exercises a marking provider.
 vi.mock('@molecule/app-vue', async () => {
   const { computed, defineComponent, h } = await import('vue')
   return {
@@ -48,7 +52,11 @@ vi.mock('@molecule/app-vue', async () => {
         return () => h('a', { ...attrs, href: props.to, 'data-link': '' }, slots.default?.())
       },
     }),
-    useLocation: () => computed(() => ({ pathname: '/dashboard', search: '', hash: '' })),
+    RoutedView: defineComponent({
+      name: 'RoutedView',
+      setup: () => () => h('div', { 'data-outlet': '' }),
+    }),
+    useLocation: () => computed(() => ({ pathname: locationState.pathname, search: '', hash: '' })),
     useTranslation: () => ({
       t: (
         key: string,
@@ -104,14 +112,18 @@ describe('SidebarLayout', () => {
     expect(markup.match(/aria-current="page"/g) ?? []).toHaveLength(1)
   })
 
-  it('renders the Outlet for nested routes', () => {
+  it('renders the routed page in main when it has no children', () => {
+    const markup = render({ appName: 'Acme', navItems })
+    expect(markup).toMatch(/<main[^>]*><div data-outlet=""><\/div><\/main>/)
+  })
+
+  it('renders its children instead of the routed page', () => {
     const markup = render(
       { appName: 'Acme', navItems },
-      {
-        default: () => [h('div', { 'data-outlet': '' })],
-      },
+      { default: () => [h('p', null, 'Page body')] },
     )
-    expect(markup).toContain('data-outlet=""')
+    expect(markup).toMatch(/<main[^>]*><p>Page body<\/p><\/main>/)
+    expect(markup).not.toContain('data-outlet')
   })
 
   it('renders the userMenu and themeToggle slots', () => {

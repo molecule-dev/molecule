@@ -5,14 +5,20 @@
  * While `useAuth().status` is `'loading'` it renders the `loadingFallback`
  * (or the default loading tag); when `'unauthenticated'` it redirects to
  * `loginPath` carrying the attempted location in `state.from`; otherwise it
- * renders its children (the default slot).
+ * renders its children (the default slot), or `RoutedView` without them.
  *
  * @module
  */
 
 import { defineComponent, h, onMounted, type PropType, ref, type VNodeChild, watch } from 'vue'
 
-import { useAuth, useLocation, useRouterInstance, useTranslation } from '@molecule/app-vue'
+import {
+  RoutedView,
+  useAuth,
+  useLocation,
+  useRouterInstance,
+  useTranslation,
+} from '@molecule/app-vue'
 
 /**
  * Props for {@link AuthGuard}.
@@ -75,9 +81,9 @@ const loginPathname = (loginPath: string): string => loginPath.split(/[?#]/)[0] 
  *   the attempted location in `state.from` for post-login restoration. On
  *   `loginPath` itself it renders its children instead, so a guard that wraps
  *   the whole route tree (login page included) does not redirect in a loop.
- * - Otherwise renders its children (the default slot). React defaults to
- *   `<Outlet />` when children are absent, which renders nothing outside a
- *   routed parent — so this renders the default slot or nothing.
+ * - Otherwise renders its children (the default slot), or `RoutedView` without
+ *   them: the matched child route, through whichever routing bond the app
+ *   wired (it throws when the bond has none: pass the page then).
  *
  * The guard reads `status`, not `initialized`: a stored token AND user make the
  * FIRST render `'authenticated'`, so a protected page paints immediately instead
@@ -210,7 +216,7 @@ export const AuthGuard = defineComponent({
         // this branch stops matching and the children render.
         return null
       }
-      return slots.default?.() ?? null
+      return slots.default ? slots.default() : h(RoutedView)
     }
   },
 })

@@ -22,15 +22,16 @@
  *
  * @example
  * ```tsx
- * import { Route } from 'react-router'
  * import { PlanUpdated } from '@molecule/app-plan-updated-page-react'
  *
- * <Route path="/plan-updated" element={<PlanUpdated />} />
+ * // Register this page as `/plan-updated` in the app's route table.
+ * <PlanUpdated />
  * ```
  *
  * @remarks
- * Requires react-router-dom (renders `<Link>`, so it must sit inside your
- * Router) and the `@molecule/app-react` auth provider (`useAuth` drives the
+ * Requires the app's router (it renders a `<Link>` from
+ * `@molecule/app-react/link`, so it must sit inside `RouterProvider`) and the
+ * `@molecule/app-react` auth provider (`useAuth` drives the
  * hydration spinner, `useVerifyPaymentReturn` the confirmation call).
  * Never point a provider's `success_url` straight at the API's
  * `/api/users/:id/verify-payment/:provider`: that top-level redirect crosses

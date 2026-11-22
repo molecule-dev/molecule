@@ -9,8 +9,7 @@
  *
  * @example
  * ```ts
- * import { createApp, defineComponent, h } from 'vue'
- * import { RouterView } from 'vue-router'
+ * import { defineComponent, h } from 'vue'
  * import { TopNavLayout, type TopNavItem } from '@molecule/app-top-nav-layout-vue'
  *
  * const NAV: TopNavItem[] = [
@@ -18,28 +17,24 @@
  *   { key: 'reports', to: '/reports', icon: 'bar_chart', label: 'Reports' },
  * ]
  *
- * const Shell = defineComponent({
+ * // The layout route's component: its `<main>` renders the matched child route.
+ * export const Shell = defineComponent({
  *   setup() {
  *     return () =>
- *       h(
- *         TopNavLayout,
- *         {
- *           appName: 'Acme',
- *           navItems: NAV,
- *           userMenu: h('button', { type: 'button' }, 'Account'),
- *         },
- *         { default: () => [h(RouterView)] },
- *       )
+ *       h(TopNavLayout, {
+ *         appName: 'Acme',
+ *         navItems: NAV,
+ *         userMenu: h('button', { type: 'button' }, 'Account'),
+ *       })
  *   },
  * })
- *
- * createApp(Shell).mount('#app')
  * ```
  *
  * @remarks
- * Render it as a LAYOUT ROUTE component and pass the routed view as the
- * default slot: React renders React Router's `<Outlet />` in the `<main>`, and
- * this package renders its default slot there. Nav labels are hidden below the
+ * Render it as a LAYOUT ROUTE component: without a default slot the `<main>`
+ * renders `RoutedView` from `@molecule/app-vue` (the matched child route,
+ * through the app's routing bond), as React's renders its children or
+ * `<RoutedView />`; a default slot takes its place. Nav labels are hidden below the
  * `md` breakpoint (icon-only mobile nav), so always provide `icon` names; they
  * render as Material Symbols ligatures and need the Material Symbols font
  * loaded by the host app. Styling comes from the bonded ClassMap, so a

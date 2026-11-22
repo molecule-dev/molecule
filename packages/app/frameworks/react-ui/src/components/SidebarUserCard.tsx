@@ -6,9 +6,8 @@
 
 import type { ButtonHTMLAttributes, JSX, ReactNode } from 'react'
 import { useState } from 'react'
-import { useLocation } from 'react-router'
 
-import { useAuth, useTranslation } from '@molecule/app-react'
+import { useAuth, useLocation, useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 import { getInitials } from '../utilities/initials.js'

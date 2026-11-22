@@ -43,6 +43,7 @@ import {
   titleParityPairs,
   titleParityViolations,
 } from '../check-framework-conformance.mjs'
+import { ROUTER_LIBRARY_FIX } from '../router-libraries.mjs'
 
 const roots = []
 
@@ -268,6 +269,53 @@ describe('check-framework-conformance', () => {
       },
     })
     expect(check(root)).toEqual([])
+  })
+
+  it('fails a framework or feature package that declares a router library', () => {
+    const root = tree({
+      bond: {
+        pkg: {
+          peerDependencies: { 'react-router': '^8.0.0' },
+          devDependencies: { [KIT]: '0.0.0', 'vue-router': '5.0.0' },
+        },
+      },
+    })
+    mkdirSync(join(root, 'packages/app/features/menu-react'), { recursive: true })
+    writeFileSync(
+      join(root, 'packages/app/features/menu-react/package.json'),
+      JSON.stringify({
+        name: '@molecule/app-menu-react',
+        dependencies: { '@solidjs/router': '0.16.0' },
+      }),
+    )
+    expect(check(root).filter((line) => line.includes(ROUTER_LIBRARY_FIX))).toEqual([
+      `packages/app/features/menu-react: dependencies declares @solidjs/router. ${ROUTER_LIBRARY_FIX}`,
+      `packages/app/frameworks/foo-ui: peerDependencies declares react-router. ${ROUTER_LIBRARY_FIX}`,
+      `packages/app/frameworks/foo-ui: devDependencies declares vue-router. ${ROUTER_LIBRARY_FIX}`,
+    ])
+  })
+
+  it('accepts a router library in a routing bond or a composition root', () => {
+    const root = tree()
+    for (const [dir, name, deps] of [
+      [
+        'packages/app/bonds/routing/react-router',
+        '@molecule/app-routing-react-router',
+        { 'react-router': '^8.0.0' },
+      ],
+      [
+        'packages/app/infrastructure/bonds-default-vue',
+        '@molecule/app-bonds-default-vue',
+        { 'vue-router': '^5.0.0' },
+      ],
+    ]) {
+      mkdirSync(join(root, dir), { recursive: true })
+      writeFileSync(
+        join(root, dir, 'package.json'),
+        JSON.stringify({ name, peerDependencies: deps }),
+      )
+    }
+    expect(check(root).filter((line) => line.includes(ROUTER_LIBRARY_FIX))).toEqual([])
   })
 
   it('never asks the reference or the native UI bond to run DOM conformance', () => {

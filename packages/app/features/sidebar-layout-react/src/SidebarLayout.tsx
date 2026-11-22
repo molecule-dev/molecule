@@ -1,7 +1,7 @@
 import type { CSSProperties, ReactElement, ReactNode } from 'react'
-import { Link, Outlet, useLocation } from 'react-router'
 
-import { useTranslation } from '@molecule/app-react'
+import { RoutedView, useLocation, useTranslation } from '@molecule/app-react'
+import { Link } from '@molecule/app-react/link'
 import { getClassMap } from '@molecule/app-ui'
 
 /** Describes a single item in the sidebar's vertical navigation list. */
@@ -96,6 +96,13 @@ export interface SidebarLayoutProps {
   className?: string
   /** `data-mol-id` for AI-agent selectors. */
   dataMolId?: string
+  /**
+   * The page body, rendered in the `<main>`. Without it the layout renders
+   * `<RoutedView />`: the matched child route, through whichever routing bond
+   * the app wired. That throws when the routing bond has no routed view
+   * (Next.js gives a layout its page as `children`): pass the page then.
+   */
+  children?: ReactNode
 }
 
 /**
@@ -114,6 +121,7 @@ export function SidebarLayout({
   sidebarWidthClass,
   className,
   dataMolId,
+  children,
 }: SidebarLayoutProps): ReactElement {
   const cm = getClassMap()
   const { t } = useTranslation()
@@ -236,7 +244,7 @@ export function SidebarLayout({
       {/* `minWidth: 0` lets the scroll area shrink below its content width in the
           flex row (no min-w-0 token exists) — the documented ClassMap can't-express case. */}
       <main className={cm.cn(cm.pageShellContent)} style={{ minWidth: 0 }}>
-        <Outlet />
+        {children ?? <RoutedView />}
       </main>
     </div>
   )

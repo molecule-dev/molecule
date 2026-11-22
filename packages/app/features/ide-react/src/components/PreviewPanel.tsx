@@ -648,7 +648,7 @@ PreviewPanel.displayName = 'PreviewPanel'
  *
  * The Tooltip is imported via its dedicated subpath
  * (`@molecule/app-ui-react/components/Tooltip.js`) so the IDE pulls only the
- * Tooltip, never the package barrel (which would drag in `react-router-dom`).
+ * Tooltip, never the whole package barrel.
  * This BarButton is the reference pattern other IDE affordances should follow
  * when replacing native `title` tooltips.
  *

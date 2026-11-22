@@ -28,7 +28,7 @@ import {
   type LogLevel,
   setProvider as setLoggerProvider,
 } from '@molecule/app-logger'
-import { createMemoryRouter, type Router } from '@molecule/app-routing'
+import type { Router } from '@molecule/app-routing'
 import { createSimpleStateProvider } from '@molecule/app-state'
 import { createMemoryStorageProvider, type StorageProvider } from '@molecule/app-storage'
 import {
@@ -38,6 +38,7 @@ import {
   type ThemeProvider,
 } from '@molecule/app-theme'
 
+import { createCaseRouter } from '../ui/case-router.js'
 import type { ServiceCallSink } from '../ui/fakes.js'
 import { areaFakesFactories } from './fakes/index.js'
 import type { AuthOperation, BindingContext, BindingServices, HttpScript } from './spec.js'
@@ -529,9 +530,7 @@ export function buildBindingServices(
   const http = createScriptedHttpClient(context.http ?? [], sink)
   const storage = createRecordedStorage(context.storage ?? {}, sink)
   const theme = createBindingThemeProvider(context.theme ?? 'light', sink)
-  const router = countRouterListeners(
-    createMemoryRouter({ initialEntries: [context.route ?? '/'], routes: context.routes ?? [] }),
-  )
+  const router = countRouterListeners(createCaseRouter(context, context.routes ?? []))
   // A fresh i18n provider per case, also bonded globally: hooks that translate
   // through the bond (provider-missing errors) and through the context see one provider.
   const i18nBase = createSimpleI18nProvider('en', [

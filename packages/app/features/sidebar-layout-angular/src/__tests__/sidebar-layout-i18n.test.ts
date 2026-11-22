@@ -48,7 +48,7 @@ vi.mock('@molecule/app-ui', () => ({
 // exports so `useTranslation` is the one the component actually uses.
 vi.mock('@molecule/app-angular', async (importOriginal) => {
   const actual = await importOriginal<typeof AngularBinding>()
-  const { Directive } = await import('@angular/core')
+  const { Component, Directive } = await import('@angular/core')
   const Link = Directive({
     selector: 'a[molLink]',
     standalone: true,
@@ -60,9 +60,20 @@ vi.mock('@molecule/app-angular', async (importOriginal) => {
       molLink = ''
     },
   )
+  const RoutedView = Component({
+    selector: 'mol-routed-view',
+    standalone: true,
+    template: '<div data-outlet=""></div>',
+  })(
+    class MockRoutedView {
+      /** The routed view stub. */
+      readonly stub = true
+    },
+  )
   return {
     ...actual,
     Link,
+    RoutedView,
     useRouterInstance: () => ({
       getLocation: () => ({ pathname: '/dashboard', search: '', hash: '' }),
       subscribe: () => () => undefined,

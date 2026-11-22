@@ -10,6 +10,10 @@
 
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+// The current location the `useLocation` fake reads, so a test can move the
+// active path before it renders.
+const locationState = vi.hoisted(() => ({ pathname: '/' }))
+
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
 // `topNavLayoutRoot`), so tests can assert which cm.* class was applied
 // without a real bond — the same mock the React tests use.
@@ -50,8 +54,9 @@ vi.mock('@molecule/app-ui', () => {
   }
 })
 
-// The router markers the React tests mock `react-router` with: `Link` renders
-// an anchor with `data-link`, and the location is a fixed page path.
+// The router markers: `Link` renders an anchor with `data-link`, the location
+// is the current {@link locationState}, and `RoutedView` renders the routed
+// page.
 vi.mock('@molecule/app-vue', async () => {
   const { computed, defineComponent, h } = await import('vue')
   return {
@@ -63,7 +68,11 @@ vi.mock('@molecule/app-vue', async () => {
         return () => h('a', { ...attrs, href: props.to, 'data-link': '' }, slots.default?.())
       },
     }),
-    useLocation: () => computed(() => ({ pathname: '/', search: '', hash: '' })),
+    RoutedView: defineComponent({
+      name: 'RoutedView',
+      setup: () => () => h('div', { 'data-outlet': '' }),
+    }),
+    useLocation: () => computed(() => ({ pathname: locationState.pathname, search: '', hash: '' })),
     // The component's own text renders through `t`; without a bonded provider
     // the translation falls back to the call's `defaultValue`.
     useTranslation: () => ({
@@ -80,10 +89,8 @@ import type { TopNavLayoutProps } from '../types.js'
 
 afterEach(() => {
   document.body.innerHTML = ''
+  locationState.pathname = '/'
 })
-
-/** The routed page body a caller passes as the default slot (React's `<Outlet />`). */
-const routedView = (): VNodeChild => h('div', { 'data-outlet': '' })
 
 /** Renders a {@link TopNavLayout} and returns the markup it produced. */
 const render = (props: TopNavLayoutProps, slots?: Record<string, () => VNodeChild[]>): string => {
@@ -102,6 +109,16 @@ const navItems = [
   { to: '/reports', key: 'reports', label: 'Reports' },
 ]
 
+/**
+ * The opening tag of the link whose accessible name is `label`.
+ *
+ * @param markup - The rendered markup.
+ * @param label - The link's `aria-label`.
+ * @returns The tag, or undefined.
+ */
+const linkTag = (markup: string, label: string): string | undefined =>
+  markup.match(new RegExp(`<a [^>]*aria-label="${label}"[^>]*>`))?.[0]
+
 describe('TopNavLayout', () => {
   it('renders the brand link with the app name', () => {
     const markup = render({ appName: 'Acme', navItems })
@@ -109,16 +126,36 @@ describe('TopNavLayout', () => {
     expect(markup).toContain('Acme')
   })
 
-  it('renders a NavLink per nav item with its label', () => {
+  it('renders a link per nav item with its label', () => {
     const markup = render({ appName: 'Acme', navItems })
     expect(markup.match(/<a [^>]*aria-label=/g) ?? []).toHaveLength(2)
     expect(markup).toContain('Dashboard')
     expect(markup).toContain('Reports')
   })
 
-  it('renders the Outlet for nested routes', () => {
-    const markup = render({ appName: 'Acme', navItems }, { default: () => [routedView()] })
-    expect(markup).toContain('data-outlet=""')
+  it('marks the nav item matching the current path as aria-current', () => {
+    locationState.pathname = '/dashboard/settings'
+    const nested = render({ appName: 'Acme', navItems })
+    expect(linkTag(nested, 'Dashboard')).toContain('aria-current="page"')
+    expect(linkTag(nested, 'Reports')).not.toContain('aria-current')
+    // A longer segment that only starts with the item's path is another page.
+    locationState.pathname = '/dashboard-archive'
+    const sibling = render({ appName: 'Acme', navItems })
+    expect(linkTag(sibling, 'Dashboard')).not.toContain('aria-current')
+  })
+
+  it('renders the routed page in main when it has no children', () => {
+    const markup = render({ appName: 'Acme', navItems })
+    expect(markup).toMatch(/<main><div data-outlet=""><\/div><\/main>/)
+  })
+
+  it('renders its children instead of the routed page', () => {
+    const markup = render(
+      { appName: 'Acme', navItems },
+      { default: () => [h('p', null, 'Page body')] },
+    )
+    expect(markup).toMatch(/<main><p>Page body<\/p><\/main>/)
+    expect(markup).not.toContain('data-outlet')
   })
 
   it('renders the userMenu slot', () => {

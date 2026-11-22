@@ -69,6 +69,8 @@ export interface VueBinding extends BindingCaseResets {
   createThemePlugin(provider: ThemeProvider): Plugin
   /** The full composition root, for feature cases that mount with every service (`RunOptions.app`). */
   moleculePlugin: Plugin<[BindingServices]>
+  /** Provides the router and the routing bond's routed view (`routedView`) to its subtree. */
+  RouterProvider: Component
   SessionReady: Component
 }
 
@@ -96,6 +98,7 @@ export function createVueAdapter({
     createRouterPlugin,
     createThemePlugin,
     moleculePlugin,
+    RouterProvider,
     SessionReady,
   } = binding
 
@@ -193,8 +196,23 @@ export function createVueAdapter({
       // A ref case puts a template ref on the component, as a caller does; the element is its `$el`.
       const componentRef = shallowRef<unknown>(null)
       const refProp = testCase.ref ? { ref: componentRef } : {}
+      // The routing bond's routed view: the case's `routedPage` text, or nothing (an `Outlet`
+      // with no matched child), provided as a routing bond provides one.
+      const routedPage = testCase.context?.routedPage
+      const RoutedPage = defineComponent({
+        name: 'ConformanceRoutedPage',
+        setup: () => () => routedPage ?? null,
+      })
       const hostTree = (): VNode =>
-        h(Comp, { ...state.props, ...nodeProps, ...listeners, ...refProp }, slots)
+        h(
+          RouterProvider,
+          { router, routedView: RoutedPage },
+          {
+            default: () => [
+              h(Comp, { ...state.props, ...nodeProps, ...listeners, ...refProp }, slots),
+            ],
+          },
+        )
 
       try {
         return await runSteps(

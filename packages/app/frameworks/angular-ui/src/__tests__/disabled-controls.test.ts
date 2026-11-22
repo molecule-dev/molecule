@@ -94,7 +94,9 @@ vi.mock('@molecule/app-icons', () => ({
   getIcon: () => ({ paths: [{ d: 'M0 0' }], viewBox: '0 0 16 16' }),
 }))
 
-vi.mock('@molecule/app-angular', () => ({
+// Partial: the real binding's `RoutedView` (AuthGuard's routed page) and the rest stay real.
+vi.mock('@molecule/app-angular', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useTranslation: () => ({
     t: (_key: string, _values: unknown, opts?: { defaultValue?: string }) =>
       opts?.defaultValue ?? '',

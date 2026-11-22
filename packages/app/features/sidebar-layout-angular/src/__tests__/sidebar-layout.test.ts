@@ -23,6 +23,10 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+// The current location the `useRouterInstance` fake reads, so a test can move
+// the active path before it renders.
+const locationState = vi.hoisted(() => ({ pathname: '/dashboard' }))
+
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
 // `pageShell`), so tests can assert which cm.* class was applied without a real
 // bond — the same mock the React tests use.
@@ -46,12 +50,12 @@ vi.mock('@molecule/app-ui', () => ({
   },
 }))
 
-// The router markers the React tests mock `react-router` with: `Link` renders
-// an anchor, and the location is a fixed page path. The binding's `t` resolves
-// a key's inline English default; the nav label's own test file exercises a
-// marking provider.
+// The router markers: `Link` renders an anchor, `RoutedView` renders the
+// routed page, and the location is the current {@link locationState}. The
+// binding's `t` resolves a key's inline English default; the nav label's own
+// test file exercises a marking provider.
 vi.mock('@molecule/app-angular', async () => {
-  const { Directive } = await import('@angular/core')
+  const { Component, Directive } = await import('@angular/core')
   const Link = Directive({
     selector: 'a[molLink]',
     standalone: true,
@@ -63,10 +67,21 @@ vi.mock('@molecule/app-angular', async () => {
       molLink = ''
     },
   )
+  const RoutedView = Component({
+    selector: 'mol-routed-view',
+    standalone: true,
+    template: '<div data-outlet=""></div>',
+  })(
+    class MockRoutedView {
+      /** The routed view stub. */
+      readonly stub = true
+    },
+  )
   return {
     Link,
+    RoutedView,
     useRouterInstance: () => ({
-      getLocation: () => ({ pathname: '/dashboard', search: '', hash: '' }),
+      getLocation: () => ({ pathname: locationState.pathname, search: '', hash: '' }),
       subscribe: () => () => undefined,
     }),
     useTranslation: () => ({
@@ -163,7 +178,17 @@ const render = async (props: Record<string, unknown> = {}, content = ''): Promis
 
 afterEach(async () => {
   for (const m of mounted.splice(0)) await m.destroy()
+  locationState.pathname = '/dashboard'
 })
+
+/**
+ * The inner markup of the layout's `<main>`.
+ *
+ * @param markup - The rendered markup.
+ * @returns The main content.
+ */
+const mainContent = (markup: string): string =>
+  markup.match(/<main[^>]*>([\s\S]*)<\/main>/)?.[1] ?? ''
 
 describe('SidebarLayout', () => {
   it('renders the brand link with the app name', async () => {
@@ -185,9 +210,15 @@ describe('SidebarLayout', () => {
     expect(m.host.innerHTML.match(/aria-current="page"/g) ?? []).toHaveLength(1)
   })
 
-  it('renders the Outlet for nested routes', async () => {
-    const m = await render({ appName: 'Acme' }, '<div data-outlet></div>')
-    expect(m.host.innerHTML).toContain('data-outlet')
+  it('renders the routed page in main when it has no children', async () => {
+    const m = await render({ appName: 'Acme' })
+    expect(mainContent(m.host.innerHTML)).toContain('data-outlet')
+  })
+
+  it('renders its children instead of the routed page', async () => {
+    const m = await render({ appName: 'Acme' }, '<p>Page body</p>')
+    expect(mainContent(m.host.innerHTML)).toContain('<p>Page body</p>')
+    expect(m.host.innerHTML).not.toContain('data-outlet')
   })
 
   it('renders the userMenu and themeToggle slots', async () => {

@@ -44,7 +44,7 @@ if (!snippet) throw new Error('Missing query-react detail example')
 function compileSnippet<T>(code: string, names: string[]): T {
   const http = createFetchClient({ baseURL: 'https://catalog.example', retry: { maxRetries: 0 } })
   const imports: Record<string, unknown> = {
-    'react-router': {
+    '@molecule/app-react/link': {
       Link: ({ children }: { children: string }) => createElement('a', {}, children),
     },
     '@molecule/app-query-react': { useQuery, intentPrefetchProps },

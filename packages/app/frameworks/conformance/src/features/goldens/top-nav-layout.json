@@ -11,6 +11,18 @@
     ],
     "calls": []
    },
+   "no children renders the routed page in main": {
+    "snapshots": [
+     "<div class=\"c521316b1 c6f7f9a4e cdde537c9 ce6c94376\">\n<header class=\"c247fed04 c4b92e3a8 c5494c1c8 ce3fd289a cfceca889\">\n<div class=\"c1e8176ab c42740ba6 c913cd95a c9166dbd0 c937ba156 ca96eb3ea ccae02ff2 cd5d4be14 cd9b20003 cf97b750d\">\n<a class=\"c0d99ed10 c201466f5\" href=\"/\">\nAcme\n</a>\n<nav aria-label=\"Primary navigation\" class=\"c1e8176ab c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003\">\n<a aria-current=\"page\" aria-label=\"Dashboard\" class=\"c0e0dac04 c1e8176ab c42740ba6 c445db9b9 c7d370ab9 c80b1c428 c8e3cd4a1 c9866e6d5 caa01b65f caa6eb57d cc2d72006 ccae02ff2 cd9b20003 cda72d38d\" href=\"/dashboard\">\n<span class=\"c14d40b97 cf618f139\">\nDashboard\n</span>\n</a>\n<a aria-label=\"Reports\" class=\"c0e0dac04 c1e8176ab c2c00ee86 c42740ba6 c445db9b9 c7d370ab9 c80b1c428 c8e3cd4a1 c9866e6d5 caa6eb57d cc2d72006 ccae02ff2 cd9b20003 ce823b5bf cff192e8a\" href=\"/reports\">\n<span class=\"c14d40b97 cf618f139\">\nReports\n</span>\n</a>\n</nav>\n</div>\n</header>\n<main>\nRouted page\n</main>\n</div>\n@route /dashboard"
+    ],
+    "calls": []
+   },
+   "children take the place of the routed page": {
+    "snapshots": [
+     "<div class=\"c521316b1 c6f7f9a4e cdde537c9 ce6c94376\">\n<header class=\"c247fed04 c4b92e3a8 c5494c1c8 ce3fd289a cfceca889\">\n<div class=\"c1e8176ab c42740ba6 c913cd95a c9166dbd0 c937ba156 ca96eb3ea ccae02ff2 cd5d4be14 cd9b20003 cf97b750d\">\n<a class=\"c0d99ed10 c201466f5\" href=\"/\">\nAcme\n</a>\n<nav aria-label=\"Primary navigation\" class=\"c1e8176ab c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003\">\n<a aria-current=\"page\" aria-label=\"Dashboard\" class=\"c0e0dac04 c1e8176ab c42740ba6 c445db9b9 c7d370ab9 c80b1c428 c8e3cd4a1 c9866e6d5 caa01b65f caa6eb57d cc2d72006 ccae02ff2 cd9b20003 cda72d38d\" href=\"/dashboard\">\n<span class=\"c14d40b97 cf618f139\">\nDashboard\n</span>\n</a>\n<a aria-label=\"Reports\" class=\"c0e0dac04 c1e8176ab c2c00ee86 c42740ba6 c445db9b9 c7d370ab9 c80b1c428 c8e3cd4a1 c9866e6d5 caa6eb57d cc2d72006 ccae02ff2 cd9b20003 ce823b5bf cff192e8a\" href=\"/reports\">\n<span class=\"c14d40b97 cf618f139\">\nReports\n</span>\n</a>\n</nav>\n</div>\n</header>\n<main>\n<p>\nPage body\n</p>\n</main>\n</div>\n@route /dashboard"
+    ],
+    "calls": []
+   },
    "icons and a nested route": {
     "snapshots": [
      "<div class=\"c521316b1 c6f7f9a4e cdde537c9 ce6c94376\">\n<header class=\"c247fed04 c4b92e3a8 c5494c1c8 ce3fd289a cfceca889\">\n<div class=\"c1e8176ab c42740ba6 c913cd95a c9166dbd0 c937ba156 ca96eb3ea ccae02ff2 cd5d4be14 cd9b20003 cf97b750d\">\n<a class=\"c0d99ed10 c201466f5\" href=\"/\">\nAcme\n</a>\n<nav aria-label=\"Primary navigation\" class=\"c1e8176ab c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003\">\n<a aria-current=\"page\" aria-label=\"Dashboard\" class=\"c0e0dac04 c1e8176ab c42740ba6 c445db9b9 c7d370ab9 c80b1c428 c8e3cd4a1 c9866e6d5 caa01b65f caa6eb57d cc2d72006 ccae02ff2 cd9b20003 cda72d38d\" href=\"/dashboard\">\n<span aria-hidden=\"true\" class=\"caeede141\">\ndashboard\n</span>\n<span class=\"c14d40b97 cf618f139\">\nDashboard\n</span>\n</a>\n<a aria-label=\"Reports\" class=\"c0e0dac04 c1e8176ab c2c00ee86 c42740ba6 c445db9b9 c7d370ab9 c80b1c428 c8e3cd4a1 c9866e6d5 caa6eb57d cc2d72006 ccae02ff2 cd9b20003 ce823b5bf cff192e8a\" href=\"/reports\">\n<span aria-hidden=\"true\" class=\"caeede141\">\nbar_chart\n</span>\n<span class=\"c14d40b97 cf618f139\">\nReports\n</span>\n</a>\n</nav>\n</div>\n</header>\n<main>\n</main>\n</div>\n@route /dashboard/settings"

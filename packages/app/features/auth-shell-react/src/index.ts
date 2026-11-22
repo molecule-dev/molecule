@@ -54,9 +54,10 @@
  * ```
  *
  * @remarks
- * `AuthShell` renders a react-router `<Link>` ("Back to home") by default,
- * so it MUST be rendered inside a `<Router>`; pass `showBackLink={false}`
- * in router-less setups. The back link's arrow uses the Material Symbols
+ * `AuthShell` renders an `<Link>` from `@molecule/app-react/link`
+ * ("Back to home") by default, so it MUST be rendered inside the app's
+ * router (`RouterProvider`); pass `showBackLink={false}` in router-less
+ * setups. The back link's arrow uses the Material Symbols
  * icon font — load it, or the glyph renders as text; the glyph span is
  * `aria-hidden="true"`, so the link's accessible name is its `t()` label
  * alone. The default glass

@@ -8,10 +8,13 @@
  * @module
  */
 
-import type { ReactNode } from 'react'
+import type { ReactElement, ReactNode } from 'react'
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it, vi } from 'vitest'
+
+import { RouterProvider } from '@molecule/app-react'
+import { createMemoryRouter } from '@molecule/app-routing'
 
 vi.mock('@molecule/app-ui', () => ({
   getClassMap: () => {
@@ -33,39 +36,34 @@ vi.mock('@molecule/app-ui', () => ({
   },
 }))
 
-vi.mock('react-router', () => ({
-  Link: ({ to, children }: { to: string; children?: ReactNode }) =>
-    createElement('a', { href: to, 'data-link': '' }, children),
-  NavLink: ({
-    to,
-    children,
-    className,
-  }: {
-    to: string
-    children?: ReactNode
-    className?: string | ((s: { isActive: boolean }) => string)
-  }) =>
-    createElement(
-      'a',
-      {
-        href: to,
-        'data-navlink': '',
-        className: typeof className === 'function' ? className({ isActive: false }) : className,
-      },
-      children,
-    ),
-  Outlet: () => createElement('div', { 'data-outlet': '' }),
-}))
-
 // Translations the bonded i18n provider would supply: each key maps to a marked string, so a
-// default that bypassed t() would show up as plain English.
-vi.mock('@molecule/app-react', () => ({
+// default that bypassed t() would show up as plain English. Everything else (the real
+// `RouterProvider`, `useLocation`, `RoutedView` and `Link`) stays real.
+vi.mock('@molecule/app-react', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useTranslation: () => ({ t: (key: string) => `«${key}»` }),
 }))
 
 const { TopNavLayout } = await import('../TopNavLayout.js')
 
-const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
+/** The page the routing bond renders where the layout puts its routed view. */
+const RoutedPage = (): ReactElement => createElement('div', { 'data-outlet': '' })
+
+/**
+ * Renders a layout under a memory router at `path`, with {@link RoutedPage} as the routed view.
+ *
+ * @param el - The layout.
+ * @param path - The router's location.
+ * @returns The markup.
+ */
+const html = (el: ReactNode, path = '/'): string =>
+  renderToStaticMarkup(
+    createElement(RouterProvider, {
+      router: createMemoryRouter({ initialEntries: [path] }),
+      routedView: RoutedPage,
+      children: el,
+    }),
+  )
 
 const navItems = [
   { to: '/dashboard', key: 'dashboard', label: 'Dashboard' },

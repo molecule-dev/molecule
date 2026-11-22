@@ -8,12 +8,14 @@
  * @module
  */
 
-import { act, createElement, type ReactNode } from 'react'
+import { act, createElement, type ReactElement } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { I18nProvider } from '@molecule/app-i18n'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
+import { RouterProvider } from '@molecule/app-react'
+import { createMemoryRouter } from '@molecule/app-routing'
 
 vi.mock('@molecule/app-ui', () => ({
   getClassMap: () => {
@@ -35,31 +37,10 @@ vi.mock('@molecule/app-ui', () => ({
   },
 }))
 
-vi.mock('react-router', () => ({
-  Link: ({ to, children }: { to: string; children?: ReactNode }) =>
-    createElement('a', { href: to, 'data-link': '' }, children),
-  NavLink: ({
-    to,
-    children,
-    className,
-  }: {
-    to: string
-    children?: ReactNode
-    className?: string | ((s: { isActive: boolean }) => string)
-  }) =>
-    createElement(
-      'a',
-      {
-        href: to,
-        'data-navlink': '',
-        className: typeof className === 'function' ? className({ isActive: false }) : className,
-      },
-      children,
-    ),
-  Outlet: () => createElement('div', { 'data-outlet': '' }),
-}))
-
 const { TopNavLayout } = await import('../TopNavLayout.js')
+
+/** The page the routing bond renders where the layout puts its routed view. */
+const RoutedPage = (): ReactElement => createElement('div', { 'data-outlet': '' })
 
 const navItems = [
   { to: '/dashboard', key: 'dashboard', label: 'Dashboard' },
@@ -104,7 +85,13 @@ describe('TopNavLayout locale switch', () => {
     document.body.appendChild(host)
     root = createRoot(host)
     await act(async () => {
-      root?.render(createElement(TopNavLayout, { appName: 'Acme', navItems }))
+      root?.render(
+        createElement(RouterProvider, {
+          router: createMemoryRouter({ initialEntries: ['/'] }),
+          routedView: RoutedPage,
+          children: createElement(TopNavLayout, { appName: 'Acme', navItems }),
+        }),
+      )
     })
     const nav = host.querySelector('nav')
     expect(nav?.getAttribute('aria-label')).toBe('Primary navigation')

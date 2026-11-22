@@ -1,9 +1,8 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router'
 
 import type { UserProfile } from '@molecule/app-auth'
 import { serverErrorMessage } from '@molecule/app-http'
-import { useAuth, useHttpClient, useTranslation } from '@molecule/app-react'
+import { useAuth, useHttpClient, useNavigate, useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Alert, Button, Input, Modal } from '@molecule/app-ui-react'
 

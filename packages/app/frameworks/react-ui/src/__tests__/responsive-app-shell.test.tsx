@@ -23,10 +23,6 @@ const mockLocation = { pathname: '/dashboard', search: '', hash: '', key: 'key-0
 let matches = false
 const changeListeners = new Set<(e: { matches: boolean }) => void>()
 
-vi.mock('react-router', () => ({
-  useLocation: () => ({ ...mockLocation }),
-}))
-
 vi.mock('@molecule/app-ui', () => ({
   getClassMap: () => {
     // Tokens the shell CALLS (resolvers with options) vs plain string tokens.
@@ -53,6 +49,7 @@ vi.mock('@molecule/app-ui', () => ({
 }))
 
 vi.mock('@molecule/app-react', () => ({
+  useLocation: () => ({ ...mockLocation }),
   useTranslation: () => ({
     t: (_key: string, _values: unknown, opts?: { defaultValue?: string }) =>
       opts?.defaultValue ?? _key,

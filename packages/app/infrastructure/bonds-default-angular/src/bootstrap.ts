@@ -29,8 +29,9 @@ import { createApplication } from '@angular/platform-browser'
  * @example
  * ```ts
  * // src/main.ts
- * import { bootstrapApp } from '@molecule/app-bonds-default-angular'
  * import { provideRouter } from '@angular/router'
+ * import { bootstrapApp } from '@molecule/app-bonds-default-angular'
+ * import { provideMoleculeRouter } from '@molecule/app-routing-angular-router'
  *
  * import { App } from './app/app.js'
  * import { authClient, setupProviders } from './bonds/index.js'
@@ -41,9 +42,11 @@ import { createApplication } from '@angular/platform-browser'
  *   App,
  *   authClient,
  *   setupProviders,
- *   // Angular providers for the root injector — `provideRouter(routes)`,
- *   // `provideMolecule({ ... })`, `provideZonelessChangeDetection()`, …
- *   providers: [provideRouter(routes)],
+ *   // Angular providers for the root injector — `provideRouter(routes)` with
+ *   // `provideMoleculeRouter()` (molecule's router over it, and the routed view a
+ *   // layout or guard without children renders), `provideMolecule({ ... })`,
+ *   // `provideZonelessChangeDetection()`, …
+ *   providers: [provideRouter(routes), provideMoleculeRouter()],
  *   registerPWA,
  * })
  * ```
@@ -53,8 +56,9 @@ export function bootstrapApp(opts: {
   authClient: { initialize: () => Promise<void> }
   setupProviders: () => void | Promise<void>
   /**
-   * Angular root-injector providers — `provideRouter(routes)`,
-   * `provideMolecule({ ... })`, `provideZonelessChangeDetection()`, … Both the
+   * Angular root-injector providers — `provideRouter(routes)` with
+   * `provideMoleculeRouter()`, `provideMolecule({ ... })`,
+   * `provideZonelessChangeDetection()`, … Both the
    * `EnvironmentProviders` those functions return and plain `Provider` objects
    * are accepted, exactly as Angular's own `bootstrapApplication` does.
    */

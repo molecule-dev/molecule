@@ -28,6 +28,14 @@ import type {
 } from './types.js'
 import { generatePath, matchPath, parseQuery, stringifyQuery } from './utilities.js'
 
+/**
+ * Whether an in-app destination is only a query or a hash, which stays on the current page.
+ *
+ * @param path - The destination passed to `navigate` or `createHref`.
+ * @returns True for `?…` and `#…`.
+ */
+const isSamePage = (path: string): boolean => path.startsWith('?') || path.startsWith('#')
+
 /** Options for {@link createHistoryRouter}. */
 export interface HistoryRouterOptions {
   /** Route definitions for named routes ({@link Router.navigateTo}) and route params. */
@@ -158,7 +166,7 @@ export const createHistoryRouter = (
     const target = parseLocation(path)
     // A target that is only a query or a hash stays on the current page, as React Router's
     // `navigate('?tab=profile')` does; its query is dropped for a hash alone, as there.
-    const samePage = path.startsWith('?') || path.startsWith('#')
+    const samePage = isSamePage(path)
     return formatLocation({
       pathname: samePage ? current.pathname : target.pathname,
       search: target.search || (navigateOptions.preserveQuery ? current.search : ''),
@@ -255,7 +263,12 @@ export const createHistoryRouter = (
 
     generatePath: namedPath,
 
-    createHref: (path: string) => history.createHref?.(path) ?? path,
+    // A query or a hash alone is resolved against the current page first, as `navigate` resolves
+    // it and as React Router's `<Link to="#top">` writes it, so the href opens the page a click does.
+    createHref: (path: string) => {
+      const target = isSamePage(path) ? resolveTarget(path, {}) : path
+      return history.createHref?.(target) ?? target
+    },
 
     subscribe(listener: RouteChangeListener): () => void {
       listeners.add(listener)

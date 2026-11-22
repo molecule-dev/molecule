@@ -62,11 +62,12 @@
  *   `ThemeToggle` need `I18nProvider` (via `MoleculeProvider i18n={...}`); `ThemeToggle` also
  *   needs `ThemeProvider`; `AuthGuard` also needs `AuthProvider`. The primitive components
  *   (Button, Modal, Input, …) need only the ClassMap.
- * - **Router-linked components** (`UserMenu`, `UserMenuPopover`, `SidebarUserCard`, `Dropdown`
- *   item `href`s, `AuthGuard` redirects) render react-router `<Link>`/navigation — they need a
- *   react-router context (`<BrowserRouter>`) and, in workspace dev setups, the Vite
- *   `resolve.dedupe: ['react', 'react-dom', 'react-router', 'react-router']` entry; a
- *   duplicate copy surfaces as "useHref may be used only in the context of a <Router>".
+ * - **Router-linked components** (`UserMenu`, `UserMenuPopover`, `SidebarUserCard`, `Dropdown`,
+ *   `ResponsiveAppShell`, `AuthGuard`) read the router through `@molecule/app-react`
+ *   (`useLocation`, `useRouterInstance`, `RoutedView`), so they work under any routing bond and
+ *   import no router library. They need the router component of the app's routing bond
+ *   (`BrowserRouter` from `@molecule/app-routing-react-router`) above them, and throw an error
+ *   naming it without one.
  * - **`UserMenu` panel content is `children`** (rendered inside the popover, with
  *   `PanelClose`/`usePanelClose` available) — there is no `renderPanel` prop.
  * - **`Icon` names are kebab-case `IconName`s from `@molecule/app-icons`** — an unknown name is

@@ -25,7 +25,6 @@
  * @example
  * ```svelte
  * <script lang="ts">
- *   import { setMoleculeContext } from '@molecule/app-svelte'
  *   import {
  *     AccountSection,
  *     AppearanceSection,
@@ -39,11 +38,9 @@
  *     TiersUpgradeSection,
  *   } from '@molecule/app-settings-panel-svelte'
  *
+ *   // The sections read the app's services through the binding's hooks (see
+ *   // the wiring prereqs below).
  *   let { onClose }: { onClose: () => void } = $props()
- *
- *   // Wire the standard molecule services once in the root layout; the
- *   // sections read them through the binding's hooks.
- *   setMoleculeContext({ http, auth, theme, router, i18n })
  * </script>
  *
  * <SettingsContainer {onClose}>
@@ -59,10 +56,11 @@
  * ```
  *
  * @remarks
- * - Wiring prereqs: sections need the standard `@molecule/app-svelte`
- *   composition root — `setMoleculeContext({ i18n, http, auth, theme,
- *   router })` once in the root layout — plus a bonded ClassMap, device
- *   provider and push provider.
+ * - Wiring prereqs: sections need the standard composition root in the
+ *   root layout — the routing bond's `MoleculeRouterProvider` around a
+ *   `MoleculeProvider` from `@molecule/app-svelte` given `i18n`, `http`,
+ *   `auth` and `theme`, as the Svelte scaffold's `src/routes/+layout.svelte`
+ *   does — plus a bonded ClassMap, device provider and push provider.
  *   `<BillingSection>` and `<LogOutDeleteSection>` also call the router and
  *   throw outside a composition root that carries one.
  * - Section components throw if rendered outside `<SettingsContainer>`

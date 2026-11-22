@@ -19,23 +19,46 @@
  *
  * @example
  * ```ts
- * import { createApp, defineComponent, h } from 'vue'
+ * // main.ts
+ * import { createApp } from 'vue'
+ * import { createRouter, createWebHistory } from 'vue-router'
  * import { PlanUpdated } from '@molecule/app-plan-updated-page-vue'
  *
- * const routes = [{ path: '/plan-updated', component: PlanUpdated }]
+ * import App from './App.vue'
  *
- * createApp(defineComponent({
- *   setup() {
- *     return () => h(RouterView)
- *   },
- * })).use(router).use(moleculePlugin, { auth, i18n, router }).mount('#app')
+ * const router = createRouter({
+ *   history: createWebHistory(),
+ *   routes: [{ path: '/plan-updated', component: PlanUpdated }],
+ * })
+ *
+ * createApp(App).use(router).mount('#app')
+ * ```
+ *
+ * @example
+ * ```vue
+ * <!-- App.vue -->
+ * <script setup lang="ts">
+ * import { MoleculeRouterProvider } from '@molecule/app-routing-vue-router'
+ * import { MoleculeProvider } from '@molecule/app-vue'
+ *
+ * import { authClient, i18nProvider } from './bonds/index.js'
+ * </script>
+ *
+ * <template>
+ *   <MoleculeRouterProvider>
+ *     <MoleculeProvider :auth="authClient" :i18n="i18nProvider">
+ *       <RouterView />
+ *     </MoleculeProvider>
+ *   </MoleculeRouterProvider>
+ * </template>
  * ```
  *
  * @remarks
- * Requires the `moleculePlugin` from `@molecule/app-vue` configured with the
- * app's `auth` client and `i18n` provider (`useAuth` drives the hydration
- * spinner, `useVerifyPaymentReturn` the confirmation call), plus its `router`
- * (the page renders `Link`, so it must sit inside the app's router). Never
+ * Requires a `MoleculeProvider` from `@molecule/app-vue` given the app's `auth`
+ * client and `i18n` provider (`useAuth` drives the hydration spinner,
+ * `useVerifyPaymentReturn` the confirmation call), inside the routing bond's
+ * `MoleculeRouterProvider` (the page renders `Link`, so it needs the app's router).
+ * The Vue scaffold mounts both in `src/App.vue`. Never
  * point a provider's `success_url` straight at the API's
  * `/api/users/:id/verify-payment/:provider`: that top-level redirect crosses
  * to a host the session cookie is not set for, so it answers 401 and the paid

@@ -24,10 +24,10 @@
  * ```
  *
  * @remarks
- * - Calls `useAuth()` and `useTranslation()` — both THROW unless
- *   `setMoleculeContext({ auth, i18n })` (from `@molecule/app-svelte`) has
- *   run for the app (scaffolded apps do this in `App.svelte`'s root
- *   component).
+ * - Calls `useAuth()` and `useTranslation()` — both THROW unless a
+ *   `MoleculeProvider` from `@molecule/app-svelte` given `auth` and `i18n`
+ *   is above it (the Svelte scaffold mounts it in
+ *   `src/routes/+layout.svelte`).
  * - `home.greeting` / `home.world` have NO inline English fallback: they
  *   resolve from `@molecule/app-locales-common`, which the app's i18n setup
  *   merges automatically. A custom i18n setup must register the common bond

@@ -28,8 +28,9 @@
  * `@molecule/app-notification-feed-react`, which renders Material
  * Symbols LIGATURES — load the "Material Symbols Outlined" font (and its
  * CSS class) or icon names render as plain text. Notifications whose
- * `data.href` is set render react-router `<Link>` rows, which require a
- * `<Router>` ancestor. Defaults assume the API is proxied at `/api` —
+ * `data.href` is set render `<Link>` rows from `@molecule/app-react/link`,
+ * which require the app's router (`RouterProvider`). Defaults assume the API
+ * is proxied at `/api` —
  * override `endpoint` / `markAllReadEndpoint` otherwise.
  *
  * @module

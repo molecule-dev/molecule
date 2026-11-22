@@ -4,12 +4,21 @@
  * @module
  */
 
-import { Component, type OnDestroy, signal } from '@angular/core'
+import {
+  type AfterViewChecked,
+  type AfterViewInit,
+  Component,
+  type ElementRef,
+  type OnDestroy,
+  signal,
+  ViewChild,
+} from '@angular/core'
 
-import { Link, useRouterInstance, useTranslation } from '@molecule/app-angular'
+import { Link, RoutedView, useRouterInstance, useTranslation } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
+import { hasNodes } from './slot-dom.js'
 import type { TopNavItem } from './types.js'
 
 /**
@@ -34,8 +43,9 @@ const navItemActive = (pathname: string, to: string): boolean => {
  *
  * Sticky top-nav shell with brand + horizontal nav + user-menu slot. The host
  * IS the outer `<div>` (`div[mol-top-nav-layout]`), matching React's root
- * exactly. The page body is projected as the element's default content (React
- * renders its router's `<Outlet />` in the `<main>`), and the user menu is
+ * exactly. The page body is projected as the element's default content; without
+ * one the `<main>` renders `<mol-routed-view />` (the matched child route,
+ * through whichever routing bond the app wired), and the user menu is
  * projected as `[slot=userMenu]` content. Nav labels are hidden below the `md`
  * breakpoint (icon-only mobile nav), so always provide `icon` names; they
  * render as Material Symbols ligatures and need the Material Symbols font
@@ -45,7 +55,7 @@ const navItemActive = (pathname: string, to: string): boolean => {
 @Component({
   selector: 'div[mol-top-nav-layout]',
   standalone: true,
-  imports: [Link],
+  imports: [Link, RoutedView],
   inputs: ['appName', 'logoTo', 'navItems', 'navAriaLabel', 'className', 'dataMolId'],
   host: {
     '[class]': 'classes()',
@@ -72,9 +82,14 @@ const navItemActive = (pathname: string, to: string): boolean => {
         <ng-content select="[slot=userMenu]"></ng-content>
       </div>
     </header>
-    <main><ng-content></ng-content></main>`,
+    <main>
+      <span #pageSlot data-parity-unwrap style="display: contents"><ng-content></ng-content></span>
+      @if (routed()) {
+        <mol-routed-view />
+      }
+    </main>`,
 })
-export class TopNavLayout implements OnDestroy {
+export class TopNavLayout implements AfterViewInit, AfterViewChecked, OnDestroy {
   /** Brand text shown in the top-left link (typically the app name). */
   appName = ''
   /** Path the brand link navigates to (defaults to `'/'` at read time). */
@@ -91,6 +106,15 @@ export class TopNavLayout implements OnDestroy {
   /** `data-mol-id` for AI-agent selectors. */
   dataMolId?: string
 
+  /** The page body's projection capture point. */
+  @ViewChild('pageSlot') private pageSlot?: ElementRef<HTMLElement>
+
+  /**
+   * Whether the `<main>` renders the routed view: no page body was projected. A signal the
+   * template reads, so the routed view is created only then (it throws without one).
+   */
+  readonly routed = signal(false)
+
   private readonly router = useRouterInstance()
 
   /** The i18n handle (locale-reactive), read in an injection context. */
@@ -104,6 +128,22 @@ export class TopNavLayout implements OnDestroy {
   /** Stops listening to the router when the component goes away. */
   ngOnDestroy(): void {
     this.stop()
+  }
+
+  /** Decides the `<main>` content once the capture point exists. */
+  ngAfterViewInit(): void {
+    this.syncRouted()
+  }
+
+  /** Follows a page body projected or removed later. */
+  ngAfterViewChecked(): void {
+    this.syncRouted()
+  }
+
+  /** React renders `children ?? <RoutedView />`: the routed view only without a page body. */
+  private syncRouted(): void {
+    const page = this.pageSlot?.nativeElement
+    if (page) this.routed.set(!hasNodes(page))
   }
 
   /**

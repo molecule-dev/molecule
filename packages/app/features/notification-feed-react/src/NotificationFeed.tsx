@@ -1,6 +1,6 @@
 import type { JSX } from 'react'
-import { Link } from 'react-router'
 
+import { Link } from '@molecule/app-react/link'
 import { getClassMap } from '@molecule/app-ui'
 
 import { fmtRelativeShort } from './fmtRelativeShort.js'

@@ -480,9 +480,39 @@
     ],
     "calls": []
    },
-   "authenticated without children renders the outlet": {
+   "authenticated without children renders the routed view": {
     "snapshots": [
      "\n@route /"
+    ],
+    "calls": []
+   },
+   "authenticated without children renders the routed page": {
+    "snapshots": [
+     "Routed page\n@route /"
+    ],
+    "calls": []
+   },
+   "authenticated children take the place of the routed page": {
+    "snapshots": [
+     "<p>\nProtected page\n</p>\n@route /"
+    ],
+    "calls": []
+   },
+   "loading does not render the routed page": {
+    "snapshots": [
+     "\n@route /"
+    ],
+    "calls": []
+   },
+   "unauthenticated without children renders the routed page once on the login path": {
+    "snapshots": [
+     "Routed page\n@route /login state={\"from\":{\"hash\":\"\",\"pathname\":\"/dashboard\",\"search\":\"\"}}"
+    ],
+    "calls": []
+   },
+   "a redirect that cannot land renders nothing": {
+    "snapshots": [
+     "\n@route /dashboard"
     ],
     "calls": []
    },

@@ -5,8 +5,8 @@
  *
  * This is a thin renderer over the icon-set *contract* (`@molecule/app-icons`),
  * deliberately NOT a re-use of `@molecule/app-ui-react`'s `Icon`: that package
- * has no subpath exports, so importing it would pull its whole barrel — and its
- * `react-router-dom` peer — into this feature package. The contract is all the
+ * exports no `Icon` subpath (only `Tooltip` has one), so importing it would pull
+ * its whole barrel into this feature package. The contract is all the
  * IDE needs, and the host app already wires the icon set.
  *
  * @module

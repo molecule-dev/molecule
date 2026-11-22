@@ -5,7 +5,7 @@
   its router's `<Outlet />` there). Same props, same DOM for the same input.
 -->
 <script lang="ts">
-  import { Link, useLocation, useTranslation } from '@molecule/app-svelte'
+  import { Link, RoutedView, useLocation, useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
   import type { TopNavItem, TopNavLayoutProps } from './types.js'
@@ -104,6 +104,6 @@
     </div>
   </header>
   <main>
-    {#if children}{@render children()}{/if}
+    {#if children}{@render children()}{:else}<RoutedView />{/if}
   </main>
 </div>

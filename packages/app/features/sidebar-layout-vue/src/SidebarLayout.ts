@@ -11,7 +11,7 @@
 import { defineComponent, h, type PropType, type VNode, type VNodeChild } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
-import { Link, useLocation, useTranslation } from '@molecule/app-vue'
+import { Link, RoutedView, useLocation, useTranslation } from '@molecule/app-vue'
 
 import type { SidebarNavItem } from './types.js'
 
@@ -238,7 +238,8 @@ export const SidebarLayout = defineComponent({
           h(
             'main',
             { class: cm.cn(cm.pageShellContent), style: { minWidth: '0px' } },
-            slotOrProp(slots.default, null),
+            // The page body, or the matched child route through the app's routing bond.
+            slots.default ? slots.default() : h(RoutedView),
           ),
         ],
       )

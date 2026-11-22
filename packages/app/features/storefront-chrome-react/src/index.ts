@@ -49,10 +49,10 @@
  * ```
  *
  * @remarks
- * - Hard requirement: `react-router-dom` (peer dep) — every link is a
- *   router `<Link>`, so the components MUST render inside a `<Router>`
- *   or they throw. In npm-workspace/symlinked setups keep
- *   `react-router-dom` in Vite `resolve.dedupe`.
+ * - Hard requirement: the app's router (`RouterProvider`) — every link is a
+ *   `<Link>` from `@molecule/app-react/link`, so the components MUST render
+ *   inside it or they throw. In npm-workspace/symlinked setups keep
+ *   `@molecule/app-react` in Vite `resolve.dedupe`.
  * - `NavActionSpec.icon` is a Material Symbols LIGATURE name
  *   (`'shopping_cart'`): load the "Material Symbols Outlined" font in
  *   the host app or the nav shows raw words instead of icons.

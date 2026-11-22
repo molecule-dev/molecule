@@ -7,7 +7,7 @@
   input.
 -->
 <script lang="ts">
-  import { Link, useLocation, useTranslation } from '@molecule/app-svelte'
+  import { Link, RoutedView, useLocation, useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
   import type { SidebarLayoutProps, SidebarNavItem } from './types.js'
@@ -170,6 +170,8 @@
   <main class={cm.cn(cm.pageShellContent)} style="min-width: 0px">
     {#if children}
       {@render children()}
+    {:else}
+      <RoutedView />
     {/if}
   </main>
 </div>

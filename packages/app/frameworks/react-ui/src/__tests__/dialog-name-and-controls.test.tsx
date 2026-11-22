@@ -27,10 +27,6 @@ import { Tabs } from '../components/Tabs.js'
 // closes its drawer on route change.
 const mockLocation = { pathname: '/', search: '' }
 
-vi.mock('react-router', () => ({
-  useLocation: () => ({ ...mockLocation }),
-}))
-
 vi.mock('@molecule/app-ui', () => ({
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
@@ -56,6 +52,7 @@ vi.mock('@molecule/app-ui', () => ({
 // The drawer label test reads a TRANSLATED value, so the stub resolves keys
 // through a small table before falling back to the defaultValue.
 vi.mock('@molecule/app-react', () => ({
+  useLocation: () => ({ ...mockLocation }),
   useTranslation: () => ({
     t: (key: string, _values: unknown, opts?: { defaultValue?: string }) =>
       ({ 'sidebarUserCard.drawer': 'Konto' })[key] ?? opts?.defaultValue ?? key,

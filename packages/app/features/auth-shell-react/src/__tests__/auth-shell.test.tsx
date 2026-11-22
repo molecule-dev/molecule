@@ -31,7 +31,7 @@ vi.mock('@molecule/app-react', () => ({
   }),
 }))
 
-vi.mock('react-router', () => ({
+vi.mock('@molecule/app-react/link', () => ({
   Link: ({ to, children }: { to: string; children?: ReactNode }) =>
     createElement('a', { href: to, 'data-link': '' }, children),
 }))

@@ -82,7 +82,7 @@ export type AuthOperation =
   | 'changePassword'
 
 /** Everything a binding case can seed, in addition to the UI case context. */
-export interface BindingContext extends CaseContext {
+export interface BindingContext extends Omit<CaseContext, 'routedPage'> {
   /** Initial storage contents (`key` → stored value). */
   storage?: Record<string, unknown>
   /** HTTP responses, consumed in order per method + URL. */

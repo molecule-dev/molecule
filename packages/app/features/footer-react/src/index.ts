@@ -22,9 +22,10 @@
  * The `appName` interpolated into the Privacy/Terms modal HTML is
  * HTML-escaped first — the modal bodies render via `dangerouslySetInnerHTML`,
  * so a markup-carrying app name must arrive as inert entities.
- * - Must render inside BOTH a `react-router-dom` router (the About link and
- *   `legalMode="route"` links are `<Link>` elements — they throw outside a
- *   Router) and `@molecule/app-react`'s `I18nProvider` — `useTranslation()`
+ * - Must render inside BOTH the app's router (the About link and
+ *   `legalMode="route"` links are `<Link>` elements from
+ *   `@molecule/app-react/link` — they throw outside `RouterProvider`) and
+ *   `@molecule/app-react`'s `I18nProvider` — `useTranslation()`
  *   THROWS without it. `getClassMap()` needs a bonded ClassMap
  *   (e.g. `@molecule/app-ui-tailwind`); version display works unbonded (the
  *   version core falls back to a web provider).

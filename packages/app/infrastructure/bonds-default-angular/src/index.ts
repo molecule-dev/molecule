@@ -11,7 +11,8 @@
  *   — the whole scaffolded `src/main.ts`: awaits `setupProviders()` BEFORE the
  *   first render, kicks off `authClient.initialize()` (best-effort), mounts
  *   the root component on `#root`, then registers the PWA. `providers` are
- *   Angular root-injector providers (`provideRouter(routes)`,
+ *   Angular root-injector providers (`provideRouter(routes)` with
+ *   `provideMoleculeRouter()` from `@molecule/app-routing-angular-router`,
  *   `provideMolecule({ ... })`, …).
  * - `setupAllDefaultBonds()` — wires the NINE universal bonds in one call:
  *   state (the vanilla `simpleProvider`, so `createStore()` works from the
@@ -54,6 +55,7 @@
  *   createDefaultAuthClientWithHttpSync,
  *   setupAllDefaultBonds,
  * } from '@molecule/app-bonds-default-angular'
+ * import { provideMoleculeRouter } from '@molecule/app-routing-angular-router'
  * // Optional providers come from their own subpath — see @remarks.
  * import { setupAppCodeEditorMonaco } from '@molecule/app-bonds-default-angular/optional/code-editor-monaco.js'
  *
@@ -73,7 +75,7 @@
  *     setupAuthDefault()
  *     await setupAppCodeEditorMonaco() // only if the app uses the code editor
  *   },
- *   providers: [provideRouter(routes)],
+ *   providers: [provideRouter(routes), provideMoleculeRouter()],
  * })
  * ```
  *

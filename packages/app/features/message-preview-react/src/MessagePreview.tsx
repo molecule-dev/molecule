@@ -1,6 +1,6 @@
 import type { JSX, KeyboardEvent, ReactNode } from 'react'
-import { Link } from 'react-router'
 
+import { Link } from '@molecule/app-react/link'
 import { getClassMap } from '@molecule/app-ui'
 
 /** Presence state of the contact shown in the avatar dot. */
@@ -39,7 +39,7 @@ function deriveInitials(value: ReactNode): string {
 
 /**
  * Conversation / thread preview row. Renders as a `<Link>` when `to` is
- * provided (requires a react-router `<Router>` ancestor), otherwise as a
+ * provided (requires the app's router — `RouterProvider`), otherwise as a
  * `<div>` — a focusable button in the a11y tree (`role="button"`,
  * `tabIndex={0}`) when `onClick` is given, with Enter / Space activating it,
  * matching native button keyboard semantics.

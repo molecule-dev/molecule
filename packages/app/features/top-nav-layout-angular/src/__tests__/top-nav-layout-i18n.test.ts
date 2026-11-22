@@ -62,7 +62,7 @@ vi.mock('@molecule/app-ui', () => {
 // translation function that marks every key, so a default that bypassed `t()`
 // would show up as plain English.
 vi.mock('@molecule/app-angular', async () => {
-  const { Directive } = await import('@angular/core')
+  const { Component, Directive } = await import('@angular/core')
   const Link = Directive({
     selector: 'a[molLink]',
     standalone: true,
@@ -74,8 +74,19 @@ vi.mock('@molecule/app-angular', async () => {
       molLink = ''
     },
   )
+  const RoutedView = Component({
+    selector: 'mol-routed-view',
+    standalone: true,
+    template: '<div data-outlet=""></div>',
+  })(
+    class MockRoutedView {
+      /** The routed view stub. */
+      readonly stub = true
+    },
+  )
   return {
     Link,
+    RoutedView,
     useRouterInstance: () => ({
       getLocation: () => ({ pathname: '/', search: '', hash: '' }),
       subscribe: () => () => undefined,

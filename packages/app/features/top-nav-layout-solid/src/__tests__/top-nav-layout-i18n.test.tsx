@@ -47,6 +47,7 @@ vi.mock('@molecule/app-solid', () => ({
       </a>
     )
   },
+  RoutedView: () => <div data-outlet="" />,
   useLocation: () => () => ({ pathname: '/', search: '', hash: '' }),
   useTranslation: () => ({ t: (key: string) => `«${key}»` }),
 }))

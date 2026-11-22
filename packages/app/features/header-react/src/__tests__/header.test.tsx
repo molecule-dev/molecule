@@ -1,8 +1,9 @@
 import type { Context, ReactElement, ReactNode } from 'react'
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
-import type { LinkProps } from 'react-router'
 import { describe, expect, it, vi } from 'vitest'
+
+import type { LinkProps } from '@molecule/app-react/link'
 
 vi.mock('@molecule/app-ui', () => ({
   getClassMap: () => {
@@ -46,7 +47,7 @@ vi.mock('@molecule/app-react', async () => {
   }
 })
 
-vi.mock('react-router', () => ({
+vi.mock('@molecule/app-react/link', () => ({
   Link: ({ to, ...props }: LinkProps) =>
     createElement('a', { ...props, href: String(to), 'data-link': '' }),
 }))

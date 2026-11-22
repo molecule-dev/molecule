@@ -5,8 +5,8 @@
  */
 
 import type { ReactElement, ReactNode } from 'react'
-import { Link } from 'react-router'
 
+import { Link } from '@molecule/app-react/link'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { FooterColumn } from './types.js'

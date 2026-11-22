@@ -1,7 +1,7 @@
 import type { CSSProperties, ElementType, HTMLAttributes, JSX, ReactNode } from 'react'
-import { Link } from 'react-router'
 
 import { useTranslation } from '@molecule/app-react'
+import { Link } from '@molecule/app-react/link'
 import type { StorageProvider } from '@molecule/app-storage'
 import { getClassMap } from '@molecule/app-ui'
 

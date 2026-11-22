@@ -22,10 +22,6 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 // simulate SPA navigation, then re-render.
 const mockLocation = { pathname: '/', search: '' }
 
-vi.mock('react-router', () => ({
-  useLocation: () => ({ ...mockLocation }),
-}))
-
 vi.mock('@molecule/app-ui', () => ({
   getClassMap: () => {
     const CALLABLE = new Set([
@@ -59,6 +55,7 @@ vi.mock('@molecule/app-ui', () => ({
 }))
 
 vi.mock('@molecule/app-react', () => ({
+  useLocation: () => ({ ...mockLocation }),
   useTranslation: () => ({
     t: (_key: string, _values: unknown, opts?: { defaultValue?: string }) =>
       opts?.defaultValue ?? _key,

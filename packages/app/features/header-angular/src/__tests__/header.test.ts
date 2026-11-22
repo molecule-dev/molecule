@@ -121,15 +121,15 @@ vi.mock('@molecule/app-ui-angular', async (importOriginal) => {
 // provider presence. `inject(TOKEN, { optional: true })` returns null when a
 // provider is absent (it does NOT throw), which is exactly what makes the
 // header degrade gracefully instead of crashing the real ThemeToggle.
-// The brand link is the binding's real `Link` directive over a real memory router.
+// Every other export is the binding's own: the brand link is its real `Link` directive over a real
+// memory router, and the components the header loads read the binding's other exports when defined.
 vi.mock('@molecule/app-angular', async (importOriginal) => {
   const actual = await importOriginal<typeof AngularBinding>()
   const { InjectionToken } = await import('@angular/core')
   return {
+    ...actual,
     THEME_PROVIDER: new InjectionToken<unknown>('mock-theme-provider'),
     I18N_PROVIDER: new InjectionToken<unknown>('mock-i18n-provider'),
-    Link: actual.Link,
-    provideRouter: actual.provideRouter,
   }
 })
 

@@ -8,10 +8,11 @@ import { vi } from 'vitest'
 
 import type { AuthClient } from '@molecule/app-auth'
 import { getProvider as getI18nProvider, type I18nProvider } from '@molecule/app-i18n'
-import { createMemoryRouter, type Router } from '@molecule/app-routing'
+import type { Router } from '@molecule/app-routing'
 import type { ThemeProvider } from '@molecule/app-theme'
 
 import { withinCaseDeadline } from './case-deadline.js'
+import { createCaseRouter } from './case-router.js'
 import { advanceClock, type ClockScope, installCaseClock } from './clock.js'
 import {
   freshContainer,
@@ -73,7 +74,7 @@ export function buildServices(testCase: UICase, recorder: CallRecorder): CaseSer
   const i18n = getI18nProvider()
   return {
     i18n,
-    router: createMemoryRouter({ initialEntries: [testCase.context?.route ?? '/'] }),
+    router: createCaseRouter(testCase.context),
     theme: createFakeThemeProvider(testCase.context?.theme ?? 'light', sink),
     auth: testCase.context?.auth ? createFakeAuthClient(testCase.context.auth, sink) : undefined,
   }

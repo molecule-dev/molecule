@@ -17,7 +17,7 @@ import {
   ViewChild,
 } from '@angular/core'
 
-import { Link, useRouterInstance, useTranslation } from '@molecule/app-angular'
+import { Link, RoutedView, useRouterInstance, useTranslation } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -71,7 +71,7 @@ const resolveSidebarWidthPx = (width?: string | number, legacyWidthClass?: strin
 @Component({
   selector: 'div[mol-sidebar-layout]',
   standalone: true,
-  imports: [Link],
+  imports: [Link, RoutedView],
   inputs: [
     'appName',
     'logoTo',
@@ -87,7 +87,7 @@ const resolveSidebarWidthPx = (width?: string | number, legacyWidthClass?: strin
     '[attr.data-mol-id]': 'dataMolId ?? null',
   },
   // prettier-ignore
-  template: `<aside [class]="asideClasses()" [style.width.px]="widthPx()"><a [molLink]="logoPath()" [class]="brandClasses()">{{ appName }}</a><nav [class]="navClasses()" [attr.aria-label]="navLabel()">@for (item of navItems; track item.key) {<a [molLink]="itemPath(item)" [attr.data-mol-id]="'nav-' + item.key" [attr.aria-current]="isActive(item) ? 'page' : null" [class]="itemClasses(item)">@if (item.icon) {<span [class]="iconClasses()" aria-hidden="true">{{ item.icon }}</span>}<span>{{ item.label }}</span></a>}</nav><div #bottom [class]="bottomClasses()"><span #placeholder aria-hidden="true"></span><span #userSlot data-parity-unwrap style="display: contents"><ng-content select="[slot=userMenu]"></ng-content></span><span #themeSlot data-parity-unwrap style="display: contents"><ng-content select="[slot=themeToggle]"></ng-content></span></div></aside><main [class]="mainClasses()" [style.min-width.px]="0"><ng-content></ng-content></main>`,
+  template: `<aside [class]="asideClasses()" [style.width.px]="widthPx()"><a [molLink]="logoPath()" [class]="brandClasses()">{{ appName }}</a><nav [class]="navClasses()" [attr.aria-label]="navLabel()">@for (item of navItems; track item.key) {<a [molLink]="itemPath(item)" [attr.data-mol-id]="'nav-' + item.key" [attr.aria-current]="isActive(item) ? 'page' : null" [class]="itemClasses(item)">@if (item.icon) {<span [class]="iconClasses()" aria-hidden="true">{{ item.icon }}</span>}<span>{{ item.label }}</span></a>}</nav><div #bottom [class]="bottomClasses()"><span #placeholder aria-hidden="true"></span><span #userSlot data-parity-unwrap style="display: contents"><ng-content select="[slot=userMenu]"></ng-content></span><span #themeSlot data-parity-unwrap style="display: contents"><ng-content select="[slot=themeToggle]"></ng-content></span></div></aside><main [class]="mainClasses()" [style.min-width.px]="0"><span #pageSlot data-parity-unwrap style="display: contents"><ng-content></ng-content></span>@if (routed()) {<mol-routed-view />}</main>`,
 })
 export class SidebarLayout implements AfterViewInit, AfterViewChecked, DoCheck, OnDestroy {
   /** Brand text shown at the top of the sidebar (typically the app name). */
@@ -119,6 +119,14 @@ export class SidebarLayout implements AfterViewInit, AfterViewChecked, DoCheck, 
   @ViewChild('userSlot') private userSlot?: ElementRef<HTMLElement>
   /** The `[slot=themeToggle]` projection capture point. */
   @ViewChild('themeSlot') private themeSlot?: ElementRef<HTMLElement>
+  /** The page body's projection capture point. */
+  @ViewChild('pageSlot') private pageSlot?: ElementRef<HTMLElement>
+
+  /**
+   * Whether the `<main>` renders the routed view: no page body was projected. A signal the
+   * template reads, so the routed view is created only then (it throws without one).
+   */
+  readonly routed = signal(false)
 
   private readonly router = useRouterInstance()
 
@@ -345,5 +353,8 @@ export class SidebarLayout implements AfterViewInit, AfterViewChecked, DoCheck, 
     const hasTheme = hasNodes(theme)
     this.guard.toggle(this.bottom?.nativeElement, hasUser || hasTheme)
     this.guard.toggle(this.placeholder?.nativeElement, !hasUser && hasTheme)
+    // React renders `children ?? <RoutedView />`; the capture point resolves at view init.
+    const page = this.pageSlot?.nativeElement
+    if (page) this.routed.set(!hasNodes(page))
   }
 }

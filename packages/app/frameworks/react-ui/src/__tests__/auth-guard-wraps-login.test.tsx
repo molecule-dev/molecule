@@ -11,11 +11,14 @@
  * @module
  */
 import { act, cleanup, render, screen } from '@testing-library/react'
-import { createElement, type FunctionComponent } from 'react'
-import { MemoryRouter, Route, Routes, useLocation } from 'react-router'
+import { createElement, type FunctionComponent, type ReactElement } from 'react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-vi.mock('@molecule/app-react', () => ({
+import { RouterProvider, useLocation } from '@molecule/app-react'
+import { createMemoryRouter } from '@molecule/app-routing'
+
+vi.mock('@molecule/app-react', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useAuth: () => ({ status: 'unauthenticated', isAuthenticated: false }),
   useTranslation: () => ({
     t: (key: string, _values?: unknown, options?: { defaultValue?: string }) =>
@@ -40,33 +43,22 @@ function Where(): ReturnType<typeof createElement> {
   return createElement('p', { 'data-testid': 'where' }, useLocation().pathname)
 }
 
+/** The page for the current path, replacing React Router's `<Routes>` tree. */
+function Pages(): ReactElement | null {
+  const { pathname } = useLocation()
+  if (pathname === '/') return createElement('div', null, 'protected page')
+  if (pathname === '/login') return createElement('div', null, 'login page')
+  if (pathname === '/signin') return createElement('div', null, 'signin page')
+  return null
+}
+
 const renderWrapped = (initial: string, loginPath?: string): void => {
+  const router = createMemoryRouter({ initialEntries: [initial] })
   render(
-    createElement(
-      MemoryRouter,
-      { initialEntries: [initial] },
-      createElement(
-        Guard,
-        { loginPath },
-        createElement(
-          Routes,
-          null,
-          createElement(Route, {
-            path: '/',
-            element: createElement('div', null, 'protected page'),
-          }),
-          createElement(Route, {
-            path: '/login',
-            element: createElement('div', null, 'login page'),
-          }),
-          createElement(Route, {
-            path: '/signin',
-            element: createElement('div', null, 'signin page'),
-          }),
-        ),
-        createElement(Where),
-      ),
-    ),
+    createElement(RouterProvider, {
+      router,
+      children: createElement(Guard, { loginPath }, createElement(Pages), createElement(Where)),
+    }),
   )
 }
 

@@ -6,12 +6,24 @@
  * @module
  */
 
-import { act, createElement, createRef, type ReactElement, type ReactNode } from 'react'
+import {
+  act,
+  type ComponentType,
+  createElement,
+  createRef,
+  type ReactElement,
+  type ReactNode,
+} from 'react'
 import { createRoot } from 'react-dom/client'
-import { MemoryRouter, type NavigateFunction, useLocation, useNavigate } from 'react-router'
 
 import * as ReactBinding from '@molecule/app-react'
-import { AuthProvider, I18nProvider, MoleculeProvider, ThemeProvider } from '@molecule/app-react'
+import {
+  AuthProvider,
+  I18nProvider,
+  MoleculeProvider,
+  RouterProvider,
+  ThemeProvider,
+} from '@molecule/app-react'
 import * as ReactUI from '@molecule/app-ui-react'
 
 import {
@@ -101,22 +113,6 @@ export function toReactNodes(nodes: NodeSpec[] | undefined): ReactNode {
 const reactProps = (props: Record<string, unknown>): Record<string, unknown> =>
   materializeProps(props, { nodes: (list) => toReactNodes(list), callback: callbackSpy })
 
-/** What {@link RouteProbe} captures. */
-interface RouteSnapshot {
-  path: string
-  state?: unknown
-  navigate?: NavigateFunction
-}
-
-/** Writes react-router's current location and navigate function into `into` on every render. */
-function RouteProbe({ into }: { into: RouteSnapshot }): null {
-  const location = useLocation()
-  into.path = `${location.pathname}${location.search}`
-  into.state = location.state
-  into.navigate = useNavigate()
-  return null
-}
-
 /**
  * A React adapter over one export map.
  *
@@ -173,10 +169,15 @@ async function runReactCase(
     ...(testCase.ref ? { ref: refObject } : {}),
   }
 
-  const route: RouteSnapshot = { path: testCase.context?.route ?? '/' }
-  // Where the router starts: the case's route, then on a remount the route the component left.
-  let entry: string | { pathname: string; search: string; state: unknown } =
-    testCase.context?.route ?? '/'
+  // The case's memory router, as the port adapters mount it: app-react's `RouterProvider` over
+  // core `createMemoryRouter()`, so the reference renders under no router library and a
+  // component that reaches for one throws here. It lives outside the tree, so a remount starts
+  // where the component left it.
+  const router = app ? app.services.router : services.router
+  // The routing bond's routed view: the case's `routedPage` text, or nothing (an `Outlet`
+  // with no matched child). One component for the case, so a re-render keeps its state.
+  const routedPage = testCase.context?.routedPage
+  const RoutedPage: ComponentType = () => routedPage ?? null
   const element = (): ReactElement => {
     let tree: ReactElement = createElement(
       'div',
@@ -186,7 +187,6 @@ async function runReactCase(
       testCase.children
         ? createElement(Component, props, toReactNodes(testCase.children))
         : createElement(Component, props),
-      createElement(RouteProbe, { into: route }),
     )
     if (app) {
       tree = createElement(MoleculeProvider, {
@@ -200,8 +200,7 @@ async function runReactCase(
       tree = createElement(ThemeProvider, { provider: services.theme, children: tree })
       tree = createElement(I18nProvider, { provider: services.i18n, children: tree })
     }
-    tree = createElement(MemoryRouter, { initialEntries: [entry] }, tree)
-    return tree
+    return createElement(RouterProvider, { router, routedView: RoutedPage, children: tree })
   }
 
   try {
@@ -222,12 +221,14 @@ async function runReactCase(
               root.render(element())
             })
           },
-          location: () => route.path,
-          locationState: () => route.state,
+          location: () => {
+            const { pathname, search } = router.getLocation()
+            return `${pathname}${search}`
+          },
+          locationState: () => router.getLocation().state,
           refElement: () => refObject.current,
           navigate: (to) => {
-            if (!route.navigate) throw new Error('conformance: the router has not rendered yet')
-            void route.navigate(to)
+            router.navigate(to)
           },
           wrap: async (step) => {
             await act(step)
@@ -237,14 +238,8 @@ async function runReactCase(
               root.unmount()
             })
           },
-          // The router lives inside the tree, so it starts again where the component left it.
+          // The router outlives the tree, so the component comes back where it left.
           remount: async () => {
-            const at = route.path.indexOf('?')
-            entry = {
-              pathname: at < 0 ? route.path : route.path.slice(0, at),
-              search: at < 0 ? '' : route.path.slice(at),
-              state: route.state,
-            }
             root = createRoot(container)
             await act(async () => {
               root.render(element())

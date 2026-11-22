@@ -1,13 +1,18 @@
 import { type ReactNode, useEffect, useRef } from 'react'
-import { Navigate, Outlet, useLocation } from 'react-router'
 
-import { useAuth, useTranslation } from '@molecule/app-react'
+import {
+  RoutedView,
+  useAuth,
+  useLocation,
+  useRouterInstance,
+  useTranslation,
+} from '@molecule/app-react'
 
 /**
  * Props for {@link AuthGuard}.
  *
  * All props are optional — the default behavior (loading tag → redirect
- * to `/login` → `<Outlet />`) matches the bare-bones guard apps were
+ * to `/login` → the routed page) matches the bare-bones guard apps were
  * shipping locally. The props let apps customize per-call without
  * forking the component.
  */
@@ -45,8 +50,10 @@ export interface AuthGuardProps {
    */
   onAuthenticated?: () => void
   /**
-   * Children to render when authenticated. Defaults to `<Outlet />`,
-   * which is the React Router pattern this guard is designed for.
+   * Children to render when authenticated. Without them the guard renders
+   * `<RoutedView />`: the matched child route, through whichever routing bond
+   * the app wired. That throws when the routing bond has no routed view
+   * (Next.js gives a layout its page as `children`): pass the page then.
    */
   children?: ReactNode
 }
@@ -60,15 +67,16 @@ export interface AuthGuardProps {
 const loginPathname = (loginPath: string): string => loginPath.split(/[?#]/)[0] || '/'
 
 /**
- * Route-element guard for authenticated sections of a React Router tree.
+ * Route-element guard for authenticated sections of the app's route tree.
  *
  * - While `useAuth().status` is `'loading'` (no session decision yet), renders the
  *   `loadingFallback` (or the default `<div data-mol-id="auth-guard-loading">{t('common.loading')}</div>`).
- * - If the status is `'unauthenticated'`, redirects to `loginPath` carrying
- *   the attempted location in `state.from` for post-login restoration. On
- *   `loginPath` itself it renders its children instead, so a guard that wraps
- *   the whole route tree (login page included) does not redirect in a loop.
- * - Otherwise renders `children` (or `<Outlet />` if none).
+ * - If the status is `'unauthenticated'`, renders nothing and redirects to
+ *   `loginPath` (replacing the entry), carrying the attempted location in
+ *   `state.from` for post-login restoration. On `loginPath` itself it renders
+ *   its children instead, so a guard that wraps the whole route tree (login
+ *   page included) does not redirect in a loop.
+ * - Otherwise renders `children` (or `<RoutedView />` if none).
  *
  * The guard reads `status`, not `initialized`: a stored token AND user make the
  * FIRST render `'authenticated'`, so a protected page paints immediately instead
@@ -97,7 +105,12 @@ export function AuthGuard({
   const { isAuthenticated, status } = useAuth()
   const { t } = useTranslation()
   const location = useLocation()
+  const router = useRouterInstance()
   const lastAuthRef = useRef(false)
+  // On the login path itself the guard renders its children: a guard wrapping
+  // the whole route tree contains the login page, and redirecting there again
+  // would re-navigate on every render.
+  const redirecting = status === 'unauthenticated' && location.pathname !== loginPathname(loginPath)
 
   useEffect(() => {
     if (!onAuthenticated) return
@@ -106,6 +119,13 @@ export function AuthGuard({
     }
     lastAuthRef.current = isAuthenticated
   }, [isAuthenticated, onAuthenticated])
+
+  // Navigates after the commit, as a redirect component does: on entering the
+  // redirect state and again for each new entry while in it (`useLocation`
+  // returns the same object until the router's location changes).
+  useEffect(() => {
+    if (redirecting) router.navigate(loginPath, { replace: true, state: { from: location } })
+  }, [redirecting, router, loginPath, location])
 
   if (status === 'loading') {
     return (
@@ -116,11 +136,6 @@ export function AuthGuard({
       )
     )
   }
-  // On the login path itself the guard renders its children: a guard wrapping
-  // the whole route tree contains the login page, and redirecting there again
-  // would re-navigate on every render.
-  if (status === 'unauthenticated' && location.pathname !== loginPathname(loginPath)) {
-    return <Navigate to={loginPath} state={{ from: location }} replace />
-  }
-  return <>{children ?? <Outlet />}</>
+  if (redirecting) return null
+  return <>{children ?? <RoutedView />}</>
 }

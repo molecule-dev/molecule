@@ -15,10 +15,6 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 // to simulate SPA navigation, then re-render.
 const mockLocation = { pathname: '/', search: '' }
 
-vi.mock('react-router', () => ({
-  useLocation: () => ({ ...mockLocation }),
-}))
-
 vi.mock('@molecule/app-ui', () => ({
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
@@ -42,6 +38,7 @@ vi.mock('@molecule/app-ui', () => ({
 }))
 
 vi.mock('@molecule/app-react', () => ({
+  useLocation: () => ({ ...mockLocation }),
   useTranslation: () => ({
     t: (_key: string, _values: unknown, opts?: { defaultValue?: string }) =>
       opts?.defaultValue ?? _key,

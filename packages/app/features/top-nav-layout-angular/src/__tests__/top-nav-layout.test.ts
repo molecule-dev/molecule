@@ -23,6 +23,10 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+// The current location the `useRouterInstance` fake reads, so a test can move
+// the active path before it renders.
+const locationState = vi.hoisted(() => ({ pathname: '/' }))
+
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
 // `topNavLayoutRoot`), so tests can assert which cm.* class was applied
 // without a real bond — the same mock the React tests use.
@@ -63,10 +67,10 @@ vi.mock('@molecule/app-ui', () => {
   }
 })
 
-// The router markers the React tests mock `react-router` with: `Link` renders
-// an anchor, and the location is a fixed page path.
+// The router markers: `Link` renders an anchor, `RoutedView` renders the
+// routed page, and the location is the current {@link locationState}.
 vi.mock('@molecule/app-angular', async () => {
-  const { Directive } = await import('@angular/core')
+  const { Component, Directive } = await import('@angular/core')
   const Link = Directive({
     selector: 'a[molLink]',
     standalone: true,
@@ -78,10 +82,21 @@ vi.mock('@molecule/app-angular', async () => {
       molLink = ''
     },
   )
+  const RoutedView = Component({
+    selector: 'mol-routed-view',
+    standalone: true,
+    template: '<div data-outlet=""></div>',
+  })(
+    class MockRoutedView {
+      /** The routed view stub. */
+      readonly stub = true
+    },
+  )
   return {
     Link,
+    RoutedView,
     useRouterInstance: () => ({
-      getLocation: () => ({ pathname: '/', search: '', hash: '' }),
+      getLocation: () => ({ pathname: locationState.pathname, search: '', hash: '' }),
       subscribe: () => () => undefined,
     }),
     // The component's own text renders through `t`; without a bonded provider
@@ -177,7 +192,27 @@ const render = async (props: Record<string, unknown> = {}, content = 'x'): Promi
 
 afterEach(async () => {
   for (const m of mounted.splice(0)) await m.destroy()
+  locationState.pathname = '/'
 })
+
+/**
+ * The inner markup of the layout's `<main>`.
+ *
+ * @param markup - The rendered markup.
+ * @returns The main content.
+ */
+const mainContent = (markup: string): string =>
+  markup.match(/<main[^>]*>([\s\S]*)<\/main>/)?.[1] ?? ''
+
+/**
+ * The opening tag of the link whose accessible name is `label`.
+ *
+ * @param markup - The rendered markup.
+ * @param label - The link's `aria-label`.
+ * @returns The tag, or undefined.
+ */
+const linkTag = (markup: string, label: string): string | undefined =>
+  markup.match(new RegExp(`<a [^>]*aria-label="${label}"[^>]*>`))?.[0]
 
 describe('TopNavLayout', () => {
   it('renders the brand link with the app name', async () => {
@@ -186,16 +221,33 @@ describe('TopNavLayout', () => {
     expect(m.host.innerHTML).toContain('Acme')
   })
 
-  it('renders a NavLink per nav item with its label', async () => {
+  it('renders a link per nav item with its label', async () => {
     const m = await render({ appName: 'Acme' })
     expect(m.host.innerHTML.match(/<a [^>]*aria-label=/g) ?? []).toHaveLength(2)
     expect(m.host.innerHTML).toContain('Dashboard')
     expect(m.host.innerHTML).toContain('Reports')
   })
 
-  it('renders the Outlet for nested routes', async () => {
-    const m = await render({ appName: 'Acme' }, '<div data-outlet></div>')
-    expect(m.host.innerHTML).toContain('data-outlet')
+  it('marks the nav item matching the current path as aria-current', async () => {
+    locationState.pathname = '/dashboard/settings'
+    const nested = await render({ appName: 'Acme' })
+    expect(linkTag(nested.host.innerHTML, 'Dashboard')).toContain('aria-current="page"')
+    expect(linkTag(nested.host.innerHTML, 'Reports')).not.toContain('aria-current')
+    // A longer segment that only starts with the item's path is another page.
+    locationState.pathname = '/dashboard-archive'
+    const sibling = await render({ appName: 'Acme' })
+    expect(linkTag(sibling.host.innerHTML, 'Dashboard')).not.toContain('aria-current')
+  })
+
+  it('renders the routed page in main when it has no children', async () => {
+    const m = await render({ appName: 'Acme' }, '')
+    expect(mainContent(m.host.innerHTML)).toContain('data-outlet')
+  })
+
+  it('renders its children instead of the routed page', async () => {
+    const m = await render({ appName: 'Acme' }, '<p>Page body</p>')
+    expect(mainContent(m.host.innerHTML)).toContain('<p>Page body</p>')
+    expect(m.host.innerHTML).not.toContain('data-outlet')
   })
 
   it('renders the userMenu slot', async () => {

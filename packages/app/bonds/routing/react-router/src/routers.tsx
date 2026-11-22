@@ -1,7 +1,7 @@
 /**
  * React Router components with transitions turned off.
  *
- * Each wrapper renders React Router's own router with `useTransitions={false}`, so a
+ * Each client wrapper renders React Router's own router with `useTransitions={false}`, so a
  * navigation renders the new route in the same commit that changes the URL instead of
  * keeping the previous route on screen while the next one prepares. Each also gives the app
  * its molecule router: the router components render `MoleculeRouterProvider` around their
@@ -10,7 +10,9 @@
  * cover a page whose code loads on demand: under one shared `<Suspense>` React keeps
  * the previous page mounted (hidden) until the new page's code arrives. Declare such
  * pages with {@link lazyPage}, which gives each page a boundary of its own. React Router
- * versions without the `useTransitions` prop ignore it.
+ * versions without the `useTransitions` prop ignore it. The server renderers
+ * (`StaticRouter`, `StaticRouterProvider`) render one location and have no transitions; they
+ * give the page its molecule router the same way.
  *
  * @module
  */
@@ -29,6 +31,10 @@ import {
   type RouterProps as ReactRouterProps,
   RouterProvider as ReactRouterProvider,
   type RouterProviderProps as ReactRouterProviderProps,
+  StaticRouter as ReactRouterStaticRouter,
+  type StaticRouterProps as ReactRouterStaticRouterProps,
+  StaticRouterProvider as ReactRouterStaticRouterProvider,
+  type StaticRouterProviderProps as ReactRouterStaticRouterProviderProps,
   unstable_HistoryRouter as ReactRouterHistoryRouter,
   useLocation,
   useNavigate,
@@ -74,6 +80,12 @@ export type RouterProps = Omit<ReactRouterProps, 'useTransitions'>
 
 /** Props for {@link RouterProvider}, with transitions permanently disabled. */
 export type RouterProviderProps = Omit<ReactRouterProviderProps, 'useTransitions'>
+
+/** Props for {@link StaticRouter}: React Router's `StaticRouterProps`. */
+export type StaticRouterProps = ReactRouterStaticRouterProps
+
+/** Props for {@link StaticRouterProvider}: React Router's `StaticRouterProviderProps`. */
+export type StaticRouterProviderProps = ReactRouterStaticRouterProviderProps
 
 // Observe requests before pages mount their effects and drop a pending redirect as the URL commits.
 const useRouterEffect = typeof window === 'undefined' ? useEffect : useLayoutEffect
@@ -239,3 +251,58 @@ function HistoryRouter({ children, ...props }: HistoryRouterProps): JSX.Element 
 }
 
 export { HistoryRouter as unstable_HistoryRouter }
+
+/**
+ * Server-render router for one location (a prerender or an SSR request), with the molecule
+ * router over it, so `@molecule/app-react`'s routing hooks, `Link` and `RoutedView` render
+ * there as they do in the browser. React Router's own `StaticRouter` gives them no router.
+ *
+ * @param props - React Router's `StaticRouterProps`: `location` (the path to render),
+ *   `basename` and `children`.
+ * @returns React Router's `StaticRouter` with the molecule router around `children`.
+ * @example
+ * ```tsx
+ * import { prerender } from 'react-dom/static'
+ * import { StaticRouter } from '@molecule/app-routing-react-router'
+ *
+ * const { prelude } = await prerender(
+ *   <StaticRouter location="/pricing">
+ *     <App />
+ *   </StaticRouter>,
+ * )
+ * ```
+ */
+export function StaticRouter({ children, ...props }: StaticRouterProps): JSX.Element {
+  return (
+    <ReactRouterStaticRouter {...props}>
+      <MoleculeRouterProvider>{children}</MoleculeRouterProvider>
+    </ReactRouterStaticRouter>
+  )
+}
+
+/**
+ * Server-render provider for a static data router (`createStaticRouter` over a
+ * `createStaticHandler` query), with the molecule router built from it, as
+ * {@link RouterProvider} does in the browser.
+ *
+ * @param props - React Router's `StaticRouterProviderProps`: `router`, `context` and
+ *   `hydrate`.
+ * @returns React Router's `StaticRouterProvider` under the molecule router.
+ * @example
+ * ```tsx
+ * import { createStaticHandler, createStaticRouter } from 'react-router'
+ * import { StaticRouterProvider } from '@molecule/app-routing-react-router'
+ *
+ * const handler = createStaticHandler(routes)
+ * const context = await handler.query(request)
+ * if (context instanceof Response) return context
+ * const html = <StaticRouterProvider router={createStaticRouter(handler.dataRoutes, context)} context={context} />
+ * ```
+ */
+export function StaticRouterProvider(props: StaticRouterProviderProps): JSX.Element {
+  return (
+    <ProvideDataRouter dataRouter={props.router}>
+      <ReactRouterStaticRouterProvider {...props} />
+    </ProvideDataRouter>
+  )
+}

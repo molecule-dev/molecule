@@ -1,12 +1,14 @@
 <!--
   AuthGuard: route-element guard for authenticated sections. While the auth
-  status is loading it renders the loading tag; unauthenticated it redirects
-  to the login path carrying the attempted location in state.from (unless it
-  is already there); otherwise it renders its children. onAuthenticated fires
-  on each transition into authenticated.
+  status is loading it renders the loading tag; unauthenticated it renders
+  nothing and redirects to the login path carrying the attempted location in
+  state.from (unless it is already there); otherwise it renders its children,
+  or RoutedView without them (the matched child route, through whichever
+  routing bond the app wired). onAuthenticated fires on each transition into
+  authenticated.
 -->
 <script lang="ts">
-  import { getRouter, useAuth, useLocation, useTranslation } from '@molecule/app-svelte'
+  import { getRouter, RoutedView, useAuth, useLocation, useTranslation } from '@molecule/app-svelte'
 
   import type { AuthGuardProps } from '../types.js'
   import ReactNode from './ReactNode.svelte'
@@ -74,6 +76,11 @@
       {t(loadingKey, {}, { defaultValue: loadingDefault })}
     </div>
   {/if}
+{:else if $authState.status === 'unauthenticated' && $location.pathname !== loginPathname(loginPath)}
+  <!-- Nothing while redirecting, as React renders its redirect: a redirect that
+       cannot land (a guard refusing the login path) must not show the protected page. -->
+{:else if children}
+  {@render children()}
 {:else}
-  {@render children?.()}
+  <RoutedView />
 {/if}

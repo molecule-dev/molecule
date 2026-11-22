@@ -78,7 +78,7 @@ vi.mock('@molecule/app-ui-react', () => ({
     createElement('div', { 'data-modal': '' }, children),
 }))
 
-vi.mock('react-router', () => ({
+vi.mock('@molecule/app-react/link', () => ({
   Link: ({ to, children }: { to: string; children?: ReactNode }) =>
     createElement('a', { href: to }, children),
 }))

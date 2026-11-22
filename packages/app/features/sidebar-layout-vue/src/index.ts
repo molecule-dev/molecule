@@ -7,14 +7,14 @@
  * area on the right scrolls and renders the routed view.
  *
  * It is the Vue counterpart of `@molecule/app-sidebar-layout-react`: same
- * props and the same DOM for the same input. React renders React Router's
- * `<Outlet />` in the main area; here the routed view (`<RouterView />`) is the
- * default slot.
+ * props and the same DOM for the same input. Without a default slot the main
+ * area renders `RoutedView` from `@molecule/app-vue` (the matched child route,
+ * through the app's routing bond), as React's renders its children or
+ * `<RoutedView />`; a default slot takes its place.
  *
  * @example
  * ```ts
- * import { createApp, defineComponent, h } from 'vue'
- * import { RouterView } from 'vue-router'
+ * import { defineComponent, h } from 'vue'
  * import { SidebarLayout } from '@molecule/app-sidebar-layout-vue'
  * import type { SidebarNavItem } from '@molecule/app-sidebar-layout-vue'
  *
@@ -24,16 +24,12 @@
  *   { key: 'settings', to: '/settings', icon: 'settings', label: 'Settings' },
  * ]
  *
- * const AppShell = defineComponent({
+ * // The layout route's component: its main area renders the matched child route.
+ * export const AppShell = defineComponent({
  *   setup() {
- *     return () =>
- *       h(SidebarLayout, { appName: 'Acme App', navItems: NAV }, {
- *         default: () => [h(RouterView)],
- *       })
+ *     return () => h(SidebarLayout, { appName: 'Acme App', navItems: NAV })
  *   },
  * })
- *
- * createApp(AppShell).mount('#app')
  * ```
  *
  * @remarks

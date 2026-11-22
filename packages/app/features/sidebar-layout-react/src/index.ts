@@ -25,12 +25,15 @@
  *
  * Mount it as a LAYOUT ROUTE so child routes render in the main area:
  * a parent route with `element={<AppShell />}` and your pages as child
- * routes.
+ * routes. Without children it renders `<RoutedView />` from
+ * `@molecule/app-react` (the matched child route, under any routing bond);
+ * pass the page as children where the router hands it over that way.
  *
  * @remarks
- * - Router required: calls `useLocation()` and renders `<Outlet />` — it
- *   throws outside a react-router `<Router>`, and the main area stays empty
- *   unless it is a layout route with child routes.
+ * - Router required: reads the location through `@molecule/app-react` and
+ *   throws an error naming the fix without the router component of the app's
+ *   routing bond above it (or, given no children, under a bond with no routed
+ *   view).
  * - Fully ClassMap-driven: every layout/surface/border/text/state class is
  *   resolved through `getClassMap()` (`cm.pageShell`, `cm.page`, `cm.surface`,
  *   `cm.borderR`, `cm.bgPrimarySubtle`/`cm.textPrimary` for the active item,

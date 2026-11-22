@@ -1,7 +1,6 @@
 import { type JSX, useEffect, useState } from 'react'
-import { useNavigate } from 'react-router'
 
-import { useHttpClient, useTranslation } from '@molecule/app-react'
+import { useHttpClient, useNavigate, useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Flex } from '@molecule/app-ui-react'
 

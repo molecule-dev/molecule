@@ -11,7 +11,7 @@
 import { defineComponent, h, type PropType, type VNode, type VNodeChild } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
-import { Link, useLocation, useTranslation } from '@molecule/app-vue'
+import { Link, RoutedView, useLocation, useTranslation } from '@molecule/app-vue'
 
 import type { TopNavItem } from './types.js'
 
@@ -158,7 +158,8 @@ export const TopNavLayout = defineComponent({
               ],
             ),
           ]),
-          h('main', null, slotOrProp(slots.default, null)),
+          // The page body, or the matched child route through the app's routing bond.
+          h('main', null, slots.default ? slots.default() : h(RoutedView)),
         ],
       )
   },

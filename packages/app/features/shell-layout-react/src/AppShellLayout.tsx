@@ -9,7 +9,7 @@ export interface AppShellLayoutProps {
   header?: ReactNode
   /** Slot for the footer (typically the app's `<Footer />`). */
   footer?: ReactNode
-  /** Main content. Pass `<Outlet />` from `react-router-dom` for routed apps. */
+  /** Main content. Pass the app's routed view (e.g. `<RoutedView />` from `@molecule/app-react`) for routed apps. */
   children: ReactNode
   /** Container max-width for the main content. Defaults to `'xl'`. */
   maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full' | string

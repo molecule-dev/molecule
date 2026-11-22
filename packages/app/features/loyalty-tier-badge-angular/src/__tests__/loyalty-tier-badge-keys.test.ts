@@ -31,7 +31,8 @@ vi.mock('@molecule/app-ui', () => ({
   }),
 }))
 
-vi.mock('@molecule/app-angular', () => ({
+vi.mock('@molecule/app-angular', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useTranslation: () => ({
     // The marker is the key, with any interpolation values shown in
     // parentheses — so a value translated through a nested `t()` call (the

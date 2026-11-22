@@ -22,8 +22,9 @@
  *   EMPTY string until the locale module is registered — pass your app's
  *   `loadContent` (from `src/config.ts`, re-exporting
  *   `@molecule/app-locales-legal-default`) or the page/modal body will be blank.
- * - `PlanUpdatedPage` requires BOTH a react-router `<Router>` ancestor (it renders
- *   a `<Link>`) and wired auth state from `@molecule/app-react` — without an auth
+ * - `PlanUpdatedPage` requires BOTH the app's router (`RouterProvider`, for the
+ *   `<Link>` it renders from `@molecule/app-react/link`) and wired auth state
+ *   from `@molecule/app-react` — without an auth
  *   provider it shows a spinner forever (`state.initialized` never flips). The
  *   rest of the package is router-free.
  * - **Name collision:** `PlanUpdatedPage` is also exported by

@@ -53,8 +53,8 @@
  * ```
  *
  * @remarks
- * - Must render inside a `react-router-dom` router — the brand link is a
- *   `<Link>` and throws outside a Router context.
+ * - Must render inside the app's router — the brand link is a `<Link>`
+ *   from `@molecule/app-react/link` and throws outside `RouterProvider`.
  * - The DEFAULT `themeToggle` slot renders `<ThemeToggle />` (which calls
  *   `useTheme()` + `useTranslation()`) ONLY when `@molecule/app-react`'s
  *   `ThemeProvider` + `I18nProvider` are both mounted above the header — it

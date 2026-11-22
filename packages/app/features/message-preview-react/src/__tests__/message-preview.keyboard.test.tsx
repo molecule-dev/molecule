@@ -36,9 +36,8 @@ vi.mock('@molecule/app-ui', () => ({
     return new Proxy({}, handler)
   },
 }))
-vi.mock('react-router', () => ({
+vi.mock('@molecule/app-react/link', () => ({
   Link: ({ children }: { children: unknown }) => children,
-  useNavigate: () => () => {},
 }))
 
 const { MessagePreview } = await import('../MessagePreview.js')

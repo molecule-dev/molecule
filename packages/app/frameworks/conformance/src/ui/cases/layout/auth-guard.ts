@@ -4,6 +4,8 @@
  * The harness mounts the guard bare under a memory router, as a guard that
  * wraps the whole route tree: an unauthenticated visitor is redirected to
  * `loginPath` once, and on `loginPath` itself the guard renders its children.
+ * Without children it renders the routing bond's routed view (`RoutedView`),
+ * which a case fills through `context.routedView`.
  *
  * @module
  */
@@ -53,8 +55,45 @@ export const authGuardCases: UIComponentCases = {
       children: [{ tag: 'p', children: ['Protected page'] }],
     },
     {
-      name: 'authenticated without children renders the outlet',
+      name: 'authenticated without children renders the routed view',
       context: { auth: { status: 'authenticated', user: { id: 'u1', name: 'Ada' } } },
+    },
+    {
+      name: 'authenticated without children renders the routed page',
+      context: {
+        auth: { status: 'authenticated', user: { id: 'u1', name: 'Ada' } },
+        routedPage: 'Routed page',
+      },
+    },
+    {
+      name: 'authenticated children take the place of the routed page',
+      context: {
+        auth: { status: 'authenticated', user: { id: 'u1', name: 'Ada' } },
+        routedPage: 'Routed page',
+      },
+      children: [{ tag: 'p', children: ['Protected page'] }],
+    },
+    {
+      name: 'loading does not render the routed page',
+      context: { auth: { status: 'loading' }, routedPage: 'Routed page' },
+    },
+    {
+      name: 'unauthenticated without children renders the routed page once on the login path',
+      context: {
+        auth: { status: 'unauthenticated' },
+        route: '/dashboard',
+        routedPage: 'Routed page',
+      },
+    },
+    {
+      name: 'a redirect that cannot land renders nothing',
+      context: {
+        auth: { status: 'unauthenticated' },
+        route: '/dashboard',
+        refusedRoutes: ['/login'],
+        routedPage: 'Routed page',
+      },
+      children: ['Routed content'],
     },
     {
       name: 'unavailable still renders children',

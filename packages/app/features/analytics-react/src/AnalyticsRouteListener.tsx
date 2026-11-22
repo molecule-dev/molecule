@@ -1,12 +1,12 @@
 import { useEffect } from 'react'
-import { useLocation } from 'react-router'
 
 import { page } from '@molecule/app-analytics'
+import { useLocation } from '@molecule/app-react'
 
 /**
  * Records a `page_view` on client-side route changes.
  *
- * Mount once inside a `BrowserRouter` subtree. On every pathname /
+ * Mount once inside the app's router subtree. On every pathname /
  * search change, dispatches a `page` event through the wired analytics
  * bond. Renders nothing.
  *

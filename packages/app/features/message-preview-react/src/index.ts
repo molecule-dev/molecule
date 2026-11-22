@@ -18,8 +18,8 @@
  * - `channelIcon` renders a `material-symbols-outlined` glyph: the Material
  *   Symbols font must be loaded by the app (molecule scaffolds include it) or
  *   the icon shows as literal text like "mail".
- * - `to` renders a react-router-dom `<Link>` — it requires a `<Router>` ancestor
- *   and the react-router-dom peer; omit `to` (use `onClick`) in router-less apps.
+ * - `to` renders a `<Link>` from `@molecule/app-react/link` — it requires the
+ *   app's router (`RouterProvider`); omit `to` (use `onClick`) in router-less apps.
  * - With `onClick` the row carries `role="button"` + `tabindex="0"` and Enter /
  *   Space activate it, matching native button keyboard semantics.
  * - The avatar is initials-only (no image URL prop). Initials are derived from

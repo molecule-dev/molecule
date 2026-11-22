@@ -51,6 +51,10 @@ vi.mock('@molecule/app-vue', async (importOriginal) => {
         return () => h('a', { ...attrs, href: props.to, 'data-link': '' }, slots.default?.())
       },
     }),
+    RoutedView: defineComponent({
+      name: 'RoutedView',
+      setup: () => () => h('div', { 'data-outlet': '' }),
+    }),
     useLocation: () => computed(() => ({ pathname: '/', search: '', hash: '' })),
   }
 })

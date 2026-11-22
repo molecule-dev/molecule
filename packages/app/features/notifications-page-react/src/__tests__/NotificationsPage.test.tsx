@@ -3,12 +3,12 @@
 import { act, render, screen, waitFor } from '@testing-library/react'
 import type { ReactNode } from 'react'
 import React from 'react'
-import { MemoryRouter } from 'react-router'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { HttpClient, HttpResponse } from '@molecule/app-http'
 import { createSimpleI18nProvider } from '@molecule/app-i18n'
-import { HttpProvider, I18nProvider } from '@molecule/app-react'
+import { HttpProvider, I18nProvider, RouterProvider } from '@molecule/app-react'
+import { createMemoryRouter } from '@molecule/app-routing'
 import { setClassMap, type UIClassMap } from '@molecule/app-ui'
 
 import { NotificationsPage } from '../NotificationsPage.js'
@@ -113,12 +113,13 @@ function Wrap({
   client: HttpClient
   children: ReactNode
 }): React.ReactElement {
+  const [router] = React.useState(() => createMemoryRouter({ initialEntries: ['/'] }))
   return (
-    <MemoryRouter>
+    <RouterProvider router={router}>
       <HttpProvider client={client}>
         <I18nProvider provider={createSimpleI18nProvider('en')}>{children}</I18nProvider>
       </HttpProvider>
-    </MemoryRouter>
+    </RouterProvider>
   )
 }
 

@@ -1,6 +1,6 @@
 import { type Component, For, type JSX, Show } from 'solid-js'
 
-import { Link, useLocation, useTranslation } from '@molecule/app-solid'
+import { Link, RoutedView, useLocation, useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { SidebarLayoutProps, SidebarNavItem } from './types.js'
@@ -180,7 +180,7 @@ export const SidebarLayout: Component<SidebarLayoutProps> = (props) => {
       </aside>
 
       <main class={cm.cn(cm.pageShellContent)} style={{ 'min-width': '0px' }}>
-        {props.children}
+        {props.children ?? <RoutedView />}
       </main>
     </div>
   )

@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import { Link } from 'react-router'
 
 import { useTranslation, useVersion } from '@molecule/app-react'
+import { Link } from '@molecule/app-react/link'
 import { getClassMap } from '@molecule/app-ui'
 import { Icon, Modal } from '@molecule/app-ui-react'
 
@@ -19,7 +19,7 @@ export interface AppFooterProps {
   /**
    * URL or path for the About link. URLs starting with `http`/`https` are
    * rendered as `<a target="_blank">`; other values are rendered as a
-   * `react-router-dom` `<Link>`.
+   * `<Link>` from `@molecule/app-react/link`.
    */
   aboutHref: string
   /**

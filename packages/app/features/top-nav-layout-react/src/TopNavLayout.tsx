@@ -1,8 +1,10 @@
 import type { JSX, ReactNode } from 'react'
-import { Link, NavLink, Outlet } from 'react-router'
 
-import { useTranslation } from '@molecule/app-react'
+import { RoutedView, useLocation, useTranslation } from '@molecule/app-react'
+import { Link } from '@molecule/app-react/link'
 import { getClassMap } from '@molecule/app-ui'
+
+import { navItemActive } from './nav-item-active.js'
 
 /** A single navigation item rendered in the top nav bar. */
 export interface TopNavItem {
@@ -35,6 +37,13 @@ export interface TopNavLayoutProps {
   className?: string
   /** `data-mol-id` for AI-agent selectors. */
   dataMolId?: string
+  /**
+   * The page body, rendered in the `<main>`. Without it the layout renders
+   * `<RoutedView />`: the matched child route, through whichever routing bond
+   * the app wired. That throws when the routing bond has no routed view
+   * (Next.js gives a layout its page as `children`): pass the page then.
+   */
+  children?: ReactNode
 }
 
 /**
@@ -50,8 +59,10 @@ export function TopNavLayout({
   navAriaLabel,
   className,
   dataMolId,
+  children,
 }: TopNavLayoutProps): JSX.Element {
   const { t } = useTranslation()
+  const { pathname } = useLocation()
   const cm = getClassMap()
   const navLabel =
     navAriaLabel ??
@@ -75,16 +86,18 @@ export function TopNavLayout({
             {appName}
           </Link>
           <nav className={cm.flex({ align: 'center', gap: 'md' })} aria-label={navLabel}>
-            {navItems.map((item) => (
-              <NavLink
-                key={item.key}
-                to={item.to}
-                // Below `md` the label span hides and the link becomes
-                // icon-only; the icon span is aria-hidden, so the link's
-                // accessible name must come from here.
-                aria-label={item.label}
-                className={({ isActive }) =>
-                  cm.cn(
+            {navItems.map((item) => {
+              const isActive = navItemActive(pathname, item.to)
+              return (
+                <Link
+                  key={item.key}
+                  to={item.to}
+                  // Below `md` the label span hides and the link becomes
+                  // icon-only; the icon span is aria-hidden, so the link's
+                  // accessible name must come from here.
+                  aria-label={item.label}
+                  aria-current={isActive ? 'page' : undefined}
+                  className={cm.cn(
                     cm.flex({ align: 'center', gap: 'xs' }),
                     cm.sp('px', 3),
                     cm.sp('py', 2),
@@ -94,24 +107,22 @@ export function TopNavLayout({
                     isActive
                       ? cm.cn(cm.bgPrimaryContainer, cm.textPrimary)
                       : cm.cn(cm.textMuted, cm.topNavLayoutNavItemIdle),
-                  )
-                }
-              >
-                {item.icon ? (
-                  <span className={cm.iconGlyphFont} aria-hidden="true">
-                    {item.icon}
-                  </span>
-                ) : null}
-                <span className={cm.topNavLayoutNavItemLabel}>{item.label}</span>
-              </NavLink>
-            ))}
+                  )}
+                >
+                  {item.icon ? (
+                    <span className={cm.iconGlyphFont} aria-hidden="true">
+                      {item.icon}
+                    </span>
+                  ) : null}
+                  <span className={cm.topNavLayoutNavItemLabel}>{item.label}</span>
+                </Link>
+              )
+            })}
           </nav>
           {userMenu}
         </div>
       </header>
-      <main>
-        <Outlet />
-      </main>
+      <main>{children ?? <RoutedView />}</main>
     </div>
   )
 }

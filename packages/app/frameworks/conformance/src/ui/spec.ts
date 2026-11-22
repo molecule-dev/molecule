@@ -383,6 +383,20 @@ export interface CaseContext {
   theme?: 'light' | 'dark'
   /** Initial route path for the memory router. */
   route?: string
+  /**
+   * The text the routing bond's routed view renders (React Router's `Outlet`, Vue Router's
+   * `RouterView`) on every route: the page the matched child route shows. The harness always
+   * mounts a routed view, as an app under a routing bond has one, and it renders nothing without
+   * this field, as an `Outlet` with no matched child does. A guard or layout given no children
+   * renders it (`RoutedView` in each binding). A binding case says whether there is a routed
+   * view at all instead (`BindingContext.routedView`).
+   */
+  routedPage?: string
+  /**
+   * Pathnames the memory router refuses to navigate to (a navigation guard returns `false`),
+   * so a case can show what a component renders while its redirect cannot land.
+   */
+  refusedRoutes?: string[]
   /** Initial locale for the i18n provider (default `en`). */
   locale?: string
   /**

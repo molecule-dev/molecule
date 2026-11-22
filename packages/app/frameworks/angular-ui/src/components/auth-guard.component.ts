@@ -11,11 +11,12 @@ import {
   ElementRef,
   inject,
   Renderer2,
+  signal,
   type TemplateRef,
   ViewChild,
 } from '@angular/core'
 
-import { useAuth, useRouter, useTranslation } from '@molecule/app-angular'
+import { RoutedView, useAuth, useRouter, useTranslation } from '@molecule/app-angular'
 
 import { asTemplate, isGiven, nodeText } from '../utilities/node-value.js'
 import { hasNodes, SlotWrapper } from './button.component.js'
@@ -57,7 +58,9 @@ const loginPathname = (loginPath: string): string => loginPath.split(/[?#]/)[0] 
  * `data-mol-id="auth-guard-loading"` tag); while
  * `'unauthenticated'` off the login path it renders nothing and redirects to
  * `loginPath` (state `from` carries the attempted location); otherwise it
- * renders the projected children. The host is unwrapped by the DOM normalizer
+ * renders the projected children, or `<mol-routed-view />` without them (the
+ * matched child route, through whichever routing bond the app wired; it throws
+ * when the bond has none: project the page then). The host is unwrapped by the DOM normalizer
  * (`data-parity-unwrap`) and `display: contents` keeps it fragment-like —
  * React's root is a fragment. On the login path itself the guard renders its
  * children, so a guard wrapping the whole route tree does not redirect in a
@@ -71,7 +74,7 @@ const loginPathname = (loginPath: string): string => loginPath.split(/[?#]/)[0] 
 @Component({
   selector: 'mol-auth-guard',
   standalone: true,
-  imports: [MolTemplateOutlet],
+  imports: [MolTemplateOutlet, RoutedView],
   inputs: ['loadingFallback', 'loadingKey', 'loadingDefault', 'loginPath', 'onAuthenticated'],
   host: {
     'data-parity-unwrap': '',
@@ -83,7 +86,10 @@ const loginPathname = (loginPath: string): string => loginPath.split(/[?#]/)[0] 
       >{{ nodeText(loadingFallback) }}</span
     >
     <span #fallbackWrap><ng-content select="[slot=loadingFallback]"></ng-content></span>
-    <span #childrenWrap><ng-content></ng-content></span>`,
+    <span #childrenWrap><ng-content></ng-content></span>
+    @if (routed()) {
+      <mol-routed-view />
+    }`,
 })
 export class AuthGuard implements AfterViewInit {
   /**
@@ -132,6 +138,15 @@ export class AuthGuard implements AfterViewInit {
   private readonly sync = new SlotWrapper(inject(ElementRef), inject(Renderer2))
   private readonly host = inject(ElementRef)
   private hasFallback = false
+  /** Whether the guard was given children to project (known by view init). */
+  private hasChildren = false
+  /** Whether the view queries have resolved, so the children capture can be read. */
+  private viewReady = false
+  /**
+   * Whether the routed view renders: the children branch with no projected children. A signal
+   * the template reads, so the routed view is created only then (it throws without one).
+   */
+  readonly routed = signal(false)
   private lastAuthenticated = false
   /** The login path the guard navigated to for the current redirect state. */
   private redirectedTo: string | null = null
@@ -151,11 +166,13 @@ export class AuthGuard implements AfterViewInit {
   })
 
   /**
-   * Detects the `loadingFallback` slot presence (view queries resolve only by
-   * view init).
+   * Detects the `loadingFallback` slot and the children (view queries resolve
+   * only by view init).
    */
   ngAfterViewInit(): void {
     this.hasFallback = hasNodes(this.fallbackWrap?.nativeElement)
+    this.hasChildren = hasNodes(this.childrenWrap?.nativeElement)
+    this.viewReady = true
     this.reconcile()
   }
 
@@ -213,6 +230,7 @@ export class AuthGuard implements AfterViewInit {
       // The capture span itself never renders (React's children are bare).
       this.sync.sync(this.childrenWrap?.nativeElement, false)
     }
+    this.routed.set(this.viewReady && branch === 'children' && !this.hasChildren)
     const loading = branch === 'loading'
     const hasNode = isGiven(this.loadingFallback)
     this.sync.sync(this.defaultLoading?.nativeElement, loading && !hasNode && !this.hasFallback)

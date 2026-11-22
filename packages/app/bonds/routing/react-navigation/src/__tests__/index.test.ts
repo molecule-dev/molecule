@@ -342,6 +342,23 @@ describe('@molecule/app-routing-react-navigation', () => {
         expect(navRef.navigate).toHaveBeenCalledWith('Products', {})
       })
 
+      it('stays on the current screen for a query or a hash alone', async () => {
+        const navRef = createMockNavigationRef({
+          getCurrentRoute: vi.fn().mockReturnValue({ name: 'Settings', params: {}, key: 's-1' }),
+        })
+        const router = createReactNavigationRouter({
+          navigationRef: navRef,
+          linking: { screens: createScreens() },
+        })
+
+        router.navigate('#top')
+        router.navigate('?tab=2')
+        await flush()
+
+        expect(navRef.navigate).toHaveBeenNthCalledWith(1, 'Settings', {})
+        expect(navRef.navigate).toHaveBeenNthCalledWith(2, 'Settings', {})
+      })
+
       it('should dispatch REPLACE action when replace option is true', async () => {
         const screens = createScreens()
         const navRef = createMockNavigationRef({
@@ -883,6 +900,26 @@ describe('@molecule/app-routing-react-navigation', () => {
         const router = createReactNavigationRouter({ routes: [] })
 
         expect(() => router.generatePath('unknown')).toThrow('Route "unknown" not found')
+      })
+    })
+
+    describe('createHref', () => {
+      it("is the path itself, and the current screen's path for a query or a hash alone", () => {
+        const navRef = createMockNavigationRef({
+          getCurrentRoute: vi.fn().mockReturnValue({
+            name: 'ProductDetail',
+            params: { id: '7' },
+            key: 'p-1',
+          }),
+        })
+        const router = createReactNavigationRouter({
+          navigationRef: navRef,
+          linking: { screens: createScreens() },
+        })
+
+        expect(router.createHref('/settings?tab=1')).toBe('/settings?tab=1')
+        expect(router.createHref('#top')).toBe('/products/7#top')
+        expect(router.createHref('?tab=2#top')).toBe('/products/7?tab=2#top')
       })
     })
 

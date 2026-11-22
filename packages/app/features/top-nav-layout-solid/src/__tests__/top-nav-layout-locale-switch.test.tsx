@@ -51,6 +51,7 @@ vi.mock('@molecule/app-solid', async (importOriginal) => {
         </a>
       )
     },
+    RoutedView: () => <div data-outlet="" />,
     useLocation: () => () => ({ pathname: '/', search: '', hash: '' }),
   }
 })

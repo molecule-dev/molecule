@@ -22,7 +22,7 @@ export interface BreadcrumbProps {
   items: BreadcrumbItem[]
   /**
    * Click handler invoked with the target `to` when an item is clicked.
-   * Useful when wiring to `react-router-dom`'s `useNavigate`. When
+   * Useful when wiring to the app router's `useNavigate()`. When
    * omitted the component renders items with an anchor `<a href={to}>`.
    */
   onNavigate?: (to: string) => void
@@ -39,7 +39,7 @@ export interface BreadcrumbProps {
  *
  * Each item before the last is rendered as a link; the last item is
  * rendered as plain text (the "current page"). Pass `onNavigate` to
- * intercept clicks (e.g. hand off to `useNavigate()` from react-router).
+ * intercept clicks (e.g. hand off to `useNavigate()` from `@molecule/app-react`).
  *
  * The nav's accessible name flows through `t()` with the English default
  * `'Breadcrumb'`, so it follows the app's locale.

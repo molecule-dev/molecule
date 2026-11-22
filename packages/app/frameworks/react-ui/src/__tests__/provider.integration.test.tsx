@@ -22,11 +22,12 @@
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import React, { useState } from 'react'
 import { act } from 'react'
-import { MemoryRouter } from 'react-router'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { IconData, IconSet } from '@molecule/app-icons'
 import { setIconSet } from '@molecule/app-icons'
+import { RouterProvider } from '@molecule/app-react'
+import { createMemoryRouter } from '@molecule/app-routing'
 import type { ClassMapValue, KitEvent, UIClassMap } from '@molecule/app-ui'
 import { setClassMap } from '@molecule/app-ui'
 
@@ -206,6 +207,12 @@ afterEach(() => {
   vi.useRealTimers()
   document.body.style.overflow = ''
 })
+
+/** Mounts the real molecule router the components read through `useLocation`. */
+function WithRouter({ children }: { children: React.ReactNode }): React.ReactElement {
+  const [router] = useState(() => createMemoryRouter())
+  return <RouterProvider router={router}>{children}</RouterProvider>
+}
 
 describe('@molecule/app-ui-react × REAL react-dom + REAL @molecule/app-ui bonds', () => {
   it('FAILURE DISAMBIGUATION: missing ClassMap vs missing icon set produce distinct, actionable errors', () => {
@@ -1099,18 +1106,18 @@ describe('Modal — focus management (WAI-ARIA APG dialog pattern)', () => {
 })
 
 describe('Dropdown — WAI-ARIA APG menu-button pattern', () => {
-  // Dropdown reads `useLocation()` (to auto-close on route change), so every
-  // render needs a real Router context — this file exercises the REAL
-  // dependency graph rather than mocking react-router-dom away.
+  // Dropdown reads `useLocation()` from `@molecule/app-react` (to auto-close on
+  // route change), so every render needs a real molecule Router context — this
+  // file exercises the REAL dependency graph rather than mocking the router away.
   it('CONSUMER PROPERTY: ArrowDown on the trigger opens the menu and focuses the first item', () => {
     const items = [
       { value: 'a', label: 'Item A' },
       { value: 'b', label: 'Item B' },
     ]
     render(
-      <MemoryRouter>
+      <WithRouter>
         <Dropdown trigger={<button type="button">Actions</button>} items={items} />
-      </MemoryRouter>,
+      </WithRouter>,
     )
     const trigger = screen.getByRole('button', { name: 'Actions' })
     expect(trigger.getAttribute('aria-haspopup')).toBe('menu')
@@ -1128,9 +1135,9 @@ describe('Dropdown — WAI-ARIA APG menu-button pattern', () => {
       { value: 'b', label: 'Item B' },
     ]
     render(
-      <MemoryRouter>
+      <WithRouter>
         <Dropdown trigger={<button type="button">Actions</button>} items={items} />
-      </MemoryRouter>,
+      </WithRouter>,
     )
     fireEvent.keyDown(screen.getByRole('button', { name: 'Actions' }), { key: 'ArrowUp' })
     const menuItems = screen.getAllByRole('menuitem')
@@ -1144,9 +1151,9 @@ describe('Dropdown — WAI-ARIA APG menu-button pattern', () => {
       { value: 'c', label: 'Item C' },
     ]
     render(
-      <MemoryRouter>
+      <WithRouter>
         <Dropdown trigger={<button type="button">Actions</button>} items={items} />
-      </MemoryRouter>,
+      </WithRouter>,
     )
     fireEvent.click(screen.getByRole('button', { name: 'Actions' }))
     const menuItems = screen.getAllByRole('menuitem')
@@ -1167,12 +1174,12 @@ describe('Dropdown — WAI-ARIA APG menu-button pattern', () => {
   it('FAILURE DISAMBIGUATION: Escape restores focus to the trigger; an outside click does NOT', () => {
     const items = [{ value: 'a', label: 'Item A' }]
     render(
-      <MemoryRouter>
+      <WithRouter>
         <div>
           <Dropdown trigger={<button type="button">Actions</button>} items={items} />
           <button type="button">Elsewhere</button>
         </div>
-      </MemoryRouter>,
+      </WithRouter>,
     )
     const trigger = screen.getByRole('button', { name: 'Actions' })
     fireEvent.click(trigger)
@@ -1193,9 +1200,9 @@ describe('Dropdown — WAI-ARIA APG menu-button pattern', () => {
   it('a non-element trigger (plain text) falls back to a keyboard-operable role="button" wrapper', () => {
     const items = [{ value: 'a', label: 'Item A' }]
     render(
-      <MemoryRouter>
+      <WithRouter>
         <Dropdown trigger="Menu" items={items} />
-      </MemoryRouter>,
+      </WithRouter>,
     )
     const trigger = screen.getByRole('button', { name: 'Menu' })
     expect(trigger.tabIndex).toBe(0)
@@ -1206,9 +1213,9 @@ describe('Dropdown — WAI-ARIA APG menu-button pattern', () => {
   it('width="trigger" never renders the invalid literal CSS value "trigger"', () => {
     const items = [{ value: 'a', label: 'Item A' }]
     render(
-      <MemoryRouter>
+      <WithRouter>
         <Dropdown trigger={<button type="button">Actions</button>} items={items} width="trigger" />
-      </MemoryRouter>,
+      </WithRouter>,
     )
     fireEvent.click(screen.getByRole('button', { name: 'Actions' }))
     // Before the fix, the first-open frame (before the trigger ref is

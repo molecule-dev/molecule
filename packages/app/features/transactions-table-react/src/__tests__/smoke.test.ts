@@ -18,10 +18,6 @@ vi.mock('@molecule/app-react', () => ({
   }),
   useLocale: () => 'en',
 }))
-vi.mock('react-router', () => ({
-  Link: ({ children }: { children: unknown }) => children,
-  useNavigate: () => () => {},
-}))
 
 describe('package smoke', () => {
   it('module imports without throwing', async () => {

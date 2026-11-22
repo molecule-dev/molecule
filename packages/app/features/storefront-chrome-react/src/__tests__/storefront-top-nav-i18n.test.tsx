@@ -30,8 +30,8 @@ vi.mock('@molecule/app-ui', () => ({
     ),
 }))
 
-// Render router links as plain anchors so nothing needs a real <Router>.
-vi.mock('react-router', () => ({
+// Render router links as plain anchors so nothing needs a real router.
+vi.mock('@molecule/app-react/link', () => ({
   Link: ({
     children,
     to,

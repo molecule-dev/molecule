@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { act, cleanup, render, screen } from '@testing-library/react'
-import { MemoryRouter, Route, Routes } from 'react-router'
+import type { ReactElement } from 'react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import {
@@ -10,7 +10,14 @@ import {
   type UserProfile,
 } from '@molecule/app-auth'
 import { createSimpleI18nProvider } from '@molecule/app-i18n'
-import { AuthProvider, I18nProvider, useAuth } from '@molecule/app-react'
+import {
+  AuthProvider,
+  I18nProvider,
+  RouterProvider,
+  useAuth,
+  useLocation,
+} from '@molecule/app-react'
+import { createMemoryRouter } from '@molecule/app-routing'
 
 import { AuthGuard } from '../components/AuthGuard.js'
 
@@ -51,20 +58,24 @@ function AuthStateReadout() {
   )
 }
 
+/** The page for the current path, replacing React Router's `<Routes>` tree. */
+function Pages(): ReactElement | null {
+  const { pathname } = useLocation()
+  if (pathname === '/private') return <p>Protected section</p>
+  if (pathname === '/login') return <p>Login page</p>
+  return null
+}
+
 /** Render the real providers, client and guard without auth mocks. */
 function renderGuard(client: AuthClient<UserProfile>) {
+  const router = createMemoryRouter({ initialEntries: ['/private'] })
   return render(
     <AuthProvider client={client}>
       <I18nProvider provider={createSimpleI18nProvider()}>
-        <MemoryRouter initialEntries={['/private']}>
+        <RouterProvider router={router} routedView={Pages}>
           <AuthStateReadout />
-          <Routes>
-            <Route element={<AuthGuard />}>
-              <Route path="/private" element={<p>Protected section</p>} />
-            </Route>
-            <Route path="/login" element={<p>Login page</p>} />
-          </Routes>
-        </MemoryRouter>
+          <AuthGuard />
+        </RouterProvider>
       </I18nProvider>
     </AuthProvider>,
   )

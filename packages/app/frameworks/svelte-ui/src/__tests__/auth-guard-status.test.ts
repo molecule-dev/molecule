@@ -13,8 +13,11 @@
  * @module
  */
 import { screen } from '@testing-library/dom'
-import { tick } from 'svelte'
+import { mount, tick } from 'svelte'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+
+import { createSimpleI18nProvider, I18nError } from '@molecule/app-i18n'
+import { createMemoryRouter } from '@molecule/app-routing'
 
 import {
   bearerClient,
@@ -23,6 +26,7 @@ import {
   mountGuard,
   signedOutClient,
 } from './auth-guard-harness.js'
+import NoChildrenAuthGuardHost from './NoChildrenAuthGuardHost.svelte'
 
 const mounted: MountedGuard[] = []
 
@@ -93,5 +97,26 @@ describe('AuthGuard reads the session status (xr-molecule-flash-m177)', () => {
 
     expect(screen.getByText('login page')).toBeTruthy()
     expect(screen.queryByText('protected page')).toBeNull()
+  })
+
+  it('AuthGuard without children throws when there is no routed view', () => {
+    const { client } = bearerClient({ id: 'ann' })
+    // A real router but no routed view: the guard falls back to `RoutedView`.
+    const router = createMemoryRouter({ initialEntries: ['/'] })
+    const i18n = createSimpleI18nProvider()
+    const host = document.createElement('div')
+    document.body.appendChild(host)
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
+    let thrown: unknown
+    try {
+      mount(NoChildrenAuthGuardHost, { target: host, props: { auth: client, router, i18n } })
+    } catch (error) {
+      thrown = error
+    } finally {
+      consoleError.mockRestore()
+    }
+    host.remove()
+    expect(thrown).toBeInstanceOf(I18nError)
+    expect(thrown).toMatchObject({ i18nKey: 'svelte.error.noRoutedView' })
   })
 })

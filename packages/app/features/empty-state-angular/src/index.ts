@@ -23,23 +23,29 @@
  * @example
  * ```ts
  * import { Component } from '@angular/core'
- * import { RouterLink } from '@angular/router'
- * import { CtaCard, EmptyState } from '@molecule/app-empty-state-angular'
- * import { Button, Icon } from '@molecule/app-ui-angular'
+ * import { Link, useTranslation } from '@molecule/app-angular'
+ * import { EmptyState } from '@molecule/app-empty-state-angular'
+ * import { Icon } from '@molecule/app-ui-angular'
  *
  * @Component({
  *   selector: 'app-messages-empty',
  *   standalone: true,
- *   imports: [EmptyState, Icon, RouterLink],
+ *   imports: [EmptyState, Icon, Link],
  *   template: `
- *     <section mol-empty-state [title]="t('messages.empty.title')">
- *       <icon slot="icon" name="mail" [size]="40" />
- *       <p slot="description">{{ t('messages.empty.description') }}</p>
- *       <a slot="action" routerLink="/compose">Send one</a>
+ *     <section mol-empty-state [title]="t('messages.empty.title', 'No messages yet')">
+ *       <svg mol-icon-root slot="icon" [name]="'mail'" [size]="40"></svg>
+ *       <p slot="description">{{ t('messages.empty.description', 'Messages you send appear here.') }}</p>
+ *       <a slot="action" molLink="/compose">{{ t('messages.empty.compose', 'Send one') }}</a>
  *     </section>
  *   `,
  * })
- * export class MessagesEmpty {}
+ * export class MessagesEmpty {
+ *   private readonly i18n = useTranslation()
+ *
+ *   t(key: string, defaultValue: string): string {
+ *     return this.i18n.t(key, undefined, { defaultValue })
+ *   }
+ * }
  * ```
  *
  * @remarks

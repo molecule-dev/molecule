@@ -10,6 +10,11 @@ import noClassCode from './eslint-rules/no-class-code.mjs'
 import noDomEventsInAngularCheckHooks from './eslint-rules/no-dom-events-in-angular-check-hooks.mjs'
 import { noHandStyledButton } from './eslint-rules/no-hand-styled-button.mjs'
 import { noRawClassNames } from './eslint-rules/no-raw-class-names.mjs'
+import {
+  ROUTER_LIBRARY_FIX,
+  ROUTER_LIBRARY_IMPORTS,
+  ROUTER_LIBRARY_OWNERS,
+} from './scripts/router-libraries.mjs'
 
 /**
  * Local rules.
@@ -400,6 +405,20 @@ export default tseslint.config(
             ...ANGULAR_SIGNAL_COMPONENT_APIS,
           ],
         },
+      ],
+    },
+  },
+  {
+    // Only the routing bonds and the composition roots import a router library: every other app
+    // package reads the router through its framework binding, so it works under every routing
+    // bond (scripts/router-libraries.mjs). A separate rule from `no-restricted-imports` above,
+    // whose options each later block replaces, so this one block holds every app file.
+    files: ['packages/app/**/*.{ts,tsx,svelte}'],
+    ignores: ROUTER_LIBRARY_OWNERS.map((dir) => `${dir}**`),
+    rules: {
+      '@typescript-eslint/no-restricted-imports': [
+        'error',
+        { patterns: [{ group: ROUTER_LIBRARY_IMPORTS, message: ROUTER_LIBRARY_FIX }] },
       ],
     },
   },

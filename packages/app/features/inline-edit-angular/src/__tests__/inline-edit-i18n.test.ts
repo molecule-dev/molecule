@@ -31,7 +31,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 // Translations the bonded i18n provider would supply: each key maps to a marked string, so a
 // default that bypassed t() would show up as plain English. The UI components' own reads
 // (`locale()`, `direction()`) come back as plain signals of the English defaults.
-vi.mock('@molecule/app-angular', () => ({
+vi.mock('@molecule/app-angular', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useTranslation: () => ({
     t: (key: string) => `«${key}»`,
     locale: () => 'en',

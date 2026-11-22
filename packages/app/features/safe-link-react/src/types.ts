@@ -4,11 +4,12 @@
  * @module
  */
 
-import type { ComponentProps, ReactNode } from 'react'
-import type { Link } from 'react-router'
+import type { ReactNode } from 'react'
 
-/** Props accepted by {@link SafeLink}: react-router `Link`'s props, with `to` a string path only. */
-export type SafeLinkProps = Omit<ComponentProps<typeof Link>, 'to'> & {
+import type { LinkProps } from '@molecule/app-react/link'
+
+/** Props accepted by {@link SafeLink}: `LinkProps` from `@molecule/app-react/link`, with `to` a string path only. */
+export type SafeLinkProps = Omit<LinkProps, 'to'> & {
   /**
    * Destination: a string path only (`/settings`, `/blog/`). A `#top` fragment is
    * appended when it matches the current path.

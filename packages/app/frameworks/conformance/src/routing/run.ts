@@ -253,6 +253,17 @@ function runCases(name: string, base: '' | '/app', createHarness: RouterHarnessF
     )
 
     it(
+      'createHref resolves a query or a hash alone against the current page, as navigate does',
+      withHarness('/users/5?tab=1', async ({ router }) => {
+        // React Router's `<Link to="#top">` writes the current pathname with the hash (its query
+        // dropped), and `navigate('#top')` lands there, so a link and a click agree.
+        expect(router.createHref('#top')).toBe(router.createHref('/users/5#top'))
+        expect(router.createHref('?tab=2')).toBe(router.createHref('/users/5?tab=2'))
+        expect(router.createHref('?tab=2#top')).toBe(router.createHref('/users/5?tab=2#top'))
+      }),
+    )
+
+    it(
       'a navigation never shows the previous page under the new URL',
       withHarness('/one', async ({ router, harness, settle, container }) => {
         const text = (): string => (container.textContent ?? '').replace(/\s+/g, ' ').trim()

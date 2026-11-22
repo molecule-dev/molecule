@@ -47,6 +47,7 @@ vi.mock('@molecule/app-vue', async (importOriginal) => {
 
 import { createApp, defineComponent, h, nextTick } from 'vue'
 
+import { I18nError } from '@molecule/app-i18n'
 import { createMemoryRouter } from '@molecule/app-routing'
 
 const { AuthGuard } = await import('../components/AuthGuard.js')
@@ -163,5 +164,34 @@ describe('AuthGuard reads the session status (xr-molecule-flash-m177)', () => {
 
     expect(bodyText()).toContain('login page')
     expect(bodyText()).not.toContain('protected page')
+  })
+
+  it('AuthGuard without children throws when there is no routed view', () => {
+    mockAuth.state = {
+      ...mockAuth.state,
+      status: 'authenticated',
+      initialized: false,
+      authenticated: true,
+      user: { id: 'ann' },
+    }
+    // A router with no routed view: the guard falls back to `RoutedView`.
+    const router = createMemoryRouter({ initialEntries: ['/'] })
+    const host = document.createElement('div')
+    document.body.appendChild(host)
+    const app = createApp({ render: () => h(AuthGuard) })
+    app.use(moleculePlugin, { router })
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
+    let thrown: unknown
+    app.config.errorHandler = (error) => {
+      thrown = error
+    }
+    try {
+      app.mount(host)
+    } finally {
+      consoleError.mockRestore()
+    }
+    mounted.push(app)
+    expect(thrown).toBeInstanceOf(I18nError)
+    expect(thrown).toMatchObject({ i18nKey: 'vue.error.noRoutedView' })
   })
 })

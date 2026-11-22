@@ -243,10 +243,14 @@
  *   match. Pass the params in from the page, or use a data router (`RouterProvider` from
  *   `/dom`): its router knows the matched route, so `getParams()` reads it anywhere.
  * - **Import router components from this bond, never directly from React Router.**
- *   Its wrappers turn transitions off, so a navigation renders the new route in the
- *   same commit as the URL change. Import non-router APIs (`Routes`, `Route`, `Link`,
- *   hooks) from `'react-router'`. A DOM data router's `RouterProvider` and the
- *   framework-mode `HydratedRouter` come from `@molecule/app-routing-react-router/dom`.
+ *   Each one gives the app its molecule router, which `@molecule/app-react`'s routing
+ *   hooks, `Link`, `RoutedView` and every molecule layout and guard read; under React
+ *   Router's own they have no router and throw. The client ones also turn transitions off,
+ *   so a navigation renders the new route in the same commit as the URL change. A server
+ *   render uses this bond's `StaticRouter` (or `StaticRouterProvider` for a static data
+ *   router). Import non-router APIs (`Routes`, `Route`, `Link`, hooks) from
+ *   `'react-router'`. A DOM data router's `RouterProvider` and the framework-mode
+ *   `HydratedRouter` come from `@molecule/app-routing-react-router/dom`.
  * - **Declare pages loaded on demand with `lazyPage`, not `React.lazy`.** Each page then
  *   has a Suspense boundary of its own, so navigating to a page whose code is still
  *   loading removes the previous page at once. Under one shared `<Suspense>` around

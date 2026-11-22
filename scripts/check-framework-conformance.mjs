@@ -93,6 +93,11 @@ import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 
 import { testFilesOf, testTitlesOf } from './lib/test-titles.mjs'
+import {
+  ROUTER_LIBRARY_FIX,
+  ROUTER_LIBRARY_OWNERS,
+  ROUTER_LIBRARY_PACKAGES,
+} from './router-libraries.mjs'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 
@@ -530,6 +535,7 @@ export function findConformanceViolations(root = ROOT, ledgers = {}) {
   }
 
   out.push(...featureParityViolations(root, kit))
+  out.push(...routerLibraryViolations(root))
   out.push(...titleParityViolations(root))
   out.push(...exportParityViolations(root, ledgers))
 
@@ -538,6 +544,44 @@ export function findConformanceViolations(root = ROOT, ledgers = {}) {
     if (pkg.name?.startsWith('@molecule/app-ui-') || featureBonds.some((b) => b.dir === dir))
       out.push(...rawMarkupClasses(root, dir))
   }
+  return out
+}
+
+/** The app package directories {@link routerLibraryViolations} reads: `<dir>/<name>` or `<dir>/<group>/<name>`. */
+const APP_PACKAGE_DIRS = ['bonds', 'core', 'features', 'frameworks', 'native', 'utilities']
+
+/**
+ * Finds app packages outside the routing bonds and composition roots that declare a router
+ * library ({@link ROUTER_LIBRARY_PACKAGES}) in any dependency field: such a package works
+ * under one routing bond only, and its peer pulls that router into every app that installs it.
+ *
+ * @param root - The molecule repository root.
+ * @returns One line per declared router library, by package directory.
+ */
+export function routerLibraryViolations(root) {
+  const out = []
+  const visit = (rel, depth) => {
+    const abs = join(root, rel)
+    if (!existsSync(abs)) return
+    const entries = readdirSync(abs, { withFileTypes: true })
+    for (const e of entries.sort((a, b) => a.name.localeCompare(b.name))) {
+      if (!e.isDirectory() || e.name === 'node_modules') continue
+      const dir = `${rel}/${e.name}`
+      if (ROUTER_LIBRARY_OWNERS.some((owner) => `${dir}/`.startsWith(owner))) continue
+      if (!existsSync(join(root, dir, 'package.json'))) {
+        if (depth === 0) visit(dir, 1)
+        continue
+      }
+      const pkg = readJson(join(root, dir, 'package.json'))
+      for (const field of ['dependencies', 'peerDependencies', 'devDependencies']) {
+        for (const library of ROUTER_LIBRARY_PACKAGES) {
+          if (pkg[field]?.[library] !== undefined)
+            out.push(`${dir}: ${field} declares ${library}. ${ROUTER_LIBRARY_FIX}`)
+        }
+      }
+    }
+  }
+  for (const top of APP_PACKAGE_DIRS) visit(`packages/app/${top}`, 0)
   return out
 }
 
@@ -695,6 +739,8 @@ export const TITLE_PARITY_EXEMPT = {
       "React Router scopes route params to the matched route (`useParams()` is empty at the router's root), so the bond reads them where the component is; Vue Router, SvelteKit, Solid Router and Angular Router answer params at the root, and data routers are React Router's alone",
     'src/__tests__/routers.test.tsx':
       "turns off React Router's `useTransitions` (a React concurrent-rendering prop); the pages it guards are covered by every bond's lazy-page tests",
+    'src/__tests__/static-routers.test.tsx':
+      "wraps React Router's server routers (`StaticRouter`, `StaticRouterProvider`), components only React Router has: the other bonds render on the server through the same provider as in the browser",
   },
 }
 
@@ -878,6 +924,12 @@ export const EXPORT_EXEMPT = {
     RouterProvider:
       "React Router's data-router component (each port mounts its native router's own)",
     RouterProviderProps: "props of React Router's data-router component",
+    StaticRouter:
+      "React Router's server-render router component (each port renders on the server through its native router's own)",
+    StaticRouterProps: "props of React Router's server-render router component",
+    StaticRouterProvider:
+      "React Router's server-render data-router component (each port renders on the server through its native router's own)",
+    StaticRouterProviderProps: "props of React Router's server-render data-router component",
     unstable_HistoryRouter:
       "React Router's router component (each port mounts its native router's own)",
     'Router (value)':

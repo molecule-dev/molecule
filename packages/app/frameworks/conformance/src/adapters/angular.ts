@@ -229,7 +229,8 @@ const hasTemplates = (value: unknown): boolean => {
 export interface AngularBinding extends BindingCaseResets {
   provideAuth(client: AuthClient<Record<string, unknown>>): EnvironmentProviders
   provideI18n(provider: I18nProvider): EnvironmentProviders
-  provideRouter(router: Router): EnvironmentProviders
+  /** The router, with the routing bond's routed view (`mol-routed-view` renders it). */
+  provideRouter(router: Router, options?: { routedView?: Type<unknown> }): EnvironmentProviders
   provideTheme(provider: ThemeProvider): EnvironmentProviders
   /** Auth state; the session gate holds its content until `status` leaves `'loading'`. */
   useAuth(): { status: Signal<AuthStatus> }
@@ -580,6 +581,16 @@ export function createAngularAdapter({
         parityRef: unknown
       }>
 
+      // The routing bond's routed view, as an app's router provider gives it: the case's
+      // `routedPage` text, or nothing. Its host is unwrapped like the case's own host, and named
+      // after it so no two cases share a definition.
+      const routedPage = Component({
+        selector: 'div[data-parity-routed-page]',
+        host: { 'data-parity-unwrap': '', 'data-parity-routed-page': String(hostCount) },
+        standalone: true,
+        template: text(testCase.context?.routedPage ?? ''),
+      })(class ConformanceRoutedPage {})
+
       // A ref case reads the component instance its template variable names (a caller's `#ref` or
       // `viewChild`), then that instance's `element()`. The query is registered the way the decorator
       // registers it, before the host is first compiled: JIT ignores `queries` in `Component()` metadata.
@@ -595,11 +606,12 @@ export function createAngularAdapter({
                     provideZonelessChangeDetection(),
                     // React's MoleculeProvider renders with `awaitSession: false` here too.
                     provideMolecule({ ...full.services, awaitSession: false }),
+                    provideRouter(full.services.router, { routedView: routedPage }),
                   ]
                 : [
                     provideZonelessChangeDetection(),
                     provideI18n(services.i18n),
-                    provideRouter(services.router),
+                    provideRouter(services.router, { routedView: routedPage }),
                     provideTheme(services.theme),
                     ...(services.auth ? [provideAuth(services.auth)] : []),
                   ],

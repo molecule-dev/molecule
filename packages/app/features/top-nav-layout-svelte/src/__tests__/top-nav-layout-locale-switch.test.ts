@@ -41,10 +41,12 @@ vi.mock('@molecule/app-ui', () => {
 vi.mock('@molecule/app-svelte', async (importOriginal) => {
   const actual = await importOriginal<typeof SvelteBinding>()
   const { default: Link } = await import('./LinkMock.svelte')
+  const { default: RoutedView } = await import('./RoutedViewMock.svelte')
   const { readable } = await import('svelte/store')
   return {
     ...actual,
     Link,
+    RoutedView,
     useLocation: () => readable({ pathname: '/', search: '', hash: '' }),
   }
 })
