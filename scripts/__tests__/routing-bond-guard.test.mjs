@@ -320,4 +320,48 @@ describe('scanRoutingGuard', () => {
     )
     expect(await scanRoutingGuard(root, deps)).toEqual([])
   })
+
+  /**
+   * A tree holding one bond that depends on no framework package, as the molecule pre-commit's
+   * two-package fixture does.
+   *
+   * @returns The root.
+   */
+  const treeWithoutRouting = () => {
+    const root = mkdtempSync(join(tmpdir(), 'routing-bond-guard-'))
+    roots.push(root)
+    const axios = 'packages/app/bonds/http/axios'
+    mkdirSync(join(root, axios, 'src'), { recursive: true })
+    writeFileSync(
+      join(root, axios, 'package.json'),
+      JSON.stringify({
+        name: '@molecule/app-http-axios',
+        version: '1.0.0',
+        peerDependencies: { '@molecule/app-http': '^1.7.0' },
+      }),
+    )
+    writeFileSync(join(root, axios, 'src/index.ts'), 'export {}\n')
+    return { root, axios }
+  }
+
+  it('checks nothing for a scoped run of packages that neither rule judges', async () => {
+    const { root, axios } = treeWithoutRouting()
+    expect(await scanRoutingGuard(root, deps, { only: new Set([axios]) })).toEqual([])
+  })
+
+  it('still refuses a full run of a tree whose routing bonds give it no binding', async () => {
+    const { root } = treeWithoutRouting()
+    expect(await scanRoutingGuard(root, deps)).toEqual([
+      `${REACT} is not a binding any routing bond under packages/app/bonds/routing peers on: the routing-bond guard reads its router names from it`,
+    ])
+  })
+
+  it('still judges a scoped run of a package that peers on a binding', async () => {
+    const root = fixture({}, '^4.11.0')
+    const problems = await scanRoutingGuard(root, deps, {
+      only: new Set(['packages/app/features/shell-react']),
+    })
+    expect(problems).toHaveLength(1)
+    expect(problems[0]).toMatch(/^@molecule\/app-shell-react: imports RoutedView/)
+  })
 })

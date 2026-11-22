@@ -1142,7 +1142,9 @@ async function firstExporting(name, versions, exportName, { exportsAt, prefetch 
  * @param deps - Injected npm access: `manifestsOf` (see {@link fetchPublishedManifests}),
  *   `exportsAt` and `prefetch` (as {@link scanFleet} takes them).
  * @param options - `only`: package directories relative to `root` to check; omitted checks
- *   every package. The binding rule runs when `only` holds a binding or a routing bond.
+ *   every package. The binding rule runs when `only` holds a binding or a routing bond; an
+ *   `only` holding no routing bond, no framework package and no package depending on one
+ *   checks nothing.
  * @returns One message per problem.
  */
 export async function scanRoutingGuard(
@@ -1159,6 +1161,18 @@ export async function scanRoutingGuard(
     pkg: JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8')),
   }))
   const dirOf = new Map(manifests.map(({ dir, pkg }) => [pkg.name, dir]))
+  // Neither rule judges a package that is no routing bond, no framework package and depends on
+  // none, so a run scoped to such packages has nothing to check: the fleet precondition below
+  // must not refuse it (2026-11-22: a commit of the Axios bond alone was refused in a tree
+  // without the routing bonds).
+  if (only) {
+    const inFrameworks = (name) => dirOf.get(name)?.startsWith(`${FRAMEWORKS_DIR}/`) ?? false
+    const judged = ({ dir, pkg }) =>
+      dir.startsWith(`${ROUTING_BONDS_DIR}/`) ||
+      dir.startsWith(`${FRAMEWORKS_DIR}/`) ||
+      Object.keys({ ...pkg.dependencies, ...pkg.peerDependencies }).some(inFrameworks)
+    if (!manifests.some((entry) => only.has(entry.dir) && judged(entry))) return []
+  }
   const bonds = manifests
     .filter(({ dir }) => dir.startsWith(`${ROUTING_BONDS_DIR}/`))
     .map(({ pkg }) => pkg)
