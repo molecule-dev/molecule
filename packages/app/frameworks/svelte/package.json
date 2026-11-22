@@ -52,6 +52,7 @@
     "@molecule/app-platform": "^1.0.1",
     "@molecule/app-push": "^1.0.1",
     "@molecule/app-routing": "^1.4.0",
+    "@molecule/app-routing-sveltekit": ">=3.0.0",
     "@molecule/app-state": "^1.2.0",
     "@molecule/app-storage": "^1.1.1",
     "@molecule/app-theme": "^1.0.1",
@@ -68,6 +69,9 @@
       "optional": true
     },
     "@molecule/app-live-preview": {
+      "optional": true
+    },
+    "@molecule/app-routing-sveltekit": {
       "optional": true
     }
   },

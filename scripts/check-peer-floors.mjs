@@ -109,7 +109,19 @@ import { promisify } from 'node:util'
 import semver from 'semver'
 import ts from 'typescript'
 
+import { BINDING_REFERENCE } from './check-framework-conformance.mjs'
 import { isTestFile, packageNameOf } from './check-undeclared-imports.mjs'
+import {
+  bindingGuardProblems,
+  consumerGuardProblems,
+  FRAMEWORKS_DIR,
+  LINK_ENTRY,
+  REACT_ROUTER_HOOKS,
+  ROUTED_VIEW,
+  routerNamesOf,
+  ROUTING_BONDS_DIR,
+  runtimeExportsOf,
+} from './lib/routing-bond-guard.mjs'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const TS_EXT = new Set(['.ts', '.tsx', '.mts', '.cts'])
@@ -430,6 +442,47 @@ export async function fetchPublishedVersions(names, concurrency = 16) {
   }
   await Promise.all(Array.from({ length: Math.min(concurrency, queue.length) }, worker))
   return versions
+}
+
+/**
+ * Read the peer fields of every version npm publishes of each package.
+ *
+ * @param names - Package names.
+ * @param concurrency - Requests in flight at once.
+ * @returns Package name → version → `{ peerDependencies, peerDependenciesMeta }` (empty when
+ *   npm has no such package).
+ */
+export async function fetchPublishedManifests(names, concurrency = 16) {
+  const queue = [...new Set(names)]
+  const manifests = new Map()
+  const worker = async () => {
+    while (queue.length) {
+      const name = queue.shift()
+      const url = `${registry()}/${name.replace('/', '%2f')}`
+      // The abbreviated document carries each version's peer fields.
+      const response = await fetch(url, {
+        headers: { accept: 'application/vnd.npm.install-v1+json' },
+      })
+      if (response.status === 404) {
+        manifests.set(name, new Map())
+        continue
+      }
+      if (!response.ok)
+        throw new Error(`GET ${url} failed: ${response.status} ${response.statusText}`)
+      const versions = (await response.json()).versions ?? {}
+      manifests.set(
+        name,
+        new Map(
+          Object.entries(versions).map(([version, m]) => [
+            version,
+            { peerDependencies: m.peerDependencies, peerDependenciesMeta: m.peerDependenciesMeta },
+          ]),
+        ),
+      )
+    }
+  }
+  await Promise.all(Array.from({ length: Math.min(concurrency, queue.length) }, worker))
+  return manifests
 }
 
 /**
@@ -1057,6 +1110,132 @@ export async function scanFleet(
   }
 }
 
+/**
+ * The first of a package's published versions whose root entry exports a name (a name, once
+ * added, stays: a binary search, each step one read).
+ *
+ * @param name - The package.
+ * @param versions - Its published versions.
+ * @param exportName - The name.
+ * @param deps - `exportsAt` and `prefetch`, as {@link scanFleet} takes them.
+ * @returns The version, or null when none exports it.
+ */
+async function firstExporting(name, versions, exportName, { exportsAt, prefetch }) {
+  const list = versions.filter((v) => !semver.prerelease(v)).sort(semver.compare)
+  let lo = 0
+  let hi = list.length
+  while (lo < hi) {
+    const mid = (lo + hi) >> 1
+    await prefetch([`${name}@${list[mid]}`])
+    if ((exportsAt(name, list[mid], '.') ?? new Set()).has(exportName)) hi = mid
+    else lo = mid + 1
+  }
+  return list[lo] ?? null
+}
+
+/**
+ * The routing-bond guard (see scripts/lib/routing-bond-guard.mjs): each framework binding
+ * refuses a routing bond too old to give it a router, and each package that reads the router
+ * through a binding peers on versions of it that do.
+ *
+ * @param root - The monorepo root.
+ * @param deps - Injected npm access: `manifestsOf` (see {@link fetchPublishedManifests}),
+ *   `exportsAt` and `prefetch` (as {@link scanFleet} takes them).
+ * @param options - `only`: package directories relative to `root` to check; omitted checks
+ *   every package. The binding rule runs when `only` holds a binding or a routing bond.
+ * @returns One message per problem.
+ */
+export async function scanRoutingGuard(
+  root = ROOT,
+  {
+    manifestsOf = fetchPublishedManifests,
+    exportsAt = publishedExports,
+    prefetch = prefetchTarballs,
+  } = {},
+  { only = null } = {},
+) {
+  const manifests = findPackages(join(root, 'packages')).map((dir) => ({
+    dir: relative(root, dir),
+    pkg: JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8')),
+  }))
+  const dirOf = new Map(manifests.map(({ dir, pkg }) => [pkg.name, dir]))
+  const bonds = manifests
+    .filter(({ dir }) => dir.startsWith(`${ROUTING_BONDS_DIR}/`))
+    .map(({ pkg }) => pkg)
+  const bindings = new Map()
+  for (const bond of bonds)
+    for (const peer of Object.keys(bond.peerDependencies ?? {}))
+      if (dirOf.get(peer)?.startsWith(`${FRAMEWORKS_DIR}/`))
+        bindings.set(peer, {
+          dir: dirOf.get(peer),
+          pkg: manifests.find(({ pkg }) => pkg.name === peer).pkg,
+        })
+  const react = dirOf.get(BINDING_REFERENCE)
+  if (!react || !bindings.has(BINDING_REFERENCE))
+    return [
+      `${BINDING_REFERENCE} is not a binding any routing bond under ${ROUTING_BONDS_DIR} peers on: the routing-bond guard reads its router names from it`,
+    ]
+  const reactSrc = join(root, react, 'src')
+  const reactExports = new Set(
+    collectSources(reactSrc, reactSrc)
+      .filter((f) => TS_EXT.has(extname(f)))
+      .flatMap((f) => [...runtimeExportsOf(readFileSync(f, 'utf8'), f)]),
+  )
+  const { names, problems } = routerNamesOf(
+    new Map([...bindings.keys()].map((b) => [b, b.replace(/^@molecule\/app-/, '')])),
+    readFileSync(join(root, react, REACT_ROUTER_HOOKS), 'utf8'),
+    reactExports,
+  )
+  const published = await manifestsOf([...bindings.keys(), ...bonds.map((b) => b.name)])
+  const routedViewSince = new Map()
+  for (const binding of bindings.keys())
+    routedViewSince.set(
+      binding,
+      await firstExporting(
+        binding,
+        [...(published.get(binding) ?? new Map()).keys()],
+        ROUTED_VIEW,
+        {
+          exportsAt,
+          prefetch,
+        },
+      ),
+    )
+  const binding = bindingGuardProblems(bonds, bindings, published, routedViewSince)
+  const guardDirs = new Set(
+    [...bindings.values()].map((b) => b.dir).concat(bonds.map((b) => dirOf.get(b.name))),
+  )
+  if (!only || [...only].some((d) => guardDirs.has(d))) problems.push(...binding.problems)
+  // The runtime names each binding's `/link` entry declares in its own source (`Link`; its
+  // props are a type and read no router).
+  const linkNames = (name, { dir, pkg }) => {
+    const types = entryTypesPath(pkg, LINK_ENTRY)
+    if (types === null) return new Set()
+    const inSrc = types.replace(/^\.?\/?dist\//, 'src/').replace(/\.d\.ts$/, '')
+    const file = [`${inSrc}.ts`, `${inSrc}.tsx`].map((f) => join(root, dir, f)).find(existsSync)
+    if (!file)
+      throw new Error(`${name}: cannot read the names ${LINK_ENTRY} declares: no ${inSrc}.ts(x)`)
+    return runtimeExportsOf(readFileSync(file, 'utf8'), file)
+  }
+  const routerNames = new Map(
+    [...bindings].map(([name, b]) => [name, { root: names.get(name), link: linkNames(name, b) }]),
+  )
+  const { packages, workspaceVersions } = readFleet(root, only)
+  const consumers = packages
+    .map((p) => ({ ...p, dir: relative(root, p.dir) }))
+    .filter(({ dir }) => !guardDirs.has(dir))
+  problems.push(
+    ...consumerGuardProblems(
+      consumers,
+      routerNames,
+      binding.required,
+      published,
+      workspaceVersions,
+    ),
+  )
+  return problems
+}
+
 const isMain = process.argv[1] === fileURLToPath(import.meta.url)
 if (isMain) {
   // Read as a stream, not readFileSync(0): `import process from 'node:process'` evaluates every property of
@@ -1066,8 +1245,16 @@ if (isMain) {
     ? packagesForPaths(ROOT, (await text(process.stdin)).split('\n').filter(Boolean))
     : null
   const rows = only?.size === 0 ? [] : await scanFleet(ROOT, {}, { only })
+  const guard = only?.size === 0 ? [] : await scanRoutingGuard(ROOT, {}, { only })
   if (process.argv.includes('--json')) {
-    console.log(JSON.stringify(rows, null, 2))
+    // One array: each floor row, then each routing-bond guard problem as `{ routingBondGuard }`.
+    console.log(
+      JSON.stringify(
+        [...rows, ...guard.map((message) => ({ routingBondGuard: message }))],
+        null,
+        2,
+      ),
+    )
   } else if (only?.size === 0) {
     // No staged path belongs to a package: nothing to check, and no npm request.
   } else if (rows.length === 0) {
@@ -1099,4 +1286,12 @@ if (isMain) {
     }
   }
   if (rows.length > 0) process.exitCode = 1
+  if (process.argv.includes('--json')) {
+    // Printed above.
+  } else if (guard.length === 0 && only?.size !== 0) {
+    console.log(
+      '✓ every framework binding refuses a routing bond too old for it, and every package reading the router peers on such a binding',
+    )
+  } else for (const message of guard) console.error(`✗ ${message}`)
+  if (guard.length > 0) process.exitCode = 1
 }
