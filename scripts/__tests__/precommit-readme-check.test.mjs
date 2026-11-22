@@ -24,7 +24,11 @@ describe('the pre-commit hook checks READMEs for a private-index commit', () => 
     expect(branch.indexOf('regen-molecule-docs.mjs --check $DOC_DIRS')).toBeLessThan(
       branch.lastIndexOf('exit 0'),
     )
-    expect(branch).toContain('exit 1')
+    // A stale README is recorded like every other failed check, and the branch refuses once,
+    // with all of them, before it exits.
+    expect(branch).toContain("gate_failed 'README check'")
+    expect(branch.indexOf('refuse_if_failed')).toBeGreaterThan(branch.indexOf('gate_failed'))
+    expect(branch.indexOf('refuse_if_failed')).toBeLessThan(branch.lastIndexOf('exit 0'))
   })
 
   it('computes the doc packages and the index export before that branch', () => {

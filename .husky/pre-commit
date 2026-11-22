@@ -23,13 +23,27 @@ staged_diff() {
   if [ -n "$DIFF_BASE" ]; then git diff --cached "$DIFF_BASE" "$@"; else git diff --cached "$@"; fi
 }
 
-# Fast secret scan — blocks a commit that introduces a high-confidence secret
-# (staged added lines only). Runs first so a leaked key fails before the slower
-# format/lint pass. Bypass a reviewed false positive with: git commit --no-verify
-node scripts/precommit-secret-scan.mjs || {
-  echo 'pre-commit: precommit-secret-scan failed' >&2
-  exit 1
+# ONE ATTEMPT REPORTS EVERY FAILED CHECK. Each check below only reads, so a failed
+# one is recorded and the rest still run; the hook refuses once, naming all of
+# them, before the first step that writes (the README regen). Stopping at the first
+# failure cost one commit attempt per gate (2026-11-22: a commit met the changeset
+# gate, then the version gate, then a whole-tree check, one attempt each).
+FAILED_GATES=""
+gate_failed() {
+  echo "pre-commit: $1 failed" >&2
+  FAILED_GATES="${FAILED_GATES:+$FAILED_GATES, }$1"
 }
+refuse_if_failed() {
+  if [ -n "$FAILED_GATES" ]; then
+    echo "pre-commit: refused. Failed checks: $FAILED_GATES. Fix each one before the next attempt." >&2
+    exit 1
+  fi
+}
+
+# Fast secret scan — blocks a commit that introduces a high-confidence secret
+# (staged added lines only). Bypass a reviewed false positive with:
+# git commit --no-verify
+node scripts/precommit-secret-scan.mjs || gate_failed precommit-secret-scan
 
 # PATHSPEC COMMIT DETECTION — load-bearing for the README regen at the bottom.
 #
@@ -66,10 +80,7 @@ fi
 # Published source/export changes need a pending changeset in THIS staged tree.
 # Run before the STAGED early exit too: that list intentionally excludes deletions,
 # but deleting published source also needs a changeset.
-node scripts/precommit-changeset.mjs || {
-  echo 'pre-commit: precommit-changeset failed' >&2
-  exit 1
-}
+node scripts/precommit-changeset.mjs || gate_failed precommit-changeset
 
 # Every relative import in this commit must name a file the commit carries. A file
 # git ignores or never tracked still resolves in this checkout, so local builds and
@@ -77,10 +88,7 @@ node scripts/precommit-changeset.mjs || {
 # ignored `bag.svelte.js` and a release waited on CI). Reads the index, so a private
 # GIT_INDEX_FILE and MOL_PRECOMMIT_BASE are honoured. Before the early exit: a
 # deletion can strand an importer too.
-node scripts/check-tracked-imports.mjs --staged || {
-  echo 'pre-commit: check-tracked-imports failed' >&2
-  exit 1
-}
+node scripts/check-tracked-imports.mjs --staged || gate_failed check-tracked-imports
 
 # Internal @molecule version coherence: refuse only findings THIS commit adds
 # to its parent. The ordinary workspace `npm run verify:molecule-versions` still
@@ -88,10 +96,8 @@ node scripts/check-tracked-imports.mjs --staged || {
 # incoherence must not refuse an unrelated commit. Skipped in a standalone clone.
 if [ -f ../scripts/verify-molecule-versions.mjs ] &&
   printf '%s\n' "$ALL_STAGED" | grep -qE '^(package(-lock)?\.json|packages/.+/package\.json|\.changeset/held\.json)$'; then
-  ( cd .. && node scripts/verify-molecule-versions.mjs --quiet --staged ) || {
-    echo 'pre-commit: verify-molecule-versions failed' >&2
-    exit 1
-  }
+  ( cd .. && node scripts/verify-molecule-versions.mjs --quiet --staged ) ||
+    gate_failed verify-molecule-versions
 fi
 
 # The whole-tree checks judge the tree THIS commit carries: run-on-index.mjs exports
@@ -155,9 +161,11 @@ if printf '%s\n' "$ALL_STAGED" | grep -qE '^packages/.+/src/' ||
     "scripts/check-jsx-specifiers.mjs" \
     "scripts/check-published-tests.mjs" \
     "scripts/check-undeclared-imports.mjs" \
-    "scripts/check-framework-conformance.mjs --base=${DIFF_BASE:-HEAD}"
+    "scripts/check-framework-conformance.mjs --base=${DIFF_BASE:-HEAD}" ||
+    gate_failed 'whole-tree checks (each failed one is named above)'
 elif [ -n "$STAGED" ]; then
-  MOL_RUN_ON_INDEX=changed node scripts/run-on-index.mjs "scripts/check-index-files.mjs"
+  MOL_RUN_ON_INDEX=changed node scripts/run-on-index.mjs "scripts/check-index-files.mjs" ||
+    gate_failed check-index-files
 fi
 
 # The gates below that read package SOURCE read the source this commit carries:
@@ -241,10 +249,11 @@ if [ "${1:-}" = --index-only ]; then
         ! ( cd ../mlcl && MLCL_REGISTRY_PATH="$INDEX_TREE/.mlcl-head-registry.json" MOLECULE_PACKAGES_DIR="$INDEX_TREE/packages" node --import tsx scripts/regen-molecule-docs.mjs --check $DOC_DIRS >/dev/null 2>&1 ); then
         echo 'pre-commit: README.md is stale for a package this commit changes. Regenerate it and add it to this commit:' >&2
         echo "  (cd ../mlcl && node --import tsx scripts/regen-molecule-docs.mjs $(echo $DOC_DIRS))" >&2
-        exit 1
+        gate_failed 'README check'
       fi
     fi
   fi
+  refuse_if_failed
   exit 0
 fi
 
@@ -260,7 +269,7 @@ fi
 if staged_diff --name-only --diff-filter=ACM |
   grep -q '^scripts/precommit-secret-scan\.mjs$'; then
   if [ -f ../scripts/sync-secret-scanner.mjs ]; then
-    (cd .. && node scripts/sync-secret-scanner.mjs --check)
+    (cd .. && node scripts/sync-secret-scanner.mjs --check) || gate_failed 'secret scanner sync'
   fi
 fi
 
@@ -273,11 +282,12 @@ fi
 if staged_diff --name-only --diff-filter=ACMR |
   grep -qE '^packages/tooling/eslint-config/src/(rules/.+|registry-snapshot)\.mjs$'; then
   if [ -f ../scripts/sync-eslint-rules.mjs ]; then
-    (cd .. && node scripts/sync-eslint-rules.mjs --check)
+    (cd .. && node scripts/sync-eslint-rules.mjs --check) || gate_failed 'eslint rule sync'
   fi
 fi
 
 if [ -z "$STAGED" ]; then
+  refuse_if_failed
   exit 0
 fi
 
@@ -313,7 +323,7 @@ if [ -n "$PKG_SRC" ]; then
     if env -u GIT_DIR -u GIT_INDEX_FILE -u GIT_WORK_TREE git -C ../mlcl show HEAD:registry.json > "$INDEX_TREE/.mlcl-head-registry.json" 2>/dev/null; then
       REGISTRY_FALLBACK="--fallback-registry=$INDEX_TREE/.mlcl-head-registry.json"
     fi
-    ( cd ../mlcl && MOLECULE_PACKAGES_DIR="$INDEX_TREE/packages" node --import tsx scripts/check-registry-exports.mjs $REGISTRY_FALLBACK $PKG_DIRS )
+    ( cd ../mlcl && MOLECULE_PACKAGES_DIR="$INDEX_TREE/packages" node --import tsx scripts/check-registry-exports.mjs $REGISTRY_FALLBACK $PKG_DIRS ) || gate_failed 'registry exports'
   else
     echo "ℹ registry-export check skipped: mlcl deps not installed — run 'npm ci' in mlcl, then 'npm run verify:registry-exports' to verify"
   fi
@@ -328,8 +338,12 @@ fi
 IDX_CHANGED=$(echo "$STAGED" | grep -E '^packages/.+/src/index\.ts$' || true)
 if [ -n "$IDX_CHANGED" ] && [ -f ../scripts/verify-doc-examples.mjs ]; then
   IDX_DIRS=$(echo "$IDX_CHANGED" | while IFS= read -r f; do echo "${f%%/src/*}"; done | sort -u)
-  ( cd .. && node scripts/verify-doc-examples.mjs $IDX_DIRS )
+  ( cd .. && node scripts/verify-doc-examples.mjs $IDX_DIRS ) || gate_failed 'doc examples'
 fi
+
+# Every check above has run. The README regen below writes to the index, so it
+# runs only for a commit that passed them all.
+refuse_if_failed
 
 # README.md auto-regen (cross-repo, same skip semantics as the checks above).
 # README.md is 100% generated — never hand-edited — so a commit that changes a
