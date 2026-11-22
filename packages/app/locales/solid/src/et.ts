@@ -34,7 +34,9 @@ export const et: SolidTranslations = {
     'LoggerProvideri sees tuleb kasutada useLoggerProviderit.',
   'solid.error.oauthFailed': 'OAuthi sisselogimine ebaõnnestus',
   'solid.error.useRouterOutsideProvider':
-    "useRouterInstance'i tuleb kasutada RouterProvideri sees.",
+    'Siin pole ruuterit. Kasutage `root` juurkataloogina marsruutimissidemest (`@molecule/app-routing-solid-router`) pärit `MoleculeRouterProvider` i või edastage `router` `MoleculeProvider` ile.',
+  'solid.error.noRoutedView':
+    'Siin pole marsruudivaadet. Solid Router annab marsruudi komponendile selle pesastatud marsruudi nimega `props.children`: kasutage seda marsruudi `component` või edastage leht lastena.',
   'solid.error.useStoreOutsideProvider':
     'useStateProvider peab olema kasutatud StateProvider sees.',
   'solid.error.useStorageOutsideProvider':

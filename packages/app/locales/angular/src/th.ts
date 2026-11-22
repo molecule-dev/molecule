@@ -12,7 +12,10 @@ export const th: AngularTranslations = {
   'angular.error.useHttpOutsideProvider': 'useHttpClient ต้องใช้ภายใน HttpProvider',
   'angular.error.useLoggerOutsideProvider': 'useLoggerProvider ต้องใช้ภายใน LoggerProvider',
   'angular.error.usePreviewOutsideProvider': 'usePreviewProvider ต้องใช้ภายใน PreviewProvider',
-  'angular.error.useRouterOutsideProvider': 'useRouterInstance ต้องใช้ภายใน RouterProvider',
+  'angular.error.useRouterOutsideProvider':
+    'ไม่มีเราเตอร์ในที่นี้ เพิ่ม `provideMoleculeRouter()` จาก routing bond (`@molecule/app-routing-angular-router`) ลงใน providers ของแอป หลังจาก `provideRouter(routes)` ของ Angular หรือส่ง `router` ไปยัง `provideMolecule`',
+  'angular.error.noRoutedView':
+    'การกำหนดเส้นทางนี้ไม่มีมุมมองที่กำหนดไว้ให้แสดงผลที่นี่: โปรดส่งหน้าเว็บเป็นหน้าย่อยแทน',
   'angular.error.useStorageOutsideProvider': 'useStorageProvider ต้องใช้ภายใน StorageProvider',
   'angular.error.useThemeOutsideProvider': 'useThemeProvider ต้องใช้ภายใน ThemeProvider',
   'angular.error.useWorkspaceOutsideProvider':

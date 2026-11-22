@@ -17,7 +17,9 @@ export const ka: AngularTranslations = {
   'angular.error.usePreviewOutsideProvider':
     'usePreviewProvider უნდა გამოიყენოთ PreviewProvider-ის შიგნით',
   'angular.error.useRouterOutsideProvider':
-    'useRouterInstance უნდა გამოიყენოთ RouterProvider-ის შიგნით',
+    'აქ როუტერი არ არის. დაამატეთ `provideMoleculeRouter()` მარშრუტიზაციის ბმიდან (`@molecule/app-routing-angular-router`) აპლიკაციის პროვაიდერებს, Angular-ის `provideRouter(routes)` ის შემდეგ, ან გადაეცით `router` `provideMolecule` ს.',
+  'angular.error.noRoutedView':
+    'ამ მარშრუტიზაციის კავშირს არ აქვს მარშრუტიზებული ხედი აქ გამოსატანად: გვერდი გადაეცით, როგორც შვილობილი.',
   'angular.error.useStorageOutsideProvider':
     'useStorageProvider უნდა გამოიყენოთ StorageProvider-ის შიგნით',
   'angular.error.useThemeOutsideProvider':

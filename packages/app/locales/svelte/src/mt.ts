@@ -5,7 +5,8 @@ export const mt: SvelteTranslations = {
   'svelte.error.noStateProvider': 'Il-fornitur tal-istat ma nstabx fil-kuntest',
   'svelte.error.noAuthClient': 'Il-klijent tal-awtentikazzjoni ma nstabx fil-kuntest',
   'svelte.error.noThemeProvider': 'Il-fornitur tat-tema ma nstabx fil-kuntest',
-  'svelte.error.noRouter': 'Ir-router ma nstabx fil-kuntest',
+  'svelte.error.noRouter':
+    "M'hemm l-ebda router hawn. Immonta `MoleculeRouterProvider` mir-rottazzjoni (`@molecule/app-routing-sveltekit`) fl-għerq `+layout.svelte`, jew ċempel `setMoleculeContext({ router })` hemmhekk.",
   'svelte.error.noI18nProvider': 'Il-fornitur tal-i18n ma nstabx fil-kuntest',
   'svelte.error.noHttpClient': 'Il-klijent HTTP ma nstabx fil-kuntest',
   'svelte.error.noStorageProvider': 'Il-fornitur tal-hazna ma nstabx fil-kuntest',
@@ -22,7 +23,9 @@ export const mt: SvelteTranslations = {
   'svelte.error.useAuthOutsideProvider': 'useAuthClient irid jintuża fi ħdan AuthProvider',
   'svelte.error.useThemeOutsideProvider': 'useThemeProvider irid jintuża fi ħdan ThemeProvider',
   'svelte.error.useRouterOutsideProvider':
-    'useRouterInstance għandu jintuża fi ħdan RouterProvider',
+    "M'hemm l-ebda router hawn. Immonta `MoleculeRouterProvider` mir-rottazzjoni (`@molecule/app-routing-sveltekit`) fl-għerq `+layout.svelte`, jew ċempel `setMoleculeContext({ router })` hemmhekk.",
+  'svelte.error.noRoutedView':
+    "M'hemm l-ebda veduta rottata hawn. SvelteKit jagħti l-paġna tiegħu lil-layout bħala `children`: għaddi `{@render children()}` ġewwa dan il-komponent.",
   'svelte.error.useHttpOutsideProvider': 'useHttpClient irid jintuża fi ħdan HttpProvider',
   'svelte.error.useStorageOutsideProvider':
     'useStorageProvider irid jintuża fi ħdan StorageProvider',

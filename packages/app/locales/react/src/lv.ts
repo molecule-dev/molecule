@@ -9,7 +9,10 @@ export const lv: ReactTranslations = {
   'react.error.useHttpOutsideProvider': 'useHttpClient jāizmanto HttpProvider ietvaros',
   'react.error.useLoggerOutsideProvider': 'useLoggerProvider jāizmanto LoggerProvider ietvaros',
   'react.error.usePreviewOutsideProvider': 'usePreviewProvider jāizmanto PreviewProvider ietvaros',
-  'react.error.useRouterOutsideProvider': 'useRouterInstance jāizmanto RouterProvider ietvaros',
+  'react.error.useRouterOutsideProvider':
+    'Šeit nav maršrutētāja. Pievienojiet maršrutētāja komponentu no lietotnes maršrutēšanas saites (`BrowserRouter` no `@molecule/app-routing-react-router`) vai nodojiet `router` uz `MoleculeProvider`.',
+  'react.error.noRoutedView':
+    'Šai maršrutēšanas saitei nav maršrutēta skata, ko šeit atveidot: tā vietā nododiet lapu kā apakšlapas.',
   'react.error.useStoreOutsideProvider': 'useStateProvider jāizmanto StateProvider ietvaros',
   'react.error.useStorageOutsideProvider': 'useStorageProvider jāizmanto StorageProvider ietvaros',
   'react.error.useThemeOutsideProvider': 'useThemeProvider jāizmanto ThemeProvider ietvaros',

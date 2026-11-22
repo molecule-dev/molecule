@@ -5,7 +5,8 @@ export const es: SvelteTranslations = {
   'svelte.error.noStateProvider': 'Proveedor de estado no encontrado en el contexto',
   'svelte.error.noAuthClient': 'Cliente de autenticación no encontrado en el contexto',
   'svelte.error.noThemeProvider': 'Proveedor de temas no encontrado en el contexto',
-  'svelte.error.noRouter': 'Enrutador no encontrado en el contexto',
+  'svelte.error.noRouter':
+    'Aquí no hay enrutador. Monte `MoleculeRouterProvider` desde el enlace de enrutamiento (`@molecule/app-routing-sveltekit`) en la raíz `+layout.svelte`, o llame a `setMoleculeContext({ router })` allí.',
   'svelte.error.noI18nProvider': 'Proveedor i18n no encontrado en el contexto',
   'svelte.error.noHttpClient': 'Cliente HTTP no encontrado en el contexto',
   'svelte.error.noStorageProvider': 'Proveedor de almacenamiento no encontrado en el contexto',
@@ -22,7 +23,9 @@ export const es: SvelteTranslations = {
   'svelte.error.useAuthOutsideProvider': 'useAuthClient debe usarse dentro de un AuthProvider.',
   'svelte.error.useThemeOutsideProvider': 'useThemeProvider debe usarse dentro de un ThemeProvider',
   'svelte.error.useRouterOutsideProvider':
-    'useRouterInstance debe usarse dentro de un RouterProvider',
+    'Aquí no hay enrutador. Monte `MoleculeRouterProvider` desde el enlace de enrutamiento (`@molecule/app-routing-sveltekit`) en la raíz `+layout.svelte`, o llame a `setMoleculeContext({ router })` allí.',
+  'svelte.error.noRoutedView':
+    'Aquí no hay vista enrutada. SvelteKit le da a un diseño su página como `children`: pasa `{@render children()}` dentro de este componente.',
   'svelte.error.useHttpOutsideProvider': 'useHttpClient debe usarse dentro de un HttpProvider.',
   'svelte.error.useStorageOutsideProvider':
     'useStorageProvider debe usarse dentro de un StorageProvider.',

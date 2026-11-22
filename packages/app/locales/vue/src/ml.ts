@@ -2,7 +2,10 @@ import type { VueTranslations } from './types.js'
 
 /** Vue translations for Malayalam. */
 export const ml: VueTranslations = {
-  'vue.error.useRouterOutsideProvider': 'useRouterInstance ഒരു RouterProvider-നുള്ളിൽ ഉപയോഗിക്കണം',
+  'vue.error.useRouterOutsideProvider':
+    'ഇവിടെ റൂട്ടർ ഇല്ല. റൂട്ടിംഗ് ബോണ്ടിൽ നിന്ന് (`@molecule/app-routing-vue-router`) `MoleculeRouterProvider` ൽ ആപ്പ് പൊതിയുക, അല്ലെങ്കിൽ `moleculePlugin` ലേക്ക് `router` കൈമാറുക.',
+  'vue.error.noRoutedView':
+    'ഈ റൂട്ടിംഗ് ബോണ്ടിന് ഇവിടെ റെൻഡർ ചെയ്യാൻ റൂട്ട് ചെയ്ത വ്യൂ ഇല്ല: പകരം പേജ് ചിൽഡ്രൻ ആയി നൽകുക.',
   'vue.error.useStoreOutsideProvider': 'useStateProvider ഒരു StateProvider-നുള്ളിൽ ഉപയോഗിക്കണം',
   'vue.error.useThemeOutsideProvider': 'useThemeProvider ഒരു ThemeProvider-നുള്ളിൽ ഉപയോഗിക്കണം',
   'vue.error.useAuthOutsideProvider': 'useAuthClient ഒരു AuthProvider-നുള്ളിൽ ഉപയോഗിക്കണം',

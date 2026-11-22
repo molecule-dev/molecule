@@ -3,7 +3,9 @@ import type { VueTranslations } from './types.js'
 /** Vue translations for Irish. */
 export const ga: VueTranslations = {
   'vue.error.useRouterOutsideProvider':
-    'Ní mór useRouterInstance a úsáid laistigh de RouterProvider',
+    'Níl aon ródaire anseo. Fill an aip i `MoleculeRouterProvider` ón nasc ródaithe (`@molecule/app-routing-vue-router`), nó cuir `router` chuig `moleculePlugin`.',
+  'vue.error.noRoutedView':
+    'Níl aon radharc ródaithe ag an nasc ródaithe seo le rindreáil anseo: cuir an leathanach ar aghaidh mar pháistí ina ionad.',
   'vue.error.useStoreOutsideProvider': 'Ní mór useStateProvider a úsáid laistigh de StateProvider',
   'vue.error.useThemeOutsideProvider': 'Ní mór useThemeProvider a úsáid laistigh de ThemeProvider',
   'vue.error.useAuthOutsideProvider': 'Ní mór useAuthClient a úsáid laistigh de AuthProvider',

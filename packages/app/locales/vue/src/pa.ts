@@ -3,7 +3,9 @@ import type { VueTranslations } from './types.js'
 /** Vue translations for Punjabi. */
 export const pa: VueTranslations = {
   'vue.error.useRouterOutsideProvider':
-    'useRouterInstance ਨੂੰ RouterProvider ਦੇ ਅੰਦਰ ਵਰਤਿਆ ਜਾਣਾ ਚਾਹੀਦਾ ਹੈ',
+    'ਇੱਥੇ ਕੋਈ ਰਾਊਟਰ ਨਹੀਂ ਹੈ। ਐਪ ਨੂੰ ਰਾਊਟਿੰਗ ਬਾਂਡ (`@molecule/app-routing-vue-router`) ਤੋਂ `MoleculeRouterProvider` ਵਿੱਚ ਲਪੇਟੋ, ਜਾਂ `router` ਨੂੰ `moleculePlugin` ਵਿੱਚ ਪਾਸ ਕਰੋ।',
+  'vue.error.noRoutedView':
+    'ਇਸ ਰੂਟਿੰਗ ਬਾਂਡ ਦਾ ਇੱਥੇ ਰੈਂਡਰ ਕਰਨ ਲਈ ਕੋਈ ਰੂਟਡ ਵਿਊ ਨਹੀਂ ਹੈ: ਇਸਦੀ ਬਜਾਏ ਪੇਜ ਨੂੰ ਚਿਲਡਰਨ ਵਜੋਂ ਪਾਸ ਕਰੋ।',
   'vue.error.useStoreOutsideProvider':
     'useStateProvider ਨੂੰ StateProvider ਦੇ ਅੰਦਰ ਵਰਤਿਆ ਜਾਣਾ ਚਾਹੀਦਾ ਹੈ',
   'vue.error.useThemeOutsideProvider':

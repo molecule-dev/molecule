@@ -5,7 +5,8 @@ export const it: SvelteTranslations = {
   'svelte.error.noStateProvider': 'Provider di stato non trovato nel contesto',
   'svelte.error.noAuthClient': 'Client di autenticazione non trovato nel contesto',
   'svelte.error.noThemeProvider': 'Provider del tema non trovato nel contesto',
-  'svelte.error.noRouter': 'Router non trovato nel contesto',
+  'svelte.error.noRouter':
+    'Nessun router qui. Monta `MoleculeRouterProvider` dal collegamento di routing (`@molecule/app-routing-sveltekit`) nella radice `+layout.svelte`, oppure chiama `setMoleculeContext({ router })` lì.',
   'svelte.error.noI18nProvider': 'Provider i18n non trovato nel contesto',
   'svelte.error.noHttpClient': 'Client HTTP non trovato nel contesto',
   'svelte.error.noStorageProvider': 'Provider di archiviazione non trovato nel contesto',
@@ -27,7 +28,9 @@ export const it: SvelteTranslations = {
   'svelte.error.useThemeOutsideProvider':
     "useThemeProvider deve essere utilizzato all'interno di un ThemeProvider",
   'svelte.error.useRouterOutsideProvider':
-    "useRouterInstance deve essere utilizzato all'interno di un RouterProvider",
+    'Nessun router qui. Monta `MoleculeRouterProvider` dal collegamento di routing (`@molecule/app-routing-sveltekit`) nella radice `+layout.svelte`, oppure chiama `setMoleculeContext({ router })` lì.',
+  'svelte.error.noRoutedView':
+    "Nessuna vista instradata qui. SvelteKit assegna a un layout la sua pagina come `children`: passa `{@render children()}` all'interno di questo componente.",
   'svelte.error.useHttpOutsideProvider':
     "useHttpClient deve essere utilizzato all'interno di un HttpProvider",
   'svelte.error.useStorageOutsideProvider':

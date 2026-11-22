@@ -2,7 +2,10 @@ import type { VueTranslations } from './types.js'
 
 /** Vue translations for Telugu. */
 export const te: VueTranslations = {
-  'vue.error.useRouterOutsideProvider': 'useRouterInstance RouterProvider లోపల ఉపయోగించాలి',
+  'vue.error.useRouterOutsideProvider':
+    'ఇక్కడ రౌటర్ లేదు. రౌటింగ్ బాండ్ (`@molecule/app-routing-vue-router`) నుండి యాప్‌ను `MoleculeRouterProvider` లో చుట్టండి, లేదా `router` `moleculePlugin` కు పంపండి.',
+  'vue.error.noRoutedView':
+    'ఈ రూటింగ్ బాండ్‌లో ఇక్కడ రెండర్ చేయడానికి రూట్ చేయబడిన వ్యూ ఏదీ లేదు: దానికి బదులుగా పేజీని చిల్డ్రన్‌గా పంపండి.',
   'vue.error.useStoreOutsideProvider': 'useStateProvider StateProvider లోపల ఉపయోగించాలి',
   'vue.error.useThemeOutsideProvider': 'useThemeProvider ThemeProvider లోపల ఉపయోగించాలి',
   'vue.error.useAuthOutsideProvider': 'useAuthClient AuthProvider లోపల ఉపయోగించాలి',

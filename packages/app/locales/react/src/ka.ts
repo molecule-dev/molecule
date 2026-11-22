@@ -14,7 +14,9 @@ export const ka: ReactTranslations = {
   'react.error.usePreviewOutsideProvider':
     'usePreviewProvider უნდა გამოიყენოთ PreviewProvider-ის შიგნით',
   'react.error.useRouterOutsideProvider':
-    'useRouterInstance უნდა გამოიყენოთ RouterProvider-ის შიგნით',
+    'აქ როუტერი არ არის. დაამონტაჟეთ როუტერის კომპონენტი აპლიკაციის მარშრუტიზაციის კავშირიდან (`BrowserRouter` `@molecule/app-routing-react-router` დან), ან გადაეცით `router` `MoleculeProvider` ს.',
+  'react.error.noRoutedView':
+    'ამ მარშრუტიზაციის კავშირს არ აქვს მარშრუტიზებული ხედი აქ გამოსატანად: გვერდი გადაეცით, როგორც შვილობილი.',
   'react.error.useStoreOutsideProvider': 'useStateProvider უნდა გამოიყენოთ StateProvider-ის შიგნით',
   'react.error.useStorageOutsideProvider':
     'useStorageProvider უნდა გამოიყენოთ StorageProvider-ის შიგნით',

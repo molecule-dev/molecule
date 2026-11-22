@@ -5,7 +5,8 @@ export const fil: SvelteTranslations = {
   'svelte.error.noStateProvider': 'Hindi nahanap ang state provider sa konteksto',
   'svelte.error.noAuthClient': 'Hindi nahanap ang auth client sa konteksto',
   'svelte.error.noThemeProvider': 'Hindi nahanap ang theme provider sa konteksto',
-  'svelte.error.noRouter': 'Hindi nahanap ang router sa konteksto',
+  'svelte.error.noRouter':
+    'Walang router dito. I-mount ang `MoleculeRouterProvider` mula sa routing bond (`@molecule/app-routing-sveltekit`) sa root na `+layout.svelte`, o tawagin ang `setMoleculeContext({ router })` doon.',
   'svelte.error.noI18nProvider': 'Hindi nahanap ang i18n provider sa konteksto',
   'svelte.error.noHttpClient': 'Hindi nahanap ang HTTP client sa konteksto',
   'svelte.error.noStorageProvider': 'Hindi nahanap ang storage provider sa konteksto',
@@ -26,7 +27,9 @@ export const fil: SvelteTranslations = {
   'svelte.error.useThemeOutsideProvider':
     'Dapat gamitin ang useThemeProvider sa loob ng isang ThemeProvider',
   'svelte.error.useRouterOutsideProvider':
-    'Dapat gamitin ang useRouterInstance sa loob ng isang RouterProvider',
+    'Walang router dito. I-mount ang `MoleculeRouterProvider` mula sa routing bond (`@molecule/app-routing-sveltekit`) sa root na `+layout.svelte`, o tawagin ang `setMoleculeContext({ router })` doon.',
+  'svelte.error.noRoutedView':
+    'Walang routed view dito. Binibigyan ng SvelteKit ang layout ng pahina nito bilang `children`: ipasa ang `{@render children()}` sa loob ng component na ito.',
   'svelte.error.useHttpOutsideProvider':
     'Dapat gamitin ang useHttpClient sa loob ng isang HttpProvider',
   'svelte.error.useStorageOutsideProvider':

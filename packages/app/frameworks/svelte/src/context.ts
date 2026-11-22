@@ -4,6 +4,7 @@
  * @module
  */
 
+import type { Component } from 'svelte'
 import { getContext, setContext } from 'svelte'
 
 import type { ChatProvider } from '@molecule/app-ai-chat'
@@ -11,7 +12,7 @@ import type { AuthClient, RegisterExtraShape } from '@molecule/app-auth'
 import type { EditorProvider } from '@molecule/app-code-editor'
 import type { HttpClient } from '@molecule/app-http'
 import type { I18nProvider } from '@molecule/app-i18n'
-import { getProvider as getBondedI18nProvider, t } from '@molecule/app-i18n'
+import { getProvider as getBondedI18nProvider, I18nError, t } from '@molecule/app-i18n'
 import type { WorkspaceProvider } from '@molecule/app-ide'
 import type { PreviewProvider } from '@molecule/app-live-preview'
 import type { LoggerProvider } from '@molecule/app-logger'
@@ -24,6 +25,7 @@ import {
 import type { StorageProvider } from '@molecule/app-storage'
 import type { ThemeProvider } from '@molecule/app-theme'
 
+import { setRoutedViewContext } from './routed-view-context.js'
 import type { MoleculeConfig } from './types.js'
 
 // Context keys
@@ -112,9 +114,13 @@ export function setThemeContext(provider: ThemeProvider): void {
 /**
  * Sets the router context.
  * @param router - The router instance to store in Svelte context.
+ * @param options - From a routing bond: its routed view (see `RoutedView`). Given, it is set
+ * too (`null` without `routedView`).
+ * @param options.routedView - The component that renders the matched child route.
  */
-export function setRouterContext(router: Router): void {
+export function setRouterContext(router: Router, options?: { routedView?: Component }): void {
   setContext(ROUTER_KEY, router)
+  if (options) setRoutedViewContext(options.routedView ?? null)
 }
 
 /**
@@ -236,13 +242,16 @@ export function getThemeProvider(): ThemeProvider {
 /**
  * Gets the router from Svelte context.
  * @returns The router instance.
- * @throws {Error} If no router has been set in context.
+ * @throws {I18nError} If no router has been set in context: mount the routing bond's
+ * `MoleculeRouterProvider` in the root `+layout.svelte`, or call `setMoleculeContext({ router })`.
  */
 export function getRouter(): Router {
   const router = getContext<Router>(ROUTER_KEY)
   if (!router)
-    throw new Error(
-      t('svelte.error.noRouter', undefined, { defaultValue: 'Router not found in context' }),
+    throw new I18nError(
+      'svelte.error.noRouter',
+      undefined,
+      'No router here. Mount `MoleculeRouterProvider` from the routing bond (`@molecule/app-routing-sveltekit`) in the root `+layout.svelte`, or call `setMoleculeContext({ router })` there.',
     )
   return router
 }
@@ -433,15 +442,16 @@ export function useThemeProvider(): ThemeProvider {
 /**
  * Gets the router from Svelte context under the React hook's name.
  * @returns The router instance.
- * @throws {Error} If no router has been set in context.
+ * @throws {I18nError} If no router has been set in context: mount the routing bond's
+ * `MoleculeRouterProvider` in the root `+layout.svelte`, or call `setMoleculeContext({ router })`.
  */
 export function useRouterInstance(): Router {
   const router = getContext<Router | undefined>(ROUTER_KEY)
   if (!router)
-    throw new Error(
-      t('svelte.error.useRouterOutsideProvider', undefined, {
-        defaultValue: 'useRouterInstance must be used within a RouterProvider',
-      }),
+    throw new I18nError(
+      'svelte.error.useRouterOutsideProvider',
+      undefined,
+      'No router here. Mount `MoleculeRouterProvider` from the routing bond (`@molecule/app-routing-sveltekit`) in the root `+layout.svelte`, or call `setMoleculeContext({ router })` there.',
     )
   return router
 }

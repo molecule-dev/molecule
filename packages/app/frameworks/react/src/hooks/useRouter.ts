@@ -6,7 +6,7 @@
 
 import { useCallback, useContext, useEffect, useState, useSyncExternalStore } from 'react'
 
-import { t } from '@molecule/app-i18n'
+import { I18nError } from '@molecule/app-i18n'
 import type {
   ListRouteOptions,
   ListRouteResult,
@@ -23,24 +23,140 @@ import {
 } from '@molecule/app-routing'
 
 import { RouterContext } from '../contexts.js'
+import { RouteParamsHookContext } from '../route-params-hook-context.js'
 import type { UseRouterResult } from '../types.js'
 
 /**
  * Hook to access the router from context.
  *
  * @returns The router from context
- * @throws {Error} Error if used outside of RouterProvider
+ * @throws {I18nError} When no router is mounted above the caller: mount a router component from
+ * the app's routing bond (`BrowserRouter` from `@molecule/app-routing-react-router`), or pass
+ * `router` to `MoleculeProvider`.
  */
 export function useRouterInstance(): Router {
   const router = useContext(RouterContext)
   if (!router) {
-    throw new Error(
-      t('react.error.useRouterOutsideProvider', undefined, {
-        defaultValue: 'useRouterInstance must be used within a RouterProvider',
-      }),
+    throw new I18nError(
+      'react.error.useRouterOutsideProvider',
+      undefined,
+      "No router here. Mount a router component from the app's routing bond (`BrowserRouter` from `@molecule/app-routing-react-router`), or pass `router` to `MoleculeProvider`.",
     )
   }
   return router
+}
+
+/** What the routing hooks render: the router's location, route params and query. */
+interface RouterSnapshot {
+  location: RouteLocation
+  params: RouteParams
+  query: QueryParams
+}
+
+/** The last snapshot read from each router, kept while the router's answers stay the same. */
+const snapshots = new WeakMap<Router, RouterSnapshot>()
+
+/**
+ * Whether two values of a param or query map are the same (a repeated query key is an array).
+ *
+ * @param a - One value.
+ * @param b - The other.
+ * @returns Whether they are equal.
+ */
+const sameValue = (a: string | string[] | undefined, b: string | string[] | undefined): boolean =>
+  Array.isArray(a) && Array.isArray(b)
+    ? a.length === b.length && a.every((item, i) => item === b[i])
+    : a === b
+
+/**
+ * Whether two param or query maps hold the same entries.
+ *
+ * @param a - One map.
+ * @param b - The other.
+ * @returns Whether they are equal.
+ */
+const sameEntries = (a: QueryParams, b: QueryParams): boolean => {
+  const keys = Object.keys(a)
+  return keys.length === Object.keys(b).length && keys.every((key) => sameValue(a[key], b[key]))
+}
+
+/**
+ * Whether two locations are the same entry at the same address. A key names an entry and its
+ * state together; without one, the state is compared by identity.
+ *
+ * @param a - One location.
+ * @param b - The other.
+ * @returns Whether they are equal.
+ */
+const sameLocation = (a: RouteLocation, b: RouteLocation): boolean =>
+  a.pathname === b.pathname &&
+  a.search === b.search &&
+  a.hash === b.hash &&
+  a.key === b.key &&
+  (a.key !== undefined || Object.is(a.state, b.state))
+
+/**
+ * Reads the router's location, params and query, returning the previous snapshot while they are
+ * unchanged: a routing bond may build a new location object on every call, and
+ * `useSyncExternalStore` needs the same value back until something changed.
+ *
+ * @param router - The router to read.
+ * @returns Its current snapshot.
+ */
+function readSnapshot(router: Router): RouterSnapshot {
+  const next = {
+    location: router.getLocation(),
+    params: router.getParams(),
+    query: router.getQuery(),
+  }
+  const previous = snapshots.get(router)
+  if (
+    previous &&
+    sameLocation(previous.location, next.location) &&
+    sameEntries(previous.params, next.params) &&
+    sameEntries(previous.query, next.query)
+  )
+    return previous
+  snapshots.set(router, next)
+  return next
+}
+
+/**
+ * The router's location, params and query as of this render. Read during render, not copied
+ * into state from a notification: a routing bond answers with the new location as soon as its
+ * own tree re-renders and notifies after that commit, so a copy rendered the previous location
+ * for one commit (a whole-tree guard mounted the protected page before redirecting).
+ *
+ * @param router - The router to read.
+ * @returns The snapshot this render shows.
+ */
+function useRouterSnapshot(router: Router): RouterSnapshot {
+  const subscribe = useCallback((onChange: () => void) => router.subscribe(onChange), [router])
+  const getSnapshot = useCallback(() => readSnapshot(router), [router])
+  return useSyncExternalStore(subscribe, getSnapshot, getSnapshot)
+}
+
+/** The route-params hook of a routing bond that has none: the router's params answer. */
+const useNoRouteParams = (): RouteParams | undefined => undefined
+
+/**
+ * The route params the caller shows: the ones the routing bond's `useRouteParams` hook gives
+ * for the calling component when it gives any, otherwise the router's (React Router's
+ * declarative routers know a route's params only inside the matched route). The previous object
+ * is kept while the entries are the same.
+ *
+ * @param routerParams - The router's params, from this render's snapshot.
+ * @returns The params.
+ */
+function useCallerParams(routerParams: RouteParams): RouteParams {
+  // The provider reads the hook once, so this call is the same hook on every render.
+  const useRouteParams = useContext(RouteParamsHookContext) ?? useNoRouteParams
+  const own = useRouteParams()
+  const next = own && Object.keys(own).length > 0 ? own : routerParams
+  const [held, setHeld] = useState(next)
+  const current = sameEntries(held, next) ? held : next
+  if (current !== held) setHeld(current)
+  return current
 }
 
 /**
@@ -62,19 +178,8 @@ export function useRouterInstance(): Router {
  */
 export function useRouter(): UseRouterResult {
   const router = useRouterInstance()
-
-  const [location, setLocation] = useState<RouteLocation>(() => router.getLocation())
-  const [params, setParams] = useState<Record<string, string>>(() => router.getParams())
-  const [query, setQuery] = useState<QueryParams>(() => router.getQuery())
-
-  useEffect(() => {
-    const unsubscribe = router.subscribe(() => {
-      setLocation(router.getLocation())
-      setParams(router.getParams())
-      setQuery(router.getQuery())
-    })
-    return unsubscribe
-  }, [router])
+  const { location, params: routerParams, query } = useRouterSnapshot(router)
+  const params = useCallerParams(routerParams)
 
   // Memoized action wrappers
   const navigate = useCallback(

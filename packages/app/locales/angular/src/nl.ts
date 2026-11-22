@@ -20,7 +20,9 @@ export const nl: AngularTranslations = {
   'angular.error.usePreviewOutsideProvider':
     'usePreviewProvider moet binnen een PreviewProvider worden gebruikt',
   'angular.error.useRouterOutsideProvider':
-    'useRouterInstance moet binnen een RouterProvider worden gebruikt',
+    "Geen router hier. Voeg `provideMoleculeRouter()` van de routing bond (`@molecule/app-routing-angular-router`) toe aan de providers van de app, na Angular's `provideRouter(routes)`, of geef `router` door aan `provideMolecule`.",
+  'angular.error.noRoutedView':
+    'Deze routing bond heeft geen gerouteerde view om hier weer te geven: geef de pagina in plaats daarvan door als children.',
   'angular.error.useStorageOutsideProvider':
     'useStorageProvider moet binnen een StorageProvider worden gebruikt',
   'angular.error.useThemeOutsideProvider':

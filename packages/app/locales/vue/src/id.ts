@@ -2,7 +2,10 @@ import type { VueTranslations } from './types.js'
 
 /** Vue translations for Indonesian. */
 export const id: VueTranslations = {
-  'vue.error.useRouterOutsideProvider': 'useRouterInstance harus digunakan di dalam RouterProvider',
+  'vue.error.useRouterOutsideProvider':
+    'Tidak ada router di sini. Bungkus aplikasi dalam `MoleculeRouterProvider` dari ikatan perutean (`@molecule/app-routing-vue-router`), atau berikan `router` ke `moleculePlugin`.',
+  'vue.error.noRoutedView':
+    'Ikatan perutean ini tidak memiliki tampilan yang dirutekan untuk dirender di sini: teruskan halaman sebagai anak-anaknya saja.',
   'vue.error.useStoreOutsideProvider': 'useStateProvider harus digunakan di dalam StateProvider',
   'vue.error.useThemeOutsideProvider': 'useThemeProvider harus digunakan di dalam ThemeProvider',
   'vue.error.useAuthOutsideProvider': 'useAuthClient harus digunakan di dalam AuthProvider',

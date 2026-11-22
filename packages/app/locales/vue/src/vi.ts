@@ -3,7 +3,9 @@ import type { VueTranslations } from './types.js'
 /** Vue translations for Vietnamese. */
 export const vi: VueTranslations = {
   'vue.error.useRouterOutsideProvider':
-    'useRouterInstance ph\u1ea3i \u0111\u01b0\u1ee3c s\u1eed d\u1ee5ng b\u00ean trong RouterProvider',
+    'Không có bộ định tuyến ở đây. Hãy bọc ứng dụng trong `MoleculeRouterProvider` từ liên kết định tuyến (`@molecule/app-routing-vue-router`), hoặc truyền `router` cho `moleculePlugin`.',
+  'vue.error.noRoutedView':
+    'Liên kết định tuyến này không có chế độ xem được định tuyến để hiển thị ở đây: thay vào đó hãy truyền trang đó dưới dạng các phần tử con.',
   'vue.error.useStoreOutsideProvider':
     'useStateProvider ph\u1ea3i \u0111\u01b0\u1ee3c s\u1eed d\u1ee5ng b\u00ean trong StateProvider',
   'vue.error.useThemeOutsideProvider':

@@ -17,7 +17,9 @@ export const fa: AngularTranslations = {
   'angular.error.usePreviewOutsideProvider':
     'usePreviewProvider باید درون PreviewProvider استفاده شود',
   'angular.error.useRouterOutsideProvider':
-    'useRouterInstance باید درون RouterProvider استفاده شود',
+    'اینجا هیچ مسیریابی وجود ندارد. `provideMoleculeRouter()` را از پیوند مسیریابی (`@molecule/app-routing-angular-router`) به ارائه دهندگان برنامه، پس از `provideRouter(routes)` از Angular اضافه کنید، یا `router` را به `provideMolecule` منتقل کنید.',
+  'angular.error.noRoutedView':
+    'این پیوند مسیریابی هیچ نمای مسیریابی‌شده‌ای برای رندر کردن در اینجا ندارد: در عوض، صفحه را به عنوان فرزند ارسال کنید.',
   'angular.error.useStorageOutsideProvider':
     'useStorageProvider باید درون StorageProvider استفاده شود',
   'angular.error.useThemeOutsideProvider': 'useThemeProvider باید درون ThemeProvider استفاده شود',

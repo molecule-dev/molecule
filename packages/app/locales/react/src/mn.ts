@@ -14,7 +14,9 @@ export const mn: ReactTranslations = {
   'react.error.usePreviewOutsideProvider':
     'usePreviewProvider-ийг PreviewProvider дотор ашиглах ёстой',
   'react.error.useRouterOutsideProvider':
-    'useRouterInstance-ийг RouterProvider дотор ашиглах ёстой',
+    'Энд чиглүүлэгч алга. Аппликейшны чиглүүлэлтийн холбоосоос (`BrowserRouter` from `@molecule/app-routing-react-router`) чиглүүлэгчийн бүрэлдэхүүн хэсгийг холбоно уу, эсвэл `router` `MoleculeProvider` руу дамжуулна уу.',
+  'react.error.noRoutedView':
+    'Энэ чиглүүлэлтийн холбоос нь энд үзүүлэх чиглүүлэлтийн харагдацгүй байна: оронд нь хуудсыг хүүхэд болгон дамжуулна уу.',
   'react.error.useStoreOutsideProvider': 'useStateProvider-ийг StateProvider дотор ашиглах ёстой',
   'react.error.useStorageOutsideProvider':
     'useStorageProvider-ийг StorageProvider дотор ашиглах ёстой',

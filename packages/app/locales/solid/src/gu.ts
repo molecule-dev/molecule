@@ -32,7 +32,10 @@ export const gu: SolidTranslations = {
   'solid.error.useLoggerOutsideProvider':
     'useLoggerProvider નો ઉપયોગ LoggerProvider ની અંદર જ થવો જોઈએ.',
   'solid.error.oauthFailed': 'OAuth લૉગિન નિષ્ફળ થયું',
-  'solid.error.useRouterOutsideProvider': 'useRouterInstance નો ઉપયોગ RouterProvider માં થવો જોઈએ.',
+  'solid.error.useRouterOutsideProvider':
+    'અહીં કોઈ રાઉટર નથી. રાઉટરના `root` તરીકે રૂટીંગ બોન્ડ (`@molecule/app-routing-solid-router`) માંથી `MoleculeRouterProvider` ઉપયોગ કરો, અથવા `router` ને `MoleculeProvider` માં પાસ કરો.',
+  'solid.error.noRoutedView':
+    'અહીં કોઈ રૂટેડ વ્યૂ નથી. સોલિડ રાઉટર રૂટના ઘટકને તેનો નેસ્ટેડ રૂટ `props.children` તરીકે આપે છે: આનો ઉપયોગ રૂટના `component` તરીકે કરો, અથવા પેજને બાળકો તરીકે પાસ કરો.',
   'solid.error.useStoreOutsideProvider':
     'useStateProvider નો ઉપયોગ StateProvider ની અંદર જ થવો જોઈએ.',
   'solid.error.useStorageOutsideProvider':

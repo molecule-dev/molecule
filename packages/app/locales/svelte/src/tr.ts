@@ -7,7 +7,8 @@ export const tr: SvelteTranslations = {
   'svelte.error.noAuthClient': 'Kimlik do\u011frulama istemcisi ba\u011flamda bulunamad\u0131',
   'svelte.error.noThemeProvider':
     'Tema sa\u011flay\u0131c\u0131s\u0131 ba\u011flamda bulunamad\u0131',
-  'svelte.error.noRouter': 'Y\u00f6nlendirici ba\u011flamda bulunamad\u0131',
+  'svelte.error.noRouter':
+    'Burada yönlendirici yok. `MoleculeRouterProvider` yönlendirme bağından (`@molecule/app-routing-sveltekit`) kök `+layout.svelte` dosyasına bağlayın veya orada `setMoleculeContext({ router })` çağırın.',
   'svelte.error.noI18nProvider':
     'I18n sa\u011flay\u0131c\u0131s\u0131 ba\u011flamda bulunamad\u0131',
   'svelte.error.noHttpClient': 'HTTP istemcisi ba\u011flamda bulunamad\u0131',
@@ -28,7 +29,9 @@ export const tr: SvelteTranslations = {
   'svelte.error.useThemeOutsideProvider':
     'useThemeProvider, bir ThemeProvider içinde kullanılmalıdır.',
   'svelte.error.useRouterOutsideProvider':
-    'useRouterInstance bir RouterProvider içinde kullanılmalıdır',
+    'Burada yönlendirici yok. `MoleculeRouterProvider` yönlendirme bağından (`@molecule/app-routing-sveltekit`) kök `+layout.svelte` dosyasına bağlayın veya orada `setMoleculeContext({ router })` çağırın.',
+  'svelte.error.noRoutedView':
+    'Burada yönlendirilmiş bir görünüm yok. SvelteKit, bir düzene sayfasını `children` olarak verir: bu bileşenin içine `{@render children()}` geçirin.',
   'svelte.error.useHttpOutsideProvider': 'useHttpClient bir HttpProvider içinde kullanılmalıdır',
   'svelte.error.useStorageOutsideProvider':
     'useStorageProvider, bir StorageProvider içinde kullanılmalıdır.',

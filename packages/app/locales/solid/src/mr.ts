@@ -33,7 +33,9 @@ export const mr: SolidTranslations = {
   'solid.error.useLoggerOutsideProvider': 'useLoggerProvider हे LoggerProvider मध्ये वापरले पाहिजे',
   'solid.error.oauthFailed': 'OAuth लॉगिन अयशस्वी झाले',
   'solid.error.useRouterOutsideProvider':
-    'useRouterInstance चा वापर RouterProvider च्या आतच केला पाहिजे.',
+    'येथे राउटर नाही. राउटरचा `root` म्हणून राउटिंग बाँडमधील `MoleculeRouterProvider` (`@molecule/app-routing-solid-router`) वापरा, किंवा `MoleculeProvider` ला `router` पास करा.',
+  'solid.error.noRoutedView':
+    'येथे कोणताही रूट केलेला व्ह्यू नाही. सॉलिड राउटर रूटच्या कंपोनंटला त्याचा नेस्टेड रूट `props.children` म्हणून देतो: याचा रूटचा `component` म्हणून वापर करा, किंवा पेजला चिल्ड्रेन म्हणून पास करा.',
   'solid.error.useStoreOutsideProvider':
     'useStateProvider चा वापर StateProvider च्या आतच केला पाहिजे.',
   'solid.error.useStorageOutsideProvider':

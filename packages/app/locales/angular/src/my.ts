@@ -19,7 +19,9 @@ export const my: AngularTranslations = {
   'angular.error.usePreviewOutsideProvider':
     'usePreviewProvider ကို PreviewProvider အတွင်းတွင် အသုံးပြုရပါမည်',
   'angular.error.useRouterOutsideProvider':
-    'useRouterInstance ကို RouterProvider အတွင်းတွင် အသုံးပြုရပါမည်',
+    "ဤနေရာတွင် router မရှိပါ။ Angular's `provideRouter(routes)` ပြီးနောက် routing bond (`@molecule/app-routing-angular-router`) မှ `provideMoleculeRouter()` app's provider များထဲသို့ ပေါင်းထည့်ပါ သို့မဟုတ် `router` ကို `provideMolecule` သို့ ပေးပို့ပါ။",
+  'angular.error.noRoutedView':
+    'ဤ routing bond တွင် ဤနေရာတွင် render လုပ်ရန် routed view မရှိပါ။ ယင်းအစား စာမျက်နှာကို children အဖြစ် pass လုပ်ပါ။',
   'angular.error.useStorageOutsideProvider':
     'useStorageProvider ကို StorageProvider အတွင်းတွင် အသုံးပြုရပါမည်',
   'angular.error.useThemeOutsideProvider':

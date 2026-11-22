@@ -17,7 +17,9 @@ export const el: ReactTranslations = {
   'react.error.usePreviewOutsideProvider':
     'Το usePreviewProvider πρέπει να χρησιμοποιείται εντός ενός PreviewProvider',
   'react.error.useRouterOutsideProvider':
-    'Το useRouterInstance πρέπει να χρησιμοποιείται εντός ενός RouterProvider',
+    'Δεν υπάρχει δρομολογητής εδώ. Τοποθετήστε ένα στοιχείο δρομολογητή από το routing bond της εφαρμογής (`BrowserRouter` από το `@molecule/app-routing-react-router`) ή μεταβιβάστε `router` στο `MoleculeProvider`.',
+  'react.error.noRoutedView':
+    'Αυτός ο δεσμός δρομολόγησης δεν έχει δρομολογημένη προβολή για απόδοση εδώ: μεταβιβάστε τη σελίδα ως θυγατρικές σελίδες.',
   'react.error.useStoreOutsideProvider':
     'Το useStateProvider πρέπει να χρησιμοποιείται εντός ενός StateProvider',
   'react.error.useStorageOutsideProvider':

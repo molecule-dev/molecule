@@ -5,7 +5,8 @@ export const et: SvelteTranslations = {
   'svelte.error.noStateProvider': 'Olekupakkujat ei leitud kontekstis',
   'svelte.error.noAuthClient': 'Autentimisklienti ei leitud kontekstis',
   'svelte.error.noThemeProvider': 'Teemapakkujat ei leitud kontekstis',
-  'svelte.error.noRouter': 'Ruuterit ei leitud kontekstis',
+  'svelte.error.noRouter':
+    'Siin pole ruuterit. Ühenda `MoleculeRouterProvider` marsruutimissidemega (`@molecule/app-routing-sveltekit`) juurkataloogis `+layout.svelte` või kutsu seal välja `setMoleculeContext({ router })` .',
   'svelte.error.noI18nProvider': 'I18n pakkujat ei leitud kontekstis',
   'svelte.error.noHttpClient': 'HTTP klienti ei leitud kontekstis',
   'svelte.error.noStorageProvider': 'Salvestuspakkujat ei leitud kontekstis',
@@ -22,7 +23,9 @@ export const et: SvelteTranslations = {
   'svelte.error.useAuthOutsideProvider': "AuthProvideri sees tuleb kasutada useAuthClient'i",
   'svelte.error.useThemeOutsideProvider': 'useThemeProviderit tuleb kasutada ThemeProvideri sees.',
   'svelte.error.useRouterOutsideProvider':
-    "useRouterInstance'i tuleb kasutada RouterProvideri sees.",
+    'Siin pole ruuterit. Ühenda `MoleculeRouterProvider` marsruutimissidemega (`@molecule/app-routing-sveltekit`) juurkataloogis `+layout.svelte` või kutsu seal välja `setMoleculeContext({ router })` .',
+  'svelte.error.noRoutedView':
+    'Siin pole suunatavat vaadet. SvelteKit annab oma lehele paigutuse `children` ina: edastage selle komponendi sees `{@render children()}` .',
   'svelte.error.useHttpOutsideProvider': 'useHttpClient peab olema kasutatud HttpProvideri sees.',
   'svelte.error.useStorageOutsideProvider':
     'useStorageProvider peab olema kasutusel StorageProvideri sees.',

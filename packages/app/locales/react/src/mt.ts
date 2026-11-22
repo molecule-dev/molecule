@@ -10,7 +10,10 @@ export const mt: ReactTranslations = {
   'react.error.useHttpOutsideProvider': 'useHttpClient irid jintuża ġewwa HttpProvider',
   'react.error.useLoggerOutsideProvider': 'useLoggerProvider irid jintuża ġewwa LoggerProvider',
   'react.error.usePreviewOutsideProvider': 'usePreviewProvider irid jintuża ġewwa PreviewProvider',
-  'react.error.useRouterOutsideProvider': 'useRouterInstance irid jintuża ġewwa RouterProvider',
+  'react.error.useRouterOutsideProvider':
+    "M'hemm l-ebda router hawn. Immonta komponent tar-router mir-routing bond tal-app (`BrowserRouter` minn `@molecule/app-routing-react-router`), jew għaddi `router` lil `MoleculeProvider`.",
+  'react.error.noRoutedView':
+    "Din il-konnessjoni tar-rotta m'għandhiex veduta rottata biex tirrendi hawn: għaddi l-paġna bħala tfal minflok.",
   'react.error.useStoreOutsideProvider': 'useStateProvider irid jintuża ġewwa StateProvider',
   'react.error.useStorageOutsideProvider': 'useStorageProvider irid jintuża ġewwa StorageProvider',
   'react.error.useThemeOutsideProvider': 'useThemeProvider irid jintuża ġewwa ThemeProvider',

@@ -11,7 +11,10 @@ export const cs: ReactTranslations = {
   'react.error.useLoggerOutsideProvider': 'useLoggerProvider musí být použit uvnitř LoggerProvider',
   'react.error.usePreviewOutsideProvider':
     'usePreviewProvider musí být použit uvnitř PreviewProvider',
-  'react.error.useRouterOutsideProvider': 'useRouterInstance musí být použit uvnitř RouterProvider',
+  'react.error.useRouterOutsideProvider':
+    'Zde není žádný router. Připojte komponentu routeru z routing bond aplikace (`BrowserRouter` z `@molecule/app-routing-react-router`) nebo předejte `router` do `MoleculeProvider`.',
+  'react.error.noRoutedView':
+    'Tato směrovací vazba nemá žádný směrovaný pohled k vykreslení: místo toho předejte stránku jako podřízené objekty.',
   'react.error.useStoreOutsideProvider': 'useStateProvider musí být použit uvnitř StateProvider',
   'react.error.useStorageOutsideProvider':
     'useStorageProvider musí být použit uvnitř StorageProvider',

@@ -20,7 +20,9 @@ export const eu: AngularTranslations = {
   'angular.error.usePreviewOutsideProvider':
     'usePreviewProvider PreviewProvider baten barruan erabili behar da',
   'angular.error.useRouterOutsideProvider':
-    'useRouterInstance RouterProvider baten barruan erabili behar da',
+    'Ez dago bideratzailerik hemen. Gehitu `provideMoleculeRouter()` bideratze loturatik (`@molecule/app-routing-angular-router`) aplikazioaren hornitzaileetara, Angular-en `provideRouter(routes)` ondoren, edo pasa `router` `provideMolecule` ri.',
+  'angular.error.noRoutedView':
+    'Bideratze-lotura honek ez du hemen errendatzeko bideratutako ikuspegirik: pasa orrialdea haur gisa horren ordez.',
   'angular.error.useStorageOutsideProvider':
     'useStorageProvider StorageProvider baten barruan erabili behar da',
   'angular.error.useThemeOutsideProvider':

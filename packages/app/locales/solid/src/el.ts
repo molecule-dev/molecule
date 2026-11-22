@@ -39,7 +39,9 @@ export const el: SolidTranslations = {
     'Το useLoggerProvider πρέπει να χρησιμοποιείται εντός ενός LoggerProvider',
   'solid.error.oauthFailed': 'Η σύνδεση στο OAuth απέτυχε',
   'solid.error.useRouterOutsideProvider':
-    'Το useRouterInstance πρέπει να χρησιμοποιηθεί εντός ενός RouterProvider',
+    'Δεν υπάρχει δρομολογητής εδώ. Χρησιμοποιήστε `MoleculeRouterProvider` από το routing bond (`@molecule/app-routing-solid-router`) ως `root` του δρομολογητή ή περάστε `router` στο `MoleculeProvider`.',
+  'solid.error.noRoutedView':
+    'Δεν υπάρχει προβολή δρομολόγησης εδώ. Το Solid Router δίνει στο στοιχείο μιας διαδρομής την ένθετη διαδρομή του ως `props.children`: χρησιμοποιήστε το ως `component` μιας διαδρομής ή περάστε τη σελίδα ως θυγατρικές.',
   'solid.error.useStoreOutsideProvider':
     'Το useStateProvider πρέπει να χρησιμοποιηθεί εντός ενός StateProvider',
   'solid.error.useStorageOutsideProvider':

@@ -20,7 +20,9 @@ export const az: AngularTranslations = {
   'angular.error.usePreviewOutsideProvider':
     'usePreviewProvider PreviewProvider daxilində istifadə edilməlidir',
   'angular.error.useRouterOutsideProvider':
-    'useRouterInstance RouterProvider daxilində istifadə edilməlidir',
+    'Burada router yoxdur. Angular-ın `provideRouter(routes)`-dən sonra marşrutlaşdırma bağından (`@molecule/app-routing-angular-router`) `provideMoleculeRouter()` tətbiqin provayderlərinə əlavə edin və ya `router` `provideMolecule` yə ötürün.',
+  'angular.error.noRoutedView':
+    'Bu marşrutlaşdırma bondunun burada göstərmək üçün marşrutlaşdırılmış görünüş yoxdur: səhifəni uşaq kimi ötürün.',
   'angular.error.useStorageOutsideProvider':
     'useStorageProvider StorageProvider daxilində istifadə edilməlidir',
   'angular.error.useThemeOutsideProvider':

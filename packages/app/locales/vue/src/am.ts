@@ -2,7 +2,9 @@ import type { VueTranslations } from './types.js'
 
 /** Vue translations for Amharic. */
 export const am: VueTranslations = {
-  'vue.error.useRouterOutsideProvider': 'useRouterInstance በ RouterProvider ውስጥ ጥቅም ላይ መዋል አለበት',
+  'vue.error.useRouterOutsideProvider':
+    'እዚህ ራውተር የለም። መተግበሪያውን ከራውቲንግ ቦንድ (`@molecule/app-routing-vue-router`) በ `MoleculeRouterProvider` ውስጥ ጠቅልለው ወይም `router` እስከ `moleculePlugin` ያልፉ።',
+  'vue.error.noRoutedView': 'ይህ የማዞሪያ ቦንድ እዚህ ለማሳየት ምንም የማዞሪያ እይታ የለውም፡ ገጹን እንደ ልጆች ያስተላልፉ።',
   'vue.error.useStoreOutsideProvider': 'useStateProvider በ StateProvider ውስጥ ጥቅም ላይ መዋል አለበት',
   'vue.error.useThemeOutsideProvider': 'useThemeProvider በ ThemeProvider ውስጥ ጥቅም ላይ መዋል አለበት',
   'vue.error.useAuthOutsideProvider': 'useAuthClient በ AuthProvider ውስጥ ጥቅም ላይ መዋል አለበት',

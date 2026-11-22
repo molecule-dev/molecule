@@ -3,7 +3,8 @@ import type { SvelteTranslations } from './types.js'
 /** Svelte translations for fr. */
 export const fr: Partial<SvelteTranslations> = {
   'svelte.error.noThemeProvider': 'Fournisseur de thème introuvable dans le contexte',
-  'svelte.error.noRouter': 'Routeur introuvable dans le contexte',
+  'svelte.error.noRouter':
+    'Aucun routeur ici. Montez `MoleculeRouterProvider` depuis le lien de routage (`@molecule/app-routing-sveltekit`) dans le fichier racine `+layout.svelte`, ou appelez `setMoleculeContext({ router })` à cet endroit.',
   'svelte.error.noI18nProvider': 'Fournisseur i18n introuvable dans le contexte',
   'svelte.error.noHttpClient': 'Client HTTP introuvable dans le contexte',
   'svelte.error.noStorageProvider': 'Fournisseur de stockage introuvable dans le contexte',
@@ -26,7 +27,9 @@ export const fr: Partial<SvelteTranslations> = {
   'svelte.error.useThemeOutsideProvider':
     "La méthode useThemeProvider doit être utilisée à l'intérieur d'un ThemeProvider.",
   'svelte.error.useRouterOutsideProvider':
-    "La méthode useRouterInstance doit être utilisée au sein d'un RouterProvider.",
+    'Aucun routeur ici. Montez `MoleculeRouterProvider` depuis le lien de routage (`@molecule/app-routing-sveltekit`) dans le fichier racine `+layout.svelte`, ou appelez `setMoleculeContext({ router })` à cet endroit.',
+  'svelte.error.noRoutedView':
+    "Aucune vue routée ici. SvelteKit attribue à une mise en page sa page sous le nom `children` : passez `{@render children()}` à l'intérieur de ce composant.",
   'svelte.error.useHttpOutsideProvider':
     "La méthode useHttpClient doit être utilisée au sein d'un HttpProvider.",
   'svelte.error.useStorageOutsideProvider':

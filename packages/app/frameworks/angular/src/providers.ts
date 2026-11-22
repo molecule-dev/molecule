@@ -4,7 +4,7 @@
  * @module
  */
 
-import type { EnvironmentProviders, Provider } from '@angular/core'
+import type { EnvironmentProviders, Provider, Type } from '@angular/core'
 import {
   DestroyRef,
   inject,
@@ -31,6 +31,7 @@ import type { StorageProvider } from '@molecule/app-storage'
 import type { ThemeProvider } from '@molecule/app-theme'
 
 import { bumpLocaleVersion } from './i18n-reactive.js'
+import { ROUTED_VIEW } from './routed-view-token.js'
 import {
   AUTH_CLIENT,
   CHAT_PROVIDER,
@@ -80,11 +81,25 @@ export function provideTheme(provider: ThemeProvider): EnvironmentProviders {
 /**
  * Registers a Router as an Angular environment provider for dependency injection.
  *
- * @param router - Router instance
+ * @param router - The router, or a function that returns it. The function runs once, in the
+ * environment injector's injection context, the first time the router is injected: a routing
+ * bond builds its router from the framework router it injects there.
+ * @param options - From a routing bond: its routed view (see `RoutedView`).
+ * @param options.routedView - The component that renders the matched child route where a layout
+ * or guard puts it. Left out when the bond has none, and `RoutedView` then throws an error saying
+ * so.
  * @returns Environment providers
  */
-export function provideRouter(router: Router): EnvironmentProviders {
-  return makeEnvironmentProviders([{ provide: ROUTER, useValue: router }])
+export function provideRouter(
+  router: Router | (() => Router),
+  options: { routedView?: Type<unknown> } = {},
+): EnvironmentProviders {
+  return makeEnvironmentProviders([
+    typeof router === 'function'
+      ? { provide: ROUTER, useFactory: router }
+      : { provide: ROUTER, useValue: router },
+    ...(options.routedView ? [{ provide: ROUTED_VIEW, useValue: options.routedView }] : []),
+  ])
 }
 
 /**

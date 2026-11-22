@@ -3,7 +3,9 @@ import type { VueTranslations } from './types.js'
 /** Vue translations for Ukrainian. */
 export const uk: VueTranslations = {
   'vue.error.useRouterOutsideProvider':
-    'useRouterInstance повинен використовуватися всередині RouterProvider',
+    "Тут немає маршрутизатора. Обгорніть застосунок у `MoleculeRouterProvider` з маршрутизаційного зв'язку (`@molecule/app-routing-vue-router`) або передайте `router` до `moleculePlugin`.",
+  'vue.error.noRoutedView':
+    "Цей зв'язок маршрутизації не має маршрутизованого представлення для відображення тут: натомість передайте сторінку як дочірні елементи.",
   'vue.error.useStoreOutsideProvider':
     'useStateProvider повинен використовуватися всередині StateProvider',
   'vue.error.useThemeOutsideProvider':

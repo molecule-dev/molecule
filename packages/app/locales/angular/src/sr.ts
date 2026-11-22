@@ -18,7 +18,9 @@ export const sr: AngularTranslations = {
   'angular.error.usePreviewOutsideProvider':
     'usePreviewProvider мора да се користи унутар PreviewProvider-а',
   'angular.error.useRouterOutsideProvider':
-    'useRouterInstance мора да се користи унутар RouterProvider-а',
+    'Овде нема рутера. Додајте `provideMoleculeRouter()` из везе рутирања (`@molecule/app-routing-angular-router`) до провајдера апликације, након Angular-овог `provideRouter(routes)`, или проследите `router` до `provideMolecule`.',
+  'angular.error.noRoutedView':
+    'Ова веза рутирања нема усмерен приказ за приказивање овде: уместо тога, проследите страницу као потомке.',
   'angular.error.useStorageOutsideProvider':
     'useStorageProvider мора да се користи унутар StorageProvider-а',
   'angular.error.useThemeOutsideProvider':

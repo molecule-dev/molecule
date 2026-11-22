@@ -79,6 +79,18 @@ export interface SvelteBinding {
    * @param config - The services to provide.
    */
   setMoleculeContext(config: SvelteMoleculeConfig): void
+  /**
+   * Sets the router in Svelte context with a routing bond's routed view; the host calls it for a
+   * case with a `routedView`.
+   *
+   * @param router - The case's router.
+   * @param options - The routed view.
+   * @param options.routedView - The component the routing bond renders for the matched child route.
+   */
+  setRouterContext(
+    router: NonNullable<SvelteMoleculeConfig['router']>,
+    options?: { routedView?: Component },
+  ): void
 }
 
 /** Options for {@link createSvelteBindingAdapter}. */
@@ -243,6 +255,8 @@ export function createSvelteBindingAdapter({
               props: {
                 config,
                 setMoleculeContext,
+                setRouterContext: binding.setRouterContext,
+                routedView: options.routedView,
                 component: exportsOf[hook] as Component<Record<string, unknown>>,
                 props,
               },
@@ -253,6 +267,8 @@ export function createSvelteBindingAdapter({
             props: {
               config,
               setMoleculeContext,
+              setRouterContext: binding.setRouterContext,
+              routedView: options.routedView,
               run: () => {
                 result = callHook(exportsOf[hook], sources ?? current)
                 stores.trackResult(result)

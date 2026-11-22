@@ -8,6 +8,7 @@ export type ReactTranslationKey =
   | 'react.error.useLoggerOutsideProvider'
   | 'react.error.usePreviewOutsideProvider'
   | 'react.error.useRouterOutsideProvider'
+  | 'react.error.noRoutedView'
   | 'react.error.useStoreOutsideProvider'
   | 'react.error.useStorageOutsideProvider'
   | 'react.error.useThemeOutsideProvider'

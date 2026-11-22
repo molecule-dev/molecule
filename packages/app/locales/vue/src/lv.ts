@@ -2,7 +2,10 @@ import type { VueTranslations } from './types.js'
 
 /** Vue translations for Latvian. */
 export const lv: VueTranslations = {
-  'vue.error.useRouterOutsideProvider': 'useRouterInstance j\u0101izmanto RouterProvider ietvaros',
+  'vue.error.useRouterOutsideProvider':
+    'Šeit nav maršrutētāja. Ietiniet lietotni `MoleculeRouterProvider` elementā no maršrutēšanas saites (`@molecule/app-routing-vue-router`) vai nododiet `router` elementam `moleculePlugin`.',
+  'vue.error.noRoutedView':
+    'Šai maršrutēšanas saitei nav maršrutēta skata, ko šeit atveidot: tā vietā nododiet lapu kā apakšlapas.',
   'vue.error.useStoreOutsideProvider': 'useStateProvider j\u0101izmanto StateProvider ietvaros',
   'vue.error.useThemeOutsideProvider': 'useThemeProvider j\u0101izmanto ThemeProvider ietvaros',
   'vue.error.useAuthOutsideProvider': 'useAuthClient j\u0101izmanto AuthProvider ietvaros',

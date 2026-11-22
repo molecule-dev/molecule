@@ -3,7 +3,9 @@ import type { VueTranslations } from './types.js'
 /** Vue translations for Tamil. */
 export const ta: VueTranslations = {
   'vue.error.useRouterOutsideProvider':
-    'useRouterInstance ஒரு RouterProvider க்குள் பயன்படுத்தப்பட வேண்டும்',
+    'இங்கே ரௌட்டர் இல்லை. ரௌட்டிங் பாண்டிலிருந்து (`@molecule/app-routing-vue-router`) வரும் `MoleculeRouterProvider` இல் செயலியை இணைக்கவும், அல்லது `moleculePlugin` க்கு `router` அனுப்பவும்.',
+  'vue.error.noRoutedView':
+    'இந்த ரூட்டிங் பாண்டில் ரெண்டர் செய்வதற்கு ரூட் செய்யப்பட்ட வியூ எதுவும் இல்லை: அதற்குப் பதிலாக பக்கத்தை சில்ட்ரன்களாக அனுப்பவும்.',
   'vue.error.useStoreOutsideProvider':
     'useStateProvider ஒரு StateProvider க்குள் பயன்படுத்தப்பட வேண்டும்',
   'vue.error.useThemeOutsideProvider':

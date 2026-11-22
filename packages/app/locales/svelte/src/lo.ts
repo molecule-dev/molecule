@@ -9,7 +9,7 @@ export const lo: SvelteTranslations = {
   'svelte.error.noThemeProvider':
     '\u0e9a\u0ecd\u0ec8\u0e9e\u0ebb\u0e9a\u0e9c\u0eb9\u0ec9\u0ec3\u0eab\u0ec9\u0e9a\u0ecd\u0ea5\u0eb4\u0e81\u0eb2\u0e99\u0e98\u0eb5\u0ea1\u0ec3\u0e99\u0e9a\u0ecd\u0ea5\u0eb4\u0e9a\u0ebb\u0e94',
   'svelte.error.noRouter':
-    '\u0e9a\u0ecd\u0ec8\u0e9e\u0ebb\u0e9a\u0ec0\u0ea3\u0ebb\u0eb2\u0ec0\u0e95\u0eb5\u0ec3\u0e99\u0e9a\u0ecd\u0ea5\u0eb4\u0e9a\u0ebb\u0e94',
+    'ບໍ່ມີເຣົາເຕີຢູ່ທີ່ນີ້. ໃຫ້ຕິດຕັ້ງ `MoleculeRouterProvider` ຈາກ routing bond (`@molecule/app-routing-sveltekit`) ໃນ root `+layout.svelte`, ຫຼື ເອີ້ນ `setMoleculeContext({ router })` ຢູ່ທີ່ນັ້ນ.',
   'svelte.error.noI18nProvider':
     '\u0e9a\u0ecd\u0ec8\u0e9e\u0ebb\u0e9a\u0e9c\u0eb9\u0ec9\u0ec3\u0eab\u0ec9\u0e9a\u0ecd\u0ea5\u0eb4\u0e81\u0eb2\u0e99 I18n \u0ec3\u0e99\u0e9a\u0ecd\u0ea5\u0eb4\u0e9a\u0ebb\u0e94',
   'svelte.error.noHttpClient':
@@ -28,7 +28,10 @@ export const lo: SvelteTranslations = {
   'svelte.error.usePreviewOutsideProvider': 'ຕ້ອງໃຊ້ usePreviewProvider ພາຍໃນ PreviewProvider',
   'svelte.error.useAuthOutsideProvider': 'useAuthClient ຕ້ອງຖືກນໍາໃຊ້ພາຍໃນ AuthProvider',
   'svelte.error.useThemeOutsideProvider': 'ຕ້ອງໃຊ້ useThemeProvider ພາຍໃນ ThemeProvider',
-  'svelte.error.useRouterOutsideProvider': 'useRouterInstance ຕ້ອງຖືກໃຊ້ພາຍໃນ RouterProvider',
+  'svelte.error.useRouterOutsideProvider':
+    'ບໍ່ມີເຣົາເຕີຢູ່ທີ່ນີ້. ໃຫ້ຕິດຕັ້ງ `MoleculeRouterProvider` ຈາກ routing bond (`@molecule/app-routing-sveltekit`) ໃນ root `+layout.svelte`, ຫຼື ເອີ້ນ `setMoleculeContext({ router })` ຢູ່ທີ່ນັ້ນ.',
+  'svelte.error.noRoutedView':
+    'ບໍ່ມີມຸມມອງທີ່ຖືກກຳນົດເສັ້ນທາງຢູ່ທີ່ນີ້. SvelteKit ໃຫ້ຮູບແບບໜ້າຂອງມັນເປັນ `children`: ສົ່ງ `{@render children()}` ພາຍໃນອົງປະກອບນີ້.',
   'svelte.error.useHttpOutsideProvider': 'useHttpClient ຕ້ອງຖືກນໍາໃຊ້ພາຍໃນ HttpProvider',
   'svelte.error.useStorageOutsideProvider': 'ຕ້ອງໃຊ້ useStorageProvider ພາຍໃນ StorageProvider',
   'svelte.error.useLoggerOutsideProvider': 'ຕ້ອງໃຊ້ useLoggerProvider ພາຍໃນ LoggerProvider',

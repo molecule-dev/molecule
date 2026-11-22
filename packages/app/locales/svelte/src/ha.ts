@@ -11,7 +11,7 @@ export const ha: Partial<SvelteTranslations> = {
   'svelte.error.noLoggerProvider': 'Ba a sami mai samar da rajista a cikin mahallin ba',
   'svelte.error.unknownPaginationDirection': 'Alkiblar shafin da ba a sani ba: "{{direction}}"',
   'svelte.error.noRouter':
-    "Ba a sami na'ura mai ba da hanya tsakanin hanyoyin sadarwa a cikin mahallin ba",
+    "Babu na'ura mai ba da hanya tsakanin hanyoyin sadarwa a nan. Haɗa `MoleculeRouterProvider` daga haɗin na'ura mai ba da hanya tsakanin hanyoyin sadarwa (`@molecule/app-routing-sveltekit`) a cikin tushen `+layout.svelte`, ko kuma kira `setMoleculeContext({ router })` a can.",
   'svelte.error.useChatOutsideProvider':
     'Dole ne a yi amfani da useChatProvider a cikin ChatProvider',
   'svelte.error.useToastOutsideProvider': 'Dole ne a yi amfani da useToast a cikin ToastProvider',
@@ -26,7 +26,9 @@ export const ha: Partial<SvelteTranslations> = {
   'svelte.error.useThemeOutsideProvider':
     'Dole ne a yi amfani da useThemeProvider a cikin ThemeProvider',
   'svelte.error.useRouterOutsideProvider':
-    'Dole ne a yi amfani da useRouterInstance a cikin Mai Samar da Router',
+    "Babu na'ura mai ba da hanya tsakanin hanyoyin sadarwa a nan. Haɗa `MoleculeRouterProvider` daga haɗin na'ura mai ba da hanya tsakanin hanyoyin sadarwa (`@molecule/app-routing-sveltekit`) a cikin tushen `+layout.svelte`, ko kuma kira `setMoleculeContext({ router })` a can.",
+  'svelte.error.noRoutedView':
+    "Babu wani ra'ayi da aka yi amfani da shi a nan. SvelteKit ya ba da tsari ga shafinsa a matsayin `children`: wuce `{@render children()}` a cikin wannan ɓangaren.",
   'svelte.error.useHttpOutsideProvider':
     'Dole ne a yi amfani da userHttpClient a cikin HttpProvider',
   'svelte.error.useStorageOutsideProvider':

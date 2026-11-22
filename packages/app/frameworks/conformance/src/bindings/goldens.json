@@ -3,6 +3,7 @@
   "DEFAULT_AGENT_IDENTITY",
   "DEFAULT_AGENT_NAME",
   "DEFAULT_PRODUCT_NAME",
+  "RoutedView",
   "SessionReady",
   "convergeHistory",
   "localOnlyMessages",
@@ -746,6 +747,44 @@
      {
       "result": null,
       "route": "/"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   }
+  },
+  "RoutedView": {
+   "renders the routing bond's routed view": {
+    "shape": {
+     "kind": "value"
+    },
+    "snapshots": [
+     {
+      "result": "Routed page",
+      "route": "/"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "renders the routed view at a nested route": {
+    "shape": {
+     "kind": "value"
+    },
+    "snapshots": [
+     {
+      "result": "Item 7",
+      "route": "/items/7"
      }
     ],
     "calls": [],
@@ -31841,7 +31880,7 @@
     "snapshots": [
      {
       "result": {
-       "$threw": "Error"
+       "$threw": "I18nError"
       },
       "route": "/"
      }
@@ -44239,7 +44278,7 @@
     "snapshots": [
      {
       "result": {
-       "$threw": "Error"
+       "$threw": "I18nError"
       },
       "route": "/items/42"
      }
@@ -45307,7 +45346,7 @@
     "snapshots": [
      {
       "result": {
-       "$threw": "Error"
+       "$threw": "I18nError"
       },
       "route": "/"
      }
@@ -45742,7 +45781,7 @@
     "snapshots": [
      {
       "result": {
-       "$threw": "Error"
+       "$threw": "I18nError"
       },
       "route": "/"
      }
@@ -48022,7 +48061,7 @@
     "snapshots": [
      {
       "result": {
-       "$threw": "Error"
+       "$threw": "I18nError"
       },
       "route": "/"
      }
@@ -52250,7 +52289,7 @@
     "snapshots": [
      {
       "result": {
-       "$threw": "Error"
+       "$threw": "I18nError"
       },
       "route": "/"
      }
@@ -61447,7 +61486,7 @@
     "snapshots": [
      {
       "result": {
-       "$threw": "Error"
+       "$threw": "I18nError"
       },
       "route": "/"
      }
@@ -62901,7 +62940,7 @@
     "snapshots": [
      {
       "result": {
-       "$threw": "Error"
+       "$threw": "I18nError"
       },
       "route": "/"
      }
@@ -63789,7 +63828,7 @@
     "snapshots": [
      {
       "result": {
-       "$threw": "Error"
+       "$threw": "I18nError"
       },
       "route": "/"
      }

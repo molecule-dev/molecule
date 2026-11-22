@@ -17,7 +17,9 @@ export const ko: AngularTranslations = {
   'angular.error.usePreviewOutsideProvider':
     'usePreviewProvider는 PreviewProvider 내에서 사용해야 합니다',
   'angular.error.useRouterOutsideProvider':
-    'useRouterInstance는 RouterProvider 내에서 사용해야 합니다',
+    '여기에 라우터가 없습니다. Angular의 `provideRouter(routes)` 다음에 라우팅 본드(`@molecule/app-routing-angular-router`)에서 앱의 공급자로 `provideMoleculeRouter()` 추가하거나 `router` `provideMolecule` 로 전달합니다.',
+  'angular.error.noRoutedView':
+    '이 라우팅 연결에는 여기에 렌더링할 라우팅된 뷰가 없습니다. 대신 페이지를 자식으로 전달하세요.',
   'angular.error.useStorageOutsideProvider':
     'useStorageProvider는 StorageProvider 내에서 사용해야 합니다',
   'angular.error.useThemeOutsideProvider':

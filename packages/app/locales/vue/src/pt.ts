@@ -3,7 +3,9 @@ import type { VueTranslations } from './types.js'
 /** Vue translations for Portuguese. */
 export const pt: VueTranslations = {
   'vue.error.useRouterOutsideProvider':
-    'useRouterInstance deve ser usado dentro de um RouterProvider',
+    'Não há roteador aqui. Envolva o aplicativo em `MoleculeRouterProvider` do vínculo de roteamento (`@molecule/app-routing-vue-router`), ou passe `router` para `moleculePlugin`.',
+  'vue.error.noRoutedView':
+    'Esta ligação de roteamento não tem nenhuma visualização roteada para renderizar aqui: passe a página como filhos.',
   'vue.error.useStoreOutsideProvider': 'useStateProvider deve ser usado dentro de um StateProvider',
   'vue.error.useThemeOutsideProvider': 'useThemeProvider deve ser usado dentro de um ThemeProvider',
   'vue.error.useAuthOutsideProvider': 'useAuthClient deve ser usado dentro de um AuthProvider',

@@ -288,11 +288,13 @@ export async function runHookCase(
         s.type === 'args' || s.type === 'remount' ? (s.args?.length ?? 0) : 0,
       ),
     )
+    const routedView = testCase.context?.routedView
     const mountOptions: MountOptions | undefined =
-      family?.render || family?.reactiveArgs
+      family?.render || family?.reactiveArgs || routedView !== undefined
         ? {
-            ...(family.render ? { render: family.render } : {}),
-            ...(family.reactiveArgs ? { reactiveArgs: true, arity } : {}),
+            ...(family?.render ? { render: family.render } : {}),
+            ...(family?.reactiveArgs ? { reactiveArgs: true, arity } : {}),
+            ...(routedView !== undefined ? { routedView } : {}),
           }
         : undefined
     // The composition root gets every service but those the case omits; the runner keeps them all.

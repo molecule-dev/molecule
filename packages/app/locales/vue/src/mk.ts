@@ -3,7 +3,9 @@ import type { VueTranslations } from './types.js'
 /** Vue translations for Macedonian. */
 export const mk: VueTranslations = {
   'vue.error.useRouterOutsideProvider':
-    'useRouterInstance мора да се користи внатре во RouterProvider',
+    'Нема рутер овде. Завиткајте ја апликацијата во `MoleculeRouterProvider` од врската за рутирање (`@molecule/app-routing-vue-router`) или префрлете го `router` на `moleculePlugin`.',
+  'vue.error.noRoutedView':
+    'Оваа врска за насочување нема рутиран приказ за прикажување тука: наместо тоа, пренесете ја страницата како деца.',
   'vue.error.useStoreOutsideProvider':
     'useStateProvider мора да се користи внатре во StateProvider',
   'vue.error.useThemeOutsideProvider':

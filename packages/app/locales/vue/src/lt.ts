@@ -3,7 +3,9 @@ import type { VueTranslations } from './types.js'
 /** Vue translations for Lithuanian. */
 export const lt: VueTranslations = {
   'vue.error.useRouterOutsideProvider':
-    'useRouterInstance turi b\u016bti naudojamas RouterProvider viduje',
+    'Čia nėra maršrutizatoriaus. Apvyniokite programėlę `MoleculeRouterProvider` elementu iš maršrutizavimo jungties (`@molecule/app-routing-vue-router`) arba perduokite `router` elementui `moleculePlugin`.',
+  'vue.error.noRoutedView':
+    'Šis maršruto ryšys neturi nukreipto rodinio, kurį būtų galima čia pateikti: perduokite puslapį kaip antrinius elementus.',
   'vue.error.useStoreOutsideProvider':
     'useStateProvider turi b\u016bti naudojamas StateProvider viduje',
   'vue.error.useThemeOutsideProvider':

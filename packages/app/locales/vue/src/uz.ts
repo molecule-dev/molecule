@@ -3,7 +3,9 @@ import type { VueTranslations } from './types.js'
 /** Vue translations for uz. */
 export const uz: Partial<VueTranslations> = {
   'vue.error.useRouterOutsideProvider':
-    'useRouterInstance RouterProvider ichida ishlatilishi kerak',
+    "Bu yerda router yo'q. Ilovani marshrutizatsiya bog'lanishidan (`@molecule/app-routing-vue-router`) `MoleculeRouterProvider` ga o'rang yoki `router` `moleculePlugin` ga uzating.",
+  'vue.error.noRoutedView':
+    "Ushbu marshrutlash bog'lanishida bu yerda ko'rsatish uchun marshrutlangan ko'rinish yo'q: buning o'rniga sahifani bolalar sifatida uzating.",
   'vue.error.useStoreOutsideProvider': 'useStateProvider StateProvider ichida ishlatilishi kerak',
   'vue.error.useThemeOutsideProvider': 'useThemeProvider ThemeProvider ichida ishlatilishi kerak',
   'vue.error.useAuthOutsideProvider': 'useAuthClient AuthProvider ichida ishlatilishi kerak',

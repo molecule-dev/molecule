@@ -16,7 +16,9 @@ export const cy: AngularTranslations = {
   'angular.error.usePreviewOutsideProvider':
     'Rhaid defnyddio usePreviewProvider o fewn PreviewProvider',
   'angular.error.useRouterOutsideProvider':
-    'Rhaid defnyddio useRouterInstance o fewn RouterProvider',
+    "Dim llwybrydd yma. Ychwanegwch `provideMoleculeRouter()` o'r bond llwybro (`@molecule/app-routing-angular-router`) at ddarparwyr yr ap, ar ôl `provideRouter(routes)` Angular , neu pasiwch `router` i `provideMolecule`.",
+  'angular.error.noRoutedView':
+    "Nid oes gan y bond llwybro hwn olygfa llwybro i'w rendro yma: pasiwch y dudalen fel plant yn lle hynny.",
   'angular.error.useStorageOutsideProvider':
     'Rhaid defnyddio useStorageProvider o fewn StorageProvider',
   'angular.error.useThemeOutsideProvider': 'Rhaid defnyddio useThemeProvider o fewn ThemeProvider',

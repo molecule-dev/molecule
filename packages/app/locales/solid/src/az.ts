@@ -36,7 +36,9 @@ export const az: SolidTranslations = {
     'useLoggerProvider LoggerProvider daxilində istifadə olunmalıdır',
   'solid.error.oauthFailed': 'OAuth girişi uğursuz oldu',
   'solid.error.useRouterOutsideProvider':
-    'useRouterInstance, RouterProvider daxilində istifadə olunmalıdır',
+    'Burada router yoxdur. Routerin `root` kimi marşrutlaşdırma bağlantısından (`@molecule/app-routing-solid-router`) `MoleculeRouterProvider` istifadə edin və ya `router` `MoleculeProvider`-ə ötürün.',
+  'solid.error.noRoutedView':
+    'Burada marşrutlaşdırılmış görünüş yoxdur. Solid Router, marşrutun komponentinə iç içə marşrutunu `props.children` olaraq verir: bunu marşrutun `component` kimi istifadə edin və ya səhifəni uşaq kimi ötürün.',
   'solid.error.useStoreOutsideProvider':
     'useStateProvider, StateProvider daxilində istifadə olunmalıdır',
   'solid.error.useStorageOutsideProvider':

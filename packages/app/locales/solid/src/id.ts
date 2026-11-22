@@ -35,7 +35,9 @@ export const id: SolidTranslations = {
     'useLoggerProvider harus digunakan di dalam LoggerProvider.',
   'solid.error.oauthFailed': 'Login OAuth gagal.',
   'solid.error.useRouterOutsideProvider':
-    'useRouterInstance harus digunakan di dalam RouterProvider.',
+    'Tidak ada router di sini. Gunakan `MoleculeRouterProvider` dari ikatan perutean (`@molecule/app-routing-solid-router`) sebagai `root` router, atau berikan `router` ke `MoleculeProvider`.',
+  'solid.error.noRoutedView':
+    'Tidak ada tampilan yang dirutekan di sini. Solid Router memberikan komponen rute ke rute bersarangnya sebagai `props.children`: gunakan ini sebagai `component` rute, atau berikan halaman sebagai children.',
   'solid.error.useStoreOutsideProvider': 'useStateProvider harus digunakan di dalam StateProvider.',
   'solid.error.useStorageOutsideProvider':
     'useStorageProvider harus digunakan di dalam StorageProvider.',

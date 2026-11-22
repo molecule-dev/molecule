@@ -4,7 +4,7 @@
  * @module
  */
 
-import type { ReactNode } from 'react'
+import type { ComponentType, ReactNode } from 'react'
 
 import type {
   ChatProvider,
@@ -27,7 +27,7 @@ import type { I18nProvider, TranslateOptions } from '@molecule/app-i18n'
 import type { PanelId, WorkspaceLayout, WorkspaceProvider } from '@molecule/app-ide'
 import type { DeviceFrame, PreviewProvider, PreviewState } from '@molecule/app-live-preview'
 import type { LoggerProvider } from '@molecule/app-logger'
-import type { QueryParams, Router, RouterConfig } from '@molecule/app-routing'
+import type { QueryParams, RouteParams, Router, RouterConfig } from '@molecule/app-routing'
 import type { StateProvider, Store, StoreConfig } from '@molecule/app-state'
 import type { StorageProvider } from '@molecule/app-storage'
 import type { Theme, ThemeProvider } from '@molecule/app-theme'
@@ -87,6 +87,21 @@ export interface ThemeProviderProps extends ProviderProps {
  */
 export interface RouterProviderProps extends ProviderProps {
   router: Router
+  /**
+   * The component that renders the matched child route where a layout or guard puts it (React
+   * Router's `Outlet`), so `<RoutedView />` works under any routing bond. A routing bond passes
+   * it; leave it out when the bond has no such component (Next.js gives a layout its page as
+   * children), and `<RoutedView />` then throws an error saying so.
+   */
+  routedView?: ComponentType
+  /**
+   * A hook that returns the route params of the component calling it, from a routing bond whose
+   * native router scopes params to the component (React Router's `useParams`, which is empty
+   * above the matched route). `useRouter().params` and `useParams()` call it and fall back to
+   * `router.getParams()` when it returns none. Read once, at the provider's first render: pass a
+   * module-level function. Leave it out when the router answers params anywhere.
+   */
+  useRouteParams?: () => RouteParams
 }
 
 /**

@@ -16,7 +16,7 @@ import {
   watch,
 } from 'vue'
 
-import { t } from '@molecule/app-i18n'
+import { I18nError } from '@molecule/app-i18n'
 import type {
   ListRouteOptions,
   ListRouteRedirect,
@@ -40,19 +40,36 @@ import type { UseRouterResult } from '../types.js'
  * Composable to access the router from injection.
  *
  * @returns The router
- * @throws {Error} Error if used without providing router
+ * @throws {I18nError} When no router is provided above the caller: wrap the app in the routing
+ * bond's `MoleculeRouterProvider` (`@molecule/app-routing-vue-router`), or pass `router` to
+ * `moleculePlugin`.
  */
 export function useRouterInstance(): Router {
   const router = inject(RouterKey)
   if (!router) {
-    throw new Error(
-      t('vue.error.useRouterOutsideProvider', undefined, {
-        defaultValue: 'useRouterInstance must be used within a RouterProvider',
-      }),
+    throw new I18nError(
+      'vue.error.useRouterOutsideProvider',
+      undefined,
+      'No router here. Wrap the app in `MoleculeRouterProvider` from the routing bond (`@molecule/app-routing-vue-router`), or pass `router` to `moleculePlugin`.',
     )
   }
   return router
 }
+
+/**
+ * Whether two locations are the same entry at the same address. A key names an entry and its
+ * state together; without one, the state is compared by identity.
+ *
+ * @param a - One location.
+ * @param b - The other.
+ * @returns Whether they are equal.
+ */
+const sameLocation = (a: RouteLocation, b: RouteLocation): boolean =>
+  a.pathname === b.pathname &&
+  a.search === b.search &&
+  a.hash === b.hash &&
+  a.key === b.key &&
+  (a.key !== undefined || Object.is(a.state, b.state))
 
 /**
  * Composable for routing state and actions.
@@ -91,12 +108,18 @@ export function useRouter(): UseRouterResult {
   // Subscribe to route changes
   let unsubscribe: (() => void) | null = null
 
+  const refresh = (): void => {
+    currentLocation.value = router.getLocation()
+    currentParams.value = router.getParams()
+    currentQuery.value = router.getQuery()
+  }
+
+  // Subscribed at mount (setup also runs on the server, where nothing would unsubscribe). A
+  // navigation between setup and mount told no one: a child that redirects in its own
+  // onMounted runs first, and core's routers notify synchronously. So read once more.
   onMounted(() => {
-    unsubscribe = router.subscribe(() => {
-      currentLocation.value = router.getLocation()
-      currentParams.value = router.getParams()
-      currentQuery.value = router.getQuery()
-    })
+    unsubscribe = router.subscribe(refresh)
+    if (!sameLocation(currentLocation.value, router.getLocation())) refresh()
   })
 
   onUnmounted(() => {

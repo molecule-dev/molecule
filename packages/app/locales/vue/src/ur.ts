@@ -3,7 +3,9 @@ import type { VueTranslations } from './types.js'
 /** Vue translations for Urdu. */
 export const ur: VueTranslations = {
   'vue.error.useRouterOutsideProvider':
-    'useRouterInstance کو RouterProvider کے اندر استعمال کیا جانا چاہیے',
+    'یہاں کوئی راؤٹر نہیں ہے۔ روٹنگ بانڈ (`@molecule/app-routing-vue-router`) سے ایپ کو `MoleculeRouterProvider` میں لپیٹیں، یا `router` کو `moleculePlugin` پر منتقل کریں۔',
+  'vue.error.noRoutedView':
+    'اس روٹنگ بانڈ کو یہاں پیش کرنے کے لیے کوئی روٹڈ ویو نہیں ہے: اس کے بجائے صفحہ بچوں کے طور پر پاس کریں۔',
   'vue.error.useStoreOutsideProvider':
     'useStateProvider کو StateProvider کے اندر استعمال کیا جانا چاہیے',
   'vue.error.useThemeOutsideProvider':

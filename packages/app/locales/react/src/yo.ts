@@ -9,7 +9,10 @@ export const yo: ReactTranslations = {
   'react.error.useHttpOutsideProvider': 'useHttpClient gbodo lo laarin HttpProvider',
   'react.error.useLoggerOutsideProvider': 'useLoggerProvider gbodo lo laarin LoggerProvider',
   'react.error.usePreviewOutsideProvider': 'usePreviewProvider gbodo lo laarin PreviewProvider',
-  'react.error.useRouterOutsideProvider': 'useRouterInstance gbodo lo laarin RouterProvider',
+  'react.error.useRouterOutsideProvider':
+    'Kò sí olùdarí níbí. Gbé ohun èlò olùdarí kan kalẹ̀ láti inú ìsopọ̀ ìdarí ìdarí ìṣàpù náà (`BrowserRouter` láti `@molecule/app-routing-react-router`), tàbí kí o fi `router` sí `MoleculeProvider`.',
+  'react.error.noRoutedView':
+    'Ìdè ìtọ́sọ́nà yìí kò ní ojú ìwòye ìtọ́sọ́nà láti fi hàn níbí: fi ojú ìwé náà sílẹ̀ gẹ́gẹ́ bí ọmọdé dípò.',
   'react.error.useStoreOutsideProvider': 'useStateProvider gbodo lo laarin StateProvider',
   'react.error.useStorageOutsideProvider': 'useStorageProvider gbodo lo laarin StorageProvider',
   'react.error.useThemeOutsideProvider': 'useThemeProvider gbodo lo laarin ThemeProvider',

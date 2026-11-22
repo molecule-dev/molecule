@@ -20,7 +20,9 @@ export const zu: AngularTranslations = {
   'angular.error.usePreviewOutsideProvider':
     'usePreviewProvider kumele kusetshenziswe ngaphakathi kwe-PreviewProvider',
   'angular.error.useRouterOutsideProvider':
-    'useRouterInstance kumele kusetshenziswe ngaphakathi kwe-RouterProvider',
+    'Ayikho i-router lapha. Engeza `provideMoleculeRouter()` kusuka ku-routing bond (`@molecule/app-routing-angular-router`) kubahlinzeki bohlelo lokusebenza, ngemuva kwe `provideRouter(routes)` ka-Angular, noma udlulisele `router` ku `provideMolecule`.',
+  'angular.error.noRoutedView':
+    'Lesi sibopho sokuqondisa asinawo umbono oqondisiwe ongawubonisa lapha: dlulisa ikhasi njengezingane esikhundleni salokho.',
   'angular.error.useStorageOutsideProvider':
     'useStorageProvider kumele kusetshenziswe ngaphakathi kwe-StorageProvider',
   'angular.error.useThemeOutsideProvider':

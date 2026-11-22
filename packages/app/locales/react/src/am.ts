@@ -9,7 +9,9 @@ export const am: ReactTranslations = {
   'react.error.useHttpOutsideProvider': 'useHttpClient በHttpProvider ውስጥ መጠቀም አለበት',
   'react.error.useLoggerOutsideProvider': 'useLoggerProvider በLoggerProvider ውስጥ መጠቀም አለበት',
   'react.error.usePreviewOutsideProvider': 'usePreviewProvider በPreviewProvider ውስጥ መጠቀም አለበት',
-  'react.error.useRouterOutsideProvider': 'useRouterInstance በRouterProvider ውስጥ መጠቀም አለበት',
+  'react.error.useRouterOutsideProvider':
+    'እዚህ ራውተር የለም። የራውተር አካልን ከመተግበሪያው የማዞሪያ ቦንድ (`BrowserRouter` ከ `@molecule/app-routing-react-router`) ይጫኑ ወይም `router` እስከ `MoleculeProvider` ያልፉ።',
+  'react.error.noRoutedView': 'ይህ የማዞሪያ ቦንድ እዚህ ለማሳየት ምንም የማዞሪያ እይታ የለውም፡ ገጹን እንደ ልጆች ያስተላልፉ።',
   'react.error.useStoreOutsideProvider': 'useStateProvider በStateProvider ውስጥ መጠቀም አለበት',
   'react.error.useStorageOutsideProvider': 'useStorageProvider በStorageProvider ውስጥ መጠቀም አለበት',
   'react.error.useThemeOutsideProvider': 'useThemeProvider በThemeProvider ውስጥ መጠቀም አለበት',

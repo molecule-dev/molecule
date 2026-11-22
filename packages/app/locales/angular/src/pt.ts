@@ -19,7 +19,9 @@ export const pt: AngularTranslations = {
   'angular.error.usePreviewOutsideProvider':
     'usePreviewProvider deve ser usado dentro de um PreviewProvider',
   'angular.error.useRouterOutsideProvider':
-    'useRouterInstance deve ser usado dentro de um RouterProvider',
+    'Não há roteador aqui. Adicione `provideMoleculeRouter()` do vínculo de roteamento (`@molecule/app-routing-angular-router`) aos provedores do aplicativo, após `provideRouter(routes)` do Angular, ou passe `router` para `provideMolecule`.',
+  'angular.error.noRoutedView':
+    'Esta ligação de roteamento não tem nenhuma visualização roteada para renderizar aqui: passe a página como filhos.',
   'angular.error.useStorageOutsideProvider':
     'useStorageProvider deve ser usado dentro de um StorageProvider',
   'angular.error.useThemeOutsideProvider':

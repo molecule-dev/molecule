@@ -39,7 +39,9 @@ export const zu: SolidTranslations = {
     'i-useLoggerProvider kumele isetshenziswe ngaphakathi kwe-LoggerProvider',
   'solid.error.oauthFailed': 'Ukungena ngemvume kwe-OAuth kwehlulekile',
   'solid.error.useRouterOutsideProvider':
-    'i-useRouterInstance kumele isetshenziswe ngaphakathi kwe-RouterProvider',
+    'Ayikho i-router lapha. Sebenzisa `MoleculeRouterProvider` kusuka ku-routing bond (`@molecule/app-routing-solid-router`) njenge `root` ye-router, noma udlulisele `router` ku `MoleculeProvider`.',
+  'solid.error.noRoutedView':
+    'Akukho ukubuka okuqondiswe lapha. I-Solid Router inikeza ingxenye yomzila umzila wayo ohlanganisiwe njenge `props.children`: sebenzisa lokhu njenge `component` yomzila, noma udlulise ikhasi njengezingane.',
   'solid.error.useStoreOutsideProvider':
     'i-useStateProvider kumele isetshenziswe ngaphakathi kwe-StateProvider',
   'solid.error.useStorageOutsideProvider':

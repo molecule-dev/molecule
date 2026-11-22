@@ -16,7 +16,9 @@ export const sw: AngularTranslations = {
   'angular.error.usePreviewOutsideProvider':
     'usePreviewProvider lazima utumike ndani ya PreviewProvider',
   'angular.error.useRouterOutsideProvider':
-    'useRouterInstance lazima utumike ndani ya RouterProvider',
+    'Hakuna kipanga njia hapa. Ongeza `provideMoleculeRouter()` kutoka kwa dhamana ya uelekezaji (`@molecule/app-routing-angular-router`) kwa watoa huduma wa programu, baada ya `provideRouter(routes)` ya Angular, au pitisha `router` hadi `provideMolecule`.',
+  'angular.error.noRoutedView':
+    'Kifungo hiki cha uelekezaji hakina mwonekano wa uelekezaji wa kuonyesha hapa: pitisha ukurasa kama watoto badala yake.',
   'angular.error.useStorageOutsideProvider':
     'useStorageProvider lazima utumike ndani ya StorageProvider',
   'angular.error.useThemeOutsideProvider': 'useThemeProvider lazima utumike ndani ya ThemeProvider',

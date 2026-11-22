@@ -14,7 +14,10 @@ export const et: AngularTranslations = {
   'angular.error.useLoggerOutsideProvider': 'useLoggerProvider tuleb kasutada LoggerProvider sees',
   'angular.error.usePreviewOutsideProvider':
     'usePreviewProvider tuleb kasutada PreviewProvider sees',
-  'angular.error.useRouterOutsideProvider': 'useRouterInstance tuleb kasutada RouterProvider sees',
+  'angular.error.useRouterOutsideProvider':
+    'Siin pole ruuterit. Lisa `provideMoleculeRouter()` marsruutimissidemest (`@molecule/app-routing-angular-router`) rakenduse pakkujatega, pärast Angulari `provideRouter(routes)` või edasta `router` `provideMolecule` ile.',
+  'angular.error.noRoutedView':
+    'Sellel marsruutimissidemel pole siin renderdamiseks marsruutitud vaadet: edastage leht hoopis alamlehtedena.',
   'angular.error.useStorageOutsideProvider':
     'useStorageProvider tuleb kasutada StorageProvider sees',
   'angular.error.useThemeOutsideProvider': 'useThemeProvider tuleb kasutada ThemeProvider sees',

@@ -9,7 +9,7 @@ export const mr: SvelteTranslations = {
   'svelte.error.noThemeProvider':
     '\u0925\u0940\u092e \u092a\u094d\u0930\u094b\u0935\u094d\u0939\u093e\u092f\u0921\u0930 \u0915\u0949\u0928\u094d\u091f\u0947\u0915\u094d\u0938\u094d\u091f\u092e\u0927\u094d\u092f\u0947 \u0938\u093e\u092a\u0921\u0932\u093e \u0928\u093e\u0939\u0940',
   'svelte.error.noRouter':
-    '\u0930\u093e\u0909\u091f\u0930 \u0915\u0949\u0928\u094d\u091f\u0947\u0915\u094d\u0938\u094d\u091f\u092e\u0927\u094d\u092f\u0947 \u0938\u093e\u092a\u0921\u0932\u093e \u0928\u093e\u0939\u0940',
+    'येथे राउटर नाही. रूट `+layout.svelte` मध्ये राउटिंग बाँड (`@molecule/app-routing-sveltekit`) मधून `MoleculeRouterProvider` माउंट करा, किंवा तेथे `setMoleculeContext({ router })` कॉल करा.',
   'svelte.error.noI18nProvider':
     'I18n \u092a\u094d\u0930\u094b\u0935\u094d\u0939\u093e\u092f\u0921\u0930 \u0915\u0949\u0928\u094d\u091f\u0947\u0915\u094d\u0938\u094d\u091f\u092e\u0927\u094d\u092f\u0947 \u0938\u093e\u092a\u0921\u0932\u093e \u0928\u093e\u0939\u0940',
   'svelte.error.noHttpClient':
@@ -31,7 +31,9 @@ export const mr: SvelteTranslations = {
   'svelte.error.useAuthOutsideProvider': 'useAuthClient चा वापर AuthProvider च्या आतच केला पाहिजे.',
   'svelte.error.useThemeOutsideProvider': 'useThemeProvider हे ThemeProvider मध्ये वापरले पाहिजे',
   'svelte.error.useRouterOutsideProvider':
-    'useRouterInstance चा वापर RouterProvider च्या आतच केला पाहिजे.',
+    'येथे राउटर नाही. रूट `+layout.svelte` मध्ये राउटिंग बाँड (`@molecule/app-routing-sveltekit`) मधून `MoleculeRouterProvider` माउंट करा, किंवा तेथे `setMoleculeContext({ router })` कॉल करा.',
+  'svelte.error.noRoutedView':
+    'येथे कोणताही रूटेड व्ह्यू नाही. SvelteKit लेआउटला त्याचे पेज `children` म्हणून देते: या कंपोनंटमध्ये `{@render children()}` पास करा.',
   'svelte.error.useHttpOutsideProvider': 'useHttpClient चा वापर HttpProvider च्या आतच केला पाहिजे.',
   'svelte.error.useStorageOutsideProvider':
     'useStorageProvider चा वापर StorageProvider च्या आतच केला पाहिजे.',

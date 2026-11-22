@@ -4,7 +4,7 @@
  * @module
  */
 
-import type { ComputedRef, Ref, VNode } from 'vue'
+import type { Component, ComputedRef, Ref, VNode } from 'vue'
 
 import type { ChatProvider } from '@molecule/app-ai-chat'
 import type { AuthClient, AuthState, RegisterExtraShape } from '@molecule/app-auth'
@@ -119,6 +119,13 @@ export interface ThemeProviderProps extends ProviderProps {
  */
 export interface RouterProviderProps extends ProviderProps {
   router: Router
+  /**
+   * The component that renders the matched child route where a layout or guard puts it (Vue
+   * Router's `RouterView`), so `<RoutedView />` works under any routing bond. A routing bond
+   * passes it; leave it out when the bond has no such component, and `<RoutedView />` then
+   * throws an error saying so.
+   */
+  routedView?: Component
 }
 
 /**

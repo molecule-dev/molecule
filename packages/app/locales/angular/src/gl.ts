@@ -16,7 +16,9 @@ export const gl: AngularTranslations = {
   'angular.error.usePreviewOutsideProvider':
     'usePreviewProvider debe usarse dentro dun PreviewProvider',
   'angular.error.useRouterOutsideProvider':
-    'useRouterInstance debe usarse dentro dun RouterProvider',
+    'Aquí non hai ningún enrutador. Engade `provideMoleculeRouter()` desde o enlace de enrutamento (`@molecule/app-routing-angular-router`) aos provedores da aplicación, despois de `provideRouter(routes)` de Angular ou pasa `router` a `provideMolecule`.',
+  'angular.error.noRoutedView':
+    'Este enlace de enrutamento non ten ningunha vista enrutada para renderizar aquí: pásase a páxina como filla no seu lugar.',
   'angular.error.useStorageOutsideProvider':
     'useStorageProvider debe usarse dentro dun StorageProvider',
   'angular.error.useThemeOutsideProvider': 'useThemeProvider debe usarse dentro dun ThemeProvider',

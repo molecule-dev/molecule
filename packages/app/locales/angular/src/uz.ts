@@ -17,7 +17,9 @@ export const uz: AngularTranslations = {
   'angular.error.usePreviewOutsideProvider':
     'usePreviewProvider PreviewProvider ichida ishlatilishi kerak',
   'angular.error.useRouterOutsideProvider':
-    'useRouterInstance RouterProvider ichida ishlatilishi kerak',
+    "Bu yerda router yo'q. Angular'ning `provideRouter(routes)` dan keyin marshrutizatsiya bog'lanishidan (`@molecule/app-routing-angular-router`) `provideMoleculeRouter()` ilova provayderlariga qo'shing yoki `router` ni `provideMolecule` ga o'tkazing.",
+  'angular.error.noRoutedView':
+    "Ushbu marshrutlash bog'lanishida bu yerda ko'rsatish uchun marshrutlangan ko'rinish yo'q: buning o'rniga sahifani bolalar sifatida uzating.",
   'angular.error.useStorageOutsideProvider':
     'useStorageProvider StorageProvider ichida ishlatilishi kerak',
   'angular.error.useThemeOutsideProvider':

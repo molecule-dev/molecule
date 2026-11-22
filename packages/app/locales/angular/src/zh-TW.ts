@@ -12,7 +12,9 @@ export const zhTW: AngularTranslations = {
   'angular.error.useHttpOutsideProvider': 'useHttpClient 必須在 HttpProvider 內使用',
   'angular.error.useLoggerOutsideProvider': 'useLoggerProvider 必須在 LoggerProvider 內使用',
   'angular.error.usePreviewOutsideProvider': 'usePreviewProvider 必須在 PreviewProvider 內使用',
-  'angular.error.useRouterOutsideProvider': 'useRouterInstance 必須在 RouterProvider 內使用',
+  'angular.error.useRouterOutsideProvider':
+    '這裡沒有路由器。將路由綁定（`@molecule/app-routing-angular-router`）中的`provideMoleculeRouter()`加入應用程式的 providers 中，在 Angular 的`provideRouter(routes)`之後，或將`router` `provideMolecule`。',
+  'angular.error.noRoutedView': '此路由綁定沒有要渲染的路由視圖：請將頁面作為子頁面傳遞。',
   'angular.error.useStorageOutsideProvider': 'useStorageProvider 必須在 StorageProvider 內使用',
   'angular.error.useThemeOutsideProvider': 'useThemeProvider 必須在 ThemeProvider 內使用',
   'angular.error.useWorkspaceOutsideProvider':

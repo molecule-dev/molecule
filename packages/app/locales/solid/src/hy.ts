@@ -37,7 +37,9 @@ export const hy: SolidTranslations = {
     'useLoggerProvider-ը պետք է օգտագործվի LoggerProvider-ի ներսում',
   'solid.error.oauthFailed': 'OAuth մուտքը ձախողվեց',
   'solid.error.useRouterOutsideProvider':
-    'useRouterInstance-ը պետք է օգտագործվի RouterProvider-ի ներսում։',
+    'Այստեղ ռաութեր չկա։ Օգտագործեք `MoleculeRouterProvider` ռաութինգի կապից (`@molecule/app-routing-solid-router`) որպես ռաութերի `root`, կամ փոխանցեք `router` `MoleculeProvider` ին։',
+  'solid.error.noRoutedView':
+    'Այստեղ երթուղավորված տեսք չկա: Solid Router-ը երթուղու բաղադրիչին տալիս է իր ներդրված երթուղին որպես `props.children`. օգտագործեք սա որպես երթուղու `component` ` կամ փոխանցեք էջը որպես դուստրեր:',
   'solid.error.useStoreOutsideProvider':
     'useStateProvider-ը պետք է օգտագործվի StateProvider-ի ներսում',
   'solid.error.useStorageOutsideProvider':

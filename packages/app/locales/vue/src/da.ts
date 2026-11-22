@@ -2,7 +2,10 @@ import type { VueTranslations } from './types.js'
 
 /** Vue translations for Danish. */
 export const da: VueTranslations = {
-  'vue.error.useRouterOutsideProvider': 'useRouterInstance skal bruges inden for en RouterProvider',
+  'vue.error.useRouterOutsideProvider':
+    'Ingen router her. Pak appen ind i `MoleculeRouterProvider` fra routingbindingen (`@molecule/app-routing-vue-router`), eller send `router` til `moleculePlugin`.',
+  'vue.error.noRoutedView':
+    'Denne routing-binding har ingen routed view at gengive her: send siden som underordnede i stedet.',
   'vue.error.useStoreOutsideProvider': 'useStateProvider skal bruges inden for en StateProvider',
   'vue.error.useThemeOutsideProvider': 'useThemeProvider skal bruges inden for en ThemeProvider',
   'vue.error.useAuthOutsideProvider': 'useAuthClient skal bruges inden for en AuthProvider',

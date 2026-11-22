@@ -5,7 +5,8 @@ export const sl: SvelteTranslations = {
   'svelte.error.noStateProvider': 'Ponudnik stanja ni bil najden v kontekstu',
   'svelte.error.noAuthClient': 'Odjemalec za avtentikacijo ni bil najden v kontekstu',
   'svelte.error.noThemeProvider': 'Ponudnik teme ni bil najden v kontekstu',
-  'svelte.error.noRouter': 'Usmerjevalnik ni bil najden v kontekstu',
+  'svelte.error.noRouter':
+    'Tukaj ni usmerjevalnika. Priklopite `MoleculeRouterProvider` iz usmerjevalne vezi (`@molecule/app-routing-sveltekit`) v korenu `+layout.svelte` ali tam pokličite `setMoleculeContext({ router })` .',
   'svelte.error.noI18nProvider': 'I18n ponudnik ni bil najden v kontekstu',
   'svelte.error.noHttpClient': 'HTTP odjemalec ni bil najden v kontekstu',
   'svelte.error.noStorageProvider': 'Ponudnik shranjevanja ni bil najden v kontekstu',
@@ -24,7 +25,9 @@ export const sl: SvelteTranslations = {
   'svelte.error.useThemeOutsideProvider':
     'useThemeProvider se mora uporabljati znotraj ThemeProvider',
   'svelte.error.useRouterOutsideProvider':
-    'useRouterInstance se mora uporabljati znotraj RouterProviderja',
+    'Tukaj ni usmerjevalnika. Priklopite `MoleculeRouterProvider` iz usmerjevalne vezi (`@molecule/app-routing-sveltekit`) v korenu `+layout.svelte` ali tam pokličite `setMoleculeContext({ router })` .',
+  'svelte.error.noRoutedView':
+    'Tukaj ni usmerjenega pogleda. SvelteKit postavitvi strani doda `children`: znotraj te komponente podajte `{@render children()}` .',
   'svelte.error.useHttpOutsideProvider': 'useHttpClient se mora uporabljati znotraj HttpProvider',
   'svelte.error.useStorageOutsideProvider':
     'useStorageProvider se mora uporabljati znotraj StorageProvider',

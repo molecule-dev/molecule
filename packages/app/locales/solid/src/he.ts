@@ -27,7 +27,10 @@ export const he: SolidTranslations = {
   'solid.error.unsupportedMethod': 'שיטה לא נתמכת: {{method}}',
   'solid.error.useLoggerOutsideProvider': 'יש להשתמש ב-useLoggerProvider בתוך LoggerProvider',
   'solid.error.oauthFailed': 'כניסה ל-OAuth נכשלה',
-  'solid.error.useRouterOutsideProvider': 'יש להשתמש ב-useRouterInstance בתוך RouterProvider',
+  'solid.error.useRouterOutsideProvider':
+    'אין כאן נתב. השתמש ב `MoleculeRouterProvider` מקשר הניתוב (`@molecule/app-routing-solid-router`) כ `root` של הנתב, או העביר `router` ל `MoleculeProvider`.',
+  'solid.error.noRoutedView':
+    'אין כאן תצוגה מנותבת. Solid Router נותן לרכיב של נתיב את הנתיב המקונן שלו כ- `props.children`: השתמש בזה כ `component` של נתיב, או העביר את הדף כצאצאים.',
   'solid.error.useStoreOutsideProvider': 'יש להשתמש ב-useStateProvider בתוך StateProvider',
   'solid.error.useStorageOutsideProvider': 'יש להשתמש ב-useStorageProvider בתוך StorageProvider',
   'solid.error.useThemeOutsideProvider': 'יש להשתמש ב-useThemeProvider בתוך ThemeProvider',

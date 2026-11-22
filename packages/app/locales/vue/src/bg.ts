@@ -2,7 +2,10 @@ import type { VueTranslations } from './types.js'
 
 /** Vue translations for Bulgarian. */
 export const bg: VueTranslations = {
-  'vue.error.useRouterOutsideProvider': 'useRouterInstance трябва да се използва в RouterProvider',
+  'vue.error.useRouterOutsideProvider':
+    'Няма рутер тук. Обвийте приложението в `MoleculeRouterProvider` от връзката за рутиране (`@molecule/app-routing-vue-router`) или предайте `router` на `moleculePlugin`.',
+  'vue.error.noRoutedView':
+    'Тази маршрутизираща връзка няма маршрутизиран изглед за рендиране тук: вместо това предайте страницата като деца.',
   'vue.error.useStoreOutsideProvider': 'useStateProvider трябва да се използва в StateProvider',
   'vue.error.useThemeOutsideProvider': 'useThemeProvider трябва да се използва в ThemeProvider',
   'vue.error.useAuthOutsideProvider': 'useAuthClient трябва да се използва в AuthProvider',

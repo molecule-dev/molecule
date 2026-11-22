@@ -4,7 +4,7 @@
  * @module
  */
 
-import type { Snippet } from 'svelte'
+import type { Component, Snippet } from 'svelte'
 import type { Readable, Writable } from 'svelte/store'
 
 import type { ChatProvider } from '@molecule/app-ai-chat'
@@ -107,6 +107,13 @@ export interface ThemeProviderProps extends ProviderProps {
  */
 export interface RouterProviderProps extends ProviderProps {
   router: Router
+  /**
+   * The component that renders the matched child route where a layout or guard puts it, so
+   * `<RoutedView />` works under any routing bond. A routing bond passes it; leave it out when
+   * the bond has none (SvelteKit gives a layout its page as `children`), and `<RoutedView />`
+   * then throws an error saying so.
+   */
+  routedView?: Component
 }
 
 /**

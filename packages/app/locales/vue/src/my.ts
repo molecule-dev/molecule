@@ -3,7 +3,9 @@ import type { VueTranslations } from './types.js'
 /** Vue translations for Burmese. */
 export const my: VueTranslations = {
   'vue.error.useRouterOutsideProvider':
-    'useRouterInstance ကို RouterProvider အတွင်းတွင် အသုံးပြုရမည်',
+    'ဤနေရာတွင် router မရှိပါ။ routing bond (`@molecule/app-routing-vue-router`) မှ `MoleculeRouterProvider` ဖြင့် app ကိုထုပ်ပိုးပါ သို့မဟုတ် `router` `moleculePlugin` သို့ပေးပို့ပါ။',
+  'vue.error.noRoutedView':
+    'ဤ routing bond တွင် ဤနေရာတွင် render လုပ်ရန် routed view မရှိပါ။ ယင်းအစား စာမျက်နှာကို children အဖြစ် pass လုပ်ပါ။',
   'vue.error.useStoreOutsideProvider': 'useStateProvider ကို StateProvider အတွင်းတွင် အသုံးပြုရမည်',
   'vue.error.useThemeOutsideProvider': 'useThemeProvider ကို ThemeProvider အတွင်းတွင် အသုံးပြုရမည်',
   'vue.error.useAuthOutsideProvider': 'useAuthClient ကို AuthProvider အတွင်းတွင် အသုံးပြုရမည်',

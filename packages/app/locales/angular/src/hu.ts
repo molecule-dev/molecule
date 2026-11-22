@@ -19,7 +19,9 @@ export const hu: AngularTranslations = {
   'angular.error.usePreviewOutsideProvider':
     'A usePreviewProvider-t PreviewProvider-en belül kell használni',
   'angular.error.useRouterOutsideProvider':
-    'A useRouterInstance-t RouterProvider-en belül kell használni',
+    'Nincs itt router. Add hozzá `provideMoleculeRouter()` függvényt az útvonalválasztási kötelékből (`@molecule/app-routing-angular-router`) az alkalmazás szolgáltatóihoz, az Angular `provideRouter(routes)` után, vagy add át `router` a `provideMolecule` nak.',
+  'angular.error.noRoutedView':
+    'Ennek az útvonalválasztási kötvénynek nincs útvonalnézete, amelyet itt megjeleníthetne: ehelyett adja át az oldalt gyermekként.',
   'angular.error.useStorageOutsideProvider':
     'A useStorageProvider-t StorageProvider-en belül kell használni',
   'angular.error.useThemeOutsideProvider':

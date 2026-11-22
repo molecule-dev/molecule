@@ -35,7 +35,9 @@ export const af: Partial<SolidTranslations> = {
     "useLoggerProvider moet binne 'n LoggerProvider gebruik word",
   'solid.error.oauthFailed': 'OAuth-aanmelding het misluk',
   'solid.error.useRouterOutsideProvider':
-    "useRouterInstance moet binne 'n RouterProvider gebruik word",
+    'Geen router hier nie. Gebruik `MoleculeRouterProvider` vanaf die roeteringsverbinding (`@molecule/app-routing-solid-router`) as die router se `root`, of gee `router` deur aan `MoleculeProvider`.',
+  'solid.error.noRoutedView':
+    "Geen gerouteerde aansig hier nie. Solid Router gee 'n roete se komponent sy geneste roete as `props.children`: gebruik dit as 'n roete se `component`, of gee die bladsy as kinders deur.",
   'solid.error.useStoreOutsideProvider':
     "useStateProvider moet binne 'n StateProvider gebruik word.",
   'solid.error.useStorageOutsideProvider':

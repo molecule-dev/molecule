@@ -14,7 +14,9 @@ export const id: ReactTranslations = {
   'react.error.usePreviewOutsideProvider':
     'usePreviewProvider harus digunakan di dalam PreviewProvider',
   'react.error.useRouterOutsideProvider':
-    'useRouterInstance harus digunakan di dalam RouterProvider',
+    'Tidak ada router di sini. Pasang komponen router dari routing bond aplikasi (`BrowserRouter` dari `@molecule/app-routing-react-router`), atau berikan `router` ke `MoleculeProvider`.',
+  'react.error.noRoutedView':
+    'Ikatan perutean ini tidak memiliki tampilan yang dirutekan untuk dirender di sini: teruskan halaman sebagai anak-anaknya saja.',
   'react.error.useStoreOutsideProvider': 'useStateProvider harus digunakan di dalam StateProvider',
   'react.error.useStorageOutsideProvider':
     'useStorageProvider harus digunakan di dalam StorageProvider',

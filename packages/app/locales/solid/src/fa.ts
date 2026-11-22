@@ -35,7 +35,9 @@ export const fa: SolidTranslations = {
     'useLoggerProvider باید درون یک LoggerProvider استفاده شود.',
   'solid.error.oauthFailed': 'ورود به سیستم OAuth ناموفق بود',
   'solid.error.useRouterOutsideProvider':
-    'useRouterInstance باید درون یک RouterProvider استفاده شود.',
+    'اینجا روتری وجود ندارد. از `MoleculeRouterProvider` از پیوند مسیریابی (`@molecule/app-routing-solid-router`) به عنوان `root` روتر استفاده کنید، یا `router` به `MoleculeProvider` منتقل کنید.',
+  'solid.error.noRoutedView':
+    'اینجا نمای مسیریابی‌شده‌ای وجود ندارد. Solid Router به کامپوننت مسیر، مسیر تودرتوی خود را به صورت `props.children` می‌دهد: از این به عنوان `component` مسیر استفاده کنید، یا صفحه را به عنوان فرزند ارسال کنید.',
   'solid.error.useStoreOutsideProvider': 'useStateProvider باید درون یک StateProvider استفاده شود.',
   'solid.error.useStorageOutsideProvider':
     'useStorageProvider باید درون یک StorageProvider استفاده شود.',

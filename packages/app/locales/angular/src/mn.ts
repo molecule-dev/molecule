@@ -17,7 +17,9 @@ export const mn: AngularTranslations = {
   'angular.error.usePreviewOutsideProvider':
     'usePreviewProvider-ийг PreviewProvider дотор ашиглах ёстой',
   'angular.error.useRouterOutsideProvider':
-    'useRouterInstance-ийг RouterProvider дотор ашиглах ёстой',
+    'Энд чиглүүлэгч байхгүй байна. Angular-ийн `provideRouter(routes)` дараа чиглүүлэлтийн холбоосоос (`@molecule/app-routing-angular-router`) `provideMoleculeRouter()` апп-ын үйлчилгээ үзүүлэгчид нэмэх эсвэл `router` `provideMolecule`-т дамжуулна уу.',
+  'angular.error.noRoutedView':
+    'Энэ чиглүүлэлтийн холбоос нь энд үзүүлэх чиглүүлэлтийн харагдацгүй байна: оронд нь хуудсыг хүүхэд болгон дамжуулна уу.',
   'angular.error.useStorageOutsideProvider':
     'useStorageProvider-ийг StorageProvider дотор ашиглах ёстой',
   'angular.error.useThemeOutsideProvider': 'useThemeProvider-ийг ThemeProvider дотор ашиглах ёстой',

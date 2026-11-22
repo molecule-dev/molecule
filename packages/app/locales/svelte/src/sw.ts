@@ -5,7 +5,8 @@ export const sw: SvelteTranslations = {
   'svelte.error.noStateProvider': 'Mtoa huduma wa hali hakupatikana katika muktadha',
   'svelte.error.noAuthClient': 'Mteja wa uthibitishaji hakupatikana katika muktadha',
   'svelte.error.noThemeProvider': 'Mtoa huduma wa mandhari hakupatikana katika muktadha',
-  'svelte.error.noRouter': 'Kielekezi hakipatikani katika muktadha',
+  'svelte.error.noRouter':
+    'Hakuna kipanga njia hapa. Weka `MoleculeRouterProvider` kutoka kwa kifungo cha uelekezaji (`@molecule/app-routing-sveltekit`) kwenye mzizi `+layout.svelte`, au piga simu `setMoleculeContext({ router })` hapo.',
   'svelte.error.noI18nProvider': 'Mtoa huduma wa i18n hakupatikana katika muktadha',
   'svelte.error.noHttpClient': 'Mteja wa HTTP hakupatikana katika muktadha',
   'svelte.error.noStorageProvider': 'Mtoa huduma wa hifadhi hakupatikana katika muktadha',
@@ -22,7 +23,9 @@ export const sw: SvelteTranslations = {
   'svelte.error.useAuthOutsideProvider': 'useAuthClient lazima itumike ndani ya AuthProvider',
   'svelte.error.useThemeOutsideProvider': 'useThemeProvider lazima itumike ndani ya ThemeProvider',
   'svelte.error.useRouterOutsideProvider':
-    'useRouterInstance lazima itumike ndani ya RouterProvider',
+    'Hakuna kipanga njia hapa. Weka `MoleculeRouterProvider` kutoka kwa kifungo cha uelekezaji (`@molecule/app-routing-sveltekit`) kwenye mzizi `+layout.svelte`, au piga simu `setMoleculeContext({ router })` hapo.',
+  'svelte.error.noRoutedView':
+    'Hakuna mwonekano uliopangwa hapa. SvelteKit inatoa mpangilio ukurasa wake kama `children`: pitisha `{@render children()}` ndani ya sehemu hii.',
   'svelte.error.useHttpOutsideProvider': 'useHttpClient lazima itumike ndani ya HttpProvider',
   'svelte.error.useStorageOutsideProvider':
     'useStorageProvider lazima itumike ndani ya StorageProvider',

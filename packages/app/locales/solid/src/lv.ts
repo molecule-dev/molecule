@@ -30,7 +30,10 @@ export const lv: SolidTranslations = {
   'solid.error.unsupportedMethod': 'Neatbalstīta metode: {{method}}',
   'solid.error.useLoggerOutsideProvider': 'useLoggerProvider ir jāizmanto LoggerProvider ietvaros.',
   'solid.error.oauthFailed': 'OAuth pieteikšanās neizdevās.',
-  'solid.error.useRouterOutsideProvider': 'useRouterInstance ir jāizmanto RouterProvider ietvaros.',
+  'solid.error.useRouterOutsideProvider':
+    'Šeit nav maršrutētāja. Kā maršrutētāja `root` izmantojiet `MoleculeRouterProvider` no maršrutēšanas saites (`@molecule/app-routing-solid-router`) vai nododiet `router` `MoleculeProvider`.',
+  'solid.error.noRoutedView':
+    'Šeit nav maršrutēta skata. Solid Router piešķir maršruta komponentam tā ligzdoto maršrutu kā `props.children`: izmantojiet to kā maršruta `component` vai nododiet lapu kā bērnus.',
   'solid.error.useStoreOutsideProvider': 'useStateProvider ir jāizmanto StateProvider ietvaros.',
   'solid.error.useStorageOutsideProvider':
     'useStorageProvider ir jāizmanto StorageProvider ietvaros.',

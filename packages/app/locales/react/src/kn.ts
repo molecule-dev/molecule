@@ -9,7 +9,10 @@ export const kn: ReactTranslations = {
   'react.error.useHttpOutsideProvider': 'useHttpClient ಅನ್ನು HttpProvider ಒಳಗೆ ಬಳಸಬೇಕು',
   'react.error.useLoggerOutsideProvider': 'useLoggerProvider ಅನ್ನು LoggerProvider ಒಳಗೆ ಬಳಸಬೇಕು',
   'react.error.usePreviewOutsideProvider': 'usePreviewProvider ಅನ್ನು PreviewProvider ಒಳಗೆ ಬಳಸಬೇಕು',
-  'react.error.useRouterOutsideProvider': 'useRouterInstance ಅನ್ನು RouterProvider ಒಳಗೆ ಬಳಸಬೇಕು',
+  'react.error.useRouterOutsideProvider':
+    'ಇಲ್ಲಿ ರೂಟರ್ ಇಲ್ಲ. ಅಪ್ಲಿಕೇಶನ್‌ನ ರೂಟಿಂಗ್ ಬಾಂಡ್‌ನಿಂದ ರೂಟರ್ ಘಟಕವನ್ನು ಆರೋಹಿಸಿ ( `@molecule/app-routing-react-router` ನಿಂದ `BrowserRouter` ), ಅಥವಾ `router` `MoleculeProvider` ಗೆ ರವಾನಿಸಿ.',
+  'react.error.noRoutedView':
+    'ಈ ರೂಟಿಂಗ್ ಬಾಂಡ್ ಇಲ್ಲಿ ರೆಂಡರ್ ಮಾಡಲು ಯಾವುದೇ ರೂಟೆಡ್ ವ್ಯೂ ಹೊಂದಿಲ್ಲ: ಬದಲಿಗೆ ಪುಟವನ್ನು ಚಿಲ್ಡ್ರನ್ ಆಗಿ ಪಾಸ್ ಮಾಡಿ.',
   'react.error.useStoreOutsideProvider': 'useStateProvider ಅನ್ನು StateProvider ಒಳಗೆ ಬಳಸಬೇಕು',
   'react.error.useStorageOutsideProvider': 'useStorageProvider ಅನ್ನು StorageProvider ಒಳಗೆ ಬಳಸಬೇಕು',
   'react.error.useThemeOutsideProvider': 'useThemeProvider ಅನ್ನು ThemeProvider ಒಳಗೆ ಬಳಸಬೇಕು',

@@ -7,7 +7,7 @@
  * @module
  */
 
-import { act, createElement, type ReactElement } from 'react'
+import { act, createElement, Fragment, type ReactElement } from 'react'
 import { createRoot } from 'react-dom/client'
 
 import * as ReactBindings from '@molecule/app-react'
@@ -26,6 +26,37 @@ import { settle } from '../ui/index.js'
 /** Where the host writes the hook's latest result. */
 interface Slot {
   result: unknown
+}
+
+/** One routed view per text, so a re-render keeps the same component (and its state). */
+const routedViews = new Map<string, () => ReactElement>()
+
+/**
+ * The tree under the binding's `RouterProvider` with a routed view rendering the case's
+ * `routedView` text, as a routing bond provides one; the tree itself when the case sets none.
+ *
+ * @param services - The case's services (the router among them).
+ * @param options - The mount options (`routedView`).
+ * @param inner - The tree.
+ * @returns The tree to render.
+ */
+function underRoutedView(
+  services: Partial<BindingServices>,
+  options: MountOptions,
+  inner: ReactElement,
+): ReactElement {
+  const text = options.routedView
+  if (text === undefined || !services.router) return inner
+  let view = routedViews.get(text)
+  if (!view) {
+    view = (): ReactElement => createElement(Fragment, null, text)
+    routedViews.set(text, view)
+  }
+  return createElement(ReactBindings.RouterProvider, {
+    router: services.router,
+    routedView: view,
+    children: inner,
+  })
 }
 
 /** Calls the hook on every render and stores its result. */
@@ -52,13 +83,16 @@ const tree = (
     : createElement(ReactBindings.MoleculeProvider, {
         ...services,
         awaitSession: false,
-        children:
+        children: underRoutedView(
+          services,
+          options,
           options.render === 'text'
             ? // A component export renders with args[0] as props; its string props are text slots.
               createElement(exportsOf[hook] as (props: object) => ReactElement, {
                 ...(args[0] as object),
               })
             : createElement(Host, { fn: exportsOf[hook], args, into }),
+        ),
       })
 
 /**

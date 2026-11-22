@@ -12,7 +12,10 @@ export const lo: AngularTranslations = {
   'angular.error.useHttpOutsideProvider': 'useHttpClient ຕ້ອງໃຊ້ພາຍໃນ HttpProvider',
   'angular.error.useLoggerOutsideProvider': 'useLoggerProvider ຕ້ອງໃຊ້ພາຍໃນ LoggerProvider',
   'angular.error.usePreviewOutsideProvider': 'usePreviewProvider ຕ້ອງໃຊ້ພາຍໃນ PreviewProvider',
-  'angular.error.useRouterOutsideProvider': 'useRouterInstance ຕ້ອງໃຊ້ພາຍໃນ RouterProvider',
+  'angular.error.useRouterOutsideProvider':
+    'ບໍ່ມີເຣົາເຕີຢູ່ທີ່ນີ້. ໃຫ້ເພີ່ມ `provideMoleculeRouter()` ຈາກພັນທະການກຳນົດເສັ້ນທາງ (`@molecule/app-routing-angular-router`) ໃສ່ຜູ້ໃຫ້ບໍລິການຂອງແອັບ, ຫຼັງຈາກ `provideRouter(routes)` ຂອງ Angular, ຫຼືສົ່ງ `router` ໄປຫາ `provideMolecule`.',
+  'angular.error.noRoutedView':
+    'ການເຊື່ອມໂຍງການກຳນົດເສັ້ນທາງນີ້ບໍ່ມີມຸມມອງທີ່ຖືກກຳນົດເສັ້ນທາງທີ່ຈະສະແດງຢູ່ທີ່ນີ້: ສົ່ງຕໍ່ໜ້າເປັນໜ້າລູກແທນ.',
   'angular.error.useStorageOutsideProvider': 'useStorageProvider ຕ້ອງໃຊ້ພາຍໃນ StorageProvider',
   'angular.error.useThemeOutsideProvider': 'useThemeProvider ຕ້ອງໃຊ້ພາຍໃນ ThemeProvider',
   'angular.error.useWorkspaceOutsideProvider':

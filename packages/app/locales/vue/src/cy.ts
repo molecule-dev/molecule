@@ -2,7 +2,10 @@ import type { VueTranslations } from './types.js'
 
 /** Vue translations for Welsh. */
 export const cy: VueTranslations = {
-  'vue.error.useRouterOutsideProvider': 'Rhaid defnyddio useRouterInstance o fewn RouterProvider',
+  'vue.error.useRouterOutsideProvider':
+    "Dim llwybrydd yma. Lapio'r ap yn `MoleculeRouterProvider` o'r bond llwybro (`@molecule/app-routing-vue-router`), neu basio `router` i `moleculePlugin`.",
+  'vue.error.noRoutedView':
+    "Nid oes gan y bond llwybro hwn olygfa llwybro i'w rendro yma: pasiwch y dudalen fel plant yn lle hynny.",
   'vue.error.useStoreOutsideProvider': 'Rhaid defnyddio useStateProvider o fewn StateProvider',
   'vue.error.useThemeOutsideProvider': 'Rhaid defnyddio useThemeProvider o fewn ThemeProvider',
   'vue.error.useAuthOutsideProvider': 'Rhaid defnyddio useAuthClient o fewn AuthProvider',

@@ -5,7 +5,8 @@ export const yo: SvelteTranslations = {
   'svelte.error.noStateProvider': 'A ko rii olupese ipo ninu ipo-\u00f2r\u00f2',
   'svelte.error.noAuthClient': 'A ko rii onibara ifowosowopo ninu ipo-\u00f2r\u00f2',
   'svelte.error.noThemeProvider': 'A ko rii olupese akori ninu ipo-\u00f2r\u00f2',
-  'svelte.error.noRouter': 'A ko rii olut\u00f2 ninu ipo-\u00f2r\u00f2',
+  'svelte.error.noRouter':
+    'Kò sí olùdarí níbí. Gbé `MoleculeRouterProvider` kalẹ̀ láti inú ìsopọ̀ ìdarí (`@molecule/app-routing-sveltekit`) nínú gbòǹgbò `+layout.svelte`, tàbí kí o pe `setMoleculeContext({ router })` níbẹ̀.',
   'svelte.error.noI18nProvider': 'A ko rii olupese i18n ninu ipo-\u00f2r\u00f2',
   'svelte.error.noHttpClient': 'A ko rii onibara HTTP ninu ipo-\u00f2r\u00f2',
   'svelte.error.noStorageProvider': 'A ko rii olupese ibi-\u00ecpam\u00f3 ninu ipo-\u00f2r\u00f2',
@@ -21,7 +22,10 @@ export const yo: SvelteTranslations = {
     'a gbọ́dọ̀ lo usePreviewProvider nínú PreviewProvider kan',
   'svelte.error.useAuthOutsideProvider': 'a gbọ́dọ̀ lo useAuthClient láàrín Olùpèsè Auth',
   'svelte.error.useThemeOutsideProvider': 'a gbọ́dọ̀ lo useThemeProvider láàrín ThemeProvider kan',
-  'svelte.error.useRouterOutsideProvider': 'a gbọ́dọ̀ lo useRouterInstance láàrín Olùpèsè Router kan',
+  'svelte.error.useRouterOutsideProvider':
+    'Kò sí olùdarí níbí. Gbé `MoleculeRouterProvider` kalẹ̀ láti inú ìsopọ̀ ìdarí (`@molecule/app-routing-sveltekit`) nínú gbòǹgbò `+layout.svelte`, tàbí kí o pe `setMoleculeContext({ router })` níbẹ̀.',
+  'svelte.error.noRoutedView':
+    'Kò sí ìwòran tí a gbé kalẹ̀ níbí. SvelteKit fún wa ní ojú ìwé rẹ̀ gẹ́gẹ́ bí `children`: pass `{@render children()}` nínú apá yìí.',
   'svelte.error.useHttpOutsideProvider': 'a gbọ́dọ̀ lo userHttpClient nínú HttpProvider kan',
   'svelte.error.useStorageOutsideProvider': 'a gbọ́dọ̀ lo useStorageProvider láàrín StorageProvider',
   'svelte.error.useLoggerOutsideProvider': 'a gbọ́dọ̀ lo useLoggerProvider nínú LoggerProvider',

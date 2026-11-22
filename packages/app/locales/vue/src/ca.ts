@@ -4,7 +4,9 @@ import type { VueTranslations } from './types.js'
 export const ca: Partial<VueTranslations> = {
   'vue.error.unsupportedMethod': 'Mètode no compatible: {{method}}',
   'vue.error.useRouterOutsideProvider':
-    "useRouterInstance s'ha d'utilitzar dins d'un RouterProvider.",
+    "Aquí no hi ha cap encaminador. Embolica l'aplicació a `MoleculeRouterProvider` des de l'enllaç d'encaminament (`@molecule/app-routing-vue-router`), o passa `router` a `moleculePlugin`.",
+  'vue.error.noRoutedView':
+    "Aquest enllaç d'encaminament no té cap vista encaminada per renderitzar aquí: passa la pàgina com a filla.",
   'vue.error.useStoreOutsideProvider': "useStateProvider s'ha d'utilitzar dins d'un StateProvider.",
   'vue.error.useThemeOutsideProvider': "useThemeProvider s'ha d'utilitzar dins d'un ThemeProvider.",
   'vue.error.useAuthOutsideProvider': "useAuthClient s'ha d'utilitzar dins d'un AuthProvider.",

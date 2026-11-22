@@ -17,7 +17,9 @@ export const de: ReactTranslations = {
   'react.error.usePreviewOutsideProvider':
     'usePreviewProvider muss innerhalb eines PreviewProvider verwendet werden',
   'react.error.useRouterOutsideProvider':
-    'useRouterInstance muss innerhalb eines RouterProvider verwendet werden',
+    'Hier gibt es keinen Router. Binden Sie eine Router-Komponente aus dem Routing-Bond der App ein (`BrowserRouter` aus `@molecule/app-routing-react-router`), oder übergeben Sie `router` an `MoleculeProvider`.',
+  'react.error.noRoutedView':
+    'Dieser Routing-Bond hat keine geroutete Ansicht, die hier gerendert werden kann: Übergeben Sie die Seite stattdessen als Kindseite.',
   'react.error.useStoreOutsideProvider':
     'useStateProvider muss innerhalb eines StateProvider verwendet werden',
   'react.error.useStorageOutsideProvider':

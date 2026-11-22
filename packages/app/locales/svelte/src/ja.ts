@@ -9,7 +9,7 @@ export const ja: SvelteTranslations = {
   'svelte.error.noThemeProvider':
     '\u30b3\u30f3\u30c6\u30ad\u30b9\u30c8\u306b\u30c6\u30fc\u30de\u30d7\u30ed\u30d0\u30a4\u30c0\u30fc\u304c\u898b\u3064\u304b\u308a\u307e\u305b\u3093',
   'svelte.error.noRouter':
-    '\u30b3\u30f3\u30c6\u30ad\u30b9\u30c8\u306b\u30eb\u30fc\u30bf\u30fc\u304c\u898b\u3064\u304b\u308a\u307e\u305b\u3093',
+    'ここにルーターはありません。ルート`+layout.svelte`でルーティング ボンド (`@molecule/app-routing-sveltekit`) から`MoleculeRouterProvider`マウントするか、そこで`setMoleculeContext({ router })`を呼び出してください。',
   'svelte.error.noI18nProvider':
     '\u30b3\u30f3\u30c6\u30ad\u30b9\u30c8\u306bI18n\u30d7\u30ed\u30d0\u30a4\u30c0\u30fc\u304c\u898b\u3064\u304b\u308a\u307e\u305b\u3093',
   'svelte.error.noHttpClient':
@@ -32,7 +32,9 @@ export const ja: SvelteTranslations = {
   'svelte.error.useThemeOutsideProvider':
     'useThemeProviderはThemeProvider内で使用する必要があります。',
   'svelte.error.useRouterOutsideProvider':
-    'useRouterInstanceはRouterProvider内で使用する必要があります。',
+    'ここにルーターはありません。ルート`+layout.svelte`でルーティング ボンド (`@molecule/app-routing-sveltekit`) から`MoleculeRouterProvider`マウントするか、そこで`setMoleculeContext({ router })`を呼び出してください。',
+  'svelte.error.noRoutedView':
+    'ここではルーティングされたビューはありません。SvelteKit はレイアウトにページを`children`として割り当てます。このコンポーネント内で`{@render children()}`を渡してください。',
   'svelte.error.useHttpOutsideProvider': 'useHttpClientはHttpProvider内で使用する必要があります。',
   'svelte.error.useStorageOutsideProvider':
     'useStorageProviderはStorageProvider内で使用する必要があります。',

@@ -178,7 +178,7 @@ describe('Svelte context', () => {
     })
 
     it('getRouter should throw if not in context', () => {
-      expect(() => getRouter()).toThrow('Router not found in context')
+      expect(() => getRouter()).toThrow(/^No router here\. /)
     })
 
     it('getI18nProvider should throw if not in context', () => {

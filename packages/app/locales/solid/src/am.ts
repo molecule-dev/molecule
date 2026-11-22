@@ -24,7 +24,10 @@ export const am: SolidTranslations = {
   'solid.error.unsupportedMethod': 'የማይደገፍ ዘዴ፦ {{method}}',
   'solid.error.useLoggerOutsideProvider': 'useLoggerProvider በሎገር አቅራቢ ውስጥ ጥቅም ላይ መዋል አለበት',
   'solid.error.oauthFailed': 'የOAuth መግቢያ አልተሳካም',
-  'solid.error.useRouterOutsideProvider': 'useRouterInstance በ RouterProvider ውስጥ ጥቅም ላይ መዋል አለበት',
+  'solid.error.useRouterOutsideProvider':
+    'እዚህ ራውተር የለም። ከሩቲንግ ቦንድ (`@molecule/app-routing-solid-router`) `MoleculeRouterProvider` ን እንደ ራውተሩ `root` ይጠቀሙ፣ ወይም `router` ወደ `MoleculeProvider` ያስተላልፉ።',
+  'solid.error.noRoutedView':
+    'እዚህ ምንም የተዘዋዋሪ እይታ የለም። ሶልዲንግ ራውተር የመንገዱን ክፍል እንደ `props.children` አድርጎ ይሰጠዋል፤ ይህንን እንደ የመንገዱ `component` ይጠቀሙበት ወይም እንደ ልጆች ገጹን ያስተላልፉ።',
   'solid.error.useStoreOutsideProvider': 'useStateProvider በስቴት አቅራቢ ውስጥ ጥቅም ላይ መዋል አለበት',
   'solid.error.useStorageOutsideProvider':
     'useStorageProvider በ StorageProvider ውስጥ ጥቅም ላይ መዋል አለበት',

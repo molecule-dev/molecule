@@ -35,6 +35,7 @@ import {
   ThemeContext,
   WorkspaceContext,
 } from './context.js'
+import { RoutedViewContext } from './routed-view-context.js'
 import { SessionReady } from './session-ready.js'
 import type {
   AuthProviderProps,
@@ -209,7 +210,9 @@ export function ThemeProvider(props: ThemeProviderProps): JSX.Element {
 export type ThemeProvider = CoreThemeProvider
 
 /**
- * Provider for routing, as `@molecule/app-react`'s `RouterProvider`.
+ * Provider for routing, as `@molecule/app-react`'s `RouterProvider`: the router and, from a
+ * routing bond that has one, the routed view `RoutedView` renders (`null` without one). A
+ * routing bond renders it for the app, so app code rarely mounts it by hand.
  *
  * @param props - Component props (see {@link RouterProviderProps}).
  * @returns The provided tree.
@@ -218,7 +221,15 @@ export function RouterProvider(props: RouterProviderProps): JSX.Element {
   return serviceProvider(
     RouterContext,
     () => props.router,
-    () => props.children,
+    () =>
+      createComponent(RoutedViewContext.Provider, {
+        get value() {
+          return props.routedView ?? null
+        },
+        get children() {
+          return props.children
+        },
+      }),
   )
 }
 

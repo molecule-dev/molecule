@@ -29,7 +29,10 @@ export const lo: SolidTranslations = {
   'solid.error.unsupportedMethod': 'ວິທີການທີ່ບໍ່ຮອງຮັບ: {{method}}',
   'solid.error.useLoggerOutsideProvider': 'ຕ້ອງໃຊ້ useLoggerProvider ພາຍໃນ LoggerProvider',
   'solid.error.oauthFailed': 'ການເຂົ້າສູ່ລະບົບ OAuth ລົ້ມເຫຼວ',
-  'solid.error.useRouterOutsideProvider': 'useRouterInstance ຕ້ອງຖືກໃຊ້ພາຍໃນ RouterProvider',
+  'solid.error.useRouterOutsideProvider':
+    'ບໍ່ມີເຣົາເຕີຢູ່ທີ່ນີ້. ໃຊ້ `MoleculeRouterProvider` ຈາກ routing bond (`@molecule/app-routing-solid-router`) ເປັນ `root` ຂອງເຣົາເຕີ, ຫຼືສົ່ງ `router` ໄປຫາ `MoleculeProvider`.',
+  'solid.error.noRoutedView':
+    'ບໍ່ມີມຸມມອງທີ່ຖືກກຳນົດເສັ້ນທາງຢູ່ທີ່ນີ້. Solid Router ໃຫ້ສ່ວນປະກອບຂອງເສັ້ນທາງທີ່ຊ້ອນກັນເປັນ `props.children`: ໃຊ້ອັນນີ້ເປັນ `component` ຂອງເສັ້ນທາງ, ຫຼືສົ່ງໜ້າດັ່ງກ່າວເປັນລູກ.',
   'solid.error.useStoreOutsideProvider': 'ຕ້ອງໃຊ້ useStateProvider ພາຍໃນ StateProvider',
   'solid.error.useStorageOutsideProvider': 'ຕ້ອງໃຊ້ useStorageProvider ພາຍໃນ StorageProvider',
   'solid.error.useThemeOutsideProvider': 'ຕ້ອງໃຊ້ useThemeProvider ພາຍໃນ ThemeProvider',

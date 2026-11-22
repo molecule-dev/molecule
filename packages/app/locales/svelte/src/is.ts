@@ -5,7 +5,8 @@ export const is: SvelteTranslations = {
   'svelte.error.noStateProvider': 'Stilveitandi fannst ekki \u00ed samhengi',
   'svelte.error.noAuthClient': 'Au\u00f0kenningarbi\u00f0lari fannst ekki \u00ed samhengi',
   'svelte.error.noThemeProvider': '\u00deemuveita fannst ekki \u00ed samhengi',
-  'svelte.error.noRouter': 'Beinir fannst ekki \u00ed samhengi',
+  'svelte.error.noRouter':
+    'Engin leið hér. Tengdu `MoleculeRouterProvider` frá leiðartengingunni (`@molecule/app-routing-sveltekit`) í rótinni `+layout.svelte`, eða kallaðu á `setMoleculeContext({ router })` þar.',
   'svelte.error.noI18nProvider': 'I18n veita fannst ekki \u00ed samhengi',
   'svelte.error.noHttpClient': 'HTTP bi\u00f0lari fannst ekki \u00ed samhengi',
   'svelte.error.noStorageProvider': 'Geymsluveita fannst ekki \u00ed samhengi',
@@ -23,7 +24,10 @@ export const is: SvelteTranslations = {
   'svelte.error.useAuthOutsideProvider': 'useAuthClient verður að nota innan AuthProvider',
   'svelte.error.useThemeOutsideProvider':
     'useThemeProvider verður að vera notað innan ThemeProvider',
-  'svelte.error.useRouterOutsideProvider': 'useRouterInstance verður að nota innan RouterProvider',
+  'svelte.error.useRouterOutsideProvider':
+    'Engin leið hér. Tengdu `MoleculeRouterProvider` frá leiðartengingunni (`@molecule/app-routing-sveltekit`) í rótinni `+layout.svelte`, eða kallaðu á `setMoleculeContext({ router })` þar.',
+  'svelte.error.noRoutedView':
+    'Engin leiðarsýn hér. SvelteKit gefur síðuuppsetningu sinni sem `children`: sendir `{@render children()}` inn í þennan íhlut.',
   'svelte.error.useHttpOutsideProvider': 'useHttpClient verður að vera notað innan HttpProvider',
   'svelte.error.useStorageOutsideProvider':
     'useStorageProvider verður að vera notað innan StorageProvider',

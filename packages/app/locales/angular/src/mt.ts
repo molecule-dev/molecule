@@ -13,7 +13,10 @@ export const mt: AngularTranslations = {
   'angular.error.useLoggerOutsideProvider': 'useLoggerProvider irid jintuża ġewwa LoggerProvider',
   'angular.error.usePreviewOutsideProvider':
     'usePreviewProvider irid jintuża ġewwa PreviewProvider',
-  'angular.error.useRouterOutsideProvider': 'useRouterInstance irid jintuża ġewwa RouterProvider',
+  'angular.error.useRouterOutsideProvider':
+    "M'hemm l-ebda router hawn. Żid `provideMoleculeRouter()` mill-bond tar-routing (`@molecule/app-routing-angular-router`) mal-fornituri tal-app, wara `provideRouter(routes)` ta' Angular, jew għaddi `router` lil `provideMolecule`.",
+  'angular.error.noRoutedView':
+    "Din il-konnessjoni tar-rotta m'għandhiex veduta rottata biex tirrendi hawn: għaddi l-paġna bħala tfal minflok.",
   'angular.error.useStorageOutsideProvider':
     'useStorageProvider irid jintuża ġewwa StorageProvider',
   'angular.error.useThemeOutsideProvider': 'useThemeProvider irid jintuża ġewwa ThemeProvider',

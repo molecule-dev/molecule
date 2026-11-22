@@ -61,6 +61,19 @@ export interface AngularBinding {
   provideMolecule(
     services: Partial<BindingServices> & { awaitSession?: boolean },
   ): EnvironmentProviders
+  /**
+   * Registers the router with a routing bond's routed view; the adapter adds it for a case with a
+   * `routedView`.
+   *
+   * @param router - The case's router.
+   * @param options - The routed view.
+   * @param options.routedView - The component the routing bond renders for the matched child route.
+   * @returns The environment providers.
+   */
+  provideRouter(
+    router: NonNullable<BindingServices['router']>,
+    options?: { routedView?: Type<unknown> },
+  ): EnvironmentProviders
 }
 
 /** Options for {@link createAngularBindingAdapter}. */
@@ -69,6 +82,27 @@ export interface AngularBindingAdapterOptions {
   exports: Record<string, unknown>
   /** `@molecule/app-angular`. */
   binding: AngularBinding
+}
+
+/** Numbers the routed-text components, so their selectors and component ids stay apart. */
+let routedTextCount = 0
+
+/**
+ * A component rendering `text`, the case's routed view.
+ *
+ * @param text - What it renders.
+ * @returns The component type.
+ */
+function routedTextComponent(text: string): Type<unknown> {
+  return Component({
+    selector: `mol-routed-text-${++routedTextCount}`,
+    standalone: true,
+    template: '{{ text }}',
+  })(
+    class RoutedText {
+      readonly text = text
+    },
+  ) as Type<unknown>
 }
 
 /**
@@ -210,6 +244,14 @@ export function createAngularBindingAdapter({
           providers: [
             provideZonelessChangeDetection(),
             provideMolecule({ ...services, awaitSession: false }),
+            // The case's routed view, as a routing bond provides one.
+            ...(options.routedView !== undefined && services.router
+              ? [
+                  binding.provideRouter(services.router, {
+                    routedView: routedTextComponent(options.routedView),
+                  }),
+                ]
+              : []),
           ],
         })
         let ref: ComponentRef<unknown>

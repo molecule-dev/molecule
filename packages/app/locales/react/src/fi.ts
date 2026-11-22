@@ -17,7 +17,9 @@ export const fi: ReactTranslations = {
   'react.error.usePreviewOutsideProvider':
     'usePreviewProvider on käytettävä PreviewProvider-komponentin sisällä',
   'react.error.useRouterOutsideProvider':
-    'useRouterInstance on käytettävä RouterProvider-komponentin sisällä',
+    'Ei reititintä. Liitä reititinkomponentti sovelluksen reitityslinkistä (`BrowserRouter` osoitteesta `@molecule/app-routing-react-router`) tai välitä `router` `MoleculeProvider` lle.',
+  'react.error.noRoutedView':
+    'Tällä reitityslinkillä ei ole reititettyä näkymää, jota voisi renderöidä tässä: välitä sivu sen sijaan alisivuina.',
   'react.error.useStoreOutsideProvider':
     'useStateProvider on käytettävä StateProvider-komponentin sisällä',
   'react.error.useStorageOutsideProvider':

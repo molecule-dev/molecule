@@ -13,7 +13,9 @@ export const ig: AngularTranslations = {
   'angular.error.useLoggerOutsideProvider': "A ga-eji useLoggerProvider n'ime LoggerProvider",
   'angular.error.usePreviewOutsideProvider': "A ga-eji usePreviewProvider n'ime PreviewProvider",
   'angular.error.useRouterOutsideProvider':
-    "A ga-eji useRouterInstance mee ihe n'ime onye na-enye Router",
+    "Enweghị rawụta ebe a. Tinye `provideMoleculeRouter()` site na njikọ routing (`@molecule/app-routing-angular-router`) na ndị na-enye ngwa ahụ, mgbe Angular ' `provideRouter(routes)` gasịrị, ma ọ bụ gafere `router` gaa na `provideMolecule`.",
+  'angular.error.noRoutedView':
+    'Njikọ nhazi a enweghị echiche ngagharị iji gosi ebe a: gafere peeji ahụ dịka ụmụaka kama.',
   'angular.error.useStorageOutsideProvider':
     "A ga-eji onye na-enye nchekwa data (useStorageProvider) n'ime onye na-enye nchekwa data",
   'angular.error.useThemeOutsideProvider': "A ga-eji useThemeProvider n'ime ThemeProvider",

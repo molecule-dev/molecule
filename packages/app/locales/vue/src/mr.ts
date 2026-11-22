@@ -2,7 +2,10 @@ import type { VueTranslations } from './types.js'
 
 /** Vue translations for Marathi. */
 export const mr: VueTranslations = {
-  'vue.error.useRouterOutsideProvider': 'useRouterInstance हे RouterProvider च्या आत वापरले पाहिजे',
+  'vue.error.useRouterOutsideProvider':
+    'येथे राउटर नाही. अॅपला राउटिंग बाँड (`@molecule/app-routing-vue-router`) मधील `MoleculeRouterProvider` मध्ये गुंडाळा, किंवा `moleculePlugin` ला `router` पास करा.',
+  'vue.error.noRoutedView':
+    'या राउटिंग बाँडमध्ये येथे रेंडर करण्यासाठी कोणताही राउटेड व्ह्यू नाही: त्याऐवजी पेजला चिल्ड्रेन म्हणून पास करा.',
   'vue.error.useStoreOutsideProvider': 'useStateProvider हे StateProvider च्या आत वापरले पाहिजे',
   'vue.error.useThemeOutsideProvider': 'useThemeProvider हे ThemeProvider च्या आत वापरले पाहिजे',
   'vue.error.useAuthOutsideProvider': 'useAuthClient हे AuthProvider च्या आत वापरले पाहिजे',

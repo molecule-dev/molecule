@@ -5,7 +5,8 @@ export const hu: SvelteTranslations = {
   'svelte.error.noStateProvider': 'Állapotszolgáltató nem található a kontextusban',
   'svelte.error.noAuthClient': 'Hitelesítési kliens nem található a kontextusban',
   'svelte.error.noThemeProvider': 'Témaszolgáltató nem található a kontextusban',
-  'svelte.error.noRouter': 'Útválasztó nem található a kontextusban',
+  'svelte.error.noRouter':
+    'Nincs itt router. Csatold `MoleculeRouterProvider` t a routing bondból (`@molecule/app-routing-sveltekit`) a `+layout.svelte` gyökérkönyvtárban, vagy hívd meg ott `setMoleculeContext({ router })` függvényt.',
   'svelte.error.noI18nProvider': 'I18n szolgáltató nem található a kontextusban',
   'svelte.error.noHttpClient': 'HTTP kliens nem található a kontextusban',
   'svelte.error.noStorageProvider': 'Tárolószolgáltató nem található a kontextusban',
@@ -24,7 +25,9 @@ export const hu: SvelteTranslations = {
   'svelte.error.useThemeOutsideProvider':
     'A useThemeProvider-t egy ThemeProvider-en belül kell használni.',
   'svelte.error.useRouterOutsideProvider':
-    'A useRouterInstance függvényt egy RouterProvider-en belül kell használni.',
+    'Nincs itt router. Csatold `MoleculeRouterProvider` t a routing bondból (`@molecule/app-routing-sveltekit`) a `+layout.svelte` gyökérkönyvtárban, vagy hívd meg ott `setMoleculeContext({ router })` függvényt.',
+  'svelte.error.noRoutedView':
+    'Nincs itt útvonalazott nézet. A SvelteKit `children`-ként adja meg az oldal elrendezését: `{@render children()}` kell átadni ezen a komponensen belül.',
   'svelte.error.useHttpOutsideProvider':
     'A useHttpClient függvényt egy HttpProvider-en belül kell használni.',
   'svelte.error.useStorageOutsideProvider':

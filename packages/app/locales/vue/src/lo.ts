@@ -2,7 +2,10 @@ import type { VueTranslations } from './types.js'
 
 /** Vue translations for Lao. */
 export const lo: VueTranslations = {
-  'vue.error.useRouterOutsideProvider': 'useRouterInstance ຕ້ອງໃຊ້ພາຍໃນ RouterProvider',
+  'vue.error.useRouterOutsideProvider':
+    'ບໍ່ມີເຣົາເຕີຢູ່ທີ່ນີ້. ຫໍ່ແອັບດ້ວຍ `MoleculeRouterProvider` ຈາກການເຊື່ອມໂຍງການກຳນົດເສັ້ນທາງ (`@molecule/app-routing-vue-router`), ຫຼືສົ່ງ `router` ໄປຫາ `moleculePlugin`.',
+  'vue.error.noRoutedView':
+    'ການເຊື່ອມໂຍງການກຳນົດເສັ້ນທາງນີ້ບໍ່ມີມຸມມອງທີ່ຖືກກຳນົດເສັ້ນທາງທີ່ຈະສະແດງຢູ່ທີ່ນີ້: ສົ່ງຕໍ່ໜ້າເປັນໜ້າລູກແທນ.',
   'vue.error.useStoreOutsideProvider': 'useStateProvider ຕ້ອງໃຊ້ພາຍໃນ StateProvider',
   'vue.error.useThemeOutsideProvider': 'useThemeProvider ຕ້ອງໃຊ້ພາຍໃນ ThemeProvider',
   'vue.error.useAuthOutsideProvider': 'useAuthClient ຕ້ອງໃຊ້ພາຍໃນ AuthProvider',

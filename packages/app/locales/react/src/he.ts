@@ -9,7 +9,10 @@ export const he: ReactTranslations = {
   'react.error.useHttpOutsideProvider': 'יש להשתמש ב-useHttpClient בתוך HttpProvider',
   'react.error.useLoggerOutsideProvider': 'יש להשתמש ב-useLoggerProvider בתוך LoggerProvider',
   'react.error.usePreviewOutsideProvider': 'יש להשתמש ב-usePreviewProvider בתוך PreviewProvider',
-  'react.error.useRouterOutsideProvider': 'יש להשתמש ב-useRouterInstance בתוך RouterProvider',
+  'react.error.useRouterOutsideProvider':
+    'אין כאן נתב. יש להרכיב רכיב נתב מקשר הניתוב של האפליקציה (`BrowserRouter` מתוך `@molecule/app-routing-react-router`), או להעביר `router` ל `MoleculeProvider`.',
+  'react.error.noRoutedView':
+    'לקשר הניתוב הזה אין תצוגה מנותבת לעיבוד כאן: העבירו את הדף כצאצאים במקום זאת.',
   'react.error.useStoreOutsideProvider': 'יש להשתמש ב-useStateProvider בתוך StateProvider',
   'react.error.useStorageOutsideProvider': 'יש להשתמש ב-useStorageProvider בתוך StorageProvider',
   'react.error.useThemeOutsideProvider': 'יש להשתמש ב-useThemeProvider בתוך ThemeProvider',

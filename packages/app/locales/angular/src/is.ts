@@ -14,7 +14,10 @@ export const is: AngularTranslations = {
   'angular.error.useLoggerOutsideProvider': 'useLoggerProvider verður að nota innan LoggerProvider',
   'angular.error.usePreviewOutsideProvider':
     'usePreviewProvider verður að nota innan PreviewProvider',
-  'angular.error.useRouterOutsideProvider': 'useRouterInstance verður að nota innan RouterProvider',
+  'angular.error.useRouterOutsideProvider':
+    'Engin leið hér. Bætið við `provideMoleculeRouter()` úr leiðartengingunni (`@molecule/app-routing-angular-router`) við veitendur appsins, á eftir `provideRouter(routes)` í Angular, eða sendið `router` til `provideMolecule`.',
+  'angular.error.noRoutedView':
+    'Þessi leiðartenging hefur enga leiðarsýn til að birta hér: sendið síðuna sem undirsíður í staðinn.',
   'angular.error.useStorageOutsideProvider':
     'useStorageProvider verður að nota innan StorageProvider',
   'angular.error.useThemeOutsideProvider': 'useThemeProvider verður að nota innan ThemeProvider',

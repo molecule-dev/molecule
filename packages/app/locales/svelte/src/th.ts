@@ -9,7 +9,7 @@ export const th: SvelteTranslations = {
   'svelte.error.noThemeProvider':
     '\u0e44\u0e21\u0e48\u0e1e\u0e1a\u0e1c\u0e39\u0e49\u0e43\u0e2b\u0e49\u0e1a\u0e23\u0e34\u0e01\u0e32\u0e23\u0e18\u0e35\u0e21\u0e43\u0e19\u0e1a\u0e23\u0e34\u0e1a\u0e17',
   'svelte.error.noRouter':
-    '\u0e44\u0e21\u0e48\u0e1e\u0e1a\u0e40\u0e23\u0e32\u0e40\u0e15\u0e2d\u0e23\u0e4c\u0e43\u0e19\u0e1a\u0e23\u0e34\u0e1a\u0e17',
+    'ไม่มีเราเตอร์อยู่ที่นี่ ให้ทำการ Mount `MoleculeRouterProvider` จาก routing bond (`@molecule/app-routing-sveltekit`) ใน root `+layout.svelte` หรือเรียกใช้ `setMoleculeContext({ router })` ที่นั่น',
   'svelte.error.noI18nProvider':
     '\u0e44\u0e21\u0e48\u0e1e\u0e1a\u0e1c\u0e39\u0e49\u0e43\u0e2b\u0e49\u0e1a\u0e23\u0e34\u0e01\u0e32\u0e23 I18n \u0e43\u0e19\u0e1a\u0e23\u0e34\u0e1a\u0e17',
   'svelte.error.noHttpClient':
@@ -28,7 +28,10 @@ export const th: SvelteTranslations = {
   'svelte.error.usePreviewOutsideProvider': 'ต้องใช้ usePreviewProvider ภายใน PreviewProvider',
   'svelte.error.useAuthOutsideProvider': 'ต้องใช้ useAuthClient ภายใน AuthProvider',
   'svelte.error.useThemeOutsideProvider': 'ต้องใช้ useThemeProvider ภายใน ThemeProvider',
-  'svelte.error.useRouterOutsideProvider': 'ต้องใช้ useRouterInstance ภายใน RouterProvider',
+  'svelte.error.useRouterOutsideProvider':
+    'ไม่มีเราเตอร์อยู่ที่นี่ ให้ทำการ Mount `MoleculeRouterProvider` จาก routing bond (`@molecule/app-routing-sveltekit`) ใน root `+layout.svelte` หรือเรียกใช้ `setMoleculeContext({ router })` ที่นั่น',
+  'svelte.error.noRoutedView':
+    'ไม่มีการกำหนดเส้นทางมุมมองที่นี่ SvelteKit กำหนดเลย์เอาต์ของหน้าเป็น `children`: ส่ง `{@render children()}` เข้าไปในคอมโพเนนต์นี้',
   'svelte.error.useHttpOutsideProvider': 'ต้องใช้ useHttpClient ภายใน HttpProvider',
   'svelte.error.useStorageOutsideProvider': 'ต้องใช้ useStorageProvider ภายใน StorageProvider',
   'svelte.error.useLoggerOutsideProvider': 'ต้องใช้ useLoggerProvider ภายใน LoggerProvider',

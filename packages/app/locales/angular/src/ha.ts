@@ -20,7 +20,9 @@ export const ha: AngularTranslations = {
   'angular.error.usePreviewOutsideProvider':
     'Dole ne a yi amfani da usePreviewProvider a cikin PreviewProvider',
   'angular.error.useRouterOutsideProvider':
-    'Dole ne a yi amfani da useRouterInstance a cikin RouterProvider',
+    "Babu na'ura mai ba da hanya tsakanin hanyoyin sadarwa a nan. Ƙara `provideMoleculeRouter()` daga haɗin na'ura mai ba da hanya tsakanin hanyoyin sadarwa (`@molecule/app-routing-angular-router`) zuwa ga masu samar da manhajar, bayan `provideRouter(routes)` na Angular, ko kuma wuce `router` zuwa `provideMolecule`.",
+  'angular.error.noRoutedView':
+    "Wannan haɗin hanyar sadarwa ba shi da wani ra'ayi da za a nuna a nan: wuce shafin a matsayin yara maimakon haka.",
   'angular.error.useStorageOutsideProvider':
     'Dole ne a yi amfani da useStorageProvider a cikin StorageProvider',
   'angular.error.useThemeOutsideProvider':

@@ -8,7 +8,8 @@ export const zhTW: SvelteTranslations = {
     '\u5728\u4e0a\u4e0b\u6587\u4e2d\u672a\u627e\u5230\u9a57\u8b49\u7528\u6236\u7aef',
   'svelte.error.noThemeProvider':
     '\u5728\u4e0a\u4e0b\u6587\u4e2d\u672a\u627e\u5230\u4e3b\u984c\u63d0\u4f9b\u8005',
-  'svelte.error.noRouter': '\u5728\u4e0a\u4e0b\u6587\u4e2d\u672a\u627e\u5230\u8def\u7531\u5668',
+  'svelte.error.noRouter':
+    '這裡沒有路由器。從根目錄`+layout.svelte`中的路由綁定（`@molecule/app-routing-sveltekit`）掛載`MoleculeRouterProvider`，或在那裡呼叫`setMoleculeContext({ router })`。',
   'svelte.error.noI18nProvider':
     '\u5728\u4e0a\u4e0b\u6587\u4e2d\u672a\u627e\u5230I18n\u63d0\u4f9b\u8005',
   'svelte.error.noHttpClient':
@@ -27,7 +28,10 @@ export const zhTW: SvelteTranslations = {
   'svelte.error.usePreviewOutsideProvider': 'usePreviewProvider 必須在 PreviewProvider 中使用',
   'svelte.error.useAuthOutsideProvider': 'useAuthClient 必須在 AuthProvider 中使用。',
   'svelte.error.useThemeOutsideProvider': 'useThemeProvider 必須在 ThemeProvider 中使用',
-  'svelte.error.useRouterOutsideProvider': 'useRouterInstance 必須在 RouterProvider 中使用。',
+  'svelte.error.useRouterOutsideProvider':
+    '這裡沒有路由器。從根目錄`+layout.svelte`中的路由綁定（`@molecule/app-routing-sveltekit`）掛載`MoleculeRouterProvider`，或在那裡呼叫`setMoleculeContext({ router })`。',
+  'svelte.error.noRoutedView':
+    '這裡沒有路由視圖。 SvelteKit 將佈局的頁面作為`children`傳遞給元件：在該元件內部傳遞`{@render children()}`。',
   'svelte.error.useHttpOutsideProvider': 'useHttpClient 必須在 HttpProvider 中使用。',
   'svelte.error.useStorageOutsideProvider': 'useStorageProvider 必須在 StorageProvider 中使用。',
   'svelte.error.useLoggerOutsideProvider': 'useLoggerProvider 必須在 LoggerProvider 中使用',

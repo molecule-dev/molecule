@@ -17,7 +17,9 @@ export const fil: ReactTranslations = {
   'react.error.usePreviewOutsideProvider':
     'Ang usePreviewProvider ay dapat gamitin sa loob ng PreviewProvider',
   'react.error.useRouterOutsideProvider':
-    'Ang useRouterInstance ay dapat gamitin sa loob ng RouterProvider',
+    'Walang router dito. Mag-mount ng router component mula sa routing bond ng app (`BrowserRouter` mula sa `@molecule/app-routing-react-router`), o ipasa `router` sa `MoleculeProvider`.',
+  'react.error.noRoutedView':
+    'Walang routed view na maire-render dito ang routing bond na ito: ipasa na lang ang page bilang mga child.',
   'react.error.useStoreOutsideProvider':
     'Ang useStateProvider ay dapat gamitin sa loob ng StateProvider',
   'react.error.useStorageOutsideProvider':

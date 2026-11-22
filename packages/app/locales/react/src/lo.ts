@@ -9,7 +9,10 @@ export const lo: ReactTranslations = {
   'react.error.useHttpOutsideProvider': 'useHttpClient ຕ້ອງໃຊ້ພາຍໃນ HttpProvider',
   'react.error.useLoggerOutsideProvider': 'useLoggerProvider ຕ້ອງໃຊ້ພາຍໃນ LoggerProvider',
   'react.error.usePreviewOutsideProvider': 'usePreviewProvider ຕ້ອງໃຊ້ພາຍໃນ PreviewProvider',
-  'react.error.useRouterOutsideProvider': 'useRouterInstance ຕ້ອງໃຊ້ພາຍໃນ RouterProvider',
+  'react.error.useRouterOutsideProvider':
+    'ບໍ່ມີເຣົາເຕີຢູ່ທີ່ນີ້. ຕິດຕັ້ງອົງປະກອບເຣົາເຕີຈາກການເຊື່ອມຕໍ່ການກຳນົດເສັ້ນທາງຂອງແອັບ (`BrowserRouter` ຈາກ `@molecule/app-routing-react-router`), ຫຼືສົ່ງ `router` ໄປຫາ `MoleculeProvider`.',
+  'react.error.noRoutedView':
+    'ການເຊື່ອມໂຍງການກຳນົດເສັ້ນທາງນີ້ບໍ່ມີມຸມມອງທີ່ຖືກກຳນົດເສັ້ນທາງທີ່ຈະສະແດງຢູ່ທີ່ນີ້: ສົ່ງຕໍ່ໜ້າເປັນໜ້າລູກແທນ.',
   'react.error.useStoreOutsideProvider': 'useStateProvider ຕ້ອງໃຊ້ພາຍໃນ StateProvider',
   'react.error.useStorageOutsideProvider': 'useStorageProvider ຕ້ອງໃຊ້ພາຍໃນ StorageProvider',
   'react.error.useThemeOutsideProvider': 'useThemeProvider ຕ້ອງໃຊ້ພາຍໃນ ThemeProvider',

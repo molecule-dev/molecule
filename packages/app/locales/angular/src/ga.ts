@@ -17,7 +17,9 @@ export const ga: AngularTranslations = {
   'angular.error.usePreviewOutsideProvider':
     'Ní mór usePreviewProvider a úsáid laistigh de PreviewProvider',
   'angular.error.useRouterOutsideProvider':
-    'Ní mór useRouterInstance a úsáid laistigh de RouterProvider',
+    'Níl aon ródaire anseo. Cuir `provideMoleculeRouter()` ón nasc ródaithe (`@molecule/app-routing-angular-router`) le soláthraithe an aip, i ndiaidh `provideRouter(routes)` Angular, nó cuir `router` chuig `provideMolecule`.',
+  'angular.error.noRoutedView':
+    'Níl aon radharc ródaithe ag an nasc ródaithe seo le rindreáil anseo: cuir an leathanach ar aghaidh mar pháistí ina ionad.',
   'angular.error.useStorageOutsideProvider':
     'Ní mór useStorageProvider a úsáid laistigh de StorageProvider',
   'angular.error.useThemeOutsideProvider':

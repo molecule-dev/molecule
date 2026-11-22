@@ -4,7 +4,7 @@
  * @module
  */
 
-import type { Accessor, JSX, Setter } from 'solid-js'
+import type { Accessor, Component, JSX, Setter } from 'solid-js'
 
 import type { ChatProvider } from '@molecule/app-ai-chat'
 import type { AuthClient, AuthState, RegisterExtraShape } from '@molecule/app-auth'
@@ -114,6 +114,13 @@ export interface ThemeProviderProps extends ProviderProps {
  */
 export interface RouterProviderProps extends ProviderProps {
   router: Router
+  /**
+   * The component that renders the matched child route where a layout or guard puts it, so
+   * `<RoutedView />` works under any routing bond. A routing bond passes it; leave it out when
+   * the bond has none (Solid Router gives a route's component its nested route as
+   * `props.children`), and `<RoutedView />` then throws an error saying so.
+   */
+  routedView?: Component
 }
 
 /**

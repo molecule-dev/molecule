@@ -4,16 +4,24 @@
   `{#key servicesKey(services)}`, so a replaced service initializes it again.
 -->
 <script lang="ts">
-  import { type Snippet, untrack } from 'svelte'
+  import { type Component, type Snippet, untrack } from 'svelte'
 
+  import { setRoutedViewContext } from '../routed-view-context.js'
   import type { MoleculeConfig } from '../types.js'
   import { setServiceContexts } from './services.js'
 
-  let { services, children }: { services: MoleculeConfig; children?: Snippet } = $props()
+  let {
+    services,
+    routedView,
+    children,
+  }: { services: MoleculeConfig; routedView?: Component | null; children?: Snippet } = $props()
 
   // Context is set once, at initialization; the parent's `{#key}` re-creates this
-  // component when a service changes.
-  untrack(() => setServiceContexts(services))
+  // component when a service changes. `routedView` is set only by RouterProvider.
+  untrack(() => {
+    setServiceContexts(services)
+    if (routedView !== undefined) setRoutedViewContext(routedView)
+  })
 </script>
 
 {@render children?.()}

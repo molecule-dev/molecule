@@ -13,7 +13,10 @@ export const ar: AngularTranslations = {
   'angular.error.useHttpOutsideProvider': 'يجب استخدام useHttpClient داخل HttpProvider',
   'angular.error.useLoggerOutsideProvider': 'يجب استخدام useLoggerProvider داخل LoggerProvider',
   'angular.error.usePreviewOutsideProvider': 'يجب استخدام usePreviewProvider داخل PreviewProvider',
-  'angular.error.useRouterOutsideProvider': 'يجب استخدام useRouterInstance داخل RouterProvider',
+  'angular.error.useRouterOutsideProvider':
+    'لا يوجد موجه هنا. أضف `provideMoleculeRouter()` من رابط التوجيه (`@molecule/app-routing-angular-router`) إلى موفري التطبيق، بعد `provideRouter(routes)` الخاص بـ Angular، أو مرر `router` إلى `provideMolecule`.',
+  'angular.error.noRoutedView':
+    'لا يحتوي رابط التوجيه هذا على عرض موجه لعرضه هنا: مرر الصفحة كعناصر فرعية بدلاً من ذلك.',
   'angular.error.useStorageOutsideProvider': 'يجب استخدام useStorageProvider داخل StorageProvider',
   'angular.error.useThemeOutsideProvider': 'يجب استخدام useThemeProvider داخل ThemeProvider',
   'angular.error.useWorkspaceOutsideProvider':

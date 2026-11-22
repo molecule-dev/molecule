@@ -5,7 +5,8 @@ export const am: SvelteTranslations = {
   'svelte.error.noStateProvider': 'የሁኔታ አቅራቢ በአውድ ውስጥ አልተገኘም',
   'svelte.error.noAuthClient': 'የማረጋገጫ ደንበኛ በአውድ ውስጥ አልተገኘም',
   'svelte.error.noThemeProvider': 'የገጽታ አቅራቢ በአውድ ውስጥ አልተገኘም',
-  'svelte.error.noRouter': 'ራውተር በአውድ ውስጥ አልተገኘም',
+  'svelte.error.noRouter':
+    'እዚህ ራውተር የለም። `MoleculeRouterProvider` ን ከሮውቲንግ ቦንድ (`@molecule/app-routing-sveltekit`) ስር `+layout.svelte` ላይ ይጫኑ ወይም እዚያ `setMoleculeContext({ router })` ይደውሉ።',
   'svelte.error.noI18nProvider': 'I18n አቅራቢ በአውድ ውስጥ አልተገኘም',
   'svelte.error.noHttpClient': 'HTTP ደንበኛ በአውድ ውስጥ አልተገኘም',
   'svelte.error.noStorageProvider': 'የማከማቻ አቅራቢ በአውድ ውስጥ አልተገኘም',
@@ -20,7 +21,10 @@ export const am: SvelteTranslations = {
     'usePreviewProvider በ PreviewProvider ውስጥ ጥቅም ላይ መዋል አለበት',
   'svelte.error.useAuthOutsideProvider': 'useAuthClient በፈቃድ አቅራቢ ውስጥ ጥቅም ላይ መዋል አለበት',
   'svelte.error.useThemeOutsideProvider': 'useThemeProvider በThemeProvider ውስጥ ጥቅም ላይ መዋል አለበት',
-  'svelte.error.useRouterOutsideProvider': 'useRouterInstance በ RouterProvider ውስጥ ጥቅም ላይ መዋል አለበት',
+  'svelte.error.useRouterOutsideProvider':
+    'እዚህ ራውተር የለም። `MoleculeRouterProvider` ን ከሮውቲንግ ቦንድ (`@molecule/app-routing-sveltekit`) ስር `+layout.svelte` ላይ ይጫኑ ወይም እዚያ `setMoleculeContext({ router })` ይደውሉ።',
+  'svelte.error.noRoutedView':
+    'እዚህ ምንም የተዘዋወረ እይታ የለም። SvelteKit ገጹን እንደ `children` ያቀርባል፡ በዚህ ክፍል ውስጥ `{@render children()}` ያስተላልፉ።',
   'svelte.error.useHttpOutsideProvider': 'useHttpClient በHttpProvider ውስጥ ጥቅም ላይ መዋል አለበት',
   'svelte.error.useStorageOutsideProvider':
     'useStorageProvider በ StorageProvider ውስጥ ጥቅም ላይ መዋል አለበት',

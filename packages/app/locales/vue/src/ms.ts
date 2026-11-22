@@ -2,7 +2,10 @@ import type { VueTranslations } from './types.js'
 
 /** Vue translations for Malay. */
 export const ms: VueTranslations = {
-  'vue.error.useRouterOutsideProvider': 'useRouterInstance mesti digunakan dalam RouterProvider',
+  'vue.error.useRouterOutsideProvider':
+    'Tiada penghala di sini. Balutkan aplikasi dalam `MoleculeRouterProvider` daripada ikatan penghalaan (`@molecule/app-routing-vue-router`), atau serahkan `router` kepada `moleculePlugin`.',
+  'vue.error.noRoutedView':
+    'Ikatan penghalaan ini tidak mempunyai paparan penghalaan untuk dipaparkan di sini: sebaliknya, lulus halaman sebagai anak.',
   'vue.error.useStoreOutsideProvider': 'useStateProvider mesti digunakan dalam StateProvider',
   'vue.error.useThemeOutsideProvider': 'useThemeProvider mesti digunakan dalam ThemeProvider',
   'vue.error.useAuthOutsideProvider': 'useAuthClient mesti digunakan dalam AuthProvider',

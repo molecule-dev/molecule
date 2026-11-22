@@ -5,7 +5,8 @@ export const el: SvelteTranslations = {
   'svelte.error.noStateProvider': 'Πάροχος κατάστασης δεν βρέθηκε στο πλαίσιο',
   'svelte.error.noAuthClient': 'Πελάτης ελέγχου ταυτότητας δεν βρέθηκε στο πλαίσιο',
   'svelte.error.noThemeProvider': 'Πάροχος θέματος δεν βρέθηκε στο πλαίσιο',
-  'svelte.error.noRouter': 'Δρομολογητής δεν βρέθηκε στο πλαίσιο',
+  'svelte.error.noRouter':
+    'Δεν υπάρχει δρομολογητής εδώ. Τοποθετήστε `MoleculeRouterProvider` από τον δεσμό δρομολόγησης (`@molecule/app-routing-sveltekit`) στη ρίζα `+layout.svelte` ή καλέστε εκεί `setMoleculeContext({ router })` .',
   'svelte.error.noI18nProvider': 'Πάροχος i18n δεν βρέθηκε στο πλαίσιο',
   'svelte.error.noHttpClient': 'Πελάτης HTTP δεν βρέθηκε στο πλαίσιο',
   'svelte.error.noStorageProvider': 'Πάροχος αποθήκευσης δεν βρέθηκε στο πλαίσιο',
@@ -26,7 +27,9 @@ export const el: SvelteTranslations = {
   'svelte.error.useThemeOutsideProvider':
     'Το useThemeProvider πρέπει να χρησιμοποιείται μέσα σε ένα ThemeProvider',
   'svelte.error.useRouterOutsideProvider':
-    'Το useRouterInstance πρέπει να χρησιμοποιηθεί εντός ενός RouterProvider',
+    'Δεν υπάρχει δρομολογητής εδώ. Τοποθετήστε `MoleculeRouterProvider` από τον δεσμό δρομολόγησης (`@molecule/app-routing-sveltekit`) στη ρίζα `+layout.svelte` ή καλέστε εκεί `setMoleculeContext({ router })` .',
+  'svelte.error.noRoutedView':
+    'Δεν υπάρχει δρομολογημένη προβολή εδώ. Το SvelteKit δίνει σε μια διάταξη τη σελίδα της ως `children`: περνάει το `{@render children()}` μέσα σε αυτό το στοιχείο.',
   'svelte.error.useHttpOutsideProvider':
     'Το useHttpClient πρέπει να χρησιμοποιηθεί μέσα σε ένα HttpProvider',
   'svelte.error.useStorageOutsideProvider':

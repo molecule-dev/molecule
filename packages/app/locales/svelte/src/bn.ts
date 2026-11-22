@@ -5,7 +5,8 @@ export const bn: SvelteTranslations = {
   'svelte.error.noStateProvider': 'স্টেট প্রোভাইডার কনটেক্সটে পাওয়া যায়নি',
   'svelte.error.noAuthClient': 'অথ ক্লায়েন্ট কনটেক্সটে পাওয়া যায়নি',
   'svelte.error.noThemeProvider': 'থিম প্রোভাইডার কনটেক্সটে পাওয়া যায়নি',
-  'svelte.error.noRouter': 'রাউটার কনটেক্সটে পাওয়া যায়নি',
+  'svelte.error.noRouter':
+    'এখানে কোনো রাউটার নেই। রুট `+layout.svelte` এর রাউটিং বন্ড (`@molecule/app-routing-sveltekit`) থেকে `MoleculeRouterProvider` মাউন্ট করুন, অথবা সেখানে `setMoleculeContext({ router })` কল করুন।',
   'svelte.error.noI18nProvider': 'I18n প্রোভাইডার কনটেক্সটে পাওয়া যায়নি',
   'svelte.error.noHttpClient': 'HTTP ক্লায়েন্ট কনটেক্সটে পাওয়া যায়নি',
   'svelte.error.noStorageProvider': 'স্টোরেজ প্রোভাইডার কনটেক্সটে পাওয়া যায়নি',
@@ -26,7 +27,9 @@ export const bn: SvelteTranslations = {
   'svelte.error.useThemeOutsideProvider':
     'useThemeProvider অবশ্যই একটি ThemeProvider-এর ভিতরে ব্যবহার করতে হবে।',
   'svelte.error.useRouterOutsideProvider':
-    'useRouterInstance অবশ্যই একটি RouterProvider-এর মধ্যে ব্যবহার করতে হবে।',
+    'এখানে কোনো রাউটার নেই। রুট `+layout.svelte` এর রাউটিং বন্ড (`@molecule/app-routing-sveltekit`) থেকে `MoleculeRouterProvider` মাউন্ট করুন, অথবা সেখানে `setMoleculeContext({ router })` কল করুন।',
+  'svelte.error.noRoutedView':
+    'এখানে কোনো রাউটেড ভিউ নেই। SvelteKit একটি লেআউটকে তার পেজ `children` হিসেবে দেয়: এই কম্পোনেন্টের ভিতরে `{@render children()}` পাস করুন।',
   'svelte.error.useHttpOutsideProvider':
     'useHttpClient অবশ্যই একটি HttpProvider-এর মধ্যে ব্যবহার করতে হবে।',
   'svelte.error.useStorageOutsideProvider':

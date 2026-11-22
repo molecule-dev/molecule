@@ -15,7 +15,9 @@ export const az: ReactTranslations = {
   'react.error.usePreviewOutsideProvider':
     'usePreviewProvider PreviewProvider daxilində istifadə edilməlidir',
   'react.error.useRouterOutsideProvider':
-    'useRouterInstance RouterProvider daxilində istifadə edilməlidir',
+    'Burada router yoxdur. Tətbiqin marşrutlaşdırma bağlantısından (`BrowserRouter` from `@molecule/app-routing-react-router`) router komponentini qoşun və ya `router` `MoleculeProvider`-ə ötürün.',
+  'react.error.noRoutedView':
+    'Bu marşrutlaşdırma bondunun burada göstərmək üçün marşrutlaşdırılmış görünüş yoxdur: səhifəni uşaq kimi ötürün.',
   'react.error.useStoreOutsideProvider':
     'useStateProvider StateProvider daxilində istifadə edilməlidir',
   'react.error.useStorageOutsideProvider':

@@ -2,7 +2,10 @@ import type { VueTranslations } from './types.js'
 
 /** Vue translations for Nepali. */
 export const ne: VueTranslations = {
-  'vue.error.useRouterOutsideProvider': 'useRouterInstance RouterProvider भित्र प्रयोग गर्नुपर्छ',
+  'vue.error.useRouterOutsideProvider':
+    'यहाँ राउटर छैन। राउटिङ बन्ड (`@molecule/app-routing-vue-router`) बाट एपलाई `MoleculeRouterProvider` मा र्‍याप गर्नुहोस्, वा `router` लाई `moleculePlugin` मा पास गर्नुहोस्।',
+  'vue.error.noRoutedView':
+    'यो राउटिङ बन्डमा यहाँ रेन्डर गर्न कुनै राउटेड भ्यू छैन: पृष्ठलाई बच्चाको रूपमा पास गर्नुहोस्।',
   'vue.error.useStoreOutsideProvider': 'useStateProvider StateProvider भित्र प्रयोग गर्नुपर्छ',
   'vue.error.useThemeOutsideProvider': 'useThemeProvider ThemeProvider भित्र प्रयोग गर्नुपर्छ',
   'vue.error.useAuthOutsideProvider': 'useAuthClient AuthProvider भित्र प्रयोग गर्नुपर्छ',

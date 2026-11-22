@@ -20,6 +20,7 @@ export type SolidTranslationKey =
   | 'solid.error.useLoggerOutsideProvider'
   | 'solid.error.oauthFailed'
   | 'solid.error.useRouterOutsideProvider'
+  | 'solid.error.noRoutedView'
   | 'solid.error.useStoreOutsideProvider'
   | 'solid.error.useStorageOutsideProvider'
   | 'solid.error.useThemeOutsideProvider'

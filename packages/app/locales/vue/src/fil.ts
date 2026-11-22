@@ -3,7 +3,9 @@ import type { VueTranslations } from './types.js'
 /** Vue translations for Filipino. */
 export const fil: VueTranslations = {
   'vue.error.useRouterOutsideProvider':
-    'Ang useRouterInstance ay dapat gamitin sa loob ng RouterProvider',
+    'Walang router dito. I-wrap ang app sa `MoleculeRouterProvider` mula sa routing bond (`@molecule/app-routing-vue-router`), o ipasa `router` sa `moleculePlugin`.',
+  'vue.error.noRoutedView':
+    'Walang routed view na maire-render dito ang routing bond na ito: ipasa na lang ang page bilang mga child.',
   'vue.error.useStoreOutsideProvider':
     'Ang useStateProvider ay dapat gamitin sa loob ng StateProvider',
   'vue.error.useThemeOutsideProvider':

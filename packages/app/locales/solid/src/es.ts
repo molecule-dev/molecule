@@ -35,7 +35,9 @@ export const es: SolidTranslations = {
     'useLoggerProvider debe usarse dentro de un LoggerProvider',
   'solid.error.oauthFailed': 'Falló el inicio de sesión de OAuth.',
   'solid.error.useRouterOutsideProvider':
-    'useRouterInstance debe usarse dentro de un RouterProvider',
+    'Aquí no hay enrutador. Utilice `MoleculeRouterProvider` del enlace de enrutamiento (`@molecule/app-routing-solid-router`) como la `root` del enrutador, o pase `router` a `MoleculeProvider`.',
+  'solid.error.noRoutedView':
+    'Aquí no hay vista enrutada. Solid Router le da al componente de una ruta su ruta anidada como `props.children`: use esto como un `component` de una ruta, o pase la página como hijos.',
   'solid.error.useStoreOutsideProvider': 'useStateProvider debe usarse dentro de un StateProvider.',
   'solid.error.useStorageOutsideProvider':
     'useStorageProvider debe usarse dentro de un StorageProvider.',

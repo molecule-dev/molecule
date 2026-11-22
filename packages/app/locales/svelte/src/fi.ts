@@ -5,7 +5,8 @@ export const fi: SvelteTranslations = {
   'svelte.error.noStateProvider': 'Tilapalveluntarjoajaa ei löytynyt kontekstista',
   'svelte.error.noAuthClient': 'Todennusasiakasta ei löytynyt kontekstista',
   'svelte.error.noThemeProvider': 'Teemapalveluntarjoajaa ei löytynyt kontekstista',
-  'svelte.error.noRouter': 'Reititintä ei löytynyt kontekstista',
+  'svelte.error.noRouter':
+    'Tässä ei ole reititintä. Liitä `MoleculeRouterProvider` reitityslinkistä (`@molecule/app-routing-sveltekit`) `+layout.svelte` -juureen tai kutsu `setMoleculeContext({ router })` siellä.',
   'svelte.error.noI18nProvider': 'I18n-palveluntarjoajaa ei löytynyt kontekstista',
   'svelte.error.noHttpClient': 'HTTP-asiakasta ei löytynyt kontekstista',
   'svelte.error.noStorageProvider': 'Tallennuspalveluntarjoajaa ei löytynyt kontekstista',
@@ -26,7 +27,9 @@ export const fi: SvelteTranslations = {
   'svelte.error.useThemeOutsideProvider':
     'useThemeProvider-muuttujaa on käytettävä ThemeProvider-muuttujassa.',
   'svelte.error.useRouterOutsideProvider':
-    'useRouterInstance-ominaisuutta on käytettävä RouterProvider-kohteen sisällä.',
+    'Tässä ei ole reititintä. Liitä `MoleculeRouterProvider` reitityslinkistä (`@molecule/app-routing-sveltekit`) `+layout.svelte` -juureen tai kutsu `setMoleculeContext({ router })` siellä.',
+  'svelte.error.noRoutedView':
+    'Ei reititettyä näkymää. SvelteKit antaa sivulleen asettelun `children` -muodossa: välitä `{@render children()}` -muuttuja tämän komponentin sisällä.',
   'svelte.error.useHttpOutsideProvider':
     'useHttpClient-ominaisuutta on käytettävä HttpProvider-palvelun sisällä.',
   'svelte.error.useStorageOutsideProvider':

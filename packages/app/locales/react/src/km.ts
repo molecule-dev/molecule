@@ -9,7 +9,10 @@ export const km: ReactTranslations = {
   'react.error.useHttpOutsideProvider': 'useHttpClient ត្រូវតែប្រើនៅក្នុង HttpProvider',
   'react.error.useLoggerOutsideProvider': 'useLoggerProvider ត្រូវតែប្រើនៅក្នុង LoggerProvider',
   'react.error.usePreviewOutsideProvider': 'usePreviewProvider ត្រូវតែប្រើនៅក្នុង PreviewProvider',
-  'react.error.useRouterOutsideProvider': 'useRouterInstance ត្រូវតែប្រើនៅក្នុង RouterProvider',
+  'react.error.useRouterOutsideProvider':
+    'គ្មានរ៉ោតទ័រនៅទីនេះទេ។ ម៉ោនសមាសភាគរ៉ោតទ័រពីចំណងរ៉ោតទ័ររបស់កម្មវិធី (`BrowserRouter` ពី `@molecule/app-routing-react-router`) ឬបញ្ជូន `router` ទៅ `MoleculeProvider` ។',
+  'react.error.noRoutedView':
+    'ការតភ្ជាប់​ផ្លូវ​នេះ​មិនមាន​ទិដ្ឋភាព​ផ្លូវ​ដើម្បី​បង្ហាញ​នៅទីនេះ​ទេ៖ សូម​បញ្ជូន​ទំព័រ​ជា​កូន​ជំនួសវិញ។',
   'react.error.useStoreOutsideProvider': 'useStateProvider ត្រូវតែប្រើនៅក្នុង StateProvider',
   'react.error.useStorageOutsideProvider': 'useStorageProvider ត្រូវតែប្រើនៅក្នុង StorageProvider',
   'react.error.useThemeOutsideProvider': 'useThemeProvider ត្រូវតែប្រើនៅក្នុង ThemeProvider',

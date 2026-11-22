@@ -6,7 +6,8 @@ export const ca: Partial<SvelteTranslations> = {
   'svelte.error.noStateProvider': 'Proveïdor estatal no trobat en context',
   'svelte.error.noAuthClient': "Client d'autenticació no trobat en context",
   'svelte.error.noThemeProvider': 'Proveïdor de temes no trobat en context',
-  'svelte.error.noRouter': "No s'ha trobat l'encaminador en context",
+  'svelte.error.noRouter':
+    "Aquí no hi ha cap encaminador. Munta `MoleculeRouterProvider` des de l'enllaç d'encaminament (`@molecule/app-routing-sveltekit`) a l'arrel `+layout.svelte`, o crida `setMoleculeContext({ router })` allà.",
   'svelte.error.noI18nProvider': 'Proveïdor I18n no trobat en context',
   'svelte.error.noHttpClient': 'Client HTTP no trobat en context',
   'svelte.error.noStorageProvider': "Proveïdor d'emmagatzematge no trobat en context",
@@ -23,7 +24,9 @@ export const ca: Partial<SvelteTranslations> = {
   'svelte.error.useThemeOutsideProvider':
     "useThemeProvider s'ha d'utilitzar dins d'un ThemeProvider.",
   'svelte.error.useRouterOutsideProvider':
-    "useRouterInstance s'ha d'utilitzar dins d'un RouterProvider.",
+    "Aquí no hi ha cap encaminador. Munta `MoleculeRouterProvider` des de l'enllaç d'encaminament (`@molecule/app-routing-sveltekit`) a l'arrel `+layout.svelte`, o crida `setMoleculeContext({ router })` allà.",
+  'svelte.error.noRoutedView':
+    "Aquí no hi ha cap vista enrutada. SvelteKit dóna a un disseny la seva pàgina com a `children`: passa `{@render children()}` dins d'aquest component.",
   'svelte.error.useHttpOutsideProvider': "useHttpClient s'ha d'utilitzar dins d'un HttpProvider.",
   'svelte.error.useStorageOutsideProvider':
     "useStorageProvider s'ha d'utilitzar dins d'un StorageProvider.",

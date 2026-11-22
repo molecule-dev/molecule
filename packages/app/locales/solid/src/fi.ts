@@ -38,7 +38,9 @@ export const fi: SolidTranslations = {
     'useLoggerProvider-parametria on käytettävä LoggerProvider-parametrin sisällä.',
   'solid.error.oauthFailed': 'OAuth-kirjautuminen epäonnistui',
   'solid.error.useRouterOutsideProvider':
-    'useRouterInstance-ominaisuutta on käytettävä RouterProvider-kohteen sisällä.',
+    'Ei reititintä. Käytä reitityslinkin (`@molecule/app-routing-solid-router`) `MoleculeRouterProvider` arvoa reitittimen `root` tai anna `router` `MoleculeProvider` arvolle.',
+  'solid.error.noRoutedView':
+    'Ei reititettyä näkymää. Solid Router antaa reitin komponentille sen sisäkkäisen reitin muodossa `props.children`: käytä tätä reitin `component` tai välitä sivu alikomponentteina.',
   'solid.error.useStoreOutsideProvider':
     'useStateProvider-arvoa on käytettävä StateProvider-arvoa käyttävänä arvona.',
   'solid.error.useStorageOutsideProvider':

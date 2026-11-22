@@ -19,7 +19,6 @@ export type ProviderErrorKey =
   | 'useHttpOutsideProvider'
   | 'useLoggerOutsideProvider'
   | 'usePreviewOutsideProvider'
-  | 'useRouterOutsideProvider'
   | 'useStorageOutsideProvider'
   | 'useThemeOutsideProvider'
   | 'useWorkspaceOutsideProvider'
@@ -54,10 +53,6 @@ const providerErrorMessage = (key: ProviderErrorKey): string => {
     case 'usePreviewOutsideProvider':
       return t('angular.error.usePreviewOutsideProvider', undefined, {
         defaultValue: 'usePreviewProvider must be used within a PreviewProvider',
-      })
-    case 'useRouterOutsideProvider':
-      return t('angular.error.useRouterOutsideProvider', undefined, {
-        defaultValue: 'useRouterInstance must be used within a RouterProvider',
       })
     case 'useStorageOutsideProvider':
       return t('angular.error.useStorageOutsideProvider', undefined, {

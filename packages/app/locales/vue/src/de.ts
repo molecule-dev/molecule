@@ -3,7 +3,9 @@ import type { VueTranslations } from './types.js'
 /** Vue translations for German. */
 export const de: VueTranslations = {
   'vue.error.useRouterOutsideProvider':
-    'useRouterInstance muss innerhalb eines RouterProvider verwendet werden',
+    'Hier gibt es keinen Router. Wickeln Sie die App in `MoleculeRouterProvider` aus dem Routing-Bond (`@molecule/app-routing-vue-router`) ein oder übergeben Sie `router` an `moleculePlugin`.',
+  'vue.error.noRoutedView':
+    'Dieser Routing-Bond hat keine geroutete Ansicht, die hier gerendert werden kann: Übergeben Sie die Seite stattdessen als Kindseite.',
   'vue.error.useStoreOutsideProvider':
     'useStateProvider muss innerhalb eines StateProvider verwendet werden',
   'vue.error.useThemeOutsideProvider':

@@ -18,7 +18,9 @@ export const ca: AngularTranslations = {
   'angular.error.usePreviewOutsideProvider':
     "usePreviewProvider s'ha d'utilitzar dins d'un PreviewProvider.",
   'angular.error.useRouterOutsideProvider':
-    "useRouterInstance s'ha d'utilitzar dins d'un RouterProvider.",
+    "Aquí no hi ha cap encaminador. Afegiu `provideMoleculeRouter()` des de l'enllaç d'encaminament (`@molecule/app-routing-angular-router`) als proveïdors de l'aplicació, després de `provideRouter(routes)` d'Angular, o passeu `router` a `provideMolecule`.",
+  'angular.error.noRoutedView':
+    "Aquest enllaç d'encaminament no té cap vista encaminada per renderitzar aquí: passa la pàgina com a filla.",
   'angular.error.useStorageOutsideProvider':
     "useStorageProvider s'ha d'utilitzar dins d'un StorageProvider.",
   'angular.error.useThemeOutsideProvider':

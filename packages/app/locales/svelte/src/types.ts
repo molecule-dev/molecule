@@ -17,6 +17,7 @@ export type SvelteTranslationKey =
   | 'svelte.error.useAuthOutsideProvider'
   | 'svelte.error.useThemeOutsideProvider'
   | 'svelte.error.useRouterOutsideProvider'
+  | 'svelte.error.noRoutedView'
   | 'svelte.error.useHttpOutsideProvider'
   | 'svelte.error.useStorageOutsideProvider'
   | 'svelte.error.useLoggerOutsideProvider'

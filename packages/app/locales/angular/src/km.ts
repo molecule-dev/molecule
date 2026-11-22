@@ -13,7 +13,10 @@ export const km: AngularTranslations = {
   'angular.error.useLoggerOutsideProvider': 'useLoggerProvider ត្រូវតែប្រើនៅក្នុង LoggerProvider',
   'angular.error.usePreviewOutsideProvider':
     'usePreviewProvider ត្រូវតែប្រើនៅក្នុង PreviewProvider',
-  'angular.error.useRouterOutsideProvider': 'useRouterInstance ត្រូវតែប្រើនៅក្នុង RouterProvider',
+  'angular.error.useRouterOutsideProvider':
+    'គ្មានរ៉ោតទ័រនៅទីនេះទេ។ បន្ថែម `provideMoleculeRouter()` ពីចំណង​រ៉ោតទ័រ (`@molecule/app-routing-angular-router`) ទៅ​អ្នកផ្តល់សេវា​របស់​កម្មវិធី បន្ទាប់ពី `provideRouter(routes)` របស់ Angular ឬ​បញ្ជូន `router` ទៅ `provideMolecule` ។',
+  'angular.error.noRoutedView':
+    'ការតភ្ជាប់​ផ្លូវ​នេះ​មិនមាន​ទិដ្ឋភាព​ផ្លូវ​ដើម្បី​បង្ហាញ​នៅទីនេះ​ទេ៖ សូម​បញ្ជូន​ទំព័រ​ជា​កូន​ជំនួសវិញ។',
   'angular.error.useStorageOutsideProvider':
     'useStorageProvider ត្រូវតែប្រើនៅក្នុង StorageProvider',
   'angular.error.useThemeOutsideProvider': 'useThemeProvider ត្រូវតែប្រើនៅក្នុង ThemeProvider',

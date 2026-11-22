@@ -20,7 +20,9 @@ export const fil: AngularTranslations = {
   'angular.error.usePreviewOutsideProvider':
     'Ang usePreviewProvider ay dapat gamitin sa loob ng PreviewProvider',
   'angular.error.useRouterOutsideProvider':
-    'Ang useRouterInstance ay dapat gamitin sa loob ng RouterProvider',
+    'Walang router dito. Idagdag ang `provideMoleculeRouter()` mula sa routing bond (`@molecule/app-routing-angular-router`) sa mga provider ng app, pagkatapos ng `provideRouter(routes)` ng Angular, o ipasa ang `router` sa `provideMolecule`.',
+  'angular.error.noRoutedView':
+    'Walang routed view na maire-render dito ang routing bond na ito: ipasa na lang ang page bilang mga child.',
   'angular.error.useStorageOutsideProvider':
     'Ang useStorageProvider ay dapat gamitin sa loob ng StorageProvider',
   'angular.error.useThemeOutsideProvider':

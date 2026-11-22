@@ -32,7 +32,10 @@ export const mt: Partial<SolidTranslations> = {
   'solid.error.unsupportedMethod': 'Metodu mhux appoġġjat: {{method}}',
   'solid.error.useLoggerOutsideProvider': 'useLoggerProvider irid jintuża fi ħdan LoggerProvider',
   'solid.error.oauthFailed': 'Il-login tal-OAuth falla',
-  'solid.error.useRouterOutsideProvider': 'useRouterInstance għandu jintuża fi ħdan RouterProvider',
+  'solid.error.useRouterOutsideProvider':
+    "M'hemm l-ebda router hawn. Uża `MoleculeRouterProvider` mir-rabta tar-routing (`@molecule/app-routing-solid-router`) bħala l `root` tar-router, jew għaddi `router` lil `MoleculeProvider`.",
+  'solid.error.noRoutedView':
+    "M'hemm l-ebda veduta b'rotta hawn. Solid Router jagħti lill-komponent ta' rotta r-rotta nested tiegħu bħala `props.children`: uża dan bħala l- `component` ta' rotta, jew għaddi l-paġna bħala tfal.",
   'solid.error.useStoreOutsideProvider': 'useStateProvider irid jintuża fi ħdan StateProvider',
   'solid.error.useStorageOutsideProvider':
     'useStorageProvider irid jintuża fi ħdan StorageProvider',

@@ -2,7 +2,10 @@ import type { VueTranslations } from './types.js'
 
 /** Vue translations for Hebrew. */
 export const he: VueTranslations = {
-  'vue.error.useRouterOutsideProvider': 'יש להשתמש ב-useRouterInstance בתוך RouterProvider',
+  'vue.error.useRouterOutsideProvider':
+    'אין כאן נתב. עטפו את האפליקציה ב `MoleculeRouterProvider` מקשר הניתוב (`@molecule/app-routing-vue-router`), או העבירו `router` ל `moleculePlugin`.',
+  'vue.error.noRoutedView':
+    'לקשר הניתוב הזה אין תצוגה מנותבת לעיבוד כאן: העבירו את הדף כצאצאים במקום זאת.',
   'vue.error.useStoreOutsideProvider': 'יש להשתמש ב-useStateProvider בתוך StateProvider',
   'vue.error.useThemeOutsideProvider': 'יש להשתמש ב-useThemeProvider בתוך ThemeProvider',
   'vue.error.useAuthOutsideProvider': 'יש להשתמש ב-useAuthClient בתוך AuthProvider',

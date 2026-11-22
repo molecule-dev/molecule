@@ -11,7 +11,10 @@ export const en: ReactTranslations = {
   'react.error.useLoggerOutsideProvider': 'useLoggerProvider must be used within a LoggerProvider',
   'react.error.usePreviewOutsideProvider':
     'usePreviewProvider must be used within a PreviewProvider',
-  'react.error.useRouterOutsideProvider': 'useRouterInstance must be used within a RouterProvider',
+  'react.error.useRouterOutsideProvider':
+    "No router here. Mount a router component from the app's routing bond (`BrowserRouter` from `@molecule/app-routing-react-router`), or pass `router` to `MoleculeProvider`.",
+  'react.error.noRoutedView':
+    'This routing bond has no routed view to render here: pass the page as children instead.',
   'react.error.useStoreOutsideProvider': 'useStateProvider must be used within a StateProvider',
   'react.error.useStorageOutsideProvider':
     'useStorageProvider must be used within a StorageProvider',

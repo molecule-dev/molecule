@@ -35,7 +35,9 @@ export const sw: SolidTranslations = {
     'useLoggerProvider lazima itumike ndani ya LoggerProvider',
   'solid.error.oauthFailed': 'Kuingia kwa OAuth kumeshindwa',
   'solid.error.useRouterOutsideProvider':
-    'useRouterInstance lazima itumike ndani ya RouterProvider',
+    'Hakuna kipanga njia hapa. Tumia `MoleculeRouterProvider` kutoka kwa kifungo cha uelekezaji (`@molecule/app-routing-solid-router`) kama `root` ya kipanga njia, au pitisha `router` hadi `MoleculeProvider`.',
+  'solid.error.noRoutedView':
+    'Hakuna mwonekano uliopangwa hapa. Kipanga Njia Kigumu huipa sehemu ya njia njia yake iliyopangwa kama `props.children`: tumia hii kama `component` ya njia, au pitisha ukurasa kama watoto.',
   'solid.error.useStoreOutsideProvider': 'useStateProvider lazima itumike ndani ya StateProvider',
   'solid.error.useStorageOutsideProvider':
     'useStorageProvider lazima itumike ndani ya StorageProvider',

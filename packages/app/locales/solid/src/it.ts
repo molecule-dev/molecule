@@ -39,7 +39,9 @@ export const it: Partial<SolidTranslations> = {
     "useLoggerProvider deve essere utilizzato all'interno di un LoggerProvider",
   'solid.error.oauthFailed': 'Accesso OAuth non riuscito',
   'solid.error.useRouterOutsideProvider':
-    "useRouterInstance deve essere utilizzato all'interno di un RouterProvider",
+    'Nessun router qui. Usa `MoleculeRouterProvider` dal binding di routing (`@molecule/app-routing-solid-router`) come `root` del router, oppure passa `router` a `MoleculeProvider`.',
+  'solid.error.noRoutedView':
+    'Nessuna vista instradata qui. Solid Router assegna al componente di una rotta la sua rotta nidificata come `props.children`: usa questo come `component` di una rotta, oppure passa la pagina come figli.',
   'solid.error.useStoreOutsideProvider':
     "useStateProvider deve essere utilizzato all'interno di uno StateProvider",
   'solid.error.useStorageOutsideProvider':

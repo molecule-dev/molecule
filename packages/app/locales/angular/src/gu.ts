@@ -18,7 +18,9 @@ export const gu: AngularTranslations = {
   'angular.error.usePreviewOutsideProvider':
     'usePreviewProvider એ PreviewProvider ની અંદર વાપરવું આવશ્યક છે',
   'angular.error.useRouterOutsideProvider':
-    'useRouterInstance એ RouterProvider ની અંદર વાપરવું આવશ્યક છે',
+    'અહીં કોઈ રાઉટર નથી. રૂટીંગ બોન્ડ (`@molecule/app-routing-angular-router`) માંથી એપના પ્રોવાઇડર્સમાં Angular ના `provideRouter(routes)` પછી `provideMoleculeRouter()` ઉમેરો, અથવા `router` ને `provideMolecule` માં પાસ કરો.',
+  'angular.error.noRoutedView':
+    'આ રૂટીંગ બોન્ડમાં અહીં રેન્ડર કરવા માટે કોઈ રૂટેડ વ્યૂ નથી: તેના બદલે પેજને ચિલ્ડ્રન તરીકે પાસ કરો.',
   'angular.error.useStorageOutsideProvider':
     'useStorageProvider એ StorageProvider ની અંદર વાપરવું આવશ્યક છે',
   'angular.error.useThemeOutsideProvider':

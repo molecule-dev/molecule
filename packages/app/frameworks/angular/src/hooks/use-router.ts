@@ -17,6 +17,7 @@ import {
   untracked,
 } from '@angular/core'
 
+import { I18nError } from '@molecule/app-i18n'
 import type {
   ListRouteChange,
   ListRouteOptions,
@@ -33,7 +34,6 @@ import {
   resolveListRoute,
 } from '@molecule/app-routing'
 
-import { injectProvider } from '../inject.js'
 import { type MaybeSignal, readMaybeSignal } from '../maybe-signal.js'
 import { ROUTER } from '../tokens.js'
 
@@ -42,10 +42,20 @@ import { ROUTER } from '../tokens.js'
  * Call it in an injection context.
  *
  * @returns The router instance.
- * @throws {Error} When no router is registered.
+ * @throws {I18nError} When no router is registered: add the routing bond's
+ * `provideMoleculeRouter()` (`@molecule/app-routing-angular-router`) to the app's providers,
+ * after Angular's `provideRouter(routes)`, or pass `router` to `provideMolecule`.
  */
 export function useRouterInstance(): Router {
-  return injectProvider(ROUTER, 'useRouterOutsideProvider')
+  const router = inject(ROUTER, { optional: true })
+  if (!router) {
+    throw new I18nError(
+      'angular.error.useRouterOutsideProvider',
+      undefined,
+      "No router here. Add `provideMoleculeRouter()` from the routing bond (`@molecule/app-routing-angular-router`) to the app's providers, after Angular's `provideRouter(routes)`, or pass `router` to `provideMolecule`.",
+    )
+  }
+  return router
 }
 
 /** One subscription over the router, shared by every field of one hook call. */

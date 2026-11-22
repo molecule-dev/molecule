@@ -20,7 +20,9 @@ export const fr: AngularTranslations = {
   'angular.error.usePreviewOutsideProvider':
     "La méthode usePreviewProvider doit être utilisée à l'intérieur d'un PreviewProvider.",
   'angular.error.useRouterOutsideProvider':
-    "La méthode useRouterInstance doit être utilisée au sein d'un RouterProvider.",
+    "Aucun routeur ici. Ajoutez `provideMoleculeRouter()` depuis le lien de routage (`@molecule/app-routing-angular-router`) aux fournisseurs de l'application, après `provideRouter(routes)` d'Angular, ou passez `router` à `provideMolecule`.",
+  'angular.error.noRoutedView':
+    "Ce lien de routage n'a aucune vue routée à afficher ici : transmettez plutôt la page en tant qu'enfants.",
   'angular.error.useStorageOutsideProvider':
     "La méthode useStorageProvider doit être utilisée à l'intérieur d'un StorageProvider.",
   'angular.error.useThemeOutsideProvider':

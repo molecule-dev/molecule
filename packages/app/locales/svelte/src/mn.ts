@@ -9,7 +9,7 @@ export const mn: SvelteTranslations = {
   'svelte.error.noThemeProvider':
     '\u0417\u0430\u0433\u0432\u0430\u0440\u044b\u043d \u043d\u0438\u0439\u043b\u04af\u04af\u043b\u044d\u0433\u0447 \u043a\u043e\u043d\u0442\u0435\u043a\u0441\u0442\u044d\u0434 \u043e\u043b\u0434\u0441\u043e\u043d\u0433\u04af\u0439',
   'svelte.error.noRouter':
-    '\u0420\u043e\u0443\u0442\u0435\u0440 \u043a\u043e\u043d\u0442\u0435\u043a\u0441\u0442\u044d\u0434 \u043e\u043b\u0434\u0441\u043e\u043d\u0433\u04af\u0439',
+    'Энд чиглүүлэгч байхгүй байна. `+layout.svelte` үндсэн фолдерт байгаа чиглүүлэлтийн холбоосоос (`@molecule/app-routing-sveltekit`) `MoleculeRouterProvider` холбоно уу, эсвэл тэнд `setMoleculeContext({ router })` гэж дуудна уу.',
   'svelte.error.noI18nProvider':
     'I18n \u043d\u0438\u0439\u043b\u04af\u04af\u043b\u044d\u0433\u0447 \u043a\u043e\u043d\u0442\u0435\u043a\u0441\u0442\u044d\u0434 \u043e\u043b\u0434\u0441\u043e\u043d\u0433\u04af\u0439',
   'svelte.error.noHttpClient':
@@ -32,7 +32,9 @@ export const mn: SvelteTranslations = {
   'svelte.error.useThemeOutsideProvider':
     'useThemeProvider нь ThemeProvider дотор ашиглагдах ёстой',
   'svelte.error.useRouterOutsideProvider':
-    'useRouterInstance нь RouterProvider дотор ашиглагдах ёстой',
+    'Энд чиглүүлэгч байхгүй байна. `+layout.svelte` үндсэн фолдерт байгаа чиглүүлэлтийн холбоосоос (`@molecule/app-routing-sveltekit`) `MoleculeRouterProvider` холбоно уу, эсвэл тэнд `setMoleculeContext({ router })` гэж дуудна уу.',
+  'svelte.error.noRoutedView':
+    'Энд чиглүүлсэн харагдац байхгүй байна. SvelteKit нь хуудсаа `children` гэж байрлуулдаг: энэ компонентын дотор `{@render children()}` дамжуулдаг.',
   'svelte.error.useHttpOutsideProvider': 'useHttpClient нь HttpProvider дотор ашиглагдах ёстой',
   'svelte.error.useStorageOutsideProvider':
     'useStorageProvider нь StorageProvider дотор ашиглагдах ёстой',

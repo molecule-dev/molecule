@@ -1257,6 +1257,12 @@ it.each([['a'], ['b']])('selects %s', () => {})
         },
         [`${fw}/react/src/__tests__/hooks.test.tsx`]: `it('reads the user', () => {})\n`,
         [`${fw}/react/src/render/__tests__/useCommittedRef.test.tsx`]: `it('commits the ref', () => {})\n`,
+        // Every other React-only file the gate exempts, so the fixture holds what each entry names.
+        ...Object.fromEntries(
+          Object.keys(TITLE_PARITY_EXEMPT[BINDING_REFERENCE])
+            .filter((path) => !path.endsWith('/'))
+            .map((path) => [`${fw}/react/${path}`, `it('is React-only', () => {})\n`]),
+        ),
         [`${fw}/react-native/package.json`]: {
           name: '@molecule/app-react-native',
           peerDependencies: { react: '^19.0.0', 'react-native': '^0.80.0' },

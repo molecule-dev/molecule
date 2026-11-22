@@ -9,7 +9,7 @@ export const kn: SvelteTranslations = {
   'svelte.error.noThemeProvider':
     '\u0ca5\u0cc0\u0cae\u0ccd \u0caa\u0ccd\u0cb0\u0cca\u0cb5\u0cc8\u0ca1\u0cb0\u0ccd \u0cb8\u0c82\u0ca6\u0cb0\u0ccd\u0cad\u0ca6\u0cb2\u0ccd\u0cb2\u0cbf \u0c95\u0c82\u0ca1\u0cc1\u0cac\u0c82\u0ca6\u0cbf\u0cb2\u0ccd\u0cb2',
   'svelte.error.noRouter':
-    '\u0cb0\u0ccc\u0c9f\u0cb0\u0ccd \u0cb8\u0c82\u0ca6\u0cb0\u0ccd\u0cad\u0ca6\u0cb2\u0ccd\u0cb2\u0cbf \u0c95\u0c82\u0ca1\u0cc1\u0cac\u0c82\u0ca6\u0cbf\u0cb2\u0ccd\u0cb2',
+    'ಇಲ್ಲಿ ರೂಟರ್ ಇಲ್ಲ. `+layout.svelte` ರೂಟ್‌ನಲ್ಲಿರುವ ರೂಟಿಂಗ್ ಬಾಂಡ್ (`@molecule/app-routing-sveltekit`) ನಿಂದ `MoleculeRouterProvider` ಮೌಂಟ್ ಮಾಡಿ, ಅಥವಾ ಅಲ್ಲಿ `setMoleculeContext({ router })` ಗೆ ಕರೆ ಮಾಡಿ.',
   'svelte.error.noI18nProvider':
     'I18n \u0caa\u0ccd\u0cb0\u0cca\u0cb5\u0cc8\u0ca1\u0cb0\u0ccd \u0cb8\u0c82\u0ca6\u0cb0\u0ccd\u0cad\u0ca6\u0cb2\u0ccd\u0cb2\u0cbf \u0c95\u0c82\u0ca1\u0cc1\u0cac\u0c82\u0ca6\u0cbf\u0cb2\u0ccd\u0cb2',
   'svelte.error.noHttpClient':
@@ -30,7 +30,10 @@ export const kn: SvelteTranslations = {
     'usePreviewProvider ಅನ್ನು PreviewProvider ನ ಒಳಗೆ ಬಳಸಬೇಕು.',
   'svelte.error.useAuthOutsideProvider': 'useAuthClient ಅನ್ನು AuthProvider ನಲ್ಲಿಯೇ ಬಳಸಬೇಕು.',
   'svelte.error.useThemeOutsideProvider': 'useThemeProvider ಅನ್ನು ThemeProvider ನ ಒಳಗೆ ಬಳಸಬೇಕು.',
-  'svelte.error.useRouterOutsideProvider': 'useRouterInstance ಅನ್ನು RouterProvider ನಲ್ಲಿಯೇ ಬಳಸಬೇಕು',
+  'svelte.error.useRouterOutsideProvider':
+    'ಇಲ್ಲಿ ರೂಟರ್ ಇಲ್ಲ. `+layout.svelte` ರೂಟ್‌ನಲ್ಲಿರುವ ರೂಟಿಂಗ್ ಬಾಂಡ್ (`@molecule/app-routing-sveltekit`) ನಿಂದ `MoleculeRouterProvider` ಮೌಂಟ್ ಮಾಡಿ, ಅಥವಾ ಅಲ್ಲಿ `setMoleculeContext({ router })` ಗೆ ಕರೆ ಮಾಡಿ.',
+  'svelte.error.noRoutedView':
+    'ಇಲ್ಲಿ ರೂಟೆಡ್ ವೀಕ್ಷಣೆ ಇಲ್ಲ. ಸ್ವೆಲ್ಟೆಕಿಟ್ ತನ್ನ ಪುಟಕ್ಕೆ `children` ಎಂದು ಲೇಔಟ್ ನೀಡುತ್ತದೆ: ಈ ಘಟಕದೊಳಗೆ `{@render children()}` ಪಾಸ್ ಮಾಡಿ.',
   'svelte.error.useHttpOutsideProvider': 'useHttpClient ಅನ್ನು HttpProvider ನಲ್ಲಿಯೇ ಬಳಸಬೇಕು.',
   'svelte.error.useStorageOutsideProvider':
     'useStorageProvider ಅನ್ನು StorageProvider ನ ಒಳಗೆ ಬಳಸಬೇಕು.',

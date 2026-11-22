@@ -15,7 +15,9 @@ export const ca: Partial<ReactTranslations> = {
   'react.error.usePreviewOutsideProvider':
     "usePreviewProvider s'ha d'utilitzar dins d'un PreviewProvider.",
   'react.error.useRouterOutsideProvider':
-    "useRouterInstance s'ha d'utilitzar dins d'un RouterProvider.",
+    "Aquí no hi ha cap encaminador. Munta un component d'encaminador des de l'enllaç d'encaminament de l'aplicació (`BrowserRouter` de `@molecule/app-routing-react-router`), o passa `router` a `MoleculeProvider`.",
+  'react.error.noRoutedView':
+    "Aquest enllaç d'encaminament no té cap vista encaminada per renderitzar aquí: passa la pàgina com a filla.",
   'react.error.useStoreOutsideProvider':
     "useStateProvider s'ha d'utilitzar dins d'un StateProvider.",
   'react.error.useStorageOutsideProvider':

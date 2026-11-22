@@ -10,7 +10,10 @@ export const cy: ReactTranslations = {
   'react.error.useLoggerOutsideProvider': 'Rhaid defnyddio useLoggerProvider o fewn LoggerProvider',
   'react.error.usePreviewOutsideProvider':
     'Rhaid defnyddio usePreviewProvider o fewn PreviewProvider',
-  'react.error.useRouterOutsideProvider': 'Rhaid defnyddio useRouterInstance o fewn RouterProvider',
+  'react.error.useRouterOutsideProvider':
+    "Dim llwybrydd yma. Mowntiwch gydran llwybrydd o fond llwybro'r ap (`BrowserRouter` o `@molecule/app-routing-react-router`), neu pasiwch `router` i `MoleculeProvider`.",
+  'react.error.noRoutedView':
+    "Nid oes gan y bond llwybro hwn olygfa llwybro i'w rendro yma: pasiwch y dudalen fel plant yn lle hynny.",
   'react.error.useStoreOutsideProvider': 'Rhaid defnyddio useStateProvider o fewn StateProvider',
   'react.error.useStorageOutsideProvider':
     'Rhaid defnyddio useStorageProvider o fewn StorageProvider',

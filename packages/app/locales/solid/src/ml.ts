@@ -34,7 +34,9 @@ export const ml: SolidTranslations = {
     'useLoggerProvider ഒരു LoggerProvider-നുള്ളിൽ തന്നെ ഉപയോഗിക്കണം.',
   'solid.error.oauthFailed': 'OAuth ലോഗിൻ പരാജയപ്പെട്ടു',
   'solid.error.useRouterOutsideProvider':
-    'useRouterInstance ഒരു RouterProvider-ൽ തന്നെ ഉപയോഗിക്കണം.',
+    'ഇവിടെ റൂട്ടർ ഇല്ല. റൂട്ടിംഗ് ബോണ്ടിൽ നിന്ന് (`@molecule/app-routing-solid-router`) `MoleculeRouterProvider` റൂട്ടറിന്റെ `root` ആയി ഉപയോഗിക്കുക, അല്ലെങ്കിൽ `router` `MoleculeProvider` ലേക്ക് കൈമാറുക.',
+  'solid.error.noRoutedView':
+    'ഇവിടെ റൂട്ട് ചെയ്ത കാഴ്ചയില്ല. സോളിഡ് റൂട്ടർ ഒരു റൂട്ടിന്റെ ഘടകത്തിന് അതിന്റെ നെസ്റ്റഡ് റൂട്ട് `props.children` ആയി നൽകുന്നു: ഇത് ഒരു റൂട്ടിന്റെ `component` ആയി ഉപയോഗിക്കുക, അല്ലെങ്കിൽ പേജ് ചിൽഡ്രൻ ആയി നൽകുക.',
   'solid.error.useStoreOutsideProvider':
     'useStateProvider ഒരു StateProvider-നുള്ളിൽ തന്നെ ഉപയോഗിക്കണം.',
   'solid.error.useStorageOutsideProvider':

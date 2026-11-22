@@ -17,7 +17,9 @@ export const cs: AngularTranslations = {
   'angular.error.usePreviewOutsideProvider':
     'usePreviewProvider musí být použit uvnitř PreviewProvider',
   'angular.error.useRouterOutsideProvider':
-    'useRouterInstance musí být použit uvnitř RouterProvider',
+    'Zde není žádný router. Přidejte `provideMoleculeRouter()` z routing bond (`@molecule/app-routing-angular-router`) k providerům aplikace za `provideRouter(routes)` v Angularu nebo předejte `router` do `provideMolecule`.',
+  'angular.error.noRoutedView':
+    'Tato směrovací vazba nemá žádný směrovaný pohled k vykreslení: místo toho předejte stránku jako podřízené objekty.',
   'angular.error.useStorageOutsideProvider':
     'useStorageProvider musí být použit uvnitř StorageProvider',
   'angular.error.useThemeOutsideProvider': 'useThemeProvider musí být použit uvnitř ThemeProvider',

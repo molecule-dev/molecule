@@ -4,7 +4,9 @@ import type { VueTranslations } from './types.js'
 export const ig: Partial<VueTranslations> = {
   'vue.error.unsupportedMethod': 'Usoro a na-akwado\\u0300 ya: {{method}}',
   'vue.error.useRouterOutsideProvider':
-    "A ga-eji useRouterInstance mee ihe n'ime onye na-enye Router",
+    'Enweghị rawụta ebe a. Kechie ngwa ahụ na `MoleculeRouterProvider` site na njikọ routing (`@molecule/app-routing-vue-router`), ma ọ bụ nyefee `router` gaa na `moleculePlugin`.',
+  'vue.error.noRoutedView':
+    'Njikọ nhazi a enweghị echiche ngagharị iji gosi ebe a: gafere peeji ahụ dịka ụmụaka kama.',
   'vue.error.useStoreOutsideProvider': "A ga-eji useStateProvider n'ime Onye Na-enye Steeti",
   'vue.error.useThemeOutsideProvider': "A ga-eji useThemeProvider n'ime ThemeProvider",
   'vue.error.useAuthOutsideProvider': "A ga-eji useAuthClient mee ihe n'ime Onye Na-enye ikike",

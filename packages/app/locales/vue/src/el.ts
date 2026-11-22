@@ -3,7 +3,9 @@ import type { VueTranslations } from './types.js'
 /** Vue translations for Greek. */
 export const el: VueTranslations = {
   'vue.error.useRouterOutsideProvider':
-    'Το useRouterInstance πρέπει να χρησιμοποιείται εντός ενός RouterProvider',
+    'Δεν υπάρχει δρομολογητής εδώ. Τυλίξτε την εφαρμογή στο `MoleculeRouterProvider` από το routing bond (`@molecule/app-routing-vue-router`) ή περάστε `router` στο `moleculePlugin`.',
+  'vue.error.noRoutedView':
+    'Αυτός ο δεσμός δρομολόγησης δεν έχει δρομολογημένη προβολή για απόδοση εδώ: μεταβιβάστε τη σελίδα ως θυγατρικές σελίδες.',
   'vue.error.useStoreOutsideProvider':
     'Το useStateProvider πρέπει να χρησιμοποιείται εντός ενός StateProvider',
   'vue.error.useThemeOutsideProvider':

@@ -2,7 +2,10 @@ import type { VueTranslations } from './types.js'
 
 /** Vue translations for Finnish. */
 export const fi: VueTranslations = {
-  'vue.error.useRouterOutsideProvider': 'useRouterInstance tulee käyttää RouterProvider sisällä',
+  'vue.error.useRouterOutsideProvider':
+    'Ei reititintä. Kääri sovellus `MoleculeRouterProvider` -elementtiin reitityslinkin (`@molecule/app-routing-vue-router`) kautta tai välitä `router` `moleculePlugin` elementille.',
+  'vue.error.noRoutedView':
+    'Tällä reitityslinkillä ei ole reititettyä näkymää, jota voisi renderöidä tässä: välitä sivu sen sijaan alisivuina.',
   'vue.error.useStoreOutsideProvider': 'useStateProvider tulee käyttää StateProvider sisällä',
   'vue.error.useThemeOutsideProvider': 'useThemeProvider tulee käyttää ThemeProvider sisällä',
   'vue.error.useAuthOutsideProvider': 'useAuthClient tulee käyttää AuthProvider sisällä',

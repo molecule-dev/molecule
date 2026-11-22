@@ -35,7 +35,9 @@ export const ka: SolidTranslations = {
     'LoggerProvider-ში უნდა იქნას გამოყენებული useLoggerProvider',
   'solid.error.oauthFailed': 'OAuth-ში შესვლა ვერ მოხერხდა',
   'solid.error.useRouterOutsideProvider':
-    'useRouterInstance უნდა იქნას გამოყენებული RouterProvider-ში.',
+    'აქ როუტერი არ არის. გამოიყენეთ `MoleculeRouterProvider` მარშრუტიზაციის კავშირიდან (`@molecule/app-routing-solid-router`), როგორც როუტერის `root`, ან გადაეცით `router` `MoleculeProvider` ს.',
+  'solid.error.noRoutedView':
+    'აქ მარშრუტიზებული ხედი არ არის. Solid Router მარშრუტის კომპონენტს ანიჭებს ჩადგმულ მარშრუტს, როგორც `props.children`: გამოიყენეთ ეს, როგორც მარშრუტის `component`, ან გადაეცით გვერდი, როგორც შვილობილი.',
   'solid.error.useStoreOutsideProvider':
     'useStateProvider უნდა იქნას გამოყენებული StateProvider-ში',
   'solid.error.useStorageOutsideProvider':

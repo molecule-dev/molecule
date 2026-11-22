@@ -9,7 +9,7 @@ export const mk: SvelteTranslations = {
   'svelte.error.noThemeProvider':
     '\u041f\u0440\u043e\u0432\u0430\u0458\u0434\u0435\u0440\u043e\u0442 \u043d\u0430 \u0442\u0435\u043c\u0430\u0442\u0430 \u043d\u0435 \u0435 \u043d\u0430\u0458\u0434\u0435\u043d \u0432\u043e \u043a\u043e\u043d\u0442\u0435\u043a\u0441\u0442\u043e\u0442',
   'svelte.error.noRouter':
-    '\u0420\u0443\u0442\u0435\u0440\u043e\u0442 \u043d\u0435 \u0435 \u043d\u0430\u0458\u0434\u0435\u043d \u0432\u043e \u043a\u043e\u043d\u0442\u0435\u043a\u0441\u0442\u043e\u0442',
+    'Нема рутер овде. Монтирајте го `MoleculeRouterProvider` од врската за рутирање (`@molecule/app-routing-sveltekit`) во коренот `+layout.svelte` или повикајте го `setMoleculeContext({ router })` таму.',
   'svelte.error.noI18nProvider':
     'I18n \u043f\u0440\u043e\u0432\u0430\u0458\u0434\u0435\u0440\u043e\u0442 \u043d\u0435 \u0435 \u043d\u0430\u0458\u0434\u0435\u043d \u0432\u043e \u043a\u043e\u043d\u0442\u0435\u043a\u0441\u0442\u043e\u0442',
   'svelte.error.noHttpClient':
@@ -34,7 +34,9 @@ export const mk: SvelteTranslations = {
   'svelte.error.useThemeOutsideProvider':
     'useThemeProvider мора да се користи во рамките на ThemeProvider',
   'svelte.error.useRouterOutsideProvider':
-    'useRouterInstance мора да се користи во рамките на RouterProvider',
+    'Нема рутер овде. Монтирајте го `MoleculeRouterProvider` од врската за рутирање (`@molecule/app-routing-sveltekit`) во коренот `+layout.svelte` или повикајте го `setMoleculeContext({ router })` таму.',
+  'svelte.error.noRoutedView':
+    'Нема рутиран приказ овде. SvelteKit му дава на распоредот на страницата како `children`: пренесе `{@render children()}` во оваа компонента.',
   'svelte.error.useHttpOutsideProvider':
     'useHttpClient мора да се користи во рамките на HttpProvider',
   'svelte.error.useStorageOutsideProvider':

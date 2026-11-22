@@ -18,7 +18,9 @@ export const it: Partial<ReactTranslations> = {
   'react.error.usePreviewOutsideProvider':
     "usePreviewProvider deve essere utilizzato all'interno di un PreviewProvider",
   'react.error.useRouterOutsideProvider':
-    "useRouterInstance deve essere utilizzato all'interno di un RouterProvider",
+    "Nessun router qui. Monta un componente router dal binding di routing dell'app (`BrowserRouter` da `@molecule/app-routing-react-router`), oppure passa `router` a `MoleculeProvider`.",
+  'react.error.noRoutedView':
+    'Questo collegamento di routing non ha una vista instradata da visualizzare qui: passa invece la pagina come elemento figlio.',
   'react.error.useStoreOutsideProvider':
     "useStateProvider deve essere utilizzato all'interno di uno StateProvider",
   'react.error.useStorageOutsideProvider':

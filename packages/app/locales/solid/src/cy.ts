@@ -31,7 +31,10 @@ export const cy: Partial<SolidTranslations> = {
   'solid.error.unsupportedMethod': 'Dull heb ei gefnogi: {{method}}',
   'solid.error.useLoggerOutsideProvider': 'Rhaid defnyddio useLoggerProvider o fewn LoggerProvider',
   'solid.error.oauthFailed': 'Methodd mewngofnodi OAuth',
-  'solid.error.useRouterOutsideProvider': 'Rhaid defnyddio useRouterInstance o fewn RouterProvider',
+  'solid.error.useRouterOutsideProvider':
+    "Dim llwybrydd yma. Defnyddiwch `MoleculeRouterProvider` o'r bond llwybro (`@molecule/app-routing-solid-router`) fel `root` y llwybrydd , neu pasiwch `router` i `MoleculeProvider`.",
+  'solid.error.noRoutedView':
+    'Dim golygfa llwybro yma. Mae Solid Router yn rhoi llwybr nythu i gydran llwybr fel `props.children`: defnyddiwch hwn fel `component` llwybr, neu pasiwch y dudalen fel plant.',
   'solid.error.useStoreOutsideProvider': 'Rhaid defnyddio useStateProvider o fewn StateProvider',
   'solid.error.useStorageOutsideProvider':
     'Rhaid defnyddio useStorageProvider o fewn StorageProvider',

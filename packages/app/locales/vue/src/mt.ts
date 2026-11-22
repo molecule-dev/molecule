@@ -2,7 +2,10 @@ import type { VueTranslations } from './types.js'
 
 /** Vue translations for Maltese. */
 export const mt: VueTranslations = {
-  'vue.error.useRouterOutsideProvider': 'useRouterInstance irid jintuza gewwa RouterProvider',
+  'vue.error.useRouterOutsideProvider':
+    "M'hemm l-ebda router hawn. Daħħal l-app `MoleculeRouterProvider` mir-rottazzjoni (`@molecule/app-routing-vue-router`), jew għaddi `router` lil `moleculePlugin`.",
+  'vue.error.noRoutedView':
+    "Din il-konnessjoni tar-rotta m'għandhiex veduta rottata biex tirrendi hawn: għaddi l-paġna bħala tfal minflok.",
   'vue.error.useStoreOutsideProvider': 'useStateProvider irid jintuza gewwa StateProvider',
   'vue.error.useThemeOutsideProvider': 'useThemeProvider irid jintuza gewwa ThemeProvider',
   'vue.error.useAuthOutsideProvider': 'useAuthClient irid jintuza gewwa AuthProvider',

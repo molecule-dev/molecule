@@ -14,7 +14,9 @@ export const sk: ReactTranslations = {
   'react.error.usePreviewOutsideProvider':
     'usePreviewProvider musí byť použitý vnútri PreviewProvider',
   'react.error.useRouterOutsideProvider':
-    'useRouterInstance musí byť použitý vnútri RouterProvider',
+    'Žiadny smerovač tu nie je. Pripojte komponent smerovača z smerovacej väzby aplikácie (`BrowserRouter` z `@molecule/app-routing-react-router`) alebo odovzdajte `router` do `MoleculeProvider`.',
+  'react.error.noRoutedView':
+    'Táto smerovacia väzba nemá žiadny smerovaný pohľad na vykreslenie: namiesto toho odovzdajte stránku ako deti.',
   'react.error.useStoreOutsideProvider': 'useStateProvider musí byť použitý vnútri StateProvider',
   'react.error.useStorageOutsideProvider':
     'useStorageProvider musí byť použitý vnútri StorageProvider',

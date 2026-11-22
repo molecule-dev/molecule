@@ -4,7 +4,9 @@ import type { VueTranslations } from './types.js'
 export const it: Partial<VueTranslations> = {
   'vue.error.unsupportedMethod': 'Metodo non supportato: {{method}}',
   'vue.error.useRouterOutsideProvider':
-    "useRouterInstance deve essere utilizzato all'interno di un RouterProvider",
+    "Nessun router qui. Avvolgi l'app in `MoleculeRouterProvider` dal binding di routing (`@molecule/app-routing-vue-router`), oppure passa `router` a `moleculePlugin`.",
+  'vue.error.noRoutedView':
+    'Questo collegamento di routing non ha una vista instradata da visualizzare qui: passa invece la pagina come elemento figlio.',
   'vue.error.useStoreOutsideProvider':
     "useStateProvider deve essere utilizzato all'interno di uno StateProvider",
   'vue.error.useThemeOutsideProvider':

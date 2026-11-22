@@ -5,7 +5,8 @@ export const id: SvelteTranslations = {
   'svelte.error.noStateProvider': 'Penyedia state tidak ditemukan dalam konteks',
   'svelte.error.noAuthClient': 'Klien auth tidak ditemukan dalam konteks',
   'svelte.error.noThemeProvider': 'Penyedia tema tidak ditemukan dalam konteks',
-  'svelte.error.noRouter': 'Router tidak ditemukan dalam konteks',
+  'svelte.error.noRouter':
+    'Tidak ada router di sini. Pasang `MoleculeRouterProvider` dari routing bond (`@molecule/app-routing-sveltekit`) di root `+layout.svelte`, atau panggil `setMoleculeContext({ router })` di sana.',
   'svelte.error.noI18nProvider': 'Penyedia i18n tidak ditemukan dalam konteks',
   'svelte.error.noHttpClient': 'Klien HTTP tidak ditemukan dalam konteks',
   'svelte.error.noStorageProvider': 'Penyedia penyimpanan tidak ditemukan dalam konteks',
@@ -23,7 +24,9 @@ export const id: SvelteTranslations = {
   'svelte.error.useThemeOutsideProvider':
     'useThemeProvider harus digunakan di dalam ThemeProvider.',
   'svelte.error.useRouterOutsideProvider':
-    'useRouterInstance harus digunakan di dalam RouterProvider.',
+    'Tidak ada router di sini. Pasang `MoleculeRouterProvider` dari routing bond (`@molecule/app-routing-sveltekit`) di root `+layout.svelte`, atau panggil `setMoleculeContext({ router })` di sana.',
+  'svelte.error.noRoutedView':
+    'Tidak ada tampilan yang dirutekan di sini. SvelteKit memberikan tata letak halamannya sebagai `children`: berikan `{@render children()}` di dalam komponen ini.',
   'svelte.error.useHttpOutsideProvider': 'useHttpClient harus digunakan di dalam HttpProvider.',
   'svelte.error.useStorageOutsideProvider':
     'useStorageProvider harus digunakan di dalam StorageProvider.',

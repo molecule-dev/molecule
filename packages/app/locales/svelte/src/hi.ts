@@ -5,7 +5,8 @@ export const hi: SvelteTranslations = {
   'svelte.error.noStateProvider': 'स्टेट प्रोवाइडर कॉन्टेक्स्ट में नहीं मिला',
   'svelte.error.noAuthClient': 'ऑथ क्लाइंट कॉन्टेक्स्ट में नहीं मिला',
   'svelte.error.noThemeProvider': 'थीम प्रोवाइडर कॉन्टेक्स्ट में नहीं मिला',
-  'svelte.error.noRouter': 'राउटर कॉन्टेक्स्ट में नहीं मिला',
+  'svelte.error.noRouter':
+    'यहां कोई राउटर नहीं है। रूट `+layout.svelte` में राउटिंग बॉन्ड (`@molecule/app-routing-sveltekit`) से `MoleculeRouterProvider` माउंट करें, या वहां `setMoleculeContext({ router })` कॉल करें।',
   'svelte.error.noI18nProvider': 'I18n प्रोवाइडर कॉन्टेक्स्ट में नहीं मिला',
   'svelte.error.noHttpClient': 'HTTP क्लाइंट कॉन्टेक्स्ट में नहीं मिला',
   'svelte.error.noStorageProvider': 'स्टोरेज प्रोवाइडर कॉन्टेक्स्ट में नहीं मिला',
@@ -25,7 +26,9 @@ export const hi: SvelteTranslations = {
   'svelte.error.useThemeOutsideProvider':
     'useThemeProvider का उपयोग ThemeProvider के भीतर ही किया जाना चाहिए।',
   'svelte.error.useRouterOutsideProvider':
-    'useRouterInstance का उपयोग RouterProvider के भीतर ही किया जाना चाहिए।',
+    'यहां कोई राउटर नहीं है। रूट `+layout.svelte` में राउटिंग बॉन्ड (`@molecule/app-routing-sveltekit`) से `MoleculeRouterProvider` माउंट करें, या वहां `setMoleculeContext({ router })` कॉल करें।',
+  'svelte.error.noRoutedView':
+    'यहां कोई राउटेड व्यू नहीं है। SvelteKit लेआउट को उसका पेज `children` के रूप में देता है: इस कंपोनेंट के अंदर `{@render children()}` पास करें।',
   'svelte.error.useHttpOutsideProvider':
     'useHttpClient का उपयोग HttpProvider के भीतर ही किया जाना चाहिए।',
   'svelte.error.useStorageOutsideProvider':

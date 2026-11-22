@@ -5,7 +5,8 @@ export const az: SvelteTranslations = {
   'svelte.error.noStateProvider': 'Vəziyyət provayderi kontekstdə tapılmadı',
   'svelte.error.noAuthClient': 'Autentifikasiya klienti kontekstdə tapılmadı',
   'svelte.error.noThemeProvider': 'Tema provayderi kontekstdə tapılmadı',
-  'svelte.error.noRouter': 'Router kontekstdə tapılmadı',
+  'svelte.error.noRouter':
+    'Burada router yoxdur. `+layout.svelte` kökündəki router bağlantısından (`@molecule/app-routing-sveltekit`) `MoleculeRouterProvider` qoşun və ya orada `setMoleculeContext({ router })` çağırın.',
   'svelte.error.noI18nProvider': 'I18n provayderi kontekstdə tapılmadı',
   'svelte.error.noHttpClient': 'HTTP klienti kontekstdə tapılmadı',
   'svelte.error.noStorageProvider': 'Saxlama provayderi kontekstdə tapılmadı',
@@ -25,7 +26,9 @@ export const az: SvelteTranslations = {
   'svelte.error.useThemeOutsideProvider':
     'useThemeProvider, ThemeProvider daxilində istifadə olunmalıdır',
   'svelte.error.useRouterOutsideProvider':
-    'useRouterInstance, RouterProvider daxilində istifadə olunmalıdır',
+    'Burada router yoxdur. `+layout.svelte` kökündəki router bağlantısından (`@molecule/app-routing-sveltekit`) `MoleculeRouterProvider` qoşun və ya orada `setMoleculeContext({ router })` çağırın.',
+  'svelte.error.noRoutedView':
+    'Burada yönləndirilmiş görünüş yoxdur. SvelteKit səhifəsinə `children` kimi bir düzen verir: bu komponentin içinə `{@render children()}` göndərir.',
   'svelte.error.useHttpOutsideProvider':
     'useHttpClient HttpProvider daxilində istifadə olunmalıdır',
   'svelte.error.useStorageOutsideProvider':

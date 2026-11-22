@@ -12,7 +12,10 @@ export const yo: AngularTranslations = {
   'angular.error.useHttpOutsideProvider': 'useHttpClient gbodo lo laarin HttpProvider',
   'angular.error.useLoggerOutsideProvider': 'useLoggerProvider gbodo lo laarin LoggerProvider',
   'angular.error.usePreviewOutsideProvider': 'usePreviewProvider gbodo lo laarin PreviewProvider',
-  'angular.error.useRouterOutsideProvider': 'useRouterInstance gbodo lo laarin RouterProvider',
+  'angular.error.useRouterOutsideProvider':
+    'Kò sí olùdarí níbí. Fi `provideMoleculeRouter()` kún láti inú ìdè ìdarí (`@molecule/app-routing-angular-router`) sí àwọn olùpèsè ìṣàfilọ́lẹ̀ náà, lẹ́yìn `provideRouter(routes)` ti Angular, tàbí kí o fi `router` sí `provideMolecule`.',
+  'angular.error.noRoutedView':
+    'Ìdè ìtọ́sọ́nà yìí kò ní ojú ìwòye ìtọ́sọ́nà láti fi hàn níbí: fi ojú ìwé náà sílẹ̀ gẹ́gẹ́ bí ọmọdé dípò.',
   'angular.error.useStorageOutsideProvider': 'useStorageProvider gbodo lo laarin StorageProvider',
   'angular.error.useThemeOutsideProvider': 'useThemeProvider gbodo lo laarin ThemeProvider',
   'angular.error.useWorkspaceOutsideProvider':

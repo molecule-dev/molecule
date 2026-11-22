@@ -9,7 +9,7 @@ export const ka: SvelteTranslations = {
   'svelte.error.noThemeProvider':
     '\u10d7\u10d4\u10db\u10d8\u10e1 \u10de\u10e0\u10dd\u10d5\u10d0\u10d8\u10d3\u10d4\u10e0\u10d8 \u10d5\u10d4\u10e0 \u10db\u10dd\u10d8\u10eb\u10d4\u10d1\u10dc\u10d0 \u10d9\u10dd\u10dc\u10e2\u10d4\u10e5\u10e1\u10e2\u10e8\u10d8',
   'svelte.error.noRouter':
-    '\u10e0\u10d0\u10e3\u10e2\u10d4\u10e0\u10d8 \u10d5\u10d4\u10e0 \u10db\u10dd\u10d8\u10eb\u10d4\u10d1\u10dc\u10d0 \u10d9\u10dd\u10dc\u10e2\u10d4\u10e5\u10e1\u10e2\u10e8\u10d8',
+    'აქ როუტერი არ არის. დაამონტაჟეთ `MoleculeRouterProvider` root-ში rooting bond-დან (`@molecule/app-routing-sveltekit`) `+layout.svelte`, ან გამოიძახეთ `setMoleculeContext({ router })` იქ.',
   'svelte.error.noI18nProvider':
     'I18n \u10de\u10e0\u10dd\u10d5\u10d0\u10d8\u10d3\u10d4\u10e0\u10d8 \u10d5\u10d4\u10e0 \u10db\u10dd\u10d8\u10eb\u10d4\u10d1\u10dc\u10d0 \u10d9\u10dd\u10dc\u10e2\u10d4\u10e5\u10e1\u10e2\u10e8\u10d8',
   'svelte.error.noHttpClient':
@@ -32,7 +32,9 @@ export const ka: SvelteTranslations = {
   'svelte.error.useThemeOutsideProvider':
     'useThemeProvider უნდა იქნას გამოყენებული ThemeProvider-ში',
   'svelte.error.useRouterOutsideProvider':
-    'useRouterInstance უნდა იქნას გამოყენებული RouterProvider-ში.',
+    'აქ როუტერი არ არის. დაამონტაჟეთ `MoleculeRouterProvider` root-ში rooting bond-დან (`@molecule/app-routing-sveltekit`) `+layout.svelte`, ან გამოიძახეთ `setMoleculeContext({ router })` იქ.',
+  'svelte.error.noRoutedView':
+    'აქ მარშრუტიზებული ხედი არ არის. SvelteKit გვერდს განლაგებას ანიჭებს, როგორც `children`: ამ კომპონენტში გადასცემს `{@render children()}` .',
   'svelte.error.useHttpOutsideProvider': 'useHttpClient უნდა იქნას გამოყენებული HttpProvider-ში',
   'svelte.error.useStorageOutsideProvider':
     'useStorageProvider უნდა იქნას გამოყენებული StorageProvider-ში',

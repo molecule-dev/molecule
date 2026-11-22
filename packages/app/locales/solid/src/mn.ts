@@ -35,7 +35,9 @@ export const mn: SolidTranslations = {
     'useLoggerProvider нь LoggerProvider дотор ашиглагдах ёстой',
   'solid.error.oauthFailed': 'OAuth нэвтрэх ажиллагаа амжилтгүй боллоо',
   'solid.error.useRouterOutsideProvider':
-    'useRouterInstance нь RouterProvider дотор ашиглагдах ёстой',
+    'Энд чиглүүлэгч алга. Чиглүүлэгчийн `root` болгон чиглүүлэлтийн холбоосоос (`@molecule/app-routing-solid-router`) `MoleculeRouterProvider` ашиглах эсвэл `router` `MoleculeProvider` руу дамжуулна уу.',
+  'solid.error.noRoutedView':
+    'Энд чиглүүлсэн харагдац алга байна. Solid Router нь маршрутын бүрэлдэхүүн хэсэгт үүрлэсэн маршрутаа `props.children` хэлбэрээр өгдөг: үүнийг маршрутын `component` хэлбэрээр ашиглах эсвэл хуудсыг хүүхэд хэлбэрээр дамжуулна уу.',
   'solid.error.useStoreOutsideProvider': 'useStateProvider нь StateProvider дотор ашиглагдах ёстой',
   'solid.error.useStorageOutsideProvider':
     'useStorageProvider нь StorageProvider дотор ашиглагдах ёстой',

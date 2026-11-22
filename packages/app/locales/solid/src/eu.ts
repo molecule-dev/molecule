@@ -36,7 +36,9 @@ export const eu: SolidTranslations = {
     'useLoggerProvider LoggerProvider baten barruan erabili behar da',
   'solid.error.oauthFailed': 'OAuth saioa hastea huts egin du',
   'solid.error.useRouterOutsideProvider':
-    'useRouterInstance RouterProvider baten barruan erabili behar da',
+    'Ez dago bideratzailerik hemen. Erabili `MoleculeRouterProvider` bideratze loturatik (`@molecule/app-routing-solid-router`) bideratzailearen `root` gisa, edo pasa `router` `MoleculeProvider`-ri.',
+  'solid.error.noRoutedView':
+    'Ez dago bideratutako ikuspegirik hemen. Solid Router-ek ibilbide baten osagaiari bere ibilbide txertatua ematen dio `props.children` gisa: erabili hau ibilbide baten `component` gisa, edo pasa orrialdea seme-alaba gisa.',
   'solid.error.useStoreOutsideProvider':
     'useStateProvider StateProvider baten barruan erabili behar da',
   'solid.error.useStorageOutsideProvider':

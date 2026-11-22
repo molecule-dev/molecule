@@ -35,7 +35,9 @@ export const ga: SolidTranslations = {
     'Ní mór useLoggerProvider a úsáid laistigh de LoggerProvider',
   'solid.error.oauthFailed': 'Theip ar logáil isteach OAuth',
   'solid.error.useRouterOutsideProvider':
-    'Ní mór useRouterInstance a úsáid laistigh de RouterProvider',
+    'Níl aon ródaire anseo. Bain úsáid as `MoleculeRouterProvider` ón nasc ródaithe (`@molecule/app-routing-solid-router`) mar `root` an ródaire, nó cuir `router` chuig `MoleculeProvider`.',
+  'solid.error.noRoutedView':
+    'Níl aon radharc ródaithe anseo. Tugann Solid Router a bhealach neadaithe do chomhpháirt bealaigh mar `props.children`: bain úsáid as seo mar `component` bealaigh, nó cuir an leathanach ar aghaidh mar leanaí.',
   'solid.error.useStoreOutsideProvider':
     'Ní mór useStateProvider a úsáid laistigh de StateProvider',
   'solid.error.useStorageOutsideProvider':

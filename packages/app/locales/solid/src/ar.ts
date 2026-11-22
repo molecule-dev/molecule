@@ -31,7 +31,10 @@ export const ar: SolidTranslations = {
   'solid.error.unsupportedMethod': 'طريقة غير مدعومة: {{method}}',
   'solid.error.useLoggerOutsideProvider': 'يجب استخدام useLoggerProvider داخل LoggerProvider',
   'solid.error.oauthFailed': 'فشل تسجيل الدخول باستخدام OAuth',
-  'solid.error.useRouterOutsideProvider': 'يجب استخدام useRouterInstance داخل RouterProvider',
+  'solid.error.useRouterOutsideProvider':
+    'لا يوجد موجه هنا. استخدم `MoleculeRouterProvider` من رابط التوجيه (`@molecule/app-routing-solid-router`) كـ `root` للموجه، أو مرر `router` إلى `MoleculeProvider`.',
+  'solid.error.noRoutedView':
+    'لا يوجد عرض مُوجَّه هنا. يُعطي Solid Router مُكوِّن المسار مساره المُتداخل كـ `props.children`: استخدم هذا كـ `component` للمسار، أو مرِّر الصفحة كعناصر فرعية.',
   'solid.error.useStoreOutsideProvider': 'يجب استخدام useStateProvider داخل StateProvider',
   'solid.error.useStorageOutsideProvider': 'يجب استخدام useStorageProvider داخل StorageProvider',
   'solid.error.useThemeOutsideProvider': 'يجب استخدام useThemeProvider داخل ThemeProvider',

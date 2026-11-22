@@ -96,6 +96,12 @@ export interface BindingContext extends CaseContext {
   translations?: Partial<Record<'en' | 'fr' | 'de' | 'ar', Translations>>
   /** Route definitions for the memory router (`{ path: '/items/:id' }`), so `useParams` can match. */
   routes?: RouteDefinition[]
+  /**
+   * The text the routing bond's routed view renders. Set, the case runs under the binding's
+   * `RouterProvider` given the memory router and a routed view that renders this text, as a
+   * routing bond with one (React Router's `Outlet`) provides it; unset, there is no routed view.
+   */
+  routedView?: string
   /** Seeds for the area fakes (`chat`, `native`, …); each `src/bindings/fakes/<area>.ts` adds its key. */
   areas?: AreaSeeds
   /**
@@ -311,6 +317,12 @@ export interface MountOptions {
    * argument list the case mounts with or changes to.
    */
   arity?: number
+  /**
+   * The case's {@link BindingContext.routedView}: mount the export under the binding's
+   * `RouterProvider` (`provideRouter` in Angular) with the case's router and a routed view
+   * that renders this text, inside the composition root.
+   */
+  routedView?: string
 }
 
 /**

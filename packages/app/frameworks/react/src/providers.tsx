@@ -5,9 +5,10 @@
  */
 
 import type { ReactNode } from 'react'
-import React from 'react'
+import React, { useState } from 'react'
 
 import type { AuthClient } from '@molecule/app-auth'
+import { I18nError } from '@molecule/app-i18n'
 import {
   getProvider as getStateProvider,
   hasProvider as hasStateProvider,
@@ -27,6 +28,8 @@ import {
   ThemeContext,
   WorkspaceContext,
 } from './contexts.js'
+import { RouteParamsHookContext } from './route-params-hook-context.js'
+import { RoutedViewContext } from './routed-view-context.js'
 import { SessionReady } from './session-ready.js'
 import type {
   AuthProviderProps,
@@ -110,23 +113,67 @@ export function ThemeProvider({ provider, children }: ThemeProviderProps): React
 }
 
 /**
- * Provider for routing.
+ * Provider for routing. A routing bond renders it for the app (the react-router bond's
+ * `BrowserRouter` does), so app code rarely mounts it by hand.
  *
  * @param props - Component props (see {@link RouterProviderProps}).
  * @returns The rendered router provider element.
  * @example
  * ```tsx
- * import { createReactRouter } from '@molecule/app-routing-react-router'
+ * import { Outlet } from 'react-router'
  *
- * const router = createReactRouter()
- *
- * <RouterProvider router={router}>
- *   <App />
+ * // Inside a routing bond: hand app-react the router and the bond's routed view.
+ * <RouterProvider router={router} routedView={Outlet}>
+ *   {children}
  * </RouterProvider>
  * ```
  */
-export function RouterProvider({ router, children }: RouterProviderProps): React.ReactElement {
-  return <RouterContext.Provider value={router}>{children}</RouterContext.Provider>
+export function RouterProvider({
+  router,
+  routedView,
+  useRouteParams,
+  children,
+}: RouterProviderProps): React.ReactElement {
+  // Read once: the routing hooks call this hook on every render, so it must never change
+  // between them (a different hook there would change the hook order).
+  const [routeParamsHook] = useState(() => useRouteParams ?? null)
+  return (
+    <RouterContext.Provider value={router}>
+      <RoutedViewContext.Provider value={routedView ?? null}>
+        <RouteParamsHookContext.Provider value={routeParamsHook}>
+          {children}
+        </RouteParamsHookContext.Provider>
+      </RoutedViewContext.Provider>
+    </RouterContext.Provider>
+  )
+}
+
+/**
+ * Renders the matched child route, through whichever routing bond the app wired (React
+ * Router's `Outlet` under the react-router bond). A layout or guard used as a route element
+ * renders it where its page goes, so the component imports no router library.
+ *
+ * @returns The routing bond's routed view.
+ * @throws {I18nError} When the routing bond has no routed view (Next.js gives a layout its
+ * page as children): pass the page as children instead. Rendering nothing there would show a
+ * blank page with no error.
+ * @example
+ * ```tsx
+ * function Shell({ children }: { children?: ReactNode }) {
+ *   return <main>{children ?? <RoutedView />}</main>
+ * }
+ * ```
+ */
+export function RoutedView(): React.ReactElement {
+  const View = React.useContext(RoutedViewContext)
+  if (!View) {
+    throw new I18nError(
+      'react.error.noRoutedView',
+      undefined,
+      'This routing bond has no routed view to render here: pass the page as children instead.',
+    )
+  }
+  return <View />
 }
 
 /**

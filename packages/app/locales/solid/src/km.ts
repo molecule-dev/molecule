@@ -30,7 +30,10 @@ export const km: SolidTranslations = {
   'solid.error.unsupportedMethod': 'វិធីសាស្ត្រដែលមិនគាំទ្រ៖ {{method}}',
   'solid.error.useLoggerOutsideProvider': 'useLoggerProvider ត្រូវតែប្រើនៅក្នុង LoggerProvider',
   'solid.error.oauthFailed': 'ការចូល OAuth បរាជ័យ',
-  'solid.error.useRouterOutsideProvider': 'useRouterInstance ត្រូវតែប្រើនៅក្នុង RouterProvider',
+  'solid.error.useRouterOutsideProvider':
+    'គ្មានរ៉ោតទ័រនៅទីនេះទេ។ ប្រើ `MoleculeRouterProvider` ពី​ចំណង​រ៉ោតទ័រ (`@molecule/app-routing-solid-router`) ជា `root` របស់រ៉ោតទ័រ ឬបញ្ជូន `router` ទៅ `MoleculeProvider` ។',
+  'solid.error.noRoutedView':
+    'គ្មានទិដ្ឋភាពដែលបានកំណត់ផ្លូវនៅទីនេះទេ។ Solid Router ផ្តល់ឱ្យសមាសភាគផ្លូវមួយនូវផ្លូវដែលដាក់ជាសំណាញ់របស់វាជា `props.children` ៖ ប្រើនេះជា `component` របស់ផ្លូវ ឬបញ្ជូនទំព័រនេះជាកូន។',
   'solid.error.useStoreOutsideProvider': 'useStateProvider ត្រូវតែប្រើនៅក្នុង StateProvider',
   'solid.error.useStorageOutsideProvider': 'useStorageProvider ត្រូវតែប្រើនៅក្នុង StorageProvider',
   'solid.error.useThemeOutsideProvider': 'useThemeProvider ត្រូវតែប្រើនៅក្នុង ThemeProvider',

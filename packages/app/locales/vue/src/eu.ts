@@ -2,7 +2,10 @@ import type { VueTranslations } from './types.js'
 
 /** Vue translations for Basque. */
 export const eu: VueTranslations = {
-  'vue.error.useRouterOutsideProvider': 'useRouterInstance RouterProvider barruan erabili behar da',
+  'vue.error.useRouterOutsideProvider':
+    'Ez dago bideratzailerik hemen. Aplikazioa `MoleculeRouterProvider`-en bildu bideratze loturatik (`@molecule/app-routing-vue-router`), edo pasa `router` `moleculePlugin` ri.',
+  'vue.error.noRoutedView':
+    'Bideratze-lotura honek ez du hemen errendatzeko bideratutako ikuspegirik: pasa orrialdea haur gisa horren ordez.',
   'vue.error.useStoreOutsideProvider': 'useStateProvider StateProvider barruan erabili behar da',
   'vue.error.useThemeOutsideProvider': 'useThemeProvider ThemeProvider barruan erabili behar da',
   'vue.error.useAuthOutsideProvider': 'useAuthClient AuthProvider barruan erabili behar da',

@@ -5,7 +5,8 @@ export const nl: SvelteTranslations = {
   'svelte.error.noStateProvider': 'State-provider niet gevonden in context',
   'svelte.error.noAuthClient': 'Auth-client niet gevonden in context',
   'svelte.error.noThemeProvider': 'Thema-provider niet gevonden in context',
-  'svelte.error.noRouter': 'Router niet gevonden in context',
+  'svelte.error.noRouter':
+    'Hier is geen router aanwezig. Monteer `MoleculeRouterProvider` vanuit de routing bond (`@molecule/app-routing-sveltekit`) in de root `+layout.svelte`, of roep daar `setMoleculeContext({ router })` aan.',
   'svelte.error.noI18nProvider': 'I18n-provider niet gevonden in context',
   'svelte.error.noHttpClient': 'HTTP-client niet gevonden in context',
   'svelte.error.noStorageProvider': 'Opslag-provider niet gevonden in context',
@@ -25,7 +26,9 @@ export const nl: SvelteTranslations = {
   'svelte.error.useThemeOutsideProvider':
     'useThemeProvider moet binnen een ThemeProvider worden gebruikt',
   'svelte.error.useRouterOutsideProvider':
-    'useRouterInstance moet binnen een RouterProvider worden gebruikt',
+    'Hier is geen router aanwezig. Monteer `MoleculeRouterProvider` vanuit de routing bond (`@molecule/app-routing-sveltekit`) in de root `+layout.svelte`, of roep daar `setMoleculeContext({ router })` aan.',
+  'svelte.error.noRoutedView':
+    'Geen gerouteerde weergave hier. SvelteKit geeft een lay-out zijn pagina als `children`: geef `{@render children()}` door binnen dit component.',
   'svelte.error.useHttpOutsideProvider':
     'useHttpClient moet binnen een HttpProvider worden gebruikt.',
   'svelte.error.useStorageOutsideProvider':

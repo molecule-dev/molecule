@@ -9,7 +9,7 @@ export const hy: SvelteTranslations = {
   'svelte.error.noThemeProvider':
     '\u0539\u0565\u0574\u0561\u0575\u056b \u0574\u0561\u057f\u0561\u056f\u0561\u0580\u0561\u0580\u0568 \u0570\u0561\u0574\u0561\u057f\u0565\u0584\u057d\u057f\u0578\u0582\u0574 \u0579\u056b \u0563\u057f\u0576\u057e\u0565\u056c',
   'svelte.error.noRouter':
-    '\u0535\u0580\u0569\u0578\u0582\u0572\u056b\u0579\u0568 \u0570\u0561\u0574\u0561\u057f\u0565\u0584\u057d\u057f\u0578\u0582\u0574 \u0579\u056b \u0563\u057f\u0576\u057e\u0565\u056c',
+    'Այստեղ ռաութեր չկա։ Մոնտաժեք `MoleculeRouterProvider` ռաութինգի կապից (`@molecule/app-routing-sveltekit`) `+layout.svelte` արմատում, կամ այնտեղ կանչեք `setMoleculeContext({ router })` ։',
   'svelte.error.noI18nProvider':
     'I18n \u0574\u0561\u057f\u0561\u056f\u0561\u0580\u0561\u0580\u0568 \u0570\u0561\u0574\u0561\u057f\u0565\u0584\u057d\u057f\u0578\u0582\u0574 \u0579\u056b \u0563\u057f\u0576\u057e\u0565\u056c',
   'svelte.error.noHttpClient':
@@ -34,7 +34,9 @@ export const hy: SvelteTranslations = {
   'svelte.error.useThemeOutsideProvider':
     'useThemeProvider-ը պետք է օգտագործվի ThemeProvider-ի ներսում։',
   'svelte.error.useRouterOutsideProvider':
-    'useRouterInstance-ը պետք է օգտագործվի RouterProvider-ի ներսում։',
+    'Այստեղ ռաութեր չկա։ Մոնտաժեք `MoleculeRouterProvider` ռաութինգի կապից (`@molecule/app-routing-sveltekit`) `+layout.svelte` արմատում, կամ այնտեղ կանչեք `setMoleculeContext({ router })` ։',
+  'svelte.error.noRoutedView':
+    'Այստեղ ուղղորդված տեսք չկա։ SvelteKit-ը դասավորությանը տալիս է իր էջը որպես `children`: այս բաղադրիչի ներսում անցկացնում է `{@render children()}` ։',
   'svelte.error.useHttpOutsideProvider': 'useHttpClient-ը պետք է օգտագործվի HttpProvider-ի ներսում',
   'svelte.error.useStorageOutsideProvider':
     'useStorageProvider-ը պետք է օգտագործվի StorageProvider-ի շրջանակներում',

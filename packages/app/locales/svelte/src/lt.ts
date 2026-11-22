@@ -5,7 +5,8 @@ export const lt: SvelteTranslations = {
   'svelte.error.noStateProvider': 'B\u016bsenos teik\u0117jas nerastas kontekste',
   'svelte.error.noAuthClient': 'Autentifikacijos klientas nerastas kontekste',
   'svelte.error.noThemeProvider': 'Temos teik\u0117jas nerastas kontekste',
-  'svelte.error.noRouter': 'Mar\u0161rutizatorius nerastas kontekste',
+  'svelte.error.noRouter':
+    'Čia nėra maršrutizatoriaus. Prijunkite `MoleculeRouterProvider` prie maršrutizavimo jungties (`@molecule/app-routing-sveltekit`) šakniniame `+layout.svelte` faile arba ten iškvieskite `setMoleculeContext({ router })` .',
   'svelte.error.noI18nProvider': 'I18n teik\u0117jas nerastas kontekste',
   'svelte.error.noHttpClient': 'HTTP klientas nerastas kontekste',
   'svelte.error.noStorageProvider': 'Saugyklos teik\u0117jas nerastas kontekste',
@@ -24,7 +25,9 @@ export const lt: SvelteTranslations = {
   'svelte.error.useThemeOutsideProvider':
     '„useThemeProvider“ turi būti naudojamas „ThemeProvider“ viduje.',
   'svelte.error.useRouterOutsideProvider':
-    '„useRouterInstance“ turi būti naudojamas „RouterProvider“ viduje.',
+    'Čia nėra maršrutizatoriaus. Prijunkite `MoleculeRouterProvider` prie maršrutizavimo jungties (`@molecule/app-routing-sveltekit`) šakniniame `+layout.svelte` faile arba ten iškvieskite `setMoleculeContext({ router })` .',
+  'svelte.error.noRoutedView':
+    'Čia nėra nukreipto rodinio. „SvelteKit“ suteikia savo puslapio išdėstymą kaip `children`: šio komponento viduje perduodamas `{@render children()}` .',
   'svelte.error.useHttpOutsideProvider':
     '„useHttpClient“ turi būti naudojamas „HttpProvider“ viduje.',
   'svelte.error.useStorageOutsideProvider':

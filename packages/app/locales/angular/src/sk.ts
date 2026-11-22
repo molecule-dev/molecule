@@ -16,7 +16,9 @@ export const sk: AngularTranslations = {
   'angular.error.usePreviewOutsideProvider':
     'usePreviewProvider musí byť použitý vnútri PreviewProvider',
   'angular.error.useRouterOutsideProvider':
-    'useRouterInstance musí byť použitý vnútri RouterProvider',
+    'Žiadny smerovač tu nie je. Pridajte `provideMoleculeRouter()` z smerovacej väzby (`@molecule/app-routing-angular-router`) k poskytovateľom aplikácie za Angular `provideRouter(routes)` alebo odovzdajte `router` do `provideMolecule`.',
+  'angular.error.noRoutedView':
+    'Táto smerovacia väzba nemá žiadny smerovaný pohľad na vykreslenie: namiesto toho odovzdajte stránku ako deti.',
   'angular.error.useStorageOutsideProvider':
     'useStorageProvider musí byť použitý vnútri StorageProvider',
   'angular.error.useThemeOutsideProvider': 'useThemeProvider musí byť použitý vnútri ThemeProvider',

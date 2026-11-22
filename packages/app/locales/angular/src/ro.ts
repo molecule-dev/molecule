@@ -20,7 +20,9 @@ export const ro: AngularTranslations = {
   'angular.error.usePreviewOutsideProvider':
     'usePreviewProvider trebuie utilizat în interiorul unui PreviewProvider',
   'angular.error.useRouterOutsideProvider':
-    'useRouterInstance trebuie utilizat în interiorul unui RouterProvider',
+    'Nu există router aici. Adăugați `provideMoleculeRouter()` din legătura de rutare (`@molecule/app-routing-angular-router`) la furnizorii aplicației, după `provideRouter(routes)` din Angular sau transmiteți `router` la `provideMolecule`.',
+  'angular.error.noRoutedView':
+    'Această legătură de rutare nu are o vizualizare rutată de redat aici: transmiteți pagina ca fiu în schimb.',
   'angular.error.useStorageOutsideProvider':
     'useStorageProvider trebuie utilizat în interiorul unui StorageProvider',
   'angular.error.useThemeOutsideProvider':

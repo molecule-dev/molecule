@@ -35,7 +35,9 @@ export const uz: SolidTranslations = {
     'useLoggerProvider LoggerProvider ichida ishlatilishi kerak',
   'solid.error.oauthFailed': 'OAuth tizimiga kirish amalga oshmadi',
   'solid.error.useRouterOutsideProvider':
-    'useRouterInstance RouterProvider ichida ishlatilishi kerak',
+    "Bu yerda router yo'q. Routerning `root` sifatida marshrutizatsiya bog'lanishidan (`@molecule/app-routing-solid-router`) `MoleculeRouterProvider` dan foydalaning yoki `router` `MoleculeProvider` ga o'tkazing.",
+  'solid.error.noRoutedView':
+    "Bu yerda marshrutlangan ko'rinish yo'q. Solid Router marshrut komponentiga o'zining ichki marshrutini `props.children` sifatida beradi: buni marshrutning `component` sifatida foydalaning yoki sahifani bolalar sifatida uzating.",
   'solid.error.useStoreOutsideProvider': 'useStateProvider StateProvider ichida ishlatilishi kerak',
   'solid.error.useStorageOutsideProvider':
     'useStorageProvider StorageProvider ichida ishlatilishi kerak',

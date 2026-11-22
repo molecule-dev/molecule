@@ -10,7 +10,10 @@ export const mr: ReactTranslations = {
   'react.error.useLoggerOutsideProvider': 'useLoggerProvider हे LoggerProvider मध्ये वापरले पाहिजे',
   'react.error.usePreviewOutsideProvider':
     'usePreviewProvider हे PreviewProvider मध्ये वापरले पाहिजे',
-  'react.error.useRouterOutsideProvider': 'useRouterInstance हे RouterProvider मध्ये वापरले पाहिजे',
+  'react.error.useRouterOutsideProvider':
+    'येथे राउटर नाही. अॅपच्या राउटिंग बाँडमधून एक राउटर घटक माउंट करा ( `@molecule/app-routing-react-router` मधील `BrowserRouter` ), किंवा `MoleculeProvider` ला `router` पास करा.',
+  'react.error.noRoutedView':
+    'या राउटिंग बाँडमध्ये येथे रेंडर करण्यासाठी कोणताही राउटेड व्ह्यू नाही: त्याऐवजी पेजला चिल्ड्रेन म्हणून पास करा.',
   'react.error.useStoreOutsideProvider': 'useStateProvider हे StateProvider मध्ये वापरले पाहिजे',
   'react.error.useStorageOutsideProvider':
     'useStorageProvider हे StorageProvider मध्ये वापरले पाहिजे',

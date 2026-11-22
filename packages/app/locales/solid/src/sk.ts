@@ -32,7 +32,10 @@ export const sk: SolidTranslations = {
   'solid.error.unsupportedMethod': 'Nepodporovaná metóda: {{method}}',
   'solid.error.useLoggerOutsideProvider': 'useLoggerProvider sa musí použiť v rámci LoggerProvider',
   'solid.error.oauthFailed': 'Prihlásenie cez OAuth zlyhalo',
-  'solid.error.useRouterOutsideProvider': 'useRouterInstance sa musí použiť v rámci RouterProvider',
+  'solid.error.useRouterOutsideProvider':
+    'Žiadny router tu nie je. Ako `root` routera použite `MoleculeRouterProvider` zo smerovacej väzby (`@molecule/app-routing-solid-router`) alebo odovzdajte `router` do `MoleculeProvider`.',
+  'solid.error.noRoutedView':
+    'Tu nie je žiadny smerovaný pohľad. Solid Router priradí komponentu trasy jej vnorenú trasu ako `props.children`: použite to ako `component` trasy alebo odovzdajte stránku ako deti.',
   'solid.error.useStoreOutsideProvider': 'useStateProvider sa musí použiť v rámci StateProvider',
   'solid.error.useStorageOutsideProvider':
     'useStorageProvider sa musí použiť v rámci StorageProvider',

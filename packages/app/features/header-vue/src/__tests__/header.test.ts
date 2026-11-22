@@ -333,8 +333,9 @@ describe('AppHeader', () => {
   })
 
   it('throws outside the router plugin (the brand link is a router link)', () => {
+    // The binding's missing-router error, by its i18n key (its text names the routing bond to mount).
     expect(() => render({ appName: 'Acme' }, undefined, { router: false })).toThrow(
-      /useRouterInstance/,
+      expect.objectContaining({ i18nKey: 'vue.error.useRouterOutsideProvider' }),
     )
   })
 

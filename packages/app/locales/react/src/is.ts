@@ -11,7 +11,10 @@ export const is: ReactTranslations = {
   'react.error.useLoggerOutsideProvider': 'useLoggerProvider verður að nota innan LoggerProvider',
   'react.error.usePreviewOutsideProvider':
     'usePreviewProvider verður að nota innan PreviewProvider',
-  'react.error.useRouterOutsideProvider': 'useRouterInstance verður að nota innan RouterProvider',
+  'react.error.useRouterOutsideProvider':
+    'Engin leið hér. Tengdu leiðarþátt frá leiðartengingu appsins (`BrowserRouter` frá `@molecule/app-routing-react-router`), eða sendu `router` til `MoleculeProvider`.',
+  'react.error.noRoutedView':
+    'Þessi leiðartenging hefur enga leiðarsýn til að birta hér: sendið síðuna sem undirsíður í staðinn.',
   'react.error.useStoreOutsideProvider': 'useStateProvider verður að nota innan StateProvider',
   'react.error.useStorageOutsideProvider':
     'useStorageProvider verður að nota innan StorageProvider',

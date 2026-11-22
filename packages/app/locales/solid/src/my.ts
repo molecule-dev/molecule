@@ -36,7 +36,9 @@ export const my: SolidTranslations = {
     'useLoggerProvider ကို LoggerProvider အတွင်းတွင် အသုံးပြုရမည်',
   'solid.error.oauthFailed': 'OAuth အကောင့်ဝင်ခြင်း မအောင်မြင်ပါ',
   'solid.error.useRouterOutsideProvider':
-    'useRouterInstance ကို RouterProvider အတွင်းတွင် အသုံးပြုရမည်',
+    'ဤနေရာတွင် router မရှိပါ။ routing bond (`@molecule/app-routing-solid-router`) မှ `MoleculeRouterProvider` router ၏ `root` အဖြစ်အသုံးပြုပါ၊ သို့မဟုတ် `router` ကို `MoleculeProvider` သို့ပေးပို့ပါ။',
+  'solid.error.noRoutedView':
+    'ဤနေရာတွင် routed view မရှိပါ။ Solid Router သည် route ၏ component တစ်ခု၏ nested route ကို `props.children` အဖြစ် ပေးသည် : ၎င်းကို route ၏ `component` အဖြစ် အသုံးပြုပါ၊ သို့မဟုတ် children အနေဖြင့် page ကို pass လုပ်ပါ။',
   'solid.error.useStoreOutsideProvider':
     'useStateProvider ကို StateProvider အတွင်းတွင် အသုံးပြုရမည်',
   'solid.error.useStorageOutsideProvider':

@@ -9,7 +9,7 @@ export const ru: SvelteTranslations = {
   'svelte.error.noThemeProvider':
     '\u041f\u0440\u043e\u0432\u0430\u0439\u0434\u0435\u0440 \u0442\u0435\u043c\u044b \u043d\u0435 \u043d\u0430\u0439\u0434\u0435\u043d \u0432 \u043a\u043e\u043d\u0442\u0435\u043a\u0441\u0442\u0435',
   'svelte.error.noRouter':
-    '\u0420\u043e\u0443\u0442\u0435\u0440 \u043d\u0435 \u043d\u0430\u0439\u0434\u0435\u043d \u0432 \u043a\u043e\u043d\u0442\u0435\u043a\u0441\u0442\u0435',
+    'Здесь нет маршрутизатора. Подключите `MoleculeRouterProvider` из пакета маршрутизации (`@molecule/app-routing-sveltekit`) в корневом файле `+layout.svelte` или вызовите там `setMoleculeContext({ router })` .',
   'svelte.error.noI18nProvider':
     'I18n \u043f\u0440\u043e\u0432\u0430\u0439\u0434\u0435\u0440 \u043d\u0435 \u043d\u0430\u0439\u0434\u0435\u043d \u0432 \u043a\u043e\u043d\u0442\u0435\u043a\u0441\u0442\u0435',
   'svelte.error.noHttpClient':
@@ -34,7 +34,9 @@ export const ru: SvelteTranslations = {
   'svelte.error.useThemeOutsideProvider':
     'Параметр useThemeProvider должен использоваться внутри параметра ThemeProvider.',
   'svelte.error.useRouterOutsideProvider':
-    'Параметр useRouterInstance должен использоваться внутри RouterProvider.',
+    'Здесь нет маршрутизатора. Подключите `MoleculeRouterProvider` из пакета маршрутизации (`@molecule/app-routing-sveltekit`) в корневом файле `+layout.svelte` или вызовите там `setMoleculeContext({ router })` .',
+  'svelte.error.noRoutedView':
+    'Здесь нет маршрутизируемого представления. SvelteKit предоставляет макету страницу в качестве `children`: передайте `{@render children()}` внутрь этого компонента.',
   'svelte.error.useHttpOutsideProvider':
     'Функция useHttpClient должна использоваться внутри объекта HttpProvider.',
   'svelte.error.useStorageOutsideProvider':

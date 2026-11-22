@@ -31,7 +31,10 @@ export const ms: SolidTranslations = {
   'solid.error.unsupportedMethod': 'Kaedah yang tidak disokong: {{method}}',
   'solid.error.useLoggerOutsideProvider': 'useLoggerProvider mesti digunakan dalam LoggerProvider',
   'solid.error.oauthFailed': 'Log masuk OAuth gagal',
-  'solid.error.useRouterOutsideProvider': 'useRouterInstance mesti digunakan dalam RouterProvider',
+  'solid.error.useRouterOutsideProvider':
+    'Tiada penghala di sini. Gunakan `MoleculeRouterProvider` daripada ikatan penghalaan (`@molecule/app-routing-solid-router`) sebagai `root` penghala, atau serahkan `router` kepada `MoleculeProvider`.',
+  'solid.error.noRoutedView':
+    'Tiada paparan penghalaan di sini. Penghala Pepejal memberikan komponen laluan laluan bersarangnya sebagai `props.children`: gunakan ini sebagai `component` laluan, atau lulus halaman sebagai anak.',
   'solid.error.useStoreOutsideProvider': 'useStateProvider mesti digunakan dalam StateProvider',
   'solid.error.useStorageOutsideProvider':
     'useStorageProvider mesti digunakan dalam StorageProvider',

@@ -6,6 +6,7 @@
 
 import {
   type Accessor,
+  batch,
   createEffect,
   createMemo,
   createSignal,
@@ -14,7 +15,7 @@ import {
   useContext,
 } from 'solid-js'
 
-import { t } from '@molecule/app-i18n'
+import { I18nError } from '@molecule/app-i18n'
 import type {
   ListRouteOptions,
   ListRouteRedirect,
@@ -42,18 +43,69 @@ import { liveStateTuple } from './reactive-tuple.js'
  * React's hook name.
  *
  * @returns The router instance.
- * @throws {Error} When no `MoleculeProvider` above configures `router`.
+ * @throws {I18nError} When no router is provided above the caller: use the routing bond's
+ * `MoleculeRouterProvider` (`@molecule/app-routing-solid-router`) as the router's `root`, or pass
+ * `router` to `MoleculeProvider`.
  */
 export function useRouterInstance(): Router {
   const router = useContext(RouterContext)
   if (!router) {
-    throw new Error(
-      t('solid.error.useRouterOutsideProvider', undefined, {
-        defaultValue: 'useRouterInstance must be used within a RouterProvider',
-      }),
+    throw new I18nError(
+      'solid.error.useRouterOutsideProvider',
+      undefined,
+      "No router here. Use `MoleculeRouterProvider` from the routing bond (`@molecule/app-routing-solid-router`) as the router's `root`, or pass `router` to `MoleculeProvider`.",
     )
   }
   return router
+}
+
+/** One router's location, params and query, shared by every primitive that reads that router. */
+interface RouterState {
+  location: Accessor<RouteLocation>
+  params: Accessor<RouteParams>
+  query: Accessor<QueryParams>
+  /** How many mounted primitives read it; the last one to go unsubscribes. */
+  users: number
+  unsubscribe: () => void
+}
+
+/** The shared state of each router that a mounted primitive reads. */
+const routerStates = new WeakMap<Router, RouterState>()
+
+/**
+ * The router's location, params and query as signals, one subscription per router for every
+ * primitive that reads it, updated in one batch per navigation. With a subscription per primitive,
+ * the router told them one after another, so a computation reading `useLocation()` and
+ * `useParams()` ran between the two and showed the new location with the previous params.
+ *
+ * @param router - The router to read.
+ * @returns The shared signals; released when the calling owner is cleaned up.
+ */
+function useRouterState(router: Router): RouterState {
+  let state = routerStates.get(router)
+  if (!state) {
+    const [location, setLocation] = createSignal<RouteLocation>(router.getLocation())
+    const [params, setParams] = createSignal<RouteParams>(router.getParams())
+    const [query, setQuery] = createSignal<QueryParams>(router.getQuery())
+    const unsubscribe = router.subscribe((newLocation: RouteLocation) => {
+      batch(() => {
+        setLocation(newLocation)
+        setParams(router.getParams())
+        setQuery(router.getQuery())
+      })
+    })
+    state = { location, params, query, users: 0, unsubscribe }
+    routerStates.set(router, state)
+  }
+  const held = state
+  held.users++
+  onCleanup(() => {
+    held.users--
+    if (held.users > 0) return
+    held.unsubscribe()
+    if (routerStates.get(router) === held) routerStates.delete(router)
+  })
+  return held
 }
 
 /**
@@ -69,17 +121,7 @@ export function useRouterInstance(): Router {
  */
 export function useRouter(): UseRouterResult {
   const router = useRouterInstance()
-
-  const [location, setLocation] = createSignal<RouteLocation>(router.getLocation())
-  const [params, setParams] = createSignal<RouteParams>(router.getParams())
-  const [query, setQuery] = createSignal<QueryParams>(router.getQuery())
-
-  const unsubscribe = router.subscribe((newLocation: RouteLocation) => {
-    setLocation(newLocation)
-    setParams(router.getParams())
-    setQuery(router.getQuery())
-  })
-  onCleanup(unsubscribe)
+  const { location, params, query } = useRouterState(router)
 
   return {
     location,

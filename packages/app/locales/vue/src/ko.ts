@@ -2,7 +2,10 @@ import type { VueTranslations } from './types.js'
 
 /** Vue translations for Korean. */
 export const ko: VueTranslations = {
-  'vue.error.useRouterOutsideProvider': 'useRouterInstance는 RouterProvider 내에서 사용해야 합니다',
+  'vue.error.useRouterOutsideProvider':
+    '여기에 라우터가 없습니다. 라우팅 본드(`@molecule/app-routing-vue-router`)의 `MoleculeRouterProvider` 로 앱을 감싸거나 `moleculePlugin` 에 `router` 전달하세요.',
+  'vue.error.noRoutedView':
+    '이 라우팅 연결에는 여기에 렌더링할 라우팅된 뷰가 없습니다. 대신 페이지를 자식으로 전달하세요.',
   'vue.error.useStoreOutsideProvider': 'useStateProvider는 StateProvider 내에서 사용해야 합니다',
   'vue.error.useThemeOutsideProvider': 'useThemeProvider는 ThemeProvider 내에서 사용해야 합니다',
   'vue.error.useAuthOutsideProvider': 'useAuthClient는 AuthProvider 내에서 사용해야 합니다',

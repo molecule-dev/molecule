@@ -11,7 +11,10 @@ export const nb: ReactTranslations = {
   'react.error.useLoggerOutsideProvider': 'useLoggerProvider må brukes innenfor en LoggerProvider',
   'react.error.usePreviewOutsideProvider':
     'usePreviewProvider må brukes innenfor en PreviewProvider',
-  'react.error.useRouterOutsideProvider': 'useRouterInstance må brukes innenfor en RouterProvider',
+  'react.error.useRouterOutsideProvider':
+    'Ingen ruter her. Monter en ruterkomponent fra appens rutingsforbindelse (`BrowserRouter` fra `@molecule/app-routing-react-router`), eller send `router` til `MoleculeProvider`.',
+  'react.error.noRoutedView':
+    'Denne rutingsbindingen har ingen rutet visning å gjengi her: send siden som underordnede i stedet.',
   'react.error.useStoreOutsideProvider': 'useStateProvider må brukes innenfor en StateProvider',
   'react.error.useStorageOutsideProvider':
     'useStorageProvider må brukes innenfor en StorageProvider',

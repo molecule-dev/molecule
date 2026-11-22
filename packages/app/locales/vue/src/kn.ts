@@ -2,7 +2,10 @@ import type { VueTranslations } from './types.js'
 
 /** Vue translations for Kannada. */
 export const kn: VueTranslations = {
-  'vue.error.useRouterOutsideProvider': 'useRouterInstance ಅನ್ನು RouterProvider ಒಳಗೆ ಬಳಸಬೇಕು',
+  'vue.error.useRouterOutsideProvider':
+    'ಇಲ್ಲಿ ರೂಟರ್ ಇಲ್ಲ. ಅಪ್ಲಿಕೇಶನ್ ಅನ್ನು ರೂಟಿಂಗ್ ಬಾಂಡ್‌ನಿಂದ (`@molecule/app-routing-vue-router`) `MoleculeRouterProvider` ನಲ್ಲಿ ಸುತ್ತಿ, ಅಥವಾ `router` `moleculePlugin` ಗೆ ರವಾನಿಸಿ.',
+  'vue.error.noRoutedView':
+    'ಈ ರೂಟಿಂಗ್ ಬಾಂಡ್ ಇಲ್ಲಿ ರೆಂಡರ್ ಮಾಡಲು ಯಾವುದೇ ರೂಟೆಡ್ ವ್ಯೂ ಹೊಂದಿಲ್ಲ: ಬದಲಿಗೆ ಪುಟವನ್ನು ಚಿಲ್ಡ್ರನ್ ಆಗಿ ಪಾಸ್ ಮಾಡಿ.',
   'vue.error.useStoreOutsideProvider': 'useStateProvider ಅನ್ನು StateProvider ಒಳಗೆ ಬಳಸಬೇಕು',
   'vue.error.useThemeOutsideProvider': 'useThemeProvider ಅನ್ನು ThemeProvider ಒಳಗೆ ಬಳಸಬೇಕು',
   'vue.error.useAuthOutsideProvider': 'useAuthClient ಅನ್ನು AuthProvider ಒಳಗೆ ಬಳಸಬೇಕು',

@@ -3,7 +3,9 @@ import type { VueTranslations } from './types.js'
 /** Vue translations for Serbian. */
 export const sr: VueTranslations = {
   'vue.error.useRouterOutsideProvider':
-    'useRouterInstance мора да се користи унутар RouterProvider',
+    'Овде нема рутера. Умотајте апликацију у `MoleculeRouterProvider` из везе рутирања (`@molecule/app-routing-vue-router`) или проследите `router` у `moleculePlugin`.',
+  'vue.error.noRoutedView':
+    'Ова веза рутирања нема усмерен приказ за приказивање овде: уместо тога, проследите страницу као потомке.',
   'vue.error.useStoreOutsideProvider': 'useStateProvider мора да се користи унутар StateProvider',
   'vue.error.useThemeOutsideProvider': 'useThemeProvider мора да се користи унутар ThemeProvider',
   'vue.error.useAuthOutsideProvider': 'useAuthClient мора да се користи унутар AuthProvider',

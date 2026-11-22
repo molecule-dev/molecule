@@ -9,7 +9,10 @@ export const et: ReactTranslations = {
   'react.error.useHttpOutsideProvider': 'useHttpClient tuleb kasutada HttpProvider sees',
   'react.error.useLoggerOutsideProvider': 'useLoggerProvider tuleb kasutada LoggerProvider sees',
   'react.error.usePreviewOutsideProvider': 'usePreviewProvider tuleb kasutada PreviewProvider sees',
-  'react.error.useRouterOutsideProvider': 'useRouterInstance tuleb kasutada RouterProvider sees',
+  'react.error.useRouterOutsideProvider':
+    'Siin pole ruuterit. Ühenda ruuteri komponent rakenduse marsruutimissidemega (`BrowserRouter` saidilt `@molecule/app-routing-react-router`) või edasta `router` `MoleculeProvider` ile.',
+  'react.error.noRoutedView':
+    'Sellel marsruutimissidemel pole siin renderdamiseks marsruutitud vaadet: edastage leht hoopis alamlehtedena.',
   'react.error.useStoreOutsideProvider': 'useStateProvider tuleb kasutada StateProvider sees',
   'react.error.useStorageOutsideProvider': 'useStorageProvider tuleb kasutada StorageProvider sees',
   'react.error.useThemeOutsideProvider': 'useThemeProvider tuleb kasutada ThemeProvider sees',

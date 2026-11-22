@@ -31,7 +31,9 @@ export const ig: Partial<SolidTranslations> = {
   'solid.error.useLoggerOutsideProvider': "A ga-eji useLoggerProvider n'ime LoggerProvider",
   'solid.error.oauthFailed': 'Nbanye OAuth agaghị arụ ọrụ',
   'solid.error.useRouterOutsideProvider':
-    "A ga-eji useRouterInstance mee ihe n'ime onye na-enye Router",
+    'Enweghị rawụta ebe a. Jiri `MoleculeRouterProvider` site na njikọ routing (`@molecule/app-routing-solid-router`) dị ka `root` nke rawụta, ma ọ bụ nyefee `router` gaa na `MoleculeProvider`.',
+  'solid.error.noRoutedView':
+    'Enweghị echiche ụzọ ebe a. Solid Router na-enye akụkụ nke ụzọ ahụ ụzọ ya dị ka `props.children`: jiri nke a dị ka `component` ụzọ, ma ọ bụ gafee peeji ahụ dịka ụmụaka.',
   'solid.error.useStoreOutsideProvider': "A ga-eji useStateProvider n'ime Onye Na-enye Steeti",
   'solid.error.useStorageOutsideProvider':
     "A ga-eji onye na-enye nchekwa data (useStorageProvider) n'ime onye na-enye nchekwa data",

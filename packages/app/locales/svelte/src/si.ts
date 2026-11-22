@@ -9,7 +9,7 @@ export const si: SvelteTranslations = {
   'svelte.error.noThemeProvider':
     '\u0dad\u0dd2\u0dbb\u0dc3\u0dca\u0dae\u0dcf\u0db1\u0dba \u0dc3\u0db4\u0dba\u0db1\u0dca\u0db1\u0dcf \u0db4\u0dca\u200d\u0dbb\u0dc3\u0d82\u0d9c\u0dba\u0dd9\u0dc4\u0dd2 \u0dc3\u0ddc\u0dba\u0dcf \u0d9c\u0dad \u0db1\u0ddc\u0dc4\u0dd0\u0d9a\u0dd2\u0dba',
   'svelte.error.noRouter':
-    '\u0dbb\u0dd6\u0da7\u0dbb\u0dba \u0db4\u0dca\u200d\u0dbb\u0dc3\u0d82\u0d9c\u0dba\u0dd9\u0dc4\u0dd2 \u0dc3\u0ddc\u0dba\u0dcf \u0d9c\u0dad \u0db1\u0ddc\u0dc4\u0dd0\u0d9a\u0dd2\u0dba',
+    'මෙහි රවුටරයක් නැත. `+layout.svelte` මූලයේ රවුටින් බන්ධනයෙන් (`@molecule/app-routing-sveltekit`) `MoleculeRouterProvider` සවි කරන්න, නැතහොත් එහි `setMoleculeContext({ router })` අමතන්න.',
   'svelte.error.noI18nProvider':
     'I18n \u0dc3\u0db4\u0dba\u0db1\u0dca\u0db1\u0dcf \u0db4\u0dca\u200d\u0dbb\u0dc3\u0d82\u0d9c\u0dba\u0dd9\u0dc4\u0dd2 \u0dc3\u0ddc\u0dba\u0dcf \u0d9c\u0dad \u0db1\u0ddc\u0dc4\u0dd0\u0d9a\u0dd2\u0dba',
   'svelte.error.noHttpClient':
@@ -32,7 +32,9 @@ export const si: SvelteTranslations = {
   'svelte.error.useThemeOutsideProvider':
     'useThemeProvider ThemeProvider එකක් තුළ භාවිතා කළ යුතුය.',
   'svelte.error.useRouterOutsideProvider':
-    'useRouterInstance RouterProvider එකක් තුළ භාවිතා කළ යුතුය.',
+    'මෙහි රවුටරයක් නැත. `+layout.svelte` මූලයේ රවුටින් බන්ධනයෙන් (`@molecule/app-routing-sveltekit`) `MoleculeRouterProvider` සවි කරන්න, නැතහොත් එහි `setMoleculeContext({ router })` අමතන්න.',
+  'svelte.error.noRoutedView':
+    'මෙහි මාර්ගගත දසුනක් නොමැත. SvelteKit එහි පිටුවට `children` ලෙස පිරිසැලසුමක් ලබා දෙයි: මෙම සංරචකය තුළ `{@render children()}` යන්න ලබා දෙන්න.',
   'svelte.error.useHttpOutsideProvider': 'useHttpClient HttpProvider එකක් තුළ භාවිතා කළ යුතුය.',
   'svelte.error.useStorageOutsideProvider':
     'useStorageProvider StorageProvider එකක් තුළ භාවිතා කළ යුතුය.',

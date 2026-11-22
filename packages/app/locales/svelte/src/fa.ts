@@ -5,7 +5,8 @@ export const fa: SvelteTranslations = {
   'svelte.error.noStateProvider': 'ارائه‌دهنده وضعیت در زمینه یافت نشد',
   'svelte.error.noAuthClient': 'کلاینت احراز هویت در زمینه یافت نشد',
   'svelte.error.noThemeProvider': 'ارائه‌دهنده تم در زمینه یافت نشد',
-  'svelte.error.noRouter': 'مسیریاب در زمینه یافت نشد',
+  'svelte.error.noRouter':
+    'اینجا هیچ روتری وجود ندارد. `MoleculeRouterProvider` را از پیوند مسیریابی (`@molecule/app-routing-sveltekit`) در ریشه `+layout.svelte` نصب کنید، یا `setMoleculeContext({ router })` را در آنجا فراخوانی کنید.',
   'svelte.error.noI18nProvider': 'ارائه‌دهنده i18n در زمینه یافت نشد',
   'svelte.error.noHttpClient': 'کلاینت HTTP در زمینه یافت نشد',
   'svelte.error.noStorageProvider': 'ارائه‌دهنده ذخیره‌سازی در زمینه یافت نشد',
@@ -23,7 +24,9 @@ export const fa: SvelteTranslations = {
   'svelte.error.useThemeOutsideProvider':
     'useThemeProvider باید درون یک ThemeProvider استفاده شود.',
   'svelte.error.useRouterOutsideProvider':
-    'useRouterInstance باید درون یک RouterProvider استفاده شود.',
+    'اینجا هیچ روتری وجود ندارد. `MoleculeRouterProvider` را از پیوند مسیریابی (`@molecule/app-routing-sveltekit`) در ریشه `+layout.svelte` نصب کنید، یا `setMoleculeContext({ router })` را در آنجا فراخوانی کنید.',
+  'svelte.error.noRoutedView':
+    'اینجا هیچ نمای مسیریابی‌شده‌ای وجود ندارد. SvelteKit به یک طرح‌بندی، صفحه‌ای با عنوان `children` می‌دهد: `{@render children()}` را درون این کامپوننت قرار دهید.',
   'svelte.error.useHttpOutsideProvider': 'useHttpClient باید درون یک HttpProvider استفاده شود.',
   'svelte.error.useStorageOutsideProvider':
     'useStorageProvider باید درون یک StorageProvider استفاده شود.',

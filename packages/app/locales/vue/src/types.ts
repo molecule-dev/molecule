@@ -1,6 +1,7 @@
 /** Translation keys for the vue locale package. */
 export type VueTranslationKey =
   | 'vue.error.useRouterOutsideProvider'
+  | 'vue.error.noRoutedView'
   | 'vue.error.useStoreOutsideProvider'
   | 'vue.error.useThemeOutsideProvider'
   | 'vue.error.useAuthOutsideProvider'

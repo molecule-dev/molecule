@@ -16,7 +16,9 @@ export const nb: AngularTranslations = {
   'angular.error.usePreviewOutsideProvider':
     'usePreviewProvider må brukes innenfor en PreviewProvider',
   'angular.error.useRouterOutsideProvider':
-    'useRouterInstance må brukes innenfor en RouterProvider',
+    'Ingen ruter her. Legg til `provideMoleculeRouter()` fra rutingsbindingen (`@molecule/app-routing-angular-router`) til appens leverandører, etter Angulars `provideRouter(routes)`, eller send `router` til `provideMolecule`.',
+  'angular.error.noRoutedView':
+    'Denne rutingsbindingen har ingen rutet visning å gjengi her: send siden som underordnede i stedet.',
   'angular.error.useStorageOutsideProvider':
     'useStorageProvider må brukes innenfor en StorageProvider',
   'angular.error.useThemeOutsideProvider': 'useThemeProvider må brukes innenfor en ThemeProvider',

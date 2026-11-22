@@ -5,7 +5,8 @@ export const cy: SvelteTranslations = {
   'svelte.error.noStateProvider': 'Darparwr cyflwr heb ei ganfod yn y cyd-destun',
   'svelte.error.noAuthClient': 'Cleient dilysu heb ei ganfod yn y cyd-destun',
   'svelte.error.noThemeProvider': 'Darparwr thema heb ei ganfod yn y cyd-destun',
-  'svelte.error.noRouter': 'Llwybrydd heb ei ganfod yn y cyd-destun',
+  'svelte.error.noRouter':
+    "Dim llwybrydd yma. Mowntiwch `MoleculeRouterProvider` o'r bond llwybro (`@molecule/app-routing-sveltekit`) yn y gwreiddyn `+layout.svelte`, neu ffoniwch `setMoleculeContext({ router })` yno.",
   'svelte.error.noI18nProvider': 'Darparwr i18n heb ei ganfod yn y cyd-destun',
   'svelte.error.noHttpClient': 'Cleient HTTP heb ei ganfod yn y cyd-destun',
   'svelte.error.noStorageProvider': 'Darparwr storio heb ei ganfod yn y cyd-destun',
@@ -22,7 +23,9 @@ export const cy: SvelteTranslations = {
   'svelte.error.useAuthOutsideProvider': 'Rhaid defnyddio useAuthClient o fewn Darparwr Awdurdodi',
   'svelte.error.useThemeOutsideProvider': 'Rhaid defnyddio useThemeProvider o fewn ThemeProvider',
   'svelte.error.useRouterOutsideProvider':
-    'Rhaid defnyddio useRouterInstance o fewn RouterProvider',
+    "Dim llwybrydd yma. Mowntiwch `MoleculeRouterProvider` o'r bond llwybro (`@molecule/app-routing-sveltekit`) yn y gwreiddyn `+layout.svelte`, neu ffoniwch `setMoleculeContext({ router })` yno.",
+  'svelte.error.noRoutedView':
+    "Dim golygfa wedi'i llwybro yma. Mae SvelteKit yn rhoi cynllun i'w dudalen fel `children`: pasiwch `{@render children()}` y tu mewn i'r gydran hon.",
   'svelte.error.useHttpOutsideProvider': 'Rhaid defnyddio useHttpClient o fewn HttpProvider',
   'svelte.error.useStorageOutsideProvider':
     'Rhaid defnyddio useStorageProvider o fewn StorageProvider',

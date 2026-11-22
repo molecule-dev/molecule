@@ -15,7 +15,9 @@ export const eu: ReactTranslations = {
   'react.error.usePreviewOutsideProvider':
     'usePreviewProvider PreviewProvider baten barruan erabili behar da',
   'react.error.useRouterOutsideProvider':
-    'useRouterInstance RouterProvider baten barruan erabili behar da',
+    'Ez dago bideratzailerik hemen. Muntatu bideratzaile osagai bat aplikazioaren bideratze loturatik (`BrowserRouter` `@molecule/app-routing-react-router`), edo pasa `router` `MoleculeProvider`-ri.',
+  'react.error.noRoutedView':
+    'Bideratze-lotura honek ez du hemen errendatzeko bideratutako ikuspegirik: pasa orrialdea haur gisa horren ordez.',
   'react.error.useStoreOutsideProvider':
     'useStateProvider StateProvider baten barruan erabili behar da',
   'react.error.useStorageOutsideProvider':

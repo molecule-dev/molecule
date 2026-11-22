@@ -28,7 +28,10 @@ export const th: SolidTranslations = {
   'solid.error.unsupportedMethod': 'วิธีการที่ไม่รองรับ: {{method}}',
   'solid.error.useLoggerOutsideProvider': 'ต้องใช้ useLoggerProvider ภายใน LoggerProvider',
   'solid.error.oauthFailed': 'การเข้าสู่ระบบ OAuth ล้มเหลว',
-  'solid.error.useRouterOutsideProvider': 'ต้องใช้ useRouterInstance ภายใน RouterProvider',
+  'solid.error.useRouterOutsideProvider':
+    'ไม่มีเราเตอร์ในที่นี้ ให้ใช้ `MoleculeRouterProvider` จากพันธะการกำหนดเส้นทาง (`@molecule/app-routing-solid-router`) เป็น `root` ของเราเตอร์ หรือส่ง `router` ไปยัง `MoleculeProvider`',
+  'solid.error.noRoutedView':
+    'ไม่มีการกำหนดเส้นทางในมุมมองนี้ Solid Router จะส่งเส้นทางย่อยของคอมโพเนนต์ของเส้นทางหลักเป็น `props.children`: คุณสามารถใช้สิ่งนี้เป็น `component` ของเส้นทางหลัก หรือส่งหน้าเว็บเป็น children ได้',
   'solid.error.useStoreOutsideProvider': 'ต้องใช้ useStateProvider ภายใน StateProvider',
   'solid.error.useStorageOutsideProvider': 'ต้องใช้ useStorageProvider ภายใน StorageProvider',
   'solid.error.useThemeOutsideProvider': 'ต้องใช้ useThemeProvider ภายใน ThemeProvider',

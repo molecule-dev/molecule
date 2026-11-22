@@ -17,7 +17,9 @@ export const hy: ReactTranslations = {
   'react.error.usePreviewOutsideProvider':
     'usePreviewProvider-\u0568 \u057A\u0565\u057F\u0584 \u0567 \u0585\u0563\u057F\u0561\u0563\u0578\u0580\u056E\u057E\u056B PreviewProvider-\u056B \u0576\u0565\u0580\u057D\u0578\u0582\u0574',
   'react.error.useRouterOutsideProvider':
-    'useRouterInstance-\u0568 \u057A\u0565\u057F\u0584 \u0567 \u0585\u0563\u057F\u0561\u0563\u0578\u0580\u056E\u057E\u056B RouterProvider-\u056B \u0576\u0565\u0580\u057D\u0578\u0582\u0574',
+    'Այստեղ ռաութեր չկա։ Տեղադրեք ռաութերի բաղադրիչը ծրագրի ռաութինգի կապից (`BrowserRouter` `@molecule/app-routing-react-router` ից) կամ փոխանցեք `router` `MoleculeProvider` ին։',
+  'react.error.noRoutedView':
+    'Այս երթուղային կապը չունի երթուղային տեսք այստեղ ցուցադրելու համար. փոխարենը էջը փոխանցեք որպես դուստր էջեր։',
   'react.error.useStoreOutsideProvider':
     'useStateProvider-\u0568 \u057A\u0565\u057F\u0584 \u0567 \u0585\u0563\u057F\u0561\u0563\u0578\u0580\u056E\u057E\u056B StateProvider-\u056B \u0576\u0565\u0580\u057D\u0578\u0582\u0574',
   'react.error.useStorageOutsideProvider':

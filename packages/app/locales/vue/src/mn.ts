@@ -2,7 +2,10 @@ import type { VueTranslations } from './types.js'
 
 /** Vue translations for Mongolian. */
 export const mn: VueTranslations = {
-  'vue.error.useRouterOutsideProvider': 'useRouterInstance-г RouterProvider дотор ашиглах ёстой',
+  'vue.error.useRouterOutsideProvider':
+    'Энд чиглүүлэгч байхгүй байна. Аппликейшнийг чиглүүлэлтийн холбоосоос (`@molecule/app-routing-vue-router`) `MoleculeRouterProvider` руу ороох эсвэл `router` `moleculePlugin` руу дамжуулна уу.',
+  'vue.error.noRoutedView':
+    'Энэ чиглүүлэлтийн холбоос нь энд үзүүлэх чиглүүлэлтийн харагдацгүй байна: оронд нь хуудсыг хүүхэд болгон дамжуулна уу.',
   'vue.error.useStoreOutsideProvider': 'useStateProvider-г StateProvider дотор ашиглах ёстой',
   'vue.error.useThemeOutsideProvider': 'useThemeProvider-г ThemeProvider дотор ашиглах ёстой',
   'vue.error.useAuthOutsideProvider': 'useAuthClient-г AuthProvider дотор ашиглах ёстой',

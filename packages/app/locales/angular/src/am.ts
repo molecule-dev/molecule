@@ -12,7 +12,9 @@ export const am: AngularTranslations = {
   'angular.error.useHttpOutsideProvider': 'useHttpClient በHttpProvider ውስጥ መጠቀም አለበት',
   'angular.error.useLoggerOutsideProvider': 'useLoggerProvider በLoggerProvider ውስጥ መጠቀም አለበት',
   'angular.error.usePreviewOutsideProvider': 'usePreviewProvider በPreviewProvider ውስጥ መጠቀም አለበት',
-  'angular.error.useRouterOutsideProvider': 'useRouterInstance በRouterProvider ውስጥ መጠቀም አለበት',
+  'angular.error.useRouterOutsideProvider':
+    'እዚህ ራውተር የለም። ከአንጉላር `provideRouter(routes)` በኋላ `provideMoleculeRouter()` ከሩቲንግ ቦንድ (`@molecule/app-routing-angular-router`) ወደ አፕሊኬሽኑ አቅራቢዎች ያክሉ ወይም `router` እስከ `provideMolecule` ያልፉ።',
+  'angular.error.noRoutedView': 'ይህ የማዞሪያ ቦንድ እዚህ ለማሳየት ምንም የማዞሪያ እይታ የለውም፡ ገጹን እንደ ልጆች ያስተላልፉ።',
   'angular.error.useStorageOutsideProvider': 'useStorageProvider በStorageProvider ውስጥ መጠቀም አለበት',
   'angular.error.useThemeOutsideProvider': 'useThemeProvider በThemeProvider ውስጥ መጠቀም አለበት',
   'angular.error.useWorkspaceOutsideProvider':

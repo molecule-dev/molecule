@@ -5,7 +5,8 @@ export const de: SvelteTranslations = {
   'svelte.error.noStateProvider': 'Zustandsanbieter nicht im Kontext gefunden',
   'svelte.error.noAuthClient': 'Authentifizierungsclient nicht im Kontext gefunden',
   'svelte.error.noThemeProvider': 'Theme-Anbieter nicht im Kontext gefunden',
-  'svelte.error.noRouter': 'Router nicht im Kontext gefunden',
+  'svelte.error.noRouter':
+    'Hier ist kein Router vorhanden. Binden Sie `MoleculeRouterProvider` aus dem Routing-Bond (`@molecule/app-routing-sveltekit`) im Stammverzeichnis `+layout.svelte` ein oder rufen Sie dort `setMoleculeContext({ router })` auf.',
   'svelte.error.noI18nProvider': 'I18n-Anbieter nicht im Kontext gefunden',
   'svelte.error.noHttpClient': 'HTTP-Client nicht im Kontext gefunden',
   'svelte.error.noStorageProvider': 'Speicheranbieter nicht im Kontext gefunden',
@@ -26,7 +27,9 @@ export const de: SvelteTranslations = {
   'svelte.error.useThemeOutsideProvider':
     'useThemeProvider muss innerhalb eines ThemeProviders verwendet werden.',
   'svelte.error.useRouterOutsideProvider':
-    'useRouterInstance muss innerhalb eines RouterProviders verwendet werden.',
+    'Hier ist kein Router vorhanden. Binden Sie `MoleculeRouterProvider` aus dem Routing-Bond (`@molecule/app-routing-sveltekit`) im Stammverzeichnis `+layout.svelte` ein oder rufen Sie dort `setMoleculeContext({ router })` auf.',
+  'svelte.error.noRoutedView':
+    'Hier gibt es keine geroutete Ansicht. SvelteKit weist einem Layout seine Seite als `children` zu: Übergeben Sie `{@render children()}` innerhalb dieser Komponente.',
   'svelte.error.useHttpOutsideProvider':
     'useHttpClient muss innerhalb eines HttpProviders verwendet werden.',
   'svelte.error.useStorageOutsideProvider':

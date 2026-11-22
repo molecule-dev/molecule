@@ -3,6 +3,8 @@
  */
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import type * as I18n from '@molecule/app-i18n'
+
 let mockInjectReturnValue: unknown = undefined
 const onMountedCallbacks: Array<() => void> = []
 const onUnmountedCallbacks: Array<() => void> = []
@@ -25,7 +27,9 @@ vi.mock('@molecule/app-state', () => ({}))
 vi.mock('@molecule/app-auth', () => ({}))
 vi.mock('@molecule/app-theme', () => ({}))
 vi.mock('@molecule/app-routing', () => ({}))
-vi.mock('@molecule/app-i18n', () => ({
+vi.mock('@molecule/app-i18n', async (importOriginal) => ({
+  // The real I18nError: useRouterInstance throws one.
+  I18nError: (await importOriginal<typeof I18n>()).I18nError,
   t: vi.fn(
     (key: string, _values?: unknown, options?: { defaultValue?: string }) =>
       options?.defaultValue ?? key,
@@ -66,9 +70,7 @@ describe('useRouterInstance', () => {
 
   it('throws when router is not injected', () => {
     mockInjectReturnValue = undefined
-    expect(() => useRouterInstance()).toThrow(
-      'useRouterInstance must be used within a RouterProvider',
-    )
+    expect(() => useRouterInstance()).toThrow(/^No router here\. /)
   })
 })
 

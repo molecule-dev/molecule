@@ -3,7 +3,9 @@ import type { VueTranslations } from './types.js'
 /** Vue translations for Georgian. */
 export const ka: VueTranslations = {
   'vue.error.useRouterOutsideProvider':
-    'useRouterInstance უნდა გამოიყენოთ RouterProvider-ის შიგნით',
+    'აქ როუტერი არ არის. აპლიკაცია გადაიტანეთ `MoleculeRouterProvider` ში მარშრუტიზაციის ბმიდან (`@molecule/app-routing-vue-router`), ან გადაეცით `router` `moleculePlugin` ს.',
+  'vue.error.noRoutedView':
+    'ამ მარშრუტიზაციის კავშირს არ აქვს მარშრუტიზებული ხედი აქ გამოსატანად: გვერდი გადაეცით, როგორც შვილობილი.',
   'vue.error.useStoreOutsideProvider': 'useStateProvider უნდა გამოიყენოთ StateProvider-ის შიგნით',
   'vue.error.useThemeOutsideProvider': 'useThemeProvider უნდა გამოიყენოთ ThemeProvider-ის შიგნით',
   'vue.error.useAuthOutsideProvider': 'useAuthClient უნდა გამოიყენოთ AuthProvider-ის შიგნით',

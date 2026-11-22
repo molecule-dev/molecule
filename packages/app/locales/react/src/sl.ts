@@ -14,7 +14,9 @@ export const sl: ReactTranslations = {
   'react.error.usePreviewOutsideProvider':
     'usePreviewProvider je treba uporabiti znotraj PreviewProvider',
   'react.error.useRouterOutsideProvider':
-    'useRouterInstance je treba uporabiti znotraj RouterProvider',
+    'Tukaj ni usmerjevalnika. Priklopite komponento usmerjevalnika iz usmerjevalne vezi aplikacije (`BrowserRouter` iz `@molecule/app-routing-react-router`) ali pa `router` posredujte `MoleculeProvider`.',
+  'react.error.noRoutedView':
+    'Ta usmerjevalna vez nima usmerjenega pogleda za upodobitev: namesto tega posredujte stran kot podrejene elemente.',
   'react.error.useStoreOutsideProvider':
     'useStateProvider je treba uporabiti znotraj StateProvider',
   'react.error.useStorageOutsideProvider':

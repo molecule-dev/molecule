@@ -2,7 +2,10 @@ import type { VueTranslations } from './types.js'
 
 /** Vue translations for Czech. */
 export const cs: VueTranslations = {
-  'vue.error.useRouterOutsideProvider': 'useRouterInstance musí být použit uvnitř RouterProvider',
+  'vue.error.useRouterOutsideProvider':
+    'Žádný router zde není. Zabalte aplikaci do `MoleculeRouterProvider` z routing bond (`@molecule/app-routing-vue-router`) nebo předejte `router` do `moleculePlugin`.',
+  'vue.error.noRoutedView':
+    'Tato směrovací vazba nemá žádný směrovaný pohled k vykreslení: místo toho předejte stránku jako podřízené objekty.',
   'vue.error.useStoreOutsideProvider': 'useStateProvider musí být použit uvnitř StateProvider',
   'vue.error.useThemeOutsideProvider': 'useThemeProvider musí být použit uvnitř ThemeProvider',
   'vue.error.useAuthOutsideProvider': 'useAuthClient musí být použit uvnitř AuthProvider',

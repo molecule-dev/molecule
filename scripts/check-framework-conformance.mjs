@@ -685,6 +685,8 @@ export const TITLE_PARITY_EXEMPT = {
   [BINDING_REFERENCE]: {
     'src/render/':
       "`@molecule/app-react/render` holds helpers for React's render model (committed refs, effect events, stable callbacks), which no other binding has; app-facing hooks live on the root export, which every binding matches",
+    'src/__tests__/useRouter.route-params-hook.test.tsx':
+      "tests `RouterProvider`'s `useRouteParams`, a hook only React Router needs: it scopes route params to the calling component, while Vue Router, SvelteKit, Solid Router and Angular Router answer params at the router's root, so no other binding takes such a hook",
   },
   '@molecule/app-routing-react-router': {
     'src/__tests__/main-entry-without-react-dom.test.ts':

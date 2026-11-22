@@ -3,7 +3,9 @@ import type { VueTranslations } from './types.js'
 /** Vue translations for Turkish. */
 export const tr: VueTranslations = {
   'vue.error.useRouterOutsideProvider':
-    'useRouterInstance bir RouterProvider i\u00e7inde kullan\u0131lmal\u0131d\u0131r',
+    'Burada yönlendirici yok. Uygulamayı yönlendirme bağından (`@molecule/app-routing-vue-router`) `MoleculeRouterProvider` içine sarın veya `router` `moleculePlugin` iletin.',
+  'vue.error.noRoutedView':
+    'Bu yönlendirme bağlantısının burada görüntülenecek yönlendirilmiş bir görünümü yok: bunun yerine sayfayı alt öğeler olarak iletin.',
   'vue.error.useStoreOutsideProvider':
     'useStateProvider bir StateProvider i\u00e7inde kullan\u0131lmal\u0131d\u0131r',
   'vue.error.useThemeOutsideProvider':

@@ -9,7 +9,7 @@ export const ur: SvelteTranslations = {
   'svelte.error.noThemeProvider':
     '\u062a\u06be\u06cc\u0645 \u0641\u0631\u0627\u06c1\u0645 \u06a9\u0646\u0646\u062f\u06c1 \u0633\u06cc\u0627\u0642 \u0648 \u0633\u0628\u0627\u0642 \u0645\u06cc\u06ba \u0646\u06c1\u06cc\u06ba \u0645\u0644\u0627',
   'svelte.error.noRouter':
-    '\u0631\u0627\u0624\u0679\u0631 \u0633\u06cc\u0627\u0642 \u0648 \u0633\u0628\u0627\u0642 \u0645\u06cc\u06ba \u0646\u06c1\u06cc\u06ba \u0645\u0644\u0627',
+    'یہاں کوئی راؤٹر نہیں ہے۔ `MoleculeRouterProvider` بانڈ (`@molecule/app-routing-sveltekit`) سے `+layout.svelte` میں ماؤنٹ کریں، یا وہاں `setMoleculeContext({ router })` کال کریں۔',
   'svelte.error.noI18nProvider':
     'I18n \u0641\u0631\u0627\u06c1\u0645 \u06a9\u0646\u0646\u062f\u06c1 \u0633\u06cc\u0627\u0642 \u0648 \u0633\u0628\u0627\u0642 \u0645\u06cc\u06ba \u0646\u06c1\u06cc\u06ba \u0645\u0644\u0627',
   'svelte.error.noHttpClient':
@@ -35,7 +35,9 @@ export const ur: SvelteTranslations = {
   'svelte.error.useThemeOutsideProvider':
     'useThemeProvider کو تھیم پرووائیڈر کے اندر استعمال کیا جانا چاہیے۔',
   'svelte.error.useRouterOutsideProvider':
-    'UseRouterInstance کا استعمال RouterProvider کے اندر ہونا چاہیے۔',
+    'یہاں کوئی راؤٹر نہیں ہے۔ `MoleculeRouterProvider` بانڈ (`@molecule/app-routing-sveltekit`) سے `+layout.svelte` میں ماؤنٹ کریں، یا وہاں `setMoleculeContext({ router })` کال کریں۔',
+  'svelte.error.noRoutedView':
+    'یہاں کوئی روٹ شدہ منظر نہیں ہے۔ SvelteKit اپنے صفحہ کو `children` کے طور پر لے آؤٹ دیتا ہے: اس جزو کے اندر `{@render children()}` کو پاس کریں۔',
   'svelte.error.useHttpOutsideProvider':
     'useHttpClient کا استعمال HttpProvider کے اندر ہونا چاہیے۔',
   'svelte.error.useStorageOutsideProvider':

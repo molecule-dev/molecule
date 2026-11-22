@@ -2,7 +2,10 @@ import type { VueTranslations } from './types.js'
 
 /** Vue translations for Sinhala. */
 export const si: VueTranslations = {
-  'vue.error.useRouterOutsideProvider': 'useRouterInstance RouterProvider තුළ භාවිතා කළ යුතුය',
+  'vue.error.useRouterOutsideProvider':
+    'මෙහි රවුටරයක් නැත. රවුටින් බන්ධනයෙන් (`@molecule/app-routing-vue-router`) `MoleculeRouterProvider` තුළ යෙදුම ඔතා, නැතහොත් `moleculePlugin` වෙත `router` යවන්න.',
+  'vue.error.noRoutedView':
+    'මෙම මාර්ගගත කිරීමේ බන්ධනයට මෙහි විදැහුම් කිරීමට මාර්ගගත දසුනක් නොමැත: ඒ වෙනුවට පිටුව ළමා ලෙස ලබා දෙන්න.',
   'vue.error.useStoreOutsideProvider': 'useStateProvider StateProvider තුළ භාවිතා කළ යුතුය',
   'vue.error.useThemeOutsideProvider': 'useThemeProvider ThemeProvider තුළ භාවිතා කළ යුතුය',
   'vue.error.useAuthOutsideProvider': 'useAuthClient AuthProvider තුළ භාවිතා කළ යුතුය',

@@ -3,7 +3,9 @@ import type { VueTranslations } from './types.js'
 /** Vue translations for Yoruba. */
 export const yo: VueTranslations = {
   'vue.error.useRouterOutsideProvider':
-    'useRouterInstance gb\u1ecdd\u1ecd l\u00e1ti lo n\u00edn\u00fa RouterProvider',
+    'Kò sí olùdarí níbí. Fi `MoleculeRouterProvider` wé àpù náà láti inú ìdè ìdarí (`@molecule/app-routing-vue-router`), tàbí kí o fi `router` sí `moleculePlugin`.',
+  'vue.error.noRoutedView':
+    'Ìdè ìtọ́sọ́nà yìí kò ní ojú ìwòye ìtọ́sọ́nà láti fi hàn níbí: fi ojú ìwé náà sílẹ̀ gẹ́gẹ́ bí ọmọdé dípò.',
   'vue.error.useStoreOutsideProvider':
     'useStateProvider gb\u1ecdd\u1ecd l\u00e1ti lo n\u00edn\u00fa StateProvider',
   'vue.error.useThemeOutsideProvider':

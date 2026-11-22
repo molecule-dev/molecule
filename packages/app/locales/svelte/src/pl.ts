@@ -6,7 +6,8 @@ export const pl: SvelteTranslations = {
   'svelte.error.noAuthClient':
     'Klient uwierzytelniania nie zosta\u0142 znaleziony w kontek\u015bcie',
   'svelte.error.noThemeProvider': 'Dostawca motywu nie zosta\u0142 znaleziony w kontek\u015bcie',
-  'svelte.error.noRouter': 'Router nie zosta\u0142 znaleziony w kontek\u015bcie',
+  'svelte.error.noRouter':
+    'Brak routera. Zamontuj `MoleculeRouterProvider` z wiązania routingu (`@molecule/app-routing-sveltekit`) w katalogu głównym `+layout.svelte` lub wywołaj tam `setMoleculeContext({ router })` .',
   'svelte.error.noI18nProvider': 'Dostawca i18n nie zosta\u0142 znaleziony w kontek\u015bcie',
   'svelte.error.noHttpClient': 'Klient HTTP nie zosta\u0142 znaleziony w kontek\u015bcie',
   'svelte.error.noStorageProvider':
@@ -24,7 +25,9 @@ export const pl: SvelteTranslations = {
   'svelte.error.useThemeOutsideProvider':
     'useThemeProvider musi być używany w ramach ThemeProvider',
   'svelte.error.useRouterOutsideProvider':
-    'useRouterInstance musi być używany w ramach RouterProvider',
+    'Brak routera. Zamontuj `MoleculeRouterProvider` z wiązania routingu (`@molecule/app-routing-sveltekit`) w katalogu głównym `+layout.svelte` lub wywołaj tam `setMoleculeContext({ router })` .',
+  'svelte.error.noRoutedView':
+    'Brak tutaj widoku trasowanego. SvelteKit przypisuje układowi swoją stronę jako `children`: przekazuje `{@render children()}` wewnątrz tego komponentu.',
   'svelte.error.useHttpOutsideProvider': 'useHttpClient musi być używany w ramach HttpProvider',
   'svelte.error.useStorageOutsideProvider':
     'useStorageProvider musi być używany w ramach StorageProvider',

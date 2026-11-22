@@ -9,7 +9,7 @@ export const my: SvelteTranslations = {
   'svelte.error.noThemeProvider':
     '\u1021\u1001\u103c\u1031\u1021\u1014\u1031 \u1021\u1001\u103c\u1004\u103a\u1038\u1015\u1036\u1037\u1015\u102d\u102f\u1038\u101e\u1030\u1000\u102d\u102f \u1006\u1000\u103a\u1005\u103a\u1010\u103d\u1004\u103a \u101b\u103e\u102c\u1019\u1010\u103d\u1031\u1037\u1015\u102b',
   'svelte.error.noRouter':
-    '\u101b\u1030\u1010\u102c\u1000\u102d\u102f \u1006\u1000\u103a\u1005\u103a\u1010\u103d\u1004\u103a \u101b\u103e\u102c\u1019\u1010\u103d\u1031\u1037\u1015\u102b',
+    'ဤနေရာတွင် router မရှိပါ။ root `+layout.svelte` ရှိ routing bond (`@molecule/app-routing-sveltekit`) မှ `MoleculeRouterProvider` mount လုပ်ပါ၊ သို့မဟုတ် `setMoleculeContext({ router })` ကို ထိုနေရာတွင် ခေါ်ဆိုပါ။',
   'svelte.error.noI18nProvider':
     'I18n \u1015\u1036\u1037\u1015\u102d\u102f\u1038\u101e\u1030\u1000\u102d\u102f \u1006\u1000\u103a\u1005\u103a\u1010\u103d\u1004\u103a \u101b\u103e\u102c\u1019\u1010\u103d\u1031\u1037\u1015\u102b',
   'svelte.error.noHttpClient':
@@ -33,7 +33,9 @@ export const my: SvelteTranslations = {
   'svelte.error.useThemeOutsideProvider':
     'useThemeProvider ကို ThemeProvider အတွင်းတွင် အသုံးပြုရမည်',
   'svelte.error.useRouterOutsideProvider':
-    'useRouterInstance ကို RouterProvider အတွင်းတွင် အသုံးပြုရမည်',
+    'ဤနေရာတွင် router မရှိပါ။ root `+layout.svelte` ရှိ routing bond (`@molecule/app-routing-sveltekit`) မှ `MoleculeRouterProvider` mount လုပ်ပါ၊ သို့မဟုတ် `setMoleculeContext({ router })` ကို ထိုနေရာတွင် ခေါ်ဆိုပါ။',
+  'svelte.error.noRoutedView':
+    'ဤနေရာတွင် routed view မရှိပါ။ SvelteKit သည် ၎င်း၏စာမျက်နှာကို `children` အဖြစ် layout ပေးသည် : ဤ component အတွင်းတွင် `{@render children()}` ကို pass လုပ်ပါ။',
   'svelte.error.useHttpOutsideProvider': 'useHttpClient ကို HttpProvider တစ်ခုအတွင်း အသုံးပြုရမည်။',
   'svelte.error.useStorageOutsideProvider':
     'useStorageProvider ကို StorageProvider အတွင်းတွင် အသုံးပြုရမည်',

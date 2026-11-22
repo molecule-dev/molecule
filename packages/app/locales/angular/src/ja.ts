@@ -17,7 +17,9 @@ export const ja: AngularTranslations = {
   'angular.error.usePreviewOutsideProvider':
     'usePreviewProviderはPreviewProvider内で使用する必要があります',
   'angular.error.useRouterOutsideProvider':
-    'useRouterInstanceはRouterProvider内で使用する必要があります',
+    'ここにルーターはありません。Angular の`provideRouter(routes)`後に、ルーティング ボンド (`@molecule/app-routing-angular-router`) から`provideMoleculeRouter()`アプリのプロバイダーに追加するか、`router`を`provideMolecule`に渡します。',
+  'angular.error.noRoutedView':
+    'このルーティングボンドには、ここにレンダリングするルーティングビューがありません。代わりにページを子要素として渡してください。',
   'angular.error.useStorageOutsideProvider':
     'useStorageProviderはStorageProvider内で使用する必要があります',
   'angular.error.useThemeOutsideProvider':

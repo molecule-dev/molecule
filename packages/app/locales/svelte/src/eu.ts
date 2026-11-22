@@ -5,7 +5,8 @@ export const eu: SvelteTranslations = {
   'svelte.error.noStateProvider': 'Egoera-hornitzailea ez da aurkitu testuinguruan',
   'svelte.error.noAuthClient': 'Autentifikazio-bezeroa ez da aurkitu testuinguruan',
   'svelte.error.noThemeProvider': 'Gai-hornitzailea ez da aurkitu testuinguruan',
-  'svelte.error.noRouter': 'Bideratzailea ez da aurkitu testuinguruan',
+  'svelte.error.noRouter':
+    'Ez dago bideratzailerik hemen. Muntatu `MoleculeRouterProvider` bideratze loturatik (`@molecule/app-routing-sveltekit`) `+layout.svelte` erroan, edo deitu `setMoleculeContext({ router })` han.',
   'svelte.error.noI18nProvider': 'I18n hornitzailea ez da aurkitu testuinguruan',
   'svelte.error.noHttpClient': 'HTTP bezeroa ez da aurkitu testuinguruan',
   'svelte.error.noStorageProvider': 'Biltegiratze-hornitzailea ez da aurkitu testuinguruan',
@@ -25,7 +26,9 @@ export const eu: SvelteTranslations = {
   'svelte.error.useThemeOutsideProvider':
     'useThemeProvider ThemeProvider baten barruan erabili behar da',
   'svelte.error.useRouterOutsideProvider':
-    'useRouterInstance RouterProvider baten barruan erabili behar da',
+    'Ez dago bideratzailerik hemen. Muntatu `MoleculeRouterProvider` bideratze loturatik (`@molecule/app-routing-sveltekit`) `+layout.svelte` erroan, edo deitu `setMoleculeContext({ router })` han.',
+  'svelte.error.noRoutedView':
+    'Ez dago bideratutako ikuspegirik hemen. SvelteKit-ek diseinuari bere orrialdea `children` gisa ematen dio: pasa `{@render children()}` osagai honen barruan.',
   'svelte.error.useHttpOutsideProvider':
     'useHttpClient HttpProvider baten barruan erabili behar da',
   'svelte.error.useStorageOutsideProvider':

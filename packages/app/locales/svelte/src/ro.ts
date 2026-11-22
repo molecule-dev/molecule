@@ -5,7 +5,8 @@ export const ro: SvelteTranslations = {
   'svelte.error.noStateProvider': 'Furnizorul de stare nu a fost g\u0103sit \u00een context',
   'svelte.error.noAuthClient': 'Clientul de autentificare nu a fost g\u0103sit \u00een context',
   'svelte.error.noThemeProvider': 'Furnizorul de tem\u0103 nu a fost g\u0103sit \u00een context',
-  'svelte.error.noRouter': 'Routerul nu a fost g\u0103sit \u00een context',
+  'svelte.error.noRouter':
+    'Nu există router aici. Montați `MoleculeRouterProvider` din legătura de rutare (`@molecule/app-routing-sveltekit`) în rădăcina `+layout.svelte` sau apelați `setMoleculeContext({ router })` acolo.',
   'svelte.error.noI18nProvider': 'Furnizorul i18n nu a fost g\u0103sit \u00een context',
   'svelte.error.noHttpClient': 'Clientul HTTP nu a fost g\u0103sit \u00een context',
   'svelte.error.noStorageProvider': 'Furnizorul de stocare nu a fost g\u0103sit \u00een context',
@@ -28,7 +29,9 @@ export const ro: SvelteTranslations = {
   'svelte.error.useThemeOutsideProvider':
     'useThemeProvider trebuie utilizat în cadrul unui ThemeProvider',
   'svelte.error.useRouterOutsideProvider':
-    'useRouterInstance trebuie utilizată în cadrul unui RouterProvider',
+    'Nu există router aici. Montați `MoleculeRouterProvider` din legătura de rutare (`@molecule/app-routing-sveltekit`) în rădăcina `+layout.svelte` sau apelați `setMoleculeContext({ router })` acolo.',
+  'svelte.error.noRoutedView':
+    'Nu există o vizualizare rutată aici. SvelteKit atribuie unui layout pagina sa ca `children`: transmite `{@render children()}` în interiorul acestei componente.',
   'svelte.error.useHttpOutsideProvider':
     'useHttpClient trebuie utilizat în cadrul unui HttpProvider',
   'svelte.error.useStorageOutsideProvider':

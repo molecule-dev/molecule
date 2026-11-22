@@ -14,7 +14,9 @@ export const uz: Partial<ReactTranslations> = {
   'react.error.usePreviewOutsideProvider':
     'usePreviewProvider PreviewProvider ichida ishlatilishi kerak',
   'react.error.useRouterOutsideProvider':
-    'useRouterInstance RouterProvider ichida ishlatilishi kerak',
+    "Bu yerda router yo'q. Ilovaning marshrutizatsiya bog'lanishidan (`BrowserRouter` from `@molecule/app-routing-react-router`) router komponentini o'rnating yoki `router` `MoleculeProvider` ga uzating.",
+  'react.error.noRoutedView':
+    "Ushbu marshrutlash bog'lanishida bu yerda ko'rsatish uchun marshrutlangan ko'rinish yo'q: buning o'rniga sahifani bolalar sifatida uzating.",
   'react.error.useStoreOutsideProvider': 'useStateProvider StateProvider ichida ishlatilishi kerak',
   'react.error.useStorageOutsideProvider':
     'useStorageProvider StorageProvider ichida ishlatilishi kerak',

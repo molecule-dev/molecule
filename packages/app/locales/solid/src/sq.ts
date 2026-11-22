@@ -35,7 +35,9 @@ export const sq: SolidTranslations = {
     'useLoggerProvider duhet të përdoret brenda një LoggerProvider',
   'solid.error.oauthFailed': 'Hyrja në OAuth dështoi',
   'solid.error.useRouterOutsideProvider':
-    'useRouterInstance duhet të përdoret brenda një RouterProvider',
+    'Nuk ka router këtu. Përdorni `MoleculeRouterProvider` nga lidhja e routing (`@molecule/app-routing-solid-router`) si `root` të routerit, ose kaloni `router` te `MoleculeProvider`.',
+  'solid.error.noRoutedView':
+    'Nuk ka pamje të rutuar këtu. Solid Router i jep komponentit të një rute rutën e tij të ndërthurur si `props.children`: përdoreni këtë si `component` të një rute, ose kalojeni faqen si fëmijë.',
   'solid.error.useStoreOutsideProvider':
     'useStateProvider duhet të përdoret brenda një StateProvider',
   'solid.error.useStorageOutsideProvider':

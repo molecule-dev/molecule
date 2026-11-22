@@ -4,7 +4,7 @@
  * @module
  */
 
-import type { App, Plugin } from 'vue'
+import type { App, Component, Plugin } from 'vue'
 
 import type { ChatProvider } from '@molecule/app-ai-chat'
 import type { AuthClient } from '@molecule/app-auth'
@@ -37,6 +37,7 @@ import {
   ThemeKey,
   WorkspaceKey,
 } from './injection-keys.js'
+import { RoutedViewKey } from './routed-view-key.js'
 
 /**
  * Options for the molecule Vue plugin.
@@ -201,12 +202,18 @@ export function createThemePlugin(provider: ThemeProvider): Plugin {
 /**
  * Creates a Vue plugin that provides a router service via dependency injection.
  * @param router - The router instance to inject into the Vue application.
+ * @param options - The routing bond's routed view, if it has one (see `RoutedView`).
+ * @param options.routedView - The component that renders the matched child route.
  * @returns A Vue plugin that provides the router to all descendant components.
  */
-export function createRouterPlugin(router: Router): Plugin {
+export function createRouterPlugin(
+  router: Router,
+  options: { routedView?: Component } = {},
+): Plugin {
   return {
     install(app: App) {
       app.provide(RouterKey, router)
+      app.provide(RoutedViewKey, options.routedView ?? null)
     },
   }
 }

@@ -17,7 +17,9 @@ export const hr: AngularTranslations = {
   'angular.error.usePreviewOutsideProvider':
     'usePreviewProvider se mora koristiti unutar PreviewProvider-a',
   'angular.error.useRouterOutsideProvider':
-    'useRouterInstance se mora koristiti unutar RouterProvider-a',
+    'Ovdje nema usmjerivača. Dodajte `provideMoleculeRouter()` iz veze usmjeravanja (`@molecule/app-routing-angular-router`) pružateljima aplikacije, nakon Angularovog `provideRouter(routes)`, ili proslijedite `router` `provideMolecule`.',
+  'angular.error.noRoutedView':
+    'Ova veza usmjeravanja nema usmjerni prikaz za prikaz ovdje: umjesto toga proslijedite stranicu kao potomke.',
   'angular.error.useStorageOutsideProvider':
     'useStorageProvider se mora koristiti unutar StorageProvider-a',
   'angular.error.useThemeOutsideProvider':

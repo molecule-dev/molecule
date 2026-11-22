@@ -12,7 +12,10 @@ export const he: AngularTranslations = {
   'angular.error.useHttpOutsideProvider': 'יש להשתמש ב-useHttpClient בתוך HttpProvider',
   'angular.error.useLoggerOutsideProvider': 'יש להשתמש ב-useLoggerProvider בתוך LoggerProvider',
   'angular.error.usePreviewOutsideProvider': 'יש להשתמש ב-usePreviewProvider בתוך PreviewProvider',
-  'angular.error.useRouterOutsideProvider': 'יש להשתמש ב-useRouterInstance בתוך RouterProvider',
+  'angular.error.useRouterOutsideProvider':
+    'אין כאן נתב. הוסף `provideMoleculeRouter()` מקשר הניתוב (`@molecule/app-routing-angular-router`) לספקי האפליקציה, אחרי `provideRouter(routes)` של Angular, או העבר `router` ל `provideMolecule`.',
+  'angular.error.noRoutedView':
+    'לקשר הניתוב הזה אין תצוגה מנותבת לעיבוד כאן: העבירו את הדף כצאצאים במקום זאת.',
   'angular.error.useStorageOutsideProvider': 'יש להשתמש ב-useStorageProvider בתוך StorageProvider',
   'angular.error.useThemeOutsideProvider': 'יש להשתמש ב-useThemeProvider בתוך ThemeProvider',
   'angular.error.useWorkspaceOutsideProvider':

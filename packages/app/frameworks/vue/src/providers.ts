@@ -50,6 +50,7 @@ import {
   ThemeKey,
   WorkspaceKey,
 } from './injection-keys.js'
+import { RoutedViewKey } from './routed-view-key.js'
 import { SessionReady } from './session-ready.js'
 import type {
   AuthProviderProps,
@@ -264,12 +265,28 @@ export const ThemeProvider = serviceProvider<ThemeProviderProps, 'provider'>(
 export type ThemeProvider = CoreThemeProvider
 
 /**
- * Provider for routing, as `@molecule/app-react`'s `RouterProvider`.
+ * Provider for routing, as `@molecule/app-react`'s `RouterProvider`: the router and, from a
+ * routing bond that has one, the routed view `RoutedView` renders (`null` without one). A
+ * routing bond renders it for the app, so app code rarely mounts it by hand.
  */
-export const RouterProvider = serviceProvider<RouterProviderProps, 'router'>(
-  'RouterProvider',
-  RouterKey,
-  'router',
+export const RouterProvider = defineComponent<
+  Omit<RouterProviderProps, keyof ProviderProps>,
+  Record<never, never>,
+  string,
+  SlotsType<ProviderProps>
+>(
+  (props, { slots }) =>
+    (): VNode => {
+      const view = props.routedView ?? null
+      const entries: ServiceEntry[] = [[RoutedViewKey, view]]
+      if (props.router) entries.unshift([RouterKey, props.router])
+      return h(
+        ProvidedServices,
+        { key: `${identityOf(props.router)}:${identityOf(view)}`, entries },
+        { default: () => slots.default?.() ?? [] },
+      )
+    },
+  { name: 'RouterProvider', props: ['router', 'routedView'] },
 )
 
 /**

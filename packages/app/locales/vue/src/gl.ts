@@ -2,7 +2,10 @@ import type { VueTranslations } from './types.js'
 
 /** Vue translations for Galician. */
 export const gl: VueTranslations = {
-  'vue.error.useRouterOutsideProvider': 'useRouterInstance debe usarse dentro dun RouterProvider',
+  'vue.error.useRouterOutsideProvider':
+    'Aquí non hai enrutador. Envolve a aplicación en `MoleculeRouterProvider` desde o enlace de enrutamento (`@molecule/app-routing-vue-router`) ou pasa `router` a `moleculePlugin`.',
+  'vue.error.noRoutedView':
+    'Este enlace de enrutamento non ten ningunha vista enrutada para renderizar aquí: pásase a páxina como filla no seu lugar.',
   'vue.error.useStoreOutsideProvider': 'useStateProvider debe usarse dentro dun StateProvider',
   'vue.error.useThemeOutsideProvider': 'useThemeProvider debe usarse dentro dun ThemeProvider',
   'vue.error.useAuthOutsideProvider': 'useAuthClient debe usarse dentro dun AuthProvider',

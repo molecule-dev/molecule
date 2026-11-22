@@ -9,7 +9,9 @@ export const zhTW: ReactTranslations = {
   'react.error.useHttpOutsideProvider': 'useHttpClient 必須在 HttpProvider 內使用',
   'react.error.useLoggerOutsideProvider': 'useLoggerProvider 必須在 LoggerProvider 內使用',
   'react.error.usePreviewOutsideProvider': 'usePreviewProvider 必須在 PreviewProvider 內使用',
-  'react.error.useRouterOutsideProvider': 'useRouterInstance 必須在 RouterProvider 內使用',
+  'react.error.useRouterOutsideProvider':
+    '這裡沒有路由器。從應用程式的路由綁定中掛載一個路由器元件（來自`@molecule/app-routing-react-router` `BrowserRouter`），或將`router`傳遞給`MoleculeProvider`。',
+  'react.error.noRoutedView': '此路由綁定沒有要渲染的路由視圖：請將頁面作為子頁面傳遞。',
   'react.error.useStoreOutsideProvider': 'useStateProvider 必須在 StateProvider 內使用',
   'react.error.useStorageOutsideProvider': 'useStorageProvider 必須在 StorageProvider 內使用',
   'react.error.useThemeOutsideProvider': 'useThemeProvider 必須在 ThemeProvider 內使用',

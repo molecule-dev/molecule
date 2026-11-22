@@ -39,7 +39,9 @@ export const ro: SolidTranslations = {
     'useLoggerProvider trebuie utilizat în cadrul unui LoggerProvider',
   'solid.error.oauthFailed': 'Conectarea OAuth a eșuat',
   'solid.error.useRouterOutsideProvider':
-    'useRouterInstance trebuie utilizată în cadrul unui RouterProvider',
+    'Nu există router aici. Folosește `MoleculeRouterProvider` din legătura de rutare (`@molecule/app-routing-solid-router`) ca `root` al routerului sau transmite `router` către `MoleculeProvider`.',
+  'solid.error.noRoutedView':
+    'Nu există o vizualizare rutată aici. Solid Router dă componentei unei rute ruta sa imbricată ca `props.children`: folosiți aceasta ca `component` a unei rute sau transmiteți pagina ca fii.',
   'solid.error.useStoreOutsideProvider':
     'useStateProvider trebuie utilizat în cadrul unui StateProvider',
   'solid.error.useStorageOutsideProvider':

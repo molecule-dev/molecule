@@ -2,7 +2,10 @@ import type { VueTranslations } from './types.js'
 
 /** Vue translations for Arabic. */
 export const ar: VueTranslations = {
-  'vue.error.useRouterOutsideProvider': 'يجب استخدام useRouterInstance داخل RouterProvider',
+  'vue.error.useRouterOutsideProvider':
+    'لا يوجد موجه هنا. قم بتغليف التطبيق في `MoleculeRouterProvider` من رابط التوجيه (`@molecule/app-routing-vue-router`)، أو مرر `router` إلى `moleculePlugin`.',
+  'vue.error.noRoutedView':
+    'لا يحتوي رابط التوجيه هذا على عرض موجه لعرضه هنا: مرر الصفحة كعناصر فرعية بدلاً من ذلك.',
   'vue.error.useStoreOutsideProvider': 'يجب استخدام useStateProvider داخل StateProvider',
   'vue.error.useThemeOutsideProvider': 'يجب استخدام useThemeProvider داخل ThemeProvider',
   'vue.error.useAuthOutsideProvider': 'يجب استخدام useAuthClient داخل AuthProvider',

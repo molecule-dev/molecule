@@ -38,7 +38,9 @@ export const ta: SolidTranslations = {
     'useLoggerProvider ஆனது ஒரு LoggerProvider-க்குள் பயன்படுத்தப்பட வேண்டும்.',
   'solid.error.oauthFailed': 'OAuth உள்நுழைவு தோல்வியடைந்தது',
   'solid.error.useRouterOutsideProvider':
-    'useRouterInstance ஆனது ஒரு RouterProvider-க்குள் பயன்படுத்தப்பட வேண்டும்.',
+    'இங்கே ரௌட்டர் இல்லை. ரௌட்டிங் பாண்டில் (`@molecule/app-routing-solid-router`) உள்ள `MoleculeRouterProvider` ரௌட்டரின் `root` ஆகப் பயன்படுத்தவும், அல்லது `router` `MoleculeProvider` க்கு அனுப்பவும்.',
+  'solid.error.noRoutedView':
+    'இங்கே ரூட் செய்யப்பட்ட வியூ இல்லை. சாலிட் ரூட்டர் ஒரு ரூட்டின் காம்பொனென்ட்டிற்கு அதன் நெஸ்டட் ரூட்டை `props.children` ஆக வழங்குகிறது: இதை ஒரு ரூட்டின் `component` ஆகப் பயன்படுத்தவும், அல்லது பக்கத்தை அதன் சில்ட்ரன்களாக அனுப்பவும்.',
   'solid.error.useStoreOutsideProvider':
     'useStateProvider என்பது ஒரு StateProvider-க்குள் பயன்படுத்தப்பட வேண்டும்.',
   'solid.error.useStorageOutsideProvider':

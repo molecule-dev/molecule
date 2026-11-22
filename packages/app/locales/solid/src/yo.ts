@@ -30,7 +30,10 @@ export const yo: SolidTranslations = {
   'solid.error.unsupportedMethod': 'Ọ̀nà tí kò ní àtìlẹ́yìn: {{method}}',
   'solid.error.useLoggerOutsideProvider': 'a gbọ́dọ̀ lo useLoggerProvider nínú LoggerProvider',
   'solid.error.oauthFailed': 'Wíwọlé OAuth kùnà',
-  'solid.error.useRouterOutsideProvider': 'a gbọ́dọ̀ lo useRouterInstance láàrín Olùpèsè Router kan',
+  'solid.error.useRouterOutsideProvider':
+    'Kò sí olùdarí `MoleculeProvider`. Lo `MoleculeRouterProvider` `router` `root` ìsopọ̀ ìdarí `@molecule/app-routing-solid-router`',
+  'solid.error.noRoutedView':
+    'Kò sí ìwòran tí a lè fi ojú ọ̀nà hàn níbí. Solid Router fún apá ipa ọ̀nà kan ní ipa ọ̀nà tí ó wà ní ìsàlẹ̀ gẹ́gẹ́ bí `props.children`: lo èyí gẹ́gẹ́ bí `component` ọ̀nà kan, tàbí kí o fi ojú ìwé náà kọjá gẹ́gẹ́ bí ọmọdé.',
   'solid.error.useStoreOutsideProvider': 'a gbọ́dọ̀ lo useStateProvider láàrín Olùpèsè Ìpínlẹ̀ kan',
   'solid.error.useStorageOutsideProvider': 'a gbọ́dọ̀ lo useStorageProvider láàrín StorageProvider',
   'solid.error.useThemeOutsideProvider': 'a gbọ́dọ̀ lo useThemeProvider láàrín ThemeProvider kan',

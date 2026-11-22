@@ -11,7 +11,9 @@ export const ig: Partial<ReactTranslations> = {
   'react.error.useLoggerOutsideProvider': "A ga-eji useLoggerProvider n'ime LoggerProvider",
   'react.error.usePreviewOutsideProvider': "A ga-eji usePreviewProvider n'ime PreviewProvider",
   'react.error.useRouterOutsideProvider':
-    "A ga-eji useRouterInstance mee ihe n'ime onye na-enye Router",
+    'Enweghị rawụta ebe a. Tinye ihe nhazi rawụta site na njikọ nhazi nke ngwa ahụ (`BrowserRouter` site na `@molecule/app-routing-react-router`), ma ọ bụ nyefee `router` gaa na `MoleculeProvider`.',
+  'react.error.noRoutedView':
+    'Njikọ nhazi a enweghị echiche ngagharị iji gosi ebe a: gafere peeji ahụ dịka ụmụaka kama.',
   'react.error.useStoreOutsideProvider': "A ga-eji useStateProvider n'ime Onye Na-enye Steeti",
   'react.error.useStorageOutsideProvider':
     "A ga-eji onye na-enye nchekwa data (useStorageProvider) n'ime onye na-enye nchekwa data",

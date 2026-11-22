@@ -46,6 +46,15 @@ export interface SolidBinding {
   >
   /** Clears the chat stores' module-level state between cases. */
   resetChatStoresForTests(): void
+  /** The routing provider, which also takes a routing bond's routed view (`routedView`). */
+  RouterProvider: Component<{
+    /** The case's router. */
+    router: NonNullable<BindingServices['router']>
+    /** The view the routing bond renders for the matched child route. */
+    routedView?: Component
+    /** The tree it wraps. */
+    children: JSX.Element
+  }>
 }
 
 /** Options for {@link createSolidBindingAdapter}. */
@@ -66,7 +75,7 @@ export function createSolidBindingAdapter({
   exports: exportsOf,
   binding,
 }: SolidBindingAdapterOptions): BindingAdapter {
-  const { MoleculeProvider, resetChatStoresForTests } = binding
+  const { MoleculeProvider, RouterProvider, resetChatStoresForTests } = binding
 
   return {
     name: 'solid',
@@ -111,7 +120,17 @@ export function createSolidBindingAdapter({
                   // so a hook case under a loading client mounts at once.
                   awaitSession: false,
                   get children(): JSX.Element {
-                    return createComponent(Host, {})
+                    // The case's routed view, as a routing bond provides one.
+                    const text = options.routedView
+                    const router = services.router
+                    if (text === undefined || !router) return createComponent(Host, {})
+                    return createComponent(RouterProvider, {
+                      router,
+                      routedView: () => text,
+                      get children(): JSX.Element {
+                        return createComponent(Host, {})
+                      },
+                    })
                   },
                 }),
           container,

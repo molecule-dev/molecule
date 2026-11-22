@@ -20,7 +20,9 @@ export const ta: AngularTranslations = {
   'angular.error.usePreviewOutsideProvider':
     'usePreviewProvider ஒரு PreviewProvider க்குள் பயன்படுத்தப்பட வேண்டும்',
   'angular.error.useRouterOutsideProvider':
-    'useRouterInstance ஒரு RouterProvider க்குள் பயன்படுத்தப்பட வேண்டும்',
+    'இங்கே ரூட்டர் இல்லை. ஆங்குலரின் `provideRouter(routes)` க்குப் பிறகு, ரூட்டிங் பாண்டிலிருந்து (`@molecule/app-routing-angular-router`) `provideMoleculeRouter()` ஆப்பின் வழங்குநர்களுக்குச் சேர்க்கவும், அல்லது `router` `provideMolecule` க்கு அனுப்பவும்.',
+  'angular.error.noRoutedView':
+    'இந்த ரூட்டிங் பாண்டில் ரெண்டர் செய்வதற்கு ரூட் செய்யப்பட்ட வியூ எதுவும் இல்லை: அதற்குப் பதிலாக பக்கத்தை சில்ட்ரன்களாக அனுப்பவும்.',
   'angular.error.useStorageOutsideProvider':
     'useStorageProvider ஒரு StorageProvider க்குள் பயன்படுத்தப்பட வேண்டும்',
   'angular.error.useThemeOutsideProvider':

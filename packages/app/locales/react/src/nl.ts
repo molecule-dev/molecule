@@ -17,7 +17,9 @@ export const nl: ReactTranslations = {
   'react.error.usePreviewOutsideProvider':
     'usePreviewProvider moet binnen een PreviewProvider worden gebruikt',
   'react.error.useRouterOutsideProvider':
-    'useRouterInstance moet binnen een RouterProvider worden gebruikt',
+    'Hier is geen router aanwezig. Monteer een routercomponent vanuit de routing bond van de app (`BrowserRouter` van `@molecule/app-routing-react-router`), of geef `router` door aan `MoleculeProvider`.',
+  'react.error.noRoutedView':
+    'Deze routing bond heeft geen gerouteerde view om hier weer te geven: geef de pagina in plaats daarvan door als children.',
   'react.error.useStoreOutsideProvider':
     'useStateProvider moet binnen een StateProvider worden gebruikt',
   'react.error.useStorageOutsideProvider':

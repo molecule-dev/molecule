@@ -9,7 +9,7 @@ export const vi: SvelteTranslations = {
   'svelte.error.noThemeProvider':
     'Kh\u00f4ng t\u00ecm th\u1ea5y nh\u00e0 cung c\u1ea5p ch\u1ee7 \u0111\u1ec1 trong ng\u1eef c\u1ea3nh',
   'svelte.error.noRouter':
-    'Kh\u00f4ng t\u00ecm th\u1ea5y b\u1ed9 \u0111\u1ecbnh tuy\u1ebfn trong ng\u1eef c\u1ea3nh',
+    'Không có bộ định tuyến ở đây. Hãy gắn `MoleculeRouterProvider` từ liên kết định tuyến (`@molecule/app-routing-sveltekit`) vào tệp gốc `+layout.svelte` hoặc gọi `setMoleculeContext({ router })` ở đó.',
   'svelte.error.noI18nProvider':
     'Kh\u00f4ng t\u00ecm th\u1ea5y nh\u00e0 cung c\u1ea5p i18n trong ng\u1eef c\u1ea3nh',
   'svelte.error.noHttpClient':
@@ -32,7 +32,9 @@ export const vi: SvelteTranslations = {
   'svelte.error.useThemeOutsideProvider':
     'useThemeProvider phải được sử dụng bên trong ThemeProvider.',
   'svelte.error.useRouterOutsideProvider':
-    'useRouterInstance phải được sử dụng bên trong RouterProvider',
+    'Không có bộ định tuyến ở đây. Hãy gắn `MoleculeRouterProvider` từ liên kết định tuyến (`@molecule/app-routing-sveltekit`) vào tệp gốc `+layout.svelte` hoặc gọi `setMoleculeContext({ router })` ở đó.',
+  'svelte.error.noRoutedView':
+    'Không có view được định tuyến ở đây. SvelteKit cung cấp cho layout trang của nó dưới dạng `children`: truyền `{@render children()}` vào bên trong component này.',
   'svelte.error.useHttpOutsideProvider': 'useHttpClient phải được sử dụng bên trong HttpProvider.',
   'svelte.error.useStorageOutsideProvider':
     'useStorageProvider phải được sử dụng bên trong StorageProvider.',

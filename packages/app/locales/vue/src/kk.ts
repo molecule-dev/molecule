@@ -3,7 +3,9 @@ import type { VueTranslations } from './types.js'
 /** Vue translations for Kazakh. */
 export const kk: VueTranslations = {
   'vue.error.useRouterOutsideProvider':
-    'useRouterInstance RouterProvider ішінде пайдаланылуы керек',
+    'Мұнда маршрутизатор жоқ. Қолданбаны маршруттау байланысынан (`@molecule/app-routing-vue-router`) `MoleculeRouterProvider` ішіне ораңыз немесе `router` `moleculePlugin` қызметіне жіберіңіз.',
+  'vue.error.noRoutedView':
+    'Бұл бағыттау байланысының мұнда көрсетуге болатын бағыттау көрінісі жоқ: оның орнына бетті бала ретінде беріңіз.',
   'vue.error.useStoreOutsideProvider': 'useStateProvider StateProvider ішінде пайдаланылуы керек',
   'vue.error.useThemeOutsideProvider': 'useThemeProvider ThemeProvider ішінде пайдаланылуы керек',
   'vue.error.useAuthOutsideProvider': 'useAuthClient AuthProvider ішінде пайдаланылуы керек',

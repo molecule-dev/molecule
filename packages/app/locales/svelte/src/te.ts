@@ -9,7 +9,7 @@ export const te: SvelteTranslations = {
   'svelte.error.noThemeProvider':
     '\u0c25\u0c40\u0c2e\u0c4d \u0c2a\u0c4d\u0c30\u0c4a\u0c35\u0c48\u0c21\u0c30\u0c4d \u0c38\u0c02\u0c26\u0c30\u0c4d\u0c2d\u0c02\u0c32\u0c4b \u0c15\u0c28\u0c41\u0c17\u0c4a\u0c28\u0c32\u0c47\u0c26\u0c41',
   'svelte.error.noRouter':
-    '\u0c30\u0c4c\u0c1f\u0c30\u0c4d \u0c38\u0c02\u0c26\u0c30\u0c4d\u0c2d\u0c02\u0c32\u0c4b \u0c15\u0c28\u0c41\u0c17\u0c4a\u0c28\u0c32\u0c47\u0c26\u0c41',
+    'ఇక్కడ రౌటర్ లేదు. రూట్ ఫైల్‌లోని `+layout.svelte` లో ఉన్న రౌటింగ్ బాండ్ (`@molecule/app-routing-sveltekit`) నుండి `MoleculeRouterProvider` మౌంట్ చేయండి, లేదా అక్కడ `setMoleculeContext({ router })` కాల్ చేయండి.',
   'svelte.error.noI18nProvider':
     'I18n \u0c2a\u0c4d\u0c30\u0c4a\u0c35\u0c48\u0c21\u0c30\u0c4d \u0c38\u0c02\u0c26\u0c30\u0c4d\u0c2d\u0c02\u0c32\u0c4b \u0c15\u0c28\u0c41\u0c17\u0c4a\u0c28\u0c32\u0c47\u0c26\u0c41',
   'svelte.error.noHttpClient':
@@ -31,7 +31,10 @@ export const te: SvelteTranslations = {
   'svelte.error.useAuthOutsideProvider': 'AuthProvider లోపల useAuthClient ను ఉపయోగించాలి',
   'svelte.error.useThemeOutsideProvider':
     'useThemeProvider ను తప్పనిసరిగా ThemeProvider లోపల ఉపయోగించాలి',
-  'svelte.error.useRouterOutsideProvider': 'useRouterInstance RouterProvider లోపల ఉపయోగించాలి',
+  'svelte.error.useRouterOutsideProvider':
+    'ఇక్కడ రౌటర్ లేదు. రూట్ ఫైల్‌లోని `+layout.svelte` లో ఉన్న రౌటింగ్ బాండ్ (`@molecule/app-routing-sveltekit`) నుండి `MoleculeRouterProvider` మౌంట్ చేయండి, లేదా అక్కడ `setMoleculeContext({ router })` కాల్ చేయండి.',
+  'svelte.error.noRoutedView':
+    'ఇక్కడ రౌటెడ్ వ్యూ లేదు. SvelteKit ఒక లేఅవుట్‌కు దాని పేజీని `children` గా ఇస్తుంది: ఈ కాంపోనెంట్ లోపల `{@render children()}` ను పాస్ చేయండి.',
   'svelte.error.useHttpOutsideProvider':
     'useHttpClient ను తప్పనిసరిగా HttpProvider లోపల ఉపయోగించాలి',
   'svelte.error.useStorageOutsideProvider':

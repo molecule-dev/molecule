@@ -141,6 +141,15 @@ describe('providers', () => {
       expect(makeEnvProvidersCalls[0]).toEqual([{ provide: ROUTER, useValue: mockRouter }])
       expect(result).toBeDefined()
     })
+
+    it('should provide the router a function returns, built where the router is injected', () => {
+      const mockRouter: Router = createTestRouter()
+      const build = (): Router => mockRouter
+      provideRouter(build)
+
+      expect(makeEnvProvidersCalls).toHaveLength(1)
+      expect(makeEnvProvidersCalls[0]).toEqual([{ provide: ROUTER, useFactory: build }])
+    })
   })
 
   describe('provideI18n', () => {

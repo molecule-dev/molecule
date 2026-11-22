@@ -17,7 +17,9 @@ export const pa: ReactTranslations = {
   'react.error.usePreviewOutsideProvider':
     'usePreviewProvider ਨੂੰ PreviewProvider ਦੇ ਅੰਦਰ ਵਰਤਿਆ ਜਾਣਾ ਚਾਹੀਦਾ ਹੈ',
   'react.error.useRouterOutsideProvider':
-    'useRouterInstance ਨੂੰ RouterProvider ਦੇ ਅੰਦਰ ਵਰਤਿਆ ਜਾਣਾ ਚਾਹੀਦਾ ਹੈ',
+    'ਇੱਥੇ ਕੋਈ ਰਾਊਟਰ ਨਹੀਂ ਹੈ। ਐਪ ਦੇ ਰਾਊਟਿੰਗ ਬਾਂਡ (`BrowserRouter` `@molecule/app-routing-react-router` ਤੋਂ) ਤੋਂ ਇੱਕ ਰਾਊਟਰ ਕੰਪੋਨੈਂਟ ਮਾਊਂਟ ਕਰੋ, ਜਾਂ `router` ਨੂੰ `MoleculeProvider` ਵਿੱਚ ਪਾਸ ਕਰੋ।',
+  'react.error.noRoutedView':
+    'ਇਸ ਰੂਟਿੰਗ ਬਾਂਡ ਦਾ ਇੱਥੇ ਰੈਂਡਰ ਕਰਨ ਲਈ ਕੋਈ ਰੂਟਡ ਵਿਊ ਨਹੀਂ ਹੈ: ਇਸਦੀ ਬਜਾਏ ਪੇਜ ਨੂੰ ਚਿਲਡਰਨ ਵਜੋਂ ਪਾਸ ਕਰੋ।',
   'react.error.useStoreOutsideProvider':
     'useStateProvider ਨੂੰ StateProvider ਦੇ ਅੰਦਰ ਵਰਤਿਆ ਜਾਣਾ ਚਾਹੀਦਾ ਹੈ',
   'react.error.useStorageOutsideProvider':

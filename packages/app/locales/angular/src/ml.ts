@@ -17,7 +17,9 @@ export const ml: AngularTranslations = {
   'angular.error.usePreviewOutsideProvider':
     'usePreviewProvider ഒരു PreviewProvider-നുള്ളിൽ ഉപയോഗിക്കണം',
   'angular.error.useRouterOutsideProvider':
-    'useRouterInstance ഒരു RouterProvider-നുള്ളിൽ ഉപയോഗിക്കണം',
+    'ഇവിടെ റൂട്ടർ ഇല്ല. ആംഗുലറിന്റെ `provideRouter(routes)` ന് ശേഷം, റൂട്ടിംഗ് ബോണ്ടിൽ നിന്ന് (`@molecule/app-routing-angular-router`) `provideMoleculeRouter()` ആപ്പിന്റെ ദാതാക്കളിലേക്ക് ചേർക്കുക, അല്ലെങ്കിൽ `router` മുതൽ `provideMolecule` വരെ പാസ് ചെയ്യുക.',
+  'angular.error.noRoutedView':
+    'ഈ റൂട്ടിംഗ് ബോണ്ടിന് ഇവിടെ റെൻഡർ ചെയ്യാൻ റൂട്ട് ചെയ്ത വ്യൂ ഇല്ല: പകരം പേജ് ചിൽഡ്രൻ ആയി നൽകുക.',
   'angular.error.useStorageOutsideProvider':
     'useStorageProvider ഒരു StorageProvider-നുള്ളിൽ ഉപയോഗിക്കണം',
   'angular.error.useThemeOutsideProvider': 'useThemeProvider ഒരു ThemeProvider-നുള്ളിൽ ഉപയോഗിക്കണം',

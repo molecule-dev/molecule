@@ -20,7 +20,9 @@ export const fi: AngularTranslations = {
   'angular.error.usePreviewOutsideProvider':
     'usePreviewProvider on käytettävä PreviewProvider-komponentin sisällä',
   'angular.error.useRouterOutsideProvider':
-    'useRouterInstance on käytettävä RouterProvider-komponentin sisällä',
+    'Ei reititintä. Lisää `provideMoleculeRouter()` reitityslinkistä (`@molecule/app-routing-angular-router`) sovelluksen tarjoajiin Angularin `provideRouter(routes)` jälkeen tai välitä `router` `provideMolecule` metodille.',
+  'angular.error.noRoutedView':
+    'Tällä reitityslinkillä ei ole reititettyä näkymää, jota voisi renderöidä tässä: välitä sivu sen sijaan alisivuina.',
   'angular.error.useStorageOutsideProvider':
     'useStorageProvider on käytettävä StorageProvider-komponentin sisällä',
   'angular.error.useThemeOutsideProvider':

@@ -11,7 +11,10 @@ export const fa: ReactTranslations = {
   'react.error.useLoggerOutsideProvider': 'useLoggerProvider باید درون LoggerProvider استفاده شود',
   'react.error.usePreviewOutsideProvider':
     'usePreviewProvider باید درون PreviewProvider استفاده شود',
-  'react.error.useRouterOutsideProvider': 'useRouterInstance باید درون RouterProvider استفاده شود',
+  'react.error.useRouterOutsideProvider':
+    'اینجا هیچ روتری وجود ندارد. یک کامپوننت روتر را از پیوند مسیریابی برنامه (`BrowserRouter` از `@molecule/app-routing-react-router`) نصب کنید، یا `router` به `MoleculeProvider` منتقل کنید.',
+  'react.error.noRoutedView':
+    'این پیوند مسیریابی هیچ نمای مسیریابی‌شده‌ای برای رندر کردن در اینجا ندارد: در عوض، صفحه را به عنوان فرزند ارسال کنید.',
   'react.error.useStoreOutsideProvider': 'useStateProvider باید درون StateProvider استفاده شود',
   'react.error.useStorageOutsideProvider':
     'useStorageProvider باید درون StorageProvider استفاده شود',

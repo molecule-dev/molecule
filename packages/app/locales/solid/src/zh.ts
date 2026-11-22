@@ -24,7 +24,10 @@ export const zh: SolidTranslations = {
   'solid.error.unsupportedMethod': '不支持的方法：{{method}}',
   'solid.error.useLoggerOutsideProvider': 'useLoggerProvider 必须在 LoggerProvider 中使用',
   'solid.error.oauthFailed': 'OAuth登录失败',
-  'solid.error.useRouterOutsideProvider': 'useRouterInstance 必须在 RouterProvider 中使用。',
+  'solid.error.useRouterOutsideProvider':
+    '这里没有路由器。使用路由绑定（`@molecule/app-routing-solid-router`）中的`MoleculeRouterProvider`作为路由器的`root`，或者将`router`传递给`MoleculeProvider`。',
+  'solid.error.noRoutedView':
+    '这里没有路由视图。Solid Router 将路由组件的嵌套路由作为`props.children`传递给它：你可以将其用作路由的`component`，或者将页面作为子元素传递。',
   'solid.error.useStoreOutsideProvider': 'useStateProvider 必须在 StateProvider 中使用。',
   'solid.error.useStorageOutsideProvider': 'useStorageProvider 必须在 StorageProvider 中使用。',
   'solid.error.useThemeOutsideProvider': 'useThemeProvider 必须在 ThemeProvider 中使用',

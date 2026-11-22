@@ -17,7 +17,9 @@ export const hi: ReactTranslations = {
   'react.error.usePreviewOutsideProvider':
     'usePreviewProvider का उपयोग PreviewProvider के अंदर किया जाना चाहिए',
   'react.error.useRouterOutsideProvider':
-    'useRouterInstance का उपयोग RouterProvider के अंदर किया जाना चाहिए',
+    'यहां कोई राउटर नहीं है। ऐप के राउटिंग बॉन्ड से एक राउटर कंपोनेंट माउंट करें ( `@molecule/app-routing-react-router` से `BrowserRouter` ), या `MoleculeProvider` को `router` पास करें।',
+  'react.error.noRoutedView':
+    'इस राउटिंग बॉन्ड में यहां रेंडर करने के लिए कोई राउटेड व्यू नहीं है: इसके बजाय पेज को चाइल्ड के रूप में पास करें।',
   'react.error.useStoreOutsideProvider':
     'useStateProvider का उपयोग StateProvider के अंदर किया जाना चाहिए',
   'react.error.useStorageOutsideProvider':

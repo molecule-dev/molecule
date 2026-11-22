@@ -35,7 +35,9 @@ export const ca: Partial<SolidTranslations> = {
     "useLoggerProvider s'ha d'utilitzar dins d'un LoggerProvider.",
   'solid.error.oauthFailed': "L'inici de sessió amb OAuth ha fallat",
   'solid.error.useRouterOutsideProvider':
-    "useRouterInstance s'ha d'utilitzar dins d'un RouterProvider.",
+    "Aquí no hi ha cap encaminador. Feu servir `MoleculeRouterProvider` de l'enllaç d'encaminament (`@molecule/app-routing-solid-router`) com a `root` de l'encaminador, o passeu `router` a `MoleculeProvider`.",
+  'solid.error.noRoutedView':
+    "Aquí no hi ha vista encaminada. Solid Router dóna a un component d'una ruta la seva ruta imbricada com a `props.children`: utilitzeu això com a `component` d'una ruta o passeu la pàgina com a fill.",
   'solid.error.useStoreOutsideProvider':
     "useStateProvider s'ha d'utilitzar dins d'un StateProvider.",
   'solid.error.useStorageOutsideProvider':

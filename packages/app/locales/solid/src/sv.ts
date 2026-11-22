@@ -32,7 +32,10 @@ export const sv: SolidTranslations = {
   'solid.error.unsupportedMethod': 'Metod som inte stöds: {{method}}',
   'solid.error.useLoggerOutsideProvider': 'useLoggerProvider måste användas inom en LoggerProvider',
   'solid.error.oauthFailed': 'OAuth-inloggning misslyckades',
-  'solid.error.useRouterOutsideProvider': 'useRouterInstance måste användas inom en RouterProvider',
+  'solid.error.useRouterOutsideProvider':
+    'Ingen router här. Använd `MoleculeRouterProvider` från routingbindningen (`@molecule/app-routing-solid-router`) som routerns `root`, eller skicka `router` till `MoleculeProvider`.',
+  'solid.error.noRoutedView':
+    'Ingen routad vy här. Solid Router ger en rutts komponent dess kapslade rutt som `props.children`: använd detta som en rutts `component`, eller skicka sidan som barn.',
   'solid.error.useStoreOutsideProvider': 'useStateProvider måste användas inom en StateProvider',
   'solid.error.useStorageOutsideProvider':
     'useStorageProvider måste användas inom en StorageProvider',

@@ -17,7 +17,9 @@ export const id: AngularTranslations = {
   'angular.error.usePreviewOutsideProvider':
     'usePreviewProvider harus digunakan di dalam PreviewProvider',
   'angular.error.useRouterOutsideProvider':
-    'useRouterInstance harus digunakan di dalam RouterProvider',
+    'Tidak ada router di sini. Tambahkan `provideMoleculeRouter()` dari routing bond (`@molecule/app-routing-angular-router`) ke provider aplikasi, setelah `provideRouter(routes)` Angular, atau berikan `router` ke `provideMolecule`.',
+  'angular.error.noRoutedView':
+    'Ikatan perutean ini tidak memiliki tampilan yang dirutekan untuk dirender di sini: teruskan halaman sebagai anak-anaknya saja.',
   'angular.error.useStorageOutsideProvider':
     'useStorageProvider harus digunakan di dalam StorageProvider',
   'angular.error.useThemeOutsideProvider':

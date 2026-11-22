@@ -13,7 +13,10 @@ export const te: AngularTranslations = {
   'angular.error.useHttpOutsideProvider': 'useHttpClient HttpProvider లోపల ఉపయోగించాలి',
   'angular.error.useLoggerOutsideProvider': 'useLoggerProvider LoggerProvider లోపల ఉపయోగించాలి',
   'angular.error.usePreviewOutsideProvider': 'usePreviewProvider PreviewProvider లోపల ఉపయోగించాలి',
-  'angular.error.useRouterOutsideProvider': 'useRouterInstance RouterProvider లోపల ఉపయోగించాలి',
+  'angular.error.useRouterOutsideProvider':
+    'ఇక్కడ రౌటర్ లేదు. రౌటింగ్ బాండ్ (`@molecule/app-routing-angular-router`) నుండి `provideMoleculeRouter()` ను, Angular యొక్క `provideRouter(routes)` తర్వాత యాప్ ప్రొవైడర్లకు జోడించండి, లేదా `provideMolecule` కు `router` పంపండి.',
+  'angular.error.noRoutedView':
+    'ఈ రూటింగ్ బాండ్‌లో ఇక్కడ రెండర్ చేయడానికి రూట్ చేయబడిన వ్యూ ఏదీ లేదు: దానికి బదులుగా పేజీని చిల్డ్రన్‌గా పంపండి.',
   'angular.error.useStorageOutsideProvider': 'useStorageProvider StorageProvider లోపల ఉపయోగించాలి',
   'angular.error.useThemeOutsideProvider': 'useThemeProvider ThemeProvider లోపల ఉపయోగించాలి',
   'angular.error.useWorkspaceOutsideProvider':

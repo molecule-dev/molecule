@@ -34,7 +34,10 @@ export const is: SolidTranslations = {
   'solid.error.useLoggerOutsideProvider':
     'useLoggerProvider verður að vera notað innan LoggerProvider',
   'solid.error.oauthFailed': 'OAuth innskráning mistókst',
-  'solid.error.useRouterOutsideProvider': 'useRouterInstance verður að nota innan RouterProvider',
+  'solid.error.useRouterOutsideProvider':
+    'Engin leið hér. Notið `MoleculeRouterProvider` úr leiðartengingunni (`@molecule/app-routing-solid-router`) sem `root` leiðarins, eða sendið `router` til `MoleculeProvider`.',
+  'solid.error.noRoutedView':
+    'Engin leiðarsýn hér. Solid Router gefur íhlut leiðar innfellda leið sína sem `props.children`: notið þetta sem `component` eða sendið síðuna sem undirhluti.',
   'solid.error.useStoreOutsideProvider':
     'useStateProvider verður að vera notaður innan StateProvider',
   'solid.error.useStorageOutsideProvider':

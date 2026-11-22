@@ -2,7 +2,10 @@ import type { VueTranslations } from './types.js'
 
 /** Vue translations for Khmer. */
 export const km: VueTranslations = {
-  'vue.error.useRouterOutsideProvider': 'useRouterInstance ត្រូវតែប្រើនៅក្នុង RouterProvider',
+  'vue.error.useRouterOutsideProvider':
+    'គ្មានរ៉ោតទ័រនៅទីនេះទេ។ រុំកម្មវិធីនៅក្នុង `MoleculeRouterProvider` ពីចំណងរ៉ោតទ័រ (`@molecule/app-routing-vue-router`) ឬបញ្ជូន `router` ទៅ `moleculePlugin` ។',
+  'vue.error.noRoutedView':
+    'ការតភ្ជាប់​ផ្លូវ​នេះ​មិនមាន​ទិដ្ឋភាព​ផ្លូវ​ដើម្បី​បង្ហាញ​នៅទីនេះ​ទេ៖ សូម​បញ្ជូន​ទំព័រ​ជា​កូន​ជំនួសវិញ។',
   'vue.error.useStoreOutsideProvider': 'useStateProvider ត្រូវតែប្រើនៅក្នុង StateProvider',
   'vue.error.useThemeOutsideProvider': 'useThemeProvider ត្រូវតែប្រើនៅក្នុង ThemeProvider',
   'vue.error.useAuthOutsideProvider': 'useAuthClient ត្រូវតែប្រើនៅក្នុង AuthProvider',

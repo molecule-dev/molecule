@@ -37,7 +37,9 @@ export const hu: SolidTranslations = {
     'A useLoggerProvider paramétert egy LoggerProvider-en belül kell használni.',
   'solid.error.oauthFailed': 'OAuth bejelentkezés sikertelen',
   'solid.error.useRouterOutsideProvider':
-    'A useRouterInstance függvényt egy RouterProvider-en belül kell használni.',
+    'Nincs itt router. Használd `MoleculeRouterProvider` a routing bondból (`@molecule/app-routing-solid-router`) a router `root`, vagy add át `router` a `MoleculeProvider` nek.',
+  'solid.error.noRoutedView':
+    'Nincs itt útvonalnézet. A Solid Router egy útvonal komponensének beágyazott útvonalát adja meg `props.children` néven: ezt használhatod egy útvonal `component`, vagy átadhatod az oldalt gyermekként.',
   'solid.error.useStoreOutsideProvider':
     'A useStateProvider paramétert egy StateProvider paraméteren belül kell használni.',
   'solid.error.useStorageOutsideProvider':

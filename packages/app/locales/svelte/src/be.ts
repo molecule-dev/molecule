@@ -5,7 +5,8 @@ export const be: SvelteTranslations = {
   'svelte.error.noStateProvider': 'Пастаўшчык стану не знойдзены ў кантэксце',
   'svelte.error.noAuthClient': 'Кліент аўтэнтыфікацыі не знойдзены ў кантэксце',
   'svelte.error.noThemeProvider': 'Пастаўшчык тэмы не знойдзены ў кантэксце',
-  'svelte.error.noRouter': 'Маршрутызатар не знойдзены ў кантэксце',
+  'svelte.error.noRouter':
+    'Тут няма маршрутызатара. Падключыце `MoleculeRouterProvider` да маршрутызацыйнай сувязі (`@molecule/app-routing-sveltekit`) у корані `+layout.svelte` або выклічце там `setMoleculeContext({ router })` .',
   'svelte.error.noI18nProvider': 'Пастаўшчык i18n не знойдзены ў кантэксце',
   'svelte.error.noHttpClient': 'HTTP кліент не знойдзены ў кантэксце',
   'svelte.error.noStorageProvider': 'Пастаўшчык сховішча не знойдзены ў кантэксце',
@@ -25,7 +26,9 @@ export const be: SvelteTranslations = {
   'svelte.error.useThemeOutsideProvider':
     'useThemeProvider павінен выкарыстоўвацца ўнутры ThemeProvider',
   'svelte.error.useRouterOutsideProvider':
-    'useRouterInstance павінен выкарыстоўвацца ўнутры RouterProvider',
+    'Тут няма маршрутызатара. Падключыце `MoleculeRouterProvider` да маршрутызацыйнай сувязі (`@molecule/app-routing-sveltekit`) у корані `+layout.svelte` або выклічце там `setMoleculeContext({ router })` .',
+  'svelte.error.noRoutedView':
+    'Тут няма маршрутызаванага прагляду. SvelteKit дае макету старонкі як `children`: перадайце `{@render children()}` унутр гэтага кампанента.',
   'svelte.error.useHttpOutsideProvider':
     'useHttpClient павінен выкарыстоўвацца ўнутры HttpProvider',
   'svelte.error.useStorageOutsideProvider':

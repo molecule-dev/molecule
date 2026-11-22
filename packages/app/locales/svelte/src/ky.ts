@@ -9,7 +9,7 @@ export const ky: SvelteTranslations = {
   'svelte.error.noThemeProvider':
     '\u0422\u0435\u043c\u0430 \u043f\u0440\u043e\u0432\u0430\u0439\u0434\u0435\u0440\u0438 \u043a\u043e\u043d\u0442\u0435\u043a\u0441\u0442\u0442\u0435\u043d \u0442\u0430\u0431\u044b\u043b\u0433\u0430\u043d \u0436\u043e\u043a',
   'svelte.error.noRouter':
-    '\u0420\u043e\u0443\u0442\u0435\u0440 \u043a\u043e\u043d\u0442\u0435\u043a\u0441\u0442\u0442\u0435\u043d \u0442\u0430\u0431\u044b\u043b\u0433\u0430\u043d \u0436\u043e\u043a',
+    'Бул жерде роутер жок. `+layout.svelte` тамырындагы роутинг байланышынан (`@molecule/app-routing-sveltekit`) `MoleculeRouterProvider` орнотуңуз же ал жерден `setMoleculeContext({ router })` чакырыңыз.',
   'svelte.error.noI18nProvider':
     'I18n \u043f\u0440\u043e\u0432\u0430\u0439\u0434\u0435\u0440\u0438 \u043a\u043e\u043d\u0442\u0435\u043a\u0441\u0442\u0442\u0435\u043d \u0442\u0430\u0431\u044b\u043b\u0433\u0430\u043d \u0436\u043e\u043a',
   'svelte.error.noHttpClient':
@@ -31,7 +31,9 @@ export const ky: SvelteTranslations = {
   'svelte.error.useAuthOutsideProvider': 'useAuthClient AuthProvider ичинде колдонулушу керек',
   'svelte.error.useThemeOutsideProvider': 'useThemeProvider ThemeProvider ичинде колдонулушу керек',
   'svelte.error.useRouterOutsideProvider':
-    'useRouterInstance RouterProvider ичинде колдонулушу керек',
+    'Бул жерде роутер жок. `+layout.svelte` тамырындагы роутинг байланышынан (`@molecule/app-routing-sveltekit`) `MoleculeRouterProvider` орнотуңуз же ал жерден `setMoleculeContext({ router })` чакырыңыз.',
+  'svelte.error.noRoutedView':
+    'Бул жерде багытталган көрүнүш жок. SvelteKit өзүнүн барагына `children` катары макет берет: бул компоненттин ичине `{@render children()}` өткөрөт.',
   'svelte.error.useHttpOutsideProvider': 'useHttpClient HttpProvider ичинде колдонулушу керек',
   'svelte.error.useStorageOutsideProvider':
     'useStorageProvider StorageProvider ичинде колдонулушу керек',

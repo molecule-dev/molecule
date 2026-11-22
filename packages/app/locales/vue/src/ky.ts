@@ -2,7 +2,10 @@ import type { VueTranslations } from './types.js'
 
 /** Vue translations for Kyrgyz. */
 export const ky: VueTranslations = {
-  'vue.error.useRouterOutsideProvider': 'useRouterInstance RouterProvider ичинде колдонулушу керек',
+  'vue.error.useRouterOutsideProvider':
+    'Бул жерде роутер жок. Колдонмону маршруттоо байланышынан (`@molecule/app-routing-vue-router`) `MoleculeRouterProvider` ичине ороп коюңуз же `router` `moleculePlugin` га өткөрүп бериңиз.',
+  'vue.error.noRoutedView':
+    'Бул маршруттоо байланышынын бул жерде көрсөтүү үчүн маршрутталган көрүнүшү жок: анын ордуна баракты балдар катары өткөрүп бериңиз.',
   'vue.error.useStoreOutsideProvider': 'useStateProvider StateProvider ичинде колдонулушу керек',
   'vue.error.useThemeOutsideProvider': 'useThemeProvider ThemeProvider ичинде колдонулушу керек',
   'vue.error.useAuthOutsideProvider': 'useAuthClient AuthProvider ичинде колдонулушу керек',

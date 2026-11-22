@@ -35,7 +35,9 @@ export const ja: SolidTranslations = {
     'useLoggerProviderはLoggerProvider内で使用する必要があります。',
   'solid.error.oauthFailed': 'OAuthログインに失敗しました',
   'solid.error.useRouterOutsideProvider':
-    'useRouterInstanceはRouterProvider内で使用する必要があります。',
+    'ルーターはここにはありません。ルーティングボンド（`@molecule/app-routing-solid-router`）の`MoleculeRouterProvider`をルーターの`root`として使用するか、`router` `MoleculeProvider`に渡してください。',
+  'solid.error.noRoutedView':
+    'ここではルーティングされたビューはありません。Solid Router は、ルートのコンポーネントにネストされたルートを`props.children`として渡します。これをルートの`component`として使用するか、ページを子要素として渡してください。',
   'solid.error.useStoreOutsideProvider':
     'useStateProviderはStateProvider内で使用する必要があります。',
   'solid.error.useStorageOutsideProvider':

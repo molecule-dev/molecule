@@ -13,7 +13,9 @@ export const ml: ReactTranslations = {
   'react.error.usePreviewOutsideProvider':
     'usePreviewProvider ഒരു PreviewProvider-നുള്ളിൽ ഉപയോഗിക്കണം',
   'react.error.useRouterOutsideProvider':
-    'useRouterInstance ഒരു RouterProvider-നുള്ളിൽ ഉപയോഗിക്കണം',
+    'ഇവിടെ റൂട്ടർ ഇല്ല. ആപ്പിന്റെ റൂട്ടിംഗ് ബോണ്ടിൽ നിന്ന് ഒരു റൂട്ടർ ഘടകം മൗണ്ട് ചെയ്യുക ( `@molecule/app-routing-react-router` എന്നതിൽ നിന്നുള്ള `BrowserRouter` ), അല്ലെങ്കിൽ `router` `MoleculeProvider` എന്നതിലേക്ക് കൈമാറുക.',
+  'react.error.noRoutedView':
+    'ഈ റൂട്ടിംഗ് ബോണ്ടിന് ഇവിടെ റെൻഡർ ചെയ്യാൻ റൂട്ട് ചെയ്ത വ്യൂ ഇല്ല: പകരം പേജ് ചിൽഡ്രൻ ആയി നൽകുക.',
   'react.error.useStoreOutsideProvider': 'useStateProvider ഒരു StateProvider-നുള്ളിൽ ഉപയോഗിക്കണം',
   'react.error.useStorageOutsideProvider':
     'useStorageProvider ഒരു StorageProvider-നുള്ളിൽ ഉപയോഗിക്കണം',

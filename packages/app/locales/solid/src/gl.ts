@@ -32,7 +32,10 @@ export const gl: SolidTranslations = {
   'solid.error.unsupportedMethod': 'Método non compatible: {{method}}',
   'solid.error.useLoggerOutsideProvider': 'useLoggerProvider debe usarse dentro dun LoggerProvider',
   'solid.error.oauthFailed': 'Fallou o inicio de sesión con OAuth',
-  'solid.error.useRouterOutsideProvider': 'useRouterInstance debe usarse dentro de RouterProvider',
+  'solid.error.useRouterOutsideProvider':
+    'Aquí non hai enrutador. Usa `MoleculeRouterProvider` do enlace de enrutamento (`@molecule/app-routing-solid-router`) como `root` do enrutador ou pasa `router` a `MoleculeProvider`.',
+  'solid.error.noRoutedView':
+    'Aquí non hai vista enrutada. Solid Router dálle ao compoñente dunha ruta a súa ruta aniñada como `props.children`: úsao como `component` dunha ruta ou pasa a páxina como fillos.',
   'solid.error.useStoreOutsideProvider': 'useStateProvider debe usarse dentro dun StateProvider',
   'solid.error.useStorageOutsideProvider':
     'useStorageProvider debe usarse dentro dun StorageProvider',

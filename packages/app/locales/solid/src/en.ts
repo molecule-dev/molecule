@@ -32,7 +32,10 @@ export const en: SolidTranslations = {
   'solid.error.unsupportedMethod': 'Unsupported method: {{method}}',
   'solid.error.useLoggerOutsideProvider': 'useLoggerProvider must be used within a LoggerProvider',
   'solid.error.oauthFailed': 'OAuth login failed',
-  'solid.error.useRouterOutsideProvider': 'useRouterInstance must be used within a RouterProvider',
+  'solid.error.useRouterOutsideProvider':
+    "No router here. Use `MoleculeRouterProvider` from the routing bond (`@molecule/app-routing-solid-router`) as the router's `root`, or pass `router` to `MoleculeProvider`.",
+  'solid.error.noRoutedView':
+    "No routed view here. Solid Router gives a route's component its nested route as `props.children`: use this as a route's `component`, or pass the page as children.",
   'solid.error.useStoreOutsideProvider': 'useStateProvider must be used within a StateProvider',
   'solid.error.useStorageOutsideProvider':
     'useStorageProvider must be used within a StorageProvider',

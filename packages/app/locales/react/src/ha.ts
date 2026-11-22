@@ -15,7 +15,9 @@ export const ha: ReactTranslations = {
   'react.error.usePreviewOutsideProvider':
     'Dole ne a yi amfani da usePreviewProvider a cikin PreviewProvider',
   'react.error.useRouterOutsideProvider':
-    'Dole ne a yi amfani da useRouterInstance a cikin RouterProvider',
+    "Babu na'urar sadarwa a nan. Sanya wani ɓangaren na'urar sadarwa daga haɗin hanyar sadarwa na manhajar (`BrowserRouter` daga `@molecule/app-routing-react-router`), ko kuma wuce `router` zuwa `MoleculeProvider`.",
+  'react.error.noRoutedView':
+    "Wannan haɗin hanyar sadarwa ba shi da wani ra'ayi da za a nuna a nan: wuce shafin a matsayin yara maimakon haka.",
   'react.error.useStoreOutsideProvider':
     'Dole ne a yi amfani da useStateProvider a cikin StateProvider',
   'react.error.useStorageOutsideProvider':

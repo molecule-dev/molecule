@@ -15,7 +15,9 @@ export const af: Partial<ReactTranslations> = {
   'react.error.usePreviewOutsideProvider':
     "usePreviewProvider moet binne 'n PreviewProvider gebruik word",
   'react.error.useRouterOutsideProvider':
-    "useRouterInstance moet binne 'n RouterProvider gebruik word",
+    "Geen router hier nie. Monteer 'n routerkomponent vanaf die toepassing se roeteringsverbinding (`BrowserRouter` vanaf `@molecule/app-routing-react-router`), of gee `router` deur aan `MoleculeProvider`.",
+  'react.error.noRoutedView':
+    'Hierdie roeteringsbinding het geen gerouteerde aansig om hier te lewer nie: gee eerder die bladsy as kinders deur.',
   'react.error.useStoreOutsideProvider':
     "useStateProvider moet binne 'n StateProvider gebruik word.",
   'react.error.useStorageOutsideProvider':

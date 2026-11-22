@@ -27,6 +27,7 @@ import {
   nextTick,
   type Plugin,
   shallowRef,
+  type VNode,
 } from 'vue'
 
 import {
@@ -42,6 +43,8 @@ import { settle } from '../ui/index.js'
 export interface VueBinding {
   /** The composition root: the mounted app receives the case's services through it. */
   moleculePlugin: Plugin
+  /** The routing provider, which also takes a routing bond's routed view (`routedView`). */
+  RouterProvider: Component
   /** Clears the binding's module-level chat stores before each case. */
   resetChatStoresForTests(): void
 }
@@ -80,6 +83,15 @@ export function createVueBindingAdapter({
       let app: App | null = null
       // A reactiveArgs hook reads each argument from its ref for the life of the mount.
       const sources = reactiveSources(hook, args, options, (value) => shallowRef<unknown>(value))
+      // The case's routed view, as a routing bond provides one: the binding's RouterProvider
+      // with the case's router and a view rendering the text, inside the composition root.
+      const routedText = options.routedView
+      const RoutedText =
+        routedText === undefined ? undefined : defineComponent({ setup: () => () => routedText })
+      const underRoutedView = (inner: () => VNode): VNode =>
+        RoutedText && services.router
+          ? h(binding.RouterProvider, { router: services.router, routedView: RoutedText }, inner)
+          : inner()
       const start = (current: unknown[]): void => {
         const Host = options.render
           ? // A component export: each string prop is a text slot (`children` is the default slot).
@@ -96,7 +108,7 @@ export function createVueBindingAdapter({
                   Object.entries(props).filter(([, value]) => typeof value !== 'string'),
                 )
                 const inputs = options.render === 'root' ? { ...services, ...rest } : rest
-                return () => h(exportsOf[hook] as Component, inputs, slots)
+                return () => underRoutedView(() => h(exportsOf[hook] as Component, inputs, slots))
               },
             })
           : defineComponent({

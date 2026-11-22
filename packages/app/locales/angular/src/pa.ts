@@ -20,7 +20,9 @@ export const pa: AngularTranslations = {
   'angular.error.usePreviewOutsideProvider':
     'usePreviewProvider ਨੂੰ PreviewProvider ਦੇ ਅੰਦਰ ਵਰਤਿਆ ਜਾਣਾ ਚਾਹੀਦਾ ਹੈ',
   'angular.error.useRouterOutsideProvider':
-    'useRouterInstance ਨੂੰ RouterProvider ਦੇ ਅੰਦਰ ਵਰਤਿਆ ਜਾਣਾ ਚਾਹੀਦਾ ਹੈ',
+    'ਇੱਥੇ ਕੋਈ ਰਾਊਟਰ ਨਹੀਂ ਹੈ। ਰੂਟਿੰਗ ਬਾਂਡ (`@molecule/app-routing-angular-router`) ਤੋਂ ਐਪ ਦੇ ਪ੍ਰਦਾਤਾਵਾਂ ਵਿੱਚ `provideMoleculeRouter()` ਜੋੜੋ, ਐਂਗੂਲਰ ਦੇ `provideRouter(routes)` ਤੋਂ ਬਾਅਦ, ਜਾਂ `router` ਨੂੰ `provideMolecule` ਵਿੱਚ ਪਾਸ ਕਰੋ।',
+  'angular.error.noRoutedView':
+    'ਇਸ ਰੂਟਿੰਗ ਬਾਂਡ ਦਾ ਇੱਥੇ ਰੈਂਡਰ ਕਰਨ ਲਈ ਕੋਈ ਰੂਟਡ ਵਿਊ ਨਹੀਂ ਹੈ: ਇਸਦੀ ਬਜਾਏ ਪੇਜ ਨੂੰ ਚਿਲਡਰਨ ਵਜੋਂ ਪਾਸ ਕਰੋ।',
   'angular.error.useStorageOutsideProvider':
     'useStorageProvider ਨੂੰ StorageProvider ਦੇ ਅੰਦਰ ਵਰਤਿਆ ਜਾਣਾ ਚਾਹੀਦਾ ਹੈ',
   'angular.error.useThemeOutsideProvider':

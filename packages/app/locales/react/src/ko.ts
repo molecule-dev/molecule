@@ -14,7 +14,9 @@ export const ko: ReactTranslations = {
   'react.error.usePreviewOutsideProvider':
     'usePreviewProvider는 PreviewProvider 내에서 사용해야 합니다',
   'react.error.useRouterOutsideProvider':
-    'useRouterInstance는 RouterProvider 내에서 사용해야 합니다',
+    '여기에 라우터가 없습니다. 앱의 라우팅 본드( `@molecule/app-routing-react-router` 의 `BrowserRouter` )에서 라우터 구성 요소를 마운트하거나 `MoleculeProvider` 에 `router` 전달하세요.',
+  'react.error.noRoutedView':
+    '이 라우팅 연결에는 여기에 렌더링할 라우팅된 뷰가 없습니다. 대신 페이지를 자식으로 전달하세요.',
   'react.error.useStoreOutsideProvider': 'useStateProvider는 StateProvider 내에서 사용해야 합니다',
   'react.error.useStorageOutsideProvider':
     'useStorageProvider는 StorageProvider 내에서 사용해야 합니다',

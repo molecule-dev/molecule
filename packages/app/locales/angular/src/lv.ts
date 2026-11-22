@@ -13,7 +13,10 @@ export const lv: AngularTranslations = {
   'angular.error.useLoggerOutsideProvider': 'useLoggerProvider jāizmanto LoggerProvider ietvaros',
   'angular.error.usePreviewOutsideProvider':
     'usePreviewProvider jāizmanto PreviewProvider ietvaros',
-  'angular.error.useRouterOutsideProvider': 'useRouterInstance jāizmanto RouterProvider ietvaros',
+  'angular.error.useRouterOutsideProvider':
+    'Šeit nav maršrutētāja. Pievienojiet `provideMoleculeRouter()` no maršrutēšanas saites (`@molecule/app-routing-angular-router`) lietotnes nodrošinātājiem pēc Angular `provideRouter(routes)` vai nododiet `router` funkcijai `provideMolecule`.',
+  'angular.error.noRoutedView':
+    'Šai maršrutēšanas saitei nav maršrutēta skata, ko šeit atveidot: tā vietā nododiet lapu kā apakšlapas.',
   'angular.error.useStorageOutsideProvider':
     'useStorageProvider jāizmanto StorageProvider ietvaros',
   'angular.error.useThemeOutsideProvider': 'useThemeProvider jāizmanto ThemeProvider ietvaros',

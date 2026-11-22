@@ -7,6 +7,7 @@ export type AngularTranslationKey =
   | 'angular.error.useLoggerOutsideProvider'
   | 'angular.error.usePreviewOutsideProvider'
   | 'angular.error.useRouterOutsideProvider'
+  | 'angular.error.noRoutedView'
   | 'angular.error.useStorageOutsideProvider'
   | 'angular.error.useThemeOutsideProvider'
   | 'angular.error.useWorkspaceOutsideProvider'

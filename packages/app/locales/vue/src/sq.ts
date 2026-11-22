@@ -3,7 +3,9 @@ import type { VueTranslations } from './types.js'
 /** Vue translations for Albanian. */
 export const sq: VueTranslations = {
   'vue.error.useRouterOutsideProvider':
-    'useRouterInstance duhet t\u00eb p\u00ebrdoret brenda nj\u00eb RouterProvider',
+    'Nuk ka router këtu. Mbështillni aplikacionin në `MoleculeRouterProvider` nga lidhja e routing-ut (`@molecule/app-routing-vue-router`), ose kaloni `router` te `moleculePlugin`.',
+  'vue.error.noRoutedView':
+    "Kjo lidhje rrugëzimi nuk ka pamje të rrugëzuar për t'u paraqitur këtu: kalojeni faqen si fëmijë në vend të kësaj.",
   'vue.error.useStoreOutsideProvider':
     'useStateProvider duhet t\u00eb p\u00ebrdoret brenda nj\u00eb StateProvider',
   'vue.error.useThemeOutsideProvider':
