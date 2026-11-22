@@ -25,7 +25,8 @@ afterEach(() => {
 /**
  * A package graph with no sources: `--print-levels` reads manifests only.
  *
- * @param graph - Package suffix → declared `@molecule/*` edges by kind.
+ * @param graph - Package suffix → declared `@molecule/*` edges by kind (`optionalPeers` are
+ *   peers `peerDependenciesMeta` marks optional).
  * @returns The fixture root.
  */
 function fixture(graph) {
@@ -50,7 +51,10 @@ function fixture(graph) {
         version: '1.0.0',
         scripts: { build: 'tsc' },
         dependencies: named(edges.dependencies),
-        peerDependencies: named(edges.peerDependencies),
+        peerDependencies: { ...named(edges.peerDependencies), ...named(edges.optionalPeers) },
+        peerDependenciesMeta: Object.fromEntries(
+          (edges.optionalPeers ?? []).map((name) => ['@molecule/' + name, { optional: true }]),
+        ),
         devDependencies: named(edges.devDependencies),
       }),
     )
@@ -116,6 +120,35 @@ it(
 )
 
 it(
+  "orders a binding before its routing bond when the binding's optional peer on it closes a cycle",
+  () => {
+    // A binding refuses an old routing bond at install through an optional peer; the bond imports the binding.
+    const root = fixture({
+      routing: {},
+      binding: { peerDependencies: ['routing'], optionalPeers: ['bond'] },
+      bond: { peerDependencies: ['binding', 'routing'] },
+    })
+    const { status, stderr, levels } = printLevels(root)
+    expect(stderr).toBe('')
+    expect(status).toBe(0)
+    expect(levels['@molecule/bond']).toBeGreaterThan(levels['@molecule/binding'])
+    expect(levels['@molecule/binding']).toBeGreaterThan(levels['@molecule/routing'])
+  },
+  FIXTURE_TIMEOUT_MS,
+)
+
+it(
+  'keeps an optional peer edge that closes no cycle',
+  () => {
+    const root = fixture({ addon: {}, host: { optionalPeers: ['addon'] } })
+    const { status, levels } = printLevels(root)
+    expect(status).toBe(0)
+    expect(levels['@molecule/host']).toBeGreaterThan(levels['@molecule/addon'])
+  },
+  FIXTURE_TIMEOUT_MS,
+)
+
+it(
   'refuses, naming the cycle, when dependencies or peers alone form one',
   () => {
     const root = fixture({
@@ -142,7 +175,7 @@ it(
     )
     expect(stderr).toBe('')
     expect(status).toBe(0)
-    const wrong = []
+    const manifests = new Map()
     const visit = (dir, depth) => {
       if (depth > 6) return
       let entries
@@ -155,10 +188,7 @@ it(
       if (entries.some((e) => e.name === 'package.json')) {
         try {
           const pkg = JSON.parse(fs.readFileSync(path.join(dir, 'package.json'), 'utf8'))
-          if (pkg.name in levels)
-            for (const dep of Object.keys({ ...pkg.dependencies, ...pkg.peerDependencies }))
-              if (dep in levels && dep !== pkg.name && !(levels[pkg.name] > levels[dep]))
-                wrong.push(`${pkg.name} (${levels[pkg.name]}) -> ${dep} (${levels[dep]})`)
+          if (pkg.name in levels) manifests.set(pkg.name, pkg)
         } catch (_error) {
           // Not a parseable manifest: build.js does not treat it as a package either.
         }
@@ -172,6 +202,17 @@ it(
           visit(path.join(dir, entry.name), depth + 1)
     }
     visit(path.join(repoRoot, 'packages'), 0)
+    const edges = (pkg) => Object.keys({ ...pkg?.dependencies, ...pkg?.peerDependencies })
+    const wrong = []
+    for (const [name, pkg] of manifests)
+      for (const dep of edges(pkg))
+        if (dep in levels && dep !== name && !(levels[name] > levels[dep]))
+          // An optional peer that peers back (a binding's routing bond) is the edge a cycle
+          // drops: the other side builds after this package.
+          if (!(
+            pkg.peerDependenciesMeta?.[dep]?.optional && edges(manifests.get(dep)).includes(name)
+          ))
+            wrong.push(`${name} (${levels[name]}) -> ${dep} (${levels[dep]})`)
     expect(wrong).toEqual([])
   },
   REPO_TIMEOUT_MS,

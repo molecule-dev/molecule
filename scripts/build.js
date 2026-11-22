@@ -53,8 +53,13 @@ function scan(dir, depth) {
       if (pkg.name?.startsWith('@molecule/') && pkg.scripts?.build) {
         const allDeps = { ...pkg.dependencies, ...pkg.devDependencies, ...pkg.peerDependencies }
         const molDeps = Object.keys(allDeps).filter((d) => d.startsWith('@molecule/'))
-        const hardDeps = Object.keys({ ...pkg.dependencies, ...pkg.peerDependencies }).filter((d) =>
-          d.startsWith('@molecule/'),
+        // An optional peer is an install-time requirement on a package the app may not have
+        // (a binding's routing bonds, which peer back on it), not an import: like a
+        // devDependency, it orders the build unless it closes a cycle.
+        const optional = (d) => pkg.peerDependenciesMeta?.[d]?.optional === true
+        const hardDeps = Object.keys({ ...pkg.dependencies, ...pkg.peerDependencies }).filter(
+          (d) =>
+            d.startsWith('@molecule/') && (pkg.dependencies?.[d] !== undefined || !optional(d)),
         )
         packages.set(pkg.name, { path: dir, deps: molDeps, hardDeps })
       }
@@ -345,10 +350,12 @@ function components(names, edgesOf) {
  * compiled before app-routing-react-router (level 9) through router → query-react
  * → react → bonds-default-react, and every clean build failed with TS2307. Two of
  * those edges were test-only devDependencies; builds exclude `src/**\/__tests__/**`.
- * So inside a cycle only devDependency edges are dropped, and a cycle through
- * dependencies or peerDependencies alone is an error that names it.
+ * So inside a cycle only devDependency and optional-peer edges are dropped (a binding
+ * declares its routing bonds as optional peers to refuse an old one at install, and
+ * each bond peers back on it), and a cycle through dependencies or required
+ * peerDependencies alone is an error that names it.
  *
- * @param graph - Package name → `{ deps, hardDeps }` (all declared vs dependencies + peers).
+ * @param graph - Package name → `{ deps, hardDeps }` (all declared vs dependencies + required peers).
  * @returns Package name → level; level 0 builds first.
  */
 function buildLevels(graph) {
