@@ -30,7 +30,7 @@
  *   standalone: true,
  *   imports: [NodeEditorPanel, NodeEditorSection, NodeEditorSlider, NodeEditorToggle, NodeEditorRadioGroup],
  *   template: `
- *     <aside mol-node-editor-panel closeAriaLabel="Close panel" [onClose]="close()">
+ *     <aside mol-node-editor-panel [onClose]="close()">
  *       <span slot="title">Node Properties</span>
  *       <div mol-node-editor-slider
  *         [label]="'Temperature'"
@@ -91,9 +91,9 @@
  * text (e.g. the word "close").
  *
  * A wired ClassMap bond is still required for the layout helpers —
- * `getClassMap()` throws before wiring. The close button's default aria-label
- * is English-only; pass `closeAriaLabel` with a translated string in localized
- * apps.
+ * `getClassMap()` throws before wiring. The close button's default aria-label is
+ * the `nodeEditorPanel.close` key, translated by `@molecule/app-locales-node-editor-panel`
+ * through the app's i18n provider (English when none is bonded).
  *
  * @module
  */

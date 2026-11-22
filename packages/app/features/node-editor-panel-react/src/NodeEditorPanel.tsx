@@ -7,6 +7,7 @@
 
 import type { JSX, ReactNode } from 'react'
 
+import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 /** Props for {@link NodeEditorPanel}. */
@@ -17,6 +18,7 @@ export interface NodeEditorPanelProps {
   footer?: ReactNode
   /** Click handler for the close button (omitted if `onClose` is null). */
   onClose?: () => void
+  /** Accessible label of the close button (default: the translated `nodeEditorPanel.close` key). */
   closeAriaLabel?: string
   /** Tailwind width class fragment; defaults to `w-80` (20rem). */
   widthClass?: string
@@ -28,10 +30,11 @@ export function NodeEditorPanel({
   children,
   footer,
   onClose,
-  closeAriaLabel = 'Close panel',
+  closeAriaLabel,
   widthClass,
 }: NodeEditorPanelProps): JSX.Element {
   const cm = getClassMap()
+  const { t } = useTranslation()
   return (
     <aside
       className={cm.cn(
@@ -56,7 +59,9 @@ export function NodeEditorPanel({
             // the muted → foreground hover, and the 44px floor makes it
             // tappable without changing how it looks on a pointer device.
             className={cm.cn(cm.dialogClose, cm.touchTarget)}
-            aria-label={closeAriaLabel}
+            aria-label={
+              closeAriaLabel ?? t('nodeEditorPanel.close', {}, { defaultValue: 'Close panel' })
+            }
             onClick={onClose}
           >
             <span className={cm.iconGlyphFont}>close</span>

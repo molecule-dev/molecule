@@ -28,7 +28,7 @@ export interface NodeEditorPanelProps {
    * React binds it as the button's `onClick`, so it receives the click event.
    */
   onClose?: (event?: MouseEvent) => void
-  /** Accessible label of the close button (default `'Close panel'`). */
+  /** Accessible label of the close button (default: the translated `nodeEditorPanel.close` key). */
   closeAriaLabel?: string
   /** Width class fragment; defaults to `w-80` (20rem) when omitted. */
   widthClass?: string

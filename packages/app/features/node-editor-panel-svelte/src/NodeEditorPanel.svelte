@@ -6,21 +6,17 @@
   same ClassMap tokens, same DOM for the same input.
 -->
 <script lang="ts">
+  import { useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
   import type { NodeEditorPanelProps } from './types.js'
   import { renders } from './utilities.js'
 
-  let {
-    title,
-    children,
-    footer,
-    onClose,
-    closeAriaLabel = 'Close panel',
-    widthClass,
-  }: NodeEditorPanelProps = $props()
+  let { title, children, footer, onClose, closeAriaLabel, widthClass }: NodeEditorPanelProps =
+    $props()
 
   const cm = $derived(getClassMap())
+  const { t } = useTranslation()
 </script>
 
 <aside
@@ -45,7 +41,8 @@
         type="button"
         data-mol-id="node-editor-panel-close"
         class={cm.cn(cm.dialogClose, cm.touchTarget)}
-        aria-label={closeAriaLabel}
+        aria-label={closeAriaLabel ??
+          t('nodeEditorPanel.close', {}, { defaultValue: 'Close panel' })}
         onclick={(event) => onClose?.(event)}
       >
         <span class={cm.iconGlyphFont}>close</span>

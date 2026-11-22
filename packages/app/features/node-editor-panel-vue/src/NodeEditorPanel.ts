@@ -12,6 +12,7 @@
 import { defineComponent, h, type PropType, type VNode } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
+import { useTranslation } from '@molecule/app-vue'
 
 import type { NodeEditorPanelProps } from './types.js'
 import { renders, slotOrProp } from './utilities.js'
@@ -30,11 +31,12 @@ export const NodeEditorPanel = defineComponent({
     children: null,
     footer: null,
     onClose: Function as PropType<NodeEditorPanelProps['onClose']>,
-    closeAriaLabel: { type: String, default: 'Close panel' },
+    closeAriaLabel: String,
     widthClass: String,
   },
   setup(props, { slots }) {
     const cm = getClassMap()
+    const { t } = useTranslation()
 
     return (): VNode =>
       h(
@@ -69,7 +71,9 @@ export const NodeEditorPanel = defineComponent({
                       type: 'button',
                       'data-mol-id': 'node-editor-panel-close',
                       class: cm.cn(cm.dialogClose, cm.touchTarget),
-                      'aria-label': props.closeAriaLabel,
+                      'aria-label':
+                        props.closeAriaLabel ??
+                        t('nodeEditorPanel.close', {}, { defaultValue: 'Close panel' }),
                       onClick: (event: MouseEvent) => props.onClose?.(event),
                     },
                     [h('span', { class: cm.iconGlyphFont }, 'close')],

@@ -12,6 +12,7 @@
 import type { Component } from 'solid-js'
 import { Show } from 'solid-js'
 
+import { useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { NodeEditorPanelProps } from './types.js'
@@ -26,6 +27,7 @@ import { renders } from './utilities.js'
  */
 export const NodeEditorPanel: Component<NodeEditorPanelProps> = (props) => {
   const cm = getClassMap()
+  const { t } = useTranslation()
 
   return (
     <aside
@@ -48,7 +50,10 @@ export const NodeEditorPanel: Component<NodeEditorPanelProps> = (props) => {
             type="button"
             data-mol-id="node-editor-panel-close"
             class={cm.cn(cm.dialogClose, cm.touchTarget)}
-            aria-label={props.closeAriaLabel ?? 'Close panel'}
+            aria-label={
+              props.closeAriaLabel ??
+              t('nodeEditorPanel.close', {}, { defaultValue: 'Close panel' })
+            }
             onClick={(event: MouseEvent) => props.onClose?.(event)}
           >
             <span class={cm.iconGlyphFont}>close</span>

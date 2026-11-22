@@ -6,6 +6,7 @@
 
 import { type AfterViewInit, Component, type ElementRef, signal, ViewChild } from '@angular/core'
 
+import { useTranslation } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -73,7 +74,7 @@ export class NodeEditorPanel implements AfterViewInit {
   footer?: unknown
   /** Click handler for the close button (omitted when undefined). */
   onClose?: (event?: MouseEvent) => void
-  /** Accessible label of the close button (default `'Close panel'`). */
+  /** Accessible label of the close button (default: the translated `nodeEditorPanel.close` key). */
   closeAriaLabel?: string
   /** Width class fragment (React's default `w-80` applied at read time). */
   widthClass?: string
@@ -83,6 +84,7 @@ export class NodeEditorPanel implements AfterViewInit {
 
   /** Whether a `[slot=footer]` projection landed (optimistic until the first view). */
   private readonly footerProjected = signal(true)
+  private readonly i18n = useTranslation()
 
   /**
    * The current class map.
@@ -118,11 +120,14 @@ export class NodeEditorPanel implements AfterViewInit {
   }
 
   /**
-   * The close button's accessible label (React's default applied at read time).
+   * The close button's accessible label (React's translated default applied at read time).
    * @returns The aria-label value.
    */
   closeLabel(): string {
-    return this.closeAriaLabel ?? 'Close panel'
+    return (
+      this.closeAriaLabel ??
+      this.i18n.t('nodeEditorPanel.close', {}, { defaultValue: 'Close panel' })
+    )
   }
 
   /**
