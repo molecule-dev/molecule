@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-bonds-default-svelte",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "Default app-side bond wirings for Svelte: the framework-neutral defaults from @molecule/app-bonds-default plus the Svelte router setup and bootstrapApp().",
   "homepage": "https://www.molecule.dev/packages/app-bonds-default-svelte",
   "type": "module",
@@ -129,8 +129,8 @@
   "devDependencies": {
     "@molecule/app-bonds-default": "1.2.0",
     "@molecule/app-clipboard": "1.0.5",
-    "@molecule/app-routing": "1.5.0",
-    "@molecule/app-routing-sveltekit": "2.1.0",
+    "@molecule/app-routing": "1.5.1",
+    "@molecule/app-routing-sveltekit": "3.0.0",
     "@molecule/app-svelte": "3.10.0",
     "@sveltejs/vite-plugin-svelte": "7.1.2",
     "@types/node": "26.6.5",

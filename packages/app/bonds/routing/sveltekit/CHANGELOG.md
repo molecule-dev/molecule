@@ -1,5 +1,11 @@
 # @molecule/app-routing-sveltekit
 
+## 3.0.0
+
+### Major Changes
+
+- `MoleculeRouterProvider` gives `@molecule/app-svelte` its router, and `createSvelteKitNavigation` now takes kit's `navigating` in place of `afterNavigate` and tells the router about a navigation before the new page renders.
+
 ## 2.1.0
 
 ### Minor Changes

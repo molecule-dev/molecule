@@ -1,5 +1,11 @@
 # @molecule/app-bonds-default-svelte
 
+## 1.2.2
+
+### Patch Changes
+
+- Accept `@molecule/app-routing-sveltekit` 3.
+
 ## 1.2.1
 
 ### Patch Changes

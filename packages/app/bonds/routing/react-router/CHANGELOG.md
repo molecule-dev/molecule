@@ -1,5 +1,11 @@
 # @molecule/app-routing-react-router
 
+## 1.9.0
+
+### Minor Changes
+
+- `MoleculeRouterProvider` gives `@molecule/app-react` its router and React Router's `Outlet` as the routed view; the bond's router components and data-router `RouterProvider` render one, a provider inside another joins it, and `useMoleculeRouter().getParams()` answers with the params of the calling component's route.
+
 ## 1.8.1
 
 ### Patch Changes

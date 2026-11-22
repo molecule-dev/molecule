@@ -1,5 +1,11 @@
 # @molecule/app-routing-next
 
+## 1.1.0
+
+### Minor Changes
+
+- Add `MoleculeRouterProvider`, which gives `@molecule/app-react` the router, and bond the router before the pages run their effects.
+
 ## 1.0.8
 
 ### Patch Changes

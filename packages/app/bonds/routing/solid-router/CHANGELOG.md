@@ -1,5 +1,11 @@
 # @molecule/app-routing-solid-router
 
+## 1.4.0
+
+### Minor Changes
+
+- `MoleculeRouterProvider` gives `@molecule/app-solid` its router, a provider inside another joins it, and subscribers hear a navigation before the new page renders.
+
 ## 1.3.0
 
 ### Minor Changes

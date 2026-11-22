@@ -256,7 +256,7 @@
     "@molecule/app-reorderable-list-react": "4.0.2",
     "@molecule/app-reputation-badge-react": "4.0.1",
     "@molecule/app-root-error-boundary-react": "1.0.4",
-    "@molecule/app-routing": "1.5.0",
+    "@molecule/app-routing": "1.5.1",
     "@molecule/app-rule-builder-react": "4.0.0",
     "@molecule/app-safe-link-react": "1.0.6",
     "@molecule/app-search-autocomplete-react": "4.1.0",

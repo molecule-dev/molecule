@@ -1,5 +1,11 @@
 # @molecule/app-routing-angular-router
 
+## 1.4.0
+
+### Minor Changes
+
+- `provideMoleculeRouter` gives `@molecule/app-angular` Angular Router's outlet as the routed view, and a provider in a route's `providers` calls its own `onRouterReady` once with the outer router.
+
 ## 1.3.0
 
 ### Minor Changes

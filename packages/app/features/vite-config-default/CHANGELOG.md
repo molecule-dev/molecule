@@ -1,5 +1,11 @@
 # @molecule/app-vite-config-default
 
+## 1.6.0
+
+### Minor Changes
+
+- A test run loads one copy of each framework runtime, and `@molecule` dist files are served without sourcemaps that name unshipped sources.
+
 ## 1.5.0
 
 ### Minor Changes

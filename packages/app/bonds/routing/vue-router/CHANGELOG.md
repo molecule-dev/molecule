@@ -1,5 +1,11 @@
 # @molecule/app-routing-vue-router
 
+## 1.4.0
+
+### Minor Changes
+
+- `MoleculeRouterProvider` gives `@molecule/app-vue` its router and Vue Router's `RouterView` as the routed view.
+
 ## 1.3.0
 
 ### Minor Changes

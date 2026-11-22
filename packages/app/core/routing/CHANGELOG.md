@@ -1,5 +1,11 @@
 # @molecule/app-routing
 
+## 1.5.1
+
+### Patch Changes
+
+- Document when a router calls `subscribe` listeners: once per committed navigation, before the new page paints.
+
 ## 1.5.0
 
 ### Minor Changes
