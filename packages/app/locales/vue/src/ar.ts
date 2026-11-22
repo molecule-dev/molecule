@@ -5,7 +5,7 @@ export const ar: VueTranslations = {
   'vue.error.useRouterOutsideProvider':
     'لا يوجد موجّه هنا. قم بتغليف التطبيق باستخدام `MoleculeRouterProvider` من رابط التوجيه (`@molecule/app-routing-vue-router`)، أو مرّر `router` إلى `moleculePlugin`. إذا كان التطبيق يفعل ذلك بالفعل، فإن رابط التوجيه الخاص به أقدم من هذا الربط: قم بتحديثه (`npm install @molecule/app-routing-vue-router@latest`).',
   'vue.error.noRoutedView':
-    'لا يحتوي هذا الربط التوجيهي على عرض مُوجَّه لعرضه هنا: مرِّر الصفحة كعناصر فرعية بدلاً من ذلك. إذا كان التطبيق يستخدم التوجيه باستخدام `@molecule/app-routing-vue-router` ، فإن هذا الربط أقدم من هذا الربط: قم بتحديثه (`npm install @molecule/app-routing-vue-router@latest`).',
+    'لا يحتوي هذا الربط التوجيهي على عرض مُوجَّه لعرضه هنا: مرِّر الصفحة كعناصر فرعية بدلاً من ذلك. إذا كان التطبيق يستخدم التوجيه باستخدام `@molecule/app-routing-vue-router`، فإن هذا الربط أقدم من هذا الربط: قم بتحديثه (`npm install @molecule/app-routing-vue-router@latest`).',
   'vue.error.useStoreOutsideProvider': 'يجب استخدام useStateProvider داخل StateProvider',
   'vue.error.useThemeOutsideProvider': 'يجب استخدام useThemeProvider داخل ThemeProvider',
   'vue.error.useAuthOutsideProvider': 'يجب استخدام useAuthClient داخل AuthProvider',

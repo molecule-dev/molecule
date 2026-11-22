@@ -34,7 +34,7 @@ export const ka: SvelteTranslations = {
   'svelte.error.useRouterOutsideProvider':
     'აქ როუტერი არ არის. დაამონტაჟეთ `MoleculeRouterProvider` მარშრუტიზაციის ბმიდან (`@molecule/app-routing-sveltekit`) root-ში `+layout.svelte`, ან გამოიძახეთ `setMoleculeContext({ router })` იქ. თუ აპლიკაცია უკვე აკეთებს ამას, მისი მარშრუტიზაციის ბმა უფრო ძველია, ვიდრე ეს ბმა: განაახლეთ იგი (`npm install @molecule/app-routing-sveltekit@latest`).',
   'svelte.error.noRoutedView':
-    'აქ მარშრუტიზებული ხედი არ არის. SvelteKit გვერდს განლაგებას ანიჭებს, როგორც `children`: ამ კომპონენტში გადასცემს `{@render children()}` .',
+    'აქ მარშრუტიზებული ხედი არ არის. SvelteKit გვერდს განლაგებას ანიჭებს, როგორც `children`: ამ კომპონენტში გადასცემს `{@render children()}`.',
   'svelte.error.useHttpOutsideProvider': 'useHttpClient უნდა იქნას გამოყენებული HttpProvider-ში',
   'svelte.error.useStorageOutsideProvider':
     'useStorageProvider უნდა იქნას გამოყენებული StorageProvider-ში',

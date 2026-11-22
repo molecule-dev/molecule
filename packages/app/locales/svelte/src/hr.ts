@@ -6,7 +6,7 @@ export const hr: SvelteTranslations = {
   'svelte.error.noAuthClient': 'Klijent za autentifikaciju nije pronađen u kontekstu',
   'svelte.error.noThemeProvider': 'Pružatelj teme nije pronađen u kontekstu',
   'svelte.error.noRouter':
-    'Nema ovdje usmjerivača. Montirajte `MoleculeRouterProvider` iz veze usmjeravanja (`@molecule/app-routing-sveltekit`) u korijenu `+layout.svelte` ili tamo pozovite `setMoleculeContext({ router })` . Ako aplikacija to već radi, njena veza usmjeravanja je starija od ove veze: ažurirajte je (`npm install @molecule/app-routing-sveltekit@latest`).',
+    'Nema ovdje usmjerivača. Montirajte `MoleculeRouterProvider` iz veze usmjeravanja (`@molecule/app-routing-sveltekit`) u korijenu `+layout.svelte` ili tamo pozovite `setMoleculeContext({ router })`. Ako aplikacija to već radi, njena veza usmjeravanja je starija od ove veze: ažurirajte je (`npm install @molecule/app-routing-sveltekit@latest`).',
   'svelte.error.noI18nProvider': 'I18n pružatelj nije pronađen u kontekstu',
   'svelte.error.noHttpClient': 'HTTP klijent nije pronađen u kontekstu',
   'svelte.error.noStorageProvider': 'Pružatelj pohrane nije pronađen u kontekstu',
@@ -24,7 +24,7 @@ export const hr: SvelteTranslations = {
   'svelte.error.useThemeOutsideProvider':
     'useThemeProvider se mora koristiti unutar ThemeProvider-a',
   'svelte.error.useRouterOutsideProvider':
-    'Nema ovdje usmjerivača. Montirajte `MoleculeRouterProvider` iz veze usmjeravanja (`@molecule/app-routing-sveltekit`) u korijenu `+layout.svelte` ili tamo pozovite `setMoleculeContext({ router })` . Ako aplikacija to već radi, njena veza usmjeravanja je starija od ove veze: ažurirajte je (`npm install @molecule/app-routing-sveltekit@latest`).',
+    'Nema ovdje usmjerivača. Montirajte `MoleculeRouterProvider` iz veze usmjeravanja (`@molecule/app-routing-sveltekit`) u korijenu `+layout.svelte` ili tamo pozovite `setMoleculeContext({ router })`. Ako aplikacija to već radi, njena veza usmjeravanja je starija od ove veze: ažurirajte je (`npm install @molecule/app-routing-sveltekit@latest`).',
   'svelte.error.noRoutedView':
     'Ovdje nema usmjerenog prikaza. SvelteKit daje izgledu svoje stranice kao `children`: proslijedite `{@render children()}` unutar ove komponente.',
   'svelte.error.useHttpOutsideProvider': 'useHttpClient se mora koristiti unutar HttpProvidera',

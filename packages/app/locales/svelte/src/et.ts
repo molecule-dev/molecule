@@ -6,7 +6,7 @@ export const et: SvelteTranslations = {
   'svelte.error.noAuthClient': 'Autentimisklienti ei leitud kontekstis',
   'svelte.error.noThemeProvider': 'Teemapakkujat ei leitud kontekstis',
   'svelte.error.noRouter':
-    'Siin pole ruuterit. Ühenda `MoleculeRouterProvider` marsruutimissideme (`@molecule/app-routing-sveltekit`) abil juurkataloogis `+layout.svelte` või kutsu seal välja `setMoleculeContext({ router })` . Kui rakendus seda juba teeb, on selle marsruutimisside vanem kui see side: uuenda seda (`npm install @molecule/app-routing-sveltekit@latest`).',
+    'Siin pole ruuterit. Ühenda `MoleculeRouterProvider` marsruutimissideme (`@molecule/app-routing-sveltekit`) abil juurkataloogis `+layout.svelte` või kutsu seal välja `setMoleculeContext({ router })`. Kui rakendus seda juba teeb, on selle marsruutimisside vanem kui see side: uuenda seda (`npm install @molecule/app-routing-sveltekit@latest`).',
   'svelte.error.noI18nProvider': 'I18n pakkujat ei leitud kontekstis',
   'svelte.error.noHttpClient': 'HTTP klienti ei leitud kontekstis',
   'svelte.error.noStorageProvider': 'Salvestuspakkujat ei leitud kontekstis',
@@ -23,9 +23,9 @@ export const et: SvelteTranslations = {
   'svelte.error.useAuthOutsideProvider': "AuthProvideri sees tuleb kasutada useAuthClient'i",
   'svelte.error.useThemeOutsideProvider': 'useThemeProviderit tuleb kasutada ThemeProvideri sees.',
   'svelte.error.useRouterOutsideProvider':
-    'Siin pole ruuterit. Ühenda `MoleculeRouterProvider` marsruutimissideme (`@molecule/app-routing-sveltekit`) abil juurkataloogis `+layout.svelte` või kutsu seal välja `setMoleculeContext({ router })` . Kui rakendus seda juba teeb, on selle marsruutimisside vanem kui see side: uuenda seda (`npm install @molecule/app-routing-sveltekit@latest`).',
+    'Siin pole ruuterit. Ühenda `MoleculeRouterProvider` marsruutimissideme (`@molecule/app-routing-sveltekit`) abil juurkataloogis `+layout.svelte` või kutsu seal välja `setMoleculeContext({ router })`. Kui rakendus seda juba teeb, on selle marsruutimisside vanem kui see side: uuenda seda (`npm install @molecule/app-routing-sveltekit@latest`).',
   'svelte.error.noRoutedView':
-    'Siin pole suunatavat vaadet. SvelteKit annab oma lehele paigutuse `children` ina: edastage selle komponendi sees `{@render children()}` .',
+    'Siin pole suunatavat vaadet. SvelteKit annab oma lehele paigutuse `children` ina: edastage selle komponendi sees `{@render children()}`.',
   'svelte.error.useHttpOutsideProvider': 'useHttpClient peab olema kasutatud HttpProvideri sees.',
   'svelte.error.useStorageOutsideProvider':
     'useStorageProvider peab olema kasutusel StorageProvideri sees.',

@@ -16,7 +16,7 @@ export const ar: AngularTranslations = {
   'angular.error.useRouterOutsideProvider':
     'لا يوجد موجّه هنا. أضف `provideMoleculeRouter()` من رابط التوجيه (`@molecule/app-routing-angular-router`) إلى مزوّدي التطبيق، بعد `provideRouter(routes)` في Angular، أو مرّر `router` إلى `provideMolecule`. إذا كان التطبيق يفعل ذلك بالفعل، فإن رابط التوجيه الخاص به أقدم من هذا الربط: قم بتحديثه (`npm install @molecule/app-routing-angular-router@latest`).',
   'angular.error.noRoutedView':
-    'لا يحتوي هذا الربط التوجيهي على عرض مُوجَّه لعرضه هنا: مرِّر الصفحة كعناصر فرعية بدلاً من ذلك. إذا كان التطبيق يستخدم التوجيه باستخدام `@molecule/app-routing-angular-router` ، فإن هذا الربط أقدم من هذا الربط: قم بتحديثه (`npm install @molecule/app-routing-angular-router@latest`).',
+    'لا يحتوي هذا الربط التوجيهي على عرض مُوجَّه لعرضه هنا: مرِّر الصفحة كعناصر فرعية بدلاً من ذلك. إذا كان التطبيق يستخدم التوجيه باستخدام `@molecule/app-routing-angular-router`، فإن هذا الربط أقدم من هذا الربط: قم بتحديثه (`npm install @molecule/app-routing-angular-router@latest`).',
   'angular.error.useStorageOutsideProvider': 'يجب استخدام useStorageProvider داخل StorageProvider',
   'angular.error.useThemeOutsideProvider': 'يجب استخدام useThemeProvider داخل ThemeProvider',
   'angular.error.useWorkspaceOutsideProvider':

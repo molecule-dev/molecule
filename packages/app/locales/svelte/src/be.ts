@@ -6,7 +6,7 @@ export const be: SvelteTranslations = {
   'svelte.error.noAuthClient': 'Кліент аўтэнтыфікацыі не знойдзены ў кантэксце',
   'svelte.error.noThemeProvider': 'Пастаўшчык тэмы не знойдзены ў кантэксце',
   'svelte.error.noRouter':
-    'Тут няма маршрутызатара. Падключыце `MoleculeRouterProvider` да маршрутызацыйнай сувязі (`@molecule/app-routing-sveltekit`) у корані `+layout.svelte` або выклічце там `setMoleculeContext({ router })` . Калі праграма ўжо робіць гэта, яе маршрутызацыйная сувязь старэйшая за гэтую прывязку: абнавіце яе (`npm install @molecule/app-routing-sveltekit@latest`).',
+    'Тут няма маршрутызатара. Падключыце `MoleculeRouterProvider` да маршрутызацыйнай сувязі (`@molecule/app-routing-sveltekit`) у корані `+layout.svelte` або выклічце там `setMoleculeContext({ router })`. Калі праграма ўжо робіць гэта, яе маршрутызацыйная сувязь старэйшая за гэтую прывязку: абнавіце яе (`npm install @molecule/app-routing-sveltekit@latest`).',
   'svelte.error.noI18nProvider': 'Пастаўшчык i18n не знойдзены ў кантэксце',
   'svelte.error.noHttpClient': 'HTTP кліент не знойдзены ў кантэксце',
   'svelte.error.noStorageProvider': 'Пастаўшчык сховішча не знойдзены ў кантэксце',
@@ -26,7 +26,7 @@ export const be: SvelteTranslations = {
   'svelte.error.useThemeOutsideProvider':
     'useThemeProvider павінен выкарыстоўвацца ўнутры ThemeProvider',
   'svelte.error.useRouterOutsideProvider':
-    'Тут няма маршрутызатара. Падключыце `MoleculeRouterProvider` да маршрутызацыйнай сувязі (`@molecule/app-routing-sveltekit`) у корані `+layout.svelte` або выклічце там `setMoleculeContext({ router })` . Калі праграма ўжо робіць гэта, яе маршрутызацыйная сувязь старэйшая за гэтую прывязку: абнавіце яе (`npm install @molecule/app-routing-sveltekit@latest`).',
+    'Тут няма маршрутызатара. Падключыце `MoleculeRouterProvider` да маршрутызацыйнай сувязі (`@molecule/app-routing-sveltekit`) у корані `+layout.svelte` або выклічце там `setMoleculeContext({ router })`. Калі праграма ўжо робіць гэта, яе маршрутызацыйная сувязь старэйшая за гэтую прывязку: абнавіце яе (`npm install @molecule/app-routing-sveltekit@latest`).',
   'svelte.error.noRoutedView':
     'Тут няма маршрутызаванага прагляду. SvelteKit дае макету старонкі як `children`: перадайце `{@render children()}` унутр гэтага кампанента.',
   'svelte.error.useHttpOutsideProvider':

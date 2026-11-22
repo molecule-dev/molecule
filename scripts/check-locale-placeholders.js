@@ -252,7 +252,8 @@ const sameMultiset = (a, b) =>
  *     (`"{{name}}"`, `<{{element}}>`, {@link quotedTokens}) is not kept as that
  *     unit: the quotes no longer surround the value.
  *   `SPACING` — a space splits a token from the suffix English writes against
- *     it (`{{name}}'s` → `{{name}} 'nin`).
+ *     it (`{{name}}'s` → `{{name}} 'nin`), or sits between a code span and the
+ *     full stop or comma after it ({@link CODE_SPAN_SPACE_RE}).
  *   `ENGLISH` — the value is still the English text ({@link isUntranslatedCopy}).
  *     {@link copiedEnglish} adds the short values a whole file never translated.
  */
@@ -292,6 +293,13 @@ export function classify(englishValue, value) {
       detail: missing.length
         ? `${missing.join(', ')} not kept verbatim`
         : `gains ${gained.join(', ')}, which en does not mark as code: UI text does not render Markdown, so the backticks show`,
+    }
+  }
+  if (CODE_SPAN_SPACE_RE.test(value) && !CODE_SPAN_SPACE_RE.test(englishValue)) {
+    return {
+      klass: 'SPACING',
+      detail:
+        'a space between a code span and the full stop or comma after it; write `name`. as en does',
     }
   }
   const commands = commandSpans(englishValue)
@@ -570,6 +578,41 @@ export function copiedEnglish(englishByKey, translated, lang, kept = new Map()) 
   return out
 }
 
+/**
+ * A code span with a space before the full stop or comma after it (`` `MoleculeProvider` . ``).
+ * Machine translation added that space in 6 bonds (2026-11-20). No language spaces these
+ * marks so: French puts a space only before ; : ! ?, and Finnish's `` `setProvider()` -funktiota ``
+ * is a hyphen, which this does not match.
+ */
+export const CODE_SPAN_SPACE_RE = /`[^`\n]+` [.,،]/
+
+/**
+ * The keys whose value is still the English text in every language file of a bond, when the
+ * value is too short for {@link isUntranslatedCopy} to call one file's copy English.
+ *
+ * One Latin-script file holding English "Show less" could be a fair translation; all 78
+ * holding it is a stub nobody translated: June 2026's key fan-outs copied English into every
+ * file, and 103 IDE labels stayed English that way until 2026-11-20. {@link copiedEnglish}
+ * sees a whole file copied; this sees one key copied into every file. A value that reads the
+ * same in every language (a product name) says so with `// keep-english` in `en.ts`.
+ *
+ * @param englishByKey - The bond's `en.ts` values.
+ * @param translations - Each language file's values.
+ * @param kept - The keys `en.ts` keeps in English.
+ * @returns The keys, in `en.ts` order (none for a bond with fewer than two languages).
+ */
+export function untranslatedEverywhere(englishByKey, translations, kept) {
+  if (translations.length < 2) return []
+  const keys = []
+  for (const [key, englishValue] of englishByKey) {
+    // A sentence is already refused file by file, as ENGLISH.
+    if (kept.has(key) || isUntranslatedCopy(englishValue, englishValue)) continue
+    if (englishWords(englishValue).length === 0) continue
+    if (translations.every((values) => values.get(key) === englishValue)) keys.push(key)
+  }
+  return keys
+}
+
 /** A token or code span, then a space, then a hyphenated suffix: `{{total}} -dən`. */
 const SPLIT_HYPHEN_RE = /(\{\{[^{}]*\}\}|`[^`\n]+`) +-\p{L}/u
 
@@ -600,10 +643,18 @@ export function splitHyphenSuffix(englishValue, value, lang) {
  * @param translated - The language file's values.
  * @param lang - The language code.
  * @param kept - The keys en.ts marks `keep-english` ({@link keptInEnglish}).
+ * @param everywhere - The bond's keys still English in every language
+ *   ({@link untranslatedEverywhere}).
  * @returns Each refused key's `{ klass, detail }` ({@link checkValue},
- *   {@link splitHyphenSuffix}, {@link copiedEnglish}).
+ *   {@link splitHyphenSuffix}, {@link copiedEnglish}, `everywhere`).
  */
-export function checkFile(englishByKey, translated, lang, kept = new Map()) {
+export function checkFile(
+  englishByKey,
+  translated,
+  lang,
+  kept = new Map(),
+  everywhere = new Set(),
+) {
   const verdicts = new Map()
   for (const [key, value] of translated) {
     const englishValue = englishByKey.get(key)
@@ -614,6 +665,12 @@ export function checkFile(englishByKey, translated, lang, kept = new Map()) {
   }
   for (const [key, detail] of copiedEnglish(englishByKey, translated, lang, kept))
     if (!verdicts.has(key)) verdicts.set(key, { klass: 'ENGLISH', detail })
+  for (const key of everywhere)
+    if (!verdicts.has(key) && !kept.has(key) && translated.get(key) === englishByKey.get(key))
+      verdicts.set(key, {
+        klass: 'ENGLISH',
+        detail: `every language still holds the English ${JSON.stringify(englishByKey.get(key))}; translate it, or mark it "// keep-english: <reason>" in en.ts when it reads the same in every language (a product name)`,
+      })
   return verdicts
 }
 
@@ -713,12 +770,26 @@ export function analyzeLocalePlaceholders() {
     const label = pkg.slice(ROOT.length + 1)
     const plurals = pluralBases(englishByKey)
 
-    for (const file of readdirSync(src)) {
-      if (!file.endsWith('.ts') || SKIP.has(file)) continue
+    const files = readdirSync(src)
+      .filter((file) => file.endsWith('.ts') && !SKIP.has(file))
+      .sort()
+      .map((file) => {
+        const fileSource = readFileSync(join(src, file), 'utf8')
+        return { file, fileSource, translated: valuesByKey(fileSource) }
+      })
+    const everywhere = new Set(
+      untranslatedEverywhere(
+        englishByKey,
+        files
+          .filter(({ file }) => writingScript(file.slice(0, -'.ts'.length)) !== undefined)
+          .map(({ translated }) => translated),
+        kept,
+      ),
+    )
+
+    for (const { file, fileSource, translated } of files) {
       filesScanned += 1
       const where = `${label}/src/${file}`
-      const fileSource = readFileSync(join(src, file), 'utf8')
-      const translated = valuesByKey(fileSource)
       // A marker in the language file keeps its key English in that language only.
       const own = keptInEnglish(fileSource)
       for (const problem of own.problems) problems.push(`${where}: ${problem}`)
@@ -757,7 +828,13 @@ export function analyzeLocalePlaceholders() {
       }
 
       const lang = file.slice(0, -'.ts'.length)
-      for (const [key, verdict] of checkFile(englishByKey, translated, lang, keptHere)) {
+      for (const [key, verdict] of checkFile(
+        englishByKey,
+        translated,
+        lang,
+        keptHere,
+        everywhere,
+      )) {
         const englishValue = englishByKey.get(key)
         const value = translated.get(key)
         drifts.push({

@@ -6,7 +6,7 @@ export const sk: SvelteTranslations = {
   'svelte.error.noAuthClient': 'Autentifika\u010dn\u00fd klient nebol n\u00e1jden\u00fd v kontexte',
   'svelte.error.noThemeProvider': 'Poskytovate\u013e t\u00e9my nebol n\u00e1jden\u00fd v kontexte',
   'svelte.error.noRouter':
-    'Žiadny smerovač tu nie je. Pripojte `MoleculeRouterProvider` z smerovacej väzby (`@molecule/app-routing-sveltekit`) do koreňového adresára `+layout.svelte` alebo tam zavolajte `setMoleculeContext({ router })` . Ak to aplikácia už robí, jej smerovacia väzba je staršia ako táto väzba: aktualizujte ju (`npm install @molecule/app-routing-sveltekit@latest`).',
+    'Žiadny smerovač tu nie je. Pripojte `MoleculeRouterProvider` z smerovacej väzby (`@molecule/app-routing-sveltekit`) do koreňového adresára `+layout.svelte` alebo tam zavolajte `setMoleculeContext({ router })`. Ak to aplikácia už robí, jej smerovacia väzba je staršia ako táto väzba: aktualizujte ju (`npm install @molecule/app-routing-sveltekit@latest`).',
   'svelte.error.noI18nProvider': 'I18n poskytovate\u013e nebol n\u00e1jden\u00fd v kontexte',
   'svelte.error.noHttpClient': 'HTTP klient nebol n\u00e1jden\u00fd v kontexte',
   'svelte.error.noStorageProvider':
@@ -24,9 +24,9 @@ export const sk: SvelteTranslations = {
   'svelte.error.useAuthOutsideProvider': 'useAuthClient sa musí použiť v rámci AuthProvider',
   'svelte.error.useThemeOutsideProvider': 'useThemeProvider sa musí použiť v rámci ThemeProvider',
   'svelte.error.useRouterOutsideProvider':
-    'Žiadny smerovač tu nie je. Pripojte `MoleculeRouterProvider` z smerovacej väzby (`@molecule/app-routing-sveltekit`) do koreňového adresára `+layout.svelte` alebo tam zavolajte `setMoleculeContext({ router })` . Ak to aplikácia už robí, jej smerovacia väzba je staršia ako táto väzba: aktualizujte ju (`npm install @molecule/app-routing-sveltekit@latest`).',
+    'Žiadny smerovač tu nie je. Pripojte `MoleculeRouterProvider` z smerovacej väzby (`@molecule/app-routing-sveltekit`) do koreňového adresára `+layout.svelte` alebo tam zavolajte `setMoleculeContext({ router })`. Ak to aplikácia už robí, jej smerovacia väzba je staršia ako táto väzba: aktualizujte ju (`npm install @molecule/app-routing-sveltekit@latest`).',
   'svelte.error.noRoutedView':
-    'Žiadne smerované zobrazenie tu nie je. SvelteKit priradí rozloženie svojej stránky ako `children`: v rámci tohto komponentu zadajte `{@render children()}` .',
+    'Žiadne smerované zobrazenie tu nie je. SvelteKit priradí rozloženie svojej stránky ako `children`: v rámci tohto komponentu zadajte `{@render children()}`.',
   'svelte.error.useHttpOutsideProvider': 'useHttpClient sa musí použiť v rámci HttpProvider',
   'svelte.error.useStorageOutsideProvider':
     'useStorageProvider sa musí použiť v rámci StorageProvider',

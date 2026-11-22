@@ -7,7 +7,7 @@ export const pl: SvelteTranslations = {
     'Klient uwierzytelniania nie zosta\u0142 znaleziony w kontek\u015bcie',
   'svelte.error.noThemeProvider': 'Dostawca motywu nie zosta\u0142 znaleziony w kontek\u015bcie',
   'svelte.error.noRouter':
-    'Brak routera. Zamontuj `MoleculeRouterProvider` z powiązania routingu (`@molecule/app-routing-sveltekit`) w katalogu głównym `+layout.svelte` lub wywołaj tam `setMoleculeContext({ router })` . Jeśli aplikacja już to robi, jej powiązanie routingu jest starsze niż to powiązanie: zaktualizuj je (`npm install @molecule/app-routing-sveltekit@latest`).',
+    'Brak routera. Zamontuj `MoleculeRouterProvider` z powiązania routingu (`@molecule/app-routing-sveltekit`) w katalogu głównym `+layout.svelte` lub wywołaj tam `setMoleculeContext({ router })`. Jeśli aplikacja już to robi, jej powiązanie routingu jest starsze niż to powiązanie: zaktualizuj je (`npm install @molecule/app-routing-sveltekit@latest`).',
   'svelte.error.noI18nProvider': 'Dostawca i18n nie zosta\u0142 znaleziony w kontek\u015bcie',
   'svelte.error.noHttpClient': 'Klient HTTP nie zosta\u0142 znaleziony w kontek\u015bcie',
   'svelte.error.noStorageProvider':
@@ -25,7 +25,7 @@ export const pl: SvelteTranslations = {
   'svelte.error.useThemeOutsideProvider':
     'useThemeProvider musi być używany w ramach ThemeProvider',
   'svelte.error.useRouterOutsideProvider':
-    'Brak routera. Zamontuj `MoleculeRouterProvider` z powiązania routingu (`@molecule/app-routing-sveltekit`) w katalogu głównym `+layout.svelte` lub wywołaj tam `setMoleculeContext({ router })` . Jeśli aplikacja już to robi, jej powiązanie routingu jest starsze niż to powiązanie: zaktualizuj je (`npm install @molecule/app-routing-sveltekit@latest`).',
+    'Brak routera. Zamontuj `MoleculeRouterProvider` z powiązania routingu (`@molecule/app-routing-sveltekit`) w katalogu głównym `+layout.svelte` lub wywołaj tam `setMoleculeContext({ router })`. Jeśli aplikacja już to robi, jej powiązanie routingu jest starsze niż to powiązanie: zaktualizuj je (`npm install @molecule/app-routing-sveltekit@latest`).',
   'svelte.error.noRoutedView':
     'Brak tutaj widoku trasowanego. SvelteKit przypisuje układowi swoją stronę jako `children`: przekazuje `{@render children()}` wewnątrz tego komponentu.',
   'svelte.error.useHttpOutsideProvider': 'useHttpClient musi być używany w ramach HttpProvider',

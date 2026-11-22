@@ -33,6 +33,7 @@ import {
   placeholders,
   pluralBases,
   splitHyphenSuffix,
+  untranslatedEverywhere,
   valuesByKey,
 } from '../check-locale-placeholders.js'
 
@@ -288,11 +289,69 @@ describe('classify', () => {
     expect(splitHyphenSuffix('{{a}} - {{b}}', '{{a}} - {{b}}', 'de')).toBeNull()
   })
 
+  it('catches a SPACE the translation put between a code span and its full stop or comma', () => {
+    const en = 'Wrap your app in a `MoleculeProvider`.'
+    // Machine Latvian, 2026-11-20.
+    expect(classify(en, 'Ietiniet lietotni `MoleculeProvider` .')).toMatchObject({
+      klass: 'SPACING',
+    })
+    expect(
+      classify('Call `setup`, then `start`.', 'Izsauciet `setup` , tad `start`.'),
+    ).toMatchObject({ klass: 'SPACING' })
+    expect(classify(en, 'Ietiniet lietotni `MoleculeProvider`.')).toBeNull()
+    // Finnish joins a case ending to a code name with a hyphen, which is not this space.
+    expect(
+      classify('Call `setProvider()` first.', 'Kutsu ensin `setProvider()` -funktiota.'),
+    ).toBeNull()
+  })
+
   it('catches a CODE span the translation added — UI text shows the backticks', () => {
     // A machine translation's Polish for '{{count}} results in {{files}} files'.
     expect(
       classify('{{count}} results in {{files}} files', '{{count}} wyników w `{{files}}` plikach'),
     ).toMatchObject({ klass: 'CODE', detail: expect.stringContaining('gains `{{files}}`') })
+  })
+})
+
+describe('untranslatedEverywhere', () => {
+  const english = new Map([
+    ['a.less', 'Show less'],
+    ['a.copy', 'Copy'],
+    ['a.brand', 'GitHub'],
+    ['a.count', '{{count}} / {{total}} ×'],
+    ['a.mail', 'you@example.com'],
+    ['a.sentence', 'Team messaging is unavailable in this workspace.'],
+  ])
+  const allEnglish = (): Map<string, string> => new Map(english)
+
+  it('reports a short label every language still holds in English', () => {
+    expect(
+      untranslatedEverywhere(english, [allEnglish(), allEnglish(), allEnglish()], new Map()),
+    ).toEqual(['a.less', 'a.copy', 'a.brand'])
+  })
+
+  it('passes a key one language translated, and a key en.ts keeps in English', () => {
+    const german = allEnglish()
+    german.set('a.less', 'Weniger anzeigen')
+    expect(
+      untranslatedEverywhere(
+        english,
+        [german, allEnglish()],
+        new Map([['a.brand', 'a brand name, written the same in every language']]),
+      ),
+    ).toEqual(['a.copy'])
+  })
+
+  it('leaves a value with no words, an address and a sentence to the per-file checks', () => {
+    const keys = untranslatedEverywhere(english, [allEnglish(), allEnglish()], new Map())
+    expect(keys).not.toContain('a.count')
+    expect(keys).not.toContain('a.mail')
+    // A sentence is already refused file by file, as ENGLISH.
+    expect(keys).not.toContain('a.sentence')
+  })
+
+  it('says nothing about a bond with one language', () => {
+    expect(untranslatedEverywhere(english, [allEnglish()], new Map())).toEqual([])
   })
 })
 
@@ -409,6 +468,21 @@ describe('copied English', () => {
   it("skips a file that is not a language (a bond's own loadContent.ts)", () => {
     const en = values({ all: 'Select all' })
     expect(copiedEnglish(en, en, 'loadContent').size).toBe(0)
+  })
+
+  it('checkFile refuses a key the bond still holds in English everywhere, except where it is kept', () => {
+    const en = values({ less: 'Show less', copy: 'Copy' })
+    const de = values({ less: 'Show less', copy: 'Kopieren' })
+    expect(Object.fromEntries(checkFile(en, de, 'de', new Map(), new Set(['less'])))).toEqual({
+      less: {
+        klass: 'ENGLISH',
+        detail:
+          'every language still holds the English "Show less"; translate it, or mark it "// keep-english: <reason>" in en.ts when it reads the same in every language (a product name)',
+      },
+    })
+    expect(checkFile(en, de, 'de', new Map([['less', 'kept here']]), new Set(['less'])).size).toBe(
+      0,
+    )
   })
 
   it('checkFile reports both kinds of verdict for one file', () => {

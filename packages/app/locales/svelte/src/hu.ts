@@ -6,7 +6,7 @@ export const hu: SvelteTranslations = {
   'svelte.error.noAuthClient': 'Hitelesítési kliens nem található a kontextusban',
   'svelte.error.noThemeProvider': 'Témaszolgáltató nem található a kontextusban',
   'svelte.error.noRouter':
-    'Nincs itt router. Csatold `MoleculeRouterProvider` t a `+layout.svelte` gyökérkönyvtárban található útvonalválasztási kötelékből (`@molecule/app-routing-sveltekit`), vagy hívd meg `setMoleculeContext({ router })` . Ha az alkalmazás már csinálja ezt, akkor az útvonalválasztási köteléke régebbi, mint ez a kötés: frissítsd (`npm install @molecule/app-routing-sveltekit@latest`).',
+    'Nincs itt router. Csatold `MoleculeRouterProvider` t a `+layout.svelte` gyökérkönyvtárban található útvonalválasztási kötelékből (`@molecule/app-routing-sveltekit`), vagy hívd meg `setMoleculeContext({ router })`. Ha az alkalmazás már csinálja ezt, akkor az útvonalválasztási köteléke régebbi, mint ez a kötés: frissítsd (`npm install @molecule/app-routing-sveltekit@latest`).',
   'svelte.error.noI18nProvider': 'I18n szolgáltató nem található a kontextusban',
   'svelte.error.noHttpClient': 'HTTP kliens nem található a kontextusban',
   'svelte.error.noStorageProvider': 'Tárolószolgáltató nem található a kontextusban',
@@ -25,7 +25,7 @@ export const hu: SvelteTranslations = {
   'svelte.error.useThemeOutsideProvider':
     'A useThemeProvider-t egy ThemeProvider-en belül kell használni.',
   'svelte.error.useRouterOutsideProvider':
-    'Nincs itt router. Csatold `MoleculeRouterProvider` t a `+layout.svelte` gyökérkönyvtárban található útvonalválasztási kötelékből (`@molecule/app-routing-sveltekit`), vagy hívd meg `setMoleculeContext({ router })` . Ha az alkalmazás már csinálja ezt, akkor az útvonalválasztási köteléke régebbi, mint ez a kötés: frissítsd (`npm install @molecule/app-routing-sveltekit@latest`).',
+    'Nincs itt router. Csatold `MoleculeRouterProvider` t a `+layout.svelte` gyökérkönyvtárban található útvonalválasztási kötelékből (`@molecule/app-routing-sveltekit`), vagy hívd meg `setMoleculeContext({ router })`. Ha az alkalmazás már csinálja ezt, akkor az útvonalválasztási köteléke régebbi, mint ez a kötés: frissítsd (`npm install @molecule/app-routing-sveltekit@latest`).',
   'svelte.error.noRoutedView':
     'Nincs itt útvonalazott nézet. A SvelteKit `children`-ként adja meg az oldal elrendezését: `{@render children()}` kell átadni ezen a komponensen belül.',
   'svelte.error.useHttpOutsideProvider':

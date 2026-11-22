@@ -8,7 +8,7 @@ export const lv: SvelteTranslations = {
   'svelte.error.noThemeProvider':
     'Mot\u012bva nodro\u0161in\u0101t\u0101js nav atrasts kontekst\u0101',
   'svelte.error.noRouter':
-    'Šeit nav maršrutētāja. Pievienojiet `MoleculeRouterProvider` no maršrutēšanas saites (`@molecule/app-routing-sveltekit`) saknē `+layout.svelte` vai izsauciet tur `setMoleculeContext({ router })` . Ja lietotne to jau dara, tās maršrutēšanas saite ir vecāka par šo saistījumu: atjauniniet to (`npm install @molecule/app-routing-sveltekit@latest`).',
+    'Šeit nav maršrutētāja. Pievienojiet `MoleculeRouterProvider` no maršrutēšanas saites (`@molecule/app-routing-sveltekit`) saknē `+layout.svelte` vai izsauciet tur `setMoleculeContext({ router })`. Ja lietotne to jau dara, tās maršrutēšanas saite ir vecāka par šo saistījumu: atjauniniet to (`npm install @molecule/app-routing-sveltekit@latest`).',
   'svelte.error.noI18nProvider': 'I18n nodro\u0161in\u0101t\u0101js nav atrasts kontekst\u0101',
   'svelte.error.noHttpClient': 'HTTP klients nav atrasts kontekst\u0101',
   'svelte.error.noStorageProvider':
@@ -28,9 +28,9 @@ export const lv: SvelteTranslations = {
   'svelte.error.useAuthOutsideProvider': 'useAuthClient ir jāizmanto AuthProvider ietvaros.',
   'svelte.error.useThemeOutsideProvider': 'useThemeProvider ir jāizmanto ThemeProvider ietvaros.',
   'svelte.error.useRouterOutsideProvider':
-    'Šeit nav maršrutētāja. Pievienojiet `MoleculeRouterProvider` no maršrutēšanas saites (`@molecule/app-routing-sveltekit`) saknē `+layout.svelte` vai izsauciet tur `setMoleculeContext({ router })` . Ja lietotne to jau dara, tās maršrutēšanas saite ir vecāka par šo saistījumu: atjauniniet to (`npm install @molecule/app-routing-sveltekit@latest`).',
+    'Šeit nav maršrutētāja. Pievienojiet `MoleculeRouterProvider` no maršrutēšanas saites (`@molecule/app-routing-sveltekit`) saknē `+layout.svelte` vai izsauciet tur `setMoleculeContext({ router })`. Ja lietotne to jau dara, tās maršrutēšanas saite ir vecāka par šo saistījumu: atjauniniet to (`npm install @molecule/app-routing-sveltekit@latest`).',
   'svelte.error.noRoutedView':
-    'Šeit nav maršrutēta skata. SvelteKit piešķir lapas izkārtojumu kā `children`: šajā komponentā nodot `{@render children()}` .',
+    'Šeit nav maršrutēta skata. SvelteKit piešķir lapas izkārtojumu kā `children`: šajā komponentā nodot `{@render children()}`.',
   'svelte.error.useHttpOutsideProvider': 'useHttpClient ir jāizmanto HttpProvider ietvaros.',
   'svelte.error.useStorageOutsideProvider':
     'useStorageProvider ir jāizmanto StorageProvider ietvaros.',
