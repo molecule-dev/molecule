@@ -21,7 +21,7 @@ import { useEffect, useState } from 'react'
 import { describe, expect, it } from 'vitest'
 
 import { I18nError } from '@molecule/app-i18n'
-import type { RouteLocation, Router } from '@molecule/app-routing'
+import type { RouteChangeListener, RouteLocation, RouteParams, Router } from '@molecule/app-routing'
 import { createMemoryRouter } from '@molecule/app-routing'
 
 import {
@@ -58,7 +58,7 @@ function bondShapedRouter(): {
   navigate: { current: (path: string) => void }
 } {
   const rendered = { path: '/items/1?tab=a' }
-  const listeners = new Set<() => void>()
+  const listeners = new Set<RouteChangeListener>()
   const locationOf = (path: string): RouteLocation => {
     const [pathname, query = ''] = path.split('?')
     return { pathname, search: query ? `?${query}` : '', hash: '' }
@@ -67,7 +67,10 @@ function bondShapedRouter(): {
   const router: Router = {
     ...base,
     getLocation: () => locationOf(rendered.path),
-    getParams: () => ({ id: locationOf(rendered.path).pathname.split('/')[2] ?? '' }),
+    getParams: <T extends RouteParams = RouteParams>(): T => {
+      const params: RouteParams = { id: locationOf(rendered.path).pathname.split('/')[2] ?? '' }
+      return params as T
+    },
     getQuery: () => Object.fromEntries(new URLSearchParams(locationOf(rendered.path).search)),
     subscribe: (listener) => {
       listeners.add(listener)
@@ -90,7 +93,7 @@ function bondShapedRouter(): {
     navigate.current = setPath
     rendered.path = path
     useEffect(() => {
-      for (const listener of listeners) listener()
+      for (const listener of listeners) listener(locationOf(path), 'push')
     }, [path])
     return (
       <RouterProvider router={router}>
