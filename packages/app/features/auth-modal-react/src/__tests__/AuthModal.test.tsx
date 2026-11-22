@@ -17,7 +17,8 @@ const refreshMock = vi.fn()
 const isAuthenticatedMock = vi.fn()
 const signupMock = vi.fn()
 
-vi.mock('@molecule/app-react', () => ({
+vi.mock('@molecule/app-react', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useAuth: () => ({ refresh: refreshMock }),
   useAuthClient: () => ({
     isAuthenticated: isAuthenticatedMock,

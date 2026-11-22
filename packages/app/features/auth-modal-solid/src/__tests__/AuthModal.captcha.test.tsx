@@ -19,7 +19,8 @@ import type { AuthModalMode } from '../cta-intercept.js'
 
 const signupMock = vi.fn()
 
-vi.mock('@molecule/app-solid', () => ({
+vi.mock('@molecule/app-solid', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useAuth: () => ({ refresh: vi.fn() }),
   useAuthClient: () => ({ isAuthenticated: () => true, getUser: () => null }),
   useLogin: () => ({ status: () => 'idle', error: () => null, login: vi.fn() }),

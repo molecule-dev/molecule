@@ -33,7 +33,8 @@ vi.mock('@molecule/app-ui', () => ({
 
 // A provider whose `t` marks the key it was asked for, so the assertion sees
 // the key PageHeader renders with, not a translated string.
-vi.mock('@molecule/app-solid', () => ({
+vi.mock('@molecule/app-solid', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useTranslation: () => ({
     t: (key: string) => `⟦${key}⟧`,
   }),

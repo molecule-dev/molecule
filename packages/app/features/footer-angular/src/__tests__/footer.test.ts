@@ -102,8 +102,7 @@ vi.mock('@molecule/app-angular', async (importOriginal) => {
   const { signal } = await import('@angular/core')
   const locale = signal('en')
   return {
-    Link: actual.Link,
-    provideRouter: actual.provideRouter,
+    ...actual,
     useTranslation: () => ({
       t: (
         key: string,

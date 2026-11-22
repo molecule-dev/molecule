@@ -17,7 +17,8 @@ import type { AuthModalProps } from '../AuthModal.js'
 
 const signupMock = vi.fn()
 
-vi.mock('@molecule/app-vue', () => ({
+vi.mock('@molecule/app-vue', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useAuth: () => ({ refresh: vi.fn() }),
   useAuthClient: () => ({ isAuthenticated: () => true, getUser: () => null }),
   useLogin: () => ({ status: { value: 'idle' }, error: { value: null }, login: vi.fn() }),

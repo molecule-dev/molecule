@@ -36,7 +36,8 @@ vi.mock('@molecule/app-ui', () => ({
 
 // React's test mocks react-router's `Link`; the Solid counterpart mocks the
 // binding's `Link` and `useTranslation`.
-vi.mock('@molecule/app-solid', () => ({
+vi.mock('@molecule/app-solid', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Link: (props: { to?: string; children?: JSX.Element }) => (
     <a href={props.to ?? '/'} data-link="">
       {props.children}

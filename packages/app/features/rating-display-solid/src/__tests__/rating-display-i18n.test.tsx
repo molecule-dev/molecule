@@ -37,7 +37,8 @@ vi.mock('@molecule/app-ui', () => ({
 
 // Translations the bonded i18n provider would supply: each key maps to a marked string carrying
 // the interpolated values, so text that bypassed t() would show up as plain English.
-vi.mock('@molecule/app-solid', () => ({
+vi.mock('@molecule/app-solid', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useTranslation: () => ({
     t: (key: string, values?: Record<string, unknown>) =>
       `«${key}|${values?.value}|${values?.max}»`,

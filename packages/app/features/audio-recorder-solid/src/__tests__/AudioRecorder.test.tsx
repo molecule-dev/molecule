@@ -25,7 +25,8 @@ vi.mock('@molecule/app-ui', () => ({
   }),
 }))
 
-vi.mock('@molecule/app-solid', () => ({
+vi.mock('@molecule/app-solid', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useTranslation: () => ({
     t: (_key: string, values?: Record<string, unknown>, opts?: { defaultValue?: string }) => {
       let s = opts?.defaultValue ?? _key

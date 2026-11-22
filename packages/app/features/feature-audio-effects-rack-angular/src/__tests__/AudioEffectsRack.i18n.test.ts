@@ -24,7 +24,8 @@ import { describe, expect, it, vi } from 'vitest'
 import type { Effect } from '../types.js'
 
 // Translations the bonded i18n provider would supply: each key maps to a marked string.
-vi.mock('@molecule/app-angular', () => ({
+vi.mock('@molecule/app-angular', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useTranslation: () => ({ t: (key: string) => `«${key}»` }),
 }))
 vi.mock('@molecule/app-ui', () => ({

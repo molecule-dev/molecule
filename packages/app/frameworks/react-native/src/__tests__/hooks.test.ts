@@ -84,7 +84,8 @@ vi.mock('react', () => ({
 // Mock @molecule/app-react (via vi.mock — package exists in workspace)
 // ---------------------------------------------------------------------------
 
-vi.mock('@molecule/app-react', () => ({
+vi.mock('@molecule/app-react', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useAuth: vi.fn(),
   useTheme: vi.fn(),
   useRouter: vi.fn(),

@@ -68,7 +68,8 @@ const { MiniCalendar } = await import('../mini-calendar.component.js')
 
 // Translations the bonded i18n provider would supply: each key maps to a marked string, so a
 // default that bypassed t() would show up as plain English.
-vi.mock('@molecule/app-angular', () => ({
+vi.mock('@molecule/app-angular', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useTranslation: () => ({ t: (key: string) => `«${key}»` }),
   useLocale: () => () => 'en-US',
 }))

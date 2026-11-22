@@ -16,7 +16,8 @@ import { AudioEffectsRack, EFFECT_KINDS, EFFECT_PARAM_SCHEMAS } from '../AudioEf
 import type { AudioEffectsRackProps, Effect } from '../types.js'
 
 // Translations the bonded i18n provider would supply: each key maps to a marked string.
-vi.mock('@molecule/app-solid', () => ({
+vi.mock('@molecule/app-solid', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useTranslation: () => ({ t: (key: string) => `«${key}»` }),
 }))
 vi.mock('@molecule/app-ui', () => ({

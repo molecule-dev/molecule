@@ -39,9 +39,10 @@ vi.mock('@molecule/app-ui-react', () => ({
 // provider presence. `useContext` returns `null` when a Provider is absent
 // (it does NOT throw), which is exactly what makes the header degrade
 // gracefully instead of crashing the real hook-calling ThemeToggle.
-vi.mock('@molecule/app-react', async () => {
+vi.mock('@molecule/app-react', async (importOriginal) => {
   const { createContext } = await import('react')
   return {
+    ...(await importOriginal<Record<string, unknown>>()),
     ThemeContext: createContext<unknown>(null),
     I18nContext: createContext<unknown>(null),
   }

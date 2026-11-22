@@ -35,7 +35,8 @@ vi.mock('@molecule/app-ui', () => ({
   },
 }))
 
-vi.mock('@molecule/app-svelte', () => ({
+vi.mock('@molecule/app-svelte', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   // The row's components call `useTranslation`; the wrapper calls `useOAuth`.
   // `t` returns the defaultValue with {{values}} interpolated, mirroring the
   // real provider for our purposes.

@@ -33,7 +33,8 @@ vi.mock('@molecule/app-ui', () => ({
     return new Proxy({}, handler)
   },
 }))
-vi.mock('@molecule/app-react', () => ({
+vi.mock('@molecule/app-react', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useTranslation: () => ({ t: (key: string) => `«${key}»` }),
 }))
 

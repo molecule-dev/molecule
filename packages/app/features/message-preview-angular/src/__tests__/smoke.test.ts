@@ -25,9 +25,10 @@ vi.mock('@molecule/app-ui', () => ({
 vi.mock('@molecule/app-ui-angular', () => ({
   asTemplate: () => null,
 }))
-vi.mock('@molecule/app-angular', async () => {
+vi.mock('@molecule/app-angular', async (importOriginal) => {
   const { Directive } = await import('@angular/core')
   return {
+    ...(await importOriginal<Record<string, unknown>>()),
     Link: Directive({ selector: 'a[molLink]', standalone: true, inputs: ['molLink'] })(
       class MockLink {
         molLink = ''

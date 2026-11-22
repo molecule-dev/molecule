@@ -23,7 +23,8 @@ vi.mock('@molecule/app-ui', () => ({
   },
 }))
 
-vi.mock('@molecule/app-react', () => ({
+vi.mock('@molecule/app-react', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useTranslation: () => ({
     // Interpolates `{{name}}` placeholders the way the real translator does,
     // so a label built from values is asserted as the user would read it.

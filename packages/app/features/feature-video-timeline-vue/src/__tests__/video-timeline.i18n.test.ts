@@ -11,7 +11,8 @@
 
 import { describe, expect, it, vi } from 'vitest'
 
-vi.mock('@molecule/app-vue', () => ({
+vi.mock('@molecule/app-vue', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useTranslation: () => ({ t: (key: string) => `«${key}»` }),
 }))
 vi.mock('@molecule/app-ui', () => ({

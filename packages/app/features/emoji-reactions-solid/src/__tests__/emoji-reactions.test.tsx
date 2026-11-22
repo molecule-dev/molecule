@@ -37,7 +37,8 @@ vi.mock('@molecule/app-ui', () => ({
   },
 }))
 
-vi.mock('@molecule/app-solid', () => ({
+vi.mock('@molecule/app-solid', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useTranslation: () => ({
     // Mirror the real provider: return the defaultValue and interpolate any
     // `{{name}}` placeholders from `values` (so `{{count}}` resolves like it

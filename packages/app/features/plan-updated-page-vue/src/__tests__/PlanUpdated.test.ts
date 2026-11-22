@@ -40,9 +40,10 @@ vi.mock('@molecule/app-ui', () => ({
 
 // The binding composables, the router `Link`, and the UI markers the React
 // tests mock — the same observable contract, in Vue's shape.
-vi.mock('@molecule/app-vue', async () => {
+vi.mock('@molecule/app-vue', async (importOriginal) => {
   const { defineComponent, h } = await import('vue')
   return {
+    ...(await importOriginal<Record<string, unknown>>()),
     useAuth: mockUseAuth,
     useTranslation: () => ({
       t: (key: string, _values?: unknown, opts?: { defaultValue?: string }) =>

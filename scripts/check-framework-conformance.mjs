@@ -92,6 +92,7 @@ import { dirname, join } from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 
+import { BINDING_MOCK_FIX, partialBindingMocks } from './lib/binding-mocks.mjs'
 import { testFilesOf, testTitlesOf } from './lib/test-titles.mjs'
 import {
   ROUTER_LIBRARY_FIX,
@@ -536,6 +537,7 @@ export function findConformanceViolations(root = ROOT, ledgers = {}) {
 
   out.push(...featureParityViolations(root, kit))
   out.push(...routerLibraryViolations(root))
+  out.push(...bindingMockViolations(root))
   out.push(...titleParityViolations(root))
   out.push(...exportParityViolations(root, ledgers))
 
@@ -582,6 +584,42 @@ export function routerLibraryViolations(root) {
     }
   }
   for (const top of APP_PACKAGE_DIRS) visit(`packages/app/${top}`, 0)
+  return out
+}
+
+/**
+ * Finds the tests of app packages that mock a framework binding without its real exports
+ * (`scripts/lib/binding-mocks.mjs`): a shared component that starts reading another export of
+ * the binding breaks every such test, in packages its change never touched.
+ *
+ * @param root - The molecule repository root.
+ * @returns One line per such `vi.mock`, by file and line.
+ */
+export function bindingMockViolations(root) {
+  const out = []
+  // `packages/app/<dir>/<name>` or `packages/app/<dir>/<group>/<name>`.
+  const visit = (rel, depth) => {
+    const abs = join(root, rel)
+    if (!existsSync(abs)) return
+    const entries = readdirSync(abs, { withFileTypes: true })
+    for (const e of entries.sort((a, b) => a.name.localeCompare(b.name))) {
+      if (!e.isDirectory() || e.name === 'node_modules') continue
+      const dir = `${rel}/${e.name}`
+      if (!existsSync(join(root, dir, 'package.json'))) {
+        if (depth < 2) visit(dir, depth + 1)
+        continue
+      }
+      for (const file of testFilesOf(join(root, dir))) {
+        const text = readFileSync(join(root, dir, file), 'utf8')
+        if (!text.includes('vi.mock(')) continue
+        for (const { binding, line } of partialBindingMocks(text, file))
+          out.push(
+            `${dir}/${file}:${line}: vi.mock('${binding}') replaces the binding without its real exports; ${BINDING_MOCK_FIX}`,
+          )
+      }
+    }
+  }
+  visit('packages/app', 0)
   return out
 }
 
@@ -1592,6 +1630,6 @@ if (isMain && process.argv.includes('--prune-title-pending')) {
   for (const v of violations) console.error(`framework-conformance: ${v}`)
   if (violations.length) process.exit(1)
   console.log(
-    'framework-conformance: every UI bond, framework binding, feature bond and routing bond runs the conformance kit, every React package has its framework counterparts (or a pending-ledger entry), and every counterpart declares its React package’s test titles (or a pending-ledger entry)',
+    'framework-conformance: every UI bond, framework binding, feature bond and routing bond runs the conformance kit, every React package has its framework counterparts (or a pending-ledger entry), every counterpart declares its React package’s test titles (or a pending-ledger entry), and every test that mocks a framework binding keeps its real exports',
   )
 }

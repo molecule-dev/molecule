@@ -103,8 +103,7 @@ vi.mock('@molecule/app-angular', async (importOriginal) => {
   const actual = await importOriginal<typeof AngularBinding>()
   const { signal } = await import('@angular/core')
   return {
-    Link: actual.Link,
-    provideRouter: actual.provideRouter,
+    ...actual,
     useTranslation: () => ({
       t: (key: string, values?: Record<string, unknown>, opts?: { defaultValue?: string }) => {
         let out = key in catalog ? catalog[key] : (opts?.defaultValue ?? key)

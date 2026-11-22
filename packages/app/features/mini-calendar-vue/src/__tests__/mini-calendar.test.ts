@@ -42,7 +42,8 @@ import { MiniCalendar } from '../MiniCalendar.js'
 
 // Translations the bonded i18n provider would supply: each key maps to a marked string, so a
 // default that bypassed t() would show up as plain English.
-vi.mock('@molecule/app-vue', () => ({
+vi.mock('@molecule/app-vue', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useTranslation: () => ({ t: (key: string) => `«${key}»` }),
   useLocale: () => ({ value: 'en-US' }),
 }))

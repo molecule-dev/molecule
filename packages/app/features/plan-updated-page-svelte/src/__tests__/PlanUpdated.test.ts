@@ -47,9 +47,10 @@ vi.mock('@molecule/app-icons', () => ({
 
 // The binding hooks the React tests mock, in Svelte's shape (readable stores
 // for the value fields), plus a plain `<a href>` stand-in for the router link.
-vi.mock('@molecule/app-svelte', async () => {
+vi.mock('@molecule/app-svelte', async (importOriginal) => {
   const { default: Link } = await import('./stubs/Link.svelte')
   return {
+    ...(await importOriginal<Record<string, unknown>>()),
     useAuth: mockUseAuth,
     useTranslation: () => ({
       t: (key: string, _values?: unknown, opts?: { defaultValue?: string }) =>

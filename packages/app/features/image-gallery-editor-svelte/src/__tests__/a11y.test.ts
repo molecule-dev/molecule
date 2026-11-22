@@ -36,7 +36,8 @@ vi.mock('@molecule/app-ui-svelte', async () => {
 })
 // The bonded i18n provider is not mounted here; `t()` falls back to its English
 // defaultValue, which is what the accessible-name assertions read.
-vi.mock('@molecule/app-svelte', () => ({
+vi.mock('@molecule/app-svelte', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useTranslation: () => ({
     t: (_key: string, _values: unknown, opts?: { defaultValue?: string }) =>
       opts?.defaultValue ?? _key,

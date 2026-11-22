@@ -24,7 +24,8 @@ import type {
   SearchResultView,
 } from '../types.js'
 
-vi.mock('@molecule/app-solid', () => ({
+vi.mock('@molecule/app-solid', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useTranslation: () => ({
     t: (key: string, values?: Record<string, unknown>, opts?: { defaultValue?: string }) =>
       key === 'searchUi.examplePhrase' || key === 'searchUi.exampleExcluded'

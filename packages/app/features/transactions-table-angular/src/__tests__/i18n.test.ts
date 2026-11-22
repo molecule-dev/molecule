@@ -51,10 +51,11 @@ vi.mock('@molecule/app-ui', () => ({
 // the tests re-tick the app to flush it).
 const i18n = vi.hoisted(() => ({ locale: 'en' }))
 
-vi.mock('@molecule/app-angular', async () => {
+vi.mock('@molecule/app-angular', async (importOriginal) => {
   const { signal } = await import('@angular/core')
   const localeSignal = signal(i18n.locale)
   return {
+    ...(await importOriginal<Record<string, unknown>>()),
     useTranslation: (): { t: (key: string) => string } => ({
       t: (key: string) => `«${key}»`,
     }),

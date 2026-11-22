@@ -9,7 +9,8 @@ const { mockUseAuth, mockUseVerifyPaymentReturn } = vi.hoisted(() => ({
   mockUseVerifyPaymentReturn: vi.fn(),
 }))
 
-vi.mock('@molecule/app-react', () => ({
+vi.mock('@molecule/app-react', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useAuth: mockUseAuth,
   useTranslation: () => ({
     t: (key: string, _values?: unknown, opts?: { defaultValue?: string }) =>

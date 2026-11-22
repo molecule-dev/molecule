@@ -35,7 +35,8 @@ vi.mock('@molecule/app-ui', () => ({
 
 // The translation mock the React tests use: the default value with `{{name}}`
 // placeholders filled in from the values object.
-vi.mock('@molecule/app-vue', () => ({
+vi.mock('@molecule/app-vue', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useTranslation: () => ({
     t: (_key: string, values?: Record<string, unknown>, opts?: { defaultValue?: string }) => {
       let s = opts?.defaultValue ?? _key

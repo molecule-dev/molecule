@@ -57,9 +57,10 @@ vi.mock('@molecule/app-ui', () => {
 // The router markers: `Link` renders an anchor with `data-link`, the location
 // is the current {@link locationState}, and `RoutedView` renders the routed
 // page.
-vi.mock('@molecule/app-vue', async () => {
+vi.mock('@molecule/app-vue', async (importOriginal) => {
   const { computed, defineComponent, h } = await import('vue')
   return {
+    ...(await importOriginal<Record<string, unknown>>()),
     Link: defineComponent({
       name: 'Link',
       inheritAttrs: false,

@@ -28,9 +28,10 @@ vi.mock('@molecule/app-ui', () => ({
 // The `[molLink]` stand-in is a real standalone directive (a plain class cannot
 // stand in for one in a component's `imports`), rendering the href the way the
 // React suite's plain-anchor `react-router` mock does.
-vi.mock('@molecule/app-angular', async () => {
+vi.mock('@molecule/app-angular', async (importOriginal) => {
   const { Directive } = await import('@angular/core')
   return {
+    ...(await importOriginal<Record<string, unknown>>()),
     Link: Directive({
       selector: 'a[molLink]',
       standalone: true,

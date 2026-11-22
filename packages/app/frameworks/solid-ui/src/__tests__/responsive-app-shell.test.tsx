@@ -47,9 +47,10 @@ vi.mock('@molecule/app-ui', () => ({
     ),
 }))
 
-vi.mock('@molecule/app-solid', async () => {
+vi.mock('@molecule/app-solid', async (importOriginal) => {
   const { shellLocation } = await import('./responsive-app-shell-location-fixture.js')
   return {
+    ...(await importOriginal<Record<string, unknown>>()),
     useLocation: () => shellLocation,
     useTranslation: () => ({
       t: (_key: string, _values: unknown, opts?: { defaultValue?: string }) =>

@@ -15,7 +15,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 const signupMock = vi.fn()
 
-vi.mock('@molecule/app-svelte', () => ({
+vi.mock('@molecule/app-svelte', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useAuth: () => ({ refresh: vi.fn() }),
   useAuthClient: () => ({ isAuthenticated: () => true, getUser: () => null }),
   useLogin: () => ({ status: writableOf('idle'), error: writableOf(null), login: vi.fn() }),

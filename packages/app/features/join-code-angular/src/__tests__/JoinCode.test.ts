@@ -49,7 +49,8 @@ vi.mock('@molecule/app-ui', () => ({
 
 // The translations the component reads, resolved from the inline English
 // `defaultValue` exactly as the bonded i18n provider does.
-vi.mock('@molecule/app-angular', () => ({
+vi.mock('@molecule/app-angular', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useTranslation: () => ({
     t: (key: string, values?: Record<string, unknown>, options?: { defaultValue?: string }) =>
       Object.entries(values ?? {}).reduce(

@@ -57,7 +57,8 @@ const routing = await vi.hoisted(async () => {
 let matches = false
 const changeListeners = new Set<(event: { matches: boolean }) => void>()
 
-vi.mock('@molecule/app-svelte', () => ({
+vi.mock('@molecule/app-svelte', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getRouter: () => routing.router,
   useTranslation: () => ({
     t: (_key: string, _values: unknown, opts?: { defaultValue?: string }) =>

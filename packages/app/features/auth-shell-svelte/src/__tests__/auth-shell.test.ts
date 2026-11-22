@@ -35,9 +35,10 @@ vi.mock('@molecule/app-ui', () => ({
 
 // React's test mocks react-router's `Link`; the Svelte counterpart mocks the
 // binding's `Link` (a plain anchor) and `useTranslation`.
-vi.mock('@molecule/app-svelte', async () => {
+vi.mock('@molecule/app-svelte', async (importOriginal) => {
   const MockLink = (await import('./mock-link.svelte')).default
   return {
+    ...(await importOriginal<Record<string, unknown>>()),
     Link: MockLink,
     useTranslation: () => ({
       // A marker provider: every key renders as «key», so text that bypassed

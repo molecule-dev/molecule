@@ -84,7 +84,8 @@ vi.mock('@molecule/app-icons', () => ({
 
 // The drawer label test reads a TRANSLATED value, so the stub resolves keys
 // through a small table before falling back to the defaultValue.
-vi.mock('@molecule/app-angular', () => ({
+vi.mock('@molecule/app-angular', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useTranslation: () => ({
     t: (key: string, _values?: unknown, opts?: { defaultValue?: string }) =>
       ({ 'sidebarUserCard.drawer': 'Konto' })[key] ?? opts?.defaultValue ?? '',

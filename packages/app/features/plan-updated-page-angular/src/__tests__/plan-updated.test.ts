@@ -55,9 +55,10 @@ vi.mock('@molecule/app-ui', () => ({
 
 // The binding hooks the React tests mock, in Angular's shape (signals for the
 // value fields), plus the router `Link` directive's observable part: the href.
-vi.mock('@molecule/app-angular', async () => {
+vi.mock('@molecule/app-angular', async (importOriginal) => {
   const { Directive } = await import('@angular/core')
   return {
+    ...(await importOriginal<Record<string, unknown>>()),
     useAuth: mockUseAuth,
     useTranslation: () => ({
       t: (key: string, _values?: unknown, opts?: { defaultValue?: string }) =>

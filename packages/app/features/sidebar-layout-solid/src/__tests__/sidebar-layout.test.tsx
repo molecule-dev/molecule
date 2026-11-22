@@ -43,7 +43,8 @@ vi.mock('@molecule/app-ui', () => ({
 // routed page, and the location is the current {@link locationState}. The
 // binding's `t` resolves a key's inline English default; the nav label's own
 // test file exercises a marking provider.
-vi.mock('@molecule/app-solid', () => ({
+vi.mock('@molecule/app-solid', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Link: (props: { to: string; children?: JSX.Element } & Record<string, unknown>) => {
     const { to, children, ...anchor } = props
     return (

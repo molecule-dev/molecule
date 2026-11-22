@@ -42,7 +42,8 @@ import MiniCalendar from '../MiniCalendar.svelte'
 
 // Translations the bonded i18n provider would supply: each key maps to a marked string, so a
 // default that bypassed t() would show up as plain English.
-vi.mock('@molecule/app-svelte', () => ({
+vi.mock('@molecule/app-svelte', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useTranslation: () => ({ t: (key: string) => `«${key}»` }),
   useLocale: () => ({
     subscribe(fn: (value: string) => void) {

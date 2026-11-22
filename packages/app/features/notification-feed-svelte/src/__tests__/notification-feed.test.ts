@@ -35,9 +35,12 @@ vi.mock('@molecule/app-ui', () => ({
 
 // The marker the React tests mock `react-router`'s `Link` with: an `<a href>`
 // carrying `data-link`.
-vi.mock('@molecule/app-svelte', async () => {
+vi.mock('@molecule/app-svelte', async (importOriginal) => {
   const { default: Link } = await import('./stubs/LinkStub.svelte')
-  return { Link }
+  return {
+    ...(await importOriginal<Record<string, unknown>>()),
+    Link,
+  }
 })
 
 import { type ComponentProps, flushSync, mount, unmount } from 'svelte'

@@ -55,7 +55,8 @@ vi.mock('@molecule/app-ui', () => ({
 
 // The i18n mock the React tests install for `@molecule/app-react`: `t`
 // interpolates the inline English default.
-vi.mock('@molecule/app-angular', () => ({
+vi.mock('@molecule/app-angular', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useTranslation: () => ({
     t: (
       _key: string,

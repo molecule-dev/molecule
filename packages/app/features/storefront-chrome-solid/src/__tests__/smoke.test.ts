@@ -27,7 +27,8 @@ vi.mock('@molecule/app-ui', () => ({
 }))
 
 // Render router links as plain anchors, as the React suite mocks `react-router`.
-vi.mock('@molecule/app-solid', () => ({
+vi.mock('@molecule/app-solid', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Link: (props: { to?: string; children?: unknown }) => props.children,
 }))
 

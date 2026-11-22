@@ -25,10 +25,11 @@ interface RouteLocation {
 /** The route store the mocked `useLocation` returns; tests advance it. */
 let routeStore: Writable<RouteLocation>
 
-vi.mock('@molecule/app-svelte', async () => {
+vi.mock('@molecule/app-svelte', async (importOriginal) => {
   const { readable, writable } = await import('svelte/store')
   routeStore = writable<RouteLocation>({ pathname: '/', search: '' })
   return {
+    ...(await importOriginal<Record<string, unknown>>()),
     useLocation: () => routeStore,
     useTranslation: () => ({
       t: (_key: string, _values: unknown, opts?: { defaultValue?: string }) =>

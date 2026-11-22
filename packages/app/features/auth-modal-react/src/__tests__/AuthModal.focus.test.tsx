@@ -14,7 +14,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { AuthModal } from '../AuthModal.js'
 
-vi.mock('@molecule/app-react', () => ({
+vi.mock('@molecule/app-react', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useAuth: () => ({ refresh: vi.fn() }),
   useAuthClient: () => ({ isAuthenticated: () => true, getUser: () => null }),
   useLogin: () => ({ status: 'idle', error: null, login: vi.fn() }),

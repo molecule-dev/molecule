@@ -38,7 +38,8 @@ vi.mock('@molecule/app-ui', () => ({
 // the store subscription, the way the real hook does).
 const i18n = vi.hoisted(() => ({ locale: 'en', listeners: new Set<() => void>() }))
 
-vi.mock('@molecule/app-react', () => ({
+vi.mock('@molecule/app-react', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useTranslation: () => ({
     t: (key: string, _values?: unknown, _options?: unknown) => `«${key}»`,
   }),

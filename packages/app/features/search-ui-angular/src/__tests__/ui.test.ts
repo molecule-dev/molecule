@@ -138,7 +138,8 @@ vi.mock('@molecule/app-ui-angular', async () => {
 // The hook mocked at the binding boundary, the same observable contract the
 // React suite's `@molecule/app-react` mock has (`t()` resolves the inline
 // defaultValue, interpolating `{{count}}` and friends).
-vi.mock('@molecule/app-angular', () => ({
+vi.mock('@molecule/app-angular', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useTranslation: () => ({
     t: (
       key: string,

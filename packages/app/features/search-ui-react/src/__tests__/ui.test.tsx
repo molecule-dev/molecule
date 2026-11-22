@@ -7,7 +7,8 @@ import type { SearchSession } from '@molecule/app-client-search-react'
 import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
 
-vi.mock('@molecule/app-react', () => ({
+vi.mock('@molecule/app-react', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useTranslation: () => ({
     t: (key: string, values?: Record<string, unknown>, opts?: { defaultValue?: string }) =>
       key === 'searchUi.examplePhrase' || key === 'searchUi.exampleExcluded'

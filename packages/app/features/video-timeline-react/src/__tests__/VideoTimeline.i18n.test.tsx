@@ -9,7 +9,8 @@ import { VideoTimeline } from '../VideoTimeline.js'
 // The bonded i18n provider is replaced with a marker stub: every key renders as
 // «key», so a label built at runtime (`t(`videoTimeline.trackKind.${kind}`)`)
 // or an English default bypassing t() would show up as plain text instead.
-vi.mock('@molecule/app-react', () => ({
+vi.mock('@molecule/app-react', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useTranslation: () => ({ t: (key: string) => `«${key}»` }),
 }))
 vi.mock('@molecule/app-ui', () => ({

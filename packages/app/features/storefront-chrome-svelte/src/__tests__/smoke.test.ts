@@ -25,7 +25,10 @@ vi.mock('@molecule/app-ui', () => ({
 }))
 
 // Render router links as plain anchors, as the React suite mocks `react-router`.
-vi.mock('@molecule/app-svelte', () => ({ Link: {} }))
+vi.mock('@molecule/app-svelte', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  Link: {},
+}))
 
 describe('package smoke', () => {
   it('module imports without throwing', async () => {

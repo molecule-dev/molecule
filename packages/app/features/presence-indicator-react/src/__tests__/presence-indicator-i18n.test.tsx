@@ -41,7 +41,8 @@ vi.mock('@molecule/app-ui', () => ({
 // through the store subscription, the way the real useTranslation does).
 const i18n = vi.hoisted(() => ({ locale: 'en', listeners: new Set<() => void>() }))
 
-vi.mock('@molecule/app-react', () => ({
+vi.mock('@molecule/app-react', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useTranslation: () => {
     useSyncExternalStore(
       (onChange) => {

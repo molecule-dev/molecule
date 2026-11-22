@@ -46,7 +46,8 @@ vi.mock('@molecule/app-ui', () => ({
   },
 }))
 // A `t` that echoes its key: a label that bypassed t() would show as plain English.
-vi.mock('@molecule/app-angular', () => ({
+vi.mock('@molecule/app-angular', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useTranslation: () => ({ t: (key: string) => `«${key}»` }),
 }))
 

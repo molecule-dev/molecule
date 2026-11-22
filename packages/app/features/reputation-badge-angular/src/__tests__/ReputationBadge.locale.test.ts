@@ -44,7 +44,8 @@ vi.mock('@molecule/app-ui', () => ({
   getClassMap: () => buildStubClassMap(),
 }))
 
-vi.mock('@molecule/app-angular', () => ({
+vi.mock('@molecule/app-angular', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useTranslation: () => ({
     t: (key: string, values?: Record<string, unknown>, opts?: { defaultValue?: string }) => {
       mockI18n.calls.push({ key, values, defaultValue: opts?.defaultValue })

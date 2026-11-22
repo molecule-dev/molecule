@@ -43,7 +43,8 @@ vi.mock('@molecule/app-ui', () => ({
 
 // The i18n mock the React tests install for `@molecule/app-react`: `t`
 // resolves to the inline English default.
-vi.mock('@molecule/app-solid', () => ({
+vi.mock('@molecule/app-solid', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useTranslation: () => ({
     t: (key: string, _values: unknown, opts?: { defaultValue?: string }) => {
       if (marker.on) return `[${key}]`

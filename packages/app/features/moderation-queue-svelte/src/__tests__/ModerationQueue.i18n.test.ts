@@ -40,7 +40,8 @@ vi.mock('@molecule/app-ui', () => ({
 }))
 
 // `useTranslation` mocked to a marker `t`: the rendered text IS the key.
-vi.mock('@molecule/app-svelte', () => ({
+vi.mock('@molecule/app-svelte', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useTranslation: () => ({ t: (key: string) => `«${key}»` }),
 }))
 

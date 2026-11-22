@@ -20,7 +20,8 @@ const { location } = await vi.hoisted(async () => {
   }
 })
 
-vi.mock('@molecule/app-vue', () => ({
+vi.mock('@molecule/app-vue', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useLocation: () => location,
 }))
 

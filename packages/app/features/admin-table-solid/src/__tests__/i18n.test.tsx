@@ -41,10 +41,11 @@ vi.mock('@molecule/app-ui', () => ({
 // component reads (a real signal, so Solid re-renders on a switch).
 const i18n = vi.hoisted(() => ({ locale: 'en' }))
 
-vi.mock('@molecule/app-solid', async () => {
+vi.mock('@molecule/app-solid', async (importOriginal) => {
   const { createSignal } = await import('solid-js')
   const [locale, setLocale] = createSignal(i18n.locale)
   return {
+    ...(await importOriginal<Record<string, unknown>>()),
     useTranslation: (): { t: (key: string) => string } => ({
       // Reading the signal here (inside the JSX attribute expression) tracks it.
       t: (key: string) => `«${locale()}:${key}»`,

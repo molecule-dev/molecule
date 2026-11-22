@@ -22,7 +22,8 @@ vi.mock('@molecule/app-ui', () => ({
 // key itself, so the test sees exactly which key the component asked for.
 const marker = vi.hoisted(() => ({ on: false }))
 
-vi.mock('@molecule/app-react', () => ({
+vi.mock('@molecule/app-react', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useTranslation: () => ({
     t: (_key: string, values?: Record<string, unknown>, opts?: { defaultValue?: string }) => {
       if (marker.on) return `[${_key}]`

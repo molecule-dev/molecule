@@ -42,7 +42,8 @@ const i18n = vi.hoisted(() => ({
     opts?.defaultValue ?? _key,
 }))
 
-vi.mock('@molecule/app-svelte', () => ({
+vi.mock('@molecule/app-svelte', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useTranslation: () => ({ t: i18n.t }),
 }))
 

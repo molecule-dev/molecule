@@ -36,7 +36,8 @@ vi.mock('@molecule/app-ui', () => ({
 // `useOAuth` is hoisted so tests can vary the provider list.
 const { mockUseOAuth } = vi.hoisted(() => ({ mockUseOAuth: vi.fn() }))
 
-vi.mock('@molecule/app-solid', () => ({
+vi.mock('@molecule/app-solid', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useTranslation: () => ({
     t: (_key: string, _values: unknown, opts?: { defaultValue?: string }) =>
       opts?.defaultValue ?? _key,

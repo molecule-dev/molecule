@@ -48,7 +48,7 @@ vi.mock('@molecule/app-ui', () => ({
 // BOTH cases it performs real `{{token}}` interpolation from `values`, exactly
 // like the i18n bond — so a test can prove a component forwards `appName`
 // through to `t()`.
-vi.mock('@molecule/app-solid', () => {
+vi.mock('@molecule/app-solid', async (importOriginal) => {
   const CONTENT: Record<string, string> = {
     'content.privacyPolicy': '<p>Privacy Policy for {{appName}}.</p>',
     'content.termsOfService': '<p>These terms govern your use of {{appName}}.</p>',
@@ -58,6 +58,7 @@ vi.mock('@molecule/app-solid', () => {
       values && name in values ? String(values[name]) : whole,
     )
   return {
+    ...(await importOriginal<Record<string, unknown>>()),
     useTranslation: () => ({
       t: (key: string, values?: Record<string, unknown>, opts?: { defaultValue?: string }) =>
         interpolate(CONTENT[key] ?? opts?.defaultValue ?? key, values),

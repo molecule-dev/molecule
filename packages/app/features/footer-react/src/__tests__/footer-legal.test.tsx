@@ -32,7 +32,8 @@ vi.mock('@molecule/app-ui', () => ({
 
 // `t()` consults the seeded catalog first, then the inline defaultValue — the
 // same resolution order the real i18n provider uses (bond value → fallback).
-vi.mock('@molecule/app-react', () => ({
+vi.mock('@molecule/app-react', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useTranslation: () => ({
     t: (key: string, values?: Record<string, unknown>, opts?: { defaultValue?: string }) => {
       let out = key in catalog ? catalog[key] : (opts?.defaultValue ?? key)

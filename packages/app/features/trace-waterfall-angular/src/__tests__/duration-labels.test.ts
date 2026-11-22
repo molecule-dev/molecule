@@ -45,7 +45,8 @@ vi.mock('@molecule/app-ui', () => ({
 
 // Each translation comes back marked with its key and its `{{value}}`, so a
 // default that bypassed t() would show up as plain English.
-vi.mock('@molecule/app-angular', () => ({
+vi.mock('@molecule/app-angular', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useTranslation: () => ({
     t: (key: string, values?: Record<string, string | number>) =>
       `«${key}:${values ? String(values.value ?? '') : ''}»`,

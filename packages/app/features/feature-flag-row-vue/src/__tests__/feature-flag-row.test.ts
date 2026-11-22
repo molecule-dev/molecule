@@ -42,7 +42,8 @@ const tMock = vi.hoisted(() => ({
   calls: [] as Array<{ key: string; values: Record<string, unknown> | undefined }>,
 }))
 
-vi.mock('@molecule/app-vue', () => ({
+vi.mock('@molecule/app-vue', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useTranslation: () => ({
     t: (
       key: string,

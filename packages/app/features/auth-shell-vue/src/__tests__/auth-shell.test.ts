@@ -36,9 +36,10 @@ vi.mock('@molecule/app-ui', () => ({
 
 // React's test mocks react-router's `Link`; the Vue counterpart mocks the
 // binding's `Link` and `useTranslation`.
-vi.mock('@molecule/app-vue', async () => {
+vi.mock('@molecule/app-vue', async (importOriginal) => {
   const { defineComponent, h } = await import('vue')
   return {
+    ...(await importOriginal<Record<string, unknown>>()),
     Link: defineComponent({
       name: 'Link',
       props: { to: { type: String, default: '/' } },

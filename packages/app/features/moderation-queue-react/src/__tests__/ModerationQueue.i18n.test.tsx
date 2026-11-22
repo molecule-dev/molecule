@@ -21,7 +21,8 @@ import { setClassMap, type UIClassMap } from '@molecule/app-ui'
 import { type ModerationItem, ModerationQueue } from '../ModerationQueue.js'
 
 // `useTranslation` mocked to a marker `t`: the rendered text IS the key.
-vi.mock('@molecule/app-react', () => ({
+vi.mock('@molecule/app-react', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useTranslation: () => ({ t: (key: string) => `«${key}»` }),
 }))
 

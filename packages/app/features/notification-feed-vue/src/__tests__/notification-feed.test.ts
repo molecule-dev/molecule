@@ -35,9 +35,10 @@ vi.mock('@molecule/app-ui', () => ({
 
 // The marker the React tests mock `react-router`'s `Link` with: an `<a href>`
 // carrying `data-link`.
-vi.mock('@molecule/app-vue', async () => {
+vi.mock('@molecule/app-vue', async (importOriginal) => {
   const { defineComponent, h } = await import('vue')
   return {
+    ...(await importOriginal<Record<string, unknown>>()),
     Link: defineComponent({
       name: 'Link',
       props: { to: { type: String, required: true } },

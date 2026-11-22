@@ -41,9 +41,10 @@ vi.mock('@molecule/app-ui', () => ({
 // is the current {@link locationState}, and `RoutedView` renders the routed
 // page. The binding's `t` resolves a key's inline English default; the nav
 // label's own test file exercises a marking provider.
-vi.mock('@molecule/app-vue', async () => {
+vi.mock('@molecule/app-vue', async (importOriginal) => {
   const { computed, defineComponent, h } = await import('vue')
   return {
+    ...(await importOriginal<Record<string, unknown>>()),
     Link: defineComponent({
       name: 'Link',
       inheritAttrs: false,

@@ -33,7 +33,8 @@ vi.mock('@molecule/app-ui', () => ({
   },
 }))
 
-vi.mock('@molecule/app-vue', () => ({
+vi.mock('@molecule/app-vue', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useTranslation: () => ({
     // Mirrors real i18next: with no resource for the key, the (interpolated)
     // defaultValue is returned — so `{{appName}}` is substituted from `values`.

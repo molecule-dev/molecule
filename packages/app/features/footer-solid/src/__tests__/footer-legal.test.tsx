@@ -42,8 +42,7 @@ vi.mock('@molecule/app-ui', () => ({
 vi.mock('@molecule/app-solid', async (importOriginal) => {
   const actual = await importOriginal<typeof SolidBinding>()
   return {
-    Link: actual.Link,
-    RouterContext: actual.RouterContext,
+    ...actual,
     useTranslation: () => ({
       t: (key: string, values?: Record<string, unknown>, opts?: { defaultValue?: string }) => {
         let out = key in catalog ? catalog[key] : (opts?.defaultValue ?? key)

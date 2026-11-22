@@ -50,10 +50,9 @@ vi.mock('@molecule/app-solid', async (importOriginal) => {
   const actual = await importOriginal<typeof SolidBinding>()
   const { createContext } = await import('solid-js')
   return {
+    ...actual,
     ThemeContext: createContext<ThemeProvider>(),
     I18nContext: createContext<I18nProvider>(),
-    Link: actual.Link,
-    RouterContext: actual.RouterContext,
   }
 })
 

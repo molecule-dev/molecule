@@ -39,9 +39,10 @@ vi.mock('@molecule/app-ui', () => ({
 }))
 
 // The mocked `useLocation` reads the same reactive location the tests change.
-vi.mock('@molecule/app-solid', async () => {
+vi.mock('@molecule/app-solid', async (importOriginal) => {
   const { overlayLocation } = await import('./overlay-location-fixture.js')
   return {
+    ...(await importOriginal<Record<string, unknown>>()),
     useLocation: () => overlayLocation,
     useTranslation: () => ({
       t: (_key: string, _values: unknown, opts?: { defaultValue?: string }) =>

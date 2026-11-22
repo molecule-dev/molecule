@@ -36,7 +36,8 @@ vi.mock('@molecule/app-ui', () => ({
 
 // `t` answers with the render-time English fallback, exactly the text React's
 // `createSimpleI18nProvider('en')` renders for an unknown key.
-vi.mock('@molecule/app-vue', () => ({
+vi.mock('@molecule/app-vue', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useTranslation: () => ({
     t: (_key: string, _values: unknown, opts?: { defaultValue?: string }) =>
       opts?.defaultValue ?? _key,

@@ -38,7 +38,8 @@ vi.mock('@molecule/app-ui', () => ({
 
 // The i18n mock the React tests' bonded provider stands in for: `t` resolves
 // to the inline English default, so the labels read as React's do.
-vi.mock('@molecule/app-solid', () => ({
+vi.mock('@molecule/app-solid', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useTranslation: () => ({
     t: (_key: string, _values: unknown, opts?: { defaultValue?: string }) =>
       opts?.defaultValue ?? _key,

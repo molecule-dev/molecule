@@ -64,10 +64,11 @@ vi.mock('@molecule/app-ui-vue', async () => {
 // component reads (a real ref, so Vue re-renders on a switch).
 const i18n = vi.hoisted(() => ({ locale: 'en' }))
 
-vi.mock('@molecule/app-vue', async () => {
+vi.mock('@molecule/app-vue', async (importOriginal) => {
   const { ref } = await import('vue')
   const localeRef = ref(i18n.locale)
   return {
+    ...(await importOriginal<Record<string, unknown>>()),
     useTranslation: (): { t: (key: string) => string } => ({
       // Reading the ref here (inside the component's render) tracks it.
       t: (key: string) => `«${localeRef.value}:${key}»`,

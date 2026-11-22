@@ -33,9 +33,12 @@ vi.mock('@molecule/app-ui', () => ({
 }))
 
 // The mocked `useLocation` reads the same reactive location the tests change.
-vi.mock('@molecule/app-solid', async () => {
+vi.mock('@molecule/app-solid', async (importOriginal) => {
   const { dropdownLocation } = await import('./dropdown-location-fixture.js')
-  return { useLocation: () => dropdownLocation }
+  return {
+    ...(await importOriginal<Record<string, unknown>>()),
+    useLocation: () => dropdownLocation,
+  }
 })
 
 import { setDropdownLocation } from './dropdown-location-fixture.js'

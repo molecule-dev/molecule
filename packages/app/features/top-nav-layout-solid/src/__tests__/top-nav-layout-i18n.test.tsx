@@ -38,7 +38,8 @@ vi.mock('@molecule/app-ui', () => {
 // The router markers the React tests mock `react-router` with, plus a
 // translation function that marks every key, so a default that bypassed `t()`
 // would show up as plain English.
-vi.mock('@molecule/app-solid', () => ({
+vi.mock('@molecule/app-solid', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Link: (props: { to: string; children?: JSX.Element } & Record<string, unknown>) => {
     const { to, children, ...anchor } = props
     return (

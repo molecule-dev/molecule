@@ -37,11 +37,12 @@ vi.mock('@molecule/app-ui', () => {
 // The router markers the React tests mock `react-router` with, plus a
 // translation function that marks every key, so a default that bypassed `t()`
 // would show up as plain English.
-vi.mock('@molecule/app-svelte', async () => {
+vi.mock('@molecule/app-svelte', async (importOriginal) => {
   const { default: Link } = await import('./LinkMock.svelte')
   const { default: RoutedView } = await import('./RoutedViewMock.svelte')
   const { readable } = await import('svelte/store')
   return {
+    ...(await importOriginal<Record<string, unknown>>()),
     Link,
     RoutedView,
     useLocation: () => readable({ pathname: '/', search: '', hash: '' }),

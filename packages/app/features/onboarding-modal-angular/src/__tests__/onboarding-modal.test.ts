@@ -107,7 +107,8 @@ vi.mock('@molecule/app-ui-angular', async () => {
 
 // `t(key, values, opts)` returns the supplied `defaultValue`, as the React
 // suite's mock does.
-vi.mock('@molecule/app-angular', () => ({
+vi.mock('@molecule/app-angular', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useTranslation: () => ({
     t: (_key: string, _values: unknown, opts?: { defaultValue?: string }) =>
       opts?.defaultValue ?? _key,

@@ -21,7 +21,8 @@ vi.mock('@molecule/app-ui', () => ({
   getClassMap: () => buildStubClassMap(),
 }))
 
-vi.mock('@molecule/app-react', () => ({
+vi.mock('@molecule/app-react', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useTranslation: () => ({
     t: (key: string, values?: Record<string, unknown>, opts?: { defaultValue?: string }) => {
       if (tOverride.current) return tOverride.current(key)

@@ -41,7 +41,8 @@ vi.mock('@molecule/app-ui', () => ({
 // Modal reads `t` through `useTranslation()` (the bonded provider). No
 // translations are registered in these tests: every label falls back to its own
 // `defaultValue`, which is what the assertions check.
-vi.mock('@molecule/app-svelte', () => ({
+vi.mock('@molecule/app-svelte', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useTranslation: () => ({
     t: (_key: string, _values: unknown, opts?: { defaultValue?: string }) =>
       opts?.defaultValue ?? _key,

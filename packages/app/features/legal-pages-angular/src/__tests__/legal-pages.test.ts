@@ -55,7 +55,7 @@ vi.mock('@molecule/app-ui', () => ({
 
 // The binding composables, the router link and the UI markers the React tests
 // mock — the same observable contract, in Angular's shape.
-vi.mock('@molecule/app-angular', async () => {
+vi.mock('@molecule/app-angular', async (importOriginal) => {
   const { Directive, Component } = await import('@angular/core')
   const CONTENT: Record<string, string> = {
     'content.privacyPolicy': '<p>Privacy Policy for {{appName}}.</p>',
@@ -80,6 +80,7 @@ vi.mock('@molecule/app-angular', async () => {
     },
   )
   return {
+    ...(await importOriginal<Record<string, unknown>>()),
     useAuth: mockUseAuth,
     useTranslation: () => ({
       t,

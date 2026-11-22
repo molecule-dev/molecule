@@ -43,6 +43,7 @@ import {
   titleParityPairs,
   titleParityViolations,
 } from '../check-framework-conformance.mjs'
+import { BINDING_MOCK_FIX } from '../lib/binding-mocks.mjs'
 import { ROUTER_LIBRARY_FIX } from '../router-libraries.mjs'
 
 const roots = []
@@ -292,6 +293,40 @@ describe('check-framework-conformance', () => {
       `packages/app/features/menu-react: dependencies declares @solidjs/router. ${ROUTER_LIBRARY_FIX}`,
       `packages/app/frameworks/foo-ui: peerDependencies declares react-router. ${ROUTER_LIBRARY_FIX}`,
       `packages/app/frameworks/foo-ui: devDependencies declares vue-router. ${ROUTER_LIBRARY_FIX}`,
+    ])
+  })
+
+  it('fails an app test that mocks a framework binding without its real exports, and names the line', () => {
+    const root = tree()
+    const tests = 'packages/app/features/menu-angular/src/__tests__'
+    mkdirSync(join(root, tests), { recursive: true })
+    writeFileSync(
+      join(root, 'packages/app/features/menu-angular/package.json'),
+      JSON.stringify({ name: '@molecule/app-menu-angular' }),
+    )
+    writeFileSync(
+      join(root, tests, 'menu.test.ts'),
+      [
+        "import { vi } from 'vitest'",
+        '',
+        "vi.mock('@molecule/app-angular', () => ({",
+        '  useTranslation: () => ({ t: (key: string) => key }),',
+        '}))',
+      ].join('\n'),
+    )
+    // Counterexample: a mock that starts from the real module, and a mock of another package.
+    writeFileSync(
+      join(root, tests, 'spread.test.ts'),
+      [
+        "vi.mock('@molecule/app-angular', async (importOriginal) => ({",
+        '  ...(await importOriginal<Record<string, unknown>>()),',
+        '  useTranslation: () => ({ t: (key: string) => key }),',
+        '}))',
+        "vi.mock('@molecule/app-i18n', () => ({ t: (key: string) => key }))",
+      ].join('\n'),
+    )
+    expect(check(root).filter((line) => line.includes(BINDING_MOCK_FIX))).toEqual([
+      `packages/app/features/menu-angular/src/__tests__/menu.test.ts:3: vi.mock('@molecule/app-angular') replaces the binding without its real exports; ${BINDING_MOCK_FIX}`,
     ])
   })
 

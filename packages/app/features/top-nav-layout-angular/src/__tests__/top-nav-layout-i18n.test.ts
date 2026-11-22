@@ -61,7 +61,7 @@ vi.mock('@molecule/app-ui', () => {
 // The router markers the React tests mock `react-router` with, plus a
 // translation function that marks every key, so a default that bypassed `t()`
 // would show up as plain English.
-vi.mock('@molecule/app-angular', async () => {
+vi.mock('@molecule/app-angular', async (importOriginal) => {
   const { Component, Directive } = await import('@angular/core')
   const Link = Directive({
     selector: 'a[molLink]',
@@ -85,6 +85,7 @@ vi.mock('@molecule/app-angular', async () => {
     },
   )
   return {
+    ...(await importOriginal<Record<string, unknown>>()),
     Link,
     RoutedView,
     useRouterInstance: () => ({

@@ -26,7 +26,8 @@ vi.mock('@molecule/app-ui', () => ({
   getClassMap: () => buildStubClassMap(),
 }))
 
-vi.mock('@molecule/app-solid', () => ({
+vi.mock('@molecule/app-solid', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useTranslation: () => ({
     t: (key: string, values?: Record<string, unknown>, opts?: { defaultValue?: string }): string =>
       mockState.markerMode ? `[${key}]` : interpolate(opts?.defaultValue ?? key, values),

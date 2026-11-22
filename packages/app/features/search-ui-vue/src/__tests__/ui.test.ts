@@ -29,7 +29,8 @@ import { classMap } from '@molecule/app-ui-tailwind'
 
 beforeAll(() => setClassMap(classMap))
 
-vi.mock('@molecule/app-vue', () => ({
+vi.mock('@molecule/app-vue', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useTranslation: () => ({
     t: (key: string, values?: Record<string, unknown>, opts?: { defaultValue?: string }) =>
       key === 'searchUi.examplePhrase' || key === 'searchUi.exampleExcluded'

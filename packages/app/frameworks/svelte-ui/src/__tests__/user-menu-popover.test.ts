@@ -47,7 +47,7 @@ let routeStore: Writable<RouteLocation>
 /** The auth client's `logout`, spied by the sign-out test. */
 let logout: ReturnType<typeof vi.fn<() => Promise<void>>>
 
-vi.mock('@molecule/app-svelte', async () => {
+vi.mock('@molecule/app-svelte', async (importOriginal) => {
   const { writable } = await import('svelte/store')
   authStore = writable<AuthSnapshot>({
     status: 'authenticated',
@@ -56,6 +56,7 @@ vi.mock('@molecule/app-svelte', async () => {
   routeStore = writable<RouteLocation>({ pathname: '/', search: '', hash: '' })
   logout = vi.fn<() => Promise<void>>(() => Promise.resolve())
   return {
+    ...(await importOriginal<Record<string, unknown>>()),
     useAuth: () => ({ state: authStore }),
     useAuthClient: () => ({ logout }),
     useLocation: () => routeStore,

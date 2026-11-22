@@ -35,7 +35,8 @@ vi.mock('@molecule/app-ui', () => ({
 
 // The i18n lookup the React suite gets from `I18nProvider`: React's
 // `defaultValue` when the provider has no translation.
-vi.mock('@molecule/app-solid', () => ({
+vi.mock('@molecule/app-solid', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useTranslation: () => ({
     t: (key: string, _values: unknown, options?: { defaultValue?: string }) =>
       options?.defaultValue ?? key,

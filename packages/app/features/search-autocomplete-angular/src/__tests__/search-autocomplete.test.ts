@@ -48,7 +48,8 @@ vi.mock('@molecule/app-ui', () => ({
 }))
 
 // The React suite's translation mock: each key falls back to its default value.
-vi.mock('@molecule/app-angular', () => ({
+vi.mock('@molecule/app-angular', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useTranslation: () => ({
     t: (_key: string, _values: unknown, opts?: { defaultValue?: string }) =>
       opts?.defaultValue ?? _key,

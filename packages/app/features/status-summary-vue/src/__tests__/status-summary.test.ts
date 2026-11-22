@@ -39,7 +39,8 @@ vi.mock('@molecule/app-ui', () => ({
 let tOverride:
   ((key: string, values: unknown, opts?: { defaultValue?: string }) => string) | undefined
 
-vi.mock('@molecule/app-vue', () => ({
+vi.mock('@molecule/app-vue', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useTranslation: () => ({
     t: (key: string, values: unknown, opts?: { defaultValue?: string }) =>
       tOverride ? tOverride(key, values, opts) : (opts?.defaultValue ?? key),

@@ -35,7 +35,8 @@ vi.mock('@molecule/app-ui-solid', () => ({
 }))
 // A `t` that marks every key, so a default that bypassed t() renders as
 // plain English.
-vi.mock('@molecule/app-solid', () => ({
+vi.mock('@molecule/app-solid', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useTranslation: () => ({ t: (key: string) => `«${key}»` }),
   useAuth: () => ({ isAuthenticated: () => true }),
 }))

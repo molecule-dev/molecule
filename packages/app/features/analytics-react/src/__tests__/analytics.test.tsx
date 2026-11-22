@@ -10,7 +10,10 @@ const { mockPage, mockUseLocation } = vi.hoisted(() => ({
 }))
 
 vi.mock('@molecule/app-analytics', () => ({ page: mockPage }))
-vi.mock('@molecule/app-react', () => ({ useLocation: mockUseLocation }))
+vi.mock('@molecule/app-react', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  useLocation: mockUseLocation,
+}))
 
 const { AnalyticsRouteListener } = await import('../AnalyticsRouteListener.js')
 

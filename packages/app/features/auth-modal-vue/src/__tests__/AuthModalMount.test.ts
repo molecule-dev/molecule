@@ -14,7 +14,8 @@ import { type App, createApp, defineComponent, h } from 'vue'
 import type { AuthModalMountProps } from '../AuthModalMount.js'
 import { AuthModalMount } from '../AuthModalMount.js'
 
-vi.mock('@molecule/app-vue', () => ({
+vi.mock('@molecule/app-vue', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useAuth: () => ({ refresh: vi.fn() }),
 }))
 

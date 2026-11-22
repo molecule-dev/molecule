@@ -32,7 +32,8 @@ afterEach(() => {
   tOverride = undefined
 })
 
-vi.mock('@molecule/app-react', () => ({
+vi.mock('@molecule/app-react', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useTranslation: () => ({
     t: (key: string, values: unknown, opts?: { defaultValue?: string }) =>
       tOverride ? tOverride(key, values, opts) : (opts?.defaultValue ?? key),

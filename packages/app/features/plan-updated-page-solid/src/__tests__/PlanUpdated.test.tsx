@@ -42,7 +42,8 @@ vi.mock('@molecule/app-ui', () => ({
 
 // The binding primitives, the router `Link`, and the UI markers the React
 // tests mock — the same observable contract, in Solid's shape.
-vi.mock('@molecule/app-solid', () => ({
+vi.mock('@molecule/app-solid', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useAuth: mockUseAuth,
   useTranslation: () => ({
     t: (key: string, _values?: unknown, opts?: { defaultValue?: string }) =>

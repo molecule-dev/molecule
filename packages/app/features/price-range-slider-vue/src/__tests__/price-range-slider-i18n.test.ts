@@ -34,7 +34,8 @@ vi.mock('@molecule/app-ui', () => ({
 }))
 // Every key renders as its marked key, so an aria-label that bypassed t()
 // would show up as plain English.
-vi.mock('@molecule/app-vue', () => ({
+vi.mock('@molecule/app-vue', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useTranslation: () => ({ t: (key: string) => `«${key}»` }),
 }))
 

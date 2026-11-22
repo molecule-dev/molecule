@@ -49,7 +49,8 @@ vi.mock('@molecule/app-ui', () => ({
 
 // A `t` that marks every key, so a default that bypassed t() renders as
 // plain English.
-vi.mock('@molecule/app-angular', () => ({
+vi.mock('@molecule/app-angular', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useTranslation: () => ({ t: (key: string) => `«${key}»` }),
   useAuth: () => ({ isAuthenticated: () => true }),
 }))

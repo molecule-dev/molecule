@@ -23,7 +23,8 @@ vi.mock('@molecule/app-ui', () => ({
   },
 }))
 
-vi.mock('@molecule/app-react', () => ({
+vi.mock('@molecule/app-react', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useTranslation: () => ({
     // A marker provider: every key renders as «key», so text that bypassed
     // t() (a hardcoded default or literal) shows up as plain English.

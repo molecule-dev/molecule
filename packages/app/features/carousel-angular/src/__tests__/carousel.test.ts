@@ -48,7 +48,8 @@ vi.mock('@molecule/app-ui', () => ({
 
 // `t(key, values, opts)` interpolates `{{name}}` into the supplied
 // `defaultValue`, as the i18n core does.
-vi.mock('@molecule/app-angular', () => ({
+vi.mock('@molecule/app-angular', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useTranslation: () => ({
     t: (
       _key: string,

@@ -25,9 +25,10 @@ vi.mock('@molecule/app-ui', () => ({
 }))
 
 // Render router links as plain anchors, as the React suite mocks `react-router`.
-vi.mock('@molecule/app-vue', async () => {
+vi.mock('@molecule/app-vue', async (importOriginal) => {
   const { defineComponent, h } = await import('vue')
   return {
+    ...(await importOriginal<Record<string, unknown>>()),
     Link: defineComponent({
       name: 'Link',
       props: { to: { type: String, default: '/' } },

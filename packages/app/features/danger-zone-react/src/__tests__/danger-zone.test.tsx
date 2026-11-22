@@ -26,7 +26,8 @@ vi.mock('@molecule/app-ui', () => ({
 }))
 
 // `t(key, values, opts)` echoes the supplied `defaultValue`.
-vi.mock('@molecule/app-react', () => ({
+vi.mock('@molecule/app-react', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useTranslation: () => ({
     t: (_key: string, _values: unknown, opts?: { defaultValue?: string }) =>
       opts?.defaultValue ?? _key,

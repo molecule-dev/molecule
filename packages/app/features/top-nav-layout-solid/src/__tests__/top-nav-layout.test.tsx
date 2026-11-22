@@ -58,7 +58,8 @@ vi.mock('@molecule/app-ui', () => {
 
 // The router markers: `Link` renders an anchor, `RoutedView` renders the
 // routed page, and the location is the current {@link locationState}.
-vi.mock('@molecule/app-solid', () => ({
+vi.mock('@molecule/app-solid', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Link: (props: { to: string; children?: JSX.Element } & Record<string, unknown>) => {
     const { to, children, ...anchor } = props
     return (

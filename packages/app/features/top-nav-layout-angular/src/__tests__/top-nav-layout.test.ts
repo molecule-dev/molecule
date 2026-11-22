@@ -69,7 +69,7 @@ vi.mock('@molecule/app-ui', () => {
 
 // The router markers: `Link` renders an anchor, `RoutedView` renders the
 // routed page, and the location is the current {@link locationState}.
-vi.mock('@molecule/app-angular', async () => {
+vi.mock('@molecule/app-angular', async (importOriginal) => {
   const { Component, Directive } = await import('@angular/core')
   const Link = Directive({
     selector: 'a[molLink]',
@@ -93,6 +93,7 @@ vi.mock('@molecule/app-angular', async () => {
     },
   )
   return {
+    ...(await importOriginal<Record<string, unknown>>()),
     Link,
     RoutedView,
     useRouterInstance: () => ({

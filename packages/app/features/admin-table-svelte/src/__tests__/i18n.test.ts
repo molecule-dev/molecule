@@ -41,7 +41,7 @@ vi.mock('@molecule/app-ui', () => ({
 // a switch — the way the real hook's `t` tracks the locale version).
 const i18n = vi.hoisted(() => ({ locale: 'en' }))
 
-vi.mock('@molecule/app-svelte', async () => {
+vi.mock('@molecule/app-svelte', async (importOriginal) => {
   const { fromStore } = await import('svelte/store')
   const listeners = new Set<(locale: string) => void>()
   const versionStore = {
@@ -54,6 +54,7 @@ vi.mock('@molecule/app-svelte', async () => {
     },
   }
   return {
+    ...(await importOriginal<Record<string, unknown>>()),
     useTranslation: (): { t: (key: string) => string } => {
       const tracked = fromStore(versionStore)
       return {

@@ -36,8 +36,7 @@ vi.mock('@molecule/app-ui', () => ({
 vi.mock('@molecule/app-solid', async (importOriginal) => {
   const actual = await importOriginal<typeof SolidBinding>()
   return {
-    Link: actual.Link,
-    RouterContext: actual.RouterContext,
+    ...actual,
     useTranslation: () => ({
       t: (
         _key: string,

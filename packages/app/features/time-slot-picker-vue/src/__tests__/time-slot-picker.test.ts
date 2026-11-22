@@ -35,7 +35,8 @@ vi.mock('@molecule/app-ui', () => ({
 
 // `t(key, values, opts)` falls back to the supplied `defaultValue`, as the i18n
 // core does for a key with no translation.
-vi.mock('@molecule/app-vue', () => ({
+vi.mock('@molecule/app-vue', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useTranslation: () => ({
     t: (_key: string, _values: unknown, opts?: { defaultValue?: string }) =>
       opts?.defaultValue ?? _key,

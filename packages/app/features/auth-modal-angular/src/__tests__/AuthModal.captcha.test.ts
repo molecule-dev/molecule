@@ -21,7 +21,8 @@ import { ButtonStub, IconStub, ModalStub, OAuthButtonsStub, OAuthDividerStub } f
 
 const signupMock = vi.fn()
 
-vi.mock('@molecule/app-angular', () => ({
+vi.mock('@molecule/app-angular', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useAuth: () => ({ refresh: vi.fn() }),
   useAuthClient: () => ({ isAuthenticated: () => true, getUser: () => null }),
   useLogin: () => ({ status: 'idle', error: null, login: vi.fn() }),

@@ -37,7 +37,8 @@ vi.mock('@molecule/app-ui', () => ({
 
 // The marker the React tests mock `react-router`'s `Link` with: an `<a href>`
 // carrying `data-link`.
-vi.mock('@molecule/app-solid', () => ({
+vi.mock('@molecule/app-solid', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Link: (props: { to: string; class?: string; children?: JSX.Element }) => (
     <a href={props.to} data-link="" class={props.class}>
       {props.children}

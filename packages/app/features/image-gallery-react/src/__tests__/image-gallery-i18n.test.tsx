@@ -47,7 +47,8 @@ vi.mock('@molecule/app-ui', () => ({
 // Translations the bonded i18n provider would supply: each key renders the
 // English default interpolated, wrapped in marker brackets — a string that
 // bypassed t() would show up as plain English.
-vi.mock('@molecule/app-react', () => ({
+vi.mock('@molecule/app-react', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useTranslation: () => ({
     t: (key: string, values?: Record<string, unknown>): string => {
       const defaults: Record<string, string> = {

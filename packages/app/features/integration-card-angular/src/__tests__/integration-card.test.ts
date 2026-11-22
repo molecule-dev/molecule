@@ -52,7 +52,8 @@ vi.mock('@molecule/app-ui', () => ({
 
 // `t(key, values, opts)` returns the dictionary translation when present,
 // otherwise echoes the inline `defaultValue` — the canonical English fallback.
-vi.mock('@molecule/app-angular', () => ({
+vi.mock('@molecule/app-angular', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useTranslation: () => ({
     t: (key: string, _values: unknown, opts?: { defaultValue?: string }) =>
       i18nState.dict[key] ?? opts?.defaultValue ?? key,

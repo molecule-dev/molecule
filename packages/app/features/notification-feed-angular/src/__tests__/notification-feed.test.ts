@@ -48,7 +48,7 @@ vi.mock('@molecule/app-ui', () => ({
 
 // The marker the React tests mock `react-router`'s `Link` with: an anchor
 // carrying `data-link` and the destination as its `href`.
-vi.mock('@molecule/app-angular', async () => {
+vi.mock('@molecule/app-angular', async (importOriginal) => {
   const { Directive } = await import('@angular/core')
   const Link = Directive({
     selector: 'a[molLink]',
@@ -61,7 +61,10 @@ vi.mock('@molecule/app-angular', async () => {
       molLink = ''
     },
   )
-  return { Link }
+  return {
+    ...(await importOriginal<Record<string, unknown>>()),
+    Link,
+  }
 })
 
 const { NotificationFeed } = await import('../notification-feed.component.js')

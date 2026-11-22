@@ -38,7 +38,8 @@ const { t } = vi.hoisted(() => ({
     )
   }),
 }))
-vi.mock('@molecule/app-react', () => ({
+vi.mock('@molecule/app-react', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useTranslation: () => ({ t }),
 }))
 

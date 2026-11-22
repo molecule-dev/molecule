@@ -41,7 +41,7 @@ vi.mock('@molecule/app-ui', () => ({
 // component reads (a real store, so Svelte re-renders on a switch).
 const i18n = vi.hoisted(() => ({ locale: 'en' }))
 
-vi.mock('@molecule/app-svelte', () => {
+vi.mock('@molecule/app-svelte', async (importOriginal) => {
   const listeners = new Set<(locale: string) => void>()
   const localeStore = {
     subscribe(run: (locale: string) => void): () => void {
@@ -53,6 +53,7 @@ vi.mock('@molecule/app-svelte', () => {
     },
   }
   return {
+    ...(await importOriginal<Record<string, unknown>>()),
     useTranslation: (): { t: (key: string) => string } => ({
       t: (key: string) => `«${key}»`,
     }),
