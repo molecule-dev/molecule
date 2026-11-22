@@ -12,4 +12,13 @@
 # is available, so scripted pushes never hang. --from-hook keeps the phone
 # approval service out of it: a push never waits on the owner's phone, and an
 # agent is told to run `npm run trust:new`, which asks the phone instead.
-node scripts/trust-new-packages.mjs --from-hook || exit 1
+# git writes the pushed refs to stdin once, and both checks read them (a hand-run hook has none).
+if [ -t 0 ]; then refs=''; else refs=$(cat); fi
+printf '%s\n' "$refs" | node scripts/trust-new-packages.mjs --from-hook || exit 1
+
+# Inside the molecule workspace, refuse a push of main while another session holds the release
+# claim: CI cancels an in-progress run on main when a newer push arrives, and a release waits on
+# that run. The release's own push runs as the claim's holder and passes.
+if [ -f ../scripts/refuse-push-during-release.mjs ]; then
+  printf '%s\n' "$refs" | node ../scripts/refuse-push-during-release.mjs || exit 1
+fi
