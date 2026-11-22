@@ -164,10 +164,10 @@ jobs:
           key: mol-peer-floors-v1-${{ hashFiles('package-lock.json') }}
           restore-keys: mol-peer-floors-v1-
       - run: npm run check:peer-floors
-      # Versioning is local and lands with the change. A changeset still under
-      # .changeset/ must belong exclusively to packages in the committed
-      # held.json review-hold record; every other pending changeset fails.
-      - run: npm run check:changesets-consumed
+      # Pending changesets are refused where a release publishes, not here: main is pushed
+      # whenever a batch lands, before a release versions it, and a refusal here stopped
+      # this job before the build and tests. release.mjs runs check:changesets-consumed
+      # before its push, and the Release workflow guards the commit it publishes.
       - run: npm run build
       # Type-check test files. Package builds exclude src/**/__tests__ and
       # Vitest strips types without checking them, so a mock that drifts from
