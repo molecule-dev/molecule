@@ -4,7 +4,9 @@
  * via the `projects` field so each package's `environment: jsdom`
  * setting is honoured when running tests from the monorepo root.
  *
- * Adding a new package family? Append its glob below.
+ * Adding a new package family? Append its glob below. A committed package config that no
+ * glob matches never runs in CI, and scripts/__tests__/vitest-grouped.test.mjs fails on it
+ * (2026-11-22: `@molecule/api-mock-server`'s tests had not run since April).
  */
 
 import { defineConfig } from 'vitest/config'
@@ -21,6 +23,7 @@ export default defineConfig({
       'packages/api/middleware/*/vitest.config.ts',
       'packages/api/utilities/*/vitest.config.ts',
       'packages/api/testing/vitest.config.ts',
+      'packages/api/testing/*/vitest.config.ts',
       'packages/api/ci/*/vitest.config.ts',
       'packages/api/staging/*/vitest.config.ts',
 
@@ -38,6 +41,9 @@ export default defineConfig({
       // Locale bond packages
       'packages/api/locales/*/vitest.config.ts',
       'packages/app/locales/*/vitest.config.ts',
+
+      // Project dev tooling (@molecule/eslint-config)
+      'packages/tooling/*/vitest.config.ts',
 
       // Repo-meta guards (CI gate scripts under scripts/__tests__).
       'scripts/vitest.config.ts',

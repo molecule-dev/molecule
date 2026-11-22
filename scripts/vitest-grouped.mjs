@@ -482,7 +482,7 @@ function spawnTo(output) {
  * @param root - Repository root.
  * @returns The glob patterns.
  */
-async function rootProjectPatterns(root) {
+export async function rootProjectPatterns(root = ROOT) {
   const { default: config } = await import(pathToFileURL(join(root, 'vitest.config.ts')).href)
   const projects = config?.test?.projects
   if (!Array.isArray(projects) || !projects.length)

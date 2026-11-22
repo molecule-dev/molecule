@@ -14,7 +14,9 @@ const {
   absoluteFilter,
   balancedGroups,
   BUDGET_REPORTER,
+  projectConfigs,
   reporterArgs,
+  rootProjectPatterns,
   runPool,
   selectProjects,
   shardProjects,
@@ -353,6 +355,20 @@ describe('grouped Vitest runs', () => {
 
 describe('selection and grouping rules', () => {
   const dirs = ['packages/api/core/a', 'packages/api/core/ab', 'packages/app/x', 'scripts']
+
+  it("makes every committed package's Vitest config a project of the root config", async () => {
+    // A config no glob matches never runs in CI: @molecule/api-mock-server's tests sat outside
+    // the run from April to 2026-11-22, and a new package family is the next one.
+    const committed = spawnSync('git', ['ls-files', '--', 'packages/**/vitest.config.ts'], {
+      cwd: ROOT,
+      encoding: 'utf8',
+    })
+    expect(committed.status).toBe(0)
+    const configs = committed.stdout.split('\n').filter(Boolean)
+    expect(configs.length).toBeGreaterThan(100)
+    const projects = new Set(projectConfigs(await rootProjectPatterns(ROOT), ROOT).values())
+    expect(configs.filter((file) => !projects.has(file))).toEqual([])
+  })
 
   it('partitions the selected projects exactly once, including empty valid shards', () => {
     const parts = Array.from({ length: 8 }, (_, i) => shardProjects(dirs, `${i + 1}/8`))
