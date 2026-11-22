@@ -15,11 +15,13 @@ import {
   extractImports,
   findOptionalPeersLoaded,
   findUndeclared,
+  findUnresolvedTestImports,
   isTestFile,
   loadTimeImports,
   OPTIONAL_PEERS_SUPPLIED_ELSEWHERE,
   packageNameOf,
   scanFleet,
+  scriptOf,
 } from '../check-undeclared-imports.mjs'
 
 describe('extractImports', () => {
@@ -72,6 +74,30 @@ describe('extractImports', () => {
       extractImports("import { t } from 'i18n'\nconst el = <div>{t('k')}</div>", 'C.tsx'),
     ).toEqual([{ specifier: 'i18n', typeOnly: false }])
   })
+
+  it("reads a Svelte or Vue component's script blocks, never its markup or comments", () => {
+    const svelte = [
+      '<script module lang="ts">',
+      "  import type { Plan } from 'plans'",
+      '</script>',
+      '<script lang="ts">',
+      "  import Chart from 'chart-lib'",
+      '</script>',
+      "<!-- <script>import x from 'commented-out'</script> -->",
+      "<p>import y from 'markup-text'</p>",
+    ].join('\n')
+    expect(extractImports(svelte, 'Panel.svelte')).toEqual([
+      { specifier: 'plans', typeOnly: true },
+      { specifier: 'chart-lib', typeOnly: false },
+    ])
+    expect(
+      extractImports(
+        '<template><div /></template>\n<script setup lang="ts">\nimport { ref } from \'vue\'\n</script>',
+        'A.vue',
+      ),
+    ).toEqual([{ specifier: 'vue', typeOnly: false }])
+    expect(scriptOf("const a = '<script>'", 'a.ts')).toBe("const a = '<script>'")
+  })
 })
 
 describe('packageNameOf', () => {
@@ -89,6 +115,12 @@ describe('packageNameOf', () => {
     expect(packageNameOf('fs')).toBeNull()
     expect(packageNameOf('fs/promises')).toBeNull()
     expect(packageNameOf('virtual:pwa-register')).toBeNull()
+  })
+
+  it("needs no declaration for SvelteKit's $ aliases and Node's # subpath imports", () => {
+    expect(packageNameOf('$app/navigation')).toBeNull()
+    expect(packageNameOf('$lib/Article.svelte')).toBeNull()
+    expect(packageNameOf('#lib/bonds/index.js')).toBeNull()
   })
 })
 
@@ -142,6 +174,43 @@ describe('findUndeclared', () => {
         { specifier: 'uuid', typeOnly: false, file: 'src/a.ts' },
       ]),
     ).toEqual([{ name: 'uuid', typeOnly: false, files: ['src/a.ts', 'src/b.ts'] }])
+  })
+})
+
+describe('findUnresolvedTestImports', () => {
+  const pkg = {
+    name: '@molecule/app-example',
+    devDependencies: { vitest: '4.1.4' },
+    peerDependencies: { '@molecule/app-i18n': '^1.0.0' },
+  }
+  const imp = (specifier: string) => ({
+    specifier,
+    typeOnly: false,
+    file: 'src/__tests__/a.test.ts',
+  })
+  const installed = (name: string) => name === 'react'
+
+  it("accepts what the package declares, its @types, and what molecule's lock installs", () => {
+    expect(
+      findUnresolvedTestImports(
+        { ...pkg, devDependencies: { ...pkg.devDependencies, '@types/node-fetch': '2.6.13' } },
+        [
+          imp('vitest'),
+          imp('@molecule/app-i18n'),
+          imp('node-fetch'),
+          imp('react'),
+          imp('./x.js'),
+          imp('node:fs'),
+        ],
+        installed,
+      ),
+    ).toEqual([])
+  })
+
+  it('rejects a test import that only a parent workspace could install', () => {
+    expect(
+      findUnresolvedTestImports(pkg, [imp('axe-core'), imp('axe-core/locales/de.json')], installed),
+    ).toEqual([{ name: 'axe-core', files: ['src/__tests__/a.test.ts'] }])
   })
 })
 
@@ -331,6 +400,60 @@ describe('scanFleet', () => {
           dir: 'packages/api/bonds/payments/stripe',
           missing: [],
           optionalLoaded: [{ name: '@molecule/api-payments', files: ['src/bondAdapter.ts'] }],
+          testUnresolved: [],
+        },
+      ])
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  })
+
+  it("judges a component's script and each test against the package and molecule's lock", () => {
+    const root = mkdtempSync(join(tmpdir(), 'undeclared-fleet-'))
+    const write = (file: string, text: string) => {
+      mkdirSync(dirname(join(root, file)), { recursive: true })
+      writeFileSync(join(root, file), text)
+    }
+    try {
+      write(
+        'package-lock.json',
+        JSON.stringify({
+          packages: { 'node_modules/react': {}, 'packages/app/kit/node_modules/jsdom': {} },
+        }),
+      )
+      write(
+        'packages/app/kit/package.json',
+        JSON.stringify({ name: '@molecule/app-kit', private: true }),
+      )
+      write(
+        'packages/app/kit/src/__tests__/a11y.test.ts',
+        "import axe from 'axe-core'\nimport { JSDOM } from 'jsdom'\nimport React from 'react'\nexport { axe, JSDOM, React }\n",
+      )
+      write(
+        'packages/app/features/panel-svelte/package.json',
+        JSON.stringify({
+          name: '@molecule/app-panel-svelte',
+          peerDependencies: { svelte: '^5.0.0' },
+        }),
+      )
+      write(
+        'packages/app/features/panel-svelte/src/Panel.svelte',
+        "<script lang=\"ts\">\n  import { mount } from 'svelte'\n  import Chart from 'chart-lib'\n</script>\n<Chart />\n",
+      )
+      expect(scanFleet(root)).toEqual([
+        {
+          package: '@molecule/app-panel-svelte',
+          dir: 'packages/app/features/panel-svelte',
+          missing: [{ name: 'chart-lib', typeOnly: false, files: ['src/Panel.svelte'] }],
+          optionalLoaded: [],
+          testUnresolved: [],
+        },
+        {
+          package: '@molecule/app-kit',
+          dir: 'packages/app/kit',
+          missing: [],
+          optionalLoaded: [],
+          testUnresolved: [{ name: 'axe-core', files: ['src/__tests__/a11y.test.ts'] }],
         },
       ])
     } finally {
@@ -342,7 +465,7 @@ describe('scanFleet', () => {
 describe('the fleet', () => {
   // Parses every source file of ~1000 packages: seconds locally, longer on a loaded CI runner.
   it(
-    'declares every package its shipped source imports, and loads no optional peer',
+    "declares every package its shipped source imports, loads no optional peer, and tests import only what molecule's lock installs",
     { timeout: 120_000 },
     () => {
       expect(scanFleet()).toEqual([])
