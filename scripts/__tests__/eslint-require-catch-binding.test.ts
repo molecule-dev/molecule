@@ -18,13 +18,24 @@ RuleTester.describe = describe
 RuleTester.it = it
 
 type RuleModule = Parameters<RuleTester['run']>[1]
-type PluginEntry = { plugins?: Record<string, { rules?: Record<string, RuleModule> }> }
+type ConfigEntry = {
+  plugins?: Record<string, { rules?: Record<string, RuleModule> }>
+  rules?: Record<string, unknown>
+}
 
-const rule = (config as PluginEntry[]).find((entry) => entry.plugins?.['molecule-local'])
+const rule = (config as ConfigEntry[]).find((entry) => entry.plugins?.['molecule-local'])
   ?.plugins?.['molecule-local']?.rules?.['require-catch-binding']
+// The rule runs with the options the config sets: the rejection-handler check is one of them.
+const setting = (config as ConfigEntry[]).find(
+  (entry) => entry.rules?.['molecule-local/require-catch-binding'],
+)?.rules?.['molecule-local/require-catch-binding']
+const options = Array.isArray(setting) ? setting.slice(1) : []
+const withOptions = <Case extends object>(cases: Case[]) =>
+  cases.map((testCase) => ({ ...testCase, options }))
 
-it('is registered under molecule-local', () => {
+it('is registered under molecule-local and turned on as an error', () => {
   expect(rule).toBeDefined()
+  expect(Array.isArray(setting) ? setting[0] : setting).toBe('error')
 })
 
 const ruleTester = new RuleTester({
@@ -32,7 +43,7 @@ const ruleTester = new RuleTester({
 })
 
 ruleTester.run('require-catch-binding', rule as RuleModule, {
-  valid: [
+  valid: withOptions([
     { name: 'catch clause that logs', code: 'try { f() } catch (error) { log(error) }' },
     { name: 'documented catch noop', code: 'try { f() } catch (_error) { /* why */ }' },
     { name: '.catch that logs', code: 'p.catch((error) => log(error))' },
@@ -43,8 +54,8 @@ ruleTester.run('require-catch-binding', rule as RuleModule, {
     { name: '.then rejection handler that binds', code: 'p.then(ok, (_error) => null)' },
     { name: 'a non-promise catch method with no args', code: 'emitter.catch()' },
     { name: 'computed member is not a rejection handler', code: "p['catch'](() => {})" },
-  ],
-  invalid: [
+  ]),
+  invalid: withOptions([
     {
       name: 'bindingless catch clause',
       code: 'try { f() } catch { g() }',
@@ -81,5 +92,5 @@ ruleTester.run('require-catch-binding', rule as RuleModule, {
       output: null,
       errors: [{ messageId: 'missingRejection' }],
     },
-  ],
+  ]),
 })
