@@ -57,6 +57,27 @@ const BASELINE_PATH = join(ROOT, 'scripts', 'i18n-parity-baseline.json')
 const SKIP_DIRS = new Set(['node_modules', 'dist', '.turbo', '__tests__'])
 
 /**
+ * Each scan of the live tree, once per process. A scan reads every package source, and the
+ * checks below (and the tests that run them) ask for the same tree several times: four
+ * whole-repo scans put two of those tests at 83–87% of their CI time limit on 2026-11-22.
+ * A fixture root passed explicitly is scanned on every call, since a caller may change it.
+ * Every caller of the live tree's scan shares one result, so none may change it.
+ */
+const liveScans = new Map()
+
+/**
+ * The live tree's scan of one kind, computed on first use.
+ *
+ * @param kind - Which scan.
+ * @param scan - Computes it.
+ * @returns The scan's result.
+ */
+function liveScan(kind, scan) {
+  if (!liveScans.has(kind)) liveScans.set(kind, scan())
+  return liveScans.get(kind)
+}
+
+/**
  * Whether `dir` is the root of a package its manifest marks `private`.
  *
  * @param dir - A directory under packages/.
@@ -285,6 +306,16 @@ function translationDefault(node) {
  *   `sites`, the `file:line` call sites behind each entry.
  */
 export function analyzeDefaults(root = ROOT) {
+  return root === ROOT ? liveScan('defaults', () => scanDefaults(root)) : scanDefaults(root)
+}
+
+/**
+ * {@link analyzeDefaults} without the live tree's one-scan-per-process memo.
+ *
+ * @param root - The repo root.
+ * @returns See {@link analyzeDefaults}.
+ */
+function scanDefaults(root) {
   const { texts: enTexts, conflicts } = loadEnTexts(root)
   const byKey = new Map() // stack::key → [{ site, text | null }]
   for (const stack of ['app', 'api']) {
@@ -362,6 +393,16 @@ export function analyzeDefaults(root = ROOT) {
  * @param root - The molecule repo root (a fixture tree in tests).
  */
 export function analyzeParity(root = ROOT) {
+  return root === ROOT ? liveScan('parity', () => scanParity(root)) : scanParity(root)
+}
+
+/**
+ * {@link analyzeParity} without the live tree's one-scan-per-process memo.
+ *
+ * @param root - The repo root.
+ * @returns See {@link analyzeParity}.
+ */
+function scanParity(root) {
   const bonds = loadBonds(root)
   const { literals, referenced, dynamicPrefixes } = loadUsage(root)
 

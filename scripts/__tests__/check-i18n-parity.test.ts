@@ -39,42 +39,69 @@ function hookIndexCommands(hook: string): string[] {
 }
 
 describe('i18n parity guard (cross-cutting-i18n)', () => {
-  it('reports no NEW missing keys: every literal t() key resolves in its owning bond', () => {
-    // newMissing() = keys used in code via a literal `t('ns.key')` whose
-    // namespace is owned by exactly one locale bond, but absent from that
-    // bond's en.ts AND not in the accepted-debt baseline. It must be empty: a
-    // non-empty result means a user-facing string shipped as an inline
-    // defaultValue without ever being added to its companion locale bond, so
-    // every non-English locale is silently stuck on English for that surface.
-    expect(newMissing()).toEqual([])
-  })
+  // The cases on the live tree read every package source and parse every locale bond's
+  // en.ts (4.3 s of the 5 s default in CI on 2026-11-22), and the work grows with the repo,
+  // so each has a limit of its own. The module scans the live tree once per process: any
+  // of these may run first and pay for the scan, and the rest reuse it.
+  const LIVE_TREE_TIMEOUT = 30_000
 
-  it('reports no NEW unowned keys: every literal t() namespace has a locale bond', () => {
-    // newUnowned() = literal `t('ns.key')` keys whose namespace NO locale bond
-    // defines at all, minus the accepted-debt baseline. The missing check above
-    // cannot see these (it needs an owner bond to look in), so without this a
-    // package can ship text with no companion bond and every non-English locale
-    // shows English for it.
-    expect(newUnowned()).toEqual([])
-  })
+  it(
+    'reports no NEW missing keys: every literal t() key resolves in its owning bond',
+    { timeout: LIVE_TREE_TIMEOUT },
+    () => {
+      // newMissing() = keys used in code via a literal `t('ns.key')` whose
+      // namespace is owned by exactly one locale bond, but absent from that
+      // bond's en.ts AND not in the accepted-debt baseline. It must be empty: a
+      // non-empty result means a user-facing string shipped as an inline
+      // defaultValue without ever being added to its companion locale bond, so
+      // every non-English locale is silently stuck on English for that surface.
+      expect(newMissing()).toEqual([])
+    },
+  )
 
-  it("reports no NEW default problems: every default is its key's en.ts text, as a literal", () => {
-    // A default is what a user reads whenever the key is not loaded and the text every
-    // translation was made from. One built in JavaScript bakes its values in before
-    // translation; one that differs from en.ts, or from another call site of the same key,
-    // shows a sentence no translation says.
-    expect(newDefaultProblems()).toEqual([])
-  })
+  it(
+    'reports no NEW unowned keys: every literal t() namespace has a locale bond',
+    { timeout: LIVE_TREE_TIMEOUT },
+    () => {
+      // newUnowned() = literal `t('ns.key')` keys whose namespace NO locale bond
+      // defines at all, minus the accepted-debt baseline. The missing check above
+      // cannot see these (it needs an owner bond to look in), so without this a
+      // package can ship text with no companion bond and every non-English locale
+      // shows English for it.
+      expect(newUnowned()).toEqual([])
+    },
+  )
 
-  it('keeps no fixed entry in the baseline, so a fixed key cannot go missing again unnoticed', () => {
-    expect(staleBaselineEntries()).toEqual([])
-    // The comparison itself: an entry the tree no longer reports is stale.
-    expect(
-      staleBaselineEntries(
-        { missing: ['app/x::x.a', 'app/x::x.b'], unowned: ['api::y.c'] },
-        { missing: ['app/x::x.b'], unowned: [] },
-      ),
-    ).toEqual(['app/x::x.a', 'api::y.c'])
+  it(
+    "reports no NEW default problems: every default is its key's en.ts text, as a literal",
+    { timeout: LIVE_TREE_TIMEOUT },
+    () => {
+      // A default is what a user reads whenever the key is not loaded and the text every
+      // translation was made from. One built in JavaScript bakes its values in before
+      // translation; one that differs from en.ts, or from another call site of the same key,
+      // shows a sentence no translation says.
+      expect(newDefaultProblems()).toEqual([])
+    },
+  )
+
+  it(
+    'keeps no fixed entry in the baseline, so a fixed key cannot go missing again unnoticed',
+    { timeout: LIVE_TREE_TIMEOUT },
+    () => {
+      expect(staleBaselineEntries()).toEqual([])
+      // The comparison itself: an entry the tree no longer reports is stale.
+      expect(
+        staleBaselineEntries(
+          { missing: ['app/x::x.a', 'app/x::x.b'], unowned: ['api::y.c'] },
+          { missing: ['app/x::x.b'], unowned: [] },
+        ),
+      ).toEqual(['app/x::x.a', 'api::y.c'])
+    },
+  )
+
+  it('scans the live tree once per process', { timeout: LIVE_TREE_TIMEOUT }, () => {
+    expect(analyzeParity()).toBe(analyzeParity())
+    expect(analyzeDefaults()).toBe(analyzeDefaults())
   })
 
   describe('on a fixture tree', () => {
@@ -294,6 +321,19 @@ describe('i18n parity guard (cross-cutting-i18n)', () => {
         'app/first|app/second::shared.missing',
         'app/owned::owned.subtitle',
       ])
+    })
+
+    it('scans a fixture root on every call, so a file written between calls is seen', () => {
+      const root = fixture()
+      expect(analyzeParity(root).unowned).toEqual(['app::bondless.label'])
+      expect(analyzeDefaults(root).entries).toEqual([])
+      write(
+        root,
+        'packages/api/resources/widget/src/handler.ts',
+        "t('owned.title', undefined, { defaultValue: `Title ${1}` })\n",
+      )
+      expect(analyzeParity(root).unowned).toEqual(['api::owned.title', 'app::bondless.label'])
+      expect(analyzeDefaults(root).entries).not.toEqual([])
     })
 
     it('owns an API key only through an API bond', () => {
