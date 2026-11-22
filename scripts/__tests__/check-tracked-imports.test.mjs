@@ -108,7 +108,29 @@ describe('check-tracked-imports', () => {
 
     const result = run(root, ['--staged'])
     expect(result.status).toBe(1)
-    expect(result.stderr).toContain("src/a.ts: './b.js' → src/b.ts — git does not track it")
+    expect(result.stderr).toContain("src/a.ts: './b.js' → src/b.ts — this commit deletes it")
+  })
+
+  it('refuses a deleted module whose carried importer is gone from the worktree too', () => {
+    // The 2026-11-22 shape: the commit deleted rule modules and kept the tests importing them,
+    // while both were already gone from the worktree, so no local run could fail.
+    const root = fixture()
+    write(root, 'rules/rule.mjs', 'export default {}\n')
+    write(root, 'scripts/__tests__/rule.test.ts', "import rule from '../../rules/rule.mjs'\n")
+    git(root, 'add', 'rules/rule.mjs', 'scripts/__tests__/rule.test.ts')
+    git(root, 'commit', '-q', '-m', 'add a rule and its test')
+    git(root, 'rm', '-q', 'rules/rule.mjs')
+    rmSync(join(root, 'scripts/__tests__/rule.test.ts'))
+
+    const result = run(root, ['--staged'])
+    expect(result.status).toBe(1)
+    expect(result.stderr).toContain(
+      "scripts/__tests__/rule.test.ts: '../../rules/rule.mjs' → rules/rule.mjs — this commit deletes it",
+    )
+    expect(result.stderr).toContain('change or delete each importer in the same commit')
+
+    git(root, 'rm', '-q', '--cached', 'scripts/__tests__/rule.test.ts')
+    expect(run(root, ['--staged']).status).toBe(0)
   })
 
   it('reads the committed blob, not the worktree', () => {

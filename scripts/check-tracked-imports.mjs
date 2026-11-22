@@ -22,9 +22,12 @@
  * - A `.js`/`.jsx`/`.mjs`/`.cjs` specifier also resolves to its TypeScript
  *   source (`.ts`/`.tsx`/`.mts`/`.cts`); an extensionless one also to the usual
  *   extensions and `index` files. Any carried candidate satisfies the import.
- * - Reported: an import whose target EXISTS in the worktree but is not carried.
- *   An import that resolves nowhere already fails locally, where the compiler
- *   names it.
+ * - Reported: an import whose target EXISTS in the worktree but is not carried,
+ *   or that this commit deletes. Any other import that resolves nowhere already
+ *   fails locally, where the compiler names it. A deleted target is reported
+ *   even when it is gone from the worktree, because the importer may be gone
+ *   from the worktree too, so nothing local runs it (2026-11-22: a commit kept
+ *   two tests whose imported rule files it deleted, and CI failed on them).
  * - Build output is exempt: a target with a `dist` path segment is what
  *   `npm run build` writes, and CI builds before it tests.
  *
@@ -122,24 +125,27 @@ export function isBuildOutput(path) {
 }
 
 /**
- * Finds imports whose target exists in the worktree but is not carried.
+ * Finds imports whose target is not carried while it exists in the worktree or
+ * this commit deletes it.
  *
  * @param input - What to judge.
  * @param input.files - Repo-relative importers to check.
  * @param input.carried - Repo-relative paths the commit carries.
  * @param input.read - Reads an importer's committed contents.
  * @param input.exists - Whether a path is a file in the worktree.
- * @returns The offenders.
+ * @param [input.deleted] - Repo-relative paths this commit deletes.
+ * @returns The offenders; `deleted` is true for a target this commit deletes.
  */
-export function findUncarried({ files, carried, read, exists }) {
+export function findUncarried({ files, carried, read, exists, deleted = new Set() }) {
   const offenders = []
   for (const importer of files) {
     if (!SOURCE_FILE.test(importer)) continue
     for (const specifier of relativeImports(read(importer), importer)) {
       const options = candidates(importer, specifier)
       if (options.some((p) => carried.has(p))) continue
-      const target = options.find((p) => exists(p))
-      if (target && !isBuildOutput(target)) offenders.push({ importer, specifier, target })
+      const target = options.find((p) => exists(p)) ?? options.find((p) => deleted.has(p))
+      if (target && !isBuildOutput(target))
+        offenders.push({ importer, specifier, target, deleted: deleted.has(target) })
     }
   }
   return offenders
@@ -210,6 +216,7 @@ function absenceReason(path) {
 function main(argv) {
   const carried = new Set(git(['ls-files', '-z']).split('\0').filter(Boolean))
   let files
+  let deleted = new Set()
   if (argv[0] === '--staged') {
     const base = process.env.MOL_PRECOMMIT_BASE || 'HEAD'
     const diff = (filter) =>
@@ -225,8 +232,9 @@ function main(argv) {
         .split('\0')
         .filter(Boolean)
     files = new Set(diff('AM'))
-    for (const deleted of diff('D')) {
-      const stem = deleted
+    deleted = new Set(diff('D'))
+    for (const path of deleted) {
+      const stem = path
         .split('/')
         .pop()
         .replace(/\.[^.]+$/, '')
@@ -253,10 +261,12 @@ function main(argv) {
       try {
         return statSync(p).isFile()
       } catch (_error) {
-        // No such path in the worktree: the import resolves nowhere, not this gate's class.
+        // No such path in the worktree: unless this commit deletes it, the import resolves
+        // nowhere, which the compiler reports locally.
         return false
       }
     },
+    deleted,
   })
   if (offenders.length === 0) {
     console.log(`✓ tracked imports: ${sources.length} file(s), every relative import is committed`)
@@ -264,11 +274,13 @@ function main(argv) {
   }
   console.error(`✗ ${offenders.length} import(s) name a file this commit does not carry:`)
   for (const o of offenders) {
-    console.error(`  ${o.importer}: '${o.specifier}' → ${o.target} — ${absenceReason(o.target)}`)
+    const reason = o.deleted ? 'this commit deletes it' : absenceReason(o.target)
+    console.error(`  ${o.importer}: '${o.specifier}' → ${o.target} — ${reason}`)
   }
   console.error(
     '  A clean clone (CI, every consumer) cannot resolve these. Commit the target; if an ignore rule' +
-      ' matches it, rename it so the rule does not (a .svelte.js module can be .svelte.ts) or add a narrow `!` negation.',
+      ' matches it, rename it so the rule does not (a .svelte.js module can be .svelte.ts) or add a narrow `!` negation.' +
+      ' When this commit deletes the target, change or delete each importer in the same commit.',
   )
   return 1
 }
