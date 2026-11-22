@@ -411,6 +411,7 @@ const worker = async () => {
     const index = next++
     const dirs = programs[index]
     const config = join(configDir, `${index}.json`)
+    const svelte = dirs.some((d) => sourceFiles(join(d, 'src'), SVELTE_FILE).length > 0)
     writeFileSync(
       config,
       JSON.stringify({
@@ -420,12 +421,16 @@ const worker = async () => {
           rootDir: commonDir(dirs),
           composite: false,
           incremental: false,
+          // svelte-check reads a component with no `<script lang="ts">` (a markup-only test
+          // fixture) as JavaScript, and a TypeScript import of a JavaScript module without
+          // allowJs is TS7016 (Svelte's own recommended config sets it). JavaScript files are
+          // still not checked: checkJs stays as the package sets it.
+          ...(svelte ? { allowJs: true } : {}),
         },
         include: dirs.map((d) => join(d, 'src/**/*')),
         exclude: dirs.flatMap((d) => [join(d, 'node_modules'), join(d, 'dist')]),
       }),
     )
-    const svelte = dirs.some((d) => sourceFiles(join(d, 'src'), SVELTE_FILE).length > 0)
     const { code, output } = svelte
       ? await runSvelteCheck(config, commonDir(dirs))
       : await runTsc(settings.tsc, config)

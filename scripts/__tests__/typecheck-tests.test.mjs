@@ -204,6 +204,29 @@ describe('typecheck-tests', () => {
     },
   )
 
+  it(
+    'passes a test that imports a component with no TypeScript script block',
+    { timeout: 300_000 },
+    () => {
+      // svelte-check reads a component without `<script lang="ts">` (a markup-only test fixture) as
+      // JavaScript; without allowJs a TypeScript import of it was TS7016, "Could not find a
+      // declaration file" (2026-11-22: svelte-ui's TeardownRenders.svelte, the layouts' RoutedViewMock).
+      const markupOnly = pkg('svelte-markup-only', {
+        'src/Stamp.svelte':
+          '<script lang="ts">\n  let { n }: { n: number } = $props()\n</script>\n\n<p>{n}</p>\n',
+        'src/index.ts': "export { default as Stamp } from './Stamp.svelte'\n",
+        'src/__tests__/Marker.svelte': '<div data-marker=""></div>\n',
+        'src/__tests__/marker.test.ts':
+          "import { mount } from 'svelte'\n\nimport Marker from './Marker.svelte'\n\n" +
+          'export const show = (target: HTMLElement): void => {\n  mount(Marker, { target })\n}\n',
+      })
+      const { status, out } = gate(markupOnly)
+      expect(status, out).toBe(0)
+      expect(out).not.toContain('TS7016')
+      expect(out).toContain('No type errors.')
+    },
+  )
+
   it('refuses a named directory that is not a package, and an option without =', () => {
     const notAPackage = path.join(base, 'not-a-package')
     fs.mkdirSync(notAPackage, { recursive: true })
