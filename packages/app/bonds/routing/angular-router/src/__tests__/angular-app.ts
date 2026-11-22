@@ -15,7 +15,6 @@ import {
   type ApplicationRef,
   Component,
   type ComponentRef,
-  createEnvironmentInjector,
   type EnvironmentInjector,
   type EnvironmentProviders,
   type Provider,
@@ -185,19 +184,6 @@ export const historyMove = async (app: BootedApp, delta: -1 | 1): Promise<void> 
   for (let round = 0; round < 50 && app.router.url === before; round += 1) await tick()
   await app.settle()
 }
-
-/**
- * Builds a child environment injector over a booted application's, the way a lazy route's
- * `providers` array does — the way a second provider scope is expressed in Angular.
- *
- * @param app - The booted application.
- * @param providers - The child scope's providers.
- * @returns The child injector.
- */
-export const childInjector = (
-  app: BootedApp,
-  providers: Array<Provider | EnvironmentProviders>,
-): EnvironmentInjector => createEnvironmentInjector(providers, app.injector)
 
 /**
  * Counts the navigations the native router has in flight.

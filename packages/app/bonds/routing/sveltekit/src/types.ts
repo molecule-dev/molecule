@@ -115,72 +115,41 @@ export interface KitPage {
 export type KitNavigationType = 'enter' | 'form' | 'leave' | 'link' | 'goto' | 'popstate'
 
 /**
- * The parts of SvelteKit's `NavigationTarget` (`@sveltejs/kit` `types/index.d.ts`:
- * "export interface NavigationTarget<…> { params: Params | null; route: { id: RouteId |
- * null }; url: URL; scroll }") this bond reads.
+ * What a {@link KitNavigateListener} hears each time kit's `page` moves to a new URL or a new
+ * `page.state`: the kind of navigation kit was making then.
  */
-export interface KitNavigationTarget {
+export interface KitPageChange {
   /**
-   * "Parameters of the target page … Is `null` if the target is not part of the
-   * SvelteKit app" (kit's `NavigationTarget.params`).
+   * Kit's navigation kind (`$app/state`'s `navigating.type`), or `null` when kit changed its
+   * page outside a navigation: following a link to a hash on the same page, `pushState` or
+   * `replaceState` from `$app/navigation`, or a back/forward move between such entries.
    */
-  params: Record<string, string> | null
-
-  /**
-   * "Info about the target route" — the bond reads only its nullable route id (kit's
-   * `NavigationTarget.route`).
-   */
-  route: {
-    /** The route id, `null` when no kit route matched. */
-    id: string | null
-  }
-
-  /**
-   * "The URL that is navigated to" (kit's `NavigationTarget.url`).
-   */
-  url: URL
+  type: KitNavigationType | null
 }
 
 /**
- * The parts of SvelteKit's `AfterNavigate` (`@sveltejs/kit` `types/index.d.ts`:
- * "export type AfterNavigate = (Navigation | NavigationEnter) & { type:
- * Exclude<NavigationType, 'leave'>; willUnload: false }", where `Navigation` carries
- * "from: NavigationTarget | null; to: NavigationTarget | null; willUnload; complete")
- * this bond reads: the navigation kind and its target.
+ * The part of kit's `navigating` (`$app/state`) this bond reads (`@sveltejs/kit`
+ * `types/index.d.ts`: "A read-only object representing an in-progress navigation, with
+ * `from`, `to`, `type` and (if `type === 'popstate'`) `delta` properties. Values are `null`
+ * when no navigation is occurring").
  */
-export interface KitAfterNavigate {
-  /**
-   * "Where navigation was triggered from" (kit's `Navigation.from`).
-   */
-  from: KitNavigationTarget | null
-
-  /**
-   * "Where navigation is going to/has gone to" (kit's `Navigation.to`).
-   */
-  to: KitNavigationTarget | null
-
-  /**
-   * "The type of navigation" (kit's `AfterNavigate.type`: every `NavigationType` except
-   * `'leave'`, which unloads the page and never reaches `afterNavigate`).
-   */
-  type: Exclude<KitNavigationType, 'leave'>
+export interface KitNavigating {
+  /** The kind of the navigation in flight, or `null` when none is. */
+  readonly type: KitNavigationType | null
 }
 
 /**
- * A listener the {@link SvelteKitNavigation.onNavigate} adapter calls with each
- * navigation SvelteKit committed. It receives kit's `AfterNavigate` argument, narrowed
- * to the parts the bond reads.
+ * A listener the {@link SvelteKitNavigation.onNavigate} adapter calls each time kit's `page`
+ * moves to a new URL or a new `page.state`, before kit renders the page for it.
  */
-export type KitNavigateListener = (navigation: KitAfterNavigate) => void
+export type KitNavigateListener = (change: KitPageChange) => void
 
 /**
  * The subset of SvelteKit's client router this bond drives — what an app builds from
  * `$app/navigation`, `$app/state` and `$app/paths` in its root layout and passes to
  * `createSvelteKitRouter`. `goto` and `page` are kit's own exports and `rootHref` is
- * kit's `resolve('/')`; `onNavigate` is the adapter around kit's `afterNavigate` (which
- * only runs during component initialisation and returns no unsubscribe: kit drops the
- * callback only when that component is destroyed, so the adapter owns the unsubscribe
- * contract).
+ * kit's `resolve('/')`; `onNavigate` tells the router when kit's `page` changed.
+ * `createSvelteKitNavigation` builds all four from kit's exports.
  */
 export interface SvelteKitNavigation {
   /**
@@ -213,14 +182,12 @@ export interface SvelteKitNavigation {
   rootHref: string
 
   /**
-   * An adapter around kit's `afterNavigate` that adds what kit cannot give a package:
-   * an unsubscribe. `afterNavigate` "must be called during a component initialization"
-   * and stays active while the component is mounted. Build this with
-   * `createSvelteKitNavigation` in the root layout: it registers one `afterNavigate`
-   * callback and fans it out, so the router can listen and stop listening repeatedly
-   * without stacking kit callbacks.
+   * Calls `listener` each time kit's `page` moves to a new URL or a new `page.state`, before
+   * kit renders the page for it. `createSvelteKitNavigation` watches kit's `page` once and
+   * passes each change to every listener, so the router can listen and stop listening
+   * repeatedly.
    *
-   * @param listener - Called once per committed navigation.
+   * @param listener - Called once per change of kit's page.
    * @returns A function that stops the listener.
    */
   onNavigate(listener: KitNavigateListener): () => void
@@ -228,18 +195,15 @@ export interface SvelteKitNavigation {
 
 /**
  * Kit's own exports that `createSvelteKitNavigation` turns into a
- * {@link SvelteKitNavigation}: `goto` and `afterNavigate` from `$app/navigation`, `page`
- * from `$app/state`, and `rootHref` from `$app/paths`' `resolve('/')`.
+ * {@link SvelteKitNavigation}: `goto` from `$app/navigation`, `page` and `navigating` from
+ * `$app/state`, and `rootHref` from `$app/paths`' `resolve('/')`.
  */
 export interface SvelteKitExports extends Pick<SvelteKitNavigation, 'goto' | 'page' | 'rootHref'> {
   /**
-   * Kit's `afterNavigate` (`@sveltejs/kit` `types/index.d.ts`: "A lifecycle function that
-   * runs the supplied `callback` when the current component mounts, and also whenever we
-   * navigate to a URL. `afterNavigate` must be called during a component initialization.").
-   *
-   * @param callback - Called after each committed navigation.
+   * Kit's `navigating` (`$app/state`). Read when kit's `page` changes, so a back or forward
+   * move is heard as a pop.
    */
-  afterNavigate(callback: KitNavigateListener): void
+  navigating: KitNavigating
 }
 
 /**

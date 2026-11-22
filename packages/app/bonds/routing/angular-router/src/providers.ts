@@ -14,7 +14,7 @@ import {
 } from '@angular/core'
 import { Router as AngularRouter } from '@angular/router'
 
-import { ROUTER } from '@molecule/app-angular'
+import { provideRouter } from '@molecule/app-angular'
 import { get } from '@molecule/app-bond'
 import type {
   Router,
@@ -24,6 +24,7 @@ import type {
 } from '@molecule/app-routing'
 import { DEFAULT_SIGN_IN_PATH, redirectSignedOutRejections } from '@molecule/app-routing'
 
+import { MoleculeRouterOutlet } from './routed-view.js'
 import { bondMoleculeRouter, MOLECULE_ROUTER_CONTEXT, moleculeRouterFor } from './router-context.js'
 import type { AngularRouterOptions } from './types.js'
 
@@ -47,8 +48,10 @@ const bondedSignInSources = (): SignInRequiredSources | undefined => {
 
 /**
  * Provides the molecule `Router` built on Angular's own `Router` and `Location`,
- * under `@molecule/app-angular`'s `ROUTER` token, so molecule packages and app code
- * (`inject(ROUTER)`, `@molecule/app-angular`'s services) navigate through Angular.
+ * through `@molecule/app-angular`'s `provideRouter`, so molecule packages and app code
+ * (`inject(ROUTER)`, `@molecule/app-angular`'s hooks and services) navigate through Angular,
+ * and `<mol-routed-view />` renders Angular Router's outlet: in a routed layout, the matched
+ * child route.
  *
  * Apps add it next to Angular's own `provideRouter(routes)` — Angular keeps owning
  * its route config; the molecule options only name the routes molecule should know
@@ -59,7 +62,9 @@ const bondedSignInSources = (): SignInRequiredSources | undefined => {
  * `MoleculeRouterProvider` bonds in its mount effect), so `navigate()`/`getRouter()`
  * from `@molecule/app-routing` drive the real Angular Router instead of the core's
  * browser-history fallback. {@link AngularRouterOptions.onRouterReady} runs at that
- * same moment, once per router.
+ * same moment, once for each `provideMoleculeRouter`: a second one, in a route's
+ * `providers`, uses the router already built for that Angular Router, adds its routes to
+ * it, and passes it to its own callback, as React's provider inside another does.
  *
  * With HTTP and auth clients bonded, the router replaces the current location with
  * `/login` after a credential-free GET receives a 401 and the session is confirmed signed
@@ -89,10 +94,7 @@ export const provideMoleculeRouter = (options: AngularRouterOptions = {}): Envir
       provide: MOLECULE_ROUTER_CONTEXT,
       useFactory: () => moleculeRouterFor(inject(AngularRouter), inject(Location), options),
     },
-    {
-      provide: ROUTER,
-      useFactory: () => inject(MOLECULE_ROUTER_CONTEXT),
-    },
+    provideRouter(() => inject(MOLECULE_ROUTER_CONTEXT), { routedView: MoleculeRouterOutlet }),
     // Runs at bootstrap, in an injection context, before any component renders: the
     // caller's navigate()/getRouter() reach the real Angular Router from the first page,
     // as React's provider bonds in its mount effect.

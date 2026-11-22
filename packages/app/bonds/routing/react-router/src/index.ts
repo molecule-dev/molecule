@@ -7,9 +7,11 @@
  * `useMoleculeRouter`, `useMoleculeQuery`, `useMoleculeNavigate`, and `useIsActive`
  * work inside any React Router router (BrowserRouter, HashRouter, MemoryRouter,
  * Router, or RouterProvider), from this package or React Router itself. No
- * MoleculeRouterProvider is required for these hooks. Mount MoleculeRouterProvider
- * only to bond the adapter for non-React `@molecule/app-routing` navigate()/getRouter(),
- * supply named routes, or receive onRouterReady. Hook-created adapters remain local
+ * MoleculeRouterProvider is required for these hooks. This package's router components
+ * render MoleculeRouterProvider themselves; under React Router's own, mount it to give
+ * `@molecule/app-react`'s routing hooks (`useLocation`, `useParams`, `RoutedView`) the
+ * router, to bond the adapter for non-React `@molecule/app-routing` navigate()/getRouter(),
+ * to supply named routes, or to receive onRouterReady. Hook-created adapters remain local
  * so multiple consumers cannot overwrite the global router bond.
  *
  * With HTTP and auth clients bonded, `BrowserRouter`, `HashRouter`, and `MemoryRouter`
@@ -87,14 +89,18 @@
  * import { Routes, Route } from 'react-router'
  * import { BrowserRouter, MoleculeRouterProvider } from '@molecule/app-routing-react-router'
  *
+ * // Named, so generatePath('user', { id }) builds the path.
+ * const namedRoutes = [{ name: 'user', path: '/users/:id' }]
+ *
  * function App() {
- *   // Optional: include this provider for non-React navigation or named routes.
- *   // MoleculeRouterProvider bonds the adapter automatically (calls setRouter in an
- *   // effect on mount), so @molecule/app-routing's navigate()/getRouter() drive THIS
- *   // real React Router — no manual setRouter wiring needed.
+ *   // This package's BrowserRouter already renders a MoleculeRouterProvider, which bonds
+ *   // the adapter (setRouter, before the pages run their effects), so
+ *   // @molecule/app-routing's navigate()/getRouter() drive THIS real React Router — no
+ *   // manual setRouter wiring needed. A provider inside it, as here, is optional: it uses
+ *   // the outer one's router, registers its named routes and calls onRouterReady once.
  *   return (
  *     <BrowserRouter>
- *       <MoleculeRouterProvider>
+ *       <MoleculeRouterProvider routes={namedRoutes}>
  *         <Routes>
  *           <Route path="/" element={<Home />} />
  *           <Route path="/users/:id" element={<UserProfile />} />
@@ -229,6 +235,13 @@
  *   no-hooks fallback (empty params, `window.location.href` navigation). Use
  *   `MoleculeRouterProvider` (or `createReactRouter` with hook values) instead.
  * - The provider must live INSIDE a React Router router (it calls React Router hooks).
+ * - **A page reads its route params from the hooks.** `@molecule/app-react`'s `useParams`
+ *   and `useMoleculeRouter().getParams()` read React Router's match for the calling
+ *   component, with no route definitions. Code outside components that calls
+ *   `getRouter().getParams()` under `BrowserRouter`, `HashRouter` or `MemoryRouter` reads
+ *   the registered route definitions only, because only a component can see React Router's
+ *   match. Pass the params in from the page, or use a data router (`RouterProvider` from
+ *   `/dom`): its router knows the matched route, so `getParams()` reads it anywhere.
  * - **Import router components from this bond, never directly from React Router.**
  *   Its wrappers turn transitions off, so a navigation renders the new route in the
  *   same commit as the URL change. Import non-router APIs (`Routes`, `Route`, `Link`,

@@ -3,8 +3,8 @@
  *
  * `createSvelteKitRouter` supplies only a {@link RouterHistory} over SvelteKit's client
  * router — location from kit's `page`, navigation through kit's `goto`, history moves
- * through `window.history` (kit follows popstate itself), notifications through the app's
- * `afterNavigate` adapter — and gets the whole `Router` from the core
+ * through `window.history` (kit follows popstate itself), notifications from kit's reactive
+ * `page` (`createSvelteKitNavigation`) — and gets the whole `Router` from the core
  * `createHistoryRouter`, exactly like every other routing bond.
  *
  * With HTTP and auth clients bonded, the router replaces the current location with
@@ -36,12 +36,10 @@ import {
 } from '@molecule/app-routing'
 
 import type {
-  KitAfterNavigate,
-  KitNavigateListener,
   KitPage,
+  KitPageChange,
   KitPageState,
   KitUrl,
-  SvelteKitExports,
   SvelteKitNavigation,
   SvelteKitRouterOptions,
 } from './types.js'
@@ -183,18 +181,21 @@ const inAppParts = (
 /**
  * Builds the molecule `Router` over a SvelteKit app's client router.
  *
- * The app passes kit's `goto`, kit's `page`, its root href and an `afterNavigate` adapter (see
- * {@link SvelteKitNavigation.onNavigate} and the package example) once, from the root
- * layout. `MoleculeRouterProvider` builds it there and bonds it with
+ * The app passes the {@link SvelteKitNavigation} `createSvelteKitNavigation` built from kit's
+ * `goto`, `page`, `navigating` and root href, once, from the root layout. `MoleculeRouterProvider` builds it there and bonds it with
  * `@molecule/app-routing`'s `setRouter`; a layout that builds it by hand does the same, and
  * may also supply it to `@molecule/app-svelte`'s `setMoleculeContext`.
  *
- * Subscribers hear exactly one call per navigation kit commits — kit links, the back
- * button, and this router's own `navigate` — because kit fires `afterNavigate` only
- * after a navigation completed (`@sveltejs/kit` 3.2 `src/runtime/client/client.js:2289`):
- * a navigation kit's own guards cancelled never reaches `afterNavigate`, so it never
- * notifies. The history holds no resources of its own: the kit subscription is released
- * through the unsubscribe `listen` returns.
+ * Subscribers hear one call each time kit's `page` moves to a new URL or a new `page.state`,
+ * before kit renders the page for it: kit links, the back button, `goto`, this router's own
+ * `navigate`, and the changes kit makes outside a navigation (a link to a hash on the same
+ * page, shallow routing). A navigation kit's own guards cancelled never changes `page`, so it
+ * never notifies. The action is `'pop'` for kit's back/forward navigations and the one this
+ * router started for its own; anything else is heard as a `'push'`, because kit does not say
+ * whether a change it made replaced the current entry (`goto(url, { replaceState: true })`
+ * from app code, shallow `replaceState`) or moved between shallow entries. The history holds
+ * no resources of its own: the subscription is released through the unsubscribe `listen`
+ * returns.
  *
  * @param kit - The SvelteKit pieces (see {@link SvelteKitNavigation}).
  * @param options - Route definitions, an optional `onRouterReady` called once with the router,
@@ -245,12 +246,12 @@ export const createSvelteKitRouter = (
     },
 
     listen(listener) {
-      return kit.onNavigate((navigation: KitAfterNavigate): void => {
-        // `'enter'` is the first load/hydration, not a navigation; `'popstate'` is a
-        // back/forward move. Kit's `'goto'`/`'link'`/`'form'` carry no molecule action —
-        // createHistoryRouter answers with the action it started or `'push'`.
-        if (navigation.type === 'enter') return
-        listener(navigation.type === 'popstate' ? 'pop' : undefined)
+      return kit.onNavigate((change: KitPageChange): void => {
+        // `'enter'` is the first load, which an adapter over kit's `afterNavigate` hears; it is
+        // not a navigation. `'popstate'` is a back/forward move. The other kinds carry no
+        // molecule action: createHistoryRouter answers with the action it started or `'push'`.
+        if (change.type === 'enter') return
+        listener(change.type === 'popstate' ? 'pop' : undefined)
       })
     },
   }
@@ -276,49 +277,6 @@ export const createSvelteKitRouter = (
   // `MoleculeRouterProvider` calls `onRouterReady` once per router for the same reason.
   options.onRouterReady?.(router)
   return router
-}
-
-/**
- * Builds the {@link SvelteKitNavigation} that `createSvelteKitRouter` takes, from kit's own
- * exports. Call it during the root layout's component initialisation, where kit allows
- * `afterNavigate`. It registers ONE `afterNavigate` callback and passes each navigation to
- * the listeners the router adds and removes, so stopping and restarting a subscription
- * never leaves a second kit callback behind (a hand-written adapter whose unsubscribe does
- * nothing would notify subscribers twice after that).
- *
- * @param kit - Kit's `goto`, `page`, `afterNavigate` and `resolve('/')`.
- * @returns The navigation pieces for `createSvelteKitRouter`.
- *
- * @example
- * ```svelte
- * <script lang="ts">
- *   import { afterNavigate, goto } from '$app/navigation'
- *   import { resolve } from '$app/paths'
- *   import { page } from '$app/state'
- *   import { createSvelteKitNavigation, createSvelteKitRouter } from '@molecule/app-routing-sveltekit'
- *
- *   const router = createSvelteKitRouter(
- *     createSvelteKitNavigation({ goto, page, afterNavigate, rootHref: resolve('/') }),
- *   )
- * </script>
- * ```
- */
-export const createSvelteKitNavigation = (kit: SvelteKitExports): SvelteKitNavigation => {
-  const listeners = new Set<KitNavigateListener>()
-  kit.afterNavigate((navigation) => {
-    for (const listener of [...listeners]) listener(navigation)
-  })
-  return {
-    goto: kit.goto,
-    page: kit.page,
-    rootHref: kit.rootHref,
-    onNavigate(listener) {
-      listeners.add(listener)
-      return () => {
-        listeners.delete(listener)
-      }
-    },
-  }
 }
 
 /**

@@ -4,7 +4,10 @@
  * @module
  */
 
-import { defineComponent, type PropType, provide, ref, type VNode, watch } from 'vue'
+import { defineComponent, h, type PropType, provide, ref, type VNode, watch } from 'vue'
+import { RouterView } from 'vue-router'
+
+import { RouterProvider } from '@molecule/app-vue'
 
 import { useMoleculeRouterProvider } from './composables.js'
 import { MOLECULE_ROUTER_KEY } from './context.js'
@@ -31,7 +34,11 @@ export interface MoleculeRouterProviderProps {
  * Provider component that builds ONE molecule `Router` over the current Vue Router and
  * bonds it via `@molecule/app-routing`'s `setRouter`, so `navigate()` / `getRouter()` from
  * core drive the REAL Vue Router. It also provides that exact router under
- * {@link MOLECULE_ROUTER_KEY}, so every descendant's `useMoleculeRouter()` returns it.
+ * {@link MOLECULE_ROUTER_KEY}, so every descendant's `useMoleculeRouter()` returns it, and
+ * renders `@molecule/app-vue`'s `RouterProvider` with it and Vue Router's `RouterView` as
+ * the routed view: `@molecule/app-vue`'s routing composables read this router, and its
+ * `RoutedView` renders the matched child route in a layout or guard used as a route
+ * component. A `MoleculeRouterProvider` inside another one uses the outer one's router.
  *
  * Bonding happens when the provider's setup runs, so core navigation reaches the native
  * router for the provider's whole mounted life. `onRouterReady` fires once per router: a
@@ -79,6 +86,12 @@ export const MoleculeRouterProvider = defineComponent({
       { immediate: true },
     )
 
-    return (): VNode[] | null => slots.default?.() ?? null
+    // @molecule/app-vue's routing composables and RoutedView read the same router.
+    return (): VNode =>
+      h(
+        RouterProvider,
+        { router: router.value, routedView: RouterView },
+        { default: () => slots.default?.() ?? [] },
+      )
   },
 })

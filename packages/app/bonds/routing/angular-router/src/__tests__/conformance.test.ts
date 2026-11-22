@@ -36,7 +36,7 @@ import {
   RouterOutlet,
 } from '@angular/router'
 
-import { ROUTER } from '@molecule/app-angular'
+import { ROUTER, useLocation, useParams } from '@molecule/app-angular'
 import type { RouterHarness } from '@molecule/app-framework-conformance/routing'
 import {
   type ListRouteNavCaseProps,
@@ -73,6 +73,28 @@ const PageTwo: Type<unknown> = Component({
 })(class PageTwoComponent {})
 
 /** Angular's own link to the URL tree it is given, whose href the harness reads. */
+/** Stays mounted beside the page and shows the pathname `@molecule/app-angular`'s `useLocation` reads. */
+const LocationReader: Type<unknown> = Component({
+  selector: 'mol-conformance-location',
+  standalone: true,
+  template: '<output data-location="">{{ location().pathname }}</output>',
+})(
+  class LocationReaderComponent {
+    readonly location = useLocation()
+  },
+)
+
+/** The page of `users/:id`: the id `@molecule/app-angular`'s `useParams` reads. */
+const UserPage: Type<unknown> = Component({
+  selector: 'mol-conformance-user-page',
+  standalone: true,
+  template: '<p>user {{ params().id }}</p>',
+})(
+  class UserPageComponent {
+    readonly params = useParams()
+  },
+)
+
 const HrefProbe: Type<unknown> = Component({
   selector: 'mol-conformance-href-probe',
   standalone: true,
@@ -89,8 +111,8 @@ const HrefProbe: Type<unknown> = Component({
 const Root: Type<unknown> = Component({
   selector: 'mol-conformance-root',
   standalone: true,
-  imports: [RouterOutlet],
-  template: '<router-outlet />',
+  imports: [LocationReader, RouterOutlet],
+  template: '<mol-conformance-location /><router-outlet />',
 })(class RootComponent {})
 
 /** A settled macrotask: Angular chains popstate moves through a `setTimeout`. */
@@ -143,7 +165,7 @@ runRouterConformance(
       providers: [
         provideZonelessChangeDetection(),
         provideRouter([
-          { path: 'users/:id', component: Empty },
+          { path: 'users/:id', component: UserPage },
           { path: 'one', component: PageOne },
           { path: 'two', component: PageTwo },
           { path: '**', component: Empty },

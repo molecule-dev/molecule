@@ -9,9 +9,9 @@
   links and history the component produces are the case's, not the harness's.
 -->
 <script lang="ts">
-  import { afterNavigate, goto } from '$app/navigation'
+  import { goto } from '$app/navigation'
   import { resolve } from '$app/paths'
-  import { page } from '$app/state'
+  import { navigating, page } from '$app/state'
 
   import type { ListRouteResult } from '@molecule/app-routing'
 
@@ -54,7 +54,7 @@
   const navigation: SvelteKitNavigation = createSvelteKitNavigation({
     goto: navGoto,
     page: navPage,
-    afterNavigate,
+    navigating,
     rootHref: resolve('/'),
   })
 

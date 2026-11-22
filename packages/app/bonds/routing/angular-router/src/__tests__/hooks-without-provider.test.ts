@@ -308,7 +308,7 @@ describe('routing hooks without provideMoleculeRouter', () => {
 })
 
 describe('provideMoleculeRouter compatibility', () => {
-  it('returns the exact bonded router with named routes and onRouterReady', async () => {
+  it('drives the bonded router with its named routes and onRouterReady', async () => {
     const routes: RouteDefinition[] = [{ name: 'settings', path: '/settings/:account' }]
     const onRouterReady = vi.fn()
     const app = await boot({

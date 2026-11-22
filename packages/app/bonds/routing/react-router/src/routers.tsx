@@ -3,7 +3,10 @@
  *
  * Each wrapper renders React Router's own router with `useTransitions={false}`, so a
  * navigation renders the new route in the same commit that changes the URL instead of
- * keeping the previous route on screen while the next one prepares. That alone does not
+ * keeping the previous route on screen while the next one prepares. Each also gives the app
+ * its molecule router: the router components render `MoleculeRouterProvider` around their
+ * children, and `RouterProvider` builds the molecule router from the data router it is given,
+ * so `@molecule/app-react`'s routing hooks and `RoutedView` work under any of them. That alone does not
  * cover a page whose code loads on demand: under one shared `<Suspense>` React keeps
  * the previous page mounted (hidden) until the new page's code arrives. Declare such
  * pages with {@link lazyPage}, which gives each page a boundary of its own. React Router
@@ -40,6 +43,9 @@ import {
   type Router as MoleculeRouter,
   watchSignedOutRejection,
 } from '@molecule/app-routing'
+
+import { ProvideDataRouter } from './data-router.js'
+import { MoleculeRouterProvider } from './hooks.js'
 
 /** The molecule router interface, retained alongside the React Router component value. */
 export type Router = MoleculeRouter
@@ -116,8 +122,10 @@ export function BrowserRouter({
 }: BrowserRouterProps): JSX.Element {
   return (
     <ReactRouterBrowserRouter {...props} useTransitions={false}>
-      {signInPath !== false && <SignInRequired signInPath={signInPath} />}
-      {children}
+      <MoleculeRouterProvider>
+        {signInPath !== false && <SignInRequired signInPath={signInPath} />}
+        {children}
+      </MoleculeRouterProvider>
     </ReactRouterBrowserRouter>
   )
 }
@@ -139,8 +147,10 @@ export function HashRouter({
 }: HashRouterProps): JSX.Element {
   return (
     <ReactRouterHashRouter {...props} useTransitions={false}>
-      {signInPath !== false && <SignInRequired signInPath={signInPath} />}
-      {children}
+      <MoleculeRouterProvider>
+        {signInPath !== false && <SignInRequired signInPath={signInPath} />}
+        {children}
+      </MoleculeRouterProvider>
     </ReactRouterHashRouter>
   )
 }
@@ -162,8 +172,10 @@ export function MemoryRouter({
 }: MemoryRouterProps): JSX.Element {
   return (
     <ReactRouterMemoryRouter {...props} useTransitions={false}>
-      {signInPath !== false && <SignInRequired signInPath={signInPath} />}
-      {children}
+      <MoleculeRouterProvider>
+        {signInPath !== false && <SignInRequired signInPath={signInPath} />}
+        {children}
+      </MoleculeRouterProvider>
     </ReactRouterMemoryRouter>
   )
 }
@@ -178,8 +190,12 @@ export function MemoryRouter({
  * const app = <Router location={location} navigator={navigator}><Routes /></Router>
  * ```
  */
-export function Router(props: RouterProps): JSX.Element {
-  return <ReactRouter {...props} useTransitions={false} />
+export function Router({ children, ...props }: RouterProps): JSX.Element {
+  return (
+    <ReactRouter {...props} useTransitions={false}>
+      <MoleculeRouterProvider>{children}</MoleculeRouterProvider>
+    </ReactRouter>
+  )
 }
 
 /**
@@ -197,7 +213,11 @@ export function Router(props: RouterProps): JSX.Element {
  * ```
  */
 export function RouterProvider(props: RouterProviderProps): JSX.Element {
-  return <ReactRouterProvider {...props} useTransitions={false} />
+  return (
+    <ProvideDataRouter dataRouter={props.router}>
+      <ReactRouterProvider {...props} useTransitions={false} />
+    </ProvideDataRouter>
+  )
 }
 
 /**
@@ -210,8 +230,12 @@ export function RouterProvider(props: RouterProviderProps): JSX.Element {
  * const app = <unstable_HistoryRouter history={history}><Routes /></unstable_HistoryRouter>
  * ```
  */
-function HistoryRouter(props: HistoryRouterProps): JSX.Element {
-  return <ReactRouterHistoryRouter {...props} useTransitions={false} />
+function HistoryRouter({ children, ...props }: HistoryRouterProps): JSX.Element {
+  return (
+    <ReactRouterHistoryRouter {...props} useTransitions={false}>
+      <MoleculeRouterProvider>{children}</MoleculeRouterProvider>
+    </ReactRouterHistoryRouter>
+  )
 }
 
 export { HistoryRouter as unstable_HistoryRouter }

@@ -463,6 +463,26 @@ describe('URL-backed list consumer transitions', () => {
     })
   })
 
+  // The router tells every subscriber about a navigation before kit renders it, a page kit is
+  // about to replace included. React's redirect runs in an effect, which a page that unmounts
+  // never runs, so a list page must not redirect from the address it is left for.
+  it('does not redirect from the address a list page is left for', async () => {
+    const app = await mount('/probe/list/browse', {
+      selections: {
+        browse: { path: '/probe/list/browse' },
+        elsewhere: { path: '/two', requiresAuth: true },
+      },
+      defaultSelection: 'browse',
+      auth: { status: 'unauthenticated', redirectTo: '/probe/list/sign-in' },
+    })
+    expect(app.url()).toBe('/probe/list/browse')
+    if (!kit) throw new Error('no started app')
+    await kit.app.router.navigate('/two')
+    await settle()
+    expect(app.url()).toBe('/two')
+    expect(container?.textContent).toContain('page two')
+  })
+
   // One page mounted on `/` and `/topics/:topic`, as in the package docs' feed example. When each
   // route used its own options, the "all" link on a topic page could not come from `href` and
   // hand-built links kept the topic (xr-molecule-flash-l1852, l1853, l1861).

@@ -317,7 +317,7 @@ describe('routing hooks without MoleculeRouterProvider', () => {
 })
 
 describe('MoleculeRouterProvider compatibility', () => {
-  it('returns the exact bonded router with named routes and onRouterReady', async () => {
+  it('drives the bonded router with its named routes and onRouterReady', async () => {
     const routes = [{ name: 'settings', path: '/settings/:account' }]
     const onRouterReady = vi.fn<(router: Router) => void>()
     const history = createSolidMemoryHistory([initialPath])

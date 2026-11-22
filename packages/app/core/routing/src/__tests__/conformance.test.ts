@@ -21,16 +21,26 @@ const pathOf = (router: Router): string => {
 }
 
 /**
- * Renders the page of the router's current route into `container` now and on every change.
+ * Renders the page of the router's current route into `container`, beside the location
+ * reader, now and on every change.
  *
  * @param router - The router.
  * @param container - Where the page goes.
  * @returns Stops rendering.
  */
 const renderPages = (router: Router, container: HTMLElement): (() => void) => {
+  // No framework binding here: the location reader and the pages render from `subscribe`.
+  const location = document.createElement('output')
+  location.setAttribute('data-location', '')
+  const page = document.createElement('p')
+  container.append(location, page)
   const render = (): void => {
-    const page = { '/one': 'page one', '/two': 'page two' }[router.getLocation().pathname]
-    container.textContent = page ?? ''
+    const { pathname } = router.getLocation()
+    location.textContent = pathname
+    const user = router.matchPath('/users/:id', pathname)
+    page.textContent = user
+      ? `user ${user.params.id}`
+      : ({ '/one': 'page one', '/two': 'page two' }[pathname] ?? '')
   }
   render()
   return router.subscribe(render)

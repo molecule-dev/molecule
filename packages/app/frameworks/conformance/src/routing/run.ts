@@ -48,7 +48,12 @@ export interface RouterHarnessOptions {
   base: '' | '/app'
   /**
    * Where the native router renders the page of its current route. It declares `/one` and
-   * `/two`, whose pages are elements with the text `page one` and `page two`.
+   * `/two`, whose pages are elements with the text `page one` and `page two`, and
+   * `/users/:id`, whose page shows `user <id>` from the framework binding's route params hook
+   * (`@molecule/app-react`'s `useParams`, or Vue's, Svelte's, Solid's, Angular's), with no
+   * route definitions registered by the app. Beside the page, mounted the whole time, an
+   * element with a `data-location` attribute shows the pathname the binding's location hook
+   * reads. A harness with no framework binding renders both from the router's `subscribe`.
    */
   container: HTMLElement
 }
@@ -76,6 +81,71 @@ const pathOf = (location: Pick<RouteLocation, 'pathname' | 'search' | 'hash'>): 
 const urlParts = (path: string): { pathname: string; query: [string, string][]; hash: string } => {
   const url = new URL(path, 'http://conformance.invalid')
   return { pathname: url.pathname, query: [...url.searchParams], hash: url.hash }
+}
+
+/** The frame callbacks of `requestAnimationFrame`, as the global functions take them. */
+type FrameCallback = (time: number) => void
+
+/**
+ * Samples the screen at every task boundary while `action` runs and the router settles, as
+ * if the browser painted at each one. A browser paints only between tasks, so what holds
+ * between a task and its microtasks never reaches the screen; and its rendering step runs
+ * the callbacks requested with `requestAnimationFrame` before it paints, so each sample
+ * first runs those (Angular renders in one, raced with a timer). While it samples, frame
+ * callbacks are queued here instead of on the environment's own frame clock.
+ *
+ * @param action - What moves the router.
+ * @param settle - Waits until the navigation has committed.
+ * @param sample - Records what is wrong on screen at one boundary.
+ */
+const sampleEveryPaint = async (
+  action: () => unknown,
+  settle: () => Promise<void>,
+  sample: () => void,
+): Promise<void> => {
+  const frames = globalThis as {
+    requestAnimationFrame?: (callback: FrameCallback) => number
+    cancelAnimationFrame?: (handle: number) => void
+  }
+  const { requestAnimationFrame, cancelAnimationFrame } = frames
+  let pending = new Map<number, FrameCallback>()
+  let nextHandle = 1
+  frames.requestAnimationFrame = (callback) => {
+    const handle = nextHandle++
+    pending.set(handle, callback)
+    return handle
+  }
+  frames.cancelAnimationFrame = (handle) => {
+    pending.delete(handle)
+  }
+  // The rendering step: the callbacks requested before it run, then the paint. One a
+  // callback requests runs in the next frame, as in a browser.
+  const paint = (): void => {
+    const due = pending
+    pending = new Map()
+    const now = performance.now()
+    for (const callback of due.values()) callback(now)
+    sample()
+  }
+  let sampling = true
+  const loop = (): void => {
+    paint()
+    if (sampling) setTimeout(loop, 0)
+  }
+  try {
+    const done = action()
+    setTimeout(loop, 0)
+    await done
+    await settle()
+    sampling = false
+    paint()
+  } finally {
+    sampling = false
+    frames.requestAnimationFrame = requestAnimationFrame
+    frames.cancelAnimationFrame = cancelAnimationFrame
+    // What was requested and never painted gets its frame on the environment's clock.
+    for (const callback of pending.values()) requestAnimationFrame?.(callback)
+  }
 }
 
 const macrotasks = async (count: number): Promise<void> => {
@@ -188,26 +258,15 @@ function runCases(name: string, base: '' | '/app', createHarness: RouterHarnessF
         const text = (): string => (container.textContent ?? '').replace(/\s+/g, ' ').trim()
         expect(text(), 'the harness renders the page of /one').toContain('page one')
         // Samples the URL and the page at every task boundary after the action until settled:
-        // a browser paints only between tasks, so what holds between a task and its
-        // microtasks (a history that moves before the router's own flush) never reaches the
-        // screen, and a sample there would fail a router no user can catch out.
+        // what holds between a task and its microtasks (a history that moves before the
+        // router's own flush) never reaches the screen, and a sample there would fail a router
+        // no user can catch out.
         const moves = async (from: string, to: string, action: () => unknown): Promise<void> => {
           const seen: string[] = []
-          const sample = (): void => {
+          await sampleEveryPaint(action, settle, () => {
             const at = urlParts(harness.nativePath()).pathname
             if (at === `/${to}` && text().includes(`page ${from}`)) seen.push(`${at}: "${text()}"`)
-          }
-          let sampling = true
-          const loop = (): void => {
-            sample()
-            if (sampling) setTimeout(loop, 0)
-          }
-          const done = action()
-          setTimeout(loop, 0)
-          await done
-          await settle()
-          sampling = false
-          sample()
+          })
           expect(seen, `the URL named /${to} while page ${from} was on screen`).toEqual([])
           expect(text()).toContain(`page ${to}`)
           expect(text()).not.toContain(`page ${from}`)
@@ -215,6 +274,62 @@ function runCases(name: string, base: '' | '/app', createHarness: RouterHarnessF
         await moves('one', 'two', () => router.navigate('/two'))
         await moves('two', 'one', () => harness.nativeBack())
         await moves('one', 'two', () => harness.nativePush('/two'))
+      }),
+    )
+
+    it(
+      'a component kept mounted beside the page shows the location of the page on screen',
+      withHarness('/one', async ({ router, harness, settle, container }) => {
+        const reader = (): string | undefined =>
+          container.querySelector('[data-location]')?.textContent?.trim()
+        const page = (): string | undefined => {
+          const text = container.textContent ?? ''
+          if (text.includes('page one')) return '/one'
+          if (text.includes('page two')) return '/two'
+          return undefined
+        }
+        expect(reader(), 'the harness renders the location reader').toBe('/one')
+        const moves = async (to: string, action: () => unknown): Promise<void> => {
+          const seen: string[] = []
+          await sampleEveryPaint(action, settle, () => {
+            const shown = page()
+            if (shown !== undefined && reader() !== shown)
+              seen.push(`page ${shown}, location ${reader()}`)
+          })
+          expect(
+            seen,
+            `a paint showed a location other than its page's on the way to ${to}`,
+          ).toEqual([])
+          expect(reader()).toBe(to)
+        }
+        await moves('/two', () => router.navigate('/two'))
+        await moves('/one', () => harness.nativeBack())
+        await moves('/two', () => harness.nativePush('/two'))
+      }),
+    )
+
+    it(
+      'the matched page reads its route params through the binding with no route definitions',
+      withHarness('/users/42', async ({ router, harness, settle, container }) => {
+        const user = (): string | undefined => /user (\S*)/.exec(container.textContent ?? '')?.[1]
+        expect(user(), "the page of /users/:id shows the binding's params").toBe('42')
+        const moves = async (to: string, action: () => unknown): Promise<void> => {
+          const seen: string[] = []
+          await sampleEveryPaint(action, settle, () => {
+            const at = urlParts(harness.nativePath()).pathname
+            const shown = user()
+            if (at.startsWith('/users/') && shown !== undefined && `/users/${shown}` !== at)
+              seen.push(`${at}: user ${shown}`)
+          })
+          expect(
+            seen,
+            `a paint paired the URL with another user's params on the way to ${to}`,
+          ).toEqual([])
+          expect(user()).toBe(to)
+        }
+        await moves('7', () => router.navigate('/users/7'))
+        await moves('42', () => harness.nativeBack())
+        await moves('8', () => harness.nativePush('/users/8'))
       }),
     )
 

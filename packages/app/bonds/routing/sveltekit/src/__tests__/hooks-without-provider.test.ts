@@ -19,7 +19,7 @@
  *   result to re-read); the reactive ones return `Readable` stores, the shape
  *   `@molecule/app-svelte`'s hooks return.
  * - `MoleculeRouterProvider`'s `onRouterReady` is supplied by the test app's root layout
- *   (`onRouterReady`), so "returns the exact bonded router" reads the router that callback
+ *   (`onRouterReady`), so "drives the bonded router" reads the router that callback
  *   received.
  *
  * @module
@@ -192,7 +192,7 @@ describe('routing readers without a molecule provider', () => {
     expect(started.app.bonded()).toBe(bonded)
   })
 
-  it('returns the exact bonded router with named routes and onRouterReady', async () => {
+  it('drives the bonded router with its named routes and onRouterReady', async () => {
     const routes: RouteDefinition[] = [{ name: 'settings', path: '/settings/:account' }]
     setProviderRoutes(routes)
     const started = await mount()

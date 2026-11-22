@@ -32,11 +32,11 @@ import { provider as svelteKitRouterProvider } from '@molecule/app-routing-svelt
  * the `$app/*` modules, which a package cannot import), so no kit-backed
  * router can be built at import time. This is what a scaffold wires so
  * molecule packages always have A router (the same role the basic provider
- * plays in the React package); for the kit-backed adapter build it in the root
- * layout — `createSvelteKitRouter(createSvelteKitNavigation({ goto, page, afterNavigate, rootHref: resolve('/') }))`,
- * with `goto` and `afterNavigate` from `$app/navigation`, `page` from `$app/state` and
- * `resolve` from `$app/paths` — and hand it to `@molecule/app-svelte`'s
- * `setMoleculeContext({ router })`.
+ * plays in the React package). For the kit-backed adapter, mount the bond's
+ * `MoleculeRouterProvider` in the root layout with
+ * `navigation={createSvelteKitNavigation({ goto, page, navigating, rootHref: resolve('/') })}`
+ * (`goto` from `$app/navigation`, `page` and `navigating` from `$app/state`, `resolve` from
+ * `$app/paths`): it bonds that router and gives it to `@molecule/app-svelte`'s hooks.
  */
 export function setupAppRoutingSvelteKit(): void {
   setRouter(svelteKitRouterProvider)

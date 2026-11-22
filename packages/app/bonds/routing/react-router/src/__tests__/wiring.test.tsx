@@ -1,94 +1,79 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+// @vitest-environment jsdom
+/**
+ * `MoleculeRouterProvider` bonds its router through `@molecule/app-routing`'s `setRouter` on
+ * mount, so core's `navigate()` drives the real React Router, rendered for real under React
+ * Router's own `MemoryRouter`.
+ */
+import { act, cleanup, render } from '@testing-library/react'
+import type { JSX } from 'react'
+import { MemoryRouter, useLocation } from 'react-router'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
-// A minimal @molecule/app-routing bond around the REAL core: the provider builds its
-// router with the actual createHistoryRouter, while setRouter stores the adapter and
-// navigate() delegates to whatever is bonded — so we can prove the provider's mount-time
-// setRouter drives the REAL React Router (not a fallback).
-let bonded: { navigate: (path: string, options?: unknown) => unknown } | null = null
-vi.mock('@molecule/app-routing', async (importOriginal) => {
-  const actual = await importOriginal<Record<string, unknown>>()
-  return {
-    ...actual,
-    setRouter: vi.fn((router: { navigate: (p: string, o?: unknown) => unknown }) => {
-      bonded = router
-    }),
-    getRouter: () => bonded,
-    navigate: (path: string, options?: unknown) => bonded?.navigate(path, options),
-  }
-})
-
-// The real React Router navigate spy the adapter must ultimately call.
-const navigateFn = vi.fn()
-vi.mock('react-router', () => ({
-  useNavigate: () => navigateFn,
-  useLocation: () => ({ pathname: '/', search: '', hash: '', state: undefined, key: 'k' }),
-  useParams: () => ({}),
-  useNavigationType: () => 'PUSH',
-  useSearchParams: () => [new URLSearchParams(''), vi.fn()],
-  // No basename: the href of a path is the path.
-  useHref: (to: string) => to,
-}))
-
-// Run effects/memos synchronously so calling the component function performs the bond.
-vi.mock('react', () => ({
-  default: {},
-  createContext: () => ({ Provider: ({ children }: { children: unknown }) => children }),
-  useContext: vi.fn(),
-  useState: (initial: unknown) => [
-    typeof initial === 'function' ? (initial as () => unknown)() : initial,
-    vi.fn(),
-  ],
-  useRef: (initial: unknown) => ({ current: initial }),
-  useMemo: (fn: () => unknown) => fn(),
-  useEffect: (fn: () => void) => {
-    fn()
-  },
-}))
-
-vi.mock('react/jsx-runtime', () => ({
-  jsx: (type: unknown, props: unknown) => ({ type, props }),
-  jsxs: (type: unknown, props: unknown) => ({ type, props }),
-  Fragment: 'Fragment',
-}))
-
-import { navigate as coreNavigate, setRouter } from '@molecule/app-routing'
+import { getRouter, navigate as coreNavigate, type Router, setRouter } from '@molecule/app-routing'
 
 import { MoleculeRouterProvider } from '../index.js'
 
-const flush = (): Promise<unknown> => new Promise((resolve) => setTimeout(resolve, 0))
+const actEnvironment = globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }
+actEnvironment.IS_REACT_ACT_ENVIRONMENT = true
+
+const originalBond = getRouter()
+
+afterEach(() => {
+  cleanup()
+  setRouter(originalBond)
+})
+
+/**
+ * Shows React Router's own location.
+ *
+ * @returns The path.
+ */
+function NativePath(): JSX.Element {
+  return <output aria-label="native path">{useLocation().pathname}</output>
+}
+
+/**
+ * Mounts the provider under React Router's own memory router.
+ *
+ * @param onRouterReady - The provider's callback.
+ * @returns The rendered view.
+ */
+const mount = (onRouterReady?: (router: Router) => void): ReturnType<typeof render> =>
+  render(
+    <MemoryRouter initialEntries={['/']}>
+      <MoleculeRouterProvider onRouterReady={onRouterReady}>
+        <NativePath />
+      </MoleculeRouterProvider>
+    </MemoryRouter>,
+  )
 
 describe('MoleculeRouterProvider wiring (react-router)', () => {
-  beforeEach(() => {
-    bonded = null
-    navigateFn.mockClear()
-    vi.mocked(setRouter).mockClear()
-  })
-
   it('bonds the adapter via setRouter on mount', () => {
-    MoleculeRouterProvider({ children: 'app' } as never)
+    mount()
 
-    expect(setRouter).toHaveBeenCalledTimes(1)
-    const adapter = vi.mocked(setRouter).mock.calls[0][0]
-    expect(adapter).toBeDefined()
+    const adapter = getRouter()
+    expect(adapter).not.toBe(originalBond)
     expect(adapter.navigate).toBeInstanceOf(Function)
+    expect(adapter.getLocation().pathname).toBe('/')
   })
 
   it('core navigate() drives the real React Router navigate after mount', async () => {
-    MoleculeRouterProvider({ children: 'app' } as never)
+    const view = mount()
 
     // navigate() from @molecule/app-routing — NOT the react-router hook — must reach
     // the real React Router navigate through the bonded adapter.
-    coreNavigate('/dashboard')
-    await flush()
+    await act(async () => {
+      await coreNavigate('/dashboard')
+    })
 
-    expect(navigateFn).toHaveBeenCalledWith('/dashboard', { replace: false, state: undefined })
+    expect(view.getByLabelText('native path').textContent).toBe('/dashboard')
   })
 
   it('still invokes the optional onRouterReady callback with the bonded router', () => {
-    const onRouterReady = vi.fn()
-    MoleculeRouterProvider({ children: 'app', onRouterReady } as never)
+    const onRouterReady = vi.fn<(router: Router) => void>()
+    mount(onRouterReady)
 
     expect(onRouterReady).toHaveBeenCalledTimes(1)
-    expect(onRouterReady.mock.calls[0][0]).toBe(vi.mocked(setRouter).mock.calls[0][0])
+    expect(onRouterReady.mock.calls[0][0]).toBe(getRouter())
   })
 })

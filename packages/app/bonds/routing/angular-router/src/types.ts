@@ -42,9 +42,10 @@ export interface AngularRouterOptions {
    * `provideMoleculeRouter` bonds the adapter through `@molecule/app-routing`'s
    * `setRouter` when the application bootstraps, so `navigate()`/`getRouter()` from
    * `@molecule/app-routing` drive the real Angular Router; this callback runs at that
-   * same moment, once per router — a second provider scope over the same Angular Router
-   * does not invoke it again (React's `MoleculeRouterProvider` keeps one `readyRouter`
-   * ref, this bond keeps one per router).
+   * same moment, once. A second provider, in a route's `providers`, passes its own callback
+   * the router the first one bonded, as React's provider inside another does. The options
+   * are read when the provider's injector is created, so changing the callback later calls
+   * nothing.
    */
   onRouterReady?: (router: Router) => void
 

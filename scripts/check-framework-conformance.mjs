@@ -691,6 +691,8 @@ export const TITLE_PARITY_EXEMPT = {
   '@molecule/app-routing-react-router': {
     'src/__tests__/main-entry-without-react-dom.test.ts':
       'keeps the main entry loadable without react-dom, which only the react-router/dom split has',
+    'src/__tests__/route-params.test.tsx':
+      "React Router scopes route params to the matched route (`useParams()` is empty at the router's root), so the bond reads them where the component is; Vue Router, SvelteKit, Solid Router and Angular Router answer params at the root, and data routers are React Router's alone",
     'src/__tests__/routers.test.tsx':
       "turns off React Router's `useTransitions` (a React concurrent-rendering prop); the pages it guards are covered by every bond's lazy-page tests",
   },

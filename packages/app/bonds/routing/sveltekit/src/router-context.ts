@@ -14,20 +14,41 @@ import { getContext, setContext } from 'svelte'
 
 import type { Router } from '@molecule/app-routing'
 
+import type { SvelteKitNavigation } from './types.js'
+
 /** The key the provider stores its router under, private to this module. */
 const MOLECULE_ROUTER_KEY = Symbol('molecule-sveltekit-router')
+
+/** What a provider supplies: its router and the navigation it built the router over. */
+export interface ProvidedMoleculeRouter {
+  /** The router the provider built and bonded. */
+  router: Router
+  /** The navigation the router reads kit through. */
+  navigation: SvelteKitNavigation
+}
 
 /**
  * Hands `router` to every component below the calling one.
  *
  * Svelte accepts `setContext` only during a component's initialisation, which is exactly
- * when {@link createSvelteKitRouter} builds the provider's router.
+ * when the provider builds its router.
  *
- * @param router - The router the provider built over the app's navigation.
+ * @param provided - The router the provider built and the navigation it reads kit through.
  */
-export const provideMoleculeRouter = (router: Router): void => {
-  setContext(MOLECULE_ROUTER_KEY, router)
+export const provideMoleculeRouter = (provided: ProvidedMoleculeRouter): void => {
+  setContext(MOLECULE_ROUTER_KEY, provided)
 }
+
+/**
+ * What the nearest `MoleculeRouterProvider` supplied.
+ *
+ * Must be called during a component's initialisation, where Svelte reads context.
+ *
+ * @returns The provider's router and navigation, or `undefined` when no provider is above
+ * the caller.
+ */
+export const readMoleculeProvider = (): ProvidedMoleculeRouter | undefined =>
+  getContext<ProvidedMoleculeRouter | undefined>(MOLECULE_ROUTER_KEY)
 
 /**
  * The router the nearest `MoleculeRouterProvider` supplied.
@@ -36,5 +57,4 @@ export const provideMoleculeRouter = (router: Router): void => {
  *
  * @returns The provider's router, or `undefined` when no provider is above the caller.
  */
-export const readMoleculeRouter = (): Router | undefined =>
-  getContext<Router | undefined>(MOLECULE_ROUTER_KEY)
+export const readMoleculeRouter = (): Router | undefined => readMoleculeProvider()?.router

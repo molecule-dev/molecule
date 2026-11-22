@@ -26,7 +26,7 @@ import {
   useResolvedPath,
 } from '@solidjs/router'
 import {
-  createEffect,
+  createComputed,
   createRoot,
   getOwner,
   on,
@@ -303,13 +303,16 @@ export const createSolidRouter = (options: SolidRouterOptions = {}): Router => {
   if (onWindow) window.addEventListener('popstate', onPopState)
   const stopMemoryHistory = memoryHistory ? memoryHistory.listen(onHistoryMove) : null
 
-  // One effect for the router's life: it stamps each committed entry before any listener
-  // reads the location, then notifies.
+  // One computation for the router's life: it stamps each committed entry before any listener
+  // reads the location, then notifies. A computed, not an effect, so listeners hear a
+  // navigation in the update that changes the location, before the render effects and the
+  // `onMount` of the new route's page run (`@molecule/app-routing`'s `subscribe` contract);
+  // from an effect, a component that stays mounted renders one pass with the old location.
   stampEntryKey()
   let disposeRoot: () => void = () => undefined
   createRoot((dispose) => {
     disposeRoot = dispose
-    createEffect(
+    createComputed(
       on(
         trackedPath,
         (current) => {

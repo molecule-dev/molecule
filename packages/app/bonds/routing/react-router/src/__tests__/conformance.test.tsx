@@ -8,7 +8,7 @@
  * This package's `ListRouteNav` is the reference for the kit's ListRouteNav DOM cases:
  * `RECORD_GOLDENS=1 npx vitest run src/__tests__/conformance.test.tsx` records them.
  */
-import { act, type ReactElement, useEffect, useState } from 'react'
+import { act, type ReactElement, useEffect, useLayoutEffect, useState } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import {
   BrowserRouter,
@@ -28,6 +28,10 @@ import {
   runListRouteNavConformance,
   runRouterConformance,
 } from '@molecule/app-framework-conformance/routing'
+import {
+  useLocation as useBindingLocation,
+  useParams as useBindingParams,
+} from '@molecule/app-react'
 import type { Router } from '@molecule/app-routing'
 
 import { MoleculeRouterProvider } from '../hooks.js'
@@ -63,7 +67,9 @@ function Capture(props: { onCapture: (capture: NativeCapture) => void }): null {
   const { onCapture } = props
   const navigate = useNavigate()
   const location = useLocation()
-  useEffect(() => {
+  // Before the paint of each commit, so `nativePath()` is what React Router has committed at
+  // every task boundary a case samples.
+  useLayoutEffect(() => {
     onCapture({ navigate, location })
   })
   return null
@@ -90,6 +96,25 @@ function HrefProbe(props: {
 /**
  * How one conformance run mounts its native router and drives it from the outside.
  */
+/**
+ * Stays mounted beside the pages and shows the pathname `@molecule/app-react`'s `useLocation`
+ * reads.
+ *
+ * @returns The location reader.
+ */
+function LocationReader(): ReactElement {
+  return <output data-location="">{useBindingLocation().pathname}</output>
+}
+
+/**
+ * The page of `/users/:id`: the id `@molecule/app-react`'s `useParams` reads.
+ *
+ * @returns The page.
+ */
+function UserPage(): ReactElement {
+  return <p>user {useBindingParams().id}</p>
+}
+
 interface NativeRouterSetup {
   /**
    * Wraps the app in the native router, starting at `initialPath` under `base`.
@@ -157,8 +182,9 @@ const createHarnessOver =
             probe = set
           }}
         />
+        <LocationReader />
         <Routes>
-          <Route path="/users/:id" element={null} />
+          <Route path="/users/:id" element={<UserPage />} />
           <Route path="/one" element={<p>page one</p>} />
           <Route path="/two" element={<p>page two</p>} />
           <Route path="*" element={null} />

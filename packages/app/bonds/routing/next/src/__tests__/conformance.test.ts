@@ -7,13 +7,14 @@
  * stand-in client: a "link" is its `link(path)`, the back button is the real
  * `window.history.back()`, and the native path is read from the document URL.
  */
-import { act, createElement, type ReactNode, useEffect } from 'react'
+import { act, createElement, type ReactNode } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 
 import { runRouterConformance } from '@molecule/app-framework-conformance/routing'
+import { useLocation, useParams } from '@molecule/app-react'
 import type { Router } from '@molecule/app-routing'
 
-import { useMoleculeRouter } from '../hooks.js'
+import { MoleculeRouterProvider } from '../MoleculeRouterProvider.js'
 import { createNextClient, useNextClient } from './next-client.js'
 
 Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
@@ -33,13 +34,45 @@ let bridged: Router | undefined
  *
  * @returns The element (none — it only bonds).
  */
+/**
+ * Stays mounted beside the page and shows the pathname `@molecule/app-react`'s `useLocation`
+ * reads.
+ *
+ * @returns The location reader.
+ */
+function LocationReader(): ReactNode {
+  return createElement('output', { 'data-location': '' }, useLocation().pathname)
+}
+
+/**
+ * The page of the current route, as the App Router renders it: `/users/[id]` shows the id
+ * `@molecule/app-react`'s `useParams` reads.
+ *
+ * @returns The page.
+ */
+function Page(): ReactNode {
+  const { pathname } = useNextClient()
+  const { id } = useParams()
+  if (pathname.startsWith('/users/')) return createElement('p', null, `user ${id}`)
+  return pages[pathname] ? createElement('p', null, pages[pathname]) : null
+}
+
 function Bridge(): ReactNode {
   const { navigation, pathname, searchParams, params } = useNextClient()
-  const router = useMoleculeRouter({ navigation, pathname, searchParams, params, routes: [] })
-  useEffect(() => {
-    bridged = router
-  }, [router])
-  return pages[pathname] ? createElement('p', null, pages[pathname]) : null
+  return createElement(MoleculeRouterProvider, {
+    navigation,
+    pathname,
+    searchParams,
+    params,
+    routes: [],
+    onRouterReady: (router: Router) => {
+      bridged = router
+    },
+    children: [
+      createElement(LocationReader, { key: 'location' }),
+      createElement(Page, { key: 'page' }),
+    ],
+  })
 }
 
 runRouterConformance('next', (initialPath, { base, container }) => {

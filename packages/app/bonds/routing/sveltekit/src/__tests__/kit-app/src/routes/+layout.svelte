@@ -25,7 +25,11 @@
     MoleculeRouterProvider,
   } from '../../../../index.js'
   import type { SvelteKitNavigation } from '../../../../types.js'
+  import { bindingProbe } from '../lib/binding-probe.js'
+  import BindingReaders from '../lib/BindingReaders.svelte'
   import HookReaders from '../lib/HookReaders.svelte'
+  import { locationReaderShown } from '../lib/location-reader.js'
+  import LocationReader from '../lib/LocationReader.svelte'
   import {
     hooksProbe,
     providerRoutes,
@@ -49,6 +53,10 @@
   // Whether a case asked for the hook readers (React's `hooks-without-provider` mounts
   // its `Settings` component once above the routes, not on a page).
   const showHookReaders = hooksProbe()
+  // Whether a case asked for the binding readers (React's `binding-router` `Probe`).
+  const showBindingReaders = bindingProbe().readers
+  // Whether the router conformance harness asked for the location reader beside the page.
+  const showLocationReader = locationReaderShown()
 
   // Kit's own `goto`, recorded so a case can read the navigation the bond asked kit for,
   // and observed so the harness can wait for the navigations it started: kit marks a
@@ -73,17 +81,10 @@
     return navigated
   }
 
-  // Kit's own `afterNavigate`, counting the callbacks the bond registers with it.
-  let registrations = 0
-  const countedAfterNavigate: typeof afterNavigate = (callback) => {
-    registrations += 1
-    afterNavigate(callback)
-  }
-
   const navigation = createSvelteKitNavigation({
     goto: observedGoto,
     page,
-    afterNavigate: countedAfterNavigate,
+    navigating,
     rootHref: resolve('/'),
   })
   setAppNavigation(navigation)
@@ -130,7 +131,6 @@
       gotoCalls: () => gotoCalls,
       idle: () => pending === 0 && navigating.type === null,
       resolve: (path: string) => resolve(path),
-      afterNavigateRegistrations: () => registrations,
       resubscribed,
     })
   }
@@ -144,6 +144,12 @@
 >
   {#if showHookReaders}
     <HookReaders />
+  {/if}
+  {#if showBindingReaders}
+    <BindingReaders />
+  {/if}
+  {#if showLocationReader}
+    <LocationReader />
   {/if}
   {@render children()}
 </MoleculeRouterProvider>

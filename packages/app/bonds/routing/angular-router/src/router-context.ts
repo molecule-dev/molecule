@@ -38,13 +38,6 @@ export const MOLECULE_ROUTER_CONTEXT = new InjectionToken<Router>('molecule-angu
 const moleculeRouters = new WeakMap<AngularRouter, Router>()
 
 /**
- * The routers already announced through `onRouterReady`, so a second bond of the same
- * router (a route-level `provideMoleculeRouter`, say) does not call the callback again —
- * React's provider ref, one entry per router instead of one per component instance.
- */
-const announced = new WeakSet<Router>()
-
-/**
  * Returns the molecule `Router` for an Angular Router, creating it on first use.
  *
  * The molecule route definitions of the FIRST creation are the ones the router keeps;
@@ -73,22 +66,22 @@ export const moleculeRouterFor = (
 }
 
 /**
- * Bonds a molecule `Router` as `@molecule/app-routing`'s active router, once per router.
+ * Bonds a molecule `Router` as `@molecule/app-routing`'s active router and passes it to
+ * the provider's `onRouterReady`.
  *
- * `setRouter` runs on every bond (it is idempotent for the same router), and
- * `onRouterReady` runs only the first time a given router is announced — a later
- * provider scope sharing that router, with a new callback, is not a new router, exactly
- * as React's `MoleculeRouterProvider` keeps its `readyRouter` ref.
+ * `provideMoleculeRouter` calls it from its environment initializer, which Angular runs once
+ * for each injector that provider is in: once for the application, once for a route's
+ * `providers`. So each provider's callback runs once, a nested one's with the router the
+ * outer one bonded, as React's `MoleculeRouterProvider` calls each provider's callback once.
+ * `setRouter` is idempotent for the same router.
  *
  * @param router - The molecule `Router` to bond.
- * @param onRouterReady - Optional callback invoked once with the bonded router.
+ * @param onRouterReady - Optional callback invoked with the bonded router.
  */
 export const bondMoleculeRouter = (
   router: Router,
   onRouterReady?: (router: Router) => void,
 ): void => {
   setRouter(router)
-  if (announced.has(router)) return
-  announced.add(router)
   onRouterReady?.(router)
 }

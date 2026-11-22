@@ -18,6 +18,7 @@ import {
   runRouterConformance,
 } from '@molecule/app-framework-conformance/routing'
 
+import { showLocationReader } from './kit-app/src/lib/location-reader.js'
 import { setNavCase } from './kit-app/src/lib/nav-case.js'
 import {
   awaitNavigation,
@@ -36,6 +37,7 @@ const macrotask = (): Promise<void> => new Promise((resolve) => setTimeout(resol
 runRouterConformance(
   kitHash ? 'sveltekit (hash routing)' : 'sveltekit',
   async (initialPath, { container }): Promise<RouterHarness> => {
+    showLocationReader(true)
     const kit = await startKit(documentUrl(initialPath), container)
     return {
       router: kit.app.router,
@@ -69,6 +71,7 @@ const NAV_PREFIX = '/probe/nav'
  * @returns The mounted nav, driving kit's client router itself.
  */
 const mountListRouteNav: ListRouteNavMount = async (container, initialPath, props) => {
+  showLocationReader(false)
   setNavCase(props)
   const kit = await startKit(documentUrl(NAV_PREFIX + initialPath), container)
   /**

@@ -310,7 +310,7 @@ describe('routing composables without MoleculeRouterProvider', () => {
     expect(getRouter()).toBe(bonded)
   })
 
-  it('returns the exact bonded router with named routes and onRouterReady', async () => {
+  it('drives the bonded router with its named routes and onRouterReady', async () => {
     const definitions: RouteDefinition[] = [{ name: 'settings', path: '/settings/:account' }]
     const onRouterReady = vi.fn<(router: Router) => void>()
 

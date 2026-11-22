@@ -41,6 +41,11 @@ function memoryWrapper({ children }: { children: ReactNode }) {
   return <MemoryRouter initialEntries={[initialPath]}>{children}</MemoryRouter>
 }
 
+/** React Router's own memory router: no molecule router is provided under it. */
+function nativeMemoryWrapper({ children }: { children: ReactNode }) {
+  return <NativeMemoryRouter initialEntries={[initialPath]}>{children}</NativeMemoryRouter>
+}
+
 function Settings() {
   const query = useMoleculeQuery()
   const navigate = useMoleculeNavigate()
@@ -241,8 +246,9 @@ describe('routing hooks without MoleculeRouterProvider', () => {
   it('does not replace the global bond when several fallback consumers mount or navigate', async () => {
     const bonded = createReactRouter()
     setRouter(bonded)
-    const first = renderHook(() => useMoleculeRouter(), { wrapper: memoryWrapper })
-    const second = renderHook(() => useMoleculeRouter(), { wrapper: memoryWrapper })
+    // Under React Router's own router: the package's router components provide (and bond) one.
+    const first = renderHook(() => useMoleculeRouter(), { wrapper: nativeMemoryWrapper })
+    const second = renderHook(() => useMoleculeRouter(), { wrapper: nativeMemoryWrapper })
     expect(first.result.current).not.toBe(second.result.current)
     expect(getRouter()).toBe(bonded)
 
@@ -257,7 +263,7 @@ describe('routing hooks without MoleculeRouterProvider', () => {
 })
 
 describe('MoleculeRouterProvider compatibility', () => {
-  it('returns the exact bonded router with named routes and onRouterReady', async () => {
+  it('drives the bonded router with its named routes and onRouterReady', async () => {
     const routes = [{ name: 'settings', path: '/settings/:account' }]
     const onRouterReady = vi.fn()
     const { result } = renderHook(() => useMoleculeRouter(), {
@@ -270,8 +276,12 @@ describe('MoleculeRouterProvider compatibility', () => {
       ),
     })
 
-    expect(result.current).toBe(onRouterReady.mock.lastCall?.[0])
-    expect(result.current).toBe(getRouter())
+    // The component's view of the bonded router: its params are the component's own, and
+    // everything else is the router onRouterReady got and getRouter() returns.
+    const view = result.current
+    expect(onRouterReady).toHaveBeenCalledTimes(1)
+    expect(onRouterReady).toHaveBeenCalledWith(getRouter())
+    expect(result.current.getLocation()).toEqual(getRouter().getLocation())
     expect(result.current.getRoutes()).toEqual(routes)
     expect(result.current.generatePath('settings', { account: 'personal' })).toBe(
       '/settings/personal',
@@ -280,8 +290,8 @@ describe('MoleculeRouterProvider compatibility', () => {
     await act(async () => {
       result.current.navigateTo('settings', { account: 'personal' }, { tab: 'security' })
     })
-    expect(result.current).toBe(onRouterReady.mock.lastCall?.[0])
-    expect(result.current).toBe(getRouter())
+    expect(result.current).toBe(view)
+    expect(getRouter().getLocation().pathname).toBe('/settings/personal')
     expect(result.current.getLocation().pathname).toBe('/settings/personal')
     expect(result.current.getQuery()).toEqual({ tab: 'security' })
     expect(result.current.getRoutes()).toEqual(routes)
@@ -291,8 +301,8 @@ describe('MoleculeRouterProvider compatibility', () => {
     })
     expect(result.current.getLocation().pathname).toBe('/settings/work')
     expect(result.current.getQuery()).toEqual({ tab: 'profile' })
-    expect(result.current).toBe(getRouter())
-    expect(result.current).toBe(onRouterReady.mock.lastCall?.[0])
+    expect(result.current).toBe(view)
+    expect(onRouterReady).toHaveBeenCalledTimes(1)
   })
 })
 

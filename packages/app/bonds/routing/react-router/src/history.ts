@@ -113,13 +113,6 @@ export const createReactRouterHistory = (snapshot: ReactRouterSnapshotRef): Reac
     return Object.keys(matched).length > 0 ? matched : undefined
   }
 
-  // Above any matched `<Route>`, `useParams()` is empty, and it stays empty (or stays
-  // readable, inside one) for the component's whole life — a component never moves
-  // between positions in the route tree. So whether the history carries native params is
-  // decided once, at creation: with an empty `useParams()` it reports none, and
-  // `createHistoryRouter` then matches the registered route definitions instead.
-  const nativeParams = matchedParams()
-
   const history: ReactRouterHistory = {
     location: (): RouteLocation => {
       const current = snapshot.current
@@ -162,17 +155,14 @@ export const createReactRouterHistory = (snapshot: ReactRouterSnapshotRef): Reac
       for (const listener of [...listeners]) listener(action)
     },
 
+    // The params of the component's render; empty above any matched `<Route>` and on a route
+    // whose only segment is optional and absent, where `createHistoryRouter` matches the
+    // registered route definitions instead.
+    params: (): RouteParams => matchedParams() ?? {},
+
     destroy: () => {
       listeners.clear()
     },
-  }
-
-  if (nativeParams) {
-    history.params = (): RouteParams => {
-      const matched = matchedParams()
-      // Presence was decided at creation and cannot flip, so this answers with a match.
-      return matched ?? nativeParams
-    }
   }
 
   return history

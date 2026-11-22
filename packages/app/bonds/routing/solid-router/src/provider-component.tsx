@@ -5,10 +5,11 @@
  * @module
  */
 
-import { createEffect, type JSX, onCleanup } from 'solid-js'
+import { createEffect, type JSX, onCleanup, useContext } from 'solid-js'
 
 import type { RouteDefinition, Router } from '@molecule/app-routing'
 import { setRouter } from '@molecule/app-routing'
+import { RouterProvider } from '@molecule/app-solid'
 
 import { MoleculeRouterContext } from './context.js'
 import { createSolidRouter } from './provider.js'
@@ -58,9 +59,13 @@ export interface MoleculeRouterProviderProps {
  * `router.subscribe()`.
  *
  * Bonding happens while the component renders, before its children, so a page's first
- * render already reads this router — no manual `setRouter` wiring required. Mount it once
- * inside any Solid Router when non-Solid code needs the bond, named routes are configured,
- * or `onRouterReady` is needed. The routing hooks work without this provider.
+ * render already reads this router — no manual `setRouter` wiring required. It also renders
+ * `@molecule/app-solid`'s `RouterProvider` with the router, so that binding's routing
+ * primitives read it. It provides no routed view: Solid Router gives a route's component its
+ * nested route as `props.children`, so a layout or guard used as a route component gets its
+ * page as children. Mount it as the router's `root` (as in the example). The bond's own
+ * routing hooks work without it. A `MoleculeRouterProvider` inside another one uses the outer
+ * one's router: it registers its `routes` there and calls `onRouterReady` with it.
  *
  * @param props - The provider props (see {@link MoleculeRouterProviderProps}): `children`
  *   (rendered inside the router context), `routes` (optional named-route definitions; pass
@@ -87,6 +92,11 @@ export interface MoleculeRouterProviderProps {
  * ```
  */
 export function MoleculeRouterProvider(props: MoleculeRouterProviderProps): JSX.Element {
+  // One router per Solid Router tree: a second provider would bond (setRouter) a second one
+  // over the first, and the subscribers and guards registered on each would split.
+  const outer = useContext(MoleculeRouterContext)
+  if (outer) return <JoinedRouter {...props} router={outer} />
+
   const router = createSolidRouter({
     routes: props.routes,
     history: props.history,
@@ -100,19 +110,50 @@ export function MoleculeRouterProvider(props: MoleculeRouterProviderProps): JSX.
   // Once per router: a later callback identity is not a new router.
   props.onRouterReady?.(router)
 
-  let registeredRoutes = props.routes
-  createEffect(() => {
-    // The routes the router was created with are already registered; a later array
-    // registers onto THIS router instead of replacing it.
-    const routes = props.routes
-    if (routes === undefined || routes === registeredRoutes) return
-    registeredRoutes = routes
-    router.registerRoutes(routes)
-  })
+  registerLaterRoutes(router, () => props.routes, props.routes)
 
   onCleanup(() => router.destroy())
 
   return (
-    <MoleculeRouterContext.Provider value={router}>{props.children}</MoleculeRouterContext.Provider>
+    <MoleculeRouterContext.Provider value={router}>
+      <RouterProvider router={router}>{props.children}</RouterProvider>
+    </MoleculeRouterContext.Provider>
   )
+}
+
+/**
+ * A provider inside another: registers its routes on the outer provider's router and calls
+ * `onRouterReady` with it once.
+ *
+ * @param props - The provider props, with the outer provider's router.
+ * @returns The children, under the outer provider's contexts.
+ */
+function JoinedRouter(props: MoleculeRouterProviderProps & { router: Router }): JSX.Element {
+  const { router } = props
+  if (props.routes) router.registerRoutes(props.routes)
+  props.onRouterReady?.(router)
+  registerLaterRoutes(router, () => props.routes, props.routes)
+  return <>{props.children}</>
+}
+
+/**
+ * Registers each later `routes` array onto `router`: the routes it started with are already
+ * registered, and a later array adds to them instead of replacing them.
+ *
+ * @param router - The router.
+ * @param routes - Reads the provider's current `routes` prop.
+ * @param initial - The array already registered.
+ */
+function registerLaterRoutes(
+  router: Router,
+  routes: () => RouteDefinition[] | undefined,
+  initial: RouteDefinition[] | undefined,
+): void {
+  let registered = initial
+  createEffect(() => {
+    const current = routes()
+    if (current === undefined || current === registered) return
+    registered = current
+    router.registerRoutes(current)
+  })
 }

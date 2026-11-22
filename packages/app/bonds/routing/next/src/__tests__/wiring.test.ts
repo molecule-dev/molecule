@@ -1,3 +1,4 @@
+import type * as React from 'react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type * as AppRouting from '@molecule/app-routing'
@@ -13,18 +14,23 @@ vi.mock('@molecule/app-routing', async (importOriginal) => {
 })
 
 // Run state/effect hooks synchronously so calling the hook performs the bond. The hook
-// now builds ONE router in `useState` (not a `useMemo` snapshot), so the mock provides
-// `useRef`/`useState` instead of `useMemo`.
-vi.mock('react', () => ({
-  useRef: <T>(value: T) => ({ current: value }),
-  useState: <T>(init: () => T) => {
-    const value = init()
-    return [value, () => {}] as const
-  },
-  useEffect: (fn: () => void) => {
-    fn()
-  },
-}))
+// builds ONE router in `useState` (not a `useMemo` snapshot), so the mock replaces
+// `useRef`/`useState`/`useEffect` (the bond's effect outside a browser) and keeps the rest
+// of React, which `@molecule/app-react` (behind the package entry) builds its contexts with.
+vi.mock('react', async (importOriginal) => {
+  const actual = await importOriginal<typeof React>()
+  return {
+    ...actual,
+    useRef: <T>(value: T) => ({ current: value }),
+    useState: <T>(init: () => T) => {
+      const value = init()
+      return [value, () => {}] as const
+    },
+    useEffect: (fn: () => void) => {
+      fn()
+    },
+  }
+})
 
 import { navigate as coreNavigate, setRouter } from '@molecule/app-routing'
 

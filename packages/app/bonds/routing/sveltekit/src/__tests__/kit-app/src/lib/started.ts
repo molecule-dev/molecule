@@ -62,11 +62,9 @@ export interface KitApp {
   idle(): boolean
   /** Kit's `resolve(path)` from `$app/paths`: the href a kit link to `path` carries. */
   resolve(path: string): string
-  /** How many callbacks `navigation` registered with kit's `afterNavigate`. */
-  afterNavigateRegistrations(): number
   /**
    * What two routers heard after the layout subscribed, unsubscribed and subscribed them
-   * again while it initialised (the only time kit takes an `afterNavigate` callback): one
+   * again while it initialised (where kit takes the hand-written adapter's `afterNavigate`): one
    * over `navigation`, one over the adapter an app would write by hand, which registers a
    * kit callback per listen and whose unsubscribe does nothing.
    */

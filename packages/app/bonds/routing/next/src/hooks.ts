@@ -5,12 +5,18 @@
  * @module
  */
 
-import { useEffect } from 'react'
+import { useEffect, useLayoutEffect } from 'react'
 
 import { type Router, setRouter } from '@molecule/app-routing'
 
 import { useLiveHistory } from './live-history.js'
 import type { NextRouterConfig } from './types.js'
+
+// Runs after React commits and before the browser paints: the bond happens before the pages
+// run their effects (a page's mount effect may call `navigate()` or `getRouter()`, and React
+// runs a parent's effects after its children's), and subscribers hear a navigation before
+// its page is painted. `useEffect` on the server, where layout effects do not run.
+const useBeforePaintEffect = typeof window === 'undefined' ? useEffect : useLayoutEffect
 
 /**
  * Builds the molecule Router from `next/navigation` hook values AND bonds it via
@@ -20,7 +26,8 @@ import type { NextRouterConfig } from './types.js'
  * Call it in a `'use client'` component near the root layout, passing the values from
  * `useRouter()`/`usePathname()`/`useSearchParams()`/`useParams()`. The component owns
  * ONE router for its lifetime — the history reads a ref that every render refreshes
- * with the latest hook values — and bonds it once on mount. Subscribers (guards, page
+ * with the latest hook values — and bonds it once on mount, before the pages below it run
+ * their effects. Subscribers (guards, page
  * transitions, `subscribe`) keep listening across navigations, and a click on a Next
  * `<Link>` or the back button reaches them exactly once, after Next has committed.
  *
@@ -55,7 +62,7 @@ export function useMoleculeRouter(config: NextRouterConfig): Router {
 
   // Bond THIS adapter once, so @molecule/app-routing's navigate()/getRouter() drive the
   // real Next.js App Router instead of the core's fallback (window.location) router.
-  useEffect(() => {
+  useBeforePaintEffect(() => {
     setRouter(router)
   }, [router])
 
@@ -75,19 +82,23 @@ export function useMoleculeRouter(config: NextRouterConfig): Router {
 
   // After every commit: a navigation's entry, or an entry Next rewrote in place
   // (`router.refresh()`, a server action), gets its key and state before anything else
-  // can move the history. No dependency list: a refresh changes none of the hook values.
-  useEffect(() => {
+  // can move the history (Next writes the entry in an insertion effect, which runs first).
+  // No dependency list: a refresh changes none of the hook values.
+  useBeforePaintEffect(() => {
     history.syncEntry()
   })
 
-  // Notify after commit: this effect re-runs whenever the location changed — every
-  // navigation Next commits changes it, whether this router started it (push/replace),
-  // a `<Link>` did, or the back button moved the entry (marked as a pop above). It runs
-  // after the re-render that made the hook values current; React batching reports the
-  // final location once. The first run (mount) notifies nothing, and a navigation whose
-  // URL matches the current one (Next skips its history write) does not re-run it.
+  // Notify after commit, before paint: this effect re-runs whenever the location changed —
+  // every navigation Next commits changes it, whether this router started it
+  // (push/replace), a `<Link>` did, or the back button moved the entry (marked as a pop
+  // above). It runs after the commit that made the hook values current and before the
+  // browser paints it, and React renders what a subscriber schedules there before that paint,
+  // so a component that reads the router shows the new location with the new page. React
+  // batching reports the final location once. The first run (mount) notifies nothing, and a
+  // navigation whose URL matches the current one (Next skips its history write) does not
+  // re-run it.
   const pathKey = history.pathKey()
-  useEffect(() => {
+  useBeforePaintEffect(() => {
     history.notifyAfterCommit()
   }, [history, pathKey])
 

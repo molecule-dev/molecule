@@ -1,10 +1,10 @@
 /**
- * `createSvelteKitNavigation` registers kit's `afterNavigate` once. Kit takes the callback
- * only while a component initialises and returns no unsubscribe, so an adapter that
- * registered one per `listen` (with an unsubscribe that did nothing) made every later
- * subscriber hear each navigation once per earlier subscribe. Both run in the test app
- * (`./kit-app`) over kit's real client router, whose root layout subscribes,
- * unsubscribes and subscribes again a router over each.
+ * `createSvelteKitNavigation` watches kit's `page` once and passes each change to the
+ * listeners the router adds and removes. An adapter that registered kit's `afterNavigate`
+ * per `listen` (kit takes it only while a component initialises and returns no
+ * unsubscribe) made every later subscriber hear each navigation once per earlier subscribe.
+ * Both run in the test app (`./kit-app`) over kit's real client router, whose root layout
+ * subscribes, unsubscribes and subscribes again a router over each.
  */
 import { afterEach, describe, expect, it } from 'vitest'
 
@@ -34,10 +34,9 @@ async function followOneLink(): Promise<StartedKit> {
 }
 
 describe('createSvelteKitNavigation', () => {
-  it('registers one afterNavigate callback however often the router listens', async () => {
+  it('tells a router that listened again about each navigation once', async () => {
     const { app } = await followOneLink()
     expect(app.resubscribed.bond).toEqual(['push'])
-    expect(app.afterNavigateRegistrations()).toBe(1)
   })
 
   it('is what keeps a resubscribed router from hearing a navigation twice', async () => {

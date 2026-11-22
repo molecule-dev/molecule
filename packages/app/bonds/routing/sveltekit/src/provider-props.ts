@@ -18,7 +18,7 @@ import type { SvelteKitNavigation } from './types.js'
 export interface MoleculeRouterProviderProps {
   /**
    * The app's SvelteKit pieces, built once in the root layout with
-   * `createSvelteKitNavigation`: kit's `goto`, `page`, `afterNavigate` and its root href.
+   * `createSvelteKitNavigation`: kit's `goto`, `page`, `navigating` and its root href.
    */
   navigation: SvelteKitNavigation
 

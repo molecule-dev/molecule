@@ -18,14 +18,36 @@ import {
   runRouterConformance,
 } from '@molecule/app-framework-conformance/routing'
 import type { Router } from '@molecule/app-routing'
+import { useLocation, useParams } from '@molecule/app-solid'
 
 import { ListRouteNav } from '../ListRouteNav.jsx'
 import { createSolidMemoryHistory } from '../memory-history.js'
-import { createSolidRouter } from '../provider.js'
+import { MoleculeRouterProvider } from '../provider-component.jsx'
 
 const Empty = (): JSX.Element => <div />
 const PageOne = (): JSX.Element => <p>page one</p>
 const PageTwo = (): JSX.Element => <p>page two</p>
+
+/**
+ * Stays mounted beside the page and shows the pathname `@molecule/app-solid`'s `useLocation`
+ * reads.
+ *
+ * @returns The location reader.
+ */
+const LocationReader = (): JSX.Element => {
+  const location = useLocation()
+  return <output data-location="">{location().pathname}</output>
+}
+
+/**
+ * The page of `/users/:id`: the id `@molecule/app-solid`'s `useParams` reads.
+ *
+ * @returns The page.
+ */
+const UserPage = (): JSX.Element => {
+  const params = useParams()
+  return <p>user {params().id}</p>
+}
 
 /**
  * Builds a harness whose Solid Router starts at `initialPath` under the kit's base, with
@@ -49,20 +71,27 @@ const createHarness =
     }
     const [probe, setProbe] = createSignal<string>()
 
+    // The bond's provider gives `@molecule/app-solid` its router; the location reader stays
+    // mounted beside the routed page.
     const Root = (props: RouteSectionProps): JSX.Element => {
-      holder.router = memory ? createSolidRouter({ history: memory }) : createSolidRouter()
       holder.navigate = useNavigate()
       return (
-        <>
+        <MoleculeRouterProvider
+          history={memory ?? undefined}
+          onRouterReady={(ready) => {
+            holder.router = ready
+          }}
+        >
           <Show when={probe()}>{(to) => <A href={to()} data-href-probe="" />}</Show>
+          <LocationReader />
           {props.children}
-        </>
+        </MoleculeRouterProvider>
       )
     }
 
     const routes = (
       <>
-        <Route path="/users/:id" component={Empty} />
+        <Route path="/users/:id" component={UserPage} />
         <Route path="/one" component={PageOne} />
         <Route path="/two" component={PageTwo} />
         <Route path="*rest" component={Empty} />

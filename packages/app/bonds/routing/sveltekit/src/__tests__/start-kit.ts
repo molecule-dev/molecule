@@ -87,10 +87,10 @@ export const settle = async (app: KitApp): Promise<void> => {
 }
 
 /**
- * Runs `move` and resolves once kit committed the navigation it started (kit's
- * `afterNavigate`), or after {@link NATIVE_MOVE_TIMEOUT_MS} when it started none. Kit
- * resolves a link's or a popstate's route before it marks the navigation in flight, so
- * waiting for kit to be idle alone could read the URL before the move began.
+ * Runs `move` and resolves once kit moved its page (the router's notification) and finished
+ * the navigation, or after {@link NATIVE_MOVE_TIMEOUT_MS} when it started none. Kit resolves a
+ * link's or a popstate's route before it marks the navigation in flight, so waiting for kit
+ * to be idle alone could read the URL before the move began.
  *
  * @param app - The started test app.
  * @param move - The click or history move.
@@ -106,6 +106,7 @@ export const awaitNavigation = async (app: KitApp, move: () => void): Promise<vo
     new Promise((resolve) => setTimeout(resolve, NATIVE_MOVE_TIMEOUT_MS)),
   ])
   stop()
+  await settle(app)
 }
 
 /**

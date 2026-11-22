@@ -6,7 +6,7 @@
  * @module
  */
 
-import { onDestroy, onMount } from 'svelte'
+import { onDestroy, onMount, tick } from 'svelte'
 import { derived, get, type Readable, readable, writable } from 'svelte/store'
 
 import type { ListRouteOptions, ListRouteResult, RouteParams } from '@molecule/app-routing'
@@ -141,14 +141,27 @@ export function useListRoute<Filter extends string = string, Selection extends s
     )
   let latest = resolve()
   const state = writable(latest)
+  // The redirect a resolution asks for runs once Svelte has applied the update, and only while
+  // this component is mounted, as React's runs in an effect after the commit: the router tells
+  // every subscriber about a navigation before kit renders it, a page kit is about to replace
+  // included, and that page must not redirect from an address it will never show.
+  let mounted = true
+  let redirectQueued = false
+  const redirectIfAsked = (): void => {
+    redirectQueued = false
+    if (!mounted) return
+    const redirect = listRouteRedirect(latest, router.getLocation())
+    if (redirect) router.navigate(redirect.to, redirect.options)
+  }
   // One re-resolve per location (or options) change, then the redirect it asks for:
   // navigating notifies this subscription again, and at the sign-in URL
   // `listRouteRedirect` answers undefined, so the update settles.
   const update = (): void => {
     latest = resolve()
     state.set(latest)
-    const redirect = listRouteRedirect(latest, router.getLocation())
-    if (redirect) router.navigate(redirect.to, redirect.options)
+    if (redirectQueued) return
+    redirectQueued = true
+    void tick().then(redirectIfAsked)
   }
   const stopRouter = router.subscribe(() => update())
   // The options store calls back at once with the options already read, which changes
@@ -162,6 +175,7 @@ export function useListRoute<Filter extends string = string, Selection extends s
   // signed-out protected view.
   onMount(update)
   onDestroy(() => {
+    mounted = false
     stopRouter()
     stopOptions()
   })

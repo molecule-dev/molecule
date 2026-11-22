@@ -1,10 +1,10 @@
 // @vitest-environment jsdom
 /**
  * The router conformance cases, run over a REAL Vue Router in jsdom: the molecule router
- * `createVueRouter` builds from it, driven alongside the Vue Router's own navigations
+ * `MoleculeRouterProvider` builds from it, driven alongside the Vue Router's own navigations
  * (`router.push` as a link would, `router.back()` as the browser's back button does),
- * with a `<RouterView>` rendering the routed pages and a `<RouterLink>` writing the
- * native href.
+ * with a `<RouterView>` rendering the routed pages, `@molecule/app-vue`'s hooks reading the
+ * location and params, and a `<RouterLink>` writing the native href.
  *
  * The kit's `ListRouteNav` cases mount this package's component over the same kind of
  * real Vue Router (a memory history) and compare its DOM with react-router's goldens.
@@ -25,8 +25,10 @@ import {
   runListRouteNavConformance,
   runRouterConformance,
 } from '@molecule/app-framework-conformance/routing'
+import type { Router } from '@molecule/app-routing'
+import { useLocation, useParams } from '@molecule/app-vue'
 
-import { createVueRouter } from '../index.js'
+import { MoleculeRouterProvider } from '../index.js'
 import { ListRouteNav } from '../ListRouteNav.js'
 import { settle } from './routing-harness.js'
 
@@ -44,8 +46,24 @@ const page = (text: string): { render: () => ReturnType<typeof h> } => ({
 })
 
 /** The routes every harness declares: `/users/:id`, the two pages, and a catch-all. */
+/** Stays mounted beside the page and shows the pathname `@molecule/app-vue`'s `useLocation` reads. */
+const LocationReader = defineComponent({
+  setup() {
+    const location = useLocation()
+    return (): VNode => h('output', { 'data-location': '' }, location.value.pathname)
+  },
+})
+
+/** The page of `/users/:id`: the id `@molecule/app-vue`'s `useParams` reads. */
+const UserPage = defineComponent({
+  setup() {
+    const params = useParams()
+    return (): VNode => h('p', `user ${params.value.id}`)
+  },
+})
+
 const routes = [
-  { path: '/users/:id', component: Empty },
+  { path: '/users/:id', component: UserPage },
   { path: '/one', component: page('page one') },
   { path: '/two', component: page('page two') },
   { path: '/:rest(.*)*', component: Empty },
@@ -56,12 +74,22 @@ runRouterConformance('vue-router', async (initialPath, { base, container }) => {
   const vueRouter = createRouter({ history: createWebHistory(base || undefined), routes })
   await vueRouter.push(initialPath)
   await vueRouter.isReady()
-  // Vue Router's popstate handling starts with the plugin installed in an app.
-  const app = createApp({ render: () => h(RouterView) })
+  // Vue Router's popstate handling starts with the plugin installed in an app. The bond's
+  // provider gives `@molecule/app-vue` its router; the location reader stays mounted beside
+  // the routed page.
+  let bonded: Router | undefined
+  const app = createApp({
+    render: () =>
+      h(
+        MoleculeRouterProvider,
+        { onRouterReady: (ready: Router) => (bonded = ready) },
+        { default: () => [h(LocationReader), h(RouterView)] },
+      ),
+  })
   app.use(vueRouter)
   app.mount(container)
-
-  const router = createVueRouter({ router: vueRouter })
+  if (!bonded) throw new Error('the provider never bonded a router')
+  const router = bonded
   return {
     router,
     nativePush: async (path) => {

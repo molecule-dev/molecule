@@ -309,7 +309,15 @@ export interface Router {
   createHref(path: string): string
 
   /**
-   * Subscribes to route changes.
+   * Calls `listener` once after each navigation the router commits, however it started (a
+   * link, the back button, `navigate`), with the new location and the navigation action.
+   * A router calls it before the browser paints the new page, so a component that renders
+   * from a listener (the framework bindings' `useLocation` and `useParams` do) shows the new
+   * location in the same paint as the new page. The router conformance cases of
+   * `@molecule/app-framework-conformance/routing` check that at every paint.
+   *
+   * @param listener - Called with the new location and the navigation action.
+   * @returns Stops calling `listener`.
    */
   subscribe(listener: RouteChangeListener): () => void
 

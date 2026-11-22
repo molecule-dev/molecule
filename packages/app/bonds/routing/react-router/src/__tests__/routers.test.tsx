@@ -36,12 +36,14 @@ import {
   RouterProvider as ReactRouterDomProvider,
 } from 'react-router/dom'
 
+import { ProvideDataRouter } from '../data-router.js'
 import {
   HydratedRouter,
   type HydratedRouterProps,
   RouterProvider as DomRouterProvider,
   type RouterProviderProps as DomRouterProviderProps,
 } from '../dom.js'
+import { MoleculeRouterProvider } from '../hooks.js'
 import {
   BrowserRouter,
   type BrowserRouterProps,
@@ -62,6 +64,33 @@ interface MockElement {
   props: Record<string, unknown>
 }
 
+/**
+ * The children each router component renders inside React Router's router: the bond's
+ * `MoleculeRouterProvider` around what the app passed.
+ *
+ * @param children - What the router component's children are.
+ * @returns The expected element.
+ */
+const providing = (children: unknown): unknown =>
+  expect.objectContaining({ type: MoleculeRouterProvider, props: { children } })
+
+/**
+ * React Router's own element a data-router provider renders: `ProvideDataRouter` (which
+ * builds the molecule router from the data router) around it.
+ *
+ * @param element - What the bond's provider rendered.
+ * @param dataRouter - The data router it was given.
+ * @returns React Router's element.
+ */
+const insideDataRouter = (element: MockElement, dataRouter: unknown): MockElement => {
+  expect(element.type).toBe(ProvideDataRouter)
+  expect(element.props.dataRouter).toBe(dataRouter)
+  return element.props.children as MockElement
+}
+
+/** The data router both data-router providers are given. */
+const dataRouter = {} as never
+
 const cases = [
   {
     name: 'BrowserRouter',
@@ -69,7 +98,7 @@ const cases = [
     render: () => BrowserRouter({ basename: '/app', children: 'app' }),
     props: {
       basename: '/app',
-      children: [expect.objectContaining({ props: { signInPath: '/login' } }), 'app'],
+      children: providing([expect.objectContaining({ props: { signInPath: '/login' } }), 'app']),
     },
   },
   {
@@ -78,7 +107,7 @@ const cases = [
     render: () => HashRouter({ basename: '/app', children: 'app' }),
     props: {
       basename: '/app',
-      children: [expect.objectContaining({ props: { signInPath: '/login' } }), 'app'],
+      children: providing([expect.objectContaining({ props: { signInPath: '/login' } }), 'app']),
     },
   },
   {
@@ -87,26 +116,26 @@ const cases = [
     render: () => MemoryRouter({ initialEntries: ['/app'], children: 'app' }),
     props: {
       initialEntries: ['/app'],
-      children: [expect.objectContaining({ props: { signInPath: '/login' } }), 'app'],
+      children: providing([expect.objectContaining({ props: { signInPath: '/login' } }), 'app']),
     },
   },
   {
     name: 'Router',
     component: ReactRouter,
     render: () => Router({ location: '/app', navigator: {} as never, children: 'app' }),
-    props: { location: '/app', navigator: {}, children: 'app' },
+    props: { location: '/app', navigator: {}, children: providing('app') },
   },
   {
     name: 'RouterProvider from react-router',
     component: ReactRouterProvider,
-    render: () => RouterProvider({ router: {} as never }),
-    props: { router: {} },
+    render: () => insideDataRouter(RouterProvider({ router: dataRouter }) as never, dataRouter),
+    props: { router: dataRouter },
   },
   {
     name: 'RouterProvider from react-router/dom (the /dom entry)',
     component: ReactRouterDomProvider,
-    render: () => DomRouterProvider({ router: {} as never }),
-    props: { router: {} },
+    render: () => insideDataRouter(DomRouterProvider({ router: dataRouter }) as never, dataRouter),
+    props: { router: dataRouter },
   },
   {
     name: 'HydratedRouter from react-router/dom (the /dom entry)',
@@ -118,7 +147,7 @@ const cases = [
     name: 'unstable_HistoryRouter',
     component: ReactRouterHistoryRouter,
     render: () => unstable_HistoryRouter({ history: {} as never, children: 'app' }),
-    props: { history: {}, children: 'app' },
+    props: { history: {}, children: providing('app') },
   },
 ]
 
@@ -139,7 +168,7 @@ describe('synchronous React Router components', () => {
     ]) as MockElement
 
     expect(element.props).toMatchObject({ useTransitions: false })
-    expect(element.props.children).toContain('app')
+    expect((element.props.children as MockElement).props.children).toContain('app')
   })
 
   it('accepts the core provider flushSync prop but not useTransitions', () => {

@@ -8,8 +8,9 @@
  * from `@molecule/app-routing`'s `createHistoryRouter`, so this bond behaves exactly
  * like the other routing bonds and an app can swap routing bonds without noticing.
  *
- * Wire it once at bootstrap, next to Angular's own router providers, and inject it
- * through `@molecule/app-angular`'s `ROUTER` token:
+ * Wire it once at bootstrap, next to Angular's own router providers. It provides the router
+ * to `@molecule/app-angular` (its `ROUTER` token, its hooks, and `<mol-routed-view />`,
+ * which renders Angular Router's outlet: in a routed layout, the matched child route):
  *
  * With HTTP and auth clients bonded, the router `provideMoleculeRouter` provides
  * replaces the current URL with `/login` after a credential-free GET receives a 401 and

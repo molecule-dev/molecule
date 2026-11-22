@@ -3,12 +3,12 @@
  * The React routing bond's `provider-lifecycle.test.tsx`, carried to the Angular Router
  * bond. Angular's counterpart of `MoleculeRouterProvider` is `provideMoleculeRouter`,
  * which bonds the adapter at bootstrap (React bonds in the provider's mount effect) and
- * calls `onRouterReady` once per router.
+ * calls `onRouterReady` once.
  *
- * Angular has no StrictMode and no re-render with a new callback: the port's "callback
- * changes" case creates a second provider scope over the same Angular Router — a lazy
- * route's `providers` array does exactly that — and shows the new callback is not called
- * for a router that is already bonded.
+ * Angular has no StrictMode and no re-render with a new callback: the provider reads its
+ * options when its injector is created, so the port's "callback changes" case changes the
+ * callback in the options object afterwards and shows nothing calls it. (A second provider, in
+ * a route's `providers`, is React's provider inside another: `binding-router.test.ts`.)
  *
  * @module
  */
@@ -20,8 +20,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { ROUTER } from '@molecule/app-angular'
 import { getRouter, type Router, setRouter } from '@molecule/app-routing'
 
-import { provideMoleculeRouter } from '../index.js'
-import { bootApp, type BootedApp, childInjector, Empty } from './angular-app.js'
+import { type AngularRouterOptions, provideMoleculeRouter } from '../index.js'
+import { bootApp, type BootedApp, Empty } from './angular-app.js'
 
 /** The route names this file navigates to. */
 const routes = [
@@ -116,19 +116,23 @@ describe('provideMoleculeRouter lifecycle', () => {
   it('does not call onRouterReady again when only the callback changes', async () => {
     const first = vi.fn<(router: Router) => void>()
     const second = vi.fn<(router: Router) => void>()
+    const options: AngularRouterOptions = { onRouterReady: first }
     const app = await boot({
       routes,
       initialPath: '/',
-      providers: [provideMoleculeRouter({ onRouterReady: first })],
+      providers: [provideMoleculeRouter(options)],
     })
     expect(first).toHaveBeenCalledTimes(1)
 
-    // A second provider scope over the same Angular Router, with a new callback.
-    const scope = childInjector(app, [provideMoleculeRouter({ onRouterReady: second })])
+    // The same provider with a new callback, then a navigation and change detection: every
+    // point React's re-render would reach.
+    options.onRouterReady = second
+    await app.router.navigateByUrl('/page')
+    await app.settle()
+    app.appRef.tick()
 
-    expect(scope.get(ROUTER)).toBe(getRouter())
+    expect(app.injector.get(ROUTER)).toBe(getRouter())
     expect(first).toHaveBeenCalledTimes(1)
     expect(second).not.toHaveBeenCalled()
-    scope.destroy()
   })
 })

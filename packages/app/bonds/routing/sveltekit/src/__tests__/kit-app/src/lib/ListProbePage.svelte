@@ -131,11 +131,11 @@
   })
 
   /**
-   * The list state of the page's current render, as React's `current` holds it.
+   * The hook's list state now.
    *
    * @returns The resolved list for the current location and options.
    */
-  const list = (): ListRouteResult<string, string> => ({
+  const live = (): ListRouteResult<string, string> => ({
     page: get(page),
     pageSize: get(pageSize),
     offset: get(offset),
@@ -151,6 +151,28 @@
     setFilters,
     select,
   })
+
+  // The router tells every subscriber about a navigation before kit renders it, a page kit is
+  // about to replace included, so its hook resolves the new address too. React's `current`
+  // holds the page's last render, which an unmounted page never repeats: after this page is
+  // destroyed the case reads the list its last update showed (this pre-effect runs with each
+  // update of the page, and never once kit has replaced it).
+  let lastShown: ListRouteResult<string, string> | undefined
+  $effect.pre(() => {
+    void [$page, $pageSize, $offset, $filters, $selection, $params, $canLoad, $status, $redirectTo]
+    lastShown = live()
+  })
+  let mounted = true
+  onDestroy(() => {
+    mounted = false
+  })
+
+  /**
+   * The list state of the page's current render, as React's `current` holds it.
+   *
+   * @returns The hook's list while the page is mounted; once kit replaced it, the last one it showed.
+   */
+  const list = (): ListRouteResult<string, string> => (mounted || !lastShown ? live() : lastShown)
 
   publishListProbeHandle({
     list,
