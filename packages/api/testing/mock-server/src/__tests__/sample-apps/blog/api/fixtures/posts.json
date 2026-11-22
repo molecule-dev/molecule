@@ -1,0 +1,20 @@
+[
+  {
+    "id": "post-getting-started",
+    "title": "Getting started",
+    "slug": "getting-started",
+    "excerpt": "What this blog is about.",
+    "tags": ["intro"],
+    "author": { "name": "Ann" },
+    "published_at": "2026-03-01T09:00:00Z"
+  },
+  {
+    "id": "post-second",
+    "title": "A second post",
+    "slug": "a-second-post",
+    "excerpt": "Notes from the first month.",
+    "tags": [],
+    "author": { "name": "Bo" },
+    "published_at": "2026-03-08T09:00:00Z"
+  }
+]

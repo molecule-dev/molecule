@@ -1,0 +1,18 @@
+[
+  {
+    "id": "acc-checking",
+    "name": "Everyday Checking",
+    "type": "checking",
+    "institution": "First Bank",
+    "balance": 2450.2,
+    "currency": "USD"
+  },
+  {
+    "id": "acc-savings",
+    "name": "Rainy Day Savings",
+    "type": "savings",
+    "institution": "First Bank",
+    "balance": 8340,
+    "currency": "USD"
+  }
+]

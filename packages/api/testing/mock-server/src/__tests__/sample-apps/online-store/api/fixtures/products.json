@@ -1,0 +1,16 @@
+[
+  {
+    "id": "prod-mug",
+    "name": "Stoneware Mug",
+    "description": "A 350 ml mug, glazed by hand.",
+    "price": 1800,
+    "stock": 24
+  },
+  {
+    "id": "prod-tote",
+    "name": "Canvas Tote",
+    "description": "Heavy cotton canvas with an inside pocket.",
+    "price": 2400,
+    "stock": 12
+  }
+]

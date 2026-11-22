@@ -1,25 +1,15 @@
-import { join } from 'node:path'
-
 import { describe, expect, it, vi } from 'vitest'
 
 import { createFixtureFetch, defaultPersona } from '../browser/fixture-fetch.js'
 import { serializeFixtureSet } from '../router/router.js'
 import { buildMockFixtureSet } from '../server/server.js'
+import { sampleApp } from './sample-apps.js'
 
 const ORIGIN = 'https://preview.example'
-// __dirname = …/molecule/packages/api/testing/mock-server/src/__tests__ — 7 up is the workspace.
-const BLOG = join(__dirname, ...Array(7).fill('..'), 'mlcl', 'templates', 'apps', 'blog', 'api')
 const blogFixtures = (): ReturnType<typeof serializeFixtureSet> =>
   JSON.parse(
     JSON.stringify(
-      serializeFixtureSet(
-        buildMockFixtureSet({
-          appType: 'blog',
-          fixturesPath: join(BLOG, 'fixtures'),
-          handlersPath: join(BLOG, 'src', 'handlers'),
-          logging: false,
-        }),
-      ),
+      serializeFixtureSet(buildMockFixtureSet({ ...sampleApp('blog'), logging: false })),
     ),
   )
 

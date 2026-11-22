@@ -1,0 +1,16 @@
+{
+  "spending-by-category": [
+    {
+      "category_id": "cat-groceries",
+      "category_name": "Groceries",
+      "total_amount": 149.8,
+      "transaction_count": 2
+    },
+    {
+      "category_id": "cat-dining",
+      "category_name": "Dining",
+      "total_amount": 74.18,
+      "transaction_count": 3
+    }
+  ]
+}

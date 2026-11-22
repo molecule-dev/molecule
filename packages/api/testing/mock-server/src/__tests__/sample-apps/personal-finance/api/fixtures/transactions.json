@@ -1,0 +1,18 @@
+[
+  {
+    "id": "tx-groceries",
+    "account_id": "acc-checking",
+    "description": "Weekly groceries",
+    "amount": -82.4,
+    "category": "Groceries",
+    "date": "2026-03-02"
+  },
+  {
+    "id": "tx-paycheck",
+    "account_id": "acc-checking",
+    "description": "Paycheck",
+    "amount": 3200,
+    "category": "Income",
+    "date": "2026-03-01"
+  }
+]
