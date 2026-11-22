@@ -161,9 +161,19 @@ export function SkillsCard({
     if (creating) newNameRef.current?.focus()
   }, [creating])
 
+  // The list belongs to one project. When the card is re-pointed at another one
+  // the previous project's skills must not linger, so return to the loading
+  // state during the render that carries the new project id (React's "adjust
+  // state when props change" pattern) rather than synchronously from the effect
+  // that then fetches it.
+  const [loadedProjectId, setLoadedProjectId] = useState(projectId)
+  if (loadedProjectId !== projectId) {
+    setLoadedProjectId(projectId)
+    setStatus('loading')
+  }
+
   useEffect(() => {
     let cancelled = false
-    setStatus('loading')
     void (async () => {
       try {
         const { skills: loaded, stillBooting } = await loadProjectSkillsResilient(

@@ -24,7 +24,9 @@ import { backgroundTasksStripCases } from './ide/background-tasks-strip.js'
 import { chatItemBoundaryCases } from './ide/chat-item-boundary.js'
 import { chatPanelCases } from './ide/chat-panel.js'
 import { chatTimestampCases } from './ide/chat-timestamp.js'
+import { collapsibleUserMessageCases } from './ide/collapsible-user-message.js'
 import { commandPaletteCases } from './ide/command-palette.js'
+import { commitCardItemCases } from './ide/commit-card-item.js'
 import { contextSessionUsageCases } from './ide/context-session-usage.js'
 import { contextUsageIndicatorCases } from './ide/context-usage-indicator.js'
 import { deviceFrameSelectorCases } from './ide/device-frame-selector.js'
@@ -37,6 +39,8 @@ import { ideHookCases } from './ide/hooks.js'
 import { iconCases } from './ide/icon.js'
 import { keyboardShortcutsPanelCases } from './ide/keyboard-shortcuts-panel.js'
 import { markdownContentCases } from './ide/markdown-content.js'
+import { messageItemCases } from './ide/message-item.js'
+import { noticeCardCases } from './ide/notice-card.js'
 import { planCardCases } from './ide/plan-card.js'
 import { previewPanelCases } from './ide/preview-panel.js'
 import { quickOpenCases } from './ide/quick-open.js'
@@ -55,9 +59,11 @@ import { streamingIndicatorCases } from './ide/streaming-indicator.js'
 import { tabBarCases } from './ide/tab-bar.js'
 import { testStatusBarCases } from './ide/test-status-bar.js'
 import { testsCardCases } from './ide/tests-card.js'
+import { thinkingBlockCases } from './ide/thinking-block.js'
 import { tipCardCases } from './ide/tip-card.js'
 import { toolCallCardCases } from './ide/tool-call-card.js'
 import { userAvatarCases } from './ide/user-avatar.js'
+import { verificationBadgeCases } from './ide/verification-badge.js'
 import { workCardCases } from './ide/work-card.js'
 import { workspaceLayoutCases } from './ide/workspace-layout.js'
 
@@ -71,12 +77,16 @@ export const ideFeature: FeatureCases = {
     'AutoCommitBadge',
     'BackgroundTasksStrip',
     'ChatItemBoundary',
+    'CollapsibleUserMessage',
+    'CommitCardItem',
     'ContextSessionUsage',
     'ContextUsageIndicator',
     'DockStrip',
     'FileExplorerContextMenu',
     'HelpCard',
     'MarkdownContent',
+    'MessageItem',
+    'NoticeCard',
     'PlanCard',
     'RelevantSkillSuggestion',
     'ScriptsCard',
@@ -84,7 +94,9 @@ export const ideFeature: FeatureCases = {
     'SkillsCard',
     'StreamingIndicator',
     'TestStatusBar',
+    'ThinkingBlock',
     'TipCard',
+    'VerificationBadge',
     'WorkCard',
   ],
   families: [
@@ -94,7 +106,9 @@ export const ideFeature: FeatureCases = {
     chatItemBoundaryCases,
     chatPanelCases,
     chatTimestampCases,
+    collapsibleUserMessageCases,
     commandPaletteCases,
+    commitCardItemCases,
     contextSessionUsageCases,
     contextUsageIndicatorCases,
     deviceFrameSelectorCases,
@@ -106,6 +120,8 @@ export const ideFeature: FeatureCases = {
     iconCases,
     keyboardShortcutsPanelCases,
     markdownContentCases,
+    messageItemCases,
+    noticeCardCases,
     planCardCases,
     previewPanelCases,
     quickOpenCases,
@@ -124,13 +140,16 @@ export const ideFeature: FeatureCases = {
     tabBarCases,
     testsCardCases,
     testStatusBarCases,
+    thinkingBlockCases,
     tipCardCases,
     toolCallCardCases,
     userAvatarCases,
+    verificationBadgeCases,
     workCardCases,
     workspaceLayoutCases,
   ],
   shared: {
+    ACCEPTED_FILE_TYPES: '@molecule/app-ide-panel-logic',
     ACTIVITY_TYPES: '@molecule/app-ide-panel-logic',
     activityFromEvent: '@molecule/app-ide-panel-logic',
     activityIconName: '@molecule/app-ide-panel-logic',
@@ -138,16 +157,21 @@ export const ideFeature: FeatureCases = {
     activityStatusLabel: '@molecule/app-ide-panel-logic',
     activitySummaryLine: '@molecule/app-ide-panel-logic',
     activityTypeLabel: '@molecule/app-ide-panel-logic',
+    allowanceResetCountdown: '@molecule/app-ide-panel-logic',
+    APP_VERSION: '@molecule/app-ide-panel-logic',
     applyTestRunEvent: '@molecule/app-ide-panel-logic',
     AUTO_COMMIT_COUNTDOWN_VISIBLE_SECONDS: '@molecule/app-ide-panel-logic',
     AUTO_COMMIT_DISABLED: '@molecule/app-ide-panel-logic',
+    AUTO_SENT_ACCENT: '@molecule/app-ide-panel-logic',
     autoCommitReducer: '@molecule/app-ide-panel-logic',
     buildReportPayload: '@molecule/app-ide-panel-logic',
     buildSharePayload: '@molecule/app-ide-panel-logic',
     buildShareUrl: '@molecule/app-ide-panel-logic',
     buildTestFixMessage: '@molecule/app-ide-panel-logic',
     canSkipRun: '@molecule/app-ide-panel-logic',
+    CHAT_CARD_CODE_STYLE: '@molecule/app-ide-panel-logic',
     CHAT_CARD_ICON_SIZE: '@molecule/app-ide-panel-logic',
+    CHAT_CARD_LINK_STYLE: '@molecule/app-ide-panel-logic',
     CHAT_CARD_NEUTRAL_ACCENT: '@molecule/app-ide-panel-logic',
     CHAT_TIMESTAMPS_EVENT: '@molecule/app-ide-panel-logic',
     CHAT_TIMESTAMPS_STORAGE_KEY: '@molecule/app-ide-panel-logic',
@@ -174,6 +198,7 @@ export const ideFeature: FeatureCases = {
     EMPTY_RUN_STATE: '@molecule/app-ide-panel-logic',
     failedTests: '@molecule/app-ide-panel-logic',
     failRun: '@molecule/app-ide-panel-logic',
+    fileToBase64: '@molecule/app-ide-panel-logic',
     filterActivitiesByType: '@molecule/app-ide-panel-logic',
     filterTests: '@molecule/app-ide-panel-logic',
     findKeyboardShortcut: '@molecule/app-ide-panel-logic',
@@ -181,6 +206,8 @@ export const ideFeature: FeatureCases = {
     formatChatFullTime: '@molecule/app-ide-panel-logic',
     formatChatRelativeTime: '@molecule/app-ide-panel-logic',
     formatReportConfirmation: '@molecule/app-ide-panel-logic',
+    formatSize: '@molecule/app-ide-panel-logic',
+    formatThinkingDuration: '@molecule/app-ide-panel-logic',
     getChatTimestampsVisible: '@molecule/app-ide-panel-logic',
     getCustomEventCardFactory: '@molecule/app-ide-panel-logic',
     groupCommandsByCategory: '@molecule/app-ide-panel-logic',
@@ -200,8 +227,10 @@ export const ideFeature: FeatureCases = {
     isShareRole: '@molecule/app-ide-panel-logic',
     isShortcutBlockedByFocus: '@molecule/app-ide-panel-logic',
     livePanelSize: '@molecule/app-ide-panel-logic',
+    LOAD_EARLIER_THRESHOLD_PX: '@molecule/app-ide-panel-logic',
     markSkipUnavailable: '@molecule/app-ide-panel-logic',
     matchesSideChannelCommand: '@molecule/app-ide-panel-logic',
+    MAX_ATTACHMENT_SIZE: '@molecule/app-ide-panel-logic',
     MAX_AVATAR_SRC_LENGTH: '@molecule/app-ide-panel-logic',
     MAX_FIX_MESSAGE_OUTPUT_CHARS: '@molecule/app-ide-panel-logic',
     MAX_FIX_OUTPUT_CHARS: '@molecule/app-ide-panel-logic',
@@ -210,6 +239,9 @@ export const ideFeature: FeatureCases = {
     MIN_PANEL_PERCENT: '@molecule/app-ide-panel-logic',
     NARROW_VIEWPORT_QUERY: '@molecule/app-ide-panel-logic',
     normalizeKeys: '@molecule/app-ide-panel-logic',
+    NOTICE_TONE: '@molecule/app-ide-panel-logic',
+    NOTICE_TONE_BUTTON_COLOR: '@molecule/app-ide-panel-logic',
+    panelOverlayHeading: '@molecule/app-ide-panel-logic',
     parseAutoCommitCommand: '@molecule/app-ide-panel-logic',
     parseChatTimestampsVisible: '@molecule/app-ide-panel-logic',
     parseReportCommand: '@molecule/app-ide-panel-logic',
@@ -218,6 +250,7 @@ export const ideFeature: FeatureCases = {
     parseTimestampsCommand: '@molecule/app-ide-panel-logic',
     planChatTimestamps: '@molecule/app-ide-panel-logic',
     registerCustomEventCard: '@molecule/app-ide-panel-logic',
+    relativeTime: '@molecule/app-ide-panel-logic',
     requestSkip: '@molecule/app-ide-panel-logic',
     resolveAutoCommitSeconds: '@molecule/app-ide-panel-logic',
     resolveChatLocale: '@molecule/app-ide-panel-logic',
@@ -233,9 +266,14 @@ export const ideFeature: FeatureCases = {
     shareGrantsText: '@molecule/app-ide-panel-logic',
     shareRoleLabel: '@molecule/app-ide-panel-logic',
     shareSubheading: '@molecule/app-ide-panel-logic',
+    streamingActivityLabel: '@molecule/app-ide-panel-logic',
     summarizeResults: '@molecule/app-ide-panel-logic',
     testCaseLabel: '@molecule/app-ide-panel-logic',
     testRowLabel: '@molecule/app-ide-panel-logic',
     TestRunProjection: '@molecule/app-ide-panel-logic',
+    TIMELINE_ITEM_GAP: '@molecule/app-ide-panel-logic',
+    TIMELINE_ITEM_GAP_DISCOVERY: '@molecule/app-ide-panel-logic',
+    USER_ACCENT_STYLE: '@molecule/app-ide-panel-logic',
+    USER_MSG_COLLAPSE_HEIGHT: '@molecule/app-ide-panel-logic',
   },
 }

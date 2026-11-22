@@ -5,7 +5,7 @@
  */
 
 import type { JSX } from 'react'
-import { Children, Fragment, isValidElement, useCallback } from 'react'
+import { Children, Fragment, isValidElement, useCallback, useMemo } from 'react'
 
 import { clampPanelSize, livePanelSize } from '@molecule/app-ide-panel-logic'
 import { useWorkspace } from '@molecule/app-react'
@@ -32,8 +32,13 @@ export function WorkspaceLayout({ children, className }: WorkspaceLayoutProps): 
   // layout declares 3 panels (chat/editor/preview), but a host commonly renders
   // only 2 (chat + a combined main pane). Feeding 2 children against 3 configs
   // made the divider start at the wrong split and lag the cursor, so take
-  // exactly one config per rendered child (in order).
-  const panelConfigs = layout.panels.filter((p) => p.visible !== false).slice(0, panels.length)
+  // exactly one config per rendered child (in order). Memoized on the layout's
+  // own panel list: `Children.toArray` hands back a fresh array every render,
+  // and a fresh config array would rebuild `handleResize` on every render too.
+  const panelConfigs = useMemo(
+    () => layout.panels.filter((p) => p.visible !== false).slice(0, panels.length),
+    [layout.panels, panels.length],
+  )
 
   const handleResize = useCallback(
     (index: number, delta: number) => {

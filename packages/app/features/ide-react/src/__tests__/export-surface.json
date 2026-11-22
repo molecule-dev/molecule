@@ -1,11 +1,16 @@
 {
   ".": {
     "values": [
+      "ACCEPTED_FILE_TYPES",
       "ACTIVITY_TYPES",
+      "APP_VERSION",
       "AUTO_COMMIT_COUNTDOWN_VISIBLE_SECONDS",
       "AUTO_COMMIT_DISABLED",
+      "AUTO_SENT_ACCENT",
       "ActivityCard",
+      "CHAT_CARD_CODE_STYLE",
       "CHAT_CARD_ICON_SIZE",
+      "CHAT_CARD_LINK_STYLE",
       "CHAT_CARD_NEUTRAL_ACCENT",
       "CHAT_TIMESTAMPS_EVENT",
       "CHAT_TIMESTAMPS_STORAGE_KEY",
@@ -29,6 +34,8 @@
       "IS_MAC",
       "Icon",
       "KeyboardShortcutsPanel",
+      "LOAD_EARLIER_THRESHOLD_PX",
+      "MAX_ATTACHMENT_SIZE",
       "MAX_AVATAR_SRC_LENGTH",
       "MAX_FIX_MESSAGE_OUTPUT_CHARS",
       "MAX_FIX_OUTPUT_CHARS",
@@ -36,6 +43,8 @@
       "MAX_PANEL_PERCENT",
       "MIN_PANEL_PERCENT",
       "NARROW_VIEWPORT_QUERY",
+      "NOTICE_TONE",
+      "NOTICE_TONE_BUTTON_COLOR",
       "PreviewPanel",
       "QuickOpen",
       "QuickPicker",
@@ -48,10 +57,14 @@
       "ShareLinkManager",
       "ShareModal",
       "SidebarTabs",
+      "TIMELINE_ITEM_GAP",
+      "TIMELINE_ITEM_GAP_DISCOVERY",
       "TabBar",
       "TestRunProjection",
       "TestsCard",
       "ToolCallCard",
+      "USER_ACCENT_STYLE",
+      "USER_MSG_COLLAPSE_HEIGHT",
       "UserAvatar",
       "WorkspaceLayout",
       "activityFromEvent",
@@ -60,6 +73,7 @@
       "activityStatusLabel",
       "activitySummaryLine",
       "activityTypeLabel",
+      "allowanceResetCountdown",
       "applyTestRunEvent",
       "autoCommitReducer",
       "buildReportPayload",
@@ -79,6 +93,7 @@
       "deviceIconName",
       "failRun",
       "failedTests",
+      "fileToBase64",
       "filterActivitiesByType",
       "filterTests",
       "findKeyboardShortcut",
@@ -86,6 +101,8 @@
       "formatChatFullTime",
       "formatChatRelativeTime",
       "formatReportConfirmation",
+      "formatSize",
+      "formatThinkingDuration",
       "getChatTimestampsVisible",
       "getCustomEventCardFactory",
       "groupCommandsByCategory",
@@ -107,6 +124,7 @@
       "markSkipUnavailable",
       "matchesSideChannelCommand",
       "normalizeKeys",
+      "panelOverlayHeading",
       "parseAutoCommitCommand",
       "parseChatTimestampsVisible",
       "parseReportCommand",
@@ -115,6 +133,7 @@
       "parseTimestampsCommand",
       "planChatTimestamps",
       "registerCustomEventCard",
+      "relativeTime",
       "requestSkip",
       "resolveAutoCommitSeconds",
       "resolveChatLocale",
@@ -127,6 +146,7 @@
       "shareGrantsText",
       "shareRoleLabel",
       "shareSubheading",
+      "streamingActivityLabel",
       "summarizeResults",
       "testCaseLabel",
       "testRowLabel",
@@ -144,6 +164,8 @@
       "ActivityType",
       "AutoCommitAction",
       "AutoCommitState",
+      "ChatCardCodeStyle",
+      "ChatCardLinkStyle",
       "ChatCardStyle",
       "ChatEventCard",
       "ChatEventCardAction",
@@ -246,14 +268,7 @@
     ]
   },
   "./settings-metadata": {
-    "values": [
-      "SETTINGS",
-      "settingDescription",
-      "settingLabel"
-    ],
-    "types": [
-      "SettingKey",
-      "SettingMeta"
-    ]
+    "values": ["SETTINGS", "settingDescription", "settingLabel"],
+    "types": ["SettingKey", "SettingMeta"]
   }
 }

@@ -214,6 +214,18 @@ export const contextUsageIndicatorCases: FeatureComponentCases = {
         { type: 'blur', selector: '[data-mol-id="chat-context-usage"]' },
       ],
     },
+    {
+      // A Tab press on the page, then focus on the trigger: keyboard focus, which a browser draws
+      // as focus-visible, so the preview opens; blur closes it.
+      name: 'keyboard focus reveals the preview, and blur hides it',
+      props: { usage: USAGE, projectId: 'p1' },
+      context: { http: [{ ...P1_ALL, ...sessionOk }] },
+      interactions: [
+        { type: 'keydown', selector: 'body', key: 'Tab' },
+        { type: 'focus', selector: '[data-mol-id="chat-context-usage"]' },
+        { type: 'blur', selector: '[data-mol-id="chat-context-usage"]' },
+      ],
+    },
 
     // ── The details modal ───────────────────────────────────────────────────
     {

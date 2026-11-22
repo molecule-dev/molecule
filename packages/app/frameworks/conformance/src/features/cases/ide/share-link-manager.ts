@@ -4,20 +4,18 @@
  * The component reflects a project's CURRENT public-link state: it lists the
  * project's links on mount, shows an existing link as a click-to-copy field
  * with a Revoke control, and offers Create (at the roles the host grants) only
- * when none exists. Every branch the kit can drive is exercised here: the
- * loading state, both list response shapes, create (pending, success), revoke
- * (pending, success), a link keyed by id vs. slug, backend-supplied URLs,
- * revoked links being hidden, the three permission gates (`canManage`,
- * `canCreate`, `canRevoke`), the role picker (offered, fallback, empty), a
- * refresh signal, light theme, a narrow viewport, a coarse pointer and a
- * locale switch.
+ * when none exists. Every branch is exercised here: the loading state, both
+ * list response shapes, a failed listing (falling back to the create offer),
+ * create (pending, success, failure), revoke (pending, success, failure), a
+ * link keyed by id vs. slug, backend-supplied URLs, revoked links being hidden,
+ * the three permission gates (`canManage`, `canCreate`, `canRevoke`), the role
+ * picker (offered, fallback, empty), a refresh signal, light theme, a narrow
+ * viewport, a coarse pointer and a locale switch.
  *
- * One branch cannot be driven through the kit in jsdom, so each framework's
- * unit tests cover it instead (exactly where React's own suite does):
- *
- * - The failure messages: React logs them through a module-scope `getLogger`,
- *   whose console provider is resolved at import time (before the kit bonds its
- *   recording logger), so the recorder refuses those cases as React warnings.
+ * The failure cases record cleanly: the component logs each failure through a
+ * module-scope `getLogger`, and `@molecule/app-logger`'s loggers resolve the
+ * provider bonded when they log, so the kit's recording logger receives each
+ * one and records it as a `logger.warn` call — no console warning reaches React.
  *
  * The clipboard needs no branch: a copy click copies through
  * `copyTextWithFallback()` (`@molecule/app-clipboard`), which in jsdom (no
@@ -75,6 +73,22 @@ export const shareLinkManagerCases: FeatureComponentCases = {
       ],
     },
     {
+      name: 'a failed create shows the error message',
+      props: { projectId: 'p1' },
+      callbacks: ['onCreated'],
+      context: {
+        http: [
+          { method: 'GET', url: '/projects/p1/shares', data: [] },
+          {
+            method: 'POST',
+            url: '/projects/p1/shares',
+            networkError: 'the network is unreachable',
+          },
+        ],
+      },
+      interactions: [{ type: 'click', selector: '[data-mol-id="share-create"]' }],
+    },
+    {
       name: 'an existing link in the data envelope',
       props: { projectId: 'p1' },
       context: { http: [{ method: 'GET', url: '/projects/p1/shares', data: { data: [LINK] } }] },
@@ -106,6 +120,13 @@ export const shareLinkManagerCases: FeatureComponentCases = {
       },
     },
     {
+      name: 'a failed listing falls back to the create offer',
+      props: { projectId: 'p1' },
+      context: {
+        http: [{ method: 'GET', url: '/projects/p1/shares', status: 500, data: { error: 'no' } }],
+      },
+    },
+    {
       name: 'revoking a link',
       props: { projectId: 'p1' },
       callbacks: ['onRevoked'],
@@ -119,6 +140,18 @@ export const shareLinkManagerCases: FeatureComponentCases = {
         { type: 'click', selector: '[data-mol-id="share-link-revoke-l1"]' },
         { type: 'http', method: 'DELETE', url: '/projects/p1/shares/l1', data: {} },
       ],
+    },
+    {
+      name: 'a failed revoke keeps the link and shows the error message',
+      props: { projectId: 'p1' },
+      callbacks: ['onRevoked'],
+      context: {
+        http: [
+          { method: 'GET', url: '/projects/p1/shares', data: [LINK] },
+          { method: 'DELETE', url: '/projects/p1/shares/l1', status: 500, data: { error: 'no' } },
+        ],
+      },
+      interactions: [{ type: 'click', selector: '[data-mol-id="share-link-revoke-l1"]' }],
     },
     {
       name: 'a read-only caller still sees and copies an existing link',

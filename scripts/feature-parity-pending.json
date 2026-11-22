@@ -1,8 +1,1 @@
-{
-  "@molecule/app-ide-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ]
-}
+{}

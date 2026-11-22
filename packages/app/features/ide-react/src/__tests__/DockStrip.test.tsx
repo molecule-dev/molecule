@@ -15,7 +15,7 @@
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { setClassMap } from '@molecule/app-ui'
+import { getClassMap, setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
 
 import { DockStrip } from '../components/DockStrip.js'
@@ -95,5 +95,33 @@ describe('DockStrip disclosure control (axe nested-interactive)', () => {
     const toggle = container.querySelector('[data-mol-id="files-toggle"]') as HTMLElement
     expect(toggle.getAttribute('aria-label')).toBe('Uncommitted files')
     expect(toggle.getAttribute('aria-labelledby')).toBeNull()
+  })
+
+  it('names a hidden-label strip whose label is a node by that node’s hidden text', () => {
+    // A node label cannot become aria-label (only a string can), and the node
+    // itself is not rendered while `hideLabel` is set — so without help the
+    // toggle has no name at all. Its text now renders inside the toggle in a
+    // visually hidden wrapper (axe `button-name`).
+    const { container } = render(
+      <DockStrip
+        molId="files"
+        toggleMolId="files-toggle"
+        expanded={false}
+        onToggle={vi.fn()}
+        label={
+          <span data-mol-id="label-node">
+            3 <em>changed</em> files
+          </span>
+        }
+        hideLabel
+      />,
+    )
+    const toggle = container.querySelector('[data-mol-id="files-toggle"]') as HTMLElement
+    expect(toggle.getAttribute('aria-label')).toBeNull()
+    expect(toggle.getAttribute('aria-labelledby')).toBeNull()
+    // The node renders inside the toggle, visually hidden, naming it by content.
+    const hidden = toggle.querySelector(`.${getClassMap().srOnly}`)
+    expect(hidden).not.toBeNull()
+    expect(hidden?.textContent).toBe('3 changed files')
   })
 })

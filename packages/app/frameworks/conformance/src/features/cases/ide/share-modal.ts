@@ -9,16 +9,11 @@
  * not), an empty `roles` list, the three permission gates (`canManage`,
  * `canCreate`, `canRevoke`) forwarded to the manager, `showLinks: false`, host
  * children, a bumped `refreshSignal`, creating a link through the manager
- * (`onCreated`), the loading and creating states, and closing through each of
- * the three paths.
- *
- * Two branches cannot be driven through the kit in jsdom, exactly as with
- * {@link ShareLinkManager}'s own cases:
- *
- * - The failure messages: React logs them through a module-scope `getLogger`,
- *   whose console provider is resolved at import time (before the kit bonds its
- *   recording logger), so the recorder refuses those cases as React warnings.
- * - The clipboard: jsdom has no `navigator.clipboard`.
+ * (`onCreated`), the loading and creating states, the manager's three failure
+ * branches (a failed list falls back to offering create; a failed create and a
+ * failed revoke each show their retry message — every failure logs a warning,
+ * which the recording logger captures as a `logger.warn` call in the case's
+ * calls), and closing through each of the three paths.
  *
  * @module
  */
@@ -82,6 +77,46 @@ export const shareModalCases: FeatureComponentCases = {
         { type: 'click', selector: '[data-mol-id="share-create"]' },
         { type: 'http', method: 'POST', url: '/projects/p1/shares', data: LINK },
       ],
+    },
+
+    // ── The failure branches (each logs a warning the recording logger captures) ──
+    {
+      name: 'a failed list falls back to offering create',
+      props: { projectId: 'p1' },
+      callbacks: ['onClose', 'onCreated'],
+      context: {
+        http: [
+          {
+            method: 'GET',
+            url: '/projects/p1/shares',
+            networkError: 'the sandbox is unreachable',
+          },
+        ],
+      },
+    },
+    {
+      name: 'a failed create says so and offers create again',
+      props: { projectId: 'p1' },
+      callbacks: ['onClose', 'onCreated'],
+      context: {
+        http: [
+          { method: 'GET', url: '/projects/p1/shares', data: [] },
+          { method: 'POST', url: '/projects/p1/shares', status: 500 },
+        ],
+      },
+      interactions: [{ type: 'click', selector: '[data-mol-id="share-create"]' }],
+    },
+    {
+      name: 'a failed revoke says so and keeps the link',
+      props: { projectId: 'p1' },
+      callbacks: ['onClose', 'onCreated'],
+      context: {
+        http: [
+          { method: 'GET', url: '/projects/p1/shares', data: [LINK] },
+          { method: 'DELETE', url: '/projects/p1/shares/l1', status: 500 },
+        ],
+      },
+      interactions: [{ type: 'click', selector: '[data-mol-id="share-link-revoke-l1"]' }],
     },
 
     // ── Roles ───────────────────────────────────────────────────────────────

@@ -255,4 +255,21 @@ describe('SettingsCard (SYN11 — complete settings view, single source of truth
     expect(container.textContent).toContain('Fable')
     expect(container.textContent).not.toContain('{{agentName}}')
   })
+
+  it('marks every command syntax translate=no (it is code, not words)', () => {
+    const { container } = render(
+      <Wrap>
+        <SettingsCard settings={buildSettingsList(SAMPLE_VALUES)} onRunCommand={vi.fn()} isLight />
+      </Wrap>,
+    )
+    const syntax = Array.from(
+      container.querySelectorAll('[data-mol-id^="settings-command-"] > code'),
+    ) as HTMLElement[]
+    expect(syntax.length).toBeGreaterThan(0)
+    for (const code of syntax) {
+      // The command's argument syntax (`/model [name | --plan ...]`) is never
+      // translated — a locale switch leaves it exactly as typed.
+      expect(code.getAttribute('translate')).toBe('no')
+    }
+  })
 })

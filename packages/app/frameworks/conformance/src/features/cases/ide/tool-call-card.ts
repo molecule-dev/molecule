@@ -1,7 +1,8 @@
 /**
  * `ToolCallCard` cases: one tool call of the chat transcript, in every shape
  * the card renders — the compact row and its status dot, the expandable IN/OUT
- * pane of a command or a fetch, the file-change diffs and their undo, the
+ * pane of a command or a fetch, the file-change diffs and their undo (and a
+ * revert the host rejects, which the card logs), the
  * `spawn_agent` subagent card, the `save_plan` row, the `ask_user` question with
  * its options, previews and free text, and the Skip control.
  *
@@ -16,7 +17,12 @@
 
 import type { FeatureComponentCases } from '../../spec.js'
 
-/** The row an expanded card click reaches: the row itself is the first role="button". */
+/**
+ * The row an expanded card click reaches: the row itself is the first
+ * role="button". The file-name open controls (`code button`) and the undo
+ * affordance are the row's SIBLINGS, not its children — a control cannot sit
+ * inside the row (axe `nested-interactive`).
+ */
 const ROW = '[role="button"]'
 
 /** `ToolCallCard`. */
@@ -409,6 +415,20 @@ export const toolCallCardCases: FeatureComponentCases = {
       callbacks: ['onFileRevert', 'onUndoToggle'],
       callbackResults: { onFileRevert: { resolve: undefined } },
       interactions: [{ type: 'click', selector: '[title="Re-apply this change"]' }],
+    },
+    {
+      name: 'a revert the host rejects is logged and leaves the change as it was',
+      props: {
+        id: 'f9',
+        name: 'edit_file',
+        input: { path: 'src/a.ts', replacements: [{ old_string: 'a', new_string: 'b' }] },
+        output: { replacementsApplied: 1 },
+        status: 'done',
+        fileDiff: { original: 'a\n', modified: 'b\n' },
+      },
+      callbacks: ['onFileRevert', 'onUndoToggle'],
+      callbackResults: { onFileRevert: { reject: 'the file is read-only' } },
+      interactions: [{ type: 'click', selector: '[title="Undo this change"]' }],
     },
     {
       name: 'a malformed edit still reports the applied count',

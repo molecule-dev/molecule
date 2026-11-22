@@ -339,10 +339,15 @@ export function DockStrip({
           onClick={onActivate ?? onToggle}
           /* mol-bespoke-button: the whole row is the disclosure's hit area, not
              a CTA — an empty, transparent button over the row; the inline
-             background/border/padding are native resets. */
+             background/border/padding are native resets. A `hideLabel` toggle
+             whose label is a NODE (not a string) has no text to name it, so
+             the node renders inside in a visually hidden wrapper — its text
+             names the button without changing the row's pixels. */
           className={cm.cn(cm.position('absolute'), cm.inset0, cm.cursorPointer)}
           style={{ background: 'transparent', border: 'none', padding: 0 }}
-        />
+        >
+          {hideLabel && typeof label !== 'string' && <span className={cm.srOnly}>{label}</span>}
+        </button>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}>
           {!onActivate && (
             <svg

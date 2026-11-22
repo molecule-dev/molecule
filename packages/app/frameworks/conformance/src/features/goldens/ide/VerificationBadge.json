@@ -1,0 +1,228 @@
+{
+ "a passing check shows the green mark and its label": {
+  "snapshots": [
+   "<div class=\"ce823b5bf\" style=\"align-items: baseline; display: flex; font-size: 13px; gap: 6px; padding: 3px 0px\">\n<svg height=\"10\" style=\"align-self: center; flex-shrink: 0; position: relative; top: -1px\" viewbox=\"0 0 10 10\" width=\"10\">\n<path d=\"M2 5.5 L4.2 7.8 L8 3\" fill=\"none\" stroke=\"#3fb950\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\">\n</path>\n</svg>\n<span>\nChecks passed\n</span>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "a passing check can note that the render check was unavailable": {
+  "snapshots": [
+   "<div class=\"ce823b5bf\" style=\"align-items: baseline; display: flex; font-size: 13px; gap: 6px; padding: 3px 0px\">\n<svg height=\"10\" style=\"align-self: center; flex-shrink: 0; position: relative; top: -1px\" viewbox=\"0 0 10 10\" width=\"10\">\n<path d=\"M2 5.5 L4.2 7.8 L8 3\" fill=\"none\" stroke=\"#3fb950\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\">\n</path>\n</svg>\n<span>\nChecks passed\n<span class=\"cfcd5569b\" data-mol-id=\"render-check-unavailable\">\n· Render check unavailable\n</span>\n</span>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "a failure with no categories falls back to the generic label": {
+  "snapshots": [
+   "<div style=\"background: rgba(248, 81, 73, 0.06); border-radius: 6px; border: 1px solid rgba(248, 81, 73, 0.3); margin: 4px 0px; overflow: hidden\">\n<button class=\"c4647f690 cbf033fe8\" style=\"align-items: center; background: transparent; border: medium; color: rgb(248, 81, 73); cursor: pointer; display: flex; gap: 6px; padding: 5px 8px; text-align: left\" type=\"button\">\n<span style=\"flex: 1 1 0%\">\nErrors found\n</span>\n<svg height=\"12\" style=\"flex-shrink: 0; opacity: 0.6; transform: rotate(0deg); transition: transform 150ms\" viewbox=\"0 0 16 16\" width=\"12\" xmlns=\"http://www.w3.org/2000/svg\">\n<polyline fill=\"none\" points=\"4,6 8,10 12,6\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\">\n</polyline>\n</svg>\n</button>\n</div>\n@route /",
+   "<div style=\"background: rgba(248, 81, 73, 0.06); border-radius: 6px; border: 1px solid rgba(248, 81, 73, 0.3); margin: 4px 0px; overflow: hidden\">\n<button class=\"c4647f690 cbf033fe8\" style=\"align-items: center; background: transparent; border: medium; color: rgb(248, 81, 73); cursor: pointer; display: flex; gap: 6px; padding: 5px 8px; text-align: left\" type=\"button\">\n<span style=\"flex: 1 1 0%\">\nErrors found\n</span>\n<svg height=\"12\" style=\"flex-shrink: 0; opacity: 0.6; transform: rotate(180deg); transition: transform 150ms\" viewbox=\"0 0 16 16\" width=\"12\" xmlns=\"http://www.w3.org/2000/svg\">\n<polyline fill=\"none\" points=\"4,6 8,10 12,6\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\">\n</polyline>\n</svg>\n</button>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "a single type error uses the singular count": {
+  "snapshots": [
+   "<div style=\"background: rgba(248, 81, 73, 0.06); border-radius: 6px; border: 1px solid rgba(248, 81, 73, 0.3); margin: 4px 0px; overflow: hidden\">\n<button class=\"c4647f690 cbf033fe8\" style=\"align-items: center; background: transparent; border: medium; color: rgb(248, 81, 73); cursor: pointer; display: flex; gap: 6px; padding: 5px 8px; text-align: left\" type=\"button\">\n<span style=\"flex: 1 1 0%\">\n1 type error\n</span>\n<svg height=\"12\" style=\"flex-shrink: 0; opacity: 0.6; transform: rotate(0deg); transition: transform 150ms\" viewbox=\"0 0 16 16\" width=\"12\" xmlns=\"http://www.w3.org/2000/svg\">\n<polyline fill=\"none\" points=\"4,6 8,10 12,6\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\">\n</polyline>\n</svg>\n</button>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "several type errors use the plural count": {
+  "snapshots": [
+   "<div style=\"background: rgba(248, 81, 73, 0.06); border-radius: 6px; border: 1px solid rgba(248, 81, 73, 0.3); margin: 4px 0px; overflow: hidden\">\n<button class=\"c4647f690 cbf033fe8\" style=\"align-items: center; background: transparent; border: medium; color: rgb(248, 81, 73); cursor: pointer; display: flex; gap: 6px; padding: 5px 8px; text-align: left\" type=\"button\">\n<span style=\"flex: 1 1 0%\">\n3 type errors\n</span>\n<svg height=\"12\" style=\"flex-shrink: 0; opacity: 0.6; transform: rotate(0deg); transition: transform 150ms\" viewbox=\"0 0 16 16\" width=\"12\" xmlns=\"http://www.w3.org/2000/svg\">\n<polyline fill=\"none\" points=\"4,6 8,10 12,6\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\">\n</polyline>\n</svg>\n</button>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "lint errors and warnings are both counted, and the card turns amber": {
+  "snapshots": [
+   "<div style=\"background: rgba(234, 179, 8, 0.06); border-radius: 6px; border: 1px solid rgba(234, 179, 8, 0.4); margin: 4px 0px; overflow: hidden\">\n<button class=\"c4647f690 cbf033fe8\" style=\"align-items: center; background: transparent; border: medium; color: rgb(212, 160, 23); cursor: pointer; display: flex; gap: 6px; padding: 5px 8px; text-align: left\" type=\"button\">\n<span style=\"flex: 1 1 0%\">\n2 lint errors, 1 warning\n</span>\n<svg height=\"12\" style=\"flex-shrink: 0; opacity: 0.6; transform: rotate(0deg); transition: transform 150ms\" viewbox=\"0 0 16 16\" width=\"12\" xmlns=\"http://www.w3.org/2000/svg\">\n<polyline fill=\"none\" points=\"4,6 8,10 12,6\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\">\n</polyline>\n</svg>\n</button>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "a runtime failure names runtime errors": {
+  "snapshots": [
+   "<div style=\"background: rgba(248, 81, 73, 0.06); border-radius: 6px; border: 1px solid rgba(248, 81, 73, 0.3); margin: 4px 0px; overflow: hidden\">\n<button class=\"c4647f690 cbf033fe8\" style=\"align-items: center; background: transparent; border: medium; color: rgb(248, 81, 73); cursor: pointer; display: flex; gap: 6px; padding: 5px 8px; text-align: left\" type=\"button\">\n<span style=\"flex: 1 1 0%\">\nRuntime errors\n</span>\n<svg height=\"12\" style=\"flex-shrink: 0; opacity: 0.6; transform: rotate(0deg); transition: transform 150ms\" viewbox=\"0 0 16 16\" width=\"12\" xmlns=\"http://www.w3.org/2000/svg\">\n<polyline fill=\"none\" points=\"4,6 8,10 12,6\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\">\n</polyline>\n</svg>\n</button>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "several categories join their labels": {
+  "snapshots": [
+   "<div style=\"background: rgba(248, 81, 73, 0.06); border-radius: 6px; border: 1px solid rgba(248, 81, 73, 0.3); margin: 4px 0px; overflow: hidden\">\n<button class=\"c4647f690 cbf033fe8\" style=\"align-items: center; background: transparent; border: medium; color: rgb(248, 81, 73); cursor: pointer; display: flex; gap: 6px; padding: 5px 8px; text-align: left\" type=\"button\">\n<span style=\"flex: 1 1 0%\">\n2 type errors, 1 lint error, Runtime errors\n</span>\n<svg height=\"12\" style=\"flex-shrink: 0; opacity: 0.6; transform: rotate(0deg); transition: transform 150ms\" viewbox=\"0 0 16 16\" width=\"12\" xmlns=\"http://www.w3.org/2000/svg\">\n<polyline fill=\"none\" points=\"4,6 8,10 12,6\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\">\n</polyline>\n</svg>\n</button>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "an error with output expands to show it and collapses again": {
+  "snapshots": [
+   "<div style=\"background: rgba(248, 81, 73, 0.06); border-radius: 6px; border: 1px solid rgba(248, 81, 73, 0.3); margin: 4px 0px; overflow: hidden\">\n<button class=\"c4647f690 cbf033fe8\" style=\"align-items: center; background: transparent; border: medium; color: rgb(248, 81, 73); cursor: pointer; display: flex; gap: 6px; padding: 5px 8px; text-align: left\" type=\"button\">\n<span style=\"flex: 1 1 0%\">\n1 type error\n</span>\n<svg height=\"12\" style=\"flex-shrink: 0; opacity: 0.6; transform: rotate(0deg); transition: transform 150ms\" viewbox=\"0 0 16 16\" width=\"12\" xmlns=\"http://www.w3.org/2000/svg\">\n<polyline fill=\"none\" points=\"4,6 8,10 12,6\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\">\n</polyline>\n</svg>\n</button>\n</div>\n@route /",
+   "<div style=\"background: rgba(248, 81, 73, 0.06); border-radius: 6px; border: 1px solid rgba(248, 81, 73, 0.3); margin: 4px 0px; overflow: hidden\">\n<button class=\"c4647f690 cbf033fe8\" style=\"align-items: center; background: transparent; border: medium; color: rgb(248, 81, 73); cursor: pointer; display: flex; gap: 6px; padding: 5px 8px; text-align: left\" type=\"button\">\n<span style=\"flex: 1 1 0%\">\n1 type error\n</span>\n<svg height=\"12\" style=\"flex-shrink: 0; opacity: 0.6; transform: rotate(180deg); transition: transform 150ms\" viewbox=\"0 0 16 16\" width=\"12\" xmlns=\"http://www.w3.org/2000/svg\">\n<polyline fill=\"none\" points=\"4,6 8,10 12,6\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\">\n</polyline>\n</svg>\n</button>\n<pre class=\"c4647f690\" style=\"border-top: 1px solid rgba(248, 81, 73, 0.3); color: inherit; font-family: var(--mol-font-mono, monospace); margin: 0px; max-height: 200px; opacity: 0.85; overflow: auto; padding: 6px 8px; white-space: pre-wrap; word-break: break-word\">\nsrc/file0.ts(1,1): error TS2322: Type 'string' is not assignable.\n</pre>\n</div>\n@route /",
+   "<div style=\"background: rgba(248, 81, 73, 0.06); border-radius: 6px; border: 1px solid rgba(248, 81, 73, 0.3); margin: 4px 0px; overflow: hidden\">\n<button class=\"c4647f690 cbf033fe8\" style=\"align-items: center; background: transparent; border: medium; color: rgb(248, 81, 73); cursor: pointer; display: flex; gap: 6px; padding: 5px 8px; text-align: left\" type=\"button\">\n<span style=\"flex: 1 1 0%\">\n1 type error\n</span>\n<svg height=\"12\" style=\"flex-shrink: 0; opacity: 0.6; transform: rotate(0deg); transition: transform 150ms\" viewbox=\"0 0 16 16\" width=\"12\" xmlns=\"http://www.w3.org/2000/svg\">\n<polyline fill=\"none\" points=\"4,6 8,10 12,6\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\">\n</polyline>\n</svg>\n</button>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "an error with no output expands without a body": {
+  "snapshots": [
+   "<div style=\"background: rgba(234, 179, 8, 0.06); border-radius: 6px; border: 1px solid rgba(234, 179, 8, 0.4); margin: 4px 0px; overflow: hidden\">\n<button class=\"c4647f690 cbf033fe8\" style=\"align-items: center; background: transparent; border: medium; color: rgb(212, 160, 23); cursor: pointer; display: flex; gap: 6px; padding: 5px 8px; text-align: left\" type=\"button\">\n<span style=\"flex: 1 1 0%\">\n1 lint error\n</span>\n<svg height=\"12\" style=\"flex-shrink: 0; opacity: 0.6; transform: rotate(0deg); transition: transform 150ms\" viewbox=\"0 0 16 16\" width=\"12\" xmlns=\"http://www.w3.org/2000/svg\">\n<polyline fill=\"none\" points=\"4,6 8,10 12,6\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\">\n</polyline>\n</svg>\n</button>\n</div>\n@route /",
+   "<div style=\"background: rgba(234, 179, 8, 0.06); border-radius: 6px; border: 1px solid rgba(234, 179, 8, 0.4); margin: 4px 0px; overflow: hidden\">\n<button class=\"c4647f690 cbf033fe8\" style=\"align-items: center; background: transparent; border: medium; color: rgb(212, 160, 23); cursor: pointer; display: flex; gap: 6px; padding: 5px 8px; text-align: left\" type=\"button\">\n<span style=\"flex: 1 1 0%\">\n1 lint error\n</span>\n<svg height=\"12\" style=\"flex-shrink: 0; opacity: 0.6; transform: rotate(180deg); transition: transform 150ms\" viewbox=\"0 0 16 16\" width=\"12\" xmlns=\"http://www.w3.org/2000/svg\">\n<polyline fill=\"none\" points=\"4,6 8,10 12,6\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\">\n</polyline>\n</svg>\n</button>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "a locale switch re-labels the passing badge and its render note": {
+  "snapshots": [
+   "<div class=\"ce823b5bf\" style=\"align-items: baseline; display: flex; font-size: 13px; gap: 6px; padding: 3px 0px\">\n<svg height=\"10\" style=\"align-self: center; flex-shrink: 0; position: relative; top: -1px\" viewbox=\"0 0 10 10\" width=\"10\">\n<path d=\"M2 5.5 L4.2 7.8 L8 3\" fill=\"none\" stroke=\"#3fb950\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\">\n</path>\n</svg>\n<span>\nChecks passed\n<span class=\"cfcd5569b\" data-mol-id=\"render-check-unavailable\">\n· Render check unavailable\n</span>\n</span>\n</div>\n@route /",
+   "<div class=\"ce823b5bf\" style=\"align-items: baseline; display: flex; font-size: 13px; gap: 6px; padding: 3px 0px\">\n<svg height=\"10\" style=\"align-self: center; flex-shrink: 0; position: relative; top: -1px\" viewbox=\"0 0 10 10\" width=\"10\">\n<path d=\"M2 5.5 L4.2 7.8 L8 3\" fill=\"none\" stroke=\"#3fb950\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\">\n</path>\n</svg>\n<span>\nVérifications réussies\n<span class=\"cfcd5569b\" data-mol-id=\"render-check-unavailable\">\n· Vérification du rendu indisponible\n</span>\n</span>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "fr"
+    ]
+   }
+  ]
+ },
+ "a locale switch re-labels the counts": {
+  "snapshots": [
+   "<div style=\"background: rgba(248, 81, 73, 0.06); border-radius: 6px; border: 1px solid rgba(248, 81, 73, 0.3); margin: 4px 0px; overflow: hidden\">\n<button class=\"c4647f690 cbf033fe8\" style=\"align-items: center; background: transparent; border: medium; color: rgb(248, 81, 73); cursor: pointer; display: flex; gap: 6px; padding: 5px 8px; text-align: left\" type=\"button\">\n<span style=\"flex: 1 1 0%\">\n2 type errors, 1 lint error, 1 warning\n</span>\n<svg height=\"12\" style=\"flex-shrink: 0; opacity: 0.6; transform: rotate(0deg); transition: transform 150ms\" viewbox=\"0 0 16 16\" width=\"12\" xmlns=\"http://www.w3.org/2000/svg\">\n<polyline fill=\"none\" points=\"4,6 8,10 12,6\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\">\n</polyline>\n</svg>\n</button>\n</div>\n@route /",
+   "<div style=\"background: rgba(248, 81, 73, 0.06); border-radius: 6px; border: 1px solid rgba(248, 81, 73, 0.3); margin: 4px 0px; overflow: hidden\">\n<button class=\"c4647f690 cbf033fe8\" style=\"align-items: center; background: transparent; border: medium; color: rgb(248, 81, 73); cursor: pointer; display: flex; gap: 6px; padding: 5px 8px; text-align: left\" type=\"button\">\n<span style=\"flex: 1 1 0%\">\n2 erreurs de type, 1 erreur de lint, 1 avertissement\n</span>\n<svg height=\"12\" style=\"flex-shrink: 0; opacity: 0.6; transform: rotate(0deg); transition: transform 150ms\" viewbox=\"0 0 16 16\" width=\"12\" xmlns=\"http://www.w3.org/2000/svg\">\n<polyline fill=\"none\" points=\"4,6 8,10 12,6\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\">\n</polyline>\n</svg>\n</button>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "fr"
+    ]
+   }
+  ]
+ },
+ "a passing check shows the green mark and its label, then a locale switch": {
+  "snapshots": [
+   "<div class=\"ce823b5bf\" style=\"align-items: baseline; display: flex; font-size: 13px; gap: 6px; padding: 3px 0px\">\n<svg height=\"10\" style=\"align-self: center; flex-shrink: 0; position: relative; top: -1px\" viewbox=\"0 0 10 10\" width=\"10\">\n<path d=\"M2 5.5 L4.2 7.8 L8 3\" fill=\"none\" stroke=\"#3fb950\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\">\n</path>\n</svg>\n<span>\nChecks passed\n</span>\n</div>\n@route /",
+   "<div class=\"ce823b5bf\" style=\"align-items: baseline; display: flex; font-size: 13px; gap: 6px; padding: 3px 0px\">\n<svg height=\"10\" style=\"align-self: center; flex-shrink: 0; position: relative; top: -1px\" viewbox=\"0 0 10 10\" width=\"10\">\n<path d=\"M2 5.5 L4.2 7.8 L8 3\" fill=\"none\" stroke=\"#3fb950\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\">\n</path>\n</svg>\n<span>\n⟦Checks passed⟧\n</span>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en-XA"
+    ]
+   }
+  ]
+ }
+}

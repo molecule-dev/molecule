@@ -5,8 +5,9 @@
  * the indented detail underneath, `onActivate` replacing the inline disclosure
  * with a direct open (no chevron, no `aria-expanded`, no detail, even when
  * `expanded` and `children` are given), the icon-only header (`hideLabel`:
- * the string label becomes the control's accessible name, a node label names
- * nothing), extra `rootProps` on the root, and the overlay disclosure button.
+ * the string label becomes the control's accessible name, a node label
+ * renders inside the toggle in a visually hidden wrapper so its text names
+ * it), extra `rootProps` on the root, and the overlay disclosure button.
  *
  * The row holds an `actions` slot, and a button may not contain controls (axe
  * `nested-interactive`), so the row is a plain container whose FIRST child is
@@ -96,7 +97,7 @@ export const dockStripCases: FeatureComponentCases = {
       interactions: [{ type: 'click', selector: '[data-mol-id="files-toggle"]' }],
     },
     {
-      name: 'a node label and a node hint render as nodes with no accessible name',
+      name: 'a hidden node label names the toggle through its hidden text',
       props: {
         molId: 'files-strip',
         toggleMolId: 'files-toggle',

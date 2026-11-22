@@ -13,7 +13,9 @@ import type { AppModelDefinition } from '@molecule/app-ai-models'
 import { COMMANDS } from '../components/chat-commands.js'
 import {
   effortLevelsForModel,
+  effortModeStatusLine,
   effortOptionsForModel,
+  effortPickerVisibleOptions,
   modelsSupportingEffort,
   nativeEffortName,
   parseEffortCommand,
@@ -192,6 +194,73 @@ describe('effortLevelsForModel', () => {
     expect(effortLevelsForModel(model({}))).toEqual([])
     expect(effortLevelsForModel(model({ supportedEffortLevels: [] }))).toEqual([])
     expect(effortLevelsForModel(undefined)).toEqual([])
+  })
+})
+
+describe('effortPickerVisibleOptions', () => {
+  const options = effortOptionsForModel(claudeLike)
+
+  it('lists every option when nothing is typed', () => {
+    expect(effortPickerVisibleOptions('/effort', options).map((o) => o.value)).toEqual([
+      'low',
+      'high',
+      'xhigh',
+      'max',
+    ])
+    expect(effortPickerVisibleOptions('', options)).toHaveLength(options.length)
+  })
+
+  it('narrows to options whose native value contains the typed text', () => {
+    expect(effortPickerVisibleOptions('/effort xh', options).map((o) => o.value)).toEqual(['xhigh'])
+    expect(effortPickerVisibleOptions('/effort H', options).map((o) => o.value)).toEqual([
+      'high',
+      'xhigh',
+    ])
+  })
+
+  it('uses the text after a mode flag as the filter', () => {
+    expect(effortPickerVisibleOptions('/effort --plan high', options).map((o) => o.value)).toEqual([
+      'high',
+      'xhigh',
+    ])
+  })
+
+  it('lists nothing when no option matches', () => {
+    expect(effortPickerVisibleOptions('/effort turbo', options)).toEqual([])
+  })
+})
+
+describe('effortModeStatusLine', () => {
+  /** Translator that interpolates the English default. */
+  const enT = ((
+    _key: string,
+    values?: Record<string, unknown>,
+    opts?: { defaultValue?: string },
+  ): string =>
+    (opts?.defaultValue ?? '').replace(/\{\{\s*(\w+)\s*\}\}/g, (_, k: string) =>
+      String(values?.[k] ?? `{{${k}}}`),
+    )) as Parameters<typeof effortModeStatusLine>[0]
+
+  it('says a fixed-reasoning model has nothing to tune', () => {
+    expect(effortModeStatusLine(enT, 'plan', fixedLike, 'high')).toBe(
+      '  plan (Model): fixed — this model has one reasoning mode',
+    )
+  })
+
+  it('lists the current level and every available level of the mode’s model', () => {
+    expect(effortModeStatusLine(enT, 'execute', claudeLike, 'max')).toBe(
+      '  execute (Model): max — available: low, high, xhigh, max',
+    )
+    // An unset value resolves to the model's own default.
+    expect(effortModeStatusLine(enT, 'execute', claudeLike, undefined)).toBe(
+      '  execute (Model): high — available: low, high, xhigh, max',
+    )
+  })
+
+  it('names a missing model with a placeholder', () => {
+    expect(effortModeStatusLine(enT, 'plan', undefined, 'high')).toBe(
+      '  plan (?): fixed — this model has one reasoning mode',
+    )
   })
 })
 

@@ -9,7 +9,21 @@
  */
 
 import type { AppModelDefinition } from '@molecule/app-ai-models'
+import { isDeprecated, PROVIDER_BRAND_COLORS } from '@molecule/app-ai-models'
 import type { TranslateFunction } from '@molecule/app-i18n'
+
+import type {
+  FreeTierLockReason,
+  ModelMode,
+  PerModeModelSettings,
+  ServerModeDefaults,
+} from './chat-model-mode-utilities.js'
+import {
+  freeTierLockReason,
+  freeTierUsableMode,
+  parseModelModeCommand,
+  resolveModeModel,
+} from './chat-model-mode-utilities.js'
 
 /**
  * Sortable columns in the `/models` table.
@@ -373,5 +387,401 @@ export function modelRegionLabel(t: TranslateFunction, region: ModelProcessingRe
     default:
       // No key for this code in the bond yet — show the raw code, as before.
       return region.toUpperCase()
+  }
+}
+
+/**
+ * Every region the picker can offer: the flag's country code (resolved via the
+ * bonded `@molecule/app-country-flags` set). The region's display NAME comes from
+ * {@link modelRegionLabel} (the literal `ide.chat.model.region.<code>` keys).
+ * Adding a region here (plus a server-side provider registration) is ALL the UI
+ * needs — the region control's menu lists whatever {@link availableModelRegions}
+ * returns.
+ */
+export const MODEL_REGION_FLAGS: Record<string, string> = {
+  us: 'US',
+  cn: 'CN',
+}
+
+/**
+ * Regions a model can be processed in, first entry = its default — straight
+ * from the catalog (`AppModelDefinition.regions`; the server enforces the same
+ * list). A single-entry list is a pinned model (fixed, non-interactive flag);
+ * omission means the US-only platform default. The control/menu UI renders
+ * whatever this returns, so new regions only need catalog data + a
+ * `MODEL_REGION_FLAGS` entry.
+ * @param model - The model to resolve regions for.
+ * @returns Available region codes, default first.
+ */
+export function availableModelRegions(model: AppModelDefinition): ModelProcessingRegion[] {
+  return model.regions ?? ['us']
+}
+
+/**
+ * The replacement chosen when a saved model has left the catalog, plus the
+ * notice the chat panel shows the user about it.
+ */
+export interface RemovedModelFallback {
+  /** The model id to fall back to, or `null` when no replacement exists. */
+  fallback: string | null
+  /** The already-localized notice to surface for the removal. */
+  notice: string
+}
+
+/**
+ * Decides what the removed-model effect does: which still-available model
+ * replaces a model that left the catalog, and the notice it shows. Prefers a
+ * still-available model from the SAME custom provider before a platform model,
+ * so a BYO provider's renamed model keeps the user on their own endpoint
+ * rather than bouncing them to a platform free model.
+ *
+ * @param removedId - The saved model id that is no longer in the catalog.
+ * @param models - The available models from the catalog.
+ * @param freeTierModel - The catalog's free-tier model id (may be empty).
+ * @param t - The caller's translate function (React passes `useTranslation()`'s `t`).
+ * @returns The fallback id (or `null`) and the localized notice to show.
+ */
+export function resolveRemovedModelFallback(
+  removedId: string,
+  models: readonly AppModelDefinition[],
+  freeTierModel: string,
+  t: TranslateFunction,
+): RemovedModelFallback {
+  const sameProviderPrefix = removedId.match(/^(custom\/[^/]+\/)/)?.[1]
+  const sameProviderModel = sameProviderPrefix
+    ? models.find((m) => m.id.startsWith(sameProviderPrefix))?.id
+    : undefined
+  const fallback = sameProviderModel || freeTierModel || models[0]?.id
+  if (!fallback) {
+    return {
+      fallback: null,
+      notice: t(
+        'ide.chat.modelRemovedNoFallback',
+        { removed: removedId },
+        {
+          defaultValue:
+            'Your selected model "{{removed}}" is no longer available, and no replacement is bonded on the server. Ask your admin to wire an AI provider.',
+        },
+      ),
+    }
+  }
+  return {
+    fallback,
+    notice: t(
+      'ide.chat.modelRemoved',
+      { removed: removedId, fallback },
+      {
+        defaultValue:
+          'Your selected model "{{removed}}" is no longer available. Switched to "{{fallback}}". Type /model to pick another.',
+      },
+    ),
+  }
+}
+
+/**
+ * Filters the catalog for the `/model` picker's open query. For a mode-scoped
+ * command the filter is the text after the flag; otherwise it is the text after
+ * `/model `. Matches the model id or label case-insensitively; an empty query
+ * returns every model unchanged.
+ *
+ * @param text - The picker's raw input text.
+ * @param models - The available models from the catalog.
+ * @returns The models matching the query (the whole list when the query is empty).
+ */
+export function filterModelsByPickerQuery(
+  text: string,
+  models: AppModelDefinition[],
+): AppModelDefinition[] {
+  const modeMatch = parseModelModeCommand(text)
+  const q = (modeMatch ? modeMatch.query : (text.match(/^\/model\s+(.*)/i)?.[1] ?? ''))
+    .trim()
+    .toLowerCase()
+  if (!q) return models
+  return models.filter((m) => m.id.toLowerCase().includes(q) || m.label.toLowerCase().includes(q))
+}
+
+/**
+ * Resolves a `/model <query>` argument to the closest catalog model: an exact
+ * id match first, then a case-insensitive id substring, then a label substring.
+ *
+ * @param query - The raw typed query (the text after `/model`).
+ * @param models - The available models from the catalog.
+ * @returns The resolved model, or `undefined` when nothing matches.
+ */
+export function resolveModelQuery(
+  query: string,
+  models: readonly AppModelDefinition[],
+): AppModelDefinition | undefined {
+  const q = query.toLowerCase()
+  return (
+    models.find((m) => m.id === q) ??
+    models.find((m) => m.id.toLowerCase().includes(q)) ??
+    models.find((m) => m.label.toLowerCase().includes(q))
+  )
+}
+
+/**
+ * The row that gets the "current" pill in the `/model` picker — the model the
+ * selected picker mode actually uses (its per-mode value with the mode's REAL
+ * fallback chain), not unconditionally the legacy `chatModel`. The generic
+ * (no-mode) picker edits the default slot, so its pill is the SAVED default
+ * only — a seeded catalog default is not a choice and must not masquerade as
+ * one.
+ *
+ * @param picker - The open picker (`null` when closed).
+ * @param effectiveModelForMode - Resolves the model a conversation mode uses.
+ * @param settings - The project's persisted model settings.
+ * @param serverDefaults - Server-sent per-mode defaults (`GET /ai/models`).
+ * @returns The current model id, or `undefined` when none applies.
+ */
+export function pickerCurrentModelId(
+  picker: { mode?: ModelMode } | null,
+  effectiveModelForMode: (mode: 'plan' | 'execute') => string,
+  settings: PerModeModelSettings,
+  serverDefaults: ServerModeDefaults,
+): string | undefined {
+  if (!picker) return undefined
+  if (picker.mode === 'plan' || picker.mode === 'execute') {
+    return effectiveModelForMode(picker.mode)
+  }
+  if (picker.mode) {
+    return resolveModeModel(settings, picker.mode) ?? serverDefaults?.[picker.mode]
+  }
+  return settings.chatModel || undefined
+}
+
+/** One capability badge shown on a model picker row. */
+export interface ModelPickerBadge {
+  /** The badge text (an untranslated capability name today). */
+  label: string
+  /** Background tint. */
+  bg: string
+  /** Text tint. */
+  fg: string
+}
+
+/** The region pill's pre-rendered data (rendered only when {@link show}). */
+export interface ModelPickerRegionPill {
+  /** Whether the row shows a region pill at all. */
+  show: boolean
+  /** The regions the model can be processed in, default first. */
+  options: ModelProcessingRegion[]
+  /** The model's effective region. */
+  region: ModelProcessingRegion
+  /** Whether the region is user-changeable (more than one option). */
+  interactive: boolean
+  /** The localized region name. */
+  label: string
+  /** The localized pill/menu hint. */
+  hint: string
+}
+
+/**
+ * Everything a `/model` picker row computes before its JSX: its capability
+ * badges, the free-tier lock reason, the "free in <mode>" label, the relative
+ * usage rate and its price colour, and the processing-region pill.
+ */
+export interface ModelPickerRowView {
+  /** Capability badges in display order. */
+  badges: ModelPickerBadge[]
+  /** Why the row is locked for a free-tier user, or `null` when selectable. */
+  lockReason: FreeTierLockReason | null
+  /** Convenience boolean view of {@link lockReason}. */
+  locked: boolean
+  /** The mode a free-tier user can actually use this model in, if any. */
+  usableMode: ModelMode | null
+  /** The localized "free in <mode>" label. */
+  freeInLabel: string
+  /** Whether this is a bring-your-own-AI (custom provider) model. */
+  isCustom: boolean
+  /** Relative allowance usage rate (`×N`). */
+  usageRate: number
+  /** The peak multiplier in force right now. */
+  peakNow: number
+  /** The colour the usage-rate figure renders in. */
+  priceColor: string
+  /** The model's effective processing region. */
+  modelRegion: ModelProcessingRegion
+  /** The region pill's data (rendered only when {@link ModelPickerRegionPill.show}). */
+  regionPill: ModelPickerRegionPill
+  /** The provider brand accent colour. */
+  accent: string
+}
+
+/** The inputs {@link modelPickerRowView} reads for one row. */
+export interface ModelPickerRowInput {
+  /** The catalog model the row renders. */
+  model: AppModelDefinition
+  /** Whether the app is in light theme (badge and price tints). */
+  isLight: boolean
+  /** Whether the current user is on the free/anon tier. */
+  isFreeTier: boolean
+  /** The picker's scoped mode, or undefined for the unscoped picker. */
+  mode?: ModelMode
+  /** The full available-model catalog. */
+  models: readonly AppModelDefinition[]
+  /** Server-sent per-mode defaults (`GET /ai/models`). */
+  serverDefaults: ServerModeDefaults
+  /** The catalog's free-tier model id. */
+  freeTierModel: string
+  /** The row model's effective processing region. */
+  modelRegion: ModelProcessingRegion
+  /** The caller's translate function. */
+  t: TranslateFunction
+}
+
+/**
+ * Computes everything a `/model` picker row needs before rendering its JSX:
+ * capability badges, the free-tier lock reason, the "free in <mode>" label, the
+ * relative usage rate and price colour, and the processing-region pill.
+ *
+ * @param input - The row's model plus the render-time context (theme, tier,
+ *   scoped mode, catalog, server defaults, effective region, translate function).
+ * @returns The pre-computed {@link ModelPickerRowView}.
+ */
+export function modelPickerRowView(input: ModelPickerRowInput): ModelPickerRowView {
+  const {
+    model,
+    isLight,
+    isFreeTier,
+    mode,
+    models,
+    serverDefaults,
+    freeTierModel,
+    modelRegion,
+    t,
+  } = input
+  const badges: ModelPickerBadge[] = []
+  if (model.supportsVision)
+    badges.push({
+      label: 'vision',
+      bg: isLight ? 'rgba(59,130,246,0.12)' : 'rgba(59,130,246,0.18)',
+      fg: isLight ? 'rgb(37,99,235)' : 'rgb(96,165,250)',
+    })
+  if (model.supportsThinking)
+    badges.push({
+      label: 'thinking',
+      bg: isLight ? 'rgba(168,85,247,0.12)' : 'rgba(168,85,247,0.18)',
+      fg: isLight ? 'rgb(126,34,206)' : 'rgb(192,132,252)',
+    })
+  if (model.webSearchToolType)
+    badges.push({
+      label: 'web search',
+      bg: isLight ? 'rgba(22,163,74,0.12)' : 'rgba(34,197,94,0.18)',
+      fg: isLight ? 'rgb(22,163,74)' : 'rgb(74,222,128)',
+    })
+  if (model.supportsPromptCaching)
+    badges.push({
+      label: 'caching',
+      bg: isLight ? 'rgba(202,138,4,0.12)' : 'rgba(234,179,8,0.18)',
+      fg: isLight ? 'rgb(161,98,7)' : 'rgb(250,204,21)',
+    })
+  if (model.fastPricing)
+    badges.push({
+      label: 'fast mode',
+      bg: isLight ? 'rgba(234,88,12,0.12)' : 'rgba(249,115,22,0.18)',
+      fg: isLight ? 'rgb(194,65,12)' : 'rgb(251,146,60)',
+    })
+  if (isDeprecated(model))
+    badges.push({
+      label: `deprecated ${model.deprecatedAt}`,
+      bg: isLight ? 'rgba(217,119,6,0.12)' : 'rgba(217,119,6,0.18)',
+      fg: isLight ? 'rgb(180,83,9)' : 'rgb(251,191,36)',
+    })
+  // Region flag pill: shown when the model has a region CHOICE, or runs
+  // outside the default US region (a fixed flag).
+  const modelRegionOptions = availableModelRegions(model)
+  const showRegionPill = modelRegionOptions.length > 1 || modelRegion !== 'us'
+  const accent = PROVIDER_BRAND_COLORS[model.provider] ?? '#888'
+  // Free tier is clamped per mode to what the SERVER allows (the catalog's
+  // freeTier-flagged model + the server-sent default for the scoped mode —
+  // never a hardcoded id); the unscoped picker keeps the single free-tier
+  // model. Custom (bring-your-own AI) models are never locked — the user pays
+  // their own provider directly. The lock REASON matters: 'paid' gets the Pro
+  // pill + upgrade card, while 'mode' (a model the free tier uses in a
+  // DIFFERENT mode, e.g. the execute clamp shown in the plan scope) must never
+  // claim "Pro".
+  const lockReason: FreeTierLockReason | null = mode
+    ? freeTierLockReason(model.id, mode, isFreeTier, models, serverDefaults)
+    : isFreeTier && model.id !== freeTierModel && model.provider !== 'custom'
+      ? 'paid'
+      : null
+  const locked = lockReason !== null
+  // For 'mode' locks: which mode the free tier actually uses this model in
+  // ('commit' stands for both aux jobs).
+  const usableMode: ModelMode | null =
+    lockReason === 'mode' ? freeTierUsableMode(model.id, models, serverDefaults) : null
+  const freeInLabel =
+    usableMode === 'plan'
+      ? t('ide.chat.freeInPlan', undefined, { defaultValue: 'free in plan' })
+      : usableMode === 'execute'
+        ? t('ide.chat.freeInExecute', undefined, {
+            defaultValue: 'free in execute',
+          })
+        : t('ide.chat.freeInCommit', undefined, {
+            defaultValue: 'free in commit',
+          })
+  // Relative usage rate vs the cheapest available model — the unitless "how
+  // fast does this eat my allowance" figure shown INSTEAD of currency. Green
+  // ≤×5, yellow ≤×25, red above. Custom (bring-your-own AI) models have
+  // all-zero list prices and consume no allowance, so they show a neutral
+  // "your key" instead of a misleading ×1.
+  const isCustom = model.provider === 'custom'
+  // Priced at the model's EFFECTIVE region so flipping a region immediately
+  // re-rates the row (e.g. DeepSeek V4 Pro: ×3 native-CN vs ×9 US-rehosted).
+  const usageRate = modelUsageRate(model, models, modelRegion)
+  // Whether the rate above is currently inflated by a peak window.
+  const peakNow = modelPeakMultiplier(model, modelRegion)
+  const priceColor =
+    usageRate <= 5
+      ? isLight
+        ? 'rgb(22,163,74)'
+        : 'rgb(74,222,128)'
+      : usageRate <= 25
+        ? isLight
+          ? 'rgb(161,98,7)'
+          : 'rgb(250,204,21)'
+        : isLight
+          ? 'rgb(220,38,38)'
+          : 'rgb(248,113,113)'
+  const interactive = modelRegionOptions.length > 1
+  // Only compute the pill's labels when it actually renders, so the prompt's
+  // `t()` calls happen exactly when the JSX would have made them.
+  const regionLabel = showRegionPill ? modelRegionLabel(t, modelRegion) : ''
+  const hint = !showRegionPill
+    ? ''
+    : interactive
+      ? t(
+          'ide.chat.model.regionHint',
+          { region: regionLabel },
+          {
+            defaultValue: 'Processed in: {{region}} — click to change',
+          },
+        )
+      : t(
+          'ide.chat.model.regionOnlyHint',
+          { region: regionLabel },
+          { defaultValue: 'Only hosted in: {{region}}' },
+        )
+  return {
+    badges,
+    lockReason,
+    locked,
+    usableMode,
+    freeInLabel,
+    isCustom,
+    usageRate,
+    peakNow,
+    priceColor,
+    modelRegion,
+    regionPill: {
+      show: showRegionPill,
+      options: modelRegionOptions,
+      region: modelRegion,
+      interactive,
+      label: regionLabel,
+      hint,
+    },
+    accent,
   }
 }

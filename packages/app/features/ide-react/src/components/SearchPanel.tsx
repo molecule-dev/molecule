@@ -12,6 +12,7 @@ import type { SearchPanelProps, SearchResponse, SearchResult } from '@molecule/a
 import { DEFAULT_SEARCH_EXCLUDED_DIRS } from '@molecule/app-ide-panel-logic'
 import { getLogger } from '@molecule/app-logger'
 import { useHttpClient, useThemeMode, useTranslation } from '@molecule/app-react'
+import { useEffectEvent } from '@molecule/app-react/render'
 import type { ColorVariant } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -358,11 +359,20 @@ export function SearchPanel({
   // (comma-separated); commit on blur/Enter parses, dedupes, and hands the set
   // to the host to persist — the server applies it to every search surface.
   const effectiveExcluded = excludedDirs ?? [...DEFAULT_SEARCH_EXCLUDED_DIRS]
-  const [excludedDirsDraft, setExcludedDirsDraft] = useState(effectiveExcluded.join(', '))
+  // Seeded with the same normalization the prop-change branch below applies.
+  const [excludedDirsDraft, setExcludedDirsDraft] = useState(() =>
+    effectiveExcluded.filter(Boolean).join(', '),
+  )
   const excludedPropKey = effectiveExcluded.join(',')
-  useEffect(() => {
+  // The host changed (or first answered) the persisted exclusion set: reset the
+  // draft to it in the same render. This is React's documented "adjust state
+  // when a prop changes" pattern — flipping it from an effect would render the
+  // stale draft first and re-render again right after.
+  const [prevExcludedPropKey, setPrevExcludedPropKey] = useState(excludedPropKey)
+  if (prevExcludedPropKey !== excludedPropKey) {
+    setPrevExcludedPropKey(excludedPropKey)
     setExcludedDirsDraft(excludedPropKey.split(',').filter(Boolean).join(', '))
-  }, [excludedPropKey])
+  }
   const commitExcludedDirs = useCallback(() => {
     const dirs = [
       ...new Set(
@@ -374,12 +384,17 @@ export function SearchPanel({
     ]
     setExcludedDirsDraft(dirs.join(', '))
     if (dirs.join(',') !== excludedPropKey) onExcludedDirsChange?.(dirs)
-  }, [excludedDirsDraft, excludedPropKey, onExcludedDirsChange])
+    // The setter is listed with the values it is called alongside: the compiler
+    // infers it as a dependency of this callback, so a list without it cannot be
+    // preserved. Setters are stable, so including it changes nothing at runtime.
+  }, [excludedDirsDraft, excludedPropKey, onExcludedDirsChange, setExcludedDirsDraft])
   const [results, setResults] = useState<SearchResult[]>([])
   const [totalCount, setTotalCount] = useState(0)
   const [truncated, setTruncated] = useState(false)
   const [loading, setLoading] = useState(false)
   const [searched, setSearched] = useState(false)
+  // The request that failed last, shown in place of the results summary; a search that succeeds clears it.
+  const [failure, setFailure] = useState<'search' | 'replace' | null>(null)
 
   // Replace state
   const [showReplace, setShowReplace] = useState(false)
@@ -403,6 +418,7 @@ export function SearchPanel({
         setTotalCount(0)
         setTruncated(false)
         setSearched(false)
+        setFailure(null)
         return
       }
 
@@ -428,12 +444,14 @@ export function SearchPanel({
         setTotalCount(res.data.totalCount)
         setTruncated(res.data.truncated)
         setSearched(true)
+        setFailure(null)
       } catch (error) {
         if (!controller.signal.aborted) {
           logger.warn('Search request failed', { error })
           setResults([])
           setTotalCount(0)
           setSearched(true)
+          setFailure('search')
         }
       } finally {
         if (!controller.signal.aborted) setLoading(false)
@@ -451,15 +469,21 @@ export function SearchPanel({
     }
   }, [query, doSearch])
 
-  // Re-search immediately when toggle options change (if we have a query)
+  // Re-search immediately when toggle options change (if we have a query). The
+  // latest query and searcher are read through an Effect Event — they must not
+  // retrigger this effect: typing already re-searches through the debounced effect above.
+  const searchAgain = useEffectEvent(() => {
+    if (query.trim()) void doSearch(query)
+  })
   useEffect(() => {
-    if (query.trim()) doSearch(query)
+    searchAgain()
   }, [caseSensitive, useRegex, wholeWord, includeGlob, excludeGlob])
 
   const doReplace = useCallback(
     async (targetFiles?: string[]) => {
       if (!query.trim()) return
       setReplacing(true)
+      let replaceFailed = false
       try {
         await http.post(`/projects/${projectId}/replace`, {
           pattern: query,
@@ -469,10 +493,16 @@ export function SearchPanel({
           regex: useRegex,
           wholeWord,
         })
-        // Re-search to update results
+      } catch (error) {
+        logger.warn('Replace request failed', { error, files: targetFiles })
+        replaceFailed = true
+      }
+      try {
+        // Re-search to update results — after a failed replace too, since it may have changed some
+        // files first (doSearch handles its own failure)
         await doSearch(query)
-      } catch (_error) {
-        // Silently fail — search will show current state
+        // Unless the re-search failed too: the results then show nothing, and the search failure says so.
+        if (replaceFailed) setFailure((current) => (current === 'search' ? current : 'replace'))
       } finally {
         setReplacing(false)
         setConfirmAll(false)
@@ -481,13 +511,17 @@ export function SearchPanel({
     [projectId, http, query, replacement, caseSensitive, useRegex, wholeWord, doSearch],
   )
 
+  // Arm the two-step Replace All. `setConfirmAll` belongs in the list with
+  // `confirmAll`: the compiler infers it as a dependency of this callback, and a
+  // list without it cannot be preserved. Setters are stable, so it never
+  // invalidates the memo.
   const handleReplaceAll = useCallback(() => {
     if (confirmAll) {
       doReplace()
     } else {
       setConfirmAll(true)
     }
-  }, [confirmAll, doReplace])
+  }, [confirmAll, doReplace, setConfirmAll])
 
   const handleReplaceInFile = useCallback(
     (file: string) => {
@@ -777,8 +811,24 @@ export function SearchPanel({
         )}
       </div>
 
+      {/* The failed request, in place of (search) or above (replace) the results summary */}
+      {failure && !loading && (
+        <div
+          data-mol-id="search-error"
+          role="alert"
+          className={cm.textError}
+          style={{ padding: '2px 8px 4px 8px', fontSize: 11 }}
+        >
+          {failure === 'search'
+            ? t('ide.search.searchFailed', undefined, { defaultValue: 'Search failed.' })
+            : t('ide.search.replaceFailed', undefined, {
+                defaultValue: 'Replace failed. The results show what the files contain now.',
+              })}
+        </div>
+      )}
+
       {/* Results summary */}
-      {searched && !loading && (
+      {searched && !loading && failure !== 'search' && (
         <div
           style={{
             padding: '2px 8px 4px 8px',

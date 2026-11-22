@@ -1,9 +1,10 @@
 /**
  * `SkillsCard` cases: the `/skills` browser's every state — the discovered
  * listing (names, descriptions, the path fallback for an unreadable file),
- * the loading and waiting replies (the card's failure branch logs a warning,
- * which a recording may not carry, so no case drives it), the search filter with its
- * no-match state, the default-loaded set (the badge, the star toggle, the
+ * the loading and waiting replies, the failure branch (a file list that fails
+ * every retry ends in the error state, and an unmount before the last failure
+ * logs its warning without one — each recorded as a `logger.warn` call), the
+ * search filter with its no-match state, the default-loaded set (the badge, the star toggle, the
  * Loaded pill that hides the Load button), the "Load all by default" reset,
  * the skill-authoring create form (opened by the button, by `startCreating`,
  * submitted, cancelled, and left open by a null reply), and the card chrome
@@ -182,6 +183,57 @@ export const skillsCardCases: FeatureComponentCases = {
       interactions: [
         { type: 'advance', ms: 2000 },
         { type: 'http', ...P1_LIST, status: 200, data: { files: [AUTH_PATH] } },
+      ],
+    },
+    {
+      name: 'a file list that fails through every retry ends in the error state',
+      props: { ...base },
+      callbacks: ['onLoad'],
+      fakeTimers: true,
+      context: {
+        http: Array.from({ length: 10 }, () => ({
+          ...P1_LIST,
+          networkError: 'the sandbox went away',
+        })),
+      },
+      interactions: [
+        { type: 'advance', ms: 2000 },
+        { type: 'advance', ms: 2000 },
+        { type: 'advance', ms: 2000 },
+        { type: 'advance', ms: 2000 },
+        { type: 'advance', ms: 2000 },
+        { type: 'advance', ms: 2000 },
+        { type: 'advance', ms: 2000 },
+        { type: 'advance', ms: 2000 },
+        { type: 'advance', ms: 2000 },
+      ],
+    },
+    {
+      name: 'an unmount before the last failure logs it without an error state',
+      props: { ...base },
+      callbacks: ['onLoad'],
+      fakeTimers: true,
+      context: {
+        http: [
+          ...Array.from({ length: 9 }, () => ({
+            ...P1_LIST,
+            networkError: 'the sandbox went away',
+          })),
+          { ...P1_LIST, defer: true },
+        ],
+      },
+      interactions: [
+        { type: 'advance', ms: 2000 },
+        { type: 'advance', ms: 2000 },
+        { type: 'advance', ms: 2000 },
+        { type: 'advance', ms: 2000 },
+        { type: 'advance', ms: 2000 },
+        { type: 'advance', ms: 2000 },
+        { type: 'advance', ms: 2000 },
+        { type: 'advance', ms: 2000 },
+        { type: 'advance', ms: 2000 },
+        { type: 'unmount' },
+        { type: 'http', ...P1_LIST, status: 503, data: { error: 'the sandbox is restarting' } },
       ],
     },
     {

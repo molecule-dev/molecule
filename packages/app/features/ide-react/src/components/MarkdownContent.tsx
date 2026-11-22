@@ -512,25 +512,25 @@ export const MarkdownContent = memo(function MarkdownContent({
   // the complete text immediately so the last tokens never lag.
   const PARSE_THROTTLE_MS = 120
   const [parseText, setParseText] = useState(text)
+  // Finalized (or non-streaming) text is parsed at once — adjusted during the
+  // render that carries it (React's "derive from props" pattern), so the last
+  // tokens and the final text are never a frame apart.
+  if (!isStreaming && parseText !== text) setParseText(text)
   const lastParseAtRef = useRef(0)
   useEffect(() => {
-    if (!isStreaming) {
-      setParseText(text) // finalized (or non-streaming) — parse the full, stable text now
-      return
-    }
+    if (!isStreaming) return
     const elapsed = Date.now() - lastParseAtRef.current
-    if (elapsed >= PARSE_THROTTLE_MS) {
-      lastParseAtRef.current = Date.now()
-      setParseText(text)
-      return
-    }
-    // Leading+trailing throttle: schedule the pending update so continuous
-    // streaming still refreshes ~every PARSE_THROTTLE_MS (a plain debounce here
-    // would defer ALL rendering to the end — the very bug we're removing).
-    const id = setTimeout(() => {
-      lastParseAtRef.current = Date.now()
-      setParseText(text)
-    }, PARSE_THROTTLE_MS - elapsed)
+    // Leading+trailing throttle: once the throttle window has passed (`delay`
+    // 0) or it is about to, refresh the parsed text from the timer — a plain
+    // debounce would defer ALL rendering to the end, the very bug being
+    // removed. The update rides the timer callback, not the effect body.
+    const id = setTimeout(
+      () => {
+        lastParseAtRef.current = Date.now()
+        setParseText(text)
+      },
+      Math.max(0, PARSE_THROTTLE_MS - elapsed),
+    )
     return () => clearTimeout(id)
   }, [text, isStreaming])
   const segments = useMemo(() => (parseText ? splitSegments(parseText) : []), [parseText])

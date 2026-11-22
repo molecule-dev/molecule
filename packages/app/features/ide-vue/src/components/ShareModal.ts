@@ -1,0 +1,246 @@
+/**
+ * `/share` link modal — the Vue counterpart of `@molecule/app-ide-react`'s
+ * `ShareModal` (see that file for the design notes): the same props (React
+ * names), the same DOM for the same input, the same callbacks and service
+ * calls.
+ *
+ * A centered modal wrapping {@link ShareLinkManager} — the shared public-link
+ * UI a host also mounts in its team/access panel, so the modal and that panel
+ * never diverge. On open the manager reflects the project's CURRENT link: an
+ * existing one shows its absolute URL (click-to-copy) plus Revoke and no
+ * Create; otherwise it offers create at the roles the host grants.
+ *
+ * **Only the roles the HOST actually grants are offered**, via `roles`, which
+ * defaults to `[viewer]` — a link anyone can open is an unauthenticated
+ * credential, so write access through one is something a host has to opt into.
+ * A host can add its own sections below the links (`children`, the default
+ * slot) and can hide the links section (`showLinks`) for a caller who may open
+ * the dialog but not see the links. Escape, a click on the backdrop itself and
+ * the Done button all close the dialog; a click INSIDE it never does.
+ *
+ * Styling uses `getClassMap()` (`cm.*`); the only inline styles are layout the
+ * ClassMap can't express. All user-facing text goes through `t()`.
+ *
+ * @module
+ */
+
+import { defineComponent, h, onBeforeUnmount, onMounted, type PropType, type VNodeChild } from 'vue'
+
+import type { ShareLinkResult, ShareRole } from '@molecule/app-ide-panel-logic'
+import { DEFAULT_SHARE_ROLE, shareSubheading } from '@molecule/app-ide-panel-logic'
+import { getClassMap } from '@molecule/app-ui'
+import { useTranslation } from '@molecule/app-vue'
+
+import { ShareLinkManager } from './ShareLinkManager.js'
+
+/** Props for {@link ShareModal} — the React prop names, React's own contract. */
+export interface ShareModalProps {
+  /** The project whose public link the modal manages. */
+  projectId: string
+  /** Role pre-selected in the create control (read ONCE by the manager). */
+  initialRole?: ShareRole
+  /**
+   * The roles this host's backend actually grants through a public link, in
+   * the order to offer them. Defaults to `[viewer]`.
+   */
+  roles?: readonly ShareRole[]
+  /** Whether the CALLER may manage share links at all. Defaults `true`. */
+  canManage?: boolean
+  /** Whether the caller may CREATE a link. Defaults to `canManage`. */
+  canCreate?: boolean
+  /** Whether the caller may REVOKE a link. Defaults to `canManage`. */
+  canRevoke?: boolean
+  /** Whether to render the public-link section. Defaults to `true`. */
+  showLinks?: boolean
+  /** Changing this value re-fetches the link list. */
+  refreshSignal?: number
+  /** Host sections rendered below the links, inside the dialog (the default slot). */
+  children?: VNodeChild
+  /** Called when the modal should close (Escape, the backdrop, Done). */
+  onClose: () => void
+  /** Called after a link is created, with the created link. */
+  onCreated?: (result: ShareLinkResult) => void
+}
+
+/**
+ * The share-link modal opened by `/share`, `/share <role>`, and the header
+ * share button.
+ *
+ * @param props - See {@link ShareModalProps}.
+ * @returns The rendered share modal.
+ */
+export const ShareModal = defineComponent({
+  name: 'ShareModal',
+  inheritAttrs: false,
+  props: {
+    /** The project whose public link the modal manages. */
+    projectId: { type: String, required: true },
+    /** Role pre-selected in the create control (read once by the manager). */
+    initialRole: {
+      type: String as PropType<ShareRole>,
+      required: false,
+      default: DEFAULT_SHARE_ROLE,
+    },
+    /** The roles this host's backend actually grants through a public link. */
+    roles: {
+      type: Array as PropType<readonly ShareRole[]>,
+      required: false,
+      default: () => [DEFAULT_SHARE_ROLE],
+    },
+    /** Whether the caller may manage share links at all (defaults `true`). */
+    canManage: { type: Boolean, required: false, default: true },
+    /** Whether the caller may CREATE a link (defaults to `canManage`). */
+    canCreate: { type: Boolean, required: false, default: undefined },
+    /** Whether the caller may REVOKE a link (defaults to `canManage`). */
+    canRevoke: { type: Boolean, required: false, default: undefined },
+    /** Whether to render the public-link section (defaults `true`). */
+    showLinks: { type: Boolean, required: false, default: true },
+    /** Changing this value re-fetches the link list. */
+    refreshSignal: { type: Number, required: false, default: undefined },
+    /** Called when the modal should close (Escape, the backdrop, Done). */
+    onClose: { type: Function as PropType<() => void>, required: true },
+    /** Called after a link is created, with the created link. */
+    onCreated: {
+      type: Function as PropType<(result: ShareLinkResult) => void>,
+      required: false,
+      default: undefined,
+    },
+  },
+  setup(props, { slots }) {
+    const cm = getClassMap()
+    const { t } = useTranslation()
+
+    // Escape closes the modal. React registers the handler on mount and
+    // removes it on unmount; the closure reads the CURRENT `onClose`.
+    const onKey = (event: KeyboardEvent): void => {
+      if (event.key === 'Escape') props.onClose()
+    }
+    onMounted(() => window.addEventListener('keydown', onKey))
+    onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
+
+    return (): VNodeChild => {
+      const offeredRoles: readonly ShareRole[] = props.roles.length
+        ? props.roles
+        : [DEFAULT_SHARE_ROLE]
+      // React's destructuring defaults: `canCreate = canManage`,
+      // `canRevoke = canManage`, passed through explicitly.
+      const canCreate = props.canCreate === undefined ? props.canManage : props.canCreate
+      const canRevoke = props.canRevoke === undefined ? props.canManage : props.canRevoke
+
+      return h(
+        'div',
+        {
+          'data-mol-id': 'share-modal-backdrop',
+          role: 'presentation',
+          onClick: (event: MouseEvent) => {
+            // Only a click on the backdrop itself dismisses the dialog; a click
+            // inside the panel bubbles here otherwise. React calls the callback
+            // with NO event argument.
+            if (event.target === event.currentTarget) props.onClose()
+          },
+          style: {
+            position: 'fixed',
+            inset: '0px',
+            // Dialog layer (1300) — must paint above ambient status chrome like
+            // the host's HealthBanner (z 1100), which otherwise overlaps this
+            // on phones.
+            zIndex: '1300',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: 'rgba(0, 0, 0, 0.45)',
+            padding: '16px',
+          },
+        },
+        [
+          h(
+            'div',
+            {
+              'data-mol-id': 'share-modal',
+              role: 'dialog',
+              'aria-modal': 'true',
+              'aria-label': t('ide.chat.share.heading', undefined, {
+                defaultValue: 'Share project',
+              }),
+              class: cm.cn(cm.surface, cm.borderAll, cm.textSize('sm')),
+              style: {
+                width: '100%',
+                maxWidth: '460px',
+                maxHeight: '85vh',
+                overflowY: 'auto',
+                borderRadius: '8px',
+                padding: '16px',
+                boxShadow: '0 10px 40px rgba(0,0,0,0.35)',
+              },
+            },
+            [
+              h(
+                'div',
+                {
+                  class: cm.cn(cm.fontWeight('medium'), cm.textSize('lg')),
+                  style: { marginBottom: '4px' },
+                },
+                [t('ide.chat.share.heading', undefined, { defaultValue: 'Share project' })],
+              ),
+              props.showLinks
+                ? [
+                    h(
+                      'div',
+                      { class: cm.textMuted, style: { marginBottom: '12px', lineHeight: '1.4' } },
+                      [
+                        offeredRoles.length > 1
+                          ? t('ide.chat.share.subheading', undefined, {
+                              defaultValue:
+                                'Create a public link. Anyone with the link gets the role you choose — a viewer link is read-only.',
+                            })
+                          : shareSubheading(t, offeredRoles[0]!),
+                      ],
+                    ),
+                    h(ShareLinkManager, {
+                      projectId: props.projectId,
+                      roles: offeredRoles,
+                      initialRole: props.initialRole,
+                      canManage: props.canManage,
+                      canCreate,
+                      canRevoke,
+                      onCreated: props.onCreated,
+                      refreshSignal: props.refreshSignal,
+                    }),
+                  ]
+                : null,
+              slots.default?.(),
+              h(
+                'div',
+                {
+                  style: {
+                    display: 'flex',
+                    justifyContent: 'flex-end',
+                    gap: '8px',
+                    marginTop: '16px',
+                  },
+                },
+                [
+                  h(
+                    'button',
+                    {
+                      type: 'button',
+                      'data-mol-id': 'share-close',
+                      // React binds the BARE `onClose` reference as the button's
+                      // handler, so the click event itself is the call's argument.
+                      onClick: props.onClose,
+                      class: cm.cn(
+                        cm.button({ variant: 'ghost', size: 'sm' }),
+                        cm.touchTargetCompact,
+                      ),
+                    },
+                    [t('common.done', undefined, { defaultValue: 'Done' })],
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
+      )
+    }
+  },
+})

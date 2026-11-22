@@ -11,6 +11,12 @@
 
 export { AutoCommitBadge } from './components/AutoCommitBadge.js'
 export { BackgroundTasksStrip } from './components/BackgroundTasksStrip.js'
+export { CollapsibleUserMessage } from './components/chat-panel/CollapsibleUserMessage.js'
+export { CommitCardItem } from './components/chat-panel/CommitCardItem.js'
+export { MessageItem } from './components/chat-panel/MessageItem.js'
+export { NoticeCard } from './components/chat-panel/NoticeCard.js'
+export { ThinkingBlock } from './components/chat-panel/ThinkingBlock.js'
+export { VerificationBadge } from './components/chat-panel/VerificationBadge.js'
 export { ChatItemBoundary } from './components/ChatItemBoundary.js'
 export { ContextSessionUsage } from './components/ContextSessionUsage.js'
 export { ContextUsageIndicator } from './components/ContextUsageIndicator.js'

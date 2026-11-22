@@ -287,6 +287,51 @@ describe('ChatPanel user avatar (SOC1)', () => {
     expect(avatar.textContent).toBe('T')
   })
 
+  it('keeps the glyph decorative for a whitespace-only author name', async () => {
+    // A whitespace-only name initials to nothing, so the generic glyph shows —
+    // and with no name to announce, the glyph is decorative chrome (axe
+    // `role-img-alt`): no image role, no label, hidden from assistive tech.
+    const history: ChatMessage[] = [
+      {
+        id: 'u1',
+        role: 'user',
+        content: 'hello from a blank author',
+        timestamp: 1000,
+        author: { id: 'u-blank', name: '   ', avatar: null },
+      },
+    ]
+    const wrap = (children: ReactNode): ReactElement => (
+      <I18nProvider provider={createSimpleI18nProvider('en')}>
+        <ThemeProvider provider={buildThemeProvider()}>
+          <HttpProvider client={buildHttpClient()}>
+            <ChatContextProvider provider={buildChatProvider(history)}>
+              {children}
+            </ChatContextProvider>
+          </HttpProvider>
+        </ThemeProvider>
+      </I18nProvider>
+    )
+    const { container } = render(wrap(<ChatPanel projectId="proj-soc1" />))
+
+    await waitFor(() => {
+      expect(container.textContent).toContain('hello from a blank author')
+    })
+    const avatar = await waitFor(() => {
+      const el = container.querySelector('[data-mol-id="chat-user-avatar"]')
+      expect(el).not.toBeNull()
+      return el as HTMLElement
+    })
+
+    expect(avatar.tagName).not.toBe('IMG')
+    // The glyph renders (not an initial)…
+    expect(avatar.querySelector('svg')).not.toBeNull()
+    expect(avatar.textContent).toBe('')
+    // …as decoration: no name to announce, so no image role and no label.
+    expect(avatar.getAttribute('role')).toBeNull()
+    expect(avatar.getAttribute('aria-label')).toBeNull()
+    expect(avatar.getAttribute('aria-hidden')).toBe('true')
+  })
+
   it('never places an unsafe avatar value into an <img src> (safety gate is applied in render)', async () => {
     const { container } = render(renderChatPanel({ userAvatar: 'javascript:alert(1)' }))
 

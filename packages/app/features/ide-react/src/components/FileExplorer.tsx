@@ -6,7 +6,7 @@
 
 import { getIcon } from 'material-file-icons'
 import type { JSX } from 'react'
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { memo, useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
 
 import { copyTextWithFallback } from '@molecule/app-clipboard'
 import type { FileExplorerProps, FileNode } from '@molecule/app-ide-panel-logic'
@@ -17,6 +17,7 @@ import {
   watchExpandState,
 } from '@molecule/app-ide-panel-logic/panels'
 import { useThemeMode, useTranslation } from '@molecule/app-react'
+import { useStableCallback } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 
 import { useCoarsePointer } from '../hooks/useViewport.js'
@@ -219,6 +220,39 @@ function getParentDir(path: string): string {
   return idx > 0 ? path.slice(0, idx) : '/workspace'
 }
 
+/**
+ * Whether two expand states hold the same open and closed directory paths.
+ * @param a - One expand state.
+ * @param b - The other expand state.
+ * @returns True when both hold exactly the same paths.
+ */
+function sameExpandState(a: ExpandState, b: ExpandState): boolean {
+  if (a.expanded.size !== b.expanded.size || a.collapsed.size !== b.collapsed.size) return false
+  for (const path of a.expanded) if (!b.expanded.has(path)) return false
+  for (const path of a.collapsed) if (!b.collapsed.has(path)) return false
+  return true
+}
+
+/**
+ * `state` with every path in `paths` opened, or `state` itself when they all
+ * already are. Pure: builds a new state and never mutates the argument.
+ * @param state - The current expand/collapse state.
+ * @param paths - The directory paths to open.
+ * @returns The state with those paths expanded.
+ */
+function withExpandedPaths(state: ExpandState, paths: readonly string[]): ExpandState {
+  if (!paths.some((path) => !state.expanded.has(path))) return state
+  const next: ExpandState = {
+    expanded: new Set(state.expanded),
+    collapsed: new Set(state.collapsed),
+  }
+  for (const path of paths) {
+    next.expanded.add(path)
+    next.collapsed.delete(path)
+  }
+  return next
+}
+
 // ---------------------------------------------------------------------------
 // Icons
 // ---------------------------------------------------------------------------
@@ -328,9 +362,11 @@ function useLongPress(
   const timerRef = useRef<number | null>(null)
   const startRef = useRef<{ x: number; y: number } | null>(null)
   const firedRef = useRef(false)
-  // Latest-callback ref so the timer never fires a stale closure (node/props change).
-  const onLongPressRef = useRef(onLongPress)
-  onLongPressRef.current = onLongPress
+  // The timer below fires from a pointer event, long after the render that
+  // armed it. A stable callback that always runs the latest committed
+  // `onLongPress` keeps it off a stale closure (node/props change) without a
+  // ref written while rendering.
+  const fireLongPress = useStableCallback(onLongPress)
 
   const clear = useCallback(() => {
     if (timerRef.current !== null) {
@@ -354,10 +390,10 @@ function useLongPress(
       timerRef.current = window.setTimeout(() => {
         timerRef.current = null
         firedRef.current = true
-        onLongPressRef.current({ x: clientX, y: clientY })
+        fireLongPress({ x: clientX, y: clientY })
       }, LONG_PRESS_MS)
     },
-    [enabled, clear],
+    [enabled, clear, fireLongPress],
   )
 
   const onPointerMove = useCallback(
@@ -433,11 +469,25 @@ export interface FileTreeItemProps {
   selectedPaths: Set<string>
   clipboardPaths: Set<string> | null
   clipboardOperation: 'cut' | 'copy' | null
-  /** Shared mutable counter — tracks total rendered items to prevent runaway recursion. */
-  renderCount: { current: number }
+  /**
+   * The paths this pass renders (the tree's first {@link MAX_RENDERED_NODES}
+   * visible rows). A directory only renders children inside this set, so a
+   * symlink cycle or an implausibly large expanded tree cannot freeze the
+   * browser. Computed once per pass by the root, never mutated while rendering.
+   */
+  renderedPaths: ReadonlySet<string>
   dropTargetPath: string | null
   /** Touch-first device — rows get a ≥36px min-height so they're comfortably tappable. */
   isCoarse: boolean
+  /**
+   * Prefix (one `useId()` at the tree root) for the rows' DOM ids — the tree
+   * container points `aria-activedescendant` at the focused row's id.
+   */
+  rowIdPrefix: string
+  /** Each visible path's 1-based render-order position, keying the rows' ids. */
+  rowIndex: ReadonlyMap<string, number>
+  /** Arms the tree container's long-press click suppression (see handleTreeClick). */
+  onLongPressFired: () => void
 }
 
 /**
@@ -471,13 +521,21 @@ const FileTreeItem = memo(function FileTreeItem({
   selectedPaths,
   clipboardPaths,
   clipboardOperation,
-  renderCount,
+  renderedPaths,
   dropTargetPath,
   isCoarse,
+  rowIdPrefix,
+  rowIndex,
+  onLongPressFired,
 }: FileTreeItemProps): JSX.Element {
-  renderCount.current++
   const cm = getClassMap()
   const isDir = node.type === 'directory'
+  // This row's position in render order (1-based) — the tree container names
+  // the focused row via `aria-activedescendant` with the same numbering. The
+  // position comes from the root's visible-items map, not this render's
+  // counter, because a memoized row skips re-rendering and would otherwise
+  // take another row's number (two rows, one id).
+  const rowId = `${rowIdPrefix}-${rowIndex.get(node.path) ?? 0}`
 
   // Load children whenever this dir is expanded but hasn't been fetched yet.
   // `undefined` means not yet loaded; `[]` means loaded but empty — only fetch
@@ -497,44 +555,13 @@ const FileTreeItem = memo(function FileTreeItem({
     onPointerUp: onLongPressPointerUp,
     onPointerCancel: onLongPressPointerCancel,
     onTouchEnd: onLongPressTouchEnd,
-    consumeFired: consumeLongPressFired,
   } = useLongPress(isCoarse && !!onContextMenu, (position) => {
+    // Arm the tree container's synthesized-click suppression (see
+    // handleTreeClick) — the recognizer's own touchend preventDefault is the
+    // first line of defense.
+    onLongPressFired()
     onContextMenu?.(position, node)
   })
-
-  const handleClick = useCallback(
-    (e: React.MouseEvent) => {
-      // A fired long-press must not ALSO select/open the item — the click the
-      // browser synthesizes at finger-lift is consumed here.
-      if (consumeLongPressFired()) return
-      const hasModifier = e.ctrlKey || e.metaKey || e.shiftKey
-      if (hasModifier) {
-        // Modifier clicks: pure selection, no open/toggle
-        onItemClick(node.path, { ctrlKey: e.ctrlKey, metaKey: e.metaKey, shiftKey: e.shiftKey })
-      } else {
-        // No modifier: select single + perform action
-        onItemClick(node.path, { ctrlKey: false, metaKey: false, shiftKey: false })
-        if (node.symlinkTarget && onSymlinkClick) {
-          onSymlinkClick(node.path, node.symlinkTarget)
-        } else if (isDir) {
-          onTogglePath(node.path, !isExpanded)
-        } else {
-          onFileSelect(node.path)
-        }
-      }
-    },
-    [
-      node.path,
-      node.symlinkTarget,
-      isDir,
-      isExpanded,
-      onItemClick,
-      onFileSelect,
-      onTogglePath,
-      onSymlinkClick,
-      consumeLongPressFired,
-    ],
-  )
 
   // Directories before files, each group sorted alphabetically
   const sortedChildren = node.children ? sortNodes(node.children) : undefined
@@ -560,13 +587,18 @@ const FileTreeItem = memo(function FileTreeItem({
   }
 
   return (
-    <div>
-      <button
-        type="button"
-        onClick={handleClick}
-        onDoubleClick={() => {
-          if (!isDir && onFileDoubleClick) onFileDoubleClick(node.path)
-        }}
+    <div role="none">
+      <div
+        role="treeitem"
+        id={rowId}
+        aria-level={depth + 1}
+        aria-expanded={isDir ? isExpanded : undefined}
+        aria-selected={isSelected}
+        // Focus stays on the tree container (the tree pattern: one tab stop,
+        // keys and the focused row's drawing live there, and it points
+        // aria-activedescendant at this row) — so the row itself is only
+        // programmatically focusable.
+        tabIndex={-1}
         onContextMenu={(e) => {
           if (onContextMenu) {
             e.preventDefault()
@@ -590,9 +622,13 @@ const FileTreeItem = memo(function FileTreeItem({
         data-explorer-path={node.path}
         className={cm.cn(cm.w('full'), cm.touchTargetCompact)}
         /* mol-bespoke-button: a file-TREE row — depth-indented, drag/drop and
-           long-press aware, a list item rather than a CTA. Its selection and
-           drop tints are theme tokens, and its ≥36px coarse floor comes from
-           the ClassMap (the compact ~24px pointer row is unchanged). */
+           long-press aware, a list item rather than a CTA. A `treeitem` div,
+           not a `<button>` (HTML does not allow `role="treeitem"` on one), so
+           the tree it belongs to has the `treeitem` children `role="tree"`
+           requires; focus stays on the tree container, which draws the focused
+           row and handles its keys. Its selection and drop tints are theme
+           tokens, and its ≥36px coarse floor comes from the ClassMap (the
+           compact ~24px pointer row is unchanged). */
         style={{
           display: 'flex',
           alignItems: 'center',
@@ -646,10 +682,10 @@ const FileTreeItem = memo(function FileTreeItem({
           {node.name}
           {node.symlinkTarget && ' \u2192 ' + node.symlinkTarget.split('/').pop()}
         </span>
-      </button>
+      </div>
 
-      {isDir && isExpanded && sortedChildren && renderCount.current < MAX_RENDERED_NODES && (
-        <div style={{ position: 'relative' }}>
+      {isDir && isExpanded && sortedChildren && (
+        <div role="group" style={{ position: 'relative' }}>
           {/* Guide line — 1px at center of parent chevron (paddingLeft + half icon width) */}
           <span
             style={{
@@ -662,43 +698,48 @@ const FileTreeItem = memo(function FileTreeItem({
               pointerEvents: 'none',
             }}
           />
-          {sortedChildren.map((child) => (
-            <FileTreeItem
-              key={child.path}
-              node={child}
-              depth={depth + 1}
-              isExpanded={isExpandedFromState(expandState, child.path, depth + 1)}
-              activeFile={activeFile}
-              isSelected={selectedPaths.has(child.path)}
-              isCut={
-                clipboardOperation === 'cut' &&
-                clipboardPaths !== null &&
-                clipboardPaths.has(child.path)
-              }
-              isFocused={false}
-              isDropTarget={dropTargetPath === child.path}
-              onFileSelect={onFileSelect}
-              onFileDoubleClick={onFileDoubleClick}
-              onDirExpand={onDirExpand}
-              onTogglePath={onTogglePath}
-              onSymlinkClick={onSymlinkClick}
-              onContextMenu={onContextMenu}
-              onItemClick={onItemClick}
-              onDragStart={onDragStart}
-              onDragOver={onDragOver}
-              onDragLeave={onDragLeave}
-              onDrop={onDrop}
-              expandState={expandState}
-              fileStatuses={fileStatuses}
-              gitColors={gitColors}
-              selectedPaths={selectedPaths}
-              clipboardPaths={clipboardPaths}
-              clipboardOperation={clipboardOperation}
-              renderCount={renderCount}
-              dropTargetPath={dropTargetPath}
-              isCoarse={isCoarse}
-            />
-          ))}
+          {sortedChildren
+            .filter((child) => renderedPaths.has(child.path))
+            .map((child) => (
+              <FileTreeItem
+                key={child.path}
+                node={child}
+                depth={depth + 1}
+                isExpanded={isExpandedFromState(expandState, child.path, depth + 1)}
+                activeFile={activeFile}
+                isSelected={selectedPaths.has(child.path)}
+                isCut={
+                  clipboardOperation === 'cut' &&
+                  clipboardPaths !== null &&
+                  clipboardPaths.has(child.path)
+                }
+                isFocused={false}
+                isDropTarget={dropTargetPath === child.path}
+                onFileSelect={onFileSelect}
+                onFileDoubleClick={onFileDoubleClick}
+                onDirExpand={onDirExpand}
+                onTogglePath={onTogglePath}
+                onSymlinkClick={onSymlinkClick}
+                onContextMenu={onContextMenu}
+                onItemClick={onItemClick}
+                onDragStart={onDragStart}
+                onDragOver={onDragOver}
+                onDragLeave={onDragLeave}
+                onDrop={onDrop}
+                expandState={expandState}
+                fileStatuses={fileStatuses}
+                gitColors={gitColors}
+                selectedPaths={selectedPaths}
+                clipboardPaths={clipboardPaths}
+                clipboardOperation={clipboardOperation}
+                renderedPaths={renderedPaths}
+                dropTargetPath={dropTargetPath}
+                isCoarse={isCoarse}
+                rowIdPrefix={rowIdPrefix}
+                rowIndex={rowIndex}
+                onLongPressFired={onLongPressFired}
+              />
+            ))}
         </div>
       )}
     </div>
@@ -735,25 +776,69 @@ export function FileExplorer({
   const { t } = useTranslation()
   const cm = getClassMap()
   const gitColors = useThemeMode() === 'light' ? LIGHT_GIT_COLORS : DARK_GIT_COLORS
+  // One id prefix for every row: the container points aria-activedescendant at
+  // `<prefix>-<render position>` of the focused row (see FileTreeItem).
+  const rowIdPrefix = useId().replace(/[:]/g, '')
   const isCoarse = useCoarsePointer()
   const containerRef = useRef<HTMLDivElement>(null)
   // When set, the next render after DOM update will scroll this path into view
   const scrollTargetRef = useRef<string | null>(null)
+  // A row long-press just fired: the click the browser synthesizes at
+  // finger-lift must not ALSO select/open that row (the touchend suppression
+  // in the row's recognizer is the first line of defense; this is the second).
+  const suppressNextRowClickRef = useRef(false)
   // When set, briefly flash a highlight on this path after scrolling
   const highlightTargetRef = useRef<string | null>(null)
 
-  const [expandState, setExpandState] = useState<ExpandState>(() =>
-    persistKey ? loadExpandState(persistKey) : { expanded: new Set(), collapsed: new Set() },
-  )
+  const [expandState, setExpandState] = useState<ExpandState>(() => {
+    const stored = persistKey
+      ? loadExpandState(persistKey)
+      : { expanded: new Set<string>(), collapsed: new Set<string>() }
+    // Mount with a file already open: its ancestors must be open too (the
+    // prop-change branch below keeps that true for later changes).
+    return activeFile ? withExpandedPaths(stored, getAncestorPaths(activeFile)) : stored
+  })
+
+  // The inputs the tree's saved state follows: the storage key (another
+  // project) and the active file (open its ancestor directories). Both are prop
+  // changes answered in the SAME render that sees them — React's "adjust state
+  // when a prop changes" pattern. Doing it from an effect would commit a frame
+  // showing the old project's directories, or the active file hidden inside a
+  // collapsed one, before correcting itself.
+  const [expandInputs, setExpandInputs] = useState({ persistKey, activeFile })
+  if (expandInputs.persistKey !== persistKey || expandInputs.activeFile !== activeFile) {
+    setExpandInputs({ persistKey, activeFile })
+    const base =
+      expandInputs.persistKey !== persistKey
+        ? persistKey
+          ? loadExpandState(persistKey)
+          : { expanded: new Set<string>(), collapsed: new Set<string>() }
+        : expandState
+    const next = activeFile ? withExpandedPaths(base, getAncestorPaths(activeFile)) : base
+    if (next !== expandState) setExpandState(next)
+  }
 
   // Follow the bonded provider for this key. A synchronous provider's value is
   // already in `expandState`; an asynchronous one hydrates later and updates
   // this SAME tree (never a remount), as does a change from another tab.
   useEffect(() => {
     if (!persistKey) return
-    setExpandState(loadExpandState(persistKey))
     return watchExpandState(persistKey, setExpandState)
   }, [persistKey])
+
+  // Persist every committed expand state — a row/dir toggle, Collapse All, or
+  // the auto-expansion above. Writing an external system from an effect is what
+  // an effect is for; writing it from the render that computes it would store a
+  // value a discarded render may never commit.
+  //
+  // The store echoes a write back to this component's own subscription (a
+  // fresh but identical state object), so a value the store already holds is
+  // not written again — that is what keeps this from looping.
+  useEffect(() => {
+    if (!persistKey) return
+    if (sameExpandState(expandState, loadExpandState(persistKey))) return
+    saveExpandState(persistKey, expandState)
+  }, [persistKey, expandState])
 
   // ---------------------------------------------------------------------------
   // Selection state
@@ -775,41 +860,35 @@ export function FileExplorer({
 
   // Memoized visible items list — used for shift-click range and keyboard nav
   const visibleItems = useMemo(() => getVisibleItems(files, expandState), [files, expandState])
+  // Each visible path's 1-based render-order position — the number in every
+  // row's id and in the container's aria-activedescendant (see FileTreeItem).
+  const rowIndexById = useMemo(
+    () => new Map(visibleItems.map((path, i) => [path, i + 1] as const)),
+    [visibleItems],
+  )
 
-  // Prune stale selections when the file tree changes
-  useEffect(() => {
-    const treePaths = collectAllPaths(files)
-    setSelectedPaths((prev) => {
-      const next = new Set<string>()
-      for (const p of prev) {
-        if (treePaths.has(p)) next.add(p)
-      }
-      return next.size === prev.size ? prev : next
-    })
-  }, [files])
+  // Prune selections whose paths left the tree, in the render that receives the
+  // new tree: an effect would keep a vanished path selected (and shift-click
+  // ranges built on it) for one committed frame. Nothing is set while the
+  // selection is already inside the tree, so a clean selection never re-renders
+  // and a host that rebuilds `files` on every render cannot loop here.
+  const treePaths = useMemo(() => collectAllPaths(files), [files])
+  if (selectedPaths.size > 0) {
+    let pruned: Set<string> | null = null
+    for (const path of selectedPaths) {
+      if (treePaths.has(path)) continue
+      pruned ??= new Set(selectedPaths)
+      pruned.delete(path)
+    }
+    if (pruned) setSelectedPaths(pruned)
+  }
 
-  // When activeFile changes, expand all ancestor directories and queue a scroll
+  // Queue the scroll to the newly active file; the render guard above has
+  // already opened its ancestors and persisted them.
   useEffect(() => {
     if (!activeFile) return
-    const ancestors = getAncestorPaths(activeFile)
-    if (ancestors.length > 0) {
-      setExpandState((prev) => {
-        const needsUpdate = ancestors.some((p) => !prev.expanded.has(p))
-        if (!needsUpdate) return prev
-        const next: ExpandState = {
-          expanded: new Set(prev.expanded),
-          collapsed: new Set(prev.collapsed),
-        }
-        for (const ancestor of ancestors) {
-          next.expanded.add(ancestor)
-          next.collapsed.delete(ancestor)
-        }
-        if (persistKey) saveExpandState(persistKey, next)
-        return next
-      })
-    }
     scrollTargetRef.current = activeFile
-  }, [activeFile, persistKey])
+  }, [activeFile])
 
   // After every render, attempt the pending scroll (retries until element is in the DOM)
   useEffect(() => {
@@ -830,26 +909,22 @@ export function FileExplorer({
     }
   })
 
-  const handleTogglePath = useCallback(
-    (path: string, nowExpanded: boolean) => {
-      setExpandState((prev) => {
-        const next: ExpandState = {
-          expanded: new Set(prev.expanded),
-          collapsed: new Set(prev.collapsed),
-        }
-        if (nowExpanded) {
-          next.expanded.add(path)
-          next.collapsed.delete(path)
-        } else {
-          next.collapsed.add(path)
-          next.expanded.delete(path)
-        }
-        if (persistKey) saveExpandState(persistKey, next)
-        return next
-      })
-    },
-    [persistKey],
-  )
+  const handleTogglePath = useCallback((path: string, nowExpanded: boolean) => {
+    setExpandState((prev) => {
+      const next: ExpandState = {
+        expanded: new Set(prev.expanded),
+        collapsed: new Set(prev.collapsed),
+      }
+      if (nowExpanded) {
+        next.expanded.add(path)
+        next.collapsed.delete(path)
+      } else {
+        next.collapsed.add(path)
+        next.expanded.delete(path)
+      }
+      return next
+    })
+  }, [])
 
   const handleSymlinkClick = useCallback(
     (symlinkPath: string, target: string) => {
@@ -859,32 +934,20 @@ export function FileExplorer({
       if (found && found.node.type === 'directory') {
         // Ensure ancestors are expanded so the target is visible
         const ancestors = getAncestorPaths(resolvedPath)
-        setExpandState((prev) => {
-          const needsUpdate = ancestors.some((p) => !prev.expanded.has(p))
-          if (!needsUpdate) {
-            // Already visible — scroll and highlight directly
-            scrollAndHighlight(containerRef.current, resolvedPath)
-            return prev
-          }
-          const next: ExpandState = {
-            expanded: new Set(prev.expanded),
-            collapsed: new Set(prev.collapsed),
-          }
-          for (const a of ancestors) {
-            next.expanded.add(a)
-            next.collapsed.delete(a)
-          }
-          if (persistKey) saveExpandState(persistKey, next)
-          return next
-        })
-        scrollTargetRef.current = resolvedPath
-        highlightTargetRef.current = resolvedPath
+        setExpandState((prev) => withExpandedPaths(prev, ancestors))
+        if (ancestors.every((path) => expandState.expanded.has(path))) {
+          // Already visible — scroll and highlight directly
+          scrollAndHighlight(containerRef.current, resolvedPath)
+        } else {
+          scrollTargetRef.current = resolvedPath
+          highlightTargetRef.current = resolvedPath
+        }
       } else {
         // File symlink (or target not in tree) — select the real file
         onFileSelect(resolvedPath)
       }
     },
-    [files, persistKey, onFileSelect],
+    [files, expandState, onFileSelect],
   )
 
   // ---------------------------------------------------------------------------
@@ -988,13 +1051,55 @@ export function FileExplorer({
 
   const handleCollapseAll = useCallback(() => {
     setExpandState({ expanded: new Set(), collapsed: new Set(['__all_collapsed__']) })
-    if (persistKey)
-      saveExpandState(persistKey, {
-        expanded: new Set(),
-        collapsed: new Set(['__all_collapsed__']),
-      })
     onCollapseAll?.()
-  }, [persistKey, onCollapseAll])
+  }, [onCollapseAll])
+
+  // A row's click reaches the tree CONTAINER — the tree pattern's one tab stop
+  // owns the keyboard handling, so the click handling lives beside it (and the
+  // row itself carries no onClick). The pressed row resolves by its path and
+  // runs the same select / toggle / open logic it always did.
+  const handleTreeClick = useCallback(
+    (e: React.MouseEvent) => {
+      if (suppressNextRowClickRef.current) {
+        suppressNextRowClickRef.current = false
+        return
+      }
+      const row = (e.target as Element).closest('[data-explorer-path]') as HTMLElement | null
+      const path = row?.dataset.explorerPath
+      if (!path) return
+      const found = findNodeByPath(files, path)
+      if (!found) return
+      const hasModifier = e.ctrlKey || e.metaKey || e.shiftKey
+      if (hasModifier) {
+        // Modifier clicks: pure selection, no open/toggle
+        handleItemClick(path, { ctrlKey: e.ctrlKey, metaKey: e.metaKey, shiftKey: e.shiftKey })
+        return
+      }
+      // No modifier: select single + perform action
+      handleItemClick(path, { ctrlKey: false, metaKey: false, shiftKey: false })
+      if (found.node.symlinkTarget) {
+        handleSymlinkClick(path, found.node.symlinkTarget)
+      } else if (found.node.type === 'directory') {
+        handleTogglePath(path, !isExpandedFromState(expandState, path, found.depth))
+      } else {
+        onFileSelect(path)
+      }
+    },
+    [files, expandState, handleItemClick, handleSymlinkClick, handleTogglePath, onFileSelect],
+  )
+
+  // A row's double-click (files only) — delegated the same way.
+  const handleTreeDoubleClick = useCallback(
+    (e: React.MouseEvent) => {
+      const row = (e.target as Element).closest('[data-explorer-path]') as HTMLElement | null
+      const path = row?.dataset.explorerPath
+      if (!path) return
+      const found = findNodeByPath(files, path)
+      if (found?.node.type !== 'file') return
+      onFileDoubleClick?.(path)
+    },
+    [files, onFileDoubleClick],
+  )
 
   /**
    * Execute a paste operation: move clipboard items to the target directory.
@@ -1432,10 +1537,16 @@ export function FileExplorer({
   // Sort root-level entries: directories first, then files, alphabetically
   const sortedFiles = sortNodes(files)
 
-  // Shared mutable counter — reset each render, incremented by each FileTreeItem.
-  // Prevents symlink cycles from freezing the browser by capping total rendered nodes.
-  const renderCountRef = useRef({ current: 0 })
-  renderCountRef.current.current = 0
+  // The rows this pass renders: the tree's first MAX_RENDERED_NODES visible
+  // paths, in render order. Each directory renders only children inside this
+  // set, so a symlink cycle or an implausibly large expanded tree cannot freeze
+  // the browser. Computed here, once, from the visible list the tree already
+  // uses — a counter incremented by each row while rendering would be a
+  // render-time side effect (and skips rows that memoization didn't re-render).
+  const renderedPaths = useMemo(
+    () => new Set(visibleItems.slice(0, MAX_RENDERED_NODES)),
+    [visibleItems],
+  )
 
   return (
     <div
@@ -1447,12 +1558,21 @@ export function FileExplorer({
       // plain chrome around the empty-state text.
       role={files.length === 0 ? undefined : 'tree'}
       tabIndex={0}
+      aria-activedescendant={
+        files.length === 0 || !focusedPath || !rowIndexById.has(focusedPath)
+          ? undefined
+          : `${rowIdPrefix}-${rowIndexById.get(focusedPath)}`
+      }
       onKeyDown={handleTreeKeyDown}
+      onClick={handleTreeClick}
+      onDoubleClick={handleTreeDoubleClick}
       onContextMenu={handleBackgroundContextMenu}
       onPointerDown={(e) => {
         // Row presses bubble here too — those belong to the row's own
         // long-press recognizer, so only arm the background one for presses
         // that start on the empty tree area.
+        // A new press invalidates any stale long-press click suppression.
+        suppressNextRowClickRef.current = false
         if ((e.target as HTMLElement).closest('[data-explorer-path]')) return
         backgroundLongPress.onPointerDown(e)
       }}
@@ -1497,9 +1617,14 @@ export function FileExplorer({
           selectedPaths={selectedPaths}
           clipboardPaths={clipboard?.paths ?? null}
           clipboardOperation={clipboard?.operation ?? null}
-          renderCount={renderCountRef.current}
+          renderedPaths={renderedPaths}
           dropTargetPath={dropTargetPath}
           isCoarse={isCoarse}
+          rowIdPrefix={rowIdPrefix}
+          rowIndex={rowIndexById}
+          onLongPressFired={() => {
+            suppressNextRowClickRef.current = true
+          }}
         />
       ))}
       {contextMenu && (

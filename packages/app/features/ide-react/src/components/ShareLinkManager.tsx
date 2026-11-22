@@ -138,24 +138,31 @@ export function ShareLinkManager({
     ...(isNarrow || isCoarse ? { fontSize: 16 } : {}),
   } as const
 
-  const loadLinks = useCallback(async () => {
-    try {
-      const res = await http.get<ShareListResponse>(`/projects/${projectId}/shares`)
-      const body = res.data
-      const list = Array.isArray(body) ? body : (body?.data ?? [])
-      // A revoked link is gone as far as the product is concerned.
-      setLinks(list.filter((link) => !link.revokedAt))
-    } catch (err) {
-      logger.warn('Failed to list share links', { error: err })
-      setLinks([])
-    } finally {
-      setLoading(false)
-    }
-  }, [http, projectId])
-
+  // Loads the project's links, and reloads them when `refreshSignal` bumps (the
+  // host's live-update channel). Every state update here happens after the
+  // request settles, inside the effect's async body, so the effect never sets
+  // state synchronously; `cancelled` drops a response for a superseded render.
   useEffect(() => {
-    void loadLinks()
-  }, [loadLinks, refreshSignal])
+    let cancelled = false
+    void (async () => {
+      try {
+        const res = await http.get<ShareListResponse>(`/projects/${projectId}/shares`)
+        if (cancelled) return
+        const body = res.data
+        const list = Array.isArray(body) ? body : (body?.data ?? [])
+        // A revoked link is gone as far as the product is concerned.
+        setLinks(list.filter((link) => !link.revokedAt))
+      } catch (err) {
+        logger.warn('Failed to list share links', { error: err })
+        if (!cancelled) setLinks([])
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [http, projectId, refreshSignal])
 
   const handleCreate = useCallback(async () => {
     if (creating) return

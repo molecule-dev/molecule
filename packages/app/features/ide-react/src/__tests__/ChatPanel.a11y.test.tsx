@@ -43,6 +43,15 @@ const QUEUED_MESSAGE: ChatMessage = {
   queued: true,
 }
 
+/** A human side-channel note — the gold team-only badge marks it. */
+const TEAM_NOTE_MESSAGE: ChatMessage = {
+  id: 'team-1',
+  role: 'user',
+  content: 'note for the team',
+  timestamp: 2,
+  teamOnly: true,
+}
+
 /** A chat provider that loads the given history and never streams. */
 function buildChatProvider(history: ChatMessage[] = []): ChatProvider {
   return {
@@ -161,6 +170,46 @@ describe('ChatPanel — accessibility', () => {
     })
     expect(editor.defaultValue).toBe('queued message')
     await waitFor(() => expect(document.activeElement).toBe(editor))
+  })
+
+  it('names the queued-message editor textarea with an aria-label', async () => {
+    // The editor is a bare textarea with a defaultValue — no label element and
+    // no placeholder, so without an aria-label it has no accessible name (axe
+    // `label`).
+    const container = await renderChatPanel([QUEUED_MESSAGE])
+    const edit = await waitFor(() => {
+      const el = container.querySelector(`button[title="Edit"]`)
+      expect(el).not.toBeNull()
+      return el as HTMLButtonElement
+    })
+    fireEvent.click(edit)
+
+    const editor = await waitFor(() => {
+      const el = Array.from(container.querySelectorAll('textarea')).find(
+        (ta) => ta.getAttribute('data-mol-chat-input') === null,
+      )
+      expect(el).not.toBeUndefined()
+      return el as HTMLTextAreaElement
+    })
+    expect(editor.getAttribute('aria-label')).toBe('Edit queued message')
+  })
+
+  it('names the team-only badge as an image', async () => {
+    // The badge is an icon-only span; a span without a role may not carry
+    // `aria-label` (axe `aria-prohibited-attr`), so it is an image with a name.
+    const container = await renderChatPanel([TEAM_NOTE_MESSAGE])
+    const badge = await waitFor(() => {
+      const el = container.querySelector('[data-mol-id="chat-team-only-badge"]')
+      expect(el).not.toBeNull()
+      return el as HTMLElement
+    })
+    expect(badge.getAttribute('role')).toBe('img')
+    expect(badge.getAttribute('aria-label')).toBe(
+      'Team only — visible to your team; Synthase will ignore it',
+    )
+    expect(badge.getAttribute('title')).toBe(
+      'Team only — visible to your team; Synthase will ignore it',
+    )
   })
 
   it('focuses the conversation search field when the picker opens', async () => {

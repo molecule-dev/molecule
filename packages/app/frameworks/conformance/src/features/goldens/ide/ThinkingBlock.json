@@ -1,0 +1,221 @@
+{
+ "a streaming turn auto-expands the body under a Thinking label": {
+  "snapshots": [
+   "<div style=\"margin-bottom: 6px\">\n<button style=\"align-items: center; background: none; border: medium; color: inherit; cursor: pointer; display: inline-flex; gap: 4px; padding: 2px 0px\" type=\"button\">\n<svg height=\"12\" style=\"display: block; flex-shrink: 0; opacity: 0.5; transform: rotate(90deg); transition: transform 150ms\" viewbox=\"0 0 16 16\" width=\"12\" xmlns=\"http://www.w3.org/2000/svg\">\n<polyline fill=\"none\" points=\"6,4 10,8 6,12\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\">\n</polyline>\n</svg>\n<span class=\"c4647f690 ce823b5bf\">\nThinking\n</span>\n</button>\n<div class=\"c4647f690 ce823b5bf\" style=\"font-style: italic; margin-top: 4px; max-height: 200px; opacity: 0.7; overflow-y: auto; padding-left: 16px; white-space: pre-wrap\">\nConsidering the options.\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "multi-line reasoning keeps its line breaks": {
+  "snapshots": [
+   "<div style=\"margin-bottom: 6px\">\n<button style=\"align-items: center; background: none; border: medium; color: inherit; cursor: pointer; display: inline-flex; gap: 4px; padding: 2px 0px\" type=\"button\">\n<svg height=\"12\" style=\"display: block; flex-shrink: 0; opacity: 0.5; transform: rotate(90deg); transition: transform 150ms\" viewbox=\"0 0 16 16\" width=\"12\" xmlns=\"http://www.w3.org/2000/svg\">\n<polyline fill=\"none\" points=\"6,4 10,8 6,12\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\">\n</polyline>\n</svg>\n<span class=\"c4647f690 ce823b5bf\">\nThinking\n</span>\n</button>\n<div class=\"c4647f690 ce823b5bf\" style=\"font-style: italic; margin-top: 4px; max-height: 200px; opacity: 0.7; overflow-y: auto; padding-left: 16px; white-space: pre-wrap\">\nFirst I check the schema.\nThen I write the handler.\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "a stream that ends folds the block away and reports its duration": {
+  "snapshots": [
+   "<div style=\"margin-bottom: 6px\">\n<button style=\"align-items: center; background: none; border: medium; color: inherit; cursor: pointer; display: inline-flex; gap: 4px; padding: 2px 0px\" type=\"button\">\n<svg height=\"12\" style=\"display: block; flex-shrink: 0; opacity: 0.5; transform: rotate(90deg); transition: transform 150ms\" viewbox=\"0 0 16 16\" width=\"12\" xmlns=\"http://www.w3.org/2000/svg\">\n<polyline fill=\"none\" points=\"6,4 10,8 6,12\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\">\n</polyline>\n</svg>\n<span class=\"c4647f690 ce823b5bf\">\nThinking\n</span>\n</button>\n<div class=\"c4647f690 ce823b5bf\" style=\"font-style: italic; margin-top: 4px; max-height: 200px; opacity: 0.7; overflow-y: auto; padding-left: 16px; white-space: pre-wrap\">\nConsidering the options.\n</div>\n</div>\n@route /",
+   "<div style=\"margin-bottom: 6px\">\n<button style=\"align-items: center; background: none; border: medium; color: inherit; cursor: pointer; display: inline-flex; gap: 4px; padding: 2px 0px\" type=\"button\">\n<svg height=\"12\" style=\"display: block; flex-shrink: 0; opacity: 0.5; transform: rotate(0deg); transition: transform 150ms\" viewbox=\"0 0 16 16\" width=\"12\" xmlns=\"http://www.w3.org/2000/svg\">\n<polyline fill=\"none\" points=\"6,4 10,8 6,12\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\">\n</polyline>\n</svg>\n<span class=\"c4647f690 ce823b5bf\">\nThought for 5 seconds\n</span>\n</button>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "a finished thought reports its seconds": {
+  "snapshots": [
+   "<div style=\"margin-bottom: 6px\">\n<button style=\"align-items: center; background: none; border: medium; color: inherit; cursor: pointer; display: inline-flex; gap: 4px; padding: 2px 0px\" type=\"button\">\n<svg height=\"12\" style=\"display: block; flex-shrink: 0; opacity: 0.5; transform: rotate(0deg); transition: transform 150ms\" viewbox=\"0 0 16 16\" width=\"12\" xmlns=\"http://www.w3.org/2000/svg\">\n<polyline fill=\"none\" points=\"6,4 10,8 6,12\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\">\n</polyline>\n</svg>\n<span class=\"c4647f690 ce823b5bf\">\nThought for 5 seconds\n</span>\n</button>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "a sub-second thought says it thought briefly": {
+  "snapshots": [
+   "<div style=\"margin-bottom: 6px\">\n<button style=\"align-items: center; background: none; border: medium; color: inherit; cursor: pointer; display: inline-flex; gap: 4px; padding: 2px 0px\" type=\"button\">\n<svg height=\"12\" style=\"display: block; flex-shrink: 0; opacity: 0.5; transform: rotate(0deg); transition: transform 150ms\" viewbox=\"0 0 16 16\" width=\"12\" xmlns=\"http://www.w3.org/2000/svg\">\n<polyline fill=\"none\" points=\"6,4 10,8 6,12\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\">\n</polyline>\n</svg>\n<span class=\"c4647f690 ce823b5bf\">\nThought briefly\n</span>\n</button>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "exactly one minute uses the singular minute": {
+  "snapshots": [
+   "<div style=\"margin-bottom: 6px\">\n<button style=\"align-items: center; background: none; border: medium; color: inherit; cursor: pointer; display: inline-flex; gap: 4px; padding: 2px 0px\" type=\"button\">\n<svg height=\"12\" style=\"display: block; flex-shrink: 0; opacity: 0.5; transform: rotate(0deg); transition: transform 150ms\" viewbox=\"0 0 16 16\" width=\"12\" xmlns=\"http://www.w3.org/2000/svg\">\n<polyline fill=\"none\" points=\"6,4 10,8 6,12\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\">\n</polyline>\n</svg>\n<span class=\"c4647f690 ce823b5bf\">\nThought for 1 minute\n</span>\n</button>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "several minutes use the plural minutes": {
+  "snapshots": [
+   "<div style=\"margin-bottom: 6px\">\n<button style=\"align-items: center; background: none; border: medium; color: inherit; cursor: pointer; display: inline-flex; gap: 4px; padding: 2px 0px\" type=\"button\">\n<svg height=\"12\" style=\"display: block; flex-shrink: 0; opacity: 0.5; transform: rotate(0deg); transition: transform 150ms\" viewbox=\"0 0 16 16\" width=\"12\" xmlns=\"http://www.w3.org/2000/svg\">\n<polyline fill=\"none\" points=\"6,4 10,8 6,12\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\">\n</polyline>\n</svg>\n<span class=\"c4647f690 ce823b5bf\">\nThought for 2 minutes\n</span>\n</button>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "a finished thought with no duration says it thought briefly": {
+  "snapshots": [
+   "<div style=\"margin-bottom: 6px\">\n<button style=\"align-items: center; background: none; border: medium; color: inherit; cursor: pointer; display: inline-flex; gap: 4px; padding: 2px 0px\" type=\"button\">\n<svg height=\"12\" style=\"display: block; flex-shrink: 0; opacity: 0.5; transform: rotate(0deg); transition: transform 150ms\" viewbox=\"0 0 16 16\" width=\"12\" xmlns=\"http://www.w3.org/2000/svg\">\n<polyline fill=\"none\" points=\"6,4 10,8 6,12\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\">\n</polyline>\n</svg>\n<span class=\"c4647f690 ce823b5bf\">\nThought briefly\n</span>\n</button>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "clicking a finished block opens it and clicking again closes it": {
+  "snapshots": [
+   "<div style=\"margin-bottom: 6px\">\n<button style=\"align-items: center; background: none; border: medium; color: inherit; cursor: pointer; display: inline-flex; gap: 4px; padding: 2px 0px\" type=\"button\">\n<svg height=\"12\" style=\"display: block; flex-shrink: 0; opacity: 0.5; transform: rotate(0deg); transition: transform 150ms\" viewbox=\"0 0 16 16\" width=\"12\" xmlns=\"http://www.w3.org/2000/svg\">\n<polyline fill=\"none\" points=\"6,4 10,8 6,12\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\">\n</polyline>\n</svg>\n<span class=\"c4647f690 ce823b5bf\">\nThought for 5 seconds\n</span>\n</button>\n</div>\n@route /",
+   "<div style=\"margin-bottom: 6px\">\n<button style=\"align-items: center; background: none; border: medium; color: inherit; cursor: pointer; display: inline-flex; gap: 4px; padding: 2px 0px\" type=\"button\">\n<svg height=\"12\" style=\"display: block; flex-shrink: 0; opacity: 0.5; transform: rotate(90deg); transition: transform 150ms\" viewbox=\"0 0 16 16\" width=\"12\" xmlns=\"http://www.w3.org/2000/svg\">\n<polyline fill=\"none\" points=\"6,4 10,8 6,12\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\">\n</polyline>\n</svg>\n<span class=\"c4647f690 ce823b5bf\">\nThought for 5 seconds\n</span>\n</button>\n<div class=\"c4647f690 ce823b5bf\" style=\"font-style: italic; margin-top: 4px; max-height: 200px; opacity: 0.7; overflow-y: auto; padding-left: 16px; white-space: pre-wrap\">\nConsidering the options.\n</div>\n</div>\n@route /",
+   "<div style=\"margin-bottom: 6px\">\n<button style=\"align-items: center; background: none; border: medium; color: inherit; cursor: pointer; display: inline-flex; gap: 4px; padding: 2px 0px\" type=\"button\">\n<svg height=\"12\" style=\"display: block; flex-shrink: 0; opacity: 0.5; transform: rotate(0deg); transition: transform 150ms\" viewbox=\"0 0 16 16\" width=\"12\" xmlns=\"http://www.w3.org/2000/svg\">\n<polyline fill=\"none\" points=\"6,4 10,8 6,12\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\">\n</polyline>\n</svg>\n<span class=\"c4647f690 ce823b5bf\">\nThought for 5 seconds\n</span>\n</button>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "clicking an open streaming block closes it": {
+  "snapshots": [
+   "<div style=\"margin-bottom: 6px\">\n<button style=\"align-items: center; background: none; border: medium; color: inherit; cursor: pointer; display: inline-flex; gap: 4px; padding: 2px 0px\" type=\"button\">\n<svg height=\"12\" style=\"display: block; flex-shrink: 0; opacity: 0.5; transform: rotate(90deg); transition: transform 150ms\" viewbox=\"0 0 16 16\" width=\"12\" xmlns=\"http://www.w3.org/2000/svg\">\n<polyline fill=\"none\" points=\"6,4 10,8 6,12\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\">\n</polyline>\n</svg>\n<span class=\"c4647f690 ce823b5bf\">\nThinking\n</span>\n</button>\n<div class=\"c4647f690 ce823b5bf\" style=\"font-style: italic; margin-top: 4px; max-height: 200px; opacity: 0.7; overflow-y: auto; padding-left: 16px; white-space: pre-wrap\">\nConsidering the options.\n</div>\n</div>\n@route /",
+   "<div style=\"margin-bottom: 6px\">\n<button style=\"align-items: center; background: none; border: medium; color: inherit; cursor: pointer; display: inline-flex; gap: 4px; padding: 2px 0px\" type=\"button\">\n<svg height=\"12\" style=\"display: block; flex-shrink: 0; opacity: 0.5; transform: rotate(0deg); transition: transform 150ms\" viewbox=\"0 0 16 16\" width=\"12\" xmlns=\"http://www.w3.org/2000/svg\">\n<polyline fill=\"none\" points=\"6,4 10,8 6,12\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\">\n</polyline>\n</svg>\n<span class=\"c4647f690 ce823b5bf\">\nThinking\n</span>\n</button>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "a reader who closed a streaming block keeps it closed as it continues": {
+  "snapshots": [
+   "<div style=\"margin-bottom: 6px\">\n<button style=\"align-items: center; background: none; border: medium; color: inherit; cursor: pointer; display: inline-flex; gap: 4px; padding: 2px 0px\" type=\"button\">\n<svg height=\"12\" style=\"display: block; flex-shrink: 0; opacity: 0.5; transform: rotate(90deg); transition: transform 150ms\" viewbox=\"0 0 16 16\" width=\"12\" xmlns=\"http://www.w3.org/2000/svg\">\n<polyline fill=\"none\" points=\"6,4 10,8 6,12\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\">\n</polyline>\n</svg>\n<span class=\"c4647f690 ce823b5bf\">\nThinking\n</span>\n</button>\n<div class=\"c4647f690 ce823b5bf\" style=\"font-style: italic; margin-top: 4px; max-height: 200px; opacity: 0.7; overflow-y: auto; padding-left: 16px; white-space: pre-wrap\">\nConsidering the options.\n</div>\n</div>\n@route /",
+   "<div style=\"margin-bottom: 6px\">\n<button style=\"align-items: center; background: none; border: medium; color: inherit; cursor: pointer; display: inline-flex; gap: 4px; padding: 2px 0px\" type=\"button\">\n<svg height=\"12\" style=\"display: block; flex-shrink: 0; opacity: 0.5; transform: rotate(0deg); transition: transform 150ms\" viewbox=\"0 0 16 16\" width=\"12\" xmlns=\"http://www.w3.org/2000/svg\">\n<polyline fill=\"none\" points=\"6,4 10,8 6,12\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\">\n</polyline>\n</svg>\n<span class=\"c4647f690 ce823b5bf\">\nThinking\n</span>\n</button>\n</div>\n@route /",
+   "<div style=\"margin-bottom: 6px\">\n<button style=\"align-items: center; background: none; border: medium; color: inherit; cursor: pointer; display: inline-flex; gap: 4px; padding: 2px 0px\" type=\"button\">\n<svg height=\"12\" style=\"display: block; flex-shrink: 0; opacity: 0.5; transform: rotate(0deg); transition: transform 150ms\" viewbox=\"0 0 16 16\" width=\"12\" xmlns=\"http://www.w3.org/2000/svg\">\n<polyline fill=\"none\" points=\"6,4 10,8 6,12\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\">\n</polyline>\n</svg>\n<span class=\"c4647f690 ce823b5bf\">\nThinking\n</span>\n</button>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "a locale switch re-labels the block and its duration": {
+  "snapshots": [
+   "<div style=\"margin-bottom: 6px\">\n<button style=\"align-items: center; background: none; border: medium; color: inherit; cursor: pointer; display: inline-flex; gap: 4px; padding: 2px 0px\" type=\"button\">\n<svg height=\"12\" style=\"display: block; flex-shrink: 0; opacity: 0.5; transform: rotate(0deg); transition: transform 150ms\" viewbox=\"0 0 16 16\" width=\"12\" xmlns=\"http://www.w3.org/2000/svg\">\n<polyline fill=\"none\" points=\"6,4 10,8 6,12\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\">\n</polyline>\n</svg>\n<span class=\"c4647f690 ce823b5bf\">\nThought for 5 seconds\n</span>\n</button>\n</div>\n@route /",
+   "<div style=\"margin-bottom: 6px\">\n<button style=\"align-items: center; background: none; border: medium; color: inherit; cursor: pointer; display: inline-flex; gap: 4px; padding: 2px 0px\" type=\"button\">\n<svg height=\"12\" style=\"display: block; flex-shrink: 0; opacity: 0.5; transform: rotate(0deg); transition: transform 150ms\" viewbox=\"0 0 16 16\" width=\"12\" xmlns=\"http://www.w3.org/2000/svg\">\n<polyline fill=\"none\" points=\"6,4 10,8 6,12\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\">\n</polyline>\n</svg>\n<span class=\"c4647f690 ce823b5bf\">\nA réfléchi pendant 5 secondes\n</span>\n</button>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "fr"
+    ]
+   }
+  ]
+ },
+ "a streaming turn auto-expands the body under a Thinking label, then a locale switch": {
+  "snapshots": [
+   "<div style=\"margin-bottom: 6px\">\n<button style=\"align-items: center; background: none; border: medium; color: inherit; cursor: pointer; display: inline-flex; gap: 4px; padding: 2px 0px\" type=\"button\">\n<svg height=\"12\" style=\"display: block; flex-shrink: 0; opacity: 0.5; transform: rotate(90deg); transition: transform 150ms\" viewbox=\"0 0 16 16\" width=\"12\" xmlns=\"http://www.w3.org/2000/svg\">\n<polyline fill=\"none\" points=\"6,4 10,8 6,12\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\">\n</polyline>\n</svg>\n<span class=\"c4647f690 ce823b5bf\">\nThinking\n</span>\n</button>\n<div class=\"c4647f690 ce823b5bf\" style=\"font-style: italic; margin-top: 4px; max-height: 200px; opacity: 0.7; overflow-y: auto; padding-left: 16px; white-space: pre-wrap\">\nConsidering the options.\n</div>\n</div>\n@route /",
+   "<div style=\"margin-bottom: 6px\">\n<button style=\"align-items: center; background: none; border: medium; color: inherit; cursor: pointer; display: inline-flex; gap: 4px; padding: 2px 0px\" type=\"button\">\n<svg height=\"12\" style=\"display: block; flex-shrink: 0; opacity: 0.5; transform: rotate(90deg); transition: transform 150ms\" viewbox=\"0 0 16 16\" width=\"12\" xmlns=\"http://www.w3.org/2000/svg\">\n<polyline fill=\"none\" points=\"6,4 10,8 6,12\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\">\n</polyline>\n</svg>\n<span class=\"c4647f690 ce823b5bf\">\n⟦Thinking⟧\n</span>\n</button>\n<div class=\"c4647f690 ce823b5bf\" style=\"font-style: italic; margin-top: 4px; max-height: 200px; opacity: 0.7; overflow-y: auto; padding-left: 16px; white-space: pre-wrap\">\nConsidering the options.\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en-XA"
+    ]
+   }
+  ]
+ }
+}

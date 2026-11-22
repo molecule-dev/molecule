@@ -10,31 +10,49 @@
  * @module
  */
 
-import { useEffect, useState } from 'react'
+import { useCallback, useSyncExternalStore } from 'react'
 
 import { COARSE_POINTER_QUERY, NARROW_VIEWPORT_QUERY } from '@molecule/app-ide-panel-logic'
 
 /**
- * Subscribes to a CSS media query. SSR-safe: reports `false` until mounted in
- * a browser.
+ * Whether a media query currently matches, read straight from the browser.
+ * @param query - The media query to evaluate.
+ * @returns True when the query matches; false without a browser (SSR).
+ */
+function queryMatches(query: string): boolean {
+  return typeof window !== 'undefined' && typeof window.matchMedia === 'function'
+    ? window.matchMedia(query).matches
+    : false
+}
+
+/**
+ * Subscribes to a CSS media query. SSR-safe: a server render (and the hydration
+ * pass that follows it) reports `false`; a client-only render reads the query
+ * on its first render.
  * @param query - A media query string, e.g. `'(max-width: 767px)'`.
  * @returns Whether the query currently matches.
  */
 export function useMediaQueryMatch(query: string): boolean {
-  const [matches, setMatches] = useState(() =>
-    typeof window !== 'undefined' && typeof window.matchMedia === 'function'
-      ? window.matchMedia(query).matches
-      : false,
+  // The media query is an external store whose snapshot is its `matches` flag:
+  // `useSyncExternalStore` reads it during render (so the first paint is right
+  // and a `query` change re-reads it in that same render) and re-renders from
+  // the `change` listener, with no setState of its own.
+  const subscribe = useCallback(
+    (onChange: () => void) => {
+      if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
+        return () => {}
+      }
+      const mql = window.matchMedia(query)
+      mql.addEventListener('change', onChange)
+      return () => mql.removeEventListener('change', onChange)
+    },
+    [query],
   )
-  useEffect(() => {
-    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return
-    const mql = window.matchMedia(query)
-    const onChange = (e: MediaQueryListEvent): void => setMatches(e.matches)
-    setMatches(mql.matches)
-    mql.addEventListener('change', onChange)
-    return () => mql.removeEventListener('change', onChange)
-  }, [query])
-  return matches
+  return useSyncExternalStore(
+    subscribe,
+    () => queryMatches(query),
+    () => false,
+  )
 }
 
 /**

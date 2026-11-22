@@ -24,6 +24,8 @@
  */
 
 import type { AppModelDefinition, EffortLevel, EffortOption } from '@molecule/app-ai-models'
+import { effortOptionsForModel, nativeEffortName } from '@molecule/app-ai-models'
+import type { TranslateFunction } from '@molecule/app-i18n'
 
 export type { EffortLevel, EffortOption }
 export {
@@ -132,4 +134,61 @@ export function modelsSupportingEffort(
  */
 export function effortLevelsForModel(model: AppModelDefinition | undefined): readonly string[] {
   return model?.supportedEffortLevels ?? []
+}
+
+/**
+ * The effort levels the open `/effort` picker lists, narrowed by any typed
+ * filter: the text after `/effort` (minus a mode flag) matches case-insensitively
+ * against each level's native value, so `/effort xh` narrows to `xhigh`. With no
+ * typed query every option is listed.
+ *
+ * @param text - The picker's raw input text.
+ * @param options - The scoped mode's model's options (see {@link effortOptionsForModel}).
+ * @returns The options matching the typed query (the whole list when empty).
+ */
+export function effortPickerVisibleOptions(
+  text: string,
+  options: readonly EffortOption[],
+): EffortOption[] {
+  const typed = parseEffortCommand(text)
+  const q = typed?.kind === 'set' ? typed.arg.toLowerCase() : ''
+  if (!q) return [...options]
+  return options.filter((o) => o.value.toLowerCase().includes(q))
+}
+
+/**
+ * The localized one-line status of a mode's reasoning effort — the `/effort ?`
+ * view's per-mode line. States whether the mode's model is fixed (one reasoning
+ * mode) or lists its current level and every available one.
+ *
+ * @param t - The caller's translate function (React passes `useTranslation()`'s `t`).
+ * @param mode - The conversation mode to describe.
+ * @param model - The model the mode will actually run, or `undefined`.
+ * @param currentEffort - The persisted per-mode value (or the legacy fallback).
+ * @returns The localized status line.
+ */
+export function effortModeStatusLine(
+  t: TranslateFunction,
+  mode: EffortMode,
+  model: AppModelDefinition | undefined,
+  currentEffort: EffortLevel | undefined,
+): string {
+  const options = effortOptionsForModel(model)
+  const current = nativeEffortName(model, currentEffort)
+  return current === null || options.length === 0
+    ? t(
+        'ide.chat.effort.modeFixed',
+        { mode, model: model?.label ?? '?' },
+        { defaultValue: '  {{mode}} ({{model}}): fixed — this model has one reasoning mode' },
+      )
+    : t(
+        'ide.chat.effort.modeLine',
+        {
+          mode,
+          model: model?.label ?? '?',
+          current,
+          levels: options.map((o) => o.value).join(', '),
+        },
+        { defaultValue: '  {{mode}} ({{model}}): {{current}} — available: {{levels}}' },
+      )
 }

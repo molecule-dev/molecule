@@ -6,14 +6,15 @@
  * editor (commit on blur and Enter, the parse that trims, drops invalid names
  * and dedupes, the draft that follows a replaced prop, the read-only lock),
  * the replace strip (reveal, the two-click confirm, the replace-all POST and
- * its re-search, the per-file ↻, the in-flight guard, the swallowed failure),
+ * its re-search, the per-file ↻, the in-flight guard, the failed replace),
  * the results themselves (groups, match rows, the hover tint, the collapse,
  * the click that opens the file at its line), the summary lines (found,
- * truncated, none, searching), the swallowed replace failure, the theme,
- * viewport and pointer branches, and the locale switch. (The failing-search
- * reply itself is not a case: the panel logs it at warn level, and the
- * recorder fails on any console warning — the branch's DOM, an emptied panel
- * with `No results found`, is the `no results` shape the cleared query shows.)
+ * truncated, none, searching), the failed search (the warn the panel logs —
+ * which the recording logger captures as a `logger.warn` call — and the
+ * emptied panel whose error line replaces the summary), the failed replace (its
+ * warn, the re-search, and the error line above the summary, or the search
+ * failure when the re-search fails too), the next search that clears the error
+ * line, the theme, viewport and pointer branches, and the locale switch.
  *
  * @module
  */
@@ -40,6 +41,9 @@ const TRUNCATED = { pattern: 'foo', results: RESULTS, totalCount: 250, truncated
 
 /** A reply with nothing left, as a replace-all that consumed the matches. */
 const EMPTY = { pattern: 'foo', results: [], totalCount: 0, truncated: false }
+
+/** What a replace that failed partway left: one file still matches. */
+const PARTLY_REPLACED = { pattern: 'foo', results: [RESULTS[1]], totalCount: 1, truncated: false }
 
 /** A case-sensitive reply: one file survives. */
 const CASE_OK = { pattern: 'foo', results: [RESULTS[0]], totalCount: 1, truncated: false }
@@ -311,7 +315,7 @@ export const searchPanelCases: FeatureComponentCases = {
       ],
     },
     {
-      name: 'a failed replace is swallowed and leaves the results alone',
+      name: 'a failed replace re-searches and says the results are current',
       props: { projectId: 'p1' },
       callbacks: CALLBACKS,
       fakeTimers: true,
@@ -319,6 +323,7 @@ export const searchPanelCases: FeatureComponentCases = {
         http: [
           { ...GET_FOO, data: OK },
           { ...POST_REPLACE, status: 500, data: { error: 'no' } },
+          { ...GET_FOO, data: PARTLY_REPLACED },
         ],
       },
       interactions: [
@@ -331,7 +336,58 @@ export const searchPanelCases: FeatureComponentCases = {
       ],
     },
 
+    {
+      name: 'a failed replace whose re-search fails too shows the search failure',
+      props: { projectId: 'p1' },
+      callbacks: CALLBACKS,
+      fakeTimers: true,
+      context: {
+        http: [
+          { ...GET_FOO, data: OK },
+          { ...POST_REPLACE, status: 500, data: { error: 'no' } },
+          { ...GET_FOO, status: 500, data: { error: 'no' } },
+        ],
+      },
+      interactions: [
+        { type: 'input', selector: QUERY_INPUT, value: 'foo' },
+        { type: 'advance', ms: 300 },
+        { type: 'click', selector: '[data-mol-id="search-replace-toggle"]' },
+        { type: 'input', selector: REPLACE_INPUT, value: 'bar' },
+        { type: 'click', selector: '[data-mol-id="search-replace-in-file"]' },
+      ],
+    },
+
     // ── The results ─────────────────────────────────────────────────────────
+    {
+      name: 'a failed search empties the panel and says the search failed',
+      props: { projectId: 'p1' },
+      callbacks: CALLBACKS,
+      fakeTimers: true,
+      context: { http: [{ ...GET_FOO, status: 500, data: { error: 'no' } }] },
+      interactions: [
+        { type: 'input', selector: QUERY_INPUT, value: 'foo' },
+        { type: 'advance', ms: 300 },
+      ],
+    },
+    {
+      name: 'a search that succeeds after a failed one clears the error line',
+      props: { projectId: 'p1' },
+      callbacks: CALLBACKS,
+      fakeTimers: true,
+      context: {
+        http: [
+          { ...GET_FOO, status: 500, data: { error: 'no' } },
+          { ...GET_CASE, data: CASE_OK },
+          { ...GET_CASE, data: CASE_OK },
+        ],
+      },
+      interactions: [
+        { type: 'input', selector: QUERY_INPUT, value: 'foo' },
+        { type: 'advance', ms: 300 },
+        { type: 'click', selector: '[data-mol-id="search-toggle-case"]' },
+        { type: 'advance', ms: 300 },
+      ],
+    },
     {
       name: 'the truncated summary says so',
       props: { projectId: 'p1' },

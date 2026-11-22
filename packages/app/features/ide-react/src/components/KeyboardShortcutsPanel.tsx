@@ -6,10 +6,11 @@
  */
 
 import type { JSX } from 'react'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
 import type { KeyboardShortcutsPanelProps, ShortcutEntry } from '@molecule/app-ide-panel-logic'
 import { useThemeMode, useTranslation } from '@molecule/app-react'
+import { useEffectEvent } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 
 /**
@@ -94,39 +95,39 @@ export function KeyboardShortcutsPanel({
     el?.scrollIntoView({ block: 'nearest' })
   }, [selectedIndex])
 
-  const handleKeyDown = useCallback(
-    (e: KeyboardEvent) => {
-      switch (e.key) {
-        case 'Escape':
-          e.preventDefault()
+  // An Effect Event: the document listener registers once and still sees the
+  // latest shortcuts/selection of the committed render, so it never needs
+  // re-registering (and never reads a value from a render React discarded).
+  const onKeyDown = useEffectEvent((e: KeyboardEvent) => {
+    switch (e.key) {
+      case 'Escape':
+        e.preventDefault()
+        onDismiss()
+        break
+      case 'ArrowDown':
+        e.preventDefault()
+        setSelectedIndex((i) => Math.min(i + 1, flatEntries.length - 1))
+        break
+      case 'ArrowUp':
+        e.preventDefault()
+        setSelectedIndex((i) => Math.max(i - 1, 0))
+        break
+      case 'Enter': {
+        e.preventDefault()
+        const entry = flatEntries[selectedIndex]
+        if (entry?.execute) {
+          entry.execute()
           onDismiss()
-          break
-        case 'ArrowDown':
-          e.preventDefault()
-          setSelectedIndex((i) => Math.min(i + 1, flatEntries.length - 1))
-          break
-        case 'ArrowUp':
-          e.preventDefault()
-          setSelectedIndex((i) => Math.max(i - 1, 0))
-          break
-        case 'Enter': {
-          e.preventDefault()
-          const entry = flatEntries[selectedIndex]
-          if (entry?.execute) {
-            entry.execute()
-            onDismiss()
-          }
-          break
         }
+        break
       }
-    },
-    [onDismiss, flatEntries, selectedIndex],
-  )
+    }
+  })
 
   useEffect(() => {
-    document.addEventListener('keydown', handleKeyDown, true)
-    return () => document.removeEventListener('keydown', handleKeyDown, true)
-  }, [handleKeyDown])
+    document.addEventListener('keydown', onKeyDown, true)
+    return () => document.removeEventListener('keydown', onKeyDown, true)
+  }, [])
 
   // Focus the panel so keyboard events work immediately
   useEffect(() => {

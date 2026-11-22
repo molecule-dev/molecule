@@ -160,6 +160,138 @@
    }
   ]
  },
+ "a failed list falls back to offering create": {
+  "snapshots": [
+   "<div data-mol-id=\"share-modal-backdrop\" role=\"presentation\" style=\"align-items: center; background: rgba(0, 0, 0, 0.45); display: flex; inset: 0px; justify-content: center; padding: 16px; position: fixed; z-index: 1300\">\n<div aria-label=\"Share project\" aria-modal=\"true\" class=\"c1af9479c c1f523237 c445db9b9 c4b92e3a8\" data-mol-id=\"share-modal\" role=\"dialog\" style=\"border-radius: 8px; box-shadow: 0 10px 40px rgba(0,0,0,0.35); max-height: 85vh; max-width: 460px; overflow-y: auto; padding: 16px; width: 100%\">\n<div class=\"c6a2a1a28 c80b1c428\" style=\"margin-bottom: 4px\">\nShare project\n</div>\n<div class=\"ce823b5bf\" style=\"line-height: 1.4; margin-bottom: 12px\">\nCreate a public link. Anyone with the link can act as viewer.\n</div>\n<div data-mol-id=\"share-links\" style=\"display: flex; flex-direction: column; gap: 10px\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"share-create\" style=\"align-items: center; align-self: flex-start; display: inline-flex; gap: 6px\" type=\"button\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" height=\"14\" viewbox=\"0 0 16 16\" width=\"14\">\n<path d=\"M3.75 6.5a.25.25 0 0 0-.25.25v6.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-6.5a.25.25 0 0 0-.25-.25h-1a.75.75 0 0 1 0-1.5h1c.966 0 1.75.784 1.75 1.75v6.5A1.75 1.75 0 0 1 12.25 15h-8.5A1.75 1.75 0 0 1 2 13.25v-6.5C2 5.784 2.784 5 3.75 5h1a.75.75 0 0 1 0 1.5ZM7.823.177a.25.25 0 0 1 .354 0l2.896 2.896a.25.25 0 0 1-.177.427H8.75v5.75a.75.75 0 0 1-1.5 0V3.5H5.104a.25.25 0 0 1-.177-.427Z\">\n</path>\n</svg>\nCreate link\n</button>\n</div>\n<div style=\"display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px\">\n<button class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"share-close\" type=\"button\">\nDone\n</button>\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/shares"
+     }
+    ]
+   },
+   {
+    "name": "logger.warn",
+    "args": [
+     "share-link-manager",
+     "Failed to list share links",
+     {
+      "error": {
+       "$error": "the sandbox is unreachable",
+       "name": "HttpError",
+       "status": 0
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "a failed create says so and offers create again": {
+  "snapshots": [
+   "<div data-mol-id=\"share-modal-backdrop\" role=\"presentation\" style=\"align-items: center; background: rgba(0, 0, 0, 0.45); display: flex; inset: 0px; justify-content: center; padding: 16px; position: fixed; z-index: 1300\">\n<div aria-label=\"Share project\" aria-modal=\"true\" class=\"c1af9479c c1f523237 c445db9b9 c4b92e3a8\" data-mol-id=\"share-modal\" role=\"dialog\" style=\"border-radius: 8px; box-shadow: 0 10px 40px rgba(0,0,0,0.35); max-height: 85vh; max-width: 460px; overflow-y: auto; padding: 16px; width: 100%\">\n<div class=\"c6a2a1a28 c80b1c428\" style=\"margin-bottom: 4px\">\nShare project\n</div>\n<div class=\"ce823b5bf\" style=\"line-height: 1.4; margin-bottom: 12px\">\nCreate a public link. Anyone with the link can act as viewer.\n</div>\n<div data-mol-id=\"share-links\" style=\"display: flex; flex-direction: column; gap: 10px\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"share-create\" style=\"align-items: center; align-self: flex-start; display: inline-flex; gap: 6px\" type=\"button\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" height=\"14\" viewbox=\"0 0 16 16\" width=\"14\">\n<path d=\"M3.75 6.5a.25.25 0 0 0-.25.25v6.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-6.5a.25.25 0 0 0-.25-.25h-1a.75.75 0 0 1 0-1.5h1c.966 0 1.75.784 1.75 1.75v6.5A1.75 1.75 0 0 1 12.25 15h-8.5A1.75 1.75 0 0 1 2 13.25v-6.5C2 5.784 2.784 5 3.75 5h1a.75.75 0 0 1 0 1.5ZM7.823.177a.25.25 0 0 1 .354 0l2.896 2.896a.25.25 0 0 1-.177.427H8.75v5.75a.75.75 0 0 1-1.5 0V3.5H5.104a.25.25 0 0 1-.177-.427Z\">\n</path>\n</svg>\nCreate link\n</button>\n</div>\n<div style=\"display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px\">\n<button class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"share-close\" type=\"button\">\nDone\n</button>\n</div>\n</div>\n</div>\n@route /",
+   "<div data-mol-id=\"share-modal-backdrop\" role=\"presentation\" style=\"align-items: center; background: rgba(0, 0, 0, 0.45); display: flex; inset: 0px; justify-content: center; padding: 16px; position: fixed; z-index: 1300\">\n<div aria-label=\"Share project\" aria-modal=\"true\" class=\"c1af9479c c1f523237 c445db9b9 c4b92e3a8\" data-mol-id=\"share-modal\" role=\"dialog\" style=\"border-radius: 8px; box-shadow: 0 10px 40px rgba(0,0,0,0.35); max-height: 85vh; max-width: 460px; overflow-y: auto; padding: 16px; width: 100%\">\n<div class=\"c6a2a1a28 c80b1c428\" style=\"margin-bottom: 4px\">\nShare project\n</div>\n<div class=\"ce823b5bf\" style=\"line-height: 1.4; margin-bottom: 12px\">\nCreate a public link. Anyone with the link can act as viewer.\n</div>\n<div data-mol-id=\"share-links\" style=\"display: flex; flex-direction: column; gap: 10px\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"share-create\" style=\"align-items: center; align-self: flex-start; display: inline-flex; gap: 6px\" type=\"button\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" height=\"14\" viewbox=\"0 0 16 16\" width=\"14\">\n<path d=\"M3.75 6.5a.25.25 0 0 0-.25.25v6.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-6.5a.25.25 0 0 0-.25-.25h-1a.75.75 0 0 1 0-1.5h1c.966 0 1.75.784 1.75 1.75v6.5A1.75 1.75 0 0 1 12.25 15h-8.5A1.75 1.75 0 0 1 2 13.25v-6.5C2 5.784 2.784 5 3.75 5h1a.75.75 0 0 1 0 1.5ZM7.823.177a.25.25 0 0 1 .354 0l2.896 2.896a.25.25 0 0 1-.177.427H8.75v5.75a.75.75 0 0 1-1.5 0V3.5H5.104a.25.25 0 0 1-.177-.427Z\">\n</path>\n</svg>\nCreate link\n</button>\n<div class=\"cab1062ad\" data-mol-id=\"share-error\" style=\"line-height: 1.4\">\nCould not create a share link. Please try again.\n</div>\n</div>\n<div style=\"display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px\">\n<button class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"share-close\" type=\"button\">\nDone\n</button>\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/shares"
+     }
+    ]
+   },
+   {
+    "name": "http.post",
+    "args": [
+     {
+      "data": {
+       "role": "viewer"
+      },
+      "url": "/projects/p1/shares"
+     }
+    ]
+   },
+   {
+    "name": "logger.warn",
+    "args": [
+     "share-link-manager",
+     "Failed to create share link",
+     {
+      "error": {
+       "$error": "Request failed with status 500",
+       "name": "HttpError",
+       "status": 500
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "a failed revoke says so and keeps the link": {
+  "snapshots": [
+   "<div data-mol-id=\"share-modal-backdrop\" role=\"presentation\" style=\"align-items: center; background: rgba(0, 0, 0, 0.45); display: flex; inset: 0px; justify-content: center; padding: 16px; position: fixed; z-index: 1300\">\n<div aria-label=\"Share project\" aria-modal=\"true\" class=\"c1af9479c c1f523237 c445db9b9 c4b92e3a8\" data-mol-id=\"share-modal\" role=\"dialog\" style=\"border-radius: 8px; box-shadow: 0 10px 40px rgba(0,0,0,0.35); max-height: 85vh; max-width: 460px; overflow-y: auto; padding: 16px; width: 100%\">\n<div class=\"c6a2a1a28 c80b1c428\" style=\"margin-bottom: 4px\">\nShare project\n</div>\n<div class=\"ce823b5bf\" style=\"line-height: 1.4; margin-bottom: 12px\">\nCreate a public link. Anyone with the link can act as viewer.\n</div>\n<div data-mol-id=\"share-links\" style=\"display: flex; flex-direction: column; gap: 10px\">\n<div data-mol-id=\"share-link-l1\" style=\"display: flex; flex-direction: column; gap: 4px\">\n<span class=\"c80b1c428\">\nPublic link\n</span>\n<div style=\"align-items: stretch; display: flex; gap: 8px\">\n<input class=\"c445db9b9\" data-mol-id=\"share-link-url\" readonly style=\"background: transparent; border-radius: 4px; border: 1px solid rgba(0, 0, 0, 0.12); color: inherit; cursor: pointer; flex: 1 1 0%; outline: none; padding: 6px 8px; width: 100%\" title=\"Click to copy\" value=\"http://localhost:3000/share/abc123\" {value=\"http://localhost:3000/share/abc123\"}>\n</input>\n<button aria-label=\"Copy link\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 ca596e575 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"share-link-copy\" style=\"align-items: center; display: inline-flex; gap: 6px; height: auto\" title=\"Copy link\" type=\"button\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" height=\"14\" viewbox=\"0 0 16 16\" width=\"14\">\n<path d=\"M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z\">\n</path>\n<path d=\"M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z\">\n</path>\n</svg>\nCopy\n</button>\n</div>\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between\">\n<span class=\"c4647f690 ce823b5bf\" style=\"line-height: 1.4\">\nAnyone with this link can act as viewer.\n</span>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1e8176ab c1f523237 c2f011182 c42b7ac33 c45cfc6cf c47632ef5 c4b0fcccf c553b152a c7fa4cf55 c85d185d6 c8afefbb7 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca596e575 cc06b624c cca586305 ccbae0bb0 cd6fe318b cee061da5 cf0915c40 cf204def4 cf9a2eaba\" data-mol-id=\"share-link-revoke-l1\" type=\"button\">\nRevoke\n</button>\n</div>\n</div>\n</div>\n<div style=\"display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px\">\n<button class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"share-close\" type=\"button\">\nDone\n</button>\n</div>\n</div>\n</div>\n@route /",
+   "<div data-mol-id=\"share-modal-backdrop\" role=\"presentation\" style=\"align-items: center; background: rgba(0, 0, 0, 0.45); display: flex; inset: 0px; justify-content: center; padding: 16px; position: fixed; z-index: 1300\">\n<div aria-label=\"Share project\" aria-modal=\"true\" class=\"c1af9479c c1f523237 c445db9b9 c4b92e3a8\" data-mol-id=\"share-modal\" role=\"dialog\" style=\"border-radius: 8px; box-shadow: 0 10px 40px rgba(0,0,0,0.35); max-height: 85vh; max-width: 460px; overflow-y: auto; padding: 16px; width: 100%\">\n<div class=\"c6a2a1a28 c80b1c428\" style=\"margin-bottom: 4px\">\nShare project\n</div>\n<div class=\"ce823b5bf\" style=\"line-height: 1.4; margin-bottom: 12px\">\nCreate a public link. Anyone with the link can act as viewer.\n</div>\n<div data-mol-id=\"share-links\" style=\"display: flex; flex-direction: column; gap: 10px\">\n<div data-mol-id=\"share-link-l1\" style=\"display: flex; flex-direction: column; gap: 4px\">\n<span class=\"c80b1c428\">\nPublic link\n</span>\n<div style=\"align-items: stretch; display: flex; gap: 8px\">\n<input class=\"c445db9b9\" data-mol-id=\"share-link-url\" readonly style=\"background: transparent; border-radius: 4px; border: 1px solid rgba(0, 0, 0, 0.12); color: inherit; cursor: pointer; flex: 1 1 0%; outline: none; padding: 6px 8px; width: 100%\" title=\"Click to copy\" value=\"http://localhost:3000/share/abc123\" {value=\"http://localhost:3000/share/abc123\"}>\n</input>\n<button aria-label=\"Copy link\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 ca596e575 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"share-link-copy\" style=\"align-items: center; display: inline-flex; gap: 6px; height: auto\" title=\"Copy link\" type=\"button\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" height=\"14\" viewbox=\"0 0 16 16\" width=\"14\">\n<path d=\"M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z\">\n</path>\n<path d=\"M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z\">\n</path>\n</svg>\nCopy\n</button>\n</div>\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between\">\n<span class=\"c4647f690 ce823b5bf\" style=\"line-height: 1.4\">\nAnyone with this link can act as viewer.\n</span>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1e8176ab c1f523237 c2f011182 c42b7ac33 c45cfc6cf c47632ef5 c4b0fcccf c553b152a c7fa4cf55 c85d185d6 c8afefbb7 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca596e575 cc06b624c cca586305 ccbae0bb0 cd6fe318b cee061da5 cf0915c40 cf204def4 cf9a2eaba\" data-mol-id=\"share-link-revoke-l1\" type=\"button\">\nRevoke\n</button>\n</div>\n</div>\n<div class=\"cab1062ad\" data-mol-id=\"share-error\" style=\"line-height: 1.4\">\nCould not revoke that link. Please try again.\n</div>\n</div>\n<div style=\"display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px\">\n<button class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"share-close\" type=\"button\">\nDone\n</button>\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/shares"
+     }
+    ]
+   },
+   {
+    "name": "http.delete",
+    "args": [
+     {
+      "url": "/projects/p1/shares/l1"
+     }
+    ]
+   },
+   {
+    "name": "logger.warn",
+    "args": [
+     "share-link-manager",
+     "Failed to revoke share link",
+     {
+      "error": {
+       "$error": "Request failed with status 500",
+       "name": "HttpError",
+       "status": 500
+      }
+     }
+    ]
+   }
+  ]
+ },
  "several granted roles are offered, the initial one picked": {
   "snapshots": [
    "<div data-mol-id=\"share-modal-backdrop\" role=\"presentation\" style=\"align-items: center; background: rgba(0, 0, 0, 0.45); display: flex; inset: 0px; justify-content: center; padding: 16px; position: fixed; z-index: 1300\">\n<div aria-label=\"Share project\" aria-modal=\"true\" class=\"c1af9479c c1f523237 c445db9b9 c4b92e3a8\" data-mol-id=\"share-modal\" role=\"dialog\" style=\"border-radius: 8px; box-shadow: 0 10px 40px rgba(0,0,0,0.35); max-height: 85vh; max-width: 460px; overflow-y: auto; padding: 16px; width: 100%\">\n<div class=\"c6a2a1a28 c80b1c428\" style=\"margin-bottom: 4px\">\nShare project\n</div>\n<div class=\"ce823b5bf\" style=\"line-height: 1.4; margin-bottom: 12px\">\nCreate a public link. Anyone with the link gets the role you choose — a viewer link is read-only.\n</div>\n<div data-mol-id=\"share-links\" style=\"display: flex; flex-direction: column; gap: 10px\">\n<label style=\"display: flex; flex-direction: column; gap: 4px\">\n<span class=\"c80b1c428\">\nRole\n</span>\n<select class=\"c445db9b9\" data-mol-id=\"share-role\" style=\"background: transparent; border-radius: 4px; border: 1px solid rgba(0, 0, 0, 0.12); color: inherit; outline: none; padding: 6px 8px; width: 100%\" {value=\"editor\"}>\n<option value=\"viewer\">\nViewer — view only\n</option>\n<option value=\"editor\">\nEditor — view &amp; edit\n</option>\n</select>\n</label>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"share-create\" style=\"align-items: center; align-self: flex-start; display: inline-flex; gap: 6px\" type=\"button\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" height=\"14\" viewbox=\"0 0 16 16\" width=\"14\">\n<path d=\"M3.75 6.5a.25.25 0 0 0-.25.25v6.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-6.5a.25.25 0 0 0-.25-.25h-1a.75.75 0 0 1 0-1.5h1c.966 0 1.75.784 1.75 1.75v6.5A1.75 1.75 0 0 1 12.25 15h-8.5A1.75 1.75 0 0 1 2 13.25v-6.5C2 5.784 2.784 5 3.75 5h1a.75.75 0 0 1 0 1.5ZM7.823.177a.25.25 0 0 1 .354 0l2.896 2.896a.25.25 0 0 1-.177.427H8.75v5.75a.75.75 0 0 1-1.5 0V3.5H5.104a.25.25 0 0 1-.177-.427Z\">\n</path>\n</svg>\nCreate link\n</button>\n</div>\n<div style=\"display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px\">\n<button class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"share-close\" type=\"button\">\nDone\n</button>\n</div>\n</div>\n</div>\n@route /"

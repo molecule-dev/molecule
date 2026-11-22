@@ -601,6 +601,16 @@ export default tseslint.config(
     rules: { 'svelte/no-at-html-tags': 'off' },
   },
   {
+    // The single place @molecule/app-ide-svelte injects markup: a bare
+    // `{@html}` fragment with no wrapper element, used by Icon, TabBar,
+    // SearchPanel, FileTreeItem, StatusMark and StreamingIndicator. Its input
+    // comes only from `@molecule/app-ui` and the bonded icon set, as React's
+    // counterparts inject the same strings with `dangerouslySetInnerHTML`;
+    // nothing user-supplied reaches it.
+    files: ['packages/app/features/ide-svelte/src/parts/Markup.svelte'],
+    rules: { 'svelte/no-at-html-tags': 'off' },
+  },
+  {
     // Renders the i18n catalog's legal HTML (`content.privacyPolicy` /
     // `content.termsOfService`) as the Privacy/Terms modal bodies, as React's
     // footer does with dangerouslySetInnerHTML. The catalog is app-supplied —

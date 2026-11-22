@@ -2,35 +2,12 @@ import { type JSX, useEffect, useState } from 'react'
 
 import type { ContextCompaction, ContextUsage } from '@molecule/app-ai-chat'
 import { formatTokenCount } from '@molecule/app-ai-models'
-import { contextCategoryLabel } from '@molecule/app-ide-panel-logic/panels'
+import { contextCategoryLabel, mergeContextHistory } from '@molecule/app-ide-panel-logic/panels'
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Modal, Progress, Tooltip } from '@molecule/app-ui-react'
 
 import { ContextSessionUsage, useContextSessionUsage } from './ContextSessionUsage.js'
-
-/** Merge final usage into its pre-dispatch sample without counting one request twice. */
-export function mergeContextHistory(
-  history: ContextUsage[],
-  incoming: ContextUsage[],
-): ContextUsage[] {
-  const samples = new Map<string, ContextUsage>()
-  for (const usage of [...history, ...incoming]) {
-    if (!usage.requestId && !usage.at) continue
-    const key = usage.requestId ?? usage.at!
-    const previous = samples.get(key)
-    // A slow history response must not replace provider-reported usage with an estimate.
-    if (
-      previous?.composition?.actualInputTokens != null &&
-      usage.composition?.actualInputTokens == null
-    )
-      continue
-    samples.set(key, usage)
-  }
-  const result = [...samples.values()].sort((a, b) => (a.at ?? '').localeCompare(b.at ?? ''))
-  // Keep the first sample so the chart's origin survives long conversations.
-  return result.length > 128 ? [result[0], ...result.slice(-127)] : result
-}
 
 // The category display names live in @molecule/app-ide-panel-logic
 // (contextCategoryLabel): one literal `ide.chat.context.category.<id>` t()

@@ -61,13 +61,22 @@ export function UserAvatar({ userAvatar, name, size = 24, onClick }: UserAvatarP
   const cm = getClassMap()
   const [hover, setHover] = useState(false)
   const src = resolveUserAvatar(userAvatar)
-  // The avatar identifies the message's sender: the author's name when we have
-  // one (a teammate's message), else the solo "You" (already-translated) — used
-  // for both the image alt and the fallback tile's accessible name.
-  const label = name || t('ide.chat.you', undefined, { defaultValue: 'You' })
+  // A whitespace-only (or empty) name is no name: it initials to nothing, and
+  // the label below drops to '' so the fallback tile renders decorative
+  // (aria-hidden, no image role) instead of announcing a blank.
+  const trimmedName = name?.trim() ?? ''
+  // The avatar identifies the message's sender: the author's raw name when we
+  // have one (a teammate's message — untrimmed, only its initial is), else the
+  // solo "You" (already-translated) for the viewer's own messages — used for
+  // both the image alt and the fallback tile's accessible name.
+  const label = trimmedName
+    ? name!
+    : name == null
+      ? t('ide.chat.you', undefined, { defaultValue: 'You' })
+      : ''
   // Named author with no renderable avatar → an initial-letter tile ("T" for
   // Test), never the generic glyph and NEVER someone else's picture.
-  const initial = name?.trim().charAt(0).toUpperCase() ?? ''
+  const initial = trimmedName.charAt(0).toUpperCase()
 
   const visual = src ? (
     <img
@@ -96,8 +105,11 @@ export function UserAvatar({ userAvatar, name, size = 24, onClick }: UserAvatarP
       // read as transparent (P3-02). The tint can't be a ClassMap class, so bg + glyph
       // color are inline.
       data-mol-id="chat-user-avatar"
-      role="img"
-      aria-label={label}
+      // A glyph with no name to announce (a whitespace-only author name) is
+      // decorative chrome: no image role, no label — axe `role-img-alt`.
+      aria-hidden={label ? undefined : true}
+      role={label ? 'img' : undefined}
+      aria-label={label || undefined}
       style={{
         width: size,
         height: size,

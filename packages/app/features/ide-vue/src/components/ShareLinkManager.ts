@@ -1,0 +1,525 @@
+/**
+ * Public share-link manager — the single UI for a project's public link, used
+ * both inside {@link ShareModal} (the `/share` command + header share button)
+ * and by a host's team/access panel so the two never diverge.
+ *
+ * Vue counterpart of `@molecule/app-ide-react`'s `ShareLinkManager` (see that
+ * file for the design notes): the same props (React names), the same DOM for
+ * the same input, the same callbacks and service calls. It reflects the
+ * project's CURRENT link state rather than always offering to mint one:
+ *
+ * - On mount it lists the project's links (`GET /projects/:projectId/shares`).
+ * - When a link already exists it shows the full, absolute URL
+ *   (`<origin>/share/<slug>`) as a click-to-copy field with visual
+ *   confirmation, plus a Revoke control — and it does NOT offer "Create link".
+ * - When none exists (and the caller may manage) it offers create at the roles
+ *   the host actually grants.
+ *
+ * `canManage` gates the mutating controls; `canCreate`/`canRevoke` split it
+ * when the backend gates them at different roles. All mint requests clamp to a
+ * role the host grants — a public link is an unauthenticated credential.
+ *
+ * Styling uses `getClassMap()` (`cm.*`); inline styles are layout only. All
+ * user-facing text goes through `t()`.
+ *
+ * @module
+ */
+
+import {
+  computed,
+  defineComponent,
+  h,
+  onScopeDispose,
+  type PropType,
+  ref,
+  type VNode,
+  type VNodeChild,
+  watch,
+} from 'vue'
+
+import { copyTextWithFallback } from '@molecule/app-clipboard'
+import type { ShareLinkResult, ShareRole } from '@molecule/app-ide-panel-logic'
+import {
+  buildSharePayload,
+  buildShareUrl,
+  DEFAULT_SHARE_ROLE,
+  shareGrantsText,
+  shareRoleLabel,
+} from '@molecule/app-ide-panel-logic'
+import { getLogger } from '@molecule/app-logger'
+import { getClassMap } from '@molecule/app-ui'
+import { useHttpClient, useThemeMode, useTranslation } from '@molecule/app-vue'
+
+import { useCoarsePointer, useNarrowViewport } from '../hooks/useViewport.js'
+import { Icon } from './Icon.js'
+
+const logger = getLogger('share-link-manager')
+
+/** The `GET /projects/:projectId/shares` response, tolerating either shape. */
+type ShareListResponse = { data?: ShareLinkResult[] } | ShareLinkResult[]
+
+/** The current page origin, or `''` during SSR. */
+function pageOrigin(): string {
+  return typeof window !== 'undefined' ? window.location.origin : ''
+}
+
+/** Props for {@link ShareLinkManager} — the React prop names, React's own contract. */
+export interface ShareLinkManagerProps {
+  /** The project whose public link is managed. */
+  projectId: string
+  /**
+   * Umbrella default for `canCreate` and `canRevoke`. A caller who can neither
+   * create nor revoke may still view and copy an existing link.
+   */
+  canManage?: boolean
+  /** Whether the caller may CREATE a link. Defaults to `canManage`. */
+  canCreate?: boolean
+  /** Whether the caller may REVOKE a link. Defaults to `canManage`. */
+  canRevoke?: boolean
+  /**
+   * The roles this host's backend actually grants through a public link, in the
+   * order to offer them. Defaults to `[viewer]`.
+   */
+  roles?: readonly ShareRole[]
+  /** Role pre-selected in the create control when more than one is offered. */
+  initialRole?: ShareRole
+  /** Bump to reload the link list (the host's live-update channel). */
+  refreshSignal?: number
+  /** Called after a link is created, with the created link. */
+  onCreated?: (result: ShareLinkResult) => void
+  /** Called after a link is revoked, with the revoked link's id. */
+  onRevoked?: (id: string) => void
+}
+
+/**
+ * Mirrors React onto the URL field: React keeps the `value` ATTRIBUTE in step
+ * with the controlled value (the DOM property alone is not enough for the same
+ * serialized markup).
+ *
+ * @param vnode - The input's vnode.
+ */
+function syncValueAttr(vnode: VNode): void {
+  const el = vnode.el as HTMLInputElement | null
+  if (el) el.setAttribute('value', el.value)
+}
+
+/**
+ * The reusable public-link manager. See the module doc for behavior.
+ *
+ * @param props - See {@link ShareLinkManagerProps}.
+ * @returns The rendered manager.
+ */
+export const ShareLinkManager = defineComponent({
+  name: 'ShareLinkManager',
+  inheritAttrs: false,
+  props: {
+    /** The project whose public link is managed. */
+    projectId: { type: String, required: true },
+    /** Umbrella default for {@link ShareLinkManagerProps.canCreate} and `canRevoke`. */
+    canManage: { type: Boolean, required: false, default: true },
+    /** Whether the caller may CREATE a link (defaults to `canManage`). */
+    canCreate: { type: Boolean, required: false, default: undefined },
+    /** Whether the caller may REVOKE a link (defaults to `canManage`). */
+    canRevoke: { type: Boolean, required: false, default: undefined },
+    /** The roles this host's backend actually grants through a public link. */
+    roles: {
+      type: Array as PropType<readonly ShareRole[]>,
+      required: false,
+      default: () => [DEFAULT_SHARE_ROLE],
+    },
+    /** Role pre-selected in the create control when more than one is offered. */
+    initialRole: {
+      type: String as PropType<ShareRole>,
+      required: false,
+      default: DEFAULT_SHARE_ROLE,
+    },
+    /** Bump to reload the link list (the host's live-update channel). */
+    refreshSignal: { type: Number, required: false, default: undefined },
+    /** Called after a link is created, with the created link. */
+    onCreated: {
+      type: Function as PropType<(result: ShareLinkResult) => void>,
+      required: false,
+      default: undefined,
+    },
+    /** Called after a link is revoked, with the revoked link's id. */
+    onRevoked: {
+      type: Function as PropType<(id: string) => void>,
+      required: false,
+      default: undefined,
+    },
+  },
+  setup(props) {
+    const cm = getClassMap()
+    const http = useHttpClient()
+    const { t } = useTranslation()
+    const mode = useThemeMode()
+    const isNarrow = useNarrowViewport()
+    const isCoarse = useCoarsePointer()
+
+    const offeredRoles = computed<readonly ShareRole[]>(() =>
+      props.roles.length ? props.roles : [DEFAULT_SHARE_ROLE],
+    )
+    const canCreate = computed(() =>
+      props.canCreate === undefined ? props.canManage : props.canCreate,
+    )
+    const canRevoke = computed(() =>
+      props.canRevoke === undefined ? props.canManage : props.canRevoke,
+    )
+    // React's `useState` initializer: read ONCE, so a later `roles` or
+    // `initialRole` change never reseeds the picker.
+    const initialOffered = offeredRoles.value
+    const role = ref<ShareRole>(
+      initialOffered.includes(props.initialRole) ? props.initialRole : initialOffered[0]!,
+    )
+    const links = ref<ShareLinkResult[]>([])
+    const loading = ref(true)
+    const creating = ref(false)
+    const revokingId = ref<string | null>(null)
+    const copiedId = ref<string | null>(null)
+    const error = ref<string | null>(null)
+    let copyTimer: ReturnType<typeof setTimeout> | null = null
+
+    /**
+     * Fetches the project's links — React's `loadLinks` effect body. The reply
+     * outside a live scope still settles the state (React applies it too).
+     *
+     * @returns Nothing, once the request settles.
+     */
+    const loadLinks = async (): Promise<void> => {
+      try {
+        const res = await http.get<ShareListResponse>(`/projects/${props.projectId}/shares`)
+        const body = res.data
+        const list = Array.isArray(body) ? body : (body?.data ?? [])
+        // A revoked link is gone as far as the product is concerned.
+        links.value = list.filter((link) => !link.revokedAt)
+      } catch (err) {
+        logger.warn('Failed to list share links', { error: err })
+        links.value = []
+      } finally {
+        loading.value = false
+      }
+    }
+
+    // React's effect: the fetch re-runs for a replaced `projectId` and for a
+    // bumped `refreshSignal`.
+    watch([() => props.projectId, () => props.refreshSignal], () => void loadLinks(), {
+      immediate: true,
+    })
+
+    // React clears the copy confirmation's timer when the component unmounts.
+    onScopeDispose(() => {
+      if (copyTimer) clearTimeout(copyTimer)
+    })
+
+    /**
+     * Mints a link at the picked role (React's `handleCreate`).
+     *
+     * @returns Nothing, once the request settles.
+     */
+    const handleCreate = async (): Promise<void> => {
+      if (creating.value) return
+      creating.value = true
+      error.value = null
+      try {
+        const res = await http.post<ShareLinkResult>(
+          `/projects/${props.projectId}/shares`,
+          buildSharePayload(role.value),
+        )
+        links.value = [res.data, ...links.value]
+        props.onCreated?.(res.data)
+      } catch (err) {
+        logger.warn('Failed to create share link', { error: err })
+        error.value = t('ide.chat.share.error', undefined, {
+          defaultValue: 'Could not create a share link. Please try again.',
+        })
+      } finally {
+        creating.value = false
+      }
+    }
+
+    /**
+     * Revokes one link (React's `handleRevoke`).
+     *
+     * @param id - The link's id.
+     * @returns Nothing, once the request settles.
+     */
+    const handleRevoke = async (id: string): Promise<void> => {
+      if (revokingId.value) return
+      revokingId.value = id
+      error.value = null
+      try {
+        await http.delete(`/projects/${props.projectId}/shares/${id}`)
+        links.value = links.value.filter((link) => link.id !== id)
+        props.onRevoked?.(id)
+      } catch (err) {
+        logger.warn('Failed to revoke share link', { error: err })
+        error.value = t('ide.chat.share.revokeFailed', undefined, {
+          defaultValue: 'Could not revoke that link. Please try again.',
+        })
+      } finally {
+        revokingId.value = null
+      }
+    }
+
+    /**
+     * Copies a link's URL and shows the confirmation for 1.5 s (React's
+     * `handleCopy`).
+     *
+     * @param id - The link's id (or slug).
+     * @param url - The absolute share URL.
+     */
+    const handleCopy = (id: string, url: string): void => {
+      void copyTextWithFallback(url).then((copied) => {
+        if (!copied) return
+        copiedId.value = id
+        if (copyTimer) clearTimeout(copyTimer)
+        copyTimer = setTimeout(() => {
+          copiedId.value = null
+        }, 1500)
+      })
+    }
+
+    /**
+     * The copy field's inline style: React's `fieldStyle`, with the numbers
+     * already written as the DOM serializes them.
+     *
+     * @returns The style object.
+     */
+    const fieldStyle = (): Record<string, string> => {
+      const border = mode.value === 'light' ? 'rgba(0, 0, 0, 0.12)' : 'rgba(255, 255, 255, 0.12)'
+      return {
+        width: '100%',
+        padding: '6px 8px',
+        borderRadius: '4px',
+        border: `1px solid ${border}`,
+        background: 'transparent',
+        color: 'inherit',
+        outline: 'none',
+        // ≥16px on phones/touch so iOS Safari doesn't zoom the page on focus.
+        ...(isNarrow.value || isCoarse.value ? { fontSize: '16px' } : {}),
+      }
+    }
+
+    /**
+     * A link's stable key (React's `key={link.id ?? link.slug}`).
+     *
+     * @param link - The link.
+     * @returns Its id or slug.
+     */
+    const linkKey = (link: ShareLinkResult): string => link.id ?? link.slug
+
+    return (): VNodeChild => {
+      if (loading.value)
+        return h(
+          'div',
+          { 'data-mol-id': 'share-links-loading', class: cm.cn(cm.textMuted, cm.textSize('sm')) },
+          [t('ide.chat.share.loading', undefined, { defaultValue: 'Loading…' })],
+        )
+
+      const hasLink = links.value.length > 0
+      const rows = links.value.map((link) => {
+        const url = buildShareUrl(link, pageOrigin())
+        const key = linkKey(link)
+        const copied = copiedId.value === key
+        return h(
+          'div',
+          {
+            key,
+            'data-mol-id': `share-link-${key}`,
+            style: { display: 'flex', flexDirection: 'column', gap: '4px' },
+          },
+          [
+            h('span', { class: cm.fontWeight('medium') }, [
+              t('ide.chat.share.linkLabel', undefined, { defaultValue: 'Public link' }),
+            ]),
+            h('div', { style: { display: 'flex', gap: '8px', alignItems: 'stretch' } }, [
+              h('input', {
+                value: url,
+                'data-mol-id': 'share-link-url',
+                readonly: true,
+                title: t('ide.chat.share.copyHint', undefined, { defaultValue: 'Click to copy' }),
+                onClick: (event: Event) => {
+                  ;(event.currentTarget as HTMLInputElement).select()
+                  handleCopy(key, url)
+                },
+                class: cm.textSize('sm'),
+                style: { ...fieldStyle(), flex: '1 1 0%', cursor: 'pointer' },
+                onVnodeMounted: syncValueAttr,
+                onVnodeUpdated: syncValueAttr,
+              }),
+              h(
+                'button',
+                {
+                  type: 'button',
+                  'data-mol-id': 'share-link-copy',
+                  onClick: () => handleCopy(key, url),
+                  class: cm.cn(
+                    cm.button({ variant: 'solid', color: 'primary', size: 'sm' }),
+                    cm.touchTargetCompact,
+                    cm.shrink0,
+                  ),
+                  title: t('ide.chat.share.copy', undefined, { defaultValue: 'Copy link' }),
+                  'aria-label': t('ide.chat.share.copy', undefined, {
+                    defaultValue: 'Copy link',
+                  }),
+                  style: {
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    height: 'auto',
+                  },
+                },
+                [
+                  h(Icon, { name: copied ? 'check' : 'copy', size: 14, 'aria-hidden': 'true' }),
+                  copied
+                    ? t('ide.chat.share.copied', undefined, { defaultValue: 'Copied' })
+                    : t('ide.chat.share.copyShort', undefined, { defaultValue: 'Copy' }),
+                ],
+              ),
+            ]),
+            h(
+              'div',
+              {
+                style: {
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  gap: '8px',
+                },
+              },
+              [
+                h(
+                  'span',
+                  {
+                    class: cm.cn(cm.textMuted, cm.textSize('xs')),
+                    style: { lineHeight: '1.4' },
+                  },
+                  [shareGrantsText(t, link.role)],
+                ),
+                canRevoke.value && link.id
+                  ? h(
+                      'button',
+                      {
+                        type: 'button',
+                        'data-mol-id': `share-link-revoke-${link.id}`,
+                        onClick: () => void handleRevoke(link.id as string),
+                        disabled: revokingId.value === link.id,
+                        class: cm.cn(
+                          cm.button({ variant: 'ghost', color: 'error', size: 'sm' }),
+                          cm.touchTargetCompact,
+                          cm.shrink0,
+                        ),
+                      },
+                      [
+                        revokingId.value === link.id
+                          ? t('ide.chat.share.revoking', undefined, { defaultValue: 'Revoking…' })
+                          : t('ide.chat.share.revoke', undefined, { defaultValue: 'Revoke' }),
+                      ],
+                    )
+                  : null,
+              ],
+            ),
+          ],
+        )
+      })
+
+      const none =
+        !hasLink && !canCreate.value
+          ? h(
+              'div',
+              {
+                'data-mol-id': 'share-links-none',
+                class: cm.cn(cm.textMuted, cm.textSize('sm')),
+              },
+              [t('ide.chat.share.none', undefined, { defaultValue: 'No public link yet.' })],
+            )
+          : null
+
+      const create =
+        !hasLink && canCreate.value
+          ? [
+              offeredRoles.value.length > 1
+                ? h('label', { style: { display: 'flex', flexDirection: 'column', gap: '4px' } }, [
+                    h('span', { class: cm.fontWeight('medium') }, [
+                      t('ide.chat.share.roleLabel', undefined, { defaultValue: 'Role' }),
+                    ]),
+                    h(
+                      'select',
+                      {
+                        'data-mol-id': 'share-role',
+                        onChange: (event: Event) => {
+                          role.value = (event.target as HTMLSelectElement).value as ShareRole
+                        },
+                        class: cm.textSize('sm'),
+                        style: fieldStyle(),
+                        // React sets the select's `value` as a live property and
+                        // no attribute; Vue's `value` prop would write both.
+                        onVnodeMounted: (vnode: VNode) => {
+                          const el = vnode.el as HTMLSelectElement | null
+                          if (el) el.value = role.value
+                        },
+                        onVnodeUpdated: (vnode: VNode) => {
+                          const el = vnode.el as HTMLSelectElement | null
+                          if (el) el.value = role.value
+                        },
+                      },
+                      offeredRoles.value.map((r) =>
+                        h('option', { key: r, value: r }, [shareRoleLabel(t, r)]),
+                      ),
+                    ),
+                  ])
+                : null,
+              h(
+                'button',
+                {
+                  type: 'button',
+                  'data-mol-id': 'share-create',
+                  onClick: () => void handleCreate(),
+                  disabled: creating.value,
+                  class: cm.cn(
+                    cm.button({ variant: 'solid', color: 'primary', size: 'sm' }),
+                    cm.touchTargetCompact,
+                  ),
+                  style: {
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    alignSelf: 'flex-start',
+                  },
+                },
+                [
+                  h(Icon, { name: 'share', size: 14, 'aria-hidden': 'true' }),
+                  creating.value
+                    ? t('ide.chat.share.creating', undefined, { defaultValue: 'Creating…' })
+                    : t('ide.chat.share.create', undefined, { defaultValue: 'Create link' }),
+                ],
+              ),
+            ]
+          : null
+
+      return h(
+        'div',
+        {
+          'data-mol-id': 'share-links',
+          style: { display: 'flex', flexDirection: 'column', gap: '10px' },
+        },
+        [
+          ...rows,
+          none,
+          ...(create ?? []),
+          error.value
+            ? h(
+                'div',
+                {
+                  'data-mol-id': 'share-error',
+                  class: cm.textError,
+                  style: { lineHeight: '1.4' },
+                },
+                [error.value],
+              )
+            : null,
+        ],
+      )
+    }
+  },
+})

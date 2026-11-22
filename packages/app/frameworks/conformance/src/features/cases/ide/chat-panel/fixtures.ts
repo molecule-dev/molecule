@@ -338,6 +338,28 @@ export const queueAccept: Interaction = { type: 'control', name: 'chat.queueAcce
 export const adv = (ms: number): Interaction => ({ type: 'advance', ms })
 
 /**
+ * How often a streaming message re-parses its markdown (`MarkdownContent`'s throttle): text
+ * that arrives within this long of the last parse shows once it elapses, so advance by it
+ * after the 50 ms flush to see a later frame of a message that is still streaming.
+ */
+export const MARKDOWN_THROTTLE_MS = 120
+
+/**
+ * Sets whether the server has a live turn, for this and every later history load. A turn
+ * driven by pushed frames needs it: the panel confirms a pushed turn by loading history and
+ * reading the flag, and a `false` there ends the remote turn, so later frames are not shown.
+ * Set it `true` before the first pushed frame and `false` after the turn's `done`.
+ *
+ * @param live - Whether a turn is running on the server.
+ * @returns The step.
+ */
+export const serverStreaming = (live: boolean): Interaction => ({
+  type: 'control',
+  name: 'chat.serverStreaming',
+  args: [live],
+})
+
+/**
  * Changes props (merged over the current ones).
  *
  * @param props - The changed props.

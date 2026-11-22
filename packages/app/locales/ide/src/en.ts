@@ -55,6 +55,7 @@ export const en: IdeTranslations = {
   'ide.chat.queued': 'Queued',
   'ide.chat.queuedCount': '{{count}} queued',
   'ide.chat.editQueued': 'Edit',
+  'ide.chat.queuedEdit.label': 'Edit queued message',
   'ide.chat.deleteQueued': 'Delete',
   'ide.chat.sendQueued': 'Send',
   'ide.chat.responseStopped': 'Response stopped',
@@ -187,6 +188,8 @@ export const en: IdeTranslations = {
   'ide.search.excludedDirs': 'Excluded folders (applies to all searches, including the agent)',
   'ide.search.resultsTruncated': '{{count}} results in {{files}} files (truncated)',
   'ide.search.searching': 'Searching…',
+  'ide.search.searchFailed': 'Search failed.',
+  'ide.search.replaceFailed': 'Replace failed. The results show what the files contain now.',
   'ide.sidebar.tabs': 'Sidebar',
   'ide.sidebar.files': 'Explorer',
   'ide.sidebar.search': 'Search',
@@ -221,6 +224,7 @@ export const en: IdeTranslations = {
   'ide.tool.readDocs': 'Read docs',
   'ide.tool.fetchHost': 'Fetch {{host}}',
   'ide.tool.descriptionBackground': '{{description}} (background)',
+  // keep-english: the name of the Bash shell tool
   'ide.tool.bash': 'Bash',
   'ide.tool.bashBackground': 'Bash (background)',
   'ide.tool.goTo': 'Go to',
@@ -647,6 +651,7 @@ export const en: IdeTranslations = {
   'ide.chat.scripts.cancelNew': 'Cancel',
   'ide.chat.scripts.namePlaceholder': 'Script name (e.g. run-tests)',
   'ide.chat.scripts.descriptionPlaceholder': 'What does it do?',
+  // keep-english: a sample shell script: code, not prose
   'ide.chat.scripts.bodyPlaceholder': '#!/bin/sh\nnpm test',
   'ide.chat.scripts.searchPlaceholder': 'Filter scripts…',
   'ide.chat.scripts.save': 'Save script',
@@ -731,8 +736,6 @@ export const en: IdeTranslations = {
   'ide.chat.skills.loadedCount': '🧠 Loaded {{count}} skills',
   // Composable segments for the "Loaded `<skill>` skill" card — the name renders as a
   // clickable monospace span between these two: "Loaded " + `name` + " skill".
-  'ide.chat.skills.loadedPrefix': 'Loaded ',
-  'ide.chat.skills.loadedSuffix': ' skill',
   'ide.chat.skills.loading': 'Loading skills…',
   'ide.chat.skills.waitingForSandbox': 'Waiting for the sandbox to finish starting…',
   'ide.chat.skills.error': 'Could not load skills for this project.',
@@ -809,7 +812,6 @@ export const en: IdeTranslations = {
   'ide.testsBar.passedLabel': 'passing',
   'ide.testsBar.failedLabel': 'failing',
   'ide.testsBar.skippedLabel': 'skipped',
-  'ide.testsBar.remainingLabel': 'to go',
   'ide.testsBar.currentFile': 'Running {{file}}',
   'ide.testsBar.open': 'Tests',
   'ide.testsBar.stop': 'Stop',
@@ -998,4 +1000,7 @@ export const en: IdeTranslations = {
     'Create a public link. Anyone with the link can act as {{role}}.',
   'ide.chat.share.subheading.owner':
     'Create a public link. Anyone with the link can act as {{role}}.',
+  'ide.chat.expandMessage': 'Show more',
+  'ide.chat.collapseMessage': 'Show less',
+  'ide.chat.newConversation': 'New conversation',
 }

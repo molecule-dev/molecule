@@ -8,10 +8,11 @@ import type { JSX } from 'react'
 import { useEffect, useRef, useState } from 'react'
 import { useCallback } from 'react'
 
-import type { EditorConfig } from '@molecule/app-code-editor'
+import type { EditorConfig, FixWithAIRequest } from '@molecule/app-code-editor'
 import type { EditorPanelProps } from '@molecule/app-ide-panel-logic'
 import { getLogger } from '@molecule/app-logger'
 import { useEditor, useEditorProvider, useThemeMode, useTranslation } from '@molecule/app-react'
+import { useEffectEvent } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 
 import { useNarrowViewport } from '../hooks/useViewport.js'
@@ -96,9 +97,8 @@ export function EditorPanel({
   const { tabs, activeFile, closeFile, setActiveTab, pinTab, mount, dispose } = useEditor()
   const containerRef = useRef<HTMLDivElement>(null)
   const mountedRef = useRef(false)
-  // Use a ref so onEditorReady never needs to be in the mount effect's dep array
-  const onEditorReadyRef = useRef(onEditorReady)
-  onEditorReadyRef.current = onEditorReady
+  // An Effect Event, so onEditorReady never needs to be in the mount effect's dep array
+  const notifyEditorReady = useEffectEvent(() => onEditorReady?.())
 
   // Inject keyframes on first render
   useEffect(() => {
@@ -147,28 +147,44 @@ export function EditorPanel({
 
   // Formatting toast: visible tracks whether the toast is in the DOM,
   // animatingIn controls the CSS transition state (false = slide down / fade out).
+  // Both flip in render, from the committed `isFormatting` of the previous
+  // render: showing/hiding the toast is a reset driven by that prop change, and
+  // doing it here (React's documented "adjust state when a prop changes"
+  // pattern) commits in the same render that mounts the toast, instead of one
+  // extra render later from an effect. The effect below owns only the
+  // transitions that need time: the enter animation's next-frame kick and the
+  // exit's 300ms delay.
   const isFormatting = !!(formattingFile && formattingFile === activeFile)
-  const [visible, setVisible] = useState(false)
+  const [visible, setVisible] = useState(isFormatting)
   const [animatingIn, setAnimatingIn] = useState(false)
+  const [prevIsFormatting, setPrevIsFormatting] = useState(isFormatting)
   const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  if (prevIsFormatting !== isFormatting) {
+    setPrevIsFormatting(isFormatting)
+    // Both directions start from the hidden position: the enter animation below
+    // animates it in, the exit animation slides the still-visible toast out.
+    setAnimatingIn(false)
+    if (isFormatting) setVisible(true)
+  }
+  // `visible` is read through an Effect Event: this effect must fire only when
+  // the formatting state itself flips — the toast's own visibility change must
+  // not re-run it (that would restart its exit timer).
+  const isToastVisible = useEffectEvent(() => visible)
 
   useEffect(() => {
     if (isFormatting) {
-      // Show toast
       if (hideTimerRef.current) {
         clearTimeout(hideTimerRef.current)
         hideTimerRef.current = null
       }
-      setVisible(true)
       // Trigger enter animation on next frame so the transition fires
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           setAnimatingIn(true)
         })
       })
-    } else if (visible) {
-      // Start exit animation, then remove from DOM
-      setAnimatingIn(false)
+    } else if (isToastVisible()) {
+      // Start the exit animation, then remove the toast from the DOM
       hideTimerRef.current = setTimeout(() => {
         setVisible(false)
         hideTimerRef.current = null
@@ -180,12 +196,11 @@ export function EditorPanel({
   const showCountdown = !!(countdownFile && countdownFile === activeFile)
 
   // Wire Fix with AI callback — subscribe to the editor provider's onFixWithAI
-  const onFixWithAIRef = useRef(onFixWithAI)
-  onFixWithAIRef.current = onFixWithAI
+  const fixWithAI = useEffectEvent((request: FixWithAIRequest) => onFixWithAI?.(request))
   useEffect(() => {
     if (!editorProvider.onFixWithAI) return
     return editorProvider.onFixWithAI((request) => {
-      onFixWithAIRef.current?.(request)
+      fixWithAI(request)
     })
   }, [editorProvider])
 
@@ -219,7 +234,7 @@ export function EditorPanel({
     if (result && typeof (result as Promise<void>).then === 'function') {
       ;(result as Promise<void>)
         .then(() => {
-          onEditorReadyRef.current?.()
+          notifyEditorReady()
         })
         .catch((error) => {
           logger.error('editor-panel: mounting the code editor failed; panel stays empty', {
@@ -228,7 +243,7 @@ export function EditorPanel({
           mountedRef.current = false
         })
     } else {
-      onEditorReadyRef.current?.()
+      notifyEditorReady()
     }
 
     return () => {

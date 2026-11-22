@@ -36,6 +36,7 @@ import {
   toolLabel,
   toolSummary,
 } from '@molecule/app-ide-panel-logic/panels'
+import { getLogger } from '@molecule/app-logger'
 import { useThemeMode, useTranslation, type UseTranslationResult } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -59,9 +60,941 @@ function unescapeLiterals(s: string): string {
   return s.replace(/\\r\\n|\\n|\\r/g, '\n').replace(/\\t/g, '\t')
 }
 
+/** What the `spawn_agent` card reads from its tool-call row. */
+interface SpawnAgentCardProps {
+  input?: unknown
+  output?: unknown
+  status: ToolCallCardProps['status']
+  className?: string
+  cm: ReturnType<typeof getClassMap>
+  isLight: boolean
+  t: UseTranslationResult['t']
+}
+
+/**
+ * The `spawn_agent` tool-call card — explore report / judge verdict / build
+ * summary. A component of its own so the card's expand state is owned by
+ * unconditional hooks, not by a branch inside the row.
+ *
+ * @param props - The card's slice of the tool-call row.
+ * @returns The subagent card element.
+ */
+function SpawnAgentCard({
+  input,
+  output,
+  status,
+  className,
+  cm,
+  isLight,
+  t,
+}: SpawnAgentCardProps): JSX.Element {
+  const [expanded, setExpanded] = useState(false)
+  const inp = (input ?? {}) as Inp
+  const kind = inp.type === 'judge' ? 'judge' : inp.type === 'build' ? 'build' : 'explore'
+  const out = (output ?? {}) as {
+    report?: unknown
+    error?: unknown
+    changedPaths?: unknown
+    agentId?: unknown
+    note?: unknown
+  }
+  // A background dispatch has no report yet — the strip above the composer
+  // carries its live status, so the card says what it started, not nothing.
+  const backgrounded = typeof out.agentId === 'string'
+  const wrote = Array.isArray(out.changedPaths)
+    ? out.changedPaths.filter((path): path is string => typeof path === 'string')
+    : []
+  const agentModel = typeof inp.model === 'string' ? inp.model : ''
+  // A failed run carries `error` (one sentence for the person) and `report`
+  // (instructions for the model: "Treat its part as unfinished…"). The card
+  // shows only the first; the report is never the person's to read. A card
+  // recorded before `error` rode every failure path has only the report, so
+  // a report that opens as a failure counts as one too.
+  const rawReport = typeof out.report === 'string' ? out.report : ''
+  const interrupted = isInterruptedByRestart(output)
+  const errorText = interrupted
+    ? interruptedByRestartLine(t)
+    : subagentErrorLine(t, out.error, rawReport)
+  const report = errorText ? '' : rawReport
+  const verdict = kind === 'judge' ? parseJudgeVerdict(report) : null
+  const borderClr = isLight ? '#d0d7de' : '#3d444d'
+  const verdictTint = isLight ? 'rgba(63,185,80,0.08)' : 'rgba(63,185,80,0.12)'
+  const failTint = isLight ? 'rgba(248,81,73,0.08)' : 'rgba(248,81,73,0.14)'
+  const verdictColor = verdict?.verdict === 'PASS' ? '#3fb950' : '#f8554f'
+  const bodyText = verdict ? verdict.rest : report
+
+  return (
+    <div
+      className={className}
+      data-mol-id="subagent-card"
+      style={{
+        marginBottom: '8px',
+        marginTop: '8px',
+        borderRadius: '8px',
+        border: `1px solid ${borderClr}`,
+        background: isLight ? '#f6f8fa' : 'rgba(255,255,255,0.04)',
+        overflow: 'hidden',
+      }}
+    >
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          padding: '6px 12px',
+          fontSize: '12px',
+          fontWeight: 600,
+          borderBottom: report || errorText ? `1px solid ${borderClr}` : 'none',
+        }}
+      >
+        <span
+          aria-hidden
+          style={{
+            width: 8,
+            height: 8,
+            borderRadius: '50%',
+            flexShrink: 0,
+            background: interrupted
+              ? '#888888'
+              : status === 'error' || errorText
+                ? '#f04040'
+                : status === 'done'
+                  ? '#3fb950'
+                  : status === 'running'
+                    ? '#e8a000'
+                    : '#888888',
+          }}
+        />
+        <span>
+          {kind === 'judge'
+            ? t('ide.chat.subagent.judge', undefined, { defaultValue: 'Acceptance judge' })
+            : kind === 'build'
+              ? t('ide.chat.subagent.build', undefined, { defaultValue: 'Build subagent' })
+              : t('ide.chat.subagent.explore', undefined, { defaultValue: 'Research subagent' })}
+        </span>
+        {agentModel && <span style={{ fontWeight: 400, opacity: 0.6 }}>{agentModel}</span>}
+        {(status === 'running' || backgrounded) && (
+          <span style={{ fontWeight: 400, opacity: 0.6 }}>
+            {backgrounded
+              ? t('ide.chat.subagent.inBackground', undefined, {
+                  defaultValue: 'running in the background',
+                })
+              : t('ide.chat.subagent.working', undefined, { defaultValue: 'working…' })}
+          </span>
+        )}
+        {wrote.length > 0 && (
+          <span style={{ fontWeight: 400, opacity: 0.6 }}>
+            {t(
+              'ide.chat.subagent.wroteFiles',
+              { count: wrote.length },
+              { defaultValue: '{{count}} files changed' },
+            )}
+          </span>
+        )}
+      </div>
+
+      {errorText && (
+        <div
+          style={{
+            padding: '8px 12px',
+            fontSize: '12px',
+            ...(interrupted ? { opacity: 0.7 } : { color: '#f8554f' }),
+            borderBottom: `1px solid ${borderClr}`,
+          }}
+        >
+          {errorText}
+        </div>
+      )}
+
+      {verdict && (
+        <div
+          data-mol-id="subagent-verdict"
+          style={{
+            padding: '8px 12px',
+            background: verdict.verdict === 'PASS' ? verdictTint : failTint,
+            borderBottom: `1px solid ${borderClr}`,
+          }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              fontSize: '13px',
+              fontWeight: 700,
+              color: verdictColor,
+            }}
+          >
+            {verdict.verdict === 'PASS' ? '✓' : '✕'}
+            {verdict.verdict === 'PASS'
+              ? t('ide.chat.subagent.verdictPass', undefined, { defaultValue: 'PASS' })
+              : t('ide.chat.subagent.verdictFail', undefined, { defaultValue: 'FAIL' })}
+          </div>
+          {verdict.issues.length > 0 && (
+            <ul
+              style={{
+                margin: '6px 0 0',
+                paddingLeft: '18px',
+                fontSize: '12px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '2px',
+                opacity: 0.9,
+              }}
+            >
+              {verdict.issues.map((issue, i) => (
+                <li key={i}>{issue}</li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
+
+      {bodyText && (
+        <div style={{ padding: '8px 12px' }}>
+          <div
+            style={{
+              fontSize: '12px',
+              whiteSpace: 'pre-wrap',
+              maxHeight: expanded ? undefined : 150,
+              overflow: 'hidden',
+              opacity: 0.9,
+            }}
+          >
+            {bodyText}
+          </div>
+          {bodyText.length > 600 && (
+            <button
+              type="button"
+              data-mol-id="subagent-report-toggle"
+              aria-expanded={expanded}
+              // A show/hide disclosure, so it is the `ghost` toggle every
+              // other card in the IDE uses for one (TestsCard's QUIET_TOGGLE).
+              // It asked for `variant: 'link'` but also passed `color`, which
+              // the ClassMap resolves ahead of the variant — so it had been
+              // rendering as a SOLID primary button all along.
+              className={cm.cn(cm.button({ variant: 'ghost', size: 'xs' }), cm.touchTargetCompact)}
+              onClick={() => setExpanded((e) => !e)}
+              style={{ marginTop: '4px' }}
+            >
+              {expanded
+                ? t('ide.chat.subagent.hideReport', undefined, {
+                    defaultValue: 'Show less',
+                  })
+                : t('ide.chat.subagent.showReport', undefined, {
+                    defaultValue: 'Show full report',
+                  })}
+            </button>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
+/** What the `ask_user` card reads from its tool-call row. */
+interface AskUserCardProps {
+  input?: unknown
+  output?: unknown
+  className?: string
+  cm: ReturnType<typeof getClassMap>
+  isLight: boolean
+  isCoarse: boolean
+  isNarrow: boolean
+  t: UseTranslationResult['t']
+  onFileOpen?: ToolCallCardProps['onFileOpen']
+  onAskUserResponse?: ToolCallCardProps['onAskUserResponse']
+}
+
+/**
+ * The `ask_user` tool-call card — the interactive question the model asked the
+ * person. A component of its own so the card's answer, hover and preview state
+ * is owned by unconditional hooks, not by a branch inside the row.
+ *
+ * @param props - The card's slice of the tool-call row.
+ * @returns The question card element, or `null` while the question streams in.
+ */
+function AskUserCard({
+  input,
+  output,
+  className,
+  cm,
+  isLight,
+  isCoarse,
+  isNarrow,
+  t,
+  onFileOpen,
+  onAskUserResponse,
+}: AskUserCardProps): JSX.Element | null {
+  // NEVER render raw tool input. `options` is declared as strings-or-objects
+  // in the tool schema, but the schema is a request to a language model, not
+  // a guarantee — weaker models send `[{ label: 'Recipe box' }]`, nested
+  // arrays, or quote-escaped pseudo-JSON, and an object reaching JSX throws
+  // React error #31 during render, which takes down the entire IDE.
+  const askInput = normalizeAskUserInput(input)
+  const askOutput = output as { status?: string } | string | undefined
+  const serverAwaiting = typeof askOutput === 'object' && askOutput?.status === 'awaiting_response'
+  const isResponded = typeof askOutput === 'string'
+  const [localAnswer, setLocalAnswer] = useState<string | null>(null)
+  const isAwaiting = serverAwaiting && localAnswer === null
+  const selectedAnswer = isResponded ? (askOutput as string) : localAnswer
+  const [freeText, setFreeText] = useState('')
+  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null)
+  // Multi-select picks in progress (labels); sent as one string joined with
+  // '; ' on confirm — the same shape an answered multi-select persists as.
+  const [multiPicks, setMultiPicks] = useState<string[]>([])
+  // Narrow screens have no room for the side-by-side preview pane; there a
+  // preview expands inline under its option row instead.
+  const [expandedPreviewIdx, setExpandedPreviewIdx] = useState<number | null>(null)
+  // Don't render until the question has streamed in. `tool_use_start` surfaces
+  // the card the instant the call begins — before its input arrives — which
+  // would otherwise flash an empty question + option list. Once the full input
+  // is parsed (final `tool_use`), the card appears fully formed. (Placed after
+  // the hooks above so the hook order stays stable across renders.)
+  if (!askInput.question) return null
+
+  const borderClr = isLight ? '#d0d7de' : '#3d444d'
+  const labelChar = (i: number): string => String.fromCharCode(65 + i) // A, B, C, …
+  const hasPreviews = askInput.options.some((option) => option.preview)
+  const multi = askInput.multiSelect && askInput.options.length > 0
+  // The plan-approval card renders its two decisions as prominent design-
+  // system CTAs (approve = primary solid, request changes = outline) instead
+  // of letter-badged rows — this is the product's single most consequential
+  // click, and it should look like it.
+  const reviewCtas =
+    !!askInput.planReview && !multi && askInput.options.length === 2 && !hasPreviews
+  const answeredLabels =
+    multi && typeof selectedAnswer === 'string'
+      ? selectedAnswer
+          .split('; ')
+          .map((part) => part.trim())
+          .filter(Boolean)
+      : []
+  const selectedSet = new Set([...multiPicks, ...answeredLabels])
+  // Which option's preview the pane shows: the hovered/focused one, else the
+  // picked one, else the first option that has a preview at all.
+  const previewIdx = (() => {
+    if (!hasPreviews) return null
+    const candidate = hoveredIdx ?? expandedPreviewIdx
+    if (candidate != null && askInput.options[candidate]?.preview) return candidate
+    const pickedIdx = askInput.options.findIndex((option) => selectedSet.has(option.label))
+    if (pickedIdx >= 0 && askInput.options[pickedIdx].preview) return pickedIdx
+    return askInput.options.findIndex((option) => option.preview)
+  })()
+  const previewOption = previewIdx != null ? askInput.options[previewIdx] : undefined
+
+  return (
+    <div
+      className={className}
+      style={{
+        marginBottom: '8px',
+        marginTop: '8px',
+        borderRadius: '8px',
+        border: `1px solid ${borderClr}`,
+        background: isLight ? '#f6f8fa' : 'rgba(255,255,255,0.04)',
+        overflow: 'hidden',
+      }}
+    >
+      {/* Question header — the plan-approval card gets the rich REVIEW
+          header (badge, plan name, step count, clickable path, checklist
+          preview); every other question renders as markdown (the model
+          formats questions with **bold**, bullets, and line breaks). */}
+      {askInput.planReview ? (
+        <div
+          data-mol-id="plan-review-card"
+          style={{
+            padding: '10px 12px 10px',
+            fontSize: '13px',
+            borderBottom: `1px solid ${borderClr}`,
+          }}
+        >
+          <div
+            style={{
+              fontSize: '11px',
+              fontWeight: 600,
+              letterSpacing: '0.03em',
+              textTransform: 'uppercase',
+              opacity: 0.6,
+              marginBottom: '6px',
+            }}
+          >
+            {t('ide.chat.planReview.badge', undefined, {
+              defaultValue: 'Plan ready for review',
+            })}
+          </div>
+          <div style={{ fontSize: '14px', fontWeight: 600, marginBottom: '4px' }}>
+            {askInput.planReview.name ||
+              (askInput.planReview.path ? basename(askInput.planReview.path) : '') ||
+              t('ide.chat.planReview.fallbackTitle', undefined, {
+                defaultValue: 'Implementation plan',
+              })}
+          </div>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              fontSize: '12px',
+              opacity: 0.75,
+              marginBottom: askInput.planReview.preview.length > 0 ? '8px' : 0,
+            }}
+          >
+            <span>
+              {t(
+                'ide.chat.planReview.steps',
+                { count: askInput.planReview.steps },
+                {
+                  defaultValue: '{{count}} steps',
+                },
+              )}
+            </span>
+            {askInput.planReview.path && onFileOpen && (
+              <button
+                type="button"
+                data-mol-id="plan-review-open"
+                // Opening the plan is an ACTION, so it looks like a button —
+                // the same solid `xs` primary as every other open/load action
+                // in the chat. (It said `variant: 'link'`, but the `color` it
+                // also passed wins in the ClassMap, so solid is what it has
+                // always rendered as; this just says so.)
+                className={cm.cn(
+                  cm.button({ variant: 'solid', color: 'primary', size: 'xs' }),
+                  cm.touchTargetCompact,
+                  cm.shrink0,
+                )}
+                onClick={() => onFileOpen(askInput.planReview!.path!)}
+              >
+                {t('ide.chat.planReview.openPlan', undefined, { defaultValue: 'Open plan' })}
+              </button>
+            )}
+          </div>
+          {/* The platform publishes on the plan's behalf when approved — say so
+              under the step count, so approval is informed (owner-approved plan
+              line). Absent when the host did not flag the plan; margins mirror
+              the steps row's rhythm (8px before the preview list) so the card
+              reads the same with or without this line. */}
+          {askInput.planReview.goesLive === true && (
+            <div
+              style={{
+                fontSize: '12px',
+                opacity: 0.75,
+                marginTop: askInput.planReview.preview.length > 0 ? 0 : '8px',
+                marginBottom: askInput.planReview.preview.length > 0 ? '8px' : 0,
+              }}
+            >
+              {t('ide.chat.planReview.goesLive', undefined, {
+                defaultValue:
+                  'Goes live: the platform publishes the app and runs its test suite once, on the live app.',
+              })}
+            </div>
+          )}
+          {askInput.planReview.preview.length > 0 && (
+            <ul
+              style={{
+                margin: 0,
+                paddingLeft: '18px',
+                fontSize: '12px',
+                opacity: 0.8,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '2px',
+              }}
+            >
+              {askInput.planReview.preview.map((step, i) => (
+                <li key={i}>{step}</li>
+              ))}
+            </ul>
+          )}
+          {askInput.planReview.steps > askInput.planReview.preview.length && (
+            <div style={{ fontSize: '11px', opacity: 0.55, marginTop: '4px' }}>
+              {t(
+                'ide.chat.planReview.more',
+                { count: askInput.planReview.steps - askInput.planReview.preview.length },
+                { defaultValue: '+ {{count}} more steps' },
+              )}
+            </div>
+          )}
+        </div>
+      ) : (
+        <div
+          style={{
+            padding: '4px 12px 10px',
+            fontSize: '13px',
+            borderBottom: `1px solid ${borderClr}`,
+          }}
+        >
+          <MarkdownContent text={unescapeLiterals(askInput.question)} isStreaming={false} />
+          {multi && isAwaiting && (
+            <div style={{ fontSize: '11px', fontStyle: 'italic', opacity: 0.55, marginTop: '4px' }}>
+              {t('ide.chat.askUserMultiHint', undefined, {
+                defaultValue: 'You can choose more than one.',
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Options, and — when any option carries a preview artifact — a
+          side-by-side preview pane on wide screens (narrow screens expand
+          the preview inline under its option row instead). */}
+      <div style={{ display: 'flex', alignItems: 'stretch' }}>
+        <div
+          style={{
+            flex: hasPreviews && !isNarrow ? '1 1 55%' : '1 1 100%',
+            minWidth: 0,
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
+          {reviewCtas ? (
+            <div
+              style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: '8px',
+                padding: '10px 12px',
+              }}
+            >
+              {askInput.options.map((option, i) => {
+                const isPicked = selectedAnswer === option.label
+                return (
+                  <button
+                    key={i}
+                    type="button"
+                    data-mol-id={`plan-review-cta-${i}`}
+                    disabled={!isAwaiting || onAskUserResponse == null}
+                    className={cm.cn(
+                      // Filled on both: inside a chat card an `outline` at this
+                      // size reads as plain text (DESIGN.md → Command cards),
+                      // and passing a `color` alongside `variant: 'outline'`
+                      // resolved to a filled secondary anyway — so the second
+                      // CTA now says what it renders.
+                      cm.button(
+                        i === 0
+                          ? { variant: 'solid', color: 'primary', size: 'xs' }
+                          : { variant: 'solid', color: 'secondary', size: 'xs' },
+                      ),
+                      cm.touchTargetCompact,
+                    )}
+                    style={{
+                      flex: isNarrow ? '1 1 100%' : '1 1 auto',
+                      // The "you picked this" ring is the theme's success
+                      // colour, not a literal green.
+                      ...(isPicked
+                        ? {
+                            outline: '2px solid var(--mol-color-success, #16a34a)',
+                            outlineOffset: '1px',
+                          }
+                        : {}),
+                    }}
+                    onClick={() => {
+                      if (onAskUserResponse == null) return
+                      setLocalAnswer(option.label)
+                      onAskUserResponse(option.label)
+                    }}
+                  >
+                    {isPicked ? `✓ ${option.label}` : option.label}
+                  </button>
+                )
+              })}
+            </div>
+          ) : (
+            askInput.options.map((option, i) => {
+              const isSelected = selectedSet.has(option.label)
+              const isFaded = !isAwaiting && !isSelected
+              const isHover = isAwaiting && hoveredIdx === i
+              const isPreviewExpanded = expandedPreviewIdx === i
+
+              return (
+                <div key={i}>
+                  <div style={{ display: 'flex', alignItems: 'stretch' }}>
+                    <button
+                      type="button"
+                      data-mol-id={`ask-user-option-${i}`}
+                      disabled={!isAwaiting || onAskUserResponse == null}
+                      onClick={() => {
+                        // No handler = read-only (a project viewer): answering is editor work.
+                        if (onAskUserResponse == null) return
+                        if (multi) {
+                          // Multi-select toggles a pick; a Confirm row submits them.
+                          setMultiPicks((picks) =>
+                            picks.includes(option.label)
+                              ? picks.filter((p) => p !== option.label)
+                              : [...picks, option.label],
+                          )
+                          return
+                        }
+                        setLocalAnswer(option.label)
+                        onAskUserResponse(option.label)
+                      }}
+                      onFocus={() => {
+                        if (isAwaiting) setHoveredIdx(i)
+                      }}
+                      onMouseEnter={() => {
+                        if (isAwaiting) setHoveredIdx(i)
+                      }}
+                      onMouseLeave={() => setHoveredIdx(null)}
+                      /* mol-bespoke-button: an ask_user answer ROW — a
+                         lettered radio list (A/B/C badge, label, optional
+                         description, tick), stacked with hairline dividers.
+                         It is the list itself, not a row of CTAs; the card's
+                         actual CTAs (Confirm choice, Send) are design-system
+                         buttons. Tested at a 44px coarse floor because these
+                         are the primary discovery answers. */
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '10px',
+                        flex: 1,
+                        minWidth: 0,
+                        padding: option.description ? '7px 12px' : '8px 12px',
+                        // Touch: full 44px rows — these are the PRIMARY discovery answers,
+                        // so they get the standalone-control floor, not the dense-row 32.
+                        ...(isCoarse ? { minHeight: 44 } : {}),
+                        border: 'none',
+                        borderTop: i > 0 ? `1px solid ${borderClr}` : 'none',
+                        background: isSelected
+                          ? isLight
+                            ? '#dbeafe'
+                            : 'rgba(59,130,246,0.2)'
+                          : isHover
+                            ? isLight
+                              ? '#eaeef2'
+                              : 'rgba(255,255,255,0.06)'
+                            : 'transparent',
+                        color: 'inherit',
+                        cursor: isAwaiting ? 'pointer' : 'default',
+                        textAlign: 'left',
+                        fontSize: '13px',
+                        opacity: isFaded ? 0.4 : 1,
+                        transition: 'background 80ms, opacity 80ms',
+                      }}
+                    >
+                      {/* Letter badge (checkbox-style when multi-select: filled
+                      letter = picked, hollow = not yet). */}
+                      <span
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          width: 22,
+                          height: 22,
+                          borderRadius: multi ? '6px' : '5px',
+                          border: `1px solid ${isSelected ? (isLight ? '#93c5fd' : '#3b82f6') : borderClr}`,
+                          background: isSelected
+                            ? isLight
+                              ? '#3b82f6'
+                              : '#2563eb'
+                            : isLight
+                              ? '#fff'
+                              : 'rgba(255,255,255,0.08)',
+                          color: isSelected ? '#fff' : isLight ? '#57606a' : '#848d97',
+                          fontSize: '11px',
+                          fontWeight: 600,
+                          flexShrink: 0,
+                          fontFamily: '"SF Mono", Menlo, Consolas, "Courier New", monospace',
+                        }}
+                      >
+                        {multi && isSelected ? '✓' : labelChar(i)}
+                      </span>
+
+                      {/* Option label + optional one-line description */}
+                      <span style={{ flex: 1, minWidth: 0 }}>
+                        <span style={{ display: 'block' }}>{option.label}</span>
+                        {option.description && (
+                          <span
+                            style={{
+                              display: 'block',
+                              fontSize: '11px',
+                              opacity: 0.65,
+                              marginTop: '1px',
+                            }}
+                          >
+                            {option.description}
+                          </span>
+                        )}
+                      </span>
+
+                      {/* Checkmark for a picked single-select option */}
+                      {!multi && isSelected && (
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 16 16"
+                          width="14"
+                          height="14"
+                          fill={isLight ? '#2563eb' : '#60a5fa'}
+                        >
+                          <path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z" />
+                        </svg>
+                      )}
+                    </button>
+
+                    {/* Narrow screens: expand this option's preview inline (a
+                    sibling button — interactive elements never nest). */}
+                    {hasPreviews && isNarrow && option.preview && (
+                      <button
+                        type="button"
+                        data-mol-id={`ask-user-option-preview-${i}`}
+                        aria-label={t('ide.chat.askUserPreview', undefined, {
+                          defaultValue: 'Preview',
+                        })}
+                        disabled={!isAwaiting}
+                        onClick={() => setExpandedPreviewIdx(isPreviewExpanded ? null : i)}
+                        /* mol-bespoke-button: icon-only › disclosure chevron
+                           welded to the right edge of the answer row beside
+                           it — it shares that row's dividers and background
+                           so the pair reads as one row, which a boxed button
+                           would break. */
+                        style={{
+                          flexShrink: 0,
+                          width: 36,
+                          border: 'none',
+                          borderTop: i > 0 ? `1px solid ${borderClr}` : 'none',
+                          borderLeft: `1px solid ${borderClr}`,
+                          background: isPreviewExpanded
+                            ? isLight
+                              ? '#eaeef2'
+                              : 'rgba(255,255,255,0.06)'
+                            : 'transparent',
+                          color: 'inherit',
+                          cursor: isAwaiting ? 'pointer' : 'default',
+                          fontSize: '14px',
+                          opacity: 0.7,
+                          transform: isPreviewExpanded ? 'rotate(90deg)' : 'none',
+                          transition: 'transform 80ms',
+                        }}
+                      >
+                        ›
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Inline preview (narrow screens only — wide screens use the
+                  side pane below). */}
+                  {hasPreviews && isNarrow && option.preview && isPreviewExpanded && (
+                    <div
+                      style={{
+                        borderTop: `1px solid ${borderClr}`,
+                        background: isLight ? '#fff' : 'rgba(255,255,255,0.03)',
+                        padding: '8px 12px',
+                        maxHeight: 240,
+                        overflowY: 'auto',
+                        fontSize: '12px',
+                      }}
+                    >
+                      <MarkdownContent text={option.preview} isStreaming={false} />
+                    </div>
+                  )}
+                </div>
+              )
+            })
+          )}
+
+          {/* Multi-select confirm row — submits the picked labels as one
+              '; '-joined answer string. */}
+          {multi && isAwaiting && onAskUserResponse != null && (
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'flex-end',
+                gap: '8px',
+                alignItems: 'center',
+                padding: '8px 12px',
+                borderTop: `1px solid ${borderClr}`,
+              }}
+            >
+              <span style={{ fontSize: '11px', opacity: 0.6 }}>
+                {t('ide.chat.askUserSelectedCount', undefined, {
+                  defaultValue: '{{count}} selected',
+                  count: multiPicks.length,
+                })}
+              </span>
+              <button
+                type="button"
+                data-mol-id="ask-user-multiselect-confirm"
+                disabled={multiPicks.length === 0}
+                className={cm.cn(
+                  cm.button({ variant: 'solid', color: 'primary', size: 'xs' }),
+                  cm.touchTargetCompact,
+                )}
+                onClick={() => {
+                  if (multiPicks.length === 0) return
+                  setLocalAnswer(multiPicks.join('; '))
+                  onAskUserResponse(multiPicks.join('; '))
+                }}
+              >
+                {t('ide.chat.askUserMultiConfirm', undefined, {
+                  defaultValue: 'Confirm choice',
+                })}
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Side-by-side preview pane (wide screens, rich options only). Shows
+            the hovered/focused option's artifact — mockups, code, API shapes
+            — so alternatives can be compared without scrolling. */}
+        {hasPreviews && !isNarrow && (
+          <div
+            style={{
+              flex: '1 1 45%',
+              minWidth: 0,
+              borderLeft: `1px solid ${borderClr}`,
+              display: 'flex',
+              flexDirection: 'column',
+              background: isLight ? '#fff' : 'rgba(255,255,255,0.03)',
+            }}
+          >
+            <div
+              style={{
+                padding: '6px 12px',
+                fontSize: '11px',
+                fontWeight: 600,
+                opacity: 0.6,
+                borderBottom: `1px solid ${borderClr}`,
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+              }}
+            >
+              {previewOption
+                ? previewOption.label
+                : t('ide.chat.askUserPreview', undefined, { defaultValue: 'Preview' })}
+            </div>
+            <div
+              style={{
+                padding: '8px 12px',
+                maxHeight: 360,
+                overflowY: 'auto',
+                fontSize: '12px',
+              }}
+            >
+              {previewOption?.preview && (
+                <MarkdownContent text={previewOption.preview} isStreaming={false} />
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Free-text input. Shown by DEFAULT so the user is never stuck on an
+          open-ended question (e.g. "what's your bakery called?") that the model
+          asked without setting allowFreeText. Hidden only if the model
+          explicitly opts out (allowFreeText === false) for a strict pick-one. */}
+      {isAwaiting && askInput.allowFreeText !== false && onAskUserResponse != null && (
+        <div
+          style={{
+            display: 'flex',
+            gap: '4px',
+            padding: '8px 12px',
+            borderTop: `1px solid ${borderClr}`,
+          }}
+        >
+          <input
+            type="text"
+            value={freeText}
+            onChange={(e) => setFreeText(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && freeText.trim()) {
+                setLocalAnswer(freeText.trim())
+                onAskUserResponse?.(freeText.trim())
+                setFreeText('')
+              }
+            }}
+            placeholder={
+              askInput.options.length === 0
+                ? t('ide.chat.askUserPlaceholderEmpty', undefined, {
+                    defaultValue: 'Type your answer…',
+                  })
+                : t('ide.chat.askUserPlaceholder', undefined, {
+                    defaultValue: 'Or type your own…',
+                  })
+            }
+            className={cm.touchTargetCompact}
+            /* The field box IS the Send button's box: the design-system 26px
+               height and 3px radius every card button carries, so the pair
+               reads as one control (the coarse 36px floor comes from the same
+               cm.touchTargetCompact class Send has). */
+            style={{
+              flex: 1,
+              minWidth: 0,
+              height: 26,
+              padding: '0 8px',
+              borderRadius: '3px',
+              border: `1px solid ${borderClr}`,
+              background: 'transparent',
+              color: 'inherit',
+              // Deliberate iOS-zoom guard: a focused input below 16px makes iOS
+              // Safari zoom the whole page on phone-width / touch-first viewports.
+              // Desktop sits at the 13px button-label size it sits beside.
+              fontSize: isNarrow || isCoarse ? '16px' : '13px',
+              outline: 'none',
+            }}
+          />
+          <button
+            type="button"
+            data-mol-id="ask-user-free-text-submit"
+            disabled={!freeText.trim()}
+            onClick={() => {
+              if (freeText.trim()) {
+                setLocalAnswer(freeText.trim())
+                onAskUserResponse?.(freeText.trim())
+                setFreeText('')
+              }
+            }}
+            // The same design-system CTA as this card's own Confirm choice
+            // button a few rows up. It was a hand-rolled pill (12px/6px radius,
+            // rgba(64,112,224,…)/#4070e0, hand-written hover, opacity for
+            // "disabled") — the CVA carries hover/active/disabled itself, and
+            // the real `disabled` attribute now does the fading.
+            className={cm.cn(
+              cm.button({ variant: 'solid', color: 'primary', size: 'xs' }),
+              cm.touchTargetCompact,
+              cm.shrink0,
+            )}
+          >
+            {t('ide.chat.askUserSubmit', undefined, { defaultValue: 'Send' })}
+          </button>
+        </div>
+      )}
+
+      {/* Show free-text response if it wasn't one of the preset options */}
+      {selectedAnswer && !askInput.options.some((option) => option.label === selectedAnswer) && (
+        <div
+          style={{
+            padding: '8px 12px',
+            borderTop: `1px solid ${borderClr}`,
+            fontSize: '12px',
+            fontStyle: 'italic',
+          }}
+        >
+          {selectedAnswer}
+        </div>
+      )}
+
+      {/* Optional hint text */}
+      {askInput.hint && (
+        <div
+          style={{
+            padding: '8px 12px',
+            borderTop: `1px solid ${borderClr}`,
+            fontSize: '11px',
+            fontStyle: 'italic',
+            opacity: 0.5,
+          }}
+        >
+          {askInput.hint}
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ---------------------------------------------------------------------------
 // Label renderer — turns `backtick` segments into inline <code> spans
 // ---------------------------------------------------------------------------
+
+const logger = getLogger('tool-call-card')
 
 const CODE_STYLE: React.CSSProperties = {
   fontFamily: '"SF Mono", Menlo, Consolas, "Courier New", monospace',
@@ -69,30 +1002,39 @@ const CODE_STYLE: React.CSSProperties = {
 }
 
 /**
- * Clickable filename code — single click opens preview, double click pins tab.
+ * One openable file segment of a tool label: the name it renders as and the
+ * path it opens.
+ */
+interface LabelFileTarget {
+  name: string
+  path: string
+}
+
+/**
+ * The open-control for a tool label's file segment — a sibling of the row, not
+ * a child of it (a control cannot sit inside the row's `role="button"`).
  * @param props - Component props.
  * @returns The rendered clickable code element.
  */
-function FileCodeLink({
-  filePath,
+function FileOpenControl({
+  target,
   onFileOpen,
   onFileDoubleClick,
-  children,
+  t,
 }: {
-  filePath: string
+  target: LabelFileTarget
   onFileOpen: (path: string) => void
   onFileDoubleClick?: (path: string) => void
-  children: React.ReactNode
+  t: UseTranslationResult['t']
 }): JSX.Element {
-  const { t } = useTranslation()
   return (
     <code
-      style={{ ...CODE_STYLE, opacity: 0.75, transition: 'opacity 100ms' }}
+      style={{ ...CODE_STYLE, opacity: 0.75, transition: 'opacity 100ms', flexShrink: 0 }}
       onMouseEnter={(e) => {
-        ;(e.currentTarget as HTMLElement).style.opacity = '1'
+        e.currentTarget.style.opacity = '1'
       }}
       onMouseLeave={(e) => {
-        ;(e.currentTarget as HTMLElement).style.opacity = '0.75'
+        e.currentTarget.style.opacity = '0.75'
       }}
     >
       {/* `code` is a semantic element and cannot be a button, so the action
@@ -101,20 +1043,18 @@ function FileCodeLink({
         type="button"
         aria-label={t(
           'ide.chat.tool.openFile',
-          { path: filePath },
+          { path: target.path },
           { defaultValue: 'Open {{path}}' },
         )}
-        onClick={(e) => {
-          e.stopPropagation()
-          onFileOpen(filePath)
+        onClick={() => {
+          onFileOpen(target.path)
         }}
-        onDoubleClick={(e) => {
-          e.stopPropagation()
-          onFileDoubleClick?.(filePath)
+        onDoubleClick={() => {
+          onFileDoubleClick?.(target.path)
         }}
-        /* mol-bespoke-button: the filename inside the tool-call label opens the
-           file — inline text, not a CTA; the inline reset keeps it looking
-           exactly like the code text it wraps. */
+        /* mol-bespoke-button: the filename of a tool-call label opens the
+           file — inline code text, not a CTA; the inline reset keeps it
+           looking exactly like the code text it wraps. */
         style={{
           background: 'transparent',
           border: 'none',
@@ -124,61 +1064,68 @@ function FileCodeLink({
           cursor: 'pointer',
         }}
       >
-        {children}
+        {target.name}
       </button>
     </code>
   )
 }
 
 /**
- * Renders a tool label with backtick segments converted to clickable code spans.
+ * Splits a tool label into its plain text and its openable file segments.
+ *
+ * The backtick segments of a label are markup (see `toolLabel`): the ones with
+ * a resolvable target and an `onFileOpen` become the row's sibling open
+ * controls (a control cannot sit inside the row's `role="button"` — axe
+ * `nested-interactive`), so they are LEFT OUT of the text; the rest stay as
+ * plain code spans inline.
+ *
  * @param t - The translation function from `useTranslation()`.
  * @param name - The tool name.
  * @param input - The raw tool input payload.
- * @param filePath - The primary file path for clickable code links, or null.
- * @param onFileOpen - Callback to preview a file on single click.
- * @param onFileDoubleClick - Callback to pin a file tab on double click.
- * @returns A ReactNode with formatted label text and clickable file references.
+ * @param filePath - The primary file path for openable segments, or null.
+ * @param onFileOpen - Callback to preview a file; without it nothing is openable.
+ * @returns The label text (without the openable segments) and those segments.
  */
-function renderLabel(
+function labelSegments(
   t: UseTranslationResult['t'],
   name: string,
   input: unknown,
   filePath: string | null,
   onFileOpen?: (path: string) => void,
-  onFileDoubleClick?: (path: string) => void,
-): ReactNode {
+): { text: ReactNode; files: LabelFileTarget[] } {
   const text = toolLabel(t, name, input)
   const parts = text.split(new RegExp('`([^`]+)`'))
-  if (parts.length === 1) return text
+  if (parts.length === 1) return { text, files: [] }
   // A batch read names several files: each one opens ITS file, not the first.
   // The entries come from the same list `toolLabel` spelled the names from —
   // indexing the raw path list instead shifted every target after a nameless
   // path (`src/`), so the name rendered opened the wrong file.
   const readEntries = name === 'read_file' ? readFileLabelEntries(input) : null
-  return (
-    <>
-      {parts.map((part, i) => {
-        const target = readEntries ? (readEntries[(i - 1) / 2]?.path ?? null) : filePath
-        return i % 2 === 0 ? (
-          part
-        ) : target && onFileOpen ? (
-          <FileCodeLink
-            key={i}
-            filePath={target}
-            onFileOpen={onFileOpen}
-            onFileDoubleClick={onFileDoubleClick}
-          >
-            {part}
-          </FileCodeLink>
-        ) : (
-          <code key={i} style={{ ...CODE_STYLE, opacity: 0.75 }}>
-            {part}
-          </code>
-        )
-      })}
-    </>
-  )
+  const targetOf = (i: number): string | null =>
+    readEntries ? (readEntries[(i - 1) / 2]?.path ?? null) : filePath
+  const files: LabelFileTarget[] = []
+  const openable: boolean[] = parts.map((_part, i) => {
+    if (i % 2 === 0) return false
+    const target = targetOf(i)
+    if (target && onFileOpen) {
+      files.push({ name: parts[i], path: target })
+      return true
+    }
+    return false
+  })
+  const textNodes = parts.map((part, i) => {
+    if (i % 2 === 1)
+      return openable[i] ? null : (
+        <code key={i} style={{ ...CODE_STYLE, opacity: 0.75 }}>
+          {part}
+        </code>
+      )
+    // A separator between two segments that both moved out of the text (the
+    // ", " between a batch read's names) would dangle between nothing.
+    if (openable[i - 1] && openable[i + 1] && /^[\s,]*$/.test(part)) return null
+    return part
+  })
+  return { text: <>{textNodes}</>, files }
 }
 
 // ---------------------------------------------------------------------------
@@ -738,6 +1685,10 @@ export const ToolCallCard = memo(function ToolCallCard({
   const [isUndoneLocal, setIsUndoneLocal] = useState(false)
   const isUndone = isUndoneProp ?? isUndoneLocal
   const [isReverting, setIsReverting] = useState(false)
+  // The undo control is a SIBLING of the row, so the row's hover no longer
+  // covers the last pixel of travel to it — its own hover keeps it revealed
+  // (without this, leaving the row would hide it under the pointer).
+  const [isUndoHovered, setIsUndoHovered] = useState(false)
   const [skipRequested, setSkipRequested] = useState(false)
   const backgroundCommands = useContext(BackgroundTaskCommandsContext)
 
@@ -824,6 +1775,11 @@ export const ToolCallCard = memo(function ToolCallCard({
         const newUndone = !isUndone
         setIsUndoneLocal(newUndone)
         onUndoToggle?.(id, newUndone)
+      } catch (error) {
+        // A host whose revert rejects must not leave an unhandled promise
+        // rejection: the failure is logged and the card stays exactly as it
+        // was (still undone or not, as before the click).
+        logger.warn('tool-call-card: reverting a file change failed', { error, path: filePath })
       } finally {
         setIsReverting(false)
       }
@@ -892,210 +1848,16 @@ export const ToolCallCard = memo(function ToolCallCard({
 
   // ── spawn_agent: subagent card — explore report / judge verdict / build summary ──
   if (name === 'spawn_agent') {
-    const inp = (input ?? {}) as Inp
-    const kind = inp.type === 'judge' ? 'judge' : inp.type === 'build' ? 'build' : 'explore'
-    const out = (output ?? {}) as {
-      report?: unknown
-      error?: unknown
-      changedPaths?: unknown
-      agentId?: unknown
-      note?: unknown
-    }
-    // A background dispatch has no report yet — the strip above the composer
-    // carries its live status, so the card says what it started, not nothing.
-    const backgrounded = typeof out.agentId === 'string'
-    const wrote = Array.isArray(out.changedPaths)
-      ? out.changedPaths.filter((path): path is string => typeof path === 'string')
-      : []
-    const agentModel = typeof inp.model === 'string' ? inp.model : ''
-    // A failed run carries `error` (one sentence for the person) and `report`
-    // (instructions for the model: "Treat its part as unfinished…"). The card
-    // shows only the first; the report is never the person's to read. A card
-    // recorded before `error` rode every failure path has only the report, so
-    // a report that opens as a failure counts as one too.
-    const rawReport = typeof out.report === 'string' ? out.report : ''
-    const interrupted = isInterruptedByRestart(output)
-    const errorText = interrupted
-      ? interruptedByRestartLine(t)
-      : subagentErrorLine(t, out.error, rawReport)
-    const report = errorText ? '' : rawReport
-    const verdict = kind === 'judge' ? parseJudgeVerdict(report) : null
-    const [expanded, setExpanded] = useState(false)
-    const borderClr = isLight ? '#d0d7de' : '#3d444d'
-    const verdictTint = isLight ? 'rgba(63,185,80,0.08)' : 'rgba(63,185,80,0.12)'
-    const failTint = isLight ? 'rgba(248,81,73,0.08)' : 'rgba(248,81,73,0.14)'
-    const verdictColor = verdict?.verdict === 'PASS' ? '#3fb950' : '#f8554f'
-    const bodyText = verdict ? verdict.rest : report
-
     return (
-      <div
+      <SpawnAgentCard
+        input={input}
+        output={output}
+        status={status}
         className={className}
-        data-mol-id="subagent-card"
-        style={{
-          marginBottom: '8px',
-          marginTop: '8px',
-          borderRadius: '8px',
-          border: `1px solid ${borderClr}`,
-          background: isLight ? '#f6f8fa' : 'rgba(255,255,255,0.04)',
-          overflow: 'hidden',
-        }}
-      >
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            padding: '6px 12px',
-            fontSize: '12px',
-            fontWeight: 600,
-            borderBottom: report || errorText ? `1px solid ${borderClr}` : 'none',
-          }}
-        >
-          <span
-            aria-hidden
-            style={{
-              width: 8,
-              height: 8,
-              borderRadius: '50%',
-              flexShrink: 0,
-              background: interrupted
-                ? '#888888'
-                : status === 'error' || errorText
-                  ? '#f04040'
-                  : status === 'done'
-                    ? '#3fb950'
-                    : status === 'running'
-                      ? '#e8a000'
-                      : '#888888',
-            }}
-          />
-          <span>
-            {kind === 'judge'
-              ? t('ide.chat.subagent.judge', undefined, { defaultValue: 'Acceptance judge' })
-              : kind === 'build'
-                ? t('ide.chat.subagent.build', undefined, { defaultValue: 'Build subagent' })
-                : t('ide.chat.subagent.explore', undefined, { defaultValue: 'Research subagent' })}
-          </span>
-          {agentModel && <span style={{ fontWeight: 400, opacity: 0.6 }}>{agentModel}</span>}
-          {(status === 'running' || backgrounded) && (
-            <span style={{ fontWeight: 400, opacity: 0.6 }}>
-              {backgrounded
-                ? t('ide.chat.subagent.inBackground', undefined, {
-                    defaultValue: 'running in the background',
-                  })
-                : t('ide.chat.subagent.working', undefined, { defaultValue: 'working…' })}
-            </span>
-          )}
-          {wrote.length > 0 && (
-            <span style={{ fontWeight: 400, opacity: 0.6 }}>
-              {t(
-                'ide.chat.subagent.wroteFiles',
-                { count: wrote.length },
-                { defaultValue: '{{count}} files changed' },
-              )}
-            </span>
-          )}
-        </div>
-
-        {errorText && (
-          <div
-            style={{
-              padding: '8px 12px',
-              fontSize: '12px',
-              ...(interrupted ? { opacity: 0.7 } : { color: '#f8554f' }),
-              borderBottom: `1px solid ${borderClr}`,
-            }}
-          >
-            {errorText}
-          </div>
-        )}
-
-        {verdict && (
-          <div
-            data-mol-id="subagent-verdict"
-            style={{
-              padding: '8px 12px',
-              background: verdict.verdict === 'PASS' ? verdictTint : failTint,
-              borderBottom: `1px solid ${borderClr}`,
-            }}
-          >
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                fontSize: '13px',
-                fontWeight: 700,
-                color: verdictColor,
-              }}
-            >
-              {verdict.verdict === 'PASS' ? '✓' : '✕'}
-              {verdict.verdict === 'PASS'
-                ? t('ide.chat.subagent.verdictPass', undefined, { defaultValue: 'PASS' })
-                : t('ide.chat.subagent.verdictFail', undefined, { defaultValue: 'FAIL' })}
-            </div>
-            {verdict.issues.length > 0 && (
-              <ul
-                style={{
-                  margin: '6px 0 0',
-                  paddingLeft: '18px',
-                  fontSize: '12px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '2px',
-                  opacity: 0.9,
-                }}
-              >
-                {verdict.issues.map((issue, i) => (
-                  <li key={i}>{issue}</li>
-                ))}
-              </ul>
-            )}
-          </div>
-        )}
-
-        {bodyText && (
-          <div style={{ padding: '8px 12px' }}>
-            <div
-              style={{
-                fontSize: '12px',
-                whiteSpace: 'pre-wrap',
-                maxHeight: expanded ? undefined : 150,
-                overflow: 'hidden',
-                opacity: 0.9,
-              }}
-            >
-              {bodyText}
-            </div>
-            {bodyText.length > 600 && (
-              <button
-                type="button"
-                data-mol-id="subagent-report-toggle"
-                aria-expanded={expanded}
-                // A show/hide disclosure, so it is the `ghost` toggle every
-                // other card in the IDE uses for one (TestsCard's QUIET_TOGGLE).
-                // It asked for `variant: 'link'` but also passed `color`, which
-                // the ClassMap resolves ahead of the variant — so it had been
-                // rendering as a SOLID primary button all along.
-                className={cm.cn(
-                  cm.button({ variant: 'ghost', size: 'xs' }),
-                  cm.touchTargetCompact,
-                )}
-                onClick={() => setExpanded((e) => !e)}
-                style={{ marginTop: '4px' }}
-              >
-                {expanded
-                  ? t('ide.chat.subagent.hideReport', undefined, {
-                      defaultValue: 'Show less',
-                    })
-                  : t('ide.chat.subagent.showReport', undefined, {
-                      defaultValue: 'Show full report',
-                    })}
-              </button>
-            )}
-          </div>
-        )}
-      </div>
+        cm={cm}
+        isLight={isLight}
+        t={t}
+      />
     )
   }
 
@@ -1153,7 +1915,7 @@ export const ToolCallCard = memo(function ToolCallCard({
                   whiteSpace: 'nowrap',
                 }}
               >
-                {renderLabel(t, name, input, planPath, onFileOpen, onFileDoubleClick)}
+                {labelSegments(t, name, input, null).text}
               </span>
             </span>
           </span>
@@ -1188,680 +1950,39 @@ export const ToolCallCard = memo(function ToolCallCard({
 
   // ── ask_user: render interactive option list instead of a normal tool card ──
   if (name === 'ask_user') {
-    // NEVER render raw tool input. `options` is declared as strings-or-objects
-    // in the tool schema, but the schema is a request to a language model, not
-    // a guarantee — weaker models send `[{ label: 'Recipe box' }]`, nested
-    // arrays, or quote-escaped pseudo-JSON, and an object reaching JSX throws
-    // React error #31 during render, which takes down the entire IDE.
-    const askInput = normalizeAskUserInput(input)
-    const askOutput = output as { status?: string } | string | undefined
-    const serverAwaiting =
-      typeof askOutput === 'object' && askOutput?.status === 'awaiting_response'
-    const isResponded = typeof askOutput === 'string'
-    const [localAnswer, setLocalAnswer] = useState<string | null>(null)
-    const isAwaiting = serverAwaiting && localAnswer === null
-    const selectedAnswer = isResponded ? (askOutput as string) : localAnswer
-    const [freeText, setFreeText] = useState('')
-    const [hoveredIdx, setHoveredIdx] = useState<number | null>(null)
-    // Multi-select picks in progress (labels); sent as one string joined with
-    // '; ' on confirm — the same shape an answered multi-select persists as.
-    const [multiPicks, setMultiPicks] = useState<string[]>([])
-    // Narrow screens have no room for the side-by-side preview pane; there a
-    // preview expands inline under its option row instead.
-    const [expandedPreviewIdx, setExpandedPreviewIdx] = useState<number | null>(null)
-
-    // Don't render until the question has streamed in. `tool_use_start` surfaces
-    // the card the instant the call begins — before its input arrives — which
-    // would otherwise flash an empty question + option list. Once the full input
-    // is parsed (final `tool_use`), the card appears fully formed. (Placed after
-    // the hooks above so the hook order stays stable across renders.)
-    if (!askInput.question) return null
-
-    const borderClr = isLight ? '#d0d7de' : '#3d444d'
-    const labelChar = (i: number): string => String.fromCharCode(65 + i) // A, B, C, …
-    const hasPreviews = askInput.options.some((option) => option.preview)
-    const multi = askInput.multiSelect && askInput.options.length > 0
-    // The plan-approval card renders its two decisions as prominent design-
-    // system CTAs (approve = primary solid, request changes = outline) instead
-    // of letter-badged rows — this is the product's single most consequential
-    // click, and it should look like it.
-    const reviewCtas =
-      !!askInput.planReview && !multi && askInput.options.length === 2 && !hasPreviews
-    const answeredLabels =
-      multi && typeof selectedAnswer === 'string'
-        ? selectedAnswer
-            .split('; ')
-            .map((part) => part.trim())
-            .filter(Boolean)
-        : []
-    const selectedSet = new Set([...multiPicks, ...answeredLabels])
-    // Which option's preview the pane shows: the hovered/focused one, else the
-    // picked one, else the first option that has a preview at all.
-    const previewIdx = (() => {
-      if (!hasPreviews) return null
-      const candidate = hoveredIdx ?? expandedPreviewIdx
-      if (candidate != null && askInput.options[candidate]?.preview) return candidate
-      const pickedIdx = askInput.options.findIndex((option) => selectedSet.has(option.label))
-      if (pickedIdx >= 0 && askInput.options[pickedIdx].preview) return pickedIdx
-      return askInput.options.findIndex((option) => option.preview)
-    })()
-    const previewOption = previewIdx != null ? askInput.options[previewIdx] : undefined
-
     return (
-      <div
+      <AskUserCard
+        input={input}
+        output={output}
         className={className}
-        style={{
-          marginBottom: '8px',
-          marginTop: '8px',
-          borderRadius: '8px',
-          border: `1px solid ${borderClr}`,
-          background: isLight ? '#f6f8fa' : 'rgba(255,255,255,0.04)',
-          overflow: 'hidden',
-        }}
-      >
-        {/* Question header — the plan-approval card gets the rich REVIEW
-            header (badge, plan name, step count, clickable path, checklist
-            preview); every other question renders as markdown (the model
-            formats questions with **bold**, bullets, and line breaks). */}
-        {askInput.planReview ? (
-          <div
-            data-mol-id="plan-review-card"
-            style={{
-              padding: '10px 12px 10px',
-              fontSize: '13px',
-              borderBottom: `1px solid ${borderClr}`,
-            }}
-          >
-            <div
-              style={{
-                fontSize: '11px',
-                fontWeight: 600,
-                letterSpacing: '0.03em',
-                textTransform: 'uppercase',
-                opacity: 0.6,
-                marginBottom: '6px',
-              }}
-            >
-              {t('ide.chat.planReview.badge', undefined, {
-                defaultValue: 'Plan ready for review',
-              })}
-            </div>
-            <div style={{ fontSize: '14px', fontWeight: 600, marginBottom: '4px' }}>
-              {askInput.planReview.name ||
-                (askInput.planReview.path ? basename(askInput.planReview.path) : '') ||
-                t('ide.chat.planReview.fallbackTitle', undefined, {
-                  defaultValue: 'Implementation plan',
-                })}
-            </div>
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px',
-                fontSize: '12px',
-                opacity: 0.75,
-                marginBottom: askInput.planReview.preview.length > 0 ? '8px' : 0,
-              }}
-            >
-              <span>
-                {t(
-                  'ide.chat.planReview.steps',
-                  { count: askInput.planReview.steps },
-                  {
-                    defaultValue: '{{count}} steps',
-                  },
-                )}
-              </span>
-              {askInput.planReview.path && onFileOpen && (
-                <button
-                  type="button"
-                  data-mol-id="plan-review-open"
-                  // Opening the plan is an ACTION, so it looks like a button —
-                  // the same solid `xs` primary as every other open/load action
-                  // in the chat. (It said `variant: 'link'`, but the `color` it
-                  // also passed wins in the ClassMap, so solid is what it has
-                  // always rendered as; this just says so.)
-                  className={cm.cn(
-                    cm.button({ variant: 'solid', color: 'primary', size: 'xs' }),
-                    cm.touchTargetCompact,
-                    cm.shrink0,
-                  )}
-                  onClick={() => onFileOpen(askInput.planReview!.path!)}
-                >
-                  {t('ide.chat.planReview.openPlan', undefined, { defaultValue: 'Open plan' })}
-                </button>
-              )}
-            </div>
-            {/* The platform publishes on the plan's behalf when approved — say so
-                under the step count, so approval is informed (owner-approved plan
-                line). Absent when the host did not flag the plan; margins mirror
-                the steps row's rhythm (8px before the preview list) so the card
-                reads the same with or without this line. */}
-            {askInput.planReview.goesLive === true && (
-              <div
-                style={{
-                  fontSize: '12px',
-                  opacity: 0.75,
-                  marginTop: askInput.planReview.preview.length > 0 ? 0 : '8px',
-                  marginBottom: askInput.planReview.preview.length > 0 ? '8px' : 0,
-                }}
-              >
-                {t('ide.chat.planReview.goesLive', undefined, {
-                  defaultValue:
-                    'Goes live: the platform publishes the app and runs its test suite once, on the live app.',
-                })}
-              </div>
-            )}
-            {askInput.planReview.preview.length > 0 && (
-              <ul
-                style={{
-                  margin: 0,
-                  paddingLeft: '18px',
-                  fontSize: '12px',
-                  opacity: 0.8,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '2px',
-                }}
-              >
-                {askInput.planReview.preview.map((step, i) => (
-                  <li key={i}>{step}</li>
-                ))}
-              </ul>
-            )}
-            {askInput.planReview.steps > askInput.planReview.preview.length && (
-              <div style={{ fontSize: '11px', opacity: 0.55, marginTop: '4px' }}>
-                {t(
-                  'ide.chat.planReview.more',
-                  { count: askInput.planReview.steps - askInput.planReview.preview.length },
-                  { defaultValue: '+ {{count}} more steps' },
-                )}
-              </div>
-            )}
-          </div>
-        ) : (
-          <div
-            style={{
-              padding: '4px 12px 10px',
-              fontSize: '13px',
-              borderBottom: `1px solid ${borderClr}`,
-            }}
-          >
-            <MarkdownContent text={unescapeLiterals(askInput.question)} isStreaming={false} />
-            {multi && isAwaiting && (
-              <div
-                style={{ fontSize: '11px', fontStyle: 'italic', opacity: 0.55, marginTop: '4px' }}
-              >
-                {t('ide.chat.askUserMultiHint', undefined, {
-                  defaultValue: 'You can choose more than one.',
-                })}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Options, and — when any option carries a preview artifact — a
-            side-by-side preview pane on wide screens (narrow screens expand
-            the preview inline under its option row instead). */}
-        <div style={{ display: 'flex', alignItems: 'stretch' }}>
-          <div
-            style={{
-              flex: hasPreviews && !isNarrow ? '1 1 55%' : '1 1 100%',
-              minWidth: 0,
-              display: 'flex',
-              flexDirection: 'column',
-            }}
-          >
-            {reviewCtas ? (
-              <div
-                style={{
-                  display: 'flex',
-                  flexWrap: 'wrap',
-                  gap: '8px',
-                  padding: '10px 12px',
-                }}
-              >
-                {askInput.options.map((option, i) => {
-                  const isPicked = selectedAnswer === option.label
-                  return (
-                    <button
-                      key={i}
-                      type="button"
-                      data-mol-id={`plan-review-cta-${i}`}
-                      disabled={!isAwaiting || onAskUserResponse == null}
-                      className={cm.cn(
-                        // Filled on both: inside a chat card an `outline` at this
-                        // size reads as plain text (DESIGN.md → Command cards),
-                        // and passing a `color` alongside `variant: 'outline'`
-                        // resolved to a filled secondary anyway — so the second
-                        // CTA now says what it renders.
-                        cm.button(
-                          i === 0
-                            ? { variant: 'solid', color: 'primary', size: 'xs' }
-                            : { variant: 'solid', color: 'secondary', size: 'xs' },
-                        ),
-                        cm.touchTargetCompact,
-                      )}
-                      style={{
-                        flex: isNarrow ? '1 1 100%' : '1 1 auto',
-                        // The "you picked this" ring is the theme's success
-                        // colour, not a literal green.
-                        ...(isPicked
-                          ? {
-                              outline: '2px solid var(--mol-color-success, #16a34a)',
-                              outlineOffset: '1px',
-                            }
-                          : {}),
-                      }}
-                      onClick={() => {
-                        if (onAskUserResponse == null) return
-                        setLocalAnswer(option.label)
-                        onAskUserResponse(option.label)
-                      }}
-                    >
-                      {isPicked ? `✓ ${option.label}` : option.label}
-                    </button>
-                  )
-                })}
-              </div>
-            ) : (
-              askInput.options.map((option, i) => {
-                const isSelected = selectedSet.has(option.label)
-                const isFaded = !isAwaiting && !isSelected
-                const isHover = isAwaiting && hoveredIdx === i
-                const isPreviewExpanded = expandedPreviewIdx === i
-
-                return (
-                  <div key={i}>
-                    <div style={{ display: 'flex', alignItems: 'stretch' }}>
-                      <button
-                        type="button"
-                        data-mol-id={`ask-user-option-${i}`}
-                        disabled={!isAwaiting || onAskUserResponse == null}
-                        onClick={() => {
-                          // No handler = read-only (a project viewer): answering is editor work.
-                          if (onAskUserResponse == null) return
-                          if (multi) {
-                            // Multi-select toggles a pick; a Confirm row submits them.
-                            setMultiPicks((picks) =>
-                              picks.includes(option.label)
-                                ? picks.filter((p) => p !== option.label)
-                                : [...picks, option.label],
-                            )
-                            return
-                          }
-                          setLocalAnswer(option.label)
-                          onAskUserResponse(option.label)
-                        }}
-                        onFocus={() => {
-                          if (isAwaiting) setHoveredIdx(i)
-                        }}
-                        onMouseEnter={() => {
-                          if (isAwaiting) setHoveredIdx(i)
-                        }}
-                        onMouseLeave={() => setHoveredIdx(null)}
-                        /* mol-bespoke-button: an ask_user answer ROW — a
-                           lettered radio list (A/B/C badge, label, optional
-                           description, tick), stacked with hairline dividers.
-                           It is the list itself, not a row of CTAs; the card's
-                           actual CTAs (Confirm choice, Send) are design-system
-                           buttons. Tested at a 44px coarse floor because these
-                           are the primary discovery answers. */
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '10px',
-                          flex: 1,
-                          minWidth: 0,
-                          padding: option.description ? '7px 12px' : '8px 12px',
-                          // Touch: full 44px rows — these are the PRIMARY discovery answers,
-                          // so they get the standalone-control floor, not the dense-row 32.
-                          ...(isCoarse ? { minHeight: 44 } : {}),
-                          border: 'none',
-                          borderTop: i > 0 ? `1px solid ${borderClr}` : 'none',
-                          background: isSelected
-                            ? isLight
-                              ? '#dbeafe'
-                              : 'rgba(59,130,246,0.2)'
-                            : isHover
-                              ? isLight
-                                ? '#eaeef2'
-                                : 'rgba(255,255,255,0.06)'
-                              : 'transparent',
-                          color: 'inherit',
-                          cursor: isAwaiting ? 'pointer' : 'default',
-                          textAlign: 'left',
-                          fontSize: '13px',
-                          opacity: isFaded ? 0.4 : 1,
-                          transition: 'background 80ms, opacity 80ms',
-                        }}
-                      >
-                        {/* Letter badge (checkbox-style when multi-select: filled
-                        letter = picked, hollow = not yet). */}
-                        <span
-                          style={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            width: 22,
-                            height: 22,
-                            borderRadius: multi ? '6px' : '5px',
-                            border: `1px solid ${isSelected ? (isLight ? '#93c5fd' : '#3b82f6') : borderClr}`,
-                            background: isSelected
-                              ? isLight
-                                ? '#3b82f6'
-                                : '#2563eb'
-                              : isLight
-                                ? '#fff'
-                                : 'rgba(255,255,255,0.08)',
-                            color: isSelected ? '#fff' : isLight ? '#57606a' : '#848d97',
-                            fontSize: '11px',
-                            fontWeight: 600,
-                            flexShrink: 0,
-                            fontFamily: '"SF Mono", Menlo, Consolas, "Courier New", monospace',
-                          }}
-                        >
-                          {multi && isSelected ? '✓' : labelChar(i)}
-                        </span>
-
-                        {/* Option label + optional one-line description */}
-                        <span style={{ flex: 1, minWidth: 0 }}>
-                          <span style={{ display: 'block' }}>{option.label}</span>
-                          {option.description && (
-                            <span
-                              style={{
-                                display: 'block',
-                                fontSize: '11px',
-                                opacity: 0.65,
-                                marginTop: '1px',
-                              }}
-                            >
-                              {option.description}
-                            </span>
-                          )}
-                        </span>
-
-                        {/* Checkmark for a picked single-select option */}
-                        {!multi && isSelected && (
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 16 16"
-                            width="14"
-                            height="14"
-                            fill={isLight ? '#2563eb' : '#60a5fa'}
-                          >
-                            <path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z" />
-                          </svg>
-                        )}
-                      </button>
-
-                      {/* Narrow screens: expand this option's preview inline (a
-                      sibling button — interactive elements never nest). */}
-                      {hasPreviews && isNarrow && option.preview && (
-                        <button
-                          type="button"
-                          data-mol-id={`ask-user-option-preview-${i}`}
-                          aria-label={t('ide.chat.askUserPreview', undefined, {
-                            defaultValue: 'Preview',
-                          })}
-                          disabled={!isAwaiting}
-                          onClick={() => setExpandedPreviewIdx(isPreviewExpanded ? null : i)}
-                          /* mol-bespoke-button: icon-only › disclosure chevron
-                             welded to the right edge of the answer row beside
-                             it — it shares that row's dividers and background
-                             so the pair reads as one row, which a boxed button
-                             would break. */
-                          style={{
-                            flexShrink: 0,
-                            width: 36,
-                            border: 'none',
-                            borderTop: i > 0 ? `1px solid ${borderClr}` : 'none',
-                            borderLeft: `1px solid ${borderClr}`,
-                            background: isPreviewExpanded
-                              ? isLight
-                                ? '#eaeef2'
-                                : 'rgba(255,255,255,0.06)'
-                              : 'transparent',
-                            color: 'inherit',
-                            cursor: isAwaiting ? 'pointer' : 'default',
-                            fontSize: '14px',
-                            opacity: 0.7,
-                            transform: isPreviewExpanded ? 'rotate(90deg)' : 'none',
-                            transition: 'transform 80ms',
-                          }}
-                        >
-                          ›
-                        </button>
-                      )}
-                    </div>
-
-                    {/* Inline preview (narrow screens only — wide screens use the
-                    side pane below). */}
-                    {hasPreviews && isNarrow && option.preview && isPreviewExpanded && (
-                      <div
-                        style={{
-                          borderTop: `1px solid ${borderClr}`,
-                          background: isLight ? '#fff' : 'rgba(255,255,255,0.03)',
-                          padding: '8px 12px',
-                          maxHeight: 240,
-                          overflowY: 'auto',
-                          fontSize: '12px',
-                        }}
-                      >
-                        <MarkdownContent text={option.preview} isStreaming={false} />
-                      </div>
-                    )}
-                  </div>
-                )
-              })
-            )}
-
-            {/* Multi-select confirm row — submits the picked labels as one
-                '; '-joined answer string. */}
-            {multi && isAwaiting && onAskUserResponse != null && (
-              <div
-                style={{
-                  display: 'flex',
-                  justifyContent: 'flex-end',
-                  gap: '8px',
-                  alignItems: 'center',
-                  padding: '8px 12px',
-                  borderTop: `1px solid ${borderClr}`,
-                }}
-              >
-                <span style={{ fontSize: '11px', opacity: 0.6 }}>
-                  {t('ide.chat.askUserSelectedCount', undefined, {
-                    defaultValue: '{{count}} selected',
-                    count: multiPicks.length,
-                  })}
-                </span>
-                <button
-                  type="button"
-                  data-mol-id="ask-user-multiselect-confirm"
-                  disabled={multiPicks.length === 0}
-                  className={cm.cn(
-                    cm.button({ variant: 'solid', color: 'primary', size: 'xs' }),
-                    cm.touchTargetCompact,
-                  )}
-                  onClick={() => {
-                    if (multiPicks.length === 0) return
-                    setLocalAnswer(multiPicks.join('; '))
-                    onAskUserResponse(multiPicks.join('; '))
-                  }}
-                >
-                  {t('ide.chat.askUserMultiConfirm', undefined, {
-                    defaultValue: 'Confirm choice',
-                  })}
-                </button>
-              </div>
-            )}
-          </div>
-
-          {/* Side-by-side preview pane (wide screens, rich options only). Shows
-              the hovered/focused option's artifact — mockups, code, API shapes
-              — so alternatives can be compared without scrolling. */}
-          {hasPreviews && !isNarrow && (
-            <div
-              style={{
-                flex: '1 1 45%',
-                minWidth: 0,
-                borderLeft: `1px solid ${borderClr}`,
-                display: 'flex',
-                flexDirection: 'column',
-                background: isLight ? '#fff' : 'rgba(255,255,255,0.03)',
-              }}
-            >
-              <div
-                style={{
-                  padding: '6px 12px',
-                  fontSize: '11px',
-                  fontWeight: 600,
-                  opacity: 0.6,
-                  borderBottom: `1px solid ${borderClr}`,
-                  whiteSpace: 'nowrap',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                }}
-              >
-                {previewOption
-                  ? previewOption.label
-                  : t('ide.chat.askUserPreview', undefined, { defaultValue: 'Preview' })}
-              </div>
-              <div
-                style={{
-                  padding: '8px 12px',
-                  maxHeight: 360,
-                  overflowY: 'auto',
-                  fontSize: '12px',
-                }}
-              >
-                {previewOption?.preview && (
-                  <MarkdownContent text={previewOption.preview} isStreaming={false} />
-                )}
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Free-text input. Shown by DEFAULT so the user is never stuck on an
-            open-ended question (e.g. "what's your bakery called?") that the model
-            asked without setting allowFreeText. Hidden only if the model
-            explicitly opts out (allowFreeText === false) for a strict pick-one. */}
-        {isAwaiting && askInput.allowFreeText !== false && onAskUserResponse != null && (
-          <div
-            style={{
-              display: 'flex',
-              gap: '4px',
-              padding: '8px 12px',
-              borderTop: `1px solid ${borderClr}`,
-            }}
-          >
-            <input
-              type="text"
-              value={freeText}
-              onChange={(e) => setFreeText(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && freeText.trim()) {
-                  setLocalAnswer(freeText.trim())
-                  onAskUserResponse?.(freeText.trim())
-                  setFreeText('')
-                }
-              }}
-              placeholder={
-                askInput.options.length === 0
-                  ? t('ide.chat.askUserPlaceholderEmpty', undefined, {
-                      defaultValue: 'Type your answer…',
-                    })
-                  : t('ide.chat.askUserPlaceholder', undefined, {
-                      defaultValue: 'Or type your own…',
-                    })
-              }
-              className={cm.touchTargetCompact}
-              /* The field box IS the Send button's box: the design-system 26px
-                 height and 3px radius every card button carries, so the pair
-                 reads as one control (the coarse 36px floor comes from the same
-                 cm.touchTargetCompact class Send has). */
-              style={{
-                flex: 1,
-                minWidth: 0,
-                height: 26,
-                padding: '0 8px',
-                borderRadius: '3px',
-                border: `1px solid ${borderClr}`,
-                background: 'transparent',
-                color: 'inherit',
-                // Deliberate iOS-zoom guard: a focused input below 16px makes iOS
-                // Safari zoom the whole page on phone-width / touch-first viewports.
-                // Desktop sits at the 13px button-label size it sits beside.
-                fontSize: isNarrow || isCoarse ? '16px' : '13px',
-                outline: 'none',
-              }}
-            />
-            <button
-              type="button"
-              data-mol-id="ask-user-free-text-submit"
-              disabled={!freeText.trim()}
-              onClick={() => {
-                if (freeText.trim()) {
-                  setLocalAnswer(freeText.trim())
-                  onAskUserResponse?.(freeText.trim())
-                  setFreeText('')
-                }
-              }}
-              // The same design-system CTA as this card's own Confirm choice
-              // button a few rows up. It was a hand-rolled pill (12px/6px radius,
-              // rgba(64,112,224,…)/#4070e0, hand-written hover, opacity for
-              // "disabled") — the CVA carries hover/active/disabled itself, and
-              // the real `disabled` attribute now does the fading.
-              className={cm.cn(
-                cm.button({ variant: 'solid', color: 'primary', size: 'xs' }),
-                cm.touchTargetCompact,
-                cm.shrink0,
-              )}
-            >
-              {t('ide.chat.askUserSubmit', undefined, { defaultValue: 'Send' })}
-            </button>
-          </div>
-        )}
-
-        {/* Show free-text response if it wasn't one of the preset options */}
-        {selectedAnswer && !askInput.options.some((option) => option.label === selectedAnswer) && (
-          <div
-            style={{
-              padding: '8px 12px',
-              borderTop: `1px solid ${borderClr}`,
-              fontSize: '12px',
-              fontStyle: 'italic',
-            }}
-          >
-            {selectedAnswer}
-          </div>
-        )}
-
-        {/* Optional hint text */}
-        {askInput.hint && (
-          <div
-            style={{
-              padding: '8px 12px',
-              borderTop: `1px solid ${borderClr}`,
-              fontSize: '11px',
-              fontStyle: 'italic',
-              opacity: 0.5,
-            }}
-          >
-            {askInput.hint}
-          </div>
-        )}
-      </div>
+        cm={cm}
+        isLight={isLight}
+        isCoarse={isCoarse}
+        isNarrow={isNarrow}
+        t={t}
+        onFileOpen={onFileOpen}
+        onAskUserResponse={onAskUserResponse}
+      />
     )
   }
 
+  // The label's openable file segments render as the row's SIBLING controls
+  // (see the comment below the row): without `onFileOpen` they stay plain text.
+  const { text: labelText, files: labelFiles } = labelSegments(
+    t,
+    name,
+    labelInput,
+    filePath,
+    onFileOpen,
+  )
+
   return (
     <div className={className} style={{ marginBottom: '4px' }}>
-      {/* The row and its Skip are SIBLINGS: the row itself is a role="button" div (a real <button>
-          cannot have its text selected, and a button nested inside one is invalid
-          HTML, which is why the undo control is a role="button" span too). Skip is an action the
-          person clicks, so it gets to be a genuine button. */}
+      {/* The row, its file open controls, its undo control and its Skip are SIBLINGS: the row
+          itself is a role="button" div (a real <button> cannot have its text selected), and a
+          control cannot sit inside a button (axe `nested-interactive`) — the file names that
+          open their file and the undo control are siblings laid out on the same line. Skip is an
+          action the person clicks, so it gets to be a genuine button. */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}>
         <div
           role="button"
@@ -1940,7 +2061,7 @@ export const ToolCallCard = memo(function ToolCallCard({
                   whiteSpace: 'nowrap',
                 }}
               >
-                {renderLabel(t, name, labelInput, filePath, onFileOpen, onFileDoubleClick)}
+                {labelText}
               </span>
               {/* One-line status ("Running…"/"Done"/error count), on the SAME row as the
                 label and pushed to the right edge by the label's flex:1. */}
@@ -1950,71 +2071,6 @@ export const ToolCallCard = memo(function ToolCallCard({
                   style={{ flexShrink: 0, marginLeft: '8px', whiteSpace: 'nowrap' }}
                 >
                   {summary}
-                </span>
-              )}
-              {canRevert && status !== 'running' && (
-                <span
-                  role="button"
-                  tabIndex={0}
-                  title={
-                    isUndone
-                      ? t('ide.chat.redoChange', undefined, {
-                          defaultValue: 'Re-apply this change',
-                        })
-                      : t('ide.chat.undoChange', undefined, { defaultValue: 'Undo this change' })
-                  }
-                  onClick={handleRevert}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault()
-                      handleRevert(e as unknown as React.MouseEvent)
-                    }
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = 'rgba(128,128,128,0.2)'
-                    e.currentTarget.style.opacity = '1'
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = 'transparent'
-                    e.currentTarget.style.opacity = ''
-                  }}
-                  /* mol-bespoke-button: icon-only undo/redo affordance INSIDE
-                     the row's label — it has to be a role="button" span because
-                     a real button cannot nest in the row button, and it is
-                     hover-revealed chrome (20px box, neutral scrim), not a CTA.
-                     Its 32px coarse box is asserted by the mobile-touch tests. */
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    // Touch: hover can't reveal it, so it rests visible at 0.6 and
-                    // gets a 32px hit box (the floor for these dense inline rows).
-                    width: isCoarse ? 32 : 20,
-                    height: isCoarse ? 32 : 20,
-                    borderRadius: 4,
-                    flexShrink: 0,
-                    // Nudge up 1px: the 13px glyph sat slightly below the text's
-                    // optical center of the compact 20px box (moot at 32px).
-                    position: 'relative',
-                    top: isCoarse ? 0 : '-1px',
-                    cursor: isReverting ? 'wait' : 'pointer',
-                    opacity: isReverting ? 0.3 : isHovered || isCoarse ? 0.6 : 0,
-                    transition: 'opacity 100ms, background 100ms',
-                  }}
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 16 16"
-                    width="13"
-                    height="13"
-                    fill="currentColor"
-                  >
-                    {isUndone ? (
-                      <path d="M14.78 6.28a.749.749 0 0 0 0-1.06l-3.5-3.5a.749.749 0 1 0-1.06 1.06L12.439 5H5.251l-.001.007L5.251 5a.8.8 0 0 0-.171.019A4.501 4.501 0 0 0 5.5 14h1.704a.75.75 0 0 0 0-1.5H5.5a3 3 0 1 1 0-6h6.939L10.22 8.72a.749.749 0 1 0 1.06 1.06l3.5-3.5Z" />
-                    ) : (
-                      <path d="M1.22 6.28a.749.749 0 0 1 0-1.06l3.5-3.5a.749.749 0 1 1 1.06 1.06L3.561 5h7.188l.001.007L10.749 5c.058 0 .116.007.171.019A4.501 4.501 0 0 1 10.5 14H8.796a.75.75 0 0 1 0-1.5H10.5a3 3 0 1 0 0-6H3.561L5.78 8.72a.749.749 0 1 1-1.06 1.06l-3.5-3.5Z" />
-                    )}
-                  </svg>
                 </span>
               )}
             </span>
@@ -2096,6 +2152,82 @@ export const ToolCallCard = memo(function ToolCallCard({
             </svg>
           )}
         </div>
+        {labelFiles.map((target) => (
+          <FileOpenControl
+            key={target.path}
+            target={target}
+            onFileOpen={onFileOpen!}
+            onFileDoubleClick={onFileDoubleClick}
+            t={t}
+          />
+        ))}
+        {canRevert && status !== 'running' && (
+          <span
+            role="button"
+            tabIndex={0}
+            title={
+              isUndone
+                ? t('ide.chat.redoChange', undefined, {
+                    defaultValue: 'Re-apply this change',
+                  })
+                : t('ide.chat.undoChange', undefined, { defaultValue: 'Undo this change' })
+            }
+            onClick={handleRevert}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                handleRevert(e as unknown as React.MouseEvent)
+              }
+            }}
+            onMouseEnter={(e) => {
+              setIsUndoHovered(true)
+              e.currentTarget.style.background = 'rgba(128,128,128,0.2)'
+              e.currentTarget.style.opacity = '1'
+            }}
+            onMouseLeave={(e) => {
+              setIsUndoHovered(false)
+              e.currentTarget.style.background = 'transparent'
+              e.currentTarget.style.opacity = ''
+            }}
+            /* mol-bespoke-button: icon-only undo/redo affordance BESIDE
+                     the row — it has to be a role="button" span because
+                     a real button cannot nest in the row button, and it is
+                     hover-revealed chrome (20px box, neutral scrim), not a CTA.
+                     Its 32px coarse box is asserted by the mobile-touch tests. */
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              // Touch: hover can't reveal it, so it rests visible at 0.6 and
+              // gets a 32px hit box (the floor for these dense inline rows).
+              width: isCoarse ? 32 : 20,
+              height: isCoarse ? 32 : 20,
+              borderRadius: 4,
+              flexShrink: 0,
+              // Nudge up 1px: the 13px glyph sat slightly below the text's
+              // optical center of the compact 20px box (moot at 32px).
+              position: 'relative',
+              top: isCoarse ? 0 : '-1px',
+              cursor: isReverting ? 'wait' : 'pointer',
+              opacity: isReverting ? 0.3 : isHovered || isCoarse || isUndoHovered ? 0.6 : 0,
+              transition: 'opacity 100ms, background 100ms',
+            }}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 16 16"
+              width="13"
+              height="13"
+              fill="currentColor"
+            >
+              {isUndone ? (
+                <path d="M14.78 6.28a.749.749 0 0 0 0-1.06l-3.5-3.5a.749.749 0 1 0-1.06 1.06L12.439 5H5.251l-.001.007L5.251 5a.8.8 0 0 0-.171.019A4.501 4.501 0 0 0 5.5 14h1.704a.75.75 0 0 0 0-1.5H5.5a3 3 0 1 1 0-6h6.939L10.22 8.72a.749.749 0 1 0 1.06 1.06l3.5-3.5Z" />
+              ) : (
+                <path d="M1.22 6.28a.749.749 0 0 1 0-1.06l3.5-3.5a.749.749 0 1 1 1.06 1.06L3.561 5h7.188l.001.007L10.749 5c.058 0 .116.007.171.019A4.501 4.501 0 0 1 10.5 14H8.796a.75.75 0 0 1 0-1.5H10.5a3 3 0 1 0 0-6H3.561L5.78 8.72a.749.749 0 1 1-1.06 1.06l-3.5-3.5Z" />
+              )}
+            </svg>
+          </span>
+        )}
         {canSkip && (
           <button
             type="button"

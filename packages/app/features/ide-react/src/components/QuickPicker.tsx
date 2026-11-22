@@ -8,7 +8,7 @@
  */
 
 import type { JSX } from 'react'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
 import { fuzzyScore } from '@molecule/app-ide-panel-logic/panels'
 import { useThemeMode, useTranslation } from '@molecule/app-react'
@@ -74,31 +74,31 @@ export function QuickPicker({
     el?.scrollIntoView({ block: 'nearest' })
   }, [selectedIndex])
 
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
-      switch (e.key) {
-        case 'ArrowDown':
-          e.preventDefault()
-          setSelectedIndex((i) => Math.min(i + 1, filtered.length - 1))
-          break
-        case 'ArrowUp':
-          e.preventDefault()
-          setSelectedIndex((i) => Math.max(i - 1, 0))
-          break
-        case 'Enter':
-          e.preventDefault()
-          if (filtered[selectedIndex]) {
-            onSelect(filtered[selectedIndex])
-          }
-          break
-        case 'Escape':
-          e.preventDefault()
-          onDismiss()
-          break
-      }
-    },
-    [filtered, selectedIndex, onSelect, onDismiss],
-  )
+  // Not memoized: its only consumers are the DOM `onKeyDown` props of the input
+  // and the rows, and it reads `filtered`/`selectedIndex`, so a memo's identity
+  // would change on every keystroke anyway.
+  const handleKeyDown = (e: React.KeyboardEvent): void => {
+    switch (e.key) {
+      case 'ArrowDown':
+        e.preventDefault()
+        setSelectedIndex((i) => Math.min(i + 1, filtered.length - 1))
+        break
+      case 'ArrowUp':
+        e.preventDefault()
+        setSelectedIndex((i) => Math.max(i - 1, 0))
+        break
+      case 'Enter':
+        e.preventDefault()
+        if (filtered[selectedIndex]) {
+          onSelect(filtered[selectedIndex])
+        }
+        break
+      case 'Escape':
+        e.preventDefault()
+        onDismiss()
+        break
+    }
+  }
 
   // The selected-row tint follows the theme primary (so a rebranded app tints
   // its own picker), never a literal blue; the hex is only the CSS-var fallback.

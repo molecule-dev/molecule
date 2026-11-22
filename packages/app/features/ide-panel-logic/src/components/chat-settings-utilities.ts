@@ -24,15 +24,22 @@
  * mode cycle types and the English mode labels) and the label helpers for
  * them, so every framework's chat panel reads the SAME sound vocabulary — and
  * so every sound label is a literal `t()` call the i18n gate can check, never
- * a runtime-built `ide.chat.soundEvent.${event}` key.
+ * a runtime-built `ide.chat.soundEvent.${event}` key. The same module parses
+ * and cycles the per-device sounds preference and owns the notification tone
+ * (`playTone`, with an injectable AudioContext factory) and the focus-aware
+ * {@link shouldPlaySound} gate, so every port plays the same tones on the same
+ * events.
  *
  * @module
  */
 
+import type { EffortLevel } from '@molecule/app-ai-models'
 import type { InterpolationValues, TranslateFunction } from '@molecule/app-i18n'
 
 import type { SettingKey, SettingMeta } from '../settings-metadata.js'
 import { SETTINGS } from '../settings-metadata.js'
+import type { EffortMode } from './chat-effort-utilities.js'
+import { MODEL_REGION_FLAGS } from './chat-models-utilities.js'
 
 /** Notification-sound mode for a single event (mirrors ChatPanel's `SoundMode`). */
 export type SoundEventMode = 'off' | 'whenNotFocused' | 'always'
@@ -59,6 +66,95 @@ export type SettingDescriptor = SettingMeta & {
  * via {@link summarizeSounds}) so this layer stays pure.
  */
 export type SettingsDisplayValues = Record<SettingKey, string>
+
+/**
+ * The per-project chat settings the chat panel hydrates from
+ * `GET /projects/:id` `settings`. Each field is present only when the stored
+ * value passed that field's type check; `undefined` means "leave the current
+ * React state alone".
+ */
+export interface ParsedChatProjectSettings {
+  /** The persisted legacy chat model id (may be an empty string). */
+  chatModel?: string
+  /** The plan-mode model id. */
+  planModel?: string
+  /** The execute-mode model id. */
+  executeModel?: string
+  /** The commit-message model id. */
+  commitModel?: string
+  /** The conversation-compaction model id. */
+  compactModel?: string
+  /** The legacy single reasoning-effort value (only non-empty strings). */
+  effortLevel?: string
+  /** The per-mode effort map (present when the stored shape is a valid object). */
+  effortByMode?: Partial<Record<EffortMode, EffortLevel>>
+  /** The per-model processing-region map (known regions only). */
+  modelRegions?: Record<string, string>
+  /** The max tool-iterations setting. */
+  maxToolLoops?: number
+  /** Whether auto-fix is enabled. */
+  autoFix?: boolean
+  /** Whether destructive-command auto-approve is enabled. */
+  autoApproveCommands?: boolean
+}
+
+/**
+ * Parses the chat-related settings out of a project's `settings` bag — the
+ * untrusted JSON an initialized project stores. Both the mount hydration and
+ * the change-signal re-read run this exact parse, so they can never drift.
+ *
+ * @param raw - The project's `settings` bag (or `undefined` when absent).
+ * @returns The values that parsed cleanly, keyed by settings field.
+ */
+export function parseChatProjectSettings(
+  raw: Record<string, unknown> | undefined,
+): ParsedChatProjectSettings {
+  const parsed: ParsedChatProjectSettings = {}
+  if (typeof raw?.chatModel === 'string') {
+    parsed.chatModel = raw.chatModel
+  }
+  if (typeof raw?.planModel === 'string') parsed.planModel = raw.planModel
+  if (typeof raw?.executeModel === 'string') parsed.executeModel = raw.executeModel
+  if (typeof raw?.commitModel === 'string') parsed.commitModel = raw.commitModel
+  if (typeof raw?.compactModel === 'string') parsed.compactModel = raw.compactModel
+  // The persisted value is the model's own native level — accept any non-empty
+  // string; it's resolved against the active model at use time.
+  if (typeof raw?.effortLevel === 'string' && raw.effortLevel) {
+    parsed.effortLevel = raw.effortLevel
+  }
+  // Per-mode effort map — accept each string entry (untrusted JSON bag).
+  if (
+    raw?.effortByMode &&
+    typeof raw.effortByMode === 'object' &&
+    !Array.isArray(raw.effortByMode)
+  ) {
+    const next: Partial<Record<EffortMode, EffortLevel>> = {}
+    for (const m of ['plan', 'execute'] as const) {
+      const value = (raw.effortByMode as Record<string, unknown>)[m]
+      if (typeof value === 'string' && value) next[m] = value
+    }
+    parsed.effortByMode = next
+  }
+  // Per-model processing region map — accept each known-region entry
+  // (untrusted JSON bag), mirroring effortByMode above.
+  if (
+    raw?.modelRegions &&
+    typeof raw.modelRegions === 'object' &&
+    !Array.isArray(raw.modelRegions)
+  ) {
+    const nextRegions: Record<string, string> = {}
+    for (const [id, value] of Object.entries(raw.modelRegions as Record<string, unknown>)) {
+      if (typeof value === 'string' && value in MODEL_REGION_FLAGS) nextRegions[id] = value
+    }
+    parsed.modelRegions = nextRegions
+  }
+  if (typeof raw?.maxToolLoops === 'number') parsed.maxToolLoops = raw.maxToolLoops
+  if (typeof raw?.autoFix === 'boolean') parsed.autoFix = raw.autoFix
+  if (typeof raw?.autoApproveCommands === 'boolean') {
+    parsed.autoApproveCommands = raw.autoApproveCommands
+  }
+  return parsed
+}
 
 /**
  * Builds the ordered list of user-controllable agent settings by zipping the
@@ -116,6 +212,203 @@ export const SOUND_EVENTS = [
 
 /** A stream event type that can trigger a notification sound. */
 export type SoundEventType = (typeof SOUND_EVENTS)[number]
+
+/** Mode cycle order. */
+export const SOUND_MODES: SoundMode[] = ['off', 'whenNotFocused', 'always']
+
+/** The per-event sound modes, keyed by {@link SoundEventType}. */
+export type SoundsConfig = Record<SoundEventType, SoundMode>
+
+/** Per-device sounds preference (see the soundsConfig state comment). */
+export const SOUNDS_STORAGE_KEY = 'molecule.ide.sounds'
+
+/** The sound modes a device starts with, before any local preference is stored. */
+export const DEFAULT_SOUNDS_CONFIG: SoundsConfig = {
+  message: 'always',
+  done: 'whenNotFocused',
+  error: 'whenNotFocused',
+  tool_result: 'off',
+  file_diff: 'off',
+  commit_suggestion: 'off',
+  mode: 'whenNotFocused',
+  loop_limit_reached: 'whenNotFocused',
+  verification_result: 'whenNotFocused',
+  preview_error: 'whenNotFocused',
+}
+
+/**
+ * Whether a value is one of the {@link SOUND_MODES}.
+ *
+ * @param value - Any value, such as one read from storage.
+ * @returns True for `'off'`, `'whenNotFocused'` or `'always'`.
+ */
+export const isSoundMode = (value: unknown): value is SoundMode =>
+  SOUND_MODES.some((mode) => mode === value)
+
+/**
+ * Parses the stored per-device sounds preference, filling any missing event
+ * from {@link DEFAULT_SOUNDS_CONFIG}. A missing or corrupt stored value keeps
+ * the defaults, so an unreadable preference never silences the panel; so does
+ * an entry that is not a known event with a known mode (a value stored by an
+ * older or newer build), which is dropped rather than copied in.
+ *
+ * @param raw - The raw localStorage value (or `null` when nothing is stored).
+ * @returns The parsed sound modes, every event present.
+ */
+export function parseSoundsConfig(raw: string | null): SoundsConfig {
+  if (!raw) return { ...DEFAULT_SOUNDS_CONFIG }
+  let stored: unknown
+  try {
+    stored = JSON.parse(raw)
+  } catch (_error) {
+    // Bad JSON: the defaults stand.
+    return { ...DEFAULT_SOUNDS_CONFIG }
+  }
+  return mergeSoundsConfig(DEFAULT_SOUNDS_CONFIG, stored)
+}
+
+/**
+ * Overlays a stored sounds value on `base`: each known event whose stored mode is a
+ * known mode replaces the base's, and everything else (a non-object, an unknown event
+ * or mode) is ignored, as a project's legacy `settings.sounds` needs.
+ *
+ * @param base - The sound modes to start from.
+ * @param stored - The stored value, of any shape.
+ * @returns A new config, every event present.
+ */
+export function mergeSoundsConfig(base: SoundsConfig, stored: unknown): SoundsConfig {
+  const config = { ...base }
+  if (typeof stored !== 'object' || stored === null || Array.isArray(stored)) return config
+  for (const event of SOUND_EVENTS) {
+    const mode: unknown = Reflect.get(stored, event)
+    if (isSoundMode(mode)) config[event] = mode
+  }
+  return config
+}
+
+/**
+ * Cycles one sound event's mode to the next entry in {@link SOUND_MODES}, or
+ * every event at once when `eventType` is `'all'` — what the sounds picker
+ * applies on a row click.
+ *
+ * @param config - The current per-event sound modes.
+ * @param eventType - The event to cycle, or `'all'` for every event.
+ * @returns The updated config (a new object; the input is not mutated).
+ */
+export function cycleSoundsConfig(
+  config: SoundsConfig,
+  eventType: SoundEventType | 'all',
+): SoundsConfig {
+  if (eventType === 'all') {
+    const current = config[SOUND_EVENTS[0]]
+    const nextIdx = (SOUND_MODES.indexOf(current) + 1) % SOUND_MODES.length
+    const next = SOUND_MODES[nextIdx]
+    return Object.fromEntries(SOUND_EVENTS.map((e) => [e, next])) as SoundsConfig
+  }
+  const current = config[eventType]
+  const nextIdx = (SOUND_MODES.indexOf(current) + 1) % SOUND_MODES.length
+  const next = SOUND_MODES[nextIdx]
+  return { ...config, [eventType]: next }
+}
+
+/**
+ * Check if a sound should play based on the mode and current page focus.
+ *
+ * @param mode - The sound mode for the event.
+ * @param hasFocus - Whether the page currently has focus (the caller reads it, e.g. `document.hasFocus()`).
+ * @returns Whether the sound should play.
+ */
+export function shouldPlaySound(mode: SoundMode, hasFocus: boolean): boolean {
+  if (mode === 'off') return false
+  if (mode === 'always') return true
+  return !hasFocus
+}
+
+/** A connectable tone node — the gain node, or the context's output destination. */
+export type ToneAudioNode = object
+
+/** The oscillator members {@link playTone} drives (a subset of the DOM `OscillatorNode`). */
+export interface ToneOscillator {
+  /** Waveform shape. */
+  type: string
+  /** Oscillator frequency in Hz. */
+  frequency: { value: number }
+  /** Routes this oscillator into the tone's gain node. */
+  connect(destination: ToneAudioNode): void
+  /** Starts the tone at the given context time. */
+  start(when?: number): void
+  /** Stops the tone at the given context time. */
+  stop(when?: number): void
+}
+
+/** The gain members {@link playTone} drives (a subset of the DOM `GainNode`). */
+export interface ToneGain {
+  /** The gain envelope the tone's volume is shaped with. */
+  gain: {
+    /** Pins the gain to `value` at context time `when`. */
+    setValueAtTime(value: number, when: number): void
+    /** Ramps the gain exponentially to `value` at context time `when`. */
+    exponentialRampToValueAtTime(value: number, when: number): void
+  }
+  /** Routes this gain into a destination node. */
+  connect(destination: ToneAudioNode): void
+}
+
+/** The AudioContext members {@link playTone} uses (a subset of the DOM `AudioContext`). */
+export interface ToneAudioContext {
+  /** The context's current time in seconds. */
+  currentTime: number
+  /** The output node the tone is routed to. */
+  destination: ToneAudioNode
+  /** Creates the tone's oscillator. */
+  createOscillator(): ToneOscillator
+  /** Creates the tone's gain node. */
+  createGain(): ToneGain
+}
+
+/** Creates the notification tone's audio context. Injectable so hosts and tests can substitute one. */
+export type AudioContextFactory = () => ToneAudioContext
+
+/** The lazily-created AudioContext shared by every {@link playTone} call. */
+let audioCtx: ToneAudioContext | null = null
+
+/** The default AudioContext factory: the browser's own `new AudioContext()`. */
+const createDefaultAudioContext: AudioContextFactory = () => new AudioContext()
+
+/**
+ * Play a short notification tone using the Web Audio API.
+ * Creates the AudioContext lazily on first call (after user interaction).
+ *
+ * The default variant is a single 660 Hz blip (status events). The `team`
+ * variant is the SAME blip an octave up (1320 Hz) — recognizably "a message,
+ * not a status event" while staying consistent with the sound family.
+ * @param variant - Which tone to play.
+ * @param createAudioContext - Factory for the lazily-created AudioContext (defaults to `new AudioContext()`).
+ */
+export function playTone(
+  variant: 'default' | 'team' = 'default',
+  createAudioContext: AudioContextFactory = createDefaultAudioContext,
+): void {
+  try {
+    if (!audioCtx) audioCtx = createAudioContext()
+    const osc = audioCtx.createOscillator()
+    const gain = audioCtx.createGain()
+    osc.connect(gain)
+    gain.connect(audioCtx.destination)
+    osc.type = 'sine'
+    osc.frequency.value = variant === 'team' ? 1320 : 660
+    // Equal-loudness compensation: hearing is far more sensitive near 1–4 kHz
+    // than at 660 Hz, so the octave-up tone needs roughly half the amplitude
+    // to sound the same volume as the default blip.
+    const peak = variant === 'team' ? 0.08 : 0.15
+    gain.gain.setValueAtTime(peak, audioCtx.currentTime)
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15)
+    osc.start(audioCtx.currentTime)
+    osc.stop(audioCtx.currentTime + 0.15)
+  } catch (_error) {
+    // AudioContext not available in this environment — silently skip
+  }
+}
 
 /**
  * English label per sound mode (also each key's `defaultValue` in

@@ -83,8 +83,19 @@ export function ScriptsCard({
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
 
-  const loadScripts = useCallback(async () => {
+  // The list belongs to one project. When the card is re-pointed at another one
+  // the previous project's rows must not linger, so reset to "loading" during
+  // the render that carries the new project id (React's "adjust state when
+  // props change" pattern) rather than from the effect that then fetches it.
+  const [loadedProjectId, setLoadedProjectId] = useState(projectId)
+  if (loadedProjectId !== projectId) {
+    setLoadedProjectId(projectId)
     setStatus('loading')
+  }
+
+  // Sets state only after the request settles, so awaiting it (see the effect)
+  // never runs a state update synchronously in an effect body.
+  const loadScripts = useCallback(async () => {
     try {
       const res = await http.get<{ scripts: ScriptInfo[] }>(`/projects/${projectId}/scripts`)
       setScripts(res.data.scripts ?? [])
@@ -95,8 +106,12 @@ export function ScriptsCard({
     }
   }, [http, projectId])
 
+  // The awaited call is the async boundary the list needs: the loader's state
+  // updates land after its response, never synchronously in the effect body.
   useEffect(() => {
-    void loadScripts()
+    void (async () => {
+      await loadScripts()
+    })()
   }, [loadScripts])
 
   const handleRun = useCallback(
@@ -177,6 +192,7 @@ export function ScriptsCard({
       setNewDescription('')
       setNewBody('')
       setCreating(false)
+      setStatus('loading')
       await loadScripts()
     } catch (error) {
       logger.warn('Failed to save project script', { error })

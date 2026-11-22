@@ -293,6 +293,244 @@
    }
   ]
  },
+ "a file list that fails through every retry ends in the error state": {
+  "snapshots": [
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n</div>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div class=\"ce823b5bf\" style=\"padding: 6px 0px\">\nWaiting for the sandbox to finish starting…\n</div>\n</div>\n@route /",
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n</div>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div class=\"ce823b5bf\" style=\"padding: 6px 0px\">\nWaiting for the sandbox to finish starting…\n</div>\n</div>\n@route /",
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n</div>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div class=\"ce823b5bf\" style=\"padding: 6px 0px\">\nWaiting for the sandbox to finish starting…\n</div>\n</div>\n@route /",
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n</div>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div class=\"ce823b5bf\" style=\"padding: 6px 0px\">\nWaiting for the sandbox to finish starting…\n</div>\n</div>\n@route /",
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n</div>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div class=\"ce823b5bf\" style=\"padding: 6px 0px\">\nWaiting for the sandbox to finish starting…\n</div>\n</div>\n@route /",
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n</div>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div class=\"ce823b5bf\" style=\"padding: 6px 0px\">\nWaiting for the sandbox to finish starting…\n</div>\n</div>\n@route /",
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n</div>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div class=\"ce823b5bf\" style=\"padding: 6px 0px\">\nWaiting for the sandbox to finish starting…\n</div>\n</div>\n@route /",
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n</div>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div class=\"ce823b5bf\" style=\"padding: 6px 0px\">\nWaiting for the sandbox to finish starting…\n</div>\n</div>\n@route /",
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n</div>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div class=\"ce823b5bf\" style=\"padding: 6px 0px\">\nWaiting for the sandbox to finish starting…\n</div>\n</div>\n@route /",
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n</div>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div class=\"ce823b5bf\" style=\"padding: 6px 0px\">\nCould not load skills for this project.\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files-list"
+     }
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files-list"
+     }
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files-list"
+     }
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files-list"
+     }
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files-list"
+     }
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files-list"
+     }
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files-list"
+     }
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files-list"
+     }
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files-list"
+     }
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files-list"
+     }
+    ]
+   },
+   {
+    "name": "logger.warn",
+    "args": [
+     "skills-card",
+     "Failed to load project skills",
+     {
+      "error": {
+       "$error": "the sandbox went away",
+       "name": "HttpError",
+       "status": 0
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "an unmount before the last failure logs it without an error state": {
+  "snapshots": [
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n</div>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div class=\"ce823b5bf\" style=\"padding: 6px 0px\">\nWaiting for the sandbox to finish starting…\n</div>\n</div>\n@route /",
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n</div>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div class=\"ce823b5bf\" style=\"padding: 6px 0px\">\nWaiting for the sandbox to finish starting…\n</div>\n</div>\n@route /",
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n</div>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div class=\"ce823b5bf\" style=\"padding: 6px 0px\">\nWaiting for the sandbox to finish starting…\n</div>\n</div>\n@route /",
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n</div>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div class=\"ce823b5bf\" style=\"padding: 6px 0px\">\nWaiting for the sandbox to finish starting…\n</div>\n</div>\n@route /",
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n</div>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div class=\"ce823b5bf\" style=\"padding: 6px 0px\">\nWaiting for the sandbox to finish starting…\n</div>\n</div>\n@route /",
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n</div>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div class=\"ce823b5bf\" style=\"padding: 6px 0px\">\nWaiting for the sandbox to finish starting…\n</div>\n</div>\n@route /",
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n</div>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div class=\"ce823b5bf\" style=\"padding: 6px 0px\">\nWaiting for the sandbox to finish starting…\n</div>\n</div>\n@route /",
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n</div>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div class=\"ce823b5bf\" style=\"padding: 6px 0px\">\nWaiting for the sandbox to finish starting…\n</div>\n</div>\n@route /",
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n</div>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div class=\"ce823b5bf\" style=\"padding: 6px 0px\">\nWaiting for the sandbox to finish starting…\n</div>\n</div>\n@route /",
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n</div>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div class=\"ce823b5bf\" style=\"padding: 6px 0px\">\nWaiting for the sandbox to finish starting…\n</div>\n</div>\n@route /",
+   "\n@route /",
+   "\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files-list"
+     }
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files-list"
+     }
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files-list"
+     }
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files-list"
+     }
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files-list"
+     }
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files-list"
+     }
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files-list"
+     }
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files-list"
+     }
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files-list"
+     }
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files-list"
+     }
+    ]
+   },
+   {
+    "name": "logger.warn",
+    "args": [
+     "skills-card",
+     "Failed to load project skills",
+     {
+      "error": {
+       "$error": "Request failed with status 503",
+       "name": "HttpError",
+       "status": 503
+      }
+     }
+    ]
+   }
+  ]
+ },
  "an unmount leaves the late reply unapplied": {
   "snapshots": [
    "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n</div>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div class=\"ce823b5bf\" style=\"padding: 6px 0px\">\nLoading skills…\n</div>\n</div>\n@route /",

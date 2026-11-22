@@ -7,15 +7,23 @@
 import { describe, expect, it } from 'vitest'
 
 import type { AppModelDefinition } from '@molecule/app-ai-models'
+import type { TranslateFunction } from '@molecule/app-i18n'
 
 import {
+  availableModelRegions,
   compareModels,
   effectiveModelRegion,
+  filterModelsByPickerQuery,
+  MODEL_REGION_FLAGS,
   modelHasPeakPricing,
   modelPeakMultiplier,
   modelPeakWindowLabels,
+  modelPickerRowView,
   modelTotalCost,
   modelUsageRate,
+  pickerCurrentModelId,
+  resolveModelQuery,
+  resolveRemovedModelFallback,
   sortModels,
 } from '../components/chat-models-utilities.js'
 
@@ -414,5 +422,307 @@ describe('peak window labels', () => {
 
   it('returns nothing for a model without peak windows', () => {
     expect(modelPeakWindowLabels(model({ id: 'flat' }))).toEqual([])
+  })
+})
+
+/** Marker translator that names the key it was called with: `@@<key>@@`. */
+const keyT: TranslateFunction = (key) => `@@${key}@@`
+
+/** Translator that interpolates the English default. */
+const enT: TranslateFunction = (_key, values, opts) =>
+  (opts?.defaultValue ?? '').replace(/\{\{\s*(\w+)\s*\}\}/g, (_, k: string) =>
+    String(values?.[k] ?? `{{${k}}}`),
+  )
+
+describe('MODEL_REGION_FLAGS', () => {
+  it('maps the known region codes to their flag country codes', () => {
+    expect(MODEL_REGION_FLAGS).toEqual({ us: 'US', cn: 'CN' })
+  })
+})
+
+describe('availableModelRegions', () => {
+  it('returns the catalog regions, default first', () => {
+    expect(availableModelRegions(model({ id: 'a', regions: ['cn', 'us'] }))).toEqual(['cn', 'us'])
+  })
+
+  it('defaults to US-only when the catalog omits regions', () => {
+    expect(availableModelRegions(model({ id: 'b' }))).toEqual(['us'])
+  })
+})
+
+describe('resolveRemovedModelFallback', () => {
+  const free = model({ id: 'free', label: 'Free', freeTier: true })
+  const sameProvider = model({ id: 'custom/prov/b', provider: 'custom', label: 'B' })
+  const other = model({ id: 'other', label: 'Other' })
+
+  it('prefers a still-available model from the same custom provider', () => {
+    expect(
+      resolveRemovedModelFallback('custom/prov/a', [other, sameProvider, free], 'free', keyT),
+    ).toEqual({ fallback: 'custom/prov/b', notice: '@@ide.chat.modelRemoved@@' })
+  })
+
+  it('falls back to the free-tier model, then the first catalog model', () => {
+    expect(resolveRemovedModelFallback('gone', [other, free], 'free', keyT).fallback).toBe('free')
+    expect(resolveRemovedModelFallback('gone', [other], '', keyT).fallback).toBe('other')
+  })
+
+  it('reports no fallback when the catalog is empty', () => {
+    const decision = resolveRemovedModelFallback('gone', [], '', keyT)
+    expect(decision.fallback).toBeNull()
+    expect(decision.notice).toBe('@@ide.chat.modelRemovedNoFallback@@')
+  })
+
+  it('interpolates the removed/fallback names in the English notice', () => {
+    expect(resolveRemovedModelFallback('gone', [other], '', enT).notice).toBe(
+      'Your selected model "gone" is no longer available. Switched to "other". Type /model to pick another.',
+    )
+    expect(resolveRemovedModelFallback('gone', [], '', enT).notice).toBe(
+      'Your selected model "gone" is no longer available, and no replacement is bonded on the server. Ask your admin to wire an AI provider.',
+    )
+  })
+})
+
+describe('filterModelsByPickerQuery', () => {
+  it('returns the whole list (same reference) when nothing is typed', () => {
+    expect(filterModelsByPickerQuery('', all)).toBe(all)
+    expect(filterModelsByPickerQuery('/model ', all)).toBe(all)
+  })
+
+  it('matches an id or a label case-insensitively', () => {
+    expect(filterModelsByPickerQuery('/model MID', all).map((m) => m.id)).toEqual(['mid'])
+    // 'Fast' only appears in Cheap Fast's label.
+    expect(filterModelsByPickerQuery('/model fast', all).map((m) => m.id)).toEqual(['cheap'])
+  })
+
+  it('filters by the text after a mode flag', () => {
+    expect(filterModelsByPickerQuery('/model --plan powerful', all).map((m) => m.id)).toEqual([
+      'pricey',
+    ])
+  })
+
+  it('returns an empty list when nothing matches', () => {
+    expect(filterModelsByPickerQuery('/model zzz', all)).toEqual([])
+  })
+})
+
+describe('resolveModelQuery', () => {
+  it('prefers an exact id, then an id substring, then a label substring', () => {
+    expect(resolveModelQuery('mid', all)?.id).toBe('mid')
+    expect(resolveModelQuery('pri', all)?.id).toBe('pricey')
+    expect(resolveModelQuery('APEX', all)?.id).toBe('pricey')
+  })
+
+  it('returns undefined when nothing matches', () => {
+    expect(resolveModelQuery('nope', all)).toBeUndefined()
+  })
+})
+
+describe('pickerCurrentModelId', () => {
+  const effective = (m: 'plan' | 'execute'): string => `${m}-effective`
+
+  it('returns undefined when the picker is closed', () => {
+    expect(pickerCurrentModelId(null, effective, {}, undefined)).toBeUndefined()
+  })
+
+  it('highlights the mode resolution for the conversation modes', () => {
+    expect(pickerCurrentModelId({ mode: 'plan' }, effective, {}, undefined)).toBe('plan-effective')
+    expect(pickerCurrentModelId({ mode: 'execute' }, effective, {}, undefined)).toBe(
+      'execute-effective',
+    )
+  })
+
+  it('highlights the per-mode or server-default model for the auxiliary jobs', () => {
+    expect(
+      pickerCurrentModelId({ mode: 'commit' }, effective, { commitModel: 'c' }, undefined),
+    ).toBe('c')
+    expect(pickerCurrentModelId({ mode: 'commit' }, effective, {}, { commit: 'server-c' })).toBe(
+      'server-c',
+    )
+    expect(pickerCurrentModelId({ mode: 'compact' }, effective, {}, undefined)).toBeUndefined()
+  })
+
+  it('highlights only the SAVED default in the unscoped picker', () => {
+    expect(pickerCurrentModelId({}, effective, { chatModel: 'saved' }, undefined)).toBe('saved')
+    expect(pickerCurrentModelId({}, effective, { chatModel: '' }, undefined)).toBeUndefined()
+  })
+})
+
+describe('modelPickerRowView', () => {
+  const base = model({
+    id: 'base',
+    label: 'Base',
+    inputPricePerMTok: 1,
+    outputPricePerMTok: 1,
+    cacheReadPricePerMTok: 1,
+    cacheWritePricePerMTok: 1,
+  })
+  const free = model({
+    id: 'free',
+    label: 'Free',
+    freeTier: true,
+    inputPricePerMTok: 1,
+    outputPricePerMTok: 1,
+    cacheReadPricePerMTok: 1,
+    cacheWritePricePerMTok: 1,
+  })
+
+  /**
+   * Builds one row's inputs with sensible defaults.
+   * @param overrides - Fields to override on the row model / context.
+   * @returns The `modelPickerRowView` input.
+   */
+  function rowInput(overrides: Partial<Parameters<typeof modelPickerRowView>[0]> = {}) {
+    const modelDef = overrides.model ?? base
+    return {
+      model: modelDef,
+      isLight: true,
+      isFreeTier: false,
+      mode: undefined,
+      models: [base, free, modelDef],
+      serverDefaults: undefined,
+      freeTierModel: 'free',
+      modelRegion: effectiveModelRegion(modelDef),
+      t: keyT,
+      ...overrides,
+    }
+  }
+
+  it('lists capability badges in display order, then the deprecated badge', () => {
+    const row = modelPickerRowView(
+      rowInput({
+        model: model({
+          id: 'full',
+          supportsVision: true,
+          supportsThinking: true,
+          webSearchToolType: 'builtin',
+          supportsPromptCaching: true,
+          fastPricing: {
+            inputPricePerMTok: 1,
+            outputPricePerMTok: 2,
+            cacheReadPricePerMTok: 0.1,
+            cacheWritePricePerMTok: 1,
+          },
+          deprecatedAt: '2020-01-01',
+        }),
+      }),
+    )
+    expect(row.badges.map((b) => b.label)).toEqual([
+      'vision',
+      'thinking',
+      'web search',
+      'caching',
+      'fast mode',
+      'deprecated 2020-01-01',
+    ])
+  })
+
+  it('tints the badges by theme (light vs dark)', () => {
+    const light = modelPickerRowView(rowInput({ model: model({ id: 'v', supportsVision: true }) }))
+    const dark = modelPickerRowView(
+      rowInput({ model: model({ id: 'v', supportsVision: true }), isLight: false }),
+    )
+    expect(light.badges[0]).toEqual({
+      label: 'vision',
+      bg: 'rgba(59,130,246,0.12)',
+      fg: 'rgb(37,99,235)',
+    })
+    expect(dark.badges[0]).toEqual({
+      label: 'vision',
+      bg: 'rgba(59,130,246,0.18)',
+      fg: 'rgb(96,165,250)',
+    })
+  })
+
+  it('locks a paid model for a free-tier user but never a custom model', () => {
+    const paid = model({ id: 'paid', provider: 'anthropic', label: 'Paid' })
+    const custom = model({ id: 'custom/prov/x', provider: 'custom', label: 'Mine' })
+    expect(modelPickerRowView(rowInput({ model: paid, isFreeTier: true })).lockReason).toBe('paid')
+    expect(modelPickerRowView(rowInput({ model: paid, isFreeTier: true })).locked).toBe(true)
+    expect(modelPickerRowView(rowInput({ model: custom, isFreeTier: true })).lockReason).toBeNull()
+    expect(modelPickerRowView(rowInput({ model: paid, isFreeTier: false })).lockReason).toBeNull()
+  })
+
+  it('reports a mode lock with the mode the free tier actually uses', () => {
+    const paid = model({ id: 'paid', provider: 'anthropic', label: 'Paid' })
+    const row = modelPickerRowView(
+      rowInput({
+        model: paid,
+        isFreeTier: true,
+        mode: 'plan',
+        serverDefaults: { commit: 'paid' },
+      }),
+    )
+    expect(row.lockReason).toBe('mode')
+    expect(row.usableMode).toBe('commit')
+    expect(row.freeInLabel).toBe('@@ide.chat.freeInCommit@@')
+  })
+
+  it('colours the usage rate by how fast it drains the allowance', () => {
+    const green = modelPickerRowView(
+      rowInput({
+        model: model({
+          id: 'g',
+          inputPricePerMTok: 2,
+          outputPricePerMTok: 2,
+          cacheReadPricePerMTok: 2,
+          cacheWritePricePerMTok: 2,
+        }),
+      }),
+    )
+    const yellow = modelPickerRowView(
+      rowInput({
+        model: model({
+          id: 'y',
+          inputPricePerMTok: 10,
+          outputPricePerMTok: 10,
+          cacheReadPricePerMTok: 10,
+          cacheWritePricePerMTok: 10,
+        }),
+      }),
+    )
+    const red = modelPickerRowView(
+      rowInput({
+        model: model({
+          id: 'r',
+          inputPricePerMTok: 100,
+          outputPricePerMTok: 100,
+          cacheReadPricePerMTok: 100,
+          cacheWritePricePerMTok: 100,
+        }),
+      }),
+    )
+    expect(green.usageRate).toBe(2)
+    expect(green.priceColor).toBe('rgb(22,163,74)')
+    expect(yellow.usageRate).toBe(10)
+    expect(yellow.priceColor).toBe('rgb(161,98,7)')
+    expect(red.priceColor).toBe('rgb(220,38,38)')
+  })
+
+  it('hides the region pill for a US-only model and shows it elsewhere', () => {
+    expect(modelPickerRowView(rowInput({ model: model({ id: 'us-only' }) })).regionPill.show).toBe(
+      false,
+    )
+    const multi = modelPickerRowView(
+      rowInput({ model: model({ id: 'multi', regions: ['cn', 'us'] }) }),
+    )
+    expect(multi.regionPill).toMatchObject({
+      show: true,
+      options: ['cn', 'us'],
+      region: 'cn',
+      interactive: true,
+      label: '@@ide.chat.model.region.cn@@',
+    })
+    expect(multi.regionPill.hint).toBe('@@ide.chat.model.regionHint@@')
+  })
+
+  it('shows a non-interactive pill for a single non-US region', () => {
+    const row = modelPickerRowView(rowInput({ model: model({ id: 'cn-only', regions: ['cn'] }) }))
+    expect(row.regionPill).toMatchObject({ show: true, interactive: false, region: 'cn' })
+    expect(row.regionPill.hint).toBe('@@ide.chat.model.regionOnlyHint@@')
+  })
+
+  it('derives the provider accent color', () => {
+    const row = modelPickerRowView(rowInput({ model: model({ id: 'a', provider: 'anthropic' }) }))
+    expect(row.accent).toMatch(/^#[0-9a-fA-F]{6}$/)
   })
 })

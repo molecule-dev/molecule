@@ -5,7 +5,7 @@
  * @module
  */
 
-import { describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import {
   COMMAND_CATEGORIES,
@@ -14,9 +14,22 @@ import {
 } from '../components/chat-commands.js'
 import {
   buildSettingsList,
+  cycleSoundsConfig,
+  DEFAULT_SOUNDS_CONFIG,
+  mergeSoundsConfig,
+  parseChatProjectSettings,
+  parseSoundsConfig,
   type SettingsDisplayValues,
+  shouldPlaySound,
+  SOUND_EVENTS,
+  SOUND_MODES,
   type SoundEventMode,
+  SOUNDS_STORAGE_KEY,
+  type SoundsConfig,
   summarizeSounds,
+  type ToneAudioContext,
+  type ToneGain,
+  type ToneOscillator,
 } from '../components/chat-settings-utilities.js'
 import { SETTINGS } from '../settings-metadata.js'
 
@@ -200,6 +213,87 @@ describe('the settings view is derived from the shared SETTINGS metadata (SYN11 
   })
 })
 
+describe('parseChatProjectSettings', () => {
+  it('parses every well-typed settings field the chat panel hydrates', () => {
+    expect(
+      parseChatProjectSettings({
+        chatModel: 'saved-model',
+        planModel: 'plan-model',
+        executeModel: 'execute-model',
+        commitModel: 'commit-model',
+        compactModel: 'compact-model',
+        effortLevel: 'xhigh',
+        effortByMode: { plan: 'high', execute: 'max' },
+        modelRegions: { 'saved-model': 'us', 'plan-model': 'cn' },
+        maxToolLoops: 250,
+        autoFix: false,
+        autoApproveCommands: true,
+      }),
+    ).toEqual({
+      chatModel: 'saved-model',
+      planModel: 'plan-model',
+      executeModel: 'execute-model',
+      commitModel: 'commit-model',
+      compactModel: 'compact-model',
+      effortLevel: 'xhigh',
+      effortByMode: { plan: 'high', execute: 'max' },
+      modelRegions: { 'saved-model': 'us', 'plan-model': 'cn' },
+      maxToolLoops: 250,
+      autoFix: false,
+      autoApproveCommands: true,
+    })
+  })
+
+  it('returns an empty result for an absent settings bag', () => {
+    expect(parseChatProjectSettings(undefined)).toEqual({})
+    expect(parseChatProjectSettings({})).toEqual({})
+  })
+
+  it('ignores values of the wrong type instead of coercing them', () => {
+    expect(
+      parseChatProjectSettings({
+        chatModel: 42,
+        planModel: null,
+        executeModel: ['x'],
+        commitModel: {},
+        compactModel: true,
+        maxToolLoops: '100',
+        autoFix: 'yes',
+        autoApproveCommands: 1,
+      }),
+    ).toEqual({})
+  })
+
+  it('keeps an empty persisted chat model (a real persisted state) but drops an empty effort level', () => {
+    // `typeof chatModel === 'string'` accepted '' before the move; the effort
+    // level required a non-empty string. Both behaviours are preserved.
+    expect(parseChatProjectSettings({ chatModel: '', effortLevel: '' })).toEqual({ chatModel: '' })
+  })
+
+  it('accepts only string entries of the per-mode effort map', () => {
+    expect(
+      parseChatProjectSettings({ effortByMode: { plan: 'high', execute: '', commit: 3 } }),
+    ).toEqual({ effortByMode: { plan: 'high' } })
+    // The map's presence is itself reported: a valid-but-empty object clears the
+    // React state, exactly as the original inline parse did.
+    expect(parseChatProjectSettings({ effortByMode: {} })).toEqual({ effortByMode: {} })
+    // Arrays and non-objects are ignored.
+    expect(parseChatProjectSettings({ effortByMode: ['x'] })).toEqual({})
+    expect(parseChatProjectSettings({ effortByMode: 'x' })).toEqual({})
+  })
+
+  it('keeps only known processing-region codes in the region map', () => {
+    // MODEL_REGION_FLAGS is the closed set of regions the picker knows.
+    expect(
+      parseChatProjectSettings({
+        modelRegions: { a: 'us', b: 'cn', c: 'eu', d: 7 },
+      }),
+    ).toEqual({ modelRegions: { a: 'us', b: 'cn' } })
+    expect(parseChatProjectSettings({ modelRegions: {} })).toEqual({ modelRegions: {} })
+    expect(parseChatProjectSettings({ modelRegions: ['us'] })).toEqual({})
+  })
+})
+
 describe('summarizeSounds', () => {
   it('counts events that are not off as enabled', () => {
     const sounds: Record<string, SoundEventMode> = {
@@ -218,6 +312,257 @@ describe('summarizeSounds', () => {
 
   it('handles an empty config', () => {
     expect(summarizeSounds({})).toEqual({ enabled: 0, total: 0 })
+  })
+})
+
+describe('the notification-sound tables', () => {
+  it('cycles modes in off → whenNotFocused → always order', () => {
+    expect(SOUND_MODES).toEqual(['off', 'whenNotFocused', 'always'])
+  })
+
+  it('stores the preference under the same per-device key React always used', () => {
+    expect(SOUNDS_STORAGE_KEY).toBe('molecule.ide.sounds')
+  })
+
+  it('defaults every event to the modes the chat panel shipped with', () => {
+    expect(DEFAULT_SOUNDS_CONFIG).toEqual({
+      message: 'always',
+      done: 'whenNotFocused',
+      error: 'whenNotFocused',
+      tool_result: 'off',
+      file_diff: 'off',
+      commit_suggestion: 'off',
+      mode: 'whenNotFocused',
+      loop_limit_reached: 'whenNotFocused',
+      verification_result: 'whenNotFocused',
+      preview_error: 'whenNotFocused',
+    })
+    expect(Object.keys(DEFAULT_SOUNDS_CONFIG).sort()).toEqual([...SOUND_EVENTS].sort())
+  })
+})
+
+describe('parseSoundsConfig', () => {
+  it('returns the defaults when nothing is stored', () => {
+    expect(parseSoundsConfig(null)).toEqual(DEFAULT_SOUNDS_CONFIG)
+    expect(parseSoundsConfig('')).toEqual(DEFAULT_SOUNDS_CONFIG)
+  })
+
+  it('returns the defaults for corrupt JSON instead of throwing', () => {
+    expect(() => parseSoundsConfig('{not json')).not.toThrow()
+    expect(parseSoundsConfig('{not json')).toEqual(DEFAULT_SOUNDS_CONFIG)
+  })
+
+  it('keeps only known events with known modes, and the defaults for anything else', () => {
+    // A JSON string or array spread its index keys into the config, and an unknown mode
+    // reached shouldPlaySound, while the type said every value was a SoundMode.
+    expect(parseSoundsConfig('"x"')).toEqual(DEFAULT_SOUNDS_CONFIG)
+    expect(parseSoundsConfig('[1]')).toEqual(DEFAULT_SOUNDS_CONFIG)
+    expect(parseSoundsConfig('null')).toEqual(DEFAULT_SOUNDS_CONFIG)
+    expect(
+      parseSoundsConfig(JSON.stringify({ done: 'loud', retired_event: 'always', error: 'off' })),
+    ).toEqual({ ...DEFAULT_SOUNDS_CONFIG, error: 'off' })
+  })
+
+  it('merges a legacy project value onto the current modes without dropping them', () => {
+    const current = { ...DEFAULT_SOUNDS_CONFIG, message: 'off' as const }
+    expect(mergeSoundsConfig(current, { done: 'always', message: 42 })).toEqual({
+      ...current,
+      done: 'always',
+    })
+    expect(mergeSoundsConfig(current, 'always')).toEqual(current)
+  })
+
+  it('overlays a partial stored config on the defaults', () => {
+    expect(parseSoundsConfig(JSON.stringify({ done: 'always', preview_error: 'off' }))).toEqual({
+      ...DEFAULT_SOUNDS_CONFIG,
+      done: 'always',
+      preview_error: 'off',
+    })
+  })
+
+  it('returns a fresh object so a caller cannot mutate the shared defaults', () => {
+    const parsed = parseSoundsConfig(null)
+    parsed.message = 'off'
+    expect(DEFAULT_SOUNDS_CONFIG.message).toBe('always')
+    expect(parseSoundsConfig(null).message).toBe('always')
+  })
+})
+
+describe('cycleSoundsConfig', () => {
+  it('advances a single event through the full cycle', () => {
+    const base: SoundsConfig = { ...DEFAULT_SOUNDS_CONFIG, tool_result: 'off' }
+    const first = cycleSoundsConfig(base, 'tool_result')
+    expect(first.tool_result).toBe('whenNotFocused')
+    const second = cycleSoundsConfig(first, 'tool_result')
+    expect(second.tool_result).toBe('always')
+    const third = cycleSoundsConfig(second, 'tool_result')
+    expect(third.tool_result).toBe('off')
+  })
+
+  it('leaves every other event untouched and does not mutate the input', () => {
+    const base: SoundsConfig = { ...DEFAULT_SOUNDS_CONFIG }
+    const next = cycleSoundsConfig(base, 'tool_result')
+    expect(next.done).toBe(base.done)
+    expect(next.message).toBe(base.message)
+    expect(base.tool_result).toBe('off')
+  })
+
+  it("sets every event to the first event's next mode for 'all'", () => {
+    // DEFAULT_SOUNDS_CONFIG.message is 'always', the last entry — so the whole
+    // table wraps to 'off' in one click, exactly like the picker's All row.
+    const allOff = cycleSoundsConfig({ ...DEFAULT_SOUNDS_CONFIG }, 'all')
+    expect(Object.values(allOff)).toEqual(SOUND_EVENTS.map(() => 'off'))
+    expect(Object.keys(allOff).sort()).toEqual([...SOUND_EVENTS].sort())
+
+    const fromNotFocused: SoundsConfig = { ...DEFAULT_SOUNDS_CONFIG, message: 'whenNotFocused' }
+    const allAlways = cycleSoundsConfig(fromNotFocused, 'all')
+    expect(Object.values(allAlways)).toEqual(SOUND_EVENTS.map(() => 'always'))
+  })
+})
+
+describe('shouldPlaySound', () => {
+  it('never plays when the event is off, focused or not', () => {
+    expect(shouldPlaySound('off', true)).toBe(false)
+    expect(shouldPlaySound('off', false)).toBe(false)
+  })
+
+  it('always plays when the event is always, focused or not', () => {
+    expect(shouldPlaySound('always', true)).toBe(true)
+    expect(shouldPlaySound('always', false)).toBe(true)
+  })
+
+  it('plays the when-not-focused mode only while the page is unfocused', () => {
+    expect(shouldPlaySound('whenNotFocused', true)).toBe(false)
+    expect(shouldPlaySound('whenNotFocused', false)).toBe(true)
+  })
+})
+
+/** A ToneAudioContext double that records everything {@link playTone} does to it. */
+function fakeToneContext(): {
+  context: ToneAudioContext
+  connected: object[]
+  gainSet: Array<[number, number]>
+  gainRamp: Array<[number, number]>
+  oscillator: ToneOscillator
+  started: Array<number | undefined>
+  stopped: Array<number | undefined>
+} {
+  const connected: object[] = []
+  const gainSet: Array<[number, number]> = []
+  const gainRamp: Array<[number, number]> = []
+  const started: Array<number | undefined> = []
+  const stopped: Array<number | undefined> = []
+  const oscillator: ToneOscillator = {
+    type: '',
+    frequency: { value: 0 },
+    connect: (destination) => {
+      connected.push(destination)
+    },
+    start: (when) => {
+      started.push(when)
+    },
+    stop: (when) => {
+      stopped.push(when)
+    },
+  }
+  const gain: ToneGain = {
+    gain: {
+      setValueAtTime: (value, when) => {
+        gainSet.push([value, when])
+      },
+      exponentialRampToValueAtTime: (value, when) => {
+        gainRamp.push([value, when])
+      },
+    },
+    connect: (destination) => {
+      connected.push(destination)
+    },
+  }
+  const destination = {}
+  return {
+    context: {
+      currentTime: 100,
+      destination,
+      createOscillator: () => oscillator,
+      createGain: () => gain,
+    },
+    connected,
+    gainSet,
+    gainRamp,
+    oscillator,
+    started,
+    stopped,
+  }
+}
+
+describe('playTone', () => {
+  // The shared AudioContext is module-level and created once, so each test
+  // imports a fresh module instance — that is the only way to reach both the
+  // "no context yet" and the "context already cached" branches.
+  beforeEach(() => {
+    vi.resetModules()
+  })
+
+  it('does not throw when the environment has no AudioContext', async () => {
+    const { playTone } = await import('../components/chat-settings-utilities.js')
+    // node's test environment has no AudioContext: `new AudioContext()` throws
+    // and the helper swallows it, exactly like the React version did.
+    expect(() => playTone()).not.toThrow()
+  })
+
+  it('swallows a factory that throws instead of propagating', async () => {
+    const { playTone } = await import('../components/chat-settings-utilities.js')
+    const factory = (): ToneAudioContext => {
+      throw new Error('audio unavailable')
+    }
+    expect(() => playTone('default', factory)).not.toThrow()
+  })
+
+  it('creates the context lazily and plays the default 660 Hz blip', async () => {
+    const { playTone } = await import('../components/chat-settings-utilities.js')
+    const fake = fakeToneContext()
+    let factoryCalls = 0
+    const factory = (): ToneAudioContext => {
+      factoryCalls += 1
+      return fake.context
+    }
+
+    expect(factoryCalls).toBe(0)
+    playTone('default', factory)
+    expect(factoryCalls).toBe(1)
+
+    expect(fake.oscillator.type).toBe('sine')
+    expect(fake.oscillator.frequency.value).toBe(660)
+    expect(fake.gainSet).toEqual([[0.15, 100]])
+    expect(fake.gainRamp).toHaveLength(1)
+    expect(fake.gainRamp[0][0]).toBe(0.001)
+    expect(fake.gainRamp[0][1]).toBeCloseTo(100.15)
+    expect(fake.started).toEqual([100])
+    expect(fake.stopped).toHaveLength(1)
+    expect(fake.stopped[0]).toBeCloseTo(100.15)
+    // oscillator → gain → destination
+    expect(fake.connected).toHaveLength(2)
+    expect(fake.connected[1]).toBe(fake.context.destination)
+  })
+
+  it('reuses the cached context and plays the team variant an octave up', async () => {
+    const { playTone } = await import('../components/chat-settings-utilities.js')
+    const fake = fakeToneContext()
+    let factoryCalls = 0
+    const factory = (): ToneAudioContext => {
+      factoryCalls += 1
+      return fake.context
+    }
+
+    playTone('default', factory)
+    playTone('team', factory)
+
+    expect(factoryCalls).toBe(1)
+    expect(fake.oscillator.frequency.value).toBe(1320)
+    expect(fake.gainSet).toEqual([
+      [0.15, 100],
+      [0.08, 100],
+    ])
   })
 })
 

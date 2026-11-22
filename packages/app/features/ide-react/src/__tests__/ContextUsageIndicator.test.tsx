@@ -16,11 +16,12 @@ import type { ContextComposition, ContextUsage } from '@molecule/app-ai-chat'
 import type { HttpClient } from '@molecule/app-http'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 import { setIconSet } from '@molecule/app-icons'
+import { mergeContextHistory } from '@molecule/app-ide-panel-logic/panels'
 import { HttpProvider } from '@molecule/app-react'
 import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
 
-import { ContextUsageIndicator, mergeContextHistory } from '../components/ContextUsageIndicator.js'
+import { ContextUsageIndicator } from '../components/ContextUsageIndicator.js'
 
 const get = vi.fn()
 const http = { get } as unknown as HttpClient

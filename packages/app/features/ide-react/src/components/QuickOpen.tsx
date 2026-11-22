@@ -46,9 +46,18 @@ export function QuickOpen({ projectId, onFileOpen, onDismiss }: QuickOpenProps):
   const [files, setFiles] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
 
+  // The file list belongs to one project. When the card is re-pointed at another
+  // one the picker returns to its loading state during the render that carries
+  // the new project id (React's "adjust state when props change" pattern)
+  // instead of synchronously from the effect that then fetches it.
+  const [loadedProjectId, setLoadedProjectId] = useState(projectId)
+  if (loadedProjectId !== projectId) {
+    setLoadedProjectId(projectId)
+    setLoading(true)
+  }
+
   useEffect(() => {
     let cancelled = false
-    setLoading(true)
     http
       .get<{ files: string[] }>(`/projects/${projectId}/files-list`)
       .then((res) => {

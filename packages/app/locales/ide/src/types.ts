@@ -144,6 +144,7 @@ export type IdeTranslationKey =
   | 'ide.chat.cancel'
   | 'ide.chat.save'
   | 'ide.chat.editQueued'
+  | 'ide.chat.queuedEdit.label'
   | 'ide.chat.deleteQueued'
   | 'ide.chat.soundsError'
   | 'ide.chat.notificationSounds'
@@ -331,6 +332,8 @@ export type IdeTranslationKey =
   | 'ide.search.clear'
   | 'ide.search.noResults'
   | 'ide.search.searching'
+  | 'ide.search.searchFailed'
+  | 'ide.search.replaceFailed'
   | 'ide.search.includeFiles'
   | 'ide.search.excludeFiles'
   | 'ide.search.excludedDirs'
@@ -652,8 +655,6 @@ export type IdeTranslationKey =
   | 'ide.chat.skills.loadTitle'
   | 'ide.chat.skills.loaded'
   | 'ide.chat.skills.loadedCount'
-  | 'ide.chat.skills.loadedPrefix'
-  | 'ide.chat.skills.loadedSuffix'
   | 'ide.chat.skills.loading'
   | 'ide.chat.skills.waitingForSandbox'
   | 'ide.chat.skills.error'
@@ -720,7 +721,6 @@ export type IdeTranslationKey =
   | 'ide.testsBar.passedLabel'
   | 'ide.testsBar.failedLabel'
   | 'ide.testsBar.skippedLabel'
-  | 'ide.testsBar.remainingLabel'
   | 'ide.testsBar.currentFile'
   | 'ide.testsBar.open'
   | 'ide.testsBar.stop'
@@ -861,6 +861,9 @@ export type IdeTranslationKey =
   | 'ide.chat.share.subheading.commenter'
   | 'ide.chat.share.subheading.editor'
   | 'ide.chat.share.subheading.owner'
+  | 'ide.chat.expandMessage'
+  | 'ide.chat.collapseMessage'
+  | 'ide.chat.newConversation'
 
 /**
  * Plural forms only some languages use — the CLDR categories beyond the

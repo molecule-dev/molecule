@@ -81,14 +81,14 @@ export function ActivityCard({ activity, onActivityClick }: ActivityCardProps): 
       onMouseEnter={
         clickable
           ? (e) => {
-              ;(e.currentTarget as HTMLElement).style.borderColor = chatCardBorder(undefined, 70)
+              e.currentTarget.style.borderColor = chatCardBorder(undefined, 70)
             }
           : undefined
       }
       onMouseLeave={
         clickable
           ? (e) => {
-              ;(e.currentTarget as HTMLElement).style.borderColor = chatCardBorder()
+              e.currentTarget.style.borderColor = chatCardBorder()
             }
           : undefined
       }

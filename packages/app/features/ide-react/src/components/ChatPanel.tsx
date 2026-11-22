@@ -19,7 +19,6 @@
 import type { JSX, ReactNode } from 'react'
 import {
   Fragment,
-  memo,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -27,22 +26,17 @@ import {
   useReducer,
   useRef,
   useState,
+  useSyncExternalStore,
 } from 'react'
 
 import type {
   CardEvent,
-  ChatMessage,
   ChatStreamEvent,
   ContextCompaction,
   ContextUsage,
 } from '@molecule/app-ai-chat'
 import type { AppModelDefinition } from '@molecule/app-ai-models'
-import {
-  formatTokenCount,
-  isDeprecated,
-  partitionByDeprecation,
-  PROVIDER_BRAND_COLORS,
-} from '@molecule/app-ai-models'
+import { formatTokenCount, partitionByDeprecation } from '@molecule/app-ai-models'
 import type { VoiceEngineDef } from '@molecule/app-ai-voice'
 import {
   getProvider as getVoiceProvider,
@@ -50,66 +44,61 @@ import {
   selectVoiceEngine,
   voiceEngineCoversLanguage,
 } from '@molecule/app-ai-voice'
-import { getCountryFlag } from '@molecule/app-country-flags'
-import type { IconName } from '@molecule/app-icons'
 import type {
   Activity,
-  ChatEventCard,
-  ChatEventCardAction,
-  ChatEventCardCode,
-  ChatEventCardSegment,
-  ChatTimestampSlot,
-  ChatUserIdentity,
   IdeClientAction,
   ReportResult,
   ShareLinkResult,
   ShareRole,
   TestFailure,
-  TestItem,
-  TestRunEvent,
-  TestRunFeedEvent,
-  TestRunHandle,
   TestSelection,
-  TestsRunState,
 } from '@molecule/app-ide-panel-logic'
 import {
-  activityFromEvent,
-  applyTestRunEvent,
+  ACCEPTED_FILE_TYPES,
+  allowanceResetCountdown,
+  APP_VERSION,
   AUTO_COMMIT_DISABLED,
   autoCommitReducer,
   buildShareUrl,
-  buildTestFixMessage,
   CHAT_CARD_ICON_SIZE,
   chatCardStyle,
   DEFAULT_SHARE_ROLE,
-  EMPTY_RUN_STATE,
-  failRun,
+  fileToBase64,
   formatReportConfirmation,
+  formatSize,
   getChatTimestampsVisible,
   getCustomEventCardFactory,
   isAutoCommitArmed,
-  isAutoCommitDue,
   isAutoCommitEnabled,
-  markSkipUnavailable,
-  parseAutoCommitCommand,
-  parseReportCommand,
-  parseShareCommand,
-  parseTestCommand,
-  parseTimestampsCommand,
+  LOAD_EARLIER_THRESHOLD_PX,
+  MAX_ATTACHMENT_SIZE,
+  NOTICE_TONE,
+  panelOverlayHeading,
   planChatTimestamps,
-  requestSkip,
+  relativeTime,
   resolveAutoCommitSeconds,
   setChatTimestampsVisible,
   SHARE_ROLES,
-  TestRunProjection,
+  streamingActivityLabel,
+  TIMELINE_ITEM_GAP,
+  USER_ACCENT_STYLE,
 } from '@molecule/app-ide-panel-logic'
 import type {
+  ActivityCardEntry,
+  AddSystemCardOptions,
+  AttachedFile,
+  ChatTimelineItem,
   CommandId,
+  CommandMenu,
+  CommitCard,
+  ConversationSummary,
   EffortLevel,
   EffortMode,
-  EffortOption,
-  FreeTierLockReason,
+  EffortPicker,
+  FileEntry,
+  FilePicker,
   ModelMode,
+  ModelPicker,
   ModelSortColumn,
   ScriptInfo,
   ScriptRunResult,
@@ -117,55 +106,87 @@ import type {
   SkillInfo,
   SortDirection,
   SoundEventType,
-  SoundMode,
-  TipDef,
+  SoundsConfig,
+  SpeechRecognitionConstructor,
+  SystemCard,
+  TipCardEntry,
 } from '@molecule/app-ide-panel-logic/panels'
 import {
+  AUTO_FIX_IDLE,
+  autoFixCountdownReducer,
+  availableModelRegions,
+  buildChatTimeline,
+  buildFileMentionBlock,
   buildHelpText,
   buildNewSkillTemplate,
   buildSettingsList,
   cachedPromptTokens,
+  cardEventToSystemCard as toSystemCard,
+  cardSegmentsAround,
+  chatConversationStorageKey,
+  ChatDictationController,
+  chatDraftStorageKey,
+  ChatTestsController,
+  collectUndoTargets,
   COMMAND_CATEGORIES,
   type CommandDef,
   commandDescription,
   COMMANDS,
+  composerKeyAction,
+  cycleSoundsConfig,
+  DEFAULT_SOUNDS_CONFIG,
   defaultEffortForModel,
   effectiveModeModelId,
+  effortModeStatusLine,
   effortOptionsForModel,
+  effortPickerVisibleOptions,
   ENTRY_TIP,
   estimateTurnTokens,
+  filterCommandMenu,
+  filterModelsByPickerQuery,
   findScriptByName,
   formatRunOutput,
   formatTokenTotal,
-  freeTierLockReason,
-  freeTierUsableMode,
   getTestsBarVisible,
-  isModeModelLocked,
+  initialUndoneToolCallIds,
   isRegistryCommandId,
+  isStaleAnonymousLimit,
+  isWorkVisible,
+  limitRefusalFromError,
   loadProjectSkills,
   matchesSideChannelCommand,
+  mergeContextHistory,
+  mergeSoundsConfig,
+  MIC_ENGINE_STORAGE_KEY,
   missingRequiredParams,
+  MODEL_REGION_FLAGS,
   modelHasPeakPricing,
-  modelPeakMultiplier,
   modelPeakWindowLabels,
+  modelPickerRowView,
   modelRegionLabel,
   modelUsageRate,
   modeSettingKey,
   nativeEffortName,
   newSkillPath,
+  parseChatProjectSettings,
   parseEffortCommand,
   parseModelModeCommand,
-  parseRunCommand,
-  parseScriptsCommand,
   parseSkillMeta,
-  parseTestsBarArg,
+  parseSoundsConfig,
+  pickerCurrentModelId,
   pickIdleTip,
   pickRelevantSkill,
-  readFilePaths,
+  planAwaitingUser,
+  playTone,
+  rankFileMentionEntries,
   recentUserText,
   resolveEffortArg,
-  resolveModeModel,
+  resolveModelQuery,
+  resolveRemovedModelFallback,
+  routeComposerSubmit,
   runSucceeded,
+  selectQueuedMessages,
+  selectVisibleMessages,
   setTestsBarVisible,
   shouldShowIdleTip,
   shouldShowTestsBar,
@@ -175,14 +196,18 @@ import {
   soundEventDescription,
   soundEventLabel,
   soundModeLabel,
-  str,
-  stripCommitCoauthorTrailer,
+  SOUNDS_STORAGE_KEY,
+  streamEventEffects,
   summarizeSounds,
-  timelineSortKey,
+  timestampSlotFor,
   TIP_IDLE_MS,
   TIP_MIN_MESSAGES,
   tipText,
+  upgradeContextFromError,
   VIEWER_TIP,
+  viewerCommandAllowed,
+  WEB_SPEECH_DEAD_STORAGE_KEY,
+  wrapIdx,
 } from '@molecule/app-ide-panel-logic/panels'
 import { getLogger } from '@molecule/app-logger'
 import {
@@ -193,8 +218,8 @@ import {
   useHttpClient,
   useThemeMode,
   useTranslation,
-  type UseTranslationResult,
 } from '@molecule/app-react'
+import { useCommittedRef, useEffectEvent, useStableCallback } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 import { Tooltip } from '@molecule/app-ui-react/components/Tooltip.js'
 
@@ -206,13 +231,17 @@ import { ActivityCard } from './ActivityCard.js'
 import { AutoCommitBadge } from './AutoCommitBadge.js'
 import { backgroundTaskCommands, BackgroundTaskCommandsContext } from './background-task-context.js'
 import { BackgroundTasksStrip } from './BackgroundTasksStrip.js'
+import { CommitCardItem } from './chat-panel/CommitCardItem.js'
+import type { MessageItemProps } from './chat-panel/MessageItem.js'
+import { MessageItem } from './chat-panel/MessageItem.js'
+import { NoticeCard, renderCardSegment, ResourceLimitBanner } from './chat-panel/NoticeCard.js'
+import { RegionFlag } from './chat-panel/RegionFlag.js'
 import { ChatItemBoundary } from './ChatItemBoundary.js'
 import { ChatTimestamp } from './ChatTimestamp.js'
-import { ContextUsageIndicator, mergeContextHistory } from './ContextUsageIndicator.js'
+import { ContextUsageIndicator } from './ContextUsageIndicator.js'
 import { DockStrip } from './DockStrip.js'
 import { HelpCard } from './HelpCard.js'
 import { Icon } from './Icon.js'
-import { isAllowedLinkHref, MarkdownContent } from './MarkdownContent.js'
 import { latestPlan, PlanCard } from './PlanCard.js'
 import { RelevantSkillSuggestion } from './RelevantSkillSuggestion.js'
 import { ReportModal } from './ReportModal.js'
@@ -221,13 +250,15 @@ import { SettingsCard } from './SettingsCard.js'
 import { ShareModal } from './ShareModal.js'
 import { SkillsCard } from './SkillsCard.js'
 import { StreamingIndicator } from './StreamingIndicator.js'
-import type { TestsStatus } from './TestsCard.js'
 import { TestsCard } from './TestsCard.js'
 import { TestStatusBar } from './TestStatusBar.js'
 import { TipCard } from './TipCard.js'
-import { ToolCallCard } from './ToolCallCard.js'
-import { UserAvatar } from './UserAvatar.js'
 import { WorkCard } from './WorkCard.js'
+
+// The row components now live in ./chat-panel/; re-export these two so this
+// module's surface (and every importer of them here) is unchanged.
+export { CommitCardItem }
+export type { MessageItemProps }
 
 const logger = getLogger('chat-panel')
 
@@ -238,2484 +269,30 @@ const logger = getLogger('chat-panel')
 // back to the model's default region.
 type ModelRegion = string
 
-// Every region the picker can offer: the flag's country code (resolved via the
-// bonded @molecule/app-country-flags set). The region's display NAME comes from
-// modelRegionLabel (@molecule/app-ide-panel-logic, the literal
-// `ide.chat.model.region.<code>` keys). Adding a region here (plus a
-// server-side provider registration) is ALL the UI needs — the region
-// control's menu lists whatever `availableModelRegions` returns.
-const MODEL_REGION_FLAGS: Record<string, string> = {
-  us: 'US',
-  cn: 'CN',
-}
-
-/**
- * Renders a region's rectangular flag from the bonded country-flag set at the
- * given total height, falling back to the uppercase code as text when no flag
- * set is bonded or the code has no flag. The SVG markup ships with
- * viewBox-only sizing, so the inner dimensions are injected here; the hairline
- * border keeps light flag edges (e.g. the US stripes) from blending into a
- * light surface.
- *
- * @param props - `code` (ISO/pseudo country code) and total `height` in px
- *   (border included).
- * @returns The flag element, or the textual fallback.
- */
-function RegionFlag({ code, height }: { code: string; height: number }): JSX.Element {
-  const flag = getCountryFlag(code)
-  if (!flag) {
-    return <span style={{ fontSize: '10px', lineHeight: `${height}px` }}>{code.toUpperCase()}</span>
-  }
-  const innerHeight = height - 2
-  const innerWidth = Math.round(innerHeight * flag.aspectRatio)
-  return (
-    <span
-      aria-hidden="true"
-      style={{
-        display: 'inline-flex',
-        border: '1px solid rgba(128,128,128,0.4)',
-        borderRadius: 1,
-        overflow: 'hidden',
-      }}
-      // The bonded set's markup is trusted static artwork (a build-time
-      // dependency, never user input), so injecting it verbatim is safe.
-      dangerouslySetInnerHTML={{
-        __html: flag.svg.replace(
-          '<svg',
-          `<svg width="${innerWidth}" height="${innerHeight}" style="display:block"`,
-        ),
-      }}
-    />
-  )
-}
-/**
- * Regions a model can be processed in, first entry = its default — straight
- * from the catalog (`AppModelDefinition.regions`; the server enforces the same
- * list). A single-entry list is a pinned model (fixed, non-interactive flag);
- * omission means the US-only platform default. The control/menu UI renders
- * whatever this returns, so new regions only need catalog data + a
- * `MODEL_REGION_FLAGS` entry.
- * @param model - The model to resolve regions for.
- * @returns Available region codes, default first.
- */
-const availableModelRegions = (model: AppModelDefinition): ModelRegion[] => model.regions ?? ['us']
-
 // ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
-
-interface FileEntry {
-  name: string
-  type: 'file' | 'directory'
-  size?: number
-}
-
-interface AttachedFile {
-  /** Sandbox file path for @-mentioned text files. */
-  path?: string
-  /** Browser File object for drag-dropped/pasted/picked binary files. */
-  file?: File
-  /** Display name. */
-  filename: string
-  /** MIME type. */
-  mediaType: string
-  /** File size in bytes. */
-  size: number
-  /** Object URL for image thumbnail preview (revoked on removal). */
-  previewUrl?: string
-}
-
-interface FilePicker {
-  entries: FileEntry[]
-  query: string
-  selectedIdx: number
-}
-
-interface CommandMenu {
-  selectedIdx: number
-  /**
-   * Opened via the slash BUTTON with text already in the composer: list every
-   * runnable command instead of filtering by the composer text (which the
-   * toggle deliberately leaves untouched). Cleared the moment typing re-derives
-   * the menu from the input.
-   */
-  showAll?: boolean
-}
-
-interface ConversationSummary {
-  id: string
-  createdAt: string
-  updatedAt: string
-  preview: string | null
-}
-
-interface CommitCard {
-  id: string
-  message: string
-  files: string[]
-  timestamp: number
-  status: 'running' | 'done' | 'error'
-  hash?: string
-}
-
-/** Subtle inline monospace code style for command/identifier spans in chat cards. */
-const CHAT_CARD_CODE_STYLE: React.CSSProperties = {
-  fontFamily: 'var(--mol-font-mono, monospace)',
-  fontSize: '0.92em',
-  padding: '1px 5px',
-  borderRadius: 4,
-  background: 'rgba(128,128,128,0.16)',
-  border: '1px solid rgba(128,128,128,0.18)',
-  whiteSpace: 'nowrap',
-}
-
-/** Inline link style for action segments in chat cards (theme primary, underlined). */
-const CHAT_CARD_LINK_STYLE: React.CSSProperties = {
-  color: 'var(--color-primary, #4070e0)',
-  textDecoration: 'underline',
-  cursor: 'pointer',
-}
-
-/**
- * Render one composable card-body segment: a plain string, an inline monospace
- * {@link ChatEventCardCode} span, or a {@link ChatEventCardAction} (link/button,
- * optionally monospace via `code`). Shared by the tip (toned) and default system cards.
- *
- * @param seg - The segment to render.
- * @param key - React list key.
- * @returns The rendered node.
- */
-function renderCardSegment(seg: ChatEventCardSegment, key: number): ReactNode {
-  if (typeof seg === 'string') return <span key={key}>{seg}</span>
-  if ('code' in seg && !('label' in seg)) {
-    return (
-      <code key={key} style={CHAT_CARD_CODE_STYLE}>
-        {(seg as ChatEventCardCode).code}
-      </code>
-    )
-  }
-  const act = seg as ChatEventCardAction
-  const linkStyle: React.CSSProperties = act.code
-    ? { ...CHAT_CARD_CODE_STYLE, color: CHAT_CARD_LINK_STYLE.color, cursor: 'pointer' }
-    : CHAT_CARD_LINK_STYLE
-  // An unapproved scheme (`javascript:`, `data:` …) never becomes an anchor —
-  // the label renders as inert text, same policy as markdown links.
-  return act.href ? (
-    isAllowedLinkHref(act.href) ? (
-      <a key={key} href={act.href} target="_blank" rel="noopener noreferrer" style={linkStyle}>
-        {act.label}
-      </a>
-    ) : (
-      <span key={key} style={linkStyle}>
-        {act.label}
-      </span>
-    )
-  ) : (
-    <button
-      /* mol-bespoke-button: inline mid-sentence card link — a <button> reset to plain link text so an action can sit inside a sentence, not a standalone CTA */
-      key={key}
-      type="button"
-      onClick={act.onClick}
-      style={{ background: 'none', border: 'none', padding: 0, font: 'inherit', ...linkStyle }}
-    >
-      {act.label}
-    </button>
-  )
-}
-
-/**
- * `Omit` that distributes over a union, so each member keeps its own remaining keys
- * (plain `Omit<A | B, K>` collapses to the common keys only).
- */
-type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never
-
-/**
- * Fields shared by every system card. `action` (an optional CTA button, or array of
- * them) is common — any card may carry one; its in-session `onClick` is dropped on
- * persist, so a restored card is informational.
- */
-interface SystemCardBase {
-  id: string
-  text: string
-  timestamp: number
-  action?: ChatEventCardAction | ChatEventCardAction[]
-  /**
-   * Marks a card as THIS client's own per-user UI ephemera — a command browser
-   * (`/help`, `/settings`, `/scripts`) or transient command output — that is irrelevant
-   * to the shared conversation and must NOT be persisted: it stays in this session's
-   * timeline but is never written to the conversation, so it can't leak onto a reload or
-   * to other collaborators (multi-user). Cards WITHOUT this flag are conversation content
-   * (the server-driven model/mode/skills/build notices, a created skill, a share link, …)
-   * and persist as before — the default is "persist", so nothing silently loses its
-   * history; only the explicitly-ephemeral cards opt out.
-   */
-  clientOnly?: boolean
-  /**
-   * Set when this card was applied from a teammate's broadcast (the chat push channel),
-   * not this client's own stream. Rendered but NEVER persisted — the originating member
-   * already persisted it; if every viewer re-PUT, members would race on the conversation
-   * row.
-   */
-  received?: boolean
-}
-
-/**
- * Default card (no `variant`): a plain inline notice, or — with `tone` set — a
- * dismissable tip box. Owns the body/styling fields the rich variants never use.
- */
-interface PlainSystemCard extends SystemCardBase {
-  variant?: undefined
-  /**
-   * Composable inline body for a `tone` (tip) card — an ordered list of segments
-   * (plain strings + inline link actions) rendered in sequence, used INSTEAD of
-   * `text` + appended `action`s so a link can sit mid-sentence (see
-   * {@link ChatEventCard.content}). `text` stays the plain-text fallback.
-   */
-  content?: ChatEventCardSegment[]
-  /**
-   * When true, render with the emphasized (highlighted box) style instead of the
-   * muted inline style — e.g. a host-supplied sign-up / upgrade nudge. The caller
-   * opts in explicitly; the styling is never inferred from the card's route or copy.
-   */
-  emphasized?: boolean
-  /**
-   * Tip TONE — picks the card's accent colour + default icon so every notice card shares
-   * ONE consistent box, differing only by colour/icon: `info` (blue), `gold` (amber tip),
-   * `upgrade` (amber clock), `success` (green check), `signup` (primary sign-in). Setting
-   * a tone implies emphasis; `emphasized` without a tone falls back to `info`. See
-   * {@link ChatEventCard.tone}.
-   */
-  tone?: 'info' | 'gold' | 'upgrade' | 'success' | 'signup'
-  /** Icon-name override (a `@molecule/app-icons` glyph); defaults to the tone's icon. */
-  icon?: IconName
-  /**
-   * The limit this card already explains (a backend `limitType`). While a live error
-   * carries the same `limitType` — i.e. the limit banner is restating it right above the
-   * composer — this card is dropped from the timeline so the same limit is stated once,
-   * not twice. See {@link ChatEventCard.coversLimitType}.
-   */
-  coversLimitType?: string
-  /** A critical event — keeps its timestamp with timestamps off. See {@link ChatEventCard.critical}. */
-  critical?: boolean
-}
-
-/** The `/settings` view. */
-interface SettingsSystemCard extends SystemCardBase {
-  variant: 'settings'
-}
-
-/**
- * The `/skills` browser — `'skills'` opens the browser; `'skillsCreate'` opens it with
- * the inline "New skill" form already open. `query` seeds the search (`/skills <query>`).
- */
-interface SkillsSystemCard extends SystemCardBase {
-  variant: 'skills' | 'skillsCreate'
-  query?: string
-}
-
-/** The `/scripts` browser. `query` seeds the search (`/scripts <query>`). */
-interface ScriptsSystemCard extends SystemCardBase {
-  variant: 'scripts'
-  query?: string
-}
-
-/** The `/test` browser. `query` seeds the search (`/test <query>`). */
-interface TestsSystemCard extends SystemCardBase {
-  variant: 'tests'
-  query?: string
-}
-
-/** The `/help` high-level guide card. `text` carries the {@link buildHelpText} fallback. */
-interface HelpSystemCard extends SystemCardBase {
-  variant: 'help'
-}
-
-/**
- * The compact, clickable "Loaded {{count}} skills" notice whose onClick opens the
- * `/skills` browser (re-attached at render time — the persisted card drops callbacks).
- * `count` is persisted so the copy restores verbatim across reloads.
- */
-interface SkillsLoadedSystemCard extends SystemCardBase {
-  variant: 'skillsLoaded'
-  count?: number
-}
-
-/**
- * A system card — a discriminated union keyed on `variant`, so each card type declares
- * ONLY its own fields and the compiler enforces validity (e.g. `count` only on the
- * loaded notice, `query` only on the browsers, `content`/`tone` only on the plain/tip
- * card). Replaces the former flat shape where every field was optional regardless of
- * variant. The render switch narrows on `variant`; persistence drops only `action`.
- */
-type SystemCard =
-  | PlainSystemCard
-  | SettingsSystemCard
-  | SkillsSystemCard
-  | ScriptsSystemCard
-  | TestsSystemCard
-  | HelpSystemCard
-  | SkillsLoadedSystemCard
-
-/**
- * Options for {@link addSystemCard}: the card's fields minus the generated `id` and the
- * positional `text`, with `timestamp` made optional (the SERVER-ms override — omit it to
- * use the client clock). Distributes over the union (see {@link DistributiveOmit}) so a
- * caller only ever names the fields valid for the variant it sets.
- */
-type AddSystemCardOptions = DistributiveOmit<SystemCard, 'id' | 'text' | 'timestamp'> & {
-  timestamp?: number
-}
-
-/** A dismissable auto-tip entry in the chat timeline. */
-interface TipCardEntry {
-  id: string
-  /**
-   * The tip's definition ({@link TipDef}), NOT the rendered sentence: the entry
-   * stores WHAT to say and the render translates it
-   * (`tipText(t, tip, { agentName })`), so a locale switch re-translates every
-   * visible tip instead of leaving the sentence the effect captured before the
-   * switch.
-   */
-  tip: TipDef
-  /** Numeric timestamp for timeline ordering. */
-  timestamp: number
-  /**
-   * Accent colour override (border/background tint + icon colour) for a
-   * semantic tip — e.g. the viewer tip goes gold to match the team-only
-   * message treatment it explains. Default: the neutral primary tint.
-   */
-  accent?: string
-  /** Leading-icon override (e.g. `people` for the viewer tip). Default: `lightbulb`. */
-  icon?: IconName
-}
-
-/** An inline activity card entry in the chat timeline (a captured side effect). */
-interface ActivityCardEntry {
-  id: string
-  activity: Activity
-  /** Numeric timestamp for timeline ordering (derived from the activity's ISO timestamp). */
-  timestamp: number
-  /**
-   * Set when this card was applied from a teammate's broadcast (the chat push channel),
-   * not this client's own stream. Rendered but NEVER persisted — the originating member
-   * already persisted it; if every viewer re-PUT, members would race on the conversation
-   * row.
-   */
-  received?: boolean
-}
-
-interface ModelPicker {
-  selectedIdx: number
-  /**
-   * When set, the picker is scoped to a mode: selections persist to that
-   * mode's settings field (`planModel` / `executeModel` / `commitModel` /
-   * `compactModel`) and the free-tier lock follows the mode's rules. Unset =
-   * the legacy single `chatModel` ("Default"). Driven live by the mode
-   * dropdown at the top of the picker; the `/model --plan` etc. flags merely
-   * preselect it.
-   */
-  mode?: ModelMode
-}
-
-/**
- * The `/effort` level picker — a selectable list of the target mode's model's
- * own effort levels (mirrors how bare `/model` opens the model picker).
- */
-interface EffortPicker {
-  selectedIdx: number
-  /**
-   * The mode being edited — a selection persists to `effortByMode[mode]`.
-   * Opens scoped to the live conversation mode (or the `--plan` / `--execute`
-   * flag); the picker's own mode dropdown re-scopes it in place, and the
-   * listed levels follow that mode's MODEL (plan and execute can run models
-   * with entirely different native effort scales).
-   */
-  mode: EffortMode
-}
-
-// ---------------------------------------------------------------------------
-// Sound types & playTone
+// Sound types
 // ---------------------------------------------------------------------------
 // The sound vocabulary (SOUND_EVENTS, SoundEventType/SoundMode, the English
 // SOUND_MODE_LABELS and the soundEventLabel/soundEventDescription/
 // soundModeLabel translators) lives in @molecule/app-ide-panel-logic's
 // chat-settings-utilities, so every framework's panel shares one table and
-// every label is a literal t() call the i18n gate can verify.
-
-/** Mode cycle order. */
-const SOUND_MODES: SoundMode[] = ['off', 'whenNotFocused', 'always']
-
-type SoundsConfig = Record<SoundEventType, SoundMode>
-
-/** Per-device sounds preference (see the soundsConfig state comment). */
-const SOUNDS_STORAGE_KEY = 'molecule.ide.sounds'
-
-const DEFAULT_SOUNDS_CONFIG: SoundsConfig = {
-  message: 'always',
-  done: 'whenNotFocused',
-  error: 'whenNotFocused',
-  tool_result: 'off',
-  file_diff: 'off',
-  commit_suggestion: 'off',
-  mode: 'whenNotFocused',
-  loop_limit_reached: 'whenNotFocused',
-  verification_result: 'whenNotFocused',
-  preview_error: 'whenNotFocused',
-}
+// every label is a literal t() call the i18n gate can verify. The same module
+// owns the mode cycle, the stored-preference parse, the focus-aware
+// shouldPlaySound gate and the notification tone (playTone).
 
 interface SoundsPicker {
   selectedIdx: number
 }
 
-let audioCtx: AudioContext | null = null
-
-/**
- * Play a short notification tone using the Web Audio API.
- * Creates the AudioContext lazily on first call (after user interaction).
- *
- * The default variant is a single 660 Hz blip (status events). The `team`
- * variant is the SAME blip an octave up (1320 Hz) — recognizably "a message,
- * not a status event" while staying consistent with the sound family.
- * @param variant - Which tone to play.
- */
-function playTone(variant: 'default' | 'team' = 'default'): void {
-  try {
-    if (!audioCtx) audioCtx = new AudioContext()
-    const osc = audioCtx.createOscillator()
-    const gain = audioCtx.createGain()
-    osc.connect(gain)
-    gain.connect(audioCtx.destination)
-    osc.type = 'sine'
-    osc.frequency.value = variant === 'team' ? 1320 : 660
-    // Equal-loudness compensation: hearing is far more sensitive near 1–4 kHz
-    // than at 660 Hz, so the octave-up tone needs roughly half the amplitude
-    // to sound the same volume as the default blip.
-    const peak = variant === 'team' ? 0.08 : 0.15
-    gain.gain.setValueAtTime(peak, audioCtx.currentTime)
-    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15)
-    osc.start(audioCtx.currentTime)
-    osc.stop(audioCtx.currentTime + 0.15)
-  } catch (_error) {
-    // AudioContext not available in this environment — silently skip
-  }
-}
-
-/**
- * Check if a sound should play based on the mode and current page focus.
- * @param mode - The sound mode for the event.
- * @returns Whether the sound should play.
- */
-function shouldPlaySound(mode: SoundMode): boolean {
-  if (mode === 'off') return false
-  if (mode === 'always') return true
-  return !document.hasFocus()
-}
-
 // ---------------------------------------------------------------------------
-// Helpers
+// Helpers — formatting + activity labels live in `@molecule/app-ide-panel-logic`
+// (chat-format-utilities / chat-ui-constants), shared with the non-React ports.
 // ---------------------------------------------------------------------------
-
-/**
- * Formats an ISO timestamp as a relative time string (e.g. "5m ago", "2h ago").
- * @param iso - The ISO 8601 timestamp string.
- * @returns A human-readable relative time string.
- */
-function relativeTime(iso: string): string {
-  const ms = Date.now() - new Date(iso).getTime()
-  const min = Math.floor(ms / 60_000)
-  if (min < 1) return 'just now'
-  if (min < 60) return `${min}m ago`
-  const h = Math.floor(min / 60)
-  if (h < 24) return `${h}h ago`
-  const d = Math.floor(h / 24)
-  return `${d}d ago`
-}
-
-/**
- * Format an AI-allowance window reset (epoch ms) as a short countdown phrase for
- * the /cost used-up line ("refreshes in about 3 hours"). Under an hour reads "in
- * under an hour"; ≥ 6h out on a later local calendar day reads "tomorrow"; a day
- * or more out reads "in about N days".
- *
- * The day scale is what makes this usable on a BILLING-PERIOD allowance, which
- * can be weeks out — an hours-only formatter capped at "tomorrow", so a window
- * ending in 18 days told the user it came back in the morning.
- *
- * @param t - The translation function from `useTranslation()`.
- * @param resetAt - Epoch ms of the window end (always in the future from the API).
- * @returns A localized human countdown phrase.
- */
-function allowanceResetCountdown(t: UseTranslationResult['t'], resetAt: number): string {
-  const diffMs = resetAt - Date.now()
-  if (!Number.isFinite(diffMs) || diffMs <= 0) {
-    return t('ide.chat.resetSoon', undefined, { defaultValue: 'soon' })
-  }
-  const hours = diffMs / 3_600_000
-  if (hours < 1) {
-    return t('ide.chat.resetUnderHour', undefined, { defaultValue: 'in under an hour' })
-  }
-  if (hours >= 24) {
-    const days = Math.round(hours / 24)
-    if (days <= 1) {
-      return t('ide.chat.resetTomorrow', undefined, { defaultValue: 'tomorrow' })
-    }
-    return t('ide.chat.resetInDays', { days }, { defaultValue: 'in about {{days}} days' })
-  }
-  const rounded = Math.round(hours)
-  const laterLocalDay = new Date(resetAt).toDateString() !== new Date().toDateString()
-  if (laterLocalDay && rounded >= 6) {
-    return t('ide.chat.resetTomorrow', undefined, { defaultValue: 'tomorrow' })
-  }
-  return t(
-    'ide.chat.resetInHours',
-    { hours: rounded },
-    { defaultValue: 'in about {{hours}} hours' },
-  )
-}
-
-/**
- * User-message accent stripe. The left edge of a real user message draws a vertical,
- * multi-tone BLUE gradient swept gently up and down (the same smooth single-gradient
- * technique as the composer ring, but vertical + blue) — NOT a repeating barber-pole,
- * which read busy + janky. The host supplies the curated blues via
- * `--mol-chat-accent-gradient`; the fallback is a lightened primary so it stays blue +
- * never dark in any theme (the theme's primary-light/-dark tokens are actually a medium
- * + a dark blue with no light tone). It's a full-box gradient (so the sweep has room to
- * travel) clipped to a 3px LEFT band that follows the row's rounded corners. A
- * `::before` + its keyframe can't be expressed inline (and inline `animation` can't be
- * media-queried), so — like AutoCommitBadge — it is injected once and gated on the
- * existing `data-mol-id`; the auto-sent row keeps its solid success accent.
- */
-const USER_ACCENT_STYLE = `
-[data-mol-id="chat-user-message"] { position: relative; }
-[data-mol-id="chat-user-message"]::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: var(--mol-chat-accent-gradient, linear-gradient(to bottom, color-mix(in srgb, var(--mol-color-primary, #3060c0) 85%, #fff), color-mix(in srgb, var(--mol-color-primary, #3060c0) 50%, #fff) 50%, color-mix(in srgb, var(--mol-color-primary, #3060c0) 85%, #fff)));
-  background-size: 100% 300%;
-  animation: mol-chat-accent-flow 6s ease-in-out infinite;
-  -webkit-mask: linear-gradient(to right, #000 3px, transparent 3px);
-  mask: linear-gradient(to right, #000 3px, transparent 3px);
-  pointer-events: none;
-}
-@keyframes mol-chat-accent-flow {
-  0%, 100% { background-position: 50% 0%; }
-  50% { background-position: 50% 100%; }
-}
-@media (prefers-reduced-motion: reduce) {
-  [data-mol-id="chat-user-message"]::before { animation: none; }
-}`
-
-/** Maximum file size for attachments (20 MB). */
-const MAX_ATTACHMENT_SIZE = 20 * 1024 * 1024
-
-/** MIME types accepted by the file input for AI provider attachments. */
-const ACCEPTED_FILE_TYPES =
-  'image/jpeg,image/png,image/gif,image/webp,image/svg+xml,application/pdf,audio/mpeg,audio/wav,audio/ogg,audio/flac,audio/webm,video/mp4,video/webm'
-
-/**
- * Reads a File as base64 (without data-URL prefix).
- * @param file - The file to encode.
- * @returns Base64-encoded string.
- */
-function fileToBase64(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.onload = () => {
-      const result = reader.result as string
-      resolve(result.split(',')[1])
-    }
-    reader.onerror = reject
-    reader.readAsDataURL(file)
-  })
-}
-
-/**
- * Formats a byte count as a human-readable size string.
- * @param bytes - The size in bytes.
- * @returns Formatted string (e.g., "1.2MB").
- */
-function formatSize(bytes: number): string {
-  if (bytes < 1024) return `${bytes}B`
-  if (bytes < 1048576) return `${Math.round(bytes / 1024)}KB`
-  return `${(bytes / 1048576).toFixed(1)}MB`
-}
-
-// ---------------------------------------------------------------------------
-// Thinking block
-// ---------------------------------------------------------------------------
-
-/**
- * Format a duration in milliseconds as a human-readable string.
- * @param t - The translation function from `useTranslation()`.
- * @param ms - Duration in milliseconds.
- * @returns Formatted string like "Thought for 5 seconds" or "Thought for 2 minutes".
- */
-function formatThinkingDuration(t: UseTranslationResult['t'], ms: number): string {
-  if (ms < 1000) return t('ide.chat.thoughtBriefly', undefined, { defaultValue: 'Thought briefly' })
-  const seconds = Math.round(ms / 1000)
-  if (seconds < 60) {
-    // Singular/plural split (the codebase's pluralization convention, e.g.
-    // typeErrorCount/typeErrorsCount): each key is a clean i18n template so the
-    // bond value matches the inline default verbatim and interpolates {{count}}
-    // — never a JS `${}` literal, which a bond value would silently override.
-    return seconds === 1
-      ? t('ide.chat.thoughtForSecond', { count: seconds }, { defaultValue: 'Thought for 1 second' })
-      : t(
-          'ide.chat.thoughtForSeconds',
-          { count: seconds },
-          {
-            defaultValue: 'Thought for {{count}} seconds',
-          },
-        )
-  }
-  const minutes = Math.round(seconds / 60)
-  return minutes === 1
-    ? t('ide.chat.thoughtForMinute', { count: minutes }, { defaultValue: 'Thought for 1 minute' })
-    : t(
-        'ide.chat.thoughtForMinutes',
-        { count: minutes },
-        {
-          defaultValue: 'Thought for {{count}} minutes',
-        },
-      )
-}
-
-/** The heading of the closeable panel overlay (/skills, /scripts, /settings) above the composer. */
-function panelOverlayHeading(
-  t: UseTranslationResult['t'],
-  overlay: 'skills' | 'scripts' | 'settings' | 'tests',
-): string {
-  return overlay === 'skills'
-    ? t('ide.chat.skills.heading', undefined, { defaultValue: 'Skills' })
-    : overlay === 'scripts'
-      ? t('ide.chat.scripts.heading', undefined, { defaultValue: 'Scripts' })
-      : overlay === 'tests'
-        ? t('ide.tests.heading', undefined, { defaultValue: 'Tests' })
-        : t('ide.chat.settings.heading', undefined, { defaultValue: 'Settings' })
-}
-
-/**
- * Derive a real current-activity label for the streaming indicator from the
- * in-flight assistant message's latest block, so the user sees what's actually
- * happening (e.g. "Reading App.tsx", "Writing the plan") instead of a generic
- * spinner. Returns undefined when there's nothing specific to show (the
- * indicator then falls back to its rotating generic messages).
- *
- * @param t - The translation function from `useTranslation()`.
- * @param msg - The streaming assistant message.
- * @param msg.blocks - The message's ordered blocks (a tool call is a `tool_call` block naming its id).
- * @param msg.toolCalls - The message's tool calls, looked up by block id.
- * @returns A short activity label, or undefined.
- */
-export function streamingActivityLabel(
-  t: UseTranslationResult['t'],
-  msg: {
-    blocks?: ChatMessage['blocks']
-    toolCalls?: Array<Pick<NonNullable<ChatMessage['toolCalls']>[number], 'id' | 'name' | 'input'>>
-  },
-): string | undefined {
-  const blocks = msg.blocks
-  if (!blocks || blocks.length === 0) return undefined
-  const last = blocks[blocks.length - 1]
-  if (last.type === 'thinking')
-    return t('ide.chat.activity.thinking', undefined, { defaultValue: 'Synthesizing' })
-  if (last.type !== 'tool_call') return undefined
-  const tc = msg.toolCalls?.find((c) => c.id === last.id)
-  if (!tc) return undefined
-  // `tc.input` is model-authored, so each field is read through `str()` rather
-  // than trusted from the cast: a field the schema declares `string` can arrive
-  // as a number or object (the shape that blanked production on 2026-08-14 —
-  // see `str()`'s docs), and `base()` calls `.split` on it, which throws a
-  // TypeError from inside this render — taking the whole IDE down, not one row.
-  const inp = (tc.input ?? {}) as {
-    path?: unknown
-    query?: unknown
-    command?: unknown
-    url?: unknown
-  }
-  const base = (p?: string): string => (p ? (p.split('/').filter(Boolean).pop() ?? p) : '')
-  const clip = (s?: string, n = 48): string => (s && s.length > n ? `${s.slice(0, n)}…` : (s ?? ''))
-  switch (tc.name) {
-    case 'read_file': {
-      const files = readFilePaths(tc.input)
-      const more = files.length > 1 ? ` +${files.length - 1}` : ''
-      return `${t('ide.chat.activity.reading', undefined, { defaultValue: 'Reading' })} ${base(files[0])}${more}`
-    }
-    case 'write_file':
-      return `${t('ide.chat.activity.writing', undefined, { defaultValue: 'Writing' })} ${base(str(inp.path))}`
-    case 'edit_file':
-      return `${t('ide.chat.activity.editing', undefined, { defaultValue: 'Editing' })} ${base(str(inp.path))}`
-    case 'search_files':
-      return `${t('ide.chat.activity.searching', undefined, { defaultValue: 'Searching' })} ${clip(str(inp.query))}`
-    case 'list_files':
-    case 'find_files':
-      return t('ide.chat.activity.exploring', undefined, { defaultValue: 'Exploring files' })
-    case 'exec_command':
-      return `${t('ide.chat.activity.running', undefined, { defaultValue: 'Running' })} ${clip(str(inp.command))}`
-    case 'save_plan':
-      return t('ide.chat.activity.writingPlan', undefined, { defaultValue: 'Writing the plan' })
-    case 'sandbox_fetch':
-      return `${t('ide.chat.activity.fetching', undefined, { defaultValue: 'Fetching' })} ${clip(str(inp.url))}`
-    case 'set_mode':
-      return t('ide.chat.activity.switching', undefined, { defaultValue: 'Switching mode' })
-    default:
-      return undefined
-  }
-}
 
 // estimateTurnTokens (and the per-message estimateStreamTokens it sums) live in
 // ./chat-stream-utilities.js — they run on every stream flush, so each tool-input's
 // length is cached there to stay O(1) per call (re-stringifying every write_file's
 // full content per flush was an O(n²) freeze).
-
-/**
- * Collapsible block for displaying AI thinking/reasoning content.
- * @param props - Component props (see {@link MessageItemProps}).
- * @returns The rendered thinking block element.
- */
-function ThinkingBlock({
-  content,
-  durationMs,
-  isStreaming,
-}: {
-  content: string
-  durationMs?: number
-  isStreaming?: boolean
-}): JSX.Element {
-  const { t } = useTranslation()
-  const cm = getClassMap()
-  const contentRef = useRef<HTMLDivElement>(null)
-  // Auto-expand while streaming so the user can see thinking in real-time.
-  // Once streaming ends, the user's manual toggle takes over.
-  const [manualToggle, setManualToggle] = useState<boolean | null>(null)
-  const open = manualToggle ?? isStreaming === true
-
-  // Auto-scroll to the bottom as new thinking content streams in.
-  useEffect(() => {
-    if (open && contentRef.current) {
-      contentRef.current.scrollTop = contentRef.current.scrollHeight
-    }
-  }, [open, content])
-
-  const label = isStreaming
-    ? t('ide.chat.thinking', undefined, { defaultValue: 'Thinking' })
-    : durationMs != null
-      ? formatThinkingDuration(t, durationMs)
-      : t('ide.chat.thoughtBriefly', undefined, { defaultValue: 'Thought briefly' })
-
-  return (
-    <div style={{ marginBottom: '6px' }}>
-      <button
-        /* mol-bespoke-button: thinking disclosure toggle — chevron + muted label, a summary/details affordance with no button frame */
-        type="button"
-        onClick={() => setManualToggle((v) => !(v ?? isStreaming === true))}
-        style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: '4px',
-          background: 'none',
-          border: 'none',
-          cursor: 'pointer',
-          color: 'inherit',
-          padding: '2px 0',
-        }}
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 16 16"
-          width="12"
-          height="12"
-          style={{
-            display: 'block',
-            flexShrink: 0,
-            opacity: 0.5,
-            transform: open ? 'rotate(90deg)' : 'rotate(0deg)',
-            transition: 'transform 150ms',
-          }}
-        >
-          <polyline
-            points="6,4 10,8 6,12"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-        <span className={cm.cn(cm.textMuted, cm.textSize('xs'))}>{label}</span>
-      </button>
-      {open && (
-        <div
-          ref={contentRef}
-          className={cm.cn(cm.textMuted, cm.textSize('xs'))}
-          style={{
-            paddingLeft: '16px',
-            marginTop: '4px',
-            maxHeight: '200px',
-            overflowY: 'auto',
-            whiteSpace: 'pre-wrap',
-            fontStyle: 'italic',
-            opacity: 0.7,
-          }}
-        >
-          {content}
-        </div>
-      )}
-    </div>
-  )
-}
-
-// ---------------------------------------------------------------------------
-// CollapsibleUserMessage — height-limited user message with expand toggle
-// ---------------------------------------------------------------------------
-
-/** Height threshold (px) above which user messages get collapsed. */
-const USER_MSG_COLLAPSE_HEIGHT = 150
-
-/**
- * Distance from the top (px) at which scrolling up pages in older timeline
- * items. Same idea as the 80px bottom threshold of the stick-to-bottom
- * detector: a margin, so the trigger fires while the user is still moving,
- * not only pinned exactly at scrollTop 0.
- */
-const LOAD_EARLIER_THRESHOLD_PX = 120
-
-// ---------------------------------------------------------------------------
-// App version (P4-08)
-// ---------------------------------------------------------------------------
-//
-// The single source of truth for the version this IDE reports — used BOTH by the
-// `/version` command output AND by the `/version` entry's description in the
-// slash-command menu (so the menu shows the real number, not a stale literal).
-//
-// This shared package owns no product branding, and there is currently no
-// `version` prop on ChatPanelProps (and `types.ts` is owned elsewhere), so this
-// is the minimal in-package wiring: one constant the menu + the command both
-// read. When the host's real build version becomes available via a prop, point
-// both sites at that prop instead of this fallback — the menu interpolation
-// (`{{version}}`) already flows through, so only the value source changes.
-const APP_VERSION = '0.1.0'
-
-// ---------------------------------------------------------------------------
-// Chat timeline vertical rhythm (P4-05)
-// ---------------------------------------------------------------------------
-//
-// ONE convention for EVERY item rendered into the chat timeline — message rows,
-// the "Now using <model>" / "Switched to <mode>" / "Building your app" system
-// cards, toned-tip + emphasized cards, commit cards, activity cards:
-//
-//   1. Each timeline item owns its spacing as a SINGLE BOTTOM MARGIN only.
-//   2. NO timeline item sets a TOP margin — and NEVER a NEGATIVE one.
-//
-// The gap between any two stacked items is therefore exactly the upper item's
-// bottom margin (no margin-collapsing surprises, no negatives), so adjacent
-// items can never collide. The scale follows the 8px grid (DESIGN.md): 16px is
-// the standard rhythm unit; discovery messages get a roomier 24px (kept
-// intentional, but consistent).
-//
-// Why bottom-margin-only with no negatives: the old code gave a message
-// `marginTop: -12px` whenever it shared a role with the *previous message*
-// (computed from `prevMsg`, which skips intervening cards). In the timeline DOM
-// a system card often sits between two same-role assistant messages, so that
-// -12px yanked the message UP over the card's 10px bottom margin — net -2px,
-// i.e. the message visually ATE the "Now using <model>" card's bottom spacing
-// (the exact collision reported in P4-05). Removing the negative and giving
-// every item the same bottom margin fixes it at the root for ALL item pairs.
-/** Standard bottom margin (px) every chat-timeline item owns. 8px-grid rhythm unit. */
-const TIMELINE_ITEM_GAP = 16
-/** Roomier bottom margin (px) for discovery-phase message cards (intentionally looser). */
-const TIMELINE_ITEM_GAP_DISCOVERY = 24
-
-/**
- * Accent (success green) for an auto-sent message card — drives its tint, 1px border
- * and `sync` icon via {@link chatCardStyle}, so an agent-sent message is unmistakably
- * green while sharing the exact card shape of the user message and info cards.
- */
-const AUTO_SENT_ACCENT = 'var(--mol-color-success, #16a34a)'
-
-/**
- * Renders user message content with a max height and a chevron-down expand button
- * when the content overflows. Similar to the compaction summary expand pattern.
- * @param props - Component props (see {@link MessageItemProps}).
- * @returns The rendered collapsible message element.
- */
-function CollapsibleUserMessage({
-  content,
-  isLight,
-}: {
-  content: string
-  isLight: boolean
-}): JSX.Element {
-  const innerRef = useRef<HTMLDivElement>(null)
-  const [overflows, setOverflows] = useState(false)
-  const [expanded, setExpanded] = useState(false)
-
-  useEffect(() => {
-    const el = innerRef.current
-    if (el) setOverflows(el.scrollHeight > USER_MSG_COLLAPSE_HEIGHT)
-  }, [content])
-
-  return (
-    <div style={{ position: 'relative' }}>
-      <div
-        ref={innerRef}
-        style={{
-          maxHeight: expanded ? 'none' : `${USER_MSG_COLLAPSE_HEIGHT}px`,
-          overflow: 'hidden',
-          whiteSpace: 'pre-wrap',
-        }}
-      >
-        {content}
-      </div>
-      {overflows && !expanded && (
-        <div
-          style={{
-            position: 'absolute',
-            bottom: 0,
-            left: 0,
-            right: 0,
-            height: '40px',
-            background: isLight
-              ? 'linear-gradient(transparent, var(--mol-color-surface-secondary, #f5f5f5))'
-              : 'linear-gradient(transparent, var(--mol-color-surface-secondary, #1e1e1e))',
-            pointerEvents: 'none',
-          }}
-        />
-      )}
-      {overflows && (
-        <button
-          /* mol-bespoke-button: overflow disclosure strip — full-width unlabelled chevron that expands a clipped card */
-          type="button"
-          onClick={() => setExpanded((v) => !v)}
-          onMouseEnter={(e) => {
-            ;(e.currentTarget as HTMLElement).style.background = isLight
-              ? 'rgba(99,102,241,0.12)'
-              : 'rgba(99,102,241,0.18)'
-          }}
-          onMouseLeave={(e) => {
-            ;(e.currentTarget as HTMLElement).style.background = 'transparent'
-          }}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: '100%',
-            padding: '2px 0',
-            margin: '2px 0 0',
-            background: 'transparent',
-            border: 'none',
-            borderRadius: '0 0 4px 4px',
-            cursor: 'pointer',
-            color: 'inherit',
-            transition: 'background 100ms',
-          }}
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 16 16"
-            width="14"
-            height="14"
-            style={{
-              display: 'block',
-              opacity: 0.5,
-              transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)',
-              transition: 'transform 150ms',
-            }}
-          >
-            <polyline
-              points="4,6 8,10 12,6"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </button>
-      )}
-    </div>
-  )
-}
-
-// ---------------------------------------------------------------------------
-// VerificationBadge — inline lint result indicator
-// ---------------------------------------------------------------------------
-
-/**
- * Inline badge showing lint verification status — green check for pass, expandable error card for fail.
- * @param props - Component props (see {@link MessageItemProps}).
- * @returns The rendered verification badge element.
- */
-function VerificationBadge({
-  status,
-  output,
-  categories,
-  renderCheckUnavailable,
-}: {
-  status: 'ok' | 'error'
-  output?: string
-  workspaces: string[]
-  categories?: string[]
-  renderCheckUnavailable?: boolean
-}): JSX.Element {
-  const { t } = useTranslation()
-  const cm = getClassMap()
-  const [expanded, setExpanded] = useState(false)
-
-  if (status === 'ok') {
-    return (
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'baseline',
-          gap: '6px',
-          padding: '3px 0',
-          fontSize: '13px',
-        }}
-        className={cm.textMuted}
-      >
-        <svg
-          width="10"
-          height="10"
-          viewBox="0 0 10 10"
-          style={{ flexShrink: 0, alignSelf: 'center', position: 'relative', top: '-1px' }}
-        >
-          <path
-            d="M2 5.5 L4.2 7.8 L8 3"
-            fill="none"
-            stroke="#3fb950"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-        <span>
-          {t('ide.chat.verificationPassed', undefined, { defaultValue: 'Checks passed' })}
-          {renderCheckUnavailable && (
-            <span data-mol-id="render-check-unavailable" className={cm.textWarning}>
-              {' · '}
-              {t('ide.chat.renderCheckUnavailable', undefined, {
-                defaultValue: 'Render check unavailable',
-              })}
-            </span>
-          )}
-        </span>
-      </div>
-    )
-  }
-
-  // Count errors from the output text
-  const cats = categories ?? []
-  const errorCount = output ? (output.match(/\berror\b/gi) ?? []).length || 1 : 1
-  const warningCount = output ? (output.match(/\bwarning\b/gi) ?? []).length : 0
-
-  // Build label with counts
-  const parts: string[] = []
-  if (cats.includes('type')) {
-    const n = output ? (output.match(/error TS\d+/g) ?? []).length || errorCount : errorCount
-    parts.push(
-      n === 1
-        ? t('ide.chat.typeErrorCount', { count: 1 }, { defaultValue: '1 type error' })
-        : t('ide.chat.typeErrorsCount', { count: n }, { defaultValue: '{{count}} type errors' }),
-    )
-  }
-  if (cats.includes('lint')) {
-    const n = output ? (output.match(/\d+:\d+\s+error/g) ?? []).length || 1 : 1
-    const w = warningCount
-    if (n > 0)
-      parts.push(
-        n === 1
-          ? t('ide.chat.lintErrorCount', { count: 1 }, { defaultValue: '1 lint error' })
-          : t('ide.chat.lintErrorsCount', { count: n }, { defaultValue: '{{count}} lint errors' }),
-      )
-    if (w > 0)
-      parts.push(
-        w === 1
-          ? t('ide.chat.lintWarningCount', { count: 1 }, { defaultValue: '1 warning' })
-          : t('ide.chat.lintWarningsCount', { count: w }, { defaultValue: '{{count}} warnings' }),
-      )
-  }
-  if (cats.includes('runtime')) {
-    parts.push(t('ide.chat.runtimeErrors', undefined, { defaultValue: 'Runtime errors' }))
-  }
-  const label =
-    parts.length > 0
-      ? parts.join(', ')
-      : t('ide.chat.verificationFailed', undefined, { defaultValue: 'Errors found' })
-
-  // Use amber for lint-only warnings, red for type/runtime errors
-  const isLintOnly = cats.length > 0 && cats.every((c) => c === 'lint')
-  const borderColor = isLintOnly ? 'rgba(234,179,8,0.4)' : 'rgba(248,81,73,0.3)'
-  const bgColor = isLintOnly ? 'rgba(234,179,8,0.06)' : 'rgba(248,81,73,0.06)'
-  const textColor = isLintOnly ? '#d4a017' : '#f85149'
-
-  return (
-    <div
-      style={{
-        margin: '4px 0',
-        borderRadius: 6,
-        border: `1px solid ${borderColor}`,
-        background: bgColor,
-        overflow: 'hidden',
-      }}
-    >
-      <button
-        /* mol-bespoke-button: verify-error card header — the card's own expand/collapse header, tinted by severity; a disclosure, not an action */
-        type="button"
-        onClick={() => setExpanded((v) => !v)}
-        className={cm.cn(cm.textSize('xs'), cm.w('full'))}
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 6,
-          padding: '5px 8px',
-          border: 'none',
-          background: 'transparent',
-          color: textColor,
-          cursor: 'pointer',
-          textAlign: 'left',
-        }}
-      >
-        <span style={{ flex: 1 }}>{label}</span>
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 16 16"
-          width="12"
-          height="12"
-          style={{
-            flexShrink: 0,
-            transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)',
-            transition: 'transform 150ms',
-            opacity: 0.6,
-          }}
-        >
-          <polyline
-            points="4,6 8,10 12,6"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      </button>
-      {expanded && output && (
-        <pre
-          className={cm.cn(cm.textSize('xs'))}
-          style={{
-            margin: 0,
-            padding: '6px 8px',
-            borderTop: `1px solid ${borderColor}`,
-            whiteSpace: 'pre-wrap',
-            wordBreak: 'break-word',
-            maxHeight: 200,
-            overflow: 'auto',
-            opacity: 0.85,
-            fontFamily: 'var(--mol-font-mono, monospace)',
-            color: 'inherit',
-          }}
-        >
-          {output}
-        </pre>
-      )}
-    </div>
-  )
-}
-
-// ---------------------------------------------------------------------------
-// ---------------------------------------------------------------------------
-// NoticeCard — the ONE shared tone-accented notice treatment
-// ---------------------------------------------------------------------------
-
-/** The accent + default icon per tone. Exported shape via {@link NoticeCard}. */
-const NOTICE_TONE: Record<
-  'info' | 'gold' | 'upgrade' | 'success' | 'signup',
-  { accent: string; icon: IconName }
-> = {
-  info: { accent: 'var(--mol-color-primary, #6366f1)', icon: 'info-circle' },
-  gold: { accent: '#e0a100', icon: 'lightbulb' },
-  // Limit / degraded / budget / upgrade notices: a `clock` icon — an OUTLINE ring
-  // built exactly like `info-circle`, so it matches the other tone icons' weight
-  // (the solid `exclamation-triangle`/`sparkle` glyphs read far heavier). The accent
-  // is the theme WARNING token so the border stays visible on light backgrounds too.
-  upgrade: { accent: 'var(--mol-color-warning, #e0a100)', icon: 'clock' },
-  success: { accent: '#3fb950', icon: 'check-circle' },
-  signup: { accent: 'var(--mol-color-primary, #6366f1)', icon: 'sign-in' },
-}
-
-/**
- * The SEMANTIC button colour each notice tone falls back to when the host gives
- * an action no explicit `color`. Every notice-card action is a design-system
- * button; this is only about which semantic it takes when the caller did not
- * say. Without it a coloured action and a colourless one rendered side by side
- * in the SAME card with two different box models (13px/3px vs a hand-rolled
- * 12px/6px) — the exact mismatch this treatment exists to prevent.
- */
-const NOTICE_TONE_BUTTON_COLOR: Record<
-  'info' | 'gold' | 'upgrade' | 'success' | 'signup',
-  NonNullable<ChatEventCardAction['color']>
-> = {
-  info: 'primary',
-  gold: 'warning',
-  upgrade: 'warning',
-  success: 'success',
-  signup: 'primary',
-}
-
-/**
- * The single shared notice-card treatment: a matched-weight accent {@link Icon},
- * an optional composable body (or plain text), and a left-aligned row of
- * design-system action buttons (`cm.button`, `sm`) whose semantic colour comes
- * from the action or, failing that, the tone. EVERY inline notice renders through this — the system
- * tip/notice cards AND the resource-limit / upgrade banners (see
- * {@link ResourceLimitBanner}) — so their icon + buttons can never drift apart
- * again. The host owns the button routes/copy; it passes them in as `action`.
- *
- * @param props - Component props (see {@link MessageItemProps}).
- * @returns The rendered notice card.
- */
-function NoticeCard({
-  tone,
-  text,
-  content,
-  action,
-  icon: iconOverride,
-}: {
-  tone: 'info' | 'gold' | 'upgrade' | 'success' | 'signup'
-  text?: string
-  content?: ChatEventCardSegment[]
-  action?: ChatEventCardAction | ChatEventCardAction[] | null
-  icon?: IconName
-}): JSX.Element {
-  const cm = getClassMap()
-  const { accent, icon: defaultIcon } = NOTICE_TONE[tone]
-  const icon = iconOverride ?? defaultIcon
-  const actions = action ? (Array.isArray(action) ? action : [action]) : []
-  const multiLine = (text ?? '').includes('\n')
-  // The semantic colour an action takes when the host did not name one, so every
-  // action on the card renders the same design-system button.
-  const defaultActionColor = NOTICE_TONE_BUTTON_COLOR[tone]
-  return (
-    <div
-      data-mol-id="chat-notice-card"
-      data-tone={tone}
-      className={cm.textSize('xs')}
-      style={{
-        display: 'flex',
-        alignItems: 'flex-start',
-        gap: 10,
-        marginBottom: TIMELINE_ITEM_GAP,
-        ...chatCardStyle(accent),
-        lineHeight: 1.5,
-      }}
-    >
-      <Icon
-        name={icon}
-        size={CHAT_CARD_ICON_SIZE}
-        aria-hidden="true"
-        style={{ flexShrink: 0, marginTop: 1, color: accent }}
-      />
-      <div style={{ flex: 1, minWidth: 0 }}>
-        {content ? (
-          content.map((seg, i) => renderCardSegment(seg, i))
-        ) : (
-          <span style={multiLine ? { whiteSpace: 'pre-wrap' } : undefined}>{text}</span>
-        )}
-        {!content && actions.length > 0 && (
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 8 }}>
-            {actions.map((act, i) => {
-              // EVERY action is a REAL design-system button (`cm.button`, sm) so the
-              // same CTA looks identical wherever the app shows it (auth page,
-              // banners, chat cards) — and so two actions on the SAME card can't
-              // render two different box models. The host names the semantic colour
-              // when it has one; otherwise the tone supplies it. No inline colors —
-              // the ClassMap owns the look, including hover/active/focus states.
-              // touchTargetCompact (36px), not the full 44px touchTarget — these sit
-              // inside a dense chat card (the floor agreed for its actions).
-              const className = cm.cn(
-                cm.button({ color: act.color ?? defaultActionColor, size: 'sm' }),
-                cm.touchTargetCompact,
-              )
-              const actionStyle: React.CSSProperties = {
-                textDecoration: 'none',
-                fontFamily: act.code ? 'var(--mol-font-mono, monospace)' : 'inherit',
-              }
-              // An unapproved scheme (`javascript:`, `data:` …) never becomes an
-              // anchor — the label renders as inert text, same policy as the
-              // markdown link allowlist. A protocol-relative href (`//host`)
-              // carries no scheme either, but the browser resolves it against
-              // the page's protocol to ANOTHER origin — so it opens like an
-              // http(s) link: new tab, `noopener noreferrer`, never a same-tab
-              // navigation off-origin.
-              const externalHref =
-                !!act.href && (/^https?:\/\//i.test(act.href) || act.href.startsWith('//'))
-              return act.href ? (
-                isAllowedLinkHref(act.href) ? (
-                  <a
-                    key={i}
-                    href={act.href}
-                    target={externalHref ? '_blank' : undefined}
-                    rel={externalHref ? 'noopener noreferrer' : undefined}
-                    className={className}
-                    style={actionStyle}
-                  >
-                    {act.label}
-                  </a>
-                ) : (
-                  <span key={i} className={className} style={actionStyle}>
-                    {act.label}
-                  </span>
-                )
-              ) : (
-                <button
-                  key={i}
-                  type="button"
-                  onClick={act.onClick}
-                  className={className}
-                  style={actionStyle}
-                >
-                  {act.label}
-                </button>
-              )
-            })}
-          </div>
-        )}
-      </div>
-    </div>
-  )
-}
-
-// ResourceLimitBanner — upgrade prompt when sandbox runs out of memory / a limit hits
-// ---------------------------------------------------------------------------
-
-/**
- * Inline banner shown when the sandbox runs out of memory (or another usage limit
- * is hit), prompting the user to upgrade. Renders through the shared
- * {@link NoticeCard} so it has the SAME matched-weight icon + accent button row as
- * every other upgrade notice — no bespoke icon, no single-link special case. The
- * host supplies the sign-in / upgrade buttons via `buildUpgradeCta` → `action`.
- *
- * @param props - Component props (see {@link MessageItemProps}).
- * @returns The rendered upgrade banner element.
- */
-function ResourceLimitBanner({
-  message,
-  action,
-}: {
-  message: string
-  action?: ChatEventCardAction | ChatEventCardAction[] | null
-}): JSX.Element {
-  return <NoticeCard tone="upgrade" text={message} action={action} />
-}
-
-// CommitCardItem — expandable tool-call-style card for commits
-// ---------------------------------------------------------------------------
-
-/**
- * Expandable tool-call-style card displaying a commit with its files.
- * @param props - Component props (see {@link MessageItemProps}).
- * @returns The rendered commit card element.
- */
-export function CommitCardItem({
-  card,
-  onRevert,
-}: {
-  card: CommitCard
-  onRevert?: (hash: string) => Promise<string | undefined>
-}): JSX.Element {
-  const { t } = useTranslation()
-  const cm = getClassMap()
-  const isCoarse = useCoarsePointer()
-  const [expanded, setExpanded] = useState(false)
-  const [isHovered, setIsHovered] = useState(false)
-  const [isReverting, setIsReverting] = useState(false)
-  // Track undo/redo state: each revert produces a new hash that can itself be reverted
-  const [isReverted, setIsReverted] = useState(false)
-  const [revertHash, setRevertHash] = useState<string | undefined>()
-  const hasFiles = card.files.length > 0
-  const isRunning = card.status === 'running'
-  const isDone = card.status === 'done'
-  const canRevert = isDone && (isReverted ? revertHash : card.hash) && onRevert
-  const dotColor = isRunning ? '#e8a000' : card.status === 'error' ? '#f04040' : '#4070e0'
-
-  const handleRevert = useCallback(
-    async (e: React.MouseEvent) => {
-      e.stopPropagation()
-      if (!canRevert || isReverting) return
-      const hashToRevert = isReverted ? revertHash! : card.hash!
-      setIsReverting(true)
-      try {
-        const newHash = await onRevert(hashToRevert)
-        if (newHash) {
-          if (isReverted) {
-            // Re-applying: store the new hash so we can undo again
-            setRevertHash(newHash)
-          } else {
-            // Undoing: store the revert commit hash so we can redo
-            setRevertHash(newHash)
-          }
-          setIsReverted((v) => !v)
-        }
-      } finally {
-        setIsReverting(false)
-      }
-    },
-    [canRevert, isReverting, isReverted, revertHash, card.hash, onRevert],
-  )
-
-  return (
-    // One timeline rhythm: bottom margin only (see TIMELINE_ITEM_GAP).
-    <div style={{ marginBottom: TIMELINE_ITEM_GAP }}>
-      <div style={{ marginBottom: '4px' }}>
-        <button
-          /* mol-bespoke-button: commit card header — expand/collapse disclosure for the commit's file list */
-          type="button"
-          onClick={hasFiles ? () => setExpanded((e) => !e) : undefined}
-          onMouseEnter={() => setIsHovered(true)}
-          onMouseLeave={() => setIsHovered(false)}
-          style={{
-            display: 'flex',
-            alignItems: 'flex-start',
-            gap: '6px',
-            background: 'none',
-            border: 'none',
-            cursor: hasFiles ? 'pointer' : 'default',
-            color: 'inherit',
-            textAlign: 'left',
-            padding: '2px 0',
-            width: '100%',
-          }}
-        >
-          {/* Status dot — orange while running, red on error, blue when done */}
-          <svg
-            width="10"
-            height="10"
-            viewBox="0 0 10 10"
-            style={{ flexShrink: 0, marginTop: '5px' }}
-          >
-            <circle cx="5" cy="5" r="3" fill={dotColor} opacity="0.35" />
-            <circle cx="5" cy="5" r="3" fill="none" stroke={dotColor} strokeWidth="2" />
-          </svg>
-
-          {/* Label — single truncated line unless expanded */}
-          <span
-            style={{
-              flex: 1,
-              minWidth: 0,
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: expanded ? 'normal' : 'nowrap',
-            }}
-          >
-            <span style={{ fontSize: '13px', display: 'flex', alignItems: 'center', gap: '5px' }}>
-              <span
-                style={{
-                  // flex:1 so the message fills the row and pushes the revert icon to
-                  // the right edge (directly left of the chevron), matching the
-                  // tool-call cards instead of letting it hug the commit text.
-                  flex: 1,
-                  minWidth: 0,
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: expanded ? 'normal' : 'nowrap',
-                }}
-              >
-                {isRunning ? (
-                  t('ide.chat.committing', undefined, { defaultValue: 'Committing...' })
-                ) : (
-                  <>
-                    {t('ide.chat.commitLabel', undefined, { defaultValue: 'Commit' })}{' '}
-                    <code
-                      style={{
-                        fontFamily: '"SF Mono", Menlo, Consolas, "Courier New", monospace',
-                        fontSize: 'inherit',
-                      }}
-                    >
-                      {stripCommitCoauthorTrailer(card.message)}
-                    </code>
-                  </>
-                )}
-              </span>
-              {canRevert && (
-                <span
-                  /* mol-bespoke-button: icon-only revert affordance — 20px (32px coarse) hit box inside a dense commit row, no label */
-                  role="button"
-                  tabIndex={0}
-                  title={
-                    isReverted
-                      ? t('ide.chat.redoCommit', undefined, {
-                          defaultValue: 'Re-apply this commit',
-                        })
-                      : t('ide.chat.revertCommit', undefined, {
-                          defaultValue: 'Revert this commit',
-                        })
-                  }
-                  onClick={handleRevert}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault()
-                      handleRevert(e as unknown as React.MouseEvent)
-                    }
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = 'rgba(128,128,128,0.2)'
-                    e.currentTarget.style.opacity = '1'
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = 'transparent'
-                    e.currentTarget.style.opacity = ''
-                  }}
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    alignSelf: 'flex-start',
-                    // Touch: hover can't reveal it, so it rests visible at 0.6 and
-                    // gets a 32px hit box (the floor for these dense inline rows).
-                    width: isCoarse ? 32 : 20,
-                    height: isCoarse ? 32 : 20,
-                    borderRadius: 4,
-                    flexShrink: 0,
-                    cursor: isReverting ? 'wait' : 'pointer',
-                    opacity: isReverting ? 0.3 : isHovered || isCoarse ? 0.6 : 0,
-                    transition: 'opacity 100ms, background 100ms',
-                  }}
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 16 16"
-                    width="13"
-                    height="13"
-                    fill="currentColor"
-                  >
-                    {isReverted ? (
-                      <path d="M14.78 6.28a.749.749 0 0 0 0-1.06l-3.5-3.5a.749.749 0 1 0-1.06 1.06L12.439 5H5.251l-.001.007L5.251 5a.8.8 0 0 0-.171.019A4.501 4.501 0 0 0 5.5 14h1.704a.75.75 0 0 0 0-1.5H5.5a3 3 0 1 1 0-6h6.939L10.22 8.72a.749.749 0 1 0 1.06 1.06l3.5-3.5Z" />
-                    ) : (
-                      <path d="M1.22 6.28a.749.749 0 0 1 0-1.06l3.5-3.5a.749.749 0 1 1 1.06 1.06L3.561 5h7.188l.001.007L10.749 5c.058 0 .116.007.171.019A4.501 4.501 0 0 1 10.5 14H8.796a.75.75 0 0 1 0-1.5H10.5a3 3 0 1 0 0-6H3.561L5.78 8.72a.749.749 0 1 1-1.06 1.06l-3.5-3.5Z" />
-                    )}
-                  </svg>
-                </span>
-              )}
-            </span>
-            {hasFiles && !expanded && (
-              <span
-                className={cm.cn(cm.textMuted, cm.textSize('xs'))}
-                style={{ display: 'block', marginTop: '1px' }}
-              >
-                {t(
-                  'ide.chat.fileCount',
-                  { count: card.files.length },
-                  { defaultValue: '{{count}} files' },
-                )}
-              </span>
-            )}
-          </span>
-
-          {/* Expand chevron */}
-          {hasFiles && (
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 16 16"
-              width="14"
-              height="14"
-              style={{
-                display: 'block',
-                flexShrink: 0,
-                marginTop: '3px',
-                transform: expanded ? 'rotate(90deg)' : 'rotate(0deg)',
-                transition: 'transform 150ms, opacity 100ms',
-                opacity: isHovered ? 0.85 : 0.35,
-              }}
-            >
-              <polyline
-                points="6,4 10,8 6,12"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          )}
-        </button>
-
-        {/* Expanded file list */}
-        {expanded && hasFiles && (
-          <div
-            className={cm.surfaceSecondary}
-            style={{
-              marginLeft: '14px',
-              marginTop: '4px',
-              marginBottom: '4px',
-              borderRadius: '4px',
-              overflowX: 'auto',
-              padding: '6px 10px',
-            }}
-          >
-            <div
-              style={{
-                fontFamily: '"SF Mono", Menlo, Consolas, "Courier New", monospace',
-                fontSize: '11px',
-                lineHeight: 1.6,
-              }}
-            >
-              {card.files.map((f) => {
-                const path = typeof f === 'string' ? f : (f as { path: string }).path
-                return <div key={path}>{path}</div>
-              })}
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  )
-}
-
-/**
- * The clickable author-name in a message header (C5) — a reset button that
- * renders exactly like the bold name span it replaces, with an underline on
- * hover/focus as the affordance, and opens the author's profile like their
- * avatar does. Its own component so the hover state never re-renders the
- * (memoized, heavy) message row.
- *
- * @param props - Click handler + the name text.
- * @param props.onClick - Opens the author's profile.
- * @param props.children - The author's display name.
- * @returns The name button.
- */
-function AuthorNameButton({
-  onClick,
-  children,
-}: {
-  onClick: () => void
-  children: ReactNode
-}): JSX.Element {
-  const [hover, setHover] = useState(false)
-  return (
-    <button
-      /* mol-bespoke-button: author name — a full <button> reset so the name renders byte-identical to the bold span it replaced; hover underline is the only affordance */
-      type="button"
-      onClick={onClick}
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
-      onFocus={() => setHover(true)}
-      onBlur={() => setHover(false)}
-      data-mol-id="chat-user-name-button"
-      // Full button reset so it is byte-identical to the former bold span at
-      // rest — the underline affordance is the only visual change on hover.
-      style={{
-        padding: 0,
-        margin: 0,
-        border: 'none',
-        background: 'transparent',
-        font: 'inherit',
-        color: 'inherit',
-        fontWeight: 600,
-        cursor: 'pointer',
-        textDecoration: hover ? 'underline' : 'none',
-      }}
-    >
-      {children}
-    </button>
-  )
-}
-
-AuthorNameButton.displayName = 'AuthorNameButton'
-
-// ---------------------------------------------------------------------------
-// MessageItem — memo'd to avoid re-rendering all messages when one changes
-// ---------------------------------------------------------------------------
-
-/** Props for the memoized per-message timeline row (see {@link MessageItem}). */
-export interface MessageItemProps {
-  msg: ChatMessage
-  sendMessage: (msg: string) => void
-  handleAskUserResponse: (response: string) => void
-  isLoading: boolean
-  /**
-   * Transient background-phase label (e.g. "Type-checking the API") shown in the
-   * streaming spinner in place of the generic rotating messages; null when idle.
-   */
-  streamingStatus: string | null
-  /** Navigates the preview to a route path when a `[label](/route)` link in a message is clicked. */
-  onNavigatePreview?: (path: string) => void
-  undoneTcIds: Set<string>
-  handleUndoToggle: (tcId: string, undone: boolean) => void
-  onFileOpen?: (path: string) => void
-  onFileDoubleClick?: (path: string) => void
-  onFileDiff?: (path: string, diff?: { original: string; modified: string }) => void
-  handleFileRevert: (path: string, content: string) => Promise<void>
-  setInputAndCursorEnd: (val: string) => void
-  setModelPicker: React.Dispatch<React.SetStateAction<ModelPicker | null>>
-  /**
-   * The live conversation mode (discovery maps to 'plan') — scopes the
-   * loop-limit banner's "Change model" picker so the pick lands on the mode the
-   * user is actually in.
-   */
-  chatMode: 'plan' | 'execute'
-  /** Signed-in user's avatar shown beside their own messages (SOC1); icon fallback when absent/unsafe. */
-  userAvatar?: string | null
-  /**
-   * When set, the author's avatar AND name become clickable and fire this with
-   * the clicked AUTHOR's identity — a teammate's message opens THEIR profile,
-   * the signed-in user's own opens theirs (C5). See {@link ChatPanelProps.onProfileClick}.
-   */
-  onProfileClick?: (user: ChatUserIdentity) => void
-  /** Signed-in user's id — stamps the identity for author-less rows (the local echo, legacy solo rows). */
-  currentUserId?: string
-  /** Discovery phase — gives consecutive question/answer cards roomier, uncollapsed spacing (B3). */
-  discovery?: boolean
-  /**
-   * Host-supplied upgrade/sign-in CTA builder — used to give the in-message
-   * resource-limit (OOM) banner its sign-in/upgrade buttons. See
-   * {@link ChatPanelProps.buildUpgradeCta}.
-   */
-  buildUpgradeCta?: ChatPanelProps['buildUpgradeCta']
-  /** Agent display name — used in the team-only badge tooltip ("{{agentName}} ignores it"). */
-  agentName?: string
-  /** Whether the user may write shared project state — false hides/inertizes write affordances in the message (revert, ask_user answers). */
-  canEdit?: boolean
-  /**
-   * Skips a tool call that is running right now, without ending the turn.
-   * Undefined when the host serves no such route — then no Skip is rendered.
-   */
-  onSkipToolCall?: (toolCallId: string) => void | Promise<boolean | void>
-  /** Why this viewer cannot skip, already translated — `null` when they can. */
-  skipToolCallReason?: string | null
-  /**
-   * Whether the header row shows the message's time — decided for the whole
-   * timeline by `planChatTimestamps` (a run of identical labels shows it once).
-   */
-  showTimestamp?: boolean
-}
-
-/**
- * Renders a single message (user or assistant) in the chat timeline.
- * Wrapped in React.memo so unchanged messages skip re-rendering when
- * only the streaming message updates.
- * @param props - Message item props.
- * @returns The rendered message item.
- */
-const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Element {
-  const {
-    msg,
-    sendMessage,
-    handleAskUserResponse,
-    isLoading,
-    streamingStatus,
-    onNavigatePreview,
-    undoneTcIds,
-    handleUndoToggle,
-    onFileOpen,
-    onFileDoubleClick,
-    onFileDiff,
-    handleFileRevert,
-    setInputAndCursorEnd,
-    setModelPicker,
-    chatMode,
-    userAvatar,
-    onProfileClick,
-    currentUserId,
-    discovery,
-    buildUpgradeCta,
-    agentName,
-    canEdit,
-    onSkipToolCall,
-    skipToolCallReason,
-    showTimestamp,
-  } = props
-
-  const { t } = useTranslation()
-  const cm = getClassMap()
-  const themeMode = useThemeMode()
-  const isLight = themeMode === 'light'
-  const borderClr = isLight ? '#d1d9e0' : 'rgba(255,255,255,0.1)'
-
-  // A message sent automatically on the user's behalf (e.g. an auto-fix prompt):
-  // it has role 'user' but must NOT look like the user typed it (C2).
-  const isAutomatic = msg.role === 'user' && !!msg.automatic
-  // A human-only team note (side channel, e.g. /teamsay): renders like a user
-  // message — author header, time, plain content — but with the gold team-only
-  // accent + badge, and never the user message's blue stripe. `role` is 'system'
-  // (the model never sees it), so this is checked before isUser.
-  const isTeamNote = !!msg.teamOnly
-  // A real, user-typed message (the only one styled with the blue border + the
-  // user's own avatar).
-  const isUser = msg.role === 'user' && !isAutomatic
-
-  // Who this message belongs to — the identity a profile click hands the host.
-  // An AUTHORED message is that author's (a teammate's click opens THEIR
-  // profile, never the viewer's); an author-less one (the local optimistic
-  // echo, legacy solo rows) is the signed-in user's own, stamped with
-  // currentUserId + the viewer's avatar so the host still knows who it is.
-  const authorIdentity: ChatUserIdentity = msg.author
-    ? { id: msg.author.id, name: msg.author.name, avatar: msg.author.avatar ?? null }
-    : { id: currentUserId, avatar: userAvatar ?? null }
-  // An author whose account is gone keeps its name (the platform rewrites it to
-  // a 'Deleted user' marker with no id) and has no profile to open: the name
-  // renders as plain text, never as a click that would land on the viewer's own.
-  const authorGone = Boolean(msg.author) && !msg.author?.id
-  const openAuthorProfile =
-    onProfileClick && !authorGone ? (): void => onProfileClick(authorIdentity) : undefined
-
-  // Spacing follows the one timeline convention (see TIMELINE_ITEM_GAP above): a
-  // single bottom margin, no top margin, no negatives — so a message can never
-  // pull itself up over the previous item's spacing. Discovery is roomier but
-  // uses the same bottom-margin-only scheme. The former `sameRoleAsPrev`
-  // `marginTop: -12px` run-tightening is gone on purpose: it keyed on the
-  // previous *message* (skipping intervening system cards) and so ate the
-  // "Now using <model>" card's bottom margin (P4-05).
-  const wrapperSpacing: React.CSSProperties = {
-    marginBottom: `${discovery ? TIMELINE_ITEM_GAP_DISCOVERY : TIMELINE_ITEM_GAP}px`,
-  }
-
-  return (
-    <div style={wrapperSpacing}>
-      {isUser || isAutomatic || isTeamNote ? (
-        <div
-          className={
-            // Auto-sent card matches the info cards' `xs` body; a real user message keeps
-            // its slightly larger `sm` (it's a different kind of row, not an info card).
-            isAutomatic ? cm.textSize('xs') : cm.cn(cm.surfaceSecondary, cm.textSize('sm'))
-          }
-          style={{
-            display: 'flex',
-            alignItems: 'flex-start',
-            gap: '10px',
-            minWidth: 0,
-            // A real user message keeps its classic look: a gray surface with the
-            // molecule brand's ANIMATED blue gradient stripe (3px) on the left edge,
-            // drawn by the `::before` injected via USER_ACCENT_STYLE + gated on the
-            // data-mol-id below, PLUS a solid blue outline ring (host-tunable via
-            // `--mol-chat-accent-border`) so a sent-to-Synthase message reads bordered
-            // the same way a team note does, and the user's full-size avatar. An
-            // auto-sent message is instead a green (success) tinted card — same chrome
-            // as the info cards — so it's unmistakably agent-sent, not user-typed (C2).
-            // A team note keeps the user-message look but swaps the blue chrome (its
-            // data-mol-id differs, so USER_ACCENT_STYLE never applies) for the gold
-            // team-only border — with its own solid 3px left band (an inset box-shadow,
-            // which starts at the border's inner edge exactly like the stripe's
-            // `inset: 0` ::before, so the two rows' left accents match in geometry).
-            ...(isAutomatic
-              ? chatCardStyle(AUTO_SENT_ACCENT)
-              : {
-                  borderRadius: '4px',
-                  paddingLeft: '12px',
-                  paddingTop: '10px',
-                  paddingBottom: '10px',
-                  paddingRight: '10px',
-                  border: isTeamNote
-                    ? `1px solid ${NOTICE_TONE.gold.accent}`
-                    : '1px solid var(--mol-chat-accent-border, var(--mol-color-primary, #3060c0))',
-                  ...(isTeamNote
-                    ? { boxShadow: `inset 3px 0 0 0 ${NOTICE_TONE.gold.accent}` }
-                    : {}),
-                }),
-          }}
-          data-mol-id={
-            isTeamNote
-              ? 'chat-team-message'
-              : isAutomatic
-                ? 'chat-automatic-message'
-                : 'chat-user-message'
-          }
-        >
-          {/* A real user message shows the user's full-size profile avatar (SOC1); an
-              auto-sent message shows a small `sync` glyph — NOT the molecule logo —
-              signalling the agent acted automatically (C2). The user message is its own
-              look; the auto-sent card lines up with the other info cards. */}
-          {isAutomatic ? (
-            <Icon
-              name="sync"
-              size={CHAT_CARD_ICON_SIZE}
-              aria-hidden="true"
-              style={{ flexShrink: 0, marginTop: 1, color: AUTO_SENT_ACCENT }}
-            />
-          ) : (
-            <UserAvatar
-              // An AUTHORED message shows that author's avatar — or their initial
-              // when they have none — NEVER the viewing user's picture (which made
-              // a teammate's avatar-less message wear the viewer's own face). Only
-              // an author-less message (the local optimistic echo, legacy rows) is
-              // the signed-in user's own and uses their avatar. Clicking opens the
-              // AUTHOR's profile (own and teammate alike — the host decides which
-              // surface from the identity's id).
-              userAvatar={authorIdentity.avatar}
-              name={msg.author?.name ?? undefined}
-              size={36}
-              onClick={openAuthorProfile}
-            />
-          )}
-          <div style={{ flex: 1, minWidth: 0, marginTop: 1 }}>
-            {isAutomatic ? null : (
-              // Slack-style header: the author's username (bold) with the relative time
-              // (small, lighter) to its right. The username comes from the per-message
-              // `author` (multi-user-ready); a solo conversation falls back to the "You"
-              // label. The header lineHeight is tuned against the 36px avatar so the
-              // username's top aligns with the avatar's top and the first line of the
-              // message beneath aligns with the avatar's bottom.
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'baseline',
-                  gap: 8,
-                  lineHeight: 1.3,
-                  marginBottom: 1,
-                }}
-              >
-                {openAuthorProfile ? (
-                  // Clickable author name — same bold text, opens the author's
-                  // profile exactly like their avatar does. Its visible text is
-                  // its accessible name (no aria-label needed).
-                  <AuthorNameButton onClick={openAuthorProfile}>
-                    {msg.author?.name ?? t('ide.chat.you', undefined, { defaultValue: 'You' })}
-                  </AuthorNameButton>
-                ) : (
-                  <span style={{ fontWeight: 600 }}>
-                    {msg.author?.name ?? t('ide.chat.you', undefined, { defaultValue: 'You' })}
-                  </span>
-                )}
-                {isTeamNote && (
-                  // Gold team-only badge right after the username (left of the time):
-                  // this note is a human side channel — every project member sees it,
-                  // the agent ignores it. The viewer tip explains this same icon.
-                  <span
-                    title={t(
-                      'ide.chat.teamOnly.badge',
-                      { agentName: agentName ?? 'the assistant' },
-                      {
-                        defaultValue:
-                          'Team only — visible to your team; {{agentName}} will ignore it',
-                      },
-                    )}
-                    aria-label={t(
-                      'ide.chat.teamOnly.badge',
-                      { agentName: agentName ?? 'the assistant' },
-                      {
-                        defaultValue:
-                          'Team only — visible to your team; {{agentName}} will ignore it',
-                      },
-                    )}
-                    // Centered in the header row with a -0.5px optical nudge. Platform
-                    // font metrics make a single integer offset impossible: against
-                    // plain center, macOS rendered the glyph ~1px low and Ubuntu spot-on
-                    // (measured in Brave on both, 2026-08-27), so -0.5 splits the
-                    // difference — each platform lands within half a pixel, and retina
-                    // displays render the half-pixel crisply. (Baseline alignment was
-                    // tried and rode too HIGH: a text-less inline-flex item's
-                    // synthesized baseline is its bottom edge.)
-                    style={{
-                      display: 'inline-flex',
-                      alignSelf: 'center',
-                      flexShrink: 0,
-                      position: 'relative',
-                      top: -0.5,
-                    }}
-                    data-mol-id="chat-team-only-badge"
-                  >
-                    <Icon
-                      // 16px so the glyph reads at the username's optical size — the
-                      // people glyph has internal viewBox padding, so a nominal 14px
-                      // renders visibly smaller than the 14px text next to it.
-                      name="people"
-                      size={16}
-                      aria-hidden="true"
-                      style={{ color: NOTICE_TONE.gold.accent }}
-                    />
-                  </span>
-                )}
-                {isUser && msg.viaDictation && (
-                  // Red mic badge right after the username (left of the time): this
-                  // message was composed by voice — the mic button's dictated
-                  // transcript was still in the composer at submit. Same inline
-                  // mic glyph as the composer's own mic button (no bonded mic
-                  // glyph exists; the icon-set `microphone` is a speaker), the
-                  // theme's muted danger red — loud enough to spot in a
-                  // scroll-back without reading as an error state — and the same
-                  // centered-in-header geometry as the team-only badge above.
-                  <span
-                    title={t('ide.chat.viaDictation.badge', undefined, {
-                      defaultValue: 'Dictated by voice',
-                    })}
-                    aria-label={t('ide.chat.viaDictation.badge', undefined, {
-                      defaultValue: 'Dictated by voice',
-                    })}
-                    style={{
-                      display: 'inline-flex',
-                      alignSelf: 'center',
-                      flexShrink: 0,
-                      position: 'relative',
-                      top: -0.5,
-                    }}
-                    data-mol-id="chat-dictated-badge"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 16 16"
-                      width="16"
-                      height="16"
-                      style={{ display: 'block', color: isLight ? '#cf222e' : '#f85149' }}
-                      aria-hidden="true"
-                    >
-                      <rect x="6" y="1" width="4" height="8" rx="2" fill="currentColor" />
-                      <path
-                        d="M4 7v1a4 4 0 008 0V7"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="1.25"
-                        strokeLinecap="round"
-                      />
-                      <line
-                        x1="8"
-                        y1="12"
-                        x2="8"
-                        y2="15"
-                        stroke="currentColor"
-                        strokeWidth="1.25"
-                        strokeLinecap="round"
-                      />
-                      <line
-                        x1="6"
-                        y1="15"
-                        x2="10"
-                        y2="15"
-                        stroke="currentColor"
-                        strokeWidth="1.25"
-                        strokeLinecap="round"
-                      />
-                    </svg>
-                  </span>
-                )}
-                {showTimestamp && typeof msg.timestamp === 'number' && (
-                  <ChatTimestamp timestamp={msg.timestamp} />
-                )}
-              </div>
-            )}
-            <CollapsibleUserMessage content={msg.content} isLight={isLight} />
-            {msg.attachments && msg.attachments.length > 0 && (
-              <div style={{ marginTop: 4, display: 'flex', gap: 4, flexWrap: 'wrap' }}>
-                {msg.attachments.map((att, ai) => (
-                  <span
-                    key={ai}
-                    className={cm.cn(cm.textMuted, cm.textSize('xs'))}
-                    style={{ display: 'inline-flex', alignItems: 'center', gap: 2 }}
-                  >
-                    {att.mediaType.startsWith('image/')
-                      ? '\uD83D\uDDBC\uFE0F'
-                      : att.mediaType.startsWith('audio/')
-                        ? '\uD83C\uDFB5'
-                        : att.mediaType.startsWith('video/')
-                          ? '\uD83C\uDFA5'
-                          : '\uD83D\uDCC4'}{' '}
-                    {att.filename}
-                    <span style={{ fontSize: 10, opacity: 0.7 }}>({formatSize(att.size)})</span>
-                  </span>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-      ) : (
-        <div>
-          {msg.blocks && msg.blocks.length > 0 ? (
-            msg.blocks.map((block, bi) => {
-              const blockType = (block as { type: string }).type
-
-              if (blockType === 'thinking') {
-                const isLastBlock = bi === (msg.blocks?.length ?? 0) - 1
-                return (
-                  <ThinkingBlock
-                    key={bi}
-                    content={(block as { type: string; content: string }).content}
-                    durationMs={(block as { durationMs?: number }).durationMs}
-                    isStreaming={msg.isStreaming && isLastBlock}
-                  />
-                )
-              }
-
-              const isLast = bi === msg.blocks!.length - 1
-
-              if (blockType === 'text') {
-                const textContent = (block as { type: string; content: string }).content
-                const isCompaction =
-                  textContent.startsWith('**Context compacted**') ||
-                  textContent.startsWith('> **Context compacted**')
-                if (isCompaction) {
-                  // Split into headline (first line) and optional summary (rest)
-                  const nlIdx = textContent.indexOf('\n\n')
-                  const headline = (nlIdx > -1 ? textContent.slice(0, nlIdx) : textContent).replace(
-                    /^>\s*/,
-                    '',
-                  ) // strip leading blockquote
-                  const summary = nlIdx > -1 ? textContent.slice(nlIdx + 2) : ''
-                  return (
-                    <div
-                      key={bi}
-                      className={cm.textSize('sm')}
-                      style={{
-                        padding: '10px 16px',
-                        // Same blue-box treatment as the emphasized system card →
-                        // same timeline rhythm: bottom margin only (TIMELINE_ITEM_GAP).
-                        marginBottom: TIMELINE_ITEM_GAP,
-                        background: 'rgba(64,112,224,0.10)',
-                        border: '1px solid rgba(64,112,224,0.25)',
-                        borderRadius: 8,
-                        color: 'var(--mol-color-text-secondary, #aaa)',
-                        textAlign: 'center',
-                        lineHeight: 1.5,
-                      }}
-                    >
-                      <MarkdownContent text={headline} isStreaming={false} />
-                      {summary && (
-                        <details
-                          style={{ margin: '14px -16px -10px', textAlign: 'left' }}
-                          onToggle={(e) => {
-                            const svg = (e.currentTarget as HTMLElement).querySelector(
-                              '[data-chevron]',
-                            ) as HTMLElement | null
-                            if (svg)
-                              svg.style.transform = (e.currentTarget as HTMLDetailsElement).open
-                                ? 'rotate(180deg)'
-                                : 'rotate(0deg)'
-                          }}
-                        >
-                          <summary
-                            onMouseEnter={(e) => {
-                              ;(e.currentTarget as HTMLElement).style.background = isLight
-                                ? 'rgba(64,112,224,0.12)'
-                                : 'rgba(64,112,224,0.18)'
-                            }}
-                            onMouseLeave={(e) => {
-                              ;(e.currentTarget as HTMLElement).style.background = isLight
-                                ? 'rgba(64,112,224,0.05)'
-                                : 'rgba(64,112,224,0.08)'
-                            }}
-                            style={{
-                              cursor: 'pointer',
-                              textAlign: 'center',
-                              listStyle: 'none',
-                              padding: '3px 0',
-                              borderRadius: '0 0 8px 8px',
-                              background: isLight
-                                ? 'rgba(64,112,224,0.05)'
-                                : 'rgba(64,112,224,0.08)',
-                              transition: 'background 100ms',
-                            }}
-                          >
-                            <svg
-                              data-chevron=""
-                              xmlns="http://www.w3.org/2000/svg"
-                              viewBox="0 0 16 16"
-                              width="14"
-                              height="14"
-                              style={{
-                                display: 'inline-block',
-                                verticalAlign: 'middle',
-                                transition: 'transform 150ms',
-                                color: isLight ? '#2850a0' : '#80b0ff',
-                              }}
-                            >
-                              <polyline
-                                points="4,6 8,10 12,6"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="1.5"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              />
-                            </svg>
-                          </summary>
-                          <div style={{ padding: '8px 16px 10px' }}>
-                            <MarkdownContent text={summary} isStreaming={false} />
-                          </div>
-                        </details>
-                      )}
-                    </div>
-                  )
-                }
-                return (
-                  <MarkdownContent
-                    key={bi}
-                    text={textContent}
-                    isStreaming={isLast && msg.isStreaming}
-                    statusLabel={isLast && msg.isStreaming ? streamingStatus : undefined}
-                    statusStartedAt={typeof msg.timestamp === 'number' ? msg.timestamp : undefined}
-                    onNavigatePreview={onNavigatePreview}
-                    hideStreamingIndicator
-                  />
-                )
-              }
-
-              if (blockType === 'verification') {
-                const vBlock = block as unknown as {
-                  type: 'verification'
-                  status: 'ok' | 'error'
-                  output?: string
-                  workspaces: string[]
-                  categories?: string[]
-                  renderCheckUnavailable?: boolean
-                }
-                return (
-                  <VerificationBadge
-                    key={`verification-${bi}`}
-                    status={vBlock.status}
-                    output={vBlock.output}
-                    workspaces={vBlock.workspaces}
-                    categories={vBlock.categories}
-                    renderCheckUnavailable={vBlock.renderCheckUnavailable}
-                  />
-                )
-              }
-
-              if (blockType === 'resource_limit') {
-                const rlBlock = block as unknown as {
-                  type: 'resource_limit'
-                  message: string
-                }
-                return (
-                  <ResourceLimitBanner
-                    key={`resource-limit-${bi}`}
-                    message={rlBlock.message}
-                    action={buildUpgradeCta?.({})}
-                  />
-                )
-              }
-
-              const tc = msg.toolCalls?.find(
-                (c) => c.id === (block as { type: string; id: string }).id,
-              )
-              if (!tc) return null
-              return (
-                <div key={tc.id} style={{ marginTop: '4px' }}>
-                  <ToolCallCard
-                    id={tc.id}
-                    name={tc.name}
-                    input={tc.input}
-                    output={tc.output}
-                    status={tc.status}
-                    fileDiff={tc.fileDiff}
-                    isUndone={undoneTcIds.has(tc.id)}
-                    onUndoToggle={handleUndoToggle}
-                    onFileOpen={onFileOpen}
-                    onFileDoubleClick={onFileDoubleClick}
-                    onFileDiff={onFileDiff}
-                    onFileRevert={canEdit === false ? undefined : handleFileRevert}
-                    onAskUserResponse={canEdit === false ? undefined : handleAskUserResponse}
-                    onSkip={onSkipToolCall}
-                    skipDisabledReason={skipToolCallReason ?? null}
-                  />
-                </div>
-              )
-            })
-          ) : msg.content ? (
-            <MarkdownContent
-              text={msg.content}
-              isStreaming={msg.isStreaming}
-              statusLabel={msg.isStreaming ? streamingStatus : undefined}
-              statusStartedAt={typeof msg.timestamp === 'number' ? msg.timestamp : undefined}
-              onNavigatePreview={onNavigatePreview}
-              hideStreamingIndicator
-            />
-          ) : null}
-
-          {/* A pending ask_user whose tool_call block was never persisted still
-              renders (G55): the record is the truth — a card the user cannot
-              see parks the whole turn with no way forward. This catches any
-              awaiting ask_user with no matching block, live or after reload. */}
-          {msg.toolCalls &&
-            msg.blocks &&
-            msg.blocks.length > 0 &&
-            msg.toolCalls
-              .filter(
-                (tc) =>
-                  tc.name === 'ask_user' &&
-                  (tc.output as { status?: string } | string | undefined | null) !== null &&
-                  typeof tc.output === 'object' &&
-                  (tc.output as { status?: string }).status === 'awaiting_response' &&
-                  !msg.blocks!.some(
-                    (b) =>
-                      (b as { type?: string; id?: string }).type === 'tool_call' &&
-                      (b as { id?: string }).id === tc.id,
-                  ),
-              )
-              .map((tc) => (
-                <ToolCallCard
-                  key={`orphan-ask-${tc.id}`}
-                  id={tc.id}
-                  name={tc.name}
-                  input={tc.input}
-                  output={tc.output}
-                  status={tc.status}
-                  fileDiff={tc.fileDiff}
-                  isUndone={undoneTcIds.has(tc.id)}
-                  onUndoToggle={handleUndoToggle}
-                  onFileOpen={onFileOpen}
-                  onFileDoubleClick={onFileDoubleClick}
-                  onFileDiff={onFileDiff}
-                  onFileRevert={canEdit === false ? undefined : handleFileRevert}
-                  onAskUserResponse={canEdit === false ? undefined : handleAskUserResponse}
-                  onSkip={onSkipToolCall}
-                  skipDisabledReason={skipToolCallReason ?? null}
-                />
-              ))}
-
-          {msg.toolCalls &&
-            msg.toolCalls.length > 0 &&
-            (!msg.blocks || msg.blocks.length === 0) &&
-            msg.toolCalls.map((tc) => (
-              <ToolCallCard
-                key={tc.id}
-                id={tc.id}
-                name={tc.name}
-                input={tc.input}
-                output={tc.output}
-                status={tc.status}
-                fileDiff={tc.fileDiff}
-                isUndone={undoneTcIds.has(tc.id)}
-                onUndoToggle={handleUndoToggle}
-                onFileOpen={onFileOpen}
-                onFileDoubleClick={onFileDoubleClick}
-                onFileDiff={onFileDiff}
-                onFileRevert={canEdit === false ? undefined : handleFileRevert}
-                onAskUserResponse={canEdit === false ? undefined : handleAskUserResponse}
-                onSkip={onSkipToolCall}
-                skipDisabledReason={skipToolCallReason ?? null}
-              />
-            ))}
-
-          {msg.aborted && (
-            <span
-              className={cm.cn(cm.textMuted, cm.textSize('xs'))}
-              style={{ display: 'block', marginTop: 4, fontStyle: 'italic' }}
-            >
-              {t('ide.chat.responseStopped', undefined, {
-                defaultValue: 'Response stopped',
-              })}
-            </span>
-          )}
-
-          {msg.loopLimitReached &&
-            !msg.isStreaming &&
-            (() => {
-              const loopActions: Array<{ label: string; action: () => void }> = [
-                {
-                  label: t('ide.chat.changeModel', undefined, {
-                    defaultValue: 'Change model',
-                  }),
-                  action: () => {
-                    setInputAndCursorEnd('/model ')
-                    setModelPicker({ selectedIdx: -1, mode: chatMode })
-                  },
-                },
-                {
-                  label: t('ide.chat.increaseLoops', undefined, {
-                    defaultValue: 'Increase max loops',
-                  }),
-                  action: () => {
-                    setInputAndCursorEnd('/maxloops ')
-                  },
-                },
-                {
-                  label: t('ide.chat.continueButton', undefined, {
-                    defaultValue: 'Continue',
-                  }),
-                  action: () => {
-                    void sendMessage(
-                      t('ide.chat.continuePrompt', undefined, {
-                        defaultValue: 'Continue implementing from where you left off.',
-                      }),
-                    )
-                  },
-                },
-              ]
-              return (
-                <div
-                  style={{
-                    marginTop: '8px',
-                    borderRadius: '8px',
-                    border: `1px solid ${borderClr}`,
-                    background: isLight ? '#f6f8fa' : 'rgba(255,255,255,0.04)',
-                    overflow: 'hidden',
-                  }}
-                >
-                  <div
-                    style={{
-                      padding: '10px 12px',
-                      fontSize: '13px',
-                      fontWeight: 600,
-                      borderBottom: `1px solid ${borderClr}`,
-                    }}
-                  >
-                    {t(
-                      'ide.chat.loopLimitReached',
-                      { max: msg.loopLimitReached },
-                      { defaultValue: 'Reached the maximum of {{max}} tool iterations.' },
-                    )}
-                  </div>
-                  {loopActions.map((opt, i) => (
-                    <button
-                      /* mol-bespoke-button: loop-limit choice row — a full-width menu row with a letter chip, one of a list */
-                      key={i}
-                      type="button"
-                      disabled={i === 0 && isLoading}
-                      onClick={opt.action}
-                      onMouseEnter={(e) => {
-                        ;(e.currentTarget as HTMLElement).style.background = isLight
-                          ? '#eaeef2'
-                          : 'rgba(255,255,255,0.06)'
-                      }}
-                      onMouseLeave={(e) => {
-                        ;(e.currentTarget as HTMLElement).style.background = 'transparent'
-                      }}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '10px',
-                        width: '100%',
-                        padding: '8px 12px',
-                        border: 'none',
-                        borderTop: i > 0 ? `1px solid ${borderClr}` : 'none',
-                        background: 'transparent',
-                        color: 'inherit',
-                        cursor: 'pointer',
-                        textAlign: 'left',
-                        fontSize: '13px',
-                        transition: 'background 80ms',
-                      }}
-                    >
-                      <span
-                        style={{
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          width: 22,
-                          height: 22,
-                          borderRadius: '5px',
-                          border: `1px solid ${borderClr}`,
-                          background: isLight ? '#fff' : 'rgba(255,255,255,0.08)',
-                          color: isLight ? '#57606a' : '#848d97',
-                          fontSize: '11px',
-                          fontWeight: 600,
-                          flexShrink: 0,
-                          fontFamily: '"SF Mono", Menlo, Consolas, monospace',
-                        }}
-                      >
-                        {String.fromCharCode(65 + i)}
-                      </span>
-                      <span>{opt.label}</span>
-                    </button>
-                  ))}
-                </div>
-              )
-            })()}
-        </div>
-      )}
-    </div>
-  )
-})
 
 // ---------------------------------------------------------------------------
 // ChatInner — owns useChat, messages, input, commit
@@ -2833,24 +410,6 @@ export interface ChatInnerProps {
   skipToolCall?: ChatPanelProps['skipToolCall']
 }
 
-type OwnTestRunInvocation = {
-  state: TestsRunState
-  handle: TestRunHandle | null
-  ended: Extract<TestRunEvent, { type: 'done' }> | null
-}
-
-/** Only COMPLETED own ids are bounded; active own ids are pinned separately. */
-const COMPLETED_OWN_TEST_RUN_ID_LIMIT = 32
-
-/** Remember a completed own run for its delayed feed copy. */
-function rememberCompletedOwnTestRunId(ids: Set<string>, runId: string): void {
-  ids.delete(runId)
-  ids.add(runId)
-  if (ids.size <= COMPLETED_OWN_TEST_RUN_ID_LIMIT) return
-  const oldest = ids.values().next()
-  if (!oldest.done) ids.delete(oldest.value)
-}
-
 /**
  * Inner chat component that owns useChat state, message rendering, and input handling.
  * @param props - Component props (see {@link MessageItemProps}).
@@ -2923,6 +482,7 @@ function ChatInner({
   // feedbackUrl: prop kept for back-compat (callers still pass it), but no longer
   // consumed here — its only use was the command-menu footer link removed in P3-21.
 }: ChatInnerProps): JSX.Element {
+  // #region chat:env
   const { t, locale } = useTranslation()
   const cm = getClassMap()
   // Share-link management may be gated ABOVE canEdit by the host (molecule.dev
@@ -2952,16 +512,35 @@ function ChatInner({
   // Kept in sync with `conversationId` so the (memoized) pushed-event handler reads the
   // current conversation without becoming a stale closure — see applyPushedStreamEvent.
   const conversationIdRef = useRef(conversationId)
+  // #effect chat:env:1
   useEffect(() => {
     conversationIdRef.current = conversationId
   }, [conversationId])
+  // #endregion chat:env
+  // #region chat:stream
   // Ref for sounds config so the onStreamEvent callback always reads the latest value.
   const soundsConfigRef = useRef<SoundsConfig>({ ...DEFAULT_SOUNDS_CONFIG })
+  // #endregion chat:stream
 
+  // #region chat:context-usage
   // ── Context usage tracking (ring indicator) ─────────────────────────────
   const [contextUsage, setContextUsage] = useState<ContextUsage | null>(null)
   const [contextHistory, setContextHistory] = useState<ContextUsage[]>([])
   const [contextCompactions, setContextCompactions] = useState<ContextCompaction[]>([])
+  // A different conversation source starts with an empty ring: reset while
+  // rendering (React's pattern for state that follows a prop), before the
+  // restore below refetches for it.
+  const [contextSource, setContextSource] = useState({ endpoint, hasConversation, http })
+  if (
+    contextSource.endpoint !== endpoint ||
+    contextSource.hasConversation !== hasConversation ||
+    contextSource.http !== http
+  ) {
+    setContextSource({ endpoint, hasConversation, http })
+    setContextUsage(null)
+    setContextHistory([])
+    setContextCompactions([])
+  }
 
   // Restore context usage from the history endpoint on mount. Retries a few
   // times on failure: this used to be one-shot, so a single transient error at
@@ -2969,10 +548,8 @@ function ChatInner({
   // ring for the entire session — the state only ever refills from the next
   // turn's `done` event (observed live 2026-08-29: ring gone, server data fine,
   // reload fixed it).
+  // #effect chat:context-usage:1
   useEffect(() => {
-    setContextUsage(null)
-    setContextHistory([])
-    setContextCompactions([])
     if (!hasConversation) return
     let cancelled = false
     let attempt = 0
@@ -3014,23 +591,17 @@ function ChatInner({
       cancelled = true
     }
   }, [endpoint, hasConversation, http])
+  // #endregion chat:context-usage
 
+  // #region chat:auto-fix
   // ── Auto-fix countdown state ──────────────────────────────────────────────
   // After the AI finishes, if verification found errors, show a countdown
-  // before auto-sending a fix message. User can cancel/pause.
-  const [autoFixCountdown, setAutoFixCountdown] = useState<{
-    output: string
-    categories: string[]
-    changedPaths: string[]
-    secondsLeft: number
-    paused: boolean
-  } | null>(null)
+  // before auto-sending a fix message. User can cancel/pause. The pending
+  // errors and the countdown are one pure state machine
+  // (autoFixCountdownReducer in @molecule/app-ide-panel-logic).
+  const [autoFixState, dispatchAutoFix] = useReducer(autoFixCountdownReducer, AUTO_FIX_IDLE)
+  const autoFixCountdown = autoFixState.countdown
   const autoFixIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
-  const pendingVerificationRef = useRef<{
-    output: string
-    categories: string[]
-    changedPaths: string[]
-  } | null>(null)
 
   // Deferred pending message — stores auto-fix messages (preview errors, stuck)
   // that arrived while the AI was streaming. Sent after streaming ends, unless
@@ -3044,147 +615,122 @@ function ChatInner({
   const deferredPendingUserInitiatedRef = useRef(false)
 
   // Clear countdown interval on unmount
+  // #effect chat:auto-fix:1
   useEffect(
     () => () => {
       if (autoFixIntervalRef.current) clearInterval(autoFixIntervalRef.current)
     },
     [],
   )
+  // #endregion chat:auto-fix
 
+  // #region chat:stream
   // Ref so the stream-event callback can push activity cards without depending
-  // on the state setter.
-  const addActivityCardRef = useRef<(activity: Activity) => void>(() => {})
+  // on the state setter. addActivityCard is declared further down (it reads the
+  // chat's messages, which useChat — fed this callback — returns), so the ref is
+  // filled once, in the first render, with that stable callback.
+  const addActivityCardRef = useRef<((activity: Activity) => void) | null>(null)
   // (A teammate's broadcast `card` / `message` events are ingested by
   // useChat.applyRemoteEvent — applyPushedStreamEvent routes every pushed frame
   // through it before this panel's handler runs, so no append refs live here.)
-  // Kept current each render so handleStreamEvent (memoized) always calls the latest.
-  const onReadyToBuildRef = useRef<(() => void) | undefined>(onReadyToBuild)
-  onReadyToBuildRef.current = onReadyToBuild
-  const onClientActionRef = useRef<((action: IdeClientAction) => void) | undefined>(onClientAction)
-  onClientActionRef.current = onClientAction
-  const onTurnCompleteRef = useRef<(() => void) | undefined>(onTurnComplete)
-  onTurnCompleteRef.current = onTurnComplete
-  const onLoadingChangeRef = useRef<((loading: boolean) => void) | undefined>(onLoadingChange)
-  onLoadingChangeRef.current = onLoadingChange
+  // True only while applying a teammate's broadcast through handleStreamEvent (see
+  // applyPushedStreamEvent). addActivityCard reads it to mark a pushed activity card
+  // `received` so this viewer renders but never re-persists it (activity cards keep their
+  // own persisted store). Transcript cards (model/mode/skills/custom) are server-recorded
+  // card-messages: a pushed one is appended ephemerally (never persisted by the client), so
+  // it needs no `received` flag.
+  const applyingPushedRef = useRef(false)
+  // Stable callbacks that call the host's handlers of the latest committed render, so
+  // handleStreamEvent (memoized) always calls the current ones.
+  const notifyReadyToBuild = useStableCallback(() => onReadyToBuild?.())
+  const forwardClientAction = useStableCallback((action: IdeClientAction) =>
+    onClientAction?.(action),
+  )
+  const notifyTurnComplete = useStableCallback(() => onTurnComplete?.())
 
   const handleStreamEvent = useCallback(
     (event: { type: string; usage?: Partial<ContextUsage>; [key: string]: unknown }) => {
-      if (
-        (event.type === 'context_usage' || event.type === 'done') &&
-        typeof event.usage?.inputTokens === 'number' &&
-        typeof event.usage.contextWindow === 'number'
-      ) {
-        const usage = event.usage as ContextUsage
-        setContextUsage((previous) => {
-          if (!previous) return usage
-          if (usage.requestId || usage.at)
-            return mergeContextHistory([previous], [usage]).at(-1) ?? usage
-          return event.type === 'done' ? { ...previous, ...usage } : usage
-        })
-        setContextHistory((previous) => mergeContextHistory(previous, [usage]))
-      }
-      if (
-        event.type === 'compaction' &&
-        typeof event.at === 'string' &&
-        typeof event.compactedCount === 'number' &&
-        typeof event.elapsedMs === 'number' &&
-        typeof event.beforeChars === 'number' &&
-        typeof event.afterChars === 'number'
-      ) {
-        const compaction: ContextCompaction = {
-          at: event.at,
-          compactedCount: event.compactedCount,
-          elapsedMs: event.elapsedMs,
-          beforeChars: event.beforeChars,
-          afterChars: event.afterChars,
-        }
-        setContextCompactions((previous) =>
-          [...previous.filter((item) => item.at !== compaction.at), compaction].slice(-32),
-        )
-      }
+      const applyingPushed = applyingPushedRef.current
       // Capture verification errors to trigger countdown after stream ends —
       // SENDER-ONLY: a pushed frame from a teammate's turn must not arm this
       // client's auto-fix (the sender's client owns the follow-up; two clients
       // arming it would double-send the fix).
       // Also drop any deferred preview error — verification's countdown handles it.
-      if (
-        !applyingPushedRef.current &&
-        event.type === 'verification_result' &&
-        event.status === 'error' &&
-        event.output
-      ) {
-        pendingVerificationRef.current = {
-          output: event.output as string,
+      if (event.type === 'verification_result' && event.status === 'error') {
+        if (!applyingPushed && event.output) deferredPendingRef.current = null
+        dispatchAutoFix({
+          type: 'verificationResult',
+          status: 'error',
+          output: event.output ? (event.output as string) : undefined,
           categories: (event.categories as string[]) ?? [],
           changedPaths: (event.changedPaths as string[]) ?? [],
-        }
-        deferredPendingRef.current = null
-      }
-      // When stream ends, start countdown if there are pending verification errors
-      if (event.type === 'done' && pendingVerificationRef.current) {
-        const pending = pendingVerificationRef.current
-        pendingVerificationRef.current = null
-        setAutoFixCountdown({ ...pending, secondsLeft: 3, paused: false })
+          applyingPushed,
+        })
       }
       // Clear pending verification if a new verification comes back clean
       if (event.type === 'verification_result' && event.status === 'ok') {
-        pendingVerificationRef.current = null
+        dispatchAutoFix({ type: 'verificationResult', status: 'ok', applyingPushed })
+      }
+      // When stream ends, start countdown if there are pending verification errors
+      if (event.type === 'done') {
+        dispatchAutoFix({ type: 'done' })
       }
       // NOTE: pushed `card` / `message` events are ingested into the message store by
       // useChat.applyRemoteEvent (applyPushedStreamEvent calls it before this handler),
       // through the same append helpers as an own stream — no panel-side append here.
-      // Captured outbound side effect (email/sms/push/webhook/channel) — push an
-      // inline activity card into the timeline. Non-text card, mirroring how
-      // system cards are appended.
-      if (event.type === 'activity' && event.activity) {
-        addActivityCardRef.current(
-          activityFromEvent(
-            event.activity as {
-              id?: string
-              type?: string
-              status?: string
-              recipient?: string
-              summary?: string
-              timestamp?: string
-            },
-          ),
-        )
-      }
-      // Discovery finished and the server selected a starting point — boot the
-      // sandbox. SENDER-ONLY: the sender's client drives the boot; a watching
-      // client's host follows the project's sandbox status instead of racing a
-      // second boot request. The template choice is internal; this event carries
-      // no user-facing payload and is never rendered in the transcript.
-      if (event.type === 'ready_to_build' && !applyingPushedRef.current) {
-        onReadyToBuildRef.current?.()
-      }
-      // The agent asked the IDE to reload/navigate the preview, open a file, or drive the
-      // preview bridge. Forward to the host (Workspace); not rendered in the transcript.
-      // Forward EVERY IdeClientAction field (keep this list in sync with that interface):
-      // preview_ui carries requestId/command/molId/selector/text/value, and forwarding only
-      // {action, path} silently broke the SSE delivery path (only the host's collab-socket
-      // duplicate made interact_preview work at all).
-      if (event.type === 'client_action' && typeof event.action === 'string') {
-        const e = event as Record<string, unknown>
-        const str = (k: string): string | undefined =>
-          typeof e[k] === 'string' ? (e[k] as string) : undefined
-        onClientActionRef.current?.({
-          action: event.action as IdeClientAction['action'],
-          path: str('path'),
-          requestId: str('requestId'),
-          command: str('command') as IdeClientAction['command'],
-          molId: str('molId'),
-          selector: str('selector'),
-          text: str('text'),
-          value: str('value'),
-        })
-      }
-      // Turn finished (done OR error) — let the host know. Used to keep the boot
-      // view up until the parallel during-boot plan stream completes, so the
-      // panel swap can't cut it off. Firing on error too prevents a failed
-      // stream from stranding the boot view forever.
-      if (event.type === 'done' || event.type === 'error') {
-        onTurnCompleteRef.current?.()
+      // Apply every effect the event produces, in order (usage, compaction, activity,
+      // ready-to-build, client action, turn complete, notification sound).
+      for (const effect of streamEventEffects(event, {
+        soundsConfig: soundsConfigRef.current,
+        hasFocus: document.hasFocus(),
+        applyingPushed,
+      })) {
+        switch (effect.type) {
+          case 'contextUsage':
+            setContextUsage((previous) => {
+              if (!previous) return effect.usage
+              if (effect.usage.requestId || effect.usage.at)
+                return mergeContextHistory([previous], [effect.usage]).at(-1) ?? effect.usage
+              return effect.done ? { ...previous, ...effect.usage } : effect.usage
+            })
+            setContextHistory((previous) => mergeContextHistory(previous, [effect.usage]))
+            break
+          case 'compaction':
+            setContextCompactions((previous) =>
+              [
+                ...previous.filter((item) => item.at !== effect.compaction.at),
+                effect.compaction,
+              ].slice(-32),
+            )
+            break
+          // Captured outbound side effect (email/sms/push/webhook/channel) — push an
+          // inline activity card into the timeline. Non-text card, mirroring how
+          // system cards are appended.
+          case 'activityCard':
+            addActivityCardRef.current?.(effect.activity)
+            break
+          // Discovery finished and the server selected a starting point — boot the
+          // sandbox. SENDER-ONLY (the effect is only produced for the sender).
+          case 'readyToBuild':
+            notifyReadyToBuild()
+            break
+          // The agent asked the IDE to reload/navigate the preview, open a file, or drive
+          // the preview bridge. Forward to the host (Workspace); not rendered in the
+          // transcript.
+          case 'clientAction':
+            forwardClientAction(effect.action)
+            break
+          // Turn finished (done OR error) — let the host know. Used to keep the boot
+          // view up until the parallel during-boot plan stream completes, so the
+          // panel swap can't cut it off. Firing on error too prevents a failed
+          // stream from stranding the boot view forever.
+          case 'turnComplete':
+            notifyTurnComplete()
+            break
+          case 'playSound':
+            playTone(effect.variant)
+            break
+        }
       }
       // NOTE: the `model` (planner→executor) + `mode` ("Building your app") transcript markers
       // are no longer derived here. The server now RECORDS them (and the skills + custom
@@ -3192,36 +738,49 @@ function ChatInner({
       // events and rendered from `cardEvent` (see cardEventToSystemCard) — so they persist and
       // reload identically, with no client-side "last shown" heuristic. The raw `mode` event
       // still drives the phase STATE (useChat's setMode); it just no longer spawns a card.
-      const cfg = soundsConfigRef.current
-      const eventType = event.type as SoundEventType
-      // 'message' is the team-note ping: it fires only for a TEAMMATE's note
-      // (the pushed broadcast) — never for the sender's own SSE echo.
-      const isOwnTeamNote = event.type === 'message' && !applyingPushedRef.current
-      if (!isOwnTeamNote && eventType in cfg && shouldPlaySound(cfg[eventType])) {
-        playTone(eventType === 'message' ? 'team' : 'default')
-      }
     },
-    [t],
+    [notifyReadyToBuild, forwardClientAction, notifyTurnComplete],
   )
+  // #endregion chat:stream
 
-  // Countdown timer effect — ticks down and auto-sends fix message
+  // #region chat:auto-fix
+  // Countdown timer effect — ticks down and auto-sends fix message. It restarts on every
+  // second the countdown moves and whenever it pauses or resumes; nothing else about the
+  // countdown changes the timer.
+  const sendMessageRef = useRef<
+    | ((
+        msg: string,
+        attachments?: undefined,
+        options?: { suppressUserMessage?: boolean; automatic?: boolean; askUserAnswer?: boolean },
+      ) => void)
+    | null
+  >(null)
+  // One second of the countdown has passed. The last second sends the fix message.
+  const onAutoFixSecond = useEffectEvent(() => {
+    const countdown = autoFixState.countdown
+    if (!countdown || countdown.paused) return
+    if (countdown.secondsLeft > 1) {
+      dispatchAutoFix({ type: 'tick' })
+      return
+    }
+    dispatchAutoFix({ type: 'tick' })
+    // An autonomous agent-turn dispatch never fires from a read-only client.
+    if (canEdit === false) return
+    sendMessageRef.current?.(`Fix these issues:\n\n${countdown.output}`, undefined, {
+      automatic: true,
+    })
+  })
+  const autoFixPaused = autoFixCountdown?.paused
+  const autoFixSecondsLeft = autoFixCountdown?.secondsLeft
+  // #effect chat:auto-fix:2
   useEffect(() => {
     if (autoFixIntervalRef.current) {
       clearInterval(autoFixIntervalRef.current)
       autoFixIntervalRef.current = null
     }
-    if (!autoFixCountdown || autoFixCountdown.paused || autoFixCountdown.secondsLeft <= 0) return
+    if (autoFixSecondsLeft === undefined || autoFixPaused || autoFixSecondsLeft <= 0) return
 
-    autoFixIntervalRef.current = setInterval(() => {
-      setAutoFixCountdown((prev) => {
-        if (!prev || prev.paused) return prev
-        if (prev.secondsLeft <= 1) {
-          // Countdown complete — will send in the effect below
-          return { ...prev, secondsLeft: 0 }
-        }
-        return { ...prev, secondsLeft: prev.secondsLeft - 1 }
-      })
-    }, 1000)
+    autoFixIntervalRef.current = setInterval(onAutoFixSecond, 1000)
 
     return () => {
       if (autoFixIntervalRef.current) {
@@ -3229,40 +788,16 @@ function ChatInner({
         autoFixIntervalRef.current = null
       }
     }
-  }, [autoFixCountdown?.paused, autoFixCountdown?.secondsLeft])
-
-  // When countdown reaches 0, send the fix message
-  const sendMessageRef = useRef<
-    (
-      msg: string,
-      attachments?: undefined,
-      options?: { suppressUserMessage?: boolean; automatic?: boolean; askUserAnswer?: boolean },
-    ) => void
-  >(() => {})
-  useEffect(() => {
-    if (autoFixCountdown && autoFixCountdown.secondsLeft === 0 && !autoFixCountdown.paused) {
-      // Defense-in-depth: arming is sender-only (a viewer never owns a stream),
-      // but an autonomous agent-turn dispatch must never fire from a read-only
-      // client regardless of how the countdown came to exist.
-      if (canEdit === false) {
-        setAutoFixCountdown(null)
-        return
-      }
-      const msg = `Fix these issues:\n\n${autoFixCountdown.output}`
-      setAutoFixCountdown(null)
-      // Auto-sent on the user's behalf — flag it so the chat renders it in the
-      // distinct auto-sent style (agent avatar + green border), not as if the
-      // user typed it (C2).
-      sendMessageRef.current(msg, undefined, { automatic: true })
-    }
-  }, [autoFixCountdown, canEdit])
+  }, [autoFixPaused, autoFixSecondsLeft])
 
   // Auto-pause countdown when user starts typing
   const handleAutoFixPauseOnInput = useCallback(() => {
-    setAutoFixCountdown((prev) => (prev && !prev.paused ? { ...prev, paused: true } : prev))
+    dispatchAutoFix({ type: 'pause' })
   }, [])
+  // #endregion chat:auto-fix
 
   // Cancel countdown when file changes arrive (AI likely fixing things in a new turn)
+  // #region chat:auto-commit
   // ── Auto-commit (/autocommit) ───────────────────────────────────────────────
   // Debounce-style countdown: every file change restarts the timer; when it hits
   // zero we fire the existing /commit path, then pause until the next change so a
@@ -3277,14 +812,16 @@ function ChatInner({
   const [autoCommitLoaded, setAutoCommitLoaded] = useState(false)
   // Live canEdit for async callbacks (the settings hydrate) that must not
   // capture a stale role from mount time.
-  const canEditRef = useRef(canEdit)
-  canEditRef.current = canEdit
+  const readCanEdit = useEffectEvent(() => canEdit)
   const autoCommitPersistedRef = useRef<number>(0)
   const autoCommitPatchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  // #endregion chat:auto-commit
 
-  // Set after debouncedFetchPendingFiles is defined below (it depends on state
-  // declared later); lets the file-change callback refresh the uncommitted-files
-  // bar LIVE while a turn is still streaming.
+  // #region chat:chat
+  // Filled once, in the first render, after debouncedFetchPendingFiles is defined
+  // below (it depends on state declared later), with a stable callback that calls
+  // the latest committed one; lets the file-change callback refresh the
+  // uncommitted-files bar LIVE while a turn is still streaming.
   const debouncedFetchPendingFilesRef = useRef<(() => void) | null>(null)
 
   const onFileChangeWrapped = useCallback(
@@ -3299,7 +836,7 @@ function ChatInner({
         const isRelevant = autoFixCountdown.changedPaths.some(
           (p) => p.replace(/^\/workspace\//, '') === norm,
         )
-        if (isRelevant) setAutoFixCountdown(null)
+        if (isRelevant) dispatchAutoFix({ type: 'cancel' })
       }
       // Make a saved plan available as a tab, but DON'T steal focus — the plan is
       // created automatically (often while the user is watching the preview) and is
@@ -3385,8 +922,10 @@ function ChatInner({
     [projectId],
   )
 
-  // Keep sendMessageRef in sync so the countdown effect can call the latest sendMessage
-  sendMessageRef.current = sendMessage
+  // One stable callback that calls the latest committed sendMessage: the countdown
+  // effect (through sendMessageRef, filled once here) and the handlers below use it.
+  const sendLatestMessage = useStableCallback(sendMessage)
+  useCommittedRef(sendMessageRef, sendMessage)
 
   // User Stop. A stop is a user decision the platform must not overrule — so
   // beyond killing the stream (useChat.abort also records the stop client-side
@@ -3399,16 +938,17 @@ function ChatInner({
     deferredPendingRef.current = null
     deferredPendingSuppressRef.current = false
     deferredPendingUserInitiatedRef.current = false
-    pendingVerificationRef.current = null
-    setAutoFixCountdown(null)
+    dispatchAutoFix({ type: 'reset' })
     abort()
   }, [abort])
 
   // Surface the chat's loading state to the host (the authoritative "agent is actively
   // building" signal). The host drives the preview's "Building your app…" overlay from this,
   // so a half-built / blank preview during a long build shows progress, not a white screen.
+  const reportLoadingChange = useEffectEvent((loading: boolean) => onLoadingChange?.(loading))
+  // #effect chat:chat:1
   useEffect(() => {
-    onLoadingChangeRef.current?.(isLoading)
+    reportLoadingChange(isLoading)
   }, [isLoading])
 
   // Ref-stable callback for ToolCallCard's onAskUserResponse — avoids breaking
@@ -3416,16 +956,21 @@ function ChatInner({
   // Suppress the optimistic user bubble: the answer is reflected in the ask_user
   // card itself (a checkmark on the chosen option, or the custom text shown
   // in-card) rather than echoed as a separate message below it.
-  const handleAskUserResponse = useCallback((response: string) => {
-    // `askUserAnswer` resolves the pending ask_user card in the store (sets its output to
-    // the answer) so the chosen option STAYS checked across the discovery→IDE remount —
-    // the live selection used to live only in ephemeral component state and vanished.
-    sendMessageRef.current(response, undefined, {
-      suppressUserMessage: true,
-      askUserAnswer: true,
-    })
-  }, [])
+  const handleAskUserResponse = useCallback(
+    (response: string) => {
+      // `askUserAnswer` resolves the pending ask_user card in the store (sets its output to
+      // the answer) so the chosen option STAYS checked across the discovery→IDE remount —
+      // the live selection used to live only in ephemeral component state and vanished.
+      sendLatestMessage(response, undefined, {
+        suppressUserMessage: true,
+        askUserAnswer: true,
+      })
+    },
+    [sendLatestMessage],
+  )
+  // #endregion chat:chat
 
+  // #region chat:git
   // ── Commit ─────────────────────────────────────────────────────────────────
   const [commitState, setCommitState] = useState<{
     status: 'committing' | 'committed' | 'error'
@@ -3436,46 +981,43 @@ function ChatInner({
   >(null)
   const [commitBarExpanded, setCommitBarExpanded] = useState(false)
   const [commitCards, setCommitCards] = useState<CommitCard[]>([])
+  // #endregion chat:git
+  // #region chat:scroll
   /**
    * Number of timeline items rendered in the DOM. Starts at the most recent
    * page and grows as the user scrolls toward the top of the conversation
    * (auto-load of earlier history — no button to click).
    */
   const [maxVisibleItems, setMaxVisibleItems] = useState(60)
+  // ── Input focus ────────────────────────────────────────────────────────────
 
+  // ── Scroll ─────────────────────────────────────────────────────────────────
+  const messagesEndRef = useRef<HTMLDivElement>(null)
+  const messagesContainerRef = useRef<HTMLDivElement>(null)
+  const userScrolledUpRef = useRef(false)
+  // #endregion chat:scroll
+
+  // #region chat:undo
   // ── Undo tracking ───────────────────────────────────────────────────────────
   // Tracks which tool calls are currently in the "undone" state so /undo can
   // flip them in bulk and individual undo buttons stay in sync.
   // Initialized from persisted isUndone flags on loaded messages.
-  const [undoneTcIds, setUndoneTcIds] = useState<Set<string>>(() => {
-    const ids = new Set<string>()
-    for (const msg of messages) {
-      if (msg.toolCalls) {
-        for (const tc of msg.toolCalls) {
-          if (tc.isUndone) ids.add(tc.id)
-        }
-      }
-    }
-    return ids
-  })
+  const [undoneTcIds, setUndoneTcIds] = useState<Set<string>>(() =>
+    initialUndoneToolCallIds(messages),
+  )
 
-  // Re-sync when messages load from history (e.g. after page refresh)
-  const prevMessageCountRef = useRef(messages.length)
-  useEffect(() => {
+  // Re-sync when messages load from history (e.g. after page refresh): the
+  // render in which the list goes from empty to non-empty reads the persisted
+  // flags. Set while rendering, React's pattern for state that follows a prop.
+  const [undoSyncCount, setUndoSyncCount] = useState(messages.length)
+  if (undoSyncCount !== messages.length) {
+    setUndoSyncCount(messages.length)
     // Only re-sync on bulk message loads (history), not on individual stream appends
-    if (messages.length > 0 && prevMessageCountRef.current === 0) {
-      const ids = new Set<string>()
-      for (const msg of messages) {
-        if (msg.toolCalls) {
-          for (const tc of msg.toolCalls) {
-            if (tc.isUndone) ids.add(tc.id)
-          }
-        }
-      }
+    if (undoSyncCount === 0) {
+      const ids = initialUndoneToolCallIds(messages)
       if (ids.size > 0) setUndoneTcIds(ids)
     }
-    prevMessageCountRef.current = messages.length
-  }, [messages])
+  }
 
   /** Persist undo state to the server and update local tracking. */
   const persistUndoToggle = useCallback(
@@ -3500,26 +1042,34 @@ function ChatInner({
     },
     [persistUndoToggle],
   )
+  // #endregion chat:undo
 
+  // #region chat:composer
   // ── Input ──────────────────────────────────────────────────────────────────
   // The textarea is uncontrolled to avoid re-rendering the entire ChatInner on
   // every keystroke.  `inputRef` holds the current value; `hasInput` is a
   // boolean state used only by the submit button's disabled prop.
-  const draftKey = `mol-chat-draft:${projectId}`
-  const inputRef = useRef<string>(
-    (() => {
-      // Seed from an explicit initial value (prompt→chat morph) first, else the
-      // persisted draft.
-      if (initialInputValue) return initialInputValue
-      try {
-        return sessionStorage.getItem(draftKey) ?? ''
-      } catch (_error) {
-        // sessionStorage unavailable (e.g. private browsing restrictions) — fall back to empty
-        return ''
-      }
-    })(),
-  )
-  const [hasInput, setHasInput] = useState(() => Boolean(inputRef.current))
+  const draftKey = chatDraftStorageKey(projectId)
+  // The draft the composer mounts with, read once. It is also the textarea's
+  // `defaultValue`, which only seeds the element: the live text is `inputRef`.
+  const [initialDraft] = useState((): string => {
+    // Seed from an explicit initial value (prompt→chat morph) first, else the
+    // persisted draft.
+    if (initialInputValue) return initialInputValue
+    try {
+      return sessionStorage.getItem(draftKey) ?? ''
+    } catch (_error) {
+      // sessionStorage unavailable (e.g. private browsing restrictions) — fall back to empty
+      return ''
+    }
+  })
+  const inputRef = useRef<string>(initialDraft)
+  // The pickers that filter by the composer text (/command, /model, /effort). Each holds the
+  // text it filters by; both writers of the composer keep it current.
+  const [commandMenu, setCommandMenu] = useState<CommandMenu | null>(null)
+  const [modelPicker, setModelPicker] = useState<ModelPicker | null>(null)
+  const [effortPicker, setEffortPicker] = useState<EffortPicker | null>(null)
+  const [hasInput, setHasInput] = useState(() => Boolean(initialDraft))
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   // Transcripts the mic button's dictation inserted into the CURRENT draft —
@@ -3545,6 +1095,7 @@ function ChatInner({
   }, [])
 
   // Seed the textarea with the draft value on mount
+  // #effect chat:composer:1
   useEffect(() => {
     const ta = textareaRef.current
     if (ta && inputRef.current) {
@@ -3557,6 +1108,7 @@ function ChatInner({
   // conversation switch — each remounts ChatInner via chatKey) so the user can
   // type immediately. Skipped on coarse pointers: focus there pops the
   // on-screen keyboard over half the workspace uninvited.
+  // #effect chat:composer:2
   useEffect(() => {
     if (typeof window !== 'undefined' && window.matchMedia?.('(pointer: coarse)').matches) return
     const ta = textareaRef.current
@@ -3573,6 +1125,10 @@ function ChatInner({
   const setInputValue = useCallback(
     (val: string) => {
       inputRef.current = val
+      // An open picker filters by the new text (a keystroke re-opens its picker itself).
+      setCommandMenu((m) => (m && m.text !== val ? { ...m, text: val } : m))
+      setModelPicker((m) => (m && m.text !== val ? { ...m, text: val } : m))
+      setEffortPicker((m) => (m && m.text !== val ? { ...m, text: val } : m))
       pruneDictatedSnippets()
       const ta = textareaRef.current
       if (ta && ta.value !== val) ta.value = val
@@ -3607,494 +1163,14 @@ function ChatInner({
       }
     }, 500)
   }, [draftKey])
+  // #endregion chat:composer
 
-  // ── Voice input (Web Speech API) ──────────────────────────────────────────
-  const speechCtorRef = useRef(
-    typeof window !== 'undefined'
-      ? ((window as unknown as Record<string, unknown>).SpeechRecognition ??
-          (window as unknown as Record<string, unknown>).webkitSpeechRecognition)
-      : undefined,
-  )
-  const hasSpeechRecognition = Boolean(speechCtorRef.current)
-  type SpeechRec = {
-    start(): void
-    stop(): void
-    abort(): void
-    onstart: (() => void) | null
-    onresult: ((e: unknown) => void) | null
-    onend: (() => void) | null
-    onerror: ((e: unknown) => void) | null
-    continuous: boolean
-    interimResults: boolean
-    lang: string
-  }
-  const recognitionRef = useRef<SpeechRec | null>(null)
-  const [isListening, setIsListening] = useState(false)
-  // The mic button NEVER hides — when dictation can't work (e.g. Brave's
-  // Web Speech stub with nothing wired to fall back to), clicking it shows
-  // the reason via voiceError instead of the button silently vanishing.
-  const [voiceError, setVoiceError] = useState<string | null>(null)
-  const voiceErrorTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const voiceIntentRef = useRef(false)
-  const voiceRestartTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
-  // Detects the dead-service case where start() succeeds but no event ever fires
-  const voiceWatchdogTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
-  // Count rapid consecutive failures to bail out of restart loops
-  const voiceFailCount = useRef(0)
-  const voiceLastStart = useRef(0)
-
-  // ── Local (on-device) dictation fallback via the ai-voice bond ────────────
-  // When the browser's Web Speech API is missing or proven dead, dictation
-  // falls back to a bonded AIVoiceProvider (e.g. `@molecule/app-ai-voice-whisper`,
-  // which runs Whisper on-device). Wire one at app startup with setProvider().
-  // Availability is NOT snapshotted at mount — `startLocalVoice()` re-checks
-  // `getVoiceProvider()?.isRecognitionSupported()` at the moment of use, so a
-  // provider bonded (or a model loaded) after mount still works.
-  // Once true, all dictation goes through the bonded provider.
-  const useLocalVoiceRef = useRef(false)
-  // Web Speech proven dead earlier this tab-session — skip its 5s watchdog.
-  const webSpeechDeadRef = useRef(false)
-  const WEB_SPEECH_DEAD_KEY = 'molecule.ide.webSpeechDead'
-  useEffect(() => {
-    try {
-      webSpeechDeadRef.current = sessionStorage.getItem(WEB_SPEECH_DEAD_KEY) === '1'
-    } catch (_error) {
-      // sessionStorage unavailable — the watchdog re-detects within one session
-    }
-  }, [])
-  // Secondary (non-error) notice: "preparing dictation" while the model loads
-  const [voiceNotice, setVoiceNotice] = useState<string | null>(null)
-  // Set on submit so a trailing transcript from the provider is not inserted
-  // into the freshly-cleared composer.
-  const voiceDiscardRef = useRef(false)
-
-  // ── Dictation engine picker (/mic) ─────────────────────────────────────────
-  // When the app registers a voice-engine catalog, the USER chooses which
-  // engine to use (and download) — on the first mic click, or anytime via
-  // /mic. Without a catalog the legacy automatic behavior stands.
-  const [voiceEngines] = useState<readonly VoiceEngineDef[]>(() => listVoiceEngines())
-  const voiceEngineRef = useRef<VoiceEngineDef | null>(null)
-  // autoStart: opened from a mic click (start dictating right after choosing)
-  // vs from /mic (just a settings change).
-  const [micPicker, setMicPicker] = useState<{ autoStart: boolean } | null>(null)
-  const MIC_ENGINE_KEY = 'molecule.ide.voiceEngine'
-  useEffect(() => {
-    if (voiceEngines.length === 0) return
-    try {
-      const savedId = localStorage.getItem(MIC_ENGINE_KEY)
-      if (savedId) {
-        const def = selectVoiceEngine(savedId)
-        if (def) voiceEngineRef.current = def
-      }
-    } catch (_error) {
-      // localStorage unavailable — the picker simply reopens on first use
-    }
-  }, [voiceEngines])
-
-  /**
-   * Why an engine can't be used here, or null when it can: 'browser' = the
-   * native speech service is missing/proven dead in this browser; 'language'
-   * = the engine doesn't cover the UI language.
-   */
-  const voiceEngineDisabledReason = useCallback(
-    (def: VoiceEngineDef): 'browser' | 'language' | null => {
-      if (def.kind === 'native' && (!hasSpeechRecognition || webSpeechDeadRef.current)) {
-        return 'browser'
-      }
-      if (!voiceEngineCoversLanguage(def, navigator.language || 'en-US')) return 'language'
-      return null
-    },
-    [hasSpeechRecognition],
-  )
-
-  const showVoiceError = useCallback((message: string) => {
-    setVoiceError(message)
-    if (voiceErrorTimer.current) clearTimeout(voiceErrorTimer.current)
-    voiceErrorTimer.current = setTimeout(() => {
-      voiceErrorTimer.current = null
-      setVoiceError(null)
-    }, 8000)
-  }, [])
-
-  /**
-   * Starts dictation through the bonded on-device provider. Returns false when
-   * no usable provider is wired, so the caller can fall through to the
-   * "dictation unavailable" path.
-   */
-  const startLocalVoice = useCallback((): boolean => {
-    const localVoice = getVoiceProvider()
-    if (!localVoice || !localVoice.isRecognitionSupported()) return false
-    useLocalVoiceRef.current = true
-    // Shown until the provider reaches 'listening' (model may need a download)
-    setVoiceNotice(
-      t('ide.chat.voicePreparing', undefined, {
-        defaultValue: 'Preparing dictation — this can take a moment on first use.',
-      }),
-    )
-    localVoice.startListening(
-      {
-        language: navigator.language || 'en-US',
-        continuous: true,
-        interimResults: false,
-      },
-      {
-        onTranscript: (event) => {
-          if (voiceDiscardRef.current || !event.isFinal || !event.transcript) return
-          const prev = inputRef.current as string
-          setInputValue(prev ? `${prev} ${event.transcript}` : event.transcript)
-          dictatedSnippetsRef.current.push(event.transcript)
-          autoResize()
-        },
-        onStateChange: (state) => {
-          if (state === 'listening') setVoiceNotice(null)
-        },
-        onError: (event) => {
-          if (event.code === 'not-allowed') {
-            voiceIntentRef.current = false
-            setIsListening(false)
-            setVoiceNotice(null)
-            showVoiceError(
-              t('ide.chat.voiceMicBlocked', undefined, {
-                defaultValue: 'Microphone access is blocked.',
-              }),
-            )
-            return
-          }
-          if (event.code === 'transcription-failed') {
-            // One chunk failed; the session keeps listening
-            showVoiceError(
-              t('ide.chat.voiceTranscribeFailed', undefined, {
-                defaultValue: 'Transcription failed.',
-              }),
-            )
-            return
-          }
-          // not-supported / start-failed — the fallback itself is unusable
-          voiceIntentRef.current = false
-          setIsListening(false)
-          setVoiceNotice(null)
-          showVoiceError(
-            t('ide.chat.voiceUnavailable', undefined, {
-              defaultValue: 'Dictation is not available in this browser.',
-            }),
-          )
-        },
-      },
-    )
-    return true
-  }, [setInputValue, autoResize, showVoiceError])
-
-  const startRecognition = useCallback(() => {
-    const Ctor = speechCtorRef.current as (new () => SpeechRec) | undefined
-    if (!Ctor || !voiceIntentRef.current) return
-
-    const recognition = new Ctor()
-    recognition.continuous = true
-    recognition.interimResults = true
-    recognition.lang = navigator.language || 'en-US'
-
-    let gotResult = false
-
-    const clearWatchdog = (): void => {
-      if (voiceWatchdogTimer.current) {
-        clearTimeout(voiceWatchdogTimer.current)
-        voiceWatchdogTimer.current = null
-      }
-    }
-
-    // The Web Speech service itself is broken (not just this session): stop
-    // retrying it for good — instead of flicker-restarting forever. If an
-    // on-device provider is bonded, hand the same gesture over to it
-    // seamlessly; otherwise turn the button off and say so.
-    const giveUp = (): void => {
-      clearWatchdog()
-      voiceFailCount.current = 0
-      recognitionRef.current = null
-      webSpeechDeadRef.current = true
-      try {
-        sessionStorage.setItem(WEB_SPEECH_DEAD_KEY, '1')
-      } catch (_error) {
-        // sessionStorage unavailable — the watchdog re-detects next time
-      }
-      try {
-        recognition.abort()
-      } catch (_error) {
-        // abort() on a never-started/already-ended session throws harmlessly
-      }
-      // With an engine catalog, the native engine just proved dead: clear the
-      // user's (native) choice and reopen the picker so THEY pick a fallback —
-      // the native row now shows as disabled with the reason.
-      if (voiceEngines.length > 0) {
-        voiceEngineRef.current = null
-        try {
-          localStorage.removeItem(MIC_ENGINE_KEY)
-        } catch (_error) {
-          // localStorage unavailable — the stale choice re-fails harmlessly
-        }
-        voiceIntentRef.current = false
-        setIsListening(false)
-        setCommandMenu(null)
-        setModelPicker(null)
-        setEffortPicker(null)
-        setSoundsPicker(null)
-        setFilePicker(null)
-        setPanelOverlay(null)
-        setMicPicker({ autoStart: true })
-        return
-      }
-      if (voiceIntentRef.current && startLocalVoice()) {
-        return
-      }
-      voiceIntentRef.current = false
-      setIsListening(false)
-      showVoiceError(
-        t('ide.chat.voiceUnavailable', undefined, {
-          defaultValue: 'Dictation is not available in this browser.',
-        }),
-      )
-    }
-
-    recognition.onstart = () => {
-      clearWatchdog()
-    }
-
-    recognition.onresult = (e: unknown) => {
-      gotResult = true
-      voiceFailCount.current = 0
-      const event = e as {
-        results: ArrayLike<ArrayLike<{ transcript: string }> & { isFinal: boolean }>
-        resultIndex: number
-      }
-      let transcript = ''
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        if (event.results[i].isFinal) {
-          transcript += event.results[i][0].transcript
-        }
-      }
-      if (transcript) {
-        const prev = inputRef.current as string
-        setInputValue(prev ? `${prev} ${transcript}` : transcript)
-        dictatedSnippetsRef.current.push(transcript)
-        autoResize()
-      }
-    }
-
-    recognition.onend = () => {
-      clearWatchdog()
-      recognitionRef.current = null
-      if (!voiceIntentRef.current) {
-        setIsListening(false)
-        return
-      }
-      // If we got results, the session was healthy — restart immediately
-      if (gotResult) {
-        voiceFailCount.current = 0
-        startRecognition()
-        return
-      }
-      // No results — could be a rapid failure loop. Track it.
-      const elapsed = Date.now() - voiceLastStart.current
-      if (elapsed < 1000) {
-        voiceFailCount.current++
-      } else {
-        voiceFailCount.current = 0
-      }
-      // Too many rapid no-result failures — the service is not working
-      if (voiceFailCount.current >= 3) {
-        giveUp()
-        return
-      }
-      // Restart after a short delay so we don't spin
-      voiceRestartTimer.current = setTimeout(() => {
-        voiceRestartTimer.current = null
-        if (voiceIntentRef.current) startRecognition()
-      }, 300)
-    }
-
-    recognition.onerror = (e: unknown) => {
-      const error = (e as { error?: string }).error
-      // In the Chromium family a 'network' error means the browser has no
-      // reachable speech backend (Brave, ungoogled builds) — it will fail
-      // identically every session, so retrying just flickers.
-      if (error === 'network' || error === 'language-not-supported') {
-        giveUp()
-        return
-      }
-      if (error === 'not-allowed' || error === 'service-not-allowed') {
-        clearWatchdog()
-        voiceIntentRef.current = false
-        recognitionRef.current = null
-        setIsListening(false)
-        showVoiceError(
-          t('ide.chat.voiceMicBlocked', undefined, {
-            defaultValue: 'Microphone access is blocked.',
-          }),
-        )
-      }
-      // Other errors (no-speech, audio-capture, aborted) — onend will handle restart
-    }
-
-    recognitionRef.current = recognition
-    voiceLastStart.current = Date.now()
-    try {
-      recognition.start()
-    } catch (_error) {
-      // start() throws InvalidStateError if a previous session is still tearing
-      // down — treat it like any other dead session rather than crash the click
-      giveUp()
-      return
-    }
-    // Watchdog: some broken implementations accept start() and then never fire a
-    // single event (verified in Brave: no onstart, no onerror, no onend).
-    voiceWatchdogTimer.current = setTimeout(() => {
-      voiceWatchdogTimer.current = null
-      giveUp()
-    }, 5000)
-  }, [setInputValue, autoResize, showVoiceError, startLocalVoice, voiceEngines])
-
-  /** Begins a dictation session on whatever engine/path is active. */
-  const beginDictation = useCallback(() => {
-    voiceIntentRef.current = true
-    voiceDiscardRef.current = false
-    voiceFailCount.current = 0
-    setVoiceError(null)
-    if (voiceErrorTimer.current) {
-      clearTimeout(voiceErrorTimer.current)
-      voiceErrorTimer.current = null
-    }
-    setIsListening(true)
-    handleAutoFixPauseOnInput()
-    if (voiceEngines.length > 0) {
-      // Catalog mode: the chosen engine decides the path
-      if (voiceEngineRef.current?.kind === 'native') {
-        startRecognition()
-      } else {
-        useLocalVoiceRef.current = true
-        if (!startLocalVoice()) {
-          voiceIntentRef.current = false
-          setIsListening(false)
-          showVoiceError(
-            t('ide.chat.voiceUnavailable', undefined, {
-              defaultValue: 'Dictation is not available in this browser.',
-            }),
-          )
-        }
-      }
-      return
-    }
-    // Legacy (no catalog): Web Speech first, on-device fallback automatic
-    if (!hasSpeechRecognition || webSpeechDeadRef.current || useLocalVoiceRef.current) {
-      if (startLocalVoice()) return
-      voiceIntentRef.current = false
-      setIsListening(false)
-      showVoiceError(
-        t('ide.chat.voiceUnavailable', undefined, {
-          defaultValue: 'Dictation is not available in this browser.',
-        }),
-      )
-      return
-    }
-    startRecognition()
-  }, [startRecognition, startLocalVoice, hasSpeechRecognition, showVoiceError, voiceEngines])
-
-  /**
-   * Applies a picker choice: wires the engine, persists it, and (for a
-   * mic-click-initiated pick) starts dictating immediately.
-   */
-  const chooseVoiceEngine = useCallback(
-    (def: VoiceEngineDef, autoStart: boolean) => {
-      setMicPicker(null)
-      const selected = selectVoiceEngine(def.id)
-      if (!selected) return
-      voiceEngineRef.current = selected
-      useLocalVoiceRef.current = selected.kind !== 'native'
-      try {
-        localStorage.setItem(MIC_ENGINE_KEY, selected.id)
-      } catch (_error) {
-        // localStorage unavailable — the picker reopens next session
-      }
-      if (autoStart) beginDictation()
-    },
-    [beginDictation],
-  )
-
-  const toggleVoice = useCallback(() => {
-    if (isListening) {
-      voiceIntentRef.current = false
-      if (voiceRestartTimer.current) {
-        clearTimeout(voiceRestartTimer.current)
-        voiceRestartTimer.current = null
-      }
-      if (voiceWatchdogTimer.current) {
-        clearTimeout(voiceWatchdogTimer.current)
-        voiceWatchdogTimer.current = null
-      }
-      // Don't wait for onend — a hung session (dead service) never fires it
-      setIsListening(false)
-      setVoiceNotice(null)
-      if (useLocalVoiceRef.current) {
-        // On-device provider: trailing speech is still transcribed + inserted
-        getVoiceProvider()?.stopListening()
-      } else {
-        recognitionRef.current?.stop()
-      }
-      return
-    }
-    // With an engine catalog and no choice made yet, the first mic click asks
-    // the user which engine to use (and download) instead of picking for them.
-    if (voiceEngines.length > 0 && !voiceEngineRef.current) {
-      // Popups are one-at-a-time — close any sibling before opening the picker
-      setCommandMenu(null)
-      setModelPicker(null)
-      setEffortPicker(null)
-      setSoundsPicker(null)
-      setFilePicker(null)
-      setPanelOverlay(null)
-      setMicPicker({ autoStart: true })
-      return
-    }
-    beginDictation()
-  }, [isListening, beginDictation, voiceEngines])
-
-  // Stop recognition on unmount
-  useEffect(
-    () => () => {
-      voiceIntentRef.current = false
-      if (voiceRestartTimer.current) {
-        clearTimeout(voiceRestartTimer.current)
-        voiceRestartTimer.current = null
-      }
-      if (voiceWatchdogTimer.current) {
-        clearTimeout(voiceWatchdogTimer.current)
-        voiceWatchdogTimer.current = null
-      }
-      if (voiceErrorTimer.current) {
-        clearTimeout(voiceErrorTimer.current)
-        voiceErrorTimer.current = null
-      }
-      recognitionRef.current?.abort()
-      if (useLocalVoiceRef.current) {
-        // stopListening, not dispose — the bonded provider is an app-wide
-        // singleton other consumers may use after this panel unmounts
-        voiceDiscardRef.current = true
-        getVoiceProvider()?.stopListening()
-      }
-    },
-    [],
-  )
-
+  // #region chat:popups
   // ── File picker ────────────────────────────────────────────────────────────
   const [filePicker, setFilePicker] = useState<FilePicker | null>(null)
   const [mentionStart, setMentionStart] = useState(0)
   const [attachedFiles, setAttachedFiles] = useState<AttachedFile[]>([])
   const [attachmentError, setAttachmentError] = useState<string | null>(null)
-
-  // ── Command menu ───────────────────────────────────────────────────────────
-  const [commandMenu, setCommandMenu] = useState<CommandMenu | null>(null)
-
-  // ── Model picker (shown when typing /model <filter>) ──────────────────────
-  const [modelPicker, setModelPicker] = useState<ModelPicker | null>(null)
-  const [effortPicker, setEffortPicker] = useState<EffortPicker | null>(null)
 
   // ── System cards (persistent inline notifications in chat history) ────────
   const [systemCards, setSystemCards] = useState<SystemCard[]>([])
@@ -4104,53 +1180,186 @@ function ChatInner({
   // Share-link modal — `{ role }` (seed) when open, null when closed. Opened by
   // the /share command and the header share button.
   const [shareModal, setShareModal] = useState<{ role: ShareRole } | null>(null)
-  // Keep a ref to the latest messages so addSystemCard can read them
-  // without adding messages to its dependency array (avoids re-creation on
-  // every streaming chunk).
-  const messagesRef = useRef(messages)
-  messagesRef.current = messages
-  // True only while applying a teammate's broadcast through handleStreamEvent (see
-  // applyPushedStreamEvent). addActivityCard reads it to mark a pushed activity card
-  // `received` so this viewer renders but never re-persists it (activity cards keep their
-  // own persisted store). Transcript cards (model/mode/skills/custom) are server-recorded
-  // card-messages: a pushed one is appended ephemerally (never persisted by the client), so
-  // it needs no `received` flag.
-  const applyingPushedRef = useRef(false)
-  // addSystemCard now serves ONLY this session's LOCAL command cards — the `/help`,
-  // `/settings`, `/scripts` browsers and command output (all `clientOnly`). These are
-  // ephemeral chrome: never persisted, never broadcast. The server-driven transcript notices
-  // (model / mode / skills / custom) no longer come through here — they are card-messages in
-  // the ONE transcript (recordCard → cardEventToSystemCard). The `received` + timestamp-dedup
-  // paths below are inert for local cards (they carry no server timestamp and never broadcast)
-  // but kept harmless for any caller that does pass a server timestamp.
-  const addSystemCard = useCallback((text: string, opts: AddSystemCardOptions = {}) => {
-    // Split off `timestamp` (handled below) and spread the rest of the variant's own
-    // fields verbatim — no field-by-field copy, so this never drifts from the union.
-    const { timestamp, ...rest } = opts
-    // Capture the pushed-event flag NOW, synchronously while this call runs inside
-    // applyPushedStreamEvent (the ref is true only for that window). It must NOT be read
-    // inside the setState updater below: React invokes that updater during reconciliation,
-    // after applyPushedStreamEvent's `finally` has already reset the ref — which would
-    // leave a teammate's card unflagged and let this viewer wrongly persist it.
-    const received = applyingPushedRef.current || undefined
-    // Cards land chronologically — wherever/whenever they occur. A card emitted during
-    // a turn's preamble still sorts ABOVE the streamed response: the response message is
-    // stamped at its server `message_start` (iteration top — AFTER these preamble
-    // events), and while still empty it sorts last anyway (see timelineSortKey). Pass an
-    // explicit `timestamp` (a SERVER ms from the originating event, e.g. mode/model) so
-    // the card shares the messages' clock and the order can't skew on a mis-set client
-    // clock; otherwise fall back to the client clock. (A queued USER message that waits
-    // for the active stream is a separate mechanism, not this.)
-    const ts = timestamp ?? Date.now()
-    setSystemCards((prev) => {
-      // De-dupe a SERVER-stamped card by its unique, monotonic server timestamp: a client
-      // that receives its OWN broadcast echo (e.g. a second tab of the same user viewing the
-      // project) must not double-add a card it already has from its SSE stream — in either
-      // arrival order. Client-stamped cards (no server `timestamp` — a /help, a tip) are
-      // NEVER de-duped this way, since their Date.now() could coincide with a server ms.
-      if (timestamp !== undefined && prev.some((c) => c.timestamp === ts)) return prev
-      return [...prev, { id: crypto.randomUUID(), text, timestamp: ts, ...rest, received }]
+  // #endregion chat:popups
+
+  // #region chat:sounds
+  // ── Sounds picker (shown when /sounds is executed) ────────────────────────
+  const [soundsPicker, setSoundsPicker] = useState<SoundsPicker | null>(null)
+  // #endregion chat:sounds
+
+  // #region chat:overlay
+  // ── Panel overlay (/skills, /scripts, /settings — closeable popups) ──────────
+  // These three commands open a closeable overlay above the composer (mirrors how
+  // /model and /sounds own this popup region) instead of dropping an inline card
+  // into the timeline. `panelOverlayQuery` seeds the skills/scripts search from a
+  // `/skills <query>` / `/scripts <query>` invocation. Mutually exclusive with the
+  // model + sounds pickers — only one popup owns the region at a time.
+  const [panelOverlay, setPanelOverlay] = useState<
+    'skills' | 'scripts' | 'settings' | 'tests' | null
+  >(null)
+  const [panelOverlayQuery, setPanelOverlayQuery] = useState('')
+  // #endregion chat:overlay
+
+  // #region chat:voice
+  // ── Voice input (Web Speech API) ──────────────────────────────────────────
+  // The browser's Web Speech constructor, looked up once on mount.
+  const [speechCtor] = useState<SpeechRecognitionConstructor | undefined>(() =>
+    typeof window !== 'undefined'
+      ? (((window as unknown as Record<string, unknown>).SpeechRecognition ??
+          (window as unknown as Record<string, unknown>).webkitSpeechRecognition) as
+          SpeechRecognitionConstructor | undefined)
+      : undefined,
+  )
+  const [isListening, setIsListening] = useState(false)
+  // The mic button NEVER hides — when dictation can't work (e.g. Brave's
+  // Web Speech stub with nothing wired to fall back to), clicking it shows
+  // the reason via voiceError instead of the button silently vanishing.
+  const [voiceError, setVoiceError] = useState<string | null>(null)
+  // The same flag for rendering (the /mic picker's disabled native row): read
+  // from the session once on mount, and set again wherever the ref is.
+  const [webSpeechDead, setWebSpeechDead] = useState(() => {
+    try {
+      return sessionStorage.getItem(WEB_SPEECH_DEAD_STORAGE_KEY) === '1'
+    } catch (_error) {
+      // sessionStorage unavailable — same fallback as the ref below
+      return false
+    }
+  })
+  // Secondary (non-error) notice: "preparing dictation" while the model loads
+  const [voiceNotice, setVoiceNotice] = useState<string | null>(null)
+
+  // ── Dictation engine picker (/mic) ─────────────────────────────────────────
+  // When the app registers a voice-engine catalog, the USER chooses which
+  // engine to use (and download) — on the first mic click, or anytime via
+  // /mic. Without a catalog the legacy automatic behavior stands.
+  const [voiceEngines] = useState<readonly VoiceEngineDef[]>(() => listVoiceEngines())
+  // autoStart: opened from a mic click (start dictating right after choosing)
+  // vs from /mic (just a settings change).
+  const [micPicker, setMicPicker] = useState<{ autoStart: boolean } | null>(null)
+  // The chosen engine's id for rendering (the picker's "current" row): read once
+  // on mount from the same saved choice the effect below restores, and set again
+  // wherever the chosen engine is.
+  const [currentVoiceEngineId, setCurrentVoiceEngineId] = useState((): string | null => {
+    if (voiceEngines.length === 0) return null
+    try {
+      const savedId = localStorage.getItem(MIC_ENGINE_STORAGE_KEY)
+      return savedId && voiceEngines.some((e) => e.id === savedId) ? savedId : null
+    } catch (_error) {
+      // localStorage unavailable — no saved choice
+      return null
+    }
+  })
+
+  // What the voice region does lives in the shared ChatDictationController; React
+  // keeps the state it renders and hands the controller the composer and popup
+  // callbacks it needs, so the DOM and the effect order below do not move.
+  const closeDictationPopups = useCallback(() => {
+    setCommandMenu(null)
+    setModelPicker(null)
+    setEffortPicker(null)
+    setSoundsPicker(null)
+    setFilePicker(null)
+    setPanelOverlay(null)
+  }, [])
+  const openDictationMicPicker = useCallback(() => {
+    setMicPicker({ autoStart: true })
+  }, [])
+  const closeDictationMicPicker = useCallback(() => {
+    setMicPicker(null)
+  }, [])
+  const readDictationInput = useCallback(() => inputRef.current, [])
+  const pushDictatedSnippet = useCallback((transcript: string) => {
+    dictatedSnippetsRef.current.push(transcript)
+  }, [])
+  const writeDictationInput = useStableCallback(setInputValue)
+  const dictationTranscriptInserted = useStableCallback(autoResize)
+  const dictationStart = useStableCallback(handleAutoFixPauseOnInput)
+  const dictationTranslate = useStableCallback(t)
+  const dictationRef = useRef<ChatDictationController | null>(null)
+  if (dictationRef.current == null) {
+    dictationRef.current = new ChatDictationController({
+      translate: dictationTranslate,
+      speechRecognitionConstructor: speechCtor,
+      engines: voiceEngines,
+      selectEngine: selectVoiceEngine,
+      engineCoversLanguage: voiceEngineCoversLanguage,
+      getVoiceProvider,
+      readInput: readDictationInput,
+      writeInput: writeDictationInput,
+      pushDictatedSnippet,
+      onTranscriptInserted: dictationTranscriptInserted,
+      onDictationStart: dictationStart,
+      closeSiblingPopups: closeDictationPopups,
+      openMicPicker: openDictationMicPicker,
+      closeMicPicker: closeDictationMicPicker,
+      setListening: setIsListening,
+      setVoiceError,
+      setVoiceNotice,
+      setWebSpeechDead,
+      setCurrentVoiceEngineId,
     })
+  }
+  const dictation = dictationRef.current
+  // #effect chat:voice:1
+  useEffect(() => {
+    dictation.mount()
+  }, [dictation])
+  // #effect chat:voice:2
+  useEffect(() => {
+    dictation.restoreSavedEngine()
+  }, [dictation])
+
+  /**
+   * Why an engine can't be used here, or null when it can: 'browser' = the
+   * native speech service is missing/proven dead in this browser; 'language'
+   * = the engine doesn't cover the UI language.
+   */
+  const voiceEngineDisabledReason = useCallback(
+    (def: VoiceEngineDef): 'browser' | 'language' | null =>
+      dictation.voiceEngineDisabledReason(def, webSpeechDead),
+    [dictation, webSpeechDead],
+  )
+
+  /**
+   * Applies a picker choice: wires the engine, persists it, and (for a
+   * mic-click-initiated pick) starts dictating immediately.
+   */
+  const chooseVoiceEngine = useCallback(
+    (def: VoiceEngineDef, autoStart: boolean): void => {
+      dictation.chooseVoiceEngine(def, autoStart)
+    },
+    [dictation],
+  )
+
+  const toggleVoice = useCallback(() => {
+    dictation.toggleVoice(isListening)
+  }, [dictation, isListening])
+
+  // Stop recognition on unmount
+  // #effect chat:voice:3
+  useEffect(
+    () => () => {
+      dictation.dispose()
+    },
+    [dictation],
+  )
+  // #endregion chat:voice
+
+  // #region chat:system-cards
+  // The latest committed messages, for addActivityCard, which reads them without
+  // adding messages to its dependency array (avoids re-creation on every
+  // streaming chunk).
+  const readMessages = useStableCallback(() => messages)
+  // addSystemCard serves ONLY this session's LOCAL command cards — the `/help`,
+  // `/settings`, `/scripts` browsers and command output. These are ephemeral chrome: never
+  // persisted, never broadcast, so a reload or a collaborator never sees them. The
+  // server-driven transcript notices (model / mode / skills / custom) do not come through
+  // here — they are card-messages in the ONE transcript (recordCard → cardEventToSystemCard).
+  const addSystemCard = useCallback((text: string, opts: AddSystemCardOptions = {}) => {
+    // Stamped with the client clock, so the card lands where the user ran its command. The
+    // variant's own fields are spread verbatim, so this never drifts from the union.
+    const card = { id: crypto.randomUUID(), text, timestamp: Date.now(), ...opts }
+    setSystemCards((prev) => [...prev, card])
     // Auto-scroll after the card renders so the user sees it immediately
     if (!userScrolledUpRef.current) {
       setTimeout(() => {
@@ -4219,6 +1428,7 @@ function ChatInner({
 
   // Register the pushed-event handler with the parent (Workspace) so it can deliver
   // broadcast chat events from other project members; deregister on unmount.
+  // #effect chat:system-cards:1
   useEffect(() => {
     onRegisterPushHandler?.(applyPushedStreamEvent)
     return () => onRegisterPushHandler?.(null)
@@ -4229,6 +1439,7 @@ function ChatInner({
   // a broadcast sent while that socket was down (a teammate's team note against
   // a backgrounded tab or a slept laptop) is otherwise lost until a page
   // lifecycle event happens to fire.
+  // #effect chat:system-cards:2
   useEffect(() => {
     onRegisterHistoryReconcile?.(reconcileHistory)
     return () => onRegisterHistoryReconcile?.(null)
@@ -4237,6 +1448,7 @@ function ChatInner({
   // Inject the user-message accent-stripe styles once (the gradient `::before` + its
   // keyframe can't live inline; gated on the row's data-mol-id, so no other row is
   // touched). Guarded by id so it injects a single time across the app.
+  // #effect chat:system-cards:3
   useEffect(() => {
     const id = 'mol-chat-user-accent-style'
     if (typeof document === 'undefined' || document.getElementById(id)) return
@@ -4256,35 +1468,41 @@ function ChatInner({
   // `/help` / `/settings` / `/scripts` browsers, command output) — transient, re-runnable
   // chrome that is intentionally NOT persisted (like terminal output) and never leaked to a
   // collaborator. The former load/PUT effects (and their `/system-cards` endpoint) are gone.
+  // #endregion chat:system-cards
 
+  // #region chat:activity
   // ── Activity cards (captured outbound side effects) ───────────────────────
   const [activityCards, setActivityCards] = useState<ActivityCardEntry[]>([])
-  const addActivityCard = useCallback((activity: Activity) => {
-    // Captured synchronously here (NOT inside the setState updater, which React invokes
-    // during reconciliation after applyPushedStreamEvent has reset the ref) so a pushed
-    // card is reliably flagged received and excluded from this viewer's persist PUT.
-    const received = applyingPushedRef.current || undefined
-    // Place just before an actively-streaming message so the card isn't pinned
-    // below the growing response (same heuristic as addSystemCard).
-    let ts = new Date(activity.timestamp).getTime()
-    if (Number.isNaN(ts)) ts = Date.now()
-    const streaming = messagesRef.current.find((m) => m.isStreaming)
-    if (streaming && streaming.timestamp <= ts) {
-      ts = streaming.timestamp - 1
-    }
-    setActivityCards((prev) =>
-      prev.some((c) => c.id === activity.id)
-        ? prev
-        : [...prev, { id: activity.id, activity, timestamp: ts, received }],
-    )
-    if (!userScrolledUpRef.current) {
-      setTimeout(() => {
-        const el = messagesContainerRef.current
-        if (el) el.scrollTop = el.scrollHeight
-      }, 50)
-    }
-  }, [])
-  addActivityCardRef.current = addActivityCard
+  const addActivityCard = useCallback(
+    (activity: Activity) => {
+      // Captured synchronously here (NOT inside the setState updater, which React invokes
+      // during reconciliation after applyPushedStreamEvent has reset the ref) so a pushed
+      // card is reliably flagged received and excluded from this viewer's persist PUT.
+      const received = applyingPushedRef.current || undefined
+      // Place just before an actively-streaming message so the card isn't pinned
+      // below the growing response (same heuristic as addSystemCard).
+      let ts = new Date(activity.timestamp).getTime()
+      if (Number.isNaN(ts)) ts = Date.now()
+      const streaming = readMessages().find((m) => m.isStreaming)
+      if (streaming && streaming.timestamp <= ts) {
+        ts = streaming.timestamp - 1
+      }
+      setActivityCards((prev) =>
+        prev.some((c) => c.id === activity.id)
+          ? prev
+          : [...prev, { id: activity.id, activity, timestamp: ts, received }],
+      )
+      if (!userScrolledUpRef.current) {
+        setTimeout(() => {
+          const el = messagesContainerRef.current
+          if (el) el.scrollTop = el.scrollHeight
+        }, 50)
+      }
+    },
+    [readMessages],
+  )
+  // addActivityCard is stable, so the stream callback's ref is filled once.
+  useCommittedRef(addActivityCardRef, addActivityCard)
 
   // Persist + restore the inline activity cards on the conversation (mirrors systemCards) so
   // the captured side effects the user saw live reappear on reload — live === stored. The
@@ -4292,6 +1510,7 @@ function ChatInner({
   // there is no in-session callback to strip.
   const activityCardsLoadedConvRef = useRef<string | null>(null)
   const prevActivityCardsConvRef = useRef<string | null>(null)
+  // #effect chat:activity:1
   useEffect(() => {
     const prevConv = prevActivityCardsConvRef.current
     prevActivityCardsConvRef.current = conversationId
@@ -4324,6 +1543,7 @@ function ChatInner({
       cancelled = true
     }
   }, [conversationId, projectId, http, canEdit])
+  // #effect chat:activity:2
   useEffect(() => {
     if (!conversationId || activityCardsLoadedConvRef.current !== conversationId) return
     if (canEdit === false) return
@@ -4336,7 +1556,9 @@ function ChatInner({
         // source of truth this session if the PUT fails.
       })
   }, [activityCards, conversationId, projectId, http, canEdit])
+  // #endregion chat:activity
 
+  // #region chat:tips
   // ── Auto-tips (dismissable onboarding hints) ──────────────────────────────
   // Two surfaces (see chat-tips-utilities): an ENTRY_TIP shown once on a fresh
   // conversation so a brand-new user always sees how to drive the agent, plus an
@@ -4349,6 +1571,8 @@ function ChatInner({
   const lastTipAtRef = useRef<number>(0)
   const shownTipIdsRef = useRef<string[]>([])
   const entryTipShownRef = useRef(false)
+  // Whether the viewer composer's "/teamsay " prefill already ran (see chat:input).
+  const viewerPrefillDoneRef = useRef(false)
   const dismissTip = useCallback((id: string) => {
     setTipCards((prev) => prev.filter((c) => c.id !== id))
   }, [])
@@ -4356,6 +1580,7 @@ function ChatInner({
   // Reset tips when switching to a *different* existing conversation. The null→id
   // transition (a brand-new conversation getting its server id) is NOT a switch.
   const prevConvIdRef = useRef<string | null>(conversationId)
+  // #effect chat:tips:1
   useEffect(() => {
     if (prevConvIdRef.current === conversationId) return
     const switchedConversation = prevConvIdRef.current != null
@@ -4376,20 +1601,21 @@ function ChatInner({
   // prompt — so a new user is never left with zero tips. It is dismissable like
   // any tip and never reappears for this conversation. Resuming an existing
   // conversation (conversationId set) is NOT a fresh start, so no entry tip there.
+  // #effect chat:tips:2
   useEffect(() => {
-    if (transcriptOnly || entryTipShownRef.current) return
+    if (transcriptOnly) return
     // No onboarding tip during the initial discovery phase (mvp B1) — discovery is
     // its own guided Q&A; a blue tip there is noise.
     if (discovery) return
     if (conversationId != null || messages.length > 0) return
+    // Once per conversation (the switch effect above re-arms it).
+    if (entryTipShownRef.current) return
     entryTipShownRef.current = true
     shownTipIdsRef.current = [...shownTipIdsRef.current, ENTRY_TIP.id]
     // The entry stores the tip's KEY + English default, not the sentence: the
     // render translates it, so a locale switch re-translates this tip too.
-    setTipCards((prev) => [
-      ...prev,
-      { id: crypto.randomUUID(), tip: ENTRY_TIP, timestamp: Date.now() },
-    ])
+    const entryCard = { id: crypto.randomUUID(), tip: ENTRY_TIP, timestamp: Date.now() }
+    setTipCards((prev) => [...prev, entryCard])
   }, [conversationId, messages.length, discovery, transcriptOnly])
 
   // Viewer orientation tip: a read-only member's explainer — GOLD like the
@@ -4399,21 +1625,20 @@ function ChatInner({
   // like the other tips (mvp B1). Gated on an EXPLICIT canEdit === false so
   // hosts that don't do roles never see it.
   const viewerTipShownRef = useRef(false)
+  // #effect chat:tips:3
   useEffect(() => {
     if (transcriptOnly || canEdit !== false || discovery || viewerTipShownRef.current) return
     viewerTipShownRef.current = true
     // Same as the entry tip: the entry carries the tip's definition and the
     // render translates it, so a locale switch re-translates this tip too.
-    setTipCards((prev) => [
-      ...prev,
-      {
-        id: crypto.randomUUID(),
-        tip: VIEWER_TIP,
-        timestamp: Date.now(),
-        accent: NOTICE_TONE.gold.accent,
-        icon: 'people',
-      },
-    ])
+    const viewerCard = {
+      id: crypto.randomUUID(),
+      tip: VIEWER_TIP,
+      timestamp: Date.now(),
+      accent: NOTICE_TONE.gold.accent,
+      icon: 'people' as const,
+    }
+    setTipCards((prev) => [...prev, viewerCard])
   }, [canEdit, discovery, transcriptOnly])
 
   // Surface an occasional idle tip. This effect re-runs on every message change, so
@@ -4421,6 +1646,8 @@ function ChatInner({
   // conversation has been quiet for TIP_IDLE_MS — and even then only when the
   // cooldown + random roll allow, and never before TIP_MIN_MESSAGES (so never on the
   // first prompt). Skipped entirely while a message is streaming.
+  const readMessageCount = useEffectEvent(() => messages.length)
+  // #effect chat:tips:4
   useEffect(() => {
     // Public transcript viewers have no actionable composer onboarding.
     if (transcriptOnly) return
@@ -4431,7 +1658,7 @@ function ChatInner({
     const timer = setTimeout(() => {
       const show = shouldShowIdleTip(
         {
-          messageCount: messagesRef.current.length,
+          messageCount: readMessageCount(),
           msSinceLastActivity: Date.now() - armedAt,
           msSinceLastTip: lastTipAtRef.current
             ? Date.now() - lastTipAtRef.current
@@ -4444,13 +1671,14 @@ function ChatInner({
       shownTipIdsRef.current = [...shownTipIdsRef.current, tip.id]
       lastTipAtRef.current = Date.now()
       // Same as the entry tip: key + English default now, sentence at render.
-      setTipCards((prev) => [...prev, { id: crypto.randomUUID(), tip, timestamp: Date.now() }])
+      const idleCard = { id: crypto.randomUUID(), tip, timestamp: Date.now() }
+      setTipCards((prev) => [...prev, idleCard])
     }, TIP_IDLE_MS)
     return () => clearTimeout(timer)
   }, [messages, discovery, transcriptOnly])
+  // #endregion chat:tips
 
-  // ── Sounds picker (shown when /sounds is executed) ────────────────────────
-  const [soundsPicker, setSoundsPicker] = useState<SoundsPicker | null>(null)
+  // #region chat:sounds
   // Notification sounds are a PER-DEVICE, per-user preference — localStorage,
   // never project settings. They used to persist via PATCH /projects settings
   // (shared with every member, and unreachable for read-only viewers, whose
@@ -4458,14 +1686,14 @@ function ChatInner({
   // fallback when this device has no local preference yet.
   const [soundsConfig, setSoundsConfig] = useState<SoundsConfig>(() => {
     try {
-      const raw = localStorage.getItem(SOUNDS_STORAGE_KEY)
-      if (raw) return { ...DEFAULT_SOUNDS_CONFIG, ...(JSON.parse(raw) as Partial<SoundsConfig>) }
+      return parseSoundsConfig(localStorage.getItem(SOUNDS_STORAGE_KEY))
     } catch (_error) {
-      // localStorage unavailable / bad JSON — fall through to the defaults.
+      // localStorage unavailable — fall through to the defaults.
     }
     return { ...DEFAULT_SOUNDS_CONFIG }
   })
   const soundsLocallySetRef = useRef(false)
+  // #effect chat:sounds:1
   useEffect(() => {
     try {
       soundsLocallySetRef.current = localStorage.getItem(SOUNDS_STORAGE_KEY) != null
@@ -4473,7 +1701,9 @@ function ChatInner({
       // localStorage unavailable — treat as unset; the project fallback may apply.
     }
   }, [])
+  // #endregion chat:sounds
 
+  // #region chat:prefs
   // ── Timestamps (/timestamps) ────────────────────────────────────────────────
   // A per-device display preference (localStorage, like sounds), off by default.
   // The minute clock re-plans which items show a time (see planChatTimestamps),
@@ -4488,26 +1718,18 @@ function ChatInner({
         visible
           ? t('ide.chat.timestampsShown', undefined, { defaultValue: 'Timestamps shown.' })
           : t('ide.chat.timestampsHidden', undefined, { defaultValue: 'Timestamps hidden.' }),
-        { clientOnly: true },
       )
     },
-    [addSystemCard],
+    [addSystemCard, t],
   )
+  // #endregion chat:prefs
 
-  // ── Panel overlay (/skills, /scripts, /settings — closeable popups) ──────────
-  // These three commands open a closeable overlay above the composer (mirrors how
-  // /model and /sounds own this popup region) instead of dropping an inline card
-  // into the timeline. `panelOverlayQuery` seeds the skills/scripts search from a
-  // `/skills <query>` / `/scripts <query>` invocation. Mutually exclusive with the
-  // model + sounds pickers — only one popup owns the region at a time.
-  const [panelOverlay, setPanelOverlay] = useState<
-    'skills' | 'scripts' | 'settings' | 'tests' | null
-  >(null)
-  const [panelOverlayQuery, setPanelOverlayQuery] = useState('')
+  // #region chat:overlay
   // Escape closes the overlay from anywhere inside it — including the embedded
   // card's own search input — the way this package's modals (ShareModal,
   // ReportModal) already do. A dialog is a WAI-ARIA widget, so its key listener
   // lives here rather than as a handler on a static element.
+  // #effect chat:overlay:1
   useEffect(() => {
     if (!panelOverlay) return
     const handler = (e: KeyboardEvent): void => {
@@ -4529,212 +1751,67 @@ function ChatInner({
     },
     [],
   )
+  // #endregion chat:overlay
 
+  // #region chat:tests
   // ── /test (the tests browser) ───────────────────────────────────────────────
-  // The list and the in-flight run live HERE, not inside TestsCard, for one
-  // reason: the card is an overlay the user closes. A run that is streaming
-  // (a browser spec can take a minute) must survive that close and still be
-  // there when they re-open it, and re-running /test must re-list without
-  // killing it. So the card is presentational and this owns the state.
-  const [testsList, setTestsList] = useState<TestItem[]>([])
-  const [testsStatus, setTestsStatus] = useState<TestsStatus>('loading')
-  const [testsRun, setTestsRun] = useState<TestsRunState>(EMPTY_RUN_STATE)
-  // Each callback closes over its own folded run. Only this invocation owns
-  // controls; stopped/completed invocations can still report trailing verdicts.
-  const ownTestRunRef = useRef<OwnTestRunInvocation | null>(null)
-  // Live "is a run in flight?" for the dispatchers, so `startTestsRun` keeps a
-  // stable identity — the command callbacks that hold it carry hand-written
-  // dependency lists, and a value that changes every run transition is one they
-  // would eventually capture stale.
-  const testsRunningRef = useRef(false)
-  testsRunningRef.current = testsRun.running
-  // One incremental projection: per-file verdicts plus bounded live/latest run state. Server ids
-  // dedupe the direct stream and feed echo; legacy id-less custom hosts use the bounded id guard.
-  const testRunProjectionRef = useRef<TestRunProjection | null>(null)
-  if (!testRunProjectionRef.current) testRunProjectionRef.current = new TestRunProjection()
-  const activeOwnTestRunIdsRef = useRef(new Set<string>())
-  const completedOwnTestRunIdsRef = useRef(new Set<string>())
-  const projectTestsRun = useCallback((): void => {
-    const invocation = ownTestRunRef.current
-    if (invocation && invocation.state.runId == null) {
-      setTestsRun(invocation.state)
-      return
-    }
-    const activeOwnRunId = invocation?.state.runId ?? null
-    const next = testRunProjectionRef.current!.show(activeOwnRunId)
-    setTestsRun(
-      invocation && next.runId === invocation.state.runId
-        ? {
-            ...next,
-            skipPending: invocation.state.skipPending,
-            skipUnavailable: invocation.state.skipUnavailable,
-          }
-        : next,
-    )
-  }, [])
-  const recordOwnTestRunEvent = useCallback((event: TestRunFeedEvent): void => {
-    const legacy = !event.eventId
-    if (legacy) {
-      if (ownTestRunRef.current?.state.runId === event.runId)
-        activeOwnTestRunIdsRef.current.add(event.runId)
-      else rememberCompletedOwnTestRunId(completedOwnTestRunIdsRef.current, event.runId)
-    }
-    testRunProjectionRef.current!.apply(event, ownTestRunRef.current?.state.runId ?? null)
-  }, [])
+  // The list and the in-flight run live in the shared ChatTestsController, not
+  // inside TestsCard, for one reason: the card is an overlay the user closes. A
+  // run that is streaming (a browser spec can take a minute) must survive that
+  // close and still be there when they re-open it, and re-running /test must
+  // re-list without killing it. So the card is presentational and the
+  // controller owns the state; this panel subscribes to it and renders its
+  // snapshot.
   // Whether a TURN is in flight — a fix is a real message, so it waits its turn.
-  const testsBusyRef = useRef(false)
-  // Live for the async callbacks, so a list resolving after an unmount, or a
-  // run event arriving then, never sets state on a dead tree.
-  const testsMountedRef = useRef(true)
+  const readTestsBusy = useStableCallback(() => isLoading || isRemoteStreaming)
+  const testsControllerRef = useRef<ChatTestsController | null>(null)
+  if (testsControllerRef.current == null) {
+    testsControllerRef.current = new ChatTestsController({
+      isTurnInFlight: readTestsBusy,
+      warn: (message, context) => {
+        logger.warn(message, context)
+      },
+    })
+  }
+  const testsController = testsControllerRef.current
+  const testsSnapshot = useSyncExternalStore(
+    testsController.subscribe,
+    testsController.snapshot,
+    testsController.snapshot,
+  )
+  const testsList = testsSnapshot.list
+  const testsStatus = testsSnapshot.status
+  const testsRun = testsSnapshot.run
+  // #effect chat:tests:1
   useEffect(() => {
     // React can reconnect effects on the same tree (StrictMode/Suspense).
     // Cleanup must not permanently silence discovery and run events.
-    testsMountedRef.current = true
-    return () => {
-      testsMountedRef.current = false
-      const own = ownTestRunRef.current
-      ownTestRunRef.current = null
-      own?.handle?.cancel()
-    }
-  }, [])
+    testsController.mount()
+    return () => testsController.unmount()
+  }, [testsController])
 
-  const refreshTests = useCallback(async (): Promise<void> => {
-    // A host that wires no discovery has no tests to show. Say so rather than
-    // opening a browser that spins on "Loading…" forever.
-    if (!listTests) {
-      setTestsStatus('error')
-      return
-    }
-    // Nothing can be discovered while the environment is down, and an empty
-    // answer would WIPE the list the person was reading.
-    if (testsAvailable === false) {
-      setTestsStatus('unavailable')
-      return
-    }
-    setTestsStatus((prev) => (prev === 'ready' ? prev : 'loading'))
-    try {
-      const list = await listTests()
-      if (!testsMountedRef.current) return
-      setTestsList(list.tests ?? [])
-      setTestsStatus('ready')
-    } catch (error) {
-      logger.warn('Failed to list project tests', { error })
-      if (!testsMountedRef.current) return
-      setTestsStatus('error')
-    }
-  }, [listTests, testsAvailable])
+  // The list request alone: every state change follows the host's answer.
+  const loadTests = useCallback(
+    (list: NonNullable<typeof listTests>): Promise<void> => testsController.loadTests(list),
+    [testsController],
+  )
+  const refreshTests = useCallback(
+    (): Promise<void> => testsController.refreshTests({ listTests, testsAvailable }),
+    [testsController, listTests, testsAvailable],
+  )
 
   const startTestsRun = useCallback(
     (selection: TestSelection): void => {
-      if (!runTests) return
-      if (canRunTests === false || canEdit === false) return
-      if (testsAvailable === false || testsRunningRef.current || ownTestRunRef.current) return
-      if (selection.ids?.length === 0) return
-      // Seed a running state immediately: the host's `start` event may be a
-      // round trip away, and a Run button that appears to do nothing is the
-      // failure this feature exists to remove.
-      const initial: TestsRunState = {
-        ...EMPTY_RUN_STATE,
-        running: true,
-        queued: [...(selection.ids ?? [])],
-        startedAt: Date.now(),
-        external: false,
-      }
-      const invocation: OwnTestRunInvocation = {
-        state: initial,
-        handle: null,
-        ended: null,
-      }
-      ownTestRunRef.current = invocation
-      setTestsRun((prev) => {
-        const results = { ...prev.results }
-        for (const id of initial.queued) delete results[id]
-        return { ...initial, results }
+      testsController.startTestsRun(selection, {
+        listTests,
+        runTests,
+        canRunTests,
+        canEdit,
+        testsAvailable,
+        translate: t,
       })
-      try {
-        const handle = runTests(selection, (event) => {
-          if (!testsMountedRef.current) return
-          const current = ownTestRunRef.current === invocation
-          const ended = invocation.ended
-          invocation.state = applyTestRunEvent(invocation.state, event)
-          const runId = invocation.state.runId
-
-          // Completion owns cleanup even when no start ever supplied an id. Otherwise one failed
-          // start leaves this invocation occupied and every later Run click returns early.
-          if (event.type === 'done') {
-            invocation.ended = event
-            if (current) ownTestRunRef.current = null
-            void refreshTests()
-          }
-
-          if (runId == null) {
-            if (current) setTestsRun(invocation.state)
-            return
-          }
-          if (event.type === 'start') {
-            recordOwnTestRunEvent(event)
-            if (ended) {
-              // A start delayed past cancellation is history, never a live own run.
-              invocation.state = applyTestRunEvent(invocation.state, ended)
-              recordOwnTestRunEvent({ ...ended, runId })
-            }
-          } else {
-            recordOwnTestRunEvent({ ...event, runId })
-          }
-          if (event.type === 'done' && !event.eventId) {
-            activeOwnTestRunIdsRef.current.delete(runId)
-            rememberCompletedOwnTestRunId(completedOwnTestRunIdsRef.current, runId)
-          }
-          projectTestsRun()
-        })
-        // The host is allowed to finish synchronously, before returning its
-        // handle. It no longer owns controls after handing the card onward.
-        if (ownTestRunRef.current !== invocation) return
-        invocation.handle = handle
-        // Whether a Skip control belongs on screen is decided HERE, by whether
-        // this host's handle serves one — not by the card guessing, and not by
-        // a button that would do nothing when clicked.
-        const skips = typeof handle.skipCurrent === 'function'
-        invocation.state = {
-          ...invocation.state,
-          skipPending: false,
-          skipUnavailable: !skips,
-        }
-        setTestsRun((prev) => ({ ...prev, skipPending: false, skipUnavailable: !skips }))
-      } catch (error) {
-        logger.warn('Failed to start a test run', { error })
-        if (ownTestRunRef.current !== invocation) return
-        ownTestRunRef.current = null
-        const message =
-          error instanceof Error
-            ? error.message
-            : t('ide.tests.runError', undefined, {
-                defaultValue: 'The test run could not start.',
-              })
-        const runId = invocation.state.runId
-        if (runId != null) {
-          const done = { type: 'done', outcome: 'error', error: message } as const
-          invocation.ended = done
-          invocation.state = applyTestRunEvent(invocation.state, done)
-          activeOwnTestRunIdsRef.current.delete(runId)
-          recordOwnTestRunEvent({ ...done, runId })
-          projectTestsRun()
-        } else if (testRunProjectionRef.current!.show().running) {
-          projectTestsRun()
-        } else {
-          setTestsRun((prev) => failRun(prev, message))
-        }
-      }
     },
-    [
-      runTests,
-      canRunTests,
-      canEdit,
-      testsAvailable,
-      refreshTests,
-      projectTestsRun,
-      recordOwnTestRunEvent,
-    ],
+    [testsController, listTests, runTests, canRunTests, canEdit, testsAvailable, t],
   )
 
   // Hand the failing tests to the agent as ONE ordinary user message — the same
@@ -4743,77 +1820,31 @@ function ChatInner({
   // closes so the person watches the turn they just started.
   const fixTests = useCallback(
     (failures: TestFailure[]): void => {
-      if (canEdit === false || failures.length === 0) return
-      if (testsBusyRef.current) return
-      const message = buildTestFixMessage(failures)
-      if (!message) return
-      setPanelOverlay(null)
-      sendMessageRef.current(message)
+      testsController.fixTests(failures, {
+        canEdit,
+        closeOverlay: () => {
+          setPanelOverlay(null)
+        },
+        sendMessage: sendLatestMessage,
+      })
     },
-    [canEdit],
+    [testsController, canEdit, sendLatestMessage],
   )
 
   const cancelTestsRun = useCallback((): void => {
-    // Only this panel's own run can be stopped from here; the controls are not
-    // offered on a run it is only watching.
-    const invocation = ownTestRunRef.current
-    if (!invocation) return
-    // Relinquish ownership before cancel(), which may synchronously call back.
-    ownTestRunRef.current = null
-    const done = { type: 'done', outcome: 'cancelled' } as const
-    invocation.ended = done
-    invocation.state = applyTestRunEvent(invocation.state, done)
-    const runId = invocation.state.runId
-    if (runId != null) {
-      activeOwnTestRunIdsRef.current.delete(runId)
-      recordOwnTestRunEvent({ ...done, runId })
-      projectTestsRun()
-    } else {
-      setTestsRun({ ...invocation.state, skipUnavailable: true })
-    }
-    invocation.handle?.cancel()
-  }, [projectTestsRun, recordOwnTestRunEvent])
+    testsController.cancelTestsRun()
+  }, [testsController])
 
   // Every run in the project, however it was started, reaches the same bar and
   // browser: the host replays the runs it still holds, then streams new ones.
-  // The ref keeps the subscription from restarting (and replaying) each time
-  // `refreshTests` changes identity.
-  const refreshTestsRef = useRef(refreshTests)
-  refreshTestsRef.current = refreshTests
-  useEffect(() => {
-    if (!watchTestRuns) return
-    let relist: ReturnType<typeof setTimeout> | null = null
-    let unsubscribe: (() => void) | null = null
-    try {
-      unsubscribe = watchTestRuns((event) => {
-        if (!testsMountedRef.current) return
-        // Only id-less legacy hosts need run-id suppression. Ordered copies dedupe by event id.
-        if (
-          !event.eventId &&
-          (activeOwnTestRunIdsRef.current.has(event.runId) ||
-            completedOwnTestRunIdsRef.current.has(event.runId))
-        ) {
-          return
-        }
-        testRunProjectionRef.current!.apply(event, ownTestRunRef.current?.state.runId ?? null)
-        projectTestsRun()
-        if (event.type === 'done') {
-          if (relist) clearTimeout(relist)
-          relist = setTimeout(() => {
-            relist = null
-            void refreshTestsRef.current()
-          }, 500)
-        }
-      })
-      projectTestsRun()
-    } catch (error) {
-      logger.warn('Failed to watch the project test runs', { error })
-    }
-    return () => {
-      if (relist) clearTimeout(relist)
-      unsubscribe?.()
-    }
-  }, [watchTestRuns, projectTestsRun])
+  // The effect event keeps the subscription from restarting (and replaying) each
+  // time `refreshTests` changes identity.
+  const refreshLatestTests = useEffectEvent(() => refreshTests())
+  // #effect chat:tests:2
+  useEffect(
+    () => testsController.watchRuns(watchTestRuns, refreshLatestTests),
+    [testsController, watchTestRuns],
+  )
 
   // Skip the executor's in-flight tool call WITHOUT ending the turn — the
   // model is told the command did not run and carries on. The card owns its own
@@ -4821,16 +1852,9 @@ function ChatInner({
   // call had already finished (a race the person did not cause), which the card
   // answers by returning the button to rest rather than reporting anything.
   const handleSkipToolCall = useCallback(
-    async (toolCallId: string): Promise<boolean | void> => {
-      if (canEdit === false || !skipToolCall) return false
-      try {
-        return await skipToolCall(toolCallId)
-      } catch (error) {
-        logger.warn('Failed to skip the running tool call', { error })
-        return false
-      }
-    },
-    [canEdit, skipToolCall],
+    async (toolCallId: string): Promise<boolean | void> =>
+      testsController.handleSkipToolCall(toolCallId, { canEdit, skipToolCall }),
+    [testsController, canEdit, skipToolCall],
   )
 
   // Skip the command the run is ON, leaving the run itself alive. The state
@@ -4839,73 +1863,32 @@ function ChatInner({
   // host answering "there was nothing to skip" is a race the person did not
   // cause: the control goes away, no error line.
   const skipCurrentTest = useCallback((): void => {
-    if (canEdit === false || canRunTests === false) return
-    const invocation = ownTestRunRef.current
-    if (!invocation) return
-    const skip = invocation.handle?.skipCurrent
-    if (!skip) {
-      invocation.state = markSkipUnavailable(invocation.state)
-      setTestsRun((prev) => markSkipUnavailable(prev))
-      return
-    }
-    invocation.state = requestSkip(invocation.state)
-    setTestsRun((prev) => requestSkip(prev))
-    const unavailable = (): void => {
-      if (testsMountedRef.current && ownTestRunRef.current === invocation) {
-        invocation.state = markSkipUnavailable(invocation.state)
-        setTestsRun((prev) => markSkipUnavailable(prev))
-      }
-    }
-    try {
-      const outcome = skip.call(invocation.handle)
-      if (outcome) {
-        void outcome.then(
-          (accepted) => {
-            if (accepted === false) unavailable()
-          },
-          (error: unknown) => {
-            logger.warn('Failed to skip the running test', { error })
-            unavailable()
-          },
-        )
-      }
-    } catch (error) {
-      logger.warn('Failed to skip the running test', { error })
-      unavailable()
-    }
-  }, [canEdit, canRunTests])
+    testsController.skipCurrentTest({ canEdit, canRunTests })
+  }, [testsController, canEdit, canRunTests])
 
   /** Open the tests browser, re-listing so a spec just written shows up. */
   const openTestsBrowser = useCallback(
     (query = '', runAll = false): void => {
       openPanelOverlay('tests', query)
       void refreshTests().then(() => {
-        if (runAll && testsMountedRef.current) startTestsRun({ kind: 'all' })
+        if (runAll && testsController.isMounted()) startTestsRun({ kind: 'all' })
       })
     },
-    [openPanelOverlay, refreshTests, startTestsRun],
+    [openPanelOverlay, refreshTests, startTestsRun, testsController],
   )
+  // #endregion chat:tests
 
+  // #region chat:sounds
   // Keep ref in sync so the streaming callback always sees latest config
+  // #effect chat:sounds:2
   useEffect(() => {
     soundsConfigRef.current = soundsConfig
   }, [soundsConfig])
 
-  /** Cycle a single sound event's mode and persist to project settings. */
+  /** Cycle a single sound event's mode and persist to this device. */
   const cycleSoundMode = useCallback(
     async (eventType: SoundEventType | 'all') => {
-      let updated: SoundsConfig
-      if (eventType === 'all') {
-        const current = soundsConfig[SOUND_EVENTS[0]]
-        const nextIdx = (SOUND_MODES.indexOf(current) + 1) % SOUND_MODES.length
-        const next = SOUND_MODES[nextIdx]
-        updated = Object.fromEntries(SOUND_EVENTS.map((e) => [e, next])) as SoundsConfig
-      } else {
-        const current = soundsConfig[eventType]
-        const nextIdx = (SOUND_MODES.indexOf(current) + 1) % SOUND_MODES.length
-        const next = SOUND_MODES[nextIdx]
-        updated = { ...soundsConfig, [eventType]: next }
-      }
+      const updated = cycleSoundsConfig(soundsConfig, eventType)
       setSoundsConfig(updated)
       // Per-device preference — localStorage, never a project PATCH (see the
       // state's comment; this also makes /sounds fully usable for viewers).
@@ -4918,7 +1901,25 @@ function ChatInner({
     },
     [soundsConfig],
   )
+  // #endregion chat:sounds
 
+  // #region chat:skills
+  // The persisted per-project default-loaded skill set (settings.defaultSkills). A
+  // default skill's full body is injected by the backend into every system prompt;
+  // the /skills browser shows a "Default" badge + a toggle to edit the set (P2-08).
+  const [defaultSkillPaths, setDefaultSkillPaths] = useState<ReadonlySet<string>>(
+    () => new Set<string>(),
+  )
+  // P3-11: whether the user has an EXPLICIT saved defaultSkills set. When false
+  // (unset), ALL initial/discovered skills are treated as default (badged here +
+  // injected full-body by the backend) — seeded in the skill-load effect below.
+  const defaultSkillsExplicitRef = useRef(false)
+  // The same flag for rendering (the /skills browser's reset control), set
+  // wherever the ref is.
+  const [defaultSkillsExplicit, setDefaultSkillsExplicit] = useState(false)
+  // #endregion chat:skills
+
+  // #region chat:models
   // ── Current project settings (model + maxloops + sounds) ──────────────────
   // Project-scoped so any custom (bring-your-own AI) models the project has
   // configured are included alongside the platform catalog.
@@ -4931,7 +1932,6 @@ function ChatInner({
   const FREE_TIER_MODEL = freeTierModel?.id ?? AVAILABLE_MODELS[0]?.id ?? ''
   const DEFAULT_MODEL = FREE_TIER_MODEL
   const isFreeTier = !isPro
-  const [currentModel, setCurrentModel] = useState<string>('')
   // The PERSISTED legacy chatModel only — unlike currentModel, never seeded
   // with the catalog default. The distinction matters: a seeded default is not
   // a user choice, and treating it as one made every plan-mode surface label
@@ -4965,75 +1965,62 @@ function ChatInner({
   const [autoApproveCommandsEnabled, setAutoApproveCommandsEnabled] = useState<boolean>(false)
   // Adopt the free-tier model id as soon as the catalog resolves, unless the
   // project-settings fetch already populated currentModel with a saved choice.
-  useEffect(() => {
-    if (!currentModel && DEFAULT_MODEL) {
-      setCurrentModel(DEFAULT_MODEL)
-    }
-  }, [currentModel, DEFAULT_MODEL])
+  const currentModel = savedChatModel || DEFAULT_MODEL
 
   // The model a conversation mode will ACTUALLY use, for every display surface
   // (picker pill, /model suffix, settings rows, fast-mode gating). Mirrors the
   // server's selection chain: per-mode setting → SAVED chatModel → the
   // server-sent per-mode default (owner account settings + tier already folded
   // in) → the catalog clamp.
-  const effectiveModelForMode = (m: 'plan' | 'execute'): string =>
-    effectiveModeModelId(
-      m,
-      { planModel, executeModel, chatModel: savedChatModel },
+  const effectiveModelForMode = useCallback(
+    (m: 'plan' | 'execute'): string =>
+      effectiveModeModelId(
+        m,
+        { planModel, executeModel, chatModel: savedChatModel },
+        serverModelDefaults,
+        isFreeTier,
+        AVAILABLE_MODELS,
+        FREE_TIER_MODEL,
+      ),
+    [
+      planModel,
+      executeModel,
+      savedChatModel,
       serverModelDefaults,
       isFreeTier,
       AVAILABLE_MODELS,
       FREE_TIER_MODEL,
-    )
+    ],
+  )
+  // #effect chat:models:2
   useEffect(() => {
     http
       .get<{ settings?: Record<string, unknown> }>(`/projects/${projectId}`)
       .then((res) => {
         const s = res.data.settings
-        if (typeof s?.chatModel === 'string') {
-          setCurrentModel(s.chatModel)
-          setSavedChatModel(s.chatModel)
+        const parsed = parseChatProjectSettings(s)
+        if (parsed.chatModel !== undefined) {
+          setSavedChatModel(parsed.chatModel)
         }
-        if (typeof s?.planModel === 'string') setPlanModel(s.planModel)
-        if (typeof s?.executeModel === 'string') setExecuteModel(s.executeModel)
-        if (typeof s?.commitModel === 'string') setCommitModel(s.commitModel)
-        if (typeof s?.compactModel === 'string') setCompactModel(s.compactModel)
-        // The persisted value is the model's own native level — accept any
-        // non-empty string; it's resolved against the active model at use time.
-        if (typeof s?.effortLevel === 'string' && s.effortLevel) {
-          setEffortLevel(s.effortLevel)
+        if (parsed.planModel !== undefined) setPlanModel(parsed.planModel)
+        if (parsed.executeModel !== undefined) setExecuteModel(parsed.executeModel)
+        if (parsed.commitModel !== undefined) setCommitModel(parsed.commitModel)
+        if (parsed.compactModel !== undefined) setCompactModel(parsed.compactModel)
+        if (parsed.effortLevel !== undefined) {
+          setEffortLevel(parsed.effortLevel)
         }
-        // Per-mode effort map — accept each string entry (untrusted JSON bag).
-        if (
-          s?.effortByMode &&
-          typeof s.effortByMode === 'object' &&
-          !Array.isArray(s.effortByMode)
-        ) {
-          const next: Partial<Record<EffortMode, EffortLevel>> = {}
-          for (const m of ['plan', 'execute'] as const) {
-            const raw = (s.effortByMode as Record<string, unknown>)[m]
-            if (typeof raw === 'string' && raw) next[m] = raw
-          }
-          setEffortByMode(next)
+        if (parsed.effortByMode !== undefined) {
+          setEffortByMode(parsed.effortByMode)
         }
-        // Per-model processing region map — accept each known-region entry
-        // (untrusted JSON bag), mirroring effortByMode above.
-        if (
-          s?.modelRegions &&
-          typeof s.modelRegions === 'object' &&
-          !Array.isArray(s.modelRegions)
-        ) {
-          const nextRegions: Record<string, ModelRegion> = {}
-          for (const [id, raw] of Object.entries(s.modelRegions as Record<string, unknown>)) {
-            if (typeof raw === 'string' && raw in MODEL_REGION_FLAGS) nextRegions[id] = raw
-          }
-          setModelRegions(nextRegions)
+        if (parsed.modelRegions !== undefined) {
+          setModelRegions(parsed.modelRegions)
         }
         // Persisted per-project default-loaded skills (P2-06/P2-08).
         const savedDefaultSkills = s?.defaultSkills
         if (Array.isArray(savedDefaultSkills)) {
           // An explicit saved set wins over the "all initial skills" default (P3-11).
           defaultSkillsExplicitRef.current = true
+          setDefaultSkillsExplicit(true)
           setDefaultSkillPaths(
             new Set(savedDefaultSkills.filter((p): p is string => typeof p === 'string')),
           )
@@ -5041,15 +2028,15 @@ function ChatInner({
         // (The "Loaded {{count}} skills" announce marker is now read + maintained
         // server-side — see the skills_loaded emit in chat-handler — so the client no
         // longer hydrates it here.)
-        if (typeof s?.maxToolLoops === 'number') setCurrentMaxLoops(s.maxToolLoops)
-        if (typeof s?.autoFix === 'boolean') setAutoFixEnabled(s.autoFix)
-        if (typeof s?.autoApproveCommands === 'boolean') {
-          setAutoApproveCommandsEnabled(s.autoApproveCommands)
+        if (parsed.maxToolLoops !== undefined) setCurrentMaxLoops(parsed.maxToolLoops)
+        if (parsed.autoFix !== undefined) setAutoFixEnabled(parsed.autoFix)
+        if (parsed.autoApproveCommands !== undefined) {
+          setAutoApproveCommandsEnabled(parsed.autoApproveCommands)
         }
         // Legacy migration only: sounds are per-device (localStorage) now — apply
         // the old project-level value only when this device has no local pref.
         if (s?.sounds && typeof s.sounds === 'object' && !soundsLocallySetRef.current) {
-          setSoundsConfig((prev) => ({ ...prev, ...(s.sounds as Partial<SoundsConfig>) }))
+          setSoundsConfig((prev) => mergeSoundsConfig(prev, s.sounds))
         }
         // Restore the persisted auto-commit cadence in the paused state (it
         // re-arms on the next file change). Auto-commit is ON by default: a
@@ -5060,7 +2047,7 @@ function ChatInner({
         // the denial card it minted) when it lapses.
         const savedAutoCommit = resolveAutoCommitSeconds(s?.autoCommitSeconds)
         autoCommitPersistedRef.current = savedAutoCommit
-        if (savedAutoCommit > 0 && canEditRef.current !== false) {
+        if (savedAutoCommit > 0 && readCanEdit() !== false) {
           dispatchAutoCommit({ type: 'hydrate', seconds: savedAutoCommit })
         }
         setAutoCommitLoaded(true)
@@ -5086,48 +2073,32 @@ function ChatInner({
   // match the change instead of rendering stale values under the shared setting
   // card. Deliberately does NOT touch auto-commit or skills (they carry local
   // in-session state the mount effect owns). Skips the initial 0 value.
+  // #effect chat:models:3
   useEffect(() => {
     if (!modelSelectionSignal) return
     http
       .get<{ settings?: Record<string, unknown> }>(`/projects/${projectId}`)
       .then((res) => {
         const s = res.data.settings
-        if (typeof s?.chatModel === 'string') {
-          setCurrentModel(s.chatModel)
-          setSavedChatModel(s.chatModel)
+        const parsed = parseChatProjectSettings(s)
+        if (parsed.chatModel !== undefined) {
+          setSavedChatModel(parsed.chatModel)
         }
-        if (typeof s?.planModel === 'string') setPlanModel(s.planModel)
-        if (typeof s?.executeModel === 'string') setExecuteModel(s.executeModel)
-        if (typeof s?.commitModel === 'string') setCommitModel(s.commitModel)
-        if (typeof s?.compactModel === 'string') setCompactModel(s.compactModel)
-        if (typeof s?.effortLevel === 'string' && s.effortLevel) setEffortLevel(s.effortLevel)
-        if (
-          s?.effortByMode &&
-          typeof s.effortByMode === 'object' &&
-          !Array.isArray(s.effortByMode)
-        ) {
-          const next: Partial<Record<EffortMode, EffortLevel>> = {}
-          for (const m of ['plan', 'execute'] as const) {
-            const raw = (s.effortByMode as Record<string, unknown>)[m]
-            if (typeof raw === 'string' && raw) next[m] = raw
-          }
-          setEffortByMode(next)
+        if (parsed.planModel !== undefined) setPlanModel(parsed.planModel)
+        if (parsed.executeModel !== undefined) setExecuteModel(parsed.executeModel)
+        if (parsed.commitModel !== undefined) setCommitModel(parsed.commitModel)
+        if (parsed.compactModel !== undefined) setCompactModel(parsed.compactModel)
+        if (parsed.effortLevel !== undefined) setEffortLevel(parsed.effortLevel)
+        if (parsed.effortByMode !== undefined) {
+          setEffortByMode(parsed.effortByMode)
         }
-        if (
-          s?.modelRegions &&
-          typeof s.modelRegions === 'object' &&
-          !Array.isArray(s.modelRegions)
-        ) {
-          const nextRegions: Record<string, ModelRegion> = {}
-          for (const [id, raw] of Object.entries(s.modelRegions as Record<string, unknown>)) {
-            if (typeof raw === 'string' && raw in MODEL_REGION_FLAGS) nextRegions[id] = raw
-          }
-          setModelRegions(nextRegions)
+        if (parsed.modelRegions !== undefined) {
+          setModelRegions(parsed.modelRegions)
         }
-        if (typeof s?.maxToolLoops === 'number') setCurrentMaxLoops(s.maxToolLoops)
-        if (typeof s?.autoFix === 'boolean') setAutoFixEnabled(s.autoFix)
-        if (typeof s?.autoApproveCommands === 'boolean') {
-          setAutoApproveCommandsEnabled(s.autoApproveCommands)
+        if (parsed.maxToolLoops !== undefined) setCurrentMaxLoops(parsed.maxToolLoops)
+        if (parsed.autoFix !== undefined) setAutoFixEnabled(parsed.autoFix)
+        if (parsed.autoApproveCommands !== undefined) {
+          setAutoApproveCommandsEnabled(parsed.autoApproveCommands)
         }
       })
       .catch((error) => {
@@ -5136,12 +2107,15 @@ function ChatInner({
         logger.debug('chat-panel: settings re-read after a change signal failed', { error })
       })
   }, [modelSelectionSignal, http, projectId])
+  // #endregion chat:models
 
+  // #region chat:auto-commit
   // Persist the auto-commit cadence to project.settings (debounced) so it
   // survives a reload/reconnect like every other setting. The reducer is the
   // live source of truth; this mirrors intervalSeconds (0 = off) back to the
   // server whenever the user changes it (/autocommit or the badge's cancel),
   // skipping the value just hydrated on load and gated until that load resolves.
+  // #effect chat:auto-commit:1
   useEffect(() => {
     if (!autoCommitLoaded) return
     // A viewer never mirrors auto-commit state back to the project — the PATCH
@@ -5163,7 +2137,9 @@ function ChatInner({
       if (autoCommitPatchTimerRef.current) clearTimeout(autoCommitPatchTimerRef.current)
     }
   }, [autoCommit.intervalSeconds, autoCommitLoaded, http, projectId, canEdit])
+  // #endregion chat:auto-commit
 
+  // #region chat:models
   // ── Removed-model recovery ──────────────────────────────────────────────────
   // If the saved chatModel is no longer in the catalog (a provider retired it,
   // or we pruned the entry), notify once and fall back to the free-tier model.
@@ -5171,53 +2147,27 @@ function ChatInner({
   // project. Tracks the removed id so a user could in theory hit this twice
   // for two different removed models in the same session.
   const removedModelNotifiedRef = useRef<string | null>(null)
+  // #effect chat:models:4
   useEffect(() => {
     if (modelsLoading) return
     if (!currentModel) return
     if (AVAILABLE_MODELS.some((m) => m.id === currentModel)) return
-    if (removedModelNotifiedRef.current === currentModel) return
-    removedModelNotifiedRef.current = currentModel
     const removedId = currentModel
-    // Prefer a still-available model from the SAME custom provider before a
-    // platform model: when a BYO provider's model is renamed (custom/<prov>/A →
-    // custom/<prov>/B), keep the user on their own endpoint rather than bouncing
-    // them to a platform free model.
-    const sameProviderPrefix = removedId.match(/^(custom\/[^/]+\/)/)?.[1]
-    const sameProviderModel = sameProviderPrefix
-      ? AVAILABLE_MODELS.find((m) => m.id.startsWith(sameProviderPrefix))?.id
-      : undefined
-    const fallback = sameProviderModel || FREE_TIER_MODEL || AVAILABLE_MODELS[0]?.id
-    addSystemCard(
-      fallback
-        ? t(
-            'ide.chat.modelRemoved',
-            { removed: removedId, fallback },
-            {
-              defaultValue:
-                'Your selected model "{{removed}}" is no longer available. Switched to "{{fallback}}". Type /model to pick another.',
-            },
-          )
-        : t(
-            'ide.chat.modelRemovedNoFallback',
-            { removed: removedId },
-            {
-              defaultValue:
-                'Your selected model "{{removed}}" is no longer available, and no replacement is bonded on the server. Ask your admin to wire an AI provider.',
-            },
-          ),
-    )
-    if (fallback) {
-      setCurrentModel(fallback)
-      setSavedChatModel(fallback)
-      // Persisting the swap writes project settings — editor+ server-side, so a
-      // viewer's tab keeps the in-memory switch (all this session needs) and
-      // skips a PATCH that could only 403.
-      if (canEdit !== false) {
-        http.patch(settingsPatchUrl(), { settings: { chatModel: fallback } }).catch((error) => {
-          // Persistence is best-effort; the in-memory switch is what matters.
-          logger.warn('chat-panel: persisting the model fallback swap failed', { error })
-        })
-      }
+    if (removedModelNotifiedRef.current === removedId) return
+    const decision = resolveRemovedModelFallback(removedId, AVAILABLE_MODELS, FREE_TIER_MODEL, t)
+    removedModelNotifiedRef.current = removedId
+    addSystemCard(decision.notice)
+    if (!decision.fallback) return
+    const fallback = decision.fallback
+    setSavedChatModel(fallback)
+    // Persisting the swap writes project settings — editor+ server-side, so a
+    // viewer's tab keeps the in-memory switch (all this session needs) and
+    // skips a PATCH that could only 403.
+    if (canEdit !== false) {
+      http.patch(settingsPatchUrl(), { settings: { chatModel: fallback } }).catch((error) => {
+        // Persistence is best-effort; the in-memory switch is what matters.
+        logger.warn('chat-panel: persisting the model fallback swap failed', { error })
+      })
     }
   }, [
     modelsLoading,
@@ -5228,26 +2178,29 @@ function ChatInner({
     http,
     projectId,
     canEdit,
+    t,
+    settingsPatchUrl,
   ])
+  // #endregion chat:models
 
+  // #region chat:queued-edit
   // ── Queued message editing ──────────────────────────────────────────────────
   const [editingQueuedId, setEditingQueuedId] = useState<string | null>(null)
   const [editingQueuedText, setEditingQueuedText] = useState('')
   const queuedEditRef = useRef<HTMLTextAreaElement>(null)
   // Opening the editor is a user action, so moving focus into it is the
   // WAI-ARIA pattern — done here instead of with `autoFocus`.
+  // #effect chat:queued-edit:1
   useEffect(() => {
     if (editingQueuedId) queuedEditRef.current?.focus()
   }, [editingQueuedId])
+  // #endregion chat:queued-edit
 
-  // ── Input focus ────────────────────────────────────────────────────────────
-
-  // ── Scroll ─────────────────────────────────────────────────────────────────
-  const messagesEndRef = useRef<HTMLDivElement>(null)
-  const messagesContainerRef = useRef<HTMLDivElement>(null)
-  const userScrolledUpRef = useRef(false)
+  // #region chat:auto-send
   const sentInitialRef = useRef<string | null>(null)
+  // #endregion chat:auto-send
 
+  // #region chat:scroll
   // ── Auto-load earlier history on scroll-up ─────────────────────────────────
   // The timeline only mounts the most recent `maxVisibleItems` items; when the
   // user scrolls near the top, the next older page is mounted in and the scroll
@@ -5260,12 +2213,16 @@ function ChatInner({
   // listener must not re-register on every streamed item.
   /** scrollHeight captured when a page load was triggered; consumed by the anchor effect. */
   const pendingAnchorHeightRef = useRef<number | null>(null)
-  /** Whether older items are currently held back (assigned during render). */
-  const hasHiddenEarlierRef = useRef(false)
+  /**
+   * Whether older items are currently held back: filled once, where `timeline`
+   * exists, with a stable callback that reads the latest committed timeline.
+   */
+  const hasHiddenEarlierRef = useRef<(() => boolean) | null>(null)
 
   // Keeps the viewport still across a prepend. Native scroll anchoring is
   // disabled on the container (overflowAnchor: 'none') so this is the only
   // mechanism adjusting the offset — otherwise both would fire and double-jump.
+  // #effect chat:scroll:1
   useLayoutEffect(() => {
     const anchor = pendingAnchorHeightRef.current
     if (anchor === null) return
@@ -5289,6 +2246,7 @@ function ChatInner({
   // and only cleared on an up-swipe — a single tap after boot permanently killed
   // every auto-scroll, which is why the live response stayed out of view on
   // mobile.
+  // #effect chat:scroll:2
   useEffect(() => {
     const el = messagesContainerRef.current
     if (!el) return
@@ -5296,7 +2254,7 @@ function ChatInner({
       userScrolledUpRef.current = el.scrollHeight - el.scrollTop - el.clientHeight > 80
       // Near the top with older history held back: mount the next page in. The
       // anchor effect above keeps the viewport still across the prepend.
-      if (el.scrollTop <= LOAD_EARLIER_THRESHOLD_PX && hasHiddenEarlierRef.current) {
+      if (el.scrollTop <= LOAD_EARLIER_THRESHOLD_PX && hasHiddenEarlierRef.current?.()) {
         pendingAnchorHeightRef.current = el.scrollHeight
         setMaxVisibleItems((n) => n + 40)
       }
@@ -5304,23 +2262,36 @@ function ChatInner({
     el.addEventListener('scroll', onScroll, { passive: true })
     return () => el.removeEventListener('scroll', onScroll)
   }, [])
+  // #endregion chat:scroll
 
+  // #region chat:git
   // ── Git status ─────────────────────────────────────────────────────────────
   const [gitStatusTick, setGitStatusTick] = useState(0)
   const refreshGitStatus = useCallback(() => setGitStatusTick((n) => n + 1), [])
 
+  // Generation counters: a git request remembers the generation it started in and drops its
+  // result when the counter has moved on. Ending a scope (another project, an unmount) moves it.
   const gitScopeRef = useRef(0)
-  useLayoutEffect(() => {
+  const endGitScope = useCallback(() => {
     gitScopeRef.current++
+  }, [])
+  // #effect chat:git:1
+  const [gitProjectId, setGitProjectId] = useState(projectId)
+  if (gitProjectId !== projectId) {
+    setGitProjectId(projectId)
     setPendingFiles(null)
     setCommitState(null)
     setCommitCards([])
     setCommitBarExpanded(false)
-    return () => {
-      gitScopeRef.current++
-    }
-  }, [projectId])
+  }
+  useLayoutEffect(() => {
+    endGitScope()
+    return endGitScope
+  }, [projectId, endGitScope])
   const gitStatusRequestRef = useRef(0)
+  const dropGitStatusRequests = useCallback(() => {
+    gitStatusRequestRef.current++
+  }, [])
   const fetchPendingFiles = useCallback(() => {
     const scope = gitScopeRef.current
     const request = ++gitStatusRequestRef.current
@@ -5353,16 +2324,18 @@ function ChatInner({
   }, [fetchPendingFiles])
   // Expose to onFileChangeWrapped (declared earlier): AI writes streaming in
   // mid-turn refresh the bar live instead of waiting for the turn to end.
-  debouncedFetchPendingFilesRef.current = debouncedFetchPendingFiles
+  useCommittedRef(debouncedFetchPendingFilesRef, debouncedFetchPendingFiles)
 
   // Fetch on turn boundaries and internal refreshGitStatus() calls. Deliberately
   // NOT gated on isLoading: mid-turn updates must go through (the live per-write
   // refresh is the debounced path above; this one settles the final state).
+  // #effect chat:git:2
   useEffect(() => {
     fetchPendingFiles()
   }, [isLoading, gitStatusTick, fetchPendingFiles])
   // Fetch when the parent signals a file mutation (edit, rename, delete) —
   // debounced so save+format coalesces into one fetch after the final write.
+  // #effect chat:git:3
   useEffect(() => {
     if (!externalGitStatusTick) return
     debouncedFetchPendingFiles()
@@ -5370,6 +2343,7 @@ function ChatInner({
 
   // Startup repairs, another editor, or another client can commit without a
   // local file event. Reconcile on return and while the workspace is visible.
+  // #effect chat:git:4
   useEffect(() => {
     const refresh = (): void => {
       if (document.visibilityState !== 'hidden') void fetchPendingFiles()
@@ -5382,13 +2356,16 @@ function ChatInner({
       document.removeEventListener('visibilitychange', refresh)
       clearInterval(interval)
       if (gitFetchTimerRef.current) clearTimeout(gitFetchTimerRef.current)
-      gitStatusRequestRef.current++
+      dropGitStatusRequests()
     }
-  }, [fetchPendingFiles])
+  }, [fetchPendingFiles, dropGitStatusRequests])
+  // #endregion chat:git
 
+  // #region chat:auto-commit
   // A user-side file mutation (edit/rename/delete) also restarts the auto-commit
   // countdown — the parent's externalGitStatusTick is the canonical "files moved"
   // signal. Skipped on the initial 0 so opening a project doesn't arm anything.
+  // #effect chat:auto-commit:2
   useEffect(() => {
     if (!externalGitStatusTick) return
     dispatchAutoCommit({ type: 'reset' })
@@ -5404,14 +2381,27 @@ function ChatInner({
   // last file change and the turn's end, never mid-turn.
   const autoCommitArmed = isAutoCommitArmed(autoCommit)
   const autoCommitHeld = isLoading || isRemoteStreaming || autoFixCountdown !== null
-  // Keep the tests-card fix gate live (declared above, where the run state is).
-  testsBusyRef.current = isLoading || isRemoteStreaming
+  const executeCommandRef = useRef<((id: string) => unknown) | null>(null)
+  // One second of the countdown has passed. The last second fires /commit and pauses the
+  // countdown until the next file change; a viewer's countdown runs out and stays there.
+  const onAutoCommitSecond = useEffectEvent(() => {
+    if (autoCommit.remaining === null || autoCommitHeld) return
+    if (autoCommit.remaining > 1 || canEdit === false) {
+      dispatchAutoCommit({ type: 'tick' })
+      return
+    }
+    void executeCommandRef.current?.('commit')
+    dispatchAutoCommit({ type: 'fired' })
+  })
+  // #effect chat:auto-commit:3
   useEffect(() => {
     if (!autoCommitArmed || autoCommitHeld) return
-    const id = setInterval(() => dispatchAutoCommit({ type: 'tick' }), 1000)
+    const id = setInterval(onAutoCommitSecond, 1000)
     return () => clearInterval(id)
   }, [autoCommitArmed, autoCommitHeld])
+  // #endregion chat:auto-commit
 
+  // #region chat:tests-bar
   // The tests bar hides itself on a project with no tests, so it has to LEARN
   // whether any exist without the person opening the browser first — otherwise
   // "shown by default" would mean "shown after you ask for it once", which is
@@ -5422,22 +2412,30 @@ function ChatInner({
   // first spec. A project that already has tests never pays for the second
   // probe, because the effect returns the moment the list is non-empty.
   const turnInFlight = isLoading || isRemoteStreaming
+  const testsDiscovery =
+    testsBarVisible &&
+    listTests !== undefined &&
+    testsAvailable === true &&
+    !turnInFlight &&
+    !testsRun.running &&
+    testsList.length === 0
+      ? listTests
+      : null
+  // A discovery that starts shows "loading" in the render that starts it, unless a list is showing.
+  const [testsDiscoverySeen, setTestsDiscoverySeen] = useState<{
+    list: NonNullable<typeof listTests>
+  } | null>(null)
+  if ((testsDiscoverySeen?.list ?? null) !== testsDiscovery) {
+    setTestsDiscoverySeen(testsDiscovery ? { list: testsDiscovery } : null)
+    if (testsDiscovery && testsStatus !== 'ready') testsController.setStatus('loading')
+  }
+  // #effect chat:tests-bar:1
   useEffect(() => {
-    if (!testsBarVisible || !listTests) return
-    if (testsAvailable !== true) return
-    if (turnInFlight || testsRun.running) return
-    if (testsList.length > 0) return
-    void refreshTests()
-  }, [
-    testsBarVisible,
-    listTests,
-    testsAvailable,
-    turnInFlight,
-    testsRun.running,
-    testsList.length,
-    refreshTests,
-  ])
+    if (testsDiscovery) void loadTests(testsDiscovery)
+  }, [testsDiscovery, loadTests])
+  // #endregion chat:tests-bar
 
+  // #region chat:git
   // Wrap onFileRevert so undo/redo also refreshes git status
   const handleFileRevert = useCallback(
     async (path: string, content: string) => {
@@ -5446,13 +2444,16 @@ function ChatInner({
     },
     [onFileRevert, refreshGitStatus],
   )
+  // #endregion chat:git
 
+  // #region chat:scroll
   // ── Auto-scroll ────────────────────────────────────────────────────────────
   // Debounced to batch rapid streaming updates. Uses direct scrollTop assignment
   // instead of scrollIntoView to avoid smooth-scroll animation timing issues
   // (intermediate onScroll events, unpredictable animation duration).
   // Skipped when the user has scrolled up via wheel/touch.
   const scrollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  // #effect chat:scroll:3
   useEffect(() => {
     if (userScrolledUpRef.current) return
     if (scrollTimerRef.current) clearTimeout(scrollTimerRef.current)
@@ -5471,6 +2472,7 @@ function ChatInner({
   // down to find them (reported on mobile after the boot view clears). Guarded by
   // the same userScrolledUp intent so it never yanks a user who deliberately
   // scrolled up to read history.
+  // #effect chat:scroll:4
   useEffect(() => {
     const el = messagesContainerRef.current
     if (!el || typeof ResizeObserver === 'undefined') return
@@ -5492,6 +2494,7 @@ function ChatInner({
   // touch/scroll can spuriously set userScrolledUp; so force the bottom across
   // the settle window (double-rAF + a post-transition follow-up) and clear that
   // flag — a fresh mount has no legitimate "scrolled up" state to preserve.
+  // #effect chat:scroll:5
   useEffect(() => {
     const toBottom = (): void => {
       userScrolledUpRef.current = false
@@ -5505,35 +2508,37 @@ function ChatInner({
       clearTimeout(t)
     }
   }, [])
+  // #endregion chat:scroll
 
+  // #region chat:auto-send
   // ── Auto-send initial message ──────────────────────────────────────────────
   // Skip if a conversation already exists (e.g. page refresh with router state preserved).
+  // #effect chat:auto-send:1
   useEffect(() => {
-    if (initialMessage && !hasConversation && sentInitialRef.current !== initialMessage) {
+    if (!initialMessage || hasConversation) return
+    // A read-only VIEWER never auto-sends the initial prompt: the host sources
+    // it from PROJECT-keyed localStorage, which survives a role demotion and a
+    // shared browser — a stale entry would auto-POST an agent turn the server
+    // 403s, surfacing a spurious red error on mount. Consume the ref so it is
+    // never retried either.
+    if (canEdit === false) {
       sentInitialRef.current = initialMessage
-      // A read-only VIEWER never auto-sends the initial prompt: the host sources
-      // it from PROJECT-keyed localStorage, which survives a role demotion and a
-      // shared browser — a stale entry would auto-POST an agent turn the server
-      // 403s, surfacing a spurious red error on mount. Consume the ref (above)
-      // so it is never retried either.
-      if (canEdit === false) return
-      if (blockDisabledTeamMessage(initialMessage)) {
-        onInitialMessageSent?.()
-        return
-      }
-      const sideChannel =
-        canSendTeamMessages !== false &&
-        matchesSideChannelCommand(
-          extraCommands?.length ? [...COMMANDS, ...extraCommands] : COMMANDS,
-          initialMessage,
-        )
-      sendMessage(
-        initialMessage,
-        undefined,
-        sideChannel ? { suppressUserMessage: true } : undefined,
-      )
-      onInitialMessageSent?.()
+      return
     }
+    if (sentInitialRef.current === initialMessage) return
+    sentInitialRef.current = initialMessage
+    if (blockDisabledTeamMessage(initialMessage)) {
+      onInitialMessageSent?.()
+      return
+    }
+    const sideChannel =
+      canSendTeamMessages !== false &&
+      matchesSideChannelCommand(
+        extraCommands?.length ? [...COMMANDS, ...extraCommands] : COMMANDS,
+        initialMessage,
+      )
+    sendMessage(initialMessage, undefined, sideChannel ? { suppressUserMessage: true } : undefined)
+    onInitialMessageSent?.()
   }, [
     initialMessage,
     hasConversation,
@@ -5551,42 +2556,43 @@ function ChatInner({
   const lastPendingKeyRef = useRef(pendingMessageKey)
 
   // When a new pending message arrives, either send immediately or defer
+  // #effect chat:auto-send:2
   useEffect(() => {
-    if (
-      pendingMessage &&
-      pendingMessageKey !== undefined &&
-      pendingMessageKey !== lastPendingKeyRef.current
-    ) {
+    if (!pendingMessage || pendingMessageKey === undefined) return
+    // A read-only VIEWER never dispatches platform-composed sends (build
+    // kickoffs, auto-fixes, preview-failure reports): the server 403s them
+    // and the denial used to surface as a red error in the viewer's chat.
+    // Consume the key so the same message isn't retried.
+    if (canEdit === false) {
       lastPendingKeyRef.current = pendingMessageKey
-      // A read-only VIEWER never dispatches platform-composed sends (build
-      // kickoffs, auto-fixes, preview-failure reports): the server 403s them
-      // and the denial used to surface as a red error in the viewer's chat.
-      // Consume the key (above) so the same message isn't retried.
-      if (canEdit === false || blockDisabledTeamMessage(pendingMessage)) return
-      // A pending message is ALWAYS system-composed (an auto-fix prompt, a preview-failure
-      // report, a "Fix with AI" request) — never text the user typed. So it must NEVER
-      // render as a normal user bubble: either it's suppressed entirely (hidden build
-      // kickoff) or it stays visible but flagged `automatic` so the chat shows it as sent
-      // by Synthase on the user's behalf (distinct avatar + accent), not typed by the user.
-      // Suppressed or not, a pending message is platform-composed, so it ALWAYS
-      // carries `automatic` (+ `userInitiated` when a direct click requested it).
-      // A suppressed send without `automatic` used to bypass the server's
-      // user-stop gate — the hidden build kickoff resumed a plan turn ~37s
-      // after an explicit Stop (prod 2026-08-13).
-      const sendOpts = {
-        ...(pendingMessageSuppressUser ? { suppressUserMessage: true } : {}),
-        automatic: true,
-        ...(pendingMessageUserInitiated ? { userInitiated: true } : {}),
-      }
-      if (isLoading) {
-        // AI is busy — defer until streaming ends
-        deferredPendingRef.current = pendingMessage
-        deferredPendingSuppressRef.current = !!pendingMessageSuppressUser
-        deferredPendingUserInitiatedRef.current = !!pendingMessageUserInitiated
-      } else {
-        deferredPendingRef.current = null
-        sendMessage(pendingMessage, undefined, sendOpts)
-      }
+      return
+    }
+    if (pendingMessageKey === lastPendingKeyRef.current) return
+    lastPendingKeyRef.current = pendingMessageKey
+    if (blockDisabledTeamMessage(pendingMessage)) return
+    // A pending message is ALWAYS system-composed (an auto-fix prompt, a preview-failure
+    // report, a "Fix with AI" request) — never text the user typed. So it must NEVER
+    // render as a normal user bubble: either it's suppressed entirely (hidden build
+    // kickoff) or it stays visible but flagged `automatic` so the chat shows it as sent
+    // by Synthase on the user's behalf (distinct avatar + accent), not typed by the user.
+    // Suppressed or not, a pending message is platform-composed, so it ALWAYS
+    // carries `automatic` (+ `userInitiated` when a direct click requested it).
+    // A suppressed send without `automatic` used to bypass the server's
+    // user-stop gate — the hidden build kickoff resumed a plan turn ~37s
+    // after an explicit Stop (prod 2026-08-13).
+    const sendOpts = {
+      ...(pendingMessageSuppressUser ? { suppressUserMessage: true } : {}),
+      automatic: true,
+      ...(pendingMessageUserInitiated ? { userInitiated: true } : {}),
+    }
+    if (isLoading) {
+      // AI is busy — defer until streaming ends
+      deferredPendingRef.current = pendingMessage
+      deferredPendingSuppressRef.current = !!pendingMessageSuppressUser
+      deferredPendingUserInitiatedRef.current = !!pendingMessageUserInitiated
+    } else {
+      deferredPendingRef.current = null
+      sendMessage(pendingMessage, undefined, sendOpts)
     }
   }, [
     pendingMessage,
@@ -5603,6 +2609,7 @@ function ChatInner({
   // streaming, but handleAbort drops the deferred message first — and useChat's
   // stop guard would drop an autonomous automatic send anyway — so a stopped
   // turn is never auto-resumed by a fix that queued up mid-stream.)
+  // #effect chat:auto-send:3
   useEffect(() => {
     if (!isLoading && deferredPendingRef.current) {
       const msg = deferredPendingRef.current
@@ -5626,6 +2633,7 @@ function ChatInner({
 
   // ── Auto-delete queued autofix messages when user edits a relevant file ────
   const lastUserEditKeyRef = useRef(userEditedFileKey)
+  // #effect chat:auto-send:4
   useEffect(() => {
     if (
       userEditedFile &&
@@ -5636,7 +2644,9 @@ function ChatInner({
       clearQueuedForFile(userEditedFile)
     }
   }, [userEditedFile, userEditedFileKey, clearQueuedForFile])
+  // #endregion chat:auto-send
 
+  // #region chat:git
   // ── Commit ─────────────────────────────────────────────────────────────────
   const handleCommit = useCallback(async () => {
     const scope = gitScopeRef.current
@@ -5739,7 +2749,9 @@ function ChatInner({
     },
     [http, projectId, onCommit],
   )
+  // #endregion chat:git
 
+  // #region chat:mention
   // ── File picker ────────────────────────────────────────────────────────────
   /** Cached flat file list from the sandbox — avoids re-fetching on every keystroke. */
   const allFilesRef = useRef<string[]>([])
@@ -5773,6 +2785,7 @@ function ChatInner({
   )
 
   /** Invalidate the cached file list when we know the tree changed. */
+  // #effect chat:mention:1
   useEffect(() => {
     allFilesFetchedRef.current = false
   }, [externalGitStatusTick])
@@ -5799,9 +2812,11 @@ function ChatInner({
       setInputValue(before + after)
       setFilePicker(null)
     },
-    [filePicker, mentionStart],
+    [filePicker?.query.length, mentionStart, setInputValue],
   )
+  // #endregion chat:mention
 
+  // #region chat:attachments
   const removeAttachment = useCallback((key: string) => {
     setAttachedFiles((prev) => {
       const removed = prev.find((f) => (f.path ?? f.filename) === key)
@@ -5809,23 +2824,17 @@ function ChatInner({
       return prev.filter((f) => (f.path ?? f.filename) !== key)
     })
   }, [])
+  // #endregion chat:attachments
 
+  // #region chat:skills
   // "Loaded this session" — the SINGLE source of truth for which skills the user
   // has opened via Load. Shared by BOTH the proactive suggestion (so a skill stops
   // being re-nudged once loaded) and the /skills browser's "Loaded" badge (P2-06).
   const [loadedSkillPaths, setLoadedSkillPaths] = useState<ReadonlySet<string>>(
     () => new Set<string>(),
   )
-  // The persisted per-project default-loaded skill set (settings.defaultSkills). A
-  // default skill's full body is injected by the backend into every system prompt;
-  // the /skills browser shows a "Default" badge + a toggle to edit the set (P2-08).
-  const [defaultSkillPaths, setDefaultSkillPaths] = useState<ReadonlySet<string>>(
-    () => new Set<string>(),
-  )
-  // P3-11: whether the user has an EXPLICIT saved defaultSkills set. When false
-  // (unset), ALL initial/discovered skills are treated as default (badged here +
-  // injected full-body by the backend) — seeded in the skill-load effect below.
-  const defaultSkillsExplicitRef = useRef(false)
+  // (The default-loaded skill set and its "explicit" flag are declared above the
+  // chat:models region, whose settings hydrate fills them.)
 
   /**
    * Loads a skill from the `/skills` browser (or the proactive suggestion): opens
@@ -5850,26 +2859,18 @@ function ChatInner({
       onFileOpen?.(skill.path, { focus: true })
       // Confirm with a compact card: "Loaded `<skill>` skill" — the name rendered as a
       // clickable monospace span that re-opens it in the editor. No attachment wording.
-      addSystemCard(
-        t(
-          'ide.chat.skills.loaded',
-          { name: skill.name },
-          { defaultValue: 'Loaded {{name}} skill' },
-        ),
-        {
-          content: [
-            t('ide.chat.skills.loadedPrefix', undefined, { defaultValue: 'Loaded ' }),
-            {
-              label: skill.name,
-              code: true,
-              onClick: () => onFileOpen?.(skill.path, { focus: true }),
-            },
-            t('ide.chat.skills.loadedSuffix', undefined, { defaultValue: ' skill' }),
-          ],
-        },
-      )
+      // One translated sentence, split where its {{name}} lands, so each language
+      // places the name itself.
+      const loaded = (name: string): string =>
+        t('ide.chat.skills.loaded', { name }, { defaultValue: 'Loaded {{name}} skill' })
+      const content = cardSegmentsAround(loaded, {
+        label: skill.name,
+        code: true,
+        onClick: () => onFileOpen?.(skill.path, { focus: true }),
+      })
+      addSystemCard(loaded(skill.name), content ? { content } : {})
     },
-    [onFileOpen, addSystemCard],
+    [onFileOpen, addSystemCard, t],
   )
 
   /**
@@ -5911,7 +2912,7 @@ function ChatInner({
       const meta = parseSkillMeta(path, content)
       return { path, name: meta.name, description: meta.description }
     },
-    [http, projectId, onFileOpen, addSystemCard],
+    [onFileOpen, addSystemCard, t, http, projectId],
   )
 
   // ── Proactive "Relevant skill" suggestion (SYN4) ──────────────────────────
@@ -5924,6 +2925,7 @@ function ChatInner({
   const skillsLoadedRef = useRef(false)
   const [dismissedSkillPaths, setDismissedSkillPaths] = useState<readonly string[]>([])
 
+  // #effect chat:skills:1
   useEffect(() => {
     // Hardened seed (the real cause of hollow stars): the skill file API can lag at
     // mount (the sandbox isn't serving `.agents` yet), so the very first
@@ -6058,6 +3060,7 @@ function ChatInner({
       const previous = defaultSkillPaths
       const previousExplicit = defaultSkillsExplicitRef.current
       defaultSkillsExplicitRef.current = true
+      setDefaultSkillsExplicit(true)
       const updated = new Set(base)
       if (next) updated.add(skill.path)
       else updated.delete(skill.path)
@@ -6069,6 +3072,7 @@ function ChatInner({
           // badge/toggle reflect the server.
           logger.warn('Failed to persist default skills to server', { error })
           defaultSkillsExplicitRef.current = previousExplicit
+          setDefaultSkillsExplicit(previousExplicit)
           setDefaultSkillPaths(previous)
         })
     },
@@ -6088,15 +3092,19 @@ function ChatInner({
     const previous = defaultSkillPaths
     const previousExplicit = defaultSkillsExplicitRef.current
     defaultSkillsExplicitRef.current = false
+    setDefaultSkillsExplicit(false)
     setDefaultSkillPaths(new Set(projectSkills.map((s) => s.path)))
     http.patch(`/projects/${projectId}`, { settings: { defaultSkills: null } }).catch((error) => {
       // Roll back so the badge/toggle reflect the server.
       logger.warn('Failed to reset default skills on server', { error })
       defaultSkillsExplicitRef.current = previousExplicit
+      setDefaultSkillsExplicit(previousExplicit)
       setDefaultSkillPaths(previous)
     })
   }, [defaultSkillPaths, http, projectId, projectSkills])
+  // #endregion chat:skills
 
+  // #region chat:scripts
   // Runs a saved script by name (the /run <name> command). Fetches the script
   // list to resolve the (possibly partial) name, runs the match, and reports the
   // captured output + exit status as a system card.
@@ -6161,36 +3169,41 @@ function ChatInner({
         )
       }
     },
-    [http, projectId, addSystemCard, openPanelOverlay],
+    [http, projectId, t, addSystemCard, openPanelOverlay],
   )
+  // #endregion chat:scripts
 
+  // #region chat:attachments
   // ── File attachment handlers ──────────────────────────────────────────────
 
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const addFileAttachments = useCallback((files: File[]) => {
-    setAttachmentError(null)
-    for (const file of files) {
-      if (file.size > MAX_ATTACHMENT_SIZE) {
-        setAttachmentError(
-          t(
-            'ide.chat.fileTooLarge',
-            { maxSize: '20' },
-            { defaultValue: 'File is too large. Maximum size is {{maxSize}}MB.' },
-          ),
-        )
-        continue
+  const addFileAttachments = useCallback(
+    (files: File[]) => {
+      setAttachmentError(null)
+      for (const file of files) {
+        if (file.size > MAX_ATTACHMENT_SIZE) {
+          setAttachmentError(
+            t(
+              'ide.chat.fileTooLarge',
+              { maxSize: '20' },
+              { defaultValue: 'File is too large. Maximum size is {{maxSize}}MB.' },
+            ),
+          )
+          continue
+        }
+        const attachment: AttachedFile = {
+          file,
+          filename: file.name,
+          mediaType: file.type || 'application/octet-stream',
+          size: file.size,
+          previewUrl: file.type.startsWith('image/') ? URL.createObjectURL(file) : undefined,
+        }
+        setAttachedFiles((prev) => [...prev, attachment])
       }
-      const attachment: AttachedFile = {
-        file,
-        filename: file.name,
-        mediaType: file.type || 'application/octet-stream',
-        size: file.size,
-        previewUrl: file.type.startsWith('image/') ? URL.createObjectURL(file) : undefined,
-      }
-      setAttachedFiles((prev) => [...prev, attachment])
-    }
-  }, [])
+    },
+    [t],
+  )
 
   const handleFileSelect = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -6247,7 +3260,9 @@ function ChatInner({
     },
     [addFileAttachments],
   )
+  // #endregion chat:attachments
 
+  // #region chat:input
   // ── Input change ───────────────────────────────────────────────────────────
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -6283,7 +3298,11 @@ function ChatInner({
       // (discovery = plan), so a plain pick changes the mode the user is in.
       const modelMatch = val.match(/^\/model\s+/i)
       if (modelMatch) {
-        setModelPicker({ selectedIdx: -1, mode: parseModelModeCommand(val)?.mode ?? liveModelMode })
+        setModelPicker({
+          selectedIdx: -1,
+          mode: parseModelModeCommand(val)?.mode ?? liveModelMode,
+          text: val,
+        })
         setCommandMenu(null)
         return
       }
@@ -6300,6 +3319,7 @@ function ChatInner({
           setEffortPicker((p) => ({
             selectedIdx: -1,
             mode: typedMode ?? p?.mode ?? liveModelMode,
+            text: val,
           }))
           setCommandMenu(null)
           return
@@ -6308,12 +3328,19 @@ function ChatInner({
       setEffortPicker(null)
 
       if (val.startsWith('/') && !val.includes(' ')) {
-        setCommandMenu({ selectedIdx: -1 })
+        setCommandMenu({ selectedIdx: -1, text: val })
       } else {
         setCommandMenu(null)
       }
     },
-    [openFilePicker, autoResize, persistDraft, liveModelMode, pruneDictatedSnippets],
+    [
+      pruneDictatedSnippets,
+      autoResize,
+      persistDraft,
+      handleAutoFixPauseOnInput,
+      openFilePicker,
+      liveModelMode,
+    ],
   )
 
   // ── Execute command ────────────────────────────────────────────────────────
@@ -6335,14 +3362,17 @@ function ChatInner({
 
   // Viewer composer prefill: the box IS the team-chat input, so it starts with
   // "/teamsay " already typed (and handleSubmit re-fills it after each sent team
-  // message). Once per mount, and never over text the user already has.
-  const viewerPrefillDoneRef = useRef(false)
+  // message). Once per mount, and never over text the user already has (the
+  // done flag is declared with the tips state, whose switch effect re-arms it).
+  // #effect chat:input:1
   useEffect(() => {
     if (transcriptOnly || canEdit !== false || viewerPrefillDoneRef.current) return
     viewerPrefillDoneRef.current = true
     if (!(inputRef.current as string).trim()) setInputAndCursorEnd('/teamsay ')
   }, [canEdit, setInputAndCursorEnd, conversationId, transcriptOnly])
+  // #endregion chat:input
 
+  // #region chat:model-actions
   /**
    * Select and apply a model by ID. When `mode` is given the choice persists to
    * that mode's per-mode field (`planModel` / `executeModel` /
@@ -6390,7 +3420,6 @@ function ChatInner({
           )
         } else {
           await http.patch(settingsPatchUrl(), { settings: { chatModel: modelId } })
-          setCurrentModel(modelId)
           setSavedChatModel(modelId)
           addSystemCard(
             t('ide.chat.modelSet', { name }, { defaultValue: 'Chat model set to {{name}}' }),
@@ -6405,7 +3434,7 @@ function ChatInner({
         )
       }
     },
-    [http, projectId],
+    [addSystemCard, http, setInputValue, settingsPatchUrl, t],
   )
 
   // Set a model's processing region (US / native-China). Mirrors the
@@ -6424,7 +3453,7 @@ function ChatInner({
         logger.warn('Failed to update model processing region', { error })
       }
     },
-    [http, projectId, modelRegions],
+    [modelRegions, http, settingsPatchUrl],
   )
 
   // Persist a mode's reasoning effort (used by both the /effort <level> typed
@@ -6458,9 +3487,11 @@ function ChatInner({
         )
       }
     },
-    [http, effortByMode, settingsPatchUrl, addSystemCard],
+    [setInputValue, effortByMode, http, settingsPatchUrl, addSystemCard, t],
   )
+  // #endregion chat:model-actions
 
+  // #region chat:commands
   // The shared command registry UNION any host-provided commands (e.g.
   // molecule.dev's /deploy, /push, /invite, /teamsay), so the menu, grouping,
   // and dispatch all see one list and host commands never go missing. Deduped
@@ -6515,7 +3546,7 @@ function ChatInner({
       // unflagged command is unavailable to viewers.
       if (!canEdit) {
         const def = allCommands.find((c) => c.id === id)
-        if (def && !def.viewerSafe) {
+        if (def && !viewerCommandAllowed(def)) {
           addSystemCard(
             t('ide.chat.viewerReadOnlyCommand', undefined, {
               defaultValue:
@@ -6534,7 +3565,7 @@ function ChatInner({
         setMaxVisibleItems(60)
       } else if (id === 'model') {
         setInputAndCursorEnd('/model ')
-        setModelPicker({ selectedIdx: -1, mode: liveModelMode })
+        setModelPicker({ selectedIdx: -1, mode: liveModelMode, text: '/model ' })
       } else if (id === 'mic' || id === 'dictate') {
         setInputValue('')
         setMicPicker({ autoStart: false })
@@ -6544,7 +3575,7 @@ function ChatInner({
         // Open the selectable level picker (mirrors /model) scoped to the live
         // conversation mode; its mode dropdown re-scopes in place.
         setInputValue('')
-        setEffortPicker({ selectedIdx: -1, mode: liveModelMode })
+        setEffortPicker({ selectedIdx: -1, mode: liveModelMode, text: '' })
       } else if (id === 'autocommit') {
         // Prefill so the user types the cadence (seconds); 0 cancels.
         setInputAndCursorEnd('/autocommit ')
@@ -6555,13 +3586,9 @@ function ChatInner({
         // host-supplied upgrade blurb at render time. The plain-text buildHelpText()
         // is still computed and stored as the card's `text` so it remains the i18n
         // fallback (and the copy/screen-reader text) if the rich variant is ever off.
-        // Per-user UI — the /help browser is this client's own command output, never
-        // shared conversation context, so it must not persist onto a reload or to other
-        // collaborators.
-        addSystemCard(buildHelpText({ agentName, productName }), {
-          variant: 'help',
-          clientOnly: true,
-        })
+        // Per-user UI: the /help browser is this client's own command output, never
+        // shared conversation context (addSystemCard cards are session-local).
+        addSystemCard(buildHelpText({ agentName, productName }), { variant: 'help' })
       } else if (id === 'compact') {
         setInputValue('')
         addSystemCard(
@@ -6738,45 +3765,9 @@ function ChatInner({
         }
       } else if (id === 'undo') {
         setInputValue('')
-        // Find the last assistant turn that has file-changing tool calls with fileDiff snapshots.
-        // Skip tool calls that are already undone.
-        const lastTurn = [...messages]
-          .reverse()
-          .find(
-            (m) =>
-              m.role === 'assistant' &&
-              m.toolCalls?.some(
-                (tc) =>
-                  (tc.name === 'write_file' || tc.name === 'edit_file') &&
-                  tc.fileDiff &&
-                  !undoneTcIds.has(tc.id),
-              ),
-          )
-        if (!lastTurn) {
-          addSystemCard(
-            t('ide.chat.undoNoChanges', undefined, { defaultValue: 'No file changes to undo.' }),
-          )
-          return
-        }
-        // Collect the tool calls to undo and their original content.
-        // Use a Map so that if multiple tool calls touched the same file, we restore
-        // to the earliest original (first write wins).
-        const fileOriginals = new Map<string, string>()
-        const tcIdsToUndo: string[] = []
-        for (const tc of lastTurn.toolCalls ?? []) {
-          if (
-            (tc.name === 'write_file' || tc.name === 'edit_file') &&
-            tc.fileDiff &&
-            !undoneTcIds.has(tc.id)
-          ) {
-            const path = (tc.input as { path?: string })?.path
-            const original = (tc.fileDiff as { original: string }).original
-            if (path && !fileOriginals.has(path)) {
-              fileOriginals.set(path, original)
-            }
-            tcIdsToUndo.push(tc.id)
-          }
-        }
+        // Collect the last assistant turn's file-changing tool calls (skipping
+        // already-undone ones) and their original content.
+        const { fileOriginals, tcIdsToUndo } = collectUndoTargets(messages, undoneTcIds)
         if (fileOriginals.size === 0) {
           addSystemCard(
             t('ide.chat.undoNoChanges', undefined, { defaultValue: 'No file changes to undo.' }),
@@ -6921,84 +3912,77 @@ function ChatInner({
       }
     },
     [
-      applyTimestampsVisible,
-      clearHistory,
-      setInputAndCursorEnd,
-      http,
-      projectId,
-      conversationId,
-      addSystemCard,
-      currentModel,
-      currentMaxLoops,
-      autoFixEnabled,
-      messages,
-      sendMessage,
-      refreshGitStatus,
-      handleCommit,
-      openPanelOverlay,
       extraCommandIds,
       canEdit,
+      setInputAndCursorEnd,
       allCommands,
-      liveModelMode,
+      addSystemCard,
       t,
+      setInputValue,
+      clearHistory,
+      liveModelMode,
+      agentName,
+      productName,
+      conversationId,
+      projectId,
+      http,
+      mode,
+      setMode,
+      messages,
+      undoneTcIds,
+      persistUndoToggle,
+      handleFileRevert,
+      handleCommit,
+      openTestsBrowser,
+      sendMessage,
+      autoFixEnabled,
+      settingsPatchUrl,
+      autoApproveCommandsEnabled,
+      applyTimestampsVisible,
+      openPanelOverlay,
+      version,
+      shareAllowed,
     ],
   )
+  // #endregion chat:commands
 
+  // #region chat:auto-commit
   // When the auto-commit countdown reaches zero, fire the existing /commit path
   // (no new backend) and pause until the next file change re-arms it. /commit
   // itself no-ops on a clean tree, so a stray fire is harmless. Guarded by the
   // same hold as the tick interval (belt for the race where a turn starts on
   // the exact render the countdown hits zero): never commit mid-turn — the
   // effect re-runs when the hold clears and fires then.
-  useEffect(() => {
-    // A read-only VIEWER never fires auto-commit: /commit is an editor action,
-    // and the client-side dispatch here surfaced the "view-only access, so this
-    // command is unavailable" denial card out of nowhere on viewers whenever a
-    // synced countdown lapsed (observed 2026-08-31, right after a watched turn
-    // settled and released the hold). The hydrate below is also viewer-gated,
-    // so this is the belt for a mid-session demotion.
-    if (canEdit === false || !isAutoCommitDue(autoCommit) || autoCommitHeld) return
-    void executeCommand('commit')
-    dispatchAutoCommit({ type: 'fired' })
-  }, [autoCommit, autoCommitHeld, executeCommand, canEdit])
+  useCommittedRef(executeCommandRef, executeCommand)
+  // #endregion chat:auto-commit
 
+  // #region chat:submit
   // ── Submit ─────────────────────────────────────────────────────────────────
   const handleSubmit = useCallback(async () => {
     // Stop voice recognition on submit
-    voiceIntentRef.current = false
-    if (voiceWatchdogTimer.current) {
-      clearTimeout(voiceWatchdogTimer.current)
-      voiceWatchdogTimer.current = null
-    }
-    setIsListening(false)
-    setVoiceNotice(null)
-    if (useLocalVoiceRef.current) {
-      // Discard any trailing transcript — it belongs to the message just sent,
-      // not the freshly-cleared composer
-      voiceDiscardRef.current = true
-      getVoiceProvider()?.stopListening()
-    } else {
-      recognitionRef.current?.stop()
-    }
+    dictation.stopForSubmit()
 
-    if (transcriptOnly) return
-    const trimmed = (inputRef.current as string).trim()
-    if (!trimmed && attachedFiles.length === 0) return
-    if (blockDisabledTeamMessage(trimmed)) return
+    const route = routeComposerSubmit(inputRef.current, {
+      transcriptOnly,
+      attachedCount: attachedFiles.length,
+      canEdit,
+      canSendTeamMessages,
+      allCommands,
+      extraCommands,
+      readTestsBarVisible: getTestsBarVisible,
+    })
 
-    // Read-only VIEWER guard. A viewer cannot run the assistant (the server 403s
-    // the chat route) or any project-mutating command, so block a plain message
-    // or a write-command here with a read-only note instead of a silent 403 —
-    // but let team side-channel messages (/teamsay) and viewerSafe commands
-    // through so viewers can still talk to the team and read. (Menu-dispatched
-    // commands are gated in executeCommand; this covers composer typing.)
-    if (!canEdit) {
-      const token = trimmed.match(/^\/(\S+)/)?.[1]?.toLowerCase()
-      const def = token
-        ? allCommands.find((c) => c.id.toLowerCase() === token || c.aliases?.includes(token))
-        : undefined
-      const allowed = matchesSideChannelCommand(allCommands, trimmed) || def?.viewerSafe === true
-      if (!allowed) {
+    switch (route.kind) {
+      case 'ignored':
+        return
+      case 'team-blocked':
+        addSystemCard(
+          t('ide.chat.teamMessagesUnavailable', undefined, {
+            defaultValue: 'Team messaging is unavailable in this workspace.',
+          }),
+        )
+        return
+      case 'viewer-blocked':
         setInputValue('')
         addSystemCard(
           t('ide.chat.viewerReadOnly', undefined, {
@@ -7007,572 +3991,452 @@ function ChatInner({
           }),
         )
         return
-      }
-    }
-
-    // Handle /autofix toggle locally
-    if (/^\/autofix$/i.test(trimmed)) {
-      void executeCommand('autofix')
-      return
-    }
-
-    // Handle /autoapprove toggle locally
-    if (/^\/autoapprove$/i.test(trimmed)) {
-      void executeCommand('autoapprove')
-      return
-    }
-
-    // Handle /sounds command locally
-    if (/^\/sounds$/i.test(trimmed)) {
-      setInputValue('')
-      // Sounds owns the popup region exclusively — close any open panel overlay.
-      setPanelOverlay(null)
-      setSoundsPicker({ selectedIdx: -1 })
-      return
-    }
-
-    // `/test on | off | toggle` sets whether the TESTS STRIP is shown — a
-    // per-device display preference, the same shape as /timestamps. Bare
-    // `/test` is left alone: it opens the tests browser, which is a different
-    // thing and is what the command menu offers.
-    const testsBarMatch = /^\/test(?:s)?\s+(.+)$/i.exec(trimmed)
-    if (testsBarMatch) {
-      const next = parseTestsBarArg(testsBarMatch[1] ?? '', getTestsBarVisible())
-      if (next !== null) {
+      case 'autofix':
+        void executeCommand('autofix')
+        return
+      case 'autoapprove':
+        void executeCommand('autoapprove')
+        return
+      case 'sounds':
         setInputValue('')
-        setTestsBarVisible(next)
+        // Sounds owns the popup region exclusively — close any open panel overlay.
+        setPanelOverlay(null)
+        setSoundsPicker({ selectedIdx: -1 })
+        return
+      case 'tests-bar':
+        setInputValue('')
+        setTestsBarVisible(route.visible)
         addSystemCard(
-          next
+          route.visible
             ? t('ide.chat.testsBarShown', undefined, { defaultValue: 'Tests bar shown.' })
             : t('ide.chat.testsBarHidden', undefined, { defaultValue: 'Tests bar hidden.' }),
-          { clientOnly: true },
         )
         return
-      }
-    }
-    // Handle /timestamps [on | off] locally — a per-device display preference.
-    const timestampsCommand = parseTimestampsCommand(trimmed)
-    if (timestampsCommand) {
-      setInputValue('')
-      if (timestampsCommand.action === 'invalid') {
-        addSystemCard(
-          t('ide.chat.timestampsUsage', undefined, {
-            defaultValue: 'Usage: /timestamps [on | off]',
-          }),
-          { clientOnly: true },
-        )
-      } else {
-        applyTimestampsVisible(
-          timestampsCommand.action === 'toggle'
-            ? !getChatTimestampsVisible()
-            : timestampsCommand.action === 'on',
-        )
-      }
-      return
-    }
-
-    // Handle /settings command locally
-    if (/^\/settings$/i.test(trimmed)) {
-      void executeCommand('settings')
-      return
-    }
-
-    // Handle /skills [query] command locally — opens the skills browser overlay,
-    // seeded with the query (if any) so it opens pre-filtered.
-    const skillsMatch = trimmed.match(/^\/skills(?:\s+(.*))?$/i)
-    if (skillsMatch) {
-      setInputValue('')
-      openPanelOverlay('skills', skillsMatch[1]?.trim() ?? '')
-      return
-    }
-
-    // Handle /scripts [query] command locally — opens the scripts browser overlay,
-    // seeded with the query (if any) so it opens pre-filtered.
-    const scriptsMatch = parseScriptsCommand(trimmed)
-    if (scriptsMatch) {
-      setInputValue('')
-      openPanelOverlay('scripts', scriptsMatch.query)
-      return
-    }
-
-    // Handle /test [query | all] locally — opens the tests browser overlay,
-    // seeded with the query (if any); `all` runs everything straight away.
-    const testMatch = parseTestCommand(trimmed)
-    if (testMatch) {
-      setInputValue('')
-      openTestsBrowser(testMatch.query, testMatch.runAll)
-      return
-    }
-
-    // Handle /run <name> command locally — resolves + runs a saved script.
-    const runMatch = parseRunCommand(trimmed)
-    if (runMatch) {
-      setInputValue('')
-      if (!runMatch.name) {
-        addSystemCard(
-          t('ide.chat.scripts.runUsage', undefined, {
-            defaultValue: 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
-          }),
-        )
-      } else {
-        void runSavedScript(runMatch.name, runMatch.params)
-      }
-      return
-    }
-
-    // Handle /report [title] and /bug [title] commands locally — opens the
-    // bug-report modal, seeding the title from any trailing text.
-    const reportMatch = parseReportCommand(trimmed)
-    if (reportMatch) {
-      setInputValue('')
-      setReportModal({ title: reportMatch.title })
-      return
-    }
-
-    // Handle /share [role] locally — opens the share-link modal at the requested
-    // role (default viewer). An unrecognized role shows usage instead. Below the
-    // host's share capability (e.g. an editor where minting is admin+), say so
-    // plainly instead of opening a modal whose every request 403s.
-    const shareMatch = parseShareCommand(trimmed)
-    if (shareMatch) {
-      setInputValue('')
-      if (!shareAllowed) {
-        addSystemCard(
-          t('ide.chat.share.notAllowed', undefined, {
-            defaultValue: 'Managing share links needs an admin role on this project.',
-          }),
-        )
-        return
-      }
-      if (shareMatch.kind === 'invalid') {
-        addSystemCard(
-          t(
-            'ide.chat.share.usage',
-            { roles: SHARE_ROLES.join(', ') },
-            {
-              defaultValue:
-                'Usage: /share [role] — create a public link. Roles: {{roles}} (default viewer).',
-            },
-          ),
-        )
-      } else {
-        setShareModal({ role: shareMatch.role })
-      }
-      return
-    }
-
-    // Handle /autocommit <seconds> locally — arms/cancels the countdown that
-    // auto-fires the existing /commit path N seconds after the last file change.
-    const autoCommitMatch = parseAutoCommitCommand(trimmed)
-    if (autoCommitMatch) {
-      setInputValue('')
-      if (autoCommitMatch.seconds === null) {
-        addSystemCard(
-          t('ide.chat.autoCommit.usage', undefined, {
-            defaultValue:
-              'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
-          }),
-        )
-      } else if (autoCommitMatch.seconds <= 0) {
-        dispatchAutoCommit({ type: 'set', seconds: 0 })
-        addSystemCard(
-          t('ide.chat.autoCommit.cancelled', undefined, { defaultValue: 'Auto-commit cancelled.' }),
-        )
-      } else {
-        dispatchAutoCommit({ type: 'set', seconds: autoCommitMatch.seconds })
-        addSystemCard(
-          t(
-            'ide.chat.autoCommit.enabled',
-            { seconds: autoCommitMatch.seconds },
-            {
-              defaultValue:
-                'Auto-commit on: committing {{seconds}}s after the last file change.\nSet to 0 to disable autocommit.',
-            },
-          ),
-        )
-      }
-      return
-    }
-
-    // Handle /model --plan / --execute / --commit / --compact locally — opens
-    // the picker scoped to that mode so a selection persists to planModel /
-    // executeModel / commitModel / compactModel. Must run BEFORE the generic
-    // /model handler so the flag isn't treated as a model name.
-    const modelModeMatch = parseModelModeCommand(trimmed)
-    if (modelModeMatch) {
-      setInputValue('')
-      // Model picker owns the popup region exclusively — close any open overlay.
-      setPanelOverlay(null)
-      setModelPicker({ selectedIdx: -1, mode: modelModeMatch.mode })
-      return
-    }
-
-    // Handle /mic (alias /dictate) locally — opens the dictation engine picker
-    if (/^\/(mic|dictate)$/i.test(trimmed)) {
-      setInputValue('')
-      setPanelOverlay(null)
-      setCommandMenu(null)
-      setModelPicker(null)
-      setEffortPicker(null)
-      setSoundsPicker(null)
-      setMicPicker({ autoStart: false })
-      return
-    }
-
-    // Handle /model <name> command locally
-    const modelCmdMatch = trimmed.match(/^\/model(?:\s+(.+))?$/i)
-    if (modelCmdMatch) {
-      const query = modelCmdMatch[1]?.trim()
-      if (!query) {
-        // Examples come from the live catalog, never the translation: model ids
-        // are not translatable, and a hardcoded list goes stale the day a newer
-        // generation ships.
-        const examples = partitionByDeprecation(AVAILABLE_MODELS)
-          .current.slice(0, 3)
-          .map((m) => m.id)
-          .join(', ')
-        addSystemCard(
-          t(
-            'ide.chat.modelUsage',
-            { examples },
-            { defaultValue: 'Usage: /model <model-name>  (e.g. {{examples}})' },
-          ),
-        )
-      } else {
-        // Resolve partial name to closest model
-        const q = query.toLowerCase()
-        const resolved =
-          AVAILABLE_MODELS.find((m) => m.id === q) ??
-          AVAILABLE_MODELS.find((m) => m.id.toLowerCase().includes(q)) ??
-          AVAILABLE_MODELS.find((m) => m.label.toLowerCase().includes(q))
-        const name = resolved?.id ?? query
-        // Block free-tier users from selecting paid models. Custom
-        // (bring-your-own AI) models are exempt on every tier — the user pays
-        // their own provider directly.
-        if (isFreeTier && name !== FREE_TIER_MODEL && resolved?.provider !== 'custom') {
+      case 'timestamps':
+        setInputValue('')
+        if (route.command.action === 'invalid') {
           addSystemCard(
-            t(
-              'ide.chat.modelUpgradeRequired',
-              { model: resolved?.label ?? name },
-              { defaultValue: '{{model}} is available on Pro. Upgrade to access all models.' },
-            ),
-            // The upgrade/sign-in button(s) are the host's (its own routes/copy).
-            { action: buildUpgradeCta?.({}) ?? undefined },
+            t('ide.chat.timestampsUsage', undefined, {
+              defaultValue: 'Usage: /timestamps [on | off]',
+            }),
           )
         } else {
-          // Unscoped /model targets the CURRENT conversation mode (discovery =
-          // plan), same as /effort — never the legacy both-modes chatModel.
-          await selectModel(name, resolved?.label ?? name, liveModelMode)
+          applyTimestampsVisible(
+            route.command.action === 'toggle'
+              ? !getChatTimestampsVisible()
+              : route.command.action === 'on',
+          )
         }
-      }
-      setInputValue('')
-      setModelPicker(null)
-      return
-    }
-
-    // Handle /effort locally — effort is PER-MODE (settings.effortByMode; the
-    // legacy single effortLevel is the fallback) and is shown/typed in the
-    // target mode's MODEL-NATIVE values (e.g. xhigh on Claude, 16K thinking
-    // tokens on budget-scaled models) — never the internal S/M/L/XL letters.
-    // The backend applies it to the provider reasoning param (and the
-    // agent-loop budget) at chat-call time.
-    const effortCmd = parseEffortCommand(trimmed)
-    if (effortCmd) {
-      setInputValue('')
-      // Bare /effort (or a bare --plan/--execute flag) opens the selectable
-      // level picker — same interaction as bare /model. The picker lists the
-      // target mode's model's own levels; its mode dropdown re-scopes in place.
-      if (effortCmd.kind === 'menu') {
+        return
+      case 'settings':
+        void executeCommand('settings')
+        return
+      case 'skills':
+        setInputValue('')
+        openPanelOverlay('skills', route.query)
+        return
+      case 'scripts':
+        setInputValue('')
+        openPanelOverlay('scripts', route.query)
+        return
+      case 'tests':
+        setInputValue('')
+        openTestsBrowser(route.query, route.runAll)
+        return
+      case 'run-script':
+        setInputValue('')
+        if (!route.name) {
+          addSystemCard(
+            t('ide.chat.scripts.runUsage', undefined, {
+              defaultValue: 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
+            }),
+          )
+        } else {
+          void runSavedScript(route.name, route.params)
+        }
+        return
+      case 'report':
+        setInputValue('')
+        setReportModal({ title: route.title })
+        return
+      case 'share':
+        setInputValue('')
+        if (!shareAllowed) {
+          addSystemCard(
+            t('ide.chat.share.notAllowed', undefined, {
+              defaultValue: 'Managing share links needs an admin role on this project.',
+            }),
+          )
+          return
+        }
+        if (route.command.kind === 'invalid') {
+          addSystemCard(
+            t(
+              'ide.chat.share.usage',
+              { roles: SHARE_ROLES.join(', ') },
+              {
+                defaultValue:
+                  'Usage: /share [role] — create a public link. Roles: {{roles}} (default viewer).',
+              },
+            ),
+          )
+        } else {
+          setShareModal({ role: route.command.role })
+        }
+        return
+      case 'autocommit':
+        setInputValue('')
+        if (route.seconds === null) {
+          addSystemCard(
+            t('ide.chat.autoCommit.usage', undefined, {
+              defaultValue:
+                'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
+            }),
+          )
+        } else if (route.seconds <= 0) {
+          dispatchAutoCommit({ type: 'set', seconds: 0 })
+          addSystemCard(
+            t('ide.chat.autoCommit.cancelled', undefined, {
+              defaultValue: 'Auto-commit cancelled.',
+            }),
+          )
+        } else {
+          dispatchAutoCommit({ type: 'set', seconds: route.seconds })
+          addSystemCard(
+            t(
+              'ide.chat.autoCommit.enabled',
+              { seconds: route.seconds },
+              {
+                defaultValue:
+                  'Auto-commit on: committing {{seconds}}s after the last file change.\nSet to 0 to disable autocommit.',
+              },
+            ),
+          )
+        }
+        return
+      case 'model-mode':
+        setInputValue('')
+        // Model picker owns the popup region exclusively — close any open overlay.
+        setPanelOverlay(null)
+        setModelPicker({ selectedIdx: -1, mode: route.mode, text: '' })
+        return
+      case 'mic':
+        setInputValue('')
         setPanelOverlay(null)
         setCommandMenu(null)
         setModelPicker(null)
+        setEffortPicker(null)
         setSoundsPicker(null)
-        setMicPicker(null)
-        setEffortPicker({ selectedIdx: -1, mode: effortCmd.mode ?? liveModelMode })
+        setMicPicker({ autoStart: false })
         return
-      }
-      // Resolve the model a given mode will actually use — mirrors the /model
-      // picker + slash-suffix resolveModeModel logic (P2-10: each mode's
-      // options come from ITS model's reasoning capabilities).
-      const modelForMode = (m: EffortMode): AppModelDefinition | undefined => {
-        return AVAILABLE_MODELS.find((model) => model.id === effectiveModelForMode(m))
-      }
-      const effectiveEffort = (m: EffortMode): EffortLevel | undefined =>
-        effortByMode[m] ?? (effortLevel || undefined)
-      const modeStatusLine = (m: EffortMode): string => {
-        const model = modelForMode(m)
-        const options = effortOptionsForModel(model)
-        const current = nativeEffortName(model, effectiveEffort(m))
-        return current === null || options.length === 0
-          ? t(
-              'ide.chat.effort.modeFixed',
-              { mode: m, model: model?.label ?? '?' },
-              { defaultValue: '  {{mode}} ({{model}}): fixed — this model has one reasoning mode' },
-            )
-          : t(
-              'ide.chat.effort.modeLine',
-              {
-                mode: m,
-                model: model?.label ?? '?',
-                current,
-                levels: options.map((o) => o.value).join(', '),
-              },
-              { defaultValue: '  {{mode}} ({{model}}): {{current}} — available: {{levels}}' },
-            )
-      }
-      // Unscoped commands target the CURRENT conversation mode.
-      const targetMode: EffortMode = (effortCmd.kind !== 'invalid' && effortCmd.mode) || mode
-      const targetModel = modelForMode(targetMode)
-      const targetOptions = effortOptionsForModel(targetModel)
-      const targetModelLabel = targetModel?.label ?? '?'
-      if (effortCmd.kind === 'invalid') {
-        addSystemCard(
-          t('ide.chat.effort.usage', undefined, {
-            defaultValue:
-              'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
-          }),
-        )
-      } else if (effortCmd.kind === 'query') {
-        addSystemCard(
-          [
-            t('ide.chat.effort.header', undefined, { defaultValue: 'Reasoning effort per mode:' }),
-            modeStatusLine('plan'),
-            modeStatusLine('execute'),
-          ].join('\n'),
-        )
-      } else {
-        if (targetOptions.length === 0) {
-          // Nothing to tune on this mode's model (fixed reasoning) — say so
-          // instead of persisting a level that cannot take effect (P2-10).
+      case 'model': {
+        const query = route.query
+        if (!query) {
+          // Examples come from the live catalog, never the translation: model ids
+          // are not translatable, and a hardcoded list goes stale the day a newer
+          // generation ships.
+          const examples = partitionByDeprecation(AVAILABLE_MODELS)
+            .current.slice(0, 3)
+            .map((m) => m.id)
+            .join(', ')
           addSystemCard(
             t(
-              'ide.chat.effort.fixedForModel',
-              { mode: targetMode, model: targetModelLabel },
-              {
-                defaultValue:
-                  'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
-              },
+              'ide.chat.modelUsage',
+              { examples },
+              { defaultValue: 'Usage: /model <model-name>  (e.g. {{examples}})' },
             ),
-          )
-          return
-        }
-        const level = resolveEffortArg(effortCmd.arg, targetOptions)
-        if (level === null) {
-          // Unknown value — the model doesn't offer it. Reject and name what IS
-          // available (P2-10).
-          addSystemCard(
-            t(
-              'ide.chat.effort.notSupportedForModel',
-              {
-                level: effortCmd.arg,
-                model: targetModelLabel,
-                levels: targetOptions.map((o) => o.value).join(', '),
-              },
-              { defaultValue: "{{level}} isn't available for {{model}}. Available: {{levels}}" },
-            ),
-          )
-          return
-        }
-        await applyEffortLevel(targetMode, level, targetModel)
-      }
-      return
-    }
-
-    // Handle /maxloops <N> command locally — server enforces tier cap
-    const maxLoopsMatch = trimmed.match(/^\/maxloops\s+(\d+)$/i)
-    if (maxLoopsMatch) {
-      const n = Math.max(1, Number(maxLoopsMatch[1]))
-      try {
-        await http.patch(settingsPatchUrl(), { settings: { maxToolLoops: n } })
-        setCurrentMaxLoops(n)
-        addSystemCard(
-          t('ide.chat.maxLoopsSet', { n }, { defaultValue: 'Max tool iterations set to {{n}}' }),
-        )
-      } catch (err) {
-        const data = (
-          err as {
-            response?: {
-              data?: {
-                error?: string
-                limitType?: string
-                requiresSignup?: boolean
-                billingAction?: string
-                upgradeTier?: string | null
-              }
-            }
-          }
-        )?.response?.data
-        if (data?.limitType === 'max_tool_loops') {
-          addSystemCard(
-            data.error ??
-              t('ide.chat.maxLoopsReached', undefined, {
-                defaultValue: 'Max loops limit reached.',
-              }),
-            // Host owns the upgrade/sign-in button(s); forward the backend's whole
-            // description of the refusal — `requiresSignup`, the `limitType` that
-            // fired, the `billingAction` remedy it resolved, and `upgradeTier`
-            // (null = no higher plan) — so the host picks the right one instead of
-            // defaulting to "Upgrade".
-            {
-              action:
-                buildUpgradeCta?.({
-                  requiresSignup: data.requiresSignup,
-                  limitType: data.limitType,
-                  billingAction: data.billingAction,
-                  upgradeTier: data.upgradeTier,
-                }) ?? undefined,
-            },
           )
         } else {
+          // Resolve partial name to closest model
+          const resolved = resolveModelQuery(query, AVAILABLE_MODELS)
+          const name = resolved?.id ?? query
+          // Block free-tier users from selecting paid models. Custom
+          // (bring-your-own AI) models are exempt on every tier — the user pays
+          // their own provider directly.
+          if (isFreeTier && name !== FREE_TIER_MODEL && resolved?.provider !== 'custom') {
+            addSystemCard(
+              t(
+                'ide.chat.modelUpgradeRequired',
+                { model: resolved?.label ?? name },
+                { defaultValue: '{{model}} is available on Pro. Upgrade to access all models.' },
+              ),
+              // The upgrade/sign-in button(s) are the host's (its own routes/copy).
+              { action: buildUpgradeCta?.({}) ?? undefined },
+            )
+          } else {
+            // Unscoped /model targets the CURRENT conversation mode (discovery =
+            // plan), same as /effort — never the legacy both-modes chatModel.
+            await selectModel(name, resolved?.label ?? name, liveModelMode)
+          }
+        }
+        setInputValue('')
+        setModelPicker(null)
+        return
+      }
+      case 'effort': {
+        const effortCmd = route.command
+        setInputValue('')
+        // Bare /effort (or a bare --plan/--execute flag) opens the selectable
+        // level picker — same interaction as bare /model. The picker lists the
+        // target mode's model's own levels; its mode dropdown re-scopes in place.
+        if (effortCmd.kind === 'menu') {
+          setPanelOverlay(null)
+          setCommandMenu(null)
+          setModelPicker(null)
+          setSoundsPicker(null)
+          setMicPicker(null)
+          setEffortPicker({
+            selectedIdx: -1,
+            mode: effortCmd.mode ?? liveModelMode,
+            text: inputRef.current,
+          })
+          return
+        }
+        // Resolve the model a given mode will actually use — mirrors the /model
+        // picker + slash-suffix resolveModeModel logic (P2-10: each mode's
+        // options come from ITS model's reasoning capabilities).
+        const modelForMode = (m: EffortMode): AppModelDefinition | undefined => {
+          return AVAILABLE_MODELS.find((model) => model.id === effectiveModelForMode(m))
+        }
+        const effectiveEffort = (m: EffortMode): EffortLevel | undefined =>
+          effortByMode[m] ?? (effortLevel || undefined)
+        const modeStatusLine = (m: EffortMode): string =>
+          effortModeStatusLine(t, m, modelForMode(m), effectiveEffort(m))
+        // Unscoped commands target the CURRENT conversation mode.
+        const targetMode: EffortMode = (effortCmd.kind !== 'invalid' && effortCmd.mode) || mode
+        const targetModel = modelForMode(targetMode)
+        const targetOptions = effortOptionsForModel(targetModel)
+        const targetModelLabel = targetModel?.label ?? '?'
+        if (effortCmd.kind === 'invalid') {
           addSystemCard(
-            t('ide.chat.maxLoopsError', undefined, {
-              defaultValue: 'Failed to update max tool iterations.',
+            t('ide.chat.effort.usage', undefined, {
+              defaultValue:
+                'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
             }),
           )
-        }
-      }
-      setInputValue('')
-      return
-    }
-
-    // Handle /explain [target] — inject prompt for AI to explain code
-    // NOTE: does NOT return early — falls through to attachment processing below
-    // so that @-attached files are included in the message sent to the AI.
-    const explainMatch = trimmed.match(/^\/explain(?:\s+(.*))?$/i)
-    if (explainMatch && attachedFiles.length === 0) {
-      const target = explainMatch[1]?.trim()
-      const prompt = target
-        ? `Explain this in detail: ${target}`
-        : 'Explain the code I just shared or the most recently discussed code. Be thorough but concise.'
-      setInputValue('')
-      sendMessage(prompt)
-      return
-    }
-
-    // Handle /lint [args] — inject prompt for AI to run linter
-    const lintMatch = trimmed.match(/^\/lint(?:\s+(.*))?$/i)
-    if (lintMatch) {
-      const args = lintMatch[1]?.trim()
-      const prompt = args
-        ? `Run the linter on ${args} and fix any issues found: npm run lint -- ${args}`
-        : 'Run the project linter (npm run lint) and fix any issues found. Show what you fixed.'
-      setInputValue('')
-      sendMessage(prompt)
-      return
-    }
-
-    // A host side-channel command (CommandDef.sideChannel, matched by id or alias — e.g.
-    // molecule.dev's /teamsay + /t): send the raw text to the host's server intercept but
-    // suppress the optimistic user bubble. The server emits the canonical `message` stream
-    // event (persisted + broadcast to every member), which IS the visible message — so the
-    // transcript never shows the literal "/command" text, and never shows it twice.
-    if (matchesSideChannelCommand(allCommands, trimmed)) {
-      // The sent note must not survive as a draft: the keystroke-debounced
-      // persistDraft already holds the full "/teamsay …" text, and the viewer
-      // re-prefill below is non-empty so setInputValue never clears it — a
-      // reload then reopened the already-SENT message in the composer. Cancel
-      // any pending draft write and drop the stored draft; the mount prefill
-      // recreates the bare prefix.
-      if (draftTimerRef.current) clearTimeout(draftTimerRef.current)
-      try {
-        sessionStorage.removeItem(draftKey)
-      } catch (_error) {
-        /* sessionStorage unavailable — draft persistence is best-effort */
-      }
-      // A viewer's composer is the team-chat box — re-fill the /teamsay prefix
-      // after each sent team message so the next one is one keystroke away.
-      if (canEdit === false) setInputAndCursorEnd('/teamsay ')
-      else setInputValue('')
-      // sideChannel: a team note is a human-to-human message, not a turn — it
-      // goes out immediately even while a turn streams (it used to queue
-      // silently behind the sender's own active turn, and a viewer's note
-      // used to tear down their remote-turn tracking).
-      sendMessage(trimmed, undefined, { suppressUserMessage: true, sideChannel: true })
-      return
-    }
-
-    // Rewrite /explain with attachments into a proper prompt (attachments processed below)
-    let message = trimmed
-    if (explainMatch) {
-      const target = explainMatch[1]?.trim()
-      message = target
-        ? `Explain this in detail: ${target}`
-        : 'Explain the attached file(s) in detail. Be thorough but concise.'
-    }
-    const chatAttachments: Array<{
-      mediaType: string
-      data: string
-      filename: string
-      size: number
-    }> = []
-
-    if (attachedFiles.length > 0) {
-      for (const f of attachedFiles) {
-        if (f.path && !f.file) {
-          // @-mentioned sandbox text file — fetch and embed inline
-          // Strip leading / so the path annotation matches what the AI's read_file tool expects
-          const displayPath = f.path.startsWith('/') ? f.path.slice(1) : f.path
-          try {
-            const res = await http.get<{ content: string }>(`/projects/${projectId}/files${f.path}`)
-            const ext = f.path.split('.').pop() ?? ''
-            message =
-              (message ? `${message}\n\n` : '') +
-              `<file path="${displayPath}">\n\`\`\`${ext}\n${res.data.content}\n\`\`\`\n</file>`
-          } catch (_error) {
-            // File unreadable (sandbox not responding, permission error, etc.) — include a
-            // placeholder so the AI still sees which file was intended
-            message =
-              (message ? `${message}\n\n` : '') +
-              `<file path="${displayPath}">[Could not read file]</file>`
+        } else if (effortCmd.kind === 'query') {
+          addSystemCard(
+            [
+              t('ide.chat.effort.header', undefined, {
+                defaultValue: 'Reasoning effort per mode:',
+              }),
+              modeStatusLine('plan'),
+              modeStatusLine('execute'),
+            ].join('\n'),
+          )
+        } else {
+          if (targetOptions.length === 0) {
+            // Nothing to tune on this mode's model (fixed reasoning) — say so
+            // instead of persisting a level that cannot take effect (P2-10).
+            addSystemCard(
+              t(
+                'ide.chat.effort.fixedForModel',
+                { mode: targetMode, model: targetModelLabel },
+                {
+                  defaultValue:
+                    'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
+                },
+              ),
+            )
+            return
           }
-        } else if (f.file) {
-          // Binary file attachment — encode as base64
-          const data = await fileToBase64(f.file)
-          chatAttachments.push({
-            mediaType: f.mediaType,
-            data,
-            filename: f.filename,
-            size: f.size,
-          })
+          const level = resolveEffortArg(effortCmd.arg, targetOptions)
+          if (level === null) {
+            // Unknown value — the model doesn't offer it. Reject and name what IS
+            // available (P2-10).
+            addSystemCard(
+              t(
+                'ide.chat.effort.notSupportedForModel',
+                {
+                  level: effortCmd.arg,
+                  model: targetModelLabel,
+                  levels: targetOptions.map((o) => o.value).join(', '),
+                },
+                { defaultValue: "{{level}} isn't available for {{model}}. Available: {{levels}}" },
+              ),
+            )
+            return
+          }
+          await applyEffortLevel(targetMode, level, targetModel)
         }
+        return
+      }
+      case 'max-loops': {
+        const n = route.loops
+        try {
+          await http.patch(settingsPatchUrl(), { settings: { maxToolLoops: n } })
+          setCurrentMaxLoops(n)
+          addSystemCard(
+            t('ide.chat.maxLoopsSet', { n }, { defaultValue: 'Max tool iterations set to {{n}}' }),
+          )
+        } catch (err) {
+          const refusal = limitRefusalFromError(err)
+          if (refusal?.limitType === 'max_tool_loops') {
+            addSystemCard(
+              refusal.error ??
+                t('ide.chat.maxLoopsReached', undefined, {
+                  defaultValue: 'Max loops limit reached.',
+                }),
+              // Host owns the upgrade/sign-in button(s); forward the backend's whole
+              // description of the refusal — `requiresSignup`, the `limitType` that
+              // fired, the `billingAction` remedy it resolved, and `upgradeTier`
+              // (null = no higher plan) — so the host picks the right one instead of
+              // defaulting to "Upgrade".
+              {
+                action:
+                  buildUpgradeCta?.({
+                    requiresSignup: refusal.requiresSignup,
+                    limitType: refusal.limitType,
+                    billingAction: refusal.billingAction,
+                    upgradeTier: refusal.upgradeTier,
+                  }) ?? undefined,
+              },
+            )
+          } else {
+            addSystemCard(
+              t('ide.chat.maxLoopsError', undefined, {
+                defaultValue: 'Failed to update max tool iterations.',
+              }),
+            )
+          }
+        }
+        setInputValue('')
+        return
+      }
+      case 'explain':
+        setInputValue('')
+        sendMessage(route.prompt)
+        return
+      case 'lint':
+        setInputValue('')
+        sendMessage(route.prompt)
+        return
+      case 'side-channel':
+        // The sent note must not survive as a draft: the keystroke-debounced
+        // persistDraft already holds the full "/teamsay …" text, and the viewer
+        // re-prefill below is non-empty so setInputValue never clears it — a
+        // reload then reopened the already-SENT message in the composer. Cancel
+        // any pending draft write and drop the stored draft; the mount prefill
+        // recreates the bare prefix.
+        if (draftTimerRef.current) clearTimeout(draftTimerRef.current)
+        try {
+          sessionStorage.removeItem(draftKey)
+        } catch (_error) {
+          /* sessionStorage unavailable — draft persistence is best-effort */
+        }
+        // A viewer's composer is the team-chat box — re-fill the /teamsay prefix
+        // after each sent team message so the next one is one keystroke away.
+        if (canEdit === false) setInputAndCursorEnd('/teamsay ')
+        else setInputValue('')
+        // sideChannel: a team note is a human-to-human message, not a turn — it
+        // goes out immediately even while a turn streams (it used to queue
+        // silently behind the sender's own active turn, and a viewer's note
+        // used to tear down their remote-turn tracking).
+        sendMessage(route.message, undefined, { suppressUserMessage: true, sideChannel: true })
+        return
+      case 'send': {
+        let message = route.message
+        const chatAttachments: Array<{
+          mediaType: string
+          data: string
+          filename: string
+          size: number
+        }> = []
+
+        if (attachedFiles.length > 0) {
+          for (const f of attachedFiles) {
+            if (f.path && !f.file) {
+              // @-mentioned sandbox text file — fetch and embed inline
+              // Strip leading / so the path annotation matches what the AI's read_file tool expects
+              const displayPath = f.path.startsWith('/') ? f.path.slice(1) : f.path
+              const ext = f.path.split('.').pop() ?? ''
+              try {
+                const res = await http.get<{ content: string }>(
+                  `/projects/${projectId}/files${f.path}`,
+                )
+                message =
+                  (message ? `${message}\n\n` : '') +
+                  buildFileMentionBlock(displayPath, ext, res.data.content)
+              } catch (_error) {
+                // File unreadable (sandbox not responding, permission error, etc.) — include a
+                // placeholder so the AI still sees which file was intended
+                message =
+                  (message ? `${message}\n\n` : '') + buildFileMentionBlock(displayPath, ext, null)
+              }
+            } else if (f.file) {
+              // Binary file attachment — encode as base64
+              const data = await fileToBase64(f.file)
+              chatAttachments.push({
+                mediaType: f.mediaType,
+                data,
+                filename: f.filename,
+                size: f.size,
+              })
+            }
+          }
+        }
+
+        // A send still carrying dictated text — any mic-button transcript survived
+        // the live prune — is flagged `viaDictation` so history badges it with the
+        // mic. Checked against the FINAL text (after /explain etc. rewrites it, the
+        // synthesized prompt is not what was dictated, so no badge). The list is
+        // consumed here; setInputValue('') below prunes it anyway.
+        const viaDictation = dictatedSnippetsRef.current.some((s) => message.includes(s))
+        dictatedSnippetsRef.current = []
+        setInputValue('')
+        setAttachedFiles([])
+        setAttachmentError(null)
+        sendMessage(
+          message,
+          chatAttachments.length > 0 ? chatAttachments : undefined,
+          viaDictation ? { viaDictation: true } : undefined,
+        )
+        return
       }
     }
-
-    // A send still carrying dictated text — any mic-button transcript survived
-    // the live prune — is flagged `viaDictation` so history badges it with the
-    // mic. Checked against the FINAL text (after /explain etc. rewrites it, the
-    // synthesized prompt is not what was dictated, so no badge). The list is
-    // consumed here; setInputValue('') below prunes it anyway.
-    const viaDictation = dictatedSnippetsRef.current.some((s) => message.includes(s))
-    dictatedSnippetsRef.current = []
-    setInputValue('')
-    setAttachedFiles([])
-    setAttachmentError(null)
-    sendMessage(
-      message,
-      chatAttachments.length > 0 ? chatAttachments : undefined,
-      viaDictation ? { viaDictation: true } : undefined,
-    )
   }, [
-    applyTimestampsVisible,
     transcriptOnly,
-    blockDisabledTeamMessage,
     attachedFiles,
-    http,
-    projectId,
-    sendMessage,
-    setInputValue,
-    runSavedScript,
+    canEdit,
+    canSendTeamMessages,
     allCommands,
+    extraCommands,
+    setInputValue,
+    dictation,
+    sendMessage,
+    addSystemCard,
+    t,
+    executeCommand,
+    applyTimestampsVisible,
+    openPanelOverlay,
+    openTestsBrowser,
+    runSavedScript,
+    shareAllowed,
+    AVAILABLE_MODELS,
+    isFreeTier,
+    FREE_TIER_MODEL,
+    buildUpgradeCta,
     selectModel,
-    applyEffortLevel,
     liveModelMode,
+    mode,
+    effectiveModelForMode,
+    effortByMode,
+    effortLevel,
+    applyEffortLevel,
+    http,
+    settingsPatchUrl,
+    setInputAndCursorEnd,
+    draftKey,
+    projectId,
   ])
+  // #endregion chat:submit
 
+  // #region chat:signals
   // External auto-submit. When the signal changes, submit the current input —
   // used by the prompt → chat morph to send the prefilled prompt once the chat
   // has docked into place (handleSubmit clears the input as it sends).
   const lastAutoSubmitRef = useRef(autoSubmitSignal)
+  // #effect chat:signals:1
   useEffect(() => {
     if (autoSubmitSignal !== undefined && autoSubmitSignal !== lastAutoSubmitRef.current) {
       lastAutoSubmitRef.current = autoSubmitSignal
@@ -7583,6 +4447,7 @@ function ChatInner({
   // External "open settings" trigger from the header gear button. When the
   // signal changes, open the /settings view (same path as the slash command).
   const lastOpenSettingsRef = useRef(openSettingsSignal)
+  // #effect chat:signals:2
   useEffect(() => {
     if (openSettingsSignal !== undefined && openSettingsSignal !== lastOpenSettingsRef.current) {
       lastOpenSettingsRef.current = openSettingsSignal
@@ -7593,6 +4458,7 @@ function ChatInner({
   // External "open report" trigger from the header bug-report button. When the
   // signal changes, open the bug-report modal (same path as /report and /bug).
   const lastOpenReportRef = useRef(openReportSignal)
+  // #effect chat:signals:3
   useEffect(() => {
     if (openReportSignal !== undefined && openReportSignal !== lastOpenReportRef.current) {
       lastOpenReportRef.current = openReportSignal
@@ -7603,42 +4469,27 @@ function ChatInner({
   // External "open share" trigger from the header share button. When the signal
   // changes, open the share-link modal (same path as the /share command).
   const lastOpenShareRef = useRef(openShareSignal)
+  // #effect chat:signals:4
   useEffect(() => {
-    if (openShareSignal !== undefined && openShareSignal !== lastOpenShareRef.current) {
+    if (openShareSignal === undefined) return
+    // A host without the share capability consumes the signal without opening.
+    if (!shareAllowed) {
       lastOpenShareRef.current = openShareSignal
-      if (shareAllowed) setShareModal({ role: DEFAULT_SHARE_ROLE })
+      return
     }
+    if (openShareSignal === lastOpenShareRef.current) return
+    lastOpenShareRef.current = openShareSignal
+    setShareModal({ role: DEFAULT_SHARE_ROLE })
   }, [openShareSignal, shareAllowed])
+  // #endregion chat:signals
 
   // ── Keyboard ───────────────────────────────────────────────────────────────
-  const filteredCmds = commandMenu
-    ? allCommands.filter(
-        (c) =>
-          // A showAll menu (slash-button toggle over existing text) lists every
-          // command; a typed menu filters by the composer's text.
-          (commandMenu.showAll === true || c.label.startsWith(inputRef.current as string)) &&
-          // Viewers see only commands they can actually run (viewer-safe reads +
-          // the /teamsay side channel) — no dead entries in the menu.
-          (canEdit !== false || c.viewerSafe === true || c.sideChannel === true) &&
-          // /share is gated separately: hosts commonly mint at admin+, so an
-          // editor without the capability gets no dead menu entry either.
-          (c.id !== 'share' || shareAllowed),
-      )
-    : []
+  // #region chat:pickers
+  const filteredCmds = filterCommandMenu(allCommands, commandMenu, canEdit, shareAllowed)
 
   const filteredModels = useMemo(() => {
     if (!modelPicker) return []
-    const val = inputRef.current as string
-    // For a mode-scoped command the filter is the text after the flag; otherwise
-    // it's the text after "/model ".
-    const modeMatch = parseModelModeCommand(val)
-    const q = (modeMatch ? modeMatch.query : (val.match(/^\/model\s+(.*)/i)?.[1] ?? ''))
-      .trim()
-      .toLowerCase()
-    if (!q) return AVAILABLE_MODELS
-    return AVAILABLE_MODELS.filter(
-      (m) => m.id.toLowerCase().includes(q) || m.label.toLowerCase().includes(q),
-    )
+    return filterModelsByPickerQuery(modelPicker.text, AVAILABLE_MODELS)
     // AVAILABLE_MODELS MUST be a dep: when a custom provider is edited (a model
     // renamed/added, a URL changed) the catalog refreshes in place, and without
     // this the picker keeps rendering the pre-edit snapshot — the new model
@@ -7660,15 +4511,21 @@ function ChatInner({
   const [modelSort, setModelSort] = useState<{ column: ModelSortColumn; direction: SortDirection }>(
     { column: 'name', direction: 'asc' },
   )
-  useEffect(() => {
-    // Auto-expand when the user's saved model is deprecated, or when a search
-    // query matched only deprecated entries. The user can still collapse manually.
-    const currentIsDeprecated = deprecatedModels.some((m) => m.id === currentModel)
-    const onlyDeprecatedMatched = currentModels.length === 0 && deprecatedModels.length > 0
-    if (currentIsDeprecated || onlyDeprecatedMatched) {
-      setShowDeprecated(true)
-    }
-  }, [deprecatedModels, currentModels, currentModel])
+  // Auto-expand when the user's saved model is deprecated, or when a search
+  // query matched only deprecated entries. Checked once per list and model, in the
+  // render that brings them, so the user can still collapse manually.
+  const currentIsDeprecated = deprecatedModels.some((m) => m.id === currentModel)
+  const onlyDeprecatedMatched = currentModels.length === 0 && deprecatedModels.length > 0
+  const expandCheckKey = [
+    currentModel,
+    String(currentModels.length === 0),
+    ...deprecatedModels.map((m) => m.id),
+  ].join('|')
+  const [expandCheckedFor, setExpandCheckedFor] = useState<string | null>(null)
+  if (expandCheckedFor !== expandCheckKey) {
+    setExpandCheckedFor(expandCheckKey)
+    if (currentIsDeprecated || onlyDeprecatedMatched) setShowDeprecated(true)
+  }
   // Effective processing region for any model: the per-model choice when it's
   // one of the model's available regions, else the model's default (first
   // available region). Drives the picker's flag pill AND the `region` sort
@@ -7704,6 +4561,7 @@ function ChatInner({
   // the control/menu handlers stopPropagation so their clicks never reach it.
   // Scroll/resize also close it — the menu is fixed-positioned, so its anchor
   // would drift away from it otherwise.
+  // #effect chat:pickers:2
   useEffect(() => {
     if (!regionMenu) return
     const close = (): void => setRegionMenu(null)
@@ -7716,10 +4574,14 @@ function ChatInner({
       window.removeEventListener('resize', close)
     }
   }, [regionMenu])
-  // Closing the model picker closes any open region menu with it.
-  useEffect(() => {
+  // Closing the model picker closes any open region menu with it: checked each
+  // time the picker changes, while rendering (React's pattern for state that
+  // follows a prop).
+  const [regionMenuPicker, setRegionMenuPicker] = useState(modelPicker)
+  if (regionMenuPicker !== modelPicker) {
+    setRegionMenuPicker(modelPicker)
     if (!modelPicker) setRegionMenu(null)
-  }, [modelPicker])
+  }
   const visibleModels = useMemo(() => {
     // Sort WITHIN each partition so the current/deprecated split (and the
     // `idx >= currentModels.length` divider logic below) is preserved while the
@@ -7819,16 +4681,12 @@ function ChatInner({
   // unconditionally the legacy chatModel. The generic (no-mode) picker edits
   // the default slot, so its pill is the SAVED default only — a seeded catalog
   // default is not a choice and must not masquerade as one.
-  const pickerCurrentModelId = modelPicker
-    ? modelPicker.mode === 'plan' || modelPicker.mode === 'execute'
-      ? effectiveModelForMode(modelPicker.mode)
-      : modelPicker.mode
-        ? (resolveModeModel(
-            { planModel, executeModel, commitModel, compactModel, chatModel: savedChatModel },
-            modelPicker.mode,
-          ) ?? serverModelDefaults?.[modelPicker.mode])
-        : savedChatModel || undefined
-    : undefined
+  const currentPickerModelId = pickerCurrentModelId(
+    modelPicker,
+    effectiveModelForMode,
+    { planModel, executeModel, commitModel, compactModel, chatModel: savedChatModel },
+    serverModelDefaults,
+  )
 
   // ── Effort picker derived state ─────────────────────────────────────────────
   // The model whose levels the open /effort picker lists — the model the
@@ -7843,13 +4701,9 @@ function ChatInner({
   // Typed filter, mirroring filteredModels: the text after "/effort" (minus a
   // mode flag) narrows the rows, so "/effort xh" + Enter selects xhigh. Read
   // from inputRef — it stays fresh because each keystroke re-sets effortPicker.
-  const effortPickerVisibleOptions = ((): typeof effortPickerOptions => {
-    if (!effortPicker) return []
-    const typed = parseEffortCommand(inputRef.current as string)
-    const q = typed?.kind === 'set' ? typed.arg.toLowerCase() : ''
-    if (!q) return effortPickerOptions
-    return effortPickerOptions.filter((o) => o.value.toLowerCase().includes(q))
-  })()
+  const effortPickerVisible = effortPicker
+    ? effortPickerVisibleOptions(effortPicker.text, effortPickerOptions)
+    : []
   const effortPickerCurrent = effortPicker
     ? nativeEffortName(
         effortPickerModel,
@@ -7877,275 +4731,140 @@ function ChatInner({
 
   const filteredEntries = useMemo(() => {
     if (!filePicker) return []
-    const q = filePicker.query.toLowerCase()
-
-    // Normalize active file and open tabs to match entry names (relative paths without leading /)
-    const normalizeTabPath = (p: string): string =>
-      p.startsWith('/workspace/')
-        ? p.slice('/workspace/'.length)
-        : p.startsWith('/')
-          ? p.slice(1)
-          : p
-    const activeNorm = activeFile ? normalizeTabPath(activeFile) : null
-    const openTabSet = new Set((openTabs ?? []).map(normalizeTabPath))
-
-    // Filter by query
-    const matches = q
-      ? filePicker.entries.filter((e) => e.name.toLowerCase().includes(q))
-      : filePicker.entries
-
-    // Rank: active file first, then open tabs, then rest (by match position)
-    const scored = matches.map((e) => {
-      const name = e.name
-      const nameLower = name.toLowerCase()
-      let score = 0
-      if (activeNorm && name === activeNorm) score = 3
-      else if (openTabSet.has(name)) score = 2
-      // Boost prefix matches (query matches start of filename)
-      else if (q && nameLower.split('/').pop()?.startsWith(q)) score = 1
-      return { entry: e, score }
-    })
-
-    scored.sort((a, b) => {
-      if (a.score !== b.score) return b.score - a.score
-      return a.entry.name.localeCompare(b.entry.name)
-    })
-
-    return scored.map((s) => s.entry).slice(0, 15)
+    return rankFileMentionEntries(filePicker.entries, filePicker.query, activeFile, openTabs)
   }, [filePicker, activeFile, openTabs])
+  // #endregion chat:pickers
 
-  /**
-   * Wrap-around index: Down from -1 → 0, Up from -1 → last, wraps at both ends.
-   * @param cur - The current index (-1 means no selection).
-   * @param delta - The direction to move (+1 down, -1 up).
-   * @param len - The total number of items.
-   * @returns The new wrapped index.
-   */
-  const wrapIdx = (cur: number, delta: number, len: number): number => {
-    if (cur === -1) return delta > 0 ? 0 : len - 1
-    return (((cur + delta) % len) + len) % len
-  }
-
-  // Store the handler in a ref so the native listener always calls the latest version.
-  const keyDownRef = useRef<(e: KeyboardEvent) => void>(() => {})
-  keyDownRef.current = (e: KeyboardEvent) => {
-    if (e.key === 'Escape') {
-      if (soundsPicker) {
+  // #region chat:keyboard
+  // An effect event, so the native listener always calls the latest version.
+  const handleNativeKeyDown = useEffectEvent((e: KeyboardEvent) => {
+    const action = composerKeyAction(e, {
+      input: inputRef.current,
+      soundsPicker,
+      micOpen: micPicker !== null,
+      effortPicker,
+      effortPickerVisible,
+      modelPicker,
+      visibleModels,
+      hasManageCustomModels: Boolean(onManageCustomModels),
+      liveMode: liveModelMode,
+      overlayOpen: panelOverlay !== null,
+      filePicker,
+      filteredEntries,
+      commandMenu,
+      filteredCmds,
+      abortable: isLoading || isRemoteStreaming,
+      isFreeTier,
+      freeTierModelId: FREE_TIER_MODEL,
+      models: AVAILABLE_MODELS,
+      serverModelDefaults,
+    })
+    if (action.preventDefault) e.preventDefault()
+    const effect = action.effect
+    switch (effect.kind) {
+      case 'none':
+        return
+      case 'close-sounds':
         setSoundsPicker(null)
         return
-      }
-      if (micPicker) {
+      case 'close-mic':
         setMicPicker(null)
         return
-      }
-      if (effortPicker) {
+      case 'close-effort':
         setEffortPicker(null)
         return
-      }
-      if (modelPicker) {
+      case 'close-model':
         setModelPicker(null)
         return
-      }
-      if (panelOverlay) {
+      case 'close-overlay':
         setPanelOverlay(null)
         return
-      }
-      if (filePicker) {
+      case 'close-file':
         setFilePicker(null)
         return
-      }
-      if (commandMenu) {
+      case 'close-command':
         setCommandMenu(null)
         return
-      }
-      if (isLoading || isRemoteStreaming) {
+      case 'abort':
         // Same path as the Stop button: kill the stream AND drop the pending
         // automatic follow-ups (deferred auto-fix, verification countdown).
         handleAbort()
         return
-      }
-    }
-
-    // Sounds picker: "All" row at index 0, then one row per event
-    const soundsRowCount = SOUND_EVENTS.length + 1
-    if (soundsPicker) {
-      if (e.key === 'ArrowDown') {
-        e.preventDefault()
+      case 'sounds-move':
         setSoundsPicker((s) =>
-          s ? { selectedIdx: wrapIdx(s.selectedIdx, 1, soundsRowCount) } : null,
+          s ? { selectedIdx: wrapIdx(s.selectedIdx, effect.delta, SOUND_EVENTS.length + 1) } : null,
         )
         return
-      }
-      if (e.key === 'ArrowUp') {
-        e.preventDefault()
-        setSoundsPicker((s) =>
-          s ? { selectedIdx: wrapIdx(s.selectedIdx, -1, soundsRowCount) } : null,
-        )
+      case 'sounds-pick':
+        void cycleSoundMode(effect.event)
         return
-      }
-      if (e.key === 'Enter' || e.key === 'Tab') {
-        e.preventDefault()
-        const idx = soundsPicker.selectedIdx >= 0 ? soundsPicker.selectedIdx : 0
-        const target = idx === 0 ? 'all' : SOUND_EVENTS[idx - 1]
-        void cycleSoundMode(target)
-        return
-      }
-    }
-
-    // Effort picker: one row per (typed-filter-matching) level of the selected
-    // mode's model. A fixed-reasoning model or an unmatched filter lists
-    // nothing — arrows/Enter fall through (Escape closes; Enter submits the
-    // typed text, so an unknown level still gets the "isn't available" card).
-    if (effortPicker && effortPickerVisibleOptions.length > 0) {
-      if (e.key === 'ArrowDown') {
-        e.preventDefault()
+      case 'effort-move':
         setEffortPicker((p) =>
           p
-            ? { ...p, selectedIdx: wrapIdx(p.selectedIdx, 1, effortPickerVisibleOptions.length) }
+            ? {
+                ...p,
+                selectedIdx: wrapIdx(p.selectedIdx, effect.delta, effortPickerVisible.length),
+              }
             : null,
         )
         return
-      }
-      if (e.key === 'ArrowUp') {
-        e.preventDefault()
-        setEffortPicker((p) =>
-          p
-            ? { ...p, selectedIdx: wrapIdx(p.selectedIdx, -1, effortPickerVisibleOptions.length) }
+      case 'effort-pick':
+        void applyEffortLevel(effect.mode, effect.level, effortPickerModel)
+        return
+      case 'model-move':
+        setModelPicker((m) =>
+          m
+            ? {
+                ...m,
+                selectedIdx: wrapIdx(
+                  m.selectedIdx,
+                  effect.delta,
+                  visibleModels.length + (onManageCustomModels ? 1 : 0),
+                ),
+              }
             : null,
         )
         return
-      }
-      if (e.key === 'Enter' || e.key === 'Tab') {
-        e.preventDefault()
-        // Highlighted row wins; otherwise an exactly-typed level beats the
-        // first substring match ("/effort high" must never apply xhigh's
-        // neighbor), then default to the first visible row (mirrors /model).
-        let option: EffortOption | undefined = effortPickerVisibleOptions[effortPicker.selectedIdx]
-        if (!option) {
-          const typed = parseEffortCommand(inputRef.current as string)
-          const q = typed?.kind === 'set' ? typed.arg.toLowerCase() : ''
-          option =
-            (q ? effortPickerVisibleOptions.find((o) => o.value.toLowerCase() === q) : undefined) ??
-            effortPickerVisibleOptions[0]
-        }
-        if (option) void applyEffortLevel(effortPicker.mode, option.value, effortPickerModel)
+      case 'model-manage':
+        setModelPicker(null)
+        setInputValue('')
+        if (onManageCustomModels) onManageCustomModels({ mode: effect.mode })
         return
-      }
-    }
-
-    // The optional "manage your own models" row sits after the model rows and
-    // participates in arrow/Enter navigation as the last index.
-    const modelRowCount = visibleModels.length + (onManageCustomModels ? 1 : 0)
-    if (modelPicker && modelRowCount > 0) {
-      if (e.key === 'ArrowDown') {
-        e.preventDefault()
-        setModelPicker((m) =>
-          m ? { ...m, selectedIdx: wrapIdx(m.selectedIdx, 1, modelRowCount) } : null,
-        )
+      case 'model-pick':
+        if (!effect.locked) void selectModel(effect.model.id, effect.model.label, effect.mode)
         return
-      }
-      if (e.key === 'ArrowUp') {
-        e.preventDefault()
-        setModelPicker((m) =>
-          m ? { ...m, selectedIdx: wrapIdx(m.selectedIdx, -1, modelRowCount) } : null,
-        )
-        return
-      }
-      if (e.key === 'Enter' || e.key === 'Tab') {
-        e.preventDefault()
-        const idx = modelPicker.selectedIdx >= 0 ? modelPicker.selectedIdx : 0
-        if (onManageCustomModels && idx === visibleModels.length) {
-          const manageMode =
-            modelPicker.mode === 'plan' || modelPicker.mode === 'execute'
-              ? modelPicker.mode
-              : liveModelMode
-          setModelPicker(null)
-          setInputValue('')
-          onManageCustomModels({ mode: manageMode })
-          return
-        }
-        const model = visibleModels[idx]
-        if (model) {
-          // Honor the free-tier clamp for the active mode; ignore Enter on a
-          // locked model (the click path shows the upgrade card). Custom
-          // (bring-your-own AI) models are never locked — the user pays their
-          // own provider directly.
-          const pickerMode = modelPicker.mode
-          const isLocked = pickerMode
-            ? isModeModelLocked(
-                model.id,
-                pickerMode,
-                isFreeTier,
-                AVAILABLE_MODELS,
-                serverModelDefaults,
-              )
-            : isFreeTier && model.id !== FREE_TIER_MODEL && model.provider !== 'custom'
-          if (!isLocked) void selectModel(model.id, model.label, pickerMode)
-        }
-        return
-      }
-    }
-
-    if (filePicker) {
-      if (e.key === 'ArrowDown') {
-        e.preventDefault()
+      case 'file-move':
         setFilePicker((p) =>
-          p ? { ...p, selectedIdx: wrapIdx(p.selectedIdx, 1, filteredEntries.length) } : null,
+          p
+            ? { ...p, selectedIdx: wrapIdx(p.selectedIdx, effect.delta, filteredEntries.length) }
+            : null,
         )
         return
-      }
-      if (e.key === 'ArrowUp') {
-        e.preventDefault()
-        setFilePicker((p) =>
-          p ? { ...p, selectedIdx: wrapIdx(p.selectedIdx, -1, filteredEntries.length) } : null,
-        )
+      case 'file-pick':
+        selectFileEntry(effect.entry)
         return
-      }
-      if (e.key === 'Enter' || e.key === 'Tab') {
-        e.preventDefault()
-        const entry = filteredEntries[filePicker.selectedIdx]
-        if (entry) selectFileEntry(entry)
-        return
-      }
-    }
-
-    if (commandMenu && filteredCmds.length > 0) {
-      if (e.key === 'ArrowDown') {
-        e.preventDefault()
+      case 'command-move':
         setCommandMenu((m) =>
-          m ? { ...m, selectedIdx: wrapIdx(m.selectedIdx, 1, filteredCmds.length) } : null,
+          m
+            ? { ...m, selectedIdx: wrapIdx(m.selectedIdx, effect.delta, filteredCmds.length) }
+            : null,
         )
         return
-      }
-      if (e.key === 'ArrowUp') {
-        e.preventDefault()
-        setCommandMenu((m) =>
-          m ? { ...m, selectedIdx: wrapIdx(m.selectedIdx, -1, filteredCmds.length) } : null,
-        )
+      case 'command-dismiss-submit':
+        setCommandMenu(null)
+        void handleSubmit()
         return
-      }
-      if (e.key === 'Enter' || e.key === 'Tab') {
-        // A showAll menu (opened by the slash BUTTON over existing text) only
-        // executes an explicitly highlighted command — a bare Enter closes it
-        // and falls through to submit the composer text as typed.
-        if (commandMenu.showAll && commandMenu.selectedIdx < 0 && e.key === 'Enter') {
-          setCommandMenu(null)
-        } else {
-          e.preventDefault()
-          const cmd = filteredCmds[commandMenu.selectedIdx >= 0 ? commandMenu.selectedIdx : 0]
-          if (cmd) void executeCommand(cmd.id)
-          return
-        }
-      }
+      case 'command-run':
+        void executeCommand(effect.id)
+        return
+      case 'submit':
+        void handleSubmit()
+        return
     }
-
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault()
-      void handleSubmit()
-    }
-  }
+  })
 
   // Attach native keydown listener directly to the textarea element.
+  // #effect chat:keyboard:1
   useEffect(() => {
     const ta = textareaRef.current
     if (!ta) return
@@ -8153,210 +4872,35 @@ function ChatInner({
     // candidate) must reach the input method, not send the message.
     const handler = (e: KeyboardEvent): void => {
       if (e.isComposing || e.keyCode === 229) return
-      keyDownRef.current(e)
+      handleNativeKeyDown(e)
     }
     ta.addEventListener('keydown', handler)
     return () => ta.removeEventListener('keydown', handler)
   }, [])
+  // #endregion chat:keyboard
 
-  // Never render hidden driver messages (the post-boot kickoff etc.). The server
-  // already filters them on read, but guard here too so the client NEVER shows
-  // one — even an optimistic/in-flight hidden message.
-  const visibleMessages = useMemo(() => messages.filter((m) => !m.hidden), [messages])
+  // #region chat:timeline
+  const visibleMessages = useMemo(() => selectVisibleMessages(messages), [messages])
 
-  // Queued messages (user/auto messages waiting to send while the agent works)
-  // are NOT rendered inline in the scrolling timeline — they'd be pushed around
-  // and reflow as the response streams. They render instead in an anchored bar
-  // pinned above the composer (see "Queued messages" in the input area below),
-  // the same fixed-position treatment as the commit bar. Split them out here so
-  // the timeline never includes them.
-  const queuedMessages = useMemo(() => visibleMessages.filter((m) => m.queued), [visibleMessages])
+  const queuedMessages = useMemo(() => selectQueuedMessages(visibleMessages), [visibleMessages])
 
-  // Build a renderable SystemCard from a card-message's raw CardEvent. This is the ONE
-  // construction, used IDENTICALLY for a live `card` event (now a card-message in `messages`)
-  // and for a card-message loaded on refresh — so the rendered card is the same in both, with
-  // no separate store and no client-side "should I show this" decision. App-specific copy /
-  // actions stay client-side (the server records only the raw data); returns null for an
-  // unrenderable card (a custom event with no registered factory, or a non-execute mode) so
-  // the timeline simply omits it.
+  // The CardEvent -> SystemCard construction itself lives in
+  // @molecule/app-ide-panel-logic's chat-card-event-utilities, so every
+  // framework's panel builds the same card; this wrapper supplies the panel's
+  // translate function, model catalog, region choices, custom-card factory and logger.
   const cardEventToSystemCard = useCallback(
-    (cardEvent: CardEvent, id: string, timestamp: number): SystemCard | null => {
-      // Suffix a card's copy with the member who made the change, when the
-      // server attributed one — so a teammate watching knows WHO flipped the
-      // model/effort/mode, live and on reload.
-      const withBy = (text: string): string => {
-        const by = (cardEvent as { by?: string }).by
-        return by
-          ? t('ide.chat.cardBy', { text, name: by }, { defaultValue: '{{text}} — {{name}}' })
-          : text
-      }
-      switch (cardEvent.kind) {
-        case 'model': {
-          const label = cardEvent.label || cardEvent.model
-          // Append the model's effective processing-region code — catalog
-          // models only. A custom/BYO endpoint has no meaningful region: its
-          // catalog `regions` defaults to ['us'] as a placeholder, not a real
-          // re-host choice, so never surface a region for it.
-          const def = AVAILABLE_MODELS.find((m) => m.id === cardEvent.model)
-          const regionCode =
-            def && def.provider !== 'custom' ? effectiveModelRegion(def).toUpperCase() : null
-          return {
-            id,
-            text: withBy(
-              regionCode
-                ? t(
-                    'ide.chat.modelInUseRegion',
-                    { model: label, region: regionCode },
-                    { defaultValue: 'Now using {{model}} ({{region}})' },
-                  )
-                : t(
-                    'ide.chat.modelInUse',
-                    { model: label },
-                    { defaultValue: 'Now using {{model}}' },
-                  ),
-            ),
-            timestamp,
-          }
-        }
-        case 'mode':
-          // The plan→build handoff ("🔨 Building your app") and the plan-mode
-          // announcement a new conversation is seeded with ("📝 Plan mode") —
-          // the server records mode cards only for those two.
-          if (cardEvent.mode === 'plan') {
-            return {
-              id,
-              text: withBy(
-                t('ide.chat.phasePlanning', undefined, { defaultValue: '📝 Plan mode' }),
-              ),
-              timestamp,
-            }
-          }
-          if (cardEvent.mode !== 'execute') return null
-          return {
-            id,
-            text: withBy(
-              t('ide.chat.phaseBuilding', undefined, { defaultValue: '🔨 Building your app' }),
-            ),
-            timestamp,
-          }
-        case 'setting': {
-          // A Synthase-altering setting changed (effort / fast mode / max loops /
-          // region / auto-fix / auto-approve) — announced to every member, live
-          // and on reload. Copy reuses the same localized strings as the local
-          // confirmation cards, so the shared card reads identically.
-          let text: string | null = null
-          if (cardEvent.setting === 'effort') {
-            const level = String(cardEvent.value ?? 'default')
-            const cardMode = cardEvent.mode ?? ''
-            text = cardEvent.label
-              ? t(
-                  'ide.chat.effort.setMode',
-                  { mode: cardMode, level, model: cardEvent.label },
-                  { defaultValue: 'Reasoning effort for {{mode}} set to {{level}} ({{model}}).' },
-                )
-              : t(
-                  'ide.chat.setting.effort',
-                  { mode: cardMode, level },
-                  { defaultValue: 'Reasoning effort for {{mode}} set to {{level}}.' },
-                )
-          } else if (cardEvent.setting === 'fastMode') {
-            text = cardEvent.value
-              ? t('ide.chat.fastModeOn', undefined, {
-                  defaultValue: 'Fast mode on — faster responses at a higher rate',
-                })
-              : t('ide.chat.fastModeOff', undefined, { defaultValue: 'Fast mode off' })
-          } else if (cardEvent.setting === 'maxToolLoops') {
-            text = t(
-              'ide.chat.maxLoopsSet',
-              { n: Number(cardEvent.value ?? 0) },
-              { defaultValue: 'Max tool iterations set to {{n}}' },
-            )
-          } else if (cardEvent.setting === 'region') {
-            text = t(
-              'ide.chat.modelInUseRegion',
-              {
-                model: cardEvent.label ?? '',
-                region: String(cardEvent.value ?? '').toUpperCase(),
-              },
-              { defaultValue: 'Now using {{model}} ({{region}})' },
-            )
-          } else if (cardEvent.setting === 'autoFix') {
-            text = cardEvent.value
-              ? t('ide.chat.autoFixEnabled', undefined, { defaultValue: 'Auto-fix enabled.' })
-              : t('ide.chat.autoFixDisabled', undefined, { defaultValue: 'Auto-fix disabled.' })
-          } else if (cardEvent.setting === 'autoApprove') {
-            text = cardEvent.value
-              ? t('ide.chat.autoApproveEnabled', undefined, {
-                  defaultValue:
-                    'Auto-approve on — destructive commands run without asking. The exfiltration guard still asks. Turn off with /autoapprove.',
-                })
-              : t('ide.chat.autoApproveDisabled', undefined, {
-                  defaultValue: 'Auto-approve off — destructive commands ask before running.',
-                })
-          }
-          if (!text) return null
-          return { id, text: withBy(text), timestamp }
-        }
-        case 'skills':
-          return {
-            id,
-            variant: 'skillsLoaded',
-            count: cardEvent.count,
-            text: t(
-              'ide.chat.skills.loadedCount',
-              { count: cardEvent.count },
-              { defaultValue: '🧠 Loaded {{count}} skills' },
-            ),
-            timestamp,
-          }
-        case 'custom': {
-          // App-registered renderer (registerCustomEventCard) builds the copy/actions/tone
-          // from the raw data — keeping app-specific text out of this shared package.
-          //
-          // This runs in a memo ABOVE the timeline's per-item boundaries, so a factory
-          // that throws would take the whole panel down rather than one card — and the
-          // factory is host code reading model-authored `data`, exactly the combination
-          // that caused the 2026-08-14 outage. One unrenderable card must cost one card.
-          let card: ChatEventCard | undefined | null
-          try {
-            card = getCustomEventCardFactory(cardEvent.name)?.(cardEvent.data)
-          } catch (error) {
-            logger.error('Custom chat card factory threw — dropping the card', {
-              error,
-              name: cardEvent.name,
-            })
-            return null
-          }
-          if (!card) return null
-          return {
-            id,
-            text: card.text,
-            ...(card.action ? { action: card.action } : {}),
-            ...(card.emphasized ? { emphasized: card.emphasized } : {}),
-            ...(card.tone ? { tone: card.tone } : {}),
-            ...(card.icon ? { icon: card.icon } : {}),
-            ...(card.content ? { content: card.content } : {}),
-            ...(card.coversLimitType ? { coversLimitType: card.coversLimitType } : {}),
-            ...(card.critical ? { critical: true } : {}),
-            timestamp,
-          }
-        }
-        default:
-          return null
-      }
-    },
-    [t, AVAILABLE_MODELS, effectiveModelRegion],
+    (cardEvent: CardEvent, id: string, timestamp: number): SystemCard | null =>
+      toSystemCard(cardEvent, id, timestamp, {
+        t,
+        models: AVAILABLE_MODELS,
+        modelRegions,
+        getFactory: getCustomEventCardFactory,
+        logger,
+      }),
+    [t, AVAILABLE_MODELS, modelRegions],
   )
 
-  // A limit the backend raised for an ANONYMOUS caller — `requiresSignup`, whose
-  // whole message is "…for guests … or create a free account for more" and whose
-  // CTAs are Sign up / Log in — is STALE the moment the viewer signs in: they now
-  // have an account, a different allowance, and two dead-end buttons. The error
-  // state survives the in-place auth modal (nothing navigates, and useChat only
-  // clears it on the next send), so without this the freshly-signed-up user keeps
-  // reading the guest limit they just escaped. Same reasoning the host's
-  // `upgrade_prompt` card factory already applies to the recorded guest card.
-  const isStaleAnonymousLimit = errorMeta?.requiresSignup === true && isAnonymous === false
+  const staleAnonymousLimit = isStaleAnonymousLimit(errorMeta, isAnonymous)
 
   // A read-only viewer's access-denied chat error must never sit as the
   // persistent red banner — every legitimate viewer action is already gated
@@ -8364,81 +4908,51 @@ function ChatInner({
   // server (or an older tab raced a role change). Flash a calm, gold
   // view-only notice for a few seconds instead, then clear.
   const isViewerAccessDenied = canEdit === false && !!error && /access denied/i.test(error)
-  const [viewerDeniedFlash, setViewerDeniedFlash] = useState(false)
+  const [viewerDeniedFlash, setViewerDeniedFlash] = useState(isViewerAccessDenied)
+  // Each change of the denial (or of the error text) while denied starts the
+  // flash again: set while rendering, React's pattern for state that follows a
+  // prop. The effect below clears it after a few seconds.
+  const [deniedFlashSource, setDeniedFlashSource] = useState({ isViewerAccessDenied, error })
+  if (
+    deniedFlashSource.isViewerAccessDenied !== isViewerAccessDenied ||
+    deniedFlashSource.error !== error
+  ) {
+    setDeniedFlashSource({ isViewerAccessDenied, error })
+    if (isViewerAccessDenied) setViewerDeniedFlash(true)
+  }
+  // #effect chat:timeline:1
   useEffect(() => {
     if (!isViewerAccessDenied) return
-    setViewerDeniedFlash(true)
     const timer = setTimeout(() => setViewerDeniedFlash(false), 6000)
     return () => clearTimeout(timer)
   }, [isViewerAccessDenied, error])
 
   // Build a unified timeline so commit cards appear at the correct position
-  type TimelineItem =
-    | { kind: 'message'; msg: (typeof messages)[number] }
-    | { kind: 'commit'; card: CommitCard }
-    | { kind: 'system'; card: SystemCard }
-    | { kind: 'activity'; card: ActivityCardEntry }
-    | { kind: 'tip'; card: TipCardEntry }
-  const timeline = useMemo<TimelineItem[]>(() => {
-    const items: TimelineItem[] = []
-    // A card-message (role:'system' carrying a cardEvent) renders as a SYSTEM CARD, not a chat
-    // bubble — split it out here so it flows through the same card render path as before, now
-    // sourced from the ONE transcript instead of a separate array. Every other message renders
-    // as a message.
-    // A limit the LIVE banner (below the timeline) is already stating. A limit is hit
-    // once but surfaces twice — the card recorded when the turn was interrupted, then
-    // the banner when the next send is refused — so a card that declares it covers this
-    // same limit is dropped while the banner is up (it comes back when the error
-    // clears). The banner stays: it is the refused send's only feedback, and its message
-    // can be the more specific one (platform capacity vs the user's own budget, same
-    // `limitType`). See {@link ChatEventCard.coversLimitType}.
-    const liveLimitType = error && !isStaleAnonymousLimit ? errorMeta?.limitType : undefined
-    for (const msg of visibleMessages) {
-      // Queued messages render in the anchored bar above the composer, not inline.
-      if (msg.queued) continue
-      if (msg.cardEvent) {
-        const card = cardEventToSystemCard(msg.cardEvent, msg.id, msg.timestamp)
-        if (!card) continue
-        if (liveLimitType && card.variant === undefined && card.coversLimitType === liveLimitType)
-          continue
-        items.push({ kind: 'system', card })
-      } else {
-        items.push({ kind: 'message', msg })
-      }
-    }
-    // The commit endpoint both returns the commit AND persists it as a `commitRecord`
-    // message, so once any history reload (tab refocus, end-of-turn reconcile) pulls
-    // that record into `messages`, this session's local card for the same commit is a
-    // duplicate. The persisted record wins; a local card is kept only until it lands.
-    const persistedCommitHashes = new Set(
-      visibleMessages.map((msg) => msg.commitRecord?.hash).filter((hash): hash is string => !!hash),
-    )
-    // systemCards now holds ONLY this session's local command cards (ephemeral, see above).
-    items.push(
-      ...commitCards
-        .filter((card) => !card.hash || !persistedCommitHashes.has(card.hash))
-        .map((card) => ({ kind: 'commit' as const, card })),
-      ...systemCards.map((card) => ({ kind: 'system' as const, card })),
-      ...activityCards.map((card) => ({ kind: 'activity' as const, card })),
-      ...tipCards.map((card) => ({ kind: 'tip' as const, card })),
-    )
-    // Order by timestamp, EXCEPT an empty (still-thinking) streaming response sorts
-    // last — so a turn's preamble cards (mode/model/skills notices, onboarding tips),
-    // emitted a beat after the placeholder is created, render ABOVE the response
-    // rather than below the whole streamed block. See timelineSortKey.
-    items.sort((a, b) => timelineSortKey(a) - timelineSortKey(b))
-    return items
-  }, [
-    visibleMessages,
-    cardEventToSystemCard,
-    commitCards,
-    systemCards,
-    activityCards,
-    tipCards,
-    error,
-    errorMeta,
-    isStaleAnonymousLimit,
-  ])
+  const timeline = useMemo<ChatTimelineItem[]>(
+    () =>
+      buildChatTimeline({
+        visibleMessages,
+        cardEventToSystemCard,
+        commitCards,
+        systemCards,
+        activityCards,
+        tipCards,
+        error,
+        errorMeta,
+        isStaleAnonymousLimit: staleAnonymousLimit,
+      }),
+    [
+      visibleMessages,
+      cardEventToSystemCard,
+      commitCards,
+      systemCards,
+      activityCards,
+      tipCards,
+      error,
+      errorMeta,
+      staleAnonymousLimit,
+    ],
+  )
 
   // The live settings list for the /settings card. Shared by the closeable
   // overlay and the legacy inline 'settings' branch (back-compat for any already
@@ -8538,66 +5052,8 @@ function ChatInner({
   // Read by the once-registered scroll listener (declared with the other scroll
   // refs, before `timeline` exists) to decide whether scrolling near the top
   // should mount the next older page.
-  hasHiddenEarlierRef.current = timeline.length > maxVisibleItems
+  useCommittedRef(hasHiddenEarlierRef, () => timeline.length > maxVisibleItems)
 
-  /**
-   * Where (if anywhere) a timeline item carries its time. Typed user messages and
-   * team notes carry it in their header row and always qualify; Synthase replies
-   * and event cards get a line above them, and qualify with timestamps off only
-   * when critical. The command browsers (/settings, /skills, /scripts, /help) are
-   * this viewer's UI, not something that happened, so they never carry one.
-   *
-   * @param item - The timeline item.
-   * @returns Its slot, or `null` when it carries no timestamp.
-   */
-  const timestampSlotFor = (
-    item: TimelineItem,
-  ): (ChatTimestampSlot & { placement: 'header' | 'line'; align: 'left' | 'center' }) | null => {
-    if (item.kind === 'message') {
-      const { msg } = item
-      if (typeof msg.timestamp !== 'number') return null
-      const base = { id: msg.id, timestamp: msg.timestamp, align: 'left' as const }
-      if ((msg.role === 'user' && !msg.automatic) || msg.teamOnly)
-        return { ...base, alwaysShown: true, placement: 'header' }
-      // An assistant placeholder with nothing rendered yet (still thinking).
-      if (!msg.commitRecord && !msg.content && !msg.blocks?.length && !msg.toolCalls?.length)
-        return null
-      // A reply that failed verification or hit a resource limit is a critical event.
-      const critical = !!msg.blocks?.some((block) => {
-        const b = block as { type?: string; status?: string }
-        return (b.type === 'verification' && b.status === 'error') || b.type === 'resource_limit'
-      })
-      return { ...base, alwaysShown: critical, placement: 'line' }
-    }
-    const { card } = item
-    if (typeof card.timestamp !== 'number') return null
-    const base = { id: card.id, timestamp: card.timestamp, placement: 'line' as const }
-    if (item.kind === 'commit')
-      return { ...base, alwaysShown: item.card.status === 'error', align: 'left' }
-    if (item.kind === 'activity')
-      return { ...base, alwaysShown: item.card.activity.status === 'failed', align: 'left' }
-    if (item.kind === 'tip') return { ...base, alwaysShown: false, align: 'left' }
-    const systemCard = item.card
-    if (
-      systemCard.variant === 'settings' ||
-      systemCard.variant === 'skills' ||
-      systemCard.variant === 'skillsCreate' ||
-      systemCard.variant === 'scripts' ||
-      systemCard.variant === 'help'
-    )
-      return null
-    // Centered one-line notices center their time to match.
-    const centered =
-      systemCard.variant === 'skillsLoaded' ||
-      (systemCard.variant === undefined &&
-        !(systemCard.tone || systemCard.emphasized || systemCard.action) &&
-        !systemCard.text.includes('\n'))
-    return {
-      ...base,
-      alwaysShown: systemCard.variant === undefined && !!systemCard.critical,
-      align: centered ? 'center' : 'left',
-    }
-  }
   const timestampSlots = renderedTimeline.map(timestampSlotFor)
   const timestampSlotById = new Map(
     timestampSlots.flatMap((slot) => (slot ? [[slot.id, slot] as const] : [])),
@@ -8616,7 +5072,7 @@ function ChatInner({
    * @param node - The item's rendered element tree.
    * @returns The tree, preceded by its timestamp line when one applies.
    */
-  const withTimelineTimestamp = (item: TimelineItem, node: ReactNode): ReactNode => {
+  const withTimelineTimestamp = (item: ChatTimelineItem, node: ReactNode): ReactNode => {
     if (node === null) return node
     const id = item.kind === 'message' ? item.msg.id : item.card.id
     const slot = timestampSlotById.get(id)
@@ -8634,29 +5090,101 @@ function ChatInner({
   // A plan step only spins while a turn is running; otherwise it says it is waiting
   // on the person (an unanswered ask_user) or that the work stopped.
   const planLive = isLoading || isRemoteStreaming
-  const planAwaitingUser = useMemo(
-    () =>
-      (messages[messages.length - 1]?.toolCalls ?? []).some(
-        (tc) =>
-          tc.output != null &&
-          typeof tc.output === 'object' &&
-          (tc.output as { status?: string }).status === 'awaiting_response',
-      ),
-    [messages],
-  )
+  const planAwaiting = useMemo(() => planAwaitingUser(messages), [messages])
   // Everything about the work in flight shares one card above the composer. The
   // tests strip also shows for a read-only viewer (watching is not editing); the
   // files strip does not (committing is editor work). Popups hide the card.
   const showTests =
     testsBarVisible && (nativeTests ? nativeTests.visible : shouldShowTestsBar(testsRun, testsList))
   const showFiles = canEdit !== false && pendingFiles != null && pendingFiles.length > 0
-  const workVisible =
-    !commandMenu &&
-    !modelPicker &&
-    !effortPicker &&
-    !panelOverlay &&
-    (plan.length > 0 || backgroundTasks.length > 0 || showTests || showFiles)
+  const workVisible = isWorkVisible({
+    commandMenu,
+    modelPicker,
+    effortPicker,
+    panelOverlay,
+    plan,
+    backgroundTasks,
+    showTests,
+    showFiles,
+  })
 
+  // #endregion chat:timeline
+  // #region chat:render-handlers
+  // Handlers attached by lists the render builds (`.map` rows, the composer's
+  // glyph buttons, the host's tests status): stable callbacks that call the
+  // latest committed version, so building a list never captures a function
+  // that touches refs. A click always ran the committed render's handler, so
+  // which version runs is unchanged.
+  const stableExecuteCommand = useStableCallback(executeCommand)
+  const stableSelectFileEntry = useStableCallback(selectFileEntry)
+  const stableOpenTestsBrowser = useStableCallback(openTestsBrowser)
+  const stableSetInputValue = useStableCallback(setInputValue)
+  const stableAddSystemCard = useStableCallback(addSystemCard)
+  const stableSelectModel = useStableCallback(selectModel)
+  const stableSetModelRegion = useStableCallback(setModelRegion)
+  // The composer's @ glyph: insert a mention at the caret and open the file picker.
+  const insertMentionAtCaret = useStableCallback(() => {
+    const val = inputRef.current as string
+    const pos = textareaRef.current?.selectionStart ?? val.length
+    const newVal = val.slice(0, pos) + '@' + val.slice(pos)
+    setInputValue(newVal)
+    autoResize()
+    setMentionStart(pos)
+    void openFilePicker('')
+    setCommandMenu(null)
+    setTimeout(() => {
+      textareaRef.current?.focus()
+      textareaRef.current?.setSelectionRange(pos + 1, pos + 1)
+    }, 0)
+  })
+  // The composer's / glyph.
+  const toggleSlashMenu = useStableCallback(() => {
+    // TOGGLE the menu regardless of the composer's current text —
+    // never clobbering it. With text present the menu opens in
+    // showAll mode (every command listed; picking one replaces the
+    // input via executeCommand's prefill). An empty box still gets
+    // the type-ahead '/' so filtering-by-typing works as before.
+    if (commandMenu) {
+      setCommandMenu(null)
+      if ((inputRef.current as string) === '/') {
+        // Remove the slash this button added on open.
+        setInputValue('')
+        autoResize()
+      }
+      setTimeout(() => {
+        textareaRef.current?.focus()
+      }, 0)
+      return
+    }
+    // Popups are one-at-a-time — close siblings first.
+    setMicPicker(null)
+    setModelPicker(null)
+    setEffortPicker(null)
+    setSoundsPicker(null)
+    const cur = inputRef.current as string
+    if (!cur) setInputAndCursorEnd('/')
+    setCommandMenu({ selectedIdx: -1, showAll: cur !== '' && cur !== '/', text: cur || '/' })
+  })
+  // The modals' handlers: new functions on every render, as the inline ones
+  // were, but created outside the `reportModal && …` / `shareModal && …`
+  // branches, which otherwise make the compiler treat the setters as reactive.
+  const closeReportModal = (): void => setReportModal(null)
+  const handleReportSubmitted = (result: ReportResult): void => {
+    setReportModal(null)
+    const { key, defaultValue } = formatReportConfirmation(result)
+    addSystemCard(t(key, { productName }, { defaultValue }), {
+      action: result.url
+        ? {
+            label: t('ide.chat.report.viewIssue', undefined, {
+              defaultValue: 'View issue',
+            }),
+            href: result.url,
+          }
+        : undefined,
+    })
+  }
+  const closeShareModal = (): void => setShareModal(null)
+  // #endregion chat:render-handlers
   // ── Render ─────────────────────────────────────────────────────────────────
   const root = (
     <div
@@ -8816,81 +5344,6 @@ function ChatInner({
                     )
 
                   if (item.kind === 'system') {
-                    if (item.card.variant === 'settings') {
-                      // Legacy inline branch — kept so any 'settings' card persisted
-                      // before /settings became an overlay still renders. New /settings
-                      // invocations open the closeable overlay (see panelOverlay below).
-                      return (
-                        <SettingsCard
-                          key={item.card.id}
-                          settings={computeSettingsList()}
-                          onRunCommand={(commandId) => void executeCommand(commandId)}
-                          onPrefillInput={(input) => setInputAndCursorEnd(`${input} `)}
-                          isLight={isLight}
-                          agentName={agentName}
-                        />
-                      )
-                    }
-                    if (item.card.variant === 'skills' || item.card.variant === 'skillsCreate') {
-                      return (
-                        <SkillsCard
-                          key={item.card.id}
-                          projectId={projectId}
-                          initialQuery={item.card.query ?? ''}
-                          onLoad={loadSkill}
-                          onCreate={createSkill}
-                          // The 'skillsCreate' variant opens the card with its "New skill" form
-                          // already open (vs plain 'skills', which opens the browser).
-                          startCreating={item.card.variant === 'skillsCreate'}
-                          loadedSkillPaths={loadedSkillPaths}
-                          defaultSkillPaths={defaultSkillPaths}
-                          onToggleDefault={toggleDefaultSkill}
-                          onResetDefault={resetDefaultSkills}
-                          defaultsExplicit={defaultSkillsExplicitRef.current}
-                          isLight={isLight}
-                        />
-                      )
-                    }
-                    if (item.card.variant === 'scripts') {
-                      return (
-                        <ScriptsCard
-                          key={item.card.id}
-                          projectId={projectId}
-                          initialQuery={item.card.query ?? ''}
-                          isLight={isLight}
-                          agentName={agentName}
-                        />
-                      )
-                    }
-                    if (item.card.variant === 'tests') {
-                      return (
-                        <TestsCard
-                          key={item.card.id}
-                          tests={testsList}
-                          status={testsStatus}
-                          run={testsRun}
-                          agentName={agentName}
-                          initialQuery={item.card.query ?? ''}
-                          canRun={(canRunTests ?? canEdit !== false) && canEdit !== false}
-                          onRun={startTestsRun}
-                          onCancel={cancelTestsRun}
-                          onSkipCurrent={skipCurrentTest}
-                          onFix={fixTests}
-                          fixDisabledReason={
-                            canEdit === false
-                              ? t('ide.tests.viewerCannotRun', undefined, {
-                                  defaultValue: 'Only editors can run this project’s tests.',
-                                })
-                              : isLoading || isRemoteStreaming
-                                ? t('ide.tests.fixBusy', undefined, {
-                                    defaultValue: 'Wait for the current turn to finish.',
-                                  })
-                                : null
-                          }
-                          isLight={isLight}
-                        />
-                      )
-                    }
                     if (item.card.variant === 'help') {
                       // The plan/upgrade blurb is app-specific (pricing, plan names), so the
                       // host supplies it via buildHelpUpgradeSection — this shared package
@@ -8911,17 +5364,8 @@ function ChatInner({
                       // "🧠 Loaded {{count}} skills" — styled like the plain "🔨 Building your
                       // app" phase notice (centered, muted, xs, emoji baked into the text), but
                       // CLICKABLE: its onClick is created HERE at render time — opening the
-                      // /skills browser overlay, exactly what typing /skills does — so it
-                      // survives the persistence round-trip (which stores only variant + count +
-                      // text, never callbacks). Text restores from the persisted copy; re-derive
-                      // from `count` if a caller passed none.
-                      const skillsLoadedLabel =
-                        item.card.text ||
-                        t(
-                          'ide.chat.skills.loadedCount',
-                          { count: item.card.count ?? 0 },
-                          { defaultValue: '🧠 Loaded {{count}} skills' },
-                        )
+                      // /skills browser overlay, exactly what typing /skills does — since the
+                      // card is rebuilt from the recorded card event on every load.
                       return (
                         <div
                           key={item.card.id}
@@ -8945,13 +5389,13 @@ function ChatInner({
                             // Underline on hover is the only clickability hint (it otherwise
                             // reads exactly like the plain phase message).
                             onMouseEnter={(e) => {
-                              ;(e.currentTarget as HTMLElement).style.textDecoration = 'underline'
+                              e.currentTarget.style.textDecoration = 'underline'
                             }}
                             onMouseLeave={(e) => {
-                              ;(e.currentTarget as HTMLElement).style.textDecoration = 'none'
+                              e.currentTarget.style.textDecoration = 'none'
                             }}
                           >
-                            {skillsLoadedLabel}
+                            {item.card.text}
                           </button>
                         </div>
                       )
@@ -9084,7 +5528,7 @@ function ChatInner({
         ))}
 
         {error &&
-          !isStaleAnonymousLimit &&
+          !staleAnonymousLimit &&
           (errorMeta?.limitType ? (
             // The CTA routes/copy are the host's — ask buildUpgradeCta for the FULL
             // upgrade/sign-in button set (none rendered if the host supplies nothing).
@@ -9095,12 +5539,7 @@ function ChatInner({
             // was answered here with "Upgrade".
             <ResourceLimitBanner
               message={error}
-              action={buildUpgradeCta?.({
-                requiresSignup: errorMeta.requiresSignup,
-                limitType: errorMeta.limitType,
-                billingAction: errorMeta.billingAction,
-                upgradeTier: errorMeta.upgradeTier,
-              })}
+              action={buildUpgradeCta?.(upgradeContextFromError(errorMeta))}
             />
           ) : isViewerAccessDenied ? (
             // A viewer's denial is expected state, not an alarm: a brief, calm,
@@ -9251,11 +5690,7 @@ function ChatInner({
             <button
               type="button"
               data-mol-id="chat-autofix-resume"
-              onClick={() =>
-                setAutoFixCountdown((prev) =>
-                  prev ? { ...prev, paused: false, secondsLeft: 3 } : prev,
-                )
-              }
+              onClick={() => dispatchAutoFix({ type: 'resume' })}
               // This strip and the retry strip below it now share one button
               // treatment, so a user never sees four near-identical controls at
               // four slightly different sizes (they were 11px/4px-radius
@@ -9274,9 +5709,7 @@ function ChatInner({
             <button
               type="button"
               data-mol-id="chat-autofix-pause"
-              onClick={() =>
-                setAutoFixCountdown((prev) => (prev ? { ...prev, paused: true } : prev))
-              }
+              onClick={() => dispatchAutoFix({ type: 'pause' })}
               className={cm.cn(
                 cm.button({ variant: 'solid', color: 'warning', size: 'xs' }),
                 cm.touchTargetCompact,
@@ -9288,7 +5721,7 @@ function ChatInner({
           <button
             type="button"
             data-mol-id="chat-autofix-cancel"
-            onClick={() => setAutoFixCountdown(null)}
+            onClick={() => dispatchAutoFix({ type: 'cancel' })}
             className={cm.cn(
               cm.button({ variant: 'solid', color: 'secondary', size: 'xs' }),
               cm.touchTargetCompact,
@@ -9551,13 +5984,12 @@ function ChatInner({
                             /* mol-bespoke-button: command menu row — full-width list item in the / popup */
                             key={cmd.id}
                             type="button"
-                            onClick={() => void executeCommand(cmd.id as CommandId)}
+                            onClick={() => void stableExecuteCommand(cmd.id as CommandId)}
                             onMouseEnter={(e) => {
-                              ;(e.currentTarget as HTMLElement).style.background =
-                                'rgba(128,128,128,0.15)'
+                              e.currentTarget.style.background = 'rgba(128,128,128,0.15)'
                             }}
                             onMouseLeave={(e) => {
-                              ;(e.currentTarget as HTMLElement).style.background =
+                              e.currentTarget.style.background =
                                 thisIdx === commandMenu!.selectedIdx
                                   ? 'rgba(128,128,128,0.1)'
                                   : 'transparent'
@@ -9667,7 +6099,7 @@ function ChatInner({
             {voiceEngines.map((def) => {
               const reason = voiceEngineDisabledReason(def)
               const disabled = reason !== null
-              const isCurrent = voiceEngineRef.current?.id === def.id
+              const isCurrent = currentVoiceEngineId === def.id
               const download = def.downloadMB
               const sizeLabel =
                 download === undefined
@@ -9746,11 +6178,10 @@ function ChatInner({
                     if (!disabled) chooseVoiceEngine(def, micPicker.autoStart)
                   }}
                   onMouseEnter={(e) => {
-                    if (!disabled)
-                      (e.currentTarget as HTMLElement).style.background = 'rgba(128,128,128,0.15)'
+                    if (!disabled) e.currentTarget.style.background = 'rgba(128,128,128,0.15)'
                   }}
                   onMouseLeave={(e) => {
-                    ;(e.currentTarget as HTMLElement).style.background = 'transparent'
+                    e.currentTarget.style.background = 'transparent'
                   }}
                   className={cm.w('full')}
                   style={{
@@ -10053,111 +6484,17 @@ function ChatInner({
                     const isDeprecatedRow = idx >= currentModels.length
                     const dividerBefore =
                       idx === currentModels.length && deprecatedModels.length > 0
-                    const badges: Array<{ label: string; bg: string; fg: string }> = []
-                    if (model.supportsVision)
-                      badges.push({
-                        label: 'vision',
-                        bg: isLight ? 'rgba(59,130,246,0.12)' : 'rgba(59,130,246,0.18)',
-                        fg: isLight ? 'rgb(37,99,235)' : 'rgb(96,165,250)',
-                      })
-                    if (model.supportsThinking)
-                      badges.push({
-                        label: 'thinking',
-                        bg: isLight ? 'rgba(168,85,247,0.12)' : 'rgba(168,85,247,0.18)',
-                        fg: isLight ? 'rgb(126,34,206)' : 'rgb(192,132,252)',
-                      })
-                    if (model.webSearchToolType)
-                      badges.push({
-                        label: 'web search',
-                        bg: isLight ? 'rgba(22,163,74,0.12)' : 'rgba(34,197,94,0.18)',
-                        fg: isLight ? 'rgb(22,163,74)' : 'rgb(74,222,128)',
-                      })
-                    if (model.supportsPromptCaching)
-                      badges.push({
-                        label: 'caching',
-                        bg: isLight ? 'rgba(202,138,4,0.12)' : 'rgba(234,179,8,0.18)',
-                        fg: isLight ? 'rgb(161,98,7)' : 'rgb(250,204,21)',
-                      })
-                    if (model.fastPricing)
-                      badges.push({
-                        label: 'fast mode',
-                        bg: isLight ? 'rgba(234,88,12,0.12)' : 'rgba(249,115,22,0.18)',
-                        fg: isLight ? 'rgb(194,65,12)' : 'rgb(251,146,60)',
-                      })
-                    if (isDeprecated(model))
-                      badges.push({
-                        label: `deprecated ${model.deprecatedAt}`,
-                        bg: isLight ? 'rgba(217,119,6,0.12)' : 'rgba(217,119,6,0.18)',
-                        fg: isLight ? 'rgb(180,83,9)' : 'rgb(251,191,36)',
-                      })
-                    // Region flag pill: shown when the model has a region CHOICE,
-                    // or runs outside the default US region (a fixed flag).
-                    const modelRegionOptions = availableModelRegions(model)
-                    const modelRegion = effectiveModelRegion(model)
-                    const showRegionPill = modelRegionOptions.length > 1 || modelRegion !== 'us'
-                    const accent = PROVIDER_BRAND_COLORS[model.provider] ?? '#888'
-                    // Free tier is clamped per mode to what the SERVER allows
-                    // (the catalog's freeTier-flagged model + the server-sent
-                    // default for the scoped mode — never a hardcoded id); the
-                    // unscoped picker keeps the single free-tier model. Custom
-                    // (bring-your-own AI) models are never locked — the user pays their own
-                    // provider directly. The lock REASON matters: 'paid' gets
-                    // the Pro pill + upgrade card, while 'mode' (a model the
-                    // free tier uses in a DIFFERENT mode, e.g. the execute
-                    // clamp shown in the plan scope) must never claim "Pro".
-                    const lockReason: FreeTierLockReason | null = modelPicker.mode
-                      ? freeTierLockReason(
-                          model.id,
-                          modelPicker.mode,
-                          isFreeTier,
-                          AVAILABLE_MODELS,
-                          serverModelDefaults,
-                        )
-                      : isFreeTier && model.id !== FREE_TIER_MODEL && model.provider !== 'custom'
-                        ? 'paid'
-                        : null
-                    const locked = lockReason !== null
-                    // For 'mode' locks: which mode the free tier actually uses
-                    // this model in ('commit' stands for both aux jobs).
-                    const usableMode =
-                      lockReason === 'mode'
-                        ? freeTierUsableMode(model.id, AVAILABLE_MODELS, serverModelDefaults)
-                        : null
-                    const freeInLabel =
-                      usableMode === 'plan'
-                        ? t('ide.chat.freeInPlan', undefined, { defaultValue: 'free in plan' })
-                        : usableMode === 'execute'
-                          ? t('ide.chat.freeInExecute', undefined, {
-                              defaultValue: 'free in execute',
-                            })
-                          : t('ide.chat.freeInCommit', undefined, {
-                              defaultValue: 'free in commit',
-                            })
-                    // Relative usage rate vs the cheapest available model — the
-                    // unitless "how fast does this eat my allowance" figure
-                    // shown INSTEAD of currency. Green ≤×5, yellow ≤×25, red
-                    // above. Custom (bring-your-own AI) models have all-zero
-                    // list prices and consume no allowance, so they show a
-                    // neutral "your key" instead of a misleading ×1.
-                    const isCustom = model.provider === 'custom'
-                    // Priced at the model's EFFECTIVE region so flipping a
-                    // region immediately re-rates the row (e.g. DeepSeek V4
-                    // Pro: ×3 native-CN vs ×9 US-rehosted).
-                    const usageRate = modelUsageRate(model, AVAILABLE_MODELS, modelRegion)
-                    // Whether the rate above is currently inflated by a peak window.
-                    const peakNow = modelPeakMultiplier(model, modelRegion)
-                    const priceColor =
-                      usageRate <= 5
-                        ? isLight
-                          ? 'rgb(22,163,74)'
-                          : 'rgb(74,222,128)'
-                        : usageRate <= 25
-                          ? isLight
-                            ? 'rgb(161,98,7)'
-                            : 'rgb(250,204,21)'
-                          : isLight
-                            ? 'rgb(220,38,38)'
-                            : 'rgb(248,113,113)'
+                    const row = modelPickerRowView({
+                      model,
+                      isLight,
+                      isFreeTier,
+                      mode: modelPicker.mode,
+                      models: AVAILABLE_MODELS,
+                      serverDefaults: serverModelDefaults,
+                      freeTierModel: FREE_TIER_MODEL,
+                      modelRegion: effectiveModelRegion(model),
+                      t,
+                    })
                     return (
                       <Fragment key={model.id}>
                         {dividerBefore && (
@@ -10182,281 +6519,292 @@ function ChatInner({
                             )}
                           </button>
                         )}
-                        <button
-                          /* mol-bespoke-button: model row — full-width list item in the model picker */
-                          type="button"
-                          onClick={() => {
-                            if (lockReason === 'paid') {
-                              setModelPicker(null)
-                              setInputValue('')
-                              addSystemCard(
-                                t(
-                                  'ide.chat.modelUpgradeRequired',
-                                  { model: model.label },
-                                  {
-                                    defaultValue:
-                                      '{{model}} is available on Pro. Upgrade to access all models.',
-                                  },
-                                ),
-                                // Host owns the upgrade/sign-in button(s) (its routes/copy).
-                                { action: buildUpgradeCta?.({}) ?? undefined },
-                              )
-                            } else if (lockReason === 'mode') {
-                              // Free-usable in a DIFFERENT mode — a plain
-                              // one-liner, never the paid-upgrade pitch.
-                              setModelPicker(null)
-                              setInputValue('')
-                              addSystemCard(
-                                usableMode === 'plan'
-                                  ? t('ide.chat.modeOnlyPlan', undefined, {
-                                      defaultValue:
-                                        'On the free plan, this model is used in plan mode.',
-                                    })
-                                  : usableMode === 'execute'
-                                    ? t('ide.chat.modeOnlyExecute', undefined, {
-                                        defaultValue:
-                                          'On the free plan, this model is used in execute mode.',
-                                      })
-                                    : t('ide.chat.modeOnlyCommit', undefined, {
-                                        defaultValue:
-                                          'On the free plan, this model is used for commit messages and compaction.',
-                                      }),
-                              )
-                            } else {
-                              void selectModel(model.id, model.label, modelPicker.mode)
-                            }
-                          }}
-                          onMouseEnter={(e) => {
-                            if (!locked)
-                              (e.currentTarget as HTMLElement).style.background =
-                                'rgba(128,128,128,0.15)'
-                          }}
-                          onMouseLeave={(e) => {
-                            ;(e.currentTarget as HTMLElement).style.background =
-                              idx === modelPicker.selectedIdx && !locked
-                                ? 'rgba(128,128,128,0.1)'
-                                : 'transparent'
-                          }}
-                          // The provider color is the row's accent: an inset bar
-                          // (DESIGN.md → "Accent bars"); the provider label below
-                          // already carries the same color.
-                          className={cm.cn(cm.w('full'), cm.accentCard({ tone: 'custom' }))}
-                          style={{
-                            ['--mol-accent' as string]: accent,
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'flex-start',
-                            gap: '2px',
-                            padding: '8px 12px 8px 30px',
-                            border: 'none',
-                            borderTop: '1px solid rgba(128,128,128,0.12)',
-                            cursor: locked ? 'default' : 'pointer',
-                            color: 'inherit',
-                            textAlign: 'left',
-                            fontSize: '13px',
-                            opacity: locked ? 0.45 : isDeprecatedRow ? 0.7 : 1,
-                            background:
-                              idx === modelPicker.selectedIdx && !locked
-                                ? 'rgba(128,128,128,0.1)'
-                                : 'transparent',
-                          }}
+                        <div
+                          /* The row and its region control are SIBLINGS: the pill is a control, and a
+                             control cannot sit inside the row button (axe nested-interactive), so it
+                             overlays the row bottom-right from this positioning wrapper instead. */
+                          style={{ position: 'relative' }}
                         >
-                          <div
+                          <button
+                            /* mol-bespoke-button: model row — full-width list item in the model picker */
+                            type="button"
+                            onClick={() => {
+                              if (row.lockReason === 'paid') {
+                                setModelPicker(null)
+                                stableSetInputValue('')
+                                stableAddSystemCard(
+                                  t(
+                                    'ide.chat.modelUpgradeRequired',
+                                    { model: model.label },
+                                    {
+                                      defaultValue:
+                                        '{{model}} is available on Pro. Upgrade to access all models.',
+                                    },
+                                  ),
+                                  // Host owns the upgrade/sign-in button(s) (its routes/copy).
+                                  { action: buildUpgradeCta?.({}) ?? undefined },
+                                )
+                              } else if (row.lockReason === 'mode') {
+                                // Free-usable in a DIFFERENT mode — a plain
+                                // one-liner, never the paid-upgrade pitch.
+                                setModelPicker(null)
+                                stableSetInputValue('')
+                                stableAddSystemCard(
+                                  row.usableMode === 'plan'
+                                    ? t('ide.chat.modeOnlyPlan', undefined, {
+                                        defaultValue:
+                                          'On the free plan, this model is used in plan mode.',
+                                      })
+                                    : row.usableMode === 'execute'
+                                      ? t('ide.chat.modeOnlyExecute', undefined, {
+                                          defaultValue:
+                                            'On the free plan, this model is used in execute mode.',
+                                        })
+                                      : t('ide.chat.modeOnlyCommit', undefined, {
+                                          defaultValue:
+                                            'On the free plan, this model is used for commit messages and compaction.',
+                                        }),
+                                )
+                              } else {
+                                void stableSelectModel(model.id, model.label, modelPicker.mode)
+                              }
+                            }}
+                            onMouseEnter={(e) => {
+                              if (!row.locked)
+                                e.currentTarget.style.background = 'rgba(128,128,128,0.15)'
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.background =
+                                idx === modelPicker.selectedIdx && !row.locked
+                                  ? 'rgba(128,128,128,0.1)'
+                                  : 'transparent'
+                            }}
+                            // The provider color is the row's accent: an inset bar
+                            // (DESIGN.md → "Accent bars"); the provider label below
+                            // already carries the same color.
+                            className={cm.cn(cm.w('full'), cm.accentCard({ tone: 'custom' }))}
                             style={{
+                              ['--mol-accent' as string]: row.accent,
                               display: 'flex',
-                              alignItems: 'center',
-                              gap: '6px',
-                              width: '100%',
+                              flexDirection: 'column',
+                              alignItems: 'flex-start',
+                              gap: '2px',
+                              padding: '8px 12px 8px 30px',
+                              border: 'none',
+                              borderTop: '1px solid rgba(128,128,128,0.12)',
+                              cursor: row.locked ? 'default' : 'pointer',
+                              color: 'inherit',
+                              textAlign: 'left',
+                              fontSize: '13px',
+                              opacity: row.locked ? 0.45 : isDeprecatedRow ? 0.7 : 1,
+                              background:
+                                idx === modelPicker.selectedIdx && !row.locked
+                                  ? 'rgba(128,128,128,0.1)'
+                                  : 'transparent',
                             }}
                           >
-                            {/* minWidth:0 + ellipsis so a long label yields to the
+                            <div
+                              style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '6px',
+                                width: '100%',
+                              }}
+                            >
+                              {/* minWidth:0 + ellipsis so a long label yields to the
                                 right-aligned current/lock pill instead of pushing
                                 it past a narrow (390px) pane's edge. */}
-                            <span
-                              className={cm.fontWeight('medium')}
-                              style={{
-                                minWidth: 0,
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
-                                whiteSpace: 'nowrap',
-                              }}
-                            >
-                              {model.label}
-                            </span>
-                            <span
-                              style={{
-                                fontSize: '10px',
-                                color: accent,
-                                opacity: 0.85,
-                                flexShrink: 0,
-                              }}
-                            >
-                              {model.provider}
-                            </span>
-                            {model.id === pickerCurrentModelId && (
                               <span
-                                data-mol-id={`model-current-${model.id}`}
                                 className={cm.fontWeight('medium')}
                                 style={{
-                                  // Right-aligned + primary-tinted so the active
-                                  // model stands out more than the old flat grey.
-                                  // The hex is only the var() fallback (theme token
-                                  // wins); same color-mix idiom as TipCard/UserAvatar.
-                                  marginLeft: 'auto',
-                                  fontSize: '10px',
-                                  color: 'var(--mol-color-primary, #6366f1)',
-                                  background:
-                                    'color-mix(in srgb, var(--mol-color-primary, #6366f1) 16%, transparent)',
-                                  border:
-                                    '1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 42%, transparent)',
-                                  padding: '1px 7px',
-                                  borderRadius: '999px',
+                                  minWidth: 0,
+                                  overflow: 'hidden',
+                                  textOverflow: 'ellipsis',
+                                  whiteSpace: 'nowrap',
                                 }}
                               >
-                                {t('ide.chat.currentBadge', undefined, { defaultValue: 'current' })}
+                                {model.label}
                               </span>
-                            )}
-                            {lockReason === 'paid' && (
                               <span
                                 style={{
                                   fontSize: '10px',
-                                  marginLeft: 'auto',
-                                  background: 'rgba(128,128,128,0.2)',
-                                  padding: '1px 5px',
-                                  borderRadius: '3px',
+                                  color: row.accent,
+                                  opacity: 0.85,
+                                  flexShrink: 0,
                                 }}
                               >
-                                {t('ide.chat.proRequired', undefined, {
-                                  defaultValue: 'Pro',
-                                })}
+                                {model.provider}
                               </span>
-                            )}
-                            {/* Free-tier model locked here only because it
+                              {model.id === currentPickerModelId && (
+                                <span
+                                  data-mol-id={`model-current-${model.id}`}
+                                  className={cm.fontWeight('medium')}
+                                  style={{
+                                    // Right-aligned + primary-tinted so the active
+                                    // model stands out more than the old flat grey.
+                                    // The hex is only the var() fallback (theme token
+                                    // wins); same color-mix idiom as TipCard/UserAvatar.
+                                    marginLeft: 'auto',
+                                    fontSize: '10px',
+                                    color: 'var(--mol-color-primary, #6366f1)',
+                                    background:
+                                      'color-mix(in srgb, var(--mol-color-primary, #6366f1) 16%, transparent)',
+                                    border:
+                                      '1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 42%, transparent)',
+                                    padding: '1px 7px',
+                                    borderRadius: '999px',
+                                  }}
+                                >
+                                  {t('ide.chat.currentBadge', undefined, {
+                                    defaultValue: 'current',
+                                  })}
+                                </span>
+                              )}
+                              {row.lockReason === 'paid' && (
+                                <span
+                                  style={{
+                                    fontSize: '10px',
+                                    marginLeft: 'auto',
+                                    background: 'rgba(128,128,128,0.2)',
+                                    padding: '1px 5px',
+                                    borderRadius: '3px',
+                                  }}
+                                >
+                                  {t('ide.chat.proRequired', undefined, {
+                                    defaultValue: 'Pro',
+                                  })}
+                                </span>
+                              )}
+                              {/* Free-tier model locked here only because it
                                 belongs to a DIFFERENT mode — a muted "free in
                                 <mode>" pill, never the paid "Pro" claim. */}
-                            {lockReason === 'mode' && (
-                              <span
-                                className={cm.textMuted}
-                                style={{
-                                  fontSize: '10px',
-                                  marginLeft: 'auto',
-                                  background: 'rgba(128,128,128,0.2)',
-                                  padding: '1px 5px',
-                                  borderRadius: '3px',
-                                }}
-                              >
-                                {freeInLabel}
-                              </span>
-                            )}
-                          </div>
-                          <span style={{ fontSize: '12px', opacity: 0.7 }}>
-                            {model.description}
-                          </span>
-                          <span style={{ fontSize: '11px', opacity: 0.65 }}>
-                            {formatTokenCount(model.contextWindow)} ctx ·{' '}
-                            {formatTokenCount(model.maxOutputTokens)} out ·{' '}
-                            {isCustom ? (
-                              <span
-                                title={t('ide.chat.models.usageRateYourKeyHint', undefined, {
-                                  defaultValue: 'Billed to your own provider key, not your plan.',
-                                })}
-                              >
-                                {t('ide.chat.models.usageRateYourKey', undefined, {
-                                  defaultValue: 'your key',
-                                })}
-                              </span>
-                            ) : (
-                              <span
-                                style={{ color: priceColor }}
-                                title={t('ide.chat.models.usageRateHint', undefined, {
-                                  defaultValue:
-                                    'How fast this model uses your AI allowance, relative to the most economical model',
-                                })}
-                              >
-                                {t(
-                                  'ide.chat.models.usageRateValue',
-                                  { rate: usageRate },
-                                  { defaultValue: '×{{rate}} usage' },
-                                )}
-                              </span>
-                            )}
-                            {/* Peak hours: the rate above already reflects the
+                              {row.lockReason === 'mode' && (
+                                <span
+                                  className={cm.textMuted}
+                                  style={{
+                                    fontSize: '10px',
+                                    marginLeft: 'auto',
+                                    background: 'rgba(128,128,128,0.2)',
+                                    padding: '1px 5px',
+                                    borderRadius: '3px',
+                                  }}
+                                >
+                                  {row.freeInLabel}
+                                </span>
+                              )}
+                            </div>
+                            <span style={{ fontSize: '12px', opacity: 0.7 }}>
+                              {model.description}
+                            </span>
+                            <span style={{ fontSize: '11px', opacity: 0.65 }}>
+                              {formatTokenCount(model.contextWindow)} ctx ·{' '}
+                              {formatTokenCount(model.maxOutputTokens)} out ·{' '}
+                              {row.isCustom ? (
+                                <span
+                                  title={t('ide.chat.models.usageRateYourKeyHint', undefined, {
+                                    defaultValue: 'Billed to your own provider key, not your plan.',
+                                  })}
+                                >
+                                  {t('ide.chat.models.usageRateYourKey', undefined, {
+                                    defaultValue: 'your key',
+                                  })}
+                                </span>
+                              ) : (
+                                <span
+                                  style={{ color: row.priceColor }}
+                                  title={t('ide.chat.models.usageRateHint', undefined, {
+                                    defaultValue:
+                                      'How fast this model uses your AI allowance, relative to the most economical model',
+                                  })}
+                                >
+                                  {t(
+                                    'ide.chat.models.usageRateValue',
+                                    { rate: row.usageRate },
+                                    { defaultValue: '×{{rate}} usage' },
+                                  )}
+                                </span>
+                              )}
+                              {/* Peak hours: the rate above already reflects the
                                 CURRENT multiplier, so without this the number
                                 would change during the day with no explanation.
                                 In-window says so plainly; out-of-window warns
                                 that it will rise, since finding out later is the
                                 surprise worth preventing. Windows are in the
                                 user's own clock (modelPeakWindowLabels). */}
-                            {!isCustom && modelHasPeakPricing(model, modelRegion) && (
-                              <>
-                                {' · '}
-                                <span
-                                  style={{
-                                    color: peakNow > 1 ? priceColor : undefined,
-                                    opacity: peakNow > 1 ? 1 : 0.8,
-                                  }}
-                                  title={t(
-                                    'ide.chat.models.peakHint',
-                                    {
-                                      multiplier: model.peakPricing?.multiplier ?? 2,
-                                      windows: modelPeakWindowLabels(model).join(', '),
-                                    },
-                                    {
-                                      defaultValue:
-                                        'This model costs ×{{multiplier}} between {{windows}}. It is the normal rate the rest of the day.',
-                                    },
-                                  )}
-                                >
-                                  {peakNow > 1
-                                    ? t(
-                                        'ide.chat.models.peakNow',
-                                        { multiplier: model.peakPricing?.multiplier ?? 2 },
-                                        { defaultValue: 'peak ×{{multiplier}} now' },
-                                      )
-                                    : t(
-                                        'ide.chat.models.peakLater',
-                                        { multiplier: model.peakPricing?.multiplier ?? 2 },
-                                        { defaultValue: '×{{multiplier}} at peak hours' },
-                                      )}
-                                </span>
-                              </>
+                              {!row.isCustom && modelHasPeakPricing(model, row.modelRegion) && (
+                                <>
+                                  {' · '}
+                                  <span
+                                    style={{
+                                      color: row.peakNow > 1 ? row.priceColor : undefined,
+                                      opacity: row.peakNow > 1 ? 1 : 0.8,
+                                    }}
+                                    title={t(
+                                      'ide.chat.models.peakHint',
+                                      {
+                                        multiplier: model.peakPricing?.multiplier ?? 2,
+                                        windows: modelPeakWindowLabels(model).join(', '),
+                                      },
+                                      {
+                                        defaultValue:
+                                          'This model costs ×{{multiplier}} between {{windows}}. It is the normal rate the rest of the day.',
+                                      },
+                                    )}
+                                  >
+                                    {row.peakNow > 1
+                                      ? t(
+                                          'ide.chat.models.peakNow',
+                                          { multiplier: model.peakPricing?.multiplier ?? 2 },
+                                          { defaultValue: 'peak ×{{multiplier}} now' },
+                                        )
+                                      : t(
+                                          'ide.chat.models.peakLater',
+                                          { multiplier: model.peakPricing?.multiplier ?? 2 },
+                                          { defaultValue: '×{{multiplier}} at peak hours' },
+                                        )}
+                                  </span>
+                                </>
+                              )}
+                              {/* Custom models synthesize an empty cutoff — skip the segment. */}
+                              {model.knowledgeCutoff ? <> · {model.knowledgeCutoff}</> : null}
+                            </span>
+                            {row.badges.length > 0 && (
+                              <span
+                                style={{
+                                  display: 'flex',
+                                  gap: '4px',
+                                  flexWrap: 'wrap',
+                                  alignItems: 'center',
+                                  marginTop: '1px',
+                                  // Full row width — the button column is
+                                  // alignItems:flex-start, so without this the
+                                  // line shrinks to content and the region
+                                  // control's marginLeft:auto has no space to
+                                  // push it to the right edge.
+                                  width: '100%',
+                                }}
+                              >
+                                {row.badges.map((b) => (
+                                  <span
+                                    key={b.label}
+                                    style={{
+                                      fontSize: '10px',
+                                      color: b.fg,
+                                      background: b.bg,
+                                      padding: '1px 5px',
+                                      borderRadius: '3px',
+                                    }}
+                                  >
+                                    {b.label}
+                                  </span>
+                                ))}
+                              </span>
                             )}
-                            {/* Custom models synthesize an empty cutoff — skip the segment. */}
-                            {model.knowledgeCutoff ? <> · {model.knowledgeCutoff}</> : null}
-                          </span>
-                          {(badges.length > 0 || showRegionPill) && (
-                            <span
-                              style={{
-                                display: 'flex',
-                                gap: '4px',
-                                flexWrap: 'wrap',
-                                alignItems: 'center',
-                                marginTop: '1px',
-                                // Full row width — the button column is
-                                // alignItems:flex-start, so without this the
-                                // line shrinks to content and the region
-                                // control's marginLeft:auto has no space to
-                                // push it to the right edge.
-                                width: '100%',
-                              }}
-                            >
-                              {badges.map((b) => (
-                                <span
-                                  key={b.label}
-                                  style={{
-                                    fontSize: '10px',
-                                    color: b.fg,
-                                    background: b.bg,
-                                    padding: '1px 5px',
-                                    borderRadius: '3px',
-                                  }}
-                                >
-                                  {b.label}
-                                </span>
-                              ))}
-                              {/* Processing-region dropdown, anchored to the
-                                  BOTTOM-RIGHT of the row (marginLeft auto +
-                                  alignSelf flex-end on the badge line). Reads
+                          </button>
+                          {/* Processing-region dropdown, anchored to the
+                                  BOTTOM-RIGHT of the row (absolutely
+                                  positioned against the row wrapper, out of the
+                                  row button itself). Reads
                                   right-to-left: bare flag (pill-height, no
                                   chrome) on the far right, region name to its
                                   left, and a chevron-down to the left of THAT
@@ -10470,230 +6818,211 @@ function ChatInner({
                                   row is itself a <button> and nesting buttons
                                   is invalid; stopPropagation keeps clicks from
                                   selecting the row. */}
-                              {showRegionPill &&
-                                (() => {
-                                  const interactive = modelRegionOptions.length > 1
-                                  const regionLabel = modelRegionLabel(t, modelRegion)
-                                  const hint = interactive
-                                    ? t(
-                                        'ide.chat.model.regionHint',
-                                        { region: regionLabel },
-                                        {
-                                          defaultValue:
-                                            'Processed in: {{region}} — click to change',
-                                        },
-                                      )
-                                    : t(
-                                        'ide.chat.model.regionOnlyHint',
-                                        { region: regionLabel },
-                                        { defaultValue: 'Only hosted in: {{region}}' },
-                                      )
-                                  const menuOpen = regionMenu?.modelId === model.id
-                                  // Trigger built once so the Tooltip wrap can
-                                  // be dropped while the menu is open (the
-                                  // menu replaces it — stacking a hover
-                                  // tooltip on an open menu is noise).
-                                  const trigger = (
-                                    <span
-                                      role={interactive ? 'button' : undefined}
-                                      tabIndex={interactive ? 0 : undefined}
-                                      aria-label={hint}
-                                      aria-haspopup={interactive ? 'menu' : undefined}
-                                      aria-expanded={interactive ? menuOpen : undefined}
-                                      data-mol-id={`model-region-${model.id}`}
-                                      onClick={(e) => {
-                                        e.stopPropagation()
-                                        if (!interactive) return
-                                        toggleRegionMenu(model.id, e.currentTarget as HTMLElement)
-                                      }}
-                                      onKeyDown={(e) => {
-                                        if (!interactive) return
-                                        if (e.key === 'Enter' || e.key === ' ') {
-                                          e.stopPropagation()
-                                          e.preventDefault()
-                                          toggleRegionMenu(model.id, e.currentTarget as HTMLElement)
-                                        } else if (e.key === 'Escape' && menuOpen) {
-                                          e.stopPropagation()
-                                          setRegionMenu(null)
-                                        }
-                                      }}
-                                      onMouseEnter={(e) => {
-                                        // Hover affordance beyond the tooltip
-                                        // (same imperative idiom as the row
-                                        // button's own hover background).
-                                        if (interactive)
-                                          (e.currentTarget as HTMLElement).style.background =
-                                            'rgba(128,128,128,0.25)'
-                                      }}
-                                      onMouseLeave={(e) => {
-                                        ;(e.currentTarget as HTMLElement).style.background =
-                                          menuOpen ? 'rgba(128,128,128,0.25)' : 'transparent'
-                                      }}
-                                      style={{
-                                        display: 'inline-flex',
-                                        alignItems: 'center',
-                                        gap: '4px',
-                                        padding: '1px 4px',
-                                        borderRadius: 4,
-                                        background: menuOpen
-                                          ? 'rgba(128,128,128,0.25)'
-                                          : 'transparent',
-                                        cursor: interactive ? 'pointer' : 'default',
-                                      }}
-                                    >
-                                      {interactive && (
-                                        <Icon
-                                          name="chevron-down"
-                                          size={10}
-                                          aria-hidden="true"
-                                          className={cm.textMuted}
-                                        />
-                                      )}
-                                      <span
-                                        className={cm.textMuted}
-                                        style={{ fontSize: '10px', lineHeight: '14px' }}
-                                      >
-                                        {regionLabel}
-                                      </span>
-                                      {/* Rectangular flag from the bonded flag
+                          {row.regionPill.show &&
+                            (() => {
+                              const {
+                                interactive,
+                                label: regionLabel,
+                                hint,
+                                options: modelRegionOptions,
+                                region: modelRegion,
+                              } = row.regionPill
+                              const menuOpen = regionMenu?.modelId === model.id
+                              // Trigger built once so the Tooltip wrap can
+                              // be dropped while the menu is open (the
+                              // menu replaces it — stacking a hover
+                              // tooltip on an open menu is noise).
+                              const trigger = (
+                                <span
+                                  role={interactive ? 'button' : undefined}
+                                  tabIndex={interactive ? 0 : undefined}
+                                  aria-label={hint}
+                                  aria-haspopup={interactive ? 'menu' : undefined}
+                                  aria-expanded={interactive ? menuOpen : undefined}
+                                  data-mol-id={`model-region-${model.id}`}
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    if (!interactive) return
+                                    toggleRegionMenu(model.id, e.currentTarget)
+                                  }}
+                                  onKeyDown={(e) => {
+                                    if (!interactive) return
+                                    if (e.key === 'Enter' || e.key === ' ') {
+                                      e.stopPropagation()
+                                      e.preventDefault()
+                                      toggleRegionMenu(model.id, e.currentTarget)
+                                    } else if (e.key === 'Escape' && menuOpen) {
+                                      e.stopPropagation()
+                                      setRegionMenu(null)
+                                    }
+                                  }}
+                                  onMouseEnter={(e) => {
+                                    // Hover affordance beyond the tooltip
+                                    // (same imperative idiom as the row
+                                    // button's own hover background).
+                                    if (interactive)
+                                      e.currentTarget.style.background = 'rgba(128,128,128,0.25)'
+                                  }}
+                                  onMouseLeave={(e) => {
+                                    e.currentTarget.style.background = menuOpen
+                                      ? 'rgba(128,128,128,0.25)'
+                                      : 'transparent'
+                                  }}
+                                  style={{
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '4px',
+                                    padding: '1px 4px',
+                                    borderRadius: 4,
+                                    background: menuOpen ? 'rgba(128,128,128,0.25)' : 'transparent',
+                                    cursor: interactive ? 'pointer' : 'default',
+                                  }}
+                                >
+                                  {interactive && (
+                                    <Icon
+                                      name="chevron-down"
+                                      size={10}
+                                      aria-hidden="true"
+                                      className={cm.textMuted}
+                                    />
+                                  )}
+                                  <span
+                                    className={cm.textMuted}
+                                    style={{ fontSize: '10px', lineHeight: '14px' }}
+                                  >
+                                    {regionLabel}
+                                  </span>
+                                  {/* Rectangular flag from the bonded flag
                                           set, sized to the capability pills'
                                           14px height. */}
-                                      <RegionFlag
-                                        code={MODEL_REGION_FLAGS[modelRegion] ?? modelRegion}
-                                        height={14}
-                                      />
-                                    </span>
-                                  )
-                                  return (
-                                    <span
-                                      style={{
-                                        display: 'inline-flex',
-                                        marginLeft: 'auto',
-                                        alignSelf: 'flex-end',
-                                      }}
-                                    >
-                                      {menuOpen ? (
-                                        trigger
-                                      ) : (
-                                        <Tooltip content={hint} placement="top">
-                                          {trigger}
-                                        </Tooltip>
-                                      )}
-                                      {/* The menu opens BELOW the trigger at
+                                  <RegionFlag
+                                    code={MODEL_REGION_FLAGS[modelRegion] ?? modelRegion}
+                                    height={14}
+                                  />
+                                </span>
+                              )
+                              return (
+                                <span
+                                  style={{
+                                    position: 'absolute',
+                                    right: 12,
+                                    bottom: 8,
+                                    zIndex: 1,
+                                  }}
+                                >
+                                  {menuOpen ? (
+                                    trigger
+                                  ) : (
+                                    <Tooltip content={hint} placement="top">
+                                      {trigger}
+                                    </Tooltip>
+                                  )}
+                                  {/* The menu opens BELOW the trigger at
                                           fixed viewport coords (right edges
                                           aligned) so the picker's scroll
                                           container can't clip it; scroll/
                                           resize close it (see the effect). */}
-                                      {menuOpen && regionMenu && (
-                                        <span
-                                          role="menu"
-                                          aria-label={t(
-                                            'ide.chat.model.regionMenuLabel',
-                                            undefined,
-                                            { defaultValue: 'Processing region' },
-                                          )}
-                                          className={cm.cn(cm.surface, cm.borderAll)}
-                                          style={{
-                                            position: 'fixed',
-                                            top: regionMenu.top,
-                                            right: regionMenu.right,
-                                            borderRadius: 6,
-                                            boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
-                                            zIndex: 130,
-                                            display: 'flex',
-                                            flexDirection: 'column',
-                                            minWidth: 112,
-                                            padding: 2,
-                                          }}
-                                        >
-                                          {modelRegionOptions.map((r) => {
-                                            const rLabel = modelRegionLabel(t, r)
-                                            // Each option carries ITS region's
-                                            // usage multiplier so the cost of a
-                                            // switch is visible before making it.
-                                            const rRate = modelUsageRate(model, AVAILABLE_MODELS, r)
-                                            const active = r === modelRegion
-                                            return (
-                                              <span
-                                                key={r}
-                                                role="menuitemradio"
-                                                aria-checked={active}
-                                                tabIndex={0}
-                                                data-mol-id={`model-region-${model.id}-${r}`}
-                                                onClick={(e) => {
-                                                  e.stopPropagation()
-                                                  setRegionMenu(null)
-                                                  if (!active) void setModelRegion(model.id, r)
-                                                }}
-                                                onKeyDown={(e) => {
-                                                  if (e.key === 'Enter' || e.key === ' ') {
-                                                    e.stopPropagation()
-                                                    e.preventDefault()
-                                                    setRegionMenu(null)
-                                                    if (!active) void setModelRegion(model.id, r)
-                                                  }
-                                                }}
-                                                onMouseEnter={(e) => {
-                                                  if (!active)
-                                                    (
-                                                      e.currentTarget as HTMLElement
-                                                    ).style.background = 'rgba(128,128,128,0.15)'
-                                                }}
-                                                onMouseLeave={(e) => {
-                                                  ;(
-                                                    e.currentTarget as HTMLElement
-                                                  ).style.background = active
-                                                    ? 'color-mix(in srgb, var(--mol-color-primary, #6366f1) 16%, transparent)'
-                                                    : 'transparent'
-                                                }}
-                                                className={
-                                                  active ? cm.fontWeight('medium') : undefined
-                                                }
-                                                style={{
-                                                  display: 'flex',
-                                                  alignItems: 'center',
-                                                  gap: 6,
-                                                  padding: '4px 8px',
-                                                  borderRadius: 4,
-                                                  cursor: active ? 'default' : 'pointer',
-                                                  fontSize: '11px',
-                                                  whiteSpace: 'nowrap',
-                                                  background: active
-                                                    ? 'color-mix(in srgb, var(--mol-color-primary, #6366f1) 16%, transparent)'
-                                                    : 'transparent',
-                                                  color: active
-                                                    ? 'var(--mol-color-primary, #6366f1)'
-                                                    : 'inherit',
-                                                }}
-                                              >
-                                                <RegionFlag
-                                                  code={MODEL_REGION_FLAGS[r] ?? r}
-                                                  height={12}
-                                                />
-                                                <span>{rLabel}</span>
-                                                <span
-                                                  className={active ? undefined : cm.textMuted}
-                                                  style={{ fontSize: '10px' }}
-                                                >
-                                                  (
-                                                  {t(
-                                                    'ide.chat.models.usageRateMultiplier',
-                                                    { rate: rRate },
-                                                    { defaultValue: '×{{rate}}' },
-                                                  )}
-                                                  )
-                                                </span>
-                                              </span>
-                                            )
-                                          })}
-                                        </span>
-                                      )}
+                                  {menuOpen && regionMenu && (
+                                    <span
+                                      role="menu"
+                                      aria-label={t('ide.chat.model.regionMenuLabel', undefined, {
+                                        defaultValue: 'Processing region',
+                                      })}
+                                      className={cm.cn(cm.surface, cm.borderAll)}
+                                      style={{
+                                        position: 'fixed',
+                                        top: regionMenu.top,
+                                        right: regionMenu.right,
+                                        borderRadius: 6,
+                                        boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+                                        zIndex: 130,
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        minWidth: 112,
+                                        padding: 2,
+                                      }}
+                                    >
+                                      {modelRegionOptions.map((r) => {
+                                        const rLabel = modelRegionLabel(t, r)
+                                        // Each option carries ITS region's
+                                        // usage multiplier so the cost of a
+                                        // switch is visible before making it.
+                                        const rRate = modelUsageRate(model, AVAILABLE_MODELS, r)
+                                        const active = r === modelRegion
+                                        return (
+                                          <span
+                                            key={r}
+                                            role="menuitemradio"
+                                            aria-checked={active}
+                                            tabIndex={0}
+                                            data-mol-id={`model-region-${model.id}-${r}`}
+                                            onClick={(e) => {
+                                              e.stopPropagation()
+                                              setRegionMenu(null)
+                                              if (!active) void stableSetModelRegion(model.id, r)
+                                            }}
+                                            onKeyDown={(e) => {
+                                              if (e.key === 'Enter' || e.key === ' ') {
+                                                e.stopPropagation()
+                                                e.preventDefault()
+                                                setRegionMenu(null)
+                                                if (!active) void stableSetModelRegion(model.id, r)
+                                              }
+                                            }}
+                                            onMouseEnter={(e) => {
+                                              if (!active)
+                                                e.currentTarget.style.background =
+                                                  'rgba(128,128,128,0.15)'
+                                            }}
+                                            onMouseLeave={(e) => {
+                                              e.currentTarget.style.background = active
+                                                ? 'color-mix(in srgb, var(--mol-color-primary, #6366f1) 16%, transparent)'
+                                                : 'transparent'
+                                            }}
+                                            className={active ? cm.fontWeight('medium') : undefined}
+                                            style={{
+                                              display: 'flex',
+                                              alignItems: 'center',
+                                              gap: 6,
+                                              padding: '4px 8px',
+                                              borderRadius: 4,
+                                              cursor: active ? 'default' : 'pointer',
+                                              fontSize: '11px',
+                                              whiteSpace: 'nowrap',
+                                              background: active
+                                                ? 'color-mix(in srgb, var(--mol-color-primary, #6366f1) 16%, transparent)'
+                                                : 'transparent',
+                                              color: active
+                                                ? 'var(--mol-color-primary, #6366f1)'
+                                                : 'inherit',
+                                            }}
+                                          >
+                                            <RegionFlag
+                                              code={MODEL_REGION_FLAGS[r] ?? r}
+                                              height={12}
+                                            />
+                                            <span>{rLabel}</span>
+                                            <span
+                                              className={active ? undefined : cm.textMuted}
+                                              style={{ fontSize: '10px' }}
+                                            >
+                                              (
+                                              {t(
+                                                'ide.chat.models.usageRateMultiplier',
+                                                { rate: rRate },
+                                                { defaultValue: '×{{rate}}' },
+                                              )}
+                                              )
+                                            </span>
+                                          </span>
+                                        )
+                                      })}
                                     </span>
-                                  )
-                                })()}
-                            </span>
-                          )}
-                        </button>
+                                  )}
+                                </span>
+                              )
+                            })()}
+                        </div>
                       </Fragment>
                     )
                   })}
@@ -10746,11 +7075,11 @@ function ChatInner({
                     onManageCustomModels({ mode: manageMode })
                   }}
                   onMouseEnter={(e) => {
-                    ;(e.currentTarget as HTMLElement).style.background =
+                    e.currentTarget.style.background =
                       'color-mix(in srgb, var(--mol-color-primary, #6366f1) 24%, transparent)'
                   }}
                   onMouseLeave={(e) => {
-                    ;(e.currentTarget as HTMLElement).style.background =
+                    e.currentTarget.style.background =
                       modelPicker.selectedIdx === visibleModels.length
                         ? 'color-mix(in srgb, var(--mol-color-primary, #6366f1) 24%, transparent)'
                         : 'color-mix(in srgb, var(--mol-color-primary, #6366f1) 12%, transparent)'
@@ -10842,7 +7171,7 @@ function ChatInner({
                     const v = e.target.value as EffortMode
                     // Reset the highlighted row — the level list changes with
                     // the mode's model.
-                    setEffortPicker((p) => (p ? { mode: v, selectedIdx: -1 } : p))
+                    setEffortPicker((p) => (p ? { ...p, mode: v, selectedIdx: -1 } : p))
                   }}
                   className={cm.cn(cm.surfaceSecondary, cm.borderAll, cm.textSize('xs'))}
                   style={{
@@ -10911,7 +7240,7 @@ function ChatInner({
                   )}
                 </div>
               ) : (
-                effortPickerVisibleOptions.map((option, idx) => (
+                effortPickerVisible.map((option, idx) => (
                   <button
                     /* mol-bespoke-button: effort level row — full-width list item in the /effort popup */
                     key={option.value}
@@ -10921,10 +7250,10 @@ function ChatInner({
                       void applyEffortLevel(effortPicker.mode, option.value, effortPickerModel)
                     }
                     onMouseEnter={(e) => {
-                      ;(e.currentTarget as HTMLElement).style.background = 'rgba(128,128,128,0.15)'
+                      e.currentTarget.style.background = 'rgba(128,128,128,0.15)'
                     }}
                     onMouseLeave={(e) => {
-                      ;(e.currentTarget as HTMLElement).style.background =
+                      e.currentTarget.style.background =
                         idx === effortPicker.selectedIdx ? 'rgba(128,128,128,0.1)' : 'transparent'
                     }}
                     className={cm.w('full')}
@@ -11064,10 +7393,10 @@ function ChatInner({
                     type="button"
                     onClick={() => void cycleSoundMode('all')}
                     onMouseEnter={(e) => {
-                      ;(e.currentTarget as HTMLElement).style.background = 'rgba(128,128,128,0.15)'
+                      e.currentTarget.style.background = 'rgba(128,128,128,0.15)'
                     }}
                     onMouseLeave={(e) => {
-                      ;(e.currentTarget as HTMLElement).style.background =
+                      e.currentTarget.style.background =
                         soundsPicker.selectedIdx === 0 ? 'rgba(128,128,128,0.1)' : 'transparent'
                     }}
                     className={cm.w('full')}
@@ -11121,10 +7450,10 @@ function ChatInner({
                     type="button"
                     onClick={() => void cycleSoundMode(eventType)}
                     onMouseEnter={(e) => {
-                      ;(e.currentTarget as HTMLElement).style.background = 'rgba(128,128,128,0.15)'
+                      e.currentTarget.style.background = 'rgba(128,128,128,0.15)'
                     }}
                     onMouseLeave={(e) => {
-                      ;(e.currentTarget as HTMLElement).style.background =
+                      e.currentTarget.style.background =
                         soundsPicker.selectedIdx === rowIdx
                           ? 'rgba(128,128,128,0.1)'
                           : 'transparent'
@@ -11280,7 +7609,7 @@ function ChatInner({
                   defaultSkillPaths={defaultSkillPaths}
                   onToggleDefault={toggleDefaultSkill}
                   onResetDefault={resetDefaultSkills}
-                  defaultsExplicit={defaultSkillsExplicitRef.current}
+                  defaultsExplicit={defaultSkillsExplicit}
                   isLight={isLight}
                   embedded
                 />
@@ -11369,13 +7698,12 @@ function ChatInner({
                       /* mol-bespoke-button: file picker row — full-width list item in the @ popup */
                       key={entry.name}
                       type="button"
-                      onClick={() => selectFileEntry(entry)}
+                      onClick={() => stableSelectFileEntry(entry)}
                       onMouseEnter={(e) => {
-                        ;(e.currentTarget as HTMLElement).style.background =
-                          'rgba(128,128,128,0.15)'
+                        e.currentTarget.style.background = 'rgba(128,128,128,0.15)'
                       }}
                       onMouseLeave={(e) => {
-                        ;(e.currentTarget as HTMLElement).style.background =
+                        e.currentTarget.style.background =
                           idx === filePicker.selectedIdx ? 'rgba(128,128,128,0.1)' : 'transparent'
                       }}
                       className={cm.w('full')}
@@ -11476,6 +7804,9 @@ function ChatInner({
                     <div key={qm.id} style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                       <textarea
                         ref={queuedEditRef}
+                        aria-label={t('ide.chat.queuedEdit.label', undefined, {
+                          defaultValue: 'Edit queued message',
+                        })}
                         defaultValue={editingQueuedText}
                         onChange={(e) => setEditingQueuedText(e.target.value)}
                         onKeyDown={(e) => {
@@ -11698,11 +8029,11 @@ function ChatInner({
           <WorkCard>
             {/* The plan and the background commands (a detached command outlives
                 its tool call, so its own card goes green while it still runs). */}
-            <PlanCard todos={plan} live={planLive} awaitingUser={planAwaitingUser} />
+            <PlanCard todos={plan} live={planLive} awaitingUser={planAwaiting} />
             <BackgroundTasksStrip tasks={backgroundTasks} />
             {showTests &&
               (nativeTests ? (
-                nativeTests.renderStatus(() => openTestsBrowser(''))
+                nativeTests.renderStatus(() => stableOpenTestsBrowser(''))
               ) : (
                 <TestStatusBar
                   run={testsRun}
@@ -11988,7 +8319,7 @@ function ChatInner({
             ref={textareaRef}
             data-mol-chat-input=""
             aria-label={t('ide.chat.inputLabel', undefined, { defaultValue: 'Write a message' })}
-            defaultValue={inputRef.current as string}
+            defaultValue={initialDraft}
             autoComplete="off"
             onChange={handleInputChange}
             onPaste={handlePaste}
@@ -12311,20 +8642,7 @@ function ChatInner({
                   nudgeY: 0,
                   size: 15,
                   title: t('ide.chat.mention', undefined, { defaultValue: 'Reference a file' }),
-                  onClick: () => {
-                    const val = inputRef.current as string
-                    const pos = textareaRef.current?.selectionStart ?? val.length
-                    const newVal = val.slice(0, pos) + '@' + val.slice(pos)
-                    setInputValue(newVal)
-                    autoResize()
-                    setMentionStart(pos)
-                    void openFilePicker('')
-                    setCommandMenu(null)
-                    setTimeout(() => {
-                      textareaRef.current?.focus()
-                      textareaRef.current?.setSelectionRange(pos + 1, pos + 1)
-                    }, 0)
-                  },
+                  onClick: insertMentionAtCaret,
                 },
                 {
                   sym: 'slash',
@@ -12333,33 +8651,7 @@ function ChatInner({
                   title: t('ide.chat.slashCommands', undefined, {
                     defaultValue: 'Slash commands',
                   }),
-                  onClick: () => {
-                    // TOGGLE the menu regardless of the composer's current text —
-                    // never clobbering it. With text present the menu opens in
-                    // showAll mode (every command listed; picking one replaces the
-                    // input via executeCommand's prefill). An empty box still gets
-                    // the type-ahead '/' so filtering-by-typing works as before.
-                    if (commandMenu) {
-                      setCommandMenu(null)
-                      if ((inputRef.current as string) === '/') {
-                        // Remove the slash this button added on open.
-                        setInputValue('')
-                        autoResize()
-                      }
-                      setTimeout(() => {
-                        textareaRef.current?.focus()
-                      }, 0)
-                      return
-                    }
-                    // Popups are one-at-a-time — close siblings first.
-                    setMicPicker(null)
-                    setModelPicker(null)
-                    setEffortPicker(null)
-                    setSoundsPicker(null)
-                    const cur = inputRef.current as string
-                    if (!cur) setInputAndCursorEnd('/')
-                    setCommandMenu({ selectedIdx: -1, showAll: cur !== '' && cur !== '/' })
-                  },
+                  onClick: toggleSlashMenu,
                 },
               ] as const
             )
@@ -12514,21 +8806,8 @@ function ChatInner({
           initialTitle={reportModal.title}
           productName={productName}
           appVersion={version || APP_VERSION}
-          onClose={() => setReportModal(null)}
-          onSubmitted={(result: ReportResult) => {
-            setReportModal(null)
-            const { key, defaultValue } = formatReportConfirmation(result)
-            addSystemCard(t(key, { productName }, { defaultValue }), {
-              action: result.url
-                ? {
-                    label: t('ide.chat.report.viewIssue', undefined, {
-                      defaultValue: 'View issue',
-                    }),
-                    href: result.url,
-                  }
-                : undefined,
-            })
-          }}
+          onClose={closeReportModal}
+          onSubmitted={handleReportSubmitted}
         />
       )}
 
@@ -12540,7 +8819,7 @@ function ChatInner({
           canManage={shareAllowed}
           showLinks={shareLinksAllowed ?? shareAllowed}
           refreshSignal={shareLinksRefreshSignal}
-          onClose={() => setShareModal(null)}
+          onClose={closeShareModal}
           onCreated={(result: ShareLinkResult) => {
             // Surface the created link in the timeline so it persists after the
             // modal closes — the role label and the public URL are both shown.
@@ -12621,6 +8900,7 @@ export function ChatPanel({
   openShareSignal: controlledShareSignal,
   openReportSignal: controlledReportSignal,
   openSettingsSignal: controlledSettingsSignal,
+  modelSelectionSignal,
   onManageCustomModels,
   gitStatusTick,
   pendingMessage,
@@ -12671,7 +8951,7 @@ export function ChatPanel({
   // undefined` is the switch — `null` is a valid controlled "no conversation".
   const isConversationControlled = controlledConversationId !== undefined
 
-  const storageKey = `mol-chat-conv:${projectId}`
+  const storageKey = chatConversationStorageKey(projectId)
   const [internalActiveConversationId, setActiveConversationId] = useState<string | null>(() =>
     localStorage.getItem(storageKey),
   )
@@ -12718,10 +8998,9 @@ export function ChatPanel({
 
   const fetchConversations = useCallback(async () => {
     try {
-      const res = await http.get<{ conversations: ConversationSummary[] }>(
-        `/projects/${projectId}/conversations`,
-      )
-      setConversations(res.data.conversations)
+      await http
+        .get<{ conversations: ConversationSummary[] }>(`/projects/${projectId}/conversations`)
+        .then((res) => setConversations(res.data.conversations))
     } catch (_error) {
       // non-critical — conversation list is display-only; header works fine without it
     }
@@ -12837,11 +9116,11 @@ export function ChatPanel({
             onClick={handleToggleDropdown}
             className={cm.cn(cm.textSize('xs'), cm.textMuted)}
             onMouseEnter={(e) => {
-              const s = (e.currentTarget as HTMLElement).querySelector('span')
+              const s = e.currentTarget.querySelector('span')
               if (s) (s as HTMLElement).style.opacity = '1'
             }}
             onMouseLeave={(e) => {
-              const s = (e.currentTarget as HTMLElement).querySelector('span')
+              const s = e.currentTarget.querySelector('span')
               if (s) (s as HTMLElement).style.opacity = '0.7'
             }}
             style={{
@@ -13028,10 +9307,10 @@ export function ChatPanel({
                     conv.id === activeConversationId ? cm.surfaceSecondary : '',
                   )}
                   onMouseEnter={(e) => {
-                    ;(e.currentTarget as HTMLElement).style.background = 'rgba(128,128,128,0.1)'
+                    e.currentTarget.style.background = 'rgba(128,128,128,0.1)'
                   }}
                   onMouseLeave={(e) => {
-                    ;(e.currentTarget as HTMLElement).style.background = ''
+                    e.currentTarget.style.background = ''
                   }}
                   style={{
                     display: 'flex',
@@ -13054,7 +9333,10 @@ export function ChatPanel({
                       width: '100%',
                     }}
                   >
-                    {conv.preview ?? 'New conversation'}
+                    {conv.preview ??
+                      t('ide.chat.newConversation', undefined, {
+                        defaultValue: 'New conversation',
+                      })}
                   </span>
                   <span
                     className={cm.cn(cm.textMuted, cm.textSize('xs'))}
@@ -13110,6 +9392,7 @@ export function ChatPanel({
         onRegisterHistoryReconcile={onRegisterHistoryReconcile}
         autoSubmitSignal={autoSubmitSignal}
         openSettingsSignal={effectiveSettingsSignal}
+        modelSelectionSignal={modelSelectionSignal}
         onManageCustomModels={onManageCustomModels}
         openReportSignal={effectiveReportSignal}
         openShareSignal={effectiveShareSignal}

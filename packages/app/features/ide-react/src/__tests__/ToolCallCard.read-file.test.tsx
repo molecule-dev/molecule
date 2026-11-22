@@ -133,4 +133,20 @@ describe('ToolCallCard — read_file', () => {
     // Neither gesture bubbles to the row's own handler.
     expect(opened).toEqual(['my-app/app/src/App.tsx'])
   })
+
+  it('keeps the row free of nested controls — the open control is its sibling', () => {
+    // axe `nested-interactive`: the row is itself a role="button" control, so
+    // the file open button (and the undo affordance) cannot sit inside it.
+    const container = renderRead({ onFileOpen: () => {} })
+
+    const row = container.querySelector('[role="button"]') as HTMLElement
+    expect(row).not.toBeNull()
+    expect(row.querySelector('button, [role="button"], [tabindex]')).toBeNull()
+
+    const open = Array.from(container.querySelectorAll('code button')).find(
+      (el) => el.textContent === 'App.tsx',
+    ) as HTMLElement
+    expect(open).not.toBeUndefined()
+    expect(row.contains(open)).toBe(false)
+  })
 })

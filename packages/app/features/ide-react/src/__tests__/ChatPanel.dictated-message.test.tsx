@@ -167,6 +167,9 @@ describe('ChatPanel dictated messages (voice-dictation badge)', () => {
     expect(svg!.getAttribute('width')).toBe('16')
     expect(badge!.getAttribute('title')).toBe('Dictated by voice')
     expect(badge!.getAttribute('aria-label')).toBe('Dictated by voice')
+    // An icon-only badge is an image with a name (axe `aria-prohibited-attr`:
+    // a span without a role may not carry aria-label).
+    expect(badge!.getAttribute('role')).toBe('img')
     // Filled capsule (the "listening" mic shape — bolder than the idle outline).
     const capsule = svg!.querySelector('rect')
     expect(capsule, 'the mic capsule should render').not.toBeNull()

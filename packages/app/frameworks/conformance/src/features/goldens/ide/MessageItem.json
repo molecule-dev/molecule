@@ -1,0 +1,529 @@
+{
+ "a user message renders its body under the author name": {
+  "snapshots": [
+   "<div style=\"margin-bottom: 16px\">\n<div class=\"c445db9b9 cf74bfc1b\" data-mol-id=\"chat-user-message\" style=\"align-items: flex-start; border-radius: 4px; border: 1px solid var(--mol-chat-accent-border, var(--mol-color-primary, #3060c0)); display: flex; gap: 10px; min-width: 0px; padding: 10px 10px 10px 12px\">\n<button aria-label=\"View profile\" class=\"c8b4b949e cca586305\" data-mol-id=\"chat-user-avatar-button\" style=\"background: transparent; border-radius: 6px; border: 1px solid transparent; box-sizing: border-box; cursor: pointer; display: inline-flex; flex-shrink: 0; line-height: 0; margin: 0px; padding: 0px; transition: box-shadow 100ms\" type=\"button\">\n<span aria-label=\"You\" data-mol-id=\"chat-user-avatar\" role=\"img\" style=\"align-items: center; background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 18%, var(--mol-color-surface, #f4f4f4)); border-radius: 6px; color: var(--mol-color-primary, #6366f1); display: inline-flex; flex-shrink: 0; height: 36px; justify-content: center; width: 36px\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" height=\"22\" viewbox=\"0 0 16 16\" width=\"22\">\n<path d=\"M10.561 8.073a6.005 6.005 0 0 1 3.432 5.142.75.75 0 1 1-1.498.07 4.5 4.5 0 0 0-8.99 0 .75.75 0 0 1-1.498-.07 6.004 6.004 0 0 1 3.431-5.142 3.999 3.999 0 1 1 5.123 0ZM10.5 5a2.5 2.5 0 1 0-5 0 2.5 2.5 0 0 0 5 0Z\">\n</path>\n</svg>\n</span>\n</button>\n<div style=\"flex: 1 1 0%; margin-top: 1px; min-width: 0px\">\n<div style=\"align-items: baseline; display: flex; gap: 8px; line-height: 1.3; margin-bottom: 1px\">\n<button data-mol-id=\"chat-user-name-button\" style=\"background: transparent; border: medium; color: inherit; cursor: pointer; font: inherit; margin: 0px; padding: 0px; text-decoration: none\" type=\"button\">\nYou\n</button>\n</div>\n<div style=\"position: relative\">\n<div style=\"max-height: 150px; overflow: hidden; white-space: pre-wrap\">\nPlease fix the header.\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "a teammate message shows the author name and avatar initial": {
+  "snapshots": [
+   "<div style=\"margin-bottom: 16px\">\n<div class=\"c445db9b9 cf74bfc1b\" data-mol-id=\"chat-user-message\" style=\"align-items: flex-start; border-radius: 4px; border: 1px solid var(--mol-chat-accent-border, var(--mol-color-primary, #3060c0)); display: flex; gap: 10px; min-width: 0px; padding: 10px 10px 10px 12px\">\n<button aria-label=\"View profile\" class=\"c8b4b949e cca586305\" data-mol-id=\"chat-user-avatar-button\" style=\"background: transparent; border-radius: 6px; border: 1px solid transparent; box-sizing: border-box; cursor: pointer; display: inline-flex; flex-shrink: 0; line-height: 0; margin: 0px; padding: 0px; transition: box-shadow 100ms\" type=\"button\">\n<span aria-label=\"Ada\" data-mol-id=\"chat-user-avatar\" role=\"img\" style=\"align-items: center; background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 18%, var(--mol-color-surface, #f4f4f4)); border-radius: 6px; color: var(--mol-color-primary, #6366f1); display: inline-flex; flex-shrink: 0; height: 36px; justify-content: center; width: 36px\">\n<span aria-hidden=\"true\" style=\"font-size: 16px; font-weight: 600; line-height: 1\">\nA\n</span>\n</span>\n</button>\n<div style=\"flex: 1 1 0%; margin-top: 1px; min-width: 0px\">\n<div style=\"align-items: baseline; display: flex; gap: 8px; line-height: 1.3; margin-bottom: 1px\">\n<button data-mol-id=\"chat-user-name-button\" style=\"background: transparent; border: medium; color: inherit; cursor: pointer; font: inherit; margin: 0px; padding: 0px; text-decoration: none\" type=\"button\">\nAda\n</button>\n<div class=\"c1b02b894\" role=\"presentation\">\n<time class=\"ce823b5bf\" data-mol-id=\"chat-timestamp\" datetime=\"2023-11-14T22:13:20.000Z\" style=\"cursor: default; font-size: 11px; white-space: nowrap\">\nnow\n</time>\n</div>\n</div>\n<div style=\"position: relative\">\n<div style=\"max-height: 150px; overflow: hidden; white-space: pre-wrap\">\nI pushed the fix.\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "an author-less message belongs to the signed-in user": {
+  "snapshots": [
+   "<div style=\"margin-bottom: 16px\">\n<div class=\"c445db9b9 cf74bfc1b\" data-mol-id=\"chat-user-message\" style=\"align-items: flex-start; border-radius: 4px; border: 1px solid var(--mol-chat-accent-border, var(--mol-color-primary, #3060c0)); display: flex; gap: 10px; min-width: 0px; padding: 10px 10px 10px 12px\">\n<button aria-label=\"View profile\" class=\"c8b4b949e cca586305\" data-mol-id=\"chat-user-avatar-button\" style=\"background: transparent; border-radius: 6px; border: 1px solid transparent; box-sizing: border-box; cursor: pointer; display: inline-flex; flex-shrink: 0; line-height: 0; margin: 0px; padding: 0px; transition: box-shadow 100ms\" type=\"button\">\n<span aria-label=\"You\" data-mol-id=\"chat-user-avatar\" role=\"img\" style=\"align-items: center; background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 18%, var(--mol-color-surface, #f4f4f4)); border-radius: 6px; color: var(--mol-color-primary, #6366f1); display: inline-flex; flex-shrink: 0; height: 36px; justify-content: center; width: 36px\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" height=\"22\" viewbox=\"0 0 16 16\" width=\"22\">\n<path d=\"M10.561 8.073a6.005 6.005 0 0 1 3.432 5.142.75.75 0 1 1-1.498.07 4.5 4.5 0 0 0-8.99 0 .75.75 0 0 1-1.498-.07 6.004 6.004 0 0 1 3.431-5.142 3.999 3.999 0 1 1 5.123 0ZM10.5 5a2.5 2.5 0 1 0-5 0 2.5 2.5 0 0 0 5 0Z\">\n</path>\n</svg>\n</span>\n</button>\n<div style=\"flex: 1 1 0%; margin-top: 1px; min-width: 0px\">\n<div style=\"align-items: baseline; display: flex; gap: 8px; line-height: 1.3; margin-bottom: 1px\">\n<button data-mol-id=\"chat-user-name-button\" style=\"background: transparent; border: medium; color: inherit; cursor: pointer; font: inherit; margin: 0px; padding: 0px; text-decoration: none\" type=\"button\">\nYou\n</button>\n</div>\n<div style=\"position: relative\">\n<div style=\"max-height: 150px; overflow: hidden; white-space: pre-wrap\">\nMy own note.\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "an author whose account is gone keeps the name without a profile click": {
+  "snapshots": [
+   "<div style=\"margin-bottom: 16px\">\n<div class=\"c445db9b9 cf74bfc1b\" data-mol-id=\"chat-user-message\" style=\"align-items: flex-start; border-radius: 4px; border: 1px solid var(--mol-chat-accent-border, var(--mol-color-primary, #3060c0)); display: flex; gap: 10px; min-width: 0px; padding: 10px 10px 10px 12px\">\n<span aria-label=\"Deleted user\" data-mol-id=\"chat-user-avatar\" role=\"img\" style=\"align-items: center; background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 18%, var(--mol-color-surface, #f4f4f4)); border-radius: 6px; color: var(--mol-color-primary, #6366f1); display: inline-flex; flex-shrink: 0; height: 36px; justify-content: center; width: 36px\">\n<span aria-hidden=\"true\" style=\"font-size: 16px; font-weight: 600; line-height: 1\">\nD\n</span>\n</span>\n<div style=\"flex: 1 1 0%; margin-top: 1px; min-width: 0px\">\n<div style=\"align-items: baseline; display: flex; gap: 8px; line-height: 1.3; margin-bottom: 1px\">\n<span style=\"font-weight: 600\">\nDeleted user\n</span>\n</div>\n<div style=\"position: relative\">\n<div style=\"max-height: 150px; overflow: hidden; white-space: pre-wrap\">\nOld note.\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "an automatic message is an agent-sent card with no header": {
+  "snapshots": [
+   "<div style=\"margin-bottom: 16px\">\n<div class=\"c4647f690\" data-mol-id=\"chat-automatic-message\" style=\"align-items: flex-start; background: color-mix(in srgb, var(--mol-color-success, #16a34a) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-success, #16a34a) 40%, transparent); display: flex; gap: 10px; min-width: 0px; padding: 10px 12px\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" height=\"18\" style=\"color: var(--mol-color-success, #16a34a); flex-shrink: 0; margin-top: 1px\" viewbox=\"0 0 16 16\" width=\"18\">\n<path d=\"M1.705 8.005a.75.75 0 0 1 .834.656 5.5 5.5 0 0 0 9.592 2.97l-1.204-1.204a.25.25 0 0 1 .177-.427h3.646a.25.25 0 0 1 .25.25v3.646a.25.25 0 0 1-.427.177l-1.38-1.38A7.002 7.002 0 0 1 1.05 8.84a.75.75 0 0 1 .656-.834ZM8 2.5a5.487 5.487 0 0 0-4.131 1.869l1.204 1.204A.25.25 0 0 1 4.896 6H1.25A.25.25 0 0 1 1 5.75V2.104a.25.25 0 0 1 .427-.177l1.38 1.38A7.002 7.002 0 0 1 14.95 7.16a.75.75 0 0 1-1.49.178A5.5 5.5 0 0 0 8 2.5Z\">\n</path>\n</svg>\n<div style=\"flex: 1 1 0%; margin-top: 1px; min-width: 0px\">\n<div style=\"position: relative\">\n<div style=\"max-height: 150px; overflow: hidden; white-space: pre-wrap\">\nFixing the failing test.\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "a team note carries the gold team-only badge": {
+  "snapshots": [
+   "<div style=\"margin-bottom: 16px\">\n<div class=\"c445db9b9 cf74bfc1b\" data-mol-id=\"chat-team-message\" style=\"align-items: flex-start; border-radius: 4px; border: 1px solid rgb(224, 161, 0); box-shadow: inset 3px 0 0 0 #e0a100; display: flex; gap: 10px; min-width: 0px; padding: 10px 10px 10px 12px\">\n<button aria-label=\"View profile\" class=\"c8b4b949e cca586305\" data-mol-id=\"chat-user-avatar-button\" style=\"background: transparent; border-radius: 6px; border: 1px solid transparent; box-sizing: border-box; cursor: pointer; display: inline-flex; flex-shrink: 0; line-height: 0; margin: 0px; padding: 0px; transition: box-shadow 100ms\" type=\"button\">\n<span aria-label=\"Ada\" data-mol-id=\"chat-user-avatar\" role=\"img\" style=\"align-items: center; background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 18%, var(--mol-color-surface, #f4f4f4)); border-radius: 6px; color: var(--mol-color-primary, #6366f1); display: inline-flex; flex-shrink: 0; height: 36px; justify-content: center; width: 36px\">\n<span aria-hidden=\"true\" style=\"font-size: 16px; font-weight: 600; line-height: 1\">\nA\n</span>\n</span>\n</button>\n<div style=\"flex: 1 1 0%; margin-top: 1px; min-width: 0px\">\n<div style=\"align-items: baseline; display: flex; gap: 8px; line-height: 1.3; margin-bottom: 1px\">\n<button data-mol-id=\"chat-user-name-button\" style=\"background: transparent; border: medium; color: inherit; cursor: pointer; font: inherit; margin: 0px; padding: 0px; text-decoration: none\" type=\"button\">\nAda\n</button>\n<span aria-label=\"Team only — visible to your team; Synthase will ignore it\" data-mol-id=\"chat-team-only-badge\" role=\"img\" style=\"align-self: center; display: inline-flex; flex-shrink: 0; position: relative; top: -0.5px\" title=\"Team only — visible to your team; Synthase will ignore it\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" height=\"16\" style=\"color: rgb(224, 161, 0)\" viewbox=\"0 0 16 16\" width=\"16\">\n<path d=\"M2 5.5a3.5 3.5 0 1 1 5.898 2.549 5.508 5.508 0 0 1 3.034 4.084.75.75 0 1 1-1.482.235 4 4 0 0 0-7.9 0 .75.75 0 0 1-1.482-.236A5.507 5.507 0 0 1 3.102 8.05 3.493 3.493 0 0 1 2 5.5ZM11 4a3.001 3.001 0 0 1 2.22 5.018 5.01 5.01 0 0 1 2.56 3.012.749.749 0 0 1-.885.954.752.752 0 0 1-.549-.514 3.507 3.507 0 0 0-2.522-2.372.75.75 0 0 1-.574-.73v-.352a.75.75 0 0 1 .416-.672A1.5 1.5 0 0 0 11 5.5.75.75 0 0 1 11 4Zm-5.5-.5a2 2 0 1 0-.001 3.999A2 2 0 0 0 5.5 3.5Z\">\n</path>\n</svg>\n</span>\n</div>\n<div style=\"position: relative\">\n<div style=\"max-height: 150px; overflow: hidden; white-space: pre-wrap\">\nHeads up: I am taking the deploy.\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "a dictated message carries the mic badge": {
+  "snapshots": [
+   "<div style=\"margin-bottom: 16px\">\n<div class=\"c445db9b9 cf74bfc1b\" data-mol-id=\"chat-user-message\" style=\"align-items: flex-start; border-radius: 4px; border: 1px solid var(--mol-chat-accent-border, var(--mol-color-primary, #3060c0)); display: flex; gap: 10px; min-width: 0px; padding: 10px 10px 10px 12px\">\n<button aria-label=\"View profile\" class=\"c8b4b949e cca586305\" data-mol-id=\"chat-user-avatar-button\" style=\"background: transparent; border-radius: 6px; border: 1px solid transparent; box-sizing: border-box; cursor: pointer; display: inline-flex; flex-shrink: 0; line-height: 0; margin: 0px; padding: 0px; transition: box-shadow 100ms\" type=\"button\">\n<span aria-label=\"You\" data-mol-id=\"chat-user-avatar\" role=\"img\" style=\"align-items: center; background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 18%, var(--mol-color-surface, #f4f4f4)); border-radius: 6px; color: var(--mol-color-primary, #6366f1); display: inline-flex; flex-shrink: 0; height: 36px; justify-content: center; width: 36px\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" height=\"22\" viewbox=\"0 0 16 16\" width=\"22\">\n<path d=\"M10.561 8.073a6.005 6.005 0 0 1 3.432 5.142.75.75 0 1 1-1.498.07 4.5 4.5 0 0 0-8.99 0 .75.75 0 0 1-1.498-.07 6.004 6.004 0 0 1 3.431-5.142 3.999 3.999 0 1 1 5.123 0ZM10.5 5a2.5 2.5 0 1 0-5 0 2.5 2.5 0 0 0 5 0Z\">\n</path>\n</svg>\n</span>\n</button>\n<div style=\"flex: 1 1 0%; margin-top: 1px; min-width: 0px\">\n<div style=\"align-items: baseline; display: flex; gap: 8px; line-height: 1.3; margin-bottom: 1px\">\n<button data-mol-id=\"chat-user-name-button\" style=\"background: transparent; border: medium; color: inherit; cursor: pointer; font: inherit; margin: 0px; padding: 0px; text-decoration: none\" type=\"button\">\nYou\n</button>\n<span aria-label=\"Dictated by voice\" data-mol-id=\"chat-dictated-badge\" role=\"img\" style=\"align-self: center; display: inline-flex; flex-shrink: 0; position: relative; top: -0.5px\" title=\"Dictated by voice\">\n<svg aria-hidden=\"true\" height=\"16\" style=\"color: rgb(207, 34, 46); display: block\" viewbox=\"0 0 16 16\" width=\"16\" xmlns=\"http://www.w3.org/2000/svg\">\n<rect fill=\"currentColor\" height=\"8\" rx=\"2\" width=\"4\" x=\"6\" y=\"1\">\n</rect>\n<path d=\"M4 7v1a4 4 0 008 0V7\" fill=\"none\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-width=\"1.25\">\n</path>\n<line stroke=\"currentColor\" stroke-linecap=\"round\" stroke-width=\"1.25\" x1=\"8\" x2=\"8\" y1=\"12\" y2=\"15\">\n</line>\n<line stroke=\"currentColor\" stroke-linecap=\"round\" stroke-width=\"1.25\" x1=\"6\" x2=\"10\" y1=\"15\" y2=\"15\">\n</line>\n</svg>\n</span>\n</div>\n<div style=\"position: relative\">\n<div style=\"max-height: 150px; overflow: hidden; white-space: pre-wrap\">\nAdd a footer.\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "the light theme renders the dictated badge in its own red": {
+  "snapshots": [
+   "<div style=\"margin-bottom: 16px\">\n<div class=\"c445db9b9 cf74bfc1b\" data-mol-id=\"chat-user-message\" style=\"align-items: flex-start; border-radius: 4px; border: 1px solid var(--mol-chat-accent-border, var(--mol-color-primary, #3060c0)); display: flex; gap: 10px; min-width: 0px; padding: 10px 10px 10px 12px\">\n<button aria-label=\"View profile\" class=\"c8b4b949e cca586305\" data-mol-id=\"chat-user-avatar-button\" style=\"background: transparent; border-radius: 6px; border: 1px solid transparent; box-sizing: border-box; cursor: pointer; display: inline-flex; flex-shrink: 0; line-height: 0; margin: 0px; padding: 0px; transition: box-shadow 100ms\" type=\"button\">\n<span aria-label=\"You\" data-mol-id=\"chat-user-avatar\" role=\"img\" style=\"align-items: center; background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 18%, var(--mol-color-surface, #f4f4f4)); border-radius: 6px; color: var(--mol-color-primary, #6366f1); display: inline-flex; flex-shrink: 0; height: 36px; justify-content: center; width: 36px\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" height=\"22\" viewbox=\"0 0 16 16\" width=\"22\">\n<path d=\"M10.561 8.073a6.005 6.005 0 0 1 3.432 5.142.75.75 0 1 1-1.498.07 4.5 4.5 0 0 0-8.99 0 .75.75 0 0 1-1.498-.07 6.004 6.004 0 0 1 3.431-5.142 3.999 3.999 0 1 1 5.123 0ZM10.5 5a2.5 2.5 0 1 0-5 0 2.5 2.5 0 0 0 5 0Z\">\n</path>\n</svg>\n</span>\n</button>\n<div style=\"flex: 1 1 0%; margin-top: 1px; min-width: 0px\">\n<div style=\"align-items: baseline; display: flex; gap: 8px; line-height: 1.3; margin-bottom: 1px\">\n<button data-mol-id=\"chat-user-name-button\" style=\"background: transparent; border: medium; color: inherit; cursor: pointer; font: inherit; margin: 0px; padding: 0px; text-decoration: none\" type=\"button\">\nYou\n</button>\n<span aria-label=\"Dictated by voice\" data-mol-id=\"chat-dictated-badge\" role=\"img\" style=\"align-self: center; display: inline-flex; flex-shrink: 0; position: relative; top: -0.5px\" title=\"Dictated by voice\">\n<svg aria-hidden=\"true\" height=\"16\" style=\"color: rgb(207, 34, 46); display: block\" viewbox=\"0 0 16 16\" width=\"16\" xmlns=\"http://www.w3.org/2000/svg\">\n<rect fill=\"currentColor\" height=\"8\" rx=\"2\" width=\"4\" x=\"6\" y=\"1\">\n</rect>\n<path d=\"M4 7v1a4 4 0 008 0V7\" fill=\"none\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-width=\"1.25\">\n</path>\n<line stroke=\"currentColor\" stroke-linecap=\"round\" stroke-width=\"1.25\" x1=\"8\" x2=\"8\" y1=\"12\" y2=\"15\">\n</line>\n<line stroke=\"currentColor\" stroke-linecap=\"round\" stroke-width=\"1.25\" x1=\"6\" x2=\"10\" y1=\"15\" y2=\"15\">\n</line>\n</svg>\n</span>\n</div>\n<div style=\"position: relative\">\n<div style=\"max-height: 150px; overflow: hidden; white-space: pre-wrap\">\nAdd a footer.\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "attachments list each file with its kind glyph and size": {
+  "snapshots": [
+   "<div style=\"margin-bottom: 16px\">\n<div class=\"c445db9b9 cf74bfc1b\" data-mol-id=\"chat-user-message\" style=\"align-items: flex-start; border-radius: 4px; border: 1px solid var(--mol-chat-accent-border, var(--mol-color-primary, #3060c0)); display: flex; gap: 10px; min-width: 0px; padding: 10px 10px 10px 12px\">\n<button aria-label=\"View profile\" class=\"c8b4b949e cca586305\" data-mol-id=\"chat-user-avatar-button\" style=\"background: transparent; border-radius: 6px; border: 1px solid transparent; box-sizing: border-box; cursor: pointer; display: inline-flex; flex-shrink: 0; line-height: 0; margin: 0px; padding: 0px; transition: box-shadow 100ms\" type=\"button\">\n<span aria-label=\"You\" data-mol-id=\"chat-user-avatar\" role=\"img\" style=\"align-items: center; background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 18%, var(--mol-color-surface, #f4f4f4)); border-radius: 6px; color: var(--mol-color-primary, #6366f1); display: inline-flex; flex-shrink: 0; height: 36px; justify-content: center; width: 36px\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" height=\"22\" viewbox=\"0 0 16 16\" width=\"22\">\n<path d=\"M10.561 8.073a6.005 6.005 0 0 1 3.432 5.142.75.75 0 1 1-1.498.07 4.5 4.5 0 0 0-8.99 0 .75.75 0 0 1-1.498-.07 6.004 6.004 0 0 1 3.431-5.142 3.999 3.999 0 1 1 5.123 0ZM10.5 5a2.5 2.5 0 1 0-5 0 2.5 2.5 0 0 0 5 0Z\">\n</path>\n</svg>\n</span>\n</button>\n<div style=\"flex: 1 1 0%; margin-top: 1px; min-width: 0px\">\n<div style=\"align-items: baseline; display: flex; gap: 8px; line-height: 1.3; margin-bottom: 1px\">\n<button data-mol-id=\"chat-user-name-button\" style=\"background: transparent; border: medium; color: inherit; cursor: pointer; font: inherit; margin: 0px; padding: 0px; text-decoration: none\" type=\"button\">\nYou\n</button>\n</div>\n<div style=\"position: relative\">\n<div style=\"max-height: 150px; overflow: hidden; white-space: pre-wrap\">\nSee the files.\n</div>\n</div>\n<div style=\"display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px\">\n<span class=\"c4647f690 ce823b5bf\" style=\"align-items: center; display: inline-flex; gap: 2px\">\n🖼️ shot.png\n<span style=\"font-size: 10px; opacity: 0.7\">\n(2KB)\n</span>\n</span>\n<span class=\"c4647f690 ce823b5bf\" style=\"align-items: center; display: inline-flex; gap: 2px\">\n🎵 note.mp3\n<span style=\"font-size: 10px; opacity: 0.7\">\n(4KB)\n</span>\n</span>\n<span class=\"c4647f690 ce823b5bf\" style=\"align-items: center; display: inline-flex; gap: 2px\">\n🎥 clip.mp4\n<span style=\"font-size: 10px; opacity: 0.7\">\n(8KB)\n</span>\n</span>\n<span class=\"c4647f690 ce823b5bf\" style=\"align-items: center; display: inline-flex; gap: 2px\">\n📄 spec.pdf\n<span style=\"font-size: 10px; opacity: 0.7\">\n(1KB)\n</span>\n</span>\n</div>\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "discovery spacing gives the row its roomier bottom margin": {
+  "snapshots": [
+   "<div style=\"margin-bottom: 24px\">\n<div class=\"c445db9b9 cf74bfc1b\" data-mol-id=\"chat-user-message\" style=\"align-items: flex-start; border-radius: 4px; border: 1px solid var(--mol-chat-accent-border, var(--mol-color-primary, #3060c0)); display: flex; gap: 10px; min-width: 0px; padding: 10px 10px 10px 12px\">\n<button aria-label=\"View profile\" class=\"c8b4b949e cca586305\" data-mol-id=\"chat-user-avatar-button\" style=\"background: transparent; border-radius: 6px; border: 1px solid transparent; box-sizing: border-box; cursor: pointer; display: inline-flex; flex-shrink: 0; line-height: 0; margin: 0px; padding: 0px; transition: box-shadow 100ms\" type=\"button\">\n<span aria-label=\"You\" data-mol-id=\"chat-user-avatar\" role=\"img\" style=\"align-items: center; background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 18%, var(--mol-color-surface, #f4f4f4)); border-radius: 6px; color: var(--mol-color-primary, #6366f1); display: inline-flex; flex-shrink: 0; height: 36px; justify-content: center; width: 36px\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" height=\"22\" viewbox=\"0 0 16 16\" width=\"22\">\n<path d=\"M10.561 8.073a6.005 6.005 0 0 1 3.432 5.142.75.75 0 1 1-1.498.07 4.5 4.5 0 0 0-8.99 0 .75.75 0 0 1-1.498-.07 6.004 6.004 0 0 1 3.431-5.142 3.999 3.999 0 1 1 5.123 0ZM10.5 5a2.5 2.5 0 1 0-5 0 2.5 2.5 0 0 0 5 0Z\">\n</path>\n</svg>\n</span>\n</button>\n<div style=\"flex: 1 1 0%; margin-top: 1px; min-width: 0px\">\n<div style=\"align-items: baseline; display: flex; gap: 8px; line-height: 1.3; margin-bottom: 1px\">\n<button data-mol-id=\"chat-user-name-button\" style=\"background: transparent; border: medium; color: inherit; cursor: pointer; font: inherit; margin: 0px; padding: 0px; text-decoration: none\" type=\"button\">\nYou\n</button>\n</div>\n<div style=\"position: relative\">\n<div style=\"max-height: 150px; overflow: hidden; white-space: pre-wrap\">\nA discovery question.\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "clicking the author name opens the author’s profile": {
+  "snapshots": [
+   "<div style=\"margin-bottom: 16px\">\n<div class=\"c445db9b9 cf74bfc1b\" data-mol-id=\"chat-user-message\" style=\"align-items: flex-start; border-radius: 4px; border: 1px solid var(--mol-chat-accent-border, var(--mol-color-primary, #3060c0)); display: flex; gap: 10px; min-width: 0px; padding: 10px 10px 10px 12px\">\n<button aria-label=\"View profile\" class=\"c8b4b949e cca586305\" data-mol-id=\"chat-user-avatar-button\" style=\"background: transparent; border-radius: 6px; border: 1px solid transparent; box-sizing: border-box; cursor: pointer; display: inline-flex; flex-shrink: 0; line-height: 0; margin: 0px; padding: 0px; transition: box-shadow 100ms\" type=\"button\">\n<span aria-label=\"Ada\" data-mol-id=\"chat-user-avatar\" role=\"img\" style=\"align-items: center; background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 18%, var(--mol-color-surface, #f4f4f4)); border-radius: 6px; color: var(--mol-color-primary, #6366f1); display: inline-flex; flex-shrink: 0; height: 36px; justify-content: center; width: 36px\">\n<span aria-hidden=\"true\" style=\"font-size: 16px; font-weight: 600; line-height: 1\">\nA\n</span>\n</span>\n</button>\n<div style=\"flex: 1 1 0%; margin-top: 1px; min-width: 0px\">\n<div style=\"align-items: baseline; display: flex; gap: 8px; line-height: 1.3; margin-bottom: 1px\">\n<button data-mol-id=\"chat-user-name-button\" style=\"background: transparent; border: medium; color: inherit; cursor: pointer; font: inherit; margin: 0px; padding: 0px; text-decoration: none\" type=\"button\">\nAda\n</button>\n</div>\n<div style=\"position: relative\">\n<div style=\"max-height: 150px; overflow: hidden; white-space: pre-wrap\">\nI pushed the fix.\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /",
+   "<div style=\"margin-bottom: 16px\">\n<div class=\"c445db9b9 cf74bfc1b\" data-mol-id=\"chat-user-message\" style=\"align-items: flex-start; border-radius: 4px; border: 1px solid var(--mol-chat-accent-border, var(--mol-color-primary, #3060c0)); display: flex; gap: 10px; min-width: 0px; padding: 10px 10px 10px 12px\">\n<button aria-label=\"View profile\" class=\"c8b4b949e cca586305\" data-mol-id=\"chat-user-avatar-button\" style=\"background: transparent; border-radius: 6px; border: 1px solid transparent; box-sizing: border-box; cursor: pointer; display: inline-flex; flex-shrink: 0; line-height: 0; margin: 0px; padding: 0px; transition: box-shadow 100ms\" type=\"button\">\n<span aria-label=\"Ada\" data-mol-id=\"chat-user-avatar\" role=\"img\" style=\"align-items: center; background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 18%, var(--mol-color-surface, #f4f4f4)); border-radius: 6px; color: var(--mol-color-primary, #6366f1); display: inline-flex; flex-shrink: 0; height: 36px; justify-content: center; width: 36px\">\n<span aria-hidden=\"true\" style=\"font-size: 16px; font-weight: 600; line-height: 1\">\nA\n</span>\n</span>\n</button>\n<div style=\"flex: 1 1 0%; margin-top: 1px; min-width: 0px\">\n<div style=\"align-items: baseline; display: flex; gap: 8px; line-height: 1.3; margin-bottom: 1px\">\n<button data-mol-id=\"chat-user-name-button\" style=\"background: transparent; border: medium; color: inherit; cursor: pointer; font: inherit; margin: 0px; padding: 0px; text-decoration: none\" type=\"button\">\nAda\n</button>\n</div>\n<div style=\"position: relative\">\n<div style=\"max-height: 150px; overflow: hidden; white-space: pre-wrap\">\nI pushed the fix.\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "onProfileClick",
+    "args": [
+     {
+      "avatar": null,
+      "id": "u2",
+      "name": "Ada"
+     }
+    ]
+   }
+  ]
+ },
+ "clicking the avatar opens the author’s profile": {
+  "snapshots": [
+   "<div style=\"margin-bottom: 16px\">\n<div class=\"c445db9b9 cf74bfc1b\" data-mol-id=\"chat-user-message\" style=\"align-items: flex-start; border-radius: 4px; border: 1px solid var(--mol-chat-accent-border, var(--mol-color-primary, #3060c0)); display: flex; gap: 10px; min-width: 0px; padding: 10px 10px 10px 12px\">\n<button aria-label=\"View profile\" class=\"c8b4b949e cca586305\" data-mol-id=\"chat-user-avatar-button\" style=\"background: transparent; border-radius: 6px; border: 1px solid transparent; box-sizing: border-box; cursor: pointer; display: inline-flex; flex-shrink: 0; line-height: 0; margin: 0px; padding: 0px; transition: box-shadow 100ms\" type=\"button\">\n<span aria-label=\"Ada\" data-mol-id=\"chat-user-avatar\" role=\"img\" style=\"align-items: center; background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 18%, var(--mol-color-surface, #f4f4f4)); border-radius: 6px; color: var(--mol-color-primary, #6366f1); display: inline-flex; flex-shrink: 0; height: 36px; justify-content: center; width: 36px\">\n<span aria-hidden=\"true\" style=\"font-size: 16px; font-weight: 600; line-height: 1\">\nA\n</span>\n</span>\n</button>\n<div style=\"flex: 1 1 0%; margin-top: 1px; min-width: 0px\">\n<div style=\"align-items: baseline; display: flex; gap: 8px; line-height: 1.3; margin-bottom: 1px\">\n<button data-mol-id=\"chat-user-name-button\" style=\"background: transparent; border: medium; color: inherit; cursor: pointer; font: inherit; margin: 0px; padding: 0px; text-decoration: none\" type=\"button\">\nAda\n</button>\n</div>\n<div style=\"position: relative\">\n<div style=\"max-height: 150px; overflow: hidden; white-space: pre-wrap\">\nI pushed the fix.\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /",
+   "<div style=\"margin-bottom: 16px\">\n<div class=\"c445db9b9 cf74bfc1b\" data-mol-id=\"chat-user-message\" style=\"align-items: flex-start; border-radius: 4px; border: 1px solid var(--mol-chat-accent-border, var(--mol-color-primary, #3060c0)); display: flex; gap: 10px; min-width: 0px; padding: 10px 10px 10px 12px\">\n<button aria-label=\"View profile\" class=\"c8b4b949e cca586305\" data-mol-id=\"chat-user-avatar-button\" style=\"background: transparent; border-radius: 6px; border: 1px solid transparent; box-sizing: border-box; cursor: pointer; display: inline-flex; flex-shrink: 0; line-height: 0; margin: 0px; padding: 0px; transition: box-shadow 100ms\" type=\"button\">\n<span aria-label=\"Ada\" data-mol-id=\"chat-user-avatar\" role=\"img\" style=\"align-items: center; background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 18%, var(--mol-color-surface, #f4f4f4)); border-radius: 6px; color: var(--mol-color-primary, #6366f1); display: inline-flex; flex-shrink: 0; height: 36px; justify-content: center; width: 36px\">\n<span aria-hidden=\"true\" style=\"font-size: 16px; font-weight: 600; line-height: 1\">\nA\n</span>\n</span>\n</button>\n<div style=\"flex: 1 1 0%; margin-top: 1px; min-width: 0px\">\n<div style=\"align-items: baseline; display: flex; gap: 8px; line-height: 1.3; margin-bottom: 1px\">\n<button data-mol-id=\"chat-user-name-button\" style=\"background: transparent; border: medium; color: inherit; cursor: pointer; font: inherit; margin: 0px; padding: 0px; text-decoration: none\" type=\"button\">\nAda\n</button>\n</div>\n<div style=\"position: relative\">\n<div style=\"max-height: 150px; overflow: hidden; white-space: pre-wrap\">\nI pushed the fix.\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "onProfileClick",
+    "args": [
+     {
+      "avatar": null,
+      "id": "u2",
+      "name": "Ada"
+     }
+    ]
+   }
+  ]
+ },
+ "a plain reply renders its content as markdown": {
+  "snapshots": [
+   "<div style=\"margin-bottom: 16px\">\n<div>\n<div style=\"font-size: 13px; line-height: 1.6; margin-top: 6px; word-break: break-word\">\n<p style=\"font-size: 1em; font-weight: 600; margin-bottom: 4px; margin-top: 0px\">\nDone\n</p>\n<p style=\"margin-bottom: 6px; white-space: pre-wrap\">\nI updated the header.\n</p>\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "an empty reply renders an empty row": {
+  "snapshots": [
+   "<div style=\"margin-bottom: 16px\">\n<div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "a reply renders its thinking, text and verification blocks in order": {
+  "snapshots": [
+   "<div style=\"margin-bottom: 16px\">\n<div>\n<div style=\"margin-bottom: 6px\">\n<button style=\"align-items: center; background: none; border: medium; color: inherit; cursor: pointer; display: inline-flex; gap: 4px; padding: 2px 0px\" type=\"button\">\n<svg height=\"12\" style=\"display: block; flex-shrink: 0; opacity: 0.5; transform: rotate(0deg); transition: transform 150ms\" viewbox=\"0 0 16 16\" width=\"12\" xmlns=\"http://www.w3.org/2000/svg\">\n<polyline fill=\"none\" points=\"6,4 10,8 6,12\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\">\n</polyline>\n</svg>\n<span class=\"c4647f690 ce823b5bf\">\nThought briefly\n</span>\n</button>\n</div>\n<div style=\"font-size: 13px; line-height: 1.6; margin-top: 6px; word-break: break-word\">\n<p style=\"margin-bottom: 6px; white-space: pre-wrap\">\nThe header is fixed.\n</p>\n</div>\n<div class=\"ce823b5bf\" style=\"align-items: baseline; display: flex; font-size: 13px; gap: 6px; padding: 3px 0px\">\n<svg height=\"10\" style=\"align-self: center; flex-shrink: 0; position: relative; top: -1px\" viewbox=\"0 0 10 10\" width=\"10\">\n<path d=\"M2 5.5 L4.2 7.8 L8 3\" fill=\"none\" stroke=\"#3fb950\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\">\n</path>\n</svg>\n<span>\nChecks passed\n</span>\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "a streaming thinking block auto-expands as the reply’s last block": {
+  "snapshots": [
+   "<div style=\"margin-bottom: 16px\">\n<div>\n<div style=\"font-size: 13px; line-height: 1.6; margin-top: 6px; word-break: break-word\">\n<p style=\"margin-bottom: 6px; white-space: pre-wrap\">\nLooking into it.\n</p>\n</div>\n<div style=\"margin-bottom: 6px\">\n<button style=\"align-items: center; background: none; border: medium; color: inherit; cursor: pointer; display: inline-flex; gap: 4px; padding: 2px 0px\" type=\"button\">\n<svg height=\"12\" style=\"display: block; flex-shrink: 0; opacity: 0.5; transform: rotate(90deg); transition: transform 150ms\" viewbox=\"0 0 16 16\" width=\"12\" xmlns=\"http://www.w3.org/2000/svg\">\n<polyline fill=\"none\" points=\"6,4 10,8 6,12\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\">\n</polyline>\n</svg>\n<span class=\"c4647f690 ce823b5bf\">\nThinking\n</span>\n</button>\n<div class=\"c4647f690 ce823b5bf\" style=\"font-style: italic; margin-top: 4px; max-height: 200px; opacity: 0.7; overflow-y: auto; padding-left: 16px; white-space: pre-wrap\">\nReading the file.\n</div>\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "a resource-limit block renders the host’s upgrade call to action": {
+  "snapshots": [
+   "<div style=\"margin-bottom: 16px\">\n<div>\n<div class=\"c4647f690\" data-mol-id=\"chat-notice-card\" data-tone=\"upgrade\" style=\"align-items: flex-start; background: color-mix(in srgb, var(--mol-color-warning, #e0a100) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-warning, #e0a100) 40%, transparent); display: flex; gap: 10px; line-height: 1.5; margin-bottom: 16px; padding: 10px 12px\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" height=\"18\" style=\"color: var(--mol-color-warning, #e0a100); flex-shrink: 0; margin-top: 1px\" viewbox=\"0 0 16 16\" width=\"18\">\n<path d=\"M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0Zm7-3.25v2.992l2.028.812a.75.75 0 0 1-.557 1.392l-2.5-1A.751.751 0 0 1 7 8.25v-3.5a.75.75 0 0 1 1.5 0Z\">\n</path>\n</svg>\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<span>\nOut of memory.\n</span>\n<div style=\"display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px\">\n<a class=\"c04c34dac c0cc83095 c0e303770 c13d4ff0f c1e8176ab c1f523237 c2f011182 c434d0929 c45cfc6cf c47632ef5 c4b0fcccf c7b771f62 c7d88af62 c7fa4cf55 c856184f0 c8ab1b248 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" href=\"/pricing\" style=\"font-family: inherit; text-decoration: none\">\nUpgrade\n</a>\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "a tool-call block renders its tool card": {
+  "snapshots": [
+   "<div style=\"margin-bottom: 16px\">\n<div>\n<div style=\"margin-top: 4px\">\n<div style=\"margin-bottom: 4px\">\n<div style=\"align-items: center; display: flex; gap: 6px; min-width: 0px\">\n<div role=\"button\" style=\"align-items: flex-start; background: none; border: medium; color: inherit; cursor: default; display: flex; gap: 6px; min-width: 0px; padding: 2px 0px; text-align: left; user-select: text; width: 100%\">\n<span style=\"flex: 1 1 0%; min-width: 0px\">\n<span style=\"align-items: center; display: flex; font-size: 13px; gap: 6px\">\n<svg height=\"10\" style=\"flex-shrink: 0\" viewbox=\"0 0 10 10\" width=\"10\">\n<circle cx=\"5\" cy=\"5\" fill=\"#3fb950\" opacity=\"0.35\" r=\"3\">\n</circle>\n<circle cx=\"5\" cy=\"5\" fill=\"none\" r=\"3\" stroke=\"#3fb950\" stroke-width=\"2\">\n</circle>\n</svg>\n<span style=\"flex: 1 1 0%; min-width: 0px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap\">\nBash \n<code style=\"font-family: &quot;SF Mono&quot;, Menlo, Consolas, &quot;Courier New&quot;, monospace; font-size: inherit; opacity: 0.75\">\nls\n</code>\n</span>\n</span>\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "a reply with tool calls but no blocks lists every call": {
+  "snapshots": [
+   "<div style=\"margin-bottom: 16px\">\n<div>\n<div style=\"margin-bottom: 4px\">\n<div style=\"align-items: center; display: flex; gap: 6px; min-width: 0px\">\n<div role=\"button\" style=\"align-items: flex-start; background: none; border: medium; color: inherit; cursor: default; display: flex; gap: 6px; min-width: 0px; padding: 2px 0px; text-align: left; user-select: text; width: 100%\">\n<span style=\"flex: 1 1 0%; min-width: 0px\">\n<span style=\"align-items: center; display: flex; font-size: 13px; gap: 6px\">\n<svg height=\"10\" style=\"flex-shrink: 0\" viewbox=\"0 0 10 10\" width=\"10\">\n<circle cx=\"5\" cy=\"5\" fill=\"#3fb950\" opacity=\"0.35\" r=\"3\">\n</circle>\n<circle cx=\"5\" cy=\"5\" fill=\"none\" r=\"3\" stroke=\"#3fb950\" stroke-width=\"2\">\n</circle>\n</svg>\n<span style=\"flex: 1 1 0%; min-width: 0px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap\">\nBash \n<code style=\"font-family: &quot;SF Mono&quot;, Menlo, Consolas, &quot;Courier New&quot;, monospace; font-size: inherit; opacity: 0.75\">\nls\n</code>\n</span>\n</span>\n</span>\n</div>\n</div>\n</div>\n<div style=\"margin-bottom: 4px\">\n<div style=\"align-items: center; display: flex; gap: 6px; min-width: 0px\">\n<div role=\"button\" style=\"align-items: flex-start; background: none; border: medium; color: inherit; cursor: default; display: flex; gap: 6px; min-width: 0px; padding: 2px 0px; text-align: left; user-select: text; width: 100%\">\n<span style=\"flex: 1 1 0%; min-width: 0px\">\n<span style=\"align-items: center; display: flex; font-size: 13px; gap: 6px\">\n<svg height=\"10\" style=\"flex-shrink: 0\" viewbox=\"0 0 10 10\" width=\"10\">\n<circle cx=\"5\" cy=\"5\" fill=\"#f04040\" opacity=\"0.35\" r=\"3\">\n</circle>\n<circle cx=\"5\" cy=\"5\" fill=\"none\" r=\"3\" stroke=\"#f04040\" stroke-width=\"2\">\n</circle>\n</svg>\n<span style=\"flex: 1 1 0%; min-width: 0px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap\">\nBash \n<code style=\"font-family: &quot;SF Mono&quot;, Menlo, Consolas, &quot;Courier New&quot;, monospace; font-size: inherit; opacity: 0.75\">\npwd\n</code>\n</span>\n</span>\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "an orphan pending ask_user still renders a card for it": {
+  "snapshots": [
+   "<div style=\"margin-bottom: 16px\">\n<div>\n<div style=\"font-size: 13px; line-height: 1.6; margin-top: 6px; word-break: break-word\">\n<p style=\"margin-bottom: 6px; white-space: pre-wrap\">\nWaiting on you.\n</p>\n</div>\n<div style=\"background: rgb(246, 248, 250); border-radius: 8px; border: 1px solid rgb(208, 215, 222); margin-bottom: 8px; margin-top: 8px; overflow: hidden\">\n<div style=\"border-bottom: 1px solid rgb(208, 215, 222); font-size: 13px; padding: 4px 12px 10px\">\n<div style=\"font-size: 13px; line-height: 1.6; margin-top: 6px; word-break: break-word\">\n<p style=\"margin-bottom: 6px; white-space: pre-wrap\">\nWhich route should the login link use?\n</p>\n</div>\n</div>\n<div style=\"align-items: stretch; display: flex\">\n<div style=\"display: flex; flex-direction: column; flex: 1 1 100%; min-width: 0px\">\n</div>\n</div>\n<div style=\"border-top: 1px solid rgb(208, 215, 222); display: flex; gap: 4px; padding: 8px 12px\">\n<input class=\"c8b4b949e cca586305\" placeholder=\"Type your answer…\" style=\"background: transparent; border-radius: 3px; border: 1px solid rgb(208, 215, 222); color: inherit; flex: 1 1 0%; font-size: 13px; height: 26px; min-width: 0px; outline: none; padding: 0px 8px\" type=\"text\" value {value=\"\"}>\n</input>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 ca596e575 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"ask-user-free-text-submit\" disabled type=\"button\">\nSend\n</button>\n</div>\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "a compaction notice splits its headline and summary": {
+  "snapshots": [
+   "<div style=\"margin-bottom: 16px\">\n<div>\n<div class=\"c445db9b9\" style=\"background: rgba(64, 112, 224, 0.1); border-radius: 8px; border: 1px solid rgba(64, 112, 224, 0.25); color: var(--mol-color-text-secondary, #aaa); line-height: 1.5; margin-bottom: 16px; padding: 10px 16px; text-align: center\">\n<div style=\"font-size: 13px; line-height: 1.6; margin-top: 6px; word-break: break-word\">\n<p style=\"margin-bottom: 6px; white-space: pre-wrap\">\n<strong>\nContext compacted\n</strong>\n</p>\n</div>\n<details style=\"margin: 14px -16px -10px; text-align: left\">\n<summary style=\"background: rgba(64, 112, 224, 0.05); border-radius: 0 0 8px 8px; cursor: pointer; list-style: none; padding: 3px 0px; text-align: center; transition: background 100ms\">\n<svg data-chevron height=\"14\" style=\"color: rgb(40, 80, 160); display: inline-block; transition: transform 150ms; vertical-align: middle\" viewbox=\"0 0 16 16\" width=\"14\" xmlns=\"http://www.w3.org/2000/svg\">\n<polyline fill=\"none\" points=\"4,6 8,10 12,6\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\">\n</polyline>\n</svg>\n</summary>\n<div style=\"padding: 8px 16px 10px\">\n<div style=\"font-size: 13px; line-height: 1.6; margin-top: 6px; word-break: break-word\">\n<p style=\"margin-bottom: 6px; white-space: pre-wrap\">\nEarlier work is summarised here.\n</p>\n</div>\n</div>\n</details>\n</div>\n</div>\n</div>\n@route /",
+   "<div style=\"margin-bottom: 16px\">\n<div>\n<div class=\"c445db9b9\" style=\"background: rgba(64, 112, 224, 0.1); border-radius: 8px; border: 1px solid rgba(64, 112, 224, 0.25); color: var(--mol-color-text-secondary, #aaa); line-height: 1.5; margin-bottom: 16px; padding: 10px 16px; text-align: center\">\n<div style=\"font-size: 13px; line-height: 1.6; margin-top: 6px; word-break: break-word\">\n<p style=\"margin-bottom: 6px; white-space: pre-wrap\">\n<strong>\nContext compacted\n</strong>\n</p>\n</div>\n<details style=\"margin: 14px -16px -10px; text-align: left\">\n<summary style=\"background: rgba(64, 112, 224, 0.12); border-radius: 0 0 8px 8px; cursor: pointer; list-style: none; padding: 3px 0px; text-align: center; transition: background 100ms\">\n<svg data-chevron height=\"14\" style=\"color: rgb(40, 80, 160); display: inline-block; transition: transform 150ms; vertical-align: middle\" viewbox=\"0 0 16 16\" width=\"14\" xmlns=\"http://www.w3.org/2000/svg\">\n<polyline fill=\"none\" points=\"4,6 8,10 12,6\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\">\n</polyline>\n</svg>\n</summary>\n<div style=\"padding: 8px 16px 10px\">\n<div style=\"font-size: 13px; line-height: 1.6; margin-top: 6px; word-break: break-word\">\n<p style=\"margin-bottom: 6px; white-space: pre-wrap\">\nEarlier work is summarised here.\n</p>\n</div>\n</div>\n</details>\n</div>\n</div>\n</div>\n@route /",
+   "<div style=\"margin-bottom: 16px\">\n<div>\n<div class=\"c445db9b9\" style=\"background: rgba(64, 112, 224, 0.1); border-radius: 8px; border: 1px solid rgba(64, 112, 224, 0.25); color: var(--mol-color-text-secondary, #aaa); line-height: 1.5; margin-bottom: 16px; padding: 10px 16px; text-align: center\">\n<div style=\"font-size: 13px; line-height: 1.6; margin-top: 6px; word-break: break-word\">\n<p style=\"margin-bottom: 6px; white-space: pre-wrap\">\n<strong>\nContext compacted\n</strong>\n</p>\n</div>\n<details style=\"margin: 14px -16px -10px; text-align: left\">\n<summary style=\"background: rgba(64, 112, 224, 0.05); border-radius: 0 0 8px 8px; cursor: pointer; list-style: none; padding: 3px 0px; text-align: center; transition: background 100ms\">\n<svg data-chevron height=\"14\" style=\"color: rgb(40, 80, 160); display: inline-block; transition: transform 150ms; vertical-align: middle\" viewbox=\"0 0 16 16\" width=\"14\" xmlns=\"http://www.w3.org/2000/svg\">\n<polyline fill=\"none\" points=\"4,6 8,10 12,6\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\">\n</polyline>\n</svg>\n</summary>\n<div style=\"padding: 8px 16px 10px\">\n<div style=\"font-size: 13px; line-height: 1.6; margin-top: 6px; word-break: break-word\">\n<p style=\"margin-bottom: 6px; white-space: pre-wrap\">\nEarlier work is summarised here.\n</p>\n</div>\n</div>\n</details>\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "an aborted reply says the response stopped": {
+  "snapshots": [
+   "<div style=\"margin-bottom: 16px\">\n<div>\n<div style=\"font-size: 13px; line-height: 1.6; margin-top: 6px; word-break: break-word\">\n<p style=\"margin-bottom: 6px; white-space: pre-wrap\">\nPartial answer\n</p>\n</div>\n<span class=\"c4647f690 ce823b5bf\" style=\"display: block; font-style: italic; margin-top: 4px\">\nResponse stopped\n</span>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "the loop-limit card’s Change model action pre-fills the composer": {
+  "snapshots": [
+   "<div style=\"margin-bottom: 16px\">\n<div>\n<div style=\"font-size: 13px; line-height: 1.6; margin-top: 6px; word-break: break-word\">\n<p style=\"margin-bottom: 6px; white-space: pre-wrap\">\nStopped.\n</p>\n</div>\n<div style=\"background: rgb(246, 248, 250); border-radius: 8px; border: 1px solid rgb(209, 217, 224); margin-top: 8px; overflow: hidden\">\n<div style=\"border-bottom: 1px solid rgb(209, 217, 224); font-size: 13px; font-weight: 600; padding: 10px 12px\">\nReached the maximum of 12 tool iterations.\n</div>\n<button style=\"align-items: center; background: transparent; border-color: currentcolor; border-image: none; border-style: none; border-width: medium; color: inherit; cursor: pointer; display: flex; font-size: 13px; gap: 10px; padding: 8px 12px; text-align: left; transition: background 80ms; width: 100%\" type=\"button\">\n<span style=\"align-items: center; background: rgb(255, 255, 255); border-radius: 5px; border: 1px solid rgb(209, 217, 224); color: rgb(87, 96, 106); display: inline-flex; flex-shrink: 0; font-family: &quot;SF Mono&quot;, Menlo, Consolas, monospace; font-size: 11px; font-weight: 600; height: 22px; justify-content: center; width: 22px\">\nA\n</span>\n<span>\nChange model\n</span>\n</button>\n<button style=\"align-items: center; background: transparent; border-color: rgb(209, 217, 224) currentcolor currentcolor; border-image: none; border-style: solid none none; border-width: 1px medium medium; color: inherit; cursor: pointer; display: flex; font-size: 13px; gap: 10px; padding: 8px 12px; text-align: left; transition: background 80ms; width: 100%\" type=\"button\">\n<span style=\"align-items: center; background: rgb(255, 255, 255); border-radius: 5px; border: 1px solid rgb(209, 217, 224); color: rgb(87, 96, 106); display: inline-flex; flex-shrink: 0; font-family: &quot;SF Mono&quot;, Menlo, Consolas, monospace; font-size: 11px; font-weight: 600; height: 22px; justify-content: center; width: 22px\">\nB\n</span>\n<span>\nIncrease max loops\n</span>\n</button>\n<button style=\"align-items: center; background: transparent; border-color: rgb(209, 217, 224) currentcolor currentcolor; border-image: none; border-style: solid none none; border-width: 1px medium medium; color: inherit; cursor: pointer; display: flex; font-size: 13px; gap: 10px; padding: 8px 12px; text-align: left; transition: background 80ms; width: 100%\" type=\"button\">\n<span style=\"align-items: center; background: rgb(255, 255, 255); border-radius: 5px; border: 1px solid rgb(209, 217, 224); color: rgb(87, 96, 106); display: inline-flex; flex-shrink: 0; font-family: &quot;SF Mono&quot;, Menlo, Consolas, monospace; font-size: 11px; font-weight: 600; height: 22px; justify-content: center; width: 22px\">\nC\n</span>\n<span>\nContinue\n</span>\n</button>\n</div>\n</div>\n</div>\n@route /",
+   "<div style=\"margin-bottom: 16px\">\n<div>\n<div style=\"font-size: 13px; line-height: 1.6; margin-top: 6px; word-break: break-word\">\n<p style=\"margin-bottom: 6px; white-space: pre-wrap\">\nStopped.\n</p>\n</div>\n<div style=\"background: rgb(246, 248, 250); border-radius: 8px; border: 1px solid rgb(209, 217, 224); margin-top: 8px; overflow: hidden\">\n<div style=\"border-bottom: 1px solid rgb(209, 217, 224); font-size: 13px; font-weight: 600; padding: 10px 12px\">\nReached the maximum of 12 tool iterations.\n</div>\n<button style=\"align-items: center; background: transparent; border-color: currentcolor; border-image: none; border-style: none; border-width: medium; color: inherit; cursor: pointer; display: flex; font-size: 13px; gap: 10px; padding: 8px 12px; text-align: left; transition: background 80ms; width: 100%\" type=\"button\">\n<span style=\"align-items: center; background: rgb(255, 255, 255); border-radius: 5px; border: 1px solid rgb(209, 217, 224); color: rgb(87, 96, 106); display: inline-flex; flex-shrink: 0; font-family: &quot;SF Mono&quot;, Menlo, Consolas, monospace; font-size: 11px; font-weight: 600; height: 22px; justify-content: center; width: 22px\">\nA\n</span>\n<span>\nChange model\n</span>\n</button>\n<button style=\"align-items: center; background: transparent; border-color: rgb(209, 217, 224) currentcolor currentcolor; border-image: none; border-style: solid none none; border-width: 1px medium medium; color: inherit; cursor: pointer; display: flex; font-size: 13px; gap: 10px; padding: 8px 12px; text-align: left; transition: background 80ms; width: 100%\" type=\"button\">\n<span style=\"align-items: center; background: rgb(255, 255, 255); border-radius: 5px; border: 1px solid rgb(209, 217, 224); color: rgb(87, 96, 106); display: inline-flex; flex-shrink: 0; font-family: &quot;SF Mono&quot;, Menlo, Consolas, monospace; font-size: 11px; font-weight: 600; height: 22px; justify-content: center; width: 22px\">\nB\n</span>\n<span>\nIncrease max loops\n</span>\n</button>\n<button style=\"align-items: center; background: transparent; border-color: rgb(209, 217, 224) currentcolor currentcolor; border-image: none; border-style: solid none none; border-width: 1px medium medium; color: inherit; cursor: pointer; display: flex; font-size: 13px; gap: 10px; padding: 8px 12px; text-align: left; transition: background 80ms; width: 100%\" type=\"button\">\n<span style=\"align-items: center; background: rgb(255, 255, 255); border-radius: 5px; border: 1px solid rgb(209, 217, 224); color: rgb(87, 96, 106); display: inline-flex; flex-shrink: 0; font-family: &quot;SF Mono&quot;, Menlo, Consolas, monospace; font-size: 11px; font-weight: 600; height: 22px; justify-content: center; width: 22px\">\nC\n</span>\n<span>\nContinue\n</span>\n</button>\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "setInputAndCursorEnd",
+    "args": [
+     "/model "
+    ]
+   },
+   {
+    "name": "setModelPicker",
+    "args": [
+     {
+      "mode": "plan",
+      "selectedIdx": -1,
+      "text": "/model "
+     }
+    ]
+   }
+  ]
+ },
+ "the loop-limit card’s Increase max loops action pre-fills the command": {
+  "snapshots": [
+   "<div style=\"margin-bottom: 16px\">\n<div>\n<div style=\"font-size: 13px; line-height: 1.6; margin-top: 6px; word-break: break-word\">\n<p style=\"margin-bottom: 6px; white-space: pre-wrap\">\nStopped.\n</p>\n</div>\n<div style=\"background: rgb(246, 248, 250); border-radius: 8px; border: 1px solid rgb(209, 217, 224); margin-top: 8px; overflow: hidden\">\n<div style=\"border-bottom: 1px solid rgb(209, 217, 224); font-size: 13px; font-weight: 600; padding: 10px 12px\">\nReached the maximum of 12 tool iterations.\n</div>\n<button style=\"align-items: center; background: transparent; border-color: currentcolor; border-image: none; border-style: none; border-width: medium; color: inherit; cursor: pointer; display: flex; font-size: 13px; gap: 10px; padding: 8px 12px; text-align: left; transition: background 80ms; width: 100%\" type=\"button\">\n<span style=\"align-items: center; background: rgb(255, 255, 255); border-radius: 5px; border: 1px solid rgb(209, 217, 224); color: rgb(87, 96, 106); display: inline-flex; flex-shrink: 0; font-family: &quot;SF Mono&quot;, Menlo, Consolas, monospace; font-size: 11px; font-weight: 600; height: 22px; justify-content: center; width: 22px\">\nA\n</span>\n<span>\nChange model\n</span>\n</button>\n<button style=\"align-items: center; background: transparent; border-color: rgb(209, 217, 224) currentcolor currentcolor; border-image: none; border-style: solid none none; border-width: 1px medium medium; color: inherit; cursor: pointer; display: flex; font-size: 13px; gap: 10px; padding: 8px 12px; text-align: left; transition: background 80ms; width: 100%\" type=\"button\">\n<span style=\"align-items: center; background: rgb(255, 255, 255); border-radius: 5px; border: 1px solid rgb(209, 217, 224); color: rgb(87, 96, 106); display: inline-flex; flex-shrink: 0; font-family: &quot;SF Mono&quot;, Menlo, Consolas, monospace; font-size: 11px; font-weight: 600; height: 22px; justify-content: center; width: 22px\">\nB\n</span>\n<span>\nIncrease max loops\n</span>\n</button>\n<button style=\"align-items: center; background: transparent; border-color: rgb(209, 217, 224) currentcolor currentcolor; border-image: none; border-style: solid none none; border-width: 1px medium medium; color: inherit; cursor: pointer; display: flex; font-size: 13px; gap: 10px; padding: 8px 12px; text-align: left; transition: background 80ms; width: 100%\" type=\"button\">\n<span style=\"align-items: center; background: rgb(255, 255, 255); border-radius: 5px; border: 1px solid rgb(209, 217, 224); color: rgb(87, 96, 106); display: inline-flex; flex-shrink: 0; font-family: &quot;SF Mono&quot;, Menlo, Consolas, monospace; font-size: 11px; font-weight: 600; height: 22px; justify-content: center; width: 22px\">\nC\n</span>\n<span>\nContinue\n</span>\n</button>\n</div>\n</div>\n</div>\n@route /",
+   "<div style=\"margin-bottom: 16px\">\n<div>\n<div style=\"font-size: 13px; line-height: 1.6; margin-top: 6px; word-break: break-word\">\n<p style=\"margin-bottom: 6px; white-space: pre-wrap\">\nStopped.\n</p>\n</div>\n<div style=\"background: rgb(246, 248, 250); border-radius: 8px; border: 1px solid rgb(209, 217, 224); margin-top: 8px; overflow: hidden\">\n<div style=\"border-bottom: 1px solid rgb(209, 217, 224); font-size: 13px; font-weight: 600; padding: 10px 12px\">\nReached the maximum of 12 tool iterations.\n</div>\n<button style=\"align-items: center; background: transparent; border-color: currentcolor; border-image: none; border-style: none; border-width: medium; color: inherit; cursor: pointer; display: flex; font-size: 13px; gap: 10px; padding: 8px 12px; text-align: left; transition: background 80ms; width: 100%\" type=\"button\">\n<span style=\"align-items: center; background: rgb(255, 255, 255); border-radius: 5px; border: 1px solid rgb(209, 217, 224); color: rgb(87, 96, 106); display: inline-flex; flex-shrink: 0; font-family: &quot;SF Mono&quot;, Menlo, Consolas, monospace; font-size: 11px; font-weight: 600; height: 22px; justify-content: center; width: 22px\">\nA\n</span>\n<span>\nChange model\n</span>\n</button>\n<button style=\"align-items: center; background: transparent; border-color: rgb(209, 217, 224) currentcolor currentcolor; border-image: none; border-style: solid none none; border-width: 1px medium medium; color: inherit; cursor: pointer; display: flex; font-size: 13px; gap: 10px; padding: 8px 12px; text-align: left; transition: background 80ms; width: 100%\" type=\"button\">\n<span style=\"align-items: center; background: rgb(255, 255, 255); border-radius: 5px; border: 1px solid rgb(209, 217, 224); color: rgb(87, 96, 106); display: inline-flex; flex-shrink: 0; font-family: &quot;SF Mono&quot;, Menlo, Consolas, monospace; font-size: 11px; font-weight: 600; height: 22px; justify-content: center; width: 22px\">\nB\n</span>\n<span>\nIncrease max loops\n</span>\n</button>\n<button style=\"align-items: center; background: transparent; border-color: rgb(209, 217, 224) currentcolor currentcolor; border-image: none; border-style: solid none none; border-width: 1px medium medium; color: inherit; cursor: pointer; display: flex; font-size: 13px; gap: 10px; padding: 8px 12px; text-align: left; transition: background 80ms; width: 100%\" type=\"button\">\n<span style=\"align-items: center; background: rgb(255, 255, 255); border-radius: 5px; border: 1px solid rgb(209, 217, 224); color: rgb(87, 96, 106); display: inline-flex; flex-shrink: 0; font-family: &quot;SF Mono&quot;, Menlo, Consolas, monospace; font-size: 11px; font-weight: 600; height: 22px; justify-content: center; width: 22px\">\nC\n</span>\n<span>\nContinue\n</span>\n</button>\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "setInputAndCursorEnd",
+    "args": [
+     "/maxloops "
+    ]
+   }
+  ]
+ },
+ "the loop-limit card’s Continue action sends the continue prompt": {
+  "snapshots": [
+   "<div style=\"margin-bottom: 16px\">\n<div>\n<div style=\"font-size: 13px; line-height: 1.6; margin-top: 6px; word-break: break-word\">\n<p style=\"margin-bottom: 6px; white-space: pre-wrap\">\nStopped.\n</p>\n</div>\n<div style=\"background: rgb(246, 248, 250); border-radius: 8px; border: 1px solid rgb(209, 217, 224); margin-top: 8px; overflow: hidden\">\n<div style=\"border-bottom: 1px solid rgb(209, 217, 224); font-size: 13px; font-weight: 600; padding: 10px 12px\">\nReached the maximum of 12 tool iterations.\n</div>\n<button style=\"align-items: center; background: transparent; border-color: currentcolor; border-image: none; border-style: none; border-width: medium; color: inherit; cursor: pointer; display: flex; font-size: 13px; gap: 10px; padding: 8px 12px; text-align: left; transition: background 80ms; width: 100%\" type=\"button\">\n<span style=\"align-items: center; background: rgb(255, 255, 255); border-radius: 5px; border: 1px solid rgb(209, 217, 224); color: rgb(87, 96, 106); display: inline-flex; flex-shrink: 0; font-family: &quot;SF Mono&quot;, Menlo, Consolas, monospace; font-size: 11px; font-weight: 600; height: 22px; justify-content: center; width: 22px\">\nA\n</span>\n<span>\nChange model\n</span>\n</button>\n<button style=\"align-items: center; background: transparent; border-color: rgb(209, 217, 224) currentcolor currentcolor; border-image: none; border-style: solid none none; border-width: 1px medium medium; color: inherit; cursor: pointer; display: flex; font-size: 13px; gap: 10px; padding: 8px 12px; text-align: left; transition: background 80ms; width: 100%\" type=\"button\">\n<span style=\"align-items: center; background: rgb(255, 255, 255); border-radius: 5px; border: 1px solid rgb(209, 217, 224); color: rgb(87, 96, 106); display: inline-flex; flex-shrink: 0; font-family: &quot;SF Mono&quot;, Menlo, Consolas, monospace; font-size: 11px; font-weight: 600; height: 22px; justify-content: center; width: 22px\">\nB\n</span>\n<span>\nIncrease max loops\n</span>\n</button>\n<button style=\"align-items: center; background: transparent; border-color: rgb(209, 217, 224) currentcolor currentcolor; border-image: none; border-style: solid none none; border-width: 1px medium medium; color: inherit; cursor: pointer; display: flex; font-size: 13px; gap: 10px; padding: 8px 12px; text-align: left; transition: background 80ms; width: 100%\" type=\"button\">\n<span style=\"align-items: center; background: rgb(255, 255, 255); border-radius: 5px; border: 1px solid rgb(209, 217, 224); color: rgb(87, 96, 106); display: inline-flex; flex-shrink: 0; font-family: &quot;SF Mono&quot;, Menlo, Consolas, monospace; font-size: 11px; font-weight: 600; height: 22px; justify-content: center; width: 22px\">\nC\n</span>\n<span>\nContinue\n</span>\n</button>\n</div>\n</div>\n</div>\n@route /",
+   "<div style=\"margin-bottom: 16px\">\n<div>\n<div style=\"font-size: 13px; line-height: 1.6; margin-top: 6px; word-break: break-word\">\n<p style=\"margin-bottom: 6px; white-space: pre-wrap\">\nStopped.\n</p>\n</div>\n<div style=\"background: rgb(246, 248, 250); border-radius: 8px; border: 1px solid rgb(209, 217, 224); margin-top: 8px; overflow: hidden\">\n<div style=\"border-bottom: 1px solid rgb(209, 217, 224); font-size: 13px; font-weight: 600; padding: 10px 12px\">\nReached the maximum of 12 tool iterations.\n</div>\n<button style=\"align-items: center; background: transparent; border-color: currentcolor; border-image: none; border-style: none; border-width: medium; color: inherit; cursor: pointer; display: flex; font-size: 13px; gap: 10px; padding: 8px 12px; text-align: left; transition: background 80ms; width: 100%\" type=\"button\">\n<span style=\"align-items: center; background: rgb(255, 255, 255); border-radius: 5px; border: 1px solid rgb(209, 217, 224); color: rgb(87, 96, 106); display: inline-flex; flex-shrink: 0; font-family: &quot;SF Mono&quot;, Menlo, Consolas, monospace; font-size: 11px; font-weight: 600; height: 22px; justify-content: center; width: 22px\">\nA\n</span>\n<span>\nChange model\n</span>\n</button>\n<button style=\"align-items: center; background: transparent; border-color: rgb(209, 217, 224) currentcolor currentcolor; border-image: none; border-style: solid none none; border-width: 1px medium medium; color: inherit; cursor: pointer; display: flex; font-size: 13px; gap: 10px; padding: 8px 12px; text-align: left; transition: background 80ms; width: 100%\" type=\"button\">\n<span style=\"align-items: center; background: rgb(255, 255, 255); border-radius: 5px; border: 1px solid rgb(209, 217, 224); color: rgb(87, 96, 106); display: inline-flex; flex-shrink: 0; font-family: &quot;SF Mono&quot;, Menlo, Consolas, monospace; font-size: 11px; font-weight: 600; height: 22px; justify-content: center; width: 22px\">\nB\n</span>\n<span>\nIncrease max loops\n</span>\n</button>\n<button style=\"align-items: center; background: transparent; border-color: rgb(209, 217, 224) currentcolor currentcolor; border-image: none; border-style: solid none none; border-width: 1px medium medium; color: inherit; cursor: pointer; display: flex; font-size: 13px; gap: 10px; padding: 8px 12px; text-align: left; transition: background 80ms; width: 100%\" type=\"button\">\n<span style=\"align-items: center; background: rgb(255, 255, 255); border-radius: 5px; border: 1px solid rgb(209, 217, 224); color: rgb(87, 96, 106); display: inline-flex; flex-shrink: 0; font-family: &quot;SF Mono&quot;, Menlo, Consolas, monospace; font-size: 11px; font-weight: 600; height: 22px; justify-content: center; width: 22px\">\nC\n</span>\n<span>\nContinue\n</span>\n</button>\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "sendMessage",
+    "args": [
+     "Continue implementing from where you left off."
+    ]
+   }
+  ]
+ },
+ "a running turn disables the Change model action": {
+  "snapshots": [
+   "<div style=\"margin-bottom: 16px\">\n<div>\n<div style=\"font-size: 13px; line-height: 1.6; margin-top: 6px; word-break: break-word\">\n<p style=\"margin-bottom: 6px; white-space: pre-wrap\">\nStopped.\n</p>\n</div>\n<div style=\"background: rgb(246, 248, 250); border-radius: 8px; border: 1px solid rgb(209, 217, 224); margin-top: 8px; overflow: hidden\">\n<div style=\"border-bottom: 1px solid rgb(209, 217, 224); font-size: 13px; font-weight: 600; padding: 10px 12px\">\nReached the maximum of 12 tool iterations.\n</div>\n<button disabled style=\"align-items: center; background: transparent; border-color: currentcolor; border-image: none; border-style: none; border-width: medium; color: inherit; cursor: pointer; display: flex; font-size: 13px; gap: 10px; padding: 8px 12px; text-align: left; transition: background 80ms; width: 100%\" type=\"button\">\n<span style=\"align-items: center; background: rgb(255, 255, 255); border-radius: 5px; border: 1px solid rgb(209, 217, 224); color: rgb(87, 96, 106); display: inline-flex; flex-shrink: 0; font-family: &quot;SF Mono&quot;, Menlo, Consolas, monospace; font-size: 11px; font-weight: 600; height: 22px; justify-content: center; width: 22px\">\nA\n</span>\n<span>\nChange model\n</span>\n</button>\n<button style=\"align-items: center; background: transparent; border-color: rgb(209, 217, 224) currentcolor currentcolor; border-image: none; border-style: solid none none; border-width: 1px medium medium; color: inherit; cursor: pointer; display: flex; font-size: 13px; gap: 10px; padding: 8px 12px; text-align: left; transition: background 80ms; width: 100%\" type=\"button\">\n<span style=\"align-items: center; background: rgb(255, 255, 255); border-radius: 5px; border: 1px solid rgb(209, 217, 224); color: rgb(87, 96, 106); display: inline-flex; flex-shrink: 0; font-family: &quot;SF Mono&quot;, Menlo, Consolas, monospace; font-size: 11px; font-weight: 600; height: 22px; justify-content: center; width: 22px\">\nB\n</span>\n<span>\nIncrease max loops\n</span>\n</button>\n<button style=\"align-items: center; background: transparent; border-color: rgb(209, 217, 224) currentcolor currentcolor; border-image: none; border-style: solid none none; border-width: 1px medium medium; color: inherit; cursor: pointer; display: flex; font-size: 13px; gap: 10px; padding: 8px 12px; text-align: left; transition: background 80ms; width: 100%\" type=\"button\">\n<span style=\"align-items: center; background: rgb(255, 255, 255); border-radius: 5px; border: 1px solid rgb(209, 217, 224); color: rgb(87, 96, 106); display: inline-flex; flex-shrink: 0; font-family: &quot;SF Mono&quot;, Menlo, Consolas, monospace; font-size: 11px; font-weight: 600; height: 22px; justify-content: center; width: 22px\">\nC\n</span>\n<span>\nContinue\n</span>\n</button>\n</div>\n</div>\n</div>\n@route /",
+   "<div style=\"margin-bottom: 16px\">\n<div>\n<div style=\"font-size: 13px; line-height: 1.6; margin-top: 6px; word-break: break-word\">\n<p style=\"margin-bottom: 6px; white-space: pre-wrap\">\nStopped.\n</p>\n</div>\n<div style=\"background: rgb(246, 248, 250); border-radius: 8px; border: 1px solid rgb(209, 217, 224); margin-top: 8px; overflow: hidden\">\n<div style=\"border-bottom: 1px solid rgb(209, 217, 224); font-size: 13px; font-weight: 600; padding: 10px 12px\">\nReached the maximum of 12 tool iterations.\n</div>\n<button disabled style=\"align-items: center; background: transparent; border-color: currentcolor; border-image: none; border-style: none; border-width: medium; color: inherit; cursor: pointer; display: flex; font-size: 13px; gap: 10px; padding: 8px 12px; text-align: left; transition: background 80ms; width: 100%\" type=\"button\">\n<span style=\"align-items: center; background: rgb(255, 255, 255); border-radius: 5px; border: 1px solid rgb(209, 217, 224); color: rgb(87, 96, 106); display: inline-flex; flex-shrink: 0; font-family: &quot;SF Mono&quot;, Menlo, Consolas, monospace; font-size: 11px; font-weight: 600; height: 22px; justify-content: center; width: 22px\">\nA\n</span>\n<span>\nChange model\n</span>\n</button>\n<button style=\"align-items: center; background: transparent; border-color: rgb(209, 217, 224) currentcolor currentcolor; border-image: none; border-style: solid none none; border-width: 1px medium medium; color: inherit; cursor: pointer; display: flex; font-size: 13px; gap: 10px; padding: 8px 12px; text-align: left; transition: background 80ms; width: 100%\" type=\"button\">\n<span style=\"align-items: center; background: rgb(255, 255, 255); border-radius: 5px; border: 1px solid rgb(209, 217, 224); color: rgb(87, 96, 106); display: inline-flex; flex-shrink: 0; font-family: &quot;SF Mono&quot;, Menlo, Consolas, monospace; font-size: 11px; font-weight: 600; height: 22px; justify-content: center; width: 22px\">\nB\n</span>\n<span>\nIncrease max loops\n</span>\n</button>\n<button style=\"align-items: center; background: transparent; border-color: rgb(209, 217, 224) currentcolor currentcolor; border-image: none; border-style: solid none none; border-width: 1px medium medium; color: inherit; cursor: pointer; display: flex; font-size: 13px; gap: 10px; padding: 8px 12px; text-align: left; transition: background 80ms; width: 100%\" type=\"button\">\n<span style=\"align-items: center; background: rgb(255, 255, 255); border-radius: 5px; border: 1px solid rgb(209, 217, 224); color: rgb(87, 96, 106); display: inline-flex; flex-shrink: 0; font-family: &quot;SF Mono&quot;, Menlo, Consolas, monospace; font-size: 11px; font-weight: 600; height: 22px; justify-content: center; width: 22px\">\nC\n</span>\n<span>\nContinue\n</span>\n</button>\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "the loop-limit card’s choices tint on hover and clear on leave": {
+  "snapshots": [
+   "<div style=\"margin-bottom: 16px\">\n<div>\n<div style=\"font-size: 13px; line-height: 1.6; margin-top: 6px; word-break: break-word\">\n<p style=\"margin-bottom: 6px; white-space: pre-wrap\">\nStopped.\n</p>\n</div>\n<div style=\"background: rgb(246, 248, 250); border-radius: 8px; border: 1px solid rgb(209, 217, 224); margin-top: 8px; overflow: hidden\">\n<div style=\"border-bottom: 1px solid rgb(209, 217, 224); font-size: 13px; font-weight: 600; padding: 10px 12px\">\nReached the maximum of 12 tool iterations.\n</div>\n<button style=\"align-items: center; background: transparent; border-color: currentcolor; border-image: none; border-style: none; border-width: medium; color: inherit; cursor: pointer; display: flex; font-size: 13px; gap: 10px; padding: 8px 12px; text-align: left; transition: background 80ms; width: 100%\" type=\"button\">\n<span style=\"align-items: center; background: rgb(255, 255, 255); border-radius: 5px; border: 1px solid rgb(209, 217, 224); color: rgb(87, 96, 106); display: inline-flex; flex-shrink: 0; font-family: &quot;SF Mono&quot;, Menlo, Consolas, monospace; font-size: 11px; font-weight: 600; height: 22px; justify-content: center; width: 22px\">\nA\n</span>\n<span>\nChange model\n</span>\n</button>\n<button style=\"align-items: center; background: transparent; border-color: rgb(209, 217, 224) currentcolor currentcolor; border-image: none; border-style: solid none none; border-width: 1px medium medium; color: inherit; cursor: pointer; display: flex; font-size: 13px; gap: 10px; padding: 8px 12px; text-align: left; transition: background 80ms; width: 100%\" type=\"button\">\n<span style=\"align-items: center; background: rgb(255, 255, 255); border-radius: 5px; border: 1px solid rgb(209, 217, 224); color: rgb(87, 96, 106); display: inline-flex; flex-shrink: 0; font-family: &quot;SF Mono&quot;, Menlo, Consolas, monospace; font-size: 11px; font-weight: 600; height: 22px; justify-content: center; width: 22px\">\nB\n</span>\n<span>\nIncrease max loops\n</span>\n</button>\n<button style=\"align-items: center; background: transparent; border-color: rgb(209, 217, 224) currentcolor currentcolor; border-image: none; border-style: solid none none; border-width: 1px medium medium; color: inherit; cursor: pointer; display: flex; font-size: 13px; gap: 10px; padding: 8px 12px; text-align: left; transition: background 80ms; width: 100%\" type=\"button\">\n<span style=\"align-items: center; background: rgb(255, 255, 255); border-radius: 5px; border: 1px solid rgb(209, 217, 224); color: rgb(87, 96, 106); display: inline-flex; flex-shrink: 0; font-family: &quot;SF Mono&quot;, Menlo, Consolas, monospace; font-size: 11px; font-weight: 600; height: 22px; justify-content: center; width: 22px\">\nC\n</span>\n<span>\nContinue\n</span>\n</button>\n</div>\n</div>\n</div>\n@route /",
+   "<div style=\"margin-bottom: 16px\">\n<div>\n<div style=\"font-size: 13px; line-height: 1.6; margin-top: 6px; word-break: break-word\">\n<p style=\"margin-bottom: 6px; white-space: pre-wrap\">\nStopped.\n</p>\n</div>\n<div style=\"background: rgb(246, 248, 250); border-radius: 8px; border: 1px solid rgb(209, 217, 224); margin-top: 8px; overflow: hidden\">\n<div style=\"border-bottom: 1px solid rgb(209, 217, 224); font-size: 13px; font-weight: 600; padding: 10px 12px\">\nReached the maximum of 12 tool iterations.\n</div>\n<button style=\"align-items: center; background: transparent; border-color: currentcolor; border-image: none; border-style: none; border-width: medium; color: inherit; cursor: pointer; display: flex; font-size: 13px; gap: 10px; padding: 8px 12px; text-align: left; transition: background 80ms; width: 100%\" type=\"button\">\n<span style=\"align-items: center; background: rgb(255, 255, 255); border-radius: 5px; border: 1px solid rgb(209, 217, 224); color: rgb(87, 96, 106); display: inline-flex; flex-shrink: 0; font-family: &quot;SF Mono&quot;, Menlo, Consolas, monospace; font-size: 11px; font-weight: 600; height: 22px; justify-content: center; width: 22px\">\nA\n</span>\n<span>\nChange model\n</span>\n</button>\n<button style=\"align-items: center; background: transparent; border-color: rgb(209, 217, 224) currentcolor currentcolor; border-image: none; border-style: solid none none; border-width: 1px medium medium; color: inherit; cursor: pointer; display: flex; font-size: 13px; gap: 10px; padding: 8px 12px; text-align: left; transition: background 80ms; width: 100%\" type=\"button\">\n<span style=\"align-items: center; background: rgb(255, 255, 255); border-radius: 5px; border: 1px solid rgb(209, 217, 224); color: rgb(87, 96, 106); display: inline-flex; flex-shrink: 0; font-family: &quot;SF Mono&quot;, Menlo, Consolas, monospace; font-size: 11px; font-weight: 600; height: 22px; justify-content: center; width: 22px\">\nB\n</span>\n<span>\nIncrease max loops\n</span>\n</button>\n<button style=\"align-items: center; background: rgb(234, 238, 242); border-color: rgb(209, 217, 224) currentcolor currentcolor; border-image: none; border-style: solid none none; border-width: 1px medium medium; color: inherit; cursor: pointer; display: flex; font-size: 13px; gap: 10px; padding: 8px 12px; text-align: left; transition: background 80ms; width: 100%\" type=\"button\">\n<span style=\"align-items: center; background: rgb(255, 255, 255); border-radius: 5px; border: 1px solid rgb(209, 217, 224); color: rgb(87, 96, 106); display: inline-flex; flex-shrink: 0; font-family: &quot;SF Mono&quot;, Menlo, Consolas, monospace; font-size: 11px; font-weight: 600; height: 22px; justify-content: center; width: 22px\">\nC\n</span>\n<span>\nContinue\n</span>\n</button>\n</div>\n</div>\n</div>\n@route /",
+   "<div style=\"margin-bottom: 16px\">\n<div>\n<div style=\"font-size: 13px; line-height: 1.6; margin-top: 6px; word-break: break-word\">\n<p style=\"margin-bottom: 6px; white-space: pre-wrap\">\nStopped.\n</p>\n</div>\n<div style=\"background: rgb(246, 248, 250); border-radius: 8px; border: 1px solid rgb(209, 217, 224); margin-top: 8px; overflow: hidden\">\n<div style=\"border-bottom: 1px solid rgb(209, 217, 224); font-size: 13px; font-weight: 600; padding: 10px 12px\">\nReached the maximum of 12 tool iterations.\n</div>\n<button style=\"align-items: center; background: transparent; border-color: currentcolor; border-image: none; border-style: none; border-width: medium; color: inherit; cursor: pointer; display: flex; font-size: 13px; gap: 10px; padding: 8px 12px; text-align: left; transition: background 80ms; width: 100%\" type=\"button\">\n<span style=\"align-items: center; background: rgb(255, 255, 255); border-radius: 5px; border: 1px solid rgb(209, 217, 224); color: rgb(87, 96, 106); display: inline-flex; flex-shrink: 0; font-family: &quot;SF Mono&quot;, Menlo, Consolas, monospace; font-size: 11px; font-weight: 600; height: 22px; justify-content: center; width: 22px\">\nA\n</span>\n<span>\nChange model\n</span>\n</button>\n<button style=\"align-items: center; background: transparent; border-color: rgb(209, 217, 224) currentcolor currentcolor; border-image: none; border-style: solid none none; border-width: 1px medium medium; color: inherit; cursor: pointer; display: flex; font-size: 13px; gap: 10px; padding: 8px 12px; text-align: left; transition: background 80ms; width: 100%\" type=\"button\">\n<span style=\"align-items: center; background: rgb(255, 255, 255); border-radius: 5px; border: 1px solid rgb(209, 217, 224); color: rgb(87, 96, 106); display: inline-flex; flex-shrink: 0; font-family: &quot;SF Mono&quot;, Menlo, Consolas, monospace; font-size: 11px; font-weight: 600; height: 22px; justify-content: center; width: 22px\">\nB\n</span>\n<span>\nIncrease max loops\n</span>\n</button>\n<button style=\"align-items: center; background: transparent; border-color: rgb(209, 217, 224) currentcolor currentcolor; border-image: none; border-style: solid none none; border-width: 1px medium medium; color: inherit; cursor: pointer; display: flex; font-size: 13px; gap: 10px; padding: 8px 12px; text-align: left; transition: background 80ms; width: 100%\" type=\"button\">\n<span style=\"align-items: center; background: rgb(255, 255, 255); border-radius: 5px; border: 1px solid rgb(209, 217, 224); color: rgb(87, 96, 106); display: inline-flex; flex-shrink: 0; font-family: &quot;SF Mono&quot;, Menlo, Consolas, monospace; font-size: 11px; font-weight: 600; height: 22px; justify-content: center; width: 22px\">\nC\n</span>\n<span>\nContinue\n</span>\n</button>\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "the light theme tints a loop-limit choice in its own grey": {
+  "snapshots": [
+   "<div style=\"margin-bottom: 16px\">\n<div>\n<div style=\"font-size: 13px; line-height: 1.6; margin-top: 6px; word-break: break-word\">\n<p style=\"margin-bottom: 6px; white-space: pre-wrap\">\nStopped.\n</p>\n</div>\n<div style=\"background: rgb(246, 248, 250); border-radius: 8px; border: 1px solid rgb(209, 217, 224); margin-top: 8px; overflow: hidden\">\n<div style=\"border-bottom: 1px solid rgb(209, 217, 224); font-size: 13px; font-weight: 600; padding: 10px 12px\">\nReached the maximum of 12 tool iterations.\n</div>\n<button style=\"align-items: center; background: transparent; border-color: currentcolor; border-image: none; border-style: none; border-width: medium; color: inherit; cursor: pointer; display: flex; font-size: 13px; gap: 10px; padding: 8px 12px; text-align: left; transition: background 80ms; width: 100%\" type=\"button\">\n<span style=\"align-items: center; background: rgb(255, 255, 255); border-radius: 5px; border: 1px solid rgb(209, 217, 224); color: rgb(87, 96, 106); display: inline-flex; flex-shrink: 0; font-family: &quot;SF Mono&quot;, Menlo, Consolas, monospace; font-size: 11px; font-weight: 600; height: 22px; justify-content: center; width: 22px\">\nA\n</span>\n<span>\nChange model\n</span>\n</button>\n<button style=\"align-items: center; background: transparent; border-color: rgb(209, 217, 224) currentcolor currentcolor; border-image: none; border-style: solid none none; border-width: 1px medium medium; color: inherit; cursor: pointer; display: flex; font-size: 13px; gap: 10px; padding: 8px 12px; text-align: left; transition: background 80ms; width: 100%\" type=\"button\">\n<span style=\"align-items: center; background: rgb(255, 255, 255); border-radius: 5px; border: 1px solid rgb(209, 217, 224); color: rgb(87, 96, 106); display: inline-flex; flex-shrink: 0; font-family: &quot;SF Mono&quot;, Menlo, Consolas, monospace; font-size: 11px; font-weight: 600; height: 22px; justify-content: center; width: 22px\">\nB\n</span>\n<span>\nIncrease max loops\n</span>\n</button>\n<button style=\"align-items: center; background: transparent; border-color: rgb(209, 217, 224) currentcolor currentcolor; border-image: none; border-style: solid none none; border-width: 1px medium medium; color: inherit; cursor: pointer; display: flex; font-size: 13px; gap: 10px; padding: 8px 12px; text-align: left; transition: background 80ms; width: 100%\" type=\"button\">\n<span style=\"align-items: center; background: rgb(255, 255, 255); border-radius: 5px; border: 1px solid rgb(209, 217, 224); color: rgb(87, 96, 106); display: inline-flex; flex-shrink: 0; font-family: &quot;SF Mono&quot;, Menlo, Consolas, monospace; font-size: 11px; font-weight: 600; height: 22px; justify-content: center; width: 22px\">\nC\n</span>\n<span>\nContinue\n</span>\n</button>\n</div>\n</div>\n</div>\n@route /",
+   "<div style=\"margin-bottom: 16px\">\n<div>\n<div style=\"font-size: 13px; line-height: 1.6; margin-top: 6px; word-break: break-word\">\n<p style=\"margin-bottom: 6px; white-space: pre-wrap\">\nStopped.\n</p>\n</div>\n<div style=\"background: rgb(246, 248, 250); border-radius: 8px; border: 1px solid rgb(209, 217, 224); margin-top: 8px; overflow: hidden\">\n<div style=\"border-bottom: 1px solid rgb(209, 217, 224); font-size: 13px; font-weight: 600; padding: 10px 12px\">\nReached the maximum of 12 tool iterations.\n</div>\n<button style=\"align-items: center; background: rgb(234, 238, 242); border-color: currentcolor; border-image: none; border-style: none; border-width: medium; color: inherit; cursor: pointer; display: flex; font-size: 13px; gap: 10px; padding: 8px 12px; text-align: left; transition: background 80ms; width: 100%\" type=\"button\">\n<span style=\"align-items: center; background: rgb(255, 255, 255); border-radius: 5px; border: 1px solid rgb(209, 217, 224); color: rgb(87, 96, 106); display: inline-flex; flex-shrink: 0; font-family: &quot;SF Mono&quot;, Menlo, Consolas, monospace; font-size: 11px; font-weight: 600; height: 22px; justify-content: center; width: 22px\">\nA\n</span>\n<span>\nChange model\n</span>\n</button>\n<button style=\"align-items: center; background: transparent; border-color: rgb(209, 217, 224) currentcolor currentcolor; border-image: none; border-style: solid none none; border-width: 1px medium medium; color: inherit; cursor: pointer; display: flex; font-size: 13px; gap: 10px; padding: 8px 12px; text-align: left; transition: background 80ms; width: 100%\" type=\"button\">\n<span style=\"align-items: center; background: rgb(255, 255, 255); border-radius: 5px; border: 1px solid rgb(209, 217, 224); color: rgb(87, 96, 106); display: inline-flex; flex-shrink: 0; font-family: &quot;SF Mono&quot;, Menlo, Consolas, monospace; font-size: 11px; font-weight: 600; height: 22px; justify-content: center; width: 22px\">\nB\n</span>\n<span>\nIncrease max loops\n</span>\n</button>\n<button style=\"align-items: center; background: transparent; border-color: rgb(209, 217, 224) currentcolor currentcolor; border-image: none; border-style: solid none none; border-width: 1px medium medium; color: inherit; cursor: pointer; display: flex; font-size: 13px; gap: 10px; padding: 8px 12px; text-align: left; transition: background 80ms; width: 100%\" type=\"button\">\n<span style=\"align-items: center; background: rgb(255, 255, 255); border-radius: 5px; border: 1px solid rgb(209, 217, 224); color: rgb(87, 96, 106); display: inline-flex; flex-shrink: 0; font-family: &quot;SF Mono&quot;, Menlo, Consolas, monospace; font-size: 11px; font-weight: 600; height: 22px; justify-content: center; width: 22px\">\nC\n</span>\n<span>\nContinue\n</span>\n</button>\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "a locale switch re-labels the user header and the loop-limit card": {
+  "snapshots": [
+   "<div style=\"margin-bottom: 16px\">\n<div>\n<div style=\"font-size: 13px; line-height: 1.6; margin-top: 6px; word-break: break-word\">\n<p style=\"margin-bottom: 6px; white-space: pre-wrap\">\nStopped.\n</p>\n</div>\n<div style=\"background: rgb(246, 248, 250); border-radius: 8px; border: 1px solid rgb(209, 217, 224); margin-top: 8px; overflow: hidden\">\n<div style=\"border-bottom: 1px solid rgb(209, 217, 224); font-size: 13px; font-weight: 600; padding: 10px 12px\">\nReached the maximum of 12 tool iterations.\n</div>\n<button style=\"align-items: center; background: transparent; border-color: currentcolor; border-image: none; border-style: none; border-width: medium; color: inherit; cursor: pointer; display: flex; font-size: 13px; gap: 10px; padding: 8px 12px; text-align: left; transition: background 80ms; width: 100%\" type=\"button\">\n<span style=\"align-items: center; background: rgb(255, 255, 255); border-radius: 5px; border: 1px solid rgb(209, 217, 224); color: rgb(87, 96, 106); display: inline-flex; flex-shrink: 0; font-family: &quot;SF Mono&quot;, Menlo, Consolas, monospace; font-size: 11px; font-weight: 600; height: 22px; justify-content: center; width: 22px\">\nA\n</span>\n<span>\nChange model\n</span>\n</button>\n<button style=\"align-items: center; background: transparent; border-color: rgb(209, 217, 224) currentcolor currentcolor; border-image: none; border-style: solid none none; border-width: 1px medium medium; color: inherit; cursor: pointer; display: flex; font-size: 13px; gap: 10px; padding: 8px 12px; text-align: left; transition: background 80ms; width: 100%\" type=\"button\">\n<span style=\"align-items: center; background: rgb(255, 255, 255); border-radius: 5px; border: 1px solid rgb(209, 217, 224); color: rgb(87, 96, 106); display: inline-flex; flex-shrink: 0; font-family: &quot;SF Mono&quot;, Menlo, Consolas, monospace; font-size: 11px; font-weight: 600; height: 22px; justify-content: center; width: 22px\">\nB\n</span>\n<span>\nIncrease max loops\n</span>\n</button>\n<button style=\"align-items: center; background: transparent; border-color: rgb(209, 217, 224) currentcolor currentcolor; border-image: none; border-style: solid none none; border-width: 1px medium medium; color: inherit; cursor: pointer; display: flex; font-size: 13px; gap: 10px; padding: 8px 12px; text-align: left; transition: background 80ms; width: 100%\" type=\"button\">\n<span style=\"align-items: center; background: rgb(255, 255, 255); border-radius: 5px; border: 1px solid rgb(209, 217, 224); color: rgb(87, 96, 106); display: inline-flex; flex-shrink: 0; font-family: &quot;SF Mono&quot;, Menlo, Consolas, monospace; font-size: 11px; font-weight: 600; height: 22px; justify-content: center; width: 22px\">\nC\n</span>\n<span>\nContinue\n</span>\n</button>\n</div>\n</div>\n</div>\n@route /",
+   "<div style=\"margin-bottom: 16px\">\n<div>\n<div style=\"font-size: 13px; line-height: 1.6; margin-top: 6px; word-break: break-word\">\n<p style=\"margin-bottom: 6px; white-space: pre-wrap\">\nStopped.\n</p>\n</div>\n<div style=\"background: rgb(246, 248, 250); border-radius: 8px; border: 1px solid rgb(209, 217, 224); margin-top: 8px; overflow: hidden\">\n<div style=\"border-bottom: 1px solid rgb(209, 217, 224); font-size: 13px; font-weight: 600; padding: 10px 12px\">\nLimite de 12 itérations atteinte.\n</div>\n<button style=\"align-items: center; background: transparent; border-color: currentcolor; border-image: none; border-style: none; border-width: medium; color: inherit; cursor: pointer; display: flex; font-size: 13px; gap: 10px; padding: 8px 12px; text-align: left; transition: background 80ms; width: 100%\" type=\"button\">\n<span style=\"align-items: center; background: rgb(255, 255, 255); border-radius: 5px; border: 1px solid rgb(209, 217, 224); color: rgb(87, 96, 106); display: inline-flex; flex-shrink: 0; font-family: &quot;SF Mono&quot;, Menlo, Consolas, monospace; font-size: 11px; font-weight: 600; height: 22px; justify-content: center; width: 22px\">\nA\n</span>\n<span>\nChanger de modèle\n</span>\n</button>\n<button style=\"align-items: center; background: transparent; border-color: rgb(209, 217, 224) currentcolor currentcolor; border-image: none; border-style: solid none none; border-width: 1px medium medium; color: inherit; cursor: pointer; display: flex; font-size: 13px; gap: 10px; padding: 8px 12px; text-align: left; transition: background 80ms; width: 100%\" type=\"button\">\n<span style=\"align-items: center; background: rgb(255, 255, 255); border-radius: 5px; border: 1px solid rgb(209, 217, 224); color: rgb(87, 96, 106); display: inline-flex; flex-shrink: 0; font-family: &quot;SF Mono&quot;, Menlo, Consolas, monospace; font-size: 11px; font-weight: 600; height: 22px; justify-content: center; width: 22px\">\nB\n</span>\n<span>\nAugmenter le maximum\n</span>\n</button>\n<button style=\"align-items: center; background: transparent; border-color: rgb(209, 217, 224) currentcolor currentcolor; border-image: none; border-style: solid none none; border-width: 1px medium medium; color: inherit; cursor: pointer; display: flex; font-size: 13px; gap: 10px; padding: 8px 12px; text-align: left; transition: background 80ms; width: 100%\" type=\"button\">\n<span style=\"align-items: center; background: rgb(255, 255, 255); border-radius: 5px; border: 1px solid rgb(209, 217, 224); color: rgb(87, 96, 106); display: inline-flex; flex-shrink: 0; font-family: &quot;SF Mono&quot;, Menlo, Consolas, monospace; font-size: 11px; font-weight: 600; height: 22px; justify-content: center; width: 22px\">\nC\n</span>\n<span>\nContinuer\n</span>\n</button>\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "fr"
+    ]
+   }
+  ]
+ },
+ "a user message renders its body under the author name, then a locale switch": {
+  "snapshots": [
+   "<div style=\"margin-bottom: 16px\">\n<div class=\"c445db9b9 cf74bfc1b\" data-mol-id=\"chat-user-message\" style=\"align-items: flex-start; border-radius: 4px; border: 1px solid var(--mol-chat-accent-border, var(--mol-color-primary, #3060c0)); display: flex; gap: 10px; min-width: 0px; padding: 10px 10px 10px 12px\">\n<button aria-label=\"View profile\" class=\"c8b4b949e cca586305\" data-mol-id=\"chat-user-avatar-button\" style=\"background: transparent; border-radius: 6px; border: 1px solid transparent; box-sizing: border-box; cursor: pointer; display: inline-flex; flex-shrink: 0; line-height: 0; margin: 0px; padding: 0px; transition: box-shadow 100ms\" type=\"button\">\n<span aria-label=\"You\" data-mol-id=\"chat-user-avatar\" role=\"img\" style=\"align-items: center; background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 18%, var(--mol-color-surface, #f4f4f4)); border-radius: 6px; color: var(--mol-color-primary, #6366f1); display: inline-flex; flex-shrink: 0; height: 36px; justify-content: center; width: 36px\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" height=\"22\" viewbox=\"0 0 16 16\" width=\"22\">\n<path d=\"M10.561 8.073a6.005 6.005 0 0 1 3.432 5.142.75.75 0 1 1-1.498.07 4.5 4.5 0 0 0-8.99 0 .75.75 0 0 1-1.498-.07 6.004 6.004 0 0 1 3.431-5.142 3.999 3.999 0 1 1 5.123 0ZM10.5 5a2.5 2.5 0 1 0-5 0 2.5 2.5 0 0 0 5 0Z\">\n</path>\n</svg>\n</span>\n</button>\n<div style=\"flex: 1 1 0%; margin-top: 1px; min-width: 0px\">\n<div style=\"align-items: baseline; display: flex; gap: 8px; line-height: 1.3; margin-bottom: 1px\">\n<button data-mol-id=\"chat-user-name-button\" style=\"background: transparent; border: medium; color: inherit; cursor: pointer; font: inherit; margin: 0px; padding: 0px; text-decoration: none\" type=\"button\">\nYou\n</button>\n</div>\n<div style=\"position: relative\">\n<div style=\"max-height: 150px; overflow: hidden; white-space: pre-wrap\">\nPlease fix the header.\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /",
+   "<div style=\"margin-bottom: 16px\">\n<div class=\"c445db9b9 cf74bfc1b\" data-mol-id=\"chat-user-message\" style=\"align-items: flex-start; border-radius: 4px; border: 1px solid var(--mol-chat-accent-border, var(--mol-color-primary, #3060c0)); display: flex; gap: 10px; min-width: 0px; padding: 10px 10px 10px 12px\">\n<button aria-label=\"⟦View profile⟧\" class=\"c8b4b949e cca586305\" data-mol-id=\"chat-user-avatar-button\" style=\"background: transparent; border-radius: 6px; border: 1px solid transparent; box-sizing: border-box; cursor: pointer; display: inline-flex; flex-shrink: 0; line-height: 0; margin: 0px; padding: 0px; transition: box-shadow 100ms\" type=\"button\">\n<span aria-label=\"⟦You⟧\" data-mol-id=\"chat-user-avatar\" role=\"img\" style=\"align-items: center; background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 18%, var(--mol-color-surface, #f4f4f4)); border-radius: 6px; color: var(--mol-color-primary, #6366f1); display: inline-flex; flex-shrink: 0; height: 36px; justify-content: center; width: 36px\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" height=\"22\" viewbox=\"0 0 16 16\" width=\"22\">\n<path d=\"M10.561 8.073a6.005 6.005 0 0 1 3.432 5.142.75.75 0 1 1-1.498.07 4.5 4.5 0 0 0-8.99 0 .75.75 0 0 1-1.498-.07 6.004 6.004 0 0 1 3.431-5.142 3.999 3.999 0 1 1 5.123 0ZM10.5 5a2.5 2.5 0 1 0-5 0 2.5 2.5 0 0 0 5 0Z\">\n</path>\n</svg>\n</span>\n</button>\n<div style=\"flex: 1 1 0%; margin-top: 1px; min-width: 0px\">\n<div style=\"align-items: baseline; display: flex; gap: 8px; line-height: 1.3; margin-bottom: 1px\">\n<button data-mol-id=\"chat-user-name-button\" style=\"background: transparent; border: medium; color: inherit; cursor: pointer; font: inherit; margin: 0px; padding: 0px; text-decoration: none\" type=\"button\">\n⟦You⟧\n</button>\n</div>\n<div style=\"position: relative\">\n<div style=\"max-height: 150px; overflow: hidden; white-space: pre-wrap\">\nPlease fix the header.\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en-XA"
+    ]
+   }
+  ]
+ }
+}

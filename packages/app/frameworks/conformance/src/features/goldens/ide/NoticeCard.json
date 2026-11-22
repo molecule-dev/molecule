@@ -1,0 +1,275 @@
+{
+ "an info notice renders its icon and text": {
+  "snapshots": [
+   "<div class=\"c4647f690\" data-mol-id=\"chat-notice-card\" data-tone=\"info\" style=\"align-items: flex-start; background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); display: flex; gap: 10px; line-height: 1.5; margin-bottom: 16px; padding: 10px 12px\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" height=\"18\" style=\"color: var(--mol-color-primary, #6366f1); flex-shrink: 0; margin-top: 1px\" viewbox=\"0 0 16 16\" width=\"18\">\n<path d=\"M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z\">\n</path>\n</svg>\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<span>\nSomething happened.\n</span>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "an empty notice renders the card shell": {
+  "snapshots": [
+   "<div class=\"c4647f690\" data-mol-id=\"chat-notice-card\" data-tone=\"info\" style=\"align-items: flex-start; background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); display: flex; gap: 10px; line-height: 1.5; margin-bottom: 16px; padding: 10px 12px\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" height=\"18\" style=\"color: var(--mol-color-primary, #6366f1); flex-shrink: 0; margin-top: 1px\" viewbox=\"0 0 16 16\" width=\"18\">\n<path d=\"M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z\">\n</path>\n</svg>\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<span>\n</span>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "multi-line text keeps its line breaks": {
+  "snapshots": [
+   "<div class=\"c4647f690\" data-mol-id=\"chat-notice-card\" data-tone=\"info\" style=\"align-items: flex-start; background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); display: flex; gap: 10px; line-height: 1.5; margin-bottom: 16px; padding: 10px 12px\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" height=\"18\" style=\"color: var(--mol-color-primary, #6366f1); flex-shrink: 0; margin-top: 1px\" viewbox=\"0 0 16 16\" width=\"18\">\n<path d=\"M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z\">\n</path>\n</svg>\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<span style=\"white-space: pre-wrap\">\nFirst line.\nSecond line.\n</span>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "an icon override replaces the tone glyph": {
+  "snapshots": [
+   "<div class=\"c4647f690\" data-mol-id=\"chat-notice-card\" data-tone=\"success\" style=\"align-items: flex-start; background: color-mix(in srgb, rgb(63, 185, 80) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, rgb(63, 185, 80) 40%, transparent); display: flex; gap: 10px; line-height: 1.5; margin-bottom: 16px; padding: 10px 12px\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" height=\"18\" style=\"color: rgb(63, 185, 80); flex-shrink: 0; margin-top: 1px\" viewbox=\"0 0 16 16\" width=\"18\">\n<path d=\"M8 .75 Q8 8 15.25 8 Q8 8 8 15.25 Q8 8 .75 8 Q8 8 8 .75 Z\">\n</path>\n</svg>\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<span>\nCaptured a new sign-up.\n</span>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "each tone recolours the accent and swaps the icon": {
+  "snapshots": [
+   "<div class=\"c4647f690\" data-mol-id=\"chat-notice-card\" data-tone=\"info\" style=\"align-items: flex-start; background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); display: flex; gap: 10px; line-height: 1.5; margin-bottom: 16px; padding: 10px 12px\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" height=\"18\" style=\"color: var(--mol-color-primary, #6366f1); flex-shrink: 0; margin-top: 1px\" viewbox=\"0 0 16 16\" width=\"18\">\n<path d=\"M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z\">\n</path>\n</svg>\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<span>\nA notice.\n</span>\n</div>\n</div>\n@route /",
+   "<div class=\"c4647f690\" data-mol-id=\"chat-notice-card\" data-tone=\"gold\" style=\"align-items: flex-start; background-attachment: scroll; background-clip: border-box; background-color: color-mix(in srgb, rgb(224, 161, 0) 10%, transparent); background-image: none; background-origin: padding-box; background-position: 0% 0%; background-repeat: repeat; background-size: auto; border-radius: 8px; border: 1px solid color-mix(in srgb, rgb(224, 161, 0) 40%, transparent); display: flex; gap: 10px; line-height: 1.5; margin-bottom: 16px; padding: 10px 12px\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" height=\"18\" style=\"color: rgb(224, 161, 0); flex-shrink: 0; margin-top: 1px\" viewbox=\"0 0 16 16\" width=\"18\">\n<path d=\"M8 1.5c-2.363 0-4 1.69-4 3.75 0 .984.424 1.625.984 2.304l.214.253c.223.264.47.556.673.848.284.411.537.896.621 1.49a.75.75 0 0 1-1.484.211c-.04-.282-.163-.547-.37-.847a8.456 8.456 0 0 0-.542-.68c-.084-.1-.173-.205-.268-.32C3.201 7.75 2.5 6.766 2.5 5.25 2.5 2.31 4.863 0 8 0s5.5 2.31 5.5 5.25c0 1.516-.701 2.5-1.328 3.259-.095.115-.184.22-.268.319-.207.245-.383.453-.541.681-.208.3-.33.565-.37.847a.751.751 0 0 1-1.485-.212c.084-.593.337-1.078.621-1.489.203-.292.45-.584.673-.848.075-.088.147-.173.213-.253.561-.679.985-1.32.985-2.304 0-2.06-1.637-3.75-4-3.75ZM5.75 12h4.5a.75.75 0 0 1 0 1.5h-4.5a.75.75 0 0 1 0-1.5ZM6 15.25a.75.75 0 0 1 .75-.75h2.5a.75.75 0 0 1 0 1.5h-2.5a.75.75 0 0 1-.75-.75Z\">\n</path>\n</svg>\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<span>\nA notice.\n</span>\n</div>\n</div>\n@route /",
+   "<div class=\"c4647f690\" data-mol-id=\"chat-notice-card\" data-tone=\"upgrade\" style=\"align-items: flex-start; background: color-mix(in srgb, var(--mol-color-warning, #e0a100) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-warning, #e0a100) 40%, transparent); display: flex; gap: 10px; line-height: 1.5; margin-bottom: 16px; padding: 10px 12px\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" height=\"18\" style=\"color: var(--mol-color-warning, #e0a100); flex-shrink: 0; margin-top: 1px\" viewbox=\"0 0 16 16\" width=\"18\">\n<path d=\"M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0Zm7-3.25v2.992l2.028.812a.75.75 0 0 1-.557 1.392l-2.5-1A.751.751 0 0 1 7 8.25v-3.5a.75.75 0 0 1 1.5 0Z\">\n</path>\n</svg>\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<span>\nA notice.\n</span>\n</div>\n</div>\n@route /",
+   "<div class=\"c4647f690\" data-mol-id=\"chat-notice-card\" data-tone=\"success\" style=\"align-items: flex-start; background-attachment: scroll; background-clip: border-box; background-color: color-mix(in srgb, rgb(63, 185, 80) 10%, transparent); background-image: none; background-origin: padding-box; background-position: 0% 0%; background-repeat: repeat; background-size: auto; border-radius: 8px; border: 1px solid color-mix(in srgb, rgb(63, 185, 80) 40%, transparent); display: flex; gap: 10px; line-height: 1.5; margin-bottom: 16px; padding: 10px 12px\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" height=\"18\" style=\"color: rgb(63, 185, 80); flex-shrink: 0; margin-top: 1px\" viewbox=\"0 0 16 16\" width=\"18\">\n<path d=\"M8 16A8 8 0 1 1 8 0a8 8 0 0 1 0 16Zm3.78-9.72a.751.751 0 0 0-.018-1.042.751.751 0 0 0-1.042-.018L6.75 9.19 5.28 7.72a.751.751 0 0 0-1.042.018.751.751 0 0 0-.018 1.042l2 2a.75.75 0 0 0 1.06 0Z\">\n</path>\n</svg>\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<span>\nA notice.\n</span>\n</div>\n</div>\n@route /",
+   "<div class=\"c4647f690\" data-mol-id=\"chat-notice-card\" data-tone=\"signup\" style=\"align-items: flex-start; background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); display: flex; gap: 10px; line-height: 1.5; margin-bottom: 16px; padding: 10px 12px\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" height=\"18\" style=\"color: var(--mol-color-primary, #6366f1); flex-shrink: 0; margin-top: 1px\" viewbox=\"0 0 16 16\" width=\"18\">\n<path d=\"M2 2.75C2 1.784 2.784 1 3.75 1h2.5a.75.75 0 0 1 0 1.5h-2.5a.25.25 0 0 0-.25.25v10.5c0 .138.112.25.25.25h2.5a.75.75 0 0 1 0 1.5h-2.5A1.75 1.75 0 0 1 2 13.25Zm6.56 4.5h5.69a.75.75 0 0 1 0 1.5H8.56l1.97 1.97a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215L6.22 8.53a.75.75 0 0 1 0-1.06l3.25-3.25a.749.749 0 0 1 1.275.326.749.749 0 0 1-.215.734Z\">\n</path>\n</svg>\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<span>\nA notice.\n</span>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "a composable body interleaves text, inline code and a link": {
+  "snapshots": [
+   "<div class=\"c4647f690\" data-mol-id=\"chat-notice-card\" data-tone=\"gold\" style=\"align-items: flex-start; background: color-mix(in srgb, rgb(224, 161, 0) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, rgb(224, 161, 0) 40%, transparent); display: flex; gap: 10px; line-height: 1.5; margin-bottom: 16px; padding: 10px 12px\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" height=\"18\" style=\"color: rgb(224, 161, 0); flex-shrink: 0; margin-top: 1px\" viewbox=\"0 0 16 16\" width=\"18\">\n<path d=\"M8 1.5c-2.363 0-4 1.69-4 3.75 0 .984.424 1.625.984 2.304l.214.253c.223.264.47.556.673.848.284.411.537.896.621 1.49a.75.75 0 0 1-1.484.211c-.04-.282-.163-.547-.37-.847a8.456 8.456 0 0 0-.542-.68c-.084-.1-.173-.205-.268-.32C3.201 7.75 2.5 6.766 2.5 5.25 2.5 2.31 4.863 0 8 0s5.5 2.31 5.5 5.25c0 1.516-.701 2.5-1.328 3.259-.095.115-.184.22-.268.319-.207.245-.383.453-.541.681-.208.3-.33.565-.37.847a.751.751 0 0 1-1.485-.212c.084-.593.337-1.078.621-1.489.203-.292.45-.584.673-.848.075-.088.147-.173.213-.253.561-.679.985-1.32.985-2.304 0-2.06-1.637-3.75-4-3.75ZM5.75 12h4.5a.75.75 0 0 1 0 1.5h-4.5a.75.75 0 0 1 0-1.5ZM6 15.25a.75.75 0 0 1 .75-.75h2.5a.75.75 0 0 1 0 1.5h-2.5a.75.75 0 0 1-.75-.75Z\">\n</path>\n</svg>\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<span>\nRun\n</span>\n<code style=\"background: rgba(128, 128, 128, 0.16); border-radius: 4px; border: 1px solid rgba(128, 128, 128, 0.18); font-family: var(--mol-font-mono, monospace); font-size: 0.92em; padding: 1px 5px; white-space: nowrap\">\nnpm run deploy\n</code>\n<span>\n, then\n</span>\n<a href=\"/review\" rel=\"noopener noreferrer\" style=\"color: var(--color-primary, #4070e0); cursor: pointer; text-decoration: underline\" target=\"_blank\">\nreview\n</a>\n<span>\n.\n</span>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "a composable body action button takes its own click": {
+  "snapshots": [
+   "<div class=\"c4647f690\" data-mol-id=\"chat-notice-card\" data-tone=\"success\" style=\"align-items: flex-start; background: color-mix(in srgb, rgb(63, 185, 80) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, rgb(63, 185, 80) 40%, transparent); display: flex; gap: 10px; line-height: 1.5; margin-bottom: 16px; padding: 10px 12px\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" height=\"18\" style=\"color: rgb(63, 185, 80); flex-shrink: 0; margin-top: 1px\" viewbox=\"0 0 16 16\" width=\"18\">\n<path d=\"M8 16A8 8 0 1 1 8 0a8 8 0 0 1 0 16Zm3.78-9.72a.751.751 0 0 0-.018-1.042.751.751 0 0 0-1.042-.018L6.75 9.19 5.28 7.72a.751.751 0 0 0-1.042.018.751.751 0 0 0-.018 1.042l2 2a.75.75 0 0 0 1.06 0Z\">\n</path>\n</svg>\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<span>\nSaved script.\n</span>\n<button style=\"background: none; border: medium; color: var(--color-primary, #4070e0); cursor: pointer; font: inherit; padding: 0px; text-decoration: underline\" type=\"button\">\nRun it\n</button>\n</div>\n</div>\n@route /",
+   "<div class=\"c4647f690\" data-mol-id=\"chat-notice-card\" data-tone=\"success\" style=\"align-items: flex-start; background: color-mix(in srgb, rgb(63, 185, 80) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, rgb(63, 185, 80) 40%, transparent); display: flex; gap: 10px; line-height: 1.5; margin-bottom: 16px; padding: 10px 12px\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" height=\"18\" style=\"color: rgb(63, 185, 80); flex-shrink: 0; margin-top: 1px\" viewbox=\"0 0 16 16\" width=\"18\">\n<path d=\"M8 16A8 8 0 1 1 8 0a8 8 0 0 1 0 16Zm3.78-9.72a.751.751 0 0 0-.018-1.042.751.751 0 0 0-1.042-.018L6.75 9.19 5.28 7.72a.751.751 0 0 0-1.042.018.751.751 0 0 0-.018 1.042l2 2a.75.75 0 0 0 1.06 0Z\">\n</path>\n</svg>\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<span>\nSaved script.\n</span>\n<button style=\"background: none; border: medium; color: var(--color-primary, #4070e0); cursor: pointer; font: inherit; padding: 0px; text-decoration: underline\" type=\"button\">\nRun it\n</button>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "onRun",
+    "args": [
+     {
+      "event": "click",
+      "target": "button"
+     }
+    ]
+   }
+  ]
+ },
+ "a blocked scheme in the body renders inert text, never an anchor": {
+  "snapshots": [
+   "<div class=\"c4647f690\" data-mol-id=\"chat-notice-card\" data-tone=\"info\" style=\"align-items: flex-start; background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); display: flex; gap: 10px; line-height: 1.5; margin-bottom: 16px; padding: 10px 12px\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" height=\"18\" style=\"color: var(--mol-color-primary, #6366f1); flex-shrink: 0; margin-top: 1px\" viewbox=\"0 0 16 16\" width=\"18\">\n<path d=\"M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z\">\n</path>\n</svg>\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<span>\nDo not click\n</span>\n<span style=\"color: var(--color-primary, #4070e0); cursor: pointer; text-decoration: underline\">\nthis\n</span>\n<span>\n.\n</span>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "a single action renders the tone’s button and fires its click": {
+  "snapshots": [
+   "<div class=\"c4647f690\" data-mol-id=\"chat-notice-card\" data-tone=\"upgrade\" style=\"align-items: flex-start; background: color-mix(in srgb, var(--mol-color-warning, #e0a100) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-warning, #e0a100) 40%, transparent); display: flex; gap: 10px; line-height: 1.5; margin-bottom: 16px; padding: 10px 12px\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" height=\"18\" style=\"color: var(--mol-color-warning, #e0a100); flex-shrink: 0; margin-top: 1px\" viewbox=\"0 0 16 16\" width=\"18\">\n<path d=\"M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0Zm7-3.25v2.992l2.028.812a.75.75 0 0 1-.557 1.392l-2.5-1A.751.751 0 0 1 7 8.25v-3.5a.75.75 0 0 1 1.5 0Z\">\n</path>\n</svg>\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<span>\nYou hit a limit.\n</span>\n<div style=\"display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px\">\n<button class=\"c04c34dac c0cc83095 c0e303770 c13d4ff0f c1e8176ab c1f523237 c2f011182 c434d0929 c45cfc6cf c47632ef5 c4b0fcccf c7b771f62 c7d88af62 c7fa4cf55 c856184f0 c8ab1b248 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" style=\"font-family: inherit; text-decoration: none\" type=\"button\">\nUpgrade\n</button>\n</div>\n</div>\n</div>\n@route /",
+   "<div class=\"c4647f690\" data-mol-id=\"chat-notice-card\" data-tone=\"upgrade\" style=\"align-items: flex-start; background: color-mix(in srgb, var(--mol-color-warning, #e0a100) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-warning, #e0a100) 40%, transparent); display: flex; gap: 10px; line-height: 1.5; margin-bottom: 16px; padding: 10px 12px\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" height=\"18\" style=\"color: var(--mol-color-warning, #e0a100); flex-shrink: 0; margin-top: 1px\" viewbox=\"0 0 16 16\" width=\"18\">\n<path d=\"M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0Zm7-3.25v2.992l2.028.812a.75.75 0 0 1-.557 1.392l-2.5-1A.751.751 0 0 1 7 8.25v-3.5a.75.75 0 0 1 1.5 0Z\">\n</path>\n</svg>\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<span>\nYou hit a limit.\n</span>\n<div style=\"display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px\">\n<button class=\"c04c34dac c0cc83095 c0e303770 c13d4ff0f c1e8176ab c1f523237 c2f011182 c434d0929 c45cfc6cf c47632ef5 c4b0fcccf c7b771f62 c7d88af62 c7fa4cf55 c856184f0 c8ab1b248 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" style=\"font-family: inherit; text-decoration: none\" type=\"button\">\nUpgrade\n</button>\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "onUpgrade",
+    "args": [
+     {
+      "event": "click",
+      "target": "button"
+     }
+    ]
+   }
+  ]
+ },
+ "an action array renders one button per action": {
+  "snapshots": [
+   "<div class=\"c4647f690\" data-mol-id=\"chat-notice-card\" data-tone=\"signup\" style=\"align-items: flex-start; background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); display: flex; gap: 10px; line-height: 1.5; margin-bottom: 16px; padding: 10px 12px\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" height=\"18\" style=\"color: var(--mol-color-primary, #6366f1); flex-shrink: 0; margin-top: 1px\" viewbox=\"0 0 16 16\" width=\"18\">\n<path d=\"M2 2.75C2 1.784 2.784 1 3.75 1h2.5a.75.75 0 0 1 0 1.5h-2.5a.25.25 0 0 0-.25.25v10.5c0 .138.112.25.25.25h2.5a.75.75 0 0 1 0 1.5h-2.5A1.75 1.75 0 0 1 2 13.25Zm6.56 4.5h5.69a.75.75 0 0 1 0 1.5H8.56l1.97 1.97a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215L6.22 8.53a.75.75 0 0 1 0-1.06l3.25-3.25a.749.749 0 0 1 1.275.326.749.749 0 0 1-.215.734Z\">\n</path>\n</svg>\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<span>\nSign up to keep your work.\n</span>\n<div style=\"display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px\">\n<a class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" href=\"/signup\" style=\"font-family: inherit; text-decoration: none\">\nSign up\n</a>\n<a class=\"c04c34dac c0d5bd177 c0e043e0a c0e303770 c13d4ff0f c1a0402c8 c1e8176ab c1f523237 c261c1213 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c63a60b6c c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cca586305 cd6fe318b ced2a9c62 cee061da5 cf0915c40 cf9a2eaba\" href=\"/login\" style=\"font-family: inherit; text-decoration: none\">\nLog in\n</a>\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "an action’s own colour and monospace label override the tone": {
+  "snapshots": [
+   "<div class=\"c4647f690\" data-mol-id=\"chat-notice-card\" data-tone=\"info\" style=\"align-items: flex-start; background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); display: flex; gap: 10px; line-height: 1.5; margin-bottom: 16px; padding: 10px 12px\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" height=\"18\" style=\"color: var(--mol-color-primary, #6366f1); flex-shrink: 0; margin-top: 1px\" viewbox=\"0 0 16 16\" width=\"18\">\n<path d=\"M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z\">\n</path>\n</svg>\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<span>\nRun the command.\n</span>\n<div style=\"display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px\">\n<button class=\"c0149ea0b c04c34dac c0e303770 c13d4ff0f c1e8176ab c1f523237 c2f011182 c45cfc6cf c46bbcd94 c47632ef5 c4b0fcccf c6c585441 c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cb8bb3124 cc06b624c cca586305 ccfd045bd cd6fe318b cdd2af26f cee061da5 cf0915c40 cf9a2eaba\" style=\"font-family: var(--mol-font-mono, monospace); text-decoration: none\" type=\"button\">\n/deploy\n</button>\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "an external link opens in a new tab and a route link stays put": {
+  "snapshots": [
+   "<div class=\"c4647f690\" data-mol-id=\"chat-notice-card\" data-tone=\"info\" style=\"align-items: flex-start; background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); display: flex; gap: 10px; line-height: 1.5; margin-bottom: 16px; padding: 10px 12px\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" height=\"18\" style=\"color: var(--mol-color-primary, #6366f1); flex-shrink: 0; margin-top: 1px\" viewbox=\"0 0 16 16\" width=\"18\">\n<path d=\"M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z\">\n</path>\n</svg>\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<span>\nRead more.\n</span>\n<div style=\"display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px\">\n<a class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" href=\"https://status.example.test\" rel=\"noopener noreferrer\" style=\"font-family: inherit; text-decoration: none\" target=\"_blank\">\nStatus\n</a>\n<a class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" href=\"/docs\" style=\"font-family: inherit; text-decoration: none\">\nDocs\n</a>\n<a class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" href=\"//accounts.example.test/login\" rel=\"noopener noreferrer\" style=\"font-family: inherit; text-decoration: none\" target=\"_blank\">\nAccounts\n</a>\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "a blocked action scheme renders inert text, never a button or anchor": {
+  "snapshots": [
+   "<div class=\"c4647f690\" data-mol-id=\"chat-notice-card\" data-tone=\"info\" style=\"align-items: flex-start; background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); display: flex; gap: 10px; line-height: 1.5; margin-bottom: 16px; padding: 10px 12px\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" height=\"18\" style=\"color: var(--mol-color-primary, #6366f1); flex-shrink: 0; margin-top: 1px\" viewbox=\"0 0 16 16\" width=\"18\">\n<path d=\"M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z\">\n</path>\n</svg>\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<span>\nSuspicious.\n</span>\n<div style=\"display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px\">\n<span class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" style=\"font-family: inherit; text-decoration: none\">\nOpen\n</span>\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "a null action renders no button row": {
+  "snapshots": [
+   "<div class=\"c4647f690\" data-mol-id=\"chat-notice-card\" data-tone=\"info\" style=\"align-items: flex-start; background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); display: flex; gap: 10px; line-height: 1.5; margin-bottom: 16px; padding: 10px 12px\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" height=\"18\" style=\"color: var(--mol-color-primary, #6366f1); flex-shrink: 0; margin-top: 1px\" viewbox=\"0 0 16 16\" width=\"18\">\n<path d=\"M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z\">\n</path>\n</svg>\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<span>\nNothing to do.\n</span>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "a composable body suppresses the action row": {
+  "snapshots": [
+   "<div class=\"c4647f690\" data-mol-id=\"chat-notice-card\" data-tone=\"gold\" style=\"align-items: flex-start; background: color-mix(in srgb, rgb(224, 161, 0) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, rgb(224, 161, 0) 40%, transparent); display: flex; gap: 10px; line-height: 1.5; margin-bottom: 16px; padding: 10px 12px\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" height=\"18\" style=\"color: rgb(224, 161, 0); flex-shrink: 0; margin-top: 1px\" viewbox=\"0 0 16 16\" width=\"18\">\n<path d=\"M8 1.5c-2.363 0-4 1.69-4 3.75 0 .984.424 1.625.984 2.304l.214.253c.223.264.47.556.673.848.284.411.537.896.621 1.49a.75.75 0 0 1-1.484.211c-.04-.282-.163-.547-.37-.847a8.456 8.456 0 0 0-.542-.68c-.084-.1-.173-.205-.268-.32C3.201 7.75 2.5 6.766 2.5 5.25 2.5 2.31 4.863 0 8 0s5.5 2.31 5.5 5.25c0 1.516-.701 2.5-1.328 3.259-.095.115-.184.22-.268.319-.207.245-.383.453-.541.681-.208.3-.33.565-.37.847a.751.751 0 0 1-1.485-.212c.084-.593.337-1.078.621-1.489.203-.292.45-.584.673-.848.075-.088.147-.173.213-.253.561-.679.985-1.32.985-2.304 0-2.06-1.637-3.75-4-3.75ZM5.75 12h4.5a.75.75 0 0 1 0 1.5h-4.5a.75.75 0 0 1 0-1.5ZM6 15.25a.75.75 0 0 1 .75-.75h2.5a.75.75 0 0 1 0 1.5h-2.5a.75.75 0 0 1-.75-.75Z\">\n</path>\n</svg>\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<span>\nSee the\n</span>\n<a href=\"/pricing\" rel=\"noopener noreferrer\" style=\"color: var(--color-primary, #4070e0); cursor: pointer; text-decoration: underline\" target=\"_blank\">\noptions\n</a>\n<span>\n.\n</span>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "an info notice renders its icon and text, then a locale switch": {
+  "snapshots": [
+   "<div class=\"c4647f690\" data-mol-id=\"chat-notice-card\" data-tone=\"info\" style=\"align-items: flex-start; background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); display: flex; gap: 10px; line-height: 1.5; margin-bottom: 16px; padding: 10px 12px\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" height=\"18\" style=\"color: var(--mol-color-primary, #6366f1); flex-shrink: 0; margin-top: 1px\" viewbox=\"0 0 16 16\" width=\"18\">\n<path d=\"M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z\">\n</path>\n</svg>\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<span>\nSomething happened.\n</span>\n</div>\n</div>\n@route /",
+   "<div class=\"c4647f690\" data-mol-id=\"chat-notice-card\" data-tone=\"info\" style=\"align-items: flex-start; background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); display: flex; gap: 10px; line-height: 1.5; margin-bottom: 16px; padding: 10px 12px\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" height=\"18\" style=\"color: var(--mol-color-primary, #6366f1); flex-shrink: 0; margin-top: 1px\" viewbox=\"0 0 16 16\" width=\"18\">\n<path d=\"M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z\">\n</path>\n</svg>\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<span>\nSomething happened.\n</span>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en-XA"
+    ]
+   }
+  ]
+ }
+}

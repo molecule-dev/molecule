@@ -195,6 +195,9 @@ export function SettingsCard({
                 style={{ padding: '2px 0', marginBottom: 4 }}
               >
                 <code
+                  // The command's argument syntax (`/model [name | --plan ...]`)
+                  // is code, not words: never translated, in any locale.
+                  translate="no"
                   style={{
                     display: 'block',
                     fontFamily: 'var(--mol-font-mono, monospace)',

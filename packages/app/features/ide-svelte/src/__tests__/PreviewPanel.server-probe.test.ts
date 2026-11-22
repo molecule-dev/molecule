@@ -1,0 +1,310 @@
+// @vitest-environment jsdom
+
+/**
+ * "Is the app behind this preview actually serving?" — asked in a form the
+ * browser can ANSWER.
+ *
+ * A cross-origin `no-cors` probe returns an opaque response, which resolves for
+ * 200 and for an edge's "sandbox unavailable" error page alike. The panel now
+ * asks the preview host's status path first, whose CORS-readable answer is
+ * real, and only falls back to the opaque probe on a host that does not serve
+ * it (a plain dev server).
+ *
+ * A port of `@molecule/app-ide-react`'s `PreviewPanel.server-probe.test.tsx`
+ * with the same test names and the same behavioural assertions: a real jsdom
+ * render of the Svelte `PreviewPanel` (through the shared
+ * `createPreviewPanelSession`), driven by the package's recording live-preview
+ * provider.
+ *
+ * @module
+ */
+
+import '@molecule/app-framework-conformance/ui/setup'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+
+import {
+  advance,
+  buildPreviewProvider,
+  installStubClassMap,
+  type MountedPanel,
+  mountPanel,
+  type StubPreviewProvider,
+} from './preview-panel-harness.js'
+
+const PREVIEW_URL = 'https://abc123.mlcl.dev/'
+const STATUS_URL = 'https://abc123.mlcl.dev/__mol/preview-status'
+
+/** The panel a test mounted, torn down after the test. */
+let panel: MountedPanel | null = null
+
+beforeEach(() => {
+  installStubClassMap()
+  vi.useFakeTimers()
+})
+
+afterEach(async () => {
+  vi.useRealTimers()
+  await panel?.dispose()
+  panel = null
+  vi.unstubAllGlobals()
+  vi.restoreAllMocks()
+})
+
+/** A provider already pointed at the preview URL. */
+function providerAtUrl(): StubPreviewProvider {
+  return buildPreviewProvider({ url: PREVIEW_URL, currentUrl: PREVIEW_URL })
+}
+
+/** Mount the panel and let the server-up poll run for a while. */
+async function mountAndPoll(): Promise<MountedPanel> {
+  const mounted = mountPanel(providerAtUrl(), { isBuilding: false })
+  panel = mounted
+  for (let i = 0; i < 12 && !mounted.container.querySelector('iframe'); i++) {
+    await advance(50)
+  }
+  return mounted
+}
+
+/**
+ * Steps in half-second slices until the iframe's src changes (a recovery or a
+ * dead-end auto-retry mounting a fresh, cache-busted document), or the budget
+ * runs out.
+ *
+ * @param container - The element the panel rendered into.
+ * @param previous - The src before the wait.
+ * @param budgetMs - How long to wait before giving up.
+ * @returns The src the iframe carries when the wait ends.
+ */
+async function waitForSrcChange(
+  container: HTMLElement,
+  previous: string,
+  budgetMs = 60_000,
+): Promise<string> {
+  for (let waited = 0; waited < budgetMs; waited += 500) {
+    await advance(500)
+    const next = container.querySelector('iframe')?.getAttribute('src') ?? ''
+    if (next !== previous) return next
+  }
+  return container.querySelector('iframe')?.getAttribute('src') ?? ''
+}
+
+describe('PreviewPanel — the server-up probe', () => {
+  it('asks the preview host for a readable status before mounting anything', async () => {
+    const fetchSpy = vi.fn<(input: RequestInfo | URL, init?: RequestInit) => Promise<Response>>(
+      async () => new Response(null, { status: 200 }),
+    )
+    vi.stubGlobal('fetch', fetchSpy)
+
+    await mountAndPoll()
+
+    const first = fetchSpy.mock.calls[0]
+    expect(first[0]).toBe(STATUS_URL)
+    expect(first[1]?.mode).toBe('cors')
+  })
+
+  it('does NOT mount the preview when the edge says the app is not serving', async () => {
+    // The exact shape that used to pass: a 503/502 the browser can now read.
+    const fetchSpy = vi.fn<(input: RequestInfo | URL, init?: RequestInit) => Promise<Response>>(
+      async () => new Response(null, { status: 503 }),
+    )
+    vi.stubGlobal('fetch', fetchSpy)
+
+    const { container } = await mountAndPoll()
+
+    expect(container.querySelector('iframe')).toBeNull()
+  })
+
+  it('mounts once the edge reports the app is serving', async () => {
+    const fetchSpy = vi.fn<(input: RequestInfo | URL, init?: RequestInit) => Promise<Response>>(
+      async () => new Response(null, { status: 200 }),
+    )
+    vi.stubGlobal('fetch', fetchSpy)
+
+    const { container } = await mountAndPoll()
+
+    expect(container.querySelector('iframe')).not.toBeNull()
+  })
+
+  it('falls back to the opaque probe on a host that serves no status path', async () => {
+    // A plain dev server (local Docker preview): 404 for the status path, and a
+    // reachable document. Reporting it down would be wrong.
+    const fetchSpy = vi.fn<(input: RequestInfo | URL, init?: RequestInit) => Promise<Response>>(
+      async (url) =>
+        String(url).endsWith('/__mol/preview-status')
+          ? new Response(null, { status: 404 })
+          : new Response(null, { status: 200 }),
+    )
+    vi.stubGlobal('fetch', fetchSpy)
+
+    const { container } = await mountAndPoll()
+
+    expect(container.querySelector('iframe')).not.toBeNull()
+    expect(fetchSpy.mock.calls.some(([, init]) => init?.mode === 'no-cors')).toBe(true)
+  })
+
+  it('falls back when the status request is blocked outright (no CORS headers)', async () => {
+    const fetchSpy = vi.fn<(input: RequestInfo | URL, init?: RequestInit) => Promise<Response>>(
+      async (url) => {
+        if (String(url).endsWith('/__mol/preview-status')) throw new TypeError('Failed to fetch')
+        return new Response(null, { status: 200 })
+      },
+    )
+    vi.stubGlobal('fetch', fetchSpy)
+
+    const { container } = await mountAndPoll()
+
+    expect(container.querySelector('iframe')).not.toBeNull()
+  })
+
+  it('surfaces the actionable notice when the first-mount poll never succeeds — and self-clears when the server appears', async () => {
+    // A fresh page load against a preview host that never answers must not sit
+    // on "Loading preview…" indefinitely: past its deadline the poll surfaces
+    // Reload/Open-in-new-tab while continuing to poll, and mounts + withdraws
+    // the notice by itself when the server finally answers.
+    const state = { serving: false }
+    const fetchSpy = vi.fn<(input: RequestInfo | URL, init?: RequestInit) => Promise<Response>>(
+      async () => new Response(null, { status: state.serving ? 200 : 503 }),
+    )
+    vi.stubGlobal('fetch', fetchSpy)
+
+    const { container } = await mountAndPoll()
+    expect(container.querySelector('iframe')).toBeNull()
+
+    // Past the pre-mount deadline: actionable notice up, still no iframe.
+    await advance(50_000)
+    expect(container.textContent).toContain("Preview can't load here")
+
+    // The server finally answers: the still-running poll mounts the preview and
+    // withdraws the notice with no human click.
+    state.serving = true
+    await advance(10_000)
+    expect(container.querySelector('iframe')).not.toBeNull()
+    expect(container.textContent).not.toContain("Preview can't load here")
+  })
+
+  it('never reloads a HEARTBEATING document mid-load — slow module graphs finish uninterrupted', async () => {
+    // The inline bridge heartbeats from HTML-parse time, so liveness IS the
+    // loading signal: a heartbeating doc must never be yanked.
+    const fetchSpy = vi.fn<(input: RequestInfo | URL, init?: RequestInit) => Promise<Response>>(
+      async () => new Response(null, { status: 200 }),
+    )
+    vi.stubGlobal('fetch', fetchSpy)
+
+    const { container } = await mountAndPoll()
+    const iframe = container.querySelector('iframe')
+    if (!(iframe instanceof HTMLIFrameElement)) throw new Error('the preview iframe is missing')
+
+    // The document heartbeats (bridge alive, graph still loading): dispatch a
+    // beat every 3s while advancing past several stuck windows.
+    for (let i = 0; i < 14; i++) {
+      window.dispatchEvent(
+        new MessageEvent('message', {
+          data: { type: 'molecule:heartbeat' },
+          source: iframe.contentWindow,
+        }),
+      )
+      await advance(3_000)
+    }
+    // 42s of alive-but-loading: no recovery reload fired (src never cache-busted).
+    const src = container.querySelector('iframe')?.getAttribute('src') ?? ''
+    expect(src).not.toContain('_r=')
+
+    // Heartbeats stop (the doc is genuinely dead) — recovery resumes.
+    const deadSrc = await waitForSrcChange(container, src)
+    expect(deadSrc).toContain('_r=')
+  })
+
+  it('escalates to ONE backend restart when reloads cannot produce a render against a serving host', async () => {
+    // The poisoned-module-cache class: the server answers every probe, the
+    // dead-end machinery reloads, and the app still never confirms a render —
+    // only a server restart can recover. Exactly once per episode.
+    const restartSpy = vi.fn(async () => true)
+    const fetchSpy = vi.fn<(input: RequestInfo | URL, init?: RequestInit) => Promise<Response>>(
+      async () => new Response(null, { status: 200 }),
+    )
+    vi.stubGlobal('fetch', fetchSpy)
+
+    const mounted = mountPanel(providerAtUrl(), {
+      isBuilding: false,
+      onRestartBackend: restartSpy,
+    })
+    panel = mounted
+    for (let i = 0; i < 12 && !mounted.container.querySelector('iframe'); i++) {
+      await advance(50)
+    }
+    expect(mounted.container.querySelector('iframe')).not.toBeNull()
+
+    // No render ever confirms (jsdom loads nothing) → the absolute ceiling
+    // gives up → the dead-end probe sees the server up and burns a reload.
+    await advance(40_000)
+    // Not yet: the escalation clock (3 min) has not elapsed.
+    expect(restartSpy).not.toHaveBeenCalled()
+
+    // Past the escalation window: reload was tried, server answers, still no
+    // render — the watchdog escalates exactly once.
+    await advance(160_000)
+    expect(restartSpy).toHaveBeenCalledTimes(1)
+
+    // And never again this episode, no matter how long it stays broken.
+    await advance(120_000)
+    expect(restartSpy).toHaveBeenCalledTimes(1)
+  })
+
+  it('a declined escalation burns nothing — the watchdog asks again later', async () => {
+    // The host declines for transient reasons (hidden tab, sandbox not
+    // running); the panel must keep the episode budget intact and retry.
+    const restartSpy = vi.fn(async () => false)
+    const fetchSpy = vi.fn<(input: RequestInfo | URL, init?: RequestInit) => Promise<Response>>(
+      async () => new Response(null, { status: 200 }),
+    )
+    vi.stubGlobal('fetch', fetchSpy)
+
+    const mounted = mountPanel(providerAtUrl(), {
+      isBuilding: false,
+      onRestartBackend: restartSpy,
+    })
+    panel = mounted
+    for (let i = 0; i < 12 && !mounted.container.querySelector('iframe'); i++) {
+      await advance(50)
+    }
+
+    // Two-step advance (like the accepted-escalation test): the give-up state
+    // update mid-advance only arms the dead-end effect at a flush boundary.
+    await advance(40_000)
+    await advance(160_000)
+    const afterFirstWindow = restartSpy.mock.calls.length
+    expect(afterFirstWindow).toBeGreaterThanOrEqual(1)
+    await advance(30_000)
+    // Declined attempts keep coming (nothing was burned) — unlike the accepted
+    // escalation, which is once per episode.
+    expect(restartSpy.mock.calls.length).toBeGreaterThan(afterFirstWindow)
+  })
+
+  it('auto-recovers from the give-up panel once the server answers again (slow wake)', async () => {
+    // A long-asleep sandbox resumed slowly enough that every retry budget
+    // expired against a not-yet-serving host; the panel must click "Reload
+    // preview" itself once the server is finally serving.
+    const state = { serving: true }
+    const fetchSpy = vi.fn<(input: RequestInfo | URL, init?: RequestInit) => Promise<Response>>(
+      async () => new Response(null, { status: state.serving ? 200 : 503 }),
+    )
+    vi.stubGlobal('fetch', fetchSpy)
+
+    const { container } = await mountAndPoll()
+    expect(container.querySelector('iframe')).not.toBeNull()
+
+    // The server goes away and the app never confirms a render — past the
+    // absolute ceiling the panel gives up.
+    state.serving = false
+    await advance(35_000)
+    expect(container.textContent).toContain("Preview can't load here")
+
+    // The server comes back (the wake finally finished): the dead-end probe
+    // sees it and re-runs the manual-retry path — loop-breaker gone, fresh
+    // cache-busted load mounted — with no human click.
+    state.serving = true
+    await advance(10_000)
+    expect(container.textContent).not.toContain("Preview can't load here")
+    expect(container.querySelector('iframe')?.getAttribute('src')).toContain('_r=')
+  })
+})
