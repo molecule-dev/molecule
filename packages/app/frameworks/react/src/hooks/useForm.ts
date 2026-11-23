@@ -180,8 +180,9 @@ export interface UseFormResult<T extends FormValuesConstraint<T>> {
 /**
  * Hook for form state management.
  *
- * Creates its controller through the bonded forms provider, so a React app
- * wires a form library once (`setProvider` from `@molecule/app-forms`) and
+ * Needs no setup: until the app bonds a forms provider, the built-in native one
+ * is used. Creates its controller through the bonded forms provider, so a React
+ * app wires a form library once (`setProvider` from `@molecule/app-forms`) and
  * every form picks it up. Passing `createForm` overrides that for one form.
  *
  * @param options - Form options. `defaultValues`, `mode` and the form-level
