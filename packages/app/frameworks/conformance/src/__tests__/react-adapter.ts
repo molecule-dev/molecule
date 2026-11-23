@@ -167,8 +167,14 @@ async function runReactCase(
   for (const name of testCase.callbacks ?? []) callbacks[name] = recorder.spy(name)
   // The children and slots the case renders now: a `children` step replaces them (`setChildren`).
   let lists: ChildLists = initialChildLists(testCase)
-  const slotProps = (slots: Record<string, NodeSpec[]>): Record<string, unknown> =>
-    Object.fromEntries(Object.entries(slots).map(([slot, nodes]) => [slot, toReactNodes(nodes)]))
+  // A list a step stopped passing (`null`) is an `undefined` prop, as `cond && <X/>` leaves it.
+  const slotProps = (slots: Record<string, NodeSpec[] | null>): Record<string, unknown> =>
+    Object.fromEntries(
+      Object.entries(slots).map(([slot, nodes]) => [
+        slot,
+        nodes === null ? undefined : toReactNodes(nodes),
+      ]),
+    )
   // A ref case hands the component a ref, as a caller does (`ref={r}`).
   const refObject = createRef<Element>()
   let props: Record<string, unknown> = {
@@ -193,6 +199,7 @@ async function runReactCase(
       { 'data-parity-unwrap': '' },
       // A third createElement argument replaces props.children even when it is undefined, so
       // pass it only for node children: a render-function `children` prop must reach the component.
+      // Children a step stopped passing (`null`) are not passed.
       lists.children
         ? createElement(Component, props, toReactNodes(lists.children))
         : createElement(Component, props),

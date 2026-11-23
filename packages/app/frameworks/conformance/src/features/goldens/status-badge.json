@@ -140,7 +140,7 @@
    "ui appearance with an icon, then icon emptied and refilled": {
     "snapshots": [
      "<span class=\"c046696ca c1e8176ab c1f523237 c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f74399a c9052b18c c92985a9a cb1b1fd95 cc06b624c cd037ccc6 cdccefb20\">\n<span class=\"cbc071b88\">\n<i data-icon>\n</i>\n</span>\nPending\n</span>\n@route /",
-     "<span class=\"c046696ca c1e8176ab c1f523237 c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f74399a c9052b18c c92985a9a cb1b1fd95 cc06b624c cd037ccc6 cdccefb20\">\n<span class=\"cbc071b88\">\n</span>\nPending\n</span>\n@route /",
+     "<span class=\"c046696ca c1e8176ab c1f523237 c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f74399a c9052b18c c92985a9a cb1b1fd95 cc06b624c cd037ccc6 cdccefb20\">\nPending\n</span>\n@route /",
      "<span class=\"c046696ca c1e8176ab c1f523237 c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f74399a c9052b18c c92985a9a cb1b1fd95 cc06b624c cd037ccc6 cdccefb20\">\n<span class=\"cbc071b88\">\n<i data-icon>\n</i>\n</span>\nPending\n</span>\n@route /"
     ],
     "calls": []

@@ -81,7 +81,7 @@
    "composed children ignore the preset props, then children emptied and refilled": {
     "snapshots": [
      "<div class=\"c1e8176ab c42740ba6 c9566e21c cbaac6b89 cc2d72006 ccae02ff2\">\n<div data-custom>\n<h1>\nBespoke\n</h1>\n<p>\nComposed tagline\n</p>\n</div>\n</div>\n@route /",
-     "<div class=\"c1e8176ab c42740ba6 c9566e21c cbaac6b89 cc2d72006 ccae02ff2\">\n</div>\n@route /",
+     "<div class=\"c1e8176ab c42740ba6 c9566e21c cbaac6b89 cc2d72006 ccae02ff2\">\n<div class=\"c1e8176ab c2f585ff4 c4172119d c42740ba6 c7f6faa75 c8d722291 c9052b18c c9773cd2b c9973e6cd cc26cf386 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c91a3f70a c92985a9a caeede141\" style=\"font-variation-settings: &quot;FILL&quot; 1\">\nstar\n</span>\n</div>\n<h1 class=\"c5e9752b6 c9a4d1a6c cd542c1f3 ce6c94376\">\nIgnoredName\n</h1>\n<p class=\"c052585d2 c445db9b9 c80b1c428\">\nIgnoredTagline\n</p>\n</div>\n@route /",
      "<div class=\"c1e8176ab c42740ba6 c9566e21c cbaac6b89 cc2d72006 ccae02ff2\">\n<div data-custom>\n<h1>\nBespoke\n</h1>\n<p>\nComposed tagline\n</p>\n</div>\n</div>\n@route /"
     ],
     "calls": []

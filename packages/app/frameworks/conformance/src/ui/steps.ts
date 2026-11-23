@@ -22,6 +22,7 @@ import {
   setCaseTranslations,
 } from './environment.js'
 import { createFakeAuthClient, createFakeThemeProvider } from './fakes.js'
+import { elementFocusFixupMoves } from './focus-fixup.js'
 import { installCaseGlobals } from './globals.js'
 import { normalizeArg, normalizeDom } from './normalize.js'
 import {
@@ -841,7 +842,10 @@ const runStep = async (
 /**
  * Drains microtasks and a macrotask turn, so promise chains a component starts
  * on mount settle before the snapshot. Under fake timers it runs the timers due now, one at a
- * time (`advanceClock(0)`).
+ * time (`advanceClock(0)`). Then it applies the focus fixup rule (`focus-fixup.ts`): focus on an
+ * element the step made unfocusable (an input disabled while a submit is pending) moves to the
+ * body, as a browser's next frame moves it, instead of whenever jsdom's 16 ms rendering timer
+ * next runs.
  *
  * @param scope - The framework's update scope (React's `act`) each piece of work runs in.
  */
@@ -856,4 +860,12 @@ export async function settle(scope: ClockScope = (work) => work()): Promise<void
   } else {
     await scope(() => new Promise<void>((resolve) => setTimeout(resolve, 0)))
   }
+  const unfocusable = elementFocusFixupMoves()
+  if (unfocusable)
+    await scope(async () => {
+      unfocusable.blur()
+      for (let i = 0; i < 3; i++) {
+        await Promise.resolve()
+      }
+    })
 }

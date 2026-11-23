@@ -239,8 +239,16 @@ export type Interaction =
    * Nodes keep their identity by `key` ({@link ElementSpec.key}). From mount, a case with this
    * step passes its children and every slot it or a step names the way such a consumer does (a
    * keyed `v-for`, `{#each}`, `<For>`, `@for`), `[]` where it starts with none.
+   *
+   * `null` stops passing that list, as a consumer's `cond && <X/>` that became false does (React:
+   * the prop is `undefined`; Vue: the slot is left out; Svelte and Solid: `undefined`; Angular: no
+   * node, the same template state as an empty list). `[]` passes a list that became empty.
    */
-  | { type: 'children'; children?: NodeSpec[]; slots?: Record<string, NodeSpec[]> }
+  | {
+      type: 'children'
+      children?: NodeSpec[] | null
+      slots?: Record<string, NodeSpec[] | null>
+    }
   /** Settles the oldest pending call of a callback listed with `defer` in {@link UICase.callbackResults}. */
   | { type: 'settle'; callback: string; value?: unknown; error?: string }
   /**

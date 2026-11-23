@@ -177,14 +177,18 @@ nodes, and an element or component node's `key` is its identity (key every node 
 none). From mount on, a case with such a step passes each list a step replaces the way that
 consumer writes it: a keyed array in React, one keyed `v-for` Fragment in Vue, one snippet with a
 keyed `{#each}` in Svelte, a `<For>` in Solid (a list that only ever holds text is passed as its
-value), a `@for` in Angular, and `[]` for a list it starts without or a step empties. Every other
-list is passed as the case writes it. A port that wraps, counts or moves its children by hand, or
-reads an empty list as an absent one, fails here when the list changes. With
+value), a `@for` in Angular, and `[]` for a list it starts without or a step empties. A step's
+`null` stops passing that list, as a consumer's `cond && <X/>` that became false does: React gets
+`undefined`, Vue no slot function, Svelte and Solid `undefined`, and Angular no node (in Angular a
+slot not passed and an empty `@for` are the same template state, so a slot with nothing to render
+is a slot that was not passed, in every framework). Every other list is passed as the case writes
+it. A port that wraps, counts or moves its children by hand fails here when the list changes. With
 `CONFORMANCE_CHILDREN_STEP=1` set, the kit derives such cases for every family
 (`withChildSteps`, `src/ui/children-step.ts`): the first case whose children are two or more
-elements gets `"<name>, then children change"` (insert, remove, reverse, empty, refill), else the
+elements gets `"<name>, then children change"` (insert, remove, reverse, `[]`, refill), else the
 first case with children gets `"<name>, then children emptied and refilled"`, and each slot a
-case fills gets `"<name>, then <slot> emptied and refilled"`. The React goldens hold them, so
+case fills gets `"<name>, then <slot> emptied and refilled"`; those two take the list away
+(`null`) and give it back. The React goldens hold them, so
 recording without the switch would drop them and refuses to run. A snapshot taken while a step
 has emptied a list the case mounted with nodes is not held to axe's accessible-name rules.
 

@@ -86,12 +86,12 @@ describe('withChildSteps', () => {
     )!
     expect(footer.interactions).toEqual([
       { type: 'focus', selector: 'ul' },
-      { type: 'children', slots: { footer: [] } },
+      { type: 'children', slots: { footer: null } },
       { type: 'children', slots: { footer: ['Total'] } },
     ])
   })
 
-  it('empties and refills children that are not a list of elements', () => {
+  it('takes away and gives back children that are not a list of elements', () => {
     vi.stubEnv(CHILDREN_STEP_SWITCH, '1')
     const text: UIComponentCases = {
       component: 'Label',
@@ -101,7 +101,7 @@ describe('withChildSteps', () => {
       name: 'text, then children emptied and refilled',
       children: ['Name'],
       interactions: [
-        { type: 'children', children: [] },
+        { type: 'children', children: null },
         { type: 'children', children: ['Name'] },
       ],
     })
@@ -148,6 +148,19 @@ describe('child lists', () => {
     })
   })
 
+  it('keeps a list a step stops passing as null, apart from an empty one', () => {
+    const passed = { children: [row('a')], slots: { a: ['A'], b: ['B'] } }
+    expect(
+      nextChildLists(passed, { type: 'children', children: null, slots: { a: null, b: [] } }),
+    ).toEqual({ children: null, slots: { a: null, b: [] } })
+    expect(
+      nextChildLists(
+        { children: null, slots: { a: null } },
+        { type: 'children', slots: { a: ['A'] } },
+      ),
+    ).toEqual({ children: null, slots: { a: ['A'] } })
+  })
+
   it('identifies a node by its key, else its position, with its content', () => {
     expect(nodeIdentity({ ...row('a'), key: 'k' }, 3)).toBe(
       nodeIdentity({ ...row('a'), key: 'k' }, 0),
@@ -178,6 +191,16 @@ describe('changingLists and snapshotsWithEmptiedList', () => {
 
   it('marks the snapshots taken while a list the case mounted with nodes in is empty', () => {
     expect(snapshotsWithEmptiedList(testCase)).toEqual([false, false, true, true, false])
+    // A list no longer passed is as empty as an empty one.
+    expect(
+      snapshotsWithEmptiedList({
+        ...testCase,
+        interactions: [
+          { type: 'children', slots: { title: null } },
+          { type: 'children', slots: { title: ['Rename'] } },
+        ],
+      }),
+    ).toEqual([false, true, false])
     expect(
       snapshotsWithEmptiedList({ name: 'plain', interactions: [{ type: 'click', selector: 'a' }] }),
     ).toEqual([false, false])

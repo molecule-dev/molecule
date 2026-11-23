@@ -214,19 +214,38 @@ export function createVueAdapter({
       const changing = changingLists(testCase)
       for (const [slot, nodes] of Object.entries(lists.value.slots)) {
         if (changing.slots.has(slot)) {
-          const current = (): NodeSpec[] => lists.value.slots[slot] ?? []
+          const current = (): NodeSpec[] | null => lists.value.slots[slot] ?? null
           Object.defineProperty(nodeProps, slot, {
             enumerable: true,
-            get: () => vueValue(current()),
+            get: () => {
+              const now = current()
+              return now === null ? undefined : vueValue(now)
+            },
           })
-          slots[slot] = () => vForNodes(current())
+          slots[slot] = () => vForNodes(current() ?? [])
         } else {
-          nodeProps[slot] = vueValue(nodes)
-          slots[slot] = () => toVueNodes(nodes)
+          nodeProps[slot] = vueValue(nodes ?? [])
+          slots[slot] = () => toVueNodes(nodes ?? [])
         }
       }
       if (changing.children) slots.default = () => vForNodes(lists.value.children ?? [])
       else if (testCase.children) slots.default = () => toVueNodes(testCase.children)
+      /**
+       * The slot functions the consumer passes now: a list a step stopped passing (`null`) has none,
+       * as a parent's `<template v-if>` around a slot leaves it out.
+       *
+       * @returns The slots object for the component's vnode.
+       */
+      const passedSlots = (): Record<string, () => VNodeChild[]> => {
+        const now = lists.value
+        return Object.fromEntries(
+          Object.entries(slots).filter(([name]) =>
+            name === 'default'
+              ? !(changing.children && now.children === null)
+              : !(changing.slots.has(name) && now.slots[name] === null),
+          ),
+        )
+      }
       const listeners: Record<string, unknown> = {}
       for (const name of testCase.callbacks ?? []) listeners[name] = recorder.spy(name)
       /** The case component with its props, slots and listeners — what the mount wrapper hosts. */
@@ -246,7 +265,7 @@ export function createVueAdapter({
           { router, routedView: RoutedPage },
           {
             default: () => [
-              h(Comp, { ...state.props, ...nodeProps, ...listeners, ...refProp }, slots),
+              h(Comp, { ...state.props, ...nodeProps, ...listeners, ...refProp }, passedSlots()),
             ],
           },
         )

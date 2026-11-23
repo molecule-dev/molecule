@@ -350,12 +350,15 @@ export function createSolidAdapter({
        */
       const listValue = (
         changes: boolean,
-        read: (from: ChildLists) => NodeSpec[] | undefined,
-      ): unknown =>
-        changes &&
-        states.some((state) => (read(state) ?? []).some((node) => typeof node !== 'string'))
+        read: (from: ChildLists) => NodeSpec[] | null | undefined,
+      ): unknown => {
+        // A list a step stopped passing (`null`) is `undefined`, as `cond && <X/>` leaves it.
+        if (read(lists()) === null) return undefined
+        return changes &&
+          states.some((state) => (read(state) ?? []).some((node) => typeof node !== 'string'))
           ? forList(() => read(lists()) ?? [])
-          : single(toSolidNodes(read(lists())))
+          : single(toSolidNodes(read(lists()) ?? undefined))
+      }
       // The routing bond's routed view: the case's `routedPage` text, or nothing (an `Outlet`
       // with no matched child), provided as a routing bond provides one.
       const routedPage = testCase.context?.routedPage

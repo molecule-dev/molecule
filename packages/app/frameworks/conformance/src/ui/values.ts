@@ -252,7 +252,12 @@ export function caseExports(component: string, testCase: UICase): Set<string> {
   fromProps(testCase.props)
   for (const step of testCase.interactions ?? []) {
     if (step.type === 'props') fromProps(step.props)
-    else if (step.type === 'children') lists.push(step.children, ...Object.values(step.slots ?? {}))
+    else if (step.type === 'children')
+      // A list a step stops passing (`null`) uses no export.
+      lists.push(
+        step.children ?? undefined,
+        ...Object.values(step.slots ?? {}).map((l) => l ?? undefined),
+      )
   }
   for (const list of lists) {
     const used = usedExports(list)

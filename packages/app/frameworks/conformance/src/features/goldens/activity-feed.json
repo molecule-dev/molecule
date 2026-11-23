@@ -133,7 +133,7 @@
    "an empty state when the list is empty, then emptyState emptied and refilled": {
     "snapshots": [
      "<p data-empty>\nNothing yet\n</p>\n@route /",
-     "\n@route /",
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n</div>\n@route /",
      "<p data-empty>\nNothing yet\n</p>\n@route /"
     ],
     "calls": []

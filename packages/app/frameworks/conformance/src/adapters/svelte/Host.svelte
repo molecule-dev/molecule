@@ -110,20 +110,25 @@
     for (const [slot, list] of Object.entries(bag.lists.slots))
       out[slot] = bag.changing.slots.has(slot)
         ? builders.liveSnippetOf(() => bag.lists.slots[slot] ?? [])
-        : builders.snippetOf(list)
+        : builders.snippetOf(list ?? [])
     const now = bag.lists.children
     if (now !== undefined && !itemsProp)
       out.children = bag.changing.children
         ? builders.liveSnippetOf(() => bag.lists.children ?? [])
-        : builders.snippetOf(now)
+        : builders.snippetOf(now ?? [])
     return out
   })
 
   const nodeProps = $derived.by(() => {
     if (live && liveSnippets) {
       const out: Record<string, unknown> = { ...liveSnippets }
+      // A list a step stopped passing (`null`) is an `undefined` snippet prop, as a consumer's
+      // `{#if}` around the snippet prop leaves it.
+      for (const [slot, list] of Object.entries(live.lists.slots))
+        if (list === null) out[slot] = undefined
       const now = live.lists.children
-      if (now !== undefined && itemsProp) {
+      if (now === null) out.children = undefined
+      else if (now !== undefined && itemsProp) {
         // A list component takes the list as data: it follows each step through the prop.
         const spec = typeof itemsProp === 'string' ? { prop: itemsProp } : itemsProp
         out[spec.prop] = spec.elementsOnly ? now.filter((node) => typeof node !== 'string') : now

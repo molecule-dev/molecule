@@ -291,7 +291,9 @@ const hasTemplates = (value: unknown): boolean => {
 /**
  * The lists a case's `children` steps replace, as `@for` blocks, and the ids each list holds at
  * mount and after each step. A node keeps its id while its identity (`nodeIdentity`: its key, or its
- * position, with its content) stays in the list.
+ * position, with its content) stays in the list. A list a step stopped passing (`null`) holds no
+ * ids: in Angular a slot not passed and a slot whose `@for` is empty are the same template state
+ * (no node), as a false `@if` around it is.
  *
  * @param testCase - The case.
  * @returns No blocks for a case without such a step; otherwise the blocks and one `ListIds` per
@@ -301,7 +303,7 @@ function listBlocksOf(testCase: UICase): { blocks?: ListBlocks; ids: ListIds[] }
   if (!hasChildSteps(testCase)) return { ids: [] }
   const states = childListStates(testCase)
   const field = (
-    read: (lists: ChildLists) => NodeSpec[] | undefined,
+    read: (lists: ChildLists) => NodeSpec[] | null | undefined,
     expr: string,
   ): { block: ListBlock; ids: string[][] } => {
     const byIdentity = new Map<string, string>()

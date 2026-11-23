@@ -42,12 +42,15 @@ export const CHILD_STEP_CASE_NAME = /, then (?:children change|[\w-]+ emptied an
 /** A `children` step. */
 export type ChildrenStep = Extract<Interaction, { type: 'children' }>
 
-/** The node lists a case renders as its consumer's children and node-valued props. */
+/**
+ * The node lists a case renders as its consumer's children and node-valued props. `null` is a list
+ * a `children` step stopped passing; `[]` is a list passed with no nodes.
+ */
 export interface ChildLists {
   /** The children, when the case or one of its steps passes any. */
-  children?: NodeSpec[]
+  children?: NodeSpec[] | null
   /** Every slot the case or one of its steps passes, by name. */
-  slots: Record<string, NodeSpec[]>
+  slots: Record<string, NodeSpec[] | null>
 }
 
 /**
@@ -101,7 +104,7 @@ export function changingLists(testCase: UICase): ChangingLists {
  */
 export function initialChildLists(testCase: UICase): ChildLists {
   const steps = childrenSteps(testCase)
-  const slots: Record<string, NodeSpec[]> = { ...(testCase.slots ?? {}) }
+  const slots: Record<string, NodeSpec[] | null> = { ...(testCase.slots ?? {}) }
   for (const step of steps) for (const slot of Object.keys(step.slots ?? {})) slots[slot] ??= []
   const children =
     testCase.children ?? (steps.some((step) => step.children !== undefined) ? [] : undefined)
@@ -109,14 +112,15 @@ export function initialChildLists(testCase: UICase): ChildLists {
 }
 
 /**
- * The lists after a `children` step: each field the step names replaced, every other one kept.
+ * The lists after a `children` step: each field the step names replaced (`null` included: the
+ * list is no longer passed), every other one kept.
  *
  * @param current - The lists before the step.
  * @param step - The step.
  * @returns The lists after it.
  */
 export function nextChildLists(current: ChildLists, step: ChildrenStep): ChildLists {
-  const children = step.children ?? current.children
+  const children = step.children !== undefined ? step.children : current.children
   return {
     ...(children === undefined ? {} : { children }),
     slots: { ...current.slots, ...(step.slots ?? {}) },
@@ -152,7 +156,7 @@ export function snapshotsWithEmptiedList(testCase: UICase): boolean[] {
   const filled = (lists: ChildLists): string[] => [
     ...((lists.children?.length ?? 0) > 0 ? ['children'] : []),
     ...Object.entries(lists.slots)
-      .filter(([, list]) => list.length > 0)
+      .filter(([, list]) => (list?.length ?? 0) > 0)
       .map(([slot]) => slot),
   ]
   const atMount = filled(initial)
@@ -221,9 +225,10 @@ export function checkNodeKeys(testCase: UICase): void {
   check(testCase.children, 'its children')
   for (const [slot, list] of Object.entries(testCase.slots ?? {})) check(list, `its ${slot} slot`)
   childrenSteps(testCase).forEach((step, index) => {
-    check(step.children, `the children of its children step ${index + 1}`)
+    // A list a step stops passing (`null`) has no nodes to check.
+    check(step.children ?? undefined, `the children of its children step ${index + 1}`)
     for (const [slot, list] of Object.entries(step.slots ?? {}))
-      check(list, `the ${slot} slot of its children step ${index + 1}`)
+      check(list ?? undefined, `the ${slot} slot of its children step ${index + 1}`)
   })
 }
 
@@ -283,9 +288,15 @@ const derive = (
  *    original list again. The copy of child 0 is used because any other node may not be a valid
  *    child (a table body, a tab list).
  * 2. When no case has such children, for the first case with any children,
- *    `"<name>, then children emptied and refilled"`: `[]`, then its children again.
+ *    `"<name>, then children emptied and refilled"`: the children no longer passed (`null`), then
+ *    passed again.
  * 3. For each slot any case passes nodes in, from the first case that does,
- *    `"<name>, then <slot> emptied and refilled"`.
+ *    `"<name>, then <slot> emptied and refilled"`: the slot no longer passed, then passed again.
+ *
+ * Rules 2 and 3 take the list away (`null`), as a consumer's `cond && <X/>` that became false
+ * does: a slot with nothing to render is a slot that was not passed, in every framework. Rule 1's
+ * `[]` is a list that became empty (a component that takes its children as an array, as a
+ * carousel does, is given one).
  *
  * A case whose own steps end unmounted is not a base. React's DOM after each step is the
  * expectation, an emptied slot included, so no component needs an exemption.
@@ -323,7 +334,7 @@ export const withChildSteps = (family: UIComponentCases): UIComponentCases => {
     if (withChildren)
       derived.push(
         derive(withChildren, `${withChildren.name}, then children emptied and refilled`, {}, [
-          { type: 'children', children: [] },
+          { type: 'children', children: null },
           { type: 'children', children: withChildren.children },
         ]),
       )
@@ -334,7 +345,7 @@ export const withChildSteps = (family: UIComponentCases): UIComponentCases => {
     if (!base) continue
     derived.push(
       derive(base, `${base.name}, then ${slot} emptied and refilled`, {}, [
-        { type: 'children', slots: { [slot]: [] } },
+        { type: 'children', slots: { [slot]: null } },
         { type: 'children', slots: { [slot]: base.slots![slot]! } },
       ]),
     )

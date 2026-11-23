@@ -296,7 +296,7 @@
    "no entries with an empty state, then emptyState emptied and refilled": {
     "snapshots": [
      "<p data-empty>\nNo logs\n</p>\n@route /",
-     "\n@route /",
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" role=\"log\">\n</div>\n@route /",
      "<p data-empty>\nNo logs\n</p>\n@route /"
     ],
     "calls": []
