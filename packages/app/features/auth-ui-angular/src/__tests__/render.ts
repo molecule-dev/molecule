@@ -12,6 +12,7 @@
 import '@angular/compiler'
 import {
   type ApplicationRef,
+  ChangeDetectionStrategy,
   Component,
   type ComponentRef,
   createComponent,
@@ -49,6 +50,7 @@ export async function renderFixture(
   imports: Type<unknown>[] = [],
 ): Promise<RenderedFixture> {
   const Host = Component({
+    changeDetection: ChangeDetectionStrategy.Default,
     selector: 'div[data-parity-host]',
     standalone: true,
     imports,

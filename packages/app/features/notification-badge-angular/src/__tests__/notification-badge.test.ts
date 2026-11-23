@@ -154,6 +154,23 @@ const WRAPPER = (children: string): string =>
   `<span mol-notification-wrapper [count]="p['count']" [hideOnZero]="p['hideOnZero']" [variant]="p['variant']" [placement]="p['placement']" [className]="p['className']">${children}</span>`
 
 describe('NotificationBadge', () => {
+  it('keeps a list in order when items are added before a hidden badge, reordered and removed', async () => {
+    const m = await render(
+      `@for (x of p['xs']; track x) {<span mol-notification-badge [count]="x === 'b' ? 0 : 1"></span><i>{{ x }}</i>}`,
+      NotificationBadge,
+      { xs: ['b', 'c'] },
+    )
+    const order = (): string[] =>
+      Array.from(m.host.querySelectorAll('i'), (i) => i.textContent ?? '')
+    await m.setProps({ xs: ['a', 'b', 'c'] })
+    expect(order()).toEqual(['a', 'b', 'c'])
+    await m.setProps({ xs: ['c', 'b', 'a'] })
+    expect(order()).toEqual(['c', 'b', 'a'])
+    expect(m.host.querySelectorAll('span[mol-notification-badge]').length).toBe(2)
+    await m.setProps({ xs: [] })
+    expect(m.host.querySelector('*')).toBeNull()
+  })
+
   it('renders the count', async () => {
     const m = await render(BADGE, NotificationBadge, { count: 5 })
     expect(m.host.innerHTML).toContain('>5<')
@@ -232,6 +249,23 @@ describe('NotificationBadge', () => {
 })
 
 describe('NotificationDot', () => {
+  it('keeps a list in order when items are added before a hidden dot, reordered and removed', async () => {
+    const m = await render(
+      `@for (x of p['xs']; track x) {<span mol-notification-dot [visible]="x !== 'b'"></span><i>{{ x }}</i>}`,
+      NotificationDot,
+      { xs: ['b', 'c'] },
+    )
+    const order = (): string[] =>
+      Array.from(m.host.querySelectorAll('i'), (i) => i.textContent ?? '')
+    await m.setProps({ xs: ['a', 'b', 'c'] })
+    expect(order()).toEqual(['a', 'b', 'c'])
+    await m.setProps({ xs: ['c', 'b', 'a'] })
+    expect(order()).toEqual(['c', 'b', 'a'])
+    expect(m.host.querySelectorAll('span[mol-notification-dot]').length).toBe(2)
+    await m.setProps({ xs: [] })
+    expect(m.host.querySelector('*')).toBeNull()
+  })
+
   it('renders by default (visible defaults to true)', async () => {
     const m = await render(DOT, NotificationDot)
     expect(m.host.innerHTML).toContain('<span')

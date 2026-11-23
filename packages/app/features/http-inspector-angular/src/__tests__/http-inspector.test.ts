@@ -90,6 +90,7 @@ vi.mock('@molecule/app-ui-angular', async () => {
       },
     ),
     Select: Component({
+      changeDetection: ChangeDetectionStrategy.Default,
       selector: 'div[mol-select]',
       standalone: true,
       inputs: ['value', 'options'],

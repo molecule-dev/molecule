@@ -12,6 +12,7 @@
 import '@angular/compiler'
 import {
   type ApplicationRef,
+  ChangeDetectionStrategy,
   Component,
   createComponent,
   provideZonelessChangeDetection,
@@ -100,6 +101,7 @@ async function mountHost(host: Type<unknown>): Promise<Mounted> {
  */
 async function render(props: Record<string, unknown> = {}, emptyState?: string): Promise<Mounted> {
   const Host = Component({
+    changeDetection: ChangeDetectionStrategy.Default,
     selector: 'mol-spec-host',
     standalone: true,
     imports: [TraceWaterfall as Type<unknown>],

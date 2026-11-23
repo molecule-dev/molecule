@@ -59,6 +59,7 @@ vi.mock('@molecule/app-ui-angular', async () => {
   const core = await import('@angular/core')
   const actual = await vi.importActual<Record<string, unknown>>('@molecule/app-ui-angular')
   const IconStub = core.Component({
+    changeDetection: ChangeDetectionStrategy.Default,
     selector: 'svg[mol-icon-root]',
     standalone: true,
     inputs: ['name', 'size', 'className'],

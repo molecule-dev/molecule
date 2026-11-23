@@ -73,6 +73,7 @@ vi.mock('@molecule/app-ui-angular', async () => {
     },
   )
   const ConfirmDialogStub = core.Component({
+    changeDetection: ChangeDetectionStrategy.Default,
     selector: 'mol-confirm-dialog',
     standalone: true,
     inputs: ['open'],

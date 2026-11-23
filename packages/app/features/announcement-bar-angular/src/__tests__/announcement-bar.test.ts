@@ -64,6 +64,10 @@ const { AnnouncementBar } = await import('../announcement-bar.component.js')
 interface Mounted {
   /** The host element whose children the component template produced. */
   readonly innerHTML: string
+  /** The spec host element. */
+  readonly host: HTMLElement
+  /** Merges props over the current ones and re-renders. */
+  setProps(next: Record<string, unknown>): void
   /** Destroys the app and removes the host. */
   destroy(): Promise<void>
 }
@@ -102,6 +106,12 @@ async function mount(template: string, props: Record<string, unknown>): Promise<
   return {
     get innerHTML() {
       return host.innerHTML
+    },
+    host,
+    setProps: (next: Record<string, unknown>) => {
+      ref.instance.p = { ...ref.instance.p, ...next }
+      ref.changeDetectorRef.markForCheck()
+      appRef.tick()
     },
     destroy: async () => {
       appRef.destroy()
@@ -172,6 +182,20 @@ describe('AnnouncementBar', () => {
     expect(m.innerHTML).not.toContain('role="status"')
     // useHostPresence leaves an empty comment where the host was, where React leaves ''.
     expect(m.innerHTML.replace('<!---->', '')).toBe('')
+  })
+
+  it('leaves no element behind when it is removed while it renders nothing', async () => {
+    const m = await mount(
+      `@if (p['shown']) {<div mol-announcement-bar [visible]="p['visible']">X</div>}`,
+      { shown: true, visible: true },
+    )
+    mounted.push(m)
+    expect(m.host.querySelector('[role="status"]')).not.toBeNull()
+    m.setProps({ visible: false })
+    expect(m.host.querySelector('[role="status"]')).toBeNull()
+    m.setProps({ shown: false })
+    // Not even the empty host element is left in the page.
+    expect(m.host.querySelector('*')).toBeNull()
   })
 
   it('sets data-mol-id and forwards className', async () => {

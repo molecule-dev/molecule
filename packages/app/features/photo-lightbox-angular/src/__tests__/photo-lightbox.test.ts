@@ -79,6 +79,10 @@ const { PhotoLightbox } = await import('../photo-lightbox.component.js')
 interface Mounted {
   /** The host element whose children the component template produced. */
   readonly innerHTML: string
+  /** The spec host element. */
+  readonly host: HTMLElement
+  /** Merges props over the current ones and re-renders. */
+  setProps(next: Record<string, unknown>): void
   /** Destroys the app and removes the host. */
   destroy(): Promise<void>
 }
@@ -121,6 +125,12 @@ async function mount(template: string, props: Record<string, unknown>): Promise<
     get innerHTML() {
       return host.innerHTML
     },
+    host,
+    setProps: (next: Record<string, unknown>) => {
+      ref.instance.p = { ...ref.instance.p, ...next }
+      ref.changeDetectorRef.markForCheck()
+      appRef.tick()
+    },
     destroy: async () => {
       appRef.destroy()
       host.remove()
@@ -162,6 +172,27 @@ describe('PhotoLightbox', () => {
     expect(m.innerHTML).not.toContain('role="dialog"')
     // useHostPresence leaves an empty comment where the host was, where React leaves ''.
     expect(m.innerHTML.replace('<!---->', '')).toBe('')
+  })
+
+  it('shows again when a prop change reopens it', async () => {
+    const m = await render({ photos, open: true })
+    expect(m.host.querySelector('[role="dialog"]')).not.toBeNull()
+    m.setProps({ open: false })
+    expect(m.host.querySelector('[role="dialog"]')).toBeNull()
+    m.setProps({ open: true })
+    expect(m.host.querySelector('[role="dialog"]')).not.toBeNull()
+  })
+
+  it('leaves no element behind when it is removed while closed', async () => {
+    const m = await mount(
+      `@if (p['shown']) {<div mol-photo-lightbox [photos]="p['photos']" [open]="p['open']"></div>}`,
+      { shown: true, photos, open: false },
+    )
+    mounted.push(m)
+    expect(m.host.querySelector('[role="dialog"]')).toBeNull()
+    m.setProps({ shown: false })
+    // Not even the empty host element is left in the page.
+    expect(m.host.querySelector('*')).toBeNull()
   })
 
   it('renders nothing when there are no photos', async () => {

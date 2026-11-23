@@ -64,6 +64,8 @@ const { BulkActionToolbar } = await import('../bulk-action-toolbar.component.js'
 interface Mounted {
   /** The host element whose children the component template produced. */
   readonly host: HTMLElement
+  /** Re-renders after the test mutated the props object. */
+  tick(): void
   /** Destroys the app and removes the host. */
   destroy(): Promise<void>
 }
@@ -109,6 +111,11 @@ async function mount(template: string, props: Record<string, unknown> = {}): Pro
   appRef.tick()
   return {
     host,
+    tick: () => {
+      // The props object changed outside a binding: mark the host for the zoneless check.
+      ref.changeDetectorRef.markForCheck()
+      appRef.tick()
+    },
     destroy: async () => {
       appRef.destroy()
       host.remove()
@@ -183,6 +190,24 @@ describe('BulkActionToolbar', () => {
     expect(withClear.textContent).toContain('Clear')
     const without = await render({ count: 1, actions })
     expect(without.textContent).not.toContain('Clear')
+  })
+
+  it('leaves no element behind when it is removed while it renders nothing', async () => {
+    const props: Record<string, unknown> = { shown: true, count: 2 }
+    const m = await mount(
+      `@if (p['shown']) {<div mol-bulk-action-toolbar [count]="p['count']" [actions]="[]"></div>}`,
+      props,
+    )
+    mounted.push(m)
+    expect(m.host.querySelector('[role="region"]')).not.toBeNull()
+    props['count'] = 0
+    m.tick()
+    expect(m.host.querySelector('[role="region"]')).toBeNull()
+    props['shown'] = false
+    m.tick()
+    expect(m.host.querySelector('[role="region"]')).toBeNull()
+    // Not even the empty host element is left in the page.
+    expect(m.host.querySelector('*')).toBeNull()
   })
 
   it('exposes a labelled region role and forwards className', async () => {

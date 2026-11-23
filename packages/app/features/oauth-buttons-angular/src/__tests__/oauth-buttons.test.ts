@@ -72,6 +72,21 @@ describe('OAuthButtons', () => {
     await fixture.destroy()
   })
 
+  it('leaves no element behind when it is removed while it renders nothing', async () => {
+    const fixture = await renderFixture(
+      `@if (p['shown']) {<div mol-oauth-buttons [providers]="p['providers']"></div>}`,
+      { shown: true, providers: ['google'] },
+      [OAuthButtons],
+    )
+    expect(fixture.host.querySelectorAll('button').length).toBe(1)
+    await fixture.setProps({ providers: [] })
+    expect(fixture.host.querySelector('*')).toBeNull()
+    await fixture.setProps({ shown: false })
+    // Not even the empty host element is left in the page.
+    expect(fixture.host.querySelector('*')).toBeNull()
+    await fixture.destroy()
+  })
+
   it('returns null when providers list is empty', async () => {
     const fixture = await renderRow({ providers: [] })
     // React returns null: the host element is detached from the document.

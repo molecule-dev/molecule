@@ -59,6 +59,24 @@ describe('OAuthButtons', () => {
     await fixture.destroy()
   })
 
+  it('leaves no element behind when it is removed while it renders nothing', async () => {
+    const oauth = { providers: ['google'], redirect: () => {} }
+    mockUseOAuth.mockReturnValue(oauth)
+    const fixture = await renderFixture(
+      `@if (p['shown']) {<div mol-auth-oauth-buttons [oauthConfig]="p['oauthConfig']"></div>}`,
+      { shown: true, oauthConfig: {} },
+      [OAuthButtons],
+    )
+    expect(fixture.host.querySelectorAll('button').length).toBe(1)
+    oauth.providers = []
+    await fixture.setProps({})
+    expect(fixture.host.querySelector('*')).toBeNull()
+    await fixture.setProps({ shown: false })
+    // Not even the empty host element is left in the page.
+    expect(fixture.host.querySelector('*')).toBeNull()
+    await fixture.destroy()
+  })
+
   it('renders one button per provider with its brand logo', async () => {
     mockUseOAuth.mockReturnValue({ providers: ['github', 'google'], redirect: () => {} })
     const fixture = await renderRow({ oauthConfig: {} })

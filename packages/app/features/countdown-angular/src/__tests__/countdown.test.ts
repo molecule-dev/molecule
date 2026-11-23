@@ -13,6 +13,7 @@
 import '@angular/compiler'
 import {
   type ApplicationRef,
+  ChangeDetectionStrategy,
   Component,
   createComponent,
   provideZonelessChangeDetection,
@@ -101,6 +102,7 @@ async function render(
   const ended = templates.expired
   const custom = templates.render
   const Host = Component({
+    changeDetection: ChangeDetectionStrategy.Default,
     selector: 'mol-spec-host',
     standalone: true,
     imports: [Countdown as Type<unknown>],
