@@ -3,27 +3,27 @@
 <div align="center">
   <a href="https://www.molecule.dev"><picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/assets/how-molecule-works-dark.svg">
-    <img src="docs/assets/how-molecule-works-light.svg" alt="How Molecule works: describe an app, Synthase composes it from open-source @molecule packages, bonds make every provider swappable, auth/payments/i18n/analytics/tests are built in, every app ships with analytics, error tracking and feedback that the AI uses to keep improving it, and the result is faster, cheaper, higher-quality full-stack apps that are easier to maintain and scale." width="100%">
+    <img src="docs/assets/how-molecule-works-light.svg" alt="How Molecule works: add a capability to any project, new or existing, from the open-source @molecule packages through your coding agent, the mlcl CLI or the molecule.dev IDE; bonds make every provider swappable; auth, payments, i18n, analytics, testing and CI are ready-made packages; analytics, error tracking and feedback let the AI keep improving the app; and the result is faster, cheaper, higher-quality apps that are easier to maintain and scale." width="100%">
   </picture></a>
 </div>
 <div align="right"><small><sup><a href="https://how-molecule-works.apps.mlcl.dev">Interactive</a></sup></small></div>
 
 ## At a glance (humans and AI agents)
 
-- **What it is.** An AI-first, open-source ecosystem of 1,900+ composable `@molecule/*` packages (Apache-2.0, on npm, growing daily) and the tools that assemble them: [molecule.dev](https://www.molecule.dev) with Synthase, the `mlcl` CLI, and the molecule MCP server. The output is plain TypeScript you own and can run anywhere.
-- **How it works.** Describe the app. Synthase or `mlcl create` picks packages and wires them. Bonds connect providers behind core interfaces. A live sandbox previews it. Deploy with us, or export the code, a database dump and your `.env` files.
+- **What it is.** An open-source library of 1,900+ composable `@molecule/*` packages for JavaScript and TypeScript projects, new or existing, built with Molecule or not (Apache-2.0, on npm, growing daily). Each capability (auth, database, payments, email, uploads, AI, search, PDFs, push and more) sits behind an interface, and its provider can be swapped for another vendor without changing the code that uses it. The `mlcl` CLI and the molecule MCP server let you and your coding agents find, add, wire and swap the packages; [molecule.dev](https://www.molecule.dev) adds an IDE with its own agent, Synthase, and hosted services. The code is plain TypeScript you own and can run anywhere.
+- **How it works.** Find a package by capability (`npx mlcl search payments`), read its docs, and add it (`npx mlcl add @molecule/<name> --inject`): the package is installed and its provider wired in `src/bonds/`. Your code calls the core interface; a bond connects the vendor behind it. A new app can start from the packages you choose or from a template (`npx mlcl create`), or from a description in the molecule.dev IDE.
 - **Set up your coding agents once.** Run `npx mlcl setup`: it asks whether to set up every project on this machine or just this one, and which of your agents (Claude Code, Codex, Cursor, Gemini CLI, Copilot, …). Each one then gets the molecule MCP server, the Molecule skills and the conventions, so it reaches for `@molecule/*` packages before writing its own.
-- **Faster.** You start from a working, tested app (a library of flagship templates) instead of a blank prompt, and nothing common is written twice.
+- **Faster.** The capabilities every app needs are tested packages you add in one step, in a new app or one you already have, so nothing common is written twice.
 - **Cheaper.** The integrations every app needs are packages, not tokens. Strict interfaces and READMEs generated from source let an agent wire a package in one pass, on smaller models.
-- **Higher quality.** Generated code is type-checked, linted and tested before it reaches you, with errors fed back to the agent until green. Unit, integration and E2E tests ship with the project.
+- **Higher quality.** Every package is type-checked, linted and tested, with a README generated from its source. `npx mlcl check` runs a project's own typecheck, lint, build and tests and reports the first errors, so an agent fixes them before you see them.
 - **Easier to maintain and scale.** Every provider (database, auth, payments, email, AI, analytics, 80+ categories) and every frontend framework (React, Vue, Svelte, Solid, Angular, React Native) sits behind a swappable bond. Change the wiring, not the app. The same architecture serves a side project and an enterprise.
-- **Built in by default.** Auth and OAuth, payments, migrations, i18n in dozens of languages, analytics and telemetry, logging and monitoring, error tracking, realtime, uploads, push, search, feature flags, accessibility, CI/CD, and an `AGENTS.md` that teaches any coding agent the conventions.
-- **Self-improving.** Every app ships with analytics, error tracking and user feedback built in. The AI reads what real users do, improves the app, ships and measures again, in your workspace, with you approving or letting it run. Generated code is type-checked and tested before it ships, and the packages themselves improve from every fix.
-- **If you are an AI agent.** Read a package's `README.md` (generated from its source), call the core interface and never a vendor SDK, wire providers in `bonds.ts`, and run `npx mlcl setup` for the tooling (the MCP server, the Molecule skills and the conventions). Details below and in [AGENTS-AND-HARNESSES.md](https://github.com/molecule-dev/mlcl/blob/main/docs/AGENTS-AND-HARNESSES.md).
+- **Ready-made.** Auth and OAuth, payments, migrations, i18n in dozens of languages, analytics and telemetry, logging and monitoring, error tracking, realtime, uploads, push, search, feature flags, accessibility and CI/CD are packages, with conventions (`npx mlcl agent init`) that teach any coding agent how to use them.
+- **Self-improving.** Analytics, error tracking and user feedback are packages too. On molecule.dev, the AI reads what real users do, improves the app, ships and measures again, with you approving or letting it run. The packages themselves improve from every fix.
+- **If you are an AI agent.** Search before writing a capability (`npx mlcl search <capability>`), read the package's `README.md` (`npx mlcl docs @molecule/<name>`, generated from its source), call the core interface and never a vendor SDK, and add packages with `npx mlcl add @molecule/<name> --inject`, which wires their providers in `src/bonds/`. Run `npx mlcl setup` for the tooling (the MCP server, the Molecule skills and the conventions). Details below and in [AGENTS-AND-HARNESSES.md](https://github.com/molecule-dev/mlcl/blob/main/docs/AGENTS-AND-HARNESSES.md).
 
 Open-source, composable full-stack packages that an AI can wire correctly, and real TypeScript code you can export and run anywhere. Every provider sits behind an abstract interface, so swapping the database, email, or payments provider means changing the bond that wires it, not the code that uses it.
 
-Here is the database wiring every flagship template ships with (via `@molecule/api-bonds-default-express`):
+Here is how a database provider is wired:
 
 ```typescript
 import { setPool, setStore } from '@molecule/api-database'
@@ -43,15 +43,15 @@ Application code calls `@molecule/api-database` (`findMany`, `create`, `updateBy
 
 <!-- TODO(demo): 60–90s screen recording, see docs/marketing-plan.md §4 item 1 -->
 
-Try it: [www.molecule.dev](https://www.molecule.dev). Describe an app and Synthase, the agent built into the IDE, scaffolds it from these packages in a live sandbox.
+Try it in a project you already have: `npx mlcl search <capability>`, then `npx mlcl add @molecule/<name> --inject`. Or describe an app at [www.molecule.dev](https://www.molecule.dev), and Synthase, the agent built into the IDE, builds it from these packages in a live sandbox.
 
 ## How it works
 
-1. **Describe** the app at [www.molecule.dev](https://www.molecule.dev). Synthase asks a few questions before it plans.
-2. **Synthase composes packages** from this catalog (1,900+ packages, all Apache-2.0, all on npm) into a real TypeScript project: an Express API plus a React, Vue, Svelte, Solid, Angular, or React Native app.
-3. **Bonds wire providers** at startup. Application code only ever calls the core interface.
-4. **A live sandbox** runs the project with a preview while you work, and deploys it when you are ready.
-5. **Export anytime.** One archive with the project code, a database dump, and `.env` files holding the keys you own (`GET /projects/:id/export`). Unpack it and run it anywhere.
+1. **Find a package** by capability: `npx mlcl search`, the `search_packages` MCP tool, or the [catalog](https://www.molecule.dev/packages) (1,900+ packages, all Apache-2.0, all on npm). Its `README.md` is generated from its source, so the docs match the code.
+2. **Add it to any project.** `npx mlcl add @molecule/<name> --inject` installs the package and writes its provider wiring in `src/bonds/`. In a project Molecule did not create, it writes only the provider files and a setup function, and prints the one call to add at startup.
+3. **Bonds wire providers** at startup. Application code only ever calls the core interface, so `npx mlcl swap` changes the vendor without touching it.
+4. **Start a new app** from the packages you choose or from a template (`npx mlcl create`), or describe it at [www.molecule.dev](https://www.molecule.dev): Synthase builds it into a real TypeScript project (an Express API plus a React, Vue, Svelte, Solid, Angular, or React Native app) in a live sandbox, and deploys it when you are ready.
+5. **Export anytime.** A molecule.dev project exports as one archive with the code, a database dump, and `.env` files holding the keys you own (`GET /projects/:id/export`). Unpack it and run it anywhere.
 
 Works for enterprise, startups, and side projects. Same packages, same architecture, same tooling at every scale. Currently available for **TypeScript/Node**, with the architecture designed to expand to any language and platform.
 
@@ -106,19 +106,20 @@ Instead of N frameworks x M styling libraries (N\*M implementations), Molecule's
 
 Every package with user-facing text has a companion locale bond with translations in dozens of languages. Feature packages use `t('key', values, { defaultValue: 'English' })`, no hardcoded strings. Locale bonds are pure data. Adding a language = adding translation data, no code changes.
 
-## Using the packages without the IDE
+## Using the packages
 
 Everything here is published to npm under `@molecule/*`. Install the core for a category, install a bond for it, and wire them the way the swap example at the top does. Each package's `README.md` carries its installation, API, and environment variables.
 
 ### The molecule CLI (`mlcl`) and MCP server
 
-The fastest way to use these packages is the CLI — it scaffolds, wires, and manages projects from the terminal:
+The CLI finds, adds, wires and swaps packages in any project, and manages env, databases and deploys:
 
 ```bash
-npx mlcl create my-app --template blog --no-interactive   # scaffold a flagship app
 npx mlcl search payments                                    # find packages by capability
+npx mlcl docs @molecule/api-payments-stripe                 # read a package's docs
 npx mlcl add @molecule/api-payments-stripe --inject        # install + wire in one step
 npx mlcl swap @molecule/api-database-mysql                 # change a provider
+npx mlcl create my-app --template blog --no-interactive   # or start a new app from a template
 ```
 
 For AI agents, run this once:
@@ -127,9 +128,9 @@ For AI agents, run this once:
 npx mlcl setup   # asks where (every project on this machine, or this one) and which agents
 ```
 
-For each agent you choose (Claude Code, Codex, Cursor, Gemini CLI, Copilot, OpenCode, …) it registers the molecule MCP server (search, scaffold, add, swap, deploy, manage — all as structured tools), installs the Molecule skills, and writes the conventions where that agent reads them, so every agent prefers the molecule way. `npx mlcl mcp install` and `npx mlcl agent init` do one part for one agent. The full agent guide: [docs/AGENTS-AND-HARNESSES.md](https://github.com/molecule-dev/mlcl/blob/main/docs/AGENTS-AND-HARNESSES.md).
+For each agent you choose (Claude Code, Codex, Cursor, Gemini CLI, Copilot, OpenCode, …) it registers the molecule MCP server (search, docs, add, swap, examples, checks, deploys and more, as structured tools), installs the Molecule skills, and writes the conventions where that agent reads them, so every agent prefers the molecule way. `npx mlcl mcp install` and `npx mlcl agent init` do one part for one agent. The full agent guide: [docs/AGENTS-AND-HARNESSES.md](https://github.com/molecule-dev/mlcl/blob/main/docs/AGENTS-AND-HARNESSES.md).
 
-Every scaffolded project ships an `AGENTS.md` with the full conventions, so any agent that opens a molecule-built app immediately understands the bond system, ClassMap styling, and handler patterns.
+`npx mlcl agent init` writes the full conventions into a project's `AGENTS.md`, and every project `mlcl create` makes ships them, so any agent that opens the project understands the bond system, ClassMap styling, and handler patterns.
 
 ## Standard Tooling
 
@@ -187,7 +188,7 @@ Track user behavior, performance, business metrics, and infrastructure health ag
 
 ### Today
 
-A growing catalog of TypeScript packages. Six frontend framework bindings. An IDE whose agent composes applications from these packages in a conversation. Machine-readable docs for every package. Usable now for real applications.
+A growing catalog of TypeScript packages. Six frontend framework bindings. A CLI and an MCP server that let any coding agent find, add and swap them in any project, and an IDE whose agent builds applications from them in a conversation. Machine-readable docs for every package. Usable now for real applications.
 
 ### Where It's Going
 
