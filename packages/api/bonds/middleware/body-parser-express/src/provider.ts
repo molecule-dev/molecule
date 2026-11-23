@@ -93,7 +93,7 @@ const handleMultipart = (req: express.Request): Promise<void> =>
     })
 
     req.busboy.on(`file`, (fieldname, stream) => {
-      // Skip files in basic body parser - use @molecule/utilities-files for file handling
+      // Skip files in basic body parser - use @molecule/api-uploads for file handling
       stream.resume()
     })
 
@@ -115,7 +115,7 @@ const handleMultipart = (req: express.Request): Promise<void> =>
 /**
  * Our custom multipart parser which uses busboy to parse form fields.
  *
- * For file uploads, use `@molecule/utilities-files` instead.
+ * For file uploads, use `@molecule/api-uploads` instead.
  * @param req - The Express request to parse.
  * @param res - The Express response (used to send 400 on parse errors).
  * @param next - The next Express middleware function.
@@ -148,7 +148,7 @@ const multipartParser: express.RequestHandler = (req, res, next) =>
  * URL-encoded bodies, or Express's built-in JSON parser for everything else.
  * Sets `req.rawBody` for Stripe and similar libraries that need the unparsed body.
  *
- * For file uploads, use `@molecule/utilities-files`.
+ * For file uploads, use `@molecule/api-uploads`.
  * @param req - The incoming request object.
  * @param res - The response object.
  * @param next - The next middleware function.

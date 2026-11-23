@@ -1,7 +1,7 @@
 /**
  * Inbound-emails provider bond accessor and convenience functions.
  *
- * Bond packages (e.g. `@molecule/api-emails-inbound-mailgun-routes`,
+ * Bond packages (e.g. `@molecule/api-emails-inbound-mailgun`,
  * `@molecule/api-emails-inbound-ses`) call `setProvider()` during
  * application startup. Application code uses the convenience functions
  * (`parseWebhookPayload`, `verifySignature`, `replyTo`, `supportsReply`)
@@ -25,7 +25,7 @@ expectBond(BOND_TYPE)
 
 /**
  * Registers an inbound-emails provider as the active singleton. Called by
- * bond packages (e.g. `@molecule/api-emails-inbound-mailgun-routes`)
+ * bond packages (e.g. `@molecule/api-emails-inbound-mailgun`)
  * during application startup.
  *
  * @param provider - The inbound-emails provider implementation to bond.

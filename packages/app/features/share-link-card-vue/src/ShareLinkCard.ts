@@ -57,7 +57,7 @@ const nodePresent = (prop: VNodeChild | null | undefined, children: VNodeChild[]
  * optional QR code slot, and an optional password-protect toggle.
  *
  * QR rendering is slot-based so apps can bring their own QR library
- * (`qrcode.vue`, `@molecule/app-qr-code` when it exists, etc.).
+ * (`@molecule/app-qr-code-vue`, `qrcode.vue`, etc.).
  *
  * @param props - Component props (see `ShareLinkCardProps`).
  * @returns The share-link card component.

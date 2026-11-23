@@ -16,7 +16,7 @@ const BOND_TYPE = 'router'
 
 /**
  * Registers a router as the active singleton. Called by bond packages
- * (e.g. `@molecule/app-routing-react`) during application startup.
+ * (e.g. `@molecule/app-routing-react-router`) during application startup.
  *
  * @param router - The router implementation to bond.
  */

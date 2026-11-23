@@ -20,7 +20,7 @@
  *   `createJsonParser({ limit: '10mb' })` from the core.
  * - `multipart/form-data` and `application/x-www-form-urlencoded` are parsed
  *   by busboy: **file parts are skipped** (streams drained — use
- *   `@molecule/utilities-files` for uploads), and **each field value is
+ *   `@molecule/api-uploads` for uploads), and **each field value is
  *   JSON-parsed when possible** (`"123"` → number `123`, `"true"` → `true`;
  *   invalid JSON stays a string). Cumulative field bytes are capped at 2 MB
  *   (413).

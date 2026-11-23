@@ -48,9 +48,15 @@
  *
  * @example
  * ```ts
- * // With a @molecule/api-cache-compatible adapter:
- * const embed = await oembed(url, {
- *   cache: myCacheAdapter,
+ * // Cached through @molecule/api-cache, whose TTL is in seconds:
+ * import { get, set } from '@molecule/api-cache'
+ * import { oembed, type OEmbedResponse } from '@molecule/api-oembed'
+ *
+ * const embed = await oembed('https://www.youtube.com/watch?v=dQw4w9WgXcQ', {
+ *   cache: {
+ *     get: (key) => get<OEmbedResponse>(key),
+ *     set: (key, value, ttlMs) => set(key, value, { ttl: ttlMs && Math.ceil(ttlMs / 1000) }),
+ *   },
  *   cacheTtlMs: 600_000,
  *   timeoutMs: 3_000,
  *   maxWidth: 640,

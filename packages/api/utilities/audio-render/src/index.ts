@@ -99,8 +99,8 @@
  * For HTTP exposure of enqueue/status/cancel, see `createAudioRenderRoutes()`.
  *
  * **No locale bond:** This package's surface is programmatic — no
- * user-visible strings are generated, so there's no companion
- * `@molecule/api-locales-audio-render`.
+ * user-visible strings are generated, so it has no companion locale
+ * bond.
  *
  * @module
  */

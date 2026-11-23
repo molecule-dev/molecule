@@ -184,7 +184,7 @@ export interface InboundEmailReplyResult {
  * Inbound-email provider interface.
  *
  * Implementations (Mailgun Routes, SES Inbound, etc.) live in separate
- * bond packages (`@molecule/api-emails-inbound-mailgun-routes`,
+ * bond packages (`@molecule/api-emails-inbound-mailgun`,
  * `@molecule/api-emails-inbound-ses`). The interface is deliberately
  * minimal: a webhook arrives at the host application's HTTP layer, the
  * raw headers and body are handed to the provider, and the provider

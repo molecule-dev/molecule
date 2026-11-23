@@ -12,8 +12,7 @@ import type { ShareLinkCardProps } from './types.js'
  * optional QR code slot, and an optional password-protect toggle.
  *
  * QR rendering is slot-based so apps can bring their own QR library
- * (`qrcode.vue`-style Solid components, `@molecule/app-qr-code` when it
- * exists, etc.).
+ * (`@molecule/app-qr-code-solid`, or any Solid QR component).
  *
  * This is the Solid counterpart of `@molecule/app-share-link-card-react`: the
  * same props (React names), the same ClassMap tokens, and the same DOM for the

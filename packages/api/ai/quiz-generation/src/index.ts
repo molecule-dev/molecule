@@ -3,7 +3,7 @@
  * material + auto-grade student responses via the bonded AI provider.
  *
  * Extracted from ai-study-buddy flagship. For pure rule-based grading
- * (multiple-choice → exact match), use `@molecule/api-utilities-quiz-grading`.
+ * (multiple-choice → exact match), use `@molecule/api-quiz-grading`.
  * This package adds AI-assisted generation + free-response grading.
  *
  * @example

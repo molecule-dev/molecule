@@ -40,9 +40,15 @@
  *
  * @example
  * ```ts
- * // With a @molecule/api-cache-compatible adapter:
- * const preview = await getLinkPreview(url, {
- *   cache: myCacheAdapter,
+ * // Cached through @molecule/api-cache, whose TTL is in seconds:
+ * import { get, set } from '@molecule/api-cache'
+ * import { getLinkPreview, type LinkPreview } from '@molecule/api-link-preview'
+ *
+ * const preview = await getLinkPreview('https://example.com/article', {
+ *   cache: {
+ *     get: (key) => get<LinkPreview>(key),
+ *     set: (key, value, ttlMs) => set(key, value, { ttl: ttlMs && Math.ceil(ttlMs / 1000) }),
+ *   },
  *   cacheTtlMs: 600_000,
  *   timeoutMs: 3_000,
  * })

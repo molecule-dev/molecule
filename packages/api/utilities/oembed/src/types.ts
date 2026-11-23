@@ -104,9 +104,9 @@ export interface OEmbedResponse {
 }
 
 /**
- * Minimal cache contract — compatible with `@molecule/api-cache`
- * providers. Only `get`/`set` of string keys to JSON-serializable
- * values is required.
+ * Minimal cache contract: `get`/`set` of string keys to JSON-serializable
+ * values, with the TTL in milliseconds. `@molecule/api-cache` takes its TTL
+ * in seconds (`{ ttl }`), so wrap its `get`/`set` as the usage example does.
  */
 export interface OEmbedCache {
   /**

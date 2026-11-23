@@ -22,7 +22,7 @@
  * `stripe` calls. In a Next.js App Router route, read the RAW webhook body with
  * `await req.text()` and the header with `req.headers.get('stripe-signature')`, then
  * `verifyWebhookSignature(rawBody, signature)` (the `express.raw(...)` note below is the
- * Express-host equivalent). Only `@molecule/api-middleware-billing-routes` (Express glue) and
+ * Express-host equivalent). Only `@molecule/api-billing-routes` (Express glue) and
  * `@molecule/app-billing-react` (molecule UI) are framework-coupled — skip THOSE on such a
  * host, but still use these bond functions underneath.
  *
