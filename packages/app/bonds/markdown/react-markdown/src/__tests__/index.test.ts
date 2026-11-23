@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
+import { I18nError } from '@molecule/app-i18n'
 import type { MarkdownProvider } from '@molecule/app-markdown'
 
 import { createProvider, provider } from '../index.js'
@@ -194,6 +195,17 @@ describe('@molecule/app-markdown-react-markdown', () => {
       expect(result.html).toContain('<h2')
     })
 
+    it('refuses a per-call components entry that is not a component or an element name', () => {
+      let thrown: unknown
+      try {
+        provider.render('# Title', { components: { h1: 42 } })
+      } catch (error) {
+        thrown = error
+      }
+      expect(thrown).toBeInstanceOf(I18nError)
+      expect(thrown).toMatchObject({ i18nKey: 'markdown.components.invalid' })
+    })
+
     it('should drop elements via disallowedElements', () => {
       const p = createProvider({ disallowedElements: ['img'] })
       const result = p.render('![x](y.png)\n\nkeep me')
@@ -224,14 +236,119 @@ describe('@molecule/app-markdown-react-markdown', () => {
       expect(result.toc![2]).toMatchObject({ text: 'Installation', level: 3 })
     })
 
-    it('should return undefined toc when there are no headings', () => {
-      expect(provider.render('Just some text').toc).toBeUndefined()
+    it('should return an empty toc when there are no headings', () => {
+      expect(provider.render('Just some text').toc).toEqual([])
     })
 
     it('should stamp matching ids so TOC anchors resolve', () => {
       const result = provider.render('## Getting Started')
       expect(result.toc![0].id).toBe('getting-started')
       expect(result.html).toContain('id="getting-started"')
+    })
+
+    it('should build the TOC from the rendered headings, not the source text', () => {
+      // A setext heading is a heading; a `#` line inside a code fence is not.
+      const result = provider.render('Title\n=====\n\n```sh\n# not a heading\n```')
+      expect(result.toc).toEqual([{ id: 'title', text: 'Title', level: 1 }])
+      expect(result.html).toContain('<h1 id="title">Title</h1>')
+      expect(result.html).toContain('# not a heading')
+    })
+
+    it('should take TOC text and ids from the heading content, markup removed', () => {
+      const result = provider.render('## See [the docs](/docs) and `x`')
+      expect(result.toc).toEqual([
+        { id: 'see-the-docs-and-x', text: 'See the docs and x', level: 2 },
+      ])
+      expect(result.html).toContain('id="see-the-docs-and-x"')
+    })
+
+    it('should give duplicate headings unique ids', () => {
+      const result = provider.render('# A\n\n# A')
+      expect(result.toc!.map((entry) => entry.id)).toEqual(['a', 'a-2'])
+      expect(result.html).toContain('id="a-2"')
+    })
+
+    it('should keep Unicode heading text in the id and fall back to section', () => {
+      expect(provider.render('# 日本語').html).toContain('id="日本語"')
+      expect(provider.render('# 🎉').html).toContain('id="section"')
+    })
+  })
+
+  // ---------------------------------------------------------------------------
+  // Rendered DOM parity: no library class names on task lists or footnotes
+  // ---------------------------------------------------------------------------
+
+  describe('rendered DOM parity', () => {
+    it('should render task lists with no class names on the list or items', () => {
+      const result = provider.render('- [x] done\n- [ ] todo')
+      expect(result.html).not.toContain('task-list')
+      expect(result.html).toContain('done')
+      expect(result.html).toContain('todo')
+    })
+
+    it('should render footnotes as a labelled section with no <h2> or class names', () => {
+      const result = provider.render('x[^1]\n\n[^1]: note')
+      expect(result.html).toContain('<section')
+      expect(result.html).toContain('data-footnotes')
+      expect(result.html).toContain('aria-label="Footnotes"')
+      expect(result.html).not.toContain('<h2')
+      expect(result.html).not.toContain('class=')
+      expect(result.html).not.toContain('aria-describedby')
+      expect(result.html).toContain('id="fnref-1"')
+      expect(result.html).toContain('href="#fn-1"')
+      expect(result.html).toContain('data-footnote-backref')
+      expect(result.html).toContain('aria-label="Back to reference 1"')
+      expect(result.html).toContain('<li id="fn-1">')
+    })
+  })
+
+  // ---------------------------------------------------------------------------
+  // elementAttributes
+  // ---------------------------------------------------------------------------
+
+  describe('elementAttributes', () => {
+    it('should add an attribute to every element of a kind, the value escaped once', () => {
+      const result = provider.render('[a](https://x.com) and [b](/b)', {
+        elementAttributes: { a: { class: 'link', 'data-note': 'say "hi" & go' } },
+      })
+      expect(result.html.match(/class="link"/g)).toHaveLength(2)
+      expect(result.html).toContain('data-note="say &quot;hi&quot; &amp; go"')
+    })
+
+    it('should reach headings, task-list boxes and the footnote section', () => {
+      const result = provider.render('# T\n\n- [x] done\n\nx[^1]\n\n[^1]: note', {
+        elementAttributes: {
+          h1: { class: 'title' },
+          input: { class: 'box' },
+          footnotes: { class: 'notes' },
+        },
+      })
+      expect(result.html).toContain('id="t"')
+      expect(result.html).toContain('class="title"')
+      expect(result.html).toContain('class="box"')
+      expect(result.html).toContain('class="notes"')
+    })
+
+    it('should refuse an attribute the renderer owns', () => {
+      let thrown: unknown
+      try {
+        provider.render('[a](https://x.com)', {
+          elementAttributes: { a: { href: 'https://evil.example' } },
+        })
+      } catch (error) {
+        thrown = error
+      }
+      expect(thrown).toMatchObject({ i18nKey: 'markdown.elementAttributes.refused' })
+    })
+
+    it('should refuse an event-handler attribute in any case', () => {
+      let thrown: unknown
+      try {
+        provider.render('text', { elementAttributes: { p: { OnClick: 'alert(1)' } } })
+      } catch (error) {
+        thrown = error
+      }
+      expect(thrown).toMatchObject({ i18nKey: 'markdown.elementAttributes.refused' })
     })
   })
 
@@ -256,11 +373,11 @@ describe('@molecule/app-markdown-react-markdown', () => {
       expect(result.html).toContain('&lt;img')
     })
 
-    it('should neutralize a javascript: link scheme', () => {
+    it('should render a javascript: link as its text, not an element', () => {
       const result = provider.render('[click me](javascript:alert(1))')
+      expect(result.html).not.toContain('<a')
       expect(result.html).not.toContain('javascript:')
-      expect(result.html).toContain('href=""')
-      expect(result.html).toContain('click me')
+      expect(result.html).toContain('<p>click me</p>')
     })
 
     it('should strip a data: image scheme', () => {
@@ -280,11 +397,72 @@ describe('@molecule/app-markdown-react-markdown', () => {
     })
 
     it('should relax URL filtering when sanitize is disabled (opt-out)', () => {
-      // Default provider strips a data: URL from a link…
-      expect(provider.render('[a](data:text/plain,hi)').html).toContain('href=""')
+      // By default a data: URL is refused, so the link renders as its text…
+      expect(provider.render('[a](data:text/plain,hi)').html).toBe('<p>a</p>')
       // …but sanitize:false lets it through for trusted, app-authored content.
       const trusted = createProvider({ sanitize: false })
       expect(trusted.render('[a](data:text/plain,hi)').html).toContain('href="data:text/plain,hi"')
+    })
+
+    it('should never emit a script-scheme URL, even with sanitize disabled', () => {
+      const trusted = createProvider({ sanitize: false })
+      const result = trusted.render('[a](javascript:alert(1)) [b](vbscript:msgbox(1))')
+      expect(result.html).not.toContain('<a')
+      expect(result.html).not.toContain('javascript:')
+      expect(result.html).not.toContain('vbscript:')
+      expect(result.html).toBe('<p>a b</p>')
+    })
+
+    it('should render an unsafe image as its alt text', () => {
+      const result = provider.render('![diagram](data:image/png;base64,AAAA)')
+      expect(result.html).not.toContain('<img')
+      expect(result.html).toBe('<p>diagram</p>')
+    })
+
+    it('should keep a tel: link (in the shared scheme list)', () => {
+      expect(provider.render('[call](tel:+1)').html).toContain('href="tel:+1"')
+    })
+  })
+
+  // ---------------------------------------------------------------------------
+  // Raw HTML — trusted passthrough with sanitize: false
+  // ---------------------------------------------------------------------------
+
+  describe('raw HTML (sanitize: false)', () => {
+    it('should render raw HTML as elements only when sanitize is false', () => {
+      const source = '<b>raw</b> <span style="color:red">x</span>'
+      expect(provider.render(source, { sanitize: false }).html).toBe(
+        '<p><b>raw</b> <span style="color:red">x</span></p>',
+      )
+      expect(provider.render(source).html).toBe(
+        '<p>&lt;b&gt;raw&lt;/b&gt; &lt;span style=&quot;color:red&quot;&gt;x&lt;/span&gt;</p>',
+      )
+    })
+
+    it('should give a raw heading no id and no toc entry', () => {
+      const result = provider.render('## Markdown\n\n<h2>Raw</h2>', { sanitize: false })
+      expect(result.html).toContain('<h2 id="markdown">Markdown</h2>')
+      expect(result.html).toContain('<h2>Raw</h2>')
+      expect(result.toc).toEqual([{ id: 'markdown', text: 'Markdown', level: 2 }])
+    })
+
+    it('should not apply elementAttributes to raw elements', () => {
+      const result = provider.render('<a class="x">raw</a>', {
+        sanitize: false,
+        elementAttributes: { a: { class: 'y', 'data-note': 'hi' } },
+      })
+      expect(result.html).toContain('<a class="x">raw</a>')
+      expect(result.html).not.toContain('class="y"')
+      expect(result.html).not.toContain('data-note')
+    })
+
+    it('should apply elementAttributes to a markdown link beside a raw one', () => {
+      const result = provider.render('[md](https://example.com)\n\n<a class="x">raw</a>', {
+        sanitize: false,
+        elementAttributes: { a: { class: 'y' } },
+      })
+      expect(result.html).toContain('<a href="https://example.com" class="y">md</a>')
+      expect(result.html).toContain('<a class="x">raw</a>')
     })
   })
 })

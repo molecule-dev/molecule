@@ -31,12 +31,13 @@ describe('@molecule/app-markdown', () => {
       expect(result.toc).toHaveLength(1)
     })
 
-    it('should compile RenderedMarkdown without toc', () => {
+    it('should compile RenderedMarkdown with an empty toc', () => {
       const result: RenderedMarkdown = {
         html: '<p>Simple text</p>',
+        toc: [],
       }
       expect(result.html).toBe('<p>Simple text</p>')
-      expect(result.toc).toBeUndefined()
+      expect(result.toc).toEqual([])
     })
 
     it('should compile MarkdownOptions type', () => {
@@ -59,7 +60,7 @@ describe('@molecule/app-markdown', () => {
     it('should compile MarkdownProvider type', () => {
       const provider: MarkdownProvider = {
         name: 'test',
-        render: (markdown: string) => ({ html: `<p>${markdown}</p>` }),
+        render: (markdown: string) => ({ html: `<p>${markdown}</p>`, toc: [] }),
       }
       expect(provider.name).toBe('test')
       expect(provider.render('hello').html).toBe('<p>hello</p>')
@@ -84,7 +85,7 @@ describe('@molecule/app-markdown', () => {
     it('should set and get a provider', () => {
       const mockProvider: MarkdownProvider = {
         name: 'test-md',
-        render: () => ({ html: '' }),
+        render: () => ({ html: '', toc: [] }),
       }
       setProvider(mockProvider)
       expect(getProvider()).toBe(mockProvider)
@@ -93,7 +94,7 @@ describe('@molecule/app-markdown', () => {
     it('should return true for hasProvider after setting', () => {
       const mockProvider: MarkdownProvider = {
         name: 'test-md',
-        render: () => ({ html: '' }),
+        render: () => ({ html: '', toc: [] }),
       }
       setProvider(mockProvider)
       expect(hasProvider()).toBe(true)
@@ -102,7 +103,7 @@ describe('@molecule/app-markdown', () => {
     it('should return provider from requireProvider after setting', () => {
       const mockProvider: MarkdownProvider = {
         name: 'test-md',
-        render: () => ({ html: '' }),
+        render: () => ({ html: '', toc: [] }),
       }
       setProvider(mockProvider)
       expect(requireProvider()).toBe(mockProvider)
@@ -111,11 +112,11 @@ describe('@molecule/app-markdown', () => {
     it('should allow replacing a provider', () => {
       const provider1: MarkdownProvider = {
         name: 'provider-1',
-        render: () => ({ html: '1' }),
+        render: () => ({ html: '1', toc: [] }),
       }
       const provider2: MarkdownProvider = {
         name: 'provider-2',
-        render: () => ({ html: '2' }),
+        render: () => ({ html: '2', toc: [] }),
       }
       setProvider(provider1)
       expect(getProvider()?.name).toBe('provider-1')
@@ -130,7 +131,7 @@ describe('@molecule/app-markdown', () => {
       // registry must be visible through the core's own getProvider/hasProvider.
       const mockProvider: MarkdownProvider = {
         name: 'shared-registry',
-        render: () => ({ html: '' }),
+        render: () => ({ html: '', toc: [] }),
       }
       bond('markdown', mockProvider)
       expect(hasProvider()).toBe(true)
@@ -141,7 +142,7 @@ describe('@molecule/app-markdown', () => {
     it("core setProvider() writes the shared registry slot bond('markdown') reads", () => {
       const mockProvider: MarkdownProvider = {
         name: 'via-setProvider',
-        render: () => ({ html: '' }),
+        render: () => ({ html: '', toc: [] }),
       }
       setProvider(mockProvider)
       expect(get<MarkdownProvider>('markdown')).toBe(mockProvider)
@@ -154,7 +155,7 @@ describe('@molecule/app-markdown', () => {
         name: 'test',
         render: (markdown, options) => ({
           html: `<div>${markdown}</div>`,
-          toc: options?.gfm ? [{ id: 'test', text: 'Test', level: 1 }] : undefined,
+          toc: options?.gfm ? [{ id: 'test', text: 'Test', level: 1 }] : [],
         }),
       }
       setProvider(mockProvider)
@@ -168,7 +169,7 @@ describe('@molecule/app-markdown', () => {
     it('should render without options', () => {
       const mockProvider: MarkdownProvider = {
         name: 'test',
-        render: (markdown) => ({ html: `<p>${markdown}</p>` }),
+        render: (markdown) => ({ html: `<p>${markdown}</p>`, toc: [] }),
       }
       setProvider(mockProvider)
 

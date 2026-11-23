@@ -22,13 +22,13 @@ export type MarkdownPluginList = NonNullable<Options['remarkPlugins']>
  */
 export interface ReactMarkdownConfig {
   /**
-   * Whether to sanitize link/image URLs by default (the XSS URL gate). When
-   * `true` (default) react-markdown's `defaultUrlTransform` strips dangerous
-   * schemes (`javascript:`, `data:`, `vbscript:`, …); when `false` all schemes
-   * pass through for trusted, app-authored content. Raw HTML in the source is
-   * ALWAYS escaped to inert text regardless of this flag (react-markdown never
-   * executes it), so `sanitize: false` only relaxes URL filtering — it does not
-   * enable raw-HTML passthrough. Defaults to `true`.
+   * Whether to sanitize link/image URLs by default (the XSS URL gate) and keep
+   * raw HTML inert. When `true` (default) a markdown link or image whose URL
+   * `isRefusedMarkdownUrl` refuses renders as its text, and raw HTML in the
+   * source is escaped to inert text. When `false` every URL is kept except a
+   * `javascript:` or `vbscript:` one on a markdown link or image, and raw HTML
+   * in the source is rendered as elements (`rehype-raw`) — reserve it for
+   * trusted, app-authored content. Defaults to `true`.
    */
   sanitize?: boolean
 
@@ -47,7 +47,9 @@ export interface ReactMarkdownConfig {
 
   /**
    * Rehype plugins to run on the HTML AST (after `remark-rehype`), appended
-   * after the built-in heading-id plugin. This is where a real syntax
+   * after the built-in steps (heading ids and the table of contents, unsafe
+   * URL replacement, task-list and footnote markup, `elementAttributes`, and
+   * `rehype-raw` when `sanitize` is off). This is where a real syntax
    * highlighter (e.g. `rehype-highlight`) is wired in.
    */
   rehypePlugins?: MarkdownPluginList
@@ -65,6 +67,10 @@ export interface ReactMarkdownConfig {
   /**
    * Custom component overrides keyed by tag name (react-markdown's
    * `Components`). Merged with any per-call `options.components`, which win.
+   *
+   * The result is a static HTML string, so an override keeps only its rendered
+   * markup — no click handler, state, or context. Use the provider-neutral
+   * `elementAttributes` option to add attributes instead.
    */
   components?: Components
 }

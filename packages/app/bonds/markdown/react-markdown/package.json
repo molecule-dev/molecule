@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-markdown-react-markdown",
   "version": "1.0.3",
-  "description": "Built-in regex-based markdown renderer for @molecule/app-markdown (sanitized HTML output, no GFM tables)",
+  "description": "Markdown provider for @molecule/app-markdown backed by react-markdown and remark-gfm",
   "homepage": "https://www.molecule.dev/packages/app-markdown-react-markdown",
   "type": "module",
   "main": "dist/index.js",
@@ -33,15 +33,19 @@
     "directory": "packages/app/bonds/markdown/react-markdown"
   },
   "peerDependencies": {
-    "@molecule/app-markdown": "^1.0.1",
+    "@molecule/app-i18n": "^1.2.2",
+    "@molecule/app-markdown": "^1.1.0",
     "react": "^18.0.0 || ^19.0.0",
     "react-dom": "^18.0.0 || ^19.0.0"
   },
   "devDependencies": {
+    "@molecule/app-framework-conformance": "0.0.0",
+    "@molecule/app-i18n": "1.2.2",
     "@molecule/app-markdown": "1.0.4",
     "@types/node": "26.6.5",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
+    "jsdom": "31.0.1",
     "react": "19.3.1",
     "react-dom": "19.3.1",
     "typescript": "6.0.3",
@@ -49,6 +53,7 @@
   },
   "dependencies": {
     "react-markdown": "10.1.0",
+    "rehype-raw": "7.0.0",
     "remark-gfm": "4.0.1"
   },
   "molecule": {

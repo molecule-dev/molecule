@@ -13,10 +13,11 @@
 export interface MarkedConfig {
   /**
    * Whether to sanitize by default (the XSS gate). When `true` (default) raw
-   * HTML in the source is escaped to inert text and dangerous link/image URL
-   * schemes (`javascript:`, `data:`, `vbscript:`, `file:`) are dropped. When
-   * `false`, raw HTML passes through untouched and every URL scheme is kept —
-   * only for fully trusted, app-authored content. Defaults to `true`.
+   * HTML in the source is escaped to inert text and a link or image URL
+   * `isSafeMarkdownUrl` refuses renders as its text instead of an element.
+   * When `false`, raw HTML passes through untouched and any scheme is kept
+   * **except** `javascript:` and `vbscript:`, which are never emitted — only
+   * for fully trusted, app-authored content. Defaults to `true`.
    */
   sanitize?: boolean
   /**
@@ -31,7 +32,8 @@ export interface MarkedConfig {
   breaks?: boolean
   /**
    * Default `target` for rendered links. `_blank` also adds
-   * `rel="noopener noreferrer"`. Defaults to no `target` attribute.
+   * `rel="noopener noreferrer"`; `_self` and leaving it unset emit no
+   * `target` attribute. Defaults to unset.
    */
   linkTarget?: '_blank' | '_self'
   /**

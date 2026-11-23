@@ -23,20 +23,30 @@
  *   is the provider to bond for prerendered and static sites.
  * - **Sanitization is by construction, and on by default.** With `sanitize`
  *   on, every raw HTML token in the source (`<script>`, `<b>`, an `onerror`
- *   attribute) is escaped to inert text, and a link or image whose URL has a
- *   dangerous scheme (`javascript:`, `data:`, `vbscript:`, `file:`) loses its
- *   URL (the link text stays). Only `http:`, `https:`, `mailto:`, `tel:`,
- *   relative URLs and fragments are emitted. `sanitize: false` passes raw
- *   HTML and every scheme through: reserve it for fully trusted,
- *   app-authored content, never for user- or model-generated markdown.
+ *   attribute) is escaped to inert text, and a link or image whose URL
+ *   {@link isSafeMarkdownUrl} refuses renders as its link text or alt text
+ *   instead of an element. Only `http:`, `https:`, `mailto:`, `tel:`, `irc:`,
+ *   `ircs:`, `xmpp:`, relative URLs and fragments are emitted. `sanitize: false`
+ *   passes raw HTML and any other scheme through: reserve it for fully trusted,
+ *   app-authored content, never for user- or model-generated markdown. A
+ *   `javascript:` or `vbscript:` URL is dropped even then.
  * - **GFM is on by default** (tables, `~~strikethrough~~`, `- [x]` task
  *   lists, bare-URL autolinks). `gfm: false` per call or in the config gives
  *   plain CommonMark.
+ * - **GFM footnotes** (`x[^1]` and `[^1]: note`) render one labelled
+ *   `data-footnotes` section: each reference is a numbered `sup` link, each
+ *   note carries one back link per reference, and the section and back-link
+ *   labels come from `t()` so they follow the active locale.
  * - **Honored options:** `gfm`, `sanitize`, `breaks` (a single newline in a
  *   paragraph becomes `<br>`), `linkTarget` (`_blank` also adds
- *   `rel="noopener noreferrer"`). `components` is a React-only concept and
- *   is ignored here. Headings get slug `id`s (duplicates get `-2`, `-3`, …)
- *   and `result.toc` lists them, so anchors resolve; `headingIds: false` in
+ *   `rel="noopener noreferrer"`; `_self` and unset emit no `target`), and
+ *   `elementAttributes` (extra attributes per element, values escaped once;
+ *   `href`, `src`, `id` and `on*` are refused before rendering; `footnotes`
+ *   reaches the footnote section). `components`
+ *   is a React-only concept: this provider throws an `I18nError` when it is
+ *   set, because the result is an HTML string, and points at
+ *   `elementAttributes`. Headings get slug `id`s (duplicates get `-2`, `-3`,
+ *   …) and `result.toc` lists them, so anchors resolve; `headingIds: false` in
  *   the config turns both off. Fenced code carries a `language-*` class,
  *   highlighter-ready; colorizing is the app's concern.
  * - **Malformed markdown never throws.** An unclosed `**`, a broken `[link](`

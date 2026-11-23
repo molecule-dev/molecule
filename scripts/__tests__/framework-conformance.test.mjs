@@ -461,6 +461,69 @@ runRouterConformance('foo-router', createHarness)
     })
   })
 
+  describe('markdown providers', () => {
+    const MARKDOWN_TEST_FILE = `import { runMarkdownConformance } from '${KIT}/markdown'
+runMarkdownConformance('foo', () => createProvider())
+`
+
+    /**
+     * The standard tree plus one markdown provider.
+     *
+     * @param [bond] - Overrides for the provider: its package.json fields, test (null for
+     *   none) and other files.
+     * @returns The fixture root.
+     */
+    function markdownTree(bond = {}) {
+      const root = tree()
+      const write = (file, text) => {
+        mkdirSync(dirname(join(root, file)), { recursive: true })
+        writeFileSync(join(root, file), text)
+      }
+      const dir = 'packages/app/bonds/markdown/foo'
+      write(
+        `${dir}/package.json`,
+        JSON.stringify({
+          name: '@molecule/app-markdown-foo',
+          devDependencies: { [KIT]: '0.0.0' },
+          ...bond.pkg,
+        }),
+      )
+      if (bond.test !== null)
+        write(`${dir}/src/__tests__/conformance.test.ts`, bond.test ?? MARKDOWN_TEST_FILE)
+      for (const [file, text] of Object.entries(bond.files ?? {})) write(`${dir}/${file}`, text)
+      return root
+    }
+
+    it('passes a markdown provider that runs the markdown suite', () => {
+      expect(check(markdownTree())).toEqual([])
+    })
+
+    it('fails a markdown provider that has no conformance test and no kit dependency', () => {
+      const root = markdownTree({ pkg: { devDependencies: {} }, test: null })
+      expect(check(root)).toEqual([
+        "packages/app/bonds/markdown/foo: src/__tests__/conformance.test.ts (or .tsx) is missing; it must call runMarkdownConformance('<bond>', createProvider)",
+        'packages/app/bonds/markdown/foo: devDependencies must list @molecule/app-framework-conformance',
+      ])
+    })
+
+    it('fails a markdown provider whose test runs another suite', () => {
+      const root = markdownTree({ test: BINDING_TEST_FILE })
+      expect(check(root)).toEqual([
+        `packages/app/bonds/markdown/foo: conformance.test.ts does not import '${KIT}/markdown'`,
+        'packages/app/bonds/markdown/foo: conformance.test.ts does not call runMarkdownConformance(',
+      ])
+    })
+
+    it('fails a markdown provider that lists known gaps', () => {
+      const root = markdownTree({
+        files: { 'src/__tests__/conformance/known-gaps.json': '{"render":["toc"]}' },
+      })
+      expect(check(root)).toEqual([
+        'packages/app/bonds/markdown/foo: src/__tests__/conformance/known-gaps.json must not exist (runMarkdownConformance has no known gaps)',
+      ])
+    })
+  })
+
   describe('feature bonds', () => {
     const REACT_FEATURE = '@molecule/app-widget-react'
     const FEATURE_TEST_FILE = `import { runFeatureConformance } from '${KIT}/features'

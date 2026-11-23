@@ -246,6 +246,18 @@ export const GROUPS = [
     goldensTest: null,
     gapsKey: null,
   },
+  {
+    kind: 'markdown provider',
+    packages: (root) => markdownPackages(root),
+    member: (name) => name.startsWith('@molecule/app-markdown-'),
+    reference: null,
+    exempt: {},
+    entry: `${KIT}/markdown`,
+    runner: 'runMarkdownConformance',
+    call: "runMarkdownConformance('<bond>', createProvider)",
+    goldensTest: null,
+    gapsKey: null,
+  },
 ]
 
 const readJson = (file) => JSON.parse(readFileSync(file, 'utf8'))
@@ -369,6 +381,25 @@ export function routingPackages(root = ROOT) {
 }
 
 /**
+ * Lists the markdown providers under `packages/app/bonds/markdown/`. Each one renders the same
+ * DOM and table of contents for the same markdown, so an app swaps one for another.
+ *
+ * @param root - The molecule repository root.
+ * @returns Each provider's dir (repo-relative) and package.json.
+ */
+export function markdownPackages(root = ROOT) {
+  const base = join(root, 'packages', 'app', 'bonds', 'markdown')
+  if (!existsSync(base)) return []
+  return readdirSync(base, { withFileTypes: true })
+    .filter((e) => e.isDirectory() && existsSync(join(base, e.name, 'package.json')))
+    .map((e) => ({
+      dir: `packages/app/bonds/markdown/${e.name}`,
+      pkg: readJson(join(base, e.name, 'package.json')),
+    }))
+    .sort((a, b) => a.dir.localeCompare(b.dir))
+}
+
+/**
  * Checks one bond's conformance test, known-gaps file and kit dependency.
  *
  * @param root - The molecule repository root.
@@ -404,7 +435,7 @@ function bondViolations(root, { dir, pkg }, group, all) {
   }
   const gapsFile = join(root, dir, 'src', '__tests__', 'conformance', 'known-gaps.json')
   if (!group.gapsKey) {
-    // The router suite takes no known gaps: every routing bond passes every case.
+    // The router and markdown suites take no known gaps: every bond passes every case.
     if (existsSync(gapsFile))
       out.push(
         `${dir}: src/__tests__/conformance/known-gaps.json must not exist (${group.runner} has no known gaps)`,
@@ -1630,6 +1661,6 @@ if (isMain && process.argv.includes('--prune-title-pending')) {
   for (const v of violations) console.error(`framework-conformance: ${v}`)
   if (violations.length) process.exit(1)
   console.log(
-    'framework-conformance: every UI bond, framework binding, feature bond and routing bond runs the conformance kit, every React package has its framework counterparts (or a pending-ledger entry), every counterpart declares its React package’s test titles (or a pending-ledger entry), and every test that mocks a framework binding keeps its real exports',
+    'framework-conformance: every UI bond, framework binding, feature bond, routing bond and markdown provider runs the conformance kit, every React package has its framework counterparts (or a pending-ledger entry), every counterpart declares its React package’s test titles (or a pending-ledger entry), and every test that mocks a framework binding keeps its real exports',
   )
 }

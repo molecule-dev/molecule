@@ -26,9 +26,15 @@
  *   user-supplied or model-generated markdown (chat replies, comments, notes);
  *   reserve it for fully trusted, app-authored content.
  * - Options are per-call (`gfm`, `breaks`, `linkTarget`); `result.toc` carries
- *   extracted headings when the provider supports it. Syntax highlighting is a
- *   provider concern — e.g. the react-markdown bond wires a rehype highlighter
- *   via its `rehypePlugins` config rather than a generic option.
+ *   the document's headings in order (`[]` when there are none). Syntax
+ *   highlighting is a provider concern — e.g. the react-markdown bond wires a
+ *   rehype highlighter via its `rehypePlugins` config rather than a generic option.
+ * - **Shared rules for providers.** `isSafeMarkdownUrl(url)` is the one URL
+ *   allow-list (http/https/mailto/tel/irc/ircs/xmpp, relative URLs and
+ *   fragments). `createHeadingSlugger()` is the one heading-id rule (Unicode
+ *   letters and digits kept, `section` fallback, `-2`/`-3` suffixes).
+ *   `MARKDOWN_ELEMENTS`, `checkElementAttributes()` and `escapeAttributeValue()`
+ *   back the `elementAttributes` option.
  *
  * @e2e
  * Integration checklist — drive the real UI (live preview, no mocks), adapt
@@ -60,5 +66,8 @@
  * @module
  */
 
+export * from './attributes.js'
 export * from './provider.js'
+export * from './slug.js'
 export * from './types.js'
+export * from './url.js'

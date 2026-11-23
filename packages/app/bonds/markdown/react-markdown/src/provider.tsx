@@ -3,7 +3,7 @@
  * plus `remark-gfm`.
  *
  * The core `@molecule/app-markdown` contract is a STRING contract —
- * `render(markdown, options)` returns `{ html: string; toc? }`. react-markdown
+ * `render(markdown, options)` returns `{ html: string; toc }`. react-markdown
  * renders to React elements, so this provider renders that element tree to a
  * static HTML string with `renderToStaticMarkup` (`react-dom/server`) to
  * satisfy the contract while still getting real CommonMark + GFM parsing.
@@ -12,87 +12,35 @@
  */
 
 import { renderToStaticMarkup } from 'react-dom/server'
-import type { Components, UrlTransform } from 'react-markdown'
-import Markdown, { defaultUrlTransform } from 'react-markdown'
+import type { Components } from 'react-markdown'
+import Markdown from 'react-markdown'
+import rehypeRaw from 'rehype-raw'
 import remarkGfm from 'remark-gfm'
 
+import { I18nError } from '@molecule/app-i18n'
 import type {
   MarkdownOptions,
   MarkdownProvider,
   RenderedMarkdown,
   TocEntry,
 } from '@molecule/app-markdown'
+import { checkElementAttributes, createHeadingSlugger } from '@molecule/app-markdown'
 
+import { buildRemarkRehypeOptions, footnoteSectionLabel } from './footnotes.js'
+import {
+  rehypeElementAttributes,
+  rehypeHeadingIdsAndToc,
+  rehypeNormalizeFootnotes,
+  rehypeNormalizeTaskLists,
+  rehypeSafeUrls,
+} from './rehype.js'
+import type { TreeNode } from './tree.js'
 import type { MarkdownPluginList, ReactMarkdownConfig } from './types.js'
+import { createUrlTransform } from './url.js'
 
 // ---------------------------------------------------------------------------
-// Slugs + table of contents
+// Remark plugins (self-contained — no extra dependencies)
 // ---------------------------------------------------------------------------
-
-/**
- * Generates a URL-friendly slug from heading text.
- *
- * @param text - Heading text to slugify.
- * @returns Slug string.
- */
-function slugify(text: string): string {
-  return text
-    .toLowerCase()
-    .replace(/[^\w\s-]/g, '')
-    .trim()
-    .replace(/\s+/g, '-')
-}
-
-/**
- * Extracts a table of contents from markdown ATX headings (`#`..`######`).
- * Parsed from the source string so it is independent of react-markdown's
- * element output; the ids match those the {@link rehypeHeadingIds} plugin
- * stamps onto the rendered `<h#>` elements, so the TOC anchors resolve.
- *
- * @param markdown - Raw markdown string.
- * @returns Array of TOC entries (empty when there are no headings).
- */
-function extractToc(markdown: string): TocEntry[] {
-  const entries: TocEntry[] = []
-  const headingRegex = /^(#{1,6})\s+(.+)$/gm
-  let match: RegExpExecArray | null
-
-  while ((match = headingRegex.exec(markdown)) !== null) {
-    const text = match[2].trim()
-    entries.push({ id: slugify(text), text, level: match[1].length })
-  }
-
-  return entries
-}
-
-// ---------------------------------------------------------------------------
-// AST plugins (self-contained — no extra dependencies)
-// ---------------------------------------------------------------------------
-
-/** Minimal structural shape of an mdast/hast node, for the local plugins. */
-interface AstNode {
-  type?: string
-  tagName?: string
-  value?: string
-  properties?: Record<string, unknown>
-  children?: AstNode[]
-}
-
-/**
- * Concatenates the visible text of a hast node (used to slugify a heading).
- *
- * @param node - A hast node.
- * @returns The node's text content.
- */
-function textOf(node: AstNode): string {
-  if (typeof node.value === 'string') {
-    return node.value
-  }
-  if (Array.isArray(node.children)) {
-    return node.children.map(textOf).join('')
-  }
-  return ''
-}
 
 /**
  * remark plugin that turns soft line breaks (`\n` inside a paragraph) into
@@ -102,12 +50,12 @@ function textOf(node: AstNode): string {
  *
  * @returns A remark transformer.
  */
-function remarkHardBreaks(): (tree: AstNode) => void {
-  const walk = (node: AstNode): void => {
+function remarkHardBreaks(): (tree: TreeNode) => void {
+  const walk = (node: TreeNode): void => {
     if (!Array.isArray(node.children)) {
       return
     }
-    const next: AstNode[] = []
+    const next: TreeNode[] = []
     for (const child of node.children) {
       if (child.type === 'text' && typeof child.value === 'string' && child.value.includes('\n')) {
         const parts = child.value.split('\n')
@@ -128,45 +76,6 @@ function remarkHardBreaks(): (tree: AstNode) => void {
   }
   return (tree) => walk(tree)
 }
-
-/**
- * rehype plugin that stamps a slug `id` onto every heading element
- * (`h1`..`h6`), so the extracted {@link extractToc} entries anchor to real
- * targets. Mirrors the ids the regex TOC produces.
- *
- * @returns A rehype transformer.
- */
-function rehypeHeadingIds(): (tree: AstNode) => void {
-  const walk = (node: AstNode): void => {
-    if (
-      node.type === 'element' &&
-      typeof node.tagName === 'string' &&
-      /^h[1-6]$/.test(node.tagName)
-    ) {
-      const id = slugify(textOf(node))
-      if (id) {
-        node.properties = { ...(node.properties ?? {}), id }
-      }
-    }
-    node.children?.forEach(walk)
-  }
-  return (tree) => walk(tree)
-}
-
-// ---------------------------------------------------------------------------
-// URL sanitization
-// ---------------------------------------------------------------------------
-
-/** Passes every URL through unchanged — used when `sanitize` is `false`. */
-const permissiveUrlTransform: UrlTransform = (url) => url
-
-/**
- * react-dom (React 19) hoists a resource preload hint (`<link rel="preload"
- * as="image" …>`) ahead of every rendered `<img>` during server rendering.
- * That is an SSR transport artifact, not part of the rendered markdown, so it
- * is stripped from the returned HTML string.
- */
-const PRELOAD_LINK_REGEX = /<link\b[^>]*\brel="preload"[^>]*\/>/g
 
 // ---------------------------------------------------------------------------
 // Component overrides
@@ -216,19 +125,57 @@ function buildComponents(
 // ---------------------------------------------------------------------------
 
 /**
+ * react-dom (React 19) hoists a resource preload hint (`<link rel="preload"
+ * as="image" …>`) ahead of every rendered `<img>` during server rendering.
+ * That is an SSR transport artifact, not part of the rendered markdown, so it
+ * is stripped from the returned HTML string.
+ */
+const PRELOAD_LINK_REGEX = /<link\b[^>]*\brel="preload"[^>]*\/>/g
+
+/**
+ * Reports whether a core `components` option can be handed to react-markdown:
+ * every entry is a component (a function, or a `memo`/`forwardRef` object)
+ * or the name of the element to render instead.
+ *
+ * @param value - The option as core types it, `Record<string, unknown>`.
+ * @returns `true` when every entry is a react-markdown component override.
+ */
+function isReactMarkdownComponents(value: Record<string, unknown>): value is Components {
+  return Object.values(value).every(
+    (entry) =>
+      typeof entry === 'function' ||
+      typeof entry === 'string' ||
+      (typeof entry === 'object' && entry !== null && '$typeof' in entry),
+  )
+}
+
+/**
  * Renders markdown to a sanitized HTML string via react-markdown + remark-gfm,
  * honoring both the provider config defaults and the per-call options.
  *
  * @param markdown - Raw markdown source.
  * @param config - Provider configuration (defaults).
  * @param options - Per-call rendering options (override shared config).
- * @returns The rendered HTML string plus an optional table of contents.
+ * @throws {I18nError} when `elementAttributes` names a refused element or attribute,
+ * or `components` holds an entry that is not a component or an element name.
+ * @returns The rendered HTML string and the document's table of contents.
  */
 function renderMarkdown(
   markdown: string,
   config: ReactMarkdownConfig,
   options?: MarkdownOptions,
 ): RenderedMarkdown {
+  const elementAttributes = options?.elementAttributes
+  checkElementAttributes(elementAttributes)
+  const optionComponents = options?.components
+  if (optionComponents !== undefined && !isReactMarkdownComponents(optionComponents)) {
+    throw new I18nError(
+      'markdown.components.invalid',
+      {},
+      'components holds an entry that is not a React component or an element name.',
+    )
+  }
+
   const sanitize = options?.sanitize ?? config.sanitize ?? true
   const gfm = options?.gfm ?? config.gfm ?? true
   const breaks = options?.breaks ?? false
@@ -245,7 +192,25 @@ function renderMarkdown(
     remarkPlugins.push(...config.remarkPlugins)
   }
 
-  const rehypePlugins: MarkdownPluginList = [rehypeHeadingIds]
+  const toc: TocEntry[] = []
+  const slug = createHeadingSlugger()
+  const footnoteLabel = footnoteSectionLabel()
+
+  // Order: this bond's own steps, then `rehype-raw` (only for trusted content,
+  // `sanitize: false`), then a config's own steps. Raw HTML therefore becomes
+  // elements only after this bond's steps have run, so it gets none of them —
+  // no heading id or `toc` entry, no `elementAttributes`, no URL filtering —
+  // exactly as the marked provider passes raw HTML through untouched.
+  const rehypePlugins: MarkdownPluginList = [
+    () => rehypeNormalizeTaskLists(),
+    () => rehypeNormalizeFootnotes(footnoteLabel),
+    () => rehypeHeadingIdsAndToc(slug, toc),
+    () => rehypeSafeUrls(sanitize),
+    () => rehypeElementAttributes(elementAttributes),
+  ]
+  if (!sanitize) {
+    rehypePlugins.push(rehypeRaw)
+  }
   if (config.rehypePlugins) {
     rehypePlugins.push(...config.rehypePlugins)
   }
@@ -255,16 +220,14 @@ function renderMarkdown(
   const allowedElements = config.allowedElements
   const disallowedElements = allowedElements ? undefined : config.disallowedElements
 
-  // Core keeps `components` framework-agnostic as `Record<string, unknown>`;
-  // this React bond interprets them as react-markdown `Components`.
-  const optionComponents = options?.components as Components | undefined
   const components = buildComponents(linkTarget, config.components, optionComponents)
 
   const rendered = renderToStaticMarkup(
     <Markdown
       remarkPlugins={remarkPlugins}
+      remarkRehypeOptions={buildRemarkRehypeOptions(footnoteLabel)}
       rehypePlugins={rehypePlugins}
-      urlTransform={sanitize ? defaultUrlTransform : permissiveUrlTransform}
+      urlTransform={createUrlTransform(sanitize)}
       allowedElements={allowedElements}
       disallowedElements={disallowedElements}
       components={components}
@@ -274,11 +237,10 @@ function renderMarkdown(
   )
 
   const html = rendered.replace(PRELOAD_LINK_REGEX, '')
-  const toc = extractToc(markdown)
 
   return {
     html,
-    toc: toc.length > 0 ? toc : undefined,
+    toc,
   }
 }
 

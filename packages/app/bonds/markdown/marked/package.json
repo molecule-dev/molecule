@@ -31,14 +31,19 @@
   "author": "Molecule Dev, Inc. (https://molecule.dev)",
   "license": "Apache-2.0",
   "dependencies": {
-    "marked": "14.0.0"
+    "marked": "14.0.0",
+    "marked-footnote": "1.4.0"
   },
   "peerDependencies": {
-    "@molecule/app-markdown": "^1.0.1"
+    "@molecule/app-i18n": "^1.2.2",
+    "@molecule/app-markdown": "^1.1.0"
   },
   "devDependencies": {
+    "@molecule/app-framework-conformance": "0.0.0",
+    "@molecule/app-i18n": "1.2.2",
     "@molecule/app-markdown": "1.0.4",
     "@types/node": "26.6.5",
+    "jsdom": "31.0.1",
     "typescript": "6.0.3",
     "vitest": "4.1.12"
   },
