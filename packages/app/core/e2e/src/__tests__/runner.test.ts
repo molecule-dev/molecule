@@ -1,12 +1,12 @@
 import type * as FS from 'node:fs'
-import { mkdirSync, mkdtempSync, rmSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { SANDBOX_MARKER_PATH } from '../provider.js'
-import { e2eRunnerDefaults } from '../runner.js'
+import { DEV_SERVER_TIMEOUT_MS, e2eDevServers, e2eRunnerDefaults } from '../runner.js'
 
 // The sandbox marker lives at an absolute path this machine does not have; the
 // tests that need "inside a sandbox" mock only that one existsSync answer.
@@ -93,5 +93,68 @@ describe('e2eRunnerDefaults', () => {
     const config = { ...e2eRunnerDefaults(), timeout: 120_000 }
     expect(config.timeout).toBe(120_000)
     expect(config.maxFailures).toBe(8)
+  })
+})
+
+describe('e2eDevServers', () => {
+  let project: string
+  const write = (dir: string, scripts: Record<string, string>): void => {
+    mkdirSync(join(project, dir), { recursive: true })
+    writeFileSync(join(project, dir, 'package.json'), JSON.stringify({ scripts }))
+  }
+
+  beforeEach(() => {
+    pretendSandbox(false)
+    for (const key of ['MOL_E2E_PROVIDER', 'APP_BASE', 'VITE_PORT', 'PORT', 'VITE_API_URL'])
+      delete process.env[key]
+    project = mkdtempSync(join(tmpdir(), 'mol-e2e-project-'))
+    write('app', { dev: 'vite' })
+  })
+  afterEach(() => {
+    vi.restoreAllMocks()
+    for (const key of ['MOL_E2E_PROVIDER', 'APP_BASE', 'VITE_PORT', 'PORT', 'VITE_API_URL'])
+      delete process.env[key]
+    rmSync(project, { recursive: true, force: true })
+  })
+
+  it('starts the API the app proxies to, then the app, reusing either when it already runs', () => {
+    // Without them every spec failed on a server nobody started, and agents started it by hand.
+    write('api', { dev: 'tsx watch src/server.ts' })
+    process.env['VITE_PORT'] = '3100'
+    expect(e2eDevServers(join(project, 'app'))).toEqual([
+      {
+        command: 'npm run dev',
+        cwd: join(project, 'app', '..', 'api'),
+        url: 'http://localhost:4000/health',
+        reuseExistingServer: true,
+        timeout: DEV_SERVER_TIMEOUT_MS,
+      },
+      {
+        command: 'npm run dev',
+        cwd: join(project, 'app'),
+        url: 'http://localhost:3100',
+        reuseExistingServer: true,
+        timeout: DEV_SERVER_TIMEOUT_MS,
+      },
+    ])
+  })
+
+  it('starts the app alone when there is no API beside it, or the API is remote', () => {
+    expect(e2eDevServers(join(project, 'app')).map((s) => s.url)).toEqual(['http://localhost:3000'])
+    write('api', { dev: 'tsx watch src/server.ts' })
+    process.env['VITE_API_URL'] = 'https://api.example.com/api'
+    expect(e2eDevServers(join(project, 'app')).map((s) => s.url)).toEqual(['http://localhost:3000'])
+  })
+
+  it('starts nothing over the preview, inside a sandbox, for APP_BASE, or without a dev script', () => {
+    process.env['MOL_E2E_PROVIDER'] = 'preview'
+    expect(e2eDevServers(join(project, 'app'))).toEqual([])
+    delete process.env['MOL_E2E_PROVIDER']
+    process.env['APP_BASE'] = 'http://localhost:9999'
+    expect(e2eDevServers(join(project, 'app'))).toEqual([])
+    delete process.env['APP_BASE']
+    expect(e2eDevServers(project)).toEqual([])
+    pretendSandbox(true)
+    expect(e2eDevServers(join(project, 'app'))).toEqual([])
   })
 })

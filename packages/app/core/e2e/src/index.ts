@@ -25,8 +25,10 @@
  * everywhere else.
  *
  * It also holds `e2eRunnerDefaults()`, the runner settings (workers,
- * parallelism, retries, failure cap, per-test timeout) every scaffolded
- * `playwright.config.ts` spreads first, so one change here reaches every app.
+ * parallelism, retries, failure cap, per-test timeout, the dev servers to start)
+ * every scaffolded `playwright.config.ts` spreads first, so one change here
+ * reaches every app. `playwright test` starts the app's dev server, and the API
+ * beside it, when nothing answers yet, and reuses them when they already run.
  *
  * @example
  * ```ts
@@ -65,7 +67,7 @@
  *   (`evaluate`, `navigate`, `viewport`, events) and gets the whole
  *   Playwright-shaped page from `createEvaluatePage()` in
  *   `@molecule/app-e2e-fixtures-default`.
- * - `e2eRunnerDefaults()` decides five runner fields; spread it FIRST in
+ * - `e2eRunnerDefaults()` decides five runner fields and `webServer`; spread it FIRST in
  *   `defineConfig({ ...e2eRunnerDefaults(), … })` so an app's own value wins.
  *   Do not re-add `workers`/`fullyParallel`/`retries`/`maxFailures` per app —
  *   that is how 150 template configs stopped receiving the shared settings.
@@ -84,6 +86,12 @@
  *     so a healthy test is well under it), `60_000` elsewhere. A test that
  *     genuinely runs long says so itself (`test.slow()` / `test.setTimeout()`);
  *     an app-wide `timeout` after the spread also overrides the sandbox value.
+ *   - `webServer`: `e2eDevServers()` — `../api`'s `npm run dev` (ready at `/health` on
+ *     `PORT`, default 4000) and this app's (`VITE_PORT`, default 3000), each reused
+ *     when it already answers. None over the preview, inside a sandbox (the
+ *     platform runs the dev server on 5173) or with `APP_BASE` set; no API when
+ *     `VITE_API_URL` names a remote one. An app that sets its own `webServer` after
+ *     the spread replaces them.
  * - `@playwright/test` is a peer dependency for its types only; it never
  *   downloads browsers on install.
  *
