@@ -4,12 +4,11 @@
  * @module
  */
 
-import type { AfterViewInit } from '@angular/core'
-import { Component, ElementRef, inject, Renderer2, ViewChild } from '@angular/core'
+import { Component, type ElementRef, ViewChild } from '@angular/core'
 
+import { MolPlacement, setElementPresent, usePlacement } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
-import { hasNodes, SlotWrapper } from '@molecule/app-ui-angular'
 
 import type { StatusKind } from './types.js'
 
@@ -36,6 +35,7 @@ const KIND_TO_COLOR: Record<StatusKind, 'success' | 'warning' | 'error' | 'info'
 @Component({
   selector: 'span[mol-status-badge]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   inputs: ['kind', 'appearance', 'className'],
   host: {
     '[class]': 'classes()',
@@ -45,7 +45,7 @@ const KIND_TO_COLOR: Record<StatusKind, 'success' | 'warning' | 'error' | 'info'
     ></span>
     <ng-content></ng-content>`,
 })
-export class StatusBadge implements AfterViewInit {
+export class StatusBadge {
   /** Semantic kind — maps to ClassMap badge color variants (defaults to `'neutral'`). */
   kind?: StatusKind
   /** Visual appearance variant (defaults to `'ui'`). */
@@ -55,8 +55,6 @@ export class StatusBadge implements AfterViewInit {
 
   /** The icon wrapper (always in the template; detached when unused). */
   @ViewChild('iconSlot') iconSlot?: ElementRef<HTMLSpanElement>
-
-  private readonly sync = new SlotWrapper(inject(ElementRef), inject(Renderer2))
 
   /**
    * The current class map.
@@ -97,13 +95,15 @@ export class StatusBadge implements AfterViewInit {
   }
 
   /**
-   * Detaches the icon wrapper when its slot projection carries no nodes —
-   * React renders no wrapper for an absent icon. The `<ng-content>` capture
-   * point must stay mounted, so presence is read here and the wrapper removed
-   * from the DOM instead.
+   * Renders the icon wrapper only while its slot has content — React renders
+   * no wrapper for an absent icon. The `<ng-content>` capture point stays in
+   * the template, so the wrapper leaves the page instead, and comes back when
+   * a consumer projects an icon later.
    */
-  ngAfterViewInit(): void {
-    const icon = this.iconSlot?.nativeElement
-    this.sync.sync(icon, icon ? hasNodes(icon) : false)
+  constructor() {
+    usePlacement((hasContent) => {
+      const icon = this.iconSlot?.nativeElement
+      setElementPresent(icon, icon ? hasContent(icon) : false)
+    })
   }
 }

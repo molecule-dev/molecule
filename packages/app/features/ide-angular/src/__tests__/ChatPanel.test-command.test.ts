@@ -20,7 +20,7 @@
  */
 
 import '@molecule/app-framework-conformance/ui/setup'
-import { Component } from '@angular/core'
+import { ChangeDetectionStrategy, Component } from '@angular/core'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { ChatProvider } from '@molecule/app-ai-chat'
@@ -96,6 +96,7 @@ function buildChatProvider(): ChatProvider {
 
 /** The host's durable test history (React passes an element; Angular a component). */
 const DurableNativeHistory = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-durable-native-history',
   standalone: true,
   template: `<section data-testid="durable-native-history">Native invocation · exit 0 · test results not recorded</section>`,
@@ -103,6 +104,7 @@ const DurableNativeHistory = Component({
 
 /** The host's own status strip: its button opens the panel's tests browser. */
 const NativeTestStatus = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-native-test-status',
   standalone: true,
   inputs: ['open'],

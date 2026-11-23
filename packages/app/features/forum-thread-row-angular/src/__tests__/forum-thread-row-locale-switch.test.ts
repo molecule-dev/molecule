@@ -25,6 +25,7 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
 import type { I18nProvider } from '@molecule/app-i18n'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 
@@ -85,11 +86,11 @@ describe('ForumThreadRow locale switch', () => {
       selector: 'mol-locale-host',
       standalone: true,
       imports: [ForumThreadRow],
-      changeDetection: ChangeDetectionStrategy.Default,
+      changeDetection: ChangeDetectionStrategy.Eager,
       template: `<article mol-forum-thread-row title="T" [replyCount]="5"></article>`,
     })(class LocaleHost {})
     const appRef: ApplicationRef = await createApplication({
-      providers: [provideZonelessChangeDetection()],
+      providers: [provideZonelessChangeDetection(), provideDomPlacement()],
     })
     const ref: ComponentRef<unknown> = createComponent(Host, {
       environmentInjector: appRef.injector,

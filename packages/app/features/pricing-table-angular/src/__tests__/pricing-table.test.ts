@@ -50,12 +50,14 @@ vi.mock('@molecule/app-ui-angular', async () => {
   const { Component } = await import('@angular/core')
   return {
     Button: Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'button[mol-button]',
       standalone: true,
       template: `<ng-content></ng-content>`,
       host: { 'data-button': '' },
     })(class MockButton {}),
     Card: Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'div[mol-card]',
       standalone: true,
       inputs: ['style'],
@@ -107,7 +109,7 @@ async function mount(props: Record<string, unknown>): Promise<Mounted> {
     selector: 'mol-spec-host',
     standalone: true,
     imports: [PricingTable],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: `<div
       mol-pricing-table
       [plans]="p['plans']"

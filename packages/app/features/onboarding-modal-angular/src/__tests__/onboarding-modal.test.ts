@@ -22,6 +22,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 // A ClassMap mock echoing each accessed member back as its token (e.g.
 // `stack`), so tests can assert which cm.* class was applied without a real
 // bond — the same tokens the React tests' proxy produces. Angular binds the
@@ -80,6 +82,7 @@ vi.mock('@molecule/app-ui-angular', async () => {
   }
   return {
     Button: Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'button[mol-button]',
       standalone: true,
       inputs: ['variant', 'color', 'size'],
@@ -96,6 +99,7 @@ vi.mock('@molecule/app-ui-angular', async () => {
       },
     ),
     Modal: Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'mol-modal',
       standalone: true,
       inputs: ['open'],
@@ -141,7 +145,7 @@ async function render(props: Record<string, unknown>): Promise<Mounted> {
     selector: 'mol-spec-host',
     standalone: true,
     imports: [OnboardingModal],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     host: { 'data-spec-host': String(++hostCount) },
     template: `<mol-onboarding-modal
       [open]="p['open']"
@@ -156,7 +160,7 @@ async function render(props: Record<string, unknown>): Promise<Mounted> {
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
     environmentInjector: appRef.injector,
@@ -181,6 +185,59 @@ async function render(props: Record<string, unknown>): Promise<Mounted> {
 afterEach(async () => {
   for (const m of mounted.splice(0)) await m.destroy()
 })
+
+/**
+ * Mounts the overlay between two fixed siblings, the way a consumer list
+ * would, and returns a setter for its inputs.
+ *
+ * @param props - The initial `open` / `steps` inputs.
+ * @returns The mounted host and a setter that re-renders with new props.
+ */
+async function renderInList(
+  props: Record<string, unknown>,
+): Promise<Mounted & { set(next: Record<string, unknown>): void }> {
+  const Host = Component({
+    selector: 'mol-spec-list-host',
+    standalone: true,
+    imports: [OnboardingModal],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    host: { 'data-spec-host': String(++hostCount) },
+    template: `<i>a</i><mol-onboarding-modal [open]="p['open']" [steps]="p['steps']"></mol-onboarding-modal><i>b</i>`,
+  })(
+    class SpecListHost {
+      /** The props the template binds. */
+      p: Record<string, unknown> = { ...props }
+    },
+  )
+  const appRef: ApplicationRef = await createApplication({
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
+  })
+  const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
+    environmentInjector: appRef.injector,
+  })
+  const host = ref.location.nativeElement as HTMLElement
+  document.body.appendChild(host)
+  appRef.attachView(ref.hostView)
+  appRef.tick()
+  await appRef.whenStable()
+  appRef.tick()
+  const entry: Mounted = {
+    host,
+    destroy: async () => {
+      appRef.destroy()
+      host.remove()
+    },
+  }
+  mounted.push(entry)
+  return {
+    ...entry,
+    set: (next) => {
+      ref.instance.p = { ...ref.instance.p, ...next }
+      ref.changeDetectorRef.markForCheck()
+      appRef.tick()
+    },
+  }
+}
 
 const steps = [
   { id: 's1', title: 'Welcome', body: 'Step one body' },
@@ -260,5 +317,20 @@ describe('OnboardingModal', () => {
       new RegExp(`<h2[^>]*id="${secondLabel}"[^>]*>([\\s\\S]*?)</h2>`),
     )
     expect(secondHeading?.[1]).toContain('Connect')
+  })
+
+  it("renders React's elements with no host or capture element of its own", async () => {
+    const m = await renderInList({ open: true, steps })
+    const children = (): string[] =>
+      Array.from(m.host.children).map((child) => child.tagName.toLowerCase())
+    expect(children().at(0)).toBe('i')
+    expect(children().at(-1)).toBe('i')
+    expect(children()).not.toContain('mol-onboarding-modal')
+    expect(children()).toEqual(['i', 'mol-modal', 'i'])
+    m.set({ open: false, steps: [] })
+    expect(children().at(0)).toBe('i')
+    expect(children().at(-1)).toBe('i')
+    expect(children()).not.toContain('mol-onboarding-modal')
+    expect(children()).toEqual(['i', 'mol-modal', 'i'])
   })
 })

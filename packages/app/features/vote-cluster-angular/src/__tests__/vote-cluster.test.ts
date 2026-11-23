@@ -76,7 +76,7 @@ async function mount(props: Record<string, unknown> = {}): Promise<Mounted> {
     selector: 'mol-vote-cluster-spec-host',
     standalone: true,
     imports: [VoteCluster],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: TEMPLATE,
   })(
     class SpecHost {
@@ -274,7 +274,7 @@ describe('<VoteCluster>', () => {
         selector: 'mol-vote-cluster-controlled-host',
         standalone: true,
         imports: [VoteCluster],
-        changeDetection: ChangeDetectionStrategy.Default,
+        changeDetection: ChangeDetectionStrategy.Eager,
         template: `<div mol-vote-cluster [score]="10" [myVote]="vote" [onVote]="adopt"></div>`,
       })(
         class ControlledHost {

@@ -37,7 +37,7 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
-import { provideHttp, provideTheme } from '@molecule/app-angular'
+import { provideDomPlacement, provideHttp, provideTheme } from '@molecule/app-angular'
 import type { HttpClient, HttpResponse } from '@molecule/app-http'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 import { setIconSet } from '@molecule/app-icons'
@@ -283,7 +283,7 @@ const CommandCardHost = Component({
   selector: 'mol-command-card-host',
   standalone: true,
   imports: [NgComponentOutlet],
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `<ng-container *ngComponentOutlet="card; inputs: cardInputs" />`,
 })(
   class CommandCardHost {
@@ -347,6 +347,7 @@ async function mountCard(
   const appRef: ApplicationRef = await createApplication({
     providers: [
       provideZonelessChangeDetection(),
+      provideDomPlacement(),
       provideTheme(buildThemeProvider()),
       provideHttp(buildHttpClient()),
     ],

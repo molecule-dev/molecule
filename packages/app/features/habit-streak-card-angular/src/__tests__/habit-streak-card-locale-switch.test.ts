@@ -105,7 +105,7 @@ describe('HabitStreakCard locale switch', () => {
       selector: 'mol-spec-host',
       standalone: true,
       imports: [HabitStreakCard as Type<unknown>],
-      changeDetection: ChangeDetectionStrategy.Default,
+      changeDetection: ChangeDetectionStrategy.Eager,
       template: `<div mol-habit-streak-card [name]="'M'" [currentStreak]="2" [heatmap]="p['heatmap']"></div>`,
     })(
       class SpecHost {

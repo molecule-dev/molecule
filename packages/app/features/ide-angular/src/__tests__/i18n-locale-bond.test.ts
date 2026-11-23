@@ -35,7 +35,7 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
-import { providePreview } from '@molecule/app-angular'
+import { provideDomPlacement, providePreview } from '@molecule/app-angular'
 import { createSimpleI18nProvider, setProvider, t } from '@molecule/app-i18n'
 import { setIconSet } from '@molecule/app-icons'
 import type { AutoCommitState, TestList } from '@molecule/app-ide-panel-logic'
@@ -109,7 +109,7 @@ function hostFor(
     selector: hostSelector,
     standalone: true,
     imports: [component],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: `<div ${directive} ${attrs}></div>`,
   })(
     class Host {
@@ -221,7 +221,7 @@ async function mount(
   const container = document.createElement('div')
   document.body.appendChild(container)
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection(), ...providers],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement(), ...providers],
   })
   const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(host, {
     environmentInjector: appRef.injector,
@@ -287,7 +287,7 @@ describe('IDE-shell i18n resolves through the locale bond (cross-cutting-i18n)',
       fr['ide.preview.back'],
     )
     // The pre-fix bug: with the key absent, the default English "Back" rendered.
-    expect(document.body.querySelector('[role="tooltip"]')?.textContent).not.toBe('Back')
+    expect(document.body.querySelector('[role="tooltip"]')!.textContent).not.toBe('Back')
     await unhover(back.parentElement as HTMLElement)
     expect(document.body.querySelector('[role="tooltip"]')).toBeNull()
 
@@ -295,7 +295,7 @@ describe('IDE-shell i18n resolves through the locale bond (cross-cutting-i18n)',
     expect(document.body.querySelector('[role="tooltip"]')?.textContent).toBe(
       fr['ide.preview.forward'],
     )
-    expect(document.body.querySelector('[role="tooltip"]')?.textContent).not.toBe('Forward')
+    expect(document.body.querySelector('[role="tooltip"]')!.textContent).not.toBe('Forward')
     await unhover(forward.parentElement as HTMLElement)
   })
 
@@ -352,7 +352,7 @@ describe('Synthase chat surface i18n resolves through the locale bond (cross-cut
 
     // The title is the commit label (click = commit now), resolved from the bond.
     expect(badge?.getAttribute('title')).toBe(fr['ide.chat.commit'])
-    expect(badge?.getAttribute('title')).not.toBe('Commit')
+    expect(badge!.getAttribute('title')).not.toBe('Commit')
 
     // The visible text + aria-label interpolate the live countdown into the
     // BONDED template — this only works because the inline default was
@@ -590,7 +590,7 @@ describe('Tests card i18n resolves through the locale bond (cross-cutting-i18n)'
       fr['ide.tests.runAll'],
     )
     // The pre-fix bug: with the key absent, the English default would render.
-    expect(container.querySelector('[data-mol-id="tests-card-run-all"]')?.textContent).not.toBe(
+    expect(container.querySelector('[data-mol-id="tests-card-run-all"]')!.textContent).not.toBe(
       'Run all',
     )
     expect(

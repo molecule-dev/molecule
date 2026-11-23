@@ -23,6 +23,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 // Proxy ClassMap echoing each accessed member back as its token (e.g.
 // `stack`), so tests can assert which cm.* class was applied without a real
 // bond — the same mock the React tests use.
@@ -79,7 +81,7 @@ async function mount(
     selector: 'mol-spec-host',
     standalone: true,
     imports: [component],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     // Angular derives a component id from the definition, so two mounts of the
     // same selector collide (NG0912); the extra host attribute separates them.
     host: { 'data-parity-host': String(++hostCount) },
@@ -91,7 +93,7 @@ async function mount(
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
     environmentInjector: appRef.injector,
@@ -147,6 +149,17 @@ describe('LeaderboardList', () => {
     expect(m.host.innerHTML).toContain('data-row="b"')
   })
 
+  it('keeps a consumer list in order when an item is inserted in the middle of children', async () => {
+    const m = await render(`@for (x of p['xs']; track x) {<b>{{ x }}</b>}`, { xs: [1, 3] })
+    const items = (): string[] =>
+      Array.from(m.host.querySelectorAll('b')).map((el) => el.textContent ?? '')
+    expect(items()).toEqual(['1', '3'])
+    await m.setProps({ xs: [0, 1, 2, 3] })
+    expect(items()).toEqual(['0', '1', '2', '3'])
+    await m.setProps({ xs: [0, 2, 3] })
+    expect(items()).toEqual(['0', '2', '3'])
+  })
+
   it('renders the title and actions when present and omits the header otherwise', async () => {
     const withHeader = await render(
       '<h3 slot="title">Top players</h3><button slot="actions" data-actions type="button"></button><div data-row></div>',
@@ -162,6 +175,25 @@ describe('LeaderboardList', () => {
     expect(m.host.innerHTML).toContain('data-empty')
     expect(m.host.innerHTML).toContain('No entries')
     expect(m.host.querySelector('[data-row]')).toBeNull()
+  })
+
+  /** The component's markup without Angular's comments and classes. */
+  const shape = (m: Mounted): string =>
+    m.host.innerHTML.replace(/<!--.*?-->/g, '').replace(/ class="[^"]*"/g, '')
+
+  it('shows and removes the header wrapper in the pass where the consumer @if adds and removes its content', async () => {
+    const m = await render(
+      `@if (p['on']) {<button slot="actions" type="button">act</button>}<div data-row></div>`,
+      { on: false },
+    )
+    const body = '<div><div data-row=""></div></div>'
+    expect(shape(m)).toBe(`<div mol-leaderboard-list="">${body}</div>`)
+    await m.setProps({ on: true })
+    expect(shape(m)).toBe(
+      `<div mol-leaderboard-list=""><header><button slot="actions" type="button">act</button></header>${body}</div>`,
+    )
+    await m.setProps({ on: false })
+    expect(shape(m)).toBe(`<div mol-leaderboard-list="">${body}</div>`)
   })
 
   it('forwards className', async () => {

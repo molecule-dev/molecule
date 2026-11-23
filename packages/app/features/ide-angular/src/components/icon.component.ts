@@ -97,8 +97,8 @@ export class Icon implements OnChanges {
   /** The resolved icon data of the current `name`. */
   private resolved?: IconData
 
-  /** Whether the previous glyph rendered raw markup (its children are ours to remove). */
-  private hadRawMarkup = false
+  /** The raw-markup child nodes this component created (so only they are removed). */
+  private rawNodes: ChildNode[] = []
 
   /** The svg host element. */
   private readonly host: ElementRef<SVGSVGElement> = inject(ElementRef)
@@ -112,28 +112,25 @@ export class Icon implements OnChanges {
     const icon = getIcon(this.name)
     this.resolved = icon
     const el = this.host.nativeElement
+    // The raw children are this component's own nodes (parsed from the icon
+    // set, never rendered by Angular): drop exactly those and nothing else, so
+    // the framework's `<path>` views and comment anchors stay untouched.
+    for (const node of this.rawNodes) {
+      // eslint-disable-next-line molecule-local/no-hand-placed-nodes -- raw markup this component imported (rawNodes), not a node Angular rendered
+      node.remove()
+    }
+    this.rawNodes = []
     if (icon.svg) {
-      // Remove only the element children of a previous raw glyph — the
-      // framework's comment anchors stay, so a later branch switch keeps its
-      // place — then parse the markup in the SVG namespace and adopt it.
-      for (const child of Array.from(el.childNodes)) {
-        if (child.nodeType === Node.ELEMENT_NODE) child.remove()
-      }
       const doc = new DOMParser().parseFromString(
         `<svg xmlns="${SVG_NAMESPACE}">${icon.svg}</svg>`,
         'image/svg+xml',
       )
       for (const child of Array.from(doc.documentElement.childNodes)) {
-        el.appendChild(document.importNode(child, true))
-      }
-    } else if (this.hadRawMarkup) {
-      // Raw → path: the raw children are not Angular's views, so they are
-      // removed here while the template re-creates the `<path>` views.
-      for (const child of Array.from(el.childNodes)) {
-        if (child.nodeType === Node.ELEMENT_NODE) child.remove()
+        const imported = document.importNode(child, true) as ChildNode
+        el.appendChild(imported)
+        this.rawNodes.push(imported)
       }
     }
-    this.hadRawMarkup = !!icon.svg
   }
 
   /**

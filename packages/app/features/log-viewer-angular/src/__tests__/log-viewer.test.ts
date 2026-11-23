@@ -23,6 +23,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
 // `stack`), so tests can assert which cm.* call was applied without a real
 // bond — the same mock the React tests use.
@@ -89,7 +91,7 @@ async function mount(
     // Angular derives a component id from the definition; two mounts with the
     // same template collide (NG0912), so each gets its own host attribute.
     host: { 'data-spec-host': String(++hostCount) },
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template,
   })(
     class SpecHost {
@@ -98,7 +100,7 @@ async function mount(
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
     environmentInjector: appRef.injector,
@@ -197,5 +199,51 @@ describe('LogViewer', () => {
       className: 'lv-cls',
     })
     expect(m.host.innerHTML).toContain('lv-cls')
+  })
+
+  it('keeps a consumer list in order when an item is inserted in the middle of emptyState', async () => {
+    const m = await render(
+      `<mol-log-viewer [entries]="p['entries']"><ng-container ngProjectAs="[slot=emptyState]">@for (x of p['xs']; track x) {<b>{{ x }}</b>}</ng-container></mol-log-viewer>`,
+      { entries: [], xs: ['a', 'c'] },
+    )
+    const labels = (): (string | null)[] =>
+      Array.from(m.host.querySelectorAll('b')).map((el) => el.textContent)
+    expect(labels()).toEqual(['a', 'c'])
+    await m.setProps({ xs: ['a', 'b', 'c'] })
+    expect(labels()).toEqual(['a', 'b', 'c'])
+    await m.setProps({ xs: ['a', 'c'] })
+    expect(labels()).toEqual(['a', 'c'])
+  })
+
+  it('shows and removes the empty-state wrapper in the pass where the consumer @if adds and removes its content', async () => {
+    const m = await render(
+      `<mol-log-viewer [entries]="p['entries']">@if (p['on']) {<p slot="emptyState" data-empty>No logs</p>}</mol-log-viewer>`,
+      { entries: [], on: false },
+    )
+    // React: the bare empty state replaces the list wrapper while it renders.
+    expect(m.host.querySelector('[data-empty]')).toBeNull()
+    expect(m.host.querySelector('[role="log"]')).not.toBeNull()
+    await m.setProps({ on: true })
+    expect(m.host.querySelector('[data-empty]')!.textContent).toBe('No logs')
+    expect(m.host.querySelector('[role="log"]')).toBeNull()
+    await m.setProps({ on: false })
+    expect(m.host.querySelector('[data-empty]')).toBeNull()
+    expect(m.host.querySelector('[role="log"]')).not.toBeNull()
+  })
+
+  it("renders React's elements with no host or capture element of its own", async () => {
+    const m = await render(
+      `<i>a</i><mol-log-viewer [entries]="p['entries']"><p slot="emptyState" data-empty>No logs</p></mol-log-viewer><i>b</i>`,
+      { entries },
+    )
+    const children = (): string[] =>
+      Array.from(m.host.children).map((child) => child.tagName.toLowerCase())
+    // With entries, React's root is <div role="log"> standing in the (removed) host's place.
+    expect(children()).toEqual(['i', 'div', 'i'])
+    // With no entries and a projected empty state, the bare <p> is React's root.
+    await m.setProps({ entries: [] })
+    expect(children()).toEqual(['i', 'p', 'i'])
+    await m.setProps({ entries })
+    expect(children()).toEqual(['i', 'div', 'i'])
   })
 })

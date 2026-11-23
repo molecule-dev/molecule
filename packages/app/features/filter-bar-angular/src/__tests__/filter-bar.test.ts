@@ -25,6 +25,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
 // `uppercase`), so tests can assert which cm.* class was applied without a
 // real bond — the same mock the React tests use.
@@ -74,6 +76,7 @@ vi.mock('@molecule/app-angular', async (importOriginal) => ({
 // bar's own wiring is what the assertions exercise.
 vi.mock('@molecule/app-ui-angular', () => ({
   Button: Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
     selector: 'button[mol-button]',
     standalone: true,
     inputs: ['variant', 'color', 'size', 'disabled', 'type'],
@@ -93,6 +96,7 @@ vi.mock('@molecule/app-ui-angular', () => ({
     },
   ),
   Input: Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
     selector: 'div[mol-input]',
     standalone: true,
     inputs: ['id', 'type', 'value', 'placeholder'],
@@ -131,6 +135,7 @@ vi.mock('@molecule/app-ui-angular', () => ({
     },
   ),
   Select: Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
     selector: 'div[mol-select]',
     standalone: true,
     inputs: ['id', 'options', 'value'],
@@ -199,16 +204,24 @@ interface Mounted {
  * Angular app would write it.
  *
  * @param props - The props the template binds as `p['name']`.
+ * @param slotContent - The template's projected action content.
+ * @param siblings - Wrap the bar in fixed `<i>a</i>` / `<i>b</i>` neighbours.
  * @returns The mounted host.
  */
-async function mount(props: Record<string, unknown> = {}): Promise<Mounted> {
+async function mount(
+  props: Record<string, unknown> = {},
+  slotContent = `@if (p['actions']) {
+        <span slot="actions" data-actions></span>
+      }`,
+  siblings = false,
+): Promise<Mounted> {
   hostSelector += 1
   const Host = Component({
     selector: `mol-spec-host-${hostSelector}`,
     standalone: true,
     imports: [FilterBar],
-    changeDetection: ChangeDetectionStrategy.Default,
-    template: `<div
+    changeDetection: ChangeDetectionStrategy.Eager,
+    template: `${siblings ? '<i>a</i>' : ''}<div
       mol-filter-bar
       [fields]="p['fields']"
       [values]="p['values']"
@@ -217,10 +230,8 @@ async function mount(props: Record<string, unknown> = {}): Promise<Mounted> {
       [showLabels]="p['showLabels']"
       [className]="p['className']"
     >
-      @if (p['actions']) {
-        <span slot="actions" data-actions></span>
-      }
-    </div>`,
+      ${slotContent}
+    </div>${siblings ? '<i>b</i>' : ''}`,
   })(
     class SpecHost {
       /** The props the template binds. */
@@ -228,7 +239,7 @@ async function mount(props: Record<string, unknown> = {}): Promise<Mounted> {
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
     environmentInjector: appRef.injector,
@@ -270,6 +281,23 @@ afterEach(async () => {
 })
 
 describe('FilterBar', () => {
+  it('keeps a consumer list in order when an item is inserted in the middle of actions', async () => {
+    const m = await mount(
+      { xs: [1, 3] },
+      '@for (x of p[\'xs\']; track x) {<button slot="actions"><b>{{ x }}</b></button>}',
+    )
+    mounted.push(m)
+    const texts = (): string[] =>
+      Array.from(m.host.querySelectorAll('button[slot="actions"] b')).map(
+        (el) => el.textContent ?? '',
+      )
+    expect(texts()).toEqual(['1', '3'])
+    await m.setProps({ xs: [1, 2, 3] })
+    expect(texts()).toEqual(['1', '2', '3'])
+    await m.setProps({ xs: [1, 3] })
+    expect(texts()).toEqual(['1', '3'])
+  })
+
   beforeEach(() => tSpy.mockClear())
 
   it('renders a text input with the field label as aria-label', async () => {
@@ -362,5 +390,107 @@ describe('FilterBar', () => {
     const fields = [{ id: 'q', type: 'text', label: 'Search' }]
     const { host } = await render({ fields, values: {}, onChange: () => {}, className: 'fb-cls' })
     expect(host.innerHTML).toContain('fb-cls')
+  })
+
+  it('shows and removes the actions wrapper in the pass where the consumer @if adds and removes its content', async () => {
+    const m = await mount(
+      { fields: [], values: {}, onChange: () => {}, on: false },
+      `@if (p['on']) {<button slot="actions" data-actions type="button">Clear</button>}`,
+    )
+    mounted.push(m)
+    const bar = (): HTMLElement => {
+      const el = m.host.querySelector('[mol-filter-bar]')
+      if (!el) throw new Error('no filter bar rendered')
+      return el as HTMLElement
+    }
+    expect(m.host.querySelector('[data-actions]')).toBeNull()
+    await m.setProps({ on: true })
+    const actions = m.host.querySelector('[data-actions]')
+    // React renders `{actions}` bare in the bar, with no capture wrapper.
+    expect(actions?.parentElement).toBe(bar())
+    await m.setProps({ on: false })
+    expect(m.host.querySelector('[data-actions]')).toBeNull()
+  })
+
+  it('renders the actions bare when they come through an OnPush component, in the pass where the consumer @if adds and removes its content', async () => {
+    // No hook of the bar runs here: the OnPush component in between is not checked when only the
+    // consumer's @if changes. React has no such boundary; its actions follow the consumer's state.
+    const Mid = Component({
+      selector: 'mol-spec-onpush-mid',
+      standalone: true,
+      imports: [FilterBar],
+      changeDetection: ChangeDetectionStrategy.OnPush,
+      template: `<div mol-filter-bar [fields]="[]" [values]="{}" [onChange]="noop"><ng-content select="[slot=actions]" ngProjectAs="[slot=actions]"></ng-content></div>`,
+    })(
+      class SpecOnPushMid {
+        /** The bar's required change handler. */
+        readonly noop = (): void => {}
+      },
+    )
+    const Consumer = Component({
+      selector: 'mol-spec-onpush-consumer',
+      standalone: true,
+      imports: [Mid],
+      changeDetection: ChangeDetectionStrategy.Eager,
+      template: `<mol-spec-onpush-mid>@if (on) {<button slot="actions" data-actions type="button">Clear</button>}</mol-spec-onpush-mid>`,
+    })(
+      class SpecOnPushConsumer {
+        /** Whether the consumer renders the actions. */
+        on = false
+      },
+    )
+    const appRef: ApplicationRef = await createApplication({
+      providers: [provideZonelessChangeDetection(), provideDomPlacement()],
+    })
+    const ref: ComponentRef<{ on: boolean }> = createComponent(Consumer, {
+      environmentInjector: appRef.injector,
+    })
+    const host = ref.location.nativeElement as HTMLElement
+    document.body.appendChild(host)
+    appRef.attachView(ref.hostView)
+    try {
+      appRef.tick()
+      const set = (on: boolean): void => {
+        ref.instance.on = on
+        ref.changeDetectorRef.markForCheck()
+        appRef.tick()
+      }
+      expect(host.querySelector('[data-actions]')).toBeNull()
+      set(true)
+      expect(host.querySelector('[data-actions]')?.parentElement).toBe(
+        host.querySelector('[mol-filter-bar]'),
+      )
+      set(false)
+      expect(host.querySelector('[data-actions]')).toBeNull()
+    } finally {
+      appRef.destroy()
+      host.remove()
+    }
+  })
+
+  it("renders React's elements with no host or capture element of its own", async () => {
+    const fields = [{ id: 'q', type: 'text', label: 'Search' }]
+    const m = await mount(
+      { fields, values: {}, onChange: () => {}, on: true },
+      `@if (p['on']) {<button slot="actions" data-actions type="button">Go</button>}`,
+      true,
+    )
+    mounted.push(m)
+    // The consumer's children are exactly React's: the two neighbours and the bar
+    // (its root, so the host element itself), with no extra host or capture.
+    const shape = (): string =>
+      Array.from(m.host.childNodes)
+        .filter(
+          (n) => n.nodeType === 1 || (n.nodeType === 3 && (n.textContent ?? '').trim() !== ''),
+        )
+        .map((n) => (n.nodeType === 1 ? (n as Element).tagName : '#text'))
+        .join(',')
+    const bar = (): HTMLElement => m.host.querySelector('[mol-filter-bar]') as HTMLElement
+    expect(shape()).toBe('I,DIV,I')
+    // The projected actions render bare in the bar, no capture span around them.
+    expect((m.host.querySelector('[data-actions]') as HTMLElement).parentElement).toBe(bar())
+    await m.setProps({ on: false })
+    expect(shape()).toBe('I,DIV,I')
+    expect(m.host.querySelector('[data-actions]')).toBeNull()
   })
 })

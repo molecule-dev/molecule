@@ -52,6 +52,7 @@ vi.mock('@molecule/app-ui-angular', async () => {
   const { Component } = await import('@angular/core')
   return {
     Button: Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'button[mol-button]',
       standalone: true,
       inputs: ['variant', 'size', 'color', 'loading', 'className', 'disabled', 'type'],
@@ -84,6 +85,8 @@ vi.mock('@molecule/app-angular', async (importOriginal) => ({
   useTranslation: () => ({ t: (key: string) => `«${key}»` }),
 }))
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 const { ActionMenu } = await import('../action-menu.component.js')
 
 /** A mounted spec host: its DOM and a teardown. */
@@ -111,7 +114,7 @@ async function render(props: Record<string, unknown> = {}): Promise<Mounted> {
     selector: 'mol-spec-host',
     standalone: true,
     imports: [ActionMenu as Type<unknown>],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: `<span mol-action-menu [items]="p['items']" [triggerAriaLabel]="p['triggerAriaLabel']"></span>`,
   })(
     class SpecHost {
@@ -120,7 +123,7 @@ async function render(props: Record<string, unknown> = {}): Promise<Mounted> {
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
     environmentInjector: appRef.injector,

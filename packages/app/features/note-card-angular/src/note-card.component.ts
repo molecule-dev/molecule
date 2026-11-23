@@ -4,21 +4,18 @@
  * @module
  */
 
-import {
-  type AfterViewInit,
-  Component,
-  type DoCheck,
-  ElementRef,
-  inject,
-  Renderer2,
-  ViewChild,
-} from '@angular/core'
+import { Component, type ElementRef, signal, ViewChild } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  placeContent,
+  setElementPresent,
+  type SlotReader,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { ColorVariant, UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
-
-import { hasNodes, SlotGuard } from './slot-dom.js'
 
 /**
  * The open button's overlay reset: an empty, transparent native button over
@@ -87,11 +84,12 @@ const tintTone = (color: string | undefined): ColorVariant | undefined =>
  * `actions` bare beside it (React renders `{actions}` with no wrapper).
  * String inputs render as text instead — React's truthiness branch applies:
  * an empty string renders nothing. The always-mounted capture wrappers
- * reconcile against that in {@link NoteCard.ngAfterViewInit}.
+ * reconcile against that in {@link NoteCard.reconcile}.
  */
 @Component({
   selector: 'article[mol-note-card]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   inputs: ['title', 'body', 'color', 'pinned', 'modifiedAt', 'actions', 'onClick', 'className'],
   host: {
     '[class]': 'classes()',
@@ -139,7 +137,7 @@ const tintTone = (color: string | undefined): ColorVariant | undefined =>
       <span #actionsWrap><ng-content select="[slot=actions]"></ng-content></span>
     </footer>`,
 })
-export class NoteCard implements AfterViewInit, DoCheck {
+export class NoteCard {
   /** Note title (string/number renders as text; nodes are `[slot=title]` content). */
   title?: unknown
   /** Note body text (string/number renders as text; nodes are `[slot=body]` content). */
@@ -179,19 +177,16 @@ export class NoteCard implements AfterViewInit, DoCheck {
   readonly nameId = `mol-note-card-name-${NoteCard.nextId++}`
   /** The i18n handle (locale-reactive), read in an injection context. */
   private readonly i18n = useTranslation()
-  /** Whether the projected slots' presence has been read (read once: the reveal empties the wrapper). */
-  private slotsRead = false
-  /** Whether the title slot holds projected content (read once with the slots). */
-  private hasTitleSlot = false
-  /** Whether the modifiedAt slot holds projected content (read once with the slots). */
-  private hasModifiedSlot = false
-  /** Whether the actions slot holds projected content (read once with the slots). */
-  private hasActions = false
-  /** Whether the actions' bare reveal has run. */
-  private actionsRevealed = false
 
-  private readonly renderer = inject(Renderer2)
-  private readonly guard = new SlotGuard(inject(ElementRef), inject(Renderer2))
+  /**
+   * Whether the title renders (a text title, or a projected `[slot=title]`),
+   * written by the placement function and read by the id bindings.
+   */
+  private readonly titlePresent = signal(false)
+
+  constructor() {
+    usePlacement((hasContent) => this.reconcile(hasContent))
+  }
 
   /**
    * The current class map.
@@ -312,12 +307,12 @@ export class NoteCard implements AfterViewInit, DoCheck {
 
   /**
    * Whether the title carries the open button's label: a text title, or a
-   * projected `[slot=title]` (read at view init — before that a slot-only
-   * title's id lands on the body for a pass, then moves with the next one).
+   * projected `[slot=title]` — written by the placement function, so the id
+   * lands on the title in the same pass the slot's node arrives.
    * @returns True when a title renders.
    */
   private get hasLabel(): boolean {
-    return this.titleText() !== '' || this.hasTitleSlot
+    return this.titlePresent()
   }
 
   /**
@@ -373,58 +368,32 @@ export class NoteCard implements AfterViewInit, DoCheck {
   }
 
   /**
-   * Reads slot presence (view queries resolve only at view init) and
-   * reconciles the wrappers against React's DOM.
-   */
-  ngAfterViewInit(): void {
-    this.reconcile()
-  }
-
-  /**
-   * Re-reconciles on later passes (a props step may add a title or a
-   * modified-at value, or flip `pinned` or `onClick`, which React re-renders).
-   */
-  ngDoCheck(): void {
-    this.reconcile()
-  }
-
-  /**
    * Applies React's conditions: the `<h3>` renders when the title input or
    * the slot exists; the `<footer>` renders when the modified-at span or the
    * actions exist (the modified-at `<span>` only for a modifiedAt value; the
-   * actions bare). The slots' presence is read once — the projected content
-   * never changes for this component's lifetime, and the bare reveal empties
-   * the actions capture wrapper, so a per-pass re-read would lose it. The
-   * open button is the template's own `@if (onClick)` block.
+   * actions bare). The open button is the template's own `@if (onClick)`
+   * block.
+   *
+   * @param hasContent - Reads whether a slot has content.
    */
-  private reconcile(): void {
+  private reconcile(hasContent: SlotReader): void {
     const title = this.titleWrap?.nativeElement
     const footer = this.footerWrap?.nativeElement
     const modified = this.modifiedWrap?.nativeElement
     const actions = this.actionsWrap?.nativeElement
-    if (!this.slotsRead && title && footer && modified && actions) {
-      this.hasTitleSlot = hasNodes(title)
-      this.hasModifiedSlot = hasNodes(modified)
-      this.hasActions = hasNodes(actions)
-      this.slotsRead = true
-    }
+    if (!title || !footer || !modified || !actions) return
 
-    this.guard.toggle(title, this.titleText() !== '' || this.hasTitleSlot)
-    this.guard.toggle(footer, this.modifiedText() !== '' || this.hasModifiedSlot || this.hasActions)
-    this.guard.toggle(modified, this.modifiedText() !== '' || this.hasModifiedSlot)
-    if (this.slotsRead) {
-      // React renders the actions bare: with content, the wrapper's nodes move
-      // to its position once (`toggle` above re-attached the footer, so they
-      // land in it); without, the empty capture wrapper leaves React's DOM —
-      // re-hidden on every pass it rides back in with a re-attached footer.
-      if (this.hasActions) {
-        if (!this.actionsRevealed) {
-          this.guard.reveal(actions)
-          this.actionsRevealed = true
-        }
-      } else if (actions?.isConnected) {
-        this.guard.hide(actions)
-      }
-    }
+    const titleShown = this.titleText() !== '' || hasContent(title)
+    this.titlePresent.set(titleShown)
+    const modifiedShown = this.modifiedText() !== '' || hasContent(modified)
+    const footerShown = modifiedShown || hasContent(actions)
+    setElementPresent(title, titleShown)
+    setElementPresent(modified, modifiedShown)
+    setElementPresent(footer, footerShown)
+    if (!footerShown) return
+    // React renders the actions bare inside the footer: the projected nodes
+    // render at the capture wrapper's place, and the wrapper leaves the DOM.
+    placeContent(actions, footer, actions)
+    setElementPresent(actions, false)
   }
 }

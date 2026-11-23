@@ -15,7 +15,7 @@ import { fileURLToPath } from 'node:url'
 
 import '@molecule/app-framework-conformance/ui/setup'
 import '@angular/compiler'
-import { Component, type Type } from '@angular/core'
+import { ChangeDetectionStrategy, Component, type Type } from '@angular/core'
 import ts from 'typescript'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -107,6 +107,7 @@ function compile(http: ResourceHttp): Example {
   // OptimisticToggleButton takes the server value as an input and follows it
   // after a save completes, the way React's useOptimisticValue does.
   const InvoiceFlag = Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
     selector: `mol-invoice-flag-${counter}`,
     standalone: true,
     imports: [OptimisticToggleButton],
@@ -135,6 +136,7 @@ function compile(http: ResourceHttp): Example {
   ) as Type<unknown>
 
   const InvoicePage = Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
     selector: `mol-invoice-page-${counter}`,
     standalone: true,
     imports: [QueryContent, InvoiceFlag],

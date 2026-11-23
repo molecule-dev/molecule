@@ -28,6 +28,7 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
 import type { I18nProvider as I18nProviderType } from '@molecule/app-i18n'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 import { setIconSet } from '@molecule/app-icons'
@@ -51,7 +52,7 @@ const SuggestionHost = Component({
   selector: 'mol-static-t-suggestion-host',
   standalone: true,
   imports: [RelevantSkillSuggestion],
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `<div mol-relevant-skill-suggestion [skill]="p['skill']" [onLoad]="p['onLoad']" [onDismiss]="p['onDismiss']"></div>`,
 })(
   class SuggestionHost {
@@ -97,7 +98,7 @@ async function renderSuggestion(onLoad: () => void, onDismiss: () => void): Prom
   const container = document.createElement('div')
   document.body.appendChild(container)
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<InstanceType<typeof SuggestionHost>> = createComponent(SuggestionHost, {
     environmentInjector: appRef.injector,

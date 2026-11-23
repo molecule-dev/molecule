@@ -71,6 +71,7 @@ vi.mock('@molecule/app-ui-angular', async () => {
   return {
     ...actual,
     Button: Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'button[mol-button]',
       standalone: true,
       inputs: ['variant', 'size'],
@@ -115,15 +116,20 @@ afterEach(async () => {
  *
  * @param projected - Content projected into the component (node props).
  * @param props - The prop values the template binds.
+ * @param siblings - Wrap the player in fixed `<i>a</i>` / `<i>b</i>` neighbours.
  * @returns The mounted host.
  */
-async function mount(projected = '', props: Record<string, unknown> = {}): Promise<Mounted> {
+async function mount(
+  projected = '',
+  props: Record<string, unknown> = {},
+  siblings = false,
+): Promise<Mounted> {
   const Host = Component({
     selector: `mol-spec-host-${specHostCount++}`,
     standalone: true,
     imports: [AudioPlayer],
-    changeDetection: ChangeDetectionStrategy.Default,
-    template: `<div mol-audio-player [src]="p['src']" [title]="p['title']" [subtitle]="p['subtitle']" [captions]="p['captions']" [captionsLang]="p['captionsLang']" [captionsLabel]="p['captionsLabel']" [defaultMuted]="p['defaultMuted']" [autoPlay]="p['autoPlay']" [className]="p['className']">${projected}</div>`,
+    changeDetection: ChangeDetectionStrategy.Eager,
+    template: `${siblings ? '<i>a</i>' : ''}<div mol-audio-player [src]="p['src']" [title]="p['title']" [subtitle]="p['subtitle']" [captions]="p['captions']" [captionsLang]="p['captionsLang']" [captionsLabel]="p['captionsLabel']" [defaultMuted]="p['defaultMuted']" [autoPlay]="p['autoPlay']" [className]="p['className']">${projected}</div>${siblings ? '<i>b</i>' : ''}`,
   })(
     class SpecHost {
       /** The props the template binds. */
@@ -269,5 +275,48 @@ describe('AudioPlayer', () => {
     expect(withCaptions).toMatch(/<p aria-live="polite" data-mol-id="audio-player-captions"/)
     const without = (await mount('', { src: 's' })).markup()
     expect(without).not.toContain('audio-player-captions')
+  })
+
+  it('shows and removes the title wrapper in the pass where the consumer @if adds and removes its content', async () => {
+    const m = await mount(`@if (p['on']) {<span slot="title" data-title>Episode</span>}`, {
+      src: 's',
+      on: false,
+    })
+    const title = (): HTMLElement | null => m.host.querySelector('[data-title]')
+    // No title or subtitle: React renders no header.
+    expect(title()).toBeNull()
+    expect(m.host.querySelector('header')).toBeNull()
+    await m.setProps({ on: true })
+    // The title arrives: the header and its span render in the same pass.
+    expect(title()).not.toBeNull()
+    expect(title()?.isConnected).toBe(true)
+    expect(m.host.querySelector('header')).not.toBeNull()
+    await m.setProps({ on: false })
+    expect(title()).toBeNull()
+    expect(m.host.querySelector('header')).toBeNull()
+  })
+
+  it("renders React's elements with no host or capture element of its own", async () => {
+    const m = await mount(
+      `@if (p['on']) {<b slot="visualizer" data-viz>viz</b>}`,
+      { src: 's', on: true },
+      true,
+    )
+    // The consumer's children are exactly React's: the two neighbours and the
+    // player (its root, so the host element itself), with no extra host or capture.
+    const shape = (): string =>
+      Array.from(m.host.childNodes)
+        .filter(
+          (n) => n.nodeType === 1 || (n.nodeType === 3 && (n.textContent ?? '').trim() !== ''),
+        )
+        .map((n) => (n.nodeType === 1 ? (n as Element).tagName : '#text'))
+        .join(',')
+    const viz = (): HTMLElement | null => m.host.querySelector('[data-viz]')
+    expect(shape()).toBe('I,DIV,I')
+    // The projected visualizer renders bare in the player, no capture span around it.
+    expect(viz()?.parentElement?.tagName).toBe('DIV')
+    await m.setProps({ on: false })
+    expect(shape()).toBe('I,DIV,I')
+    expect(viz()).toBeNull()
   })
 })

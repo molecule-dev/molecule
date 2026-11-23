@@ -5,23 +5,21 @@
  */
 
 import { NgTemplateOutlet } from '@angular/common'
-import {
-  type AfterViewChecked,
-  type AfterViewInit,
-  Component,
-  type DoCheck,
-  ElementRef,
-  inject,
-  Renderer2,
-  type TemplateRef,
-  ViewChild,
-} from '@angular/core'
+import { Component, ElementRef, inject, type TemplateRef, ViewChild } from '@angular/core'
 
+import {
+  MolPlacement,
+  placeContent,
+  placeContentBefore,
+  setElementPresent,
+  type SlotReader,
+  usePlacement,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 import { MessageBubble } from './message-bubble.component.js'
-import { hasNodes, hasText, isTemplate, SlotGuard, textOf } from './nodes.js'
+import { hasText, isTemplate, textOf } from './nodes.js'
 import type { MessageData } from './types.js'
 
 /**
@@ -29,9 +27,9 @@ import type { MessageData } from './types.js'
  *
  * Vertical list of `<article mol-message-bubble>`s with optional date
  * separators. React's root is the `<div>` when it has messages and the bare
- * `emptyState` when the list is empty, so the host is unwrapped
- * (`data-parity-unwrap`, `display: contents`) and the `<div>` is rendered inside
- * it; the empty state and the list are reconciled against React's branch. The
+ * `emptyState` when the list is empty, so everything the host holds (the empty
+ * state's capture and the `<div>`) renders in the host's place and the host
+ * itself leaves the page, React's exact fragment DOM. The
  * empty state is text, an `ng-template`, or projected `[slot=emptyState]`
  * content; a date separator is an `ng-template` receiving the message as
  * `$implicit` / `a0` and its index as `a1`.
@@ -39,16 +37,13 @@ import type { MessageData } from './types.js'
 @Component({
   selector: 'mol-message-list',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [NgTemplateOutlet, MessageBubble],
   inputs: ['messages', 'selfAuthorId', 'renderDateSeparator', 'emptyState', 'className'],
-  host: {
-    'data-parity-unwrap': '',
-    style: 'display: contents',
-  },
   // prettier-ignore
-  template: `<span #empty data-parity-unwrap style="display: contents">@if (emptyTemplate(); as emptyTpl) {<ng-container [ngTemplateOutlet]="emptyTpl" />}@else if (hasText(emptyState)) {{{ textOf(emptyState) }}}<ng-content select="[slot=emptyState]"></ng-content></span><div #list [class]="listClasses()">@for (message of messages; track message.id) {<div [class]="rowClasses()">@if (separatorTemplate(); as separatorTpl) {<ng-container [ngTemplateOutlet]="separatorTpl" [ngTemplateOutletContext]="separatorContext(message, $index)" />}<article mol-message-bubble [message]="message" [isSelf]="message.author.id === selfAuthorId"></article></div>}</div>`,
+  template: `<span #empty>@if (emptyTemplate(); as emptyTpl) {<ng-container [ngTemplateOutlet]="emptyTpl" />}@else if (hasText(emptyState)) {{{ textOf(emptyState) }}}<ng-content select="[slot=emptyState]"></ng-content></span><div #list [class]="listClasses()">@for (message of messages; track message.id) {<div [class]="rowClasses()">@if (separatorTemplate(); as separatorTpl) {<ng-container [ngTemplateOutlet]="separatorTpl" [ngTemplateOutletContext]="separatorContext(message, $index)" />}<article mol-message-bubble [message]="message" [isSelf]="message.author.id === selfAuthorId"></article></div>}</div>`,
 })
-export class MessageList implements AfterViewInit, AfterViewChecked, DoCheck {
+export class MessageList {
   /** The messages to render, in order. */
   messages: MessageData[] = []
   /** When provided, viewer-authored messages flip alignment to the right. */
@@ -60,12 +55,18 @@ export class MessageList implements AfterViewInit, AfterViewChecked, DoCheck {
   /** Extra classes. */
   className?: string
 
-  /** The projected empty-state capture point. */
+  /** The projected empty-state capture point (its content renders in its place, and it leaves the page). */
   @ViewChild('empty') private empty?: ElementRef<HTMLElement>
   /** The feed wrapper (detached while the empty state renders instead). */
   @ViewChild('list') private list?: ElementRef<HTMLElement>
 
-  private readonly guard = new SlotGuard(inject(ElementRef), inject(Renderer2))
+  private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
+
+  constructor() {
+    // React's root is the `<div>`, or the bare empty state: the host's content renders in
+    // the host's place and the host itself leaves the page.
+    usePlacement((hasContent) => this.reconcile(hasContent))
+  }
 
   /**
    * The current class map.
@@ -138,42 +139,32 @@ export class MessageList implements AfterViewInit, AfterViewChecked, DoCheck {
   }
 
   /**
-   * Reconciles the projected empty state and the list wrapper against React's
-   * branch once the view queries resolve.
-   */
-  ngAfterViewInit(): void {
-    this.reconcile()
-  }
-
-  /**
-   * Re-reconciles on later passes, so a props step that empties or refills the
-   * list swaps the branch the way React does.
-   */
-  ngDoCheck(): void {
-    this.reconcile()
-  }
-
-  /**
-   * Re-reconciles after each view update: a node-valued empty state renders into
-   * its outlet only during the update, so the branch decision must be read
-   * afterwards.
-   */
-  ngAfterViewChecked(): void {
-    this.reconcile()
-  }
-
-  /**
    * Applies React's condition: with no messages and an empty state, the empty
    * state renders bare and the list wrapper disappears; otherwise the wrapper
    * renders and the empty state is dropped.
+   *
+   * @param hasContent - Reads whether a slot has content.
    */
-  private reconcile(): void {
+  private reconcile(hasContent: SlotReader): void {
+    const host = this.host.nativeElement
     const empty = this.empty?.nativeElement
     const list = this.list?.nativeElement
     const hasEmpty =
       (this.messages?.length ?? 0) === 0 &&
-      (isTemplate(this.emptyState) || hasText(this.emptyState) || hasNodes(empty))
-    this.guard.toggle(empty, hasEmpty)
-    this.guard.toggle(list, !hasEmpty)
+      (isTemplate(this.emptyState) || hasText(this.emptyState) || hasContent(empty))
+    if (hasEmpty) {
+      // The capture's content renders exactly where the capture stood, and the capture
+      // itself leaves the page.
+      placeContentBefore(empty, empty)
+    } else {
+      // Back inside the capture, so it leaves the page with it.
+      placeContent(empty, null)
+    }
+    setElementPresent(empty, false)
+    setElementPresent(list, !hasEmpty)
+    // React's root is the fragment: everything renders in the host's place, and the host
+    // itself leaves the page.
+    placeContentBefore(host, host)
+    setElementPresent(host, false)
   }
 }

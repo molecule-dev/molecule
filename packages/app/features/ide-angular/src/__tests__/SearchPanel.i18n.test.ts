@@ -33,7 +33,7 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
-import { provideHttp, provideTheme } from '@molecule/app-angular'
+import { provideDomPlacement, provideHttp, provideTheme } from '@molecule/app-angular'
 import type { ServiceCallSink } from '@molecule/app-framework-conformance/ui'
 import { createFakeThemeProvider } from '@molecule/app-framework-conformance/ui'
 import type { HttpClient } from '@molecule/app-http'
@@ -87,7 +87,7 @@ const SearchPanelHost = Component({
   selector: 'mol-search-panel-host',
   standalone: true,
   imports: [SearchPanel],
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `<div mol-search-panel [projectId]="p['projectId']"></div>`,
 })(
   class SearchPanelHost {
@@ -142,6 +142,7 @@ async function renderPanel(provider: I18nProviderContract): Promise<HTMLElement>
   const appRef: ApplicationRef = await createApplication({
     providers: [
       provideZonelessChangeDetection(),
+      provideDomPlacement(),
       provideTheme(createFakeThemeProvider('light', sink)),
       provideHttp(buildHttpClient()),
     ],

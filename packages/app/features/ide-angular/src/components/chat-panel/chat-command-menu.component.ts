@@ -9,15 +9,16 @@
  * The visible commands come from the `chat:pickers` slice's `filteredCmds`,
  * exactly the list React derives in that region, and the open state from the
  * composer slice's `commandMenu`. The section renders nothing while either is
- * empty, so its host is a `data-parity-unwrap` wrapper (React's root `<div>`
- * is itself conditional) and the normalizer drops the wrapper.
+ * empty, so the host IS React's conditional root `<div>` with its ClassMap
+ * classes and inline style, and it is out of the DOM while React renders
+ * nothing (`useHostPresence`).
  *
  * @module
  */
 
 import { Component, inject } from '@angular/core'
 
-import { DEFAULT_AGENT_NAME } from '@molecule/app-angular'
+import { DEFAULT_AGENT_NAME, useHostPresence } from '@molecule/app-angular'
 import { APP_VERSION } from '@molecule/app-ide-panel-logic'
 import {
   COMMAND_CATEGORIES,
@@ -69,9 +70,12 @@ interface CommandMenuGroup {
 @Component({
   selector: 'div[mol-chat-command-menu]',
   standalone: true,
-  host: { 'data-parity-unwrap': '', style: 'display: contents' },
+  host: {
+    '[class]': 'rootClass',
+    '[attr.style]': 'rootStyle()',
+  },
   // prettier-ignore
-  template: `@if (groups(); as menu) {<div [class]="rootClass" [attr.style]="rootStyle()"><div style="overflow-y: auto; flex: 1">@for (group of menu; track group.key) {<div><div [class]="cm.textMuted" [attr.style]="headerStyle(group.bordered)">{{ group.label }}</div>@for (row of group.rows; track row.id) {<button type="button" (click)="execute(row.id)" (mouseenter)="onRowEnter($event)" (mouseleave)="onRowLeave($event, row.index)" [class]="rowClass" [attr.style]="rowStyle(row.index)"><span [class]="labelClass" [attr.style]="labelStyle">{{ row.label }}</span><span [class]="cm.textMuted" [attr.style]="descriptionStyle">{{ row.description }}@if (row.suffix) {<span [attr.style]="suffixStyle">{{ row.suffix }}</span>}</span></button>}</div>}</div></div>}`,
+  template: `@if (groups(); as menu) {<div style="overflow-y: auto; flex: 1">@for (group of menu; track group.key) {<div><div [class]="cm.textMuted" [attr.style]="headerStyle(group.bordered)">{{ group.label }}</div>@for (row of group.rows; track row.id) {<button type="button" (click)="execute(row.id)" (mouseenter)="onRowEnter($event)" (mouseleave)="onRowLeave($event, row.index)" [class]="rowClass" [attr.style]="rowStyle(row.index)"><span [class]="labelClass" [attr.style]="labelStyle">{{ row.label }}</span><span [class]="cm.textMuted" [attr.style]="descriptionStyle">{{ row.description }}@if (row.suffix) {<span [attr.style]="suffixStyle">{{ row.suffix }}</span>}</span></button>}</div>}</div>}`,
 })
 export class ChatCommandMenu {
   /** The shared panel state (the props the suffix reads). */
@@ -117,11 +121,12 @@ export class ChatCommandMenu {
     fontWeight: 500,
   })
 
-  /** Composes the fixed ClassMap classes once. */
+  /** Composes the fixed ClassMap classes once, and keeps the host in the page only while the menu shows. */
   constructor() {
     this.rootClass = this.cm.cn(this.cm.surface, this.cm.borderAll)
     this.rowClass = this.cm.w('full')
     this.labelClass = this.cm.fontWeight('medium')
+    useHostPresence(() => this.groups() !== null)
   }
 
   /**

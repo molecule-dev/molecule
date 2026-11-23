@@ -6,17 +6,21 @@
  * children. Angular DI does not: `<ng-content>` nodes keep their declaration
  * site's injector, so a provider on the container is invisible to sections
  * projected inside it. The container therefore registers the context value on
- * its own host ELEMENT (the same DOM-scoped mechanism
- * `@molecule/app-ui-angular` uses for its contexts) and sections look it up by
- * walking their DOM ancestors — the same "nearest enclosing provider in the
- * rendered tree" semantics React has.
+ * its own host ELEMENT, in a context of its own (`createDomContext` from
+ * `@molecule/app-ui-angular`), and sections look it up from their own host
+ * through the rendered tree: the same "nearest enclosing provider" semantics
+ * React has, with either host in or out of the page.
  *
  * @module
  */
 
-import { provideDomContext, removeDomContext } from '@molecule/app-ui-angular'
+import { createDomContext } from '@molecule/app-ui-angular'
 
 import type { SettingsPanelContextValue } from './types.js'
+
+/** React's `SettingsPanelContext`, in the rendered tree. */
+export const settingsPanelContext =
+  createDomContext<SettingsPanelContextValue>('SettingsPanelContext')
 
 /**
  * Registers the container context on `SettingsContainer`'s host element. The
@@ -38,8 +42,8 @@ export function provideSettingsPanelContext(
       if (onClose) onClose()
     },
   }
-  provideDomContext(host, value)
+  settingsPanelContext.provide(host, value)
   return () => {
-    removeDomContext(host)
+    settingsPanelContext.remove(host)
   }
 }

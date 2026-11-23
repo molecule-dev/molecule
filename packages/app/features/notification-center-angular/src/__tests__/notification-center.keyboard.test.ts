@@ -24,6 +24,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 vi.mock('@molecule/app-ui', () => ({
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
@@ -56,6 +58,7 @@ vi.mock('@molecule/app-ui-angular', async () => {
   const { Component } = await import('@angular/core')
   return {
     Button: Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'button[mol-button]',
       standalone: true,
       inputs: ['variant', 'size', 'className', 'disabled', 'type'],
@@ -70,6 +73,7 @@ vi.mock('@molecule/app-ui-angular', async () => {
       },
     ),
     Alert: Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'div[mol-alert]',
       standalone: true,
       inputs: ['status'],
@@ -105,7 +109,7 @@ async function render(item: Record<string, unknown>): Promise<Mounted> {
     selector: 'mol-spec-host',
     standalone: true,
     imports: [NotificationCenter as Type<unknown>],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: `<div mol-notification-center [items]="p['items']"></div>`,
   })(
     class SpecHost {
@@ -114,7 +118,7 @@ async function render(item: Record<string, unknown>): Promise<Mounted> {
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
     environmentInjector: appRef.injector,

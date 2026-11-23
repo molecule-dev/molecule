@@ -23,6 +23,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 // A ClassMap proxy: `cn(...)` joins tokens (calling function-valued args
 // first) and `badge({ variant })` maps to a real `bg-<color>` utility — the
 // same mock the React suite installs.
@@ -80,7 +82,7 @@ async function mount(
     selector: 'mol-spec-host',
     standalone: true,
     imports: [component],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template,
   })(
     class SpecHost {
@@ -89,7 +91,7 @@ async function mount(
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
     environmentInjector: appRef.injector,
@@ -210,6 +212,17 @@ describe('StatusBadge', () => {
   it('omits the icon wrapper when no icon is projected', async () => {
     const m = await renderBadge()
     expect(rootEl(m.host, 'mol-status-badge').firstElementChild).toBeNull()
+  })
+
+  it('renders the icon wrapper for an icon a consumer projects after the first render, and drops it again', async () => {
+    const m = await renderBadge({}, `@if (p['icon']) {<i slot="icon" data-icon></i>}Open`)
+    const root = rootEl(m.host, 'mol-status-badge')
+    expect(root.firstElementChild).toBeNull()
+    await m.setProps({ icon: true })
+    expect(root.firstElementChild?.tagName).toBe('SPAN')
+    expect(root.firstElementChild?.contains(root.querySelector('[data-icon]'))).toBe(true)
+    await m.setProps({ icon: false })
+    expect(root.firstElementChild).toBeNull()
   })
 
   it('forwards className in both appearances', async () => {

@@ -22,7 +22,6 @@
  */
 
 import {
-  type AfterViewChecked,
   type AfterViewInit,
   Component,
   Directive,
@@ -33,10 +32,18 @@ import {
   type OnDestroy,
   type OnInit,
   signal,
+  ViewChild,
 } from '@angular/core'
 import { DomSanitizer, type SafeResourceUrl } from '@angular/platform-browser'
 
-import { usePreview, useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  placeContentBefore,
+  setElementPresent,
+  usePlacement,
+  usePreview,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { IconName } from '@molecule/app-icons'
 import { resolveDeviceSize } from '@molecule/app-ide-panel-logic'
 import {
@@ -120,34 +127,6 @@ class PreviewFrameRef implements AfterViewInit, OnDestroy {
 }
 
 /**
- * Reports its host element after every render, so the panel can tell whether the projection point
- * received content — an unmatched `<ng-content>` renders nothing, and Angular does not run a
- * component's view hooks for an embedded-only refresh.
- */
-@Directive({
-  selector: '[molPreviewRestartProbe]',
-  standalone: true,
-  inputs: ['molPreviewRestartProbe'],
-})
-class PreviewRestartProbe implements AfterViewInit, AfterViewChecked {
-  /** The panel's probe callback. */
-  molPreviewRestartProbe!: (element: HTMLElement) => void
-
-  /** The projection point's element. */
-  private readonly element: ElementRef<HTMLElement> = inject(ElementRef)
-
-  /** Reports the first render. */
-  ngAfterViewInit(): void {
-    this.molPreviewRestartProbe?.(this.element.nativeElement)
-  }
-
-  /** Reports later renders (a projection can arrive after the branch was created). */
-  ngAfterViewChecked(): void {
-    this.molPreviewRestartProbe?.(this.element.nativeElement)
-  }
-}
-
-/**
  * A single icon button inside the preview URL bar — a ghost button with an icon-set glyph wrapped
  * in the framework's REAL styled {@link Tooltip} (instant, themed, focus-aware).
  */
@@ -156,11 +135,26 @@ class PreviewRestartProbe implements AfterViewInit, AfterViewChecked {
   standalone: true,
   imports: [Icon, Tooltip],
   inputs: ['icon', 'title', 'molId', 'onClick', 'disabled'],
-  host: { 'data-parity-unwrap': '', style: 'display: contents' },
+  hostDirectives: [MolPlacement],
   // prettier-ignore
   template: `<mol-tooltip placement="bottom"><button type="button" [attr.data-mol-id]="molId" [attr.aria-label]="title" (click)="onClick?.()" [disabled]="disabled === true" [class]="buttonClass()"><svg mol-icon [name]="icon" [size]="16" aria-hidden="true"></svg></button><ng-container ngProjectAs="[slot=content]">{{ title }}</ng-container></mol-tooltip>`,
 })
 class BarButton {
+  /** The component's own host element, which React does not render. */
+  private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
+
+  /**
+   * Renders the Tooltip's nodes in front of the host and keeps the host out of
+   * the DOM: React's root here is the Tooltip's fragment.
+   */
+  constructor() {
+    usePlacement(() => {
+      const host = this.host.nativeElement
+      placeContentBefore(host, host)
+      setElementPresent(host, false)
+    })
+  }
+
   /** The icon-set glyph. */
   icon!: IconName
   /** The button's label (its Tooltip content and `aria-label`). */
@@ -349,6 +343,7 @@ class DefaultLoadingIndicator implements AfterViewInit, OnChanges, OnDestroy, On
   ngAfterViewInit(): void {
     const style = this.host.nativeElement.ownerDocument.createElement('style')
     style.textContent = this.pulseKeyframes
+
     this.host.nativeElement.appendChild(style)
   }
 
@@ -486,7 +481,6 @@ class DefaultLoadingIndicator implements AfterViewInit, OnChanges, OnDestroy, On
     Icon,
     PreviewBlankNotice,
     PreviewFrameRef,
-    PreviewRestartProbe,
     Tooltip,
   ],
   inputs: [
@@ -502,6 +496,7 @@ class DefaultLoadingIndicator implements AfterViewInit, OnChanges, OnDestroy, On
     'isBuilding',
     'wakeAt',
   ],
+  hostDirectives: [MolPlacement],
   host: {
     '[class]': 'rootClass()',
   },
@@ -545,7 +540,7 @@ class DefaultLoadingIndicator implements AfterViewInit, OnChanges, OnDestroy, On
             } @else if (isBuilding || buildingHint != null) {
               <div mol-default-loading-indicator [hint]="buildingHint" [retryCount]="view.stuckRetryCount" [onManualRetry]="view.handleUserRetry"></div>
             } @else if (view.everLoaded && restartingProjected()) {
-              <div data-parity-unwrap [molPreviewRestartProbe]="probeRestarting"><ng-content select="[slot=restartingIndicator]"></ng-content></div>
+              <div #restartCapture><ng-content select="[slot=restartingIndicator]"></ng-content></div>
             } @else {
               <ng-content select="[slot=loadingIndicator]"><div mol-default-loading-indicator [retryCount]="view.stuckRetryCount" [onManualRetry]="view.handleUserRetry"></div></ng-content>
             }
@@ -741,6 +736,25 @@ export class PreviewPanel implements PreviewPanelProps, OnChanges, OnDestroy, On
     }
   }
 
+  /** The restarting-indicator projection point (a capture the host element leaves behind). */
+  @ViewChild('restartCapture') private restartCapture?: ElementRef<HTMLElement>
+
+  /**
+   * Renders the restarting-indicator projection in the capture's own place and keeps the capture
+   * out of the DOM (React renders the projected node itself, with no wrapper), then falls back to
+   * the loading indicator when nothing was projected there — the slot is read wherever it renders.
+   */
+  constructor() {
+    usePlacement((hasContent) => {
+      const capture = this.restartCapture?.nativeElement
+      if (!capture) return
+      placeContentBefore(capture, capture)
+      setElementPresent(capture, false)
+      if (!this.restartingProjected()) return
+      if (!hasContent(capture)) this.restartingProjected.set(false)
+    })
+  }
+
   /** Mounts the session: starts its timers, listeners and provider subscription. */
   ngOnInit(): void {
     this.unsubscribe = this.session.subscribe(() => this.revision.update((value) => value + 1))
@@ -776,20 +790,6 @@ export class PreviewPanel implements PreviewPanelProps, OnChanges, OnDestroy, On
   protected frameLoaded(event: Event): void {
     if (!(event.target as HTMLIFrameElement).getAttribute('src')) return
     this.view.handleIframeLoad()
-  }
-
-  /**
-   * Runs when the restarting-indicator projection point first renders: when nothing was
-   * projected there, the panel falls back to the loading indicator / default status.
-   * @param probe - The projection point's element.
-   */
-  protected readonly probeRestarting = (probe: HTMLElement): void => {
-    if (!this.restartingProjected()) return
-    const projected = Array.from(probe.childNodes).some(
-      (node) =>
-        node.nodeType === 1 || (node.nodeType === 3 && (node.textContent ?? '').trim() !== ''),
-    )
-    if (!projected) this.restartingProjected.set(false)
   }
 
   /** Unmounts the session and clears the iframe ref. */

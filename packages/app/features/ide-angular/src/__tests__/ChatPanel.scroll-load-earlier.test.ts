@@ -65,11 +65,10 @@ function stubScrollGeometry(container: HTMLElement): { scrollTop: number } {
   if (!scroller) throw new Error('messages container ([role="log"]) not found')
   // 120px per mounted item row — arbitrary but monotone: a prepend ALWAYS grows
   // scrollHeight, which is the only property the anchor math needs. The port
-  // renders each row inside `data-parity-unwrap` hosts (the conformance kit's
-  // convention for a wrapper React does not have), so the logical rows are
-  // counted; React's log has them as direct children.
+  // renders each timeline item as React does: its own row elements, with no
+  // wrapper element of its own (the boundary renders its content bare).
   Object.defineProperty(scroller, 'scrollHeight', {
-    get: () => scroller.querySelectorAll('mol-chat-item-boundary').length * 120,
+    get: () => renderedUserMessageCount(container) * 120,
     configurable: true,
   })
   Object.defineProperty(scroller, 'clientHeight', {

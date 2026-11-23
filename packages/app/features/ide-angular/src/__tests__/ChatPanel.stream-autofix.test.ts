@@ -18,6 +18,7 @@ import '@angular/compiler'
 import '@molecule/app-framework-conformance/ui/setup'
 import {
   type ApplicationRef,
+  ChangeDetectionStrategy,
   Component,
   createComponent,
   inject,
@@ -28,7 +29,7 @@ import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { ChatRetryCountdown, ContextCompaction, ContextUsage } from '@molecule/app-ai-chat'
-import { provideChat, provideHttp } from '@molecule/app-angular'
+import { provideChat, provideDomPlacement, provideHttp } from '@molecule/app-angular'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 import { setIconSet } from '@molecule/app-icons'
 import type { Activity, IdeClientAction } from '@molecule/app-ide-panel-logic'
@@ -217,6 +218,7 @@ async function mountHarness(options: { canEdit?: boolean } = {}): Promise<Harnes
    * countdown's two effects where `ChatInner` declares them.
    */
   const U5Harness = Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
     selector: 'div[mol-u5-harness]',
     standalone: true,
     imports: [ChatAutoFixBanner, ChatRetryBanner],
@@ -264,6 +266,7 @@ async function mountHarness(options: { canEdit?: boolean } = {}): Promise<Harnes
   const appRef: ApplicationRef = await createApplication({
     providers: [
       provideZonelessChangeDetection(),
+      provideDomPlacement(),
       provideHttp(buildRejectingHttpClient()),
       provideChat(buildChatProvider([])),
     ],
@@ -390,15 +393,15 @@ describe('ChatPanel chat:stream and chat:auto-fix (unit U5)', () => {
     mounted = await mountHarness()
 
     expect(autoFixText(mounted.container)).toBeNull()
-    expect(mounted.container.querySelector(AUTO_FIX_HOST)?.hasAttribute('data-parity-unwrap')).toBe(
-      true,
-    )
+    // React renders nothing while closed: the host is out of the DOM, not a
+    // `display: contents` wrapper.
+    expect(mounted.container.querySelector(AUTO_FIX_HOST)).toBeNull()
 
     await failVerification(mounted)
 
     expect(autoFixText(mounted.container)).toBe('Auto-fixing in 3s...')
     const host = mounted.container.querySelector(AUTO_FIX_HOST)
-    expect(host?.hasAttribute('data-parity-unwrap')).toBe(false)
+    expect(host).not.toBeNull()
     expect(host?.getAttribute('class')).toBeTruthy()
     expect(host?.getAttribute('style')).toContain('gap: 8px')
     expect(mounted.container.querySelector(PAUSE)).not.toBeNull()
@@ -574,9 +577,8 @@ describe('ChatPanel chat:stream and chat:auto-fix (unit U5)', () => {
     expect((banner?.querySelector('span')?.textContent ?? '').trim()).toBe(
       'Server error — retrying in 4s… (attempt 2)',
     )
-    expect(mounted.container.querySelector(RETRY_HOST)?.hasAttribute('data-parity-unwrap')).toBe(
-      false,
-    )
+    // While shown the host is React's own strip root, with no unwrap marker.
+    expect(mounted.container.querySelector(RETRY_HOST)).not.toBeNull()
 
     await click(mounted, RETRY_CANCEL)
     expect(mounted.cancelRetry).toHaveBeenCalledTimes(1)

@@ -76,7 +76,7 @@ describe('AppShellBottomNav locale switch', () => {
       selector: 'mol-locale-host',
       standalone: true,
       imports: [AppShellBottomNav],
-      changeDetection: ChangeDetectionStrategy.Default,
+      changeDetection: ChangeDetectionStrategy.Eager,
       template: `<nav mol-nav-bottom [items]="[{ id: 'a', label: 'label-a' }]"></nav>`,
     })(class LocaleHost {})
     const appRef: ApplicationRef = await createApplication({

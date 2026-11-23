@@ -63,7 +63,7 @@ async function renderRack(effects: Effect[]): Promise<Mounted> {
     selector: 'mol-locale-host',
     standalone: true,
     imports: [AudioEffectsRack],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: `<div mol-audio-effects-rack [effects]="p['effects']"></div>`,
   })(
     class LocaleHost {

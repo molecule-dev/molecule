@@ -23,6 +23,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 // Proxy ClassMap echoing each accessed member back as its token (e.g.
 // `cursorPointer`), so tests can assert which cm.* class was applied without
 // a real bond — the same mock the React tests use.
@@ -52,6 +54,8 @@ const { ForumThreadRow } = await import('../forum-thread-row.component.js')
 interface Mounted {
   /** The host element whose children the component template produced. */
   readonly host: HTMLElement
+  /** Merges props over the current ones and flushes change detection. */
+  setProps(next: Record<string, unknown>): Promise<void>
   /** Destroys the app and removes the host. */
   destroy(): Promise<void>
 }
@@ -74,7 +78,7 @@ async function mount(
     selector: 'mol-spec-host',
     standalone: true,
     imports: [component],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template,
   })(
     class SpecHost {
@@ -83,7 +87,7 @@ async function mount(
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
     environmentInjector: appRef.injector,
@@ -94,6 +98,11 @@ async function mount(
   appRef.tick()
   return {
     host,
+    setProps: async (next: Record<string, unknown>) => {
+      ref.instance.p = { ...ref.instance.p, ...next }
+      ref.changeDetectorRef.markForCheck()
+      appRef.tick()
+    },
     destroy: async () => {
       appRef.destroy()
       host.remove()
@@ -226,5 +235,34 @@ describe('ForumThreadRow', () => {
     const m = await render({ title: 'T', onClick })
     m.host.querySelector('article')!.click()
     expect(onClick).not.toHaveBeenCalled()
+  })
+
+  it('keeps a consumer list in order when an item is inserted in the middle of excerpt', async () => {
+    const m = await render(
+      { title: 'T', xs: ['a', 'c'] },
+      `<ng-container ngProjectAs="[slot=excerpt]">@for (x of p['xs']; track x) {<b>{{ x }}</b>}</ng-container>`,
+    )
+    const labels = (): (string | null)[] =>
+      Array.from(m.host.querySelectorAll('b')).map((el) => el.textContent)
+    expect(labels()).toEqual(['a', 'c'])
+    await m.setProps({ xs: ['a', 'b', 'c'] })
+    expect(labels()).toEqual(['a', 'b', 'c'])
+    await m.setProps({ xs: ['a', 'c'] })
+    expect(labels()).toEqual(['a', 'c'])
+  })
+
+  it('shows and removes the excerpt wrapper in the pass where the consumer @if adds and removes its content', async () => {
+    const m = await render(
+      { title: 'T', on: false },
+      `@if (p['on']) {<b slot="excerpt" data-excerpt>some body</b>}`,
+    )
+    // React: `{excerpt && <p>{excerpt}</p>}` — no <p> at all for an empty slot.
+    expect(m.host.querySelector('p')).toBeNull()
+    await m.setProps({ on: true })
+    const excerpt = m.host.querySelector('p')
+    expect(excerpt?.querySelector('[data-excerpt]')?.textContent).toBe('some body')
+    expect(excerpt?.textContent?.trim()).toBe('some body')
+    await m.setProps({ on: false })
+    expect(m.host.querySelector('p')).toBeNull()
   })
 })

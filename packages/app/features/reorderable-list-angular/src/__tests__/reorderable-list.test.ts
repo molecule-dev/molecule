@@ -97,7 +97,7 @@ async function mount(template: string, props: Record<string, unknown> = {}): Pro
     selector: `mol-spec-host-${mountCount++}`,
     standalone: true,
     imports: [ReorderableList as Type<unknown>],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template,
   })(
     class SpecHost {

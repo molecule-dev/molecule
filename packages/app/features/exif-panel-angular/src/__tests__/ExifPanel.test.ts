@@ -123,7 +123,7 @@ async function mount(
     selector: `mol-spec-host-${hosts++}`,
     standalone: true,
     imports: [component],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: hostTemplate,
   })(
     class SpecHost {

@@ -23,6 +23,7 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
 import type * as AppUiAngular from '@molecule/app-ui-angular'
 
 // Proxy ClassMap echoing each accessed member back as its token (e.g. `flex`),
@@ -50,14 +51,15 @@ vi.mock('@molecule/app-ui', () => ({
 // `Avatar` is the only `@molecule/app-ui-angular` component dependency — stub
 // it to an inspectable `<img>`-bearing div carrying the supplied src + name,
 // the same markers the React suite's `@molecule/app-ui-react` stub renders.
-// `hasNodes` is re-implemented exactly as the real bundle's helper. The
-// `ElementPropsWriter` UserChip writes its link props with is the real one.
+// Everything else (the `ElementPropsWriter` UserChip writes its link props
+// with, `styleText`) is the real bundle.
 vi.mock('@molecule/app-ui-angular', async (importOriginal) => {
   const actual = await importOriginal<typeof AppUiAngular>()
   const { Component } = await import('@angular/core')
   return {
-    ElementPropsWriter: actual.ElementPropsWriter,
+    ...actual,
     Avatar: Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'div[mol-avatar]',
       standalone: true,
       inputs: ['src', 'alt', 'name', 'size'],
@@ -78,14 +80,6 @@ vi.mock('@molecule/app-ui-angular', async (importOriginal) => {
         size?: unknown
       },
     ),
-    hasNodes: (el: Element | undefined | null): boolean => {
-      if (!el) return false
-      for (const node of Array.from(el.childNodes)) {
-        if (node.nodeType === 1) return true
-        if (node.nodeType === 3 && (node.textContent ?? '').trim()) return true
-      }
-      return false
-    },
   }
 })
 
@@ -96,6 +90,8 @@ const { UserChip } = await import('../user-chip.component.js')
 interface Mounted {
   /** The host element whose children the component template produced. */
   readonly host: HTMLElement
+  /** Merges props into the host and re-renders. */
+  setProps(next: Record<string, unknown>): void
   /** Destroys the app and removes the host. */
   destroy(): Promise<void>
 }
@@ -118,7 +114,7 @@ async function mount(
     selector: 'mol-spec-host',
     standalone: true,
     imports: [component],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template,
   })(
     class SpecHost {
@@ -127,7 +123,7 @@ async function mount(
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
     environmentInjector: appRef.injector,
@@ -138,6 +134,11 @@ async function mount(
   appRef.tick()
   return {
     host,
+    setProps: (next) => {
+      ref.instance.p = { ...ref.instance.p, ...next }
+      ref.changeDetectorRef.markForCheck()
+      appRef.tick()
+    },
     destroy: async () => {
       appRef.destroy()
       host.remove()
@@ -242,6 +243,22 @@ describe('UserChip', () => {
     mounted.push(without)
     // only the name span renders, no second text span
     expect(without.host.innerHTML.split('<span').length - 1).toBe(1)
+  })
+
+  it('renders the subtitle span for a subtitle a consumer projects after the first render, and drops it again', async () => {
+    const m = await mount(
+      `<div mol-user-chip [name]="p['name']">@if (p['late']) {<em slot="subtitle" data-late-subtitle>admin</em>}</div>`,
+      UserChip as Type<unknown>,
+      { name: 'A' },
+    )
+    mounted.push(m)
+    const spans = (): number => m.host.innerHTML.split('<span').length - 1
+    expect(spans()).toBe(1)
+    m.setProps({ late: true })
+    expect(spans()).toBe(2)
+    expect(m.host.querySelector('[data-late-subtitle]')?.parentElement?.tagName).toBe('SPAN')
+    m.setProps({ late: false })
+    expect(spans()).toBe(1)
   })
 
   it('renders the trailing slot', async () => {

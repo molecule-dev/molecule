@@ -22,6 +22,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
 // `stack`), so tests can assert which cm.* class was applied without a real
 // bond — the same mock the React tests use.
@@ -55,6 +57,8 @@ const { ListingGrid } = await import('../listing-grid.component.js')
 interface Mounted {
   /** The host element whose children the component template produced. */
   readonly host: HTMLElement
+  /** Merges props into the host and re-renders. */
+  setProps(next: Record<string, unknown>): void
   /** Destroys the app and removes the host. */
   destroy(): Promise<void>
 }
@@ -72,7 +76,7 @@ async function mount(template: string, props: Record<string, unknown> = {}): Pro
     selector: 'mol-spec-host',
     standalone: true,
     imports: [ListingCard, ListingCardActions, ListingCardBody, ListingCardMedia, ListingGrid],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template,
   })(
     class SpecHost {
@@ -81,7 +85,7 @@ async function mount(template: string, props: Record<string, unknown> = {}): Pro
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
     environmentInjector: appRef.injector,
@@ -92,6 +96,11 @@ async function mount(template: string, props: Record<string, unknown> = {}): Pro
   appRef.tick()
   return {
     host,
+    setProps: (next) => {
+      ref.instance.p = { ...ref.instance.p, ...next }
+      ref.changeDetectorRef.markForCheck()
+      appRef.tick()
+    },
     destroy: async () => {
       appRef.destroy()
       host.remove()
@@ -196,6 +205,23 @@ describe('ListingCardBody', () => {
     const m = await render(bodyTpl(), { title: 'T', className: 'body-cls' })
     expect(m.host.innerHTML).toContain('body-cls')
   })
+
+  it('renders each row for content a consumer projects after the first render, and drops it again', async () => {
+    const m = await render(
+      bodyTpl(
+        '@if (p[\'rows\']) {<em slot="subtitle">s</em>}@if (p[\'rows\']) {<b slot="price">9</b>}@if (p[\'rows\']) {<span slot="meta">m</span>}',
+      ),
+      { title: 'T' },
+    )
+    const body = m.host.querySelector('[mol-listing-card-body]')!
+    const rows = (): string[] =>
+      Array.from(body.children).map((el) => el.tagName.toLowerCase() + ':' + (el.textContent ?? ''))
+    expect(rows()).toEqual(['h3:T'])
+    m.setProps({ rows: true })
+    expect(rows()).toEqual(['h3:T', 'p:s', 'p:9', 'div:m'])
+    m.setProps({ rows: false })
+    expect(rows()).toEqual(['h3:T'])
+  })
 })
 
 describe('ListingCardMedia', () => {
@@ -236,6 +262,41 @@ describe('ListingCardMedia', () => {
   it('forwards className', async () => {
     const m = await render(mediaTpl(), { src: 'pic.png', className: 'media-cls' })
     expect(m.host.innerHTML).toContain('media-cls')
+  })
+
+  it('swaps the <img> for children a consumer projects after the first render, and back, with no wrapper', async () => {
+    const m = await render(
+      mediaTpl(
+        "@if (p['video']) {<video data-video></video>}@if (p['video']) {<i slot=\"overlay\">o</i>}",
+      ),
+      { src: 'pic.png' },
+    )
+    const media = m.host.querySelector('[mol-listing-card-media]')!
+    const shown = (): string[] =>
+      Array.from(media.children).map((el) =>
+        el.tagName === 'DIV'
+          ? 'div>' + el.firstElementChild?.tagName.toLowerCase()
+          : el.tagName.toLowerCase(),
+      )
+    expect(shown()).toEqual(['img'])
+    m.setProps({ video: true })
+    expect(shown()).toEqual(['video', 'div>i'])
+    m.setProps({ video: false })
+    expect(shown()).toEqual(['img'])
+  })
+
+  it('never sets the image source while children replace the <img>', async () => {
+    // React renders no <img> at all then, so the browser requests no image.
+    const setAttribute = vi.spyOn(Element.prototype, 'setAttribute')
+    try {
+      await render(mediaTpl('<video data-video></video>'), { src: 'pic.png' })
+      const imageSources = setAttribute.mock.contexts.filter(
+        (el, i) => (el as Element).tagName === 'IMG' && setAttribute.mock.calls[i]![0] === 'src',
+      )
+      expect(imageSources).toEqual([])
+    } finally {
+      setAttribute.mockRestore()
+    }
   })
 })
 

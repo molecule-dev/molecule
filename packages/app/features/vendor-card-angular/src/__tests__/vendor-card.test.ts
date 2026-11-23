@@ -53,6 +53,7 @@ vi.mock('@molecule/app-ui-angular', async () => {
   // The `Component(...)` factory is called as a plain function (no decorator
   // syntax) so the hoisted mock factory stays plain JavaScript.
   const Avatar = Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
     selector: 'div[mol-avatar]',
     standalone: true,
     inputs: ['src', 'name'],
@@ -66,6 +67,7 @@ vi.mock('@molecule/app-ui-angular', async () => {
     },
   )
   const Card = Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
     selector: 'div[mol-card]',
     standalone: true,
   })(class {})
@@ -97,7 +99,7 @@ async function render(props: Record<string, unknown> = {}, projected = ''): Prom
     selector: 'mol-spec-host',
     standalone: true,
     imports: [VendorCard as Type<unknown>],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: `<div mol-vendor-card [name]="p['name']" [logoSrc]="p['logoSrc']" [description]="p['description']" [rating]="p['rating']" [reviewCount]="p['reviewCount']" [memberSince]="p['memberSince']" [badges]="p['badges']" [actions]="p['actions']" [className]="p['className']">${projected}</div>`,
   })(
     class SpecHost {

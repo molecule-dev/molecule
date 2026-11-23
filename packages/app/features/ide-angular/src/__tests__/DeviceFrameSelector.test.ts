@@ -35,6 +35,7 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 import { setIconSet } from '@molecule/app-icons'
 import { DEVICE_FRAMES, deviceIconName } from '@molecule/app-ide-panel-logic'
@@ -61,7 +62,7 @@ const DeviceFrameSelectorHost = Component({
   selector: 'mol-device-frame-selector-host',
   standalone: true,
   imports: [DeviceFrameSelector],
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `<div mol-device-frame-selector [current]="p['current']" [onChange]="p['onChange']" [className]="p['className']" [canRotate]="p['canRotate']" [rotated]="p['rotated']" [onRotate]="p['onRotate']" [onOpenExternal]="p['onOpenExternal']"></div>`,
 })(
   class DeviceFrameSelectorHost {
@@ -128,7 +129,7 @@ async function renderSelector(overrides: Record<string, unknown> = {}): Promise<
   const container = document.createElement('div')
   document.body.appendChild(container)
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<InstanceType<typeof DeviceFrameSelectorHost>> = createComponent(
     DeviceFrameSelectorHost,

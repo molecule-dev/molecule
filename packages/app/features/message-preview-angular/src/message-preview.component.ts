@@ -5,9 +5,15 @@
  */
 
 import { NgTemplateOutlet } from '@angular/common'
-import { Component, type TemplateRef } from '@angular/core'
+import { Component, ElementRef, inject, type TemplateRef } from '@angular/core'
 
-import { Link } from '@molecule/app-angular'
+import {
+  Link,
+  MolPlacement,
+  placeContentBefore,
+  setElementPresent,
+  usePlacement,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { asTemplate } from '@molecule/app-ui-angular'
@@ -49,9 +55,9 @@ const deriveInitials = (value: unknown): string => {
  *
  * Conversation / thread row — initials avatar with presence dot, name + preview
  * + timestamp + unread pip, and the active-selection treatment. React's root is
- * a `<div>` (or an `<a>` when `to` is set), so the host is unwrapped
- * (`data-parity-unwrap`, `display: contents`) and the template renders exactly
- * React's root element. With `onClick` the div branch is a focusable button in
+ * a `<div>` (or an `<a>` when `to` is set), so the rendered root stands in front
+ * of the host's place and the host itself leaves the page (`placeContentBefore`
+ * + `setElementPresent`). With `onClick` the div branch is a focusable button in
  * the a11y tree (`role="button"`, `tabindex="0"`) and Enter / Space activate it,
  * matching native button keyboard semantics. Node props are projected content
  * (`[slot=name]`, `[slot=preview]`, `[slot=timestamp]`) or `TemplateRef`s; a
@@ -70,6 +76,7 @@ const deriveInitials = (value: unknown): string => {
   selector: 'mol-message-preview',
   standalone: true,
   imports: [Link, NgTemplateOutlet],
+  hostDirectives: [MolPlacement],
   inputs: [
     'name',
     'preview',
@@ -84,10 +91,6 @@ const deriveInitials = (value: unknown): string => {
     'unreadAriaLabel',
     'className',
   ],
-  host: {
-    'data-parity-unwrap': '',
-    style: 'display: contents',
-  },
   // The template's whitespace is semantic: the avatar and row containers are
   // flex, so a line break between their children never draws a space, and the
   // preview paragraph's text stays glued.
@@ -122,6 +125,18 @@ export class MessagePreview {
   unreadAriaLabel?: string
   /** Extra classes on the outer wrapper. */
   className?: string
+
+  /** The component's host element (React renders no element of its own). */
+  private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
+
+  constructor() {
+    // React's root is the row `<div>` (or `<a>`) itself: it renders in front of the host's
+    // place and the host leaves the page.
+    usePlacement(() => {
+      placeContentBefore(this.host.nativeElement, this.host.nativeElement)
+      setElementPresent(this.host.nativeElement, false)
+    })
+  }
 
   /**
    * The current class map.

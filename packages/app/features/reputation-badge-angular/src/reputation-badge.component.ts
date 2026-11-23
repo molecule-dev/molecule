@@ -4,9 +4,15 @@
  * @module
  */
 
-import { Component } from '@angular/core'
+import { Component, ElementRef, inject, ViewChild } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  placeElementBefore,
+  setElementPresent,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { Badge } from '@molecule/app-ui-angular'
@@ -50,10 +56,11 @@ function trimZero(s: string): string {
  * ReputationBadge component.
  *
  * User reputation / karma display: a numeric score paired with a tier chip
- * whose color reflects the derived (or explicit) level. The host is a wrapper
- * the DOM normalizer unwraps (`data-parity-unwrap`) because React's root
- * element flips between `<span>` (compact) and `<div>` (full); the rendered
- * root is the only child of the host, exactly React's root.
+ * whose color reflects the derived (or explicit) level. React's root element
+ * flips between `<span>` (compact) and `<div>` (full), so the rendered root
+ * stands in front of the host's place and the host itself leaves the page
+ * (`placeElementBefore` + `setElementPresent`): the rendered root is the only
+ * element of React's DOM.
  *
  * Tier color comes from the active ClassMap bond's `cm.badge()` helper, so apps
  * swapping styling libraries restyle these chips for free.
@@ -62,10 +69,15 @@ function trimZero(s: string): string {
   selector: 'mol-reputation-badge',
   standalone: true,
   imports: [Badge],
+  hostDirectives: [MolPlacement],
   inputs: ['score', 'level', 'thresholds', 'variant', 'className'],
-  host: { 'data-parity-unwrap': '', style: 'display: contents' },
   template: `@if (isFull()) {
-      <div [class]="fullClasses()" [attr.aria-label]="ariaLabel()" data-mol-id="reputation-badge">
+      <div
+        #full
+        [class]="fullClasses()"
+        [attr.aria-label]="ariaLabel()"
+        data-mol-id="reputation-badge"
+      >
         <span [class]="captionClasses()">{{ caption() }}</span>
         <div [class]="rowClasses()" data-mol-id="reputation-badge-row">
           <span [class]="fullScoreClasses()" data-mol-id="reputation-badge-score">{{
@@ -76,6 +88,7 @@ function trimZero(s: string): string {
       </div>
     } @else {
       <span
+        #compact
         [class]="compactClasses()"
         [attr.aria-label]="ariaLabel()"
         data-mol-id="reputation-badge"
@@ -101,6 +114,23 @@ export class ReputationBadge {
 
   /** The i18n handle (locale-reactive), read in an injection context. */
   private readonly i18n = useTranslation()
+
+  /** React's full-variant root (`<div>`), while that variant renders. */
+  @ViewChild('full') private full?: ElementRef<HTMLElement>
+  /** React's compact-variant root (`<span>`), while that variant renders. */
+  @ViewChild('compact') private compact?: ElementRef<HTMLElement>
+
+  private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
+
+  constructor() {
+    // React's root element flips with the variant: whichever renders stands in front of
+    // the host's place, and the host itself leaves the page.
+    usePlacement(() => {
+      const root = this.full?.nativeElement ?? this.compact?.nativeElement
+      if (root) placeElementBefore(root, this.host.nativeElement)
+      setElementPresent(this.host.nativeElement, false)
+    })
+  }
 
   /**
    * Whether React renders the full (stacked) variant.

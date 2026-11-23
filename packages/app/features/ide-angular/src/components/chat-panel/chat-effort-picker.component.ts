@@ -8,8 +8,7 @@
  * scrollable body lists the scoped model's native levels — or, for a
  * fixed-reasoning model, one line saying there is nothing to set. The host IS
  * React's popup `<div>`; while the picker is closed React renders nothing, so
- * the host carries `data-parity-unwrap` and `display: contents` and the
- * conformance normalizer drops it.
+ * the host is out of the DOM then (`useHostPresence`).
  *
  * A controlled `<select>` cannot hold a selection before its `<option>` children
  * exist, so {@link EffortSelectValue} applies the wanted value after each view
@@ -20,6 +19,7 @@
 
 import { type AfterViewChecked, Component, Directive, ElementRef, inject } from '@angular/core'
 
+import { useHostPresence } from '@molecule/app-angular'
 import { defaultEffortForModel, type EffortMode } from '@molecule/app-ide-panel-logic/panels'
 import type { UIClassMap } from '@molecule/app-ui'
 import { styleText } from '@molecule/app-ui-angular'
@@ -28,9 +28,6 @@ import { ChatComposer } from './chat-composer.slice.js'
 import { ChatInnerState } from './chat-inner-state.js'
 import { ChatModelActions } from './chat-model-actions.slice.js'
 import { ChatPickers } from './chat-pickers.slice.js'
-
-/** The popup's closed state: React renders nothing, so the host unwraps away. */
-const UNWRAP_STYLE = styleText({ display: 'contents' })
 
 /** The header row's inline style. */
 const HEADER_STYLE = styleText({
@@ -127,9 +124,8 @@ class EffortSelectValue implements AfterViewChecked {
   standalone: true,
   imports: [EffortSelectValue],
   host: {
-    '[attr.data-parity-unwrap]': 'open() ? null : ""',
-    '[attr.class]': 'open() ? rootClass : null',
-    '[attr.style]': 'open() ? rootStyle() : unwrapStyle',
+    '[attr.class]': 'rootClass',
+    '[attr.style]': 'rootStyle()',
   },
   // prettier-ignore
   template: `@if (picker(); as p) {<div [attr.class]="headerClass" [attr.style]="headerStyle"><span [attr.style]="labelStyle">{{ effortLabel() }}</span><div [attr.style]="modeGroupStyle"><span [attr.style]="labelStyle">{{ modeLabel() }}</span><select mol-effort-select-value [wanted]="p.mode" data-mol-id="chat-effort-mode-select" [attr.aria-label]="modeLabel()" (change)="onModeChange($event)" [attr.class]="selectClass" [attr.style]="selectStyle">@for (o of modeOptions(); track o.value) {<option [value]="o.value">{{ o.label }}</option>}</select></div><button type="button" data-mol-id="chat-effort-picker-close" (click)="close()" [attr.style]="closeStyle()">✕</button></div><div [attr.style]="listStyle">@if (options().length === 0) {<div [attr.class]="emptyClass" [attr.style]="emptyStyle">{{ emptyText(p) }}</div>} @else {@for (option of visible(); track option.value; let idx = $index) {<button type="button" [attr.data-mol-id]="'chat-effort-level-' + option.value" (click)="choose(option)" (mouseenter)="rowEnter($event)" (mouseleave)="rowLeave($event, idx, p.selectedIdx)" [attr.class]="rowClass" [attr.style]="rowStyle(idx, p.selectedIdx)"><span [attr.class]="levelClass">{{ option.value }}</span>@if (defaultForModel() === option.value) {<span [attr.class]="defaultClass" [attr.style]="defaultStyle">{{ defaultText() }}</span>}@if (current() === option.value) {<span [attr.data-mol-id]="'effort-current-' + option.value" [attr.class]="levelClass" [attr.style]="currentStyle">{{ currentText() }}</span>}</button>}}</div>}`,
@@ -195,10 +191,7 @@ export class ChatEffortPicker {
   /** The "current" pill's inline style. */
   protected readonly currentStyle: string | null = CURRENT_STYLE
 
-  /** The closed state's inline style (the host unwraps away). */
-  protected readonly unwrapStyle: string | null = UNWRAP_STYLE
-
-  /** Resolves the ClassMap and the static classes once, at construction. */
+  /** Resolves the ClassMap and the static classes once, and keeps the host in the page only while open. */
   constructor() {
     this.cm = this.state.env.cm
     this.rootClass = this.cm.cn(this.cm.surface, this.cm.borderAll)
@@ -212,6 +205,7 @@ export class ChatEffortPicker {
     this.rowClass = this.cm.w('full')
     this.levelClass = this.cm.fontWeight('medium')
     this.defaultClass = this.cm.textMuted
+    useHostPresence(() => this.open())
   }
 
   /**

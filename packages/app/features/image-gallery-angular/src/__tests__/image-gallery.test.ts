@@ -23,6 +23,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 // Proxy ClassMap echoing each accessed member back as its token (e.g. `stack`),
 // so tests can assert which cm.* class was applied without a real bond — the
 // same mock the React package's own tests use. `grid` resolves `cols` to its
@@ -72,7 +74,7 @@ async function mount(props: Record<string, unknown>): Promise<Mounted> {
     selector: 'mol-spec-host',
     standalone: true,
     imports: [ImageGallery as Type<unknown>],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: `<mol-image-gallery
       [images]="p['images']"
       [selectedIndex]="p['selectedIndex']"
@@ -87,7 +89,7 @@ async function mount(props: Record<string, unknown>): Promise<Mounted> {
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<unknown> = createComponent(Host, {
     environmentInjector: appRef.injector,
@@ -116,21 +118,72 @@ afterEach(async () => {
  * Mounts the gallery and returns the markup it produced.
  *
  * @param props - The gallery props.
- * @returns The component element's inner markup.
+ * @returns The consumer element's markup (the gallery renders beside its own
+ *   element, which leaves the page).
  */
 const render = async (props: Record<string, unknown>): Promise<string> => {
   const m = await mount(props)
   mounted.push(m)
-  return m.host.querySelector('mol-image-gallery')?.innerHTML ?? ''
+  return m.host.innerHTML
 }
 
 const images = ['/a.jpg', '/b.jpg', '/c.jpg', '/d.jpg', '/e.jpg', '/f.jpg']
 
+/**
+ * Mounts the gallery between two fixed siblings, the way a consumer list
+ * would, and returns a setter for its images.
+ *
+ * @param initial - The initial image list.
+ * @returns The mounted host and a setter that re-renders with a new list.
+ */
+async function renderInList(initial: string[]): Promise<Mounted & { set(next: string[]): void }> {
+  const Host = Component({
+    selector: 'mol-spec-list-host',
+    standalone: true,
+    imports: [ImageGallery as Type<unknown>],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    template: `<i>a</i><mol-image-gallery [images]="p['images']"></mol-image-gallery><i>b</i>`,
+  })(
+    class SpecListHost {
+      /** The props the template binds. */
+      p: Record<string, unknown> = { images: initial }
+    },
+  )
+  const appRef: ApplicationRef = await createApplication({
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
+  })
+  const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
+    environmentInjector: appRef.injector,
+  })
+  const host = ref.location.nativeElement as HTMLElement
+  document.body.appendChild(host)
+  appRef.attachView(ref.hostView)
+  appRef.tick()
+  const entry: Mounted = {
+    host,
+    destroy: async () => {
+      ref.destroy()
+      host.remove()
+      await appRef.destroy()
+    },
+  }
+  mounted.push(entry)
+  return {
+    ...entry,
+    set: (next) => {
+      ref.instance.p = { ...ref.instance.p, images: next }
+      ref.changeDetectorRef.markForCheck()
+      appRef.tick()
+    },
+  }
+}
+
 describe('ImageGallery', () => {
   it('renders nothing when there are no images', async () => {
-    // React renders the empty string; Angular leaves its container anchor
-    // comment where the empty branch would be, so it is dropped before comparing.
-    expect((await render({ images: [] })).replaceAll('<!--container-->', '')).toBe('')
+    // React renders the empty string; Angular leaves its block anchors (and the
+    // absent gallery element's placeholder comment), so comments are dropped
+    // before comparing.
+    expect((await render({ images: [] })).replace(/<!--[\s\S]*?-->/g, '').trim()).toBe('')
   })
 
   it('renders the main image (first by default)', async () => {
@@ -199,5 +252,14 @@ describe('ImageGallery', () => {
   it('forwards className', async () => {
     const markup = await render({ images: ['/a.jpg'], className: 'ig-cls' })
     expect(markup).toContain('ig-cls')
+  })
+
+  it("renders React's elements with no host or capture element of its own", async () => {
+    const m = await renderInList([])
+    const children = (): string[] =>
+      Array.from(m.host.children).map((child) => child.tagName.toLowerCase())
+    expect(children()).toEqual(['i', 'i'])
+    m.set(['/a.jpg', '/b.jpg'])
+    expect(children()).toEqual(['i', 'div', 'i'])
   })
 })

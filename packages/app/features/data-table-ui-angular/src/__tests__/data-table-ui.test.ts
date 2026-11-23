@@ -22,6 +22,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 // `getClassMap()` → a Proxy: every access yields its key as a token — callable
 // for method-style props (`cm.stack(4)`) and also usable bare (`cm.textCenter`).
 // `cn(...)` joins tokens, calling any function-valued args first — the same mock
@@ -52,10 +54,12 @@ const { TableEmpty } = await import('../table-empty.component.js')
 const { TableFooter } = await import('../table-footer.component.js')
 const { TableToolbar } = await import('../table-toolbar.component.js')
 
-/** A mounted spec host: its DOM and a teardown. */
+/** A mounted spec host: its DOM, a props setter, and a teardown. */
 interface Mounted {
   /** The host element whose children the component template produced. */
   readonly host: HTMLElement
+  /** Merges props over the current ones and flushes change detection. */
+  setProps(next: Record<string, unknown>): void
   /** Destroys the app and removes the host. */
   destroy(): Promise<void>
 }
@@ -81,7 +85,7 @@ async function mount(
     host: { 'data-spec-host': String(++hostCount) },
     standalone: true,
     imports: [component],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template,
   })(
     class SpecHost {
@@ -90,7 +94,7 @@ async function mount(
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
     environmentInjector: appRef.injector,
@@ -101,6 +105,11 @@ async function mount(
   appRef.tick()
   return {
     host,
+    setProps: (next) => {
+      ref.instance.p = { ...ref.instance.p, ...next }
+      ref.changeDetectorRef.markForCheck()
+      appRef.tick()
+    },
     destroy: async () => {
       appRef.destroy()
       host.remove()
@@ -179,6 +188,21 @@ afterEach(async () => {
 })
 
 describe('DataTableCard', () => {
+  it('keeps a consumer list in order when an item is inserted in the middle of title', async () => {
+    const m = await render(
+      cardTemplate('@for (x of p[\'xs\']; track x) {<span slot="title"><b>{{ x }}</b></span>}'),
+      DataTableCard as Type<unknown>,
+      { title: 'My Table', rows, rowKey, xs: [1, 3] },
+    )
+    const texts = (): string[] =>
+      Array.from(m.host.querySelectorAll('h3 b')).map((el) => el.textContent ?? '')
+    expect(texts()).toEqual(['1', '3'])
+    m.setProps({ xs: [1, 2, 3] })
+    expect(texts()).toEqual(['1', '2', '3'])
+    m.setProps({ xs: [1, 3] })
+    expect(texts()).toEqual(['1', '3'])
+  })
+
   it('renders the title and titleAction in the header row', async () => {
     const m = await render(
       cardTemplate('<a slot="titleAction" data-action></a>'),
@@ -252,7 +276,49 @@ describe('DataTableCard', () => {
   })
 })
 
+it('shows and removes the title wrapper in the pass where the consumer @if adds and removes its content', async () => {
+  const m = await render(
+    cardTemplate(`@if (p['on']) {<span slot="title" data-title>Report</span>}`),
+    DataTableCard as Type<unknown>,
+    { rows: [], rowKey, on: false },
+  )
+  const card = (): HTMLElement => {
+    const el = m.host.querySelector('section[mol-data-table-card]')
+    if (!el) throw new Error('no card rendered')
+    return el as HTMLElement
+  }
+  // React renders no title row (and no <h3>) until a title exists.
+  expect(card().querySelector('h3')).toBeNull()
+  m.setProps({ on: true })
+  const heading = card().querySelector('h3')
+  const content = card().querySelector('[data-title]')
+  expect(heading).not.toBeNull()
+  expect(content).not.toBeNull()
+  expect(content?.parentElement).toBe(heading)
+  m.setProps({ on: false })
+  expect(card().querySelector('h3')).toBeNull()
+  expect(card().querySelector('[data-title]')).toBeNull()
+})
+
 describe('RowWithActions', () => {
+  it('keeps a consumer list in order when an item is inserted in the middle of actions', async () => {
+    const m = await render(
+      rowTemplate(
+        '<td data-cell>x</td>',
+        '@for (x of p[\'xs\']; track x) {<td slot="actions"><b>{{ x }}</b></td>}',
+      ),
+      RowWithActions as Type<unknown>,
+      { xs: [1, 3] },
+    )
+    const texts = (): string[] =>
+      Array.from(m.host.querySelectorAll('td[slot="actions"] b')).map((el) => el.textContent ?? '')
+    expect(texts()).toEqual(['1', '3'])
+    m.setProps({ xs: [1, 2, 3] })
+    expect(texts()).toEqual(['1', '2', '3'])
+    m.setProps({ xs: [1, 3] })
+    expect(texts()).toEqual(['1', '3'])
+  })
+
   it('renders the supplied row cells', async () => {
     const m = await render(rowTemplate(), RowWithActions as Type<unknown>)
     expect(m.host.innerHTML).toContain('data-cell=""')
@@ -291,6 +357,30 @@ describe('RowWithActions', () => {
     })
     expect(m.host.innerHTML).toContain('row-cls')
   })
+})
+
+it('shows and removes the actions wrapper in the pass where the consumer @if adds and removes its content', async () => {
+  const m = await render(
+    rowTemplate(
+      '<td data-cell>x</td>',
+      `@if (p['on']) {<button slot="actions" data-act type="button">edit</button>}`,
+    ),
+    RowWithActions as Type<unknown>,
+    { on: false },
+  )
+  const row = (): HTMLElement => {
+    const el = m.host.querySelector('tr[mol-row-with-actions]')
+    if (!el) throw new Error('no row rendered')
+    return el as HTMLElement
+  }
+  // React omits the trailing actions cell until an action exists.
+  expect(row().querySelectorAll('td')).toHaveLength(1)
+  m.setProps({ on: true })
+  const cells = row().querySelectorAll('td')
+  expect(cells).toHaveLength(2)
+  expect(cells[1].querySelector('[data-act]')).not.toBeNull()
+  m.setProps({ on: false })
+  expect(row().querySelectorAll('td')).toHaveLength(1)
 })
 
 describe('TableEmpty', () => {

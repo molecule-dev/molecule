@@ -14,9 +14,10 @@
  * deprecated `expanded`/`onToggle` inputs are accepted and ignored the way
  * React's are.
  *
- * The host element is a `div` shell marked `data-parity-unwrap` (React's
- * component renders the strip as its root, with no wrapper of its own; the
- * kit's normalizer removes the marked shell, so the DOM is React's). Inputs
+ * React's component renders the strip as its root, with no wrapper of its own,
+ * so the template's nodes render in front of the host (`placeContentBefore`)
+ * and the host leaves the DOM: the DOM is React's, with no shell element.
+ * Inputs
  * are declared the way the kit's other Angular feature components declare
  * them — one plain field per React prop, named in the decorator's `inputs`
  * array — and every derived value is a method the template reads, so each
@@ -30,9 +31,15 @@
  * @module
  */
 
-import { Component } from '@angular/core'
+import { Component, ElementRef, inject } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  placeContentBefore,
+  setElementPresent,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { TestItem, TestsRunState } from '@molecule/app-ide-panel-logic'
 import type { TestsBarSummary, TestsBarTone } from '@molecule/app-ide-panel-logic/panels'
 import {
@@ -89,10 +96,7 @@ export interface TestStatusBarProps {
   standalone: true,
   imports: [DockStrip, StatusMark],
   inputs: ['run', 'tests', 'expanded', 'onToggle', 'onOpen', 'onStop', 'agentName'],
-  host: {
-    'data-parity-unwrap': '',
-    style: 'display: contents',
-  },
+  hostDirectives: [MolPlacement],
   // prettier-ignore
   template: `<div mol-dock-strip [molId]="'tests-bar'" [toggleMolId]="'tests-bar-toggle'" [expanded]="false" [onToggle]="onOpen" [onActivate]="onOpen" [icon]="iconTpl" [label]="labelTpl" [hint]="showHint() ? hintTpl : undefined" [actions]="showStop() ? actionsTpl : undefined" [chipLabel]="chipText()" [rootProps]="rootProps()"></div>
 <ng-template #labelTpl><span data-mol-id="tests-bar-label">{{ labelText() }}</span></ng-template>
@@ -101,6 +105,21 @@ export interface TestStatusBarProps {
 <ng-template #actionsTpl><button type="button" data-mol-id="tests-bar-stop" [class]="stopClasses()" (click)="stopClick($event)">{{ stopLabel() }}</button></ng-template>`,
 })
 export class TestStatusBar {
+  /** The component's own host element, which React does not render. */
+  private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
+
+  /**
+   * Renders the template's nodes in front of the host and keeps the host out of
+   * the DOM: React's root is the strip element itself.
+   */
+  constructor() {
+    usePlacement(() => {
+      const host = this.host.nativeElement
+      placeContentBefore(host, host)
+      setElementPresent(host, false)
+    })
+  }
+
   /** The live run state. */
   run: TestsRunState | undefined
 

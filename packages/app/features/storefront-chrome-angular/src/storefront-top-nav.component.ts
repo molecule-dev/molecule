@@ -6,9 +6,9 @@
 
 import { NgTemplateOutlet } from '@angular/common'
 import {
-  type AfterViewChecked,
   Component,
-  type ElementRef,
+  ElementRef,
+  inject,
   type OnDestroy,
   type OnInit,
   signal,
@@ -16,11 +16,19 @@ import {
   ViewChild,
 } from '@angular/core'
 
-import { Link, useTranslation } from '@molecule/app-angular'
+import {
+  Link,
+  MolPlacement,
+  placeContentBefore,
+  setElementPresent,
+  type SlotReader,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
-import { hasRenderableContent, hasText, isNodeTemplate, nodeText } from './internal.js'
+import { hasText, isNodeTemplate, nodeText } from './internal.js'
 import type { NavActionSpec, NavLinkSpec, ProfileMenuItem } from './types.js'
 
 /**
@@ -30,15 +38,17 @@ import type { NavActionSpec, NavLinkSpec, ProfileMenuItem } from './types.js'
  * with a badge, the profile dropdown). The host IS the `<header>`
  * (`header[mol-storefront-top-nav]`), matching React's root exactly, and
  * carries React's `data-mol-id="nav-shell-01"`. Node props (`brand`) are
- * projected content (`[slot=brand]`) or plain text inputs; node-valued fields
- * inside the data props (`links[].label`, `menu[].label`) arrive as
- * `ng-template` references and render through `NgTemplateOutlet`. Same props
- * and same DOM as `@molecule/app-storefront-chrome-react`'s
+ * projected content (`[slot=brand]`) or plain text inputs; each projected slot
+ * renders its content bare in place (the capture span never reaches the page);
+ * node-valued fields inside the data props (`links[].label`, `menu[].label`)
+ * arrive as `ng-template` references and render through `NgTemplateOutlet`.
+ * Same props and same DOM as `@molecule/app-storefront-chrome-react`'s
  * `StorefrontTopNav`.
  */
 @Component({
   selector: 'header[mol-storefront-top-nav]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [Link, NgTemplateOutlet],
   inputs: [
     'brand',
@@ -62,12 +72,12 @@ import type { NavActionSpec, NavLinkSpec, ProfileMenuItem } from './types.js'
   },
   // prettier-ignore
   template: `<nav [class]="navClasses()" data-mol-id="nav-layout-01">
-    <div [class]="brandContainerClasses()" data-mol-id="brand-container-01"><a [molLink]="brandToValue()" [class]="brandClasses()" data-mol-id="brand-logo-01">@if (brandTemplate(); as brandTpl) {<ng-container [ngTemplateOutlet]="brandTpl"></ng-container>}@if (hasTextBrand()) {<ng-container>{{ brand }}</ng-container>}<span data-parity-unwrap><ng-content select="[slot=brand]"></ng-content></span></a></div>
+    <div [class]="brandContainerClasses()" data-mol-id="brand-container-01"><a [molLink]="brandToValue()" [class]="brandClasses()" data-mol-id="brand-logo-01">@if (brandTemplate(); as brandTpl) {<ng-container [ngTemplateOutlet]="brandTpl"></ng-container>}@if (hasTextBrand()) {<ng-container>{{ brand }}</ng-container>}<span #brandSlot><ng-content select="[slot=brand]"></ng-content></span></a></div>
     @if (links && links.length > 0) {<ul [class]="linksClasses()" data-mol-id="nav-links-list-01">@for (link of links; track link.to) {<li><a [molLink]="link.to" [class]="linkClasses(link)" [attr.data-mol-id]="link.dataMolId ?? null">@if (isTemplate(link.label)) {<ng-container [ngTemplateOutlet]="asTemplate(link.label)"></ng-container>}@if (hasText(link.label)) {<ng-container>{{ linkText(link) }}</ng-container>}</a></li>}</ul>}
-    <div [class]="actionsClasses()" data-mol-id="nav-actions-01">@for (action of actions; track action.to) {<a [molLink]="action.to" [class]="actionClasses()" [attr.data-mol-id]="action.dataMolId ?? null" [attr.aria-label]="action.ariaLabel"><span [class]="iconClasses()" [attr.data-icon]="action.icon">{{ action.icon }}</span>@if (action.badgeCount && action.badgeCount > 0) {<span [class]="badgeClasses()">{{ action.badgeCount }}</span>}</a>}<div [class]="wrapperClasses()" #profileWrapper data-mol-id="profile-wrapper-01"><button type="button" [attr.aria-label]="accountMenuLabelValue()" aria-haspopup="menu" [attr.aria-expanded]="isOpen() ? 'true' : 'false'" [class]="triggerClasses()" style="overflow: hidden" data-mol-id="profile-trigger-01" (click)="toggle()">@if (profileImageUrl) {<img [attr.alt]="profileImageAltValue()" [class]="imageClasses()" [attr.src]="profileImageUrl" />} @else if (profileInitials) {<span [class]="initialsClasses()">{{ profileInitials }}</span>} @else {<span [class]="personClasses()" data-icon="person" aria-hidden="true">person</span>}</button>@if (isOpen()) {<div [class]="menuClasses()" data-mol-id="profile-dropdown-01">@for (item of menuItems(); track item.to) {<a [molLink]="item.to" [class]="menuItemClasses()" [attr.data-mol-id]="item.dataMolId ?? null" (click)="closeMenu()">@if (isTemplate(item.label)) {<ng-container [ngTemplateOutlet]="asTemplate(item.label)"></ng-container>}@if (hasText(item.label)) {<ng-container>{{ itemText(item) }}</ng-container>}</a>}@if (isAuthenticated && onSignOut) {<hr [class]="dividerClasses()" /><button type="button" [class]="signOutClasses()" data-mol-id="profile-link-signout" (click)="signOut()">@if (isTemplate(signOutLabel)) {<ng-container [ngTemplateOutlet]="asTemplate(signOutLabel)"></ng-container>}@if (showSignOutText()) {<ng-container>{{ signOutLabelText() }}</ng-container>}<span #signOutSlot data-parity-unwrap><ng-content select="[slot=signOutLabel]"></ng-content></span></button>}</div>}</div></div>
+    <div [class]="actionsClasses()" data-mol-id="nav-actions-01">@for (action of actions; track action.to) {<a [molLink]="action.to" [class]="actionClasses()" [attr.data-mol-id]="action.dataMolId ?? null" [attr.aria-label]="action.ariaLabel"><span [class]="iconClasses()" [attr.data-icon]="action.icon">{{ action.icon }}</span>@if (action.badgeCount && action.badgeCount > 0) {<span [class]="badgeClasses()">{{ action.badgeCount }}</span>}</a>}<div [class]="wrapperClasses()" #profileWrapper data-mol-id="profile-wrapper-01"><button type="button" [attr.aria-label]="accountMenuLabelValue()" aria-haspopup="menu" [attr.aria-expanded]="isOpen() ? 'true' : 'false'" [class]="triggerClasses()" style="overflow: hidden" data-mol-id="profile-trigger-01" (click)="toggle()">@if (profileImageUrl) {<img [attr.alt]="profileImageAltValue()" [class]="imageClasses()" [attr.src]="profileImageUrl" />} @else if (profileInitials) {<span [class]="initialsClasses()">{{ profileInitials }}</span>} @else {<span [class]="personClasses()" data-icon="person" aria-hidden="true">person</span>}</button>@if (isOpen()) {<div [class]="menuClasses()" data-mol-id="profile-dropdown-01">@for (item of menuItems(); track item.to) {<a [molLink]="item.to" [class]="menuItemClasses()" [attr.data-mol-id]="item.dataMolId ?? null" (click)="closeMenu()">@if (isTemplate(item.label)) {<ng-container [ngTemplateOutlet]="asTemplate(item.label)"></ng-container>}@if (hasText(item.label)) {<ng-container>{{ itemText(item) }}</ng-container>}</a>}@if (isAuthenticated && onSignOut) {<hr [class]="dividerClasses()" /><button type="button" [class]="signOutClasses()" data-mol-id="profile-link-signout" (click)="signOut()">@if (isTemplate(signOutLabel)) {<ng-container [ngTemplateOutlet]="asTemplate(signOutLabel)"></ng-container>}@if (showSignOutText()) {<ng-container>{{ signOutLabelText() }}</ng-container>}<span #signOutSlot><ng-content select="[slot=signOutLabel]"></ng-content></span></button>}</div>}</div></div>
   </nav>`,
 })
-export class StorefrontTopNav implements OnInit, OnDestroy, AfterViewChecked {
+export class StorefrontTopNav implements OnInit, OnDestroy {
   /** The brand mark — a text input, or `[slot=brand]` projected content. */
   brand?: unknown
   /** Path the brand link navigates to (defaults to `/` at read time). */
@@ -103,7 +113,9 @@ export class StorefrontTopNav implements OnInit, OnDestroy, AfterViewChecked {
   /** The profile wrapper the outside-mousedown check tests against. */
   @ViewChild('profileWrapper') private profileWrapper?: ElementRef<HTMLDivElement>
 
-  /** The sign-out label's capture point (projected content lands here). */
+  /** The brand slot's capture point (projected content renders bare in place). */
+  @ViewChild('brandSlot') private brandSlot?: ElementRef<HTMLElement>
+  /** The sign-out label's capture point (projected content renders bare in place). */
   @ViewChild('signOutSlot') private signOutSlot?: ElementRef<HTMLSpanElement>
 
   /** Whether `[slot=signOutLabel]` projection landed (React renders it instead of the text). */
@@ -114,6 +126,34 @@ export class StorefrontTopNav implements OnInit, OnDestroy, AfterViewChecked {
 
   /** The i18n handle (locale-reactive), read in an injection context. */
   private readonly i18n = useTranslation()
+
+  private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
+
+  constructor() {
+    usePlacement((hasContent) => this.placeSlots(hasContent))
+  }
+
+  /**
+   * Renders the brand's content bare in its place and reads whether the
+   * (dropdown-only) sign-out label got projected content, then takes both
+   * capture spans out of the page.
+   *
+   * @param hasContent - Reads whether a slot has content.
+   */
+  private placeSlots(hasContent: SlotReader): void {
+    const brand = this.brandSlot?.nativeElement
+    if (brand) {
+      hasContent(brand)
+      placeContentBefore(brand, brand)
+      setElementPresent(brand, false)
+    }
+    const signOut = this.signOutSlot?.nativeElement
+    if (signOut) {
+      this.signOutProjected.set(hasContent(signOut))
+      placeContentBefore(signOut, signOut)
+      setElementPresent(signOut, false)
+    }
+  }
 
   /**
    * Attaches the document mousedown listener React adds while the menu is open
@@ -128,17 +168,6 @@ export class StorefrontTopNav implements OnInit, OnDestroy, AfterViewChecked {
    */
   ngOnDestroy(): void {
     document.removeEventListener('mousedown', this.onDoc)
-  }
-
-  /**
-   * Tracks whether the sign-out row's label arrived as projected content, so
-   * the text fallback renders only when it did not (React renders exactly one
-   * of the two).
-   */
-  ngAfterViewChecked(): void {
-    const slot = this.signOutSlot?.nativeElement
-    const filled = slot ? hasRenderableContent(slot) : false
-    if (filled !== this.signOutProjected()) this.signOutProjected.set(filled)
   }
 
   /**

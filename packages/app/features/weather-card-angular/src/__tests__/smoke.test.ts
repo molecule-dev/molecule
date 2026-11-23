@@ -56,9 +56,15 @@ describe('WeatherCard', () => {
    * into the eyebrow slot.
    *
    * @param props - The props the template reads as `p['name']`.
+   * @param content - The projected content.
+   * @param siblings - Wrap the card in fixed `<i>a</i>` / `<i>b</i>` neighbours.
    * @returns The mounted host and a props setter.
    */
-  async function mount(props: Record<string, unknown>): Promise<{
+  async function mount(
+    props: Record<string, unknown>,
+    content = `@for (x of p['xs']; track x) {<b slot="eyebrow">{{ x }}</b>}`,
+    siblings = false,
+  ): Promise<{
     host: HTMLElement
     setProps: (next: Record<string, unknown>) => Promise<void>
     destroy: () => void
@@ -68,8 +74,8 @@ describe('WeatherCard', () => {
       selector: 'mol-weather-host',
       standalone: true,
       imports: [WeatherCard as Type<unknown>],
-      changeDetection: ChangeDetectionStrategy.Default,
-      template: `<div mol-weather-card [locationName]="'Here'" [alertLevel]="p['alertLevel']">@for (x of p['xs']; track x) {<b slot="eyebrow">{{ x }}</b>}</div>`,
+      changeDetection: ChangeDetectionStrategy.Eager,
+      template: `${siblings ? '<i>a</i>' : ''}<div mol-weather-card [locationName]="'Here'" [alertLevel]="p['alertLevel']">${content}</div>${siblings ? '<i>b</i>' : ''}`,
     })(
       class WeatherHost {
         /** The props the template binds. */
@@ -110,6 +116,51 @@ describe('WeatherCard', () => {
       expect(shown()).toEqual(['a', 'b', 'c'])
       await m.setProps({ xs: ['a', 'c'] })
       expect(shown()).toEqual(['a', 'c'])
+    } finally {
+      m.destroy()
+    }
+  })
+
+  it('shows and removes the eyebrow wrapper in the pass where the consumer @if adds and removes its content', async () => {
+    const m = await mount({ on: false }, `@if (p['on']) {<b slot="eyebrow" data-eyebrow></b>}`)
+    try {
+      const eyebrow = (): HTMLElement | null => m.host.querySelector('[data-eyebrow]')
+      // No projected eyebrow: React renders no eyebrow paragraph.
+      expect(eyebrow()).toBeNull()
+      await m.setProps({ on: true })
+      // The eyebrow arrives: the paragraph and its content render in the same pass.
+      expect(eyebrow()).not.toBeNull()
+      expect(eyebrow()!.closest('p')).not.toBeNull()
+      await m.setProps({ on: false })
+      expect(eyebrow()).toBeNull()
+    } finally {
+      m.destroy()
+    }
+  })
+
+  it("renders React's elements with no host or capture element of its own", async () => {
+    const m = await mount(
+      { on: true },
+      `@if (p['on']) {<b slot="eyebrow" data-eyebrow>Today</b>}`,
+      true,
+    )
+    try {
+      // The consumer's children are exactly React's: the two neighbours and the
+      // card (its root, so the host element itself), with no extra host or capture.
+      const shape = (): string =>
+        Array.from(m.host.childNodes)
+          .filter(
+            (n) => n.nodeType === 1 || (n.nodeType === 3 && (n.textContent ?? '').trim() !== ''),
+          )
+          .map((n) => (n.nodeType === 1 ? (n as Element).tagName : '#text'))
+          .join(',')
+      const eyebrow = (): HTMLElement | null => m.host.querySelector('[data-eyebrow]')
+      expect(shape()).toBe('I,DIV,I')
+      // The projected eyebrow renders bare inside its paragraph, no capture span.
+      expect(eyebrow()?.parentElement?.tagName).toBe('P')
+      await m.setProps({ on: false })
+      expect(shape()).toBe('I,DIV,I')
+      expect(eyebrow()).toBeNull()
     } finally {
       m.destroy()
     }

@@ -80,7 +80,7 @@ async function render(props: Record<string, unknown>): Promise<Mounted> {
     selector: 'mol-spec-host',
     standalone: true,
     imports: [TimeSlotPicker],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     host: { 'data-spec-host': String(++hostCount) },
     template: `<div mol-time-slot-picker [slots]="p['slots']" [selectedId]="p['selectedId']" [onSelect]="p['onSelect']" [layout]="p['layout']" [columns]="p['columns']" [title]="p['title']" [className]="p['className']"></div>`,
   })(

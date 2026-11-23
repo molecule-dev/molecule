@@ -135,4 +135,44 @@ describe('AuthModal captcha slot', () => {
     expect(document.querySelector('[data-mol-id="auth-modal-captcha"]')).toBeNull()
     expect(submitButton().disabled).toBe(false)
   })
+
+  it('shows and removes the captcha wrapper in the pass where the consumer @if adds and removes its content', async () => {
+    const fixture = await renderFixture(
+      `<mol-auth-modal [open]="true" [initialMode]="'signup'" [oauthConfig]="{}">@if (p['on']) {<div slot="captchaSlot" data-testid="challenge">challenge</div>}</mol-auth-modal>`,
+      { on: false },
+      [AuthModal, ModalStub, IconStub, ButtonStub, OAuthButtonsStub, OAuthDividerStub],
+    )
+    await flush(fixture)
+    mounted.push(fixture)
+    const wrapper = (): Element | null =>
+      document.querySelector('[data-mol-id="auth-modal-captcha"]')
+    expect(wrapper()).toBeNull()
+    await fixture.setProps({ on: true })
+    await flush(fixture)
+    expect(wrapper()).not.toBeNull()
+    expect(wrapper()!.querySelector('[data-testid="challenge"]')).not.toBeNull()
+    await fixture.setProps({ on: false })
+    await flush(fixture)
+    expect(wrapper()).toBeNull()
+  })
+
+  it('keeps a consumer list in order when an item is inserted in the middle of captchaSlot', async () => {
+    const fixture = await renderFixture(
+      `<mol-auth-modal [open]="p['open']" [initialMode]="'signup'" [oauthConfig]="{}"><ng-container ngProjectAs="[slot=captchaSlot]">@for (x of p['xs']; track x) {<b>{{ x }}</b>}</ng-container></mol-auth-modal>`,
+      { open: true, xs: ['a', 'c'] },
+      [AuthModal, ModalStub, IconStub, ButtonStub, OAuthButtonsStub, OAuthDividerStub],
+    )
+    await flush(fixture)
+    mounted.push(fixture)
+    const capture = (): Element => document.querySelector('[data-mol-id="auth-modal-captcha"]')!
+    const items = (): string[] =>
+      [...capture().querySelectorAll('b')].map((b) => b.textContent ?? '')
+    expect(items()).toEqual(['a', 'c'])
+    await fixture.setProps({ xs: ['a', 'b', 'c'] })
+    await flush(fixture)
+    expect(items()).toEqual(['a', 'b', 'c'])
+    await fixture.setProps({ xs: ['a', 'b'] })
+    await flush(fixture)
+    expect(items()).toEqual(['a', 'b'])
+  })
 })

@@ -22,6 +22,7 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
@@ -83,7 +84,7 @@ async function mount(
     selector: 'mol-spec-host',
     standalone: true,
     imports: [component],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: hostTemplate,
   })(
     class SpecHost {
@@ -92,7 +93,7 @@ async function mount(
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
     environmentInjector: appRef.injector,
@@ -149,6 +150,20 @@ afterEach(async () => {
 })
 
 describe('<HeroMetricCard>', () => {
+  it('keeps a consumer list in order when an item is inserted in the middle of progressRing', async () => {
+    const m = await render(
+      { title: 'Active users', value: '42', xs: [1, 3] },
+      '@for (x of p[\'xs\']; track x) {<span slot="progressRing"><b>{{ x }}</b></span>}',
+    )
+    const texts = (): string[] =>
+      Array.from(cardEl(m.host).querySelectorAll('b')).map((el) => el.textContent ?? '')
+    expect(texts()).toEqual(['1', '3'])
+    await m.setProps({ xs: [1, 2, 3] })
+    expect(texts()).toEqual(['1', '2', '3'])
+    await m.setProps({ xs: [1, 3] })
+    expect(texts()).toEqual(['1', '3'])
+  })
+
   it('renders the title, value, and unit', async () => {
     const m = await render({ title: 'Calories', value: '1,820', unit: 'kcal' })
     expect(cardEl(m.host).textContent).toContain('Calories')
@@ -246,7 +261,7 @@ describe('<HeroMetricCard>', () => {
     const bar = cardEl(m.host).querySelector('[aria-hidden="true"]') as HTMLElement | null
     expect(bar).not.toBeNull()
     // jsdom normalizes hex to rgb when re-read; just confirm a background is set.
-    expect(bar?.style.backgroundColor).not.toBe('')
+    expect(bar!.style.backgroundColor).not.toBe('')
   })
 
   it('styles muted text with a real theme token, not the phantom on-surface-variant class', async () => {
@@ -259,6 +274,25 @@ describe('<HeroMetricCard>', () => {
   it('accepts a dataMolId prop without crashing (forwarded if Card supports it)', async () => {
     const m = await render({ title: 'X', value: '1', dataMolId: 'hero-card-test' })
     expect(cardEl(m.host).getAttribute('data-mol-id')).toBe('hero-card-test')
+  })
+
+  it('shows and removes the unit wrapper in the pass where the consumer @if adds and removes its content', async () => {
+    const m = await render(
+      { title: 'X', value: '1', on: false },
+      `@if (p['on']) {<span slot="unit" data-unit>kg</span>}`,
+    )
+    // React renders the unit span only when a unit is supplied.
+    expect(cardEl(m.host).querySelector('[data-unit]')).toBeNull()
+    expect(cardEl(m.host).textContent).not.toContain('kg')
+    await m.setProps({ on: true })
+    const unit = cardEl(m.host).querySelector('[data-unit]')
+    // React renders the projected unit bare inside its own span.
+    expect(unit).not.toBeNull()
+    expect(unit?.parentElement?.tagName).toBe('SPAN')
+    expect(cardEl(m.host).textContent).toContain('kg')
+    await m.setProps({ on: false })
+    expect(cardEl(m.host).querySelector('[data-unit]')).toBeNull()
+    expect(cardEl(m.host).textContent).not.toContain('kg')
   })
 })
 

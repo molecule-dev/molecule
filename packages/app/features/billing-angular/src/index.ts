@@ -61,8 +61,10 @@
  * - Inputs are React's prop names; node props are projected content
  *   (`LimitsList`/`LimitsItem` rows) and the `renderLimits` render function is a
  *   template whose context carries the tier's limits as `$implicit` and `a0`.
- * - The billing-status badge's host is layout-neutral (`display: contents`),
- *   because React's root element varies with the load state.
+ * - The billing-status badge's rendered root varies with the load state (a
+ *   `<span>` while loading, a `<div>` once loaded, nothing without a status):
+ *   it renders in front of the host's place and the host itself leaves the
+ *   page, so React's exact DOM remains.
  *
  * @e2e
  * Integration checklist — drive the real UI (live preview, no mocks), adapt

@@ -20,6 +20,7 @@ import '@angular/compiler'
 import '@molecule/app-framework-conformance/ui/setup'
 import {
   type ApplicationRef,
+  ChangeDetectionStrategy,
   Component,
   type ComponentRef,
   createComponent,
@@ -28,7 +29,13 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { beforeEach, describe, expect, it } from 'vitest'
 
-import { provideChat, provideHttp, provideI18n, provideTheme } from '@molecule/app-angular'
+import {
+  provideChat,
+  provideDomPlacement,
+  provideHttp,
+  provideI18n,
+  provideTheme,
+} from '@molecule/app-angular'
 import type { HttpClient } from '@molecule/app-http'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 
@@ -49,6 +56,7 @@ function reportLoading(loading: boolean): void {
 
 /** The JIT host: the panel mounted from the case's props, as a consumer does. */
 const ChatPanelHost = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-chat-panel-skeleton-host',
   standalone: true,
   imports: [ChatPanel],
@@ -97,6 +105,7 @@ async function mount(): Promise<{
   const appRef: ApplicationRef = await createApplication({
     providers: [
       provideZonelessChangeDetection(),
+      provideDomPlacement(),
       provideI18n(i18n),
       provideTheme(buildThemeProvider()),
       provideHttp(buildRecordingHttpClient(buildRejectingHttpClient(), events)),

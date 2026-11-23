@@ -26,6 +26,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 // Proxy ClassMap echoing each accessed member back as its token (e.g.
 // `stack`) — the same mock the Angular suite uses. `grid` resolves `cols` to
 // its `grid-cols-N` class, mirroring the Tailwind bond's CVA.
@@ -91,7 +93,7 @@ async function mount(props: Record<string, unknown>): Promise<Mounted> {
     selector: 'mol-i18n-spec-host',
     standalone: true,
     imports: [ImageGallery as Type<unknown>],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: `<mol-image-gallery
       [images]="p['images']"
       [selectedIndex]="p['selectedIndex']"
@@ -106,7 +108,7 @@ async function mount(props: Record<string, unknown>): Promise<Mounted> {
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<unknown> = createComponent(Host, {
     environmentInjector: appRef.injector,
@@ -135,12 +137,13 @@ afterEach(async () => {
  * Mounts the gallery and returns the markup it produced.
  *
  * @param props - The gallery props.
- * @returns The component element's inner markup.
+ * @returns The consumer element's markup (the gallery renders beside its own
+ *   element, which leaves the page).
  */
 const render = async (props: Record<string, unknown>): Promise<string> => {
   const m = await mount(props)
   mounted.push(m)
-  return m.host.querySelector('mol-image-gallery')?.innerHTML ?? ''
+  return m.host.innerHTML
 }
 
 const images = ['/a.jpg', '/b.jpg', '/c.jpg', '/d.jpg', '/e.jpg', '/f.jpg']

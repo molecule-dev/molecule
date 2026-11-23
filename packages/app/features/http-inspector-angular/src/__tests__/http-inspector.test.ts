@@ -66,6 +66,7 @@ vi.mock('@molecule/app-ui-angular', async () => {
   const { Component, EventEmitter } = await import('@angular/core')
   return {
     Button: Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'button[mol-button]',
       standalone: true,
       inputs: ['variant', 'color', 'size', 'disabled'],
@@ -73,6 +74,7 @@ vi.mock('@molecule/app-ui-angular', async () => {
       template: '<ng-content></ng-content>',
     })(class MockButton {}),
     Input: Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'div[mol-input]',
       standalone: true,
       inputs: ['type', 'value', 'placeholder', 'className'],
@@ -90,7 +92,7 @@ vi.mock('@molecule/app-ui-angular', async () => {
       },
     ),
     Select: Component({
-      changeDetection: ChangeDetectionStrategy.Default,
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'div[mol-select]',
       standalone: true,
       inputs: ['value', 'options'],
@@ -111,6 +113,7 @@ vi.mock('@molecule/app-ui-angular', async () => {
       },
     ),
     Textarea: Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'div[mol-textarea]',
       standalone: true,
       inputs: ['value', 'rows', 'placeholder'],
@@ -163,7 +166,7 @@ async function mount(props: Record<string, unknown> = {}): Promise<Mounted> {
     selector: 'mol-spec-host',
     standalone: true,
     imports: [HttpInspector as Type<unknown>],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template,
   })(
     class SpecHost {

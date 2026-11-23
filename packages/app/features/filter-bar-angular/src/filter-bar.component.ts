@@ -5,16 +5,15 @@
  */
 
 import { NgTemplateOutlet } from '@angular/common'
-import {
-  type AfterViewInit,
-  Component,
-  type ElementRef,
-  inject,
-  Renderer2,
-  ViewChild,
-} from '@angular/core'
+import { Component, type ElementRef, ViewChild } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  placeContentBefore,
+  setElementPresent,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Input, Select } from '@molecule/app-ui-angular'
@@ -31,12 +30,14 @@ import type { FilterField, FilterValues } from './types.js'
  *
  * This is the Angular counterpart of `@molecule/app-filter-bar-react`: the
  * same props (React names) and the same DOM for the same input. The
- * right-side `actions` slot is projected content (`[slot=actions]`), moved
- * out of its capture span at view init exactly as React renders it — bare.
+ * right-side `actions` slot is projected content (`[slot=actions]`), placed
+ * out of its capture span by the component's placement function, exactly as
+ * React renders it — bare.
  */
 @Component({
   selector: 'div[mol-filter-bar]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [Button, Input, NgTemplateOutlet, Select],
   inputs: ['fields', 'values', 'onChange', 'onClear', 'showLabels', 'className'],
   host: {
@@ -118,7 +119,7 @@ import type { FilterField, FilterValues } from './types.js'
       }
     </ng-template>`,
 })
-export class FilterBar implements AfterViewInit {
+export class FilterBar {
   /** Field definitions. */
   fields: FilterField[] = []
   /** Current filter values keyed by field id. */
@@ -132,12 +133,14 @@ export class FilterBar implements AfterViewInit {
   /** Extra classes on the outer row. */
   className?: string
 
-  /** The actions slot capture span (its nodes are moved out once, at view init). */
+  /** The actions slot capture span (its content is placed out of it, React-bare). */
   @ViewChild('actionsSlot') actionsSlot?: ElementRef<HTMLSpanElement>
 
-  private readonly renderer = inject(Renderer2)
-
   private readonly translate = useTranslation()
+
+  constructor() {
+    usePlacement(() => this.placeActions())
+  }
 
   /**
    * The current class map.
@@ -335,16 +338,15 @@ export class FilterBar implements AfterViewInit {
   }
 
   /**
-   * Moves the projected actions out of their capture span to its position and
-   * detaches the span — React renders `{actions}` with no wrapper element.
+   * Places the projected actions at their slot position and takes the capture
+   * span out of the DOM — React renders `{actions}` with no wrapper element.
+   * The content stands bare in front of the span's own place, so it follows
+   * wherever Angular puts the span, and the span itself leaves the page.
    */
-  ngAfterViewInit(): void {
+  private placeActions(): void {
     const span = this.actionsSlot?.nativeElement
-    const parent = span?.parentElement
-    if (!span || !parent) return
-    const anchor = this.renderer.createComment('slot')
-    parent.insertBefore(anchor, span)
-    for (const node of Array.from(span.childNodes)) parent.insertBefore(node, anchor)
-    parent.removeChild(span)
+    if (!span) return
+    placeContentBefore(span, span)
+    setElementPresent(span, false)
   }
 }

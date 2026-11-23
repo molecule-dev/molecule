@@ -16,17 +16,25 @@
  * read-only viewer's access denial, or the plain error line — React's branch
  * order.
  *
- * React's root here is a set of siblings, so the host is a
- * `display: contents` wrapper marked `data-parity-unwrap`: the conformance
- * normalizer drops it, exactly as `ChatTimestamp` does for a fragment root.
+ * React's root here is a set of siblings, so the host holds only its children:
+ * they render in its place and the host leaves the page (`placeContentBefore` +
+ * `setElementPresent`), React's fragment DOM exactly — as `ChatTimestamp` does
+ * for a fragment root.
  *
  * @module
  */
 
-import { Component, computed, inject } from '@angular/core'
+import { Component, computed, ElementRef, inject } from '@angular/core'
 
 import type { ChatErrorMeta, ChatMessage } from '@molecule/app-ai-chat'
-import { DEFAULT_AGENT_NAME, DEFAULT_PRODUCT_NAME } from '@molecule/app-angular'
+import {
+  DEFAULT_AGENT_NAME,
+  DEFAULT_PRODUCT_NAME,
+  MolPlacement,
+  placeContentBefore,
+  setElementPresent,
+  usePlacement,
+} from '@molecule/app-angular'
 import type { Activity, ChatEventCardAction } from '@molecule/app-ide-panel-logic'
 import {
   CHAT_CARD_ICON_SIZE,
@@ -128,8 +136,7 @@ type HelpUpgradeSection = NonNullable<
     ResourceLimitBanner,
     TipCard,
   ],
-  // prettier-ignore
-  host: { 'data-parity-unwrap': '', style: 'display: contents' },
+  hostDirectives: [MolPlacement],
   // prettier-ignore
   template: `@for (item of items(); track itemKey(item)) {
   <ng-template #row>
@@ -192,6 +199,9 @@ export class ChatTimelineItems {
 
   /** The tests slice: skipping a running tool call. */
   private readonly tests = inject(ChatTests)
+
+  /** The component's host element (React's fragment: it renders nothing). */
+  private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
 
   /** The bonded ClassMap (styling tokens resolve at render time). */
   protected readonly cm: UIClassMap = getClassMap()
@@ -282,7 +292,7 @@ export class ChatTimelineItems {
   /** One commit card per persisted commit-record message, by message identity. */
   private readonly recordCards = new WeakMap<ChatMessage, CommitCard>()
 
-  /** Composes the ClassMap class strings and the viewer notice's chrome once. */
+  /** Composes the ClassMap class strings and the viewer notice's chrome once; the host renders its children in its place. */
   constructor() {
     this.skillsButtonClass = this.cm.cn(this.cm.textSize('xs'), this.cm.textMuted)
     this.plainNoticeClass = this.cm.cn(this.cm.textSize('xs'), this.cm.textMuted)
@@ -301,6 +311,10 @@ export class ChatTimelineItems {
       marginBottom: 8,
       ...chatCardStyle(NOTICE_TONE.gold.accent),
       lineHeight: 1.5,
+    })
+    usePlacement(() => {
+      placeContentBefore(this.host.nativeElement, this.host.nativeElement)
+      setElementPresent(this.host.nativeElement, false)
     })
   }
 

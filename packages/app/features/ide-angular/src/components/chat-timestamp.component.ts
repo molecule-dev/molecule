@@ -9,11 +9,11 @@
  * same DOM for the same input. Presentational only: WHETHER an item shows its
  * time is decided once for the whole timeline by `planChatTimestamps`.
  *
- * The host is a `display: contents` wrapper (`div[mol-chat-timestamp]`),
- * unwrapped by the conformance normalizer, because React's root is a fragment
- * (the tooltip's trigger wrapper plus its portal) for `inline` and the line
- * `<div>` for `line` — a standalone component's host tag cannot change at
- * runtime. The shared UI Tooltip does the same unwrap for its own trigger.
+ * React's root is a fragment (the tooltip's trigger wrapper plus its portal)
+ * for `inline` and the line `<div>` for `line`, so the template's nodes render
+ * in front of the host (`placeContentBefore`) and the host leaves the DOM: the
+ * rendered tree is React's, with no wrapper element around it. The shared UI
+ * Tooltip renders the same way for its own trigger.
  * Styling uses `getClassMap()` (`cm.*`); the only inline styles are layout
  * the ClassMap can't express, serialized through `styleText` the way React
  * writes numbers (`11` → `11px`, `lineHeight: 1.3` stays unitless).
@@ -21,9 +21,15 @@
  * @module
  */
 
-import { Component } from '@angular/core'
+import { Component, ElementRef, inject } from '@angular/core'
 
-import { useLocale } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  placeContentBefore,
+  setElementPresent,
+  useLocale,
+  usePlacement,
+} from '@molecule/app-angular'
 import { formatChatFullTime, formatChatRelativeTime } from '@molecule/app-ide-panel-logic'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
@@ -64,14 +70,26 @@ const STYLES = {
   standalone: true,
   imports: [Tooltip],
   inputs: ['timestamp', 'variant', 'align'],
-  host: {
-    'data-parity-unwrap': '',
-    style: 'display: contents',
-  },
+  hostDirectives: [MolPlacement],
   // prettier-ignore
   template: `@if (renderable()) {@if (variant === 'line') {<div [attr.style]="lineStyle()"><mol-tooltip placement="top"><time [attr.datetime]="dateTime()" [class]="cm.textMuted" [attr.style]="s.label" data-mol-id="chat-timestamp">{{ label() }}</time><ng-container ngProjectAs="[slot=content]">{{ exactTime() }}</ng-container></mol-tooltip></div>} @else {<mol-tooltip placement="top"><time [attr.datetime]="dateTime()" [class]="cm.textMuted" [attr.style]="s.label" data-mol-id="chat-timestamp">{{ label() }}</time><ng-container ngProjectAs="[slot=content]">{{ exactTime() }}</ng-container></mol-tooltip>}}`,
 })
 export class ChatTimestamp {
+  /** The component's own host element, which React does not render. */
+  private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
+
+  /**
+   * Renders the template's nodes in front of the host and keeps the host out of
+   * the DOM: React's root is the fragment (or the line `<div>`) itself.
+   */
+  constructor() {
+    usePlacement(() => {
+      const host = this.host.nativeElement
+      placeContentBefore(host, host)
+      setElementPresent(host, false)
+    })
+  }
+
   /** Epoch milliseconds of the message or event. */
   timestamp = Number.NaN
 

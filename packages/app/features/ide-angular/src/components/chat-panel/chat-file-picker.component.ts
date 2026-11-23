@@ -5,15 +5,16 @@
  * marker for the editor's current file and open tabs.
  *
  * React renders the popup only while the picker is open AND at least one entry
- * matched, so the host — React's own root `<div>` — is the popup box then and
- * unwraps (`data-parity-unwrap`, `display: contents`) when React renders
- * nothing.
+ * matched, so the host — React's own root `<div>` with the popup box's classes
+ * and style — is present then and out of the DOM while React renders nothing
+ * (`useHostPresence`).
  *
  * @module
  */
 
 import { Component, inject } from '@angular/core'
 
+import { useHostPresence } from '@molecule/app-angular'
 import type { FileEntry } from '@molecule/app-ide-panel-logic/panels'
 import type { UIClassMap } from '@molecule/app-ui'
 import { styleText } from '@molecule/app-ui-angular'
@@ -39,9 +40,6 @@ interface FilePickerRow {
   isOpenTab: boolean
 }
 
-/** The closed state: React renders nothing, so the host unwraps to nothing. */
-const UNWRAP_STYLE = styleText({ display: 'contents' })
-
 /** The file name span's inline style. */
 const FILE_NAME_STYLE = styleText({ fontFamily: 'monospace', fontWeight: 500 })
 
@@ -63,9 +61,8 @@ const MARKER_STYLE = styleText({
   selector: 'div[mol-chat-file-picker]',
   standalone: true,
   host: {
-    '[attr.data-parity-unwrap]': 'open() ? null : ""',
-    '[attr.class]': 'open() ? rootClass : null',
-    '[attr.style]': 'open() ? rootStyle() : unwrapStyle',
+    '[attr.class]': 'rootClass',
+    '[attr.style]': 'rootStyle()',
   },
   // prettier-ignore
   template: `@for (row of rows(); track row.entry.name) {<button type="button" (click)="select(row.entry)" (mouseenter)="onRowEnter($event)" (mouseleave)="onRowLeave($event, row.index)" [attr.class]="rowClass" [attr.style]="rowStyle(row)"><span [attr.style]="fileNameStyle">{{ row.fileName }}</span>@if (row.dirPath) {<span [attr.class]="mutedClass" [attr.style]="dirPathStyle">{{ row.dirPath }}</span>}@if (row.isActive || row.isOpenTab) {<span [attr.style]="markerStyle">{{ markerText(row) }}</span>}</button>}`,
@@ -82,9 +79,6 @@ export class ChatFilePicker {
 
   /** The mention slice: the row action that stages a file. */
   private readonly mention = inject(ChatMention)
-
-  /** The closed state's inline style (the host unwraps away). */
-  protected readonly unwrapStyle: string | null = UNWRAP_STYLE
 
   /** The file name span's inline style. */
   protected readonly fileNameStyle: string | null = FILE_NAME_STYLE
@@ -104,12 +98,13 @@ export class ChatFilePicker {
   /** The directory span's ClassMap classes. */
   protected readonly mutedClass: string
 
-  /** Resolves the ClassMap once, at construction. */
+  /** Resolves the ClassMap once, and keeps the host in the page only while open. */
   constructor() {
     const cm: UIClassMap = this.state.env.cm
     this.rootClass = cm.cn(cm.surface, cm.borderAll)
     this.rowClass = cm.w('full')
     this.mutedClass = cm.textMuted
+    useHostPresence(() => this.open())
   }
 
   /**

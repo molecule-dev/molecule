@@ -15,7 +15,13 @@ import {
   ViewChild,
 } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  placeContentBefore,
+  setElementPresent,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { ClientSearchDocument } from '@molecule/app-client-search'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
@@ -32,8 +38,8 @@ import type {
  * The default row link is a plain anchor; the row body renders through the
  * `rowBody` template. React's root is a FRAGMENT of two nodes (the `<ul>` and
  * a visually hidden status `<p>`, or the empty text `<p>` and the status `<p>`),
- * so the host is unwrapped (`data-parity-unwrap`, `display: contents`) and
- * renders exactly React's root.
+ * so those nodes render in the host's place and the host itself never appears
+ * in the page.
  *
  * The ranked hits: title and description with the matched terms marked, the
  * meta line, hover making a row active and warming its page. The whole row is
@@ -45,6 +51,7 @@ import type {
 @Component({
   selector: 'mol-search-results',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [Highlight, NgTemplateOutlet],
   inputs: [
     'hits',
@@ -59,10 +66,6 @@ import type {
     'molId',
     'className',
   ],
-  host: {
-    'data-parity-unwrap': '',
-    style: 'display: contents',
-  },
   // prettier-ignore
   template: `@if (hits.length === 0) {
       <p [class]="cm().cn(cm().resultEmpty)" [attr.data-mol-id]="id() + '-empty'">{{ emptyText }}</p>
@@ -363,30 +366,22 @@ export class SearchResults<T extends ClientSearchDocument = ClientSearchDocument
     if (changes['activeIndex']) this.keepInView()
   }
 
-  /** Keeps the active row in view after the list first renders, and adopts the rendered root. */
+  /** Keeps the active row in view after the list first renders. */
   ngAfterViewInit(): void {
-    this.adopt()
     this.keepInView()
   }
 
-  /**
-   * Adopts the rendered root beside the host on every check (a props step may
-   * re-render it), the way the kit's session gate and the UI kit's Tooltip
-   * adopt theirs: React's root is a fragment, so the focus path and the real
-   * DOM must not carry the host between the app and the list.
-   */
-  ngDoCheck(): void {
-    this.adopt()
-  }
-
-  /** The host element (the unwrapped wrapper holding React's root). */
+  /** The host element (kept out of the page; React renders only the fragment's nodes). */
   private readonly hostEl: HTMLElement = inject(ElementRef<HTMLElement>).nativeElement
 
-  /** Moves the rendered root beside the host, so the host stays empty. */
+  constructor() {
+    usePlacement(() => this.adopt())
+  }
+
+  /** Renders the fragment's nodes in the host's place and takes the host out of the page. */
   private adopt(): void {
-    const parent = this.hostEl.parentNode
-    if (!parent) return
-    for (const node of Array.from(this.hostEl.childNodes)) parent.insertBefore(node, this.hostEl)
+    placeContentBefore(this.hostEl, this.hostEl)
+    setElementPresent(this.hostEl, false)
   }
 
   /** Scrolls the active row into view when there is one. */

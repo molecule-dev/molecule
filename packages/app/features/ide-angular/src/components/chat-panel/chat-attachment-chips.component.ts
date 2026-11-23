@@ -5,14 +5,15 @@
  * and a remove button.
  *
  * React renders the row only while at least one file is staged, so the host —
- * React's own root `<div>` — is the chip row then and unwraps
- * (`data-parity-unwrap`, `display: contents`) when React renders nothing.
+ * React's own root `<div>` with the chip row's style — is present then and
+ * out of the DOM while React renders nothing (`useHostPresence`).
  *
  * @module
  */
 
 import { Component, inject } from '@angular/core'
 
+import { useHostPresence } from '@molecule/app-angular'
 import { formatSize } from '@molecule/app-ide-panel-logic'
 import type { AttachedFile } from '@molecule/app-ide-panel-logic/panels'
 import type { UIClassMap } from '@molecule/app-ui'
@@ -43,9 +44,6 @@ const ROOT_STYLE = styleText({
   gap: '4px',
   padding: '6px 10px 0',
 })
-
-/** The closed state: React renders nothing, so the host unwraps to nothing. */
-const UNWRAP_STYLE = styleText({ display: 'contents' })
 
 /** The chip's inline style. */
 const CHIP_STYLE = styleText({
@@ -102,8 +100,7 @@ const REMOVE_STYLE_COARSE = styleText({
   selector: 'div[mol-chat-attachment-chips]',
   standalone: true,
   host: {
-    '[attr.data-parity-unwrap]': 'closed() ? "" : null',
-    '[attr.style]': 'closed() ? unwrapStyle : rootStyle',
+    '[attr.style]': 'rootStyle',
   },
   // prettier-ignore
   template: `@for (item of chips(); track item.key) {<span [attr.class]="chipClass" [attr.style]="chipStyle">@if (item.previewUrl) {<img [attr.src]="item.previewUrl" [attr.alt]="item.filename" [attr.style]="imageStyle" />}<span [attr.style]="nameStyle">{{ item.label }}</span>@if (item.size > 0) {<span [attr.class]="mutedClass" [attr.style]="sizeStyle">{{ sizeText(item.size) }}</span>}<button type="button" [attr.data-mol-id]="'chat-attachment-remove-' + item.key" [attr.aria-label]="removeLabel(item)" (click)="remove(item.key)" [attr.style]="removeStyle()">×</button></span>}`,
@@ -120,9 +117,6 @@ export class ChatAttachmentChips {
 
   /** The chip row's inline style while it is shown. */
   protected readonly rootStyle: string | null = ROOT_STYLE
-
-  /** The closed state's inline style (the host unwraps away). */
-  protected readonly unwrapStyle: string | null = UNWRAP_STYLE
 
   /** The chip's inline style. */
   protected readonly chipStyle: string | null = CHIP_STYLE
@@ -142,11 +136,12 @@ export class ChatAttachmentChips {
   /** The size label's ClassMap classes. */
   protected readonly mutedClass: string
 
-  /** Resolves the ClassMap and the static classes once, at construction. */
+  /** Resolves the ClassMap and the static classes once, and keeps the host in the page only while shown. */
   constructor() {
     const cm: UIClassMap = this.state.env.cm
     this.chipClass = cm.cn(cm.surfaceSecondary, cm.textSize('xs'))
     this.mutedClass = cm.textMuted
+    useHostPresence(() => !this.closed())
   }
 
   /**

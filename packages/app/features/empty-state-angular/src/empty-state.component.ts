@@ -5,23 +5,18 @@
  */
 
 import { NgTemplateOutlet } from '@angular/common'
-import {
-  type AfterViewInit,
-  Component,
-  type DoCheck,
-  ElementRef,
-  inject,
-  type Renderer2,
-  RendererFactory2,
-  signal,
-  type TemplateRef,
-  ViewChild,
-} from '@angular/core'
+import { Component, type ElementRef, signal, type TemplateRef, ViewChild } from '@angular/core'
 
+import {
+  MolPlacement,
+  placeContentBefore,
+  setElementPresent,
+  type SlotReader,
+  usePlacement,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
-import { hasNodes, SlotGuard } from './slot-dom.js'
 import type { EmptyStateProps } from './types.js'
 
 /**
@@ -64,13 +59,15 @@ const textOf = (value: unknown): string | null =>
  * @remarks
  * Angular projection needs the `<ng-content>` capture points mounted, so the
  * optional icon badge and description render optimistically and
- * {@link EmptyState.ngDoCheck} detaches the ones React would not render. A
- * selected `view` owns its message: the view's own content is rendered, so an
- * app passes either a view or the generic message, never both.
+ * {@link EmptyState.reconcile} takes the ones React would not render out of the
+ * DOM ({@link setElementPresent}). A selected `view` owns its message: the
+ * view's own content is rendered, so an app passes either a view or the generic
+ * message, never both.
  */
 @Component({
   selector: 'section[mol-empty-state]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [NgTemplateOutlet],
   inputs: [
     'icon',
@@ -87,9 +84,9 @@ const textOf = (value: unknown): string | null =>
     '[attr.data-mol-id]': 'dataMolId ?? null',
   },
   // prettier-ignore
-  template: `<div #iconEl [class]="iconWrapperClasses()">@if (templateOf(icon); as tpl) {<ng-container [ngTemplateOutlet]="tpl" />} @else if (textOf(icon); as t) {{{ t }}}<ng-content select="[slot=icon]"></ng-content></div><h3 [class]="titleClasses()">@if (templateOf(content().title); as tpl) {<ng-container [ngTemplateOutlet]="tpl" />} @else if (textOf(content().title); as t) {{{ t }}}<ng-content select="[slot=title]"></ng-content></h3><p #descriptionEl [class]="descriptionClasses()">@if (templateOf(content().description); as tpl) {<ng-container [ngTemplateOutlet]="tpl" />} @else if (textOf(content().description); as t) {{{ t }}}<ng-content select="[slot=description]"></ng-content></p><div #actionEl data-parity-unwrap>@if (templateOf(content().action); as tpl) {<ng-container [ngTemplateOutlet]="tpl" />} @else if (textOf(content().action); as t) {{{ t }}}<ng-content select="[slot=action]"></ng-content></div>`,
+  template: `<div #iconEl [class]="iconWrapperClasses()">@if (templateOf(icon); as tpl) {<ng-container [ngTemplateOutlet]="tpl" />} @else if (textOf(icon); as t) {{{ t }}}<ng-content select="[slot=icon]"></ng-content></div><h3 [class]="titleClasses()">@if (templateOf(content().title); as tpl) {<ng-container [ngTemplateOutlet]="tpl" />} @else if (textOf(content().title); as t) {{{ t }}}<ng-content select="[slot=title]"></ng-content></h3><p #descriptionEl [class]="descriptionClasses()">@if (templateOf(content().description); as tpl) {<ng-container [ngTemplateOutlet]="tpl" />} @else if (textOf(content().description); as t) {{{ t }}}<ng-content select="[slot=description]"></ng-content></p><div #actionEl>@if (templateOf(content().action); as tpl) {<ng-container [ngTemplateOutlet]="tpl" />} @else if (textOf(content().action); as t) {{{ t }}}<ng-content select="[slot=action]"></ng-content></div>`,
 })
-export class EmptyState implements AfterViewInit, DoCheck {
+export class EmptyState {
   /** Visual — an icon node as a `TemplateRef`, a string, or `[slot=icon]` content. */
   icon?: unknown
   /** Primary heading for a general, unselected collection. */
@@ -114,18 +111,16 @@ export class EmptyState implements AfterViewInit, DoCheck {
   /** The action's capture point (the projected action lands here). */
   @ViewChild('actionEl') private actionEl?: ElementRef<HTMLElement>
 
-  /** The host element (the outer `<section>`). */
-  private readonly host = inject(ElementRef<HTMLElement>)
-  /** The DOM renderer, for the wrapper attach/detach. */
-  private readonly renderer: Renderer2 = inject(RendererFactory2).createRenderer(null, null)
-  /** Reconciles the optional wrappers against React's DOM. */
-  private readonly guard = new SlotGuard(this.host, this.renderer)
   /** Whether a `[slot=icon]` projection landed. */
   private readonly iconProjected = signal(false)
   /** Whether a `[slot=description]` projection landed. */
   private readonly descriptionProjected = signal(false)
   /** Whether a `[slot=action]` projection landed. */
   private readonly actionProjected = signal(false)
+
+  constructor() {
+    usePlacement((hasContent) => this.reconcile(hasContent))
+  }
 
   /**
    * The current class map.
@@ -235,25 +230,23 @@ export class EmptyState implements AfterViewInit, DoCheck {
 
   /**
    * Reads the projected capture points and reconciles the optional wrappers.
+   *
+   * @param hasContent - Reads whether a slot has content.
    */
-  reconcile(): void {
+  reconcile(hasContent: SlotReader): void {
     const icon = this.iconEl?.nativeElement
-    if (icon) this.iconProjected.set(hasNodes(icon))
+    if (icon) this.iconProjected.set(hasContent(icon))
     const description = this.descriptionEl?.nativeElement
-    if (description) this.descriptionProjected.set(hasNodes(description))
+    if (description) this.descriptionProjected.set(hasContent(description))
     const action = this.actionEl?.nativeElement
-    if (action) this.actionProjected.set(hasNodes(action))
-    this.guard.toggle(this.iconEl?.nativeElement, this.showIcon())
-    this.guard.toggle(this.descriptionEl?.nativeElement, this.showDescription())
-  }
-
-  /** Reconciles the wrappers once the view (and its projections) exist. */
-  ngAfterViewInit(): void {
-    this.reconcile()
-  }
-
-  /** Reconciles the wrappers after input writes, as React re-renders on a prop change. */
-  ngDoCheck(): void {
-    this.reconcile()
+    if (action) this.actionProjected.set(hasContent(action))
+    setElementPresent(icon, this.showIcon())
+    setElementPresent(description, this.showDescription())
+    // React renders `{content.action}` bare: the action's content stands in the capture
+    // point's place and the point itself leaves the page.
+    if (action) {
+      placeContentBefore(action, action)
+      setElementPresent(action, false)
+    }
   }
 }

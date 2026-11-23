@@ -5,7 +5,14 @@
  * its empty-state action cannot be clicked before a document exists.
  */
 import '@angular/compiler'
-import { Component, computed, signal, type Type, type WritableSignal } from '@angular/core'
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  signal,
+  type Type,
+  type WritableSignal,
+} from '@angular/core'
 import { afterEach, beforeEach, expect, it } from 'vitest'
 
 import { getQueryClient, resetQueryClient, setProvider } from '@molecule/app-query'
@@ -39,6 +46,7 @@ it.each(['populated', 'empty', 'error'] as const)(
       reject = no
     })
     const Inventory = Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'mol-parity-inventory-pending',
       standalone: true,
       imports: [QueryContent],
@@ -105,6 +113,7 @@ it('waits for the initial collection before offering an empty-state action', asy
     resolve = yes
   })
   const Inventory = Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
     selector: 'mol-parity-inventory',
     standalone: true,
     imports: [QueryContent],

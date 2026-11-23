@@ -68,7 +68,7 @@ async function mount(template: string, props: Record<string, unknown> = {}): Pro
     selector: 'mol-spec-host',
     standalone: true,
     imports: [TabFilter],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     host: { 'data-spec-host': String(specHost) },
     template,
   })(

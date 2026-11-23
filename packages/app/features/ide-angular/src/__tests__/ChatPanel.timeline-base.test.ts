@@ -243,9 +243,12 @@ describe('ChatPanel timeline base (P5)', () => {
       // hidden file input for the attachment button and the composer itself.
       expect(block.querySelector('input[type="file"]')).not.toBeNull()
       expect(block.querySelector('[data-mol-id="chat-composer"]')).not.toBeNull()
-      // Nothing to report on a clean mount: no skill suggestion and no error or
-      // dictation notice comes before the attachment chips.
-      expect(block.firstElementChild?.hasAttribute('mol-chat-attachment-chips')).toBe(true)
+      // Nothing to report on a clean mount: no skill suggestion, no error or
+      // dictation notice, and no attachment chips are staged, so the attachment
+      // rows component renders nothing (its host is out of the DOM): React's
+      // first element child here is the hidden file input.
+      expect(block.firstElementChild?.tagName).toBe('INPUT')
+      expect(block.querySelector('[mol-chat-attachment-chips]')).toBeNull()
     },
   )
 

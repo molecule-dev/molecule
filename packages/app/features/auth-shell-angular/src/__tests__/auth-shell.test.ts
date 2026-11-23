@@ -21,6 +21,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
 // `authShellCardSurface`), the same mock the React tests use.
 vi.mock('@molecule/app-ui', () => ({
@@ -70,6 +72,7 @@ vi.mock('@molecule/app-angular', async (importOriginal) => {
 })
 
 const {
+  AuthFormStateProvider,
   AuthShell,
   AuthShellBackLink,
   AuthShellCard,
@@ -81,6 +84,7 @@ const {
   AuthShellPanel,
   AuthShellSplit,
   AuthShellSplitRow,
+  useAuthFormStateContext,
 } = await import('../index.js')
 
 /** A mounted spec host: its DOM, a props setter, and a teardown. */
@@ -110,7 +114,7 @@ async function mount(
     selector: 'mol-spec-host',
     standalone: true,
     imports: [component],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template,
   })(
     class SpecHost {
@@ -119,7 +123,7 @@ async function mount(
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
     environmentInjector: appRef.injector,
@@ -389,9 +393,89 @@ describe('AuthShellCardColumn', () => {
     expect(m.host.innerHTML).toContain('<main')
     expect(m.host.innerHTML).not.toContain('<section')
   })
+
+  it("renders React's elements with no host or capture element of its own", async () => {
+    const m = await render(
+      `<i>a</i><mol-auth-shell-card-column [as]="p['as']"><b data-card></b></mol-auth-shell-card-column><i>b</i>`,
+      AuthShellCardColumn,
+      {},
+    )
+    const tags = (): string[] =>
+      Array.from(m.host.children).map((child) => child.tagName.toLowerCase())
+    expect(tags()).toEqual(['i', 'section', 'i'])
+    await m.setProps({ as: 'main' })
+    expect(tags()).toEqual(['i', 'main', 'i'])
+    await m.setProps({ as: 'section' })
+    expect(tags()).toEqual(['i', 'section', 'i'])
+  })
+})
+
+describe('AuthFormStateProvider', () => {
+  it("renders React's elements with no host or capture element of its own", async () => {
+    let resolved: (() => string | undefined) | null = null
+    const Reader = Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'mol-parity-reader',
+      standalone: true,
+      template: '',
+    })(
+      class ParityReader {
+        constructor() {
+          const state = useAuthFormStateContext()
+          resolved = () => state.fields().email
+        }
+      },
+    )
+    const Host = Component({
+      selector: 'mol-provider-parity-host',
+      standalone: true,
+      imports: [AuthFormStateProvider, Reader],
+      changeDetection: ChangeDetectionStrategy.Eager,
+      template: `<i>a</i><div mol-auth-form-state-provider storageKey="parity-ctx"><mol-parity-reader></mol-parity-reader></div><i>b</i>`,
+    })(class ProviderParityHost {})
+    const appRef: ApplicationRef = await createApplication({
+      providers: [provideZonelessChangeDetection(), provideDomPlacement()],
+    })
+    const ref = createComponent(Host, { environmentInjector: appRef.injector })
+    const host = ref.location.nativeElement as HTMLElement
+    document.body.appendChild(host)
+    appRef.attachView(ref.hostView)
+    appRef.tick()
+    try {
+      // React's context provider renders no element of its own: the form is a
+      // plain child of the consumer's template.
+      expect(Array.from(host.children).map((child) => child.tagName.toLowerCase())).toEqual([
+        'i',
+        'mol-parity-reader',
+        'i',
+      ])
+      // And the projected form still resolves the provider's state.
+      expect(resolved).not.toBeNull()
+      expect(resolved!()).toBeUndefined()
+    } finally {
+      ref.destroy()
+      host.remove()
+      appRef.destroy()
+    }
+  })
 })
 
 describe('AuthShell (preset)', () => {
+  it('keeps a consumer list in order when an item is inserted in the middle of decoration', async () => {
+    const m = await render(
+      `<div mol-auth-shell [heading]="p['heading']" [subheading]="p['subheading']">@for (x of p['xs']; track x) {<div slot="decoration"><b>{{ x }}</b></div>}<div data-body></div></div>`,
+      AuthShell,
+      { heading: 'H', subheading: 'S', xs: [1, 3] },
+    )
+    const texts = (): string[] =>
+      Array.from(m.host.querySelectorAll('b')).map((el) => el.textContent ?? '')
+    expect(texts()).toEqual(['1', '3'])
+    await m.setProps({ xs: [1, 2, 3] })
+    expect(texts()).toEqual(['1', '2', '3'])
+    await m.setProps({ xs: [1, 3] })
+    expect(texts()).toEqual(['1', '3'])
+  })
+
   it('renders the heading, children, and back link by default', async () => {
     const m = await render(
       `<div mol-auth-shell [heading]="p['heading']" [subheading]="p['subheading']" [backTo]="p['backTo']" [showBackLink]="p['showBackLink']"><form data-form></form></div>`,
@@ -435,5 +519,21 @@ describe('AuthShell (preset)', () => {
     )
     expect(m.host.innerHTML).not.toContain('«auth.backHome»')
     expect(m.host.innerHTML).not.toContain('arrow_back')
+  })
+
+  it('shows and removes the decoration wrapper in the pass where the consumer @if adds and removes its content', async () => {
+    const m = await render(
+      `<div mol-auth-shell [heading]="p['heading']" [subheading]="p['subheading']" [backTo]="p['backTo']" [showBackLink]="p['showBackLink']">@if (p['on']) {<div slot="decoration" data-decoration></div>}<div data-body></div></div>`,
+      AuthShell,
+      { heading: 'H', subheading: 'S', on: false },
+    )
+    const decoration = (): HTMLElement | null => m.host.querySelector('[data-decoration]')
+    // No projected decoration: React renders no decoration wrapper at all.
+    expect(decoration()).toBeNull()
+    await m.setProps({ on: true })
+    expect(decoration()).not.toBeNull()
+    expect(decoration()?.parentElement?.isConnected).toBe(true)
+    await m.setProps({ on: false })
+    expect(decoration()).toBeNull()
   })
 })

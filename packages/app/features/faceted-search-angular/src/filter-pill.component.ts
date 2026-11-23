@@ -6,8 +6,6 @@
 
 import { NgTemplateOutlet } from '@angular/common'
 import {
-  type AfterViewChecked,
-  type AfterViewInit,
   ChangeDetectorRef,
   Component,
   ElementRef,
@@ -18,10 +16,16 @@ import {
   ViewChild,
 } from '@angular/core'
 
+import {
+  MolPlacement,
+  setElementPresent,
+  type SlotReader,
+  usePlacement,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
-import { type AttachedState, hasNodes, isTemplate, setAttached, textOf } from './slot-dom.js'
+import { isTemplate, textOf } from './slot-dom.js'
 
 /**
  * FilterPill component.
@@ -38,6 +42,7 @@ import { type AttachedState, hasNodes, isTemplate, setAttached, textOf } from '.
 @Component({
   selector: 'div[mol-faceted-search-filter-pill]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [NgTemplateOutlet],
   inputs: ['label', 'active', 'hideChevron', 'leadingIcon', 'panelAlign', 'dataMolId'],
   host: {
@@ -48,7 +53,7 @@ import { type AttachedState, hasNodes, isTemplate, setAttached, textOf } from '.
   // prettier-ignore
   template: `<button type="button" aria-haspopup="true" [attr.aria-expanded]="isOpen() ? 'true' : 'false'" [attr.data-mol-id]="dataMolId ?? null" (click)="toggle()" [attr.data-state]="active || isOpen() ? 'active' : 'inactive'" [class]="triggerClasses()"><span [class]="innerClasses()">@if (leadingIcon) {<span aria-hidden="true" [class]="iconClasses()">{{ leadingIcon }}</span>}<ng-content select="[slot=label]"></ng-content>@if (labelTemplate(); as labelTpl) {<ng-container [ngTemplateOutlet]="labelTpl"></ng-container>}@if (labelText()) {{{ labelText() }}}@if (!hideChevron) {<span aria-hidden="true" [class]="iconClasses()">expand_more</span>}</span></button><div #panelWrap [class]="panelClasses()"><ng-content></ng-content></div>`,
 })
-export class FilterPill implements AfterViewInit, AfterViewChecked, OnDestroy {
+export class FilterPill implements OnDestroy {
   /** Pill label: text, a template ref, or projected `[slot=label]` content. */
   label?: string | TemplateRef<unknown>
   /** Highlight pill when a filter value is applied. */
@@ -69,12 +74,6 @@ export class FilterPill implements AfterViewInit, AfterViewChecked, OnDestroy {
   private readonly open = signal(false)
   /** Whether the document mousedown listener is currently attached. */
   private listening = false
-  /** Whether the default projection carried panel content (read once). */
-  private panelRead = false
-  /** Whether the default projection carried panel content. */
-  private hasPanelContent = false
-  /** Where the panel `<div>` goes back when it is re-attached. */
-  private readonly panelState: AttachedState = { parent: null }
 
   /** The host element (the React root `<div>`). */
   private readonly host = inject(ElementRef<HTMLElement>)
@@ -85,19 +84,8 @@ export class FilterPill implements AfterViewInit, AfterViewChecked, OnDestroy {
    */
   private readonly cdr = inject(ChangeDetectorRef)
 
-  /**
-   * Detaches the panel when React would not render it.
-   */
-  ngAfterViewInit(): void {
-    this.reconcile()
-  }
-
-  /**
-   * Re-reconciles after the view is checked: a click or a props step may open
-   * or close the panel.
-   */
-  ngAfterViewChecked(): void {
-    this.reconcile()
+  constructor() {
+    usePlacement((hasContent) => this.reconcile(hasContent))
   }
 
   /**
@@ -206,14 +194,13 @@ export class FilterPill implements AfterViewInit, AfterViewChecked, OnDestroy {
   /**
    * Applies React's condition for the panel: it renders only while open and
    * only when there is content.
+   *
+   * @param hasContent - Reads whether a slot has content.
    */
-  private reconcile(): void {
+  private reconcile(hasContent: SlotReader): void {
     const panel = this.panelWrap?.nativeElement
-    if (!this.panelRead && panel) {
-      this.hasPanelContent = hasNodes(panel)
-      this.panelRead = true
-    }
-    setAttached(panel, this.open() && this.hasPanelContent, this.panelState)
+    if (!panel) return
+    setElementPresent(panel, this.open() && hasContent(panel))
   }
 
   /**

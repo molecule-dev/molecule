@@ -10,6 +10,7 @@
 import '@angular/compiler'
 import {
   type ApplicationRef,
+  ChangeDetectionStrategy,
   Component,
   createComponent,
   provideZonelessChangeDetection,
@@ -17,6 +18,8 @@ import {
 } from '@angular/core'
 import { createApplication } from '@angular/platform-browser'
 import { vi } from 'vitest'
+
+import { provideDomPlacement } from '@molecule/app-angular'
 
 /** Host selectors minted so far (each mount defines its own component). */
 let hostCount = 0
@@ -59,8 +62,11 @@ export interface HookMount<R> {
  * @returns The mount.
  */
 export async function mountHook<R>(call: () => R): Promise<HookMount<R>> {
-  const appRef = await createApplication({ providers: [provideZonelessChangeDetection()] })
+  const appRef = await createApplication({
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
+  })
   const Host = Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
     selector: `mol-hook-host-${++hostCount}`,
     standalone: true,
     template: '',
@@ -123,6 +129,7 @@ export function hostOf<M extends object>(
   imports: Type<unknown>[] = [],
 ): Type<unknown> {
   return Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
     selector: `mol-cmp-host-${++hostCount}`,
     standalone: true,
     imports,
@@ -146,7 +153,9 @@ export async function mountComponent<M extends object>(
   host: Type<unknown>,
   inputs: Record<string, unknown> = {},
 ): Promise<ComponentMount<M>> {
-  const appRef = await createApplication({ providers: [provideZonelessChangeDetection()] })
+  const appRef = await createApplication({
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
+  })
   const ref = createComponent(host, { environmentInjector: appRef.injector })
   for (const [name, value] of Object.entries(inputs)) ref.setInput(name, value)
   document.body.appendChild(ref.location.nativeElement)

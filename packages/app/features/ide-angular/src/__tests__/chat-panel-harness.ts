@@ -24,7 +24,13 @@ import {
 import { createApplication } from '@angular/platform-browser'
 
 import type { ChatConfig, ChatMessage, ChatProvider } from '@molecule/app-ai-chat'
-import { provideChat, provideHttp, provideI18n, provideTheme } from '@molecule/app-angular'
+import {
+  provideChat,
+  provideDomPlacement,
+  provideHttp,
+  provideI18n,
+  provideTheme,
+} from '@molecule/app-angular'
 import type { HttpClient, HttpResponse } from '@molecule/app-http'
 import type { I18nProvider } from '@molecule/app-i18n'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
@@ -138,7 +144,7 @@ const ChatPanelHost = Component({
   selector: 'mol-chat-panel-host',
   standalone: true,
   imports: [ChatPanel],
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.Eager,
   // prettier-ignore
   template: `<div mol-chat-panel
     [projectId]="p['projectId']"
@@ -203,6 +209,7 @@ export async function mountPanel(options: MountPanelOptions): Promise<PanelMount
   const appRef: ApplicationRef = await createApplication({
     providers: [
       provideZonelessChangeDetection(),
+      provideDomPlacement(),
       provideI18n(i18n),
       provideTheme(buildThemeProvider()),
       provideHttp(options.http),

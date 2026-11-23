@@ -27,7 +27,7 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
-import { provideHttp, provideI18n } from '@molecule/app-angular'
+import { provideDomPlacement, provideHttp, provideI18n } from '@molecule/app-angular'
 import type { HttpClient, HttpResponse } from '@molecule/app-http'
 import { createSimpleI18nProvider } from '@molecule/app-i18n'
 import { setIconSet } from '@molecule/app-icons'
@@ -109,7 +109,7 @@ const SkillsCardHost = Component({
   selector: 'mol-skills-card-host',
   standalone: true,
   imports: [SkillsCard],
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `<div mol-skills-card [projectId]="p['projectId']" [initialQuery]="p['initialQuery']" [onLoad]="p['onLoad']" [isLight]="p['isLight']"></div>`,
 })(
   class SkillsCardHost {
@@ -171,6 +171,7 @@ async function renderCard(projectId: string): Promise<Mounted> {
   const appRef: ApplicationRef = await createApplication({
     providers: [
       provideZonelessChangeDetection(),
+      provideDomPlacement(),
       provideI18n(createSimpleI18nProvider('en')),
       provideHttp(buildHttpClient()),
     ],

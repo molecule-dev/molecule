@@ -4,21 +4,18 @@
  * @module
  */
 
-import {
-  type AfterViewChecked,
-  type AfterViewInit,
-  Component,
-  ElementRef,
-  inject,
-  Renderer2,
-  ViewChild,
-} from '@angular/core'
+import { Component, type ElementRef, ViewChild } from '@angular/core'
 
+import {
+  MolPlacement,
+  setElementPresent,
+  type SlotReader,
+  usePlacement,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { OptimisticToggleButton } from '@molecule/app-ui-angular'
 
-import { hasNodes, SlotGuard } from './slot-dom.js'
 import type { ListItemRowProps } from './types.js'
 
 /**
@@ -43,12 +40,14 @@ import type { ListItemRowProps } from './types.js'
  * `subtitle` inside its line, `metadata` inside its line, `leading` inside the
  * leading `<div>` and `actions` inside the right-side `<div>`. String inputs
  * render as text instead — React's truthiness branch applies: an empty string
- * renders nothing. The conditionally-rendered wrappers reconcile against that
- * in {@link ListItemRow.ngAfterViewInit}.
+ * renders nothing. The conditionally-rendered wrappers are taken out of the DOM
+ * when React renders nothing ({@link setElementPresent}) in
+ * {@link ListItemRow.reconcile}.
  */
 @Component({
   selector: 'div[mol-list-item-row]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [OptimisticToggleButton],
   inputs: [
     'title',
@@ -131,7 +130,7 @@ import type { ListItemRowProps } from './types.js'
       <ng-content select="[slot=actions]"></ng-content>
     </div>`,
 })
-export class ListItemRow implements AfterViewInit, AfterViewChecked {
+export class ListItemRow {
   /** Title — first line (string/number renders as text; nodes are `[slot=title]` content). */
   title?: unknown
   /** Optional second line (string/number as text; nodes are `[slot=subtitle]` content). */
@@ -165,27 +164,18 @@ export class ListItemRow implements AfterViewInit, AfterViewChecked {
   /** The title line's id — the open button's `aria-labelledby` (React's `useId`). */
   readonly nameId = `list-item-row-title-${ListItemRow.nextNameId++}`
 
-  /** The leading wrapper (detached when no leading value and the slot is empty). */
+  /** The leading wrapper (absent when no leading value and the slot is empty). */
   @ViewChild('leadingWrap') leadingWrap?: ElementRef<HTMLElement>
-  /** The subtitle line (detached when no subtitle value and the slot is empty). */
+  /** The subtitle line (absent when no subtitle value and the slot is empty). */
   @ViewChild('subtitleWrap') subtitleWrap?: ElementRef<HTMLElement>
-  /** The metadata line (detached when no metadata value and the slot is empty). */
+  /** The metadata line (absent when no metadata value and the slot is empty). */
   @ViewChild('metadataWrap') metadataWrap?: ElementRef<HTMLElement>
-  /** The actions wrapper (detached when no actions value and the slot is empty). */
+  /** The actions wrapper (absent when no actions value and the slot is empty). */
   @ViewChild('actionsWrap') actionsWrap?: ElementRef<HTMLElement>
 
-  /** Whether the projected slots' presence has been read (read once: projection never changes). */
-  private slotsRead = false
-  /** Whether the leading slot holds content (read once with the slots). */
-  private hasLeadingSlot = false
-  /** Whether the subtitle slot holds content (read once with the slots). */
-  private hasSubtitleSlot = false
-  /** Whether the metadata slot holds content (read once with the slots). */
-  private hasMetadataSlot = false
-  /** Whether the actions slot holds content (read once with the slots). */
-  private hasActionsSlot = false
-
-  private readonly guard = new SlotGuard(inject(ElementRef), inject(Renderer2))
+  constructor() {
+    usePlacement((hasContent) => this.reconcile(hasContent))
+  }
 
   /**
    * The current class map.
@@ -356,45 +346,24 @@ export class ListItemRow implements AfterViewInit, AfterViewChecked {
     this.onClick?.()
   }
 
-  /** Reads slot presence (view queries resolve only at view init) and reconciles the wrappers. */
-  ngAfterViewInit(): void {
-    this.reconcile()
-  }
-
-  /**
-   * Re-reconciles after every view refresh (a props step may add or remove a
-   * value): the wrappers are toggled on the values the template just
-   * rendered, so a later props step lands in one pass.
-   */
-  ngAfterViewChecked(): void {
-    this.reconcile()
-  }
-
   /**
    * Applies React's conditions: the leading, subtitle, metadata and actions
    * wrappers render only when their input holds text or their slot holds
-   * projected content. The slots' presence is read once — the projected
-   * content never changes for this component's lifetime.
+   * projected content.
+   *
+   * @param hasContent - Reads whether a slot has content.
    */
-  private reconcile(): void {
+  private reconcile(hasContent: SlotReader): void {
     const leading = this.leadingWrap?.nativeElement
     const subtitle = this.subtitleWrap?.nativeElement
     const metadata = this.metadataWrap?.nativeElement
     const actions = this.actionsWrap?.nativeElement
-    if (!this.slotsRead && leading && subtitle && metadata && actions) {
-      this.hasLeadingSlot = hasNodes(leading)
-      this.hasSubtitleSlot = hasNodes(subtitle)
-      this.hasMetadataSlot = hasNodes(metadata)
-      this.hasActionsSlot = hasNodes(actions)
-      this.slotsRead = true
-    }
-
-    this.guard.toggle(leading, this.leadingText() !== '' || this.hasLeadingSlot)
-    this.guard.toggle(subtitle, this.subtitleText() !== '' || this.hasSubtitleSlot)
-    this.guard.toggle(metadata, this.metadataText() !== '' || this.hasMetadataSlot)
-    this.guard.toggle(
+    setElementPresent(leading, this.leadingText() !== '' || hasContent(leading))
+    setElementPresent(subtitle, this.subtitleText() !== '' || hasContent(subtitle))
+    setElementPresent(metadata, this.metadataText() !== '' || hasContent(metadata))
+    setElementPresent(
       actions,
-      this.actionsText() !== '' || this.hasActionsSlot || Boolean(this.toggle),
+      this.actionsText() !== '' || hasContent(actions) || Boolean(this.toggle),
     )
   }
 }

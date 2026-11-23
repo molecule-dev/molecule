@@ -67,7 +67,7 @@ const render = async (props: Record<string, unknown>): Promise<Mounted> => {
     selector: 'mol-spec-host',
     standalone: true,
     imports: [RelatedItemsCard as Type<unknown>],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: `<ng-template #row let-item let-i="a1">
       <span [attr.data-item]="item.name">{{ item.name }}</span>
     </ng-template>

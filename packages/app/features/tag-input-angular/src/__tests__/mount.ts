@@ -18,6 +18,8 @@ import {
 } from '@angular/core'
 import { createApplication } from '@angular/platform-browser'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 /** A mounted spec host: its DOM, the component instance, and a teardown. */
 export interface Mounted {
   /** The host element whose children the host template produced. */
@@ -47,7 +49,7 @@ export async function mountHost(
     selector: 'mol-spec-host',
     standalone: true,
     imports,
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template,
   })(
     class SpecHost {
@@ -56,7 +58,7 @@ export async function mountHost(
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
     environmentInjector: appRef.injector,
@@ -97,7 +99,7 @@ export async function mountInstance<T extends object>(
   props: Partial<T> = {},
 ): Promise<Mounted & { component: T }> {
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref = createComponent(component, { environmentInjector: appRef.injector })
   Object.assign(ref.instance, props)

@@ -21,6 +21,7 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
 import { createSimpleI18nProvider, setProvider as setI18nProvider } from '@molecule/app-i18n'
 
 // ClassMap stub echoing each accessed member back as its token (e.g.
@@ -81,7 +82,7 @@ async function mount(template: string, props: Record<string, unknown> = {}): Pro
     selector: 'mol-spec-host',
     standalone: true,
     imports: [DrawingToolbar],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     host: { 'data-spec-host': String(specHost) },
     template,
   })(
@@ -90,7 +91,7 @@ async function mount(template: string, props: Record<string, unknown> = {}): Pro
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<unknown> = createComponent(SpecHost, {
     environmentInjector: appRef.injector,

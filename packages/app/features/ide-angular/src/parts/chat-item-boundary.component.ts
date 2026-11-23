@@ -22,8 +22,9 @@
  * — the placement React reaches with its child `RenderSlot`.
  *
  * React's root is a fragment (the boundary adds no wrapper element), so the
- * host carries `data-parity-unwrap` and `display: contents`, and the DOM this
- * component renders is exactly React's.
+ * template's nodes render in front of the host (`placeContentBefore`) and the
+ * host leaves the DOM: the DOM this component renders is exactly React's, with
+ * no element of its own.
  *
  * @module
  */
@@ -31,13 +32,21 @@
 import { NgTemplateOutlet } from '@angular/common'
 import {
   Component,
+  ElementRef,
+  inject,
   type OnChanges,
   signal,
   type SimpleChanges,
   type TemplateRef,
 } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  placeContentBefore,
+  setElementPresent,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import { getLogger } from '@molecule/app-logger'
 import { getClassMap } from '@molecule/app-ui'
 import { styleText } from '@molecule/app-ui-angular'
@@ -122,10 +131,7 @@ export class ChatItemFallback {
   standalone: true,
   imports: [NgTemplateOutlet, ChatItemFallback],
   inputs: ['render', 'onError'],
-  host: {
-    'data-parity-unwrap': '',
-    style: 'display: contents',
-  },
+  hostDirectives: [MolPlacement],
   template: `@boundary {
       @if (renderTemplate(); as tpl) {
         <ng-container [ngTemplateOutlet]="tpl"></ng-container>
@@ -135,6 +141,21 @@ export class ChatItemFallback {
     }`,
 })
 export class ChatItemBoundary implements OnChanges {
+  /** The component's own host element, which React does not render. */
+  private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
+
+  /**
+   * Renders the boundary's nodes in front of the host and keeps the host out of
+   * the DOM: React's root is the boundary's fragment, with no element of its own.
+   */
+  constructor() {
+    usePlacement(() => {
+      const host = this.host.nativeElement
+      placeContentBefore(host, host)
+      setElementPresent(host, false)
+    })
+  }
+
   /** The protected item's template, instantiated inside this boundary's view. */
   render?: TemplateRef<unknown>
 

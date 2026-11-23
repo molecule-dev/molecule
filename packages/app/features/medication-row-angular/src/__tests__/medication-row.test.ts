@@ -22,6 +22,7 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
@@ -83,7 +84,7 @@ async function mount(
     selector: 'mol-spec-host',
     standalone: true,
     imports: [component],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template,
   })(
     class SpecHost {
@@ -92,7 +93,7 @@ async function mount(
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
     environmentInjector: appRef.injector,
@@ -195,8 +196,37 @@ describe('MedicationRow', () => {
     expect(m.host.innerHTML).toContain('data-actions')
   })
 
+  it('keeps a consumer list in order when an item is inserted in the middle of actions', async () => {
+    const m = await render(
+      { name: 'X', xs: [1, 3] },
+      `<div mol-medication-row [name]="p['name']">@for (x of p['xs']; track x) {<b slot="actions">{{ x }}</b>}</div>`,
+    )
+    const items = (): string[] =>
+      Array.from(m.host.querySelectorAll('b')).map((el) => el.textContent ?? '')
+    expect(items()).toEqual(['1', '3'])
+    await m.setProps({ xs: [0, 1, 2, 3] })
+    expect(items()).toEqual(['0', '1', '2', '3'])
+    await m.setProps({ xs: [0, 2, 3] })
+    expect(items()).toEqual(['0', '2', '3'])
+  })
+
   it('forwards className onto the Card', async () => {
     const m = await render({ name: 'X', className: 'mr-cls' })
     expect(cardEl(m.host).getAttribute('class')).toContain('mr-cls')
+  })
+
+  it('shows and removes the actions wrapper in the pass where the consumer @if adds and removes its content', async () => {
+    const m = await render(
+      { name: 'X', on: false },
+      `<div mol-medication-row [name]="p['name']">@if (p['on']) {<button slot="actions" data-actions></button>}</div>`,
+    )
+    const action = (): HTMLElement | null =>
+      cardEl(m.host).querySelector<HTMLElement>('[data-actions]')
+    expect(action()).toBeNull()
+    await m.setProps({ on: true })
+    expect(action()).not.toBeNull()
+    expect(action()?.parentElement?.getAttribute('class')).toBe('shrink0')
+    await m.setProps({ on: false })
+    expect(action()).toBeNull()
   })
 })

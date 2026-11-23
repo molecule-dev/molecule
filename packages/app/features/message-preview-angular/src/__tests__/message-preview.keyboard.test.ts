@@ -21,6 +21,9 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement, provideRouter } from '@molecule/app-angular'
+import { createMemoryRouter, type Router } from '@molecule/app-routing'
+
 vi.mock('@molecule/app-ui', () => ({
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
@@ -55,6 +58,8 @@ interface Row {
 }
 
 const mounted: Row[] = []
+/** List-mounted hosts with their teardown (the row may be replaced by a link). */
+const listMounted: { destroy(): Promise<void> }[] = []
 
 /**
  * Mounts the {@link MessagePreview} host template with the given props.
@@ -67,7 +72,7 @@ const render = async (props: Record<string, unknown>): Promise<Row> => {
     selector: 'mol-spec-host',
     standalone: true,
     imports: [MessagePreview],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template:
       '<mol-message-preview [name]="p[\'name\']" [preview]="p[\'preview\']" [timestamp]="p[\'timestamp\']" [onClick]="p[\'onClick\']"></mol-message-preview>',
   })(
@@ -77,7 +82,7 @@ const render = async (props: Record<string, unknown>): Promise<Row> => {
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref = createComponent(Host as Type<{ p: Record<string, unknown> }>, {
     environmentInjector: appRef.injector,
@@ -101,7 +106,60 @@ const render = async (props: Record<string, unknown>): Promise<Row> => {
 
 afterEach(async () => {
   for (const m of mounted.splice(0)) await m.destroy()
+  for (const m of listMounted.splice(0)) await m.destroy()
 })
+
+/**
+ * Mounts {@link MessagePreview} between two fixed siblings, the way a consumer
+ * list would, whose row toggles between a `<div>` and a router `<a>`.
+ *
+ * @returns The mounted host and a setter for the row's `to` destination.
+ */
+async function renderInList(to?: string): Promise<{
+  host: HTMLElement
+  set(next: string | undefined): void
+  destroy(): Promise<void>
+}> {
+  const Host = Component({
+    selector: 'mol-spec-list-host',
+    standalone: true,
+    imports: [MessagePreview],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    template: `<i>a</i><mol-message-preview [name]="'Maya Patel'" [preview]="'Thanks!'" [timestamp]="'2m'" [to]="p['to']"></mol-message-preview><i>b</i>`,
+  })(
+    class SpecListHost {
+      /** The props the template binds. */
+      p: Record<string, unknown> = { to }
+    },
+  )
+  const router: Router = createMemoryRouter({ initialEntries: ['/'] })
+  const appRef: ApplicationRef = await createApplication({
+    providers: [provideZonelessChangeDetection(), provideDomPlacement(), provideRouter(router)],
+  })
+  const ref = createComponent(Host as Type<{ p: Record<string, unknown> }>, {
+    environmentInjector: appRef.injector,
+  })
+  const host = ref.location.nativeElement as HTMLElement
+  document.body.appendChild(host)
+  appRef.attachView(ref.hostView)
+  appRef.tick()
+  const entry = {
+    host,
+    destroy: async (): Promise<void> => {
+      appRef.destroy()
+      host.remove()
+    },
+  }
+  listMounted.push(entry)
+  return {
+    ...entry,
+    set: (next) => {
+      ref.instance.p = { ...ref.instance.p, to: next }
+      ref.changeDetectorRef.markForCheck()
+      appRef.tick()
+    },
+  }
+}
 
 /** Fires a keydown with the given key on the row. */
 const keyDown = (row: HTMLElement, key: string): void => {
@@ -154,7 +212,7 @@ describe('MessagePreview keyboard accessibility', () => {
       selector: 'mol-spec-host',
       standalone: true,
       imports: [MessagePreview],
-      changeDetection: ChangeDetectionStrategy.Default,
+      changeDetection: ChangeDetectionStrategy.Eager,
       template:
         '<mol-message-preview [name]="p[\'name\']" [preview]="p[\'preview\']" [timestamp]="p[\'timestamp\']"></mol-message-preview>',
     })(
@@ -164,7 +222,7 @@ describe('MessagePreview keyboard accessibility', () => {
       },
     )
     const appRef: ApplicationRef = await createApplication({
-      providers: [provideZonelessChangeDetection()],
+      providers: [provideZonelessChangeDetection(), provideDomPlacement()],
     })
     const ref = createComponent(Host as Type<{ p: Record<string, unknown> }>, {
       environmentInjector: appRef.injector,
@@ -176,5 +234,14 @@ describe('MessagePreview keyboard accessibility', () => {
     expect(host.querySelector('[role="button"]')).toBeNull()
     await appRef.destroy()
     host.remove()
+  })
+
+  it("renders React's elements with no host or capture element of its own", async () => {
+    const m = await renderInList()
+    const children = (): string[] =>
+      Array.from(m.host.children).map((child) => child.tagName.toLowerCase())
+    expect(children()).toEqual(['i', 'div', 'i'])
+    m.set('/threads/1')
+    expect(children()).toEqual(['i', 'a', 'i'])
   })
 })

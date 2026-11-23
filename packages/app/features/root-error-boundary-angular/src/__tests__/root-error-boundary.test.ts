@@ -22,6 +22,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 // Proxy ClassMap echoing each accessed member back as its token (e.g. `flex`),
 // so tests can assert which cm.* class was applied without a real bond — the
 // same mock the React tests use.
@@ -62,6 +64,7 @@ const { RootErrorBoundary } = await import('../root-error-boundary.component.js'
 
 /** A child that fails to render, so the boundary shows its recovery alert. */
 const Broken = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-broken',
   standalone: true,
   template: `<span>never rendered</span>`,
@@ -102,12 +105,12 @@ async function mount(
     selector: 'mol-spec-host',
     standalone: true,
     imports: [component, ...extra],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     host: { 'data-parity-host': String(++specHostCount) },
     template,
   })(class SpecHost {})
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<unknown> = createComponent(Host, {
     environmentInjector: appRef.injector,
@@ -131,6 +134,50 @@ afterEach(async () => {
   vi.restoreAllMocks()
 })
 
+/**
+ * Mounts the boundary between two fixed siblings, the way a consumer list
+ * would, and returns a setter for its projected content.
+ *
+ * @param present - Whether the protected content starts out projected.
+ * @returns The mounted host and a setter that adds or removes the content.
+ */
+async function renderInList(present: boolean): Promise<Mounted & { set(next: boolean): void }> {
+  const Host = Component({
+    selector: 'mol-spec-list-host',
+    standalone: true,
+    imports: [RootErrorBoundary as Type<unknown>],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    host: { 'data-parity-host': String(++specHostCount) },
+    template: `<i>a</i><mol-root-error-boundary>@if (present) {<main data-app>app content</main>}</mol-root-error-boundary><i>b</i>`,
+  })(
+    class SpecListHost {
+      /** Whether the protected content is projected. */
+      present = present
+    },
+  )
+  const appRef: ApplicationRef = await createApplication({
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
+  })
+  const ref = createComponent(Host, { environmentInjector: appRef.injector })
+  const host = ref.location.nativeElement as HTMLElement
+  document.body.appendChild(host)
+  appRef.attachView(ref.hostView)
+  appRef.tick()
+  const entry = {
+    host,
+    set: (next: boolean): void => {
+      ref.instance.present = next
+      ref.changeDetectorRef.markForCheck()
+      appRef.tick()
+    },
+    destroy: async () => {
+      appRef.destroy()
+      host.remove()
+    },
+  }
+  mounted.push(entry)
+  return entry
+}
 describe('RootErrorBoundary', () => {
   it('renders its children when no error is thrown', async () => {
     const m = await mount(
@@ -179,5 +226,16 @@ describe('RootErrorBoundary', () => {
     expect(alert?.textContent).toBe('An unexpected error occurred.')
     expect(alert?.className).toBe('flex sp')
     expect(alert?.querySelector('p')?.className).toBe('textSize fontWeight')
+  })
+
+  it("renders React's elements with no host or capture element of its own", async () => {
+    const m = await renderInList(true)
+    const children = (): string[] =>
+      Array.from(m.host.children).map((child) => child.tagName.toLowerCase())
+    // The protected children render bare, between the two consumer siblings —
+    // no `mol-root-error-boundary` element of the boundary's own.
+    expect(children()).toEqual(['i', 'main', 'i'])
+    m.set(false)
+    expect(children()).toEqual(['i', 'i'])
   })
 })

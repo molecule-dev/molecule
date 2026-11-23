@@ -78,7 +78,7 @@ async function mount(
     selector: 'mol-spec-host',
     standalone: true,
     imports: [component],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template,
   })(
     class SpecHost {
@@ -204,5 +204,72 @@ describe('RelatedItemsCard', () => {
     expect(shown()).toEqual(['a', 'b', 'c'])
     await m.setProps({ xs: ['a', 'c'] })
     expect(shown()).toEqual(['a', 'c'])
+  })
+
+  it('shows and removes the emptyState wrapper in the pass where the consumer @if adds and removes its content', async () => {
+    const m = await render(
+      { title: 'T', items: [], on: false },
+      `@if (p['on']) {<p slot="emptyState" data-empty>No items</p>}`,
+    )
+    const empty = (): HTMLElement | null => m.host.querySelector('[data-empty]')
+    // No projected empty state: React renders nothing bare in its place.
+    expect(empty()).toBeNull()
+    await m.setProps({ on: true })
+    // The empty state arrives: it renders bare in its place in the same pass.
+    expect(empty()).not.toBeNull()
+    expect(empty()?.isConnected).toBe(true)
+    await m.setProps({ on: false })
+    expect(empty()).toBeNull()
+  })
+
+  it('renders the empty state bare when it comes through an OnPush component, in the pass where the consumer @if adds and removes its content', async () => {
+    // No hook of the card runs here: the OnPush component in between is not checked when only the
+    // consumer's @if changes. React has no such boundary; its empty state follows the consumer's state.
+    const Mid = Component({
+      selector: 'mol-spec-onpush-mid',
+      standalone: true,
+      imports: [RelatedItemsCard as Type<unknown>],
+      changeDetection: ChangeDetectionStrategy.OnPush,
+      template: `<div mol-related-items-card [title]="'T'" [items]="[]"><ng-content select="[slot=emptyState]" ngProjectAs="[slot=emptyState]"></ng-content></div>`,
+    })(class SpecOnPushMid {})
+    const m = await mount(
+      `<mol-spec-onpush-mid>@if (p['on']) {<p slot="emptyState" data-empty>No items</p>}</mol-spec-onpush-mid>`,
+      Mid,
+      { on: false },
+    )
+    mounted.push(m)
+    const empty = (): HTMLElement | null => m.host.querySelector('[data-empty]')
+    expect(empty()).toBeNull()
+    await m.setProps({ on: true })
+    // React: the empty state stands beside the card's <header>, with no capture element around it.
+    expect(empty()?.parentElement).toBe(m.host.querySelector('header')?.parentElement)
+    await m.setProps({ on: false })
+    expect(empty()).toBeNull()
+  })
+
+  it("renders React's elements with no host or capture element of its own", async () => {
+    const m = await mount(
+      `<i>a</i>${hostTemplate('<p slot="emptyState" data-empty>No items</p>')}<i>b</i>`,
+      RelatedItemsCard as Type<unknown>,
+      { title: 'T', items: [] },
+    )
+    mounted.push(m)
+    // The consumer's children are exactly React's: the two neighbours and the card
+    // (its root, so the host element itself), with no extra host or capture.
+    const shape = (): string =>
+      Array.from(m.host.childNodes)
+        .filter(
+          (n) => n.nodeType === 1 || (n.nodeType === 3 && (n.textContent ?? '').trim() !== ''),
+        )
+        .map((n) => (n.nodeType === 1 ? (n as Element).tagName : '#text'))
+        .join(',')
+    const empty = (): HTMLElement | null => m.host.querySelector('[data-empty]')
+    expect(shape()).toBe('I,DIV,I')
+    // The projected empty state renders bare in the card, no capture span around it.
+    expect(empty()?.parentElement?.tagName).toBe('DIV')
+    await m.setProps({ items: [{ name: 'Deal A' }] })
+    // The list returns and the empty state hides; nothing is added beside the card.
+    expect(shape()).toBe('I,DIV,I')
+    expect(empty()).toBeNull()
   })
 })

@@ -53,7 +53,7 @@ async function draw(comments: Comment[]): Promise<HTMLElement> {
     selector: 'mol-spec-host',
     standalone: true,
     imports: [ThreadTree as Type<unknown>],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: TEMPLATE,
   })(
     class SpecHost {
@@ -114,7 +114,7 @@ describe('plain and rich comment body semantics', () => {
       selector: 'mol-spec-rich-host',
       standalone: true,
       imports: [ThreadTree as Type<unknown>],
-      changeDetection: ChangeDetectionStrategy.Default,
+      changeDetection: ChangeDetectionStrategy.Eager,
       template: `<ul mol-thread-tree [comments]="commentsWithBody(richBody)"></ul>
         <ng-template #richBody><section><h2>Details</h2><p>A rendered paragraph</p></section></ng-template>`,
     })(

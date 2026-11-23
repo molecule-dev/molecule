@@ -221,7 +221,7 @@ async function mountSpec(
     selector: 'mol-spec-host',
     standalone: true,
     imports: [BarcodeScanner as Type<unknown>],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template,
   })(
     class SpecHost {

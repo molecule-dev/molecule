@@ -5,14 +5,15 @@
  *
  * React renders the overlay only while `isDragOver` is true, so the host element
  * — React's own root `<div>`, the first child of the inner chat's root — is the
- * overlay while a drag hovers and unwraps (`data-parity-unwrap`,
- * `display: contents`) when React renders nothing.
+ * overlay while a drag hovers and out of the DOM while React renders nothing
+ * (`useHostPresence`).
  *
  * @module
  */
 
 import { Component, inject } from '@angular/core'
 
+import { useHostPresence } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { styleText } from '@molecule/app-ui-angular'
 
@@ -33,9 +34,6 @@ const ROOT_STYLE = styleText({
   pointerEvents: 'none',
 })
 
-/** The closed state: React renders nothing, so the host unwraps to nothing. */
-const UNWRAP_STYLE = styleText({ display: 'contents' })
-
 /**
  * React's “Drag overlay — covers entire chat area” section: the drop target
  * shown while a file drag hovers the chat.
@@ -44,8 +42,7 @@ const UNWRAP_STYLE = styleText({ display: 'contents' })
   selector: 'div[mol-chat-drag-overlay]',
   standalone: true,
   host: {
-    '[attr.data-parity-unwrap]': 'open() ? null : ""',
-    '[attr.style]': 'open() ? rootStyle : unwrapStyle',
+    '[attr.style]': 'rootStyle',
   },
   // prettier-ignore
   template: `@if (open()) {<span [attr.class]="labelClass" [attr.style]="labelStyle()">{{ label() }}</span>}`,
@@ -60,16 +57,14 @@ export class ChatDragOverlay {
   /** The overlay box's inline style while it is shown. */
   protected readonly rootStyle: string | null = ROOT_STYLE
 
-  /** The closed state's inline style (the host unwraps away). */
-  protected readonly unwrapStyle: string | null = UNWRAP_STYLE
-
   /** The label's ClassMap classes. */
   protected readonly labelClass: string
 
-  /** Resolves the ClassMap once, at construction. */
+  /** Resolves the ClassMap once, and keeps the host in the page only while a drag hovers. */
   constructor() {
     const cm: UIClassMap = this.state.env.cm
     this.labelClass = cm.textSize('sm')
+    useHostPresence(() => this.open())
   }
 
   /**

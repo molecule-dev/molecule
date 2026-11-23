@@ -77,7 +77,7 @@ async function mount(props: Record<string, unknown> = {}): Promise<Mounted> {
     selector: 'mol-spec-host',
     standalone: true,
     imports: [Heatmap as Type<unknown>],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: TEMPLATE,
   })(
     class SpecHost {

@@ -6,7 +6,6 @@
 
 import { NgTemplateOutlet } from '@angular/common'
 import {
-  type AfterViewChecked,
   Component,
   ElementRef,
   inject,
@@ -17,7 +16,14 @@ import {
   ViewChild,
 } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  placeContent,
+  setElementPresent,
+  type SlotReader,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-angular'
@@ -35,14 +41,15 @@ import type { ActionMenuItem } from './types.js'
  *
  * Node-valued content has no input to travel through in Angular: a `trigger`
  * template reference is accepted as the input, and `[slot=trigger]` projection
- * is moved from its hidden capture point into the trigger button after view
- * init (React renders it as the button's bare child); an item's `label`/`icon`
- * arrive as `ng-template` references and render through `NgTemplateOutlet`.
- * The default `⋮` glyph is a bare text node, as in React.
+ * is rendered inside the trigger button where React puts it
+ * ({@link placeContent}); an item's `label`/`icon` arrive as `ng-template`
+ * references and render through `NgTemplateOutlet`. The default `⋮` glyph
+ * renders as a bare text node, as in React.
  */
 @Component({
   selector: 'span[mol-action-menu]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [Button, NgTemplateOutlet],
   inputs: ['items', 'trigger', 'align', 'triggerAriaLabel', 'className'],
   host: {
@@ -50,9 +57,9 @@ import type { ActionMenuItem } from './types.js'
     style: 'display: inline-block',
   },
   // prettier-ignore
-  template: `<span #triggerCapture style="display: none"><ng-content select="[slot=trigger]"></ng-content></span><button mol-button [variant]="'ghost'" [size]="'sm'" (click)="toggle()" [attr.aria-label]="triggerLabel()" aria-haspopup="menu" [attr.aria-expanded]="isOpen() ? 'true' : 'false'" data-mol-id="action-menu-trigger">@if (triggerTemplate(); as triggerTpl) {<ng-container [ngTemplateOutlet]="triggerTpl"></ng-container>}@if (hasTextTrigger()) {<ng-container>{{ trigger }}</ng-container>}<span #defaultTrigger>⋮</span><span #triggerAnchor></span></button>@if (isOpen()) {<ul role="menu" data-mol-id="action-menu-list" [class]="listClasses()" [style]="listStyleText()">@for (item of items; track item.id) {<li role="none">@if (item.href) {<a [attr.href]="item.href" role="menuitem" [attr.data-mol-id]="itemDomId(item)" (click)="close()" [class]="anchorClasses(item)" [style.opacity]="item.disabled ? 0.5 : 1">@if (item.icon != null) {@if (isText(item.icon)) {<ng-container>{{ item.icon }}</ng-container>}@else {<ng-container [ngTemplateOutlet]="templateOf(item.icon)"></ng-container>}}<span>@if (isText(item.label)) {<ng-container>{{ item.label }}</ng-container>}@else {<ng-container [ngTemplateOutlet]="templateOf(item.label)"></ng-container>}</span></a>} @else {<button type="button" role="menuitem" [attr.data-mol-id]="itemDomId(item)" (click)="activate(item)" [disabled]="!!item.disabled" [class]="buttonClasses(item)">@if (item.icon != null) {@if (isText(item.icon)) {<ng-container>{{ item.icon }}</ng-container>}@else {<ng-container [ngTemplateOutlet]="templateOf(item.icon)"></ng-container>}}<span>@if (isText(item.label)) {<ng-container>{{ item.label }}</ng-container>}@else {<ng-container [ngTemplateOutlet]="templateOf(item.label)"></ng-container>}</span></button>}@if (item.divider) {<span aria-hidden="true" [class]="dividerClasses()" style="height: 1px; margin: 4px 0px"></span>}</li>}</ul>}`,
+  template: `<span #triggerCapture style="display: none"><ng-content select="[slot=trigger]"></ng-content></span><button #triggerButton mol-button [variant]="'ghost'" [size]="'sm'" (click)="toggle()" [attr.aria-label]="triggerLabel()" aria-haspopup="menu" [attr.aria-expanded]="isOpen() ? 'true' : 'false'" data-mol-id="action-menu-trigger">@if (triggerTemplate(); as triggerTpl) {<ng-container [ngTemplateOutlet]="triggerTpl"></ng-container>}@if (hasTextTrigger()) {<ng-container>{{ trigger }}</ng-container>}<span #defaultTrigger>⋮</span></button>@if (isOpen()) {<ul role="menu" data-mol-id="action-menu-list" [class]="listClasses()" [style]="listStyleText()">@for (item of items; track item.id) {<li role="none">@if (item.href) {<a [attr.href]="item.href" role="menuitem" [attr.data-mol-id]="itemDomId(item)" (click)="close()" [class]="anchorClasses(item)" [style.opacity]="item.disabled ? 0.5 : 1">@if (item.icon != null) {@if (isText(item.icon)) {<ng-container>{{ item.icon }}</ng-container>}@else {<ng-container [ngTemplateOutlet]="templateOf(item.icon)"></ng-container>}}<span>@if (isText(item.label)) {<ng-container>{{ item.label }}</ng-container>}@else {<ng-container [ngTemplateOutlet]="templateOf(item.label)"></ng-container>}</span></a>} @else {<button type="button" role="menuitem" [attr.data-mol-id]="itemDomId(item)" (click)="activate(item)" [disabled]="!!item.disabled" [class]="buttonClasses(item)">@if (item.icon != null) {@if (isText(item.icon)) {<ng-container>{{ item.icon }}</ng-container>}@else {<ng-container [ngTemplateOutlet]="templateOf(item.icon)"></ng-container>}}<span>@if (isText(item.label)) {<ng-container>{{ item.label }}</ng-container>}@else {<ng-container [ngTemplateOutlet]="templateOf(item.label)"></ng-container>}</span></button>}@if (item.divider) {<span aria-hidden="true" [class]="dividerClasses()" style="height: 1px; margin: 4px 0px"></span>}</li>}</ul>}`,
 })
-export class ActionMenu implements OnInit, OnDestroy, AfterViewChecked {
+export class ActionMenu implements OnInit, OnDestroy {
   /** Items to render (required, as in React's props). */
   items: ActionMenuItem[] = []
   /** Trigger content: a template reference, or projected `[slot=trigger]` content. */
@@ -69,9 +76,10 @@ export class ActionMenu implements OnInit, OnDestroy, AfterViewChecked {
 
   /** The hidden capture point for projected trigger content. */
   @ViewChild('triggerCapture') private triggerCapture?: ElementRef<HTMLSpanElement>
-  /** The placeholder the projected trigger content is moved to inside the button. */
-  @ViewChild('triggerAnchor') private triggerAnchor?: ElementRef<HTMLSpanElement>
-  /** The default `⋮` glyph's wrapper (unwrapped, or dropped when a trigger exists). */
+  /** The trigger button (the element the trigger content renders in). */
+  @ViewChild('triggerButton', { read: ElementRef })
+  private triggerButton?: ElementRef<HTMLButtonElement>
+  /** The default `⋮` glyph's wrapper (rendered bare, or absent when a trigger exists). */
   @ViewChild('defaultTrigger') private defaultTrigger?: ElementRef<HTMLSpanElement>
 
   /** The host element (the React root `<span>`). */
@@ -83,12 +91,9 @@ export class ActionMenu implements OnInit, OnDestroy, AfterViewChecked {
   /** Whether the popover list is open. */
   private readonly open = signal(false)
 
-  /** The projected trigger nodes, read once from the capture point. */
-  private triggerNodes: Node[] = []
-  /** Whether the capture point has been read. */
-  private triggerRead = false
-  /** The default `⋮` glyph once it is unwrapped to React's bare text node. */
-  private defaultText?: Text
+  constructor() {
+    usePlacement((hasContent) => this.reconcile(hasContent))
+  }
 
   /**
    * Attaches the document listeners React adds while the menu is open.
@@ -295,53 +300,31 @@ export class ActionMenu implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   /**
-   * Places the trigger content where React renders it: the projected nodes move
-   * from the hidden capture point into the button, the scaffolding disappears
-   * and the default `⋮` becomes a bare text node — or drops out when a trigger
-   * exists.
+   * Places the trigger content where React renders it: the projected
+   * `[slot=trigger]` nodes move into the button (React renders them as its bare
+   * child), the hidden capture point leaves the DOM, and the default `⋮` becomes
+   * a bare text node — or drops out when a trigger exists.
+   *
+   * @param hasContent - Reads whether a slot has content.
    */
-  ngAfterViewChecked(): void {
+  private reconcile(hasContent: SlotReader): void {
     const capture = this.triggerCapture?.nativeElement
-    if (capture && !this.triggerRead) {
-      this.triggerNodes = Array.from(capture.childNodes).filter(
-        (node) =>
-          node.nodeType === Node.ELEMENT_NODE ||
-          (node.nodeType === Node.TEXT_NODE && (node.textContent ?? '') !== ''),
-      )
-      this.triggerRead = true
-    }
-    const anchor = this.triggerAnchor?.nativeElement
-    if (anchor?.parentNode) {
-      for (const node of this.triggerNodes) anchor.parentNode.insertBefore(node, anchor)
-    }
-    anchor?.remove()
-    if (capture && capture.isConnected) capture.remove()
-
+    const button = this.triggerButton?.nativeElement
+    const glyph = this.defaultTrigger?.nativeElement
     const hasTrigger =
-      this.triggerNodes.length > 0 || this.triggerTemplate() !== null || this.hasTextTrigger()
+      hasContent(capture) || this.triggerTemplate() !== null || this.hasTextTrigger()
+
+    if (capture && button) {
+      if (hasContent(capture)) placeContent(capture, button)
+      setElementPresent(capture, false)
+    }
 
     // The glyph is React's `⋮` fallback: a bare text node, present only while no
     // trigger is supplied.
-    if (this.defaultText) {
-      if (hasTrigger) this.defaultText.remove()
-      else if (!this.defaultText.isConnected)
-        (this.el.nativeElement as HTMLElement)
-          .querySelector('button')
-          ?.insertBefore(this.defaultText, null)
-      return
+    if (glyph && button) {
+      if (hasTrigger) placeContent(glyph, null)
+      else placeContent(glyph, button)
+      setElementPresent(glyph, false)
     }
-    const fallback = this.defaultTrigger?.nativeElement
-    const parent = fallback?.parentNode
-    if (!fallback || !parent) return
-    if (hasTrigger) {
-      fallback.remove()
-      return
-    }
-    const text = fallback.firstChild
-    if (text) {
-      parent.insertBefore(text, fallback)
-      if (text instanceof Text) this.defaultText = text
-    }
-    fallback.remove()
   }
 }

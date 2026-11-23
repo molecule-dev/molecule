@@ -13,7 +13,7 @@
 
 // Register Angular's JIT compiler facade before any @Component class loads.
 import '@angular/compiler'
-import { Component, EventEmitter } from '@angular/core'
+import { ChangeDetectionStrategy, Component, EventEmitter } from '@angular/core'
 
 /** The stub modal's state, typed for the callers. */
 class ModalStubBase {
@@ -29,6 +29,7 @@ class ModalStubBase {
 
 /** Stand-in for `@molecule/app-ui-angular`'s `Modal` (`mol-modal`). */
 export const ModalStub = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-modal',
   standalone: true,
   inputs: ['open', 'title', 'size'],
@@ -41,6 +42,7 @@ class IconStubBase {}
 
 /** Stand-in for `@molecule/app-ui-angular`'s `Icon` (`[mol-icon-root]`). */
 export const IconStub = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: '[mol-icon-root]',
   standalone: true,
   inputs: ['name', 'size', 'className', 'ariaHidden'],
@@ -57,6 +59,7 @@ class ButtonStubBase {
 
 /** Stand-in for `@molecule/app-ui-angular`'s `Button` (`button[mol-button]`). */
 export const ButtonStub = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'button[mol-button]',
   standalone: true,
   inputs: ['type', 'size', 'color', 'disabled'],
@@ -69,6 +72,7 @@ class OAuthButtonsStubBase {}
 
 /** Stand-in for `@molecule/app-oauth-buttons-angular`'s `OAuthButtons`. */
 export const OAuthButtonsStub = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'div[mol-oauth-buttons]',
   standalone: true,
   inputs: ['providers', 'onSelect'],
@@ -80,6 +84,7 @@ class OAuthDividerStubBase {}
 
 /** Stand-in for `@molecule/app-oauth-buttons-angular`'s `OAuthDivider`. */
 export const OAuthDividerStub = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'div[mol-oauth-divider]',
   standalone: true,
   template: '',
@@ -109,6 +114,7 @@ class AuthModalStubBase {
  * with. The interceptor is what those tests check, not the modal.
  */
 export const AuthModalStub = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-auth-modal',
   standalone: true,
   inputs: [

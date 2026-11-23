@@ -5,9 +5,15 @@
  */
 
 import { NgTemplateOutlet } from '@angular/common'
-import { Component, type TemplateRef } from '@angular/core'
+import { Component, ElementRef, inject, type TemplateRef } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  placeContentBefore,
+  setElementPresent,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -23,9 +29,9 @@ import type { Chapter } from './types.js'
  * same ClassMap tokens, the same i18n keys and the same DOM for the same input.
  *
  * React's root element flips between `<div role="region">` (no chapters) and
- * `<ul role="list">` (chapters), so the host is a neutral wrapper the DOM
- * normalizer unwraps (`data-parity-unwrap`): the rendered root is the host's
- * only child, exactly React's root.
+ * `<ul role="list">` (chapters), so the rendered root stands in front of the
+ * host's place and the host itself leaves the page (`placeContentBefore` +
+ * `setElementPresent`).
  *
  * All styling routes through `getClassMap()` (no raw class names). All
  * user-visible text routes through `t()` so the list translates via the
@@ -35,8 +41,8 @@ import type { Chapter } from './types.js'
   selector: 'mol-chapter-list',
   standalone: true,
   imports: [NgTemplateOutlet],
+  hostDirectives: [MolPlacement],
   inputs: ['chapters', 'currentTime', 'onSeek', 'className', 'rowTrailing'],
-  host: { 'data-parity-unwrap': '', style: 'display: contents' },
   template: `@if (chapters.length === 0) {
       <div
         role="region"
@@ -147,6 +153,18 @@ export class ChapterList {
 
   /** The i18n handle (locale-reactive), read in an injection context. */
   private readonly i18n = useTranslation()
+
+  /** The component's host element (React renders no element of its own). */
+  private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
+
+  constructor() {
+    // React's root is the region/list element itself: it renders in front of the host's
+    // place and the host leaves the page.
+    usePlacement(() => {
+      placeContentBefore(this.host.nativeElement, this.host.nativeElement)
+      setElementPresent(this.host.nativeElement, false)
+    })
+  }
 
   /**
    * The current class map.

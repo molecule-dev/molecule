@@ -11,20 +11,33 @@
  * change" contract. The chevron is the strip's only content, so the button names
  * itself with `aria-label` and reports its state with `aria-expanded`.
  *
- * React wraps a fragment-free root `<div style="position: relative">`, so the
- * component adds no node: the host is a `display: contents` wrapper marked
- * `data-parity-unwrap`, which the conformance normalizer drops. The inline
- * styles are written through `[attr.style]`, whose text lands in the DOM as is,
- * so every declaration is pre-serialized the way React's CSSOM writes it
+ * React's root is a single `<div style="position: relative">`, so that element
+ * renders in front of the host (`placeElementBefore`) and the host leaves the
+ * DOM: the rendered tree is React's, with no wrapper element of its own. The
+ * inline styles are written through `[attr.style]`, whose text lands in the DOM
+ * as is, so every declaration is pre-serialized the way React's CSSOM writes it
  * (`border: medium`, `padding: 2px 0px`, spaced `rgba()`). All user-facing text
  * goes through `t()`.
  *
  * @module
  */
 
-import { type AfterViewChecked, Component, type ElementRef, signal, ViewChild } from '@angular/core'
+import {
+  type AfterViewChecked,
+  Component,
+  ElementRef,
+  inject,
+  signal,
+  ViewChild,
+} from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  placeElementBefore,
+  setElementPresent,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import { USER_MSG_COLLAPSE_HEIGHT } from '@molecule/app-ide-panel-logic'
 import { styleText } from '@molecule/app-ui-angular'
 
@@ -65,14 +78,26 @@ const STYLES = {
   selector: 'div[mol-collapsible-user-message]',
   standalone: true,
   inputs: ['content', 'isLight'],
-  host: {
-    'data-parity-unwrap': '',
-    style: 'display: contents',
-  },
+  hostDirectives: [MolPlacement],
   // prettier-ignore
-  template: `<div [attr.style]="s.wrapper"><div #body [attr.style]="bodyStyle()">{{ content }}</div>@if (overflows() && !expanded()) {<div [attr.style]="fadeStyle()"></div>}@if (overflows()) {<button type="button" [attr.aria-label]="expandLabel()" [attr.aria-expanded]="expanded()" (click)="toggle()" (mouseenter)="onStripHover($event, true)" (mouseleave)="onStripHover($event, false)" [attr.style]="s.strip"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="14" height="14" [attr.style]="chevronStyle()"><polyline points="4,6 8,10 12,6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></polyline></svg></button>}</div>`,
+  template: `<div #root [attr.style]="s.wrapper"><div #body [attr.style]="bodyStyle()">{{ content }}</div>@if (overflows() && !expanded()) {<div [attr.style]="fadeStyle()"></div>}@if (overflows()) {<button type="button" [attr.aria-label]="expandLabel()" [attr.aria-expanded]="expanded()" (click)="toggle()" (mouseenter)="onStripHover($event, true)" (mouseleave)="onStripHover($event, false)" [attr.style]="s.strip"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="14" height="14" [attr.style]="chevronStyle()"><polyline points="4,6 8,10 12,6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></polyline></svg></button>}</div>`,
 })
 export class CollapsibleUserMessage implements AfterViewChecked {
+  /** The root `<div>` React renders. */
+  @ViewChild('root') private root?: ElementRef<HTMLElement>
+
+  /** The component's own host element, which React does not render. */
+  private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
+
+  /** Renders the root in front of the host and keeps the host out of the DOM. */
+  constructor() {
+    usePlacement(() => {
+      const root = this.root?.nativeElement
+      if (root) placeElementBefore(root, this.host.nativeElement)
+      setElementPresent(this.host.nativeElement, false)
+    })
+  }
+
   /** The raw message text. */
   content = ''
 

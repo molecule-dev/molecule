@@ -92,7 +92,7 @@ async function mount(props: Record<string, unknown> = {}): Promise<Mounted> {
     selector: 'mol-image-canvas-spec-host',
     standalone: true,
     imports: [ImageCanvas],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: `<div
       mol-image-canvas
       [src]="p['src']"

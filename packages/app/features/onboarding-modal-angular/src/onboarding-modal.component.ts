@@ -5,9 +5,15 @@
  */
 
 import { NgTemplateOutlet } from '@angular/common'
-import { Component, type OnInit, signal, TemplateRef } from '@angular/core'
+import { Component, ElementRef, inject, type OnInit, signal, TemplateRef } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  placeContentBefore,
+  setElementPresent,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Modal } from '@molecule/app-ui-angular'
@@ -22,11 +28,12 @@ let nextTitleId = 0
  *
  * Multi-step onboarding overlay — title + body + media, with prev/next
  * navigation and an optional Skip link. React's root is the `Modal`'s
- * `document.body` portal (a fragment), so the host is unwrapped
- * (`data-parity-unwrap`, `display: contents`) and nothing of it remains in the
- * normalized DOM; the dialog itself is `<mol-modal>`, which portals to the
- * body exactly as React's does. Tracks its own step state (React's
- * `useState(defaultStep)`), so the position persists across close/reopen.
+ * `document.body` portal (a fragment), so nothing of the host's own remains in
+ * the page: the host's content renders in front of the host's place and the
+ * host leaves the page (`placeContentBefore` + `setElementPresent`); the dialog
+ * itself is `<mol-modal>`, which portals to the body exactly as React's does.
+ * Tracks its own step state (React's `useState(defaultStep)`), so the position
+ * persists across close/reopen.
  *
  * `onComplete` fires only from the final-step button; closing via Skip or the
  * chrome close button calls `onClose` alone — persist "onboarding seen" in
@@ -36,11 +43,8 @@ let nextTitleId = 0
   selector: 'mol-onboarding-modal',
   standalone: true,
   imports: [Button, Modal, NgTemplateOutlet],
+  hostDirectives: [MolPlacement],
   inputs: ['open', 'onClose', 'steps', 'onComplete', 'allowSkip', 'defaultStep'],
-  host: {
-    'data-parity-unwrap': '',
-    style: 'display: contents',
-  },
   // prettier-ignore
   template: `<mol-modal [open]="open && total() > 0" (close)="close($event)" [attr.aria-labelledby]="titleId">@if (total() > 0) {<div [class]="cm().stack(4)">@if (hasMedia()) {<div [class]="mediaClasses()">@if (mediaTemplate(); as tpl) {<ng-container [ngTemplateOutlet]="tpl"></ng-container>} @else {{{ mediaText() }}}</div>}<h2 [id]="titleId" [class]="titleClasses()">@if (titleTemplate(); as tpl) {<ng-container [ngTemplateOutlet]="tpl"></ng-container>} @else {{{ titleText() }}}</h2><div [class]="bodyClasses()">@if (bodyTemplate(); as tpl) {<ng-container [ngTemplateOutlet]="tpl"></ng-container>} @else {{{ bodyText() }}}</div><footer [class]="footerClasses()"><div [class]="dotsClasses()">@for (s of steps; track s.id; let i = $index) {<span aria-hidden="true" [style.width]="'6px'" [style.height]="'6px'" [style.border-radius]="'50%'" [style.background]="dotBackground(i)"></span>}</div><div [class]="buttonsClasses()">@if (allowSkipEnabled() && !isLastStep()) {<button mol-button [variant]="'ghost'" [size]="'sm'" (click)="close($event)">{{ skipLabel() }}</button>}@if (stepIndex() > 0) {<button mol-button [variant]="'ghost'" [size]="'sm'" (click)="back()">{{ backLabel() }}</button>}<button mol-button [variant]="'solid'" [color]="'primary'" (click)="next()">{{ primaryLabel() }}</button></div></footer></div>}</mol-modal>`,
 })
@@ -72,6 +76,18 @@ export class OnboardingModal implements OnInit {
 
   /** i18n state; its `t` reads the provider on every call. */
   private readonly i18n = useTranslation()
+
+  /** The component's host element (React renders no element of its own). */
+  private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
+
+  constructor() {
+    // React's root is the body portal (a fragment): nothing of the host's own stays, so the
+    // bare modal renders in front of the host's place and the host leaves the page.
+    usePlacement(() => {
+      placeContentBefore(this.host.nativeElement, this.host.nativeElement)
+      setElementPresent(this.host.nativeElement, false)
+    })
+  }
 
   /**
    * Seeds the step index from `defaultStep` once, exactly as React's

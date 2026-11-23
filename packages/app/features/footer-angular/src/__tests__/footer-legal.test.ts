@@ -25,6 +25,7 @@ import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import type * as AngularBinding from '@molecule/app-angular'
+import { provideDomPlacement } from '@molecule/app-angular'
 import { createMemoryRouter } from '@molecule/app-routing'
 
 // A mutable i18n catalog the tests can seed to simulate an app that registered
@@ -57,6 +58,7 @@ vi.mock('@molecule/app-ui-angular', async () => {
   const { Component } = await import('@angular/core')
   return {
     Icon: Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'svg[mol-icon-root]',
       standalone: true,
       inputs: ['name', 'size', 'className', 'ariaHidden: aria-hidden'],
@@ -75,11 +77,11 @@ vi.mock('@molecule/app-ui-angular', async () => {
     // Render children only when open, like the real Modal — so a closed modal
     // has no body and an opened one exposes exactly what the footer put in it.
     Modal: Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'mol-modal',
       standalone: true,
       inputs: ['open', 'title', 'size'],
       outputs: ['close'],
-      host: { 'data-parity-unwrap': '', style: 'display: contents' },
       template: `@if (open) {<div data-modal=""><ng-content></ng-content></div>}`,
     })(
       class MockModal {
@@ -165,7 +167,7 @@ async function mount(
     selector: 'mol-spec-host',
     standalone: true,
     imports: [component],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template,
   })(
     class SpecHost {
@@ -176,6 +178,7 @@ async function mount(
   const appRef: ApplicationRef = await createApplication({
     providers: [
       provideZonelessChangeDetection(),
+      provideDomPlacement(),
       provideRouter(createMemoryRouter({ initialEntries: ['/'] })),
     ],
   })

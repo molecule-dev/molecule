@@ -24,6 +24,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 vi.mock('@molecule/app-ui', () => ({
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
@@ -73,11 +75,11 @@ const pinnedCard = async (): Promise<Mounted> => {
     selector: 'mol-spec-host',
     standalone: true,
     imports: [NoteCard as Type<unknown>],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: `<article mol-note-card body="b" [pinned]="true"></article>`,
   })(class SpecHost {})
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<unknown> = createComponent(Host, {
     environmentInjector: appRef.injector,

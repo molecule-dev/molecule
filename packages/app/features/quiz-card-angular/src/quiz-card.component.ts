@@ -5,22 +5,18 @@
  */
 
 import { NgTemplateOutlet } from '@angular/common'
-import {
-  type AfterViewInit,
-  Component,
-  type DoCheck,
-  ElementRef,
-  inject,
-  Renderer2,
-  signal,
-  TemplateRef,
-  ViewChild,
-} from '@angular/core'
+import { Component, type ElementRef, signal, TemplateRef, ViewChild } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  setElementPresent,
+  type SlotReader,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
-import { Button, hasNodes, SlotWrapper } from '@molecule/app-ui-angular'
+import { Button } from '@molecule/app-ui-angular'
 
 import type { QuizOption } from './types.js'
 
@@ -36,12 +32,13 @@ import type { QuizOption } from './types.js'
  * arrive as projected content (`[slot=question]`, `[slot=progress]`,
  * `[slot=timer]`, `[slot=explanation]`), as embedded templates, or as plain
  * string inputs. A wrapper React would not render at all (the progress span,
- * the explanation paragraph) is detached from the DOM, keeping its capture
- * point for the projected nodes.
+ * the explanation paragraph) leaves the page and keeps its capture point, so
+ * content a consumer projects later renders in it.
  */
 @Component({
   selector: 'div[mol-quiz-card]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [Button, NgTemplateOutlet],
   inputs: [
     'question',
@@ -59,7 +56,7 @@ import type { QuizOption } from './types.js'
   // prettier-ignore
   template: `<div #stack [class]="stackClasses()"><header #header [class]="headerClasses()"><span #progressEl [class]="progressClasses()">@if (isText(progress)) {<ng-container>{{ progress }}</ng-container>}<ng-container [ngTemplateOutlet]="templateOf(progress)"></ng-container><ng-content select="[slot=progress]"></ng-content></span>@if (isText(timer)) {<ng-container>{{ timer }}</ng-container>}<ng-container [ngTemplateOutlet]="templateOf(timer)"></ng-container><ng-content select="[slot=timer]"></ng-content></header><h2 [class]="questionClasses()">@if (isText(question)) {<ng-container>{{ question }}</ng-container>}<ng-container [ngTemplateOutlet]="templateOf(question)"></ng-container><ng-content select="[slot=question]"></ng-content></h2><div [class]="optionsClasses()">@for (option of options; track option.id) {<button type="button" (click)="select(option)" [disabled]="submitted()" [attr.aria-pressed]="isSelected(option) ? 'true' : 'false'" data-mol-id="quiz-card-option" [attr.data-correct]="isCorrect(option) ? 'true' : null" [attr.data-wrong]="isWrong(option) ? 'true' : null" [class]="optionClasses(option)" [style]="optionStyle(option)"><span>@if (isText(option.label)) {<ng-container>{{ option.label }}</ng-container>}@else {<ng-container [ngTemplateOutlet]="templateOf(option.label)"></ng-container>}</span>@if (isCorrect(option)) {<span aria-hidden="true">✓</span>}@if (isWrong(option)) {<span aria-hidden="true">×</span>}</button>}</div>@if (!submitted()) {<button mol-button [variant]="'solid'" [color]="'primary'" (click)="submit()" [disabled]="!selected()">{{ submitLabel() }}</button>}<p #explanationEl [class]="explanationClasses()">@if (isText(explanation)) {<ng-container>{{ explanation }}</ng-container>}<ng-container [ngTemplateOutlet]="templateOf(explanation)"></ng-container><ng-content select="[slot=explanation]"></ng-content></p></div>`,
 })
-export class QuizCard implements AfterViewInit, DoCheck {
+export class QuizCard {
   /** The question text — a string input, or `[slot=question]` projected content. */
   question?: unknown
   /** The answer options, rendered in order and keyed by `id`. */
@@ -77,10 +74,6 @@ export class QuizCard implements AfterViewInit, DoCheck {
   /** Extra classes on the card. */
   className?: string
 
-  /** The inner stack (the parent of the explanation paragraph). */
-  @ViewChild('stack') private stack?: ElementRef<HTMLDivElement>
-  /** The header (the parent of the progress span). */
-  @ViewChild('header') private header?: ElementRef<HTMLElement>
   /** The progress span (always in the template; detached when empty). */
   @ViewChild('progressEl') private progressEl?: ElementRef<HTMLSpanElement>
   /** The explanation paragraph (always in the template; detached when React renders none). */
@@ -95,15 +88,13 @@ export class QuizCard implements AfterViewInit, DoCheck {
   /** Whether the answer was submitted (the card is single-shot). */
   private readonly submittedState = signal(false)
 
-  /** Detaches and re-attaches the wrappers React renders conditionally. */
-  private readonly sync = new SlotWrapper(inject(ElementRef), inject(Renderer2))
-
-  /** Whether a `[slot=progress]` projection landed. */
-  private progressProjected = false
-  /** Whether a `[slot=explanation]` projection landed. */
-  private explanationProjected = false
-  /** Whether the view queries have been read (nothing is withdrawn before). */
-  private viewReady = false
+  /**
+   * Renders the progress span and the explanation paragraph only while React
+   * would (see {@link QuizCard.syncWrappers}).
+   */
+  constructor() {
+    usePlacement((hasContent) => this.syncWrappers(hasContent))
+  }
 
   /**
    * The current class map.
@@ -286,25 +277,27 @@ export class QuizCard implements AfterViewInit, DoCheck {
 
   /**
    * Whether the progress row renders at all — React's `{progress && …}`.
+   * @param projected - Whether `[slot=progress]` content is projected.
    * @returns True when a text, template or projected progress row exists.
    */
-  hasProgress(): boolean {
+  hasProgress(projected: boolean): boolean {
     return (
       (typeof this.progress === 'string' && this.progress.length > 0) ||
       this.templateOf(this.progress) !== null ||
-      this.progressProjected
+      projected
     )
   }
 
   /**
    * Whether the explanation renders — React's `explanation && <p>`.
+   * @param projected - Whether `[slot=explanation]` content is projected.
    * @returns True when a text, template or projected explanation exists.
    */
-  hasExplanation(): boolean {
+  hasExplanation(projected: boolean): boolean {
     return (
       (typeof this.explanation === 'string' && this.explanation.length > 0) ||
       this.templateOf(this.explanation) !== null ||
-      this.explanationProjected
+      projected
     )
   }
 
@@ -333,32 +326,20 @@ export class QuizCard implements AfterViewInit, DoCheck {
   }
 
   /**
-   * Reads whether the progress and explanation rows were projected, then
-   * withdraws each wrapper React would not render. View queries resolve only
-   * at view init.
-   */
-  ngAfterViewInit(): void {
-    this.progressProjected = hasNodes(this.progressEl?.nativeElement)
-    this.explanationProjected = hasNodes(this.explanationEl?.nativeElement)
-    this.viewReady = true
-    this.syncWrappers()
-  }
-
-  /** Re-reconciles the withdrawable wrappers when the state changes. */
-  ngDoCheck(): void {
-    if (this.viewReady) this.syncWrappers()
-  }
-
-  /**
    * Applies React's conditions: the progress span renders only while progress
    * is truthy, the explanation paragraph only after submit with one present.
+   * The reader also sees the port's own text or template in a row, which
+   * changes nothing: either one already shows the row.
+   *
+   * @param hasContent - Reads whether a slot has content.
    */
-  private syncWrappers(): void {
-    this.sync.sync(this.progressEl?.nativeElement, this.hasProgress(), this.header?.nativeElement)
-    this.sync.sync(
-      this.explanationEl?.nativeElement,
-      this.submittedState() && this.hasExplanation(),
-      this.stack?.nativeElement,
+  private syncWrappers(hasContent: SlotReader): void {
+    const progress = this.progressEl?.nativeElement
+    setElementPresent(progress, this.hasProgress(!!progress && hasContent(progress)))
+    const explanation = this.explanationEl?.nativeElement
+    setElementPresent(
+      explanation,
+      this.submittedState() && this.hasExplanation(!!explanation && hasContent(explanation)),
     )
   }
 }

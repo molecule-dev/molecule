@@ -7,7 +7,14 @@
  * @module
  */
 import '@angular/compiler'
-import { Component, computed, type OnInit, signal, type Type } from '@angular/core'
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  type OnInit,
+  signal,
+  type Type,
+} from '@angular/core'
 import { afterEach, beforeAll, beforeEach, expect, it, vi } from 'vitest'
 
 import { resetQueryClient, setProvider } from '@molecule/app-query'
@@ -56,6 +63,7 @@ function page(
   imports: Type<unknown>[] = [],
 ): Type<object> {
   return Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
     selector: `mol-page-${++pageCount}`,
     standalone: true,
     imports: [QueryContent, ...imports],
@@ -73,6 +81,7 @@ class PinnedButtonComponent implements OnInit {
   }
 }
 const PinnedButton = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-pinned-button',
   standalone: true,
   inputs: ['id'],

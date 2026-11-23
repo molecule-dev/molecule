@@ -23,12 +23,16 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 import { InlineEdit } from '../inline-edit.component.js'
 
 /** A mounted spec host: its DOM and a teardown. */
 interface Mounted {
   /** The host element whose children the component template produced. */
   readonly host: HTMLElement
+  /** Merges props over the current ones and flushes change detection. */
+  setProps(next: Record<string, unknown>): Promise<void>
   /** Destroys the app and removes the host. */
   destroy(): Promise<void>
 }
@@ -46,7 +50,7 @@ async function mount(template: string, props: Record<string, unknown> = {}): Pro
     selector: 'mol-spec-host',
     standalone: true,
     imports: [InlineEdit],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template,
   })(
     class SpecHost {
@@ -55,7 +59,7 @@ async function mount(template: string, props: Record<string, unknown> = {}): Pro
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
     environmentInjector: appRef.injector,
@@ -66,6 +70,11 @@ async function mount(template: string, props: Record<string, unknown> = {}): Pro
   appRef.tick()
   return {
     host,
+    setProps: async (next: Record<string, unknown>) => {
+      ref.instance.p = { ...ref.instance.p, ...next }
+      ref.changeDetectorRef.markForCheck()
+      appRef.tick()
+    },
     destroy: async () => {
       appRef.destroy()
       host.remove()
@@ -133,5 +142,40 @@ describe('InlineEdit (read state)', () => {
   it('forwards className', async () => {
     const markup = await render({ value: 'x', className: 'ie-cls' })
     expect(markup).toContain('ie-cls')
+  })
+
+  it('shows and removes the read-state wrapper in the pass where the consumer @if adds and removes its content', async () => {
+    const m = await mount(
+      `<div>@if (p['on']) {<mol-inline-edit [value]="'Hello'"></mol-inline-edit>}</div>`,
+      { on: false },
+    )
+    mounted.push(m)
+    const read = (): HTMLElement | null => m.host.querySelector('[role="button"]')
+    expect(read()).toBeNull()
+    await m.setProps({ on: true })
+    // React renders the read state beside the (unwrapped) component host.
+    expect(read()).not.toBeNull()
+    expect(read()?.isConnected).toBe(true)
+    expect(m.host.textContent).toContain('Hello')
+    await m.setProps({ on: false })
+    expect(read()).toBeNull()
+  })
+
+  it("renders React's elements with no host or capture element of its own", async () => {
+    const m = await mount(
+      `<i>a</i><mol-inline-edit [value]="p['value']"></mol-inline-edit><i>b</i>`,
+      {
+        value: 'Hello',
+      },
+    )
+    mounted.push(m)
+    const children = (): string[] =>
+      Array.from(m.host.children).map((child) => child.tagName.toLowerCase())
+    // The read-state root is React's <span>, standing in the (removed) host's place.
+    expect(children()).toEqual(['i', 'span', 'i'])
+    // Clicking the read state opens the editor, whose React root is a <div>.
+    ;(m.host.querySelector('[role="button"]') as HTMLElement).click()
+    await m.setProps({})
+    expect(children()).toEqual(['i', 'div', 'i'])
   })
 })

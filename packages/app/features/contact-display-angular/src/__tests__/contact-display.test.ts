@@ -22,6 +22,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
 // `flex`), so tests can assert which cm.* class was applied without a real
 // bond — the same mock the React tests use. `flex` encodes its direction so
@@ -53,8 +55,8 @@ vi.mock('@molecule/app-ui', () => ({
 
 vi.mock('@molecule/app-ui-angular', async () => {
   const { Component: NgComponent } = await import('@angular/core')
-  // The real package's plain helpers (asTemplate, hasNodes, SlotWrapper), so
-  // the component's TemplateRef path and actions-slot detach keep working.
+  // The real package's plain helpers (asTemplate), so the component's
+  // TemplateRef path keeps working.
   const actual = (await vi.importActual('@molecule/app-ui-angular')) as Record<string, unknown>
   // The same stub the React tests install for `@molecule/app-ui-react`:
   // an `<img data-avatar data-avatar-name>`. The `Component(...)` factory is
@@ -78,10 +80,12 @@ vi.mock('@molecule/app-ui-angular', async () => {
 
 const { ContactDisplay } = await import('../contact-display.component.js')
 
-/** A mounted spec host: its DOM and a teardown. */
+/** A mounted spec host: its DOM, a props setter, and a teardown. */
 interface Mounted {
   /** The host element whose children the component template produced. */
   readonly host: HTMLElement
+  /** Merges props over the current ones and flushes change detection. */
+  setProps(next: Record<string, unknown>): Promise<void>
   /** Destroys the app and removes the host. */
   destroy(): Promise<void>
 }
@@ -104,7 +108,7 @@ async function render(props: Record<string, unknown> = {}, projected = ''): Prom
     selector: 'mol-spec-host',
     standalone: true,
     imports: [ContactDisplay as Type<unknown>],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     host: { 'data-spec-host': String(++hostCount) },
     template: `<div mol-contact-display [contact]="p['contact']" [layout]="p['layout']" [onClick]="p['onClick']" [className]="p['className']">${projected}</div>`,
   })(
@@ -114,7 +118,7 @@ async function render(props: Record<string, unknown> = {}, projected = ''): Prom
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref = createComponent(Host, { environmentInjector: appRef.injector })
   const host = ref.location.nativeElement as HTMLElement
@@ -123,6 +127,11 @@ async function render(props: Record<string, unknown> = {}, projected = ''): Prom
   appRef.tick()
   mounted.push({
     host,
+    setProps: async (next: Record<string, unknown>) => {
+      ref.instance.p = { ...ref.instance.p, ...next }
+      ref.changeDetectorRef.markForCheck()
+      appRef.tick()
+    },
     destroy: async () => {
       ref.destroy()
       host.remove()
@@ -250,5 +259,48 @@ describe('ContactDisplay', () => {
     const { host } = await render({ contact })
     expect(host.querySelector('button')).toBeNull()
     expect(host.querySelector('[data-mol-id="contact-display-open"]')).toBeNull()
+  })
+
+  it('keeps a consumer list in order when an item is inserted in the middle of actions', async () => {
+    const m = await render(
+      { contact, onClick: () => {}, xs: ['a', 'c'] },
+      `<ng-container ngProjectAs="[slot=actions]">@for (x of p['xs']; track x) {<b>{{ x }}</b>}</ng-container>`,
+    )
+    const items = (): string[] => [...m.host.querySelectorAll('b')].map((b) => b.textContent ?? '')
+    expect(items()).toEqual(['a', 'c'])
+    await m.setProps({ xs: ['a', 'b', 'c'] })
+    expect(items()).toEqual(['a', 'b', 'c'])
+    await m.setProps({ xs: ['a', 'b'] })
+    expect(items()).toEqual(['a', 'b'])
+  })
+
+  it('shows and removes the actions wrapper in the pass where the consumer @if adds and removes its content', async () => {
+    const m = await render(
+      { contact, onClick: () => {}, on: false },
+      `@if (p['on']) {<button slot="actions" data-actions></button>}`,
+    )
+    const action = (): HTMLElement | null => m.host.querySelector<HTMLElement>('[data-actions]')
+    expect(action()).toBeNull()
+    await m.setProps({ on: true })
+    expect(action()).not.toBeNull()
+    expect(action()?.parentElement?.getAttribute('class')).toBe('position')
+    await m.setProps({ on: false })
+    expect(action()).toBeNull()
+  })
+
+  it('wraps the projected actions in the raised wrapper once onClick is set', async () => {
+    const m = await render(
+      { contact },
+      '<ng-container ngProjectAs="[slot=actions]"><button data-actions=""></button></ng-container>',
+    )
+    const root = (): HTMLElement => m.host.querySelector('[mol-contact-display]')!
+    const action = (): HTMLElement => m.host.querySelector('[data-actions]')!
+    // Without onClick React renders the actions bare: their parent is the root.
+    expect(action().parentElement).toBe(root())
+    await m.setProps({ onClick: () => {} })
+    // With onClick React renders them inside the `position: relative` wrapper.
+    expect(action().parentElement).not.toBe(root())
+    expect(action().parentElement?.getAttribute('class')).toBe('position')
+    expect(action()).not.toBeNull()
   })
 })

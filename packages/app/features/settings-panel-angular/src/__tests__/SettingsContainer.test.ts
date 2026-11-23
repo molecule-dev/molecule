@@ -30,14 +30,16 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { findDomContext } from '@molecule/app-ui-angular'
+import { provideDomPlacement } from '@molecule/app-angular'
 
+import { settingsPanelContext } from '../container-context.js'
 import { useSettingsPanelContext } from '../context.js'
 import { SettingsContainer } from '../settings-container.component.js'
 import type { SettingsPanelContextValue } from '../types.js'
 
 /** A consumer that resolves the container's context and closes on click. */
 const Consumer = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-settings-container-consumer',
   standalone: true,
   template: `<button type="button" (click)="close()">close</button>`,
@@ -58,7 +60,7 @@ const Host = Component({
   selector: 'mol-settings-container-host',
   standalone: true,
   imports: [SettingsContainer, Consumer],
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `<div mol-settings-container [onClose]="onClose()"><mol-settings-container-consumer /></div>
     <span data-testid="tick">{{ tick() }}</span>`,
 })(
@@ -85,7 +87,7 @@ async function mountHost(
   onClose: () => void,
 ): Promise<{ host: InstanceType<typeof Host>; tick: () => void }> {
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref = createComponent(Host, { environmentInjector: appRef.injector })
   const container = document.createElement('div')
@@ -118,7 +120,7 @@ function consumerElement(): HTMLElement {
 
 /** Reads the context value the container publishes for the consumer. */
 function publishedContext(): SettingsPanelContextValue | undefined {
-  return findDomContext<SettingsPanelContextValue>(consumerElement())
+  return settingsPanelContext.find(consumerElement())
 }
 
 /** The consumer's button. */

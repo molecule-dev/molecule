@@ -29,6 +29,7 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 import { setIconSet } from '@molecule/app-icons'
 import type { Activity } from '@molecule/app-ide-panel-logic'
@@ -69,7 +70,7 @@ const ActivityCardHost = Component({
   selector: 'mol-activity-card-host',
   standalone: true,
   imports: [ActivityCard],
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `<button mol-activity-card [activity]="p['activity']" [onActivityClick]="p['onActivityClick']"></button>`,
 })(
   class ActivityCardHost {
@@ -127,7 +128,7 @@ async function renderCard(activity: Activity): Promise<HTMLElement> {
   const container = document.createElement('div')
   document.body.appendChild(container)
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<InstanceType<typeof ActivityCardHost>> = createComponent(
     ActivityCardHost,

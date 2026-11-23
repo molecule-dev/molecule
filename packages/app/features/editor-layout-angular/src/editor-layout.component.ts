@@ -4,15 +4,15 @@
  * @module
  */
 
-import {
-  type AfterViewInit,
-  Component,
-  type DoCheck,
-  type ElementRef,
-  ViewChild,
-} from '@angular/core'
+import { Component, type ElementRef, ViewChild } from '@angular/core'
 
-import { hasContent, placeContent, setElementPresent } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  placeContent,
+  setElementPresent,
+  type SlotReader,
+  usePlacement,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -27,11 +27,12 @@ import { getClassMap } from '@molecule/app-ui'
  *
  * Angular projection needs always-mounted `<ng-content>` capture points, so
  * both side-panel wrappers live in the template unconditionally and
- * {@link EditorLayout.ngDoCheck} reconciles them against React's DOM.
+ * {@link EditorLayout.reconcile} reconciles them against React's DOM.
  */
 @Component({
   selector: 'div[mol-editor-layout]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [],
   inputs: ['sidePanelPosition', 'sidePanelOpen', 'className', 'dataMolId'],
   host: {
@@ -53,7 +54,7 @@ import { getClassMap } from '@molecule/app-ui'
       </aside>
     </div>`,
 })
-export class EditorLayout implements AfterViewInit, DoCheck {
+export class EditorLayout {
   /** Side-panel position (defaults to `'right'` at read time). */
   sidePanelPosition?: 'left' | 'right'
   /** Whether the side panel is currently visible (defaults to `true`). */
@@ -69,6 +70,10 @@ export class EditorLayout implements AfterViewInit, DoCheck {
   @ViewChild('leftPanel') leftPanel?: ElementRef<HTMLElement>
   /** The right side-panel capture wrapper (after the `<main>`). */
   @ViewChild('rightPanel') rightPanel?: ElementRef<HTMLElement>
+
+  constructor() {
+    usePlacement((hasContent) => this.reconcile(hasContent))
+  }
 
   /**
    * The current class map.
@@ -112,28 +117,14 @@ export class EditorLayout implements AfterViewInit, DoCheck {
   }
 
   /**
-   * Reads slot presence (view queries resolve only at view init) and
-   * reconciles the side-panel wrappers against React's DOM.
-   */
-  ngAfterViewInit(): void {
-    this.reconcile()
-  }
-
-  /**
-   * Re-reconciles on later passes (a props step may move the panel or toggle
-   * its visibility; the projected slots never change).
-   */
-  ngDoCheck(): void {
-    this.reconcile()
-  }
-
-  /**
    * Applies React's conditions: with a projected side panel and
    * `sidePanelOpen` (default true), exactly one `<aside class="shrink0">`
    * wraps it — before the `<main>` on the left, after it on the right;
    * otherwise no `<aside>` renders.
+   *
+   * @param hasContent - Reads whether a slot has content.
    */
-  private reconcile(): void {
+  private reconcile(hasContent: SlotReader): void {
     const left = this.leftPanel?.nativeElement
     const right = this.rightPanel?.nativeElement
     if (!left || !right) return

@@ -21,6 +21,7 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 import { SETTINGS } from '@molecule/app-ide-panel-logic'
 import type { SettingsDisplayValues } from '@molecule/app-ide-panel-logic/panels'
@@ -55,7 +56,7 @@ const SettingsCardHost = Component({
   selector: 'mol-settings-card-host',
   standalone: true,
   imports: [SettingsCard],
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `<div mol-settings-card [settings]="p['settings']" [onRunCommand]="p['onRunCommand']" [onPrefillInput]="p['onPrefillInput']" [isLight]="p['isLight']" [agentName]="p['agentName']" [embedded]="p['embedded']"></div>`,
 })(
   class SettingsCardHost {
@@ -122,7 +123,7 @@ async function renderCard(overrides: Record<string, unknown> = {}): Promise<Moun
   const container = document.createElement('div')
   document.body.appendChild(container)
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<InstanceType<typeof SettingsCardHost>> = createComponent(
     SettingsCardHost,

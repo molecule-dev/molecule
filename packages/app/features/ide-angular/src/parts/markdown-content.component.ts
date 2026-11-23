@@ -24,10 +24,10 @@
  * labeled verification block below the text, and either is suppressed by
  * `hideStreamingIndicator` (the chat owns one turn-level indicator).
  *
- * The host is a `display: contents` wrapper (`div[mol-markdown-content]`),
- * unwrapped by the conformance normalizer, because React's root is a `div` for
- * text but a fragment (an indicator, or nothing at all) for an empty message —
- * a standalone component's host cannot change at runtime. Parsing produces a
+ * React's root is a `div` for text but a fragment (an indicator, or nothing at
+ * all) for an empty message, so the template's nodes render in front of the
+ * host (`placeContentBefore`) and the host leaves the DOM: the rendered tree is
+ * React's, with no wrapper element of its own. Parsing produces a
  * flat view model (`InlineView`, `BlockView`, `SegmentView`) so the template
  * renders real elements instead of string HTML. All styling is inline through
  * `styleText`, serialized the way React's inline style lands in the DOM
@@ -42,12 +42,20 @@
 import {
   Component,
   computed,
+  ElementRef,
+  inject,
   type OnChanges,
   type OnDestroy,
   signal,
   type SimpleChanges,
 } from '@angular/core'
 
+import {
+  MolPlacement,
+  placeContentBefore,
+  setElementPresent,
+  usePlacement,
+} from '@molecule/app-angular'
 import { useTranslation } from '@molecule/app-angular'
 import { copyTextWithFallback } from '@molecule/app-clipboard'
 import type { UIClassMap } from '@molecule/app-ui'
@@ -494,8 +502,9 @@ const STYLES = {
 
 /**
  * Renders one inline node list as real elements (code, bold, italic, links).
- * Its host is a `display: contents` wrapper unwrapped by the conformance
- * normalizer, because a run of inline nodes has no root element of its own.
+ * React's root is the inline run itself, with no element of its own, so the
+ * template's nodes render in front of the host (`placeContentBefore`) and the
+ * host leaves the DOM.
  */
 @Component({
   selector: 'span[mol-markdown-inline]',
@@ -503,14 +512,23 @@ const STYLES = {
   // The inputs are declared as plain fields listed here: this package's
   // partially-compiled JIT linking does not register `input()` signal inputs.
   inputs: ['nodes', 'onNavigatePreview'],
-  host: {
-    'data-parity-unwrap': '',
-    style: 'display: contents',
-  },
+  hostDirectives: [MolPlacement],
   // prettier-ignore
   template: `@for (node of nodes; track $index) {@if (node.code !== null) {<code [attr.style]="s.inlineCode">{{ node.code }}</code>} @else if (node.strong !== null) {<strong>{{ node.strong }}</strong>} @else if (node.em !== null) {<em>{{ node.em }}</em>} @else if (node.buttonLabel !== null) {<button type="button" data-mol-id="chat-preview-link" (click)="navigate(node.buttonPath)" [attr.title]="linkTitle(node.buttonPath)" [attr.style]="s.linkButton">{{ node.buttonLabel }}</button>} @else if (node.anchorLabel !== null) {<a [attr.href]="node.anchorHref" target="_blank" rel="noopener noreferrer" [attr.style]="s.link">{{ node.anchorLabel }}</a>} @else {{{ node.text }}}}`,
 })
 class MarkdownInline {
+  /** The component's own host element, which React does not render. */
+  private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
+
+  /** Renders the inline run in front of the host and keeps the host out of the DOM. */
+  constructor() {
+    usePlacement(() => {
+      const host = this.host.nativeElement
+      placeContentBefore(host, host)
+      setElementPresent(host, false)
+    })
+  }
+
   /** The inline nodes to render. */
   nodes: InlineView[] = []
 
@@ -565,14 +583,26 @@ class MarkdownInline {
     'onNavigatePreview',
     'hideStreamingIndicator',
   ],
-  host: {
-    'data-parity-unwrap': '',
-    style: 'display: contents',
-  },
+  hostDirectives: [MolPlacement],
   // prettier-ignore
   template: `@if (text) {<div [attr.style]="s.root">@for (seg of segments(); track $index; let i = $index) {@if (seg.codeLang !== null) {<div [class]="cm.surfaceSecondary" [attr.style]="s.codeBlock"><div [attr.style]="s.codeHeader"><span [attr.style]="s.lang">{{ seg.codeLang || 'text' }}</span><button type="button" data-mol-id="chat-code-copy" (click)="handleCopy(i, seg.codeContent)" [class]="cm.touchTargetCompact" [attr.style]="s.copyButton">{{ copyLabel(i) }}</button></div><pre [attr.style]="s.pre"><code>{{ seg.codeContent }}</code></pre></div>} @else {@for (block of seg.blocks; track $index) {@if (block.headerLevel !== null) {<p [attr.style]="headerStyle(block)"><span mol-markdown-inline [nodes]="block.nodes" [onNavigatePreview]="onNavigatePreview"></span></p>} @else if (block.ordered !== null) {@if (block.ordered) {<ol [attr.style]="s.ol">@for (item of block.items; track $index) {<li><span mol-markdown-inline [nodes]="item" [onNavigatePreview]="onNavigatePreview"></span></li>}</ol>} @else {<ul [attr.style]="s.ul">@for (item of block.items; track $index) {<li><span mol-markdown-inline [nodes]="item" [onNavigatePreview]="onNavigatePreview"></span></li>}</ul>}} @else {<p [attr.style]="s.para"><span mol-markdown-inline [nodes]="block.nodes" [onNavigatePreview]="onNavigatePreview"></span></p>}}}}@if (isStreaming && !hideStreamingIndicator && !hasStatus()) {<div mol-streaming-indicator [inline]="true"></div>}</div>@if (isStreaming && !hideStreamingIndicator && hasStatus()) {<div mol-streaming-indicator [label]="statusLabel ?? undefined" [startedAt]="statusStartedAt"></div>}} @else if (isStreaming && !hideStreamingIndicator) {<div mol-streaming-indicator [label]="hasStatus() ? statusLabel ?? undefined : undefined" [startedAt]="statusStartedAt"></div>}`,
 })
 export class MarkdownContent implements OnChanges, OnDestroy {
+  /** The component's own host element, which React does not render. */
+  private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
+
+  /**
+   * Renders the markdown's nodes in front of the host and keeps the host out of
+   * the DOM: React's root is the content `<div>`, the indicator, or nothing.
+   */
+  constructor() {
+    usePlacement(() => {
+      const host = this.host.nativeElement
+      placeContentBefore(host, host)
+      setElementPresent(host, false)
+    })
+  }
+
   /** The raw markdown text to render. */
   text = ''
 

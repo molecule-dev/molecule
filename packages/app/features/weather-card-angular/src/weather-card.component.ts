@@ -4,9 +4,15 @@
  * @module
  */
 
-import { type AfterViewInit, Component, type ElementRef, signal, ViewChild } from '@angular/core'
+import { Component, type ElementRef, signal, ViewChild } from '@angular/core'
 
-import { hasContent, placeContent, setElementPresent } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  placeContentBefore,
+  setElementPresent,
+  type SlotReader,
+  usePlacement,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -62,6 +68,7 @@ function buildSparkline(trace: ReadonlyArray<WeatherTracePoint> | undefined): {
 @Component({
   selector: 'div[mol-weather-card]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   inputs: [
     'locationName',
     'region',
@@ -82,7 +89,7 @@ function buildSparkline(trace: ReadonlyArray<WeatherTracePoint> | undefined): {
   // prettier-ignore
   template: `<div [class]="contentClasses()"><div [class]="rowClasses()"><div><p #eyebrowWrap [class]="eyebrowClasses()"><span #eyebrowSlot><ng-content select="[slot=eyebrow]"></ng-content></span></p><h2 [class]="locationClasses()">{{ locationName }}</h2>@if (region) {<p [class]="regionClasses()">{{ region }}</p>}</div>@if (alertLevel) {<span [class]="alertClasses()"><span [class]="alertIconClasses()" aria-hidden="true">warning</span><span #alertLabelSlot><ng-content select="[slot=alertLabel]"></ng-content></span>@if (!labelFromSlot()) { {{ alertLabelText() }} }</span>}</div><div [class]="temperatureRowClasses()"><span [class]="temperatureClasses()" style="font-size: 4.5rem; font-weight: 200; letter-spacing: -0.03em; line-height: 1">{{ temperatureText() }}{{ unitText() }}</span><div [class]="conditionPillClasses()"><span [class]="conditionIconClasses()" style="font-variation-settings: 'FILL' 1" aria-hidden="true">{{ conditionIconText() }}</span>@if (condition) {<span [class]="conditionTextClasses()">{{ condition }}</span>}</div></div><div [class]="metaRowClasses()"><span #feelsLikeWrap [class]="feelsLikeClasses()"><span #feelsLikeSlot><ng-content select="[slot=feelsLikeLabel]"></ng-content></span></span><span #highLowWrap [class]="highLowClasses()"><span #highLowSlot><ng-content select="[slot=highLowLabel]"></ng-content></span></span><span #updatedWrap [class]="updatedClasses()"><span #updatedSlot><ng-content select="[slot=updatedLabel]"></ng-content></span></span></div></div><div [class]="sparklineWrapClasses()"><svg [class]="sparklineClasses()" viewBox="0 0 400 100" preserveAspectRatio="none" aria-hidden="true"><path [attr.d]="sparkline().fill" fill="white" opacity="0.25"></path><path [attr.d]="sparkline().stroke" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"></path></svg></div><div [class]="glowLargeClasses()" aria-hidden="true"></div><div [class]="glowSmallClasses()" aria-hidden="true"></div>`,
 })
-export class WeatherCard implements AfterViewInit {
+export class WeatherCard {
   /** The location's display name. */
   locationName = ''
   /** Optional region line under the location. */
@@ -129,6 +136,10 @@ export class WeatherCard implements AfterViewInit {
 
   /** Whether the alert badge's label came from projected content (no fallback text then). */
   private readonly labelFromSlot = signal(false)
+
+  constructor() {
+    usePlacement((hasContent) => this.reconcile(hasContent))
+  }
 
   /**
    * The current class map.
@@ -393,20 +404,23 @@ export class WeatherCard implements AfterViewInit {
   }
 
   /**
-   * Reads the projected optionals (view queries resolve only at view init),
-   * moves each slot's nodes to its position, drops the wrappers the reference
-   * DOM does not have, and records whether the badge's label was projected.
+   * Reads the projected optionals, moves each slot's nodes to its position,
+   * drops the wrappers the reference DOM does not have, and records whether the
+   * badge's label was projected.
+   *
+   * @param hasContent - Reads whether a slot has content.
    */
-  ngAfterViewInit(): void {
+  private reconcile(hasContent: SlotReader): void {
     const eyebrow = this.eyebrowSlot?.nativeElement
     const eyebrowWrap = this.eyebrowWrap?.nativeElement
     if (eyebrow) {
-      if (hasContent(eyebrow)) this.relocate(eyebrow)
-      else setElementPresent(eyebrowWrap, false)
+      const present = hasContent(eyebrow)
+      setElementPresent(eyebrowWrap, present)
+      if (present) this.relocate(eyebrow)
     }
-    this.optional('feelsLike')
-    this.optional('highLow')
-    this.optional('updated')
+    this.optional('feelsLike', hasContent)
+    this.optional('highLow', hasContent)
+    this.optional('updated', hasContent)
     const alertLabel = this.alertLabelSlot?.nativeElement
     if (alertLabel) {
       const present = hasContent(alertLabel)
@@ -422,8 +436,9 @@ export class WeatherCard implements AfterViewInit {
    * position when it captured any, and the whole wrapper is dropped otherwise.
    *
    * @param name - The label's slot name prefix (`feelsLike`, `highLow`, `updated`).
+   * @param hasContent - Reads whether a slot has content.
    */
-  private optional(name: 'feelsLike' | 'highLow' | 'updated'): void {
+  private optional(name: 'feelsLike' | 'highLow' | 'updated', hasContent: SlotReader): void {
     const wrap =
       name === 'feelsLike'
         ? this.feelsLikeWrap?.nativeElement
@@ -437,21 +452,21 @@ export class WeatherCard implements AfterViewInit {
           ? this.highLowSlot?.nativeElement
           : this.updatedSlot?.nativeElement
     if (!slot) return
-    if (hasContent(slot)) this.relocate(slot)
-    else setElementPresent(wrap, false)
+    const present = hasContent(slot)
+    setElementPresent(wrap, present)
+    if (present) this.relocate(slot)
   }
 
   /**
    * Moves one slot's projected nodes out of its capture span to the slot's
    * position and takes the empty span out of the DOM — React renders the node
-   * with no wrapper element.
+   * with no wrapper element. The content stands bare in front of the span's own
+   * place, so it follows wherever Angular puts the span.
    *
    * @param span - The capture span.
    */
   private relocate(span: HTMLSpanElement): void {
-    const parent = span.parentNode
-    if (!parent) return
-    placeContent(span, parent, span)
+    placeContentBefore(span, span)
     setElementPresent(span, false)
   }
 }

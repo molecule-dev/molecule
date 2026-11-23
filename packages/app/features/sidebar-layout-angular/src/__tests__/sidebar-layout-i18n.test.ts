@@ -63,6 +63,7 @@ vi.mock('@molecule/app-angular', async (importOriginal) => {
     },
   )
   const RoutedView = Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
     selector: 'mol-routed-view',
     standalone: true,
     template: '<div data-outlet=""></div>',
@@ -144,7 +145,7 @@ async function render(props: Record<string, unknown> = {}): Promise<Mounted> {
     selector: 'mol-spec-host',
     standalone: true,
     imports: [SidebarLayout as Type<unknown>],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: `<div mol-sidebar-layout [appName]="p['appName']" [navItems]="p['navItems']" [navAriaLabel]="p['navAriaLabel']"></div>`,
   })(
     class SpecHost {

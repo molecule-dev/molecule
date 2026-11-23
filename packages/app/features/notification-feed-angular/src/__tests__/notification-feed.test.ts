@@ -94,7 +94,7 @@ async function mount(props: Record<string, unknown>): Promise<Mounted> {
     selector: `mol-spec-host-${hostCounter++}`,
     standalone: true,
     imports: [NotificationFeed as Type<unknown>],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: `<ul
       mol-notification-feed
       [items]="p['items']"

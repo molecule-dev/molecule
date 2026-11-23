@@ -4,9 +4,15 @@
  * @module
  */
 
-import { Component, type OnDestroy, type OnInit, signal } from '@angular/core'
+import { Component, ElementRef, inject, type OnDestroy, type OnInit, signal } from '@angular/core'
 
-import { useAuth, useHostPresence } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  placeContentBefore,
+  setElementPresent,
+  useAuth,
+  usePlacement,
+} from '@molecule/app-angular'
 
 import { AuthModal } from './auth-modal.component.js'
 import {
@@ -24,14 +30,14 @@ import {
  * AuthModal and installs a capture-phase document click handler that opens it
  * for in-app `/login` / `/signup` links (and routes `/pricing` / `/billing`
  * clicks to `onUpgradeIntercept`, else a new tab whose return refreshes the
- * session in place). The host is unwrapped (`data-parity-unwrap`,
- * `display: contents`) and out of the DOM while React renders nothing
- * (`open` false, through `useHostPresence`), so a closed mount leaves no
- * element behind.
+ * session in place). React's root is the modal, or nothing while closed: the
+ * host's content (the `@if`'s branch) renders in the host's place and the host
+ * itself leaves the page, so a closed mount leaves no element behind.
  */
 @Component({
   selector: 'mol-auth-modal-mount',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [AuthModal],
   inputs: [
     'oauthConfig',
@@ -45,10 +51,6 @@ import {
     'authPaths',
     'upgradePaths',
   ],
-  host: {
-    'data-parity-unwrap': '',
-    style: 'display: contents',
-  },
   // prettier-ignore
   template: `@if (open()) {<mol-auth-modal [open]="true" [onClose]="close" [initialMode]="mode()" [oauthConfig]="oauthConfig" [onBeforeAuth]="onBeforeAuth" [onAuthenticated]="onAuthenticated" [captchaSolved]="captchaSolved"><ng-container ngProjectAs="[slot=captchaSlot]"><ng-content select="[slot=captchaSlot]"></ng-content></ng-container></mol-auth-modal>}`,
 })
@@ -92,10 +94,16 @@ export class AuthModalMount implements OnInit, OnDestroy {
   /** Set when the user opens the upgrade/billing flow in a new tab, so we refresh when they return. */
   private upgradeTabOpened = false
 
+  private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
+
   constructor() {
-    // Leaves no element in the page while closed (React renders nothing). The open
-    // signal is written from a document listener, which refreshes only this view.
-    useHostPresence(() => this.open())
+    // React renders the modal or nothing: everything the host holds renders in the
+    // host's place and the host itself leaves the page, so a closed mount leaves no
+    // element behind.
+    usePlacement(() => {
+      placeContentBefore(this.host.nativeElement, this.host.nativeElement)
+      setElementPresent(this.host.nativeElement, false)
+    })
   }
 
   /** Opens the modal on the given form (React's `openAuth`). */

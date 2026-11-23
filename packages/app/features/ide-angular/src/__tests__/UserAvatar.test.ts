@@ -22,6 +22,7 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 import { setIconSet } from '@molecule/app-icons'
 import { setClassMap } from '@molecule/app-ui'
@@ -49,7 +50,7 @@ const UserAvatarHost = Component({
   selector: 'mol-user-avatar-host',
   standalone: true,
   imports: [UserAvatar],
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `<div mol-user-avatar [userAvatar]="p['userAvatar']" [name]="p['name']" [size]="p['size']" [onClick]="p['onClick']"></div>`,
 })(
   class UserAvatarHost {
@@ -102,7 +103,7 @@ async function renderAvatar(props: Record<string, unknown>): Promise<Mounted> {
   const container = document.createElement('div')
   document.body.appendChild(container)
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<InstanceType<typeof UserAvatarHost>> = createComponent(UserAvatarHost, {
     environmentInjector: appRef.injector,
@@ -135,16 +136,17 @@ describe('UserAvatar — the avatar beside a user message (SOC1)', () => {
     expect((avatar as HTMLElement).tagName).not.toBe('IMG')
     expect(avatar?.getAttribute('role')).toBe('img')
     expect(avatar?.getAttribute('aria-label')).toBe('You')
-    expect(avatar?.querySelector('svg'), 'the fallback renders the user glyph').not.toBeNull()
+    expect(avatar!.querySelector('svg'), 'the fallback renders the user glyph').not.toBeNull()
     expect(container.querySelector('img[data-mol-id="chat-user-avatar"]')).toBeNull()
   })
 
   it("shows a TEAMMATE's initial — never the viewer's own avatar — when the author has none", async () => {
     const { container } = await renderAvatar({ name: 'Test' })
     const avatar = container.querySelector('[data-mol-id="chat-user-avatar"]')
+    expect(avatar).not.toBeNull()
     // Not an image at all (the author has none — no avatar leaks onto them),
     // and the tile shows the author's initial with their name as the label.
-    expect((avatar as HTMLElement)?.tagName).not.toBe('IMG')
+    expect((avatar as HTMLElement)!.tagName).not.toBe('IMG')
     expect(container.querySelector('img[data-mol-id="chat-user-avatar"]')).toBeNull()
     expect(avatar?.getAttribute('aria-label')).toBe('Test')
     expect(avatar?.textContent).toBe('T')

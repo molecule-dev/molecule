@@ -96,7 +96,7 @@ async function mount(props: Record<string, unknown> = {}): Promise<Mounted> {
     selector: 'mol-spec-host',
     standalone: true,
     imports: [ReadingProgressBar as Type<unknown>],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     host: { 'data-spec-host': String(++hostCount) },
     template: TEMPLATE,
   })(

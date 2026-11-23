@@ -113,7 +113,7 @@ async function mount(props: Record<string, unknown> = {}, labelHtml = ''): Promi
     selector: 'mol-spec-host',
     standalone: true,
     imports: [SortPicker as Type<unknown>],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template,
   })(
     class SpecHost {

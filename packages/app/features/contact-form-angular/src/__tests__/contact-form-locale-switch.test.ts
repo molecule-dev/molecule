@@ -26,6 +26,7 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
 import type { I18nProvider } from '@molecule/app-i18n'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 
@@ -56,6 +57,7 @@ vi.mock('@molecule/app-ui-angular', async () => {
   const { useTranslation } = await import('@molecule/app-angular')
   return {
     Button: Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'button[mol-button]',
       standalone: true,
       inputs: ['type', 'variant', 'color', 'disabled'],
@@ -78,6 +80,7 @@ vi.mock('@molecule/app-ui-angular', async () => {
       },
     ),
     Input: Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'div[mol-input]',
       standalone: true,
       inputs: ['type', 'value', 'placeholder', 'required', 'className', 'id'],
@@ -118,6 +121,7 @@ vi.mock('@molecule/app-ui-angular', async () => {
       },
     ),
     Textarea: Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'div[mol-textarea]',
       standalone: true,
       inputs: ['value', 'placeholder', 'required', 'rows', 'className', 'id'],
@@ -198,7 +202,7 @@ describe('ContactForm locale switch', () => {
       selector: 'mol-spec-host',
       standalone: true,
       imports: [ContactForm as Type<unknown>],
-      changeDetection: ChangeDetectionStrategy.Default,
+      changeDetection: ChangeDetectionStrategy.Eager,
       template: `<mol-contact-form [onSubmit]="p['onSubmit']"></mol-contact-form>`,
     })(
       class SpecHost {
@@ -207,7 +211,7 @@ describe('ContactForm locale switch', () => {
       },
     )
     const appRef: ApplicationRef = await createApplication({
-      providers: [provideZonelessChangeDetection()],
+      providers: [provideZonelessChangeDetection(), provideDomPlacement()],
     })
     const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
       environmentInjector: appRef.injector,

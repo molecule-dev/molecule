@@ -175,9 +175,9 @@ describe('ChatPanel user avatar (SOC1)', () => {
       const avatar = container.querySelector<HTMLElement>('[data-mol-id="chat-user-avatar"]')
       expect(avatar).not.toBeNull()
 
-      expect(avatar?.tagName).not.toBe('IMG')
+      expect(avatar!.tagName).not.toBe('IMG')
       // The glyph renders (not an initial)…
-      expect(avatar?.querySelector('svg')).not.toBeNull()
+      expect(avatar!.querySelector('svg')).not.toBeNull()
       expect(avatar?.textContent).toBe('')
       // …as decoration: no name to announce, so no image role and no label.
       expect(avatar?.getAttribute('role')).toBeNull()
@@ -198,8 +198,9 @@ describe('ChatPanel user avatar (SOC1)', () => {
       // The unsafe scheme must be rejected → icon fallback, never an <img>.
       expect(container.querySelector('img[data-mol-id="chat-user-avatar"]')).toBeNull()
       const avatar = container.querySelector<HTMLElement>('[data-mol-id="chat-user-avatar"]')
-      expect(avatar?.tagName).not.toBe('IMG')
-      expect(avatar?.querySelector('svg')).not.toBeNull()
+      expect(avatar).not.toBeNull()
+      expect(avatar!.tagName).not.toBe('IMG')
+      expect(avatar!.querySelector('svg')).not.toBeNull()
     },
   )
 })
@@ -236,7 +237,7 @@ describe('ChatPanel user avatar clickability (C5)', () => {
       expect(button?.tagName).toBe('BUTTON')
       expect(button?.getAttribute('aria-label')).toBe('View profile')
       // It still renders the real avatar image inside.
-      expect(button?.querySelector('img[data-mol-id="chat-user-avatar"]')).not.toBeNull()
+      expect(button!.querySelector('img[data-mol-id="chat-user-avatar"]')).not.toBeNull()
 
       button?.click()
       await settle(mounted)

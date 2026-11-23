@@ -7,7 +7,7 @@
 import { Component, computed, effect } from '@angular/core'
 
 import { page } from '@molecule/app-analytics'
-import { useLocation } from '@molecule/app-angular'
+import { useHostPresence, useLocation } from '@molecule/app-angular'
 
 /**
  * AnalyticsRouteListener component.
@@ -18,18 +18,13 @@ import { useLocation } from '@molecule/app-angular'
  * route change, dispatched through the wired analytics bond. It takes no
  * inputs and renders nothing.
  *
- * React's root is nothing at all, so the host is an empty, layout-neutral
- * element (`display: contents`) that the DOM normalizer unwraps
- * (`data-parity-unwrap`) — the same convention the UI kit's fragment-rooted
- * Angular components use.
+ * React's root is nothing at all, so the host contributes no DOM either: it is
+ * kept out of the page for its whole life (`useHostPresence`), exactly like a
+ * React component that returns `null`.
  */
 @Component({
   selector: 'mol-analytics-route-listener',
   standalone: true,
-  host: {
-    'data-parity-unwrap': '',
-    style: 'display: contents',
-  },
   template: '',
 })
 export class AnalyticsRouteListener {
@@ -45,6 +40,7 @@ export class AnalyticsRouteListener {
   private readonly path = computed(() => `${this.name()}${this.location().search}`)
 
   constructor() {
+    useHostPresence(() => false)
     effect(() => {
       void page({
         name: this.name(),

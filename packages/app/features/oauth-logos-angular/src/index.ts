@@ -19,10 +19,11 @@
  *   `MicrosoftLogo`, `LinkedInLogo`, `DiscordLogo`.
  * - `OAuthProviderId`, `OAuthLogoProps` types.
  *
- * Every component's host names the native element React renders at its
- * root: an attribute selector on the `<svg>` (`svg[mol-github-logo]`) for
- * the logos, and an unwrapped element host (`mol-oauth-provider-logo`,
- * `display: contents`) for the dispatcher, whose React root is a fragment.
+ * Every logo component's host names the native element React renders at its
+ * root: an attribute selector on the `<svg>` (`svg[mol-github-logo]`). The
+ * dispatcher's React root is a fragment, so everything its host holds (the
+ * dispatched `<svg>` or the fallback content) renders in the host's place and
+ * the host itself leaves the page, contributing no DOM of its own.
  *
  * @example
  * ```ts
@@ -36,7 +37,7 @@
  *   imports: [OAuthProviderLogo],
  *   template: `
  *     <button type="button" [class]="cm().myButtonChrome">
- *       <svg mol-oauth-provider-logo [provider]="'github'" [size]="20" />
+ *       <mol-oauth-provider-logo [provider]="'github'" [size]="20" />
  *       <span>Continue with GitHub</span>
  *     </button>
  *   `,

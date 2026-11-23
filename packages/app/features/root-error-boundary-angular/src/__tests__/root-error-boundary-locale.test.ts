@@ -20,6 +20,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 vi.mock('@molecule/app-ui', () => ({
   getClassMap: () =>
     new Proxy(
@@ -46,6 +48,7 @@ const { RootErrorBoundary } = await import('../root-error-boundary.component.js'
 
 /** A child that fails to render, so the boundary shows its recovery alert. */
 const Broken = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-broken',
   standalone: true,
   template: `<span>never rendered</span>`,
@@ -84,12 +87,12 @@ describe('RootErrorBoundary after a language switch', () => {
       selector: 'mol-spec-host',
       standalone: true,
       imports: [RootErrorBoundary, Broken],
-      changeDetection: ChangeDetectionStrategy.Default,
+      changeDetection: ChangeDetectionStrategy.Eager,
       host: { 'data-parity-host': 'locale' },
       template: `<mol-root-error-boundary [content]="contentTpl"><ng-template #contentTpl><mol-broken /></ng-template></mol-root-error-boundary>`,
     })(class SpecHost {})
     const appRef: ApplicationRef = await createApplication({
-      providers: [provideZonelessChangeDetection()],
+      providers: [provideZonelessChangeDetection(), provideDomPlacement()],
     })
     const ref: ComponentRef<unknown> = createComponent(Host, {
       environmentInjector: appRef.injector,

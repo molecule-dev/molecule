@@ -87,7 +87,7 @@ describe('SlideThumbnail locale switch', () => {
       selector: 'mol-spec-host',
       standalone: true,
       imports: [SlideThumbnail as Type<unknown>],
-      changeDetection: ChangeDetectionStrategy.Default,
+      changeDetection: ChangeDetectionStrategy.Eager,
       template: `<button mol-slide-thumbnail [index]="4"></button>`,
     })(class SpecHost {})
     appRef = await createApplication({ providers: [provideZonelessChangeDetection()] })

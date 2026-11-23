@@ -24,6 +24,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 // A Proxy ClassMap that echoes each accessed member name back as its token —
 // the same mock the Angular suite uses.
 vi.mock('@molecule/app-ui', () => ({
@@ -75,7 +77,7 @@ async function mount(props: Record<string, unknown> = {}): Promise<Mounted> {
     selector: 'mol-spec-host',
     standalone: true,
     imports: [TypingIndicator as Type<unknown>],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: `<mol-typing-indicator [visible]="p['visible']" [dotSize]="p['dotSize']" [durationMs]="p['durationMs']" [ariaLabel]="p['ariaLabel']" [className]="p['className']" />`,
   })(
     class SpecHost {
@@ -84,7 +86,7 @@ async function mount(props: Record<string, unknown> = {}): Promise<Mounted> {
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
     environmentInjector: appRef.injector,

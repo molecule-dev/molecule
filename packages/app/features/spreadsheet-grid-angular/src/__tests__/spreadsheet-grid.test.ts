@@ -100,7 +100,7 @@ const GridHarness = Component({
   selector: 'mol-grid',
   standalone: true,
   imports: [SpreadsheetGrid],
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.Eager,
   // prettier-ignore
   template: `<div mol-spreadsheet-grid [rows]="options.rows ?? 5" [columns]="options.columns ?? 5" [cells]="cells()" [selection]="selection()" [onCellChange]="onCellChange" [onSelectionChange]="onSelectionChange" [frozenRows]="options.frozenRows" [frozenCols]="options.frozenCols" [viewportWidth]="400" [viewportHeight]="200" [cellWidth]="80" [cellHeight]="24"></div>`,
 })(GridHost)

@@ -84,7 +84,7 @@ async function mount(template: string, props: WebhookInspectorProps): Promise<Mo
     selector: 'mol-spec-host',
     standalone: true,
     imports: [WebhookInspector as Type<unknown>],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template,
   })(
     class SpecHost {

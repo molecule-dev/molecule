@@ -5,8 +5,22 @@
  */
 
 import { NgTemplateOutlet } from '@angular/common'
-import { Component, type DoCheck, type OnDestroy, signal, type TemplateRef } from '@angular/core'
+import {
+  Component,
+  type DoCheck,
+  ElementRef,
+  inject,
+  type OnDestroy,
+  signal,
+  type TemplateRef,
+} from '@angular/core'
 
+import {
+  MolPlacement,
+  placeContentBefore,
+  setElementPresent,
+  usePlacement,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -34,10 +48,9 @@ const isTemplate = (value: unknown): value is TemplateRef<unknown> =>
  * names), the same DOM for the same input.
  *
  * React's root is the display `<span>` — or, once the target passes and an
- * `expired` node was given, that node alone (a fragment, with no wrapper). A
- * host element always exists in Angular, so this component's host is
- * transparent (`mol-countdown`, `display: contents`, unwrapped by the
- * conformance normalizer) and the template renders whichever root React would.
+ * `expired` node was given, that node alone (a fragment, with no wrapper). The
+ * rendered content therefore stands in front of the host's place and the host
+ * itself leaves the page (`placeContentBefore` + `setElementPresent`).
  *
  * Node-valued props are `<ng-template>` refs (`expired`, and `render`, whose
  * template context carries the live state as `$implicit` / `a0`).
@@ -46,8 +59,8 @@ const isTemplate = (value: unknown): value is TemplateRef<unknown> =>
   selector: 'mol-countdown',
   standalone: true,
   imports: [NgTemplateOutlet],
+  hostDirectives: [MolPlacement],
   inputs: ['target', 'format', 'render', 'expired', 'className'],
-  host: { 'data-parity-unwrap': '', style: 'display: contents' },
   template: `@if (expiredTemplate(); as expired) {
       <ng-container [ngTemplateOutlet]="expired" />
     } @else if (renderTemplate(); as custom) {
@@ -85,6 +98,18 @@ export class Countdown implements DoCheck, OnDestroy {
 
   /** Stops the running timer. */
   private stop: (() => void) | null = null
+
+  /** The component's host element (React renders no element of its own). */
+  private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
+
+  constructor() {
+    // React's root is the display `<span>` (or the expired node) itself: it renders in
+    // front of the host's place and the host leaves the page.
+    usePlacement(() => {
+      placeContentBefore(this.host.nativeElement, this.host.nativeElement)
+      setElementPresent(this.host.nativeElement, false)
+    })
+  }
 
   /**
    * The current class map.

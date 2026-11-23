@@ -9,11 +9,11 @@
  * the placeholder translation.
  *
  * React's component renders no root of its own — it is the QuickPicker's
- * fragment of two roots — so the host is an empty, layout-neutral element
- * (`display: contents`) whose content is adopted beside it every
- * change-detection pass (`ngDoCheck`, the kit's own session-gate convention,
- * the same one the QuickPicker and CommandPalette components run for their
- * roots). The derived rows are a `computed`, so the picker's `items` input
+ * fragment of two roots — so the template's nodes render in front of the host
+ * (`placeContentBefore`) and the host leaves the DOM (the same placement the
+ * QuickPicker and CommandPalette components run for their roots). The derived
+ * rows are a `computed`, so the
+ * picker's `items` input
  * keeps one identity until the file list or the icon template arrives (React's
  * `items` memo) and a change-detection pass alone never re-sets the picker's
  * highlight. Each row's file-type icon is the material-file-icons SVG injected
@@ -40,7 +40,14 @@ import {
 } from '@angular/core'
 import { getIcon } from 'material-file-icons'
 
-import { useHttpClient, useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  placeContentBefore,
+  setElementPresent,
+  useHttpClient,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import { getLogger } from '@molecule/app-logger'
 
 import type { QuickPickerItem } from './quick-picker.component.js'
@@ -106,10 +113,7 @@ class QuickOpenFileIcon implements AfterViewInit, DoCheck {
   standalone: true,
   imports: [QuickPicker, QuickOpenFileIcon],
   inputs: ['projectId', 'onFileOpen', 'onDismiss'],
-  host: {
-    'data-parity-unwrap': '',
-    style: 'display: contents',
-  },
+  hostDirectives: [MolPlacement],
   // prettier-ignore
   template: `<div mol-quick-picker [items]="items()" [onSelect]="pick" [onDismiss]="onDismiss" [loading]="loading()" [placeholder]="placeholderText()"></div><ng-template #fileIcon><span mol-quick-open-file-icon></span></ng-template>`,
 })
@@ -185,17 +189,18 @@ export class QuickOpen implements OnChanges, AfterViewInit {
     this.fileIconTemplate.set(this.fileIconQuery)
   }
 
+  constructor() {
+    usePlacement(() => this.place())
+  }
+
   /**
-   * Adopts the QuickPicker's roots beside the host every change-detection
-   * pass, so the host element (a layout-neutral wrapper React does not have)
-   * never appears in a `@focus` path — the kit's own session-gate convention
-   * for fragment-rooted components.
+   * Renders the QuickPicker's nodes in front of the host and keeps the host out
+   * of the DOM: React renders no element of its own here.
    */
-  ngDoCheck(): void {
-    const parent = this.host.nativeElement.parentNode
-    if (!parent) return
-    for (const node of Array.from(this.host.nativeElement.childNodes))
-      parent.insertBefore(node, this.host.nativeElement)
+  private place(): void {
+    const host = this.host.nativeElement
+    placeContentBefore(host, host)
+    setElementPresent(host, false)
   }
 
   /**

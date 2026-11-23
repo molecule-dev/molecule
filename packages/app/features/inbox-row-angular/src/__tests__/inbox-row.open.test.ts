@@ -22,6 +22,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 vi.mock('@molecule/app-ui', () => ({
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
@@ -45,6 +47,7 @@ vi.mock('@molecule/app-ui', () => ({
 vi.mock('@molecule/app-ui-angular', async () => {
   const { Component, TemplateRef } = await import('@angular/core')
   const MockAvatar = Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
     selector: 'div[mol-avatar]',
     standalone: true,
     inputs: ['src', 'alt', 'name', 'size', 'rounded', 'className', 'style', 'testId'],
@@ -105,7 +108,7 @@ async function mount(template: string, props: Record<string, unknown> = {}): Pro
     selector: 'mol-spec-host',
     standalone: true,
     imports: [InboxRow],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template,
   })(
     class SpecHost {
@@ -114,7 +117,7 @@ async function mount(template: string, props: Record<string, unknown> = {}): Pro
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
     environmentInjector: appRef.injector,

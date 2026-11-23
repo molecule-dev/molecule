@@ -4,22 +4,16 @@
  * @module
  */
 
-import {
-  type AfterViewChecked,
-  type AfterViewInit,
-  Component,
-  type DoCheck,
-  type ElementRef,
-  type OnDestroy,
-  signal,
-  ViewChild,
-} from '@angular/core'
+import { Component, type ElementRef, type OnDestroy, signal, ViewChild } from '@angular/core'
 
 import {
-  hasContent,
   Link,
+  MolPlacement,
+  placeContentBefore,
   RoutedView,
   setElementPresent,
+  type SlotReader,
+  usePlacement,
   useRouterInstance,
   useTranslation,
 } from '@molecule/app-angular'
@@ -75,6 +69,7 @@ const resolveSidebarWidthPx = (width?: string | number, legacyWidthClass?: strin
 @Component({
   selector: 'div[mol-sidebar-layout]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [Link, RoutedView],
   inputs: [
     'appName',
@@ -91,9 +86,9 @@ const resolveSidebarWidthPx = (width?: string | number, legacyWidthClass?: strin
     '[attr.data-mol-id]': 'dataMolId ?? null',
   },
   // prettier-ignore
-  template: `<aside [class]="asideClasses()" [style.width.px]="widthPx()"><a [molLink]="logoPath()" [class]="brandClasses()">{{ appName }}</a><nav [class]="navClasses()" [attr.aria-label]="navLabel()">@for (item of navItems; track item.key) {<a [molLink]="itemPath(item)" [attr.data-mol-id]="'nav-' + item.key" [attr.aria-current]="isActive(item) ? 'page' : null" [class]="itemClasses(item)">@if (item.icon) {<span [class]="iconClasses()" aria-hidden="true">{{ item.icon }}</span>}<span>{{ item.label }}</span></a>}</nav><div #bottom [class]="bottomClasses()"><span #placeholder aria-hidden="true"></span><span #userSlot data-parity-unwrap style="display: contents"><ng-content select="[slot=userMenu]"></ng-content></span><span #themeSlot data-parity-unwrap style="display: contents"><ng-content select="[slot=themeToggle]"></ng-content></span></div></aside><main [class]="mainClasses()" [style.min-width.px]="0"><span #pageSlot data-parity-unwrap style="display: contents"><ng-content></ng-content></span>@if (routed()) {<mol-routed-view />}</main>`,
+  template: `<aside [class]="asideClasses()" [style.width.px]="widthPx()"><a [molLink]="logoPath()" [class]="brandClasses()">{{ appName }}</a><nav [class]="navClasses()" [attr.aria-label]="navLabel()">@for (item of navItems; track item.key) {<a [molLink]="itemPath(item)" [attr.data-mol-id]="'nav-' + item.key" [attr.aria-current]="isActive(item) ? 'page' : null" [class]="itemClasses(item)">@if (item.icon) {<span [class]="iconClasses()" aria-hidden="true">{{ item.icon }}</span>}<span>{{ item.label }}</span></a>}</nav><div #bottom [class]="bottomClasses()"><span #placeholder aria-hidden="true"></span><span #userSlot><ng-content select="[slot=userMenu]"></ng-content></span><span #themeSlot><ng-content select="[slot=themeToggle]"></ng-content></span></div></aside><main [class]="mainClasses()" [style.min-width.px]="0"><span #pageSlot><ng-content></ng-content></span>@if (routed()) {<mol-routed-view />}</main>`,
 })
-export class SidebarLayout implements AfterViewInit, AfterViewChecked, DoCheck, OnDestroy {
+export class SidebarLayout implements OnDestroy {
   /** Brand text shown at the top of the sidebar (typically the app name). */
   appName = ''
   /** Path the brand link navigates to (defaults to `'/'` at read time). */
@@ -140,6 +135,10 @@ export class SidebarLayout implements AfterViewInit, AfterViewChecked, DoCheck, 
   private readonly location = signal(this.router.getLocation())
 
   private readonly stop = this.router.subscribe(() => this.location.set(this.router.getLocation()))
+
+  constructor() {
+    usePlacement((hasContent) => this.reconcile(hasContent))
+  }
 
   /** Stops listening to the router when the component goes away. */
   ngOnDestroy(): void {
@@ -323,40 +322,32 @@ export class SidebarLayout implements AfterViewInit, AfterViewChecked, DoCheck, 
   }
 
   /**
-   * Reconciles the projected bottom slots against React's branch once the view
-   * queries resolve.
-   */
-  ngAfterViewInit(): void {
-    this.reconcile()
-  }
-
-  /**
-   * Re-reconciles on later passes, so a change to the projected content swaps
-   * the branch the way React does.
-   */
-  ngDoCheck(): void {
-    this.reconcile()
-  }
-
-  /** Re-reconciles after each view update. */
-  ngAfterViewChecked(): void {
-    this.reconcile()
-  }
-
-  /**
    * Applies React's condition: the bottom container renders only when a slot
    * exists, and the placeholder `<span>` renders only while the user menu is
    * absent and the theme toggle is present.
+   *
+   * @param hasContent - Reads whether a slot has content.
    */
-  private reconcile(): void {
+  private reconcile(hasContent: SlotReader): void {
     const user = this.userSlot?.nativeElement
     const theme = this.themeSlot?.nativeElement
     const hasUser = hasContent(user)
     const hasTheme = hasContent(theme)
     setElementPresent(this.bottom?.nativeElement, hasUser || hasTheme)
     setElementPresent(this.placeholder?.nativeElement, !hasUser && hasTheme)
+    // React renders each projected slot bare: its content stands in the capture point's
+    // place and the point itself leaves the page.
+    for (const slot of [user, theme]) {
+      if (!slot) continue
+      placeContentBefore(slot, slot)
+      setElementPresent(slot, false)
+    }
     // React renders `children ?? <RoutedView />`; the capture point resolves at view init.
     const page = this.pageSlot?.nativeElement
-    if (page) this.routed.set(!hasContent(page))
+    if (page) {
+      placeContentBefore(page, page)
+      setElementPresent(page, false)
+      this.routed.set(!hasContent(page))
+    }
   }
 }

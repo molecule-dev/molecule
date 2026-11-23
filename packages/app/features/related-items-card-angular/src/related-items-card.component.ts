@@ -5,16 +5,15 @@
  */
 
 import { NgTemplateOutlet } from '@angular/common'
-import {
-  type AfterViewInit,
-  Component,
-  type DoCheck,
-  type ElementRef,
-  type TemplateRef,
-  ViewChild,
-} from '@angular/core'
+import { Component, type ElementRef, type TemplateRef, ViewChild } from '@angular/core'
 
-import { placeContent, setElementPresent } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  placeContent,
+  placeContentBefore,
+  setElementPresent,
+  usePlacement,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -41,6 +40,7 @@ import { getClassMap } from '@molecule/app-ui'
 @Component({
   selector: 'div[mol-related-items-card]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [NgTemplateOutlet],
   inputs: [
     'title',
@@ -106,7 +106,7 @@ import { getClassMap } from '@molecule/app-ui'
     >
   </div>`,
 })
-export class RelatedItemsCard<T = unknown> implements AfterViewInit, DoCheck {
+export class RelatedItemsCard<T = unknown> {
   /** Card heading (string/number renders as text; nodes are `[slot=title]` content). */
   title?: unknown
   /** Items to render. */
@@ -129,6 +129,10 @@ export class RelatedItemsCard<T = unknown> implements AfterViewInit, DoCheck {
 
   /** The empty state's capture wrapper (revealed bare, or detached). */
   @ViewChild('emptySlot') emptySlot?: ElementRef<HTMLElement>
+
+  constructor() {
+    usePlacement(() => this.reconcile())
+  }
 
   /**
    * The current class map.
@@ -264,21 +268,13 @@ export class RelatedItemsCard<T = unknown> implements AfterViewInit, DoCheck {
     this.onItemClick?.(item, index)
   }
 
-  /** Captures the empty state's wrapper once the view has resolved. */
-  ngAfterViewInit(): void {
-    this.syncEmptySlot()
-  }
-
-  /** Re-syncs the empty state when `items` changes. */
-  ngDoCheck(): void {
-    this.syncEmptySlot()
-  }
-
   /**
    * Renders the empty state bare exactly while the list is empty: the content
-   * beside the removed capture point, or hidden inside it when the list renders.
+   * stands at the capture point's own place (following it wherever Angular puts
+   * it) with the point itself out of the DOM, or hidden inside it when the list
+   * renders.
    */
-  private syncEmptySlot(): void {
+  private reconcile(): void {
     const slot = this.emptySlot?.nativeElement
     if (!slot) return
     if (this.items.length > 0) {
@@ -286,11 +282,8 @@ export class RelatedItemsCard<T = unknown> implements AfterViewInit, DoCheck {
       setElementPresent(slot, false)
       return
     }
-    // Restore the capture point so its position holds, then render the content bare.
-    setElementPresent(slot, true)
-    const parent = slot.parentNode
-    if (!parent) return
-    placeContent(slot, parent, slot)
+    // React renders `{emptyState}` bare in the slot's place, with no wrapper.
+    placeContentBefore(slot, slot)
     setElementPresent(slot, false)
   }
 }

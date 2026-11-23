@@ -77,7 +77,7 @@ describe('AchievementCard locale switch', () => {
       selector: 'mol-locale-host',
       standalone: true,
       imports: [AchievementCard],
-      changeDetection: ChangeDetectionStrategy.Default,
+      changeDetection: ChangeDetectionStrategy.Eager,
       template: `<div mol-achievement-card name="First Win"><ng-container ngProjectAs="[slot=icon]"><span>🏆</span></ng-container></div>`,
     })(class LocaleHost {})
     const appRef: ApplicationRef = await createApplication({

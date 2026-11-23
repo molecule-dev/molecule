@@ -19,6 +19,7 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
 import { createMemoryStorageProvider, type StorageProvider } from '@molecule/app-storage'
 
 import {
@@ -45,7 +46,7 @@ afterEach(async () => {
  */
 async function attach(host: Type<unknown>): Promise<() => Promise<void>> {
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref = createComponent(host, { environmentInjector: appRef.injector })
   const element = ref.location.nativeElement as HTMLElement
@@ -70,7 +71,12 @@ async function attach(host: Type<unknown>): Promise<() => Promise<void>> {
  * @returns A teardown promise.
  */
 async function mountRunner(run: () => void): Promise<() => Promise<void>> {
-  const Host = Component({ selector: `mol-run-host-${++hostSeq}`, standalone: true, template: '' })(
+  const Host = Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
+    selector: `mol-run-host-${++hostSeq}`,
+    standalone: true,
+    template: '',
+  })(
     class RunHost {
       constructor() {
         run()
@@ -92,7 +98,12 @@ async function mountProvider(
   run: () => void,
 ): Promise<() => Promise<void>> {
   const seq = ++hostSeq
-  const Reader = Component({ selector: `mol-ctx-reader-${seq}`, standalone: true, template: '' })(
+  const Reader = Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
+    selector: `mol-ctx-reader-${seq}`,
+    standalone: true,
+    template: '',
+  })(
     class CtxReader {
       constructor() {
         run()
@@ -103,7 +114,7 @@ async function mountProvider(
     selector: `mol-provider-host-${seq}`,
     standalone: true,
     imports: [AuthFormStateProvider, Reader],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: `<div mol-auth-form-state-provider [storage]="storage" storageKey="ctx"><mol-ctx-reader-${seq}></mol-ctx-reader-${seq}></div>`,
   })(
     class ProviderHost {

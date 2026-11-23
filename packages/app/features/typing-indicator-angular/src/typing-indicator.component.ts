@@ -4,9 +4,22 @@
  * @module
  */
 
-import { type AfterViewInit, Component, Directive, ElementRef, inject } from '@angular/core'
+import {
+  type AfterViewInit,
+  Component,
+  Directive,
+  ElementRef,
+  inject,
+  ViewChild,
+} from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  placeElementBefore,
+  setElementPresent,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -40,6 +53,7 @@ class TypingStatusSpan implements AfterViewInit {
   ngAfterViewInit(): void {
     const style = document.createElement('style')
     style.textContent = KEYFRAMES_CSS
+    // A node this component created, not one Angular rendered, so it places it itself.
     this.host.nativeElement.insertBefore(style, this.host.nativeElement.firstChild)
   }
 }
@@ -48,9 +62,9 @@ class TypingStatusSpan implements AfterViewInit {
  * TypingIndicator component.
  *
  * Three-dot "typing…" animation, CSS-only. React's root is the `<span>` when
- * visible and nothing when hidden, so the host is unwrapped
- * (`data-parity-unwrap`, `display: contents`) and the span is rendered inside
- * it. Each instance injects its own `<style>` tag with the shared keyframes
+ * visible and nothing when hidden, so the `<span>` renders in front of the
+ * host's place and the host itself leaves the page (`placeElementBefore` +
+ * `setElementPresent`). Each instance injects its own `<style>` tag with the shared keyframes
  * (plus a `prefers-reduced-motion: reduce` rule that stops the pulse for users
  * who ask for less motion) and renders three dots that pulse in sequence.
  *
@@ -65,13 +79,10 @@ class TypingStatusSpan implements AfterViewInit {
   selector: 'mol-typing-indicator',
   standalone: true,
   imports: [TypingStatusSpan],
+  hostDirectives: [MolPlacement],
   inputs: ['visible', 'dotSize', 'durationMs', 'ariaLabel', 'className'],
-  host: {
-    'data-parity-unwrap': '',
-    style: 'display: contents',
-  },
   template: `@if (isVisible()) {
-    <span mol-typing-status role="status" [attr.aria-label]="labelText()" [class]="classes()">
+    <span #root mol-typing-status role="status" [attr.aria-label]="labelText()" [class]="classes()">
       <span aria-hidden="true" data-typing-dot [style]="dotStyle(0)"></span>
       <span aria-hidden="true" data-typing-dot [style]="dotStyle(1)"></span>
       <span aria-hidden="true" data-typing-dot [style]="dotStyle(2)"></span>
@@ -95,6 +106,22 @@ export class TypingIndicator {
 
   /** The i18n binding the translated label reads through. */
   private readonly i18n = useTranslation()
+
+  /** The rendered `<span>` — React's root while visible. */
+  @ViewChild('root') private root?: ElementRef<HTMLElement>
+
+  /** The component's host element (React renders no element of its own). */
+  private readonly host = inject(ElementRef<HTMLElement>)
+
+  constructor() {
+    // React's root is the `<span>` itself (`visible: false` renders nothing): it renders in
+    // front of the host's place and the host leaves the page.
+    usePlacement(() => {
+      const root = this.root?.nativeElement
+      if (root) placeElementBefore(root, this.host.nativeElement)
+      setElementPresent(this.host.nativeElement, false)
+    })
+  }
 
   /**
    * The current class map.

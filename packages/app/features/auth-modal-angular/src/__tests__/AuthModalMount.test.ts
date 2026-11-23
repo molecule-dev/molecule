@@ -167,4 +167,26 @@ describe('AuthModalMount upgrade-CTA interception', () => {
     expect(onUpgradeIntercept).not.toHaveBeenCalled()
     expect(window.open).not.toHaveBeenCalled()
   })
+
+  it("renders React's elements with no host or capture element of its own", async () => {
+    const fixture = await renderFixture(
+      `<i>a</i><a href="/login" data-testid="cta">CTA</a><mol-auth-modal-mount [oauthConfig]="p['oauthConfig']"></mol-auth-modal-mount><i>b</i>`,
+      { oauthConfig: OAUTH_CONFIG },
+      [AuthModalMount, ModalStub, IconStub, ButtonStub, OAuthButtonsStub, OAuthDividerStub],
+    )
+    mounted.push(fixture)
+    await flush(fixture)
+    const tags = (): string[] =>
+      Array.from(fixture.host.children).map((child) => child.tagName.toLowerCase())
+    // Closed: React renders nothing at all (`<></>`).
+    expect(tags()).toEqual(['i', 'a', 'i'])
+    document
+      .querySelector('[data-testid="cta"]')!
+      .dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, button: 0 }))
+    await flush(fixture)
+    // Open: React's root is the AuthModal. The stub keeps its own host element
+    // (the real port renders the modal's root in front of it, like React).
+    expect(tags()).toEqual(['i', 'a', 'mol-auth-modal', 'i'])
+    expect(fixture.host.querySelector('mol-auth-modal-mount')).toBeNull()
+  })
 })

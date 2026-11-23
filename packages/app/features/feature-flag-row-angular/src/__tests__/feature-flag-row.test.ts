@@ -80,6 +80,7 @@ vi.mock('@molecule/app-ui-angular', async () => {
   const { Component, EventEmitter } = await import('@angular/core')
   return {
     Switch: Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'mol-switch',
       standalone: true,
       inputs: ['checked'],
@@ -122,7 +123,7 @@ async function mount(template: string, props: Record<string, unknown>): Promise<
     selector: 'mol-spec-host',
     standalone: true,
     imports: [FeatureFlagRow as Type<unknown>],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template,
   })(
     class SpecHost {
@@ -281,7 +282,7 @@ describe('FeatureFlagRow i18n', () => {
       'fr: {{flag}} in {{environment}}',
     )
     expect(m.host.innerHTML).toContain('fr: Percentage')
-    expect(rowEl(m.host).querySelector('mol-switch')?.getAttribute('aria-label')).not.toBe(
+    expect(rowEl(m.host).querySelector('mol-switch')!.getAttribute('aria-label')).not.toBe(
       '{{flag}} in {{environment}}',
     )
   })

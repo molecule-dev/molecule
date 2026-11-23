@@ -31,7 +31,7 @@ const { mockPage } = vi.hoisted(() => ({
 
 vi.mock('@molecule/app-analytics', () => ({ page: mockPage }))
 
-import { provideRouter } from '@molecule/app-angular'
+import { provideDomPlacement, provideRouter } from '@molecule/app-angular'
 import { createMemoryRouter, type Router } from '@molecule/app-routing'
 
 const { AnalyticsRouteListener } = await import('../analytics-route-listener.component.js')
@@ -53,16 +53,20 @@ interface Mounted {
  * registration's scope.
  *
  * @param initialRoute - The memory router's initial entry.
+ * @param template - The host template (defaults to a lone listener).
  * @returns The mounted listener.
  */
-const mountListener = async (initialRoute: string): Promise<Mounted> => {
+const mountListener = async (
+  initialRoute: string,
+  template = `<mol-analytics-route-listener />`,
+): Promise<Mounted> => {
   const router = createMemoryRouter({ initialEntries: [initialRoute], routes: [] })
   const Host = Component({
     selector: 'mol-spec-host',
     standalone: true,
     imports: [AnalyticsRouteListener as Type<unknown>],
-    changeDetection: ChangeDetectionStrategy.Default,
-    template: `<mol-analytics-route-listener />`,
+    changeDetection: ChangeDetectionStrategy.Eager,
+    template,
   })(
     class SpecHost {
       /** The props the template binds. */
@@ -70,7 +74,7 @@ const mountListener = async (initialRoute: string): Promise<Mounted> => {
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection(), provideRouter(router)],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement(), provideRouter(router)],
   })
   const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
     environmentInjector: appRef.injector,
@@ -98,11 +102,21 @@ afterEach(() => {
 
 describe('AnalyticsRouteListener', () => {
   it('renders nothing into the DOM', async () => {
+    // React returns null: the host is not merely empty, it is absent from the page.
     const mounted = await mountListener('/home')
     const el = mounted.host.querySelector('mol-analytics-route-listener')
-    expect(el).not.toBeNull()
-    expect(el!.children.length).toBe(0)
-    expect(el!.textContent).toBe('')
+    expect(el).toBeNull()
+    // Only Angular's block placeholder comment is left.
+    expect(mounted.host.children.length).toBe(0)
+    expect(mounted.host.textContent).toBe('')
+    await mounted.destroy()
+  })
+
+  it("renders React's elements with no host or capture element of its own", async () => {
+    const mounted = await mountListener('/home', `<i>a</i><mol-analytics-route-listener /><i>b</i>`)
+    const tags = Array.from(mounted.host.children).map((el) => el.tagName.toLowerCase())
+    expect(tags).toEqual(['i', 'i'])
+    expect(mounted.host.querySelector('mol-analytics-route-listener')).toBeNull()
     await mounted.destroy()
   })
 

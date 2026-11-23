@@ -72,7 +72,7 @@ async function mountHarness(initial: Layer[] = makeLayers(), spies: Spies = {}):
     selector: 'mol-spec-host',
     standalone: true,
     imports: [LayerPanel],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: `<ul
       mol-layer-panel
       [layers]="layers()"

@@ -20,7 +20,7 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { provideHttp } from '@molecule/app-angular'
+import { provideDomPlacement, provideHttp } from '@molecule/app-angular'
 import type { HttpClient, HttpResponse } from '@molecule/app-http'
 import { createSimpleI18nProvider, setProvider as setI18nProvider } from '@molecule/app-i18n'
 import { setClassMap } from '@molecule/app-ui'
@@ -56,7 +56,7 @@ const mounted: Mounted[] = []
  */
 async function mountSection(client: HttpClient): Promise<Mounted> {
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection(), provideHttp(client)],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement(), provideHttp(client)],
   })
   const ref: ComponentRef<unknown> = createComponent(DevicesSection as Type<unknown>, {
     environmentInjector: appRef.injector,

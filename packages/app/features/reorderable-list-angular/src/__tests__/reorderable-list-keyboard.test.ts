@@ -107,7 +107,7 @@ async function mountWith(props: Record<string, unknown>): Promise<Mounted> {
     selector: `mol-spec-host-${mountCount++}`,
     standalone: true,
     imports: [ReorderableList as Type<unknown>],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: `<ng-template #row let-item="a0"><span [attr.data-item]="item.id">{{ item.data.label }}</span></ng-template>
       <ul mol-reorderable-list [items]="p['items']" [onReorder]="p['onReorder']" [renderItem]="row"></ul>`,
   })(

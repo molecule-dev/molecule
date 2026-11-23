@@ -22,6 +22,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 vi.mock('@molecule/app-ui', () => ({
   getClassMap: () => buildStubClassMap(),
 }))
@@ -45,6 +47,7 @@ vi.mock('@molecule/app-ui-angular', async () => {
   const { Component } = await import('@angular/core')
   return {
     Badge: Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'span[mol-badge]',
       standalone: true,
       inputs: ['color'],
@@ -118,7 +121,7 @@ async function mountSpec(
     selector: 'mol-spec-host',
     standalone: true,
     imports: [component],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template,
   })(
     class SpecHost {
@@ -127,7 +130,7 @@ async function mountSpec(
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
     environmentInjector: appRef.injector,
@@ -276,5 +279,24 @@ describe('<ReputationBadge>', () => {
       expect(host.querySelector('[data-mol-id="reputation-badge-row"]')).not.toBeNull()
       expect(scoreEl(host)?.textContent).toBe('1.5k')
     })
+  })
+
+  it("renders React's elements with no host or capture element of its own", async () => {
+    const m = await mountSpec(
+      `<i>a</i><mol-reputation-badge [score]="p['score']" [variant]="p['variant']" /><i>b</i>`,
+      ReputationBadge as Type<unknown>,
+      { score: 1500 },
+    )
+    const children = (): string[] =>
+      Array.from(m.host.children).map((child) => child.tagName.toLowerCase())
+    try {
+      expect(children()).toEqual(['i', 'span', 'i'])
+      await m.setProps({ variant: 'full' })
+      expect(children()).toEqual(['i', 'div', 'i'])
+      await m.setProps({ variant: 'compact' })
+      expect(children()).toEqual(['i', 'span', 'i'])
+    } finally {
+      await m.destroy()
+    }
   })
 })

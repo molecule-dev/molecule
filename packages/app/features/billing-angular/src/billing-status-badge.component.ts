@@ -4,9 +4,15 @@
  * @module
  */
 
-import { Component } from '@angular/core'
+import { Component, ElementRef, inject, ViewChild } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  placeElementBefore,
+  setElementPresent,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -19,20 +25,20 @@ import type { BillingStatusBadgeProps } from './types.js'
  * Compact billing-status display for the user's account/settings page: the
  * current tier name and a cancel button on paid tiers. React's root varies
  * (`<span>` while loading, nothing without a status, `<div>` otherwise), so
- * the host is an empty, layout-neutral element (`display: contents`) that the
- * DOM normalizer unwraps — the convention the UI kit's fragment-rooted
- * Angular components use.
+ * the rendered root stands in front of the host's place and the host itself
+ * leaves the page (`placeElementBefore` + `setElementPresent`): nothing left
+ * over when React renders nothing.
  */
 @Component({
   selector: 'mol-billing-status-badge',
   standalone: true,
+  hostDirectives: [MolPlacement],
   inputs: ['onCanceled', 'className', 'showCancel'],
-  host: { 'data-parity-unwrap': '', style: 'display: contents' },
   // prettier-ignore
   template: `@if (status.loading()) {
-      <span [class]="className" data-mol-id="billing-status-loading">{{ t('billing.status.loading', undefined, { defaultValue: 'Loading…' }) }}</span>
+      <span #loadingRoot [class]="className" data-mol-id="billing-status-loading">{{ t('billing.status.loading', undefined, { defaultValue: 'Loading…' }) }}</span>
     } @else if (status.error() === null && status.data()) {
-      <div [class]="className" data-mol-id="billing-status">
+      <div #statusRoot [class]="className" data-mol-id="billing-status">
         <span [class]="cm.cardDescription">{{ currentPlanLabel() }}</span>
         @if (showsCancel()) {
           <button
@@ -87,6 +93,23 @@ export class BillingStatusBadge implements BillingStatusBadgeProps {
 
   /** The cancel action and its async state. */
   protected readonly cancelState = useCancelSubscription()
+
+  /** React's loading root (`<span>`), while the status is loading. */
+  @ViewChild('loadingRoot') private loadingRoot?: ElementRef<HTMLElement>
+  /** React's loaded root (`<div>`), while a status is shown. */
+  @ViewChild('statusRoot') private statusRoot?: ElementRef<HTMLElement>
+
+  private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
+
+  constructor() {
+    // React's root varies with the load state and is nothing without a status: whichever
+    // root renders stands in front of the host's place, and the host itself leaves the page.
+    usePlacement(() => {
+      const root = this.loadingRoot?.nativeElement ?? this.statusRoot?.nativeElement
+      if (root) placeElementBefore(root, this.host.nativeElement)
+      setElementPresent(this.host.nativeElement, false)
+    })
+  }
 
   /**
    * The translated "Current plan: <tier>" line.

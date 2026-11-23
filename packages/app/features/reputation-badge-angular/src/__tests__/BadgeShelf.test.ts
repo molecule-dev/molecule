@@ -22,6 +22,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 import type { Badge } from '../types.js'
 
 vi.mock('@molecule/app-ui', () => ({
@@ -98,7 +100,7 @@ async function mountSpec(
     selector: 'mol-spec-host',
     standalone: true,
     imports: [component],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template,
   })(
     class SpecHost {
@@ -107,7 +109,7 @@ async function mountSpec(
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
     environmentInjector: appRef.injector,
@@ -271,5 +273,45 @@ describe('<BadgeShelf>', () => {
     expect(overflow?.querySelector('[aria-label]')?.getAttribute('aria-label')).toBe(
       'Show 2 more badges',
     )
+  })
+
+  it("renders React's elements with no host or capture element of its own", async () => {
+    const Host = Component({
+      selector: 'mol-shelf-list-host',
+      standalone: true,
+      imports: [BadgeShelf as Type<unknown>],
+      changeDetection: ChangeDetectionStrategy.Eager,
+      template: `<i>a</i><mol-badge-shelf [badges]="badges" /><i>b</i>`,
+    })(
+      class ShelfListHost {
+        /** The badges the template binds. */
+        badges: Badge[] = sampleBadges.slice(0, 2)
+      },
+    )
+    const appRef: ApplicationRef = await createApplication({
+      providers: [provideZonelessChangeDetection(), provideDomPlacement()],
+    })
+    const ref = createComponent(Host, { environmentInjector: appRef.injector })
+    const host = ref.location.nativeElement as HTMLElement
+    document.body.appendChild(host)
+    appRef.attachView(ref.hostView)
+    appRef.tick()
+    const children = (): string[] =>
+      Array.from(host.children).map((child) => child.tagName.toLowerCase())
+    try {
+      expect(children()).toEqual(['i', 'ul', 'i'])
+      ref.instance.badges = []
+      ref.changeDetectorRef.markForCheck()
+      appRef.tick()
+      expect(children()).toEqual(['i', 'i'])
+      ref.instance.badges = sampleBadges.slice(0, 1)
+      ref.changeDetectorRef.markForCheck()
+      appRef.tick()
+      expect(children()).toEqual(['i', 'ul', 'i'])
+    } finally {
+      ref.destroy()
+      host.remove()
+      await appRef.destroy()
+    }
   })
 })

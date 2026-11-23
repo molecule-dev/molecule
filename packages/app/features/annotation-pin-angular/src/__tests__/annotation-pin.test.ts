@@ -115,7 +115,7 @@ async function mount(
     selector: 'mol-spec-host',
     standalone: true,
     imports: [component],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template,
   })(
     class SpecHost {
@@ -265,6 +265,47 @@ describe('<AnnotationPin>', () => {
     expect(shown()).toEqual(['a', 'b', 'c'])
     await m.setProps({ xs: ['a', 'c'] })
     expect(shown()).toEqual(['a', 'c'])
+  })
+
+  it('shows and removes the note wrapper in the pass where the consumer @if adds and removes its content', async () => {
+    const m = await mount(
+      `<div mol-annotation-pin [position]="p['position']" [selected]="true">@if (p['on']) {<span slot="note" data-note>Note</span>}</div>`,
+      AnnotationPin as Type<unknown>,
+      { position: { x: 0.5, y: 0.5 }, on: false },
+    )
+    const note = (): HTMLElement | null => m.host.querySelector('[data-note]')
+    // No note prop and no projected node: React renders the empty state.
+    expect(note()).toBeNull()
+    expect(m.host.textContent).toContain('No notes for this pin.')
+    await m.setProps({ on: true })
+    // The projected note renders bare inside the popup in the same pass.
+    expect(note()).not.toBeNull()
+    expect(note()?.isConnected).toBe(true)
+    expect(m.host.textContent).not.toContain('No notes for this pin.')
+    await m.setProps({ on: false })
+    expect(note()).toBeNull()
+    expect(m.host.textContent).toContain('No notes for this pin.')
+  })
+
+  it("renders React's elements with no host or capture element of its own", async () => {
+    const m = await mount(
+      `<i>a</i><div mol-annotation-pin [position]="p['position']" [selected]="p['selected']"><b slot="label" data-label>L</b></div><i>b</i>`,
+      AnnotationPin as Type<unknown>,
+      { position: { x: 0.5, y: 0.5 }, selected: false },
+    )
+    const children = (): string[] =>
+      Array.from(m.host.children).map((child) => child.tagName.toLowerCase())
+    // The host IS React's root <div>; the host stays between the siblings.
+    expect(children()).toEqual(['i', 'div', 'i'])
+    // The projected label is a direct child of the label span — no capture span remains.
+    const labelSpan = m.host.querySelector('[data-mol-id="annotation-pin-label"]') as HTMLElement
+    const projected = m.host.querySelector('[data-label]') as HTMLElement
+    expect(projected.parentElement).toBe(labelSpan)
+    // Toggling `selected` adds the popup inside the host, without adding a sibling.
+    expect(m.host.querySelector('[data-mol-id="annotation-pin-popup"]')).toBeNull()
+    await m.setProps({ selected: true })
+    expect(children()).toEqual(['i', 'div', 'i'])
+    expect(m.host.querySelector('[data-mol-id="annotation-pin-popup"]')).not.toBeNull()
   })
 })
 

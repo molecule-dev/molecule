@@ -4,9 +4,16 @@
  * @module
  */
 
-import { type AfterViewChecked, Component, ElementRef, inject, ViewChild } from '@angular/core'
+import { Component, type ElementRef, ViewChild } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  placeContentBefore,
+  placeElement,
+  setElementPresent,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -31,6 +38,7 @@ import { getClassMap } from '@molecule/app-ui'
 @Component({
   selector: 'span[mol-tag-chip]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   inputs: ['onClick', 'onRemove', 'className'],
   host: {
     '[class]': 'classes()',
@@ -40,8 +48,7 @@ import { getClassMap } from '@molecule/app-ui'
     '(keydown)': 'handleHostKeyDown($event)',
   },
   template: `<span #label
-      ><span #capture data-parity-unwrap style="display: contents"
-        ><ng-content></ng-content></span></span
+      ><span #capture><ng-content></ng-content></span></span
     ><button
       #labelButton
       type="button"
@@ -63,7 +70,7 @@ import { getClassMap } from '@molecule/app-ui'
       ×
     </button>`,
 })
-export class TagChip implements AfterViewChecked {
+export class TagChip {
   /** Optional click callback for the chip body. */
   onClick?: (event?: Event) => void
   /** Optional remove callback — renders the `×` button when provided. */
@@ -74,16 +81,21 @@ export class TagChip implements AfterViewChecked {
   /** The translation service (i18n provider). */
   readonly i18n = useTranslation()
 
-  private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
-
   @ViewChild('label', { static: true })
-  private label!: ElementRef<HTMLElement>
+  private label?: ElementRef<HTMLElement>
+
+  @ViewChild('capture', { static: true })
+  private capture?: ElementRef<HTMLElement>
 
   @ViewChild('labelButton', { static: true })
-  private labelButton!: ElementRef<HTMLButtonElement>
+  private labelButton?: ElementRef<HTMLButtonElement>
 
   @ViewChild('removeButton', { static: true })
-  private removeButton!: ElementRef<HTMLButtonElement>
+  private removeButton?: ElementRef<HTMLButtonElement>
+
+  constructor() {
+    usePlacement(() => this.reconcile())
+  }
 
   /**
    * The current class map.
@@ -184,30 +196,35 @@ export class TagChip implements AfterViewChecked {
     this.onRemove?.(event)
   }
 
-  /** Reconciles the always-mounted label against React's DOM after each check. */
-  ngAfterViewChecked(): void {
-    const root = this.host.nativeElement
-    const label = this.label.nativeElement
-    const labelButton = this.labelButton.nativeElement
-    const removeButton = this.removeButton.nativeElement
+  /**
+   * Applies React's DOM after each render: the label button exists only while
+   * the chip holds both actions, and the label then moves inside it; the
+   * remove button exists while `onRemove` is set.
+   */
+  private reconcile(): void {
+    const label = this.label?.nativeElement
+    const labelButton = this.labelButton?.nativeElement
+    const removeButton = this.removeButton?.nativeElement
+    if (!label || !labelButton || !removeButton) return
     const removable = !!this.onRemove
     // React renders the label button only when the chip holds BOTH actions:
     // a chip with one action is that control itself.
     const labelButtonControl = !!this.onClick && removable
 
-    if (labelButtonControl) {
-      if (!labelButton.isConnected) {
-        root.insertBefore(labelButton, removable ? removeButton : null)
-      }
-      if (label.parentNode !== labelButton) labelButton.appendChild(label)
-    } else {
-      if (label.parentNode !== root) root.insertBefore(label, removable ? removeButton : null)
-      if (labelButton.isConnected) root.removeChild(labelButton)
+    // React renders the projected label bare: its content stands in the capture point's
+    // place and the point itself leaves the page.
+    const capture = this.capture?.nativeElement
+    if (capture) {
+      placeContentBefore(capture, capture)
+      setElementPresent(capture, false)
     }
-    if (removable) {
-      if (!removeButton.isConnected) root.appendChild(removeButton)
-    } else if (removeButton.isConnected) {
-      root.removeChild(removeButton)
-    }
+
+    // The label button is present only in that both-actions branch, and the
+    // label itself moves inside it there (React renders it around the label
+    // text); otherwise the label sits in the chip and any remove button beside
+    // it. The helpers keep Angular's own place for each node.
+    setElementPresent(labelButton, labelButtonControl)
+    placeElement(label, labelButtonControl ? labelButton : null)
+    setElementPresent(removeButton, removable)
   }
 }

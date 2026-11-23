@@ -104,7 +104,7 @@ async function mount(
     selector: 'mol-spec-host',
     standalone: true,
     imports: [ClassSchedule],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: `<div mol-class-schedule
       [events]="p['events']"
       [weekStartsOn]="p['weekStartsOn']"

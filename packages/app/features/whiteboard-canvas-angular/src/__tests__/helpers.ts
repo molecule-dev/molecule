@@ -45,7 +45,7 @@ export async function mountCanvas(props: Record<string, unknown>): Promise<Mount
     selector: 'mol-spec-host',
     standalone: true,
     imports: [WhiteboardCanvas],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: `<div mol-whiteboard-canvas ${CANVAS_BIND}></div>`,
   })(
     class SpecHost {

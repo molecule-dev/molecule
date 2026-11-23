@@ -23,6 +23,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 // Proxy ClassMap echoing each accessed member back as its token (e.g. `stack`),
 // so tests can assert which cm.* class was applied without a real bond — the
 // same mock the React package's own tests use.
@@ -81,7 +83,7 @@ async function mount(
     selector: 'mol-spec-host',
     standalone: true,
     imports: [component],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template,
   })(
     class SpecHost {
@@ -90,7 +92,7 @@ async function mount(
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
     environmentInjector: appRef.injector,
@@ -137,6 +139,20 @@ afterEach(async () => {
 })
 
 describe('PriceRangeSlider', () => {
+  it('keeps a consumer list in order when an item is inserted in the middle of label', async () => {
+    const m = await render(
+      { min: 0, max: 100, value: [20, 80], xs: [1, 3] },
+      '@for (x of p[\'xs\']; track x) {<b slot="label">{{ x }}</b>}',
+    )
+    const texts = (): string[] =>
+      Array.from(m.host.querySelectorAll('span b')).map((el) => el.textContent ?? '')
+    expect(texts()).toEqual(['1', '3'])
+    await m.setProps({ xs: [1, 2, 3] })
+    expect(texts()).toEqual(['1', '2', '3'])
+    await m.setProps({ xs: [1, 3] })
+    expect(texts()).toEqual(['1', '3'])
+  })
+
   it('renders two range inputs with min/max aria-labels', async () => {
     const m = await render({ min: 0, max: 100, value: [20, 80], onChange: () => {} })
     const markup = m.host.innerHTML
@@ -191,5 +207,21 @@ describe('PriceRangeSlider', () => {
       className: 'prs-cls',
     })
     expect(m.host.innerHTML).toContain('prs-cls')
+  })
+
+  it('shows and removes the label wrapper in the pass where the consumer @if adds and removes its content', async () => {
+    const m = await render(
+      { min: 0, max: 10, value: [1, 9], onChange: () => {}, on: false },
+      `@if (p['on']) {<strong slot="label" data-label>Price range</strong>}`,
+    )
+    const label = (): HTMLElement | null => m.host.querySelector('[data-label]')
+    // No label input and no projected node: React renders no `<span>` wrapper.
+    expect(label()).toBeNull()
+    await m.setProps({ on: true })
+    expect(label()).not.toBeNull()
+    expect(label()?.parentElement?.tagName).toBe('SPAN')
+    expect(label()?.parentElement?.isConnected).toBe(true)
+    await m.setProps({ on: false })
+    expect(label()).toBeNull()
   })
 })

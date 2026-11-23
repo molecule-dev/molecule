@@ -7,7 +7,7 @@
  * @module
  */
 import '@angular/compiler'
-import { Component, type Type } from '@angular/core'
+import { ChangeDetectionStrategy, Component, type Type } from '@angular/core'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { QueryProvider } from '@molecule/app-query'
@@ -121,6 +121,7 @@ describe.each([
   it('renders a created row once when a caller prepends the already-refreshed response', async () => {
     const tickets = resource()
     const List = Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'mol-parity-ticket-rows',
       standalone: true,
       template: `<section>

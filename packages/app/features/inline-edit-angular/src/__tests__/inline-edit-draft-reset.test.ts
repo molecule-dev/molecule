@@ -23,6 +23,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 import { InlineEdit } from '../inline-edit.component.js'
 
 /** A mounted spec host: its DOM, a props setter, and a teardown. */
@@ -50,7 +52,7 @@ async function mount(template: string, props: Record<string, unknown>): Promise<
     selector: 'mol-spec-host',
     standalone: true,
     imports: [InlineEdit],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template,
   })(
     class SpecHost {
@@ -59,7 +61,7 @@ async function mount(template: string, props: Record<string, unknown>): Promise<
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
     environmentInjector: appRef.injector,

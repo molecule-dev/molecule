@@ -4,9 +4,15 @@
  * @module
  */
 
-import { Component } from '@angular/core'
+import { Component, ElementRef, inject, ViewChild } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  placeElementBefore,
+  setElementPresent,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -36,22 +42,20 @@ interface DotSpec {
  * Tiny inline trend chart — line, bar, or dot variants, SVG with no
  * external library. Same props, same DOM as
  * `@molecule/app-sparkline-react`'s `Sparkline`. React's root is the
- * `<svg>` when the series is non-empty and nothing when empty, so the host
- * is unwrapped (`data-parity-unwrap`, `display: contents`) and the `<svg>`
- * is rendered inside it; the series renders with `track $index`, matching
- * React's per-item keys, so a new array of equal values keeps the rendered
- * nodes.
+ * `<svg>` when the series is non-empty and nothing when empty, so the
+ * `<svg>` renders in front of the host and the host itself leaves the page
+ * (`placeElementBefore` + `setElementPresent`, React's fragment root); the
+ * series renders with `track $index`, matching React's per-item keys, so a
+ * new array of equal values keeps the rendered nodes.
  */
 @Component({
   selector: 'mol-sparkline',
   standalone: true,
+  hostDirectives: [MolPlacement],
   inputs: ['values', 'variant', 'width', 'height', 'color', 'ariaLabel', 'className'],
-  host: {
-    'data-parity-unwrap': '',
-    style: 'display: contents',
-  },
   template: `@if (hasValues) {
     <svg
+      #root
       role="img"
       [attr.width]="svgWidth()"
       [attr.height]="svgHeight()"
@@ -102,6 +106,21 @@ export class Sparkline {
 
   /** The i18n handle (locale-reactive), read in an injection context. */
   private readonly i18n = useTranslation()
+
+  /** The `<svg>` — React's root while the series is non-empty. */
+  @ViewChild('root') private root?: ElementRef<SVGSVGElement>
+
+  private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
+
+  constructor() {
+    // React's root is the `<svg>` itself (`values: []` renders nothing): it renders in
+    // front of the host's place and the host leaves the page.
+    usePlacement(() => {
+      const root = this.root?.nativeElement
+      if (root) placeElementBefore(root, this.host.nativeElement)
+      setElementPresent(this.host.nativeElement, false)
+    })
+  }
 
   /**
    * The current class map.

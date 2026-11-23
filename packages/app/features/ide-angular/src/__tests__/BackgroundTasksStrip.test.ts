@@ -24,7 +24,7 @@ import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
 import type { BackgroundTaskState } from '@molecule/app-ai-chat'
-import { provideTheme } from '@molecule/app-angular'
+import { provideDomPlacement, provideTheme } from '@molecule/app-angular'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
@@ -37,7 +37,7 @@ const BackgroundTasksStripHost = Component({
   selector: 'mol-background-tasks-strip-host',
   standalone: true,
   imports: [BackgroundTasksStrip],
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `<div mol-background-tasks-strip [tasks]="p['tasks']"></div>`,
 })(
   class BackgroundTasksStripHost {
@@ -84,7 +84,11 @@ async function renderStrip(initial: BackgroundTaskState[]): Promise<HTMLElement>
   const container = document.createElement('div')
   document.body.appendChild(container)
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection(), provideTheme(buildThemeProvider())],
+    providers: [
+      provideZonelessChangeDetection(),
+      provideDomPlacement(),
+      provideTheme(buildThemeProvider()),
+    ],
   })
   const ref: ComponentRef<InstanceType<typeof BackgroundTasksStripHost>> = createComponent(
     BackgroundTasksStripHost,

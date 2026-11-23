@@ -5,10 +5,16 @@
  * @module
  */
 
-import { Component, inject } from '@angular/core'
+import { Component, ElementRef, inject } from '@angular/core'
 import { DomSanitizer, type SafeHtml } from '@angular/platform-browser'
 
-import { useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  placeContentBefore,
+  setElementPresent,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { Modal } from '@molecule/app-ui-angular'
@@ -26,8 +32,8 @@ const TRUSTED_CACHE_LIMIT = 8
  * portaled into `document.body`; an Angular template cannot render a component
  * class held in a value, so the pair ships as this component and the hook names
  * it. React's root is a FRAGMENT here (the modals portal into the body and the
- * host renders no element of its own), so the host is unwrapped
- * (`data-parity-unwrap`, `display: contents`).
+ * host renders no element of its own), so the two modal elements render in the
+ * host's place and the host itself never appears in the page.
  *
  * The legal HTML renders through a sanitizer-bypassed `[innerHTML]` — React's
  * `dangerouslySetInnerHTML` trust model for app-supplied catalog content — with
@@ -36,12 +42,9 @@ const TRUSTED_CACHE_LIMIT = 8
 @Component({
   selector: 'mol-legal-modals',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [Modal],
   inputs: ['api'],
-  host: {
-    'data-parity-unwrap': '',
-    style: 'display: contents',
-  },
   template: `<mol-modal
       [open]="api.state.privacyOpen()"
       [title]="privacyTitle()"
@@ -71,6 +74,16 @@ export class LegalModals {
 
   /** Trusted-HTML values by source string. */
   private readonly trusted = new Map<string, SafeHtml>()
+
+  private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
+
+  constructor() {
+    usePlacement(() => {
+      // The two portaled modals render in the host's place; the host itself leaves.
+      placeContentBefore(this.host.nativeElement, this.host.nativeElement)
+      setElementPresent(this.host.nativeElement, false)
+    })
+  }
 
   /**
    * The current class map.

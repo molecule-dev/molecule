@@ -4,13 +4,12 @@
  * while the agent works.
  *
  * React renders it only when something is queued and no popup above the composer
- * is open; otherwise the host — React's own root `<div>` — unwraps
- * (`data-parity-unwrap`, `display: contents`) so the port adds no node either
- * way. While shown the host IS the bar: the clock and the `{{count}} queued`
- * header, the capped scrolling list of single-line rows (truncated text with the
- * inline pencil / trash / send-now buttons and React's hover treatment), and the
- * inline editor a row opens into (its textarea, Enter/Escape handling and the
- * Cancel/Save pair).
+ * is open; otherwise the host — React's own root `<div>` — is out of the DOM so
+ * the port adds no node either way (`useHostPresence`). While shown the host IS
+ * the bar: the clock and the `{{count}} queued` header, the capped scrolling
+ * list of single-line rows (truncated text with the inline pencil / trash /
+ * send-now buttons and React's hover treatment), and the inline editor a row
+ * opens into (its textarea, Enter/Escape handling and the Cancel/Save pair).
  *
  * The row text, the open editor and its draft come from the `chat:queued-edit`
  * slice; the rows, the loading gate and the edit/delete/send actions from the
@@ -30,6 +29,7 @@ import {
 } from '@angular/core'
 
 import type { ChatMessage } from '@molecule/app-ai-chat'
+import { useHostPresence } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { styleText } from '@molecule/app-ui-angular'
 
@@ -85,9 +85,6 @@ const ROW_TEXT_STYLE = styleText({
 /** The send glyph's inline style (React's inline `<svg>`). */
 const SEND_GLYPH_STYLE = 'display: block'
 
-/** The closed state: React renders nothing, so the host unwraps to nothing. */
-const UNWRAP_STYLE = styleText({ display: 'contents' })
-
 /** The shown bar's inline chrome (React's outer `<div>`). */
 const ROOT_STYLE = styleText({
   borderTop: '1px solid rgba(128,128,128,0.15)',
@@ -103,8 +100,7 @@ const ROOT_STYLE = styleText({
   standalone: true,
   imports: [Icon],
   host: {
-    '[attr.data-parity-unwrap]': 'closed() ? "" : null',
-    '[attr.style]': 'closed() ? unwrapStyle : rootStyle',
+    '[attr.style]': 'rootStyle',
   },
   // prettier-ignore
   template: `@if (!closed()) {<div [attr.style]="headerStyle"><svg mol-icon [name]="'clock'" [size]="clockSize" aria-hidden="true" [attr.style]="clockStyle"></svg><span [attr.class]="countClass" [attr.style]="countStyle">{{ countText() }}</span></div><div [attr.style]="listStyle">@for (qm of queuedMessages(); track qm.id) {@if (editingQueuedId() === qm.id) {<div [attr.style]="editorStyle"><textarea #queuedEditor [defaultValue]="editingQueuedText()" (input)="onEditorInput($event)" (keydown)="onEditorKeydown($event, qm)" [attr.aria-label]="editorLabel()" [attr.class]="editorClass" [attr.style]="editorTextareaStyle()"></textarea><div [attr.style]="editorActionsStyle"><button type="button" data-mol-id="chat-queued-edit-cancel" (click)="cancel()" [attr.class]="cancelClass">{{ cancelText() }}</button><button type="button" data-mol-id="chat-queued-edit-save" (click)="save(qm)" [attr.class]="saveClass">{{ saveText() }}</button></div></div>} @else {<div [attr.style]="rowStyle"><span [attr.title]="qm.content" [attr.class]="rowTextClass" [attr.style]="rowTextStyle">{{ qm.content }}</span><button type="button" [attr.title]="editTitle()" (click)="startEditing(qm)" [attr.style]="iconButtonStyle(editColor, 0.5)" (mouseenter)="hoverEdit($event, true)" (mouseleave)="hoverEdit($event, false)"><svg mol-icon [name]="'pencil'" [size]="iconSize" aria-hidden="true"></svg></button><button type="button" [attr.title]="deleteTitle()" (click)="remove(qm)" [attr.style]="deleteButtonStyle()" (mouseenter)="hoverDelete($event, true)" (mouseleave)="hoverDelete($event, false)"><svg mol-icon [name]="'trash'" [size]="iconSize" aria-hidden="true"></svg></button>@if (!isLoading()) {<button type="button" [attr.title]="sendTitle()" (click)="sendNow(qm)" [attr.style]="sendButtonStyle()" (mouseenter)="hoverSend($event, true)" (mouseleave)="hoverSend($event, false)"><svg width="13" height="13" viewBox="0 0 12 12" [attr.style]="sendGlyphStyle"><path d="M 2.5,6.5 L 6,3 L 9.5,6.5 M 6,3.5 L 6,10" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>}</div>}}</div>}`,
@@ -164,9 +160,6 @@ export class ChatQueuedMessagesSection {
   /** The shown bar's inline chrome. */
   protected readonly rootStyle: string | null = ROOT_STYLE
 
-  /** The closed state's inline style (the host unwraps away). */
-  protected readonly unwrapStyle: string | null = UNWRAP_STYLE
-
   /** The clock glyph's size (React's `size={11}`). */
   protected readonly clockSize = 11
 
@@ -212,7 +205,7 @@ export class ChatQueuedMessagesSection {
     this.edit.queuedEditRef.current = ref?.nativeElement ?? null
   }
 
-  /** Resolves the ClassMap and the static classes once, at construction. */
+  /** Resolves the ClassMap and the static classes once, and keeps the host in the page only while shown. */
   constructor() {
     this.cm = this.state.env.cm
     this.countClass = this.cm.cn(this.cm.textMuted, this.cm.textSize('xs'))
@@ -226,6 +219,7 @@ export class ChatQueuedMessagesSection {
       this.cm.button({ variant: 'solid', color: 'primary', size: 'xs' }),
       this.cm.touchTargetCompact,
     )
+    useHostPresence(() => !this.closed())
   }
 
   /**

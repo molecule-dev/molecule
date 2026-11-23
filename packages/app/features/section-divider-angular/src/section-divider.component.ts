@@ -4,32 +4,16 @@
  * @module
  */
 
-import {
-  type AfterViewInit,
-  Component,
-  type DoCheck,
-  type ElementRef,
-  inject,
-  Renderer2,
-  ViewChild,
-} from '@angular/core'
+import { Component, type ElementRef, ViewChild } from '@angular/core'
 
+import {
+  MolPlacement,
+  setElementPresent,
+  type SlotReader,
+  usePlacement,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
-
-/**
- * Whether a capture wrapper holds any projected element or text node.
- *
- * @param el - The wrapper element.
- * @returns True when at least one projected node exists.
- */
-const hasNodes = (el: Element): boolean => {
-  for (const node of Array.from(el.childNodes)) {
-    if (node.nodeType === 1) return true
-    if (node.nodeType === 3 && (node.textContent ?? '').trim()) return true
-  }
-  return false
-}
 
 /**
  * SectionDivider component.
@@ -51,6 +35,7 @@ const hasNodes = (el: Element): boolean => {
 @Component({
   selector: 'div[mol-section-divider]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   inputs: ['align', 'className'],
   host: {
     role: 'separator',
@@ -75,7 +60,7 @@ const hasNodes = (el: Element): boolean => {
       ></span>
     }`,
 })
-export class SectionDivider implements AfterViewInit, DoCheck {
+export class SectionDivider {
   /** Where the label sits. Defaults to `'center'` at read time. */
   align?: 'start' | 'center' | 'end'
   /** Extra classes on the outer `<div>`. */
@@ -84,13 +69,9 @@ export class SectionDivider implements AfterViewInit, DoCheck {
   /** The label capture span (always in the template; detached when empty). */
   @ViewChild('labelSlot') labelSlot?: ElementRef<HTMLSpanElement>
 
-  /** Whether the label capture span holds projected nodes (read at view init). */
-  private hasLabel = false
-
-  /** The comment that keeps the label's position stable while detached. */
-  private anchor: Comment | null = null
-
-  private readonly renderer = inject(Renderer2)
+  constructor() {
+    usePlacement((hasContent) => this.syncLabel(hasContent))
+  }
 
   /**
    * The current class map.
@@ -172,38 +153,13 @@ export class SectionDivider implements AfterViewInit, DoCheck {
   }
 
   /**
-   * Reads slot presence (view queries resolve only at view init), plants the
-   * position anchor and applies React's `{children && …}` condition.
+   * Keeps the label wrapper in the DOM exactly while React renders it, at the
+   * position Angular put it.
+   *
+   * @param hasContent - Reads whether a slot has content.
    */
-  ngAfterViewInit(): void {
+  private syncLabel(hasContent: SlotReader): void {
     const span = this.labelSlot?.nativeElement
-    const parent = span?.parentElement
-    if (!span || !parent) return
-    const anchor = this.renderer.createComment('label')
-    parent.insertBefore(anchor, span)
-    this.anchor = anchor
-    this.hasLabel = hasNodes(span)
-    this.syncLabel()
-  }
-
-  /** Re-reconciles the label wrapper after input writes and resets. */
-  ngDoCheck(): void {
-    this.syncLabel()
-  }
-
-  /**
-   * Detaches the label wrapper from the DOM when React would not render it,
-   * and restores it at its anchored position when it should render.
-   */
-  private syncLabel(): void {
-    const span = this.labelSlot?.nativeElement
-    if (!span) return
-    if (this.hasLabel && !span.isConnected) {
-      const parent = this.anchor?.parentNode
-      if (parent) parent.insertBefore(span, this.anchor)
-    } else if (!this.hasLabel && span.isConnected) {
-      const parent = span.parentElement
-      if (parent) parent.removeChild(span)
-    }
+    setElementPresent(span, hasContent(span))
   }
 }

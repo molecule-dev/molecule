@@ -5,9 +5,15 @@
  */
 
 import { NgTemplateOutlet } from '@angular/common'
-import { Component, signal, TemplateRef } from '@angular/core'
+import { Component, ElementRef, inject, signal, TemplateRef } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  placeContentBefore,
+  setElementPresent,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { ColorVariant, UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-angular'
@@ -54,8 +60,8 @@ export function severityColor(severity: ModerationItemSeverity | undefined): Col
  * apply-to-selected action buttons).
  *
  * React's root element changes with the branch (loading / empty / list), so the
- * host (`div[mol-moderation-queue]`) is a `display: contents` wrapper the DOM
- * normalizer unwraps and the branch element renders inside it. Selection state
+ * rendered root stands in front of the host's place and the host itself leaves
+ * the page (`placeContentBefore` + `setElementPresent`). Selection state
  * is internal, as React's `useState` is: a bulk action is reported through
  * `onBulkAction` and the selection clears afterwards.
  *
@@ -67,6 +73,7 @@ export function severityColor(severity: ModerationItemSeverity | undefined): Col
   selector: 'div[mol-moderation-queue]',
   standalone: true,
   imports: [NgTemplateOutlet, MolModerationChecked, Button],
+  hostDirectives: [MolPlacement],
   inputs: [
     'items',
     'onApprove',
@@ -78,10 +85,6 @@ export function severityColor(severity: ModerationItemSeverity | undefined): Col
     'emptyState',
     'className',
   ],
-  host: {
-    'data-parity-unwrap': '',
-    style: 'display: contents',
-  },
   // prettier-ignore
   template: `@if (loading) {<div role="status" aria-live="polite" data-mol-id="moderation-queue-loading" [class]="loadingClasses()"><span>{{ loadingText() }}</span></div>}@else if (items.length === 0) {<div role="status" data-mol-id="moderation-queue-empty" [class]="emptyClasses()">@if (emptyTemplate(); as tpl) {<ng-container [ngTemplateOutlet]="tpl" />}@else if (textOf(emptyState)) {{{ textOf(emptyState) }}}@else {<span [class]="emptyTextClasses()">{{ emptyText() }}</span>}</div>}@else {<div role="region" [attr.aria-label]="regionLabel()" data-mol-id="moderation-queue" [class]="rootClasses()"><div role="toolbar" [attr.aria-label]="toolbarLabel()" data-mol-id="moderation-queue-bulk-toolbar" [class]="toolbarClasses()"><label [class]="selectAllLabelClasses()" data-mol-id="moderation-queue-select-all-label"><input type="checkbox" mol-moderation-checked [molModerationChecked]="allSelected()" [molModerationIndeterminate]="someSelected()" (change)="toggleAll()" data-mol-id="moderation-queue-select-all" [attr.aria-label]="selectAllLabel()" /><span>@if (selectionCount() > 0) {{{ selectedCountText() }}}@else {{{ selectAllText() }}}</span></label>@if (onBulkAction) {<div [class]="bulkRowClasses()" data-mol-id="moderation-queue-bulk-actions"><button mol-button [variant]="'ghost'" [size]="'sm'" [color]="'success'" [disabled]="selectionCount() === 0" (click)="applyBulk('approve')" data-mol-id="moderation-queue-bulk-approve">{{ bulkApproveText() }}</button><button mol-button [variant]="'ghost'" [size]="'sm'" [color]="'error'" [disabled]="selectionCount() === 0" (click)="applyBulk('reject')" data-mol-id="moderation-queue-bulk-reject">{{ bulkRejectText() }}</button>@if (onEscalate) {<button mol-button [variant]="'ghost'" [size]="'sm'" [color]="'warning'" [disabled]="selectionCount() === 0" (click)="applyBulk('escalate')" data-mol-id="moderation-queue-bulk-escalate">{{ bulkEscalateText() }}</button>}@if (onMute) {<button mol-button [variant]="'ghost'" [size]="'sm'" [color]="'secondary'" [disabled]="selectionCount() === 0" (click)="applyBulk('mute')" data-mol-id="moderation-queue-bulk-mute">{{ bulkMuteText() }}</button>}</div>}</div><ul [class]="listClasses()" data-mol-id="moderation-queue-list" style="list-style: none; margin: 0px; padding: 0px">@for (item of items; track item.id) {<li data-mol-id="moderation-queue-row" [attr.data-mol-row-id]="item.id" [attr.data-mol-kind]="item.kind" [attr.data-mol-severity]="item.severity ?? 'unspecified'" [class]="rowClasses()"><input type="checkbox" mol-moderation-checked [molModerationChecked]="selected().has(item.id)" (change)="toggleOne(item.id)" data-mol-id="moderation-queue-row-select" [attr.aria-label]="selectRowLabel()" /><span aria-hidden="true" data-mol-id="moderation-queue-row-kind-icon" [class]="kindIconClasses()">{{ glyphOf(item.kind) }}</span><div [class]="bodyClasses()"><div [class]="metaClasses()" data-mol-id="moderation-queue-row-meta"><span [class]="semiboldClasses()">{{ kindLabel(item.kind) }}</span>@if (item.severity) {<span data-mol-id="moderation-queue-row-severity" [class]="severityClasses(item.severity)">{{ severityLabel(item.severity) }}</span>}@if (item.reportedBy) {<span data-mol-id="moderation-queue-row-reported-by">{{ reportedByLabel() }}&ngsp;<span [class]="semiboldClasses()">@if (isTemplate(item.reportedBy)) {<ng-container [ngTemplateOutlet]="templateOf(item.reportedBy)" />}@else {{{ textOf(item.reportedBy) }}}</span></span>}<span data-mol-id="moderation-queue-row-reported-at">@if (isTemplate(item.reportedAt)) {<ng-container [ngTemplateOutlet]="templateOf(item.reportedAt)" />}@else {{{ textOf(item.reportedAt) }}}</span></div><div data-mol-id="moderation-queue-row-preview" [class]="previewClasses()">@if (isTemplate(item.preview)) {<ng-container [ngTemplateOutlet]="templateOf(item.preview)" />}@else {{{ textOf(item.preview) }}}</div><div data-mol-id="moderation-queue-row-reason" [class]="metaClasses()"><span [class]="semiboldClasses()">{{ reasonLabel() }}:</span><span>@if (isTemplate(item.reason)) {<ng-container [ngTemplateOutlet]="templateOf(item.reason)" />}@else {{{ textOf(item.reason) }}}</span></div></div><div [class]="bulkRowClasses()" data-mol-id="moderation-queue-row-actions"><button mol-button [size]="'sm'" [variant]="'ghost'" [color]="'success'" (click)="approve(item.id)" data-mol-id="moderation-queue-row-approve" [attr.aria-label]="rowApproveLabel()">{{ rowApproveText() }}</button><button mol-button [size]="'sm'" [variant]="'ghost'" [color]="'error'" (click)="reject(item.id)" data-mol-id="moderation-queue-row-reject" [attr.aria-label]="rowRejectLabel()">{{ rowRejectText() }}</button>@if (onEscalate) {<button mol-button [size]="'sm'" [variant]="'ghost'" [color]="'warning'" (click)="escalate(item.id)" data-mol-id="moderation-queue-row-escalate" [attr.aria-label]="rowEscalateLabel()">{{ rowEscalateText() }}</button>}@if (onMute) {<button mol-button [size]="'sm'" [variant]="'ghost'" [color]="'secondary'" (click)="mute(item.id)" data-mol-id="moderation-queue-row-mute" [attr.aria-label]="rowMuteLabel()">{{ rowMuteText() }}</button>}</div></li>}</ul></div>}`,
 })
@@ -110,6 +113,18 @@ export class ModerationQueue {
 
   /** The i18n handle (locale-reactive, read in an injection context). */
   private readonly i18n = useTranslation()
+
+  /** The component's host element (React renders no element of its own). */
+  private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
+
+  constructor() {
+    // React's root is the branch element itself: it renders in front of the host's place
+    // and the host leaves the page.
+    usePlacement(() => {
+      placeContentBefore(this.host.nativeElement, this.host.nativeElement)
+      setElementPresent(this.host.nativeElement, false)
+    })
+  }
 
   /**
    * The current class map.

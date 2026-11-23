@@ -6,7 +6,14 @@
  * @module
  */
 
-import { Component, type OnInit, signal } from '@angular/core'
+import { Component, ElementRef, inject, type OnInit, signal } from '@angular/core'
+
+import {
+  MolPlacement,
+  placeContentBefore,
+  setElementPresent,
+  usePlacement,
+} from '@molecule/app-angular'
 
 import { EmbeddableChatLauncher } from './embeddable-chat-launcher.component.js'
 import { EmbeddableChatPanel } from './embeddable-chat-panel.component.js'
@@ -22,20 +29,16 @@ import type { EmbeddableChatWidgetConfig, EmbeddableChatWidgetPosition } from '.
  * molecule stylesheet. Pair with `@molecule/app-locales-embeddable-chat-widget`
  * for translations.
  *
- * React's root is a fragment (the launcher OR the panel, never a wrapper),
- * so the host is unwrapped (`data-parity-unwrap`, `display: contents`) and
- * the two halves render inside it, each hidden while the other shows — the
- * same DOM React produces for the same state.
+ * React's root is a fragment (the launcher OR the panel, never a wrapper), so
+ * the chosen half renders in the host's place and the host itself contributes
+ * no element to the page: the rendered DOM is React's button or section alone.
  */
 @Component({
   selector: 'mol-embeddable-chat-widget',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [EmbeddableChatLauncher, EmbeddableChatPanel],
   inputs: ['config', 'defaultOpen'],
-  host: {
-    'data-parity-unwrap': '',
-    style: 'display: contents',
-  },
   // prettier-ignore
   template: `@if (!open()) {
     <mol-embeddable-chat-launcher
@@ -61,6 +64,16 @@ export class EmbeddableChatWidget implements OnInit {
   defaultOpen?: boolean
 
   private readonly expanded = signal(false)
+  private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
+
+  constructor() {
+    // React renders a fragment of one child; everything the host holds
+    // (the @if anchors and the child element) renders in the host's place.
+    usePlacement(() => {
+      placeContentBefore(this.host.nativeElement, this.host.nativeElement)
+      setElementPresent(this.host.nativeElement, false)
+    })
+  }
 
   /** @inheritdoc */
   ngOnInit(): void {

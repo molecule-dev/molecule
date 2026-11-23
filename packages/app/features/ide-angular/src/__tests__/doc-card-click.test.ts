@@ -28,7 +28,7 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { provideTheme } from '@molecule/app-angular'
+import { provideDomPlacement, provideTheme } from '@molecule/app-angular'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
@@ -41,7 +41,7 @@ const ToolCallCardHost = Component({
   selector: 'mol-doc-card-click-host',
   standalone: true,
   imports: [ToolCallCard],
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `<div mol-tool-call-card [id]="p['id']" [name]="p['name']" [input]="p['input']" [output]="p['output']" [status]="p['status']" [onFileOpen]="p['onFileOpen']"></div>`,
 })(
   class ToolCallCardHost {
@@ -96,7 +96,11 @@ async function renderCard(props: Record<string, unknown>): Promise<HTMLElement> 
   const container = document.createElement('div')
   document.body.appendChild(container)
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection(), provideTheme(buildThemeProvider())],
+    providers: [
+      provideZonelessChangeDetection(),
+      provideDomPlacement(),
+      provideTheme(buildThemeProvider()),
+    ],
   })
   const ref: ComponentRef<InstanceType<typeof ToolCallCardHost>> = createComponent(
     ToolCallCardHost,

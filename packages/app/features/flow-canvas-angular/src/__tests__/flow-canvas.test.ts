@@ -22,6 +22,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
 // `position`), so tests can assert which cm.* class was applied without a real
 // bond — the same mock the React tests use.
@@ -93,7 +95,7 @@ async function mount(inner: string, props: Record<string, unknown> = {}): Promis
     selector: 'mol-spec-host',
     standalone: true,
     imports: [FlowCanvas],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template,
   })(
     class SpecHost {
@@ -102,7 +104,7 @@ async function mount(inner: string, props: Record<string, unknown> = {}): Promis
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
     environmentInjector: appRef.injector,
@@ -306,6 +308,19 @@ describe('<FlowCanvas>', () => {
       edges: [],
     })
     expect(m.host.querySelector('[data-test="fallback"]')).not.toBeNull()
+  })
+
+  it('shows and removes the fallback content in the pass where the consumer @if adds and removes its content', async () => {
+    const m = await render(`@if (p['on']) {<span data-test="fallback">fallback</span>}`, {
+      nodes: [node('a', 0, 0)],
+      edges: [],
+      on: true,
+    })
+    expect(m.host.querySelector('[data-test="fallback"]')?.textContent).toBe('fallback')
+    await m.setProps({ on: false })
+    expect(m.host.querySelector('[data-test="fallback"]')).toBeNull()
+    await m.setProps({ on: true })
+    expect(m.host.querySelector('[data-test="fallback"]')?.textContent).toBe('fallback')
   })
 
   it('selects an edge on click and surfaces it via onSelectionChange', async () => {

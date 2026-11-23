@@ -55,6 +55,7 @@ vi.mock('@molecule/app-ui-angular', async () => {
   const { Component } = await import('@angular/core')
   return {
     Button: Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'button[mol-button]',
       standalone: true,
       inputs: ['variant', 'color', 'size'],
@@ -98,7 +99,7 @@ async function mount(props: Record<string, unknown> = {}): Promise<Mounted> {
     standalone: true,
     imports: [MiniCalendar as Type<unknown>],
     host: { 'data-spec-host': String(++hostCount) },
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: `<div
       mol-mini-calendar
       [selected]="p['selected']"

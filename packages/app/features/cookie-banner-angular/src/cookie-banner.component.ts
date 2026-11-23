@@ -6,20 +6,27 @@
 
 import { NgTemplateOutlet } from '@angular/common'
 import {
-  type AfterViewInit,
   Component,
   type ElementRef,
   type OnInit,
+  signal,
   type TemplateRef,
   ViewChild,
 } from '@angular/core'
 
-import { useHostPresence, useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  placeContent,
+  setElementPresent,
+  type SlotReader,
+  useHostPresence,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { Button, styleText, Switch } from '@molecule/app-ui-angular'
 
-import { applyNodeLayout, hasNodes } from './slot-dom.js'
 import type { CookieCategory } from './types.js'
 
 /** React's inline style for the banner, serialized the way React writes it. */
@@ -67,6 +74,7 @@ const isTemplate = (value: unknown): value is TemplateRef<unknown> =>
 @Component({
   selector: 'div[mol-cookie-banner]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [Button, NgTemplateOutlet, Switch],
   inputs: [
     'categories',
@@ -87,9 +95,9 @@ const isTemplate = (value: unknown): value is TemplateRef<unknown> =>
     '[style]': 'hostStyle()',
   },
   // prettier-ignore
-  template: `<header [class]="cm().stack(1)"><h3 [class]="titleClasses()"><span #titleFallback>{{ titleText() }}</span><span #titleSlot><ng-content select="[slot=title]"></ng-content></span></h3><p [class]="cm().textSize('sm')"><span #descriptionFallback>{{ descriptionText() }}</span><span #descriptionSlot><ng-content select="[slot=description]"></ng-content></span>@if (policyHref) {<ng-container>{{ leadingSpace }}</ng-container><a [class]="cm().link" [attr.href]="policyHref">{{ learnMoreText() }}</a>.}</p></header>@if (showDetails && hasCategories()) {<div [attr.id]="detailsId" [class]="cm().stack(2)">@for (category of categories ?? []; track category.id; let i = $index) {<div [class]="rowClasses()"><div [class]="textColumnClasses()"><span [attr.id]="labelId(i)" [class]="labelClasses()">@if (isTemplate(category.label)) {<ng-container [ngTemplateOutlet]="asTemplate(category.label)" />} @else {{{ category.label }}}</span>@if (category.description) {<span [attr.id]="descriptionId(i)" [class]="cm().textSize('xs')">@if (isTemplate(category.description)) {<ng-container [ngTemplateOutlet]="asTemplate(category.description)" />} @else {{{ category.description }}}</span>}</div><mol-switch [checked]="isChecked(category)" [disabled]="category.required === true" [attr.aria-labelledby]="labelId(i)" [attr.aria-describedby]="category.description ? descriptionId(i) : null" (change)="toggle(category, $event)"></mol-switch></div>}</div>}<footer [class]="footerClasses()">@if (hasCategories()) {<button mol-button [variant]="'ghost'" [size]="'sm'" [attr.aria-expanded]="showDetails" [attr.aria-controls]="showDetails && hasCategories() ? detailsId : null" (click)="toggleDetails()">{{ detailsLabel() }}</button>}<button mol-button [variant]="'ghost'" (click)="reject()">{{ rejectText() }}</button>@if (saveVisible()) {<button mol-button [variant]="'outline'" (click)="save()">{{ saveText() }}</button>}<button mol-button [variant]="'solid'" [color]="'primary'" (click)="accept()">{{ acceptText() }}</button></footer>`,
+  template: `<header [class]="cm().stack(1)"><h3 #titleHeading [class]="titleClasses()"><span #titleFallback>{{ titleText() }}</span><span #titleSlot><ng-content select="[slot=title]"></ng-content></span></h3><p #descriptionHeading [class]="cm().textSize('sm')"><span #descriptionFallback>{{ descriptionText() }}</span><span #descriptionSlot><ng-content select="[slot=description]"></ng-content></span>@if (policyHref) {<ng-container>{{ leadingSpace }}</ng-container><a [class]="cm().link" [attr.href]="policyHref">{{ learnMoreText() }}</a>.}</p></header>@if (showDetails && hasCategories()) {<div [attr.id]="detailsId" [class]="cm().stack(2)">@for (category of categories ?? []; track category.id; let i = $index) {<div [class]="rowClasses()"><div [class]="textColumnClasses()"><span [attr.id]="labelId(i)" [class]="labelClasses()">@if (isTemplate(category.label)) {<ng-container [ngTemplateOutlet]="asTemplate(category.label)" />} @else {{{ category.label }}}</span>@if (category.description) {<span [attr.id]="descriptionId(i)" [class]="cm().textSize('xs')">@if (isTemplate(category.description)) {<ng-container [ngTemplateOutlet]="asTemplate(category.description)" />} @else {{{ category.description }}}</span>}</div><mol-switch [checked]="isChecked(category)" [disabled]="category.required === true" [attr.aria-labelledby]="labelId(i)" [attr.aria-describedby]="category.description ? descriptionId(i) : null" (change)="toggle(category, $event)"></mol-switch></div>}</div>}<footer [class]="footerClasses()">@if (hasCategories()) {<button mol-button [variant]="'ghost'" [size]="'sm'" [attr.aria-expanded]="showDetails" [attr.aria-controls]="showDetails && hasCategories() ? detailsId : null" (click)="toggleDetails()">{{ detailsLabel() }}</button>}<button mol-button [variant]="'ghost'" (click)="reject()">{{ rejectText() }}</button>@if (saveVisible()) {<button mol-button [variant]="'outline'" (click)="save()">{{ saveText() }}</button>}<button mol-button [variant]="'solid'" [color]="'primary'" (click)="accept()">{{ acceptText() }}</button></footer>`,
 })
-export class CookieBanner implements OnInit, AfterViewInit {
+export class CookieBanner implements OnInit {
   /** Cookie categories to offer (omit for a simple accept/reject banner). */
   categories?: CookieCategory[]
   /** Called when accept-all is clicked. */
@@ -111,10 +119,14 @@ export class CookieBanner implements OnInit, AfterViewInit {
   /** Extra classes. */
   className?: string
 
+  /** The title heading (the element the title's capture point is unwrapped into). */
+  @ViewChild('titleHeading') titleHeading?: ElementRef<HTMLElement>
   /** The title's text capture point. */
   @ViewChild('titleFallback') titleFallback?: ElementRef<HTMLElement>
   /** The title's projected-nodes capture point. */
   @ViewChild('titleSlot') titleSlot?: ElementRef<HTMLElement>
+  /** The description paragraph (the element the description's capture point is unwrapped into). */
+  @ViewChild('descriptionHeading') descriptionHeading?: ElementRef<HTMLElement>
   /** The description's text capture point. */
   @ViewChild('descriptionFallback') descriptionFallback?: ElementRef<HTMLElement>
   /** The description's projected-nodes capture point. */
@@ -139,16 +151,15 @@ export class CookieBanner implements OnInit, AfterViewInit {
   /** React's `useState` map: captured once, at mount. */
   private readonly enabled = new Map<string, boolean>()
 
-  /** Whether `[slot=title]` content was projected (read once). */
-  private hasTitleSlot = false
-  /** Whether `[slot=description]` content was projected (read once). */
-  private hasDescriptionSlot = false
-  /** Whether the node-props layout was applied (React renders it once). */
-  private nodeLayoutApplied = false
+  /** Whether `[slot=title]` content is projected (read from the placement function). */
+  private readonly hasTitleSlot = signal(false)
+  /** Whether `[slot=description]` content is projected (read from the placement function). */
+  private readonly hasDescriptionSlot = signal(false)
 
   constructor() {
     // Leaves no element in the page while `visible` is false (React renders null).
     useHostPresence(() => this.visible !== false)
+    usePlacement((hasContent) => this.applyNodeProps(hasContent))
   }
 
   /**
@@ -163,16 +174,6 @@ export class CookieBanner implements OnInit, AfterViewInit {
   ngOnInit(): void {
     for (const category of this.categories ?? [])
       this.enabled.set(category.id, category.required === true || !!category.defaultEnabled)
-  }
-
-  /**
-   * Reads the projected slots' presence (view queries resolve only at view
-   * init) and applies the node-prop layout.
-   */
-  ngAfterViewInit(): void {
-    this.hasTitleSlot = hasNodes(this.titleSlot?.nativeElement)
-    this.hasDescriptionSlot = hasNodes(this.descriptionSlot?.nativeElement)
-    this.applyNodeProps()
   }
 
   /**
@@ -266,7 +267,7 @@ export class CookieBanner implements OnInit, AfterViewInit {
    * @returns The text to render.
    */
   titleText(): string {
-    if (this.hasTitleSlot) return ''
+    if (this.hasTitleSlot()) return ''
     const value = this.title
     if (typeof value === 'string' || typeof value === 'number') return String(value)
     if (value === null || value === undefined) return this.ariaLabel()
@@ -278,7 +279,7 @@ export class CookieBanner implements OnInit, AfterViewInit {
    * @returns The text to render.
    */
   descriptionText(): string {
-    if (this.hasDescriptionSlot) return ''
+    if (this.hasDescriptionSlot()) return ''
     const value = this.description
     if (typeof value === 'string' || typeof value === 'number') return String(value)
     if (value === null || value === undefined)
@@ -424,19 +425,59 @@ export class CookieBanner implements OnInit, AfterViewInit {
     this.onDismiss?.()
   }
 
-  /** Applies React's node-prop DOM: whichever capture span React would render is unwrapped. */
-  private applyNodeProps(): void {
-    if (this.nodeLayoutApplied) return
-    this.nodeLayoutApplied = true
-    applyNodeLayout(
+  /**
+   * Applies React's node-prop DOM: whichever capture span React would render is
+   * unwrapped into the element React renders the value in, and the other is
+   * taken out of the view.
+   *
+   * @param hasContent - Reads whether a slot has content.
+   */
+  private applyNodeProps(hasContent: SlotReader): void {
+    const title = hasContent(this.titleSlot?.nativeElement)
+    const description = hasContent(this.descriptionSlot?.nativeElement)
+    this.hasTitleSlot.set(title)
+    this.hasDescriptionSlot.set(description)
+    this.applyNodeProp(
+      this.titleHeading?.nativeElement,
       this.titleFallback?.nativeElement,
       this.titleSlot?.nativeElement,
-      this.hasTitleSlot,
+      title,
     )
-    applyNodeLayout(
+    this.applyNodeProp(
+      this.descriptionHeading?.nativeElement,
       this.descriptionFallback?.nativeElement,
       this.descriptionSlot?.nativeElement,
-      this.hasDescriptionSlot,
+      description,
     )
+  }
+
+  /**
+   * Renders a field's capture points the way React renders the value: the one
+   * React would render is unwrapped into the parent element, so no wrapper
+   * appears, and the other is taken out of the view.
+   *
+   * @param parent - The element React renders the value in.
+   * @param fallback - The span holding the plain input's text.
+   * @param slot - The span holding the projected node content.
+   * @param hasSlotContent - Whether the consumer projected node content.
+   */
+  private applyNodeProp(
+    parent: HTMLElement | undefined,
+    fallback: HTMLElement | undefined,
+    slot: HTMLElement | undefined,
+    hasSlotContent: boolean,
+  ): void {
+    if (!parent || !fallback || !slot) return
+    // React renders only the value: the capture point holding it is unwrapped
+    // into the parent element, and the other capture point drops out.
+    if (hasSlotContent) {
+      placeContent(fallback, null)
+      placeContent(slot, parent, slot)
+    } else {
+      placeContent(slot, null)
+      placeContent(fallback, parent, fallback)
+    }
+    setElementPresent(fallback, false)
+    setElementPresent(slot, false)
   }
 }

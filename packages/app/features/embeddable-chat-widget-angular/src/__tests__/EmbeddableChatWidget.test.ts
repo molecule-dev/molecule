@@ -18,11 +18,21 @@
  */
 
 import '@angular/compiler'
-import type { ApplicationRef } from '@angular/core'
+import {
+  type ApplicationRef,
+  ChangeDetectionStrategy,
+  Component,
+  createComponent,
+  provideZonelessChangeDetection,
+  type Type,
+} from '@angular/core'
+import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
 import { createSimpleI18nProvider, setProvider as setI18nProvider } from '@molecule/app-i18n'
 
+import { EmbeddableChatWidget } from '../embeddable-chat-widget.component.js'
 import { mountEmbeddableChatWidget } from '../mount.js'
 import type { EmbeddableChatWidgetConfig } from '../types.js'
 
@@ -320,5 +330,42 @@ describe('mountEmbeddableChatWidget', () => {
     await expect(
       mountEmbeddableChatWidget('#does-not-exist', configWith(makeStreamingFetch([]))),
     ).rejects.toThrow(/no element found/)
+  })
+})
+
+describe('DOM placement', () => {
+  it("renders React's elements with no host or capture element of its own", async () => {
+    const Host = Component({
+      selector: 'mol-widget-spec-host',
+      standalone: true,
+      imports: [EmbeddableChatWidget as Type<unknown>],
+      changeDetection: ChangeDetectionStrategy.Eager,
+      template: `<i>a</i><mol-embeddable-chat-widget [config]="p['config']"></mol-embeddable-chat-widget><i>b</i>`,
+    })(
+      class SpecHost {
+        /** The props the template binds. */
+        p: Record<string, unknown> = { config: configWith(makeStreamingFetch([])) }
+      },
+    )
+    const appRef: ApplicationRef = await createApplication({
+      providers: [provideZonelessChangeDetection(), provideDomPlacement()],
+    })
+    const ref = createComponent(Host, { environmentInjector: appRef.injector })
+    const host = ref.location.nativeElement as HTMLElement
+    document.body.appendChild(host)
+    appRef.attachView(ref.hostView)
+    appRef.tick()
+    const tags = (): string[] => Array.from(host.children).map((el) => el.tagName.toLowerCase())
+    // Closed: React's root is the launcher's <button>, nothing else.
+    expect(tags()).toEqual(['i', 'button', 'i'])
+    expect(host.querySelector('mol-embeddable-chat-widget')).toBeNull()
+    expect(host.querySelector('mol-embeddable-chat-launcher')).toBeNull()
+    // Open: React's root becomes the panel's <section>.
+    ;(host.querySelector('[data-mol-id="embeddable-chat-launcher"]') as HTMLElement).click()
+    appRef.tick()
+    expect(tags()).toEqual(['i', 'section', 'i'])
+    expect(host.querySelector('mol-embeddable-chat-panel')).toBeNull()
+    appRef.destroy()
+    host.remove()
   })
 })

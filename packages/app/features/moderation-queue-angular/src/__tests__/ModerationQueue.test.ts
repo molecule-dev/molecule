@@ -23,6 +23,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 // ClassMap stub echoing each accessed member back as its token (e.g.
 // `flex-center-center`), so tests can assert which cm.* class was applied
 // without a real bond — the same mock the React tests use. (Members are
@@ -81,7 +83,7 @@ async function mount(template: string, props: Record<string, unknown> = {}): Pro
     selector: 'mol-spec-host',
     standalone: true,
     imports: [ModerationQueue as Type<unknown>],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     host: { 'data-spec-host': String(specHost) },
     template,
   })(
@@ -91,7 +93,7 @@ async function mount(template: string, props: Record<string, unknown> = {}): Pro
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(SpecHost, {
     environmentInjector: appRef.injector,
@@ -139,6 +141,59 @@ async function render(template: string, props: Record<string, unknown>): Promise
 
 /** The props every rendering test passes (the two required handlers). */
 const handlers = { onApprove: (): void => {}, onReject: (): void => {} }
+
+/**
+ * Mounts the queue between two fixed siblings, the way a consumer list would,
+ * and returns a setter for its inputs.
+ *
+ * @param props - The component props.
+ * @returns The mounted host and a setter that re-renders with new props.
+ */
+async function renderInList(
+  props: Record<string, unknown>,
+): Promise<Mounted & { set(next: Record<string, unknown>): void }> {
+  specHostCount += 1
+  const SpecHost = Component({
+    selector: 'mol-spec-list-host',
+    standalone: true,
+    imports: [ModerationQueue as Type<unknown>],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    host: { 'data-spec-host': String(specHostCount) },
+    template: `<i>a</i><div mol-moderation-queue [items]="p['items']" [loading]="p['loading']" [onApprove]="p['onApprove']" [onReject]="p['onReject']"></div><i>b</i>`,
+  })(
+    class SpecListHost {
+      /** The props the template binds. */
+      p: Record<string, unknown> = { ...props }
+    },
+  )
+  const appRef: ApplicationRef = await createApplication({
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
+  })
+  const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(SpecHost, {
+    environmentInjector: appRef.injector,
+  })
+  const host = ref.location.nativeElement as HTMLElement
+  document.body.appendChild(host)
+  appRef.attachView(ref.hostView)
+  appRef.tick()
+  const entry: Mounted = {
+    host,
+    flush: () => appRef.tick(),
+    destroy: async () => {
+      appRef.destroy()
+      host.remove()
+    },
+  }
+  mounted.push(entry)
+  return {
+    ...entry,
+    set: (next) => {
+      ref.instance.p = { ...ref.instance.p, ...next }
+      ref.changeDetectorRef.markForCheck()
+      appRef.tick()
+    },
+  }
+}
 
 interface BaseItem {
   id: string
@@ -214,6 +269,18 @@ describe('<ModerationQueue> empty + loading states', () => {
       { items: [], ...handlers },
     )
     expect(m.host.querySelector('[data-testid="custom-empty"]')).not.toBeNull()
+  })
+
+  it("renders React's elements with no host or capture element of its own", async () => {
+    const m = await renderInList({ items: [], loading: true, ...handlers })
+    const children = (): string[] =>
+      Array.from(m.host.children).map((child) => child.tagName.toLowerCase())
+    const root = (): HTMLElement => m.host.children[1] as HTMLElement
+    expect(children()).toEqual(['i', 'div', 'i'])
+    expect(root().getAttribute('data-mol-id')).toBe('moderation-queue-loading')
+    m.set({ loading: false, items: baseItems })
+    expect(children()).toEqual(['i', 'div', 'i'])
+    expect(root().getAttribute('data-mol-id')).toBe('moderation-queue')
   })
 })
 

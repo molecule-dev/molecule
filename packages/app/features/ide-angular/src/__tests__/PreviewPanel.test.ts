@@ -26,7 +26,7 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { provideI18n, providePreview } from '@molecule/app-angular'
+import { provideDomPlacement, provideI18n, providePreview } from '@molecule/app-angular'
 import { createSimpleI18nProvider } from '@molecule/app-i18n'
 import type { PreviewProvider, PreviewState } from '@molecule/app-live-preview'
 
@@ -103,7 +103,7 @@ const PreviewPanelHost = Component({
   selector: 'div[mol-preview-host]',
   standalone: true,
   imports: [PreviewPanel],
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `<div mol-preview-panel [buildingHint]="p['buildingHint']" [className]="p['className']"></div>`,
 })(
   class PreviewPanelHost {
@@ -174,6 +174,7 @@ async function mount(
   const appRef = await createApplication({
     providers: [
       provideZonelessChangeDetection(),
+      provideDomPlacement(),
       provideI18n(createSimpleI18nProvider('en')),
       providePreview(provider),
     ],

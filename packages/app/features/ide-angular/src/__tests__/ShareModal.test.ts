@@ -23,7 +23,7 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { provideHttp, provideTheme } from '@molecule/app-angular'
+import { provideDomPlacement, provideHttp, provideTheme } from '@molecule/app-angular'
 import type { HttpClient, HttpResponse, RequestConfig } from '@molecule/app-http'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 import type { ShareLinkResult } from '@molecule/app-ide-panel-logic'
@@ -95,7 +95,7 @@ const ShareModalHost = Component({
   selector: 'mol-share-modal-host',
   standalone: true,
   imports: [ShareModal],
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `<div mol-share-modal [projectId]="p['projectId']" [initialRole]="p['initialRole']" [roles]="p['roles']" [canManage]="p['canManage']" [canCreate]="p['canCreate']" [canRevoke]="p['canRevoke']" [showLinks]="p['showLinks']" [refreshSignal]="p['refreshSignal']" [onClose]="p['onClose']" [onCreated]="p['onCreated']">@if (p['withChildren']) {<div data-mol-id="host-section">extra</div>}</div>`,
 })(
   class ShareModalHost {
@@ -163,6 +163,7 @@ async function renderModal(props: Record<string, unknown>): Promise<HTMLElement>
   const appRef: ApplicationRef = await createApplication({
     providers: [
       provideZonelessChangeDetection(),
+      provideDomPlacement(),
       provideTheme(buildThemeProvider('dark')),
       provideHttp(buildHttpClient()),
     ],

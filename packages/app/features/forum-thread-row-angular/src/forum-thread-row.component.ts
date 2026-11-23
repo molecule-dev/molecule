@@ -4,21 +4,17 @@
  * @module
  */
 
-import {
-  type AfterViewInit,
-  Component,
-  type DoCheck,
-  ElementRef,
-  inject,
-  Renderer2,
-  ViewChild,
-} from '@angular/core'
+import { Component, type ElementRef, ViewChild } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  setElementPresent,
+  type SlotReader,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
-
-import { hasProjectedSlot, SlotGuard } from './slot-dom.js'
 
 /** Next value of the module-wide instance counter (React `useId()`'s counterpart). */
 let nextNameId = 0
@@ -42,11 +38,14 @@ let nextNameId = 0
  * `createdAt`, `tags` and `voteControls` each render inside the wrapper
  * element React renders for them. String inputs render as text instead —
  * React's truthiness branch applies: an empty string renders nothing. The
- * capture wrappers reconcile against that in {@link ForumThreadRow.ngDoCheck}.
+ * capture wrappers reconcile against that in the placement function registered
+ * in the constructor (each wrapper renders its own text first, so the slot is
+ * read past that one leading node).
  */
 @Component({
   selector: 'article[mol-forum-thread-row]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   inputs: [
     'title',
     'excerpt',
@@ -122,7 +121,7 @@ let nextNameId = 0
       </div>
     </div>`,
 })
-export class ForumThreadRow implements AfterViewInit, DoCheck {
+export class ForumThreadRow {
   /** Thread title (string/number renders as text; nodes are `[slot=title]` content). */
   title?: unknown
   /** Optional snippet of the OP body (string as text; nodes are `[slot=excerpt]` content). */
@@ -176,12 +175,12 @@ export class ForumThreadRow implements AfterViewInit, DoCheck {
   /** The tags wrapper `<div>` (detached when no tags input and the slot is empty). */
   @ViewChild('tagsWrap') tagsWrap?: ElementRef<HTMLElement>
 
-  private readonly renderer = inject(Renderer2)
-
-  private readonly guard = new SlotGuard(inject(ElementRef), this.renderer)
-
   /** The i18n bond (React's `useTranslation`): the row's own text reads through it. */
   private readonly i18n = useTranslation()
+
+  constructor() {
+    usePlacement((hasContent) => this.reconcile(hasContent))
+  }
 
   /**
    * The current class map.
@@ -455,10 +454,11 @@ export class ForumThreadRow implements AfterViewInit, DoCheck {
   /**
    * Whether React would render the vote-controls wrapper: a text value or
    * projected slot content.
+   * @param hasContent - Reads whether a slot has content.
    * @returns True when vote controls are present.
    */
-  private hasVoteControls(): boolean {
-    return this.voteControlsText() !== '' || hasProjectedSlot(this.voteControlsWrap?.nativeElement)
+  private hasVoteControls(hasContent: SlotReader): boolean {
+    return this.voteControlsText() !== '' || hasContent(this.voteControlsWrap?.nativeElement, 1)
   }
 
   /** Opens the row: calls `onClick` with no arguments, as React's button does. */
@@ -467,32 +467,19 @@ export class ForumThreadRow implements AfterViewInit, DoCheck {
   }
 
   /**
-   * Reconciles the wrappers once the view queries resolve.
-   */
-  ngAfterViewInit(): void {
-    this.reconcile()
-  }
-
-  /**
-   * Re-reconciles on later passes (a props step may add an excerpt or an
-   * author, or empty a previously set value, which React re-renders).
-   */
-  ngDoCheck(): void {
-    this.reconcile()
-  }
-
-  /**
    * Applies React's conditions: the vote-controls wrapper renders when the
    * string input is non-empty or the slot holds projected content; the score
    * block renders when `voteScore !== undefined` and no vote controls are
    * supplied; each text-node wrapper renders when its value is truthy or the
-   * slot holds projected content. Re-read every pass, so a props step that
+   * slot holds projected content. Re-read every run, so a props step that
    * empties a previously set value drops the wrapper.
+   *
+   * @param hasContent - Reads whether a slot has content.
    */
-  private reconcile(): void {
-    const hasVoteControls = this.hasVoteControls()
-    this.guard.toggle(this.voteControlsWrap?.nativeElement, hasVoteControls)
-    this.guard.toggle(
+  private reconcile(hasContent: SlotReader): void {
+    const hasVoteControls = this.hasVoteControls(hasContent)
+    setElementPresent(this.voteControlsWrap?.nativeElement, hasVoteControls)
+    setElementPresent(
       this.scoreWrap?.nativeElement,
       this.voteScore !== undefined && !hasVoteControls,
     )
@@ -500,9 +487,9 @@ export class ForumThreadRow implements AfterViewInit, DoCheck {
     const author = this.authorWrap?.nativeElement
     const createdAt = this.createdAtWrap?.nativeElement
     const tags = this.tagsWrap?.nativeElement
-    this.guard.toggle(excerpt, this.excerptText() !== '' || hasProjectedSlot(excerpt))
-    this.guard.toggle(author, this.authorText() !== '' || hasProjectedSlot(author))
-    this.guard.toggle(createdAt, this.createdAtText() !== '' || hasProjectedSlot(createdAt))
-    this.guard.toggle(tags, this.tagsText() !== '' || hasProjectedSlot(tags))
+    setElementPresent(excerpt, this.excerptText() !== '' || hasContent(excerpt, 1))
+    setElementPresent(author, this.authorText() !== '' || hasContent(author, 1))
+    setElementPresent(createdAt, this.createdAtText() !== '' || hasContent(createdAt, 1))
+    setElementPresent(tags, this.tagsText() !== '' || hasContent(tags, 1))
   }
 }

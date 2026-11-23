@@ -35,6 +35,7 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 import { setIconSet } from '@molecule/app-icons'
 import { COMMANDS } from '@molecule/app-ide-panel-logic/panels'
@@ -58,7 +59,7 @@ const HelpCardHost = Component({
   selector: 'mol-help-card-host',
   standalone: true,
   imports: [HelpCard],
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `<div mol-help-card [isLight]="p['isLight']" [agentName]="p['agentName']" [productName]="p['productName']" [upgradeLines]="p['upgradeLines']" [upgradeAction]="p['upgradeAction']"></div>`,
 })(
   class HelpCardHost {
@@ -115,7 +116,7 @@ async function renderHelpCard(props: Record<string, unknown> = {}): Promise<HTML
   const container = document.createElement('div')
   document.body.appendChild(container)
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<InstanceType<typeof HelpCardHost>> = createComponent(HelpCardHost, {
     environmentInjector: appRef.injector,

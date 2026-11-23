@@ -37,14 +37,12 @@
 
 import { NgTemplateOutlet } from '@angular/common'
 import {
-  afterEveryRender,
   Component,
   type ComponentRef,
   type DoCheck,
   ElementRef,
   inject,
   InjectionToken,
-  Injector,
   type OnDestroy,
   type Signal,
   TemplateRef,
@@ -53,7 +51,15 @@ import {
 import type { SafeHtml } from '@angular/platform-browser'
 import { DomSanitizer } from '@angular/platform-browser'
 
-import { useThemeMode } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  placeElement,
+  setElementPresent,
+  type SlotReader,
+  useHostPresence,
+  usePlacement,
+  useThemeMode,
+} from '@molecule/app-angular'
 import { getClassMap, moleculeSpinnerMarkSvg, type UIClassMap } from '@molecule/app-ui'
 import { styleText } from '@molecule/app-ui-angular'
 
@@ -551,13 +557,12 @@ class DockStripChip implements DoCheck {
     'detailActions',
     'rootProps',
   ],
-  // In a tray React renders no strip element (its chip and detail are portals), so the host
-  // is a transparent shell there (`data-parity-unwrap`, `display: contents`) holding only
-  // the hidden detail element until its section opens.
+  hostDirectives: [MolPlacement],
+  // In a tray React renders no strip element at its place (its chip and detail are portals), so
+  // the host is out of the DOM there; standalone, the host IS React's root div.
   host: {
     '[attr.data-mol-id]': 'tray ? null : molId',
-    '[attr.style]': "tray ? 'display: contents' : s.root",
-    '[attr.data-parity-unwrap]': "tray ? '' : null",
+    '[attr.style]': 's.root',
   },
   // prettier-ignore
   template: `@if (!tray) {<div
@@ -641,13 +646,12 @@ export class DockStrip implements DoCheck, OnDestroy {
   protected readonly cm: UIClassMap = getClassMap()
   /** Names the standalone overlay disclosure button through `aria-labelledby`. */
   protected readonly labelId = `mol-dock-label-${++dockStripSeq}`
-  private readonly injector = inject(Injector)
   private readonly vcr = inject(ViewContainerRef)
   private readonly hostEl = inject(ElementRef).nativeElement as HTMLElement
   /**
    * The strip's detail element — the one element whose `<ng-content>`
-   * receives the user's projected children — captured from the host's
-   * children once ({@link captureDetailHolder}). It is always in the view (a
+   * receives the user's projected children — found among the host's children on
+   * the first placement run. It is always in the view (a
    * conditional slot would leave children unprojected, and Angular detaches
    * unclaimed content children from the DOM), but out of the document until
    * the detail should show, which {@link syncDetail} keeps in step for both
@@ -659,17 +663,6 @@ export class DockStrip implements DoCheck, OnDestroy {
   private chipRef?: ComponentRef<DockStripChip>
   /** The root attributes this component applied from `rootProps`. */
   private readonly appliedRootProps = new Set<string>()
-
-  /**
-   * Whether the user projected any children into the detail's `ng-content`.
-   *
-   * @returns True when the slot holds a node (comments excluded).
-   */
-  private get hasProjectedContent(): boolean {
-    const holder = this.detailHolderEl
-    if (!holder) return false
-    return Array.from(holder.childNodes).some((node) => node.nodeName !== '#comment')
-  }
 
   /**
    * The row's accessible name: the label, but only when it is plain text.
@@ -756,15 +749,37 @@ export class DockStrip implements DoCheck, OnDestroy {
   }
 
   constructor() {
-    // The detail is placed after every render pass: only then have the
-    // projected children landed in the detail's slot (projection and the
-    // template's attribute bindings run after this class's hooks), and a
-    // post-render mutation still lands before the DOM is observed.
-    afterEveryRender(() => this.syncDetail(), { injector: this.injector })
+    // Standalone the host IS React's root div; in a tray React renders no strip
+    // element at its place (the chip and the detail are portals).
+    useHostPresence(() => this.tray === null)
+    // The detail is placed from the placement function: it runs right after
+    // Angular changes a node of the detail's slot, when a signal it read
+    // changes, and after every render — so the projected children are seen in
+    // the pass they land in. The chip's component is created and checked in
+    // `ngDoCheck`; only its placement is here, because creating and checking a
+    // component inside an after-render write re-marks the application forever
+    // (NG0103).
+    usePlacement((hasContent) => this.place(hasContent))
+  }
+
+  /**
+   * Places the tray chip and the detail against React's DOM.
+   *
+   * @param hasContent - Reads whether a slot has content.
+   */
+  private place(hasContent: SlotReader): void {
+    const headerEl = this.tray?.headerEl()
+    const chipEl = this.chipRef?.location.nativeElement as HTMLElement | undefined
+    if (chipEl && headerEl) placeElement(chipEl, headerEl)
+    this.syncDetail(hasContent)
   }
 
   /** Tears the tray chip down. */
   ngOnDestroy(): void {
+    // Put the detail back inside the host so the framework's teardown removes
+    // it (and its projected children) with the host, not stranded where it was
+    // last shown.
+    if (this.detailHolderEl) setElementPresent(this.detailHolderEl, true)
     this.chipRef?.destroy()
   }
 
@@ -800,8 +815,6 @@ export class DockStrip implements DoCheck, OnDestroy {
       this.chipRef = this.vcr.createComponent(DockStripChip)
       this.chipRef.changeDetectorRef.detectChanges()
     }
-    const chipEl = this.chipRef.location.nativeElement as HTMLElement
-    if (chipEl.parentNode !== headerEl) headerEl.appendChild(chipEl)
     this.chipRef.setInput('molId', this.molId)
     this.chipRef.setInput('toggleMolId', this.toggleMolId)
     this.chipRef.setInput('open', open)
@@ -836,8 +849,10 @@ export class DockStrip implements DoCheck, OnDestroy {
    * expanded. Detached from the document the rest of the time — exactly the
    * branches React renders, with the projected children kept alive in the
    * slot for the next open.
+   *
+   * @param hasContent - Reads whether a slot has content.
    */
-  private syncDetail(): void {
+  private syncDetail(hasContent: SlotReader): void {
     const holder =
       this.detailHolderEl ??
       (this.hostEl.querySelector(':scope > [hidden]') as HTMLElement | null) ??
@@ -848,17 +863,17 @@ export class DockStrip implements DoCheck, OnDestroy {
       const open = !this.onActivate && this.tray.openId() === this.molId
       const detailEl = this.tray.detailEl()
       const wants =
-        open && detailEl != null && (this.detailActions != null || this.hasProjectedContent)
+        open && detailEl != null && (this.detailActions != null || hasContent(this.detailHolderEl))
       if (wants && detailEl) {
-        if (holder.parentNode !== detailEl) detailEl.appendChild(holder)
+        placeElement(holder, detailEl)
         holder.removeAttribute('hidden')
       } else {
         this.hideDetail(holder)
       }
       return
     }
-    if (!this.onActivate && this.expanded && this.hasProjectedContent) {
-      if (holder.parentNode !== this.hostEl) this.hostEl.appendChild(holder)
+    if (!this.onActivate && this.expanded && hasContent(this.detailHolderEl)) {
+      setElementPresent(holder, true)
       holder.removeAttribute('hidden')
     } else {
       this.hideDetail(holder)
@@ -872,7 +887,11 @@ export class DockStrip implements DoCheck, OnDestroy {
    * @param holder - The detail element.
    */
   private hideDetail(holder: HTMLElement): void {
-    holder.remove()
+    // `placeElement` leaves the holder in the tray's detail element while it
+    // is shown; bring it back to its own place before hiding it, so it is out
+    // of the page rather than left visible where it was last rendered.
+    placeElement(holder, null)
+    setElementPresent(holder, false)
     holder.setAttribute('hidden', '')
   }
 }

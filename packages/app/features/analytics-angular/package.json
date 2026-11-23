@@ -46,7 +46,7 @@
     "@angular/core": "^22.0.0",
     "@angular/platform-browser": "^22.0.0",
     "@molecule/app-analytics": "^1.0.1",
-    "@molecule/app-angular": "^3.11.0",
+    "@molecule/app-angular": "^3.12.1",
     "@molecule/app-ui": "^1.0.1",
     "@molecule/app-ui-angular": "^1.1.0"
   },

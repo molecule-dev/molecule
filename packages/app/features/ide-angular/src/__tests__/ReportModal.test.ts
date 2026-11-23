@@ -22,7 +22,7 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { provideHttp, provideTheme } from '@molecule/app-angular'
+import { provideDomPlacement, provideHttp, provideTheme } from '@molecule/app-angular'
 import type { FullRequestConfig, HttpClient, HttpResponse, RequestConfig } from '@molecule/app-http'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 import { setClassMap } from '@molecule/app-ui'
@@ -91,7 +91,7 @@ const ReportModalHost = Component({
   selector: 'mol-report-modal-host',
   standalone: true,
   imports: [ReportModal],
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `<div mol-report-modal [projectId]="p['projectId']" [conversationId]="p['conversationId']" [initialTitle]="p['initialTitle']" [onClose]="p['onClose']" [onSubmitted]="p['onSubmitted']" [productName]="p['productName']" [appVersion]="p['appVersion']"></div>`,
 })(
   class ReportModalHost {
@@ -156,6 +156,7 @@ async function renderModal(props: Record<string, unknown>): Promise<HTMLElement>
   const appRef: ApplicationRef = await createApplication({
     providers: [
       provideZonelessChangeDetection(),
+      provideDomPlacement(),
       provideTheme(buildThemeProvider()),
       provideHttp(buildHttpClient()),
     ],

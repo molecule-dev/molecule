@@ -14,6 +14,7 @@ import '@angular/compiler'
 import '@molecule/app-framework-conformance/ui/setup'
 import {
   type ApplicationRef,
+  ChangeDetectionStrategy,
   Component,
   createComponent,
   provideZonelessChangeDetection,
@@ -22,7 +23,7 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
-import { provideTheme } from '@molecule/app-angular'
+import { provideDomPlacement, provideTheme } from '@molecule/app-angular'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
@@ -57,13 +58,18 @@ async function mount(
   props: Record<string, unknown> = {},
 ): Promise<HTMLElement> {
   const Host = Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
     selector: 'div[data-test-host]',
     standalone: true,
     imports,
     template,
   })(class StaticInputAttributesHost {})
   appRef = await createApplication({
-    providers: [provideZonelessChangeDetection(), provideTheme(buildThemeProvider())],
+    providers: [
+      provideZonelessChangeDetection(),
+      provideDomPlacement(),
+      provideTheme(buildThemeProvider()),
+    ],
   })
   const ref = createComponent(Host, { environmentInjector: appRef.injector })
   Object.assign(ref.instance, props)

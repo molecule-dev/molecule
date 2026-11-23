@@ -30,7 +30,7 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 
-import { provideTheme } from '@molecule/app-angular'
+import { provideDomPlacement, provideTheme } from '@molecule/app-angular'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
@@ -50,7 +50,7 @@ const ToolCallCardHost = Component({
   selector: 'mol-tool-call-card-host',
   standalone: true,
   imports: [ToolCallCard],
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `<div mol-tool-call-card [id]="p['id']" [name]="p['name']" [input]="p['input']" [output]="p['output']" [status]="p['status']" [fileDiff]="p['fileDiff']" [isUndone]="p['isUndone']" [onUndoToggle]="p['onUndoToggle']" [onFileOpen]="p['onFileOpen']" [onFileDoubleClick]="p['onFileDoubleClick']" [onFileDiff]="p['onFileDiff']" [onFileRevert]="p['onFileRevert']" [onAskUserResponse]="p['onAskUserResponse']" [onSkip]="p['onSkip']" [skipDisabledReason]="p['skipDisabledReason']" [className]="p['className']"></div>`,
 })(
   class ToolCallCardHost {
@@ -99,6 +99,7 @@ async function renderWait(
   const appRef: ApplicationRef = await createApplication({
     providers: [
       provideZonelessChangeDetection(),
+      provideDomPlacement(),
       provideTheme(buildThemeProvider()),
       { provide: BACKGROUND_TASK_COMMANDS, useValue: commands },
     ],

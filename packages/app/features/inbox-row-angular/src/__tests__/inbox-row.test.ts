@@ -22,6 +22,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
 // `cursorPointer`), so tests can assert which cm.* class was applied without a
 // real bond — the same mock the React tests use.
@@ -51,6 +53,7 @@ vi.mock('@molecule/app-ui', () => ({
 vi.mock('@molecule/app-ui-angular', async () => {
   const { Component, TemplateRef } = await import('@angular/core')
   const MockAvatar = Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
     selector: 'div[mol-avatar]',
     standalone: true,
     inputs: ['src', 'alt', 'name', 'size', 'rounded', 'className', 'style', 'testId'],
@@ -111,7 +114,7 @@ async function mount(template: string, props: Record<string, unknown> = {}): Pro
     selector: 'mol-spec-host',
     standalone: true,
     imports: [InboxRow],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template,
   })(
     class SpecHost {
@@ -120,7 +123,7 @@ async function mount(template: string, props: Record<string, unknown> = {}): Pro
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
     environmentInjector: appRef.injector,
@@ -248,5 +251,45 @@ describe('InboxRow', () => {
     expect(rowEl(plain.host).querySelector('button[data-mol-id="inbox-row-open"]')).toBeNull()
     expect(rowEl(plain.host).className).not.toContain('cursorPointer')
     expect(rowEl(plain.host).className).toContain('ir-cls')
+  })
+
+  it('keeps a consumer list in order when an item is inserted in the middle of labels', async () => {
+    const m = await render(
+      { sender: 'A', subject: 'S', xs: ['a', 'c'] },
+      `<ng-container ngProjectAs="[slot=labels]">@for (x of p['xs']; track x) {<b>{{ x }}</b>}</ng-container>`,
+    )
+    const items = (): string[] =>
+      [...rowEl(m.host).querySelectorAll('b')].map((b) => b.textContent ?? '')
+    expect(items()).toEqual(['a', 'c'])
+    await m.setProps({ xs: ['a', 'b', 'c'] })
+    expect(items()).toEqual(['a', 'b', 'c'])
+    await m.setProps({ xs: ['a', 'b'] })
+    expect(items()).toEqual(['a', 'b'])
+  })
+
+  it('shows and removes the labels wrapper in the pass where the consumer @if adds and removes its content', async () => {
+    const m = await render(
+      { sender: 'A', subject: 'S', on: false },
+      `@if (p['on']) {<span slot="labels" data-labels></span>}`,
+    )
+    const labels = (): HTMLElement | null =>
+      rowEl(m.host).querySelector<HTMLElement>('[data-labels]')
+    expect(labels()).toBeNull()
+    await m.setProps({ on: true })
+    expect(labels()).not.toBeNull()
+    expect(labels()?.parentElement?.getAttribute('class')).toContain('flex')
+    await m.setProps({ on: false })
+    expect(labels()).toBeNull()
+  })
+
+  it('removes the unwrapped star toggle when onToggleStar goes away', async () => {
+    const m = await render({ sender: 'A', subject: 'S', onToggleStar: () => {} })
+    const star = (): Element | null =>
+      rowEl(m.host).querySelector('button[data-mol-id="inbox-row-star"]')
+    // Without onClick the star renders bare, with no positioned wrapper.
+    expect(star()).not.toBeNull()
+    await m.setProps({ onToggleStar: undefined })
+    // React renders the star only while onToggleStar exists.
+    expect(star()).toBeNull()
   })
 })

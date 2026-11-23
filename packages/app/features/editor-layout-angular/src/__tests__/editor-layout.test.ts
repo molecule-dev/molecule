@@ -78,7 +78,7 @@ async function mount(
     selector: 'mol-spec-host',
     standalone: true,
     imports: [component],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template,
   })(
     class SpecHost {
@@ -202,5 +202,23 @@ describe('EditorLayout', () => {
     expect(shown()).toEqual(['a', 'b', 'c'])
     await m.setProps({ xs: ['a', 'c'] })
     expect(shown()).toEqual(['a', 'c'])
+  })
+
+  it('shows and removes the sidePanel wrapper in the pass where the consumer @if adds and removes its content', async () => {
+    const m = await render(
+      `<div mol-editor-layout><div slot="canvas" data-canvas></div>@if (p['on']) {<b slot="sidePanel" data-panel></b>}</div>`,
+      { on: false },
+    )
+    const panel = (): HTMLElement | null => m.host.querySelector('[data-panel]')
+    // No projected side panel: React renders no `<aside>` at all.
+    expect(panel()).toBeNull()
+    expect(m.host.querySelector('aside')).toBeNull()
+    await m.setProps({ on: true })
+    // The side panel arrives: the `<aside>` and its content render in the same pass.
+    expect(panel()).not.toBeNull()
+    expect(panel()!.closest('aside')).not.toBeNull()
+    await m.setProps({ on: false })
+    expect(panel()).toBeNull()
+    expect(m.host.querySelector('aside')).toBeNull()
   })
 })

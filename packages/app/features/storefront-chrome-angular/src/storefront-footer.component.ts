@@ -5,20 +5,20 @@
  */
 
 import { NgTemplateOutlet } from '@angular/common'
-import {
-  type AfterViewInit,
-  Component,
-  type ElementRef,
-  signal,
-  type TemplateRef,
-  ViewChild,
-} from '@angular/core'
+import { Component, ElementRef, inject, signal, type TemplateRef, ViewChild } from '@angular/core'
 
-import { Link } from '@molecule/app-angular'
+import {
+  Link,
+  MolPlacement,
+  placeContentBefore,
+  setElementPresent,
+  type SlotReader,
+  usePlacement,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
-import { hasRenderableContent, hasText, isNodeTemplate, nodeText } from './internal.js'
+import { hasText, isNodeTemplate, nodeText } from './internal.js'
 import type { FooterColumn } from './types.js'
 
 /**
@@ -34,20 +34,22 @@ import type { FooterColumn } from './types.js'
  *
  * @remarks
  * Angular projection needs the `<ng-content>` capture point mounted, so the
- * optional tagline renders optimistically and
- * {@link StorefrontFooter.ngAfterViewInit} withdraws it when nothing was
- * projected into it (React would not render it at all).
+ * optional tagline renders optimistically and the placement function withdraws
+ * it when nothing was projected into it (React would not render it at all).
+ * Each projected slot's capture span renders its content bare in place and
+ * never reaches the page.
  */
 @Component({
   selector: 'footer[mol-storefront-footer]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [Link, NgTemplateOutlet],
   inputs: ['brand', 'tagline', 'columns', 'copyright', 'className'],
   host: { '[class]': 'classes()' },
   // prettier-ignore
-  template: `<div [class]="columnsClasses()"><div [class]="brandColClasses()"><div [class]="brandClasses()">@if (brandTemplate(); as brandTpl) {<ng-container [ngTemplateOutlet]="brandTpl"></ng-container>}@if (hasTextBrand()) {<ng-container>{{ brand }}</ng-container>}<span data-parity-unwrap><ng-content select="[slot=brand]"></ng-content></span></div>@if (showTagline()) {<p [class]="taglineClasses()">@if (taglineTemplate(); as taglineTpl) {<ng-container [ngTemplateOutlet]="taglineTpl"></ng-container>}@if (hasTextTagline()) {<ng-container>{{ tagline }}</ng-container>}<span #taglineSlot data-parity-unwrap><ng-content select="[slot=tagline]"></ng-content></span></p>}</div>@for (col of columns; track $index) {<div><h4 [class]="headingClasses()">@if (isTemplate(col.heading)) {<ng-container [ngTemplateOutlet]="asTemplate(col.heading)"></ng-container>}@if (hasText(col.heading)) {<ng-container>{{ headingText(col) }}</ng-container>}</h4><ul [class]="linkListClasses()">@for (link of col.links; track link.to) {<li><a [molLink]="link.to" [class]="linkClasses()">@if (isTemplate(link.label)) {<ng-container [ngTemplateOutlet]="asTemplate(link.label)"></ng-container>}@if (hasText(link.label)) {<ng-container>{{ linkText(link) }}</ng-container>}</a></li>}</ul></div>}</div><div [class]="dividerClasses()"><p [class]="copyrightClasses()">@if (copyrightTemplate(); as copyrightTpl) {<ng-container [ngTemplateOutlet]="copyrightTpl"></ng-container>}@if (hasTextCopyright()) {<ng-container>{{ copyright }}</ng-container>}<span data-parity-unwrap><ng-content select="[slot=copyright]"></ng-content></span></p></div>`,
+  template: `<div [class]="columnsClasses()"><div [class]="brandColClasses()"><div [class]="brandClasses()">@if (brandTemplate(); as brandTpl) {<ng-container [ngTemplateOutlet]="brandTpl"></ng-container>}@if (hasTextBrand()) {<ng-container>{{ brand }}</ng-container>}<span #brandSlot><ng-content select="[slot=brand]"></ng-content></span></div>@if (showTagline()) {<p [class]="taglineClasses()">@if (taglineTemplate(); as taglineTpl) {<ng-container [ngTemplateOutlet]="taglineTpl"></ng-container>}@if (hasTextTagline()) {<ng-container>{{ tagline }}</ng-container>}<span #taglineSlot><ng-content select="[slot=tagline]"></ng-content></span></p>}</div>@for (col of columns; track $index) {<div><h4 [class]="headingClasses()">@if (isTemplate(col.heading)) {<ng-container [ngTemplateOutlet]="asTemplate(col.heading)"></ng-container>}@if (hasText(col.heading)) {<ng-container>{{ headingText(col) }}</ng-container>}</h4><ul [class]="linkListClasses()">@for (link of col.links; track link.to) {<li><a [molLink]="link.to" [class]="linkClasses()">@if (isTemplate(link.label)) {<ng-container [ngTemplateOutlet]="asTemplate(link.label)"></ng-container>}@if (hasText(link.label)) {<ng-container>{{ linkText(link) }}</ng-container>}</a></li>}</ul></div>}</div><div [class]="dividerClasses()"><p [class]="copyrightClasses()">@if (copyrightTemplate(); as copyrightTpl) {<ng-container [ngTemplateOutlet]="copyrightTpl"></ng-container>}@if (hasTextCopyright()) {<ng-container>{{ copyright }}</ng-container>}<span #copyrightSlot><ng-content select="[slot=copyright]"></ng-content></span></p></div>`,
 })
-export class StorefrontFooter implements AfterViewInit {
+export class StorefrontFooter {
   /** The brand mark — a text input, or `[slot=brand]` projected content. */
   brand?: unknown
   /** Optional tagline — a text input, or `[slot=tagline]` projected content. */
@@ -59,8 +61,12 @@ export class StorefrontFooter implements AfterViewInit {
   /** Extra classes on the footer. */
   className?: string
 
-  /** The tagline slot's capture point (projected content lands here; read once). */
+  /** The brand slot's capture point (projected content renders bare in place). */
+  @ViewChild('brandSlot') private brandSlot?: ElementRef<HTMLElement>
+  /** The tagline slot's capture point (projected content renders bare in place). */
   @ViewChild('taglineSlot') private taglineSlot?: ElementRef<HTMLSpanElement>
+  /** The copyright slot's capture point (projected content renders bare in place). */
+  @ViewChild('copyrightSlot') private copyrightSlot?: ElementRef<HTMLElement>
 
   /**
    * Whether `[slot=tagline]` projection landed: true (optimistically) until
@@ -68,14 +74,39 @@ export class StorefrontFooter implements AfterViewInit {
    */
   private readonly taglineProjected = signal(true)
 
+  private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
+
+  constructor() {
+    usePlacement((hasContent) => this.placeSlots(hasContent))
+  }
+
   /**
-   * Reads the tagline's capture point on the first render: when neither a text
-   * input nor projected content landed, React would not render the paragraph at
-   * all, so the optimistic render is withdrawn.
+   * Renders each slot's content bare in its place and takes the capture spans
+   * out of the page, and reads whether the tagline slot got content (when
+   * there is neither a text input nor projected content, React renders no
+   * tagline paragraph at all).
+   *
+   * @param hasContent - Reads whether a slot has content.
    */
-  ngAfterViewInit(): void {
-    const slot = this.taglineSlot?.nativeElement
-    if (slot) this.taglineProjected.set(hasRenderableContent(slot))
+  private placeSlots(hasContent: SlotReader): void {
+    const brand = this.brandSlot?.nativeElement
+    if (brand) {
+      hasContent(brand)
+      placeContentBefore(brand, brand)
+      setElementPresent(brand, false)
+    }
+    const copyright = this.copyrightSlot?.nativeElement
+    if (copyright) {
+      hasContent(copyright)
+      placeContentBefore(copyright, copyright)
+      setElementPresent(copyright, false)
+    }
+    const tagline = this.taglineSlot?.nativeElement
+    if (tagline) {
+      this.taglineProjected.set(hasContent(tagline))
+      placeContentBefore(tagline, tagline)
+      setElementPresent(tagline, false)
+    }
   }
 
   /**

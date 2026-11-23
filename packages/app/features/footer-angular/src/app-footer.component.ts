@@ -4,10 +4,18 @@
  * @module
  */
 
-import { Component, inject, signal } from '@angular/core'
+import { Component, ElementRef, inject, signal } from '@angular/core'
 import { DomSanitizer, type SafeHtml } from '@angular/platform-browser'
 
-import { Link, useTranslation, useVersion } from '@molecule/app-angular'
+import {
+  Link,
+  MolPlacement,
+  placeContentBefore,
+  setElementPresent,
+  usePlacement,
+  useTranslation,
+  useVersion,
+} from '@molecule/app-angular'
 import type { IconName } from '@molecule/app-icons'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
@@ -32,9 +40,9 @@ const isExternalHref = (href: string): boolean => /^https?:\/\//i.test(href)
  *
  * App-shell footer — About link, Privacy/Terms modals, language picker,
  * version. React's root is a FRAGMENT (the `<footer>` plus up to three
- * modals portaled into `document.body`), so the host is unwrapped
- * (`data-parity-unwrap`, `display: contents`) and renders exactly React's
- * sibling list.
+ * modals portaled into `document.body`), so the host's content renders in front
+ * of the host's place and the host itself leaves the page
+ * (`placeContentBefore` + `setElementPresent`), matching React's sibling list.
  *
  * The Privacy/Terms modal bodies render whatever HTML the bonded i18n catalog
  * holds under `content.privacyPolicy` / `content.termsOfService` as RAW HTML —
@@ -52,6 +60,7 @@ const isExternalHref = (href: string): boolean => /^https?:\/\//i.test(href)
   selector: 'mol-app-footer',
   standalone: true,
   imports: [Icon, Link, Modal],
+  hostDirectives: [MolPlacement],
   inputs: [
     'appName',
     'aboutHref',
@@ -62,10 +71,6 @@ const isExternalHref = (href: string): boolean => /^https?:\/\//i.test(href)
     'className',
     'dataMolId',
   ],
-  host: {
-    'data-parity-unwrap': '',
-    style: 'display: contents',
-  },
   template: `<footer [class]="footerClasses()" [attr.data-mol-id]="dataMolId ?? null">
       @if (isExternalAbout()) {
         <a [href]="aboutHref" target="_blank" rel="noopener noreferrer" [class]="linkClasses()">
@@ -189,6 +194,18 @@ export class AppFooter {
 
   /** Memoized trusted-HTML values, by raw HTML string (React skips a re-render whose `__html` is unchanged). */
   private readonly trustedCache = new Map<string, SafeHtml>()
+
+  /** The component's host element (React renders a fragment, no element of its own). */
+  private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
+
+  constructor() {
+    // React's root is the fragment (the `<footer>` plus the portalled modals): it renders in
+    // front of the host's place and the host leaves the page.
+    usePlacement(() => {
+      placeContentBefore(this.host.nativeElement, this.host.nativeElement)
+      setElementPresent(this.host.nativeElement, false)
+    })
+  }
 
   /**
    * The current class map.

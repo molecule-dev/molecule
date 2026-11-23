@@ -117,7 +117,7 @@ async function mount(
     host: { 'data-spec-host': String(++hostCount) },
     standalone: true,
     imports: [component],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template,
   })(
     class SpecHost {

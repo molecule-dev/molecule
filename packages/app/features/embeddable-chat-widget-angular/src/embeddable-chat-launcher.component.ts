@@ -6,7 +6,14 @@
  * @module
  */
 
-import { Component, EventEmitter } from '@angular/core'
+import { Component, ElementRef, EventEmitter, inject, ViewChild } from '@angular/core'
+
+import {
+  MolPlacement,
+  placeElementBefore,
+  setElementPresent,
+  usePlacement,
+} from '@molecule/app-angular'
 
 import type { EmbeddableChatWidgetPosition, EmbeddableChatWidgetTheme } from './types.js'
 import { useSafeTranslation } from './useSafeTranslation.js'
@@ -21,23 +28,21 @@ import { useSafeTranslation } from './useSafeTranslation.js'
  * is resolved through a provider-optional translation function that falls
  * back to English defaults when no provider is present.
  *
- * React's root is the `<button>` when visible and nothing when hidden, so
- * the host is unwrapped (`data-parity-unwrap`, `display: contents`) and the
- * button is rendered inside it. The React `onOpen` callback prop is the
- * Angular `open` output, emitting the native click event.
+ * React's root is the `<button>` when visible and nothing when hidden, so the
+ * button renders immediately before the host's place when visible and the host
+ * itself never appears in the page (React renders no wrapper element). The
+ * React `onOpen` callback prop is the Angular `open` output, emitting the
+ * native click event.
  */
 @Component({
   selector: 'mol-embeddable-chat-launcher',
   standalone: true,
+  hostDirectives: [MolPlacement],
   inputs: ['visible', 'position', 'theme', 'className'],
   outputs: ['open'],
-  host: {
-    'data-parity-unwrap': '',
-    style: 'display: contents',
-  },
   // prettier-ignore
-  template: `@if (visible ?? false) {
-    <button
+  template: `<button
+      #root
       type="button"
       (click)="openClick($event)"
       [attr.aria-label]="ariaLabel()"
@@ -59,8 +64,7 @@ import { useSafeTranslation } from './useSafeTranslation.js'
       >
         <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
       </svg>
-    </button>
-  }`,
+    </button>`,
 })
 export class EmbeddableChatLauncher {
   /** Whether the launcher should render. Hidden while the panel is expanded. */
@@ -75,7 +79,23 @@ export class EmbeddableChatLauncher {
   /** The React `onOpen` callback prop, as an Angular output. */
   readonly open = new EventEmitter<MouseEvent>()
 
+  /** The launcher button (React's root, rendered beside the host when visible). */
+  @ViewChild('root') private root?: ElementRef<HTMLButtonElement>
+
+  private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
+
   protected readonly t = useSafeTranslation().t
+
+  constructor() {
+    usePlacement(() => {
+      const button = this.root?.nativeElement
+      if (!button) return
+      // React renders the button or nothing; either way its host is not in the page.
+      if (this.visible ?? false) placeElementBefore(button, this.host.nativeElement)
+      else setElementPresent(button, false)
+      setElementPresent(this.host.nativeElement, false)
+    })
+  }
 
   /**
    * The accessible label (translated, English default).

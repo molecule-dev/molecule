@@ -81,7 +81,7 @@ async function render(props: Record<string, unknown> = {}): Promise<Mounted> {
     selector: 'mol-spec-host',
     standalone: true,
     imports: [WordCloud as Type<unknown>],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: `<svg mol-word-cloud [words]="p['words']" [width]="p['width']" [height]="p['height']" [minFontSize]="p['minFontSize']" [maxFontSize]="p['maxFontSize']" [colorScale]="p['colorScale']" [orientation]="p['orientation']" [onWordClick]="p['onWordClick']" [ariaLabel]="p['ariaLabel']" [className]="p['className']"></svg>`,
   })(
     class SpecHost {

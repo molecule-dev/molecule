@@ -4,19 +4,16 @@
  * @module
  */
 
-import {
-  type AfterViewInit,
-  Component,
-  type DoCheck,
-  ElementRef,
-  inject,
-  ViewChild,
-} from '@angular/core'
+import { Component, ElementRef, inject, signal, ViewChild } from '@angular/core'
 
+import {
+  MolPlacement,
+  setElementPresent,
+  type SlotReader,
+  usePlacement,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
-
-import { hasNodes, markPosition, syncPresence } from './projection.js'
 
 /**
  * HeroSection component.
@@ -39,6 +36,7 @@ import { hasNodes, markPosition, syncPresence } from './projection.js'
 @Component({
   selector: 'section[mol-hero-section]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   inputs: ['align', 'className', 'dataMolId'],
   host: {
     '[attr.data-mol-id]': 'dataMolId ?? null',
@@ -58,7 +56,7 @@ import { hasNodes, markPosition, syncPresence } from './projection.js'
     </div>
     <div #mediaEl [class]="mediaClasses()"><ng-content select="[slot=media]"></ng-content></div>`,
 })
-export class HeroSection implements AfterViewInit, DoCheck {
+export class HeroSection {
   /** The host element: the root `<section>` React renders. */
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef)
 
@@ -78,14 +76,12 @@ export class HeroSection implements AfterViewInit, DoCheck {
   /** The media column (React renders it only while media exists). */
   @ViewChild('mediaEl') mediaEl?: ElementRef<HTMLElement>
 
-  /** Where the eyebrow belongs when it is detached. */
-  private eyebrowMarker?: Comment
-  /** Where the description paragraph belongs when it is detached. */
-  private descriptionMarker?: Comment
-  /** Where the action row belongs when it is detached. */
-  private actionsMarker?: Comment
-  /** Where the media column belongs when it is detached. */
-  private mediaMarker?: Comment
+  /** Whether the media column carries content (drives the root's justification). */
+  private readonly media = signal(false)
+
+  constructor() {
+    usePlacement((hasContent) => this.sync(hasContent))
+  }
 
   /**
    * The current class map.
@@ -171,38 +167,28 @@ export class HeroSection implements AfterViewInit, DoCheck {
    * @returns True while media content exists.
    */
   mediaPresent(): boolean {
-    return hasNodes(this.mediaEl?.nativeElement)
+    return this.media()
   }
 
   /**
-   * Marks where each optional region belongs once the view exists.
-   */
-  ngAfterViewInit(): void {
-    this.eyebrowMarker = markPosition(this.eyebrowEl?.nativeElement)
-    this.descriptionMarker = markPosition(this.descriptionEl?.nativeElement)
-    this.actionsMarker = markPosition(this.actionsEl?.nativeElement)
-    this.mediaMarker = markPosition(this.mediaEl?.nativeElement)
-    this.sync()
-  }
-
-  /**
-   * Keeps each optional region's presence in step with its projected content.
-   */
-  ngDoCheck(): void {
-    this.sync()
-  }
-
-  /**
-   * Detaches the optional regions React omits, restores the ones with content,
+   * Withholds the optional regions React omits, restores the ones with content,
    * and writes the root class: its justification follows the media column,
    * which only the projected DOM can tell us, so it is set here instead of by
    * a binding (a binding would read a value that changes within the same check).
+   *
+   * @param hasContent - Reads whether a slot has content.
    */
-  private sync(): void {
-    syncPresence(this.eyebrowEl?.nativeElement, this.eyebrowMarker)
-    syncPresence(this.descriptionEl?.nativeElement, this.descriptionMarker)
-    syncPresence(this.actionsEl?.nativeElement, this.actionsMarker)
-    syncPresence(this.mediaEl?.nativeElement, this.mediaMarker)
+  private sync(hasContent: SlotReader): void {
+    const eyebrow = this.eyebrowEl?.nativeElement
+    setElementPresent(eyebrow, hasContent(eyebrow))
+    const description = this.descriptionEl?.nativeElement
+    setElementPresent(description, hasContent(description))
+    const actions = this.actionsEl?.nativeElement
+    setElementPresent(actions, hasContent(actions))
+    const media = this.mediaEl?.nativeElement
+    const mediaPresent = hasContent(media)
+    this.media.set(mediaPresent)
+    setElementPresent(media, mediaPresent)
     this.host.nativeElement.setAttribute('class', this.classes())
   }
 }

@@ -23,6 +23,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 // Proxy ClassMap echoing each accessed member back as its token (e.g.
 // `card`), so tests can assert which cm.* class was applied without a real
 // bond — the same mock the React tests use.
@@ -52,6 +54,7 @@ vi.mock('@molecule/app-ui', () => ({
 vi.mock('@molecule/app-ui-angular', async () => {
   const { Component } = await import('@angular/core')
   const Button = Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
     selector: 'button[mol-button]',
     standalone: true,
     inputs: ['variant', 'color', 'disabled', 'loading', 'type'],
@@ -76,6 +79,7 @@ vi.mock('@molecule/app-ui-angular', async () => {
     },
   )
   const ConfirmDialog = Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
     selector: 'mol-confirm-dialog',
     standalone: true,
     template: `<div data-confirm-dialog=""></div>`,
@@ -115,7 +119,7 @@ async function mount(
     selector: 'mol-spec-host',
     standalone: true,
     imports: [component],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template,
   })(
     class SpecHost {
@@ -124,7 +128,7 @@ async function mount(
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
     environmentInjector: appRef.injector,
@@ -216,5 +220,74 @@ describe('DangerZoneSection', () => {
     const m = await render({ ...base, dataMolId: 'danger-x', className: 'dz-cls' })
     expect(m.host.innerHTML).toContain('data-mol-id="danger-x"')
     expect(m.host.innerHTML).toContain('dz-cls')
+  })
+
+  it('keeps a consumer list in order when an item is inserted in the middle of actionLabel', async () => {
+    const m = await render(
+      { ...base, actionLabel: undefined, xs: ['a', 'c'] },
+      `<ng-container ngProjectAs="[slot=actionLabel]">@for (x of p['xs']; track x) {<b>{{ x }}</b>}</ng-container>`,
+    )
+    const items = (): string[] =>
+      [...m.host.querySelectorAll('button b')].map((b) => b.textContent ?? '')
+    expect(items()).toEqual(['a', 'c'])
+    await m.setProps({ xs: ['a', 'b', 'c'] })
+    expect(items()).toEqual(['a', 'b', 'c'])
+    await m.setProps({ xs: ['a', 'b'] })
+    expect(items()).toEqual(['a', 'b'])
+  })
+
+  it('shows and removes the actionLabel wrapper in the pass where the consumer @if adds and removes its content', async () => {
+    const m = await render(
+      { ...base, actionLabel: undefined, on: false },
+      `@if (p['on']) {<span slot="actionLabel" data-label>Delete now</span>}`,
+    )
+    const button = (): HTMLElement => m.host.querySelector('button') as HTMLElement
+    expect(button().querySelector('[data-label]')).toBeNull()
+    expect(button().textContent ?? '').not.toContain('Delete now')
+    await m.setProps({ on: true })
+    expect(button().querySelector('[data-label]')).not.toBeNull()
+    expect(button().textContent ?? '').toContain('Delete now')
+    await m.setProps({ on: false })
+    expect(button().querySelector('[data-label]')).toBeNull()
+    expect(button().textContent ?? '').not.toContain('Delete now')
+  })
+
+  it('hides the projected action label while loading', async () => {
+    const m = await render(
+      { ...base, actionLabel: undefined },
+      '<span slot="actionLabel" data-label>Delete now</span>',
+    )
+    expect(m.host.textContent).toContain('Delete now')
+    await m.setProps({ loading: true })
+    const button = m.host.querySelector('button')!
+    // React renders `{loading ? '…' : actionLabel}`: the label is gone.
+    expect(button.textContent).toContain('…')
+    expect(button.textContent).not.toContain('Delete now')
+  })
+
+  it("renders React's elements with no host or capture element of its own", async () => {
+    const m = await mount(
+      `<i>a</i>${hostTemplate('<span slot="actionLabel" data-label>Delete now</span>')}<i>b</i>`,
+      DangerZoneSection as Type<unknown>,
+      { ...base, actionLabel: undefined },
+    )
+    mounted.push(m)
+    // The consumer's children are exactly React's: the two neighbours and the
+    // card (its root, so the host element itself), with no extra host or capture.
+    const shape = (): string =>
+      Array.from(m.host.childNodes)
+        .filter(
+          (n) => n.nodeType === 1 || (n.nodeType === 3 && (n.textContent ?? '').trim() !== ''),
+        )
+        .map((n) => (n.nodeType === 1 ? (n as Element).tagName : '#text'))
+        .join(',')
+    const button = (): HTMLElement => m.host.querySelector('button') as HTMLElement
+    expect(shape()).toBe('I,DIV,I')
+    // The projected label renders bare on the button, no capture span around it.
+    expect((button().querySelector('[data-label]') as HTMLElement).parentElement).toBe(button())
+    await m.setProps({ loading: true })
+    // React renders `{loading ? '…' : actionLabel}`: the label leaves, nothing is added.
+    expect(shape()).toBe('I,DIV,I')
+    expect(button().querySelector('[data-label]')).toBeNull()
   })
 })

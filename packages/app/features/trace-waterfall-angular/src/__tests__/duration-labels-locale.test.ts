@@ -24,6 +24,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 vi.mock('@molecule/app-ui', () => ({
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
@@ -88,7 +90,7 @@ async function render(spans: Span[]): Promise<HTMLElement> {
     selector: 'mol-locale-host',
     standalone: true,
     imports: [TraceWaterfall as Type<unknown>],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: `<mol-trace-waterfall [spans]="p['spans']"></mol-trace-waterfall>`,
   })(
     class LocaleHost {
@@ -97,7 +99,7 @@ async function render(spans: Span[]): Promise<HTMLElement> {
     },
   )
   const mountedApp: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   appRef = mountedApp
   const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {

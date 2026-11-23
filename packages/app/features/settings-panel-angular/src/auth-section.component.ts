@@ -4,9 +4,18 @@
  * @module
  */
 
-import { Component, computed, DestroyRef, inject, signal } from '@angular/core'
+import { Component, computed, DestroyRef, ElementRef, inject, signal } from '@angular/core'
 
-import { useAuth, useChangePassword, useHttpClient, useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  placeContentBefore,
+  setElementPresent,
+  useAuth,
+  useChangePassword,
+  useHttpClient,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { UserProfile } from '@molecule/app-auth'
 import { serverErrorMessage } from '@molecule/app-http'
 import type { UIClassMap } from '@molecule/app-ui'
@@ -24,9 +33,9 @@ export interface TwoFactorSetup {
  * AuthSection component.
  *
  * Authentication section — change password (modal) + two-factor (TOTP) setup.
- * React's root is a fragment (the `<section>` plus two modals), so the host is
- * unwrapped by the DOM normalizer and `display: contents` keeps the layout
- * fragment-like; an OAuth-only user renders NOTHING (React's `return null`).
+ * React's root is a fragment (the `<section>` plus two modals) or nothing at
+ * all for an OAuth-only user (React's `return null`); those nodes render in the
+ * host's place and the host itself never appears in the page.
  *
  * Two-factor uses the real enrollment flow against the user resource's
  * `POST /users/:id/verify-two-factor` endpoint (`@molecule/api-two-factor`):
@@ -48,14 +57,10 @@ export interface TwoFactorSetup {
 @Component({
   selector: 'mol-auth-section',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [Alert, Button, Flex, Input, Modal],
-  host: {
-    'data-parity-unwrap': '',
-    style: 'display: contents',
-  },
   // prettier-ignore
-  template: `@if (!isOauthOnly()) {
-    <section>
+  template: `@if (!isOauthOnly()) {<section>
       <h3 [class]="cm.cn(cm.sectionHeading, cm.sp('mb', 3))">
         {{ t('settings.authentication', undefined, { defaultValue: 'Authentication' }) }}
       </h3>
@@ -207,8 +212,7 @@ export interface TwoFactorSetup {
           </button>
         </form>
       }
-    </mol-modal>
-  }`,
+    </mol-modal>}`,
 })
 export class AuthSection {
   /** The signed-in user (React's `useAuth().user`). */
@@ -269,6 +273,10 @@ export class AuthSection {
 
   private readonly twoFactorRead = { cancelled: false }
 
+  private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
+
+  /** The section (React's `<section>` root). */
+
   /** The bonded ClassMap (styling tokens resolve at render time). */
   protected readonly cm: UIClassMap = getClassMap()
 
@@ -300,6 +308,12 @@ export class AuthSection {
    * that lands after unmount is dropped like React's cancelled one.
    */
   constructor() {
+    usePlacement(() => {
+      // React's fragment (the section plus two modals) or nothing: the whole
+      // template renders in the host's place and the host leaves the page.
+      placeContentBefore(this.host.nativeElement, this.host.nativeElement)
+      setElementPresent(this.host.nativeElement, false)
+    })
     const read = this.twoFactorRead
     inject(DestroyRef).onDestroy(() => {
       read.cancelled = true

@@ -30,7 +30,7 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { provideTheme } from '@molecule/app-angular'
+import { provideDomPlacement, provideTheme } from '@molecule/app-angular'
 import type { ServiceCallSink } from '@molecule/app-framework-conformance/ui'
 import { createFakeThemeProvider } from '@molecule/app-framework-conformance/ui'
 import type { I18nProvider as I18nProviderType } from '@molecule/app-i18n'
@@ -62,7 +62,7 @@ const QuickPickerHost = Component({
   selector: 'mol-quick-picker-host',
   standalone: true,
   imports: [QuickPicker],
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `<div mol-quick-picker [items]="p['items']" [placeholder]="p['placeholder']" [onSelect]="p['onSelect']" [onDismiss]="p['onDismiss']" [loading]="p['loading']" [initialQuery]="p['initialQuery']" [className]="p['className']"></div>`,
 })(
   class QuickPickerHost {
@@ -127,6 +127,7 @@ async function renderPicker(
   const appRef: ApplicationRef = await createApplication({
     providers: [
       provideZonelessChangeDetection(),
+      provideDomPlacement(),
       provideTheme(createFakeThemeProvider('light', sink)),
     ],
   })
@@ -205,6 +206,7 @@ describe('components migrated off the static t re-render on a locale switch', ()
     const appRef: ApplicationRef = await createApplication({
       providers: [
         provideZonelessChangeDetection(),
+        provideDomPlacement(),
         provideTheme(createFakeThemeProvider('light', sink)),
       ],
     })

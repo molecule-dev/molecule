@@ -4,20 +4,16 @@
  * @module
  */
 
-import {
-  type AfterViewInit,
-  Component,
-  type DoCheck,
-  ElementRef,
-  inject,
-  Renderer2,
-  ViewChild,
-} from '@angular/core'
+import { Component, type ElementRef, ViewChild } from '@angular/core'
 
+import {
+  MolPlacement,
+  setElementPresent,
+  type SlotReader,
+  usePlacement,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
-
-import { hasProjectedSlot, SlotGuard } from './slot-dom.js'
 
 /**
  * JobListingRow component.
@@ -42,11 +38,14 @@ import { hasProjectedSlot, SlotGuard } from './slot-dom.js'
  * wrapper element React renders for them (React renders every node prop of
  * this row inside its own element). String inputs render as text instead —
  * React's truthiness branch applies: an empty string renders nothing. The
- * capture wrappers reconcile against that in {@link JobListingRow.ngAfterViewInit}.
+ * capture wrappers reconcile against that in the placement function registered
+ * in the constructor (each wrapper renders its own text first, so the slot is
+ * read past that one leading node).
  */
 @Component({
   selector: 'div[mol-job-listing-row]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   inputs: [
     'title',
     'company',
@@ -120,7 +119,7 @@ import { hasProjectedSlot, SlotGuard } from './slot-dom.js'
       <ng-content select="[slot=actions]"></ng-content>
     </div>`,
 })
-export class JobListingRow implements AfterViewInit, DoCheck {
+export class JobListingRow {
   /** Title of the role (string/number renders as text; nodes are `[slot=title]` content). */
   title?: unknown
   /** Company / employer display (string/number as text; nodes are `[slot=company]` content). */
@@ -174,9 +173,9 @@ export class JobListingRow implements AfterViewInit, DoCheck {
   /** The actions wrapper `<div>` (detached when no actions input and the slot is empty). */
   @ViewChild('actionsWrap') actionsWrap?: ElementRef<HTMLElement>
 
-  private readonly renderer = inject(Renderer2)
-
-  private readonly guard = new SlotGuard(inject(ElementRef), this.renderer)
+  constructor() {
+    usePlacement((hasContent) => this.reconcile(hasContent))
+  }
 
   /**
    * The current class map.
@@ -407,29 +406,16 @@ export class JobListingRow implements AfterViewInit, DoCheck {
   }
 
   /**
-   * Reconciles the wrappers once the view queries resolve.
-   */
-  ngAfterViewInit(): void {
-    this.reconcile()
-  }
-
-  /**
-   * Re-reconciles on later passes (a props step may add a company or a
-   * salary, or empty the leading value, which React re-renders).
-   */
-  ngDoCheck(): void {
-    this.reconcile()
-  }
-
-  /**
    * Applies React's conditions: each node prop's wrapper renders when the
    * string input is non-empty or the slot holds projected content (the title
    * `<h3>`, the stack `<div>` and the meta row `<div>` are always rendered,
    * exactly as React renders them; the open button is Angular's own `@if` on
-   * {@link hasOnClick}). Re-read every pass, so a props step that empties a
+   * {@link hasOnClick}). Re-read every run, so a props step that empties a
    * previously set input drops the wrapper.
+   *
+   * @param hasContent - Reads whether a slot has content.
    */
-  private reconcile(): void {
+  private reconcile(hasContent: SlotReader): void {
     const leading = this.leadingWrap?.nativeElement
     const company = this.companyWrap?.nativeElement
     const location = this.locationWrap?.nativeElement
@@ -438,13 +424,13 @@ export class JobListingRow implements AfterViewInit, DoCheck {
     const postedAt = this.postedAtWrap?.nativeElement
     const tags = this.tagsWrap?.nativeElement
     const actions = this.actionsWrap?.nativeElement
-    this.guard.toggle(leading, this.leadingText() !== '' || hasProjectedSlot(leading))
-    this.guard.toggle(company, this.companyText() !== '' || hasProjectedSlot(company))
-    this.guard.toggle(location, this.locationText() !== '' || hasProjectedSlot(location))
-    this.guard.toggle(type, this.typeText() !== '' || hasProjectedSlot(type))
-    this.guard.toggle(salary, this.salaryText() !== '' || hasProjectedSlot(salary))
-    this.guard.toggle(postedAt, this.postedAtText() !== '' || hasProjectedSlot(postedAt))
-    this.guard.toggle(tags, this.tagsText() !== '' || hasProjectedSlot(tags))
-    this.guard.toggle(actions, this.actionsText() !== '' || hasProjectedSlot(actions))
+    setElementPresent(leading, this.leadingText() !== '' || hasContent(leading, 1))
+    setElementPresent(company, this.companyText() !== '' || hasContent(company, 1))
+    setElementPresent(location, this.locationText() !== '' || hasContent(location, 1))
+    setElementPresent(type, this.typeText() !== '' || hasContent(type, 1))
+    setElementPresent(salary, this.salaryText() !== '' || hasContent(salary, 1))
+    setElementPresent(postedAt, this.postedAtText() !== '' || hasContent(postedAt, 1))
+    setElementPresent(tags, this.tagsText() !== '' || hasContent(tags, 1))
+    setElementPresent(actions, this.actionsText() !== '' || hasContent(actions, 1))
   }
 }

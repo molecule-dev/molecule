@@ -22,6 +22,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
 // `page`), so tests can assert which cm.* class was applied without a real
 // bond — the same mock the React tests use.
@@ -76,7 +78,7 @@ async function render(props: Record<string, unknown> = {}): Promise<Mounted> {
     selector: 'mol-i18n-host',
     standalone: true,
     imports: [Sparkline as Type<unknown>],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: `<mol-sparkline [values]="p['values']" [variant]="p['variant']" [width]="p['width']" [height]="p['height']" [color]="p['color']" [ariaLabel]="p['ariaLabel']" [className]="p['className']" />`,
   })(
     class I18nSpecHost {
@@ -85,7 +87,7 @@ async function render(props: Record<string, unknown> = {}): Promise<Mounted> {
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref = createComponent(Host, { environmentInjector: appRef.injector })
   const host = ref.location.nativeElement as HTMLElement

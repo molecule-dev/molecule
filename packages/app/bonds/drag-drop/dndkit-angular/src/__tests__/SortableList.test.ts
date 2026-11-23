@@ -2,6 +2,7 @@
 
 import '@angular/compiler'
 import {
+  ChangeDetectionStrategy,
   Component,
   createComponent,
   Injector,
@@ -22,6 +23,7 @@ import { describeSortableListConformance } from '@molecule/app-framework-conform
  * per item, the row's text being the item's title.
  */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'div[data-conformance-list]',
   standalone: true,
   imports: [SortableList, SortableItem],

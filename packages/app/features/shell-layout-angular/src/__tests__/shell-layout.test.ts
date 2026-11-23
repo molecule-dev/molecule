@@ -51,6 +51,7 @@ vi.mock('@molecule/app-ui-angular', async () => {
   const { Component } = await import('@angular/core')
   return {
     Container: Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'div[mol-container]',
       standalone: true,
       inputs: ['maxWidth', 'centered', 'paddingX', 'className', 'style', 'testId'],
@@ -108,7 +109,7 @@ async function mount(
     selector: 'mol-spec-host',
     standalone: true,
     imports: [component],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template,
   })(
     class SpecHost {

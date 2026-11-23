@@ -26,6 +26,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 import { NodeEditorSlider } from '../node-editor-slider.component.js'
 import { NodeEditorToggle } from '../node-editor-toggle.component.js'
 
@@ -58,7 +60,7 @@ async function mount(
     selector: `mol-spec-host-${nextHostId++}`,
     standalone: true,
     imports: [directive],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template,
   })(
     class SpecHost {
@@ -67,7 +69,7 @@ async function mount(
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
     environmentInjector: appRef.injector,

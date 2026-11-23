@@ -5,25 +5,22 @@
  * @module
  */
 
-import {
-  type AfterViewInit,
-  Component,
-  type DoCheck,
-  ElementRef,
-  inject,
-  type OnInit,
-  type Renderer2,
-  RendererFactory2,
-  ViewChild,
-} from '@angular/core'
+import { Component, ElementRef, inject, type OnInit, ViewChild } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  placeContent,
+  placeContentBefore,
+  setElementPresent,
+  type SlotReader,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 import { LegalModals } from './legal-modals.component.js'
 import { useLegalModals } from './legal-modals.js'
-import { applyNodeLayout, hasNodes } from './slot-dom.js'
 import type { LegalModalsApi } from './types.js'
 
 /**
@@ -31,27 +28,23 @@ import type { LegalModalsApi } from './types.js'
  *
  * Drop-in Privacy/Terms links that open IN-PLACE modals instead of navigating
  * — for bespoke footers and signup pages. React's root is a FRAGMENT (the
- * trigger buttons plus the two portaled modals), so the host is unwrapped
- * (`data-parity-unwrap`, `display: contents`) and renders exactly React's
- * sibling list.
+ * trigger buttons plus the two portaled modals), so those elements render in
+ * the host's place and the host itself never appears in the page.
  *
  * The labels are projected content (`[slot=privacyLabel]`, `[slot=termsLabel]`)
- * with the translated text as the fallback; {@link LegalModalLinks.ngDoCheck}
+ * with the translated text as the fallback; {@link LegalModalLinks.syncLabels}
  * unwraps whichever of the two React would have rendered.
  */
 @Component({
   selector: 'mol-legal-modal-links',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [LegalModals],
   inputs: ['linkClassName', 'show', 'privacyLabel', 'termsLabel', 'appName', 'loadContent'],
-  host: {
-    'data-parity-unwrap': '',
-    style: 'display: contents',
-  },
   // prettier-ignore
   template: `@if (showsPrivacy()) {<button type="button" [class]="linkClassName ?? null" (click)="openPrivacy()"><span #privacyFallback>{{ privacyText() }}</span><span #privacySlot><ng-content select="[slot=privacyLabel]"></ng-content></span></button>}@if (showsTerms()) {<button type="button" [class]="linkClassName ?? null" (click)="openTerms()"><span #termsFallback>{{ termsText() }}</span><span #termsSlot><ng-content select="[slot=termsLabel]"></ng-content></span></button>}<mol-legal-modals [api]="api"></mol-legal-modals>`,
 })
-export class LegalModalLinks implements OnInit, AfterViewInit, DoCheck {
+export class LegalModalLinks implements OnInit {
   /** className applied to each trigger `<button>`. */
   linkClassName?: string
   /** Which links to render (`'both'` when unset). */
@@ -74,16 +67,33 @@ export class LegalModalLinks implements OnInit, AfterViewInit, DoCheck {
   /** The terms label's projected-nodes capture point. */
   @ViewChild('termsSlot') private termsSlot?: ElementRef<HTMLElement>
 
-  /** Whether the privacy label receives projected nodes (read at view init). */
-  private hasPrivacySlot = false
-  /** Whether the terms label receives projected nodes (read at view init). */
-  private hasTermsSlot = false
-
-  private readonly host = inject(ElementRef<HTMLElement>)
-  private readonly renderer: Renderer2 = inject(RendererFactory2).createRenderer(null, null)
+  /** How one label renders: which form, where it renders, and the capture it was planned for. */
+  private readonly privacyLabelState: {
+    mode: 'text' | 'nodes' | null
+    parent: HTMLElement | null
+    slot: HTMLElement | null
+  } = { mode: null, parent: null, slot: null }
+  /** How the terms label renders (see {@link privacyLabelState}). */
+  private readonly termsLabelState: {
+    mode: 'text' | 'nodes' | null
+    parent: HTMLElement | null
+    slot: HTMLElement | null
+  } = { mode: null, parent: null, slot: null }
 
   /** The reactive i18n binding, read in the injection context. */
   private readonly i18n = useTranslation()
+
+  private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
+
+  constructor() {
+    usePlacement((hasContent) => {
+      // The trigger buttons and the portaled modals render in the host's
+      // place, in template order; the host itself leaves the page.
+      placeContentBefore(this.host.nativeElement, this.host.nativeElement)
+      setElementPresent(this.host.nativeElement, false)
+      this.syncLabels(hasContent)
+    })
+  }
 
   /**
    * The hook's api: the openers, the open state and the modals component.
@@ -152,31 +162,68 @@ export class LegalModalLinks implements OnInit, AfterViewInit, DoCheck {
   }
 
   /**
-   * Reads which labels received projected nodes (the queries resolve only at
-   * view init) and applies the first layout pass.
+   * Unwraps whichever of each label's two capture points React would render.
+   *
+   * @param hasContent - Reads whether a slot has content.
    */
-  ngAfterViewInit(): void {
-    this.hasPrivacySlot = hasNodes(this.privacySlot?.nativeElement)
-    this.hasTermsSlot = hasNodes(this.termsSlot?.nativeElement)
-    this.syncLabels()
-  }
-
-  /** Re-applies the label layout after projected-content changes. */
-  ngDoCheck(): void {
-    this.syncLabels()
-  }
-
-  /** Unwraps whichever of each label's two capture points React would render. */
-  private syncLabels(): void {
-    applyNodeLayout(
+  private syncLabels(hasContent: SlotReader): void {
+    this.syncLabel(
       this.privacyFallback?.nativeElement,
       this.privacySlot?.nativeElement,
-      this.hasPrivacySlot,
+      this.privacyLabelState,
+      hasContent,
     )
-    applyNodeLayout(
+    this.syncLabel(
       this.termsFallback?.nativeElement,
       this.termsSlot?.nativeElement,
-      this.hasTermsSlot,
+      this.termsLabelState,
+      hasContent,
     )
+  }
+
+  /**
+   * React renders either the plain text or the projected nodes, unwrapped
+   * inside the trigger — never one of the two capture spans. The projected
+   * nodes win when the label received any; the text is the fallback otherwise.
+   * The trigger stays the same element while it renders, so the parent is kept
+   * once seen (a detached capture point has no parent).
+   *
+   * @param fallback - The span holding the plain text.
+   * @param slot - The span holding the projected nodes.
+   * @param label - The form rendered last time and the element it rendered in.
+   * @param hasContent - Reads whether a slot has content.
+   */
+  private syncLabel(
+    fallback: HTMLElement | undefined,
+    slot: HTMLElement | undefined,
+    label: { mode: 'text' | 'nodes' | null; parent: HTMLElement | null; slot: HTMLElement | null },
+    hasContent: SlotReader,
+  ): void {
+    if (!fallback || !slot) return
+    // A re-created trigger (a `show` change) is planned again from scratch.
+    if (label.slot !== slot) {
+      label.slot = slot
+      label.mode = null
+    }
+    const live = (fallback.parentNode ?? slot.parentNode) as HTMLElement | null
+    if (live !== null) label.parent = live
+    const parent = label.parent
+    if (!parent) return
+    const next: 'text' | 'nodes' = hasContent(slot) ? 'nodes' : 'text'
+    if (next === label.mode) return
+    if (next === 'nodes') {
+      placeContent(fallback, null)
+      setElementPresent(fallback, false)
+      setElementPresent(slot, true)
+      placeContent(slot, parent, slot)
+      setElementPresent(slot, false)
+    } else {
+      placeContent(slot, null)
+      setElementPresent(slot, false)
+      setElementPresent(fallback, true)
+      placeContent(fallback, parent, fallback)
+      setElementPresent(fallback, false)
+    }
+    label.mode = next
   }
 }

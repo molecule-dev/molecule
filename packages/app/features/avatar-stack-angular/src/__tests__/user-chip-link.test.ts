@@ -23,6 +23,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 // Proxy ClassMap echoing each accessed member back as its token (e.g. `flex`),
 // so tests can assert which cm.* class was applied without a real bond.
 vi.mock('@molecule/app-ui', () => ({
@@ -48,11 +50,12 @@ vi.mock('@molecule/app-ui', () => ({
 // `Avatar` is the only `@molecule/app-ui-angular` component dependency — stub
 // it to an inspectable `<img>` carrying the supplied src + name, the same
 // marker the React suite's `@molecule/app-ui-react` stub renders. Everything
-// else (`hasNodes`, `styleText`) is the real bundle.
+// else (`styleText`, `ElementPropsWriter`) is the real bundle.
 vi.mock('@molecule/app-ui-angular', async (importOriginal) => {
   const actual = await importOriginal<Record<string, unknown>>()
   const { Component } = await import('@angular/core')
   const MockAvatar = Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
     selector: 'div[mol-avatar]',
     standalone: true,
     inputs: ['src', 'alt', 'name', 'size'],
@@ -100,7 +103,7 @@ async function mount(
     selector: 'mol-spec-host',
     standalone: true,
     imports: [component],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template,
   })(
     class SpecHost {
@@ -109,7 +112,7 @@ async function mount(
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
     environmentInjector: appRef.injector,

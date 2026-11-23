@@ -12,6 +12,8 @@
 import { type ApplicationRef, createComponent, provideZonelessChangeDetection } from '@angular/core'
 import { createApplication } from '@angular/platform-browser'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 import { EmbeddableChatWidget } from './embeddable-chat-widget.component.js'
 import type { EmbeddableChatWidgetConfig } from './types.js'
 
@@ -57,11 +59,19 @@ export async function mountEmbeddableChatWidget(
     throw new Error(`mountEmbeddableChatWidget: no element found for container "${container}"`)
   }
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    // The widget's hosts leave the DOM via the placement rules; on a bare page
+    // nothing else provides them, so the mount helper supplies them itself.
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
+  // React renders the widget INTO the container and keeps it. Angular mounts a
+  // component on a host element, so the widget gets its own child host inside
+  // the container; that host leaves the DOM and the button/section stay as the
+  // container's children, exactly as React's `root.render()` leaves them.
+  const host = document.createElement('div')
+  element.appendChild(host)
   const componentRef = createComponent(EmbeddableChatWidget, {
     environmentInjector: appRef.injector,
-    hostElement: element,
+    hostElement: host,
   })
   componentRef.setInput('config', config)
   componentRef.setInput('defaultOpen', options.defaultOpen)

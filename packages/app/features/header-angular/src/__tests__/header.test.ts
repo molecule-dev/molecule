@@ -29,6 +29,7 @@ import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import type * as AngularBinding from '@molecule/app-angular'
+import { provideDomPlacement } from '@molecule/app-angular'
 import { createMemoryRouter } from '@molecule/app-routing'
 import type * as AppUiAngular from '@molecule/app-ui-angular'
 
@@ -78,6 +79,7 @@ vi.mock('@molecule/app-ui-angular', async (importOriginal) => {
       return text || null
     },
     Flex: Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'div[mol-flex]',
       standalone: true,
       inputs: ['direction', 'justify', 'align', 'wrap', 'gap', 'className', 'style', 'testId'],
@@ -104,6 +106,7 @@ vi.mock('@molecule/app-ui-angular', async (importOriginal) => {
       },
     ),
     ThemeToggle: Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'button[mol-theme-toggle]',
       standalone: true,
       host: { type: 'button', 'data-theme-toggle': '' },
@@ -180,7 +183,7 @@ async function mount(
     selector: 'mol-spec-host',
     standalone: true,
     imports: [component],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template,
   })(
     class SpecHost {
@@ -191,6 +194,7 @@ async function mount(
   const appRef: ApplicationRef = await createApplication({
     providers: [
       provideZonelessChangeDetection(),
+      provideDomPlacement(),
       provideRouter(createMemoryRouter({ initialEntries: ['/'] })),
       ...providers,
     ],
@@ -252,6 +256,21 @@ afterEach(async () => {
 })
 
 describe('AppHeader', () => {
+  it('keeps a consumer list in order when an item is inserted in the middle of themeToggle', async () => {
+    const m = await renderHeader(
+      { appName: 'Field Notes', xs: [1, 3] },
+      [],
+      '@for (x of p()[\'xs\']; track x) {<b slot="themeToggle">{{ x }}</b>}',
+    )
+    const texts = (): string[] =>
+      Array.from(m.host.querySelectorAll('b')).map((el) => el.textContent ?? '')
+    expect(texts()).toEqual(['1', '3'])
+    m.setProps({ xs: [1, 2, 3] })
+    expect(texts()).toEqual(['1', '2', '3'])
+    m.setProps({ xs: [1, 3] })
+    expect(texts()).toEqual(['1', '3'])
+  })
+
   it('renders the brand and each declared destination as links in the primary navigation landmark', async () => {
     const m = await renderHeader(
       {
@@ -523,5 +542,77 @@ describe('AppHeader', () => {
     if (!header) throw new Error('no <header> rendered')
     expect(header.getAttribute('data-mol-id')).toBe('hdr-x')
     expect(header.getAttribute('class')).toContain('hdr-cls')
+  })
+
+  it('shows and removes the extraActions wrapper in the pass where the consumer @if adds and removes its content', async () => {
+    const m = await renderHeader(
+      { appName: 'Acme', on: false },
+      [],
+      `@if (p()['on']) {<button slot="extraActions" type="button" data-extra>act</button>}`,
+    )
+    /** The action row's markup without Angular's comments and classes. */
+    const row = (): string => {
+      const slots = m.host.querySelectorAll('div[mol-flex]')
+      const actionRow = slots[slots.length - 1]
+      if (!actionRow) throw new Error('no action row rendered')
+      return actionRow.innerHTML.replace(/<!--.*?-->/g, '').replace(/ class="[^"]*"/g, '')
+    }
+    expect(row()).toBe('')
+    m.setProps({ on: true })
+    expect(row()).toBe('<button slot="extraActions" type="button" data-extra="">act</button>')
+    m.setProps({ on: false })
+    expect(row()).toBe('')
+  })
+
+  it('renders the extra actions bare when they come through an OnPush component, in the pass where the consumer @if adds and removes its content', async () => {
+    // No hook of the header runs here: the OnPush component in between is not checked when only the
+    // consumer's @if changes. React has no such boundary; its actions follow the consumer's state.
+    const Mid = Component({
+      selector: 'mol-spec-onpush-mid',
+      standalone: true,
+      imports: [AppHeader as Type<unknown>],
+      changeDetection: ChangeDetectionStrategy.OnPush,
+      template: `<header mol-app-header [appName]="'Acme'"><ng-content select="[slot=extraActions]" ngProjectAs="[slot=extraActions]"></ng-content></header>`,
+    })(class SpecOnPushMid {})
+    const m = await mount(
+      `<mol-spec-onpush-mid>@if (p()['on']) {<button slot="extraActions" type="button" data-extra>act</button>}</mol-spec-onpush-mid>`,
+      Mid,
+      { on: false },
+    )
+    mounted.push(m)
+    const extra = (): HTMLElement | null => m.host.querySelector('[data-extra]')
+    expect(extra()).toBeNull()
+    m.setProps({ on: true })
+    expect(extra()?.parentElement?.matches('div[mol-flex]')).toBe(true)
+    m.setProps({ on: false })
+    expect(extra()).toBeNull()
+  })
+
+  it("renders React's elements with no host or capture element of its own", async () => {
+    const content = `@if (p()['on']) {<button slot="extraActions" data-extra type="button">act</button>}`
+    const template = `<i>a</i>${headerTemplate.replace('</header>', `${content}</header>`)}<i>b</i>`
+    const m = await mount(
+      template,
+      AppHeader as Type<unknown>,
+      { appName: 'Acme', on: true },
+      withProviders(),
+    )
+    mounted.push(m)
+    // The consumer's children are exactly React's: the two neighbours and the
+    // header (its root, so the host element itself), with no extra host or capture.
+    const shape = (): string =>
+      Array.from(m.host.childNodes)
+        .filter(
+          (n) => n.nodeType === 1 || (n.nodeType === 3 && (n.textContent ?? '').trim() !== ''),
+        )
+        .map((n) => (n.nodeType === 1 ? (n as Element).tagName : '#text'))
+        .join(',')
+    expect(shape()).toBe('I,HEADER,I')
+    // Every capture span is out of the page; the action renders bare.
+    expect(m.host.querySelectorAll('span[data-mol-slot]')).toHaveLength(0)
+    expect(m.host.querySelector('[data-extra]')?.parentElement?.tagName).toBe('DIV')
+    m.setProps({ on: false })
+    expect(shape()).toBe('I,HEADER,I')
+    expect(m.host.querySelector('[data-extra]')).toBeNull()
   })
 })

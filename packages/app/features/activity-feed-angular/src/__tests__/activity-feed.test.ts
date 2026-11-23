@@ -24,6 +24,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 // Proxy ClassMap echoing each accessed member back as its token (e.g. `flex`),
 // so tests can assert which cm.* class was applied without a real bond.
 vi.mock('@molecule/app-ui', () => ({
@@ -53,6 +55,7 @@ vi.mock('@molecule/app-ui-angular', async () => {
   const { Component } = await import('@angular/core')
   return {
     Avatar: Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'div[mol-avatar]',
       standalone: true,
       inputs: ['src', 'alt', 'name', 'size'],
@@ -111,7 +114,7 @@ async function mount(
     selector: `mol-spec-host-${hostCounter++}`,
     standalone: true,
     imports: [component],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template,
   })(
     class SpecHost {
@@ -120,7 +123,7 @@ async function mount(
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
     environmentInjector: appRef.injector,
@@ -291,6 +294,55 @@ describe('ActivityFeed', () => {
       className: 'feed-cls',
     })
     expect(m.host.innerHTML).toContain('feed-cls')
+  })
+
+  it('keeps a consumer list in order when an item is inserted in the middle of emptyState', async () => {
+    const m = await render(
+      ActivityFeed,
+      `<mol-activity-feed [items]="p['items']"><ng-container ngProjectAs="[slot=emptyState]">@for (x of p['xs']; track x) {<b>{{ x }}</b>}</ng-container></mol-activity-feed>`,
+      { items: [], xs: ['a', 'c'] },
+    )
+    const labels = (): (string | null)[] =>
+      Array.from(m.host.querySelectorAll('b')).map((el) => el.textContent)
+    expect(labels()).toEqual(['a', 'c'])
+    await m.setProps({ xs: ['a', 'b', 'c'] })
+    expect(labels()).toEqual(['a', 'b', 'c'])
+    await m.setProps({ xs: ['a', 'c'] })
+    expect(labels()).toEqual(['a', 'c'])
+  })
+
+  it('shows and removes the empty-state wrapper in the pass where the consumer @if adds and removes its content', async () => {
+    const m = await render(
+      ActivityFeed,
+      `<mol-activity-feed [items]="p['items']">@if (p['on']) {<p slot="emptyState" data-empty>Nothing yet</p>}</mol-activity-feed>`,
+      { items: [], on: false },
+    )
+    expect(m.host.innerHTML).not.toContain('data-empty')
+    expect(m.host.querySelector('div')).not.toBeNull()
+    await m.setProps({ on: true })
+    expect(m.host.innerHTML).toContain('data-empty')
+    expect(m.host.innerHTML).toContain('Nothing yet')
+    expect(m.host.querySelector('div')).toBeNull()
+    await m.setProps({ on: false })
+    expect(m.host.innerHTML).not.toContain('data-empty')
+    expect(m.host.querySelector('div')).not.toBeNull()
+  })
+
+  it("renders React's elements with no host or capture element of its own", async () => {
+    const tags = (m: Mounted): string[] =>
+      Array.from(m.host.children).map((el) => el.tagName.toLowerCase())
+    const m = await render(
+      ActivityFeed,
+      `<i>a</i><mol-activity-feed [items]="p['items']"><p slot="emptyState" data-empty>Nothing yet</p></mol-activity-feed><i>b</i>`,
+      { items: [item('a')] },
+    )
+    // React's root here is the wrapper <div>, flanked by the consumer's siblings.
+    expect(tags(m)).toEqual(['i', 'div', 'i'])
+    expect(m.host.querySelector('mol-activity-feed')).toBeNull()
+    await m.setProps({ items: [] })
+    // React's root becomes the bare empty state: the projected <p>, no wrapper, no host.
+    expect(tags(m)).toEqual(['i', 'p', 'i'])
+    expect(m.host.querySelector('mol-activity-feed')).toBeNull()
   })
 })
 

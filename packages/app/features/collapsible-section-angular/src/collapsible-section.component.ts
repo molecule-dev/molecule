@@ -6,8 +6,6 @@
 
 import { NgTemplateOutlet } from '@angular/common'
 import {
-  type AfterViewChecked,
-  type AfterViewInit,
   Component,
   type ElementRef,
   type OnInit,
@@ -16,7 +14,12 @@ import {
   ViewChild,
 } from '@angular/core'
 
-import { hasContent, setElementPresent } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  setElementPresent,
+  type SlotReader,
+  usePlacement,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -56,12 +59,13 @@ const textOf = (value: unknown): string =>
  * on the same-named inputs, as in `@molecule/app-announcement-bar-angular`.
  * React renders the body `<div>` only while expanded and the actions `<span>`
  * only when `actions` is given; Angular projects into always-mounted capture
- * points, so {@link CollapsibleSection.ngAfterViewChecked} detaches and restores those
+ * points, so {@link CollapsibleSection.reconcile} detaches and restores those
  * wrappers to match.
  */
 @Component({
   selector: 'section[mol-collapsible-section]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [NgTemplateOutlet],
   inputs: [
     'title',
@@ -133,7 +137,7 @@ const textOf = (value: unknown): string =>
       </span>
     </ng-template>`,
 })
-export class CollapsibleSection implements OnInit, AfterViewInit, AfterViewChecked {
+export class CollapsibleSection implements OnInit {
   /** Section heading — text, a template ref, or `[slot=title]` content. */
   title?: TemplateRef<unknown> | string | null
   /** Optional badge / count — text, a template ref, or `[slot=badge]` content. */
@@ -158,10 +162,12 @@ export class CollapsibleSection implements OnInit, AfterViewInit, AfterViewCheck
 
   /** Expansion state while the section is uncontrolled (React's `useState`). */
   private readonly internal = signal(false)
-  /** Whether the `[slot=actions]` projection's presence has been read (once). */
-  private actionsRead = false
   /** Whether `[slot=actions]` content was projected. */
   private hasActionsSlot = false
+
+  constructor() {
+    usePlacement((hasContent) => this.reconcile(hasContent))
+  }
 
   /** Reads React's `useState(defaultExpanded)` initial value, once inputs are bound. */
   ngOnInit(): void {
@@ -299,32 +305,14 @@ export class CollapsibleSection implements OnInit, AfterViewInit, AfterViewCheck
   }
 
   /**
-   * Reads the projected slots' presence (view queries resolve only at view
-   * init) and reconciles the wrappers against React's DOM.
-   */
-  ngAfterViewInit(): void {
-    this.reconcile()
-  }
-
-  /**
-   * Re-reconciles after the view is checked: input writes (a props step may
-   * expand the section) and a heading-tag switch, which re-stamps the heading
-   * body and so re-creates the actions wrapper.
-   */
-  ngAfterViewChecked(): void {
-    this.reconcile()
-  }
-
-  /**
    * Applies React's conditions: the actions `<span>` renders only with actions,
    * the body `<div>` only while expanded.
+   *
+   * @param hasContent - Reads whether a slot has content.
    */
-  private reconcile(): void {
+  private reconcile(hasContent: SlotReader): void {
     const actions = this.actionsWrap?.nativeElement
-    if (!this.actionsRead && actions) {
-      this.hasActionsSlot = hasContent(actions)
-      this.actionsRead = true
-    }
+    if (actions) this.hasActionsSlot = hasContent(actions)
     setElementPresent(actions, this.actionsContent())
     setElementPresent(this.bodyWrap?.nativeElement, this.isOpen())
   }

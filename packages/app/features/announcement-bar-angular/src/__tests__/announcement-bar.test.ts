@@ -85,7 +85,7 @@ async function mount(template: string, props: Record<string, unknown>): Promise<
     selector: 'mol-spec-host',
     standalone: true,
     imports: [AnnouncementBar as Type<unknown>],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template,
   })(
     class SpecHost {

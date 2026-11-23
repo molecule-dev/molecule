@@ -5,20 +5,18 @@
  */
 
 import { NgTemplateOutlet } from '@angular/common'
-import type { AfterViewInit, DoCheck, OnDestroy } from '@angular/core'
-import {
-  Component,
-  ElementRef,
-  inject,
-  Renderer2,
-  type TemplateRef,
-  ViewChild,
-} from '@angular/core'
+import { Component, ElementRef, inject, signal, type TemplateRef, ViewChild } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  placeContent,
+  setElementPresent,
+  type SlotReader,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
-import { hasNodes, SlotWrapper } from '@molecule/app-ui-angular'
 
 /**
  * Whether a field is one of the cases' projected node templates (a `{ $nodes }`
@@ -42,13 +40,14 @@ const isTemplate = (value: unknown): value is TemplateRef<unknown> =>
  * root exactly. Every button renders only while React would render it (a
  * missing handler renders no button, `canStop` / `canSkip` only disable one),
  * and the time-display wrapper renders only while React's `{slot && …}` would
- * render it — the Angular projection capture points must stay mounted, so
- * presence is read in {@link TransportBar.ngAfterViewInit} and the wrapper is
- * detached through {@link SlotWrapper} instead.
+ * render it — the Angular projection capture points must stay mounted, so the
+ * placement function decides the wrapper's presence and withholds it with
+ * `setElementPresent` instead.
  */
 @Component({
   selector: 'div[mol-transport-bar]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [NgTemplateOutlet],
   inputs: [
     'isPlaying',
@@ -74,7 +73,7 @@ const isTemplate = (value: unknown): value is TemplateRef<unknown> =>
   // prettier-ignore
   template: `@if (onSkipBack) {<button type="button" (click)="callSkipBack($event)" [disabled]="!canSkipValue()" [attr.aria-label]="skipBackLabel()" data-mol-id="transport-bar-skip-back" [class]="controlClasses()" [style.background]="'transparent'" [style.border]="'none'" [style.cursor]="'pointer'" [style.padding]="0"><span aria-hidden="true">⏮</span></button>}<button type="button" (click)="callPlayToggle($event)" [attr.aria-label]="isPlaying ? pauseLabel() : playLabel()" [attr.aria-pressed]="isPlaying" [attr.data-state]="isPlaying ? 'playing' : 'paused'" data-mol-id="transport-bar-play-toggle" [class]="controlClasses()" [style.background]="'transparent'" [style.border]="'none'" [style.cursor]="'pointer'" [style.padding]="0"><span aria-hidden="true">{{ isPlaying ? '⏸' : '▶' }}</span></button><button type="button" (click)="callStop($event)" [disabled]="!canStopValue()" [attr.aria-label]="stopLabel()" data-mol-id="transport-bar-stop" [class]="controlClasses()" [style.background]="'transparent'" [style.border]="'none'" [style.cursor]="'pointer'" [style.padding]="0"><span aria-hidden="true">⏹</span></button>@if (onSkipForward) {<button type="button" (click)="callSkipForward($event)" [disabled]="!canSkipValue()" [attr.aria-label]="skipForwardLabel()" data-mol-id="transport-bar-skip-forward" [class]="controlClasses()" [style.background]="'transparent'" [style.border]="'none'" [style.cursor]="'pointer'" [style.padding]="0"><span aria-hidden="true">⏭</span></button>}@if (onRecordToggle) {<button type="button" (click)="callRecordToggle($event)" [attr.aria-label]="isRecording ? stopRecordingLabel() : recordLabel()" [attr.aria-pressed]="!!isRecording" [attr.data-state]="isRecording ? 'recording' : 'idle'" data-mol-id="transport-bar-record-toggle" [class]="controlClasses()" [style.background]="'transparent'" [style.border]="'none'" [style.cursor]="'pointer'" [style.padding]="0"><span aria-hidden="true">●</span></button>}@if (onLoopToggle) {<button type="button" (click)="callLoopToggle($event)" [attr.aria-label]="loop ? loopOnLabel() : loopOffLabel()" [attr.aria-pressed]="!!loop" [attr.data-state]="loop ? 'on' : 'off'" data-mol-id="transport-bar-loop-toggle" [class]="controlClasses()" [style.background]="'transparent'" [style.border]="'none'" [style.cursor]="'pointer'" [style.padding]="0"><span aria-hidden="true">↻</span></button>}<div #timeSlot data-mol-id="transport-bar-time-display" [class]="timeClasses()"><span #childSlot><ng-content></ng-content></span><span #namedSlot><ng-content select="[slot=timeDisplay]"></ng-content></span>@if (isTemplate(timeDisplay)) {<ng-container [ngTemplateOutlet]="asTemplate(timeDisplay)" />}@if (timeDisplayText()) {{{ timeDisplayText() }}}</div>@if (falsySlotText()) {{{ falsySlotText() }}}`,
 })
-export class TransportBar implements AfterViewInit, DoCheck, OnDestroy {
+export class TransportBar {
   /** Whether playback is currently running. */
   isPlaying?: boolean
   /** Whether recording is currently armed / running. */
@@ -111,17 +110,17 @@ export class TransportBar implements AfterViewInit, DoCheck, OnDestroy {
 
   private readonly i18n = useTranslation()
   private readonly host: HTMLElement = inject(ElementRef).nativeElement
-  private readonly renderer = inject(Renderer2)
-  private readonly wrapper = new SlotWrapper(inject(ElementRef), this.renderer)
 
-  /** Whether `children` content was projected (a projection is fixed at creation). */
-  private hasChildSlot = false
+  /** Whether `children` content was projected. */
+  private readonly childProjected = signal(false)
   /** Whether `[slot=timeDisplay]` content was projected. */
-  private hasNamedSlot = false
-  /** Each capture wrapper's permanent comment anchor, left at its template position. */
-  private readonly captureAnchors = new Map<HTMLElement, Comment>()
-  /** The nodes each capture wrapper currently has hoisted out of it. */
-  private readonly hoistedNodes = new Map<HTMLElement, Node[]>()
+  private readonly namedProjected = signal(false)
+  /** The capture wrapper whose content is currently rendered in the time region. */
+  private placed: HTMLElement | null = null
+
+  constructor() {
+    usePlacement((hasContent) => this.reconcile(hasContent))
+  }
 
   /**
    * The current class map.
@@ -265,7 +264,7 @@ export class TransportBar implements AfterViewInit, DoCheck, OnDestroy {
    * @returns True when the wrapper (and not the bare falsy value) renders.
    */
   slotPresent(): boolean {
-    return this.namedPresent() || this.hasChildSlot
+    return this.namedPresent() || this.childProjected()
   }
 
   /**
@@ -274,7 +273,7 @@ export class TransportBar implements AfterViewInit, DoCheck, OnDestroy {
    * @returns True when the named slot wins over the default content.
    */
   namedPresent(): boolean {
-    return this.timeDisplayPresent() || this.hasNamedSlot
+    return this.timeDisplayPresent() || this.namedProjected()
   }
 
   /**
@@ -349,31 +348,6 @@ export class TransportBar implements AfterViewInit, DoCheck, OnDestroy {
   }
 
   /**
-   * Reads the projected slots' presence and turns the two capture wrappers into
-   * permanent anchors: a projection point must stay mounted, so its nodes are
-   * moved out (unwrapped) while React renders them and kept inside the detached
-   * wrapper while React does not.
-   */
-  ngAfterViewInit(): void {
-    this.hasChildSlot = hasNodes(this.childSlotRef?.nativeElement)
-    this.hasNamedSlot = hasNodes(this.namedSlotRef?.nativeElement)
-    this.anchor(this.childSlotRef?.nativeElement)
-    this.anchor(this.namedSlotRef?.nativeElement)
-    this.reconcile()
-  }
-
-  /** Re-applies React's conditional DOM after input writes. */
-  ngDoCheck(): void {
-    this.reconcile()
-  }
-
-  /** Detaches the time-display wrapper from its re-insertion anchor on teardown. */
-  ngOnDestroy(): void {
-    this.captureAnchors.clear()
-    this.hoistedNodes.clear()
-  }
-
-  /**
    * Whether the `timeDisplay` input alone makes React render the wrapper.
    * @returns True for a template, a non-empty string, a non-zero number or `true`.
    */
@@ -386,56 +360,48 @@ export class TransportBar implements AfterViewInit, DoCheck, OnDestroy {
   }
 
   /**
-   * Leaves a comment anchor at a capture wrapper's template position and takes
-   * the wrapper out of the DOM (the projection stays inside it).
-   * @param slot - The capture wrapper.
-   */
-  private anchor(slot: HTMLElement | undefined): void {
-    if (!slot) return
-    const parent = slot.parentNode
-    if (!parent) return
-    const comment = this.renderer.createComment('capture')
-    parent.insertBefore(comment, slot)
-    parent.removeChild(slot)
-    this.captureAnchors.set(slot, comment)
-  }
-
-  /**
    * Applies React's DOM for the time-display region: the wrapper renders only
-   * while React renders it, and each projected slot is unwrapped while it is
-   * the one React shows.
+   * while React renders it, and the winning projected slot is rendered bare
+   * inside it.
+   *
+   * @param hasContent - Reads whether a slot has content.
    */
-  private reconcile(): void {
+  private reconcile(hasContent: SlotReader): void {
     const time = this.timeSlotRef?.nativeElement
     if (!time) return
+    this.childProjected.set(hasContent(this.childSlotRef?.nativeElement))
+    this.namedProjected.set(hasContent(this.namedSlotRef?.nativeElement))
     const present = this.namedPresent()
-    this.wrapper.sync(time, this.slotPresent())
     const winner = present ? this.namedSlotRef?.nativeElement : this.childSlotRef?.nativeElement
     const loser = present ? this.childSlotRef?.nativeElement : this.namedSlotRef?.nativeElement
-    this.hoist(winner, true)
-    this.hoist(loser, false)
+    this.withhold(loser)
+    this.hoist(winner, time)
+    setElementPresent(time, this.slotPresent())
   }
 
   /**
-   * Moves a capture wrapper's nodes out beside its anchor (visible) or back
-   * inside it (hidden); the wrapper itself never renders.
+   * Renders a capture wrapper's content bare inside the time region (React
+   * renders the slot with no wrapper element) and takes the wrapper out.
    * @param slot - The capture wrapper.
-   * @param visible - Whether React renders its content here.
+   * @param time - The time-display region.
    */
-  private hoist(slot: HTMLElement | undefined, visible: boolean): void {
+  private hoist(slot: HTMLElement | undefined, time: HTMLElement): void {
+    if (!slot || this.placed === slot) return
+    setElementPresent(slot, true)
+    placeContent(slot, time, slot)
+    setElementPresent(slot, false)
+    this.placed = slot
+  }
+
+  /**
+   * Puts a capture wrapper's content back inside it and keeps the wrapper out of
+   * the DOM, the state React renders for the slot it did not choose.
+   * @param slot - The capture wrapper.
+   */
+  private withhold(slot: HTMLElement | undefined): void {
     if (!slot) return
-    const anchor = this.captureAnchors.get(slot)
-    if (!anchor) return
-    const hoisted = this.hoistedNodes.get(slot)
-    if (visible && !hoisted) {
-      const parent = anchor.parentNode
-      if (!parent) return
-      const nodes = Array.from(slot.childNodes)
-      for (const node of nodes) parent.insertBefore(node, anchor)
-      this.hoistedNodes.set(slot, nodes)
-    } else if (!visible && hoisted) {
-      for (const node of hoisted) slot.appendChild(node)
-      this.hoistedNodes.delete(slot)
-    }
+    placeContent(slot, null)
+    setElementPresent(slot, false)
+    if (this.placed === slot) this.placed = null
   }
 }

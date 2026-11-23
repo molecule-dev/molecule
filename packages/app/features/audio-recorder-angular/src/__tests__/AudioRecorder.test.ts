@@ -193,7 +193,7 @@ const mountRecorder = async (props: Record<string, unknown>): Promise<Mounted> =
     selector: 'mol-spec-host',
     standalone: true,
     imports: [AudioRecorder],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: TEMPLATE,
   })(
     class SpecHost {

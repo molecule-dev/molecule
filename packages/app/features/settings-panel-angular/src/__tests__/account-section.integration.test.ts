@@ -62,6 +62,7 @@ vi.mock('@molecule/app-ui-angular', async () => {
   const { Component, ElementRef, EventEmitter, viewChild } = await import('@angular/core')
   return {
     Flex: Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'div[mol-flex]',
       standalone: true,
       inputs: ['direction', 'justify', 'align', 'wrap', 'gap', 'className', 'style', 'testId'],
@@ -88,6 +89,7 @@ vi.mock('@molecule/app-ui-angular', async () => {
       },
     ),
     Input: Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'div[mol-input]',
       standalone: true,
       inputs: ['type', 'size', 'value', 'name', 'id', 'required', 'disabled', 'placeholder'],
@@ -147,6 +149,7 @@ vi.mock('@molecule/app-ui-angular', async () => {
       },
     ),
     Spinner: Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'div[mol-spinner]',
       standalone: true,
       inputs: ['size', 'color', 'label', 'className'],
@@ -182,7 +185,7 @@ vi.mock('@molecule/app-angular', async (importOriginal) => {
   }
 })
 
-import { provideAuth, useAuth, useProfileForm } from '@molecule/app-angular'
+import { provideAuth, provideDomPlacement, useAuth, useProfileForm } from '@molecule/app-angular'
 import type { AuthClient, AuthProfileConstraint, UserProfile } from '@molecule/app-auth'
 import { createJWTAuthClient } from '@molecule/app-auth'
 import { createSimpleI18nProvider, setProvider as setI18nProvider } from '@molecule/app-i18n'
@@ -247,7 +250,7 @@ let current: { flush(): Promise<void>; destroy(): Promise<void> } | null = null
  */
 async function mountAccount(client: AuthClient<unknown>): Promise<void> {
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection(), provideAuth(client)],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement(), provideAuth(client)],
   })
   const ref: ComponentRef<unknown> = createComponent(AccountSection as Type<unknown>, {
     environmentInjector: appRef.injector,
@@ -411,7 +414,7 @@ type ContactValues = { displayName: string; avatarUrl: string }
 const ContactHost = Component({
   selector: 'mol-contact-host',
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `<form aria-label="Contact" (submit)="form.formProps.onSubmit($event)">
       <input aria-label="Display name" [value]="displayName()" (input)="edit('displayName', $event)" />
       <input aria-label="Avatar URL" [value]="avatarUrl()" (input)="edit('avatarUrl', $event)" />
@@ -474,7 +477,7 @@ async function mountComponent(
   client: AuthClient<unknown>,
 ): Promise<void> {
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection(), provideAuth(client)],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement(), provideAuth(client)],
   })
   const ref: ComponentRef<unknown> = createComponent(component, {
     environmentInjector: appRef.injector,
@@ -546,7 +549,7 @@ describe('representative non-X1 custom aliases and custom-form counterexample', 
     const NewsletterHost = Component({
       selector: 'mol-newsletter-host',
       standalone: true,
-      changeDetection: ChangeDetectionStrategy.Default,
+      changeDetection: ChangeDetectionStrategy.Eager,
       template: `<form aria-label="Newsletter" (submit)="submit($event)">
           <input aria-label="Weekly digest" type="checkbox" [checked]="digest()" (change)="toggle($event)" />
           <button type="submit">Save newsletter</button>

@@ -44,7 +44,7 @@ vi.mock('@molecule/app-ui', () => ({
   },
 }))
 
-import { provideI18n } from '@molecule/app-angular'
+import { provideDomPlacement, provideI18n } from '@molecule/app-angular'
 import { createSimpleI18nProvider } from '@molecule/app-i18n'
 
 import { formatDurationLabel } from '../format.js'
@@ -71,7 +71,11 @@ const mounted: Mounted[] = []
  */
 async function mountHost(host: Type<unknown>): Promise<Mounted> {
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection(), provideI18n(createSimpleI18nProvider('en'))],
+    providers: [
+      provideZonelessChangeDetection(),
+      provideDomPlacement(),
+      provideI18n(createSimpleI18nProvider('en')),
+    ],
   })
   const ref = createComponent(host, { environmentInjector: appRef.injector })
   const element = ref.location.nativeElement as HTMLElement
@@ -101,7 +105,7 @@ async function mountHost(host: Type<unknown>): Promise<Mounted> {
  */
 async function render(props: Record<string, unknown> = {}, emptyState?: string): Promise<Mounted> {
   const Host = Component({
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     selector: 'mol-spec-host',
     standalone: true,
     imports: [TraceWaterfall as Type<unknown>],
@@ -129,6 +133,67 @@ afterEach(async () => {
   for (const m of mounted.splice(0)) await m.destroy()
   document.body.replaceChildren()
 })
+
+/**
+ * Mounts the waterfall between two fixed siblings, the way a consumer list
+ * would, and returns a setter for its spans.
+ *
+ * @param spans - The initial spans.
+ * @param emptyState - Markup for the `emptyState` node, when it is supplied.
+ * @returns The mounted host and a setter that re-renders with new spans.
+ */
+async function renderInList(
+  spans: Span[],
+  emptyState?: string,
+): Promise<Mounted & { set(next: Span[]): void }> {
+  const Host = Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
+    selector: 'mol-spec-list-host',
+    standalone: true,
+    imports: [TraceWaterfall as Type<unknown>],
+    template: `
+      ${emptyState === undefined ? '' : `<ng-template #emptyTpl>${emptyState}</ng-template>`}
+      <i>a</i>
+      <mol-trace-waterfall
+        [spans]="spans"
+        ${emptyState === undefined ? '' : '[emptyState]="emptyTpl"'}
+      ></mol-trace-waterfall>
+      <i>b</i>
+    `,
+  })(
+    class SpecListHost {
+      /** The spans the template binds. */
+      spans = spans
+    },
+  )
+  const appRef: ApplicationRef = await createApplication({
+    providers: [
+      provideZonelessChangeDetection(),
+      provideDomPlacement(),
+      provideI18n(createSimpleI18nProvider('en')),
+    ],
+  })
+  const ref = createComponent(Host, { environmentInjector: appRef.injector })
+  const host = ref.location.nativeElement as HTMLElement
+  document.body.appendChild(host)
+  appRef.attachView(ref.hostView)
+  appRef.tick()
+  const entry = {
+    host,
+    set: (next: Span[]): void => {
+      ref.instance.spans = next
+      ref.changeDetectorRef.markForCheck()
+      appRef.tick()
+    },
+    destroy: async () => {
+      ref.destroy()
+      host.remove()
+      await appRef.destroy()
+    },
+  }
+  mounted.push(entry)
+  return entry
+}
 
 const sampleSpans: Span[] = [
   { id: 'a', name: 'GET /api', service: 'edge', startTime: 0, duration: 100, status: 'ok' },
@@ -332,5 +397,20 @@ describe('<TraceWaterfall>', () => {
       .host
     expect(container.querySelector('[data-testid="custom-empty"]')).not.toBeNull()
     expect(container.querySelector('[data-mol-id="trace-waterfall-empty"]')).toBeNull()
+  })
+
+  it("renders React's elements with no host or capture element of its own", async () => {
+    const m = await renderInList(
+      [{ id: 'a', name: 'GET /api', startTime: 0, duration: 100, status: 'ok' }],
+      '<p data-empty>No spans</p>',
+    )
+    const children = (): string[] =>
+      Array.from(m.host.children).map((child) => child.tagName.toLowerCase())
+    // The region renders bare between the two consumer siblings, with no
+    // `mol-trace-waterfall` element of its own.
+    expect(children()).toEqual(['i', 'div', 'i'])
+    // An empty trace swaps in React's bare `emptyState` node, in place.
+    m.set([])
+    expect(children()).toEqual(['i', 'p', 'i'])
   })
 })

@@ -56,6 +56,7 @@ vi.mock('@molecule/app-ui-angular', async () => {
   const { Component } = await import('@angular/core')
   return {
     Checkbox: Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'div[mol-checkbox]',
       standalone: true,
       inputs: ['checked', 'disabled'],
@@ -116,7 +117,7 @@ async function render(props: Record<string, unknown>): Promise<Mounted> {
     selector: 'mol-spec-host',
     standalone: true,
     imports: [Checklist],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     host: { 'data-spec-host': String(++hostCount) },
     template: `<div mol-checklist [items]="p['items']" [onToggle]="p['onToggle']" [showProgress]="p['showProgress']" [title]="p['title']" [className]="p['className']"></div>`,
   })(

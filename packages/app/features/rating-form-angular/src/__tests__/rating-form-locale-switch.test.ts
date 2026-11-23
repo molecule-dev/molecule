@@ -54,6 +54,7 @@ vi.mock('@molecule/app-ui-angular', async () => {
   const { Component } = await import('@angular/core')
   return {
     Button: Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'button[mol-button]',
       standalone: true,
       inputs: ['type', 'variant', 'color', 'disabled'],
@@ -76,6 +77,7 @@ vi.mock('@molecule/app-ui-angular', async () => {
       },
     ),
     Textarea: Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'div[mol-textarea]',
       standalone: true,
       inputs: ['placeholder', 'value', 'rows'],
@@ -135,7 +137,7 @@ describe('RatingForm locale switch', () => {
       selector: 'mol-spec-host',
       standalone: true,
       imports: [RatingForm as Type<unknown>],
-      changeDetection: ChangeDetectionStrategy.Default,
+      changeDetection: ChangeDetectionStrategy.Eager,
       template: `<form mol-rating-form [onSubmit]="p['onSubmit']"></form>`,
     })(
       class SpecHost {

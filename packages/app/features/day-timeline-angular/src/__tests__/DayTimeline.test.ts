@@ -76,7 +76,7 @@ async function mount(props: Record<string, unknown>): Promise<Mounted> {
     selector: 'mol-spec-host',
     standalone: true,
     imports: [DayTimeline as Type<unknown>],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     // prettier-ignore
     template: `<div mol-day-timeline [events]="p['events']" [startHour]="p['startHour']" [endHour]="p['endHour']" [pxPerHour]="p['pxPerHour']" [showAxisLabels]="p['showAxisLabels']" [dataMolId]="p['dataMolId']" [className]="p['className']"></div>`,
   })(

@@ -74,7 +74,7 @@ async function mount(props: Record<string, unknown>): Promise<Mounted> {
     selector: 'mol-spec-host',
     standalone: true,
     imports: [QrCode],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: `<svg
       mol-qr-code
       [value]="p['value']"

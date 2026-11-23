@@ -5,16 +5,17 @@
  */
 
 import { NgStyle, NgTemplateOutlet } from '@angular/common'
-import {
-  type AfterViewInit,
-  Component,
-  type DoCheck,
-  type ElementRef,
-  type TemplateRef,
-  ViewChild,
-} from '@angular/core'
+import { Component, type ElementRef, type TemplateRef, ViewChild } from '@angular/core'
 
-import { hasContent, setElementPresent, useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  placeContent,
+  placeContentBefore,
+  setElementPresent,
+  type SlotReader,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -57,11 +58,12 @@ const textOf = (value: unknown): string | null =>
  * Angular projection needs the `<ng-content>` capture points mounted, and an
  * `ng-content` created later never receives the projection, so the popup and
  * the two capture points live in the template unconditionally and
- * {@link AnnotationPin.ngDoCheck} detaches the ones React would not render.
+ * {@link AnnotationPin.reconcile} detaches the ones React would not render.
  */
 @Component({
   selector: 'div[mol-annotation-pin]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [NgStyle, NgTemplateOutlet],
   inputs: [
     'position',
@@ -80,9 +82,9 @@ const textOf = (value: unknown): string | null =>
     '[attr.style]': 'wrapperStyle()',
   },
   // prettier-ignore
-  template: `<button type="button" (click)="handleMarkerClick($event)" [attr.aria-label]="markerLabel()" [attr.aria-expanded]="selected ? 'true' : 'false'" data-mol-id="annotation-pin-marker" [class]="markerClasses()" [ngStyle]="markerStyles()"><span [class]="labelClasses()" data-mol-id="annotation-pin-label" [attr.style]="labelStyle()">@if (labelTemplate(); as tpl) {<ng-container [ngTemplateOutlet]="tpl" />} @else if (labelText() !== null) {{{ labelText() }}}<span #labelSlot data-parity-unwrap><ng-content select="[slot=label]"></ng-content></span></span></button><div #popupEl role="dialog" [attr.aria-label]="popupLabel()" data-mol-id="annotation-pin-popup" [attr.data-popup-side]="popupSide ?? 'right'" [class]="popupClasses()" [attr.style]="popupStyle()"><div data-mol-id="annotation-pin-popup-body">@if (noteTemplate(); as tpl) {<ng-container [ngTemplateOutlet]="tpl" />} @else if (noteText() !== null) {{{ noteText() }}}<span #noteSlot data-parity-unwrap><ng-content select="[slot=note]"></ng-content></span><span #emptyNoteEl data-mol-id="annotation-pin-popup-empty">{{ emptyNote() }}</span></div></div>`,
+  template: `<button type="button" (click)="handleMarkerClick($event)" [attr.aria-label]="markerLabel()" [attr.aria-expanded]="selected ? 'true' : 'false'" data-mol-id="annotation-pin-marker" [class]="markerClasses()" [ngStyle]="markerStyles()"><span [class]="labelClasses()" data-mol-id="annotation-pin-label" [attr.style]="labelStyle()">@if (labelTemplate(); as tpl) {<ng-container [ngTemplateOutlet]="tpl" />} @else if (labelText() !== null) {{{ labelText() }}}<span #labelSlot><ng-content select="[slot=label]"></ng-content></span></span></button><div #popupEl role="dialog" [attr.aria-label]="popupLabel()" data-mol-id="annotation-pin-popup" [attr.data-popup-side]="popupSide ?? 'right'" [class]="popupClasses()" [attr.style]="popupStyle()"><div data-mol-id="annotation-pin-popup-body">@if (noteTemplate(); as tpl) {<ng-container [ngTemplateOutlet]="tpl" />} @else if (noteText() !== null) {{{ noteText() }}}<span #noteSlot><ng-content select="[slot=note]"></ng-content></span><span #emptyNoteEl data-mol-id="annotation-pin-popup-empty">{{ emptyNote() }}</span></div></div>`,
 })
-export class AnnotationPin implements AfterViewInit, DoCheck {
+export class AnnotationPin {
   /** Position in the parent surface's coordinate space (typically normalised 0..1). */
   position!: { x: number; y: number }
   /** Short label inside the marker — text, a template, or `[slot=label]` content. */
@@ -116,6 +118,10 @@ export class AnnotationPin implements AfterViewInit, DoCheck {
    * locale, so the view re-renders the text on a locale switch.
    */
   private readonly i18n = useTranslation()
+
+  constructor() {
+    usePlacement((hasContent) => this.reconcile(hasContent))
+  }
 
   /**
    * The current class map.
@@ -335,23 +341,32 @@ export class AnnotationPin implements AfterViewInit, DoCheck {
   /**
    * Reads the projected capture points and reconciles the popup and the two
    * capture wrappers against what React renders.
+   *
+   * @param hasContent - Reads whether a slot has content.
    */
-  reconcile(): void {
+  reconcile(hasContent: SlotReader): void {
+    const label = this.labelSlot?.nativeElement
     const note = this.noteSlot?.nativeElement
     if (note) this.noteProjected = hasContent(note)
     setElementPresent(this.popupEl?.nativeElement, this.selected === true)
-    setElementPresent(this.labelSlot?.nativeElement, !this.hasLabelProp())
-    setElementPresent(note, !this.hasNoteProp())
+    this.placeSlot(label, !this.hasLabelProp())
+    this.placeSlot(note, !this.hasNoteProp())
     setElementPresent(this.emptyNoteEl?.nativeElement, !this.hasNote())
   }
 
-  /** Reconciles once the view (and its projections) exist. */
-  ngAfterViewInit(): void {
-    this.reconcile()
-  }
-
-  /** Reconciles after input writes, as React re-renders on a prop change. */
-  ngDoCheck(): void {
-    this.reconcile()
+  /**
+   * Renders a slot's projected content bare in the capture point's place when
+   * React would render it, and takes the capture point out of the page either
+   * way — React renders `{slot}` with no wrapper element.
+   *
+   * @param capture - The `<ng-content>` capture element.
+   * @param show - Whether React renders the projected content now.
+   */
+  private placeSlot(capture: HTMLElement | undefined, show: boolean): void {
+    if (!capture) return
+    if (show) placeContentBefore(capture, capture)
+    // Otherwise the projected nodes go back inside the hidden capture wrapper.
+    else placeContent(capture, null)
+    setElementPresent(capture, false)
   }
 }

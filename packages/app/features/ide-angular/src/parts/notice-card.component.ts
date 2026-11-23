@@ -26,8 +26,14 @@
  * @module
  */
 
-import { Component } from '@angular/core'
+import { Component, ElementRef, inject, ViewChild } from '@angular/core'
 
+import {
+  MolPlacement,
+  placeElementBefore,
+  setElementPresent,
+  usePlacement,
+} from '@molecule/app-angular'
 import type { IconName } from '@molecule/app-icons'
 import type { ChatEventCardAction, ChatEventCardSegment } from '@molecule/app-ide-panel-logic'
 import {
@@ -299,23 +305,35 @@ export interface ResourceLimitBannerProps {
  * {@link NoticeCard} so it has the SAME matched-weight icon + accent button row
  * as every other upgrade notice — no bespoke icon, no single-link special case.
  *
- * React's root here is the notice card's own root `div`, so the host is a
- * `display: contents` wrapper marked `data-parity-unwrap`, which the
- * conformance normalizer drops.
+ * React's root here is the notice card's own root `div`, so that element
+ * renders in front of the host (`placeElementBefore`) and the host leaves the
+ * DOM: the rendered tree is React's, with no wrapper element of its own.
  */
 @Component({
   selector: 'div[mol-resource-limit-banner]',
   standalone: true,
   imports: [NoticeCard],
   inputs: ['message', 'action'],
-  host: {
-    'data-parity-unwrap': '',
-    style: 'display: contents',
-  },
+  hostDirectives: [MolPlacement],
   // prettier-ignore
-  template: `<div mol-notice-card [tone]="'upgrade'" [text]="message" [action]="action"></div>`,
+  template: `<div #root mol-notice-card [tone]="'upgrade'" [text]="message" [action]="action"></div>`,
 })
 export class ResourceLimitBanner {
+  /** The notice card element React renders. */
+  @ViewChild('root', { read: ElementRef }) private root?: ElementRef<HTMLElement>
+
+  /** The component's own host element, which React does not render. */
+  private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
+
+  /** Renders the card in front of the host and keeps the host out of the DOM. */
+  constructor() {
+    usePlacement(() => {
+      const root = this.root?.nativeElement
+      if (root) placeElementBefore(root, this.host.nativeElement)
+      setElementPresent(this.host.nativeElement, false)
+    })
+  }
+
   /** The backend's message for the hit limit. */
   message = ''
 

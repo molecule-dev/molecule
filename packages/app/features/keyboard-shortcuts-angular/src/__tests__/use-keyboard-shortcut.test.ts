@@ -9,6 +9,7 @@
  */
 import '@angular/compiler'
 import {
+  ChangeDetectionStrategy,
   Component,
   createComponent,
   provideZonelessChangeDetection,
@@ -44,6 +45,7 @@ interface HookMount {
 async function mountHook(call: () => void): Promise<HookMount> {
   const appRef = await createApplication({ providers: [provideZonelessChangeDetection()] })
   const Host = Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
     selector: `mol-hook-host-${++hostCount}`,
     standalone: true,
     template: '',

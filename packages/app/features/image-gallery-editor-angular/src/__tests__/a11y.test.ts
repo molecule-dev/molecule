@@ -117,7 +117,7 @@ async function renderEditor(slots: (string | null)[]): Promise<{ container: HTML
     selector: 'mol-spec-host',
     standalone: true,
     imports: [ImageGalleryEditor as Type<unknown>],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: `<section mol-image-gallery-editor [slots]="slots" (change)="noop()"></section>`,
   })(
     class SpecHost {

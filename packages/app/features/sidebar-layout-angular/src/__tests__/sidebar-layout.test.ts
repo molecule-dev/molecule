@@ -70,6 +70,7 @@ vi.mock('@molecule/app-angular', async (importOriginal) => {
     },
   )
   const RoutedView = Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
     selector: 'mol-routed-view',
     standalone: true,
     template: '<div data-outlet=""></div>',
@@ -127,7 +128,7 @@ async function mount(
     selector: 'mol-spec-host',
     standalone: true,
     imports: [component],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template,
   })(
     class SpecHost {
@@ -253,6 +254,21 @@ describe('SidebarLayout', () => {
     expect(shown()).toEqual(['a', 'c'])
   })
 
+  it('shows and removes the bottom wrapper in the pass where the consumer @if adds and removes its content', async () => {
+    const m = await render(
+      { appName: 'A', on: false },
+      `@if (p['on']) {<b slot="userMenu" data-user></b>}`,
+    )
+    const user = (): HTMLElement | null => m.host.querySelector('[data-user]')
+    // No projected bottom slots: React renders no bottom container at all.
+    expect(user()).toBeNull()
+    await m.setProps({ on: true })
+    expect(user()).not.toBeNull()
+    expect(user()?.isConnected).toBe(true)
+    await m.setProps({ on: false })
+    expect(user()).toBeNull()
+  })
+
   describe('ClassMap tokens (styling-agnostic)', () => {
     it('routes the shell / surfaces / borders through cm.* tokens', async () => {
       const m = await render({ appName: 'Acme' })
@@ -353,5 +369,28 @@ describe('SidebarLayout', () => {
       const m = await render({ appName: 'Acme' })
       expect(m.host.innerHTML).toMatch(/min-width:\s*0px/)
     })
+  })
+
+  it("renders React's elements with no host or capture element of its own", async () => {
+    const m = await mount(
+      `<i>a</i><div mol-sidebar-layout [appName]="p['appName']">@if (p['hasBody']) {<p data-body>Page</p>}</div><i>b</i>`,
+      SidebarLayout as Type<unknown>,
+      { appName: 'Acme', hasBody: false },
+    )
+    mounted.push(m)
+    const children = (): string[] =>
+      Array.from(m.host.children).map((child) => child.tagName.toLowerCase())
+    // The host IS React's root <div>; the wrapper stays between the siblings.
+    expect(children()).toEqual(['i', 'div', 'i'])
+    const layout = m.host.querySelector('[mol-sidebar-layout]') as HTMLElement
+    const main = layout.querySelector('main') as HTMLElement
+    // With no page body, the routed view renders in <main>.
+    expect(main.querySelector('[data-outlet]')).not.toBeNull()
+    await m.setProps({ hasBody: true })
+    expect(children()).toEqual(['i', 'div', 'i'])
+    // The page body is a direct child of <main> — no capture span remains.
+    const body = m.host.querySelector('[data-body]') as HTMLElement
+    expect(body.parentElement).toBe(main)
+    expect(main.querySelector('[data-outlet]')).toBeNull()
   })
 })

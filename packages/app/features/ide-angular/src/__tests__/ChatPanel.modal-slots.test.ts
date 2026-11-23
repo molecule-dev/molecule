@@ -15,11 +15,18 @@
 
 import '@angular/compiler'
 import '@molecule/app-framework-conformance/ui/setup'
-import { Component, createComponent, provideZonelessChangeDetection, signal } from '@angular/core'
+import {
+  ChangeDetectionStrategy,
+  Component,
+  createComponent,
+  provideZonelessChangeDetection,
+  signal,
+} from '@angular/core'
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import {
+  provideDomPlacement,
   provideHttp,
   provideI18n,
   provideTheme,
@@ -40,6 +47,7 @@ import { buildThemeProvider } from './theme-test-provider.js'
 
 /** The host that renders both modal slots, in React's order. */
 const SlotsHost = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-chat-slots-host',
   standalone: true,
   imports: [ChatReportModal, ChatShareModal],
@@ -98,6 +106,7 @@ async function mountSlots(): Promise<SlotsMount> {
   const appRef = await createApplication({
     providers: [
       provideZonelessChangeDetection(),
+      provideDomPlacement(),
       provideI18n(i18n),
       provideTheme(buildThemeProvider()),
       provideHttp(buildRejectingHttpClient()),

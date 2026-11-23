@@ -13,7 +13,13 @@ import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 
 import '@angular/compiler'
-import { Component as AngularComponent, computed, signal, type Type } from '@angular/core'
+import {
+  ChangeDetectionStrategy,
+  Component as AngularComponent,
+  computed,
+  signal,
+  type Type,
+} from '@angular/core'
 import ts from 'typescript'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -58,6 +64,7 @@ let pageCount = 0
 /** The documented page component (its `name` is a signal so the test can change it). */
 function packagePage(): Type<object> {
   return AngularComponent({
+    changeDetection: ChangeDetectionStrategy.Eager,
     selector: `mol-package-page-${++pageCount}`,
     standalone: true,
     template: `

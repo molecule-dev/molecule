@@ -40,14 +40,17 @@
  * @remarks
  * This is NOT the Angular binding for `@molecule/app-timeline` (the headless
  * provider core wired via `setProvider`) — it is standalone presentational
- * markup with no provider. For domain-specific rows see the sibling
- * `@molecule/app-{activity,order,status,stage,day}-timeline-angular` packages.
+ * markup with no provider. For domain-specific rows see the sibling packages
+ * `@molecule/app-activity-timeline-angular`, `@molecule/app-order-timeline-angular`,
+ * `@molecule/app-status-timeline-angular`, `@molecule/app-stage-timeline-angular` and
+ * `@molecule/app-day-timeline-angular`.
  *
  * `TimelineEventData.accent` is currently INERT — no component reads it, so
  * setting it changes nothing; color a row by passing a custom `marker` node
  * instead. `timestamp` is a display node — format/translate it before
  * passing. Node-valued props are `ng-template` references; `Timeline`'s root is
- * a fragment in its empty branch, so its host is `display: contents`, and rows
+ * a fragment in its empty branch, so its content renders in the host's place
+ * and the host itself leaves the page, and rows
  * are tracked by the event's `id`, like React's keys. The prop surface
  * (documented on the exported `TimelineProps`, `TimelineEventProps`,
  * `TimelineRailProps` and `TimelineDateProps` interfaces):

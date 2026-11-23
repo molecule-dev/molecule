@@ -39,7 +39,7 @@
  * @remarks
  * Requires a wired ClassMap bond and an Angular i18n provider — the composed
  * `Modal` / `Button` (from `@molecule/app-ui-angular`) and `useTranslation()`
- * all depend on them. Pair with `@molecule/app-onboarding-modal-locales` for
+ * all depend on them. Pair with `@molecule/app-locales-onboarding-modal` for
  * the Skip / Back / Next / Get-started strings in 79 languages.
  *
  * Step position is UNCONTROLLED and persists across close/reopen — a user who

@@ -4,21 +4,17 @@
  * @module
  */
 
-import {
-  type AfterViewInit,
-  Component,
-  type DoCheck,
-  ElementRef,
-  inject,
-  type Renderer2,
-  RendererFactory2,
-  ViewChild,
-} from '@angular/core'
+import { Component, type ElementRef, ViewChild } from '@angular/core'
 
+import {
+  MolPlacement,
+  placeContent,
+  setElementPresent,
+  type SlotReader,
+  usePlacement,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
-
-import { hasNodes, SlotGuard } from './slot-dom.js'
 
 /** React's inline style for the hero band, serialized the way React writes it. */
 const HERO_STYLE =
@@ -40,11 +36,12 @@ const GLOW_STYLE = 'background: color-mix(in srgb, var(--mol-color-primary) 22%,
  * React renders the hero only when a title is supplied, the eyebrow and
  * subtitle paragraphs only when their nodes are, and the body's surface card
  * only when `bare` is false — Angular's projection points must exist, so
- * {@link ContentPageShell.ngDoCheck} reconciles all four against React's DOM.
+ * {@link ContentPageShell.reconcile} reconciles all four against React's DOM.
  */
 @Component({
   selector: 'div[mol-content-page-shell]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   inputs: [
     'dataMolId',
     'eyebrow',
@@ -59,7 +56,7 @@ const GLOW_STYLE = 'background: color-mix(in srgb, var(--mol-color-primary) 22%,
   // prettier-ignore
   template: `<ng-content select="[slot=header]"></ng-content><section #heroEl [attr.data-mol-id]="dataMolId ?? null" [class]="heroClasses()" [style]="heroStyle"><div aria-hidden="true" [class]="cm().cn(cm().legalPagesHeroGlow)" [style]="glowStyle"></div><div [class]="heroContentClasses()"><p #eyebrowEl [class]="eyebrowClasses()"><ng-content select="[slot=eyebrow]"></ng-content></p><h1 #titleEl [class]="titleClasses()"><ng-content select="[slot=title]"></ng-content></h1><p #subtitleEl [class]="subtitleClasses()"><ng-content select="[slot=subtitle]"></ng-content></p></div></section><main [class]="mainClasses()"><div #bodyEl [class]="bodyClasses()"><div #cardEl [class]="cardClasses()"><ng-content></ng-content></div></div></main><ng-content select="[slot=footer]"></ng-content>`,
 })
-export class ContentPageShell implements AfterViewInit, DoCheck {
+export class ContentPageShell {
   /** `data-mol-id` applied to the hero band for AI-agent selectors. */
   dataMolId?: string
   /** Small uppercase label above the title (projected `[slot=eyebrow]` content). */
@@ -95,12 +92,12 @@ export class ContentPageShell implements AfterViewInit, DoCheck {
   /** The surface card around the body (unwrapped when `bare`). */
   @ViewChild('cardEl') private cardEl?: ElementRef<HTMLElement>
 
-  private readonly host = inject(ElementRef<HTMLElement>)
-  private readonly renderer: Renderer2 = inject(RendererFactory2).createRenderer(null, null)
-  private readonly guard = new SlotGuard(this.host, this.renderer)
+  /** Whether the body currently renders without its surface card wrapper. */
+  private cardBare = false
 
-  /** The body nodes moved out of the card when `bare` unwrapped it. */
-  private bareMoved: Node[] = []
+  constructor() {
+    usePlacement((hasContent) => this.reconcile(hasContent))
+  }
 
   /**
    * The current class map.
@@ -200,53 +197,39 @@ export class ContentPageShell implements AfterViewInit, DoCheck {
   }
 
   /**
-   * Reconciles the conditional wrappers with React's DOM (the view queries
-   * resolve only at view init, so the first pass is here).
+   * Takes the wrappers React would not render out of the page, keeping each
+   * one's place so a later pass can restore it.
+   *
+   * @param hasContent - Reads whether a slot has content.
    */
-  ngAfterViewInit(): void {
-    this.sync()
-  }
-
-  /** Reconciles after input writes and projected-content changes. */
-  ngDoCheck(): void {
-    this.sync()
-  }
-
-  /**
-   * Detaches the wrappers React would not render, at their own position so a
-   * later pass can restore them.
-   */
-  private sync(): void {
-    this.guard.toggle(this.heroEl?.nativeElement, hasNodes(this.titleEl?.nativeElement))
-    this.guard.toggle(this.eyebrowEl?.nativeElement, hasNodes(this.eyebrowEl?.nativeElement))
-    this.guard.toggle(this.subtitleEl?.nativeElement, hasNodes(this.subtitleEl?.nativeElement))
+  private reconcile(hasContent: SlotReader): void {
+    setElementPresent(this.heroEl?.nativeElement, hasContent(this.titleEl?.nativeElement))
+    setElementPresent(this.eyebrowEl?.nativeElement, hasContent(this.eyebrowEl?.nativeElement))
+    setElementPresent(this.subtitleEl?.nativeElement, hasContent(this.subtitleEl?.nativeElement))
     this.syncBare()
   }
 
   /**
    * Applies React's `bare ? children : <div class="…surface…">{children}</div>`:
-   * the card exists for its `<ng-content>` capture point, so `bare` unwraps it
-   * by moving the projected nodes into the body container, and a later
-   * non-bare pass puts them back.
+   * the card exists for its `<ng-content>` capture point, so `bare` renders its
+   * projected nodes without the wrapper, and a later non-bare pass puts them
+   * back inside it.
    */
   private syncBare(): void {
     const card = this.cardEl?.nativeElement
     const body = this.bodyEl?.nativeElement
     if (!card || !body) return
     if (this.bare) {
-      if (!card.isConnected) return
-      const nodes = Array.from(card.childNodes).filter(
-        (node) =>
-          node.nodeType === 1 || (node.nodeType === 3 && (node.textContent ?? '').trim() !== ''),
-      )
-      for (const node of nodes) body.insertBefore(node, card)
-      this.bareMoved = nodes
-      card.remove()
+      if (this.cardBare) return
+      setElementPresent(card, true)
+      placeContent(card, body, card)
+      setElementPresent(card, false)
+      this.cardBare = true
       return
     }
-    if (card.isConnected) return
-    body.appendChild(card)
-    for (const node of this.bareMoved) card.appendChild(node)
-    this.bareMoved = []
+    if (!this.cardBare) return
+    setElementPresent(card, true)
+    placeContent(card, null)
+    this.cardBare = false
   }
 }

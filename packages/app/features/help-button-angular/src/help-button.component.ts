@@ -4,36 +4,22 @@
  * @module
  */
 
-import {
-  type AfterViewInit,
-  Component,
-  type DoCheck,
-  ElementRef,
-  inject,
-  signal,
-  ViewChild,
-} from '@angular/core'
+import { Component, ElementRef, inject, signal, ViewChild } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  placeContent,
+  placeContentBefore,
+  setElementPresent,
+  type SlotReader,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 /** Square sizes in pixels, keyed by the size input. */
 const SIZE_MAP = { sm: 40, md: 52, lg: 64 } as const
-
-/**
- * Whether an element captured any projected element or non-blank text node.
- *
- * @param el - The capture element.
- * @returns True when at least one projected node renders.
- */
-const hasNodes = (el: Element): boolean => {
-  for (const node of Array.from(el.childNodes)) {
-    if (node.nodeType === 1) return true
-    if (node.nodeType === 3 && (node.textContent ?? '').trim()) return true
-  }
-  return false
-}
 
 /** The default "?" glyph's inline style, exactly as React writes it. */
 const glyphStyle = (dim: number): string => `font-size: ${dim * 0.45}px; font-weight: 700`
@@ -50,25 +36,22 @@ const DOT_STYLE =
  * `position="inline"` inside other UI to drop the fixed positioning and render
  * as a normal in-flow button.
  *
- * The host is a `display: contents` wrapper (`div[mol-help-button]`), unwrapped
- * by the conformance normalizer, because React's root element is the `<a>` when
- * `href` is supplied and the `<button>` otherwise — a standalone component's
- * host tag cannot change at runtime. The projected `[slot=icon]` content is
- * moved from its capture span into the root's content span after view init,
- * matching React's bare `{icon}` position.
+ * The rendered root is the `<a>` when `href` is supplied and the `<button>`
+ * otherwise — a standalone component's host tag cannot change at runtime, so
+ * the rendered root stands in front of the host's place and the host itself
+ * leaves the page (`placeContentBefore` + `setElementPresent`). The projected
+ * `[slot=icon]` content is placed into that root, matching React's bare
+ * `{icon}` position.
  */
 @Component({
   selector: 'div[mol-help-button]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   inputs: ['icon', 'label', 'onClick', 'href', 'size', 'position', 'hasNotification', 'className'],
-  host: {
-    'data-parity-unwrap': '',
-    style: 'display: contents',
-  },
   // prettier-ignore
-  template: `@if (isLink()) {<a [attr.href]="href" [attr.aria-label]="ariaLabel()" [class]="rootClass()" [style]="rootStyleText()" (mouseenter)="enter()" (mouseleave)="leave()"><span [class]="contentClasses()" style="width: 100%; height: 100%"><span data-icon-anchor></span>@if (!hasIcon()) {<span aria-hidden="true" [style]="glyphStyleText()">?</span>}@if (hasNotification) {<span aria-hidden="true" style="${DOT_STYLE}"></span>}</span></a>} @else {<button type="button" [attr.aria-label]="ariaLabel()" [class]="rootClass()" [style]="rootStyleText()" (click)="onClick?.($event)" (mouseenter)="enter()" (mouseleave)="leave()"><span [class]="contentClasses()" style="width: 100%; height: 100%"><span data-icon-anchor></span>@if (!hasIcon()) {<span aria-hidden="true" [style]="glyphStyleText()">?</span>}@if (hasNotification) {<span aria-hidden="true" style="${DOT_STYLE}"></span>}</span></button>}<span #iconCapture style="display: none"><ng-content select="[slot=icon]"></ng-content></span>`,
+  template: `@if (isLink()) {<a #linkRoot [attr.href]="href" [attr.aria-label]="ariaLabel()" [class]="rootClass()" [style]="rootStyleText()" (mouseenter)="enter()" (mouseleave)="leave()"><span [class]="contentClasses()" style="width: 100%; height: 100%"><span data-icon-anchor></span>@if (!hasIcon()) {<span aria-hidden="true" [style]="glyphStyleText()">?</span>}@if (hasNotification) {<span aria-hidden="true" style="${DOT_STYLE}"></span>}</span></a>} @else {<button #buttonRoot type="button" [attr.aria-label]="ariaLabel()" [class]="rootClass()" [style]="rootStyleText()" (click)="onClick?.($event)" (mouseenter)="enter()" (mouseleave)="leave()"><span [class]="contentClasses()" style="width: 100%; height: 100%"><span data-icon-anchor></span>@if (!hasIcon()) {<span aria-hidden="true" [style]="glyphStyleText()">?</span>}@if (hasNotification) {<span aria-hidden="true" style="${DOT_STYLE}"></span>}</span></button>}<span #iconCapture style="display: none"><ng-content select="[slot=icon]"></ng-content></span>`,
 })
-export class HelpButton implements AfterViewInit, DoCheck {
+export class HelpButton {
   /** Optional icon — projected `[slot=icon]` content (an input cannot carry a node). */
   icon?: unknown
   /** Accessible label (defaults to `'Help'` through i18n at read time). */
@@ -86,10 +69,15 @@ export class HelpButton implements AfterViewInit, DoCheck {
   /** Extra classes on the root element. */
   className?: string
 
-  /** The icon slot's capture span (moved out of the DOM once read). */
+  /** The icon slot's capture span (kept out of the DOM; its content is the icon). */
   @ViewChild('iconCapture') iconCapture?: ElementRef<HTMLSpanElement>
 
-  /** The host element (the `display: contents` wrapper). */
+  /** The `<a>` root, while `href` is set. */
+  @ViewChild('linkRoot') private linkRoot?: ElementRef<HTMLElement>
+  /** The `<button>` root, while `href` is not set. */
+  @ViewChild('buttonRoot') private buttonRoot?: ElementRef<HTMLElement>
+
+  /** The host element (React renders no element of its own). */
   private readonly el = inject(ElementRef)
 
   /**
@@ -104,8 +92,47 @@ export class HelpButton implements AfterViewInit, DoCheck {
   /** Whether any icon content was projected (React's `icon != null`). */
   private readonly iconProjected = signal(false)
 
-  /** The projected icon nodes, kept so a branch switch can place them again. */
-  private iconNodes: Node[] = []
+  /** The icon anchor, kept once it leaves the DOM so later content is placed too. */
+  private anchor: HTMLElement | null = null
+
+  constructor() {
+    usePlacement((hasContent) => this.reconcile(hasContent))
+  }
+
+  /**
+   * Reads the icon slot, places its content into the current root — React
+   * renders `{icon}` bare there — and records whether it was projected.
+   *
+   * @param hasContent - Reads whether a slot has content.
+   */
+  private reconcile(hasContent: SlotReader): void {
+    this.iconProjected.set(hasContent(this.iconCapture?.nativeElement))
+    const host = this.el.nativeElement as HTMLElement
+    // React's root is the `<a>`/`<button>` itself: it renders in front of the host's place
+    // and the host leaves the page; the icon content then goes into that root.
+    placeContentBefore(host, host)
+    setElementPresent(host, false)
+    this.placeIcon()
+  }
+
+  /**
+   * Renders the captured icon content inside the current root's content span
+   * and takes the scaffolding (capture span, anchor) out of the DOM. The root is
+   * found through its template ref: it stands beside the host, not inside it.
+   */
+  private placeIcon(): void {
+    const root = (this.linkRoot?.nativeElement ?? this.buttonRoot?.nativeElement) as
+      HTMLElement | undefined
+    const anchor = root?.querySelector<HTMLElement>('[data-icon-anchor]') ?? this.anchor
+    const capture = this.iconCapture?.nativeElement
+    if (!root || !anchor || !capture) return
+    this.anchor = anchor
+    if (anchor.parentNode === null) setElementPresent(anchor, true)
+    const parent = anchor.parentElement
+    if (parent) placeContent(capture, parent, anchor)
+    setElementPresent(anchor, false)
+    setElementPresent(capture, false)
+  }
 
   /**
    * The current class map.
@@ -203,39 +230,5 @@ export class HelpButton implements AfterViewInit, DoCheck {
   /** Marks the pointer as gone from the root. */
   leave(): void {
     this.hovered.set(false)
-  }
-
-  /**
-   * Reads the icon slot (view queries resolve only at view init) and moves its
-   * nodes into the root's content span — React renders `{icon}` bare there.
-   */
-  ngAfterViewInit(): void {
-    const capture = this.iconCapture?.nativeElement
-    if (!capture) return
-    this.iconProjected.set(hasNodes(capture))
-    this.iconNodes = Array.from(capture.childNodes).filter(
-      (node) => node.nodeType === 1 || (node.nodeType === 3 && (node.textContent ?? '') !== ''),
-    )
-    this.placeIcon()
-  }
-
-  /** Places the icon nodes again when a branch switch re-created the anchor. */
-  ngDoCheck(): void {
-    if (this.iconNodes.length === 0) return
-    if ((this.el.nativeElement as HTMLElement).querySelector('[data-icon-anchor]')) this.placeIcon()
-  }
-
-  /**
-   * Moves the captured icon nodes to the current root's content span and takes
-   * the scaffolding (capture span, anchor) out of the DOM.
-   */
-  private placeIcon(): void {
-    const host = this.el.nativeElement as HTMLElement
-    const anchor = host.querySelector('[data-icon-anchor]')
-    if (!anchor) return
-    const parent = anchor.parentElement
-    if (parent) for (const node of this.iconNodes) parent.insertBefore(node, anchor)
-    anchor.remove()
-    this.iconCapture?.nativeElement.remove()
   }
 }

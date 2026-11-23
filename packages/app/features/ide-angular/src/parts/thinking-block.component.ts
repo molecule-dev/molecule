@@ -10,20 +10,33 @@
  * is checked so the measured element exists).
  *
  * The component is a part (React renders it inside ChatPanel without exporting
- * it), so it lives in `src/parts/`. React's root is a single `<div>`, which the
- * component renders itself; the host is a `data-parity-unwrap`/`display:
- * contents` wrapper the conformance normalizer drops. The inline styles are
- * written through `[attr.style]`, whose text lands in the DOM as is, so every
- * declaration is pre-serialized the way React's CSSOM records it (`border:
- * medium`, `padding: 2px 0px`). The disclosure label uses the shared
- * `formatThinkingDuration` — no logic is copied.
+ * it), so it lives in `src/parts/`. React's root is a single `<div>`, so that
+ * element renders in front of the host (`placeElementBefore`) and the host
+ * leaves the DOM: the rendered tree is React's, with no wrapper element of its
+ * own. The inline styles are written through `[attr.style]`, whose text lands
+ * in the DOM as is, so every declaration is pre-serialized the way React's
+ * CSSOM records it (`border: medium`, `padding: 2px 0px`). The disclosure label
+ * uses the shared `formatThinkingDuration` — no logic is copied.
  *
  * @module
  */
 
-import { type AfterViewChecked, Component, type ElementRef, signal, ViewChild } from '@angular/core'
+import {
+  type AfterViewChecked,
+  Component,
+  ElementRef,
+  inject,
+  signal,
+  ViewChild,
+} from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  placeElementBefore,
+  setElementPresent,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import { formatThinkingDuration } from '@molecule/app-ide-panel-logic'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
@@ -74,14 +87,30 @@ const STYLES = {
   selector: 'div[mol-thinking-block]',
   standalone: true,
   inputs: ['content', 'durationMs', 'isStreaming'],
-  host: {
-    'data-parity-unwrap': '',
-    style: 'display: contents',
-  },
+  hostDirectives: [MolPlacement],
   // prettier-ignore
-  template: `<div [attr.style]="s.root"><button type="button" (click)="toggle()" [attr.style]="s.toggle"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="12" height="12" [attr.style]="chevronStyle()"><polyline points="6,4 10,8 6,12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></polyline></svg><span [class]="labelClass">{{ label() }}</span></button>@if (open()) {<div #contentEl [class]="labelClass" [attr.style]="s.content">{{ content }}</div>}</div>`,
+  template: `<div #root [attr.style]="s.root"><button type="button" (click)="toggle()" [attr.style]="s.toggle"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="12" height="12" [attr.style]="chevronStyle()"><polyline points="6,4 10,8 6,12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></polyline></svg><span [class]="labelClass">{{ label() }}</span></button>@if (open()) {<div #contentEl [class]="labelClass" [attr.style]="s.content">{{ content }}</div>}</div>`,
 })
 export class ThinkingBlock implements AfterViewChecked {
+  /** The root `<div>` React renders. */
+  @ViewChild('root') private root?: ElementRef<HTMLElement>
+
+  /** The component's own host element, which React does not render. */
+  private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
+
+  /**
+   * Renders the root in front of the host and keeps the host out of the DOM,
+   * and composes the label's ClassMap classes once.
+   */
+  constructor() {
+    usePlacement(() => {
+      const root = this.root?.nativeElement
+      if (root) placeElementBefore(root, this.host.nativeElement)
+      setElementPresent(this.host.nativeElement, false)
+    })
+    this.labelClass = this.cm.cn(this.cm.textMuted, this.cm.textSize('xs'))
+  }
+
   /** The thinking / reasoning text. */
   content = ''
 
@@ -114,11 +143,6 @@ export class ThinkingBlock implements AfterViewChecked {
 
   /** The translation handle (locale-reactive). */
   private readonly i18n = useTranslation()
-
-  /** Composes the label's ClassMap classes once. */
-  constructor() {
-    this.labelClass = this.cm.cn(this.cm.textMuted, this.cm.textSize('xs'))
-  }
 
   /**
    * Whether the content is disclosed: the manual toggle wins once set, and

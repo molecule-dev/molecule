@@ -16,9 +16,8 @@
  * compact row, the subagent card, the question card) and which is ABSENT for a
  * call that draws nothing (`update_task_list`, a question not yet streamed in).
  * The component's host is that element: the attribute selector makes the host
- * React's root div, and the branch that renders nothing marks the host as the
- * harness's layout-neutral scaffolding (`display: contents`), so no stray
- * element reaches the tree.
+ * React's root div, and `useHostPresence` takes the host out of the DOM for the
+ * call that renders nothing, so no stray element reaches the tree.
  *
  * Styling uses `getClassMap()` (`cm.*`); inline styles are the ones React
  * writes, serialized so the rendered attributes are identical (React's
@@ -31,7 +30,7 @@
 
 import { Component, computed, inject, signal } from '@angular/core'
 
-import { useThemeMode, useTranslation } from '@molecule/app-angular'
+import { useHostPresence, useThemeMode, useTranslation } from '@molecule/app-angular'
 import type { ToolCallCardProps } from '@molecule/app-ide-panel-logic'
 import {
   type AskUserInput,
@@ -466,7 +465,6 @@ const STYLES = {
     '[attr.class]': 'rootClass()',
     '[attr.style]': 'rootStyle()',
     '[attr.data-mol-id]': "isSubagent() ? 'subagent-card' : null",
-    '[attr.data-parity-unwrap]': "rendersNothing() ? '' : null",
   },
   // prettier-ignore
   template: `@if (!rendersNothing()) {
@@ -650,6 +648,11 @@ export class ToolCallCard {
   /** The checkmark path (the picked-answer glyph). */
   protected readonly checkPath = CHECK_PATH
 
+  /** Keeps the host out of the DOM for a call React renders nothing for. */
+  constructor() {
+    useHostPresence(() => !this.rendersNothing())
+  }
+
   /** Whether the expanded pane is open. */
   protected readonly expanded = signal(false)
 
@@ -691,8 +694,8 @@ export class ToolCallCard {
 
   /**
    * Whether this call draws no element at all (React returns `null`). The host
-   * then becomes layout-neutral, `display: contents` scaffolding, so nothing
-   * reaches the rendered tree.
+   * then leaves the DOM ({@link useHostPresence}), so nothing reaches the
+   * rendered tree.
    * @returns True when the card renders nothing.
    */
   protected rendersNothing(): boolean {
@@ -718,12 +721,12 @@ export class ToolCallCard {
   }
 
   /**
-   * The root element's inline style: React's per-branch root style, or the
-   * layout-neutral scaffolding of a card that renders nothing.
+   * The root element's inline style: React's per-branch root style (a card that
+   * renders nothing has no element at all).
    * @returns The style attribute text, or null.
    */
   protected rootStyle(): string | null {
-    if (this.rendersNothing()) return 'display: contents'
+    if (this.rendersNothing()) return null
     if (this.isSubagent() || this.name === 'ask_user') {
       return styleText({
         marginBottom: '8px',

@@ -2,8 +2,10 @@
  * Render resource-dependent content only after its document exists — the
  * Angular counterpart of `QueryContent` in `@molecule/app-query-react`, with
  * the node-valued props as `TemplateRef`s. The component is headless: it owns
- * no translations and no styling, and projects the rendered branch beside the
- * host (`display: contents`), so the DOM is exactly the branch's own.
+ * no translations and no styling, and renders the chosen branch in front of the
+ * host's place and takes its own element out of the DOM
+ * (`placeContentBefore` + `setElementPresent`), so the DOM is exactly the
+ * branch's own.
  * @module
  */
 import {
@@ -11,6 +13,7 @@ import {
   Component,
   type DoCheck,
   effect,
+  ElementRef,
   type EmbeddedViewRef,
   inject,
   type OnChanges,
@@ -20,6 +23,13 @@ import {
   ViewChild,
   ViewContainerRef,
 } from '@angular/core'
+
+import {
+  MolPlacement,
+  placeContentBefore,
+  setElementPresent,
+  usePlacement,
+} from '@molecule/app-angular'
 
 import type {
   QueryContentErrorContext,
@@ -55,12 +65,9 @@ interface Branch {
 @Component({
   selector: 'mol-query-content',
   standalone: true,
+  hostDirectives: [MolPlacement],
   template: '<ng-container #outlet></ng-container>',
   inputs: ['query', 'pending', 'missing', 'children', 'error', 'empty', 'recordKey', 'getRecordId'],
-  host: {
-    'data-parity-unwrap': '',
-    style: 'display: contents',
-  },
 })
 export class QueryContent<T = unknown> implements DoCheck, OnChanges {
   /** State from useQuery, or any compatible query observer. */
@@ -107,7 +114,16 @@ export class QueryContent<T = unknown> implements DoCheck, OnChanges {
   /** The mounted branch view, when a template is showing. */
   private view?: EmbeddedViewRef<unknown>
 
+  /** The component's host element (React renders the branch and nothing of its own). */
+  private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
+
   constructor() {
+    // The branch renders in front of the host's place and the host leaves the page, so the
+    // DOM is exactly the branch's own (React returns the branch element directly).
+    usePlacement(() => {
+      placeContentBefore(this.host.nativeElement, this.host.nativeElement)
+      setElementPresent(this.host.nativeElement, false)
+    })
     // A `useQuery` result exposes its state through getters that read the
     // observer's own signals. React re-renders a `QueryContent`'s parent on
     // every state change; Angular only re-checks a view something marked, and

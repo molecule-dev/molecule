@@ -248,4 +248,18 @@ describe('OAuthProviderLogo dispatcher', () => {
     expect(svg.getAttribute('aria-label')).toBe('Continue with GitHub')
     await destroy()
   })
+
+  it("renders React's elements with no host or capture element of its own", async () => {
+    const { host, setProps, destroy } = await renderFixture(
+      `<i>a</i><mol-oauth-provider-logo [provider]="p['provider']"><span ngProjectAs="[slot=fallback]">n/a</span></mol-oauth-provider-logo><i>b</i>`,
+      { provider: 'github' },
+      [OAuthProviderLogo],
+    )
+    const children = (): string[] =>
+      Array.from(host.children).map((child) => child.tagName.toLowerCase())
+    expect(children()).toEqual(['i', 'svg', 'i'])
+    await setProps({ provider: 'myspace' })
+    expect(children()).toEqual(['i', 'span', 'i'])
+    await destroy()
+  })
 })

@@ -27,7 +27,7 @@
 
 import { Component, DestroyRef, ElementRef, inject } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import { placeElement, useTranslation } from '@molecule/app-angular'
 import type { FileNode } from '@molecule/app-ide-panel-logic'
 import { getClassMap, type UIClassMap } from '@molecule/app-ui'
 
@@ -310,7 +310,7 @@ export class FileExplorerContextMenu {
     // React portals the menu into `document.body`; move the host there the way
     // the portal does — appended last, so it lands where React's menu lands.
     // Angular's own node removal removes from wherever the node lives.
-    document.body.appendChild(this.hostEl)
+    placeElement(this.hostEl, document.body)
 
     // Close on Escape (the capture-phase listener stops the key from reaching
     // anything else) or outside click, and remove both with the component.

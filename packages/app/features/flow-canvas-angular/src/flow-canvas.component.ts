@@ -9,10 +9,8 @@
 
 import { NgTemplateOutlet } from '@angular/common'
 import {
-  type AfterViewInit,
   ChangeDetectorRef,
   Component,
-  type DoCheck,
   ElementRef,
   inject,
   type OnDestroy,
@@ -23,7 +21,13 @@ import {
   ViewChild,
 } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  setElementPresent,
+  type SlotReader,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import { getClassMap, type UIClassMap } from '@molecule/app-ui'
 
 import {
@@ -121,6 +125,7 @@ let canvasInstances = 0
     'initialViewport',
     'className',
   ],
+  hostDirectives: [MolPlacement],
   host: {
     role: 'application',
     '[attr.aria-label]': 'canvasLabel()',
@@ -138,7 +143,7 @@ let canvasInstances = 0
   // prettier-ignore
   template: `@if (showGridValue()) {<div aria-hidden="true" data-mol-id="flow-canvas-grid" [style.position]="'absolute'" [style.inset]="'0px'" [style.background-image]="'radial-gradient(circle, rgba(127,127,127,0.35) 1px, transparent 1px)'" [style.background-size]="gridSize()" [style.background-position]="gridPosition()" [style.pointer-events]="'none'"></div>}<div data-mol-id="flow-canvas-world" [style.transform]="worldTransform()" [style.transform-origin]="'0 0'" [style.position]="'absolute'" [style.inset]="'0px'"><svg aria-hidden="true" data-mol-id="flow-canvas-edges" width="100%" height="100%" [style.position]="'absolute'" [style.inset]="'0px'" [style.overflow]="'visible'" [style.pointer-events]="'none'">@for (item of renderableEdges(); track item.edge.id) {<g><path [attr.d]="item.d" [attr.data-mol-id]="'flow-canvas-edge-hit-' + item.edge.id" fill="none" stroke="transparent" stroke-width="14" [style.pointer-events]="'stroke'" [style.cursor]="'pointer'" (click)="edgeClick($event, item.edge)"></path><path [attr.d]="item.d" [attr.data-mol-id]="'flow-canvas-edge-' + item.edge.id" [attr.data-selected]="item.selected ? 'true' : 'false'" fill="none" stroke="currentColor" [attr.stroke-width]="item.selected ? 2.5 : 1.5" [attr.opacity]="item.selected ? 1 : 0.6" [style.pointer-events]="'none'"></path></g>}@if (pendingPath(); as pendingD) {<path [attr.d]="pendingD" data-mol-id="flow-canvas-pending-edge" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 4" opacity="0.7" [style.pointer-events]="'none'"></path>}</svg>@for (node of nodeList(); track node.id; let i = $index) {<div role="group" [attr.data-mol-id]="'flow-canvas-node-' + node.id" [attr.data-selected]="isNodeSelected(node) ? 'true' : 'false'" [attr.data-node-type]="node.type" [class]="nodeClasses(node)" (pointerdown)="nodePointerDown($event, node)" (pointermove)="nodePointerMove($event)" (pointerup)="nodePointerUp($event, node)" [style.position]="'absolute'" [style.transform]="nodeTransform(node)" [style.width.px]="nodeWidth(node)" [style.height.px]="nodeHeight(node)"><button type="button" [attr.data-mol-id]="'flow-canvas-node-select-' + node.id" [attr.aria-label]="selectButtonName(node, i)" [attr.aria-labelledby]="selectButtonLabel(node, i)" (click)="selectClick($event, node)" [class]="selectClasses()" [style.background]="'transparent'" [style.border]="'none'" [style.padding]="'0px'"></button><div [attr.id]="contentId(i)" [class]="relativeClass()" [style.width]="'100%'" [style.height]="'100%'">@if (rendererFor(node); as nodeTpl) {<ng-container [ngTemplateOutlet]="nodeTpl" [ngTemplateOutletContext]="rendererContext(node)" />} @else {<ng-container #fallback></ng-container>}</div><div role="button" [attr.aria-label]="handleLabel()" [attr.data-mol-id]="'flow-canvas-node-handle-' + node.id" (pointerdown)="handlePointerDown($event, node)" [style.position]="'absolute'" [style.right]="'-6px'" [style.top]="'50%'" [style.width]="'12px'" [style.height]="'12px'" [style.margin-top]="'-6px'" [style.border-radius]="'50%'" [style.background]="'currentColor'" [style.cursor]="'crosshair'"></div></div>}<div #childSlot [style.display]="'none'"><ng-content></ng-content></div></div>`,
 })
-export class FlowCanvas implements OnInit, AfterViewInit, DoCheck, OnDestroy {
+export class FlowCanvas implements OnInit, OnDestroy {
   /** Nodes (controlled) or initial nodes (uncontrolled). */
   nodes?: FlowNode[]
   /** Edges (controlled) or initial edges (uncontrolled). */
@@ -188,7 +193,7 @@ export class FlowCanvas implements OnInit, AfterViewInit, DoCheck, OnDestroy {
   /** The projected children's source nodes, once the capture point is detached. */
   private projectedChildren: Node[] = []
   /** The copies inserted into each no-renderer node's content element. */
-  private readonly clones = new Map<HTMLElement, Node[]>()
+  private readonly clones = new Map<HTMLElement, ChildNode[]>()
 
   /** This canvas's generated-id base (React's `useId`). */
   private readonly idBase = `mol-flow-${++canvasInstances}`
@@ -200,7 +205,7 @@ export class FlowCanvas implements OnInit, AfterViewInit, DoCheck, OnDestroy {
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef)
   /** Marks the view dirty after a window-level (non-template) event. */
   private readonly cdr = inject(ChangeDetectorRef)
-  /** The DOM renderer, for detaching the capture point. */
+  /** The DOM renderer, for the select buttons' attributes. */
   private readonly renderer: Renderer2 = inject(RendererFactory2).createRenderer(null, null)
   /** The window keydown listener, so it can be removed on destroy. */
   private readonly onKeyDown = (event: KeyboardEvent): void => this.handleKeyDown(event)
@@ -211,28 +216,16 @@ export class FlowCanvas implements OnInit, AfterViewInit, DoCheck, OnDestroy {
    */
   private readonly i18n = useTranslation()
 
+  constructor() {
+    usePlacement((hasContent) => this.place(hasContent))
+  }
+
   /** Snapshots the initial (uncontrolled) state, as React's `useState` does. */
   ngOnInit(): void {
     this.internalNodes = this.nodes ?? []
     this.internalEdges = this.edges ?? []
     this.viewport = this.initialViewport ?? DEFAULT_VIEWPORT
     window.addEventListener('keydown', this.onKeyDown)
-  }
-
-  /**
-   * Schedules the children capture for right after this change-detection pass.
-   * The projected nodes are created by the declaring view, so they can land
-   * inside the capture point after this component's own view is set up — and
-   * Angular runs no further change detection for a static view. A microtask runs
-   * once the whole synchronous refresh (projection included) has finished.
-   */
-  ngAfterViewInit(): void {
-    Promise.resolve().then(() => this.captureChildren())
-  }
-
-  /** Reconciles each no-renderer node's fallback content after input writes. */
-  ngDoCheck(): void {
-    this.reconcileFallbackChildren()
   }
 
   /** Removes the window keydown listener. */
@@ -753,26 +746,26 @@ export class FlowCanvas implements OnInit, AfterViewInit, DoCheck, OnDestroy {
 
   /**
    * Takes the projected children out of the always-mounted capture point and
-   * detaches it, leaving a comment where it sat (the normalizer strips comments),
-   * then fills every no-renderer node's content element with a copy.
+   * hides it, then fills every no-renderer node's content element with a copy.
+   * Runs from the placement function: right after Angular changes a node of the
+   * capture, when a signal it read changes, and after every render.
    *
    * Projection anchor comments and whitespace-only text nodes are dropped: they
    * carry nothing the caller projected, and "did the caller project children"
    * decides each select button's accessible name (see {@link selectButtonName}).
+   *
+   * @param hasContent - Reads whether a slot has content.
    */
-  private captureChildren(): void {
+  private place(hasContent: SlotReader): void {
     const capture = this.childSlot?.nativeElement
-    if (!capture) return
-    this.projectedChildren = Array.from(capture.childNodes).filter(
-      (child) =>
-        child.nodeType !== Node.COMMENT_NODE &&
-        !(child.nodeType === Node.TEXT_NODE && !(child.textContent ?? '').trim()),
-    )
-    const parent = capture.parentNode
-    if (parent) {
-      const anchor = this.renderer.createComment('flow-canvas-children')
-      parent.insertBefore(anchor, capture)
-      this.renderer.removeChild(parent, capture)
+    if (capture) {
+      // `hasContent.nodes` registers the read, so a consumer @if that adds or
+      // removes a child re-runs this function in the same renderer call. Angular
+      // anchors (comments) are not projected children.
+      this.projectedChildren = hasContent
+        .nodes(capture)
+        .filter((child) => child.nodeType !== Node.COMMENT_NODE)
+      setElementPresent(capture, false)
     }
     this.reconcileFallbackChildren()
     this.syncSelectButtonNames()
@@ -781,12 +774,23 @@ export class FlowCanvas implements OnInit, AfterViewInit, DoCheck, OnDestroy {
   /**
    * Fills each no-renderer node's content element with a copy of the projected
    * children, and drops those copies once a renderer applies (React renders a
-   * fresh copy per node and keeps it mounted while the node stays).
+   * fresh copy per node and keeps it mounted while the node stays) or the
+   * caller stops projecting children.
    */
   private reconcileFallbackChildren(): void {
-    if (this.projectedChildren.length === 0) return
     const host = this.host.nativeElement
     const list = this.nodeList()
+    if (this.projectedChildren.length === 0) {
+      // A consumer @if that removed its children leaves no copy behind.
+      for (const clones of this.clones.values()) {
+        for (const clone of clones) {
+          // eslint-disable-next-line molecule-local/no-hand-placed-nodes -- a copy this component made, not a node Angular rendered
+          clone.remove()
+        }
+      }
+      this.clones.clear()
+      return
+    }
     for (let index = 0; index < list.length; index++) {
       const node = list[index]!
       const element = host.querySelector<HTMLElement>(`[id="${this.contentId(index)}"]`)
@@ -794,19 +798,28 @@ export class FlowCanvas implements OnInit, AfterViewInit, DoCheck, OnDestroy {
       const existing = this.clones.get(element)
       if (this.rendererFor(node)) {
         if (existing) {
-          for (const clone of existing) clone.parentNode?.removeChild(clone)
+          for (const clone of existing) {
+            // eslint-disable-next-line molecule-local/no-hand-placed-nodes -- a copy this component made, not a node Angular rendered
+            clone.remove()
+          }
           this.clones.delete(element)
         }
         continue
       }
       if (existing) continue
-      const copies = this.projectedChildren.map((child) => child.cloneNode(true))
-      for (const copy of copies) element.appendChild(copy)
+      const copies = this.projectedChildren.map((child) => child.cloneNode(true) as ChildNode)
+      for (const copy of copies) {
+        // eslint-disable-next-line molecule-local/no-hand-placed-nodes -- a copy this component made, not a node Angular rendered
+        element.appendChild(copy)
+      }
       this.clones.set(element, copies)
     }
     for (const [element, clones] of [...this.clones]) {
-      if (element.isConnected) continue
-      for (const clone of clones) clone.parentNode?.removeChild(clone)
+      if (host.contains(element)) continue
+      for (const clone of clones) {
+        // eslint-disable-next-line molecule-local/no-hand-placed-nodes -- a copy this component made, not a node Angular rendered
+        clone.remove()
+      }
       this.clones.delete(element)
     }
   }
@@ -814,11 +827,10 @@ export class FlowCanvas implements OnInit, AfterViewInit, DoCheck, OnDestroy {
   /**
    * Writes each select button's accessible name to match its node (see
    * {@link selectButtonName}). The template bindings re-evaluate only in a
-   * change-detection pass, but the projected children land in a microtask
-   * after the view is created — with no pass guaranteed to follow — so the
-   * buttons are synced here, right where the children arrive. A later pass
-   * re-applies exactly these values, and the values agree wherever they came
-   * from.
+   * change-detection pass, and the projected children land in the capture after
+   * the template first renders, so the buttons are synced here, right where the
+   * children arrive. A later pass re-applies exactly these values, and the
+   * values agree wherever they came from.
    */
   private syncSelectButtonNames(): void {
     const list = this.nodeList()

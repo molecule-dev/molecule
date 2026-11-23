@@ -23,6 +23,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 // Proxy ClassMap echoing each accessed member back as its token (e.g. `stack`),
 // so tests can assert which cm.* class was applied without a real bond — the
 // same mock the React package's own tests use.
@@ -79,7 +81,7 @@ async function mount(
     selector: 'mol-spec-host',
     standalone: true,
     imports: [component],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     // Angular derives a component id from the definition, so two cases with
     // the same template collide (NG0912); a unique host attribute avoids it.
     host: { 'data-parity-host': String(++hostCount) },
@@ -91,7 +93,7 @@ async function mount(
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
     environmentInjector: appRef.injector,
@@ -130,6 +132,20 @@ afterEach(async () => {
 })
 
 describe('DetailPageLayout', () => {
+  it('keeps a consumer list in order when an item is inserted in the middle of sidebar', async () => {
+    const m = await render(
+      { sidebarPosition: 'right', xs: [1, 3] },
+      `${MAIN}@for (x of p['xs']; track x) {<b slot="sidebar">{{ x }}</b>}`,
+    )
+    const texts = (): string[] =>
+      Array.from(m.host.querySelectorAll('aside b')).map((el) => el.textContent ?? '')
+    expect(texts()).toEqual(['1', '3'])
+    await m.setProps({ xs: [1, 2, 3] })
+    expect(texts()).toEqual(['1', '2', '3'])
+    await m.setProps({ xs: [1, 3] })
+    expect(texts()).toEqual(['1', '3'])
+  })
+
   it('renders the main content', async () => {
     const m = await render()
     expect(m.host.innerHTML).toContain('data-main')
@@ -181,5 +197,20 @@ describe('DetailPageLayout', () => {
     const root = m.host.querySelector('[mol-detail-page-layout]')
     expect(root?.getAttribute('data-mol-id')).toBe('dpl-x')
     expect(root?.getAttribute('class')).toContain('dpl-cls')
+  })
+
+  it('shows and removes the sidebar wrapper in the pass where the consumer @if adds and removes its content', async () => {
+    const m = await render(
+      { sidebarPosition: 'right', on: false },
+      `${MAIN}@if (p['on']) {<div slot="sidebar" data-sidebar></div>}`,
+    )
+    // React renders neither aside while no sidebar is supplied.
+    expect(m.host.querySelectorAll('aside')).toHaveLength(0)
+    await m.setProps({ on: true })
+    const asides = m.host.querySelectorAll('aside')
+    expect(asides).toHaveLength(1)
+    expect(asides[0].querySelector('[data-sidebar]')).not.toBeNull()
+    await m.setProps({ on: false })
+    expect(m.host.querySelectorAll('aside')).toHaveLength(0)
   })
 })

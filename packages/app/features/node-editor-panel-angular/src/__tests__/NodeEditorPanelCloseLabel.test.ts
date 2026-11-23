@@ -19,6 +19,7 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 import { de } from '@molecule/app-locales-node-editor-panel'
 
@@ -43,7 +44,7 @@ async function closeLabel(locale: 'en' | 'de', closeAriaLabel?: string): Promise
     selector: `mol-spec-host-${nextHostId++}`,
     standalone: true,
     imports: [NodeEditorPanel],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: `<aside mol-node-editor-panel title="Node" [onClose]="close" [closeAriaLabel]="label"></aside>`,
   })(
     class SpecHost {
@@ -53,7 +54,9 @@ async function closeLabel(locale: 'en' | 'de', closeAriaLabel?: string): Promise
       label = closeAriaLabel
     },
   )
-  const appRef = await createApplication({ providers: [provideZonelessChangeDetection()] })
+  const appRef = await createApplication({
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
+  })
   const ref = createComponent(Host, { environmentInjector: appRef.injector })
   const host = ref.location.nativeElement as HTMLElement
   document.body.appendChild(host)

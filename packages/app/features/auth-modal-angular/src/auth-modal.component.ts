@@ -8,7 +8,6 @@ import { NgTemplateOutlet } from '@angular/common'
 import {
   afterNextRender,
   type AfterViewChecked,
-  type AfterViewInit,
   Component,
   computed,
   DestroyRef,
@@ -16,21 +15,23 @@ import {
   ElementRef,
   inject,
   Injector,
-  type Renderer2,
-  RendererFactory2,
   signal,
   TemplateRef,
   ViewChild,
 } from '@angular/core'
 
 import {
+  MolPlacement,
+  placeContentBefore,
+  setElementPresent,
+  type SlotReader,
   useAuth,
   useAuthClient,
-  useHostPresence,
   useI18nError,
   useLogin,
   useOAuth,
   type UseOAuthConfig,
+  usePlacement,
   useSignup,
   useTranslation,
 } from '@molecule/app-angular'
@@ -41,7 +42,6 @@ import { getClassMap } from '@molecule/app-ui'
 import { Button, Icon, Modal } from '@molecule/app-ui-angular'
 
 import type { AuthModalMode } from './cta-intercept.js'
-import { hasNodes, SlotGuard } from './slot-dom.js'
 
 /**
  * Matches phones (narrow viewport) OR touch-first devices (coarse primary
@@ -67,10 +67,10 @@ const INPUT_STYLE =
  *
  * In-app login / signup tabs rendered in a Modal overlay — the user
  * authenticates without leaving the current page (no navigation, no lost
- * work). The host is unwrapped (`data-parity-unwrap`, `display: contents`) and
- * out of the DOM while React renders null (`open` false, through
- * `useHostPresence`); the dialog itself is `<mol-modal>`,
- * which portals to the body exactly as React's does. The captcha slot is
+ * work). React renders the Modal or nothing: everything the host holds (the
+ * `<mol-modal>` element) renders in the host's place and the host itself
+ * leaves the page, while the dialog itself portals to the body exactly as
+ * React's does. The captcha slot is
  * projected content (`[slot=captchaSlot]`), or a `TemplateRef` passed as the
  * `captchaSlot` input. Reuses the Angular auth hooks (`useLogin` /
  * `useSignup` / `useOAuth` / `useAuth`) so behavior matches the standalone
@@ -79,6 +79,7 @@ const INPUT_STYLE =
 @Component({
   selector: 'mol-auth-modal',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [Button, Modal, Icon, NgTemplateOutlet, OAuthButtons, OAuthDivider],
   inputs: [
     'open',
@@ -90,14 +91,10 @@ const INPUT_STYLE =
     'captchaSlot',
     'captchaSolved',
   ],
-  host: {
-    'data-parity-unwrap': '',
-    style: 'display: contents',
-  },
   // prettier-ignore
   template: `<mol-modal [open]="open" [title]="title()" [size]="'sm'" (close)="chromeClose($event)" data-mol-id="auth-modal"><div data-mol-id="auth-modal-body" [style]="bodyStyle">@if (succeeded()) {<div data-mol-id="auth-modal-success" [style]="successStyle"><svg mol-icon-root [name]="'check-circle'" [size]="44" [className]="cm().textSuccess" [ariaHidden]="'true'"></svg><div [style]="headlineStyle">{{ successLabel() }}</div>@if (hasWho()) {<div [class]="cm().textMuted" [style]="whoStyle">{{ loggedInAs() }}</div>}</div>} @else {<div [class]="cm().textMuted" [style]="blurbStyle">{{ isSignup() ? signupBlurb() : loginBlurb() }}</div><form [style]="formStyle" (submit)="handleSubmit($event)">@if (isSignup()) {<input #nameEl type="text" [value]="name()" [attr.value]="name()" (input)="onNameInput($event)" autocomplete="name" data-mol-id="auth-modal-name" [attr.placeholder]="namePlaceholder()" [style]="fieldStyle()" />}<input #emailEl type="email" [value]="emailValue()" [attr.value]="emailValue()" (input)="onEmailInput($event)" autocomplete="email" required data-mol-id="auth-modal-email" [attr.placeholder]="emailPlaceholder()" [style]="fieldStyle()" /><input #passwordEl type="password" [value]="password()" [attr.value]="password()" (input)="onPasswordInput($event)" [attr.autocomplete]="isSignup() ? 'new-password' : 'current-password'" required data-mol-id="auth-modal-password" [attr.placeholder]="passwordPlaceholder()" [style]="fieldStyle()" />@if (!isSignup()) {<input #twoFactorEl type="text" inputmode="numeric" [value]="twoFactorToken()" [attr.value]="twoFactorToken()" (input)="onTwoFactorInput($event)" autocomplete="one-time-code" data-mol-id="auth-modal-2fa" [attr.placeholder]="twoFactorPlaceholder()" [style]="fieldStyle()" />}<div #captchaEl data-mol-id="auth-modal-captcha" [style]="captchaStyle">@if (captchaTemplate(); as tpl) {<ng-container [ngTemplateOutlet]="tpl"></ng-container>}<ng-content select="[slot=captchaSlot]"></ng-content></div><button mol-button [type]="'submit'" [size]="'lg'" [color]="'success'" [disabled]="busy() || (isSignup() && !captchaSolvedRead())" data-mol-id="auth-modal-submit" [style]="submitButtonStyle">{{ submitLabel() }}</button>@if (shownError(); as error) {<div [class]="cm().authFormError">{{ error }}</div>}</form>@if (oauthProviders().length > 0) {<div [style]="oauthSectionStyle"><div mol-oauth-divider></div><div mol-oauth-buttons [providers]="oauthProviders()" [onSelect]="selectProvider"></div></div>}<button type="button" data-mol-id="auth-modal-switch" (click)="switchMode()" [class]="switchClasses()" [style]="switchStyle">{{ switchLabel() }}</button>}</div></mol-modal>`,
 })
-export class AuthModal implements AfterViewInit, AfterViewChecked, DoCheck {
+export class AuthModal implements AfterViewChecked, DoCheck {
   /** Whether the modal is open. */
   open = false
   /** Close without authenticating (backdrop / Escape / ✕). */
@@ -129,11 +126,8 @@ export class AuthModal implements AfterViewInit, AfterViewChecked, DoCheck {
   /** The captcha wrapper (detached when React would not render it). */
   @ViewChild('captchaEl') private captchaEl?: ElementRef<HTMLElement>
 
-  private readonly el = inject(ElementRef<HTMLElement>)
-  private readonly renderer: Renderer2 = inject(RendererFactory2).createRenderer(null, null)
-  /** Schedules the deferred focus from the view hook (outside an injection context). */
   private readonly injector = inject(Injector)
-  private readonly guard = new SlotGuard(this.el, this.renderer)
+  private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
 
   /** i18n state; its `t` reads the provider on every call. */
   private readonly i18n = useTranslation()
@@ -227,14 +221,6 @@ export class AuthModal implements AfterViewInit, AfterViewChecked, DoCheck {
     this.mode.set(this.initialMode ?? 'signup')
   }
 
-  /**
-   * Reconciles the captcha wrapper with React's DOM (the view queries resolve
-   * only at view init, so the first pass is in ngAfterViewInit).
-   */
-  ngAfterViewInit(): void {
-    this.sync()
-  }
-
   /** Re-reconciles the hook config and arms the open-focus after input writes. */
   ngDoCheck(): void {
     // Inputs are written after construction, while `useOAuth` builds its state
@@ -257,13 +243,12 @@ export class AuthModal implements AfterViewInit, AfterViewChecked, DoCheck {
   }
 
   /**
-   * Applies the armed focus after every check and reconciles the captcha
-   * wrapper (React renders null while closed). The wrapper pass runs AFTER the
-   * view check, so a wrapper the mode switch just re-created is reconciled
-   * with React's DOM in the same cycle.
+   * Applies the armed focus after every check and copies the controlled
+   * values onto their attributes. The captcha wrapper is reconciled by the
+   * placement function, so a wrapper the mode switch just re-created follows
+   * React's DOM without waiting for a hook.
    */
   ngAfterViewChecked(): void {
-    this.sync()
     this.syncInputValues()
     // The focus lands after the render so the Modal child — whose own focus
     // move is also deferred — has settled first, as React's child-effects-first
@@ -303,12 +288,16 @@ export class AuthModal implements AfterViewInit, AfterViewChecked, DoCheck {
     if (input.getAttribute('value') !== text) input.setAttribute('value', text)
   }
 
-  /** Detaches the captcha wrapper React would not render. */
-  private sync(): void {
-    this.guard.toggle(
-      this.captchaEl?.nativeElement,
-      this.isSignup() &&
-        (hasNodes(this.captchaEl?.nativeElement) || this.captchaTemplate() !== null),
+  /**
+   * Detaches the captcha wrapper React would not render.
+   *
+   * @param hasContent - Reads whether a slot has content.
+   */
+  private sync(hasContent: SlotReader): void {
+    const captcha = this.captchaEl?.nativeElement
+    setElementPresent(
+      captcha,
+      this.isSignup() && (hasContent(captcha) || this.captchaTemplate() !== null),
     )
   }
 
@@ -651,10 +640,13 @@ export class AuthModal implements AfterViewInit, AfterViewChecked, DoCheck {
   )
 
   constructor() {
-    // Leaves no element in the page while closed (React renders null), and blurs a
-    // field focused inside it as it leaves, after the view check, so a `focusout`
-    // listener's state change is rendered.
-    useHostPresence(() => !!this.open)
+    // React renders the Modal or nothing: everything the host holds renders in the
+    // host's place and the host itself leaves the page (the Modal portals to the body).
+    usePlacement((hasContent) => {
+      placeContentBefore(this.host.nativeElement, this.host.nativeElement)
+      setElementPresent(this.host.nativeElement, false)
+      this.sync(hasContent)
+    })
     // React's local hook reads the query at mount and subscribes to `change`
     // (rotation, a resize across the breakpoint); the Angular port mirrors
     // both, unsubscribing on destroy.

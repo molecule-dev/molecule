@@ -41,7 +41,8 @@
  * @remarks
  * - Requires a bonded ClassMap (`getClassMap()`); rendering throws otherwise.
  * - `ActivityFeed`'s root is the wrapper `<div>` — or the bare empty state when
- *   the list is empty — so its host is `display: contents`.
+ *   the list is empty — so it renders exactly those nodes with no host element
+ *   of its own.
  * - Node props are projected content: `[slot=emptyState]`, `[slot=footer]`,
  *   `[slot=heading]`; a row's node fields are template references.
  *

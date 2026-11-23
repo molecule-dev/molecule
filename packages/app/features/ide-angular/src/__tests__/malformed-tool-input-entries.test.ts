@@ -35,7 +35,7 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeAll, describe, expect, it } from 'vitest'
 
-import { provideTheme } from '@molecule/app-angular'
+import { provideDomPlacement, provideTheme } from '@molecule/app-angular'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 import { streamingActivityLabel } from '@molecule/app-ide-panel-logic'
 import { fileDiffStats } from '@molecule/app-ide-panel-logic/panels'
@@ -92,7 +92,7 @@ const ToolCallCardHost = Component({
   selector: 'mol-malformed-entries-card-host',
   standalone: true,
   imports: [ToolCallCard],
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `<div mol-tool-call-card [id]="p['id']" [name]="p['name']" [input]="p['input']" [output]="p['output']" [status]="p['status']"></div>`,
 })(
   class ToolCallCardHost {
@@ -138,6 +138,7 @@ async function renderCard(props: Record<string, unknown>): Promise<HTMLElement> 
   const appRef: ApplicationRef = await createApplication({
     providers: [
       provideZonelessChangeDetection(),
+      provideDomPlacement(),
       provideTheme(buildThemeProvider()),
       { provide: ErrorHandler, useValue: recorder },
     ],

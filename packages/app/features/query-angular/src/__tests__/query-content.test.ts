@@ -8,7 +8,14 @@
  * @module
  */
 import '@angular/compiler'
-import { Component, computed, type OnInit, signal, type Type } from '@angular/core'
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  type OnInit,
+  signal,
+  type Type,
+} from '@angular/core'
 import { afterEach, beforeAll, beforeEach, expect, it, vi } from 'vitest'
 
 import { getQueryClient, resetQueryClient, setProvider } from '@molecule/app-query'
@@ -35,6 +42,7 @@ class ScheduleFormComponent implements OnInit {
   }
 }
 const ScheduleForm = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-schedule-form',
   standalone: true,
   inputs: ['title'],
@@ -77,6 +85,7 @@ function page(
   imports: Type<unknown>[] = [],
 ): Type<object> {
   return Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
     selector: `mol-page-${++pageCount}`,
     standalone: true,
     imports: [QueryContent, ...imports],
@@ -379,4 +388,29 @@ it('counterexample: a form with static initial values retains its draft on reren
   view.tick()
   expect(view.host.querySelector('[data-count]')?.textContent).toBe('1')
   expect(view.host.querySelector<HTMLInputElement>('input')?.value).toBe('Unsaved')
+})
+
+it("renders React's elements with no host or capture element of its own", async () => {
+  // The query state the headless component reads: pending first, then loaded,
+  // so the same mount switches from the pending template to the children one.
+  // A signal marks the host for check, the way React's parent re-render does.
+  const query = signal<{ data: unknown; status: string; error: undefined }>({
+    data: undefined,
+    status: 'pending',
+    error: undefined,
+  })
+  const Host = hostOf(
+    `<i>a</i><mol-query-content [query]="model.query()" [children]="content" [pending]="pending"></mol-query-content><i>b</i>
+    <ng-template #pending><p role="status">Loading…</p></ng-template>
+    <ng-template #content let-record><article data-content>{{ record }}</article></ng-template>`,
+    { query },
+    [QueryContent],
+  )
+  const view = await mounted(mountComponent<object>(Host))
+  const children = (): string[] =>
+    Array.from(view.host.children).map((child) => child.tagName.toLowerCase())
+  expect(children()).toEqual(['i', 'p', 'i'])
+  query.set({ data: 'loaded', status: 'success', error: undefined })
+  await view.settle()
+  expect(children()).toEqual(['i', 'article', 'i'])
 })

@@ -13,6 +13,7 @@
 import '@angular/compiler'
 import {
   type ApplicationRef,
+  ChangeDetectionStrategy,
   Component,
   createComponent,
   provideZonelessChangeDetection,
@@ -22,6 +23,8 @@ import {
 } from '@angular/core'
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+
+import { provideDomPlacement } from '@molecule/app-angular'
 
 import { useCountdown } from '../useCountdown.js'
 
@@ -77,7 +80,7 @@ const mounted: Mounted[] = []
  */
 async function mountHost(host: Type<unknown>): Promise<Mounted> {
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref = createComponent(host, { environmentInjector: appRef.injector })
   const element = ref.location.nativeElement as HTMLElement
@@ -110,6 +113,7 @@ async function mountLive(initialTarget: number, tickMs: number): Promise<Live> {
   const nonce = signal(0)
   const captures: Countdown[] = []
   const Host = Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
     selector: 'mol-live-host',
     standalone: true,
     template: `<span data-render>{{ nonce() }}</span>`,

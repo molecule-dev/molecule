@@ -4,9 +4,16 @@
  * @module
  */
 
-import { type AfterViewChecked, Component, ElementRef, inject, ViewChild } from '@angular/core'
+import { Component, ElementRef, inject, ViewChild } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  placeContent,
+  placeContentBefore,
+  setElementPresent,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -32,25 +39,22 @@ const CORNER = {
  * override the surface — caller classes are resolved last by `cm.cn`
  * (tailwind-merge).
  *
- * The host is a `display: contents` wrapper (`div[mol-floating-action-button]`),
- * unwrapped by the conformance normalizer, because React's root element is the
- * `<a>` when `href` is supplied and the `<button>` otherwise — a standalone
- * component's host tag cannot change at runtime. The projected `[slot=icon]`
- * content is moved from its capture span into the root after view init,
- * matching React's bare `{icon}` position.
+ * The rendered root is the `<a>` when `href` is supplied and the `<button>`
+ * otherwise — a standalone component's host tag cannot change at runtime, so
+ * the rendered root stands in front of the host's place and the host itself
+ * leaves the page (`placeContentBefore` + `setElementPresent`). The projected
+ * `[slot=icon]` content is placed into that root, matching React's bare `{icon}`
+ * position.
  */
 @Component({
   selector: 'div[mol-floating-action-button]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   inputs: ['icon', 'label', 'onClick', 'href', 'position', 'size', 'showTooltip', 'className'],
-  host: {
-    'data-parity-unwrap': '',
-    style: 'display: contents',
-  },
   // prettier-ignore
-  template: `@if (isLink()) {<a [attr.href]="href" [attr.aria-label]="ariaLabel()" [attr.title]="titleAttr()" [attr.class]="commonClass()" [style]="rootStyleText()"><span data-icon-anchor></span></a>} @else {<button type="button" [attr.aria-label]="ariaLabel()" [attr.title]="titleAttr()" [attr.class]="commonClass()" [style]="rootStyleText()" (click)="onClick?.($event)"><span data-icon-anchor></span></button>}<span #iconCapture style="display: none"><ng-content select="[slot=icon]"></ng-content></span>`,
+  template: `@if (isLink()) {<a #linkRoot [attr.href]="href" [attr.aria-label]="ariaLabel()" [attr.title]="titleAttr()" [attr.class]="commonClass()" [style]="rootStyleText()"><span data-icon-anchor></span></a>} @else {<button #buttonRoot type="button" [attr.aria-label]="ariaLabel()" [attr.title]="titleAttr()" [attr.class]="commonClass()" [style]="rootStyleText()" (click)="onClick?.($event)"><span data-icon-anchor></span></button>}<span #iconCapture style="display: none"><ng-content select="[slot=icon]"></ng-content></span>`,
 })
-export class FloatingActionButton implements AfterViewChecked {
+export class FloatingActionButton {
   /** Icon — projected `[slot=icon]` content (an input cannot carry a node). */
   icon?: unknown
   /** Accessible label (also the tooltip text and i18n key). */
@@ -68,10 +72,15 @@ export class FloatingActionButton implements AfterViewChecked {
   /** Extra classes on the root element. */
   className?: string
 
-  /** The icon slot's capture span (moved out of the DOM once read). */
+  /** The icon slot's capture span (kept out of the DOM; its content is the icon). */
   @ViewChild('iconCapture') iconCapture?: ElementRef<HTMLSpanElement>
 
-  /** The host element (the `display: contents` wrapper). */
+  /** The `<a>` root, while `href` is set. */
+  @ViewChild('linkRoot') private linkRoot?: ElementRef<HTMLElement>
+  /** The `<button>` root, while `href` is not set. */
+  @ViewChild('buttonRoot') private buttonRoot?: ElementRef<HTMLElement>
+
+  /** The host element (React renders no element of its own). */
   private readonly el = inject(ElementRef)
 
   /**
@@ -80,11 +89,19 @@ export class FloatingActionButton implements AfterViewChecked {
    */
   private readonly i18n = useTranslation()
 
-  /** The projected icon nodes, kept so a branch switch can place them again. */
-  private iconNodes: Node[] = []
+  /** The icon anchor, kept once it leaves the DOM so later content is placed too. */
+  private anchor: HTMLElement | null = null
 
-  /** Whether the icon capture has been read (and its nodes moved into the root). */
-  private iconRead = false
+  constructor() {
+    // React's root is the `<a>`/`<button>` itself: it renders in front of the host's place
+    // and the host leaves the page; the icon content then goes into that root.
+    usePlacement(() => {
+      const host = this.el.nativeElement as HTMLElement
+      placeContentBefore(host, host)
+      setElementPresent(host, false)
+      this.placeIcon()
+    })
+  }
 
   /**
    * The current class map.
@@ -154,34 +171,23 @@ export class FloatingActionButton implements AfterViewChecked {
   }
 
   /**
-   * Reads the icon slot once (view queries resolve only after the view is
-   * checked) and places its nodes into the root — React renders `{icon}` bare
-   * there. Runs after every check so a branch switch (button ↔ link) that
-   * re-created the root gets the nodes again and its scaffolding removed.
-   */
-  ngAfterViewChecked(): void {
-    const capture = this.iconCapture?.nativeElement
-    if (capture && !this.iconRead) {
-      this.iconNodes = Array.from(capture.childNodes).filter(
-        (node) => node.nodeType === 1 || (node.nodeType === 3 && (node.textContent ?? '') !== ''),
-      )
-      this.iconRead = true
-    }
-    const host = this.el.nativeElement as HTMLElement
-    if (host.querySelector('[data-icon-anchor]')) this.placeIcon()
-  }
-
-  /**
-   * Moves the captured icon nodes to the current root and takes the
-   * scaffolding (capture span, anchor) out of the DOM.
+   * Places the icon slot's content into the current root — React renders
+   * `{icon}` bare there. Runs on every placement so a branch switch
+   * (button ↔ link) that re-created the root gets the content again. The root is
+   * found through its template ref, not the host: the root stands beside the
+   * host, not inside it.
    */
   private placeIcon(): void {
-    const host = this.el.nativeElement as HTMLElement
-    const anchor = host.querySelector('[data-icon-anchor]')
-    if (!anchor) return
+    const root = (this.linkRoot?.nativeElement ?? this.buttonRoot?.nativeElement) as
+      HTMLElement | undefined
+    const anchor = root?.querySelector<HTMLElement>('[data-icon-anchor]') ?? this.anchor
+    const capture = this.iconCapture?.nativeElement
+    if (!root || !anchor || !capture) return
+    this.anchor = anchor
+    if (anchor.parentNode === null) setElementPresent(anchor, true)
     const parent = anchor.parentElement
-    if (parent) for (const node of this.iconNodes) parent.insertBefore(node, anchor)
-    anchor.remove()
-    this.iconCapture?.nativeElement.remove()
+    if (parent) placeContent(capture, parent, anchor)
+    setElementPresent(anchor, false)
+    setElementPresent(capture, false)
   }
 }

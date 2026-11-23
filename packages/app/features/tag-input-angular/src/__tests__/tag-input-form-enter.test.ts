@@ -8,7 +8,7 @@
  * @module
  */
 
-import { Component, type OnDestroy, type OnInit } from '@angular/core'
+import { ChangeDetectionStrategy, Component, type OnDestroy, type OnInit } from '@angular/core'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('@molecule/app-ui', () => ({
@@ -52,6 +52,7 @@ const { mountInstance } = await import('./mount.js')
  * submits the form.
  */
 const Harness = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-form-harness',
   standalone: true,
   imports: [TagInput],

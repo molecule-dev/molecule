@@ -27,6 +27,7 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
 import type { I18nProvider } from '@molecule/app-i18n'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 
@@ -58,7 +59,7 @@ describe('InlineEdit locale switch', () => {
       selector: 'mol-locale-spec-host',
       standalone: true,
       imports: [InlineEdit],
-      changeDetection: ChangeDetectionStrategy.Default,
+      changeDetection: ChangeDetectionStrategy.Eager,
       template: `<mol-inline-edit [value]="'Hello world'" [onSubmit]="submit"></mol-inline-edit>`,
     })(
       class SpecHost {
@@ -67,7 +68,7 @@ describe('InlineEdit locale switch', () => {
       },
     )
     const appRef: ApplicationRef = await createApplication({
-      providers: [provideZonelessChangeDetection()],
+      providers: [provideZonelessChangeDetection(), provideDomPlacement()],
     })
     const ref: ComponentRef<{ submit: (next: string) => void }> = createComponent(Host, {
       environmentInjector: appRef.injector,

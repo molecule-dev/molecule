@@ -23,6 +23,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 // Proxy ClassMap echoing each accessed member back as its token (e.g.
 // `flex`), so tests can assert which cm.* class was applied without a real
 // bond — the same mock the React tests use.
@@ -76,7 +78,7 @@ async function mount(
     selector: 'mol-spec-host',
     standalone: true,
     imports: [component],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template,
   })(
     class SpecHost {
@@ -85,7 +87,7 @@ async function mount(
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
     environmentInjector: appRef.injector,
@@ -131,6 +133,22 @@ afterEach(async () => {
 })
 
 describe('SectionDivider', () => {
+  it('keeps a consumer list in order when an item is inserted in the middle of label', async () => {
+    const m = await mount(
+      `<div mol-section-divider>@for (x of p['xs']; track x) {<b>{{ x }}</b>}</div>`,
+      SectionDivider as Type<unknown>,
+      { xs: [1, 3] },
+    )
+    mounted.push(m)
+    const texts = (): string[] =>
+      Array.from(m.host.querySelectorAll('b')).map((el) => el.textContent ?? '')
+    expect(texts()).toEqual(['1', '3'])
+    await m.setProps({ xs: [1, 2, 3] })
+    expect(texts()).toEqual(['1', '2', '3'])
+    await m.setProps({ xs: [1, 3] })
+    expect(texts()).toEqual(['1', '3'])
+  })
+
   it('exposes a horizontal separator role', async () => {
     const m = await render()
     expect(m.host.innerHTML).toContain('role="separator"')
@@ -163,5 +181,32 @@ describe('SectionDivider', () => {
   it('forwards className', async () => {
     const m = await render({ className: 'sd-cls' })
     expect(dividerEl(m.host).getAttribute('class')).toBe('flex sd-cls')
+  })
+
+  /** The component's markup without Angular's comments, classes and styles. */
+  const shape = (m: Mounted): string =>
+    m.host.innerHTML
+      .replace(/<!--.*?-->/g, '')
+      .replace(/ class="[^"]*"/g, '')
+      .replace(/ style="[^"]*"/g, '')
+
+  it('shows and removes the label wrapper in the pass where the consumer @if adds and removes its content', async () => {
+    const m = await mount(
+      `<div mol-section-divider>@if (p['on']) {<span>OR</span>}</div>`,
+      SectionDivider as Type<unknown>,
+      { on: false },
+    )
+    mounted.push(m)
+    expect(shape(m)).toBe(
+      '<div role="separator" aria-orientation="horizontal" mol-section-divider=""><span aria-hidden="true"></span><span aria-hidden="true"></span></div>',
+    )
+    await m.setProps({ on: true })
+    expect(shape(m)).toBe(
+      '<div role="separator" aria-orientation="horizontal" mol-section-divider=""><span aria-hidden="true"></span><span><span>OR</span></span><span aria-hidden="true"></span></div>',
+    )
+    await m.setProps({ on: false })
+    expect(shape(m)).toBe(
+      '<div role="separator" aria-orientation="horizontal" mol-section-divider=""><span aria-hidden="true"></span><span aria-hidden="true"></span></div>',
+    )
   })
 })

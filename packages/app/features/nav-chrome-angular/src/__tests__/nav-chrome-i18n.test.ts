@@ -75,7 +75,7 @@ async function render(template: string, component: Type<unknown>): Promise<{ hos
     selector: 'mol-spec-host',
     standalone: true,
     imports: [component],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template,
   })(class SpecHost {})
   const appRef: ApplicationRef = await createApplication({

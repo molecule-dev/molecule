@@ -26,6 +26,7 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
 import type { I18nProvider } from '@molecule/app-i18n'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 
@@ -78,11 +79,11 @@ describe('NoteCard locale switch', () => {
       selector: 'mol-locale-host',
       standalone: true,
       imports: [NoteCard as Type<unknown>],
-      changeDetection: ChangeDetectionStrategy.Default,
+      changeDetection: ChangeDetectionStrategy.Eager,
       template: `<article mol-note-card body="b" [pinned]="true"></article>`,
     })(class LocaleHost {})
     const appRef: ApplicationRef = await createApplication({
-      providers: [provideZonelessChangeDetection()],
+      providers: [provideZonelessChangeDetection(), provideDomPlacement()],
     })
     const ref: ComponentRef<unknown> = createComponent(Host, {
       environmentInjector: appRef.injector,

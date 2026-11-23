@@ -5,23 +5,17 @@
  */
 
 import { NgTemplateOutlet } from '@angular/common'
-import {
-  type AfterViewInit,
-  Component,
-  type DoCheck,
-  ElementRef,
-  inject,
-  type Renderer2,
-  RendererFactory2,
-  signal,
-  type TemplateRef,
-  ViewChild,
-} from '@angular/core'
+import { Component, type ElementRef, signal, type TemplateRef, ViewChild } from '@angular/core'
 
+import {
+  MolPlacement,
+  setElementPresent,
+  type SlotReader,
+  usePlacement,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
-import { hasNodes, SlotGuard } from './slot-dom.js'
 import type { CtaCardProps } from './types.js'
 
 /**
@@ -64,12 +58,13 @@ const textOf = (value: unknown): string | null =>
  *
  * @remarks
  * Angular projection needs the `<ng-content>` capture points mounted, so the
- * optional regions render optimistically and {@link CtaCard.ngDoCheck}
- * detaches the ones React would not render.
+ * optional regions render optimistically and {@link CtaCard.reconcile} takes
+ * the ones React would not render out of the DOM ({@link setElementPresent}).
  */
 @Component({
   selector: 'section[mol-cta-card]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [NgTemplateOutlet],
   inputs: [
     'eyebrow',
@@ -88,7 +83,7 @@ const textOf = (value: unknown): string | null =>
   // prettier-ignore
   template: `<div #mediaEl [class]="mediaClasses()">@if (templateOf(media); as tpl) {<ng-container [ngTemplateOutlet]="tpl" />} @else if (textOf(media); as t) {{{ t }}}<ng-content select="[slot=media]"></ng-content></div><div [class]="bodyClasses()"><div #eyebrowEl [class]="eyebrowClasses()">@if (templateOf(eyebrow); as tpl) {<ng-container [ngTemplateOutlet]="tpl" />} @else if (textOf(eyebrow); as t) {{{ t }}}<ng-content select="[slot=eyebrow]"></ng-content></div><h3 [class]="titleClasses()">@if (templateOf(title); as tpl) {<ng-container [ngTemplateOutlet]="tpl" />} @else if (textOf(title); as t) {{{ t }}}<ng-content select="[slot=title]"></ng-content></h3><p #descriptionEl>@if (templateOf(description); as tpl) {<ng-container [ngTemplateOutlet]="tpl" />} @else if (textOf(description); as t) {{{ t }}}<ng-content select="[slot=description]"></ng-content></p><div #actionEl [class]="actionClasses()">@if (templateOf(action); as tpl) {<ng-container [ngTemplateOutlet]="tpl" />} @else if (textOf(action); as t) {{{ t }}}<ng-content select="[slot=action]"></ng-content></div></div>`,
 })
-export class CtaCard implements AfterViewInit, DoCheck {
+export class CtaCard {
   /** Optional small eyebrow line above the title — a string, a `TemplateRef`, or `[slot=eyebrow]`. */
   eyebrow?: unknown
   /** Primary heading — a string, a `TemplateRef`, or `[slot=title]`. */
@@ -115,12 +110,6 @@ export class CtaCard implements AfterViewInit, DoCheck {
   /** The optional action wrapper (the projected action lands here). */
   @ViewChild('actionEl') private actionEl?: ElementRef<HTMLElement>
 
-  /** The host element (the outer `<section>`). */
-  private readonly host = inject(ElementRef<HTMLElement>)
-  /** The DOM renderer, for the wrapper attach/detach. */
-  private readonly renderer: Renderer2 = inject(RendererFactory2).createRenderer(null, null)
-  /** Reconciles the optional wrappers against React's DOM. */
-  private readonly guard = new SlotGuard(this.host, this.renderer)
   /** Whether a `[slot=media]` projection landed. */
   private readonly mediaProjected = signal(false)
   /** Whether a `[slot=eyebrow]` projection landed. */
@@ -129,6 +118,10 @@ export class CtaCard implements AfterViewInit, DoCheck {
   private readonly descriptionProjected = signal(false)
   /** Whether a `[slot=action]` projection landed. */
   private readonly actionProjected = signal(false)
+
+  constructor() {
+    usePlacement((hasContent) => this.reconcile(hasContent))
+  }
 
   /**
    * The current class map.
@@ -258,29 +251,21 @@ export class CtaCard implements AfterViewInit, DoCheck {
 
   /**
    * Reads the projected capture points and reconciles the optional wrappers.
+   *
+   * @param hasContent - Reads whether a slot has content.
    */
-  reconcile(): void {
+  reconcile(hasContent: SlotReader): void {
     const media = this.mediaEl?.nativeElement
-    if (media) this.mediaProjected.set(hasNodes(media))
+    if (media) this.mediaProjected.set(hasContent(media))
     const eyebrow = this.eyebrowEl?.nativeElement
-    if (eyebrow) this.eyebrowProjected.set(hasNodes(eyebrow))
+    if (eyebrow) this.eyebrowProjected.set(hasContent(eyebrow))
     const description = this.descriptionEl?.nativeElement
-    if (description) this.descriptionProjected.set(hasNodes(description))
+    if (description) this.descriptionProjected.set(hasContent(description))
     const action = this.actionEl?.nativeElement
-    if (action) this.actionProjected.set(hasNodes(action))
-    this.guard.toggle(media, this.showMedia())
-    this.guard.toggle(eyebrow, this.showEyebrow())
-    this.guard.toggle(description, this.showDescription())
-    this.guard.toggle(action, this.showAction())
-  }
-
-  /** Reconciles the wrappers once the view (and its projections) exist. */
-  ngAfterViewInit(): void {
-    this.reconcile()
-  }
-
-  /** Reconciles the wrappers after input writes, as React re-renders on a prop change. */
-  ngDoCheck(): void {
-    this.reconcile()
+    if (action) this.actionProjected.set(hasContent(action))
+    setElementPresent(media, this.showMedia())
+    setElementPresent(eyebrow, this.showEyebrow())
+    setElementPresent(description, this.showDescription())
+    setElementPresent(action, this.showAction())
   }
 }

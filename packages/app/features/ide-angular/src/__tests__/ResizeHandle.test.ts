@@ -26,7 +26,7 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { provideI18n } from '@molecule/app-angular'
+import { provideDomPlacement, provideI18n } from '@molecule/app-angular'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
@@ -41,7 +41,7 @@ const ResizeHandleHost = Component({
   selector: 'mol-resize-handle-host',
   standalone: true,
   imports: [ResizeHandle],
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `<div mol-resize-handle [value]="p['value']" [onResize]="p['onResize']"></div>`,
 })(
   class ResizeHandleHost {
@@ -104,7 +104,11 @@ async function mountHandle(value: number): Promise<Mounted & { handle: HTMLEleme
   const container = document.createElement('div')
   document.body.appendChild(container)
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection(), provideI18n(createSimpleI18nProvider('en'))],
+    providers: [
+      provideZonelessChangeDetection(),
+      provideDomPlacement(),
+      provideI18n(createSimpleI18nProvider('en')),
+    ],
   })
   const ref: ComponentRef<InstanceType<typeof ResizeHandleHost>> = createComponent(
     ResizeHandleHost,

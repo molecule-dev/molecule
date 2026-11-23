@@ -61,6 +61,7 @@ vi.mock('@molecule/app-ui-angular', async () => {
   const { Component } = await import('@angular/core')
   return {
     Button: Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'button[mol-button]',
       standalone: true,
       inputs: ['type', 'variant', 'color', 'disabled'],
@@ -83,6 +84,7 @@ vi.mock('@molecule/app-ui-angular', async () => {
       },
     ),
     Textarea: Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'div[mol-textarea]',
       standalone: true,
       inputs: ['placeholder', 'value', 'rows'],
@@ -136,7 +138,7 @@ async function mount(
     selector: 'mol-spec-host',
     standalone: true,
     imports: [component],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: templateUrl,
   })(
     class SpecHost {

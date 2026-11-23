@@ -19,8 +19,6 @@
 export class ControlledSwitchSync {
   /** The attribute state React froze at mount (null until the first sync). */
   private mountedAttrChecked: boolean | null = null
-  /** The hidden native checkbox (re-resolved while the view is rebuilt). */
-  private input: HTMLInputElement | null = null
 
   /**
    * Creates the sync for one switch.
@@ -36,10 +34,7 @@ export class ControlledSwitchSync {
    * @param checked - The controlled `checked` value this render shows.
    */
   sync(checked: boolean): void {
-    if (!this.input || !this.input.isConnected) {
-      this.input = this.switchHost.querySelector('input')
-    }
-    const input = this.input
+    const input = this.switchHost.querySelector('input')
     if (!input) return
     if (this.mountedAttrChecked === null) this.mountedAttrChecked = checked
     // React's re-render: the property mirrors the prop…

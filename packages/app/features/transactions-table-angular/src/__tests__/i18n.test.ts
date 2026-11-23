@@ -115,7 +115,7 @@ const render = async (props: Record<string, unknown> = {}): Promise<Mounted> => 
     selector: 'mol-i18n-host',
     standalone: true,
     imports: [TransactionsTable],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: TEMPLATE,
   })(
     class SpecHost {

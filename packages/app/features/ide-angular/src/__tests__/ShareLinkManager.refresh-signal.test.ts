@@ -25,7 +25,7 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { provideHttp, provideI18n, provideTheme } from '@molecule/app-angular'
+import { provideDomPlacement, provideHttp, provideI18n, provideTheme } from '@molecule/app-angular'
 import type { ServiceCallSink } from '@molecule/app-framework-conformance/ui'
 import { createFakeThemeProvider } from '@molecule/app-framework-conformance/ui'
 import type { HttpClient, HttpResponse, RequestConfig } from '@molecule/app-http'
@@ -100,7 +100,7 @@ const ShareLinkManagerHost = Component({
   selector: 'mol-share-link-manager-host',
   standalone: true,
   imports: [ShareLinkManager],
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `<div mol-share-link-manager [projectId]="p['projectId']" [refreshSignal]="p['refreshSignal']"></div>`,
 })(
   class ShareLinkManagerHost {
@@ -170,6 +170,7 @@ async function renderManager(refreshSignal: number): Promise<Mounted> {
   const appRef: ApplicationRef = await createApplication({
     providers: [
       provideZonelessChangeDetection(),
+      provideDomPlacement(),
       provideI18n(createSimpleI18nProvider('en')),
       provideTheme(createFakeThemeProvider('dark', sink)),
       provideHttp(buildHttpClient()),

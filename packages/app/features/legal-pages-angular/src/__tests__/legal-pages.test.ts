@@ -13,14 +13,18 @@
 import '@angular/compiler'
 import {
   type ApplicationRef,
+  ChangeDetectionStrategy,
   Component,
   type ComponentRef,
   createComponent,
   provideZonelessChangeDetection,
+  signal,
   type Type,
 } from '@angular/core'
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+
+import { provideDomPlacement } from '@molecule/app-angular'
 
 // `useAuth` / `useVerifyPaymentReturn` are hoisted so individual tests can
 // change what they return.
@@ -100,6 +104,7 @@ vi.mock('@molecule/app-angular', async (importOriginal) => {
 vi.mock('@molecule/app-ui-angular', async () => {
   const { Component, EventEmitter } = await import('@angular/core')
   const Button = Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
     selector: 'button[mol-button]',
     standalone: true,
     inputs: ['variant', 'size', 'color', 'className', 'style'],
@@ -107,6 +112,7 @@ vi.mock('@molecule/app-ui-angular', async () => {
     template: '<ng-content></ng-content>',
   })(class StubButton {})
   const Flex = Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
     selector: 'div[mol-flex]',
     standalone: true,
     inputs: ['align', 'justify', 'direction', 'wrap', 'gap', 'className', 'style'],
@@ -114,6 +120,7 @@ vi.mock('@molecule/app-ui-angular', async () => {
     template: '<ng-content></ng-content>',
   })(class StubFlex {})
   const Spinner = Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
     selector: 'div[mol-spinner]',
     standalone: true,
     host: { 'data-spinner': '' },
@@ -123,6 +130,7 @@ vi.mock('@molecule/app-ui-angular', async () => {
   // and the assertions read the modal body without driving its state — the same
   // stub the React tests use.
   const Modal = Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
     selector: 'mol-modal',
     standalone: true,
     inputs: ['open', 'title', 'size', 'centered', 'preventScroll', 'closeLabel', 'className'],
@@ -141,6 +149,7 @@ vi.mock('@molecule/app-ui-angular', async () => {
 const { ContentPageShell } = await import('../content-page-shell.component.js')
 const { LegalContentPage } = await import('../legal-content-page.component.js')
 const { LegalModalLinks } = await import('../legal-modal-links.component.js')
+const { LegalModals } = await import('../legal-modals.component.js')
 const { LegalPageLayout } = await import('../legal-page-layout.component.js')
 const { LegalPageSection } = await import('../legal-page-section.component.js')
 const { PlanUpdatedPage } = await import('../plan-updated-page.component.js')
@@ -148,7 +157,13 @@ const { PrivacyPage } = await import('../privacy-page.component.js')
 const { TermsPage } = await import('../terms-page.component.js')
 
 /** The app and its host of the running test, destroyed after it. */
-let live: { appRef: ApplicationRef; host: HTMLElement } | undefined
+let live:
+  | {
+      appRef: ApplicationRef
+      host: HTMLElement
+      ref: ComponentRef<{ p: Record<string, unknown> }>
+    }
+  | undefined
 /** Host selector counter (Angular requires a unique selector per component type). */
 let hosts = 0
 
@@ -159,6 +174,53 @@ afterEach(async () => {
     live = undefined
   }
 })
+
+/**
+ * Mounts a JIT host template and returns the rendered host plus a setter that
+ * merges the props and runs one change detection.
+ *
+ * @param template - The host template (it reads the props as `p['key']`).
+ * @param imports - The standalone components the template uses.
+ * @param props - The props the template starts with.
+ * @returns The rendered host and the props setter.
+ */
+async function mount(
+  template: string,
+  imports: readonly unknown[],
+  props: Record<string, unknown> = {},
+): Promise<{ root: HTMLElement; set: (next: Record<string, unknown>) => void }> {
+  const Host = Component({
+    selector: `mol-legal-spec-${++hosts}`,
+    standalone: true,
+    imports: imports as Type<unknown>[],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    template,
+  })(
+    class SpecHost {
+      /** The props the template binds. */
+      p: Record<string, unknown> = props
+    },
+  )
+  const appRef: ApplicationRef = await createApplication({
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
+  })
+  const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
+    environmentInjector: appRef.injector,
+  })
+  const host = ref.location.nativeElement as HTMLElement
+  document.body.appendChild(host)
+  appRef.attachView(ref.hostView)
+  appRef.tick()
+  live = { appRef, host, ref }
+  return {
+    root: host,
+    set: (next) => {
+      ref.instance.p = { ...ref.instance.p, ...next }
+      ref.changeDetectorRef.markForCheck()
+      appRef.tick()
+    },
+  }
+}
 
 /**
  * Mounts a JIT host template and returns the markup it rendered.
@@ -173,29 +235,8 @@ async function html(
   imports: readonly unknown[],
   props: Record<string, unknown> = {},
 ): Promise<string> {
-  const Host = Component({
-    selector: `mol-legal-spec-${++hosts}`,
-    standalone: true,
-    imports: imports as Type<unknown>[],
-    template,
-  })(
-    class SpecHost {
-      /** The props the template binds. */
-      p: Record<string, unknown> = props
-    },
-  )
-  const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
-  })
-  const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
-    environmentInjector: appRef.injector,
-  })
-  const host = ref.location.nativeElement as HTMLElement
-  document.body.appendChild(host)
-  appRef.attachView(ref.hostView)
-  appRef.tick()
-  live = { appRef, host }
-  return host.innerHTML
+  const { root } = await mount(template, imports, props)
+  return root.innerHTML
 }
 
 beforeEach(() => {
@@ -210,6 +251,16 @@ beforeEach(() => {
     retry: vi.fn(),
   })
 })
+
+/**
+ * The text of every `<b>` in the rendered host, in document order.
+ *
+ * @param root - The rendered host.
+ * @returns The ordered texts.
+ */
+function itemTexts(root: HTMLElement): string[] {
+  return Array.from(root.querySelectorAll('b')).map((el) => el.textContent ?? '')
+}
 
 describe('LegalPageLayout', () => {
   it('renders the title inside an <h1>', () => {
@@ -388,6 +439,27 @@ describe('PlanUpdatedPage', () => {
       expect(markup).toContain('Go back')
     })
   })
+
+  it("renders React's elements with no host or capture element of its own", async () => {
+    // The real useAuth().state is a signal; a plain getter never re-checks an OnPush view.
+    const authState = signal({ initialized: false })
+    mockUseAuth.mockReturnValue({ state: authState })
+    const m = await mount(`<i>a</i><mol-plan-updated-page></mol-plan-updated-page><i>b</i>`, [
+      PlanUpdatedPage,
+    ])
+    const tags = (): string[] => Array.from(m.root.children).map((el) => el.tagName.toLowerCase())
+    // Uninitialized auth: React's root is the centered <Flex>; no host remains.
+    expect(tags()).toEqual(['i', 'div', 'i'])
+    expect(m.root.querySelector('mol-plan-updated-page')).toBeNull()
+    // Toggle presence: initialized auth renders React's confirmation <main>.
+    authState.set({ initialized: true })
+    m.set({})
+    expect(tags()).toEqual(['i', 'main', 'i'])
+    authState.set({ initialized: false })
+    m.set({})
+    expect(tags()).toEqual(['i', 'div', 'i'])
+    expect(m.root.querySelector('mol-plan-updated-page')).toBeNull()
+  })
 })
 
 describe('PrivacyPage', () => {
@@ -414,6 +486,52 @@ describe('PrivacyPage', () => {
     ]).then((markup) => {
       expect(markup).toContain('Datenschutz')
     })
+  })
+
+  it('keeps a consumer list in order when an item is inserted in the middle of body', async () => {
+    const m = await mount(
+      `<mol-privacy-page>@for (x of p['xs']; track x) {<b>{{ x }}</b>}</mol-privacy-page>`,
+      [PrivacyPage],
+      { xs: [1, 3] },
+    )
+    expect(itemTexts(m.root)).toEqual(['1', '3'])
+    m.set({ xs: [1, 2, 3] })
+    expect(itemTexts(m.root)).toEqual(['1', '2', '3'])
+    m.set({ xs: [1, 2] })
+    expect(itemTexts(m.root)).toEqual(['1', '2'])
+  })
+
+  it('shows and removes the intro wrapper in the pass where the consumer @if adds and removes its content', async () => {
+    const m = await mount(
+      `<mol-privacy-page>@if (p['on']) {<p data-real>real</p>}</mol-privacy-page>`,
+      [PrivacyPage],
+      { on: false },
+    )
+    // No children: React renders the boilerplate intro paragraph.
+    expect(m.root.querySelector('[data-real]')).toBeNull()
+    expect(m.root.textContent).toContain('This is the Privacy page')
+    m.set({ on: true })
+    // Children arrive: the intro wrapper goes and the content renders in its place.
+    expect(m.root.querySelector('[data-real]')?.isConnected).toBe(true)
+    expect(m.root.textContent).not.toContain('This is the Privacy page')
+    m.set({ on: false })
+    expect(m.root.querySelector('[data-real]')).toBeNull()
+    expect(m.root.textContent).toContain('This is the Privacy page')
+  })
+
+  it("renders React's elements with no host or capture element of its own", async () => {
+    const m = await mount(
+      `<i>a</i><mol-privacy-page>@if (p['on']) {<p data-real>real</p>}</mol-privacy-page><i>b</i>`,
+      [PrivacyPage],
+      { on: false },
+    )
+    const tags = (): string[] => Array.from(m.root.children).map((el) => el.tagName.toLowerCase())
+    // React's root is the layout's <main>; no <mol-privacy-page> or capture span remains.
+    expect(tags()).toEqual(['i', 'main', 'i'])
+    expect(m.root.querySelector('mol-privacy-page')).toBeNull()
+    m.set({ on: true })
+    expect(tags()).toEqual(['i', 'main', 'i'])
+    expect(m.root.querySelector('mol-privacy-page')).toBeNull()
   })
 })
 
@@ -442,6 +560,51 @@ describe('TermsPage', () => {
       expect(markup).toContain('Nutzungsbedingungen')
     })
   })
+
+  it('keeps a consumer list in order when an item is inserted in the middle of body', async () => {
+    const m = await mount(
+      `<mol-terms-page>@for (x of p['xs']; track x) {<b>{{ x }}</b>}</mol-terms-page>`,
+      [TermsPage],
+      { xs: [1, 3] },
+    )
+    expect(itemTexts(m.root)).toEqual(['1', '3'])
+    m.set({ xs: [1, 2, 3] })
+    expect(itemTexts(m.root)).toEqual(['1', '2', '3'])
+    m.set({ xs: [1, 2] })
+    expect(itemTexts(m.root)).toEqual(['1', '2'])
+  })
+
+  it('shows and removes the intro wrapper in the pass where the consumer @if adds and removes its content', async () => {
+    const m = await mount(
+      `<mol-terms-page>@if (p['on']) {<p data-real>real</p>}</mol-terms-page>`,
+      [TermsPage],
+      { on: false },
+    )
+    // No children: React renders the boilerplate intro paragraph.
+    expect(m.root.querySelector('[data-real]')).toBeNull()
+    expect(m.root.textContent).toContain('This is the Terms page')
+    m.set({ on: true })
+    // Children arrive: the intro wrapper goes and the content renders in its place.
+    expect(m.root.querySelector('[data-real]')?.isConnected).toBe(true)
+    expect(m.root.textContent).not.toContain('This is the Terms page')
+    m.set({ on: false })
+    expect(m.root.querySelector('[data-real]')).toBeNull()
+    expect(m.root.textContent).toContain('This is the Terms page')
+  })
+
+  it("renders React's elements with no host or capture element of its own", async () => {
+    const m = await mount(
+      `<i>a</i><mol-terms-page>@if (p['on']) {<p data-real>real</p>}</mol-terms-page><i>b</i>`,
+      [TermsPage],
+      { on: false },
+    )
+    const tags = (): string[] => Array.from(m.root.children).map((el) => el.tagName.toLowerCase())
+    expect(tags()).toEqual(['i', 'main', 'i'])
+    expect(m.root.querySelector('mol-terms-page')).toBeNull()
+    m.set({ on: true })
+    expect(tags()).toEqual(['i', 'main', 'i'])
+    expect(m.root.querySelector('mol-terms-page')).toBeNull()
+  })
 })
 
 describe('ContentPageShell (slotted hero)', () => {
@@ -452,6 +615,37 @@ describe('ContentPageShell (slotted hero)', () => {
         expect(markup).toContain('Body copy')
       },
     )
+  })
+
+  it('keeps a consumer list in order when an item is inserted in the middle of body', async () => {
+    const m = await mount(
+      `<div mol-content-page-shell>@for (x of p['xs']; track x) {<b>{{ x }}</b>}</div>`,
+      [ContentPageShell],
+      { xs: [1, 3] },
+    )
+    expect(itemTexts(m.root)).toEqual(['1', '3'])
+    m.set({ xs: [1, 2, 3] })
+    expect(itemTexts(m.root)).toEqual(['1', '2', '3'])
+    m.set({ xs: [1, 2] })
+    expect(itemTexts(m.root)).toEqual(['1', '2'])
+  })
+
+  it('shows and removes the hero wrapper in the pass where the consumer @if adds and removes its content', async () => {
+    const m = await mount(
+      `<div mol-content-page-shell>@if (p['on']) {<span slot="title" data-title>Terms</span>}Body copy</div>`,
+      [ContentPageShell],
+      { on: false },
+    )
+    // No projected title: React renders no hero band.
+    expect(m.root.querySelector('section')).toBeNull()
+    expect(m.root.querySelector('[data-title]')).toBeNull()
+    m.set({ on: true })
+    // The title arrives: the hero band and its content render in the same pass.
+    expect(m.root.querySelector('section')?.isConnected).toBe(true)
+    expect(m.root.querySelector('[data-title]')?.isConnected).toBe(true)
+    m.set({ on: false })
+    expect(m.root.querySelector('section')).toBeNull()
+    expect(m.root.querySelector('[data-title]')).toBeNull()
   })
 })
 
@@ -479,6 +673,84 @@ describe('LegalModalLinks (in-place modals)', () => {
         expect(markup).toContain('These terms govern your use of {{appName}}.')
       },
     )
+  })
+
+  it('keeps a consumer list in order when an item is inserted in the middle of privacyLabel', async () => {
+    const m = await mount(
+      `<mol-legal-modal-links>@for (x of p['xs']; track x) {<b slot="privacyLabel">{{ x }}</b>}</mol-legal-modal-links>`,
+      [LegalModalLinks],
+      { xs: [1, 3] },
+    )
+    expect(itemTexts(m.root)).toEqual(['1', '3'])
+    m.set({ xs: [1, 2, 3] })
+    expect(itemTexts(m.root)).toEqual(['1', '2', '3'])
+    m.set({ xs: [1, 2] })
+    expect(itemTexts(m.root)).toEqual(['1', '2'])
+  })
+
+  it('shows and removes the privacyLabel wrapper in the pass where the consumer @if adds and removes its content', async () => {
+    const m = await mount(
+      `<mol-legal-modal-links [show]="'privacy'">@if (p['on']) {<span slot="privacyLabel" data-label>My privacy</span>}</mol-legal-modal-links>`,
+      [LegalModalLinks],
+      { on: false },
+    )
+    const label = (): HTMLElement | null => m.root.querySelector('[data-label]')
+    const trigger = (): HTMLElement | null => m.root.querySelector('button')
+    // No projected label: React renders the translated text bare in the trigger.
+    expect(label()).toBeNull()
+    expect(trigger()?.textContent).toContain('Privacy Policy')
+    m.set({ on: true })
+    // The projected label renders bare inside the trigger in the same pass.
+    expect(label()).not.toBeNull()
+    expect(label()?.parentElement?.tagName).toBe('BUTTON')
+    expect(label()?.isConnected).toBe(true)
+    expect(trigger()?.textContent).not.toContain('Privacy Policy')
+    m.set({ on: false })
+    expect(label()).toBeNull()
+    expect(trigger()?.textContent).toContain('Privacy Policy')
+  })
+
+  it("renders React's elements with no host or capture element of its own", async () => {
+    const m = await mount(`<i>a</i><mol-legal-modal-links></mol-legal-modal-links><i>b</i>`, [
+      LegalModalLinks,
+    ])
+    // React's fragment (trigger buttons + portaled modals) renders in the host's
+    // place; neither the wrapping host nor the label capture spans remain.
+    expect(m.root.querySelector('mol-legal-modal-links')).toBeNull()
+    expect(m.root.querySelector('mol-legal-modals')).toBeNull()
+    const buttons = Array.from(m.root.querySelectorAll('button'))
+    expect(buttons.length).toBe(2)
+    for (const button of buttons) expect(button.querySelector('span')).toBeNull()
+  })
+})
+
+describe('LegalModals', () => {
+  it("renders React's elements with no host or capture element of its own", async () => {
+    const api = {
+      openPrivacy: () => Promise.resolve(),
+      openTerms: () => Promise.resolve(),
+      modals: null,
+      state: {
+        privacyOpen: signal(false),
+        termsOpen: signal(false),
+        appName: undefined as string | undefined,
+      },
+    }
+    const m = await mount(
+      `<i>a</i><mol-legal-modals [api]="p['api']"></mol-legal-modals><i>b</i>`,
+      [LegalModals],
+      { api },
+    )
+    const tags = (): string[] => Array.from(m.root.children).map((el) => el.tagName.toLowerCase())
+    // React's root is a fragment of two portaled modals; the host never appears.
+    expect(m.root.querySelector('mol-legal-modals')).toBeNull()
+    expect(m.root.querySelectorAll('mol-modal').length).toBe(2)
+    expect(tags()[0]).toBe('i')
+    // Toggle presence: the section around the modals is not the component's host.
+    api.state.privacyOpen.set(true)
+    m.set({})
+    expect(m.root.querySelector('mol-legal-modals')).toBeNull()
+    expect(tags()[0]).toBe('i')
   })
 })
 

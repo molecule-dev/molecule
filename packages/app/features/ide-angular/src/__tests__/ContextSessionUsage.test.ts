@@ -26,7 +26,7 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { HTTP_CLIENT } from '@molecule/app-angular'
+import { HTTP_CLIENT, provideDomPlacement } from '@molecule/app-angular'
 import type { HttpClient, HttpResponse } from '@molecule/app-http'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 import { getClassMap, setClassMap } from '@molecule/app-ui'
@@ -91,7 +91,7 @@ const UsageHost = Component({
   selector: 'mol-context-session-usage-host',
   standalone: true,
   imports: [ContextSessionUsage],
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `<div mol-context-session-usage [data]="p['data']" [loading]="p['loading']" [failed]="p['failed']"></div>`,
 })(
   class UsageHost {
@@ -118,7 +118,7 @@ async function renderUsage(
   const container = document.createElement('div')
   document.body.appendChild(container)
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<InstanceType<typeof UsageHost>> = createComponent(UsageHost, {
     environmentInjector: appRef.injector,
@@ -272,6 +272,7 @@ type HookResult = ReturnType<typeof useContextSessionUsage>
  * loaded state, with a button that calls `refresh()`.
  */
 const HookHost = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-context-session-usage-hook-host',
   standalone: true,
   template: `<span [attr.data-usage]="shown()"></span><button type="button" (click)="refreshUsage()">refresh</button>`,
@@ -375,7 +376,11 @@ describe('useContextSessionUsage', () => {
     const container = document.createElement('div')
     document.body.appendChild(container)
     const appRef: ApplicationRef = await createApplication({
-      providers: [provideZonelessChangeDetection(), { provide: HTTP_CLIENT, useValue: http }],
+      providers: [
+        provideZonelessChangeDetection(),
+        provideDomPlacement(),
+        { provide: HTTP_CLIENT, useValue: http },
+      ],
     })
     const ref: ComponentRef<InstanceType<typeof HookHost>> = createComponent(HookHost, {
       environmentInjector: appRef.injector,

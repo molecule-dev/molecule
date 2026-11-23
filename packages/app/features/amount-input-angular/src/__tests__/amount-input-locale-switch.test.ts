@@ -23,6 +23,7 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
 import type { I18nProvider } from '@molecule/app-i18n'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 
@@ -52,7 +53,7 @@ beforeEach(async () => {
     selector: 'mol-spec-host',
     standalone: true,
     imports: [AmountInput],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: `<div
       mol-amount-input
       [amount]="0"
@@ -70,7 +71,7 @@ beforeEach(async () => {
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<unknown> = createComponent(Host, { environmentInjector: appRef.injector })
   host = ref.location.nativeElement as HTMLElement

@@ -24,7 +24,7 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { provideI18n, provideWorkspace } from '@molecule/app-angular'
+import { provideDomPlacement, provideI18n, provideWorkspace } from '@molecule/app-angular'
 import { createSimpleI18nProvider } from '@molecule/app-i18n'
 import type {
   PanelId,
@@ -130,7 +130,7 @@ const WorkspaceLayoutHost = Component({
   selector: 'mol-workspace-layout-host',
   standalone: true,
   imports: [WorkspaceLayout],
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `<div mol-workspace-layout [className]="p['className']"><div data-testid="chat-pane">chat</div><div data-testid="main-pane">main</div></div>`,
 })(
   class WorkspaceLayoutHost {
@@ -198,6 +198,7 @@ async function renderTwoPane(resizePanel = vi.fn()): Promise<{
   const appRef = await createApplication({
     providers: [
       provideZonelessChangeDetection(),
+      provideDomPlacement(),
       provideI18n(createSimpleI18nProvider('en')),
       provideWorkspace(buildStubProvider(resizePanel)),
     ],

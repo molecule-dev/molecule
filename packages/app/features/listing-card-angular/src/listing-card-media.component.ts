@@ -5,32 +5,19 @@
  */
 
 import { NgTemplateOutlet } from '@angular/common'
-import {
-  type AfterViewInit,
-  Component,
-  ElementRef,
-  inject,
-  signal,
-  type TemplateRef,
-  ViewChild,
-} from '@angular/core'
+import { Component, type ElementRef, type TemplateRef, ViewChild } from '@angular/core'
 
+import {
+  MolPlacement,
+  placeContentBefore,
+  setElementPresent,
+  type SlotReader,
+  usePlacement,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
-import { hasNodes } from '@molecule/app-ui-angular'
 
 import type { ListingCardMediaProps } from './types.js'
-
-/**
- * Whether a node is something a caller can see (an element, or a non-blank
- * text node).
- *
- * @param node - The DOM node.
- * @returns True when it renders anything.
- */
-const hasRenderable = (node: Node): boolean =>
-  node.nodeType === Node.ELEMENT_NODE ||
-  (node.nodeType === Node.TEXT_NODE && (node.textContent ?? '').trim().length > 0)
 
 /**
  * Whether a value is an overlay node template (a node-valued prop the kit
@@ -52,14 +39,14 @@ const isTemplate = (value: unknown): value is TemplateRef<unknown> =>
  * projected as `[slot=overlay]` into the absolutely-positioned inset-0 layer.
  *
  * @remarks
- * Angular projection needs the capture points mounted, so the `<img>` and the
- * overlay wrapper render optimistically and
- * {@link ListingCardMedia.ngAfterViewInit} withdraws the ones React would not
- * render.
+ * The `<img>` and the overlay wrapper stay in the template and leave the page
+ * while React would not render them; the caller's node renders where React's
+ * `children` goes, so content projected later replaces the `<img>` too.
  */
 @Component({
   selector: 'div[mol-listing-card-media]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [NgTemplateOutlet],
   inputs: ['src', 'alt', 'aspect', 'overlay', 'className'],
   host: {
@@ -67,9 +54,9 @@ const isTemplate = (value: unknown): value is TemplateRef<unknown> =>
     '[style.aspect-ratio]': 'aspectText()',
   },
   // prettier-ignore
-  template: `@if (showImage()) {<img #img [attr.src]="src ?? null" [attr.alt]="alt ?? ''" style="width: 100%; height: 100%; object-fit: cover" />}<ng-content></ng-content>@if (showOverlay()) {<div #overlayEl [class]="overlayClasses()">@if (overlayTemplate(); as overlayTpl) {<ng-container [ngTemplateOutlet]="overlayTpl" />}<ng-content select="[slot=overlay]"></ng-content></div>}`,
+  template: `<img #img [attr.alt]="alt ?? ''" style="width: 100%; height: 100%; object-fit: cover" /><span #childrenSlot><ng-content></ng-content></span><div #overlayEl [class]="overlayClasses()">@if (overlayTemplate(); as overlayTpl) {<ng-container [ngTemplateOutlet]="overlayTpl" />}<ng-content select="[slot=overlay]"></ng-content></div>`,
 })
-export class ListingCardMedia implements AfterViewInit {
+export class ListingCardMedia {
   /** Image URL. */
   src?: string
   /** Image alternative text (defaults to an empty string). */
@@ -81,37 +68,39 @@ export class ListingCardMedia implements AfterViewInit {
   /** Extra classes. */
   className?: string
 
-  /** The `<img>` fallback, while it renders. */
-  @ViewChild('img') private img?: ElementRef<HTMLImageElement>
-  /** The overlay wrapper, while it renders. */
-  @ViewChild('overlayEl') private overlayEl?: ElementRef<HTMLElement>
-
-  /** The host element (the root `<div>`). */
-  private readonly el = inject(ElementRef)
+  /** The `<img>` fallback (in the page, with its source, only while React renders it). */
+  @ViewChild('img', { static: true }) private img?: ElementRef<HTMLImageElement>
+  /** The capture of the caller's node; its content renders in its place. */
+  @ViewChild('childrenSlot', { static: true }) private childrenSlot?: ElementRef<HTMLElement>
+  /** The overlay wrapper (in the page only while there is an overlay). */
+  @ViewChild('overlayEl', { static: true }) private overlayEl?: ElementRef<HTMLElement>
 
   /**
-   * Whether the caller projected a media node (React's `children ??
-   * (src && <img>)`): true once the first view sees projected content.
+   * Renders React's `children ?? (src && <img>)` and `{overlay && <div>…}`,
+   * following projected content that arrives or leaves after the first render.
    */
-  private readonly childrenProjected = signal(false)
-  /**
-   * Whether a `[slot=overlay]` projection landed: true (optimistically) until
-   * the first view proves otherwise.
-   */
-  private readonly overlayProjected = signal(true)
+  constructor() {
+    usePlacement((hasContent) => this.sync(hasContent))
+  }
 
-  /** Reads the first render: the projection replaces the `<img>`, and an empty overlay wrapper is withdrawn. */
-  ngAfterViewInit(): void {
-    const host = this.el.nativeElement as HTMLElement
-    const own = new Set<Node>()
-    if (this.img) own.add(this.img.nativeElement)
-    if (this.overlayEl) own.add(this.overlayEl.nativeElement)
-    const projected = Array.from(host.childNodes).some(
-      (node) => !own.has(node) && hasRenderable(node),
-    )
-    if (projected) this.childrenProjected.set(true)
+  /**
+   * Applies the image, children and overlay presence.
+   *
+   * @param hasContent - Reads whether a slot has content.
+   */
+  private sync(hasContent: SlotReader): void {
+    const children = this.childrenSlot?.nativeElement
+    placeContentBefore(children, children)
+    setElementPresent(children, false)
+    const img = this.img?.nativeElement
+    const showImage = !hasContent(children) && !!this.src
+    // The source is set only while the <img> shows: React creates no <img> while children
+    // replace it, so the browser requests no image.
+    if (showImage) img?.setAttribute('src', this.src!)
+    else img?.removeAttribute('src')
+    setElementPresent(img, showImage)
     const overlay = this.overlayEl?.nativeElement
-    if (overlay) this.overlayProjected.set(hasNodes(overlay))
+    setElementPresent(overlay, this.overlayTemplate() !== null || hasContent(overlay))
   }
 
   /**
@@ -148,26 +137,10 @@ export class ListingCardMedia implements AfterViewInit {
   }
 
   /**
-   * Whether the `<img>` fallback renders (a projected node replaces it).
-   * @returns True when the image shows.
-   */
-  showImage(): boolean {
-    return !this.childrenProjected() && !!this.src
-  }
-
-  /**
    * The overlay node template, when the overlay arrived as a node-valued prop.
    * @returns The template, or null when none was passed.
    */
   overlayTemplate(): TemplateRef<unknown> | null {
     return isTemplate(this.overlay) ? this.overlay : null
-  }
-
-  /**
-   * Whether the overlay wrapper renders.
-   * @returns True when the overlay layer shows.
-   */
-  showOverlay(): boolean {
-    return this.overlayTemplate() !== null || this.overlayProjected()
   }
 }

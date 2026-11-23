@@ -4,21 +4,22 @@
  * @module
  */
 
-import {
-  type AfterViewChecked,
-  type AfterViewInit,
-  Component,
-  type ElementRef,
-  type OnDestroy,
-  signal,
-  ViewChild,
-} from '@angular/core'
+import { Component, type ElementRef, type OnDestroy, signal, ViewChild } from '@angular/core'
 
-import { Link, RoutedView, useRouterInstance, useTranslation } from '@molecule/app-angular'
+import {
+  Link,
+  MolPlacement,
+  placeContentBefore,
+  RoutedView,
+  setElementPresent,
+  type SlotReader,
+  usePlacement,
+  useRouterInstance,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
-import { hasNodes } from './slot-dom.js'
 import type { TopNavItem } from './types.js'
 
 /**
@@ -55,6 +56,7 @@ const navItemActive = (pathname: string, to: string): boolean => {
 @Component({
   selector: 'div[mol-top-nav-layout]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [Link, RoutedView],
   inputs: ['appName', 'logoTo', 'navItems', 'navAriaLabel', 'className', 'dataMolId'],
   host: {
@@ -83,13 +85,13 @@ const navItemActive = (pathname: string, to: string): boolean => {
       </div>
     </header>
     <main>
-      <span #pageSlot data-parity-unwrap style="display: contents"><ng-content></ng-content></span>
+      <span #pageSlot><ng-content></ng-content></span>
       @if (routed()) {
         <mol-routed-view />
       }
     </main>`,
 })
-export class TopNavLayout implements AfterViewInit, AfterViewChecked, OnDestroy {
+export class TopNavLayout implements OnDestroy {
   /** Brand text shown in the top-left link (typically the app name). */
   appName = ''
   /** Path the brand link navigates to (defaults to `'/'` at read time). */
@@ -125,25 +127,29 @@ export class TopNavLayout implements AfterViewInit, AfterViewChecked, OnDestroy 
 
   private readonly stop = this.router.subscribe(() => this.location.set(this.router.getLocation()))
 
+  constructor() {
+    usePlacement((hasContent) => this.reconcile(hasContent))
+  }
+
   /** Stops listening to the router when the component goes away. */
   ngOnDestroy(): void {
     this.stop()
   }
 
-  /** Decides the `<main>` content once the capture point exists. */
-  ngAfterViewInit(): void {
-    this.syncRouted()
-  }
-
-  /** Follows a page body projected or removed later. */
-  ngAfterViewChecked(): void {
-    this.syncRouted()
-  }
-
-  /** React renders `children ?? <RoutedView />`: the routed view only without a page body. */
-  private syncRouted(): void {
+  /**
+   * React renders `children ?? <RoutedView />`: the routed view only without a
+   * page body.
+   *
+   * @param hasContent - Reads whether a slot has content.
+   */
+  private reconcile(hasContent: SlotReader): void {
     const page = this.pageSlot?.nativeElement
-    if (page) this.routed.set(!hasNodes(page))
+    if (!page) return
+    // React renders the projected page body bare: it stands in the capture point's place
+    // and the point itself leaves the page.
+    placeContentBefore(page, page)
+    setElementPresent(page, false)
+    this.routed.set(!hasContent(page))
   }
 
   /**

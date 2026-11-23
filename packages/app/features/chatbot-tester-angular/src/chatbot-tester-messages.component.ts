@@ -5,21 +5,20 @@
  */
 
 import { NgTemplateOutlet } from '@angular/common'
-import {
-  type AfterViewChecked,
-  type AfterViewInit,
-  Component,
-  ElementRef,
-  inject,
-  Renderer2,
-  TemplateRef,
-  ViewChild,
-} from '@angular/core'
+import { Component, ElementRef, inject, TemplateRef, ViewChild } from '@angular/core'
 
+import {
+  MolPlacement,
+  placeContentBefore,
+  placeElementBefore,
+  setElementPresent,
+  type SlotReader,
+  usePlacement,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
-import { hasNodes, nodeTruthy, SlotGuard, textOf } from './slot-dom.js'
+import { nodeTruthy, textOf } from './dom.js'
 import type { TesterMessage } from './types.js'
 
 /**
@@ -27,26 +26,24 @@ import type { TesterMessage } from './types.js'
  *
  * Scrollable transcript with left-aligned (assistant) and right-aligned (user)
  * bubbles plus the typing indicator. React's root is one of two `<div>`s — the
- * empty-state wrapper or the transcript pane — so the host is transparent
- * (`data-parity-unwrap`, `display: contents`) and the two roots are reconciled
- * against React's branch by {@link ChatbotTesterMessages.ngAfterViewInit} /
- * {@link ChatbotTesterMessages.ngAfterViewChecked}. The empty state is
- * projected content (`[slot=emptyState]`) or a template input.
+ * empty-state wrapper or the transcript pane — so the rendered `<div>` stands
+ * in front of the host's place and the host itself leaves the page
+ * (`placeElementBefore` + `setElementPresent`), React's exact DOM. The empty
+ * state is
+ * projected content (`[slot=emptyState]`) or a template input; it renders in
+ * its capture's place and the capture leaves the page.
  */
 @Component({
   selector: 'mol-chatbot-tester-messages',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [NgTemplateOutlet],
   inputs: ['messages', 'loading', 'emptyState'],
-  host: {
-    'data-parity-unwrap': '',
-    style: 'display: contents',
-  },
   // prettier-ignore
-  template: `<div #emptyRoot [class]="emptyClasses()"><span #emptySlot data-parity-unwrap style="display: contents">@if (emptyTemplate(); as tpl) {<ng-container [ngTemplateOutlet]="tpl" />} @else if (hasEmptyText()) {<ng-container>{{ textOf(emptyState) }}</ng-container>}<ng-content select="[slot=emptyState]"></ng-content></span></div>
+  template: `<div #emptyRoot [class]="emptyClasses()"><span #emptySlot>@if (emptyTemplate(); as tpl) {<ng-container [ngTemplateOutlet]="tpl" />} @else if (hasEmptyText()) {<ng-container>{{ textOf(emptyState) }}</ng-container>}<ng-content select="[slot=emptyState]"></ng-content></span></div>
 <div #listRoot [class]="listClasses()"><div [class]="stackClasses()">@for (msg of messagesOf(); track msg.id) {<div [class]="rowClasses(msg)"><div [class]="bubbleClasses(msg)">{{ msg.content }}@if (msg.timestamp) {<div [class]="timeClasses(msg)">{{ msg.timestamp }}</div>}</div></div>}@if (loading) {<div [class]="typingClasses()">...</div>}<div></div></div></div>`,
 })
-export class ChatbotTesterMessages implements AfterViewInit, AfterViewChecked {
+export class ChatbotTesterMessages {
   /** The transcript, in display order. */
   messages: TesterMessage[] = []
   /** A reply is in flight: the typing indicator is appended. */
@@ -61,7 +58,13 @@ export class ChatbotTesterMessages implements AfterViewInit, AfterViewChecked {
   /** The projected empty-state capture point. */
   @ViewChild('emptySlot') private emptySlot?: ElementRef<HTMLElement>
 
-  private readonly guard = new SlotGuard(inject(ElementRef), inject(Renderer2))
+  private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
+
+  constructor() {
+    // React's root is one of two `<div>`s: the rendered one stands in front of the host's
+    // place and the host itself leaves the page.
+    usePlacement((hasContent) => this.reconcile(hasContent))
+  }
 
   /**
    * The current class map.
@@ -185,31 +188,29 @@ export class ChatbotTesterMessages implements AfterViewInit, AfterViewChecked {
     return textOf(value)
   }
 
-  /** Reconciles the two roots once the view queries resolve. */
-  ngAfterViewInit(): void {
-    this.reconcile()
-  }
-
-  /**
-   * Re-reconciles after each view update: a node-valued empty state that
-   * arrives through an input renders into its outlet only during the update,
-   * so the branch decision must be read afterwards.
-   */
-  ngAfterViewChecked(): void {
-    this.reconcile()
-  }
-
   /**
    * Applies React's condition: with no messages, nothing loading and an empty
    * state, the empty wrapper renders; otherwise the transcript pane does.
+   *
+   * @param hasContent - Reads whether a slot has content.
    */
-  private reconcile(): void {
+  private reconcile(hasContent: SlotReader): void {
+    const host = this.host.nativeElement
     const emptySlot = this.emptySlot?.nativeElement
+    const emptyRoot = this.emptyRoot?.nativeElement
+    const listRoot = this.listRoot?.nativeElement
     const hasEmpty =
       !this.loading &&
       this.messagesOf().length === 0 &&
-      (this.emptyTemplate() !== null || this.hasEmptyText() || hasNodes(emptySlot))
-    this.guard.toggle(this.emptyRoot?.nativeElement, hasEmpty)
-    this.guard.toggle(this.listRoot?.nativeElement, !hasEmpty)
+      (this.emptyTemplate() !== null || this.hasEmptyText() || hasContent(emptySlot))
+    // The capture's content renders exactly where the capture stood, and the capture
+    // itself leaves the page.
+    placeContentBefore(emptySlot, emptySlot)
+    setElementPresent(emptySlot, false)
+    setElementPresent(emptyRoot, hasEmpty)
+    setElementPresent(listRoot, !hasEmpty)
+    const root = hasEmpty ? emptyRoot : listRoot
+    if (root) placeElementBefore(root, host)
+    setElementPresent(host, false)
   }
 }

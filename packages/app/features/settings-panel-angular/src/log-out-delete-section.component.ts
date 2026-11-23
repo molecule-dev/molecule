@@ -4,9 +4,18 @@
  * @module
  */
 
-import { Component, signal } from '@angular/core'
+import { Component, ElementRef, inject, signal } from '@angular/core'
 
-import { useAuth, useHttpClient, useRouter, useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  placeContentBefore,
+  setElementPresent,
+  useAuth,
+  useHttpClient,
+  usePlacement,
+  useRouter,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { UserProfile } from '@molecule/app-auth'
 import { serverErrorMessage } from '@molecule/app-http'
 import type { UIClassMap } from '@molecule/app-ui'
@@ -19,9 +28,8 @@ import { useSettingsPanelContext } from './context.js'
  * LogOutDeleteSection component.
  *
  * Bottom actions section — Log out + Delete account. React's root is a
- * fragment (the `<section>` plus the delete-account modal), so the host is
- * unwrapped by the DOM normalizer and `display: contents` keeps the layout
- * fragment-like.
+ * fragment (the `<section>` plus the delete-account modal), so those nodes
+ * render in the host's place and the host itself never appears in the page.
  *
  * Owns the delete-account modal internally (the trigger lives in the
  * same section so the modal lives here too). Reads `onClose` from
@@ -31,11 +39,8 @@ import { useSettingsPanelContext } from './context.js'
 @Component({
   selector: 'mol-log-out-delete-section',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [Alert, Button, Input, Modal],
-  host: {
-    'data-parity-unwrap': '',
-    style: 'display: contents',
-  },
   template: `<section [class]="cm.stack(3)">
       <button
         mol-button
@@ -129,10 +134,25 @@ export class LogOutDeleteSection {
   /** The bonded ClassMap (styling tokens resolve at render time). */
   protected readonly cm: UIClassMap = getClassMap()
 
+  private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
+  constructor() {
+    usePlacement(() => {
+      // React's fragment (the section plus the delete-account modal) renders in
+      // the host's place; the host itself leaves the page.
+      placeContentBefore(this.host.nativeElement, this.host.nativeElement)
+      setElementPresent(this.host.nativeElement, false)
+    })
+  }
+
+  /** Closes the settings panel (the container context's callback). */
+  private closePanel(): void {
+    this.panel.onClose()
+  }
+
   /** Signs out, closes the panel and returns to `/login` (React's `handleLogout`). */
   protected async logout(): Promise<void> {
     await this.auth.logout()
-    this.panel.onClose()
+    this.closePanel()
     this.router.navigate('/login')
   }
 
@@ -151,7 +171,7 @@ export class LogOutDeleteSection {
         data: { password: this.password() },
       })
       await this.auth.logout()
-      this.panel.onClose()
+      this.closePanel()
       this.router.navigate('/login')
     } catch (err) {
       this.deleteError.set(

@@ -8,8 +8,9 @@
  * The open variant and its search seed come from the `chat:overlay` slice; the
  * cards get exactly the props React passes (the settings list the timeline
  * slice computes, the skills set, the tests snapshot and the host's native
- * history template). Nothing renders while the overlay is closed, so the host
- * is a `data-parity-unwrap` wrapper the normalizer drops.
+ * history template). The host IS React's `role="dialog"` root `<div>`; nothing
+ * renders while the overlay is closed, so the host is out of the DOM then
+ * (`useHostPresence`).
  *
  * @module
  */
@@ -17,7 +18,7 @@
 import { NgComponentOutlet, NgTemplateOutlet } from '@angular/common'
 import { Component, inject, TemplateRef, type Type } from '@angular/core'
 
-import { DEFAULT_AGENT_NAME } from '@molecule/app-angular'
+import { DEFAULT_AGENT_NAME, useHostPresence } from '@molecule/app-angular'
 import {
   panelOverlayHeading,
   type TestFailure,
@@ -47,9 +48,14 @@ import { ChatTimeline } from './chat-timeline.slice.js'
   selector: 'div[mol-chat-panel-overlay]',
   standalone: true,
   imports: [NgComponentOutlet, NgTemplateOutlet, ScriptsCard, SettingsCard, SkillsCard, TestsCard],
-  host: { 'data-parity-unwrap': '', style: 'display: contents' },
+  host: {
+    role: 'dialog',
+    '[class]': 'rootClass',
+    '[attr.aria-label]': 'dialogLabel()',
+    '[attr.style]': 'rootStyle()',
+  },
   // prettier-ignore
-  template: `@if (overlayValue(); as variant) {<div [class]="rootClass" role="dialog" [attr.aria-label]="heading(variant)" [attr.style]="rootStyle()"><div [class]="headerClass" [attr.style]="headerStyle"><span [class]="titleClass">{{ heading(variant) }}</span><button type="button" data-mol-id="panel-overlay-close" [attr.aria-label]="closeLabel()" (click)="close()" [attr.style]="closeStyle()">{{ '✕' }}</button></div><div style="overflow-y: auto; flex: 1">@if (variant === 'settings') {<div mol-settings-card [settings]="settings()" [onRunCommand]="runCommand" [onPrefillInput]="prefillInput" [isLight]="isLight()" [agentName]="agentName()" [embedded]="true"></div>}@if (variant === 'skills') {<div mol-skills-card [projectId]="projectId()" [initialQuery]="query()" [onLoad]="loadSkill" [onCreate]="createSkill" [loadedSkillPaths]="skills.loadedSkillPaths()" [defaultSkillPaths]="skills.defaultSkillPaths()" [onToggleDefault]="toggleDefaultSkill" [onResetDefault]="resetDefaultSkills" [defaultsExplicit]="skills.defaultSkillsExplicit()" [isLight]="isLight()" [embedded]="true"></div>}@if (variant === 'scripts') {<div mol-scripts-card [projectId]="projectId()" [initialQuery]="query()" [isLight]="isLight()" [agentName]="agentName()" [embedded]="true"></div>}@if (variant === 'tests') {@if (nativeHistoryTemplate(); as history) {<ng-container [ngTemplateOutlet]="history"></ng-container>} @else if (nativeHistoryComponent(); as historyComponent) {<ng-container [ngComponentOutlet]="historyComponent"></ng-container>}<div mol-tests-card [tests]="tests.testsList()" [status]="tests.testsStatus()" [run]="tests.testsRun()" [agentName]="agentName()" [initialQuery]="query()" [canRun]="canRunTests()" [onRun]="startTestsRun" [onCancel]="cancelTestsRun" [onSkipCurrent]="skipCurrentTest" [onFix]="fixTests" [fixDisabledReason]="fixDisabledReason()" [isLight]="isLight()" [embedded]="true"></div>}</div></div>}`,
+  template: `@if (overlayValue(); as variant) {<div [class]="headerClass" [attr.style]="headerStyle"><span [class]="titleClass">{{ heading(variant) }}</span><button type="button" data-mol-id="panel-overlay-close" [attr.aria-label]="closeLabel()" (click)="close()" [attr.style]="closeStyle()">{{ '✕' }}</button></div><div style="overflow-y: auto; flex: 1">@if (variant === 'settings') {<div mol-settings-card [settings]="settings()" [onRunCommand]="runCommand" [onPrefillInput]="prefillInput" [isLight]="isLight()" [agentName]="agentName()" [embedded]="true"></div>}@if (variant === 'skills') {<div mol-skills-card [projectId]="projectId()" [initialQuery]="query()" [onLoad]="loadSkill" [onCreate]="createSkill" [loadedSkillPaths]="skills.loadedSkillPaths()" [defaultSkillPaths]="skills.defaultSkillPaths()" [onToggleDefault]="toggleDefaultSkill" [onResetDefault]="resetDefaultSkills" [defaultsExplicit]="skills.defaultSkillsExplicit()" [isLight]="isLight()" [embedded]="true"></div>}@if (variant === 'scripts') {<div mol-scripts-card [projectId]="projectId()" [initialQuery]="query()" [isLight]="isLight()" [agentName]="agentName()" [embedded]="true"></div>}@if (variant === 'tests') {@if (nativeHistoryTemplate(); as history) {<ng-container [ngTemplateOutlet]="history"></ng-container>} @else if (nativeHistoryComponent(); as historyComponent) {<ng-container [ngComponentOutlet]="historyComponent"></ng-container>}<div mol-tests-card [tests]="tests.testsList()" [status]="tests.testsStatus()" [run]="tests.testsRun()" [agentName]="agentName()" [initialQuery]="query()" [canRun]="canRunTests()" [onRun]="startTestsRun" [onCancel]="cancelTestsRun" [onSkipCurrent]="skipCurrentTest" [onFix]="fixTests" [fixDisabledReason]="fixDisabledReason()" [isLight]="isLight()" [embedded]="true"></div>}</div>}`,
 })
 export class ChatPanelOverlay {
   /** The shared panel state (the props the cards and the dialog read). */
@@ -147,11 +153,12 @@ export class ChatPanelOverlay {
     this.tests.fixTests(failures)
   }
 
-  /** Composes the fixed ClassMap classes once. */
+  /** Composes the fixed ClassMap classes once, and keeps the host in the page only while open. */
   constructor() {
     this.rootClass = this.cm.cn(this.cm.surface, this.cm.borderAll)
     this.headerClass = this.cm.cn(this.cm.textSize('xs'), this.cm.textMuted)
     this.titleClass = this.cm.fontWeight('medium')
+    useHostPresence(() => this.overlayValue() !== null)
   }
 
   /**
@@ -161,6 +168,16 @@ export class ChatPanelOverlay {
    */
   protected overlayValue(): PanelOverlayVariant | null {
     return this.overlay.panelOverlay()
+  }
+
+  /**
+   * The dialog's accessible name, or null while no overlay is open.
+   *
+   * @returns The translated heading, or null.
+   */
+  protected dialogLabel(): string | null {
+    const variant = this.overlayValue()
+    return variant === null ? null : this.heading(variant)
   }
 
   /**

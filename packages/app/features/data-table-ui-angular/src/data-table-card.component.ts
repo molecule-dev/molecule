@@ -5,21 +5,18 @@
  */
 
 import { NgTemplateOutlet } from '@angular/common'
-import {
-  type AfterViewInit,
-  Component,
-  type DoCheck,
-  type ElementRef,
-  inject,
-  Renderer2,
-  type TemplateRef,
-  ViewChild,
-} from '@angular/core'
+import { Component, type ElementRef, type TemplateRef, ViewChild } from '@angular/core'
 
+import {
+  MolPlacement,
+  setElementPresent,
+  type SlotReader,
+  usePlacement,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
-import { ConditionalElement, hasContent, templateOf, textOf } from './slot-dom.js'
+import { templateOf, textOf } from './slot-dom.js'
 import type { DataTableColumn } from './types.js'
 
 /**
@@ -43,6 +40,7 @@ import type { DataTableColumn } from './types.js'
 @Component({
   selector: 'section[mol-data-table-card]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [NgTemplateOutlet],
   inputs: [
     'title',
@@ -127,7 +125,7 @@ import type { DataTableColumn } from './types.js'
       </table>
     </div>`,
 })
-export class DataTableCard<T = unknown> implements AfterViewInit, DoCheck {
+export class DataTableCard<T = unknown> {
   /** Optional title above the table chrome (text, a `TemplateRef`, or `[slot=title]` content). */
   title?: unknown
   /** Right-aligned action in the title row (a `TemplateRef` or `[slot=titleAction]` content). */
@@ -157,8 +155,9 @@ export class DataTableCard<T = unknown> implements AfterViewInit, DoCheck {
   /** The `<h3>`, detached while React renders no title. */
   @ViewChild('titleHeading') private titleHeading?: ElementRef<HTMLElement>
 
-  private readonly renderer = inject(Renderer2)
-  private readonly conditional = new ConditionalElement(this.renderer)
+  constructor() {
+    usePlacement((hasContent) => this.syncVisibility(hasContent))
+  }
 
   /**
    * The current class map.
@@ -414,43 +413,32 @@ export class DataTableCard<T = unknown> implements AfterViewInit, DoCheck {
     this.onRowClick?.(row)
   }
 
-  /** Reconciles the title row once the view (and its projected content) exists. */
-  ngAfterViewInit(): void {
-    this.syncVisibility()
-  }
-
-  /** Re-reconciles the title row after input writes. */
-  ngDoCheck(): void {
-    this.syncVisibility()
-  }
-
   /**
    * Keeps the title row and the `<h3>` in the DOM exactly while React renders
    * them: the row when a title or a title action exists, the heading when a
    * title exists.
+   *
+   * @param hasContent - Reads whether a slot has content.
    */
-  private syncVisibility(): void {
+  private syncVisibility(hasContent: SlotReader): void {
     const heading = this.titleHeading?.nativeElement
-    const titleShown = this.title !== undefined || hasContent(heading)
-    this.conditional.sync(this.headerRow?.nativeElement, titleShown || this.hasTitleAction())
-    this.conditional.sync(heading, titleShown)
+    const headingHas = hasContent(heading, 1)
+    const titleShown = this.title !== undefined || headingHas
+    setElementPresent(this.headerRow?.nativeElement, titleShown || this.hasTitleAction(hasContent))
+    setElementPresent(heading, titleShown)
   }
 
   /**
    * Whether React renders a title action: the prop, or `[slot=titleAction]`
-   * content beside the heading.
+   * content beside the heading (the heading is the row's own first child).
+   *
+   * @param hasContent - Reads whether a slot has content.
    * @returns True when an action renders.
    */
-  private hasTitleAction(): boolean {
+  private hasTitleAction(hasContent: SlotReader): boolean {
     if (this.titleAction !== undefined) return true
     const row = this.headerRow?.nativeElement
     if (!row) return false
-    const heading = this.titleHeading?.nativeElement
-    return Array.from(row.childNodes).some(
-      (node) =>
-        node !== heading &&
-        (node.nodeType === Node.ELEMENT_NODE ||
-          (node.nodeType === Node.TEXT_NODE && (node.textContent ?? '').trim() !== '')),
-    )
+    return hasContent(row, 1)
   }
 }

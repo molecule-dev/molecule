@@ -79,7 +79,7 @@ async function mount(props: Record<string, unknown>): Promise<Mounted> {
     selector: 'mol-spec-host',
     standalone: true,
     imports: [StageTimeline as Type<unknown>],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     // prettier-ignore
     template: `<div mol-stage-timeline [stages]="p['stages']" [currentIndex]="p['currentIndex']" [dataMolId]="p['dataMolId']" [className]="p['className']"></div>`,
   })(

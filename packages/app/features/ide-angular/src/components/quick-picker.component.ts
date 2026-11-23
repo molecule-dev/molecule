@@ -9,10 +9,11 @@
  * row follows the arrow keys and the pointer, and Enter selects it.
  *
  * React's component is a fragment of TWO roots (the backdrop and the panel),
- * so the host is an empty, layout-neutral element (`display: contents`) whose
- * content is adopted beside it every change-detection pass (`ngDoCheck`, the
- * kit's own session-gate convention) — the template then renders exactly
- * React's tree, and the host never appears in a `@focus` path. Inputs are
+ * so the template's nodes render in front of the host
+ * (`placeContentBefore`) and the host leaves the DOM: the template then
+ * renders exactly
+ * React's tree, with no wrapper element and nothing extra in a `@focus` path.
+ * Inputs are
  * declared the way the kit's other Angular
  * feature components declare them — one plain field per React prop, named in
  * the decorator's `inputs` array — and every derived value is a method the
@@ -29,7 +30,6 @@ import { NgTemplateOutlet } from '@angular/common'
 import {
   afterNextRender,
   Component,
-  type DoCheck,
   ElementRef,
   inject,
   type OnChanges,
@@ -39,7 +39,14 @@ import {
   ViewChild,
 } from '@angular/core'
 
-import { useThemeMode, useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  placeContentBefore,
+  setElementPresent,
+  usePlacement,
+  useThemeMode,
+  useTranslation,
+} from '@molecule/app-angular'
 import { fuzzyScore } from '@molecule/app-ide-panel-logic/panels'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
@@ -123,14 +130,11 @@ const STYLES = {
   standalone: true,
   imports: [NgTemplateOutlet],
   inputs: ['items', 'placeholder', 'onSelect', 'onDismiss', 'loading', 'initialQuery', 'className'],
-  host: {
-    'data-parity-unwrap': '',
-    style: 'display: contents',
-  },
+  hostDirectives: [MolPlacement],
   // prettier-ignore
   template: `<div role="presentation" [attr.style]="s.backdrop" (click)="dismissBackdrop($event)"></div><div role="dialog" aria-modal="true" [attr.aria-label]="t('ide.quickPicker.label', undefined, { defaultValue: 'Quick picker' })" [class]="cm.cn(className)" [attr.style]="panelStyle()"><input #input type="text" [value]="query" [attr.value]="query" (input)="onSearch($event)" (keydown)="handleKeyDown($event)" [attr.placeholder]="placeholderText()" [attr.style]="inputStyle()" /><div #list [attr.style]="listStyle()">@if (loading) {<div [attr.style]="s.stateRow">{{ t('ide.quickPicker.loading', undefined, { defaultValue: 'Loading…' }) }}</div>} @else if (filtered().length === 0) {<div [attr.style]="s.stateRow">{{ t('ide.quickPicker.noResults', undefined, { defaultValue: 'No matching results' }) }}</div>} @else {@for (item of filtered(); track item.id; let i = $index) {<button type="button" [attr.data-mol-id]="'quick-picker-item-' + item.id" (click)="pick(item)" (keydown)="handleKeyDown($event)" (mouseenter)="highlight(i)" [class]="cm.touchTargetCompact" [attr.style]="rowStyle(item, i)">@if (item.icon != null) {@if (isTemplate(item.icon)) {<ng-container [ngTemplateOutlet]="templateOf(item.icon)"></ng-container>}@else {{{ textOf(item.icon) }}}}<span [attr.style]="s.label">{{ item.label }}</span>@if (item.detail) {<span [attr.style]="s.detail">{{ item.detail }}</span>}</button>}}</div></div>`,
 })
-export class QuickPicker implements OnInit, OnChanges, DoCheck {
+export class QuickPicker implements OnInit, OnChanges {
   /** The items to display and filter. */
   items: QuickPickerItem[] = []
 
@@ -181,16 +185,15 @@ export class QuickPicker implements OnInit, OnChanges, DoCheck {
   private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
 
   /**
-   * Adopts the backdrop and the panel beside the host every change-detection
-   * pass, so the host element (a layout-neutral wrapper React does not have)
-   * never appears in a `@focus` path — the kit's own session-gate convention
-   * for fragment-rooted components.
+   * Renders the backdrop and the panel in front of the host and keeps the host
+   * out of the DOM: React's root is the fragment of those two, with no wrapper
+   * and nothing extra in a `@focus` path. Nodes a later render re-creates land
+   * inside the host first and are placed here.
    */
-  ngDoCheck(): void {
+  private place(): void {
     const host = this.host.nativeElement
-    const parent = host.parentNode
-    if (!parent) return
-    for (const node of Array.from(host.childNodes)) parent.insertBefore(node, host)
+    placeContentBefore(host, host)
+    setElementPresent(host, false)
   }
 
   /** The highlighted row (the one Enter selects, the one tinted). */
@@ -217,6 +220,7 @@ export class QuickPicker implements OnInit, OnChanges, DoCheck {
    * still checking, and a state change they make would never render.
    */
   constructor() {
+    usePlacement(() => this.place())
     afterNextRender(() => this.input?.nativeElement.focus())
   }
 

@@ -23,6 +23,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
 // `stack`), so tests can assert which cm.* class was applied without a real
 // bond — the same mock the React package's own tests use.
@@ -60,6 +62,7 @@ vi.mock('@molecule/app-ui-angular', async () => {
   const { Component } = await import('@angular/core')
   return {
     Button: Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'button[mol-button]',
       standalone: true,
       inputs: ['variant', 'color', 'size'],
@@ -71,10 +74,12 @@ vi.mock('@molecule/app-ui-angular', async () => {
 
 const { FlashcardCard } = await import('../flashcard-card.component.js')
 
-/** A mounted spec host: its DOM and a teardown. */
+/** A mounted spec host: its DOM, a props setter, and a teardown. */
 interface Mounted {
   /** The host element whose children the component template produced. */
   readonly host: HTMLElement
+  /** Merges props over the current ones and flushes change detection. */
+  setProps(next: Record<string, unknown>): Promise<void>
   /** Destroys the app and removes the host. */
   destroy(): Promise<void>
 }
@@ -97,7 +102,7 @@ async function mount(
     selector: 'mol-spec-host',
     standalone: true,
     imports: [component],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template,
   })(
     class SpecHost {
@@ -106,7 +111,7 @@ async function mount(
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
     environmentInjector: appRef.injector,
@@ -120,6 +125,11 @@ async function mount(
   appRef.tick()
   return {
     host,
+    setProps: async (next: Record<string, unknown>) => {
+      ref.instance.p = { ...ref.instance.p, ...next }
+      ref.changeDetectorRef.markForCheck()
+      appRef.tick()
+    },
     destroy: async () => {
       appRef.destroy()
       host.remove()
@@ -156,6 +166,20 @@ afterEach(async () => {
 })
 
 describe('FlashcardCard', () => {
+  it('keeps a consumer list in order when an item is inserted in the middle of progress', async () => {
+    const m = await render(
+      { xs: [1, 3] },
+      '@for (x of p[\'xs\']; track x) {<span slot="progress"><b>{{ x }}</b></span>}',
+    )
+    const texts = (): string[] =>
+      Array.from(m.host.querySelectorAll('b')).map((el) => el.textContent ?? '')
+    expect(texts()).toEqual(['1', '3'])
+    await m.setProps({ xs: [1, 2, 3] })
+    expect(texts()).toEqual(['1', '2', '3'])
+    await m.setProps({ xs: [1, 3] })
+    expect(texts()).toEqual(['1', '3'])
+  })
+
   it('shows the front and a "Show answer" button before reveal', async () => {
     const m = await render({}, '<span slot="front">Q: 2+2?</span><span slot="back">A: 4</span>')
     expect(m.host.innerHTML).toContain('Q: 2+2?')
@@ -189,5 +213,21 @@ describe('FlashcardCard', () => {
       '<span slot="front">Q</span><span slot="back">A</span>',
     )
     expect(m.host.innerHTML).toContain('fc-cls')
+  })
+
+  it('shows and removes the progress wrapper in the pass where the consumer @if adds and removes its content', async () => {
+    const m = await render(
+      { on: false },
+      `@if (p['on']) {<span slot="progress" data-progress>Step 1</span>}`,
+    )
+    const progress = (): HTMLElement | null => m.host.querySelector('[data-progress]')
+    // No progress text and no projected node: React renders no wrapper at all.
+    expect(progress()).toBeNull()
+    await m.setProps({ on: true })
+    // The wrapper and its projected content render in the same pass.
+    expect(progress()).not.toBeNull()
+    expect(progress()?.parentElement?.isConnected).toBe(true)
+    await m.setProps({ on: false })
+    expect(progress()).toBeNull()
   })
 })

@@ -26,6 +26,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 // Proxy ClassMap echoing each accessed member back as its token (e.g.
 // `cursorPointer`), so tests can assert which cm.* class was applied without a
 // real bond — the same mock the React tests use. Angular's `[class]` binding
@@ -60,6 +62,8 @@ interface Mounted {
   readonly host: HTMLElement
   /** The running application, for an explicit change-detection pass. */
   readonly appRef: ApplicationRef
+  /** Merges props over the current ones and flushes change detection. */
+  setProps(next: Record<string, unknown>): Promise<void>
   /** Destroys the app and removes the host. */
   destroy(): Promise<void>
 }
@@ -82,7 +86,7 @@ async function mount(
     selector: 'mol-spec-host',
     standalone: true,
     imports: [component],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template,
   })(
     class SpecHost {
@@ -91,7 +95,7 @@ async function mount(
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
     environmentInjector: appRef.injector,
@@ -103,6 +107,11 @@ async function mount(
   return {
     host,
     appRef,
+    setProps: async (next: Record<string, unknown>) => {
+      ref.instance.p = { ...ref.instance.p, ...next }
+      ref.changeDetectorRef.markForCheck()
+      appRef.tick()
+    },
     destroy: async () => {
       appRef.destroy()
       host.remove()
@@ -162,6 +171,22 @@ describe('ListItemRow', () => {
     const markup = m.host.innerHTML
     expect(markup).toContain('data-leading=""')
     expect(markup).toContain('data-actions=""')
+  })
+
+  it('keeps a consumer list in order when an item is inserted in the middle of actions', async () => {
+    const m = await mount(
+      `<div mol-list-item-row [title]="p['title']">@for (x of p['xs']; track x) {<b slot="actions">{{ x }}</b>}</div>`,
+      ListItemRow as Type<unknown>,
+      { title: 'T', xs: [1, 3] },
+    )
+    mounted.push(m)
+    const items = (): string[] =>
+      Array.from(m.host.querySelectorAll('b')).map((el) => el.textContent ?? '')
+    expect(items()).toEqual(['1', '3'])
+    await m.setProps({ xs: [0, 1, 2, 3] })
+    expect(items()).toEqual(['0', '1', '2', '3'])
+    await m.setProps({ xs: [0, 2, 3] })
+    expect(items()).toEqual(['0', '2', '3'])
   })
 
   it('exposes a body button and clickable cursor only when onClick is supplied', async () => {
@@ -248,6 +273,22 @@ describe('ListItemRow', () => {
   it('forwards className', async () => {
     const m = await render({ title: 'T', className: 'lir-cls' })
     expect(rowOf(m).getAttribute('class')).toContain('lir-cls')
+  })
+
+  it('shows and removes the leading wrapper in the pass where the consumer @if adds and removes its content', async () => {
+    const m = await mount(
+      `<div mol-list-item-row [title]="p['title']">@if (p['on']) {<span slot="leading" data-leading></span>}</div>`,
+      ListItemRow as Type<unknown>,
+      { title: 'T', on: false },
+    )
+    mounted.push(m)
+    const leading = (): HTMLElement | null => rowOf(m).querySelector<HTMLElement>('[data-leading]')
+    expect(leading()).toBeNull()
+    await m.setProps({ on: true })
+    expect(leading()).not.toBeNull()
+    expect(leading()?.parentElement?.getAttribute('class')).toBe('shrink0')
+    await m.setProps({ on: false })
+    expect(leading()).toBeNull()
   })
 })
 

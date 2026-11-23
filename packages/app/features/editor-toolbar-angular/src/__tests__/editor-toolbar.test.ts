@@ -24,6 +24,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 // ClassMap stub echoing each accessed member back as its token (e.g.
 // `cm-flex`), so tests can assert which cm.* class was applied without a real
 // bond — the same mock the React tests use. (Members are explicit because a
@@ -75,7 +77,7 @@ async function mount(body: string, props: Record<string, unknown> = {}): Promise
     selector: 'mol-editor-toolbar-spec-host',
     standalone: true,
     imports: [EditorToolbar],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template,
   })(
     class SpecHost {
@@ -84,7 +86,7 @@ async function mount(body: string, props: Record<string, unknown> = {}): Promise
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
     environmentInjector: appRef.injector,

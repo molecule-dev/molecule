@@ -65,6 +65,7 @@ vi.mock('@molecule/app-angular', async (importOriginal) => ({
 vi.mock('@molecule/app-ui-angular', async () => {
   const { Component } = await import('@angular/core')
   const Button = Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
     selector: 'button[mol-button]',
     standalone: true,
     inputs: ['variant', 'size', 'className', 'style', 'type'],
@@ -103,7 +104,7 @@ async function mount(template: string, props: Record<string, unknown>): Promise<
     selector: `mol-spec-host-${hostCount++}`,
     standalone: true,
     imports: [PhotoLightbox as Type<unknown>],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template,
   })(
     class SpecHost {

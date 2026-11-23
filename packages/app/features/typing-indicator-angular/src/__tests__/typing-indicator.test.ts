@@ -23,6 +23,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 // Proxy ClassMap echoing each accessed member back as its token (e.g. `flex`),
 // so tests can assert which cm.* class was applied without a real bond — the
 // same mock the React tests use.
@@ -68,7 +70,7 @@ async function mount(props: Record<string, unknown> = {}): Promise<Mounted> {
     selector: 'mol-spec-host',
     standalone: true,
     imports: [TypingIndicator as Type<unknown>],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: `<mol-typing-indicator [visible]="p['visible']" [dotSize]="p['dotSize']" [durationMs]="p['durationMs']" [ariaLabel]="p['ariaLabel']" [className]="p['className']" />`,
   })(
     class SpecHost {
@@ -77,7 +79,7 @@ async function mount(props: Record<string, unknown> = {}): Promise<Mounted> {
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
     environmentInjector: appRef.injector,
@@ -100,6 +102,50 @@ const mounted: Mounted[] = []
 afterEach(async () => {
   for (const m of mounted.splice(0)) await m.destroy()
 })
+
+/**
+ * Mounts the indicator between two fixed siblings, the way a consumer list
+ * would, and returns a setter for its visibility.
+ *
+ * @param visible - Whether the indicator starts out visible.
+ * @returns The mounted host and a setter that toggles visibility.
+ */
+async function renderInList(visible: boolean): Promise<Mounted & { set(next: boolean): void }> {
+  const Host = Component({
+    selector: 'mol-spec-list-host',
+    standalone: true,
+    imports: [TypingIndicator as Type<unknown>],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    template: `<i>a</i><mol-typing-indicator [visible]="visible" /><i>b</i>`,
+  })(
+    class SpecListHost {
+      /** Whether the indicator renders. */
+      visible = visible
+    },
+  )
+  const appRef: ApplicationRef = await createApplication({
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
+  })
+  const ref = createComponent(Host, { environmentInjector: appRef.injector })
+  const host = ref.location.nativeElement as HTMLElement
+  document.body.appendChild(host)
+  appRef.attachView(ref.hostView)
+  appRef.tick()
+  const entry = {
+    host,
+    set: (next: boolean): void => {
+      ref.instance.visible = next
+      ref.changeDetectorRef.markForCheck()
+      appRef.tick()
+    },
+    destroy: async () => {
+      appRef.destroy()
+      host.remove()
+    },
+  }
+  mounted.push(entry)
+  return entry
+}
 
 describe('TypingIndicator', () => {
   it('renders nothing when visible is false', async () => {
@@ -154,5 +200,17 @@ describe('TypingIndicator', () => {
     const m = await mount({ className: 'ti-cls' })
     mounted.push(m)
     expect(m.host.innerHTML).toContain('ti-cls')
+  })
+
+  it("renders React's elements with no host or capture element of its own", async () => {
+    const m = await renderInList(true)
+    const children = (): string[] =>
+      Array.from(m.host.children).map((child) => child.tagName.toLowerCase())
+    // React's root is the `<span>`; it renders bare between the two consumer
+    // siblings, with no `mol-typing-indicator` element of its own.
+    expect(children()).toEqual(['i', 'span', 'i'])
+    // Hidden, React renders nothing at all.
+    m.set(false)
+    expect(children()).toEqual(['i', 'i'])
   })
 })

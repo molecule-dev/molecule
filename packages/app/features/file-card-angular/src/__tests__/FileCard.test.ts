@@ -23,6 +23,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 // Proxy ClassMap echoing each accessed member back as its token (e.g. `flex`),
 // so tests can assert which cm.* class was applied without a real bond — the
 // same mock the React tests use.
@@ -103,7 +105,7 @@ async function mount(
     selector: 'mol-spec-host',
     standalone: true,
     imports: [component],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template,
   })(
     class SpecHost {
@@ -112,7 +114,7 @@ async function mount(
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
     environmentInjector: appRef.injector,
@@ -336,6 +338,20 @@ describe('<FileCard>', () => {
     expect(m.host.querySelector('[data-mol-id="file-card-meta"]')).not.toBeNull()
     expect(m.host.querySelector('[data-mol-id="file-card-actions"]')).not.toBeNull()
     expect(m.host.querySelector('[data-mol-id="row-action"]')).not.toBeNull()
+  })
+
+  it('renders the actions wrapper for actions a consumer projects after the first render, and drops it again', async () => {
+    const m = await render(
+      { file: baseFile },
+      `@if (p['withActions']) {<button type="button" data-mol-id="late-kebab" slot="actions">...</button>}`,
+    )
+    expect(m.host.querySelector('[data-mol-id="file-card-actions"]')).toBeNull()
+    await m.setProps({ withActions: true })
+    const actions = m.host.querySelector('[data-mol-id="file-card-actions"]')
+    expect(actions).not.toBeNull()
+    expect(actions!.querySelector('[data-mol-id="late-kebab"]')).not.toBeNull()
+    await m.setProps({ withActions: false })
+    expect(m.host.querySelector('[data-mol-id="file-card-actions"]')).toBeNull()
   })
 
   it('respects a custom dataMolId override', async () => {

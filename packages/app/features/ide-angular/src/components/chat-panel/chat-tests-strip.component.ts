@@ -11,18 +11,25 @@
  * commit button and whose detail lists each changed file with its line counts
  * and its per-file revert control.
  *
- * The whole card is conditional (`workVisible`), so the host is a transparent,
- * always-unwrapped shell (`data-parity-unwrap`, `display: contents`) that the
- * conformance normalizer drops; while React renders nothing the port adds no
- * node either way. The tray is the real root, rendered inside.
+ * The whole card is conditional (`workVisible`), so the host holds only its
+ * children: they render in its place and the host leaves the page
+ * (`placeContentBefore` + `setElementPresent`, React's fragment DOM exactly) —
+ * while React renders nothing the port adds no node either way. The tray is the
+ * real root, rendered as the first of them.
  *
  * @module
  */
 
 import { NgComponentOutlet, NgTemplateOutlet } from '@angular/common'
-import { Component, inject, TemplateRef, type Type } from '@angular/core'
+import { Component, ElementRef, inject, TemplateRef, type Type } from '@angular/core'
 
 import type { BackgroundTaskState } from '@molecule/app-ai-chat'
+import {
+  MolPlacement,
+  placeContentBefore,
+  setElementPresent,
+  usePlacement,
+} from '@molecule/app-angular'
 import type { AutoCommitState, TestItem } from '@molecule/app-ide-panel-logic'
 import type { TestsRunState } from '@molecule/app-ide-panel-logic'
 import { isAutoCommitEnabled } from '@molecule/app-ide-panel-logic'
@@ -78,8 +85,7 @@ const s = {
     TestStatusBar,
     WorkCard,
   ],
-  // prettier-ignore
-  host: { 'data-parity-unwrap': '', style: 'display: contents' },
+  hostDirectives: [MolPlacement],
   // prettier-ignore
   template: `@if (workVisible()) {
   <div mol-work-card>
@@ -143,6 +149,17 @@ export class ChatTestsStrip {
 
   /** The chat slice: the executor's detached background commands. */
   private readonly chat = inject(ChatChat)
+
+  /** The component's host element (React's fragment: it renders nothing). */
+  private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
+
+  /** Renders the host's content in the host's place and takes the host out of the page. */
+  constructor() {
+    usePlacement(() => {
+      placeContentBefore(this.host.nativeElement, this.host.nativeElement)
+      setElementPresent(this.host.nativeElement, false)
+    })
+  }
 
   /** The bonded ClassMap (styling tokens resolve at render time). */
   protected readonly cm: UIClassMap = getClassMap()

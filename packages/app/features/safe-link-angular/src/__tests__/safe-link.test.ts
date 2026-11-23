@@ -54,7 +54,7 @@ async function renderAt(
     selector: 'mol-spec-host',
     standalone: true,
     imports: [SafeLink],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: `<a mol-safe-link [to]="p['to']" [replace]="p['replace']" [state]="p['state']" [className]="p['className']">${children ?? 'link'}</a>`,
   })(
     class SpecHost {

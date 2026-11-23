@@ -85,7 +85,7 @@ describe('NpsDistribution locale switch', () => {
       selector: 'mol-locale-host',
       standalone: true,
       imports: [NpsDistribution],
-      changeDetection: ChangeDetectionStrategy.Default,
+      changeDetection: ChangeDetectionStrategy.Eager,
       template: `<div mol-nps-distribution [scores]="scores"></div>`,
     })(
       class LocaleHost {

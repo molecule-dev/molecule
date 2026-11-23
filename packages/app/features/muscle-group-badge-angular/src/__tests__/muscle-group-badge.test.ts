@@ -74,7 +74,7 @@ async function render(props: Record<string, unknown> = {}): Promise<Mounted> {
     selector: `mol-spec-host-${mountCount}`,
     standalone: true,
     imports: [MuscleGroupBadge as Type<unknown>],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: `<span mol-muscle-group-badge [group]="p['group']" [label]="p['label']" [variant]="p['variant']" [size]="p['size']" [accentColor]="p['accentColor']" [dataMolId]="p['dataMolId']" [className]="p['className']"></span>`,
   })(
     class SpecHost {

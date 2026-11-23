@@ -12,11 +12,10 @@
  * wherever the focus is.
  *
  * React's component is a fragment of TWO roots (the backdrop and the panel),
- * so the host is an empty, layout-neutral element (`display: contents`)
- * carrying the unwrapping marker (`data-parity-unwrap`); like the kit's
- * session gate, the host adopts its children beside itself, so it never
- * appears in a `@focus` path (React renders no element between the mount
- * wrapper and the two roots). Inputs are declared one plain field per React
+ * so the template's nodes render in front of the host (`placeContentBefore`)
+ * and the host leaves the DOM: no host element appears in a `@focus` path
+ * (React renders no element between the mount wrapper and the two roots).
+ * Inputs are declared one plain field per React
  * prop in the decorator's `inputs` array, and every derived value is a method
  * the template reads, so each change-detection pass renders the current state
  * the way React's render does. Styling uses `getClassMap()` (`cm.*`) and the
@@ -33,7 +32,6 @@ import {
   afterNextRender,
   ChangeDetectorRef,
   Component,
-  type DoCheck,
   ElementRef,
   inject,
   type OnDestroy,
@@ -42,7 +40,14 @@ import {
   ViewChild,
 } from '@angular/core'
 
-import { useThemeMode, useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  placeContentBefore,
+  setElementPresent,
+  usePlacement,
+  useThemeMode,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { ShortcutEntry } from '@molecule/app-ide-panel-logic'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
@@ -94,14 +99,11 @@ const STYLES = {
   selector: 'div[mol-keyboard-shortcuts-panel]',
   standalone: true,
   inputs: ['shortcuts', 'onDismiss'],
-  host: {
-    'data-parity-unwrap': '',
-    style: 'display: contents',
-  },
+  hostDirectives: [MolPlacement],
   // prettier-ignore
   template: `<div role="presentation" [attr.style]="s.backdrop" (click)="dismissBackdrop($event)"></div><div #panel [attr.tabindex]="-1" [attr.style]="panelStyle()"><div [attr.style]="s.header"><span [attr.style]="s.title">{{ t('ide.shortcuts.title', undefined, { defaultValue: 'Keyboard Shortcuts' }) }}</span><button type="button" data-mol-id="shortcuts-close" (click)="dismissBackdrop($event)" [attr.aria-label]="t('ide.shortcuts.close', undefined, { defaultValue: 'Close' })" [attr.title]="t('ide.shortcuts.close', undefined, { defaultValue: 'Close' })" [class]="cm.cn(cm.touchTarget, cm.shrink0)" [attr.style]="s.close" (mouseenter)="hoverClose($event, true)" (mouseleave)="hoverClose($event, false)"><svg width="11" height="11" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 3l10 10M13 3L3 13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"></path></svg></button></div><div #list [attr.style]="s.list">@for (group of groups(); track group.category) {<div>@if (group.category) {<div [attr.style]="s.category">{{ group.category }}</div>}@for (entry of group.entries; track entry.label; let j = $index) {<button type="button" [attr.data-shortcut-row]="'true'" [attr.data-mol-id]="'shortcut-row-' + (group.start + j)" (click)="pick(entry)" (mouseenter)="highlight(group.start + j)" [class]="cm.touchTargetCompact" style="display: flex; align-items: center; justify-content: space-between; padding: 6px 16px; font-size: 13px; width: 100%; border: medium; color: var(--mol-color-text, currentColor); text-align: left; border-radius: 0px" [style.cursor]="entry.execute ? 'pointer' : 'default'" [style.background]="rowBackground(group.start + j)"><span>{{ entry.label }}</span><span [attr.style]="s.keys">@for (part of entry.keys.split(' '); track $index) {<kbd [attr.style]="badgeStyle()">{{ part }}</kbd>}</span></button>}</div>}</div><div [attr.style]="s.footer">{{ t('ide.shortcuts.hint', undefined, { defaultValue: 'Arrow keys to navigate · Enter to run · Esc to close' }) }}</div></div>`,
 })
-export class KeyboardShortcutsPanel implements OnInit, OnDestroy, DoCheck {
+export class KeyboardShortcutsPanel implements OnInit, OnDestroy {
   /** List of shortcuts to display. */
   shortcuts: ShortcutEntry[] = []
 
@@ -174,16 +176,15 @@ export class KeyboardShortcutsPanel implements OnInit, OnDestroy, DoCheck {
   @ViewChild('list') protected list?: ElementRef<HTMLDivElement>
 
   /**
-   * Adopts the backdrop and the panel beside the host each change-detection
-   * pass, so the layout-neutral host never appears in a `@focus` path (React
+   * Renders the backdrop and the panel in front of the host and keeps the host
+   * out of the DOM, so no host element appears in a `@focus` path (React
    * renders no element between the mount wrapper and the two roots). Nodes a
-   * later pass re-creates land inside the host first and are adopted here.
+   * later render re-creates land inside the host first and are placed here.
    */
-  ngDoCheck(): void {
+  private place(): void {
     const host = this.hostRef.nativeElement
-    const parent = host.parentNode
-    if (!parent) return
-    for (const node of Array.from(host.childNodes)) parent.insertBefore(node, host)
+    placeContentBefore(host, host)
+    setElementPresent(host, false)
   }
 
   /**
@@ -201,6 +202,7 @@ export class KeyboardShortcutsPanel implements OnInit, OnDestroy, DoCheck {
    * still checking, and a state change they make would never render.
    */
   constructor() {
+    usePlacement(() => this.place())
     afterNextRender(() => this.panel?.nativeElement.focus())
   }
 

@@ -28,6 +28,7 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
 import { addTranslations, createSimpleI18nProvider, setProvider, t } from '@molecule/app-i18n'
 import { setIconSet } from '@molecule/app-icons'
 import { ENTRY_TIP } from '@molecule/app-ide-panel-logic/panels'
@@ -56,7 +57,7 @@ const TipCardHost = Component({
   selector: 'mol-tip-card-host',
   standalone: true,
   imports: [TipCard],
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `<div mol-tip-card [text]="p['text']" [onDismiss]="p['onDismiss']" [accent]="p['accent']" [icon]="p['icon']"></div>`,
 })(
   class TipCardHost {
@@ -120,7 +121,7 @@ async function renderTipCard(props: Record<string, unknown> = {}): Promise<HTMLE
   const container = document.createElement('div')
   document.body.appendChild(container)
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<InstanceType<typeof TipCardHost>> = createComponent(TipCardHost, {
     environmentInjector: appRef.injector,

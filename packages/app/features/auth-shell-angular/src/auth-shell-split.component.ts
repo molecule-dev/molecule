@@ -7,8 +7,14 @@
  */
 
 import { NgTemplateOutlet } from '@angular/common'
-import { Component } from '@angular/core'
+import { Component, ElementRef, inject, ViewChild } from '@angular/core'
 
+import {
+  MolPlacement,
+  placeElementBefore,
+  setElementPresent,
+  usePlacement,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -112,21 +118,25 @@ export class AuthShellPanel {
 /**
  * A centered `<section>` (or `<main>`, via `as`) that holds the form card.
  *
- * The host is `display: contents` and stripped by the conformance normalizer,
- * so the rendered `<section>`/`<main>` is the root React renders. In an Angular
- * template, you can also choose the tag directly (`<main molAuthShellCardColumn>`).
+ * React's root is that element and nothing else, so it renders in front of the
+ * host's place and the host itself leaves the page (`placeElementBefore` +
+ * `setElementPresent`): the rendered `<section>`/`<main>` is exactly React's
+ * root. In an Angular template, you can also choose the tag directly
+ * (`<main molAuthShellCardColumn>`).
  */
 @Component({
   selector: 'mol-auth-shell-card-column',
   standalone: true,
   imports: [NgTemplateOutlet],
+  hostDirectives: [MolPlacement],
   inputs: ['className', 'as'],
-  host: { style: 'display: contents', 'data-parity-unwrap': '' },
   template: `<ng-template #inner><ng-content></ng-content></ng-template>
     @if (isMain()) {
-      <main [class]="classes()"><ng-container [ngTemplateOutlet]="inner"></ng-container></main>
+      <main #mainRoot [class]="classes()">
+        <ng-container [ngTemplateOutlet]="inner"></ng-container>
+      </main>
     } @else {
-      <section [class]="classes()">
+      <section #sectionRoot [class]="classes()">
         <ng-container [ngTemplateOutlet]="inner"></ng-container>
       </section>
     }`,
@@ -136,6 +146,23 @@ export class AuthShellCardColumn {
   className?: string
   /** Element to render. Defaults to `'section'`. */
   as?: 'section' | 'main'
+
+  /** React's `<main>` root, when `as` is `'main'`. */
+  @ViewChild('mainRoot') private mainRoot?: ElementRef<HTMLElement>
+  /** React's `<section>` root otherwise. */
+  @ViewChild('sectionRoot') private sectionRoot?: ElementRef<HTMLElement>
+
+  private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
+
+  constructor() {
+    // React's root is the `<section>`/`<main>` itself: it renders in front of the host's
+    // place and the host leaves the page.
+    usePlacement(() => {
+      const root = this.mainRoot?.nativeElement ?? this.sectionRoot?.nativeElement
+      if (root) placeElementBefore(root, this.host.nativeElement)
+      setElementPresent(this.host.nativeElement, false)
+    })
+  }
 
   /**
    * Whether the column renders as `<main>` (React's `as === 'main'`; `as` is a

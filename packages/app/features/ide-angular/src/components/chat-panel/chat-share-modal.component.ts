@@ -2,22 +2,28 @@
  * React's render section “── Share-link modal” (ChatPanel.tsx lines 8830–8862):
  * the `/share` modal slot, rendered after the report slot at the chat root.
  *
- * A fragment in React — nothing while closed, one `ShareModal` while open —
- * so the host element is a `display: contents` wrapper marked
- * `data-parity-unwrap`; the conformance normalizer drops it and the modal
- * lands where React puts it. The open seed (`{ role }`) and the capability
- * flags come from the shared env, the host's own sections are projected into
- * the dialog, the slot closes through the `chat:render-handlers` slice's
- * `closeShareModal`, and a created link publishes React's confirmation card
- * through the `chat:system-cards` slice's `addSystemCard` (role label + public
- * URL) so it outlives the dialog.
+ * A fragment in React — nothing while closed, one `ShareModal` while open — so
+ * the host holds only its children: they render in its place and the host
+ * leaves the page (`placeContentBefore` + `setElementPresent`, React's fragment
+ * DOM exactly). The open seed (`{ role }`) and the capability flags come from
+ * the shared env, the host's own sections are projected into the dialog, the
+ * slot closes through the `chat:render-handlers` slice's `closeShareModal`, and
+ * a created link publishes React's confirmation card through the
+ * `chat:system-cards` slice's `addSystemCard` (role label + public URL) so it
+ * outlives the dialog.
  *
  * @module
  */
 
 import { NgTemplateOutlet } from '@angular/common'
-import { Component, inject, type TemplateRef } from '@angular/core'
+import { Component, ElementRef, inject, type TemplateRef } from '@angular/core'
 
+import {
+  MolPlacement,
+  placeContentBefore,
+  setElementPresent,
+  usePlacement,
+} from '@molecule/app-angular'
 import type { ShareLinkResult } from '@molecule/app-ide-panel-logic'
 import { buildShareUrl } from '@molecule/app-ide-panel-logic'
 import type { AddSystemCardOptions } from '@molecule/app-ide-panel-logic/panels'
@@ -36,8 +42,7 @@ import { ChatSystemCards } from './chat-system-cards.slice.js'
   selector: 'div[mol-chat-share-modal]',
   standalone: true,
   imports: [ShareModal, NgTemplateOutlet],
-  // prettier-ignore
-  host: { 'data-parity-unwrap': '', style: 'display: contents' },
+  hostDirectives: [MolPlacement],
   // prettier-ignore
   template: `@if (popups.shareModal(); as seed) {<div mol-share-modal [projectId]="projectId()" [initialRole]="seed.role" [canManage]="shareAllowed()" [showLinks]="linksShown()" [refreshSignal]="refreshSignal()" [onClose]="handlers.closeShareModal" [onCreated]="created"><ng-container [ngTemplateOutlet]="content()"></ng-container></div>}`,
 })
@@ -53,6 +58,17 @@ export class ChatShareModal {
 
   /** The `chat:system-cards` slice: React's `addSystemCard` for a created link. */
   private readonly systemCards = inject(ChatSystemCards)
+
+  /** The component's host element (React's fragment: it renders nothing). */
+  private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
+
+  /** Renders the host's content in the host's place and takes the host out of the page. */
+  constructor() {
+    usePlacement(() => {
+      placeContentBefore(this.host.nativeElement, this.host.nativeElement)
+      setElementPresent(this.host.nativeElement, false)
+    })
+  }
 
   /**
    * The project whose public link the dialog manages.

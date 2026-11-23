@@ -24,6 +24,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 // Proxy ClassMap echoing each accessed member back as its token (e.g. `stack`),
 // the same mock the React suite uses.
 vi.mock('@molecule/app-ui', () => ({
@@ -59,6 +61,7 @@ vi.mock('@molecule/app-ui-angular', async () => {
   const { Component, inject, ElementRef } = await import('@angular/core')
   return {
     Button: Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'button[mol-button]',
       standalone: true,
       inputs: ['type', 'variant', 'color', 'disabled'],
@@ -81,6 +84,7 @@ vi.mock('@molecule/app-ui-angular', async () => {
       },
     ),
     Input: Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'div[mol-input]',
       standalone: true,
       inputs: ['type', 'value', 'placeholder', 'required', 'className'],
@@ -147,7 +151,7 @@ async function mount(
     selector: 'mol-spec-host',
     standalone: true,
     imports: [component],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: templateUrl,
   })(
     class SpecHost {
@@ -156,7 +160,7 @@ async function mount(
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
     environmentInjector: appRef.injector,

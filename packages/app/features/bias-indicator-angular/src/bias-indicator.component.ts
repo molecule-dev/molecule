@@ -4,16 +4,17 @@
  * @module
  */
 
-import {
-  type AfterViewInit,
-  Component,
-  type DoCheck,
-  ElementRef,
-  inject,
-  ViewChild,
-} from '@angular/core'
+import { Component, ElementRef, inject, ViewChild } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  placeContent,
+  placeElementBefore,
+  setElementPresent,
+  type SlotReader,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -158,28 +159,14 @@ const SCALE_GRADIENT =
   'linear-gradient(to right, var(--color-info, #2563eb) 0%, var(--color-info-light, #60a5fa) 25%, var(--color-foreground-secondary, #9ca3af) 50%, var(--color-warning-light, #fbbf24) 75%, var(--color-error, #dc2626) 100%)'
 
 /**
- * Whether an element captured any element or non-blank text node.
- *
- * @param el - The element.
- * @returns True when at least one projected node exists.
- */
-const hasNodes = (el: Element): boolean => {
-  for (const node of Array.from(el.childNodes)) {
-    if (node.nodeType === 1) return true
-    if (node.nodeType === 3 && (node.textContent ?? '').trim()) return true
-  }
-  return false
-}
-
-/**
  * BiasIndicator component.
  *
  * Political-bias / source-credibility indicator: a horizontal `-1..+1` scale
  * with a coloured marker at `bias`, an optional reliability dot/chip below,
- * and a compact single-dot variant for dense lists. The host is a wrapper the
- * DOM normalizer unwraps (`data-parity-unwrap`) because React's root element
- * flips between `<div>` and the compact `<span>`; the rendered root is the
- * only child of the host, exactly React's root.
+ * and a compact single-dot variant for dense lists. React's root element flips
+ * between a `<div>` and the compact `<span>`; the branch React renders stands
+ * in front of the host's place and the host itself leaves the page
+ * (`placeElementBefore` + `setElementPresent`).
  *
  * React's `sourceLabel` node prop is projected content in Angular: pass it as
  * `[slot=sourceLabel]` content, and the caption element exists only when
@@ -189,13 +176,13 @@ const hasNodes = (el: Element): boolean => {
 @Component({
   selector: 'mol-bias-indicator',
   standalone: true,
+  hostDirectives: [MolPlacement],
   inputs: ['bias', 'reliability', 'compact', 'className', 'dataMolId'],
-  host: { 'data-parity-unwrap': '', style: 'display: contents' },
   // prettier-ignore
   template: `<div #fullRoot [attr.data-mol-id]="containerId()" [attr.data-bias-bucket]="bucket()" [attr.data-reliability-tier]="tier()" [class]="rootClasses()"><span #fullSource data-mol-id="bias-indicator-source" [class]="sourceClasses()"><ng-content select="[slot=sourceLabel]"></ng-content></span><div role="img" [attr.aria-label]="biasLabel()" data-mol-id="bias-indicator-scale" [class]="scaleClasses()" [style]="scaleStyle()"><span data-mol-id="bias-indicator-marker" aria-hidden="true" [class]="markerClasses()" [style]="markerStyle()"></span></div><div [class]="rowClasses()"><span data-mol-id="bias-indicator-bias-label" [class]="biasLabelClasses()">{{ biasLabel() }}</span>@if (tier()) {<span data-mol-id="bias-indicator-reliability" [attr.data-reliability-tier]="tier()" [class]="chipClasses()"><span aria-hidden="true" [class]="dotClasses()" [style]="tierDotStyle()"></span><span>{{ tierLabel() }}</span></span>}</div></div>
     <span #compactRoot role="img" [attr.aria-label]="compactAriaLabel()" [attr.data-mol-id]="containerId()" [attr.data-bias-bucket]="bucket()" [attr.data-reliability-tier]="tier()" [class]="compactClasses()"><span aria-hidden="true" [class]="dotClasses()" [style]="dotStyle()"></span><span #compactSource [class]="compactSourceClasses()"><ng-content select="[slot=sourceLabel]"></ng-content></span></span>`,
 })
-export class BiasIndicator implements AfterViewInit, DoCheck {
+export class BiasIndicator {
   /** Bias scalar (-1 far left … +1 far right). */
   bias!: number
   /** Optional 0..1 reliability score. */
@@ -216,11 +203,21 @@ export class BiasIndicator implements AfterViewInit, DoCheck {
   /** The compact source caption. */
   @ViewChild('compactSource') private compactSource?: ElementRef<HTMLElement>
 
-  /** The host element (the unwrapped wrapper holding React's root). */
-  private readonly host: HTMLElement = inject(ElementRef<HTMLElement>).nativeElement
-
   /** The i18n handle (locale-reactive), read in an injection context. */
   private readonly i18n = useTranslation()
+
+  /** The component's host element (React renders no element of its own). */
+  private readonly host = inject(ElementRef<HTMLElement>)
+
+  /**
+   * The capture point Angular projected the consumer's caption into (decided
+   * once, at the first run that sees the projection).
+   */
+  private projectedSource: HTMLElement | null | undefined
+
+  constructor() {
+    usePlacement((hasContent) => this.reconcile(hasContent))
+  }
 
   /**
    * The current class map.
@@ -405,55 +402,43 @@ export class BiasIndicator implements AfterViewInit, DoCheck {
   }
 
   /**
-   * Renders React's single root: attaches the branch the props select and
-   * detaches the other, then drops a caption element nothing was projected
-   * into (React renders it only when `sourceLabel !== undefined`).
+   * Applies React's single root: attaches the branch the props select and
+   * detaches the other, and drops a caption element nothing was projected into
+   * (React renders it only when `sourceLabel !== undefined`).
+   *
+   * @param hasContent - Reads whether a slot has content.
    */
-  ngAfterViewInit(): void {
-    // The first `ngDoCheck` runs BEFORE Angular projects the slot content into
-    // the caption spans, so reconciling then would drop spans that are about to
-    // receive nodes. Only the passes that follow see the projection.
-    this.viewReady = true
-    this.reconcile()
-  }
-
-  /**
-   * Re-reconciles on later passes (a props step may toggle `compact` or the
-   * reliability score); the projected caption never changes.
-   */
-  ngDoCheck(): void {
-    if (this.viewReady) this.reconcile()
-  }
-
-  /** Whether the view (and its projected slot content) exists yet. */
-  private viewReady = false
-
-  /** Applies React's root/caption conditions to the two mounted branches. */
-  private reconcile(): void {
+  private reconcile(hasContent: SlotReader): void {
     const full = this.fullRoot?.nativeElement
     const compact = this.compactRoot?.nativeElement
     if (!full || !compact) return
-    const active = this.compact === true ? compact : full
-    const inactive = active === compact ? full : compact
-    const fullSource = this.fullSource?.nativeElement
-    const compactSource = this.compactSource?.nativeElement
-    const activeSource = active === compact ? compactSource : fullSource
-    // The caption's projected nodes sit in whichever capture span holds them;
-    // move them into the branch that renders, before deciding to keep it.
-    const donor = [fullSource, compactSource].find((el) => el !== undefined && hasNodes(el))
-    if (donor && activeSource && donor !== activeSource) {
-      for (const node of Array.from(donor.childNodes)) activeSource.appendChild(node)
+    const fullSource = this.fullSource?.nativeElement ?? null
+    const compactSource = this.compactSource?.nativeElement ?? null
+    // Angular projected the caption into one of the two capture points; find
+    // it before any move, while its nodes are still its own children. Until
+    // something is projected the search runs again, so content a consumer adds
+    // later is found where Angular projected it.
+    if (this.projectedSource === undefined || this.projectedSource === null) {
+      this.projectedSource =
+        [fullSource, compactSource].find((el) => el !== null && hasContent(el)) ?? null
     }
-    for (const el of [fullSource, compactSource]) {
-      if (!el) continue
-      if (!hasNodes(el)) {
-        if (el.isConnected) el.remove()
-        continue
-      }
-      if (el === fullSource && el.parentElement !== full) full.insertBefore(el, full.firstChild)
-      if (el === compactSource && el.parentElement !== compact) compact.appendChild(el)
+    const compactShown = this.compact === true
+    const active = compactShown ? compact : full
+    const inactive = compactShown ? full : compact
+    const activeSource = compactShown ? compactSource : fullSource
+    // Render the caption's content in the branch React renders it in.
+    if (this.projectedSource && activeSource) {
+      placeContent(this.projectedSource, activeSource)
     }
-    if (!active.isConnected) this.host.appendChild(active)
-    if (inactive.isConnected) inactive.remove()
+    // The caption element renders only when something was projected.
+    const shown = hasContent(activeSource)
+    setElementPresent(fullSource, !compactShown && shown)
+    setElementPresent(compactSource, compactShown && shown)
+    setElementPresent(active, true)
+    // React's root is the active branch element itself: it renders in front of the host's
+    // place and the host leaves the page.
+    placeElementBefore(active, this.host.nativeElement)
+    setElementPresent(inactive, false)
+    setElementPresent(this.host.nativeElement, false)
   }
 }

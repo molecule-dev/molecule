@@ -22,6 +22,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 // A Proxy ClassMap that echoes each accessed member name back as its token, so
 // tests can assert *which* cm.* member a class came from (e.g. `textError`,
 // `borderAll`) without depending on the Tailwind bond's concrete strings — the
@@ -53,6 +55,7 @@ vi.mock('@molecule/app-ui-angular', async () => {
   const { Component } = await import('@angular/core')
   return {
     Button: Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'button[mol-button]',
       standalone: true,
       inputs: ['variant', 'size', 'color', 'loading', 'className', 'disabled', 'type'],
@@ -111,7 +114,7 @@ async function mount(
     selector: 'mol-spec-host',
     standalone: true,
     imports: [component],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template,
   })(
     class SpecHost {
@@ -120,7 +123,7 @@ async function mount(
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
     environmentInjector: appRef.injector,
@@ -225,6 +228,20 @@ describe('ActionMenu (trigger surface)', () => {
     expect(m.host.textContent).not.toContain('⋮')
   })
 
+  it('keeps a consumer list in order when an item is inserted in the middle of trigger', async () => {
+    const m = await render(
+      { items, xs: [1, 3] },
+      `@for (x of p['xs']; track x) {<b slot="trigger">{{ x }}</b>}`,
+    )
+    const texts = (): string[] =>
+      Array.from(m.host.querySelectorAll('b')).map((el) => el.textContent ?? '')
+    expect(texts()).toEqual(['1', '3'])
+    await m.setProps({ xs: [0, 1, 2, 3] })
+    expect(texts()).toEqual(['0', '1', '2', '3'])
+    await m.setProps({ xs: [0, 2, 3] })
+    expect(texts()).toEqual(['0', '2', '3'])
+  })
+
   it('does not render the popover list before it is opened', async () => {
     const m = await render({ items })
     expect(m.host.querySelector('[role="menu"]')).toBeNull()
@@ -300,5 +317,20 @@ describe('ActionMenu (opened popover)', () => {
     const style = divider?.getAttribute('style') ?? ''
     expect(style).not.toContain('rgba')
     expect(style).not.toContain('background')
+  })
+
+  it('shows and removes the trigger wrapper in the pass where the consumer @if adds and removes its content', async () => {
+    const m = await render({}, `@if (p['on']) {<b slot="trigger" data-trigger>Open</b>}`)
+    const button = (): HTMLElement =>
+      m.host.querySelector<HTMLElement>('[data-mol-id="action-menu-trigger"]')!
+    // React: `{trigger ?? '⋮'}` — the default glyph only while no trigger exists.
+    expect(m.host.querySelector('[data-trigger]')).toBeNull()
+    expect(button().textContent).toContain('⋮')
+    await m.setProps({ on: true })
+    expect(button().querySelector('[data-trigger]')).not.toBeNull()
+    expect(button().textContent).not.toContain('⋮')
+    await m.setProps({ on: false })
+    expect(m.host.querySelector('[data-trigger]')).toBeNull()
+    expect(button().textContent).toContain('⋮')
   })
 })

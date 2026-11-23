@@ -91,7 +91,7 @@ async function mount(
     selector: 'mol-spec-host',
     standalone: true,
     imports: [component],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template,
   })(
     class SpecHost {
@@ -223,6 +223,23 @@ describe('CollapsibleSection', () => {
     await m.setProps({ xs: ['a', 'c'] })
     expect(body()).toEqual(['a', 'c'])
   })
+
+  it('shows and removes the actions wrapper in the pass where the consumer @if adds and removes its content', async () => {
+    const m = await mount(
+      `<section mol-collapsible-section [title]="'T'">@if (p['on']) {<span slot="actions" data-actions></span>}</section>`,
+      CollapsibleSection as Type<unknown>,
+      { on: false },
+    )
+    mounted.push(m)
+    const actions = (): HTMLElement | null => m.host.querySelector('[data-actions]')
+    // No projected actions: React renders no actions `<span>` at all.
+    expect(actions()).toBeNull()
+    await m.setProps({ on: true })
+    expect(actions()).not.toBeNull()
+    expect(actions()?.parentElement?.isConnected).toBe(true)
+    await m.setProps({ on: false })
+    expect(actions()).toBeNull()
+  })
 })
 
 describe('ShowMore', () => {
@@ -257,10 +274,58 @@ describe('ShowMore', () => {
     mounted.push(m)
     const shown = (): (string | null)[] =>
       Array.from(m.host.querySelectorAll('b')).map((el) => el.textContent)
+    const label = (): string | undefined => m.host.querySelector('button')?.textContent?.trim()
     expect(shown()).toEqual(['a'])
+    expect(label()).toBe('Show 1 more')
+    // React's children.slice(0, 1): the inserted item is counted, and only the first one shows.
     await m.setProps({ xs: ['a', 'b', 'c'] })
-    expect(shown()).toEqual(['a', 'b'])
+    expect(shown()).toEqual(['a'])
+    expect(label()).toBe('Show 2 more')
     await m.setProps({ xs: ['b', 'c'] })
     expect(shown()).toEqual(['b'])
+    expect(label()).toBe('Show 1 more')
+  })
+
+  it('counts and orders the items a consumer adds, removes and reorders after the first render', async () => {
+    const m = await mount(
+      `<div mol-show-more [initialCount]="2">@for (x of p['xs']; track x) {<b>{{ x }}</b>}</div>`,
+      ShowMore as Type<unknown>,
+      { xs: ['a', 'c'] },
+    )
+    mounted.push(m)
+    const shown = (): (string | null)[] =>
+      Array.from(m.host.querySelectorAll('b')).map((el) => el.textContent)
+    const button = (): HTMLButtonElement | null => m.host.querySelector('button')
+    expect(shown()).toEqual(['a', 'c'])
+    expect(button()).toBeNull()
+    await m.setProps({ xs: ['a', 'b', 'c', 'd'] })
+    expect(shown()).toEqual(['a', 'b'])
+    expect(button()?.textContent?.trim()).toBe('Show 2 more')
+    await m.setProps({ xs: ['d', 'c', 'b', 'a'] })
+    expect(shown()).toEqual(['d', 'c'])
+    button()!.click()
+    await m.setProps({})
+    expect(shown()).toEqual(['d', 'c', 'b', 'a'])
+    expect(button()?.textContent?.trim()).toBe('Show less')
+    await m.setProps({ xs: ['c'] })
+    expect(shown()).toEqual(['c'])
+    expect(button()).toBeNull()
+  })
+
+  it('shows and removes the item wrapper in the pass where the consumer @if adds and removes its content', async () => {
+    const m = await mount(
+      `<div mol-show-more [initialCount]="3">@if (p['on']) {<b data-item>one</b>}</div>`,
+      ShowMore as Type<unknown>,
+      { on: false },
+    )
+    mounted.push(m)
+    const item = (): HTMLElement | null => m.host.querySelector('[data-item]')
+    expect(item()).toBeNull()
+    await m.setProps({ on: true })
+    // Within the initial count: the item renders in the same pass.
+    expect(item()).not.toBeNull()
+    expect(item()?.isConnected).toBe(true)
+    await m.setProps({ on: false })
+    expect(item()).toBeNull()
   })
 })

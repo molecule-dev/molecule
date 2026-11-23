@@ -37,9 +37,10 @@ vi.mock('@molecule/app-ui', () => ({
     ),
 }))
 
+import { provideDomPlacement } from '@molecule/app-angular'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 
-import { ChatbotTester, ChatbotTesterInput } from '../index.js'
+import { ChatbotTester, ChatbotTesterInput, ChatbotTesterMessages } from '../index.js'
 
 /** The marker translations the bonded provider carries for the three keys. */
 const MARKERS = {
@@ -48,10 +49,12 @@ const MARKERS = {
   'chatbotTester.label.testBot': 'Bot auswählen',
 } as const
 
-/** A mounted spec host: its DOM, and a teardown. */
+/** A mounted spec host: its DOM, a props setter, and a teardown. */
 interface Mounted {
   /** The host element whose children the component template produced. */
   readonly host: HTMLElement
+  /** Merges props over the current ones and flushes change detection. */
+  setProps(next: Record<string, unknown>): Promise<void>
   /** Destroys the app and removes the host. */
   destroy(): Promise<void>
 }
@@ -68,8 +71,8 @@ async function mount(template: string, props: Record<string, unknown> = {}): Pro
   const SpecHost = Component({
     selector: 'mol-spec-host',
     standalone: true,
-    imports: [ChatbotTester, ChatbotTesterInput],
-    changeDetection: ChangeDetectionStrategy.Default,
+    imports: [ChatbotTester, ChatbotTesterInput, ChatbotTesterMessages],
+    changeDetection: ChangeDetectionStrategy.Eager,
     template,
   })(
     class DefaultHost {
@@ -77,9 +80,9 @@ async function mount(template: string, props: Record<string, unknown> = {}): Pro
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
-  const ref: ComponentRef<unknown> = createComponent(SpecHost, {
+  const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(SpecHost, {
     environmentInjector: appRef.injector,
   })
   const host = ref.location.nativeElement as HTMLElement
@@ -89,6 +92,12 @@ async function mount(template: string, props: Record<string, unknown> = {}): Pro
   appRef.tick()
   return {
     host,
+    setProps: async (next: Record<string, unknown>) => {
+      ref.instance.p = { ...ref.instance.p, ...next }
+      ref.changeDetectorRef.markForCheck()
+      appRef.tick()
+      appRef.tick()
+    },
     destroy: async () => {
       appRef.destroy()
       host.remove()
@@ -175,5 +184,108 @@ describe('ChatbotTester text', () => {
     mounted.push(m)
     expect(m.host.querySelector('label')?.textContent?.trim()).toBe('Pick a bot')
     expect(m.host.innerHTML).not.toContain('Bot auswählen')
+  })
+})
+
+describe('ChatbotTester projected slots', () => {
+  it('keeps a consumer list in order when an item is inserted in the middle of error', async () => {
+    const m = await mount(
+      `<div mol-chatbot-tester [messages]="p['messages']" [bots]="p['bots']">@for (x of p['xs']; track x) {<b slot="error">{{ x }}</b>}</div>`,
+      { messages: [], bots: [], xs: [1, 3] },
+    )
+    mounted.push(m)
+    const items = (): string[] =>
+      Array.from(m.host.querySelectorAll('b')).map((el) => el.textContent ?? '')
+    expect(items()).toEqual(['1', '3'])
+    await m.setProps({ xs: [0, 1, 2, 3] })
+    expect(items()).toEqual(['0', '1', '2', '3'])
+    await m.setProps({ xs: [0, 2, 3] })
+    expect(items()).toEqual(['0', '2', '3'])
+  })
+
+  it('keeps a consumer list in order when an item is inserted in the middle of emptyState', async () => {
+    const m = await mount(
+      `<mol-chatbot-tester-messages [messages]="p['messages']">@for (x of p['xs']; track x) {<b slot="emptyState">{{ x }}</b>}</mol-chatbot-tester-messages>`,
+      { messages: [], xs: [1, 3] },
+    )
+    mounted.push(m)
+    const items = (): string[] =>
+      Array.from(m.host.querySelectorAll('b')).map((el) => el.textContent ?? '')
+    expect(items()).toEqual(['1', '3'])
+    await m.setProps({ xs: [0, 1, 2, 3] })
+    expect(items()).toEqual(['0', '1', '2', '3'])
+    await m.setProps({ xs: [0, 2, 3] })
+    expect(items()).toEqual(['0', '2', '3'])
+  })
+
+  it('shows and removes the error wrapper in the pass where the consumer @if adds and removes its content', async () => {
+    const m = await mount(
+      `<div mol-chatbot-tester [messages]="p['messages']" [bots]="p['bots']">@if (p['on']) {<b slot="error" data-error>boom</b>}</div>`,
+      { messages: [], bots: [], on: false },
+    )
+    mounted.push(m)
+    // React: `{error && <p role="alert">…</p>}` — no paragraph for an empty slot.
+    expect(m.host.querySelector('[role="alert"]')).toBeNull()
+    await m.setProps({ on: true })
+    expect(m.host.querySelector('[role="alert"]')!.querySelector('[data-error]')).not.toBeNull()
+    expect(m.host.querySelector('[role="alert"]')!.textContent).toBe('boom')
+    await m.setProps({ on: false })
+    expect(m.host.querySelector('[role="alert"]')).toBeNull()
+  })
+
+  it('shows and removes the empty-state wrapper in the pass where the consumer @if adds and removes its content', async () => {
+    const m = await mount(
+      `<mol-chatbot-tester-messages [messages]="p['messages']">@if (p['on']) {<b slot="emptyState" data-empty>No messages</b>}</mol-chatbot-tester-messages>`,
+      { messages: [], on: false },
+    )
+    mounted.push(m)
+    // React: the empty wrapper replaces the transcript pane while it renders.
+    expect(m.host.querySelector('[data-empty]')).toBeNull()
+    await m.setProps({ on: true })
+    expect(m.host.querySelector('[data-empty]')!.textContent).toBe('No messages')
+    await m.setProps({ on: false })
+    expect(m.host.querySelector('[data-empty]')).toBeNull()
+  })
+
+  it("renders React's elements with no host or capture element of its own", async () => {
+    const messages = await mount(
+      `<i>a</i><mol-chatbot-tester-messages [messages]="p['messages']"><b slot="emptyState" data-empty>No messages</b></mol-chatbot-tester-messages><i>b</i>`,
+      { messages: [] },
+    )
+    mounted.push(messages)
+    const tags = (): string[] =>
+      Array.from(messages.host.children).map((child) => child.tagName.toLowerCase())
+    // React's root is one `<div>`: the empty-state wrapper first.
+    expect(tags()).toEqual(['i', 'div', 'i'])
+    expect(messages.host.querySelector('div > [data-empty]')).not.toBeNull()
+    expect(messages.host.querySelector('div > span')).toBeNull()
+    await messages.setProps({ messages: [{ id: '1', role: 'user', content: 'hi' }] })
+    // Then the bare transcript pane.
+    expect(tags()).toEqual(['i', 'div', 'i'])
+
+    const tester = await mount(
+      `<i>a</i><div mol-chatbot-tester [messages]="p['messages']" [bots]="p['bots']" [error]="p['error']"></div><i>b</i>`,
+      {
+        messages: [],
+        bots: [
+          { id: 'a', name: 'A' },
+          { id: 'b', name: 'B' },
+        ],
+        error: 'boom',
+      },
+    )
+    mounted.push(tester)
+    // React's root IS this `<div>`; the label text and the error node render bare.
+    expect(Array.from(tester.host.children).map((c) => c.tagName.toLowerCase())).toEqual([
+      'i',
+      'div',
+      'i',
+    ])
+    const label = tester.host.querySelector('label')!
+    expect(label.querySelector('span')).toBeNull()
+    expect(label.textContent?.trim()).toBe('Test bot')
+    const alert = tester.host.querySelector('[role="alert"]')!
+    expect(alert.querySelector('span')).toBeNull()
+    expect(alert.textContent?.trim()).toBe('boom')
   })
 })

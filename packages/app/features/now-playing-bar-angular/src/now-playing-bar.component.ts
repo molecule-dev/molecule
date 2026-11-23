@@ -4,19 +4,16 @@
  * @module
  */
 
-import {
-  type AfterViewChecked,
-  Component,
-  ElementRef,
-  inject,
-  Renderer2,
-  ViewChild,
-} from '@angular/core'
+import { type AfterViewChecked, Component, type ElementRef, ViewChild } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  setElementPresent,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
-import { hasNodes, SlotWrapper } from '@molecule/app-ui-angular'
 
 import type { NowPlayingTrack } from './types.js'
 
@@ -52,6 +49,7 @@ export function formatTime(seconds: number): string {
 @Component({
   selector: 'div[mol-now-playing-bar]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   inputs: [
     'track',
     'isPlaying',
@@ -233,7 +231,17 @@ export class NowPlayingBar implements AfterViewChecked {
   /** The controlled range inputs, whose live values React keeps in sync. */
   @ViewChild('seekInput') seekInputRef?: ElementRef<HTMLInputElement>
   @ViewChild('volumeInput') volumeInputRef?: ElementRef<HTMLInputElement>
-  private readonly sync = new SlotWrapper(inject(ElementRef), inject(Renderer2))
+
+  /**
+   * Renders the trailing wrapper only while its slot has content (React's
+   * `{trailing && <div>…}`), including content a consumer projects later.
+   */
+  constructor() {
+    usePlacement((hasContent) => {
+      const wrapper = this.trailingWrapperRef?.nativeElement
+      setElementPresent(wrapper, wrapper ? hasContent(wrapper) : false)
+    })
+  }
 
   /**
    * The current class map.
@@ -494,20 +502,11 @@ export class NowPlayingBar implements AfterViewChecked {
     return formatTime(seconds)
   }
 
-  /** Detaches the trailing wrapper when React would not render it. */
-  private syncTrailingWrapper(): void {
-    const wrapper = this.trailingWrapperRef?.nativeElement
-    this.sync.sync(wrapper, hasNodes(wrapper))
-  }
-
   /**
-   * Applies the wrapper and controlled-value decisions after every change
-   * detection cycle, once Angular has inserted any newly created `@if` / `@else`
-   * view (the mount-time `ngAfterViewInit` runs before that insertion on a
-   * branch switch).
+   * Applies React's controlled values after every change detection cycle, once
+   * Angular has inserted any newly created `@if` / `@else` view.
    */
   ngAfterViewChecked(): void {
-    this.syncTrailingWrapper()
     this.syncControlledInputs()
   }
 

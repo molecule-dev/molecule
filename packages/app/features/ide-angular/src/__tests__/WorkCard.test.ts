@@ -31,7 +31,7 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { provideTheme } from '@molecule/app-angular'
+import { provideDomPlacement, provideTheme } from '@molecule/app-angular'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 import type { TestItem, TestsRunState } from '@molecule/app-ide-panel-logic'
 import { EMPTY_RUN_STATE } from '@molecule/app-ide-panel-logic'
@@ -58,7 +58,7 @@ const makeHost = (template: string, imports: unknown[]): Type<{ p: Record<string
     selector: 'mol-work-card-host',
     standalone: true,
     imports: imports as never[],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     // prettier-ignore
     template,
   })(
@@ -147,7 +147,11 @@ async function mountHost(
   const container = document.createElement('div')
   document.body.appendChild(container)
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection(), provideTheme(buildThemeProvider())],
+    providers: [
+      provideZonelessChangeDetection(),
+      provideDomPlacement(),
+      provideTheme(buildThemeProvider()),
+    ],
   })
   const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(hostType, {
     environmentInjector: appRef.injector,

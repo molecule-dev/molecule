@@ -53,6 +53,7 @@ vi.mock('@molecule/app-ui', () => ({
 vi.mock('@molecule/app-ui-angular', async () => {
   const { Component } = await import('@angular/core')
   const MockAvatar = Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
     selector: 'div[mol-avatar]',
     standalone: true,
     inputs: ['src', 'alt', 'name', 'size', 'rounded', 'className', 'style', 'testId'],
@@ -84,6 +85,7 @@ vi.mock('@molecule/app-ui-angular', async () => {
     },
   )
   const MockButton = Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
     selector: 'button[mol-button]',
     standalone: true,
     inputs: [
@@ -169,7 +171,7 @@ const mountCard = async (
     selector: 'mol-spec-host',
     standalone: true,
     imports: [AuthorBioCard],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: TEMPLATE,
   })(
     class SpecHost {

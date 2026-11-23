@@ -27,7 +27,7 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
-import { provideTheme } from '@molecule/app-angular'
+import { provideDomPlacement, provideTheme } from '@molecule/app-angular'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
@@ -44,7 +44,7 @@ const DockStripHost = Component({
   selector: 'mol-dock-strip-host',
   standalone: true,
   imports: [DockStrip],
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.Eager,
   // prettier-ignore
   template: `<ng-template #commitAction><button type="button">Commit 2 files</button></ng-template><ng-template #labelNode><span data-mol-id="label-node">3 <em>changed</em> files</span></ng-template><div mol-dock-strip
       [molId]="p['molId']"
@@ -53,7 +53,7 @@ const DockStripHost = Component({
       [onToggle]="p['onToggle']"
       [label]="p['labelIsNode'] ? labelNode : p['label']"
       [hideLabel]="p['hideLabel']"
-      [actions]="p['withAction'] ? commitAction : null"></div>`,
+      [actions]="p['withAction'] ? commitAction : null">@if (p['on']) {@for (x of p['xs']; track x) {<b>{{ x }}</b>}}</div>`,
 })(
   class DockStripHost {
     /** The props the current mount renders with. */
@@ -107,7 +107,7 @@ async function flush(): Promise<void> {
 async function renderStrip(
   props: Record<string, unknown>,
   { tray = false, withAction = false }: { tray?: boolean; withAction?: boolean } = {},
-): Promise<void> {
+): Promise<{ set: (next: Record<string, unknown>) => void }> {
   if (current) {
     current.appRef.destroy()
     current.container.remove()
@@ -116,6 +116,7 @@ async function renderStrip(
   document.body.innerHTML = ''
   const providers: (EnvironmentProviders | Provider)[] = [
     provideZonelessChangeDetection(),
+    provideDomPlacement(),
     provideTheme(buildThemeProvider()),
   ]
   if (tray) {
@@ -145,6 +146,9 @@ async function renderStrip(
     toggleMolId: 'info-toggle',
     expanded: false,
     label: 'Info',
+    // The projected detail's content; on by default so the existing cases keep
+    // rendering their list.
+    on: true,
     onToggle: () => {
       toggles.count += 1
     },
@@ -159,6 +163,15 @@ async function renderStrip(
     setTimeout(resolve, 0)
   })
   current.appRef.tick()
+  return {
+    set: (next) => {
+      const live = current
+      if (!live) return
+      live.ref.instance.p = { ...live.ref.instance.p, ...next }
+      live.ref.changeDetectorRef.markForCheck()
+      live.appRef.tick()
+    },
+  }
 }
 
 beforeEach(() => {
@@ -215,6 +228,28 @@ describe('DockStrip', () => {
       expect(chrome.style.backgroundColor).toBe('')
     },
   )
+
+  it('keeps a consumer list in order when an item is inserted in the middle of detail', async () => {
+    const m = await renderStrip({ molId: 'files', label: 'Files', expanded: true, xs: [1, 3] })
+    const items = (): string[] =>
+      Array.from(document.querySelectorAll('b')).map((el) => el.textContent ?? '')
+    expect(items()).toEqual(['1', '3'])
+    m.set({ xs: [1, 2, 3] })
+    expect(items()).toEqual(['1', '2', '3'])
+    m.set({ xs: [1, 2] })
+    expect(items()).toEqual(['1', '2'])
+  })
+
+  it('shows and removes the detail wrapper in the pass where the consumer @if adds and removes its content', async () => {
+    const m = await renderStrip({ molId: 'files', label: 'Files', expanded: true, xs: [1] })
+    const items = (): string[] =>
+      Array.from(document.querySelectorAll('b')).map((el) => el.textContent ?? '')
+    expect(items()).toEqual(['1'])
+    m.set({ on: false })
+    expect(items()).toEqual([])
+    m.set({ on: true })
+    expect(items()).toEqual(['1'])
+  })
 
   it('makes the overlay a native button, not the row', async () => {
     await renderStrip({ molId: 'files', toggleMolId: 'files-toggle', label: 'Files' })

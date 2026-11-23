@@ -8,15 +8,14 @@
  * localized label, its current mode badge and a one-line description. Clicking
  * any row cycles its mode (all rows at once for “All”) and persists the choice
  * on this device. The host IS React's popup `<div>`; while the picker is closed
- * React renders nothing, so the host carries `data-parity-unwrap` and
- * `display: contents` and the conformance normalizer drops it.
+ * React renders nothing, so the host is out of the DOM then (`useHostPresence`).
  *
  * @module
  */
 
 import { Component, inject } from '@angular/core'
 
-import { DEFAULT_AGENT_NAME } from '@molecule/app-angular'
+import { DEFAULT_AGENT_NAME, useHostPresence } from '@molecule/app-angular'
 import {
   SOUND_EVENTS,
   soundEventDescription,
@@ -30,9 +29,6 @@ import { styleText } from '@molecule/app-ui-angular'
 
 import { ChatInnerState } from './chat-inner-state.js'
 import { ChatSounds } from './chat-sounds.slice.js'
-
-/** The popup's closed state: React renders nothing, so the host unwraps away. */
-const UNWRAP_STYLE = styleText({ display: 'contents' })
 
 /** The header row's inline style. */
 const HEADER_STYLE = styleText({
@@ -76,9 +72,8 @@ function badgeColor(mode: SoundMode | null): { bg: string; fg: string } {
   selector: 'div[mol-chat-sounds-picker]',
   standalone: true,
   host: {
-    '[attr.data-parity-unwrap]': 'open() ? null : ""',
-    '[attr.class]': 'open() ? rootClass : null',
-    '[attr.style]': 'open() ? rootStyle() : unwrapStyle',
+    '[attr.class]': 'rootClass',
+    '[attr.style]': 'rootStyle()',
   },
   // prettier-ignore
   template: `@if (picker(); as p) {<div [attr.class]="headerClass" [attr.style]="headerStyle"><span>{{ notificationSounds() }}</span><button type="button" (click)="close()" [attr.style]="closeStyle()">✕</button></div><div [attr.style]="listStyle"><button type="button" (click)="cycle('all')" (mouseenter)="rowEnter($event)" (mouseleave)="rowLeave($event, p.selectedIdx === 0)" [attr.class]="rowClass" [attr.style]="allRowStyle(p.selectedIdx === 0)"><span [attr.class]="levelClass">{{ allText() }}</span><span [attr.style]="allBadgeStyle()">{{ allModeLabel() }}</span></button>@for (event of soundEvents; track event; let idx = $index) {<button type="button" (click)="cycle(event)" (mouseenter)="rowEnter($event)" (mouseleave)="rowLeave($event, p.selectedIdx === idx + 1)" [attr.class]="rowClass" [attr.style]="eventRowStyle(p.selectedIdx === idx + 1)"><div [attr.style]="eventTopStyle"><span>{{ eventLabel(event) }}</span><span [attr.style]="eventBadgeStyle(event)">{{ eventModeLabel(event) }}</span></div><div [attr.class]="descClass" [attr.style]="descStyle">{{ eventDescription(event) }}</div></button>}</div>}`,
@@ -123,10 +118,7 @@ export class ChatSoundsPicker {
   /** The per-event row's description's inline style. */
   protected readonly descStyle: string | null = DESC_STYLE
 
-  /** The closed state's inline style (the host unwraps away). */
-  protected readonly unwrapStyle: string | null = UNWRAP_STYLE
-
-  /** Resolves the ClassMap and the static classes once, at construction. */
+  /** Resolves the ClassMap and the static classes once, and keeps the host in the page only while open. */
   constructor() {
     this.cm = this.state.env.cm
     this.rootClass = this.cm.cn(this.cm.surface, this.cm.borderAll)
@@ -134,6 +126,7 @@ export class ChatSoundsPicker {
     this.rowClass = this.cm.w('full')
     this.levelClass = this.cm.fontWeight('medium')
     this.descClass = this.cm.textMuted
+    useHostPresence(() => this.open())
   }
 
   /**

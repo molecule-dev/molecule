@@ -36,7 +36,7 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
-import { provideHttp, provideTheme } from '@molecule/app-angular'
+import { provideDomPlacement, provideHttp, provideTheme } from '@molecule/app-angular'
 import type { HttpClient } from '@molecule/app-http'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 import { setIconSet } from '@molecule/app-icons'
@@ -94,7 +94,7 @@ const SettingsCardHost = Component({
   selector: 'mol-agent-identity-settings-host',
   standalone: true,
   imports: [SettingsCard],
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `<div mol-settings-card [settings]="p['settings']" [onRunCommand]="p['onRunCommand']" [isLight]="p['isLight']" [agentName]="p['agentName']"></div>`,
 })(
   class SettingsCardHost {
@@ -108,7 +108,7 @@ const ReportModalHost = Component({
   selector: 'mol-agent-identity-report-host',
   standalone: true,
   imports: [ReportModal],
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `<div mol-report-modal [projectId]="p['projectId']" [onClose]="p['onClose']" [onSubmitted]="p['onSubmitted']" [productName]="p['productName']"></div>`,
 })(
   class ReportModalHost {
@@ -173,6 +173,7 @@ async function mount(
   const appRef: ApplicationRef = await createApplication({
     providers: [
       provideZonelessChangeDetection(),
+      provideDomPlacement(),
       provideTheme(buildThemeProvider()),
       provideHttp(buildHttpClient()),
     ],

@@ -23,6 +23,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
 // `flex`), so tests can assert which cm.* class was applied without a real
 // bond — the same mock the React tests use.
@@ -68,6 +70,7 @@ vi.mock('@molecule/app-angular', async (importOriginal) => ({
 vi.mock('@molecule/app-ui-angular', async () => {
   const { Component } = await import('@angular/core')
   const Avatar = Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
     selector: 'div[mol-avatar]',
     standalone: true,
     inputs: ['src', 'alt', 'name', 'size'],
@@ -89,6 +92,7 @@ vi.mock('@molecule/app-ui-angular', async () => {
     },
   )
   const Button = Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
     selector: 'button[mol-button]',
     standalone: true,
     inputs: ['disabled', 'type'],
@@ -103,6 +107,7 @@ vi.mock('@molecule/app-ui-angular', async () => {
     },
   )
   const Textarea = Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
     selector: 'div[mol-textarea]',
     standalone: true,
     inputs: ['value', 'placeholder', 'disabled', 'className'],
@@ -131,10 +136,12 @@ const { MessageReactions } = await import('../message-reactions.component.js')
 const { ThreadIndicator } = await import('../thread-indicator.component.js')
 import type { MessageData } from '../types.js'
 
-/** A mounted spec host: its DOM and a teardown. */
+/** A mounted spec host: its DOM, a props setter, and a teardown. */
 interface Mounted {
   /** The host element whose children the component template produced. */
   readonly host: HTMLElement
+  /** Merges props over the current ones and flushes change detection. */
+  setProps(next: Record<string, unknown>): Promise<void>
   /** Destroys the app and removes the host. */
   destroy(): Promise<void>
 }
@@ -160,7 +167,7 @@ async function mount(
     selector: `mol-spec-host-${hostCounter++}`,
     standalone: true,
     imports: [component],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template,
   })(
     class SpecHost {
@@ -169,7 +176,7 @@ async function mount(
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
     environmentInjector: appRef.injector,
@@ -180,6 +187,11 @@ async function mount(
   appRef.tick()
   return {
     host,
+    setProps: async (next: Record<string, unknown>) => {
+      ref.instance.p = { ...ref.instance.p, ...next }
+      ref.changeDetectorRef.markForCheck()
+      appRef.tick()
+    },
     destroy: async () => {
       appRef.destroy()
       host.remove()
@@ -371,6 +383,54 @@ describe('ThreadIndicator', () => {
     })
     expect(m.host.innerHTML).toContain('thr-cls')
   })
+
+  it('keeps a consumer list in order when an item is inserted in the middle of lastReplyAt', async () => {
+    const m = await render(
+      `<button mol-thread-indicator [replyCount]="p['replyCount']"><ng-container ngProjectAs="[slot=lastReplyAt]">@for (x of p['xs']; track x) {<b>{{ x }}</b>}</ng-container></button>`,
+      ThreadIndicator,
+      { replyCount: 1, xs: ['a', 'c'] },
+    )
+    const labels = (): (string | null)[] =>
+      Array.from(m.host.querySelectorAll('b')).map((el) => el.textContent)
+    expect(labels()).toEqual(['a', 'c'])
+    await m.setProps({ xs: ['a', 'b', 'c'] })
+    expect(labels()).toEqual(['a', 'b', 'c'])
+    await m.setProps({ xs: ['a', 'c'] })
+    expect(labels()).toEqual(['a', 'c'])
+  })
+
+  it('shows and removes the separator wrapper in the pass where the consumer @if adds and removes its content', async () => {
+    const m = await render(
+      `<button mol-thread-indicator [replyCount]="1">@if (p['on']) {<b slot="lastReplyAt" data-last>last Monday</b>}</button>`,
+      ThreadIndicator,
+      { on: false },
+    )
+    // React: `{lastReplyAt && <span>· {lastReplyAt}</span>}` — no span for an empty slot.
+    expect(m.host.querySelector('[data-last]')).toBeNull()
+    expect(m.host.innerHTML).not.toContain('·')
+    await m.setProps({ on: true })
+    const projected = m.host.querySelector('[data-last]')!
+    expect(projected.textContent).toBe('last Monday')
+    expect(projected.closest('span')!.parentElement!.textContent).toContain('·')
+    await m.setProps({ on: false })
+    expect(m.host.querySelector('[data-last]')).toBeNull()
+    expect(m.host.innerHTML).not.toContain('·')
+  })
+
+  it("renders React's elements with no host or capture element of its own", async () => {
+    const m = await render(
+      `<i>a</i><button mol-thread-indicator [replyCount]="2" [lastReplyAt]="p['lastReplyAt']"></button><i>b</i>`,
+      ThreadIndicator,
+      { lastReplyAt: 'last Monday' },
+    )
+    const tags = (parent: Element): string[] =>
+      Array.from(parent.children).map((child) => child.tagName.toLowerCase())
+    // React's root IS the consumer's <button>; its two spans are React's.
+    expect(tags(m.host)).toEqual(['i', 'button', 'i'])
+    expect(tags(m.host.querySelector('button')!)).toEqual(['span', 'span'])
+    await m.setProps({ lastReplyAt: null })
+    expect(tags(m.host.querySelector('button')!)).toEqual(['span'])
+  })
 })
 
 describe('MessageBubble', () => {
@@ -459,6 +519,54 @@ describe('MessageList', () => {
       className: 'list-cls',
     })
     expect(m.host.innerHTML).toContain('list-cls')
+  })
+
+  it('keeps a consumer list in order when an item is inserted in the middle of emptyState', async () => {
+    const m = await render(
+      `<mol-message-list [messages]="p['messages']"><ng-container ngProjectAs="[slot=emptyState]">@for (x of p['xs']; track x) {<b>{{ x }}</b>}</ng-container></mol-message-list>`,
+      MessageList,
+      { messages: [], xs: ['a', 'c'] },
+    )
+    const labels = (): (string | null)[] =>
+      Array.from(m.host.querySelectorAll('b')).map((el) => el.textContent)
+    expect(labels()).toEqual(['a', 'c'])
+    await m.setProps({ xs: ['a', 'b', 'c'] })
+    expect(labels()).toEqual(['a', 'b', 'c'])
+    await m.setProps({ xs: ['a', 'c'] })
+    expect(labels()).toEqual(['a', 'c'])
+  })
+
+  it('shows and removes the empty-state wrapper in the pass where the consumer @if adds and removes its content', async () => {
+    const m = await render(
+      `<mol-message-list [messages]="p['messages']">@if (p['on']) {<p slot="emptyState" data-empty>No messages</p>}</mol-message-list>`,
+      MessageList,
+      { messages: [], on: false },
+    )
+    // React: the bare empty state replaces the list wrapper while it renders.
+    expect(m.host.querySelector('[data-empty]')).toBeNull()
+    expect(m.host.querySelector('div')).not.toBeNull()
+    await m.setProps({ on: true })
+    expect(m.host.querySelector('[data-empty]')!.textContent).toBe('No messages')
+    expect(m.host.querySelector('div')).toBeNull()
+    await m.setProps({ on: false })
+    expect(m.host.querySelector('[data-empty]')).toBeNull()
+    expect(m.host.querySelector('div')).not.toBeNull()
+  })
+
+  it("renders React's elements with no host or capture element of its own", async () => {
+    const m = await render(
+      `<i>a</i><mol-message-list [messages]="p['messages']"><p slot="emptyState" data-empty>No messages</p></mol-message-list><i>b</i>`,
+      MessageList,
+      { messages: [msg('a')] },
+    )
+    const tags = (): string[] =>
+      Array.from(m.host.children).map((child) => child.tagName.toLowerCase())
+    expect(tags()).toEqual(['i', 'div', 'i'])
+    await m.setProps({ messages: [] })
+    // React's empty branch is the bare empty state, with no wrapper of its own.
+    expect(tags()).toEqual(['i', 'p', 'i'])
+    await m.setProps({ messages: [msg('a')] })
+    expect(tags()).toEqual(['i', 'div', 'i'])
   })
 })
 

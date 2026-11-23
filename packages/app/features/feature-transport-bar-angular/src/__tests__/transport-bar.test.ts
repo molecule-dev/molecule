@@ -22,6 +22,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 // Proxy ClassMap echoing each accessed member back as its token (e.g.
 // `cursorPointer`), so tests can assert which cm.* class was applied without a
 // real bond — the same mock the React tests use.
@@ -109,7 +111,7 @@ async function mount(
     selector: `mol-transport-spec-host-${specHostCount++}`,
     standalone: true,
     imports: [TransportBar],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: `<div mol-transport-bar [isPlaying]="p['isPlaying']" [isRecording]="p['isRecording']" [canStop]="p['canStop']" [canSkip]="p['canSkip']" [loop]="p['loop']" [onPlayToggle]="p['onPlayToggle']" [onStop]="p['onStop']" [onSkipBack]="p['onSkipBack']" [onSkipForward]="p['onSkipForward']" [onRecordToggle]="p['onRecordToggle']" [onLoopToggle]="p['onLoopToggle']" [timeDisplay]="${timeBinding}" [className]="p['className']">${projected}</div>${timeTemplate}`,
   })(
     class SpecHost {
@@ -118,7 +120,7 @@ async function mount(
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
     environmentInjector: appRef.injector,
@@ -339,6 +341,21 @@ describe('TransportBar', () => {
     expect(onLoopToggle).toHaveBeenCalledTimes(1)
   })
 
+  it('keeps a consumer list in order when an item is inserted in the middle of timeDisplay', async () => {
+    const mounted = await mount({
+      props: { isPlaying: false, onPlayToggle: () => {}, onStop: () => {}, xs: [1, 3] },
+      projected: "@for (x of p['xs']; track x) {<b>{{ x }}</b>}",
+    })
+    const slot = byMolId(mounted, 'transport-bar-time-display')!
+    const texts = (): string[] =>
+      Array.from(slot.querySelectorAll('b')).map((el) => el.textContent ?? '')
+    expect(texts()).toEqual(['1', '3'])
+    mounted.update({ xs: [1, 2, 3] })
+    expect(texts()).toEqual(['1', '2', '3'])
+    mounted.update({ xs: [1, 3] })
+    expect(texts()).toEqual(['1', '3'])
+  })
+
   it('renders the time-display slot via the timeDisplay prop', async () => {
     const mounted = await mount({
       props: { isPlaying: false, onPlayToggle: () => {}, onStop: () => {} },
@@ -374,5 +391,23 @@ describe('TransportBar', () => {
       props: { isPlaying: false, onPlayToggle: () => {}, onStop: () => {} },
     })
     expect(byMolId(mounted, 'transport-bar-time-display')).toBeNull()
+  })
+
+  it('shows and removes the timeDisplay wrapper in the pass where the consumer @if adds and removes its content', async () => {
+    const mounted = await mount({
+      props: { isPlaying: false, onPlayToggle: () => {}, onStop: () => {}, on: false },
+      projected: `@if (p['on']) {<span slot="timeDisplay" data-time>0:00</span>}`,
+    })
+    expect(byMolId(mounted, 'transport-bar-time-display')).toBeNull()
+    mounted.update({ on: true })
+    const time = byMolId(mounted, 'transport-bar-time-display')
+    const content = mounted.host().querySelector('[data-time]')
+    expect(time).not.toBeNull()
+    expect(content).not.toBeNull()
+    // React renders `{timeDisplay ?? children}` bare inside the wrapper.
+    expect(content?.parentElement).toBe(time)
+    mounted.update({ on: false })
+    expect(byMolId(mounted, 'transport-bar-time-display')).toBeNull()
+    expect(mounted.host().querySelector('[data-time]')).toBeNull()
   })
 })

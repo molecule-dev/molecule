@@ -22,6 +22,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 // Mutable translation dictionary so a test can simulate a locale override and
 // prove the status labels resolve through `t()` (a hardcoded string couldn't
 // change). Hoisted so the `vi.mock` factory below can reference it.
@@ -76,6 +78,7 @@ vi.mock('@molecule/app-ui-angular', async () => {
       return parts.length ? parts.join('; ') : null
     },
     Button: Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'button[mol-button]',
       standalone: true,
       inputs: ['disabled'],
@@ -95,10 +98,12 @@ vi.mock('@molecule/app-ui-angular', async () => {
 
 const { IntegrationCard } = await import('../integration-card.component.js')
 
-/** A mounted spec host: its DOM and a teardown. */
+/** A mounted spec host: its DOM, a props setter, and a teardown. */
 interface Mounted {
   /** The host element whose children the component template produced. */
   readonly host: HTMLElement
+  /** Merges props over the current ones and flushes change detection. */
+  setProps(next: Record<string, unknown>): Promise<void>
   /** Destroys the app and removes the host. */
   destroy(): Promise<void>
 }
@@ -116,7 +121,7 @@ async function mount(props: Record<string, unknown>, content = ''): Promise<Moun
     selector: 'mol-spec-host',
     standalone: true,
     imports: [IntegrationCard],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: `<div
       mol-integration-card
       [icon]="p['icon']"
@@ -135,7 +140,7 @@ async function mount(props: Record<string, unknown>, content = ''): Promise<Moun
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
     environmentInjector: appRef.injector,
@@ -149,6 +154,12 @@ async function mount(props: Record<string, unknown>, content = ''): Promise<Moun
   appRef.tick()
   return {
     host,
+    setProps: async (next: Record<string, unknown>) => {
+      ref.instance.p = { ...ref.instance.p, ...next }
+      ref.changeDetectorRef.markForCheck()
+      appRef.tick()
+      appRef.tick()
+    },
     destroy: async () => {
       appRef.destroy()
       host.remove()
@@ -254,5 +265,46 @@ describe('IntegrationCard', () => {
     const m = await render({ title: 'S', dataMolId: 'int-x', className: 'ic-cls' })
     expect(m.host.innerHTML).toContain('data-mol-id="int-x"')
     expect(m.host.innerHTML).toContain('ic-cls')
+  })
+
+  it('keeps a consumer list in order when an item is inserted in the middle of description', async () => {
+    const m = await render(
+      { title: 'S', xs: ['a', 'c'] },
+      `<ng-container ngProjectAs="[slot=description]">@for (x of p['xs']; track x) {<b>{{ x }}</b>}</ng-container>`,
+    )
+    const items = (): string[] =>
+      [...m.host.querySelectorAll('p b')].map((b) => b.textContent ?? '')
+    expect(items()).toEqual(['a', 'c'])
+    await m.setProps({ xs: ['a', 'b', 'c'] })
+    expect(items()).toEqual(['a', 'b', 'c'])
+    await m.setProps({ xs: ['a', 'b'] })
+    expect(items()).toEqual(['a', 'b'])
+  })
+
+  it('shows and removes the icon wrapper in the pass where the consumer @if adds and removes its content', async () => {
+    const m = await render(
+      { title: 'S', on: false },
+      `@if (p['on']) {<span slot="icon" data-icon></span>}`,
+    )
+    const icon = (): HTMLElement | null => m.host.querySelector<HTMLElement>('[data-icon]')
+    expect(icon()).toBeNull()
+    await m.setProps({ on: true })
+    expect(icon()).not.toBeNull()
+    expect(icon()?.parentElement?.getAttribute('class')).toBe('shrink0')
+    await m.setProps({ on: false })
+    expect(icon()).toBeNull()
+  })
+
+  it('moves the action between the row and the link wrapper when href changes', async () => {
+    const m = await render({ title: 'S', action: { label: 'Connect', href: '/oauth' } })
+    expect(m.host.querySelector('a button[data-button]')).not.toBeNull()
+
+    await m.setProps({ action: { label: 'Connect', onClick: () => {} } })
+    // React renders the button alone in the status row (no anchor).
+    expect(m.host.querySelector('a')).toBeNull()
+    expect(m.host.querySelector('button[data-button]')?.closest('a')).toBeNull()
+
+    await m.setProps({ action: { label: 'Connect', href: '/oauth' } })
+    expect(m.host.querySelector('a button[data-button]')).not.toBeNull()
   })
 })

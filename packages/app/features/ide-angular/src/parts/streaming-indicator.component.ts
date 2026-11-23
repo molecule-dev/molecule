@@ -12,10 +12,10 @@
  * ChatPanel without exporting it), so it lives in `src/parts/` and is exported
  * under the React name.
  *
- * The host is a `display: contents` wrapper (`div[mol-streaming-indicator]`),
- * unwrapped by the conformance normalizer, because React's root element is a
- * `<span>` for `inline` and a `<div role="status">` otherwise — a standalone
- * component's host tag cannot change at runtime. The spinner SVG is the
+ * React's root element is a `<span>` for `inline` and a `<div role="status">`
+ * otherwise, so the template's element renders in front of the host
+ * (`placeContentBefore`) and the host leaves the DOM: the rendered tree is
+ * React's, with no wrapper element of its own. The spinner SVG is the
  * platform's single mark (`moleculeSpinnerMarkSvg` from `@molecule/app-ui`),
  * written into the element's `innerHTML` (the bond is the trust boundary, the
  * same injection React's `dangerouslySetInnerHTML` makes — Angular's own
@@ -27,10 +27,16 @@
  * @module
  */
 
-import type { ElementRef, OnChanges, SimpleChanges } from '@angular/core'
-import { Component, DestroyRef, inject, signal, ViewChild } from '@angular/core'
+import type { OnChanges, SimpleChanges } from '@angular/core'
+import { Component, DestroyRef, ElementRef, inject, signal, ViewChild } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  placeContentBefore,
+  setElementPresent,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import { moleculeSpinnerMarkSvg } from '@molecule/app-ui'
 import { styleText, Tooltip } from '@molecule/app-ui-angular'
 
@@ -150,10 +156,7 @@ const STYLES = {
   // (reflectComponentType sees none, so the conformance host cannot bind
   // them) — every component in the package takes the decorator form.
   inputs: ['inline', 'label', 'startedAt', 'tokens'],
-  host: {
-    'data-parity-unwrap': '',
-    style: 'display: contents',
-  },
+  hostDirectives: [MolPlacement],
   // prettier-ignore
   template: `@if (inline) {<span #spinnerInline [attr.style]="s.spinner"></span>} @else {<div role="status" [attr.aria-label]="text()" [attr.style]="s.row"><span #spinnerRow [attr.style]="s.spinner"></span><span [attr.style]="s.label">{{ text() }}</span>@if (elapsed() || showTokens()) {<span aria-hidden="true" [attr.style]="s.metrics">@if (showTokens()) {<mol-tooltip placement="top"><span>{{ tokensText() }}</span><ng-container ngProjectAs="[slot=content]">{{ hint() }}</ng-container></mol-tooltip>}@if (showTokens() && elapsed()) {<span>·</span>}@if (elapsed()) {<span>{{ elapsed() }}</span>}</span>}</div>}`,
 })
@@ -225,7 +228,18 @@ export class StreamingIndicator implements OnChanges {
   /** The static style texts. */
   protected readonly s = STYLES
 
+  /** The component's own host element, which React does not render. */
+  private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
+
   constructor() {
+    // React's root is the spinner `<span>` (inline) or the status row `<div>`:
+    // the template's element renders in front of the host, which stays out of
+    // the DOM.
+    usePlacement(() => {
+      const host = this.host.nativeElement
+      placeContentBefore(host, host)
+      setElementPresent(host, false)
+    })
     // React's two mount effects start their intervals on the first render and
     // re-subscribe when their dependencies change (a new `startedAt` restarts
     // the elapsed clock's phase, exactly as React's effect cleanup/setup does).

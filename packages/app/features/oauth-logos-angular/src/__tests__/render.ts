@@ -21,6 +21,8 @@ import {
 } from '@angular/core'
 import { createApplication } from '@angular/platform-browser'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 /** One rendered fixture. */
 export interface RenderedFixture {
   /** The component host element (in `document.body`). */
@@ -46,7 +48,7 @@ export async function renderFixture(
   imports: Type<unknown>[] = [],
 ): Promise<RenderedFixture> {
   const Host = Component({
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     selector: 'div[data-parity-host]',
     standalone: true,
     imports,
@@ -57,7 +59,7 @@ export async function renderFixture(
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   document.body.innerHTML = ''
   const mount = document.createElement('div')

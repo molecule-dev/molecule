@@ -23,6 +23,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 vi.mock('@molecule/app-ui', () => ({
   getClassMap: () => buildStubClassMap(),
 }))
@@ -91,7 +93,7 @@ async function mountSpec(template: string, props: Record<string, unknown> = {}):
     selector: 'mol-spec-host',
     standalone: true,
     imports: [ChapterList as Type<unknown>],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template,
   })(
     class SpecHost {
@@ -100,7 +102,7 @@ async function mountSpec(template: string, props: Record<string, unknown> = {}):
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
     environmentInjector: appRef.injector,
@@ -131,6 +133,57 @@ const LIST_TEMPLATE = `<mol-chapter-list
 >`
 
 const mounted: Mounted[] = []
+
+/**
+ * Mounts a {@link ChapterList} between two fixed siblings, the way a consumer
+ * list would, and returns a setter for its inputs.
+ *
+ * @param props - The component props.
+ * @returns The mounted host and a setter that re-renders with new props.
+ */
+async function renderInList(
+  props: Record<string, unknown>,
+): Promise<Mounted & { set(next: Record<string, unknown>): void }> {
+  const Host = Component({
+    selector: 'mol-spec-list-host',
+    standalone: true,
+    imports: [ChapterList as Type<unknown>],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    template: `<i>a</i><mol-chapter-list [chapters]="p['chapters']" [currentTime]="p['currentTime']"></mol-chapter-list><i>b</i>`,
+  })(
+    class SpecListHost {
+      /** The props the template binds. */
+      p: Record<string, unknown> = { ...props }
+    },
+  )
+  const appRef: ApplicationRef = await createApplication({
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
+  })
+  const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
+    environmentInjector: appRef.injector,
+  })
+  const host = ref.location.nativeElement as HTMLElement
+  document.body.appendChild(host)
+  appRef.attachView(ref.hostView)
+  appRef.tick()
+  const entry: Mounted = {
+    host,
+    destroy: async () => {
+      ref.destroy()
+      host.remove()
+      await appRef.destroy()
+    },
+  }
+  mounted.push(entry)
+  return {
+    ...entry,
+    set: (next) => {
+      ref.instance.p = { ...ref.instance.p, ...next }
+      ref.changeDetectorRef.markForCheck()
+      appRef.tick()
+    },
+  }
+}
 
 /**
  * Mount a {@link ChapterList} with these props.
@@ -300,5 +353,14 @@ describe('<ChapterList>', () => {
     const customs = host.querySelectorAll('[data-mol-id="custom-trailing"]')
     expect(customs.length).toBe(4)
     expect(customs[1]!.textContent).toBe('c2')
+  })
+
+  it("renders React's elements with no host or capture element of its own", async () => {
+    const m = await renderInList({ chapters: [], currentTime: 0 })
+    const children = (): string[] =>
+      Array.from(m.host.children).map((child) => child.tagName.toLowerCase())
+    expect(children()).toEqual(['i', 'div', 'i'])
+    m.set({ chapters: baseChapters })
+    expect(children()).toEqual(['i', 'ul', 'i'])
   })
 })

@@ -5,24 +5,20 @@
  */
 
 import { NgTemplateOutlet } from '@angular/common'
-import {
-  type AfterViewChecked,
-  type AfterViewInit,
-  Component,
-  ElementRef,
-  inject,
-  Renderer2,
-  signal,
-  type TemplateRef,
-  ViewChild,
-} from '@angular/core'
+import { Component, ElementRef, signal, type TemplateRef, ViewChild } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  placeContentBefore,
+  placeElement,
+  setElementPresent,
+  type SlotReader,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { Button, styleText } from '@molecule/app-ui-angular'
-
-import { hasNodes, SlotGuard } from './slot-dom.js'
 
 /**
  * Whether a value is one of the case's projected node templates
@@ -48,11 +44,14 @@ const isTemplate = (value: unknown): value is TemplateRef<unknown> =>
  * node is a projected template; plain strings are inputs. The optional
  * description / interval / badge wrappers and the CTA render only when React
  * would render them — Angular projection needs always-mounted capture points,
- * so {@link SubscriptionPlanCard.ngAfterViewChecked} reconciles them.
+ * so {@link SubscriptionPlanCard.reconcile} takes an unrendered wrapper out of
+ * the DOM ({@link setElementPresent}) and renders the CTA where React nests it
+ * ({@link placeElement}).
  */
 @Component({
   selector: 'div[mol-subscription-plan-card]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [Button, NgTemplateOutlet],
   inputs: [
     'name',
@@ -72,9 +71,9 @@ const isTemplate = (value: unknown): value is TemplateRef<unknown> =>
     '[style]': 'hostStyle()',
   },
   // prettier-ignore
-  template: `<div [class]="cm().stack(4)"><header [class]="cm().stack(1)"><span #badgeWrap [class]="badgeClass()">@if (badgeProvided()) {<ng-container>{{ badge }}</ng-container>}<ng-content select="[slot=badge]"></ng-content>@if (badgeDefault()) {<ng-container>{{ recommendedBadge() }}</ng-container>}</span><h3 [class]="nameClass()">@if (hasName()) {<ng-container>{{ name }}</ng-container>}<ng-content select="[slot=name]"></ng-content></h3><p #descriptionWrap [class]="cm().textSize('sm')">@if (hasDescription()) {<ng-container>{{ description }}</ng-container>}<ng-content select="[slot=description]"></ng-content></p></header><div [class]="cm().flex({ align: 'baseline', gap: 'xs' })"><span [class]="priceClass()">@if (hasPrice()) {<ng-container>{{ price }}</ng-container>}<ng-content select="[slot=price]"></ng-content></span><span #intervalWrap [class]="cm().textSize('sm')">@if (hasInterval()) {<ng-container>{{ interval }}</ng-container>}<ng-content select="[slot=interval]"></ng-content></span></div><ul [class]="cm().stack(2)">@for (feature of features; track $index) {<li [class]="cm().flex({ align: 'start', gap: 'sm' })"><span aria-hidden="true">✓</span><span [class]="cm().textSize('sm')">@if (isTemplate(feature)) {<ng-container [ngTemplateOutlet]="asTemplate(feature)"></ng-container>} @else {<ng-container>{{ feature }}</ng-container>}</span></li>}</ul><a #ctaAnchor [attr.href]="ctaHref"></a><button #ctaButton mol-button [variant]="'solid'" [color]="ctaColor()" (click)="onCtaClick($event)"><ng-content select="[slot=ctaLabel]"></ng-content>@if (hasCtaLabel()) {<ng-container>{{ ctaLabel }}</ng-container>}</button></div>`,
+  template: `<div [class]="cm().stack(4)"><header [class]="cm().stack(1)"><span #badgeWrap [class]="badgeClass()">@if (badgeProvided()) {<ng-container>{{ badge }}</ng-container>}<span #badgeCapture><ng-content select="[slot=badge]"></ng-content></span>@if (badgeDefault()) {<ng-container>{{ recommendedBadge() }}</ng-container>}</span><h3 [class]="nameClass()">@if (hasName()) {<ng-container>{{ name }}</ng-container>}<ng-content select="[slot=name]"></ng-content></h3><p #descriptionWrap [class]="cm().textSize('sm')">@if (hasDescription()) {<ng-container>{{ description }}</ng-container>}<ng-content select="[slot=description]"></ng-content></p></header><div [class]="cm().flex({ align: 'baseline', gap: 'xs' })"><span [class]="priceClass()">@if (hasPrice()) {<ng-container>{{ price }}</ng-container>}<ng-content select="[slot=price]"></ng-content></span><span #intervalWrap [class]="cm().textSize('sm')">@if (hasInterval()) {<ng-container>{{ interval }}</ng-container>}<ng-content select="[slot=interval]"></ng-content></span></div><ul [class]="cm().stack(2)">@for (feature of features; track $index) {<li [class]="cm().flex({ align: 'start', gap: 'sm' })"><span aria-hidden="true">✓</span><span [class]="cm().textSize('sm')">@if (isTemplate(feature)) {<ng-container [ngTemplateOutlet]="asTemplate(feature)"></ng-container>} @else {<ng-container>{{ feature }}</ng-container>}</span></li>}</ul><a #ctaAnchor [attr.href]="ctaHref"></a><button #ctaButton mol-button [variant]="'solid'" [color]="ctaColor()" (click)="onCtaClick($event)"><span #ctaLabelCapture><ng-content select="[slot=ctaLabel]"></ng-content></span>@if (hasCtaLabel()) {<ng-container>{{ ctaLabel }}</ng-container>}</button></div>`,
 })
-export class SubscriptionPlanCard implements AfterViewInit, AfterViewChecked {
+export class SubscriptionPlanCard {
   /** Plan name — a string input, or `[slot=name]` projected content. */
   name?: unknown
   /** Optional tagline / one-liner — a string input, or `[slot=description]` content. */
@@ -98,7 +97,7 @@ export class SubscriptionPlanCard implements AfterViewInit, AfterViewChecked {
   /** Extra classes on the card. */
   className?: string
 
-  /** The optional badge wrapper (detached when React would render none). */
+  /** The optional badge wrapper (absent when React would render none). */
   @ViewChild('badgeWrap') private badgeWrap?: ElementRef<HTMLElement>
   /** The optional description paragraph. */
   @ViewChild('descriptionWrap') private descriptionWrap?: ElementRef<HTMLElement>
@@ -108,12 +107,16 @@ export class SubscriptionPlanCard implements AfterViewInit, AfterViewChecked {
   @ViewChild('ctaAnchor') private ctaAnchor?: ElementRef<HTMLAnchorElement>
   /** The CTA button (its element: the host also carries the UI Button component). */
   @ViewChild('ctaButton', { read: ElementRef }) private ctaButton?: ElementRef<HTMLButtonElement>
+  /** Where the badge slot is projected: its content renders in its place, and it leaves the page. */
+  @ViewChild('badgeCapture') private badgeCapture?: ElementRef<HTMLElement>
+  /** Where the CTA label slot is projected (the UI Button's own nodes are not content). */
+  @ViewChild('ctaLabelCapture') private ctaLabelCapture?: ElementRef<HTMLElement>
 
   /** The i18n provider above the card (the "Recommended" badge). */
   private readonly i18n = useTranslation()
 
-  /** Whether the projected slots' presence has been read (read once: projection never changes). */
-  private readonly slotsRead = signal(false)
+  /** Whether the badge slot has been read once, so the default never renders before it is known. */
+  private readonly badgeSlotRead = signal(false)
   /** Whether the description slot holds content. */
   private readonly descriptionSlot = signal(false)
   /** Whether the interval slot holds content. */
@@ -123,7 +126,9 @@ export class SubscriptionPlanCard implements AfterViewInit, AfterViewChecked {
   /** Whether the CTA label slot holds content. */
   private readonly ctaLabelSlot = signal(false)
 
-  private readonly guard = new SlotGuard(inject(ElementRef), inject(Renderer2))
+  constructor() {
+    usePlacement((hasContent) => this.reconcile(hasContent))
+  }
 
   /**
    * The current class map.
@@ -241,7 +246,10 @@ export class SubscriptionPlanCard implements AfterViewInit, AfterViewChecked {
    */
   badgeDefault(): boolean {
     return (
-      this.slotsRead() && Boolean(this.recommended) && !this.badgeProvided() && !this.badgeSlot()
+      this.badgeSlotRead() &&
+      Boolean(this.recommended) &&
+      !this.badgeProvided() &&
+      !this.badgeSlot()
     )
   }
 
@@ -312,62 +320,57 @@ export class SubscriptionPlanCard implements AfterViewInit, AfterViewChecked {
     if (!this.ctaHref) this.onCta?.(event)
   }
 
-  /** Reads the projected slots' presence once, then reconciles the wrappers. */
-  ngAfterViewInit(): void {
-    this.reconcile()
-  }
-
   /**
-   * Re-reconciles after every view refresh (a props step may add or remove a
-   * value): the wrappers are toggled on the values the template just rendered.
+   * Reads the projected slots' presence, toggles the optional wrappers and
+   * attaches the CTA's anchor/button for React's DOM.
+   *
+   * @param hasContent - Reads whether a slot has content.
    */
-  ngAfterViewChecked(): void {
-    this.reconcile()
-  }
-
-  /**
-   * Reads the projected slots' presence once, then toggles the optional
-   * wrappers and attaches the CTA's anchor/button for React's DOM.
-   */
-  private reconcile(): void {
+  private reconcile(hasContent: SlotReader): void {
     const badge = this.badgeWrap?.nativeElement
     const description = this.descriptionWrap?.nativeElement
     const interval = this.intervalWrap?.nativeElement
-    const ctaButton = this.ctaButton?.nativeElement
-    if (!this.slotsRead() && badge && description && interval && ctaButton) {
-      this.badgeSlot.set(hasNodes(badge))
-      this.descriptionSlot.set(hasNodes(description))
-      this.intervalSlot.set(hasNodes(interval))
-      this.ctaLabelSlot.set(hasNodes(ctaButton))
-      this.slotsRead.set(true)
+    // Each slot's capture holds only the consumer's content (the badge input and
+    // the default text render beside it), so it is read on every run.
+    const badgeCapture = this.badgeCapture?.nativeElement
+    if (badgeCapture) {
+      this.badgeSlot.set(hasContent(badgeCapture))
+      this.badgeSlotRead.set(true)
     }
-    this.guard.toggle(badge, this.showBadge())
-    this.guard.toggle(description, this.showDescription())
-    this.guard.toggle(interval, this.showInterval())
+    if (description) this.descriptionSlot.set(hasContent(description))
+    if (interval) this.intervalSlot.set(hasContent(interval))
+    // The button hosts the UI Button, whose own slot placeholders are not the
+    // port's content: read the label's capture, not the button.
+    const ctaLabelCapture = this.ctaLabelCapture?.nativeElement
+    this.ctaLabelSlot.set(hasContent(ctaLabelCapture))
+    for (const capture of [badgeCapture, ctaLabelCapture]) {
+      placeContentBefore(capture, capture)
+      setElementPresent(capture, false)
+    }
+    setElementPresent(badge, this.showBadge())
+    setElementPresent(description, this.showDescription())
+    setElementPresent(interval, this.showInterval())
     this.syncCta()
   }
 
   /**
    * Places the CTA's anchor and button the way React nests them: an anchor
    * around the button when `ctaHref` is set, the button alone otherwise, and
-   * neither when the label is empty.
+   * neither when the label is empty. {@link placeElement} moves the button into
+   * the anchor and back to the place Angular gave it.
    */
   private syncCta(): void {
     const anchor = this.ctaAnchor?.nativeElement
     const button = this.ctaButton?.nativeElement
     if (!anchor || !button) return
     if (!this.showCta()) {
-      this.guard.toggle(button, false)
-      this.guard.toggle(anchor, false)
+      setElementPresent(button, false)
+      setElementPresent(anchor, false)
       return
     }
-    if (this.ctaHref) {
-      this.guard.toggle(anchor, true)
-      if (button.parentElement !== anchor) anchor.appendChild(button)
-      return
-    }
-    if (button.parentElement === anchor) anchor.parentElement?.insertBefore(button, anchor)
-    this.guard.toggle(button, true)
-    this.guard.toggle(anchor, false)
+    const href = Boolean(this.ctaHref)
+    setElementPresent(button, true)
+    setElementPresent(anchor, href)
+    placeElement(button, href ? anchor : null)
   }
 }

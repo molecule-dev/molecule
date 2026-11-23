@@ -17,9 +17,10 @@
  * position (`track $index`, React keys them by index), so a new list re-binds
  * the same nodes instead of re-creating them.
  *
- * The host element is a `div` shell marked `data-parity-unwrap` (React's
- * component renders the strip as its root, with no wrapper of its own; the
- * kit's normalizer removes the marked shell, so the DOM is React's). Inputs
+ * React's component renders the strip as its root, with no wrapper of its own,
+ * and renders nothing when there are no rows: the template's nodes render in
+ * front of the host (`placeContentBefore`) and the host leaves the DOM, so the
+ * DOM is React's, with no shell element. Inputs
  * are declared the way the kit's other Angular feature components declare
  * them — one plain field per React prop, named in the decorator's `inputs`
  * array — and every derived value is a method the template reads, so each
@@ -32,9 +33,15 @@
  * @module
  */
 
-import { Component } from '@angular/core'
+import { Component, ElementRef, inject } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  placeContentBefore,
+  setElementPresent,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import { normalizeTaskListInput, type TaskListRow } from '@molecule/app-ide-panel-logic/panels'
 import { getClassMap, type UIClassMap } from '@molecule/app-ui'
 import { styleText } from '@molecule/app-ui-angular'
@@ -110,10 +117,7 @@ const s = {
   standalone: true,
   imports: [DockStrip, StatusMark],
   inputs: ['todos', 'live', 'awaitingUser'],
-  host: {
-    'data-parity-unwrap': '',
-    style: 'display: contents',
-  },
+  hostDirectives: [MolPlacement],
   // prettier-ignore
   template: `@if (todos.length > 0) {
   <div mol-dock-strip [molId]="'task-list-card'" [toggleMolId]="'task-list-toggle'" [expanded]="expanded" [onToggle]="toggleExpanded" [icon]="iconTpl" [label]="label()" [hint]="hint() ?? undefined" [chipLabel]="chipLabel()" [chipTitle]="chipTitle() ?? undefined">
@@ -130,6 +134,22 @@ const s = {
 <ng-template #iconTpl><span mol-dock-strip-status-mark [state]="headerMark()" [size]="14"></span></ng-template>`,
 })
 export class PlanCard {
+  /** The component's own host element, which React does not render. */
+  private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
+
+  /**
+   * Renders the template's nodes in front of the host and keeps the host out of
+   * the DOM: React's root is the strip div itself, or nothing at all when there
+   * are no rows.
+   */
+  constructor() {
+    usePlacement(() => {
+      const host = this.host.nativeElement
+      placeContentBefore(host, host)
+      setElementPresent(host, false)
+    })
+  }
+
   /** The latest task list. */
   todos: TaskListRow[] = []
 

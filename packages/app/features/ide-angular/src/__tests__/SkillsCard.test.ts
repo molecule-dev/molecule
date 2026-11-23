@@ -48,7 +48,7 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { provideHttp, provideI18n } from '@molecule/app-angular'
+import { provideDomPlacement, provideHttp, provideI18n } from '@molecule/app-angular'
 import type { HttpClient, HttpResponse } from '@molecule/app-http'
 import { createSimpleI18nProvider } from '@molecule/app-i18n'
 import { setIconSet } from '@molecule/app-icons'
@@ -74,7 +74,7 @@ const SkillsCardHost = Component({
   selector: 'mol-skills-card-host',
   standalone: true,
   imports: [SkillsCard],
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `<div mol-skills-card [projectId]="p['projectId']" [initialQuery]="p['initialQuery']" [onLoad]="p['onLoad']" [onCreate]="p['onCreate']" [startCreating]="p['startCreating']" [loadedSkillPaths]="p['loadedSkillPaths']" [defaultSkillPaths]="p['defaultSkillPaths']" [onToggleDefault]="p['onToggleDefault']" [onResetDefault]="p['onResetDefault']" [defaultsExplicit]="p['defaultsExplicit']" [isLight]="p['isLight']" [embedded]="p['embedded']"></div>`,
 })(
   class SkillsCardHost {
@@ -182,6 +182,7 @@ async function renderCard(props: Record<string, unknown> = {}): Promise<Mounted>
   const appRef: ApplicationRef = await createApplication({
     providers: [
       provideZonelessChangeDetection(),
+      provideDomPlacement(),
       provideI18n(createSimpleI18nProvider('en')),
       provideHttp(buildHttpClient()),
     ],

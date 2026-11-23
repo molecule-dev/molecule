@@ -26,7 +26,7 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { provideHttp, provideI18n, provideTheme } from '@molecule/app-angular'
+import { provideDomPlacement, provideHttp, provideI18n, provideTheme } from '@molecule/app-angular'
 import type { ServiceCallSink } from '@molecule/app-framework-conformance/ui'
 import { createFakeThemeProvider } from '@molecule/app-framework-conformance/ui'
 import type { HttpClient, HttpResponse, RequestConfig } from '@molecule/app-http'
@@ -97,7 +97,7 @@ const QuickOpenHost = Component({
   selector: 'mol-quick-open-host',
   standalone: true,
   imports: [QuickOpen],
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `<div mol-quick-open [projectId]="p['projectId']" [onFileOpen]="p['onFileOpen']" [onDismiss]="p['onDismiss']"></div>`,
 })(
   class QuickOpenHost {
@@ -172,6 +172,7 @@ async function renderQuickOpen(projectId: string): Promise<Mounted> {
   const appRef: ApplicationRef = await createApplication({
     providers: [
       provideZonelessChangeDetection(),
+      provideDomPlacement(),
       provideI18n(createSimpleI18nProvider('en')),
       provideTheme(createFakeThemeProvider('light', sink)),
       provideHttp(buildHttpClient()),

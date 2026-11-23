@@ -14,9 +14,10 @@
  * the tick is torn down and re-armed whenever the running count changes, the
  * way React's effect re-subscribes.
  *
- * The host element is a `div` shell marked `data-parity-unwrap` (React's
- * component renders the strip as its root, with no wrapper of its own; the
- * kit's normalizer removes the marked shell, so the DOM is React's). Inputs
+ * React's component renders the strip as its root, with no wrapper of its own,
+ * and renders nothing when there are no tasks: the template's nodes render in
+ * front of the host (`placeContentBefore`) and the host leaves the DOM, so the
+ * DOM is React's, with no shell element. Inputs
  * are declared the way the kit's other Angular feature components declare
  * them — one plain field per React prop, named in the decorator's `inputs`
  * array — and every derived value is a method the template reads, so each
@@ -31,10 +32,16 @@
  */
 
 import type { DoCheck } from '@angular/core'
-import { Component, effect, signal } from '@angular/core'
+import { Component, effect, ElementRef, inject, signal } from '@angular/core'
 
 import type { BackgroundTaskState } from '@molecule/app-ai-chat'
-import { useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  placeContentBefore,
+  setElementPresent,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { styleText } from '@molecule/app-ui-angular'
@@ -82,10 +89,7 @@ function purpose(task: BackgroundTaskState): string {
   standalone: true,
   imports: [DockStrip, StatusMark],
   inputs: ['tasks'],
-  host: {
-    'data-parity-unwrap': '',
-    style: 'display: contents',
-  },
+  hostDirectives: [MolPlacement],
   // prettier-ignore
   template: `@if (tasks.length > 0) {
   <div mol-dock-strip [molId]="'chat-background-tasks'" [toggleMolId]="'chat-background-tasks-toggle'" [expanded]="expanded()" [onToggle]="toggleExpanded" [icon]="iconTpl" [label]="label()" [chipLabel]="chip()" [chipTitle]="chipTitle() ?? undefined" [hint]="hint() ?? undefined">
@@ -107,6 +111,9 @@ function purpose(task: BackgroundTaskState): string {
 <ng-template #iconTpl><span mol-dock-strip-status-mark [state]="headerMark()" [size]="14"></span></ng-template>`,
 })
 export class BackgroundTasksStrip implements DoCheck {
+  /** The component's own host element, which React does not render. */
+  private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
+
   /** Every background command of the current turn, newest last. */
   tasks: BackgroundTaskState[] = []
 
@@ -141,6 +148,13 @@ export class BackgroundTasksStrip implements DoCheck {
   private readonly runningCount = signal(0)
 
   constructor() {
+    // React's root is the strip div (or nothing): the template's nodes render in
+    // front of the host and the host stays out of the DOM.
+    usePlacement(() => {
+      const host = this.host.nativeElement
+      placeContentBefore(host, host)
+      setElementPresent(host, false)
+    })
     // React's effect tears down and re-arms the interval on every
     // running-count change, so a new command restarts the phase from that
     // moment, and nothing ticks once the last command has ended.

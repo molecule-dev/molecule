@@ -5,23 +5,19 @@
  */
 
 import { NgTemplateOutlet } from '@angular/common'
-import {
-  type AfterViewInit,
-  Component,
-  type DoCheck,
-  ElementRef,
-  inject,
-  Renderer2,
-  type TemplateRef,
-  ViewChild,
-} from '@angular/core'
+import { Component, ElementRef, inject, type TemplateRef, ViewChild } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  placeContent,
+  setElementPresent,
+  type SlotReader,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { asTemplate, Avatar } from '@molecule/app-ui-angular'
-
-import { hasNodes, SlotWrapper } from './slot-dom.js'
 
 /**
  * Next value of the module-wide row-id counter.
@@ -55,23 +51,6 @@ const textOf = (value: unknown): string => {
 }
 
 /**
- * Whether an ng-content wrapper holds projected content besides the wrapper's
- * own `— ` prefix text node (the preview span's separator).
- *
- * @param el - The wrapper element.
- * @returns True when a projected element or non-empty text node exists.
- */
-const hasProjectedContent = (el: Element | undefined | null): boolean => {
-  if (!el) return false
-  for (const node of Array.from(el.childNodes)) {
-    if (node.nodeType === 1) return true
-    if (node.nodeType === 3 && (node.textContent ?? '').trim() && node.textContent !== '— ')
-      return true
-  }
-  return false
-}
-
-/**
  * InboxRow component.
  *
  * Inbox / email message list row — sender + subject + preview + timestamp +
@@ -86,10 +65,11 @@ const hasProjectedContent = (el: Element | undefined | null): boolean => {
  * native button laid over it (the row's open action, named by the sender and
  * the subject), and the row's other controls — the star toggle, the selection
  * slot, the labels slot — are raised into positioned wrappers so they paint
- * above it and keep their own clicks. The wrappers stay in the template so
- * the projections have one home; while `onClick` is absent their children
- * move out to the wrappers' place and the empty spans leave the DOM, the way
- * React renders the controls bare.
+ * above it and keep their own clicks. The star's wrapper follows React's own
+ * conditional (`onClick` chooses whether it renders at all); the selection
+ * wrapper stays in the template so its projection has one home, and while
+ * `onClick` is absent its content renders at the wrapper's place and the empty
+ * span leaves the DOM, the way React renders the control bare.
  *
  * The structure and every style mirror
  * `@molecule/app-inbox-row-react`'s `InboxRow`; translated labels come from
@@ -99,6 +79,7 @@ const hasProjectedContent = (el: Element | undefined | null): boolean => {
 @Component({
   selector: 'div[mol-inbox-row]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [Avatar, NgTemplateOutlet],
   inputs: [
     'sender',
@@ -124,9 +105,9 @@ const hasProjectedContent = (el: Element | undefined | null): boolean => {
   // render. Everything is glued, and the preview's `— ` prefix is an explicit
   // interpolation.
   // prettier-ignore
-  template: `@if (onClick) {<button type="button" [attr.aria-labelledby]="openLabelledBy()" data-mol-id="inbox-row-open" (click)="handleClick()" [class]="openButtonClasses()" [style.background]="'transparent'" [style.border]="'none'" [style.padding]="'0px'"></button>}<span #selectionWrap [class]="selectionClasses()"><ng-content select="[slot=selectionSlot]"></ng-content>@if (selectionTemplate(); as tpl) {<ng-container [ngTemplateOutlet]="tpl" />}</span>@if (onToggleStar !== undefined) {<span #starWrap [class]="starWrapClasses()"><button type="button" (click)="toggleStar($event)" [attr.aria-pressed]="starred ?? null" data-mol-id="inbox-row-star" [attr.aria-label]="starLabel()" [class]="starClasses()" [style.background]="'none'" [style.border]="'none'" [style.font-size]="'16px'">★</button></span>}<div mol-avatar [src]="senderAvatarSrc" [alt]="senderName()" [name]="senderName()" [size]="'sm'"></div><div [class]="stackClasses()" [style.min-width]="'0px'"><div [class]="senderRowClasses()"><span [attr.id]="senderId()" [class]="cm().textSize('sm')">{{ senderText() }}<ng-content select="[slot=sender]"></ng-content>@if (senderTemplate(); as tpl) {<ng-container [ngTemplateOutlet]="tpl" />}</span><span #labelsWrap [class]="labelsClasses()"><ng-content select="[slot=labels]"></ng-content>@if (labelsTemplate(); as tpl) {<ng-container [ngTemplateOutlet]="tpl" />}{{ labelsText() }}</span></div><div [style.overflow]="'hidden'" [style.text-overflow]="'ellipsis'" [style.white-space]="'nowrap'"><span [attr.id]="subjectId()" [class]="cm().textSize('sm')">{{ subjectText() }}<ng-content select="[slot=subject]"></ng-content>@if (subjectTemplate(); as tpl) {<ng-container [ngTemplateOutlet]="tpl" />}</span><span #previewWrap [class]="previewClasses()" [style.opacity]="'0.6'">{{ '— ' }}<ng-content select="[slot=preview]"></ng-content>@if (previewTemplate(); as tpl) {<ng-container [ngTemplateOutlet]="tpl" />}{{ previewText() }}</span></div></div>@if (hasAttachment) {<span [attr.aria-label]="attachmentLabel()">📎</span>}@if (unread) {<span aria-hidden="true" [class]="cm().bgTone('info')" [style.width]="'8px'" [style.height]="'8px'" [style.border-radius]="'50%'"></span>}<span #timestampWrap [class]="timestampClasses()"><ng-content select="[slot=timestamp]"></ng-content>@if (timestampTemplate(); as tpl) {<ng-container [ngTemplateOutlet]="tpl" />}{{ timestampText() }}</span>`,
+  template: `@if (onClick) {<button type="button" [attr.aria-labelledby]="openLabelledBy()" data-mol-id="inbox-row-open" (click)="handleClick()" [class]="openButtonClasses()" [style.background]="'transparent'" [style.border]="'none'" [style.padding]="'0px'"></button>}<span #selectionWrap [class]="selectionClasses()"><ng-content select="[slot=selectionSlot]"></ng-content>@if (selectionTemplate(); as tpl) {<ng-container [ngTemplateOutlet]="tpl" />}</span>@if (onToggleStar !== undefined) {@if (onClick) {<span [class]="starWrapClasses()"><button type="button" (click)="toggleStar($event)" [attr.aria-pressed]="starred ?? null" data-mol-id="inbox-row-star" [attr.aria-label]="starLabel()" [class]="starClasses()" [style.background]="'none'" [style.border]="'none'" [style.font-size]="'16px'">★</button></span>} @else {<button type="button" (click)="toggleStar($event)" [attr.aria-pressed]="starred ?? null" data-mol-id="inbox-row-star" [attr.aria-label]="starLabel()" [class]="starClasses()" [style.background]="'none'" [style.border]="'none'" [style.font-size]="'16px'">★</button>}}<div mol-avatar [src]="senderAvatarSrc" [alt]="senderName()" [name]="senderName()" [size]="'sm'"></div><div [class]="stackClasses()" [style.min-width]="'0px'"><div [class]="senderRowClasses()"><span [attr.id]="senderId()" [class]="cm().textSize('sm')">{{ senderText() }}<ng-content select="[slot=sender]"></ng-content>@if (senderTemplate(); as tpl) {<ng-container [ngTemplateOutlet]="tpl" />}</span><span #labelsWrap [class]="labelsClasses()"><ng-content select="[slot=labels]"></ng-content>@if (labelsTemplate(); as tpl) {<ng-container [ngTemplateOutlet]="tpl" />}{{ labelsText() }}</span></div><div [style.overflow]="'hidden'" [style.text-overflow]="'ellipsis'" [style.white-space]="'nowrap'"><span [attr.id]="subjectId()" [class]="cm().textSize('sm')">{{ subjectText() }}<ng-content select="[slot=subject]"></ng-content>@if (subjectTemplate(); as tpl) {<ng-container [ngTemplateOutlet]="tpl" />}</span><span #previewWrap [class]="previewClasses()" [style.opacity]="'0.6'">{{ '— ' }}<ng-content select="[slot=preview]"></ng-content>@if (previewTemplate(); as tpl) {<ng-container [ngTemplateOutlet]="tpl" />}{{ previewText() }}</span></div></div>@if (hasAttachment) {<span [attr.aria-label]="attachmentLabel()">📎</span>}@if (unread) {<span aria-hidden="true" [class]="cm().bgTone('info')" [style.width]="'8px'" [style.height]="'8px'" [style.border-radius]="'50%'"></span>}<span #timestampWrap [class]="timestampClasses()"><ng-content select="[slot=timestamp]"></ng-content>@if (timestampTemplate(); as tpl) {<ng-container [ngTemplateOutlet]="tpl" />}{{ timestampText() }}</span>`,
 })
-export class InboxRow implements AfterViewInit, DoCheck {
+export class InboxRow {
   /** Sender display (a `[slot=sender]` projection or a `TemplateRef`; a plain string names the avatar too). */
   sender?: unknown
   /** Avatar URL fallback for sender. */
@@ -167,8 +148,6 @@ export class InboxRow implements AfterViewInit, DoCheck {
   @ViewChild('timestampWrap') timestampWrap?: ElementRef<HTMLElement>
   /** The selection slot's positioned wrapper (React's raised control). */
   @ViewChild('selectionWrap') selectionWrap?: ElementRef<HTMLElement>
-  /** The star toggle's positioned wrapper (React's raised control). */
-  @ViewChild('starWrap') starWrap?: ElementRef<HTMLElement>
 
   /**
    * Reactive translation, read in the injection context. Its `t` reads the
@@ -177,35 +156,11 @@ export class InboxRow implements AfterViewInit, DoCheck {
    */
   private readonly i18n = useTranslation()
 
-  /** The component host element (the root `<div>`). */
+  /** The component host element (the root `<div>`), where the bare controls render. */
   private readonly host = inject(ElementRef)
 
-  /** The DOM renderer (the raised controls' unwrap anchor). */
-  private readonly renderer = inject(Renderer2)
-
-  /** The wrappers' attach/detach helper. */
-  private readonly sync = new SlotWrapper(this.host, this.renderer)
-
-  /** Each wrapper's place in the template, remembered while it is detached. */
-  private readonly parents = new Map<Element, Node>()
-
-  /**
-   * Each raised control's unwrap state: the comment anchor keeping its
-   * re-insertion position, and the children that moved out to it.
-   */
-  private readonly unwrapped = new Map<Element, { anchor: Comment; children: Node[] }>()
-
-  /**
-   * The element's parent in the template — its live parent while attached,
-   * otherwise the one remembered from the last time it was.
-   * @param el - The wrapper element.
-   * @returns The parent node.
-   */
-  private parentOf(el: Element): Node {
-    const parent =
-      (el.isConnected ? el.parentNode : this.parents.get(el)) ?? this.host.nativeElement
-    this.parents.set(el, parent)
-    return parent
+  constructor() {
+    usePlacement((hasContent) => this.syncWrappers(hasContent))
   }
 
   /**
@@ -488,114 +443,81 @@ export class InboxRow implements AfterViewInit, DoCheck {
    * projected node while the prop is absent.
    * @param prop - The node-valued prop.
    * @param wrap - The wrapper element.
-   * @param projected - The wrapper's projected-content check.
+   * @param hasContent - Reads whether a slot has content.
    * @returns True when the wrapper belongs in the DOM.
    */
   private present(
     prop: unknown,
     wrap: ElementRef<HTMLElement> | undefined,
-    projected: (el: Element | undefined | null) => boolean,
+    hasContent: SlotReader,
   ): boolean {
     if (prop !== undefined) return Boolean(prop)
-    return projected(wrap?.nativeElement)
+    return hasContent(wrap?.nativeElement)
+  }
+
+  /**
+   * Whether React renders the preview span. React renders the span only with
+   * the preview (`preview && <span>— {preview}</span>`); the span's own `— `
+   * prefix is template text, not projected content, so the slot read skips
+   * that one leading node.
+   * @param hasContent - Reads whether a slot has content.
+   * @returns True when the preview span has content.
+   */
+  private previewPresent(hasContent: SlotReader): boolean {
+    if (this.preview !== undefined) return Boolean(this.preview)
+    return hasContent(this.previewWrap?.nativeElement, 1)
   }
 
   /**
    * Whether React renders the selection slot at all: a given truthy prop, or
-   * projected nodes — read from the wrapper while it is attached, otherwise
-   * from the contiguous run of unwrapped children before its anchor.
+   * projected nodes. The reader reads the content where it renders, including
+   * while it sits bare on the host.
+   * @param hasContent - Reads whether a slot has content.
    * @returns True when the slot has content.
    */
-  private selectionPresent(): boolean {
+  private selectionPresent(hasContent: SlotReader): boolean {
     if (this.selectionSlot !== undefined) return Boolean(this.selectionSlot)
-    const el = this.selectionWrap?.nativeElement
-    if (!el) return false
-    const state = this.unwrapped.get(el)
-    if (!state) return hasNodes(el)
-    const run: Node[] = []
-    let node = state.anchor.previousSibling
-    while (node && state.children.includes(node)) {
-      run.unshift(node)
-      node = node.previousSibling
-    }
-    for (const item of run) {
-      if (item.nodeType === 1) return true
-      if (item.nodeType === 3 && (item.textContent ?? '').trim()) return true
-    }
-    return false
+    return hasContent(this.selectionWrap?.nativeElement)
   }
 
   /**
    * Wraps or unwraps one raised control: while `onClick` is set its wrapper
    * span (positioned, so it paints above the open button) stays in the DOM
-   * around it; while it is not, the span's children move out to its place and
-   * the empty span leaves the DOM, the way React renders the control bare. A
-   * comment anchor keeps the re-insertion position (the normalizer strips
-   * comments), and the moved children are remembered for the re-wrap.
+   * around it; while it is not, the span's content renders at its place on the
+   * host and the empty span leaves the DOM, the way React renders the control
+   * bare.
    * @param el - The wrapper element.
    * @param raised - Whether `onClick` is set.
    */
   private syncRaised(el: Element | undefined, raised: boolean): void {
     if (!el) return
-    const state = this.unwrapped.get(el)
     if (raised) {
-      if (!state) return
-      for (const child of state.children) el.appendChild(child)
-      if (state.anchor.isConnected) state.anchor.parentNode?.insertBefore(el, state.anchor)
-      else this.host.nativeElement.appendChild(el)
-      state.anchor.remove()
-      this.unwrapped.delete(el)
-    } else if (!state && el.isConnected) {
-      const anchor = this.renderer.createComment('raised')
-      el.parentNode?.insertBefore(anchor, el)
-      const children = Array.from(el.childNodes)
-      for (const child of children) el.parentNode?.insertBefore(child, anchor)
-      el.remove()
-      this.unwrapped.set(el, { anchor, children })
+      setElementPresent(el, true)
+      placeContent(el, null)
+      return
     }
+    placeContent(el, this.host.nativeElement, el)
+    setElementPresent(el, false)
   }
 
   /**
    * Places the raised controls where React renders them, and attaches or
    * detaches the conditional wrappers, so the DOM matches what React renders
    * for the current props.
+   *
+   * @param hasContent - Reads whether a slot has content.
    */
-  syncWrappers(): void {
+  private syncWrappers(hasContent: SlotReader): void {
     this.syncRaised(
       this.selectionWrap?.nativeElement,
-      Boolean(this.onClick) && this.selectionPresent(),
+      Boolean(this.onClick) && this.selectionPresent(hasContent),
     )
-    this.syncRaised(this.starWrap?.nativeElement, Boolean(this.onClick))
     const labels = this.labelsWrap?.nativeElement
-    if (labels)
-      this.sync.sync(
-        labels,
-        this.present(this.labels, this.labelsWrap, hasNodes),
-        this.parentOf(labels),
-      )
+    if (labels) setElementPresent(labels, this.present(this.labels, this.labelsWrap, hasContent))
     const preview = this.previewWrap?.nativeElement
-    if (preview)
-      this.sync.sync(
-        preview,
-        this.present(this.preview, this.previewWrap, hasProjectedContent),
-        this.parentOf(preview),
-      )
+    if (preview) setElementPresent(preview, this.previewPresent(hasContent))
     const timestamp = this.timestampWrap?.nativeElement
     if (timestamp)
-      this.sync.sync(
-        timestamp,
-        this.present(this.timestamp, this.timestampWrap, hasNodes),
-        this.parentOf(timestamp),
-      )
-  }
-
-  /** Applies the wrapper decisions once the projection is in the document. */
-  ngAfterViewInit(): void {
-    this.syncWrappers()
-  }
-
-  /** Reconciles the wrappers after input writes and projected-content changes. */
-  ngDoCheck(): void {
-    this.syncWrappers()
+      setElementPresent(timestamp, this.present(this.timestamp, this.timestampWrap, hasContent))
   }
 }

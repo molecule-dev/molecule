@@ -100,7 +100,7 @@ async function mountCanvas(props: Record<string, unknown> = {}): Promise<Mounted
     selector: 'mol-spec-host',
     standalone: true,
     imports: [MindMapCanvas],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template,
   })(
     class SpecHost {

@@ -8,7 +8,7 @@
  * @module
  */
 import '@angular/compiler'
-import { Component, type Type } from '@angular/core'
+import { ChangeDetectionStrategy, Component, type Type } from '@angular/core'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { QueryResource } from '@molecule/app-query'
@@ -67,6 +67,7 @@ async function mountList(
   viewer = 'reader',
 ): Promise<ComponentMount<object>> {
   const List = Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
     selector: `mol-task-list-${++pageCount}`,
     standalone: true,
     template: `<ul>

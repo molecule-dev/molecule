@@ -77,7 +77,7 @@ async function mountHost(props: VideoTimelineProps): Promise<Mounted> {
     selector: 'mol-spec-host',
     standalone: true,
     imports: [VideoTimeline as Type<unknown>],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: TEMPLATE,
   })(
     class SpecHost {

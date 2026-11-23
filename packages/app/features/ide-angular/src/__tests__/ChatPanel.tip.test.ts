@@ -263,7 +263,7 @@ describe('ChatPanel viewer tip (read-only member orientation)', () => {
       // jsdom normalizes hex to rgb), not the neutral primary tint of other tips.
       expect(viewerTip?.getAttribute('style') ?? '').toMatch(/#e0a100|rgb\(224,\s*161,\s*0\)/)
       // Dismissable like every other tip.
-      expect(viewerTip?.querySelector('[data-mol-id="chat-tip-dismiss"]')).not.toBeNull()
+      expect(viewerTip!.querySelector('[data-mol-id="chat-tip-dismiss"]')).not.toBeNull()
     },
   )
 

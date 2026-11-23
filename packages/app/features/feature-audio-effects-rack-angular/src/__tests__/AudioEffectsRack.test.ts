@@ -102,7 +102,7 @@ async function mountComponent(template: string, props: AudioEffectsRackProps): P
     selector: 'mol-spec-host',
     standalone: true,
     imports: [AudioEffectsRack],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template,
   })(
     class SpecHost {

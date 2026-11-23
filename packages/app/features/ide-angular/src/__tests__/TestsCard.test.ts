@@ -22,6 +22,7 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 import type { TestItem, TestRunEvent, TestSelection } from '@molecule/app-ide-panel-logic'
 import {
@@ -91,7 +92,7 @@ const TestsCardHost = Component({
   selector: 'mol-tests-card-host',
   standalone: true,
   imports: [TestsCard],
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `<div mol-tests-card [tests]="p['tests']" [status]="p['status']" [run]="p['run']" [initialQuery]="p['initialQuery']" [canRun]="p['canRun']" [onRun]="p['onRun']" [onCancel]="p['onCancel']" [onSkipCurrent]="p['onSkipCurrent']" [onFix]="p['onFix']" [fixDisabledReason]="p['fixDisabledReason']" [isLight]="p['isLight']" [embedded]="p['embedded']" [agentName]="p['agentName']"></div>`,
 })(
   class TestsCardHost {
@@ -150,7 +151,7 @@ async function renderCard(overrides: Record<string, unknown> = {}): Promise<Moun
   const container = document.createElement('div')
   document.body.appendChild(container)
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<InstanceType<typeof TestsCardHost>> = createComponent(TestsCardHost, {
     environmentInjector: appRef.injector,
@@ -510,7 +511,8 @@ describe('TestsCard — chrome', () => {
     const embedded = await renderCard({ embedded: true })
     // The overlay header already shows the title; the card must not repeat it.
     const heading = embedded.container.querySelector('[data-mol-id="tests-card"] > div')
-    expect(heading?.textContent).not.toBe('Tests')
+    expect(heading).not.toBeNull()
+    expect(heading!.textContent).not.toBe('Tests')
   })
 
   it('has a data-mol-id on every interactive element', async () => {

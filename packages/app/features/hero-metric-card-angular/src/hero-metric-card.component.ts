@@ -4,17 +4,16 @@
  * @module
  */
 
-import {
-  type AfterViewInit,
-  Component,
-  type ElementRef,
-  inject,
-  Renderer2,
-  signal,
-  ViewChild,
-} from '@angular/core'
+import { Component, type ElementRef, signal, ViewChild } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  placeContent,
+  setElementPresent,
+  type SlotReader,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { ColorVariant, UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { styleText } from '@molecule/app-ui-angular'
@@ -35,27 +34,6 @@ const ACCENT_COLOR_VARIANT: Record<HeroMetricSemanticAccent, ColorVariant> = {
   info: 'info',
   neutral: 'secondary',
 }
-
-/**
- * Whether a node is something a caller can see (an element, or a non-blank
- * text node).
- *
- * @param node - The DOM node.
- * @returns True when it renders anything.
- */
-const hasRenderable = (node: Node): boolean =>
-  node.nodeType === Node.ELEMENT_NODE ||
-  (node.nodeType === Node.TEXT_NODE && (node.textContent ?? '').trim().length > 0)
-
-/**
- * Whether an element carries renderable content (a projected slot landed, or
- * its text input rendered).
- *
- * @param el - The element.
- * @returns True when its children render anything.
- */
-const hasRenderableContent = (el: Element | undefined | null): boolean =>
-  el ? Array.from(el.childNodes).some(hasRenderable) : false
 
 /**
  * Whether a string/number input renders as text (React renders nothing for
@@ -80,12 +58,13 @@ const hasText = (value: unknown): boolean =>
  * Node props (`title`, `value`, `unit`, `subtitle`, `progressRing`, `icon`) are
  * projected content (`[slot=<name>]`) or plain string inputs. Angular
  * projection needs the optional capture points mounted, so the wrapper regions
- * render optimistically and {@link HeroMetricCard.ngAfterViewInit} reconciles
+ * render optimistically and the component's placement function reconciles
  * them with React's conditional DOM.
  */
 @Component({
   selector: 'div[mol-hero-metric-card]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [HeroMetricTrendChip],
   inputs: [
     'title',
@@ -111,9 +90,9 @@ const hasText = (value: unknown): boolean =>
     '(keydown)': 'handleKeyDown($event)',
   },
   // prettier-ignore
-  template: `@if (accent) {<span #accentEl aria-hidden="true" [class]="accentClasses()" [style]="accentStyle()"></span>}<div [class]="paddingClasses()"><div [class]="rowClasses()" [attr.aria-busy]="loading ? 'true' : null"><div [class]="stackClasses()"><span [class]="titleClasses()">@if (hasTitle) {{{ title }}}<ng-content select="[slot=title]"></ng-content></span>@if (loading) {<span [class]="loadingClasses()" role="status" aria-live="polite">{{ loadingLabel() }}</span>} @else {<div [class]="valueRowClasses()"><span [class]="valueClasses()">@if (hasValue) {{{ value }}}<ng-content select="[slot=value]"></ng-content></span>@if (showUnit()) {<span #unitWrap [class]="unitClasses()">@if (hasUnitInput) {{{ unit }}}<ng-content select="[slot=unit]"></ng-content></span>}</div>}@if (!loading && trend) {<span mol-hero-metric-trend-chip [trend]="trend"></span>}@if (showSubtitle()) {<span #subtitleWrap [class]="subtitleClasses()">@if (hasSubtitleInput) {{{ subtitle }}}<ng-content select="[slot=subtitle]"></ng-content></span>}</div>@if (showRight()) {<div #rightWrap [class]="rightClasses()">@if (hasRightText) {{{ rightValue }}}<span #ringSlot><ng-content select="[slot=progressRing]"></ng-content></span><span #iconSlot><ng-content select="[slot=icon]"></ng-content></span></div>}</div></div>`,
+  template: `@if (accent) {<span #accentEl aria-hidden="true" [class]="accentClasses()" [style]="accentStyle()"></span>}<div [class]="paddingClasses()"><div [class]="rowClasses()" [attr.aria-busy]="loading ? 'true' : null"><div [class]="stackClasses()"><span [class]="titleClasses()">@if (hasTitle) {{{ title }}}<ng-content select="[slot=title]"></ng-content></span>@if (loading) {<span [class]="loadingClasses()" role="status" aria-live="polite">{{ loadingLabel() }}</span>} @else {<div [class]="valueRowClasses()"><span [class]="valueClasses()">@if (hasValue) {{{ value }}}<ng-content select="[slot=value]"></ng-content></span><span #unitWrap [class]="unitClasses()">@if (hasUnitInput) {{{ unit }}}<ng-content select="[slot=unit]"></ng-content></span></div>}@if (!loading && trend) {<span mol-hero-metric-trend-chip [trend]="trend"></span>}<span #subtitleWrap [class]="subtitleClasses()">@if (hasSubtitleInput) {{{ subtitle }}}<ng-content select="[slot=subtitle]"></ng-content></span></div><div #rightWrap [class]="rightClasses()">@if (hasRightText) {{{ rightValue }}}<span #ringSlot><ng-content select="[slot=progressRing]"></ng-content></span><span #iconSlot><ng-content select="[slot=icon]"></ng-content></span></div></div></div>`,
 })
-export class HeroMetricCard implements AfterViewInit {
+export class HeroMetricCard {
   /** Title / label for the metric — a string input, or `[slot=title]` content. */
   title?: unknown
   /** The large primary value — a string input, or `[slot=value]` content. */
@@ -139,11 +118,11 @@ export class HeroMetricCard implements AfterViewInit {
   /** `data-mol-id` for AI-agent selectors. */
   dataMolId?: string
 
-  /** The optional unit wrapper (its projected content is read once). */
+  /** The optional unit wrapper (its projected content is read each placement). */
   @ViewChild('unitWrap') private unitWrap?: ElementRef<HTMLElement>
-  /** The optional subtitle wrapper (its projected content is read once). */
+  /** The optional subtitle wrapper (its projected content is read each placement). */
   @ViewChild('subtitleWrap') private subtitleWrap?: ElementRef<HTMLElement>
-  /** The right-hand slot's wrapper (its projected content is read once). */
+  /** The right-hand slot's wrapper (its projected content is read each placement). */
   @ViewChild('rightWrap') private rightWrap?: ElementRef<HTMLElement>
   /** The progress-ring capture point (removed once its nodes are placed). */
   @ViewChild('ringSlot') private ringSlot?: ElementRef<HTMLElement>
@@ -153,30 +132,39 @@ export class HeroMetricCard implements AfterViewInit {
   /** The i18n handle (locale-reactive), read in an injection context. */
   private readonly i18n = useTranslation()
 
-  /** Whether a `[slot=unit]` projection landed (true until the first view proves otherwise). */
+  /** Whether a `[slot=unit]` projection landed (set from its projected content on each placement). */
   private readonly unitProjected = signal(true)
-  /** Whether a `[slot=subtitle]` projection landed (true until the first view proves otherwise). */
+  /** Whether a `[slot=subtitle]` projection landed (set from its projected content on each placement). */
   private readonly subtitleProjected = signal(true)
-  /** Whether a `[slot=progressRing]` projection landed (true until the first view proves otherwise). */
+  /** Whether a `[slot=progressRing]` projection landed (set from its projected content on each placement). */
   private readonly ringProjected = signal(true)
-  /** Whether a `[slot=icon]` projection landed (true until the first view proves otherwise). */
+  /** Whether a `[slot=icon]` projection landed (set from its projected content on each placement). */
   private readonly iconProjected = signal(true)
 
-  private readonly renderer = inject(Renderer2)
+  constructor() {
+    usePlacement((hasContent) => this.reconcile(hasContent))
+  }
 
   /**
-   * Reads the optional regions' first render and settles the right-hand slot:
-   * React renders a region only when a prop or a projection supplies it, and
-   * picks `progressRing` over `icon`; Angular projection needed both capture
-   * points mounted, so the loser is dropped here and the winner's nodes move
-   * into the wrapper (React has no capture element).
+   * Reads the optional regions' projected content and settles the right-hand
+   * slot: React renders a region only when a prop or a projection supplies it,
+   * and picks `progressRing` over `icon`; Angular projection needed both
+   * capture points mounted, so the loser is withheld here and the winner's
+   * content is placed into the wrapper (React has no capture element).
+   *
+   * @param hasContent - Reads whether a slot has content.
    */
-  ngAfterViewInit(): void {
+  private reconcile(hasContent: SlotReader): void {
     const unit = this.unitWrap?.nativeElement
-    this.unitProjected.set(hasRenderableContent(unit))
+    this.unitProjected.set(this.hasUnitInput || hasContent(unit))
+    setElementPresent(unit, this.showUnit())
+
     const subtitle = this.subtitleWrap?.nativeElement
-    this.subtitleProjected.set(hasRenderableContent(subtitle))
-    this.settleRight()
+    this.subtitleProjected.set(!this.loading && (this.hasSubtitleInput || hasContent(subtitle)))
+    setElementPresent(subtitle, this.showSubtitle())
+
+    this.settleRight(hasContent)
+    setElementPresent(this.rightWrap?.nativeElement, this.showRight())
   }
 
   /**
@@ -449,24 +437,29 @@ export class HeroMetricCard implements AfterViewInit {
   /**
    * Settles the right-hand slot from the capture points: only when no text
    * input supplies it, a projected `progressRing` wins over a projected
-   * `icon`; the winner's nodes move directly into the wrapper (React has no
-   * capture element) and both capture points are removed.
+   * `icon`; the winner's content is rendered directly in the wrapper (React has
+   * no capture element) and both capture points are taken out of the DOM.
+   *
+   * @param hasContent - Reads whether a slot has content.
    */
-  private settleRight(): void {
+  private settleRight(hasContent: SlotReader): void {
     const wrap = this.rightWrap?.nativeElement
     const ring = this.ringSlot?.nativeElement
     const icon = this.iconSlot?.nativeElement
-    if (!wrap || !ring || !icon) return
-    const ringHas = hasRenderableContent(ring)
-    const iconHas = hasRenderableContent(icon)
+    const ringHas = hasContent(ring)
+    const iconHas = hasContent(icon)
     this.ringProjected.set(ringHas)
     this.iconProjected.set(iconHas)
+    if (!wrap || !ring || !icon) return
     const winner = ringHas ? ring : iconHas ? icon : null
     const loser = ringHas ? icon : iconHas ? ring : null
     if (winner) {
-      for (const node of Array.from(winner.childNodes)) wrap.insertBefore(node, winner)
-      this.renderer.removeChild(wrap, winner)
+      placeContent(winner, wrap, winner)
+      setElementPresent(winner, false)
     }
-    if (loser) this.renderer.removeChild(wrap, loser)
+    if (loser) {
+      placeContent(loser, null)
+      setElementPresent(loser, false)
+    }
   }
 }

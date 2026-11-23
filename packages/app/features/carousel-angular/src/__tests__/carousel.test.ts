@@ -73,6 +73,7 @@ vi.mock('@molecule/app-ui-angular', async () => {
   const { Component } = await import('@angular/core')
   return {
     Button: Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'button[mol-button]',
       standalone: true,
       inputs: [
@@ -169,7 +170,7 @@ async function mount(
     selector: 'mol-spec-host',
     standalone: true,
     imports: [component],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template,
   })(
     class SpecHost {
@@ -433,6 +434,7 @@ describe('Carousel', () => {
 
   it('fails loudly without provideDomPlacement', async () => {
     const Host = Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'mol-bare-host',
       standalone: true,
       imports: [Carousel as Type<unknown>],

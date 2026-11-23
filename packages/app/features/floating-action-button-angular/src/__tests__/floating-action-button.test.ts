@@ -23,6 +23,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 // Proxy ClassMap echoing each accessed member back as its token, so tests can
 // assert which cm.* class was applied without a real bond.
 vi.mock('@molecule/app-ui', () => ({
@@ -83,7 +85,7 @@ async function mount(
     selector: 'mol-spec-host',
     standalone: true,
     imports: [component],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template,
   })(
     class SpecHost {
@@ -92,7 +94,7 @@ async function mount(
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
     environmentInjector: appRef.injector,
@@ -142,6 +144,20 @@ afterEach(async () => {
 })
 
 describe('FloatingActionButton', () => {
+  it('keeps a consumer list in order when an item is inserted in the middle of icon', async () => {
+    const m = await render(
+      `<div mol-floating-action-button [label]="p['label']">@for (x of p['xs']; track x) {<span slot="icon"><b>{{ x }}</b></span>}</div>`,
+      { label: 'Create', xs: [1, 3] },
+    )
+    const texts = (): string[] =>
+      Array.from(m.host.querySelectorAll('button b, a b')).map((el) => el.textContent ?? '')
+    expect(texts()).toEqual(['1', '3'])
+    await m.setProps({ xs: [1, 2, 3] })
+    expect(texts()).toEqual(['1', '2', '3'])
+    await m.setProps({ xs: [1, 3] })
+    expect(texts()).toEqual(['1', '3'])
+  })
+
   it('renders a <button> when onClick is supplied', async () => {
     const m = await render(withIcon, { label: 'Add', onClick: () => {} })
     expect(root(m.host).tagName).toBe('BUTTON')
@@ -202,5 +218,36 @@ describe('FloatingActionButton', () => {
     // …and is emitted AFTER the default surface token, so under cm.cn's real
     // tailwind-merge a conflicting caller class wins (default is overridable).
     expect(cls.indexOf('fab-override')).toBeGreaterThan(cls.indexOf('gradientPrimary'))
+  })
+
+  it('shows and removes the icon wrapper in the pass where the consumer @if adds and removes its content', async () => {
+    const m = await mount(
+      `<div mol-floating-action-button [label]="p['label']" [onClick]="p['onClick']">@if (p['on']) {<span slot="icon" data-icon>+</span>}</div>`,
+      FloatingActionButton as Type<unknown>,
+      { label: 'Add', onClick: () => {}, on: false },
+    )
+    mounted.push(m)
+    expect(root(m.host).querySelector('[data-icon]')).toBeNull()
+    await m.setProps({ on: true })
+    const icon = root(m.host).querySelector('[data-icon]')
+    // React renders `{icon}` bare inside the root, with no capture wrapper.
+    expect(icon).not.toBeNull()
+    expect(icon?.parentElement).toBe(root(m.host))
+    await m.setProps({ on: false })
+    expect(root(m.host).querySelector('[data-icon]')).toBeNull()
+  })
+
+  it("renders React's elements with no host or capture element of its own", async () => {
+    const m = await render(
+      `<i>a</i><div mol-floating-action-button [label]="p['label']" [onClick]="p['onClick']" [href]="p['href']"></div><i>b</i>`,
+      { label: 'Add', onClick: () => {} },
+    )
+    const children = (): string[] =>
+      Array.from(m.host.children).map((child) => child.tagName.toLowerCase())
+    // React's root is the `<button>` (no href) or the `<a>` (href): it renders
+    // bare between the two consumer siblings, with no host element of its own.
+    expect(children()).toEqual(['i', 'button', 'i'])
+    await m.setProps({ href: '/new' })
+    expect(children()).toEqual(['i', 'a', 'i'])
   })
 })

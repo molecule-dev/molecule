@@ -9,7 +9,6 @@ import {
   type AfterViewInit,
   ChangeDetectorRef,
   Component,
-  type DoCheck,
   ElementRef,
   inject,
   type OnChanges,
@@ -20,7 +19,15 @@ import {
   ViewChild,
 } from '@angular/core'
 
-import { placeContent, setElementPresent, useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  placeContent,
+  placeContentBefore,
+  setElementPresent,
+  type SlotReader,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-angular'
@@ -34,25 +41,6 @@ import { Button } from '@molecule/app-ui-angular'
  */
 const isTemplate = (value: unknown): value is TemplateRef<unknown> =>
   typeof value === 'object' && value !== null && 'createEmbeddedView' in value
-
-/**
- * Whether a capture element holds projected content, ignoring the text the
- * component itself renders there (a string input's interpolation).
- *
- * @param el - The capture element.
- * @param ownText - The text this component interpolates into it.
- * @returns True when projected nodes exist.
- */
-function hasProjectedNodes(el: HTMLElement | undefined, ownText: string): boolean {
-  if (!el) return false
-  for (const node of Array.from(el.childNodes)) {
-    if (node.nodeType === Node.ELEMENT_NODE) return true
-    if (node.nodeType !== Node.TEXT_NODE) continue
-    const value = node.textContent ?? ''
-    if (value.trim() && value !== ownText) return true
-  }
-  return false
-}
 
 /**
  * Formats a duration in seconds as M:SS (90 → `1:30`), React's `fmt`.
@@ -78,13 +66,14 @@ function fmt(s: number): string {
  *
  * Angular projection needs always-mounted `<ng-content>` capture points, so
  * the header (and each of its spans) and the visualizer wrapper live in the
- * template unconditionally and {@link AudioPlayer.ngDoCheck} reconciles them
+ * template unconditionally and {@link AudioPlayer.reconcile} reconciles them
  * against React's DOM — React omits the header when neither title nor subtitle
  * renders, and renders the visualizer bare, without a wrapper element.
  */
 @Component({
   selector: 'div[mol-audio-player]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [Button, NgTemplateOutlet],
   inputs: [
     'src',
@@ -107,7 +96,7 @@ function fmt(s: number): string {
   // prettier-ignore
   template: `<audio #audio [attr.src]="src" [attr.autoplay]="autoPlay ? '' : null" [muted]="muted" preload="metadata" style="display: none"><track #track kind="captions" [attr.src]="captions" [attr.srclang]="captionsLang" [attr.label]="trackLabel()" /></audio><header #header [class]="stackClasses()"><span #titleSpan [class]="titleClasses()"><ng-content select="[slot=title]"></ng-content>@if (isTemplate(title)) {<ng-container [ngTemplateOutlet]="asTemplate(title)" />}@if (titleText()) {{{ titleText() }}}</span><span #subtitleSpan [class]="subtitleClasses()"><ng-content select="[slot=subtitle]"></ng-content>@if (isTemplate(subtitle)) {<ng-container [ngTemplateOutlet]="asTemplate(subtitle)" />}@if (subtitleText()) {{{ subtitleText() }}}</span></header><span #visualizerSlot><ng-content select="[slot=visualizer]"></ng-content></span>@if (isTemplate(visualizer)) {<ng-container [ngTemplateOutlet]="asTemplate(visualizer)" />}@if (visualizerText()) {{{ visualizerText() }}}<div [class]="controlsClasses()"><button mol-button [variant]="'ghost'" [size]="'sm'" (click)="toggle()" data-mol-id="audio-player-toggle" [attr.aria-label]="toggleLabel()"><span aria-hidden="true">{{ playing ? '⏸' : '▶' }}</span></button><span [class]="timeClasses()" style="min-width: 64px">{{ timeText() }}</span><input type="range" [attr.min]="0" [attr.max]="duration || 0" [attr.step]="0.1" [attr.value]="current" (input)="onSeek($event)" [attr.aria-label]="seekLabel()" data-mol-id="audio-player-seek" [class]="seekClasses()" /><button mol-button [variant]="'ghost'" [size]="'sm'" (click)="toggleMute()" data-mol-id="audio-player-mute" [attr.aria-label]="muteLabel()"><span aria-hidden="true">{{ muted ? '🔇' : '🔊' }}</span></button></div>@if (captions) {<p aria-live="polite" data-mol-id="audio-player-captions" [class]="captionClasses()" style="min-height: 1.5em; white-space: pre-line">{{ caption }}</p>}`,
 })
-export class AudioPlayer implements OnInit, AfterViewInit, DoCheck, OnChanges, OnDestroy {
+export class AudioPlayer implements OnInit, AfterViewInit, OnChanges, OnDestroy {
   /** Audio source URL (a file, a stream or a data URI). */
   src = ''
   /** Optional title / track name: a string input, or projected `[slot=title]` content. */
@@ -171,9 +160,9 @@ export class AudioPlayer implements OnInit, AfterViewInit, DoCheck, OnChanges, O
   private readonly cd = inject(ChangeDetectorRef)
   private readonly host: HTMLElement = inject(ElementRef).nativeElement
 
-  /** Whether `[slot=title]` content was projected. */
+  /** Whether the title span renders anything — its `[slot=title]` content, its own template or its text. */
   private hasTitleSlot = false
-  /** Whether `[slot=subtitle]` content was projected. */
+  /** Whether the subtitle span renders anything — its `[slot=subtitle]` content, its own template or its text. */
   private hasSubtitleSlot = false
   /** Whether `[slot=visualizer]` content was projected. */
   private hasVisualizerSlot = false
@@ -183,6 +172,10 @@ export class AudioPlayer implements OnInit, AfterViewInit, DoCheck, OnChanges, O
   private viewReady = false
   /** Removes the captions `cuechange` listener, while it is attached. */
   private detachCaptions: (() => void) | null = null
+
+  constructor() {
+    usePlacement((hasContent) => this.reconcile(hasContent))
+  }
 
   /**
    * The current class map.
@@ -275,8 +268,8 @@ export class AudioPlayer implements OnInit, AfterViewInit, DoCheck, OnChanges, O
   }
 
   /**
-   * Attaches the media listeners (React's effect) and reads the projected
-   * slots' presence — view queries resolve only at view init.
+   * Attaches the media listeners (React's effect). Reading the projected
+   * slots' presence is the placement function's job ({@link AudioPlayer.reconcile}).
    */
   ngAfterViewInit(): void {
     const audio = this.audioRef?.nativeElement
@@ -317,23 +310,8 @@ export class AudioPlayer implements OnInit, AfterViewInit, DoCheck, OnChanges, O
         audio.removeEventListener('ended', onEndedEvent)
       })
     }
-    this.hasTitleSlot = hasProjectedNodes(this.titleSpanRef?.nativeElement, this.titleText())
-    this.hasSubtitleSlot = hasProjectedNodes(
-      this.subtitleSpanRef?.nativeElement,
-      this.subtitleText(),
-    )
-    this.hasVisualizerSlot = hasProjectedNodes(
-      this.visualizerSlotRef?.nativeElement,
-      this.visualizerText(),
-    )
     this.viewReady = true
     this.syncCaptions()
-    this.reconcile()
-  }
-
-  /** Re-reconciles React's conditional DOM after input writes and state changes. */
-  ngDoCheck(): void {
-    this.reconcile()
   }
 
   /** Removes the media listeners and the captions listener (React's effect cleanup). */
@@ -515,8 +493,13 @@ export class AudioPlayer implements OnInit, AfterViewInit, DoCheck, OnChanges, O
    * Applies React's conditional DOM: the header and each span render only when
    * React would render them, and the visualizer's projected nodes sit bare in
    * the wrapper's place.
+   *
+   * @param hasContent - Reads whether a slot has content.
    */
-  private reconcile(): void {
+  private reconcile(hasContent: SlotReader): void {
+    this.hasTitleSlot = hasContent(this.titleSpanRef?.nativeElement)
+    this.hasSubtitleSlot = hasContent(this.subtitleSpanRef?.nativeElement)
+    this.hasVisualizerSlot = hasContent(this.visualizerSlotRef?.nativeElement)
     this.syncRange()
     const showTitle = this.hasTitleSlot || this.shows(this.title)
     const showSubtitle = this.hasSubtitleSlot || this.shows(this.subtitle)
@@ -543,7 +526,12 @@ export class AudioPlayer implements OnInit, AfterViewInit, DoCheck, OnChanges, O
     if (input && input.value !== String(this.current)) input.value = String(this.current)
   }
 
-  /** Applies React's visualizer DOM: the content bare without its wrapper, or nothing. */
+  /**
+   * Applies React's visualizer DOM: the projected content renders bare in the
+   * capture point's own place — moved in front of it, so it follows wherever
+   * Angular puts the point — and the capture point leaves the page; with no
+   * content, nothing renders.
+   */
   private reconcileVisualizer(): void {
     const wrapper = this.visualizerSlotRef?.nativeElement
     if (!wrapper) return
@@ -553,10 +541,9 @@ export class AudioPlayer implements OnInit, AfterViewInit, DoCheck, OnChanges, O
       setElementPresent(wrapper, false)
       return
     }
-    // React renders the projected content bare, with no wrapper element.
-    const parent = wrapper.parentNode
-    if (!parent) return
-    placeContent(wrapper, parent, wrapper)
+    // React renders the projected content bare, with no wrapper element: it stands
+    // in front of the capture point's place and the point itself leaves the page.
+    placeContentBefore(wrapper, wrapper)
     setElementPresent(wrapper, false)
   }
 }

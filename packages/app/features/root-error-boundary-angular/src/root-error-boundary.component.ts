@@ -7,11 +7,20 @@
 import { NgTemplateOutlet } from '@angular/common'
 import {
   Component,
+  ElementRef,
+  inject,
   type OnChanges,
   signal,
   type SimpleChanges,
   type TemplateRef,
 } from '@angular/core'
+
+import {
+  MolPlacement,
+  placeContentBefore,
+  setElementPresent,
+  usePlacement,
+} from '@molecule/app-angular'
 
 import { RootErrorFallback } from './root-error-fallback.component.js'
 
@@ -23,7 +32,8 @@ import { RootErrorFallback } from './root-error-fallback.component.js'
  * localized recovery surface read through `useTranslation()` from
  * `@molecule/app-angular`. It renders its children untouched while no error
  * has been caught — there is no wrapper element, matching React's fragment
- * root, so the host is unwrapped (`data-parity-unwrap`, `display: contents`).
+ * root, so the content stands in front of the host's place and the host itself
+ * leaves the page (`placeContentBefore` + `setElementPresent`).
  *
  * This is the Angular counterpart of `@molecule/app-root-error-boundary-react`.
  *
@@ -41,11 +51,8 @@ import { RootErrorFallback } from './root-error-fallback.component.js'
   selector: 'mol-root-error-boundary',
   standalone: true,
   imports: [NgTemplateOutlet, RootErrorFallback],
+  hostDirectives: [MolPlacement],
   inputs: ['content'],
-  host: {
-    'data-parity-unwrap': '',
-    style: 'display: contents',
-  },
   template: `@boundary {
       @if (contentTemplate(); as tpl) {
         <ng-container [ngTemplateOutlet]="tpl"></ng-container>
@@ -62,6 +69,18 @@ export class RootErrorBoundary implements OnChanges {
 
   /** The template as a signal, so the `@if` re-renders when the input lands. */
   readonly contentTemplate = signal<TemplateRef<unknown> | undefined>(undefined)
+
+  /** The component's host element (React renders no element of its own). */
+  private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
+
+  constructor() {
+    // React's root is a fragment (children or the fallback): the content renders in front
+    // of the host's place and the host leaves the page.
+    usePlacement(() => {
+      placeContentBefore(this.host.nativeElement, this.host.nativeElement)
+      setElementPresent(this.host.nativeElement, false)
+    })
+  }
 
   /**
    * Mirrors the input into the signal.

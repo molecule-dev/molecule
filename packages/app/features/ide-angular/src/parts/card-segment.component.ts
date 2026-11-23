@@ -11,14 +11,22 @@
  * chip's type and gains the link colour + pointer cursor.
  *
  * Svelte has no render-a-node API, so React's exported function is a component
- * here; the host is a `display: contents` wrapper marked `data-parity-unwrap`,
- * which the conformance normalizer drops, so the rendered DOM is React's.
+ * here; React's root is the segment element itself (a run of one), so the
+ * template's element renders in front of the host and the host leaves the DOM
+ * (`placeContentBefore` + `setElementPresent`) — the rendered DOM is React's,
+ * with no wrapper element around it.
  *
  * @module
  */
 
-import { Component } from '@angular/core'
+import { Component, ElementRef, inject } from '@angular/core'
 
+import {
+  MolPlacement,
+  placeContentBefore,
+  setElementPresent,
+  usePlacement,
+} from '@molecule/app-angular'
 import type {
   ChatEventCardAction,
   ChatEventCardCode,
@@ -142,12 +150,23 @@ export function resolveCardSegment(segment: ChatEventCardSegment): CardSegmentVi
   selector: 'div[mol-card-segment]',
   standalone: true,
   inputs: ['segment'],
-  // prettier-ignore
-  host: { 'data-parity-unwrap': '', style: 'display: contents' },
+  hostDirectives: [MolPlacement],
   // prettier-ignore
   template: `@if (view().kind === 'text') {<span>{{ view().text }}</span>} @else if (view().kind === 'code') {<code [attr.style]="codeStyle">{{ view().text }}</code>} @else if (view().kind === 'link') {<a [attr.href]="view().href" target="_blank" rel="noopener noreferrer" [attr.style]="view().style">{{ view().text }}</a>} @else if (view().kind === 'inert') {<span [attr.style]="view().style">{{ view().text }}</span>} @else {<button type="button" (click)="fireClick($event)" [attr.style]="view().style">{{ view().text }}</button>}`,
 })
 export class CardSegment {
+  /** The component's own host element, which React does not render. */
+  private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
+
+  /** Renders the segment element in front of the host and keeps the host out of the DOM. */
+  constructor() {
+    usePlacement(() => {
+      const host = this.host.nativeElement
+      placeContentBefore(host, host)
+      setElementPresent(host, false)
+    })
+  }
+
   /** The segment to render. */
   segment!: ChatEventCardSegment
 

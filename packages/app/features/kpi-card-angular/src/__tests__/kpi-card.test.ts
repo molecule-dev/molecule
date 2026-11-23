@@ -81,7 +81,7 @@ async function mount(
     selector: 'mol-spec-host',
     standalone: true,
     imports: [component],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template,
   })(
     class SpecHost {
@@ -373,5 +373,44 @@ describe('KpiCard', () => {
     expect(shown()).toEqual(['a', 'b', 'c'])
     await m.setProps({ xs: ['a', 'c'] })
     expect(shown()).toEqual(['a', 'c'])
+  })
+
+  it('shows and removes the trend wrapper in the pass where the consumer @if adds and removes its content', async () => {
+    const m = await renderCard(`@if (p['on']) {<b slot="trend" data-trend>+5</b>}`, { on: false })
+    const trend = (): HTMLElement | null => m.host.querySelector('[data-trend]')
+    // No trend and no subtitle: React renders no trend/subtitle row.
+    expect(trend()).toBeNull()
+    await m.setProps({ on: true })
+    // The trend arrives: the row renders its content in the same pass.
+    expect(trend()).not.toBeNull()
+    expect(trend()?.isConnected).toBe(true)
+    await m.setProps({ on: false })
+    expect(trend()).toBeNull()
+  })
+
+  it("renders React's elements with no host or capture element of its own", async () => {
+    const m = await mount(
+      `<i>a</i><div mol-kpi-card ${CARD_BINDINGS}><span slot="value">$1</span>@if (p['on']) {<b slot="trend" data-trend>+5</b>}</div><i>b</i>`,
+      KpiCard as Type<unknown>,
+      { on: true },
+    )
+    mounted.push(m)
+    // The consumer's children are exactly React's: the two neighbours and the card
+    // (its root, so the host element itself), with no extra host or capture.
+    const shape = (): string =>
+      Array.from(m.host.childNodes)
+        .filter(
+          (n) => n.nodeType === 1 || (n.nodeType === 3 && (n.textContent ?? '').trim() !== ''),
+        )
+        .map((n) => (n.nodeType === 1 ? (n as Element).tagName : '#text'))
+        .join(',')
+    const trend = (): HTMLElement | null => m.host.querySelector('[data-trend]')
+    expect(shape()).toBe('I,DIV,I')
+    // The projected trend renders bare in the row div, no capture span around it.
+    expect(trend()?.parentElement?.tagName).toBe('DIV')
+    await m.setProps({ on: false })
+    // The row goes with its last slot, nothing is added beside the card.
+    expect(shape()).toBe('I,DIV,I')
+    expect(trend()).toBeNull()
   })
 })

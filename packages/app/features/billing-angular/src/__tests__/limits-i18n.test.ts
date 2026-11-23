@@ -60,6 +60,7 @@ vi.mock('@molecule/app-ui-angular', async () => {
   const { Component } = await import('@angular/core')
   return {
     Icon: Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'svg[mol-icon-root]',
       standalone: true,
       inputs: ['name', 'size', 'className', 'ariaHidden'],
@@ -111,7 +112,7 @@ async function mountPage(): Promise<Mounted> {
     selector: 'mol-spec-host',
     standalone: true,
     imports: [PricingPage as Type<unknown>],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: `<section mol-pricing-page></section>`,
   })(
     class SpecHost {

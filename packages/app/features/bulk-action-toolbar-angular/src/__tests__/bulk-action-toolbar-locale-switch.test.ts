@@ -88,7 +88,7 @@ describe('BulkActionToolbar locale switch', () => {
       selector: 'mol-locale-host',
       standalone: true,
       imports: [BulkActionToolbar],
-      changeDetection: ChangeDetectionStrategy.Default,
+      changeDetection: ChangeDetectionStrategy.Eager,
       template: `<div mol-bulk-action-toolbar [count]="count" [actions]="actions"></div>`,
     })(
       class LocaleHost {

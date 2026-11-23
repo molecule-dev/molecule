@@ -4,11 +4,16 @@
  * @module
  */
 
-import { type AfterViewInit, Component, type ElementRef, signal, ViewChild } from '@angular/core'
+import { Component, type ElementRef, ViewChild } from '@angular/core'
 
+import {
+  MolPlacement,
+  setElementPresent,
+  type SlotReader,
+  usePlacement,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
-import { hasNodes } from '@molecule/app-ui-angular'
 
 /** Whether a value renders as plain text (React renders strings and numbers). */
 const hasText = (value: unknown): boolean =>
@@ -20,21 +25,22 @@ const hasText = (value: unknown): boolean =>
  * Body of a listing card — title / subtitle / price / meta rows stacked. The
  * host IS the root `div` (`div[mol-listing-card-body]`), matching React's root
  * exactly. Node rows are projected content (`[slot=<name>]`) or plain text
- * inputs; the optional rows render only when React would render them, which
- * {@link ListingCardBody.ngAfterViewInit} reconciles once projection is
- * visible.
+ * inputs; an optional row renders only while it has a text input or
+ * projected content, as React's `{subtitle && <p>…}` does, and follows
+ * content a consumer projects later.
  */
 @Component({
   selector: 'div[mol-listing-card-body]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   inputs: ['title', 'subtitle', 'price', 'meta', 'className'],
   host: {
     '[class]': 'classes()',
   },
   // prettier-ignore
-  template: `<h3 [class]="titleClasses()">@if (hasTitle()) {{{ title }}}<ng-content select="[slot=title]"></ng-content></h3>@if (showSubtitle()) {<p #subtitleEl [class]="subtitleClasses()">@if (hasSubtitle()) {{{ subtitle }}}<ng-content select="[slot=subtitle]"></ng-content></p>}@if (showPrice()) {<p #priceEl [class]="priceClasses()">@if (hasPrice()) {{{ price }}}<ng-content select="[slot=price]"></ng-content></p>}@if (showMeta()) {<div #metaEl [class]="metaClasses()">@if (hasMeta()) {{{ meta }}}<ng-content select="[slot=meta]"></ng-content></div>}`,
+  template: `<h3 [class]="titleClasses()">@if (hasTitle()) {{{ title }}}<ng-content select="[slot=title]"></ng-content></h3><p #subtitleEl [class]="subtitleClasses()">@if (hasSubtitle()) {{{ subtitle }}}<ng-content select="[slot=subtitle]"></ng-content></p><p #priceEl [class]="priceClasses()">@if (hasPrice()) {{{ price }}}<ng-content select="[slot=price]"></ng-content></p><div #metaEl [class]="metaClasses()">@if (hasMeta()) {{{ meta }}}<ng-content select="[slot=meta]"></ng-content></div>`,
 })
-export class ListingCardBody implements AfterViewInit {
+export class ListingCardBody {
   /** Primary title / name — a text input, or `[slot=title]` projected content. */
   title?: unknown
   /** Secondary line — a text input, or `[slot=subtitle]` projected content. */
@@ -46,41 +52,33 @@ export class ListingCardBody implements AfterViewInit {
   /** Extra classes. */
   className?: string
 
-  /** The optional subtitle paragraph (projected content lands here; read once). */
-  @ViewChild('subtitleEl') private subtitleEl?: ElementRef<HTMLElement>
-  /** The optional price paragraph (projected content lands here; read once). */
-  @ViewChild('priceEl') private priceEl?: ElementRef<HTMLElement>
-  /** The optional meta row (projected content lands here; read once). */
-  @ViewChild('metaEl') private metaEl?: ElementRef<HTMLElement>
+  /** The optional subtitle paragraph (a text input or projected content lands here). */
+  @ViewChild('subtitleEl', { static: true }) private subtitleEl?: ElementRef<HTMLElement>
+  /** The optional price paragraph. */
+  @ViewChild('priceEl', { static: true }) private priceEl?: ElementRef<HTMLElement>
+  /** The optional meta row. */
+  @ViewChild('metaEl', { static: true }) private metaEl?: ElementRef<HTMLElement>
 
   /**
-   * Whether a `[slot=subtitle]` projection landed: true (optimistically) until
-   * the first view proves otherwise.
+   * Shows each optional row while it has a text input or projected content
+   * (React's `{subtitle && <p>…}`); a row stays in the template, so content a
+   * consumer projects later renders in it.
    */
-  private readonly subtitleProjected = signal(true)
-  /**
-   * Whether a `[slot=price]` projection landed (true until the first view
-   * proves otherwise).
-   */
-  private readonly priceProjected = signal(true)
-  /**
-   * Whether a `[slot=meta]` projection landed (true until the first view proves
-   * otherwise).
-   */
-  private readonly metaProjected = signal(true)
+  constructor() {
+    usePlacement((hasContent) => this.syncRows(hasContent))
+  }
 
   /**
-   * Reads the optional rows' first render: when neither a text input nor
-   * projected content landed, React would not render the row at all, so the
-   * optimistic render is withdrawn.
+   * Applies the rows' presence.
+   *
+   * @param hasContent - Reads whether a slot has content.
    */
-  ngAfterViewInit(): void {
-    const subtitle = this.subtitleEl?.nativeElement
-    if (subtitle) this.subtitleProjected.set(!this.hasSubtitle() && hasNodes(subtitle))
-    const price = this.priceEl?.nativeElement
-    if (price) this.priceProjected.set(!this.hasPrice() && hasNodes(price))
-    const meta = this.metaEl?.nativeElement
-    if (meta) this.metaProjected.set(!this.hasMeta() && hasNodes(meta))
+  private syncRows(hasContent: SlotReader): void {
+    const row = (el: HTMLElement | undefined, text: boolean): void =>
+      setElementPresent(el, text || (el !== undefined && hasContent(el)))
+    row(this.subtitleEl?.nativeElement, this.hasSubtitle())
+    row(this.priceEl?.nativeElement, this.hasPrice())
+    row(this.metaEl?.nativeElement, this.hasMeta())
   }
 
   /**
@@ -167,30 +165,5 @@ export class ListingCardBody implements AfterViewInit {
    */
   hasMeta(): boolean {
     return hasText(this.meta)
-  }
-
-  /**
-   * Whether the subtitle paragraph renders: a text input or a projected
-   * `[slot=subtitle]` element.
-   * @returns True when the subtitle shows.
-   */
-  showSubtitle(): boolean {
-    return this.hasSubtitle() || this.subtitleProjected()
-  }
-
-  /**
-   * Whether the price paragraph renders.
-   * @returns True when the price shows.
-   */
-  showPrice(): boolean {
-    return this.hasPrice() || this.priceProjected()
-  }
-
-  /**
-   * Whether the meta row renders.
-   * @returns True when the meta row shows.
-   */
-  showMeta(): boolean {
-    return this.hasMeta() || this.metaProjected()
   }
 }

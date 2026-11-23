@@ -23,6 +23,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 // A ClassMap proxy echoing each accessed member back as its token, with the
 // real `@molecule/app-ui-tailwind` resolvers for `fontWeight` / `textSize`
 // (so the emphasis assertions can only pass when the weight is derived from
@@ -56,10 +58,12 @@ vi.mock('@molecule/app-ui', () => ({
 const { HeroSection } = await import('../hero-section.component.js')
 const { PageHeader } = await import('../page-header.component.js')
 
-/** A mounted spec host: its DOM and a teardown. */
+/** A mounted spec host: its DOM, a props setter, and a teardown. */
 interface Mounted {
   /** The host element whose children the component template produced. */
   readonly host: HTMLElement
+  /** Merges props over the current ones and flushes change detection. */
+  setProps(next: Record<string, unknown>): void
   /** Destroys the app and removes the host. */
   destroy(): Promise<void>
 }
@@ -82,7 +86,7 @@ async function mount(
     selector: 'mol-spec-host',
     standalone: true,
     imports: [component],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template,
   })(
     class SpecHost {
@@ -91,7 +95,7 @@ async function mount(
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
     environmentInjector: appRef.injector,
@@ -103,6 +107,11 @@ async function mount(
   appRef.tick()
   return {
     host,
+    setProps: (next) => {
+      ref.instance.p = { ...ref.instance.p, ...next }
+      ref.changeDetectorRef.markForCheck()
+      appRef.tick()
+    },
     destroy: async () => {
       appRef.destroy()
       host.remove()
@@ -138,6 +147,20 @@ afterEach(async () => {
 })
 
 describe('HeroSection', () => {
+  it('keeps a consumer list in order when an item is inserted in the middle of media', async () => {
+    const m = await render(
+      `<section mol-hero-section><span slot="title">Title</span>@for (x of p['xs']; track x) {<b slot="media">{{ x }}</b>}</section>`,
+      { xs: [1, 3] },
+    )
+    const texts = (): string[] =>
+      Array.from(m.host.querySelectorAll('b')).map((el) => el.textContent ?? '')
+    expect(texts()).toEqual(['1', '3'])
+    m.setProps({ xs: [1, 2, 3] })
+    expect(texts()).toEqual(['1', '2', '3'])
+    m.setProps({ xs: [1, 3] })
+    expect(texts()).toEqual(['1', '3'])
+  })
+
   it('renders the title inside an <h1>', async () => {
     const m = await render(`<section mol-hero-section><span slot="title">Welcome</span></section>`)
     expect(m.host.innerHTML).toContain('<h1')
@@ -188,9 +211,39 @@ describe('HeroSection', () => {
     expect(tag).toContain('data-mol-id="hero-x"')
     expect(tag).toContain('hero-cls')
   })
+  it('shows and removes the media wrapper in the pass where the consumer @if adds and removes its content', async () => {
+    const m = await render(
+      `<section mol-hero-section><span slot="title">T</span>@if (p['on']) {<img slot="media" data-media alt="">}</section>`,
+      { on: false },
+    )
+    // React renders the media column only while media exists.
+    expect(m.host.querySelector('[data-media]')).toBeNull()
+    expect(m.host.querySelectorAll('[mol-hero-section] > div')).toHaveLength(1)
+    m.setProps({ on: true })
+    const media = m.host.querySelector('[data-media]')
+    expect(media?.parentElement?.tagName).toBe('DIV')
+    expect(m.host.querySelectorAll('[mol-hero-section] > div')).toHaveLength(2)
+    m.setProps({ on: false })
+    expect(m.host.querySelector('[data-media]')).toBeNull()
+    expect(m.host.querySelectorAll('[mol-hero-section] > div')).toHaveLength(1)
+  })
 })
 
 describe('PageHeader', () => {
+  it('keeps a consumer list in order when an item is inserted in the middle of subtitle', async () => {
+    const m = await render(
+      `<header mol-page-header><span slot="title">Title</span>@for (x of p['xs']; track x) {<b slot="subtitle">{{ x }}</b>}</header>`,
+      { xs: [1, 3] },
+    )
+    const texts = (): string[] =>
+      Array.from(m.host.querySelectorAll('p b')).map((el) => el.textContent ?? '')
+    expect(texts()).toEqual(['1', '3'])
+    m.setProps({ xs: [1, 2, 3] })
+    expect(texts()).toEqual(['1', '2', '3'])
+    m.setProps({ xs: [1, 3] })
+    expect(texts()).toEqual(['1', '3'])
+  })
+
   it('renders the title inside an <h1>', async () => {
     const m = await render(`<header mol-page-header><span slot="title">Dashboard</span></header>`)
     expect(m.host.innerHTML).toContain('<h1')
@@ -246,5 +299,21 @@ describe('PageHeader', () => {
     const tag = openTag(m.host, '[mol-page-header]')
     expect(tag).toContain('data-mol-id="ph-x"')
     expect(tag).toContain('ph-cls')
+  })
+
+  it('shows and removes the subtitle wrapper in the pass where the consumer @if adds and removes its content', async () => {
+    const m = await render(
+      `<header mol-page-header><span slot="title">T</span>@if (p['on']) {<span slot="subtitle" data-sub>s</span>}</header>`,
+      { on: false },
+    )
+    // React renders the subtitle paragraph only while a subtitle exists.
+    expect(m.host.querySelector('p')).toBeNull()
+    m.setProps({ on: true })
+    const paragraph = m.host.querySelector('p')
+    expect(paragraph).not.toBeNull()
+    expect(paragraph!.querySelector('[data-sub]')).not.toBeNull()
+    m.setProps({ on: false })
+    expect(m.host.querySelector('p')).toBeNull()
+    expect(m.host.querySelector('[data-sub]')).toBeNull()
   })
 })

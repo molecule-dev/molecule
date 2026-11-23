@@ -5,9 +5,16 @@
  */
 
 import { NgTemplateOutlet } from '@angular/common'
-import { Component, TemplateRef } from '@angular/core'
+import { Component, ElementRef, inject, TemplateRef } from '@angular/core'
 
-import { useLocale, useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  placeContentBefore,
+  setElementPresent,
+  useLocale,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -43,9 +50,9 @@ interface AxisTick {
  * React's root is the `<div role="region">` when there are rows, the bare
  * `emptyState` node when the trace is empty and a node was given, and the
  * `<div role="status">` fallback otherwise — three different roots, so the
- * host is unwrapped (`data-parity-unwrap`, `display: contents`) and the
- * template renders whichever root React would. The empty state arrives as a
- * node-valued input (`emptyState`, a `TemplateRef`).
+ * rendered content stands in front of the host's place and the host itself
+ * leaves the page (`placeContentBefore` + `setElementPresent`). The empty state
+ * arrives as a node-valued input (`emptyState`, a `TemplateRef`).
  *
  * Styling is fully ClassMap-driven for layout. Only color attributes (status
  * colors, service-tag colors, bar fill) and pixel-perfect axis geometry use
@@ -55,8 +62,8 @@ interface AxisTick {
   selector: 'mol-trace-waterfall',
   standalone: true,
   imports: [NgTemplateOutlet],
+  hostDirectives: [MolPlacement],
   inputs: ['spans', 'rootSpanId', 'selectedSpanId', 'onSpanClick', 'emptyState', 'className'],
-  host: { 'data-parity-unwrap': '', style: 'display: contents' },
   // prettier-ignore
   template: `@if (rows().length === 0) {@if (emptyTemplate(); as emptyTpl) {<ng-container [ngTemplateOutlet]="emptyTpl" />} @else {<div [class]="emptyClasses()" data-mol-id="trace-waterfall-empty" role="status">{{ emptyLabel() }}</div>}} @else {<div [class]="rootClasses()" role="region" [attr.aria-label]="ariaLabel()" data-mol-id="trace-waterfall"><div [class]="axisClasses()" data-mol-id="trace-waterfall-axis"><div [style]="totalStyle()">{{ totalLabel() }}</div><div [style]="tickBoxStyle()">@for (tick of ticks(); track $index) {<div [style]="tickStyle(tick)" data-mol-id="trace-waterfall-axis-tick">{{ tick.label }}</div>}</div></div><div role="tree" data-mol-id="trace-waterfall-rows">@for (row of rows(); track row.span.id) {<div [class]="rowClasses()" [style]="rowStyle()" role="treeitem" [attr.aria-level]="row.depth + 1" [attr.aria-selected]="selectedSpanId === row.span.id ? 'true' : 'false'" [attr.aria-label]="rowAriaLabel(row)" [attr.tabindex]="interactive() ? 0 : -1" (click)="rowClick(row)" (keydown)="rowKeydown(row, $event)" data-mol-id="trace-waterfall-row" [attr.data-span-id]="row.span.id"><div [class]="labelClasses()" [style]="labelStyle(row)">@if (row.span.service) {<span data-mol-id="trace-waterfall-service-tag" [style]="tagStyle(row)">{{ row.span.service }}</span>}<span [style]="nameStyle()" data-mol-id="trace-waterfall-name">{{ row.span.name }}</span></div><div [style]="barBoxStyle()"><div data-mol-id="trace-waterfall-bar" [style]="barStyle(row)"></div><div data-mol-id="trace-waterfall-duration" [style]="durationStyle(row)">{{ durationText(row) }}</div></div></div>}</div></div>}`,
 })
@@ -84,6 +91,18 @@ export class TraceWaterfall {
 
   /** The app's active locale, so the tick and badge labels follow a locale switch. */
   private readonly activeLocale = useLocale()
+
+  /** The component's host element (React renders no element of its own). */
+  private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
+
+  constructor() {
+    // React's root is one of three branch roots (or the bare empty-state node): it renders
+    // in front of the host's place and the host leaves the page.
+    usePlacement(() => {
+      placeContentBefore(this.host.nativeElement, this.host.nativeElement)
+      setElementPresent(this.host.nativeElement, false)
+    })
+  }
 
   /**
    * The current class map.

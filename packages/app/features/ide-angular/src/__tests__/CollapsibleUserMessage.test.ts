@@ -27,6 +27,7 @@ import { createApplication } from '@angular/platform-browser'
 import { getByRole, queryByRole } from '@testing-library/dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 import { USER_MSG_COLLAPSE_HEIGHT } from '@molecule/app-ide-panel-logic'
 import { setClassMap } from '@molecule/app-ui'
@@ -39,7 +40,7 @@ const CollapsibleUserMessageHost = Component({
   selector: 'mol-collapsible-user-message-host',
   standalone: true,
   imports: [CollapsibleUserMessage],
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `<div mol-collapsible-user-message [content]="p['content']" [isLight]="p['isLight']"></div>`,
 })(
   class CollapsibleUserMessageHost {
@@ -92,7 +93,7 @@ async function renderMessage(content: string): Promise<HTMLElement> {
   const container = document.createElement('div')
   document.body.appendChild(container)
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<InstanceType<typeof CollapsibleUserMessageHost>> = createComponent(
     CollapsibleUserMessageHost,

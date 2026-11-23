@@ -8,7 +8,6 @@ import { NgTemplateOutlet } from '@angular/common'
 import {
   afterNextRender,
   Component,
-  type DoCheck,
   ElementRef,
   inject,
   Injector,
@@ -19,7 +18,13 @@ import {
   ViewChild,
 } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  placeContentBefore,
+  setElementPresent,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Input, Textarea } from '@molecule/app-ui-angular'
@@ -43,9 +48,9 @@ const isTemplate = (value: unknown): value is TemplateRef<unknown> =>
  * Click-to-edit text, the Angular counterpart of
  * `@molecule/app-inline-edit-react`'s `InlineEdit`: the same props (React
  * names), the same DOM for the same input. React's root element is a `<span>`
- * in the read state and a `<div>` in the editor, so the host is transparent
- * (`data-parity-unwrap`, `display: contents`) and the template renders
- * whichever root React would.
+ * in the read state and a `<div>` in the editor, so the rendered root stands in
+ * front of the host's place and the host itself leaves the page
+ * (`placeContentBefore` + `setElementPresent`, React's fragment root).
  *
  * React's `renderRead` render prop is an `ng-template` receiving the value as
  * `$implicit` / `a0`.
@@ -53,9 +58,9 @@ const isTemplate = (value: unknown): value is TemplateRef<unknown> =>
 @Component({
   selector: 'mol-inline-edit',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [Button, Input, NgTemplateOutlet, Textarea],
   inputs: ['value', 'onSubmit', 'variant', 'renderRead', 'placeholder', 'className'],
-  host: { 'data-parity-unwrap': '', style: 'display: contents' },
   template: `@if (!editing()) {
       <span
         role="button"
@@ -116,7 +121,7 @@ const isTemplate = (value: unknown): value is TemplateRef<unknown> =>
       </div>
     }`,
 })
-export class InlineEdit implements DoCheck, OnChanges {
+export class InlineEdit implements OnChanges {
   /**
    * Current value. Re-syncs the draft whenever it changes, like React's
    * `useEffect(() => setDraft(value), [value])`.
@@ -155,6 +160,10 @@ export class InlineEdit implements DoCheck, OnChanges {
    */
   private readonly i18n = useTranslation()
 
+  constructor() {
+    usePlacement(() => this.adopt())
+  }
+
   /**
    * React's `useEffect(() => setDraft(value), [value])`: a changed `value`
    * replaces the draft, including mid-edit.
@@ -165,16 +174,15 @@ export class InlineEdit implements DoCheck, OnChanges {
   }
 
   /**
-   * Angular hosts always exist; React's root element does not. Adopts the
-   * rendered root beside the host (the same technique the conformance kit's
-   * session gate uses), so the host element never appears in a `@focus` path.
-   * The DOM normalizer unwraps the host either way.
+   * React's root element does not exist as a host: the rendered root (the read
+   * `<span>` or the editor `<div>`) stands in front of the host's place and the
+   * host itself leaves the page, so the host element never appears in a `@focus`
+   * path.
    */
-  ngDoCheck(): void {
+  private adopt(): void {
     const host = this.host.nativeElement
-    const parent = host.parentNode
-    if (!parent) return
-    for (const node of Array.from(host.childNodes)) parent.insertBefore(node, host)
+    placeContentBefore(host, host)
+    setElementPresent(host, false)
   }
 
   /**

@@ -21,7 +21,7 @@ import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { ContextComposition, ContextUsage } from '@molecule/app-ai-chat'
-import { HTTP_CLIENT } from '@molecule/app-angular'
+import { HTTP_CLIENT, provideDomPlacement } from '@molecule/app-angular'
 import type { HttpClient, HttpResponse, RequestConfig } from '@molecule/app-http'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 import { setIconSet } from '@molecule/app-icons'
@@ -172,7 +172,7 @@ const IndicatorHost = Component({
   selector: 'mol-context-usage-indicator-host',
   standalone: true,
   imports: [ContextUsageIndicator],
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `<input aria-label="Composer" /><div mol-context-usage-indicator [usage]="p['usage']" [history]="p['history']" [compactions]="p['compactions']" [projectId]="p['projectId']" [conversationId]="p['conversationId']" [onOpenSettings]="p['onOpenSettings']"></div>`,
 })(
   class IndicatorHost {
@@ -205,7 +205,11 @@ async function render(
   const container = document.createElement('div')
   document.body.appendChild(container)
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection(), { provide: HTTP_CLIENT, useValue: http }],
+    providers: [
+      provideZonelessChangeDetection(),
+      provideDomPlacement(),
+      { provide: HTTP_CLIENT, useValue: http },
+    ],
   })
   const ref: ComponentRef<InstanceType<typeof IndicatorHost>> = createComponent(IndicatorHost, {
     environmentInjector: appRef.injector,

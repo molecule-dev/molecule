@@ -50,7 +50,7 @@ export async function renderFixture(
   imports: Type<unknown>[] = [],
 ): Promise<RenderedFixture> {
   const Host = Component({
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     selector: 'div[data-parity-host]',
     standalone: true,
     imports,

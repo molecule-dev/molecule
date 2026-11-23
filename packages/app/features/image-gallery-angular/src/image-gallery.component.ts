@@ -4,9 +4,15 @@
  * @module
  */
 
-import { Component, EventEmitter, Output } from '@angular/core'
+import { Component, ElementRef, EventEmitter, inject, Output } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  placeContentBefore,
+  setElementPresent,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -44,20 +50,16 @@ function toGridCols(desired: number): number {
  * product images, property listings, portfolio galleries.
  *
  * React's root is the outer `<div>` when images are present and nothing when
- * they are not, so the host is an empty, layout-neutral element
- * (`display: contents`) that the DOM normalizer unwraps
- * (`data-parity-unwrap`) and the template renders exactly React's tree —
- * the same convention the UI kit's fragment-rooted Angular components use.
+ * they are not, so the rendered root stands in front of the host's place and
+ * the host itself leaves the page (`placeContentBefore` + `setElementPresent`,
+ * React's fragment root).
  */
 @Component({
   selector: 'mol-image-gallery',
   standalone: true,
+  hostDirectives: [MolPlacement],
   inputs: ['images', 'selectedIndex', 'maxThumbnails', 'alts', 'className'],
   outputs: ['select'],
-  host: {
-    'data-parity-unwrap': '',
-    style: 'display: contents',
-  },
   template: `@if (images.length > 0) {
     <div [class]="classes()">
       <div style="aspect-ratio: 4 / 3">
@@ -115,6 +117,18 @@ export class ImageGallery {
 
   /** The i18n binding the alt fallback and overflow chip read. */
   private readonly i18n = useTranslation()
+
+  /** The component's host element (React renders no element of its own). */
+  private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
+
+  constructor() {
+    // React's root is the outer `<div>` itself (nothing when empty): it renders in front
+    // of the host's place and the host leaves the page.
+    usePlacement(() => {
+      placeContentBefore(this.host.nativeElement, this.host.nativeElement)
+      setElementPresent(this.host.nativeElement, false)
+    })
+  }
 
   /**
    * The current class map.

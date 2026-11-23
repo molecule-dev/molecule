@@ -5,21 +5,18 @@
  */
 
 import { NgTemplateOutlet } from '@angular/common'
-import {
-  type AfterViewInit,
-  Component,
-  type DoCheck,
-  type ElementRef,
-  inject,
-  Renderer2,
-  type TemplateRef,
-  ViewChild,
-} from '@angular/core'
+import { Component, type ElementRef, type TemplateRef, ViewChild } from '@angular/core'
 
+import {
+  MolPlacement,
+  setElementPresent,
+  type SlotReader,
+  usePlacement,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
-import { ConditionalElement, hasContent, templateOf, textOf } from './slot-dom.js'
+import { templateOf, textOf } from './slot-dom.js'
 
 /**
  * RowWithActions component.
@@ -37,6 +34,7 @@ import { ConditionalElement, hasContent, templateOf, textOf } from './slot-dom.j
 @Component({
   selector: 'tr[mol-row-with-actions]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [NgTemplateOutlet],
   inputs: ['actions', 'onClick', 'selected', 'className'],
   host: {
@@ -53,7 +51,7 @@ import { ConditionalElement, hasContent, templateOf, textOf } from './slot-dom.j
       {{ actionsText() }}
     </td>`,
 })
-export class RowWithActions implements AfterViewInit, DoCheck {
+export class RowWithActions {
   /** Action buttons/menu for the trailing cell (a `TemplateRef` or `[slot=actions]` content). */
   actions?: unknown
   /** Called when the row body is clicked, with the click event. */
@@ -66,8 +64,9 @@ export class RowWithActions implements AfterViewInit, DoCheck {
   /** The trailing actions cell, detached while React renders none. */
   @ViewChild('actionsCell') private actionsCell?: ElementRef<HTMLElement>
 
-  private readonly renderer = inject(Renderer2)
-  private readonly conditional = new ConditionalElement(this.renderer)
+  constructor() {
+    usePlacement((hasContent) => this.syncActions(hasContent))
+  }
 
   /**
    * The current class map.
@@ -129,19 +128,14 @@ export class RowWithActions implements AfterViewInit, DoCheck {
     event.stopPropagation()
   }
 
-  /** Reconciles the actions cell once the view (and its projected content) exists. */
-  ngAfterViewInit(): void {
-    this.syncActions()
-  }
-
-  /** Re-reconciles the actions cell after input writes. */
-  ngDoCheck(): void {
-    this.syncActions()
-  }
-
-  /** Keeps the actions cell in the DOM exactly while React renders it. */
-  private syncActions(): void {
+  /**
+   * Keeps the actions cell in the DOM exactly while React renders it.
+   *
+   * @param hasContent - Reads whether a slot has content.
+   */
+  private syncActions(hasContent: SlotReader): void {
     const cell = this.actionsCell?.nativeElement
-    this.conditional.sync(cell, this.actions !== undefined || hasContent(cell))
+    const projected = hasContent(cell)
+    setElementPresent(cell, this.actions !== undefined || projected)
   }
 }

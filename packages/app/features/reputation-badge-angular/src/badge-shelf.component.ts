@@ -4,9 +4,15 @@
  * @module
  */
 
-import { Component } from '@angular/core'
+import { Component, ElementRef, inject, ViewChild } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  placeElementBefore,
+  setElementPresent,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -15,10 +21,10 @@ import type { Badge } from './types.js'
 /**
  * BadgeShelf component.
  *
- * Horizontal row of small badge icons earned by a user. The host is a wrapper
- * the DOM normalizer unwraps (`data-parity-unwrap`): React's root is the `<ul>`
- * itself, and renders nothing at all when no badges are supplied, so the `<ul>`
- * exists only while there is something to show.
+ * Horizontal row of small badge icons earned by a user. React's root is the
+ * `<ul>` itself and nothing at all when no badges are supplied, so the `<ul>`
+ * renders in front of the host's place while there is something to show and
+ * the host itself leaves the page (`placeElementBefore` + `setElementPresent`).
  *
  * Each icon shows its name in a native `title` tooltip. Clicking a badge
  * invokes `onClick(badge)`; clicking the trailing `+N` chip invokes
@@ -27,10 +33,10 @@ import type { Badge } from './types.js'
 @Component({
   selector: 'mol-badge-shelf',
   standalone: true,
+  hostDirectives: [MolPlacement],
   inputs: ['badges', 'limit', 'onClick', 'className'],
-  host: { 'data-parity-unwrap': '', style: 'display: contents' },
   template: `@if (hasBadges()) {
-    <ul [class]="rootClasses()" [attr.aria-label]="shelfLabel()" data-mol-id="badge-shelf">
+    <ul #root [class]="rootClasses()" [attr.aria-label]="shelfLabel()" data-mol-id="badge-shelf">
       @for (badge of visible(); track badge.id) {
         <li [class]="itemClasses()" [attr.data-badge-id]="badge.id" data-mol-id="badge-shelf-item">
           @if (isInteractive()) {
@@ -109,6 +115,21 @@ export class BadgeShelf {
 
   /** The i18n handle (locale-reactive), read in an injection context. */
   private readonly i18n = useTranslation()
+
+  /** React's root (`<ul>`), while at least one badge renders. */
+  @ViewChild('root') private root?: ElementRef<HTMLElement>
+
+  private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
+
+  constructor() {
+    // React's root is the `<ul>` itself (`badges: []` renders nothing): it renders in
+    // front of the host's place and the host leaves the page.
+    usePlacement(() => {
+      const root = this.root?.nativeElement
+      if (root) placeElementBefore(root, this.host.nativeElement)
+      setElementPresent(this.host.nativeElement, false)
+    })
+  }
 
   /**
    * The current class map.

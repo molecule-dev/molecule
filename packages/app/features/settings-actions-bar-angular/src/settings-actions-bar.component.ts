@@ -4,15 +4,15 @@
  * @module
  */
 
-import {
-  type AfterViewInit,
-  Component,
-  type DoCheck,
-  type ElementRef,
-  ViewChild,
-} from '@angular/core'
+import { Component, type ElementRef, ViewChild } from '@angular/core'
 
-import { setElementPresent, useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  setElementPresent,
+  type SlotReader,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-angular'
@@ -60,6 +60,7 @@ function formatRelativeShort(epochMs: number): string {
 @Component({
   selector: 'div[mol-settings-actions-bar]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [Button],
   inputs: [
     'onSave',
@@ -107,7 +108,7 @@ function formatRelativeShort(epochMs: number): string {
       </button>
     </div>`,
 })
-export class SettingsActionsBar implements AfterViewInit, DoCheck {
+export class SettingsActionsBar {
   /** Called when Save is clicked. */
   onSave?: () => void | Promise<void>
   /** Called when Cancel is clicked; receives the DOM click event (React's `onClick`). */
@@ -133,15 +134,12 @@ export class SettingsActionsBar implements AfterViewInit, DoCheck {
   /** The translation function for the template. */
   protected t = this.i18n.t
 
+  constructor() {
+    usePlacement((hasContent) => this.reconcile(hasContent))
+  }
+
   /** The error span's capture wrapper (always mounted; detached when unused). */
   @ViewChild('errorSlot') errorSlot?: ElementRef<HTMLSpanElement>
-
-  /**
-   * Whether the projection carried error nodes at view init (Angular projects
-   * content at creation, so this is stable for the instance's life). The
-   * `{{ errorText() }}` text node is the wrapper's first child and is excluded.
-   */
-  private hasErrorSlot = false
 
   /**
    * The current class map.
@@ -259,32 +257,16 @@ export class SettingsActionsBar implements AfterViewInit, DoCheck {
     this.onCancel?.(event)
   }
 
-  /** Reads the projected error content's presence and syncs the wrapper. */
-  ngAfterViewInit(): void {
-    const el = this.errorSlot?.nativeElement
-    this.hasErrorSlot = el
-      ? Array.from(el.childNodes)
-          .slice(1)
-          .some(
-            (node) =>
-              node.nodeType === 1 || (node.nodeType === 3 && (node.textContent ?? '').trim()),
-          )
-      : false
-    this.syncError()
-  }
-
-  /** Re-syncs the error wrapper when the error input or projected content changes. */
-  ngDoCheck(): void {
-    this.syncError()
-  }
-
   /**
    * Applies React's error branch: the span stays in the DOM only while there is
-   * an error input or a projected error node.
+   * an error input or a projected error node. The `{{ errorText() }}` text node
+   * is the wrapper's own first child and is skipped.
+   *
+   * @param hasContent - Reads whether a slot has content.
    */
-  private syncError(): void {
+  private reconcile(hasContent: SlotReader): void {
     const el = this.errorSlot?.nativeElement
     if (!el) return
-    setElementPresent(el, this.errorText().length > 0 || this.hasErrorSlot)
+    setElementPresent(el, this.errorText().length > 0 || hasContent(el, 1))
   }
 }

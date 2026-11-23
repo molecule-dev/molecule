@@ -12,6 +12,7 @@
 import '@angular/compiler'
 import {
   type ApplicationRef,
+  ChangeDetectionStrategy,
   type ComponentRef,
   createComponent,
   type EventEmitter,
@@ -76,6 +77,7 @@ vi.mock('@molecule/app-ui-angular', async () => {
       },
     ),
     Input: Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'div[mol-input]',
       standalone: true,
       inputs: ['type', 'size', 'value', 'name', 'id', 'required', 'disabled', 'placeholder'],
@@ -170,7 +172,7 @@ vi.mock('@molecule/app-angular', async (importOriginal) => {
   }
 })
 
-import { provideAuth } from '@molecule/app-angular'
+import { provideAuth, provideDomPlacement } from '@molecule/app-angular'
 import { createJWTAuthClient, type UserProfile } from '@molecule/app-auth'
 
 import { AccountSection } from '../account-section.component.js'
@@ -189,7 +191,7 @@ const cleanups: (() => void)[] = []
  */
 async function mountAccount(client: ReturnType<typeof clientFor>): Promise<void> {
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection(), provideAuth(client)],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement(), provideAuth(client)],
   })
   const ref: ComponentRef<unknown> = createComponent(AccountSection as Type<unknown>, {
     environmentInjector: appRef.injector,

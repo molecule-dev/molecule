@@ -5,16 +5,15 @@
  */
 
 import { NgTemplateOutlet } from '@angular/common'
-import {
-  type AfterViewInit,
-  Component,
-  type DoCheck,
-  type ElementRef,
-  type TemplateRef,
-  ViewChild,
-} from '@angular/core'
+import { Component, type ElementRef, type TemplateRef, ViewChild } from '@angular/core'
 
-import { hasContent, setElementPresent, useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  setElementPresent,
+  type SlotReader,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { Switch } from '@molecule/app-ui-angular'
@@ -38,6 +37,7 @@ import type { ShareLinkCardProps } from './types.js'
 @Component({
   selector: 'div[mol-share-link-card]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [CopyLinkField, Switch, NgTemplateOutlet],
   inputs: ['url', 'showQR', 'passwordProtect', 'className', 'dataMolId'],
   host: {
@@ -72,7 +72,7 @@ import type { ShareLinkCardProps } from './types.js'
     }
   </div>`,
 })
-export class ShareLinkCard implements AfterViewInit, DoCheck {
+export class ShareLinkCard {
   /** The URL users can copy/share. */
   url?: string
   /** Whether the QR is visible. Defaults to false. */
@@ -93,11 +93,11 @@ export class ShareLinkCard implements AfterViewInit, DoCheck {
   /** The QR wrapper. */
   @ViewChild('qrSlot') qrSlot?: ElementRef<HTMLElement>
 
-  /** Whether title content was projected (read once at view init). */
+  /** Whether title content was projected. */
   private hasTitle = false
-  /** Whether description content was projected (read once at view init). */
+  /** Whether description content was projected. */
   private hasDescription = false
-  /** Whether QR content was projected (read once at view init). */
+  /** Whether QR content was projected. */
   private hasQr = false
 
   /** Reactive translations, read in the injection context. */
@@ -107,6 +107,10 @@ export class ShareLinkCard implements AfterViewInit, DoCheck {
   private static nextId = 0
   /** The id the password switch's `aria-labelledby` points at (its visible label). */
   readonly passwordLabelId = `mol-share-link-card-label-${ShareLinkCard.nextId++}`
+
+  constructor() {
+    usePlacement((hasContent) => this.reconcile(hasContent))
+  }
 
   /**
    * The current class map.
@@ -238,27 +242,19 @@ export class ShareLinkCard implements AfterViewInit, DoCheck {
   }
 
   /**
-   * Reads the projected slots' presence (view queries resolve only at view
-   * init) and applies React's conditional rendering.
+   * Reads the projected slots' presence and applies React's conditional
+   * rendering.
+   *
+   * @param hasContent - Reads whether a slot has content.
    */
-  ngAfterViewInit(): void {
-    this.hasTitle = hasContent(this.titleSlot?.nativeElement)
-    this.hasDescription = hasContent(this.descriptionSlot?.nativeElement)
-    this.hasQr = hasContent(this.qrSlot?.nativeElement)
-    this.syncSlots()
-  }
-
-  /** Re-applies React's conditional rendering when `showQR` changes. */
-  ngDoCheck(): void {
-    this.syncSlots()
-  }
-
-  /** Takes each wrapper out of the DOM or puts it back for React's branches. */
-  private syncSlots(): void {
+  private reconcile(hasContent: SlotReader): void {
     const header = this.headerSlot?.nativeElement
     const title = this.titleSlot?.nativeElement
     const description = this.descriptionSlot?.nativeElement
     const qr = this.qrSlot?.nativeElement
+    this.hasTitle = hasContent(title)
+    this.hasDescription = hasContent(description)
+    this.hasQr = hasContent(qr)
     // Children first, so the header's own detach never loses their state.
     setElementPresent(title, this.hasTitle)
     setElementPresent(description, this.hasDescription)

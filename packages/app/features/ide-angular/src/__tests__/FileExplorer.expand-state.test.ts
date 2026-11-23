@@ -32,7 +32,7 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { provideTheme } from '@molecule/app-angular'
+import { provideDomPlacement, provideTheme } from '@molecule/app-angular'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 import type { FileNode } from '@molecule/app-ide-panel-logic'
 import { loadExpandState } from '@molecule/app-ide-panel-logic/panels'
@@ -72,7 +72,7 @@ const FileExplorerHost = Component({
   selector: 'mol-file-explorer-state-host',
   standalone: true,
   imports: [FileExplorer],
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `<div mol-file-explorer [files]="p['files']" [onFileSelect]="p['onFileSelect']" [persistKey]="p['persistKey']" [activeFile]="p['activeFile']"></div>`,
 })(
   class FileExplorerHost {
@@ -104,7 +104,11 @@ async function renderExplorer(props: Record<string, unknown>): Promise<HTMLEleme
   const container = document.createElement('div')
   document.body.appendChild(container)
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection(), provideTheme(buildThemeProvider())],
+    providers: [
+      provideZonelessChangeDetection(),
+      provideDomPlacement(),
+      provideTheme(buildThemeProvider()),
+    ],
   })
   const ref: ComponentRef<InstanceType<typeof FileExplorerHost>> = createComponent(
     FileExplorerHost,

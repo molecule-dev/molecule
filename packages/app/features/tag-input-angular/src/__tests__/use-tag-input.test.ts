@@ -8,7 +8,7 @@
  * @module
  */
 
-import { Component, type OnDestroy, type OnInit } from '@angular/core'
+import { ChangeDetectionStrategy, Component, type OnDestroy, type OnInit } from '@angular/core'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import type { UseTagInputOptions, UseTagInputResult } from '../types.js'
@@ -47,6 +47,7 @@ const { useTagInput } = await import('../use-tag-input.js')
 
 /** A host that runs the hook in a field initializer, like a component does. */
 const HookHost = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-hook-host',
   standalone: true,
   template: '',
@@ -65,6 +66,7 @@ const HookHost = Component({
  * button. `<TagInput>` cannot produce this; the hook must.
  */
 const Editor = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-editor-harness',
   standalone: true,
   template: `<form (submit)="handleSubmit($event)"><input type="text" name="title" aria-label="title" /><input

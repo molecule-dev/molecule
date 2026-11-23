@@ -69,12 +69,14 @@ vi.mock('@molecule/app-ui-angular', async (importOriginal) => {
   const actual = await importOriginal<Record<string, unknown>>()
   const { Component } = await import('@angular/core')
   const MockButton = Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
     selector: 'button[mol-button]',
     standalone: true,
     inputs: ['variant', 'color', 'size', 'disabled', 'style', 'testId', 'loading'],
     template: `<ng-content></ng-content>`,
   })(class ButtonStub {})
   const MockSwitch = Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
     selector: 'mol-switch',
     standalone: true,
     inputs: ['checked', 'disabled'],
@@ -85,10 +87,12 @@ vi.mock('@molecule/app-ui-angular', async (importOriginal) => {
 
 const { CookieBanner } = await import('../cookie-banner.component.js')
 
-/** A mounted spec host: its DOM and a teardown. */
+/** A mounted spec host: its DOM, a props setter, and a teardown. */
 interface Mounted {
   /** The host element whose children the component template produced. */
   readonly host: HTMLElement
+  /** Merges props over the current ones and flushes change detection. */
+  setProps(next: Record<string, unknown>): Promise<void>
   /** Destroys the app and removes the host. */
   destroy(): Promise<void>
 }
@@ -106,7 +110,7 @@ async function mount(template: string, props: Record<string, unknown> = {}): Pro
     selector: 'mol-spec-host',
     standalone: true,
     imports: [CookieBanner as Type<unknown>],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template,
   })(
     class SpecHost {
@@ -126,6 +130,11 @@ async function mount(template: string, props: Record<string, unknown> = {}): Pro
   appRef.tick()
   return {
     host,
+    setProps: async (next: Record<string, unknown>) => {
+      ref.instance.p = { ...ref.instance.p, ...next }
+      ref.changeDetectorRef.markForCheck()
+      appRef.tick()
+    },
     destroy: async () => {
       appRef.destroy()
       host.remove()
@@ -275,5 +284,38 @@ describe('CookieBanner', () => {
     await vi.waitFor(() => expect(details.getAttribute('aria-expanded')).toBe('false'))
     expect(details.getAttribute('aria-controls')).toBeNull()
     expect(bannerEl(m.host).querySelectorAll('input[data-switch]')).toHaveLength(0)
+  })
+
+  it('keeps a consumer list in order when an item is inserted in the middle of title', async () => {
+    const m = await mount(
+      `<div mol-cookie-banner><ng-container ngProjectAs="[slot=title]">@for (x of p['xs']; track x) {<b>{{ x }}</b>}</ng-container></div>`,
+      { xs: ['a', 'c'] },
+    )
+    mounted.push(m)
+    const labels = (): (string | null)[] =>
+      Array.from(bannerEl(m.host).querySelectorAll('h3 b')).map((el) => el.textContent)
+    expect(labels()).toEqual(['a', 'c'])
+    await m.setProps({ xs: ['a', 'b', 'c'] })
+    expect(labels()).toEqual(['a', 'b', 'c'])
+    await m.setProps({ xs: ['a', 'c'] })
+    expect(labels()).toEqual(['a', 'c'])
+  })
+
+  it('shows and removes the title wrapper in the pass where the consumer @if adds and removes its content', async () => {
+    const m = await mount(
+      `<div mol-cookie-banner>@if (p['on']) {<b slot="title">Custom cookies!</b>}</div>`,
+      { on: false },
+    )
+    mounted.push(m)
+    const heading = (): HTMLElement => bannerEl(m.host).querySelector<HTMLElement>('h3')!
+    // React: <h3>{title ?? t('cookieBanner.title')}</h3> — the value bare.
+    expect(heading().textContent).toBe('Cookie preferences')
+    expect(heading().querySelector('span')).toBeNull()
+    await m.setProps({ on: true })
+    expect(heading().textContent).toBe('Custom cookies!')
+    expect(heading().querySelector('span')).toBeNull()
+    await m.setProps({ on: false })
+    expect(heading().textContent).toBe('Cookie preferences')
+    expect(heading().querySelector('span')).toBeNull()
   })
 })

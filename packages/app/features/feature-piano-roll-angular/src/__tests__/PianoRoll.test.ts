@@ -109,7 +109,7 @@ async function mount(props: PianoRollProps): Promise<Mounted> {
     selector: 'mol-spec-host',
     standalone: true,
     imports: [PianoRoll as Type<unknown>],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     host: { [`data-spec-host-${specHostCount}`]: '' },
     template: TEMPLATE,
   })(

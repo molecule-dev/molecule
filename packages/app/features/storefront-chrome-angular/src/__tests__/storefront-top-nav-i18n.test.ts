@@ -57,7 +57,7 @@ vi.mock('@molecule/app-angular', async (importOriginal) => {
 })
 
 const { StorefrontTopNav } = await import('../storefront-top-nav.component.js')
-const { provideRouter } = await import('@molecule/app-angular')
+const { provideDomPlacement, provideRouter } = await import('@molecule/app-angular')
 
 /** What a mount hands back to the test. */
 interface Mounted {
@@ -101,7 +101,7 @@ async function mount(
     selector: 'mol-spec-host',
     standalone: true,
     imports: [component],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template,
   })(
     class SpecHost {
@@ -112,6 +112,7 @@ async function mount(
   const appRef: ApplicationRef = await createApplication({
     providers: [
       provideZonelessChangeDetection(),
+      provideDomPlacement(),
       provideRouter(createMemoryRouter({ initialEntries: ['/'] })),
     ],
   })
@@ -221,6 +222,7 @@ describe('StorefrontTopNav i18n', () => {
     const glyph = m.host.querySelector('[data-icon="person"]')
     expect(glyph?.getAttribute('aria-hidden')).toBe('true')
     const trigger = m.host.querySelector('[data-mol-id="profile-trigger-01"]')
-    expect(trigger?.getAttribute('aria-label')).not.toBe('person')
+    expect(trigger).not.toBeNull()
+    expect(trigger!.getAttribute('aria-label')).not.toBe('person')
   })
 })

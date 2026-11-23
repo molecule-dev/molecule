@@ -72,7 +72,7 @@ async function render(props: Record<string, unknown> = {}, projected = ''): Prom
     selector: 'mol-spec-host',
     standalone: true,
     imports: [TrendChip as Type<unknown>],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: `<span mol-trend-chip [delta]="p['delta']" [direction]="p['direction']" [suffix]="p['suffix']" [prefix]="p['prefix']" [variant]="p['variant']" [ariaLabel]="p['ariaLabel']" [className]="p['className']">${projected}</span>`,
   })(
     class SpecHost {

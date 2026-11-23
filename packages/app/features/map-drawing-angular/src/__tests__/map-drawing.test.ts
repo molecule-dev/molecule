@@ -91,7 +91,7 @@ async function mount(props: Record<string, unknown>): Promise<Mounted> {
     selector: 'mol-spec-host',
     standalone: true,
     imports: [MapDrawing as Type<unknown>],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     host: { [`data-spec-host-${specHostCount}`]: '' },
     template: TEMPLATE,
   })(

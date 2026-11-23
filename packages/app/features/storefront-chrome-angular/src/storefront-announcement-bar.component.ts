@@ -5,9 +5,15 @@
  */
 
 import { NgTemplateOutlet } from '@angular/common'
-import { Component, type TemplateRef } from '@angular/core'
+import { Component, ElementRef, inject, type TemplateRef, ViewChild } from '@angular/core'
 
-import { Link } from '@molecule/app-angular'
+import {
+  Link,
+  MolPlacement,
+  placeContentBefore,
+  setElementPresent,
+  usePlacement,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -18,20 +24,22 @@ import { hasText, isNodeTemplate, nodeText } from './internal.js'
  *
  * The host IS the root `<div>` (`div[mol-storefront-announcement-bar]`),
  * matching React's root exactly. The `message` node prop is projected content
- * (`[slot=message]`) or a plain text input; a node-valued CTA label arrives as
- * an `ng-template` reference and renders through `NgTemplateOutlet`. The CTA
- * itself is the binding's router `Link` (`<a molLink>`), react-router's
- * `<Link to>` contract. Same props, same DOM as
+ * (`[slot=message]`) or a plain text input; the projected content renders bare
+ * in the message's place (the capture span never reaches the page); a
+ * node-valued CTA label arrives as an `ng-template` reference and renders
+ * through `NgTemplateOutlet`. The CTA itself is the binding's router `Link`
+ * (`<a molLink>`), react-router's `<Link to>` contract. Same props, same DOM as
  * `@molecule/app-storefront-chrome-react`'s `StorefrontAnnouncementBar`.
  */
 @Component({
   selector: 'div[mol-storefront-announcement-bar]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [Link, NgTemplateOutlet],
   inputs: ['message', 'cta', 'className'],
   host: { '[class]': 'classes()' },
   // prettier-ignore
-  template: `@if (messageTemplate(); as msgTpl) {<ng-container [ngTemplateOutlet]="msgTpl"></ng-container>}<span data-parity-unwrap><ng-content select="[slot=message]"></ng-content></span>@if (hasTextMessage()) {<ng-container>{{ message }}</ng-container>}@if (hasCta()) {<ng-container>{{ ' ' }}</ng-container><a [molLink]="ctaTo()" [class]="linkClasses()" data-mol-id="announcement-link">@if (ctaLabelTemplate(); as label) {<ng-container [ngTemplateOutlet]="label"></ng-container>}@if (hasTextCtaLabel()) {<ng-container>{{ ctaLabelText() }}</ng-container>}</a>}`,
+  template: `@if (messageTemplate(); as msgTpl) {<ng-container [ngTemplateOutlet]="msgTpl"></ng-container>}<span #messageSlot><ng-content select="[slot=message]"></ng-content></span>@if (hasTextMessage()) {<ng-container>{{ message }}</ng-container>}@if (hasCta()) {<ng-container>{{ ' ' }}</ng-container><a [molLink]="ctaTo()" [class]="linkClasses()" data-mol-id="announcement-link">@if (ctaLabelTemplate(); as label) {<ng-container [ngTemplateOutlet]="label"></ng-container>}@if (hasTextCtaLabel()) {<ng-container>{{ ctaLabelText() }}</ng-container>}</a>}`,
 })
 export class StorefrontAnnouncementBar {
   /** The promo message — a text input, or `[slot=message]` projected content. */
@@ -40,6 +48,22 @@ export class StorefrontAnnouncementBar {
   cta?: { to: string; label?: unknown }
   /** Extra classes on the bar. */
   className?: string
+
+  /** The projected message capture point (its content renders bare in place). */
+  @ViewChild('messageSlot') private messageSlot?: ElementRef<HTMLElement>
+
+  private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
+
+  constructor() {
+    usePlacement((hasContent) => {
+      const slot = this.messageSlot?.nativeElement
+      if (!slot) return
+      // React renders the projected message bare; the capture span leaves the page.
+      hasContent(slot)
+      placeContentBefore(slot, slot)
+      setElementPresent(slot, false)
+    })
+  }
 
   /**
    * The current class map.

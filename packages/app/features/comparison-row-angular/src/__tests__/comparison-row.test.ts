@@ -79,7 +79,7 @@ async function render(
     selector: 'mol-spec-host',
     standalone: true,
     imports: [ComparisonRow as Type<unknown>],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: `<div mol-comparison-row [label]="p['label']" [current]="p['current']" [previous]="p['previous']" [deltaPct]="p['deltaPct']" [periodLabel]="p['periodLabel']" [className]="p['className']"${formatRef ? ` [formatDelta]="fmt"` : ''}>${projected}</div>`,
   })(
     class SpecHost {

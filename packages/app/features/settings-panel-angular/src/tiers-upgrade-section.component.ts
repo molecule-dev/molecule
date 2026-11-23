@@ -4,9 +4,16 @@
  * @module
  */
 
-import { Component, DestroyRef, inject, signal } from '@angular/core'
+import { Component, DestroyRef, ElementRef, inject, signal } from '@angular/core'
 
-import { useHttpClient, useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  placeContentBefore,
+  setElementPresent,
+  useHttpClient,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import { serverErrorMessage } from '@molecule/app-http'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
@@ -31,9 +38,8 @@ export interface Tier {
  * TiersUpgradeSection component.
  *
  * Billing section with full multi-tier upgrade flow. React's root is a
- * fragment (the `<section>` plus the upgrade modal), so the host is unwrapped
- * by the DOM normalizer and `display: contents` keeps the layout
- * fragment-like.
+ * fragment (the `<section>` plus the upgrade modal), so those nodes render in
+ * the host's place and the host itself never appears in the page.
  *
  * Replaces the simpler `BillingSection` for apps backed by
  * `@molecule/api-payments-stripe` + `@molecule/api-resource-payment` — loads
@@ -47,12 +53,9 @@ export interface Tier {
 @Component({
   selector: 'mol-tiers-upgrade-section',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [Alert, Button, ConfirmButton, Flex, Modal],
   inputs: ['redirectToCheckout'],
-  host: {
-    'data-parity-unwrap': '',
-    style: 'display: contents',
-  },
   template: `<section>
       <h3 [class]="cm.cn(cm.sectionHeading, cm.sp('mb', 3))">
         {{ t('settings.billing', undefined, { defaultValue: 'Billing' }) }}
@@ -160,6 +163,8 @@ export class TiersUpgradeSection {
   /** The bonded ClassMap (styling tokens resolve at render time). */
   protected readonly cm: UIClassMap = getClassMap()
 
+  private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
+
   /**
    * The (tier, price) pairs the modal lists: every paid tier's prices that
    * carry a stripe price id (React's filter + flatMap).
@@ -184,6 +189,12 @@ export class TiersUpgradeSection {
    * dropped like React's cancelled one.
    */
   constructor() {
+    usePlacement(() => {
+      // React's fragment (the section plus the upgrade modal) renders in the
+      // host's place; the host itself leaves the page.
+      placeContentBefore(this.host.nativeElement, this.host.nativeElement)
+      setElementPresent(this.host.nativeElement, false)
+    })
     let cancelled = false
     inject(DestroyRef).onDestroy(() => {
       cancelled = true

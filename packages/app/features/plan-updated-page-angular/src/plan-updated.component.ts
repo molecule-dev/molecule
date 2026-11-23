@@ -4,9 +4,25 @@
  * @module
  */
 
-import { Component, inject, Injector, type OnInit, runInInjectionContext } from '@angular/core'
+import {
+  Component,
+  ElementRef,
+  inject,
+  Injector,
+  type OnInit,
+  runInInjectionContext,
+} from '@angular/core'
 
-import { Link, useAuth, useTranslation, useVerifyPaymentReturn } from '@molecule/app-angular'
+import {
+  Link,
+  MolPlacement,
+  placeContentBefore,
+  setElementPresent,
+  useAuth,
+  usePlacement,
+  useTranslation,
+  useVerifyPaymentReturn,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Flex, Icon, Spinner } from '@molecule/app-ui-angular'
@@ -16,16 +32,16 @@ import { Button, Flex, Icon, Spinner } from '@molecule/app-ui-angular'
  *
  * Post-purchase confirmation page rendered after a plan upgrade. React's root
  * is the `<section>` (or the centered `<Flex>` while a spinner shows), so the
- * host is an empty, layout-neutral element (`display: contents`) that the DOM
- * normalizer unwraps — the convention the UI kit's fragment-rooted Angular
- * components use. The page reads auth state to show a spinner while the
- * session is still hydrating, then a two-line thank-you with a Return Home
- * button and a View receipt link.
+ * rendered root stands in front of the host's place and the host itself leaves
+ * the page (`placeContentBefore` + `setElementPresent`). The page reads auth
+ * state to show a spinner while the session is still hydrating, then a two-line
+ * thank-you with a Return Home button and a View receipt link.
  */
 @Component({
   selector: 'mol-plan-updated',
   standalone: true,
   imports: [Button, Flex, Icon, Link, Spinner],
+  hostDirectives: [MolPlacement],
   inputs: [
     'messageKey',
     'messageDefault',
@@ -37,7 +53,6 @@ import { Button, Flex, Icon, Spinner } from '@molecule/app-ui-angular'
     'provider',
     'verify',
   ],
-  host: { 'data-parity-unwrap': '', style: 'display: contents' },
   template: `@if (waiting()) {
       <div mol-flex [align]="'center'" [justify]="'center'" [className]="cm().sp('py', 12)">
         <div mol-spinner></div>
@@ -145,6 +160,18 @@ export class PlanUpdated implements OnInit {
    * environment's, so the hook's `DestroyRef` ends with this component.
    */
   private readonly injector = inject(Injector)
+
+  /** The component's host element (React renders no element of its own). */
+  private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
+
+  constructor() {
+    // React's root is the `<section>` (or the centered `<Flex>`) itself: it renders in front
+    // of the host's place and the host leaves the page.
+    usePlacement(() => {
+      placeContentBefore(this.host.nativeElement, this.host.nativeElement)
+      setElementPresent(this.host.nativeElement, false)
+    })
+  }
 
   /** The `useVerifyPaymentReturn` result, created once the inputs exist. */
   private verification?: ReturnType<typeof useVerifyPaymentReturn>

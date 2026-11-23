@@ -15,6 +15,7 @@ import { type ApplicationRef, createComponent, provideZonelessChangeDetection } 
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
@@ -44,7 +45,9 @@ afterEach(() => {
 async function renderMarkdown(text: string): Promise<HTMLElement> {
   const container = document.createElement('div')
   document.body.appendChild(container)
-  const appRef = await createApplication({ providers: [provideZonelessChangeDetection()] })
+  const appRef = await createApplication({
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
+  })
   current = appRef
   const ref = createComponent(MarkdownContent, { environmentInjector: appRef.injector })
   container.appendChild(ref.location.nativeElement as HTMLElement)

@@ -31,7 +31,7 @@ import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { ChatMessage } from '@molecule/app-ai-chat'
-import { provideTheme } from '@molecule/app-angular'
+import { provideDomPlacement, provideTheme } from '@molecule/app-angular'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 import { setIconSet } from '@molecule/app-icons'
 import { TIMELINE_ITEM_GAP, TIMELINE_ITEM_GAP_DISCOVERY } from '@molecule/app-ide-panel-logic'
@@ -46,7 +46,7 @@ const MessageItemHost = Component({
   selector: 'mol-message-item-host',
   standalone: true,
   imports: [MessageItem],
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `<div mol-message-item [msg]="p['msg']" [sendMessage]="p['sendMessage']" [handleAskUserResponse]="p['handleAskUserResponse']" [isLoading]="p['isLoading']" [streamingStatus]="p['streamingStatus']" [onNavigatePreview]="p['onNavigatePreview']" [undoneTcIds]="p['undoneTcIds']" [handleUndoToggle]="p['handleUndoToggle']" [onFileOpen]="p['onFileOpen']" [onFileDoubleClick]="p['onFileDoubleClick']" [onFileDiff]="p['onFileDiff']" [handleFileRevert]="p['handleFileRevert']" [setInputAndCursorEnd]="p['setInputAndCursorEnd']" [setModelPicker]="p['setModelPicker']" [chatMode]="p['chatMode']" [userAvatar]="p['userAvatar']" [onProfileClick]="p['onProfileClick']" [currentUserId]="p['currentUserId']" [discovery]="p['discovery']" [buildUpgradeCta]="p['buildUpgradeCta']" [agentName]="p['agentName']" [canEdit]="p['canEdit']" [onSkipToolCall]="p['onSkipToolCall']" [skipToolCallReason]="p['skipToolCallReason']" [showTimestamp]="p['showTimestamp']"></div>`,
 })(
   class MessageItemHost {
@@ -140,7 +140,11 @@ async function renderMessage(props: Record<string, unknown>): Promise<HTMLElemen
   const container = document.createElement('div')
   document.body.appendChild(container)
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection(), provideTheme(buildThemeProvider())],
+    providers: [
+      provideZonelessChangeDetection(),
+      provideDomPlacement(),
+      provideTheme(buildThemeProvider()),
+    ],
   })
   const ref: ComponentRef<InstanceType<typeof MessageItemHost>> = createComponent(MessageItemHost, {
     environmentInjector: appRef.injector,
@@ -159,7 +163,7 @@ describe('MessageItem — user rows', () => {
     const container = await renderMessage({ msg: message({ content: 'Build me a todo app' }) })
     const row = container.querySelector('[data-mol-id="chat-user-message"]')
     expect(row, 'a user message row should render').not.toBeNull()
-    expect(row?.querySelector('[data-mol-id="chat-user-avatar"]')).not.toBeNull()
+    expect(row!.querySelector('[data-mol-id="chat-user-avatar"]')).not.toBeNull()
     expect(row?.textContent).toContain('Build me a todo app')
     expect(row?.textContent).toContain('You')
     const cm = getClassMap()
@@ -173,7 +177,7 @@ describe('MessageItem — user rows', () => {
     const card = container.querySelector('[data-mol-id="chat-automatic-message"]')
     expect(card, 'an auto-sent card should render').not.toBeNull()
     expect(card?.querySelector('[data-mol-id="chat-user-avatar"]')).toBeNull()
-    expect(card?.querySelector('svg'), 'the sync glyph should render').not.toBeNull()
+    expect(card!.querySelector('svg'), 'the sync glyph should render').not.toBeNull()
     expect(card?.textContent).not.toContain('You')
     const cm = getClassMap()
     expect(classTokens(card)).toEqual(tokens(cm.textSize('xs')))

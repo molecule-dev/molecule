@@ -73,7 +73,7 @@ vi.mock('@molecule/app-ui-angular', async () => {
   const { Component, EventEmitter } = await import('@angular/core')
   return {
     Button: Component({
-      changeDetection: ChangeDetectionStrategy.Default,
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'button[mol-button]',
       standalone: true,
       inputs: ['variant', 'color', 'size', 'disabled', 'type'],
@@ -94,6 +94,7 @@ vi.mock('@molecule/app-ui-angular', async () => {
       },
     ),
     Select: Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'div[mol-select]',
       standalone: true,
       inputs: ['options', 'value'],
@@ -152,7 +153,7 @@ async function mount(props: Record<string, unknown> = {}): Promise<Mounted> {
     selector: `mol-spec-host-${hostSelector}`,
     standalone: true,
     imports: [PaginationBar],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: `<div
       mol-pagination-bar
       [page]="p['page']"

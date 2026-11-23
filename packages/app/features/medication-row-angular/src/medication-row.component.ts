@@ -4,21 +4,17 @@
  * @module
  */
 
-import {
-  type AfterViewChecked,
-  type AfterViewInit,
-  Component,
-  ElementRef,
-  inject,
-  Renderer2,
-  ViewChild,
-} from '@angular/core'
+import { Component, type ElementRef, ViewChild } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  setElementPresent,
+  type SlotReader,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
-
-import { hasProjectedNodes, SlotGuard } from './slot-dom.js'
 
 /**
  * The text a node value renders as when it is a plain string or number
@@ -43,11 +39,13 @@ const textOf = (value: unknown): string =>
  * `actions`) are projected content (`[slot=<name>]`); plain strings are
  * inputs. The optional wrappers render only when React would render them —
  * Angular projection needs always-mounted capture points, so
- * {@link MedicationRow.ngAfterViewChecked} reconciles them.
+ * {@link MedicationRow.reconcile} takes an unrendered wrapper out of the DOM
+ * ({@link setElementPresent}).
  */
 @Component({
   selector: 'div[mol-medication-row]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   inputs: [
     'name',
     'dosage',
@@ -66,7 +64,7 @@ const textOf = (value: unknown): string =>
   // prettier-ignore
   template: `<div [class]="rowClass()">@if (color) {<span aria-hidden="true" [class]="dotClass()" [style.width]="'24px'" [style.height]="'24px'" [style.background]="color"></span>}<div [class]="bodyClass()"><header [class]="headerClass()"><h3 [class]="nameClass()">@if (nameText()) {<ng-container>{{ nameText() }}</ng-container>}<ng-content select="[slot=name]"></ng-content></h3><span #dosageWrap [class]="dosageClass()">@if (dosageText()) {<ng-container>{{ dosageText() }}</ng-container>}<ng-content select="[slot=dosage]"></ng-content></span><span #formWrap [class]="smallClass()">@if (formText()) {<ng-container>{{ formText() }}</ng-container>}<ng-content select="[slot=form]"></ng-content></span></header><p #instructionsWrap [class]="instructionsClass()">@if (instructionsText()) {<ng-container>{{ instructionsText() }}</ng-container>}<ng-content select="[slot=instructions]"></ng-content></p><div [class]="metaClass()"><span #prescriberWrap [class]="smallClass()">{{ prescribedBy() }}@if (prescriberText()) {<ng-container>{{ prescriberText() }}</ng-container>}<ng-content select="[slot=prescriber]"></ng-content></span>@if (supplyDays !== undefined) {<span [class]="supplyClass()">· {{ supplyText() }}</span>}@if (refills !== undefined) {<span [class]="smallClass()">· {{ refillsText() }}</span>}</div></div><div #actionsWrap [class]="actionsClass()">@if (actionsText()) {<ng-container>{{ actionsText() }}</ng-container>}<ng-content select="[slot=actions]"></ng-content></div></div>`,
 })
-export class MedicationRow implements AfterViewInit, AfterViewChecked {
+export class MedicationRow {
   /** Drug name — a string input, or `[slot=name]` projected content. */
   name?: unknown
   /** Dosage display — a string input, or `[slot=dosage]` projected content. */
@@ -102,20 +100,9 @@ export class MedicationRow implements AfterViewInit, AfterViewChecked {
   /** The i18n provider above the row. */
   private readonly i18n = useTranslation()
 
-  /** Whether the projected slots' presence has been read (read once: projection never changes). */
-  private slotsRead = false
-  /** Whether the dosage slot holds projected content. */
-  private hasDosageSlot = false
-  /** Whether the form slot holds projected content. */
-  private hasFormSlot = false
-  /** Whether the instructions slot holds projected content. */
-  private hasInstructionsSlot = false
-  /** Whether the prescriber slot holds projected content. */
-  private hasPrescriberSlot = false
-  /** Whether the actions slot holds projected content. */
-  private hasActionsSlot = false
-
-  private readonly guard = new SlotGuard(inject(ElementRef), inject(Renderer2))
+  constructor() {
+    usePlacement((hasContent) => this.reconcile(hasContent))
+  }
 
   /**
    * The current class map.
@@ -304,43 +291,24 @@ export class MedicationRow implements AfterViewInit, AfterViewChecked {
     )
   }
 
-  /** Reads the projected slots' presence once, then reconciles the wrappers. */
-  ngAfterViewInit(): void {
-    this.reconcile()
-  }
-
-  /**
-   * Re-reconciles after every view refresh (a props step may add or remove a
-   * value): the wrappers are toggled on the values the template just rendered.
-   */
-  ngAfterViewChecked(): void {
-    this.reconcile()
-  }
-
   /**
    * Applies React's conditions: a wrapper renders when its input holds a value
    * or its projected slot holds content (`{expr && <…>}`).
+   *
+   * @param hasContent - Reads whether a slot has content.
    */
-  private reconcile(): void {
+  private reconcile(hasContent: SlotReader): void {
     const dosage = this.dosageWrap?.nativeElement
     const form = this.formWrap?.nativeElement
     const instructions = this.instructionsWrap?.nativeElement
     const prescriber = this.prescriberWrap?.nativeElement
     const actions = this.actionsWrap?.nativeElement
-    if (!this.slotsRead && dosage && form && instructions && prescriber && actions) {
-      this.hasDosageSlot = hasProjectedNodes(dosage, this.dosageText() ? 1 : 0)
-      this.hasFormSlot = hasProjectedNodes(form, this.formText() ? 1 : 0)
-      this.hasInstructionsSlot = hasProjectedNodes(instructions, this.instructionsText() ? 1 : 0)
-      // The prescriber span renders its label (and any input text) before the
-      // projected content.
-      this.hasPrescriberSlot = hasProjectedNodes(prescriber, 1 + (this.prescriberText() ? 1 : 0))
-      this.hasActionsSlot = hasProjectedNodes(actions, this.actionsText() ? 1 : 0)
-      this.slotsRead = true
-    }
-    this.guard.toggle(dosage, Boolean(this.dosage) || this.hasDosageSlot)
-    this.guard.toggle(form, Boolean(this.form) || this.hasFormSlot)
-    this.guard.toggle(instructions, Boolean(this.instructions) || this.hasInstructionsSlot)
-    this.guard.toggle(prescriber, Boolean(this.prescriber) || this.hasPrescriberSlot)
-    this.guard.toggle(actions, Boolean(this.actions) || this.hasActionsSlot)
+    setElementPresent(dosage, Boolean(this.dosage) || hasContent(dosage))
+    setElementPresent(form, Boolean(this.form) || hasContent(form))
+    setElementPresent(instructions, Boolean(this.instructions) || hasContent(instructions))
+    // The prescriber span always renders its label first, so the slot read
+    // skips that one leading node.
+    setElementPresent(prescriber, Boolean(this.prescriber) || hasContent(prescriber, 1))
+    setElementPresent(actions, Boolean(this.actions) || hasContent(actions))
   }
 }

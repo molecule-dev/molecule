@@ -4,36 +4,20 @@
  * @module
  */
 
-import {
-  type AfterViewInit,
-  Component,
-  type DoCheck,
-  type ElementRef,
-  signal,
-  ViewChild,
-} from '@angular/core'
+import { Component, type ElementRef, signal, ViewChild } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  setElementPresent,
+  type SlotReader,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-angular'
 
 import type { SrsGrade } from './types.js'
-
-/**
- * Whether an ng-content wrapper captured any element or text node.
- *
- * @param el - The wrapper element.
- * @returns True when at least one projected node exists.
- */
-const hasNodes = (el: Element | undefined | null): boolean => {
-  if (!el) return false
-  for (const node of Array.from(el.childNodes)) {
-    if (node.nodeType === 1) return true
-    if (node.nodeType === 3 && (node.textContent ?? '').trim()) return true
-  }
-  return false
-}
 
 /**
  * FlashcardCard component.
@@ -49,6 +33,7 @@ const hasNodes = (el: Element | undefined | null): boolean => {
 @Component({
   selector: 'div[mol-flashcard-card]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [Button],
   inputs: ['front', 'back', 'progress', 'onGrade', 'defaultRevealed', 'className'],
   host: {
@@ -57,7 +42,7 @@ const hasNodes = (el: Element | undefined | null): boolean => {
   // prettier-ignore
   template: `<div [class]="stackClasses()"><div #progressWrap [class]="progressClasses()">@if (hasProgress) {<ng-container>{{ progress }}</ng-container>}<ng-content select="[slot=progress]"></ng-content></div><div [class]="faceClasses()" #face>@if (revealed()) {@if (hasBack) {<ng-container>{{ back }}</ng-container>}<ng-content select="[slot=back]"></ng-content>} @else {@if (hasFront) {<ng-container>{{ front }}</ng-container>}<ng-content select="[slot=front]"></ng-content>}</div>@if (!revealed()) {<button mol-button [variant]="'solid'" [color]="'primary'" (click)="reveal()">{{ revealLabel() }}</button>} @else {<div [class]="gridClasses()"><button mol-button [variant]="'outline'" [color]="'error'" (click)="grade('again')">{{ againLabel() }}</button><button mol-button [variant]="'outline'" [color]="'warning'" (click)="grade('hard')">{{ hardLabel() }}</button><button mol-button [variant]="'outline'" [color]="'primary'" (click)="grade('good')">{{ goodLabel() }}</button><button mol-button [variant]="'outline'" [color]="'success'" (click)="grade('easy')">{{ easyLabel() }}</button></div>}</div>`,
 })
-export class FlashcardCard implements AfterViewInit, DoCheck {
+export class FlashcardCard {
   /** Front content (prompt) — a string input, or `[slot=front]` projected content. */
   front?: unknown
   /** Back content (answer) — a string input, or `[slot=back]` projected content. */
@@ -82,11 +67,12 @@ export class FlashcardCard implements AfterViewInit, DoCheck {
   /** Whether the answer face is showing. */
   private readonly revealedState = signal(false)
 
-  /** Whether a `[slot=progress]` projection landed (an empty wrapper is removed). */
-  private progressProjected = false
+  /** Whether a `[slot=progress]` projection landed (an empty wrapper is withheld). */
+  private readonly progressProjected = signal(false)
 
-  /** Whether the view queries have been read (nothing is withdrawn before). */
-  private viewReady = false
+  constructor() {
+    usePlacement((hasContent) => this.reconcile(hasContent))
+  }
 
   /**
    * The current class map.
@@ -169,7 +155,9 @@ export class FlashcardCard implements AfterViewInit, DoCheck {
    * @returns True when a text or projected progress row exists.
    */
   get hasProgress(): boolean {
-    return (typeof this.progress === 'string' && this.progress.length > 0) || this.progressProjected
+    return (
+      (typeof this.progress === 'string' && this.progress.length > 0) || this.progressProjected()
+    )
   }
 
   /**
@@ -232,29 +220,17 @@ export class FlashcardCard implements AfterViewInit, DoCheck {
   }
 
   /**
-   * Reads whether a progress row was projected, then withdraws the wrapper
-   * when neither a text input nor projected content landed (React renders no
-   * wrapper at all in that case). View queries resolve only at view init.
+   * Keeps the progress row in the DOM exactly while React renders it: reads
+   * the projected slot and withholds the wrapper when neither a text input nor
+   * projected content landed.
+   *
+   * @param hasContent - Reads whether a slot has content.
    */
-  ngAfterViewInit(): void {
+  private reconcile(hasContent: SlotReader): void {
     const wrap = this.progressWrap?.nativeElement
-    if (wrap) this.progressProjected = hasNodes(wrap)
-    this.viewReady = true
-    this.withdrawEmptyProgress()
-  }
-
-  /**
-   * Withdraws the progress wrapper once nothing fills it (React renders
-   * `{progress && <div>…</div>}` — nothing when progress is absent).
-   */
-  ngDoCheck(): void {
-    if (this.viewReady) this.withdrawEmptyProgress()
-  }
-
-  /** Detaches the progress row when neither a text nor a projected input fills it. */
-  private withdrawEmptyProgress(): void {
-    const wrap = this.progressWrap?.nativeElement
-    if (!wrap || !wrap.isConnected || this.hasProgress) return
-    wrap.remove()
+    const projected = wrap ? hasContent(wrap) : false
+    this.progressProjected.set(projected)
+    const hasProgress = (typeof this.progress === 'string' && this.progress.length > 0) || projected
+    setElementPresent(wrap, hasProgress)
   }
 }

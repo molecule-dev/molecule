@@ -10,13 +10,13 @@
  * without running anything.
  *
  * React's component renders no root of its own — it is the QuickPicker's
- * fragment of two roots — so the host is an empty, layout-neutral element
- * (`display: contents`) whose content is adopted beside it every
- * change-detection pass (`ngDoCheck`, the kit's own session-gate convention,
- * the same one the QuickPicker component runs for its own roots): the
- * backdrop and the panel then never sit under the host, and the host never
- * appears in a `@focus` path. The overlay — the filter, the keyboard, the
- * rows — is the package's `QuickPicker`, rendered as the host's one child
+ * fragment of two roots — so the template's nodes render in front of the host
+ * (`placeContentBefore`) and the host leaves the DOM (the same placement the
+ * QuickPicker component runs for its own roots): the backdrop and the panel
+ * never sit under a host element, and no host appears in a `@focus` path. The
+ * overlay — the filter, the
+ * keyboard, the rows — is the package's `QuickPicker`, rendered as the host's
+ * one child
  * with the derived rows; the palette hands it its OWN placeholder
  * translation, so the picker's default never shows through it. The derived
  * rows are rebuilt only when the `commands` input is REPLACED (React's
@@ -27,16 +27,15 @@
  * @module
  */
 
-import {
-  Component,
-  type DoCheck,
-  ElementRef,
-  inject,
-  type OnChanges,
-  type SimpleChanges,
-} from '@angular/core'
+import { Component, ElementRef, inject, type OnChanges, type SimpleChanges } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  placeContentBefore,
+  setElementPresent,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { Command } from '@molecule/app-ide-panel-logic'
 
 import type { QuickPickerItem } from './quick-picker.component.js'
@@ -50,14 +49,11 @@ import { QuickPicker } from './quick-picker.component.js'
   standalone: true,
   imports: [QuickPicker],
   inputs: ['commands', 'onDismiss'],
-  host: {
-    'data-parity-unwrap': '',
-    style: 'display: contents',
-  },
+  hostDirectives: [MolPlacement],
   // prettier-ignore
   template: `<div mol-quick-picker [items]="derivedItems" [onSelect]="pick" [onDismiss]="onDismiss" [placeholder]="placeholderText()"></div>`,
 })
-export class CommandPalette implements OnChanges, DoCheck {
+export class CommandPalette implements OnChanges {
   /** Available commands. */
   commands: Command[] = []
 
@@ -76,17 +72,18 @@ export class CommandPalette implements OnChanges, DoCheck {
   /** This component's host element, for the content adoption below. */
   private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
 
+  constructor() {
+    usePlacement(() => this.place())
+  }
+
   /**
-   * Adopts the QuickPicker's roots beside the host every change-detection
-   * pass, so the host element (a layout-neutral wrapper React does not have)
-   * never appears in a `@focus` path — the kit's own session-gate convention
-   * for fragment-rooted components.
+   * Renders the QuickPicker's nodes in front of the host and keeps the host out
+   * of the DOM: React renders no element of its own here.
    */
-  ngDoCheck(): void {
-    const parent = this.host.nativeElement.parentNode
-    if (!parent) return
-    for (const node of Array.from(this.host.nativeElement.childNodes))
-      parent.insertBefore(node, this.host.nativeElement)
+  private place(): void {
+    const host = this.host.nativeElement
+    placeContentBefore(host, host)
+    setElementPresent(host, false)
   }
 
   /**

@@ -25,6 +25,7 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 import { getClassMap, setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
@@ -36,7 +37,7 @@ const VerificationBadgeHost = Component({
   selector: 'mol-verification-badge-host',
   standalone: true,
   imports: [VerificationBadge],
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `<div mol-verification-badge [status]="p['status']" [output]="p['output']" [workspaces]="p['workspaces']" [categories]="p['categories']" [renderCheckUnavailable]="p['renderCheckUnavailable']"></div>`,
 })(
   class VerificationBadgeHost {
@@ -84,7 +85,7 @@ async function renderBadge(props: Record<string, unknown>): Promise<HTMLElement>
   const container = document.createElement('div')
   document.body.appendChild(container)
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<InstanceType<typeof VerificationBadgeHost>> = createComponent(
     VerificationBadgeHost,

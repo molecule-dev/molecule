@@ -29,7 +29,7 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { provideEditor, provideTheme } from '@molecule/app-angular'
+import { provideDomPlacement, provideEditor, provideTheme } from '@molecule/app-angular'
 import type {
   EditorChangeEvent,
   EditorPosition,
@@ -83,7 +83,7 @@ const EditorPanelHost = Component({
   selector: 'mol-editor-panel-host',
   standalone: true,
   imports: [EditorPanel],
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `<div mol-editor-panel [formattingFile]="p['formattingFile']"></div>`,
 })(
   class EditorPanelHost {
@@ -117,6 +117,7 @@ async function renderPanel(formattingFile?: string | null): Promise<HTMLElement>
   const appRef: ApplicationRef = await createApplication({
     providers: [
       provideZonelessChangeDetection(),
+      provideDomPlacement(),
       provideTheme(buildThemeProvider()),
       provideEditor(createEditorProvider()),
     ],

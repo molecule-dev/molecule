@@ -23,6 +23,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 // Proxy ClassMap echoing each accessed member back as its token (e.g.
 // `link`), so tests can assert which cm.* class was applied without a real
 // bond — the same mock the React tests use.
@@ -52,6 +54,8 @@ const { Breadcrumb } = await import('../breadcrumb.component.js')
 interface Mounted {
   /** The host element whose children the component template produced. */
   readonly host: HTMLElement
+  /** Merges props over the current ones and flushes change detection. */
+  setProps(next: Record<string, unknown>): void
   /** Destroys the app and removes the host. */
   destroy(): Promise<void>
 }
@@ -75,7 +79,7 @@ async function mount(
     selector: 'mol-spec-host',
     standalone: true,
     imports: [Breadcrumb],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template,
   })(
     hostClass ??
@@ -84,7 +88,7 @@ async function mount(
       },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<unknown> = createComponent(SpecHost, {
     environmentInjector: appRef.injector,
@@ -98,6 +102,12 @@ async function mount(
   appRef.tick()
   return {
     host,
+    setProps: (next) => {
+      const instance = ref.instance as { p?: Record<string, unknown> }
+      if (instance.p !== undefined) instance.p = { ...instance.p, ...next }
+      ref.changeDetectorRef.markForCheck()
+      appRef.tick()
+    },
     destroy: async () => {
       appRef.destroy()
       host.remove()
@@ -184,6 +194,23 @@ describe('Breadcrumb', () => {
     expect(navOf(host).innerHTML).toContain('data-sep=""')
   })
 
+  it('keeps a consumer list in order when an item is inserted in the middle of separator', async () => {
+    const m = await mount(
+      `${bindAll}@for (x of p['xs']; track x) {<span slot="separator" data-sep="">{{ x }}</span>}${closeNav}`,
+      { items, xs: [1, 3] },
+    )
+    mounted.push(m)
+    const firstGapText = (): string => {
+      const sep = navOf(m.host).querySelector('[data-sep]')
+      return sep?.parentElement?.textContent ?? ''
+    }
+    expect(firstGapText()).toBe('13')
+    m.setProps({ xs: [1, 2, 3] })
+    expect(firstGapText()).toBe('123')
+    m.setProps({ xs: [1, 3] })
+    expect(firstGapText()).toBe('13')
+  })
+
   it('renders crumb icons', async () => {
     const host = await render(
       `<ng-template #iconTpl><i data-icon=""></i></ng-template>
@@ -202,5 +229,30 @@ describe('Breadcrumb', () => {
     expect(nav.getAttribute('aria-label')).toBe('Breadcrumb')
     expect(nav.getAttribute('data-mol-id')).toBe('bc-x')
     expect(nav.getAttribute('class')).toContain('bc-cls')
+  })
+
+  it('shows and removes the separator wrapper in the pass where the consumer @if adds and removes its content', async () => {
+    const m = await mount(
+      `<nav mol-breadcrumb [items]="p['items']">@if (p['on']) {<span slot="separator" data-sep>›</span>}</nav>`,
+      {
+        on: false,
+        items: [{ label: 'Home', to: '/' }, { label: 'Books' }],
+      },
+    )
+    mounted.push(m)
+    const nav = (): HTMLElement => navOf(m.host)
+    const text = (): string => nav().textContent?.replace(/\s+/g, '') ?? ''
+    // React renders the default `/` in the gap while the caller projects none.
+    expect(text()).toBe('Home/Books')
+    expect(m.host.querySelector('[data-sep]')).toBeNull()
+    await m.setProps({ on: true })
+    expect(text()).toBe('Home›Books')
+    const separator = m.host.querySelector('[data-sep]')
+    // React renders the projected separator bare inside the gap span.
+    expect(separator?.parentElement?.tagName).toBe('SPAN')
+    expect(separator?.parentElement?.children).toHaveLength(1)
+    await m.setProps({ on: false })
+    expect(text()).toBe('Home/Books')
+    expect(m.host.querySelector('[data-sep]')).toBeNull()
   })
 })

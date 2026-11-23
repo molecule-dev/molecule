@@ -26,6 +26,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 // Proxy ClassMap echoing each accessed member back as its token (e.g.
 // `cursorPointer`), so tests can assert which cm.* class was applied without
 // a real bond — the same mock the React tests use.
@@ -55,6 +57,8 @@ const { NoteCard } = await import('../note-card.component.js')
 interface Mounted {
   /** The host element whose children the component template produced. */
   readonly host: HTMLElement
+  /** Merges props over the current ones and flushes change detection. */
+  setProps(next: Record<string, unknown>): Promise<void>
   /** Destroys the app and removes the host. */
   destroy(): Promise<void>
 }
@@ -77,7 +81,7 @@ async function mount(
     selector: 'mol-spec-host',
     standalone: true,
     imports: [component],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template,
   })(
     class SpecHost {
@@ -86,7 +90,7 @@ async function mount(
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
     environmentInjector: appRef.injector,
@@ -97,6 +101,11 @@ async function mount(
   appRef.tick()
   return {
     host,
+    setProps: async (next: Record<string, unknown>) => {
+      ref.instance.p = { ...ref.instance.p, ...next }
+      ref.changeDetectorRef.markForCheck()
+      appRef.tick()
+    },
     destroy: async () => {
       appRef.destroy()
       host.remove()
@@ -222,5 +231,36 @@ describe('NoteCard', () => {
     const untitled = await render({ body: 'Remember the milk', onClick: () => {} })
     const fallback = openButton(untitled.host)
     expect(labelledBy(untitled.host, fallback)?.textContent).toBe('Remember the milk')
+  })
+
+  it('shows and removes the title wrapper in the pass where the consumer @if adds and removes its content', async () => {
+    const m = await mount(
+      `<article mol-note-card [body]="p['body']">@if (p['on']) {<span slot="title">Note title</span>}</article>`,
+      NoteCard as Type<unknown>,
+      { body: 'b', on: false },
+    )
+    mounted.push(m)
+    const title = (): HTMLElement | null => m.host.querySelector<HTMLElement>('h3')
+    expect(title()).toBeNull()
+    await m.setProps({ on: true })
+    expect(title()).not.toBeNull()
+    expect(title()?.textContent).toContain('Note title')
+    await m.setProps({ on: false })
+    expect(title()).toBeNull()
+  })
+
+  it('keeps a consumer list in order when an item is inserted in the middle of actions', async () => {
+    const m = await mount(
+      `<article mol-note-card [body]="p['body']"><ng-container ngProjectAs="[slot=actions]">@for (x of p['xs']; track x) {<b>{{ x }}</b>}</ng-container></article>`,
+      NoteCard as Type<unknown>,
+      { body: 'b', xs: ['a', 'c'] },
+    )
+    mounted.push(m)
+    const items = (): string[] => [...m.host.querySelectorAll('b')].map((b) => b.textContent ?? '')
+    expect(items()).toEqual(['a', 'c'])
+    await m.setProps({ xs: ['a', 'b', 'c'] })
+    expect(items()).toEqual(['a', 'b', 'c'])
+    await m.setProps({ xs: ['a', 'b'] })
+    expect(items()).toEqual(['a', 'b'])
   })
 })

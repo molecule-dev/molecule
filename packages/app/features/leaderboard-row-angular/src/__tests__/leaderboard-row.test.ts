@@ -53,6 +53,7 @@ vi.mock('@molecule/app-ui-angular', async () => {
   // called as a plain function (no decorator syntax) so the hoisted mock
   // factory stays plain JavaScript.
   const Avatar = Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
     selector: 'div[mol-avatar]',
     standalone: true,
     inputs: ['src', 'name'],
@@ -92,7 +93,7 @@ async function render(props: Record<string, unknown> = {}): Promise<Mounted> {
     selector: 'mol-spec-host',
     standalone: true,
     imports: [LeaderboardRow as Type<unknown>],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: `<div mol-leaderboard-row [rank]="p['rank']" [name]="p['name']" [avatarSrc]="p['avatarSrc']" [score]="p['score']" [rankDelta]="p['rankDelta']" [subtitle]="p['subtitle']" [isMe]="p['isMe']" [onClick]="p['onClick']" [className]="p['className']"></div>`,
   })(
     class SpecHost {

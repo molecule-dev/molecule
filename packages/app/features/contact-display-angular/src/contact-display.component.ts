@@ -5,22 +5,27 @@
  */
 
 import {
-  type AfterViewChecked,
   Component,
   Directive,
   ElementRef,
   type EmbeddedViewRef,
   inject,
   Input,
-  Renderer2,
   type TemplateRef,
   ViewChild,
   ViewContainerRef,
 } from '@angular/core'
 
+import {
+  MolPlacement,
+  placeContent,
+  setElementPresent,
+  type SlotReader,
+  usePlacement,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
-import { asTemplate, Avatar, hasNodes, SlotWrapper } from '@molecule/app-ui-angular'
+import { asTemplate, Avatar } from '@molecule/app-ui-angular'
 
 import type { ContactFields } from './types.js'
 
@@ -108,6 +113,7 @@ class ContactNodeOutlet {
 @Component({
   selector: 'div[mol-contact-display]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [Avatar, ContactNodeOutlet],
   inputs: ['contact', 'layout', 'onClick', 'className'],
   host: {
@@ -123,7 +129,7 @@ class ContactNodeOutlet {
       @if (showAddress()) {<div [class]="detailRowClass()"><span aria-hidden="true">⌂</span><span>{{ addressText }}<ng-container [molContactNode]="addressTemplate()"></ng-container></span></div>}
     </div><div #actionsWrap [class]="actionsWrapClass()"><ng-content select="[slot=actions]"></ng-content></div>`,
 })
-export class ContactDisplay implements AfterViewChecked {
+export class ContactDisplay {
   /** The contact to display. */
   contact?: ContactFields
   /** Layout preset. Defaults to `'card'` at read time. */
@@ -142,13 +148,8 @@ export class ContactDisplay implements AfterViewChecked {
   /** The actions slot's always-mounted wrapper (projection needs the capture point). */
   @ViewChild('actionsWrap') private actionsWrapRef?: ElementRef<HTMLDivElement>
 
-  /** The host element (the root `<div>`). */
+  /** The host element (the root `<div>`), the actions' bare parent. */
   private readonly host = inject(ElementRef)
-  private readonly renderer = inject(Renderer2)
-  /** Detaches the actions wrapper where React would not render it. */
-  private readonly slotSync = new SlotWrapper(this.host, this.renderer)
-  /** The projected action nodes while they sit bare on the host (React's unwrapped render). */
-  private readonly bareActions: Node[] = []
 
   /**
    * The contact-name span's id, which the open button's `aria-labelledby`
@@ -156,6 +157,10 @@ export class ContactDisplay implements AfterViewChecked {
    * instance its own).
    */
   readonly nameId = `contact-display-name-${nextNameId++}`
+
+  constructor() {
+    usePlacement((hasContent) => this.syncActionsSlot(hasContent))
+  }
 
   /**
    * The current class map.
@@ -432,40 +437,25 @@ export class ContactDisplay implements AfterViewChecked {
   }
 
   /**
-   * Wraps or unwraps the projected actions after every change detection
-   * cycle, the way React renders them: with `onClick` and projected actions
-   * content the actions sit in the `position: relative` wrapper; otherwise
-   * they render bare on the host (or not at all, when there is nothing
-   * projected).
+   * Applies the actions wrapper decision, idempotently: React renders
+   * `onClick && actions` inside the `position: relative` wrapper and the
+   * actions bare otherwise (or not at all, when there is nothing projected).
+   *
+   * @param hasContent - Reads whether a slot has content.
    */
-  ngAfterViewChecked(): void {
-    this.syncActionsSlot()
-  }
-
-  /**
-   * Applies the actions wrapper decision once, idempotently.
-   */
-  private syncActionsSlot(): void {
+  private syncActionsSlot(hasContent: SlotReader): void {
     const wrapper = this.actionsWrapRef?.nativeElement
     if (!wrapper) return
-    if (this.hasOnClick() && hasNodes(wrapper)) {
-      if (wrapper.isConnected) return
-      this.slotSync.sync(wrapper, true)
-      // Return the projected actions that sat bare on the host to the wrapper.
-      for (const node of this.bareActions.splice(0)) wrapper.appendChild(node)
+    if (this.hasOnClick() && hasContent(wrapper)) {
+      setElementPresent(wrapper, true)
+      placeContent(wrapper, null)
       return
     }
-    if (!wrapper.isConnected) return
-    // No wrapper for React's render (no `onClick`, or nothing projected): move
-    // the projected nodes out to the host, then detach the empty wrapper where
-    // it sat.
-    const parent = wrapper.parentElement ?? this.host.nativeElement
-    while (wrapper.firstChild) {
-      const node = wrapper.firstChild
-      this.bareActions.push(node)
-      parent.insertBefore(node, wrapper)
-    }
-    this.slotSync.sync(wrapper, false)
+    // No wrapper for React's render (no `onClick`, or nothing projected): the
+    // projected nodes render bare at the wrapper's place, and the empty
+    // wrapper leaves the DOM.
+    placeContent(wrapper, this.host.nativeElement, wrapper)
+    setElementPresent(wrapper, false)
   }
 
   /**

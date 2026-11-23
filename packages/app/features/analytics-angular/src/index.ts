@@ -25,8 +25,8 @@
  * @remarks
  * - The analytics provider comes from the wired `app-analytics` bond
  *   (`setProvider`); unbonded, the `page` calls are no-ops.
- * - React's root is nothing, so the component's host element is an empty,
- *   layout-neutral element (`display: contents`).
+ * - React's root is nothing, so the component contributes no DOM at all: its
+ *   host stays out of the page.
  *
  * @module
  */

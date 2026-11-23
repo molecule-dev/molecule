@@ -8,29 +8,19 @@ import {
   type AfterViewInit,
   Component,
   type DoCheck,
-  ElementRef,
-  inject,
+  type ElementRef,
   ViewChild,
 } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  setElementPresent,
+  type SlotReader,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
-
-/**
- * Whether an ng-content capture point received any element or text node.
- *
- * @param el - The capture element.
- * @returns True when at least one rendered node exists.
- */
-const hasNodes = (el: Element | undefined | null): boolean => {
-  if (!el) return false
-  for (const node of Array.from(el.childNodes)) {
-    if (node.nodeType === Node.ELEMENT_NODE) return true
-    if (node.nodeType === Node.TEXT_NODE && (node.textContent ?? '').trim()) return true
-  }
-  return false
-}
 
 /**
  * PriceRangeSlider component.
@@ -44,12 +34,13 @@ const hasNodes = (el: Element | undefined | null): boolean => {
  *
  * Angular projection needs an always-mounted `<ng-content>` capture point, so
  * the label wrapper lives in the template unconditionally and
- * {@link PriceRangeSlider.ngDoCheck} reconciles it against React's DOM (which
+ * {@link PriceRangeSlider.reconcile} reconciles it against React's DOM (which
  * omits the `<span>` entirely when there is no label).
  */
 @Component({
   selector: 'div[mol-price-range-slider]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [],
   inputs: ['min', 'max', 'value', 'step', 'formatValue', 'label', 'className', 'onChange'],
   host: {
@@ -109,8 +100,6 @@ export class PriceRangeSlider implements AfterViewInit, DoCheck {
 
   /** The maximum handle's input. */
   @ViewChild('maxInput') maxInput?: ElementRef<HTMLInputElement>
-
-  private readonly host: HTMLElement = inject(ElementRef).nativeElement
 
   /** The i18n provider, read at label time so the labels follow a locale switch. */
   private readonly i18n = useTranslation()
@@ -225,15 +214,18 @@ export class PriceRangeSlider implements AfterViewInit, DoCheck {
     return typeof this.label === 'string' ? this.label : ''
   }
 
-  /** Reads slot presence (view queries resolve only at view init). */
+  /** Registers the label wrapper's placement decision. */
+  constructor() {
+    usePlacement((hasContent) => this.reconcile(hasContent))
+  }
+
+  /** Puts the inputs' live values on React's controlled values (view queries resolve at view init). */
   ngAfterViewInit(): void {
-    this.reconcile()
     this.syncInputs()
   }
 
-  /** Re-reconciles on later passes (a string `label` input or the tuple may change). */
+  /** Re-syncs the inputs' live values on later passes. */
   ngDoCheck(): void {
-    this.reconcile()
     this.syncInputs()
   }
 
@@ -249,15 +241,15 @@ export class PriceRangeSlider implements AfterViewInit, DoCheck {
     if (maxEl && maxEl.value !== String(this.high())) maxEl.value = String(this.high())
   }
 
-  /** Applies React's condition: no `<span>` at all when there is no label. */
-  private reconcile(): void {
+  /**
+   * Applies React's condition: no `<span>` at all when there is no label.
+   *
+   * @param hasContent - Reads whether a slot has content.
+   */
+  private reconcile(hasContent: SlotReader): void {
     const wrap = this.labelWrap?.nativeElement
     if (!wrap) return
-    if (this.hasLabel() || hasNodes(wrap)) {
-      if (wrap.parentNode !== this.host) this.host.insertBefore(wrap, this.host.firstChild)
-    } else if (wrap.parentNode === this.host) {
-      this.host.removeChild(wrap)
-    }
+    setElementPresent(wrap, this.hasLabel() || hasContent(wrap))
   }
 
   /**

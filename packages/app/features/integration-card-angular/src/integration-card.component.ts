@@ -5,24 +5,20 @@
  */
 
 import { NgTemplateOutlet } from '@angular/common'
-import {
-  type AfterViewChecked,
-  type AfterViewInit,
-  Component,
-  ElementRef,
-  inject,
-  Renderer2,
-  signal,
-  type TemplateRef,
-  ViewChild,
-} from '@angular/core'
+import { Component, ElementRef, type TemplateRef, ViewChild } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  placeElement,
+  setElementPresent,
+  type SlotReader,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { Button, styleText } from '@molecule/app-ui-angular'
 
-import { hasNodes, SlotGuard } from './slot-dom.js'
 import type { IntegrationCardProps, IntegrationStatus } from './types.js'
 
 /** Action button configuration (React's `action` prop shape). */
@@ -66,11 +62,12 @@ const hasText = (value: unknown): boolean =>
  * node template. The optional icon / description wrappers and the action
  * anchor/button render only when React would render them — Angular projection
  * needs always-mounted capture points, so
- * {@link IntegrationCard.ngAfterViewChecked} reconciles them.
+ * {@link IntegrationCard.reconcile} reconciles them.
  */
 @Component({
   selector: 'div[mol-integration-card]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [Button, NgTemplateOutlet],
   inputs: ['icon', 'title', 'description', 'status', 'action', 'variant', 'className', 'dataMolId'],
   host: {
@@ -81,7 +78,7 @@ const hasText = (value: unknown): boolean =>
   // prettier-ignore
   template: `<div [class]="rowClasses()"><div #iconWrap [class]="iconClasses()">@if (hasIconText()) {<ng-container>{{ icon }}</ng-container>}@if (iconTemplate(); as iconTpl) {<ng-container [ngTemplateOutlet]="iconTpl" />}<ng-content select="[slot=icon]"></ng-content></div><div [class]="bodyClasses()"><h3 [class]="titleClasses()">@if (hasTitleText()) {<ng-container>{{ title }}</ng-container>}@if (titleTemplate(); as titleTpl) {<ng-container [ngTemplateOutlet]="titleTpl" />}<ng-content select="[slot=title]"></ng-content></h3><p #descriptionWrap [class]="descriptionClasses()">@if (hasDescriptionText()) {<ng-container>{{ description }}</ng-container>}@if (descriptionTemplate(); as descriptionTpl) {<ng-container [ngTemplateOutlet]="descriptionTpl" />}<ng-content select="[slot=description]"></ng-content></p><div #statusRow [class]="statusRowClasses()"><span [class]="statusClasses()">{{ statusLabel() }}</span><a #actionAnchor [attr.href]="action?.href ?? null"></a><button #actionButton mol-button [disabled]="buttonDisabled()" (click)="runAction($event)">@if (showEllipsis()) {<ng-container>…</ng-container>}@else if (actionLabelTemplate(); as labelTpl) {<ng-container [ngTemplateOutlet]="labelTpl" />}@else {<ng-container>{{ actionLabelText() }}</ng-container>}</button></div></div></div>`,
 })
-export class IntegrationCard implements AfterViewInit, AfterViewChecked {
+export class IntegrationCard {
   /** Leading icon / logo — a string input, or `[slot=icon]` projected content. */
   icon?: unknown
   /** Integration title — a string input, or `[slot=title]` projected content. */
@@ -114,15 +111,9 @@ export class IntegrationCard implements AfterViewInit, AfterViewChecked {
   /** The i18n provider above the card (the status label). */
   private readonly i18n = useTranslation()
 
-  /** Whether the projected slots' presence has been read (read once: projection never changes). */
-  private readonly slotsRead = signal(false)
-  /** Whether the icon slot holds content. */
-  private readonly iconProjected = signal(false)
-  /** Whether the description slot holds content. */
-  private readonly descriptionProjected = signal(false)
-
-  private readonly renderer = inject(Renderer2)
-  private readonly guard = new SlotGuard(inject(ElementRef), this.renderer)
+  constructor() {
+    usePlacement((hasContent) => this.reconcile(hasContent))
+  }
 
   /**
    * The current class map.
@@ -315,21 +306,25 @@ export class IntegrationCard implements AfterViewInit, AfterViewChecked {
 
   /**
    * React's `icon && <div>`: a text/template input or a projected `[slot=icon]`.
+   * @param hasContent - Reads whether a slot has content.
    * @returns Whether the icon wrapper renders.
    */
-  showIcon(): boolean {
-    return this.hasIconText() || this.iconTemplate() !== null || this.iconProjected()
+  showIcon(hasContent: SlotReader): boolean {
+    return (
+      this.hasIconText() || this.iconTemplate() !== null || hasContent(this.iconWrap?.nativeElement)
+    )
   }
 
   /**
    * React's `description && <p>`: a text/template input or projected content.
+   * @param hasContent - Reads whether a slot has content.
    * @returns Whether the description paragraph renders.
    */
-  showDescription(): boolean {
+  showDescription(hasContent: SlotReader): boolean {
     return (
       this.hasDescriptionText() ||
       this.descriptionTemplate() !== null ||
-      this.descriptionProjected()
+      hasContent(this.descriptionWrap?.nativeElement)
     )
   }
 
@@ -343,44 +338,15 @@ export class IntegrationCard implements AfterViewInit, AfterViewChecked {
     if (this.action && !this.action.href) this.action.onClick?.(event)
   }
 
-  /** Reads the projected slots' presence once, then reconciles the wrappers. */
-  ngAfterViewInit(): void {
-    this.reconcile()
-  }
-
   /**
-   * Re-reconciles after every view refresh (a props step may add or remove a
-   * value): the wrappers are toggled on the values the template just rendered.
+   * Toggles the optional wrappers against the values the template just
+   * rendered, and places the action the way React nests it.
+   *
+   * @param hasContent - Reads whether a slot has content.
    */
-  ngAfterViewChecked(): void {
-    this.reconcile()
-  }
-
-  /**
-   * Reads the projected slots' presence once (while no input rendered into the
-   * wrapper, so only projected content counts), then toggles the optional
-   * wrappers and places the action the way React nests it.
-   */
-  private reconcile(): void {
-    const icon = this.iconWrap?.nativeElement
-    const description = this.descriptionWrap?.nativeElement
-    if (!this.slotsRead()) {
-      if (icon) {
-        this.iconProjected.set(
-          !this.hasIconText() && this.iconTemplate() === null ? hasNodes(icon) : false,
-        )
-      }
-      if (description) {
-        this.descriptionProjected.set(
-          !this.hasDescriptionText() && this.descriptionTemplate() === null
-            ? hasNodes(description)
-            : false,
-        )
-      }
-      this.slotsRead.set(true)
-    }
-    this.guard.toggle(icon, this.showIcon())
-    this.guard.toggle(description, this.showDescription())
+  private reconcile(hasContent: SlotReader): void {
+    setElementPresent(this.iconWrap?.nativeElement, this.showIcon(hasContent))
+    setElementPresent(this.descriptionWrap?.nativeElement, this.showDescription(hasContent))
     this.syncAction()
   }
 
@@ -395,16 +361,17 @@ export class IntegrationCard implements AfterViewInit, AfterViewChecked {
     const button = this.actionButton?.nativeElement
     if (!row || !anchor || !button) return
     if (!this.action) {
-      if (button.isConnected) this.renderer.removeChild(button.parentNode!, button)
-      if (anchor.isConnected) this.renderer.removeChild(anchor.parentNode!, anchor)
+      setElementPresent(button, false)
+      setElementPresent(anchor, false)
       return
     }
+    setElementPresent(button, true)
     if (this.action.href) {
-      row.appendChild(anchor)
-      anchor.appendChild(button)
+      setElementPresent(anchor, true)
+      placeElement(button, anchor)
       return
     }
-    row.appendChild(button)
-    if (anchor.isConnected) this.renderer.removeChild(anchor.parentNode!, anchor)
+    placeElement(button, null)
+    setElementPresent(anchor, false)
   }
 }

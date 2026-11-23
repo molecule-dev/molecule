@@ -21,6 +21,7 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 import type { AutoCommitState } from '@molecule/app-ide-panel-logic'
 import { AUTO_COMMIT_COUNTDOWN_VISIBLE_SECONDS } from '@molecule/app-ide-panel-logic'
@@ -38,7 +39,7 @@ const AutoCommitBadgeHost = Component({
   selector: 'mol-auto-commit-badge-host',
   standalone: true,
   imports: [AutoCommitBadge],
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.Eager,
   // prettier-ignore
   template: `<div (click)="parentClick()"><div mol-auto-commit-badge
       [state]="p['state']"
@@ -109,7 +110,7 @@ async function renderBadge(props: Record<string, unknown>): Promise<HTMLElement>
   const container = document.createElement('div')
   document.body.appendChild(container)
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<InstanceType<typeof AutoCommitBadgeHost>> = createComponent(
     AutoCommitBadgeHost,

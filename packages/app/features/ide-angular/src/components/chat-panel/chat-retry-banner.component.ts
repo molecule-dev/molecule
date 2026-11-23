@@ -9,10 +9,9 @@
  * directly above it.
  *
  * React renders the strip only while a retry is pending, so the host element —
- * React's own root `<div>` — carries the conformance unwrap marker and
- * `display: contents` while it is closed, and the port adds no node either
- * way. While pending the host IS the strip, with React's ClassMap classes,
- * `data-mol-id` and inline style.
+ * React's own root `<div>` with the strip's ClassMap classes, `data-mol-id` and
+ * inline style — is present then and out of the DOM while React renders nothing
+ * (`useHostPresence`).
  *
  * @module
  */
@@ -20,6 +19,7 @@
 import { Component, inject } from '@angular/core'
 
 import type { ChatRetryCountdown } from '@molecule/app-ai-chat'
+import { useHostPresence } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { styleText } from '@molecule/app-ui-angular'
 
@@ -37,9 +37,6 @@ const ROOT_STYLE = styleText({
   background: 'rgba(234,179,8,0.06)',
 })
 
-/** The closed state: React renders nothing, so the host unwraps to nothing. */
-const UNWRAP_STYLE = styleText({ display: 'contents' })
-
 /** The warning icon's inline style. */
 const ICON_STYLE = styleText({ flexShrink: 0, color: '#d4a017' })
 
@@ -55,10 +52,9 @@ const LABEL_STYLE = styleText({ flex: 1, opacity: 0.85 })
   standalone: true,
   imports: [Icon],
   host: {
-    '[attr.data-parity-unwrap]': 'closed() ? "" : null',
-    '[attr.class]': 'closed() ? null : rootClass',
-    '[attr.data-mol-id]': 'closed() ? null : retryId',
-    '[attr.style]': 'closed() ? unwrapStyle : rootStyle',
+    '[attr.class]': 'rootClass',
+    '[attr.data-mol-id]': 'retryId',
+    '[attr.style]': 'rootStyle',
   },
   // prettier-ignore
   template: `@if (countdown(); as countdown) {<svg mol-icon [name]="'exclamation-triangle'" [size]="iconSize" aria-hidden="true" [attr.style]="iconStyle"></svg><span [attr.style]="labelStyle">{{ label(countdown) }}</span><button type="button" data-mol-id="chat-retry-cancel" (click)="cancel()" [attr.class]="cancelClass">{{ cancelText() }}</button>}`,
@@ -82,9 +78,6 @@ export class ChatRetryBanner {
   /** The strip's inline style while it is shown. */
   protected readonly rootStyle: string | null = ROOT_STYLE
 
-  /** The closed state's inline style (the host unwraps away). */
-  protected readonly unwrapStyle: string | null = UNWRAP_STYLE
-
   /** The warning icon's inline style. */
   protected readonly iconStyle: string | null = ICON_STYLE
 
@@ -100,7 +93,7 @@ export class ChatRetryBanner {
   /** The Cancel button's ClassMap classes. */
   protected readonly cancelClass: string
 
-  /** Resolves the ClassMap and the static classes once, at construction. */
+  /** Resolves the ClassMap and the static classes once, and keeps the host in the page only while shown. */
   constructor() {
     this.cm = this.state.env.cm
     this.rootClass = this.cm.cn(this.cm.shrink0, this.cm.borderT)
@@ -108,6 +101,7 @@ export class ChatRetryBanner {
       this.cm.button({ variant: 'solid', color: 'secondary', size: 'xs' }),
       this.cm.touchTargetCompact,
     )
+    useHostPresence(() => !this.closed())
   }
 
   /**

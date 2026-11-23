@@ -73,7 +73,7 @@ vi.mock('@molecule/app-ui-angular', async () => {
   const { Component } = await import('@angular/core')
   return {
     Button: Component({
-      changeDetection: ChangeDetectionStrategy.Default,
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'button[mol-button]',
       standalone: true,
       inputs: [
@@ -148,7 +148,7 @@ async function mount(template: string, props: Record<string, unknown> = {}): Pro
     selector: 'mol-spec-host',
     standalone: true,
     imports: [SettingsActionsBar],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template,
   })(
     class SpecHost {
@@ -308,5 +308,29 @@ describe('SettingsActionsBar', () => {
     expect(shown()).toEqual(['a', 'b', 'c'])
     await m.setProps({ xs: ['a', 'c'] })
     expect(shown()).toEqual(['a', 'c'])
+  })
+
+  it('shows and removes the error wrapper in the pass where the consumer @if adds and removes its content', async () => {
+    const m = await mount(
+      `<div mol-settings-actions-bar [onSave]="p['onSave']">@if (p['on']) {<span slot="error" data-error>bad</span>}</div>`,
+      { onSave: () => {}, on: false },
+    )
+    mounted.push(m)
+    const error = (): HTMLElement | null => m.host.querySelector('[data-error]')
+    // The error span holds only its own (empty) text: React renders no wrapper.
+    const wrapper = (): HTMLElement | null =>
+      (Array.from(m.host.querySelectorAll('div > span')).find(
+        (el) => el.getAttribute('class') === 'textSize',
+      ) as HTMLElement | undefined) ?? null
+    expect(error()).toBeNull()
+    expect(wrapper()).toBeNull()
+    await m.setProps({ on: true })
+    // The projected error arrives: the wrapper and its content render in the same pass.
+    expect(error()).not.toBeNull()
+    expect(error()?.isConnected).toBe(true)
+    expect(wrapper()).not.toBeNull()
+    await m.setProps({ on: false })
+    expect(error()).toBeNull()
+    expect(wrapper()).toBeNull()
   })
 })

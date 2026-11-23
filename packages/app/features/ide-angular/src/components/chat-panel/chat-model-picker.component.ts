@@ -7,15 +7,15 @@
  * While it renders, the host IS React's popup `<div>` — its ClassMap classes and
  * inline style, capped by `popupMaxHeight` — and it composes the header, the
  * scrolling list (or the loading line) and the BYO footer seam in React's order.
- * While it is closed, React renders nothing, so the host carries
- * `data-parity-unwrap` and `display: contents` and the conformance normalizer
- * drops it, exactly as `ChatTimestamp` does for a fragment root.
+ * While it is closed, React renders nothing, so the host is out of the DOM then
+ * (`useHostPresence`), exactly as `ChatTimestamp` does for a fragment root.
  *
  * @module
  */
 
 import { Component, inject } from '@angular/core'
 
+import { useHostPresence } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { styleText } from '@molecule/app-ui-angular'
 
@@ -30,9 +30,6 @@ import { ChatPickers } from './chat-pickers.slice.js'
 /** React's inline style for a picker row's loading line. */
 const LOADING_STYLE = styleText({ padding: 12 })
 
-/** The closed state: React renders nothing, so the host unwraps to nothing. */
-const UNWRAP_STYLE = styleText({ display: 'contents' })
-
 /**
  * React's “JSX from `{modelPicker &&`” section: the `/model` picker popup, or
  * nothing while it is closed (or has nothing to list).
@@ -42,9 +39,8 @@ const UNWRAP_STYLE = styleText({ display: 'contents' })
   standalone: true,
   imports: [ChatModelPickerByo, ChatModelPickerHeader, ChatModelPickerRows],
   host: {
-    '[attr.data-parity-unwrap]': 'rendered() ? null : ""',
-    '[attr.class]': 'rendered() ? rootClass : null',
-    '[attr.style]': 'rendered() ? rootStyle() : unwrapStyle',
+    '[attr.class]': 'rootClass',
+    '[attr.style]': 'rootStyle()',
   },
   // prettier-ignore
   template: `@if (rendered()) {<div mol-chat-model-picker-header></div>@if (loading()) {<div [attr.class]="loadingClass" [attr.style]="loadingStyle">{{ loadingText() }}</div>} @else {<div mol-chat-model-picker-rows></div>}<button mol-chat-model-picker-byo></button>}`,
@@ -74,14 +70,12 @@ export class ChatModelPicker {
   /** The loading line's inline style. */
   protected readonly loadingStyle: string | null = LOADING_STYLE
 
-  /** The closed state's inline style (the host unwraps away). */
-  protected readonly unwrapStyle: string | null = UNWRAP_STYLE
-
-  /** Resolves the ClassMap and the static classes once, at construction. */
+  /** Resolves the ClassMap and the static classes once, and keeps the host in the page only while rendered. */
   constructor() {
     this.cm = this.state.env.cm
     this.rootClass = this.cm.cn(this.cm.surface, this.cm.borderAll)
     this.loadingClass = this.cm.cn(this.cm.textSize('sm'), this.cm.textMuted)
+    useHostPresence(() => this.rendered())
   }
 
   /**

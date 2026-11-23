@@ -73,7 +73,7 @@ vi.mock('@molecule/app-ui-angular', async () => {
     },
   )
   const ConfirmDialogStub = core.Component({
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     selector: 'mol-confirm-dialog',
     standalone: true,
     inputs: ['open'],
@@ -120,7 +120,7 @@ async function mount(props: Record<string, unknown>): Promise<Mounted> {
     selector: 'mol-spec-host',
     standalone: true,
     imports: [ImageGalleryEditor as Type<unknown>],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: `<section mol-image-gallery-editor [slots]="p['slots'] ?? [null]" [onPickFiles]="p['onPickFiles']" [dropZoneTitle]="p['dropZoneTitle']" [dropZoneHint]="p['dropZoneHint']" [confirmRemoveMessage]="p['confirmRemoveMessage']" (change)="p['onChange'] && p['onChange']($event)"></section>`,
   })(
     class SpecHost {

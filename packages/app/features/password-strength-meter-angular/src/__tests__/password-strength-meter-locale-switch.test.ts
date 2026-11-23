@@ -78,7 +78,7 @@ async function render(props: Record<string, unknown>): Promise<Mounted> {
     selector: 'mol-spec-host',
     standalone: true,
     imports: [PasswordStrengthMeter as Type<unknown>],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: `<div mol-password-strength-meter [password]="p['password']"></div>`,
   })(
     class SpecHost {

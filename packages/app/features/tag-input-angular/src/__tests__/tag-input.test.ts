@@ -97,6 +97,62 @@ describe('TagChip', () => {
     })
     expect(markup).toContain('chip-cls')
   })
+
+  it('keeps a consumer list in order when an item is inserted in the middle of children', async () => {
+    const m = await mountHost(
+      `<span mol-tag-chip>@for (x of p['xs']; track x) {<b>{{ x }}</b>}</span>`,
+      [TagChip],
+      { xs: ['a', 'c'] },
+    )
+    mounted.push(m)
+    const labels = (): (string | null)[] =>
+      Array.from(m.host.querySelectorAll('b')).map((el) => el.textContent)
+    expect(labels()).toEqual(['a', 'c'])
+    await m.setProps({ xs: ['a', 'b', 'c'] })
+    expect(labels()).toEqual(['a', 'b', 'c'])
+    await m.setProps({ xs: ['a', 'c'] })
+    expect(labels()).toEqual(['a', 'c'])
+  })
+
+  it('moves the label into the label button while the chip holds both actions, and back', async () => {
+    const m = await mountHost(
+      `<span mol-tag-chip [onClick]="p['onClick']" [onRemove]="p['onRemove']">react</span>`,
+      [TagChip],
+      { onClick: () => {} },
+    )
+    mounted.push(m)
+    // React: a chip with one action IS the control — no label button.
+    expect(m.host.querySelector('button')).toBeNull()
+    await m.setProps({ onRemove: () => {} })
+    const buttons = m.host.querySelectorAll('button')
+    expect(buttons).toHaveLength(2)
+    expect(buttons[0]!.textContent).toContain('react')
+    await m.setProps({ onRemove: undefined })
+    expect(m.host.querySelector('button')).toBeNull()
+  })
+
+  it("renders React's elements with no host or capture element of its own", async () => {
+    const m = await mountHost(
+      `<i>a</i><span mol-tag-chip [onRemove]="p['onRemove']"><b data-label>react</b></span><i>b</i>`,
+      [TagChip],
+      {},
+    )
+    mounted.push(m)
+    const children = (): string[] =>
+      Array.from(m.host.children).map((child) => child.tagName.toLowerCase())
+    // The host IS React's outer <span>; it stays between the siblings.
+    expect(children()).toEqual(['i', 'span', 'i'])
+    // The projected label is a direct child of the label span, not a capture span.
+    const chip = m.host.querySelector('span[mol-tag-chip]') as HTMLElement
+    const label = chip.firstElementChild as HTMLElement
+    const projected = m.host.querySelector('[data-label]') as HTMLElement
+    expect(projected.parentElement).toBe(label)
+    // Toggling `onRemove` adds the remove button inside the chip, without a sibling.
+    expect(chip.querySelector('button')).toBeNull()
+    await m.setProps({ onRemove: () => {} })
+    expect(children()).toEqual(['i', 'span', 'i'])
+    expect(chip.querySelector('button')).not.toBeNull()
+  })
 })
 
 describe('TagInput', () => {

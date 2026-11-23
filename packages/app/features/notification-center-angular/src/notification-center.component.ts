@@ -5,16 +5,16 @@
  */
 
 import { NgTemplateOutlet } from '@angular/common'
-import {
-  type AfterViewChecked,
-  type AfterViewInit,
-  Component,
-  type ElementRef,
-  type TemplateRef,
-  ViewChild,
-} from '@angular/core'
+import { Component, type ElementRef, signal, type TemplateRef, ViewChild } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  placeContentBefore,
+  setElementPresent,
+  type SlotReader,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { Alert, Button } from '@molecule/app-ui-angular'
@@ -25,21 +25,6 @@ import type { NotificationItem } from './types.js'
 const PANEL_STYLE = 'min-width: 320px; max-height: 480px; overflow-y: auto;'
 /** The unread dot's inline style (width/height/marginTop only — the colour is a ClassMap class). */
 const DOT_STYLE = 'width: 8px; height: 8px; margin-top: 6px;'
-
-/**
- * Whether an `<ng-content>` wrapper captured any element or text node.
- *
- * @param el - The wrapper element.
- * @returns True when at least one projected node exists.
- */
-const hasNodes = (el: Element | undefined | null): boolean => {
-  if (!el) return false
-  for (const node of Array.from(el.childNodes)) {
-    if (node.nodeType === Node.ELEMENT_NODE) return true
-    if (node.nodeType === Node.TEXT_NODE && (node.textContent ?? '').trim()) return true
-  }
-  return false
-}
 
 /**
  * Whether a node-valued prop is an Angular template (a projected node) rather
@@ -72,8 +57,9 @@ const textOf = (value: unknown): string =>
  * React's root exactly: its classes, fixed inline style and `data-mol-id` live
  * on it. Node props are projected content (`[slot=title]`,
  * `[slot=emptyState]`) or a template reference passed as an input; React
- * renders whichever node it was given bare, so the capture points carry
- * `data-parity-unwrap` and the default text is dropped when content lands.
+ * renders whichever node it was given bare, so each capture point's content
+ * renders in its own place, the point itself leaves the page, and the default
+ * text is dropped when content lands.
  *
  * @remarks
  * The item's `onClick` receives the click event, as React's DOM handler does.
@@ -83,6 +69,7 @@ const textOf = (value: unknown): string =>
 @Component({
   selector: 'div[mol-notification-center]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [NgTemplateOutlet, Alert, Button],
   inputs: [
     'items',
@@ -103,7 +90,7 @@ const textOf = (value: unknown): string =>
   <h3 [class]="titleClasses()">
     @if (titleTemplate(); as tpl) {<ng-container [ngTemplateOutlet]="tpl" />}
     @else if (hasTitleText()) {<ng-container>{{ textOf(title) }}</ng-container>}
-    @else {<span #titleFallback data-parity-unwrap>{{ defaultTitle() }}</span><span #titleSlot data-parity-unwrap style="display: contents"><ng-content select="[slot=title]"></ng-content></span>}
+    @else {<span #titleSlot><ng-content select="[slot=title]"></ng-content></span>@if (!titleSlotFilled()) {{{ defaultTitle() }}}}
   </h3>
   @if (onMarkAllRead && hasItems()) {
     <button mol-button [variant]="'ghost'" [size]="'sm'" (click)="call(onMarkAllRead, $event)">{{ markAllLabel() }}</button>
@@ -121,7 +108,7 @@ const textOf = (value: unknown): string =>
 }
 @if (!hasItems()) {
   @if (emptyTemplate(); as tpl) {<ng-container [ngTemplateOutlet]="tpl" />}
-  @else {<div #emptyDefault [class]="emptyClasses()">{{ emptyLabel() }}</div><span #emptySlot data-parity-unwrap style="display: contents"><ng-content select="[slot=emptyState]"></ng-content></span>}
+  @else {<div #emptyDefault [class]="emptyClasses()">{{ emptyLabel() }}</div><span #emptySlot><ng-content select="[slot=emptyState]"></ng-content></span>}
 } @else {
   <ul [class]="cm().stack(0)">
     @for (it of items; track it.id) {
@@ -144,7 +131,7 @@ const textOf = (value: unknown): string =>
   <footer [class]="footerClasses()"><button mol-button [variant]="'ghost'" [size]="'sm'" (click)="call(onViewAll, $event)">{{ viewAllLabel() }}</button></footer>
 }`,
 })
-export class NotificationCenter implements AfterViewInit, AfterViewChecked {
+export class NotificationCenter {
   /** Items to render. */
   items: NotificationItem[] = []
   /** Called when "Mark all as read" is clicked. */
@@ -162,8 +149,6 @@ export class NotificationCenter implements AfterViewInit, AfterViewChecked {
   /** Called when the retry button is clicked. */
   onRetry?: () => void
 
-  /** The title's default-text capture point. */
-  @ViewChild('titleFallback') private titleFallback?: ElementRef<HTMLElement>
   /** The title's projected-node capture point. */
   @ViewChild('titleSlot') private titleSlot?: ElementRef<HTMLElement>
   /** The empty state's default panel. */
@@ -171,11 +156,18 @@ export class NotificationCenter implements AfterViewInit, AfterViewChecked {
   /** The empty state's projected-node capture point. */
   @ViewChild('emptySlot') private emptySlot?: ElementRef<HTMLElement>
 
+  /** Whether a `[slot=title]` projection landed (drives the default text). */
+  private readonly titleSlotFilled = signal(false)
+
   /**
    * Reactive translation, read in the injection context. Its `t` reads the
    * locale, so the view re-renders the text on a locale switch.
    */
   private readonly i18n = useTranslation()
+
+  constructor() {
+    usePlacement((hasContent) => this.syncSlots(hasContent))
+  }
 
   /**
    * The current class map.
@@ -441,23 +433,29 @@ export class NotificationCenter implements AfterViewInit, AfterViewChecked {
   }
 
   /**
-   * Drops the default text/panel whichever capture point React would not render:
-   * a projected node replaces the default, and the empty wrapper is transparent.
+   * Withholds the default text/panel whichever capture point React would not
+   * render: a projected node replaces the default, and an empty capture point
+   * leaves the default in place.
+   *
+   * @param hasContent - Reads whether a slot has content.
    */
-  private syncSlots(): void {
+  private syncSlots(hasContent: SlotReader): void {
     const titleSlot = this.titleSlot?.nativeElement
-    if (titleSlot && hasNodes(titleSlot)) this.titleFallback?.nativeElement.remove()
+    if (titleSlot) {
+      // React renders the projected title bare (`title ?? default`): its content stands in
+      // the capture point's place, the point leaves, and the default text is dropped.
+      this.titleSlotFilled.set(hasContent(titleSlot))
+      placeContentBefore(titleSlot, titleSlot)
+      setElementPresent(titleSlot, false)
+    }
     const emptySlot = this.emptySlot?.nativeElement
-    if (emptySlot && hasNodes(emptySlot)) this.emptyDefault?.nativeElement.remove()
-  }
-
-  /** Reconciles the node-prop capture points once the view exists. */
-  ngAfterViewInit(): void {
-    this.syncSlots()
-  }
-
-  /** Re-reconciles after every check, as a props step can reveal a capture point. */
-  ngAfterViewChecked(): void {
-    this.syncSlots()
+    if (emptySlot) {
+      // React renders `emptyState ?? <div>`: the projected state renders bare and the
+      // default panel appears only while the slot is empty.
+      const hasEmpty = hasContent(emptySlot)
+      placeContentBefore(emptySlot, emptySlot)
+      setElementPresent(emptySlot, false)
+      setElementPresent(this.emptyDefault?.nativeElement, !hasEmpty)
+    }
   }
 }

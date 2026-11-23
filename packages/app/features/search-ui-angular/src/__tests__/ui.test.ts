@@ -32,6 +32,7 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
 import { parseQuery } from '@molecule/app-client-search'
 import type { SearchSession } from '@molecule/app-client-search-angular'
 
@@ -68,6 +69,7 @@ vi.mock('@molecule/app-ui-angular', async () => {
   const { Component } = await import('@angular/core')
   return {
     Icon: Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'svg[mol-icon-root]',
       standalone: true,
       inputs: ['name', 'size', 'className', 'ariaHidden: aria-hidden'],
@@ -84,6 +86,7 @@ vi.mock('@molecule/app-ui-angular', async () => {
       },
     ),
     Modal: Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'mol-modal',
       standalone: true,
       inputs: ['open', 'title', 'size'],
@@ -119,6 +122,7 @@ vi.mock('@molecule/app-ui-angular', async () => {
       },
     ),
     Tooltip: Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'mol-tooltip',
       standalone: true,
       inputs: ['content', 'placement'],
@@ -188,7 +192,7 @@ async function mount(
     selector: 'mol-spec-host',
     standalone: true,
     imports: [component],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template,
   })(
     class SpecHost {
@@ -197,7 +201,7 @@ async function mount(
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
     environmentInjector: appRef.injector,
@@ -425,7 +429,7 @@ describe('SearchResults', () => {
       selector: 'mol-spec-custom-host',
       standalone: true,
       imports: [SearchResults as Type<unknown>, NgTemplateOutlet],
-      changeDetection: ChangeDetectionStrategy.Default,
+      changeDetection: ChangeDetectionStrategy.Eager,
       template: `<mol-search-results
           [hits]="hits"
           [view]="view"
@@ -443,7 +447,7 @@ describe('SearchResults', () => {
         ></ng-template>`,
     })(SpecCustomHost)
     const appRef: ApplicationRef = await createApplication({
-      providers: [provideZonelessChangeDetection()],
+      providers: [provideZonelessChangeDetection(), provideDomPlacement()],
     })
     const ref: ComponentRef<{ hits: SearchResultHit<PackageDoc>[] }> = createComponent(Host, {
       environmentInjector: appRef.injector,
@@ -486,6 +490,40 @@ describe('SearchResults', () => {
     // The status region exists in the empty state too, so it is live before results arrive.
     expect(host.querySelector('[data-mol-id="search-active"]')?.getAttribute('role')).toBe('status')
     expect(host.querySelector('[data-mol-id="search-active"]')?.textContent?.trim()).toBe('')
+  })
+
+  it('shows and removes the results wrapper in the pass where the consumer @if adds and removes its content', async () => {
+    const m = await mount(
+      `<div>@if (p['on']) {<mol-search-results [hits]="p['hits']" [view]="p['view']" [activeIndex]="-1" [onOpen]="p['onOpen']" molId="cat"></mol-search-results>}</div>`,
+      SearchResults as Type<unknown>,
+      { on: false, hits, view, onOpen: () => {} },
+    )
+    mounted.push(m)
+    const row = (): HTMLElement | null => m.host.querySelector('[data-mol-id="cat-hit"]')
+    expect(row()).toBeNull()
+    await m.setProps({ on: true })
+    // React renders the list beside the (unwrapped) component host.
+    expect(row()).not.toBeNull()
+    expect(row()?.isConnected).toBe(true)
+    await m.setProps({ on: false })
+    expect(row()).toBeNull()
+  })
+
+  it("renders React's elements with no host or capture element of its own", async () => {
+    const m = await mount(
+      `<i>a</i><mol-search-results [hits]="p['hits']" [view]="p['view']" [activeIndex]="-1" [onOpen]="p['onOpen']" [emptyText]="'Nothing'" molId="cat"></mol-search-results><i>b</i>`,
+      SearchResults as Type<unknown>,
+      { hits, view, onOpen: () => {} },
+    )
+    mounted.push(m)
+    const tags = (): string[] => Array.from(m.host.children).map((el) => el.tagName.toLowerCase())
+    // Non-empty: React's fragment is the <ul> plus the live status <p>.
+    expect(tags()).toEqual(['i', 'ul', 'p', 'i'])
+    expect(m.host.querySelector('mol-search-results')).toBeNull()
+    // Toggle to the empty branch: the empty <p> plus the status <p>, still no host.
+    await m.setProps({ hits: [] })
+    expect(tags()).toEqual(['i', 'p', 'p', 'i'])
+    expect(m.host.querySelector('mol-search-results')).toBeNull()
   })
 })
 
@@ -547,6 +585,42 @@ describe('QuickSearchDialog', () => {
     await mounted[mounted.length - 1]!.setProps({ label: 'Find a package' })
     expect(q('[role="dialog"]')?.getAttribute('aria-label')).toBe('Find a package')
   })
+
+  it("renders React's elements with no host or capture element of its own", async () => {
+    const session: SearchSession<QuickDoc> = {
+      inputRef: { current: null },
+      query: signal(''),
+      setQuery: () => {},
+      clear: () => {},
+      parsed: signal(parseQuery('')),
+      hits: signal([]),
+      active: signal(false),
+      ranked: signal(false),
+      activeIndex: signal(-1),
+      setActiveIndex: () => {},
+      onKeyDown: () => {},
+      removeFilter: () => {},
+      open: () => {},
+      prefetch: () => {},
+      focus: () => {},
+    }
+    const m = await mount(
+      `<i>a</i><mol-quick-search-dialog [open]="p['open']" [session]="p['session']" [view]="p['view']" [placeholder]="'Search'" [emptyText]="'Nothing'"></mol-quick-search-dialog><i>b</i>`,
+      QuickSearchDialog as Type<unknown>,
+      {
+        open: true,
+        session,
+        view: (doc: QuickDoc): SearchResultView => ({ href: `/p/${doc.name}`, title: doc.name }),
+      },
+    )
+    mounted.push(m)
+    // React renders the modal's content or nothing; the host never appears.
+    expect(m.host.querySelector('mol-quick-search-dialog')).toBeNull()
+    expect(m.host.querySelector('[role="dialog"]')).not.toBeNull()
+    await m.setProps({ open: false })
+    expect(m.host.querySelector('mol-quick-search-dialog')).toBeNull()
+    expect(m.host.querySelector('[role="dialog"]')).toBeNull()
+  })
 })
 
 describe('Highlight', () => {
@@ -560,6 +634,22 @@ describe('Highlight', () => {
     )
     expect(mounted[mounted.length - 1]!.host.innerHTML).toContain('<mark')
     expect(mounted[mounted.length - 1]!.host.textContent).toBe('User feedback')
+  })
+
+  it("renders React's elements with no host or capture element of its own", async () => {
+    const m = await mount(
+      `<i>a</i><mol-highlight text="User feedback" [terms]="p['terms']"></mol-highlight><i>b</i>`,
+      Highlight as Type<unknown>,
+      { terms: ['feedback'] },
+    )
+    mounted.push(m)
+    const tags = (): string[] => Array.from(m.host.children).map((el) => el.tagName.toLowerCase())
+    // React's fragment is plain text plus the matched <mark>, no host element.
+    expect(tags()).toEqual(['i', 'mark', 'i'])
+    expect(m.host.querySelector('mol-highlight')).toBeNull()
+    await m.setProps({ terms: [] })
+    expect(tags()).toEqual(['i', 'i'])
+    expect(m.host.querySelector('mol-highlight')).toBeNull()
   })
 })
 

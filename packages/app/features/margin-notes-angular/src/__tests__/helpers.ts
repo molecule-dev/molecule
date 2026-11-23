@@ -18,6 +18,7 @@ import {
 } from '@angular/core'
 import { createApplication } from '@angular/platform-browser'
 
+import { provideDomPlacement } from '@molecule/app-angular'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 import { setIconSet } from '@molecule/app-icons'
 import { setClassMap } from '@molecule/app-ui'
@@ -109,7 +110,7 @@ export async function mountNotes(
     selector: 'mol-spec-host',
     standalone: true,
     imports: [MarginNotes],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template,
   })(
     class SpecHost {
@@ -118,7 +119,7 @@ export async function mountNotes(
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
     environmentInjector: appRef.injector,
@@ -167,6 +168,7 @@ class TemplateCapture {
 
 /** The capture component itself. */
 const TemplateCaptureComponent = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-capture',
   standalone: true,
   inputs: ['tpl'],
@@ -184,13 +186,14 @@ const TemplateCaptureComponent = Component({
 export async function makeTemplate(html: string): Promise<TemplateRef<unknown>> {
   capturedTemplate = null
   const Holder = Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
     selector: 'mol-tpl-holder',
     standalone: true,
     imports: [TemplateCaptureComponent],
     template: `<ng-template #tpl>${html}</ng-template><mol-capture [tpl]=tpl></mol-capture>`,
   })(class TemplateHolder {})
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref = createComponent(Holder, { environmentInjector: appRef.injector })
   appRef.attachView(ref.hostView)

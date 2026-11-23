@@ -8,12 +8,20 @@ import type { Signal } from '@angular/core'
 import {
   afterNextRender,
   Component,
+  ElementRef,
+  inject,
   type OnChanges,
   type SimpleChanges,
   type TemplateRef,
 } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  placeContentBefore,
+  setElementPresent,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { ClientSearchDocument } from '@molecule/app-client-search'
 import type { SearchSession } from '@molecule/app-client-search-angular'
 import type { UIClassMap } from '@molecule/app-ui'
@@ -52,13 +60,14 @@ const read = <T>(value: Signal<T> | T): T => (isSignalValue(value) ? value() : v
  * typed the pane shows `idleText` rather than a browse list. Enter opens the active
  * hit through the session (which closes the dialog by the caller's `onOpen`).
  * The dialog is named for screen readers through `label` (or the translated
- * "Search" default). React renders `null` while closed, so the host is
- * unwrapped (`data-parity-unwrap`, `display: contents`) and renders exactly
- * React's node list — nothing at all while closed.
+ * "Search" default). React renders `null` while closed, so the host itself
+ * never appears in the page: while open the modal renders in the host's place
+ * and while closed nothing does.
  */
 @Component({
   selector: 'mol-quick-search-dialog',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [Kbd, Modal, SearchBox, SearchResults],
   inputs: [
     'open',
@@ -73,10 +82,6 @@ const read = <T>(value: Signal<T> | T): T => (isSignalValue(value) ? value() : v
     'label',
     'molId',
   ],
-  host: {
-    'data-parity-unwrap': '',
-    style: 'display: contents',
-  },
   template: `@if (open) {
     <mol-modal
       [open]="true"
@@ -152,6 +157,8 @@ export class QuickSearchDialog<
   label?: string
   /** `data-mol-id` prefix. Defaults to `quick-search`. */
   molId?: string
+
+  private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
 
   /** i18n handle, read in an injection context. */
   readonly t = useTranslation().t
@@ -266,6 +273,11 @@ export class QuickSearchDialog<
    * Angular is still checking, and a state change they make would never render.
    */
   constructor() {
+    usePlacement(() => {
+      // React renders the modal's content or nothing; the host is never in the page.
+      placeContentBefore(this.host.nativeElement, this.host.nativeElement)
+      setElementPresent(this.host.nativeElement, false)
+    })
     afterNextRender(() => this.focusField())
   }
 

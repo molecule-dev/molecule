@@ -8,13 +8,20 @@ import { NgTemplateOutlet } from '@angular/common'
 import {
   type AfterViewInit,
   Component,
-  type ElementRef,
+  ElementRef,
+  inject,
   signal,
   type TemplateRef,
   ViewChild,
 } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  placeContentBefore,
+  setElementPresent,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Input, Textarea } from '@molecule/app-ui-angular'
@@ -62,8 +69,9 @@ const textOf = (value: unknown): string =>
  * Generic name + email + message contact form with submit handling and success
  * state; the app owns the side-effect via the `onSubmit` input. React's root
  * element is a `<form>` while idle and a `<div>` once `successContent` renders,
- * so the host is unwrapped (`data-parity-unwrap`, `display: contents`) and the
- * template renders exactly React's root.
+ * so the rendered root stands in front of the host's place and the host itself
+ * leaves the page (`placeContentBefore` + `setElementPresent`, React's fragment
+ * root).
  *
  * The optional title and description are text inputs or projected content
  * (`[slot=title]`, `[slot=description]`); `extraFields` is projected content
@@ -75,11 +83,8 @@ const textOf = (value: unknown): string =>
   selector: 'mol-contact-form',
   standalone: true,
   imports: [Button, Input, Textarea, NgTemplateOutlet],
+  hostDirectives: [MolPlacement],
   inputs: ['onSubmit', 'title', 'description', 'submitLabel', 'successContent', 'className'],
-  host: {
-    'data-parity-unwrap': '',
-    style: 'display: contents',
-  },
   // The template's whitespace is semantic: Angular keeps whitespace-only text
   // nodes inside inline / flex parents, so the DOM React renders is reproduced
   // by gluing the tags (see the ported unit tests).
@@ -116,6 +121,18 @@ export class ContactForm implements AfterViewInit {
    * does not).
    */
   private readonly i18n = useTranslation()
+
+  /** The component's host element (React renders no element of its own). */
+  private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
+
+  constructor() {
+    // React's root is the `<form>` (or the `<div>` after success) itself: it renders in
+    // front of the host's place and the host leaves the page.
+    usePlacement(() => {
+      placeContentBefore(this.host.nativeElement, this.host.nativeElement)
+      setElementPresent(this.host.nativeElement, false)
+    })
+  }
 
   /** The controlled name value. */
   protected readonly name = signal('')

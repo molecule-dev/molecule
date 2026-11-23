@@ -22,6 +22,7 @@
 import '@angular/compiler'
 import {
   type ApplicationRef,
+  ChangeDetectionStrategy,
   Component,
   type ComponentRef,
   createComponent,
@@ -31,6 +32,7 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
 import { COARSE_POINTER_QUERY, NARROW_VIEWPORT_QUERY } from '@molecule/app-ide-panel-logic'
 
 import { useCoarsePointer, useMediaQueryMatch, useNarrowViewport } from '../hooks/useViewport.js'
@@ -210,8 +212,11 @@ afterEach(async () => {
  * @returns The mount, holding the host instance.
  */
 async function mountHost<T>(fields: () => T): Promise<Mounted & { fields: T }> {
-  const appRef = await createApplication({ providers: [provideZonelessChangeDetection()] })
+  const appRef = await createApplication({
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
+  })
   const Host = Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
     selector: `mol-viewport-host-${++hostCount}`,
     standalone: true,
     template: '',

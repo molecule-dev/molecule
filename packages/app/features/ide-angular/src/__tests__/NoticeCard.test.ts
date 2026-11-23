@@ -29,6 +29,7 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 import { setIconSet } from '@molecule/app-icons'
 import type { ChatEventCardSegment } from '@molecule/app-ide-panel-logic'
@@ -48,7 +49,7 @@ const NoticeCardHost = Component({
   selector: 'mol-notice-card-host',
   standalone: true,
   imports: [NoticeCard],
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `<div mol-notice-card [tone]="p['tone']" [text]="p['text']" [content]="p['content']" [action]="p['action']" [icon]="p['icon']"></div>`,
 })(
   class NoticeCardHostComponent {
@@ -62,7 +63,7 @@ const ResourceLimitHost = Component({
   selector: 'mol-resource-limit-host',
   standalone: true,
   imports: [ResourceLimitBanner],
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `<div mol-resource-limit-banner [message]="p['message']" [action]="p['action']"></div>`,
 })(
   class ResourceLimitHostComponent {
@@ -119,7 +120,7 @@ async function mount<H extends { p: Record<string, unknown> }>(
   const container = document.createElement('div')
   document.body.appendChild(container)
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<H> = createComponent(host, { environmentInjector: appRef.injector })
   ref.instance.p = props
@@ -233,15 +234,15 @@ function body(container: HTMLElement): HTMLElement {
 }
 
 /**
- * One composable segment's rendered node: the unwrap host's single child.
+ * One composable segment's rendered node: the segment element itself, which
+ * renders directly in the body (React's DOM — no wrapper element around it).
  *
  * @param container - The mount container.
  * @param index - The segment's position in the body.
  * @returns The rendered span, code, anchor or button.
  */
 function segment(container: HTMLElement, index: number): HTMLElement {
-  const host = body(container).children[index] as HTMLElement | undefined
-  const node = host?.firstElementChild as HTMLElement | null
+  const node = body(container).children[index] as HTMLElement | undefined
   if (!node) throw new Error(`segment ${index} did not render`)
   return node
 }
@@ -536,10 +537,10 @@ describe('ResourceLimitBanner', () => {
       message: 'Your usage balance is empty. Add funds to keep building.',
       action: [{ label: 'Add funds', href: '/billing' }],
     })
-    // React's root here is the notice card itself, so the host adds no node of its own.
-    const wrapper = container.querySelector<HTMLElement>('[data-parity-unwrap]')
-    expect(wrapper?.getAttribute('data-parity-unwrap')).not.toBeNull()
-    expect(wrapper?.children).toHaveLength(1)
+    // React's root here is the notice card itself, so the banner adds no node of
+    // its own: the card is the only element the host template contributes.
+    expect(container.querySelector('[data-parity-unwrap]')).toBeNull()
+    expect(container.querySelectorAll('[data-mol-id="chat-notice-card"]')).toHaveLength(1)
 
     const root = card(container)
     expect(root.getAttribute('data-tone')).toBe('upgrade')

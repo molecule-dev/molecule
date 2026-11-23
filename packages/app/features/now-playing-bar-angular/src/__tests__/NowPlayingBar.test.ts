@@ -22,6 +22,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 import type { NowPlayingTrack } from '../types.js'
 
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
@@ -89,7 +91,7 @@ async function mount(props: Record<string, unknown>): Promise<Mounted> {
     selector: 'mol-spec-host',
     standalone: true,
     imports: [NowPlayingBar as Type<unknown>],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: TEMPLATE,
   })(
     class SpecHost {
@@ -98,7 +100,7 @@ async function mount(props: Record<string, unknown>): Promise<Mounted> {
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
     environmentInjector: appRef.injector,
@@ -366,7 +368,7 @@ describe('<NowPlayingBar>', () => {
       selector: 'mol-slot-host',
       standalone: true,
       imports: [NowPlayingBar as Type<unknown>],
-      changeDetection: ChangeDetectionStrategy.Default,
+      changeDetection: ChangeDetectionStrategy.Eager,
       template: `<div mol-now-playing-bar [track]="{ id: 't1', title: 'Midnight City', artist: 'M83' }" [isPlaying]="false" [onPlay]="p['onPlay']" [onPause]="p['onPause']" [currentTime]="0" [duration]="180" [onSeek]="p['onSeek']"><button slot="trailing" data-mol-id="custom-queue">Q</button></div>`,
     })(
       class SpecHost {
@@ -374,7 +376,9 @@ describe('<NowPlayingBar>', () => {
         p: Record<string, unknown> = {}
       },
     )
-    const appRef = await createApplication({ providers: [provideZonelessChangeDetection()] })
+    const appRef = await createApplication({
+      providers: [provideZonelessChangeDetection(), provideDomPlacement()],
+    })
     const ref = createComponent(Host, { environmentInjector: appRef.injector })
     const host = ref.location.nativeElement as HTMLElement
     document.body.appendChild(host)
@@ -391,7 +395,111 @@ describe('<NowPlayingBar>', () => {
     })
     const trailing = host.querySelector('[data-mol-id="now-playing-bar-trailing"]')
     expect(trailing).not.toBeNull()
-    expect(trailing?.querySelector('[data-mol-id="custom-queue"]')).not.toBeNull()
+    expect(trailing!.querySelector('[data-mol-id="custom-queue"]')).not.toBeNull()
+  })
+
+  it('renders the trailing wrapper for content a consumer projects after the first render, and drops it again', async () => {
+    const Host = Component({
+      selector: 'mol-late-slot-host',
+      standalone: true,
+      imports: [NowPlayingBar as Type<unknown>],
+      changeDetection: ChangeDetectionStrategy.Eager,
+      template: `<div mol-now-playing-bar [track]="{ id: 't1', title: 'Midnight City', artist: 'M83' }" [isPlaying]="false" [onPlay]="p['onPlay']" [onPause]="p['onPause']" [currentTime]="0" [duration]="180" [onSeek]="p['onSeek']">@if (p['queue']) {<button slot="trailing" data-mol-id="custom-queue">Q</button>}</div>`,
+    })(
+      class SpecHost {
+        /** The props the template binds. */
+        p: Record<string, unknown> = { ...required }
+      },
+    )
+    const appRef = await createApplication({
+      providers: [provideZonelessChangeDetection(), provideDomPlacement()],
+    })
+    const ref = createComponent(Host, { environmentInjector: appRef.injector })
+    const host = ref.location.nativeElement as HTMLElement
+    document.body.appendChild(host)
+    appRef.attachView(ref.hostView)
+    appRef.tick()
+    const setProps = async (next: Record<string, unknown>): Promise<void> => {
+      ref.instance.p = { ...ref.instance.p, ...next }
+      ref.changeDetectorRef.markForCheck()
+      appRef.tick()
+    }
+    mounted.push({
+      host,
+      tick: () => appRef.tick(),
+      setProps,
+      destroy: async () => {
+        appRef.destroy()
+        host.remove()
+      },
+    })
+    const trailing = (): Element | null =>
+      host.querySelector('[data-mol-id="now-playing-bar-trailing"]')
+    expect(trailing()).toBeNull()
+    await setProps({ queue: true })
+    expect(trailing()).not.toBeNull()
+    expect(trailing()!.querySelector('[data-mol-id="custom-queue"]')).not.toBeNull()
+    await setProps({ queue: false })
+    expect(trailing()).toBeNull()
+  })
+
+  it('renders the trailing wrapper for content that arrives later through an OnPush component in between', async () => {
+    // The wrapper passes its own content on to the bar's trailing slot. When the outer template adds
+    // that content, Angular checks neither the wrapper nor the bar, so no hook of the bar runs.
+    const Wrapper = Component({
+      selector: 'mol-trailing-wrapper',
+      standalone: true,
+      imports: [NowPlayingBar as Type<unknown>],
+      changeDetection: ChangeDetectionStrategy.OnPush,
+      template: `<div mol-now-playing-bar [track]="{ id: 't1', title: 'Midnight City', artist: 'M83' }" [isPlaying]="false" [onPlay]="noop" [onPause]="noop" [currentTime]="0" [duration]="180" [onSeek]="noop"><ng-container ngProjectAs="[slot=trailing]"><ng-content></ng-content></ng-container></div>`,
+    })(
+      class TrailingWrapper {
+        /** The bar's required callbacks. */
+        noop = (): void => {}
+      },
+    )
+    const Host = Component({
+      selector: 'mol-wrapped-slot-host',
+      standalone: true,
+      imports: [Wrapper],
+      changeDetection: ChangeDetectionStrategy.Eager,
+      template: `<mol-trailing-wrapper>@if (p['queue']) {<button data-mol-id="custom-queue">Q</button>}</mol-trailing-wrapper>`,
+    })(
+      class SpecHost {
+        /** The props the template binds. */
+        p: Record<string, unknown> = {}
+      },
+    )
+    const appRef = await createApplication({
+      providers: [provideZonelessChangeDetection(), provideDomPlacement()],
+    })
+    const ref = createComponent(Host, { environmentInjector: appRef.injector })
+    const host = ref.location.nativeElement as HTMLElement
+    document.body.appendChild(host)
+    appRef.attachView(ref.hostView)
+    appRef.tick()
+    const setProps = async (next: Record<string, unknown>): Promise<void> => {
+      ref.instance.p = { ...ref.instance.p, ...next }
+      ref.changeDetectorRef.markForCheck()
+      appRef.tick()
+    }
+    mounted.push({
+      host,
+      tick: () => appRef.tick(),
+      setProps,
+      destroy: async () => {
+        appRef.destroy()
+        host.remove()
+      },
+    })
+    const trailing = (): Element | null =>
+      host.querySelector('[data-mol-id="now-playing-bar-trailing"]')
+    expect(trailing()).toBeNull()
+    await setProps({ queue: true })
+    expect(trailing()).not.toBeNull()
+    expect(trailing()!.querySelector('[data-mol-id="custom-queue"]')).not.toBeNull()
+    await setProps({ queue: false })
+    expect(trailing()).toBeNull()
   })
 
   it('renders the documented empty state (no throw) when track is null', async () => {

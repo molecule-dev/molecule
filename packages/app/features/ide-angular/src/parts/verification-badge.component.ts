@@ -9,7 +9,10 @@
  * counted per category and its output behind the disclosure.
  *
  * The component is a part (React renders it inside ChatPanel without exporting
- * it), so it lives in `src/parts/`.
+ * it), so it lives in `src/parts/`. React's root is one element chosen by the
+ * status (the pass row or the failure card), so the template's element renders
+ * in front of the host (`placeContentBefore`) and the host leaves the DOM: the
+ * rendered tree is React's, with no wrapper element of its own.
  *
  * Styling uses `getClassMap()` (`cm.*`) for the text and the advisory; the
  * inline styles are the ones React writes (badge geometry, severity tints,
@@ -19,9 +22,15 @@
  * @module
  */
 
-import { Component } from '@angular/core'
+import { Component, ElementRef, inject } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  placeContentBefore,
+  setElementPresent,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { styleText } from '@molecule/app-ui-angular'
@@ -65,14 +74,23 @@ const CHECK_STYLE = styleText({
   selector: 'div[mol-verification-badge]',
   standalone: true,
   inputs: ['status', 'output', 'workspaces', 'categories', 'renderCheckUnavailable'],
-  host: {
-    'data-parity-unwrap': '',
-    style: 'display: contents',
-  },
+  hostDirectives: [MolPlacement],
   // prettier-ignore
   template: `@if (status === 'ok') {<div [attr.style]="passedStyle" [class]="cm.textMuted"><svg width="10" height="10" viewBox="0 0 10 10" [attr.style]="checkStyle"><path d="M2 5.5 L4.2 7.8 L8 3" fill="none" stroke="#3fb950" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg><span>{{ passedLabel() }}@if (renderCheckUnavailable) {<span data-mol-id="render-check-unavailable" [class]="cm.textWarning"> · {{ unavailableLabel() }}</span>}</span></div>} @else {<div [attr.style]="failedCardStyle()"><button type="button" [class]="cm.cn(cm.textSize('xs'), cm.w('full'))" [attr.style]="failureButtonStyle()" (click)="toggle()"><span [attr.style]="labelStyle">{{ failureLabel() }}</span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="12" height="12" [attr.style]="chevronStyle()"><polyline points="4,6 8,10 12,6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></polyline></svg></button>@if (expanded && output) {<pre [class]="cm.textSize('xs')" [attr.style]="outputStyle()">{{ output }}</pre>}</div>}`,
 })
 export class VerificationBadge {
+  /** The component's own host element, which React does not render. */
+  private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
+
+  /** Renders the badge's element in front of the host and keeps the host out of the DOM. */
+  constructor() {
+    usePlacement(() => {
+      const host = this.host.nativeElement
+      placeContentBefore(host, host)
+      setElementPresent(host, false)
+    })
+  }
+
   /** The verification outcome. */
   status: VerificationBadgeProps['status'] = 'ok'
 

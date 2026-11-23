@@ -23,6 +23,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 // Proxy ClassMap echoing each accessed member back as its token (e.g. `page`),
 // so tests can assert which cm.* class was applied without a real bond.
 vi.mock('@molecule/app-ui', () => ({
@@ -65,6 +67,7 @@ vi.mock('@molecule/app-ui-angular', async () => {
   const { Component } = await import('@angular/core')
   return {
     Button: Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'button[mol-button]',
       standalone: true,
       inputs: [
@@ -142,7 +145,7 @@ async function mount(
     selector: 'mol-spec-host',
     standalone: true,
     imports: [component],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template,
   })(
     class SpecHost {
@@ -151,7 +154,7 @@ async function mount(
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
     environmentInjector: appRef.injector,
@@ -215,6 +218,22 @@ const bar = async (props: Record<string, unknown>, content = ''): Promise<string
 }
 
 describe('ParticipantTile', () => {
+  it('keeps a consumer list in order when an item is inserted in the middle of videoSlot', async () => {
+    const m = await mount(
+      `<div mol-participant-tile [name]="p['name']">@for (x of p['xs']; track x) {<b slot="videoSlot">{{ x }}</b>}</div>`,
+      ParticipantTile as Type<unknown>,
+      { name: 'A', xs: [1, 3] },
+    )
+    mounted.push(m)
+    const texts = (): string[] =>
+      Array.from(m.host.querySelectorAll('b')).map((el) => el.textContent ?? '')
+    expect(texts()).toEqual(['1', '3'])
+    await m.setProps({ xs: [1, 2, 3] })
+    expect(texts()).toEqual(['1', '2', '3'])
+    await m.setProps({ xs: [1, 3] })
+    expect(texts()).toEqual(['1', '3'])
+  })
+
   it('renders the participant name', async () => {
     const markup = await tile({ name: 'Alice' })
     expect(markup).toContain('Alice')
@@ -292,6 +311,22 @@ describe('ParticipantTile', () => {
   it('forwards className', async () => {
     const markup = await tile({ name: 'A', className: 'tile-cls' })
     expect(markup).toContain('tile-cls')
+  })
+  it('shows and removes the videoSlot wrapper in the pass where the consumer @if adds and removes its content', async () => {
+    const m = await mount(
+      `<div mol-participant-tile [name]="p['name']">@if (p['on']) {<span slot="videoSlot" data-video>v</span>}</div>`,
+      ParticipantTile as Type<unknown>,
+      { name: 'A', on: false },
+    )
+    mounted.push(m)
+    // React renders neither media capture while no video or avatar is supplied.
+    expect(m.host.querySelector('[data-video]')).toBeNull()
+    await m.setProps({ on: true })
+    const video = m.host.querySelector('[data-video]')
+    // React renders `videoSlot ?? avatarSlot` bare in the centered layer.
+    expect(video?.parentElement?.tagName).toBe('DIV')
+    await m.setProps({ on: false })
+    expect(m.host.querySelector('[data-video]')).toBeNull()
   })
 })
 

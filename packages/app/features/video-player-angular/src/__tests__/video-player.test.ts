@@ -69,6 +69,7 @@ vi.mock('@molecule/app-ui-angular', async () => {
   return {
     ...actual,
     Button: Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'button[mol-button]',
       standalone: true,
       inputs: ['variant', 'size'],
@@ -115,7 +116,7 @@ async function mount(props: Record<string, unknown> = {}): Promise<Mounted> {
     selector: `mol-spec-host-${specHostCount++}`,
     standalone: true,
     imports: [VideoPlayer],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: `<div mol-video-player [src]="p['src']" [poster]="p['poster']" [captionsSrc]="p['captionsSrc']" [captionsLang]="p['captionsLang']" [captionsLabel]="p['captionsLabel']" [autoPlay]="p['autoPlay']" [defaultMuted]="p['defaultMuted']" [className]="p['className']"></div>`,
   })(
     class SpecHost {

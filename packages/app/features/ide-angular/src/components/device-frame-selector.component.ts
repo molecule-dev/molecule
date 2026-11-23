@@ -26,7 +26,6 @@
 
 import {
   afterEveryRender,
-  type AfterViewChecked,
   ChangeDetectorRef,
   Component,
   ElementRef,
@@ -118,7 +117,7 @@ const STYLES = {
       @for (item of actionItems(); track item.id; let actionIdx = $index) {<button type="button" [attr.role]="item.checked !== undefined ? 'menuitemcheckbox' : 'menuitem'" [attr.aria-checked]="item.checked" [attr.tabindex]="frames.length + actionIdx === activeIndex ? 0 : -1" [attr.data-mol-id]="item.id" (click)="runAction(item.run)" (mouseenter)="activeIndex = frames.length + actionIdx" [class]="cm.touchTargetCompact" [style.display]="'flex'" [style.align-items]="'center'" [style.gap]="'8px'" [style.width]="'100%'" [style.padding]="'6px 8px'" [style.text-align]="'left'" [style.border]="'none'" [style.border-radius]="'6px'" [style.color]="'inherit'" [style.cursor]="'pointer'" [style.font]="'inherit'" [style.background]="frames.length + actionIdx === activeIndex ? 'var(--mol-color-surface-secondary, transparent)' : 'transparent'"><svg mol-icon [name]="item.icon" [size]="16" aria-hidden="true"></svg><span [attr.style]="s.rowLabel">{{ item.label }}</span>@if (item.checked) {<svg mol-icon [name]="'check'" [size]="14" aria-hidden="true"></svg>}</button>}
     </div>}`,
 })
-export class DeviceFrameSelector implements DeviceFrameSelectorProps, AfterViewChecked, OnDestroy {
+export class DeviceFrameSelector implements DeviceFrameSelectorProps, OnDestroy {
   /** The frame the preview currently shows. */
   current: Frame = 'none'
 
@@ -179,25 +178,17 @@ export class DeviceFrameSelector implements DeviceFrameSelectorProps, AfterViewC
   /** Marks the view dirty from the document-level outside-click listener. */
   private readonly cdr = inject(ChangeDetectorRef)
 
-  /** Whether the Tooltip host has been moved out of React's root div. */
-  private tooltipHostMoved = false
-
   /** The document outside-pointer-down listener while the menu is open. */
   private outsideListener: ((event: MouseEvent) => void) | null = null
 
   /**
    * Applies the roving focus after every render — React's `useEffect` on `[open, activeIndex]`.
-   * An after-render hook, not `ngAfterViewChecked`: focusing a row blurs the trigger, whose
+   * An after-render hook, not a view-checked one: focusing a row blurs the trigger, whose
    * Tooltip hides on that focusout, and a state change made while the view is still being checked
    * is never rendered (the tooltip stayed open over the menu the keyboard had just opened).
    */
   constructor() {
     afterEveryRender({ write: () => this.applyRovingFocus() })
-  }
-
-  /** Moves the Tooltip host out of React's root div once the view exists. */
-  ngAfterViewChecked(): void {
-    this.adoptTooltipHost()
   }
 
   /**
@@ -220,30 +211,6 @@ export class DeviceFrameSelector implements DeviceFrameSelectorProps, AfterViewC
   /** Drops the outside-click listener when the card goes away. */
   ngOnDestroy(): void {
     this.removeOutsideListener()
-  }
-
-  /**
-   * Moves the shared Tooltip's `mol-tooltip` host OUT of React's root `<div>`
-   * (it lands there as a sibling of the wrapper the Tooltip adopts beside it).
-   * `display: contents` keeps it out of layout and the conformance normalizer
-   * unwraps it, but the live DOM's focus path counts element siblings: left in
-   * place it would push the menu one slot, so React's
-   * `root > [tooltip wrapper, menu]` is reproduced exactly. It goes to the
-   * root's parent (never inside the wrapper — the Tooltip re-adopts its nodes
-   * into the host on destroy, and a wrapper under the host would make that a
-   * cycle).
-   */
-  private adoptTooltipHost(): void {
-    if (this.tooltipHostMoved) return
-    const root = this.host.nativeElement
-    const tooltipHost = Array.from(root.children).find((el) => el.tagName === 'MOL-TOOLTIP')
-    const trigger = this.trigger?.nativeElement
-    const wrapper = trigger?.parentElement
-    if (!tooltipHost || !trigger || !wrapper || wrapper === root) return
-    // The wrapper is still INSIDE the host until the Tooltip adopts it.
-    if (tooltipHost.contains(trigger)) return
-    root.parentNode?.appendChild(tooltipHost)
-    this.tooltipHostMoved = true
   }
 
   /** Adds React's outside-pointer-down close (its `useEffect` on `open`). */

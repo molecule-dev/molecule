@@ -70,7 +70,7 @@ const render = async (props: Record<string, unknown>): Promise<Row> => {
     selector: 'mol-spec-host',
     standalone: true,
     imports: [AuditLogRow],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: '<div mol-audit-log-row [entry]="p[\'entry\']" [onClick]="p[\'onClick\']"></div>',
   })(
     class SpecHost {

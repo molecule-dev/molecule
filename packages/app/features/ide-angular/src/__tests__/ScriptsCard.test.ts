@@ -29,7 +29,7 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeEach, describe, expect, it, type Mock, vi } from 'vitest'
 
-import { provideHttp } from '@molecule/app-angular'
+import { provideDomPlacement, provideHttp } from '@molecule/app-angular'
 import type { HttpClient, HttpResponse, RequestConfig } from '@molecule/app-http'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 import type { ScriptInfo } from '@molecule/app-ide-panel-logic/panels'
@@ -118,7 +118,7 @@ const ScriptsCardHost = Component({
   selector: 'mol-scripts-card-host',
   standalone: true,
   imports: [ScriptsCard],
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `<div mol-scripts-card [projectId]="p['projectId']" [initialQuery]="p['initialQuery']" [isLight]="p['isLight']" [agentName]="p['agentName']" [embedded]="p['embedded']"></div>`,
 })(
   class ScriptsCardHost {
@@ -196,7 +196,11 @@ async function renderCard(): Promise<{ container: HTMLElement; post: Mock }> {
   const container = document.createElement('div')
   document.body.appendChild(container)
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection(), provideHttp(buildHttpClient())],
+    providers: [
+      provideZonelessChangeDetection(),
+      provideDomPlacement(),
+      provideHttp(buildHttpClient()),
+    ],
   })
   const ref: ComponentRef<InstanceType<typeof ScriptsCardHost>> = createComponent(ScriptsCardHost, {
     environmentInjector: appRef.injector,
@@ -225,7 +229,7 @@ describe('ScriptsCard parameterized run', () => {
     await vi.waitFor(() => expect(postMock).toHaveBeenCalledTimes(1))
     // Ran the right endpoint with no params body.
     expect(postMock.mock.calls[0]?.[0]).toContain('/scripts/run-tests/run')
-    expect(postMock.mock.calls[0]?.[1]).toBeUndefined()
+    expect(postMock.mock.calls[0]![1]).toBeUndefined()
   })
 
   it('opens an option form for a param script and runs with the chosen values', async () => {

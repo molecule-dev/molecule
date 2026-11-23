@@ -34,7 +34,7 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
-import { provideTheme } from '@molecule/app-angular'
+import { provideDomPlacement, provideTheme } from '@molecule/app-angular'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
@@ -87,7 +87,7 @@ const PlanCardHost = Component({
   selector: 'mol-plan-card-host',
   standalone: true,
   imports: [WorkCard, PlanCard, DockStrip],
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.Eager,
   // prettier-ignore
   template: `<div mol-work-card><div mol-plan-card [todos]="p['todos']" [live]="p['live']" [awaitingUser]="p['awaitingUser']"></div>@if (p['withOther']) {<div mol-dock-strip molId="chat-background-tasks" toggleMolId="chat-background-tasks-toggle" [expanded]="false" [onToggle]="noop" label="1 running"><div>npm test</div></div>}</div>`,
 })(
@@ -151,7 +151,11 @@ async function renderInTray(props: Record<string, unknown>): Promise<void> {
   const container = document.createElement('div')
   document.body.appendChild(container)
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection(), provideTheme(buildThemeProvider())],
+    providers: [
+      provideZonelessChangeDetection(),
+      provideDomPlacement(),
+      provideTheme(buildThemeProvider()),
+    ],
   })
   const ref: ComponentRef<InstanceType<typeof PlanCardHost>> = createComponent(PlanCardHost, {
     environmentInjector: appRef.injector,
@@ -215,7 +219,8 @@ describe('PlanCard in the work tray', () => {
     expect(rows).toHaveLength(3)
     expect(rows[0].querySelector('svg path')?.getAttribute('d')).toBe('M2 5.2 4 7.2 8 3')
     expect(rows[1].querySelector('svg')).not.toBeNull()
-    expect(rows[1].querySelector('svg path')?.getAttribute('d')).not.toBe('M2 5.2 4 7.2 8 3')
+    // The spinner draws no tick.
+    expect(rows[1].querySelector('svg path[d="M2 5.2 4 7.2 8 3"]')).toBeNull()
     expect(rows[2].querySelector('svg')).toBeNull()
   })
 
@@ -270,7 +275,11 @@ describe('ToolCallCard — update_task_list', () => {
     const container = document.createElement('div')
     document.body.appendChild(container)
     const appRef: ApplicationRef = await createApplication({
-      providers: [provideZonelessChangeDetection(), provideTheme(buildThemeProvider())],
+      providers: [
+        provideZonelessChangeDetection(),
+        provideDomPlacement(),
+        provideTheme(buildThemeProvider()),
+      ],
     })
     const ref: ComponentRef<ToolCallCard> = createComponent(ToolCallCard, {
       environmentInjector: appRef.injector,

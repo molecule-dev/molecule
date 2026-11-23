@@ -27,7 +27,7 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { provideHttp, provideI18n, provideTheme } from '@molecule/app-angular'
+import { provideDomPlacement, provideHttp, provideI18n, provideTheme } from '@molecule/app-angular'
 import type { ServiceCallSink } from '@molecule/app-framework-conformance/ui'
 import { createFakeThemeProvider } from '@molecule/app-framework-conformance/ui'
 import type { HttpClient, HttpResponse, RequestConfig } from '@molecule/app-http'
@@ -99,7 +99,7 @@ const ScriptsCardHost = Component({
   selector: 'mol-scripts-card-host',
   standalone: true,
   imports: [ScriptsCard],
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `<div mol-scripts-card [projectId]="p['projectId']" [initialQuery]="p['initialQuery']" [isLight]="p['isLight']"></div>`,
 })(
   class ScriptsCardHost {
@@ -167,6 +167,7 @@ async function renderCard(projectId: string): Promise<Mounted> {
   const appRef: ApplicationRef = await createApplication({
     providers: [
       provideZonelessChangeDetection(),
+      provideDomPlacement(),
       provideI18n(createSimpleI18nProvider('en')),
       provideTheme(createFakeThemeProvider('light', sink)),
       provideHttp(buildHttpClient()),

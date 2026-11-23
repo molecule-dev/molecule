@@ -12,14 +12,14 @@
  * theme token (the hex is only the `var()` fallback).
  *
  * The host IS React's root `<button>`; while the host passes no callback React
- * renders nothing, so the host carries `data-parity-unwrap` and `display:
- * contents` and the conformance normalizer drops it.
+ * renders nothing, so the host is out of the DOM then (`useHostPresence`).
  *
  * @module
  */
 
 import { Component, inject } from '@angular/core'
 
+import { useHostPresence } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { styleText } from '@molecule/app-ui-angular'
 
@@ -37,9 +37,6 @@ const RESTING_BG = 'color-mix(in srgb, var(--mol-color-primary, #6366f1) 12%, tr
 /** The hover background tint. */
 const HOVER_BG = SELECTED_BG
 
-/** The closed state: React renders nothing, so the host unwraps to nothing. */
-const UNWRAP_STYLE = styleText({ display: 'contents' })
-
 /**
  * React's “Host-provided seam to the BYO” section: the anchored "Add or manage
  * your own models…" footer, or nothing when the host passes no callback.
@@ -49,10 +46,9 @@ const UNWRAP_STYLE = styleText({ display: 'contents' })
   standalone: true,
   host: {
     type: 'button',
-    '[attr.data-parity-unwrap]': 'shown() ? null : ""',
-    '[attr.class]': 'shown() ? rootClass : null',
-    '[attr.style]': 'shown() ? rootStyle() : unwrapStyle',
-    '[attr.data-mol-id]': 'shown() ? "chat-model-manage-custom" : null',
+    '[attr.class]': 'rootClass',
+    '[attr.style]': 'rootStyle()',
+    '[attr.data-mol-id]': '"chat-model-manage-custom"',
     '(click)': 'onClick()',
     '(mouseenter)': 'onEnter($event)',
     '(mouseleave)': 'onLeave($event)',
@@ -79,10 +75,7 @@ export class ChatModelPickerByo {
   /** The footer's ClassMap classes while it is shown. */
   protected readonly rootClass: string
 
-  /** The closed state's inline style (the host unwraps away). */
-  protected readonly unwrapStyle: string | null = UNWRAP_STYLE
-
-  /** Resolves the ClassMap and the static classes once, at construction. */
+  /** Resolves the ClassMap and the static classes once, and keeps the host in the page only while shown. */
   constructor() {
     this.cm = this.state.env.cm
     this.rootClass = this.cm.cn(
@@ -90,6 +83,7 @@ export class ChatModelPickerByo {
       this.cm.fontWeight('medium'),
       this.cm.w('full'),
     )
+    useHostPresence(() => this.shown())
   }
 
   /**

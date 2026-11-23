@@ -12,8 +12,7 @@
 
 import { ElementRef, inject } from '@angular/core'
 
-import { findDomContext } from '@molecule/app-ui-angular'
-
+import { settingsPanelContext } from './container-context.js'
 import type { SettingsPanelContextValue } from './types.js'
 
 /**
@@ -37,7 +36,7 @@ export const SettingsPanelContext = 'molecule-settings-panel-context'
 export function useSettingsPanelContext(): SettingsPanelContextValue {
   const host = inject(ElementRef).nativeElement as HTMLElement
   const resolve = (): SettingsPanelContextValue => {
-    const value = findDomContext<SettingsPanelContextValue>(host)
+    const value = settingsPanelContext.find(host)
     if (!value) {
       throw new Error(
         'Settings panel section components must be rendered inside <SettingsContainer>.',

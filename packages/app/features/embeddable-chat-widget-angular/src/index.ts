@@ -38,10 +38,9 @@
  * ClassMap is needed either way because all geometry/colour is inline.
  *
  * The components are standalone Angular components with attribute selectors
- * (`mol-embeddable-chat-widget`, …): the launcher's and panel's host
- * elements are unwrapped scaffolding (`data-parity-unwrap`,
- * `display: contents`), so the rendered page carries only React's DOM — the
- * button and the section themselves.
+ * (`mol-embeddable-chat-widget`, …): each component's host element is kept out
+ * of the page, so the rendered page carries only React's DOM — the button and
+ * the section themselves.
  *
  * **Backend wire contract.** Every send POSTs `${apiBaseUrl}/chat` with
  * request header `Accept: text/event-stream`, `Content-Type:

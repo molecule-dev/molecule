@@ -3,10 +3,12 @@
  *
  * React context flows through the rendered tree, including projected children;
  * Angular DI does not (projected content keeps its declaration-site injector),
- * so the provider registers the shared state on its host ELEMENT (the same
- * DOM-scoped mechanism `@molecule/app-ui-angular` uses for its contexts) and
- * consumers look it up by walking their DOM ancestors — the same "nearest
- * enclosing provider" semantics React has.
+ * so the provider registers the shared state on elements of the rendered tree
+ * (the same DOM-scoped mechanism `@molecule/app-ui-angular` uses for its
+ * contexts): React's provider renders no element of its own, so the state is
+ * registered on each rendered top-level element, and consumers look it up by
+ * walking their DOM ancestors or on themselves — the same "nearest enclosing
+ * provider" semantics React has.
  *
  * `<AuthShell>` publishes the same state, so any auth form rendered inside
  * inherits cross-view email persistence — call `useAuthFormStateContext()`
@@ -25,9 +27,14 @@ import {
   runInInjectionContext,
 } from '@angular/core'
 
-import { findDomContext } from '@molecule/app-ui-angular'
+import {
+  MolPlacement,
+  placeContentBefore,
+  setElementPresent,
+  usePlacement,
+} from '@molecule/app-angular'
 
-import { provideAuthFormState } from './form-state-context.js'
+import { findAuthFormState, provideAuthFormState } from './form-state-context.js'
 import type { AuthFormFields, AuthFormState, UseAuthFormStateOptions } from './types.js'
 import { useAuthFormState } from './use-auth-form-state.js'
 
@@ -44,7 +51,7 @@ import { useAuthFormState } from './use-auth-form-state.js'
 export function useAuthFormStateContext(): AuthFormState {
   const host = inject(ElementRef).nativeElement as HTMLElement
   const resolve = (): AuthFormState => {
-    const state = findDomContext<AuthFormState>(host)
+    const state = findAuthFormState(host)
     if (!state) {
       throw new Error(
         'useAuthFormStateContext must be used within an <AuthFormStateProvider> (or <AuthShell>, which renders one).',
@@ -69,14 +76,18 @@ export function useAuthFormStateContext(): AuthFormState {
  * Provides a single {@link useAuthFormState} instance to all descendants via a
  * DOM-scoped context, so sibling/child auth forms share the same email.
  *
- * The host is `display: contents`, so it adds no box of its own — React's
- * provider renders its children with no wrapping element.
+ * React's context provider renders its children with no DOM of its own, so
+ * everything the host holds renders in the host's place and the host itself
+ * leaves the page. Because the host has no ancestors then, the state is
+ * registered on the rendered top-level elements instead (the provider's place
+ * in the rendered tree); consumers find it walking their DOM ancestors, or on
+ * the element itself.
  */
 @Component({
   selector: 'div[mol-auth-form-state-provider]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   inputs: ['storage', 'storageKey', 'initialFields'],
-  host: { style: 'display: contents' },
   template: `<ng-content></ng-content>`,
 })
 export class AuthFormStateProvider implements OnInit, OnDestroy {
@@ -90,7 +101,16 @@ export class AuthFormStateProvider implements OnInit, OnDestroy {
   private readonly injector = inject(EnvironmentInjector)
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement
   private state: AuthFormState | null = null
-  private teardown: (() => void) | null = null
+  private unregister: (() => void) | null = null
+
+  constructor() {
+    // React's context provider renders its children with no DOM of its own: everything
+    // the host holds renders in the host's place, and the host itself leaves the page.
+    usePlacement(() => {
+      placeContentBefore(this.host, this.host)
+      setElementPresent(this.host, false)
+    })
+  }
 
   /**
    * Creates the state with this instance's inputs (available only here) and
@@ -104,11 +124,11 @@ export class AuthFormStateProvider implements OnInit, OnDestroy {
         initialFields: this.initialFields,
       }),
     )
-    this.teardown = provideAuthFormState(this.host, this.state)
+    this.unregister = provideAuthFormState(this.host, this.state)
   }
 
-  /** Removes the DOM-scoped registration. */
+  /** Removes the DOM-scoped registrations. */
   ngOnDestroy(): void {
-    this.teardown?.()
+    this.unregister?.()
   }
 }

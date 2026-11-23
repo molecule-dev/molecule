@@ -22,6 +22,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 // A ClassMap proxy echoing each accessed member back as its token, the same
 // mock the React tests use.
 vi.mock('@molecule/app-ui', () => ({
@@ -67,7 +69,7 @@ const mounted: Mounted[] = []
  */
 async function mountHost(host: Type<unknown>): Promise<Mounted> {
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref = createComponent(host, { environmentInjector: appRef.injector })
   const element = ref.location.nativeElement as HTMLElement
@@ -102,7 +104,7 @@ async function render(
   const ended = templates.expired
   const custom = templates.render
   const Host = Component({
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     selector: 'mol-spec-host',
     standalone: true,
     imports: [Countdown as Type<unknown>],
@@ -127,6 +129,59 @@ async function render(
 }
 
 /**
+ * Mounts `Countdown` between two fixed siblings, the way a consumer list
+ * would, and returns a setter for its inputs.
+ *
+ * @param props - The initial `target` / `format` inputs.
+ * @returns The mounted host and a setter that re-renders with new inputs.
+ */
+async function renderInList(props: {
+  target: number
+  format?: 'compact' | 'long' | 'colon'
+}): Promise<
+  Mounted & { set(next: { target?: number; format?: 'compact' | 'long' | 'colon' }): void }
+> {
+  const Host = Component({
+    selector: 'mol-spec-list-host',
+    standalone: true,
+    imports: [Countdown as Type<unknown>],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    template: `<i>a</i><mol-countdown [target]="p['target']" [format]="p['format']"></mol-countdown><i>b</i>`,
+  })(
+    class SpecListHost {
+      /** The inputs the template binds. */
+      p: Record<string, unknown> = { ...props }
+    },
+  )
+  const appRef: ApplicationRef = await createApplication({
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
+  })
+  const ref = createComponent(Host, { environmentInjector: appRef.injector })
+  const host = ref.location.nativeElement as HTMLElement
+  document.body.appendChild(host)
+  appRef.attachView(ref.hostView)
+  appRef.tick()
+  const entry: Mounted = {
+    host,
+    markup: host.innerHTML,
+    destroy: async () => {
+      ref.destroy()
+      host.remove()
+      await appRef.destroy()
+    },
+  }
+  mounted.push(entry)
+  return {
+    ...entry,
+    set: (next) => {
+      ref.instance.p = { ...ref.instance.p, ...next }
+      ref.changeDetectorRef.markForCheck()
+      appRef.tick()
+    },
+  }
+}
+
+/**
  * Calls `useCountdown` in a component's injection context and reads its state.
  *
  * @param target - The target epoch milliseconds.
@@ -134,6 +189,7 @@ async function render(
  */
 async function probe(target: number): Promise<Record<string, unknown>> {
   const Host = Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
     selector: 'mol-probe-host',
     standalone: true,
     template: `<span data-state>{{ state }}</span>`,
@@ -225,5 +281,16 @@ describe('Countdown', () => {
   it('forwards className onto the wrapper span', async () => {
     const markup = (await render({ target: 30_000, className: 'cd-cls' })).markup
     expect(markup).toContain('cd-cls')
+  })
+
+  it("renders React's elements with no host or capture element of its own", async () => {
+    const m = await renderInList({ target: 30_000 })
+    const children = (): string[] =>
+      Array.from(m.host.children).map((child) => child.tagName.toLowerCase())
+    expect(children()).toEqual(['i', 'span', 'i'])
+    expect(m.host.textContent).toContain('30s')
+    m.set({ format: 'long' })
+    expect(children()).toEqual(['i', 'span', 'i'])
+    expect(m.host.textContent).toContain('30 seconds')
   })
 })

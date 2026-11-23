@@ -28,6 +28,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 // Translations the bonded i18n provider would supply: each key maps to a marked string, so a
 // default that bypassed t() would show up as plain English. The UI components' own reads
 // (`locale()`, `direction()`) come back as plain signals of the English defaults.
@@ -69,7 +71,7 @@ async function mount(template: string, props: Record<string, unknown> = {}): Pro
     selector: 'mol-i18n-spec-host',
     standalone: true,
     imports: [InlineEdit],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template,
   })(
     class SpecHost {
@@ -78,7 +80,7 @@ async function mount(template: string, props: Record<string, unknown> = {}): Pro
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
     environmentInjector: appRef.injector,

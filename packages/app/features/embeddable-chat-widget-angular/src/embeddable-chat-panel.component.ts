@@ -18,6 +18,13 @@ import {
   ViewChild,
 } from '@angular/core'
 
+import {
+  MolPlacement,
+  placeElementBefore,
+  setElementPresent,
+  usePlacement,
+} from '@molecule/app-angular'
+
 import { sendChatRequest } from './sendChatRequest.js'
 import type {
   EmbeddableChatMessage,
@@ -48,6 +55,7 @@ class EmbedStyleTag implements AfterViewInit {
   ngAfterViewInit(): void {
     const style = document.createElement('style')
     style.textContent = TYPING_CSS
+    // A node this component created, not one Angular rendered, so it places it itself.
     this.host.nativeElement.insertBefore(style, this.host.nativeElement.firstChild)
   }
 }
@@ -126,26 +134,24 @@ function dotStyle(delay: number): Record<string, string> {
  * is intentionally storage-agnostic; integrations that want persistence
  * should wrap this with their own resume logic.
  *
- * React's root is the `<section>` when visible and nothing when hidden, so
- * the host is unwrapped (`data-parity-unwrap`, `display: contents`) and the
- * section is rendered inside it. The React `onClose` callback prop is the
- * Angular `close` output, emitting the native click event. The typing
- * indicator's `<style>` element is injected by {@link EmbedStyleTag}
- * (Angular's compiler strips `<style>` elements from templates).
+ * React's root is the `<section>` when visible and nothing when hidden, so the
+ * section renders immediately before the host's place when visible and the
+ * host itself never appears in the page (React renders no wrapper element).
+ * The React `onClose` callback prop is the Angular `close` output, emitting the
+ * native click event. The typing indicator's `<style>` element is injected by
+ * {@link EmbedStyleTag} (Angular's compiler strips `<style>` elements from
+ * templates).
  */
 @Component({
   selector: 'mol-embeddable-chat-panel',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [EmbedStyleTag],
   inputs: ['visible', 'position', 'config'],
   outputs: ['close'],
-  host: {
-    'data-parity-unwrap': '',
-    style: 'display: contents',
-  },
   // prettier-ignore
-  template: `@if (visible ?? false) {
-    <section
+  template: `<section
+      #root
       role="dialog"
       [attr.aria-label]="headerLabel()"
       data-mol-id="embeddable-chat-panel"
@@ -218,8 +224,7 @@ function dotStyle(delay: number): Record<string, string> {
           {{ sendLabel() }}
         </button>
       </form>
-    </section>
-  }`,
+    </section>`,
 })
 export class EmbeddableChatPanel {
   /** Whether the panel is expanded (visible) or collapsed (hidden). */
@@ -240,8 +245,20 @@ export class EmbeddableChatPanel {
   protected readonly error = signal<string | null>(null)
   /** The scrolling transcript, once rendered. */
   @ViewChild('transcript') private transcript?: ElementRef<HTMLDivElement>
+  /** The panel section (React's root, rendered beside the host when visible). */
+  @ViewChild('root') private root?: ElementRef<HTMLElement>
+
+  private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
 
   constructor() {
+    // React renders the section or nothing; either way its host is not in the page.
+    usePlacement(() => {
+      const section = this.root?.nativeElement
+      if (!section) return
+      if (this.visible ?? false) placeElementBefore(section, this.host.nativeElement)
+      else setElementPresent(section, false)
+      setElementPresent(this.host.nativeElement, false)
+    })
     // Auto-scroll the transcript when content changes, after the DOM shows it (React's
     // `useEffect` on the same two values runs after commit; a component `effect` runs before
     // the view refreshes, so it would read the previous scroll height).

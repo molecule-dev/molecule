@@ -66,7 +66,7 @@ vi.mock('@molecule/app-ui-angular', async () => {
   const { Component, EventEmitter } = await import('@angular/core')
   return {
     Button: Component({
-      changeDetection: ChangeDetectionStrategy.Default,
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'button[mol-button]',
       standalone: true,
       inputs: ['variant', 'size'],
@@ -83,6 +83,7 @@ vi.mock('@molecule/app-ui-angular', async () => {
       },
     ),
     Switch: Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'mol-switch',
       standalone: true,
       inputs: ['checked'],
@@ -143,7 +144,7 @@ async function mount(
     selector: 'mol-spec-host',
     standalone: true,
     imports: [component],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template,
   })(
     class SpecHost {
@@ -346,5 +347,24 @@ describe('ShareLinkCard', () => {
     expect(shown()).toEqual(['a', 'b', 'c'])
     await m.setProps({ xs: ['a', 'c'] })
     expect(shown()).toEqual(['a', 'c'])
+  })
+
+  it('shows and removes the title wrapper in the pass where the consumer @if adds and removes its content', async () => {
+    const m = await renderCard(
+      { url: 'u', on: false },
+      `@if (p['on']) {<span slot="title" data-title>Share this</span>}`,
+    )
+    const title = (): HTMLElement | null => m.host.querySelector('[data-title]')
+    // No title or description: React renders no header.
+    expect(title()).toBeNull()
+    expect(m.host.querySelector('header')).toBeNull()
+    await m.setProps({ on: true })
+    // The title arrives: the header and the `<h3>` render in the same pass.
+    expect(title()).not.toBeNull()
+    expect(title()!.closest('h3')).not.toBeNull()
+    expect(m.host.querySelector('header')).not.toBeNull()
+    await m.setProps({ on: false })
+    expect(title()).toBeNull()
+    expect(m.host.querySelector('header')).toBeNull()
   })
 })

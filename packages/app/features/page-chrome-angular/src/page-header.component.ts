@@ -4,18 +4,16 @@
  * @module
  */
 
-import {
-  type AfterViewInit,
-  Component,
-  type DoCheck,
-  type ElementRef,
-  ViewChild,
-} from '@angular/core'
+import { Component, type ElementRef, ViewChild } from '@angular/core'
 
+import {
+  MolPlacement,
+  setElementPresent,
+  type SlotReader,
+  usePlacement,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
-
-import { markPosition, syncPresence } from './projection.js'
 
 /**
  * PageHeader component.
@@ -36,6 +34,7 @@ import { markPosition, syncPresence } from './projection.js'
 @Component({
   selector: 'header[mol-page-header]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   inputs: ['emphasis', 'className', 'dataMolId'],
   host: {
     '[class]': 'classes()',
@@ -58,7 +57,7 @@ import { markPosition, syncPresence } from './projection.js'
     </div>
     <div #metaEl [class]="metaClasses()"><ng-content select="[slot=meta]"></ng-content></div>`,
 })
-export class PageHeader implements AfterViewInit, DoCheck {
+export class PageHeader {
   /** Title emphasis level (`'normal'` by default at read time). */
   emphasis?: 'normal' | 'extrabold'
   /** Extra classes on the outer wrapper. */
@@ -73,12 +72,9 @@ export class PageHeader implements AfterViewInit, DoCheck {
   /** The meta row (React renders it only while meta exists). */
   @ViewChild('metaEl') metaEl?: ElementRef<HTMLElement>
 
-  /** Where the subtitle paragraph belongs when it is detached. */
-  private subtitleMarker?: Comment
-  /** Where the action row belongs when it is detached. */
-  private actionsMarker?: Comment
-  /** Where the meta row belongs when it is detached. */
-  private metaMarker?: Comment
+  constructor() {
+    usePlacement((hasContent) => this.sync(hasContent))
+  }
 
   /**
    * The current class map.
@@ -148,26 +144,17 @@ export class PageHeader implements AfterViewInit, DoCheck {
   }
 
   /**
-   * Marks where each optional region belongs once the view exists.
+   * Withholds the optional regions React omits, and restores the ones with
+   * content.
+   *
+   * @param hasContent - Reads whether a slot has content.
    */
-  ngAfterViewInit(): void {
-    this.subtitleMarker = markPosition(this.subtitleEl?.nativeElement)
-    this.actionsMarker = markPosition(this.actionsEl?.nativeElement)
-    this.metaMarker = markPosition(this.metaEl?.nativeElement)
-    this.sync()
-  }
-
-  /**
-   * Keeps each optional region's presence in step with its projected content.
-   */
-  ngDoCheck(): void {
-    this.sync()
-  }
-
-  /** Detaches the optional regions React omits, and restores the ones with content. */
-  private sync(): void {
-    syncPresence(this.subtitleEl?.nativeElement, this.subtitleMarker)
-    syncPresence(this.actionsEl?.nativeElement, this.actionsMarker)
-    syncPresence(this.metaEl?.nativeElement, this.metaMarker)
+  private sync(hasContent: SlotReader): void {
+    const subtitle = this.subtitleEl?.nativeElement
+    setElementPresent(subtitle, hasContent(subtitle))
+    const actions = this.actionsEl?.nativeElement
+    setElementPresent(actions, hasContent(actions))
+    const meta = this.metaEl?.nativeElement
+    setElementPresent(meta, hasContent(meta))
   }
 }

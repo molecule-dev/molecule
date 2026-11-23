@@ -45,6 +45,7 @@ vi.mock('@molecule/app-ui', () => ({
   },
 }))
 
+import { provideDomPlacement } from '@molecule/app-angular'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 
 const {
@@ -63,10 +64,12 @@ const TEMPLATE = `<mol-bias-indicator [bias]="p['bias']" [reliability]="p['relia
 /** The host template with a projected source caption. */
 const TEMPLATE_WITH_SOURCE = `<mol-bias-indicator [bias]="p['bias']" [reliability]="p['reliability']" [compact]="p['compact']" [className]="p['className']" [dataMolId]="p['dataMolId']"><ng-container ngProjectAs="[slot=sourceLabel]">Reuters</ng-container></mol-bias-indicator>`
 
-/** A mounted spec host: its DOM and a teardown. */
+/** A mounted spec host: its DOM, a props setter, and a teardown. */
 interface Mounted {
   /** The host element whose children the component template produced. */
   readonly host: HTMLElement
+  /** Merges props over the current ones and flushes change detection. */
+  setProps(next: Record<string, unknown>): Promise<void>
   /** Destroys the app and removes the host. */
   destroy(): Promise<void>
 }
@@ -96,7 +99,7 @@ const mountIndicator = async (
     selector: 'mol-spec-host',
     standalone: true,
     imports: [BiasIndicator],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template,
   })(
     class SpecHost {
@@ -105,7 +108,7 @@ const mountIndicator = async (
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
     environmentInjector: appRef.injector,
@@ -116,6 +119,11 @@ const mountIndicator = async (
   appRef.tick()
   const entry: Mounted = {
     host,
+    setProps: async (next: Record<string, unknown>) => {
+      ref.instance.p = { ...ref.instance.p, ...next }
+      ref.changeDetectorRef.markForCheck()
+      appRef.tick()
+    },
     destroy: async () => {
       appRef.destroy()
       host.remove()
@@ -271,5 +279,51 @@ describe('<BiasIndicator>', () => {
   it('honors a custom dataMolId override', async () => {
     const { host } = await mountIndicator({ bias: 0, dataMolId: 'article-42-bias' })
     expect(host.querySelector('[data-mol-id="article-42-bias"]')).not.toBeNull()
+  })
+
+  it('keeps a consumer list in order when an item is inserted in the middle of sourceLabel', async () => {
+    const { host, setProps } = await mountIndicator(
+      { bias: 0, xs: ['a', 'c'] },
+      `<mol-bias-indicator [bias]="p['bias']"><ng-container ngProjectAs="[slot=sourceLabel]">@for (x of p['xs']; track x) {<b>{{ x }}</b>}</ng-container></mol-bias-indicator>`,
+    )
+    const labels = (): (string | null)[] =>
+      Array.from(host.querySelectorAll('[data-mol-id="bias-indicator-source"] b')).map(
+        (el) => el.textContent,
+      )
+    expect(labels()).toEqual(['a', 'c'])
+    await setProps({ xs: ['a', 'b', 'c'] })
+    expect(labels()).toEqual(['a', 'b', 'c'])
+    await setProps({ xs: ['a', 'c'] })
+    expect(labels()).toEqual(['a', 'c'])
+  })
+
+  it('shows and removes the source wrapper in the pass where the consumer @if adds and removes its content', async () => {
+    const { host, setProps } = await mountIndicator(
+      { bias: 0, on: false },
+      `<mol-bias-indicator [bias]="p['bias']">@if (p['on']) {<span slot="sourceLabel" data-source>Reuters</span>}</mol-bias-indicator>`,
+    )
+    const caption = (): HTMLElement | null =>
+      host.querySelector<HTMLElement>('[data-mol-id="bias-indicator-source"]')
+    // React: the caption renders only when `sourceLabel !== undefined`.
+    expect(caption()).toBeNull()
+    await setProps({ on: true })
+    expect(caption()!.querySelector('[data-source]')).not.toBeNull()
+    expect(caption()!.textContent).toBe('Reuters')
+    await setProps({ on: false })
+    expect(caption()).toBeNull()
+  })
+
+  it("renders React's elements with no host or capture element of its own", async () => {
+    const { host, setProps } = await mountIndicator(
+      { bias: 0, compact: false },
+      `<i>a</i><mol-bias-indicator [bias]="p['bias']" [compact]="p['compact']"></mol-bias-indicator><i>b</i>`,
+    )
+    const children = (): string[] =>
+      Array.from(host.children).map((child) => child.tagName.toLowerCase())
+    // The non-compact React root is a <div> standing in the (removed) host's place.
+    expect(children()).toEqual(['i', 'div', 'i'])
+    await setProps({ compact: true })
+    // The compact React root is a <span> standing in the host's place.
+    expect(children()).toEqual(['i', 'span', 'i'])
   })
 })

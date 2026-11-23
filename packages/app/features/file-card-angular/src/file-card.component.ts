@@ -4,12 +4,15 @@
  * @module
  */
 
-import type { AfterViewInit, DoCheck } from '@angular/core'
-import { Component, ElementRef, inject, Renderer2, ViewChild } from '@angular/core'
+import { Component, type ElementRef, ViewChild } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  setElementPresent,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import { getClassMap, type UIClassMap } from '@molecule/app-ui'
-import { hasNodes, SlotWrapper } from '@molecule/app-ui-angular'
 
 import { FileIcon } from './file-icon.component.js'
 import { relativeBucket, type SizeParts, sizeParts } from './format.js'
@@ -45,6 +48,7 @@ type TFn = (
 @Component({
   selector: 'div[mol-file-card]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [FileIcon],
   inputs: [
     'file',
@@ -72,7 +76,7 @@ type TFn = (
   // prettier-ignore
   template: `@if (layout === 'row') {<div [class]="iconClasses()" data-mol-id="file-card-icon">@if (file.thumbnail) {<img [src]="file.thumbnail" alt="" [style.width]="'40px'" [style.height]="'40px'" [style.objectFit]="'cover'" [style.borderRadius]="'4px'" />}@else {<svg mol-file-icon [kind]="file.kind" [size]="28" />}</div><div [class]="stackClasses()" [style.flex]="'1'" [style.minWidth]="'0'"><div [class]="nameClasses()" data-mol-id="file-card-name" [style.overflow]="'hidden'" [style.textOverflow]="'ellipsis'" [style.whiteSpace]="'nowrap'">{{ file.name }}</div>@if (hasMeta()) {<div [class]="metaClasses()" data-mol-id="file-card-meta">@if (sizeText()) {<span [attr.aria-label]="sizeLabel()" data-mol-id="file-card-size">{{ sizeText() }}</span>}@if (sizeText() && modifiedText()) {<span aria-hidden="true">·</span>}@if (modifiedText()) {<span [attr.aria-label]="modifiedLabel()" data-mol-id="file-card-modified">{{ modifiedText() }}</span>}</div>}</div>}@else {<div [class]="gridIconClasses()" data-mol-id="file-card-icon" [style.aspectRatio]="'1 / 1'" [style.width]="'100%'">@if (file.thumbnail) {<img [src]="file.thumbnail" alt="" [style.width]="'100%'" [style.height]="'100%'" [style.objectFit]="'cover'" [style.borderRadius]="'4px'" />}@else {<svg mol-file-icon [kind]="file.kind" [size]="48" />}</div><div [class]="nameClasses()" data-mol-id="file-card-name" [style.overflow]="'hidden'" [style.textOverflow]="'ellipsis'" [style.whiteSpace]="'nowrap'">{{ file.name }}</div>@if (hasMeta()) {<div [class]="metaClasses()" data-mol-id="file-card-meta">@if (sizeText()) {<span [attr.aria-label]="sizeLabel()" data-mol-id="file-card-size">{{ sizeText() }}</span>}@if (sizeText() && modifiedText()) {<span aria-hidden="true">·</span>}@if (modifiedText()) {<span [attr.aria-label]="modifiedLabel()" data-mol-id="file-card-modified">{{ modifiedText() }}</span>}</div>}}@if (onClick) {<button type="button" [attr.aria-label]="ariaLabel()" [attr.aria-pressed]="selected ? 'true' : 'false'" data-mol-id="file-card-select" [class]="selectClasses()" [style.background]="'transparent'" [style.border]="'none'" [style.padding]="'0'" (click)="handleClick($event)"></button>}<div [class]="actionsClasses()" data-mol-id="file-card-actions" #actionsSlot><ng-content select="[slot=actions]"></ng-content></div>`,
 })
-export class FileCard implements AfterViewInit, DoCheck {
+export class FileCard {
   /** The file to render (required, as in React's props). */
   file!: FileSummary
   /** Selected highlight state. */
@@ -93,14 +97,17 @@ export class FileCard implements AfterViewInit, DoCheck {
   /** The projected actions wrapper (always in the template; detached when unused). */
   @ViewChild('actionsSlot') actionsSlot?: ElementRef<HTMLDivElement>
 
-  private readonly sync = new SlotWrapper(inject(ElementRef), inject(Renderer2))
-  private hasActions = false
-
   /** The `t` function, captured in the injection context at construction. */
   private readonly t: TFn
 
+  /** Captures `t` and renders the actions wrapper only while its slot has content. */
   constructor() {
     this.t = useTranslation().t
+    // React's `{actions && <div>…}`: the wrapper renders only while a consumer projects actions.
+    usePlacement((hasContent) => {
+      const el = this.actionsSlot?.nativeElement
+      setElementPresent(el, el ? hasContent(el) : false)
+    })
   }
 
   /**
@@ -370,22 +377,5 @@ export class FileCard implements AfterViewInit, DoCheck {
    */
   handleContextMenu(event: MouseEvent): void {
     if (this.onContextMenu) this.onContextMenu(this.file, event)
-  }
-
-  /** Reads slot content presence once the projection is known. */
-  ngAfterViewInit(): void {
-    const el = this.actionsSlot?.nativeElement
-    this.hasActions = el ? hasNodes(el) : false
-    this.syncWrappers()
-  }
-
-  /** Re-reconciles the wrapper when layout or projection changes. */
-  ngDoCheck(): void {
-    this.syncWrappers()
-  }
-
-  /** Applies React's `{actions && <div>…}` wrapper condition. */
-  private syncWrappers(): void {
-    this.sync.sync(this.actionsSlot?.nativeElement, this.hasActions)
   }
 }

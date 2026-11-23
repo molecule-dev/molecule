@@ -9,6 +9,7 @@
 import '@angular/compiler'
 import {
   type ApplicationRef,
+  ChangeDetectionStrategy,
   Component,
   createComponent,
   provideZonelessChangeDetection,
@@ -73,6 +74,7 @@ async function mount<R>(use: () => R): Promise<Mounted<R>> {
   })
   let value!: R
   const Host = Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
     selector: `mol-client-search-host-${++hostCount}`,
     standalone: true,
     template: '',

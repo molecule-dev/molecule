@@ -48,7 +48,7 @@ vi.mock('@molecule/app-ui', () => ({
 }))
 
 const { StorefrontTopNav } = await import('../storefront-top-nav.component.js')
-const { provideRouter } = await import('@molecule/app-angular')
+const { provideDomPlacement, provideRouter } = await import('@molecule/app-angular')
 
 /** What a mount hands back to the test. */
 interface Mounted {
@@ -56,6 +56,8 @@ interface Mounted {
   host: HTMLElement
   /** The running application (change detection is manual). */
   appRef: ApplicationRef
+  /** Merges props over the current ones and flushes change detection. */
+  set(next: Record<string, unknown>): void
   /** Destroys the app and removes the host. */
   destroy(): void
 }
@@ -90,7 +92,7 @@ async function mount(
     selector: 'mol-spec-host',
     standalone: true,
     imports: [component],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template,
   })(
     class SpecHost {
@@ -101,6 +103,7 @@ async function mount(
   const appRef: ApplicationRef = await createApplication({
     providers: [
       provideZonelessChangeDetection(),
+      provideDomPlacement(),
       provideRouter(createMemoryRouter({ initialEntries: ['/'] })),
     ],
   })
@@ -114,6 +117,11 @@ async function mount(
   return {
     host,
     appRef,
+    set: (next: Record<string, unknown>) => {
+      ref.instance.p = { ...ref.instance.p, ...next }
+      ref.changeDetectorRef.markForCheck()
+      appRef.tick()
+    },
     destroy: () => {
       appRef.destroy()
       host.remove()
@@ -218,5 +226,26 @@ describe('StorefrontTopNav account/sign-in menu reachability', () => {
     click(m, '[data-mol-id="profile-trigger-01"]')
     expect(m.host.textContent).toContain('My Account')
     expect(m.host.querySelector('[data-mol-id="profile-link-signout"]')).not.toBeNull()
+  })
+
+  it("renders React's elements with no host or capture element of its own", async () => {
+    const m = await mount(
+      `<i>a</i><header mol-storefront-top-nav [brand]="p['brand']">@if (p['on']) {<b slot="brand" data-brand>Brand</b>}</header><i>b</i>`,
+      StorefrontTopNav as Type<unknown>,
+      { brand: undefined, on: false },
+    )
+    mounted.push(m)
+    const tags = (): string[] => Array.from(m.host.children).map((el) => el.tagName.toLowerCase())
+    const brandLink = (): HTMLAnchorElement =>
+      m.host.querySelector('a[data-mol-id="brand-logo-01"]') as HTMLAnchorElement
+    // The host IS React's <header>; the brand capture span never reaches the page.
+    expect(tags()).toEqual(['i', 'header', 'i'])
+    expect(brandLink().querySelector('span')).toBeNull()
+    expect(brandLink().querySelector('[data-brand]')).toBeNull()
+    // Projected brand content renders bare inside the brand link.
+    m.set({ on: true })
+    expect(tags()).toEqual(['i', 'header', 'i'])
+    expect(brandLink().querySelector('[data-brand]')).not.toBeNull()
+    expect(brandLink().querySelector('span')).toBeNull()
   })
 })

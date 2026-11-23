@@ -14,9 +14,10 @@
  * leaked predecessor still fires (React's exact timer handling, kept per tab
  * path — React holds one per tab instance, and a path is one instance).
  *
- * The host element is a `div` shell marked `data-parity-unwrap` (React
- * renders NO element at all while no tabs are open, so the real bar `div` is
- * the template's child, exactly the internal group/row components' pattern).
+ * React renders NO element at all while no tabs are open, and the real bar
+ * `div` otherwise, so that `div` renders in front of the host
+ * (`placeElementBefore`) and the host leaves the DOM: the rendered tree is
+ * React's, with no shell element of its own.
  * Each tab is a `role="presentation"` wrapper holding the `role="tab"` (its
  * ARIA state and the Enter/Space/Delete keyboard path) beside the close
  * control: a tab's children are presentational (`nested-interactive`), and a
@@ -45,7 +46,15 @@
 import { Component, ElementRef, inject, ViewChild } from '@angular/core'
 import { getIcon } from 'material-file-icons'
 
-import { useThemeMode, useTranslation, type UseTranslationResult } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  placeElementBefore,
+  setElementPresent,
+  usePlacement,
+  useThemeMode,
+  useTranslation,
+  type UseTranslationResult,
+} from '@molecule/app-angular'
 import type { EditorTab } from '@molecule/app-code-editor'
 import type { TabBarProps } from '@molecule/app-ide-panel-logic'
 import type { UIClassMap } from '@molecule/app-ui'
@@ -194,12 +203,9 @@ const STYLES = {
     'fileStatuses',
     'className',
   ],
-  host: {
-    'data-parity-unwrap': '',
-    style: 'display: contents',
-  },
+  hostDirectives: [MolPlacement],
   // prettier-ignore
-  template: `@if (tabs.length > 0) {<div [class]="rootClass()"><div #scroll role="tablist" [class]="cm.flex({ direction: 'row', align: 'center' })" [attr.style]="scrollStyle()">@for (tab of tabs; track tab.path) {<div role="presentation" (click)="handleClick(tab)" (dblclick)="handleDoubleClick(tab)" (mouseover)="tabOver(tab, $event)" (mouseout)="tabOut(tab, $event)" (focusin)="tabFocusIn(tab)" (focusout)="tabFocusOut(tab, $event)" [attr.style]="tabStyle()" [class]="tabClass(tab)"><div role="tab" [attr.title]="tab.path" tabindex="0" [attr.aria-selected]="tab.path === activeFile ? 'true' : 'false'" aria-keyshortcuts="Delete" (keydown)="handleKeyDown(tab, $event)" [class]="tabInnerClass()"><span mol-tab-file-icon [fileName]="fileNameOf(tab)" [attr.style]="s.icon"></span><span [attr.style]="nameStyle(tab)">{{ fileNameOf(tab) }}@if (tab.isDirty) {<span [class]="cm.textWarning">{{ ' •' }}</span>}</span></div><button type="button" data-mol-id="tab-close" tabindex="-1" aria-hidden="true" (click)="closeClick(tab, $event)" (mouseover)="closeOver(tab, $event)" (mouseout)="closeOut(tab, $event)" (focusin)="closeFocusIn(tab)" (focusout)="closeFocusOut(tab)" [class]="closeClass()" [attr.style]="closeStyle(tab)" [attr.aria-label]="closeLabel(tab)"><svg width="10" height="10" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 3l10 10M13 3L3 13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"></path></svg></button></div>}</div></div>}`,
+  template: `@if (tabs.length > 0) {<div #root [class]="rootClass()"><div #scroll role="tablist" [class]="cm.flex({ direction: 'row', align: 'center' })" [attr.style]="scrollStyle()">@for (tab of tabs; track tab.path) {<div role="presentation" (click)="handleClick(tab)" (dblclick)="handleDoubleClick(tab)" (mouseover)="tabOver(tab, $event)" (mouseout)="tabOut(tab, $event)" (focusin)="tabFocusIn(tab)" (focusout)="tabFocusOut(tab, $event)" [attr.style]="tabStyle()" [class]="tabClass(tab)"><div role="tab" [attr.title]="tab.path" tabindex="0" [attr.aria-selected]="tab.path === activeFile ? 'true' : 'false'" aria-keyshortcuts="Delete" (keydown)="handleKeyDown(tab, $event)" [class]="tabInnerClass()"><span mol-tab-file-icon [fileName]="fileNameOf(tab)" [attr.style]="s.icon"></span><span [attr.style]="nameStyle(tab)">{{ fileNameOf(tab) }}@if (tab.isDirty) {<span [class]="cm.textWarning">{{ ' •' }}</span>}</span></div><button type="button" data-mol-id="tab-close" tabindex="-1" aria-hidden="true" (click)="closeClick(tab, $event)" (mouseover)="closeOver(tab, $event)" (mouseout)="closeOut(tab, $event)" (focusin)="closeFocusIn(tab)" (focusout)="closeFocusOut(tab)" [class]="closeClass()" [attr.style]="closeStyle(tab)" [attr.aria-label]="closeLabel(tab)"><svg width="10" height="10" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 3l10 10M13 3L3 13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"></path></svg></button></div>}</div></div>}`,
 })
 export class TabBar {
   /** The open editor tabs. */
@@ -244,7 +250,10 @@ export class TabBar {
   /** The scrollable tab strip (the active tab scrolls into view within it). */
   @ViewChild('scroll') protected scroll?: ElementRef<HTMLDivElement>
 
-  /** The shell host element (its content is adopted beside it — see {@link ngDoCheck}). */
+  /** The bar element React renders (present only while tabs are open). */
+  @ViewChild('root') private root?: ElementRef<HTMLElement>
+
+  /** The component's own host element, which React does not render. */
   private readonly shell: ElementRef<HTMLElement> = inject(ElementRef)
 
   /** Whether the pointer is over a tab (the close control reveals for it). */
@@ -270,19 +279,27 @@ export class TabBar {
   /** The pending diff-tab single clicks, per tab path (React's `clickTimerRef`). */
   private readonly clickTimers = new Map<string, ReturnType<typeof setTimeout> | null>()
 
+  constructor() {
+    usePlacement(() => this.place())
+  }
+
   /**
-   * Adopts the bar beside the shell host (so the shell never appears in a
-   * `@focus` path — React renders no element of its own around the bar, and
-   * the DOM normalizer unwraps the shell either way), then follows the active
-   * tab into view when the active file moved (React's scroll effect). Runs on
-   * every change-detection pass, before the template re-reads its bindings.
+   * Renders the bar in front of the shell host and keeps the host out of the DOM
+   * (React renders no element of its own around the bar, and nothing at all
+   * while no tabs are open).
+   */
+  private place(): void {
+    const root = this.root?.nativeElement
+    if (root) placeElementBefore(root, this.shell.nativeElement)
+    setElementPresent(this.shell.nativeElement, false)
+  }
+
+  /**
+   * Follows the active tab into view when the active file moved (React's
+   * scroll effect). Runs on every change-detection pass, before the template
+   * re-reads its bindings.
    */
   ngDoCheck(): void {
-    const host = this.shell.nativeElement
-    const parent = host.parentNode
-    if (parent) {
-      for (const node of Array.from(host.childNodes)) parent.insertBefore(node, host)
-    }
     if (!this.scroll || !this.activeFile) return
     const tab = this.scroll.nativeElement.querySelector(
       '[aria-selected="true"]',

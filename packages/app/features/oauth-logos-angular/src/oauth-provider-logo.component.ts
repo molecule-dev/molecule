@@ -1,4 +1,11 @@
-import { Component } from '@angular/core'
+import { Component, ElementRef, inject } from '@angular/core'
+
+import {
+  MolPlacement,
+  placeContentBefore,
+  setElementPresent,
+  usePlacement,
+} from '@molecule/app-angular'
 
 import { AppleLogo } from './apple-logo.component.js'
 import { DiscordLogo } from './discord-logo.component.js'
@@ -35,14 +42,15 @@ export interface OAuthProviderLogoProps extends OAuthLogoProps {
  * across every consumer.
  *
  * React's root is a fragment (the dispatched logo, the fallback, or
- * nothing), so the host is unwrapped (`data-parity-unwrap`,
- * `display: contents`) and contributes no DOM of its own. An unknown
+ * nothing), so everything the host holds renders in the host's place and the
+ * host itself leaves the page: no element of its own remains. An unknown
  * provider renders nothing unless `[slot=fallback]` content is
  * projected (React's `fallback` prop).
  */
 @Component({
   selector: 'mol-oauth-provider-logo',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [
     AppleLogo,
     DiscordLogo,
@@ -55,10 +63,6 @@ export interface OAuthProviderLogoProps extends OAuthLogoProps {
     TwitterLogo,
   ],
   inputs: ['provider', 'size', 'className', 'mode', 'ariaLabel', 'title'],
-  host: {
-    'data-parity-unwrap': '',
-    style: 'display: contents',
-  },
   template: `@switch (provider) {
     @case ('github') {
       <svg
@@ -174,4 +178,15 @@ export class OAuthProviderLogo {
   ariaLabel?: string
   /** Forwarded to the dispatched logo: optional `<title>` text. */
   title?: string
+
+  private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
+
+  constructor() {
+    // React's root is a fragment: the dispatched logo (or the fallback content)
+    // renders in the host's place, with nothing of the host left behind.
+    usePlacement(() => {
+      placeContentBefore(this.host.nativeElement, this.host.nativeElement)
+      setElementPresent(this.host.nativeElement, false)
+    })
+  }
 }

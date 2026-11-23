@@ -23,6 +23,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
 // `stack`), so tests can assert which cm.* class was applied without a real
 // bond — the same mock the React package's own tests use.
@@ -63,6 +65,7 @@ vi.mock('@molecule/app-ui-angular', async () => {
   return {
     ...actual,
     Button: Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'button[mol-button]',
       standalone: true,
       inputs: ['variant', 'color', 'size', 'loading', 'disabled', 'type', 'className'],
@@ -83,6 +86,8 @@ const { QuizCard } = await import('../quiz-card.component.js')
 interface Mounted {
   /** The host element whose children the component template produced. */
   readonly host: HTMLElement
+  /** Merges props into the host and re-renders. */
+  setProps(next: Record<string, unknown>): void
   /** Destroys the app and removes the host. */
   destroy(): Promise<void>
 }
@@ -105,7 +110,7 @@ async function mount(
     selector: 'mol-spec-host',
     standalone: true,
     imports: [component],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template,
   })(
     class SpecHost {
@@ -114,7 +119,7 @@ async function mount(
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
     environmentInjector: appRef.injector,
@@ -122,12 +127,14 @@ async function mount(
   const host = ref.location.nativeElement as HTMLElement
   document.body.appendChild(host)
   appRef.attachView(ref.hostView)
-  // The second tick applies the first view's withdrawals (the progress span
-  // and the explanation paragraph render optimistically).
-  appRef.tick()
   appRef.tick()
   return {
     host,
+    setProps: (next) => {
+      ref.instance.p = { ...ref.instance.p, ...next }
+      ref.changeDetectorRef.markForCheck()
+      appRef.tick()
+    },
     destroy: async () => {
       appRef.destroy()
       host.remove()
@@ -206,6 +213,43 @@ describe('QuizCard', () => {
       '<span slot="explanation">Paris is the capital.</span>',
     )
     expect(m.host.innerHTML).not.toContain('Paris is the capital.')
+  })
+
+  it('renders the progress span for progress a consumer projects after the first render, and drops it again', async () => {
+    const m = await render(
+      { question: 'Q', options },
+      `@if (p['late']) {<b slot="progress" data-late-progress>3 / 10</b>}`,
+    )
+    const header = m.host.querySelector('header')!
+    expect(header.querySelector('span')).toBeNull()
+    m.setProps({ late: true })
+    expect(header.firstElementChild?.tagName).toBe('SPAN')
+    expect(header.firstElementChild).not.toBeNull()
+    expect(header.firstElementChild!.querySelector('[data-late-progress]')).not.toBeNull()
+    m.setProps({ late: false })
+    expect(header.querySelector('span')).toBeNull()
+  })
+
+  it('reveals an explanation a consumer projects after the first render, once submitted', async () => {
+    const m = await render(
+      { question: 'Q', options },
+      `@if (p['late']) {<span slot="explanation">Paris is the capital.</span>}`,
+    )
+    const choice = Array.from(m.host.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Paris'),
+    )!
+    choice.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    m.setProps({})
+    const submit = Array.from(m.host.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Submit answer'),
+    )!
+    submit.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    m.setProps({})
+    expect(m.host.querySelector('p')).toBeNull()
+    m.setProps({ late: true })
+    expect(m.host.querySelector('p')?.textContent).toBe('Paris is the capital.')
+    m.setProps({ late: false })
+    expect(m.host.querySelector('p')).toBeNull()
   })
 
   it('forwards className onto the Card', async () => {

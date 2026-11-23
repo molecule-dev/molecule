@@ -5,47 +5,53 @@
  * @module
  */
 
-import {
-  type AfterViewInit,
-  Component,
-  type DoCheck,
-  type ElementRef,
-  ViewChild,
-} from '@angular/core'
+import { Component, ElementRef, inject, ViewChild } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  placeContent,
+  placeElementBefore,
+  setElementPresent,
+  type SlotReader,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { SpacingScale, UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 import { LegalPageLayout } from './legal-page-layout.component.js'
-import { hasNodes } from './slot-dom.js'
 
 /**
  * PrivacyPage component.
  *
  * Default Privacy-policy page scaffold: the canonical boilerplate Privacy page,
  * or the projected body when the app supplies one. React's root is the layout's
- * `<main>`, so the host is unwrapped (`data-parity-unwrap`,
- * `display: contents`) and renders exactly React's `<main>`; the heading is
- * projected into `LegalPageLayout`'s `[slot=title]`.
+ * `<main>`, so that `<main>` renders immediately before the host's place and
+ * the host itself never appears in the page; the heading is projected into
+ * `LegalPageLayout`'s `[slot=title]`.
  *
  * React renders the boilerplate intro paragraph only when no children were
  * passed and the projected body otherwise, so both capture points exist and
- * {@link PrivacyPage.ngDoCheck} keeps whichever React would have rendered.
+ * {@link PrivacyPage.syncBody} keeps whichever React would have rendered.
  */
 @Component({
   selector: 'mol-privacy-page',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [LegalPageLayout],
   inputs: ['titleKey', 'titleDefault', 'introKey', 'introDefault', 'stackGap'],
-  host: { 'data-parity-unwrap': '', style: 'display: contents' },
-  template: `<main mol-legal-page-layout [dataMolId]="'page-privacy'" [stackGap]="stackGap">
+  template: `<main
+    #pageMain
+    mol-legal-page-layout
+    [dataMolId]="'page-privacy'"
+    [stackGap]="stackGap"
+  >
     <ng-container ngProjectAs="[slot=title]">{{ titleText() }}</ng-container>
     <p #introEl>{{ introText() }}</p>
     <span #contentSlot><ng-content></ng-content></span>
   </main>`,
 })
-export class PrivacyPage implements AfterViewInit, DoCheck {
+export class PrivacyPage {
   /** i18n key for the page heading (defaults to `privacy.title` at read time). */
   titleKey?: string
   /** Default for the heading when the key is missing (defaults to `Privacy`). */
@@ -61,12 +67,29 @@ export class PrivacyPage implements AfterViewInit, DoCheck {
   @ViewChild('introEl') private introEl?: ElementRef<HTMLElement>
   /** The projected body's capture point. */
   @ViewChild('contentSlot') private contentSlot?: ElementRef<HTMLElement>
+  /** The layout `<main>` (React's root, rendered beside the host). */
+  @ViewChild('pageMain', { read: ElementRef }) private pageMain?: ElementRef<HTMLElement>
 
-  /** Whether the body received projected content (read at view init). */
-  private hasContent = false
+  /** Which body form renders last (null until the first pass). */
+  private bodyMode: 'intro' | 'content' | null = null
+  /** Where the body renders (kept once seen: a detached capture point has no parent). */
+  private bodyParent: HTMLElement | null = null
 
   /** The reactive i18n binding, read in the injection context. */
   private readonly i18n = useTranslation()
+
+  private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
+
+  constructor() {
+    usePlacement((hasContent) => {
+      const main = this.pageMain?.nativeElement
+      if (!main) return
+      // React's root is the layout's <main>; the host itself leaves the page.
+      placeElementBefore(main, this.host.nativeElement)
+      setElementPresent(this.host.nativeElement, false)
+      this.syncBody(hasContent)
+    })
+  }
 
   /**
    * The current class map.
@@ -106,34 +129,33 @@ export class PrivacyPage implements AfterViewInit, DoCheck {
     )
   }
 
-  /** Reads whether the body received projected content and applies the layout. */
-  ngAfterViewInit(): void {
-    this.hasContent = hasNodes(this.contentSlot?.nativeElement)
-    this.syncBody()
-  }
-
-  /** Re-applies the body layout after projected-content changes. */
-  ngDoCheck(): void {
-    this.syncBody()
-  }
-
   /**
    * React's `{children ?? <p>{intro}</p>}`: keeps the intro paragraph when
-   * nothing was projected, and unwraps the projected body into its place when
-   * something was.
+   * nothing was projected, and renders the projected body unwrapped in its
+   * place when something was.
+   *
+   * @param hasContent - Reads whether a slot has content.
    */
-  private syncBody(): void {
+  private syncBody(hasContent: SlotReader): void {
     const intro = this.introEl?.nativeElement
     const slot = this.contentSlot?.nativeElement
-    const parent = slot?.parentNode
-    if (!intro || !slot || !parent) return
-    if (!this.hasContent) {
-      if (slot.isConnected) parent.removeChild(slot)
-      return
+    if (!intro || !slot) return
+    const live = (slot.parentNode ?? intro.parentNode) as HTMLElement | null
+    if (live !== null) this.bodyParent = live
+    const parent = this.bodyParent
+    if (!parent) return
+    const next: 'intro' | 'content' = hasContent(slot) ? 'content' : 'intro'
+    if (next === this.bodyMode) return
+    if (next === 'content') {
+      setElementPresent(intro, false)
+      setElementPresent(slot, true)
+      placeContent(slot, parent, slot)
+      setElementPresent(slot, false)
+    } else {
+      placeContent(slot, null)
+      setElementPresent(slot, false)
+      setElementPresent(intro, true)
     }
-    if (intro.isConnected) parent.removeChild(intro)
-    if (!slot.isConnected) return
-    while (slot.firstChild) parent.insertBefore(slot.firstChild, slot)
-    parent.removeChild(slot)
+    this.bodyMode = next
   }
 }

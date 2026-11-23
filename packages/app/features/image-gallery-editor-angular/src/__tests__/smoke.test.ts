@@ -59,7 +59,7 @@ vi.mock('@molecule/app-ui-angular', async () => {
   const core = await import('@angular/core')
   const actual = await vi.importActual<Record<string, unknown>>('@molecule/app-ui-angular')
   const IconStub = core.Component({
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     selector: 'svg[mol-icon-root]',
     standalone: true,
     inputs: ['name', 'size', 'className'],
@@ -122,7 +122,7 @@ async function mount(props: Record<string, unknown>): Promise<Mounted> {
     selector: 'mol-spec-host',
     standalone: true,
     imports: [ImageGalleryEditor as Type<unknown>],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: `<section mol-image-gallery-editor [slots]="p['slots'] ?? [null]" [onPickFiles]="p['onPickFiles']" [maxImages]="p['maxImages']" [header]="p['header']" [counter]="p['counter']" [dropZoneTitle]="p['dropZoneTitle']" [dropZoneHint]="p['dropZoneHint']" [confirmRemoveMessage]="p['confirmRemoveMessage']" [statusMessage]="p['statusMessage']" [emptySlotIcon]="p['emptySlotIcon']" (change)="p['onChange'] && p['onChange']($event)"></section>`,
   })(
     class SpecHost {

@@ -32,7 +32,7 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeAll, describe, expect, it } from 'vitest'
 
-import { provideTheme } from '@molecule/app-angular'
+import { provideDomPlacement, provideTheme } from '@molecule/app-angular'
 import type { TranslateFunction } from '@molecule/app-i18n'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 import { normalizeAskUserInput, toolLabel } from '@molecule/app-ide-panel-logic/panels'
@@ -104,7 +104,7 @@ const ToolCallCardHost = Component({
   selector: 'mol-malformed-card-host',
   standalone: true,
   imports: [ToolCallCard],
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `<div mol-tool-call-card [id]="p['id']" [name]="p['name']" [input]="p['input']" [output]="p['output']" [status]="p['status']"></div>`,
 })(
   class ToolCallCardHost {
@@ -150,6 +150,7 @@ async function renderCard(props: Record<string, unknown>): Promise<HTMLElement> 
   const appRef: ApplicationRef = await createApplication({
     providers: [
       provideZonelessChangeDetection(),
+      provideDomPlacement(),
       provideTheme(buildThemeProvider()),
       { provide: ErrorHandler, useValue: recorder },
     ],
@@ -355,14 +356,16 @@ describe('normalizeAskUserInput', () => {
       options: [],
       planReview: { path: 'p.md', steps: 2, preview: [] },
     })
-    expect(absent.planReview?.goesLive).toBeUndefined()
+    expect(absent.planReview).toBeDefined()
+    expect(absent.planReview!.goesLive).toBeUndefined()
     // A model sending junk where a boolean is declared degrades to "not stated".
     const junk = normalizeAskUserInput({
       question: 'q',
       options: [],
       planReview: { path: 'p.md', steps: 2, preview: [], goesLive: 'yes' },
     })
-    expect(junk.planReview?.goesLive).toBeUndefined()
+    expect(junk.planReview).toBeDefined()
+    expect(junk.planReview!.goesLive).toBeUndefined()
   })
 })
 

@@ -25,6 +25,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 const { mockUseAuth, mockUseVerifyPaymentReturn } = vi.hoisted(() => ({
   mockUseAuth: vi.fn(),
   mockUseVerifyPaymentReturn: vi.fn(),
@@ -89,18 +91,21 @@ vi.mock('@molecule/app-ui-angular', async () => {
   const { Component } = await import('@angular/core')
   return {
     Button: Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'button[mol-button]',
       standalone: true,
       inputs: ['variant', 'color', 'size', 'loading', 'loadingText', 'fullWidth', 'className'],
       template: `<ng-content></ng-content>`,
     })(class MockButton {}),
     Flex: Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'div[mol-flex]',
       standalone: true,
       inputs: ['direction', 'justify', 'align', 'wrap', 'gap', 'className'],
       template: `<ng-content></ng-content>`,
     })(class MockFlex {}),
     Icon: Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'svg[mol-icon-root]',
       standalone: true,
       inputs: ['name', 'size', 'className', 'ariaHidden: aria-hidden'],
@@ -108,6 +113,7 @@ vi.mock('@molecule/app-ui-angular', async () => {
       template: '',
     })(class MockIcon {}),
     Spinner: Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'div[mol-spinner]',
       standalone: true,
       inputs: ['size', 'color', 'label', 'className'],
@@ -119,12 +125,14 @@ vi.mock('@molecule/app-ui-angular', async () => {
 
 const { PlanUpdated } = await import('../plan-updated.component.js')
 
-/** A mounted spec host: its DOM, a props setter, and a teardown. */
+/** A mounted spec host: its DOM, a props setter, a tick, and a teardown. */
 interface Mounted {
   /** The host element whose children the component template produced. */
   readonly host: HTMLElement
   /** Merges props over the current ones and flushes change detection. */
   setProps(next: Record<string, unknown>): Promise<void>
+  /** Runs one change-detection pass. */
+  tick(): void
   /** Destroys the app and removes the host. */
   destroy(): Promise<void>
 }
@@ -137,15 +145,16 @@ const TEMPLATE = `<mol-plan-updated [messageKey]="p['messageKey']" [messageDefau
  * app would write it.
  *
  * @param props - The props the template binds.
+ * @param template - The host template (defaults to the full-props template).
  * @returns The mounted host.
  */
-async function mount(props: Record<string, unknown> = {}): Promise<Mounted> {
+async function mount(props: Record<string, unknown> = {}, template = TEMPLATE): Promise<Mounted> {
   const Host = Component({
     selector: 'mol-spec-host',
     standalone: true,
     imports: [PlanUpdated as Type<unknown>],
-    changeDetection: ChangeDetectionStrategy.Default,
-    template: TEMPLATE,
+    changeDetection: ChangeDetectionStrategy.Eager,
+    template,
   })(
     class SpecHost {
       /** The props the template binds. */
@@ -153,7 +162,7 @@ async function mount(props: Record<string, unknown> = {}): Promise<Mounted> {
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
     environmentInjector: appRef.injector,
@@ -169,6 +178,7 @@ async function mount(props: Record<string, unknown> = {}): Promise<Mounted> {
       ref.changeDetectorRef.markForCheck()
       appRef.tick()
     },
+    tick: () => appRef.tick(),
     destroy: async () => {
       appRef.destroy()
       host.remove()
@@ -240,5 +250,21 @@ describe('PlanUpdated', () => {
     expect(mockUseVerifyPaymentReturn).toHaveBeenCalledWith(
       expect.objectContaining({ enabled: false }),
     )
+  })
+
+  it("renders React's elements with no host or capture element of its own", async () => {
+    // A writable state the page's waiting branch reads, so the root can switch
+    // from the confirmation section to the spinner in the same mount.
+    const authState = signal({ initialized: true })
+    mockUseAuth.mockReturnValue({ state: authState })
+    const m = await mount({}, `<i>a</i><mol-plan-updated></mol-plan-updated><i>b</i>`)
+    mounted.push(m)
+    const children = (): string[] =>
+      Array.from(m.host.children).map((child) => child.tagName.toLowerCase())
+    expect(children()).toEqual(['i', 'section', 'i'])
+    // The session finishing hydration swaps React's spinner root in, in place.
+    authState.set({ initialized: false })
+    m.tick()
+    expect(children()).toEqual(['i', 'div', 'i'])
   })
 })

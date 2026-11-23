@@ -25,6 +25,7 @@ import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type * as AngularBinding from '@molecule/app-angular'
+import { provideDomPlacement } from '@molecule/app-angular'
 import type { I18nProvider } from '@molecule/app-i18n'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 
@@ -78,6 +79,7 @@ vi.mock('@molecule/app-angular', async (importOriginal) => {
     },
   )
   const RoutedView = Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
     selector: 'mol-routed-view',
     standalone: true,
     template: '<div data-outlet=""></div>',
@@ -139,7 +141,7 @@ describe('TopNavLayout locale switch', () => {
       selector: 'mol-spec-host',
       standalone: true,
       imports: [TopNavLayout as Type<unknown>],
-      changeDetection: ChangeDetectionStrategy.Default,
+      changeDetection: ChangeDetectionStrategy.Eager,
       template: `<div mol-top-nav-layout [appName]="p['appName']" [navItems]="p['navItems']"></div>`,
     })(
       class SpecHost {
@@ -148,7 +150,7 @@ describe('TopNavLayout locale switch', () => {
       },
     )
     const appRef: ApplicationRef = await createApplication({
-      providers: [provideZonelessChangeDetection()],
+      providers: [provideZonelessChangeDetection(), provideDomPlacement()],
     })
     const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
       environmentInjector: appRef.injector,

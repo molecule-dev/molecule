@@ -5,18 +5,18 @@
  */
 
 import { NgTemplateOutlet } from '@angular/common'
-import {
-  afterEveryRender,
-  type AfterViewInit,
-  Component,
-  ElementRef,
-  inject,
-  Renderer2,
-  signal,
-  type TemplateRef,
-} from '@angular/core'
+import { Component, ElementRef, inject, signal, type TemplateRef } from '@angular/core'
 
-import { I18N_PROVIDER, Link, THEME_PROVIDER } from '@molecule/app-angular'
+import {
+  I18N_PROVIDER,
+  Link,
+  MolPlacement,
+  placeContentBefore,
+  setElementPresent,
+  type SlotReader,
+  THEME_PROVIDER,
+  usePlacement,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { asTemplate, Flex, nodeText, ThemeToggle } from '@molecule/app-ui-angular'
@@ -30,20 +30,6 @@ interface NavLinkEntry {
   readonly to: string
   /** The destination's link props. */
   readonly link: AppHeaderNavigation['links'][string]
-}
-
-/**
- * Whether an ng-content wrapper captured any element or text node.
- *
- * @param el - The wrapper element.
- * @returns True when at least one projected node exists.
- */
-const hasNodes = (el: Element): boolean => {
-  for (const node of Array.from(el.childNodes)) {
-    if (node.nodeType === 1) return true
-    if (node.nodeType === 3 && (node.textContent ?? '').trim()) return true
-  }
-  return false
 }
 
 /**
@@ -73,6 +59,7 @@ const hasNodes = (el: Element): boolean => {
 @Component({
   selector: 'header[mol-app-header]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [Flex, Link, NavLinkAttributes, NgTemplateOutlet, ThemeToggle],
   inputs: [
     'appName',
@@ -137,7 +124,7 @@ const hasNodes = (el: Element): boolean => {
       </div>
     </ng-template>`,
 })
-export class AppHeader implements AfterViewInit {
+export class AppHeader {
   /** Brand display name shown next to the logo. */
   appName = ''
   /** Logo image source (defaults to `/logo.svg` at read time). */
@@ -174,18 +161,19 @@ export class AppHeader implements AfterViewInit {
   /** The i18n provider above the header, or null — React's `useContext(I18nContext)` probe. */
   private readonly i18nProvider = inject(I18N_PROVIDER, { optional: true })
 
-  private readonly renderer = inject(Renderer2)
-
-  /** Each capture span's anchor comment (marks the slot's position in the DOM). */
-  private readonly anchors = new Map<HTMLSpanElement, Comment>()
-
   /** Whether each slot carries projected nodes (drives the default toggle's `@if`). */
   private readonly slots = signal({ toggle: false, extra: false, menu: false })
 
+  /**
+   * The rendered capture spans, kept once a span leaves the DOM so content that
+   * arrives later is still read and placed.
+   */
+  private readonly spans = new Map<string, HTMLSpanElement>()
+
   constructor() {
-    // A navigation change recreates the outlet view (and its capture spans), so
-    // the slots are re-established after every render, not only at view init.
-    afterEveryRender(() => this.syncSlots())
+    // The placement runs after a navigation change recreates the outlet view
+    // (and its capture spans), so the slots are re-established then too.
+    usePlacement((hasContent) => this.syncSlots(hasContent))
   }
 
   /**
@@ -319,32 +307,23 @@ export class AppHeader implements AfterViewInit {
   }
 
   /**
-   * Reads slot presence (the rendered capture spans resolve only at view init:
-   * they live in the shared `<ng-template>`'s outlet view), moves every slot's
-   * projected nodes to its position and leaves the capture spans out of the
-   * DOM — React renders the slots bare.
+   * Places every slot's projected content at its position and records which
+   * slots carry content. Idempotent: once a capture span has been taken out of
+   * the DOM it is no longer found there, so its kept reference is used instead.
+   *
+   * @param hasContent - Reads whether a slot has content.
    */
-  ngAfterViewInit(): void {
-    this.syncSlots()
-  }
-
-  /**
-   * Moves every slot's projected nodes to its position and records which slots
-   * carry content. Idempotent: once a capture span has been relocated it is
-   * gone from the DOM, so a render that does not recreate the outlet view
-   * costs one query with no writes.
-   */
-  private syncSlots(): void {
+  private syncSlots(hasContent: SlotReader): void {
     const spans = this.captureSpans()
     if (spans.size === 0) return
     const toggle = spans.get('themeToggle')
     const extra = spans.get('extraActions')
     const menu = spans.get('userMenu')
-    // Read presence BEFORE relocating: relocate() moves the projected nodes out.
+    // Read presence BEFORE relocating: the placement moves the projected nodes out.
     const state = {
-      toggle: toggle ? hasNodes(toggle) : false,
-      extra: extra ? hasNodes(extra) : false,
-      menu: menu ? hasNodes(menu) : false,
+      toggle: toggle ? hasContent(toggle) : false,
+      extra: extra ? hasContent(extra) : false,
+      menu: menu ? hasContent(menu) : false,
     }
     for (const span of [toggle, extra, menu]) {
       if (span) this.relocate(span)
@@ -360,57 +339,35 @@ export class AppHeader implements AfterViewInit {
   }
 
   /**
-   * The rendered capture spans, keyed by slot name. They are found through the
-   * host element's DOM because a template query cannot reach a view the
-   * `<ng-template>` outlet instantiates.
+   * The rendered capture spans, keyed by slot name, merged with the spans kept
+   * from earlier renders. They are found through the host element's DOM because
+   * a template query cannot reach a view the `<ng-template>` outlet
+   * instantiates, and a span the placement already took out of the DOM is kept
+   * so content that arrives later is read and placed too.
    * @returns The slot name to capture span map.
    */
   private captureSpans(): Map<string, HTMLSpanElement> {
-    const spans = new Map<string, HTMLSpanElement>()
     for (const el of Array.from(
       this.host.nativeElement.querySelectorAll<HTMLSpanElement>('span[data-mol-slot]'),
     )) {
       const slot = el.getAttribute('data-mol-slot')
-      if (slot) spans.set(slot, el)
+      if (slot) this.spans.set(slot, el)
     }
-    return spans
+    return this.spans
   }
 
   /**
-   * Moves one slot's projected nodes out of its capture span to the slot's
-   * position (marked by an anchor comment) and detaches the empty span —
-   * React renders `{slot}` with no wrapper element.
+   * Places one slot's projected content at the slot's position and takes the
+   * now-empty capture span out of the DOM — React renders `{slot}` with no
+   * wrapper element. The content stands bare in front of the span's own place,
+   * so it follows the span wherever Angular puts it; a span already out of the
+   * DOM keeps its content, which is placed at the span's place when Angular
+   * re-adds it.
    *
    * @param span - The capture span.
    */
   private relocate(span: HTMLSpanElement): void {
-    const parent = span.parentElement
-    if (!parent) return
-    const existing = this.anchors.get(span)
-    const anchor =
-      existing && existing.isConnected ? existing : this.createAnchor(parent, span, existing)
-    for (const node of Array.from(span.childNodes)) parent.insertBefore(node, anchor)
-    if (span.isConnected) parent.removeChild(span)
-  }
-
-  /**
-   * Creates the anchor comment for a capture span, records it, and inserts it
-   * where the span sat (any stale anchor from a previous mount is replaced).
-   *
-   * @param parent - The span's parent (the anchor's parent).
-   * @param span - The capture span.
-   * @param stale - A previous anchor that is no longer connected, if any.
-   * @returns The connected anchor comment.
-   */
-  private createAnchor(
-    parent: Node,
-    span: HTMLSpanElement,
-    stale: Comment | null | undefined,
-  ): Comment {
-    if (stale) this.anchors.delete(span)
-    const created = this.renderer.createComment('slot')
-    parent.insertBefore(created, span)
-    this.anchors.set(span, created)
-    return created
+    placeContentBefore(span, span)
+    setElementPresent(span, false)
   }
 }

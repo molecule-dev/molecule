@@ -43,7 +43,7 @@ import {
 } from '@angular/core'
 import { getIcon } from 'material-file-icons'
 
-import { useThemeMode, useTranslation } from '@molecule/app-angular'
+import { placeElement, useThemeMode, useTranslation } from '@molecule/app-angular'
 import { copyTextWithFallback } from '@molecule/app-clipboard'
 import type { FileNode } from '@molecule/app-ide-panel-logic'
 import {
@@ -809,7 +809,7 @@ export class FileExplorer implements OnChanges, OnInit, AfterViewChecked, OnDest
    */
   private adoptMenu(): void {
     const menu = this.host.querySelector('div[mol-file-explorer-context-menu]')
-    if (menu && menu.parentNode !== document.body) document.body.appendChild(menu)
+    if (menu) placeElement(menu, document.body)
   }
 
   /** Scrolls to (and flashes) the queued path once its row exists. */
@@ -1361,7 +1361,7 @@ export class FileExplorer implements OnChanges, OnInit, AfterViewChecked, OnDest
     document.body.appendChild(badge)
     e.dataTransfer?.setDragImage(badge, 0, 0)
     requestAnimationFrame(() => {
-      if (badge.parentNode) document.body.removeChild(badge)
+      badge.remove()
     })
   }
 

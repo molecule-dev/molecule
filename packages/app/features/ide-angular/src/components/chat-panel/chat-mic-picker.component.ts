@@ -7,8 +7,7 @@
  * language coverage; engines this browser or the UI language cannot run are
  * disabled with the reason shown. The host element IS React's popup `<div>`, so
  * the port adds no node; while the picker is closed React renders nothing, so
- * the host carries `data-parity-unwrap` and `display: contents` and the
- * conformance normalizer drops it.
+ * the host is out of the DOM then (`useHostPresence`).
  *
  * @module
  */
@@ -16,14 +15,12 @@
 import { Component, inject } from '@angular/core'
 
 import type { VoiceEngineDef } from '@molecule/app-ai-voice'
+import { useHostPresence } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { styleText } from '@molecule/app-ui-angular'
 
 import { ChatInnerState } from './chat-inner-state.js'
 import { ChatVoice } from './chat-voice.slice.js'
-
-/** The closed state: React renders nothing, so the host unwraps away. */
-const UNWRAP_STYLE = styleText({ display: 'contents' })
 
 /** The header row's inline style. */
 const HEADER_STYLE = styleText({
@@ -88,9 +85,8 @@ function localizeLanguageNames(languages: readonly string[]): string[] {
   selector: 'div[mol-chat-mic-picker]',
   standalone: true,
   host: {
-    '[attr.data-parity-unwrap]': 'open() ? null : ""',
-    '[attr.class]': 'open() ? rootClass : null',
-    '[attr.style]': 'open() ? rootStyle() : unwrapStyle',
+    '[attr.class]': 'rootClass',
+    '[attr.style]': 'rootStyle()',
   },
   // prettier-ignore
   template: `@if (open()) {<div [attr.style]="headerStyle"><span [attr.class]="titleClass" [attr.style]="titleStyle">{{ titleText() }}</span><span [attr.class]="mutedClass" [attr.style]="privacyStyle">{{ privacyText() }}</span></div>@for (def of engines(); track def.id) {<button type="button" [attr.data-mol-id]="'chat-mic-engine-' + def.id" (click)="choose(def)" (mouseenter)="rowEnter($event, def)" (mouseleave)="rowLeave($event)" [attr.class]="rowClass" [attr.style]="rowStyle(def)"><div [attr.style]="rowTopStyle"><span [attr.class]="titleClass" [attr.style]="labelStyle">{{ def.label }}</span><span [attr.style]="kindStyle()">{{ kindLabel(def) }}</span><span [attr.style]="spacerStyle"></span>@if (isCurrent(def)) {<span [attr.style]="currentStyle()">{{ currentText() }}</span>}@if (reasonLabel(def); as label) {<span [attr.style]="reasonStyle()">{{ label }}</span>}</div><span [attr.class]="mutedClass" [attr.style]="metaStyle" [attr.title]="languagesTitle(def)">{{ sizeLabel(def) }} · {{ accuracyLabel(def) }} · {{ languagesLabel(def) }}</span></button>}}`,
@@ -138,16 +134,14 @@ export class ChatMicPicker {
   /** The size / accuracy / language line's inline style. */
   protected readonly metaStyle: string | null = META_STYLE
 
-  /** The closed state's inline style (the host unwraps away). */
-  protected readonly unwrapStyle: string | null = UNWRAP_STYLE
-
-  /** Resolves the ClassMap and the static classes once, at construction. */
+  /** Resolves the ClassMap and the static classes once, and keeps the host in the page only while open. */
   constructor() {
     this.cm = this.state.env.cm
     this.rootClass = this.cm.cn(this.cm.surface, this.cm.borderAll)
     this.titleClass = this.cm.fontWeight('medium')
     this.mutedClass = this.cm.textMuted
     this.rowClass = this.cm.w('full')
+    useHostPresence(() => this.open())
   }
 
   /**

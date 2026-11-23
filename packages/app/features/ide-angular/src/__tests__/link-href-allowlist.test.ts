@@ -29,6 +29,7 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 import { setIconSet } from '@molecule/app-icons'
 import { setClassMap } from '@molecule/app-ui'
@@ -42,7 +43,7 @@ const HelpCardHost = Component({
   selector: 'mol-link-href-allowlist-host',
   standalone: true,
   imports: [HelpCard],
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `<div mol-help-card [isLight]="p['isLight']" [upgradeLines]="p['upgradeLines']" [upgradeAction]="p['upgradeAction']"></div>`,
 })(
   class HelpCardHost {
@@ -89,7 +90,7 @@ async function renderHelpCard(props: Record<string, unknown>): Promise<HTMLEleme
   const container = document.createElement('div')
   document.body.appendChild(container)
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<InstanceType<typeof HelpCardHost>> = createComponent(HelpCardHost, {
     environmentInjector: appRef.injector,

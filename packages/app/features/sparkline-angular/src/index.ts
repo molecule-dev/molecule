@@ -44,8 +44,8 @@
  *   built-in one (`t('sparkline.aria.trendSparkline', …,
  *   { defaultValue: 'Trend sparkline' })`).
  * - React's root is the `<svg>` when the series is non-empty and nothing
- *   when empty, so the host is unwrapped (`data-parity-unwrap`,
- *   `display: contents`) and contributes no DOM of its own.
+ *   when empty, so the `<svg>` renders in front of the host and the host
+ *   itself leaves the page, contributing no DOM of its own.
  *
  * @module
  */

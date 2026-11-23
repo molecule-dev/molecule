@@ -4,9 +4,16 @@
  * @module
  */
 
-import { type AfterViewInit, Component, type ElementRef, ViewChild } from '@angular/core'
+import { Component, type ElementRef, ViewChild } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  placeContent,
+  setElementPresent,
+  type SlotReader,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -25,20 +32,6 @@ const INDICATORS_STYLE = 'position: absolute; right: 8px; bottom: 8px; display: 
 const ICON_STYLE = 'font-size: 12px'
 
 /**
- * Whether an element captured any projected element or non-blank text node.
- *
- * @param el - The capture element.
- * @returns True when at least one projected node renders.
- */
-const hasNodes = (el: Element): boolean => {
-  for (const node of Array.from(el.childNodes)) {
-    if (node.nodeType === 1) return true
-    if (node.nodeType === 3 && (node.textContent ?? '').trim()) return true
-  }
-  return false
-}
-
-/**
  * ParticipantTile component.
  *
  * Single participant tile for a video grid. Apps supply the video element via
@@ -52,14 +45,14 @@ const hasNodes = (el: Element): boolean => {
  * outline).
  *
  * Angular projection needs the `<ng-content>` capture points mounted, so the
- * media layer renders two hidden capture spans that
- * {@link ParticipantTile.ngAfterViewInit} empties into the centered layer and
- * then removes — React renders `videoSlot ?? avatarSlot` directly, with no
- * wrapper element.
+ * media layer renders two hidden capture spans whose content the placement
+ * function places into the centered layer and then removes — React renders
+ * `videoSlot ?? avatarSlot` directly, with no wrapper element.
  */
 @Component({
   selector: 'div[mol-participant-tile]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [],
   inputs: ['name', 'audioEnabled', 'handRaised', 'speaking', 'isLocal', 'className'],
   host: {
@@ -69,7 +62,7 @@ const hasNodes = (el: Element): boolean => {
   // prettier-ignore
   template: `<div #center [style]="centerStyle"><span #videoCapture><ng-content select="[slot=videoSlot]"></ng-content></span><span #avatarCapture><ng-content select="[slot=avatarSlot]"></ng-content></span></div><div [class]="badgeClasses()" [style]="badgeStyle">@if (hasName) {<ng-container>{{ name }}</ng-container>}<ng-content select="[slot=name]" />@if (isLocal) {<ng-container>{{ youSuffix() }}</ng-container>}</div><div [style]="indicatorsStyle">@if (!audioOn()) {<span [attr.aria-label]="mutedLabel()" [style]="iconStyle">🔇</span>}@if (handRaised) {<span [attr.aria-label]="handRaisedLabel()" [style]="iconStyle">✋</span>}</div>`,
 })
-export class ParticipantTile implements AfterViewInit {
+export class ParticipantTile {
   /** Participant display name (a string input; projected `[slot=name]` content supersedes it). */
   name?: unknown
   /** Audio enabled (React's default: true, applied at read time). */
@@ -104,6 +97,10 @@ export class ParticipantTile implements AfterViewInit {
    * locale, so the labels re-render on a locale switch (the static `t` does not).
    */
   private readonly i18n = useTranslation()
+
+  constructor() {
+    usePlacement((hasContent) => this.reconcile(hasContent))
+  }
 
   /**
    * The muted indicator's screen-reader label (React's `t('call.aria.muted')`).
@@ -190,18 +187,24 @@ export class ParticipantTile implements AfterViewInit {
   }
 
   /**
-   * Moves the projected media into the centered layer — React renders
-   * `videoSlot ?? avatarSlot` there directly, so the capture spans are unwrapped
-   * (and the unchosen one removed with the nodes React would not render).
+   * Places the projected media into the centered layer — React renders
+   * `videoSlot ?? avatarSlot` there directly, so the winning capture span's
+   * content is rendered bare, the other slot's content is withheld inside its
+   * capture, and both capture spans are taken out of the DOM.
+   *
+   * @param hasContent - Reads whether a slot has content.
    */
-  ngAfterViewInit(): void {
+  private reconcile(hasContent: SlotReader): void {
     const center = this.center?.nativeElement
     const video = this.videoCapture?.nativeElement
     const avatar = this.avatarCapture?.nativeElement
     if (!center || !video || !avatar) return
-    const chosen = hasNodes(video) ? video : avatar
-    for (const node of Array.from(chosen.childNodes)) center.insertBefore(node, video)
-    video.remove()
-    avatar.remove()
+    const videoHas = hasContent(video)
+    const winner = videoHas ? video : avatar
+    const loser = videoHas ? avatar : video
+    placeContent(loser, null)
+    placeContent(winner, center, video)
+    setElementPresent(video, false)
+    setElementPresent(avatar, false)
   }
 }

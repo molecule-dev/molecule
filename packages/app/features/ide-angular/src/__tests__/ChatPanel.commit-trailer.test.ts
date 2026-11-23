@@ -23,6 +23,7 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
@@ -38,7 +39,7 @@ const CommitCardHost = Component({
   selector: 'mol-commit-card-host',
   standalone: true,
   imports: [CommitCardItem],
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `<div mol-commit-card-item [card]="card"></div>`,
 })(
   class CommitCardHostComponent {
@@ -81,7 +82,7 @@ async function renderCard(card: CommitCard): Promise<HTMLElement> {
   const container = document.createElement('div')
   document.body.appendChild(container)
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<InstanceType<typeof CommitCardHost>> = createComponent(CommitCardHost, {
     environmentInjector: appRef.injector,

@@ -26,7 +26,7 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { provideTheme } from '@molecule/app-angular'
+import { provideDomPlacement, provideTheme } from '@molecule/app-angular'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 import type { ShortcutEntry } from '@molecule/app-ide-panel-logic'
 import { setClassMap } from '@molecule/app-ui'
@@ -53,7 +53,7 @@ const KeyboardShortcutsPanelHost = Component({
   selector: 'mol-shortcuts-host',
   standalone: true,
   imports: [KeyboardShortcutsPanel],
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `<div mol-keyboard-shortcuts-panel [shortcuts]="p['shortcuts']" [onDismiss]="p['onDismiss']"></div>`,
 })(
   class KeyboardShortcutsPanelHost {
@@ -103,7 +103,11 @@ async function renderPanel(shortcuts: ShortcutEntry[]): Promise<HTMLElement> {
   const container = document.createElement('div')
   document.body.appendChild(container)
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection(), provideTheme(buildThemeProvider())],
+    providers: [
+      provideZonelessChangeDetection(),
+      provideDomPlacement(),
+      provideTheme(buildThemeProvider()),
+    ],
   })
   const ref: ComponentRef<InstanceType<typeof KeyboardShortcutsPanelHost>> = createComponent(
     KeyboardShortcutsPanelHost,

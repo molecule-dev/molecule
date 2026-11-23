@@ -9,6 +9,7 @@
  */
 import '@angular/compiler'
 import {
+  ChangeDetectionStrategy,
   Component,
   createComponent,
   provideZonelessChangeDetection,
@@ -18,6 +19,7 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
 import {
   CHAT_TIMESTAMPS_STORAGE_KEY,
   type ChatTimestampSlot,
@@ -89,8 +91,11 @@ afterEach(async () => {
  * @returns The mount.
  */
 async function mountHook(call: () => void): Promise<HookMount> {
-  const appRef = await createApplication({ providers: [provideZonelessChangeDetection()] })
+  const appRef = await createApplication({
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
+  })
   const Host = Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
     selector: `mol-hook-host-${++hostCount}`,
     standalone: true,
     template: '',

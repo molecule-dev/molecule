@@ -5,22 +5,19 @@
  */
 
 import { NgTemplateOutlet } from '@angular/common'
-import {
-  type AfterViewChecked,
-  type AfterViewInit,
-  Component,
-  type DoCheck,
-  ElementRef,
-  inject,
-  Renderer2,
-  TemplateRef,
-  ViewChild,
-} from '@angular/core'
+import { Component, ElementRef, inject, TemplateRef, ViewChild } from '@angular/core'
 
+import {
+  MolPlacement,
+  placeContent,
+  placeContentBefore,
+  setElementPresent,
+  type SlotReader,
+  usePlacement,
+} from '@molecule/app-angular'
 import type { ColorVariant, UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
-import { hasNodes, SlotGuard } from './slot-dom.js'
 import type { LogEntry, LogLevel } from './types.js'
 
 /** Severity badge tones: trace neutral → fatal red (themed). */
@@ -41,28 +38,24 @@ const LEVEL_TONE: Record<LogLevel, ColorVariant> = {
  * a JSON-formatted structured-data panel.
  *
  * React's root is the `<div role="log">` when it has something to render and
- * the bare `emptyState` when the list is empty, so the host is unwrapped
- * (`data-parity-unwrap`, `display: contents`) and the `<div>` is rendered
- * inside it. The empty state is projected content (`[slot=emptyState]`) or a
- * node-valued input, reconciled by {@link LogViewer.ngAfterViewInit} /
- * {@link LogViewer.ngAfterViewChecked} / {@link LogViewer.ngDoCheck} against
- * React's branch.
+ * the bare `emptyState` when the list is empty, so the host's content renders
+ * in front of the host's place and the host itself leaves the page
+ * (`placeContentBefore` + `setElementPresent`). The empty state is projected
+ * content (`[slot=emptyState]`) or a node-valued input, reconciled against
+ * React's branch by the placement function registered in the constructor.
  *
  * Use for operational tooling, admin dashboards, debug views.
  */
 @Component({
   selector: 'mol-log-viewer',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [NgTemplateOutlet],
   inputs: ['entries', 'onToggle', 'className', 'emptyState'],
-  host: {
-    'data-parity-unwrap': '',
-    style: 'display: contents',
-  },
   // prettier-ignore
-  template: `<span #empty data-parity-unwrap style="display: contents">@if (emptyTemplate(); as emptyTpl) {<ng-container [ngTemplateOutlet]="emptyTpl" />}<ng-content select="[slot=emptyState]"></ng-content></span><div #log [class]="logClasses()" role="log">@for (entry of entries; track entry.id) {<details [attr.open]="isOpen(entry.id) ? '' : null" (toggle)="detailsToggle(entry.id, $event)"><summary [class]="summaryClasses()"><span [style]="timestampStyle()">@if (isNode(entry.timestamp)) {<ng-container [ngTemplateOutlet]="templateOf(entry.timestamp)" />}@else {{{ textOf(entry.timestamp) }}}</span><span [class]="levelClasses(entry.level)" [style]="levelStyle()">{{ entry.level }}</span>@if (entry.service) {<span [class]="serviceClasses()">@if (isNode(entry.service)) {<ng-container [ngTemplateOutlet]="templateOf(entry.service)" />}@else {{{ textOf(entry.service) }}}</span>}<span [class]="messageClasses()">@if (isNode(entry.message)) {<ng-container [ngTemplateOutlet]="templateOf(entry.message)" />}@else {{{ textOf(entry.message) }}}</span>@if (entry.traceId) {<span [style]="traceStyle()">@if (isNode(entry.traceId)) {<ng-container [ngTemplateOutlet]="templateOf(entry.traceId)" />}@else {{{ textOf(entry.traceId) }}}</span>}</summary>@if (entry.data !== undefined) {<pre [class]="dataClasses()" [style]="dataStyle()" [textContent]="dataText(entry.data)"></pre>}</details>}</div>`,
+  template: `<span #empty>@if (emptyTemplate(); as emptyTpl) {<ng-container [ngTemplateOutlet]="emptyTpl" />}<ng-content select="[slot=emptyState]"></ng-content></span><div #log [class]="logClasses()" role="log">@for (entry of entries; track entry.id) {<details [attr.open]="isOpen(entry.id) ? '' : null" (toggle)="detailsToggle(entry.id, $event)"><summary [class]="summaryClasses()"><span [style]="timestampStyle()">@if (isNode(entry.timestamp)) {<ng-container [ngTemplateOutlet]="templateOf(entry.timestamp)" />}@else {{{ textOf(entry.timestamp) }}}</span><span [class]="levelClasses(entry.level)" [style]="levelStyle()">{{ entry.level }}</span>@if (entry.service) {<span [class]="serviceClasses()">@if (isNode(entry.service)) {<ng-container [ngTemplateOutlet]="templateOf(entry.service)" />}@else {{{ textOf(entry.service) }}}</span>}<span [class]="messageClasses()">@if (isNode(entry.message)) {<ng-container [ngTemplateOutlet]="templateOf(entry.message)" />}@else {{{ textOf(entry.message) }}}</span>@if (entry.traceId) {<span [style]="traceStyle()">@if (isNode(entry.traceId)) {<ng-container [ngTemplateOutlet]="templateOf(entry.traceId)" />}@else {{{ textOf(entry.traceId) }}}</span>}</summary>@if (entry.data !== undefined) {<pre [class]="dataClasses()" [style]="dataStyle()" [textContent]="dataText(entry.data)"></pre>}</details>}</div>`,
 })
-export class LogViewer implements AfterViewInit, AfterViewChecked, DoCheck {
+export class LogViewer {
   /** The log entries, rendered in order. */
   entries: LogEntry[] = []
 
@@ -78,13 +71,18 @@ export class LogViewer implements AfterViewInit, AfterViewChecked, DoCheck {
   /** The expanded entry ids (React's internal `openIds` state). */
   private openIds: Set<string> = new Set()
 
-  /** The projected empty-state capture point (unwrapped, so React's bare slot). */
+  /** The projected empty-state capture point (its content renders bare; the point leaves). */
   @ViewChild('empty') empty?: ElementRef<HTMLElement>
 
   /** The `<div role="log">` list wrapper (detached when the empty state renders). */
   @ViewChild('log') log?: ElementRef<HTMLElement>
 
-  private readonly guard = new SlotGuard(inject(ElementRef), inject(Renderer2))
+  /** The component's host element (React renders a fragment, no element of its own). */
+  private readonly host = inject(ElementRef<HTMLElement>)
+
+  constructor() {
+    usePlacement((hasContent) => this.reconcile(hasContent))
+  }
 
   /**
    * The current class map.
@@ -279,40 +277,29 @@ export class LogViewer implements AfterViewInit, AfterViewChecked, DoCheck {
   }
 
   /**
-   * Reconciles the projected empty state and the list wrapper against React's
-   * branch once the view queries resolve.
-   */
-  ngAfterViewInit(): void {
-    this.reconcile()
-  }
-
-  /**
-   * Re-reconciles on later passes, so a props step that empties or refills the
-   * list swaps the branch the way React does.
-   */
-  ngDoCheck(): void {
-    this.reconcile()
-  }
-
-  /**
-   * Re-reconciles after each view update: a node-valued empty state that
-   * arrives through an input renders into its outlet only during the update,
-   * so the branch decision must be read afterwards.
-   */
-  ngAfterViewChecked(): void {
-    this.reconcile()
-  }
-
-  /**
    * Applies React's condition: with no entries and an empty state, the empty
    * state renders bare and the list wrapper disappears; otherwise the wrapper
    * renders and the empty state is dropped.
+   *
+   * @param hasContent - Reads whether a slot has content.
    */
-  private reconcile(): void {
+  private reconcile(hasContent: SlotReader): void {
     const empty = this.empty?.nativeElement
     const log = this.log?.nativeElement
-    const hasEmpty = (this.entries?.length ?? 0) === 0 && hasNodes(empty)
-    this.guard.toggle(empty, hasEmpty)
-    this.guard.toggle(log, !hasEmpty)
+    if (!empty || !log) return
+    // React's root is the empty state's own nodes (a fragment) or the `<div role="log">`:
+    // the host's content renders in front of the host's place and the host leaves the page.
+    placeContentBefore(this.host.nativeElement, this.host.nativeElement)
+    setElementPresent(this.host.nativeElement, false)
+    const hasEmpty = (this.entries?.length ?? 0) === 0 && hasContent(empty)
+    if (hasEmpty) {
+      // The empty state renders bare in the capture point's place; the point leaves.
+      placeContentBefore(empty, empty)
+    } else {
+      // It would not render: the projected nodes go back inside the hidden capture wrapper.
+      placeContent(empty, null)
+    }
+    setElementPresent(empty, false)
+    setElementPresent(log, !hasEmpty)
   }
 }

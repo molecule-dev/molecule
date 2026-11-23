@@ -4,9 +4,15 @@
  * @module
  */
 
-import { type AfterViewInit, Component, type ElementRef, ViewChild } from '@angular/core'
+import { Component, type ElementRef, ViewChild } from '@angular/core'
 
-import { hasContent, placeContent, setElementPresent } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  placeContentBefore,
+  setElementPresent,
+  type SlotReader,
+  usePlacement,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -30,6 +36,7 @@ import type { KpiCardAccentSide } from './types.js'
 @Component({
   selector: 'div[mol-kpi-card]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   inputs: [
     'accentSide',
     'accentColor',
@@ -46,7 +53,7 @@ import type { KpiCardAccentSide } from './types.js'
   // prettier-ignore
   template: `<div [class]="stackClasses()"><div [class]="headerClasses()"><div [class]="innerClasses()"><ng-content select="[slot=icon]"></ng-content><span [class]="titleClasses()"><ng-content select="[slot=title]"></ng-content></span></div><ng-content select="[slot=action]"></ng-content></div><div [class]="valueClasses()"><ng-content select="[slot=value]"></ng-content></div><div #trendRow [class]="innerClasses()"><span #trendSlot><ng-content select="[slot=trend]"></ng-content></span><span #subtitleSlot [class]="subtitleClasses()"><ng-content select="[slot=subtitle]"></ng-content></span></div></div>`,
 })
-export class KpiCard implements AfterViewInit {
+export class KpiCard {
   /** Where to draw the accent bar (defaults to `'none'` at read time). */
   accentSide?: KpiCardAccentSide
   /** The accent bar's color class (defaults to the ClassMap's accent color). */
@@ -68,6 +75,10 @@ export class KpiCard implements AfterViewInit {
   @ViewChild('trendSlot') trendSlot?: ElementRef<HTMLSpanElement>
   /** The subtitle slot's wrapper span. */
   @ViewChild('subtitleSlot') subtitleSlot?: ElementRef<HTMLSpanElement>
+
+  constructor() {
+    usePlacement((hasContent) => this.reconcile(hasContent))
+  }
 
   /**
    * The current class map.
@@ -188,34 +199,35 @@ export class KpiCard implements AfterViewInit {
   }
 
   /**
-   * Reads the trend/subtitle slots (view queries resolve only at view init),
-   * moves the trend's projected nodes to its position, removes the wrapper the
-   * reference DOM does not have, and drops the row entirely when both slots are
-   * empty — React renders the row only when `trend || subtitle` is supplied.
+   * Reads the trend/subtitle slots, moves the trend's projected nodes to its
+   * position, removes the wrapper the reference DOM does not have, and drops
+   * the row entirely when both slots are empty — React renders the row only
+   * when `trend || subtitle` is supplied.
+   *
+   * @param hasContent - Reads whether a slot has content.
    */
-  ngAfterViewInit(): void {
+  private reconcile(hasContent: SlotReader): void {
     const trend = this.trendSlot?.nativeElement
     const subtitle = this.subtitleSlot?.nativeElement
     const row = this.trendRow?.nativeElement
-    // Read presence BEFORE relocating: placeContent() moves the projected nodes out.
+    // Read presence BEFORE relocating: the placement moves the projected nodes out.
     const trendPresent = trend ? hasContent(trend) : false
     const subtitlePresent = subtitle ? hasContent(subtitle) : false
     if (trend) this.relocate(trend)
-    if (subtitle && !subtitlePresent) setElementPresent(subtitle, false)
-    if (row && !trendPresent && !subtitlePresent) setElementPresent(row, false)
+    setElementPresent(subtitle, subtitlePresent)
+    setElementPresent(row, trendPresent || subtitlePresent)
   }
 
   /**
    * Moves one slot's projected nodes out of its capture span to the slot's
    * position — React renders `{trend}` with no wrapper element — and takes the
-   * empty span out of the DOM.
+   * empty span out of the DOM. The content stands bare in front of the span's
+   * own place, so it follows wherever Angular puts the span.
    *
    * @param span - The capture span.
    */
   private relocate(span: HTMLSpanElement): void {
-    const parent = span.parentNode
-    if (!parent) return
-    placeContent(span, parent, span)
+    placeContentBefore(span, span)
     setElementPresent(span, false)
   }
 }

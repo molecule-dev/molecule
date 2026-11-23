@@ -20,6 +20,7 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
@@ -46,7 +47,7 @@ const ChatTimestampHost = Component({
   selector: 'mol-chat-timestamp-host',
   standalone: true,
   imports: [ChatTimestamp],
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `<div mol-chat-timestamp [timestamp]="p['timestamp']" [variant]="p['variant']" [align]="p['align']"></div>`,
 })(
   class ChatTimestampHost {
@@ -103,7 +104,7 @@ async function mountTimestamp(props: Record<string, unknown>): Promise<Mounted> 
   const container = document.createElement('div')
   document.body.appendChild(container)
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<InstanceType<typeof ChatTimestampHost>> = createComponent(
     ChatTimestampHost,

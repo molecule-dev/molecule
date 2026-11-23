@@ -147,7 +147,7 @@ describe('PreviewPanel — steady-state health check hysteresis', () => {
     await advance(30_000)
     const after = panel.container.querySelector<HTMLIFrameElement>('iframe')
     expect(after).not.toBeNull()
-    expect(after?.getAttribute('src')).not.toBe(srcBefore)
+    expect(after!.getAttribute('src')).not.toBe(srcBefore)
     expect(after?.getAttribute('src')).toContain('_r=')
   })
 

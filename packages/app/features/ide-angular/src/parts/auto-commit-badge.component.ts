@@ -10,10 +10,10 @@
  * (React renders it inside ChatPanel without exporting it), so it lives in
  * `src/parts/` and is exported under the React name.
  *
- * The host is a `display: contents` wrapper (`div[mol-auto-commit-badge]`),
- * unwrapped by the conformance normalizer, because React's root is the button
- * itself (or nothing at all when auto-commit is off) — a standalone
- * component's host tag cannot disappear at runtime. Styling uses
+ * React's root is the button itself, or nothing at all when auto-commit is
+ * off: the button renders in front of the host (`placeElementBefore`) and the
+ * host leaves the DOM (`setElementPresent`), so the rendered tree is React's —
+ * no wrapper element at all. Styling uses
  * `getClassMap()` (`cm.*`); the only inline styles are the placement and the
  * tabular figures the ClassMap can't express, serialized through `styleText`
  * the way React writes numbers (`-10` → `-10px`, `zIndex` stays unitless).
@@ -22,9 +22,15 @@
  * @module
  */
 
-import { Component } from '@angular/core'
+import { Component, ElementRef, inject, ViewChild } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  placeElementBefore,
+  setElementPresent,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { AutoCommitState } from '@molecule/app-ide-panel-logic'
 import {
   formatAutoCommitBadge,
@@ -68,14 +74,29 @@ const STYLES = {
   // (reflectComponentType sees none, so the conformance host cannot bind
   // them) — every component in the package takes the decorator form.
   inputs: ['state', 'onCommitNow', 'disabled', 'inline', 'label'],
-  host: {
-    'data-parity-unwrap': '',
-    style: 'display: contents',
-  },
+  hostDirectives: [MolPlacement],
   // prettier-ignore
-  template: `@if (enabled()) {<button type="button" data-mol-id="chat-autocommit-badge" [attr.disabled]="disabled ? '' : null" [class]="badgeClass()" (click)="onClick($event)" [attr.aria-label]="ariaLabel()" [attr.title]="titleText()" [attr.style]="styleTextValue()">{{ buttonText() }}</button>}`,
+  template: `@if (enabled()) {<button #root type="button" data-mol-id="chat-autocommit-badge" [attr.disabled]="disabled ? '' : null" [class]="badgeClass()" (click)="onClick($event)" [attr.aria-label]="ariaLabel()" [attr.title]="titleText()" [attr.style]="styleTextValue()">{{ buttonText() }}</button>}`,
 })
 export class AutoCommitBadge {
+  /** The button React renders (or nothing when auto-commit is off). */
+  @ViewChild('root') private root?: ElementRef<HTMLButtonElement>
+
+  /** The component's own host element, which React does not render. */
+  private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
+
+  /**
+   * Renders the button in front of the host, and keeps the host out of the DOM
+   * (React's root is the button, or nothing).
+   */
+  constructor() {
+    usePlacement(() => {
+      const root = this.root?.nativeElement
+      if (root) placeElementBefore(root, this.host.nativeElement)
+      setElementPresent(this.host.nativeElement, false)
+    })
+  }
+
   /** The countdown state (`intervalSeconds`, `remaining`). */
   state: AutoCommitState = { intervalSeconds: 0, remaining: null }
 

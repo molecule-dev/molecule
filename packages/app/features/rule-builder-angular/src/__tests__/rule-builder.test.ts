@@ -24,6 +24,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 import type { Rule, RuleGroup, RuleLeaf, RuleSchema } from '../types.js'
 import { emptyGroup, emptyLeaf } from '../utilities.js'
 
@@ -51,7 +53,7 @@ async function mount(props: Record<string, unknown>): Promise<Mounted> {
     selector: 'mol-spec-host',
     standalone: true,
     imports: [RuleBuilder as Type<unknown>],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: `<div mol-rule-builder [schema]="p['schema']" [rules]="p['rules']" [onChange]="p['onChange']" [className]="p['className']"></div>`,
   })(
     class SpecHost {
@@ -60,7 +62,7 @@ async function mount(props: Record<string, unknown>): Promise<Mounted> {
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
     environmentInjector: appRef.injector,

@@ -21,6 +21,7 @@ import { type ApplicationRef, createComponent, provideZonelessChangeDetection } 
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
 import { copyTextWithFallback } from '@molecule/app-clipboard'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 import { setClassMap } from '@molecule/app-ui'
@@ -86,7 +87,7 @@ async function renderMarkdown(props: Record<string, unknown>): Promise<HTMLEleme
   const container = document.createElement('div')
   document.body.appendChild(container)
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref = createComponent(MarkdownContent, { environmentInjector: appRef.injector })
   container.appendChild(ref.location.nativeElement as HTMLElement)

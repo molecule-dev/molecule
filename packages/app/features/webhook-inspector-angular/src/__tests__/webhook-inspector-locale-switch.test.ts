@@ -98,7 +98,7 @@ describe('WebhookInspector locale switch', () => {
       selector: 'mol-locale-host',
       standalone: true,
       imports: [WebhookInspector as Type<unknown>],
-      changeDetection: ChangeDetectionStrategy.Default,
+      changeDetection: ChangeDetectionStrategy.Eager,
       template: `<div mol-webhook-inspector [deliveries]="deliveries" [onRetry]="onRetry"></div>`,
     })(
       class LocaleHost {

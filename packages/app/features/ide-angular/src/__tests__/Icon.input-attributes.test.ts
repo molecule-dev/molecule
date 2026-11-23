@@ -16,6 +16,7 @@ import '@angular/compiler'
 import '@molecule/app-framework-conformance/ui/setup'
 import {
   type ApplicationRef,
+  ChangeDetectionStrategy,
   Component,
   type ComponentRef,
   createComponent,
@@ -24,12 +25,14 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
 import { setIconSet } from '@molecule/app-icons'
 
 import { Icon } from '../components/icon.component.js'
 
 /** The host the tests mount: one icon with static inputs, one with bound inputs. */
 const IconHost = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-icon-input-attributes-host',
   standalone: true,
   imports: [Icon],
@@ -78,7 +81,7 @@ async function render(): Promise<HTMLElement> {
   const container = document.createElement('div')
   document.body.appendChild(container)
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<InstanceType<typeof IconHost>> = createComponent(IconHost, {
     environmentInjector: appRef.injector,

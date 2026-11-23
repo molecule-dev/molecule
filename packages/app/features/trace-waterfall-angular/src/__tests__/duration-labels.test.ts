@@ -24,6 +24,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 vi.mock('@molecule/app-ui', () => ({
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
@@ -77,7 +79,7 @@ const mounted: Mounted[] = []
  */
 async function mountHost(host: Type<unknown>): Promise<Mounted> {
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref = createComponent(host, { environmentInjector: appRef.injector })
   const element = ref.location.nativeElement as HTMLElement
@@ -104,7 +106,7 @@ async function mountHost(host: Type<unknown>): Promise<Mounted> {
  */
 async function render(spans: Span[]): Promise<Mounted> {
   const Host = Component({
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     selector: 'mol-spec-host',
     standalone: true,
     imports: [TraceWaterfall as Type<unknown>],

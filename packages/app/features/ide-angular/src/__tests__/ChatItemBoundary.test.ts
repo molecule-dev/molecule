@@ -28,6 +28,7 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
@@ -41,6 +42,7 @@ import { ChatItemBoundary, type ChatItemErrorInfo } from '../parts/chat-item-bou
  * deliberately invalid runtime shape into this test.
  */
 const InvalidChild = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-invalid-child',
   standalone: true,
   template: `<span>{{ notAString }}</span>`,
@@ -53,6 +55,7 @@ const InvalidChild = Component({
 
 /** A child that fails while it is created, so the boundary shows its notice. */
 const Broken = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-broken',
   standalone: true,
   template: `<span>never rendered</span>`,
@@ -97,7 +100,7 @@ async function mount(
     selector: 'mol-spec-host',
     standalone: true,
     imports: [component, ...extra],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     host: { 'data-parity-host': String(++specHostCount) },
     template,
   })(
@@ -108,7 +111,7 @@ async function mount(
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<unknown> = createComponent(Host, {
     environmentInjector: appRef.injector,

@@ -5,23 +5,20 @@
  */
 
 import { NgTemplateOutlet } from '@angular/common'
-import {
-  type AfterViewChecked,
-  type AfterViewInit,
-  Component,
-  type DoCheck,
-  ElementRef,
-  inject,
-  Renderer2,
-  type TemplateRef,
-  ViewChild,
-} from '@angular/core'
+import { Component, type ElementRef, type TemplateRef, ViewChild } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  placeContentBefore,
+  setElementPresent,
+  type SlotReader,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
-import { hasNodes, hasText, isTemplate, SlotGuard, textOf } from './nodes.js'
+import { hasText, isTemplate, textOf } from './nodes.js'
 
 /**
  * ThreadIndicator component.
@@ -30,12 +27,14 @@ import { hasNodes, hasText, isTemplate, SlotGuard, textOf } from './nodes.js'
  * IS the `<button>` (`button[mol-thread-indicator]`), matching React's root
  * exactly. `lastReplyAt` is text, an `ng-template`, or projected
  * `[slot=lastReplyAt]` content; React renders its `· ` separator span only when
- * the value is truthy, so an always-mounted capture point is detached when
- * nothing renders.
+ * the value is truthy, so an always-mounted capture point renders its content
+ * in its own place and leaves the page, and the separator span is detached
+ * when nothing renders.
  */
 @Component({
   selector: 'button[mol-thread-indicator]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [NgTemplateOutlet],
   inputs: ['replyCount', 'lastReplyAt', 'onOpen', 'className'],
   host: {
@@ -44,9 +43,9 @@ import { hasNodes, hasText, isTemplate, SlotGuard, textOf } from './nodes.js'
     '(click)': 'open($event)',
   },
   // prettier-ignore
-  template: `<span [class]="cm().fontWeight('semibold')">{{ replies() }}</span><span #lastReply>{{ '· ' }}@if (lastReplyTemplate(); as tpl) {<ng-container [ngTemplateOutlet]="tpl" />}@else if (hasText(lastReplyAt)) {{{ textOf(lastReplyAt) }}}<span #lastProjected data-parity-unwrap style="display: contents"><ng-content select="[slot=lastReplyAt]"></ng-content></span></span>`,
+  template: `<span [class]="cm().fontWeight('semibold')">{{ replies() }}</span><span #lastReply>{{ '· ' }}@if (lastReplyTemplate(); as tpl) {<ng-container [ngTemplateOutlet]="tpl" />}@else if (hasText(lastReplyAt)) {{{ textOf(lastReplyAt) }}}<span #lastProjected><ng-content select="[slot=lastReplyAt]"></ng-content></span></span>`,
 })
-export class ThreadIndicator implements AfterViewInit, AfterViewChecked, DoCheck {
+export class ThreadIndicator {
   /** Number of replies. */
   replyCount = 0
   /** Last-reply timestamp display: text, an `ng-template`, or projected content. */
@@ -61,13 +60,15 @@ export class ThreadIndicator implements AfterViewInit, AfterViewChecked, DoCheck
   /** The `[slot=lastReplyAt]` capture point. */
   @ViewChild('lastProjected') private lastProjected?: ElementRef<HTMLElement>
 
-  private readonly guard = new SlotGuard(inject(ElementRef), inject(Renderer2))
-
   /**
    * Reactive translation, read in the injection context. Its `t` reads the
    * locale, so the view re-renders the label on a locale switch.
    */
   private readonly i18n = useTranslation()
+
+  constructor() {
+    usePlacement((hasContent) => this.reconcile(hasContent))
+  }
 
   /**
    * The current class map.
@@ -141,36 +142,18 @@ export class ThreadIndicator implements AfterViewInit, AfterViewChecked, DoCheck
   }
 
   /**
-   * Reconciles the separator span with React's truthiness branch once the view
-   * queries resolve.
-   */
-  ngAfterViewInit(): void {
-    this.reconcile()
-  }
-
-  /**
-   * Re-reconciles on later passes, so a props change swaps the branch the way
-   * React does.
-   */
-  ngDoCheck(): void {
-    this.reconcile()
-  }
-
-  /**
-   * Re-reconciles after each view update: a projected node renders only during
-   * the update, so presence must be read afterwards.
-   */
-  ngAfterViewChecked(): void {
-    this.reconcile()
-  }
-
-  /**
    * Applies React's `lastReplyAt && <span>…</span>` condition.
+   *
+   * @param hasContent - Reads whether a slot has content.
    */
-  private reconcile(): void {
+  private reconcile(hasContent: SlotReader): void {
     const span = this.lastReply?.nativeElement
     const projected = this.lastProjected?.nativeElement
-    const shows = isTemplate(this.lastReplyAt) || hasText(this.lastReplyAt) || hasNodes(projected)
-    this.guard.toggle(span, shows)
+    const shows = isTemplate(this.lastReplyAt) || hasText(this.lastReplyAt) || hasContent(projected)
+    // The capture's content renders exactly where the capture stood, and the capture
+    // itself leaves the page.
+    placeContentBefore(projected, projected)
+    setElementPresent(projected, false)
+    setElementPresent(span, shows)
   }
 }

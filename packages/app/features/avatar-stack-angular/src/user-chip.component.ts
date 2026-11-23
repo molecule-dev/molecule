@@ -6,19 +6,18 @@
 
 import {
   type AfterViewChecked,
-  type AfterViewInit,
   Component,
   type ElementRef,
   inject,
   type OnDestroy,
   Renderer2,
-  signal,
   ViewChild,
 } from '@angular/core'
 
+import { MolPlacement, setElementPresent, usePlacement } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
-import { Avatar, ElementPropsWriter, hasNodes, styleText } from '@molecule/app-ui-angular'
+import { Avatar, ElementPropsWriter, styleText } from '@molecule/app-ui-angular'
 
 import type { UserChipProps } from './types.js'
 
@@ -53,6 +52,7 @@ const OWNED_NAME_LINK_KEYS = new Set([
 @Component({
   selector: 'div[mol-user-chip]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [Avatar],
   inputs: ['name', 'href', 'nameLinkProps', 'src', 'subtitle', 'trailing', 'size', 'className'],
   host: {
@@ -64,11 +64,11 @@ const OWNED_NAME_LINK_KEYS = new Set([
     <div [class]="bodyClasses()">
       @if (href === undefined) {<span [class]="nameClasses()">{{ name }}</span>}
       @else {<a #nameLink data-mol-id="user-chip-profile" [href]="href" [class]="nameClasses(true)" [attr.style]="nameLinkStyle()">{{ name }}</a>}
-      @if (showSubtitle()) {<span #subtitleEl [class]="cm().textSize('xs')">@if (hasTextSubtitle()) {<ng-container>{{ subtitle }}</ng-container>}<ng-content select="[slot=subtitle]"></ng-content></span>}
+      <span #subtitleEl [class]="cm().textSize('xs')">@if (hasTextSubtitle()) {<ng-container>{{ subtitle }}</ng-container>}<ng-content select="[slot=subtitle]"></ng-content></span>
     </div>
     <ng-content select="[slot=trailing]"></ng-content>`,
 })
-export class UserChip implements AfterViewInit, AfterViewChecked, OnDestroy {
+export class UserChip implements AfterViewChecked, OnDestroy {
   /** Display name. */
   name = ''
   /** Profile destination. The avatar stays outside the single name link. */
@@ -86,8 +86,8 @@ export class UserChip implements AfterViewInit, AfterViewChecked, OnDestroy {
   /** Extra classes on the outer row. */
   className?: string
 
-  /** The optimistic subtitle span (projected content lands here). */
-  @ViewChild('subtitleEl') private subtitleEl?: ElementRef<HTMLSpanElement>
+  /** The subtitle span (a text input or projected content lands here). */
+  @ViewChild('subtitleEl', { static: true }) private subtitleEl?: ElementRef<HTMLSpanElement>
 
   /** The name anchor, present only while href is defined. */
   @ViewChild('nameLink') private nameLink?: ElementRef<HTMLAnchorElement>
@@ -96,8 +96,17 @@ export class UserChip implements AfterViewInit, AfterViewChecked, OnDestroy {
   private renderedNameLink?: HTMLAnchorElement
   private nameLinkWriter?: ElementPropsWriter
 
-  /** Whether the subtitle span renders (withdrawn when nothing fills it). */
-  private readonly subtitleProjected = signal(true)
+  /**
+   * Renders the subtitle span only while it has a text input or projected
+   * content (React's `{subtitle && <span>…}`), including content a consumer
+   * projects later.
+   */
+  constructor() {
+    usePlacement((hasContent) => {
+      const subtitle = this.subtitleEl?.nativeElement
+      setElementPresent(subtitle, this.hasTextSubtitle() || (!!subtitle && hasContent(subtitle)))
+    })
+  }
 
   /**
    * The current class map.
@@ -114,14 +123,6 @@ export class UserChip implements AfterViewInit, AfterViewChecked, OnDestroy {
    */
   avatarSize(): 'xs' | 'sm' | 'md' | 'lg' {
     return this.size ?? 'sm'
-  }
-
-  /**
-   * Whether the subtitle span renders.
-   * @returns True while the span is kept.
-   */
-  showSubtitle(): boolean {
-    return this.subtitleProjected()
   }
 
   /**
@@ -196,18 +197,5 @@ export class UserChip implements AfterViewInit, AfterViewChecked, OnDestroy {
   ngOnDestroy(): void {
     this.nameLinkWriter?.destroy()
     this.nameLinkWriter = undefined
-  }
-
-  /**
-   * Withdraws the optimistic subtitle span when its slot projection did not
-   * land: when neither a text input nor projected content is present, React
-   * renders no span at all. View queries resolve at view init, and a projected
-   * slot's content is in place by then.
-   */
-  ngAfterViewInit(): void {
-    const subtitle = this.subtitleEl?.nativeElement
-    if (subtitle && !this.hasTextSubtitle() && !hasNodes(subtitle)) {
-      this.subtitleProjected.set(false)
-    }
   }
 }

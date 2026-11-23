@@ -11,7 +11,6 @@
  */
 
 import {
-  type AfterViewInit,
   Component,
   ElementRef,
   EnvironmentInjector,
@@ -22,6 +21,12 @@ import {
   ViewChild,
 } from '@angular/core'
 
+import {
+  MolPlacement,
+  setElementPresent,
+  type SlotReader,
+  usePlacement,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -31,26 +36,13 @@ import type { UseAuthFormStateOptions } from './types.js'
 import { useAuthFormState } from './use-auth-form-state.js'
 
 /**
- * Whether a slot element captured any element or non-empty text node.
- *
- * @param el - The slot element.
- * @returns True when at least one projectable node exists.
- */
-const hasNodes = (el: Element): boolean => {
-  for (const node of Array.from(el.childNodes)) {
-    if (node.nodeType === 1) return true
-    if (node.nodeType === 3 && (node.textContent ?? '').trim()) return true
-  }
-  return false
-}
-
-/**
  * Convenience preset composing container, decoration, card, heading, footer
  * and back-link into a single component, publishing the shared auth-form state.
  */
 @Component({
   selector: 'div[mol-auth-shell]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [AuthShellBackLink],
   inputs: ['heading', 'subheading', 'backTo', 'showBackLink', 'formStateStorage', 'formStateKey'],
   host: { '[class]': 'containerClasses()' },
@@ -78,7 +70,7 @@ const hasNodes = (el: Element): boolean => {
       }
     </div>`,
 })
-export class AuthShell implements OnInit, AfterViewInit, OnDestroy {
+export class AuthShell implements OnInit, OnDestroy {
   /** The heading text. */
   heading = ''
   /** The subheading text. */
@@ -100,6 +92,10 @@ export class AuthShell implements OnInit, AfterViewInit, OnDestroy {
   private readonly injector = inject(EnvironmentInjector)
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement
   private teardown: (() => void) | null = null
+
+  constructor() {
+    usePlacement((hasContent) => this.reconcile(hasContent))
+  }
 
   /**
    * The current class map.
@@ -211,11 +207,16 @@ export class AuthShell implements OnInit, AfterViewInit, OnDestroy {
     this.teardown = provideAuthFormState(this.host, state)
   }
 
-  /** Removes the decoration and footer wrappers React omits when their slot is empty. */
-  ngAfterViewInit(): void {
+  /**
+   * Keeps the decoration and footer wrappers out of the DOM while their slot is
+   * empty.
+   *
+   * @param hasContent - Reads whether a slot has content.
+   */
+  private reconcile(hasContent: SlotReader): void {
     for (const slot of [this.decorationSlot, this.footerSlot]) {
       const element = slot?.nativeElement
-      if (element && !hasNodes(element)) element.remove()
+      if (element) setElementPresent(element, hasContent(element))
     }
   }
 

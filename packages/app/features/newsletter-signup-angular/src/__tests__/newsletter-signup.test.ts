@@ -23,6 +23,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 // Proxy ClassMap echoing each accessed member back as its token (e.g. `stack`),
 // so tests can assert which cm.* class was applied without a real bond — the
 // same mock the React suite uses.
@@ -61,6 +63,7 @@ vi.mock('@molecule/app-ui-angular', async () => {
   const { Component, inject, ElementRef } = await import('@angular/core')
   return {
     Button: Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'button[mol-button]',
       standalone: true,
       inputs: ['type', 'variant', 'color', 'disabled'],
@@ -83,6 +86,7 @@ vi.mock('@molecule/app-ui-angular', async () => {
       },
     ),
     Input: Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'div[mol-input]',
       standalone: true,
       inputs: ['type', 'value', 'placeholder', 'required', 'className'],
@@ -151,7 +155,7 @@ async function mount(
     selector: 'mol-spec-host',
     standalone: true,
     imports: [component],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: templateUrl,
   })(
     class SpecHost {
@@ -160,7 +164,7 @@ async function mount(
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
     environmentInjector: appRef.injector,
@@ -200,6 +204,12 @@ const TEMPLATE = `<mol-newsletter-signup
 ></mol-newsletter-signup>`
 
 const mounted: Mounted[] = []
+
+/** The host template for the list-placement test: two fixed siblings around the widget. */
+const LIST_TEMPLATE = `<i>a</i><mol-newsletter-signup
+  [onSubscribe]="p['onSubscribe']"
+  [successContent]="p['successContent']"
+></mol-newsletter-signup><i>b</i>`
 
 /**
  * Mounts `NewsletterSignup` with the given props.
@@ -263,5 +273,22 @@ describe('NewsletterSignup', () => {
 
   it('forwards className onto the form', async () => {
     expect((await render({ className: 'ns-cls' })).markup).toContain('ns-cls')
+  })
+
+  it("renders React's elements with no host or capture element of its own", async () => {
+    const m = await mount(LIST_TEMPLATE, NewsletterSignup as Type<unknown>, {
+      onSubscribe: () => {},
+      successContent: 'Thanks for subscribing',
+    })
+    mounted.push(m)
+    const children = (): string[] =>
+      Array.from(m.host.children).map((child) => child.tagName.toLowerCase())
+    expect(children()).toEqual(['i', 'form', 'i'])
+    const form = m.host.querySelector('form')
+    if (!form) throw new Error('no <form> rendered')
+    form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }))
+    await Promise.resolve()
+    await m.setProps({})
+    expect(children()).toEqual(['i', 'div', 'i'])
   })
 })

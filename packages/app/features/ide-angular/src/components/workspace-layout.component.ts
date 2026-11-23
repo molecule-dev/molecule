@@ -14,10 +14,11 @@
  * Content projection lands all of `children` in one slot, so — exactly as in
  * the Svelte port — the panes cannot be projected into a wrapper each by the
  * template: the template renders the wrappers (and dividers) for the pane
- * count, and a post-render pass moves each projected element into its wrapper.
- * The count is not knowable before the projection exists, so the first pass
+ * count, and a post-render pass renders each projected element inside its
+ * wrapper through `placeElement` (which keeps Angular's own place for it). The
+ * count is not knowable before the projection exists, so the first pass
  * captures the projected elements and records their number; the next render
- * draws the wrappers. A projected text node is removed (React's
+ * draws the wrappers. A projected text node is dropped (React's
  * `Children.toArray(...).filter(isValidElement)` drops a text child).
  *
  * The same pass reconciles the panel configs to the panes actually rendered:
@@ -48,7 +49,7 @@ import {
   ViewChildren,
 } from '@angular/core'
 
-import { useWorkspace } from '@molecule/app-angular'
+import { placeElement, setElementPresent, useWorkspace } from '@molecule/app-angular'
 import type { PanelConfig } from '@molecule/app-ide'
 import { clampPanelSize, livePanelSize } from '@molecule/app-ide-panel-logic'
 import { getClassMap, type UIClassMap } from '@molecule/app-ui'
@@ -238,7 +239,7 @@ export class WorkspaceLayout {
       for (const node of Array.from(host.childNodes)) {
         if (node.nodeType === 1 && !handles.has(node)) elements.push(node as HTMLElement)
         // React drops a text child (it is not an element).
-        else if (node.nodeType === 3) node.remove()
+        else if (node.nodeType === 3) setElementPresent(node, false)
       }
       this.captured = true
       this.panes = elements
@@ -249,7 +250,7 @@ export class WorkspaceLayout {
     }
     this.panes.forEach((node, index) => {
       const wrapper = wrappers[index]
-      if (wrapper && node.parentNode !== wrapper) wrapper.appendChild(node)
+      if (wrapper) placeElement(node, wrapper)
     })
   }
 

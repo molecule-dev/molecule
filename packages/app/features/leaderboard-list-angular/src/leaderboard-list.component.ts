@@ -4,20 +4,17 @@
  * @module
  */
 
-import {
-  type AfterViewInit,
-  Component,
-  type DoCheck,
-  ElementRef,
-  inject,
-  Renderer2,
-  ViewChild,
-} from '@angular/core'
+import { Component, ElementRef, inject, ViewChild } from '@angular/core'
 
+import {
+  MolPlacement,
+  placeContent,
+  setElementPresent,
+  type SlotReader,
+  usePlacement,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
-
-import { hasNodes, SlotGuard } from './slot-dom.js'
 
 /**
  * LeaderboardList component.
@@ -31,12 +28,15 @@ import { hasNodes, SlotGuard } from './slot-dom.js'
  * The node props are projected slots: `title` renders inside the `<h3>`,
  * `actions` bare beside it, `children` inside the list container, and
  * `emptyState` bare in place of the list (React's
- * `childCount === 0 ? emptyState : <div>…`). The always-mounted capture
- * wrappers reconcile against that in {@link LeaderboardList.ngAfterViewInit}.
+ * `childCount === 0 ? emptyState : <div>…`). The optional wrappers are taken
+ * out of the DOM when React renders nothing ({@link setElementPresent}) and the
+ * bare slots' content is moved to where React renders it ({@link placeContent}),
+ * in {@link LeaderboardList.reconcile}.
  */
 @Component({
   selector: 'div[mol-leaderboard-list]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   inputs: ['className'],
   host: {
     '[class]': 'classes()',
@@ -48,22 +48,27 @@ import { hasNodes, SlotGuard } from './slot-dom.js'
     <div #list [class]="listClasses()"><ng-content></ng-content></div>
     <span #empty><ng-content select="[slot=emptyState]"></ng-content></span>`,
 })
-export class LeaderboardList implements AfterViewInit, DoCheck {
+export class LeaderboardList {
   /** Extra classes on the outer wrapper. */
   className?: string
 
-  /** The header capture wrapper (detached when neither title nor actions exist). */
+  /** The header capture wrapper (absent when neither title nor actions exist). */
   @ViewChild('header') header?: ElementRef<HTMLElement>
-  /** The title's `<h3>` (detached when the title slot is empty). */
+  /** The title's `<h3>` (absent when the title slot is empty). */
   @ViewChild('title') title?: ElementRef<HTMLElement>
-  /** The actions capture wrapper (always detached; React renders the slot bare). */
+  /** The actions capture wrapper (always absent; React renders the slot bare). */
   @ViewChild('actions') actions?: ElementRef<HTMLElement>
-  /** The list container (detached when the default slot is empty). */
+  /** The list container (absent when the default slot is empty). */
   @ViewChild('list') list?: ElementRef<HTMLElement>
-  /** The emptyState capture wrapper (revealed bare, or hidden with the list rendered). */
+  /** The emptyState capture wrapper (rendered bare, or absent with the list rendered). */
   @ViewChild('empty') empty?: ElementRef<HTMLElement>
 
-  private readonly guard = new SlotGuard(inject(ElementRef), inject(Renderer2))
+  /** The component host, the parent the bare `emptyState` renders in. */
+  private readonly host = inject(ElementRef<HTMLElement>)
+
+  constructor() {
+    usePlacement((hasContent) => this.reconcile(hasContent))
+  }
 
   /**
    * The current class map.
@@ -106,41 +111,41 @@ export class LeaderboardList implements AfterViewInit, DoCheck {
   }
 
   /**
-   * Reads slot presence (view queries resolve only at view init) and
-   * reconciles the wrappers against React's DOM.
-   */
-  ngAfterViewInit(): void {
-    this.reconcile()
-  }
-
-  /**
-   * Re-reconciles on later passes (a props step may change `className`; the
-   * projected slots never change, so this settles immediately).
-   */
-  ngDoCheck(): void {
-    this.reconcile()
-  }
-
-  /**
    * Applies React's conditions: the `<header>` renders when the title or the
    * actions exist (the `<h3>` only for a title, the actions bare); the list
    * container renders when the default slot has rows, otherwise the empty
    * state renders bare in its place.
+   *
+   * @param hasContent - Reads whether a slot has content.
    */
-  private reconcile(): void {
+  private reconcile(hasContent: SlotReader): void {
+    const header = this.header?.nativeElement
     const title = this.title?.nativeElement
     const actions = this.actions?.nativeElement
     const list = this.list?.nativeElement
     const empty = this.empty?.nativeElement
-    const hasTitle = hasNodes(title)
-    const hasActions = hasNodes(actions)
-    const hasChildren = hasNodes(list)
+    const hasTitle = hasContent(title)
+    const hasActions = hasContent(actions)
+    const hasChildren = hasContent(list)
 
-    this.guard.toggle(this.header?.nativeElement, hasTitle || hasActions)
-    this.guard.toggle(title, hasTitle)
-    this.guard.reveal(actions)
-    this.guard.toggle(list, hasChildren)
-    if (hasChildren) this.guard.hide(empty)
-    else this.guard.reveal(empty)
+    setElementPresent(header, hasTitle || hasActions)
+    setElementPresent(title, hasTitle)
+    // React renders `actions` bare inside the header: the projected content
+    // sits where the capture wrapper is, and the wrapper itself renders nothing.
+    if (actions && header) {
+      placeContent(actions, header, actions)
+      setElementPresent(actions, false)
+    }
+    setElementPresent(list, hasChildren)
+    // React renders `emptyState` bare in place of the list.
+    if (empty) {
+      if (hasChildren) {
+        placeContent(empty, null)
+        setElementPresent(empty, false)
+      } else {
+        placeContent(empty, this.host.nativeElement, empty)
+        setElementPresent(empty, false)
+      }
+    }
   }
 }

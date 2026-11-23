@@ -167,4 +167,21 @@ describe('AuthModal finishAuth', () => {
     expect(onClose).not.toHaveBeenCalled()
     expect(onAuthenticated).not.toHaveBeenCalled()
   })
+
+  it("renders React's elements with no host or capture element of its own", async () => {
+    const fixture = await renderFixture(
+      `<i>a</i><mol-auth-modal [open]="p['open']" [onClose]="p['onClose']" [initialMode]="'signup'" [oauthConfig]="p['oauthConfig']"></mol-auth-modal><i>b</i>`,
+      { open: true, onClose: vi.fn(), oauthConfig: {} },
+      [AuthModal, ModalStub, IconStub, ButtonStub, OAuthButtonsStub, OAuthDividerStub],
+    )
+    mounted.push(fixture)
+    await flush(fixture)
+    const tags = (): string[] =>
+      Array.from(fixture.host.children).map((child) => child.tagName.toLowerCase())
+    // React's root is the Modal: the port's own `mol-auth-modal` host leaves the
+    // page, and the stub modal's host stands where React's modal root is (the
+    // real port portals its root, as React's does).
+    expect(tags()).toEqual(['i', 'mol-modal', 'i'])
+    expect(fixture.host.querySelector('mol-auth-modal')).toBeNull()
+  })
 })

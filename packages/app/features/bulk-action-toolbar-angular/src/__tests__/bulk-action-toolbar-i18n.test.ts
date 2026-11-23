@@ -81,7 +81,7 @@ async function mount(template: string, props: Record<string, unknown> = {}): Pro
     selector: 'mol-spec-host',
     standalone: true,
     imports: [BulkActionToolbar],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     host: { 'data-spec-host': String(specHost) },
     template,
   })(
@@ -132,6 +132,6 @@ describe('BulkActionToolbar i18n', () => {
     mounted.push(m)
     const toolbar = m.host.querySelector('[role="region"]')
     expect(toolbar?.getAttribute('aria-label')).toBe('«bulkActions.aria.toolbar»')
-    expect(toolbar?.getAttribute('aria-label')).not.toBe('Bulk actions')
+    expect(toolbar!.getAttribute('aria-label')).not.toBe('Bulk actions')
   })
 })

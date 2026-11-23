@@ -5,9 +5,27 @@
  * @module
  */
 
-import { Component, inject, Injector, type OnInit, runInInjectionContext } from '@angular/core'
+import {
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  inject,
+  Injector,
+  type OnInit,
+  runInInjectionContext,
+  ViewChild,
+} from '@angular/core'
 
-import { Link, useAuth, useTranslation, useVerifyPaymentReturn } from '@molecule/app-angular'
+import {
+  Link,
+  MolPlacement,
+  placeContentBefore,
+  setElementPresent,
+  useAuth,
+  usePlacement,
+  useTranslation,
+  useVerifyPaymentReturn,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Flex, Spinner } from '@molecule/app-ui-angular'
@@ -24,13 +42,14 @@ import { Button, Flex, Spinner } from '@molecule/app-ui-angular'
  * reads as a thank-you.
  *
  * React's root is the `<main>` (or the centered `<Flex>` while the spinner
- * shows), so the host is an empty, layout-neutral element (`display: contents`)
- * that the DOM normalizer unwraps — the convention the UI kit's fragment-rooted
- * Angular components use.
+ * shows), so nothing of Angular's host stays in the page: React's chosen root
+ * renders in the host's place (the template's `@if` branches) and the host
+ * itself leaves the DOM.
  */
 @Component({
   selector: 'mol-plan-updated-page',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [Button, Flex, Link, Spinner],
   inputs: [
     'messageKey',
@@ -43,7 +62,9 @@ import { Button, Flex, Spinner } from '@molecule/app-ui-angular'
     'provider',
     'verify',
   ],
-  host: { 'data-parity-unwrap': '', style: 'display: contents' },
+  // Every branch root stays in the template and the placement function keeps
+  // exactly React's one in the page: an @if around them would have Angular
+  // destroy a root the placement function had moved beside the host.
   template: `@if (waiting()) {
       <div mol-flex [align]="'center'" [justify]="'center'" [className]="cm().sp('py', 12)">
         <div mol-spinner></div>
@@ -114,6 +135,23 @@ export class PlanUpdatedPage implements OnInit {
 
   /** The `useVerifyPaymentReturn` result, created once the inputs exist. */
   private verification?: ReturnType<typeof useVerifyPaymentReturn>
+
+  /** The spinner row (React's centered `<Flex>` root while it waits). */
+  @ViewChild('spinnerRoot', { read: ElementRef }) private spinnerRoot?: ElementRef<HTMLElement>
+  /** The retry `<main>` (React's root once a confirmation failed). */
+  @ViewChild('failedRoot') private failedRoot?: ElementRef<HTMLElement>
+  /** The confirmation `<main>` (React's root otherwise). */
+  @ViewChild('successRoot') private successRoot?: ElementRef<HTMLElement>
+
+  private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
+  private readonly cdr = inject(ChangeDetectorRef)
+
+  constructor() {
+    usePlacement(() => {
+      placeContentBefore(this.host.nativeElement, this.host.nativeElement)
+      setElementPresent(this.host.nativeElement, false)
+    })
+  }
 
   /**
    * The current class map.

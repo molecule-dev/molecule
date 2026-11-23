@@ -68,7 +68,7 @@ async function mount(props: Record<string, unknown> = {}): Promise<Mounted> {
     selector: 'mol-spec-host',
     standalone: true,
     imports: [Stepper],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: `<div mol-stepper [steps]="p['steps']" [currentStep]="p['currentStep']" [variant]="p['variant']" [orientation]="p['orientation']" [onStepClick]="p['onStepClick']" [className]="p['className']"></div>`,
   })(
     class SpecHost {

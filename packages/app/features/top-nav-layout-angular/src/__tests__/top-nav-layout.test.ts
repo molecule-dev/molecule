@@ -23,6 +23,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 // The current location the `useRouterInstance` fake reads, so a test can move
 // the active path before it renders.
 const locationState = vi.hoisted(() => ({ pathname: '/' }))
@@ -83,6 +85,7 @@ vi.mock('@molecule/app-angular', async (importOriginal) => {
     },
   )
   const RoutedView = Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
     selector: 'mol-routed-view',
     standalone: true,
     template: '<div data-outlet=""></div>',
@@ -139,7 +142,7 @@ async function mount(
     selector: 'mol-spec-host',
     standalone: true,
     imports: [component],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template,
   })(
     class SpecHost {
@@ -148,7 +151,7 @@ async function mount(
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
     environmentInjector: appRef.injector,
@@ -265,5 +268,42 @@ describe('TopNavLayout', () => {
   it('sets the data-mol-id on the outer wrapper', async () => {
     const m = await render({ appName: 'Acme', dataMolId: 'tnl-x' })
     expect(m.host.innerHTML).toContain('data-mol-id="tnl-x"')
+  })
+
+  it('shows and removes the page wrapper in the pass where the consumer @if adds and removes its content', async () => {
+    const m = await render({ appName: 'Acme', on: false }, `@if (p['on']) {<p data-page>Page</p>}`)
+    const page = (): HTMLElement | null => m.host.querySelector('[data-page]')
+    // No projected page: React renders the routed view instead.
+    expect(page()).toBeNull()
+    expect(m.host.innerHTML).toContain('data-outlet')
+    await m.setProps({ on: true })
+    // The page arrives: it renders in the same pass and the routed view goes.
+    expect(page()).not.toBeNull()
+    expect(page()?.isConnected).toBe(true)
+    expect(m.host.innerHTML).not.toContain('data-outlet')
+    await m.setProps({ on: false })
+    expect(page()).toBeNull()
+    expect(m.host.innerHTML).toContain('data-outlet')
+  })
+
+  it("renders React's elements with no host or capture element of its own", async () => {
+    // The host IS React's outer `<div>`, so it stays; the page body projects
+    // straight into `<main>` through the (hidden) capture span.
+    const m = await mount(
+      `<i>a</i><div mol-top-nav-layout [appName]="p['appName']" [navItems]="p['navItems']">@if (p['on']) {<p data-page>Page</p>}</div><i>b</i>`,
+      TopNavLayout as Type<unknown>,
+      { appName: 'Acme', navItems, on: false },
+    )
+    mounted.push(m)
+    const children = (): string[] =>
+      Array.from(m.host.children).map((child) => child.tagName.toLowerCase())
+    expect(children()).toEqual(['i', 'div', 'i'])
+    await m.setProps({ on: true })
+    expect(children()).toEqual(['i', 'div', 'i'])
+    // No capture span remains: the projected page is a DIRECT child of <main>.
+    const main = m.host.querySelector('main')
+    const page = m.host.querySelector('[data-page]')
+    expect(page).not.toBeNull()
+    expect(page?.parentElement).toBe(main)
   })
 })

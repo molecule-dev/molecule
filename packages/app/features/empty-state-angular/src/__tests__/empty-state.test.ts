@@ -23,6 +23,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 // Proxy ClassMap echoing each accessed member back as its token (e.g.
 // `textCenter`), so tests can assert which cm.* class was applied without a
 // real bond.
@@ -80,7 +82,7 @@ async function mount(
     selector: 'mol-spec-host',
     standalone: true,
     imports: [component],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     host: { 'data-spec-host': String(++hostCount) },
     template,
   })(
@@ -90,7 +92,7 @@ async function mount(
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
     environmentInjector: appRef.injector,
@@ -169,6 +171,21 @@ describe('EmptyState', () => {
     expect(m.host.innerHTML).toContain('data-act')
   })
 
+  it('keeps a consumer list in order when an item is inserted in the middle of description', async () => {
+    const m = await render(
+      emptyState(`@for (x of p['xs']; track x) {<b slot="description">{{ x }}</b>}`),
+      EmptyState,
+      { title: 'T', xs: [1, 3] },
+    )
+    const items = (): string[] =>
+      Array.from(m.host.querySelectorAll('b')).map((el) => el.textContent ?? '')
+    expect(items()).toEqual(['1', '3'])
+    await m.setProps({ xs: [0, 1, 2, 3] })
+    expect(items()).toEqual(['0', '1', '2', '3'])
+    await m.setProps({ xs: [0, 2, 3] })
+    expect(items()).toEqual(['0', '2', '3'])
+  })
+
   it('sets data-mol-id and forwards className + iconWrapperClassName', async () => {
     const m = await render(emptyState('<i slot="icon"></i>'), EmptyState, {
       title: 'T',
@@ -179,6 +196,44 @@ describe('EmptyState', () => {
     expect(m.host.innerHTML).toContain('data-mol-id="empty-x"')
     expect(m.host.innerHTML).toContain('es-cls')
     expect(m.host.innerHTML).toContain('icon-cls')
+  })
+
+  it('shows and removes the description wrapper in the pass where the consumer @if adds and removes its content', async () => {
+    const m = await render(
+      `<section mol-empty-state [title]="p['title']">@if (p['on']) {<b slot="description" data-desc>More</b>}</section>`,
+      EmptyState,
+      { title: 'T', on: false },
+    )
+    // React: `{content.description && <p>…</p>}` — no paragraph for an empty slot.
+    expect(m.host.querySelector('[data-desc]')).toBeNull()
+    expect(m.host.querySelector('p')).toBeNull()
+    await m.setProps({ on: true })
+    expect(m.host.querySelector('[data-desc]')!.parentElement!.tagName.toLowerCase()).toBe('p')
+    expect(m.host.querySelector('p')!.textContent).toBe('More')
+    await m.setProps({ on: false })
+    expect(m.host.querySelector('[data-desc]')).toBeNull()
+    expect(m.host.querySelector('p')).toBeNull()
+  })
+
+  it("renders React's elements with no host or capture element of its own", async () => {
+    const m = await render(
+      `<i>a</i><section mol-empty-state [title]="p['title']" [description]="p['description']"><button slot="action" data-act>A</button></section><i>b</i>`,
+      EmptyState,
+      { title: 'T' },
+    )
+    const children = (): string[] =>
+      Array.from(m.host.children).map((child) => child.tagName.toLowerCase())
+    // The host IS React's root <section>; the section stays between the siblings.
+    expect(children()).toEqual(['i', 'section', 'i'])
+    // The projected action is a direct child of the section — no capture <div> remains.
+    const section = m.host.querySelector('section') as HTMLElement
+    const action = m.host.querySelector('[data-act]') as HTMLElement
+    expect(action.parentElement).toBe(section)
+    // Toggling the description adds the <p> inside the section, without a sibling.
+    expect(section.querySelector('p')).toBeNull()
+    await m.setProps({ description: 'desc-x' })
+    expect(children()).toEqual(['i', 'section', 'i'])
+    expect(section.querySelector('p')).not.toBeNull()
   })
 })
 
@@ -227,6 +282,21 @@ describe('CtaCard', () => {
     expect(without.host.innerHTML).not.toContain('data-media')
   })
 
+  it('keeps a consumer list in order when an item is inserted in the middle of action', async () => {
+    const m = await render(
+      ctaCard(`@for (x of p['xs']; track x) {<b slot="action">{{ x }}</b>}`),
+      CtaCard,
+      { title: 'T', xs: [1, 3] },
+    )
+    const items = (): string[] =>
+      Array.from(m.host.querySelectorAll('b')).map((el) => el.textContent ?? '')
+    expect(items()).toEqual(['1', '3'])
+    await m.setProps({ xs: [0, 1, 2, 3] })
+    expect(items()).toEqual(['0', '1', '2', '3'])
+    await m.setProps({ xs: [0, 2, 3] })
+    expect(items()).toEqual(['0', '2', '3'])
+  })
+
   it('sets data-mol-id and forwards className', async () => {
     const m = await render(ctaCard(), CtaCard, {
       title: 'T',
@@ -235,5 +305,21 @@ describe('CtaCard', () => {
     })
     expect(m.host.innerHTML).toContain('data-mol-id="cta-x"')
     expect(m.host.innerHTML).toContain('cta-cls')
+  })
+
+  it('shows and removes the eyebrow wrapper in the pass where the consumer @if adds and removes its content', async () => {
+    const m = await render(
+      `<section mol-cta-card [title]="p['title']">@if (p['on']) {<b slot="eyebrow" data-eyebrow>New</b>}</section>`,
+      CtaCard,
+      { title: 'T', on: false },
+    )
+    // React: `{eyebrow && <div>…</div>}` — no wrapper for an empty slot.
+    expect(m.host.querySelector('[data-eyebrow]')).toBeNull()
+    await m.setProps({ on: true })
+    const projected = m.host.querySelector('[data-eyebrow]')!
+    expect(projected.parentElement!.tagName.toLowerCase()).toBe('div')
+    expect(projected.textContent).toBe('New')
+    await m.setProps({ on: false })
+    expect(m.host.querySelector('[data-eyebrow]')).toBeNull()
   })
 })

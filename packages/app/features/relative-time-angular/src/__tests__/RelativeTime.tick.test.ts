@@ -76,7 +76,7 @@ async function mount(props: Record<string, unknown>): Promise<Mounted> {
     selector: 'mol-spec-host',
     standalone: true,
     imports: [RelativeTime],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: `<time mol-relative-time [date]="p['date']" [locale]="p['locale']" [refreshMs]="p['refreshMs']" [className]="p['className']"></time>`,
   })(
     class SpecHost {

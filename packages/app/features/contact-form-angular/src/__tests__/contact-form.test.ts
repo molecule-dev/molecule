@@ -22,6 +22,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 // Proxy ClassMap echoing each accessed member back as its token (e.g. `stack`),
 // so tests can assert which cm.* class was applied without a real bond — the
 // same mock the React suite uses.
@@ -63,6 +65,7 @@ vi.mock('@molecule/app-ui-angular', async () => {
   const { useTranslation } = await import('@molecule/app-angular')
   return {
     Button: Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'button[mol-button]',
       standalone: true,
       inputs: ['type', 'variant', 'color', 'disabled'],
@@ -85,6 +88,7 @@ vi.mock('@molecule/app-ui-angular', async () => {
       },
     ),
     Input: Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'div[mol-input]',
       standalone: true,
       inputs: ['type', 'value', 'placeholder', 'required', 'className', 'id'],
@@ -125,6 +129,7 @@ vi.mock('@molecule/app-ui-angular', async () => {
       },
     ),
     Textarea: Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'div[mol-textarea]',
       standalone: true,
       inputs: ['value', 'placeholder', 'required', 'rows', 'className', 'id'],
@@ -175,6 +180,8 @@ interface Mounted {
   readonly host: HTMLElement
   /** The markup the component rendered. */
   readonly markup: string
+  /** Runs one change-detection pass. */
+  tick(): void
   /** Destroys the app and removes the host. */
   destroy(): Promise<void>
 }
@@ -197,7 +204,7 @@ async function mount(
     selector: 'mol-spec-host',
     standalone: true,
     imports: [component],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: templateUrl,
   })(
     class SpecHost {
@@ -206,7 +213,7 @@ async function mount(
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
     environmentInjector: appRef.injector,
@@ -221,6 +228,7 @@ async function mount(
   return {
     host,
     markup: host.innerHTML,
+    tick: () => appRef.tick(),
     destroy: async () => {
       appRef.destroy()
       host.remove()
@@ -312,5 +320,23 @@ describe('ContactForm', () => {
 
   it('forwards className onto the form', async () => {
     expect((await render({ className: 'cf-cls' })).markup).toContain('cf-cls')
+  })
+
+  it("renders React's elements with no host or capture element of its own", async () => {
+    const m = await mount(
+      `<i>a</i><mol-contact-form [successContent]="p['successContent']"></mol-contact-form><i>b</i>`,
+      ContactForm as Type<unknown>,
+      { successContent: 'Done' },
+    )
+    mounted.push(m)
+    const children = (): string[] =>
+      Array.from(m.host.children).map((child) => child.tagName.toLowerCase())
+    // React's root while idle is the `<form>` itself, with no `mol-contact-form` host.
+    expect(children()).toEqual(['i', 'form', 'i'])
+    // Submitting renders React's `<div>` success root in the form's place.
+    m.host.querySelector('form')?.dispatchEvent(new Event('submit'))
+    await Promise.resolve()
+    m.tick()
+    expect(children()).toEqual(['i', 'div', 'i'])
   })
 })

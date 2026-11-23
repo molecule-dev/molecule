@@ -4,21 +4,19 @@
  * @module
  */
 
-import {
-  type AfterViewInit,
-  Component,
-  type DoCheck,
-  ElementRef,
-  inject,
-  Renderer2,
-  ViewChild,
-} from '@angular/core'
+import { Component, type ElementRef, ViewChild } from '@angular/core'
 
+import {
+  MolPlacement,
+  placeContent,
+  placeContentBefore,
+  setElementPresent,
+  type SlotReader,
+  usePlacement,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-angular'
-
-import { hasNodes, SlotWrapper } from './slot-dom.js'
 
 /**
  * DangerZoneSection component.
@@ -40,6 +38,7 @@ import { hasNodes, SlotWrapper } from './slot-dom.js'
 @Component({
   selector: 'div[mol-danger-zone-section]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [Button],
   inputs: [
     'title',
@@ -79,7 +78,7 @@ import { hasNodes, SlotWrapper } from './slot-dom.js'
     </div>
   </div>`,
 })
-export class DangerZoneSection implements AfterViewInit, DoCheck {
+export class DangerZoneSection {
   /** Section title (string/number renders as text; nodes are `[slot=title]` content). */
   title?: unknown
   /** Explanation of the destructive action (string/number as text; nodes are `[slot=description]` content). */
@@ -100,23 +99,9 @@ export class DangerZoneSection implements AfterViewInit, DoCheck {
   /** The action label's capture wrapper (moved out of the DOM once read). */
   @ViewChild('labelSlot') labelSlot?: ElementRef<HTMLSpanElement>
 
-  /** Whether the action label slot holds projected content (read once). */
-  private hasLabelSlot = false
-
-  /** The capture wrapper's parent (the action `<button>`), remembered across detaches. */
-  private labelParent?: Node
-
-  /** The projected label nodes while they render bare (React's `{actionLabel}`). */
-  private labelNodes: Node[] = []
-
-  /** Marks the wrapper's position in the button while the projected nodes render bare. */
-  private labelAnchor?: Comment
-
-  /** The wrapper sync for the action label's capture wrapper. */
-  private readonly sync = new SlotWrapper(inject(ElementRef), inject(Renderer2))
-
-  /** Creates the position anchor comment the DOM normalizer strips. */
-  private readonly renderer = inject(Renderer2)
+  constructor() {
+    usePlacement((hasContent) => this.syncLabels(hasContent))
+  }
 
   /**
    * The current class map.
@@ -193,82 +178,26 @@ export class DangerZoneSection implements AfterViewInit, DoCheck {
   }
 
   /**
-   * Reads the label slot's presence (view queries resolve only at view init)
-   * and syncs the capture wrapper against React's DOM.
-   */
-  ngAfterViewInit(): void {
-    const label = this.labelSlot?.nativeElement
-    if (label) {
-      this.labelParent = label.parentElement ?? undefined
-      this.hasLabelSlot = hasNodes(label)
-    }
-    this.syncLabels()
-  }
-
-  /**
-   * Re-syncs the wrapper when `loading` changes.
-   */
-  ngDoCheck(): void {
-    this.syncLabels()
-  }
-
-  /**
    * Applies React's label branch: the projected label renders only while
    * there is one and the button is not loading (`{loading ? '…' : actionLabel}`),
-   * and it renders BARE — the capture wrapper never shows in the DOM.
+   * and it renders BARE — the capture wrapper never shows in the DOM, and the
+   * content follows the wrapper's own place.
+   *
+   * @param hasContent - Reads whether a slot has content.
    */
-  private syncLabels(): void {
+  private syncLabels(hasContent: SlotReader): void {
     const span = this.labelSlot?.nativeElement
-    const parent = this.labelParent
-    if (!span || !parent) return
-    if (this.hasLabelSlot && this.loading !== true) {
-      this.unwrapLabel(span, parent)
-    } else {
-      this.wrapLabel(span, parent)
+    if (!span) return
+    if (hasContent(span) && this.loading !== true) {
+      // The content stands bare in front of the capture point's place, and the
+      // point itself leaves the page: React renders `{actionLabel}` with no wrapper.
+      placeContentBefore(span, span)
+      setElementPresent(span, false)
+      return
     }
-  }
-
-  /**
-   * Moves the projected nodes out of the capture wrapper to its position and
-   * detaches the empty wrapper (React renders the label with no element).
-   *
-   * @param span - The capture wrapper.
-   * @param parent - The wrapper's parent (the action `<button>`).
-   */
-  private unwrapLabel(span: HTMLSpanElement, parent: Node): void {
-    const anchor = this.labelAnchor ?? this.createLabelAnchor(parent, span)
-    this.labelNodes = Array.from(span.childNodes)
-    for (const node of this.labelNodes) parent.insertBefore(node, anchor)
-    if (span.isConnected) parent.removeChild(span)
-  }
-
-  /**
-   * Creates the position anchor comment and inserts it where the wrapper sits.
-   *
-   * @param parent - The wrapper's parent (the action `<button>`).
-   * @param span - The capture wrapper the anchor replaces.
-   * @returns The created anchor comment.
-   */
-  private createLabelAnchor(parent: Node, span: Node): Comment {
-    const anchor: Comment = this.renderer.createComment('slot')
-    this.labelAnchor = anchor
-    parent.insertBefore(anchor, span)
-    return anchor
-  }
-
-  /**
-   * Puts the projected nodes back inside the capture wrapper (hidden, as
-   * React hides the label while loading) and keeps the wrapper out of the DOM.
-   *
-   * @param span - The capture wrapper.
-   * @param parent - The wrapper's parent (the action `<button>`).
-   */
-  private wrapLabel(span: HTMLSpanElement, parent: Node): void {
-    for (const node of this.labelNodes) span.appendChild(node)
-    this.labelNodes = []
-    if (!span.isConnected && this.labelAnchor?.isConnected) {
-      parent.insertBefore(span, this.labelAnchor)
-    }
-    this.sync.sync(span, false, parent)
+    // React shows the `…` glyph instead of the label: the projected nodes go
+    // back inside the hidden capture wrapper.
+    placeContent(span, null)
+    setElementPresent(span, false)
   }
 }

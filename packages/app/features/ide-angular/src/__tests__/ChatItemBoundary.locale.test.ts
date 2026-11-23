@@ -19,6 +19,7 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 import type * as AppLogger from '@molecule/app-logger'
 import { setClassMap } from '@molecule/app-ui'
@@ -34,6 +35,7 @@ vi.mock('@molecule/app-logger', async (importOriginal) => ({
 
 /** A child that fails while it is created, so the boundary shows its notice. */
 const Broken = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-broken',
   standalone: true,
   template: `<span>never rendered</span>`,
@@ -74,12 +76,12 @@ describe('ChatItemBoundary after a language switch', () => {
       selector: 'mol-spec-host',
       standalone: true,
       imports: [ChatItemBoundary, Broken],
-      changeDetection: ChangeDetectionStrategy.Default,
+      changeDetection: ChangeDetectionStrategy.Eager,
       host: { 'data-parity-host': 'chat-item-boundary-locale' },
       template: `<mol-chat-item-boundary [render]="itemTpl"><ng-template #itemTpl><mol-broken /></ng-template></mol-chat-item-boundary>`,
     })(class SpecHost {})
     const appRef: ApplicationRef = await createApplication({
-      providers: [provideZonelessChangeDetection()],
+      providers: [provideZonelessChangeDetection(), provideDomPlacement()],
     })
     const ref: ComponentRef<unknown> = createComponent(Host, {
       environmentInjector: appRef.injector,

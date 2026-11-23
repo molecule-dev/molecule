@@ -25,7 +25,7 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { vi } from 'vitest'
 
-import { provideI18n, providePreview } from '@molecule/app-angular'
+import { provideDomPlacement, provideI18n, providePreview } from '@molecule/app-angular'
 import { createSimpleI18nProvider } from '@molecule/app-i18n'
 import type {
   PreviewRenderState,
@@ -74,7 +74,7 @@ const PreviewPanelHost = Component({
   selector: 'div[mol-preview-host]',
   standalone: true,
   imports: [PreviewPanel],
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.Eager,
   // prettier-ignore
   template: `<div mol-preview-panel [buildingHint]="p['buildingHint']" [isBuilding]="p['isBuilding']" [wakeAt]="p['wakeAt']" [fileChangeTick]="p['fileChangeTick']" [uiCommand]="p['uiCommand']" [onPreviewError]="p['onPreviewError']" [onPreviewStuck]="p['onPreviewStuck']" [onRestartBackend]="p['onRestartBackend']" [onRenderState]="p['onRenderState']" [onUiResult]="p['onUiResult']"></div>`,
 })(
@@ -145,6 +145,7 @@ export async function mountPanel(
   const appRef = await createApplication({
     providers: [
       provideZonelessChangeDetection(),
+      provideDomPlacement(),
       provideI18n(createSimpleI18nProvider('en')),
       providePreview(provider),
     ],

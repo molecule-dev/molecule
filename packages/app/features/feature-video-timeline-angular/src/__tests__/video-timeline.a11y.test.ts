@@ -90,7 +90,7 @@ async function mountTimeline(props: VideoTimelineProps): Promise<Mounted> {
     selector: 'mol-a11y-host',
     standalone: true,
     imports: [VideoTimeline as Type<unknown>],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: TEMPLATE,
   })(
     class SpecHost {

@@ -29,7 +29,7 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { provideTheme } from '@molecule/app-angular'
+import { provideDomPlacement, provideTheme } from '@molecule/app-angular'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
@@ -53,7 +53,7 @@ const TabBarHost = Component({
   selector: 'mol-tab-bar-host',
   standalone: true,
   imports: [TabBar],
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `<div mol-tab-bar [tabs]="p['tabs']" [activeFile]="p['activeFile']" [onSelect]="p['onSelect']" [onClose]="p['onClose']"></div>`,
 })(
   class TabBarHost {
@@ -107,7 +107,11 @@ async function renderBar(): Promise<{
   const container = document.createElement('div')
   document.body.appendChild(container)
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection(), provideTheme(buildThemeProvider())],
+    providers: [
+      provideZonelessChangeDetection(),
+      provideDomPlacement(),
+      provideTheme(buildThemeProvider()),
+    ],
   })
   const ref: ComponentRef<InstanceType<typeof TabBarHost>> = createComponent(TabBarHost, {
     environmentInjector: appRef.injector,

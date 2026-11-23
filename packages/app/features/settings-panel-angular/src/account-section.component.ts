@@ -262,7 +262,7 @@ export class AccountSection implements AfterViewInit {
    * @param error - The field's validation message, or null.
    */
   private syncEmailAria(error: string | null): void {
-    if (!this.emailControl || !this.emailControl.isConnected) this.resolveEmailControl()
+    this.resolveEmailControl()
     const control = this.emailControl
     if (!control) return
     if (error) {
