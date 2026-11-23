@@ -21,6 +21,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 vi.mock('@molecule/app-ui', () => ({
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
@@ -81,7 +83,7 @@ const render = async (props: Record<string, unknown>): Promise<Mounted> => {
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref = createComponent(Host as Type<{ p: Record<string, unknown> }>, {
     environmentInjector: appRef.injector,

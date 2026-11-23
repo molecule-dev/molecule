@@ -21,6 +21,7 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
 // The REAL companion locale bond (not mocked) — proves t('settingsActions.saved')
 // and its siblings resolve from the bond's canonical en table, not just the
 // inline defaultValue that would otherwise mask a missing key.
@@ -127,6 +128,8 @@ const { SettingsActionsBar } = await import('../settings-actions-bar.component.j
 interface Mounted {
   /** The host element whose children the component template produced. */
   readonly host: HTMLElement
+  /** Merges props over the current ones and flushes change detection. */
+  setProps(next: Record<string, unknown>): Promise<void>
   /** Destroys the app and removes the host. */
   destroy(): Promise<void>
 }
@@ -153,7 +156,7 @@ async function mount(template: string, props: Record<string, unknown> = {}): Pro
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
     environmentInjector: appRef.injector,
@@ -164,6 +167,11 @@ async function mount(template: string, props: Record<string, unknown> = {}): Pro
   appRef.tick()
   return {
     host,
+    setProps: async (next: Record<string, unknown>) => {
+      ref.instance.p = { ...ref.instance.p, ...next }
+      ref.changeDetectorRef.markForCheck()
+      appRef.tick()
+    },
     destroy: async () => {
       appRef.destroy()
       host.remove()
@@ -284,5 +292,20 @@ describe('SettingsActionsBar', () => {
 
   it('forwards className', async () => {
     expect(await html({ onSave: () => {}, className: 'sab-cls' })).toContain('sab-cls')
+  })
+
+  it('keeps a consumer list in order when an item is inserted in the middle of the error slot', async () => {
+    const m = await mount(
+      `<div mol-settings-actions-bar [onSave]="p['onSave']">@for (x of p['xs']; track x) {<b slot="error">{{ x }}</b>}</div>`,
+      { onSave: () => {}, xs: ['a', 'c'] },
+    )
+    mounted.push(m)
+    const shown = (): (string | null)[] =>
+      Array.from(m.host.querySelectorAll('b')).map((el) => el.textContent)
+    expect(shown()).toEqual(['a', 'c'])
+    await m.setProps({ xs: ['a', 'b', 'c'] })
+    expect(shown()).toEqual(['a', 'b', 'c'])
+    await m.setProps({ xs: ['a', 'c'] })
+    expect(shown()).toEqual(['a', 'c'])
   })
 })

@@ -10,19 +10,15 @@ import {
   Component,
   type DoCheck,
   type ElementRef,
-  inject,
-  type Renderer2,
-  RendererFactory2,
   type TemplateRef,
   ViewChild,
 } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import { hasContent, setElementPresent, useTranslation } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 import { styleObject, styleString } from './css.js'
-import { ElementToggle, hasNodes } from './slot-dom.js'
 
 /**
  * Whether a node-valued prop is an Angular template (a rendered node) rather
@@ -113,16 +109,6 @@ export class AnnotationPin implements AfterViewInit, DoCheck {
   /** The empty-state line, rendered in the template and detached when a note is present. */
   @ViewChild('emptyNoteEl') private emptyNoteEl?: ElementRef<HTMLElement>
 
-  /** The DOM renderer, for the attach/detach reconciliation. */
-  private readonly renderer: Renderer2 = inject(RendererFactory2).createRenderer(null, null)
-  /** Reconciles the popup against React's DOM. */
-  private readonly popupToggle = new ElementToggle(this.renderer)
-  /** Reconciles the label capture point. */
-  private readonly labelToggle = new ElementToggle(this.renderer)
-  /** Reconciles the note capture point. */
-  private readonly noteToggle = new ElementToggle(this.renderer)
-  /** Reconciles the empty-state line. */
-  private readonly emptyToggle = new ElementToggle(this.renderer)
   /** Whether a `[slot=note]` projection landed. */
   private noteProjected = false
   /**
@@ -352,11 +338,11 @@ export class AnnotationPin implements AfterViewInit, DoCheck {
    */
   reconcile(): void {
     const note = this.noteSlot?.nativeElement
-    if (note) this.noteProjected = hasNodes(note)
-    this.popupToggle.toggle(this.popupEl?.nativeElement, this.selected === true)
-    this.labelToggle.toggle(this.labelSlot?.nativeElement, !this.hasLabelProp())
-    this.noteToggle.toggle(note, !this.hasNoteProp())
-    this.emptyToggle.toggle(this.emptyNoteEl?.nativeElement, !this.hasNote())
+    if (note) this.noteProjected = hasContent(note)
+    setElementPresent(this.popupEl?.nativeElement, this.selected === true)
+    setElementPresent(this.labelSlot?.nativeElement, !this.hasLabelProp())
+    setElementPresent(note, !this.hasNoteProp())
+    setElementPresent(this.emptyNoteEl?.nativeElement, !this.hasNote())
   }
 
   /** Reconciles once the view (and its projections) exist. */

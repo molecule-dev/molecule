@@ -4,16 +4,9 @@
  * @module
  */
 
-import {
-  type AfterViewInit,
-  Component,
-  type ElementRef,
-  inject,
-  Renderer2,
-  signal,
-  ViewChild,
-} from '@angular/core'
+import { type AfterViewInit, Component, type ElementRef, signal, ViewChild } from '@angular/core'
 
+import { hasContent, placeContent, setElementPresent } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -23,20 +16,6 @@ import type { WeatherAlertLevel, WeatherTracePoint } from './types.js'
 const FALLBACK = {
   fill: 'M0,68 Q40,52 80,46 T160,38 T240,55 T320,28 T400,42 L400,100 L0,100 Z',
   stroke: 'M0,68 Q40,52 80,46 T160,38 T240,55 T320,28 T400,42',
-}
-
-/**
- * Whether an ng-content wrapper captured any element or text node.
- *
- * @param el - The wrapper element.
- * @returns True when at least one projected node exists.
- */
-const hasNodes = (el: Element): boolean => {
-  for (const node of Array.from(el.childNodes)) {
-    if (node.nodeType === 1) return true
-    if (node.nodeType === 3 && (node.textContent ?? '').trim()) return true
-  }
-  return false
 }
 
 /**
@@ -147,11 +126,6 @@ export class WeatherCard implements AfterViewInit {
   @ViewChild('updatedWrap') updatedWrap?: ElementRef<HTMLSpanElement>
   /** The updated-label slot's capture span. */
   @ViewChild('updatedSlot') updatedSlot?: ElementRef<HTMLSpanElement>
-
-  private readonly renderer = inject(Renderer2)
-
-  /** Each capture span's anchor comment (marks the slot's position in the DOM). */
-  private readonly anchors = new Map<HTMLSpanElement, Comment>()
 
   /** Whether the alert badge's label came from projected content (no fallback text then). */
   private readonly labelFromSlot = signal(false)
@@ -427,15 +401,15 @@ export class WeatherCard implements AfterViewInit {
     const eyebrow = this.eyebrowSlot?.nativeElement
     const eyebrowWrap = this.eyebrowWrap?.nativeElement
     if (eyebrow) {
-      if (hasNodes(eyebrow)) this.relocate(eyebrow)
-      else eyebrowWrap?.remove()
+      if (hasContent(eyebrow)) this.relocate(eyebrow)
+      else setElementPresent(eyebrowWrap, false)
     }
     this.optional('feelsLike')
     this.optional('highLow')
     this.optional('updated')
     const alertLabel = this.alertLabelSlot?.nativeElement
     if (alertLabel) {
-      const present = hasNodes(alertLabel)
+      const present = hasContent(alertLabel)
       // The capture span always goes: React renders the label (or the level's
       // name) with no wrapper element.
       this.relocate(alertLabel)
@@ -463,45 +437,21 @@ export class WeatherCard implements AfterViewInit {
           ? this.highLowSlot?.nativeElement
           : this.updatedSlot?.nativeElement
     if (!slot) return
-    if (hasNodes(slot)) this.relocate(slot)
-    else wrap?.remove()
+    if (hasContent(slot)) this.relocate(slot)
+    else setElementPresent(wrap, false)
   }
 
   /**
    * Moves one slot's projected nodes out of its capture span to the slot's
-   * position (marked by an anchor comment) and detaches the empty span — React
-   * renders the node with no wrapper element.
+   * position and takes the empty span out of the DOM — React renders the node
+   * with no wrapper element.
    *
    * @param span - The capture span.
    */
   private relocate(span: HTMLSpanElement): void {
-    const parent = span.parentElement
+    const parent = span.parentNode
     if (!parent) return
-    const existing = this.anchors.get(span)
-    const anchor =
-      existing && existing.isConnected ? existing : this.createAnchor(parent, span, existing)
-    for (const node of Array.from(span.childNodes)) parent.insertBefore(node, anchor)
-    if (span.isConnected) parent.removeChild(span)
-  }
-
-  /**
-   * Creates the anchor comment for a capture span, records it, and inserts it
-   * where the span sat.
-   *
-   * @param parent - The span's parent (the anchor's parent).
-   * @param span - The capture span.
-   * @param stale - A previous anchor that is no longer connected, if any.
-   * @returns The connected anchor comment.
-   */
-  private createAnchor(
-    parent: Node,
-    span: HTMLSpanElement,
-    stale: Comment | null | undefined,
-  ): Comment {
-    if (stale) this.anchors.delete(span)
-    const created = this.renderer.createComment('slot')
-    parent.insertBefore(created, span)
-    this.anchors.set(span, created)
-    return created
+    placeContent(span, parent, span)
+    setElementPresent(span, false)
   }
 }

@@ -10,18 +10,22 @@ import {
   Component,
   type DoCheck,
   type ElementRef,
-  inject,
   type OnDestroy,
-  Renderer2,
   signal,
   ViewChild,
 } from '@angular/core'
 
-import { Link, RoutedView, useRouterInstance, useTranslation } from '@molecule/app-angular'
+import {
+  hasContent,
+  Link,
+  RoutedView,
+  setElementPresent,
+  useRouterInstance,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
-import { hasNodes, SlotGuard } from './slot-dom.js'
 import type { SidebarNavItem } from './types.js'
 
 /** Pixel widths for the `sm` / `md` / `lg` presets. */
@@ -136,8 +140,6 @@ export class SidebarLayout implements AfterViewInit, AfterViewChecked, DoCheck, 
   private readonly location = signal(this.router.getLocation())
 
   private readonly stop = this.router.subscribe(() => this.location.set(this.router.getLocation()))
-
-  private readonly guard = new SlotGuard(inject(Renderer2))
 
   /** Stops listening to the router when the component goes away. */
   ngOnDestroy(): void {
@@ -349,12 +351,12 @@ export class SidebarLayout implements AfterViewInit, AfterViewChecked, DoCheck, 
   private reconcile(): void {
     const user = this.userSlot?.nativeElement
     const theme = this.themeSlot?.nativeElement
-    const hasUser = hasNodes(user)
-    const hasTheme = hasNodes(theme)
-    this.guard.toggle(this.bottom?.nativeElement, hasUser || hasTheme)
-    this.guard.toggle(this.placeholder?.nativeElement, !hasUser && hasTheme)
+    const hasUser = hasContent(user)
+    const hasTheme = hasContent(theme)
+    setElementPresent(this.bottom?.nativeElement, hasUser || hasTheme)
+    setElementPresent(this.placeholder?.nativeElement, !hasUser && hasTheme)
     // React renders `children ?? <RoutedView />`; the capture point resolves at view init.
     const page = this.pageSlot?.nativeElement
-    if (page) this.routed.set(!hasNodes(page))
+    if (page) this.routed.set(!hasContent(page))
   }
 }

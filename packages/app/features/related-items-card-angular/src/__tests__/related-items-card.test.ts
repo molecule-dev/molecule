@@ -23,6 +23,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 // Proxy ClassMap echoing each accessed member back as its token (e.g.
 // `stack`), so tests can assert which cm.* class was applied without a real
 // bond — the same mock the React tests use.
@@ -52,6 +54,8 @@ const { RelatedItemsCard } = await import('../related-items-card.component.js')
 interface Mounted {
   /** The host element whose children the component produced. */
   readonly host: HTMLElement
+  /** Merges props over the current ones and flushes change detection. */
+  setProps(next: Record<string, unknown>): Promise<void>
   /** Destroys the app and removes the host. */
   destroy(): Promise<void>
 }
@@ -83,7 +87,7 @@ async function mount(
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
     environmentInjector: appRef.injector,
@@ -94,6 +98,11 @@ async function mount(
   appRef.tick()
   return {
     host,
+    setProps: async (next: Record<string, unknown>) => {
+      ref.instance.p = { ...ref.instance.p, ...next }
+      ref.changeDetectorRef.markForCheck()
+      appRef.tick()
+    },
     destroy: async () => {
       appRef.destroy()
       host.remove()
@@ -181,5 +190,19 @@ describe('RelatedItemsCard', () => {
     const m = await render({ title: 'T', items, dataMolId: 'ric-x', className: 'ric-cls' })
     expect(m.host.innerHTML).toContain('data-mol-id="ric-x"')
     expect(m.host.innerHTML).toContain('ric-cls')
+  })
+
+  it('keeps a consumer list in order when an item is inserted in the middle of the emptyState slot', async () => {
+    const m = await render(
+      { title: 'T', items: [], xs: ['a', 'c'] },
+      `@for (x of p['xs']; track x) {<b slot="emptyState">{{ x }}</b>}`,
+    )
+    const shown = (): (string | null)[] =>
+      Array.from(m.host.querySelectorAll('b')).map((el) => el.textContent)
+    expect(shown()).toEqual(['a', 'c'])
+    await m.setProps({ xs: ['a', 'b', 'c'] })
+    expect(shown()).toEqual(['a', 'b', 'c'])
+    await m.setProps({ xs: ['a', 'c'] })
+    expect(shown()).toEqual(['a', 'c'])
   })
 })

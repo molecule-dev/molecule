@@ -23,6 +23,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
 // `stack`), so tests can assert which cm.* class was applied without a real
 // bond — the same mock the React tests use.
@@ -62,7 +64,11 @@ const { ShowMore } = await import('../show-more.component.js')
 /** A mounted spec host: its markup and a teardown. */
 interface Mounted {
   /** The host element whose children the component template produced. */
+  readonly host: HTMLElement
+  /** The host's inner markup. */
   readonly innerHTML: string
+  /** Merges props over the current ones and flushes change detection. */
+  setProps(next: Record<string, unknown>): Promise<void>
   /** Destroys the app and removes the host. */
   destroy(): Promise<void>
 }
@@ -94,7 +100,7 @@ async function mount(
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
     environmentInjector: appRef.injector,
@@ -108,8 +114,16 @@ async function mount(
   await appRef.whenStable()
   appRef.tick()
   return {
+    host,
     get innerHTML() {
       return host.innerHTML
+    },
+    setProps: async (next: Record<string, unknown>) => {
+      ref.instance.p = { ...ref.instance.p, ...next }
+      ref.changeDetectorRef.markForCheck()
+      appRef.tick()
+      await appRef.whenStable()
+      appRef.tick()
     },
     destroy: async () => {
       appRef.destroy()
@@ -193,6 +207,22 @@ describe('CollapsibleSection', () => {
     const m = await renderSection({ title: 'T', className: 'cs-cls' })
     expect(m.innerHTML).toContain('cs-cls')
   })
+
+  it('keeps a consumer list in order when an item is inserted in the middle of the collapsible body', async () => {
+    const m = await mount(
+      `<section mol-collapsible-section [title]="'T'" [defaultExpanded]="true">@for (x of p['xs']; track x) {<b>{{ x }}</b>}</section>`,
+      CollapsibleSection as Type<unknown>,
+      { xs: ['a', 'c'] },
+    )
+    mounted.push(m)
+    const body = (): (string | null)[] =>
+      Array.from(m.host.querySelectorAll('b')).map((el) => el.textContent)
+    expect(body()).toEqual(['a', 'c'])
+    await m.setProps({ xs: ['a', 'b', 'c'] })
+    expect(body()).toEqual(['a', 'b', 'c'])
+    await m.setProps({ xs: ['a', 'c'] })
+    expect(body()).toEqual(['a', 'c'])
+  })
 })
 
 describe('ShowMore', () => {
@@ -216,5 +246,21 @@ describe('ShowMore', () => {
   it('forwards className', async () => {
     const m = await renderList({ className: 'sm-cls' }, 2)
     expect(m.innerHTML).toContain('sm-cls')
+  })
+
+  it('keeps a consumer list in order when an item is inserted in the middle of the show-more list', async () => {
+    const m = await mount(
+      `<div mol-show-more [initialCount]="1">@for (x of p['xs']; track x) {<b>{{ x }}</b>}</div>`,
+      ShowMore as Type<unknown>,
+      { xs: ['a', 'c'] },
+    )
+    mounted.push(m)
+    const shown = (): (string | null)[] =>
+      Array.from(m.host.querySelectorAll('b')).map((el) => el.textContent)
+    expect(shown()).toEqual(['a'])
+    await m.setProps({ xs: ['a', 'b', 'c'] })
+    expect(shown()).toEqual(['a', 'b'])
+    await m.setProps({ xs: ['b', 'c'] })
+    expect(shown()).toEqual(['b'])
   })
 })

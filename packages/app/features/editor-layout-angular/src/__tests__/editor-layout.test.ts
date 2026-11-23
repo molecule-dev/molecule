@@ -23,6 +23,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 // A Proxy ClassMap echoing each accessed member back as its token, so tests
 // can assert which cm.* class was applied without a real bond — the same
 // mock the React suite uses.
@@ -85,7 +87,7 @@ async function mount(
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
     environmentInjector: appRef.injector,
@@ -186,5 +188,19 @@ describe('EditorLayout', () => {
     const tag = openTag(m.host)
     expect(tag).toContain('data-mol-id="el-x"')
     expect(tag).toContain('el-cls')
+  })
+
+  it('keeps a consumer list in order when an item is inserted in the middle of the sidePanel slot', async () => {
+    const m = await render(
+      `<div mol-editor-layout><div slot="canvas" data-canvas></div>@for (x of p['xs']; track x) {<b slot="sidePanel">{{ x }}</b>}</div>`,
+      { xs: ['a', 'c'] },
+    )
+    const shown = (): (string | null)[] =>
+      Array.from(m.host.querySelectorAll('b')).map((el) => el.textContent)
+    expect(shown()).toEqual(['a', 'c'])
+    await m.setProps({ xs: ['a', 'b', 'c'] })
+    expect(shown()).toEqual(['a', 'b', 'c'])
+    await m.setProps({ xs: ['a', 'c'] })
+    expect(shown()).toEqual(['a', 'c'])
   })
 })

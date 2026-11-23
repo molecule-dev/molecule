@@ -4,34 +4,13 @@
  * @module
  */
 
-import {
-  type AfterViewInit,
-  Component,
-  type ElementRef,
-  inject,
-  Renderer2,
-  ViewChild,
-} from '@angular/core'
+import { type AfterViewInit, Component, type ElementRef, ViewChild } from '@angular/core'
 
+import { hasContent, placeContent, setElementPresent } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { KpiCardAccentSide } from './types.js'
-
-/**
- * Whether a projected node list rendered anything (an element, or text with
- * content).
- *
- * @param el - The element wrapping the projection.
- * @returns True when at least one projected node exists.
- */
-const hasNodes = (el: Element): boolean => {
-  for (const node of Array.from(el.childNodes)) {
-    if (node.nodeType === 1) return true
-    if (node.nodeType === 3 && (node.textContent ?? '').trim()) return true
-  }
-  return false
-}
 
 /**
  * KpiCard component.
@@ -89,11 +68,6 @@ export class KpiCard implements AfterViewInit {
   @ViewChild('trendSlot') trendSlot?: ElementRef<HTMLSpanElement>
   /** The subtitle slot's wrapper span. */
   @ViewChild('subtitleSlot') subtitleSlot?: ElementRef<HTMLSpanElement>
-
-  private readonly renderer = inject(Renderer2)
-
-  /** Each capture span's anchor comment (marks the slot's position in the DOM). */
-  private readonly anchors = new Map<HTMLSpanElement, Comment>()
 
   /**
    * The current class map.
@@ -223,49 +197,25 @@ export class KpiCard implements AfterViewInit {
     const trend = this.trendSlot?.nativeElement
     const subtitle = this.subtitleSlot?.nativeElement
     const row = this.trendRow?.nativeElement
-    // Read presence BEFORE relocating: relocate() moves the projected nodes out.
-    const trendPresent = trend ? hasNodes(trend) : false
-    const subtitlePresent = subtitle ? hasNodes(subtitle) : false
+    // Read presence BEFORE relocating: placeContent() moves the projected nodes out.
+    const trendPresent = trend ? hasContent(trend) : false
+    const subtitlePresent = subtitle ? hasContent(subtitle) : false
     if (trend) this.relocate(trend)
-    if (subtitle && !subtitlePresent) subtitle.remove()
-    if (row && !trendPresent && !subtitlePresent) row.remove()
+    if (subtitle && !subtitlePresent) setElementPresent(subtitle, false)
+    if (row && !trendPresent && !subtitlePresent) setElementPresent(row, false)
   }
 
   /**
    * Moves one slot's projected nodes out of its capture span to the slot's
-   * position (marked by an anchor comment) and detaches the empty span — React
-   * renders `{trend}` with no wrapper element.
+   * position — React renders `{trend}` with no wrapper element — and takes the
+   * empty span out of the DOM.
    *
    * @param span - The capture span.
    */
   private relocate(span: HTMLSpanElement): void {
-    const parent = span.parentElement
+    const parent = span.parentNode
     if (!parent) return
-    const existing = this.anchors.get(span)
-    const anchor =
-      existing && existing.isConnected ? existing : this.createAnchor(parent, span, existing)
-    for (const node of Array.from(span.childNodes)) parent.insertBefore(node, anchor)
-    if (span.isConnected) parent.removeChild(span)
-  }
-
-  /**
-   * Creates the anchor comment for a capture span, records it, and inserts it
-   * where the span sat (any stale anchor from a previous mount is replaced).
-   *
-   * @param parent - The span's parent (the anchor's parent).
-   * @param span - The capture span.
-   * @param stale - A previous anchor that is no longer connected, if any.
-   * @returns The connected anchor comment.
-   */
-  private createAnchor(
-    parent: Node,
-    span: HTMLSpanElement,
-    stale: Comment | null | undefined,
-  ): Comment {
-    if (stale) this.anchors.delete(span)
-    const created = this.renderer.createComment('slot')
-    parent.insertBefore(created, span)
-    this.anchors.set(span, created)
-    return created
+    placeContent(span, parent, span)
+    setElementPresent(span, false)
   }
 }

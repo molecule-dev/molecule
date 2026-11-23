@@ -9,20 +9,17 @@ import {
   type AfterViewInit,
   Component,
   type DoCheck,
-  ElementRef,
-  inject,
-  Renderer2,
+  type ElementRef,
   type TemplateRef,
   ViewChild,
 } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import { hasContent, setElementPresent, useTranslation } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { Switch } from '@molecule/app-ui-angular'
 
 import { CopyLinkField } from './copy-link-field.component.js'
-import { hasNodes, SlotWrapper } from './slot-dom.js'
 import type { ShareLinkCardProps } from './types.js'
 
 /**
@@ -47,7 +44,7 @@ import type { ShareLinkCardProps } from './types.js'
     '[class]': 'classes()',
     '[attr.data-mol-id]': 'dataMolId ?? null',
   },
-  template: `<div #stack [class]="stackClasses()">
+  template: `<div [class]="stackClasses()">
     <header #headerSlot [class]="headerClasses()">
       <h3 #titleSlot [class]="titleClasses()"><ng-content select="[slot=title]"></ng-content></h3>
       <p #descriptionSlot [class]="descriptionClasses()">
@@ -87,8 +84,6 @@ export class ShareLinkCard implements AfterViewInit, DoCheck {
   /** `data-mol-id` for AI-agent selectors. */
   dataMolId?: string
 
-  /** The stack container (the header's and QR wrapper's parent). */
-  @ViewChild('stack') stack?: ElementRef<HTMLElement>
   /** The header wrapper. */
   @ViewChild('headerSlot') headerSlot?: ElementRef<HTMLElement>
   /** The `<h3>` title wrapper. */
@@ -104,9 +99,6 @@ export class ShareLinkCard implements AfterViewInit, DoCheck {
   private hasDescription = false
   /** Whether QR content was projected (read once at view init). */
   private hasQr = false
-
-  /** The wrapper sync for React's conditional header/h3/p/QR rendering. */
-  private readonly sync = new SlotWrapper(inject(ElementRef), inject(Renderer2))
 
   /** Reactive translations, read in the injection context. */
   private readonly i18n = useTranslation()
@@ -250,9 +242,9 @@ export class ShareLinkCard implements AfterViewInit, DoCheck {
    * init) and applies React's conditional rendering.
    */
   ngAfterViewInit(): void {
-    this.hasTitle = hasNodes(this.titleSlot?.nativeElement)
-    this.hasDescription = hasNodes(this.descriptionSlot?.nativeElement)
-    this.hasQr = hasNodes(this.qrSlot?.nativeElement)
+    this.hasTitle = hasContent(this.titleSlot?.nativeElement)
+    this.hasDescription = hasContent(this.descriptionSlot?.nativeElement)
+    this.hasQr = hasContent(this.qrSlot?.nativeElement)
     this.syncSlots()
   }
 
@@ -261,17 +253,16 @@ export class ShareLinkCard implements AfterViewInit, DoCheck {
     this.syncSlots()
   }
 
-  /** Attaches or detaches the header/h3/p/QR wrappers against the wanted DOM. */
+  /** Takes each wrapper out of the DOM or puts it back for React's branches. */
   private syncSlots(): void {
-    const stack = this.stack?.nativeElement
     const header = this.headerSlot?.nativeElement
     const title = this.titleSlot?.nativeElement
     const description = this.descriptionSlot?.nativeElement
     const qr = this.qrSlot?.nativeElement
     // Children first, so the header's own detach never loses their state.
-    this.sync.sync(title, this.hasTitle, header)
-    this.sync.sync(description, this.hasDescription, header)
-    this.sync.sync(header, this.hasTitle || this.hasDescription, stack)
-    this.sync.sync(qr, this.showQR === true && this.hasQr, stack)
+    setElementPresent(title, this.hasTitle)
+    setElementPresent(description, this.hasDescription)
+    setElementPresent(header, this.hasTitle || this.hasDescription)
+    setElementPresent(qr, this.showQR === true && this.hasQr)
   }
 }

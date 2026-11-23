@@ -16,10 +16,32 @@ import {
   ViewChild,
 } from '@angular/core'
 
+import { hasContent, setElementPresent } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
-import { type AttachedState, hasNodes, isTemplate, setAttached, textOf } from './slot-dom.js'
+/**
+ * Whether a node-valued prop is an Angular template (a `{ $nodes }` value)
+ * rather than plain text. Checked structurally — `TemplateRef` is a type-only
+ * import in the emitted metadata, so `instanceof` is not dependable across
+ * bundles.
+ *
+ * @param value - The prop value.
+ * @returns True when it can be rendered with `ngTemplateOutlet`.
+ */
+const isTemplate = (value: unknown): value is TemplateRef<unknown> =>
+  typeof value === 'object' &&
+  value !== null &&
+  typeof (value as TemplateRef<unknown>).createEmbeddedView === 'function'
+
+/**
+ * Renders a text value the way React renders a node string.
+ *
+ * @param value - The prop value.
+ * @returns The text to render, or `''` when there is nothing.
+ */
+const textOf = (value: unknown): string =>
+  value === null || value === undefined ? '' : String(value)
 
 /**
  * CollapsibleSection component.
@@ -136,10 +158,6 @@ export class CollapsibleSection implements OnInit, AfterViewInit, AfterViewCheck
 
   /** Expansion state while the section is uncontrolled (React's `useState`). */
   private readonly internal = signal(false)
-  /** Where the body `<div>` goes back when it is re-attached. */
-  private readonly bodyState: AttachedState = { parent: null }
-  /** Where the actions `<span>` goes back when it is re-attached. */
-  private readonly actionsState: AttachedState = { parent: null }
   /** Whether the `[slot=actions]` projection's presence has been read (once). */
   private actionsRead = false
   /** Whether `[slot=actions]` content was projected. */
@@ -304,10 +322,10 @@ export class CollapsibleSection implements OnInit, AfterViewInit, AfterViewCheck
   private reconcile(): void {
     const actions = this.actionsWrap?.nativeElement
     if (!this.actionsRead && actions) {
-      this.hasActionsSlot = hasNodes(actions)
+      this.hasActionsSlot = hasContent(actions)
       this.actionsRead = true
     }
-    setAttached(actions, this.actionsContent(), this.actionsState)
-    setAttached(this.bodyWrap?.nativeElement, this.isOpen(), this.bodyState)
+    setElementPresent(actions, this.actionsContent())
+    setElementPresent(this.bodyWrap?.nativeElement, this.isOpen())
   }
 }

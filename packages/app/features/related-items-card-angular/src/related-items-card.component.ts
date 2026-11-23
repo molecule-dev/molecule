@@ -9,17 +9,14 @@ import {
   type AfterViewInit,
   Component,
   type DoCheck,
-  ElementRef,
-  inject,
-  Renderer2,
+  type ElementRef,
   type TemplateRef,
   ViewChild,
 } from '@angular/core'
 
+import { placeContent, setElementPresent } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
-
-import { BareSlot } from './slot-dom.js'
 
 /**
  * RelatedItemsCard component.
@@ -132,9 +129,6 @@ export class RelatedItemsCard<T = unknown> implements AfterViewInit, DoCheck {
 
   /** The empty state's capture wrapper (revealed bare, or detached). */
   @ViewChild('emptySlot') emptySlot?: ElementRef<HTMLElement>
-
-  /** The wrapper sync for the empty state. */
-  private readonly bare = new BareSlot(inject(ElementRef), inject(Renderer2))
 
   /**
    * The current class map.
@@ -280,10 +274,23 @@ export class RelatedItemsCard<T = unknown> implements AfterViewInit, DoCheck {
     this.syncEmptySlot()
   }
 
-  /** Renders the empty state bare exactly while the list is empty. */
+  /**
+   * Renders the empty state bare exactly while the list is empty: the content
+   * beside the removed capture point, or hidden inside it when the list renders.
+   */
   private syncEmptySlot(): void {
     const slot = this.emptySlot?.nativeElement
     if (!slot) return
-    this.bare.sync(slot, this.items.length === 0)
+    if (this.items.length > 0) {
+      placeContent(slot, null)
+      setElementPresent(slot, false)
+      return
+    }
+    // Restore the capture point so its position holds, then render the content bare.
+    setElementPresent(slot, true)
+    const parent = slot.parentNode
+    if (!parent) return
+    placeContent(slot, parent, slot)
+    setElementPresent(slot, false)
   }
 }

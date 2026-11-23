@@ -12,23 +12,9 @@ import {
   ViewChild,
 } from '@angular/core'
 
+import { hasContent, placeContent, setElementPresent } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
-
-/**
- * Whether an ng-content capture point received any element or text node.
- *
- * @param el - The capture element.
- * @returns True when at least one rendered node exists.
- */
-const hasNodes = (el: Element | undefined | null): boolean => {
-  if (!el) return false
-  for (const node of Array.from(el.childNodes)) {
-    if (node.nodeType === Node.ELEMENT_NODE) return true
-    if (node.nodeType === Node.TEXT_NODE && (node.textContent ?? '').trim()) return true
-  }
-  return false
-}
 
 /**
  * EditorLayout component.
@@ -55,11 +41,11 @@ const hasNodes = (el: Element | undefined | null): boolean => {
   template: `<div #bar [style.position]="'sticky'" [style.top]="'0px'" [style.z-index]="'10'">
       <ng-content select="[slot=topBar]"></ng-content>
     </div>
-    <div #body [class]="rowClasses()">
+    <div [class]="rowClasses()">
       <aside #leftPanel [class]="panelClasses()">
         <ng-content select="[slot=sidePanel]"></ng-content>
       </aside>
-      <main #canvas [class]="canvasClasses()">
+      <main [class]="canvasClasses()">
         <ng-content select="[slot=canvas]"></ng-content>
       </main>
       <aside #rightPanel [class]="panelClasses()">
@@ -79,12 +65,8 @@ export class EditorLayout implements AfterViewInit, DoCheck {
 
   /** The sticky top-bar container. */
   @ViewChild('bar') bar?: ElementRef<HTMLElement>
-  /** The panel/canvas row. */
-  @ViewChild('body') body?: ElementRef<HTMLElement>
   /** The left side-panel capture wrapper (before the `<main>`). */
   @ViewChild('leftPanel') leftPanel?: ElementRef<HTMLElement>
-  /** The canvas. */
-  @ViewChild('canvas') canvas?: ElementRef<HTMLElement>
   /** The right side-panel capture wrapper (after the `<main>`). */
   @ViewChild('rightPanel') rightPanel?: ElementRef<HTMLElement>
 
@@ -152,24 +134,17 @@ export class EditorLayout implements AfterViewInit, DoCheck {
    * otherwise no `<aside>` renders.
    */
   private reconcile(): void {
-    const body = this.body?.nativeElement
     const left = this.leftPanel?.nativeElement
     const right = this.rightPanel?.nativeElement
-    const main = this.canvas?.nativeElement
-    if (!body || !left || !right || !main) return
-    const hasPanel = hasNodes(left) || hasNodes(right)
+    if (!left || !right) return
+    const hasPanel = hasContent(left) || hasContent(right)
     const showPanel = hasPanel && (this.sidePanelOpen ?? true)
     const target = this.sidePanelPosition === 'left' ? left : right
     const other = target === left ? right : left
-    // The nodes sit in whichever capture point last held them; move them
-    // into the target before attaching it.
-    const source = hasNodes(right) ? right : left
-    for (const node of Array.from(source.childNodes)) target.appendChild(node)
-    if (showPanel) {
-      if (!target.isConnected) body.insertBefore(target, target === left ? main : null)
-    } else if (target.isConnected) {
-      body.removeChild(target)
-    }
-    if (other.isConnected) body.removeChild(other)
+    // Angular projected the consumer's side-panel content into the first capture
+    // point; render it in the shown side, or back in the capture when hidden.
+    placeContent(left, target === left ? null : target)
+    setElementPresent(target, showPanel)
+    setElementPresent(other, false)
   }
 }

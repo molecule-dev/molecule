@@ -23,6 +23,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
 // `kpiCardAccentLeft`), so tests can assert which cm.* class was applied
 // without a real bond — the same mock the React tests use.
@@ -88,7 +90,7 @@ async function mount(
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
     environmentInjector: appRef.injector,
@@ -358,5 +360,18 @@ describe('KpiCard', () => {
       emphasizeValue: true,
     })
     expect(m.host.innerHTML).toContain('fontWeight:extrabold')
+  })
+
+  it('keeps a consumer list in order when an item is inserted in the middle of the trend slot', async () => {
+    const m = await renderCard(`@for (x of p['xs']; track x) {<b slot="trend">{{ x }}</b>}`, {
+      xs: ['a', 'c'],
+    })
+    const shown = (): (string | null)[] =>
+      Array.from(m.host.querySelectorAll('b')).map((el) => el.textContent)
+    expect(shown()).toEqual(['a', 'c'])
+    await m.setProps({ xs: ['a', 'b', 'c'] })
+    expect(shown()).toEqual(['a', 'b', 'c'])
+    await m.setProps({ xs: ['a', 'c'] })
+    expect(shown()).toEqual(['a', 'c'])
   })
 })

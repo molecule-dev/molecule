@@ -8,18 +8,14 @@ import {
   type AfterViewInit,
   Component,
   type DoCheck,
-  ElementRef,
-  inject,
-  Renderer2,
+  type ElementRef,
   ViewChild,
 } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import { setElementPresent, useTranslation } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-angular'
-
-import { SlotWrapper } from './slot-dom.js'
 
 /**
  * React's sticky inline style (`{ position: 'sticky', bottom: 0, zIndex: 5 }`),
@@ -58,8 +54,8 @@ function formatRelativeShort(epochMs: number): string {
  * - Optional leading slot (`[slot=leading]`) for custom status badges.
  *
  * The inline error span is an always-mounted capture point that
- * {@link SlotWrapper} detaches whenever React renders no error — the projected
- * nodes need it in the template, but React's DOM has no such element.
+ * {@link setElementPresent} takes out whenever React renders no error — the
+ * projected nodes need it in the template, but React's DOM has no such element.
  */
 @Component({
   selector: 'div[mol-settings-actions-bar]',
@@ -140,18 +136,12 @@ export class SettingsActionsBar implements AfterViewInit, DoCheck {
   /** The error span's capture wrapper (always mounted; detached when unused). */
   @ViewChild('errorSlot') errorSlot?: ElementRef<HTMLSpanElement>
 
-  /** The wrapper's parent (the status div), remembered across detaches. */
-  private errorParent?: Node
-
   /**
    * Whether the projection carried error nodes at view init (Angular projects
    * content at creation, so this is stable for the instance's life). The
    * `{{ errorText() }}` text node is the wrapper's first child and is excluded.
    */
   private hasErrorSlot = false
-
-  /** The wrapper sync for the error span. */
-  private readonly sync = new SlotWrapper(inject(ElementRef), inject(Renderer2))
 
   /**
    * The current class map.
@@ -272,7 +262,6 @@ export class SettingsActionsBar implements AfterViewInit, DoCheck {
   /** Reads the projected error content's presence and syncs the wrapper. */
   ngAfterViewInit(): void {
     const el = this.errorSlot?.nativeElement
-    this.errorParent = el?.parentNode ?? undefined
     this.hasErrorSlot = el
       ? Array.from(el.childNodes)
           .slice(1)
@@ -296,6 +285,6 @@ export class SettingsActionsBar implements AfterViewInit, DoCheck {
   private syncError(): void {
     const el = this.errorSlot?.nativeElement
     if (!el) return
-    this.sync.sync(el, this.errorText().length > 0 || this.hasErrorSlot, this.errorParent)
+    setElementPresent(el, this.errorText().length > 0 || this.hasErrorSlot)
   }
 }

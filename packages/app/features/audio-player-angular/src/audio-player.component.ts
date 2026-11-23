@@ -15,16 +15,15 @@ import {
   type OnChanges,
   type OnDestroy,
   type OnInit,
-  Renderer2,
   type SimpleChanges,
   type TemplateRef,
   ViewChild,
 } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import { placeContent, setElementPresent, useTranslation } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
-import { Button, SlotWrapper } from '@molecule/app-ui-angular'
+import { Button } from '@molecule/app-ui-angular'
 
 /**
  * Whether a field is one of the cases' projected node templates (a `{ $nodes }`
@@ -171,8 +170,6 @@ export class AudioPlayer implements OnInit, AfterViewInit, DoCheck, OnChanges, O
   private readonly i18n = useTranslation()
   private readonly cd = inject(ChangeDetectorRef)
   private readonly host: HTMLElement = inject(ElementRef).nativeElement
-  private readonly renderer = inject(Renderer2)
-  private readonly slots = new SlotWrapper(inject(ElementRef), this.renderer)
 
   /** Whether `[slot=title]` content was projected. */
   private hasTitleSlot = false
@@ -180,10 +177,6 @@ export class AudioPlayer implements OnInit, AfterViewInit, DoCheck, OnChanges, O
   private hasSubtitleSlot = false
   /** Whether `[slot=visualizer]` content was projected. */
   private hasVisualizerSlot = false
-  /** Whether the visualizer's projected nodes were moved out of their wrapper. */
-  private visualizerOpen = false
-  /** The visualizer nodes, while they live outside the wrapper. */
-  private visualizerChildren: Node[] = []
   /** The positioned listener cleanups, for the teardown. */
   private detach: Array<() => void> = []
   /** Whether the view (and with it the `<track>` element) exists. */
@@ -530,11 +523,11 @@ export class AudioPlayer implements OnInit, AfterViewInit, DoCheck, OnChanges, O
     const header = this.headerRef?.nativeElement
     if (header) {
       if (showTitle || showSubtitle) {
-        this.slots.sync(header, true)
-        this.slots.sync(this.titleSpanRef?.nativeElement, showTitle, header)
-        this.slots.sync(this.subtitleSpanRef?.nativeElement, showSubtitle, header)
+        setElementPresent(header, true)
+        setElementPresent(this.titleSpanRef?.nativeElement, showTitle)
+        setElementPresent(this.subtitleSpanRef?.nativeElement, showSubtitle)
       } else {
-        this.slots.sync(header, false)
+        setElementPresent(header, false)
       }
     }
     this.reconcileVisualizer()
@@ -550,27 +543,20 @@ export class AudioPlayer implements OnInit, AfterViewInit, DoCheck, OnChanges, O
     if (input && input.value !== String(this.current)) input.value = String(this.current)
   }
 
-  /** Applies React's visualizer DOM: the wrapper is unwrapped, or kept out of the DOM empty. */
+  /** Applies React's visualizer DOM: the content bare without its wrapper, or nothing. */
   private reconcileVisualizer(): void {
     const wrapper = this.visualizerSlotRef?.nativeElement
     if (!wrapper) return
     if (!this.hasVisualizerSlot) {
-      if (this.visualizerOpen) {
-        for (const node of this.visualizerChildren) wrapper.appendChild(node)
-        this.visualizerChildren = []
-        this.visualizerOpen = false
-      } else if (wrapper.isConnected) {
-        wrapper.parentNode?.removeChild(wrapper)
-      }
+      // React renders nothing: the content stays hidden inside the capture point.
+      placeContent(wrapper, null)
+      setElementPresent(wrapper, false)
       return
     }
-    if (this.visualizerOpen) return
+    // React renders the projected content bare, with no wrapper element.
     const parent = wrapper.parentNode
     if (!parent) return
-    parent.insertBefore(this.renderer.createComment('slot'), wrapper)
-    this.visualizerChildren = Array.from(wrapper.childNodes)
-    for (const node of this.visualizerChildren) parent.insertBefore(node, wrapper)
-    parent.removeChild(wrapper)
-    this.visualizerOpen = true
+    placeContent(wrapper, parent, wrapper)
+    setElementPresent(wrapper, false)
   }
 }

@@ -23,6 +23,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 // The current location the `useRouterInstance` fake reads, so a test can move
 // the active path before it renders.
 const locationState = vi.hoisted(() => ({ pathname: '/dashboard' }))
@@ -134,7 +136,7 @@ async function mount(
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
     environmentInjector: appRef.injector,
@@ -235,6 +237,20 @@ describe('SidebarLayout', () => {
     const m = await render({ appName: 'Acme', navAriaLabel: 'Main nav', className: 'sbl-cls' })
     expect(m.host.innerHTML).toContain('aria-label="Main nav"')
     expect(m.host.innerHTML).toContain('sbl-cls')
+  })
+
+  it('keeps a consumer list in order when an item is inserted in the middle of the userMenu slot', async () => {
+    const m = await render(
+      { appName: 'A', xs: ['a', 'c'] },
+      `@for (x of p['xs']; track x) {<b slot="userMenu">{{ x }}</b>}`,
+    )
+    const shown = (): (string | null)[] =>
+      Array.from(m.host.querySelectorAll('b')).map((el) => el.textContent)
+    expect(shown()).toEqual(['a', 'c'])
+    await m.setProps({ xs: ['a', 'b', 'c'] })
+    expect(shown()).toEqual(['a', 'b', 'c'])
+    await m.setProps({ xs: ['a', 'c'] })
+    expect(shown()).toEqual(['a', 'c'])
   })
 
   describe('ClassMap tokens (styling-agnostic)', () => {

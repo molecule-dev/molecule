@@ -11,14 +11,25 @@ import {
   ElementRef,
   inject,
   signal,
-  ViewChild,
 } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import { setElementPresent, useTranslation } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
-import { itemNodes, truncateItems } from './slot-dom.js'
+/**
+ * The nodes a projected list rendered: element children and the text children
+ * that carry content (comment anchors are not items).
+ *
+ * @param root - The element that hosts the projected nodes.
+ * @returns The item nodes, in document order.
+ */
+const itemNodes = (root: Element): (Element | Text)[] =>
+  Array.from(root.childNodes).filter(
+    (node): node is Element | Text =>
+      node.nodeType === Node.ELEMENT_NODE ||
+      (node.nodeType === Node.TEXT_NODE && (node.textContent ?? '').trim() !== ''),
+  )
 
 /**
  * ShowMore component.
@@ -41,7 +52,7 @@ import { itemNodes, truncateItems } from './slot-dom.js'
   },
   template: `<ng-content></ng-content>
     @if (remaining() > 0) {
-      <button #toggleBtn type="button" (click)="toggle()" [class]="buttonClasses()">
+      <button type="button" (click)="toggle()" [class]="buttonClasses()">
         {{ label() }}
       </button>
     }`,
@@ -55,9 +66,6 @@ export class ShowMore implements AfterViewInit, AfterViewChecked {
   lessKey?: string
   /** Extra classes. */
   className?: string
-
-  /** The toggle button, while React renders one. */
-  @ViewChild('toggleBtn') toggleBtn?: ElementRef<HTMLElement>
 
   /** The host element (the root `<div>`), which holds the projected items. */
   private readonly host = inject(ElementRef) as ElementRef<HTMLElement>
@@ -142,8 +150,8 @@ export class ShowMore implements AfterViewInit, AfterViewChecked {
 
   /**
    * Re-reconciles after the view is checked: an input write (a props step may
-   * change `initialCount`) or the toggle button being created, which gives the
-   * restored items their anchor.
+   * change `initialCount`) or the toggle button being created alongside the
+   * hidden items.
    */
   ngAfterViewChecked(): void {
     this.reconcile()
@@ -151,16 +159,14 @@ export class ShowMore implements AfterViewInit, AfterViewChecked {
 
   /**
    * Shows the first `initialCount` items (all of them when expanded) and hides
-   * the rest, as React's `children.slice(0, initialCount)` renders.
+   * the rest, as React's `children.slice(0, initialCount)` renders — each item
+   * put back in its own place, never moved for the list.
    */
   private reconcile(): void {
     if (this.items.length === 0) return
-    const anchor = this.toggleBtn?.nativeElement ?? null
-    truncateItems(
-      this.host.nativeElement,
-      this.items,
-      this.expanded() ? this.items.length : this.initial(),
-      anchor,
-    )
+    const visible = this.expanded() ? this.items.length : this.initial()
+    for (const [index, node] of this.items.entries()) {
+      setElementPresent(node, index < visible)
+    }
   }
 }

@@ -22,6 +22,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 // A ClassMap proxy echoing each accessed member back as its token — the same
 // mock the Angular suite uses.
 vi.mock('@molecule/app-ui', () => ({
@@ -151,7 +153,7 @@ async function render(props: Record<string, unknown> = {}): Promise<Mounted> {
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref = createComponent(Host, { environmentInjector: appRef.injector })
   const host = ref.location.nativeElement as HTMLElement

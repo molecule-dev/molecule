@@ -25,6 +25,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 // Proxy ClassMap echoing each accessed member back as its token (e.g. `stack`),
 // so tests can assert which cm.* class was applied without a real bond — the
 // same mock the React tests use.
@@ -88,8 +90,12 @@ const { AudioPlayer } = await import('../audio-player.component.js')
 
 /** A mounted spec host: its rendered markup and a teardown. */
 interface Mounted {
+  /** The element the spec host rendered into. */
+  readonly host: HTMLElement
   /** The component host element's outer markup. */
   markup(): string
+  /** Merges props over the current ones and flushes change detection. */
+  setProps(next: Record<string, unknown>): Promise<void>
   /** Destroys the app and removes the host. */
   destroy(): Promise<void>
 }
@@ -125,7 +131,7 @@ async function mount(projected = '', props: Record<string, unknown> = {}): Promi
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
     environmentInjector: appRef.injector,
@@ -138,7 +144,16 @@ async function mount(projected = '', props: Record<string, unknown> = {}): Promi
     appRef.destroy()
     host.remove()
   })
-  return { markup: () => host.innerHTML, destroy: async () => undefined }
+  return {
+    host,
+    markup: () => host.innerHTML,
+    setProps: async (next: Record<string, unknown>) => {
+      ref.instance.p = { ...ref.instance.p, ...next }
+      ref.changeDetectorRef.markForCheck()
+      appRef.tick()
+    },
+    destroy: async () => undefined,
+  }
 }
 
 describe('AudioPlayer', () => {
@@ -166,6 +181,20 @@ describe('AudioPlayer', () => {
       )
     ).markup()
     expect(markup).toContain('data-viz')
+  })
+
+  it('keeps a consumer list in order when an item is inserted in the middle of the visualizer slot', async () => {
+    const m = await mount(`@for (x of p['xs']; track x) {<b slot="visualizer">{{ x }}</b>}`, {
+      src: 's',
+      xs: ['a', 'c'],
+    })
+    const shown = (): (string | null)[] =>
+      Array.from(m.host.querySelectorAll('b')).map((el) => el.textContent)
+    expect(shown()).toEqual(['a', 'c'])
+    await m.setProps({ xs: ['a', 'b', 'c'] })
+    expect(shown()).toEqual(['a', 'b', 'c'])
+    await m.setProps({ xs: ['a', 'c'] })
+    expect(shown()).toEqual(['a', 'c'])
   })
 
   it('shows the play glyph and a 0:00 / 0:00 time display initially', async () => {
