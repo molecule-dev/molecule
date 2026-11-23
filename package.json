@@ -32,6 +32,7 @@
   "scripts": {
     "build": "node scripts/build.js",
     "changeset": "changeset",
+    "check:build-commands": "node scripts/dist-cache-manifest.mjs --check",
     "check:changesets-consumed": "node scripts/check-changesets-consumed.mjs",
     "check:feature-jsdocs": "node scripts/check-feature-jsdocs.mjs --check",
     "check:framework-conformance": "node scripts/check-framework-conformance.mjs",

@@ -96,6 +96,11 @@ jobs:
       - run: npm ci
       - name: Reuse dist for packages whose sources are unchanged
         run: node scripts/dist-cache-manifest.mjs --apply
+      # Every package's build script must be one the dist proof can verify (programs a locked
+      # package provides, or a script of the package's own). Checked before the build, so a script
+      # it cannot read fails here, and in release.mjs's local mirror of these steps, instead of at
+      # the manifest write after a full build.
+      - run: npm run check:build-commands
       - run: npm run check:lockfile
       - run: npm run check:peer-deps
       # Guard the SEC3 security gates below from silent removal/weakening (e.g.

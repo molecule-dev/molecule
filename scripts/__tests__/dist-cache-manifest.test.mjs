@@ -16,7 +16,7 @@ import { URL } from 'node:url'
 
 import { afterEach, describe, expect, it } from 'vitest'
 
-import { distCache } from '../dist-cache-manifest.mjs'
+import { checkBuildCommands, distCache } from '../dist-cache-manifest.mjs'
 
 const require = createRequire(import.meta.url)
 const compilerFile = require.resolve('typescript/package.json')
@@ -132,6 +132,20 @@ describe('CI dist proof', () => {
     expect(distCache(fx.root, 'apply')).toEqual({ fresh: 0, rebuild: 3 })
   })
 
+  it("records a build that runs a script of the package's own with node, and rebuilds when the script changes", () => {
+    const fx = fixture()
+    mkdirSync(join(fx.root, 'packages/leaf/scripts'))
+    fx.write('packages/leaf/scripts/post.mjs', '// Post-build step\n')
+    setLeafBuild(fx, 'tsc && node scripts/post.mjs')
+    expect(checkBuildCommands(fx.root)).toBe(3)
+    expect(distCache(fx.root, 'write')).toEqual({ written: 3 })
+    expect(distCache(fx.root, 'apply')).toEqual({ fresh: 3, rebuild: 0 })
+    fx.write('packages/leaf/scripts/post.mjs', '// Changed post-build step\n')
+    expect(distCache(fx.root, 'apply')).toEqual({ fresh: 1, rebuild: 2 })
+    expect(existsSync(join(fx.root, 'packages/leaf/dist'))).toBe(false)
+    expect(existsSync(join(fx.root, 'packages/client/dist'))).toBe(false)
+  })
+
   it.each([
     'tsc $FLAGS',
     'tsc; rm -rf dist',
@@ -139,15 +153,33 @@ describe('CI dist proof', () => {
     'tsc &&  fake-check',
     'tsc > build.log',
     'missing-tool && tsc',
+    'tsc && node ../outside.mjs',
+    'tsc && node scripts/missing.mjs',
+    'tsc && node dist/post.js',
+    'tsc && node -e x',
+    'tsc && node --import=x scripts/post.mjs',
+    'node',
   ])('refuses to record a build script whose programs are not certain (%s)', (build) => {
     const fx = fixture()
+    mkdirSync(join(fx.root, 'packages/leaf/scripts'))
+    fx.write('packages/leaf/scripts/post.mjs', '// Post-build step\n')
+    fx.write('packages/leaf/dist/post.js', '// An output\n')
+    fx.write('packages/outside.mjs', '// Outside the package\n')
     setLeafBuild(fx, build)
-    expect(() => distCache(fx.root, 'write')).toThrow(`unverified build command: ${build}`)
-    expect(distCache(fx.root, 'apply')).toEqual({
-      fresh: 0,
-      rebuild: 3,
-      reason: `unverified build command: ${build}`,
-    })
+    const reason = `unverified build command: ${build} (packages/leaf)`
+    expect(() => checkBuildCommands(fx.root)).toThrow(reason)
+    expect(() => distCache(fx.root, 'write')).toThrow(reason)
+    expect(distCache(fx.root, 'apply')).toEqual({ fresh: 0, rebuild: 3, reason })
+  })
+
+  it('checks the build scripts against the lockfile with nothing installed', () => {
+    const fx = fixture()
+    rmSync(join(fx.root, 'node_modules'), { recursive: true, force: true })
+    expect(checkBuildCommands(fx.root)).toBe(3)
+    setLeafBuild(fx, 'missing-tool && tsc')
+    expect(() => checkBuildCommands(fx.root)).toThrow(
+      'unverified build command: missing-tool && tsc (packages/leaf)',
+    )
   })
 
   it('removes unverified restored output when the manifest is absent', () => {

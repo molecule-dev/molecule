@@ -21,7 +21,7 @@ import {
   writeFileSync,
 } from 'node:fs'
 import { createRequire, isBuiltin } from 'node:module'
-import { basename, join, relative, resolve } from 'node:path'
+import { basename, isAbsolute, join, relative, resolve } from 'node:path'
 import { fileURLToPath, URL } from 'node:url'
 
 const FORMAT = 3
@@ -138,6 +138,92 @@ export function buildPrograms(command) {
   })
 }
 
+/**
+ * The programs a package's build script runs ({@link buildPrograms}), naming the package when
+ * the script's shape is not one the proof can read.
+ *
+ * @param pkg - The package, from {@link packagesAt}.
+ * @returns The program each segment runs, in order.
+ */
+function programsOf(pkg) {
+  try {
+    return buildPrograms(pkg.manifest.scripts.build)
+  } catch (error) {
+    throw new Error(`${error.message} (${pkg.path})`, { cause: error })
+  }
+}
+
+/**
+ * Whether a build segment runs a script of the package's own with Node: `node <path>`, the path a
+ * file inside the package and outside its `dist`. The package's inventory hashes that file, its
+ * declared dependencies' outputs are in its closure, and the context records the Node version,
+ * so the segment's inputs are covered. Flags, more arguments and a path outside the package are
+ * not.
+ *
+ * @param root - The repository root.
+ * @param path - The package's directory, relative to the root.
+ * @param segment - One `&&` segment of its build script.
+ * @returns True when the segment runs such a script.
+ */
+function ownScript(root, path, segment) {
+  const words = segment.split(' ')
+  if (words[0] !== 'node' || words.length !== 2 || words[1].startsWith('-')) return false
+  const dir = resolve(root, path)
+  const rel = relative(dir, resolve(dir, words[1]))
+  if (!rel || rel === '..' || rel.startsWith('../') || isAbsolute(rel)) return false
+  if (rel === 'dist' || rel.startsWith('dist/') || rel.startsWith('node_modules/')) return false
+  try {
+    return lstatSync(join(dir, rel)).isFile()
+  } catch (_error) {
+    // A missing script is not one the inventory hashes.
+    return false
+  }
+}
+
+/**
+ * Throws unless every package's build script is one the proof can verify: each `&&` segment runs
+ * a program an installed package's `bin` provides, or a script of the package's own
+ * ({@link ownScript}).
+ *
+ * @param root - The repository root.
+ * @param packages - The packages, from {@link packagesAt}.
+ * @param covered - The programs whose bytes the proof hashes.
+ */
+function verifyBuildCommands(root, packages, covered) {
+  for (const pkg of packages.values()) {
+    const command = pkg.manifest.scripts.build
+    programsOf(pkg)
+    for (const segment of command.split(' && ')) {
+      if (covered.has(segment.split(' ')[0]) || ownScript(root, pkg.path, segment)) continue
+      throw new Error(`unverified build command: ${command} (${pkg.path})`)
+    }
+  }
+}
+
+/**
+ * The source half of the proof, with nothing installed: every package's build script runs only
+ * programs a package in the lockfile provides (`bin`) or a script of the package's own. CI runs it
+ * before the build, so a script the dist proof cannot verify fails there and in the release's
+ * local mirror of CI, not after the build when `--write` meets it.
+ *
+ * @param root - The repository root.
+ * @returns How many packages were checked.
+ */
+export function checkBuildCommands(root) {
+  const packages = packagesAt(root)
+  const paths = new Set([...packages.values()].map((pkg) => pkg.path))
+  const lock = JSON.parse(readFileSync(join(root, 'package-lock.json'), 'utf8'))
+  if (lock.lockfileVersion !== 3 || !lock.packages) throw new Error('expected npm lockfile v3')
+  const covered = new Set()
+  for (const [path, entry] of Object.entries(lock.packages)) {
+    if (!path || paths.has(path) || (entry.link && paths.has(entry.resolved))) continue
+    const bins = typeof entry.bin === 'string' ? [basename(path)] : Object.keys(entry.bin ?? {})
+    for (const name of bins) covered.add(name)
+  }
+  verifyBuildCommands(root, packages, covered)
+  return packages.size
+}
+
 /** Read actual build inputs only; exported for the scoped mutation control. */
 export function readCacheInputs(root) {
   const packages = packagesAt(root)
@@ -150,8 +236,7 @@ export function readCacheInputs(root) {
       ([path, entry]) => !paths.has(path) && !(entry.link && paths.has(entry.resolved)),
     ),
   )
-  const commands = new Set([...packages.values()].map((pkg) => pkg.manifest.scripts.build))
-  const programs = new Set([...commands].flatMap(buildPrograms))
+  const programs = new Set([...packages.values()].flatMap(programsOf))
   const tools = {}
   const covered = new Set()
   for (const [path, entry] of Object.entries(external)) {
@@ -171,11 +256,7 @@ export function readCacheInputs(root) {
     tools[path] = inventory(dir, new Set(['node_modules']))
     bins.forEach((name) => covered.add(name))
   }
-  for (const command of commands) {
-    if (!buildPrograms(command).every((program) => covered.has(program))) {
-      throw new Error(`unverified build command: ${command}`)
-    }
-  }
+  verifyBuildCommands(root, packages, covered)
   const require = createRequire(join(root, 'package.json'))
   const ts = require('typescript')
   const rootFiles = [
@@ -319,12 +400,16 @@ export function distCache(root, mode) {
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  if (process.argv.includes('--check')) {
+    console.log(`build scripts verifiable: ${checkBuildCommands(ROOT)} package(s)`)
+    process.exit(0)
+  }
   const mode = process.argv.includes('--write')
     ? 'write'
     : process.argv.includes('--apply')
       ? 'apply'
       : null
-  if (!mode) throw new Error('Usage: dist-cache-manifest.mjs --write | --apply')
+  if (!mode) throw new Error('Usage: dist-cache-manifest.mjs --check | --write | --apply')
   const result = distCache(ROOT, mode)
   console.log(
     mode === 'write'
