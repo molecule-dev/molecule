@@ -117,7 +117,7 @@ const CHINA_PUBLIC_HOLIDAYS = [
  * historical usage stay priceable, and a persisted id resolves forward to the
  * successor. Supersede only within the same TIER: a cheaper or specialist model
  * with no newer equivalent (`gemini-3.1-pro-preview`, `qwen3-coder-plus`,
- * `kimi-k2.7-code`, `grok-build-0.1`) keeps at most `deprecatedAt`, so every
+ * `kimi-k2.7-code`) keeps at most `deprecatedAt`, so every
  * provider keeps a real choice. `__tests__/lookup.test.ts` fails on any two
  * selectable models of one family at different versions that aren't a
  * documented exception.
@@ -349,6 +349,11 @@ const CHINA_PUBLIC_HOLIDAYS = [
  *   cataloged superseded by grok-4.7.
  *   grok-4.5 still served at $2/$6, cached $0.30; grok-4.3 still served at
  *   $1.25/$2.50 with the bigger 1M window; grok-code-fast-1 no longer listed)
+ *   (re-verified 2026-11-23 via the LIVE /v1/models list, queried with the
+ *   production key: grok-4.7 / 4.6 / 4.5 / 4.3 and the 4.20 variants all
+ *   still served, but grok-build-0.1 is GONE — not in the list, dispatch
+ *   404s "does not exist or your team does not have access", and the docs
+ *   sitemap keeps a model page only for grok-4-7. Catalog entry disabled.)
  * - Chinese public holidays (DeepSeek's peak excludes them): the State
  *   Council's notices — 2026 at
  *   https://www.12371.gov.cn/web/article/web/content_1451614684968525824.html,
@@ -2101,11 +2106,20 @@ export const MODELS: readonly ModelDefinition[] = [
     cacheWritePricePerMTok: 1,
     // Not published by xAI — best-effort estimate (grok-4-generation base).
     knowledgeCutoff: '2025-06-01',
-    // Niche coding beta; grok-4.5 is the xAI pick — kept out of the main list.
-    // NOT superseded: its own family (grok-build) has no newer version, and it
-    // is xAI's cheapest tool-capable model, so it stays selectable under
-    // "Older models" (and is the deliberately-weak live selftest target).
+    // Niche coding beta; grok-4.5 was the xAI pick while it lived. NOT
+    // superseded: its own family (grok-build) has no newer version.
+    // DISABLED 2026-11-23: xAI removed the model from the API outright — the
+    // live GET /v1/models list (queried with the production key) no longer
+    // carries it, every dispatch 404s ("The model grok-build-0.1 does not
+    // exist or your team does not have access to it"), and docs.x.ai's
+    // sitemap keeps a model page only for grok-4-7. No successor id exists.
+    // disabled: removed from selection + the public listing, but getModel()
+    // still prices any historical usage. NEVER delete. The supervisor
+    // selftest's deliberately-weak target moved to gpt-6-luna the same day
+    // (molecule-dev chat-loop-runner DEFAULT_TARGET_MODEL + selftest-live-
+    // model.mjs TARGET_MODEL).
     deprecatedAt: '2026-07-28',
+    disabled: true,
   },
   {
     id: 'grok-4.20-multi-agent-beta-0309',
