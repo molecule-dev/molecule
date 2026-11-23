@@ -7,6 +7,7 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
+    "gen:tokens": "node scripts/build-tokens.mjs",
     "test": "vitest run",
     "test:watch": "vitest"
   },
@@ -30,6 +31,7 @@
   ],
   "license": "Apache-2.0",
   "devDependencies": {
+    "@playwright/test": "1.64.1",
     "@types/node": "26.6.5",
     "tailwindcss": "4.3.3",
     "typescript": "6.0.3",

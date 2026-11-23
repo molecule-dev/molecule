@@ -16,6 +16,11 @@
  * the example. Without it, the setup loads every locale's `ui.ts` at
  * boot to find the empty ones: one request per language on a first visit.
  *
+ * The first example lists the files with Vite's `import.meta.glob`. A
+ * React Native app is bundled by Metro, where `import.meta.glob` is
+ * undefined on a device: it lists one literal `import()` per language,
+ * as the second example does (and as `mlcl` writes it for an Expo app).
+ *
  * @example
  * ```ts
  * import { setupI18nDefault } from '@molecule/app-i18n-default'
@@ -39,6 +44,28 @@
  *   lazyLoadUi,
  *   supportedLocales: Object.keys(localeFiles).map(localeCode),
  * })
+ * ```
+ *
+ * @example
+ * ```ts
+ * // React Native (Metro): Metro bundles an import() of a literal path, each as its own chunk.
+ * import { setupI18nDefault } from '@molecule/app-i18n-default'
+ *
+ * import { ui as en } from '../locales/en/ui.js'
+ *
+ * const localeFiles: Record<string, () => Promise<{ ui: Record<string, string> }>> = {
+ *   de: () => import('../locales/de/ui.js'),
+ *   en: () => import('../locales/en/ui.js'),
+ *   fr: () => import('../locales/fr/ui.js'),
+ *   'zh-TW': () => import('../locales/zh-TW/ui.js'),
+ * }
+ *
+ * const lazyLoadUi = async (code: string): Promise<Record<string, string>> => {
+ *   const load = localeFiles[code]
+ *   return load ? (await load()).ui : {}
+ * }
+ *
+ * setupI18nDefault({ enUi: en, lazyLoadUi, supportedLocales: Object.keys(localeFiles) })
  * ```
  *
  * @module

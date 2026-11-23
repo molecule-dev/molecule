@@ -1,0 +1,161 @@
+/**
+ * The Tailwind preset (`@molecule/app-ui-nativewind/preset`): its colours are
+ * `@molecule/app-ui-tailwind`'s token table, and every class this ClassMap
+ * returns compiles, on the web and for a device.
+ *
+ * @module
+ */
+
+import { readdirSync, readFileSync } from 'node:fs'
+import { createRequire } from 'node:module'
+import { join } from 'node:path'
+import { fileURLToPath } from 'node:url'
+
+import { beforeAll, describe, expect, it } from 'vitest'
+
+import { colorTokens, themeVariables } from '@molecule/app-ui-tailwind'
+
+import { deviceOnlyClasses, words } from '../../scripts/device-classes.mjs'
+import { classMap } from '../classMap.js'
+import { forDevice } from '../device.js'
+
+interface Compile {
+  loadPreset(os: string | undefined): {
+    darkMode: string
+    moleculeContent(fromDir?: string): string[]
+    theme: { extend: { colors: Record<string, (options: { opacityValue?: string }) => string> } }
+  }
+  tailwindCss(classes: string[], os: string | undefined): Promise<{ css: string; root: unknown }>
+  classesWithRules(root: unknown): Set<string>
+  classesWithNativeStyles(css: string): Set<string>
+}
+
+const compile = createRequire(import.meta.url)('./helpers/compile.cjs') as Compile
+
+/**
+ * The JavaScript files under a directory.
+ *
+ * @param dir - The directory.
+ * @returns Each file's text.
+ */
+const scripts = (dir: string): string[] =>
+  readdirSync(dir, { recursive: true, encoding: 'utf8' })
+    .filter((file) => /\.c?[jt]s$/.test(file) && !file.includes('__tests__'))
+    .map((file) => readFileSync(join(dir, file), 'utf8'))
+
+/**
+ * Every class the ClassMap returns: its static entries, each function called
+ * with no options, and the calls the React Native components make.
+ */
+const staticClasses = (() => {
+  const strings: string[] = []
+  for (const [key, value] of Object.entries(classMap)) {
+    if (typeof value === 'string') strings.push(value)
+    else if (typeof value === 'function' && key !== 'cn') {
+      let result: unknown
+      try {
+        result = (value as () => unknown)()
+      } catch (_error) {
+        // A function that needs an argument is covered by the calls below.
+        continue
+      }
+      if (typeof result === 'string' && !result.includes('undefined')) strings.push(result)
+    }
+  }
+  strings.push(
+    classMap.input({ error: true, size: 'sm' }),
+    classMap.label({ required: true }),
+    classMap.checkbox({ error: true }),
+  )
+  for (const variant of ['default', 'info', 'success', 'warning', 'error'] as const)
+    strings.push(classMap.alert({ variant }), classMap.toast({ variant }))
+  return [...new Set(strings.flatMap((value) => value.split(/\s+/)).filter(Boolean))]
+})()
+
+describe('the preset', () => {
+  it('names every colour token of base.css, as a variable a theme can change', () => {
+    const preset = compile.loadPreset('ios')
+    const colors = preset.theme.extend.colors
+    expect(Object.keys(colors)).toEqual(colorTokens.map((token) => token.name))
+    expect(colors['surface-container']({})).toBe('var(--color-surface-container)')
+    expect(colors.primary({ opacityValue: '0.25' })).toBe('rgb(var(--color-primary-rgb) / 0.25)')
+    expect(preset.darkMode).toBe('class')
+  })
+
+  it('carries the light defaults of base.css on :root', async () => {
+    const { css } = await compile.tailwindCss(['bg-background'], 'ios')
+    for (const [name, value] of Object.entries(themeVariables()))
+      expect(css).toContain(`${name}: ${value}`)
+  })
+
+  it('gives classes the web values where Tailwind v3 and v4 differ', async () => {
+    const classes = ['rounded-sm', 'shadow-sm', 'border', 'duration-250']
+    const { css } = await compile.tailwindCss(classes, 'ios')
+    expect(css).toMatch(/\.rounded-sm \{\s*border-radius: 0\.25rem/)
+    // NativeWind turns a shadow into react-native's shadow props: v4's, not its own stronger one.
+    expect(css).toMatch(
+      /\.shadow-sm \{[^}]*--tw-shadow-color: rgb\(0 0 0 \/ 0\.1\)[^}]*-rn-shadow-radius: 3px/,
+    )
+    const web = await compile.tailwindCss(classes, undefined)
+    expect(web.css).toContain(
+      '--tw-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)',
+    )
+    // A bare border is currentColor on Expo web, as in v4 (a device has no preflight:
+    // forDevice colours it there).
+    expect(web.css).toMatch(/\*,\s*::before,\s*::after \{[^}]*border-color: currentColor/)
+    expect(css).toMatch(/\.duration-250 \{\s*transition-duration: 250ms/)
+  })
+})
+
+describe('every class the ClassMap returns', () => {
+  let device: { css: string; root: unknown }
+  let web: { css: string; root: unknown }
+
+  beforeAll(async () => {
+    device = await compile.tailwindCss(staticClasses, 'ios')
+    web = await compile.tailwindCss(staticClasses, undefined)
+  })
+
+  it('has a rule in a device build and in an Expo web build', () => {
+    expect(staticClasses.length).toBeGreaterThan(400)
+    const onDevice = compile.classesWithRules(device.root)
+    const onWeb = compile.classesWithRules(web.root)
+    expect(staticClasses.filter((c) => !onDevice.has(c))).toEqual([])
+    expect(staticClasses.filter((c) => !onWeb.has(c))).toEqual([])
+  })
+
+  it('compiles to a style NativeWind applies on a device', () => {
+    const styled = compile.classesWithNativeStyles(device.css)
+    expect(staticClasses.filter((c) => !styled.has(c))).toEqual([])
+  })
+})
+
+describe("what an app's Tailwind scan finds", () => {
+  it('names every class the ClassMap returns in a file moleculeContent() lists', () => {
+    const packageDir = fileURLToPath(new URL('../..', import.meta.url))
+    const globs = compile.loadPreset(undefined).moleculeContent(packageDir)
+    const webDir = globs
+      .map((glob) => glob.replace(/[\\/]dist[\\/].*$/, ''))
+      .find(
+        (dir) =>
+          JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8')).name ===
+          '@molecule/app-ui-tailwind',
+      )
+    expect(webDir, 'moleculeContent() finds @molecule/app-ui-tailwind').toBeDefined()
+    const web = scripts(join(webDir ?? '', 'dist'))
+    // This package's dist holds its source's literals and the generated list.
+    const own = [...scripts(join(packageDir, 'src')), deviceOnlyClasses(web, forDevice).join(' ')]
+    const named = new Set([...web, ...own].flatMap(words))
+    expect(staticClasses.filter((cls) => !named.has(cls))).toEqual([])
+  })
+
+  it('lists a rewritten class no web file names, and nothing a web file names', () => {
+    const web = ["export const stack = 'flex flex-col space-y-2 sm:space-x-3 -space-y-1 border'"]
+    expect(deviceOnlyClasses(web, forDevice)).toEqual([
+      'border-foreground',
+      'gap-y-2',
+      'sm:gap-x-3',
+    ])
+    expect(deviceOnlyClasses(["'gap-y-2 space-y-2'"], forDevice)).toEqual([])
+  })
+})

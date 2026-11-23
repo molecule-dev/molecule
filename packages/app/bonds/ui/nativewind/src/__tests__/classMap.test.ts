@@ -559,8 +559,6 @@ describe('@molecule/app-ui-nativewind classMap', () => {
       'dropdownSeparator',
       'dropdownLabel',
       'table',
-      'tableHeader',
-      'tableBody',
       'tableFooter',
       'tableRow',
       'tableHead',
@@ -599,6 +597,13 @@ describe('@molecule/app-ui-nativewind classMap', () => {
       'textOnTone',
       'bgScrim',
     ]
+
+    it('leaves the table header and body to their rows on a device (no descendant selectors)', () => {
+      // The web styles rows through `[&_tr]:…`; on a device each row carries its own border.
+      expect(classMap.tableHeader).toBe('')
+      expect(classMap.tableBody).toBe('')
+      expect(classMap.tableRow).toContain('border-b')
+    })
 
     for (const prop of nonEmptyStaticProps) {
       it(`should have non-empty "${prop}" string`, () => {

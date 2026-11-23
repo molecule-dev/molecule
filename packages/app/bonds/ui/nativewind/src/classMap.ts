@@ -8,7 +8,8 @@
  * - No CSS grid (`display: grid`) — use flexbox wrap instead
  * - No `hover:` pseudo-class — touch devices use `active:` instead
  * - No `backdrop-blur` — not supported in RN
- * - No CSS transitions/animations — use RN Animated / Reanimated
+ * - Transitions and animations run on Reanimated; the Tailwind preset
+ *   (`@molecule/app-ui-nativewind/preset`) defines the keyframes this ClassMap names
  * - No `position: fixed` — RN uses absolute positioning within the viewport
  * - No `portal` rendering — RN Modal handles overlays natively
  * - No `cursor-pointer` — not meaningful on touch devices
@@ -30,6 +31,28 @@ import type {
 } from '@molecule/app-ui'
 import { classMap as tailwindClassMap } from '@molecule/app-ui-tailwind'
 
+import { forDevice } from './device.js'
+
+/**
+ * The web ClassMap with every entry passed through {@link forDevice}: static
+ * strings once, functions on each call. `cn` merges strings that are already
+ * device classes, so it is kept as is.
+ */
+const deviceClassMap: UIClassMap = { ...tailwindClassMap }
+for (const [key, value] of Object.entries(tailwindClassMap)) {
+  if (typeof value === 'string') {
+    Object.assign(deviceClassMap, { [key]: forDevice(value) })
+  } else if (typeof value === 'function' && key !== 'cn') {
+    const web: (...args: unknown[]) => unknown = value
+    Object.assign(deviceClassMap, {
+      [key]: function (this: unknown, ...args: unknown[]): unknown {
+        const result = web.apply(this, args)
+        return typeof result === 'string' ? forDevice(result) : result
+      },
+    })
+  }
+}
+
 /**
  * NativeWind UIClassMap — Tailwind classmap with RN-compatible overrides.
  *
@@ -41,7 +64,7 @@ import { classMap as tailwindClassMap } from '@molecule/app-ui-tailwind'
  * ```
  */
 export const classMap: UIClassMap = {
-  ...tailwindClassMap,
+  ...deviceClassMap,
 
   // ---- Overrides for RN-incompatible classes ----
 
@@ -150,7 +173,7 @@ export const classMap: UIClassMap = {
   // Replace hover pseudo-class with active: for touch
   link: 'active:opacity-70',
   cursorPointer: '',
-  tableRowHoverable: 'active:bg-muted/50',
+  tableRowHoverable: 'active:bg-surface-secondary',
 
   // Touch target (WCAG 2.5.5 / Apple HIG / Material): React Native is touch-first,
   // so the `pointer-coarse` variant the web bond uses is not meaningful here —
@@ -192,4 +215,21 @@ export const classMap: UIClassMap = {
   },
 
   inset0: 'absolute top-0 right-0 bottom-0 left-0',
+
+  // ---- Device equivalents the class rewrite (`forDevice`) cannot derive ----
+
+  // A close button that appears on hover is never seen on a touch screen.
+  toastClose: 'absolute right-2 top-2 rounded-md p-1 text-foreground/50 active:text-foreground',
+  // Pseudo-elements (`before:`) do not exist on a device: the active row's
+  // accent is its left border.
+  resultItemActive: 'bg-surface-secondary border-l-2 border-primary',
+  // A device does not cascade text styles from a view into its text: the
+  // description's own Text carries the line height the web gives its <p>s.
+  alertDescription: 'text-sm leading-relaxed',
+  // A gradient background does not paint on a device; the wave pulses instead.
+  skeletonWave: 'animate-shimmer',
+  // Web-only: a ScrollView hides its indicator with a prop, and a device renders
+  // icons as SVG and does not bundle the Material Symbols glyph font.
+  facetedSearchBar: 'absolute z-40 border-b border-outline-variant/20 overflow-x-auto',
+  iconGlyphFont: '',
 }

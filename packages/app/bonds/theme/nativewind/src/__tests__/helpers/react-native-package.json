@@ -1,0 +1,5 @@
+{
+  "name": "react-native",
+  "version": "0.79.2",
+  "description": "The react-native version NativeWind's compiler reads for its feature flags (the version the React Native scaffold pins)."
+}

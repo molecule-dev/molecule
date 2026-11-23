@@ -31,11 +31,18 @@
  * Theming / where colors come from: the class strings here use semantic tokens
  * (`bg-primary`, `text-primary`, `bg-surface`, …), NOT literal palette classes
  * (`bg-blue-600`). Those tokens are defined in this package's `base.css`
- * `@theme` block, where the ~15 CORE colors read
+ * `@theme` block, where each CORE color reads
  * `--color-primary: var(--mol-color-primary, <default>)` (from the
  * `@molecule/app-theme` bond) and every other token (hover, container, Material
- * on-*, surface tiers) is AUTO-DERIVED from the cores via `color-mix()` — so
- * changing one core recolors all its shades.
+ * on-*, surface tiers) is AUTO-DERIVED from the cores via `color-mix()` or an
+ * alias — so changing one core recolors all its shades.
+ *
+ * The same table ships as data: `colorTokens` (generated from `base.css`),
+ * `resolveColorTokens(theme.colors)` (every token as RGBA, computed the way the
+ * browser computes `color-mix(in srgb, …)`) and `themeVariables(theme.colors)`
+ * (`--color-<name>` and `--color-<name>-rgb` for each token). A styling runtime
+ * without `color-mix()` — React Native's — uses these instead of `base.css`.
+ * After editing `base.css`'s `@theme`, run `npm run gen:tokens` in this package.
  *
  * To recolor a scaffolded app: edit `app/src/theme.css` (the `--color-*`
  * variables, `:root` = light, `[data-mol-mode='dark']` = dark) when it exists —
@@ -49,5 +56,7 @@
 export * from './classMap.js'
 export * from './components.js'
 export * from './layout.js'
+export * from './tokens.generated.js'
+export * from './tokens.js'
 export * from './types.js'
 export * from './utilities.js'

@@ -49,8 +49,12 @@
  * load last, so they SHADOW the `var(--mol-color-*)` reference — the visible
  * colors come only from `theme.css`. When `theme.css` defines colors, editing
  * this bond has NO visible effect; recolor by editing `app/src/theme.css`. This
- * bond still drives light/dark mode and is the palette for non-Tailwind targets
- * (e.g. React Native). Precedence: `theme.css` > this bond > base defaults.
+ * bond still drives light/dark mode. Precedence: `theme.css` > this bond > base
+ * defaults.
+ *
+ * A React Native (NativeWind) app has no `<html>` to set variables on: it uses
+ * `@molecule/app-theme-nativewind`, which takes the same themes and repaints the
+ * ClassMap's colours on a device.
  *
  * The provider also toggles a `.dark` class on `<html>` (alongside the
  * `data-mol-mode` attribute) so Tailwind `dark:` variants react to theme

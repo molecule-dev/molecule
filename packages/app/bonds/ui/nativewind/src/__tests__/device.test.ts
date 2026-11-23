@@ -1,0 +1,59 @@
+/**
+ * `forDevice`: the rewrite that turns a web class string into classes
+ * NativeWind applies on a device.
+ *
+ * @module
+ */
+
+import { describe, expect, it } from 'vitest'
+
+import { forDevice } from '../device.js'
+
+describe('forDevice', () => {
+  it('turns sibling spacing into gap, keeping its variants', () => {
+    expect(forDevice('flex flex-col space-y-1.5 p-6')).toBe('flex flex-col gap-y-1.5 p-6')
+    expect(forDevice('sm:flex-row sm:space-x-2')).toBe('sm:flex-row sm:gap-x-2')
+    expect(forDevice('space-y-reverse -space-x-2 p-1')).toBe('p-1')
+  })
+
+  it('drops what a device has no equivalent for', () => {
+    expect(forDevice('group flex group-hover:opacity-100 peer peer-focus:text-primary')).toBe(
+      'flex',
+    )
+    expect(forDevice('relative before:absolute after:content-[""] file:border-0')).toBe('relative')
+    expect(forDevice('text-sm [&_p]:leading-relaxed [&>svg]:absolute')).toBe('text-sm')
+    expect(forDevice('m-0 divide-y divide-border')).toBe('m-0')
+    expect(forDevice('leading-[1.25] font-inherit text-foreground')).toBe(
+      'leading-[1.25] text-foreground',
+    )
+    expect(
+      forDevice('animate-in fade-in-0 zoom-in-95 data-[state=closed]:slide-out-to-right-full'),
+    ).toBe('animate-in')
+  })
+
+  it('keeps variants NativeWind supports', () => {
+    const classes =
+      'hover:bg-surface active:opacity-70 dark:bg-primary data-[state=open]:animate-in sm:p-4'
+    expect(forDevice(classes)).toBe(classes)
+  })
+
+  it('gives a border with no colour the foreground colour (the web draws it in currentColor)', () => {
+    expect(forDevice('rounded-md border bg-surface')).toBe(
+      'rounded-md border bg-surface border-foreground',
+    )
+    expect(forDevice('border-b')).toBe('border-b border-foreground')
+    expect(forDevice('border-2 border-dashed')).toBe('border-2 border-dashed border-foreground')
+  })
+
+  it('leaves a border that names its colour, or has no width', () => {
+    expect(forDevice('border border-border')).toBe('border border-border')
+    expect(forDevice('border border-transparent border-b-[rgba(170,170,170,0.33)]')).toBe(
+      'border border-transparent border-b-[rgba(170,170,170,0.33)]',
+    )
+    expect(forDevice('border-0')).toBe('border-0')
+    // A colour that applies only in one state does not colour the border at rest.
+    expect(forDevice('border hover:border-primary')).toBe(
+      'border hover:border-primary border-foreground',
+    )
+  })
+})

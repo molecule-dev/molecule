@@ -7,7 +7,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && node scripts/build-preset.mjs",
     "test": "vitest run",
     "test:watch": "vitest"
   },
@@ -15,7 +15,8 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
-    }
+    },
+    "./preset": "./dist/preset.cjs"
   },
   "files": [
     "dist",
@@ -39,19 +40,31 @@
     "@molecule/app-ui": "1.5.0",
     "@molecule/app-ui-tailwind": "1.3.0",
     "@types/node": "26.6.5",
+    "nativewind": "4.2.7",
+    "postcss": "8.5.31",
+    "react-native-css-interop": "0.2.7",
+    "tailwindcss": "3.4.19",
     "typescript": "6.0.3",
     "vitest": "4.1.12"
   },
   "peerDependencies": {
     "@molecule/app-styling": "^1.0.1",
     "@molecule/app-ui": "^1.2.0",
-    "@molecule/app-ui-tailwind": "^1.0.1"
+    "@molecule/app-ui-tailwind": "^1.0.1",
+    "nativewind": "^4.2.0",
+    "tailwindcss": "^3.4.0"
   },
   "peerDependenciesMeta": {
     "@molecule/app-styling": {
       "optional": true
     },
     "@molecule/app-ui": {
+      "optional": true
+    },
+    "nativewind": {
+      "optional": true
+    },
+    "tailwindcss": {
       "optional": true
     }
   }

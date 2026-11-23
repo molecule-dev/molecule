@@ -42,6 +42,11 @@
  * - **The `linking.screens` map is the URL↔screen bridge** — molecule paths like
  *   `/users/:id` only resolve to screens listed there (and vice versa for
  *   `getLocation()`).
+ * - **`useNavigationTheme({ light: DefaultTheme, dark: DarkTheme })` gives the navigator
+ *   the molecule theme** (pass it to `<NavigationContainer theme={…}>`): headers, tab bars
+ *   and screen backgrounds are not ClassMap classes, so without it they stay React
+ *   Navigation's light defaults in a dark or custom theme. It follows the bonded
+ *   `@molecule/app-theme` provider; define the bases object outside the component.
  * - Navigation guards (`addGuard`) intercept only molecule-initiated `navigate()` /
  *   `navigateTo()` calls — navigations dispatched directly through React Navigation
  *   (taps on native navigators) bypass them; route-change listeners still fire.
@@ -51,5 +56,6 @@
 
 export * from './hooks.js'
 export * from './provider.js'
+export * from './theme.js'
 export * from './types.js'
 export * from './utilities.js'
