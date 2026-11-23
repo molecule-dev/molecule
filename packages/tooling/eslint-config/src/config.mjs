@@ -45,6 +45,9 @@ export async function moleculeEslintConfig(configUrl, { generatedResourceClients
   // composables or injection-context calls (an Angular component's field initializer is
   // their documented call site), which React's function-component model does not describe.
   let reactWorkspace = false
+  // Whether Metro bundles this workspace: a React Native app runs on react-native itself (a
+  // react-native-web app, which Vite builds, does not depend on it).
+  let metroWorkspace = false
   // The installed dev tooling, read for the framework lint plugins below.
   let devDependencies = {}
   try {
@@ -61,6 +64,7 @@ export async function moleculeEslintConfig(configUrl, { generatedResourceClients
     // Every api package is named @molecule/api-* (mlcl's registry test holds name and stack together).
     apiWorkspace = Object.keys(dependencies).some((name) => name.startsWith('@molecule/api-'))
     reactWorkspace = 'react' in dependencies
+    metroWorkspace = 'react-native' in (manifest.dependencies ?? {})
     resourceOwners = resourceTableOwners(
       resourceTables,
       { ...dependencies, ...devDependencies },
@@ -346,6 +350,16 @@ export async function moleculeEslintConfig(configUrl, { generatedResourceClients
         ],
       },
     },
+    ...(metroWorkspace
+      ? [
+          {
+            // Vitest runs the tests under Vite, which defines these members; Metro bundles the rest.
+            files: ['**/*.{ts,tsx,js,jsx,mjs}'],
+            ignores: ['**/__tests__/**', '**/*.test.*', '**/*.spec.*'],
+            rules: { 'molecule-local/no-vite-import-meta': 'error' },
+          },
+        ]
+      : []),
     {
       // Components live in .tsx — relax explicit return types there.
       files: ['**/*.tsx'],

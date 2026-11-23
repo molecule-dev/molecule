@@ -19,6 +19,7 @@ import { noLiteralUiText } from './rules/no-literal-ui-text.mjs'
 import { noRawClassNames } from './rules/no-raw-class-names.mjs'
 import noResourceTableWrites from './rules/no-resource-table-writes.mjs'
 import noStandInQueryRecord from './rules/no-stand-in-query-record.mjs'
+import noViteImportMeta from './rules/no-vite-import-meta.mjs'
 import preferDeclaredClients from './rules/prefer-declared-clients.mjs'
 import { scaffoldRules } from './rules/scaffold/index.mjs'
 
@@ -41,6 +42,7 @@ export const moleculeLocalPlugin = {
     'no-hand-styled-button': noHandStyledButton,
     'no-raw-class-names': noRawClassNames,
     'no-literal-ui-text': noLiteralUiText,
+    'no-vite-import-meta': noViteImportMeta,
     ...scaffoldRules(tseslint.parser),
   },
 }
