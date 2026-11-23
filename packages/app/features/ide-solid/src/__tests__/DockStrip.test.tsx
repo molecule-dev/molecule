@@ -74,14 +74,12 @@ function renderStrip(
     </ThemeContext.Provider>
   )
   if (tray) {
-    const [headerEl, _setHeaderEl] = createSignal(document.createElement('div'))
     const [detailEl, _setDetailEl] = createSignal(document.createElement('div'))
     const [openId, _setOpenId] = createSignal<string | null>(null)
-    document.body.appendChild(headerEl())
     document.body.appendChild(detailEl())
     dispose = render(
       () => (
-        <WorkTrayContext.Provider value={{ headerEl, detailEl, openId, toggle: () => {} }}>
+        <WorkTrayContext.Provider value={{ detailEl, openId, toggle: () => {} }}>
           {tree()}
         </WorkTrayContext.Provider>
       ),

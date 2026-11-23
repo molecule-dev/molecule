@@ -10,8 +10,9 @@
   same input, the same callbacks. Node-valued props (`icon`, `label`,
   `hint`, `actions`, `detailActions`, `chipLabel`) are snippets (or plain
   text); the strip's detail is the `children` snippet. Inside a work tray
-  (`WorkTrayContext`) the chip and, when open, the detail are portalled into
-  the tray's header and detail elements.
+  (`WorkTrayContext`) the chip renders where the strip stands (the tray's chip
+  row holds the strips, so the chips keep their order) and, when open, the
+  detail is portalled into the tray's detail element.
 
   Styling uses `getClassMap()` (`cm.*`); the only inline styles are layout the
   ClassMap can't express.
@@ -20,16 +21,15 @@
   import type { Snippet } from 'svelte'
 
   /**
-   * The slots of the one-row work tray (see WorkCard). When a `DockStrip`
-   * sits inside it, the strip draws a compact chip into `headerEl` and, while
-   * it is the open one, its detail into `detailEl` — so every section shares
-   * a single row instead of stacking one bar each. Provided as one `$state`
-   * object, so a tray whose open section changes re-renders every strip in it.
+   * The one-row work tray (see WorkCard). When a `DockStrip` sits inside it,
+   * the strip draws a compact chip where it stands — the tray's chip row holds
+   * the strips, so the chips keep the strips' order — and, while it is the open
+   * one, its detail into `detailEl`, so every section shares a single row
+   * instead of stacking one bar each. Provided as one `$state` object, so a
+   * tray whose open section changes re-renders every strip in it.
    */
   export interface WorkTrayValue {
-    /** Where the chips go. Null until the tray has mounted. */
-    headerEl: HTMLElement | null
-    /** Where the open section's detail goes. */
+    /** Where the open section's detail goes. Null until the tray has mounted. */
     detailEl: HTMLElement | null
     /** The open section's `molId`, if any. */
     openId: string | null
@@ -97,12 +97,24 @@
   function textOf(value: StripNode | undefined): string {
     return typeof value === 'string' || typeof value === 'number' ? String(value) : ''
   }
+
+  /**
+   * Whether a node prop was given something to render, by React's `slot(node)` rule: `''` reads
+   * as not passed. A snippet counts; a wrapper around one is in the page only while it renders
+   * something (`PresentWhileContent`), so a snippet that renders nothing leaves no wrapper.
+   *
+   * @param value - The prop.
+   * @returns True when it may render something.
+   */
+  function given(value: StripNode | undefined): value is StripNode {
+    return value != null && value !== ''
+  }
 </script>
 
 <script lang="ts">
   import { getContext } from 'svelte'
 
-  import { BodyPortal } from '@molecule/app-svelte'
+  import { BodyPortal, PresentWhileContent } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
   let {
@@ -171,67 +183,65 @@
 </script>
 
 {#if tray}
-  {#if tray.headerEl}
-    <BodyPortal target={tray.headerEl}
-      ><div
-        data-mol-id={molId}
-        {...rootProps}
-        style="display: inline-flex; align-items: center; gap: 6px; max-width: 100%"
-      >
-        <div
-          role="button"
-          tabindex="0"
-          data-mol-id={toggleMolId}
-          aria-expanded={onActivate ? undefined : open ? 'true' : 'false'}
-          aria-label={rowAriaLabel}
-          title={chipHoverText}
-          class={rowClasses}
-          data-state={open ? 'open' : 'closed'}
-          onclick={() => trayActivate()}
-          onkeydown={(event) => onRowKeydown(event, trayActivate)}
-          style={`display: inline-flex; align-items: center; gap: 6px; min-width: 0px${open ? '; box-shadow: inset 0 0 0 1px currentColor' : ''}`}
-        >
-          {#if icon != null}{#if isSnippet(icon)}{@render icon?.()}{:else}{textOf(icon)}{/if}{/if}
-          {#if hideLabel}
-            <svg aria-hidden="true" width="12" height="12" viewBox="0 0 16 16">
-              <path
-                d={open ? 'M4 10l4-4 4 4' : 'M4 6l4 4 4-4'}
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.5"
-              />
-            </svg>
-          {:else}
-            <span
-              class={labelClasses}
-              style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis"
-            >
-              {#if chipLabel != null}
-                {#if isSnippet(chipLabel)}{@render chipLabel?.()}{:else}{textOf(chipLabel)}{/if}
-              {:else}
-                {#if isSnippet(label)}{@render label?.()}{:else}{textOf(label)}{/if}
-              {/if}
-            </span>
-          {/if}
-        </div>
-        {#if actions != null}
-          {#if isSnippet(actions)}{@render actions?.()}{:else}{textOf(actions)}{/if}
-        {/if}
-      </div></BodyPortal
+  <div
+    data-mol-id={molId}
+    {...rootProps}
+    style="display: inline-flex; align-items: center; gap: 6px; max-width: 100%"
+  >
+    <div
+      role="button"
+      tabindex="0"
+      data-mol-id={toggleMolId}
+      aria-expanded={onActivate ? undefined : open ? 'true' : 'false'}
+      aria-label={rowAriaLabel}
+      title={chipHoverText}
+      class={rowClasses}
+      data-state={open ? 'open' : 'closed'}
+      onclick={() => trayActivate()}
+      onkeydown={(event) => onRowKeydown(event, trayActivate)}
+      style={`display: inline-flex; align-items: center; gap: 6px; min-width: 0px${open ? '; box-shadow: inset 0 0 0 1px currentColor' : ''}`}
     >
-  {/if}
-  {#if open && (children || detailActions != null) && tray.detailEl}
+      {#if icon != null}{#if isSnippet(icon)}{@render icon?.()}{:else}{textOf(icon)}{/if}{/if}
+      {#if hideLabel}
+        <svg aria-hidden="true" width="12" height="12" viewBox="0 0 16 16">
+          <path
+            d={open ? 'M4 10l4-4 4 4' : 'M4 6l4 4 4-4'}
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+          />
+        </svg>
+      {:else}
+        <span
+          class={labelClasses}
+          style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis"
+        >
+          {#if given(chipLabel)}
+            {#if isSnippet(chipLabel)}{@render chipLabel?.()}{:else}{textOf(chipLabel)}{/if}
+          {:else}
+            {#if isSnippet(label)}{@render label?.()}{:else}{textOf(label)}{/if}
+          {/if}
+        </span>
+      {/if}
+    </div>
+    {#if actions != null}
+      {#if isSnippet(actions)}{@render actions?.()}{:else}{textOf(actions)}{/if}
+    {/if}
+  </div>
+  {#if open && (children || given(detailActions)) && tray.detailEl}
     <BodyPortal target={tray.detailEl}
-      ><div data-mol-id={`${molId}-detail`} style="padding: 2px 10px 8px">
-        {#if detailActions != null}
-          <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px">
+      ><PresentWhileContent data-mol-id={`${molId}-detail`} style="padding: 2px 10px 8px">
+        {#if given(detailActions)}
+          <PresentWhileContent
+            style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px"
+          >
             {#if isSnippet(detailActions)}{@render detailActions?.()}{:else}{textOf(
                 detailActions,
               )}{/if}
-          </div>
+          </PresentWhileContent>
         {/if}
         {#if children}{@render children?.()}{/if}
-      </div></BodyPortal
+      </PresentWhileContent></BodyPortal
     >
   {/if}
 {:else}
@@ -292,17 +302,18 @@
             {#if isSnippet(label)}{@render label?.()}{:else}{textOf(label)}{/if}
           </span>
         {/if}
-        {#if hint != null}
-          <span
+        {#if given(hint)}
+          <PresentWhileContent
+            tag="span"
             class={labelClasses}
             style="opacity: 0.75; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0px"
           >
             {#if isSnippet(hint)}{@render hint?.()}{:else}{textOf(hint)}{/if}
-          </span>
+          </PresentWhileContent>
         {/if}
       </div>
-      {#if actions != null || detailActions != null}
-        <div
+      {#if given(actions) || given(detailActions)}
+        <PresentWhileContent
           class={cm.position('relative')}
           style="display: flex; align-items: center; gap: 6px; flex-shrink: 0"
         >
@@ -314,11 +325,13 @@
                 detailActions,
               )}{/if}
           {/if}
-        </div>
+        </PresentWhileContent>
       {/if}
     </div>
     {#if !onActivate && expanded && children}
-      <div style="margin-top: 6px; padding-left: 18px">{@render children?.()}</div>
+      <PresentWhileContent style="margin-top: 6px; padding-left: 18px"
+        >{@render children?.()}</PresentWhileContent
+      >
     {/if}
   </div>
 {/if}

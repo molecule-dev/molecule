@@ -10,14 +10,16 @@
  * same input, the same callbacks. Node-valued props (`icon`, `label`,
  * `hint`, `actions`, `detailActions`, `chipLabel`) are Solid JSX values; the
  * strip's detail is `props.children`. Inside a work tray
- * ({@link WorkTrayContext}) the chip and, when open, the detail are portalled
- * into the tray's header and detail elements.
+ * ({@link WorkTrayContext}) the chip renders where the strip stands (the
+ * tray's chip row holds the strips, so the chips keep their order) and, when
+ * open, the detail is portalled into the tray's detail element.
  *
  * @module
  */
 
 import type { Accessor, JSX } from 'solid-js'
 import {
+  children,
   createContext,
   createMemo,
   createUniqueId,
@@ -26,23 +28,22 @@ import {
   useContext,
 } from 'solid-js'
 
-import { BodyPortal, useThemeMode } from '@molecule/app-solid'
+import { BodyPortal, rendersNode, useThemeMode } from '@molecule/app-solid'
 import { getClassMap, moleculeSpinnerMarkSvg } from '@molecule/app-ui'
 
 /** The pixel size of a strip's status icon at its default. */
 const MARK_SIZE = 16
 
 /**
- * The slots of the one-row work tray (see WorkCard). When a {@link DockStrip}
- * sits inside it, the strip draws a compact chip into `headerEl` and, while it
- * is the open one, its detail into `detailEl` — so every section shares a
- * single row instead of stacking one bar each. The fields are accessors so a
- * tray whose open section changes re-renders every strip in it.
+ * The one-row work tray (see WorkCard). When a {@link DockStrip} sits inside
+ * it, the strip draws a compact chip where it stands — the tray's chip row holds
+ * the strips, so the chips keep the strips' order — and, while it is the open
+ * one, its detail into `detailEl`, so every section shares a single row instead
+ * of stacking one bar each. The fields are accessors so a tray whose open
+ * section changes re-renders every strip in it.
  */
 export interface WorkTrayValue {
-  /** Where the chips go. Null until the tray has mounted. */
-  headerEl: Accessor<HTMLElement | null>
-  /** Where the open section's detail goes. */
+  /** Where the open section's detail goes. Null until the tray has mounted. */
   detailEl: Accessor<HTMLElement | null>
   /** The open section's `molId`, if any. */
   openId: Accessor<string | null>
@@ -268,78 +269,82 @@ export function DockStrip(props: DockStripProps): JSX.Element {
 
   if (tray) {
     const open = (): boolean => !props.onActivate && tray.openId() === props.molId
-    // React's tray branch is a fragment of two portals: the chip's element
-    // appears directly in the tray's header and the open detail directly in
-    // its detail element, nothing where the strip itself stands.
-    // `<BodyPortal mount={…}>` renders each there without a wrapper element.
+    // Each node prop is resolved once (Solid creates a node each time a prop is read), the
+    // detail's only while the section is open, as React mounts it then. A node that renders
+    // nothing (an empty list) reads as one not passed, React's `slot(node)`.
+    const chipLabel = children(() => props.chipLabel)
+    const detail = children(() => (open() ? props.children : undefined))
+    const detailActions = children(() => (open() ? props.detailActions : undefined))
+    // React's tray branch is the chip, where the strip stands (in the tray's
+    // chip row), and a portal of the open detail into the tray's detail
+    // element. `<BodyPortal mount={…}>` renders it there without a wrapper
+    // element.
     const detailTarget = createMemo(() =>
-      open() && (props.children || props.detailActions) ? tray.detailEl() : null,
+      open() && (rendersNode(detail()) || rendersNode(detailActions())) ? tray.detailEl() : null,
     )
     return (
       <>
-        <BodyPortal mount={tray.headerEl()}>
+        <div
+          data-mol-id={props.molId}
+          {...props.rootProps}
+          style={{
+            display: 'inline-flex',
+            'align-items': 'center',
+            gap: '6px',
+            'max-width': '100%',
+          }}
+        >
           <div
-            data-mol-id={props.molId}
-            {...props.rootProps}
+            role="button"
+            tabindex={0}
+            data-mol-id={props.toggleMolId}
+            aria-expanded={props.onActivate ? undefined : open() ? 'true' : 'false'}
+            aria-label={rowAriaLabel()}
+            title={props.chipTitle ?? rowAriaLabel()}
+            class={rowClasses}
+            data-state={open() ? 'open' : 'closed'}
+            onClick={() => (props.onActivate ? props.onActivate() : tray.toggle(props.molId))}
+            onKeyDown={onKeyDown(() =>
+              props.onActivate ? props.onActivate() : tray.toggle(props.molId),
+            )}
+            /* mol-bespoke-button: a work-tray CHIP — status icon and short label
+                   that opens its section's detail; a disclosure toggle, not a CTA. */
             style={{
               display: 'inline-flex',
               'align-items': 'center',
               gap: '6px',
-              'max-width': '100%',
+              'min-width': '0px',
+              ...(open() ? { 'box-shadow': 'inset 0 0 0 1px currentColor' } : {}),
             }}
           >
-            <div
-              role="button"
-              tabindex={0}
-              data-mol-id={props.toggleMolId}
-              aria-expanded={props.onActivate ? undefined : open() ? 'true' : 'false'}
-              aria-label={rowAriaLabel()}
-              title={props.chipTitle ?? rowAriaLabel()}
-              class={rowClasses}
-              data-state={open() ? 'open' : 'closed'}
-              onClick={() => (props.onActivate ? props.onActivate() : tray.toggle(props.molId))}
-              onKeyDown={onKeyDown(() =>
-                props.onActivate ? props.onActivate() : tray.toggle(props.molId),
-              )}
-              /* mol-bespoke-button: a work-tray CHIP — status icon and short label
-                   that opens its section's detail; a disclosure toggle, not a CTA. */
-              style={{
-                display: 'inline-flex',
-                'align-items': 'center',
-                gap: '6px',
-                'min-width': '0px',
-                ...(open() ? { 'box-shadow': 'inset 0 0 0 1px currentColor' } : {}),
-              }}
-            >
-              {props.icon}
-              {props.hideLabel ? (
-                <svg aria-hidden="true" width="12" height="12" viewBox="0 0 16 16">
-                  <path
-                    d={open() ? 'M4 10l4-4 4 4' : 'M4 6l4 4 4-4'}
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1.5"
-                  />
-                </svg>
-              ) : (
-                <span
-                  class={labelClasses}
-                  style={{
-                    'white-space': 'nowrap',
-                    overflow: 'hidden',
-                    'text-overflow': 'ellipsis',
-                  }}
-                >
-                  {props.chipLabel ?? props.label}
-                </span>
-              )}
-            </div>
-            {props.actions}
+            {props.icon}
+            {props.hideLabel ? (
+              <svg aria-hidden="true" width="12" height="12" viewBox="0 0 16 16">
+                <path
+                  d={open() ? 'M4 10l4-4 4 4' : 'M4 6l4 4 4-4'}
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                />
+              </svg>
+            ) : (
+              <span
+                class={labelClasses}
+                style={{
+                  'white-space': 'nowrap',
+                  overflow: 'hidden',
+                  'text-overflow': 'ellipsis',
+                }}
+              >
+                {rendersNode(chipLabel()) ? chipLabel() : props.label}
+              </span>
+            )}
           </div>
-        </BodyPortal>
+          {props.actions}
+        </div>
         <BodyPortal mount={detailTarget()}>
           <div data-mol-id={`${props.molId}-detail`} style={{ padding: '2px 10px 8px' }}>
-            {props.detailActions ? (
+            {rendersNode(detailActions()) ? (
               <div
                 style={{
                   display: 'flex',
@@ -348,15 +353,19 @@ export function DockStrip(props: DockStripProps): JSX.Element {
                   'margin-bottom': '6px',
                 }}
               >
-                {props.detailActions}
+                {detailActions()}
               </div>
             ) : null}
-            {props.children}
+            {detail()}
           </div>
         </BodyPortal>
       </>
     )
   }
+  const hint = children(() => props.hint)
+  const actions = children(() => props.actions)
+  const detailActions = children(() => props.detailActions)
+  const detail = children(() => (!props.onActivate && props.expanded ? props.children : undefined))
   return (
     <div
       data-mol-id={props.molId}
@@ -437,7 +446,7 @@ export function DockStrip(props: DockStripProps): JSX.Element {
               {props.label}
             </span>
           )}
-          {props.hint ? (
+          {rendersNode(hint()) ? (
             <span
               class={labelClasses}
               style={{
@@ -448,22 +457,22 @@ export function DockStrip(props: DockStripProps): JSX.Element {
                 'min-width': '0px',
               }}
             >
-              {props.hint}
+              {hint()}
             </span>
           ) : null}
         </div>
-        {props.actions || props.detailActions ? (
+        {rendersNode(actions()) || rendersNode(detailActions()) ? (
           <div
             class={cm.position('relative')}
             style={{ display: 'flex', 'align-items': 'center', gap: '6px', 'flex-shrink': '0' }}
           >
-            {props.actions}
-            {props.detailActions}
+            {actions()}
+            {detailActions()}
           </div>
         ) : null}
       </div>
-      {!props.onActivate && props.expanded && props.children ? (
-        <div style={{ 'margin-top': '6px', 'padding-left': '18px' }}>{props.children}</div>
+      {rendersNode(detail()) ? (
+        <div style={{ 'margin-top': '6px', 'padding-left': '18px' }}>{detail()}</div>
       ) : null}
     </div>
   )

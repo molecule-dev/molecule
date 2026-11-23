@@ -13,9 +13,10 @@
  * detail element's own `ng-content` and kept out of the document while the
  * detail is not showing (a conditional slot would leave children
  * unprojected). Inside a work tray ({@link WorkTrayContext}) the chip is a
- * module-local component portalled into the tray's header, and the same
- * detail element moves into the tray's detail element when its section is the
- * open one.
+ * module-local component drawn where the strip stands (the tray's chip row
+ * holds the strips, so the chips keep their order, and a reorder moves each
+ * chip with its strip), and the same detail element moves into the tray's
+ * detail element when its section is the open one.
  *
  * The tray's chip stays module-local (React renders its chip internally too).
  * A standalone strip's header row holds real controls, so it is a plain
@@ -54,7 +55,9 @@ import { DomSanitizer } from '@angular/platform-browser'
 import {
   MolPlacement,
   placeElement,
+  placeElementBefore,
   setElementPresent,
+  setHostRoot,
   type SlotReader,
   useHostPresence,
   usePlacement,
@@ -67,16 +70,15 @@ import { styleText } from '@molecule/app-ui-angular'
 const MARK_SIZE = 16
 
 /**
- * The slots of the one-row work tray (see WorkCard). When a {@link DockStrip}
- * sits inside it, the strip draws a compact chip into `headerEl` and, while it
- * is the open one, its detail into `detailEl` — so every section shares a
- * single row instead of stacking one bar each. The fields are signals so a
- * tray whose open section changes re-renders every strip in it.
+ * The one-row work tray (see WorkCard). When a {@link DockStrip} sits inside
+ * it, the strip draws a compact chip where it stands — the tray's chip row holds
+ * the strips, so the chips keep the strips' order — and, while it is the open
+ * one, its detail into `detailEl`, so every section shares a single row instead
+ * of stacking one bar each. The fields are signals so a tray whose open section
+ * changes re-renders every strip in it.
  */
 export interface WorkTrayValue {
-  /** Where the chips go. Null until the tray has mounted. */
-  headerEl: Signal<HTMLElement | null>
-  /** Where the open section's detail goes. */
+  /** Where the open section's detail goes. Null until the tray has mounted. */
   detailEl: Signal<HTMLElement | null>
   /** The open section's `molId`, if any. */
   openId: Signal<string | null>
@@ -558,8 +560,9 @@ class DockStripChip implements DoCheck {
     'rootProps',
   ],
   hostDirectives: [MolPlacement],
-  // In a tray React renders no strip element at its place (its chip and detail are portals), so
-  // the host is out of the DOM there; standalone, the host IS React's root div.
+  // In a tray React renders the chip at the strip's place and the detail through a portal, so the
+  // host is out of the DOM there (the chip stands in its place); standalone, the host IS React's
+  // root div.
   host: {
     '[attr.data-mol-id]': 'tray ? null : molId',
     '[attr.style]': 's.root',
@@ -749,8 +752,8 @@ export class DockStrip implements DoCheck, OnDestroy {
   }
 
   constructor() {
-    // Standalone the host IS React's root div; in a tray React renders no strip
-    // element at its place (the chip and the detail are portals).
+    // Standalone the host IS React's root div; in a tray React renders the chip
+    // at the strip's place and the detail through a portal.
     useHostPresence(() => this.tray === null)
     // The detail is placed from the placement function: it runs right after
     // Angular changes a node of the detail's slot, when a signal it read
@@ -763,14 +766,19 @@ export class DockStrip implements DoCheck, OnDestroy {
   }
 
   /**
-   * Places the tray chip and the detail against React's DOM.
+   * Places the tray chip and the detail against React's DOM: the chip stands in
+   * the strip's own place (in front of its absent host, so a consumer's reorder
+   * moves the chip with the strip).
    *
    * @param hasContent - Reads whether a slot has content.
    */
   private place(hasContent: SlotReader): void {
-    const headerEl = this.tray?.headerEl()
+    // No element stands for the host: in a tray React spreads only `rootProps` on the chip, which
+    // the chip applies itself, so the strip's own root style stays on the absent host instead of
+    // landing on the chip that stands in its place.
+    setHostRoot(this.hostEl, null)
     const chipEl = this.chipRef?.location.nativeElement as HTMLElement | undefined
-    if (chipEl && headerEl) placeElement(chipEl, headerEl)
+    if (chipEl && this.tray) placeElementBefore(chipEl, this.hostEl)
     this.syncDetail(hasContent)
   }
 
@@ -805,12 +813,7 @@ export class DockStrip implements DoCheck, OnDestroy {
       this.destroyChip()
       return
     }
-    const headerEl = tray.headerEl()
     const open = !this.onActivate && tray.openId() === this.molId
-    if (!headerEl) {
-      this.destroyChip()
-      return
-    }
     if (!this.chipRef) {
       this.chipRef = this.vcr.createComponent(DockStripChip)
       this.chipRef.changeDetectorRef.detectChanges()
@@ -844,8 +847,8 @@ export class DockStrip implements DoCheck, OnDestroy {
 
   /**
    * Places the detail where the strip's mode needs it: in the tray's detail
-   * element when this section is the open one (the tray's chip row lives in
-   * the tray's header), otherwise under the row inside the host while it is
+   * element when this section is the open one (the chip stands in the tray's
+   * chip row), otherwise under the row inside the host while it is
    * expanded. Detached from the document the rest of the time — exactly the
    * branches React renders, with the projected children kept alive in the
    * slot for the next open.

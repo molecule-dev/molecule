@@ -31,22 +31,30 @@ import {
 } from 'vue'
 
 import { getClassMap, moleculeSpinnerMarkSvg } from '@molecule/app-ui'
-import { useThemeMode } from '@molecule/app-vue'
+import { toChildArray, useThemeMode } from '@molecule/app-vue'
 
 /** The pixel size of a strip's status icon at its default. */
+/**
+ * Whether a node prop or slot content renders anything, by React's `slot(node)` rule: an empty
+ * list, `null` or `false` counts as not passed.
+ *
+ * @param node - The prop's value, or what the slot returned.
+ * @returns True when it renders something.
+ */
+const renders = (node: VNodeChild | undefined): boolean => toChildArray(node).length > 0
+
 const MARK_SIZE = 16
 
 /**
- * The slots of the one-row work tray (see WorkCard). When a {@link DockStrip}
- * sits inside it, the strip draws a compact chip into `headerEl` and, while it
- * is the open one, its detail into `detailEl` — so every section shares a
- * single row instead of stacking one bar each. The fields are refs so a tray
- * whose open section changes re-renders every strip in it.
+ * The one-row work tray (see WorkCard). When a {@link DockStrip} sits inside
+ * it, the strip draws a compact chip where it stands — the tray's chip row holds
+ * the strips, so the chips keep the strips' order — and, while it is the open
+ * one, its detail into `detailEl`, so every section shares a single row instead
+ * of stacking one bar each. The fields are refs so a tray whose open section
+ * changes re-renders every strip in it.
  */
 export interface WorkTrayValue {
-  /** Where the chips go. Null until the tray has mounted. */
-  headerEl: Ref<HTMLElement | null>
-  /** Where the open section's detail goes. */
+  /** Where the open section's detail goes. Null until the tray has mounted. */
   detailEl: Ref<HTMLElement | null>
   /** The open section's `molId`, if any. */
   openId: Ref<string | null>
@@ -300,6 +308,10 @@ export const DockStrip = defineComponent({
     )
     const labelClasses = computed(() => cm.cn(cm.textMuted, cm.textSize('xs')))
 
+    // Names the overlay disclosure button through `aria-labelledby`; taken once, as React's
+    // `useId()` is stable across renders.
+    const labelId = useId()
+
     /** The row's accessible name: the label, but only when it is plain text. */
     const rowAriaLabel = computed(() =>
       props.hideLabel && typeof props.label === 'string' ? props.label : undefined,
@@ -316,10 +328,12 @@ export const DockStrip = defineComponent({
           }
         }
       if (tray) {
-        if (!tray.headerEl.value) return null
         // Read inside the render's reactive effect, so an open-section change
         // re-renders this strip.
         const open = !props.onActivate && tray.openId.value === props.molId
+        // The detail's content, taken once while the section is open: React's `slot(children)`
+        // decides from what it renders, so an empty list opens no detail.
+        const detail = open ? slots.default?.() : undefined
         const chipTitle =
           props.chipTitle ??
           (props.hideLabel && typeof props.label === 'string' ? props.label : undefined)
@@ -328,80 +342,78 @@ export const DockStrip = defineComponent({
           else tray.toggle(props.molId)
         }
         return [
-          h(Teleport, { to: tray.headerEl.value }, [
-            h(
-              'div',
-              {
-                'data-mol-id': props.molId,
-                ...(props.rootProps ?? {}),
-                style: {
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  maxWidth: '100%',
-                },
+          h(
+            'div',
+            {
+              'data-mol-id': props.molId,
+              ...(props.rootProps ?? {}),
+              style: {
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                maxWidth: '100%',
               },
-              [
-                h(
-                  'div',
-                  {
-                    role: 'button',
-                    tabindex: 0,
-                    'data-mol-id': props.toggleMolId,
-                    'aria-expanded': props.onActivate ? undefined : open ? 'true' : 'false',
-                    'aria-label': rowAriaLabel.value,
-                    title: chipTitle,
-                    class: rowClasses.value,
-                    'data-state': open ? 'open' : 'closed',
-                    onClick: () => trayActivate(),
-                    onKeydown: onKeydown(trayActivate),
-                    style: {
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: '6px',
-                      minWidth: '0',
-                      ...(open ? { boxShadow: 'inset 0 0 0 1px currentColor' } : {}),
-                    },
+            },
+            [
+              h(
+                'div',
+                {
+                  role: 'button',
+                  tabindex: 0,
+                  'data-mol-id': props.toggleMolId,
+                  'aria-expanded': props.onActivate ? undefined : open ? 'true' : 'false',
+                  'aria-label': rowAriaLabel.value,
+                  title: chipTitle,
+                  class: rowClasses.value,
+                  'data-state': open ? 'open' : 'closed',
+                  onClick: () => trayActivate(),
+                  onKeydown: onKeydown(trayActivate),
+                  style: {
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    minWidth: '0',
+                    ...(open ? { boxShadow: 'inset 0 0 0 1px currentColor' } : {}),
                   },
-                  [
-                    props.icon ?? null,
-                    props.hideLabel
-                      ? h(
-                          'svg',
-                          {
-                            'aria-hidden': 'true',
-                            width: '12',
-                            height: '12',
-                            viewBox: '0 0 16 16',
+                },
+                [
+                  props.icon ?? null,
+                  props.hideLabel
+                    ? h(
+                        'svg',
+                        {
+                          'aria-hidden': 'true',
+                          width: '12',
+                          height: '12',
+                          viewBox: '0 0 16 16',
+                        },
+                        [
+                          h('path', {
+                            d: open ? 'M4 10l4-4 4 4' : 'M4 6l4 4 4-4',
+                            fill: 'none',
+                            stroke: 'currentColor',
+                            'stroke-width': '1.5',
+                          }),
+                        ],
+                      )
+                    : h(
+                        'span',
+                        {
+                          class: labelClasses.value,
+                          style: {
+                            whiteSpace: 'nowrap',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
                           },
-                          [
-                            h('path', {
-                              d: open ? 'M4 10l4-4 4 4' : 'M4 6l4 4 4-4',
-                              fill: 'none',
-                              stroke: 'currentColor',
-                              'stroke-width': '1.5',
-                            }),
-                          ],
-                        )
-                      : h(
-                          'span',
-                          {
-                            class: labelClasses.value,
-                            style: {
-                              whiteSpace: 'nowrap',
-                              overflow: 'hidden',
-                              textOverflow: 'ellipsis',
-                            },
-                          },
-                          [props.chipLabel ?? props.label],
-                        ),
-                  ],
-                ),
-                props.actions ?? null,
-              ],
-            ),
-          ]),
-          open && (slots.default || props.detailActions) && tray.detailEl.value
+                        },
+                        [renders(props.chipLabel) ? props.chipLabel : props.label],
+                      ),
+                ],
+              ),
+              props.actions ?? null,
+            ],
+          ),
+          open && (renders(detail) || renders(props.detailActions)) && tray.detailEl.value
             ? h(Teleport, { to: tray.detailEl.value }, [
                 h(
                   'div',
@@ -410,7 +422,7 @@ export const DockStrip = defineComponent({
                     style: { padding: '2px 10px 8px' },
                   },
                   [
-                    props.detailActions
+                    renders(props.detailActions)
                       ? h(
                           'div',
                           {
@@ -424,16 +436,15 @@ export const DockStrip = defineComponent({
                           [props.detailActions],
                         )
                       : null,
-                    slots.default?.() ?? null,
+                    detail ?? null,
                   ],
                 ),
               ])
             : null,
         ]
       }
-      const hasDetail = !props.onActivate && props.expanded && slots.default
-      // Names the overlay disclosure button through `aria-labelledby`.
-      const labelId = useId()
+      // The detail's content, taken once while the strip is expanded (React's `slot(children)`).
+      const detail = !props.onActivate && props.expanded ? slots.default?.() : undefined
       return h(
         'div',
         {
@@ -533,7 +544,7 @@ export const DockStrip = defineComponent({
                         [props.label],
                       )
                     : null,
-                  props.hint
+                  renders(props.hint)
                     ? h(
                         'span',
                         {
@@ -551,7 +562,7 @@ export const DockStrip = defineComponent({
                     : null,
                 ],
               ),
-              props.actions || props.detailActions
+              renders(props.actions) || renders(props.detailActions)
                 ? h(
                     'div',
                     {
@@ -563,8 +574,8 @@ export const DockStrip = defineComponent({
                 : null,
             ],
           ),
-          hasDetail
-            ? h('div', { style: { marginTop: '6px', paddingLeft: '18px' } }, [slots.default?.()])
+          renders(detail)
+            ? h('div', { style: { marginTop: '6px', paddingLeft: '18px' } }, [detail])
             : null,
         ],
       )

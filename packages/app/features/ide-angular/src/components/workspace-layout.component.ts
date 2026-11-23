@@ -13,13 +13,15 @@
  *
  * Content projection lands all of `children` in one slot, so — exactly as in
  * the Svelte port — the panes cannot be projected into a wrapper each by the
- * template: the template renders the wrappers (and dividers) for the pane
- * count, and a post-render pass renders each projected element inside its
- * wrapper through `placeElement` (which keeps Angular's own place for it). The
- * count is not knowable before the projection exists, so the first pass
- * captures the projected elements and records their number; the next render
- * draws the wrappers. A projected text node is dropped (React's
- * `Children.toArray(...).filter(isValidElement)` drops a text child).
+ * template: the slot is captured out of the page, the template renders the
+ * wrappers (and dividers) for the pane count, and the placement function
+ * (`usePlacement`) renders each projected element inside its wrapper through
+ * `placeElement` (which keeps Angular's own place for it). It reads the slot's
+ * children every time Angular changes them, so a pane the consumer's `@for`
+ * or `@if` adds, removes or reorders later gets its wrapper (and the trailing
+ * pane its growth) as React's `panels.map` gives it. A projected text node is
+ * dropped (React's `Children.toArray(...).filter(isValidElement)` drops a
+ * text child).
  *
  * The same pass reconciles the panel configs to the panes actually rendered:
  * the default layout declares three panels (chat/editor/preview), but a host
@@ -38,18 +40,24 @@
  */
 
 import {
-  afterEveryRender,
   Component,
   computed,
-  ElementRef,
-  inject,
-  Injector,
+  type ElementRef,
   type QueryList,
   signal,
+  ViewChild,
   ViewChildren,
 } from '@angular/core'
 
-import { placeElement, setElementPresent, useWorkspace } from '@molecule/app-angular'
+import {
+  heldElement,
+  MolPlacement,
+  placeElement,
+  setElementPresent,
+  type SlotReader,
+  usePlacement,
+  useWorkspace,
+} from '@molecule/app-angular'
 import type { PanelConfig } from '@molecule/app-ide'
 import { clampPanelSize, livePanelSize } from '@molecule/app-ide-panel-logic'
 import { getClassMap, type UIClassMap } from '@molecule/app-ui'
@@ -73,6 +81,7 @@ export interface WorkspaceLayoutProps {
   selector: 'div[mol-workspace-layout]',
   standalone: true,
   imports: [ResizeHandle],
+  hostDirectives: [MolPlacement],
   inputs: ['className'],
   host: {
     'data-workspace-layout': '',
@@ -85,7 +94,7 @@ export interface WorkspaceLayoutProps {
     @if (index < indexes().length - 1) {
       <div mol-resize-handle [direction]="'horizontal'" [value]="handleValue(index)" [onResize]="resizeFor(index)"></div>
     }
-  }<ng-content />`,
+  }<span #panes><ng-content /></span>`,
 })
 export class WorkspaceLayout {
   /** Extra classes from the host, appended to the root's ClassMap classes. */
@@ -118,21 +127,11 @@ export class WorkspaceLayout {
   /** The wrapper element the template rendered for each pane, in order. */
   @ViewChildren('panel') private panelEls!: QueryList<ElementRef<HTMLElement>>
 
-  /** The divider components, so the post-render pass can tell them from panes. */
-  @ViewChildren(ResizeHandle, { read: ElementRef })
-  private handleEls!: QueryList<ElementRef<HTMLElement>>
-
-  /** The component's host element (React's root `div`). */
-  private readonly hostEl: ElementRef<HTMLElement> = inject(ElementRef)
+  /** The capture of the projected panes; it is out of the page, and each pane renders in its wrapper. */
+  @ViewChild('panes', { static: true }) private readonly panesCapture?: ElementRef<HTMLElement>
 
   /** Per-divider resize callbacks, kept stable across change-detection passes. */
   private readonly resizers = new Map<number, (delta: number) => void>()
-
-  /** The projected pane elements, in order, taken once from the projection slot. */
-  private panes: HTMLElement[] = []
-
-  /** Whether the projection has been captured into {@link panes}. */
-  private captured = false
 
   /**
    * The root's classes: the row, full width and height, and the host's extra
@@ -229,35 +228,33 @@ export class WorkspaceLayout {
     this.workspace.resizePanel(config.id, newSize)
   }
 
-  /** Records the projected panes, then keeps each one inside its wrapper. */
-  private syncPanes(): void {
-    const host = this.hostEl.nativeElement
-    const wrappers = this.panelEls.map((ref) => ref.nativeElement)
-    if (!this.captured) {
-      const handles = new Set<Node>(this.handleEls.map((ref) => ref.nativeElement))
-      const elements: HTMLElement[] = []
-      for (const node of Array.from(host.childNodes)) {
-        if (node.nodeType === 1 && !handles.has(node)) elements.push(node as HTMLElement)
-        // React drops a text child (it is not an element).
-        else if (node.nodeType === 3) setElementPresent(node, false)
-      }
-      this.captured = true
-      this.panes = elements
-      if (elements.length && this.childCount() !== elements.length) {
-        this.childCount.set(elements.length)
-      }
-      return
+  /**
+   * Reads the slot's elements (React's `Children.toArray(children).filter(isValidElement)`),
+   * renders one wrapper per element, and renders each element inside its wrapper. An element
+   * already placed is listed by the placeholder that holds its place in the slot, so it is found
+   * again through it; a text child is taken out of the page, as React drops it.
+   *
+   * @param hasContent - Reads the slot's children.
+   */
+  private placePanes(hasContent: SlotReader): void {
+    const capture = this.panesCapture?.nativeElement
+    if (!capture) return
+    setElementPresent(capture, false)
+    const panes: Node[] = []
+    for (const node of hasContent.nodes(capture)) {
+      const child = heldElement(node) ?? node
+      if (child.nodeType === 1) panes.push(child)
+      // React drops a text child (it is not an element).
+      else setElementPresent(child, false)
     }
-    this.panes.forEach((node, index) => {
-      const wrapper = wrappers[index]
-      if (wrapper) placeElement(node, wrapper)
-    })
+    if (this.childCount() !== panes.length) this.childCount.set(panes.length)
+    const wrappers = this.panelEls?.map((ref) => ref.nativeElement) ?? []
+    // The wrappers for a new count render in the next pass, which places the panes again.
+    if (wrappers.length !== panes.length) return
+    panes.forEach((pane, index) => placeElement(pane, wrappers[index] ?? null))
   }
 
   constructor() {
-    // The panes are placed after every render pass: only then has the
-    // projected content landed, and a post-render mutation still lands before
-    // the DOM is observed.
-    afterEveryRender(() => this.syncPanes(), { injector: inject(Injector) })
+    usePlacement((hasContent) => this.placePanes(hasContent))
   }
 }

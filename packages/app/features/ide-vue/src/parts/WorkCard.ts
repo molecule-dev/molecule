@@ -1,17 +1,18 @@
 /**
  * The work tray: one full-width row of chips — plan, background tasks, tests,
  * uncommitted files — that sits UNDER the composer's rounded top edge like a
- * layer behind it. Each section is a `DockStrip` that draws its chip into the
- * row and, when its chip is open, its detail below it; one section is open at
- * a time. The tray has a top, left and right border and no bottom edge: the
+ * layer behind it. The row holds the sections: each is a `DockStrip` that draws
+ * its chip where it stands, so the chips keep the order the sections are given
+ * in, and, when its chip is open, its detail below the row; one section is open
+ * at a time. The tray has a top, left and right border and no bottom edge: the
  * composer is drawn over its lower 8px.
  *
  * Vue counterpart of `@molecule/app-ide-react`'s `WorkCard` (see that file
  * for the design notes): the same DOM for the same input, the same tray
  * state. The strips are the default slot; the tray provides
  * `WorkTrayContext` (its fields are refs, as the Vue `DockStrip` reads them)
- * and renders the header element, the detail element and the slot inside one
- * bordered frame. The component is a part (React renders it inside ChatPanel
+ * and renders the header element (which holds the slot) and the detail element
+ * inside one bordered frame. The component is a part (React renders it inside ChatPanel
  * without exporting it), so it lives in `src/parts/`.
  *
  * @module
@@ -33,11 +34,9 @@ export const WorkCard = defineComponent({
   props: {},
   setup(_props, { slots }) {
     const mode = useThemeMode()
-    const headerEl = ref<HTMLElement | null>(null)
     const detailEl = ref<HTMLElement | null>(null)
     const openId = ref<string | null>(null)
     provide(WorkTrayContext, {
-      headerEl,
       detailEl,
       openId,
       toggle: (id: string): void => {
@@ -66,18 +65,20 @@ export const WorkCard = defineComponent({
           },
         },
         [
-          h('div', {
-            ref: headerEl,
-            style: {
-              display: 'flex',
-              flexWrap: 'wrap',
-              alignItems: 'center',
-              gap: '6px',
-              padding: '6px 10px',
+          h(
+            'div',
+            {
+              style: {
+                display: 'flex',
+                flexWrap: 'wrap',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '6px 10px',
+              },
             },
-          }),
+            slots.default?.() ?? [],
+          ),
           h('div', { ref: detailEl, style: { maxHeight: '220px', overflowY: 'auto' } }),
-          slots.default?.() ?? null,
         ],
       )
     }

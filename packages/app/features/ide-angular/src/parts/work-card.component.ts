@@ -1,20 +1,21 @@
 /**
  * The work tray: one full-width row of chips — plan, background tasks, tests,
  * uncommitted files — that sits UNDER the composer's rounded top edge like a
- * layer behind it. Each section is a `DockStrip` that draws its chip into the
- * row and, when its chip is open, its detail below it; one section is open at
- * a time. The tray has a top, left and right border and no bottom edge: the
+ * layer behind it. The row holds the sections: each is a `DockStrip` that draws
+ * its chip where it stands, so the chips keep the order the sections are given
+ * in, and, when its chip is open, its detail below the row; one section is open
+ * at a time. The tray has a top, left and right border and no bottom edge: the
  * composer is drawn over its lower 8px.
  *
  * Angular counterpart of `@molecule/app-ide-react`'s `WorkCard` (see that
  * file for the design notes): the same DOM for the same input, the same tray
  * state. The host element is React's frame (`div[mol-work-card]` carries the
  * `data-mol-id` and the frame's border and surface); the template holds the
- * chip row, the detail element and the projected strips. The tray holds its
+ * chip row (which holds the projected strips) and the detail element. The tray holds its
  * state as writable signals ({@link TrayState}, this component's own token)
  * and provides `WorkTrayContext` (the read-only shape the Angular `DockStrip`
- * injects) to its projected content; publishing the header and detail
- * elements happens as soon as the view has them, and the shared parent view
+ * injects) to its projected content; publishing the detail element happens
+ * as soon as the view has it, and the shared parent view
  * is marked for check so the strips' next check reads them. The component is
  * a part (React renders it inside ChatPanel without exporting it), so it
  * lives in `src/parts/`. Styling uses `getClassMap()` (`cm.*`); the only
@@ -97,9 +98,7 @@ const s = {
  * is provided from the same state.
  */
 interface TrayState {
-  /** Where the chips go; null until the frame's view has rendered it. */
-  headerEl: WritableSignal<HTMLElement | null>
-  /** Where the open section's detail goes. */
+  /** Where the open section's detail goes; null until the frame's view has rendered it. */
   detailEl: WritableSignal<HTMLElement | null>
   /** The open section's `molId`, if any. */
   openId: WritableSignal<string | null>
@@ -131,7 +130,6 @@ function providedTray(): TrayState {
       useFactory: (): TrayState => {
         const openId = signal<string | null>(null)
         return {
-          headerEl: signal<HTMLElement | null>(null),
           detailEl: signal<HTMLElement | null>(null),
           openId,
           toggle: (id: string): void => {
@@ -143,7 +141,6 @@ function providedTray(): TrayState {
     {
       provide: WorkTrayContext,
       useFactory: (state: TrayState): WorkTrayValue => ({
-        headerEl: state.headerEl,
         detailEl: state.detailEl,
         openId: state.openId,
         toggle: (id: string): void => state.toggle(id),
@@ -155,9 +152,8 @@ function providedTray(): TrayState {
     'data-mol-id': 'work-card',
     '[attr.style]': 'rootStyle()',
   },
-  template: `<div mol-tray-header [attr.style]="s.header"></div>
-    <div mol-tray-detail [attr.style]="s.detail"></div>
-    <ng-content />`,
+  template: `<div mol-tray-header [attr.style]="s.header"><ng-content /></div>
+    <div mol-tray-detail [attr.style]="s.detail"></div>`,
 })
 export class WorkCard {
   /** The tray's inline styles. */
@@ -176,18 +172,18 @@ export class WorkCard {
   private readonly changeDetector = inject(ChangeDetectorRef)
 
   /**
-   * Publishes the two elements once the view exists, and re-checks afterwards
+   * Publishes the detail element once the view exists, and re-checks afterwards
    * so a publish that lands after a strip's check still reaches it (Angular
    * checks this component and its projected strips in one pass, and the
-   * strips read the signals in their own checks). The template marks the two
-   * elements with `mol-*` attributes the conformance normalizer drops, the
+   * strips read the signals in their own checks). The template marks the
+   * chip row and the detail element with `mol-*` attributes the conformance normalizer drops, the
    * way the strip's own detail holder is found.
    */
   ngAfterViewInit(): void {
     this.publishTrayElements()
   }
 
-  /** Publishes again on every check, until the elements are in place. */
+  /** Publishes again on every check, until the element is in place. */
   ngDoCheck(): void {
     this.publishTrayElements()
   }
@@ -201,17 +197,14 @@ export class WorkCard {
   }
 
   /**
-   * Puts the chip row and the detail element where the strips read them. The
+   * Puts the detail element where the strips read it. The
    * first publish that actually lands marks the shared parent view for check,
    * so the strips' next check runs in this render cycle; setting a signal to
    * the element it already holds is a no-op and re-marks nothing.
    */
   private publishTrayElements(): void {
-    const header = this.hostEl.querySelector<HTMLElement>(':scope > [mol-tray-header]')
     const detail = this.hostEl.querySelector<HTMLElement>(':scope > [mol-tray-detail]')
-    if (!header || !detail) return
-    if (this.tray.headerEl() === header && this.tray.detailEl() === detail) return
-    this.tray.headerEl.set(header)
+    if (!detail || this.tray.detailEl() === detail) return
     this.tray.detailEl.set(detail)
     this.changeDetector.markForCheck()
   }

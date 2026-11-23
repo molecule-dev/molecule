@@ -1,17 +1,18 @@
 /**
  * The work tray: one full-width row of chips — plan, background tasks, tests,
  * uncommitted files — that sits UNDER the composer's rounded top edge like a
- * layer behind it. Each section is a `DockStrip` that draws its chip into the
- * row and, when its chip is open, its detail below it; one section is open at
- * a time. The tray has a top, left and right border and no bottom edge: the
+ * layer behind it. The row holds the sections: each is a `DockStrip` that draws
+ * its chip where it stands, so the chips keep the order the sections are given
+ * in, and, when its chip is open, its detail below the row; one section is open
+ * at a time. The tray has a top, left and right border and no bottom edge: the
  * composer is drawn over its lower 8px.
  *
  * Solid counterpart of `@molecule/app-ide-react`'s `WorkCard` (see that file
  * for the design notes): the same DOM for the same input, the same tray
  * state. The strips are `props.children`; the tray provides
  * `WorkTrayContext` (its fields are accessors, as the Solid `DockStrip` reads
- * them) and renders the header element, the detail element and the children
- * inside one bordered frame. The component is a part (React renders it
+ * them) and renders the header element (which holds the children) and the
+ * detail element inside one bordered frame. The component is a part (React renders it
  * inside ChatPanel without exporting it), so it lives in `src/parts/`.
  *
  * @module
@@ -34,11 +35,9 @@ export type WorkCardProps = ParentProps
  */
 export function WorkCard(props: WorkCardProps): JSX.Element {
   const mode = useThemeMode()
-  const [headerEl, setHeaderEl] = createSignal<HTMLElement | null>(null)
   const [detailEl, setDetailEl] = createSignal<HTMLElement | null>(null)
   const [openId, setOpenId] = createSignal<string | null>(null)
   const value = {
-    headerEl,
     detailEl,
     openId,
     toggle: (id: string): void => {
@@ -67,7 +66,6 @@ export function WorkCard(props: WorkCardProps): JSX.Element {
     <WorkTrayContext.Provider value={value}>
       <div data-mol-id="work-card" style={frameStyle()}>
         <div
-          ref={setHeaderEl}
           style={{
             display: 'flex',
             'flex-wrap': 'wrap',
@@ -75,9 +73,10 @@ export function WorkCard(props: WorkCardProps): JSX.Element {
             gap: '6px',
             padding: '6px 10px',
           }}
-        />
+        >
+          {props.children}
+        </div>
         <div ref={setDetailEl} style={{ 'max-height': '220px', 'overflow-y': 'auto' }} />
-        {props.children}
       </div>
     </WorkTrayContext.Provider>
   )

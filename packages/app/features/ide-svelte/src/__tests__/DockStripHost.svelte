@@ -20,11 +20,9 @@
   // the prop never changes for this host's lifetime.
   // svelte-ignore state_referenced_locally
   if (tray) {
-    const headerEl = document.createElement('div')
     const detailEl = document.createElement('div')
-    document.body.appendChild(headerEl)
     document.body.appendChild(detailEl)
-    const value: WorkTrayValue = $state({ headerEl, detailEl, openId: null, toggle: () => {} })
+    const value: WorkTrayValue = $state({ detailEl, openId: null, toggle: () => {} })
     setContext(WorkTrayContext, value)
   }
 </script>

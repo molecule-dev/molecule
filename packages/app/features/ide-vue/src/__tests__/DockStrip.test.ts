@@ -66,12 +66,9 @@ function renderStrip(
     }),
   )
   if (tray) {
-    const headerEl = document.createElement('div')
     const detailEl = document.createElement('div')
-    document.body.appendChild(headerEl)
     document.body.appendChild(detailEl)
     app.provide(WorkTrayContext, {
-      headerEl: ref(headerEl),
       detailEl: ref(detailEl),
       openId: ref<string | null>(null),
       toggle: () => {},

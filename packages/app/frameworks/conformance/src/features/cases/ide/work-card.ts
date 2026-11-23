@@ -8,7 +8,8 @@
  * section closes the first, Enter and Space work the chip, an `onActivate`
  * chip opens elsewhere instead of disclosing, a chip's `actions` take their
  * own clicks, the dark theme swaps the frame's border and surface, and plain
- * children (or none) leave the frame standing.
+ * children (or none) leave the frame standing. The chip row holds the strips
+ * themselves, so the chips keep the strips' order as they come and go.
  *
  * The strips are the tray's `DockStrip` part: `expanded` and its `onToggle`
  * are inert here (the tray chip toggles the tray's one open section instead),
@@ -128,7 +129,7 @@ export const workCardCases: FeatureComponentCases = {
       ],
     },
     {
-      name: 'plain children render inside the frame after the header and detail',
+      name: 'plain children render in the chip row, in their order',
       children: [
         { tag: 'div', attrs: { 'data-mol-id': 'one' }, children: ['first'] },
         { tag: 'div', attrs: { 'data-mol-id': 'two' }, children: ['second'] },

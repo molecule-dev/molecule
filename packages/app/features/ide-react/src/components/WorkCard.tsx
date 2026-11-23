@@ -8,9 +8,10 @@ import { WorkTrayContext } from './DockStrip.js'
 /**
  * The work tray: one full-width row of chips — plan, background tasks, tests,
  * uncommitted files — that sits UNDER the composer's rounded top edge like a
- * layer behind it. Each section is a `DockStrip` that draws its chip into the
- * row and, when its chip is open, its detail below it; one section is open at a
- * time. The tray has a top, left and right border and no bottom edge: the
+ * layer behind it. The row holds the sections: each is a `DockStrip` that draws
+ * its chip where it stands, so the chips keep the order the sections are given
+ * in, and, when its chip is open, its detail below the row; one section is open
+ * at a time. The tray has a top, left and right border and no bottom edge: the
  * composer is drawn over its lower 8px.
  * @param props - Component props.
  * @param props.children - The sections (strips).
@@ -18,17 +19,15 @@ import { WorkTrayContext } from './DockStrip.js'
  */
 export function WorkCard({ children }: { children: ReactNode }): JSX.Element {
   const isLight = useThemeMode() === 'light'
-  const [headerEl, setHeaderEl] = useState<HTMLElement | null>(null)
   const [detailEl, setDetailEl] = useState<HTMLElement | null>(null)
   const [openId, setOpenId] = useState<string | null>(null)
   const value = useMemo(
     () => ({
-      headerEl,
       detailEl,
       openId,
       toggle: (id: string) => setOpenId((current) => (current === id ? null : id)),
     }),
-    [headerEl, detailEl, openId],
+    [detailEl, openId],
   )
   const border = isLight ? '#d0d7de' : '#3d444d'
   return (
@@ -49,7 +48,6 @@ export function WorkCard({ children }: { children: ReactNode }): JSX.Element {
         }}
       >
         <div
-          ref={setHeaderEl}
           style={{
             display: 'flex',
             flexWrap: 'wrap',
@@ -57,9 +55,10 @@ export function WorkCard({ children }: { children: ReactNode }): JSX.Element {
             gap: 6,
             padding: '6px 10px',
           }}
-        />
+        >
+          {children}
+        </div>
         <div ref={setDetailEl} style={{ maxHeight: 220, overflowY: 'auto' }} />
-        {children}
       </div>
     </WorkTrayContext.Provider>
   )

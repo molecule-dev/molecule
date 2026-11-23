@@ -13,21 +13,21 @@ import { createContext, useContext, useId } from 'react'
 import { createPortal } from 'react-dom'
 
 import { useThemeMode } from '@molecule/app-react'
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 import { moleculeSpinnerMarkSvg } from '@molecule/app-ui'
 
 const MARK_SIZE = 16
 
 /**
- * The slots of the one-row work tray (see WorkCard). When a {@link DockStrip}
- * sits inside it, the strip draws a compact chip into `headerEl` and, while it
- * is the open one, its detail into `detailEl` — so every section shares a
- * single row instead of stacking one bar each.
+ * The one-row work tray (see WorkCard). When a {@link DockStrip} sits inside
+ * it, the strip draws a compact chip where it stands — the tray's chip row holds
+ * the strips, so the chips keep the strips' order — and, while it is the open
+ * one, its detail into `detailEl`, so every section shares a single row instead
+ * of stacking one bar each.
  */
 export interface WorkTrayValue {
-  /** Where the chips go. Null until the tray has mounted. */
-  headerEl: HTMLElement | null
-  /** Where the open section's detail goes. */
+  /** Where the open section's detail goes. Null until the tray has mounted. */
   detailEl: HTMLElement | null
   /** The open section's `molId`, if any. */
   openId: string | null
@@ -213,87 +213,90 @@ export function DockStrip({
   icon,
   label,
   hideLabel = false,
-  chipLabel,
+  chipLabel: chipLabelProp,
   chipTitle,
-  hint,
-  actions,
-  detailActions,
+  hint: hintProp,
+  actions: actionsProp,
+  detailActions: detailActionsProp,
   rootProps,
-  children,
+  children: childrenProp,
 }: DockStripProps): JSX.Element | null {
+  // A node prop that renders nothing (an empty list, `cond && …` that became false) is read as
+  // one that was not passed: no empty detail, no empty actions wrapper, the label for the chip.
+  const chipLabel = slot(chipLabelProp)
+  const hint = slot(hintProp)
+  const actions = slot(actionsProp)
+  const detailActions = slot(detailActionsProp)
+  const children = slot(childrenProp)
   const cm = getClassMap()
   const tray = useContext(WorkTrayContext)
   // Names the overlay disclosure button via `aria-labelledby` (its label span).
   const labelId = useId()
   if (tray) {
-    if (!tray.headerEl) return null
     const open = !onActivate && tray.openId === molId
     return (
       <>
-        {createPortal(
+        <div
+          data-mol-id={molId}
+          {...rootProps}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: 6, maxWidth: '100%' }}
+        >
           <div
-            data-mol-id={molId}
-            {...rootProps}
-            style={{ display: 'inline-flex', alignItems: 'center', gap: 6, maxWidth: '100%' }}
-          >
-            <div
-              role="button"
-              tabIndex={0}
-              data-mol-id={toggleMolId}
-              aria-expanded={onActivate ? undefined : open}
-              aria-label={hideLabel && typeof label === 'string' ? label : undefined}
-              title={chipTitle ?? (hideLabel && typeof label === 'string' ? label : undefined)}
-              className={cm.cn(
-                cm.button({ variant: 'ghost', color: 'secondary', size: 'xs' }),
-                cm.touchTargetCompact,
-              )}
-              data-state={open ? 'open' : 'closed'}
-              onClick={() => (onActivate ? onActivate() : tray.toggle(molId))}
-              onKeyDown={(e) => {
-                if (e.target !== e.currentTarget) return
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault()
-                  if (onActivate) onActivate()
-                  else tray.toggle(molId)
-                }
-              }}
-              /* mol-bespoke-button: a work-tray CHIP — status icon and short label that
+            role="button"
+            tabIndex={0}
+            data-mol-id={toggleMolId}
+            aria-expanded={onActivate ? undefined : open}
+            aria-label={hideLabel && typeof label === 'string' ? label : undefined}
+            title={chipTitle ?? (hideLabel && typeof label === 'string' ? label : undefined)}
+            className={cm.cn(
+              cm.button({ variant: 'ghost', color: 'secondary', size: 'xs' }),
+              cm.touchTargetCompact,
+            )}
+            data-state={open ? 'open' : 'closed'}
+            onClick={() => (onActivate ? onActivate() : tray.toggle(molId))}
+            onKeyDown={(e) => {
+              if (e.target !== e.currentTarget) return
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                if (onActivate) onActivate()
+                else tray.toggle(molId)
+              }
+            }}
+            /* mol-bespoke-button: a work-tray CHIP — status icon and short label that
                  opens its section's detail; a disclosure toggle, not a CTA. */
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 6,
-                minWidth: 0,
-                ...(open ? { boxShadow: 'inset 0 0 0 1px currentColor' } : {}),
-              }}
-            >
-              {icon}
-              {hideLabel ? (
-                <svg aria-hidden width="12" height="12" viewBox="0 0 16 16">
-                  <path
-                    d={open ? 'M4 10l4-4 4 4' : 'M4 6l4 4 4-4'}
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                  />
-                </svg>
-              ) : (
-                <span
-                  className={cm.cn(cm.textMuted, cm.textSize('xs'))}
-                  style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
-                >
-                  {chipLabel ?? label}
-                </span>
-              )}
-            </div>
-            {actions}
-          </div>,
-          tray.headerEl,
-        )}
-        {open && (children || detailActions) && tray.detailEl
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+              minWidth: 0,
+              ...(open ? { boxShadow: 'inset 0 0 0 1px currentColor' } : {}),
+            }}
+          >
+            {icon}
+            {hideLabel ? (
+              <svg aria-hidden width="12" height="12" viewBox="0 0 16 16">
+                <path
+                  d={open ? 'M4 10l4-4 4 4' : 'M4 6l4 4 4-4'}
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                />
+              </svg>
+            ) : (
+              <span
+                className={cm.cn(cm.textMuted, cm.textSize('xs'))}
+                style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
+              >
+                {chipLabel ?? label}
+              </span>
+            )}
+          </div>
+          {actions}
+        </div>
+        {open && (children !== undefined || detailActions !== undefined) && tray.detailEl
           ? createPortal(
               <div data-mol-id={`${molId}-detail`} style={{ padding: '2px 10px 8px' }}>
-                {detailActions ? (
+                {detailActions !== undefined ? (
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
                     {detailActions}
                   </div>
@@ -383,7 +386,7 @@ export function DockStrip({
               {label}
             </span>
           )}
-          {hint ? (
+          {hint !== undefined ? (
             <span
               className={cm.cn(cm.textMuted, cm.textSize('xs'))}
               style={{
@@ -398,7 +401,7 @@ export function DockStrip({
             </span>
           ) : null}
         </div>
-        {actions || detailActions ? (
+        {actions !== undefined || detailActions !== undefined ? (
           <div
             className={cm.position('relative')}
             style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}
@@ -408,7 +411,7 @@ export function DockStrip({
           </div>
         ) : null}
       </div>
-      {!onActivate && expanded && children ? (
+      {!onActivate && expanded && children !== undefined ? (
         <div style={{ marginTop: 6, paddingLeft: 18 }}>{children}</div>
       ) : null}
     </div>
