@@ -148,6 +148,33 @@ const NoDescriptionConfirmHost = Component({
   </mol-confirm-dialog>`,
 })(class SpecNoDescriptionHost {})
 
+/** Renders the two dialogs with no title input and a projected title the consumer does not pass. */
+const NoTitleHost = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
+  selector: 'mol-spec-dialogs-no-title',
+  standalone: true,
+  imports: [ConfirmDialog, PromptDialog],
+  template: `
+    <mol-confirm-dialog [open]="true" [description]="'This action cannot be undone.'">
+      @if (showTitle) {
+        <div slot="title">Delete vault?</div>
+      }
+    </mol-confirm-dialog>
+    <mol-prompt-dialog [open]="true" [onSubmit]="noop">
+      @if (showTitle) {
+        <div slot="title">Rename board</div>
+      }
+    </mol-prompt-dialog>
+  `,
+})(
+  class SpecNoTitleHost {
+    /** Whether the consumer passes the title (it does not). */
+    showTitle = false
+    /** No-op submit callback (never invoked here). */
+    noop = (): void => {}
+  },
+)
+
 /** Renders the Tabs over an items array with and without content. */
 const TabsHost = Component({
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -252,6 +279,24 @@ describe('dialog and drawer accessible names', () => {
     const description = document.getElementById(describedby!)
     expect(description?.tagName.toLowerCase()).toBe('p')
     expect(description?.textContent).toBe('The slug updates automatically.')
+  })
+
+  it('ConfirmDialog points its dialog at no heading when the title renders nothing', async () => {
+    await mountHost(NoTitleHost)
+    const dialog = [...document.querySelectorAll('[role="dialog"]')][0]!
+    expect(dialog.getAttribute('aria-labelledby')).toBeNull()
+    const heading = dialog.querySelector('h2')
+    expect(heading).not.toBeNull()
+    expect(heading!.id).toBe('')
+  })
+
+  it('PromptDialog points its dialog at no heading when the title renders nothing', async () => {
+    await mountHost(NoTitleHost)
+    const dialog = [...document.querySelectorAll('[role="dialog"]')][1]!
+    expect(dialog.getAttribute('aria-labelledby')).toBeNull()
+    const heading = dialog.querySelector('h2')
+    expect(heading).not.toBeNull()
+    expect(heading!.id).toBe('')
   })
 
   it('PromptDialog carries no aria-describedby without a description', async () => {

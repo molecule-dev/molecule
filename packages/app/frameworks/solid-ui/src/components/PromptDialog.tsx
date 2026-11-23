@@ -10,6 +10,7 @@
  */
 
 import {
+  children,
   type Component,
   createEffect,
   createSignal,
@@ -23,6 +24,7 @@ import {
 import { useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
+import { rendersNode } from '../utilities/node.js'
 import { Button } from './Button.jsx'
 import { Input } from './Input.jsx'
 import { Modal } from './Modal.jsx'
@@ -96,6 +98,12 @@ export const PromptDialog: Component<PromptDialogProps> = (props) => {
   // dialog (axe `aria-dialog-name`).
   const titleId = createUniqueId()
   const descriptionId = createUniqueId()
+  // Resolved once, so the checks below and the markup read the same nodes. A
+  // title that renders nothing (React's `slot(title)`) names nothing, so the
+  // dialog then points at no heading.
+  const title = children(() => local.title)
+  const description = children(() => local.description)
+  const headingId = (): string | undefined => (rendersNode(title()) ? titleId : undefined)
 
   let inputRef: HTMLInputElement | undefined
 
@@ -170,17 +178,17 @@ export const PromptDialog: Component<PromptDialogProps> = (props) => {
     <Modal
       open={local.open}
       onClose={handleClose}
-      aria-labelledby={titleId}
-      aria-describedby={local.description ? descriptionId : undefined}
+      aria-labelledby={headingId()}
+      aria-describedby={rendersNode(description()) ? descriptionId : undefined}
     >
       <form onSubmit={handleSubmit}>
         <div class={cm.stack(3)}>
-          <h2 id={titleId} class={cm.cn(cm.textSize('lg'), cm.fontWeight('bold'))}>
-            {local.title}
+          <h2 id={headingId()} class={cm.cn(cm.textSize('lg'), cm.fontWeight('bold'))}>
+            {title()}
           </h2>
-          <Show when={local.description}>
+          <Show when={rendersNode(description())}>
             <p id={descriptionId} class={cm.textSize('sm')}>
-              {local.description}
+              {description()}
             </p>
           </Show>
           <Input
@@ -190,7 +198,7 @@ export const PromptDialog: Component<PromptDialogProps> = (props) => {
             value={value()}
             onChange={(event) => setValue((event.target as HTMLInputElement).value)}
             placeholder={local.placeholder}
-            aria-label={typeof local.title === 'string' ? local.title : local.placeholder}
+            aria-label={typeof title() === 'string' ? (title() as string) : local.placeholder}
             disabled={pending()}
             data-mol-id={local.inputMolId}
           />

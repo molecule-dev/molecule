@@ -16,7 +16,7 @@
 import { defineComponent, h, type PropType, useId, type VNodeChild } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
-import { useTranslation } from '@molecule/app-vue'
+import { toChildArray, useTranslation } from '@molecule/app-vue'
 
 import { Button } from './Button.js'
 import { Modal } from './Modal.js'
@@ -107,16 +107,17 @@ export const ConfirmDialog = defineComponent({
       const confirmLabel = props.confirmLabel ?? slots.confirmLabel?.()
       const cancelLabel = props.cancelLabel ?? slots.cancelLabel?.()
       const children = slots.default?.()
-      // A dialog without a rendered heading must not carry a labelledby that
-      // resolves to nothing — omit the name wiring entirely instead.
-      const headingId = title != null ? titleId : undefined
+      // A title that renders nothing (React's `slot(title)`: no prop, an empty
+      // slot, a false `v-if`) names nothing, so the dialog points at no heading.
+      const headingId = toChildArray(title).length > 0 ? titleId : undefined
+      const hasDescription = toChildArray(description).length > 0
 
       return h(
         Modal,
         {
           open: props.open,
           'aria-labelledby': headingId,
-          'aria-describedby': description ? descriptionId : undefined,
+          'aria-describedby': hasDescription ? descriptionId : undefined,
           // Modal emits 'close' bare for escape/overlay and with the click
           // event for its chrome button; forward the exact same shape (an
           // extra undefined arg would change the recorded call).

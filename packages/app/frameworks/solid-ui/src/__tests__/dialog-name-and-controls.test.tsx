@@ -158,6 +158,30 @@ describe('dialog and drawer accessible names', () => {
     expect(description?.textContent).toBe('The slug updates automatically.')
   })
 
+  it('ConfirmDialog points its dialog at no heading when the title renders nothing', () => {
+    mount(() => (
+      <ConfirmDialog
+        open
+        onClose={() => {}}
+        onConfirm={() => {}}
+        title={[false, null]}
+        description="This action cannot be undone."
+      />
+    ))
+    const dialog = document.querySelector('[role="dialog"]') as HTMLElement
+    expect(dialog.getAttribute('aria-labelledby')).toBeNull()
+    expect(document.querySelector('h2')).not.toBeNull()
+    expect(document.querySelector('h2')!.id).toBe('')
+  })
+
+  it('PromptDialog points its dialog at no heading when the title renders nothing', () => {
+    mount(() => <PromptDialog open onClose={() => {}} onSubmit={() => {}} title={[false, null]} />)
+    const dialog = document.querySelector('[role="dialog"]') as HTMLElement
+    expect(dialog.getAttribute('aria-labelledby')).toBeNull()
+    expect(document.querySelector('h2')).not.toBeNull()
+    expect(document.querySelector('h2')!.id).toBe('')
+  })
+
   it('PromptDialog carries no aria-describedby without a description', () => {
     mount(() => <PromptDialog open onClose={() => {}} onSubmit={() => {}} title="Rename board" />)
     const dialog = document.querySelector('[role="dialog"]') as HTMLElement

@@ -40,3 +40,14 @@ export function nodeText(value: unknown): string {
 export function isGiven(value: unknown): boolean {
   return value !== undefined && value !== null
 }
+
+/**
+ * Whether a node-valued prop renders anything: React's `slot(node) !== undefined` for the values
+ * an Angular input carries (not `null`, `undefined`, a boolean or `''`; a template counts).
+ *
+ * @param value - The prop value.
+ * @returns True when it renders something.
+ */
+export function rendersNode(value: unknown): boolean {
+  return isGiven(value) && typeof value !== 'boolean' && value !== ''
+}

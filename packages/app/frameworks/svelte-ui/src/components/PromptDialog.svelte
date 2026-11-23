@@ -12,6 +12,7 @@
   import { getClassMap } from '@molecule/app-ui'
 
   import { useGeneratedId } from '../dom.js'
+  import { rendersNode } from '../node.js'
   import type { PromptDialogProps } from '../types.js'
   import Button from './Button.svelte'
   import Input from './Input.svelte'
@@ -44,6 +45,10 @@
   // dialog (axe `aria-dialog-name`).
   const titleId = useGeneratedId()
   const descriptionId = useGeneratedId()
+  // A title that renders nothing (React's `slot(title)`) names nothing, so the
+  // dialog then points at no heading.
+  const headingId = $derived(rendersNode(title) ? titleId : undefined)
+  const hasDescription = $derived(rendersNode(description))
   // Re-seed from initialValue each open so a reopened dialog shows the
   // CURRENT value, not whatever the user typed last time.
   let value = $state(untrack(() => initialValue))
@@ -108,15 +113,19 @@
 <Modal
   {open}
   onClose={pending ? () => undefined : onClose}
-  aria-labelledby={titleId}
-  aria-describedby={description ? descriptionId : undefined}
+  aria-labelledby={headingId}
+  aria-describedby={hasDescription ? descriptionId : undefined}
 >
   <form bind:this={formEl} onsubmit={handleSubmit}>
     <div class={cm.stack(3)}>
-      <h2 id={titleId} bind:this={titleEl} class={cm.cn(cm.textSize('lg'), cm.fontWeight('bold'))}>
+      <h2
+        id={headingId}
+        bind:this={titleEl}
+        class={cm.cn(cm.textSize('lg'), cm.fontWeight('bold'))}
+      >
         <ReactNode node={title} />
       </h2>
-      {#if description}<p id={descriptionId} class={cm.textSize('sm')}>
+      {#if hasDescription}<p id={descriptionId} class={cm.textSize('sm')}>
           <ReactNode node={description} />
         </p>{/if}
       <Input

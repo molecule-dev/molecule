@@ -25,6 +25,7 @@ import {
   MolPlacement,
   setElementPresent,
   setHostRoot,
+  type SlotReader,
   usePlacement,
   useTranslation,
 } from '@molecule/app-angular'
@@ -32,7 +33,7 @@ import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 import { nextInstanceId } from '../utilities/ids.js'
-import { asTemplate, isGiven, nodeText } from '../utilities/node-value.js'
+import { asTemplate, isGiven, nodeText, rendersNode } from '../utilities/node-value.js'
 import { Button } from './button.component.js'
 import { Input } from './input.component.js'
 import { Modal } from './modal.component.js'
@@ -108,13 +109,13 @@ export interface PromptDialogProps {
     #modal
     [open]="open"
     (close)="onModalClose()"
-    [attr.aria-labelledby]="titleId"
-    [attr.aria-describedby]="isGiven(description) ? descriptionId : null"
+    [attr.aria-labelledby]="ariaLabelledBy()"
+    [attr.aria-describedby]="rendersNode(description) ? descriptionId : null"
     ><form (submit)="handleSubmit($event)">
       <div [class]="cm().stack(3)">
         <h2
           #titleSlot
-          [attr.id]="titleId"
+          [attr.id]="ariaLabelledBy()"
           [class]="cm().cn(cm().textSize('lg'), cm().fontWeight('bold'))"
         >
           @if (isGiven(title)) {
@@ -128,7 +129,7 @@ export interface PromptDialogProps {
           <p [attr.id]="descriptionId" [class]="cm().textSize('sm')">
             <ng-container [molTemplateOutlet]="descriptionTemplate"></ng-container>
           </p>
-        } @else if (isGiven(description)) {
+        } @else if (rendersNode(description)) {
           <p
             [attr.id]="descriptionId"
             [class]="cm().textSize('sm')"
@@ -214,6 +215,8 @@ export class PromptDialog implements AfterViewInit, AfterViewChecked, DoCheck {
   readonly nodeText = nodeText
   /** Whether a node-valued prop was given. */
   readonly isGiven = isGiven
+  /** Whether a node-valued prop renders anything. */
+  readonly rendersNode = rendersNode
 
   /** Fires when the dialog should close (escape, backdrop, cancel, a fulfilled submit). */
   @Output() readonly close = new EventEmitter<unknown>()
@@ -241,6 +244,12 @@ export class PromptDialog implements AfterViewInit, AfterViewChecked, DoCheck {
    */
   readonly descriptionId = nextInstanceId()
 
+  /**
+   * The title heading's id, which the dialog's `aria-labelledby` points at, or null while the title
+   * renders nothing (React's `slot(title)`): a heading with no text names nothing.
+   */
+  readonly ariaLabelledBy = signal<string | null>(null)
+
   /** The current input value. */
   readonly value = signal('')
   /** Whether a submit is in flight. */
@@ -267,9 +276,13 @@ export class PromptDialog implements AfterViewInit, AfterViewChecked, DoCheck {
    * portal, nothing here); what the caller binds on the tag lands on the Modal.
    */
   constructor() {
-    usePlacement(() => {
+    usePlacement((hasContent) => {
       setElementPresent(this.host.nativeElement, false)
       setHostRoot(this.host.nativeElement, this.modalElement?.nativeElement)
+      this.ariaLabelledBy.set(
+        rendersNode(this.title) || hasContent(this.titleSlot?.nativeElement) ? this.titleId : null,
+      )
+      this.applyInputLabel(hasContent)
     })
   }
 
@@ -304,15 +317,23 @@ export class PromptDialog implements AfterViewInit, AfterViewChecked, DoCheck {
   /**
    * The input's accessible label: React uses the title when it is a plain
    * string, otherwise the placeholder.
+   * @param hasContent - Reads the projected title.
    * @returns The label, or null when React would render none.
    */
-  inputLabel(): string | null {
-    const title = this.titleSlot?.nativeElement
-    if (title) {
-      const hasElement = Array.from(title.childNodes).some((node) => node.nodeType === 1)
-      const text = (title.textContent ?? '').trim()
-      if (!hasElement && text) return text
-    }
+  inputLabel(hasContent: SlotReader): string | null {
+    const heading = this.titleSlot?.nativeElement
+    // A given title renders in the heading itself; a projected one is read through the slot
+    // reader, which is current in the pass that added or removed it.
+    const nodes = isGiven(this.title)
+      ? Array.from(heading?.childNodes ?? [])
+      : hasContent.nodes(heading)
+    const hasElement = nodes.some((node) => node.nodeType === Node.ELEMENT_NODE)
+    const text = nodes
+      .filter((node) => node.nodeType === Node.ELEMENT_NODE || node.nodeType === Node.TEXT_NODE)
+      .map((node) => node.textContent ?? '')
+      .join('')
+      .trim()
+    if (!hasElement && text) return text
     return this.placeholder ?? null
   }
 
@@ -322,7 +343,6 @@ export class PromptDialog implements AfterViewInit, AfterViewChecked, DoCheck {
    * first) and moved focus into the dialog.
    */
   ngAfterViewInit(): void {
-    this.applyInputLabel()
     this.lastOpen = !!this.open
     this.lastInitial = this.initialValue ?? ''
     if (this.open) {
@@ -354,7 +374,6 @@ export class PromptDialog implements AfterViewInit, AfterViewChecked, DoCheck {
    */
   ngDoCheck(): void {
     const open = !!this.open
-    this.applyInputLabel()
     if (open !== this.lastOpen || (open && this.initialValue !== this.lastInitial)) {
       this.lastOpen = open
       this.lastInitial = this.initialValue ?? ''
@@ -376,13 +395,16 @@ export class PromptDialog implements AfterViewInit, AfterViewChecked, DoCheck {
   }
 
   /**
-   * Applies React's `aria-label` to the inner input (it is a rest prop there,
-   * and the view queries it needs resolve only after view init).
+   * Applies React's `aria-label` to the inner input (it is a rest prop there).
+   * Runs in the placement function, so a title slot added or removed is read
+   * in the same pass.
+   *
+   * @param hasContent - Reads the projected title.
    */
-  private applyInputLabel(): void {
+  private applyInputLabel(hasContent: SlotReader): void {
     const input = this.inputComponent?.inputEl?.nativeElement
     if (!input) return
-    const label = this.inputLabel()
+    const label = this.inputLabel(hasContent)
     if (label === null) input.removeAttribute('aria-label')
     else input.setAttribute('aria-label', label)
   }

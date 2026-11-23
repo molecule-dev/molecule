@@ -28,7 +28,7 @@ import {
 } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
-import { useTranslation } from '@molecule/app-vue'
+import { toChildArray, useTranslation } from '@molecule/app-vue'
 
 import { Button } from './Button.js'
 import { Input } from './Input.js'
@@ -204,13 +204,17 @@ export const PromptDialog = defineComponent({
       const confirmLabel = props.confirmLabel ?? slots.confirmLabel?.()
       const cancelLabel = props.cancelLabel ?? slots.cancelLabel?.()
       const children = slots.default?.()
+      // A title that renders nothing (React's `slot(title)`: no prop, an empty
+      // slot, a false `v-if`) names nothing, so the dialog points at no heading.
+      const headingId = toChildArray(title).length > 0 ? titleId : undefined
+      const hasDescription = toChildArray(description).length > 0
 
       return h(
         Modal,
         {
           open: props.open,
-          'aria-labelledby': titleId,
-          'aria-describedby': description ? descriptionId : undefined,
+          'aria-labelledby': headingId,
+          'aria-describedby': hasDescription ? descriptionId : undefined,
           onClose: () => {
             if (!pending.value) emit('close')
           },
@@ -219,10 +223,10 @@ export const PromptDialog = defineComponent({
           default: () => [
             h('form', { onSubmit: handleSubmit }, [
               h('div', { class: cm.stack(3) }, [
-                h('h2', { id: titleId, class: cm.cn(cm.textSize('lg'), cm.fontWeight('bold')) }, [
+                h('h2', { id: headingId, class: cm.cn(cm.textSize('lg'), cm.fontWeight('bold')) }, [
                   title,
                 ]),
-                description
+                hasDescription
                   ? h('p', { id: descriptionId, class: cm.textSize('sm') }, [description])
                   : null,
                 h(Input, {

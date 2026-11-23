@@ -51,6 +51,7 @@
 import React, { type JSX, useEffect, useId, useRef, useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 
 import { Button } from './Button.js'
@@ -100,8 +101,8 @@ export interface PromptDialogProps {
 export function PromptDialog({
   open,
   onClose,
-  title,
-  description,
+  title: titleProp,
+  description: descriptionProp,
   placeholder,
   initialValue = '',
   onSubmit,
@@ -122,9 +123,13 @@ export function PromptDialog({
   // description (WAI-ARIA dialog pattern): the ids reach the dialog element
   // through Modal's `aria-*` pass-through, so screen readers announce
   // "Rename board — The slug updates automatically." instead of an unnamed
-  // dialog (axe `aria-dialog-name`).
+  // dialog (axe `aria-dialog-name`). A title that renders nothing names
+  // nothing, so the dialog then points at no heading, as a port that decides
+  // from its slot content does.
   const titleId = useId()
   const descriptionId = useId()
+  const title = slot(titleProp)
+  const description = slot(descriptionProp)
 
   // Re-seed from initialValue each open so a reopened dialog shows the
   // CURRENT value, not whatever the user typed last time. Adjusted during
@@ -170,15 +175,18 @@ export function PromptDialog({
     <Modal
       open={open}
       onClose={pending ? () => {} : onClose}
-      aria-labelledby={titleId}
-      aria-describedby={description ? descriptionId : undefined}
+      aria-labelledby={title === undefined ? undefined : titleId}
+      aria-describedby={description === undefined ? undefined : descriptionId}
     >
       <form onSubmit={handleSubmit}>
         <div className={cm.stack(3)}>
-          <h2 id={titleId} className={cm.cn(cm.textSize('lg'), cm.fontWeight('bold'))}>
+          <h2
+            id={title === undefined ? undefined : titleId}
+            className={cm.cn(cm.textSize('lg'), cm.fontWeight('bold'))}
+          >
             {title}
           </h2>
-          {description ? (
+          {description !== undefined ? (
             <p id={descriptionId} className={cm.textSize('sm')}>
               {description}
             </p>

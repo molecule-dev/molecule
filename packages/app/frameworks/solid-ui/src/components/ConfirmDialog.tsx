@@ -7,11 +7,12 @@
  * @module
  */
 
-import { type Component, createUniqueId, type JSX, splitProps } from 'solid-js'
+import { children, type Component, createUniqueId, type JSX, splitProps } from 'solid-js'
 
 import { useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
+import { rendersNode } from '../utilities/node.js'
 import { Button } from './Button.jsx'
 import { Modal } from './Modal.jsx'
 
@@ -70,20 +71,26 @@ export const ConfirmDialog: Component<ConfirmDialogProps> = (props) => {
   // `aria-dialog-name`).
   const titleId = createUniqueId()
   const descriptionId = createUniqueId()
+  // Resolved once, so the checks below and the markup read the same nodes. A
+  // title that renders nothing (React's `slot(title)`) names nothing, so the
+  // dialog then points at no heading.
+  const title = children(() => local.title)
+  const description = children(() => local.description)
+  const headingId = (): string | undefined => (rendersNode(title()) ? titleId : undefined)
 
   return (
     <Modal
       open={local.open}
       onClose={local.onClose}
-      aria-labelledby={titleId}
-      aria-describedby={local.description ? descriptionId : undefined}
+      aria-labelledby={headingId()}
+      aria-describedby={rendersNode(description()) ? descriptionId : undefined}
     >
       <div class={cm.stack(3)}>
-        <h2 id={titleId} class={cm.cn(cm.textSize('lg'), cm.fontWeight('bold'))}>
-          {local.title}
+        <h2 id={headingId()} class={cm.cn(cm.textSize('lg'), cm.fontWeight('bold'))}>
+          {title()}
         </h2>
         <p id={descriptionId} class={cm.textSize('sm')}>
-          {local.description}
+          {description()}
         </p>
         {local.children}
         <div class={cm.flex({ justify: 'end', gap: 'sm' })}>

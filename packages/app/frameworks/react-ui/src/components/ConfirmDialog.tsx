@@ -40,6 +40,7 @@
 import { type JSX, type ReactNode, useId } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 
 import { Button } from './Button.js'
@@ -79,8 +80,8 @@ export interface ConfirmDialogProps {
 export function ConfirmDialog({
   open,
   onClose,
-  title,
-  description,
+  title: titleProp,
+  description: descriptionProp,
   confirmLabel,
   cancelLabel,
   onConfirm,
@@ -94,18 +95,25 @@ export function ConfirmDialog({
   // description (WAI-ARIA dialog pattern): the ids reach the dialog element
   // through Modal's `aria-*` pass-through, so screen readers announce
   // "Delete vault? — This action cannot be undone." instead of an unnamed
-  // dialog (axe `aria-dialog-name`).
+  // dialog (axe `aria-dialog-name`). A title that renders nothing names
+  // nothing, so the dialog then points at no heading, as a port that decides
+  // from its slot content does.
   const titleId = useId()
   const descriptionId = useId()
+  const title = slot(titleProp)
+  const description = slot(descriptionProp)
   return (
     <Modal
       open={open}
       onClose={onClose}
-      aria-labelledby={titleId}
-      aria-describedby={description ? descriptionId : undefined}
+      aria-labelledby={title === undefined ? undefined : titleId}
+      aria-describedby={description === undefined ? undefined : descriptionId}
     >
       <div className={cm.stack(3)}>
-        <h2 id={titleId} className={cm.cn(cm.textSize('lg'), cm.fontWeight('bold'))}>
+        <h2
+          id={title === undefined ? undefined : titleId}
+          className={cm.cn(cm.textSize('lg'), cm.fontWeight('bold'))}
+        >
           {title}
         </h2>
         <p id={descriptionId} className={cm.textSize('sm')}>
