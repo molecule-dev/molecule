@@ -361,7 +361,23 @@ const CHINA_PUBLIC_HOLIDAYS = [
  *   https://paper.people.com.cn/rmrb/pc/content/202611/06/content_30189674.html
  *   (see CHINA_PUBLIC_HOLIDAYS)
  * - DeepSeek: https://api-docs.deepseek.com/quick_start/pricing +
- *   /updates/ (2026-11-17: the 2027 State Council holiday notice landed above —
+ *   /updates/ (2026-11-23: ADDED deepseek-v4-flash-vision-exp — owner ✅ —
+ *   as a US-only DeepInfra re-host entry. Verified on the providers' own
+ *   surfaces today: DeepSeek's pricing page footnote (1) — the retired name
+ *   "is still accepted, but the corresponding models have been retired,
+ *   their requests are served by the DeepSeek-V4.1-Flash-1017 model and
+ *   billed at the Flash price", so the vision weights are served by no
+ *   native endpoint and the entry pins `regions: ['us']` with the Flash card
+ *   as the (unreachable) native reference; and DeepInfra's live model card
+ *   api.deepinfra.com/models/deepseek-ai/DeepSeek-V4-Flash-Vision-Exp —
+ *   cents_per_input_token 0.000044 ($0.44/MTok),
+ *   cents_per_output_token 0.000132 ($1.32/MTok),
+ *   rate_per_input_token_cached 0.03181818 (= $0.014/MTok), no cache-write
+ *   premium; ctx 1,048,576 / max out 262,144; "supports image input with
+ *   visual grounding"; tools + structured output; "configurable reasoning
+ *   effort (low/high/max, or disabled)". Every other card price unchanged
+ *   from the 2026-10-20 read. Earlier, 2026-11-17: the 2027 State Council
+ *   holiday notice landed above —
  *   no DeepSeek card change; this morning's freshness-gate chunk read found the
  *   peak-rule sentence and every price unchanged, so the 2026-10-20
  *   verification stands. Earlier, verified 2026-10-20 — the whole rate card RE-READ, unchanged:
@@ -394,7 +410,8 @@ const CHINA_PUBLIC_HOLIDAYS = [
  *   peak windows BY DAY — "01:00 - 04:00 and 06:00 - 10:00 UTC, Monday through
  *   Friday (all other hours are off-peak)" — so the windows are
  *   `daysOfWeekUtc`-restricted rather than daily. `deepseek-v4-flash-vision-exp`
- *   is retired with the rest of V4 flash and stays deliberately uncatalogued.
+ *   is retired with the rest of V4 flash; it stayed uncatalogued until the
+ *   2026-11-23 owner ✅ added its DeepInfra US re-host (see the newest note).
  *   The US re-host rates (DeepInfra) are unchanged from the 2026-09-06 read —
  *   `DeepSeek-V4-Flash-0731` at $0.06/$0.18, cache read $0.015; DeepInfra also
  *   listed `deepseek-ai/DeepSeek-V4.1-Flash` on 2026-09-10 at $0.30/$1.20
@@ -2508,6 +2525,75 @@ export const MODELS: readonly ModelDefinition[] = [
     // Not published by DeepSeek — best-effort estimate (family estimate; the
     // V4.1 announcement lists benchmarks but no training cutoff).
     knowledgeCutoff: '2025-07-01',
+  },
+  {
+    // Owner-approved add (✅ 2026-11-23): the experimental VISION variant of
+    // V4 Flash. DeepSeek RETIRED these weights natively on 2026-09-10 — the
+    // pricing page's footnote (1) (re-read 2026-11-23) says the legacy
+    // `deepseek-v4-flash-vision-exp` name "is still accepted, but the
+    // corresponding models have been retired, their requests are served by
+    // the DeepSeek-V4.1-Flash-1017 model and billed at the Flash price" — so
+    // the only host still serving the actual vision-tuned weights is the
+    // DeepInfra US re-host. US-ONLY, the qwen3-coder-plus shape: base rates
+    // below are the native reference (the Flash card the routed id bills,
+    // off-peak legs), unreachable because every dispatch resolves to the us
+    // override — which is also why no `peakPricing` is declared (the native
+    // peak windows can never apply to a region that bills DeepInfra's flat
+    // card; `priceMultiplierAt` answers 1 wherever a regionPricing override
+    // exists). A saved `cn` region choice falls back to us
+    // (`effectiveModelRegion`).
+    id: 'deepseek-v4-flash-vision-exp',
+    provider: 'deepseek',
+    label: 'DeepSeek V4 Flash Vision Exp',
+    description: 'Experimental vision-tuned V4 Flash — image input, 1M context',
+    // Live DeepInfra card (api.deepinfra.com/models/deepseek-ai/
+    // DeepSeek-V4-Flash-Vision-Exp, read 2026-11-23): max_tokens 1,048,576,
+    // max_output_tokens 262,144 — a 256K output cap, NOT the family's 384K.
+    contextWindow: 1_048_576,
+    maxOutputTokens: 262_144,
+    // Same surface as deepseek-flash: the host card's description says
+    // "configurable reasoning effort (low/high/max, or disabled)" and its tags
+    // carry can-disable-reasoning — low/high/max are the native values, 'off'
+    // is the LOCAL toggle (no thinking block). Default low per the owner's
+    // DeepSeek-Flash effort policy (docs/agents/model-catalog-health.md,
+    // 2026-10-22).
+    supportsThinking: true,
+    thinkingBudgetTokens: 8_000,
+    thinkingConfigurable: true,
+    supportedEffortLevels: ['off', 'low', 'high', 'max'],
+    defaultEffortLevel: 'low',
+    // Card: "supports image input with visual grounding" (tags: multimodal).
+    supportsVision: true,
+    supportsPromptCaching: true,
+    supportsTools: true,
+    // Native reference — what the routed id bills on DeepSeek's own endpoint
+    // (the V4.1 Flash card, off-peak legs; pricing page, 2026-11-23). DeepSeek
+    // charges no cache-write premium — write bills at input.
+    inputPricePerMTok: 0.15,
+    outputPricePerMTok: 0.6,
+    cacheReadPricePerMTok: 0.003,
+    cacheWritePricePerMTok: 0.15,
+    regions: ['us'],
+    // DeepInfra's live card, read 2026-11-23: cents_per_input_token 0.000044
+    // ($0.44/MTok), cents_per_output_token 0.000132 ($1.32/MTok),
+    // rate_per_input_token_cached 0.03181818 × input = $0.014/MTok, no
+    // cache-write premium (omitted → the region input rate). NB: like every
+    // DeepInfra deployment, cached-token usage is not reported in responses
+    // (see glm-5.3-flash), so the cacheRead rate is informational — metering
+    // bills full input there.
+    regionPricing: {
+      us: { inputPricePerMTok: 0.44, outputPricePerMTok: 1.32, cacheReadPricePerMTok: 0.014 },
+    },
+    // Not published for the retired variant — best-effort family estimate.
+    knowledgeCutoff: '2025-07-01',
+    // Retired natively 2026-09-10 with the rest of V4 flash (same event that
+    // deprecated deepseek-v4-flash) — deprecatedAt, NOT supersededBy: the
+    // family's vision-specialist tier, still served (and not marked deprecated)
+    // by its only host, so it stays selectable for users who want it while the
+    // picker tucks it into "Older models" behind the current vision-capable
+    // generation (`deepseek-flash`, cheaper on the same host). models.dev
+    // tracks the native retirement and the freshness check warns without this.
+    deprecatedAt: '2026-09-10',
   },
 
   // ---------------------------------------------------------------------------
