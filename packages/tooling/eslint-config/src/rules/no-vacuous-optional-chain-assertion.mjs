@@ -1,5 +1,6 @@
 /**
- * molecule-only rule (tests): no assertion that an optional chain passes when its object is missing.
+ * `molecule-local/no-vacuous-optional-chain-assertion` (test files): no assertion on an optional
+ * chain that passes when its object is missing.
  *
  * `a?.b` reads `undefined` when `a` is `null` or `undefined`, and some matchers pass on
  * `undefined`: `expect(card?.querySelector('svg')).not.toBeNull()` passes when the card never
@@ -147,6 +148,8 @@ export default {
     messages: {
       bothChains:
         '`{{chain}}` and `{{expected}}` both read undefined when `{{object}}` and `{{expectedObject}}` are missing, so `{{assertion}}` passes when neither exists. Assert one of them first (`expect({{expectedObject}}).not.toBeNull()` for `T | null`, `.toBeDefined()` for `T | undefined`), then read it with `!.` or `.`.',
+      bothChainsOneObject:
+        '`{{chain}}` and `{{expected}}` both read undefined when `{{object}}` is missing, so `{{assertion}}` passes when it does not exist. Assert `{{object}}` first (`expect({{object}}).not.toBeNull()` for `T | null`, `.toBeDefined()` for `T | undefined`), then read it with `!.` or `.`.',
       vacuous:
         '`{{chain}}` reads undefined when `{{object}}` is missing, and `{{assertion}}` passes on undefined, so this assertion cannot fail when `{{object}}` is missing. Assert `{{object}}` first (`expect({{object}}).not.toBeNull()` for `T | null`, `.toBeDefined()` for `T | undefined`), then read it with `!.` or `.`. When the case expects `{{object}}` itself to be missing, assert that.',
     },
@@ -172,14 +175,16 @@ export default {
         const assertion = `${negated ? '.not' : ''}.${matcher}(${node.arguments.map((a) => sourceCode.getText(a)).join(', ')})`
         const expected = negated ? undefined : chainOf(node.arguments[0])
         if (expected !== undefined && PLAIN_IF_UNDEFINED.has(matcher)) {
+          const object = optionalObject(chain, sourceCode)
+          const expectedObject = optionalObject(expected, sourceCode)
           context.report({
             node,
-            messageId: 'bothChains',
+            messageId: object === expectedObject ? 'bothChainsOneObject' : 'bothChains',
             data: {
               chain: sourceCode.getText(chain),
-              object: optionalObject(chain, sourceCode),
+              object,
               expected: sourceCode.getText(expected),
-              expectedObject: optionalObject(expected, sourceCode),
+              expectedObject,
               assertion,
             },
           })

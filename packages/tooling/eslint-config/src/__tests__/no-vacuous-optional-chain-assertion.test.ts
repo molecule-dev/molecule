@@ -1,8 +1,9 @@
 import { RuleTester } from 'eslint'
 import tseslint from 'typescript-eslint'
-import { describe, it } from 'vitest'
+import { afterEach, describe, expect, it } from 'vitest'
 
-import rule from '../../eslint-rules/no-vacuous-optional-chain-assertion.mjs'
+import rule from '../rules/no-vacuous-optional-chain-assertion.mjs'
+import { type LintProject, lintProject } from './project.js'
 
 /**
  * Unit tests for `molecule-local/no-vacuous-optional-chain-assertion`: an assertion on an
@@ -154,6 +155,16 @@ ruleTester.run('no-vacuous-optional-chain-assertion', rule as RuleModule, {
       ],
     },
     {
+      name: 'both sides read one object: the message names it once',
+      code: 'expect(snap?.createRefusal).toBe(snap?.metricsRefusal)',
+      errors: [
+        {
+          message:
+            '`snap?.createRefusal` and `snap?.metricsRefusal` both read undefined when `snap` is missing, so `.toBe(snap?.metricsRefusal)` passes when it does not exist. Assert `snap` first (`expect(snap).not.toBeNull()` for `T | null`, `.toBeDefined()` for `T | undefined`), then read it with `!.` or `.`.',
+        },
+      ],
+    },
+    {
       name: 'the message names the chain and the object it reads',
       code: 'expect(status?.lastRunAt).not.toBeNull()',
       errors: [
@@ -164,4 +175,32 @@ ruleTester.run('no-vacuous-optional-chain-assertion', rule as RuleModule, {
       ],
     },
   ],
+})
+
+describe('the config enables no-vacuous-optional-chain-assertion', () => {
+  let project: LintProject | undefined
+
+  afterEach(() => project?.remove())
+
+  it("in a project's test files, not in its source", async () => {
+    project = await lintProject({})
+    const severity = async (file: string): Promise<number> =>
+      (await project!.severity('molecule-local/no-vacuous-optional-chain-assertion', file)) ?? 0
+    expect(await severity('src/__tests__/card.test.tsx')).toBe(2)
+    expect(await severity('src/card.test.ts')).toBe(2)
+    expect(await severity('e2e/flows.spec.ts')).toBe(2)
+    expect(await severity('src/__tests__/helpers.mjs')).toBe(2)
+    expect(await severity('src/card.tsx')).toBe(0)
+    const findings = await project.lint(
+      "import { expect, it } from 'vitest'\n" +
+        "it('renders', () => {\n" +
+        "  const card = document.querySelector('[data-card]')\n" +
+        "  expect(card?.querySelector('svg')).not.toBeNull()\n" +
+        '})\n',
+      'src/__tests__/card.test.ts',
+    )
+    expect(
+      findings.filter((f) => f.ruleId === 'molecule-local/no-vacuous-optional-chain-assertion'),
+    ).toMatchObject([{ severity: 2, line: 4, messageId: 'vacuous' }])
+  })
 })

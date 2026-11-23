@@ -383,6 +383,17 @@ export async function moleculeEslintConfig(configUrl, { generatedResourceClients
       },
     },
     {
+      // `expect(card?.querySelector('svg')).not.toBeNull()` passes when the card never rendered:
+      // a test that asserts on an optional chain with a matcher that accepts undefined cannot fail
+      // on the defect it was written for.
+      files: [
+        '**/__tests__/**/*.{ts,tsx,js,jsx,mjs}',
+        '**/*.test.{ts,tsx,js,jsx,mjs}',
+        '**/*.spec.{ts,tsx,js,jsx,mjs}',
+      ],
+      rules: { 'molecule-local/no-vacuous-optional-chain-assertion': 'error' },
+    },
+    {
       // Accessibility gate (eslint-plugin-jsx-a11y): the full `recommended`
       // ruleset at its native ERROR severity. Errors on purpose — a warning
       // gate nobody fails is decoration; a11y regressions the linter can see

@@ -13,7 +13,6 @@ import angularTestHostChangeDetection from './eslint-rules/angular-test-host-cha
 import noCamelCaseNativeEventsInVueH from './eslint-rules/no-camel-case-native-events-in-vue-h.mjs'
 import noDomEventsInAngularCheckHooks from './eslint-rules/no-dom-events-in-angular-check-hooks.mjs'
 import noHandPlacedNodes from './eslint-rules/no-hand-placed-nodes.mjs'
-import noVacuousOptionalChainAssertion from './eslint-rules/no-vacuous-optional-chain-assertion.mjs'
 import { moleculeLocalPlugin } from './packages/tooling/eslint-config/src/plugin.mjs'
 import {
   ROUTER_LIBRARY_FIX,
@@ -61,10 +60,6 @@ import {
  * `angular-test-host-change-detection` makes every component an Angular test declares state its
  * change detection: Angular 22 checks one that sets none as OnPush, so a prop the test changes is
  * never rendered and the test asserts the first render. molecule-only, so it is not in the package.
- *
- * `no-vacuous-optional-chain-assertion` keeps a test from asserting on `a?.b` with a matcher that
- * passes on undefined (`.not.toBeNull()`, `.toBeUndefined()` …): the assertion then passes when `a`
- * is missing, so the test cannot fail on the defect it was written for.
  */
 const moleculeLocal = {
   rules: {
@@ -73,7 +68,6 @@ const moleculeLocal = {
     'no-camel-case-native-events-in-vue-h': noCamelCaseNativeEventsInVueH,
     'no-hand-placed-nodes': noHandPlacedNodes,
     'angular-test-host-change-detection': angularTestHostChangeDetection,
-    'no-vacuous-optional-chain-assertion': noVacuousOptionalChainAssertion,
   },
 }
 
