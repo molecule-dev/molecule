@@ -33,6 +33,7 @@ import {
   signal,
   type Type,
   ViewChild,
+  ViewContainerRef,
 } from '@angular/core'
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it } from 'vitest'
@@ -214,6 +215,34 @@ describe('provideDomPlacement', () => {
     expect(() => createComponent(PresenceProbe, { environmentInjector: app.injector })).toThrow(
       /provideDomPlacement\(\)/,
     )
+  })
+
+  /** A component that injects its container: Angular adds the container's anchor beside its host. */
+  const WithContainer = Component({
+    selector: 'i[mol-with-container]',
+    standalone: true,
+    changeDetection: ChangeDetectionStrategy.Default,
+    template: `inner`,
+  })(
+    class WithContainer {
+      readonly container = inject(ViewContainerRef)
+    },
+  )
+  const Projecting = Component({
+    selector: 'div[mol-projecting]',
+    standalone: true,
+    changeDetection: ChangeDetectionStrategy.Default,
+    template: `<ng-content></ng-content>`,
+  })(class Projecting {})
+
+  it('renders a projected component that injects its view container', async () => {
+    const m = await mount(
+      `<div mol-projecting><i mol-with-container></i></div>`,
+      [Projecting as Type<unknown>, WithContainer as Type<unknown>],
+      {},
+    )
+    m.set({})
+    expect(m.root.querySelector('i')?.textContent).toBe('inner')
   })
 })
 

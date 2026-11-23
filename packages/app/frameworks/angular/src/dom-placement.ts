@@ -168,6 +168,14 @@ function restoreAbsentHostOf(parent: Node): void {
 function withPlacement(renderer: Renderer2): Renderer2 {
   const placed = Object.create(renderer) as Renderer2
   const insert = (parent: Node, child: Node, ref: Node | null, isMove?: boolean): void => {
+    // Angular injects a container's anchor through a host that is not in the
+    // DOM yet (a component created inside a view before it is inserted), and
+    // its own renderer ignores a null parent. Forward that call unchanged:
+    // `appendChild` would throw, while `insertBefore` does nothing.
+    if (parent === null) {
+      ;(renderer.insertBefore as (...args: unknown[]) => void)(parent, child, ref, isMove)
+      return
+    }
     dropPlaceholder(child)
     const from = child.parentNode
     const before = ref === null ? null : placeOf(ref, parent)
