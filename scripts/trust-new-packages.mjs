@@ -845,6 +845,7 @@ const unresolved = firstPublishes.length
   ? missingInstalls(
       committedTree().dir,
       firstPublishes.map((pkg) => pkg.dir),
+      ROOT,
     )
   : new Map()
 for (const pkg of firstPublishes.filter((p) => unresolved.has(p.dir))) {

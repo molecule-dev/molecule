@@ -237,11 +237,11 @@ describe('missingInstalls', () => {
     const tree = createCommittedExport({ root })
     exports.push(tree)
     expect(
-      missingInstalls(tree.dir, [
-        'packages/core/base',
-        'packages/bonds/user',
-        'packages/bonds/apart',
-      ]),
+      missingInstalls(
+        tree.dir,
+        ['packages/core/base', 'packages/bonds/user', 'packages/bonds/apart'],
+        root,
+      ),
     ).toEqual(
       new Map([
         ['packages/core/base', ['only-above']],
@@ -257,7 +257,8 @@ describe('missingInstalls', () => {
     writeManifest(root, 'packages/a', {
       name: '@molecule/a',
       dependencies: { '@molecule/b': '1.0.0', 'local-dep': '1.0.0' },
-      peerDependencies: { 'needed-peer': '*', 'optional-peer': '*' },
+      devDependencies: { 'needed-dev': '1.0.0' },
+      peerDependencies: { 'needed-dev': '*', 'optional-peer': '*' },
       peerDependenciesMeta: { 'optional-peer': { optional: true } },
     })
     writeManifest(root, 'packages/b', {
@@ -266,13 +267,36 @@ describe('missingInstalls', () => {
     })
     install(join(root, 'packages/a/node_modules'), 'local-dep')
     install(join(root, 'node_modules'), 'root-dep')
-    expect(missingInstalls(root, ['packages/a', 'packages/b'])).toEqual(
+    expect(missingInstalls(root, ['packages/a', 'packages/b'], root)).toEqual(
       new Map([
-        ['packages/a', ['needed-peer']],
-        ['packages/b', ['needed-peer']],
+        ['packages/a', ['needed-dev']],
+        ['packages/b', ['needed-dev']],
       ]),
     )
-    install(join(root, 'node_modules'), 'needed-peer')
-    expect(missingInstalls(root, ['packages/a', 'packages/b'])).toEqual(new Map())
+    install(join(root, 'node_modules'), 'needed-dev')
+    expect(missingInstalls(root, ['packages/a', 'packages/b'], root)).toEqual(new Map())
+  })
+
+  it('names a peer-only dependency only when an install on the checkout path has it', () => {
+    // molecule installs with legacy-peer-deps, so a peer that is not also a dependency reaches a
+    // build only from an install above the checkout. One no install has, the package declares
+    // itself (a react-native.d.ts), and its build in the checkout passes without it.
+    const workspace = mkdtempSync(join(tmpdir(), 'committed-export-peers-'))
+    dirs.push(workspace)
+    const checkout = join(workspace, 'molecule')
+    const exportDir = mkdtempSync(join(tmpdir(), 'committed-export-peers-export-'))
+    dirs.push(exportDir)
+    const manifest = {
+      name: '@molecule/a',
+      devDependencies: { 'dev-peer': '1.0.0' },
+      peerDependencies: { 'above-peer': '*', 'nowhere-peer': '*', 'dev-peer': '*' },
+    }
+    writeManifest(checkout, 'packages/a', manifest)
+    writeManifest(exportDir, 'packages/a', manifest)
+    install(join(workspace, 'node_modules'), 'above-peer')
+    expect(missingInstalls(exportDir, ['packages/a'], checkout)).toEqual(
+      new Map([['packages/a', ['above-peer', 'dev-peer']]]),
+    )
+    expect(() => missingInstalls(exportDir, ['packages/a'], '')).toThrow(TypeError)
   })
 })

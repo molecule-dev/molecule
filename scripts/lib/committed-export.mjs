@@ -29,7 +29,7 @@ import {
   symlinkSync,
 } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { join, relative } from 'node:path'
+import { dirname, join, relative } from 'node:path'
 
 /**
  * Every directory under `packages/` that holds a package.json, relative to the
@@ -84,12 +84,36 @@ function exportedPackages(root) {
  * its build fails with `Cannot find module` (2026-11-16: dnd-kit 0.5 was in the workspace
  * root's install and not in molecule's).
  *
+ * A peer that is not also a dependency or devDependency counts only when the checkout finds it
+ * in an install on its resolution path. molecule installs with `legacy-peer-deps`, so its own
+ * install never holds such a peer: a build reaches one only from an install above the checkout.
+ * When no install on that path has it, the checkout's build passes without it, as a package
+ * that declares the module itself does (`@molecule/app-theme-nativewind` types `react-native`
+ * through its own `react-native.d.ts`), and the export's build does too.
+ *
  * @param exportDir - The export root (from createCommittedExport).
  * @param dirs - Package directories, relative to the export root, about to be built.
+ * @param checkout - The checkout the export was made from, whose resolution path decides a
+ *   peer-only name.
  * @returns Package directory -> the dependency names it cannot find (sorted), for each
  *   directory that misses any.
  */
-export function missingInstalls(exportDir, dirs) {
+export function missingInstalls(exportDir, dirs, checkout) {
+  if (typeof checkout !== 'string' || !checkout)
+    throw new TypeError('missingInstalls needs the checkout the export was made from')
+  /**
+   * Whether an install on the resolution path of a checkout package directory has a name.
+   *
+   * @param dir - Package directory, relative to the checkout.
+   * @param name - Package name.
+   * @returns Whether a `node_modules` there or above has it.
+   */
+  const onCheckoutPath = (dir, name) => {
+    for (let at = join(checkout, dir); ; at = dirname(at)) {
+      if (existsSync(join(at, 'node_modules', name, 'package.json'))) return true
+      if (dirname(at) === at) return false
+    }
+  }
   const exported = new Map(
     exportedPackages(exportDir)
       .filter((pkg) => pkg.name)
@@ -119,9 +143,9 @@ export function missingInstalls(exportDir, dirs) {
     const optionalPeers = Object.entries(manifest.peerDependenciesMeta ?? {})
       .filter(([, meta]) => meta?.optional)
       .map(([name]) => name)
+    const installed = { ...manifest.dependencies, ...manifest.devDependencies }
     const needed = Object.keys({
-      ...manifest.dependencies,
-      ...manifest.devDependencies,
+      ...installed,
       ...manifest.peerDependencies,
     }).filter((name) => !optionalPeers.includes(name))
     for (const name of needed) {
@@ -129,7 +153,8 @@ export function missingInstalls(exportDir, dirs) {
       if (inExport) needs.workspace.push(inExport)
       else if (
         !existsSync(join(exportDir, 'node_modules', name, 'package.json')) &&
-        !existsSync(join(exportDir, dir, 'node_modules', name, 'package.json'))
+        !existsSync(join(exportDir, dir, 'node_modules', name, 'package.json')) &&
+        (name in installed || onCheckoutPath(dir, name))
       )
         needs.missing.push(name)
     }
