@@ -139,7 +139,7 @@ describe('parseV2Notification', () => {
 
     expect(result).not.toBeNull()
     expect(result?.transactionId).toBe('orig-1')
-    expect(result?.autoRenews).toBeUndefined()
+    expect(result!.autoRenews).toBeUndefined()
   })
 
   it.each([

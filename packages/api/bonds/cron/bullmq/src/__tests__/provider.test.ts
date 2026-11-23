@@ -183,21 +183,24 @@ describe('bullmq cron provider', () => {
     it('a plaintext host/port config does NOT set tls (no accidental TLS negotiation)', () => {
       createProvider(defaultConfig)
       const { queue, worker } = lastMocks()
-      expect(queue.opts.connection?.tls).toBeUndefined()
-      expect(worker.opts.connection?.tls).toBeUndefined()
+      expect(queue.opts.connection).toBeDefined()
+      expect(queue.opts.connection!.tls).toBeUndefined()
+      expect(worker.opts.connection).toBeDefined()
+      expect(worker.opts.connection!.tls).toBeUndefined()
     })
 
     it('a plaintext redis:// url does NOT enable tls', () => {
       createProvider({ connection: { url: 'redis://localhost:6379' } })
       const { queue } = lastMocks()
       expect(queue.opts.connection?.url).toBe('redis://localhost:6379')
-      expect(queue.opts.connection?.tls).toBeUndefined()
+      expect(queue.opts.connection!.tls).toBeUndefined()
     })
 
     it('`tls: false` is respected as an explicit plaintext opt-out', () => {
       createProvider({ connection: { host: 'h', port: 6379, tls: false } })
       const { queue } = lastMocks()
-      expect(queue.opts.connection?.tls).toBeUndefined()
+      expect(queue.opts.connection).toBeDefined()
+      expect(queue.opts.connection!.tls).toBeUndefined()
     })
   })
 

@@ -126,6 +126,11 @@ export function renderMarginNotes(options: RenderMarginNotesOptions): RenderedMa
     !switchable.has(note.kind) || shown.includes(note.kind)
   const tapOnly = new Set(kinds.filter((k) => k.panel === 'tap').map((k) => k.id))
   const rootId = escapeHtml(id)
+  // A mark carries no meaning on its own: named, it is an image; unnamed, it is decoration.
+  const markNamed = typeof markLabel === 'string' && markLabel.trim().length > 0
+  const markAttrs = markNamed
+    ? ` role="img" aria-label="${escapeHtml(markLabel)}"`
+    : ' aria-hidden="true"'
 
   const renderRow = (row: MarginNotesRow): string => {
     const blocksHtml = row.blocks
@@ -133,7 +138,7 @@ export function renderMarginNotes(options: RenderMarginNotesOptions): RenderedMa
         const ids = (block.noteIds ?? []).filter((nid) => notes.some((n) => n.id === nid))
         const interactive = ids.length > 0
         const mark = block.marked
-          ? `<span data-mn-mark role="img"${markLabel ? ` aria-label="${escapeHtml(markLabel)}"` : ''}` +
+          ? `<span data-mn-mark${markAttrs}` +
             ` data-mol-id="margin-notes-mark-${escapeHtml(block.id)}"></span>`
           : ''
         return (

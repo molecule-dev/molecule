@@ -80,7 +80,7 @@ describe('model-hosting-cloud-run', () => {
     const body = toRunService(SPEC)
     expect(body.invokerIamDisabled).toBe(false)
     expect(body.template?.scaling).toEqual({ minInstanceCount: 0, maxInstanceCount: 3 })
-    expect(body.template?.nodeSelector).toBeUndefined()
+    expect(body.template!.nodeSelector).toBeUndefined()
     expect(body.template?.containers?.[0]).toMatchObject({
       image: SPEC.image,
       ports: [{ containerPort: 8000 }],

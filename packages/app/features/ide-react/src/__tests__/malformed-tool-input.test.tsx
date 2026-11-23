@@ -219,14 +219,16 @@ describe('normalizeAskUserInput', () => {
       options: [],
       planReview: { path: 'p.md', steps: 2, preview: [] },
     })
-    expect(absent.planReview?.goesLive).toBeUndefined()
+    expect(absent.planReview).toBeDefined()
+    expect(absent.planReview!.goesLive).toBeUndefined()
     // A model sending junk where a boolean is declared degrades to "not stated".
     const junk = normalizeAskUserInput({
       question: 'q',
       options: [],
       planReview: { path: 'p.md', steps: 2, preview: [], goesLive: 'yes' },
     })
-    expect(junk.planReview?.goesLive).toBeUndefined()
+    expect(junk.planReview).toBeDefined()
+    expect(junk.planReview!.goesLive).toBeUndefined()
   })
 })
 

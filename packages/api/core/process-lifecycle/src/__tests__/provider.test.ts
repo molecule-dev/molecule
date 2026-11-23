@@ -23,7 +23,7 @@ import {
   setProvider,
   startDraining,
 } from '../index.js'
-import type { ProcessLifecycleProvider, ReadinessReport } from '../types.js'
+import type { ProcessLifecycleProvider, ProcessLifecycleState, ReadinessReport } from '../types.js'
 
 /** A provider double that records the calls the accessors should delegate. */
 function makeProvider(): ProcessLifecycleProvider {
@@ -36,7 +36,7 @@ function makeProvider(): ProcessLifecycleProvider {
     checks: [],
   }
   return {
-    state: vi.fn(() => 'ready'),
+    state: vi.fn<() => ProcessLifecycleState>(() => 'ready'),
     markReady: vi.fn(),
     isDraining: vi.fn(() => true),
     startDraining: vi.fn(),
@@ -64,7 +64,7 @@ function makeProvider(): ProcessLifecycleProvider {
 
 describe('@molecule/api-process-lifecycle provider accessors', () => {
   beforeEach(() => {
-    clearProviders()
+    clearProviders('process-lifecycle')
     resetRegistrationsForTests()
   })
 

@@ -454,7 +454,8 @@ describe('@molecule/api-video-meetings-zoom', () => {
       expect(body.type).toBeUndefined()
 
       expect(calls[1]!.url).toBe('https://api.zoom.us/v2/meetings/12345')
-      expect(calls[1]!.init?.method).toBeUndefined()
+      expect(calls[1]!.init).toBeDefined()
+      expect(calls[1]!.init!.method).toBeUndefined()
 
       expect(meeting.topic).toBe('New topic')
       expect(meeting.durationMinutes).toBe(45)

@@ -245,7 +245,8 @@ describe('open-food-facts nutrition-database provider', () => {
 
       const food = await provider.getFoodByBarcode('3017620422003')
 
-      expect(food?.perServing).not.toBeNull()
+      expect(food).not.toBeNull()
+      expect(food!.perServing).not.toBeNull()
       expect(food?.perServing?.serving.quantity).toBe(15)
       expect(food?.perServing?.serving.unit).toBe('g')
       expect(food?.perServing?.serving.label).toBe('1 tbsp (15g)')

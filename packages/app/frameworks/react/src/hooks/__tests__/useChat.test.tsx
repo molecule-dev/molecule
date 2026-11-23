@@ -471,7 +471,8 @@ describe('useChat', () => {
     await waitFor(() => expect(deferreds).toHaveLength(2))
 
     const bMsgAfter = result.current.messages.find((m) => m.content === 'B')
-    expect(bMsgAfter?.queued).toBeFalsy()
+    expect(bMsgAfter).toBeDefined()
+    expect(bMsgAfter!.queued).toBeFalsy()
 
     await act(async () => {
       complete(1)

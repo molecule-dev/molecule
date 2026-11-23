@@ -11,7 +11,7 @@
  * @module
  */
 import '@angular/compiler'
-import { Component } from '@angular/core'
+import { ChangeDetectionStrategy, Component } from '@angular/core'
 import { provideRouter } from '@angular/router'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
@@ -23,6 +23,7 @@ import { bootstrapApp } from '../bootstrap.js'
  * transform does not compile decorator syntax.
  */
 const App = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-boot-probe',
   standalone: true,
   template: '<p data-boot-mounted>mounted</p>',

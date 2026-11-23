@@ -312,7 +312,7 @@ describe('the selector is replayed by the browser’s own DOM', () => {
         source: 'locator-count',
         unreadable: 'browser-unavailable',
       })
-      expect(item.countMismatch?.matched).toBeUndefined()
+      expect(item.countMismatch!.matched).toBeUndefined()
       expect(item.actions.length).toBeGreaterThan(0)
       expect(countMismatchSentence(item.countMismatch!)).toContain('not available')
 
@@ -334,7 +334,7 @@ describe('a locator the snapshot cannot replay fails closed', () => {
       source: 'locator-count',
       unreadable: 'unsupported-selector',
     })
-    expect(item.countMismatch?.matched).toBeUndefined()
+    expect(item.countMismatch!.matched).toBeUndefined()
     const note = failureTraceNote([item], 'https://app.apps.mlcl.dev')
     expect(note).toContain('not the elements it selected')
   })
@@ -436,7 +436,7 @@ describe('the parsed reading is fail-closed too', () => {
       locator: "locator('.card')",
       unreadable: 'browser-unavailable',
     })
-    expect(item.countMismatch?.matched).toBeUndefined()
+    expect(item.countMismatch!.matched).toBeUndefined()
   })
 
   it('keeps a valid reading and drops an unreadable reason it cannot explain', () => {
@@ -459,6 +459,6 @@ describe('the parsed reading is fail-closed too', () => {
       matched: [{ tag: 'div', classes: 'card' }],
       matchedFrom: 'selector-replay',
     })
-    expect(item.countMismatch?.unreadable).toBeUndefined()
+    expect(item.countMismatch!.unreadable).toBeUndefined()
   })
 })

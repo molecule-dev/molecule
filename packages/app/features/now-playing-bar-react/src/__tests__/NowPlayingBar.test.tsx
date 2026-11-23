@@ -340,7 +340,7 @@ describe('<NowPlayingBar>', () => {
     )
     const trailing = container.querySelector('[data-mol-id="now-playing-bar-trailing"]')
     expect(trailing).not.toBeNull()
-    expect(trailing?.querySelector('[data-mol-id="custom-queue"]')).not.toBeNull()
+    expect(trailing!.querySelector('[data-mol-id="custom-queue"]')).not.toBeNull()
   })
 
   it('renders the documented empty state (no throw) when track is null', () => {

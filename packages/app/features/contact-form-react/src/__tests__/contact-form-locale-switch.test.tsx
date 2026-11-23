@@ -73,7 +73,7 @@ describe('ContactForm locale switch', () => {
       await provider.setLocale('fr')
     })
     expect(container.querySelector('input[type="text"]')?.getAttribute('aria-label')).toBe('Nom')
-    expect(container.querySelector('input[type="text"]')?.getAttribute('aria-label')).not.toBe(
+    expect(container.querySelector('input[type="text"]')!.getAttribute('aria-label')).not.toBe(
       'Name',
     )
   })

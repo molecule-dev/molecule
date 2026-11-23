@@ -476,7 +476,8 @@ describe('@molecule/api-ci-github-actions', () => {
       })
 
       it('should not trigger on branches', () => {
-        expect(workflow.on.push?.branches).toBeUndefined()
+        expect(workflow.on.push).toBeDefined()
+        expect(workflow.on.push!.branches).toBeUndefined()
       })
 
       it('should have a release job', () => {

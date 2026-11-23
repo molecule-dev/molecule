@@ -75,7 +75,7 @@ describe('@molecule/api-logger-pino × REAL pino', () => {
     expect(second.msg).toBe('Cache degraded')
     expect(second.err?.message).toBe('cache miss storm')
     // A triaging caller (or executor) can tell the two failures apart.
-    expect(first.err?.message).not.toBe(second.err?.message)
+    expect(first.err!.message).not.toBe(second.err!.message)
   })
 
   it('pino-native call shapes pass straight through', () => {

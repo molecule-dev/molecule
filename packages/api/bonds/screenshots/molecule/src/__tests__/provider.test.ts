@@ -113,10 +113,13 @@ describe('api-screenshots-molecule', () => {
         },
       ),
     )
-    const error = await provider()
+    const error: unknown = await provider()
       .capture({ url: 'https://example.com' })
-      .catch((e: unknown) => e as MoleculeServiceError)
+      .catch((e: unknown) => e)
     expect(error).toBeInstanceOf(MoleculeServiceError)
+    if (!(error instanceof MoleculeServiceError)) {
+      throw new Error('expected capture() to reject with a MoleculeServiceError')
+    }
     expect(error.status).toBe(400)
     expect(error.errorKey).toBe('hostedServices.error.invalidInput')
   })

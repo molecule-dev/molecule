@@ -354,9 +354,10 @@ describe('parseWebhookEvent', () => {
   })
 
   it('leaves priceId undefined when the product maps to no entitlement', () => {
-    expect(
-      parseWebhookEvent({ event: event({ entitlement_ids: null }) }, NOW)?.subscription?.priceId,
-    ).toBeUndefined()
+    const parsed = parseWebhookEvent({ event: event({ entitlement_ids: null }) }, NOW)
+    expect(parsed).toBeDefined()
+    expect(parsed!.subscription).toBeDefined()
+    expect(parsed!.subscription!.priceId).toBeUndefined()
   })
 
   it('reports autoRenews=false without revoking for an UNSUBSCRIBE cancellation', () => {
@@ -420,7 +421,9 @@ describe('parseWebhookEvent', () => {
       { event: event({ type: 'NON_RENEWING_PURCHASE', expiration_at_ms: null }) },
       NOW,
     )
-    expect(parsed?.subscription?.expiresAt).toBeUndefined()
+    expect(parsed).not.toBeNull()
+    expect(parsed!.subscription).toBeDefined()
+    expect(parsed!.subscription!.expiresAt).toBeUndefined()
     expect(parsed?.subscription?.autoRenews).toBe(false)
   })
 

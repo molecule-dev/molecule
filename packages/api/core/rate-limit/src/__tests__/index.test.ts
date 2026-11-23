@@ -54,12 +54,14 @@ describe('rate-limit types', () => {
       }),
       reset: async (_key: string) => {},
       getRemaining: async (_key: string) => 99,
+      refund: async (_key: string, _cost?: number) => {},
       configure: (_options: RateLimitOptions) => {},
     }
     expect(typeof provider.check).toBe('function')
     expect(typeof provider.consume).toBe('function')
     expect(typeof provider.reset).toBe('function')
     expect(typeof provider.getRemaining).toBe('function')
+    expect(typeof provider.refund).toBe('function')
     expect(typeof provider.configure).toBe('function')
   })
 

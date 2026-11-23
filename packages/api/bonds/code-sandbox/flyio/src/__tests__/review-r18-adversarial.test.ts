@@ -350,8 +350,10 @@ describe('round-eighteen adversarial retirement', () => {
     const provider = makeProvider(double, journal, { appPerProject: false, appName: APP })
     await expect(provider.create({ projectId: PROJECT_ID })).rejects.toThrow('unknown outcome')
     const id = [...journal.attempts.keys()][0]
-    expect(journal.attempts.get(id)?.machineCreateFailed).toBeUndefined()
-    expect(journal.attempts.get(id)?.machineId).toBeUndefined()
+    const attempt = journal.attempts.get(id)
+    expect(attempt).toBeDefined()
+    expect(attempt!.machineCreateFailed).toBeUndefined()
+    expect(attempt!.machineId).toBeUndefined()
     expect(outcomeAtDispatch).toBe('pending')
     expect(journal.attempts.get(id)?.machineCreateOutcome).toBe('unknown')
     const summary = await provider.reconcileCreateAttempts()
@@ -400,7 +402,7 @@ describe('round-eighteen adversarial retirement', () => {
       machineId: 'recovered-machine',
       machineCreateOutcome: 'unknown',
     })
-    expect(journal.attempts.get(id)?.machineCreatedByAttemptId).toBeUndefined()
+    expect(journal.attempts.get(id)!.machineCreatedByAttemptId).toBeUndefined()
 
     await journal.markState(id, 'failed')
     await expect(provider.reconcileCreateAttempts()).resolves.toEqual({ deleted: 0, failed: 1 })
@@ -438,7 +440,7 @@ describe('round-eighteen adversarial retirement', () => {
       machineId: 'legacy-observed',
       machineCreateOutcome: 'unknown',
     })
-    expect(journal.attempts.get('attempt-1')?.machineCreatedByAttemptId).toBeUndefined()
+    expect(journal.attempts.get('attempt-1')!.machineCreatedByAttemptId).toBeUndefined()
     expect(double.calls.filter((call) => call.method === 'DELETE')).toEqual([])
   })
 

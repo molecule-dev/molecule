@@ -2060,7 +2060,7 @@ describe('round-fifteen recorded provenance and legacy adoption', () => {
         workspace: true,
         adoptedByAttemptId: newAttempt?.attemptId,
       })
-      expect(newAttempt?.volumes[0]?.createdByAttemptId).toBeUndefined()
+      expect(newAttempt!.volumes[0]!.createdByAttemptId).toBeUndefined()
       await expect(provider.reconcileCreateAttempts()).resolves.toEqual({ deleted: 0, failed: 1 })
       expect(double.calls.filter((call) => call.method === 'DELETE')).toEqual([])
       expect(volumeExists).toBe(true)
@@ -2083,7 +2083,9 @@ describe('round-fifteen recorded provenance and legacy adoption', () => {
 
     await expect(provider.create({ projectId: PROJECT_ID })).rejects.toThrow('403')
     expect(double.matching(`POST /apps/${APP}/machines`)).toHaveLength(1)
-    expect([...journal.attempts.values()][0]?.machineCreateFailed).not.toBe(true)
+    const [recordedAttempt] = [...journal.attempts.values()]
+    expect(recordedAttempt).toBeDefined()
+    expect(recordedAttempt!.machineCreateFailed).not.toBe(true)
   })
 
   it('never turns an ambiguous POST plus GET error into authority to force-delete the app', async () => {
@@ -2282,7 +2284,7 @@ describe('round-fifteen recorded provenance and legacy adoption', () => {
       id: 'older-volume',
       adoptedByAttemptId: `legacy:${APP}:older-writer`,
     })
-    expect(adoptedVolumes[0]?.createdByAttemptId).toBeUndefined()
+    expect(adoptedVolumes[0]!.createdByAttemptId).toBeUndefined()
   })
 })
 
@@ -2802,7 +2804,7 @@ describe('round-seventeen authoritative retirement', () => {
       resolved: true,
       adoptedByAttemptId: id,
     })
-    expect(journal.attempts.get(id)?.volumes[0]?.createdByAttemptId).toBeUndefined()
+    expect(journal.attempts.get(id)!.volumes[0]!.createdByAttemptId).toBeUndefined()
     expect(double.calls.filter((call) => call.method === 'DELETE')).toEqual([])
     let retirementError = ''
     try {

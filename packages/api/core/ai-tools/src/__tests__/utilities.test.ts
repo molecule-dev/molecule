@@ -2826,7 +2826,7 @@ describe('repeatingFailure', () => {
       const found = repeatingFailure(text)!
       // One signature covers all 18 → the existing whole-run rule, not "renders nothing".
       expect(universalCause(text, found)).not.toBeNull()
-      expect(universalCause(text, found)?.pageRendersNothing).toBeUndefined()
+      expect(universalCause(text, found)!.pageRendersNothing).toBeUndefined()
     })
   })
 

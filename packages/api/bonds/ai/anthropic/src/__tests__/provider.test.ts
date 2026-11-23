@@ -1773,7 +1773,8 @@ describe('AnthropicAIProvider — non-streaming response (stream: false)', () =>
       provider.chat({ messages: [{ role: 'user' as const, content: 'hi' }], stream: false }),
     )
     const done = events.find((e) => e.type === 'done') as { usage?: { speed?: string } }
-    expect(done.usage?.speed).toBeUndefined()
+    expect(done.usage).toBeDefined()
+    expect(done.usage!.speed).toBeUndefined()
   })
 
   it('reports non-streaming web searches from usage.server_tool_use', async () => {

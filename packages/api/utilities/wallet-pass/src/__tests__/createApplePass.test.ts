@@ -166,7 +166,8 @@ describe('createApplePass', () => {
     // validation stores the SignedData ContentInfo's content field (present
     // only for attached signatures) at rawCapture.content.
     const rawCapture = p7.rawCapture as { content?: forge.asn1.Asn1 } | undefined
-    expect(rawCapture?.content).toBeUndefined()
+    expect(rawCapture).toBeDefined()
+    expect(rawCapture!.content).toBeUndefined()
   }, 30_000)
 
   test('Node crypto verifies the real detached signature and its manifest digest', async () => {

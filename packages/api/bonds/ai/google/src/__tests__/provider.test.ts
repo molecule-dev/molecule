@@ -657,7 +657,7 @@ describe('GoogleAIProvider — streaming + request mapping', () => {
         thinking: { type: 'enabled', budgetTokens: 4096 },
       }),
     )
-    expect(bodyOf().generationConfig?.thinkingConfig).toBeUndefined()
+    expect(bodyOf().generationConfig ?? {}).not.toHaveProperty('thinkingConfig')
   })
 
   it('parses a non-streaming response (:generateContent, key in query)', async () => {

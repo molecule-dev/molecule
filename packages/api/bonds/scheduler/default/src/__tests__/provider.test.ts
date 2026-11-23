@@ -502,9 +502,9 @@ describe('@molecule/api-scheduler-default', () => {
       // Let the two boot-time tasks run past their own stagger.
       await vi.advanceTimersByTimeAsync(1001)
 
-      let lastHandler: ReturnType<typeof vi.fn> = vi.fn().mockResolvedValue(undefined)
+      let lastHandler = vi.fn<() => Promise<void>>()
       for (let i = 0; i < 30; i++) {
-        lastHandler = vi.fn().mockResolvedValue(undefined)
+        lastHandler = vi.fn<() => Promise<void>>().mockResolvedValue(undefined)
         provider.schedule(createTask('replaced-task', { handler: lastHandler }))
       }
 

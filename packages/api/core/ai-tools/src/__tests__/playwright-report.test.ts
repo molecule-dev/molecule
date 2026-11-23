@@ -141,7 +141,7 @@ describe('summarizePlaywrightReport, from a genuine runner report', () => {
         const dirs = identityDirs(report)
         expect(dirs.size).toBe(2)
         const [one, other] = [...dirs.entries()]
-        expect(one?.[1]).not.toBe(other?.[1])
+        expect(one[1]).not.toBe(other[1])
         // A report whose specs are listed in another order is the SAME record: the identity owns
         // the directory, not the position it happens to sit at.
         const parsed = JSON.parse(run.report) as {

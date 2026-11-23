@@ -188,8 +188,9 @@ describe('@molecule/api-logger-winston', () => {
       // default transport at module-import time — take THIS test's call.
       const lastCall = mockConsoleTransport.mock.calls.at(-1)
       const callArgs = lastCall?.[0] as { level?: unknown; silent?: unknown } | undefined
-      expect(callArgs?.level).toBeUndefined()
-      expect(callArgs?.silent).toBeUndefined()
+      expect(callArgs).toBeDefined()
+      expect(callArgs!.level).toBeUndefined()
+      expect(callArgs!.silent).toBeUndefined()
     })
 
     it('should use console format when specified', async () => {

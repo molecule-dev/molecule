@@ -28,7 +28,8 @@ describe('@molecule/app-vite-config-default', () => {
         APP_DESCRIPTION: 'Books',
         BRAND_COLOR: '#123456',
       })
-      if (major < 8) expect(config.build?.rolldownOptions).toBeUndefined()
+      expect(config.build).toBeDefined()
+      if (major < 8) expect(config.build!.rolldownOptions).toBeUndefined()
       else
         expect(config.build?.rolldownOptions?.output).toMatchObject({ strictExecutionOrder: true })
     } finally {
@@ -196,7 +197,7 @@ describe('@molecule/app-vite-config-default', () => {
       expect(cfg.server?.host).toBe('localhost')
       expect(cfg.server?.allowedHosts).toEqual(['localhost', '.localhost'])
       // fs key absent → Vite's strict default confines /@fs/ to the project.
-      expect(cfg.server?.fs).toBeUndefined()
+      expect(cfg.server!.fs).toBeUndefined()
     })
 
     it('standalone: VITE_ALLOWED_HOSTS extends the Host allowlist', () => {
@@ -247,7 +248,8 @@ describe('@molecule/app-vite-config-default', () => {
     // minutes and a run to it. A polling watcher has no inode to lose.
     it('standalone (default): leaves Vite’s inotify watcher alone', () => {
       const cfg = createDefaultViteConfig(BRANDING)
-      expect(cfg.server?.watch).toBeUndefined()
+      expect(cfg.server).toBeDefined()
+      expect(cfg.server!.watch).toBeUndefined()
     })
 
     it('sandbox: polls the app tree instead of watching inodes', () => {
@@ -262,7 +264,9 @@ describe('@molecule/app-vite-config-default', () => {
       process.env.VITE_WATCH_POLLING = '1'
       expect(createDefaultViteConfig(BRANDING).server?.watch?.usePolling).toBe(true)
       process.env.VITE_WATCH_POLLING = '0'
-      expect(createDefaultViteConfig(BRANDING).server?.watch).toBeUndefined()
+      const cfg = createDefaultViteConfig(BRANDING)
+      expect(cfg.server).toBeDefined()
+      expect(cfg.server!.watch).toBeUndefined()
     })
   })
 })

@@ -69,7 +69,7 @@ describe('UserMenu — close on route change', () => {
       </UserMenu>,
     )
     // Drawer is closed initially.
-    expect(screen.queryByTestId?.('panel-body')).toBeFalsy()
+    expect(screen.queryByText('panel')).toBeNull()
     // Open it.
     fireEvent.click(screen.getByRole('button'))
     expect(screen.getByText('panel')).toBeDefined()

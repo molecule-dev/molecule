@@ -234,9 +234,7 @@ describe('exec_command — suiteBudget', () => {
       drift: { navigationTimeout: { used: '20_000', suite: '10_000' } },
     })
     // The pinned ones are not drift: this run carries the suite's values for them.
-    expect(
-      (result.suiteBudget as { drift: Record<string, unknown> }).drift?.timeout,
-    ).toBeUndefined()
+    expect((result.suiteBudget as { drift: Record<string, unknown> }).drift.timeout).toBeUndefined()
   })
 
   it('leaves a derived config a nested runner cannot take as residual drift, with no values', async () => {

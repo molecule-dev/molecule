@@ -117,7 +117,7 @@ describe('<HeroMetricCard>', () => {
     const bar = container.querySelector('[aria-hidden="true"]') as HTMLElement | null
     expect(bar).not.toBeNull()
     // jsdom normalizes hex to rgb when re-read; just confirm a background is set.
-    expect(bar?.style.backgroundColor).not.toBe('')
+    expect(bar!.style.backgroundColor).not.toBe('')
   })
 
   it('styles muted text with a real theme token, not the phantom on-surface-variant class', () => {

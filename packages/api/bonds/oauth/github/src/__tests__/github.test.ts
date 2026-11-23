@@ -571,7 +571,8 @@ describe('GitHub OAuth Provider', () => {
 
     it('returns NO email when nothing anywhere is verified', async () => {
       const r = await wire([{ email: 'x@example.com', primary: true, verified: false }])
-      expect(r?.email).toBeUndefined()
+      expect(r).toBeTruthy()
+      expect(r!.email).toBeUndefined()
       expect(r?.emailVerified).toBe(false)
     })
 
@@ -594,7 +595,8 @@ describe('GitHub OAuth Provider', () => {
 
     it('continues with no email at all when both sources are empty (no throw)', async () => {
       const r = await wire([])
-      expect(r?.email).toBeUndefined()
+      expect(r).toBeTruthy()
+      expect(r!.email).toBeUndefined()
       expect(r?.emailVerified).toBe(false)
     })
   })

@@ -3,7 +3,7 @@ import type { Server } from 'node:http'
 import express, { type ErrorRequestHandler, Router } from 'express'
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 
-import { createRequestHandler } from '@molecule/api-resource'
+import { createRequestHandler, type MoleculeRequestHandler } from '@molecule/api-resource'
 
 import { createRequestHandlerMap, routes } from '../index.js'
 import router, { oauthRouter, paymentsRouter } from '../scaffold-router.js'
@@ -17,9 +17,16 @@ beforeAll(async () => {
   const app = express()
   app.use(express.json())
   const factoryRouter = Router()
-  const map = createRequestHandlerMap(createRequestHandler)
+  const map: Record<string, MoleculeRequestHandler | undefined> = {
+    ...createRequestHandlerMap(createRequestHandler),
+  }
   for (const route of routes) {
-    const chain = [...route.middlewares, route.handler].map((handler) => map[handler])
+    const chain = [...route.middlewares, route.handler].map((name) => {
+      const handler = map[name]
+      if (!handler)
+        throw new Error(`routes names ${name}, which createRequestHandlerMap does not return`)
+      return handler
+    })
     factoryRouter[route.method](route.path, ...chain)
   }
   app.use('/factory', factoryRouter)
@@ -33,7 +40,7 @@ beforeAll(async () => {
     next(error)
   }) satisfies ErrorRequestHandler)
   await new Promise<void>((resolve) => {
-    server = app.listen(0, '127.0.0.1', resolve)
+    server = app.listen(0, '127.0.0.1', () => resolve())
   })
   const address = server.address()
   if (!address || typeof address === 'string') throw new Error('Expected an HTTP listener')

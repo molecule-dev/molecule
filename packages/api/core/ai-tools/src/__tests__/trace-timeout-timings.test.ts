@@ -227,7 +227,7 @@ describe('a timed-out attempt’s own server response clocks', () => {
     const parsed = parseTraceArtifacts(
       'TRACE ' + JSON.stringify({ spec: 'orders.spec.ts', line: 20, requests: [], timeoutTiming }),
     )
-    expect(parsed[0]?.timeoutTiming).toBeUndefined()
+    expect(parsed[0].timeoutTiming).toBeUndefined()
   })
 
   it('keeps real browser errors and HTTP errors on the ordinary failure path', () => {

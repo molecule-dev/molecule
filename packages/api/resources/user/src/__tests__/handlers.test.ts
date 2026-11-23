@@ -234,7 +234,8 @@ describe('create handler — password validation', () => {
     const result = await handler(req as MoleculeRequest, res as MoleculeResponse)
 
     // Should not have returned a 400 — password validation passed.
-    expect(result?.statusCode).not.toBe(400)
+    expect(result).toBeTruthy()
+    expect(result!.statusCode).not.toBe(400)
   })
 
   it('should pass validation for password of exactly 1024 characters', async () => {
@@ -254,7 +255,8 @@ describe('create handler — password validation', () => {
 
     const result = await handler(req as MoleculeRequest, res as MoleculeResponse)
 
-    expect(result?.statusCode).not.toBe(400)
+    expect(result).toBeTruthy()
+    expect(result!.statusCode).not.toBe(400)
   })
 
   it('should return 400 when password is missing', async () => {
@@ -429,7 +431,8 @@ describe('updatePassword handler — password validation', () => {
 
     const result = await handler(req as MoleculeRequest)
 
-    expect(result?.statusCode).not.toBe(400)
+    expect(result).toBeTruthy()
+    expect(result!.statusCode).not.toBe(400)
   })
 
   it('should pass validation for new password of exactly 1024 characters', async () => {
@@ -446,7 +449,8 @@ describe('updatePassword handler — password validation', () => {
 
     const result = await handler(req as MoleculeRequest)
 
-    expect(result?.statusCode).not.toBe(400)
+    expect(result).toBeTruthy()
+    expect(result!.statusCode).not.toBe(400)
   })
 
   it('should return 400 when new password is missing', async () => {
@@ -2773,7 +2777,8 @@ describe('update handler — avatar + bio profile fields', () => {
 
     const result = await handler(req as MoleculeRequest)
 
-    expect(result?.statusCode).not.toBe(400)
+    expect(result).toBeTruthy()
+    expect(result!.statusCode).not.toBe(400)
     expect(mockResourceUpdate).toHaveBeenCalled()
   })
 
@@ -2802,7 +2807,8 @@ describe('update handler — avatar + bio profile fields', () => {
 
     const result = await handler(req as MoleculeRequest)
 
-    expect(result?.statusCode).not.toBe(400)
+    expect(result).toBeTruthy()
+    expect(result!.statusCode).not.toBe(400)
     expect(mockResourceUpdate).toHaveBeenCalled()
   })
 
@@ -2994,7 +3000,7 @@ describe('logout (POST /users/logout — revoke device + clear cookies)', () => 
     expect(hostToken, '__Host-token must be cleared').toBeTruthy()
     expect(hostToken?.options?.sameSite).toBe('lax')
     expect(hostToken?.options?.secure).toBe(true)
-    expect(hostToken?.options?.partitioned).toBeUndefined()
+    expect(hostToken!.options!.partitioned).toBeUndefined()
     expect(hostToken?.options?.path).toBe('/')
   })
 

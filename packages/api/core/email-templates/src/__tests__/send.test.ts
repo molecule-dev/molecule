@@ -109,7 +109,7 @@ describe('sendTemplate', () => {
 
     const message = sendMailMock.mock.calls[0]?.[0]
     expect(message?.subject).toBe('Branded subject for Lou')
-    expect(message?.html).toBeUndefined()
+    expect(message!.html).toBeUndefined()
   })
 
   it('forwards cc, bcc, and replyTo when provided', async () => {
@@ -147,7 +147,8 @@ describe('sendTemplate', () => {
     await sendTemplate('app.text-only', { from: 'a@x.com', to: 'b@x.com' })
 
     const message = sendMailMock.mock.calls[0]?.[0]
-    expect(message?.html).toBeUndefined()
-    expect(message?.htmlKey).toBeUndefined()
+    expect(message).toBeDefined()
+    expect(message!.html).toBeUndefined()
+    expect(message!.htmlKey).toBeUndefined()
   })
 })

@@ -117,7 +117,7 @@ describe('list() does not rewrite the deadline of the sandboxes it enumerates', 
     expect(connectOpts).toHaveLength(2)
     for (const opts of connectOpts) {
       // `timeoutMs` present is what makes E2B rewrite the sandbox's deadline.
-      expect(opts?.timeoutMs).toBeUndefined()
+      expect(opts ?? {}).not.toHaveProperty('timeoutMs')
     }
   })
 

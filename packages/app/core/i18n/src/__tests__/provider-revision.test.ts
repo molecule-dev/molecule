@@ -48,7 +48,7 @@ describe('I18nProvider.getRevision is additive and optional', () => {
     const provider = legacyProvider()
     expect(provider.getRevision).toBeUndefined()
     // Calling it the way the hook does is a no-op on an older provider.
-    expect(provider.getRevision?.()).toBeUndefined()
+    expect(() => provider.getRevision?.()).not.toThrow()
   })
 
   it('createSimpleI18nProvider exposes a number', () => {

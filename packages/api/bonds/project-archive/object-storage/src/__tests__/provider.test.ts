@@ -942,7 +942,7 @@ describe('generality: an archive with NO source at all still round-trips and ver
     // A part with no meta comes back with none — nothing is invented.
     const source = restored.parts.find((part) => part.path === 'source/package.json')
     expect(source?.kind).toBe('source')
-    expect(source?.meta).toBeUndefined()
+    expect(source!.meta).toBeUndefined()
   })
 
   it('never interprets meta: a nonsense dump format is stored and returned as-is', async () => {

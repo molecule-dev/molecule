@@ -2163,7 +2163,8 @@ describe('self-booting containers (SandboxConfig.command / restartPolicy)', () =
     expect(body.Cmd).toBeUndefined()
     // Docker's own default is `no` — a sandbox whose process exits stays stopped
     // for the caller to inspect.
-    expect(body.HostConfig?.RestartPolicy).toBeUndefined()
+    expect(body.HostConfig).toBeDefined()
+    expect(body.HostConfig!.RestartPolicy).toBeUndefined()
   })
 
   it('never sends a restart policy for an explicit `no`', async () => {
@@ -2178,7 +2179,8 @@ describe('self-booting containers (SandboxConfig.command / restartPolicy)', () =
     const body = JSON.parse(containerCreateCall().body!) as {
       HostConfig?: { RestartPolicy?: unknown }
     }
-    expect(body.HostConfig?.RestartPolicy).toBeUndefined()
+    expect(body.HostConfig).toBeDefined()
+    expect(body.HostConfig!.RestartPolicy).toBeUndefined()
   })
 })
 

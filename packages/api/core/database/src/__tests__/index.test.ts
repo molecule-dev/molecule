@@ -584,7 +584,8 @@ describe('@molecule/api-database', () => {
 
       const result = await query('SELECT column1 FROM table')
 
-      expect(result.fields?.[0].dataTypeID).toBeUndefined()
+      expect(result.fields).toBeDefined()
+      expect(result.fields![0].dataTypeID).toBeUndefined()
     })
   })
 })

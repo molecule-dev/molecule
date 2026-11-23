@@ -244,7 +244,8 @@ describe('@molecule/api-video-rooms-daily-co', () => {
 
       const room = await provider.getRoom('class-101')
       expect(calls[0]!.url).toBe('https://api.daily.co/v1/rooms/class-101')
-      expect(calls[0]!.init?.method).toBeUndefined()
+      expect(calls[0]!.init).toBeDefined()
+      expect(calls[0]!.init!.method).toBeUndefined()
       expect(room).toEqual({
         name: 'class-101',
         url: 'https://example.daily.co/class-101',

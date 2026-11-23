@@ -165,7 +165,8 @@ describe('status', () => {
 
     const status = scheduler.getStatus('sweep')
     expect(status?.nextRunAt).toBeNull()
-    expect(status?.lastRunAt).not.toBeNull()
+    expect(status).not.toBeNull()
+    expect(status!.lastRunAt).not.toBeNull()
     expect(status?.totalRuns).toBe(1)
     expect(status?.enabled).toBe(true)
   })
@@ -201,7 +202,9 @@ describe('status', () => {
     await scheduler.runDueTasks()
 
     expect(scheduler.getStatus('flaky')?.lastError).toBeNull()
-    expect(scheduler.getStatus('flaky')?.lastSuccessAt).not.toBeNull()
+    const flakyStatus = scheduler.getStatus('flaky')
+    expect(flakyStatus).not.toBeNull()
+    expect(flakyStatus!.lastSuccessAt).not.toBeNull()
     expect(scheduler.getStatus('flaky')?.totalFailures).toBe(1)
   })
 })

@@ -68,7 +68,8 @@ describe('ai-decisions-llm', () => {
     expect(r.usage).toEqual({ inputTokens: 20, outputTokens: 9 })
     // Temperature is OMITTED by default: several catalog models reject the
     // parameter itself with a 400 (caught live 2026-10-05).
-    expect(lastParams?.temperature).toBeUndefined()
+    expect(lastParams).not.toBeNull()
+    expect(lastParams!.temperature).toBeUndefined()
     expect(String(lastParams?.messages[0]?.content)).toContain('"body":"charged twice"')
   })
 

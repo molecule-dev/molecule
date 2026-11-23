@@ -203,7 +203,7 @@ describe('routeToOperation', () => {
     })
     expect(op.responses['200']?.content?.['text/csv']?.schema.type).toBe('string')
     expect(op.responses['404']?.description).toBe('Not found')
-    expect(op.responses['404']?.content).toBeUndefined()
+    expect(op.responses['404']!.content).toBeUndefined()
   })
 
   it('round-trips through addRouteToDoc on the OpenAPI document', () => {

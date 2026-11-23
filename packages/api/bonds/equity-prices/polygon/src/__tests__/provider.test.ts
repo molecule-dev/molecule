@@ -264,7 +264,7 @@ describe('polygon equity-prices provider', () => {
       }
       const cause = caught?.cause as { code?: string; retryAfterSeconds?: number } | undefined
       expect(cause?.code).toBe('RATE_LIMITED')
-      expect(cause?.retryAfterSeconds).toBeUndefined()
+      expect(cause!.retryAfterSeconds).toBeUndefined()
     })
 
     it('should throw an upstream error when results are missing', async () => {

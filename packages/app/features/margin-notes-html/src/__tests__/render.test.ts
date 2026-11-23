@@ -124,6 +124,7 @@ describe('renderMarginNotes', () => {
     expect(doc.querySelector('#b2 [data-mn-mark]')?.getAttribute('aria-label')).toBe(
       'Written with AI',
     )
+    expect(doc.querySelector('#b2 [data-mn-mark]')?.getAttribute('role')).toBe('img')
     expect(doc.querySelector('#b3 [data-mn-mark]')).toBeNull()
     const accent = (id: string) =>
       (
@@ -141,5 +142,18 @@ describe('phone bar space', () => {
     expect(marginNotesCss).toMatch(
       /@media \(max-width: 767\.98px\)[\s\S]*body::after[\s\S]*var\(--mn-bar-space/,
     )
+  })
+})
+
+describe('the margin mark without a name', () => {
+  it.each([
+    ['without a markLabel', undefined],
+    ['with a blank markLabel', '  '],
+  ])('is hidden from assistive technology %s', (_case, markLabel) => {
+    const { html } = renderMarginNotes({ ...post, markLabel })
+    const mark = parse(html).querySelector('#b2 [data-mn-mark]')
+    expect(mark?.getAttribute('aria-hidden')).toBe('true')
+    expect(mark?.hasAttribute('role')).toBe(false)
+    expect(mark?.hasAttribute('aria-label')).toBe(false)
   })
 })

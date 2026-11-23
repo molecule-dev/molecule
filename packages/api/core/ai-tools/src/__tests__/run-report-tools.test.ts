@@ -245,7 +245,7 @@ describe('a background suite hands its report back on wait_for_task', () => {
         const original = native.failures.find((test) => test.title === failure.title)
           ?.attachments[0]
         expect(original).toBeDefined()
-        expect(failure.attachments[0]?.path).not.toBe(original?.path)
+        expect(failure.attachments[0]!.path).not.toBe(original!.path)
         expect(readFileSync(failure.attachments[0]!.path)).toEqual(readFileSync(original!.path))
       }
     },

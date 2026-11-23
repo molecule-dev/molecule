@@ -349,7 +349,7 @@ describe('findSubscription', () => {
   it('resolves a product with no entitlement mapping, leaving entitlementId undefined', () => {
     const match = findSubscription(subscriber, 'com.example.basic.monthly')
     expect(match?.productId).toBe('com.example.basic.monthly')
-    expect(match?.entitlementId).toBeUndefined()
+    expect(match!.entitlementId).toBeUndefined()
   })
 
   it('returns null for an identifier the customer does not own', () => {

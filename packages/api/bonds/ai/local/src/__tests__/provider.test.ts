@@ -500,7 +500,7 @@ describe('chat() — HTTP error handling (emits error EVENT + returns gracefully
     const err = events.find((e) => e.type === 'error') as
       { message: string; errorKey?: string } | undefined
     expect(err?.message).toBe('AI request was invalid — check the model and request parameters.')
-    expect(err?.message).not.toBe('AI service error. Please try again.')
+    expect(err!.message).not.toBe('AI service error. Please try again.')
   })
 
   it('400 + context-length detail → "too long" message', async () => {

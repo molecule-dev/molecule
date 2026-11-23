@@ -32,6 +32,8 @@ function fakeSandbox(
   execResults: ExecResult[]
   appliedNetwork: string[] | null
   written: Array<{ path: string; content: string }>
+  /** Optional like the runtime's own hook, so a docker/flyio-shaped handle can omit it. */
+  applyNetwork?: (allowOut: string[]) => Promise<void>
 } {
   const execs: Array<{ cmd: string; env: Record<string, string> }> = []
   const execResults: ExecResult[] = []
@@ -220,14 +222,14 @@ describe('api-agent-runtime-pi', () => {
   })
 
   it('refuses the run when the sandbox provider cannot enforce per-run egress (M-3)', async () => {
+    // Deliberately a provider whose handle has NO applyNetwork (docker/flyio-shaped).
     const { applyNetwork: _omitted, ...bare } = fakeSandbox()
-    const handle = bare as unknown as ReturnType<typeof fakeSandbox>
-    wireProvider(handle)
+    wireProvider(bare)
     const artifact = await createProvider().run(SPEC, { env: ENV })
     expect(artifact.exitStatus).toBe('failed')
     expect(artifact.logs).toContain('cannot enforce per-run egress')
-    expect(handle.execs.some((e) => e.cmd.includes('git clone'))).toBe(false)
-    expect(handle.execs.some((e) => e.cmd.includes('| pi '))).toBe(false)
+    expect(bare.execs.some((e) => e.cmd.includes('git clone'))).toBe(false)
+    expect(bare.execs.some((e) => e.cmd.includes('| pi '))).toBe(false)
   })
 
   it('probes EVERY allowed host, not just the first', async () => {

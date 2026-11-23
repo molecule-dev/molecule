@@ -220,7 +220,7 @@ describe('parseWebhookPayload', () => {
       name: 'invoice.pdf',
       contentType: 'application/pdf',
     })
-    expect(email.attachments?.[1]?.contentId).toBeUndefined()
+    expect(email.attachments![1]!.contentId).toBeUndefined()
   })
 
   it('falls back to a deterministic hashed id (NOT the per-request token) when Message-Id is absent', async () => {

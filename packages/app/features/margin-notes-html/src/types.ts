@@ -64,7 +64,11 @@ export interface RenderMarginNotesOptions {
   notes?: MarginNote[]
   /** The note kinds, in the order their switches appear. Kinds absent here are always shown. */
   kinds?: MarginNoteKind[]
-  /** Accessible name of the margin mark, already translated (e.g. "Written with AI"). */
+  /**
+   * Accessible name of the margin mark, already translated (e.g. "Written with
+   * AI"). Without it (or with a blank one) the mark is decorative and hidden
+   * from assistive technology — a margin mark carries no meaning on its own.
+   */
   markLabel?: string
   /**
    * Id of this layout. Switches rendered elsewhere on the page (e.g. under the

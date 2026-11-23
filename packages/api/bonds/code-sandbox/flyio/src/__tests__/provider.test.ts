@@ -1971,7 +1971,8 @@ describe('admitted gaps', () => {
       body: { id: 'm1', state: 'started' },
     })
     const sandbox = await makeProvider({}, double).get(`${APP}:m1`)
-    expect(sandbox?.spawn).toBeUndefined()
+    expect(sandbox).toBeDefined()
+    expect(sandbox!.spawn).toBeUndefined()
   })
 
   it('onFileChange never fires and returns a real no-op unsubscribe, warning once', async () => {
@@ -2032,7 +2033,8 @@ describe('self-booting sandboxes (SandboxConfig.command / restartPolicy)', () =>
     }
     // A dev sandbox nobody serves from: an exited process stays exited, for the
     // caller to inspect.
-    expect(body.config?.init).toBeUndefined()
+    expect(body.config).toBeDefined()
+    expect(body.config!.init).toBeUndefined()
     expect(body.config?.restart?.policy).toBe('no')
   })
 
@@ -2045,7 +2047,8 @@ describe('self-booting sandboxes (SandboxConfig.command / restartPolicy)', () =>
     const body = double.matching(`POST /apps/${APP}/machines`)[0]?.body as {
       config?: { init?: unknown }
     }
-    expect(body.config?.init).toBeUndefined()
+    expect(body.config).toBeDefined()
+    expect(body.config!.init).toBeUndefined()
   })
 })
 

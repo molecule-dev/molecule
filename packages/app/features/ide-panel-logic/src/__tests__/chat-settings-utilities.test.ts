@@ -107,8 +107,12 @@ describe('buildSettingsList', () => {
     expect(settings.find((s) => s.id === 'commitModel')?.editInput).toBe('/model --commit')
     expect(settings.find((s) => s.id === 'compactModel')?.editInput).toBe('/model --compact')
     // Non-per-mode rows need no scoped input — the bare command suffices.
-    expect(settings.find((s) => s.id === 'effort')?.editInput).toBeUndefined()
-    expect(settings.find((s) => s.id === 'model')?.editInput).toBeUndefined()
+    const effortRow = settings.find((s) => s.id === 'effort')
+    expect(effortRow).toBeDefined()
+    expect(effortRow!.editInput).toBeUndefined()
+    const modelRow = settings.find((s) => s.id === 'model')
+    expect(modelRow).toBeDefined()
+    expect(modelRow!.editInput).toBeUndefined()
   })
 
   it('every edit command resolves to a real registered command', () => {
@@ -182,7 +186,7 @@ describe('the settings view is derived from the shared SETTINGS metadata (SYN11 
     const hooks = settings.find((s) => s.id === 'hooks')
     expect(hooks, 'the Hooks setting must have a row').toBeDefined()
     // Hooks is configured in a file, not a slash command — a command-less row.
-    expect(hooks?.editCommand).toBeUndefined()
+    expect(hooks!.editCommand).toBeUndefined()
   })
 
   it('has a setting row for EVERY listed command that edits a setting (no orphan command)', () => {

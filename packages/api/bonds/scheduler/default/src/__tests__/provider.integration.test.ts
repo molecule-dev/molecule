@@ -76,9 +76,9 @@ describe('@molecule/api-scheduler-default × REAL timers + REAL bond registry', 
 
     const a = provider.getStatus('a')
     expect(a).not.toBeNull()
-    expect(a?.lastRunAt).not.toBeNull()
-    expect(a?.lastSuccessAt).not.toBeNull()
-    expect(a?.nextRunAt).not.toBeNull()
+    expect(a!.lastRunAt).not.toBeNull()
+    expect(a!.lastSuccessAt).not.toBeNull()
+    expect(a!.nextRunAt).not.toBeNull()
     expect(a?.lastError).toBeNull()
     expect(typeof a?.durationMs).toBe('number')
     expect(a?.totalRuns).toBeGreaterThanOrEqual(2)
@@ -154,7 +154,8 @@ describe('@molecule/api-scheduler-default × REAL timers + REAL bond registry', 
     const s = provider.getStatus('failing')
     expect(s?.lastError).toBe('db unreachable') // WHAT failed, verbatim
     expect(s?.lastSuccessAt).toBeNull() // never succeeded…
-    expect(s?.lastRunAt).not.toBeNull() // …but it DID run — ≠ never-ran
+    expect(s).not.toBeNull()
+    expect(s!.lastRunAt).not.toBeNull() // …but it DID run — ≠ never-ran
     expect(s?.totalRuns).toBeGreaterThanOrEqual(2)
     expect(console.error).toHaveBeenCalledWith(expect.stringContaining('db unreachable'))
 
@@ -200,8 +201,11 @@ describe('@molecule/api-scheduler-default × REAL timers + REAL bond registry', 
 
   it('REGRESSION: unschedule() inside the FIRST run (the one-off pattern) does not leak the interval', async () => {
     provider = createProvider({ staggerMs: 0 })
+    // Non-null local for the handler closure: narrowing of the module-level
+    // `provider` does not survive into a callback.
+    const scheduler = provider
     let runs = 0
-    provider.schedule({
+    scheduler.schedule({
       name: 'one-off',
       intervalMs: 30,
       handler: async () => {
@@ -210,7 +214,7 @@ describe('@molecule/api-scheduler-default × REAL timers + REAL bond registry', 
         // The stagger callback arms the interval AFTER the handler's
         // synchronous portion — pre-fix this delete landed too late, the
         // interval was armed on a dead entry, and the task fired forever.
-        provider.unschedule('one-off')
+        scheduler.unschedule('one-off')
       },
     })
     provider.start()
@@ -222,15 +226,18 @@ describe('@molecule/api-scheduler-default × REAL timers + REAL bond registry', 
 
   it('REGRESSION: schedule() replacement during the first run does not arm the replaced entry', async () => {
     provider = createProvider({ staggerMs: 0 })
+    // Non-null local for the handler closure: narrowing of the module-level
+    // `provider` does not survive into a callback.
+    const scheduler = provider
     let oldRuns = 0
     let newRuns = 0
-    provider.schedule({
+    scheduler.schedule({
       name: 'swap',
       intervalMs: 30,
       handler: async () => {
         oldRuns += 1
         // Replace this task synchronously inside its own first run.
-        provider.schedule({
+        scheduler.schedule({
           name: 'swap',
           intervalMs: 30,
           handler: async () => {

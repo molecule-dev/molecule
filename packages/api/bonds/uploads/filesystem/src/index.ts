@@ -30,7 +30,9 @@
  * import { setProvider } from '@molecule/api-uploads'
  * import { provider } from '@molecule/api-uploads-filesystem'
  *
- * setProvider(provider) // files land under FILE_UPLOAD_PATH (default ./uploads)
+ * // Files land in FILE_UPLOAD_PATH: an absolute path as given, a relative one under the working
+ * // directory (default ./uploads).
+ * setProvider(provider)
  * ```
  *
  * @module

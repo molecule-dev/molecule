@@ -53,7 +53,7 @@ describe('@molecule/app-fonts-source-sans-3', () => {
   it('keeps the original Adobe face whose Source name is reserved', () => {
     const face = font.source.faces?.[0]
     expect(face?.file).toMatch(/\/fonts\/SourceSans3-VariableFont\.ttf$/)
-    expect(face?.unicodeRange).toBeUndefined()
+    expect(face!.unicodeRange).toBeUndefined()
     const digest = createHash('sha256')
       .update(readFileSync(new URL(face!.file)))
       .digest('hex')

@@ -121,7 +121,8 @@ describe('Stepper', () => {
   it('dots: with no onStepClick the dots are non-interactive (disabled, no handler)', () => {
     const tree = Stepper({ steps, currentStep: 1, variant: 'dots' })
     const [btn] = collectByMolId(tree, 'stepper-step-b')
-    expect(btn.props?.onClick).toBeUndefined()
+    expect(btn.props).toBeDefined()
+    expect(btn.props!.onClick).toBeUndefined()
     expect(btn.props?.disabled).toBe(true)
   })
 
@@ -137,6 +138,6 @@ describe('Stepper', () => {
 
     const [current] = collectByMolId(tree, 'stepper-step-c')
     expect(current.props?.disabled).toBe(true)
-    expect(current.props?.onClick).toBeUndefined()
+    expect(current.props!.onClick).toBeUndefined()
   })
 })

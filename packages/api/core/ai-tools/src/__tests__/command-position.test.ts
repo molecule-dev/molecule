@@ -525,7 +525,8 @@ cd /workspace/.mol-scratch/realworld-e2e && TEST_MODE=fullstack npx --prefix /wo
     const located = locatedCommandSegments(M105)
     const run = located.find((entry) => entry.segment?.program === 'playwright')
     const tail = located.find((entry) => entry.segment?.program === 'tail')
-    expect(run?.start).not.toBeNull()
+    expect(run).toBeDefined()
+    expect(run!.start).not.toBeNull()
     // The statement begins at its own first word — the assignment the shell binds to the run.
     expect(M105.slice(run?.start ?? 0)).toMatch(/^TEST_MODE=fullstack npx\b/)
     expect(M105.slice(run?.assignmentOffset ?? 0)).toMatch(/^npx\b/)

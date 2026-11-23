@@ -418,7 +418,7 @@ describe('traceArtifactsScript — a real trace, read headlessly', () => {
     try {
       const items = parseTraceArtifacts(readTraces(root))
       expect(items[0].requests[0]?.status).toBe(401)
-      expect(items[0].requests[0]?.sent).toBeUndefined()
+      expect(items[0].requests[0].sent).toBeUndefined()
       const note = String(failureTraceNote(items, 'https://app.apps.mlcl.dev'))
       expect(note).not.toContain(' sent {')
       expect(note).not.toContain('wrapped in `data`')
@@ -466,7 +466,7 @@ describe('failureTraceNote — a request with no response is not a failed reques
       const items = parseTraceArtifacts(readTraces(root))
       expect(items).toHaveLength(1)
       expect(items[0].requests[0]).toMatchObject({ status: -1, path: '/api/tags' })
-      expect(items[0].requests[0]?.failure).toBeUndefined()
+      expect(items[0].requests[0].failure).toBeUndefined()
     } finally {
       rmSync(root, { recursive: true, force: true })
     }
@@ -903,8 +903,9 @@ describe('failureTraceNote — which half of the wire refused the request (m148 
       const items = parseTraceArtifacts(printed)
       const refused = items[0]?.requests.find((request) => request.status === 401)
       // The record says what the request lacked — and keeps nothing that could be a credential.
-      expect(refused?.authorization).toBeUndefined()
-      expect(refused?.sentAuthorization).toBeUndefined()
+      expect(refused).toBeDefined()
+      expect(refused!.authorization).toBeUndefined()
+      expect(refused!.sentAuthorization).toBeUndefined()
       // No header VALUE is ever serialized: only the scheme word, when one parsed.
       expect(printed).not.toMatch(/"authorization":"(?!Bearer|Token|Basic)[^"]+"/i)
 
@@ -944,9 +945,9 @@ describe('failureTraceNote — which half of the wire refused the request (m148 
         ),
       ).toMatchObject({ authorization: 'Bearer', sentAuthorization: true })
       expect(
-        items[0]?.requests.find(
+        items[0].requests.find(
           (request) => request.status === 401 && request.path === '/api/bearer',
-        )?.sentCookie,
+        )!.sentCookie,
       ).toBeUndefined()
 
       const note = String(failureTraceNote(items, 'the deployed app'))
@@ -970,7 +971,7 @@ describe('failureTraceNote — which half of the wire refused the request (m148 
       const items = parseTraceArtifacts(printed)
       const refused = items[0]?.requests.find((request) => request.status === 401)
       expect(refused?.sentAuthorization).toBe(true)
-      expect(refused?.authorization).toBeUndefined()
+      expect(refused!.authorization).toBeUndefined()
 
       const note = String(failureTraceNote(items, 'the deployed app'))
       expect(note).toContain('with an `Authorization` header')
@@ -3289,8 +3290,8 @@ describe('traceArtifactsScript — the failing assertion’s page, not the archi
     try {
       const item = parseTraceArtifacts(readTraces(root))[0]
       expect(item).toBeDefined()
-      expect(item?.lastAction).toBeUndefined()
-      expect(item?.lead).toBeUndefined()
+      expect(item!.lastAction).toBeUndefined()
+      expect(item!.lead).toBeUndefined()
       expect((item?.requests ?? []).map((request) => request.path).sort()).toEqual([
         '/api/a',
         '/api/b',
@@ -4369,13 +4370,13 @@ describe('traceArtifactsScript — a read that contradicts the write (m181)', ()
 
   it('says nothing when the later GET agrees with the write', () => {
     const { note, items } = readContradictionNote({ readFollowing: true })
-    expect(items[0]?.readContradiction).toBeUndefined()
+    expect(items[0].readContradiction).toBeUndefined()
     expect(note).not.toContain('the read route does not see the viewer')
   })
 
   it('says nothing when the only GET of the resource came before the write', () => {
     const { note, items } = readContradictionNote({ readFollowing: false, readBeforeWrite: true })
-    expect(items[0]?.readContradiction).toBeUndefined()
+    expect(items[0].readContradiction).toBeUndefined()
     expect(note).not.toContain('the read route does not see the viewer')
   })
 
@@ -4552,7 +4553,7 @@ describe('traceArtifactsScript — a resolved locator Playwright calls hidden (m
       .replace('Expected: visible', 'Expected: hidden')
       .replace('Received: hidden', 'Received: visible')
     const { items } = hiddenLocatorRead(hiddenLocatorZip(message))
-    expect(items[0]?.hiddenBox).toBeUndefined()
+    expect(items[0].hiddenBox).toBeUndefined()
   })
 
   it('names an inline display:none when the snapshot carries one', () => {
@@ -4594,7 +4595,7 @@ describe('traceArtifactsScript — a resolved locator Playwright calls hidden (m
     const { items } = hiddenLocatorRead(
       hiddenLocatorZip(message, ['div', {}, ['span', { class: 'badge' }, [[0, 2]]]]),
     )
-    expect(items[0]?.hiddenBox).toBeUndefined()
+    expect(items[0].hiddenBox).toBeUndefined()
   })
 })
 
@@ -4659,7 +4660,7 @@ describe('failureTraceNote — one request sent hundreds of times (xr-molecule-f
     const root = layout({ [FOLDER]: FIXTURE })
     try {
       const items = parseTraceArtifacts(readTraces(root))
-      expect(items[0]?.repeated).toBeUndefined()
+      expect(items[0].repeated).toBeUndefined()
       const note = failureTraceNote(items, 'https://app.apps.mlcl.dev')
       expect(note).not.toContain('a render loop')
       expect(note).not.toContain('×')
