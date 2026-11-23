@@ -1,5 +1,11 @@
 # @molecule/app-react
 
+## 4.13.0
+
+### Minor Changes
+
+- Add `slot` to `@molecule/app-react/render`: it returns `undefined` for a node prop that renders nothing, so a component treats `cond && <X/>`, `[]` and an omitted prop the same way.
+
 ## 4.12.1
 
 ### Patch Changes

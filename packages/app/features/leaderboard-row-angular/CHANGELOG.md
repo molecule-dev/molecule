@@ -1,5 +1,11 @@
 # @molecule/app-leaderboard-row-angular
 
+## 1.1.4
+
+### Patch Changes
+
+- Projected content that the consumer stops passing and passes again renders again, and a default shows only while nothing is projected.
+
 ## 1.1.3
 
 ### Patch Changes

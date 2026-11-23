@@ -1,5 +1,12 @@
 # @molecule/app-ide-svelte
 
+## 2.0.1
+
+### Patch Changes
+
+- A work tray's chips keep the strips' order as strips come and go, and a strip's detail, actions and hint render only while they have something to show.
+- Snippets render with `{@render x?.()}`, so a component whose node prop the consumer stops passing renders nothing instead of throwing.
+
 ## 2.0.0
 
 ### Major Changes

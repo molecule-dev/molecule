@@ -1,5 +1,11 @@
 # @molecule/app-ui-vue
 
+## 1.3.1
+
+### Patch Changes
+
+- ConfirmDialog and PromptDialog point the dialog at their heading only while the title renders something, and PromptDialog's input label follows a projected title as it changes.
+
 ## 1.3.0
 
 ### Minor Changes

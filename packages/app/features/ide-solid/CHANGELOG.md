@@ -1,5 +1,11 @@
 # @molecule/app-ide-solid
 
+## 1.1.3
+
+### Patch Changes
+
+- A work tray's chips keep the strips' order as strips come and go, and a strip's detail, actions and hint render only while they have something to show.
+
 ## 1.1.2
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-ui-solid",
-  "version": "1.3.1",
+  "version": "1.3.2",
   "description": "Solid UI components for molecule.dev",
   "type": "module",
   "sideEffects": false,
@@ -48,7 +48,7 @@
     "@molecule/app-framework-conformance": "0.0.0",
     "@molecule/app-i18n": "1.2.2",
     "@molecule/app-icons": "1.0.4",
-    "@molecule/app-solid": "3.12.0",
+    "@molecule/app-solid": "3.13.0",
     "@testing-library/dom": "10.4.2",
     "@types/node": "26.6.5",
     "jsdom": "31.0.1",

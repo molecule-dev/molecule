@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-file-dropzone-angular",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Drag-drop file upload area with click-to-browse, accept/size filtering, and a content slot",
   "homepage": "https://www.molecule.dev/packages/app-file-dropzone-angular",
   "type": "module",
@@ -60,7 +60,7 @@
     "@molecule/app-i18n": "1.2.2",
     "@molecule/app-icons": "1.0.4",
     "@molecule/app-ui": "1.5.0",
-    "@molecule/app-ui-angular": "1.5.0",
+    "@molecule/app-ui-angular": "1.5.1",
     "@types/node": "26.6.5",
     "jsdom": "31.0.1",
     "rxjs": "7.8.2",

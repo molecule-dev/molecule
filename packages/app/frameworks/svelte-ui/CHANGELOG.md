@@ -1,5 +1,13 @@
 # @molecule/app-ui-svelte
 
+## 1.4.1
+
+### Patch Changes
+
+- Snippets render with `{@render x?.()}`, so a component whose node prop the consumer stops passing renders nothing instead of throwing.
+- Add `PresentWhileContent`, an element in the page only while its content renders something, and `rendersContent`/`contentNodes` to read rendered content by React's `slot(node)` rule.
+- ConfirmDialog and PromptDialog point the dialog at their heading only while the title renders something, and PromptDialog's input label follows a projected title as it changes.
+
 ## 1.4.0
 
 ### Minor Changes

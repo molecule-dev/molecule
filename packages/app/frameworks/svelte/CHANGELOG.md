@@ -1,5 +1,15 @@
 # @molecule/app-svelte
 
+## 3.13.0
+
+### Minor Changes
+
+- Add `PresentWhileContent`, an element in the page only while its content renders something, and `rendersContent`/`contentNodes` to read rendered content by React's `slot(node)` rule.
+
+### Patch Changes
+
+- Snippets render with `{@render x?.()}`, so a component whose node prop the consumer stops passing renders nothing instead of throwing.
+
 ## 3.12.0
 
 ### Minor Changes

@@ -1,5 +1,11 @@
 # @molecule/app-node-editor-panel-angular
 
+## 1.2.1
+
+### Patch Changes
+
+- Projected content that the consumer stops passing and passes again renders again, and a default shows only while nothing is projected.
+
 ## 1.2.0
 
 ### Minor Changes

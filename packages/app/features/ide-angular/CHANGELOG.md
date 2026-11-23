@@ -1,5 +1,12 @@
 # @molecule/app-ide-angular
 
+## 1.1.3
+
+### Patch Changes
+
+- `WorkspaceLayout` follows the panes a consumer adds, removes or reorders after the first render.
+- A work tray's chips keep the strips' order as strips come and go, and a strip's detail, actions and hint render only while they have something to show.
+
 ## 1.1.2
 
 ### Patch Changes

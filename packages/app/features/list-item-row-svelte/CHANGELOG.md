@@ -1,5 +1,11 @@
 # @molecule/app-list-item-row-svelte
 
+## 1.2.1
+
+### Patch Changes
+
+- Snippets render with `{@render x?.()}`, so a component whose node prop the consumer stops passing renders nothing instead of throwing.
+
 ## 1.2.0
 
 ### Minor Changes

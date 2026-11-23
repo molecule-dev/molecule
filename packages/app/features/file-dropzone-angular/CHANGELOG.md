@@ -1,5 +1,11 @@
 # @molecule/app-file-dropzone-angular
 
+## 1.1.1
+
+### Patch Changes
+
+- Projected content that the consumer stops passing and passes again renders again, and a default shows only while nothing is projected.
+
 ## 1.1.0
 
 ### Minor Changes

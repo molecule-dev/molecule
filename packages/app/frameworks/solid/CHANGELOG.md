@@ -1,5 +1,11 @@
 # @molecule/app-solid
 
+## 3.13.0
+
+### Minor Changes
+
+- Add `rendersNode(node)`: whether a resolved node renders anything, by the rule React's `slot(node)` uses.
+
 ## 3.12.0
 
 ### Minor Changes

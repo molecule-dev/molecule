@@ -1,5 +1,11 @@
 # @molecule/app-query-svelte
 
+## 1.4.1
+
+### Patch Changes
+
+- Snippets render with `{@render x?.()}`, so a component whose node prop the consumer stops passing renders nothing instead of throwing.
+
 ## 1.4.0
 
 ### Minor Changes
