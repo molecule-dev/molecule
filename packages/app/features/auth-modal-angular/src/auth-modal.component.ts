@@ -6,7 +6,6 @@
 
 import { NgTemplateOutlet } from '@angular/common'
 import {
-  afterEveryRender,
   afterNextRender,
   type AfterViewChecked,
   type AfterViewInit,
@@ -17,7 +16,6 @@ import {
   ElementRef,
   inject,
   Injector,
-  type OnDestroy,
   type Renderer2,
   RendererFactory2,
   signal,
@@ -28,6 +26,7 @@ import {
 import {
   useAuth,
   useAuthClient,
+  useHostPresence,
   useI18nError,
   useLogin,
   useOAuth,
@@ -69,8 +68,8 @@ const INPUT_STYLE =
  * In-app login / signup tabs rendered in a Modal overlay — the user
  * authenticates without leaving the current page (no navigation, no lost
  * work). The host is unwrapped (`data-parity-unwrap`, `display: contents`) and
- * DETACHED from the DOM while React renders null (`open` false — see
- * {@link AuthModal.syncHostVisibility}); the dialog itself is `<mol-modal>`,
+ * out of the DOM while React renders null (`open` false, through
+ * `useHostPresence`); the dialog itself is `<mol-modal>`,
  * which portals to the body exactly as React's does. The captcha slot is
  * projected content (`[slot=captchaSlot]`), or a `TemplateRef` passed as the
  * `captchaSlot` input. Reuses the Angular auth hooks (`useLogin` /
@@ -98,7 +97,7 @@ const INPUT_STYLE =
   // prettier-ignore
   template: `<mol-modal [open]="open" [title]="title()" [size]="'sm'" (close)="chromeClose($event)" data-mol-id="auth-modal"><div data-mol-id="auth-modal-body" [style]="bodyStyle">@if (succeeded()) {<div data-mol-id="auth-modal-success" [style]="successStyle"><svg mol-icon-root [name]="'check-circle'" [size]="44" [className]="cm().textSuccess" [ariaHidden]="'true'"></svg><div [style]="headlineStyle">{{ successLabel() }}</div>@if (hasWho()) {<div [class]="cm().textMuted" [style]="whoStyle">{{ loggedInAs() }}</div>}</div>} @else {<div [class]="cm().textMuted" [style]="blurbStyle">{{ isSignup() ? signupBlurb() : loginBlurb() }}</div><form [style]="formStyle" (submit)="handleSubmit($event)">@if (isSignup()) {<input #nameEl type="text" [value]="name()" [attr.value]="name()" (input)="onNameInput($event)" autocomplete="name" data-mol-id="auth-modal-name" [attr.placeholder]="namePlaceholder()" [style]="fieldStyle()" />}<input #emailEl type="email" [value]="emailValue()" [attr.value]="emailValue()" (input)="onEmailInput($event)" autocomplete="email" required data-mol-id="auth-modal-email" [attr.placeholder]="emailPlaceholder()" [style]="fieldStyle()" /><input #passwordEl type="password" [value]="password()" [attr.value]="password()" (input)="onPasswordInput($event)" [attr.autocomplete]="isSignup() ? 'new-password' : 'current-password'" required data-mol-id="auth-modal-password" [attr.placeholder]="passwordPlaceholder()" [style]="fieldStyle()" />@if (!isSignup()) {<input #twoFactorEl type="text" inputmode="numeric" [value]="twoFactorToken()" [attr.value]="twoFactorToken()" (input)="onTwoFactorInput($event)" autocomplete="one-time-code" data-mol-id="auth-modal-2fa" [attr.placeholder]="twoFactorPlaceholder()" [style]="fieldStyle()" />}<div #captchaEl data-mol-id="auth-modal-captcha" [style]="captchaStyle">@if (captchaTemplate(); as tpl) {<ng-container [ngTemplateOutlet]="tpl"></ng-container>}<ng-content select="[slot=captchaSlot]"></ng-content></div><button mol-button [type]="'submit'" [size]="'lg'" [color]="'success'" [disabled]="busy() || (isSignup() && !captchaSolvedRead())" data-mol-id="auth-modal-submit" [style]="submitButtonStyle">{{ submitLabel() }}</button>@if (shownError(); as error) {<div [class]="cm().authFormError">{{ error }}</div>}</form>@if (oauthProviders().length > 0) {<div [style]="oauthSectionStyle"><div mol-oauth-divider></div><div mol-oauth-buttons [providers]="oauthProviders()" [onSelect]="selectProvider"></div></div>}<button type="button" data-mol-id="auth-modal-switch" (click)="switchMode()" [class]="switchClasses()" [style]="switchStyle">{{ switchLabel() }}</button>}</div></mol-modal>`,
 })
-export class AuthModal implements AfterViewInit, AfterViewChecked, DoCheck, OnDestroy {
+export class AuthModal implements AfterViewInit, AfterViewChecked, DoCheck {
   /** Whether the modal is open. */
   open = false
   /** Close without authenticating (backdrop / Escape / ✕). */
@@ -304,20 +303,6 @@ export class AuthModal implements AfterViewInit, AfterViewChecked, DoCheck, OnDe
     if (input.getAttribute('value') !== text) input.setAttribute('value', text)
   }
 
-  /** Restores the host before Angular removes it (unmount). */
-  ngOnDestroy(): void {
-    const host = this.el.nativeElement as HTMLElement
-    // The host must be inside its parent for Angular's own removal to succeed.
-    if (!host.isConnected && this.detachedParent) {
-      this.detachedParent.insertBefore(host, this.detachedAnchor)
-      this.detachedParent = null
-      this.detachedAnchor = null
-    }
-  }
-
-  private detachedParent: Node | null = null
-  private detachedAnchor: Node | null = null
-
   /** Detaches the captcha wrapper React would not render. */
   private sync(): void {
     this.guard.toggle(
@@ -325,32 +310,6 @@ export class AuthModal implements AfterViewInit, AfterViewChecked, DoCheck, OnDe
       this.isSignup() &&
         (hasNodes(this.captchaEl?.nativeElement) || this.captchaTemplate() !== null),
     )
-  }
-
-  /**
-   * Removes the host element from the DOM while React would render null, and
-   * restores it when the modal is shown again. Runs after every render (see
-   * the constructor): the blur below fires a `focusout` that other components'
-   * listeners react to, which must not happen while the view is checked.
-   */
-  private syncHostVisibility(): void {
-    const host = this.el.nativeElement as HTMLElement
-    if (!this.open) {
-      if (host.isConnected) {
-        // React removes the dialog's whole subtree, so a focused field inside it
-        // stops being the active element. A detached host keeps its nodes, so
-        // the blur react-dom gets for free is done explicitly here.
-        const active = document.activeElement
-        if (active instanceof HTMLElement && host.contains(active)) active.blur()
-        this.detachedParent = host.parentNode
-        this.detachedAnchor = host.nextSibling
-        host.parentNode?.removeChild(host)
-      }
-    } else if (this.detachedParent && !host.isConnected) {
-      this.detachedParent.insertBefore(host, this.detachedAnchor)
-      this.detachedParent = null
-      this.detachedAnchor = null
-    }
   }
 
   /**
@@ -692,10 +651,10 @@ export class AuthModal implements AfterViewInit, AfterViewChecked, DoCheck, OnDe
   )
 
   constructor() {
-    // Host visibility, including the blur that detaching it fires, must run
-    // after the view check: a `focusout` listener's state change made during
-    // the check is never rendered (React removes the subtree after commit).
-    afterEveryRender({ write: () => this.syncHostVisibility() })
+    // Leaves no element in the page while closed (React renders null), and blurs a
+    // field focused inside it as it leaves, after the view check, so a `focusout`
+    // listener's state change is rendered.
+    useHostPresence(() => !!this.open)
     // React's local hook reads the query at mount and subscribes to `change`
     // (rotation, a resize across the breakpoint); the Angular port mirrors
     // both, unsubscribing on destroy.

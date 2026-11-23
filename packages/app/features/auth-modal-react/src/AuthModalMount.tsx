@@ -18,7 +18,7 @@
  * @module
  */
 
-import { type JSX, useCallback, useEffect, useRef, useState } from 'react'
+import { type JSX, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 
 import { useAuth } from '@molecule/app-react'
 
@@ -120,7 +120,12 @@ export function AuthModalMount({
   // anywhere in the app, incl. ones opened with target="_blank". Capture-phase +
   // preventDefault stops navigation. Plain left-clicks only — a modifier/middle
   // click still opens the real page.
-  useEffect(() => {
+  // A layout effect, not a passive one: React runs those inside the commit, so when a host
+  // remounts this component (under a new parent, on a layout change) the unmounted instance's
+  // listener is gone and the new one is in place before any click can be handled. A passive
+  // effect runs in a later task, and a click in between reached the unmounted instance: it
+  // prevented the navigation and its `setOpen` opened nothing.
+  useLayoutEffect(() => {
     const onClick = (e: MouseEvent): void => {
       if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey)
         return

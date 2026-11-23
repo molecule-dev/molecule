@@ -47,6 +47,12 @@ vi.mock('@molecule/app-oauth-buttons-angular', async () => {
   return { OAuthButtons: stubs.OAuthButtonsStub, OAuthDivider: stubs.OAuthDividerStub }
 })
 
+// The AuthModal itself (forms, OAuth buttons) is out of scope here — the
+// interceptor is what's under test, and the modal only mounts once opened.
+vi.mock('../auth-modal.component.js', async () => ({
+  AuthModal: (await import('./stubs.js')).AuthModalStub,
+}))
+
 import { AuthModalMount } from '../auth-modal-mount.component.js'
 
 const OAUTH_CONFIG = {}
@@ -121,6 +127,37 @@ describe('AuthModalMount upgrade-CTA interception', () => {
     const { prevented } = await renderWithCta('/billing', { onUpgradeIntercept })
     prevented()
     expect(onUpgradeIntercept).toHaveBeenCalledWith('/billing')
+  })
+
+  it('a click right after a remount reaches the mounted interceptor', async () => {
+    // A host that changes layout remounts the mount under another parent. A click right after
+    // that DOM change must reach the mounted instance and open the modal; one that reached the
+    // unmounted instance's listener prevented the navigation and opened nothing (React,
+    // 2026-11-23). The observer clicks in that window: right after the DOM change.
+    const fixture = await renderFixture(
+      `@if (p['phase'] === 'first') {<div><mol-auth-modal-mount [oauthConfig]="p['oauthConfig']"></mol-auth-modal-mount></div>} @else {<section><mol-auth-modal-mount [oauthConfig]="p['oauthConfig']"></mol-auth-modal-mount></section>}`,
+      { oauthConfig: OAUTH_CONFIG, phase: 'first' },
+      [AuthModalMount, ModalStub, IconStub, ButtonStub, OAuthButtonsStub, OAuthDividerStub],
+    )
+    mounted.push(fixture)
+    await flush(fixture)
+    // After the fixture: rendering it empties document.body.
+    const anchor = document.body.appendChild(document.createElement('a'))
+    anchor.setAttribute('href', '/signup')
+    const prevented = new Promise<boolean>((resolve) => {
+      const observer = new MutationObserver(() => {
+        observer.disconnect()
+        const event = new MouseEvent('click', { bubbles: true, cancelable: true, button: 0 })
+        anchor.dispatchEvent(event)
+        resolve(event.defaultPrevented)
+      })
+      observer.observe(fixture.host, { childList: true, subtree: true })
+    })
+    const remounted = fixture.setProps({ phase: 'second' })
+    expect(await prevented).toBe(true)
+    await remounted
+    await flush(fixture)
+    expect(fixture.host.querySelector('section [data-testid="auth-modal"]')).not.toBeNull()
   })
 
   it('leaves unrelated links alone either way', async () => {

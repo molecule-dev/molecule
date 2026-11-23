@@ -9,7 +9,7 @@
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { type App, createApp, defineComponent, h } from 'vue'
+import { type App, createApp, defineComponent, h, ref } from 'vue'
 
 import type { AuthModalMountProps } from '../AuthModalMount.js'
 import { AuthModalMount } from '../AuthModalMount.js'
@@ -18,6 +18,18 @@ vi.mock('@molecule/app-vue', async (importOriginal) => ({
   ...(await importOriginal<Record<string, unknown>>()),
   useAuth: () => ({ refresh: vi.fn() }),
 }))
+
+// The AuthModal itself (forms, OAuth buttons) is out of scope here — the
+// interceptor is what's under test, and the modal only mounts once opened.
+vi.mock('../AuthModal.js', async () => {
+  const vue = await import('vue')
+  return {
+    AuthModal: vue.defineComponent({
+      inheritAttrs: false,
+      setup: () => () => vue.h('div', { 'data-testid': 'auth-modal' }),
+    }),
+  }
+})
 
 const OAUTH_CONFIG = {}
 
@@ -88,6 +100,43 @@ describe('AuthModalMount upgrade-CTA interception', () => {
     const { prevented } = renderWithCta('/billing', { onUpgradeIntercept })
     prevented()
     expect(onUpgradeIntercept).toHaveBeenCalledWith('/billing')
+  })
+
+  it('a click right after a remount reaches the mounted interceptor', async () => {
+    // A host that changes layout remounts the mount under another parent. A click right after
+    // that DOM change must reach the mounted instance and open the modal; one that reached the
+    // unmounted instance's listener prevented the navigation and opened nothing (React,
+    // 2026-11-23). The observer clicks in that window: right after the DOM change.
+    const container = document.body.appendChild(document.createElement('div'))
+    const anchor = document.body.appendChild(document.createElement('a'))
+    anchor.setAttribute('href', '/signup')
+    const phase = ref<'first' | 'second'>('first')
+    const app = createApp(
+      defineComponent({
+        setup() {
+          return () =>
+            h(phase.value === 'first' ? 'div' : 'section', { key: phase.value }, [
+              h(AuthModalMount, { oauthConfig: OAUTH_CONFIG }),
+            ])
+        },
+      }),
+    )
+    app.mount(container)
+    mounted.push(app)
+    await new Promise((resolve) => setTimeout(resolve, 20))
+    const prevented = new Promise<boolean>((resolve) => {
+      const observer = new MutationObserver(() => {
+        observer.disconnect()
+        const event = new MouseEvent('click', { bubbles: true, cancelable: true, button: 0 })
+        anchor.dispatchEvent(event)
+        resolve(event.defaultPrevented)
+      })
+      observer.observe(container, { childList: true, subtree: true })
+    })
+    phase.value = 'second'
+    expect(await prevented).toBe(true)
+    await new Promise((resolve) => setTimeout(resolve, 20))
+    expect(container.querySelector('[data-testid="auth-modal"]')).not.toBeNull()
   })
 
   it('leaves unrelated links alone either way', () => {

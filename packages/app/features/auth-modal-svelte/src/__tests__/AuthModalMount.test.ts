@@ -12,10 +12,18 @@ import { flushSync, mount, unmount } from 'svelte'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import AuthModalMount from '../AuthModalMount.svelte'
+import { createRemountBag } from './remount-bag.svelte.js'
+import RemountHost from './RemountHost.svelte'
 
 vi.mock('@molecule/app-svelte', async (importOriginal) => ({
   ...(await importOriginal<Record<string, unknown>>()),
   useAuth: () => ({ refresh: vi.fn() }),
+}))
+
+// The AuthModal itself (forms, OAuth buttons) is out of scope here — the
+// interceptor is what's under test, and the modal only mounts once opened.
+vi.mock('../AuthModal.svelte', async () => ({
+  default: (await import('./stubs/AuthModalStub.svelte')).default,
 }))
 
 const OAUTH_CONFIG = {}
@@ -82,6 +90,35 @@ describe('AuthModalMount upgrade-CTA interception', () => {
     const { prevented } = renderWithCta('/billing', { onUpgradeIntercept })
     prevented()
     expect(onUpgradeIntercept).toHaveBeenCalledWith('/billing')
+  })
+
+  it('a click right after a remount reaches the mounted interceptor', async () => {
+    // A host that changes layout remounts the mount under another parent. A click right after
+    // that DOM change must reach the mounted instance and open the modal; one that reached the
+    // unmounted instance's listener prevented the navigation and opened nothing (React,
+    // 2026-11-23). The observer clicks in that window: right after the DOM change.
+    const container = document.body.appendChild(document.createElement('div'))
+    const anchor = document.body.appendChild(document.createElement('a'))
+    anchor.setAttribute('href', '/signup')
+    const bag = createRemountBag()
+    mounted.push(
+      mount(RemountHost, { target: container, props: { bag, oauthConfig: OAUTH_CONFIG } }),
+    )
+    flushSync()
+    await new Promise((resolve) => setTimeout(resolve, 20))
+    const prevented = new Promise<boolean>((resolve) => {
+      const observer = new MutationObserver(() => {
+        observer.disconnect()
+        const event = new MouseEvent('click', { bubbles: true, cancelable: true, button: 0 })
+        anchor.dispatchEvent(event)
+        resolve(event.defaultPrevented)
+      })
+      observer.observe(container, { childList: true, subtree: true })
+    })
+    bag.phase = 'second'
+    expect(await prevented).toBe(true)
+    await new Promise((resolve) => setTimeout(resolve, 20))
+    expect(container.querySelector('[data-testid="auth-modal"]')).not.toBeNull()
   })
 
   it('leaves unrelated links alone either way', () => {

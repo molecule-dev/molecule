@@ -4,17 +4,9 @@
  * @module
  */
 
-import {
-  type AfterViewInit,
-  Component,
-  type DoCheck,
-  ElementRef,
-  inject,
-  type OnDestroy,
-  signal,
-} from '@angular/core'
+import { Component, type OnDestroy, type OnInit, signal } from '@angular/core'
 
-import { useAuth } from '@molecule/app-angular'
+import { useAuth, useHostPresence } from '@molecule/app-angular'
 
 import { AuthModal } from './auth-modal.component.js'
 import {
@@ -33,8 +25,9 @@ import {
  * for in-app `/login` / `/signup` links (and routes `/pricing` / `/billing`
  * clicks to `onUpgradeIntercept`, else a new tab whose return refreshes the
  * session in place). The host is unwrapped (`data-parity-unwrap`,
- * `display: contents`) and DETACHED from the DOM while React renders nothing
- * (`open` false), so a closed mount leaves no element behind.
+ * `display: contents`) and out of the DOM while React renders nothing
+ * (`open` false, through `useHostPresence`), so a closed mount leaves no
+ * element behind.
  */
 @Component({
   selector: 'mol-auth-modal-mount',
@@ -59,7 +52,7 @@ import {
   // prettier-ignore
   template: `@if (open()) {<mol-auth-modal [open]="true" [onClose]="close" [initialMode]="mode()" [oauthConfig]="oauthConfig" [onBeforeAuth]="onBeforeAuth" [onAuthenticated]="onAuthenticated" [captchaSolved]="captchaSolved"><ng-container ngProjectAs="[slot=captchaSlot]"><ng-content select="[slot=captchaSlot]"></ng-content></ng-container></mol-auth-modal>}`,
 })
-export class AuthModalMount implements AfterViewInit, DoCheck, OnDestroy {
+export class AuthModalMount implements OnInit, OnDestroy {
   /** OAuth config from the app's `config.ts` (drives the popup OAuth buttons). */
   oauthConfig?: AuthModal['oauthConfig']
   /** Close without authenticating — accepted for parity with the modal's props. Optional. */
@@ -89,7 +82,6 @@ export class AuthModalMount implements AfterViewInit, DoCheck, OnDestroy {
   /** Override the upgrade paths opened in a new tab (defaults to `/pricing`,`/billing`). */
   upgradePaths?: readonly string[]
 
-  private readonly el = inject(ElementRef<HTMLElement>)
   private readonly auth = useAuth()
 
   /** Whether the modal is mounted (React's `open` state). */
@@ -99,8 +91,12 @@ export class AuthModalMount implements AfterViewInit, DoCheck, OnDestroy {
 
   /** Set when the user opens the upgrade/billing flow in a new tab, so we refresh when they return. */
   private upgradeTabOpened = false
-  private detachedParent: Node | null = null
-  private detachedAnchor: Node | null = null
+
+  constructor() {
+    // Leaves no element in the page while closed (React renders nothing). The open
+    // signal is written from a document listener, which refreshes only this view.
+    useHostPresence(() => this.open())
+  }
 
   /** Opens the modal on the given form (React's `openAuth`). */
   private openAuth(next: AuthModalMode): void {
@@ -159,49 +155,12 @@ export class AuthModalMount implements AfterViewInit, DoCheck, OnDestroy {
   ngOnInit(): void {
     window.addEventListener('focus', this.onFocus)
     document.addEventListener('click', this.onClick, true)
-    this.syncHostVisibility()
   }
 
-  /** Re-reconciles host visibility after input writes. */
-  ngDoCheck(): void {
-    this.syncHostVisibility()
-  }
-
-  /** The first reconciliation runs once the view is in the document. */
-  ngAfterViewInit(): void {
-    this.syncHostVisibility()
-  }
-
-  /**
-   * Removes the host element from the DOM while React would render nothing,
-   * and restores it when the modal is mounted again.
-   */
-  private syncHostVisibility(): void {
-    const host = this.el.nativeElement as HTMLElement
-    if (!this.open()) {
-      if (host.isConnected) {
-        this.detachedParent = host.parentNode
-        this.detachedAnchor = host.nextSibling
-        host.parentNode?.removeChild(host)
-      }
-    } else if (this.detachedParent && !host.isConnected) {
-      this.detachedParent.insertBefore(host, this.detachedAnchor)
-      this.detachedParent = null
-      this.detachedAnchor = null
-    }
-  }
-
-  /** Restores the host before Angular removes it (unmount), and unlistens. */
+  /** Removes the document/window listeners (React's effect cleanup). */
   ngOnDestroy(): void {
     window.removeEventListener('focus', this.onFocus)
     document.removeEventListener('click', this.onClick, true)
-    const host = this.el.nativeElement as HTMLElement
-    // The host must be inside its parent for Angular's own removal to succeed.
-    if (!host.isConnected && this.detachedParent) {
-      this.detachedParent.insertBefore(host, this.detachedAnchor)
-      this.detachedParent = null
-      this.detachedAnchor = null
-    }
   }
 
   /** Closes the modal (React's `setOpen(false)`). */

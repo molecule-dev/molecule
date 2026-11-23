@@ -84,3 +84,41 @@ export const OAuthDividerStub = Component({
   standalone: true,
   template: '',
 })(OAuthDividerStubBase)
+
+/** The stub modal's state (it renders only its marker). */
+class AuthModalStubBase {
+  /** Whether the modal is open. */
+  open = false
+  /** Close without authenticating. */
+  onClose?: () => void
+  /** Which form the modal opens on. */
+  initialMode?: string
+  /** OAuth config. */
+  oauthConfig?: unknown
+  /** Run before any login attempt. */
+  onBeforeAuth?: () => void
+  /** Run after a successful login. */
+  onAuthenticated?: () => void
+  /** Whether the captcha is solved. */
+  captchaSolved?: boolean
+}
+
+/**
+ * Stand-in for this package's `AuthModal` (`mol-auth-modal`) in the mount tests: a
+ * `<div data-testid="auth-modal">` marker, the one React's mount test mocks the modal
+ * with. The interceptor is what those tests check, not the modal.
+ */
+export const AuthModalStub = Component({
+  selector: 'mol-auth-modal',
+  standalone: true,
+  inputs: [
+    'open',
+    'onClose',
+    'initialMode',
+    'oauthConfig',
+    'onBeforeAuth',
+    'onAuthenticated',
+    'captchaSolved',
+  ],
+  template: `<div data-testid="auth-modal"></div><ng-content></ng-content>`,
+})(AuthModalStubBase)

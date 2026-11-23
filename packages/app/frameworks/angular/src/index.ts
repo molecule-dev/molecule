@@ -106,6 +106,7 @@
 export * from './agent-identity.js'
 export * from './chat.js'
 export * from './hooks/index.js'
+export * from './host-presence.js'
 export * from './i18n-reactive.js'
 export * from './link.js'
 export * from './maybe-signal.js'
