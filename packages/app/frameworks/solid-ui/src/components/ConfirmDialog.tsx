@@ -9,10 +9,9 @@
 
 import { children, type Component, createUniqueId, type JSX, splitProps } from 'solid-js'
 
-import { useTranslation } from '@molecule/app-solid'
+import { rendersNode, useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
-import { rendersNode } from '../utilities/node.js'
 import { Button } from './Button.jsx'
 import { Modal } from './Modal.jsx'
 
